@@ -588,74 +588,74 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 		return $field_key;
 	}
 	
-	static function _getWhereSQLFromFulltextField(DevblocksSearchCriteria $param, $schema, $pkey, $options=array()) {
+	static function _getWhereSQLFromFulltextField(DevblocksSearchCriteria $param, $schema, $join_key, $attributes=[]) {
 		if(false == ($search = Extension_DevblocksSearchSchema::get($schema)))
 			return null;
 		
 		$query = $search->getQueryFromParam($param);
-		$attribs = array();
 		
-		if(isset($options['prefetch_sql'])) {
-			$attribs['id'] = array(
-				'sql' => $options['prefetch_sql'],
-			);
+		if(DevblocksPlatform::strStartsWith($query, '!')) {
+			$not = true;
+			$query = ltrim($query, '!');
+		} else {
+			$not = false;
 		}
 		
-		if(false === ($ids = $search->query($query, $attribs))) {
-			return '0';
-			
-		} elseif(is_array($ids)) {
-			if(empty($ids))
-				$ids = array(-1);
-			
-			return sprintf('%s IN (%s)',
-				$pkey,
-				implode(', ', $ids)
-			);
-			
-		} elseif(is_string($ids)) {
-			return sprintf("%s IN (SELECT %s.id FROM %s WHERE %s.id=%s)",
-				$pkey,
-				$ids,
-				$ids,
-				$ids,
-				$pkey
-			);
-		}
-		
-		return '0';
+		return $search->generateSql(
+			$query,
+			$attributes,
+			function($sql) use ($join_key, $not) {
+				return sprintf('%s %sIN (%s)',
+					$join_key,
+					$not ? 'NOT ' : '',
+					$sql
+				);
+			},
+			function(array $ids) use ($join_key, $not) {
+				return sprintf('%s %sIN (%s)',
+					$join_key,
+					$not ? 'NOT ' : '',
+					implode(', ', $ids)
+				);
+			}
+		);
 	}
 	
-	static function _getWhereSQLFromCommentFulltextField(DevblocksSearchCriteria $param, $schema, $from_context, $pkey) {
+	static function _getWhereSQLFromCommentFulltextField(DevblocksSearchCriteria $param, $schema, $from_context, $join_key) : string {
 		$search = Extension_DevblocksSearchSchema::get($schema);
 		$query = $search->getQueryFromParam($param);
 		
-		$not = false;
+		$attributes = [
+			'context_crc32' => sprintf("%u", crc32($from_context)),
+		];
+		
 		if(DevblocksPlatform::strStartsWith($query, '!')) {
 			$not = true;
-			$query = mb_substr($query, 1);
+			$query = ltrim($query, '!');
+		} else {
+			$not = false;
 		}
 		
-		if(false === ($ids = $search->query($query, array('context_crc32' => sprintf("%u", crc32($from_context)))))) {
-			return '0';
-		
-		} elseif(is_array($ids)) {
-			$from_ids = DAO_Comment::getContextIdsByContextAndIds($from_context, $ids);
-			
-			return sprintf('%s %sIN (%s)',
-				$pkey,
-				$not ? 'NOT ' : '',
-				implode(', ', (!empty($from_ids) ? $from_ids : array(-1)))
-			);
-			
-		} elseif(is_string($ids)) {
-			return sprintf("%s %sIN (SELECT context_id FROM comment INNER JOIN %s ON (%s.id=comment.id))",
-				$pkey,
-				$not ? 'NOT ' : '',
-				$ids,
-				$ids
-			);
-		}
+		return $search->generateSql(
+			$query,
+			$attributes,
+			function($sql) use ($join_key, $not) {
+				return sprintf('%s %sIN (%s)',
+					$join_key,
+					$not ? 'NOT ' : '',
+					$sql
+				);
+			},
+			function(array $ids) use ($join_key, $from_context, $not) {
+				$from_ids = DAO_Comment::getContextIdsByContextAndIds($from_context, $ids);
+				
+				return sprintf('%s %sIN (%s)',
+					$join_key,
+					$not ? 'NOT ' : '',
+					implode(', ', (!empty($from_ids) ? $from_ids : array(-1)))
+				);
+			}
+		);
 	}
 	
 	static function _getWhereSQLFromAttachmentsField(DevblocksSearchCriteria $param, $context, $join_key) {

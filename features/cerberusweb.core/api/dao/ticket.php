@@ -2169,35 +2169,8 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		$sort_sql = $query_parts['sort'];
 		
 		if(!empty($fulltext_params)) {
-			$prefetch_sql = null;
-			
-			if(!empty($params)) {
-				$sort_by = 't.id';
-				
-				// Optimize index usage if we're already constraining by date
-				if(false !== stripos($where_sql, 't.updated_date')) {
-					$sort_by = 't.updated_date';
-				} else if(false !== stripos($where_sql, 't.created_date')) {
-					$sort_by = 't.created_date';
-				}
-				
-				/** @noinspection SqlResolve */
-				$prefetch_sql =
-					sprintf('SELECT message.id FROM message INNER JOIN (SELECT t.id %s ORDER BY %s DESC LIMIT 20000) AS search ON (search.id=message.ticket_id)',
-						$join_sql . $where_sql,
-						$sort_by
-					);
-			}
-			
-			// Restrict the scope of the fulltext search to these IDs
-			if($prefetch_sql) {
-				foreach($fulltext_params as $param_key => $param) {
-					$where_sql .= 'AND ' . SearchFields_Ticket::getWhereSQL($param, array('prefetch_sql' => $prefetch_sql)) . ' ';
-				}
-			} else {
-				foreach($fulltext_params as $param_key => $param) {
-					$where_sql .= 'AND ' . SearchFields_Ticket::getWhereSQL($param) . ' ';
-				}
+			foreach($fulltext_params as $param) {
+				$where_sql .= 'AND ' . SearchFields_Ticket::getWhereSQL($param) . ' ';
 			}
 		}
 		
@@ -2297,10 +2270,7 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 		);
 	}
 	
-	static function getWhereSQL(DevblocksSearchCriteria $param, $options=[]) {
-		if(!is_array($options))
-			$options = [];
-		
+	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
 			case self::BUCKET_RESPONSIBILITY:
 				$level = DevblocksPlatform::intClamp($param->value, 0, 100);
@@ -2310,70 +2280,41 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 					$oper,
 					$level
 				);
-				
+			
 			case self::FULLTEXT_MESSAGE_CONTENT:
 				if(false == ($search = Extension_DevblocksSearchSchema::get(Search_MessageContent::ID)))
 					return null;
 				
 				$query = $search->getQueryFromParam($param);
-				$attribs = [];
+				$join_key = self::getPrimaryKey();
 				
-				if(array_key_exists('prefetch_sql', $options)) {
-					$attribs['id'] = array(
-						'sql' => $options['prefetch_sql'],
-					);
+				if(DevblocksPlatform::strStartsWith($query, '!')) {
+					$not = true;
+					$query = ltrim($query, '!');
+				} else {
+					$not = false;
 				}
 				
-				if(false === ($ids = $search->query($query, $attribs))) {
-					return '0';
-					
-				} elseif(is_array($ids)) {
-					if(empty($ids))
-						$ids = array(-1);
-					
-					$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
-					
-					return sprintf('%s IN (SELECT ticket_id FROM message WHERE ticket_id=%s AND id IN (%s))',
-						self::getPrimaryKey(),
-						self::getPrimaryKey(),
-						implode(', ', $ids)
-					);
-					
-				} elseif(is_string($ids)) {
-					return sprintf("%s IN (SELECT message.ticket_id FROM %s INNER JOIN message ON (message.id=%s.id) WHERE message.ticket_id=%s)",
-						self::getPrimaryKey(),
-						$ids,
-						$ids,
-						self::getPrimaryKey()
-					);
-				}
-				
-				return 0;
-				
-			case self::FULLTEXT_NOTE_CONTENT:
-				$search = Extension_DevblocksSearchSchema::get(Search_CommentContent::ID);
-				$query = $search->getQueryFromParam($param);
-				
-				if(false === ($ids = $search->query($query, array('context_crc32' => sprintf("%u", crc32(CerberusContexts::CONTEXT_MESSAGE)))))) {
-					return '0';
-				
-				} elseif(is_array($ids)) {
-					$from_ids = DAO_Comment::getContextIdsByContextAndIds(CerberusContexts::CONTEXT_MESSAGE, $ids);
-					
-					return sprintf('%s IN (SELECT ticket_id FROM message WHERE id IN (%s) AND ticket_id = %s)',
-						self::getPrimaryKey(),
-						implode(', ', (!empty($from_ids) ? $from_ids : array(-1))),
-						self::getPrimaryKey()
-					);
-					
-				} elseif(is_string($ids)) {
-					return sprintf("%s IN (SELECT ticket_id FROM comment INNER JOIN %s ON (%s.id=comment.id) INNER JOIN message ON (message.id=comment.context_id))",
-						self::getPrimaryKey(),
-						$ids,
-						$ids
-					);
-				}
-				break;
+				return $search->generateSql(
+					$query,
+					[],
+					function($sql) use ($join_key, $not) {
+						return sprintf('%s %sIN (SELECT message.ticket_id FROM message WHERE ticket_id=%s AND id IN (%s))',
+							$join_key,
+							$not ? 'NOT ' : '',
+							$join_key,
+							$sql
+						);
+					},
+					function(array $ids) use ($join_key, $not) {
+						return sprintf('%s %sIN (SELECT ticket_id FROM message WHERE ticket_id=%s AND id IN (%s))',
+							$join_key,
+							$not ? 'NOT ' : '',
+							$join_key,
+							implode(', ', $ids)
+						);
+					}
+				);
 				
 			case self::FULLTEXT_COMMENT_CONTENT:
 				return self::_getWhereSQLFromCommentFulltextField($param, Search_CommentContent::ID, CerberusContexts::CONTEXT_TICKET, self::getPrimaryKey());

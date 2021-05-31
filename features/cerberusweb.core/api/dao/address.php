@@ -1196,13 +1196,8 @@ class Search_Address extends Extension_DevblocksSearchSchema {
 		return 'content';
 	}
 	
-	public function query($query, $attributes=array(), $limit=null) {
-		if(false == ($engine = $this->getEngine()))
-			return false;
-		
-		$ids = $engine->query($this, $query, $attributes, $limit);
-		
-		return $ids;
+	public function getPrimaryKey() {
+		return 'id';
 	}
 	
 	public function reindex() {

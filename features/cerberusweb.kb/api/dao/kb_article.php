@@ -771,6 +771,10 @@ class Search_KbArticle extends Extension_DevblocksSearchSchema {
 		return 'content';
 	}
 	
+	public function getPrimaryKey() {
+		return 'id';
+	}
+	
 	public function reindex() {
 		$engine = $this->getEngine();
 		$meta = $engine->getIndexMeta($this);
@@ -797,15 +801,6 @@ class Search_KbArticle extends Extension_DevblocksSearchSchema {
 				$this->setParam('last_indexed_time', time());
 				break;
 		}
-	}
-	
-	public function query($query, $attributes=[], $limit=null) {
-		if(false == ($engine = $this->getEngine()))
-			return false;
-
-		$ids = $engine->query($this, $query, $attributes, $limit);
-		
-		return $ids;
 	}
 	
 	public function index($stop_time=null) {

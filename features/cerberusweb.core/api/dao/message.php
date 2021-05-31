@@ -689,34 +689,8 @@ class DAO_Message extends Cerb_ORMHelper {
 		$sort_sql = $query_parts['sort'];
 		
 		if(!empty($fulltext_params)) {
-			$prefetch_sql = null;
-			
-			if(!empty($params)) {
-				$sort_by = 'm.id';
-				
-				// Optimize index usage if we're already constraining by date
-				if(false !== stripos($where_sql, 'created_date')) {
-					$sort_by = 'm.created_date';
-				}
-				
-				// We need this extra JOIN to be able to do the LIMIT (can't in subqueries)
-				/** @noinspection SqlResolve */
-				$prefetch_sql = 
-					sprintf('SELECT message.id FROM message INNER JOIN (SELECT m.id %s ORDER BY %s DESC LIMIT 20000) AS search ON (search.id=message.id)',
-						$join_sql . $where_sql,
-						$sort_by
-					);
-			}
-			
-			// Restrict the scope of the fulltext search to these IDs
-			if($prefetch_sql) {
-				foreach($fulltext_params as $param_key => $param) {
-					$where_sql .= 'AND ' . SearchFields_Message::getWhereSQL($param, array('prefetch_sql' => $prefetch_sql)) . ' ';
-				}
-			} else {
-				foreach($fulltext_params as $param_key => $param) {
-					$where_sql .= 'AND ' . SearchFields_Message::getWhereSQL($param) . ' ';
-				}
+			foreach ($fulltext_params as $param) {
+				$where_sql .= 'AND ' . SearchFields_Message::getWhereSQL($param) . ' ';
 			}
 		}
 		
@@ -796,10 +770,7 @@ class SearchFields_Message extends DevblocksSearchFields {
 		);
 	}
 	
-	static function getWhereSQL(DevblocksSearchCriteria $param, $options=[]) {
-		if(!is_array($options))
-			$options = [];
-		
+	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
 			case self::VIRTUAL_ATTACHMENTS_SEARCH:
 				return self::_getWhereSQLFromAttachmentsField($param, CerberusContexts::CONTEXT_MESSAGE, self::getPrimaryKey());
@@ -808,7 +779,7 @@ class SearchFields_Message extends DevblocksSearchFields {
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_COMMENT, sprintf('SELECT context_id FROM comment WHERE context = %s AND id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_MESSAGE), '%s'), self::getPrimaryKey());
 				
 			case self::MESSAGE_CONTENT:
-				return self::_getWhereSQLFromFulltextField($param, Search_MessageContent::ID, self::getPrimaryKey(), $options);
+				return self::_getWhereSQLFromFulltextField($param, Search_MessageContent::ID, self::getPrimaryKey());
 				
 			case self::FULLTEXT_NOTE_CONTENT:
 				return self::_getWhereSQLFromCommentFulltextField($param, Search_CommentContent::ID, CerberusContexts::CONTEXT_MESSAGE, self::getPrimaryKey());
@@ -1277,6 +1248,10 @@ class Search_MessageContent extends Extension_DevblocksSearchSchema {
 		return 'content';
 	}
 	
+	public function getPrimaryKey() {
+		return 'id';
+	}
+	
 	public function reindex() {
 		$engine = $this->getEngine();
 		$meta = $engine->getIndexMeta($this);
@@ -1314,14 +1289,6 @@ class Search_MessageContent extends Extension_DevblocksSearchSchema {
 				}
 				break;
 		}
-	}
-	
-	public function query($query, $attributes=[], $limit=null) {
-		if(false == ($engine = $this->getEngine()))
-			return false;
-		
-		$ids = $engine->query($this, $query, $attributes, $limit);
-		return $ids;
 	}
 	
 	private function _indexDictionary($dict, $engine) {

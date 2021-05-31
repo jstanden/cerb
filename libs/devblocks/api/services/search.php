@@ -131,15 +131,22 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 		);
 	}
 	
+	function canGenerateSql() : bool {
+		return false;
+	}
 	
-	public function query(Extension_DevblocksSearchSchema $schema, $query, array $attributes=array(), $limit=null) {
+	function generateSql(Extension_DevblocksSearchSchema $schema, string $query, array $attributes=[]) : ?string {
+		return null;
+	}
+	
+	public function query(Extension_DevblocksSearchSchema $schema, $query, array $attributes=[], $limit=null, &$error=null) : ?array {
 		if(is_null($this->db))
-			return false;
+			return null;
 		
 		$index = $this->_config['index'] ?? null;
 		
 		if(empty($index))
-			return false;
+			return null;
 		
 		$where_sql = [];
 		$field_sql = [];
@@ -212,7 +219,7 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 				mysqli_free_result($result);
 			}
 			
-			$cache->save($ids, $cache_key, array(), 300, $is_only_cached_for_request);
+			$cache->save($ids, $cache_key, [], 300, $is_only_cached_for_request);
 		}
 		
 		return $ids;
@@ -474,8 +481,6 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 		} else {
 			return false;
 		}
-		
-		return true;
 	}
 	
 	public function setConfig(array $config) {
@@ -526,14 +531,20 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 		);
 	}
 	
-	public function query(Extension_DevblocksSearchSchema $schema, $query, array $attributes=array(), $limit=null) {
+	function canGenerateSql() : bool {
+		return false;
+	}
+	
+	function generateSql(Extension_DevblocksSearchSchema $schema, string $query, array $attributes=[]) : ?string {
+		return null;
+	}
+	
+	public function query(Extension_DevblocksSearchSchema $schema, $query, array $attributes=[], $limit=null, &$error=null) : ?array {
 		@$type = $schema->getNamespace();
-		//@$version = $this->_config['version'];
 		
 		if(empty($type))
-			return false;
+			return null;
 		
-		$db = DevblocksPlatform::services()->database();
 		$schema_attributes = $schema->getAttributes();
 		
 		if(is_array($attributes))
@@ -579,53 +590,16 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 		$cache_ttl = 300;
 		$is_only_cached_for_request = !$cache->isVolatile();
 		$is_cached = true;
-		$temp_table = uniqid('_search_');
 		$start_time = microtime(true);
-		$prefetch_sql = null;
-		
-		if(isset($attributes['id']) && is_array($attributes['id']) && isset($attributes['id']['sql'])) {
-			$prefetch_sql = sprintf("CREATE TEMPORARY TABLE %s (id int unsigned) ENGINE=MyISAM %s LIMIT 1000",
-				$db->escape($temp_table),
-				$attributes['id']['sql']
-			);
-			
-			$cache_key = sprintf("elasticsearch:%s:%s", $type, sha1($query.$attributes['id']['sql']));
-		}
 		
 		if(null === ($ids = $cache->load($cache_key, false, $is_only_cached_for_request))) {
 			$is_cached = false;
 			$filtered_query = $query;
 			
-			if($prefetch_sql) {
-				$db->QueryReader($prefetch_sql);
-			
-				$sql = sprintf("SELECT id FROM %s LIMIT %d",
-					$db->escape($temp_table),
-					$max_results
-				);
-				
-				if(false == ($results = $db->GetArrayReader($sql)))
-					$results = [];
-				
-				$db->QueryReader(sprintf("DROP TABLE %s", $db->escape($temp_table)));
-					
-				$filter_ids = array_column($results, 'id');
-				
-				if(empty($filter_ids))
-					$filter_ids = array('-1');
-				
-				if($prefetch_sql) {
-					$filtered_query = $query . sprintf(' AND _id:(%s)',
-						implode(' ', $filter_ids)
-					);
-				}
-			}
-			
 			$json = $this->_getSearch($type, $filtered_query, $max_results);
 			
 			@$took_ms = intval($json['took']);
-			//@$total_hits = intval($json['hits']['total']);
-			@$results_hits = intval(count($json['hits']['hits']));
+			@$results_hits = count($json['hits']['hits'] ?? 0);
 			
 			if($results_hits) {
 				$ids = array_column($json['hits']['hits'], '_id');
@@ -637,25 +611,6 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 		}
 		
 		$count = count($ids);
-		
-		// With fewer results, use the more efficient IN(...)
-		if($count <= 5000) {
-			// Keep $ids
-			
-		// Otherwise, populate a temporary table and return it
-		} else {
-			$temp_table = sprintf("_search_%s", uniqid());
-			
-			$sql = sprintf("CREATE TEMPORARY TABLE IF NOT EXISTS %s (id int unsigned not null, PRIMARY KEY (id))", $temp_table);
-			$db->QueryReader($sql);
-			
-			while($ids_part = array_splice($ids, 0, 500, null)) {
-				$sql = sprintf("INSERT IGNORE INTO %s (id) VALUES (%s)", $temp_table, implode('),(', $ids_part));
-				$db->QueryReader($sql);
-			}
-			
-			$ids = $temp_table;
-		}
 		
 		// Store the search info in a request registry for later use
 		$meta_key = 'fulltext_meta';
@@ -796,7 +751,9 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		if(!isset($tables['fulltext_' . $ns]))
 			return false;
 		
-		return intval($db->GetOneReader(sprintf("SELECT MAX(id) FROM fulltext_%s", $db->escape($ns))));
+		$id_key = $schema->getIdField();
+		
+		return intval($db->GetOneReader(sprintf("SELECT MAX(%s) FROM fulltext_%s", $db->escape($id_key), $db->escape($ns))));
 	}
 	
 	private function _getCount(Extension_DevblocksSearchSchema $schema) {
@@ -807,7 +764,9 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		if(!isset($tables['fulltext_' . $ns]))
 			return false;
 		
-		$row = $db->GetRowReader(sprintf("EXPLAIN SELECT COUNT(id) FROM fulltext_%s", $db->escape($ns)));
+		$id_key = $schema->getIdField();
+		
+		$row = $db->GetRowReader(sprintf("EXPLAIN SELECT COUNT(%s) FROM fulltext_%s", $db->escape($id_key), $db->escape($ns)));
 		
 		if(array_key_exists('rows', $row))
 			return intval($row['rows']);
@@ -824,7 +783,90 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		);
 	}
 	
-	public function query(Extension_DevblocksSearchSchema $schema, $query, array $attributes=array(), $limit=null) {
+	private function _getQueryWhereClauses(Extension_DevblocksSearchSchema $schema, array $attributes, array $query_parts) {
+		$db = DevblocksPlatform::services()->database();
+		
+		$content_key = $schema-> getDataField();
+
+		$where_sql = [];
+		
+		if(isset($query_parts['phrases']) && isset($query_parts['phrases']))
+			foreach($query_parts['phrases'] as $phrase) {
+				$where_sql[] = sprintf("%s LIKE '%%%s%%'",
+					$db->escape($content_key),
+					$db->escape($phrase)
+				);
+			}
+		
+		$schema_attributes = $schema->getAttributes();
+		
+		if(is_array($attributes))
+			foreach($attributes as $attr => $attr_val) {
+				$attr_type = $schema_attributes[$attr] ?? null;
+				
+				if(empty($attr_type))
+					continue;
+				
+				switch($attr_type) {
+					case 'string':
+						if(is_array($attr_val)) {
+							if(!empty($attr_val)) {
+								$where_sql[] = sprintf("%s IN (%s)",
+									$db->escape($attr),
+									implode(',', $db->qstrArray($attr_val))
+								);
+							} else {
+								$where_sql[] = sprintf("%s IS NULL",
+									$db->escape($attr)
+								);
+								
+							}
+							
+						} else {
+							$where_sql[] = sprintf("%s = '%s'",
+								$db->escape($attr),
+								$db->escape($attr_val)
+							);
+						}
+						
+						break;
+					
+					case 'int':
+					case 'int4':
+					case 'int8':
+					case 'uint4':
+					case 'uint8':
+						if(is_array($attr_val)) {
+							if(!empty($attr_val)) {
+								$where_sql[] = sprintf("%s IN (%s)",
+									$db->escape($attr),
+									implode(',', DevblocksPlatform::sanitizeArray($attr_val, 'int'))
+								);
+							} else {
+								$where_sql[] = sprintf("%s = %d",
+									$db->escape($attr),
+									-1
+								);
+							}
+							
+						} else {
+							$where_sql[] = sprintf("%s = %s",
+								$db->escape($attr),
+								intval($attr_val)
+							);
+						}
+						break;
+				}
+			}
+		
+		return $where_sql;
+	}
+	
+	function canGenerateSql() : bool {
+		return true;
+	}
+	
+	public function generateSql(Extension_DevblocksSearchSchema $schema, string $query, array $attributes=[]) : ?string {
 		$db = DevblocksPlatform::services()->database();
 		$tables = DevblocksPlatform::getDatabaseTables();
 		$ns = $schema->getNamespace();
@@ -838,89 +880,53 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		if(!isset($query_parts['terms']) || empty($query_parts['terms']))
 			return false;
 		
-		$escaped_query = $db->escape($query_parts['terms']);
-		$where_sql = [];
 		$id_key = $schema->getIdField();
 		$content_key = $schema-> getDataField();
+		$escaped_query = $db->escape($query_parts['terms']);
 		
 		if(!trim($escaped_query,'+*'))
 			$escaped_query = '';
 		
-		if(isset($query_parts['phrases']) && isset($query_parts['phrases']))
-		foreach($query_parts['phrases'] as $phrase) {
-			$where_sql[] = sprintf("%s LIKE '%%%s%%'",
-				$db->escape($content_key),
-				$db->escape($phrase)
-			);
-		}
+		$where_sql = $this->_getQueryWhereClauses($schema, $attributes, $query_parts);
 		
-		$schema_attributes = $schema->getAttributes();
+		return sprintf("SELECT %s ".
+			"FROM fulltext_%s ".
+			"WHERE MATCH (%s) AGAINST ('%s' IN BOOLEAN MODE) ".
+			"%s",
+			$db->escape($id_key),
+			$this->escapeNamespace($ns),
+			$db->escape($content_key),
+			$escaped_query,
+			!empty($where_sql) ? ('AND ' . implode(' AND ', $where_sql)) : ''
+		);
+	}
+	
+	public function query(Extension_DevblocksSearchSchema $schema, $query, array $attributes=[], $limit=null, &$error=null) : ?array {
+		$db = DevblocksPlatform::services()->database();
+		$tables = DevblocksPlatform::getDatabaseTables();
+		$ns = $schema->getNamespace();
 		
-		if(is_array($attributes))
-		foreach($attributes as $attr => $attr_val) {
-			$attr_type = $schema_attributes[$attr] ?? null;
-			
-			if(empty($attr_type))
-				continue;
-			
-			switch($attr_type) {
-				case 'string':
-					if(is_array($attr_val)) {
-						if(!empty($attr_val)) {
-							$where_sql[] = sprintf("%s IN (%s)",
-								$db->escape($attr),
-								implode(',', $db->qstrArray($attr_val))
-							);
-						} else {
-							$where_sql[] = sprintf("%s IS NULL",
-								$db->escape($attr)
-							);
-							
-						}
-						
-					} else {
-						$where_sql[] = sprintf("%s = '%s'",
-							$db->escape($attr),
-							$db->escape($attr_val)
-						);
-					}
-					
-					break;
-				
-				case 'int':
-				case 'int4':
-				case 'int8':
-				case 'uint4':
-				case 'uint8':
-					if(is_array($attr_val)) {
-						if(!empty($attr_val)) {
-							$where_sql[] = sprintf("%s IN (%s)",
-								$db->escape($attr),
-								implode(',', DevblocksPlatform::sanitizeArray($attr_val, 'int'))
-							);
-						} else {
-							$where_sql[] = sprintf("%s = %d",
-								$db->escape($attr),
-								-1
-							);
-						}
-						
-					} else {
-						$where_sql[] = sprintf("%s = %s",
-							$db->escape($attr),
-							intval($attr_val)
-						);
-					}
-					break;
-			}
-		}
+		if(!isset($tables['fulltext_' . $ns]))
+			return null;
+		
+		if(false == ($query_parts = $this->_parseQuery($query)))
+			return null;
+		
+		if(!isset($query_parts['terms']) || empty($query_parts['terms']))
+			return null;
+		
+		$id_key = $schema->getIdField();
+		$content_key = $schema-> getDataField();
+		$escaped_query = $db->escape($query_parts['terms']);
+		
+		if(!trim($escaped_query,'+*'))
+			$escaped_query = '';
+		
+		$where_sql = $this->_getQueryWhereClauses($schema, $attributes, $query_parts);
 		
 		// The max desired results (blank for unlimited)
 		@$max_results = intval($limit) ?: intval($this->_config['max_results']) ?: 1000;
 		@$max_results = DevblocksPlatform::intClamp($max_results, 1, 10000);
-		
-		// Randomly named temporary table
-		$temp_table = sprintf("_search_%s", uniqid());
 		
 		$start_time = microtime(true);
 		
@@ -931,84 +937,32 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		$timeout_ms = 15000;
 		$did_timeout = false;
 		
-		if(array_key_exists('id', $attributes) && is_array($attributes['id']) && array_key_exists('sql', $attributes['id'])) {
-			$cache_key = sprintf("search:%s", sha1($ns.$escaped_query.$attributes['id']['sql'].json_encode($where_sql)));
+		$sql = sprintf("SELECT %s ".
+			"FROM fulltext_%s ".
+			"WHERE MATCH (%s) AGAINST ('%s' IN BOOLEAN MODE) ".
+			"%s ".
+			($max_results ? sprintf("LIMIT %d ", $max_results) : ''),
+			$db->escape($id_key),
+			$this->escapeNamespace($ns),
+			$db->escape($content_key),
+			$escaped_query,
+			!empty($where_sql) ? ('AND ' . implode(' AND ', $where_sql)) : ''
+		);
+		
+		$cache_key = sprintf("search:%s", sha1($sql));
+		
+		if(null == ($ids = $cache->load($cache_key, false, $is_only_cached_for_request))) {
+			$is_cached = false;
 			
-			if(null == ($ids = $cache->load($cache_key, false, $is_only_cached_for_request))) {
-				$is_cached = false;
-				
-				// Without locks
-				$db->QueryReader("SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED");
-				
-				$sql = sprintf("CREATE TEMPORARY TABLE %s (%s int unsigned, %s text) ENGINE=MyISAM SELECT id, content FROM fulltext_%s WHERE id IN (%s)",
-					$db->escape($temp_table),
-					$db->escape($id_key),
-					$db->escape($content_key),
-					$this->escapeNamespace($ns),
-					$attributes['id']['sql']
-				);
-				$db->QueryReader($sql);
-				
-				// Resume locking
-				$db->QueryReader("SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ");
-				
-				$sql = sprintf("SELECT %s ".
-					"FROM %s ".
-					"WHERE MATCH (%s) AGAINST ('%s' IN BOOLEAN MODE) ".
-					"%s ".
-					"LIMIT %d",
-					$db->escape($id_key),
-					$db->escape($temp_table),
-					$db->escape($content_key),
-					$escaped_query,
-					!empty($where_sql) ? ('AND ' . implode(' AND ', $where_sql)) : '',
-					$max_results
-				);
-				$results = $db->QueryReaderAsync($sql, $timeout_ms);
-				
-				if($results instanceof Exception_DevblocksDatabaseQueryTimeout) {
-					$ids = [];
-					$did_timeout = true;
-				} else {
-					$results = $results->fetch_all(MYSQLI_ASSOC);
-					$ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::extractArrayValues($results, 'id'), 'int');
-				}
-				
-				$db->QueryReader(sprintf("DROP TABLE %s",
-					$temp_table
-				));
-				
+			$results = $db->QueryReaderAsync($sql, $timeout_ms);
+			
+			if(false === $results || $results instanceof Exception_DevblocksDatabaseQueryTimeout) {
+				$ids = [];
+				$did_timeout = true;
+			} else {
+				$results = $results->fetch_all(MYSQLI_ASSOC);
+				$ids = DevblocksPlatform::sanitizeArray(array_column($results, $id_key), 'int');
 				$cache->save($ids, $cache_key, array(), $cache_ttl, $is_only_cached_for_request);
-			}
-			
-		} else {
-			$sql = sprintf("SELECT %s ".
-				"FROM fulltext_%s ".
-				"WHERE MATCH (%s) AGAINST ('%s' IN BOOLEAN MODE) ".
-				"%s ".
-				($max_results ? sprintf("LIMIT %d ", $max_results) : ''),
-				$db->escape($id_key),
-				$this->escapeNamespace($ns),
-				$db->escape($content_key),
-				$escaped_query,
-				!empty($where_sql) ? ('AND ' . implode(' AND ', $where_sql)) : ''
-			);
-			
-			$cache_key = sprintf("search:%s", sha1($sql));
-			
-			if(null == ($ids = $cache->load($cache_key, false, $is_only_cached_for_request))) {
-				$is_cached = false;
-				
-				$results = $db->QueryReaderAsync($sql, $timeout_ms);
-				
-				if(false === $results || $results instanceof Exception_DevblocksDatabaseQueryTimeout) {
-					$ids = [];
-					$did_timeout = true;
-				} else {
-					$results = $results->fetch_all(MYSQLI_ASSOC);
-					$ids = DevblocksPlatform::sanitizeArray(array_column($results, $id_key), 'int');
-					$cache->save($ids, $cache_key, array(), $cache_ttl, $is_only_cached_for_request);
-				}
 			}
 		}
 		
@@ -1067,7 +1021,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 	private function _getStopWords() {
 		// InnoDB stop words
 		// [TODO] Make this configurable
-		$words = array(
+		return [
 			'a',
 			'about',
 			'an',
@@ -1103,17 +1057,15 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 			'with',
 			'und',
 			'the',
-			'www'
-		);
-		
-		return $words;
+			'www',
+		];
 	}
 	
 	public function prepareText($text, $is_query=false) {
 		$text = DevblocksPlatform::strUnidecode($text);
 
-		// Allow wildcards in queries
 		if($is_query) {
+			// Allow wildcards in queries
 			$regexp = '[^[:alnum:]_\*]';
 			$text = mb_ereg_replace($regexp, ' ', mb_convert_case($text, MB_CASE_LOWER));
 			
@@ -1123,14 +1075,11 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 				$word = ltrim($word, '+-');
 				
 			unset($text);
-		}
-
-		// Remove stop words from queries
-		if($is_query) {
+			
+			// Remove stop words from queries
 			$words = $this->removeStopWords($words);
 			
 			// Remove min/max sizes
-			// [TODO] Make this configurable
 			$words = array_filter($words, function($word) {
 				// Less than 3 characters and not a wildcard
 				if(strlen($word) < 3 && !DevblocksPlatform::strEndsWith($word, '*'))
@@ -1141,22 +1090,24 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 				
 				return true;
 			});
+			
+			// Reassemble
+			$text = implode(' ', $words);
+			unset($words);
 		}
 		
-		// Reassemble
-		$text = implode(' ', $words);
-		unset($words);
-		
 		// Flatten multiple spaces into a single
-		$text = preg_replace('# +#', ' ', $text);
-		
-		return $text;
+		return preg_replace('# +#', ' ', $text);
 	}
 	
-	private function _index(Extension_DevblocksSearchSchema $schema, $id, array $doc, $attributes=array()) {
+	private function _index(Extension_DevblocksSearchSchema $schema, $id, array $doc, $attributes=[]) {
 		$db = DevblocksPlatform::services()->database();
 		$tables = DevblocksPlatform::getDatabaseTables();
+		$strings = DevblocksPlatform::services()->string();
 		$ns = $schema->getNamespace();
+		
+		$id_key = $schema->getIdField();
+		$content_key = $schema->getDataField();
 		
 		$content = $this->_getTextFromDoc($doc);
 		
@@ -1166,17 +1117,12 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 				return false;
 		
 		// Remove 4 byte characters
-		// [TODO] Move to Devblocks?
-		$content = preg_replace('%(?:
-					\xF0[\x90-\xBF][\x80-\xBF]{2}
-				| [\xF1-\xF3][\x80-\xBF]{3}
-				| \xF4[\x80-\x8F][\x80-\xBF]{2}
-		)%xs', '\xEF\xBF\xBD', $content);
+		$content = $strings->strip4ByteChars($content);
 		
-		$fields = array(
-			'id' => intval($id),
-			'content' => $db->qstr($content),
-		);
+		$fields = [
+			$id_key => intval($id),
+			$content_key => $db->qstr($content),
+		];
 		
 		// Attributes
 		$schema_attributes = $schema->getAttributes();
@@ -1214,7 +1160,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		
 		$result = $db->ExecuteMaster($sql);
 		
-		$return = (false !== $result) ? true : false;
+		$return = false !== $result;
 		
 		if($result instanceof mysqli_result)
 			mysqli_free_result($result);
@@ -1222,7 +1168,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		return $return;
 	}
 	
-	public function index(Extension_DevblocksSearchSchema $schema, $id, array $doc, array $attributes=array()) {
+	public function index(Extension_DevblocksSearchSchema $schema, $id, array $doc, array $attributes=[]) {
 		return $this->_index($schema, $id, $doc, $attributes);
 	}
 	
@@ -1232,7 +1178,11 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		$namespace = $schema->getNamespace();
 		$attributes = $schema->getAttributes();
 		
-		$attributes_sql = array();
+		$id_key = $schema->getIdField();
+		$content_key = $schema->getDataField();
+		$primary_key = $schema->getPrimaryKey();
+		
+		$attributes_sql = [];
 		
 		if(is_array($attributes))
 		foreach($attributes as $attr => $type) {
@@ -1286,16 +1236,30 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 			$db_engine_fulltext = APP_DB_ENGINE_FULLTEXT;
 		}
 		
+		// Primary key
+		if(is_string($primary_key))
+			$primary_key = [$primary_key];
+		
+		$primary_key = array_map(function($key) use ($db) {
+			return $db->escape($key);
+		}, $primary_key);
+		
+		// Create table
+		/** @noinspection SqlResolve */
 		$sql = sprintf(
 			"CREATE TABLE IF NOT EXISTS fulltext_%s (
-				id INT UNSIGNED NOT NULL DEFAULT 0,
-				content LONGTEXT,
+				%s INT UNSIGNED NOT NULL DEFAULT 0,
+				%s LONGTEXT,
 				%s
-				PRIMARY KEY (id),
-				FULLTEXT content (content)
+				PRIMARY KEY (%s),
+				FULLTEXT (%s)
 			) ENGINE=%s CHARACTER SET=utf8;",
 			$this->escapeNamespace($namespace),
+			$db->escape($id_key),
+			$db->escape($content_key),
 			(!empty($attributes_sql) ? implode(",\n", $attributes_sql) : ''),
+			implode(',', $primary_key),
+			$db->escape($content_key),
 			$db_engine_fulltext
 		);
 		
@@ -1321,13 +1285,14 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 			$ids = array($ids);
 			
 		if(empty($ns) || empty($ids))
-			return;
+			return false;
 			
 		$namespace = $this->escapeNamespace($ns);
 		
 		if(!isset($tables['fulltext_'.$namespace]))
 			return true;
 		
+		/** @noinspection SqlResolve */
 		$result = $db->ExecuteMaster(sprintf("DELETE FROM fulltext_%s WHERE id IN (%s) ",
 			$namespace,
 			implode(',', $ids)

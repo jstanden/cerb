@@ -4220,7 +4220,7 @@ interface IDevblocksSearchEngine {
 	public function getQuickSearchExamples(Extension_DevblocksSearchSchema $schema);
 	public function getIndexMeta(Extension_DevblocksSearchSchema $schema);
 
-	public function query(Extension_DevblocksSearchSchema $schema, $query, array $attributes=[], $limit=250);
+	public function query(Extension_DevblocksSearchSchema $schema, $query, array $attributes=[], $limit=250, &$error=null) : ?array;
 	public function index(Extension_DevblocksSearchSchema $schema, $id, array $doc, array $attributes=[]);
 	public function delete(Extension_DevblocksSearchSchema $schema, $ids);
 };
@@ -4242,26 +4242,21 @@ abstract class Extension_DevblocksSearchEngine extends DevblocksExtension implem
 
 	/**
 	 * @internal
-	 * 
-	 * @param string $id
-	 * @return Extension_DevblocksSearchEngine
 	 */
-	public static function get($id) {
+	public static function get(string $id) : ?Extension_DevblocksSearchEngine {
 		static $extensions = null;
 
-		if(isset($extensions[$id]))
+		if(is_array($extensions) && array_key_exists($id, $extensions))
 			return $extensions[$id];
 
-		if(!isset($extensions[$id])) {
-			if(null == ($ext = DevblocksPlatform::getExtension($id, true)))
-				return;
+		if(null == ($ext = DevblocksPlatform::getExtension($id, true)))
+			return null;
 
-			if(!($ext instanceof Extension_DevblocksSearchEngine))
-				return;
+		if(!($ext instanceof Extension_DevblocksSearchEngine))
+			return null;
 
-			$extensions[$id] = $ext;
-			return $ext;
-		}
+		$extensions[$id] = $ext;
+		return $extensions[$id];
 	}
 	
 	/**
@@ -4290,8 +4285,6 @@ abstract class Extension_DevblocksSearchEngine extends DevblocksExtension implem
 	 * @internal
 	 */
 	public function getQueryFromParam($param) {
-		$values = [];
-
 		if(!is_array($param->value) && !is_string($param->value))
 			return false;
 		
@@ -4303,7 +4296,6 @@ abstract class Extension_DevblocksSearchEngine extends DevblocksExtension implem
 			
 		} else {
 			$values = $param->value;
-			
 		}
 		
 		if(!is_array($values)) {
@@ -4337,6 +4329,10 @@ abstract class Extension_DevblocksSearchEngine extends DevblocksExtension implem
 
 		return mb_substr($content, $start, $next_ws-$start);
 	}
+	
+	abstract function canGenerateSql() : bool;
+	abstract function generateSql(Extension_DevblocksSearchSchema $schema, string $query, array $attributes=[]) : ?string;
+	abstract function query(Extension_DevblocksSearchSchema $schema, $query, array $attributes=[], $limit=null, &$error=null) : ?array;
 };
 
 abstract class Extension_DevblocksSearchSchema extends DevblocksExtension {
@@ -4398,14 +4394,12 @@ abstract class Extension_DevblocksSearchSchema extends DevblocksExtension {
 
 	/**
 	 * @internal
-	 * 
-	 * @return Extension_DevblocksSearchEngine
 	 */
-	public function getEngine() {
+	public function getEngine() : ?Extension_DevblocksSearchEngine {
 		$engine_params = $this->getEngineParams();
 		
-		if(false == ($_engine = Extension_DevblocksSearchEngine::get($engine_params['engine_extension_id'], true)))
-			return false;
+		if(false == ($_engine = Extension_DevblocksSearchEngine::get($engine_params['engine_extension_id'])))
+			return null;
 
 		if(isset($engine_params['config']))
 			$_engine->setConfig($engine_params['config']);
@@ -4450,11 +4444,46 @@ abstract class Extension_DevblocksSearchSchema extends DevblocksExtension {
 		return $engine->getIndexMeta($this);
 	}
 	
+	public function query($query, $attributes=array(), $limit=null) {
+		if(false == ($engine = $this->getEngine()))
+			return false;
+		
+		return $engine->query($this, $query, $attributes, $limit);
+	}
+	
+	public function generateSql(string $query, array $attributes, callable $join_callback, callable $ids_callback) : ?string {
+		$engine = $this->getEngine();
+		
+		if($engine->canGenerateSql()) {
+			if(null == ($sql = $engine->generateSql($this, $query, $attributes)))
+				return '0';
+			
+			if(!is_callable($join_callback))
+				return $sql;
+			
+			return $join_callback($sql);
+			
+		} else {
+			if(false === ($ids = $this->query($query, $attributes)))
+				return '0';
+			
+			if(!is_array($ids))
+				return '0';
+			
+			$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
+			
+			if(empty($ids))
+				return '0';
+			
+			return $ids_callback($ids);	
+		}
+	}
+	
 	abstract function getNamespace();
 	abstract function getAttributes();
 	abstract function getIdField();
 	abstract function getDataField();
-	abstract function query($query, $attributes=[], $limit=1000);
+	abstract function getPrimaryKey();
 	abstract function index($stop_time=null);
 	abstract function reindex();
 	abstract function delete($ids);
