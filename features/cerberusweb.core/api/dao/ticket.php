@@ -5678,6 +5678,29 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		$random = uniqid();
 		$tpl->assign('popup_uniqid', $random);
 		
+		 // UI bot behaviors
+
+		 if(null != $active_worker && class_exists('Event_MailBeforeUiComposeByWorker')) {
+			 $actions = [];
+			
+			 $macros = DAO_TriggerEvent::getReadableByActor(
+				 $active_worker,
+				 Event_MailBeforeUiComposeByWorker::ID,
+				 false
+			 );
+			
+			 $scope = $defaults;
+			 $scope['form_id'] = 'frmComposePeek' . $random;
+			
+			 if (is_array($macros))
+				 foreach ($macros as $macro)
+					 Event_MailBeforeUiComposeByWorker::trigger($macro->id, $scope, $active_worker->id, $actions);
+			
+			 if (isset($actions['jquery_scripts']) && is_array($actions['jquery_scripts'])) {
+				 $tpl->assign('jquery_scripts', $actions['jquery_scripts']);
+			 }
+		 }
+		
 		// Compose toolbar
 		
 		$toolbar_dict = DevblocksDictionaryDelegate::instance([
