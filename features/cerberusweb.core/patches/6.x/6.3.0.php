@@ -194,6 +194,7 @@ while($row = mysqli_fetch_assoc($rs)) {
 				// Message
 				case 'event.mail.after.sent.group':
 				case 'event.mail.received.group':
+				case 'event.mail.reply.pre.ui.worker':
 					$params['actions'][$idx]['action'] = sprintf("set_cf_ticket_custom_%d", $matches[1]);
 					$is_changed = true;
 					break;

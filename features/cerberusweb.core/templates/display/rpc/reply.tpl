@@ -1256,6 +1256,18 @@ $(function() {
 				} catch(ex) { }
 			});
 		{/if}
+
+		{* Run custom jQuery scripts from VA behavior *}
+		
+		{if !empty($jquery_scripts)}
+		$('#reply{$message->id}_form').closest('div.reply_frame').each(function(e) {
+			{foreach from=$jquery_scripts item=jquery_script}
+			try {
+				{$jquery_script nofilter}
+			} catch(e) { }
+			{/foreach}
+		});
+		{/if}
 	}
 	
 	{if !$reply_format}

@@ -572,6 +572,26 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		
 		$tpl->assign('upload_max_filesize', ini_get('upload_max_filesize'));
 		
+		// Bot behaviors
+		
+		if(null != $active_worker && class_exists('Event_MailBeforeUiReplyByWorker')) {
+			$actions = [];
+			
+			$macros = DAO_TriggerEvent::getReadableByActor(
+				$active_worker,
+				Event_MailBeforeUiReplyByWorker::ID,
+				false
+			);
+			
+			if(is_array($macros))
+				foreach($macros as $macro)
+					Event_MailBeforeUiReplyByWorker::trigger($macro->id, $message->id, $active_worker->id, $actions);
+			
+			if(isset($actions['jquery_scripts']) && is_array($actions['jquery_scripts'])) {
+				$tpl->assign('jquery_scripts', $actions['jquery_scripts']);
+			}
+		}
+		
 		// Reply toolbars
 		
 		$toolbar_dict = DevblocksDictionaryDelegate::instance([
