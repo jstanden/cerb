@@ -750,6 +750,7 @@ class SearchFields_Message extends DevblocksSearchFields {
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_HEADER_DELIVERED_TO = '*_header_delivered_to';
+	const VIRTUAL_HEADER_FROM = '*_header_from';
 	const VIRTUAL_HEADER_MESSAGE_ID = '*_header_message_id';
 	const VIRTUAL_SENDER_SEARCH = '*_sender_search';
 	const VIRTUAL_TICKET_SEARCH = '*_ticket_search';
@@ -808,8 +809,10 @@ class SearchFields_Message extends DevblocksSearchFields {
 				}
 				
 			case self::VIRTUAL_HEADER_DELIVERED_TO:
+			case self::VIRTUAL_HEADER_FROM:
 				$header_names = [
 					self::VIRTUAL_HEADER_DELIVERED_TO => 'delivered-to',
+					self::VIRTUAL_HEADER_FROM => 'from',
 				];
 				
 				if(null == ($header_name = $header_names[$param->field] ?? null))
@@ -1026,6 +1029,7 @@ class SearchFields_Message extends DevblocksSearchFields {
 			SearchFields_Message::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(SearchFields_Message::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			SearchFields_Message::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(SearchFields_Message::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			SearchFields_Message::VIRTUAL_HEADER_DELIVERED_TO => new DevblocksSearchField(SearchFields_Message::VIRTUAL_HEADER_DELIVERED_TO, '*', 'header_message_id', $translate->_('message.search.header_delivered_to'), Model_CustomField::TYPE_SINGLE_LINE, false),
+			SearchFields_Message::VIRTUAL_HEADER_FROM => new DevblocksSearchField(SearchFields_Message::VIRTUAL_HEADER_FROM, '*', 'header_message_id', $translate->_('message.search.header_from'), Model_CustomField::TYPE_SINGLE_LINE, false),
 			SearchFields_Message::VIRTUAL_HEADER_MESSAGE_ID => new DevblocksSearchField(SearchFields_Message::VIRTUAL_HEADER_MESSAGE_ID, '*', 'header_message_id', $translate->_('message.search.header_message_id'), Model_CustomField::TYPE_SINGLE_LINE, false),
 			SearchFields_Message::VIRTUAL_SENDER_SEARCH => new DevblocksSearchField(SearchFields_Message::VIRTUAL_SENDER_SEARCH, '*', 'sender_search', null, null, false),
 			SearchFields_Message::VIRTUAL_TICKET_SEARCH => new DevblocksSearchField(SearchFields_Message::VIRTUAL_TICKET_SEARCH, '*', 'ticket_search', null, null, false),
@@ -1777,6 +1781,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Message::VIRTUAL_ATTACHMENTS_SEARCH,
 			SearchFields_Message::VIRTUAL_CONTEXT_LINK,
 			SearchFields_Message::VIRTUAL_HEADER_DELIVERED_TO,
+			SearchFields_Message::VIRTUAL_HEADER_FROM,
 			SearchFields_Message::VIRTUAL_HEADER_MESSAGE_ID,
 			SearchFields_Message::VIRTUAL_NOTES_SEARCH,
 			SearchFields_Message::VIRTUAL_TICKET_SEARCH,
@@ -1964,6 +1969,11 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
 					'options' => array('param_key' => SearchFields_Message::VIRTUAL_HEADER_DELIVERED_TO),
+				),
+			'header.from' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
+					'options' => array('param_key' => SearchFields_Message::VIRTUAL_HEADER_FROM),
 				),
 			'header.messageId' => 
 				array(
@@ -2155,6 +2165,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				break;
 				
 			case 'header.deliveredTo':
+			case 'header.from':
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
 				
 			case 'header.messageId':
@@ -2231,8 +2242,10 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				break;
 				
 			case SearchFields_Message::VIRTUAL_HEADER_DELIVERED_TO:
+			case SearchFields_Message::VIRTUAL_HEADER_FROM:
 				$labels = [
 					SearchFields_Message::VIRTUAL_HEADER_DELIVERED_TO => 'Delivered-To header',
+					SearchFields_Message::VIRTUAL_HEADER_FROM => 'From header',
 				];
 				
 				$label = $labels[$key] ?? $param->field;
