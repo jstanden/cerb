@@ -749,6 +749,7 @@ class SearchFields_Message extends DevblocksSearchFields {
 	const VIRTUAL_NOTES_SEARCH = '*_notes_search';
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
+	const VIRTUAL_HEADER_CC = '*_header_cc';
 	const VIRTUAL_HEADER_DELIVERED_TO = '*_header_delivered_to';
 	const VIRTUAL_HEADER_FROM = '*_header_from';
 	const VIRTUAL_HEADER_MESSAGE_ID = '*_header_message_id';
@@ -808,9 +809,11 @@ class SearchFields_Message extends DevblocksSearchFields {
 					);
 				}
 				
+			case self::VIRTUAL_HEADER_CC:
 			case self::VIRTUAL_HEADER_DELIVERED_TO:
 			case self::VIRTUAL_HEADER_FROM:
 				$header_names = [
+					self::VIRTUAL_HEADER_CC => 'cc',
 					self::VIRTUAL_HEADER_DELIVERED_TO => 'delivered-to',
 					self::VIRTUAL_HEADER_FROM => 'from',
 				];
@@ -1028,6 +1031,7 @@ class SearchFields_Message extends DevblocksSearchFields {
 			SearchFields_Message::VIRTUAL_NOTES_SEARCH => new DevblocksSearchField(SearchFields_Message::VIRTUAL_NOTES_SEARCH, '*', 'notes_search', null, null, false),
 			SearchFields_Message::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(SearchFields_Message::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			SearchFields_Message::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(SearchFields_Message::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
+			SearchFields_Message::VIRTUAL_HEADER_CC => new DevblocksSearchField(SearchFields_Message::VIRTUAL_HEADER_CC, '*', 'header_cc', $translate->_('message.search.header_cc'), Model_CustomField::TYPE_SINGLE_LINE, false),
 			SearchFields_Message::VIRTUAL_HEADER_DELIVERED_TO => new DevblocksSearchField(SearchFields_Message::VIRTUAL_HEADER_DELIVERED_TO, '*', 'header_message_id', $translate->_('message.search.header_delivered_to'), Model_CustomField::TYPE_SINGLE_LINE, false),
 			SearchFields_Message::VIRTUAL_HEADER_FROM => new DevblocksSearchField(SearchFields_Message::VIRTUAL_HEADER_FROM, '*', 'header_message_id', $translate->_('message.search.header_from'), Model_CustomField::TYPE_SINGLE_LINE, false),
 			SearchFields_Message::VIRTUAL_HEADER_MESSAGE_ID => new DevblocksSearchField(SearchFields_Message::VIRTUAL_HEADER_MESSAGE_ID, '*', 'header_message_id', $translate->_('message.search.header_message_id'), Model_CustomField::TYPE_SINGLE_LINE, false),
@@ -1780,6 +1784,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Message::TICKET_STATUS_ID,
 			SearchFields_Message::VIRTUAL_ATTACHMENTS_SEARCH,
 			SearchFields_Message::VIRTUAL_CONTEXT_LINK,
+			SearchFields_Message::VIRTUAL_HEADER_CC,
 			SearchFields_Message::VIRTUAL_HEADER_DELIVERED_TO,
 			SearchFields_Message::VIRTUAL_HEADER_FROM,
 			SearchFields_Message::VIRTUAL_HEADER_MESSAGE_ID,
@@ -1964,6 +1969,11 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'score' => 2000,
 					'options' => array('param_key' => SearchFields_Message::CREATED_DATE),
+				),
+			'header.cc' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
+					'options' => array('param_key' => SearchFields_Message::VIRTUAL_HEADER_CC),
 				),
 			'header.deliveredTo' => 
 				array(
@@ -2164,6 +2174,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Message::VIRTUAL_SENDER_SEARCH);
 				break;
 				
+			case 'header.cc':
 			case 'header.deliveredTo':
 			case 'header.from':
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
@@ -2241,9 +2252,11 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				);
 				break;
 				
+			case SearchFields_Message::VIRTUAL_HEADER_CC:
 			case SearchFields_Message::VIRTUAL_HEADER_DELIVERED_TO:
 			case SearchFields_Message::VIRTUAL_HEADER_FROM:
 				$labels = [
+					SearchFields_Message::VIRTUAL_HEADER_CC => 'Cc header',
 					SearchFields_Message::VIRTUAL_HEADER_DELIVERED_TO => 'Delivered-To header',
 					SearchFields_Message::VIRTUAL_HEADER_FROM => 'From header',
 				];
