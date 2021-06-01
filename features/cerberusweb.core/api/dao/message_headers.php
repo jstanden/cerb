@@ -103,9 +103,7 @@ class DAO_MessageHeaders extends Cerb_ORMHelper {
 		if(false == ($raw_headers = self::getRaw($message_id)))
 			return false;
 		
-		$headers = self::parse($raw_headers, $flatten_arrays);
-		
-		return $headers;
+		return self::parse($raw_headers, $flatten_arrays);
 	}
 
 	static function delete($ids) {
@@ -123,5 +121,170 @@ class DAO_MessageHeaders extends Cerb_ORMHelper {
 			implode(',', $ids)
 		);
 		$db->ExecuteMaster($sql);
+	}
+};
+
+class Search_MessageHeaders extends Extension_DevblocksSearchSchema {
+	const ID = 'cerberusweb.search.schema.message_headers';
+	
+	public function getNamespace() {
+		return 'message_header';
+	}
+	
+	public function getAttributes() {
+		return [
+			'header_name' => 'string',
+		];
+	}
+	
+	public function getIdField() {
+		return 'message_id';
+	}
+	
+	public function getDataField() {
+		return 'header_value';
+	}
+	
+	public function getPrimaryKey() {
+		return [
+			'message_id',
+			'header_name',
+		];
+	}
+	
+	public function reindex() {
+		$engine = $this->getEngine();
+		$meta = $engine->getIndexMeta($this);
+		
+		// If the engine can tell us where the index left off
+		if(isset($meta['max_id']) && $meta['max_id']) {
+			$this->setParam('last_indexed_id', $meta['max_id']);
+			
+			// If the index has a delta, start from the current record
+		} elseif($meta['is_indexed_externally']) {
+			// Do nothing (let the remote tool update the DB)
+			
+			// Otherwise, start over
+		} else {
+			$this->setIndexPointer(self::INDEX_POINTER_RESET);
+		}
+	}
+	
+	public function setIndexPointer($pointer) {
+		switch($pointer) {
+			case self::INDEX_POINTER_RESET:
+				$this->setParam('last_indexed_id', 0);
+				$this->setParam('last_indexed_time', 0);
+				break;
+			
+			case self::INDEX_POINTER_CURRENT:
+				$this->setParam('last_indexed_id', 0);
+				$this->setParam('last_indexed_time', time());
+				break;
+		}
+	}
+	
+	public function index($stop_time=null) {
+		$logger = DevblocksPlatform::services()->log();
+		$ns = self::getNamespace();
+		
+		if(false == ($engine = $this->getEngine()))
+			return false;
+		
+		$message_id = $this->getParam('last_indexed_id', 0);
+		
+		$done = false;
+		
+		while(!$done && time() < $stop_time) {
+			$message_headers = DAO_MessageHeaders::getSinceId($message_id, 100);
+			
+			if(!$message_headers) {
+				$done = true;
+				continue;
+			}
+			
+			$count = 0;
+			
+			if(is_array($message_headers))
+				foreach($message_headers as $message_id => $headers) {
+					$logger->info(sprintf("[Search] Indexing %s %d...",
+						$ns,
+						$message_id
+					));
+					
+					// Normalize delivered-to
+					if(!array_key_exists('delivered-to', $headers)) {
+						if(array_key_exists('envelope-to', $headers))
+							$headers['delivered-to'] = $headers['envelope-to'];
+						if(array_key_exists('x-envelope-to', $headers))
+							$headers['delivered-to'] = $headers['x-envelope-to'];
+						if(array_key_exists('original-to', $headers))
+							$headers['delivered-to'] = $headers['original-to'];
+					}
+					
+					// Only headers we care about
+					
+					$headers = array_intersect_key(
+						$headers,
+						[
+							'cc' => true,
+							'delivered-to' => true,
+							'from' => true,
+							'to' => true,
+							'x-forwarded-to' => true,
+							'x-mailer' => true,
+						]
+					);
+					
+					foreach($headers as $header_name => $header_value) {
+						$doc = [
+							'header_value' => $header_value,
+						];
+						
+						$attributes = [
+							'header_name' => $header_name,
+						];
+						
+						$engine->index($this, $message_id, $doc, $attributes);
+					}
+					
+					// Record our progress every 25th index
+					if(++$count % 25 == 0 && $message_id) {
+						$this->setParam('last_indexed_id', $message_id);
+					}
+				}
+			
+			// Record our index every batch
+			if($message_id)
+				$this->setParam('last_indexed_id', $message_id);
+		}
+		
+		return true;
+	}
+	
+	public function delete($ids) {
+		$db = DevblocksPlatform::services()->database();
+		
+		if(!is_array($ids)) {
+			if(is_string($ids) || is_numeric($ids)) {
+				$ids = [$ids];
+			} else {
+				return false;
+			}
+		}
+		
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
+		
+		if(empty($ids))
+			return true;
+		
+		$sql = sprintf("DELETE FROM fulltext_message_header WHERE message_id IN (%s)",
+			implode(',', $ids)
+		);
+		
+		if(false === $db->ExecuteMaster($sql))
+			return false;
+		
+		return true;
 	}
 };

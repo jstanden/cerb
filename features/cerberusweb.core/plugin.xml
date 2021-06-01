@@ -564,6 +564,7 @@
 		
 		<file path="api/dao/message_headers.php">
 			<class name="DAO_MessageHeaders" />
+			<class name="Search_MessageHeaders" />
 		</file>
 		
 		<file path="api/dao/message_html_cache.php">
@@ -6035,6 +6036,17 @@
 			<class>
 				<file>api/dao/message.php</file>
 				<name>Search_MessageContent</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+		<extension point="devblocks.search.schema">
+			<id>cerberusweb.search.schema.message_headers</id>
+			<name>Message Headers</name>
+			<class>
+				<file>api/dao/message_headers.php</file>
+				<name>Search_MessageHeaders</name>
 			</class>
 			<params>
 			</params>
