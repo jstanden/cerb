@@ -753,6 +753,7 @@ class SearchFields_Message extends DevblocksSearchFields {
 	const VIRTUAL_HEADER_DELIVERED_TO = '*_header_delivered_to';
 	const VIRTUAL_HEADER_FROM = '*_header_from';
 	const VIRTUAL_HEADER_MESSAGE_ID = '*_header_message_id';
+	const VIRTUAL_HEADER_TO = '*_header_to';
 	const VIRTUAL_SENDER_SEARCH = '*_sender_search';
 	const VIRTUAL_TICKET_SEARCH = '*_ticket_search';
 	const VIRTUAL_WORKER_SEARCH = '*_worker_search';
@@ -812,10 +813,12 @@ class SearchFields_Message extends DevblocksSearchFields {
 			case self::VIRTUAL_HEADER_CC:
 			case self::VIRTUAL_HEADER_DELIVERED_TO:
 			case self::VIRTUAL_HEADER_FROM:
+			case self::VIRTUAL_HEADER_TO:
 				$header_names = [
 					self::VIRTUAL_HEADER_CC => 'cc',
 					self::VIRTUAL_HEADER_DELIVERED_TO => 'delivered-to',
 					self::VIRTUAL_HEADER_FROM => 'from',
+					self::VIRTUAL_HEADER_TO => 'to',
 				];
 				
 				if(null == ($header_name = $header_names[$param->field] ?? null))
@@ -1035,6 +1038,7 @@ class SearchFields_Message extends DevblocksSearchFields {
 			SearchFields_Message::VIRTUAL_HEADER_DELIVERED_TO => new DevblocksSearchField(SearchFields_Message::VIRTUAL_HEADER_DELIVERED_TO, '*', 'header_message_id', $translate->_('message.search.header_delivered_to'), Model_CustomField::TYPE_SINGLE_LINE, false),
 			SearchFields_Message::VIRTUAL_HEADER_FROM => new DevblocksSearchField(SearchFields_Message::VIRTUAL_HEADER_FROM, '*', 'header_message_id', $translate->_('message.search.header_from'), Model_CustomField::TYPE_SINGLE_LINE, false),
 			SearchFields_Message::VIRTUAL_HEADER_MESSAGE_ID => new DevblocksSearchField(SearchFields_Message::VIRTUAL_HEADER_MESSAGE_ID, '*', 'header_message_id', $translate->_('message.search.header_message_id'), Model_CustomField::TYPE_SINGLE_LINE, false),
+			SearchFields_Message::VIRTUAL_HEADER_TO => new DevblocksSearchField(SearchFields_Message::VIRTUAL_HEADER_TO, '*', 'header_to', $translate->_('message.search.header_to'), Model_CustomField::TYPE_SINGLE_LINE, false),
 			SearchFields_Message::VIRTUAL_SENDER_SEARCH => new DevblocksSearchField(SearchFields_Message::VIRTUAL_SENDER_SEARCH, '*', 'sender_search', null, null, false),
 			SearchFields_Message::VIRTUAL_TICKET_SEARCH => new DevblocksSearchField(SearchFields_Message::VIRTUAL_TICKET_SEARCH, '*', 'ticket_search', null, null, false),
 			SearchFields_Message::VIRTUAL_WORKER_SEARCH => new DevblocksSearchField(SearchFields_Message::VIRTUAL_WORKER_SEARCH, '*', 'worker_search', null, null, false),
@@ -1788,6 +1792,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Message::VIRTUAL_HEADER_DELIVERED_TO,
 			SearchFields_Message::VIRTUAL_HEADER_FROM,
 			SearchFields_Message::VIRTUAL_HEADER_MESSAGE_ID,
+			SearchFields_Message::VIRTUAL_HEADER_TO,
 			SearchFields_Message::VIRTUAL_NOTES_SEARCH,
 			SearchFields_Message::VIRTUAL_TICKET_SEARCH,
 		));
@@ -1990,6 +1995,11 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Message::VIRTUAL_HEADER_MESSAGE_ID),
 				),
+			'header.to' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
+					'options' => array('param_key' => SearchFields_Message::VIRTUAL_HEADER_TO),
+				),
 			'fieldset' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
@@ -2177,6 +2187,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			case 'header.cc':
 			case 'header.deliveredTo':
 			case 'header.from':
+			case 'header.to':
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
 				
 			case 'header.messageId':
@@ -2255,10 +2266,12 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			case SearchFields_Message::VIRTUAL_HEADER_CC:
 			case SearchFields_Message::VIRTUAL_HEADER_DELIVERED_TO:
 			case SearchFields_Message::VIRTUAL_HEADER_FROM:
+			case SearchFields_Message::VIRTUAL_HEADER_TO:
 				$labels = [
 					SearchFields_Message::VIRTUAL_HEADER_CC => 'Cc header',
 					SearchFields_Message::VIRTUAL_HEADER_DELIVERED_TO => 'Delivered-To header',
 					SearchFields_Message::VIRTUAL_HEADER_FROM => 'From header',
+					SearchFields_Message::VIRTUAL_HEADER_TO => 'To header',
 				];
 				
 				$label = $labels[$key] ?? $param->field;
