@@ -26,6 +26,18 @@
                     {/if}
                     <b>{$item.label}</b>
                 </li>
+            {elseif 'behavior' == $item_key_parts[0]}
+                <li class="cerb-bot-trigger"
+                    data-behavior-id="{$item.id}"
+                    data-interaction="{$item.interaction}"
+                    data-interaction-params="{if is_array($item.params)}{DevblocksPlatform::services()->url()->arrayToQueryString($item.params)}{/if}"
+                    data-interaction-done="{if is_array($item.after)}{DevblocksPlatform::services()->url()->arrayToQueryString($item.after)}{/if}"
+                    >
+                    {if $item.image}
+                        <img class="cerb-avatar" src="{$item.image}">
+                    {/if}
+                    <b>{$item.label}</b>
+                </li>
             {/if}
         {/if}
     {/foreach}
@@ -39,6 +51,27 @@
                         data-cerb-toolbar-button
                         data-interaction-uri="{$toolbar_item.uri}"
                         data-interaction-params="{if is_array($toolbar_item.inputs)}{DevblocksPlatform::services()->url()->arrayToQueryString($toolbar_item.inputs)}{/if}"
+                        data-interaction-done="{if is_array($toolbar_item.after)}{DevblocksPlatform::services()->url()->arrayToQueryString($toolbar_item.after)}{/if}"
+                        {if $toolbar_item.tooltip}title="{$toolbar_item.tooltip}"{/if}
+                        {if $toolbar_item.headless}data-interaction-headless="true"{/if}
+                        {if $toolbar_item.keyboard}data-interaction-keyboard="{$toolbar_item.keyboard}"{/if}
+                        >
+                    {if !is_null($toolbar_item.badge)}
+                        <div class="badge-count">{$toolbar_item.badge}</div>
+                    {/if}
+                    {if $toolbar_item.icon}
+                        <span class="glyphicons glyphicons-{$toolbar_item.icon}"></span>
+                    {/if}
+                    {$toolbar_item.label}
+                </button>
+            {/if}
+        {elseif 'behavior' == $toolbar_item.type}
+            {if $toolbar_item.id}
+                <button type="button" class="cerb-bot-trigger"
+                        data-cerb-toolbar-button
+                        data-behavior-id="{$toolbar_item.id}"
+                        data-interaction="{$toolbar_item.interaction}"
+                        data-interaction-params="{if is_array($toolbar_item.params)}{DevblocksPlatform::services()->url()->arrayToQueryString($toolbar_item.params)}{/if}"
                         data-interaction-done="{if is_array($toolbar_item.after)}{DevblocksPlatform::services()->url()->arrayToQueryString($toolbar_item.after)}{/if}"
                         {if $toolbar_item.tooltip}title="{$toolbar_item.tooltip}"{/if}
                         {if $toolbar_item.headless}data-interaction-headless="true"{/if}

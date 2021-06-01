@@ -409,7 +409,7 @@ class DevblocksUiToolbar {
 			if(!$key)
 				continue;
 			
-			if(in_array($type, ['interaction'])) {
+			if('interaction' == $type) {
 				if(!array_key_exists('uri', $toolbar_item))
 					continue;
 				
@@ -418,6 +418,10 @@ class DevblocksUiToolbar {
 						$toolbar_item['uri'] = $uri_parts['context_id'];
 					}
 				}
+				
+			} elseif('behavior' == $type) {
+				if(!array_key_exists('id', $toolbar_item))
+					continue;
 			}
 			
 			$line = $symbol_meta[$toolbar_item_key] ?? -1;

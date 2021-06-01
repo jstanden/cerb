@@ -488,7 +488,6 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 	private function _startBotInteractionAsConvoBehavior(Model_TriggerEvent $interaction_behavior) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$interaction_style = DevblocksPlatform::importGPC($_POST['interaction_style'], 'string', null);
 		@$interaction = DevblocksPlatform::importGPC($_POST['interaction'], 'string', '');
 		@$browser = DevblocksPlatform::importGPC($_POST['browser'], 'array', []);
 		@$interaction_params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
@@ -509,7 +508,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		$client_url = @$browser['url'] ?: '';
 		$client_time = @$browser['time'] ?: '';
 		
-		if(false !== (@$client_user_agent_parts = DevblocksPlatform::getClientUserAgent())) {
+		if(false != (@$client_user_agent_parts = DevblocksPlatform::getClientUserAgent())) {
 			$client_platform = @$client_user_agent_parts['platform'] ?: '';
 			$client_browser = @$client_user_agent_parts['browser'] ?: '';
 			$client_browser_version = @$client_user_agent_parts['version'] ?: '';

@@ -188,9 +188,50 @@ class Page_Profiles extends CerberusPageExtension {
 		
 		$toolbar_dict = DevblocksDictionaryDelegate::instance($toolbar_placeholders);
 		
-		if(false != ($toolbar_kata = DAO_Toolbar::getKataByName('record.profile', $toolbar_dict))) {
-			$tpl->assign('toolbar_profile', $toolbar_kata);
+		$toolbar_kata = '';
+		
+		if(null != ($toolbar = DAO_Toolbar::getByName('record.profile')))
+			$toolbar_kata = $toolbar->toolbar_kata;
+		
+		//************* [TODO] LEGACY SUPPORT - Remove in 11.0
+		$point_params = DevblocksDictionaryDelegate::instance([
+			'_context' => $context,
+			'id' => $context_id,
+		]);
+		
+		$legacy_interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $point_params, $active_worker);
+		
+		if($legacy_interactions) {
+			$url_writer = DevblocksPlatform::services()->url();
+			
+			$legacy_kata = "\n\nmenu/legacy:\n  tooltip: Legacy Chat Bots\n  icon: more\n  items:\n";
+			
+			foreach ($legacy_interactions as $interaction) {
+				$legacy_kata .= sprintf("    behavior/%s:\n      label: %s\n      id: %d\n      interaction: %s\n      image: %s\n      params:\n",
+					uniqid(),
+					$interaction['label'],
+					$interaction['behavior_id'],
+					$interaction['interaction'],
+					$url_writer->write(sprintf('c=avatars&context=bot&context_id=%d', $interaction['bot_id'])) . '?v=0',
+				);
+				
+				if ($interaction['params']) {
+					foreach ($interaction['params'] as $k => $v) {
+						$legacy_kata .= sprintf("        %s: %s\n",
+							$k,
+							$v
+						);
+					}
+				}
+			}
+			
+			$toolbar_kata .= $legacy_kata;
 		}
+		//*************
+		
+		$toolbar_kata = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict);
+		$tpl->assign('toolbar_profile', $toolbar_kata);
+		
 		
 		// Active tab
 		
