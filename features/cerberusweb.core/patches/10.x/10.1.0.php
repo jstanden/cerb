@@ -18,6 +18,20 @@ if(!$db->GetOneMaster("SELECT 1 FROM toolbar WHERE name = 'draft.read'")) {
 }
 
 // ===========================================================================
+// Add an index for matching numeric custom fields, optimizing record links 
+
+if(!isset($tables['custom_field_numbervalue'])) {
+	$logger->error("The 'custom_field_numbervalue' table does not exist.");
+	return FALSE;
+}
+
+list(, $indexes) = $db->metaTable('custom_field_numbervalue');
+
+if(!array_key_exists('field_id_and_value', $indexes)) {
+	$db->ExecuteMaster("ALTER TABLE custom_field_numbervalue ADD INDEX field_id_and_value (field_id,field_value)");
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
