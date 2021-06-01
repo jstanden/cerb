@@ -4,7 +4,7 @@
 	{include file="devblocks:cerberusweb.core::internal/dashboards/prompts/render.tpl" prompts=$prompts}
 	
 	{if $is_writeable}
-	<div style="display:inline-block;" class="cerb-no-print">
+	<div style="display:inline-block;vertical-align:middle;" class="cerb-no-print">
 		{if $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}.create")}<button id="btnWorkspaceTabAddWidget{$model->id}" type="button" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}" data-context-id="0" data-edit="tab:{$model->id}" data-width="75%"><span class="glyphicons glyphicons-circle-plus"></span> {'common.widget.add'|devblocks_translate|capitalize}</button>{/if}
 		<button id="btnWorkspaceTabEditDashboard{$model->id}" type="button"><span class="glyphicons glyphicons-edit"></span> {'common.dashboard.edit'|devblocks_translate|capitalize}</button>
 	</div>

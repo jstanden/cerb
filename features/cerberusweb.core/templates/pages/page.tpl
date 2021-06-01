@@ -13,7 +13,7 @@
 	<div style="float:right;">
 		{$page_owner_meta = $page->getOwnerMeta()}
 		{if !empty($page_owner_meta)}
-			<div style="display:inline-block;margin-right:5px;">
+			<div style="display:inline-block;margin-right:5px;vertical-align:middle;">
 				Managed by
 				<img src="{devblocks_url}c=avatars&context={$page->owner_context}&context_id={$page->owner_context_id}{/devblocks_url}?v={$page_owner_meta.updated}" style="height:1.5em;width:1.5em;border-radius:0.75em;vertical-align:middle;">
 				<b>
@@ -29,7 +29,7 @@
 		<button class="add" type="button" page_id="{$page->id}" page_label="{$page->name|lower}" page_url="{devblocks_url}c=pages&page={$page->id}-{$page->name|devblocks_permalink}{/devblocks_url}">{if $in_menu}<span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span>{else}<span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span>{/if} Menu</button>
 	
 		{if Context_WorkspacePage::isWriteableByActor($page, $active_worker)}
-		<div style="display:inline-block;">
+		<div style="display:inline-block;vertical-align:middle;">
 			<button class="config-page split-left" type="button"><span class="glyphicons glyphicons-cogwheel"></span></button><!--
 			--><button class="config-page split-right" type="button"><span class="glyphicons glyphicons-chevron-down" style="font-size:12px;color:white;"></span></button>
 			<ul class="cerb-popupmenu cerb-float">
