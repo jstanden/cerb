@@ -103,6 +103,8 @@ class _DevblocksEmailManager {
 	private function _testMailboxImap($server, $port, $service, $username, $password, $timeout_secs=30, $connected_account_id=0) {
 		$imap_timeout = !empty($timeout_secs) ? $timeout_secs : 30;
 		
+		//$fp_log = fopen('php://memory', 'w');
+		
 		try {
 			$options = [
 				'username' => $username,
@@ -111,6 +113,8 @@ class _DevblocksEmailManager {
 				'port' => $port,
 				'timeout' => $imap_timeout,
 				'secure' => false,
+				//'debug' => $fp_log,
+				//'capability_ignore' => ['LOGIN','PLAIN','NTLM','GSSAPI','XOAUTH2','AUTHENTICATE'],
 			];
 			
 			if($service == 'imap-ssl') {
@@ -151,6 +155,11 @@ class _DevblocksEmailManager {
 			
 		} catch (Horde_Imap_Client_Exception $e) {
 			throw new Exception($e->getMessage());
+			
+		} finally {
+//			fseek($fp_log, 0);
+//			error_log(fread($fp_log, 1024000));
+//			fclose($fp_log);
 		}
 		
 		return TRUE;
@@ -158,6 +167,8 @@ class _DevblocksEmailManager {
 	
 	private function _testMailboxPop3($server, $port, $service, $username, $password, $timeout_secs=30) {
 		$imap_timeout = !empty($timeout_secs) ? $timeout_secs : 30;
+		
+		//$fp_log = fopen('php://memory', 'w');
 		
 		try {
 			$options = [
@@ -167,6 +178,7 @@ class _DevblocksEmailManager {
 				'port' => $port,
 				'timeout' => $imap_timeout,
 				'secure' => false,
+				//'debug' => $fp_log,
 			];
 			
 			if($service == 'pop3-ssl') {
@@ -183,6 +195,11 @@ class _DevblocksEmailManager {
 			
 		} catch (Horde_Imap_Client_Exception $e) {
 			throw new Exception($e->getMessage());
+			
+		} finally {
+//			fseek($fp_log, 0);
+//			error_log(fread($fp_log, 1024000));
+//			fclose($fp_log);
 		}
 		
 		return TRUE;
