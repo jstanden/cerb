@@ -13,7 +13,7 @@
 	{include file="devblocks:cerberusweb.core::internal/decisions/actions/_shared_var_worker_picker.tpl" param_name="worker_id" values_to_contexts=$values_to_contexts single=true}
 </div>
 
-<b>{'common.behaviors'|devblocks_translate|capitalize}:</b>
+<b>{'common.behaviors'|devblocks_translate|capitalize}:</b> (these have no effect in 10.0+)
 <div style="margin-left:10px;margin-bottom:10px;">
 	<div class="behaviors">
 	{if $params.behavior_ids}

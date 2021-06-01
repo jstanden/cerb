@@ -214,25 +214,17 @@ class BotAction_CreateReminder extends Extension_DevblocksEventAction {
 		
 		@$name = $tpl_builder->build($params['name'], $dict);
 		@$remind_at = $tpl_builder->build($params['remind_at'], $dict);
-		@$behavior_ids = $params['behavior_ids'] ?: [];
-		@$behaviors = $params['behaviors'] ?: [];
 		@$object_placeholder = $params['object_placeholder'] ?: '_reminder_meta';
 		
 		@$worker_ids = DevblocksPlatform::importVar($params['worker_id'],'string','');
 		$worker_ids = DevblocksEventHelper::mergeWorkerVars($worker_ids, $dict);
 		$worker_id = array_shift($worker_ids) ?: 0;
 		
-		$reminder_params = ['behaviors' => []];
-		
-		if(is_array($behavior_ids))
-		foreach($behavior_ids as $behavior_id)
-			$reminder_params['behaviors'][$behavior_id] = @$behaviors[$behavior_id] ?: [];
-		
 		$fields = [
 			DAO_Reminder::NAME => $name,
 			DAO_Reminder::REMIND_AT => @strtotime($remind_at) ?: 0,
 			DAO_Reminder::IS_CLOSED => 0,
-			DAO_Reminder::PARAMS_JSON => json_encode($reminder_params),
+			DAO_Reminder::AUTOMATIONS_KATA => sprintf("automation/%s:\n  uri: cerb:automation:cerb.reminder.remind.notification\n", uniqid()),
 			DAO_Reminder::UPDATED_AT => time(),
 			DAO_Reminder::WORKER_ID => $worker_id,
 		];
