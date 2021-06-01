@@ -116,12 +116,12 @@ FORM {
 
 BUTTON {
 	height: 26px;
+	vertical-align: top;
 	color: $cerb-base-button-text-color;
 	padding: 5px;
 	font-weight: bold;
-	margin: 0px 1px 0px 0px;
+	margin: 0 1px 0 0;
 	border: 0;
-	vertical-align: middle;
 	cursor: pointer;
 
 	@include linear-gradient(rgb(240,240,240), rgb(210,210,210));

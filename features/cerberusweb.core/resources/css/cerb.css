@@ -108,12 +108,12 @@ FORM SELECT OPTGROUP {
 
 BUTTON {
   height: 26px;
+  vertical-align: top;
   color: #323232;
   padding: 5px;
   font-weight: bold;
-  margin: 0px 1px 0px 0px;
+  margin: 0 1px 0 0;
   border: 0;
-  vertical-align: middle;
   cursor: pointer;
   background-color: #f0f0f0;
   background: -webkit-linear-gradient(top, #f0f0f0, #d2d2d2);
@@ -538,9 +538,10 @@ BUTTON.red:hover {
 }
 
 BUTTON.split-left {
+  vertical-align: top;
   height: 26px;
-  margin-right: 0px;
-  border-right: 0px;
+  margin-right: 0;
+  border-right: 0;
   -webkit-border-radius: 5px 0px 0px 5px;
   -moz-border-radius: 5px 0px 0px 5px;
   -ms-border-radius: 5px 0px 0px 5px;
@@ -551,8 +552,9 @@ BUTTON.split-left SPAN {
 }
 
 BUTTON.split-right {
+  vertical-align: top;
   height: 26px;
-  margin-left: 0px;
+  margin-left: 0;
   padding: 5px 2px;
   background: none;
   border-color: #969696;
