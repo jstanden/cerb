@@ -683,9 +683,6 @@ $.fn.cerbDateInputHelper = function(options) {
 					formData.set('action', 'getDateInputAutoCompleteOptionsJson');
 					formData.set('term', request.term);
 					
-					if(view_id)
-						formData.set('id', view_id);
-
 					genericAjaxPost(formData, null, null, function(data) {
 						response(data);
 					});

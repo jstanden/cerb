@@ -13,7 +13,6 @@ class ActionNode extends AbstractNode {
 			'data.query' => '\Cerb\AutomationBuilder\Action\DataQueryAction',
 			'decrypt.pgp' => '\Cerb\AutomationBuilder\Action\DecryptPgpAction',
 			'email.parse' => '\Cerb\AutomationBuilder\Action\EmailParseAction',
-			'email.send' => '\Cerb\AutomationBuilder\Action\EmailSendAction',
 			'encrypt.pgp' => '\Cerb\AutomationBuilder\Action\EncryptPgpAction',
 			'error' => '\Cerb\AutomationBuilder\Action\ErrorAction',
 			'function' => '\Cerb\AutomationBuilder\Action\FunctionAction',

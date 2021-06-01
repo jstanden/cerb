@@ -125,7 +125,7 @@ $(function() {
 		.find('.cerb-peek-trigger')
 			.cerbPeekTrigger()
 				.on('cerb-peek-saved', function(e) {
-					if(e.id && e.comment_html)
+					if(e.id && e.hasOwnProperty('comment_html'))
 						$('#comment' + e.id).html(e.comment_html);
 				})
 				.on('cerb-peek-deleted', function(e) {

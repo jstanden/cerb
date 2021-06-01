@@ -164,14 +164,9 @@ class BotAction_CreateReminder extends Extension_DevblocksEventAction {
 	function simulate($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
-		$out = null;
-		
 		@$name = $tpl_builder->build($params['name'], $dict);
 		@$remind_at = $tpl_builder->build($params['remind_at'], $dict);
 		@$object_placeholder = $params['object_placeholder'] ?: '_attachment_meta';
-		
-		@$worker_ids = DevblocksPlatform::importVar($params['worker_id'],'string','');
-		$worker_ids = DevblocksEventHelper::mergeWorkerVars($worker_ids, $dict);
 		
 		if(empty($name))
 			return "[ERROR] 'Name' is required.";

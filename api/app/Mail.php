@@ -693,7 +693,7 @@ class CerberusMail {
 		
 		// Group
 		if(null == ($group = DAO_Group::get($group_id)))
-			return;
+			return false;
 		
 		// Bucket
 		if(!$bucket_id || false == ($bucket = DAO_Bucket::get($bucket_id)) || $bucket->group_id != $group->id)

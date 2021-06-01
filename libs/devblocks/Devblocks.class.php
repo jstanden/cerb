@@ -1568,6 +1568,8 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @test DevblocksPlatformTest
 	 */
 	static function parseMarkdown($text, $safeMode=false) {
+		$text = strval($text);
+		
 		$parser = new Parsedown();
 		$parser->setBreaksEnabled(true);
 		$parser->setMarkupEscaped($safeMode);
