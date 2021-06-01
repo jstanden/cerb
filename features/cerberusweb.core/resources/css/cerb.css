@@ -108,7 +108,7 @@ FORM SELECT OPTGROUP {
 
 BUTTON {
   height: 26px;
-  vertical-align: top;
+  vertical-align: middle;
   color: #323232;
   padding: 5px;
   font-weight: bold;
