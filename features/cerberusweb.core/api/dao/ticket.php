@@ -5689,9 +5689,10 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 				 false
 			 );
 			
-			 $scope = $defaults;
-			 $scope['form_id'] = 'frmComposePeek' . $random;
-			
+			 $scope = [
+				 'form_id' => 'frmComposePeek' . $random,
+			 ];
+			 
 			 if (is_array($macros))
 				 foreach ($macros as $macro)
 					 Event_MailBeforeUiComposeByWorker::trigger($macro->id, $scope, $active_worker->id, $actions);
