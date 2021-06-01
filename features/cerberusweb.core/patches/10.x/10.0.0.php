@@ -475,6 +475,16 @@ if(!$db->GetOneMaster("SELECT 1 FROM automation_event WHERE name = 'record.merge
 	));
 }
 
+if(!$db->GetOneMaster("SELECT 1 FROM automation_event WHERE name = 'reminder.remind'")) {
+	$db->ExecuteMaster(sprintf('INSERT IGNORE INTO automation_event (name, extension_id, description, automations_kata, updated_at) VALUES (%s,%s,%s,%s,%d)',
+		$db->qstr('reminder.remind'),
+		$db->qstr('cerb.trigger.reminder.remind'),
+		$db->qstr('Send notifications about a reminder'),
+		$db->qstr("automation/notification:\n  uri: cerb:automation:cerb.reminder.remind.notification\n"),
+		time()
+	));
+}
+
 // ===========================================================================
 // Add `automation_timer` table
 
@@ -579,75 +589,19 @@ if(array_key_exists('is_default', $columns)) {
 }
 
 // ===========================================================================
-// Add automations to reminders
+// Remove automations on reminders
 
 list($columns,) = $db->metaTable('reminder');
 
-if(!array_key_exists('automations_kata', $columns)) {
-	$sql = "ALTER TABLE reminder ADD COLUMN automations_kata mediumtext";
+if(array_key_exists('automations_kata', $columns)) {
+	/** @noinspection SqlResolve */
+	$sql = "ALTER TABLE reminder DROP COLUMN automations_kata";
 	$db->ExecuteMaster($sql);
 }
 
-// Migrate behaviors to automations
 if(array_key_exists('params_json', $columns)) {
-	$sql = "select id, title FROM trigger_event WHERE event_point = 'event.macro.reminder'";
-	$behaviors = $db->GetArrayMaster($sql);
-	
-	$behaviors = array_column($behaviors, 'title', 'id');
-	
 	/** @noinspection SqlResolve */
-	$sql = "select id, params_json from reminder where is_closed = 0 and params_json not in ('','[]','{\"behaviors\":[]}')";
-	$rs = $db->ExecuteMaster($sql);
-	
-	while($row = mysqli_fetch_assoc($rs)) {
-		@$params = json_decode($row['params_json'], true);
-		
-		$automations_kata = "# [TODO] Migrate to automations\n";
-		
-		// Behaviors
-		if(array_key_exists('behaviors', $params)) {
-			foreach($params['behaviors'] as $behavior_id => $behavior_data) {
-				$automations_kata .= sprintf("# %s\nbehavior/%s:\n  uri: cerb:behavior:%d\n  disabled@bool: no\n",
-					$behaviors[$behavior_id] ?: 'Behavior',
-					uniqid(),
-					$behavior_id
-				);
-				
-				if(is_array($behavior_data) && $behavior_data) {
-					$automations_kata .= "  inputs:\n";
-					
-					foreach($behavior_data as $k => $v) {
-						if(is_array($v)) {
-							$automations_kata .= sprintf("    %s@list:\n      %s\n",
-								$k,
-								implode('\n      ', $v)
-							);
-							
-						} else {
-							$automations_kata .= sprintf("    %s: %s\n",
-								$k,
-								$v
-							);
-						}
-					}
-				}
-				
-				$automations_kata .= "\n";
-			}
-		}
-		
-		if($automations_kata) {
-			$sql = sprintf("UPDATE reminder SET automations_kata = %s WHERE id = %d",
-				$db->qstr($automations_kata),
-				$row['id']
-			);
-			
-			$db->ExecuteMaster($sql);
-		}
-	}
-	
-	/** @noinspection SqlResolve */
-	$db->ExecuteMaster('alter table reminder drop column params_json');
+	$db->ExecuteMaster('ALTER TABLE reminder DROP COLUMN params_json');
 }
 
 // ===========================================================================

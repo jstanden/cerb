@@ -79,7 +79,6 @@ class PageSection_ProfilesReminder extends Extension_PageSection {
 				@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
 				@$remind_at = DevblocksPlatform::importGPC($_POST['remind_at'], 'string', '');
 				@$worker_id = DevblocksPlatform::importGPC($_POST['worker_id'], 'integer', 0);
-				@$automations_kata = DevblocksPlatform::importGPC($_POST['automations_kata'], 'string', '');
 				
 				$remind_at = !empty($remind_at) ? @strtotime($remind_at) : '';
 				$is_closed = ($remind_at && $remind_at <= time()) ? 1 : 0;
@@ -88,7 +87,6 @@ class PageSection_ProfilesReminder extends Extension_PageSection {
 					$fields = array(
 						DAO_Reminder::IS_CLOSED => $is_closed,
 						DAO_Reminder::NAME => $name,
-						DAO_Reminder::AUTOMATIONS_KATA => $automations_kata,
 						DAO_Reminder::REMIND_AT => $remind_at,
 						DAO_Reminder::UPDATED_AT => time(),
 						DAO_Reminder::WORKER_ID => $worker_id,
@@ -116,7 +114,6 @@ class PageSection_ProfilesReminder extends Extension_PageSection {
 					$fields = array(
 						DAO_Reminder::IS_CLOSED => $is_closed,
 						DAO_Reminder::NAME => $name,
-						DAO_Reminder::AUTOMATIONS_KATA => $automations_kata,
 						DAO_Reminder::REMIND_AT => $remind_at,
 						DAO_Reminder::UPDATED_AT => time(),
 						DAO_Reminder::WORKER_ID => $worker_id,

@@ -45,43 +45,6 @@
 	{/if}
 </table>
 
-<fieldset>
-	<legend>Event: Remind (KATA)</legend>
-	<div class="cerb-code-editor-toolbar">
-		{$toolbar_dict = DevblocksDictionaryDelegate::instance([
-			'caller_name' => 'cerb.toolbar.eventHandlers.editor',
-			
-			'worker__context' => CerberusContexts::CONTEXT_WORKER,
-			'worker_id' => $active_worker->id
-		])}
-
-		{$toolbar_kata =
-"menu/add:
-  icon: circle-plus
-  items:
-    interaction/automation:
-      label: Automation
-      uri: ai.cerb.eventHandler.automation
-      inputs:
-        trigger: cerb.trigger.reminder.remind
-"}
-
-		{$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)}
-
-		{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
-
-		<div class="cerb-code-editor-toolbar-divider"></div>
-		{include file="devblocks:cerberusweb.core::automations/triggers/editor_event_handler_buttons.tpl"}
-	</div>
-
-	<textarea name="automations_kata" data-editor-mode="ace/mode/cerb_kata">{$model->automations_kata}</textarea>
-
-	{$trigger_ext = Extension_AutomationTrigger::get(AutomationTrigger_ReminderRemind::ID, true)}
-	{if $trigger_ext}
-		{include file="devblocks:cerberusweb.core::automations/triggers/editor_event_handler.tpl" trigger_inputs=$trigger_ext->getInputsMeta()}
-	{/if}
-</fieldset>
-
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
 {if !empty($model->id)}
@@ -118,53 +81,6 @@ $(function() {
 		// Buttons
 		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
-
-		// Editors
-		var $automation_editor = $popup.find('textarea[name=automations_kata]')
-			.cerbCodeEditor()
-			.cerbCodeEditorAutocompleteKata({
-				autocomplete_suggestions: cerbAutocompleteSuggestions.kataAutomationEvent
-			})
-			.nextAll('pre.ace_editor')
-		;
-
-		var automation_editor = ace.edit($automation_editor.attr('id'));
-
-		// Toolbars
-		var $toolbar = $popup.find('.cerb-code-editor-toolbar').cerbToolbar({
-			caller: {
-				name: 'cerb.toolbar.eventHandlers.editor',
-				params: {
-					trigger: 'cerb.trigger.reminder.remind',
-					selected_text: ''
-				}
-			},
-			start: function(formData) {
-				formData.set('caller[params][selected_text]', automation_editor.getSelectedText())
-			},
-			done: function(e) {
-				e.stopPropagation();
-
-				var $target = e.trigger;
-
-				if(!$target.is('.cerb-bot-trigger'))
-					return;
-
-				if(!e.eventData || !e.eventData.exit)
-					return;
-
-				if (e.eventData.exit === 'error') {
-					// [TODO] Show error
-
-				} else if(e.eventData.exit === 'return' && e.eventData.return.snippet) {
-					automation_editor.insertSnippet(e.eventData.return.snippet);
-				}
-			}
-		});
-		
-		$toolbar.cerbCodeEditorToolbarEventHandler({
-			editor: automation_editor
-		});
 
 		// Helpers
 		

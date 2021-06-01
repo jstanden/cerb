@@ -131,6 +131,7 @@ class BotAction_CreateAttachment extends Extension_DevblocksEventAction {
 	}
 };
 
+/** @deprecated  */
 class BotAction_CreateReminder extends Extension_DevblocksEventAction {
 	const ID = 'core.bot.action.create_reminder';
 	
@@ -224,7 +225,6 @@ class BotAction_CreateReminder extends Extension_DevblocksEventAction {
 			DAO_Reminder::NAME => $name,
 			DAO_Reminder::REMIND_AT => @strtotime($remind_at) ?: 0,
 			DAO_Reminder::IS_CLOSED => 0,
-			DAO_Reminder::AUTOMATIONS_KATA => sprintf("automation/%s:\n  uri: cerb:automation:cerb.reminder.remind.notification\n", uniqid()),
 			DAO_Reminder::UPDATED_AT => time(),
 			DAO_Reminder::WORKER_ID => $worker_id,
 		];

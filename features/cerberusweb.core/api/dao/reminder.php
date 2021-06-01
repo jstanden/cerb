@@ -1,6 +1,5 @@
 <?php
 class DAO_Reminder extends Cerb_ORMHelper {
-	const AUTOMATIONS_KATA = 'automations_kata';
 	const ID = 'id';
 	const IS_CLOSED = 'is_closed';
 	const NAME = 'name';
@@ -13,11 +12,6 @@ class DAO_Reminder extends Cerb_ORMHelper {
 	static function getFields() {
 		$validation = DevblocksPlatform::services()->validation();
 		
-		$validation
-			->addField(self::AUTOMATIONS_KATA)
-			->string()
-			->setMaxLength('24 bits')
-			;
 		$validation
 			->addField(self::ID)
 			->id()
@@ -164,7 +158,7 @@ class DAO_Reminder extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, worker_id, remind_at, automations_kata, is_closed, updated_at ".
+		$sql = "SELECT id, name, worker_id, remind_at, is_closed, updated_at ".
 			"FROM reminder ".
 			$where_sql.
 			$sort_sql.
@@ -244,7 +238,6 @@ class DAO_Reminder extends Cerb_ORMHelper {
 			$object->remind_at = $row['remind_at'];
 			$object->is_closed = $row['is_closed'];
 			$object->updated_at = $row['updated_at'];
-			$object->automations_kata = $row['automations_kata'];
 			$objects[$object->id] = $object;
 		}
 		
@@ -482,7 +475,6 @@ class SearchFields_Reminder extends DevblocksSearchFields {
 };
 
 class Model_Reminder {
-	public $automations_kata = null;
 	public $id = 0;
 	public $name = null;
 	public $worker_id = 0;
@@ -499,63 +491,30 @@ class Model_Reminder {
 		
 		$error = null;
 		
-		$event_dict = DevblocksDictionaryDelegate::instance([
-			'reminder__context' => CerberusContexts::CONTEXT_REMINDER,
-			'reminder_id' => $this->id,
-		]);
+		$event_dict = DevblocksDictionaryDelegate::getDictionaryFromModel($this, CerberusContexts::CONTEXT_REMINDER, ['customfields']);
 		
-		if(false == ($handlers = $event_handler->parse($this->automations_kata, $event_dict, $error)))
+		$initial_state = $event_dict->getDictionary(null, false, 'reminder_');
+		
+		if(false == ($automation_event = DAO_AutomationEvent::getByName('reminder.remind')))
 			return false;
 		
-		$event_state = $event_dict->getDictionary();
+		if(false == ($handlers = $automation_event->getKata($event_dict, $error)))
+			return false;
 		
-		$model = $this;
 		
 		$results = $event_handler->handleEach(
 			AutomationTrigger_ReminderRemind::ID,
 			$handlers,
-			$event_state,
-			$error,
-			null,
-			function(Model_TriggerEvent $behavior, array $handler) use ($model) {
-				if($behavior->event_point != Event_ReminderMacro::ID)
-					return false;
-				
-				if(false == ($event = $behavior->getEvent()))
-					return false;
-				
-				$event_model = new Model_DevblocksEvent(
-					Event_ReminderMacro::ID,
-					[
-						'context_model' => $model,
-					]
-				);
-				
-				$event->setEvent($event_model, $behavior);
-				
-				$values = $event->getValues();
-				
-				// Inputs -> variables
-				
-				if(array_key_exists('inputs', $handler['data'])) {
-					foreach($handler['data']['inputs'] as $k => $v) {
-						if(DevblocksPlatform::strStartsWith($k, 'var_'))
-							$values[$k] = $v;
-					}
-				}
-				
-				// Run behavior
-				
-				$dict = DevblocksDictionaryDelegate::instance($values);
-				
-				return $behavior->runDecisionTree($dict, false, $event);
-			}
+			$initial_state,
+			$error
 		);
 		
 		// Close the reminder
 		DAO_Reminder::update($this->id, [
 			DAO_Reminder::IS_CLOSED => 1,
 		]);
+		
+		return $results;
 	}
 };
 
@@ -1035,7 +994,6 @@ class Context_Reminder extends Extension_DevblocksContext implements IDevblocksC
 		// Token labels
 		$token_labels = array(
 			'_label' => $prefix,
-			'automations_kata' => $prefix.$translate->_('common.automations'),
 			'id' => $prefix.$translate->_('common.id'),
 			'is_closed' => $prefix.$translate->_('common.is_closed'),
 			'name' => $prefix.$translate->_('common.name'),
@@ -1047,7 +1005,6 @@ class Context_Reminder extends Extension_DevblocksContext implements IDevblocksC
 		// Token types
 		$token_types = array(
 			'_label' => 'context_url',
-			'automations_kata' => Model_CustomField::TYPE_MULTI_LINE,
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'is_closed' => Model_CustomField::TYPE_CHECKBOX,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -1075,7 +1032,6 @@ class Context_Reminder extends Extension_DevblocksContext implements IDevblocksC
 		if($reminder) {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $reminder->name;
-			$token_values['automations_kata'] = $reminder->automations_kata;
 			$token_values['id'] = $reminder->id;
 			$token_values['is_closed'] = $reminder->is_closed;
 			$token_values['name'] = $reminder->name;
@@ -1110,7 +1066,6 @@ class Context_Reminder extends Extension_DevblocksContext implements IDevblocksC
 	
 	function getKeyToDaoFieldMap() {
 		return [
-			'automations_kata' => DAO_Reminder::AUTOMATIONS_KATA,
 			'id' => DAO_Reminder::ID,
 			'is_closed' => DAO_Reminder::IS_CLOSED,
 			'name' => DAO_Reminder::NAME,
