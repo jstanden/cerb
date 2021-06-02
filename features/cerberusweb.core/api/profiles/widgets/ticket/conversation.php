@@ -6,6 +6,17 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 		parent::__construct($manifest);
 	}
 	
+	function renderConfig(Model_ProfileWidget $model) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('widget', $model);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/ticket/convo/config.tpl');
+	}
+	
+	function invokeConfig($action, Model_ProfileWidget $model) {
+		return false;
+	}
+	
 	function invoke(string $action, Model_ProfileWidget $model) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -16,78 +27,103 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 	}
 	
 	function render(Model_ProfileWidget $model, $context, $context_id) {
+		$this->_showConversation($model, $context, $context_id);
+	}
+	
+	private function _showConversation(Model_ProfileWidget $model, $context, $context_id) {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		$tpl->assign('widget', $model);
 		
-		// [TODO] Handle focus?
+		// Display options
 		
 		$display_options = [];
 		
-		if(array_key_exists('expand_all', $_POST))
+		$mail_always_read_all = DAO_WorkerPref::get($active_worker->id, 'mail_always_read_all', 0);
+		$mail_reply_button = DAO_WorkerPref::get($active_worker->id, 'mail_reply_button', 0);
+		$mail_reply_format = DAO_WorkerPref::get($active_worker->id, 'mail_reply_format', '');
+		
+		if($mail_always_read_all) {
+			$display_options['expand_all'] = 1;
+		} else if(array_key_exists('expand_all', $_POST)) {
 			$display_options['expand_all'] = DevblocksPlatform::importGPC($_POST['expand_all'], 'bit', 0);
+		}
 		
 		$display_options['comments_mode'] = DevblocksPlatform::importVar(@$model->extension_params['comments_mode'], 'int', 0);
 		
-		$this->_showConversation($context_id, $display_options);
+		// Assignments
+		
+		$tpl->assign('comments_mode', $display_options['comments_mode'] ?? 0);
+		$tpl->assign('expand_all', $display_options['expand_all'] ?? 0);
+		$tpl->assign('mail_reply_button', $mail_reply_button);
+		$tpl->assign('mail_reply_format', $mail_reply_format);
+		$tpl->assign('workers', DAO_Worker::getAll());
+		
+		// Display by record type
+		
+		if($context == CerberusContexts::CONTEXT_TICKET) {
+			$this->_showTicketConversation($context_id, $display_options);
+		} else if ($context == CerberusContexts::CONTEXT_MESSAGE) {
+			$this->_showMessageConversation($context_id, $display_options);
+		}
 	}
 	
-	private function _showConversation($id, $display_options=[]) {
-		@$expand_all = DevblocksPlatform::importVar($display_options['expand_all'], 'bit', 0);
-		@$comments_mode = DevblocksPlatform::importVar($display_options['comments_mode'], 'int', 0);
-		
+	private function _threadDrafts(array $drafts, array &$convo_timeline, array $display_options) {
 		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('comments_mode', $comments_mode);
-		
-		@$active_worker = CerberusApplication::getActiveWorker();
-		
-		$prefs_mail_always_read_all = DAO_WorkerPref::get($active_worker->id, 'mail_always_read_all', 0);
-		
-		if($expand_all || $prefs_mail_always_read_all)
-			$expand_all = 1;
-		
-		$tpl->assign('expand_all', $expand_all);
-		
-		$ticket = DAO_Ticket::get($id);
-		$tpl->assign('ticket', $ticket);
-		$tpl->assign('requesters', $ticket->getRequesters());
-		
-		// If deleted, check for a new merge parent URL
-		if($ticket->status_id == Model_Ticket::STATUS_DELETED) {
-			if(false !== ($new_mask = DAO_Ticket::getMergeParentByMask($ticket->mask))) {
-				if(false !== ($merge_parent = DAO_Ticket::getTicketByMask($new_mask)))
-					if(!empty($merge_parent->mask)) {
-						$tpl->assign('merge_parent', $merge_parent);
-					}
-			}
-		}
-		
-		// Drafts
-		$drafts = DAO_MailQueue::getWhere(sprintf("%s = %d AND (%s = %s OR %s = %s)",
-			DAO_MailQueue::TICKET_ID,
-			$id,
-			DAO_MailQueue::TYPE,
-			Cerb_ORMHelper::qstr(Model_MailQueue::TYPE_TICKET_REPLY),
-			DAO_MailQueue::TYPE,
-			Cerb_ORMHelper::qstr(Model_MailQueue::TYPE_TICKET_FORWARD)
-		));
 		
 		if(!empty($drafts))
 			$tpl->assign('drafts', $drafts);
 		
-		// Messages
-		if(false == ($messages = $ticket->getMessages()))
-			$messages = [];
+		// Draft Notes
 		
-		// Thread comments and messages on the same level
-		$convo_timeline = [];
+		$draft_notes = [];
+		
+		$notes = DAO_Comment::getByContext(CerberusContexts::CONTEXT_DRAFT, array_keys($drafts));
+		
+		// Index notes by draft id
+		if(is_array($notes)) {
+			foreach ($notes as $note) {
+				if (!isset($draft_notes[$note->context_id]))
+					$draft_notes[$note->context_id] = [];
+				$draft_notes[$note->context_id][$note->id] = $note;
+			}
+		}
+		
+		$tpl->assign('draft_notes', $draft_notes);
+		
+		// Thread drafts into conversation (always at top)
+		if(!empty($drafts)) {
+			foreach($drafts as $draft_id => $draft) { /* @var $draft Model_MailQueue */
+				if(!empty($draft->queue_delivery_date)) {
+					$key = $draft->queue_delivery_date . '_d' . $draft_id;
+				} else {
+					$key = $draft->updated . '_d' . $draft_id;
+				}
+				$convo_timeline[$key] = [
+					'type' => 'd',
+					'id' => $draft_id
+				];
+			}
+		}		
+	}
+	
+	private function _threadMessages(array $messages, &$convo_timeline, array $display_options) {
+		$tpl = DevblocksPlatform::services()->template();
+		
+		@$expand_all = $display_options['expand_all'] ?? 0;
 		
 		// Track senders and their orgs
+		
 		$message_senders = [];
 		$message_sender_orgs = [];
 		
 		// Message Notes
-		$notes = DAO_Comment::getByContext(CerberusContexts::CONTEXT_MESSAGE, array_keys($messages));
+		
 		$message_notes = [];
+		
+		$notes = DAO_Comment::getByContext(CerberusContexts::CONTEXT_MESSAGE, array_keys($messages));
+		
 		// Index notes by message id
 		if(is_array($notes))
 			foreach($notes as $note) {
@@ -96,7 +132,7 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 				$message_notes[$note->context_id][$note->id] = $note;
 			}
 		$tpl->assign('message_notes', $message_notes);
-
+		
 		// Loop messages
 		
 		arsort($messages);
@@ -150,57 +186,45 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 				$message_sender_orgs[$sender->contact_org_id] = null;
 		});
 		$message_sender_orgs = CerberusApplication::hashLookupOrgs(array_keys($message_sender_orgs));
-
+		
 		$tpl->assign('message_senders', $message_senders);
 		$tpl->assign('message_sender_orgs', $message_sender_orgs);
+	}
+	
+	private function _threadComments(array $comments, &$convo_timeline, array $display_options) {
+		$tpl = DevblocksPlatform::services()->template();
 		
-		// Thread drafts into conversation (always at top)
-		if(!empty($drafts)) {
-			foreach($drafts as $draft_id => $draft) { /* @var $draft Model_MailQueue */
-				if(!empty($draft->queue_delivery_date)) {
-					$key = $draft->queue_delivery_date . '_d' . $draft_id;
+		@$comments_mode = $display_options['comments_mode'] ?? 0;
+		
+		$tpl->assign('comments', $comments);
+		
+		if($comments) {
+			$pin_ts = null;
+			
+			if(2 == $comments_mode) {
+				$pin_ts = max(array_column(DevblocksPlatform::objectsToArrays($comments), 'created'));
+			}
+			
+			// build a chrono index of comments
+			foreach($comments as $comment_id => $comment) { /* @var $comment Model_Comment */
+				if($pin_ts && $comment->created == $pin_ts) {
+					$key = time() . '_c' . $comment_id;
 				} else {
-					$key = $draft->updated . '_d' . $draft_id;
+					$key = $comment->created . '_c' . $comment_id;
 				}
 				$convo_timeline[$key] = [
-					'type' => 'd',
-					'id' => $draft_id
+					'type' => 'c',
+					'id' => $comment_id,
 				];
 			}
 		}
 		
-		// Comments
-		
-		// If we're not hiding them
-		if(1 != $comments_mode) {
-			$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_TICKET, $id);
-			$tpl->assign('comments', $comments);
-			
-			if($comments) {
-				$pin_ts = null;
-				
-				if(2 == $comments_mode) {
-					$pin_ts = max(array_column(DevblocksPlatform::objectsToArrays($comments), 'created'));
-				}
-				
-				// build a chrono index of comments
-				foreach($comments as $comment_id => $comment) { /* @var $comment Model_Comment */
-					if($pin_ts && $comment->created == $pin_ts) {
-						$key = time() . '_c' . $comment_id;
-					} else {
-						$key = $comment->created . '_c' . $comment_id;
-					}
-					$convo_timeline[$key] = [
-						'type' => 'c',
-						'id' => $comment_id,
-					];
-				}
-			}
-		}
-		
 		// Comment notes
-		$notes = DAO_Comment::getByContext(CerberusContexts::CONTEXT_COMMENT, array_keys($comments));
+		
 		$comment_notes = [];
+		
+		$notes = DAO_Comment::getByContext(CerberusContexts::CONTEXT_COMMENT, array_keys($comments));
+		
 		// Index notes by comment id
 		if(is_array($notes))
 			foreach($notes as $note) {
@@ -209,7 +233,10 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 				$comment_notes[$note->context_id][$note->id] = $note;
 			}
 		$tpl->assign('comment_notes', $comment_notes);
-		
+	}
+	
+	private function _renderTimeline(array $convo_timeline) {
+		$tpl = DevblocksPlatform::services()->template();
 		
 		// Sort the timeline
 		
@@ -218,36 +245,89 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 			[$this, '_sortTimeline']
 		);
 		
-		if($expand_all) {
+		if($display_options['expand_all'] ?? 0) {
 			$convo_timeline = array_reverse($convo_timeline, true);
 		}
 		
 		$tpl->assign('convo_timeline', $convo_timeline);
 		
-		// Draft Notes
-		$notes = DAO_Comment::getByContext(CerberusContexts::CONTEXT_DRAFT, array_keys($drafts));
-		$draft_notes = [];
-		// Index notes by draft id
-		if(is_array($notes))
-		foreach($notes as $note) {
-			if(!isset($draft_notes[$note->context_id]))
-				$draft_notes[$note->context_id] = [];
-			$draft_notes[$note->context_id][$note->id] = $note;
-		}
-		$tpl->assign('draft_notes', $draft_notes);
-		
-		// Workers
-		$workers = DAO_Worker::getAll();
-		$tpl->assign('workers', $workers);
-		
-		// Prefs
-		$mail_reply_button = DAO_WorkerPref::get($active_worker->id, 'mail_reply_button', 0);
-		$tpl->assign('mail_reply_button', $mail_reply_button);
-		
-		$mail_reply_format = DAO_WorkerPref::get($active_worker->id, 'mail_reply_format', '');
-		$tpl->assign('mail_reply_format', $mail_reply_format);
-		
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/ticket/convo/conversation.tpl');
+	}
+	
+	private function _showTicketConversation($context_id, $display_options=[]) {
+		$tpl = DevblocksPlatform::services()->template();
+		
+		// Thread comments and messages on the same level
+		
+		$convo_timeline = [];
+		
+		if(false == ($ticket = DAO_Ticket::get($context_id)))
+			return;
+		
+		$tpl->assign('ticket', $ticket);
+		$tpl->assign('requesters', $ticket->getRequesters());
+		
+		// If deleted, check for a new merge parent URL
+		
+		if($ticket->status_id == Model_Ticket::STATUS_DELETED) {
+			if(false !== ($new_mask = DAO_Ticket::getMergeParentByMask($ticket->mask))) {
+				if(false !== ($merge_parent = DAO_Ticket::getTicketByMask($new_mask)))
+					if(!empty($merge_parent->mask)) {
+						$tpl->assign('merge_parent', $merge_parent);
+					}
+			}
+		}
+		
+		// Drafts
+		
+		$drafts = DAO_MailQueue::getWhere(sprintf("%s = %d AND (%s = %s OR %s = %s)",
+			DAO_MailQueue::TICKET_ID,
+			$context_id,
+			DAO_MailQueue::TYPE,
+			Cerb_ORMHelper::qstr(Model_MailQueue::TYPE_TICKET_REPLY),
+			DAO_MailQueue::TYPE,
+			Cerb_ORMHelper::qstr(Model_MailQueue::TYPE_TICKET_FORWARD)
+		));
+		
+		$this->_threadDrafts($drafts, $convo_timeline, $display_options);
+		
+		// Messages
+		
+		if(false == ($messages = $ticket->getMessages()))
+			$messages = [];
+		
+		$this->_threadMessages($messages, $convo_timeline, $display_options);
+		
+		// Comments
+		
+		if(1 != ($display_options['comments_mode'] ?? 0)) {
+			$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_TICKET, $context_id);
+			
+			$this->_threadComments($comments, $convo_timeline, $display_options);
+		}
+		
+		$this->_renderTimeline($convo_timeline);
+	}
+	
+	private function _showMessageConversation($message_id, $display_options=[]) {
+		$tpl = DevblocksPlatform::services()->template();
+		
+		$convo_timeline = [];
+		
+		if(false == ($message = DAO_Message::get($message_id)))
+			return;
+		
+		if(false == ($ticket = $message->getTicket()))
+			return;
+		
+		$tpl->assign('ticket', $ticket);
+		$tpl->assign('requesters', $ticket->getRequesters());
+		
+		// Messages
+		
+		$this->_threadMessages([$message_id => $message], $convo_timeline, $display_options);
+		
+		$this->_renderTimeline($convo_timeline);
 	}
 	
 	private function _sortTimeline($a, $b) {
@@ -261,16 +341,5 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 		} else {
 			return $b <=> $a;
 		}
-	}
-	
-	function renderConfig(Model_ProfileWidget $model) {
-		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('widget', $model);
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/ticket/convo/config.tpl');
-	}
-	
-	function invokeConfig($action, Model_ProfileWidget $model) {
-		return false;
 	}
 }

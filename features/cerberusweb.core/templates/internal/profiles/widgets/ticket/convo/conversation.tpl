@@ -46,32 +46,30 @@
 				{/if}
 				
 				{if $state == 'message'}
-					{assign var=message_id value=$convo_set.id}
-					{assign var=message_expanded value=$convo_set.expand}
-					{assign var=message value=$messages.$message_id}
+					{$message_id = $convo_set.id}
+					{$message_expanded = $convo_set.expand}
+					{$message = $messages.$message_id}
 					
 					<div id="message{$message->id}" class="cerb-message">
 						{include file="devblocks:cerberusweb.core::display/modules/conversation/message.tpl" expanded=$message_expanded}
 					</div>
 					
 				{elseif $state == 'comment'}
-					{assign var=comment_id value=$convo_set.id}
-					{assign var=comment value=$comments.$comment_id}
+					{$comment_id = $convo_set.id}
+					{$comment = $comments.$comment_id}
 					
 					<div id="comment{$comment->id}" class="cerb-comment">
 						{include file="devblocks:cerberusweb.core::internal/comments/comment.tpl"}
 					</div>
 					
 				{elseif $state == 'draft'}
-					{assign var=draft_id value=$convo_set.id}
-					{assign var=draft value=$drafts.$draft_id}
+					{$draft_id = $convo_set.id}
+					{$draft = $drafts.$draft_id}
 					
 					<div id="draft{$draft->id}" class="cerb-draft">
 						{include file="devblocks:cerberusweb.core::display/modules/conversation/draft.tpl"}
 					</div>
-					
 				{/if}
-				
 			{/foreach}
 		{else}
 			<div style="color:rgb(120,120,120);text-align:center;font-size:1.2em;">
