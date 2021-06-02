@@ -66,6 +66,8 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 			$this->_showTicketConversation($context_id, $display_options);
 		} else if ($context == CerberusContexts::CONTEXT_MESSAGE) {
 			$this->_showMessageConversation($context_id, $display_options);
+		} else if ($context == CerberusContexts::CONTEXT_DRAFT) {
+			$this->_showDraftConversation($context_id, $display_options);
 		}
 	}
 	
@@ -326,6 +328,19 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 		// Messages
 		
 		$this->_threadMessages([$message_id => $message], $convo_timeline, $display_options);
+		
+		$this->_renderTimeline($convo_timeline);
+	}
+	
+	private function _showDraftConversation($draft_id, $display_options=[]) {
+		$convo_timeline = [];
+		
+		if(false == ($draft = DAO_MailQueue::get($draft_id)))
+			return;
+		
+		// Drafts
+		
+		$this->_threadDrafts([$draft_id => $draft], $convo_timeline, $display_options);
 		
 		$this->_renderTimeline($convo_timeline);
 	}

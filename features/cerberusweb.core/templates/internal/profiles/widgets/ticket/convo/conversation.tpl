@@ -30,53 +30,51 @@
 	{/if}
 	
 	<div id="conversation" style="margin-top:10px;">
-	{if !empty($ticket)}
-		{if !empty($convo_timeline)}
-			{$state = ''}
+	{if !empty($convo_timeline)}
+		{$state = ''}
+		
+		{foreach from=$convo_timeline item=convo_set name=items}
+			{$last_state = $state}
 			
-			{foreach from=$convo_timeline item=convo_set name=items}
-				{$last_state = $state}
+			{if $convo_set.type=='m'}
+				{$state = 'message'}
+			{elseif $convo_set.type=='c'}
+				{$state = 'comment'}
+			{elseif $convo_set.type=='d'}
+				{$state = 'draft'}
+			{/if}
+			
+			{if $state == 'message' && $ticket}
+				{$message_id = $convo_set.id}
+				{$message_expanded = $convo_set.expand}
+				{$message = $messages.$message_id}
 				
-				{if $convo_set.type=='m'}
-					{$state = 'message'}
-				{elseif $convo_set.type=='c'}
-					{$state = 'comment'}
-				{elseif $convo_set.type=='d'}
-					{$state = 'draft'}
-				{/if}
+				<div id="message{$message->id}" class="cerb-message">
+					{include file="devblocks:cerberusweb.core::display/modules/conversation/message.tpl" expanded=$message_expanded}
+				</div>
 				
-				{if $state == 'message'}
-					{$message_id = $convo_set.id}
-					{$message_expanded = $convo_set.expand}
-					{$message = $messages.$message_id}
-					
-					<div id="message{$message->id}" class="cerb-message">
-						{include file="devblocks:cerberusweb.core::display/modules/conversation/message.tpl" expanded=$message_expanded}
-					</div>
-					
-				{elseif $state == 'comment'}
-					{$comment_id = $convo_set.id}
-					{$comment = $comments.$comment_id}
-					
-					<div id="comment{$comment->id}" class="cerb-comment">
-						{include file="devblocks:cerberusweb.core::internal/comments/comment.tpl"}
-					</div>
-					
-				{elseif $state == 'draft'}
-					{$draft_id = $convo_set.id}
-					{$draft = $drafts.$draft_id}
-					
-					<div id="draft{$draft->id}" class="cerb-draft">
-						{include file="devblocks:cerberusweb.core::display/modules/conversation/draft.tpl"}
-					</div>
-				{/if}
-			{/foreach}
-		{else}
-			<div style="color:rgb(120,120,120);text-align:center;font-size:1.2em;">
-				({'display.convo.no_messages'|devblocks_translate})
-			</div>
-			<br>
-		{/if}
+			{elseif $state == 'comment'}
+				{$comment_id = $convo_set.id}
+				{$comment = $comments.$comment_id}
+				
+				<div id="comment{$comment->id}" class="cerb-comment">
+					{include file="devblocks:cerberusweb.core::internal/comments/comment.tpl"}
+				</div>
+				
+			{elseif $state == 'draft'}
+				{$draft_id = $convo_set.id}
+				{$draft = $drafts.$draft_id}
+				
+				<div id="draft{$draft->id}" class="cerb-draft">
+					{include file="devblocks:cerberusweb.core::display/modules/conversation/draft.tpl"}
+				</div>
+			{/if}
+		{/foreach}
+	{else}
+		<div style="color:rgb(120,120,120);text-align:center;font-size:1.2em;">
+			({'display.convo.no_messages'|devblocks_translate})
+		</div>
+		<br>
 	{/if}
 	</div>
 </div>

@@ -7548,6 +7548,7 @@
 			<params>
 				<param key="contexts">
 					<value>
+						<data key="cerberusweb.contexts.mail.draft" />
 						<data key="cerberusweb.contexts.message" />
 						<data key="cerberusweb.contexts.ticket" />
 					</value>

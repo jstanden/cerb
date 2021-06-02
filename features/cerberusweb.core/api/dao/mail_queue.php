@@ -1444,12 +1444,12 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 	}
 	
 	function profileGetUrl($context_id) {
+		$url_writer = DevblocksPlatform::services()->url();
+		
 		if(empty($context_id))
 			return '';
 	
-		$url_writer = DevblocksPlatform::services()->url();
-		$url = $url_writer->writeNoProxy('c=profiles&type=draft&id='.$context_id, true);
-		return $url;
+		return $url_writer->writeNoProxy(sprintf('c=profiles&type=draft&id=%d', $context_id), true);
 	}
 	
 	function profileGetFields($model=null) {
