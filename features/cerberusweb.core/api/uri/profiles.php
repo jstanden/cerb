@@ -174,6 +174,13 @@ class Page_Profiles extends CerberusPageExtension {
 		
 		$tpl->assign('record', $record);
 		
+		// Events
+		
+		if($context == CerberusContexts::CONTEXT_TICKET) {
+			// Trigger ticket view event (before we load it, in case we change it)
+			Event_TicketViewedByWorker::trigger($record->id, $active_worker->id);
+		}
+		
 		// Dictionary
 		
 		$labels = $values = [];

@@ -24,32 +24,10 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		@$id_string = array_shift($stack);
 		
 		$context = CerberusContexts::CONTEXT_TICKET;
-		$active_worker = CerberusApplication::getActiveWorker();
 		
 		// Translate masks to IDs
-		if(null == ($context_id= DAO_Ticket::getTicketIdByMask($id_string))) {
+		if(null == ($context_id = DAO_Ticket::getTicketIdByMask($id_string))) {
 			$context_id = intval($id_string);
-		}
-		
-		// Load the record
-		if(false == ($ticket = DAO_Ticket::get($context_id))) {
-			DevblocksPlatform::redirect(new DevblocksHttpRequest());
-			return;
-		}
-		
-		// Dictionary
-		
-		if(false == (Extension_DevblocksContext::get(CerberusContexts::CONTEXT_TICKET, true)))
-			return;
-
-		// Trigger ticket view event (before we load it, in case we change it)
-		Event_TicketViewedByWorker::trigger($ticket->id, $active_worker->id);
-		
-		// Permissions
-		
-		if(!Context_Ticket::isReadableByActor($ticket, $active_worker)) {
-			echo DevblocksPlatform::translateCapitalized('common.access_denied');
-			exit;
 		}
 		
 		Page_Profiles::renderProfile($context, $context_id, $stack);
