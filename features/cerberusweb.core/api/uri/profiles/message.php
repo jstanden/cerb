@@ -17,6 +17,16 @@
 
 class PageSection_ProfilesMessage extends Extension_PageSection {
 	function render() {
+		$response = DevblocksPlatform::getHttpResponse();
+		
+		$stack = $response->path;
+		@array_shift($stack); // profiles
+		@array_shift($stack); // message
+		@$context_id = array_shift($stack);
+		
+		$context = CerberusContexts::CONTEXT_MESSAGE;
+		
+		Page_Profiles::renderProfile($context, $context_id, $stack);		
 	}
 	
 	function handleActionForPage(string $action, string $scope=null) {

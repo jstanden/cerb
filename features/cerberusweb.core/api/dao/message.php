@@ -3223,6 +3223,11 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 	}
 
 	public function profileGetUrl($context_id) {
-		return null;
+		$url_writer = DevblocksPlatform::services()->url();
+		
+		if(empty($context_id))
+			return '';
+		
+		return $url_writer->writeNoProxy('c=profiles&type=message&id='.$context_id, true);
 	}
 };
