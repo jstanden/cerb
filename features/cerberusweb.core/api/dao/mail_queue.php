@@ -971,6 +971,9 @@ class Model_MailQueue {
 		if($this->hasParam('send_at'))
 			$properties['send_at'] = $this->getParam('send_at');
 		
+		if($this->hasParam('headers'))
+			$properties['headers'] = $this->getParam('headers');
+		
 		return $properties;
 	}
 	
@@ -1000,22 +1003,46 @@ class Model_MailQueue {
 	}
 	
 	private function _sendCompose() {
+		$automation_properties = [];
+		
+		// Changing the outgoing message through an automation
+		AutomationTrigger_MailSend::trigger($this, $automation_properties);
+		
 		$properties = $this->getMessageProperties();
+		
+		foreach($automation_properties as $k => $v)
+			$properties[$k] = $v;
 		
 		return CerberusMail::compose($properties);
 	}
 	
 	private function _sendTransactional() {
+		$automation_properties = [];
+		
+		// Changing the outgoing message through an automation
+		AutomationTrigger_MailSend::trigger($this, $automation_properties);
+		
 		$properties = $this->getMessageProperties();
+		
+		foreach($automation_properties as $k => $v)
+			$properties[$k] = $v;
 		
 		return CerberusMail::sendTransactional($properties);
 	}
 	
 	private function _sendTicketReply() {
+		$automation_properties = [];
+		
+		// Changing the outgoing message through an automation
+		AutomationTrigger_MailSend::trigger($this, $automation_properties);
+		
 		$properties = $this->getMessageProperties();
 		
 		if('save' == $this->getParam('reply_mode'))
 			$properties['dont_send'] = true;
+		
+		foreach($automation_properties as $k => $v)
+			$properties[$k] = $v;
 		
 		return CerberusMail::sendTicketMessage($properties);
 	}
