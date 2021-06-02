@@ -1579,6 +1579,7 @@ var ajax = new cAjaxCalls();
 				var twig_filters = [
 					{ value: "abs", meta: "filter" },
 					{ value: "alphanum", meta: "filter" },
+					{ value: "append", snippet: "append('${1:suffix}', delimiter=', ')", meta: "filter" },
 					{ value: "base_convert", snippet: "base_convert(${1:16},${2:10})", meta: "filter" },
 					{ value: "base64_decode", meta: "filter" },
 					{ value: "base64_encode", meta: "filter" },

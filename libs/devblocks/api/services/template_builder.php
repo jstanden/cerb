@@ -163,6 +163,7 @@ class _DevblocksTemplateBuilder {
 			
 			$filters = [
 				'alphanum',
+				'append',
 				'base_convert',
 				'base64_encode',
 				'base64_decode',
@@ -1617,6 +1618,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 	public function getFilters() {
 		return array(
 			new \Twig\TwigFilter('alphanum', [$this, 'filter_alphanum']),
+			new \Twig\TwigFilter('append', [$this, 'filter_append']),
 			new \Twig\TwigFilter('base_convert', [$this, 'filter_base_convert']),
 			new \Twig\TwigFilter('base64_encode', [$this, 'filter_base64_encode']),
 			new \Twig\TwigFilter('base64_decode', [$this, 'filter_base64_decode']),
@@ -1658,6 +1660,21 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			return '';
 		
 		return DevblocksPlatform::strAlphaNum($string, $also, $replace);
+	}
+	
+	function filter_append($string, $suffix, $delimiter='', $trim=null) {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
+		if(!is_string($string) || !is_string($suffix))
+			return '';
+		
+		if(is_null($trim))
+			$trim = $delimiter;
+		
+		$string = rtrim($string, $trim);
+		
+		return $string . ($string ? $delimiter : '') . $suffix;
 	}
 	
 	function filter_base_convert($string, $base_from, $base_to) {
