@@ -4,6 +4,19 @@ $logger = DevblocksPlatform::services()->log();
 $tables = $db->metaTables();
 
 // ===========================================================================
+// Add new automation events
+
+if(!$db->GetOneMaster("SELECT 1 FROM automation_event WHERE name = 'mail.draft'")) {
+	$db->ExecuteMaster(sprintf('INSERT IGNORE INTO automation_event (name, extension_id, description, automations_kata, updated_at) VALUES (%s,%s,%s,%s,%d)',
+		$db->qstr('mail.draft'),
+		$db->qstr('cerb.trigger.mail.draft'),
+		$db->qstr('Modify a new or resumed draft before the editor is opened'),
+		$db->qstr(''),
+		time()
+	));
+}
+
+// ===========================================================================
 // Add new toolbars
 
 if(!$db->GetOneMaster("SELECT 1 FROM toolbar WHERE name = 'draft.read'")) {

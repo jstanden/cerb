@@ -5608,6 +5608,9 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			$draft->params['status_id'] = DAO_Ticket::getStatusIdFromText($defaults['status']);
 		}
 		
+		// Changing the draft through an automation
+		AutomationTrigger_MailDraft::trigger($draft, !$is_new_draft);
+		
 		// Custom fields
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET, false);
 		$tpl->assign('custom_fields', $custom_fields);

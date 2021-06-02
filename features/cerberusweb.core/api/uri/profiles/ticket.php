@@ -590,6 +590,9 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		$tpl->assign('message', $message);
 		$tpl->assign('bucket', $bucket);
 		
+		// Changing the draft through an automation
+		AutomationTrigger_MailDraft::trigger($draft, $is_resumed);
+		
 		// Custom fields
 		
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET, false);
