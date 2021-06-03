@@ -494,12 +494,12 @@ class SearchFields_AutomationEvent extends DevblocksSearchFields {
 };
 
 class Model_AutomationEvent {
-	public ?string $automations_kata;
-	public ?string $description;
-	public ?string $extension_id;
-	public ?int $id;
-	public ?string $name;
-	public ?int $updated_at;
+	public ?string $automations_kata = null;
+	public ?string $description = null;
+	public ?string $extension_id = null;
+	public ?int $id = null;
+	public ?string $name = null;
+	public ?int $updated_at = null;
 	
 	function getExtension($as_instance=true) {
 		return Extension_AutomationTrigger::get($this->extension_id, $as_instance);
