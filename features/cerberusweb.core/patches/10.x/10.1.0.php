@@ -26,6 +26,16 @@ if(!$db->GetOneMaster("SELECT 1 FROM automation_event WHERE name = 'mail.send'")
 	));
 }
 
+if(!$db->GetOneMaster("SELECT 1 FROM automation_event WHERE name = 'mail.sent'")) {
+	$db->ExecuteMaster(sprintf('INSERT IGNORE INTO automation_event (name, extension_id, description, automations_kata, updated_at) VALUES (%s,%s,%s,%s,%d)',
+		$db->qstr('mail.sent'),
+		$db->qstr('cerb.trigger.mail.sent'),
+		$db->qstr('After a sent message is delivered'),
+		$db->qstr(''),
+		time()
+	));
+}
+
 // ===========================================================================
 // Add new toolbars
 

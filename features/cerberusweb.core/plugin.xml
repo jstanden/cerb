@@ -4868,6 +4868,23 @@
 		</extension>
 		
 		<extension point="cerb.automation.trigger">
+			<id>cerb.trigger.mail.sent</id>
+			<name>mail.sent</name>
+			<class>
+				<file>api/automations/triggers/mail.sent.php</file>
+				<name>AutomationTrigger_MailSent</name>
+			</class>
+			<params>
+				<param key="description" value="After a sent message is delivered" />
+				<param key="features">
+					<value>
+						<data key="inputs" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="cerb.automation.trigger">
 			<id>cerb.trigger.map.clicked</id>
 			<name>map.clicked</name>
 			<class>

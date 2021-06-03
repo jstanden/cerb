@@ -1143,6 +1143,9 @@ class CerberusMail {
 	static private function _composeTriggerEvents($message_id, $group_id) {
 		// Events
 		if(!empty($message_id) && !empty($group_id)) {
+			// Changing the outgoing message through an automation
+			AutomationTrigger_MailSent::trigger($message_id);
+			
 			// After message sent (global)
 			Event_MailAfterSent::trigger($message_id);
 			
@@ -2057,6 +2060,9 @@ class CerberusMail {
 		
 		// Events
 		if(!empty($message_id)) {
+			// Changing the outgoing message through an automation
+			AutomationTrigger_MailSent::trigger($message_id);
+			
 			// After message sent (global)
 			Event_MailAfterSent::trigger($message_id);
 			
