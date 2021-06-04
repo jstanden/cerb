@@ -2710,8 +2710,8 @@ class CerberusMail {
 			
 			$ids = explode(':', $decrypted_message, 2);
 			
-			$in_message_id = base_convert($ids[0], 16, 10);
-			$in_worker_id = base_convert($ids[1], 16, 10);
+			@$in_message_id = base_convert($ids[0], 16, 10);
+			@$in_worker_id = base_convert($ids[1], 16, 10);
 			
 			if($in_worker_id != $worker_id)
 				return false;

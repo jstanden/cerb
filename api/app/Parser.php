@@ -468,6 +468,9 @@ class CerberusParserModel {
 		$this->_sender_address_model = $model;
 	}
 	
+	/**
+	 * @return null|Model_Worker
+	 */
 	public function &getSenderWorkerModel() {
 		return $this->_sender_worker_model;
 	}
@@ -1268,9 +1271,6 @@ class CerberusParser {
 			return null;
 		}
 		
-		if(isset($pre_actions['headers_dirty'])) {
-			// [TODO] Rewrite raw_headers
-		}
 		
 		// Filter attachments?
 		if(isset($pre_actions['attachment_filters']) && !empty($message->files)) {
@@ -1316,6 +1316,7 @@ class CerberusParser {
 						$logger->info(sprintf("Removing attachment '%s' based on bot filtering.", $filename));
 						@unlink($file->tmpname);
 						unset($message->files[$filename]);
+						/** @noinspection PhpUnnecessaryStopStatementInspection */
 						continue;
 					}
 				}
@@ -1326,211 +1327,12 @@ class CerberusParser {
 			return $validated; // false or null
 		
 		// Is it a worker reply from an external client?  If so, proxy
+		if(false === ($relay_result = self::_checkRelayReply($model, $message)))
+			return false;
 		
-		$relay_disabled = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::RELAY_DISABLE, CerberusSettingsDefaults::RELAY_DISABLE);
+		if($relay_result)
+			return $relay_result;
 		
-		if(!$relay_disabled
-			&& $model->isSenderWorker()
-			&& false !== ($relay_auth_header = $model->isWorkerRelayReply())
-			&& null != ($proxy_ticket = $model->getTicketModel())
-			&& null != ($proxy_worker = $model->getSenderWorkerModel())
-			&& !$proxy_worker->is_disabled) { /* @var $proxy_worker Model_Worker */
-			
-			$logger->info("[Worker Relay] Handling an external worker relay for " . $model->getSenderAddressModel()->email);
-
-			$is_authenticated = false;
-
-			// If it's a watcher reply
-			$relay_auth_disabled = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::RELAY_DISABLE_AUTH, CerberusSettingsDefaults::RELAY_DISABLE_AUTH);
-			
-			if($relay_auth_disabled) {
-				$is_authenticated = true;
-				
-			} else {
-				if($relay_auth_header && $proxy_worker instanceof Model_Worker)
-					$is_authenticated = $model->isValidAuthHeader($relay_auth_header, $proxy_worker);
-			}
-
-			// Compare worker signature, then auth
-			if($is_authenticated) {
-				$logger->info("[Worker Relay] Worker authentication successful. Proceeding.");
-
-				if(!empty($proxy_ticket)) {
-					
-					// Log activity as the worker
-					CerberusContexts::pushActivityDefaultActor(CerberusContexts::CONTEXT_WORKER, $proxy_worker->id);
-					
-					$parser_message = $model->getMessage();
-					$attachment_file_ids = [];
-					
-					foreach($parser_message->files as $filename => $file) {
-						/* @var $file ParserFile */
-						if(0 == strcasecmp($filename, 'original_message.html'))
-							continue;
-
-						// Dupe detection
-						$sha1_hash = sha1_file($file->tmpname, false);
-						
-						if(false == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $file->file_size, $file->mime_type))) {
-							$fields = array(
-								DAO_Attachment::NAME => $filename,
-								DAO_Attachment::MIME_TYPE => $file->mime_type,
-								DAO_Attachment::STORAGE_SHA1HASH => $sha1_hash,
-							);
-								
-							$file_id = DAO_Attachment::create($fields);
-						}
-
-						if($file_id) {
-							$attachment_file_ids[] = $file_id;
-						}
-							
-						if(null !== ($fp = fopen($file->getTempFile(), 'rb'))) {
-							Storage_Attachments::put($file_id, $fp);
-							fclose($fp);
-						}
-						
-						@unlink($file->getTempFile());
-					}
-					
-					// Properties
-					$properties = array(
-						'ticket_id' => $proxy_ticket->id,
-						'message_id' => is_numeric($is_authenticated) ? $is_authenticated : $proxy_ticket->last_message_id,
-						'forward_files' => $attachment_file_ids,
-						'link_forward_files' => true,
-						'worker_id' => $proxy_worker->id,
-					);
-					
-					// Clean the reply body
-					$body = '';
-					$lines = DevblocksPlatform::parseCrlfString($message->body, true);
-					
-					$state = '';
-					$comments = [];
-					$comment_ptr = null;
-					
-					$matches = [];
-					
-					if(is_array($lines))
-					foreach($lines as $line) {
-						
-						// Ignore quoted relay comments
-						if(preg_match('/[\s\>]*\s*##/', $line))
-							continue;
-
-						// Insert worker sig for this bucket
-						if(preg_match('/^#sig/', $line, $matches)) {
-							$state = '#sig';
-							$group = DAO_Group::get($proxy_ticket->group_id);
-							$sig = $group->getReplySignature($proxy_ticket->bucket_id, $proxy_worker, false);
-							$body .= $sig . PHP_EOL;
-						
-						} elseif(preg_match('/^#start (.*)/', $line, $matches)) {
-							switch(@$matches[1]) {
-								case 'comment':
-									$state = '#comment_block';
-									$comment_ptr =& $comments[];
-									break;
-							}
-							
-						} elseif(preg_match('/^#end/', $line, $matches)) {
-							$state = '';
-							
-						} elseif(preg_match('/^#cut/', $line, $matches)) {
-							$state = '#cut';
-							
-						} elseif(preg_match('/^#watch/', $line, $matches)) {
-							$state = '#watch';
-							CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TICKET, $proxy_ticket->id, $proxy_worker->id);
-							
-						} elseif(preg_match('/^#unwatch/', $line, $matches)) {
-							$state = '#unwatch';
-							CerberusContexts::removeWatchers(CerberusContexts::CONTEXT_TICKET, $proxy_ticket->id, $proxy_worker->id);
-							
-						} elseif(preg_match('/^#noreply/', $line, $matches)) {
-							$state = '#noreply';
-							$properties['dont_send'] = 1;
-							$properties['dont_keep_copy'] = 1;
-							
-						} elseif(preg_match('/^#status (.*)/', $line, $matches)) {
-							$state = '#status';
-							switch(DevblocksPlatform::strLower($matches[1])) {
-								case 'o':
-								case 'open':
-									$properties['status_id'] = Model_Ticket::STATUS_OPEN;
-									break;
-								case 'w':
-								case 'waiting':
-									$properties['status_id'] = Model_Ticket::STATUS_WAITING;
-									break;
-								case 'c':
-								case 'closed':
-									$properties['status_id'] = Model_Ticket::STATUS_CLOSED;
-									break;
-							}
-							
-						} elseif(preg_match('/^#reopen (.*)/', $line, $matches)) {
-							$state = '#reopen';
-							$properties['ticket_reopen'] = $matches[1];
-							
-						} elseif(preg_match('/^#comment(.*)/', $line, $matches)) {
-							$state = '#comment';
-							$comment_ptr =& $comments[];
-							$comment_ptr = @$matches[1] ? ltrim($matches[1]) : '';
-							
-						} else {
-							
-							switch($state) {
-								case '#comment':
-									if(empty($line)) {
-										$state = '';
-									} else {
-										$comment_ptr .= ' ' . ltrim($line);
-									}
-									break;
-									
-								case '#comment_block':
-									$comment_ptr .= $line . "\n";
-									break;
-							}
-							
-							if(!in_array($state, array('#cut', '#comment', '#comment_block'))) {
-								$body .= $line . PHP_EOL;
-							}
-						}
-					}
-
-					if(is_array($comments))
-					foreach($comments as $comment) {
-						DAO_Comment::create(array(
-							DAO_Comment::CREATED => time(),
-							DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
-							DAO_Comment::OWNER_CONTEXT_ID => $proxy_worker->id,
-							DAO_Comment::COMMENT => $comment,
-							DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TICKET,
-							DAO_Comment::CONTEXT_ID => $proxy_ticket->id,
-						));
-					}
-					
-					$properties['content'] = ltrim($body);
-					
-					CerberusMail::sendTicketMessage($properties);
-
-					// Stop logging activity as the worker
-					CerberusContexts::popActivityDefaultActor();
-					
-					return $proxy_ticket->id;
-				}
-
-			} else { // failed worker auth
-				// [TODO] Bounce
-				$logger->error("[Worker Relay] Worker authentication failed. Ignoring.");
-				return false;
-			}
-
-		}
-
 		// New Ticket
 		if($model->getIsNew()) {
 			// Insert a bare minimum record so we can get a ticket ID back
@@ -2043,4 +1845,243 @@ class CerberusParser {
 		return $out;
 	}
 	
+	/**
+	 * @return false|null|int
+	 */
+	private static function _checkRelayReply(CerberusParserModel $model, CerberusParserMessage $message) {
+		$logger = DevblocksPlatform::services()->log();
+		
+		$relay_disabled = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::RELAY_DISABLE, CerberusSettingsDefaults::RELAY_DISABLE);
+		
+		if($relay_disabled)
+			return null;
+		
+		if(!$model->isSenderWorker())
+			return null;
+		
+		if(false == ($relay_auth_header = $model->isWorkerRelayReply()))
+			return null;
+		
+		if(false == ($proxy_ticket = $model->getTicketModel()))
+			return null;
+		
+		if(false == ($proxy_worker = $model->getSenderWorkerModel()) || $proxy_worker->is_disabled)
+			return null;
+			
+		$logger->info("[Worker Relay] Handling an external worker relay for " . $model->getSenderAddressModel()->email);
+		
+		$is_authenticated = false;
+		
+		// If it's a watcher reply
+		$relay_auth_disabled = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::RELAY_DISABLE_AUTH, CerberusSettingsDefaults::RELAY_DISABLE_AUTH);
+		
+		if($relay_auth_disabled) {
+			$is_authenticated = true;
+			
+		} else {
+			if($relay_auth_header && $proxy_worker instanceof Model_Worker)
+				$is_authenticated = $model->isValidAuthHeader($relay_auth_header, $proxy_worker);
+		}
+		
+		// Compare worker signature, then auth
+		if($is_authenticated) {
+			$logger->info("[Worker Relay] Worker authentication successful. Proceeding.");
+			
+			if(!empty($proxy_ticket)) {
+				$in_reply_message_id = is_numeric($is_authenticated) ? $is_authenticated : $proxy_ticket->last_message_id;
+				self::_createRelayReply($model, $message, $proxy_ticket, $proxy_worker, $in_reply_message_id);
+				
+				return $proxy_ticket->id;
+			}
+			
+		} else { // failed worker auth
+			// [TODO] Bounce
+			$logger->error("[Worker Relay] Worker authentication failed. Ignoring.");
+			return false;
+		}
+		
+		return null;
+	}
+	
+	private static function _createRelayReply(CerberusParserModel $model, CerberusParserMessage $message, Model_Ticket $proxy_ticket, Model_Worker $proxy_worker, $in_reply_message_id) {
+		// Log activity as the worker
+		CerberusContexts::pushActivityDefaultActor(CerberusContexts::CONTEXT_WORKER, $proxy_worker->id);
+		
+		$parser_message = $model->getMessage();
+		$attachment_file_ids = [];
+		
+		foreach($parser_message->files as $filename => $file) {
+			/* @var $file ParserFile */
+			if(0 == strcasecmp($filename, 'original_message.html'))
+				continue;
+			
+			// Dupe detection
+			$sha1_hash = sha1_file($file->tmpname, false);
+			
+			if(false == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $file->file_size, $file->mime_type))) {
+				$fields = [
+					DAO_Attachment::NAME => $filename,
+					DAO_Attachment::MIME_TYPE => $file->mime_type,
+					DAO_Attachment::STORAGE_SHA1HASH => $sha1_hash,
+				];
+				
+				$file_id = DAO_Attachment::create($fields);
+			}
+			
+			if($file_id) {
+				$attachment_file_ids[] = $file_id;
+			}
+			
+			if(null !== ($fp = fopen($file->getTempFile(), 'rb'))) {
+				Storage_Attachments::put($file_id, $fp);
+				fclose($fp);
+			}
+			
+			@unlink($file->getTempFile());
+		}
+		
+		// Properties
+		$properties = [
+			'ticket_id' => $proxy_ticket->id,
+			'message_id' => $in_reply_message_id,
+			'forward_files' => $attachment_file_ids,
+			'link_forward_files' => true,
+			'worker_id' => $proxy_worker->id,
+		];
+		
+		// Clean the reply body
+		$body = '';
+		$lines = DevblocksPlatform::parseCrlfString($message->body, true);
+		
+		$state = '';
+		$comments = [];
+		$comment_ptr = null;
+		
+		$matches = [];
+		
+		if(is_array($lines))
+		foreach($lines as $line) {
+			// Ignore quoted relay comments
+			if(preg_match('/[\s\>]*\s*##/', $line))
+				continue;
+			
+			// Insert worker sig for this bucket
+			if(preg_match('/^#sig/', $line, $matches)) {
+				$state = '#sig';
+				$group = DAO_Group::get($proxy_ticket->group_id);
+				$sig = $group->getReplySignature($proxy_ticket->bucket_id, $proxy_worker, false);
+				$body .= $sig . PHP_EOL;
+				
+			} elseif(preg_match('/^#start (.*)/', $line, $matches)) {
+				switch(@$matches[1]) {
+					case 'comment':
+						$state = '#comment_block';
+						$comment_ptr =& $comments[];
+						break;
+				}
+				
+			} elseif(preg_match('/^#end/', $line, $matches)) {
+				$state = '';
+				
+			} elseif(preg_match('/^#cut/', $line, $matches)) {
+				$state = '#cut';
+				
+			} elseif(preg_match('/^#watch/', $line, $matches)) {
+				$state = '#watch';
+				CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TICKET, $proxy_ticket->id, $proxy_worker->id);
+				
+			} elseif(preg_match('/^#unwatch/', $line, $matches)) {
+				$state = '#unwatch';
+				CerberusContexts::removeWatchers(CerberusContexts::CONTEXT_TICKET, $proxy_ticket->id, $proxy_worker->id);
+				
+			} elseif(preg_match('/^#noreply/', $line, $matches)) {
+				$state = '#noreply';
+				$properties['dont_send'] = 1;
+				$properties['dont_keep_copy'] = 1;
+				
+			} elseif(preg_match('/^#status (.*)/', $line, $matches)) {
+				$state = '#status';
+				switch(DevblocksPlatform::strLower($matches[1])) {
+					case 'o':
+					case 'open':
+						$properties['status_id'] = Model_Ticket::STATUS_OPEN;
+						break;
+					case 'w':
+					case 'waiting':
+						$properties['status_id'] = Model_Ticket::STATUS_WAITING;
+						break;
+					case 'c':
+					case 'closed':
+						$properties['status_id'] = Model_Ticket::STATUS_CLOSED;
+						break;
+				}
+				
+			} elseif(preg_match('/^#reopen (.*)/', $line, $matches)) {
+				$state = '#reopen';
+				$properties['ticket_reopen'] = $matches[1];
+				
+			} elseif(preg_match('/^#comment(.*)/', $line, $matches)) {
+				$state = '#comment';
+				$comment_ptr =& $comments[];
+				$comment_ptr = @$matches[1] ? ltrim($matches[1]) : '';
+				
+			} else {
+				
+				switch($state) {
+					case '#comment':
+						if(empty($line)) {
+							$state = '';
+						} else {
+							$comment_ptr .= ' ' . ltrim($line);
+						}
+						break;
+					
+					case '#comment_block':
+						$comment_ptr .= $line . "\n";
+						break;
+				}
+				
+				if(!in_array($state, array('#cut', '#comment', '#comment_block'))) {
+					$body .= $line . PHP_EOL;
+				}
+			}
+		}
+		
+		$properties['content'] = ltrim($body);
+		
+		$draft_fields = DAO_MailQueue::getFieldsFromMessageProperties($properties);
+		$draft_fields[DAO_MailQueue::NAME] = sprintf('Watcher reply by %s on [#%s] %s', $proxy_worker->getName(), $proxy_ticket->mask, $proxy_ticket->subject);
+		$draft_fields[DAO_MailQueue::HINT_TO] = '(participants)';
+		$draft_fields[DAO_MailQueue::TYPE] = Model_MailQueue::TYPE_TICKET_REPLY;
+		$draft_fields[DAO_MailQueue::IS_QUEUED] = 1;
+		$draft_fields[DAO_MailQueue::QUEUE_DELIVERY_DATE] = time() + 300;
+		
+		if(false == ($draft_id = DAO_MailQueue::create($draft_fields)))
+			return false;
+		
+		if(false == ($draft = DAO_MailQueue::get($draft_id)))
+			return false;
+		
+		// If successful, run post actions
+		if(false !== ($response = $draft->send())) {
+			// Comments
+			if (is_array($comments)) {
+				foreach ($comments as $comment) {
+					DAO_Comment::create([
+						DAO_Comment::CREATED => time(),
+						DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+						DAO_Comment::OWNER_CONTEXT_ID => $proxy_worker->id,
+						DAO_Comment::COMMENT => $comment,
+						DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TICKET,
+						DAO_Comment::CONTEXT_ID => $proxy_ticket->id,
+					]);
+				}
+			}
+		}
+		
+		// Stop logging activity as the worker
+		CerberusContexts::popActivityDefaultActor();
+		
+		return true;
+	}
 };
