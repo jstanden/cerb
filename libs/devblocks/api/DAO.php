@@ -926,8 +926,11 @@ abstract class DevblocksORMHelper {
 		// Params
 		if(is_array($params))
 		foreach($params as $param_key => $param) {
-			if(!is_array($param) && !is_object($param)) {
-				$where = "-1";
+			if(false === $param) {
+				$where = "0";
+				
+			} elseif(!is_array($param) && !is_object($param)) {
+				$where = "0";
 				
 			// Is this a criteria group (OR, AND, OR NOT, AND NOT)?
 			} elseif(is_array($param)) {

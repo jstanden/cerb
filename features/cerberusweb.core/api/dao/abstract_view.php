@@ -472,9 +472,11 @@ abstract class C4_AbstractView {
 		}
 	}
 	
-	function getParamsFromQuickSearch(?string $query, array $bindings=[]) {
-		if(!($this instanceof IAbstractView_QuickSearch))
+	function getParamsFromQuickSearch(?string $query, array $bindings=[], &$error=null) {
+		if(!($this instanceof IAbstractView_QuickSearch)) {
+			$error = "This record type doesn't support search queries.";
 			return false;
+		}
 		
 		// Replace placeholders
 
@@ -562,30 +564,49 @@ abstract class C4_AbstractView {
 		
 		// Convert fields T_FIELD to DevblocksSearchCriteria
 		
-		array_walk_recursive($fields, function(&$v, $k) use (&$fields) {
+		$error = null;
+		
+		array_walk_recursive($fields, function(&$v, $k) use (&$fields, &$error) {
+			if($error)
+				return;
+			
 			if($v instanceof DevblocksSearchCriteria) {
 				$param = $this->getParamFromQuickSearchFieldTokens($v->key, $v->tokens);
 				
 				if($param instanceof DevblocksSearchCriteria) {
 					$v = $param;
 				} else {
-					//$v = new DevblocksSearchCriteria('_unknown', DevblocksSearchCriteria::OPER_FALSE);
-					unset($fields[$k]);
+					$error = sprintf('Unknown filter `%s:`', $v->key);
 				}
 			}
 		});
 		
+		if($error)
+			return false;
+		
 		return $fields;
 	}
 	
-	function addParamsWithQuickSearch(?string $query, bool $replace=true, array $bindings=[]) {
-		$fields = $this->getParamsFromQuickSearch($query, $bindings);
+	function addParamsWithQuickSearch(?string $query, bool $replace=true, array $bindings=[], &$error=null) : bool {
+		if(false === ($fields = $this->getParamsFromQuickSearch($query, $bindings, $error))) {
+			$this->addParams([false], true);
+			C4_AbstractView::marqueeAppend($this->id, $error);
+			return false;
+		}
+		
 		$this->addParams($fields, $replace);
+		return true;
 	}
 	
-	function addParamsRequiredWithQuickSearch(?string $query, bool $replace=true, array $bindings=[]) {
-		$fields = $this->getParamsFromQuickSearch($query, $bindings);
+	function addParamsRequiredWithQuickSearch(?string $query, bool $replace=true, array $bindings=[], &$error=null) : bool {
+		if(false === ($fields = $this->getParamsFromQuickSearch($query, $bindings, $error))) {
+			$this->addParamsRequired([false], true);
+			C4_AbstractView::marqueeAppend($this->id, $error);
+			return false;
+		}
+		
 		$this->addParamsRequired($fields, $replace);
+		return true;
 	}
 	
 	function getSorts() {

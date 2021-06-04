@@ -227,8 +227,17 @@ class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 			$context_ext = Extension_DevblocksContext::get($series['context'], true);
 			$dao_class = $context_ext->getDaoClass();
 			$view = $context_ext->getTempView();
-			$view->addParamsRequiredWithQuickSearch(@$series['query_required']);
-			$view->addParamsWithQuickSearch(@$series['query']);
+			
+			if(false === $view->addParamsRequiredWithQuickSearch(@$series['query_required'], true, [], $error))
+				return false;
+			
+			if(false === $view->addParamsWithQuickSearch(@$series['query'], true, [], $error))
+				return false;
+			
+			if(!method_exists($dao_class, 'getSearchQueryComponents')) {
+				$error = sprintf('%s::getSearchQueryComponents() not implemented', $dao_class);
+				return false;
+			}
 			
 			$query_parts = $dao_class::getSearchQueryComponents([], $view->getParams());
 			

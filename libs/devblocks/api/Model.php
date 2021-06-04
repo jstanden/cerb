@@ -2658,7 +2658,7 @@ class DevblocksSearchCriteria {
 				break;
 			
 			default:
-				break;
+				return 0;
 		}
 		
 		return $where;

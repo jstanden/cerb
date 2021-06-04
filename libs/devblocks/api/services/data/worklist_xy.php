@@ -199,8 +199,12 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 			$dao_class = $context_ext->getDaoClass();
 			$search_class = $context_ext->getSearchClass();
 			$view = $context_ext->getTempView();
-			$view->addParamsRequiredWithQuickSearch($query_required);
-			$view->addParamsWithQuickSearch($query);
+			
+			if(false === $view->addParamsRequiredWithQuickSearch($query_required, true, [], $error))
+				return false;
+			
+			if(false === $view->addParamsWithQuickSearch($query, true, [], $error))
+				return false;
 			
 			$query_parts = $dao_class::getSearchQueryComponents(
 				[],

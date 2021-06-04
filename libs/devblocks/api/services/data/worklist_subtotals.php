@@ -225,8 +225,16 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		$search_class = $subtotals_context->getSearchClass();
 		$view = $subtotals_context->getTempView();
 		
-		$view->addParamsRequiredWithQuickSearch(@$chart_model['query_required']);
-		$view->addParamsWithQuickSearch(@$chart_model['query']);
+		if(false === $view->addParamsRequiredWithQuickSearch(@$chart_model['query_required'], true, [], $error))
+			return false;
+			
+		if(false === $view->addParamsWithQuickSearch(@$chart_model['query'], true, [], $error))
+			return false;
+		
+		if(!method_exists($view, 'getQuickSearchFields')) {
+			$error = sprintf('%s::getQuickSearchFields() not implemented', get_class($view));
+			return false;
+		}
 		
 		$query_fields = $view->getQuickSearchFields();
 		$search_fields = $view->getFields();
