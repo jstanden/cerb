@@ -977,7 +977,13 @@ abstract class DevblocksORMHelper {
 				
 				foreach($param as $p) { /* @var $p DevblocksSearchCriteria */
 					if(is_array($p)) {
-						$outer_wheres[] = self::_parseNestedSearchParams($p, $tables, $search_class, $pkey);
+						if(false != ($result = self::_parseNestedSearchParams($p, $tables, $search_class, $pkey))) {
+							$outer_wheres[] = $result;
+						} else {
+							// We can ignore an invalid OR, but must fail on an invalid AND
+							if(in_array($group_oper, [DevblocksSearchCriteria::GROUP_AND, DevblocksSearchCriteria::GROUP_AND_NOT]))
+								$outer_wheres[] = '0';
+						}
 						
 					} else {
 						if(!isset($fields[$p->field])) {
