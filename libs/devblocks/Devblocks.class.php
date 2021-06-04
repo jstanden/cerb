@@ -1849,18 +1849,18 @@ class DevblocksPlatform extends DevblocksEngine {
 		if(empty($string) || !is_numeric($string))
 			return '0 secs';
 		
-		$blocks = array(
+		$blocks = [
 			'year' => 52*7*24*60*60,
-			'month' => 30*24*60*60,
+			'month' => 365*24*60*60/12,
 			'week' => 7*24*60*60,
 			'day' => 24*60*60,
 			'hour' => 60*60,
 			'min' => 60,
 			'sec' => 1,
-		);
+		];
 		
 		$secs = intval($string);
-		$output = array();
+		$output = [];
 		
 		foreach($blocks as $label => $increment) {
 			$n = floor($secs/$increment);
