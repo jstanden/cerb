@@ -1599,6 +1599,7 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 		$token_values['_type'] = Context_Draft::URI;
 		
 		$token_values['_types'] = $token_types;
+		$token_values['ticket__context'] = CerberusContexts::CONTEXT_TICKET;
 		
 		if($object) {
 			$token_values['_loaded'] = true;
@@ -1611,6 +1612,7 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 			$token_values['type'] = $object->type;
 			$token_values['updated'] = $object->updated;
 			
+			$token_values['ticket_id'] = $object->ticket_id;
 			$token_values['worker_id'] = $object->worker_id;
 			
 			// Deprecated
