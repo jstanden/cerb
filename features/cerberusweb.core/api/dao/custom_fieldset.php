@@ -1253,8 +1253,6 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 		
 		$tpl->assign('view_id', $view_id);
 		
-		$model = null;
-		
 		if($context_id) {
 			if(false == ($model = DAO_CustomFieldset::get($context_id)))
 				DevblocksPlatform::dieWithHttpError(null, 404);
@@ -1269,9 +1267,9 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 			$model->owner_context_id = $owner_context_id;
 		}
 		
-		if(empty($context_id) || $edit) {
+		if(!$context_id || $edit) {
 			if($model) {
-				if(!Context_CustomFieldset::isWriteableByActor($model, $active_worker))
+				if($model->id && !Context_CustomFieldset::isWriteableByActor($model, $active_worker))
 					DevblocksPlatform::dieWithHttpError(null, 403);
 				
 				$tpl->assign('model', $model);
