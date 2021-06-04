@@ -2985,22 +2985,27 @@ class CerberusMail {
 		return $content;
 	}
 	
+	// Strip some Markdown in the plaintext version
 	static function generateTextFromMarkdown($markdown) {
 		$plaintext = null;
 		
 		$url_writer = DevblocksPlatform::services()->url();
 		$base_url = $url_writer->write('c=files', true) . '/';
 		
-		// Strip some Markdown in the plaintext version
+		// Fix references to internal files
 		try {
 			$plaintext = preg_replace_callback(
-				sprintf('|(\!\[inline-image\]\(%s(.*?)\))|', preg_quote($base_url)),
+				sprintf('|(\!\[(.*?)\]\(%s(.*?)\))|', preg_quote($base_url)),
 				function($matches) use ($base_url) {
-					if(3 == count($matches)) {
-						@list($file_id, $file_name) = explode('/', $matches[2], 2);
+					if(4 == count($matches)) {
+						@list($file_id, $file_name) = explode('/', $matches[3], 2);
 						
-						if($file_id && $file_name)
-							return sprintf("[Image %s]", urldecode($file_name));
+						$file_name = urldecode($file_name);
+						
+						if($file_id && $file_name) {
+							$inline_text = $file_name . ($matches[2] ? (' ' . $matches[2]) : '');
+							return sprintf("[%s]", $inline_text);
+						}
 					}
 					
 					return $matches[0];
@@ -3012,12 +3017,14 @@ class CerberusMail {
 			error_log($e->getMessage());
 		}
 		
+		// Images
 		try {
 			$plaintext = preg_replace_callback(
-				sprintf('|(\!\[Image\]\((.*?)\))|'),
+				'|(\!\[(.*?)\]\((.*?)\))|',
 				function($matches) {
-					if(3 == count($matches)) {
-						return sprintf("[Image %s]", $matches[2]);
+					if(4 == count($matches)) {
+						$inline_text = $matches[3] . ($matches[2] ? (' ' . $matches[2]) : '');
+						return sprintf("[%s]", $inline_text);
 					}
 					
 					return $matches[0];
