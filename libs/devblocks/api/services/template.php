@@ -27,11 +27,11 @@ class _DevblocksTemplateManager {
 		if(null == self::$_instance) {
 			$instance = new Smarty();
 			
-			$instance->template_dir = APP_PATH . '/templates';
-			$instance->compile_dir = APP_SMARTY_COMPILE_PATH;
-			$instance->cache_dir = APP_TEMP_PATH . '/cache';
-
-			$instance->use_sub_dirs = APP_SMARTY_COMPILE_USE_SUBDIRS;
+			$instance->setTemplateDir(APP_PATH . '/templates');
+			$instance->setCompileDir(APP_SMARTY_COMPILE_PATH);
+			$instance->setCacheDir(APP_TEMP_PATH . '/cache');
+			
+			$instance->setUseSubDirs(APP_SMARTY_COMPILE_USE_SUBDIRS);
 
 			$instance->caching = Smarty::CACHING_OFF;
 			$instance->cache_lifetime = 0;

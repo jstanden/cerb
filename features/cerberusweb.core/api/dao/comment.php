@@ -547,27 +547,21 @@ class SearchFields_Comment extends DevblocksSearchFields {
 		switch($param->field) {
 			case self::FULLTEXT_COMMENT_CONTENT:
 				return self::_getWhereSQLFromFulltextField($param, Search_CommentContent::ID, self::getPrimaryKey());
-				break;
 				
 			case self::VIRTUAL_ATTACHMENTS_SEARCH:
 				return self::_getWhereSQLFromAttachmentsField($param, CerberusContexts::CONTEXT_COMMENT, self::getPrimaryKey());
-				break;
 				
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_COMMENT, self::getPrimaryKey());
-				break;
 				
 			case self::VIRTUAL_HAS_FIELDSET:
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_COMMENT), '%s'), self::getPrimaryKey());
-				break;
 				
 			case self::VIRTUAL_OWNER:
 				return self::_getWhereSQLFromContextAndID($param, 'owner_context', 'owner_context_id');
-				break;
 				
 			case self::VIRTUAL_TARGET:
 				return self::_getWhereSQLFromContextAndID($param, 'context', 'context_id');
-				break;
 			
 			default:
 				if('cf_' == substr($param->field, 0, 3)) {
@@ -575,7 +569,6 @@ class SearchFields_Comment extends DevblocksSearchFields {
 				} else {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
-				break;
 		}
 	}
 	
@@ -1139,11 +1132,9 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 		switch($field) {
 			case 'attachments':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Comment::VIRTUAL_ATTACHMENTS_SEARCH);
-				break;
 				
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
-				break;
 				
 			default:
 				if($field == 'author' || DevblocksPlatform::strStartsWith($field, 'author.'))
@@ -1157,10 +1148,7 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 				
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
-				break;
 		}
-		
-		return false;
 	}
 	
 	function render() {

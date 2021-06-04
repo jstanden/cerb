@@ -816,7 +816,6 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 							Cerb_OrmHelper::escape($context_id_field),
 							'0'
 						);
-						break;
 				}
 				return;
 			}
@@ -835,7 +834,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 			if(false == ($primary_key = $search_class::getPrimaryKey()))
 				return;
 			
-			$query_parts = $dao_class::getSearchQueryComponents(array(), $params);
+			$query_parts = $dao_class::getSearchQueryComponents([], $params);
 			
 			$query_parts['select'] = sprintf("SELECT %s ", $primary_key);
 			
@@ -857,8 +856,8 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 		if(!is_array($param->value))
 			return '0';
 		
-		$wheres = array();
-		$contexts = array();
+		$wheres = [];
+		$contexts = [];
 			
 		foreach($param->value as $owner_context) {
 			@list($context, $context_id) = explode(':', $owner_context);
@@ -1346,6 +1345,8 @@ class DevblocksSearchCriteria {
 	public $field;
 	public $operator;
 	public $value;
+	public $key;
+	public $tokens = [];
 	
 	/**
 	 * @param string $field
@@ -2412,10 +2413,7 @@ class DevblocksSearchCriteria {
 
 				$where_in = '';
 				
-				if(empty($vals)) {
-					$where_in = '';
-					
-				} else {
+				if(is_array($vals)) {
 					$where_in = sprintf("%s IN (%s) OR ",
 						$db_field_name,
 						implode(",",$vals)
@@ -2509,9 +2507,7 @@ class DevblocksSearchCriteria {
 				
 				$where = '';
 				
-				if(empty($vals)) {
-					
-				} else {
+				if(is_array($vals)) {
 					$has_multiple_values = false;
 					
 					if(substr($this->field, 0, 3) == 'cf_') {

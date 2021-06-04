@@ -122,7 +122,7 @@ $(function() {
 				$(this).find('div.toolbar').hide();
 			}
 		)
-		.find('.cerb-peek-trigger')
+		.find('.toolbar .cerb-peek-trigger')
 			.cerbPeekTrigger()
 				.on('cerb-peek-saved', function(e) {
 					if(e.id && e.hasOwnProperty('comment_html'))

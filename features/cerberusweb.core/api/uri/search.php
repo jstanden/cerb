@@ -151,6 +151,5 @@ class Page_Search extends CerberusPageExtension {
 			'status' => true,
 			'html' => $html,
 		));
-		return;
 	}
 };

@@ -300,6 +300,7 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 			$ids = array($ids);
 			
 		foreach($ids as $id) {
+			/** @noinspection SqlResolve */
 			mysqli_query($this->db, sprintf("DELETE FROM %s WHERE id = %d",
 				$this->escapeNamespace($index_rt),
 				$id

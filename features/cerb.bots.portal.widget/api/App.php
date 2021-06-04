@@ -1,6 +1,8 @@
 <?php
-// [TODO] Session info in bot
-
+/**
+ * Class Portal_ConvoBotWidget
+ * @deprecated 
+ */
 class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 	const PARAM_BOT_NAME = 'bot_name';
 	const PARAM_CORS_ALLOW_ORIGIN = 'cors_allow_origin';

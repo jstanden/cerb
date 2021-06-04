@@ -676,7 +676,7 @@ class _DevblocksValidationType {
 		// If required, it also must not be empty
 		$this->setNotEmpty(true);
 		
-		$this->_data['required'] = $bool ? true : false;
+		$this->_data['required'] = (bool) $bool;
 		return $this;
 	}
 	
