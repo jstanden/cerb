@@ -806,20 +806,15 @@ class Model_MailQueue {
 		}
 		
 		if('parsedown' == $message_properties['content_format']) {
-			$output = $message_properties['content'];
-			$output = CerberusMail::getMailTemplateFromContent($output, $message_properties, 'html');
+			$output = CerberusMail::getMailTemplateFromContent($message_properties, 'saved', 'html');
 			$output = DevblocksPlatform::parseMarkdown($output);
 			
 			$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
 			
-			$output = DevblocksPlatform::purifyHTML($output, true, true, [$filter]);
-			return $output;
+			return DevblocksPlatform::purifyHTML($output, true, true, [$filter]);
 		
 		} else {
-			$output = $message_properties['content'];
-			$output = CerberusMail::getMailTemplateFromContent($output, $message_properties, 'text');
-			
-			return $output;
+			return CerberusMail::getMailTemplateFromContent($message_properties, 'saved', 'text');
 		}
 	}
 	

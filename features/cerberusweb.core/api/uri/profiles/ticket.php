@@ -952,12 +952,10 @@ EOD;
 		
 		CerberusMail::parseReplyHashCommands($active_worker, $message_properties, $hash_commands);
 		
-		$output = $message_properties['content'];
-		
 		// Markdown
 		
 		if('parsedown' == $format) {
-			$output = CerberusMail::getMailTemplateFromContent($output, $message_properties, 'html');
+			$output = CerberusMail::getMailTemplateFromContent($message_properties, 'saved', 'html');
 			
 			// Wrap the reply in a template if we have one
 			
@@ -978,7 +976,7 @@ EOD;
 			$output = DevblocksPlatform::purifyHTML($output, true, true, [$filter]);
 			
 		} else {
-			$output = nl2br(DevblocksPlatform::strEscapeHtml(CerberusMail::getMailTemplateFromContent($output, $message_properties, 'text')));
+			$output = nl2br(DevblocksPlatform::strEscapeHtml(CerberusMail::getMailTemplateFromContent($message_properties, 'saved', 'text')));
 		}
 		
 		$tpl->assign('is_inline', true);
