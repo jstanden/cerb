@@ -378,7 +378,9 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		@$continuation_token = DevblocksPlatform::importGPC($_POST['continuation_token'], 'string', '');
 		@$prompt_key = DevblocksPlatform::importGPC($_POST['prompt_key'], 'string', '');
 		@$prompt_action = DevblocksPlatform::importGPC($_POST['prompt_action'], 'string', '');
-		@$invoke = DevblocksPlatform::importGPC($_POST['invoke'], 'string', '');
+		
+		if(DevblocksPlatform::strEndsWith($prompt_key,'/'))
+			$prompt_key = rtrim($prompt_key,'/');
 		
 		if(!$prompt_key)
 			return;
@@ -406,7 +408,7 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		
 		$form_components = AutomationTrigger_InteractionWorker::getFormComponentMeta();
 		
-		list($prompt_type, $prompt_name) = explode('/', $prompt_key, 2);
+		list($prompt_type, $prompt_name) = array_pad(explode('/', $prompt_key, 2), 2, null);
 		
 		if(!array_key_exists($prompt_type, $form_components))
 			DevblocksPlatform::dieWithHttpError(null, 404);
