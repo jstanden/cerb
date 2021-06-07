@@ -3,12 +3,14 @@ name: Cerb Platform Tests
 on:
   push:
     branches:
-    - "10.0-dev"
-    - "10.0"
+    - "10.0.3"
+    - "10.1"
+    - "10.2"
   pull_request:
     branches:
-    - "10.0-dev"
-    - "10.0"
+    - "10.0.3"
+    - "10.1"
+    - "10.2"
 
 jobs:
   build:

@@ -1662,11 +1662,11 @@ class DevblocksPlatformTest extends TestCase {
 		
 		// months
 		$expected = '6 months';
-		$actual = DevblocksPlatform::strSecsToString(86400*6*30);
+		$actual = DevblocksPlatform::strSecsToString(86400*365/2);
 		$this->assertEquals($expected, $actual);
 		
 		// months, weeks, days
-		$expected = '6 months, 2 weeks, 1 day';
+		$expected = '6 months, 1 week, 5 days, 12 hours';
 		$actual = DevblocksPlatform::strSecsToString(86400*((6*30)+15));
 		$this->assertEquals($expected, $actual);
 		
