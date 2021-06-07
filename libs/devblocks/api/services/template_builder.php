@@ -1666,6 +1666,9 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 		if($string instanceof Twig\Markup)
 			$string = strval($string);
 		
+		if(is_null($string))
+			$string = '';
+		
 		if(!is_string($string) || !is_string($suffix))
 			return '';
 		
