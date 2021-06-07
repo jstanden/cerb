@@ -1453,6 +1453,8 @@ class Context_Automation extends Extension_DevblocksContext implements IDevblock
 		
 		$model = null;
 		
+		$lookup_id = $context_id;
+		
 		// Load by URI if not given a numeric ID
 		if($context_id && !is_numeric($context_id)) {
 			$context_id = DAO_Automation::getByUri($context_id);
@@ -1474,7 +1476,11 @@ class Context_Automation extends Extension_DevblocksContext implements IDevblock
 					DevblocksPlatform::dieWithHttpError(null, 403);
 			} else {
 				$model = new Model_Automation();
+				$model->id = 0;
 				$model->script = "start:\n  ";
+				
+				if(is_string($lookup_id) && $lookup_id)
+					$model->name = $lookup_id;
 			}
 			
 			// Trigger extensions
