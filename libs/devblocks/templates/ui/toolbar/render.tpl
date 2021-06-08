@@ -107,7 +107,7 @@
                     {/if}
                     {$toolbar_item.label}
                 </button><button type="button" class="split-right" data-cerb-toolbar-menu {if $toolbar_item.hover}data-cerb-toolbar-menu-hover{/if}>
-                    <span class="glyphicons glyphicons-chevron-down" style="font-size:12px;color:white;"></span>
+                    <span class="glyphicons glyphicons-chevron-down"></span>
                 </button>
             {else}
                 <button type="button" 
