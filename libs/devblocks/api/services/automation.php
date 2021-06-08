@@ -44,15 +44,21 @@ class _DevblocksAutomationService {
 					} else {
 						$input_field_type = null;
 						
-						if(0 == strlen($input_value))
+						if(is_bool($input_value))
+							$input_value = $input_value ? 'yes' : 'no';
+						
+						if(is_string($input_value) && 0 == strlen($input_value))
 							$input_value = null;
 						
 						switch(@$input_data['type']) {
 							case 'bool':
-								$bool = DevblocksPlatform::services()->string()->toBool($input_value);
-								$input_values[$input_key] = $bool;
+								if(is_null($input_value) && array_key_exists('default', $input_data))
+									$input_value = $input_data['default'];
 								
-								$dict->setKeyPath('inputs.' . $input_key, $bool);
+								if(!is_null($input_value)) {
+									$input_value = DevblocksPlatform::services()->string()->toBool($input_value);
+									$dict->setKeyPath('inputs.' . $input_key, $input_value);
+								}
 								
 								$input_field_type = $input_field->boolean();
 								break;
