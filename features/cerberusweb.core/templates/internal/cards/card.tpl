@@ -38,7 +38,7 @@
                 {/if}
             {/if}
 
-            <div data-cerb-toolbar style="display:inline-block;">
+            <div data-cerb-toolbar style="display:inline-block;vertical-align:middle;">
                 {if $toolbar_card}
                 {DevblocksPlatform::services()->ui()->toolbar()->render($toolbar_card)}
                 {/if}

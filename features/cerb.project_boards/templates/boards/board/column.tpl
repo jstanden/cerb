@@ -12,7 +12,7 @@
 
 <div class="cerb-board-column-toolbar">
 	<div class="cerb-board-column-toolbar-buttons">
-		<div data-cerb-toolbar style="display:inline-block;">
+		<div data-cerb-toolbar>
 			{if $toolbar}
 				{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
 			{/if}

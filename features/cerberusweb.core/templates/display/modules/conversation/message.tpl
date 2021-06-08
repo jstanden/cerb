@@ -236,7 +236,7 @@
 			<tr>
 				<td align="left" id="{$message->id}act">
 					{if $widget}
-						<div data-cerb-toolbar style="display:inline-block;">
+						<div data-cerb-toolbar style="display:inline-block;vertical-align:middle;">
 						{$message_dict = DevblocksDictionaryDelegate::instance([
 							'caller_name' => 'cerb.toolbar.mail.read',
 							
