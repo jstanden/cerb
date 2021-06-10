@@ -237,7 +237,7 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 		$tpl->assign('comment_notes', $comment_notes);
 	}
 	
-	private function _renderTimeline(array $convo_timeline) {
+	private function _renderTimeline(array $convo_timeline, array $display_options=[]) {
 		$tpl = DevblocksPlatform::services()->template();
 		
 		// Sort the timeline
@@ -308,7 +308,7 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 			$this->_threadComments($comments, $convo_timeline, $display_options);
 		}
 		
-		$this->_renderTimeline($convo_timeline);
+		$this->_renderTimeline($convo_timeline, $display_options);
 	}
 	
 	private function _showMessageConversation($message_id, $display_options=[]) {
@@ -329,7 +329,7 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 		
 		$this->_threadMessages([$message_id => $message], $convo_timeline, $display_options);
 		
-		$this->_renderTimeline($convo_timeline);
+		$this->_renderTimeline($convo_timeline, $display_options);
 	}
 	
 	private function _showDraftConversation($draft_id, $display_options=[]) {
@@ -342,7 +342,7 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 		
 		$this->_threadDrafts([$draft_id => $draft], $convo_timeline, $display_options);
 		
-		$this->_renderTimeline($convo_timeline);
+		$this->_renderTimeline($convo_timeline, $display_options);
 	}
 	
 	private function _sortTimeline($a, $b) {
