@@ -2250,7 +2250,9 @@ abstract class C4_AbstractView {
 						
 						$models = $dao_class::getIds($vals);
 						
-						$vals = array_column(DevblocksPlatform::objectsToArrays($models), 'name');
+						$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $context, ['_label']);
+						
+						$vals = array_column($dicts, '_label') ?: [];
 					}
 					
 					break;
