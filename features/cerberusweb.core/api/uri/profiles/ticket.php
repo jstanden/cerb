@@ -479,7 +479,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		
 		// Reopen
 		if($ticket->reopen_at)
-			$draft_properties['ticket_reopen'] = $ticket->reopen_at;
+			$draft_properties['ticket_reopen'] = DevblocksPlatform::services()->date()->formatTime(null, $ticket->reopen_at);
 		
 		$draft_fields = DAO_MailQueue::getFieldsFromMessageProperties($draft_properties);
 			
