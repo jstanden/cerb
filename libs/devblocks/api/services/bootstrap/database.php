@@ -261,6 +261,13 @@ class _DevblocksDatabaseManager {
 		return $this->_Execute($sql, $this->_master_db);
 	}
 	
+	function ExecuteWriterOrFail($sql, $fail_message = 'A required database query failed. Check the log for more details.', $option_bits = 0) {
+		if(false === ($result = $this->ExecuteWriter($sql, $option_bits)))
+			DevblocksPlatform::dieWithHttpError(DevblocksPlatform::strEscapeHtml($fail_message));
+		
+		return $result;
+	}
+	
 	function QueryReader($sql) {
 		$db = $this->_reader_db;
 		
