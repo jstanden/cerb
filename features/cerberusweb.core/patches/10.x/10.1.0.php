@@ -65,6 +65,26 @@ if(!array_key_exists('field_id_and_value', $indexes)) {
 }
 
 // ===========================================================================
+// Add a `name` prefix index to all custom record tables
+
+foreach(array_keys($tables) as $table_name) {
+	if(!DevblocksPlatform::strStartsWith($table_name, 'custom_record_'))
+		continue;
+	
+	list(,$indexes) = $db->metaTable($table_name);
+	
+	if(!array_key_exists('name', $indexes)) {
+		/** @noinspection SqlResolve */
+		$db->ExecuteWriterOrFail(
+			sprintf("ALTER TABLE %s ADD INDEX name (name(6))",
+				$db->escape($table_name)
+			),
+			sprintf('10.1: Failed to add index %s.name', $table_name)
+		);
+	}
+}
+
+// ===========================================================================
 // Reindex `storage_message_content`
 
 list(,$indexes) = $db->metaTable('storage_message_content');

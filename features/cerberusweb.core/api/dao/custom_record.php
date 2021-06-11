@@ -93,6 +93,7 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 				created_at INT UNSIGNED NOT NULL DEFAULT 0,
 				updated_at INT UNSIGNED NOT NULL DEFAULT 0,
 				primary key (id),
+				index `name` (name(6)),
 				index (created_at),
 				index (updated_at),
 				index owner (owner_context, owner_context_id)
