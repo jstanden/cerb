@@ -199,6 +199,11 @@ $(function() {
                 });
 
                 $popup.triggerHandler(evt);
+
+                // Close the card popup
+                if(done_params.has('close') && done_params.get('close')) {
+                    genericAjaxPopupClose($popup);
+                }
             }
         });
 
