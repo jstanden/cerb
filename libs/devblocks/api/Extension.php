@@ -1614,8 +1614,35 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		
 		// Is the key a custom field URI for this record type
 		$custom_field_uris = array_column(DAO_CustomField::getByContext($context), 'id', 'uri');
-		if(array_key_exists($token, $custom_field_uris))
+		
+		// If we directly matched a custom field URI, load custom fields
+		if(array_key_exists($token, $custom_field_uris)) {
 			return $this->_lazyLoadCustomFields($token, $context, $context_id, true);
+			
+		} else {
+			// Is the 
+			$prefixes = array_keys($custom_field_uris);
+			
+			// Longest prefixes first
+			usort($prefixes, function($a, $b) {
+				$len_a = strlen($a);
+				$len_b = strlen($b);
+				
+				if($len_a == $len_b)
+					return 0;
+				
+				return ($len_a > $len_b) ? -1 : 1;
+			});
+			
+			$prefix = DevblocksPlatform::strStartsWith(
+				$token,
+				array_map(fn($k) => $k . '_', $prefixes)
+			);
+			
+			// If we matched a custom field prefix, load custom fields
+			if($prefix)
+				return $this->_lazyLoadCustomFields($token, $context, $context_id, true);
+		}
 		
 		return [];
 	}
