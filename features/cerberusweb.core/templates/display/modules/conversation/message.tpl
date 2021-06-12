@@ -19,9 +19,7 @@
 
 		{if !$embed}
 		<div class="toolbar-minmax">
-			{if $active_worker->hasPriv('contexts.cerberusweb.contexts.message.update')}
-			<button type="button" class="edit" data-context="{CerberusContexts::CONTEXT_MESSAGE}" data-context-id="{$message->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
-			{/if}
+			<button type="button" class="edit cerb-no-print" data-context="{CerberusContexts::CONTEXT_MESSAGE}" data-context-id="{$message->id}" title="Open card popup (Shift+Click to edit)"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 
 			{if $expanded}
 				<button type="button" id="{$message->id}skip" class="cerb-no-print" onclick="document.location='#{$message->id}act';" title="{'display.convo.skip_to_bottom'|devblocks_translate}"><span class="glyphicons glyphicons-down-arrow"></span></button>
@@ -494,7 +492,7 @@ $(function() {
 			})
 			;
 	
-	// Edit
+	// Peek
 	
 	$msg.find('button.edit')
 		.cerbPeekTrigger()
