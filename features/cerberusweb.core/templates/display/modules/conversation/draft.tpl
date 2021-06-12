@@ -5,9 +5,7 @@
 
 	{if !$embed}
 	<div class="toolbar-minmax">
-		{if $draft_is_writeable && $active_worker->hasPriv('contexts.cerberusweb.contexts.mail.draft.update')}
-			<button type="button" class="cerb-button-edit" data-context="{CerberusContexts::CONTEXT_DRAFT}" data-context-id="{$draft->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
-		{/if}
+		<button type="button" class="cerb-button-edit" data-context="{CerberusContexts::CONTEXT_DRAFT}" data-context-id="{$draft->id}" title="Open card popup (Shift+Click to edit)"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 
 		{if $attachments}
 			<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-query="on.draft:(id:{$draft->id})"><span class="glyphicons glyphicons-paperclip"></span></button>
