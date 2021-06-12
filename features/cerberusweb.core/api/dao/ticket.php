@@ -5524,14 +5524,14 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		
 		$signature_pos = DAO_WorkerPref::get($active_worker->id, 'mail_signature_pos', 2);
 		
+		$defaults = [
+			'group_id' => DAO_WorkerPref::get($active_worker->id, 'compose.group_id', 0),
+			'bucket_id' => DAO_WorkerPref::get($active_worker->id, 'compose.bucket_id', 0),
+			'status' => DAO_WorkerPref::get($active_worker->id, 'compose.status', 'waiting'),
+		];
+		
 		// Preferences
 		if($is_new_draft) {
-			$defaults = array(
-				'group_id' => DAO_WorkerPref::get($active_worker->id, 'compose.group_id', 0),
-				'bucket_id' => DAO_WorkerPref::get($active_worker->id, 'compose.bucket_id', 0),
-				'status' => DAO_WorkerPref::get($active_worker->id, 'compose.status', 'waiting'),
-			);
-			
 			if ($bucket_id && false != ($bucket = DAO_Bucket::get($bucket_id))) {
 				$defaults['group_id'] = $bucket->group_id;
 				$defaults['bucket_id'] = $bucket->id;
@@ -5606,6 +5606,23 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			$draft->params['group_id'] = $defaults['group_id'];
 			$draft->params['bucket_id'] = $defaults['bucket_id'];
 			$draft->params['status_id'] = DAO_Ticket::getStatusIdFromText($defaults['status']);
+			
+		} else {
+			// If the draft doesn't have a group, bucket, or status, default them
+			if(!array_key_exists('group_id', $draft->params)) {
+				$default_group = current($groups);
+				$draft->params['group_id'] = $defaults['group_id'] ?: $default_group->id;
+				$draft->params['bucket_id'] = $defaults['bucket_id'] ?: ($default_group->getDefaultBucket()->id ?? 0);
+				
+			} else if(!array_key_exists('bucket_id', $draft->params)) {
+				$current_group = $groups[$draft->params['group_id']] ?? null;
+				
+				if($current_group)
+					$draft->params['bucket_id'] = $current_group->getDefaultBucket()->id ?? 0;
+			}
+			
+			if(!array_key_exists('status_id', $draft->params))
+				$draft->params['status_id'] = DAO_Ticket::getStatusIdFromText($defaults['status']);
 		}
 		
 		// Changing the draft through an automation
