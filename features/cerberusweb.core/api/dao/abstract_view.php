@@ -3720,10 +3720,14 @@ abstract class C4_AbstractView {
 						
 						// Rewrite the results
 						$counts = array_map(function($v) use ($dicts) {
-							$dict = $dicts[$v['label']];
-							$v['label'] = $dict->_label;
-							$v['filter']['oper'] = DevblocksSearchCriteria::OPER_EQ;
-							$v['filter']['values'] = ['context_id' => $dict->id];
+							if(array_key_exists($v['label'], $dicts)) {
+								$dict = $dicts[$v['label']];
+								$v['label'] = $dict->_label;
+								$v['filter']['oper'] = DevblocksSearchCriteria::OPER_EQ;
+								$v['filter']['values'] = ['context_id' => $dict->id];
+								return $v;
+							}
+							
 							return $v;
 						}, $counts);
 						
