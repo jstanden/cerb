@@ -3241,6 +3241,12 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			$bucket_id = $result['bucket_id'];
 			$hits = $result['hits'];
 
+			if(!$group_id || !array_key_exists($group_id, $groups))
+				continue;
+			
+			if(!$bucket_id || !array_key_exists($bucket_id, $buckets))
+				continue;
+			
 			if(!isset($counts[$bucket_id])) {
 				$label = sprintf("%s (%s)", $buckets[$bucket_id]->name, $groups[$group_id]->name);
 				
@@ -3273,8 +3279,11 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			$group_id = $result['group_id'];
 			$bucket_id = $result['bucket_id'];
 			$hits = $result['hits'];
+			
+			if(!$group_id || !array_key_exists($group_id, $groups))
+				continue;
 
-			if(isset($groups[$group_id]) && !isset($counts[$group_id])) {
+			if(!isset($counts[$group_id])) {
 				$label = $groups[$group_id]->name;
 				
 				$counts[$group_id] = array(
