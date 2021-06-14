@@ -2562,7 +2562,7 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 				$records = DAO_ContactOrg::getIds($values);
 				$label_map = array_column($records, 'name', 'id');
 				if(in_array(0, $values))
-					$label_map[0] = DevblocksPlatform::translate('common.none');
+					$label_map[0] = sprintf('(%s)', DevblocksPlatform::translate('common.none'));
 				return $label_map;
 				
 			case SearchFields_Ticket::TICKET_OWNER_ID:

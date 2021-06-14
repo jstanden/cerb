@@ -564,7 +564,7 @@ class SearchFields_KbCategory extends DevblocksSearchFields {
 				$models = DAO_KbArticle::getIds($values);
 				$label_map = array_column(DevblocksPlatform::objectsToArrays($models), 'title', 'id');
 				if(in_array(0, $values))
-					$label_map[0] = DevblocksPlatform::translate('common.none');
+					$label_map[0] = sprintf('(%s)', DevblocksPlatform::translate('common.none'));
 				return $label_map;
 				break;
 				
@@ -573,7 +573,7 @@ class SearchFields_KbCategory extends DevblocksSearchFields {
 				$models = DAO_KbCategory::getIds($values);
 				$label_map = array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
 				if(in_array(0, $values))
-					$label_map[0] = DevblocksPlatform::translate('common.none');
+					$label_map[0] = sprintf('(%s)', DevblocksPlatform::translate('common.none'));
 				return $label_map;
 				break;
 		}

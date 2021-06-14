@@ -444,7 +444,7 @@ class SearchFields_TwitterMessage extends DevblocksSearchFields {
 				$models = DAO_ConnectedAccount::getIds($values);
 				$label_map = array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
 				if(in_array(0,$values))
-					$label_map[0] = DevblocksPlatform::translate('common.none');
+					$label_map[0] = sprintf('(%s)', DevblocksPlatform::translate('common.none'));
 				return $label_map;
 				break;
 				
@@ -453,7 +453,7 @@ class SearchFields_TwitterMessage extends DevblocksSearchFields {
 				$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, Context_TwitterMessage::ID);
 				$label_map = array_column(DevblocksPlatform::objectsToArrays($dicts), '_label', 'id');
 				if(in_array(0,$values))
-					$label_map[0] = DevblocksPlatform::translate('common.none');
+					$label_map[0] = sprintf('(%s)', DevblocksPlatform::translate('common.none'));
 				return $label_map;
 				break;
 				
@@ -832,7 +832,7 @@ class View_TwitterMessage extends C4_AbstractView implements IAbstractView_Subto
 			case SearchFields_TwitterMessage::CONNECTED_ACCOUNT_ID:
 				$label_map = SearchFields_TwitterMessage::getLabelsForKeyValues($field, $values);
 				if(in_array(0,$values))
-					$label_map[0] = DevblocksPlatform::translate('common.none');
+					$label_map[0] = sprintf('(%s)', DevblocksPlatform::translate('common.none'));
 				parent::_renderCriteriaParamString($param, $label_map);
 				break;
 			

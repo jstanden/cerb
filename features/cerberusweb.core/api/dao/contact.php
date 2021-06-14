@@ -795,7 +795,7 @@ class SearchFields_Contact extends DevblocksSearchFields {
 				$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_CONTACT);
 				$label_map = array_column(DevblocksPlatform::objectsToArrays($dicts), '_label', 'id');
 				if(in_array(0, $values))
-					$label_map[0] = DevblocksPlatform::translate('common.none');
+					$label_map[0] = sprintf('(%s)', DevblocksPlatform::translate('common.none'));
 				return $label_map;
 				break;
 				

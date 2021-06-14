@@ -497,7 +497,7 @@ class SearchFields_CalendarRecurringProfile extends DevblocksSearchFields {
 				$models = DAO_Calendar::getIds($values);
 				$label_map = array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
 				if(in_array(0, $values))
-					$label_map[0] = DevblocksPlatform::translate('common.none');
+					$label_map[0] = sprintf('(%s)', DevblocksPlatform::translate('common.none'));
 				return $label_map;
 				break;
 				

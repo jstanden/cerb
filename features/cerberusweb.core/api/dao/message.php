@@ -943,14 +943,14 @@ class SearchFields_Message extends DevblocksSearchFields {
 			case 'ticket.group':
 				$models = DAO_Group::getIds($values);
 				$label_map = array_column($models, 'name', 'id');
-				$label_map[0] = DevblocksPlatform::translate('common.none');
+				$label_map[0] = sprintf('(%s)', DevblocksPlatform::translate('common.none'));
 				return $label_map;
 	
 			case 'bucket':
 			case 'ticket.bucket':
 				$models = DAO_Bucket::getIds($values);
 				$label_map = array_column($models, 'name', 'id');
-				$label_map[0] = DevblocksPlatform::translate('common.none');
+				$label_map[0] = sprintf('(%s)', DevblocksPlatform::translate('common.none'));
 				return $label_map;
 				
 			case SearchFields_Message::TICKET_ID:
