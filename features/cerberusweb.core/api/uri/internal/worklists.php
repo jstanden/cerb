@@ -1209,6 +1209,9 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		if(!$view instanceof IAbstractView_Subtotals)
 			return;
 		
+		if(!$toggle && !$category)
+			$category = $view->renderSubtotals;
+		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		$tpl->assign('view', $view);
