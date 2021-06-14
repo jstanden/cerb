@@ -3157,14 +3157,19 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			"ORDER BY hits DESC "
 		;
 		
-		$results = $db->GetArrayReader($sql);
-
-		return $results;
+		try {
+			return $db->GetArrayReader($sql, 15000);
+			
+		} catch (Exception_DevblocksDatabaseQueryTimeout $e) {
+			return false;
+		}
 	}
 	
 	private function _getSubtotalCountForBuckets() {
 		$counts = [];
-		$results = $this->_getSubtotalDataForBuckets();
+		
+		if(false === ($results = $this->_getSubtotalDataForBuckets()))
+			return false;
 		
 		$groups = DAO_Group::getAll();
 		$buckets = DAO_Bucket::getAll();
@@ -3300,16 +3305,21 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			' GROUP BY t.status_id'
 		;
 		
-		$results = $db->GetArrayReader($sql);
-		
-		return $results;
+		try {
+			return $db->GetArrayReader($sql, 15000);
+			
+		} catch (Exception_DevblocksDatabaseQueryTimeout $e) {
+			return false;
+		}
 	}
 	
 	protected function _getSubtotalCountForStatus() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$counts = [];
-		$results = $this->_getSubtotalDataForStatus('DAO_Ticket', SearchFields_Ticket::VIRTUAL_STATUS);
+		
+		if(false === ($results = $this->_getSubtotalDataForStatus('DAO_Ticket', SearchFields_Ticket::VIRTUAL_STATUS)))
+			return false;
 
 		$oper = DevblocksSearchCriteria::OPER_IN;
 		$values = [];

@@ -243,12 +243,15 @@ abstract class C4_AbstractView {
 			$join_sql.
 			$where_sql.
 			$sort_sql;
-
-		$rs = $db->QueryReader($sql);
+		
+		$rs = $db->QueryReaderAsync($sql, 10000);
 		
 		$objects = [];
-		while($row = mysqli_fetch_row($rs)) {
-			$objects[] = $row[0];
+		
+		if($rs instanceof mysqli_result) {
+			while($row = mysqli_fetch_row($rs)) {
+				$objects[] = $row[0];
+			}
 		}
 		
 		return $objects;
@@ -2357,10 +2360,12 @@ abstract class C4_AbstractView {
 			"LIMIT 0,250 "
 		;
 		
-		$results = $db->GetArrayReader($sql);
-//		$total = count($results);
-//		$total = ($total < 20) ? $total : $db->GetOneReader("SELECT FOUND_ROWS()");
-
+		try {
+			$results = $db->GetArrayReader($sql, 15000);
+		} catch (Exception_DevblocksDatabaseQueryTimeout $e) {
+			$results = false;
+		}
+		
 		return $results;
 	}
 	
@@ -2415,7 +2420,11 @@ abstract class C4_AbstractView {
 			"LIMIT 0,250 "
 		;
 		
-		$results = $db->GetArrayReader($sql);
+		try {
+			$results = $db->GetArrayReader($sql, 15000);
+		} catch (Exception_DevblocksDatabaseQueryTimeout $e) {
+			$results = false;
+		}
 
 		return $results;
 	}
@@ -2668,7 +2677,11 @@ abstract class C4_AbstractView {
 			"LIMIT 0,250 "
 		;
 		
-		$results = $db->GetArrayReader($sql);
+		try {
+			$results = $db->GetArrayReader($sql, 15000);
+		} catch (Exception_DevblocksDatabaseQueryTimeout $e) {
+			$results = false;
+		}
 
 		return $results;
 	}
@@ -2800,8 +2813,12 @@ abstract class C4_AbstractView {
 			);
 			
 		}
-
-		$results = $db->GetArrayReader($sql);
+		
+		try {
+			$results = $db->GetArrayReader($sql, 15000);
+		} catch (Exception_DevblocksDatabaseQueryTimeout $e) {
+			$results = false;
+		}
 
 		return $results;
 	}
@@ -2944,8 +2961,12 @@ abstract class C4_AbstractView {
 				$where_sql
 			);
 		}
-
-		$results = $db->GetArrayReader($sql);
+		
+		try {
+			$results = $db->GetArrayReader($sql, 15000);
+		} catch (Exception_DevblocksDatabaseQueryTimeout $e) {
+			$results = false;
+		}
 
 		return $results;
 	}
@@ -3076,7 +3097,12 @@ abstract class C4_AbstractView {
 				$query_parts['where']
 			)
 		);
-		$results = $db->GetArrayReader($sql);
+		
+		try {
+			$results = $db->GetArrayReader($sql, 15000);
+		} catch (Exception_DevblocksDatabaseQueryTimeout $e) {
+			$results = false;
+		}
 		
 		return $results;
 	}
@@ -3175,7 +3201,11 @@ abstract class C4_AbstractView {
 					"ORDER BY hits DESC "
 				;
 				
-				$results = $db->GetArrayReader($sql);
+				try {
+					$results = $db->GetArrayReader($sql, 15000);
+				} catch (Exception_DevblocksDatabaseQueryTimeout $e) {
+					$results = false;
+				}
 		
 				if(is_array($results))
 				foreach($results as $result) {
@@ -3246,11 +3276,13 @@ abstract class C4_AbstractView {
 						"LIMIT 20 "
 					;
 				}
+			
+				try {
+					$results = $db->GetArrayReader($sql, 15000);
+				} catch (Exception_DevblocksDatabaseQueryTimeout $e) {
+					$results = false;
+				}
 				
-				$results = $db->GetArrayReader($sql);
-//				$total = count($results);
-//				$total = ($total < 20) ? $total : $db->GetOneReader("SELECT FOUND_ROWS()");
-
 				if(is_array($results))
 				foreach($results as $result) {
 					$label = '';
@@ -3341,9 +3373,11 @@ abstract class C4_AbstractView {
 					"LIMIT 20 "
 				;
 				
-				$results = $db->GetArrayReader($sql);
-//				$total = count($results);
-//				$total = ($total < 20) ? $total : $db->GetOneReader("SELECT FOUND_ROWS()");
+				try {
+					$results = $db->GetArrayReader($sql, 15000);
+				} catch (Exception_DevblocksDatabaseQueryTimeout $e) {
+					$results = false;
+				}
 		
 				if(is_array($results))
 				foreach($results as $result) {

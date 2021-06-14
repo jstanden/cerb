@@ -1605,9 +1605,12 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 			$where_sql
 		);
 		
-		$results = $db->GetArrayReader($sql);
-		
-		return $results;
+		try {
+			return $db->GetArrayReader($sql, 15000);
+			
+		} catch (Exception_DevblocksDatabaseQueryTimeout $e) {
+			return false;
+		}
 	}
 	
 	protected function _getSubtotalCountForCategory() {
@@ -1678,9 +1681,12 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 			$where_sql
 		);
 		
-		$results = $db->GetArrayReader($sql);
-		
-		return $results;
+		try {
+			return $db->GetArrayReader($sql, 15000);
+			
+		} catch (Exception_DevblocksDatabaseQueryTimeout $e) {
+			return false;
+		}
 	}
 	
 	protected function _getSubtotalCountForCategoryTopic() {
