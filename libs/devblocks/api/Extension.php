@@ -4331,7 +4331,7 @@ abstract class Extension_DevblocksSearchEngine extends DevblocksExtension implem
 	}
 	
 	abstract function canGenerateSql() : bool;
-	abstract function generateSql(Extension_DevblocksSearchSchema $schema, string $query, array $attributes=[]) : ?string;
+	abstract function generateSql(Extension_DevblocksSearchSchema $schema, string $query, array $attributes=[], ?callable $where_callback=null) : ?string;
 	abstract function query(Extension_DevblocksSearchSchema $schema, $query, array $attributes=[], $limit=null, &$error=null) : ?array;
 };
 
@@ -4451,11 +4451,11 @@ abstract class Extension_DevblocksSearchSchema extends DevblocksExtension {
 		return $engine->query($this, $query, $attributes, $limit);
 	}
 	
-	public function generateSql(string $query, array $attributes, callable $join_callback, callable $ids_callback) : ?string {
+	public function generateSql(string $query, array $attributes, callable $join_callback, callable $where_callback, callable $ids_callback) : ?string {
 		$engine = $this->getEngine();
 		
 		if($engine->canGenerateSql()) {
-			if(null == ($sql = $engine->generateSql($this, $query, $attributes)))
+			if(null == ($sql = $engine->generateSql($this, $query, $attributes, $where_callback)))
 				return '0';
 			
 			if(!is_callable($join_callback))

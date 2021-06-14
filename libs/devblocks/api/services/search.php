@@ -135,7 +135,7 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 		return false;
 	}
 	
-	function generateSql(Extension_DevblocksSearchSchema $schema, string $query, array $attributes=[]) : ?string {
+	function generateSql(Extension_DevblocksSearchSchema $schema, string $query, array $attributes=[], ?callable $where_callback=null) : ?string {
 		return null;
 	}
 	
@@ -536,7 +536,7 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 		return false;
 	}
 	
-	function generateSql(Extension_DevblocksSearchSchema $schema, string $query, array $attributes=[]) : ?string {
+	function generateSql(Extension_DevblocksSearchSchema $schema, string $query, array $attributes=[], ?callable $where_callback=null) : ?string {
 		return null;
 	}
 	
@@ -867,7 +867,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		return true;
 	}
 	
-	public function generateSql(Extension_DevblocksSearchSchema $schema, string $query, array $attributes=[]) : ?string {
+	public function generateSql(Extension_DevblocksSearchSchema $schema, string $query, array $attributes=[], ?callable $where_callback=null) : ?string {
 		$db = DevblocksPlatform::services()->database();
 		$tables = DevblocksPlatform::getDatabaseTables();
 		$ns = $schema->getNamespace();
@@ -889,6 +889,12 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 			$escaped_query = '';
 		
 		$where_sql = $this->_getQueryWhereClauses($schema, $attributes, $query_parts);
+		
+		if(is_callable($where_callback)) {
+			if(false != ($and_where = $where_callback($id_key, $content_key))) {
+				$where_sql = array_merge($where_sql, $and_where);
+			}
+		}
 		
 		return sprintf("SELECT %s ".
 			"FROM fulltext_%s ".

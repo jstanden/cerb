@@ -605,11 +605,20 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 			$query,
 			$attributes,
 			function($sql) use ($join_key, $not) {
+				//return sprintf('%sEXISTS (%s)',
 				return sprintf('%s %sIN (%s)',
 					$join_key,
 					$not ? 'NOT ' : '',
 					$sql
 				);
+			},
+			function($id_key) use ($join_key) {
+				return [
+					sprintf('%s = %s',
+						Cerb_ORMHelper::escape($id_key),
+						Cerb_ORMHelper::escape($join_key)
+					)
+				];
 			},
 			function(array $ids) use ($join_key, $not) {
 				return sprintf('%s %sIN (%s)',
@@ -640,11 +649,20 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 			$query,
 			$attributes,
 			function($sql) use ($join_key, $not) {
+				//return sprintf('%sEXISTS (%s)',
 				return sprintf('%s %sIN (%s)',
 					$join_key,
 					$not ? 'NOT ' : '',
 					$sql
 				);
+			},
+			function($id_key) use ($join_key) {
+				return [
+					sprintf('%s = %s',
+						Cerb_ORMHelper::escape($id_key),
+						Cerb_ORMHelper::escape($join_key)
+					)
+				];
 			},
 			function(array $ids) use ($join_key, $from_context, $not) {
 				$from_ids = DAO_Comment::getContextIdsByContextAndIds($from_context, $ids);

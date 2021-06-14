@@ -2299,12 +2299,20 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 					$query,
 					[],
 					function($sql) use ($join_key, $not) {
+						//return sprintf('%sEXISTS (SELECT message.ticket_id FROM message WHERE ticket_id=%s AND EXISTS (%s))',
 						return sprintf('%s %sIN (SELECT message.ticket_id FROM message WHERE ticket_id=%s AND id IN (%s))',
 							$join_key,
 							$not ? 'NOT ' : '',
 							$join_key,
 							$sql
 						);
+					},
+					function($id_key) use ($join_key) {
+						return [
+							sprintf('%s = message.id',
+								Cerb_ORMHelper::escape($id_key)
+							)
+						];
 					},
 					function(array $ids) use ($join_key, $not) {
 						return sprintf('%s %sIN (SELECT ticket_id FROM message WHERE ticket_id=%s AND id IN (%s))',
