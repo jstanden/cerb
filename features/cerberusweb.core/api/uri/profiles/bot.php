@@ -1826,6 +1826,8 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 				$this->_handleAutomationAwaitForm($continuation);
 			} else if(array_key_exists('interaction', $return)) {
 				$this->_handleAutomationAwaitInteraction($continuation);
+			} else if(array_key_exists('duration', $return)) {
+				$this->_handleAutomationAwaitDuration($continuation);
 			} else if(array_key_exists('draft', $return)) {
 				$this->_handleAutomationAwaitDraft($continuation);
 			} else if(array_key_exists('record', $return)) {
@@ -1837,12 +1839,61 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 	private function _respondAutomationAwait(Model_AutomationContinuation $continuation, DevblocksDictionaryDelegate $automation_results) {
 		if($automation_results->getKeyPath('__return.interaction')) {
 			$this->_respondAutomationAwaitInteraction($automation_results, $continuation);
+		} else if($automation_results->getKeyPath('__return.duration')) {
+			$this->_respondAutomationAwaitDuration($automation_results, $continuation);
 		} else if($automation_results->getKeyPath('__return.draft')) {
 			$this->_respondAutomationAwaitDraft($automation_results, $continuation);
 		} else if($automation_results->getKeyPath('__return.record')) {
 			$this->_respondAutomationAwaitRecord($automation_results, $continuation);
 		} else {
 			$this->_respondAutomationAwaitForm($automation_results, $continuation);
+		}
+	}
+	
+	private function _handleAutomationAwaitDuration(Model_AutomationContinuation $continuation) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		$automator = DevblocksPlatform::services()->automation();
+		
+		$prompts = DevblocksPlatform::importGPC($_POST['prompts'] ?? [], 'array', []);
+		
+		unset($_POST);
+		
+		if(false == ($automation = $continuation->getAutomation()))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		if($automation->extension_id != AutomationTrigger_InteractionWorker::ID)
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		if(!Context_Automation::isReadableByActor($automation, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		$initial_state = $continuation->state_data['dict'] ?? [];
+		
+		$error = null;
+		
+		if(array_key_exists('duration', $prompts)) {
+			if (false === ($automation_results = $automator->executeScript($automation, $initial_state, $error))) {
+				$initial_state['__exit'] = 'error';
+				$automation_results = DevblocksDictionaryDelegate::instance($initial_state);
+			}
+			
+			$exit_code = $automation_results->get('__exit');
+			
+			$continuation->state_data['dict'] = $automation_results->getDictionary();
+			
+			// Save session scope
+			DAO_AutomationContinuation::update($continuation->token, [
+				DAO_AutomationContinuation::STATE => $exit_code,
+				DAO_AutomationContinuation::STATE_DATA => json_encode($continuation->state_data),
+				DAO_AutomationContinuation::EXPIRES_AT => $continuation->expires_at,
+				DAO_AutomationContinuation::UPDATED_AT => time(),
+			]);
+			
+			$this->_respondAutomationAwait($continuation, $automation_results);
+			
+		} else {
+			$automation_results = new DevblocksDictionaryDelegate($initial_state);
+			$this->_respondAutomationAwaitDuration($automation_results, $continuation);
 		}
 	}
 	
@@ -2175,6 +2226,30 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		}
 		
 		$this->_respondAutomationAwait($continuation, $automation_results);
+	}
+	
+	private function _respondAutomationAwaitDuration(DevblocksDictionaryDelegate $automation_results, Model_AutomationContinuation $continuation) {
+		$duration_state = $automation_results->getKeyPath('__return.duration', []);
+		
+		$continuation->state_data['dict'] = $automation_results->getDictionary();
+		$continuation->state_data['dict']['__return']['duration']['started'] = time();
+		
+		// Save session scope
+		DAO_AutomationContinuation::update($continuation->token, [
+			DAO_AutomationContinuation::STATE_DATA => json_encode($continuation->state_data),
+			DAO_AutomationContinuation::EXPIRES_AT => $continuation->expires_at,
+			DAO_AutomationContinuation::UPDATED_AT => time(),
+		]);
+		
+		$message = $duration_state['message'] ?? 'Waiting...';
+		
+		$until = $duration_state['until'] ?? '5 seconds'; 
+		$wait_ms = max((@strtotime($until) ?: strtotime('+5 seconds')) - time(), 0) * 1000; 
+		
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('wait_message', $message);
+		$tpl->assign('wait_ms', $wait_ms);
+		$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.worker/_await_duration.tpl');
 	}
 	
 	private function _respondAutomationAwaitDraft(DevblocksDictionaryDelegate $automation_results, Model_AutomationContinuation $continuation) {

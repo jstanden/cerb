@@ -87,6 +87,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 			'*' => [
 				'(.*):await:' => [
 					'draft:',
+					'duration:',
 					'form:',
 					'interaction:',
 					'record:',
@@ -95,6 +96,11 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 				'(.*):await:draft:' => [
 					'uri:',
 					'output:',
+				],
+				
+				'(.*):await:duration:' => [
+					'message: Waiting...',
+					'until: 5 seconds',
 				],
 				
 				'(.*):await:form:' => [
