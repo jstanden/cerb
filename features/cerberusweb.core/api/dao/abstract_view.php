@@ -2512,7 +2512,9 @@ abstract class C4_AbstractView {
 					break;
 					
 				case 'virtual':
-					if('search' == @$query_field['examples'][0]['type']) {
+					$field_type = $query_field['examples'][0]['type'] ?? null;
+					
+					if('search' == $field_type) {
 						$suggestion = [
 							'caption' => $suggestion_key,
 							'snippet' => $suggestion_key . '(${1})',
@@ -2520,7 +2522,7 @@ abstract class C4_AbstractView {
 						
 						$suggestions['_contexts'][$suggestion_key] = $query_field['examples'][0]['context'];
 						
-					} else if('chooser' == @$query_field['examples'][0]['type']) {
+					} else if('chooser' == $field_type) {
 						$suggestion = [
 							'caption' => $suggestion_key,
 							'snippet' => $suggestion_key . '[${1}]',
