@@ -68,7 +68,7 @@ class HttpRequestAction extends AbstractAction {
 			;
 			
 			$validation->addField('body', 'inputs:body:')
-				->string()
+				->stringOrArray()
 				->setMaxLength('24 bits')
 			;
 			
@@ -103,20 +103,46 @@ class HttpRequestAction extends AbstractAction {
 			@$method = $inputs['method'];
 			@$body = $inputs['body'];
 			
-			if(array_key_exists('headers', $inputs))
-				@$headers = headers_from_lines(DevblocksPlatform::parseCrlfString($inputs['headers']));
+			if(array_key_exists('headers', $inputs)) {
+				if(is_string($inputs['headers'])) {
+					$headers = @headers_from_lines(DevblocksPlatform::parseCrlfString($inputs['headers']));
+					
+				} else if(is_array($inputs['headers'])) {
+					$headers = array_combine(
+						array_map(fn($k) => DevblocksPlatform::strLower($k), array_keys($inputs['headers'])),
+						$inputs['headers']
+					);
+				}
+			}
+			
+			if(is_string($body)) {
+				if(!array_key_exists('content-type', $headers))
+					$headers['content-type'] = 'application/x-www-form-urlencoded';
+				
+			} else if(is_array($body)) {
+				if(!array_key_exists('content-type', $headers))
+					$headers['content-type'] = 'application/x-www-form-urlencoded';
+				
+				switch($headers['content-type']) {
+					case 'application/json':
+					case 'application/x-amz-json-1.0':
+					case 'application/x-amz-json-1.1':
+						$body = json_encode($body,JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+						break;
+						
+					case 'application/x-yaml':
+					case 'text/yaml':
+						$body = DevblocksPlatform::services()->string()->yamlEmit($body, false);
+						break;
+						
+					default:
+						$body = DevblocksPlatform::services()->url()->arrayToQueryString($body);
+						break;
+				}
+			}
 			
 			$request = new Request($method, $url, $headers, $body);
 			$request_options = [];
-			
-			switch($method) {
-				case 'POST':
-				case 'PUT':
-				case 'PATCH':
-					if(!$request->hasHeader('content-type'))
-						$request = $request->withHeader('Content-Type', 'application/x-www-form-urlencoded');
-					break;
-			}
 			
 			/*
 			if(isset($options['ignore_ssl_validation']) && $options['ignore_ssl_validation']) {
@@ -130,8 +156,6 @@ class HttpRequestAction extends AbstractAction {
 			
 			if(array_key_exists('authentication', $inputs) && $inputs['authentication']) {
 				$uri_parts = DevblocksPlatform::services()->ui()->parseURI($inputs['authentication']);
-				
-				$connected_account = null;
 				
 				if(is_numeric($uri_parts['context_id'])) {
 					$connected_account = DAO_ConnectedAccount::get($uri_parts['context_id']);
