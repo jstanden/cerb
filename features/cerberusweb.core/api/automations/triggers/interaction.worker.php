@@ -102,14 +102,38 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'elements:',
 				],
 				'(.*):await:form:elements:' => [
-					'editor:',
-					'fileUpload:',
-					'map:',
-					'say:',
-					'sheet:',
-					'submit:',
-					'text:',
-					'textarea:',
+					[
+						'caption' => 'editor:',
+						'snippet' => 'editor/${1:prompt_name}:',
+					],
+					[
+						'caption' => 'fileUpload:',
+						'snippet' => 'fileUpload/${1:prompt_name}:',
+					],
+					[
+						'caption' => 'map:',
+						'snippet' => 'map/${1:prompt_name}:',
+					],
+					[
+						'caption' => 'say:',
+						'snippet' => 'say/${1:prompt_name}:',
+					],
+					[
+						'caption' => 'sheet:',
+						'snippet' => 'sheet/${1:prompt_name}:',
+					],
+					[
+						'caption' => 'submit:',
+						'snippet' => 'submit:',
+					],
+					[
+						'caption' => 'text:',
+						'snippet' => 'text/${1:prompt_name}:',
+					],
+					[
+						'caption' => 'textarea:',
+						'snippet' => 'textarea/${1:prompt_name}:',
+					],
 				],
 				
 				'(.*):await:form:elements:editor:' => [
