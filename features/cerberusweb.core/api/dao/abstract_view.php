@@ -2260,7 +2260,6 @@ abstract class C4_AbstractView {
 				case Model_CustomField::TYPE_WORKER:
 					$this->_renderCriteriaParamWorker($param);
 					return;
-					break;
 					
 				default:
 					$cfield = $custom_fields[$field_id];

@@ -1713,9 +1713,7 @@ DIV.cerb-menu.cerb-popupmenu {
 }
 
 SPAN.plugin_icon_overlay_disabled {
-  background: url(plugin_overlay_disabled.png?v=2015030101);
-  background-repeat: no-repeat;
-  background-position: top left;
+  background: url(plugin_overlay_disabled.png?v=2015030101) no-repeat top left;
   width: 100px;
   height: 100px;
   position: absolute;

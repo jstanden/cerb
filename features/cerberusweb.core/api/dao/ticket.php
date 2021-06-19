@@ -2590,7 +2590,6 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 						return @$statuses[$value];
 					}
 				];
-				break;
 		}
 		
 		return parent::getFieldForSubtotalKey($key, $context, $query_fields, $search_fields, $primary_key);
@@ -2602,17 +2601,14 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 				$models = DAO_Ticket::getIds($values);
 				$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_TICKET);
 				return array_column(DevblocksPlatform::objectsToArrays($dicts), '_label', 'id');
-				break;
 				
 			case SearchFields_Ticket::TICKET_BUCKET_ID:
 				$records = DAO_Bucket::getIds($values);
 				return array_column($records, 'name', 'id');
-				break;
 				
 			case SearchFields_Ticket::TICKET_GROUP_ID:
 				$records = DAO_Group::getIds($values);
 				return array_column($records, 'name', 'id');
-				break;
 				
 			case SearchFields_Ticket::TICKET_ORG_ID:
 				$records = DAO_ContactOrg::getIds($values);
@@ -2620,33 +2616,26 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 				if(in_array(0, $values))
 					$label_map[0] = DevblocksPlatform::translate('common.none');
 				return $label_map;
-				break;
 				
 			case SearchFields_Ticket::TICKET_OWNER_ID:
-				$records = DAO_Worker::getIds($values);
 				$label_map = DAO_Worker::getNames(false);
 				$label_map[0] = DevblocksPlatform::translate('common.nobody');
 				return array_intersect_key($label_map, array_flip($values));
-				break;
 				
 			case SearchFields_Ticket::TICKET_STATUS_ID:
-				$statuses = [
+				return [
 					0 => DevblocksPlatform::translateCapitalized('status.open'),
 					1 => DevblocksPlatform::translateCapitalized('status.waiting.abbr'),
 					2 => DevblocksPlatform::translateCapitalized('status.closed'),
 					3 => DevblocksPlatform::translateCapitalized('status.deleted'),
 				];
-				return $statuses;
-				break;
 				
 			case SearchFields_Ticket::TICKET_SPAM_TRAINING:
-				$label_map = [
+				return [
 					'' => DevblocksPlatform::translateLower('common.unknown'),
 					'N' => DevblocksPlatform::translateLower('common.notspam'),
 					'S' => DevblocksPlatform::translateLower('common.spam'),
 				];
-				return $label_map;
-				break;
 		}
 		
 		return parent::getLabelsForKeyValues($key, $values);
@@ -3378,6 +3367,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		$results = $this->_getSubtotalDataForStatus('DAO_Ticket', SearchFields_Ticket::VIRTUAL_STATUS);
 
 		$oper = DevblocksSearchCriteria::OPER_IN;
+		$values = [];
 		
 		if(is_array($results))
 		foreach($results as $result) {

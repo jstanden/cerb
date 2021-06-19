@@ -540,6 +540,8 @@ class View_Translation extends C4_AbstractView implements IAbstractView_Subtotal
 		if(false == ($results = $this->_getSubtotalDataForLanguage()))
 			return false;
 		
+		$counts = [];
+		
 		if(is_array($results))
 		foreach($results as $result) {
 			$label = $result['label'];
@@ -596,7 +598,7 @@ class View_Translation extends C4_AbstractView implements IAbstractView_Subtotal
 		$params = $this->getParams();
 		
 		if(!method_exists('DAO_Translation','getSearchQueryComponents'))
-			return array();
+			return [];
 		
 		if(!isset($columns[$field_key]))
 			$columns[] = $field_key;

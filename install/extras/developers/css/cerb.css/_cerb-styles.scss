@@ -1742,9 +1742,8 @@ DIV.cerb-menu {
 // Plugins
 
 SPAN.plugin_icon_overlay_disabled {
-	background: url(plugin_overlay_disabled.png?v=#{$timestamp});
-	background-repeat:no-repeat;
-	background-position:top left;
+	//noinspection CssUnknownTarget
+	background: url(plugin_overlay_disabled.png?v=#{$timestamp}) no-repeat top left;
 	width:100px;
 	height:100px;
 	position:absolute;

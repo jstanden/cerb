@@ -967,7 +967,6 @@ class Model_KbArticle {
 				}
 				
 				return $this->_content;
-				break;
 		}
 		
 		return null;

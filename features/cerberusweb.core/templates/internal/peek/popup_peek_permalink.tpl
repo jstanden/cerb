@@ -14,9 +14,8 @@
 $(function() {
 	var $div = $('#{$popup_id}');
 	var $popup = genericAjaxPopupFind($div);
-	var $layer = $popup.attr('data-layer');
 	
-	$popup.one('popup_open',function(event,ui) {
+	$popup.one('popup_open',function() {
 		// Title
 		$popup.dialog('option','title', '{'common.permalink'|devblocks_translate|capitalize|escape:'javascript' nofilter}');
 		
