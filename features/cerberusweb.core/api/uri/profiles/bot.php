@@ -2068,6 +2068,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 	private function _handleAutomationAwaitForm(Model_AutomationContinuation $continuation) {
 		$automator = DevblocksPlatform::services()->automation();
 		$validation = DevblocksPlatform::services()->validation();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		@$prompts = DevblocksPlatform::importGPC($_POST['prompts'], 'array', []);
@@ -2138,6 +2139,24 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 						$component->validate($validation);
 						
 						$validation_values[$prompt_set_key] = $prompt_value;
+						
+						// Run custom validation if it exists
+						if(array_key_exists('validation', $last_prompt)) {
+							$validation_set_key = $prompt_set_key . '__custom';
+							$validation_dict = DevblocksDictionaryDelegate::instance($initial_state);
+							$validation_dict->set($prompt_set_key, $prompt_value);
+							$validation_error = trim($tpl_builder->build($last_prompt['validation'], $validation_dict));
+							
+							if($validation_error) {
+								$validation_values[$validation_set_key] = $prompt_value;
+								
+								$validation
+									->addField($validation_set_key, $last_prompt['label'] ?? $prompt_set_key)
+									->error()
+									->setError($validation_error)
+								;
+							}
+						}
 					}
 					
 					$initial_state[$prompt_set_key] = $prompt_value;

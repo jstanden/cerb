@@ -327,8 +327,9 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'label:',
 					'max_length:',
 					'placeholder:',
-					'required@bool:',
+					'required@bool: yes',
 					'type:',
+					'validation@text:',
 				],
 				
 				'(.*):await:form:elements:text:type:' => [
@@ -350,7 +351,8 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'label:',
 					'max_length:',
 					'placeholder:',
-					'required@bool:',
+					'required@bool: yes',
+					'validation@text:',
 				],
 				
 				'(.*):await:interaction:' => [
