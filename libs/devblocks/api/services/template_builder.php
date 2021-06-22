@@ -233,6 +233,7 @@ class _DevblocksTemplateBuilder {
 			$functions = [
 				'array_column',
 				'array_combine',
+				'array_count_values',
 				'array_diff',
 				'array_extract_keys',
 				'array_fill_keys',
@@ -1128,6 +1129,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 		return array(
 			new \Twig\TwigFunction('array_column', [$this, 'function_array_column']),
 			new \Twig\TwigFunction('array_combine', [$this, 'function_array_combine']),
+			new \Twig\TwigFunction('array_count_values', [$this, 'function_array_count_values']),
 			new \Twig\TwigFunction('array_diff', [$this, 'function_array_diff']),
 			new \Twig\TwigFunction('array_extract_keys', [$this, 'function_array_extract_keys']),
 			new \Twig\TwigFunction('array_fill_keys', [$this, 'function_array_fill_keys']),
@@ -1181,6 +1183,13 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			return [];
 		
 		return array_combine($keys, $values);
+	}
+	
+	function function_array_count_values($values) {
+		if(!is_array($values))
+			return [];
+		
+		return array_count_values($values);
 	}
 	
 	function function_array_matches($array, $patterns) {
