@@ -28,7 +28,7 @@
 			<td width="99%" valign="top">
 				<input type="text" name="uri" value="{$model->uri}" style="width:98%;">
 				<div>
-					<small>(letters, numbers, and dashes)</small>
+					<small>(letters, numbers, dots, and dashes)</small>
 				</div>
 			</td>
 		</tr>
