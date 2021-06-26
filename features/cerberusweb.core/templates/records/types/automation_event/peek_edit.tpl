@@ -30,27 +30,6 @@
     <fieldset class="peek">
         <legend>Automations: (KATA)</legend>
         <div class="cerb-code-editor-toolbar">
-            {$toolbar_dict = DevblocksDictionaryDelegate::instance([
-            'caller_name' => 'cerb.eventHandler.automation',
-
-            'worker__context' => CerberusContexts::CONTEXT_WORKER,
-            'worker_id' => $active_worker->id
-            ])}
-
-{$toolbar_kata =
-"menu/add:
-  icon: circle-plus
-  tooltip: Add
-  items:
-    interaction/automation:
-      label: Automation
-      uri: ai.cerb.eventHandler.automation
-      inputs:
-        trigger: {$model->extension_id}
-"}
-
-            {$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)}
-
             {DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
 
             <div class="cerb-code-editor-toolbar-divider"></div>

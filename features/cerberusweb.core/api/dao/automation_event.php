@@ -1122,9 +1122,22 @@ class Context_AutomationEvent extends Extension_DevblocksContext implements IDev
 			$tpl->assign('types', $types);
 			
 			
-			if(false != ($trigger_ext = $model->getExtension())) {
+			if(false != ($trigger_ext = $model->getExtension())) { /* @var $trigger_ext Extension_AutomationTrigger */
 				$tpl->assign('trigger_ext', $trigger_ext);
 			}
+			
+			// Editor toolbar
+			
+			$toolbar_dict = DevblocksDictionaryDelegate::instance([
+				'caller_name' => 'cerb.eventHandler.automation',
+				
+				'worker__context' => CerberusContexts::CONTEXT_WORKER,
+				'worker_id' => $active_worker->id
+			]);
+			
+			$toolbar = $trigger_ext->getEventToolbar();
+			$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar, $toolbar_dict);
+			$tpl->assign('toolbar', $toolbar);
 			
 			// View
 			$tpl->assign('id', $context_id);

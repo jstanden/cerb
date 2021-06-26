@@ -906,6 +906,28 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 		return $toolbar;
 	}
 	
+	public function getEventToolbarItems(array $toolbar) : array {
+		return [];
+	}	
+	
+	public function getEventToolbar() {
+		$toolbar = [
+			'interaction/automation' => [
+				'icon' => 'search',
+				'tooltip' => 'Find or create an automation',
+				'uri' => 'ai.cerb.eventHandler.automation',
+				'inputs' => [
+					'trigger' => $this->id,
+				],
+			],
+		];
+		
+		if(method_exists($this, 'getEventToolbarItems'))
+			$toolbar = $this->getEventToolbarItems($toolbar);
+		
+		return $toolbar;
+	}
+	
 	public function getAutocompleteSuggestionsJson() {
 		$common_actions = [
 			'decision:',
