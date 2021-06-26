@@ -237,4 +237,28 @@ EOD;
 		
 		$this->assertEquals([0,1,2], $automation_result->getKeyPath('__return:stack', null, ':'));
 	}
+	
+	function testDuplicateSibling() {
+		$automator = DevblocksPlatform::services()->automation();
+		
+		$automation_script = <<< EOD
+start:
+  await:
+    form:
+      title: Input
+  await:
+    form:
+      title: Output
+EOD;
+		
+		$initial_state = [];
+		
+		$automation = new Model_Automation();
+		$automation->script = $automation_script;
+		
+		$automation_result = $automator->executeScript($automation, $initial_state, $error);
+		
+		$this->assertFalse($automation_result);
+		$this->assertTrue(!empty($error));
+	}
 }

@@ -304,10 +304,12 @@ class _DevblocksAutomationService {
 		
 		try {
 			if(false == ($automation_script = DevblocksPlatform::services()->kata()->parse($automation->script, $error))) {
-				if(!$automation_script) {
-					$error = "No `start:` node was found";
-				} else {
-					$error = "Invalid automation script";
+				if(!$error) {
+					if(!$automation_script) {
+						$error = "No `start:` node was found";
+					} else {
+						$error = "Invalid automation script";
+					}
 				}
 				throw new Exception_DevblocksAutomationError($error);
 			}

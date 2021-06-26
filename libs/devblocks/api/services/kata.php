@@ -80,6 +80,11 @@ class _DevblocksKataService {
 						$new_attributes = array_diff($field_attributes, ['text']);
 						$field_key = $field_id . ($new_attributes ? ('@' . implode(',', $new_attributes)) : '');
 						
+						if(array_key_exists($field_key, $ptr)) {
+							$error = sprintf("`%s:` has a sibling with the same name (line %d)", $field_key, $line_number+1);
+							return false;
+						}
+						
 						if(array_intersect($field_attributes, ['base64', 'bit', 'bool', 'csv', 'date', 'int', 'json', 'list', 'raw', 'text'])) {
 							$state = 'text_block';
 							
@@ -92,7 +97,7 @@ class _DevblocksKataService {
 								$trimmed_text = ltrim($text_line, ' ');
 								
 								if($trimmed_text != ltrim($text_line)) {
-									$error = 'Indents may not use tabs';
+									$error = sprintf('Indents may not use tabs (line %d)', $line_number+1);
 									return false;
 								}
 								
@@ -134,6 +139,11 @@ class _DevblocksKataService {
 					} else if(preg_match('#' . $field_pattern . '?\s*(.*?)$#i', $trimmed_line, $matches)) {
 						$key = $matches[1] . $matches[2];
 						$value = $matches[3];
+						
+						if(array_key_exists($key, $ptr)) {
+							$error = sprintf("`%s:` has a sibling with the same name (line %d)", $key, $line_number+1);
+							return false;
+						}
 						
 						$ptr[$key]['_line'] = $line_number;
 						$ptr[$key]['_data'] = $value;
