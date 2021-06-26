@@ -955,7 +955,8 @@ class CerbAutomationAstNode implements JsonSerializable {
 		if(is_array($params))
 		foreach($params as $k => $v) {
 			if(false !== ($this->formatKeyValue($k, $v, $dict)))
-				$return_values[$k] = $v;
+				if(!is_null($k))
+					$return_values[$k] = $v;
 		}
 		
 		return $return_values;
@@ -974,15 +975,21 @@ class CerbAutomationAstNode implements JsonSerializable {
 					
 					foreach($this->_params[$key] as $k => $v)
 						if(false !== ($this->formatKeyValue($k, $v, $dict)))
-							$return_values[$k] = $v;
+							if(!is_null($k))
+								$return_values[$k] = $v;
 					
 					return $return_values;
 					
 				} else if (is_string($this->_params[$key])) {
 					$v = $this->_params[$key];
 					
-					if(false !== ($this->formatKeyValue($key, $v, $dict)))
-						return $v;
+					if(false !== ($this->formatKeyValue($key, $v, $dict))) {
+						if(!is_null($key)) {
+							return $v;
+						} else {
+							return $default;
+						}
+					}
 				}
 			}
 			
@@ -1225,6 +1232,13 @@ class CerbAutomationAstNode implements JsonSerializable {
 						$value = DevblocksPlatform::parseCrlfString($value);
 						break;
 						
+					case 'optional':
+						if(is_null($value) || (is_string($value) && 0 == strlen($value))) {
+							$k = null;
+							return true;
+						}
+						break;
+						
 					case 'trim':
 						if(is_string($value))
 							$value = trim($value);
@@ -1247,7 +1261,8 @@ class CerbAutomationAstNode implements JsonSerializable {
 			$new_v = [];
 			foreach($v as $kk => $vv) {
 				if(false !== ($this->formatKeyValue($kk, $vv, $dict))) {
-					$new_v[$kk] = $vv;
+					if(!is_null($kk))
+						$new_v[$kk] = $vv;
 				}
 			}
 			$v = $new_v;

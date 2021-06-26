@@ -12,7 +12,8 @@ class SetAction extends AbstractAction {
 		
 		foreach($params as $k => $v) {
 			if(false !== ($this->node->formatKeyValue($k, $v, $dict)))
-				$dict->set($k, $v);
+				if(!is_null($k))
+					$dict->set($k, $v);
 		}
 		
 		return $this->node->getParent()->getId();
