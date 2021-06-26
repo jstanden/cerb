@@ -46,7 +46,16 @@ class AutomationTrigger_MailReceived extends Extension_AutomationTrigger {
 	}
 	
 	public function getEventToolbarItems(array $toolbar): array {
-		return [];
+		$toolbar['interaction/library'] = [
+			'icon' => 'magic',
+			'tooltip' => 'Library',
+			'uri' => 'ai.cerb.eventHandler.automation.mail.received',
+			'inputs' => [
+				'trigger' => $this->id,
+			],
+		];
+		
+		return $toolbar;
 	}
 	
 	public function getAutocompleteSuggestions() : array {

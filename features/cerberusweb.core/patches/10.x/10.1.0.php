@@ -143,6 +143,26 @@ if($changes) {
 }
 
 // ===========================================================================
+// Update built-in automations
+
+$automation_files = [
+	'ai.cerb.automation.create.json',
+	'ai.cerb.eventHandler.automation.json',
+	'ai.cerb.eventHandler.automation.mail.received.json',
+];
+
+foreach($automation_files as $automation_file) {
+	$path = realpath(APP_PATH . '/features/cerberusweb.core/assets/automations/') . '/' . $automation_file;
+	
+	if(!file_exists($path) || false === ($automation_data = json_decode(file_get_contents($path), true)))
+		continue;
+	
+	DAO_Automation::importFromJson($automation_data);
+	
+	unset($automation_data);
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
