@@ -6,8 +6,11 @@
 
 	<div>
 		{if $layout.filtering}
-			<div style="box-sizing:border-box;width:100%;border:1px solid rgb(220,220,220);border-radius:10px;padding:5px;">
-				<textarea data-cerb-sheet-query data-editor-mode="ace/mode/text" data-editor-lines="1">{$filter}</textarea>
+			<div style="position:relative;box-sizing:border-box;width:100%;border:1px solid rgb(220,220,220);border-radius:10px;padding:0 5px;margin-bottom:5px;">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" style="width:16px;height:16px;top:3px;position:absolute;fill:rgb(180,180,180);">
+					<path d="M27.207,24.37866,20.6106,17.78235a9.03069,9.03069,0,1,0-2.82825,2.82825L24.37878,27.207a1,1,0,0,0,1.41425,0l1.414-1.41418A1,1,0,0,0,27.207,24.37866ZM13,19a6,6,0,1,1,6-6A6.00657,6.00657,0,0,1,13,19Z"/>
+				</svg>
+				<input data-cerb-sheet-query type="text" value="{$filter}" placeholder="Search" style="border:0;background-color:inherit;outline:none;margin-left:16px;width:calc(100% - 16px);">
 			</div>
 		{/if}
 
@@ -27,9 +30,7 @@
 		{elseif $layout.style == 'fieldsets'}
 			{include file="devblocks:cerberusweb.core::ui/sheets/render_fieldsets.tpl" sheet_selection_key=$selection_key default=$default}
 		{else}
-			<div style="box-shadow:0 0 5px rgb(200,200,200);">
-				{include file="devblocks:cerberusweb.core::ui/sheets/render.tpl" sheet_selection_key=$selection_key default=$default}
-			</div>
+			{include file="devblocks:cerberusweb.core::ui/sheets/render.tpl" sheet_selection_key=$selection_key default=$default}
 		{/if}
 		</div>
 
@@ -224,20 +225,12 @@ $(function() {
 	});
 
 	{if $layout.filtering}
-	var $editor = $sheet_query_editor
-		.cerbCodeEditor()
-		.nextAll('pre.ace_editor')
-	;
+	$sheet_query_editor.on('keypress', function(e) {
+		e.stopPropagation();
+		
+		if(e.which === 13) {
+			e.preventDefault();
 
-	var editor = ace.edit($editor.attr('id'));
-	editor.setOption('highlightActiveLine', false);
-	editor.renderer.setOption('showGutter', false);
-	editor.renderer.setOption('showLineNumbers', false);
-
-	editor.commands.addCommand({
-		name: 'Submit',
-		bindKey: { win: "Enter", mac: "Enter" },
-		exec: function(editor) {
 			// Update the toolbar
 			var formData = new FormData();
 			formData.set('c', 'profiles');
@@ -248,36 +241,15 @@ $(function() {
 			formData.set('prompt_action', 'refresh');
 			formData.set('continuation_token', '{$continuation_token}');
 
-			formData.set('page', 0);
-			formData.set('filter', editor.getValue());
+			formData.set('page', '0');
+			formData.set('filter', $sheet_query_editor.val());
 
 			$sheet.prepend(Devblocks.getSpinner(true));
 
 			genericAjaxPost(formData, $sheet, null, function() {
+				$sheet_query_editor.select().focus();
 				$prompt.triggerHandler('cerb-sheet--update-selections');
 			});
-		}
-	});
-
-	editor.commands.addCommand({
-		name: 'TabPrev',
-		bindKey: { win: "Shift+Tab", mac: "Shift+Tab" },
-		exec: function () {
-			var $focusable = $prompt.closest('form').find(':focusable');
-			var idx = $focusable.index($prompt.find(':focus'));
-			var $prev = $focusable[idx-1] || $focusable.last();
-			$prev.focus();
-		}
-	});
-
-	editor.commands.addCommand({
-		name: 'TabNext',
-		bindKey: { win: "Tab", mac: "Tab" },
-		exec: function () {
-			var $focusable = $prompt.closest('form').find(':focusable');
-			var idx = $focusable.index($prompt.find(':focus'));
-			var $next = $focusable[idx+1] || $focusable.first();
-			$next.focus();
 		}
 	});
 	{/if}
