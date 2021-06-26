@@ -16,6 +16,16 @@ if(!$db->GetOneMaster("SELECT 1 FROM automation_event WHERE name = 'mail.draft'"
 	));
 }
 
+if(!$db->GetOneMaster("SELECT 1 FROM automation_event WHERE name = 'mail.received'")) {
+	$db->ExecuteMaster(sprintf('INSERT IGNORE INTO automation_event (name, extension_id, description, automations_kata, updated_at) VALUES (%s,%s,%s,%s,%d)',
+		$db->qstr('mail.received'),
+		$db->qstr('cerb.trigger.mail.received'),
+		$db->qstr('After a new email message is received'),
+		$db->qstr(''),
+		time()
+	));
+}
+
 if(!$db->GetOneMaster("SELECT 1 FROM automation_event WHERE name = 'mail.send'")) {
 	$db->ExecuteMaster(sprintf('INSERT IGNORE INTO automation_event (name, extension_id, description, automations_kata, updated_at) VALUES (%s,%s,%s,%s,%d)',
 		$db->qstr('mail.send'),

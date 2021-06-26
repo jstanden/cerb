@@ -4832,7 +4832,24 @@
 				</param>
 			</params>
 		</extension>
-
+		
+		<extension point="cerb.automation.trigger">
+			<id>cerb.trigger.mail.received</id>
+			<name>mail.received</name>
+			<class>
+				<file>api/automations/triggers/mail.received.php</file>
+				<name>AutomationTrigger_MailReceived</name>
+			</class>
+			<params>
+				<param key="description" value="After a new email message is received" />
+				<param key="features">
+					<value>
+						<data key="inputs" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
 		<extension point="cerb.automation.trigger">
 			<id>cerb.trigger.mail.route</id>
 			<name>mail.route</name>
