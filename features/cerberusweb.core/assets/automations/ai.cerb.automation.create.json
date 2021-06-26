@@ -1,0 +1,10 @@
+{
+    "name": "ai.cerb.automation.create",
+    "description": "",
+    "extension_id": "cerb.trigger.interaction.worker",
+    "is_unlisted": 0,
+    "script": "start:\r\n  await:\r\n    record:\r\n      uri: cerb:automation\r\n      output: new_automation",
+    "policy_kata": "",
+    "created_at": 1624578537,
+    "updated_at": 1624578537
+}
