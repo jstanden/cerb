@@ -37,9 +37,6 @@ class LogAction extends AbstractAction {
 		*/
 		
 		try {
-			if(!array_key_exists('', $params))
-				throw new Exception_DevblocksAutomationError('A log message is required.');
-			
 			$log_message = $params[''] ?? '';
 			
 			// Ignore the action on an empty error message
