@@ -664,6 +664,8 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		
 		// Reply toolbars
 		
+		$toolbar_keyboard_shortcuts = [];
+		
 		$toolbar_dict = DevblocksDictionaryDelegate::instance([
 			'caller_name' => 'cerb.toolbar.mail.reply.formatting',
 			
@@ -747,6 +749,7 @@ menu/formatting:
 EOD;
 		
 		if(false != ($toolbar_reply_formatting = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_reply_formatting_kata, $toolbar_dict))) {
+			DevblocksPlatform::services()->ui()->toolbar()->extractKeyboardShortcuts($toolbar_reply_formatting, $toolbar_keyboard_shortcuts);
 			$tpl->assign('toolbar_formatting', $toolbar_reply_formatting);
 		}
 		
@@ -758,10 +761,12 @@ EOD;
 		$toolbar_dict->set('worker_id', $active_worker->id);
 		
 		if(false != ($toolbar_reply_custom = DAO_Toolbar::getKataByName('mail.reply', $toolbar_dict))) {
+			DevblocksPlatform::services()->ui()->toolbar()->extractKeyboardShortcuts($toolbar_reply_custom, $toolbar_keyboard_shortcuts);
 			$tpl->assign('toolbar_custom', $toolbar_reply_custom);
 		}
 		
 		$tpl->assign('draft', $draft);
+		$tpl->assign('toolbar_keyboard_shortcuts', $toolbar_keyboard_shortcuts);
 		
 		// Display template
 		$tpl->display('devblocks:cerberusweb.core::display/rpc/reply.tpl');

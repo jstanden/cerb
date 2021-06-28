@@ -5701,6 +5701,8 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		
 		// Compose toolbar
 		
+	 $toolbar_keyboard_shortcuts = [];
+		 
 		$toolbar_dict = DevblocksDictionaryDelegate::instance([
 			'caller_name' => 'cerb.toolbar.mail.compose.formatting',
 			
@@ -5784,6 +5786,7 @@ menu/formatting:
 EOD;
 		
 		if(false != ($toolbar_compose_formatting_kata = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_compose_formatting_kata, $toolbar_dict))) {
+			DevblocksPlatform::services()->ui()->toolbar()->extractKeyboardShortcuts($toolbar_compose_formatting_kata, $toolbar_keyboard_shortcuts);
 			$tpl->assign('toolbar_formatting', $toolbar_compose_formatting_kata);
 		}
 		
@@ -5794,11 +5797,13 @@ EOD;
 			'worker_id' => $active_worker->id
 		]);
 		
-		if(false != ($toolbar_reply_custom = DAO_Toolbar::getKataByName('mail.compose', $toolbar_dict))) {
-			$tpl->assign('toolbar_custom', $toolbar_reply_custom);
+		if(false != ($toolbar_compose_custom = DAO_Toolbar::getKataByName('mail.compose', $toolbar_dict))) {
+			DevblocksPlatform::services()->ui()->toolbar()->extractKeyboardShortcuts($toolbar_compose_custom, $toolbar_keyboard_shortcuts);
+			$tpl->assign('toolbar_custom', $toolbar_compose_custom);
 		}
 		
 		$tpl->assign('draft', $draft);
+		$tpl->assign('toolbar_keyboard_shortcuts', $toolbar_keyboard_shortcuts);
 		
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::mail/section/compose/peek.tpl');

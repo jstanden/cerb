@@ -19,12 +19,15 @@
                     data-interaction-uri="{$item.uri}"
                     data-interaction-params="{if is_array($item.inputs)}{DevblocksPlatform::services()->url()->arrayToQueryString($item.inputs)}{/if}"
                     data-interaction-done="{if is_array($item.after)}{DevblocksPlatform::services()->url()->arrayToQueryString($item.after)}{/if}"
+                    {if $item.tooltip}title="{$item.tooltip}"{/if}
                     {if $item.headless}data-interaction-headless="true"{/if}
+                    {if $item.keyboard}data-interaction-keyboard="{$item.keyboard}"{/if}
                     >
                     {if $item.icon}
                         <span class="glyphicons glyphicons-{$item.icon}"></span>
                     {/if}
                     <b>{$item.label}</b>
+                    {if $item.keyboard}<small>({$item.keyboard})</small>{/if}
                 </li>
             {elseif 'behavior' == $item_key_parts[0]}
                 <li class="cerb-bot-trigger"
@@ -52,7 +55,7 @@
                         data-interaction-uri="{$toolbar_item.uri}"
                         data-interaction-params="{if is_array($toolbar_item.inputs)}{DevblocksPlatform::services()->url()->arrayToQueryString($toolbar_item.inputs)}{/if}"
                         data-interaction-done="{if is_array($toolbar_item.after)}{DevblocksPlatform::services()->url()->arrayToQueryString($toolbar_item.after)}{/if}"
-                        {if $toolbar_item.tooltip}title="{$toolbar_item.tooltip}"{/if}
+                        {if $toolbar_item.tooltip || $toolbar_item.keyboard}title="{$toolbar_item.tooltip} {if $toolbar_item.keyboard}({$toolbar_item.keyboard}){/if}"{/if}
                         {if $toolbar_item.headless}data-interaction-headless="true"{/if}
                         {if $toolbar_item.keyboard}data-interaction-keyboard="{$toolbar_item.keyboard}"{/if}
                         >

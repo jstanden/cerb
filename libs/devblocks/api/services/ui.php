@@ -513,4 +513,16 @@ class DevblocksUiToolbar {
 		
 		echo $this->fetch($toolbar);
 	}
+	
+	public function extractKeyboardShortcuts(array $toolbar, array &$toolbar_keyboard_shortcuts) {
+		array_walk_recursive(
+			$toolbar,
+			function($v, $k) use (&$toolbar_keyboard_shortcuts) {
+				if('keyboard' == $k)
+					$toolbar_keyboard_shortcuts[$v] = [
+						'keys' => $v,
+					];
+			}
+		);
+	}
 }

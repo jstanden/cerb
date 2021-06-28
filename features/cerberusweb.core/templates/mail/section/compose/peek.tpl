@@ -766,6 +766,23 @@ $(function() {
 		// Shortcuts
 
 		{if $pref_keyboard_shortcuts}
+			var toolbarShortcutTrigger = function(e) {
+				e.preventDefault();
+				e.stopPropagation();
+				$editor_toolbar.find('[data-interaction-keyboard="' + this.keys + '"]').click();
+				return true;
+			};
+	
+			{if $toolbar_keyboard_shortcuts}
+			{foreach from=$toolbar_keyboard_shortcuts item=toolbar_keyboard_shortcut}
+			$editor.bind(
+				'keydown',
+				{$toolbar_keyboard_shortcut.keys|json_encode nofilter},
+				toolbarShortcutTrigger.bind({$toolbar_keyboard_shortcut|json_encode nofilter})
+			);
+			{/foreach}
+			{/if}
+	
 			// Send focus
 			$editor.bind('keydown', 'ctrl+return alt+return meta+return', function(e) {
 				e.preventDefault();
