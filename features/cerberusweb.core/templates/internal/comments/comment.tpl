@@ -31,7 +31,7 @@
 
 	{if !$embed}
 	<div class="toolbar">
-		<button type="button" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="{$comment->id}" title="Open card popup (Shift+Click to edit)"><span class="glyphicons glyphicons-new-window-alt"></span></button>
+		<button type="button" class="cerb-edit-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="{$comment->id}" title="Open card popup (Shift+Click to edit)"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 
 		{$permalink_url = "{devblocks_url full=true}c=profiles&type={$target_context->params.alias}&id={$comment->context_id}{/devblocks_url}/#comment{$comment->id}"}
 		<button type="button" onclick="genericAjaxPopup('permalink', 'c=internal&a=invoke&module=records&action=showPermalinkPopup&url={$permalink_url|escape:'url'}');" title="{'common.permalink'|devblocks_translate|lower}"><span class="glyphicons glyphicons-link"></span></button>
@@ -122,7 +122,12 @@ $(function() {
 				$(this).find('div.toolbar').hide();
 			}
 		)
-		.find('.toolbar .cerb-peek-trigger')
+		.find('.cerb-peek-trigger')
+			.cerbPeekTrigger()
+		;
+	
+	$comment
+		.find('.toolbar .cerb-edit-trigger')
 			.cerbPeekTrigger()
 				.on('cerb-peek-saved', function(e) {
 					if(e.id && e.hasOwnProperty('comment_html'))
