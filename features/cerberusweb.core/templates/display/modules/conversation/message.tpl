@@ -401,6 +401,10 @@
 						{if $message->is_outgoing}
 							<button type="button" onclick="genericAjaxPopup('message_resend','c=profiles&a=invoke&module=ticket&action=showResendMessagePopup&id={$message->id}');"><span class="glyphicons glyphicons-share"></span> Send Again</button>
 						{/if}
+						
+						{if $attachments && extension_loaded('zip')}
+						<button type="button" data-cerb-download-all><span class="glyphicons glyphicons-download"></span> Download all (.zip)</button>
+						{/if}
 					</form>
 				</td>
 			</tr>
@@ -408,23 +412,6 @@
 		{/if}
 
 		{if !$embed}
-		<form id="{$message->id}options" style="padding-top:10px;display:none;" method="post" action="{devblocks_url}{/devblocks_url}">
-			<input type="hidden" name="c" value="profiles">
-			<input type="hidden" name="a" value="invoke">
-			<input type="hidden" name="module" value="ticket">
-			<input type="hidden" name="action" value="">
-			<input type="hidden" name="id" value="{$message->id}">
-			<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
-
-			{if $ticket->first_message_id != $message->id && $active_worker->hasPriv('core.display.actions.split')} {* Don't allow splitting of a single message *}
-				<button type="button" onclick="$frm=$(this).closest('form');$frm.find('input:hidden[name=action]').val('splitMessage');$frm.submit();" title="Split message into new ticket"><span class="glyphicons glyphicons-duplicate"></span> {'display.button.split_ticket'|devblocks_translate|capitalize}</button>
-			{/if}
-
-			{if $message->is_outgoing}
-				<button type="button" onclick="genericAjaxPopup('message_resend','c=profiles&a=invoke&module=ticket&action=showResendMessagePopup&id={$message->id}');"><span class="glyphicons glyphicons-share"></span> Send Again</button>
-			{/if}
-		</form>
-		
 		<div id="{$message->id}b"></div>
 		<div id="{$message->id}notes" class="cerb-comments-thread">
 			{include file="devblocks:cerberusweb.core::display/modules/conversation/notes.tpl"}
@@ -569,6 +556,17 @@ $(function() {
 			e.stopPropagation();
 			genericAjaxGet('message{$message->id}','c=profiles&a=invoke&module=message&action=get&id={$message->id}&widget_id={$widget->id}');
 		});
+	});
+	
+	$msg.find('[data-cerb-download-all]').on('click', function(e) {
+		e.stopPropagation();
+
+		var a = document.createElement('a');
+		a.style = 'display: none';
+		document.body.appendChild(a);
+		a.href = '{devblocks_url}c=files&a=message&id={$message->id}{/devblocks_url}';
+		a.click();
+		a.remove();
 	});
 
 	$actions.find('[data-cerb-button=requester-add]').on('click', function() {

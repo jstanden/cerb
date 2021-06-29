@@ -22,6 +22,15 @@ class ChFilesController extends DevblocksControllerExtension {
 	function handleRequest(DevblocksHttpRequest $request) {
 		$stack = $request->path; // URLS like: /files/10000/plaintext.txt
 		array_shift($stack); // files
+		
+		if('message' == reset($stack)) {
+			$this->_downloadAllOnMessage($stack);
+		} else {
+			$this->_downloadFile($stack);
+		}
+	}
+	
+	private function _downloadFile(array $stack) {
 		$file_id = array_shift($stack); // 123
 		$file_name = array_shift($stack); // plaintext.txt
 		
@@ -49,7 +58,7 @@ class ChFilesController extends DevblocksControllerExtension {
 		
 		if(false === $file->getFileContents($fp))
 			DevblocksPlatform::dieWithHttpError(DevblocksPlatform::translate('files.error_resource_read'), 500);
-			
+		
 		$file_stats = fstat($fp);
 		$mime_type = DevblocksPlatform::strLower($file->mime_type);
 		$size = $file_stats['size'];
@@ -59,8 +68,7 @@ class ChFilesController extends DevblocksControllerExtension {
 		header('Cache-control: max-age=604800', true); // 1 wk // , must-revalidate
 		header('Expires: ' . gmdate('D, d M Y H:i:s',time()+604800) . ' GMT'); // 1 wk
 		header('Accept-Ranges: bytes');
-// 		header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
-
+		
 		if($is_download) {
 			header("Content-Disposition: attachment; filename=\"" . $file->name . "\"");
 			
@@ -139,7 +147,7 @@ class ChFilesController extends DevblocksControllerExtension {
 				if(!$is_download)
 					$mime_type = 'text/plain';
 				break;
-				
+			
 			case 'application/xhtml+xml':
 			case 'text/html':
 				header("Content-Type: text/html; charset=" . LANG_CHARSET_CODE);
@@ -149,7 +157,7 @@ class ChFilesController extends DevblocksControllerExtension {
 					header("Content-Length: " . $file_stats['size']);
 					fpassthru($fp);
 					
-				// If we're displaying the HTML inline, tidy and purify it first
+					// If we're displaying the HTML inline, tidy and purify it first
 				} else {
 					// If the 'tidy' extension exists, and the file size is less than 5MB
 					if(extension_loaded('tidy') && $file_stats['size'] < 5120000) {
@@ -186,7 +194,7 @@ class ChFilesController extends DevblocksControllerExtension {
 				$handled = true;
 				fclose($fp);
 				break;
-				
+			
 			default:
 				$mime_type = 'application/octet-stream';
 				break;
@@ -198,6 +206,162 @@ class ChFilesController extends DevblocksControllerExtension {
 			fpassthru($fp);
 			fclose($fp);
 		}
-		exit;
+		exit;		
 	}
+	
+	private function _downloadAllOnMessage(array $stack) {
+		array_shift($stack); // message
+		
+		$message_id = array_shift($stack); // 123
+		
+		$message = null;
+		
+		if(!extension_loaded('zip') || !class_exists('ZipArchive'))
+			DevblocksPlatform::dieWithHttpError('The `zip` PHP extension is required.');
+		
+		if(false == ($active_worker = CerberusApplication::getActiveWorker()))
+			DevblocksPlatform::dieWithHttpError(DevblocksPlatform::translate('common.access_denied'), 403);
+		
+		if(!$message_id || false == ($message = DAO_Message::get($message_id)))
+			DevblocksPlatform::dieWithHttpError(DevblocksPlatform::translate('error.core.record.not_found'), 404);
+		
+		if(false == ($ticket = DAO_Ticket::getTicketByMessageId($message_id)))
+			DevblocksPlatform::dieWithHttpError(DevblocksPlatform::translate('error.core.record.not_found'), 404);
+		
+		if(!Context_Ticket::isReadableByActor($message, $active_worker))
+			DevblocksPlatform::dieWithHttpError(DevblocksPlatform::translate('common.access_denied'), 403);
+		
+		$attachments = [];
+		
+		// Attachments on messages
+		$attachments += DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_MESSAGE, $message->id);
+		
+		if(!$attachments)
+			return true;
+		
+		$zip_fp = DevblocksPlatform::getTempFile();
+		$zip_filename = DevblocksPlatform::getTempFileInfo($zip_fp);
+		
+		$download_filename = sprintf("ticket-%s--%d-attachments.zip",
+			DevblocksPlatform::strAlphaNum($ticket->mask, '-_'),
+			$message->id
+		);
+		
+		$zip = new ZipArchive();
+		$zip->open($zip_filename, ZipArchive::OVERWRITE);
+		
+		foreach($attachments as $attachment) {
+			if(false == ($fp = DevblocksPlatform::getTempFile()))
+				continue;
+			
+			if(false == ($attachment->getFileContents($fp)))
+				continue;
+			
+			$fp_filename = DevblocksPlatform::getTempFileInfo($fp);
+			
+			$zip->addFile($fp_filename, $attachment->name);
+			
+			fclose($fp);
+		}
+		
+		$zip->close();
+		fclose($zip_fp);
+		
+		$zip_fp = fopen($zip_filename, 'rb');
+		$file_stats = fstat($zip_fp);
+		
+		// Set headers
+		header("Expires: Mon, 26 Nov 1979 00:00:00 GMT");
+		header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
+		header("Accept-Ranges: bytes");
+		header("Content-disposition: attachment; filename=" . $download_filename);
+		header("Content-Type: application/zip");
+		header("Content-Length: " . $file_stats['size']);
+		fpassthru($zip_fp);
+		fclose($zip_fp);
+		
+		return true;		
+	}
+	
+	/*
+	private function _downloadAllOnTicket(array $stack) {
+		array_shift($stack); // ticket
+		$ticket_id = array_shift($stack); // 123
+		
+		if(!extension_loaded('zip') || !class_exists('ZipArchive'))
+			DevblocksPlatform::dieWithHttpError('The `zip` PHP extension is required.');
+		
+		if(false == ($active_worker = CerberusApplication::getActiveWorker()))
+			DevblocksPlatform::dieWithHttpError(DevblocksPlatform::translate('common.access_denied'), 403);
+		
+		if(!$ticket_id || false == ($ticket = DAO_Ticket::get($ticket_id)))
+			DevblocksPlatform::dieWithHttpError(DevblocksPlatform::translate('error.core.record.not_found'), 404);
+		
+		if(!Context_Ticket::isReadableByActor($ticket, $active_worker))
+			DevblocksPlatform::dieWithHttpError(DevblocksPlatform::translate('common.access_denied'), 403);
+		
+		$attachments = [];
+		
+		// Attachments on messages
+		if(false != ($messages = DAO_Message::getMessagesByTicket($ticket_id)))
+			$attachments += DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_MESSAGE, array_keys($messages));
+		
+		// Attachments on ticket comments
+		if(false != ($comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_TICKET, $ticket->id)))
+			$attachments += DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_COMMENT, array_keys($comments));
+		
+		// Attachments on messages comments
+		if(false != ($comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_MESSAGE, array_keys($messages))))
+			$attachments += DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_COMMENT, array_keys($comments));
+		
+		if(!$attachments)
+			return true;
+		
+		$zip_fp = DevblocksPlatform::getTempFile();
+		$zip_filename = DevblocksPlatform::getTempFileInfo($zip_fp);
+		
+		$download_filename = sprintf("ticket-%s-attachments.zip",
+			DevblocksPlatform::strAlphaNum($ticket->mask, '-_')
+		);
+		
+		$zip = new ZipArchive();
+		$zip->open($zip_filename, ZipArchive::OVERWRITE);
+		
+		foreach($attachments as $attachment) {
+			// Not `original_message.html`
+			if('original_message.html' == $attachment->name)
+				continue;
+			
+			if(false == ($fp = DevblocksPlatform::getTempFile()))
+				continue;
+			
+			if(false == ($attachment->getFileContents($fp)))
+				continue;
+			
+			$fp_filename = DevblocksPlatform::getTempFileInfo($fp);
+			
+			$zip->addFile($fp_filename, sprintf('%d-%s', $attachment->id, $attachment->name));
+			
+			fclose($fp);
+		}
+		
+		$zip->close();
+		fclose($zip_fp);
+		
+		$zip_fp = fopen($zip_filename, 'rb');
+		$file_stats = fstat($zip_fp);
+		
+		// Set headers
+		header("Expires: Mon, 26 Nov 1979 00:00:00 GMT");
+		header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
+		header("Accept-Ranges: bytes");
+		header("Content-disposition: attachment; filename=" . $download_filename);
+		header("Content-Type: application/zip");
+		header("Content-Length: " . $file_stats['size']);
+		fpassthru($zip_fp);
+		fclose($zip_fp);
+		
+		return true;		
+	}
+	*/
 };
