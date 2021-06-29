@@ -27,63 +27,63 @@
 <script type="text/javascript">
 $(function() {
 	var $attachments = $('#{$attach_uniqid}');
-	var $menu = $attachments.next('ul.cerb-menu').menu();
 	var $target = null;
 	
-	$attachments.find('li > a.cerb-menu-trigger')
-	.hoverIntent({
-		over: function(e) {
-			$(this).click();
-		},
-		out: function(e) {
+	var $menu = $attachments.next('ul.cerb-menu').menu({
+		select: function(e, ui) {
+			e.preventDefault();
+			e.stopPropagation();
+
+			var $link = ui.item;
+			var url = null;
+
+			if(!$link.is('li'))
+				return;
+
+			switch($link.attr('data-option')) {
+				case 'card':
+					$target.find('a').click();
+					break;
+				case 'browser':
+					url = $target.find('a').attr('data-profile-url');
+					window.open(url, '_blank', 'noopener');
+					break;
+				case 'download':
+					url = $target.find('a').attr('data-profile-url') + '?download=';
+					window.open(url);
+					break;
+			}
+
+			$menu.hide();
+			$target = null;			
 		}
-	})
-	.click(function(e) {
-		e.preventDefault();
-		e.stopPropagation();
-		
-		$target = $(this).closest('li');
-		
-		$menu.css('width', $target.width() + 'px');
-		$menu.zIndex($target.zIndex()+1);
-		$menu.show().position( { my: 'left top', at: 'left bottom', of: $target } );
 	});
 	
-	$menu.find('li')
-	.click(function(e) {
-		e.preventDefault();
-		e.stopPropagation();
-		
-		var $link = $(e.target);
-		
-		if(!$link.is('li'))
-			return;
-		
-		switch($link.attr('data-option')) {
-			case 'card':
-				$target.find('a').click();
-				break;
-			case 'browser':
-				var url = $target.find('a').attr('data-profile-url');
-				window.open(url, '_blank', 'noopener');
-				break;
-			case 'download':
-				var url = $target.find('a').attr('data-profile-url') + '?download=';
-				window.open(url);
-				break;
-		}
-		
-		$menu.hide();
-		$target = null;
-	});
+	$attachments.find('li > a.cerb-menu-trigger')
+		.hoverIntent({
+			over: function() {
+				$(this).click();
+			},
+			out: function(e) {
+			}
+		})
+		.click(function(e) {
+			e.preventDefault();
+			e.stopPropagation();
+			
+			$target = $(this).closest('li');
+			
+			$menu.css('width', $target.width() + 'px');
+			$menu.zIndex($target.zIndex()+1);
+			$menu.show().position( { my: 'left top', at: 'left bottom', of: $target } );
+		})
+	;
 	
 	$menu.hoverIntent({
 		interval: 0,
 		timeout: 250,
-		over: function(e) {
-			
-		},
-		out: function(e) {
+		over: function(e) { },
+		out: function() {
 			$menu.hide();
 		}
 	});
