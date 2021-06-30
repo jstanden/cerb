@@ -297,7 +297,7 @@ class _DevblocksDatabaseManager {
 	
 	/**
 	 * @param string|string[] $sqls
-	 * @param int $time_limit_ms
+	 * @param int|int[] $time_limit_ms
 	 * @return mysqli_result[]|mysqli_result|false
 	 */
 	function QueryReaderAsync($sqls, $time_limit_ms=10000) {
@@ -310,6 +310,14 @@ class _DevblocksDatabaseManager {
 		
 		if(!is_array($sqls))
 			return false;
+		
+		if(is_string($time_limit_ms)) {
+			$time_limits = array_fill(0, count($sqls), $time_limit_ms);
+		} else if (is_array($time_limit_ms)) {
+			$time_limits = array_pad($time_limit_ms, count($sqls), current($time_limit_ms));
+		} else {
+			$time_limits = array_fill(0, count($sqls), 10000);
+		}
 		
 		$user = (defined('APP_DB_READER_USER') && APP_DB_READER_USER) ? APP_DB_READER_USER : APP_DB_USER;
 		$pass = (defined('APP_DB_READER_PASS') && APP_DB_READER_PASS) ? APP_DB_READER_PASS : APP_DB_PASS;

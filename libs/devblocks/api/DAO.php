@@ -299,10 +299,11 @@ abstract class DevblocksORMHelper {
 	 * @return array|bool
 	 * @throws Exception_DevblocksDatabaseQueryTimeout
 	 */
-	protected static function _searchWithTimeout(string $id_key, string $select_sql, string $join_sql, ?string $where_sql, ?string $sort_sql, int $page, int $limit, $withCounts=true, int $timeout_ms=10000) {
+	protected static function _searchWithTimeout(string $id_key, string $select_sql, string $join_sql, ?string $where_sql, ?string $sort_sql, int $page, int $limit, $withCounts=true, int $timeout_ms=15000) {
 		$db = DevblocksPlatform::services()->database();
 		
 		$limit = DevblocksPlatform::intClamp($limit, 0, PHP_INT_MAX);
+		$timeouts = [];
 		
 		$sqls[] = 
 			$select_sql.
@@ -323,7 +324,7 @@ abstract class DevblocksORMHelper {
 		}
 		
 		try {
-			if(false == ($rs = $db->QueryReaderAsync($sql, $timeout_ms)))
+			if(false == ($responses = $db->QueryReaderAsync($sqls, $timeouts)))
 				return false;
 			
 			if($responses[0] instanceof Exception_DevblocksDatabaseQueryTimeout)
