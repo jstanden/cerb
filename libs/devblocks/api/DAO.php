@@ -304,29 +304,43 @@ abstract class DevblocksORMHelper {
 		
 		$limit = DevblocksPlatform::intClamp($limit, 0, PHP_INT_MAX);
 		
-		$sql =
+		$sqls[] = 
 			$select_sql.
 			$join_sql.
 			$where_sql.
 			$sort_sql.
 			($limit ? sprintf(" LIMIT %d,%d", $page*$limit, $limit) : '')
 		;
+		$timeouts[] = $timeout_ms;
+		
+		if($withCounts) {
+			$sqls[] =
+				"SELECT COUNT(1) " .
+				$join_sql .
+				$where_sql
+			;
+			$timeouts[] = $timeout_ms;
+		}
 		
 		try {
 			if(false == ($rs = $db->QueryReaderAsync($sql, $timeout_ms)))
 				return false;
 			
-			$data = [];
+			if($responses[0] instanceof Exception_DevblocksDatabaseQueryTimeout)
+				throw $responses[0];
 			
-			if($rs instanceof Exception_DevblocksDatabaseQueryTimeout)
-				throw $rs;
-			
-			if(!$rs instanceof mysqli_result)
+			if(!($responses[0] instanceof mysqli_result))
 				return false;
 			
-			$total = $rs->num_rows;
+			$data = [];
 			
-			while($row = mysqli_fetch_assoc($rs)) {
+			if($withCounts) {
+				$total = '-1';
+			} else {
+				$total = $responses[0]->num_rows;
+			}
+			
+			while($row = mysqli_fetch_assoc($responses[0])) {
 				$id = $row[$id_key];
 				
 				if(is_numeric($id))
@@ -335,21 +349,18 @@ abstract class DevblocksORMHelper {
 				$data[$id] = $row;
 			}
 			
-			$db->Free($rs);
+			$db->Free($responses[0]);
 			
-			if($withCounts && (!(0 == $page && $total < $limit))) {
-				$sql =
-					"SELECT COUNT(1) " .
-					$join_sql .
-					$where_sql
-				;
-				
-				if(false != ($rs = $db->QueryReaderAsync($sql, $timeout_ms))) {
-					if($rs instanceof Exception_DevblocksDatabaseQueryTimeout) {
-						throw $rs;
-					} else if($rs instanceof mysqli_result) {
-						$total = $db->GetOneFromResultset($rs);
-					}
+			if($withCounts) {
+				if ($responses[1] instanceof Exception_DevblocksDatabaseQueryTimeout) {
+					$total = -1;
+					
+				} else if (!($responses[1] instanceof mysqli_result)) {
+					return false;
+					
+				} else {
+					$total = $db->GetOneFromResultset($responses[1]);
+					$db->Free($responses[1]);
 				}
 			}
 			
