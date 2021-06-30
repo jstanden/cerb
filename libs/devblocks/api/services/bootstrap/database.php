@@ -319,6 +319,7 @@ class _DevblocksDatabaseManager {
 		$results = [];
 		$connections = [];
 		$processed = 0;
+		$monitor_db = null;
 		
 		foreach($sqls as $idx => $sql) {
 			if(0 == $idx) {
@@ -341,32 +342,54 @@ class _DevblocksDatabaseManager {
 			foreach($connections as $db)
 				$links[] = $errors[] = $rejects[] = $db;
 			
-			// If we timed out
-			if ((microtime(true) * 1000) - $started_at >= $time_limit_ms) {
-				// Close any incomplete connections
-				foreach($connections as $idx => $db) {
-					if(!($results[$db->thread_id] instanceof mysqli_result)) {
-						// Mark the thread as timed out
-						$results[$db->thread_id] = new Exception_DevblocksDatabaseQueryTimeout();
-						mysqli_kill($db, $db->thread_id);
-						error_log('Timed out ::SQL:: ' . $sqls[$idx]);
-					}
-				}
-				
-				if($return_single) {
-					return array_shift($results);
-				} else {
-					return array_values($results);
+			$elapsed_ms = (microtime(true) * 1000) - $started_at;
+			
+			// Close any incomplete connections
+			foreach($connections as $idx => $db) {
+				// If we timed out on this query
+				if(false === $results[$db->thread_id] && $elapsed_ms >= $time_limits[$idx]) {
+					// Open a new connection to control the other threads
+					if(is_null($monitor_db))
+						$monitor_db = $this->_connect(APP_DB_READER_HOST, $user, $pass, APP_DB_DATABASE, false, APP_DB_OPT_READER_CONNECT_TIMEOUT_SECS);
+					
+					// Mark the thread as timed out
+					$results[$db->thread_id] = new Exception_DevblocksDatabaseQueryTimeout();
+					
+					$orig_log_errors_max_len = ini_set('log_errors_max_len', 8192);
+
+					error_log(sprintf('Timed out ::SQL:: (%s pid:%d time:%dms) %s ',
+						APP_DB_DATABASE,
+						$db->thread_id,
+						$time_limit_ms,
+						$sqls[$idx]
+					));
+					
+					if($orig_log_errors_max_len)
+						ini_set('log_errors_max_len', $orig_log_errors_max_len);
+					
+					// Kill the timed out thread using the new connection
+					mysqli_kill($monitor_db, $db->thread_id);
 				}
 			}
 			
-			if (!mysqli_poll($links, $errors, $rejects, 1))
-				continue;
+			if(!is_null($monitor_db))
+				@mysqli_close($monitor_db);
+			
+			mysqli_poll($links, $errors, $rejects, 1);
 			
 			foreach ($links as $idx => $link) {
-				if ($rs = mysqli_reap_async_query($link)) {
+				$rs = mysqli_reap_async_query($link);
+					
+				// If we already have a result, skip it
+				if(false !== $results[$link->thread_id]) {
+					/** @noinspection PhpExpressionResultUnusedInspection */
+					true;
+					
+				// If successful
+				} else if ($rs instanceof mysqli_result) {
 					$results[$link->thread_id] = $rs;
 					
+				// If an error
 				} else {
 					$mysql_errno = mysqli_errno($link);
 					$mysql_error = mysqli_error($link);
