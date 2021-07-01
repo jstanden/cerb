@@ -90,6 +90,20 @@ class _DevblocksDatabaseManager {
 		return $db;
 	}
 	
+	private function _connectNewReader() {
+		// Inherit the user/pass from the master if not specified
+		$host = APP_DB_READER_HOST ?: APP_DB_HOST;
+		$user = APP_DB_READER_USER ?: APP_DB_USER;
+		$pass = APP_DB_READER_PASS ?: APP_DB_PASS;
+		
+		if(false == ($db = $this->_connect($host, $user, $pass, APP_DB_DATABASE, APP_DB_PCONNECT, APP_DB_OPT_MASTER_CONNECT_TIMEOUT_SECS))) {
+			error_log(sprintf("[Cerb] Error connecting to a reader host (%s).", $host), E_USER_ERROR);
+			return false;
+		}
+		
+		return $db;
+	}	
+	
 	private function _redirectReaderToMaster() {
 		if($master = $this->_connectMaster())
 			$this->_connections['reader'] = $master;
@@ -135,6 +149,13 @@ class _DevblocksDatabaseManager {
 	 */
 	function getReaderConnection() {
 		return $this->_reader_db;
+	}
+	
+	/**
+	 * @return mysqli|false
+	 */
+	function getNewReaderConnection() {
+		return $this->_connectNewReader();
 	}
 	
 	function isConnected() {
@@ -333,7 +354,7 @@ class _DevblocksDatabaseManager {
 			if(0 == $idx) {
 				$db = $this->getReaderConnection();
 			} else {
-				$db = $this->_connect(APP_DB_READER_HOST, $user, $pass, APP_DB_DATABASE, false, APP_DB_OPT_READER_CONNECT_TIMEOUT_SECS);
+				$db = $this->getNewReaderConnection();
 			}
 			
 			if(!($db instanceof mysqli))
@@ -358,7 +379,7 @@ class _DevblocksDatabaseManager {
 				if(false === $results[$db->thread_id] && $elapsed_ms >= $time_limits[$idx]) {
 					// Open a new connection to control the other threads
 					if(is_null($monitor_db))
-						$monitor_db = $this->_connect(APP_DB_READER_HOST, $user, $pass, APP_DB_DATABASE, false, APP_DB_OPT_READER_CONNECT_TIMEOUT_SECS);
+						$monitor_db = $this->getNewReaderConnection();
 					
 					// Mark the thread as timed out
 					$results[$db->thread_id] = new Exception_DevblocksDatabaseQueryTimeout();
