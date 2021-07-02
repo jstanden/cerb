@@ -173,8 +173,13 @@ class Page_Custom extends CerberusPageExtension {
 		if(null == ($page = DAO_WorkspacePage::get($page_id)))
 			return;
 		
-		if(!Context_WorkspacePage::isReadableByActor($page, $active_worker))
+		if(!Context_WorkspacePage::isReadableByActor($page, $active_worker)) {
+			$tpl->assign('page', $page);
+			$tpl->assign('error_title', DevblocksPlatform::translate('common.access_denied'));
+			$tpl->assign('error_message', 'You do not have permission to view this page.');
+			$tpl->display('devblocks:cerberusweb.core::pages/error.tpl');
 			return;
+		}
 			
 		$point = sprintf("pages.worker.%d.%d",
 			$active_worker->id,
