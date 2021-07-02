@@ -703,6 +703,14 @@ class _DevblocksValidationType {
 		return $this->_data['not_empty'] ? false : true;
 	}
 	
+	function isEmpty($value) {
+		if('id' == $this->_type_name) {
+			return (0 == strlen($value) || 0 === $value);
+		} else {
+			return 0 == strlen($value);	
+		}
+	}
+	
 	function setNotEmpty($bool) {
 		$this->_data['not_empty'] = $bool ? true : false;
 		return $this;
@@ -984,7 +992,7 @@ class _DevblocksValidationService {
 		
 		// [TODO] This would have trouble if we were bulk updating a unique field
 		if(isset($data['unique']) && $data['unique']) {
-			if($field->_type->canBeEmpty() && 0 == strlen($value)) {
+			if($field->_type->canBeEmpty() && $field->_type->isEmpty($value)) {
 				// May be empty
 				
 			} else {
@@ -1052,7 +1060,7 @@ class _DevblocksValidationService {
 				break;
 				
 			case '_DevblocksValidationTypeFloat':
-				if($field->_type->canBeEmpty() && 0 == strlen($value))
+				if($field->_type->canBeEmpty() && $field->_type->isEmpty($value))
 					$value = 0;
 				
 				if(!is_numeric($value)) {
@@ -1116,7 +1124,7 @@ class _DevblocksValidationService {
 					
 					$possible_values = $data['possible_values'] ?? null;
 					
-					if(!($field->_type->canBeEmpty() && 0 == strlen($value))) {
+					if(!($field->_type->canBeEmpty() && $field->_type->isEmpty($value))) {
 						if ($possible_values && !in_array($value, $possible_values)) {
 							throw new Exception_DevblocksValidationError(sprintf("'%s' must be one of: %s", $field_label, implode(', ', $data['possible_values'])));
 						}
