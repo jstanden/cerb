@@ -2,8 +2,8 @@
 <b>On:</b>
 <div style="margin-left:10px;margin-bottom:0.5em;">
 <select name="{$namePrefix}[on]" class="on">
+	<option value=""></option>
 	{foreach from=$values_to_contexts item=context_data key=val_key name=context_data}
-	{if $smarty.foreach.context_data.first && empty($params.on)}{$params.on = $val_key}{/if}
 	{$event_point = $context_to_macros.{$context_data.context}}
 	{if $event_point && !$context_data.is_polymorphic}
 	<option value="{$val_key}" data-event="{$event_point}" {if $params.on==$val_key}{$selected_event = $event_point}selected="selected"{/if}>{$context_data.label}</option>
