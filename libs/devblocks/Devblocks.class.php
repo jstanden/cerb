@@ -2361,6 +2361,19 @@ class DevblocksPlatform extends DevblocksEngine {
 		return false;
 	}
 	
+	public static function logError(string $error_msg) {
+		$orig_log_errors_max_len = ini_set('log_errors_max_len', 8192);
+		
+		if(DEVELOPMENT_MODE && php_sapi_name() != 'cli') {
+			trigger_error($error_msg, E_USER_WARNING);
+		} else {
+			error_log($error_msg);
+		}
+		
+		if($orig_log_errors_max_len)
+			ini_set('log_errors_max_len', $orig_log_errors_max_len);
+	}
+	
 	/**
 	 *
 	 * @return boolean

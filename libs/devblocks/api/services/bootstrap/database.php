@@ -384,17 +384,12 @@ class _DevblocksDatabaseManager {
 					// Mark the thread as timed out
 					$results[$db->thread_id] = new Exception_DevblocksDatabaseQueryTimeout();
 					
-					$orig_log_errors_max_len = ini_set('log_errors_max_len', 8192);
-
-					error_log(sprintf('Timed out ::SQL:: (%s pid:%d time:%dms) %s ',
+					DevblocksPlatform::logError(sprintf('Timed out ::SQL:: (%s pid:%d time:%dms) %s ',
 						APP_DB_DATABASE,
 						$db->thread_id,
 						$time_limit_ms,
 						$sqls[$idx]
 					));
-					
-					if($orig_log_errors_max_len)
-						ini_set('log_errors_max_len', $orig_log_errors_max_len);
 					
 					// Kill the timed out thread using the new connection
 					mysqli_kill($monitor_db, $db->thread_id);
@@ -431,11 +426,7 @@ class _DevblocksDatabaseManager {
 						$sqls[$idx]
 					);
 					
-					if (DEVELOPMENT_MODE && php_sapi_name() != 'cli') {
-						trigger_error($error_msg, E_USER_WARNING);
-					} else {
-						error_log($error_msg);
-					}
+					DevblocksPlatform::logError($error_msg);
 				}
 				
 				$processed++;
@@ -491,11 +482,7 @@ class _DevblocksDatabaseManager {
 					$sql
 				);
 				
-				if(DEVELOPMENT_MODE && php_sapi_name() != 'cli') {
-					trigger_error($error_msg, E_USER_WARNING);
-				} else {
-					error_log($error_msg);
-				}
+				DevblocksPlatform::logError($error_msg);
 				
 				return false;
 			}
