@@ -47,7 +47,7 @@ class UmScKbRssController extends Extension_UmScRssController {
 	}
 	
 	private function _renderMostPopularRss($portal) {
-		header("Content-Type: text/xml");
+		header("Content-Type: application/rss+xml");
 		
 		$xmlstr = <<<XML
 		<rss version='2.0' xmlns:atom='http://www.w3.org/2005/Atom'>
@@ -124,7 +124,7 @@ XML;
 	}
 	
 	private function _renderRecentChangesRss($portal) {
-		header("Content-Type: text/xml");
+		header("Content-Type: application/rss+xml");
 
 		$xmlstr = <<<XML
 		<rss version='2.0' xmlns:atom='http://www.w3.org/2005/Atom'>
@@ -206,7 +206,7 @@ XML;
 	}
 	
 	private function _renderNewArticlesRss($portal) {
-		header("Content-Type: text/xml");
+		header("Content-Type: application/rss+xml");
 
 		$xmlstr = <<<XML
 		<rss version='2.0' xmlns:atom='http://www.w3.org/2005/Atom'>
