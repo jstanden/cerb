@@ -57,7 +57,7 @@
       "width_units": 2,
       "zone": "left",
       "params": {
-        "data_query": "type:worklist.subtotals\r\nof:message\r\nby:[worker~10,group~10]\r\nquery:(\r\n\tcreated:\"big bang to now\"\r\n\tworker:(isDisabled:n id:>0)\r\n\tisOutgoing:y\r\n\tisBroadcast:n\r\n)\r\nformat:categories",
+        "data_query": "type:worklist.subtotals\r\nof:message\r\nby:[worker~10,group~10]\r\nquery:(\r\n\tcreated:\"-1 year to now\"\r\n\tworker:(isDisabled:n id:>0)\r\n\tisOutgoing:y\r\n\tisBroadcast:n\r\n)\r\nformat:categories",
         "cache_secs": "",
         "xaxis_format": "text",
         "yaxis_format": "number",

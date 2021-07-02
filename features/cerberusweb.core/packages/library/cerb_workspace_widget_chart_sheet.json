@@ -101,14 +101,14 @@
       "uid": "workspace_widget_worker_leaderboard",
       "_context": "cerberusweb.contexts.workspace.widget",
       "_exclude": "{{% if prompt_dataset != 'worker_reply_leaderboard' %}}true{{% endif %}}",
-      "label": "Reply Leaderboard (Top 10, All-Time)",
+      "label": "Reply Leaderboard (Top 10, Past Year)",
       "tab_id": "{{{workspace_tab_id}}}",
       "extension_id": "core.workspace.widget.sheet",
       "pos": 1,
       "width_units": 2,
       "zone": "content",
       "params": {
-        "data_query": "type:worklist.subtotals\nof:message\nby:[worker~10]\nquery:(\n\tcreated:\"big bang to now\"\n\tworker.id:!0\n\tisOutgoing:y\n\tisBroadcast:n\n)\nformat:dictionaries",
+        "data_query": "type:worklist.subtotals\nof:message\nby:[worker~10]\nquery:(\n\tcreated:\"-1 year to now\"\n\tworker.id:!0\n\tisOutgoing:y\n\tisBroadcast:n\n)\nformat:dictionaries",
         "sheet_kata": "layout:\n  style: table\n  headings@bool: yes\n  paging@bool: yes\n\ncolumns:\n  card/worker_id:\n    label: Worker\n    params:\n      image@bool: yes\n      bold@bool: yes\n\n  search/count:\n    label: # Replies\n    params:\n      label_key: count\n      context_key: count_query_context\n      query_key: count_query\n\n  ",
         "cache_secs": ""
       }
