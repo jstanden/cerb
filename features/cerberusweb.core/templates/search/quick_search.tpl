@@ -40,7 +40,7 @@ $(function() {
 	editor.commands.addCommand({
 		name: 'Submit',
 		bindKey: { win: "Enter", mac: "Enter" },
-		exec: function(editor) {
+		exec: function() {
 			$frm.submit();
 		}
 	});

@@ -586,7 +586,6 @@ class SearchFields_KbArticle extends DevblocksSearchFields {
 							Cerb_ORMHelper::escape($param->operator),
 							$value
 						);
-						break;
 						
 					case DevblocksSearchCriteria::OPER_IN:
 					case DevblocksSearchCriteria::OPER_NIN:
@@ -598,10 +597,8 @@ class SearchFields_KbArticle extends DevblocksSearchFields {
 							$param->operator == DevblocksSearchCriteria::OPER_NIN ? 'NOT IN' : 'IN',
 							implode(',', $category_ids)
 						);
-						break;
 				}
 				return 0;
-				break;
 				
 			case self::TOP_CATEGORY_ID:
 				switch($param->operator) {
@@ -618,7 +615,6 @@ class SearchFields_KbArticle extends DevblocksSearchFields {
 							Cerb_ORMHelper::escape($param->operator),
 							$value
 						);
-						break;
 						
 					case DevblocksSearchCriteria::OPER_IN:
 					case DevblocksSearchCriteria::OPER_NIN:
@@ -633,23 +629,18 @@ class SearchFields_KbArticle extends DevblocksSearchFields {
 						break;
 				}
 				return 0;
-				break;
 				
 			case self::FULLTEXT_ARTICLE_CONTENT:
 				return self::_getWhereSQLFromFulltextField($param, Search_KbArticle::ID, self::getPrimaryKey());
-				break;
 				
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_KB_ARTICLE, self::getPrimaryKey());
-				break;
 				
 			case self::VIRTUAL_HAS_FIELDSET:
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_KB_ARTICLE), '%s'), self::getPrimaryKey());
-				break;
 				
 			case self::VIRTUAL_WATCHERS:
 				return self::_getWhereSQLFromWatchersField($param, CerberusContexts::CONTEXT_KB_ARTICLE, self::getPrimaryKey());
-				break;
 			
 			default:
 				if('cf_' == substr($param->field, 0, 3)) {
@@ -657,7 +648,6 @@ class SearchFields_KbArticle extends DevblocksSearchFields {
 				} else {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
-				break;
 		}
 	}
 	
@@ -1839,10 +1829,7 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 				
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
-				break;
 		}
-		
-		return false;
 	}
 	
 	function render() {

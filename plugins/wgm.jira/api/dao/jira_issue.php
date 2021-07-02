@@ -528,24 +528,19 @@ class SearchFields_JiraIssue extends DevblocksSearchFields {
 		switch($param->field) {
 			case self::FULLTEXT_CONTENT:
 				return self::_getWhereSQLFromFulltextField($param, Search_JiraIssue::ID, self::getPrimaryKey());
-				break;
 				
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, Context_JiraIssue::ID, self::getPrimaryKey());
-				break;
 				
 			case self::VIRTUAL_HAS_FIELDSET:
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(Context_JiraIssue::ID), '%s'), self::getPrimaryKey());
-				break;
 			
 			case self::VIRTUAL_PROJECT_SEARCH:
 				$sql = "SELECT id FROM jira_project WHERE id IN (%s)";
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, Context_JiraProject::ID, $sql, 'jira_issue.project_id');
-				break;
 				
 			case self::VIRTUAL_WATCHERS:
 				return self::_getWhereSQLFromWatchersField($param, Context_JiraIssue::ID, self::getPrimaryKey());
-				break;
 				
 			default:
 				if('cf_' == substr($param->field, 0, 3)) {
@@ -553,10 +548,7 @@ class SearchFields_JiraIssue extends DevblocksSearchFields {
 				} else {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
-				break;
 		}
-		
-		return false;
 	}
 	
 	static function getFieldForSubtotalKey($key, $context, array $query_fields, array $search_fields, $primary_key) {
@@ -1087,15 +1079,12 @@ class View_JiraIssue extends C4_AbstractView implements IAbstractView_Subtotals,
 		switch($field) {
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
-				break;
 			
 			case 'project':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_JiraIssue::VIRTUAL_PROJECT_SEARCH);
-				break;
 			
 			case 'watchers':
 				return DevblocksSearchCriteria::getWatcherParamFromTokens(SearchFields_JiraIssue::VIRTUAL_WATCHERS, $tokens);
-				break;
 				
 			default:
 				if($field == 'links' || substr($field, 0, 6) == 'links.')
@@ -1103,10 +1092,7 @@ class View_JiraIssue extends C4_AbstractView implements IAbstractView_Subtotals,
 				
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
-				break;
 		}
-		
-		return false;
 	}
 	
 	function render() {

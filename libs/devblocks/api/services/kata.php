@@ -33,8 +33,9 @@ class _DevblocksKataService {
 			$line_number = key($lines);
 			
 			// Ignore completely blank lines
-			if(0 == strlen(trim($line)))
+			if(0 == strlen(trim($line))) {
 				continue;
+			}
 			
 			$matches = [];
 			

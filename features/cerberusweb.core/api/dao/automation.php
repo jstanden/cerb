@@ -978,8 +978,6 @@ class View_Automation extends C4_AbstractView implements IAbstractView_Subtotals
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
 		}
-		
-		return false;
 	}
 	
 	function render() {

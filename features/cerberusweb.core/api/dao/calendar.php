@@ -1147,10 +1147,7 @@ class View_Calendar extends C4_AbstractView implements IAbstractView_Subtotals, 
 				
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
-				break;
 		}
-		
-		return false;
 	}
 	
 	function render() {

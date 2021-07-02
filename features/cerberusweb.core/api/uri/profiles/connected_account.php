@@ -312,7 +312,6 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
 	}
 	
-
 	private function _profileAction_auth() {
 		$validation = DevblocksPlatform::services()->validation();
 		$active_worker = CerberusApplication::getActiveWorker();

@@ -3204,7 +3204,6 @@ class CerbLoginWorkerAuthState {
 	private $is_consent_required = false;
 	private $is_mfa_authenticated = false;
 	private $is_mfa_required = false;
-	private $is_oauth = false;
 	private $is_password_authenticated = false;
 	private $is_sso_authenticated = false;
 	private $params = [];

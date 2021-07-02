@@ -3700,6 +3700,9 @@ class CerbQuickSearchLexer {
 	}
 	
 	static function buildParams($token, &$parent) {
+		if(!is_object($token))
+			return;
+		
 		switch($token->type) {
 			case 'T_GROUP':
 				// Sanitize
@@ -3980,6 +3983,9 @@ class CerbQuickSearchLexer {
 			$append_to = null;
 			
 			foreach($token->children as $k => $child) {
+				if(!is_object($child))
+					continue;
+				
 				switch($child->type) {
 					case 'T_FIELD':
 						$append_to = $k;
@@ -4022,6 +4028,9 @@ class CerbQuickSearchLexer {
 			$field = null;
 			
 			foreach($token->children as $k => $child) {
+				if(!is_object($child))
+					continue;
+				
 				switch($child->type) {
 					case 'T_QUOTED_TEXT':
 					case 'T_TEXT':
@@ -4051,13 +4060,12 @@ class CerbQuickSearchLexer {
 			$token->value = null;
 			
 			foreach($token->children as $k => $child) {
+				if(!is_object($child))
+					continue;
+				
 				switch($child->type) {
 					case 'T_BOOL':
 						if(empty($token->value)) {
-							$oper = sprintf('%sAND',
-								$all ? 'ALL ' : ''
-							);
-							
 							// [TODO] This should write a group like 'NOT (a AND b)' instead
 							
 							switch($child->value) {

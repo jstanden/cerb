@@ -1234,7 +1234,8 @@ $(function() {
 			});
 		{/if}
 
-		{* Run custom jQuery scripts from VA behavior *}
+		{* @deprecated Run custom jQuery scripts from VA behavior *}
+		{* [TODO] Remove this in 11.0 *}
 		
 		{if !empty($jquery_scripts)}
 		$('#reply{$message->id}_form').closest('div.reply_frame').each(function(e) {

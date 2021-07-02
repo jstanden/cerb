@@ -613,40 +613,31 @@ class SearchFields_ContactOrg extends DevblocksSearchFields {
 
 			case self::FULLTEXT_ORG:
 				return self::_getWhereSQLFromFulltextField($param, Search_Org::ID, self::getPrimaryKey());
-				break;
 				
 			case self::FULLTEXT_COMMENT_CONTENT:
 				return self::_getWhereSQLFromCommentFulltextField($param, Search_CommentContent::ID, CerberusContexts::CONTEXT_ORG, self::getPrimaryKey());
-				break;
 			
 			case self::VIRTUAL_ALIAS:
 				return  self::_getWhereSQLFromAliasesField($param, CerberusContexts::CONTEXT_ORG, self::getPrimaryKey());
-				break;
 			
 			case self::VIRTUAL_CONTACTS_SEARCH:
 				$sql = "SELECT contact.org_id FROM contact WHERE contact.id IN (%s)";
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CONTACT, $sql, 'c.id');
-				break;
 				
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_ORG, self::getPrimaryKey());
-				break;
 				
 			case self::VIRTUAL_EMAIL_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_ADDRESS, 'c.email_id');
-				break;
 				
 			case self::VIRTUAL_HAS_FIELDSET:
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_ORG), '%s'), self::getPrimaryKey());
-				break;
 
 			case self::VIRTUAL_TICKET_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_TICKET, "SELECT org_id FROM ticket t WHERE t.id IN (%s)", 'c.id');
-				break;
 				
 			case self::VIRTUAL_WATCHERS:
 				return self::_getWhereSQLFromWatchersField($param, CerberusContexts::CONTEXT_ORG, self::getPrimaryKey());
-				break;
 				
 			default:
 				if('cf_' == substr($param->field, 0, 3)) {
@@ -654,7 +645,6 @@ class SearchFields_ContactOrg extends DevblocksSearchFields {
 				} else {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
-				break;
 		}
 		
 	}
@@ -1328,23 +1318,18 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 		switch($field) {
 			case 'alias':
 				return DevblocksSearchCriteria::getContextAliasParamFromTokens(SearchFields_ContactOrg::VIRTUAL_ALIAS, $tokens);
-				break;
 			
 			case 'contacts':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_ContactOrg::VIRTUAL_CONTACTS_SEARCH);
-				break;
 				
 			case 'email':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_ContactOrg::VIRTUAL_EMAIL_SEARCH);
-				break;
 				
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
-				break;
 			
 			case 'ticket':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_ContactOrg::VIRTUAL_TICKET_SEARCH);
-				break;
 			
 			case 'ticket.id':
 				$field_key = SearchFields_ContactOrg::VIRTUAL_TICKET_ID;
@@ -1371,10 +1356,7 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 				
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
-				break;
 		}
-		
-		return false;
 	}
 	
 	function render() {

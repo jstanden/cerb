@@ -1097,11 +1097,9 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 		switch($field) {
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
-				break;
 			
 			case 'owner':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Task::VIRTUAL_OWNER_SEARCH);
-				break;
 				
 			case 'isCompleted':
 			case 'status':
@@ -1145,12 +1143,8 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
 				
 				$search_fields = $this->getQuickSearchFields();
-				$param = DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
-				return $param;
-				break;
+				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
 		}
-		
-		return false;
 	}
 	
 	function render() {

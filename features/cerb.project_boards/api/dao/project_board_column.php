@@ -431,7 +431,6 @@ class SearchFields_ProjectBoardColumn extends DevblocksSearchFields {
 		switch($param->field) {
 			case self::VIRTUAL_BOARD_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, Context_ProjectBoard::ID, 'project_board_column.board_id');
-				break;
 			
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, Context_ProjectBoardColumn::ID, self::getPrimaryKey());
@@ -898,7 +897,6 @@ class View_ProjectBoardColumn extends C4_AbstractView implements IAbstractView_S
 		switch($field) {
 			case 'board':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_ProjectBoardColumn::VIRTUAL_BOARD_SEARCH);
-				break;
 				
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
@@ -912,10 +910,7 @@ class View_ProjectBoardColumn extends C4_AbstractView implements IAbstractView_S
 				
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
-				break;
 		}
-		
-		return false;
 	}
 	
 	function render() {

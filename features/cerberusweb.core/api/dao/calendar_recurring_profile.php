@@ -457,19 +457,15 @@ class SearchFields_CalendarRecurringProfile extends DevblocksSearchFields {
 		switch($param->field) {
 			case self::VIRTUAL_CALENDAR_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_CALENDAR, 'calendar_recurring_profile.calendar_id');
-				break;
 			
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING, self::getPrimaryKey());
-				break;
 			
 			case self::VIRTUAL_HAS_FIELDSET:
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING), '%s'), self::getPrimaryKey());
-				break;
 				
 			case self::VIRTUAL_WATCHERS:
 				return self::_getWhereSQLFromWatchersField($param, CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING, self::getPrimaryKey());
-				break;
 				
 			default:
 				if('cf_' == substr($param->field, 0, 3)) {
@@ -477,7 +473,6 @@ class SearchFields_CalendarRecurringProfile extends DevblocksSearchFields {
 				} else {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
-				break;
 		}
 	}
 	
@@ -935,11 +930,9 @@ class View_CalendarRecurringProfile extends C4_AbstractView implements IAbstract
 		switch($field) {
 			case 'calendar':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_CalendarRecurringProfile::VIRTUAL_CALENDAR_SEARCH);
-				break;
 				
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
-				break;
 				
 			case 'status':
 				$field_key = SearchFields_CalendarRecurringProfile::IS_AVAILABLE;
@@ -964,11 +957,9 @@ class View_CalendarRecurringProfile extends C4_AbstractView implements IAbstract
 					$oper,
 					$value
 				);
-				break;
 				
 			case 'watchers':
 				return DevblocksSearchCriteria::getWatcherParamFromTokens(SearchFields_CalendarRecurringProfile::VIRTUAL_WATCHERS, $tokens);
-				break;
 				
 			default:
 				if($field == 'links' || substr($field, 0, 6) == 'links.')
@@ -976,10 +967,7 @@ class View_CalendarRecurringProfile extends C4_AbstractView implements IAbstract
 				
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
-				break;
 		}
-		
-		return false;
 	}
 	
 	function render() {

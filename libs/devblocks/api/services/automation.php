@@ -1112,7 +1112,6 @@ class CerbAutomationAstNode implements JsonSerializable {
 			$node_memory = [];
 		
 		$error = null;
-		$next_state = null;
 		
 		$node_classes = [
 			'action' => '\Cerb\AutomationBuilder\Node\ActionNode',
@@ -1135,7 +1134,8 @@ class CerbAutomationAstNode implements JsonSerializable {
 		$node = new $node_classes[$node_type]($this);
 		
 		if(false === ($next_state = $node->activate($automation, $dict, $node_memory, $error))) {
-			return $this->_triggerError($error, $dict);
+			$this->_triggerError($error, $dict);
+			return false;
 		}
 		
 		$dict->setKeyPath($node_memory_key, $node_memory, '|');

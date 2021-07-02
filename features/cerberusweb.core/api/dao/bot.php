@@ -995,10 +995,7 @@ class View_Bot extends C4_AbstractView implements IAbstractView_Subtotals, IAbst
 				
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
-				break;
 		}
-		
-		return false;
 	}
 	
 	function render() {

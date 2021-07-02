@@ -2043,6 +2043,9 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	static function strParseDecimal($number, $decimal_places=2, $decimal_separator='.') {
+		if(!is_string($number) && !is_numeric($number))
+			$number = '0';
+		
 		if(0 == strlen($number))
 			$number = '0';
 		
@@ -2070,6 +2073,9 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	static function strFormatDecimal($number, $decimal_places=2, $decimal_separator='.', $thousands_separator=',') {
+		if(!is_string($number) && !is_numeric($number))
+			$number = '0';
+		
 		if(0 == strlen($number))
 			$number = '0';
 		

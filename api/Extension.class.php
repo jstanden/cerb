@@ -944,7 +944,6 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'snippet' => "return:\n\t",
 				'docHTML' => "<b>return:</b><br>Finish and return a successful response",
 			],
-			// [TODO] If the trigger is resumable
 			[
 				'caption' => 'await:',
 				'snippet' => "await:\n\t",

@@ -16,11 +16,9 @@ class _DevblocksDatabaseManager {
 		switch($name) {
 			case '_master_db':
 				return $this->_connectMaster();
-				break;
 				
 			case '_reader_db':
 				return $this->_connectReader();
-				break;
 		}
 		
 		return null;

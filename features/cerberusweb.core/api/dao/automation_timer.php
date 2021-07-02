@@ -955,8 +955,6 @@ class View_AutomationTimer extends C4_AbstractView implements IAbstractView_Subt
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
 		}
-		
-		return false;
 	}
 	
 	function render() {

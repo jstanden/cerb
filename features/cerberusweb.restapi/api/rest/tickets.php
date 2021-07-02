@@ -802,8 +802,6 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 	}
 	
 	private function postReply() {
-		$worker = CerberusApplication::getActiveWorker();
-
 		$ticket_id = $this->_handlePostReply();
 		$this->getId($ticket_id);
 	}

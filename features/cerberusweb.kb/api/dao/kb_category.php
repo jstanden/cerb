@@ -1189,10 +1189,7 @@ class View_KbCategory extends C4_AbstractView implements IAbstractView_Subtotals
 				
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
-				break;
 		}
-		
-		return false;
 	}
 	
 	function render() {

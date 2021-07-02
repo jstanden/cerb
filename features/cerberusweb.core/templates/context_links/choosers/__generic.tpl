@@ -36,7 +36,6 @@ $(function() {
 			$worklist.css('background','none');
 			$worklist.css('background-color','rgb(100,100,100)');
 
-			var $header = $worklist.find('> tbody > tr:first > td:first > span.title');
 			var $header_links = $worklist.find('> tbody > tr:first td:nth(1)');
 
 			$header_links.children().each(function(e) {
