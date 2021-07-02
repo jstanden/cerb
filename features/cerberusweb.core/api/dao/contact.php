@@ -1467,8 +1467,11 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 				),
 			'watchers' => 
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_WORKER,
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Contact::VIRTUAL_WATCHERS),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => ''],
+					],
 				),
 		);
 		
@@ -1544,8 +1547,10 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 				
 			case 'org':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Contact::VIRTUAL_ORG_SEARCH);
-				break;
 			
+			case 'watchers':
+				return DevblocksSearchCriteria::getWatcherParamFromTokens(SearchFields_Contact::VIRTUAL_WATCHERS, $tokens);
+				
 			default:
 				if($field == 'links' || substr($field, 0, 6) == 'links.')
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);

@@ -904,8 +904,11 @@ class View_CalendarRecurringProfile extends C4_AbstractView implements IAbstract
 				),
 			'watchers' =>
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_WORKER,
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_CalendarRecurringProfile::VIRTUAL_WATCHERS),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => ''],
+					],
 				),
 		);
 		

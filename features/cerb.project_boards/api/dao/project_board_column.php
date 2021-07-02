@@ -439,6 +439,9 @@ class SearchFields_ProjectBoardColumn extends DevblocksSearchFields {
 			case self::VIRTUAL_HAS_FIELDSET:
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(Context_ProjectBoardColumn::ID), '%s'), self::getPrimaryKey());
 			
+			case self::VIRTUAL_WATCHERS:
+				return self::_getWhereSQLFromWatchersField($param, Context_ProjectBoardColumn::ID, self::getPrimaryKey());
+				
 			default:
 				if('cf_' == substr($param->field, 0, 3)) {
 					return self::_getWhereSQLFromCustomFields($param);
@@ -865,8 +868,11 @@ class View_ProjectBoardColumn extends C4_AbstractView implements IAbstractView_S
 				),
 			'watchers' => 
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_WORKER,
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_ProjectBoardColumn::VIRTUAL_WATCHERS),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => ''],
+					],
 				),
 		);
 		
@@ -896,8 +902,10 @@ class View_ProjectBoardColumn extends C4_AbstractView implements IAbstractView_S
 				
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
-				break;
 			
+			case 'watchers':
+				return DevblocksSearchCriteria::getWatcherParamFromTokens(SearchFields_ProjectBoardColumn::VIRTUAL_WATCHERS, $tokens);
+				
 			default:
 				if($field == 'links' || substr($field, 0, 6) == 'links.')
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);

@@ -818,8 +818,11 @@ class View_FileBundle extends C4_AbstractView implements IAbstractView_Subtotals
 				),
 			'watchers' =>
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_WORKER,
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_FileBundle::VIRTUAL_WATCHERS),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => ''],
+					],
 				),
 		);
 		
@@ -881,8 +884,10 @@ class View_FileBundle extends C4_AbstractView implements IAbstractView_Subtotals
 					DevblocksSearchCriteria::OPER_CUSTOM,
 					['context' => CerberusContexts::CONTEXT_WORKER, 'id' => $worker_id]
 				);
-				break;
 			
+			case 'watchers':
+				return DevblocksSearchCriteria::getWatcherParamFromTokens(SearchFields_FileBundle::VIRTUAL_WATCHERS, $tokens);
+				
 			default:
 				if($field == 'owner' || substr($field, 0, strlen('owner.')) == 'owner.')
 					return DevblocksSearchCriteria::getVirtualContextParamFromTokens($field, $tokens, 'owner', SearchFields_FileBundle::VIRTUAL_OWNER);

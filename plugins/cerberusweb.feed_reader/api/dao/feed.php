@@ -445,8 +445,11 @@ class View_Feed extends C4_AbstractView implements IAbstractView_QuickSearch {
 				),
 			'watchers' => 
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_WORKER,
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Feed::VIRTUAL_WATCHERS, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => ''],
+					],
 				),
 		);
 		

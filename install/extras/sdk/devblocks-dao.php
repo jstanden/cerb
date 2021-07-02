@@ -410,10 +410,8 @@ class SearchFields_<?php echo $class_name; ?> extends DevblocksSearchFields {
 			case self::VIRTUAL_HAS_FIELDSET:
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr('<?php echo $ctx_ext_id; ?>'), '%s'), self::getPrimaryKey());
 			
-			/*
 			case self::VIRTUAL_WATCHERS:
-				return self::_getWhereSQLFromWatchersField($param, '', self::getPrimaryKey());
-			*/
+				return self::_getWhereSQLFromWatchersField($param, '<?php echo $ctx_ext_id; ?>', self::getPrimaryKey());
 			
 			default:
 				if('cf_' == substr($param->field, 0, 3)) {
@@ -678,8 +676,11 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 				),
 			'watchers' => 
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_WORKER,
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_<?php echo $class_name; ?>::VIRTUAL_WATCHERS),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => ''],
+					],
 				),
 		);
 		
@@ -707,6 +708,9 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
 			
+			case 'watchers':
+				return DevblocksSearchCriteria::getWatcherParamFromTokens(SearchFields_<?php echo $class_name; ?>::VIRTUAL_WATCHERS, $tokens);
+    
 			default:
 				if($field == 'links' || substr($field, 0, 6) == 'links.')
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);

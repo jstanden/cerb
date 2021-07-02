@@ -1070,10 +1070,42 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 	}
 	
 	static function _getWhereSQLFromWatchersField(DevblocksSearchCriteria $param, $from_context, $pkey) {
-		$ids = DevblocksPlatform::sanitizeArray($param->value, 'integer');
-		
 		switch($param->operator) {
+			case DevblocksSearchCriteria::OPER_CUSTOM:
+				if(false == ($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_WORKER, true)))
+					return null;
+				
+				if(false == ($view = $context_ext->getTempView()))
+					return null;
+				
+				$params = $view->getParamsFromQuickSearch($param->value);
+				
+				$query_parts = DAO_Worker::getSearchQueryComponents(
+					[],
+					$params
+				);
+				
+				$query_parts['select'] = sprintf("SELECT %s ", SearchFields_Worker::getPrimaryKey());
+				
+				$subquery_sql =
+					$query_parts['select']
+					. $query_parts['join']
+					. $query_parts['where']
+				;
+				
+				// [TODO] NOT
+				
+				return sprintf("%s IN (SELECT from_context_id FROM context_link WHERE context_link.from_context = %s AND context_link.from_context_id = %s AND context_link.to_context = %s AND context_link.to_context_id IN (%s)) ",
+					$pkey,
+					Cerb_ORMHelper::qstr($from_context),
+					$pkey,
+					Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_WORKER),
+					$subquery_sql
+				);
+				
 			case DevblocksSearchCriteria::OPER_IN:
+				$ids = DevblocksPlatform::sanitizeArray($param->value, 'integer');
+				
 				return sprintf("%s IN (SELECT from_context_id FROM context_link WHERE from_context = %s AND from_context_id = %s AND to_context = 'cerberusweb.contexts.worker' AND to_context_id IN (%s))",
 					$pkey,
 					Cerb_ORMHelper::qstr($from_context),
@@ -1082,6 +1114,8 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 				);
 				
 			case DevblocksSearchCriteria::OPER_NIN:
+				$ids = DevblocksPlatform::sanitizeArray($param->value, 'integer');
+				
 				return sprintf("%s NOT IN (SELECT from_context_id FROM context_link WHERE from_context = %s AND to_context = 'cerberusweb.contexts.worker' AND to_context_id IN (%s))",
 					$pkey,
 					Cerb_ORMHelper::qstr($from_context),
@@ -2130,70 +2164,89 @@ class DevblocksSearchCriteria {
 		$terms = null;
 		
 		foreach($tokens as $token) {
-			switch($token->type) {
+			switch ($token->type) {
+				// Parameterized expression
+				case 'T_GROUP':
+					$query = substr(CerbQuickSearchLexer::getTokensAsQuery($tokens), 1, -1);
+					
+					return new DevblocksSearchCriteria(
+						$field_key,
+						DevblocksSearchCriteria::OPER_CUSTOM,
+						$query
+					);
+					break;
+		
 				case 'T_NOT':
-					$not = !$not;
-					break;
-					
 				case 'T_ARRAY':
-					$oper = ($not) ? self::OPER_NIN : self::OPER_IN;
-					$terms = $token->value;
-					break;
-					
 				case 'T_QUOTED_TEXT':
 				case 'T_TEXT':
-					$oper = ($not) ? self::OPER_NIN : self::OPER_IN;
-					$terms = DevblocksPlatform::parseCsvString($token->value);
-					break;
-			}
-		}
-		
-		if(1 == count($terms) && in_array(DevblocksPlatform::strLower($terms[0]), array('any','yes'))) {
-			$oper = self::OPER_IS_NOT_NULL;
-			$value = array();
-			
-		} else if(1 == count($terms) && in_array(DevblocksPlatform::strLower($terms[0]), array('none','no'))) {
-			$oper = self::OPER_IS_NULL;
-			$value = array();
-			
-		} else {
-			$active_worker = CerberusApplication::getActiveWorker();
-			$workers = DAO_Worker::getAllActive();
-				
-			$worker_ids = array();
-			
-			if(is_array($terms))
-			foreach($terms as $term) {
-				if(is_numeric($term) && isset($workers[$term])) {
-					$worker_ids[intval($term)] = true;
-				
-				} elseif($active_worker && 0 == strcasecmp($term, 'me')) {
-					$worker_ids[$active_worker->id] = true;
-					continue;
-				}
-				
-				foreach($workers as $worker_id => $worker) {
-					if(isset($worker_ids[$worker_id]))
-						continue;
-					
-					if(false !== stristr($worker->getName(), $term)) {
-						$worker_ids[$worker_id] = true;
+					foreach($tokens as $token) {
+						switch($token->type) {
+							case 'T_NOT':
+								$not = !$not;
+								break;
+							
+							case 'T_ARRAY':
+								$oper = ($not) ? self::OPER_NIN : self::OPER_IN;
+								$terms = $token->value;
+								break;
+							
+							case 'T_QUOTED_TEXT':
+							case 'T_TEXT':
+								$oper = ($not) ? self::OPER_NIN : self::OPER_IN;
+								$terms = DevblocksPlatform::parseCsvString($token->value);
+								break;
+						}
 					}
-				}
-			}
-			
-			if(!empty($worker_ids)) {
-				$value = array_keys($worker_ids);
-			} else {
-				$value = array(-1);
+					
+					if(1 == count($terms) && in_array(DevblocksPlatform::strLower($terms[0]), array('any','yes'))) {
+						$oper = self::OPER_IS_NOT_NULL;
+						$value = [];
+						
+					} else if(1 == count($terms) && in_array(DevblocksPlatform::strLower($terms[0]), array('none','no'))) {
+						$oper = self::OPER_IS_NULL;
+						$value = [];
+						
+					} else {
+						$active_worker = CerberusApplication::getActiveWorker();
+						$workers = DAO_Worker::getAllActive();
+						
+						$worker_ids = [];
+						
+						if(is_array($terms))
+							foreach($terms as $term) {
+								if(is_numeric($term) && isset($workers[$term])) {
+									$worker_ids[intval($term)] = true;
+									
+								} elseif($active_worker && 0 == strcasecmp($term, 'me')) {
+									$worker_ids[$active_worker->id] = true;
+									continue;
+								}
+								
+								foreach($workers as $worker_id => $worker) {
+									if(isset($worker_ids[$worker_id]))
+										continue;
+									
+									if(false !== stristr($worker->getName(), $term)) {
+										$worker_ids[$worker_id] = true;
+									}
+								}
+							}
+						
+						if(!empty($worker_ids)) {
+							$value = array_keys($worker_ids);
+						} else {
+							$value = [-1];
+						}
+					}
+					
+					return new DevblocksSearchCriteria(
+						$field_key,
+						$oper,
+						$value
+					);
 			}
 		}
-		
-		return new DevblocksSearchCriteria(
-			$field_key,
-			$oper,
-			$value
-		);
 	}
 	
 	public static function getContextAliasParamFromTokens($field_key, $tokens) {

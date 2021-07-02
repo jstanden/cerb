@@ -1291,6 +1291,11 @@ abstract class C4_AbstractView {
 		}
 		
 		switch($param->operator) {
+			case DevblocksSearchCriteria::OPER_CUSTOM:
+				echo sprintf("Watcher matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
+				break;
 			case DevblocksSearchCriteria::OPER_IS_NULL:
 				echo sprintf("There are no <b>%s</b>",
 					DevblocksPlatform::strEscapeHtml($label_plural)

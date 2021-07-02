@@ -418,11 +418,8 @@ class SearchFields_AutomationTimer extends DevblocksSearchFields {
 			case self::VIRTUAL_HAS_FIELDSET:
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_AUTOMATION_TIMER), '%s'), self::getPrimaryKey());
 			
-			/*
 			case self::VIRTUAL_WATCHERS:
-				return self::_getWhereSQLFromWatchersField($param, '', self::getPrimaryKey());
-				break;
-			*/
+				return self::_getWhereSQLFromWatchersField($param, CerberusContexts::CONTEXT_AUTOMATION_TIMER, self::getPrimaryKey());
 			
 			default:
 				if('cf_' == substr($param->field, 0, 3)) {
@@ -917,8 +914,11 @@ class View_AutomationTimer extends C4_AbstractView implements IAbstractView_Subt
 				),
 			'watchers' =>
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_WORKER,
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_AutomationTimer::VIRTUAL_WATCHERS),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => ''],
+					],
 				),
 		);
 		
@@ -945,6 +945,9 @@ class View_AutomationTimer extends C4_AbstractView implements IAbstractView_Subt
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
 			
+			case 'watchers':
+				return DevblocksSearchCriteria::getWatcherParamFromTokens(SearchFields_AutomationTimer::VIRTUAL_WATCHERS, $tokens);
+
 			default:
 				if($field == 'links' || substr($field, 0, 6) == 'links.')
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);

@@ -1783,8 +1783,11 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 				),
 			'watchers' => 
 				array(
-					'type' => 'WS',
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_KbArticle::VIRTUAL_WATCHERS),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => ''],
+					],
 				),
 		);
 		
@@ -1826,8 +1829,10 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 		switch($field) {
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
-				break;
 			
+			case 'watchers':
+				return DevblocksSearchCriteria::getWatcherParamFromTokens(SearchFields_KbArticle::VIRTUAL_WATCHERS, $tokens);
+				
 			default:
 				if($field == 'links' || substr($field, 0, 6) == 'links.')
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
