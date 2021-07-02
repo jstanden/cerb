@@ -129,8 +129,8 @@ class DAO_CustomField extends Cerb_ORMHelper {
 				return true;
 			})
 			->addValidator(function($string, &$error=null) {
-				if(0 != strcmp($string, DevblocksPlatform::strAlphaNum($string, '._'))) {
-					$error = "may only contain letters, numbers, dots, and underscores";
+				if(0 != strcmp($string, DevblocksPlatform::strAlphaNum($string, '_'))) {
+					$error = "may only contain letters, numbers, and underscores";
 					return false;
 				}
 				
