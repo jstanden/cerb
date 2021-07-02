@@ -15,8 +15,25 @@
 <script type="text/javascript">
 $(function() {
 	$('#viewCustomFilters{$view->id}').bind('view_refresh', function(event) {
-		if(event.target == event.currentTarget)
-			genericAjaxGet('view{$view->id}','c=internal&a=invoke&module=worklists&action=refresh&id={$view->id}');
+		if(event.target === event.currentTarget) {
+			var $div = $('<div/>')
+				.addClass('cerb-search-progress')
+				.css('position', 'absolute')
+				.css('width', '200px')
+				.css('left', '50%')
+				.css('margin-top', '5px')
+				.css('margin-left', '-100px')
+			;
+			
+			$div.append(Devblocks.getSpinner().css('max-width', '16px'));
+			$div.append($('<b>Searching, please wait...</b>'));
+			
+			$div.insertBefore($('#view{$view->id}').hide());
+			
+			genericAjaxGet($('#view{$view->id}'), 'c=internal&a=invoke&module=worklists&action=refresh&id={$view->id}', function() {
+				$div.remove();
+			});
+		}
 	});
 });
 </script>
