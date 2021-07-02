@@ -55,6 +55,12 @@ $(function() {
 	});
 	
 	$frm.submit(function() {
+	    var $view = $('#view{$view->id}');
+	    
+	    // If a search is already in progress, abort
+	    if($view.siblings('.cerb-search-progress').length > 0)
+            return;
+	    
 		genericAjaxPost('{$uniqid}','',null,function(json) {
 			if(true === json.status) {
 				{if !empty($return_url)}
