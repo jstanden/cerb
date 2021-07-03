@@ -597,7 +597,7 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 		$tpl->assign('context', $context);
 		$tpl->assign('context_id', $context_id);
 		
-		$widgets = DAO_ProfileWidget::getByTab($model->id);
+		$widgets = $model->getWidgets();
 		
 		@$layout = $model->extension_params['layout'] ?: '';
 		
@@ -684,7 +684,6 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 	private function _profileTabAction_reorderWidgets(Model_ProfileTab $profile_tab) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$tab_id = DevblocksPlatform::importGPC($_POST['tab_id'], 'integer', 0);
 		@$zones = DevblocksPlatform::importGPC($_POST['zones'], 'array', []);
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
@@ -693,7 +692,7 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 		if(!$active_worker->is_superuser)
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		$widgets = DAO_ProfileWidget::getByTab($tab_id);
+		$widgets = $profile_tab->getWidgets();
 		$new_zones = [];
 		
 		// Sanitize widget IDs
@@ -701,7 +700,7 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 			$new_zones[$zone_id] = array_values(array_intersect(explode(',', $zone), array_keys($widgets)));
 		}
 		
-		DAO_ProfileWidget::reorder($new_zones);
+		DAO_ProfileWidget::reorder($new_zones, $profile_tab->id);
 	}
 }
 

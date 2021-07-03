@@ -10,6 +10,8 @@ class DAO_ProfileWidget extends Cerb_ORMHelper {
 	const WIDTH_UNITS = 'width_units';
 	const ZONE = 'zone';
 	
+	const _CACHE_ALL = 'profile_widgets_all';
+	
 	private function __construct() {}
 	
 	static function getFields() {
@@ -96,7 +98,7 @@ class DAO_ProfileWidget extends Cerb_ORMHelper {
 		if(!isset($fields[self::UPDATED_AT]))
 			$fields[self::UPDATED_AT] = time();
 			
-		$context = "cerberusweb.contexts.profile.widget";
+		$context = CerberusContexts::CONTEXT_PROFILE_WIDGET;
 		self::_updateAbstract($context, $ids, $fields);
 		
 		// Make a diff for the requested objects in batches
@@ -139,12 +141,13 @@ class DAO_ProfileWidget extends Cerb_ORMHelper {
 		parent::_updateWhere('profile_widget', $fields, $where);
 	}
 	
-	static function reorder(array $zones=[]) {
+	static function reorder(array $zones=[], $profile_tab_id=null) {
 		if(empty($zones))
 			return;
 		
 		$db = DevblocksPlatform::services()->database();
 		$active_worker = CerberusApplication::getActiveWorker();
+		$cache = DevblocksPlatform::services()->cache();
 		
 		if(!$active_worker->is_superuser)
 			return;
@@ -163,6 +166,11 @@ class DAO_ProfileWidget extends Cerb_ORMHelper {
 		);
 		
 		$db->ExecuteMaster($sql);
+		
+		if($profile_tab_id) {
+			$cache_key = sprintf("profile_tab_%d", $profile_tab_id);
+			$cache->remove($cache_key);
+		}
 	}
 	
 	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
@@ -232,24 +240,25 @@ class DAO_ProfileWidget extends Cerb_ORMHelper {
 	 * @return Model_ProfileWidget[]
 	 */
 	static function getAll($nocache=false) {
-		//$cache = DevblocksPlatform::services()->cache();
-		//if($nocache || null === ($objects = $cache->load(self::_CACHE_ALL))) {
+		$cache = DevblocksPlatform::services()->cache();
+		
+		if($nocache || null === ($objects = $cache->load(self::_CACHE_ALL))) {
 			$objects = self::getWhere(null, DAO_ProfileWidget::NAME, true, null, Cerb_ORMHelper::OPT_GET_MASTER_ONLY);
 			
-			//if(!is_array($objects))
-			//	return false;
+			if(!is_array($objects))
+				return [];
 				
-			//$cache->save($objects, self::_CACHE_ALL);
-		//}
+			$cache->save($objects, self::_CACHE_ALL);
+		}
 		
 		return $objects;
 	}
 	
 	static function getByTab($profile_tab_id) {
 		$cache = DevblocksPlatform::services()->cache();
-		$cache_key = sprintf("profile_dashboard_%d", $profile_tab_id);
+		$cache_key = sprintf("profile_tab_%d", $profile_tab_id);
 		
-		if(true || null === ($objects = $cache->load($cache_key))) {
+		if(null === ($objects = $cache->load($cache_key))) {
 			$objects = self::getWhere(
 				sprintf("%s = %d",
 					Cerb_ORMHelper::escape(self::PROFILE_TAB_ID),
@@ -264,7 +273,7 @@ class DAO_ProfileWidget extends Cerb_ORMHelper {
 			if(!is_array($objects))
 				return false;
 				
-			$cache->save($objects, $cache_key);
+			$cache->save($objects, $cache_key, ['schema_profile_widgets'], 86400);
 		}
 		
 		return $objects;
@@ -346,6 +355,7 @@ class DAO_ProfileWidget extends Cerb_ORMHelper {
 	
 	static function clearCache() {
 		$cache = DevblocksPlatform::services()->cache();
+		$cache->remove(self::_CACHE_ALL);
 		$cache->removeByTags(['schema_profile_widgets']);
 	}
 	
