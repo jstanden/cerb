@@ -982,7 +982,7 @@ class CerberusMail {
 			return false;
 		}
 		
-		$fromAddressInst = CerberusApplication::hashLookupAddress($from_replyto->email, true);
+		$fromAddressInst = DAO_Address::lookupAddress($from_replyto->email, true);
 		$fromAddressId = $fromAddressInst->id;
 		
 		// Organization ID from first requester
@@ -1934,7 +1934,7 @@ class CerberusMail {
 		
 		$change_fields = [];
 		
-		$fromAddressInst = CerberusApplication::hashLookupAddress($from_replyto->email, true);
+		$fromAddressInst = DAO_Address::lookupAddress($from_replyto->email, true);
 		$fromAddressId = $fromAddressInst->id;
 		
 		if((!isset($properties['dont_keep_copy']) || !$properties['dont_keep_copy'])

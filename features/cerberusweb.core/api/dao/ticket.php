@@ -1622,7 +1622,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		
 		$replyto_addresses = DAO_Address::getLocalAddresses();
 
-		if(null == ($address = CerberusApplication::hashLookupAddress($raw_email, true))) {
+		if(null == ($address = DAO_Address::lookupAddress($raw_email, true))) {
 			$logger->warn(sprintf("[Parser] %s is a malformed requester e-mail address.", $raw_email));
 			return false;
 		}

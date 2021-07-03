@@ -3637,7 +3637,7 @@ abstract class C4_AbstractView {
 					if(false == ($recipients = $context_ext->broadcastRecipientFieldsToEmails($params['to'], $dict)))
 						continue;
 					
-					$recipients = CerberusApplication::hashLookupAddresses($recipients, true);
+					$recipients = DAO_Address::lookupAddresses($recipients, true);
 					
 					if(is_array($recipients))
 					foreach($recipients as $model) {

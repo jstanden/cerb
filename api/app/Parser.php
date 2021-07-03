@@ -174,8 +174,8 @@ class CerberusParserModel {
 			
 				@$fromAddress = $addy['email'];
 				
-				if(null != ($fromInst = CerberusApplication::hashLookupAddress($fromAddress, true))) {
-					$this->_sender_address_model = $fromInst;
+				if(null != ($fromInst = DAO_Address::lookupAddress($fromAddress, true))) {
+					$this->setSenderAddressModel($fromInst);
 					
 					if(null != ($fromWorkerAuth = DAO_Address::getByEmail($fromAddress))) {
 						if(null != ($fromWorker = $fromWorkerAuth->getWorker()))
