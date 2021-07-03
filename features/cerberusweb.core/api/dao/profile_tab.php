@@ -222,13 +222,10 @@ class DAO_ProfileTab extends Cerb_ORMHelper {
 		if(empty($id))
 			return null;
 		
-		$objects = self::getWhere(sprintf("%s = %d",
-			self::ID,
-			$id
-		));
+		$profile_tabs = self::getAll();
 		
-		if(isset($objects[$id]))
-			return $objects[$id];
+		if(array_key_exists($id, $profile_tabs))
+			return $profile_tabs[$id];
 		
 		return null;
 	}
@@ -382,7 +379,6 @@ class DAO_ProfileTab extends Cerb_ORMHelper {
 	public static function clearCache() {
 		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(self::_CACHE_ALL);
-		//$cache_key = sprintf("profile_dashboard_%d", $profile_tab_id);
 	}
 };
 
