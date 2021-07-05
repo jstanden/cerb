@@ -115,11 +115,6 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 		
 		@$expand_all = $display_options['expand_all'] ?? 0;
 		
-		// Track senders and their orgs
-		
-		$message_senders = [];
-		$message_sender_orgs = [];
-		
 		// Message Notes
 		
 		$message_notes = [];
@@ -142,6 +137,7 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 		$has_seen_worker_reply = false;
 		$messages_seen = 0;
 		$messages_highlighted = [];
+		$messages_expanded = [];
 		
 		foreach($messages as $message_id => $message) { /* @var $message Model_Message */
 			$key = $message->created_date . '_m' . $message_id;
@@ -168,9 +164,8 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 				'expand' => $expanded,
 			];
 			
-			// If we haven't cached this sender address yet
-			if($message->address_id)
-				$message_senders[$message->address_id] = null;
+			if($expanded)
+				$messages_expanded[] = $message_id;
 		}
 		
 		if(1 == count($messages_highlighted))
@@ -180,17 +175,73 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 		$tpl->assign('messages_highlighted', $messages_highlighted);
 		
 		// Bulk load sender address records
-		$message_senders = CerberusApplication::hashLookupAddresses(array_keys($message_senders));
+		$message_sender_ids = array_unique(array_column($messages, 'address_id'));
+		$message_senders = DAO_Address::getIds($message_sender_ids);
+		
+		// Bulk load worker records
+		$message_worker_ids = array_diff(array_unique(array_column($messages, 'worker_id')), [0]);
+		$message_workers = DAO_Worker::getIds($message_worker_ids);
+		
+		// Bulk load contact records
+		$message_contact_ids = array_diff(array_unique(array_column($message_senders, 'contact_id')), [0]);
+		$message_contacts = DAO_Contact::getIds($message_contact_ids);
 		
 		// Bulk load org records
-		array_walk($message_senders, function($sender) use (&$message_sender_orgs) { /* @var $sender Model_Address */
-			if($sender->contact_org_id)
-				$message_sender_orgs[$sender->contact_org_id] = null;
-		});
-		$message_sender_orgs = CerberusApplication::hashLookupOrgs(array_keys($message_sender_orgs));
+		$message_sender_org_ids = array_diff(
+			array_unique(
+				array_column($message_senders, 'contact_org_id')
+				+ array_column($message_contacts, 'org_id')
+			),
+			[0]
+		);
+		$message_sender_orgs = DAO_ContactOrg::getIds($message_sender_org_ids);
 		
-		$tpl->assign('message_senders', $message_senders);
-		$tpl->assign('message_sender_orgs', $message_sender_orgs);
+		// Bulk load custom fields
+		$message_custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_MESSAGE, $messages_expanded);
+		
+		// Bulk load attachments
+		$message_attachments = DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_MESSAGE, $messages_expanded, false);
+		
+		// Bulk load headers
+		$message_headers = DAO_MessageHeaders::getRaws(array_keys($messages));
+		
+		// Cache references to reduce lookups
+		foreach($messages as $message_id => $message) {
+			if($message->address_id && array_key_exists($message->address_id, $message_senders)) {
+				$message_sender = $message_senders[$message->address_id]; /* @var $message_sender Model_Address */
+				
+				if($message_sender->contact_id && array_key_exists($message_sender->contact_id, $message_contacts)) {
+					$contact = $message_contacts[$message_sender->contact_id];
+					
+					if($contact->org_id && array_key_exists($contact->org_id, $message_sender_orgs)) {
+						$contact->setOrg($message_sender_orgs[$contact->org_id]);
+					}
+					
+					$message_sender->setContact($contact);
+				}
+				
+				if($message_sender->contact_org_id && array_key_exists($message_sender->contact_org_id, $message_sender_ids)) {
+					$message_sender->setOrg($message_sender_orgs[$message_sender->contact_org_id]);
+				}
+					
+				$message->setSender($message_sender);
+			}
+			
+			if(array_key_exists($message_id, $message_custom_field_values))
+				$message->setCustomFieldValues($message_custom_field_values[$message_id]);
+			
+			if($message->worker_id && array_key_exists($message->worker_id, $message_workers)) {
+				$message->setWorker($message_workers[$message->worker_id]);
+			}
+			
+			if(array_key_exists($message_id, $message_headers)) {
+				$message->setHeadersRaw($message_headers[$message_id]);
+			}
+			
+			if(array_key_exists($message_id, $message_attachments)) {
+				$message->setAttachments($message_attachments[$message_id]);
+			}
+		}
 	}
 	
 	private function _threadComments(array $comments, &$convo_timeline, array $display_options) {

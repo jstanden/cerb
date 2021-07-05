@@ -77,6 +77,29 @@ class DAO_MessageHeaders extends Cerb_ORMHelper {
 		return trim($raw_headers) . "\r\n\r\n";
 	}
 	
+	static function getRaws(array $message_ids) : array {
+		$db = DevblocksPlatform::services()->database();
+		
+		$message_ids = DevblocksPlatform::sanitizeArray($message_ids, 'int');
+		
+		$sql = sprintf("SELECT message_id, headers ".
+			"FROM message_headers ".
+			"WHERE message_id IN (%s)",
+			implode(',', $message_ids)
+		);
+		
+		$results = [];
+		
+		if(false === ($rows = $db->GetArrayReader($sql)))
+			return [];
+		
+		foreach($rows as $row) {
+			$results[$row['message_id']] = trim($row['headers']) . "\r\n\r\n";
+		}
+		
+		return $results;
+	}
+	
 	static function getSinceId($since_id, $limit=25) {
 		$db = DevblocksPlatform::services()->database();
 		$message_headers = [];

@@ -118,16 +118,6 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 				$is_writeable = Context_Message::isWriteableByActor($message, $active_worker);
 				$tpl->assign('is_writeable', $is_writeable);
 				
-				$sender = $message->getSender();
-				
-				$tpl->assign('message_senders', [
-					$message->address_id => $sender,
-				]);
-				
-				$tpl->assign('message_senders_orgs', [
-					0 => $sender->getOrg(),
-				]);
-				
 				$tpl->display('devblocks:cerberusweb.core::tickets/peek_preview.tpl');
 				break;
 				

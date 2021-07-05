@@ -1059,6 +1059,8 @@ class Model_Contact {
 	public $language;
 	public $timezone;
 	
+	private $_org_model = null;
+	
 	function getName() {
 		return sprintf("%s%s%s",
 			$this->first_name,
@@ -1104,7 +1106,16 @@ class Model_Contact {
 		if(empty($this->org_id))
 			return null;
 		
-		return DAO_ContactOrg::get($this->org_id);
+		if($this->_org_model)
+			return $this->_org_model;
+		
+		$this->_org_model = DAO_ContactOrg::get($this->org_id);
+		
+		return $this->_org_model;
+	}
+	
+	function setOrg(Model_ContactOrg $org) {
+		$this->_org_model = $org;
 	}
 	
 	function getOrgAsString() {

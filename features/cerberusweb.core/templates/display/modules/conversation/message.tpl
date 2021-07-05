@@ -4,15 +4,14 @@
 
 <div class="block" style="margin-bottom:10px;padding-top:8px;padding-left:10px;position:relative;">
 	{$sender_id = $message->address_id}
-	{if isset($message_senders.$sender_id)}
-		{$sender = $message_senders.$sender_id}
-		{$sender_org_id = $sender->contact_org_id}
-		{$sender_org = $message_sender_orgs.$sender_org_id}
+	{$sender = $message->getSender()}
+	
+	{if $sender}
 		{$sender_contact = $sender->getContact()}
 		{$sender_worker = $message->getWorker()}
 
 		{if $expanded}
-		{$attachments = DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_MESSAGE, $message->id)}
+		{$attachments = $message->getAttachments()}
 		{else}
 		{$attachments = []}
 		{/if}
@@ -206,7 +205,7 @@
 			{include file="devblocks:cerberusweb.core::internal/attachments/list.tpl" context="{CerberusContexts::CONTEXT_MESSAGE}" context_id=$message->id attachments=$attachments}
 		{/if}
 
-        {$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_MESSAGE, $message->id))|default:[]}
+		{$values = $message->getCustomFieldValues()}
 		{if $values}
         {$message_custom_fields = Page_Profiles::getProfilePropertiesCustomFields(CerberusContexts::CONTEXT_MESSAGE, $values)}
         {$message_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(CerberusContexts::CONTEXT_MESSAGE, $message->id, $values)}
@@ -235,18 +234,13 @@
 				<td align="left" id="{$message->id}act">
 					{if $widget}
 						<div data-cerb-toolbar style="display:inline-block;vertical-align:middle;">
+						{* Use pre-expanded dictionaries *}
 						{$message_dict = DevblocksDictionaryDelegate::instance([
-							'caller_name' => 'cerb.toolbar.mail.read',
-							
-							'message__context' => CerberusContexts::CONTEXT_MESSAGE,
-							'message_id' => $message->id,
-
-							'worker__context' => CerberusContexts::CONTEXT_WORKER,
-							'worker_id' => $active_worker->id,
-
-							'widget__context' => CerberusContexts::CONTEXT_PROFILE_WIDGET,
-							'widget_id' => $widget->id
+							'caller_name' => 'cerb.toolbar.mail.read'
 						])}
+						{$message_dict->mergeKeys('message_', DevblocksDictionaryDelegate::getDictionaryFromModel($message, CerberusContexts::CONTEXT_MESSAGE), null, false, 'message_')}
+						{$message_dict->mergeKeys('worker_', DevblocksDictionaryDelegate::getDictionaryFromModel($active_worker, CerberusContexts::CONTEXT_WORKER), null, false, 'worker_')}
+						{$message_dict->mergeKeys('widget_', DevblocksDictionaryDelegate::getDictionaryFromModel($widget, CerberusContexts::CONTEXT_PROFILE_WIDGET), null, false, 'widget_')}
 
 						{$toolbar = []}
 						{$toolbar_mail_read = DAO_Toolbar::getByName('mail.read')}

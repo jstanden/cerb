@@ -1400,11 +1400,19 @@ class Model_Address {
 		return $this->_contact_model;
 	}
 	
+	public function setContact(Model_Contact $contact) {
+		$this->_contact_model = $contact;
+	}
+	
 	function getOrg() {
 		if(is_null($this->_org_model))
 			$this->_org_model = DAO_ContactOrg::get($this->contact_org_id);
 		
 		return $this->_org_model;
+	}
+	
+	function setOrg(Model_ContactOrg $org) {
+		$this->_org_model = $org;
 	}
 	
 	function getMailTransport() {

@@ -152,22 +152,10 @@ class PageSection_ProfilesMessage extends Extension_PageSection {
 		$tpl->assign('display_format', $format);
 		
 		// Sender info
-		$message_senders = [];
-		$message_sender_orgs = [];
-		
-		if(null != ($sender_addy = CerberusApplication::hashLookupAddress($message->address_id))) {
+		if(null != ($sender_addy = $message->getSender())) {
 			if($images)
 				$sender_addy->is_trusted = 1;
-			
-			$message_senders[$sender_addy->id] = $sender_addy;
-			
-			if(null != $sender_org = CerberusApplication::hashLookupOrg($sender_addy->contact_org_id)) {
-				$message_sender_orgs[$sender_org->id] = $sender_org;
-			}
 		}
-		
-		$tpl->assign('message_senders', $message_senders);
-		$tpl->assign('message_sender_orgs', $message_sender_orgs);
 		
 		// Workers
 		$workers = DAO_Worker::getAll();

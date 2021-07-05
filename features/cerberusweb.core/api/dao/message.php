@@ -1087,8 +1087,11 @@ class Model_Message {
 	public $token;
 	public $was_encrypted;
 	
-	private $_sender_object = null;
+	private $_attachments = null;
+	private $_custom_field_values = null;
 	private $_headers_raw = null;
+	private $_sender_object = null;
+	private $_worker_object = null;
 	
 	function getContent(&$fp=null) {
 		if(empty($this->storage_extension) || empty($this->storage_key))
@@ -1174,6 +1177,10 @@ class Model_Message {
 		
 		return $dirty_html;
 	}
+	
+	function setHeadersRaw($headers_raw) {
+		$this->_headers_raw = $headers_raw;
+	}
 
 	function getHeaders($raw = false) {
 		if(is_null($this->_headers_raw))
@@ -1196,11 +1203,24 @@ class Model_Message {
 		return $this->_sender_object;
 	}
 	
+	public function setSender(Model_Address $sender) {
+		$this->_sender_object = $sender;
+	}
+	
 	function getWorker() {
+		if(!is_null($this->_worker_object))
+			return $this->_worker_object;
+	
 		if(empty($this->worker_id))
 			return null;
 		
-		return DAO_Worker::get($this->worker_id);
+		$this->_worker_object = DAO_Worker::get($this->worker_id);
+		
+		return $this->_worker_object;
+	}
+	
+	function setWorker(Model_Worker $worker) {
+		$this->_worker_object = $worker;
 	}
 	
 	/**
@@ -1209,7 +1229,16 @@ class Model_Message {
 	 * @return Model_Attachment[]
 	 */
 	function getAttachments() {
-		return DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_MESSAGE, $this->id);
+		if(!is_null($this->_attachments))
+			return $this->_attachments;
+		
+		$this->_attachments = DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_MESSAGE, $this->id, true);
+		
+		return $this->_attachments;
+	}
+	
+	function setAttachments(array $attachments) {
+		$this->_attachments = $attachments;
 	}
 	
 	/**
@@ -1217,6 +1246,21 @@ class Model_Message {
 	 */
 	function getTicket() {
 		return DAO_Ticket::get($this->ticket_id);
+	}
+	
+	function getCustomFieldValues() {
+		if(!is_null($this->_custom_field_values))
+			return $this->_custom_field_values;
+		
+		$values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_MESSAGE, $this->id);
+		
+		$this->_custom_field_values = $values[$this->id] ?? [];
+		
+		return $this->_custom_field_values;
+	}
+	
+	function setCustomFieldValues(array $values) {
+		$this->_custom_field_values = $values;
 	}
 	
 	function getTimeline($is_ascending=true) {
