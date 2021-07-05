@@ -914,6 +914,12 @@ class DevblocksDictionaryDelegate implements JsonSerializable, IteratorAggregate
 		return DevblocksDictionaryDelegate::instance($values);
 	}
 	
+	public function mergeKeys($key_prefix, $values) {
+		foreach($values as $key => $value) {
+			$this->set($key_prefix . $key,  $value);
+		}
+	}
+	
 	public function merge($token_prefix, $label_prefix, $src_labels, $src_values) {
 		$dst_labels =& $this->_dictionary['_labels'];
 		
