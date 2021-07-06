@@ -228,7 +228,7 @@ class ChFilesController extends DevblocksControllerExtension {
 		if(false == ($ticket = DAO_Ticket::getTicketByMessageId($message_id)))
 			DevblocksPlatform::dieWithHttpError(DevblocksPlatform::translate('error.core.record.not_found'), 404);
 		
-		if(!Context_Ticket::isReadableByActor($message, $active_worker))
+		if(!Context_Ticket::isReadableByActor($ticket, $active_worker))
 			DevblocksPlatform::dieWithHttpError(DevblocksPlatform::translate('common.access_denied'), 403);
 		
 		$attachments = [];
