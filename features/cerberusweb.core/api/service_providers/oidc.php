@@ -93,9 +93,15 @@ class GenericOpenIDConnectProvider extends GenericProvider {
 			$request_options = [];
 			$error = null;
 			
-			$response = $http->sendRequest($request, $request_options, $error);
+			if(false == ($response = $http->sendRequest($request, $request_options, $error))) {
+				error_log($error);
+				return null;
+			}
 			
-			$json = $http->getResponseAsJson($response, $error);
+			if(false == ($json = $http->getResponseAsJson($response, $error))) {
+				error_log($error);
+				return null;
+			}
 			
 			$cache->save($json, $cache_key, [], 3600);
 		}
