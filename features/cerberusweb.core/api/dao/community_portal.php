@@ -74,8 +74,8 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 				return true;
 			})
 			->addValidator(function($string, &$error=null) {
-				if(0 != strcasecmp($string, DevblocksPlatform::strAlphaNum($string, '_'))) {
-					$error = "may only contain lowercase letters, numbers, and underscores";
+				if(0 != strcasecmp($string, DevblocksPlatform::strAlphaNum($string, '-_'))) {
+					$error = "may only contain lowercase letters, numbers, dashes, and underscores";
 					return false;
 				}
 					

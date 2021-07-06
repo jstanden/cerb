@@ -36,8 +36,11 @@
 	<tr>
 		<td width="1%" nowrap="nowrap" valign="top"><b>{'common.path'|devblocks_translate|capitalize}:</b></td>
 		<td width="99%">
-			<input type="text" name="path" value="{$model->uri}" style="width:98%;" maxlength="32" placeholder="support"><br>
-			<tt style="margin-left:5px;">{devblocks_url full=true}c=portal{/devblocks_url}/<b>&lt;{'common.path'|devblocks_translate|lower}&gt;</b></tt><br>
+			<input type="text" name="path" value="{$model->uri}" style="width:98%;" maxlength="32" placeholder="support">
+			<div style="margin-left:5px;">
+				<code>{devblocks_url full=true}c=portal{/devblocks_url}/<b>&lt;{'common.path'|devblocks_translate|lower}&gt;</b></code><br>
+				<small>(letters, numbers, dashes, underscores)</small>
+			</div>
 		</td>
 	</tr>
 	
