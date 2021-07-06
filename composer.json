@@ -38,6 +38,7 @@
 		"ext-mailparse": "*",
 		"ext-mbstring": "*",
 		"ext-mysqli": "*",
+		"ext-openssl": "*",
 		"ext-simplexml": "*",
 		"ext-yaml": "*",
 		"smarty/smarty" : "^3.1.39",
