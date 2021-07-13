@@ -192,6 +192,8 @@ class _DevblocksTemplateBuilder {
 				'spaceless',
 				'split_crlf',
 				'split_csv',
+				'strip_lines',
+				'tokenize',
 				'truncate',
 				'unescape',
 				'url_decode',
@@ -1661,6 +1663,8 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			new \Twig\TwigFilter('sha1', [$this, 'filter_sha1']),
 			new \Twig\TwigFilter('split_crlf', [$this, 'filter_split_crlf']),
 			new \Twig\TwigFilter('split_csv', [$this, 'filter_split_csv']),
+			new \Twig\TwigFilter('strip_lines', [$this, 'filter_strip_lines']),
+			new \Twig\TwigFilter('tokenize', [$this, 'filter_tokenize']),
 			new \Twig\TwigFilter('truncate', [$this, 'filter_truncate']),
 			new \Twig\TwigFilter('unescape', [$this, 'filter_unescape']),
 			new \Twig\TwigFilter('url_decode', [$this, 'filter_url_decode']),
@@ -2042,6 +2046,35 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			return '';
 		
 		return DevblocksPlatform::parseCsvString($string);
+	}
+	
+	function filter_strip_lines($string, $prefixes) {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
+		if(!is_string($string))
+			return '';
+		
+		$lines = DevblocksPlatform::parseCrlfString($string, true, false);
+		
+		foreach($lines as $idx => $line) {
+			if(DevblocksPlatform::strStartsWith($line, $prefixes))
+				unset($lines[$idx]);
+		}
+		
+		return implode("\r\n", $lines);
+	}
+	
+	function filter_tokenize($string) {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
+		if(!is_string($string))
+			return '';
+		
+		$text = mb_ereg_replace("[^[:alnum:]]", ' ', mb_convert_case($string, MB_CASE_LOWER));
+		$words = explode(' ', mb_ereg_replace('\s+', ' ', $text));
+		return array_values(array_diff($words, ['']));
 	}
 	
 	/**
