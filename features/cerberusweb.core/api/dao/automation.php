@@ -736,6 +736,18 @@ class Model_Automation {
 		
 		return $dict;
 	}
+	
+	public function logError($log_message, $node_path, $log_level=3) {
+		$fields = [
+			DAO_AutomationLog::LOG_MESSAGE => $log_message,
+			DAO_AutomationLog::LOG_LEVEL => $log_level,
+			DAO_AutomationLog::CREATED_AT => time(),
+			DAO_AutomationLog::AUTOMATION_NAME => $this->name ?? '',
+			DAO_AutomationLog::AUTOMATION_NODE => $node_path,
+		];
+		
+		return DAO_AutomationLog::create($fields);
+	}
 };
 
 class View_Automation extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
