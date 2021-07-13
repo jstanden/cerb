@@ -107,6 +107,11 @@ class HttpRequestAction extends AbstractAction {
 				if(is_string($inputs['headers'])) {
 					$headers = @headers_from_lines(DevblocksPlatform::parseCrlfString($inputs['headers']));
 					
+					$headers = array_combine(
+						array_map(fn($k) => DevblocksPlatform::strLower($k), array_keys($headers)),
+						$headers
+					);
+					
 				} else if(is_array($inputs['headers'])) {
 					$headers = array_combine(
 						array_map(fn($k) => DevblocksPlatform::strLower($k), array_keys($inputs['headers'])),
