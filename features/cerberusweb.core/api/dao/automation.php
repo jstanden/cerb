@@ -204,17 +204,23 @@ class DAO_Automation extends Cerb_ORMHelper {
 	
 	/**
 	 * @param $name
-	 * @param $extension_id
+	 * @param $extension_ids
 	 * @return Model_Automation
 	 */
-	static function getByNameAndTrigger($name, $extension_id) {
+	static function getByNameAndTrigger($name, $extension_ids) : ?Model_Automation {
+		if(is_string($extension_ids))
+			$extension_ids = [$extension_ids];
+		
+		if(!is_array($extension_ids) || empty($extension_ids))
+			return null;
+		
 		// [TODO] Cache
 		$results = self::getWhere(
-			sprintf("%s = %s AND %s = %s",
+			sprintf("%s = %s AND %s IN (%s)",
 				Cerb_ORMHelper::escape(DAO_Automation::NAME),
 				Cerb_ORMHelper::qstr($name),
 				Cerb_ORMHelper::escape(DAO_Automation::EXTENSION_ID),
-				Cerb_ORMHelper::qstr($extension_id)
+				implode(',', Cerb_ORMHelper::qstrArray($extension_ids))
 			),
 			null,
 			true,
@@ -222,7 +228,7 @@ class DAO_Automation extends Cerb_ORMHelper {
 		);
 		
 		if(false == $results || 1 != count($results))
-			return [];
+			return null;
 		
 		return current($results);
 	}
@@ -245,7 +251,10 @@ class DAO_Automation extends Cerb_ORMHelper {
 		return null;
 	}
 	
-	public static function getByUri(string $interaction_uri, string $extension_id=null) {
+	public static function getByUri(string $interaction_uri, $extension_ids=null) {
+		if(!is_null($extension_ids) && !is_array($extension_ids))
+			$extension_ids = [$extension_ids];
+		
 		if(DevblocksPlatform::strStartsWith($interaction_uri, 'cerb:')) {
 			if(false == ($uri_parts = DevblocksPlatform::services()->ui()->parseURI($interaction_uri)))
 				return null;
@@ -271,7 +280,7 @@ class DAO_Automation extends Cerb_ORMHelper {
 		
 		$object = array_shift($objects);
 		
-		if(!$extension_id || $extension_id == $object->extension_id)
+		if(!$extension_ids || in_array($object->extension_id, $extension_ids))
 			return $object;
 		
 		return null;

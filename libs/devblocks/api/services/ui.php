@@ -119,7 +119,13 @@ class DevblocksUiEventHandler {
 		return true;
 	}
 	
-	function handleOnce(string $trigger, array $handlers, array $initial_state, &$error=null, ?callable $behavior_callback=null, &$handler=null) {
+	function handleOnce($triggers, array $handlers, array $initial_state, &$error=null, ?callable $behavior_callback=null, &$handler=null) {
+		if(is_string($triggers))
+			$triggers = [$triggers];
+		
+		if(!is_array($triggers) || empty($triggers))
+			return null;
+
 		$automator = DevblocksPlatform::services()->automation();
 		
 		foreach($handlers as $handler) {
@@ -134,7 +140,7 @@ class DevblocksUiEventHandler {
 					$automation_uri = $uri_parts['context_id'];
 				}
 				
-				if(false == ($automation = DAO_Automation::getByNameAndTrigger($automation_uri, $trigger)))
+				if(false == ($automation = DAO_Automation::getByNameAndTrigger($automation_uri, $triggers)))
 					continue;
 				
 				if(array_key_exists('inputs', @$handler['data']))
@@ -180,17 +186,23 @@ class DevblocksUiEventHandler {
 	}
 	
 	/**
-	 * @param string $trigger
+	 * @param array|string $triggers
 	 * @param array $handlers
 	 * @param array $initial_state
 	 * @param null $error
 	 * @param null $behavior_callback
 	 * @return DevblocksDictionaryDelegate|null
 	 */
-	function handleUntilReturn(string $trigger, array $handlers, array $initial_state, &$error=null, $behavior_callback=null) : ?DevblocksDictionaryDelegate {
+	function handleUntilReturn($triggers, array $handlers, array $initial_state, &$error=null, $behavior_callback=null) : ?DevblocksDictionaryDelegate {
+		if(is_string($triggers))
+			$triggers = [$triggers];
+		
+		if(!is_array($triggers) || empty($triggers))
+			return null;
+		
 		// Loop handlers until one exits as return
 		$results = $this->handleEach(
-			$trigger,
+			$triggers,
 			$handlers,
 			$initial_state,
 			$error,
@@ -212,7 +224,13 @@ class DevblocksUiEventHandler {
 		return null;
 	}
 	
-	function handleEach(string $trigger, array $handlers, array $initial_state, &$error=null, ?callable $continue_callback=null, ?callable $behavior_callback=null) : array {
+	function handleEach($triggers, array $handlers, array $initial_state, &$error=null, ?callable $continue_callback=null, ?callable $behavior_callback=null) : array {
+		if(is_string($triggers))
+			$triggers = [$triggers];
+		
+		if(!is_array($triggers) || empty($triggers))
+			return [];
+
 		$results = [];
 		
 		// By default, always continue through all handlers
@@ -222,7 +240,7 @@ class DevblocksUiEventHandler {
 		// [TODO] Preload automations?
 		
 		foreach($handlers as $handler_key => $handler) {
-			$result = $this->handleOnce($trigger, [$handler], $initial_state, $error, $behavior_callback);
+			$result = $this->handleOnce($triggers, [$handler], $initial_state, $error, $behavior_callback);
 			
 			if(!($result instanceof DevblocksDictionaryDelegate))
 				continue;

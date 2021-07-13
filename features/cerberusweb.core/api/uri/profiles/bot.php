@@ -16,6 +16,11 @@
 ***********************************************************************/
 
 class PageSection_ProfilesBot extends Extension_PageSection {
+	private $_interaction_extensions = [
+		AutomationTrigger_InteractionWorker::ID,
+		AutomationTrigger_MailDraftValidate::ID,
+	];
+	
 	function render() {
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
@@ -366,7 +371,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			}
 		}
 		
-		if($interaction_uri && false != ($automation = DAO_Automation::getByUri($interaction_uri, AutomationTrigger_InteractionWorker::ID))) {
+		if($interaction_uri && false != ($automation = DAO_Automation::getByUri($interaction_uri, $this->_interaction_extensions))) {
 			return $this->_startBotInteractionAsAutomation($automation);
 
 		} else if($interaction_uri && is_numeric($interaction_uri) && false != ($behavior = DAO_TriggerEvent::get($interaction_uri))) {
@@ -1861,7 +1866,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		if(false == ($automation = $continuation->getAutomation()))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
-		if($automation->extension_id != AutomationTrigger_InteractionWorker::ID)
+		if(!in_array($automation->extension_id, $this->_interaction_extensions))
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		if(!Context_Automation::isReadableByActor($automation, $active_worker))
@@ -1908,7 +1913,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		if(false == ($automation = $continuation->getAutomation()))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
-		if($automation->extension_id != AutomationTrigger_InteractionWorker::ID)
+		if(!in_array($automation->extension_id, $this->_interaction_extensions))
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		if(!Context_Automation::isReadableByActor($automation, $active_worker))
@@ -1988,7 +1993,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		if(false == ($automation = $continuation->getAutomation()))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
-		if($automation->extension_id != AutomationTrigger_InteractionWorker::ID)
+		if(!in_array($automation->extension_id, $this->_interaction_extensions))
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		if(!Context_Automation::isReadableByActor($automation, $active_worker))
@@ -2083,8 +2088,10 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		if(false == ($automation = $continuation->getAutomation()))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
-		if($automation->extension_id != AutomationTrigger_InteractionWorker::ID)
+		if(!in_array($automation->extension_id, $this->_interaction_extensions))
 			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		$trigger_extension = $automation->getTriggerExtension(); /* @var $trigger_extension AutomationTrigger_InteractionWorker */
 		
 		if(!Context_Automation::isReadableByActor($automation, $active_worker))
 			DevblocksPlatform::dieWithHttpError(null, 403);
@@ -2104,7 +2111,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			$continuation = DAO_AutomationContinuation::getByToken($continuation->token);
 		}
 		
-		$form_components = AutomationTrigger_InteractionWorker::getFormComponentMeta();
+		$form_components = $trigger_extension::getFormComponentMeta();
 		
 		$initial_state = $continuation->state_data['dict'] ?? [];
 		$error = null;
@@ -2479,7 +2486,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		];
 		
 		$delegate_results = $event_handler->handleOnce(
-			AutomationTrigger_InteractionWorker::ID,
+			$this->_interaction_extensions,
 			$handlers,
 			$initial_state,
 			$error,
@@ -2492,7 +2499,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		
 		// [TODO] Copy the state data from the parent
 		$state_data = [
-			'trigger' => AutomationTrigger_InteractionWorker::ID,
+			'trigger' => $this->_interaction_extensions,
 			'dict' => $delegate_results->getDictionary(),
 		];
 		
