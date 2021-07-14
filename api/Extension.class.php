@@ -779,7 +779,6 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 									'interaction/pgp_decrypt' => [
 										'label' => 'Decrypt',
 										'uri' => 'ai.cerb.automationBuilder.action.pgpDecrypt',
-										'headless' => true,
 									],
 									'interaction/pgp_encrypt' => [
 										'label' => 'Encrypt',

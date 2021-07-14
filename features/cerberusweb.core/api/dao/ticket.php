@@ -5734,7 +5734,6 @@ menu/formatting:
       label: Bold
       icon: bold
       uri: cerb.editor.toolbar.wrapSelection
-      headless@bool: yes
       keyboard: ctrl+b
       inputs:
         start_with: **
@@ -5742,7 +5741,6 @@ menu/formatting:
       label: Italics
       icon: italic
       uri: cerb.editor.toolbar.wrapSelection
-      headless@bool: yes
       keyboard: ctrl+i
       inputs:
         start_with: _
@@ -5750,14 +5748,12 @@ menu/formatting:
       label: Unordered List
       icon: list
       uri: cerb.editor.toolbar.indentSelection
-      headless@bool: yes
       inputs:
         prefix: * 
     interaction/quote:
       label: Quote
       icon: quote
       uri: cerb.editor.toolbar.indentSelection
-      headless@bool: yes
       keyboard: ctrl+q
       inputs:
         prefix: > 
@@ -5765,14 +5761,12 @@ menu/formatting:
       label: Variable
       icon: edit
       uri: cerb.editor.toolbar.wrapSelection
-      headless@bool: yes
       inputs:
         start_with: `
     interaction/codeBlock:
       label: Code Block
       icon: embed
       uri: cerb.editor.toolbar.wrapSelection
-      headless@bool: yes
       keyboard: ctrl+o
       inputs:
         start_with@text:
@@ -5785,7 +5779,6 @@ menu/formatting:
       label: Table
       icon: table
       uri: cerb.editor.toolbar.markdownTable
-      headless@bool: yes
 EOD;
 		
 		if(false != ($toolbar_compose_formatting_kata = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_compose_formatting_kata, $toolbar_dict))) {

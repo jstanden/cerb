@@ -1376,8 +1376,13 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 		}
 	};
 
-	if(request instanceof FormData) {
-		request.append('layer', $layer);
+	if(null == request) {
+		
+	} else if('function' == typeof request) {
+		request();
+		
+	} else if(request instanceof FormData) {
+		request.set('layer', $layer);
 		genericAjaxPost(request, '', null, callback);
 	} else {
 		request += '&layer=' + $layer;

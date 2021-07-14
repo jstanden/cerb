@@ -1720,38 +1720,32 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			$automation_results = $automator->executeScript($automation, $initial_state, $error);
 		}
 		
-		if('headless' === $interaction_style) {
-			header('Content-Type: application/json; charset=utf-8');
-			
-			if (false === $automation_results) {
-				echo json_encode([
-					'exit' => 'error',
-					'exit_state' => null,
-					'dict' => DevblocksPlatform::services()->string()->yamlEmit([
-						'__exit' => 'error',
-						'error' => $error,
-					], false),
-				]);
-				return;
-			}
-			
-			$exit_code = $automation_results->get('__exit');
-			$return = $automation_results->get('__return', []);
-			
+		header('Content-Type: application/json; charset=utf-8');
+		
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('layer', $layer);
+		
+		if (false === $automation_results) {
 			echo json_encode([
-				'exit' => $exit_code,
-				'return' => $return,
+				'exit' => 'error',
+				'exit_state' => null,
+				'dict' => DevblocksPlatform::services()->string()->yamlEmit([
+					'__exit' => 'error',
+					'error' => $error,
+				], false),
 			]);
-			
-		} else { // Interactive, not headless
-			$tpl = DevblocksPlatform::services()->template();
-			$tpl->assign('layer', $layer);
+			return;
+		}
+		
+		$exit_code = $automation_results->get('__exit');
+		
+		// If we're awaiting, start a continuation
+		if('await' == $exit_code) {
+			ob_start();
 			
 			list($continuation_token, $state_data) = array_values($this->_startInteractionAutomationSession($automation, $caller, $interaction_params));
 			
 			$tpl->assign('continuation_token', $continuation_token);
-			
-			$exit_code = $automation_results->get('__exit');
 			
 			$state_data['dict'] = $automation_results->getDictionary();
 			
@@ -1765,7 +1759,21 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			} else {
 				$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.worker/popup.tpl');
 			}
-		} 
+			
+			$out = ob_get_clean();
+			
+			echo json_encode([
+				'exit' => $exit_code,
+				'html' => $out,
+			]);
+			
+		// Otherwise, if we had a final result, return it immediately
+		} else {
+			echo json_encode([
+				'exit' => $exit_code,
+				'return' => $automation_results->getKeyPath('__return', []),
+			]);
+		}
 	}
 	
 	private function _startInteractionAutomationSession(Model_Automation $automation, array $caller=[], array $interaction_params=[], $continuation_token=null) : array {
@@ -1818,6 +1826,16 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		// Load the session
 		if(false == ($continuation = DAO_AutomationContinuation::getByToken($continuation_token)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		$exit_state = $continuation->state_data['dict']['__exit'] ?? null;
+		
+		// If the automation exited already, respond
+		if('await' != $exit_state) {
+			$initial_state = $continuation->state_data['dict'] ?? [];
+			$automation_results = DevblocksDictionaryDelegate::instance($initial_state);
+			$this->_respondAutomationAwait($continuation, $automation_results);
+			return;
+		}
 		
 		$this->_handleAutomationAwait($continuation);
 	}
