@@ -927,6 +927,10 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 		return $toolbar;
 	}
 	
+	function getEventPlaceholders() : array {
+		return $this->getInputsMeta();
+	}
+	
 	public function getAutocompleteSuggestionsJson() {
 		$common_actions = [
 			'decision:',

@@ -59,7 +59,7 @@
 
 	{$trigger_ext = Extension_AutomationTrigger::get(AutomationTrigger_WebhookRespond::ID, true)}
 	{if $trigger_ext}
-		{include file="devblocks:cerberusweb.core::automations/triggers/editor_event_handler.tpl" trigger_inputs=$trigger_ext->getInputsMeta()}
+		{include file="devblocks:cerberusweb.core::automations/triggers/editor_event_handler.tpl" trigger_inputs=$trigger_ext->getEventPlaceholders()}
 	{/if}
 </fieldset>
 
