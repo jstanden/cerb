@@ -2097,7 +2097,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		@$prompts = DevblocksPlatform::importGPC($_POST['prompts'], 'array', []);
 		@$reset = DevblocksPlatform::importGPC($_POST['reset'], 'integer', 0);
 		
-		$prompts_without_output = ['say','submit'];
+		$prompts_without_output = ['say'];
 		
 		unset($_POST);
 		

@@ -45,21 +45,36 @@
 		font-size: 1.1em;
 		border-radius: 50px;
 		padding: 10px;
+		margin: 0 5px;
+		
+		&:hover {
+			box-shadow: 0 0 5px 0 rgba(15, 85, 140, 0.5);
+			background-color: rgb(70, 169, 255);
+		}
+	}
+
+	.cerb-button-style-secondary {
+		background-color: rgb(230,230,230);
+		color: black;
+		
+		&:hover {
+			box-shadow: 0 0 5px 0 rgba(50, 50, 50, 0.5);
+			background-color: rgb(230,230,230);
+		}
+	}
+	
+	.cerb-button-style-outline {
+		background: none;
+		color: rgb(18,131,225);
+		border-style: solid;
+		border-color: rgb(18,131,225);
+		border-width: 2px;
 	}
 	
 	.cerb-form-builder-continue {
-		&::after {
-			content: "⟶";
-		}
 	}
 	
 	.cerb-form-builder-reset {
-		background-color: rgb(230,230,230);
-
-		&::after {
-			color: black;
-			content: "⟲";
-		}
 	}
 	
 	.cerb-form-builder-response-text {
