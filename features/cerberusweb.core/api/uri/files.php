@@ -26,15 +26,15 @@ class ChFilesController extends DevblocksControllerExtension {
 		if('message' == reset($stack)) {
 			$this->_downloadAllOnMessage($stack);
 		} else {
-			$this->_downloadFile($stack);
+			$this->_downloadFile($request, $stack);
 		}
 	}
 	
-	private function _downloadFile(array $stack) {
+	private function _downloadFile(DevblocksHttpRequest $request, array $stack) {
 		$file_id = array_shift($stack); // 123
 		$file_name = array_shift($stack); // plaintext.txt
 		
-		$is_download = isset($request->query['download']) ? true : false;
+		$is_download = isset($request->query['download']);
 		$handled = false;
 		
 		// Security
@@ -53,7 +53,7 @@ class ChFilesController extends DevblocksControllerExtension {
 		if(!Context_Attachment::isDownloadableByActor($file, $active_worker))
 			DevblocksPlatform::dieWithHttpError(DevblocksPlatform::translate('common.access_denied'), 403);
 		
-		if(false === ($fp = DevblocksPlatform::getTempFile()))
+		if(false == ($fp = DevblocksPlatform::getTempFile()))
 			DevblocksPlatform::dieWithHttpError(DevblocksPlatform::translate('files.error_temp_open'), 500);
 		
 		if(false === $file->getFileContents($fp))

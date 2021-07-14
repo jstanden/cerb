@@ -1897,7 +1897,6 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		// Token labels
 		$token_labels = array(
 			'_label' => $prefix,
-			'download_url' => $prefix.$translate->_('common.url'),
 			'id' => $prefix.$translate->_('common.id'),
 			'mime_type' => $prefix.$translate->_('attachment.mime_type'),
 			'name' => $prefix.$translate->_('common.name'),
@@ -1906,12 +1905,12 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 			'storage_key' => $prefix.$translate->_('attachment.storage_key'),
 			'storage_sha1hash' => $prefix.$translate->_('attachment.storage_sha1hash'),
 			'updated' => $prefix.$translate->_('common.updated'),
+			'url_download' => $prefix.$translate->_('common.url'),
 		);
 		
 		// Token types
 		$token_types = array(
 			'id' => 'id',
-			'download_url' => Model_CustomField::TYPE_URL,
 			'mime_type' => Model_CustomField::TYPE_SINGLE_LINE,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'size' => 'size_bytes',
@@ -1919,6 +1918,7 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 			'storage_key' => Model_CustomField::TYPE_SINGLE_LINE,
 			'storage_sha1hash' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated' => Model_CustomField::TYPE_DATE,
+			'url_download' => Model_CustomField::TYPE_URL,
 		);
 		
 		// Custom field/fieldset token labels
