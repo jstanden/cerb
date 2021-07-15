@@ -1083,7 +1083,6 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 						'status' => true,
 					]);
 					return;
-					break;
 					
 				case 'pages':
 					@$page_ids = DevblocksPlatform::importGPC($_POST['pages'],'array:integer',[]);
@@ -1104,7 +1103,6 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 						'message' => DevblocksPlatform::translate('success.saved_changes'),
 					]);
 					return;
-					break;
 					
 				case 'availability':
 					@$availability_calendar_id = DevblocksPlatform::importGPC($_POST['availability_calendar_id'],'integer',0);
@@ -1125,7 +1123,6 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 						'message' => DevblocksPlatform::translate('success.saved_changes'),
 					]);
 					return;
-					break;
 					
 				case 'localization':
 					@$lang_code = DevblocksPlatform::importGPC($_POST['lang_code'],'string','en_US');
@@ -1160,7 +1157,6 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 						'message' => DevblocksPlatform::translate('success.saved_changes'),
 					]);
 					return;
-					break;
 					
 				case 'mail':
 					@$mail_disable_html_display = DevblocksPlatform::importGPC($_POST['mail_disable_html_display'],'integer',0);
@@ -1192,7 +1188,6 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 						'message' => DevblocksPlatform::translate('success.saved_changes'),
 					]);
 					return;
-					break;
 					
 				case 'records':
 					@$comment_disable_formatting = DevblocksPlatform::importGPC($_POST['comment_disable_formatting'],'integer',0);
@@ -1203,7 +1198,6 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 						'message' => DevblocksPlatform::translate('success.saved_changes'),
 					]);
 					return;
-					break;
 					
 				case 'search':
 					@$search_favorites = DevblocksPlatform::importGPC($_POST['search_favorites'],'array',[]);
@@ -1218,7 +1212,6 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 						'message' => DevblocksPlatform::translate('success.saved_changes'),
 					]);
 					return;
-					break;
 					
 				case 'security':
 					// Secret questions
@@ -1287,7 +1280,6 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 						'message' => DevblocksPlatform::translate('success.saved_changes'),
 					]);
 					return;
-					break;
 					
 				case 'watchers':
 					@$activity_points = DevblocksPlatform::importGPC($_POST['activity_point'],'array',array());
@@ -1301,7 +1293,6 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 						'message' => DevblocksPlatform::translate('success.saved_changes'),
 					]);
 					return;
-					break;
 			}
 			
 		} catch (Exception_DevblocksAjaxValidationError $e) {

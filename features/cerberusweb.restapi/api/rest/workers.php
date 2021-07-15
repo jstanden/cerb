@@ -408,7 +408,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			'updated' => 'timestamp',
 		);
 
-		$fields = array();
+		$fields = [];
 		
 		// If we're given an email address as a string, convert it to email_id
 		if(isset($_POST['email'])) {
@@ -437,7 +437,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			$fields[$field] = $value;
 		}
 		
-		if(false == ($addy_model = DAO_Address::get($fields['email_id'])))
+		if(false == (DAO_Address::get($fields['email_id'])))
 			$this->error(self::ERRNO_CUSTOM, "'email_id' is an invalid value.");
 		
 		// Check required fields

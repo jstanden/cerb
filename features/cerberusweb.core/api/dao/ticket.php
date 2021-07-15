@@ -2830,8 +2830,7 @@ class Model_Ticket {
 	}
 
 	function getRequesters() {
-		$requesters = DAO_Ticket::getRequestersByTicket($this->id);
-		return $requesters;
+		return DAO_Ticket::getRequestersByTicket($this->id);
 	}
 	
 	function getParticipants() {

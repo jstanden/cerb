@@ -15,7 +15,6 @@ class TextAwait extends AbstractAwait {
 		$prompt_type = $this->_data['type'] ?? 'freeform';
 		
 		$input_field = $validation->addField($this->_key, $prompt_label);
-		$input_field_type = null;
 		
 		$is_required = array_key_exists('required', $this->_data) && $this->_data['required'];
 		

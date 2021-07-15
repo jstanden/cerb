@@ -223,7 +223,7 @@ class _DevblocksAutomationService {
 					}
 					
 					$record_dict = DevblocksDictionaryDelegate::instance([
-						'id' => $input_values[$input_key],
+						'id' => $input_values[$input_key] ?? null,
 						'_context' => $input_data['record_type'],
 					]);
 					
@@ -345,6 +345,7 @@ class _DevblocksAutomationService {
 			
 		} catch (Exception_DevblocksAutomationError $e) {
 			$error = $e->getMessage();
+			error_log($error);
 			
 			// Log exceptions
 			if(!$is_simulate) {

@@ -484,15 +484,12 @@ class SearchFields_ProfileWidget extends DevblocksSearchFields {
 		switch($param->field) {
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_PROFILE_WIDGET, self::getPrimaryKey());
-				break;
 				
 			case self::VIRTUAL_HAS_FIELDSET:
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_PROFILE_WIDGET), '%s'), self::getPrimaryKey());
-				break;
 				
 			case self::VIRTUAL_TAB_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_PROFILE_TAB, 'profile_widget.profile_tab_id');
-				break;
 				
 			default:
 				if('cf_' == substr($param->field, 0, 3)) {
@@ -500,7 +497,6 @@ class SearchFields_ProfileWidget extends DevblocksSearchFields {
 				} else {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
-				break;
 		}
 	}
 	
@@ -519,27 +515,22 @@ class SearchFields_ProfileWidget extends DevblocksSearchFields {
 			case SearchFields_ProfileWidget::ID:
 				$models = DAO_ProfileWidget::getIds($values);
 				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
-				break;
 				
 			case SearchFields_ProfileWidget::PROFILE_TAB_ID:
 				$models = DAO_ProfileTab::getIds($values);
 				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
-				break;
 				
 			case SearchFields_ProfileWidget::EXTENSION_ID:
 				$extension = Extension_ProfileWidget::getAll(false);
 				return array_column(DevblocksPlatform::objectsToArrays($extension), 'name', 'id');
-				break;
 				
 			case SearchFields_ProfileWidget::WIDTH_UNITS:
-				$label_map = [
+				return [
 					1 => '25%',
 					2 => '50%',
 					3 => '75%',
 					4 => '100%',
 				];
-				return $label_map;
-				break;
 		}
 		
 		return parent::getLabelsForKeyValues($key, $values);

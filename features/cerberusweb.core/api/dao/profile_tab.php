@@ -412,11 +412,9 @@ class SearchFields_ProfileTab extends DevblocksSearchFields {
 		switch($param->field) {
 			case self::VIRTUAL_HAS_FIELDSET:
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_PROFILE_TAB), '%s'), self::getPrimaryKey());
-				break;
 			
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_PROFILE_TAB, self::getPrimaryKey());
-				break;
 				
 			default:
 				if('cf_' == substr($param->field, 0, 3)) {
@@ -424,14 +422,10 @@ class SearchFields_ProfileTab extends DevblocksSearchFields {
 				} else {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
-				break;
 		}
 	}
 	
 	static function getFieldForSubtotalKey($key, $context, array $query_fields, array $search_fields, $primary_key) {
-		switch($key) {
-		}
-		
 		return parent::getFieldForSubtotalKey($key, $context, $query_fields, $search_fields, $primary_key);
 	}
 	
@@ -439,16 +433,13 @@ class SearchFields_ProfileTab extends DevblocksSearchFields {
 		switch($key) {
 			case SearchFields_ProfileTab::CONTEXT:
 				return parent::_getLabelsForKeyContextValues();
-				break;
 				
 			case SearchFields_ProfileTab::EXTENSION_ID:
 				return parent::_getLabelsForKeyExtensionValues(Extension_ProfileTab::POINT);
-				break;
 				
 			case SearchFields_ProfileTab::ID:
 				$models = DAO_ProfileTab::getIds($values);
 				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
-				break;
 		}
 		
 		return parent::getLabelsForKeyValues($key, $values);
