@@ -16,6 +16,16 @@ if(!$db->GetOneMaster("SELECT 1 FROM automation_event WHERE name = 'mail.draft'"
 	));
 }
 
+if(!$db->GetOneMaster("SELECT 1 FROM automation_event WHERE name = 'mail.draft.validate'")) {
+	$db->ExecuteMaster(sprintf('INSERT IGNORE INTO automation_event (name, extension_id, description, automations_kata, updated_at) VALUES (%s,%s,%s,%s,%d)',
+		$db->qstr('mail.draft.validate'),
+		$db->qstr('cerb.trigger.mail.draft.validate'),
+		$db->qstr('Validate an email draft before sending'),
+		$db->qstr("automation/emptyTo:\n  uri: cerb:automation:cerb.compose.validation.to\n  inputs:\n    draft@key: draft_id\n  disabled@bool:\n    {{\n      draft_type != 'mail.compose'\n      or draft_params.to is not empty\n    }}\n\n"),
+		time()
+	));
+}
+
 if(!$db->GetOneMaster("SELECT 1 FROM automation_event WHERE name = 'mail.received'")) {
 	$db->ExecuteMaster(sprintf('INSERT IGNORE INTO automation_event (name, extension_id, description, automations_kata, updated_at) VALUES (%s,%s,%s,%s,%d)',
 		$db->qstr('mail.received'),

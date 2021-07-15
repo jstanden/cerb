@@ -4900,7 +4900,26 @@
 				</param>
 			</params>
 		</extension>
-		
+
+		<extension point="cerb.automation.trigger">
+			<id>cerb.trigger.mail.draft.validate</id>
+			<name>mail.draft.validate</name>
+			<class>
+				<file>api/automations/triggers/mail.draft.validate.php</file>
+				<name>AutomationTrigger_MailDraftValidate</name>
+			</class>
+			<params>
+				<param key="description" value="Validate a draft before sending" />
+				<param key="features">
+					<value>
+						<data key="await" />
+						<data key="callers" />
+						<data key="inputs" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
 		<extension point="cerb.automation.trigger">
 			<id>cerb.trigger.map.clicked</id>
 			<name>map.clicked</name>

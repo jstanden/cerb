@@ -768,103 +768,112 @@ EOD;
 	private function _profileAction_validateReplyJson() {
 		header('Content-Type: application/json; charset=utf-8');
 		
-		@$ticket_id = DevblocksPlatform::importGPC($_POST['ticket_id'],'integer');
-		@$draft_id = DevblocksPlatform::importGPC($_POST['draft_id'],'integer');
-		@$is_forward = DevblocksPlatform::importGPC($_POST['is_forward'],'integer',0);
-		
-		@$to = DevblocksPlatform::importGPC(@$_POST['to']);
-		
-		// Attachments
-		@$file_ids = DevblocksPlatform::importGPC($_POST['file_ids'],'array',[]);
-		$file_ids = DevblocksPlatform::sanitizeArray($file_ids, 'integer', array('unique', 'nonzero'));
+		@$reply_mode = DevblocksPlatform::strLower(DevblocksPlatform::importGPC($_POST['reply_mode'],'string'));
+		$reply_modes = ['send','save','draft'];
 		
 		try {
-			if(null == ($worker = CerberusApplication::getActiveWorker()))
+			if('POST' != DevblocksPlatform::getHttpMethod())
+				throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('common.access_denied'));
+
+			if(null == ($active_worker = CerberusApplication::getActiveWorker()))
 				throw new Exception_DevblocksAjaxValidationError("You're not signed in.");
 			
-			if(null == (DAO_Ticket::get($ticket_id)))
-				throw new Exception_DevblocksAjaxValidationError("You're replying to an invalid ticket.");
+			if(!in_array($reply_mode, $reply_modes))
+				throw new Exception_DevblocksAjaxValidationError("Unknown reply mode.");
 			
-			$properties = array(
-				'draft_id' => $draft_id,
-				'message_id' => DevblocksPlatform::importGPC(@$_POST['id']),
-				'ticket_id' => $ticket_id,
-				'is_forward' => $is_forward,
-				'to' => $to,
-				'cc' => DevblocksPlatform::importGPC(@$_POST['cc']),
-				'bcc' => DevblocksPlatform::importGPC(@$_POST['bcc']),
-				'subject' => DevblocksPlatform::importGPC(@$_POST['subject'],'string'),
-				'content' => DevblocksPlatform::importGPC(@$_POST['content']),
-				'content_format' => DevblocksPlatform::importGPC(@$_POST['format'],'string',''),
-				'html_template_id' => DevblocksPlatform::importGPC(@$_POST['html_template_id'],'integer',0),
-				'status_id' => DevblocksPlatform::importGPC(@$_POST['status_id'],'integer',0),
-				'group_id' => DevblocksPlatform::importGPC(@$_POST['group_id'],'integer',0),
-				'bucket_id' => DevblocksPlatform::importGPC(@$_POST['bucket_id'],'integer',0),
-				'owner_id' => DevblocksPlatform::importGPC(@$_POST['owner_id'],'integer',0),
-				'ticket_reopen' => DevblocksPlatform::importGPC(@$_POST['ticket_reopen'],'string',''),
-				'gpg_encrypt' => DevblocksPlatform::importGPC(@$_POST['options_gpg_encrypt'],'integer',0),
-				'gpg_sign' => DevblocksPlatform::importGPC(@$_POST['options_gpg_sign'],'integer',0),
-				'worker_id' => @$worker->id,
-				'forward_files' => $file_ids,
-				'link_forward_files' => true,
-			);
+			$drafts_ext = DevblocksPlatform::getExtension('core.page.profiles.draft', true);
 			
-			if(empty($properties['to']))
-				throw new Exception_DevblocksAjaxValidationError("`To:` is required.");
+			/* @var $drafts_ext PageSection_ProfilesDraft */
+			if(false == ($result = $drafts_ext->saveDraftReply()))
+				throw new Exception_DevblocksAjaxValidationError("Failed to save draft.");
 			
-			if(empty($properties['subject']))
-				throw new Exception_DevblocksAjaxValidationError("`Subject:` is required.");
+			$draft_id = $result['draft_id'];
 			
-			if(strlen($properties['subject']) > 255)
-				throw new Exception_DevblocksAjaxValidationError("`Subject:` must be shorter than 255 characters.");
+			if(false == ($draft = DAO_MailQueue::get($draft_id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
 			
-			// Validate GPG for signature
-			if($properties['gpg_sign']) {
-				$group_id = $properties['group_id'] ?? 0;
-				$bucket_id = $properties['bucket_id'] ?? 0;
-				$signing_key = null;
+			if(!Context_Draft::isWriteableByActor($draft, $active_worker))
+				DevblocksPlatform::dieWithHttpError(null, 403);
+			
+			if('draft' != $reply_mode) {
+				if(empty($draft->params['to'] ?? null))
+					throw new Exception_DevblocksAjaxValidationError("`To:` is required.");
 				
-				if (false != ($group = DAO_Group::get($group_id))) {
-					// [TODO] Validate the key can sign (do this on key import/update)
-					$signing_key = $group->getReplySigningKey($bucket_id);
+				if(empty($draft->params['subject'] ?? null))
+					throw new Exception_DevblocksAjaxValidationError("`Subject:` is required.");
+				
+				if(strlen($draft->params['subject'] ?? '') > 255)
+					throw new Exception_DevblocksAjaxValidationError("`Subject:` must be shorter than 255 characters.");
+				
+				// Validate GPG for signature
+				if($draft->params['options_gpg_sign']) {
+					$group_id = $draft->params['group_id'] ?? 0;
+					$bucket_id = $draft->params['bucket_id'] ?? 0;
+					$signing_key = null;
+					
+					if (false != ($group = DAO_Group::get($group_id))) {
+						// [TODO] Validate the key can sign (do this on key import/update)
+						$signing_key = $group->getReplySigningKey($bucket_id);
+					}
+					
+					if(!$signing_key)
+						throw new Exception_DevblocksAjaxValidationError(sprintf("Can't find a PGP signing key for group '%s'", $group->name));
 				}
 				
-				if(!$signing_key)
-					throw new Exception_DevblocksAjaxValidationError(sprintf("Can't find a PGP signing key for group '%s'", $group->name));
-			}
-			
-			// Validate GPG if used (we need public keys for all recipients)
-			if($properties['gpg_encrypt']) {
-				$gpg = DevblocksPlatform::services()->gpg();
-				
-				$email_addresses = DevblocksPlatform::parseCsvString(sprintf("%s%s%s",
-					!empty($properties['to']) ? ($properties['to'] . ', ') : '',
-					!empty($properties['cc']) ? ($properties['cc'] . ', ') : '',
-					!empty($properties['bcc']) ? ($properties['bcc'] . ', ') : ''
-				));
-				
-				$email_models = DAO_Address::lookupAddresses($email_addresses, true);
-				$emails_to_check = array_fill_keys(array_column(DevblocksPlatform::objectsToArrays($email_models), 'email'), true);
-				
-				foreach($email_models as $email_model) {
-					if(false == ($info = $gpg->keyinfoPublic(sprintf("<%s>", $email_model->email))) || !is_array($info))
-						continue;
+				// Validate GPG if used (we need public keys for all recipients)
+				if($draft->params['options_gpg_encrypt']) {
+					$gpg = DevblocksPlatform::services()->gpg();
 					
-					foreach($info as $key) {
-						foreach($key['uids'] as $uid) {
-							unset($emails_to_check[DevblocksPlatform::strLower($uid['email'])]);
+					$recipient_parts = [];
+					
+					if($draft->getParam('to'))
+						$recipient_parts[] = $draft->getParam('to');
+					
+					if($draft->getParam('cc'))
+						$recipient_parts[] = $draft->getParam('cc');
+					
+					if($draft->getParam('bcc'))
+						$recipient_parts[] = $draft->getParam('bcc');
+					
+					$email_addresses = DevblocksPlatform::parseCsvString(implode(',', $recipient_parts));
+					$email_models = DAO_Address::lookupAddresses($email_addresses, true);
+					$emails_to_check = array_fill_keys(array_column(DevblocksPlatform::objectsToArrays($email_models), 'email'), true);
+					
+					foreach($email_models as $email_model) {
+						if(false == ($info = $gpg->keyinfoPublic(sprintf("<%s>", $email_model->email))) || !is_array($info))
+							continue;
+						
+						foreach($info as $key) {
+							foreach($key['uids'] as $uid) {
+								unset($emails_to_check[DevblocksPlatform::strLower($uid['email'])]);
+							}
 						}
 					}
-				}
-				
-				if(!empty($emails_to_check)) {
-					throw new Exception_DevblocksAjaxValidationError("Can't send encrypted message. We don't have a PGP public key for: " . implode(', ', array_keys($emails_to_check)));
+					
+					if(!empty($emails_to_check)) {
+						throw new Exception_DevblocksAjaxValidationError("Can't send encrypted message. We don't have a PGP public key for: " . implode(', ', array_keys($emails_to_check)));
+					}
 				}
 			}
 			
-			//throw new Exception_DevblocksAjaxValidationError("You did it!");
+			// Only run validation interactions on send/save
+			if('draft' != $reply_mode) {
+				if(null != ($automation_event = DAO_AutomationEvent::getByName('mail.draft.validate'))) {
+					$automation_event_dict = DevblocksDictionaryDelegate::instance([
+						'mode' => sprintf("reply.%s", $reply_mode),
+					]);
+					
+					$automation_event_dict->mergeKeys('draft_', DevblocksDictionaryDelegate::getDictionaryFromModel($draft, CerberusContexts::CONTEXT_DRAFT));
 			
-			// [TODO] Give bot behaviors a stab at it
+					$event_kata = $automation_event->getKata($automation_event_dict);
+					
+					echo json_encode([
+						'validation_interactions' => $event_kata,
+					]);
+					
+					return;
+				}
+			}
 			
 			echo json_encode([
 				'status' => true,
