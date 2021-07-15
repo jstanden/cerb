@@ -47,6 +47,8 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 					return $this->_profileAction_renderEditorToolbar();
 				case 'runAutomationEditor':
 					return $this->_profileAction_runAutomationEditor();
+				case 'stepAutomationEditor':
+					return $this->_profileAction_stepAutomationEditor();
 				case 'savePeekJson':
 					return $this->_profileAction_savePeekJson();
 				case 'viewExplore':
@@ -440,6 +442,75 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar, $toolbar_dict);
 		
 		DevblocksPlatform::services()->ui()->toolbar()->render($toolbar);
+	}
+	
+	private function _profileAction_stepAutomationEditor() {
+		@$output_yaml = DevblocksPlatform::importGPC($_POST['output'], 'string');
+		
+		header('Content-Type: text/plain; charset=utf-8');
+		
+		if(false == ($output_yaml = DevblocksPlatform::services()->string()->yamlParse($output_yaml, 0)))
+			return;
+		
+		$output_dict = DevblocksDictionaryDelegate::instance($output_yaml);
+		
+		$field_values = [];
+		
+		// If a form continuation
+		if($output_dict->getKeyPath('__exit') == 'await' 
+			&& ($form_elements = $output_dict->getKeyPath('__return.form.elements'))
+			&& is_array($form_elements)
+			) {
+			
+			foreach($form_elements as $k => $v) {
+				list($k_type, $k_name) = array_pad(explode('/', $k), 2, null);
+				
+				if(!$k_name || in_array($k_type, ['map','say']))
+					continue;
+				
+				// If a key doesn't exist for this prompt yet, add a default
+				if(null === ($field_value = $output_dict->get($k_name))) {
+					$default = '';
+					
+					if('sheet' == $k_type) {
+						if(array_key_exists('schema', $v)) {
+							$sheets = DevblocksPlatform::services()->sheet();
+							
+							$selection = current(array_filter(
+								$sheets->getColumns($v['schema']),
+								fn($c) => 'selection' == ($c['_type'] ?? null)
+							));
+							
+							// Skip if no selection column
+							if(!$selection)
+								continue;
+							
+							// If multi-selection, default to an empty array
+							if ('multiple' == ($selection['params']['mode'] ?? null))
+								$default = [];
+						}
+						
+					} else if('submit' == $k_type) {
+						// If no custom buttons on the submit, skip
+						if(!array_key_exists('buttons', $v))
+							continue;
+					}
+					
+					$field_values[$k_name] = $v['default'] ?? $default;
+				} else {
+					$field_values[$k_name] = $field_value;
+					$output_dict->unset($k_name);
+				}
+			}
+		}
+		
+		if($field_values) {
+			echo "# Set form values\n";
+			echo DevblocksPlatform::services()->string()->yamlEmit($field_values, false);
+			echo "\n\n";
+		}
+		
+		echo DevblocksPlatform::services()->string()->yamlEmit($output_dict->getDictionary(), false);
 	}
 	
 	private function _profileAction_runAutomationEditor() {

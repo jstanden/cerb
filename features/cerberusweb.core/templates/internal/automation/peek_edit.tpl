@@ -403,13 +403,24 @@ $(function() {
 		$button_step
 			.click(function() {
 				Devblocks.clearAlerts();
+				
+				var formData = new FormData($frm[0]);
+				formData.set('c', 'profiles');
+				formData.set('a', 'invoke');
+				formData.set('module', 'automation');
+				formData.set('action', 'stepAutomationEditor');
+				formData.set('output', editor_state_end.getValue());
 
-				editor_state_start.setValue(editor_state_end.getValue());
-				editor_state_start.clearSelection();
+				$spinner.insertAfter($button_step);
+				$button_step.hide();
+
+				genericAjaxPost(formData, null, null, function(yaml) {
+					editor_state_start.setValue(yaml);
+					editor_state_start.clearSelection();
+					$spinner.detach();
+				});
 
 				editor_state_end.setValue('');
-
-				$button_step.hide();
 			})
 		;
 
