@@ -602,6 +602,20 @@ class Cerb_Packages {
 			}
 		}
 		
+		$events = $json['events'] ?? [];
+		
+		if(is_array($events)) {
+			foreach ($events as $event) {
+				$keys_to_require = ['event', 'kata'];
+				$diff = array_diff_key(array_flip($keys_to_require), $event);
+				if (count($diff))
+					throw new Exception_DevblocksValidationError(sprintf("Invalid JSON: event is missing properties (%s)", implode(', ', array_keys($diff))));
+				
+				if(false == DAO_AutomationEvent::getByName($event['event']))
+					throw new Exception_DevblocksValidationError(sprintf("Invalid JSON: event (%s) doesn't exist", $event['event']));
+			}
+		}
+
 		$toolbars = $json['toolbars'] ?? [];
 		
 		if(is_array($toolbars)) {
@@ -1583,6 +1597,23 @@ class Cerb_Packages {
 				'id' => $project_board_id,
 				'label' => $project_board['name'],
 			];
+		}
+		
+		$events = $json['events'] ?? [];
+		
+		if(is_array($events)) {
+			foreach ($events as $event) {
+				if (false != ($event_model = DAO_AutomationEvent::getByName($event['event']))) {
+					DAO_AutomationEvent::update($event_model->id, [
+						DAO_AutomationEvent::AUTOMATIONS_KATA => rtrim($event_model->automations_kata) . "\n\n" . rtrim($event['kata']),
+					]);
+					
+					$records_modified['cerb.contexts.automation.event'][$event_model->id] = [
+						'id' => $event_model->id,
+						'label' => $event_model->name,
+					];
+				}
+			}
 		}
 		
 		$toolbars = $json['toolbars'] ?? [];
