@@ -264,15 +264,25 @@
 
 <script type="text/javascript">
 $(function() {
-	if(undefined === draftComposeAutoSaveInterval)
-		var draftComposeAutoSaveInterval = null;
+	var draftComposeAutoSaveInterval = null;
 
-	var $popup = genericAjaxPopupFind('#frmComposePeek{$popup_uniqid}');
+	var $frm = $('#frmComposePeek{$popup_uniqid}');
+	var $popup = genericAjaxPopupFind($frm);
 
+	function enableAutoSaveDraft() {
+		if(null == draftComposeAutoSaveInterval)
+			draftComposeAutoSaveInterval = setInterval("$('#frmComposePeek{$popup_uniqid} .cerb-reply-editor-toolbar-button--save').click();", 30000);
+	}
+
+	function disableAutoSaveDraft() {
+		if(null != draftComposeAutoSaveInterval) {
+			clearInterval(draftComposeAutoSaveInterval);
+			draftComposeAutoSaveInterval = null;
+		}
+	}
+	
 	$popup.one('popup_open',function(event,ui) {
 		$popup.dialog('option','title','{'mail.send_mail'|devblocks_translate|capitalize|escape:'javascript' nofilter}');
-		
-		var $frm = $('#frmComposePeek{$popup_uniqid}');
 		
 		// Close confirmation
 		
@@ -355,12 +365,11 @@ $(function() {
 					
 					if(typeof event.values == "object" && event.values.length > 0) {
 						var val = $input.val();
-						if(val.length > 0 && val.trim().substr(-1) != ',') {
-							var new_val = val + ', ' + event.labels.join(', ');
-							$input.val(new_val);
+						
+						if(val.length > 0 && val.trim().substr(-1) !== ',') {
+							$input.val(val + ', ' + event.labels.join(', '));
 						} else {
-							var new_val = val + (val.length == 0 || val.substr(-1) == ' ' ? '' : ' ') + event.labels.join(', ');
-							$input.val(new_val);
+							$input.val(val + (0 === val.length || val.substr(-1) === ' ' ? '' : ' ') + event.labels.join(', '));
 						}
 					}
 				});
@@ -596,7 +605,7 @@ $(function() {
 
 		// Snippets
 		$editor_toolbar.on('cerb-editor-toolbar-snippet-inserted', function(event) {
-			if(undefined == event.snippet_id)
+			if(!event.hasOwnProperty('snippet_id'))
 				return;
 
 			var formData = new FormData();
@@ -609,7 +618,7 @@ $(function() {
 
 			genericAjaxPost(formData, null, null, function (json) {
 				// If the content has placeholders, use that popup instead
-				if (json.has_prompts) {
+				if (json.hasOwnProperty('has_prompts')) {
 					var $popup_paste = genericAjaxPopup('snippet_paste', 'c=profiles&a=invoke&module=snippet&action=getPrompts&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id), null, false, '50%');
 
 					$popup_paste.bind('snippet_paste', function (event) {
@@ -664,18 +673,6 @@ $(function() {
 			
 			$bucket.focus();
 		});
-		
-		$frm.find('input:text[name=to]').on('change keyup', function(event) {
-			var $input = $(this);
-			
-			if($input.val().length > 0) {
-				$frm.find('div.submit-no-recipients').hide();
-				
-			} else {
-				$frm.find('div.submit-no-recipients').show();
-				
-			}
-		}).trigger('change');
 		
 		$frm.find('input:text[name=to], input:text[name=cc], input:text[name=bcc]').focus(function(event) {
 			$('#compose_suggested{$popup_uniqid}').appendTo($(this).closest('td'));
@@ -758,11 +755,9 @@ $(function() {
 				.focus()
 			;
 		});
-
-		draftComposeAutoSaveInterval = setInterval(function() {
-			$editor_toolbar_button_save_draft.click();
-		}, 30000); // and every 30 sec
 		
+		enableAutoSaveDraft();
+
 		// Shortcuts
 
 		{if $pref_keyboard_shortcuts}
@@ -873,7 +868,7 @@ $(function() {
 						if(matches)
 							prefix = matches[1];
 
-						if(prefix != last_prefix)
+						if(prefix !== last_prefix)
 							bins.push({ prefix:prefix, lines:[] });
 
 						// Strip the prefix
@@ -885,7 +880,7 @@ $(function() {
 						last_prefix = prefix;
 					}
 
-					// Rewrap quoted blocks
+					// Re-wrap quoted blocks
 					for(var i in bins) {
 						prefix = bins[i].prefix;
 						var l = 0;
@@ -944,86 +939,220 @@ $(function() {
 			hideLoadingPanel();
 		});
 		
-		$frm.find('button.submit').click(function() {
-			var $status = $frm.find('div.status').html('').hide();
-			$status.text('').hide();
+		var funcValidationInteractions = function(json) {
+			var validation_interactions = Promise.resolve();
+			
+			if('object' != typeof json || !json.hasOwnProperty('validation_interactions'))
+				return validation_interactions;
+
+			for(var validation_interaction_key in json.validation_interactions) {
+				if(!json.validation_interactions.hasOwnProperty(validation_interaction_key))
+					continue;
+
+				var validation_interaction = json.validation_interactions[validation_interaction_key];
+
+				if(!validation_interaction.hasOwnProperty('data'))
+					continue;
+
+				validation_interactions = validation_interactions.then(function() {
+					return new Promise(function(resolve, reject) {
+						var interaction_params = '';
+
+						if(this.data.hasOwnProperty('inputs') && 'object' == typeof this.data.inputs)
+							interaction_params = $.param(this.data.inputs);
+						
+						var $interaction =
+							$('<div/>')
+								.attr('data-interaction-uri', this.data.uri)
+								.attr('data-interaction-params', interaction_params)
+								.attr('data-interaction-done', '')
+								.cerbBotTrigger({
+									'modal': true,
+									'caller': 'mail.compose.send',
+									'start': function(formData) {
+										var draft_id = $frm.find('input:hidden[name=draft_id]').val();
+										formData.set('caller[params][draft_id]', draft_id);	
+									},
+									'done': function(e) {
+										e.stopPropagation();
+										$interaction.remove();
+										
+										// If the interaction rejected validation
+										if(e.eventData.hasOwnProperty('exit') && 'return' === e.eventData.exit) {
+											if(e.eventData.hasOwnProperty('return') && e.eventData.return.hasOwnProperty('reject')) {
+												setTimeout(function() { $editor.focus(); }, 25);
+												reject(e);
+												return;
+											}
+										}
+										
+										resolve(e);
+									},
+									'error': function(e) {
+										reject(e);
+										setTimeout(function() { $editor.focus(); }, 25);
+									},
+									'abort': function(e) {
+										reject(e);
+										setTimeout(function() { $editor.focus(); }, 25);
+									}
+								})
+								.click()
+						;
+					}.bind(this));
+				}.bind(validation_interaction));
+			}
+			
+			return validation_interactions;
+		};		
+		
+		$frm.find('button.submit').click(function(e) {
+			e.stopPropagation();
+			
+			if(e.originalEvent && e.originalEvent.detail && e.originalEvent.detail > 1)
+				return;
+
+			var $button = $(this);
 
 			Devblocks.clearAlerts();
 			showLoadingPanel();
+			$button.closest('div').hide();
+			disableAutoSaveDraft();
+
+			var hookSuccess = function() {
+				showLoadingPanel();
+
+				$frm.find('input:hidden[name=compose_mode]').val('');
+
+				genericAjaxPost($frm, '', null, function(json) {
+					$popup.trigger('popup_saved');
+
+					var post_event = $.Event('cerb-compose-sent', {
+						record: json
+					});
+					genericAjaxPopupClose($popup, post_event);
+				});
+			};
+
+			var hookError = function(message) {
+				Devblocks.createAlertError(message);
+				$button.closest('div').show();
+				enableAutoSaveDraft();
+			};
 
 			var formData = new FormData($frm[0]);
 			formData.set('c', 'profiles');
 			formData.set('a', 'invoke');
 			formData.set('module', 'draft');
 			formData.set('action', 'validateComposeJson');
+			formData.set('compose_mode', 'send');
 
 			// Validate via Ajax before sending
 			genericAjaxPost(formData, '', '', function(json) {
-				if(json && json.status) {
-					if(null != draftComposeAutoSaveInterval) {
-						clearTimeout(draftComposeAutoSaveInterval);
-						draftComposeAutoSaveInterval = null;
-					}
+				hideLoadingPanel();
 
-					genericAjaxPost($frm, null, null,
-						function(json) {
-							$popup.trigger('popup_saved');
+				if(null == json || 'object' != typeof json)
+					return hookError('An unexpected error occurred. Try again.');
 
-							var post_event = $.Event('cerb-compose-sent', {
-								record: json
-							});
-							genericAjaxPopupClose($popup, post_event);
-						}
-					);
+				if(json.hasOwnProperty('validation_interactions') && 'object' == typeof json.validation_interactions) {
+					var validation_interactions = funcValidationInteractions(json);
+
+					validation_interactions
+						.then(function() {
+							hookSuccess();
+						})
+						.catch(function() {
+							// Aborted
+							enableAutoSaveDraft();
+						})
+						.finally(function() {
+							$button.closest('div').show();
+						})
+					;
+
+				} else if(json.hasOwnProperty('status') && json.status) {
+					hookSuccess();
 
 				} else {
-					hideLoadingPanel();
-					Devblocks.createAlertError(json.message);
+					hookError(json.message);
 				}
 			});
 		});
 
 		$frm.find('.draft').click(function(e) {
+			e.stopPropagation();
+			
 			if(e.originalEvent && e.originalEvent.detail && e.originalEvent.detail > 1)
 				return;
 
+			var $button = $(this);
+
 			Devblocks.clearAlerts();
 			showLoadingPanel();
+			$button.closest('div').hide();
+			disableAutoSaveDraft();
+
+			var hookSuccess = function() {
+				disableAutoSaveDraft();
+
+				var formData = new FormData($frm[0]);
+				formData.set('c', 'profiles');
+				formData.set('a', 'invoke');
+				formData.set('module', 'draft');
+				formData.set('action', 'saveDraftCompose');
+
+				genericAjaxPost(
+					formData,
+					null,
+					'',
+					function() {
+						genericAjaxGet('view{$view_id}','c=internal&a=invoke&module=worklists&action=refresh&id={$view_id}');
+						genericAjaxPopupClose($popup, $.Event('cerb-compose-draft'));
+					}
+				);
+			};
+
+			var hookError = function(message) {
+				Devblocks.createAlertError(message);
+				$button.closest('div').show();
+				enableAutoSaveDraft();
+			};
 
 			var formData = new FormData($frm[0]);
 			formData.set('c', 'profiles');
 			formData.set('a', 'invoke');
 			formData.set('module', 'draft');
 			formData.set('action', 'validateComposeJson');
+			formData.set('compose_mode', 'draft');
 
 			// Validate via Ajax before sending
 			genericAjaxPost(formData, '', '', function(json) {
-				if(json && json.status) {
-					if(null != draftComposeAutoSaveInterval) {
-						clearTimeout(draftComposeAutoSaveInterval);
-						draftComposeAutoSaveInterval = null;
-					}
+				hideLoadingPanel();
 
-					var formData = new FormData($frm[0]);
-					formData.set('c', 'profiles');
-					formData.set('a', 'invoke');
-					formData.set('module', 'draft');
-					formData.set('action', 'saveDraftCompose');
+				if(null == json || 'object' != typeof json)
+					return hookError('An unexpected error occurred. Try again.');
 
-					genericAjaxPost(
-						formData,
-						null,
-						'',
-						function() {
-							hideLoadingPanel();
-							genericAjaxGet('view{$view_id}','c=internal&a=invoke&module=worklists&action=refresh&id={$view_id}');
-							genericAjaxPopupClose($popup, $.Event('cerb-compose-draft'));
-						}
-					);
+				if(json.hasOwnProperty('validation_interactions') && 'object' == typeof json.validation_interactions) {
+					var validation_interactions = funcValidationInteractions(json);
+
+					validation_interactions
+						.then(function() {
+							hookSuccess();
+						})
+						.catch(function() {
+							// Aborted
+							enableAutoSaveDraft();
+						})
+						.finally(function() {
+							$button.closest('div').show();
+						})
+					;
+
+				} else if(json.hasOwnProperty('status') && json.status) {
+					hookSuccess();
 
 				} else {
-					hideLoadingPanel();
-					Devblocks.createAlertError(json.message);
+					hookError(json.message);
 				}
 			});
 		});
@@ -1034,10 +1163,7 @@ $(function() {
 			window.onbeforeunload = null;
 
 			if(confirm('Are you sure you want to discard this message?')) {
-				if(null != draftComposeAutoSaveInterval) {
-					clearTimeout(draftComposeAutoSaveInterval);
-					draftComposeAutoSaveInterval = null;
-				}
+				disableAutoSaveDraft();
 
 				var draft_id = $frm.find('input:hidden[name=draft_id]').val();
 
