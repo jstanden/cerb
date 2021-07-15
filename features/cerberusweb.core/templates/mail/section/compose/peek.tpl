@@ -242,19 +242,6 @@
 	</div>
 </fieldset>
 
-<div class="status"></div>
-
-<div class="help-box submit-no-recipients" style="display:none;">
-	<h1>You haven't specified any recipients.</h1>
-	<p>
-		A new ticket will be created without sending any email.
-		This is normal if you're working on an issue and you plan to add an email address later (e.g. phone call).
-	</p>
-	<p>
-		If this isn't what you meant to do, add a recipient in the <b>To:</b> field above.
-	</p>
-</div>
-
 <div class="submit-normal">
 	<button type="button" class="submit" title="{if $pref_keyboard_shortcuts}(Ctrl+Shift+Enter){/if}"><span class="glyphicons glyphicons-send"></span> {'display.ui.send_message'|devblocks_translate}</button>
 	<button type="button" class="draft"><span class="glyphicons glyphicons-disk-save"></span> {'display.ui.continue_later'|devblocks_translate}</button>

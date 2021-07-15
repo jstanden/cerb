@@ -159,6 +159,7 @@ $automation_files = [
 	'ai.cerb.automation.create.json',
 	'ai.cerb.eventHandler.automation.json',
 	'ai.cerb.eventHandler.automation.mail.received.json',
+	'cerb.compose.validation.to.json',
 	'cerb.ticket.participants.manage.json',
 ];
 
