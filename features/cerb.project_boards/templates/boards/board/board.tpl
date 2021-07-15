@@ -8,7 +8,7 @@
 				edit board
 			</a>
 		</div>
-		<div style="width:100%;overflow-x:auto;">
+		<div class="cerb-board-columns-set">
 			<div class="cerb-board-columns">
 				{foreach from=$columns item=column}
 				<div class="cerb-board-column" data-column-id="{$column->id}">

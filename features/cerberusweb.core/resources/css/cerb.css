@@ -2571,6 +2571,17 @@ svg.cerb-spinner circle {
 div.cerb-board div.cerb-board-columns {
   white-space: nowrap;
 }
+div.cerb-board .cerb-board-columns-set {
+  width: 100%;
+  overflow-x: auto;
+  -ms-overflow-style: -ms-autohiding-scrollbar;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}
+div.cerb-board .cerb-board-columns-set::-webkit-scrollbar {
+  display: none;
+}
 div.cerb-board div.cerb-board-column-add {
   text-align: center;
   vertical-align: top;

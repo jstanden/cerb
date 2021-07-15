@@ -2,6 +2,17 @@ div.cerb-board {
 	div.cerb-board-columns {
 		white-space: nowrap;
 	}
+	
+	.cerb-board-columns-set {
+		width: 100%;
+		overflow-x: auto;
+		-ms-overflow-style: -ms-autohiding-scrollbar;  /* IE and Edge */
+		scrollbar-width: none;  /* Firefox */
+		
+		&::-webkit-scrollbar {
+			display: none;
+		}
+	}
 
 	div.cerb-board-column-add {
 		text-align: center;
