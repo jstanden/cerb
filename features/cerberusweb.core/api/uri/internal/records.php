@@ -377,7 +377,7 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		// SHA-1 the temp file
 		$sha1_hash = sha1_file($temp_name) ?? null;
 		
-		if(false == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $file_size, $file_type))) {
+		if(false == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $file_size, $file_type, $file_name))) {
 			// Create a record w/ timestamp + ID
 			$fields = [
 				DAO_Attachment::NAME => $file_name,
@@ -388,6 +388,13 @@ class PageSection_InternalRecords extends Extension_PageSection {
 			
 			// Save the file
 			Storage_Attachments::put($file_id, $fp);
+			
+		} else {
+			if(false != ($file = DAO_Attachment::get($file_id))) {
+				$file_name = $file->name; 
+				$file_type = $file->mime_type; 
+				$file_size = $file->storage_size; 
+			}
 		}
 		
 		// A worker who uploaded this file will always have access to it, whether it was a dupe or not

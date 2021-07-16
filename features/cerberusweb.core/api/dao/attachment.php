@@ -432,22 +432,31 @@ class DAO_Attachment extends Cerb_ORMHelper {
 		}
 	}
 	
-	static function getBySha1Hash($sha1_hash, $file_size=null, $file_type=null) {
+	static function getBySha1Hash($sha1_hash, $file_size=null, $file_type=null, $file_name=null) {
 		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($sha1_hash) || $sha1_hash == 'da39a3ee5e6b4b0d3255bfef95601890afd80709')
 			return null;
 		
+		$wheres = [];
+		
+		if($file_size)
+			$wheres[] = sprintf("AND storage_size=%d", $file_size);
+		
+		if($file_type)
+			$wheres[] = sprintf("AND mime_type=%s", $db->qstr($file_type));
+		
+		if($file_name)
+			$wheres[] = sprintf("AND name=%s", $db->qstr($file_name));
+		
 		$sql = sprintf("SELECT id ".
 			"FROM attachment ".
 			"WHERE storage_sha1hash=%s ".
 			"%s ".
-			"%s ".
 			"ORDER BY id ".
 			"LIMIT 1",
 			$db->qstr($sha1_hash),
-			(!empty($file_type) ? (sprintf("AND mime_type=%s", $db->qstr($file_type))) : ''),
-			(!empty($file_size) ? (sprintf("AND storage_size=%d", $file_size)) : '')
+			($wheres ? implode(' ', $wheres) : '')
 		);
 		
 		return $db->GetOneReader($sql);
