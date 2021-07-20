@@ -2,7 +2,6 @@
     "name": "cerb.projectBoard.action.task.close",
     "description": "Close task cards when they enter this project board column",
     "extension_id": "cerb.trigger.projectBoard.cardAction",
-    "is_unlisted": 0,
     "script": "start:\r\n  decision:\r\n    outcome/task:\r\n      if@bool:\r\n        {{card__context is record type ('task')}}\r\n      then:\r\n        record.update:\r\n          output: record_task\r\n          inputs:\r\n            record_type: task\r\n            record_id: {{card_id}}\r\n            fields:\r\n              status: closed\r\n        return:",
     "policy_kata": "commands:\r\n  record.update:\r\n    allow@bool:\r\n      {{inputs.record_type|context_alias == 'task' ? 'yes'}}",
     "created_at": 1595204694,

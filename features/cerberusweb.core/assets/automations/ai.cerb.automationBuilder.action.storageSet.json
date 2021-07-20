@@ -1,8 +1,7 @@
 {
     "name": "ai.cerb.automationBuilder.action.storageSet",
     "description": "",
-    "extension_id": "cerb.trigger.interaction.worker",
-    "is_unlisted": 1,
+    "extension_id": "cerb.trigger.interaction.internal",
     "script": "start:\r\n  await:\r\n    form:\r\n      elements:\r\n        text/prompt_key:\r\n          label: Key:\r\n          required@bool: yes\r\n          type: freeform\r\n          default@text:\r\n            some.arbitrary.identifier\r\n          placeholder: (some.arbitrary.identifier)\r\n        text/prompt_value:\r\n          label: Value:\r\n          required@bool: yes\r\n          type: freeform\r\n          default@text:\r\n            This is the saved value.\r\n          placeholder: (an arbitrary value)\r\n        text/prompt_expires:\r\n          label: Expires:\r\n          type: freeform\r\n          default@text: +15 mins\r\n          placeholder: (e.g. +15 mins)\r\n        \r\n  return:\r\n    snippet@text:\r\n      storage.set/{{random_string(6)|lower}}:\r\n        output: result\r\n        inputs:\r\n          # See: https://cerb.ai/docs/automations/commands/storage.set/\r\n          key: {{prompt_key}}\r\n          value: {{prompt_value}}\r\n          expires: {{prompt_expires}}\r\n        #on_simulate:\r\n        #on_success:\r\n        #on_error:",
     "policy_kata": "",
     "created_at": 1618270512,

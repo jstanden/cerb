@@ -3304,14 +3304,6 @@
 			</tuv>
 		</tu>
 
-		<!-- Automation -->
-		
-		<tu tuid="dao.automation.is_unlisted">
-			<tuv xml:lang="en_US">
-				<seg>Unlisted</seg>
-			</tuv>
-		</tu>
-		
 		<!-- Automation Timer -->
 		
 		<tu tuid="dao.automation_timer.is_recurring">

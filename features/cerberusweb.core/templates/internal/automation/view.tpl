@@ -86,8 +86,6 @@
 				<a href="{devblocks_url}c=profiles&type=automation&id={$result.a_id}-{$result.a_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.a_name}</a>
 				<button type="button" class="peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="{$result.a_id}"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 			</td>
-			{elseif in_array($column, ['a_is_unlisted'])}
-				<td data-column="{$column}">{if $result.$column}{'common.yes'|devblocks_translate|capitalize}{else}{'common.no'|devblocks_translate|capitalize}{/if}</td>
 			{elseif $column == "a_extension_id"}
 			<td data-column="{$column}">
 				{if isset($trigger_extensions.{$result.a_extension_id})}

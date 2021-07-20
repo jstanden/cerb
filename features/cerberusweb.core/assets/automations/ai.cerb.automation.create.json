@@ -1,8 +1,7 @@
 {
     "name": "ai.cerb.automation.create",
     "description": "",
-    "extension_id": "cerb.trigger.interaction.worker",
-    "is_unlisted": 0,
+    "extension_id": "cerb.trigger.interaction.internal",
     "script": "start:\r\n  await:\r\n    record:\r\n      uri: cerb:automation\r\n      output: new_automation",
     "policy_kata": "",
     "created_at": 1624578537,

@@ -1,8 +1,7 @@
 {
     "name": "ai.cerb.automationBuilder.action.emailParser",
     "description": "",
-    "extension_id": "cerb.trigger.interaction.worker",
-    "is_unlisted": 1,
+    "extension_id": "cerb.trigger.interaction.internal",
     "script": "start:\r\n  await:\r\n    form:\r\n      elements:\r\n        editor/prompt_message_source:\r\n          label: Message source;\r\n          syntax: text\r\n          default@text:\r\n            From: customer@cerb.example\r\n            To: support@cerb.example\r\n            Subject: This is an example\r\n            \r\n            This is an example message.\r\n\r\n  return:\r\n    snippet@text:\r\n      email.parse/{{random_string(6)|lower}}:\r\n        output: results\r\n        inputs:\r\n          message@text:\r\n            {{prompt_message_source|indent('      ', 2)}}\r\n        #on_simulate:\r\n        #on_success:\r\n        #on_error:\r\n",
     "policy_kata": "",
     "created_at": 1600722810,

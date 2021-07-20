@@ -17,6 +17,7 @@
 
 class PageSection_ProfilesBot extends Extension_PageSection {
 	private $_interaction_extensions = [
+		AutomationTrigger_InteractionInternal::ID,
 		AutomationTrigger_InteractionWorker::ID,
 		AutomationTrigger_MailDraftValidate::ID,
 	];

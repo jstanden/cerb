@@ -2,7 +2,6 @@
     "name": "cerb.data.platform.extensions",
     "description": "A filterable, pageable list of platform extensions",
     "extension_id": "cerb.trigger.ui.sheet.data",
-    "is_unlisted": 0,
     "script": "inputs:\r\n  text/point:\r\n    required@bool: yes\r\n\r\nstart:\r\n  data.query:\r\n    output: results\r\n    inputs:\r\n      query@text:\r\n        type:platform.extensions\r\n        point:{{inputs.point}}\r\n        {% if sheet_filter -%}\r\n        filter: {{sheet_filter}}\r\n        {% endif -%}\r\n        {% if sheet_limit -%}\r\n        limit: {{sheet_limit}}\r\n        {% endif -%}\r\n        {% if sheet_page -%}\r\n        page: {{sheet_page}}\r\n        {% endif -%}\r\n        format: dictionaries\r\n    on_success:\r\n      return:\r\n        data@key: results:data\r\n        total@key: results:_:paging:page:rows:of\r\n    on_error:\r\n      error:\r\n        message@key: results:errorstart:\r\n  ",
     "policy_kata": "commands:\r\n  data.query:\r\n    allow: yes",
     "created_at": 1602893730,

@@ -1,8 +1,7 @@
 {
     "name": "ai.cerb.automationBuilder.interaction.worker.await.map",
     "description": "",
-    "extension_id": "cerb.trigger.interaction.worker",
-    "is_unlisted": 1,
+    "extension_id": "cerb.trigger.interaction.internal",
     "script": "start:\r\n  # await:\r\n  #   form:\r\n  #     elements:\r\n      # [TODO] region: world, us, europe, asia, africa\r\n\r\n  return:\r\n    snippet@text:\r\n      map/respond_{{random_string(6)|lower}}:\r\n        # See: https://cerb.ai/docs/maps/\r\n        resource:\r\n            uri: cerb:resource:map.world.countries\r\n          projection:\r\n            type: mercator\r\n            scale: 90\r\n            center:\r\n              latitude: 0\r\n              longitude: 0\r\n        regions:\r\n        points:",
     "policy_kata": "",
     "created_at": 1600722810,

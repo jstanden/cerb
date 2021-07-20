@@ -1,8 +1,7 @@
 {
     "name": "ai.cerb.automationBuilder.action.storageGet",
     "description": "",
-    "extension_id": "cerb.trigger.interaction.worker",
-    "is_unlisted": 1,
+    "extension_id": "cerb.trigger.interaction.internal",
     "script": "start:\r\n  await:\r\n    form:\r\n      elements:\r\n        text/prompt_key:\r\n          label: Key:\r\n          required@bool: yes\r\n          type: freeform\r\n          default@text:\r\n            some.arbitrary.identifier\r\n          placeholder: (some.arbitrary.identifier)\r\n        text/prompt_default:\r\n          label: Default:\r\n          type: freeform\r\n          default@text:\r\n            This is a default value.\r\n          placeholder: (an arbitrary default value)\r\n        \r\n  return:\r\n    snippet@text:\r\n      storage.get/{{random_string(6)|lower}}:\r\n        inputs:\r\n          # See: https://cerb.ai/docs/automations/commands/storage.get/\r\n          key: {{prompt_key}}\r\n          default: {{prompt_default}}\r\n        #on_simulate:\r\n        #on_success:\r\n        #on_error:",
     "policy_kata": "",
     "created_at": 1618270576,

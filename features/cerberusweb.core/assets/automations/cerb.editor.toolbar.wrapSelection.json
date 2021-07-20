@@ -1,8 +1,7 @@
 {
     "name": "cerb.editor.toolbar.wrapSelection",
     "description": "Wrap selected text using `start_with` and `end_with` sequences",
-    "extension_id": "cerb.trigger.interaction.worker",
-    "is_unlisted": 1,
+    "extension_id": "cerb.trigger.interaction.internal",
     "script": "inputs:\r\n  text/start_with:\r\n    required@bool: true\r\n  text/end_with:\r\n\r\nstart:\r\n  return:\r\n    snippet@text:\r\n      {{inputs.start_with}}{{caller_params.selected_text}}{{inputs.end_with|default(inputs.start_with)}}",
     "policy_kata": "",
     "created_at": 1602807511,

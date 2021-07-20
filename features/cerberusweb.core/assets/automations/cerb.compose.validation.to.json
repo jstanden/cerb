@@ -2,7 +2,6 @@
     "name": "cerb.compose.validation.to",
     "description": "Warns if sending a compose draft without any recipients",
     "extension_id": "cerb.trigger.mail.draft.validate",
-    "is_unlisted": 0,
     "script": "inputs:\r\n  record/draft:\r\n    record_type: draft\r\n    required@bool: yes\r\n    default: {{caller_params.draft_id}}\r\n\r\nstart:\r\n  outcome/notEmptyTo:\r\n    if@bool: {{inputs.draft.params.to}}\r\n    then:\r\n      return:\r\n  \r\n  await:\r\n    form:\r\n      title: Before you send that...\r\n      elements:\r\n        say:\r\n          content@text:\r\n            # You haven't specified any recipients\r\n            A new ticket will be created without sending any email. This is normal if you're working on an issue and you plan to add an email address later (e.g. phone call).\r\n            \r\n        submit/prompt_next:\r\n          buttons:\r\n            continue/yes:\r\n              label: Send without recipients\r\n              icon: send\r\n              icon_at: start\r\n            continue/no:\r\n              label: Whoops! I'll fix it\r\n              style: secondary\r\n              value: nope\r\n  \r\n  outcome/reject:\r\n    if@bool: {{'nope' == prompt_next}}\r\n    then:\r\n      return:\r\n        reject@bool: yes        \r\n            ",
     "policy_kata": "",
     "created_at": 1626239523,

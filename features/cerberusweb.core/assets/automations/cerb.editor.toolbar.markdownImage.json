@@ -1,8 +1,7 @@
 {
     "name": "cerb.editor.toolbar.markdownImage",
     "description": "Insert an image with Markdown formatting",
-    "extension_id": "cerb.trigger.interaction.worker",
-    "is_unlisted": 1,
+    "extension_id": "cerb.trigger.interaction.internal",
     "script": "start:\r\n  await:\r\n    form:\r\n      title: Insert an image\r\n      elements:\r\n        fileUpload/prompt_file_id:\r\n          label: File:\r\n          required@bool: yes\r\n        text/prompt_alt:\r\n          label: Alternate text:\r\n          type: freeform\r\n          #default:\r\n  set:\r\n    prompt_file__context: attachment\r\n  return:\r\n    snippet@text,trim:\r\n      ![{{prompt_alt|default(prompt_file__label)}}]({{prompt_file_url_download}})",
     "policy_kata": "",
     "created_at": 1602887486,

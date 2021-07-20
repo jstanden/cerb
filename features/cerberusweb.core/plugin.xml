@@ -4798,6 +4798,25 @@
 				</param>
 			</params>
 		</extension>
+		
+		<extension point="cerb.automation.trigger">
+			<id>cerb.trigger.interaction.internal</id>
+			<name>interaction.internal</name>
+			<class>
+				<file>api/automations/triggers/interaction.internal.php</file>
+				<name>AutomationTrigger_InteractionInternal</name>
+			</class>
+			<params>
+				<param key="description" value="Worker interactions used and managed internally by Cerb" />
+				<param key="features">
+					<value>
+						<data key="await" />
+						<data key="callers" />
+						<data key="inputs" />
+					</value>
+				</param>
+			</params>
+		</extension>
 
 		<extension point="cerb.automation.trigger">
 			<id>cerb.trigger.mail.draft</id>

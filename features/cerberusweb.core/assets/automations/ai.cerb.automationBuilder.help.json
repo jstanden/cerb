@@ -1,8 +1,7 @@
 {
     "name": "ai.cerb.automationBuilder.help",
     "description": "Help for the automation editor",
-    "extension_id": "cerb.trigger.interaction.worker",
-    "is_unlisted": 1,
+    "extension_id": "cerb.trigger.interaction.internal",
     "script": "inputs:\r\n  text/topic:\r\n    type: freeform\r\n    required@bool: yes\r\n\r\nstart:\r\n  decision:\r\n    outcome/editor:\r\n      if@bool: {{inputs.topic == 'editor'}}\r\n      then:\r\n        await:\r\n          form:\r\n            title: Help: Automation Editor\r\n            elements:\r\n              say/markdown:\r\n                content@text:\r\n                  ## Documentation\r\n                  See: <https://cerb.ai/docs/automations/>\r\n    outcome/input:\r\n      if@bool: {{inputs.topic == 'input'}}\r\n      then:\r\n        await:\r\n          form:\r\n            title: Help: Automation Input\r\n            elements:\r\n              say/markdown:\r\n                content@text:\r\n                  ## Documentation\r\n                  See: <https://cerb.ai/docs/automations/#inputs>\r\n\r\n    outcome/output:\r\n      if@bool: {{inputs.topic == 'output'}}\r\n      then:\r\n        await:\r\n          form:\r\n            title: Help: Automation Output\r\n            elements:\r\n              say/markdown:\r\n                content@text:\r\n                  ## Documentation\r\n                  See: <https://cerb.ai/docs/automations/#dictionaries>\r\n    \r\n    outcome/policy:\r\n      if@bool: {{inputs.topic == 'policy'}}\r\n      then:\r\n        await:\r\n          form:\r\n            title: Help: Automation Policies\r\n            elements:\r\n              say/markdown:\r\n                content@text:\r\n                  ## Documentation\r\n                  See: <https://cerb.ai/docs/automations/#policies>",
     "policy_kata": "",
     "created_at": 1607733485,

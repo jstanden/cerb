@@ -2,7 +2,6 @@
     "name": "cerb.mailFilterBlacklist",
     "description": "Rejects delivery of an incoming message",
     "extension_id": "cerb.trigger.mail.filter",
-    "is_unlisted": 0,
     "script": "start:\r\n  return:\r\n    reject@bool: true",
     "policy_kata": "",
     "created_at": 1611015746,

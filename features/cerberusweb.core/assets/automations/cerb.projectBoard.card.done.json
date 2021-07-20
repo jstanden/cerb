@@ -2,7 +2,6 @@
     "name": "cerb.projectBoard.card.done",
     "description": "Render a card with a completed style",
     "extension_id": "cerb.trigger.projectBoard.renderCard",
-    "is_unlisted": 0,
     "script": "start:\r\n  return:\r\n    sheet:\r\n      columns:\r\n        card/card__label:\r\n          params:\r\n            icon:\r\n              image: circle-ok\r\n",
     "policy_kata": "",
     "created_at": 1600378290,

@@ -1,8 +1,7 @@
 {
     "name": "ai.cerb.automationBuilder.action.pgpDecrypt",
     "description": "",
-    "extension_id": "cerb.trigger.interaction.worker",
-    "is_unlisted": 1,
+    "extension_id": "cerb.trigger.interaction.internal",
     "script": "start:\r\n  return:\r\n    snippet@text:\r\n      decrypt.pgp/{{random_string(6)|lower}}:\r\n        output: decrypted_message\r\n        inputs:\r\n          # See: https://cerb.ai/docs/automations/commands/decrypt.pgp/\r\n          # [TODO] Set `message:`\r\n          #message: -----BEGIN PGP MESSAGE-----...\r\n        #on_simulate:\r\n        #on_success:\r\n        #on_error:",
     "policy_kata": "",
     "created_at": 1618271348,

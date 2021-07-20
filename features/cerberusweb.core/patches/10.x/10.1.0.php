@@ -153,13 +153,57 @@ if($changes) {
 }
 
 // ===========================================================================
+// Remove `automation.is_unlisted` (this moved to `interaction.internal`)
+
+list($columns,) = $db->metaTable('automation');
+
+if(array_key_exists('is_unlisted', $columns)) {
+	$db->ExecuteWriter('ALTER TABLE automation DROP COLUMN is_unlisted');
+}
+
+// ===========================================================================
 // Update built-in automations
 
 $automation_files = [
 	'ai.cerb.automation.create.json',
+	'ai.cerb.automationBuilder.action.dataQuery.json',
+	'ai.cerb.automationBuilder.action.emailParser.json',
+	'ai.cerb.automationBuilder.action.function.json',
+	'ai.cerb.automationBuilder.action.httpRequest.json',
+	'ai.cerb.automationBuilder.action.pgpDecrypt.json',
+	'ai.cerb.automationBuilder.action.pgpEncrypt.json',
+	'ai.cerb.automationBuilder.action.recordCreate.json',
+	'ai.cerb.automationBuilder.action.recordDelete.json',
+	'ai.cerb.automationBuilder.action.recordGet.json',
+	'ai.cerb.automationBuilder.action.recordSearch.json',
+	'ai.cerb.automationBuilder.action.recordUpdate.json',
+	'ai.cerb.automationBuilder.action.recordUpsert.json',
+	'ai.cerb.automationBuilder.action.storageDelete.json',
+	'ai.cerb.automationBuilder.action.storageGet.json',
+	'ai.cerb.automationBuilder.action.storageSet.json',
+	'ai.cerb.automationBuilder.help.json',
+	'ai.cerb.automationBuilder.input.array.json',
+	'ai.cerb.automationBuilder.input.record.json',
+	'ai.cerb.automationBuilder.input.records.json',
+	'ai.cerb.automationBuilder.input.text.json',
+	'ai.cerb.automationBuilder.interaction.worker.await.map.json',
+	'ai.cerb.automationBuilder.interaction.worker.await.promptEditor.json',
+	'ai.cerb.automationBuilder.interaction.worker.await.promptSheet.json',
+	'ai.cerb.automationBuilder.interaction.worker.await.promptText.json',
+	'ai.cerb.automationBuilder.interaction.worker.await.say.json',
+	'ai.cerb.cardEditor.automation.triggerChooser.json',
+	'ai.cerb.editor.mapBuilder.json',
 	'ai.cerb.eventHandler.automation.json',
 	'ai.cerb.eventHandler.automation.mail.received.json',
+	'ai.cerb.timerEditor.schedule.add.json',
+	'ai.cerb.toolbarBuilder.interaction.json',
+	'ai.cerb.toolbarBuilder.menu.json',
 	'cerb.compose.validation.to.json',
+	'cerb.editor.toolbar.indentSelection.json',
+	'cerb.editor.toolbar.markdownImage.json',
+	'cerb.editor.toolbar.markdownLink.json',
+	'cerb.editor.toolbar.markdownTable.json',
+	'cerb.editor.toolbar.wrapSelection.json',
 	'cerb.ticket.participants.manage.json',
 ];
 

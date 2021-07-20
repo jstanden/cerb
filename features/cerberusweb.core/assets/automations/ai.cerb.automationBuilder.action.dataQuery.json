@@ -1,8 +1,7 @@
 {
     "name": "ai.cerb.automationBuilder.action.dataQuery",
     "description": "",
-    "extension_id": "cerb.trigger.interaction.worker",
-    "is_unlisted": 1,
+    "extension_id": "cerb.trigger.interaction.internal",
     "script": "start:\r\n  await:\r\n    form:\r\n      elements:\r\n        editor/prompt_query:\r\n          label: Query:\r\n          required@bool: yes\r\n          syntax: cerb_query\r\n          default@text:\r\n            type:worklist.records\r\n            of:ticket\r\n            query:(\r\n              status:!d\r\n              created:\"-1 month\"\r\n            )\r\n            expand:[custom_]\r\n            format:dictionaries\r\n\r\n  return:\r\n    snippet@text:\r\n      data.query/{{random_string(6)|lower}}:\r\n        inputs:\r\n          query@text:\r\n            {{prompt_query|indent('      ',2)}}\r\n        output: data_results\r\n        #on_simulate:\r\n        #on_success:\r\n        #on_error:",
     "policy_kata": "",
     "created_at": 1600722810,

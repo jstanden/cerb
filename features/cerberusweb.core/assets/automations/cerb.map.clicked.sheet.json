@@ -2,7 +2,6 @@
     "name": "cerb.map.clicked.sheet",
     "description": "Display a sheet based on properties of the selected GeoJSON feature",
     "extension_id": "cerb.trigger.map.clicked",
-    "is_unlisted": 0,
     "script": "inputs:\r\n  array/sheet:\r\n    required@bool: yes\r\n\r\nstart:\r\n  return:\r\n    sheet@key: inputs:sheet",
     "policy_kata": "",
     "created_at": 1605050530,

@@ -1,8 +1,7 @@
 {
     "name": "ai.cerb.automationBuilder.action.pgpEncrypt",
     "description": "",
-    "extension_id": "cerb.trigger.interaction.worker",
-    "is_unlisted": 1,
+    "extension_id": "cerb.trigger.interaction.internal",
     "script": "start:\r\n  await:\r\n    form:\r\n      elements:\r\n        sheet/prompt_keys:\r\n          label: Encrypt with these keys:\r\n          data:\r\n            automation:\r\n              uri: cerb:automation:cerb.data.records\r\n              inputs:\r\n                record_type: gpg_public_key\r\n          limit: 10\r\n          schema:\r\n            layout:\r\n              filtering@bool: yes\r\n              headings@bool: no\r\n              paging@bool: yes\r\n              title_column: _label\r\n            columns:\r\n              selection/fingerprint:\r\n                params:\r\n                  mode: multiple\r\n              card/_label:\r\n                params:\r\n                  bold@bool: yes\r\n              text/_fingerprint:\r\n                params:\r\n                  value_key: fingerprint\r\n  \r\n  return:\r\n    snippet@text:\r\n      encrypt.pgp/{{random_string(6)|lower}}:\r\n        output: encrypted_message\r\n        inputs:\r\n          # See: https://cerb.ai/docs/automations/commands/encrypt.pgp/\r\n          message@text:\r\n            This is a secret message.\r\n          public_keys:\r\n            {% for fingerprint in prompt_keys -%}\r\n            uri: cerb:gpg_public_key:{{fingerprint}}\r\n            {% endfor -%}\r\n        \r\n        #on_simulate:\r\n        #on_success:\r\n        #on_error:",
     "policy_kata": "",
     "created_at": 1618271512,

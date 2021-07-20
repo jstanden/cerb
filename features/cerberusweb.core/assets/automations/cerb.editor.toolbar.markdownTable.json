@@ -1,8 +1,7 @@
 {
     "name": "cerb.editor.toolbar.markdownTable",
     "description": "Insert a Markdown formatted table",
-    "extension_id": "cerb.trigger.interaction.worker",
-    "is_unlisted": 1,
+    "extension_id": "cerb.trigger.interaction.internal",
     "script": "start:\r\n  return:\r\n    snippet@text:\r\n      | Column1 | Column 2 | Column 3\r\n      |-|-|-\r\n      | Value 1 | Value 2 | Value 3\r\n      ",
     "policy_kata": "",
     "created_at": 1603315040,

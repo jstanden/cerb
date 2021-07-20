@@ -1,8 +1,7 @@
 {
     "name": "ai.cerb.automationBuilder.input.records",
     "description": "",
-    "extension_id": "cerb.trigger.interaction.worker",
-    "is_unlisted": 1,
+    "extension_id": "cerb.trigger.interaction.internal",
     "script": "start:\r\n  await:\r\n    form:\r\n      elements:\r\n        text/prompt_key:\r\n          label: Key:\r\n          type: uri\r\n          required@bool: yes\r\n  \r\n        sheet/prompt_record_type:\r\n          label: Record Type:\r\n          required@bool: yes\r\n          data:\r\n            automation:\r\n              uri: cerb:automation:cerb.data.record.types\r\n              inputs:\r\n          limit: 10\r\n          schema:\r\n            layout:\r\n              headings@bool: no\r\n              paging@bool: yes\r\n              filtering@bool: yes\r\n            columns:\r\n              selection/uri:\r\n                params:\r\n                  mode: single\r\n              text/label_singular:\r\n                params:\r\n                  bold@bool: yes\r\n  \r\n        sheet/prompt_required:\r\n          label: Required:\r\n          required@bool: yes\r\n          data@json:\r\n            [\r\n              { \"name\": \"yes\" },\r\n              { \"name\": \"no\" }\r\n            ]\r\n          limit: 10\r\n          default: yes\r\n          schema:\r\n            layout:\r\n              headings@bool: no\r\n            columns:\r\n              selection/_selection:\r\n                params:\r\n                  mode: single\r\n                  value_key: name\r\n              text/name:\r\n\r\n  return:\r\n    snippet@text:\r\n      records/{{prompt_key|lower}}:\r\n        record_type: {{prompt_record_type}}\r\n        required@bool: {{prompt_required}}\r\n",
     "policy_kata": "",
     "created_at": 1600722810,

@@ -1,8 +1,7 @@
 {
     "name": "ai.cerb.automationBuilder.action.recordSearch",
     "description": "",
-    "extension_id": "cerb.trigger.interaction.worker",
-    "is_unlisted": 1,
+    "extension_id": "cerb.trigger.interaction.internal",
     "script": "start:\r\n  await/type:\r\n    form:\r\n      elements:\r\n        sheet/prompt_record_type:\r\n          label: Record Type:\r\n          required@bool: yes\r\n          data:\r\n            automation:\r\n              uri: cerb:automation:cerb.data.record.types\r\n              inputs:\r\n          limit: 15\r\n          schema:\r\n            layout:\r\n              headings@bool: no\r\n              paging@bool: yes\r\n              filtering@bool: yes\r\n            columns:\r\n              selection/uri:\r\n                params:\r\n                  mode: single\r\n              text/label_singular:\r\n                params:\r\n                  bold@bool: yes\r\n\r\n  return:\r\n    snippet@text:\r\n      {% set record_uri = prompt_record_type %}\r\n      record.search/{{random_string(6)|lower}}:\r\n        output: results_{{record_uri}}\r\n        inputs:\r\n          # See: https://cerb.ai/docs/automations/commands/record.search/\r\n          record_type: {{record_uri}}\r\n          # [TODO]: Set `record_query:` and `record_query_params:`\r\n          #record_query: id:${example}\r\n          #record_query_params:\r\n          #  example: 123\r\n            \r\n        #on_simulate:\r\n        #on_success:\r\n        #on_error:",
     "policy_kata": "",
     "created_at": 1618269666,

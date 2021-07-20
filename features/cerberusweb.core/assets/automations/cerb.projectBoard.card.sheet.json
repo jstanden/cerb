@@ -2,7 +2,6 @@
     "name": "cerb.projectBoard.card.sheet",
     "description": "Render an arbitrary sheet for a project board card",
     "extension_id": "cerb.trigger.projectBoard.renderCard",
-    "is_unlisted": 0,
     "script": "inputs:\r\n  array/sheet:\r\n    required@bool: yes\r\n    # [TODO] Schema definition\r\n\r\nstart:\r\n  return:\r\n    sheet@key: inputs:sheet",
     "policy_kata": "",
     "created_at": 1602036928,

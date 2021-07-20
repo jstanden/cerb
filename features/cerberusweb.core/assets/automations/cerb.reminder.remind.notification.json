@@ -2,7 +2,6 @@
     "name": "cerb.reminder.remind.notification",
     "description": "Remind by notification",
     "extension_id": "cerb.trigger.reminder.remind",
-    "is_unlisted": 0,
     "script": "start:\r\n  record.create:\r\n    output: new_notification\r\n    inputs:\r\n      # See: https://cerb.ai/docs/records/types/notification/#records-api\r\n      record_type: notification\r\n      fields:\r\n        worker_id: {{reminder_worker_id}}\r\n        target__context: reminder\r\n        target_id: {{reminder_id}}\r\n        activity_point: custom.other\r\n        params:\r\n          message@raw: Reminder: {{reminder}}\r\n          variables:\r\n            reminder: {{reminder__label}}\r\n          urls:\r\n            reminder: ctx://{{reminder__context}}:{{reminder_id}}",
     "policy_kata": "commands:\r\n  record.create:\r\n    allow@bool:\r\n      {{\r\n        inputs.record_type|context_alias == 'notification' \r\n        ? 'yes'\r\n      }}",
     "created_at": 1600990518,

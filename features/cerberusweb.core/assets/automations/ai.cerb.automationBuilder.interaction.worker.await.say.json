@@ -1,8 +1,7 @@
 {
     "name": "ai.cerb.automationBuilder.interaction.worker.await.say",
     "description": "",
-    "extension_id": "cerb.trigger.interaction.worker",
-    "is_unlisted": 1,
+    "extension_id": "cerb.trigger.interaction.internal",
     "script": "start:\r\n  await:\r\n    form:\r\n      elements:\r\n        editor/prompt_message:\r\n          label: Message:\r\n          mode: markdown\r\n          required@bool: yes\r\n  \r\n        sheet/prompt_format:\r\n          label: Format:\r\n          required@bool: yes\r\n          data@json:\r\n            [\r\n              {\r\n                \"key\": \"markdown\",\r\n                \"name\": \"Markdown\",\r\n                \"description\": \"Formatting with Markdown\"\r\n              },\r\n              {\r\n                \"key\": \"text\",\r\n                \"name\": \"Text\",\r\n                \"description\": \"Text with no formatting\"\r\n              }\r\n            ]\r\n          default: markdown\r\n          schema:\r\n            layout:\r\n              headings@bool: no\r\n              paging@bool: no\r\n              title_column: name\r\n            columns:\r\n              selection/key:\r\n                params:\r\n                  mode: single\r\n              text/name:\r\n                params:\r\n                  bold@bool: yes\r\n              text/description:\r\n\r\n  return:\r\n    snippet@text:\r\n      say/respond_{{random_string(6)|lower}}:\r\n        {{prompt_format == 'markdown' ? 'content' : 'message'}}@text:\r\n          {{prompt_message|indent('    ', 2)}}\r\n",
     "policy_kata": "",
     "created_at": 1600722810,

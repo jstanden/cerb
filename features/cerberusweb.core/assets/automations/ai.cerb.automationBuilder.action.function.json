@@ -1,8 +1,7 @@
 {
     "name": "ai.cerb.automationBuilder.action.function",
     "description": "",
-    "extension_id": "cerb.trigger.interaction.worker",
-    "is_unlisted": 1,
+    "extension_id": "cerb.trigger.interaction.internal",
     "script": "start:\r\n  await:\r\n    form:\r\n      elements:\r\n        say:\r\n          content@text: ## Function\r\n\r\n        sheet/prompt_function_id:\r\n          label: Name:\r\n          data:\r\n            automation:\r\n              uri: cerb:automation:cerb.data.records\r\n              inputs:\r\n                record_type: automation\r\n                query_required@text:\r\n                  trigger:cerb.trigger.automation.function\r\n          required@bool: yes\r\n          limit: 10\r\n          schema:\r\n            layout:\r\n              filtering@bool: yes\r\n              #paging@bool: no\r\n              headings@bool: no\r\n            columns:\r\n              selection/id:\r\n                params:\r\n                  mode: single\r\n              text/_label:\r\n                params:\r\n                  bold@bool: yes\r\n\r\n  set/load_function:\r\n    function_data__context: automation\r\n    function_data_id@key: prompt_function_id\r\n\r\n  return:\r\n    snippet@text:\r\n      function/{{random_string(6)|lower}}:\r\n        uri: cerb:automation:{{function_data_name}}\r\n        inputs:\r\n          {% for input in function_data_inputs -%}\r\n          {{input.key}}:\r\n          {% endfor %}\r\n\r\n        output: results\r\n        #on_simulate:\r\n        #on_success:\r\n        #on_error:",
     "policy_kata": "",
     "created_at": 1600722810,
