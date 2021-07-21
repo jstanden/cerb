@@ -348,7 +348,7 @@ class _DevblocksAutomationService {
 			error_log($error);
 			
 			// Log exceptions
-			if(!$is_simulate) {
+			if(!$is_simulate && class_exists('DAO_AutomationLog')) {
 				DAO_AutomationLog::create([
 					DAO_AutomationLog::LOG_MESSAGE => $error,
 					DAO_AutomationLog::LOG_LEVEL => 3,
