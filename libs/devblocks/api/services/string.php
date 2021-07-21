@@ -97,7 +97,10 @@ class _DevblocksStringService {
 		return $str;
 	}
 	
-	private function _recurseNodeToText(DOMNode $node, &$text) {
+	private function _recurseNodeToText(DOMNode $node, &$text, $max_length=50000) {
+		if($max_length && strlen($text) > $max_length)
+			return;
+		
 		if($node instanceof DOMText) {
 			switch(DevblocksPlatform::strLower($node->parentNode->nodeName)) {
 				case 'pre':
@@ -161,7 +164,7 @@ class _DevblocksStringService {
 					$text .= "\n";
 				
 				foreach($node->childNodes as $child)
-					$this->_recurseNodeToText($child, $text);
+					$this->_recurseNodeToText($child, $text, $max_length);
 				
 				$text .= "\n";
 				break;
@@ -189,7 +192,7 @@ class _DevblocksStringService {
 						continue;
 					
 					$text .= sprintf("%d. ", $counter++);
-					$this->_recurseNodeToText($item, $text);
+					$this->_recurseNodeToText($item, $text, $max_length);
 					$text .= "\n";
 				}
 				
@@ -208,7 +211,7 @@ class _DevblocksStringService {
 						continue;
 					
 					$text .= "* ";
-					$this->_recurseNodeToText($item, $text);
+					$this->_recurseNodeToText($item, $text, $max_length);
 					$text .= "\n";
 				}
 				
@@ -241,12 +244,12 @@ class _DevblocksStringService {
 			// Recurse
 			default:
 				foreach($node->childNodes as $child)
-					$this->_recurseNodeToText($child, $text);
+					$this->_recurseNodeToText($child, $text, $max_length);
 				break;
 		}
 	}
 	
-	function htmlToText($str) {
+	function htmlToText($str, $truncate=50000) {
 		$dom = new DOMDocument('1.0', LANG_CHARSET_CODE);
 		$dom->preserveWhiteSpace = false;
 		$dom->formatOutput = false;
@@ -260,7 +263,6 @@ class _DevblocksStringService {
 		
 		$dom->normalizeDocument();
 		
-		libxml_get_errors();
 		libxml_clear_errors();
 		
 		$text = '';
@@ -270,7 +272,7 @@ class _DevblocksStringService {
 		$elements = $xpath->query('*');
 		
 		foreach($elements as $node) {
-			$this->_recurseNodeToText($node, $text);
+			$this->_recurseNodeToText($node, $text, $truncate);
 		}
 		
 		return $text;
