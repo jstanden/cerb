@@ -33,6 +33,7 @@ class FunctionAction extends AbstractAction {
 			
 			$validation->addField('uri', 'uri:')
 				->string()
+				->setMaxLength(512)
 				->setRequired(true)
 			;
 			

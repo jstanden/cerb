@@ -41,7 +41,7 @@ class EmailParseAction extends AbstractAction {
 			$validation->addField('message', 'inputs:message:')
 				->string()
 				->setRequired(true)
-				->setMaxLength('24 bits')
+				->setMaxLength(16_777_216)
 			;
 			
 			if(false === ($validation->validateAll($inputs, $error)))

@@ -38,6 +38,7 @@ class VarUnsetAction extends AbstractAction {
 			
 			$validation->addField('key', 'inputs:key:')
 				->string()
+				->setMaxLength(2048)
 				->setRequired(true)
 			;
 			

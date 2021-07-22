@@ -43,6 +43,7 @@ class RecordUpdateAction extends AbstractAction {
 			
 			$validation->addField('expand', 'inputs:expand:')
 				->string()
+				->setMaxLength(2048)
 			;
 			
 			$validation->addField('fields', 'inputs:fields:')

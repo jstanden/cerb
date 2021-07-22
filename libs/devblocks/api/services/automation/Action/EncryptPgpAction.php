@@ -41,7 +41,7 @@ class EncryptPgpAction extends AbstractAction {
 			
 			$validation->addField('message', 'inputs:message:')
 				->string()
-				->setMaxLength('16 bits')
+				->setMaxLength(16_777_216)
 				->setRequired(true)
 			;
 			

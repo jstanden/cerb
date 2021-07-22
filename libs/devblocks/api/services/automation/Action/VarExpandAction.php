@@ -38,10 +38,12 @@ class VarExpandAction extends AbstractAction {
 			
 			$validation->addField('key', 'inputs:key:')
 				->string()
+				->setMaxLength(2048)
 			;
 			
 			$validation->addField('paths', 'inputs:paths:')
 				->stringOrArray()
+				->setMaxLength(65_536)
 				->setRequired(true)
 			;
 			

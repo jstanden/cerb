@@ -45,6 +45,7 @@ class RecordSearchAction extends AbstractAction {
 			
 			$validation->addField('record_query', 'inputs:record_query:')
 				->string()
+				->setMaxLength(65_536)
 				->setRequired(true)
 			;
 			
@@ -54,6 +55,7 @@ class RecordSearchAction extends AbstractAction {
 			
 			$validation->addField('record_expand', 'inputs:record_expand:')
 				->string()
+				->setMaxLength(2048)
 			;
 			
 			if(false === ($validation->validateAll($inputs, $error)))

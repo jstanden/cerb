@@ -53,6 +53,7 @@ class RecordCreateAction extends AbstractAction {
 			
 			$validation->addField('expand', 'inputs:expand:')
 				->stringOrArray()
+				->setMaxLength(2048)
 				;
 			
 			if(false === ($validation->validateAll($inputs, $error)))

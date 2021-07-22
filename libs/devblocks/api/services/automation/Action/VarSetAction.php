@@ -38,11 +38,13 @@ class VarSetAction extends AbstractAction {
 			
 			$validation->addField('key', 'inputs:key:')
 				->string()
+				->setMaxLength(2048)
 				->setRequired(true)
 			;
 			
 			$validation->addField('value', 'inputs:value:')
 				->stringOrArray()
+				->setMaxLength(16_777_216)
 				->setRequired(true)
 				->setNotEmpty(false)
 			;

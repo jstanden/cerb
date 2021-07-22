@@ -45,6 +45,7 @@ class RecordUpsertAction extends AbstractAction {
 			
 			$validation->addField('record_query', 'inputs:record_query:')
 				->string()
+				->setMaxLength(65_536)
 				->setRequired(true)
 			;
 			

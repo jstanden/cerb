@@ -40,7 +40,7 @@ class DataQueryAction extends AbstractAction {
 			
 			$validation->addField('query', 'inputs:query:')
 				->string()
-				->setMaxLength('16 bits')
+				->setMaxLength(65_536)
 				->setRequired(true)
 			;
 			
