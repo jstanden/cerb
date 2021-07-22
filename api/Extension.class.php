@@ -1270,6 +1270,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				
 				'inputs:text:' => [
 					'type:',
+					'type_options:',
 					'required@bool: yes',
 					'default:',
 				],
@@ -1288,6 +1289,10 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'timestamp',
 					'uri',
 					'url',
+				],
+				'inputs:text:type_options:' => [
+					'max_length@int: 255',
+					'truncate@bool: yes',
 				],
 			]
 		];

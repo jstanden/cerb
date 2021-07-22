@@ -88,7 +88,9 @@ class _DevblocksAutomationService {
 								break;
 								
 							case 'freeform':
-								$input_field_type = $input_field->string();
+								$max_length = intval($input_data['type_options']['max_length'] ?? 1024);
+								$is_truncated = DevblocksPlatform::services()->string()->toBool($input_data['type_options']['truncate'] ?? 'yes');
+								$input_field_type = $input_field->string()->setMaxLength($max_length)->setTruncation($is_truncated);
 								break;
 							
 							case 'geopoint':
@@ -141,7 +143,9 @@ class _DevblocksAutomationService {
 								break;
 							
 							case 'url':
-								$input_field_type = $input_field->url();
+								$input_field_type = $input_field->url()
+									->setMaxLength(2048)
+								;
 								break;
 							
 							default:
@@ -172,6 +176,9 @@ class _DevblocksAutomationService {
 					if(false == ($inputs_validation->validateAll($input_values, $error))) {
 						return false;
 					}
+					
+					if(array_key_exists($input_key, $input_values))
+						$dict->setKeyPath('inputs.' . $input_key, $input_values[$input_key]);
 					
 				} else if ('array' == $input_type) {
 					$inputs_validation = DevblocksPlatform::services()->validation();
