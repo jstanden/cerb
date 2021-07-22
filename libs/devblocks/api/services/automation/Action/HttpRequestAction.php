@@ -54,6 +54,7 @@ class HttpRequestAction extends AbstractAction {
 			
 			$validation->addField('url', 'inputs:url:')
 				->url()
+				->setMaxLength(2048)
 				->setRequired(true)
 			;
 			
@@ -65,6 +66,7 @@ class HttpRequestAction extends AbstractAction {
 			
 			$validation->addField('headers', 'inputs:headers:')
 				->stringOrArray()
+				->setMaxLength(8192)
 			;
 			
 			$validation->addField('body', 'inputs:body:')
