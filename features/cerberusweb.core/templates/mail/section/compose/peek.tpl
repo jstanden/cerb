@@ -269,6 +269,7 @@ $(function() {
 	}
 	
 	$popup.one('popup_open',function(event,ui) {
+		var $frm = $('#frmComposePeek{$popup_uniqid}');
 		$popup.dialog('option','title','{'mail.send_mail'|devblocks_translate|capitalize|escape:'javascript' nofilter}');
 		
 		// Close confirmation
