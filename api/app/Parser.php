@@ -294,20 +294,20 @@ class CerberusParserModel {
 					&& false != ($relay_message_id = $this->isValidAuthHeader($ref, $senderWorker))) {
 					
 					if(null != ($ticket = DAO_Ticket::getTicketByMessageId($relay_message_id))) {
-						$this->_is_new = false;
 						$this->_ticket_id = $ticket->id;
 						$this->_ticket_model = $ticket;
 						$this->_message_id = $relay_message_id;
+						$this->_is_new = empty($this->_ticket_model->first_message_id);
 						return;
 					}
 				}
 				
 				// Otherwise, look up the normal header
 				if(null != ($ids = DAO_Ticket::getTicketByMessageIdHeader($ref))) {
-					$this->_is_new = false;
 					$this->_ticket_id = $ids['ticket_id'];
 					$this->_ticket_model = DAO_Ticket::get($this->_ticket_id);
 					$this->_message_id = $ids['message_id'];
+					$this->_is_new = empty($this->_ticket_model->first_message_id);
 					return;
 				}
 			}
@@ -324,10 +324,10 @@ class CerberusParserModel {
 				if(isset($matches[1])) {
 					$mask = $matches[1];
 					if($mask && null != ($ticket = DAO_Ticket::getTicketByMask($mask))) {
-						$this->_is_new = false;
 						$this->_ticket_id = $ticket->id;
 						$this->_ticket_model = $ticket;
 						$this->_message_id = $ticket->last_message_id;
+						$this->_is_new = empty($this->_ticket_model->first_message_id);
 						return;
 					}
 				}
