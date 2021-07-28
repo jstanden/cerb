@@ -146,6 +146,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'label:',
 					'syntax:',
 					'default:',
+					'validation@raw:',
 				],
 				'(.*):await:form:elements:editor:syntax:' => [
 					'cerb_query',
@@ -158,6 +159,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 				
 				'(.*):await:form:elements:fileUpload:' => [
 					'label:',
+					'validation@raw:',
 				],
 			
 				// [TODO] Maps KATA	
@@ -181,6 +183,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'page:',
 					'required@bool: yes',
 					'schema:',
+					'validation@raw:',
 				],
 				'(.*):await:form:elements:sheet:data:' => [
 					[
@@ -381,7 +384,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'placeholder:',
 					'required@bool: yes',
 					'type:',
-					'validation@text:',
+					'validation@raw:',
 				],
 				
 				'(.*):await:form:elements:text:type:' => [
@@ -404,7 +407,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'max_length:',
 					'placeholder:',
 					'required@bool: yes',
-					'validation@text:',
+					'validation@raw:',
 				],
 				
 				'(.*):await:interaction:' => [
