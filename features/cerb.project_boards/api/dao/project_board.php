@@ -1036,6 +1036,7 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 			'columns' => Model_CustomField::TYPE_SINGLE_LINE,
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'cards_kata' => Model_CustomField::TYPE_MULTI_LINE,
+			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'params' => null,
 			'updated_at' => Model_CustomField::TYPE_DATE,
 			'record_url' => Model_CustomField::TYPE_URL,

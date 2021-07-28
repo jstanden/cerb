@@ -314,12 +314,21 @@ EOD;
 		];
 		
 		switch($context_ext->id) {
+			case Context_Address::ID:
+			case Context_Contact::ID:
+			case Context_Org::ID:
+				$label_map['last_recipient_message'] = "Latest [Message](/docs/records/types/message/) Received";
+				$label_map['last_sender_message'] = "Latest [Message](/docs/records/types/message/) Sent";
+				break;
 			case Context_Attachment::ID:
 				$label_map['size'] = 'Size (Bytes)';
 				$label_type_map['size'] = 'Number';
 				break;
 			case Context_Bot::ID:
 				$label_type_map['config'] = 'Object';
+				break;
+			case Context_Group::ID:
+				$label_map['default_bucket_'] = "The group's default [bucket](/docs/records/types/bucket/)";
 				break;
 			case Context_KbArticle::ID:
 				$label_type_map['content'] = 'Text';
@@ -661,6 +670,16 @@ EOD;
 					if(array_key_exists($k, $label_map))
 						$label = $label_map[$k];
 					break;
+				
+				case Context_FileBundle::ID:
+				case Context_Snippet::ID:
+					$label_map = [
+						'usableBy.worker' => "Usable by [Worker](/docs/records/types/worker/)",
+					];
+				
+				if(array_key_exists($k, $label_map))
+					$label = $label_map[$k];
+				break;
 			}
 		}
 		
