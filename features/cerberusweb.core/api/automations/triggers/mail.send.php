@@ -155,7 +155,9 @@ class AutomationTrigger_MailSend extends Extension_AutomationTrigger {
 				'(.*):return:content:prepend:on:' => $content_on_suggestions,
 				
 				'(.*):return:content:replace:' => [
-					''
+					'on:',
+					'text:',
+					'with:',
 				],
 				'(.*):return:content:replace:on:' => $content_on_suggestions,
 			],
