@@ -184,6 +184,14 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 			return false;
 		}
 		
+		// If given secs and not mins
+		if(array_key_exists(self::TIME_ACTUAL_SECS, $fields) && !array_key_exists(self::TIME_ACTUAL_MINS, $fields))
+			$fields[self::TIME_ACTUAL_MINS] = ceil($fields[self::TIME_ACTUAL_SECS] / 60);
+		
+		// If given mins and not secs
+		if(array_key_exists(self::TIME_ACTUAL_MINS, $fields) && !array_key_exists(self::TIME_ACTUAL_SECS, $fields))
+			$fields[self::TIME_ACTUAL_SECS] = $fields[self::TIME_ACTUAL_MINS] * 60;
+		
 		if(isset($fields[self::WORKER_ID])) {
 			@$worker_id = $fields[self::WORKER_ID];
 			
@@ -1477,8 +1485,8 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 		$keys['activity_id']['notes'] = "The ID of the [activity](/docs/records/types/timetracking_activity/) for the work";
 		$keys['is_closed']['notes'] = "Is this time entry archived?";
 		$keys['log_date']['notes'] = "The date/time of the work";
-		$keys['mins']['notes'] = "The number of minutes worked";
-		$keys['secs']['notes'] = "The number of seconds worked";
+		$keys['mins']['notes'] = "The number of minutes worked (alternative to `secs`)";
+		$keys['secs']['notes'] = "The number of seconds worked (alternative to `mins`)";
 		$keys['worker_id']['notes'] = "The ID of the [worker](/docs/records/types/worker/) who completed the work";
 		
 		return $keys;
@@ -1486,6 +1494,19 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
+			case 'mins':
+				$out_fields[DAO_TimeTrackingEntry::TIME_ACTUAL_MINS] = intval($value);
+				
+				if(!array_key_exists(DAO_TimeTrackingEntry::TIME_ACTUAL_SECS, $out_fields))
+					$out_fields[DAO_TimeTrackingEntry::TIME_ACTUAL_SECS] = intval($value) * 60;
+				break;
+				
+			case 'secs':
+				$out_fields[DAO_TimeTrackingEntry::TIME_ACTUAL_SECS] = intval($value);
+				
+				if(!array_key_exists(DAO_TimeTrackingEntry::TIME_ACTUAL_MINS, $out_fields))
+					$out_fields[DAO_TimeTrackingEntry::TIME_ACTUAL_MINS] = ceil(intval($value) / 60);
+				break;
 		}
 		
 		return true;
