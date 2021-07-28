@@ -21,15 +21,33 @@ class FileUploadAwait extends AbstractAwait {
 			->addValidator($validation->validators()->contextId(\CerberusContexts::CONTEXT_ATTACHMENT, !$is_required))
 			;
 		
-		// [TODO] Validate file types
-		// [TODO] Validate file sizes
-		
 		if($is_required)
 			$input_field_type->setRequired(true);
 	}
 	
 	function formatValue() {
 		return $this->_value;
+	}
+	
+	function setValue($key, $value, $dict) {
+		if(DevblocksPlatform::strEndsWith($key, '_id')) {
+			$id_key_prefix = substr($key, 0, -3);
+		} else {
+			$id_key_prefix = $key;
+		}
+		
+		if(is_array($dict)) {
+			$dict[$key] = $value;
+			$dict[$id_key_prefix . '__context'] = \CerberusContexts::CONTEXT_ATTACHMENT;
+			$dict[$id_key_prefix . '_id'] = $value;
+			
+		} elseif ($dict instanceof \DevblocksDictionaryDelegate) {
+			$dict->set($key, $value);
+			$dict->set($id_key_prefix . '__context', \CerberusContexts::CONTEXT_ATTACHMENT);
+			$dict->set($id_key_prefix . '_id', $value);
+		}
+		
+		return $dict;
 	}
 	
 	function render(Model_AutomationContinuation $continuation) {

@@ -19,4 +19,14 @@ abstract class AbstractAwait {
 	abstract function formatValue();
 	abstract function render(Model_AutomationContinuation $continuation);
 	abstract function invoke(string $prompt_key, string $action, Model_AutomationContinuation $continuation);
+	
+	function setValue($key, $value, $dict) {
+		if($dict instanceof \DevblocksDictionaryDelegate) {
+			$dict->set($key, $value);
+		} elseif (is_array($dict)) {
+			$dict[$key] = $value;
+		}
+		
+		return $dict;
+	}
 }

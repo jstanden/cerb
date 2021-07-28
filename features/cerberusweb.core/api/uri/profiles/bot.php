@@ -2159,9 +2159,9 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 					$is_set = (is_string($prompt_value) && strlen($prompt_value))
 						|| (is_array($prompt_value) && count($prompt_value));
 					
+					$component = new $form_components[$last_prompt_type]($prompt_set_key, $prompt_value, $last_prompt);
+					
 					if ($is_required || $is_set) {
-						$component = new $form_components[$last_prompt_type]($prompt_set_key, $prompt_value, $last_prompt);
-						
 						$component->validate($validation);
 						
 						$validation_values[$prompt_set_key] = $prompt_value;
@@ -2170,7 +2170,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 						if(array_key_exists('validation', $last_prompt)) {
 							$validation_set_key = $prompt_set_key . '__custom';
 							$validation_dict = DevblocksDictionaryDelegate::instance($initial_state);
-							$validation_dict->set($prompt_set_key, $prompt_value);
+							$component->setValue($prompt_set_key, $prompt_value, $validation_dict);
 							
 							// The validation template must be a string
 							if(is_string($last_prompt['validation'])) {
@@ -2205,7 +2205,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 						}
 					}
 					
-					$initial_state[$prompt_set_key] = $prompt_value;
+					$initial_state = $component->setValue($prompt_set_key, $prompt_value, $initial_state);
 				}
 			}
 			
