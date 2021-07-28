@@ -735,17 +735,15 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		$num_messages_in = 0;
 		$num_messages_out = 0;
 		
-		// If no messages, delete the ticket
-		if(empty($first_message) && empty($last_message)) {
-			$fields = [
-				DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_DELETED,
-			];
-			DAO_Ticket::update($id, $fields, false);
-			
-			return false;
-		}
-		
-		$fields = [];
+		$fields = [
+			DAO_Ticket::FIRST_MESSAGE_ID => 0,
+			DAO_Ticket::FIRST_WROTE_ID => 0,
+			DAO_Ticket::LAST_MESSAGE_ID => 0,
+			DAO_Ticket::LAST_WROTE_ID => 0,
+			DAO_Ticket::FIRST_OUTGOING_MESSAGE_ID => 0,
+			DAO_Ticket::ELAPSED_RESPONSE_FIRST => 0,
+			DAO_Ticket::ELAPSED_RESOLUTION_FIRST => 0,
+		];
 		
 		// Reindex the first message
 		if($first_message) {
