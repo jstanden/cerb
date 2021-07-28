@@ -1377,6 +1377,8 @@ class CerberusParser {
 				'email_body' => $model->getMessage()->body,
 				'email_body_html' => $model->getMessage()->htmlbody,
 				'email_recipients' => $model->getRecipients(),
+				'parent_ticket__context' => CerberusContexts::CONTEXT_TICKET,
+				'parent_ticket_id' => $model->getTicketId(),
 			];
 			
 			$events_kata = DAO_AutomationEvent::getKataByName('mail.route');
