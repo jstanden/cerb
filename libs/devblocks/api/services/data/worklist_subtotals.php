@@ -40,6 +40,10 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 					'snippet' => 'by.sum:[${1}]',
 				],
 				[
+					'caption' => 'by.distinct:',
+					'snippet' => 'by.distinct:[${1}]',
+				],
+				[
 					'caption' => 'by.min:',
 					'snippet' => 'by.min:[${1}]',
 				],
@@ -68,6 +72,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			'by.count:' => [],
 			'by.avg:' => [],
 			'by.sum:' => [],
+			'by.distinct:' => [],
 			'by.min:' => [],
 			'by.max:' => [],
 			'query:' => [],
@@ -107,6 +112,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 					$suggestions['by.count:'] = $of_suggestions;
 					$suggestions['by.avg:'] = $of_suggestions;
 					$suggestions['by.sum:'] = $of_suggestions;
+					$suggestions['by.distinct:'] = $of_suggestions;
 					$suggestions['by.min:'] = $of_suggestions;
 					$suggestions['by.max:'] = $of_suggestions;
 				}
@@ -304,6 +310,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		$func_map = [
 			'avg' => 'AVG',
 			'average' => 'AVG',
+			'distinct' => null,
 			'sum' => 'SUM',
 			'min' => 'MIN',
 			'max' => 'MAX',
@@ -311,7 +318,13 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		
 		if(array_key_exists($chart_model['function'], $func_map)) {
 			$func_field = array_pop($by_fields);
-			$func = sprintf('%s(%s)', $func_map[$chart_model['function']], $func_field['sql_select']);
+			
+			if('distinct' == $chart_model['function']) {
+				$func = sprintf('COUNT(DISTINCT %s)', $func_field['sql_select']);
+			} else {
+				$func = sprintf('%s(%s)', $func_map[$chart_model['function']], $func_field['sql_select']);
+			}
+			
 		}
 		
 		// Pre-filter
@@ -388,7 +401,12 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		
 		if($by_fields && array_key_exists('group', $chart_model) && is_array($chart_model['group']) && !empty($chart_model['group'])) {
 			$group_func = @$chart_model['group_function'] ?: 'sum';
-			$group_func_select = sprintf('%s(_stats.hits)', $func_map[$group_func]);
+			
+			if('distinct' == $group_func) {
+				$group_func_select = 'COUNT(DISTINCT _stats.hits)';
+			} else {
+				$group_func_select = sprintf('%s(_stats.hits)', $func_map[$group_func]);
+			}
 			
 			$outer_sql = sprintf("SELECT %s AS hits, %s FROM (%s) AS _stats GROUP BY %s",
 				$group_func_select,
@@ -1035,6 +1053,10 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 					case 'avg':
 					case 'average':
 						$func_label = 'Avg.';
+						break;
+						
+					case 'distinct':
+						$func_label = 'Distinct';
 						break;
 						
 					case 'max':
