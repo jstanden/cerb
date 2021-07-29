@@ -20,7 +20,9 @@ class TextAwait extends AbstractAwait {
 		
 		switch ($prompt_type) {
 			case 'freeform':
-				$input_field_type = $input_field->string();
+				$input_field_type = $input_field->string()
+					->setMaxLength(1024)
+				;
 				break;
 				
 			case 'bool':
@@ -95,17 +97,24 @@ class TextAwait extends AbstractAwait {
 				break;
 			
 			case 'url':
-				$input_field_type = $input_field->url();
+				$input_field_type = $input_field->url()
+					->setMaxLength(2048)
+				;
 				break;
 			
 			default:
 				// [TODO] Error on unknown
-				$input_field_type = $input_field->string();
+				$input_field_type = $input_field->string()
+					->setMaxLength(1024)
+				;
 				break;
 		}
 		
 		if($is_required)
 			$input_field_type->setRequired(true);
+		
+		if(array_key_exists('max_length', $this->_data) && is_numeric($this->_data['max_length']) && $this->_data['max_length'])
+			$input_field_type->setMaxLength($this->_data['max_length']);
 	}
 	
 	function formatValue() {
