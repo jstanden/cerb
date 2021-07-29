@@ -1316,7 +1316,7 @@ class CerberusMail {
 			switch($content_format) {
 				case 'markdown':
 				case 'parsedown':
-					self::_generateMailBodyMarkdown($email, $properties, null, null);
+					self::_generateMailBodyMarkdown($email, $properties);
 					break;
 				
 				default:
