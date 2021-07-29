@@ -57,12 +57,16 @@ class Page_Login extends CerberusPageExtension {
 		 * Log activity (worker.login.failed)
 		 */
 		$ip_address = DevblocksPlatform::getClientIp() ?: 'an unknown IP';
-		$user_agent = DevblocksPlatform::getClientUserAgent();
-		$user_agent_string = sprintf("%s%s%s",
-			$user_agent['browser'],
-			!empty($user_agent['version']) ? (' ' . $user_agent['version']) : '',
-			!empty($user_agent['platform']) ? (' for ' . $user_agent['platform']) : ''
-		);
+		
+		if(null != ($user_agent = DevblocksPlatform::getClientUserAgent()) && is_array($user_agent)) {
+			$user_agent_string = sprintf("%s%s%s",
+				($user_agent['browser'] ?? '(unknown browser)'),
+				!empty($user_agent['version']) ? (' ' . $user_agent['version']) : '',
+				!empty($user_agent['platform']) ? (' for ' . $user_agent['platform']) : ''
+			);
+		} else {
+			$user_agent_string = '(unknown user agent)';
+		}
 		
 		$entry = [
 			//{{ip}} failed to log in as {{target}} using {{user_agent}}
@@ -159,7 +163,7 @@ class Page_Login extends CerberusPageExtension {
 		// Warn about old browsers
 		$user_agent = DevblocksPlatform::getClientUserAgent();
 
-		if('MSIE' == $user_agent['browser']) {
+		if(is_array($user_agent) && 'MSIE' == @$user_agent['browser']) {
 			$tpl->assign('user_agent', $user_agent);
 			$tpl->display('devblocks:cerberusweb.core::login/unsupported_browser.tpl');
 			
@@ -838,12 +842,16 @@ class Page_Login extends CerberusPageExtension {
 		 * Log activity (worker.logged_in)
 		 */
 		$ip_address = DevblocksPlatform::getClientIp() ?: 'an unknown IP';
-		$user_agent = DevblocksPlatform::getClientUserAgent();
-		$user_agent_string = sprintf("%s%s%s",
-			$user_agent['browser'],
-			!empty($user_agent['version']) ? (' ' . $user_agent['version']) : '',
-			!empty($user_agent['platform']) ? (' for ' . $user_agent['platform']) : ''
-		);
+		
+		if(null != ($user_agent = DevblocksPlatform::getClientUserAgent())) {
+			$user_agent_string = sprintf("%s%s%s",
+				$user_agent['browser'],
+				!empty($user_agent['version']) ? (' ' . $user_agent['version']) : '',
+				!empty($user_agent['platform']) ? (' for ' . $user_agent['platform']) : ''
+			);
+		} else {
+			$user_agent_string = '(unknown user agent)';
+		}
 		
 		$entry = [
 			//{{actor}} logged in from {{ip}} using {{user_agent}}

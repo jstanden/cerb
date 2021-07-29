@@ -129,7 +129,7 @@ $(function() {
 	
 	{$user_agent = DevblocksPlatform::getClientUserAgent()}
 	
-	{if $user_agent && 0 != strcasecmp($user_agent.platform, 'Android')}
+	{if is_array($user_agent) && 0 != strcasecmp($user_agent.platform, 'Android')}
 	$tabs.find('ul')
 		.find('> li.drag')
 		.hoverIntent({

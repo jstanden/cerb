@@ -440,10 +440,10 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		$client_browser = '';
 		$client_browser_version = '';
 		
-		if(false !== ($client_user_agent_parts = DevblocksPlatform::getClientUserAgent())) {
-			$client_platform = @$client_user_agent_parts['platform'] ?: '';
-			$client_browser = @$client_user_agent_parts['browser'] ?: '';
-			$client_browser_version = @$client_user_agent_parts['version'] ?: '';
+		if(null != ($client_user_agent_parts = DevblocksPlatform::getClientUserAgent())) {
+			$client_platform = $client_user_agent_parts['platform'] ?? '';
+			$client_browser = $client_user_agent_parts['browser'] ?? '';
+			$client_browser_version = $client_user_agent_parts['version'] ?? '';
 		}
 		
 		$behavior_dict = DevblocksDictionaryDelegate::instance([]);
@@ -514,10 +514,10 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		$client_url = @$browser['url'] ?: '';
 		$client_time = @$browser['time'] ?: '';
 		
-		if(false != (@$client_user_agent_parts = DevblocksPlatform::getClientUserAgent())) {
-			$client_platform = @$client_user_agent_parts['platform'] ?: '';
-			$client_browser = @$client_user_agent_parts['browser'] ?: '';
-			$client_browser_version = @$client_user_agent_parts['version'] ?: '';
+		if(null != ($client_user_agent_parts = DevblocksPlatform::getClientUserAgent())) {
+			$client_platform = $client_user_agent_parts['platform'] ?? '';
+			$client_browser = $client_user_agent_parts['browser'] ?? '';
+			$client_browser_version = $client_user_agent_parts['version'] ?? '';
 		}
 		
 		$event_model = new Model_DevblocksEvent(

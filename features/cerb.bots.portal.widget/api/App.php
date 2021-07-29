@@ -78,7 +78,7 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 						$client_url = @$browser['url'] ?: '';
 						$client_time = @$browser['time'] ?: '';
 						
-						if(false !== ($client_user_agent_parts = DevblocksPlatform::getClientUserAgent())) {
+						if(null != ($client_user_agent_parts = DevblocksPlatform::getClientUserAgent())) {
 							$client_platform = @$client_user_agent_parts['platform'] ?: '';
 							$client_browser = @$client_user_agent_parts['browser'] ?: '';
 							$client_browser_version = @$client_user_agent_parts['version'] ?: '';
