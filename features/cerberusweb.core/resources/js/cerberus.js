@@ -4272,6 +4272,16 @@ var ajax = new cAjaxCalls();
 					formData.set('interaction_style', 'inline');
 					
 					genericAjaxPost(formData, null, null, function(json) {
+						// Polymorph old HTML responses
+						if('string' == typeof json) {
+							var html = json;
+
+							json = {
+								'exit': 'await',
+								'html': html
+							};
+						}
+
 						if('object' != typeof json)
 							return;
 
@@ -4311,6 +4321,16 @@ var ajax = new cAjaxCalls();
 					
 					// This returns JSON now to control the popup before it opens
 					genericAjaxPost(formData, null, null, function(json) {
+						// Polymorph old HTML responses
+						if('string' == typeof json) {
+							var html = json;
+							
+							json = {
+								'exit': 'await',
+								'html': html
+							};
+						}
+						
 						if('object' != typeof json)
 							return;
 						
