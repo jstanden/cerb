@@ -55,8 +55,8 @@
 						{foreach from=$f->params.options item=opt}
 							<select name="{$field_name}[]">
 								<option value=""></option>
-								<option value="+{$opt}" {if is_array($custom_field_values.$f_id) && in_array($opt, $custom_field_values.$f_id)}selected{/if}>set</option>
-								<option value="-{$opt}">unset</option>
+								<option value="+{$opt}" {if is_array($custom_field_values.$f_id) && (in_array($opt, $custom_field_values.$f_id) || in_array("+{$opt}", $custom_field_values.$f_id))}selected{/if}>set</option>
+								<option value="-{$opt}" {if is_array($custom_field_values.$f_id) && in_array("-{$opt}", $custom_field_values.$f_id)}selected{/if}>unset</option>
 							</select>
 							{$opt}
 							<br>
