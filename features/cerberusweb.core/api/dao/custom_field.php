@@ -78,6 +78,11 @@ class DAO_CustomField extends Cerb_ORMHelper {
 			->setMaxLength(200)
 			->setRequired(true)
 			->setUniqueCallback(function(DevblocksValidationField $field, $value, array $scope, &$error=null) {
+				if(is_numeric($value)) {
+					$error = "Custom field URIs can't be entirely numeric.";
+					return false;
+				}
+				
 				if(DevblocksPlatform::strStartsWith($value, 'custom_')) {
 					$error = "Custom field URIs can't start with `custom_`.";
 					return false;
