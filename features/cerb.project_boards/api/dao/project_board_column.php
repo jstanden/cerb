@@ -611,18 +611,15 @@ class Model_ProjectBoardColumn {
 		$error = null;
 		
 		$dict = clone $card;
-		
-		$dict->set('board__context', Context_ProjectBoard::ID);
-		$dict->set('board_id', $this->board_id);
-		$dict->set('worker_context', CerberusContexts::CONTEXT_WORKER);
-		$dict->set('worker_context', $active_worker->id ?? 0);
+		$dict->mergeKeys('board_', DevblocksDictionaryDelegate::getDictionaryFromModel($this->getProjectBoard(), Context_ProjectBoard::ID));
+		$dict->mergeKeys('worker_', DevblocksDictionaryDelegate::getDictionaryFromModel($active_worker, CerberusContexts::CONTEXT_WORKER));
 		
 		$handlers = $event_handler->parse($this->cards_kata, $dict, $error);
 		
 		$results = $event_handler->handleOnce(
 			AutomationTrigger_ProjectBoardRenderCard::ID,
 			$handlers,
-			$card->getDictionary(),
+			$dict->getDictionary(),
 			$error
 		);
 		
@@ -646,15 +643,12 @@ class Model_ProjectBoardColumn {
 		$error = null;
 		
 		$dict = DevblocksDictionaryDelegate::instance([
-			'board__context' => Context_ProjectBoard::ID,
-			'board_id' => $this->board_id,
 			'card__context' => $context,
 			'card_id' => $context_id,
-			'column__context' => Context_ProjectBoardColumn::ID,
-			'column_id' => $this->id,
-			'worker__context' => CerberusContexts::CONTEXT_WORKER,
-			'worker_id' => $active_worker->id ?? 0
 		]);
+		$dict->mergeKeys('board_', DevblocksDictionaryDelegate::getDictionaryFromModel($this->getProjectBoard(), Context_ProjectBoard::ID));
+		$dict->mergeKeys('column_', DevblocksDictionaryDelegate::getDictionaryFromModel($this, Context_ProjectBoardColumn::ID));
+		$dict->mergeKeys('worker_', DevblocksDictionaryDelegate::getDictionaryFromModel($active_worker, CerberusContexts::CONTEXT_WORKER));
 		
 		$handlers = $event_handler->parse($this->functions_kata, $dict, $error);
 		

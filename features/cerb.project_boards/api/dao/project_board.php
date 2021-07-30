@@ -453,12 +453,8 @@ class Model_ProjectBoard {
 		$event_handler = DevblocksPlatform::services()->ui()->eventHandler();
 		
 		$dict = clone $card;
-		
-		// [TODO] Make this more efficient
-		$dict->set('board_context', Context_ProjectBoard::ID);
-		$dict->set('board_id', $this->id);
-		$dict->set('worker_context', CerberusContexts::CONTEXT_WORKER);
-		$dict->set('worker_context', $active_worker->id ?? 0);
+		$dict->mergeKeys('board_', DevblocksDictionaryDelegate::getDictionaryFromModel($this, Context_ProjectBoard::ID));
+		$dict->mergeKeys('worker_', DevblocksDictionaryDelegate::getDictionaryFromModel($active_worker, CerberusContexts::CONTEXT_WORKER));
 		
 		$card_handlers = $event_handler->parse($this->cards_kata, $dict);
 		
