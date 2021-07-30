@@ -532,12 +532,11 @@ class Model_AutomationTimer {
 		
 		try {
 			$dict = DevblocksDictionaryDelegate::instance([]);
+			$dict->mergeKeys('timer_', DevblocksDictionaryDelegate::getDictionaryFromModel($this, CerberusContexts::CONTEXT_AUTOMATION_TIMER));
 			
 			$handlers = $event_handler->parse($this->automations_kata, $dict, $error);
 			
-			$dict = DevblocksDictionaryDelegate::getDictionaryFromModel($this, CerberusContexts::CONTEXT_AUTOMATION_TIMER);
-			
-			$initial_state = $dict->getDictionary(null, false, 'timer_');
+			$initial_state = $dict->getDictionary(null, false);
 			
 			$automation_results = $event_handler->handleOnce(
 				AutomationTrigger_AutomationTimer::ID,
