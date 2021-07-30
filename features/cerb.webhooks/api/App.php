@@ -6,37 +6,31 @@ class Controller_Webhooks implements DevblocksHttpRequestHandler {
 		array_shift($stack); // webhooks
 		@$guid = array_shift($stack); // guid
 		
-		$path = implode('/', $stack);
-		
 		if(!$guid)
 			DevblocksPlatform::dieWithHttpError(null, 404);
 			
 		if(false == ($webhook = DAO_WebhookListener::getByGUID($guid)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
-		$dict = DevblocksDictionaryDelegate::instance([
-			'webhook__context' => CerberusContexts::CONTEXT_WEBHOOK_LISTENER,
-			'webhook_id' => $webhook->id,
-		]);
-		
 		$error = null;
 		
 		$request_headers = DevblocksPlatform::getHttpHeaders() ?: [];
 		unset($request_headers['cookie']);
 		
-		$initial_state = [
+		$dict = DevblocksDictionaryDelegate::instance([
 			'request_method' => DevblocksPlatform::strUpper($_SERVER['REQUEST_METHOD']),
 			'request_body' => DevblocksPlatform::getHttpBody(),
 			'request_client_ip' => DevblocksPlatform::getClientIp(),
 			'request_headers' => $request_headers,
 			'request_params' => DevblocksPlatform::getHttpParams(),
-			'request_path' => $path,
-		];
+			'request_path' => implode('/', $stack),
+		]);
+		$dict->mergeKeys('webhook_', DevblocksDictionaryDelegate::getDictionaryFromModel($webhook, CerberusContexts::CONTEXT_WEBHOOK_LISTENER));
 		
-		$this->respond($initial_state, $webhook->automations_kata, $dict, $error);
+		$this->respond($webhook->automations_kata, $dict, $error);
 	}
 	
-	public function respond(array $initial_state, string $automations_kata, DevblocksDictionaryDelegate $dict, &$error=null) {
+	public function respond(string $automations_kata, DevblocksDictionaryDelegate $dict, &$error=null) {
 		$event_handler = DevblocksPlatform::services()->ui()->eventHandler();
 		
 		$handlers = $event_handler->parse($automations_kata, $dict, $error);
@@ -44,9 +38,9 @@ class Controller_Webhooks implements DevblocksHttpRequestHandler {
 		$automation_results = $event_handler->handleOnce(
 			AutomationTrigger_WebhookRespond::ID,
 			$handlers,
-			$initial_state,
+			$dict->getDictionary(),
 			$error,
-			function(Model_TriggerEvent $behavior, array $handler) use ($initial_state) {
+			function(Model_TriggerEvent $behavior, array $handler) use ($dict) {
 				if($behavior->event_point != Event_WebhookReceived::ID)
 					return false;
 				
@@ -61,12 +55,12 @@ class Controller_Webhooks implements DevblocksHttpRequestHandler {
 				$variables = [];
 				
 				$http_request = [
-					'body' => $initial_state['request_body'] ?? '',
-					'client_ip' => $initial_state['request_client_ip'] ?? '',
-					'headers' => $initial_state['request_headers'] ?? '',
-					'params' => $initial_state['request_params'] ?? '',
-					'path' => $initial_state['request_path'] ?? '',
-					'verb' => $initial_state['request_method'] ?? '',
+					'body' => $dict->get('request_body', ''),
+					'client_ip' => $dict->get('request_client_ip', ''),
+					'headers' => $dict->get('request_headers', ''),
+					'params' => $dict->get('request_params', ''),
+					'path' => $dict->get('request_path', ''),
+					'verb' => $dict->get('request_method', ''),
 				];
 				
 				$dicts = Event_WebhookReceived::trigger($behavior->id, $http_request, $variables);
@@ -188,21 +182,17 @@ class Portal_Webhook extends Extension_CommunityPortal {
 		$request_headers = DevblocksPlatform::getHttpHeaders() ?: [];
 		unset($request_headers['cookie']);
 		
-		$initial_state = [
+		$dict = DevblocksDictionaryDelegate::instance([
 			'request_method' => DevblocksPlatform::strUpper($_SERVER['REQUEST_METHOD']),
 			'request_body' => DevblocksPlatform::getHttpBody(),
 			'request_client_ip' => DevblocksPlatform::getClientIp(),
 			'request_headers' => $request_headers,
 			'request_params' => DevblocksPlatform::getHttpParams(),
 			'request_path' => implode('/', $path),
-		];
-		
-		$dict = DevblocksDictionaryDelegate::instance([
-			'portal__context' => CerberusContexts::CONTEXT_PORTAL,
-			'portal_id' => $portal->id,
 		]);
+		$dict->mergeKeys('portal_', DevblocksDictionaryDelegate::getDictionaryFromModel($portal, CerberusContexts::CONTEXT_PORTAL));	
 		
-		$controller->respond($initial_state, $automations_kata, $dict, $error);
+		$controller->respond($automations_kata, $dict, $error);
 	}
 	
 	/**
