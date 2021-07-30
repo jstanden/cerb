@@ -616,9 +616,9 @@ abstract class Extension_ResourceType extends DevblocksExtension {
 			
 			$content_data->data = fopen('php://memory', 'w');
 			
-			$dict = DevblocksDictionaryDelegate::getDictionaryFromModel($resource, CerberusContexts::CONTEXT_RESOURCE);
-			$dict->set('actor__context', CerberusContexts::CONTEXT_WORKER);
-			$dict->set('actor_id', $active_worker->id ?? 0);
+			$dict = DevblocksDictionaryDelegate::instance([]); 
+			$dict->mergeKeys('resource_', DevblocksDictionaryDelegate::getDictionaryFromModel($resource, CerberusContexts::CONTEXT_RESOURCE));
+			$dict->mergeKeys('actor_', DevblocksDictionaryDelegate::getDictionaryFromModel($active_worker, CerberusContexts::CONTEXT_WORKER));
 			
 			$handlers = $event_handler->parse($resource->automation_kata, $dict, $error);
 			
