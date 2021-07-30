@@ -313,6 +313,7 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 		unset($params['view_id']);
 		unset($params['draft_id']);
 		unset($params['group_or_bucket_id']);
+		unset($params['custom_fieldset_deletes']);
 		unset($params['_csrf_token']);
 		
 		// Custom fields
@@ -423,6 +424,7 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 		unset($params['is_ajax']);
 		unset($params['ticket_id']);
 		unset($params['ticket_mask']);
+		unset($params['custom_fieldset_deletes']);
 		unset($params['_csrf_token']);
 		
 		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'],'array',[]);

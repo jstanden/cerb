@@ -1660,6 +1660,42 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 			$token_values['ticket_id'] = $object->ticket_id;
 			$token_values['worker_id'] = $object->worker_id;
 			
+			// Synthesize `custom_fields_uri` for easier comparisons
+			if(array_key_exists('custom_fields', $token_values['params']) && is_array($token_values['params']['custom_fields'])) {
+				$ticket_custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET);
+				
+				$token_values['params']['custom_fields_uri'] = 
+					array_combine(
+						array_map(
+							function($id) use ($ticket_custom_fields) {
+								if(array_key_exists($id, $ticket_custom_fields))
+									return $ticket_custom_fields[$id]->uri;
+								return $id;
+							},
+							array_keys($token_values['params']['custom_fields'])
+						),
+						$token_values['params']['custom_fields']
+					);
+			}
+			
+			// Synthesize `message_custom_fields_uri` for easier comparisons
+			if(array_key_exists('message_custom_fields', $token_values['params']) && is_array($token_values['params']['message_custom_fields'])) {
+				$message_custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_MESSAGE);
+				
+				$token_values['params']['message_custom_fields_uri'] = 
+					array_combine(
+						array_map(
+							function($id) use ($message_custom_fields) {
+								if(array_key_exists($id, $message_custom_fields))
+									return $message_custom_fields[$id]->uri;
+								return $id;
+							},
+							array_keys($token_values['params']['message_custom_fields'])
+						),
+						$token_values['params']['message_custom_fields']
+					);
+			}
+			
 			// Deprecated
 			$token_values['subject'] = $object->name;
 			
@@ -1793,6 +1829,42 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 				if(!is_array($value)) {
 					$error = 'must be an object.';
 					return false;
+				}
+				
+				// Normalize custom field keys (uri->id)
+				if(array_key_exists('custom_fields', $value) && is_array($value['custom_fields'])) {
+					$ticket_custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET);
+					$ticket_custom_fields_by_uri = array_column($ticket_custom_fields, 'id', 'uri');
+					
+					$value['custom_fields'] = array_combine(
+						array_map(
+							function($key) use ($ticket_custom_fields_by_uri) {
+								if(!is_numeric($key) && array_key_exists($key, $ticket_custom_fields_by_uri))
+									return $ticket_custom_fields_by_uri[$key];
+								return $key;
+							},
+							array_keys($value['custom_fields']),
+						),	
+						$value['custom_fields']
+					);
+				}
+				
+				// Normalize message custom field keys (uri->id)
+				if(array_key_exists('message_custom_fields', $value) && is_array($value['message_custom_fields'])) {
+					$message_custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_MESSAGE);
+					$message_custom_fields_by_uri = array_column($message_custom_fields, 'id', 'uri');
+					
+					$value['message_custom_fields'] = array_combine(
+						array_map(
+							function($key) use ($message_custom_fields_by_uri) {
+								if(!is_numeric($key) && array_key_exists($key, $message_custom_fields_by_uri))
+									return $message_custom_fields_by_uri[$key];
+								return $key;
+							},
+							array_keys($value['message_custom_fields']),
+						),
+						$value['message_custom_fields']
+					);
 				}
 				
 				if(false == ($json = json_encode($value))) {
