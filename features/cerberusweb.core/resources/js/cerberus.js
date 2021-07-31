@@ -4288,7 +4288,7 @@ var ajax = new cAjaxCalls();
 						if(!json.hasOwnProperty('exit'))
 							return;
 
-						if('return' === json.exit) {
+						if('return' === json.exit || 'exit' === json.exit) {
 							if(options && options.done && 'function' == typeof options.done) {
 								options.done($.Event('cerb-interaction-done', { trigger: $trigger, eventData: json }));
 							}
@@ -4338,7 +4338,7 @@ var ajax = new cAjaxCalls();
 							return;
 						
 						// Return right away without the popup
-						if('return' === json.exit) {
+						if('return' === json.exit || 'exit' === json.exit) {
 							if(options && options.done && 'function' == typeof options.done) {
 								options.done($.Event('cerb-interaction-done', { trigger: $trigger, eventData: json }));
 							}
