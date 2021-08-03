@@ -590,10 +590,8 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		if(array_key_exists('bucket_id', $draft->params))
 			$ticket->bucket_id = $draft->params['bucket_id'];
 		
-		if(array_key_exists('custom_fields', $draft->params)) {
-			foreach($draft->params['custom_fields'] as $field_id => $field_value)
-				$custom_field_values[$field_id] = $field_value;
-		}
+		if(array_key_exists('custom_fields', $draft->params))
+			$draft->beforeEditingCustomFields($custom_field_values);
 		
 		$custom_fieldsets_available = DAO_CustomFieldset::getUsableByActorByContext($active_worker, CerberusContexts::CONTEXT_TICKET);
 		$tpl->assign('custom_fieldsets_available', $custom_fieldsets_available);

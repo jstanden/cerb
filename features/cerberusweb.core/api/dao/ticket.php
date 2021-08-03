@@ -5657,10 +5657,8 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		
 		$custom_field_values = [];
 		
-		if(array_key_exists('custom_fields', $draft->params)) {
-			foreach($draft->params['custom_fields'] as $field_id => $field_value)
-				$custom_field_values[$field_id] = $field_value;
-		}
+		if(array_key_exists('custom_fields', $draft->params))
+			$draft->beforeEditingCustomFields($custom_field_values);
 		
 		$custom_fieldsets_linked = DAO_CustomFieldset::getByFieldIds(array_keys(array_filter($custom_field_values, fn($v) => !is_null($v))));
 		$tpl->assign('custom_fieldsets_linked', $custom_fieldsets_linked);

@@ -1041,6 +1041,30 @@ class Model_MailQueue {
 		
 		return CerberusMail::sendTicketMessage($properties);
 	}
+	
+	public function beforeEditingCustomFields(array &$custom_field_values) {
+		$ticket_custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET);
+		
+		foreach($this->params['custom_fields'] as $field_id => $field_value) {
+			if(!array_key_exists($field_id, $ticket_custom_fields))
+				continue;
+			
+			switch($ticket_custom_fields[$field_id]->type) {
+				case Model_CustomField::TYPE_CURRENCY:
+					if(false == ($currency = DAO_Currency::get($ticket_custom_fields[$field_id]->params['currency_id'] ?? 0)))
+						break;
+					
+					$field_value = DevblocksPlatform::strParseDecimal($field_value, $currency->decimal_at);
+					break;
+				
+				case Model_CustomField::TYPE_DECIMAL:
+					$field_value = DevblocksPlatform::strParseDecimal($field_value, $ticket_custom_fields[$field_id]->params['decimal_at'] ?? 0);
+					break;
+			}
+			
+			$custom_field_values[$field_id] = $field_value;
+		}
+	}
 };
 
 class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {

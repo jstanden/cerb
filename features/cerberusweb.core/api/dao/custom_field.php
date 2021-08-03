@@ -680,9 +680,43 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 		return $table;
 	}
 	
+	public static function preValidateFieldValues($values) : array {
+		if(!is_array($values))
+			return [];
+		
+		$fields = DAO_CustomField::getAll();
+		
+		$values = self::formatFieldValues($values);
+		
+		foreach($values as $field_id => $value) {
+			if(!isset($fields[$field_id]))
+				continue;
+			
+			$field =& $fields[$field_id]; /* @var $field Model_CustomField */
+			
+			switch($field->type) {
+				case Model_CustomField::TYPE_CURRENCY:
+					@$currency_id = $field->params['currency_id'];
+					
+					if($currency_id && false !=  ($currency = DAO_Currency::get($currency_id))) {
+						$values[$field_id] = DevblocksPlatform::strParseDecimal($value, $currency->decimal_at, '.');
+					}
+					break;
+				
+				case Model_CustomField::TYPE_DECIMAL:
+					@$decimal_at = $field->params['decimal_at'];
+					$values[$field_id] = DevblocksPlatform::strParseDecimal($value, $decimal_at, '.');
+					break;
+			}
+		}
+		
+		return $values;
+	}
+	
+	// [TODO] Convert to extensions
 	public static function formatFieldValues($values) {
 		if(!is_array($values))
-			return;
+			return [];
 
 		$fields = DAO_CustomField::getAll();
 		$output = [];
@@ -699,8 +733,10 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					$value = (strlen($value) > 255) ? substr($value,0,255) : $value;
 					break;
 
-				case Model_CustomField::TYPE_MULTI_LINE:
+				case Model_CustomField::TYPE_CURRENCY:
+				case Model_CustomField::TYPE_DECIMAL:
 				case Model_CustomField::TYPE_LIST:
+				case Model_CustomField::TYPE_MULTI_LINE:
 					break;
 
 				case Model_CustomField::TYPE_DROPDOWN:
@@ -754,19 +790,6 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					}
 					break;
 
-				case Model_CustomField::TYPE_CURRENCY:
-					@$currency_id = $field->params['currency_id'];
-					
-					if($currency_id && false !=  ($currency = DAO_Currency::get($currency_id))) {
-						$value = DevblocksPlatform::strParseDecimal($value, $currency->decimal_at, '.');
-					}
-					break;
-					
-				case Model_CustomField::TYPE_DECIMAL:
-					@$decimal_at = $field->params['decimal_at'];
-					$value = DevblocksPlatform::strParseDecimal($value, $decimal_at, '.');
-					break;
-					
 				case Model_CustomField::TYPE_FILE:
 				case Model_CustomField::TYPE_NUMBER:
 				case Model_CustomField::TYPE_WORKER:
@@ -831,8 +854,6 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 	 * @return void
 	 */
 	public static function formatAndSetFieldValues($context, $context_id, $values, $is_blank_unset=true, $delta=false, $autoadd_options=false) {
-		// [TODO] This could probably be combined with ::formatFieldValues()
-		
 		if(empty($context) || empty($context_id) || !is_array($values))
 			return;
 		
@@ -1357,7 +1378,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 		});
 		
 		// Format values before validation
-		$field_values_to_validate = self::formatFieldValues($field_values_to_validate);
+		$field_values_to_validate = self::preValidateFieldValues($field_values_to_validate);
 		
 		// Validate
 		if(!DevblocksORMHelper::validateCustomFields($field_values_to_validate, $context, $error, $context_id))
