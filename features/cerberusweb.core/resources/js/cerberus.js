@@ -61,48 +61,108 @@ var cerbAutocompleteSuggestions = {
 			'deny@bool: yes'
 		],
 		'commands:function:': [
-			'allow@bool: yes',
-			'deny@bool: yes'
+			'deny@bool: yes',
+			{
+				'caption': 'deny/uri:',
+				'snippet': "deny/uri@bool: {{uri != 'cerb:automation:example.name'}}",
+				'docHTML': 'Validate function automation URI'
+			},
+			'allow@bool: yes'
 		],
 		'commands:http.request:': [
-			'allow@bool: yes',
-			'deny@bool: yes'
+			{
+				'caption': 'deny/method:',
+				'snippet': "deny/method@bool: {{inputs.method not in ['GET']}}",
+				'docHTML': 'Validate HTTP method'
+			},
+			{
+				'caption': 'deny/url:',
+				'snippet': "deny/url@bool: {{inputs.url is not prefixed ('https://')}}",
+				'docHTML': 'Validate HTTP URL'
+			},
+			'deny@bool: yes',
+			'allow@bool: yes'
 		],
 		'commands:record.create:': [
+			{
+				'caption': 'deny/type:',
+				'snippet': "deny/type@bool: {{inputs.record_type is not record type ('task','ticket')}}",
+				'docHTML': 'Validate record type'
+			},
+			'deny@bool: yes',
 			'allow@bool: yes',
-			'deny@bool: yes'
 		],
 		'commands:record.delete:': [
-			'allow@bool: yes',
-			'deny@bool: yes'
+			{
+				'caption': 'deny/type:',
+				'snippet': "deny/type@bool: {{inputs.record_type is not record type ('task','ticket')}}",
+				'docHTML': 'Validate record type'
+			},
+			'deny@bool: yes',
+			'allow@bool: yes'
 		],
 		'commands:record.get:': [
-			'allow@bool: yes',
-			'deny@bool: yes'
+			{
+				'caption': 'deny/type:',
+				'snippet': "deny/type@bool: {{inputs.record_type is not record type ('task','ticket')}}",
+				'docHTML': 'Validate record type'
+			},
+			'deny@bool: yes',
+			'allow@bool: yes'
 		],
 		'commands:record.search:': [
-			'allow@bool: yes',
-			'deny@bool: yes'
+			{
+				'caption': 'deny/type:',
+				'snippet': "deny/type@bool: {{inputs.record_type is not record type ('task','ticket')}}",
+				'docHTML': 'Validate record type'
+			},
+			'deny@bool: yes',
+			'allow@bool: yes'
 		],
 		'commands:record.update:': [
-			'allow@bool: yes',
-			'deny@bool: yes'
+			{
+				'caption': 'deny/type:',
+				'snippet': "deny/type@bool: {{inputs.record_type is not record type ('task','ticket')}}",
+				'docHTML': 'Validate record type'
+			},
+			'deny@bool: yes',
+			'allow@bool: yes'
 		],
 		'commands:record.upsert:': [
-			'allow@bool: yes',
-			'deny@bool: yes'
+			{
+				'caption': 'deny/type:',
+				'snippet': "deny/type@bool: {{inputs.record_type is not record type ('task','ticket')}}",
+				'docHTML': 'Validate record type'
+			},
+			'deny@bool: yes',
+			'allow@bool: yes'
 		],
 		'commands:storage.delete:': [
-			'allow@bool: yes',
-			'deny@bool: yes'
+			{
+				'caption': 'deny/key:',
+				'snippet': "deny/key@bool: {{inputs.key is not prefixed ('key:prefix:')}}",
+				'docHTML': 'Validate storage key'
+			},
+			'deny@bool: yes',
+			'allow@bool: yes'
 		],
 		'commands:storage.get:': [
-			'allow@bool: yes',
-			'deny@bool: yes'
+			{
+				'caption': 'deny/key:',
+				'snippet': "deny/key@bool: {{inputs.key is not prefixed ('key:prefix:')}}",
+				'docHTML': 'Validate storage key'
+			},
+			'deny@bool: yes',
+			'allow@bool: yes'
 		],
 		'commands:storage.set:': [
-			'allow@bool: yes',
-			'deny@bool: yes'
+			{
+				'caption': 'deny/key:',
+				'snippet': "deny/key@bool: {{inputs.key is not prefixed ('key:prefix:')}}",
+				'docHTML': 'Validate storage key'
+			},
+			'deny@bool: yes',
+			'allow@bool: yes'
 		],
 	},
 	kataSchemaDashboardFilters: {
