@@ -454,7 +454,9 @@ class Model_ProjectBoard {
 		
 		$dict = clone $card;
 		$dict->mergeKeys('board_', DevblocksDictionaryDelegate::getDictionaryFromModel($this, Context_ProjectBoard::ID));
-		$dict->mergeKeys('worker_', DevblocksDictionaryDelegate::getDictionaryFromModel($active_worker, CerberusContexts::CONTEXT_WORKER));
+		
+		if($active_worker)
+			$dict->mergeKeys('worker_', DevblocksDictionaryDelegate::getDictionaryFromModel($active_worker, CerberusContexts::CONTEXT_WORKER));
 		
 		$card_handlers = $event_handler->parse($this->cards_kata, $dict);
 		

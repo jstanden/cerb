@@ -917,6 +917,9 @@ class DevblocksDictionaryDelegate implements JsonSerializable, IteratorAggregate
 	}
 	
 	public function mergeKeys($key_prefix, $values) {
+		if(!is_iterable($values))
+			return;
+		
 		foreach($values as $key => $value) {
 			$this->set($key_prefix . $key,  $value);
 		}

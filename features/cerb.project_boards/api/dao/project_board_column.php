@@ -612,7 +612,9 @@ class Model_ProjectBoardColumn {
 		
 		$dict = clone $card;
 		$dict->mergeKeys('board_', DevblocksDictionaryDelegate::getDictionaryFromModel($this->getProjectBoard(), Context_ProjectBoard::ID));
-		$dict->mergeKeys('worker_', DevblocksDictionaryDelegate::getDictionaryFromModel($active_worker, CerberusContexts::CONTEXT_WORKER));
+		
+		if($active_worker)
+			$dict->mergeKeys('worker_', DevblocksDictionaryDelegate::getDictionaryFromModel($active_worker, CerberusContexts::CONTEXT_WORKER));
 		
 		$handlers = $event_handler->parse($this->cards_kata, $dict, $error);
 		
@@ -648,7 +650,9 @@ class Model_ProjectBoardColumn {
 		]);
 		$dict->mergeKeys('board_', DevblocksDictionaryDelegate::getDictionaryFromModel($this->getProjectBoard(), Context_ProjectBoard::ID));
 		$dict->mergeKeys('column_', DevblocksDictionaryDelegate::getDictionaryFromModel($this, Context_ProjectBoardColumn::ID));
-		$dict->mergeKeys('worker_', DevblocksDictionaryDelegate::getDictionaryFromModel($active_worker, CerberusContexts::CONTEXT_WORKER));
+		
+		if($active_worker)
+			$dict->mergeKeys('worker_', DevblocksDictionaryDelegate::getDictionaryFromModel($active_worker, CerberusContexts::CONTEXT_WORKER));
 		
 		$handlers = $event_handler->parse($this->functions_kata, $dict, $error);
 		
