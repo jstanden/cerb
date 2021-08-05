@@ -762,7 +762,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		foreach($messages as $message_id => $message) { /* @var $message Model_Message */
 			if($message->is_outgoing) $num_messages_out++; else $num_messages_in++;
 			
-			if($message->is_outgoing && !empty($message->worker_id) && !isset($fields[DAO_Ticket::FIRST_OUTGOING_MESSAGE_ID])) {
+			if($message->is_outgoing && $message->worker_id && empty($fields[DAO_Ticket::FIRST_OUTGOING_MESSAGE_ID])) {
 				$fields[DAO_Ticket::FIRST_OUTGOING_MESSAGE_ID] = $message_id;
 				$fields[DAO_Ticket::ELAPSED_RESPONSE_FIRST] = max($message->created_date - $ticket->created_date, 0);
 			}
