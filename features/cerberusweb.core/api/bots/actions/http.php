@@ -72,8 +72,6 @@ class BotAction_HttpRequest extends Extension_DevblocksEventAction {
 	function simulate($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
-		$out = null;
-		
 		@$http_verb = $params['http_verb'];
 		@$http_url = $tpl_builder->build($params['http_url'], $dict);
 		@$http_headers = DevblocksPlatform::parseCrlfString($tpl_builder->build($params['http_headers'], $dict));
@@ -91,9 +89,13 @@ class BotAction_HttpRequest extends Extension_DevblocksEventAction {
 		if(empty($response_placeholder))
 			return "[ERROR] No result placeholder given.";
 		
-		$finfo = finfo_open(FILEINFO_MIME);
-		$file_type = finfo_buffer($finfo, $http_body);
-		finfo_close($finfo);
+		if(extension_loaded('fileinfo')) {
+			$finfo = finfo_open(FILEINFO_MIME);
+			$file_type = finfo_buffer($finfo, $http_body);
+			finfo_close($finfo);
+		} else {
+			$file_type = 'text/plain';
+		}
 		
 		// Output
 		$out = sprintf(">>> Sending HTTP request:\n%s %s\n%s%s\n",
