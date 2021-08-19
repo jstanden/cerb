@@ -326,8 +326,10 @@ class PageSection_ProfilesWorkspaceTab extends Extension_PageSection {
 						if(null == ($tab_extension = $tab->getExtension()))
 							throw new Exception_DevblocksAjaxValidationError("Invalid tab extension.");
 							
-						if(method_exists($tab_extension, 'saveTabConfig'))
-							$tab_extension->saveTabConfig($workspace_page, $tab);
+						if(method_exists($tab_extension, 'saveTabConfig')) {
+							if (false === ($tab_extension->saveTabConfig($workspace_page, $tab, $error)))
+								throw new Exception_DevblocksAjaxValidationError($error);
+						}
 						
 						echo json_encode(array(
 							'status' => true,

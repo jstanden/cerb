@@ -26,7 +26,7 @@ class WorkspaceTab_Worklists extends Extension_WorkspaceTab {
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/tabs/worklists/config.tpl');
 	}
 	
-	function saveTabConfig(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {
+	function saveTabConfig(Model_WorkspacePage $page, Model_WorkspaceTab $tab, ?string &$error=null) : bool {
 		@$ids = DevblocksPlatform::importGPC($_POST['ids'],'array', []);
 		@$names = DevblocksPlatform::importGPC($_POST['names'],'array', []);
 		
@@ -94,6 +94,8 @@ class WorkspaceTab_Worklists extends Extension_WorkspaceTab {
 				]);
 			}
 		}
+		
+		return true;
 	}
 	
 	function exportTabConfigJson(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {
