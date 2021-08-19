@@ -162,6 +162,19 @@ class DAO_Toolbar extends Cerb_ORMHelper {
 			return false;
 		}
 		
+		if(array_key_exists(self::TOOLBAR_KATA, $fields)) {
+			$kata = DevblocksPlatform::services()->kata();
+			
+			if(false === $kata->validate(
+				$fields[self::TOOLBAR_KATA],
+				CerberusApplication::kataSchemas()->interactionToolbar(), 
+				$error
+				)) {
+				$error = 'Toolbar: ' . $error;
+				return false;
+			}
+		}
+		
 		return true;
 	}
 	
