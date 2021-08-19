@@ -1,6 +1,22 @@
 <?php
 class _DevblocksKataService {
 	private static ?_DevblocksKataService $_instance = null;
+
+	private array $_valid_annotations = [
+		'base64',
+		'bit',
+		'bool',
+		'csv',
+		'date',
+		'int',
+		'json',
+		'kata',
+		'key',
+		'list',
+		'raw',
+		'text',
+		'trim',
+	];
 	
 	static function getInstance() : _DevblocksKataService {
 		if(is_null(self::$_instance))
@@ -469,6 +485,16 @@ class _DevblocksKataService {
 					}
 				} else if($annotation == 'list') {
 					$v = DevblocksPlatform::parseCrlfString($v);
+				} else if($annotation == 'raw') { 
+					// Do nothing
+				} else if($annotation == 'text') { 
+					// Do nothing
+				} else if($annotation == 'trim') {
+					if(is_string($v))
+						$v = trim($v);
+				} else {
+					$error = sprintf("Unknown attribute: @%s", $annotation);
+					return false;
 				}
 			}
 			
