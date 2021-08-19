@@ -382,12 +382,15 @@ class _DevblocksDatabaseManager {
 					// Mark the thread as timed out
 					$results[$db->thread_id] = new Exception_DevblocksDatabaseQueryTimeout();
 					
-					DevblocksPlatform::logError(sprintf('Timed out ::SQL:: (%s pid:%d time:%dms) %s ',
-						APP_DB_DATABASE,
-						$db->thread_id,
-						$time_limit_ms,
-						$sqls[$idx]
-					));
+					DevblocksPlatform::logError(
+						sprintf('Timed out ::SQL:: (%s pid:%d time:%dms) %s ',
+							APP_DB_DATABASE,
+							$db->thread_id,
+							$time_limit_ms,
+							$sqls[$idx]
+						),
+						true
+					);
 					
 					// Kill the timed out thread using the new connection
 					mysqli_kill($monitor_db, $db->thread_id);
@@ -424,7 +427,7 @@ class _DevblocksDatabaseManager {
 						$sqls[$idx]
 					);
 					
-					DevblocksPlatform::logError($error_msg);
+					DevblocksPlatform::logError($error_msg, true);
 				}
 				
 				$processed++;
@@ -480,7 +483,7 @@ class _DevblocksDatabaseManager {
 					$sql
 				);
 				
-				DevblocksPlatform::logError($error_msg);
+				DevblocksPlatform::logError($error_msg, true);
 				
 				return false;
 			}

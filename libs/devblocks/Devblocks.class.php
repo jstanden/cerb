@@ -2367,10 +2367,13 @@ class DevblocksPlatform extends DevblocksEngine {
 		return false;
 	}
 	
-	public static function logError(string $error_msg) {
+	public static function logError($error_msg, $allow_display=false) {
+		if(!is_string($error_msg) || !is_numeric($error_msg))
+			$error_msg = yaml_emit($error_msg);
+		
 		$orig_log_errors_max_len = ini_set('log_errors_max_len', 8192);
 		
-		if(DEVELOPMENT_MODE && php_sapi_name() != 'cli') {
+		if(DEVELOPMENT_MODE && $allow_display && php_sapi_name() != 'cli') {
 			trigger_error($error_msg, E_USER_WARNING);
 		} else {
 			error_log($error_msg);
