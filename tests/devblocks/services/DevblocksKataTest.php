@@ -421,4 +421,18 @@ EOD;
 		
 		$this->assertEquals($expected, $actual);
 	}
+	
+	function testKataDuplicateSiblingWithDiffAnnotations() {
+		$kata = <<< EOD
+allow/rule@text: ok
+allow/rule: ok
+EOD;
+		
+		$error = null;
+		
+		$tree = DevblocksPlatform::services()->kata()->parse($kata, $error);
+		
+		$this->assertFalse($tree);
+		$this->assertNotEmpty($error);
+	}
 }

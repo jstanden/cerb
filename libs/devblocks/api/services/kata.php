@@ -97,7 +97,9 @@ class _DevblocksKataService {
 						$new_attributes = array_diff($field_attributes, ['text']);
 						$field_key = $field_id . ($new_attributes ? ('@' . implode(',', $new_attributes)) : '');
 						
-						if(array_key_exists($field_key, $ptr)) {
+						$siblings = array_map(fn($k) => DevblocksPlatform::services()->string()->strBefore($k, '@'), array_keys($ptr));
+						
+						if(in_array(DevblocksPlatform::services()->string()->strBefore($field_key, '@'), $siblings)) {
 							$error = sprintf("`%s:` has a sibling with the same name (line %d)", $field_key, $line_number+1);
 							return false;
 						}
@@ -157,7 +159,9 @@ class _DevblocksKataService {
 						$key = $matches[1] . $matches[2];
 						$value = $matches[3];
 						
-						if(array_key_exists($key, $ptr)) {
+						$siblings = array_map(fn($k) => DevblocksPlatform::services()->string()->strBefore($k, '@'), array_keys($ptr));
+						
+						if(in_array(DevblocksPlatform::services()->string()->strBefore($key, '@'), $siblings)) {
 							$error = sprintf("`%s:` has a sibling with the same name (line %d)", $key, $line_number+1);
 							return false;
 						}
