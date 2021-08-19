@@ -151,15 +151,28 @@ class ProfileWidget_Sheet extends Extension_ProfileWidget {
 		return false;
 	}
 	
-	/*
 	function saveConfig(array $fields, $id, &$error=null) {
-		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
+		$kata = DevblocksPlatform::services()->kata();
 		
-		DAO_ProfileWidget::update($id, array(
-			DAO_ProfileWidget::PARAMS_JSON => json_encode($params),
-		));
+		if(false == (@$json = json_decode($fields[DAO_ProfileWidget::EXTENSION_PARAMS_JSON], true)))
+			return true;
+		
+		if(array_key_exists('sheet_kata', $json)) {
+			if(false === $kata->validate($json['sheet_kata'], CerberusApplication::kataSchemas()->sheet(), $error)) {
+				$error = 'Sheet: ' . $error;
+				return false;
+			}
+		}
+		
+		if(array_key_exists('toolbar_kata', $json)) {
+			if(false === $kata->validate($json['toolbar_kata'], CerberusApplication::kataSchemas()->interactionToolbar(), $error)) {
+				$error = 'Toolbar: ' . $error;
+				return false;
+			}
+		}
+		
+		return true;
 	}
-	*/
 
 	private function _profileWidgetConfigAction_previewToolbar(Model_ProfileWidget $widget) {
 		$active_worker = CerberusApplication::getActiveWorker();

@@ -48,7 +48,7 @@
           "data_query": "type:worklist.records\r\nof:addresses\r\nexpand:[]\r\nquery:(\r\n  ticket.id:[{{record_id}}]\r\n  sort:email\r\n  limit: 5\r\n)\r\nformat:dictionaries",
           "cache_secs": "0",
           "placeholder_simulator_kata": "record_id: 1",
-          "sheet_kata": "layout:\r\n  style: table\r\n  headings: no\r\n  paging: yes\r\n  filtering: yes\r\n\r\ncolumns:\r\n  selection/id:\r\n  card/email:\r\n    label: Email\r\n    params:\r\n      image@bool: yes\r\n      bold@bool: yes\r\n      context_key: _context\r\n      label_key: _label\r\n      id_key: id",
+          "sheet_kata": "layout:\r\n  style: table\r\n  headings@bool: no\r\n  paging@bool: yes\r\n  filtering@bool: yes\r\n\r\ncolumns:\r\n  selection/id:\r\n  card/email:\r\n    label: Email\r\n    params:\r\n      image@bool: yes\r\n      bold@bool: yes\r\n      context_key: _context\r\n      label_key: _label\r\n      id_key: id",
           "toolbar_kata": "interaction/add:\r\n  label: Add participants\r\n  uri: cerb:automation:cerb.ticket.participants.add\r\n  inputs:\r\n    ticket@key: record_id\r\n  icon: circle-plus\r\n  hidden@bool: \r\n    {% if row_selections is not empty %}yes{% endif %}\r\n  after:\r\n    refresh_widgets@list:\r\n      Participants\r\n\r\ninteraction/remove:\r\n  label: Remove {{row_selections|length}} selections\r\n  uri: cerb:automation:cerb.ticket.participants.remove\r\n  inputs:\r\n    ticket@key: record_id \r\n    participants@key: row_selections \r\n  icon: circle-remove\r\n  hidden@bool: \r\n    {% if row_selections is empty %}yes{% endif %}\r\n  after:\r\n    refresh_widgets@list:\r\n      Participants\r\n"
         }
     }

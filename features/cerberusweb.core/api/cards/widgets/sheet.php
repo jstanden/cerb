@@ -147,6 +147,29 @@ class CardWidget_Sheet extends Extension_CardWidget {
 		return false;
 	}
 	
+	function saveConfig(array $fields, $id, &$error=null) {
+		$kata = DevblocksPlatform::services()->kata();
+		
+		if(false == (@$json = json_decode($fields[DAO_CardWidget::EXTENSION_PARAMS_JSON], true)))
+			return true;
+		
+		if(array_key_exists('sheet_kata', $json)) {
+			if(false === $kata->validate($json['sheet_kata'], CerberusApplication::kataSchemas()->sheet(), $error)) {
+				$error = 'Sheet: ' . $error;
+				return false;
+			}
+		}
+		
+		if(array_key_exists('toolbar_kata', $json)) {
+			if(false === $kata->validate($json['toolbar_kata'], CerberusApplication::kataSchemas()->interactionToolbar(), $error)) {
+				$error = 'Toolbar: ' . $error;
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
 	private function _cardWidgetConfigAction_previewToolbar(Model_CardWidget $widget) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::services()->template();
