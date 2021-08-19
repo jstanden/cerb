@@ -155,7 +155,7 @@ class _DevblocksKataService {
 							$ptr =& $ptr[$field_key]['_data'];
 						}
 						
-					} else if(preg_match('#' . $field_pattern . '?\s*(.*?)$#i', $trimmed_line, $matches)) {
+					} else if(preg_match('#' . $field_pattern . '\s*(.*?)$#i', $trimmed_line, $matches)) {
 						$key = $matches[1] . $matches[2];
 						$value = $matches[3];
 						
@@ -172,11 +172,17 @@ class _DevblocksKataService {
 						if($indent_transition > 0) {
 							$indent_stack[] = [$indent_len, &$ptr];
 						}
-						
-					} else {
+
+					// Comments
+					} else if(DevblocksPlatform::strStartsWith($trimmed_line, '#')) {
 						if($indent_transition > 0) {
 							$indent_stack[] = [$indent_len, &$ptr];
 						}
+					
+					// Unknown command
+					} else {
+						$error = sprintf("Unexpected syntax (line %d): %s", $line_number+1, $trimmed_line);
+						return false;
 					}
 					break;
 			}
