@@ -27,8 +27,11 @@
 <form id="viewForm{$view->id}" name="viewForm{$view->id}" action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="view_id" value="{$view->id}">
 <input type="hidden" name="context_id" value="cerberusweb.contexts.snippet">
-<input type="hidden" name="c" value="tickets">
-<input type="hidden" name="a" value="">
+<input type="hidden" name="c" value="profiles">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="snippet">
+<input type="hidden" name="action" value="viewExplore">
+<input type="hidden" name="explore_from" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <table cellpadding="5" cellspacing="0" border="0" width="100%" class="worklistBody">
@@ -141,6 +144,7 @@
 	</div>
 	
 	<div style="float:left;" id="{$view->id}_actions">
+		<button type="button" class="action-always-show action-explore"><span class="glyphicons glyphicons-play-button"></span> {'common.explore'|devblocks_translate|lower}</button>
 		{if $active_worker->hasPriv("contexts.{$view_context}.update.bulk")}<button type="button" class="action-always-show action-bulkupdate" onclick="genericAjaxPopup('peek','c=profiles&a=invoke&module=snippet&action=showBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'50%');"><span class="glyphicons glyphicons-folder-closed"></span> {'common.bulk_update'|devblocks_translate|lower}</button>{/if}
 	</div>
 </div>
@@ -155,6 +159,14 @@
 <script type="text/javascript">
 $(function() {
 	var $frm = $('#viewForm{$view->id}');
+	var $actions = $('#{$view->id}_actions');
+	
+	$actions.find('button.action-explore').click(function() {
+		var id = $frm.find('tbody input:checkbox:checked:first').val();
+		$frm.find('input:hidden[name=explore_from]').val(id);
+		$frm.find('input:hidden[name=action]').val('viewExplore');
+		$frm.submit();
+	});
 	
 	{if $pref_keyboard_shortcuts}
 	$frm.bind('keyboard_shortcut',function(event) {
