@@ -3,7 +3,7 @@
     "description": "A filterable, pageable list of record types",
     "extension_id": "cerb.trigger.ui.sheet.data",
     "script": "start:\r\n  data.query:\r\n    output: results\r\n    inputs:\r\n      query@text:\r\n        type: record.types\r\n        {% if sheet_filter -%}\r\n        filter: {{sheet_filter}}\r\n        {% endif -%}\r\n        {% if sheet_limit -%}\r\n        limit: {{sheet_limit}}\r\n        {% endif -%}\r\n        {% if sheet_page -%}\r\n        page: {{sheet_page}}\r\n        {% endif -%}\r\n        format: dictionaries\r\n    on_success:\r\n      return:\r\n        data@key: results:data\r\n        total@key: results:_:paging:page:rows:of\r\n    on_error:\r\n      error:\r\n        message@key: results:error",
-    "policy_kata": "commands:\r\n  data.query:\r\n    allow: yes",
+    "policy_kata": "commands:\r\n  data.query:\r\n    allow@bool: yes",
     "created_at": 1600722810,
     "updated_at": 1618263828
 }

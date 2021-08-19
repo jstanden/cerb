@@ -3,7 +3,7 @@
     "description": "Create a record and add it to a project board",
     "extension_id": "cerb.trigger.interaction.worker",
     "script": "inputs:\r\n  text/record_type:\r\n    type: record_type\r\n    required@bool: yes\r\n  record/column:\r\n    record_type: project_board_column\r\n    required@bool: yes\r\n\r\nstart:\r\n  await:\r\n    record:\r\n      uri: cerb:{{inputs.record_type}}\r\n      output: result\r\n  outcome:\r\n    if@bool: {{result.record._context and result.record.id}}\r\n    then:\r\n      record.update:\r\n        output: new_record\r\n        inputs:\r\n          record_type: {{result.record._context}}\r\n          record_id: {{result.record.id}}\r\n          fields:\r\n            links@list:\r\n              project_board_column:{{inputs.column.id}}\r\n  ",
-    "policy_kata": "commands:\r\n  record.update:\r\n    deny/fields@bool:\r\n      {{inputs.fields|keys is not same as ['links']}}\r\n    allow: yes",
+    "policy_kata": "commands:\r\n  record.update:\r\n    deny/fields@bool:\r\n      {{inputs.fields|keys is not same as ['links']}}\r\n    allow@bool: yes",
     "created_at": 1616093716,
     "updated_at": 1616109829
 }

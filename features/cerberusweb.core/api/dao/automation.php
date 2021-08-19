@@ -165,6 +165,14 @@ class DAO_Automation extends Cerb_ORMHelper {
 			return false;
 		}
 		
+		if(array_key_exists(DAO_Automation::POLICY_KATA, $fields)) {
+			$kata = DevblocksPlatform::services()->kata();
+			if(false === $kata->validate($fields[DAO_Automation::POLICY_KATA], CerberusApplication::kataSchemas()->automationPolicy(), $error)) {
+				$error = 'Automation policy: ' . $error;
+				return false;
+			}
+		}
+		
 		return true;
 	}
 	

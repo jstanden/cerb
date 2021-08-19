@@ -59,8 +59,6 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 	}
 	
 	private function _profileAction_savePeekJson() {
-		$kata = DevblocksPlatform::services()->kata();
-		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
@@ -108,16 +106,6 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 				
 				// Only admins
 				if($active_worker->is_superuser) {
-					@$policy_kata = DevblocksPlatform::importGPC($_POST['automation_policy_kata'], 'string', '');
-					
-					if(false === $kata->parse($policy_kata, $error)) {
-						throw new Exception_DevblocksAjaxValidationError('Policy: ' . $error);
-					}
-					
-					$fields[DAO_Automation::POLICY_KATA] = $policy_kata;
-				}
-				
-				if($active_worker->is_superuser) {
 					if(false == ($trigger_ext = Extension_AutomationTrigger::get($extension_id))) {
 						throw new Exception_DevblocksAjaxValidationError('Invalid trigger extension.');
 					}
@@ -131,6 +119,12 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 					}
 					
 					$fields[DAO_Automation::EXTENSION_PARAMS_JSON] = json_encode($params);
+
+					// Validate policy KATA
+					
+					@$policy_kata = DevblocksPlatform::importGPC($_POST['automation_policy_kata'], 'string', '');
+					
+					$fields[DAO_Automation::POLICY_KATA] = $policy_kata;
 				}
 				
 				if(empty($id)) { // New

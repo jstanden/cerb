@@ -3,7 +3,7 @@
     "description": "Remove participants from a ticket",
     "extension_id": "cerb.trigger.interaction.worker",
     "script": "inputs:\r\n  record/ticket:\r\n    record_type: ticket\r\n    required@bool: yes\r\n  records/participants:\r\n    record_type: address\r\n    required@bool: yes\r\n\r\n# [TODO] Check permissions on worker\r\nstart:\r\n  record.update:\r\n    output: record_result\r\n    inputs:\r\n      record_type: ticket\r\n      record_id: {{inputs.ticket.id}}\r\n      fields:\r\n        participant_ids: -{{array_column(inputs.participants,'id')|join(',-')}}\r\n    on_success:\r\n      return:\r\n        success: true\r\n    on_error:\r\n      error:\r\n        message: {{record_result.error}}\r\n",
-    "policy_kata": "commands:\r\n  record.update:\r\n    allow: yes",
+    "policy_kata": "commands:\r\n  record.update:\r\n    allow@bool: yes",
     "created_at": 1565231398,
     "updated_at": 1607031604
 }
