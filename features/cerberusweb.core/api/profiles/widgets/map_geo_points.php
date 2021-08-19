@@ -50,6 +50,33 @@ class ProfileWidget_MapGeoPoints extends Extension_ProfileWidget {
 		return false;
 	}
 	
+	function saveConfig(array $fields, $id, &$error = null) {
+		$kata = DevblocksPlatform::services()->kata();
+		
+		if(array_key_exists(DAO_ProfileWidget::EXTENSION_PARAMS_JSON, $fields)) {
+			if(false == (@$params = json_decode($fields[DAO_ProfileWidget::EXTENSION_PARAMS_JSON], true)))
+				return true;
+			
+			// Validate map KATA
+			if(array_key_exists('map_kata', $params)) {
+				if(false === $kata->validate($params['map_kata'], CerberusApplication::kataSchemas()->map(), $error)) {
+					$error = 'Map: ' . $error;
+					return false;
+				}
+			}
+			
+			// Validate events
+			if(array_key_exists('automation', $params) && array_key_exists('map_clicked', $params['automation'])) {
+				if(false === $kata->validate($params['automation']['map_clicked'], CerberusApplication::kataSchemas()->automationEvent(), $error)) {
+					$error = 'map.clicked event: ' . $error;
+					return false;
+				}
+			}
+		}
+		
+		return true;
+	}
+	
 	private function _profileWidgetAction_mapClicked(Model_ProfileWidget $widget) {
 		@$feature_type = DevblocksPlatform::importGPC($_POST['feature_type'], 'string', []);
 		@$feature_properties = DevblocksPlatform::importGPC($_POST['feature_properties'], 'array', []);

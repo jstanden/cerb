@@ -45,6 +45,24 @@ class WorkspaceWidget_MapGeoPoints extends Extension_WorkspaceWidget {
 	function saveConfig(Model_WorkspaceWidget $widget, ?string &$error=null) : bool {
 		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
 		
+		$kata = DevblocksPlatform::services()->kata();
+		
+		// Validate map KATA
+		if(array_key_exists('map_kata', $params)) {
+			if(false === $kata->validate($params['map_kata'], CerberusApplication::kataSchemas()->map(), $error)) {
+				$error = 'Map: ' . $error;
+				return false;
+			}
+		}
+		
+		// Validate events
+		if(array_key_exists('automation', $params) && array_key_exists('map_clicked', $params['automation'])) {
+			if(false === $kata->validate($params['automation']['map_clicked'], CerberusApplication::kataSchemas()->automationEvent(), $error)) {
+				$error = 'map.clicked event: ' . $error;
+				return false;
+			}
+		}
+		
 		DAO_WorkspaceWidget::update($widget->id, array(
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
 		));
