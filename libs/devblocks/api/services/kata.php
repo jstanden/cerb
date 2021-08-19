@@ -86,7 +86,7 @@ class _DevblocksKataService {
 							return false;
 						}
 						
-						if(array_intersect($field_attributes, ['base64', 'bit', 'bool', 'csv', 'date', 'int', 'json', 'list', 'raw', 'text'])) {
+						if(array_intersect($field_attributes, ['base64', 'bit', 'bool', 'csv', 'date', 'int', 'json', 'list', 'raw', 'text', 'trim'])) {
 							$state = 'text_block';
 							
 							$text_block = '';
