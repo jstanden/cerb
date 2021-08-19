@@ -61,7 +61,7 @@
       "zone": "content",
       "params": {
         "data_query": "type:worklist.records\nof:worker\nquery:(isDisabled:no lastActivity:\"-15 mins\")\nformat:dictionaries",
-        "sheet_kata": "layout:\n  style: table\n  headings@bool: yes\n  paging@bool: yes\n  #title_column: _label\n\ncolumns:\n  card/_label:\n    label: Worker\n    params:\n      image@bool: yes\n      bold@bool: yes\n  text/title:\n    label: Title\n\n  text/location:\n    label: Location\n\n  text/local_time:\n    label: Local time\n    params:\n      value_template@raw:\n        {% set now = \"now \" ~ timezone %}\n        {{now|date('h:ia')}}\n\n  ",
+        "sheet_kata": "layout:\n  style: table\n  headings@bool: yes\n  paging@bool: yes\n  #title_column: _label\n\ncolumns:\n  card/_label:\n    label: Worker\n    params:\n      image@bool: yes\n      bold@bool: yes\n  text/title:\n    label: Title\n\n  text/location:\n    label: Location\n\n  text/local_time:\n    label: Local time\n    params:\n      value_template@raw:\n        {{'now'|date('h:ia', timezone)}}\n\n  ",
         "cache_secs": ""
       }
     },
