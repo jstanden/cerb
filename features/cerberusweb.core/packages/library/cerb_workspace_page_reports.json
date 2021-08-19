@@ -56,7 +56,7 @@
       "page_id": "{{{uid.workspace_reports}}}",
       "params": {
         "layout": "",
-        "prompts_kata": "date_range/input_date_range:\n  label: Date range:\n  default: today -1 week\n\npicklist/input_date_subtotal_by:\n  label: By:\n  default: day\n  params:\n    options@csv: day, week, month, year\n\nchooser/input_groups:\n  label: Groups:\n  default:\n  params:\n    context: group\n    single@bit: false"
+        "prompts_kata": "date_range/input_date_range:\n  label: Date range:\n  default: today -1 week\n\npicklist/input_date_subtotal_by:\n  label: By:\n  default: day\n  params:\n    options@csv: day, week, month, year\n\nchooser/input_groups:\n  label: Groups:\n  default:\n  params:\n    context: group\n    single@bool: false"
       }
     },
     {
@@ -130,7 +130,7 @@
       "page_id": "{{{uid.workspace_reports}}}",
       "params": {
         "layout": "",
-        "prompts_kata": "date_range/input_date_range:\n  label: Date range:\n  default: today -1 week\n  params:\n\npicklist/input_date_subtotal_by:\n  label: By:\n  default: day\n  params:\n    options@csv: day, week, month, year\n\nchooser/input_orgs:\n  label: Orgs:\n  default@json: null\n  params:\n    context: org\n    single@bit: false"
+        "prompts_kata": "date_range/input_date_range:\n  label: Date range:\n  default: today -1 week\n  params:\n\npicklist/input_date_subtotal_by:\n  label: By:\n  default: day\n  params:\n    options@csv: day, week, month, year\n\nchooser/input_orgs:\n  label: Orgs:\n  default@json: null\n  params:\n    context: org\n    single@bool: false"
       }
     },
     {
@@ -239,7 +239,7 @@
       "page_id": "{{{uid.workspace_reports}}}",
       "params": {
         "layout": "",
-        "prompts_kata": "date_range/input_date_range:\n  label: Date range:\n  default: today -1 week\n  params@json: []\n\npicklist/input_date_subtotal_by:\n  label: By:\n  default: day\n  params:\n    options@csv: day, week, month, year\n\nchooser/input_groups:\n  label: Groups:\n  default@json: null\n  params:\n    context: group\n    single@bit: false\n"
+        "prompts_kata": "date_range/input_date_range:\n  label: Date range:\n  default: today -1 week\n  params@json: []\n\npicklist/input_date_subtotal_by:\n  label: By:\n  default: day\n  params:\n    options@csv: day, week, month, year\n\nchooser/input_groups:\n  label: Groups:\n  default@json: null\n  params:\n    context: group\n    single@bool: false\n"
       }
     },
     {
@@ -313,7 +313,7 @@
       "page_id": "{{{uid.workspace_reports}}}",
       "params": {
         "layout": "",
-        "prompts_kata": "date_range/input_date_range:\n  label: Date range:\n  default: today -1 week\n  params:\n\npicklist/input_date_subtotal_by:\n  label: By:\n  default: day\n  params:\n    options@csv: day, week, month, year\n\nchooser/input_workers:\n  label: Workers:\n  default@json: null\n  params:\n    context: worker\n    single@bit: false\n"
+        "prompts_kata": "date_range/input_date_range:\n  label: Date range:\n  default: today -1 week\n  params:\n\npicklist/input_date_subtotal_by:\n  label: By:\n  default: day\n  params:\n    options@csv: day, week, month, year\n\nchooser/input_workers:\n  label: Workers:\n  default@json: null\n  params:\n    context: worker\n    single@bool: false\n"
       }
     },
     {
@@ -419,7 +419,7 @@
       "page_id": "{{{uid.workspace_reports}}}",
       "params": {
         "layout": "",
-        "prompts_kata": "date_range/input_date_range:\n  label: Date range:\n  default: today -1 week\n  params@json: []\n\npicklist/input_date_subtotal_by:\n  label: By:\n  default: day\n  params:\n    options@csv: day, week, month, year\n\nchooser/input_groups:\n  label: Groups:\n  default@json: null\n  params:\n    context: group\n    single@bit: false\n"
+        "prompts_kata": "date_range/input_date_range:\n  label: Date range:\n  default: today -1 week\n  params@json: []\n\npicklist/input_date_subtotal_by:\n  label: By:\n  default: day\n  params:\n    options@csv: day, week, month, year\n\nchooser/input_groups:\n  label: Groups:\n  default@json: null\n  params:\n    context: group\n    single@bool: false\n"
       }
     },
     {
@@ -490,7 +490,7 @@
       "page_id": "{{{uid.workspace_reports}}}",
       "params": {
         "layout": "",
-        "prompts_kata": "chooser/input_groups:\n  label: Groups:\n  default@json: null\n  params:\n    context: group\n    single@bit: false\n"
+        "prompts_kata": "chooser/input_groups:\n  label: Groups:\n  default@json: null\n  params:\n    context: group\n    single@bool: false\n"
       }
     },
     {
@@ -526,7 +526,7 @@
       "page_id": "{{{uid.workspace_reports}}}",
       "params": {
         "layout": "",
-        "prompts_kata": "date_range/input_date_range:\n  label: Date range:\n  default: today -1 week\n  params:\n\npicklist/input_date_subtotal_by:\n  label: By:\n  default: day\n  params:\n    options@csv: day, week, month, year\n\nchooser/input_activities:\n  label: Activities:\n  default@json: null\n  params:\n    context: timetracking_activity\n    single@bit: false\n"
+        "prompts_kata": "date_range/input_date_range:\n  label: Date range:\n  default: today -1 week\n  params:\n\npicklist/input_date_subtotal_by:\n  label: By:\n  default: day\n  params:\n    options@csv: day, week, month, year\n\nchooser/input_activities:\n  label: Activities:\n  default@json: null\n  params:\n    context: timetracking_activity\n    single@bool: false\n"
       }
     },
     {
@@ -594,7 +594,7 @@
       "page_id": "{{{uid.workspace_reports}}}",
       "params": {
         "layout": "",
-        "prompts_kata": "date_range/input_date_range:\n  label: Date range:\n  default: today -1 week\n  params:\n\npicklist/input_date_subtotal_by:\n  label: By:\n  default: day\n  params:\n    options@csv: day, week, month, year\n\nchooser/input_orgs:\n  label: Orgs:\n  default@json: null\n  params:\n    context: org\n    single@bit: false\n"
+        "prompts_kata": "date_range/input_date_range:\n  label: Date range:\n  default: today -1 week\n  params:\n\npicklist/input_date_subtotal_by:\n  label: By:\n  default: day\n  params:\n    options@csv: day, week, month, year\n\nchooser/input_orgs:\n  label: Orgs:\n  default@json: null\n  params:\n    context: org\n    single@bool: false\n"
       }
     },
     {
@@ -662,7 +662,7 @@
       "page_id": "{{{uid.workspace_reports}}}",
       "params": {
         "layout": "",
-        "prompts_kata": "date_range/input_date_range:\n  label: Date range:\n  default: today -1 week\n  params:\n\npicklist/input_date_subtotal_by:\n  label: By:\n  default: day\n  params:\n    options@csv: day, week, month, year\n\nchooser/input_workers:\n  label: Workers:\n  default@json: null\n  params:\n    context: worker\n    single@bit: false\n"
+        "prompts_kata": "date_range/input_date_range:\n  label: Date range:\n  default: today -1 week\n  params:\n\npicklist/input_date_subtotal_by:\n  label: By:\n  default: day\n  params:\n    options@csv: day, week, month, year\n\nchooser/input_workers:\n  label: Workers:\n  default@json: null\n  params:\n    context: worker\n    single@bool: false\n"
       }
     },
     {

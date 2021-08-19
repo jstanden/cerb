@@ -210,6 +210,7 @@ var cerbAutocompleteSuggestions = {
 			'params:'
 		],
 		'picklist:params:': [
+			'multiple@bool: yes',
 			'options@list:'
 		],
 		'text:': [

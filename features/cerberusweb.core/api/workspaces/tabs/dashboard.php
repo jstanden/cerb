@@ -12,6 +12,13 @@ class WorkspaceTab_Dashboards extends Extension_WorkspaceTab {
 	function saveTabConfig(Model_WorkspacePage $page, Model_WorkspaceTab $tab, ?string &$error=null) : bool {
 		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
 		
+		if(array_key_exists('prompts_kata', $params)) {
+			$kata = DevblocksPlatform::services()->kata();
+			
+			if(false === $kata->validate($params['prompts_kata'], CerberusApplication::kataSchemas()->dashboardPrompts(), $error))
+				return false;
+		}
+		
 		DAO_WorkspaceTab::update($tab->id, array(
 			DAO_WorkspaceTab::PARAMS_JSON => json_encode($params),
 		));

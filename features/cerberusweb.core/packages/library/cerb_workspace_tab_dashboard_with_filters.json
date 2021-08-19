@@ -61,7 +61,7 @@
       "extension_id": "core.workspace.tab.dashboard",
       "params": {
         "layout": "{{{prompt_layout}}}",
-        "prompts_kata": "date_range/input_date_range:\n  label: Date range:\n  default: jan 1 to now\n  params:\n    # presets:\n    #  today:\n    #    query: today to now\n    #  30d:\n    #    label: 30 days\n    #    query: -30 days to now\n    #  ytd:\n    #    query: jan 1 to now\n    #  all:\n    #    query: big bang to now\n\rpicklist/input_date_subtotal_by:\n  label: By:\n  default: month\n  params:\n    options@csv: day, week, month, year\n\npicklist/input_statuses:\n  label: Statuses:\n  default@json: []\n  params:\n    multiple: true\n    options@csv: open, waiting, closed, deleted\n\nchooser/input_groups:\n  label: Groups:\n  default:\n  params:\n    context: group\n    single@bit: false"
+        "prompts_kata": "date_range/input_date_range:\n  label: Date range:\n  default: jan 1 to now\n  params:\n    # presets:\n    #  today:\n    #    query: today to now\n    #  30d:\n    #    label: 30 days\n    #    query: -30 days to now\n    #  ytd:\n    #    query: jan 1 to now\n    #  all:\n    #    query: big bang to now\n\rpicklist/input_date_subtotal_by:\n  label: By:\n  default: month\n  params:\n    options@csv: day, week, month, year\n\npicklist/input_statuses:\n  label: Statuses:\n  default@json: []\n  params:\n    multiple: true\n    options@csv: open, waiting, closed, deleted\n\nchooser/input_groups:\n  label: Groups:\n  default:\n  params:\n    context: group\n    single@bool: false"
       }
     },
     {

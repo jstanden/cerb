@@ -65,7 +65,7 @@
 	</fieldset>
 
 	<fieldset class="peek">
-		<legend>{'common.prompts'|devblocks_translate|capitalize}: <small>(Kata)</small></legend>
+		<legend>{'common.prompts'|devblocks_translate|capitalize}: <small>(KATA)</small></legend>
 
 		<div class="cerb-code-editor-toolbar">
 			<button type="button" class="cerb-code-editor-toolbar-button cerb-editor-button-run"><span class="glyphicons glyphicons-play"></span></button>
