@@ -177,6 +177,14 @@ class DAO_Snippet extends Cerb_ORMHelper {
 			}
 		}
 		
+		// Verify prompts KATA
+		if(array_key_exists(self::PROMPTS_KATA, $fields)) {
+			$kata = DevblocksPlatform::services()->kata();
+			
+			if(false === $kata->validate($fields[self::PROMPTS_KATA], CerberusApplication::kataSchemas()->snippetPrompts(), $error))
+					return false;
+		}
+		
 		return true;
 	}
 	
