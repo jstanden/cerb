@@ -82,7 +82,7 @@ class WorkspaceWidget_KnowledgebaseBrowser extends Extension_WorkspaceWidget {
 		return false;
 	}
 	
-	function saveConfig(Model_WorkspaceWidget $widget) {
+	function saveConfig(Model_WorkspaceWidget $widget, ?string &$error=null) : bool {
 		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
 		
 		@$topic_id = intval($params['topic_id']);
@@ -94,6 +94,8 @@ class WorkspaceWidget_KnowledgebaseBrowser extends Extension_WorkspaceWidget {
 		DAO_WorkspaceWidget::update($widget->id, [
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
 		]);
+		
+		return true;
 	}
 	
 	private function _workspaceWidgetAction_changeCategory(Model_WorkspaceWidget $model) {

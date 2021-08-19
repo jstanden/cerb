@@ -233,7 +233,7 @@ class WorkspaceWidget_ChartLegacy extends Extension_WorkspaceWidget implements I
 		return false;
 	}
 	
-	function saveConfig(Model_WorkspaceWidget $widget) {
+	function saveConfig(Model_WorkspaceWidget $widget, ?string &$error=null) : bool {
 		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', array());
 		
 		foreach($params['series'] as $idx => $series) {
@@ -273,6 +273,8 @@ class WorkspaceWidget_ChartLegacy extends Extension_WorkspaceWidget implements I
 		
 		$view_id = sprintf("widget%d_worklist", $widget->id);
 		DAO_WorkerViewModel::deleteByViewId($view_id);
+		
+		return true;
 	}
 	
 	// Source: http://www.php.net/manual/en/function.hexdec.php#99478

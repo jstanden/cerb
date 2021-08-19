@@ -234,6 +234,7 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 						@$width_units = DevblocksPlatform::importGPC($_POST['width_units'], 'integer', 1);
 						
 						$width_units = DevblocksPlatform::intClamp($width_units, 1, 4);
+						$error = null;
 						
 						if(empty($id)) { // New
 							$fields = array(
@@ -280,9 +281,9 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 						
 						if(null == ($widget_extension = $widget->getExtension()))
 							throw new Exception_DevblocksAjaxValidationError("Invalid widget extension.");
-							
-						if(method_exists($widget_extension, 'saveConfig'))
-							$widget_extension->saveConfig($widget);
+						
+						if(!$widget_extension->saveConfig($widget, $error))
+							throw new Exception_DevblocksAjaxValidationError($error);
 						
 						if($id) {
 							// Custom field saves

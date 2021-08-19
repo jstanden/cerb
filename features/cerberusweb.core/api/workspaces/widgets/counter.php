@@ -66,7 +66,7 @@ class WorkspaceWidget_Counter extends Extension_WorkspaceWidget implements ICerb
 		return false;
 	}
 	
-	function saveConfig(Model_WorkspaceWidget $widget) {
+	function saveConfig(Model_WorkspaceWidget $widget, ?string &$error=null) : bool {
 		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', array());
 		
 		// Convert the serialized model to proper JSON before saving
@@ -99,6 +99,8 @@ class WorkspaceWidget_Counter extends Extension_WorkspaceWidget implements ICerb
 		
 		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(sprintf("widget%d_datasource", $widget->id));
+		
+		return true;
 	}
 	
 	// Export

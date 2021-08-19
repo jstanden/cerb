@@ -51,7 +51,7 @@ class WorkspaceWidget_CustomHTML extends Extension_WorkspaceWidget {
 		return false;
 	}
 	
-	function saveConfig(Model_WorkspaceWidget $widget) {
+	function saveConfig(Model_WorkspaceWidget $widget, ?string &$error=null) : bool {
 		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', array());
 		
 		DAO_WorkspaceWidget::update($widget->id, array(
@@ -61,6 +61,8 @@ class WorkspaceWidget_CustomHTML extends Extension_WorkspaceWidget {
 		// Clear caches
 		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(sprintf("widget%d_datasource", $widget->id));
+		
+		return true;
 	}
 	
 	private function _getHtml($widget) {

@@ -94,7 +94,7 @@ class WorkspaceWidget_Subtotals extends Extension_WorkspaceWidget implements ICe
 		return false;
 	}
 	
-	function saveConfig(Model_WorkspaceWidget $widget) {
+	function saveConfig(Model_WorkspaceWidget $widget, ?string &$error=null) : bool {
 		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
 		
 		// Convert the serialized model to proper JSON before saving
@@ -124,6 +124,8 @@ class WorkspaceWidget_Subtotals extends Extension_WorkspaceWidget implements ICe
 		DAO_WorkspaceWidget::update($widget->id, [
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
 		]);
+		
+		return true;
 	}
 	
 	// Export

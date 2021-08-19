@@ -1430,7 +1430,7 @@ abstract class Extension_WorkspaceTab extends DevblocksExtension {
 	function exportTabConfigJson(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {}
 	function importTabConfigJson($import_json, Model_WorkspaceTab $tab) {}
 	function renderTabConfig(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {}
-	function saveTabConfig(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {}
+	function saveTabConfig(Model_WorkspacePage $page, Model_WorkspaceTab $tab, ?string &$error=null) : bool { return true; }
 };
 
 abstract class Extension_WorkspaceWidgetDatasource extends DevblocksExtension {
@@ -1532,7 +1532,7 @@ abstract class Extension_WorkspaceWidget extends DevblocksExtension {
 	abstract function invoke(string $action, Model_WorkspaceWidget $model);
 	abstract function renderConfig(Model_WorkspaceWidget $widget);
 	abstract function invokeConfig($config_action, Model_WorkspaceWidget $model);
-	abstract function saveConfig(Model_WorkspaceWidget $widget);
+	abstract function saveConfig(Model_WorkspaceWidget $widget, ?string &$error=null) : bool;
 	
 	/**
 	 * @internal

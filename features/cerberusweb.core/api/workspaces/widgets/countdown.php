@@ -43,7 +43,7 @@ class WorkspaceWidget_Countdown extends Extension_WorkspaceWidget implements ICe
 		return false;
 	}
 	
-	function saveConfig(Model_WorkspaceWidget $widget) {
+	function saveConfig(Model_WorkspaceWidget $widget, ?string &$error=null) : bool {
 		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', array());
 		
 		if(isset($params['target_timestamp'])) {
@@ -54,6 +54,8 @@ class WorkspaceWidget_Countdown extends Extension_WorkspaceWidget implements ICe
 		DAO_WorkspaceWidget::update($widget->id, array(
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
 		));
+		
+		return true;
 	}
 	
 	// Export

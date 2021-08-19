@@ -36,12 +36,14 @@ class WorkspaceWidget_FormInteraction extends Extension_WorkspaceWidget {
 		return false;
 	}
 	
-	function saveConfig(Model_WorkspaceWidget $widget) {
+	function saveConfig(Model_WorkspaceWidget $widget, ?string &$error=null) : bool {
 		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
 		
 		DAO_WorkspaceWidget::update($widget->id, array(
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
 		));
+		
+		return true;
 	}
 	
 	private function _workspaceWidgetConfig_previewInteractions(Model_WorkspaceWidget $model) {

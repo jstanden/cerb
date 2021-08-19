@@ -116,7 +116,7 @@ class WorkspaceWidget_PieChart extends Extension_WorkspaceWidget implements ICer
 		return false;
 	}
 	
-	function saveConfig(Model_WorkspaceWidget $widget) {
+	function saveConfig(Model_WorkspaceWidget $widget, ?string &$error=null) : bool {
 		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', array());
 		
 		DAO_WorkspaceWidget::update($widget->id, array(
@@ -132,6 +132,8 @@ class WorkspaceWidget_PieChart extends Extension_WorkspaceWidget implements ICer
 		
 		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(sprintf("widget%d_datasource", $widget->id));
+		
+		return true;
 	}
 	
 	// Export

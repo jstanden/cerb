@@ -99,7 +99,7 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget implements ICer
 		return false;
 	}
 	
-	function saveConfig(Model_WorkspaceWidget $widget) {
+	function saveConfig(Model_WorkspaceWidget $widget, ?string &$error=null) : bool {
 		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', array());
 		
 		// Remove worker view models
@@ -110,6 +110,8 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget implements ICer
 		DAO_WorkspaceWidget::update($widget->id, array(
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
 		));
+		
+		return true;
 	}
 	
 	private function _getContextColumns($context, $columns_selected=[]) {

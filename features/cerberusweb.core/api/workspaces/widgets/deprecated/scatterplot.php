@@ -84,7 +84,7 @@ class WorkspaceWidget_Scatterplot extends Extension_WorkspaceWidget implements I
 		return false;
 	}
 	
-	function saveConfig(Model_WorkspaceWidget $widget) {
+	function saveConfig(Model_WorkspaceWidget $widget, ?string &$error=null) : bool {
 		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', array());
 		
 		// [TODO] The extension should be able to filter the properties here
@@ -122,6 +122,8 @@ class WorkspaceWidget_Scatterplot extends Extension_WorkspaceWidget implements I
 		
 		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(sprintf("widget%d_datasource", $widget->id));
+		
+		return true;
 	}
 	
 	// Export
