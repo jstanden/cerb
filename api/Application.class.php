@@ -419,6 +419,10 @@ class CerberusApplication extends DevblocksApplication {
 		return $errors;
 	}
 	
+	static function kataSchemas() : _CerbApplication_KataSchemas {
+		return new _CerbApplication_KataSchemas();
+	}
+	
 	static function packages() {
 		return new _CerbApplication_Packages();
 	}
@@ -3645,6 +3649,1588 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 		}
 	}
 };
+
+class _CerbApplication_KataSchemas {
+	function automation() : string {
+		return <<< EOD
+    definitions:
+      inputs:
+        types:
+          object:
+            attributes:
+              array:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+                      default:
+                        types:
+                          list:
+                      required:
+                        types:
+                          bool:
+                      snippet:
+                        types:
+                          list:
+                          string:
+              record:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+                      default:
+                        types:
+                          number:
+                      expand:
+                        types:
+                          string:
+                      record_type:
+                        types:
+                          string:
+                      required:
+                        types:
+                          bool:
+                      snippet:
+                        types:
+                          list:
+                          string:
+              records:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+                      default:
+                        types:
+                          # [TODO] list of type number
+                          list:
+                      expand:
+                        types:
+                          string:
+                      record_type:
+                        types:
+                          string:
+                      required:
+                        types:
+                          bool:
+                      snippet:
+                        types:
+                          list:
+                          string:
+              text:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+                      default:
+                        types:
+                          string:
+                      required:
+                        types:
+                          bool:
+                      snippet:
+                        types:
+                          list:
+                          string:
+                      type_options:
+                      type:
+                        types:
+                          string:      
+      
+      commands:
+        types:
+          object:
+            attributes:
+              await:
+                multiple@bool: yes
+                types:
+                  list:
+              
+              data.query:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+                      inputs:
+                        types:
+                          object:
+                            attributes:
+                              query:
+                                types:
+                                  string:
+                              query_params:
+                                types:
+                                  list:
+                      output:
+                        types:
+                          string:
+                      on_error:
+                        ref: commands
+                      on_success:
+                        ref: commands
+                      on_simulate:
+                        ref: commands
+              
+              decision:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+                      outcome:
+                        multiple@bool: yes
+                        types:
+                          object:
+                            attributes:
+                              if:
+                                types:
+                                  bool:
+                              then:
+                                ref: commands
+                      
+              decrypt.pgp:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+                      inputs:
+                        types:
+                          object:
+                            attributes:
+                              message:
+                                required@bool: yes
+                                types:
+                                  string:
+                      output:
+                        types:
+                          string:
+                      on_error:
+                        ref: commands
+                      on_success:
+                        ref: commands
+                      on_simulate:
+                        ref: commands
+              
+              email.parse:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+                      inputs:
+                        types:
+                          object:
+                            attributes:
+                              message:
+                                required@bool: yes
+                                types:
+                                  string:
+                      output:
+                        types:
+                          string:
+                      on_error:
+                        ref: commands
+                      on_success:
+                        ref: commands
+                      on_simulate:
+                        ref: commands
+              
+              encrypt.pgp:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+                      inputs:
+                        types:
+                          object:
+                            attributes:
+                              message:
+                                types:
+                                  string:
+                              public_keys:
+                                types:
+                                  object:
+                                    attributes:
+                                      ids:
+                                        types:
+                                          list:
+                                      uri:
+                                        types:
+                                          string:
+                      output:
+                        types:
+                          string:
+                      on_error:
+                        ref: commands
+                      on_success:
+                        ref: commands
+                      on_simulate:
+                        ref: commands
+              
+              error:
+                multiple@bool: yes
+                types:
+                  list:
+              
+              function:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+                      inputs:
+                        types:
+                          list:
+                      on_error:
+                        ref: commands
+                      on_simulate:
+                        ref: commands
+                      on_success:
+                        ref: commands
+                      output:
+                        types:
+                          string:
+                      uri:
+                        required@bool: yes
+                        types:
+                          string:
+              
+              http.request:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+                      inputs:
+                        types:
+                          object:
+                            attributes:
+                              authentication:
+                                types:
+                                  string:
+                              body:
+                                types:
+                                  list:
+                                  string:
+                              headers:
+                                types:
+                                  list:
+                                  string:
+                              method:
+                                types:
+                                  string:
+                              timeout:
+                                types:
+                                  number:
+                              url:
+                                types:
+                                  # [TODO] URL
+                                  string:
+                      on_error:
+                        ref: commands
+                      on_simulate:
+                        ref: commands
+                      on_success:
+                        ref: commands
+                      output:
+                        types:
+                          string:
+              
+              log:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+                      message:
+                        types:
+                          string:
+                  string:
+              
+              outcome:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+                      if:
+                        types:
+                          bool:
+                      then:
+                        ref: commands
+              
+              record.create:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+                      inputs:
+                        types:
+                          object:
+                            attributes:
+                              expand:
+                                types:
+                                  string:
+                              fields:
+                                types:
+                                  list:
+                              record_type:
+                                types:
+                                  # [TODO] Record types
+                                  string:
+                      output:
+                        types:
+                          string:
+                      on_error:
+                        ref: commands
+                      on_success:
+                        ref: commands
+                      on_simulate:
+                        ref: commands
+              
+              record.delete:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+                      inputs:
+                        types:
+                          object:
+                            attributes:
+                              record_type:
+                                types:
+                                  string:
+                              record_id:
+                                types:
+                                  number:
+                      output:
+                        types:
+                          string:
+                      on_error:
+                        ref: commands
+                      on_success:
+                        ref: commands
+                      on_simulate:
+                        ref: commands
+              
+              record.get:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+                      inputs:
+                        types:
+                          object:
+                            attributes:
+                              record_id:
+                                types:
+                                  number:
+                              record_type:
+                                types:
+                                  string:
+                      output:
+                        types:
+                          string:
+                      on_error:
+                        ref: commands
+                      on_success:
+                        ref: commands
+                      on_simulate:
+                        ref: commands
+              
+              record.search:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+                      inputs:
+                        types:
+                          object:
+                            attributes:
+                              record_expand:
+                                types:
+                                  string:
+                              record_query:
+                                types:
+                                  string:
+                              record_query_params:
+                                types:
+                                  list:
+                              record_type:
+                                types:
+                                  string:
+                      output:
+                        types:
+                          string:
+                      on_error:
+                        ref: commands
+                      on_success:
+                        ref: commands
+                      on_simulate:
+                        ref: commands
+              
+              record.update:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+                      inputs:
+                        types:
+                          object:
+                            attributes:
+                              expand:
+                                types:
+                                  string:
+                              fields:
+                                types:
+                                  # [TODO] Dependent on record_type
+                                  list:
+                              record_id:
+                                types:
+                                  number:
+                              record_type:
+                                types:
+                                  string:
+                      output:
+                        types:
+                          string:
+                      on_error:
+                        ref: commands
+                      on_success:
+                        ref: commands
+                      on_simulate:
+                        ref: commands
+                    
+              record.upsert:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+                      inputs:
+                        types:
+                          object:
+                            attributes:
+                              fields:
+                                types:
+                                  list:
+                              record_query:
+                                types:
+                                  string:
+                              record_query_params:
+                                types:
+                                  list:
+                              record_type:
+                                types:
+                                  string:
+                      output:
+                        types:
+                          string:
+                      on_error:
+                        ref: commands
+                      on_success:
+                        ref: commands
+                      on_simulate:
+                        ref: commands
+              
+              repeat:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+                      as:
+                        types:
+                          string:
+                      do:
+                        ref: commands
+                      each:
+                        types:
+                          list:
+              
+              return:
+                multiple@bool: yes
+                types:
+                  list:
+              
+              set:
+                multiple@bool: yes
+                types:
+                  list:
+              
+              simulate.error:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+              
+              simulate.success:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+              
+              storage.delete:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+                      inputs:
+                        types:
+                          object:
+                            attributes:
+                              key:
+                                required@bool: yes
+                                types:
+                                  string:
+                      output:
+                        types:
+                          string:
+                      on_error:
+                        ref: commands
+                      on_success:
+                        ref: commands
+                      on_simulate:
+                        ref: commands
+              
+              storage.get:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+                      inputs:
+                        types:
+                          object:
+                            attributes:
+                              key:
+                                types:
+                                  string:
+                              default:
+                                types:
+                                  list:
+                                  string:
+                      output:
+                        types:
+                          string:
+                      on_error:
+                        ref: commands
+                      on_success:
+                        ref: commands
+                      on_simulate:
+                        ref: commands
+              
+              storage.set:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+                      inputs:
+                        types:
+                          object:
+                            attributes:
+                              key:
+                                types:
+                                  string:
+                              expires:
+                                types:
+                                  string:
+                              value:
+                                types:
+                                  list:
+                                  string:
+                      output:
+                        types:
+                          string:
+                      on_error:
+                        ref: commands
+                      on_success:
+                        ref: commands
+                      on_simulate:
+                        ref: commands
+              
+              var.expand:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+                      inputs:
+                        types:
+                          object:
+                            attributes:
+                              key:
+                                types:
+                                  string:
+                              paths:
+                                required@bool: yes
+                                types:
+                                  list:
+                                  string:
+                      output:
+                        types:
+                          string:
+                      on_error:
+                        ref: commands
+                      on_success:
+                        ref: commands
+                      on_simulate:
+                        ref: commands
+              
+              var.push:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+                      inputs:
+                        types:
+                          object:
+                            attributes:
+                              key:
+                                types:
+                                  string:
+                              value:
+                                types:
+                                  list:
+                                  string:
+                      output:
+                        types:
+                          string:
+                      on_error:
+                        ref: commands
+                      on_success:
+                        ref: commands
+                      on_simulate:
+                        ref: commands
+              
+              var.set:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+                      inputs:
+                        types:
+                          object:
+                            attributes:
+                              key:
+                                types:
+                                  string:
+                              value:
+                                types:
+                                  list:
+                                  string:
+                      output:
+                        types:
+                          string:
+                      on_error:
+                        ref: commands
+                      on_success:
+                        ref: commands
+                      on_simulate:
+                        ref: commands
+              
+              var.unset:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+                      inputs:
+                        types:
+                          object:
+                            attributes:
+                              key:
+                                types:
+                                  string:
+              
+              while:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+                      if:
+                        types:
+                          bool:
+                      do:
+                        ref: commands
+        
+    schema:
+      attributes:
+        inputs:
+          ref: inputs
+        start:
+          required@bool: yes
+          ref: commands
+    EOD;
+	}
+	
+	function automationEvent() : string {
+		return <<< EOD
+    schema:
+      attributes:
+        automation:
+          multiple@bool: yes
+          types:
+            object:
+              attributes:
+                uri:
+                  required@bool: yes
+                  types:
+                    # [TODO] Cerb Record URI of type automation
+                    string:
+                disabled:
+                  types:
+                    bool:
+                inputs:
+                  types:
+                    list:
+        
+        # [TODO] Remove this in 11.0+
+        behavior:
+          multiple@bool: yes
+          types:
+            object:
+              attributes:
+                uri:
+                  required@bool: yes
+                  types:
+                    string:
+                disabled:
+                  types:
+                    bool:
+                inputs:
+                  types:
+                    list:
+    EOD;
+	}
+	
+	function automationPolicy() : string {
+		return <<< EOD
+    &policyRule:
+      types:
+        object:
+          attributes@ref:
+            allow:
+              multiple@bool: yes
+              types:
+                bool:
+            deny:
+              multiple@bool: yes
+              types:
+                bool:
+
+    schema:
+      attributes:
+        callers:
+          types:
+            object:
+              attributePatterns:
+                pattern/caller:
+                  match: *
+                  attributes@ref: policyRule
+        
+        commands:
+          types:
+            object:
+              attributes:
+                data.query@ref: policyRule
+                decrypt.pgp@ref: policyRule
+                email.parse@ref: policyRule
+                encrypt.pgp@ref: policyRule
+                function@ref: policyRule
+                http.request@ref: policyRule
+                record.create@ref: policyRule
+                record.delete@ref: policyRule
+                record.get@ref: policyRule
+                record.search@ref: policyRule
+                record.update@ref: policyRule
+                record.upsert@ref: policyRule
+                storage.delete@ref: policyRule
+                storage.get@ref: policyRule
+                storage.set@ref: policyRule
+    EOD;		
+	}
+	
+	function dashboardPrompts() : string {
+		return <<< EOD
+    &label:
+      required@bool: yes
+      types:
+        string:
+    
+    schema:
+      attributes:
+        chooser:
+          multiple@bool: yes
+          types:
+            object:
+              attributes:
+                label@ref: label
+                default:
+                  types:
+                    list:
+                    string:
+                params:
+                  types:
+                    object:
+                      attributes:
+                        context:
+                          types:
+                            string:
+                        single:
+                          types:
+                            bit:
+                            bool:
+        
+        date_range:
+          multiple@bool: yes
+          types:
+            object:
+              attributes:
+                label@ref: label
+                default:
+                  types:
+                    string:
+                params:
+                  types:
+                    object:
+                      attributes:
+                        presets:
+                          types:
+                            # [TODO] attributePatterns (* -> query)
+                            list:
+        
+        picklist:
+          multiple@bool: yes
+          types:
+            object:
+              attributes:
+                label@ref: label
+                default:
+                  types:
+                    list:
+                    string:
+                params:
+                  types:
+                    object:
+                      attributes:
+                        multiple:
+                          types:
+                            bool:
+                        options:
+                          required@bool: yes
+                          types:
+                            list:
+        
+        text:
+          multiple@bool: yes
+          types:
+            object:
+              attributes:
+                label@ref: label
+                default:
+                  types:
+                    string:
+    EOD;
+	}
+	
+	function interactionToolbar() : string {
+		return <<< EOD
+    definitions:
+      interaction:
+        multiple@bool: yes
+        types:
+          object:
+            attributes:
+              after:
+                types:
+                  list:
+              hidden:
+                types:
+                  bool:
+              icon:
+                types:
+                  string:
+              inputs:
+                types:
+                  list:
+              label:
+                types:
+                  string:
+              tooltip:
+                types:
+                  string:
+              uri:
+                required@bool: yes
+                types:
+                  string:
+      menu:
+        multiple@bool: yes
+        types:
+          object:
+            attributes:
+              default:
+                types:
+                  string:
+              icon:
+                types:
+                  string:
+              items:
+                types:
+                  object:
+                    attributes:
+                      interaction:
+                        ref: interaction
+                      menu:
+                        ref: menu
+              label:
+                types:
+                  string:
+              tooltip:
+                types:
+                  string:
+    
+    schema:
+      attributes:
+        interaction:
+          ref: interaction
+        menu:
+          ref: menu
+    EOD;
+	}
+	
+	function map() : string {
+		return <<< EOD
+    schema:
+      attributes:
+        map:
+          types:
+            object:
+              attributes:
+                points:
+                  types:
+                    object:
+                      attributes:
+                        data:
+                          types:
+                            object:
+                              attributes:
+                                point:
+                                  multiple@bool: yes
+                                  types:
+                                    object:
+                                      attributes:
+                                        latitude:
+                                          types:
+                                            number:
+                                        longitude:
+                                          types:
+                                            number:
+                                        properties:
+                                          types:
+                                            # [TODO] Object with any attribute
+                                            list:
+                        fill:
+                          types:
+                            object:
+                              attributes:
+                                color_map:
+                                  types:
+                                    object:
+                                      attributes:
+                                        property:
+                                          types:
+                                            string:
+                                        colors:
+                                          types:
+                                            list:
+                                default:
+                                  types:
+                                    string:
+                        filter:
+                          types:
+                            object:
+                              attributes:
+                                is:
+                                  types:
+                                    string:
+                                    list:
+                                not:
+                                  types:
+                                    string:
+                                    list:
+                                property:
+                                  types:
+                                    string:
+                        label:
+                          types:
+                            object:
+                              attributes:
+                                properties:
+                                  types:
+                                    list:
+                                title:
+                                  types:
+                                    string:
+                        resource:
+                          types:
+                            object:
+                              attributes:
+                                uri:
+                                  types:
+                                    string:
+                        size:
+                          types:
+                            object:
+                              attributes:
+                                default:
+                                  types:
+                                    string:
+                                value_map:
+                                  types:
+                                    object:
+                                      attributes:
+                                        property:
+                                          types:
+                                            string:
+                                        values:
+                                          types:
+                                            list:
+                projection:
+                  types:
+                    object:
+                      attributes:
+                        center:
+                          types:
+                            object:
+                              attributes:
+                                latitude:
+                                  types:
+                                    number:
+                                longitude:
+                                  types:
+                                    number:
+                        scale:
+                          types:
+                            number:
+                        type:
+                          types:
+                            # [TODO] mercator, albersUsa, naturalEarth
+                            string:
+                        zoom:
+                          types:
+                            object:
+                              attributes:
+                                latitude:
+                                  types:
+                                    number:
+                                longitude:
+                                  types:
+                                    number:
+                                scale:
+                                  types:
+                                    number:
+                regions:
+                  types:
+                    object:
+                      attributes:
+                        fill:
+                          types:
+                            object:
+                              attributes:
+                                choropleth:
+                                  types:
+                                    object:
+                                      attributes:
+                                        property:
+                                          types:
+                                            string:
+                                        classes:
+                                          types:
+                                            number:
+                                color_key:
+                                  types:
+                                    object:
+                                      attributes:
+                                        property:
+                                          types:
+                                            string:
+                                color_map:
+                                  types:
+                                    object:
+                                      attributes:
+                                        property:
+                                          types:
+                                            string:
+                                        colors:
+                                          types:
+                                            list:
+                        filter:
+                          types:
+                            object:
+                              attributes:
+                                is:
+                                  types:
+                                    string:
+                                    list:
+                                not:
+                                  types:
+                                    string:
+                                    list:
+                                property:
+                                  types:
+                                    string:
+                        label:
+                          types:
+                            object:
+                              attributes:
+                                properties:
+                                  types:
+                                    list:
+                                title:
+                                  types:
+                                    string:
+                        properties:
+                          types:
+                            object:
+                              attributes:
+                                join:
+                                  required@bool: yes
+                                  types:
+                                    object:
+                                      attributes:
+                                        property:
+                                          required@bool: yes
+                                          types:
+                                            string:
+                                        # [TODO] upper, lower
+                                        case:
+                                          types:
+                                            string:
+                                data:
+                                  types:
+                                    list:
+                                resource:
+                                  types:
+                                    object:
+                                      attributes:
+                                        uri:
+                                          types:
+                                            string:
+                resource:
+                  types:
+                    object:
+                      attributes:
+                        uri:
+                          required@bool: yes
+                          types:
+                            # [TODO] Format cerb URI
+                            string:
+    EOD;
+	}
+	
+	function sheet() : string {
+		return <<< EOD
+    &columnLabel:
+      types:
+        string:
+    
+    schema:
+      attributes:
+        layout:
+          types:
+            object:
+              attributes:
+                filtering:
+                  types:
+                    bool:
+                headings:
+                  types:
+                    bool:
+                paging:
+                  types:
+                    bool:
+                style:
+                  types:
+                    # [TODO] Possible values: table, etc.
+                    string:
+        
+        columns:
+          types:
+            object:
+              attributes:
+                card:
+                  multiple@bool: yes
+                  types:
+                    object:
+                      attributes:
+                        label@ref: columnLabel
+                        params:
+                          types:
+                            object:
+                              attributes:
+                                bold:
+                                  types:
+                                    bool:
+                                context_key:
+                                  types:
+                                    string:
+                                context_template:
+                                  types:
+                                    string:
+                                context:
+                                  types:
+                                    string:
+                                icon:
+                                  types:
+                                    string:
+                                id_key:
+                                  types:
+                                    string:
+                                id_template:
+                                  types:
+                                    string:
+                                id:
+                                  types:
+                                    string:
+                                image:
+                                  types:
+                                    bool:
+                                label_key:
+                                  types:
+                                    string:
+                                label_template:
+                                  types:
+                                    string:
+                                label:
+                                  types:
+                                    string:
+                                underline:
+                                  types:
+                                    bool:
+                
+                date:
+                  multiple@bool: yes
+                  types:
+                    object:
+                      attributes:
+                        label@ref: columnLabel
+                        params:
+                          types:
+                            object:
+                              attributes:
+                                bold:
+                                  types:
+                                    bool:
+                                format:
+                                  types:
+                                    string:
+                                value_key:
+                                  types:
+                                    string:
+                                value_template:
+                                  types:
+                                    string:
+                                value:
+                                  types:
+                                    string:
+                
+                icon:
+                  multiple@bool: yes
+                  types:
+                    object:
+                      attributes:
+                        label@ref: columnLabel
+                        params:
+                          types:
+                            object:
+                              attributes:
+                                image_key:
+                                  types:
+                                    string:
+                                image_template:
+                                  types:
+                                    string:
+                                image:
+                                  types:
+                                    string:
+                
+                link:
+                  multiple@bool: yes
+                  types:
+                    object:
+                      attributes:
+                        label@ref: columnLabel
+                        params:
+                          types:
+                            object:
+                              attributes:
+                                bold:
+                                  types:
+                                    bool:
+                                href_key:
+                                  types:
+                                    string:
+                                href_template:
+                                  types:
+                                    string:
+                                href:
+                                  types:
+                                    string:
+                                text_key:
+                                  types:
+                                    string:
+                                text_template:
+                                  types:
+                                    string:
+                                text:
+                                  types:
+                                    string:
+                        
+                search_button:
+                  multiple@bool: yes
+                  types:
+                    object:
+                      attributes:
+                        label@ref: columnLabel
+                        params:
+                          types:
+                            object:
+                              attributes:
+                                context_key:
+                                  types:
+                                    string:
+                                context_template:
+                                  types:
+                                    string:
+                                context:
+                                  types:
+                                    string:
+                                query_key:
+                                  types:
+                                    string:
+                                query_template:
+                                  types:
+                                    string:
+                                query:
+                                  types:
+                                    string:
+                
+                search:
+                  multiple@bool: yes
+                  types:
+                    object:
+                      attributes:
+                        label@ref: columnLabel
+                        params:
+                          types:
+                            object:
+                              attributes:
+                                bold:
+                                  types:
+                                    bool:
+                                context_key:
+                                  types:
+                                    string:
+                                context_template:
+                                  types:
+                                    string:
+                                context:
+                                  types:
+                                    string:
+                                label_key:
+                                  types:
+                                    string:
+                                label_template:
+                                  types:
+                                    string:
+                                label:
+                                  types:
+                                    string:
+                                query_key:
+                                  types:
+                                    string:
+                                query_template:
+                                  types:
+                                    string:
+                                query:
+                                  types:
+                                    string:
+                
+                selection:
+                  multiple@bool: yes
+                  types:
+                    object:
+                      attributes:
+                        params:
+                          types:
+                            object:
+                              attributes:
+                                value_key:
+                                  types:
+                                    string:
+                                value_template:
+                                  types:
+                                    string:
+                                value:
+                                  types:
+                                    string:
+                
+                slider:
+                  multiple@bool: yes
+                  types:
+                    object:
+                      attributes:
+                        label@ref: columnLabel
+                        params:
+                          types:
+                            object:
+                              attributes:
+                                max:
+                                  types:
+                                    number:
+                                min:
+                                  types:
+                                    number:
+                                value_key:
+                                  types:
+                                    string:
+                                value_template:
+                                  types:
+                                    string:
+                                value:
+                                  types:
+                                    string:
+                
+                text:
+                  multiple@bool: yes
+                  types:
+                    object:
+                      attributes:
+                        label@ref: columnLabel
+                        params:
+                          types:
+                            object:
+                              attributes:
+                                bold:
+                                  types:
+                                    bool:
+                                icon:
+                                  types:
+                                    string:
+                                value_key:
+                                  types:
+                                    string:
+                                value_map:
+                                  types:
+                                    # [TODO]
+                                    list:
+                                value_template:
+                                  types:
+                                    string:
+                                value:
+                                  types:
+                                    string:
+                
+                time_elapsed:
+                  multiple@bool: yes
+                  types:
+                    object:
+                      attributes:
+                        label@ref: columnLabel
+                        params:
+                          types:
+                            object:
+                              attributes:
+                                bold:
+                                  types:
+                                    bool:
+                                precision:
+                                  types:
+                                    number:
+                                value_key:
+                                  types:
+                                    string:
+                                value_template:
+                                  types:
+                                    string:
+                                value:
+                                  types:
+                                    string:
+    EOD;
+	}
+	
+	function snippetPrompts() : string {
+		return <<< EOD
+    schema:
+      attributes:
+        checkbox:
+          multiple@bool: yes
+          types:
+            object:
+              attributes:
+                label:
+                  required@bool: yes
+                  types:
+                    string:
+                default:
+                  types:
+                    bit:
+                    bool:
+        chooser:
+          multiple@bool: yes
+          types:
+            object:
+              attributes:
+                label:
+                  required@bool: yes
+                  types:
+                    string:
+                default:
+                  types:
+                    string:
+                params:
+                  types:
+                    object:
+                      attributes:
+                        type:
+                          types:
+                            # [TODO] Record type (format)
+                            string:
+                        query:
+                          types:
+                            string:
+        picklist:
+          multiple@bool: yes
+          types:
+            object:
+              attributes:
+                label:
+                  required@bool: yes
+                  types:
+                    string:
+                default:
+                  types:
+                    string:
+                params:
+                  types:
+                    object:
+                      attributes:
+                        options:
+                          types:
+                            # [TODO] Each list item must be a string
+                            list:
+        text:
+          multiple@bool: yes
+          types:
+            object:
+              attributes:
+                label:
+                  required@bool: yes
+                  types:
+                    string:
+                default:
+                  types:
+                    string:
+                params:
+                  types:
+                    object:
+                      attributes:
+                        multiple:
+                          types:
+                            bit:
+                            bool:
+    EOD;		
+	}
+}
 
 class _CerbApplication_Packages {
 	function prompts($json_string) {
