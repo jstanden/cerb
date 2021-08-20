@@ -44,6 +44,23 @@ class _DevblocksKataService {
 		$ptr =& $tree;
 		$indent_stack = [[0,&$ptr]];
 		
+		$funcValidateKeyName = function($key, $line_number, &$error) {
+			list($field_type, $field_name) = array_pad(explode('/', $key, 2), 2, null);
+			
+			if(empty($field_name))
+				return true;
+			
+			// Validate field name
+			if($field_name) {
+				if($field_name != DevblocksPlatform::strAlphaNum($field_name, '_')) {
+					$error = sprintf("`%s:` name `%s` must only contain letters, numbers, and underscores (line %d)", $field_type, $field_name, $line_number+1);
+					return false;
+				}
+			}
+			
+			return true;
+		};
+		
 		do {
 			$line = current($lines);
 			$line_number = key($lines);
@@ -92,6 +109,11 @@ class _DevblocksKataService {
 				case '':
 					if(preg_match('#' . $field_pattern . '\s*$#i', $trimmed_line, $matches)) {
 						$field_id = $matches[1] ?? null;
+						
+						// Validate field name
+						if(!$funcValidateKeyName($field_id, $line_number, $error))
+							return false;
+						
 						$field_attributes = DevblocksPlatform::parseCsvString(ltrim($matches[2] ?? null, '@'));
 						
 						$new_attributes = array_diff($field_attributes, ['text']);
@@ -156,6 +178,10 @@ class _DevblocksKataService {
 						}
 						
 					} else if(preg_match('#' . $field_pattern . '\s*(.*?)$#i', $trimmed_line, $matches)) {
+						// Validate field name
+						if(!$funcValidateKeyName($matches[1], $line_number, $error))
+							return false;
+						
 						$key = $matches[1] . $matches[2];
 						$value = $matches[3];
 						
