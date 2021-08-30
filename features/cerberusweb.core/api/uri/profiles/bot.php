@@ -1718,7 +1718,8 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			]);
 			
 		} else {
-			$automation_results = $automator->executeScript($automation, $initial_state, $error);
+			if(false === ($automation_results = $automator->executeScript($automation, $initial_state, $error)))
+				DevblocksPlatform::logError($error);
 		}
 		
 		header('Content-Type: application/json; charset=utf-8');
