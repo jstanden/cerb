@@ -226,7 +226,6 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 							'view_id' => $view_id,
 						]);
 						return;
-						break;
 					
 					case 'build':
 						@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
@@ -299,7 +298,6 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 							'view_id' => $view_id,
 						]);
 						return;
-						break;
 				}
 			}
 			

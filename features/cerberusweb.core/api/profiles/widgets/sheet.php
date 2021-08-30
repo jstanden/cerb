@@ -1,6 +1,7 @@
 <?php
+/** @noinspection PhpUnused */
 class ProfileWidget_Sheet extends Extension_ProfileWidget {
-	//const ID = '';
+	const ID = 'cerb.profile.tab.widget.sheet';
 	
 	function __construct($manifest = null) {
 		parent::__construct($manifest);

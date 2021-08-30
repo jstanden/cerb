@@ -340,7 +340,6 @@ class PageSection_ProfilesWorkspaceTab extends Extension_PageSection {
 							'view_id' => $view_id,
 						));
 						return;
-						break;
 				}
 			}
 			

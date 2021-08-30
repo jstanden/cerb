@@ -1,6 +1,6 @@
 <div style="margin-top:10px;">
 	<fieldset class="peek">
-		<legend>Enable these form interactions: <small>(Kata)</small></legend>
+		<legend>Enable these form interactions: <small>(KATA)</small></legend>
 
 		<div class="cerb-code-editor-toolbar">
 			<div data-cerb-toolbar style="display:inline-block;">

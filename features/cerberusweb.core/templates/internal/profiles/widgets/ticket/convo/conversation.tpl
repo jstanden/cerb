@@ -132,12 +132,12 @@ $(function() {
 		e.preventDefault();
 		e.stopPropagation();
 		
-		if(undefined == e.message_id)
+		if(!e.hasOwnProperty('message_id'))
 			return;
 		
 		var msgid = parseInt(e.message_id);
 
-		if(0 === e.draft_id) {
+		if(e.hasOwnProperty('draft_id') && 0 === e.draft_id) {
 			var $div = $('#reply' + msgid);
 
 			if (0 === $div.length)

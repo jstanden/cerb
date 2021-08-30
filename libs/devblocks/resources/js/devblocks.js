@@ -385,11 +385,11 @@ function DevblocksClass() {
 				var event;
 				
 				if(is_delete) {
-					event = new jQuery.Event('peek_deleted');
+					event = new $.Event('peek_deleted');
 					event.is_delete = is_delete;
 
 				} else {
-					event = new jQuery.Event('peek_saved');
+					event = new $.Event('peek_saved');
 
 					event.is_new = is_create;
 					event.is_continue = is_continue;
