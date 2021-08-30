@@ -996,6 +996,15 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		return $class;
 	}
 
+	function getModelObject(int $id) {
+		$objects = self::getModelObjects([$id]);
+		
+		if(array_key_exists($id, $objects))
+			return $objects[$id];
+		
+		return null;
+	}
+	
 	/**
 	 * @internal
 	 */
