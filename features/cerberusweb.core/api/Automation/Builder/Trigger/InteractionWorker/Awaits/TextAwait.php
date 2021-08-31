@@ -113,8 +113,14 @@ class TextAwait extends AbstractAwait {
 		if($is_required)
 			$input_field_type->setRequired(true);
 		
+		if(array_key_exists('min_length', $this->_data) && is_numeric($this->_data['min_length']) && $this->_data['min_length'])
+			$input_field_type->setMinLength($this->_data['min_length']);
+		
 		if(array_key_exists('max_length', $this->_data) && is_numeric($this->_data['max_length']) && $this->_data['max_length'])
 			$input_field_type->setMaxLength($this->_data['max_length']);
+		
+		$is_truncated = DevblocksPlatform::services()->string()->toBool($this->_data['truncate'] ?? 'yes');
+		$input_field_type->setTruncation($is_truncated);
 	}
 	
 	function formatValue() {

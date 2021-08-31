@@ -380,9 +380,11 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 				'(.*):await:form:elements:text:' => [
 					'default:',
 					'label:',
-					'max_length:',
+					'max_length@int:',
+					'min_length@int:',
 					'placeholder:',
 					'required@bool: yes',
+					'truncate@bool: yes',
 					'type:',
 					'validation@raw:',
 				],
@@ -404,9 +406,11 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 				'(.*):await:form:elements:textarea:' => [
 					'default:',
 					'label:',
-					'max_length:',
+					'max_length@int:',
+					'min_length@int:',
 					'placeholder:',
 					'required@bool: yes',
+					'truncate@bool: yes',
 					'validation@raw:',
 				],
 				

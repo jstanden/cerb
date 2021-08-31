@@ -1110,7 +1110,7 @@ class _DevblocksValidationService {
 				
 				if($data) {
 					if(isset($data['length_min']) && strlen($value) < $data['length_min']) {
-						throw new Exception_DevblocksValidationError(sprintf("'%s' must be longer than %d characters.", $field_label, $data['length_min']));
+						throw new Exception_DevblocksValidationError(sprintf("'%s' must be %d or more characters.", $field_label, $data['length_min']));
 					}
 					
 					if(isset($data['length_max']) && strlen($value) > $data['length_max']) {
