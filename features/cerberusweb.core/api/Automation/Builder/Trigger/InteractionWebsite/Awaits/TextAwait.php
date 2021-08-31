@@ -15,13 +15,14 @@ class TextAwait extends AbstractAwait {
 		$prompt_type = $this->_data['type'] ?? 'freeform';
 		
 		$input_field = $validation->addField($this->_key, $prompt_label);
-		$input_field_type = null;
 		
 		$is_required = array_key_exists('required', $this->_data) && $this->_data['required'];
 		
 		switch ($prompt_type) {
 			case 'freeform':
-				$input_field_type = $input_field->string();
+				$input_field_type = $input_field->string($validation::STRING_UTF8MB4)
+					->setMaxLength(1024)
+				;
 				break;
 				
 			case 'bool':
@@ -90,12 +91,16 @@ class TextAwait extends AbstractAwait {
 				break;
 			
 			case 'url':
-				$input_field_type = $input_field->url();
+				$input_field_type = $input_field->url()
+					->setMaxLength(2048)
+				;
 				break;
 			
 			default:
 				// [TODO] Error on unknown
-				$input_field_type = $input_field->string();
+				$input_field_type = $input_field->string($validation::STRING_UTF8MB4)
+					->setMaxLength(1024)
+				;
 				break;
 		}
 		
