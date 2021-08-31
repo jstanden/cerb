@@ -13,12 +13,22 @@ class TextareaAwait extends AbstractAwait {
 	function validate(_DevblocksValidationService $validation) {
 		$prompt_label = $this->_data['label'] ?? null;
 		
-		$field = $validation->addField($this->_key, $prompt_label);
+		$field_type = $validation->addField($this->_key, $prompt_label)->string($validation::STRING_UTF8MB4);
 		
-		$field_type = $field
-			->string()
-			->setMaxLength('24 bits')
-		;
+		$min_length = $this->_data['min_length'] ?? null;
+		$max_length = $this->_data['max_length'] ?? null;
+		$is_truncated = DevblocksPlatform::services()->string()->toBool($this->_data['truncate'] ?? 'yes');
+		
+		if($min_length && is_numeric($min_length))
+			$field_type->setMinLength($min_length);
+		
+		if($max_length && is_numeric($max_length)) {
+			$field_type->setMaxLength($this->_data['max_length']);
+		} else {
+			$field_type->setMaxLength('24 bits');
+		}
+		
+		$field_type->setTruncation($is_truncated);
 		
 		if(array_key_exists('required', $this->_data) && $this->_data['required'])
 			$field_type->setRequired(true);

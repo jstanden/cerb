@@ -223,9 +223,11 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 				'(.*):await:form:elements:text:' => [
 					'default:',
 					'label:',
-					'max_length:',
+					'max_length@int:',
+					'min_length@int:',
 					'placeholder:',
 					'required@bool:',
+					'truncate@bool: yes',
 					'type:',
 				],
 				
@@ -246,9 +248,11 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 				'(.*):await:form:elements:textarea:' => [
 					'default:',
 					'label:',
-					'max_length:',
+					'max_length@int:',
+					'min_length@int:',
 					'placeholder:',
 					'required@bool:',
+					'truncate@bool: yes',
 				],
 				
 				'(.*):await:interaction:' => [
