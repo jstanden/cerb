@@ -709,8 +709,12 @@ class CerberusMail {
 			$worker = DAO_Worker::get($worker_id);
 		
 		// Group
-		if(null == ($group = DAO_Group::get($group_id)))
-			return false;
+		if(null == ($group = DAO_Group::get($group_id))) {
+			if(null == ($group = DAO_Group::getDefaultGroup()))
+				return false;
+			
+			$group_id = $group->id;
+		}
 		
 		// Bucket
 		if(!$bucket_id || false == ($bucket = DAO_Bucket::get($bucket_id)) || $bucket->group_id != $group->id)
