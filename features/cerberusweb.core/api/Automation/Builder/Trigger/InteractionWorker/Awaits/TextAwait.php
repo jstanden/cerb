@@ -20,7 +20,7 @@ class TextAwait extends AbstractAwait {
 		
 		switch ($prompt_type) {
 			case 'freeform':
-				$input_field_type = $input_field->string()
+				$input_field_type = $input_field->string($validation::STRING_UTF8MB4)
 					->setMaxLength(1024)
 				;
 				break;
@@ -104,7 +104,7 @@ class TextAwait extends AbstractAwait {
 			
 			default:
 				// [TODO] Error on unknown
-				$input_field_type = $input_field->string()
+				$input_field_type = $input_field->string($validation::STRING_UTF8MB4)
 					->setMaxLength(1024)
 				;
 				break;
