@@ -113,14 +113,14 @@ class RecordUpdateAction extends AbstractAction {
 			if(!method_exists($context_ext, 'getDaoFieldsFromKeysAndValues'))
 				throw new Exception_DevblocksAutomationError("Not implemented.");
 			
-			if(!$context_ext->getDaoFieldsFromKeysAndValues($fields, $dao_fields, $custom_fields, $policy))
-				throw new Exception_DevblocksAutomationError($policy);
+			if(!$context_ext->getDaoFieldsFromKeysAndValues($fields, $dao_fields, $custom_fields, $error))
+				throw new Exception_DevblocksAutomationError($error);
 			
-			if(is_array($dao_fields) && !$dao_class::validate($dao_fields, $policy, $record_id))
-				throw new Exception_DevblocksAutomationError($policy);
+			if(is_array($dao_fields) && !$dao_class::validate($dao_fields, $error, $record_id))
+				throw new Exception_DevblocksAutomationError($error);
 			
-			if($custom_fields && !DAO_CustomField::validateCustomFields($custom_fields, $context_ext->id, $policy, $record_id))
-				throw new Exception_DevblocksAutomationError($policy);
+			if($custom_fields && !DAO_CustomField::validateCustomFields($custom_fields, $context_ext->id, $error, $record_id))
+				throw new Exception_DevblocksAutomationError($error);
 			
 			$dao_class::update($record_id, $dao_fields);
 			

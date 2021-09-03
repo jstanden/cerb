@@ -59,7 +59,7 @@ class SheetAwait extends AbstractAwait {
 		$sheet_paging = [];
 		
 		// If an assoc/object and not indexed
-		if(is_array($sheet_data) && !DevblocksPlatform::arrayIsIndexed($sheet_data) && array_key_exists('automation', $sheet_data)) {
+		if(is_array($sheet_data) && array_key_exists('automation', $sheet_data)) {
 			$automation_uri = $sheet_data['automation']['uri'] ?? null;
 			
 			if(!is_null($automation_uri) && false != ($callback = DAO_Automation::getByUri($automation_uri))) {
@@ -91,7 +91,7 @@ class SheetAwait extends AbstractAwait {
 				}
 			}
 			
-		} else {
+		} else if(is_array($sheet_data) && DevblocksPlatform::arrayIsIndexed($sheet_data)) {
 			if($sheet_filter) {
 				$sheet_data = array_filter($sheet_data, function($row) use ($sheet_filter) {
 					$text = implode(' ', $row);
