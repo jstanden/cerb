@@ -109,9 +109,6 @@ class PageSection_ProfilesGpgPublicKey extends Extension_PageSection {
 					if (empty($key))
 						throw new Exception_DevblocksAjaxValidationError("Failed to retrieve public key subkey info.", "key_text");
 					
-					if ($key['expired'] || $key['disabled'] || $key['revoked'])
-						throw new Exception_DevblocksAjaxValidationError("This public key is expired, revoked, or disabled.", "key_text");
-					
 					if (empty($name))
 						@$name = $keyinfo['uids'][0]['uid'];
 					

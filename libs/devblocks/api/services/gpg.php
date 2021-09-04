@@ -272,7 +272,12 @@ class DevblocksGpgEngine_OpenPGP extends Extension_DevblocksGpgEngine {
 			}
 		}
 		
-		$keyinfo['subkeys'] = array_values($id16_ptrs);
+		$keyinfo['subkeys'] = array_values(array_filter(
+			$id16_ptrs,
+			function($id16) {
+				return !($id16['expired'] || $id16['revoked'] || $id16['disabled']);
+			}
+		));
 		
 		$keyinfo['is_secret'] = false !== array_search(true, array_column($keyinfo['subkeys'], 'is_secret'));
 		$keyinfo['can_sign'] = false !== array_search(true, array_column($keyinfo['subkeys'], 'can_sign'));
