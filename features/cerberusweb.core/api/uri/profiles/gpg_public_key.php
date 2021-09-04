@@ -93,8 +93,16 @@ class PageSection_ProfilesGpgPublicKey extends Extension_PageSection {
 					if (!isset($keyinfo['uids']) || !is_array($keyinfo['uids']) || empty($keyinfo['uids']))
 						throw new Exception_DevblocksAjaxValidationError("Failed to retrieve public key UID info.", 'key_text');
 					
-					if (!$keyinfo['can_sign'] || $keyinfo['is_secret'])
-						throw new Exception_DevblocksAjaxValidationError("This is not a valid public key.", "key_text");
+					if ($keyinfo['is_secret'])
+						throw new Exception_DevblocksAjaxValidationError("This is a private key.", "key_text");
+					
+					if (!$keyinfo['can_encrypt'])
+						throw new Exception_DevblocksAjaxValidationError("This public key doesn't support encryption.", "key_text");
+					
+					if (($keyinfo['expired'] ?? false) || ($keyinfo['disabled'] ?? false) || ($keyinfo['revoked'] ?? false))
+						throw new Exception_DevblocksAjaxValidationError("This public key is expired, revoked, or disabled.", "key_text");
+
+					DevblocksPlatform::logError($keyinfo);
 					
 					@$key = $keyinfo['subkeys'][0];
 					
