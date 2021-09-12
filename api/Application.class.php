@@ -4563,6 +4563,9 @@ class _CerbApplication_KataSchemas {
               default:
                 types:
                   string:
+              hidden:
+                types:
+                  bool:
               icon:
                 types:
                   string:

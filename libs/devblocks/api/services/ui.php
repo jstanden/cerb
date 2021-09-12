@@ -500,7 +500,7 @@ class DevblocksUiToolbar {
 					return;
 				}
 				
-			} else if('menu' === $node['type']) {
+			} else if('menu' === $node['type'] && array_key_exists('items', $node)) {
 				foreach(@$node['items'] as &$n) {
 					$this->enforceCallerPolicy($n, $automations, $dict);
 				}
