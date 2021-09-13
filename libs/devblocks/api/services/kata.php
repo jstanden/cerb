@@ -521,9 +521,7 @@ class _DevblocksKataService {
 					}
 				} else if($annotation == 'list') {
 					$v = DevblocksPlatform::parseCrlfString($v);
-				} else if($annotation == 'raw') { 
-					// Do nothing
-				} else if($annotation == 'text') { 
+				} else if(in_array($annotation, ['optional','raw','text'])) {
 					// Do nothing
 				} else if($annotation == 'trim') {
 					if(is_string($v))
