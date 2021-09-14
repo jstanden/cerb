@@ -208,6 +208,7 @@ class _DevblocksTemplateBuilder {
 				'default',
 				'e',
 				'escape',
+				'filter',
 				'first',
 				'format',
 				'join',
