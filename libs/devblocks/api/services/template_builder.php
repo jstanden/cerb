@@ -217,6 +217,7 @@ class _DevblocksTemplateBuilder {
 				'last',
 				'length',
 				'lower',
+				'map',
 				'merge',
 				'nl2br',
 				'number_format',
