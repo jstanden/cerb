@@ -222,6 +222,7 @@ class _DevblocksTemplateBuilder {
 				'nl2br',
 				'number_format',
 				'raw',
+				'reduce',
 				'replace',
 				'reverse',
 				'round',
