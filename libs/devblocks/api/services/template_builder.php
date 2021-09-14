@@ -433,6 +433,9 @@ class _DevblocksTemplateBuilder {
 				$out = $template->render([]);
 			}
 			
+		} catch(ArgumentCountError $e) {
+			$this->_errors[] = "Argument count error";
+			
 		} catch(SyntaxError $e) {
 			$this->_errors[] = sprintf("%s (line %d)",
 				$e->getRawMessage(),
