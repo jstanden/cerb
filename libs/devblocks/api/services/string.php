@@ -323,4 +323,11 @@ class _DevblocksStringService {
 			)
 		);
 	}
+	
+	public function isPrintable(string $bytes) : bool {
+		if(strlen($bytes) && false === @yaml_emit($bytes))
+			return false;
+		
+		return true;
+	}
 }
