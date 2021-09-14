@@ -197,6 +197,7 @@ class _DevblocksTemplateBuilder {
 				'truncate',
 				'unescape',
 				'url_decode',
+				'values',
 				
 				'abs',
 				'batch',
@@ -1675,6 +1676,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			new \Twig\TwigFilter('truncate', [$this, 'filter_truncate']),
 			new \Twig\TwigFilter('unescape', [$this, 'filter_unescape']),
 			new \Twig\TwigFilter('url_decode', [$this, 'filter_url_decode']),
+			new \Twig\TwigFilter('values', [$this, 'filter_values']),
 		);
 	}
 	
@@ -2133,6 +2135,13 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			default:
 				return rawurldecode($string);
 		}
+	}
+	
+	function filter_values($array) : array {
+		if(!array($array))
+			return [];
+		
+		return array_values($array);
 	}
 	
 	public function getTests() {

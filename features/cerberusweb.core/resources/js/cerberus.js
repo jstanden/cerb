@@ -1714,6 +1714,7 @@ var ajax = new cAjaxCalls();
 					{ value: "url_decode", meta: "filter" },
 					{ value: "url_decode('json')", meta: "filter" },
 					{ value: "url_encode", meta: "filter" },
+					{ value: "values", meta: "filter" },
 				];
 				
 				var twig_functions = [
@@ -2838,7 +2839,8 @@ var ajax = new cAjaxCalls();
 					{ value: "upper", meta: "filter" },
 					{ value: "url_decode", meta: "filter" },
 					{ value: "url_decode('json')", meta: "filter" },
-					{ value: "url_encode", meta: "filter" }
+					{ value: "url_encode", meta: "filter" },
+					{ value: "values", meta: "filter" },
 				],
 				twigFunctions: [
 					{ value: "array_column(array,column_key,index_key)", meta: "function" },
