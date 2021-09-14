@@ -201,6 +201,7 @@ class _DevblocksTemplateBuilder {
 				'abs',
 				'batch',
 				'capitalize',
+				'column',
 				'convert_encoding',
 				'date',
 				'date_modify',
