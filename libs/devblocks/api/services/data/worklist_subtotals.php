@@ -451,6 +451,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			$key_select = $by['key_select'];
 			$values = array_column($rows, $key_select);
 			
+			// Re-label
 			switch($by['type']) {
 				case Model_CustomField::TYPE_CURRENCY:
 					@$currency_id = $by['type_options']['currency_id'];
@@ -474,11 +475,22 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 						$rows[$row_idx][$key_select] = $value;
 					}
 					break;
+					
+				case Model_CustomField::TYPE_WORKER:
+					if(!DevblocksPlatform::strEndsWith($by['key_query'], '.id')) {
+						$worker_names = DAO_Worker::getNames(false);
+						
+						foreach ($values as $row_idx => $value) {
+							$rows[$row_idx][$key_select] = $worker_names[$value] ?? $value;
+						}
+					}
+					break;
 			}
 			
 			if(false !== ($by_labels = $search_class::getLabelsForKeyValues($key_select, $values)))
 				$labels[$key_select] = $by_labels;
 			
+			// Queries
 			foreach($values as $value) {
 				@$filter = $by['key_query'] . ':%s';
 				
