@@ -1991,7 +1991,7 @@ class CerberusMail {
 			// First outgoing message?
 			if(empty($ticket->first_outgoing_message_id) && !empty($worker_id)) {
 				$change_fields[DAO_Ticket::FIRST_OUTGOING_MESSAGE_ID] = $message_id;
-				$change_fields[DAO_Ticket::ELAPSED_RESPONSE_FIRST] = $response_time;
+				$change_fields[DAO_Ticket::ELAPSED_RESPONSE_FIRST] = max(time() - $ticket->created_date, 0);
 			}
 			
 			// Convert to a plaintext part
