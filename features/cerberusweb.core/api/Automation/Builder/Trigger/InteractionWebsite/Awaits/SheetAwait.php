@@ -86,12 +86,18 @@ class SheetAwait extends AbstractAwait {
 				}
 			}
 			
-		} else {
+		} else if (is_array($sheet_data)) {
 			if($sheet_filter) {
-				$sheet_data = array_filter($sheet_data, function($row) use ($sheet_filter) {
+				$sheet_data_is_indexed = DevblocksPlatform::arrayIsIndexed($sheet_data);
+				
+				$sheet_data = array_filter($sheet_data, function($row, $key) use ($sheet_filter, $sheet_data_is_indexed) {
 					$text = implode(' ', $row);
-					return stristr($text, $sheet_filter) ? true : false;
-				});
+					
+					if(!$sheet_data_is_indexed)
+						$text = $key . ' ' . $text;
+					
+					return (bool) stristr($text, $sheet_filter);
+				}, ARRAY_FILTER_USE_BOTH);
 			}
 			
 			$total = count($sheet_data);
