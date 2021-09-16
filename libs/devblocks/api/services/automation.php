@@ -352,7 +352,10 @@ class _DevblocksAutomationService {
 			
 		} catch (Exception_DevblocksAutomationError $e) {
 			$error = $e->getMessage();
-			error_log($error);
+			
+			// Only log when this isn't CLI (e.g. ignore unit tests)
+			if(php_sapi_name() != 'cli')
+				error_log($error);
 			
 			// Log exceptions
 			if(!$is_simulate && class_exists('DAO_AutomationLog')) {
