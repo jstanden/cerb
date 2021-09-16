@@ -9,6 +9,78 @@ class DevblocksDateTest extends TestCase {
 	function testParseDateRange() {
 		$date = DevblocksPlatform::services()->date();
 		
+		// Dashes with US format and zero padding
+		
+		$expected = [
+			strtotime('2021-09-01 00:00:00'),
+			strtotime('2021-09-15 23:59:59')
+		];
+		
+		$results = $date->parseDateRange('09/01/2021 to 09/15/2021');
+		
+		$this->assertTrue(is_array($results));
+		
+		$actual = [
+			$results['from_ts'],
+			$results['to_ts'],
+		];
+		
+		$this->assertEquals($expected, $actual);
+		
+		// Dashes with US format and no zero padding
+		
+		$expected = [
+			strtotime('2021-09-01 00:00:00'),
+			strtotime('2021-09-15 23:59:59')
+		];
+		
+		$results = $date->parseDateRange('9/1/2021 to 9/15/2021');
+		
+		$this->assertTrue(is_array($results));
+		
+		$actual = [
+			$results['from_ts'],
+			$results['to_ts'],
+		];
+		
+		$this->assertEquals($expected, $actual);
+		
+		// Dashes with EU (dash) format and zero padding
+		
+		$expected = [
+			strtotime('2021-09-01 00:00:00'),
+			strtotime('2021-09-15 23:59:59')
+		];
+		
+		$results = $date->parseDateRange('01-09-2021 to 15-09-2021');
+		
+		$this->assertTrue(is_array($results));
+		
+		$actual = [
+			$results['from_ts'],
+			$results['to_ts'],
+		];
+		
+		$this->assertEquals($expected, $actual);
+		
+		// Dashes with EU (dot) format and zero padding
+		
+		$expected = [
+			strtotime('2021-09-01 00:00:00'),
+			strtotime('2021-09-15 23:59:59')
+		];
+		
+		$results = $date->parseDateRange('01.09.2021 to 15.09.2021');
+		
+		$this->assertTrue(is_array($results));
+		
+		$actual = [
+			$results['from_ts'],
+			$results['to_ts'],
+		];
+		
+		$this->assertEquals($expected, $actual);
+		
 		// Implied full ending date
 		
 		$expected = [
