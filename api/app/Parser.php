@@ -1385,8 +1385,14 @@ class CerberusParser {
 			
 			$handlers = DevblocksPlatform::services()->ui()->eventHandler()->parse(
 				$events_kata,
-				DevblocksDictionaryDelegate::instance($initial_state)
+				DevblocksDictionaryDelegate::instance($initial_state),
+				$error
 			);
+			
+			if(false === $handlers && $error) {
+				error_log('[KATA] Invalid mail.route KATA: ' . $error);
+				$handlers = [];
+			}
 			
 			$automation_results = DevblocksPlatform::services()->ui()->eventHandler()->handleUntilReturn(
 				AutomationTrigger_MailRoute::ID,

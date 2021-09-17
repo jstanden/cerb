@@ -133,8 +133,14 @@ class AutomationTrigger_MailDraft extends Extension_AutomationTrigger {
 		
 		$handlers = DevblocksPlatform::services()->ui()->eventHandler()->parse(
 			$events_kata,
-			DevblocksDictionaryDelegate::instance($initial_state)
+			DevblocksDictionaryDelegate::instance($initial_state),
+			$error
 		);
+		
+		if(false === $handlers && $error) {
+			error_log('[KATA] Invalid mail.draft KATA: ' . $error);
+			$handlers = [];
+		}
 		
 		$automation_results = DevblocksPlatform::services()->ui()->eventHandler()->handleEach(
 			AutomationTrigger_MailDraft::ID,

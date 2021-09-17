@@ -2426,7 +2426,12 @@ class CerberusContexts {
 						
 						$error = null;
 						
-						$handlers = $record_changed_events->getKata($dict);
+						$handlers = $record_changed_events->getKata($dict, $error);
+						
+						if(false === $handlers && $error) {
+							error_log('[KATA] Invalid record.changed KATA: ' . $error);
+							$handlers = [];
+						}
 						
 						$event_handler->handleEach(
 							AutomationTrigger_RecordChanged::ID,

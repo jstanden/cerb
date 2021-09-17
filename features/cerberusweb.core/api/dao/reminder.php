@@ -501,7 +501,6 @@ class Model_Reminder {
 		if(false == ($handlers = $automation_event->getKata($event_dict, $error)))
 			return false;
 		
-		
 		$results = $event_handler->handleEach(
 			AutomationTrigger_ReminderRemind::ID,
 			$handlers,

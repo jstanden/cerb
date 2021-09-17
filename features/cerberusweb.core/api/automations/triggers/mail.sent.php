@@ -53,8 +53,14 @@ class AutomationTrigger_MailSent extends Extension_AutomationTrigger {
 		
 		$handlers = DevblocksPlatform::services()->ui()->eventHandler()->parse(
 			$events_kata,
-			DevblocksDictionaryDelegate::instance($initial_state)
+			DevblocksDictionaryDelegate::instance($initial_state),
+			$error
 		);
+		
+		if(false === $handlers && $error) {
+			error_log('[KATA] Invalid mail.sent KATA: ' . $error);
+			$handlers = [];
+		}
 		
 		DevblocksPlatform::services()->ui()->eventHandler()->handleEach(
 			AutomationTrigger_MailSent::ID,
