@@ -411,6 +411,8 @@ abstract class C4_AbstractView {
 	function getParams($parse_placeholders=true) {
 		$params = DevblocksPlatform::deepCloneArray($this->_paramsEditable);
 		
+		$error = null;
+		
 		// Required should supersede editable
 		
 		if(is_array($this->_paramsRequired)) {
@@ -424,10 +426,13 @@ abstract class C4_AbstractView {
 		// Required quick search
 		
 		if($this->_paramsRequiredQuery) {
-			if(false != ($params_required = $this->getParamsFromQuickSearch($this->_paramsRequiredQuery))) {
+			if(false != ($params_required = $this->getParamsFromQuickSearch($this->_paramsRequiredQuery, [], $error))) {
 				foreach($params_required as $key => $param) {
 					$params['req_'.$key] = $param;
 				}
+			} else {
+				self::marqueeFlush($this->id);
+				self::marqueeAppend($this->id, '[Warning] Required query: ' . $error);
 			}
 		}
 		
