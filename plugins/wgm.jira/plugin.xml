@@ -4,7 +4,7 @@
 	<name>JIRA Integration (Legacy)</name>
 	<description>This plugin provides integration with Atlassian JIRA via their REST API.  It is intended to be a bridge used by other plugins to communicate with JIRA services.</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>10.1.0</version>
+	<version>10.1.1</version>
 	<link>http://www.cerbweb.com/book/latest/plugins/wgm.jira</link>
 	<image>plugin.png</image>
 

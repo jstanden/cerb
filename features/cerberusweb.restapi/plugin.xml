@@ -4,7 +4,7 @@
 	<name>Web Services API (JSON/XML)</name>
 	<description>A RESTful JSON/XML interface for integrating Cerb with other applications and tools.</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>10.1.0</version>
+	<version>10.1.1</version>
 	<link>http://wiki.cerbweb.com/Features:Web_Services_API</link>
 	<image>plugin.png</image>
 

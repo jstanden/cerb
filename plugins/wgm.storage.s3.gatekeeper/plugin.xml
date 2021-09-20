@@ -4,7 +4,7 @@
 	<name>S3 Gatekeeper Storage Engine</name>
 	<description>This plugin adds a new storage engine for Amazon S3 that doesn't store or expose your AWS account credentials. Instead, it authenticates with a remote gatekeeper script and retrieves a secure, pre-signed URL that is used to perform requests.</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>10.1.0</version>
+	<version>10.1.1</version>
 	<link>http://www.cerbweb.com/book/latest/plugins/wgm.storage.s3.gatekeeper.html</link>
 	<image>plugin.png</image>
 
