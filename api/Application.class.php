@@ -4335,6 +4335,15 @@ class _CerbApplication_KataSchemas {
                               key:
                                 types:
                                   string:
+                      output:
+                        types:
+                          string:
+                      on_error:
+                        ref: commands
+                      on_success:
+                        ref: commands
+                      on_simulate:
+                        ref: commands
               
               while:
                 multiple@bool: yes
