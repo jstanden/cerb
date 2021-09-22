@@ -241,6 +241,19 @@ class Controller_Avatars extends DevblocksControllerExtension {
 				$this->_renderFilePng(APP_PATH . '/features/cerberusweb.core/resources/images/avatars/convo.png');
 				break;
 				
+			case CerberusContexts::CONTEXT_TICKET:
+				// Look up the avatar record
+				if(
+					false != ($ticket = DAO_Ticket::get($context_id))
+					&& false != ($avatar = DAO_ContextAvatar::getByContext(CerberusContexts::CONTEXT_GROUP, $ticket->group_id))
+				) {
+					$this->_renderAvatar($avatar);
+					return;
+				}
+				
+				$this->_renderFilePng(APP_PATH . '/features/cerberusweb.core/resources/images/avatars/convo.png');
+				return;
+				
 			default:
 				$this->_renderFilePng(APP_PATH . '/features/cerberusweb.core/resources/images/avatars/va.png');
 				break;
