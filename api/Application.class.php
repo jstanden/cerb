@@ -4862,6 +4862,9 @@ class _CerbApplication_KataSchemas {
                   types:
                     # [TODO] Possible values: table, etc.
                     string:
+                title_column:
+                  types:
+                    string:
         
         columns:
           types:
