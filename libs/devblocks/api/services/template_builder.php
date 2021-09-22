@@ -674,12 +674,12 @@ class DevblocksDictionaryDelegate implements JsonSerializable, IteratorAggregate
 		
 		$ptr =& $this->_dictionary;
 		
-		while($k = array_shift($path)) {
+		while(null !== ($k = array_shift($path))) {
 			if(!array_key_exists($k, $ptr)) {
 				return false;
 			}
 			
-			if(empty($path)) {
+			if(0 == count($path)) {
 				unset($ptr[$k]);
 				return true;
 				
