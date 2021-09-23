@@ -2465,6 +2465,9 @@ abstract class C4_AbstractView {
 		$counts = [];
 		$results = $this->_getSubtotalDataForVirtualColumn($context, $field_key);
 		
+		if(!is_array($results))
+			return $counts;
+		
 		if(is_callable($label_map)) {
 			$label_map = $label_map(array_column($results, 'label'));
 		}
@@ -2519,11 +2522,13 @@ abstract class C4_AbstractView {
 		$counts = [];
 		$results = $this->_getSubtotalDataForColumn($context, $field_key);
 		
+		if(!is_array($results))
+			return $counts;
+		
 		if(is_callable($label_map)) {
 			$label_map = $label_map(array_column($results, 'label'));
 		}
 		
-		if(is_array($results))
 		foreach($results as $result) {
 			$label = $result['label'];
 			$key = $label;
@@ -2572,6 +2577,9 @@ abstract class C4_AbstractView {
 	protected function _getSubtotalCountForNumberColumn($context, $field_key, $label_map=[], $value_oper='=', $value_key='value') {
 		$counts = [];
 		$results = $this->_getSubtotalDataForColumn($context, $field_key);
+		
+		if(!is_array($results))
+			return $counts;
 		
 		if(is_callable($label_map)) {
 			$label_map = $label_map(array_column($results, 'label'));
@@ -2628,6 +2636,9 @@ abstract class C4_AbstractView {
 		
 		$counts = [];
 		$results = $this->_getSubtotalDataForColumn($context, $field_key);
+		
+		if(!is_array($results))
+			return $counts;
 		
 		foreach($results as $result) {
 			$label = $result['label'];
@@ -2724,11 +2735,12 @@ abstract class C4_AbstractView {
 		$counts = [];
 		$results = $this->_getSubtotalDataForWatcherColumn($context, $field_key);
 		
-		if(is_array($results))
+		if(!is_array($results))
+			return $counts;
+		
 		foreach($results as $result) {
 			$watcher_id = intval($result['watcher_id']);
 			$hits = $result['hits'];
-			$label = '';
 
 			if(isset($workers[$watcher_id])) {
 				$label = $workers[$watcher_id]->getName();
@@ -2861,10 +2873,11 @@ abstract class C4_AbstractView {
 		
 		$results = $this->_getSubtotalDataForContextLinkColumn($context, $field_key);
 		
-		if(is_array($results))
+		if(!is_array($results))
+			return $counts;
+		
 		foreach($results as $result) {
 			$hits = $result['hits'];
-			$label = '';
 			
 			if(isset($result['link_from_context_id'])) {
 				$from_context = $result['link_from_context'];
@@ -3009,10 +3022,11 @@ abstract class C4_AbstractView {
 		
 		$results = $this->_getSubtotalDataForContextAndIdColumns($context, $field_key, $context_field, $context_id_field);
 		
-		if(is_array($results))
+		if(!is_array($results))
+			return $counts;
+		
 		foreach($results as $result) {
 			$hits = $result['hits'];
-			$label = '';
 			
 			if(isset($result['context_id_field'])) {
 				$from_context = $result['context_field'];

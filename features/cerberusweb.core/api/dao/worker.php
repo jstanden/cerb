@@ -1573,7 +1573,7 @@ class SearchFields_Worker extends DevblocksSearchFields {
 				$db = DevblocksPlatform::services()->database();
 				$workspace_page_sql = self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_WORKSPACE_PAGE, '%s');
 				
-				if(false == ($rows = $workspace_page_ids = $db->GetArrayReader($workspace_page_sql)))
+				if(false == ($rows = $db->GetArrayReader($workspace_page_sql)))
 					return '0';
 				
 				if(false == ($worker_ids = DAO_WorkspacePage::getUsers(array_column($rows, 'id'))))

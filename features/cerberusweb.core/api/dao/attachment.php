@@ -1019,7 +1019,7 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 	
 	/**
 	 * @param int $id
-	 * @param string $contents
+	 * @param string|resource $contents
 	 * @param Model_DevblocksStorageProfile|int $profile
 	 * @return bool|void
 	 */

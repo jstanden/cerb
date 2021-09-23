@@ -256,9 +256,6 @@ class _DevblocksSheetServiceTypes {
 			$column_key = $column['key'] ?? null;
 			$column_params = $column['params'] ?? [];
 			
-			@$card_label = $column_params['label'];
-			@$card_context = $column_params['context'];
-			@$card_id = $column_params['id'];
 			@$is_underlined = !array_key_exists('underline', $column_params) || $column_params['underline'];
 			
 			$default_card_context_key = null;

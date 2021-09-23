@@ -352,7 +352,6 @@ class DevblocksStorageEngineGatekeeper extends Extension_DevblocksStorageEngine 
 		try {
 			$ch = DevblocksPlatform::curlInit($url);
 			$http_date = gmdate(DATE_RFC2822);
-			$length = null;
 	
 			//curl_setopt($ch, CURLOPT_VERBOSE, true);
 			//curl_setopt($ch, CURLINFO_HEADER_OUT, true);
@@ -429,11 +428,9 @@ class DevblocksStorageEngineGatekeeper extends Extension_DevblocksStorageEngine 
 			case 'GET':
 			case 'POST':
 				return $response;
-				break;
 				
 			default:
 				return true;
-				break;
 		}
 	}
 	

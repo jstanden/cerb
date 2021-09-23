@@ -521,7 +521,9 @@ class DevblocksDictionaryDelegate implements JsonSerializable, IteratorAggregate
 	}
 	
 	public function __unset($name) {
+		$removed = $this->_dictionary[$name] ?? null; 
 		unset($this->_dictionary[$name]);
+		return $removed;
 	}
 	
 	public function clearCaches() {
@@ -614,8 +616,7 @@ class DevblocksDictionaryDelegate implements JsonSerializable, IteratorAggregate
 	}
 	
 	public function _getPathFromText($name, $delimiter='.') {
-		$path = explode($delimiter, $name);
-		return $path;
+		return explode($delimiter, $name);
 	}
 	
 	public function setKeyPath($name, $value, $delimiter='.') {
