@@ -81,6 +81,8 @@ class _DevblocksDataProviderRecordTypes extends _DevblocksDataProvider {
 			];
 		}
 		
+		DevblocksPlatform::sortObjects($data, '[label_plural]');
+		
 		if($chart_model['limit']) {
 			$page = $chart_model['page'] ?? 0;
 			$limit = $chart_model['limit'] ?? 10;
