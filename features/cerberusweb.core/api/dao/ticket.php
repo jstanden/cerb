@@ -886,6 +886,15 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			if(strlen($fields[self::SUBJECT]) > 255)
 				$fields[self::SUBJECT] = mb_substr($fields[self::SUBJECT], 0, 255);
 		
+		// Only a bucket ID?
+		if(array_key_exists(self::BUCKET_ID, $fields) && !array_key_exists(self::GROUP_ID, $fields)) {
+			if(false != ($bucket = DAO_Bucket::get($fields[self::BUCKET_ID]))) {
+				$fields[self::GROUP_ID] = $bucket->group_id;
+			} else {
+				unset($fields[self::BUCKET_ID]); 
+			}
+		}
+		
 		$context = CerberusContexts::CONTEXT_TICKET;
 		self::_updateAbstract($context, $ids, $fields);
 		
