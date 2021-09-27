@@ -13,7 +13,9 @@
 					<input type="checkbox" name="{$sheet_selection_key|default:'_selection'}[]" value="{$row[$column.key]}" {if is_array($default) && in_array($row[$column.key], $default)}checked="checked"{/if}>
 				{/if}
 			{else}
+				{if $column.params.bold}<span style="font-weight:bold;">{/if}
 				{$row[$column.key] nofilter}
+				{if $column.params.bold}</span>{/if}
 			{/if}
 		{/foreach}
 	</div>
