@@ -319,16 +319,17 @@ class _DevblocksSheetServiceTypes {
 				// Avatar image?
 				if(array_key_exists('image', $column_params) && $column_params['image']) {
 					$avatar_size = '1.5em';
-					
-					$avatar_value .= sprintf('<img src="%s?v=%s" style="width:%s;border-radius:%s;margin-right:0.25em;vertical-align:middle;">',
-						$url_writer->write(sprintf("c=avatars&ctx=%s&id=%d",
-							DevblocksPlatform::strEscapeHtml($card_context),
-							$card_id
-						)),
-						DevblocksPlatform::strEscapeHtml($sheet_dict->get('updated_at', $sheet_dict->get('updated'))),
-						DevblocksPlatform::strEscapeHtml($avatar_size),
-						DevblocksPlatform::strEscapeHtml($avatar_size)
-					);
+					if(false != ($card_context_ext = Extension_DevblocksContext::getByAlias($card_context))) {
+						$avatar_value .= sprintf('<img src="%s?v=%s" style="width:%s;border-radius:%s;margin-right:0.25em;vertical-align:middle;">',
+							$url_writer->write(sprintf("c=avatars&ctx=%s&id=%d",
+								DevblocksPlatform::strEscapeHtml($card_context_ext->params['alias']),
+								$card_id
+							)),
+							DevblocksPlatform::strEscapeHtml($sheet_dict->get('updated_at', $sheet_dict->get('updated'))),
+							DevblocksPlatform::strEscapeHtml($avatar_size),
+							DevblocksPlatform::strEscapeHtml($avatar_size)
+						);
+					}
 				}
 				
 				// Card link
