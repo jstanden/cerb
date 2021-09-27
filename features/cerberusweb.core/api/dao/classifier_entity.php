@@ -849,7 +849,8 @@ class Context_ClassifierEntity extends Extension_DevblocksContext implements IDe
 	}
 	
 	function getMeta($context_id) {
-		$classifier_entity = DAO_ClassifierEntity::get($context_id);
+		if(null == ($classifier_entity = DAO_ClassifierEntity::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($classifier_entity->name);

@@ -932,10 +932,10 @@ class Context_TwitterMessage extends Extension_DevblocksContext {
 	}
 	
 	function getMeta($context_id) {
-		$tweet = DAO_TwitterMessage::get($context_id);
 		$url_writer = DevblocksPlatform::services()->url();
 		
-		//$friendly = DevblocksPlatform::strToPermalink($example->name);
+		if(null == ($tweet = DAO_TwitterMessage::get($context_id)))
+			return [];
 		
 		return array(
 			'id' => $tweet->id,

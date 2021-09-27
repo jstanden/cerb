@@ -1165,7 +1165,8 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 	}
 
 	function getMeta($context_id) {
-		$mailbox = DAO_Mailbox::get($context_id);
+		if(null == ($mailbox = DAO_Mailbox::get($context_id)))
+			return [];
 
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($mailbox->name);

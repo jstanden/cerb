@@ -970,7 +970,8 @@ class Context_GpgPublicKey extends Extension_DevblocksContext implements IDevblo
 	}
 	
 	function getMeta($context_id) {
-		$gpg_public_key = DAO_GpgPublicKey::get($context_id);
+		if(null == ($gpg_public_key = DAO_GpgPublicKey::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($gpg_public_key->name);

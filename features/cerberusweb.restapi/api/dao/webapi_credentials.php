@@ -783,7 +783,8 @@ class Context_WebApiCredentials extends Extension_DevblocksContext implements ID
 	}
 	
 	function getMeta($context_id) {
-		$webapi_credentials = DAO_WebApiCredentials::get($context_id);
+		if(null == ($webapi_credentials = DAO_WebApiCredentials::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($webapi_credentials->name);

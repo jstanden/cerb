@@ -1205,8 +1205,8 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 	}
 	
 	function getMeta($context_id) {
-		$calendar_recurring_profile = DAO_CalendarRecurringProfile::get($context_id);
-		$url_writer = DevblocksPlatform::services()->url();
+		if(null == ($calendar_recurring_profile = DAO_CalendarRecurringProfile::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($calendar_recurring_profile->event_name);

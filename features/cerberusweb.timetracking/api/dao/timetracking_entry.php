@@ -1307,7 +1307,8 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 	}
 	
 	function getMeta($context_id) {
-		$time_entry = DAO_TimeTrackingEntry::get($context_id);
+		if(null == ($time_entry = DAO_TimeTrackingEntry::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		

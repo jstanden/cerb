@@ -634,7 +634,8 @@ class Context_Feed extends Extension_DevblocksContext implements IDevblocksConte
 	}
 	
 	function getMeta($context_id) {
-		$feed = DAO_Feed::get($context_id);
+		if(null == ($feed = DAO_Feed::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		

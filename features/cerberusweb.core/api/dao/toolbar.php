@@ -960,7 +960,8 @@ class Context_Toolbar extends Extension_DevblocksContext implements IDevblocksCo
 	}
 	
 	function getMeta($context_id) {
-		$toolbar = DAO_Toolbar::get($context_id);
+		if(null == ($toolbar = DAO_Toolbar::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($toolbar->name);

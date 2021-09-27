@@ -1465,7 +1465,8 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 	}
 	
 	function getMeta($context_id) {
-		$snippet = DAO_Snippet::get($context_id);
+		if(null == ($snippet = DAO_Snippet::get($context_id)))
+			return [];
 		
 		return array(
 			'id' => $context_id,

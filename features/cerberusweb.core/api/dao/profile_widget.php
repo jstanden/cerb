@@ -1040,7 +1040,8 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 	}
 	
 	function getMeta($context_id) {
-		$profile_widget = DAO_ProfileWidget::get($context_id);
+		if(null == ($profile_widget = DAO_ProfileWidget::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($profile_widget->name);

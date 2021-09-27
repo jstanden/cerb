@@ -1226,8 +1226,10 @@ class Context_Notification extends Extension_DevblocksContext {
 	}
 	
 	function getMeta($context_id) {
-		$notification = DAO_Notification::get($context_id);
 		$url_writer = DevblocksPlatform::services()->url();
+		
+		if(null == ($notification = DAO_Notification::get($context_id)))
+			return [];
 		
 		if(false == ($url = $notification->getURL())) {
 			$url = $url_writer->writeNoProxy('c=internal&action=redirectRead&id='.$context_id, true);

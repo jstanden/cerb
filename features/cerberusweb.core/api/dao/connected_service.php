@@ -949,7 +949,8 @@ class Context_ConnectedService extends Extension_DevblocksContext implements IDe
 	}
 	
 	function getMeta($context_id) {
-		$connected_service = DAO_ConnectedService::get($context_id);
+		if(null == ($connected_service = DAO_ConnectedService::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($connected_service->name);

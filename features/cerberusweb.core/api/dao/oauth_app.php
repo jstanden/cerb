@@ -904,7 +904,8 @@ class Context_OAuthApp extends Extension_DevblocksContext implements IDevblocksC
 	}
 	
 	function getMeta($context_id) {
-		$oauth_app = DAO_OAuthApp::get($context_id);
+		if(null == ($oauth_app = DAO_OAuthApp::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($oauth_app->name);

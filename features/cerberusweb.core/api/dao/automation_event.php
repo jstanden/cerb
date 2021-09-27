@@ -888,7 +888,8 @@ class Context_AutomationEvent extends Extension_DevblocksContext implements IDev
 	}
 	
 	function getMeta($context_id) {
-		$automation_event = DAO_AutomationEvent::get($context_id);
+		if(null == ($automation_event = DAO_AutomationEvent::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($automation_event->name);

@@ -1172,7 +1172,8 @@ class Context_AutomationTimer extends Extension_DevblocksContext implements IDev
 	}
 	
 	function getMeta($context_id) {
-		$automation_timer = DAO_AutomationTimer::get($context_id);
+		if(null == ($automation_timer = DAO_AutomationTimer::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($automation_timer->name);

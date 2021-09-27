@@ -1003,7 +1003,8 @@ class Context_CardWidget extends Extension_DevblocksContext implements IDevblock
 	}
 	
 	function getMeta($context_id) {
-		$card_widget = DAO_CardWidget::get($context_id);
+		if(null == ($card_widget = DAO_CardWidget::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($card_widget->name);

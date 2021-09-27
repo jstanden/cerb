@@ -1397,7 +1397,8 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 	}
 	
 	function getMeta($context_id) {
-		$task = DAO_Task::get($context_id);
+		if(null == ($task = DAO_Task::get($context_id)))
+			return [];
 
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($task->title);

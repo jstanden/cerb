@@ -891,7 +891,8 @@ class Context_ProfileTab extends Extension_DevblocksContext implements IDevblock
 	}
 	
 	function getMeta($context_id) {
-		$profile_tab = DAO_ProfileTab::get($context_id);
+		if(null == ($profile_tab = DAO_ProfileTab::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($profile_tab->name);

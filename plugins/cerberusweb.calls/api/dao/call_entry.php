@@ -999,7 +999,8 @@ class Context_CallEntry extends Extension_DevblocksContext implements IDevblocks
 	}
 	
 	function getMeta($context_id) {
-		$call = DAO_CallEntry::get($context_id);
+		if(null == ($call = DAO_CallEntry::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($call->subject);

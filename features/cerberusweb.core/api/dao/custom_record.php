@@ -991,7 +991,8 @@ class Context_CustomRecord extends Extension_DevblocksContext implements IDevblo
 	}
 	
 	function getMeta($context_id) {
-		$custom_record = DAO_CustomRecord::get($context_id);
+		if(null == ($custom_record = DAO_CustomRecord::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($custom_record->name);

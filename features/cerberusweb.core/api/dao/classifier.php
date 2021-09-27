@@ -967,7 +967,8 @@ class Context_Classifier extends Extension_DevblocksContext implements IDevblock
 	}
 	
 	function getMeta($context_id) {
-		$classifier = DAO_Classifier::get($context_id);
+		if(null == ($classifier = DAO_Classifier::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($classifier->name);

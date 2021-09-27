@@ -1306,7 +1306,8 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 	}
 	
 	function getMeta($context_id) {
-		$opp = DAO_CrmOpportunity::get($context_id);
+		if(null == ($opp = DAO_CrmOpportunity::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		

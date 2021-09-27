@@ -878,7 +878,8 @@ class Context_GpgPrivateKey extends Extension_DevblocksContext implements IDevbl
 	}
 	
 	function getMeta($context_id) {
-		$gpg_private_key = DAO_GpgPrivateKey::get($context_id);
+		if(null == ($gpg_private_key = DAO_GpgPrivateKey::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($gpg_private_key->name);

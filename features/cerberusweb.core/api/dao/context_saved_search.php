@@ -976,7 +976,8 @@ class Context_ContextSavedSearch extends Extension_DevblocksContext implements I
 	}
 	
 	function getMeta($context_id) {
-		$context_saved_search = DAO_ContextSavedSearch::get($context_id);
+		if(null == ($context_saved_search = DAO_ContextSavedSearch::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($context_saved_search->name);

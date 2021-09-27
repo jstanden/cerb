@@ -1184,7 +1184,9 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 	
 	function getMeta($context_id) {
 		$dao_class = sprintf("DAO_AbstractCustomRecord_%d", static::_ID);
-		$abstract_custom_record = $dao_class::get($context_id);
+		
+		if(null == ($abstract_custom_record = $dao_class::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($abstract_custom_record->name);

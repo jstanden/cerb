@@ -948,7 +948,8 @@ class Context_Reminder extends Extension_DevblocksContext implements IDevblocksC
 	}
 	
 	function getMeta($context_id) {
-		$reminder = DAO_Reminder::get($context_id);
+		if(null == ($reminder = DAO_Reminder::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($reminder->name);

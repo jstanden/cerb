@@ -1079,7 +1079,8 @@ class Context_CommunityTool extends Extension_DevblocksContext implements IDevbl
 	}
 	
 	function getMeta($context_id) {
-		$community_tool = DAO_CommunityTool::get($context_id);
+		if(null == ($community_tool = DAO_CommunityTool::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($community_tool->name);

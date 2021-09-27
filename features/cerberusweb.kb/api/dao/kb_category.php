@@ -695,8 +695,10 @@ class Context_KbCategory extends Extension_DevblocksContext implements IDevblock
 	}
 	
 	function getMeta($context_id) {
-		$category = DAO_KbCategory::get($context_id);
 		$url_writer = DevblocksPlatform::services()->url();
+		
+		if(null == ($category = DAO_KbCategory::get($context_id)))
+			return [];
 		
 		return array(
 			'id' => $category->id,

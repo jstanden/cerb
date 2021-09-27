@@ -1336,7 +1336,8 @@ class Context_JiraIssue extends Extension_DevblocksContext implements IDevblocks
 	}
 	
 	function getMeta($context_id) {
-		$jira_issue = DAO_JiraIssue::get($context_id);
+		if(null == ($jira_issue = DAO_JiraIssue::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($jira_issue->summary);

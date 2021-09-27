@@ -976,7 +976,8 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 	}
 	
 	function getMeta($context_id) {
-		$project_board = DAO_ProjectBoard::get($context_id);
+		if(null == ($project_board = DAO_ProjectBoard::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($project_board->name);

@@ -2279,7 +2279,8 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 	}
 	
 	function getMeta($context_id) {
-		$custom_field = DAO_CustomField::get($context_id);
+		if(null == ($custom_field = DAO_CustomField::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($custom_field->name);

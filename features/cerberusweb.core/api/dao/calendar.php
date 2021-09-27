@@ -1356,7 +1356,8 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 	}
 	
 	function getMeta($context_id) {
-		$calendar = DAO_Calendar::get($context_id);
+		if(null == ($calendar = DAO_Calendar::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($calendar->name);

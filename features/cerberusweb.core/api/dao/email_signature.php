@@ -895,7 +895,8 @@ class Context_EmailSignature extends Extension_DevblocksContext implements IDevb
 	}
 	
 	function getMeta($context_id) {
-		$email_signature = DAO_EmailSignature::get($context_id);
+		if(null == ($email_signature = DAO_EmailSignature::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($email_signature->name);

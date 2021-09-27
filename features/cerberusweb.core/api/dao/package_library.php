@@ -961,7 +961,8 @@ class Context_PackageLibrary extends Extension_DevblocksContext implements IDevb
 	}
 	
 	function getMeta($context_id) {
-		$package_library = DAO_PackageLibrary::get($context_id);
+		if(null == ($package_library = DAO_PackageLibrary::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($package_library->name);

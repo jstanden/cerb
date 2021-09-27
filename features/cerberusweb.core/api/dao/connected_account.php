@@ -1199,7 +1199,8 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 	}
 	
 	function getMeta($context_id) {
-		$connected_account = DAO_ConnectedAccount::get($context_id);
+		if(null == ($connected_account = DAO_ConnectedAccount::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($connected_account->name);

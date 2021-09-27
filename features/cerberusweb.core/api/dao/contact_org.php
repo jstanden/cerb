@@ -1646,7 +1646,8 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 	}
 	
 	function getMeta($context_id) {
-		$org = DAO_ContactOrg::get($context_id);
+		if(null == ($org = DAO_ContactOrg::get($context_id)))
+			return [];
 
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($org->name);

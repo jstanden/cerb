@@ -1063,7 +1063,8 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 	}
 	
 	function getMeta($context_id) {
-		$bucket = DAO_Bucket::get($context_id);
+		if(null == ($bucket = DAO_Bucket::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($bucket->name);

@@ -1400,7 +1400,8 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 	}
 	
 	function getMeta($context_id) {
-		$comment = DAO_Comment::get($context_id);
+		if(null == ($comment = DAO_Comment::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		

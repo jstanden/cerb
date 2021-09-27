@@ -2156,7 +2156,8 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 	}
 	
 	function getMeta($context_id) {
-		$trigger_event = DAO_TriggerEvent::get($context_id);
+		if(null == ($trigger_event = DAO_TriggerEvent::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		$label = $trigger_event->uri ?: $trigger_event->title;

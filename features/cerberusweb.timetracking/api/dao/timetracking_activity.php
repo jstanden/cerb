@@ -776,7 +776,8 @@ class Context_TimeTrackingActivity extends Extension_DevblocksContext implements
 	}
 	
 	function getMeta($context_id) {
-		$timetracking_activity = DAO_TimeTrackingActivity::get($context_id);
+		if(null == ($timetracking_activity = DAO_TimeTrackingActivity::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($timetracking_activity->name);

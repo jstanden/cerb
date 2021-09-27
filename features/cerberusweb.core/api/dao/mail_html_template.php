@@ -930,7 +930,8 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 	}
 	
 	function getMeta($context_id) {
-		$mail_html_template = DAO_MailHtmlTemplate::get($context_id);
+		if(null == ($mail_html_template = DAO_MailHtmlTemplate::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($mail_html_template->name);

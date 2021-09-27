@@ -1836,7 +1836,8 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 	}
 	
 	function getMeta($context_id) {
-		$attachment = DAO_Attachment::get($context_id);
+		if(null == ($attachment = DAO_Attachment::get($context_id)))
+			return [];
 
 		return array(
 			'id' => $attachment->id,

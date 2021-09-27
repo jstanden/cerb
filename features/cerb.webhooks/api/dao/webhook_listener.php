@@ -829,7 +829,8 @@ class Context_WebhookListener extends Extension_DevblocksContext implements IDev
 	}
 	
 	function getMeta($context_id) {
-		$webhook_listener = DAO_WebhookListener::get($context_id);
+		if(null == ($webhook_listener = DAO_WebhookListener::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($webhook_listener->name);

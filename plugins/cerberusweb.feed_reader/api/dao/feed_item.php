@@ -1053,7 +1053,8 @@ class Context_FeedItem extends Extension_DevblocksContext implements IDevblocksC
 	}
 	
 	function getMeta($context_id) {
-		$item = DAO_FeedItem::get($context_id);
+		if(null == ($item = DAO_FeedItem::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($item->title);

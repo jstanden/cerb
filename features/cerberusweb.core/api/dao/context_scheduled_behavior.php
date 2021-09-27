@@ -1231,7 +1231,8 @@ class Context_ContextScheduledBehavior extends Extension_DevblocksContext implem
 	}
 	
 	function getMeta($context_id) {
-		$context_scheduled_behavior = DAO_ContextScheduledBehavior::get($context_id);
+		if(null == ($context_scheduled_behavior = DAO_ContextScheduledBehavior::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		

@@ -1084,7 +1084,8 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 	}
 	
 	function getMeta($context_id) {
-		$article = DAO_KbArticle::get($context_id);
+		if(null == ($article = DAO_KbArticle::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($article->title);

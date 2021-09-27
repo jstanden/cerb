@@ -901,8 +901,8 @@ class Context_MailTransport extends Extension_DevblocksContext implements IDevbl
 	}
 	
 	function getMeta($context_id) {
-		$mail_transport = DAO_MailTransport::get($context_id);
-		$url_writer = DevblocksPlatform::services()->url();
+		if(null == ($mail_transport = DAO_MailTransport::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($mail_transport->name);

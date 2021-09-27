@@ -103,7 +103,8 @@ class Context_Domain extends Extension_DevblocksContext implements IDevblocksCon
 	}
 	
 	function getMeta($context_id) {
-		$domain = DAO_Domain::get($context_id);
+		if(null == ($domain = DAO_Domain::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($domain->name);

@@ -1313,7 +1313,8 @@ class Context_Resource extends Extension_DevblocksContext implements IDevblocksC
 	}
 	
 	function getMeta($context_id) {
-		$resource = DAO_Resource::get($context_id);
+		if(null == ($resource = DAO_Resource::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($resource->name);

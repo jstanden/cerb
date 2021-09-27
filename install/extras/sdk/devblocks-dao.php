@@ -890,7 +890,8 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 	}
 	
 	function getMeta($context_id) {
-		$<?php echo $ctx_var_model; ?> = DAO_<?php echo $class_name; ?>::get($context_id);
+		if(null == ($<?php echo $ctx_var_model; ?> = DAO_<?php echo $class_name; ?>::get($context_id)))
+            return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($<?php echo $ctx_var_model; ?>->name);

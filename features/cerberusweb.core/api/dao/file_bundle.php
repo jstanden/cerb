@@ -1091,8 +1091,8 @@ class Context_FileBundle extends Extension_DevblocksContext implements IDevblock
 	}
 	
 	function getMeta($context_id) {
-		$file_bundle = DAO_FileBundle::get($context_id);
-		$url_writer = DevblocksPlatform::services()->url();
+		if(null == ($file_bundle = DAO_FileBundle::get($context_id)))
+			return [];
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($file_bundle->name);

@@ -1121,7 +1121,8 @@ class Context_ContextActivityLog extends Extension_DevblocksContext implements I
 	}
 	
 	function getMeta($context_id) {
-		$entry = DAO_ContextActivityLog::get($context_id);
+		if(null == ($entry = DAO_ContextActivityLog::get($context_id)))
+			return [];
 		
 		return array(
 			'id' => $entry->id,
