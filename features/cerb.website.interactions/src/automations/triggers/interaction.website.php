@@ -125,7 +125,7 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 				'(.*):await:form:elements:sheet:data:' => [
 					[
 						'caption' => 'automation:',
-						'snippet' => "automation:\n  uri: cerb:automation:\${1:automation.name}\n  inputs:\n",
+						'snippet' => "automation:\n  uri: cerb:automation:\${1:cerb.data.records}\n  inputs:\n    record_type: ticket\n    query_required: status:o\n",
 					],
 					[
 						'caption' => '(manual)',
