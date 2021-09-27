@@ -218,11 +218,17 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 				],
 				'(.*):await:form:elements:sheet:schema:columns:card:params:' => [
 					'bold@bool: yes',
+					'context:',
 					'context_key:',
+					'context_template@raw:',
 					'icon:',
+					'id:',
 					'id_key:',
+					'id_template@raw:',
 					'image@bool: yes',
+					'label:',
 					'label_key:',
+					'label_template@raw:',
 					'underline@bool: yes',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:card:params:icon:' => [
