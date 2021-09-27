@@ -45,13 +45,12 @@ class VarPushAction extends AbstractAction {
 			$validation->addField('value', 'inputs:value:')
 				->stringOrArray()
 				->setMaxLength(16_777_216)
-				->setRequired(true)
 			;
 			
 			if(false === ($validation->validateAll($inputs, $error)))
 				throw new Exception_DevblocksAutomationError($error);
 			
-			$new_value = $dict->setPush($inputs['key'], $inputs['value'], ':');
+			$new_value = $dict->setPush($inputs['key'], $inputs['value'] ?? null, ':');
 			
 			// Return the current value of the key
 			if($output) {
