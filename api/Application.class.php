@@ -4895,6 +4895,20 @@ class _CerbApplication_KataSchemas {
                                 icon:
                                   types:
                                     string:
+                                    object:
+                                      attributes:
+                                        image_key:
+                                          types:
+                                            string:
+                                        image_template:
+                                          types:
+                                            string:
+                                        image:
+                                          types:
+                                            string:
+                                        record_uri:
+                                          types:
+                                            string:
                                 id_key:
                                   types:
                                     string:
@@ -4963,6 +4977,9 @@ class _CerbApplication_KataSchemas {
                                   types:
                                     string:
                                 image:
+                                  types:
+                                    string:
+                                record_uri:
                                   types:
                                     string:
                 
@@ -5129,6 +5146,20 @@ class _CerbApplication_KataSchemas {
                                 icon:
                                   types:
                                     string:
+                                    object:
+                                      attributes:
+                                        image_key:
+                                          types:
+                                            string:
+                                        image_template:
+                                          types:
+                                            string:
+                                        image:
+                                          types:
+                                            string:
+                                        record_uri:
+                                          types:
+                                            string:
                                 value_key:
                                   types:
                                     string:

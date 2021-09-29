@@ -232,7 +232,10 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'underline@bool: yes',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:card:params:icon:' => [
-					'image:',
+					'image: circle-ok',
+					'image_key: icon_key',
+					'image_template@raw:',
+					'record_uri@raw:',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:date:' => [
 					'params:',
@@ -249,6 +252,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'image: circle-ok',
 					'image_key: icon_key',
 					'image_template@raw:',
+					'record_uri@raw:',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:link:' => [
 					'params:',
@@ -309,7 +313,10 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'icon:',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:text:params:icon:' => [
-					'image:',
+					'image: circle-ok',
+					'image_key: icon_key',
+					'image_template@raw:',
+					'record_uri@raw:',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:time_elapsed:' => [
 					'params:',

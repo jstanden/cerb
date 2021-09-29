@@ -2453,9 +2453,10 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$translate = DevblocksPlatform::getTranslationService();
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$context = CerberusContexts::CONTEXT_GROUP;
-		$active_worker = CerberusApplication::getActiveWorker();
+		@$context_id = DevblocksPlatform::importVar($context_id,'integer',0);
 		$group = null;
 		
 		$tpl = DevblocksPlatform::services()->template();

@@ -1386,7 +1386,7 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 		$active_worker = CerberusApplication::getActiveWorker();
 		$context = CerberusContexts::CONTEXT_BUCKET;
 		
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
+		@$context_id = DevblocksPlatform::importVar($context_id,'integer',0);
 		$bucket = null;
 		
 		$tpl->assign('view_id', $view_id);

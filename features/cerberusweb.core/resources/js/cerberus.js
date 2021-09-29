@@ -546,7 +546,11 @@ var cerbAutocompleteSuggestions = {
 		'columns:text:params:icon:': [
 			'image:',
 			'image_key:',
-			'image_template:'
+			'image_template:',
+			{
+				'caption': 'record_uri:',
+				'snippet': 'record_uri@raw: cerb:${1:record_type}:${2:record_id}'
+			}
 		],
 
 		// Cards
@@ -572,7 +576,11 @@ var cerbAutocompleteSuggestions = {
 		'columns:card:params:icon:': [
 			'image:',
 			'image_key:',
-			'image_template:'
+			'image_template:',
+			{
+				'caption': 'record_uri:',
+				'snippet': 'record_uri@raw: cerb:${1:record_type}:${2:record_id}'
+			}
 		],
 		'columns:card:params:image:': [
 			'yes',
@@ -617,6 +625,10 @@ var cerbAutocompleteSuggestions = {
 			'image:',
 			'image_key:',
 			'image_template:',
+			{
+				'caption': 'record_uri:',
+				'snippet': 'record_uri@raw: cerb:${1:record_type}:${2:record_id}'
+			}
 		],
 
 		// Links
