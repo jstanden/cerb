@@ -3163,6 +3163,10 @@ class DevblocksEventHelper {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$content = $tpl_builder->build($params['content'], $dict);
 		
+		// Format
+		$is_markdown = ('markdown' == ($params['format'] ?? '')) ? 1 : 0;
+		
+		// Notify
 		$notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($content));
 		$notify_worker_ids = array_merge($notify_worker_ids, (isset($params['notify_worker_id']) ? $params['notify_worker_id'] : []));
 		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $dict);
@@ -3174,6 +3178,7 @@ class DevblocksEventHelper {
 			DAO_Comment::OWNER_CONTEXT_ID => $trigger->bot_id,
 			DAO_Comment::CREATED => time(),
 			DAO_Comment::COMMENT => $content,
+			DAO_Comment::IS_MARKDOWN => $is_markdown,
 		);
 		
 		$comment_id = null;

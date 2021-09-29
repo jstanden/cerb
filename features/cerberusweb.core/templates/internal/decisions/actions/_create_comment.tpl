@@ -14,6 +14,12 @@
 	<textarea name="{$namePrefix}[content]" rows="3" cols="45" style="width:100%;" class="placeholders">{$params.content}</textarea>
 </div>
 
+<b>{'common.format'|devblocks_translate|capitalize}:</b>
+<div style="margin-left:10px;">
+	<label><input type="radio" name="{$namePrefix}[format]" value="" {if 'markdown' != $params.format}checked="checked"{/if}> Plaintext</label>
+	<label><input type="radio" name="{$namePrefix}[format]" value="markdown" {if 'markdown' == $params.format}checked="checked"{/if}> Markdown</label>
+</div>
+
 <div style="margin-top:5px;">
 <b>{'common.notify_workers'|devblocks_translate|capitalize}:</b>
 <div style="margin-left:10px;">
