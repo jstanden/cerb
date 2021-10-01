@@ -506,6 +506,7 @@ class _DevblocksAutomationService {
 			'email.send',
 			'encrypt.pgp',
 			'error',
+			'file.read',
 			'function',
 			'http.request',
 			'log',

@@ -3733,6 +3733,34 @@ class _CerbApplication_KataSchemas {
                 types:
                   list:
               
+              file.read:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+                      inputs:
+                        types:
+                          object:
+                            attributes:
+                              length:
+                                types:
+                                  number:
+                              offset:
+                                types:
+                                  number:
+                              uri:
+                                types:
+                                  string:
+                      on_error:
+                        ref: commands
+                      on_simulate:
+                        ref: commands
+                      on_success:
+                        ref: commands
+                      output:
+                        types:
+                          string:
+                
               function:
                 multiple@bool: yes
                 types:
@@ -4296,6 +4324,7 @@ class _CerbApplication_KataSchemas {
                 decrypt.pgp@ref: policyRule
                 email.parse@ref: policyRule
                 encrypt.pgp@ref: policyRule
+                file.read@ref: policyRule
                 function@ref: policyRule
                 http.request@ref: policyRule
                 record.create@ref: policyRule

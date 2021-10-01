@@ -29,6 +29,7 @@ var cerbAutocompleteSuggestions = {
 			'email.parse:',
 			'email.send:',
 			'encrypt.pgp:',
+			'file.read:',
 			'function:',
 			'http.request:',
 			'record.create:',
@@ -60,6 +61,15 @@ var cerbAutocompleteSuggestions = {
 		'commands:encrypt.pgp:': [
 			'allow@bool: yes',
 			'deny@bool: yes'
+		],
+		'commands:file.read:': [
+			'deny@bool: yes',
+			{
+				'caption': 'deny/uri:',
+				'snippet': "deny/uri@bool: {{inputs.uri != 'cerb:attachment:1'}}",
+				'docHTML': 'Validate file URI'
+			},
+			'allow@bool: yes'
 		],
 		'commands:function:': [
 			'deny@bool: yes',

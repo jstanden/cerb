@@ -15,6 +15,7 @@ class ActionNode extends AbstractNode {
 			'email.parse' => '\Cerb\AutomationBuilder\Action\EmailParseAction',
 			'encrypt.pgp' => '\Cerb\AutomationBuilder\Action\EncryptPgpAction',
 			'error' => '\Cerb\AutomationBuilder\Action\ErrorAction',
+			'file.read' => '\Cerb\AutomationBuilder\Action\FileReadAction',
 			'function' => '\Cerb\AutomationBuilder\Action\FunctionAction',
 			'http.request' => '\Cerb\AutomationBuilder\Action\HttpRequestAction',
 			'log' => '\Cerb\AutomationBuilder\Action\LogAction',

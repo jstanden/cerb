@@ -978,6 +978,10 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'snippet' => "encrypt.pgp:\n\t",
 			],
 			[
+				'caption' => 'file.read:',
+				'snippet' => "file.read:\n\t",
+			],
+			[
 				'caption' => 'function:',
 				'snippet' => "function:\n\t",
 			],
@@ -1105,6 +1109,13 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				],
 				'(.*):encrypt.pgp:inputs:public_keys:' => [
 					'uri:',
+				],
+				
+				'(.*):file.read:' => $action_base,
+				'(.*):file.read:inputs:' => [
+					'uri:',
+					'length:',
+					'offset:',
 				],
 				
 				'(.*):function:' => array_merge(['uri:'], $action_base),
