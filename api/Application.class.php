@@ -4467,6 +4467,14 @@ class _CerbApplication_KataSchemas {
                 storage.delete@ref: policyRule
                 storage.get@ref: policyRule
                 storage.set@ref: policyRule
+
+        settings:
+          types:
+            object:
+              attributes:
+                time_limit_ms:
+                  types:
+                    number:
     EOD;		
 	}
 	

@@ -20,7 +20,8 @@ var cerbAutocompleteSuggestions = {
 	},
 	kataAutomationPolicy: {
 		'': [
-			'commands:'
+			'commands:',
+			'settings:'
 		],
 		'commands:': [
 			'data.query:',
@@ -164,6 +165,10 @@ var cerbAutocompleteSuggestions = {
 			'deny@bool: yes',
 			'allow@bool: yes'
 		],
+		
+		'settings:': [
+			'time_limit_ms: 25000'
+		]
 	},
 	kataSchemaDashboardFilters: {
 		'': [

@@ -392,15 +392,14 @@ class _DevblocksAutomationService {
 		if(false == ($tree = $automation->getSyntaxTree($error)))
 			return false;
 		
-		// [TODO] Time limits by role?
+		$started_at = microtime(true) * 1000;
+		$time_limit_ms = $automation->getPolicy()->getTimeoutMs();
+		$elapsed_ms = 0;
+		$is_timed_out = false;
 		
 		// [TODO] Check if we're given an exit/return/error/await status
 		$dict->unset('__exit');
 		$dict->unset('__return');
-		
-		// [TODO] Raise this in production
-		$iterations = 0;
-		$max_iterations = 2500;
 		
 		$environment = [
 			'debug' => false,
@@ -411,7 +410,7 @@ class _DevblocksAutomationService {
 		$automation->setEnvironment($environment);
 		
 		// Loop while not terminated
-		while($environment['state'] && $iterations++ < $max_iterations) {
+		while($environment['state'] && !$is_timed_out) {
 			// [TODO] Return error
 			if(null == ($node = $this->_recurseFindNodeId($tree, $environment['state'])))
 				return false;
@@ -448,6 +447,14 @@ class _DevblocksAutomationService {
 			} else {
 				$environment['state_last'] = $dict->getKeyPath('__state.last', null);
 				$environment['state'] = $dict->getKeyPath('__state.next', null);
+			}
+			
+			$elapsed_ms = (microtime(true) * 1000) - $started_at;
+			
+			if($elapsed_ms > $time_limit_ms) {
+				$is_timed_out = true;
+				$dict->set('__exit', 'error');
+				$dict->set('__error', sprintf('Execution timed out after %dms', $time_limit_ms));
 			}
 		}
 		
@@ -771,10 +778,15 @@ class _DevblocksAutomationService {
 }
 
 class CerbAutomationPolicy {
-	private $_rules;
+	private array $_rules;
 	
-	private $_callers = [];
-	private $_commands = [];
+	private array $_callers = [];
+	
+	private array $_commands = [];
+	
+	private array $_settings = [
+		'time_limit_ms' => 25000,
+	];
 	
 	public function __construct($policy_data) {
 		$this->_rules = [];
@@ -788,6 +800,14 @@ class CerbAutomationPolicy {
 		
 		if(!is_array($policy_data))
 			return false;
+		
+		if(array_key_exists('settings', $policy_data) && is_iterable($policy_data['settings'])) {
+			$time_limit_ms = $policy_data['settings']['time_limit_ms'] ?? null;
+			
+			if($time_limit_ms && is_numeric($time_limit_ms)) {
+				$this->_settings['time_limit_ms'] = DevblocksPlatform::intClamp($time_limit_ms, 0, 120000); 
+			}
+		}
 		
 		if(array_key_exists('callers', $policy_data)) {
 			foreach($policy_data['callers'] as $caller => $rules) {
@@ -848,6 +868,10 @@ class CerbAutomationPolicy {
 		}
 		
 		return $this;
+	}
+	
+	public function getTimeoutMs() {
+		return $this->_settings['time_limit_ms'] ?? 25000;
 	}
 	
 	public function isCallerAllowed($caller_name, DevblocksDictionaryDelegate $dict) {
