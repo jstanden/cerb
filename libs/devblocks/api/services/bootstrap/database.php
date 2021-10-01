@@ -330,7 +330,7 @@ class _DevblocksDatabaseManager {
 		if(!is_array($sqls))
 			return false;
 		
-		if(is_string($time_limit_ms)) {
+		if(is_string($time_limit_ms) || is_numeric($time_limit_ms)) {
 			$time_limits = array_fill(0, count($sqls), $time_limit_ms);
 		} else if (is_array($time_limit_ms)) {
 			$time_limits = array_pad($time_limit_ms, count($sqls), current($time_limit_ms));
@@ -389,7 +389,7 @@ class _DevblocksDatabaseManager {
 							$time_limit_ms,
 							$sqls[$idx]
 						),
-						true
+						false
 					);
 					
 					// Kill the timed out thread using the new connection
