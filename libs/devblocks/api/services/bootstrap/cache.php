@@ -502,6 +502,7 @@ class DevblocksCacheEngine_Memcache extends Extension_DevblocksCacheEngine {
 	function testConfig(array $config) {
 		if(extension_loaded('memcached')) {
 			$this->_driver = new Memcached();
+			$this->_driver->setOption(Memcached::OPT_DISTRIBUTION, Memcached::DISTRIBUTION_CONSISTENT);
 			
 		} elseif(extension_loaded('memcache')) {
 			$this->_driver = new Memcache();
