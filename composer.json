@@ -35,6 +35,7 @@
 		"ext-dom": "*",
 		"ext-gd": "*",
 		"ext-json": "*",
+		"ext-libxml": "*",
 		"ext-mailparse": "*",
 		"ext-mbstring": "*",
 		"ext-mysqli": "*",
