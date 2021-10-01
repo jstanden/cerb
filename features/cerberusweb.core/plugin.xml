@@ -193,6 +193,14 @@
 			<class name="SearchFields_AutomationLog" />
 		</file>
 
+		<file path="api/dao/automation_resource.php">
+			<class name="Context_AutomationResource" />
+			<class name="DAO_AutomationResource" />
+			<class name="Model_AutomationResource" />
+			<class name="SearchFields_AutomationResource" />
+			<class name="View_AutomationResource" />
+		</file>
+		
 		<file path="api/dao/automation_timer.php">
 			<class name="Context_AutomationTimer" />
 			<class name="DAO_AutomationTimer" />
@@ -1458,6 +1466,36 @@
 			</params>
 		</extension>
 
+		<extension point="devblocks.context">
+			<id>cerb.contexts.automation.resource</id>
+			<name>Automation Resource</name>
+			<class>
+				<file>api/dao/automation_resource.php</file>
+				<name>Context_AutomationResource</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="automation resource" value="singular" />
+						<data key="automation resources" value="plural" />
+					</value>
+				</param>
+				<param key="alias" value="automation_resource" />
+				<param key="dao_class" value="DAO_AutomationResource" />
+				<param key="view_class" value="View_AutomationResource" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="custom_fields" />
+						<data key="records" />
+					</value>
+				</param>
+				<param key="acl">
+					<value/>
+				</param>
+			</params>
+		</extension>
+		
 		<extension point="devblocks.context">
 			<id>cerb.contexts.automation.timer</id>
 			<name>Automation Timer</name>
@@ -6059,7 +6097,21 @@
 				<param key="archive_after_days" value="7" />
 			</params>
 		</extension>
-		
+
+		<extension point="devblocks.storage.schema">
+			<id>cerb.storage.schema.automation.resources</id>
+			<name>Automation Resources</name>
+			<class>
+				<file>api/dao/automation_resource.php</file>
+				<name>Storage_AutomationResource</name>
+			</class>
+			<params>
+				<param key="active_storage_profile" value="devblocks.storage.engine.disk" />
+				<param key="archive_storage_profile" value="devblocks.storage.engine.disk" />
+				<param key="archive_after_days" value="-1" />
+			</params>
+		</extension>
+
 		<extension point="devblocks.storage.schema">
 			<id>cerberusweb.storage.schema.context_avatar</id>
 			<name>Avatars</name>

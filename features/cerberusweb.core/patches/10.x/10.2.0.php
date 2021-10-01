@@ -4,6 +4,33 @@ $logger = DevblocksPlatform::services()->log();
 $tables = $db->metaTables();
 
 // ===========================================================================
+// Add `automation_resource`
+
+if(!isset($tables['automation_resource'])) {
+	$sql = sprintf("
+		CREATE TABLE `automation_resource` (
+		id int(10) unsigned NOT NULL AUTO_INCREMENT,
+		token varchar(255) NOT NULL DEFAULT '',
+		mime_type varchar(255) NOT NULL DEFAULT '',
+		expires_at int(10) unsigned NOT NULL DEFAULT '0',
+		storage_size int(10) unsigned NOT NULL DEFAULT '0',
+		storage_key varchar(255) NOT NULL DEFAULT '',
+		storage_extension varchar(255) NOT NULL DEFAULT '',
+		storage_profile_id int(10) unsigned NOT NULL DEFAULT '0',
+		updated_at int(10) unsigned NOT NULL DEFAULT '0',
+		PRIMARY KEY (id),
+		UNIQUE KEY `token` (`token`(6)),
+		KEY `expires_at` (`expires_at`),
+		KEY `storage_extension` (`storage_extension`),
+		KEY `updated_at` (`updated_at`)
+		) ENGINE=%s
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+	
+	$tables['automation_resource'] = 'automation_resource';
+}
+
+// ===========================================================================
 // Update built-in automations
 
 $automation_files = [
