@@ -240,7 +240,10 @@ class HttpRequestAction extends AbstractAction {
 				}
 				
 			} else {
-				$response_body = $response->getBody()->getContents();
+				$results = [
+					'url' => $url,
+					'status_code' => $status_code,
+				];
 				
 				$content_type = $response->getHeaderLine('Content-Type');
 				list($content_type, $content_attributes) = array_pad(explode(';', $content_type, 2), 2, '');
@@ -253,19 +256,64 @@ class HttpRequestAction extends AbstractAction {
 					$response_headers[DevblocksPlatform::strLower($k)] = implode(', ', $v);
 				}
 				
-				// Fix bad encodings
-				if(isset($content_attributes['charset'])) {
-					@$response_body = mb_convert_encoding($response_body, $content_attributes['charset']);
+				$response_size = $response->getBody()->getSize() ?? 0;
+				
+				// If larger than 1MB, stream to an automation resource
+				if($response_size > 1_024_000) {
+					$resource_token = DevblocksPlatform::services()->string()->uuid();
+					
+					$resource_id = DAO_AutomationResource::create([
+						DAO_AutomationResource::EXPIRES_AT => time() + 900, // +15 mins
+						DAO_AutomationResource::TOKEN => $resource_token,
+						DAO_AutomationResource::MIME_TYPE => $content_type,
+					]);
+					
+					if(false == $resource_id) {
+						$error = 'Failed to create automation resource';
+						return false;
+					}
+					
+					$fp = DevblocksPlatform::getTempFile();
+					
+					while(!$response->getBody()->eof()) {
+						$buffer = $response->getBody()->read(512_000);
+						fwrite($fp, $buffer);
+					}
+					
+					$response->getBody()->close();
+					
+					\Storage_AutomationResource::put($resource_id, $fp);
+					
+					$results['is_cerb_uri'] = true;
+					$results['content_type_original'] = $content_type;
+					$content_type = 'application/vnd.cerb.uri';
+					$response_body = sprintf("cerb:automation_resource:%s", $resource_token);
+					
+				} else {
+					$response_body = $response->getBody()->getContents();
+					
+					// Fix bad encodings
+					if(isset($content_attributes['charset'])) {
+						@$response_body = mb_convert_encoding($response_body, $content_attributes['charset']);
+					}
+					
+					// If binary, base64 encode
+					if(!DevblocksPlatform::services()->string()->isPrintable($response_body)) {
+						$results['is_data_uri'] = true;
+						
+						$response_body = sprintf('data:%s;base64,%s',
+							$content_type,
+							base64_encode($response_body)
+						);
+					}
 				}
 				
+				$results['content_type'] = $content_type;
+				$results['headers'] = $response_headers;
+				$results['body'] = $response_body;
+				
 				if ($output) {
-					$dict->set($output, [
-						'url' => $url,
-						'status_code' => $status_code,
-						'content_type' => $content_type,
-						'headers' => $response_headers,
-						'body' => $response_body,
-					]);
+					$dict->set($output, $results);
 				}
 				
 			}
