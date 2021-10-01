@@ -1132,7 +1132,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		return (is_array($worker_auth) && isset($worker_auth['pass_hash']));
 	}
 	
-	static function setAuth($worker_id, $password, $asMd5=false) {
+	static function setAuth($worker_id, $password) {
 		$db = DevblocksPlatform::services()->database();
 		
 		if(is_null($password)) {
@@ -1141,16 +1141,14 @@ class DAO_Worker extends Cerb_ORMHelper {
 			));
 			
 		} else {
-			$salt = CerberusApplication::generatePassword(12);
-			
-			$password_hash = ($asMd5) ? $password : md5($password);
+			$password_hash = password_hash($password, PASSWORD_DEFAULT);
 			
 			return $db->ExecuteMaster(sprintf("REPLACE INTO worker_auth_hash (worker_id, pass_hash, pass_salt, method) ".
 				"VALUES (%d, %s, %s, %d)",
 				$worker_id,
-				$db->qstr(sha1($salt.$password_hash)),
-				$db->qstr($salt),
-				0
+				$db->qstr($password_hash),
+				$db->qstr(''),
+				1
 			));
 		}
 	}
