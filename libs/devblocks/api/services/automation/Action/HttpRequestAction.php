@@ -2,11 +2,14 @@
 namespace Cerb\AutomationBuilder\Action;
 
 use CerberusContexts;
+use DAO_Attachment;
+use DAO_AutomationResource;
 use DAO_ConnectedAccount;
 use DevblocksDictionaryDelegate;
 use DevblocksPlatform;
 use Exception_DevblocksAutomationError;
 use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Utils;
 use Model_Automation;
 use function GuzzleHttp\headers_from_lines;
 
@@ -122,7 +125,38 @@ class HttpRequestAction extends AbstractAction {
 				}
 			}
 			
-			if(is_string($body)) {
+			if(is_string($body) && array_key_exists('content-type', $headers) && 'application/vnd.cerb.uri' == $headers['content-type']) {
+				if(false == ($uri_parts = DevblocksPlatform::services()->ui()->parseURI($body)))
+					throw new Exception_DevblocksAutomationError('Failed to parse the `cerb:` URI body');
+			
+				if(CerberusContexts::isSameContext(CerberusContexts::CONTEXT_AUTOMATION_RESOURCE, $uri_parts['context'])) {
+					if(false == ($resource = DAO_AutomationResource::get($uri_parts['context_id'])))
+						throw new Exception_DevblocksAutomationError("Failed to load automation resource id #" . $uri_parts['context_id']);
+					
+					$headers['content-type'] = $resource->mime_type;
+					
+					$fp = DevblocksPlatform::getTempFile();
+					
+					if(false == ($resource->getFileContents($fp)))
+						throw new Exception_DevblocksAutomationError("Failed to load content for automation resource id #" . $uri_parts['context_id']);
+					
+					$body = Utils::streamFor($fp);
+					
+				} else if(CerberusContexts::isSameContext(CerberusContexts::CONTEXT_ATTACHMENT, $uri_parts['context'])) {
+					if(false == ($attachment = DAO_Attachment::get($uri_parts['context_id'])))
+						throw new Exception_DevblocksAutomationError("Failed to load attachment id #" . $uri_parts['context_id']);
+					
+					$headers['content-type'] = $attachment->mime_type;
+					
+					$fp = DevblocksPlatform::getTempFile();
+					
+					if(false == ($attachment->getFileContents($fp)))
+						throw new Exception_DevblocksAutomationError("Failed to load content for attachment id #" . $uri_parts['context_id']);
+					
+					$body = Utils::streamFor($fp);
+				}
+				
+			} else if(is_string($body)) {
 				if(!array_key_exists('content-type', $headers))
 					$headers['content-type'] = 'application/x-www-form-urlencoded';
 				
