@@ -33,21 +33,3 @@
 {include file="devblocks:cerberusweb.core::internal/decisions/actions/_shared_var_picker.tpl" param_name="link_to" values_to_contexts=$values_to_contexts}
 </div>
 {/if}
-
-<script type="text/javascript">
-$(function() {
-	var $action = $('#{$namePrefix}_{$nonce}');
-	var $textarea = $action.find('textarea').first();
-	
-	var atwho_workers = {CerberusApplication::getAtMentionsWorkerDictionaryJson() nofilter};
-
-	$textarea.atwho({
-		at: '@',
-		{literal}displayTpl: '<li>${name} <small style="margin-left:10px;">${title}</small> <small style="margin-left:10px;">@${at_mention}</small></li>',{/literal}
-		{literal}insertTpl: '@${at_mention}',{/literal}
-		data: atwho_workers,
-		searchKey: '_index',
-		limit: 10
-	});
-});
-</script>
