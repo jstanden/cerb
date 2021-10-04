@@ -4157,14 +4157,12 @@ class _CerbApplication_KataSchemas {
               simulate.error:
                 multiple@bool: yes
                 types:
-                  object:
-                    attributes:
+                  list:
               
               simulate.success:
                 multiple@bool: yes
                 types:
-                  object:
-                    attributes:
+                  list:
               
               storage.delete:
                 multiple@bool: yes
