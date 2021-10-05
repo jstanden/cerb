@@ -9,7 +9,9 @@
 				{foreach from=$columns item=column name=columns}
 				{if $layout.title_column == $column.key}
 				{elseif $column._type == 'selection'}
-					<th style="width:20px;text-align:center;"></th>
+					<th style="width:20px;text-align:center;">
+						<input type="checkbox" title="Toggle all" data-cerb-select-all>
+					</th>
 				{else}
 				<th data-column-key="{$column.key}" data-column-type="{$column._type}">{$column.label}</th>
 				{/if}
@@ -91,6 +93,17 @@ $(function() {
 	$sheet.find('.cerb-search-trigger')
 		.cerbSearchTrigger()
 	;
+	
+	$sheet.find('[data-cerb-select-all]').on('change', function(e) {
+		e.preventDefault();
+		
+		var $checkbox = $(this);
+		var is_checked = $checkbox.is(':checked');
+		
+		$checkbox.closest('table').find('tbody').find('input:checkbox').each(function() {
+			$(this).prop('checked', is_checked ? 'checked' : null);
+		});
+	});
 
 	$sheet.parent().find('.cerb-paging')
 		.click(function() {
