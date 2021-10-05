@@ -11,6 +11,7 @@
 
 		<div style="display:inline-block;vertical-align:middle;">
 			<button type="button" class="cerb-filter-editor--save"><span class="glyphicons glyphicons-refresh"></span> {'common.update'|devblocks_translate|capitalize}</button>
+			<button type="button" class="cerb-filter-editor--reset">{'common.reset'|devblocks_translate|capitalize}</button>
 		</div>
 	</div>
 </form>
@@ -22,10 +23,27 @@ $(function() {
 	
 	$frm.find('.cerb-filter-editor--save')
 		.on('click', function(e) {
+			e.stopPropagation();
 			genericAjaxPost($frm, '', '', function() {
-				// Reload the entire dashboard
+				// Reload widgets
 				var $container = $('#workspaceTab{$tab->id}');
 				$container.triggerHandler('cerb-widgets-refresh');
+			});
+		})
+	;
+	
+	$frm.find('.cerb-filter-editor--reset')
+		.on('click', function(e) {
+			e.stopPropagation();
+
+			var formData = new FormData($frm[0]);
+			formData.set('reset', '1');
+			
+			// Reset the dashboard prefs
+			genericAjaxPost(formData, '', '', function() {
+				// Reload
+				var $tabs = $('#workspaceTab{$tab->id}').closest('.ui-tabs');
+				$tabs.tabs('load', $tabs.tabs('option','active'));
 			});
 		})
 	;

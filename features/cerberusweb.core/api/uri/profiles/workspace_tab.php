@@ -370,13 +370,18 @@ class PageSection_ProfilesWorkspaceTab extends Extension_PageSection {
 		
 		@$tab_id = DevblocksPlatform::importGPC($_POST['tab_id'],'int', 0);
 		@$prompts = DevblocksPlatform::importGPC($_POST['prompts'],'array', []);
+		@$reset = DevblocksPlatform::importGPC($_POST['reset'],'bit', 0);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
 		if(!$tab_id || false == ($tab = DAO_WorkspaceTab::get($tab_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
-		$tab->setDashboardPrefsAsWorker($prompts, $active_worker);
+		if($reset) {
+			DAO_WorkerDashboardPref::set($tab_id, [], $active_worker);
+		} else {
+			$tab->setDashboardPrefsAsWorker($prompts, $active_worker);
+		}
 		
 		echo json_encode(true);
 	}
