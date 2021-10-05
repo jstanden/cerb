@@ -1,6 +1,6 @@
 {if Context_WorkspacePage::isWriteableByActor($page, $active_worker)}
 <form action="#" onsubmit="return false;">
-<div class="help-box" style="padding:5px;border:0;">
+<div class="help-box">
 	<h1 style="margin-bottom:5px;text-align:left;">Let's add some tabs to your page</h1>
 	
 	<p>

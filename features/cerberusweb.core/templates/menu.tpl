@@ -44,7 +44,7 @@
 		</ul>
 	</li>
 </ul>
-<div style="clear:both;background-color:rgb(100,135,225);height:5px;" class="cerb-no-print"></div>
+<div style="clear:both;" class="navmenu-submenu cerb-no-print"></div>
 
 <script type="text/javascript">
 $(function() {

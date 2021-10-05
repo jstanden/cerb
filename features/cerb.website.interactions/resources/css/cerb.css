@@ -190,7 +190,7 @@
 
 .cerb-interaction-popup--form-elements-text input[type=text],
 .cerb-interaction-popup--form-elements-textarea textarea {
-    border: 1px solid rgb(220,220,220);
+    border: 1px solid var(--cerb-color-background-contrast-220);
     width: 100%;
     box-sizing: border-box;
     padding: 5px;

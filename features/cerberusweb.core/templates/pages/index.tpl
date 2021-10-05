@@ -1,7 +1,7 @@
 <div style="margin-top:5px;"></div>
 
 <form action="#" onsubmit="return false;">
-<div class="help-box" style="padding:5px;border:0;">
+<div class="help-box">
 	<h1 style="margin-bottom:5px;text-align:left;">Let's add some pages to your menu</h1>
 	
 	<p>

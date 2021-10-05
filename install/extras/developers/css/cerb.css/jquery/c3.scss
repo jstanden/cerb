@@ -1,0 +1,31 @@
+.c3-legend-item text {
+  fill: var(--cerb-color-text);
+}
+
+.c3 {
+  .c3-axis {
+    text {
+      fill: var(--cerb-color-text);
+    }
+
+    .tick line, path {
+      stroke: var(--cerb-color-background-contrast-180);
+      fill: none;
+    }
+  }
+  
+  .c3-grid line {
+    stroke: var(--cerb-color-background-contrast-230);
+  }
+  
+  .c3-tooltip {
+    background-color: var(--cerb-color-background);
+    color: var(--cerb-color-text);
+    
+    th, td {
+      background-color: var(--cerb-color-background);
+      color: var(--cerb-color-text);
+    }
+  }
+}
+

@@ -1,6 +1,3 @@
-@import "cerb-variables.scss";
-@import "cerb-mixins.scss";
-
 // Cerb custom styles
 
 // Alerts
@@ -16,25 +13,20 @@
 	overflow: hidden;
 	
 	.cerb-alert {
-		padding:2px;
-		border:0;
-		background:rgb(253, 226, 108);
-		font-weight:bold;
-		border-bottom:solid 1px rgb(255,255,255);
+		padding: 2px;
+		border: 0;
+		background: var(--cerb-color-alert-background);
+		font-weight: bold;
+		border-bottom:solid 1px var(--cerb-color-alert-border);
 		
 		&.cerb-alert-note {
-			color:black;
-			background:rgb(253, 226, 108);
+			color: var(--cerb-color-text);
+			background: var(--cerb-color-alert-background);
 		}
 		
 		&.cerb-alert-error {
-			background-color:rgb(253, 58, 71);
-			color:white;
-		}
-		
-		&.cerb-alert-success {
-			background:rgb(112, 239, 62);
-			color:rgb(47, 58, 31);
+			background-color: var(--cerb-color-alert-error-background);
+			color: var(--cerb-color-text-inverse);
 		}
 		
 		.cerb-alert-close {
@@ -48,10 +40,10 @@
 // Forms
 
 DIV.cerb-form {
-	margin: 0px 0px 10px 0px;
+	margin: 0 0 10px 0;
 	
 	> DIV {
-		margin: 0px 0px 5px 10px;
+		margin: 0 0 5px 10px;
 		
 		LABEL {
 			display: block;
@@ -75,7 +67,7 @@ DIV.cerb-form {
 DIV.cerb-form-flex {
 	display: flex;
 	flex-flow: row wrap;
-	margin: 0px 0px 10px 0px;
+	margin: 0 0 10px 0;
 	box-sizing: border-box;
 
 	> DIV {
@@ -107,10 +99,10 @@ DIV.cerb-form-flex {
 // Fieldsets
 
 FIELDSET.delete {
-	color: $red;
+	color: var(--cerb-color-error-text);
 
 	LEGEND {
-		color: $red;
+		color: var(--cerb-color-error-text);
 	}
 }
 
@@ -126,32 +118,13 @@ DIV.cerb-slider-container {
 	
 	LABEL {
 		font-weight: bold;
-		padding: 0px 0px 5px 0px;
+		padding: 0 0 5px 0;
 		display: inline-block;
 		
 		&> SMALL {
 			font-weight: normal;
 			font-size: 100%;
 		}
-	}
-	
-	DIV.cerb-slider {
-		margin:0px 10px 10px 5px;
-		width:200px;
-		display:inline-block;
-		
-		background-color: rgb(235,235,235);
-		border-color: rgb(220,220,220);
-		
-		.ui-slider-handle {
-			background-color: rgb(208,229,245);
-			border-color: rgb(121,183,231);
-		}
-		
-		INPUT {
-			display: none;
-		}
-		
 	}
 }
 
@@ -179,7 +152,7 @@ DIV.cerb-delta-slider-container {
 	
 	SPAN.cerb-delta-slider-midpoint {
 		display:inline-block;
-		background-color:rgb(200,200,200);
+		background-color: var(--cerb-color-background-contrast-200);
 		height:22px;
 		width:1px;
 		position:relative;
@@ -193,7 +166,7 @@ DIV.cerb-delta-slider-container {
 		width:250px;
 		display:inline-block;
 		position:relative;
-		background-color: rgb(230,230,230);
+		background-color: var(--cerb-color-background-contrast-230);
 		border: 0;
 		
 		&.ui-slider-horizontal {
@@ -210,47 +183,46 @@ DIV.cerb-delta-slider-container {
 		}
 		
 		&.cerb-slider-gray {
-			border-color: rgb(190,190,190);
+			border-color: var(--cerb-color-background-contrast-190);
 			
 			.ui-slider-handle {
-				background-color: rgb(175,175,175);
-				border-color: rgb(150,150,150);
+				background-color: var(--cerb-color-background-contrast-170);
+				border-color: var(--cerb-color-background-contrast-150);
 				cursor: pointer;
 			}
 			
 			.ui-slider-range {
-				background-color: rgb(230,230,230);
+				background-color: var(--cerb-color-background-contrast-230);
 			}
 		}
 		
 		&.cerb-slider-green {
-			border-color: rgb(190,190,190);
+			border-color: var(--cerb-color-background-contrast-190);
 			
 			.ui-slider-handle {
-				background-color: rgb(0,200,0);
-				border-color: rgb(0,150,0);
+				background-color: var(--cerb-color-ui-slider-low);
+				border-color: var(--cerb-color-ui-slider-low-border);
 				cursor: pointer;
 			}
 			
 			.ui-slider-range {
-				background-color: rgb(230,230,230);
+				background-color: var(--cerb-color-background-contrast-230);
 			}
 		}
 	
 		&.cerb-slider-red {
-			border-color: rgb(190,190,190);
+			border-color: var(--cerb-color-background-contrast-190);
 			
 			.ui-slider-handle {
-				background-color: rgb(235,46,47);
-				border-color: rgb(170,0,0);
+				background-color: var(--cerb-color-ui-slider-high);
+				border-color: var(--cerb-color-ui-slider-high-border);
 				cursor: pointer;
 			}
 			
 			.ui-slider-range {
-				background-color: rgb(230,230,230);
+				background-color: var(--cerb-color-background-contrast-230);
 			}
 		}	
-		
 	}
 }
 
@@ -268,15 +240,15 @@ A.no-underline {
 // Effects
 
 .effects-transfer {
-	border: 2px dotted rgb(175,175,175);
-	background-color: rgb(230,230,230);
+	border: 2px dotted var(--cerb-color-background-contrast-170);
+	background-color: var(--cerb-color-background-contrast-230);
 }
 
 // Text input icons
 
 @mixin form-input-icon($icon) {
 	padding: 2px 2px 2px 25px;
-	background: url(#{$icon}?v=#{$timestamp}) no-repeat scroll 5px 50% #ffffff;
+	background: url(#{$icon}?v=#{$timestamp}) no-repeat scroll 5px 50% var(--cerb-color-background);
 }
 
 INPUT[type=text] {
@@ -351,35 +323,25 @@ INPUT[type=password] {
 // 	See: http://www.longren.org/2006/09/27/wrapping-text-inside-pre-tags/
 
 PRE.emailbody, DIV.emailbody {
-	@include whitespace-wrap();
+	// CSS3
+	white-space: pre-wrap;
+	// Mozilla, since 1999
+	white-space: -moz-pre-wrap;
+	// Opera 7
+	white-space: -o-pre-wrap;
+	// IE 5.5+
+	word-wrap: break-word;
+	// IE only hack to re-specify in addition to word-wrap
+	_white-space: pre;
+	
 	word-break: break-word;
 	font-family: inherit;
 	font-size: 12px;
 	line-height: 16px;
-	margin: 0px;
+	margin: 0;
 
 	A {
-		color: rgb(43, 109, 173);
-	}
-}
-
-DIV.emailbody SPAN.placeholder {
-	color: rgb(50,50,50);
-	font-weight: bold;
-	background-color: rgb(251,236,136);
-	padding: 0px 2px;
-	border-radius: 5px;
-
-	INPUT.placeholder-input {
-		background-color: rgb(255,248,220);
-		color: rgb(50,50,50);
-		border: 2px solid rgb(255,200,0);
-		padding: 3px;
-		border-radius: 5px;
-	}
-
-	DIV.bubble {
-		line-height: 1.4em;
+		color: var(--cerb-color-email-link);
 	}
 }
 
@@ -387,20 +349,10 @@ DIV.emailbody SPAN.placeholder {
 
 BUTTON {
 	&:hover DIV.badge-count {
-		background-color: rgb(71,133,210);
-		color: $white;
+		background-color: var(--cerb-color-button-icon--hover);
+		color: var(--cerb-color-text-inverse);
 	}
 
-	&.toolbar-item {
-		background: none;
-		background-color: rgb(235,235,235);
-
-		&:hover {
-			background: none;
-			background-color: rgb(212,222,234);
-		}
-	}
-	
 	&.peek {
 		visibility: hidden;
 		width: 20px;
@@ -411,34 +363,29 @@ BUTTON {
 }
 
 BUTTON.green {
-	@include linear-gradient(rgb(223,240,177), rgb(184,211,118));
-
-	color: rgb(0,80,0);
+	background: var(--cerb-color-button-confirm-gradient) linear-gradient(to bottom, var(--cerb-color-button-confirm-gradient), var(--cerb-color-button-confirm-gradient-to));
+	color: var(--cerb-color-button-confirm-text);
 	cursor: pointer;
 
 	&:hover {
-		background: none;
-		color:rgb(50,50,50);
-
-		@include linear-gradient(rgb(238,242,245), rgb(160,198,254));
+		color: var(--cerb-color-button-confirm-text--hover);
+		background: var(--cerb-color-button-gradient) linear-gradient(to bottom, var(--cerb-color-button-gradient), var(--cerb-color-button-gradient-to--hover));
 	}
 
 	DIV.badge-count {
-		background-color: rgb(107,183,84);
-		color: $white;
+		background-color: var(--cerb-color-button-confirm-badge);
+		color: var(--cerb-color-button-confirm-badge-text);
 	}
 }
 
 BUTTON.red {
-	@include linear-gradient(rgb(250,125,125), rgb(195,45,45));
+	background: var(--cerb-color-button-reject-gradient) linear-gradient(to bottom, var(--cerb-color-button-reject-gradient), var(--cerb-color-button-reject-gradient-to));
 
-	color: $white;
+	color: var(--cerb-color-button-reject-text);
 	cursor: pointer;
 
 	&:hover {
-		background: none;
-
-		@include linear-gradient(rgb(250,125,125), rgb(145,15,15));
+		background: var(--cerb-color-button-reject-gradient--hover) linear-gradient(to bottom, var(--cerb-color-button-reject-gradient--hover), var(--cerb-color-button-reject-gradient-to--hover));
 	}
 }
 
@@ -448,7 +395,7 @@ BUTTON.split-left {
 	margin-right: 0;
 	border-right: 0;
 
-	@include border-radius-trbl(5px, 0px, 0px, 5px);
+	border-radius: 5px 0 0 5px;
 
 	SPAN {
 		vertical-align: middle;
@@ -459,24 +406,12 @@ BUTTON.split-right {
 	vertical-align: top;
 	height: 26px;
 	margin-left: 0;
-
 	padding: 5px 2px;
-
-	background: none;
-	border-color: rgb(150,150,150);
-	color: $white;
-
-	@include linear-gradient(rgb(180,180,180), rgb(125,125,125));
-	@include border-radius-trbl(0px, 5px, 5px, 0px);
-
-	&:hover {
-		background: none;
-		background-color: rgb(160,198,254);
-	}
+	border-radius: 0 5px 5px 0;
 	
 	.glyphicons-chevron-down {
-		font-size:12px;
-		color:white;
+		font-size: var(--cerb-font-size);
+		color: var(--cerb-color-button-icon);
 	}
 }
 
@@ -485,12 +420,11 @@ BUTTON.split-right {
 #badgeNotifications {
 	display: none;
 	padding: 3px 5px 3px 5px;
-	background-color: rgb(200,0,0);
-
-	@include border-radius(5px);
+	background-color: var(--cerb-color-tag-red);
+	border-radius: 5px;
 
 	A {
-		color: $white;
+		color: var(--cerb-color-text-inverse);
 		text-decoration: none;
 		font-weight: bold;
 
@@ -506,87 +440,47 @@ UL {
 	&.navmenu {
 		clear: both;
 		width: 100%;
-		margin: 0px;
-		padding: 0px;
+		margin: 0;
+		padding: 0;
 		list-style: none;
-		color: rgb(80,80,80);
+		color: var(--cerb-color-background-contrast-75);
 
 		> LI {
 			float: left;
-			background-color: rgb(240,240,240);
-			border-right: 1px solid rgb(210,210,210);
+			background-color: var(--cerb-color-background-contrast-240);
+			border-right: 1px solid var(--cerb-color-background-contrast-220);
 			padding: 5px 8px;
-			margin: 0px;
+			margin: 0;
 			min-height: 16px;
 			cursor: pointer;
 			white-space: nowrap;
 
 			A {
-				color: rgb(80,80,80);
+				color: var(--cerb-color-background-contrast-75);
 				font-weight: normal;
 				text-decoration: none;
 			}
 
 			&:hover {
-				background-color: rgb(220,220,220);
+				background-color: var(--cerb-color-background-contrast-220);
 			}
 
 			&.selected {
-				background-color: rgb(69,85,96);
+				background-color: var(--cerb-color-ui-navmenu-selected);
 
 				> A {
-					color: $white;
+					color: var(--cerb-color-ui-navmenu-selected-text);
 					text-decoration: none;
 					font-weight: normal;
 				}
 			}
 		}
 	}
-
-	&.submenu {
-		clear: both;
-		width: 100%;
-		margin: 0px;
-		margin-bottom: 5px;
-		padding: 0px;
-		list-style: none;
-		color: $white;
-
-		> LI {
-			float: left;
-			background-color: rgb(145,178,239);
-			padding: 8px 5px 8px 5px;
-			margin: 0px 2px 5px 2px;
-
-			@include border-radius-trbl(0px, 0px, 5px, 5px);
-
-			A {
-				color: $white;
-			}
-		}
-	}
 }
 
-// Dashboard widgets
-
-DIV.dashboard-widget {
-	margin: 5px 5px 10px 5px;
-
-	DIV.dashboard-widget-title {
-		background-color:rgb(220,220,220);
-		padding:5px 10px;
-		font-size:120%;
-		font-weight:bold;
-		cursor:move;
-
-		@include border-radius(10px);
-	}
-
-	DIV.updated {
-		text-align:left;
-		color:rgb(200,200,200);
-		display:none;
-	}
+.navmenu-submenu {
+	background-color: var(--cerb-color-menu-submenu);
+	height:5px;
 }
 
 // Sheets
@@ -594,7 +488,7 @@ DIV.dashboard-widget {
 .cerb-data-sheet {
 	.cerb-data-sheet--fieldset {
 		> TBODY:nth-child(even) TD {
-			background-color: whitesmoke;
+			background-color: var(--cerb-color-table-row-alt-background);
 		}
 		
 		.cerb-data-sheet--field-label {
@@ -621,12 +515,18 @@ DIV.dashboard-widget {
 			}
 		}
 	}
+
+	.cerb-data-sheet--field {
+		H1, H2, H3, H4, H5, H6 {
+			color: var(--cerb-color-text);
+		}
+	}
 }
 
 .cerb-sheet-buttons {
 	.cerb-sheet-buttons--button {
-		background: rgb(70, 150, 250) none;
-		color: white;
+		background: var(--cerb-color-action-primary) none;
+		color: var(--cerb-color-text-inverse);
 		padding: 10px 10px;
 		border-radius: 5px;
 		margin: 5px 0 0 0;
@@ -652,66 +552,71 @@ DIV.dashboard-widget {
 // Worklists
 
 TABLE.worklist {
-	background-color:rgb(100,135,225);
-	@include border-radius-trbl(5px, 5px, 0px, 0px);
+	background-color: var(--cerb-color-table-header-background);
+	border-radius: 5px 5px 0 0;
 	padding:2px;
+	color: var(--cerb-color-table-header-text);
 
 	TD {
 		padding: 3px;
-		color: rgb(255, 255, 255);
+		color: inherit;
 
 		A {
-			color: rgb(255, 255, 255);
+			color: inherit;
 			font-weight: normal;
 			padding-right:3px;
 		}
 
 		SPAN.title {
-			padding:5px 5px 5px 10px;
-			color: rgb(255, 255, 255);
+			padding: 5px 5px 5px 10px;
+			color: inherit;
 			font-weight:bold;
 			font-size:14px;
 		}
 	}
 	
 	TD.title-toolbar {
-		font-size:14px;
-		text-shadow:0 1px 0 rgba(116,116,116,0.9);
+		font-size: 14px;
+		text-shadow:0 1px 0 var(--cerb-color-table-header--icons-shadow);
 	}
 }
 
 TABLE.worklistBody {
 	th {
-		@include linear-gradient(rgb(240,240,240), rgb(200,200,200));
-		padding:2px 0px 2px 5px;
-		border-right:1px solid rgb(175,175,175);
+		background: var(--cerb-color-background-contrast-240) linear-gradient(to bottom, var(--cerb-color-background-contrast-240), var(--cerb-color-background-contrast-200));
+		color: var(--cerb-color-background-contrast-75);
+		padding: 2px 0 2px 5px;
+		border-right: 1px solid var(--cerb-color-background-contrast-170);
 		text-align: left;
-		cursor:pointer;
+		cursor: pointer;
+		
+		.glyphicons {
+			color: inherit;
+		}
 
 		A {
-			font-size: 12px;
-			vertical-align:middle;
+			vertical-align: middle;
 			font-weight: bold;
-			text-decoration:none;
-			color: rgb(80,80,80);
+			text-decoration: none;
+			color: inherit;
 		}
 		
 		&:hover {
-			@include linear-gradient(rgb(200,200,200), rgb(150,150,150));
+			background: var(--cerb-color-background-contrast-200) linear-gradient(to bottom, var(--cerb-color-background-contrast-200), var(--cerb-color-background-contrast-150));
 
 			A {
-				text-decoration:none;
-				color:white;
+				text-decoration: none;
+				color: var(--cerb-color-text-inverse);
 			}
 		}
 
 		&.no-sort:hover {
-			@include linear-gradient(rgb(240,240,240), rgb(200,200,200));
-			cursor:default;
+			background: var(--cerb-color-background-contrast-240) linear-gradient(to bottom, var(--cerb-color-background-contrast-240), var(--cerb-color-background-contrast-200));
+			cursor: default;
 			
 			A {
-				color: rgb(80,80,80);
-				cursor:default;
+				color: var(--cerb-color-background-contrast-75);
+				cursor: default;
 			}
 		}
 	}
@@ -724,38 +629,38 @@ TABLE.worklistBody {
 		A.subject, B.subject {
 			font-size: 12px;
 			font-weight: bold;
-			color: rgb(80,80,80);
+			color: var(--cerb-color-text);
 		}
 	}
 
 	TR {
 		&.even {
-			background-color:rgb(254,254,254);
+			background-color: var(--cerb-color-background);
 		}
 
 		&.odd {
-			background-color:rgb(244,244,244);
+			background-color: var(--cerb-color-background-contrast-240);
 		}
 
 		&.hover {
-			background-color: rgb(255,255,200) !important;
+			background-color: var(--cerb-color-table-row-hover-background) !important;
 		}
 
 		&.selected {
-			background-color: rgb(251,236,136) !important;
+			background-color: var(--cerb-color-table-row-selected-background) !important;
 
 			&.hover {
-				background-color: rgb(255,255,200) !important;
+				background-color: var(--cerb-color-table-row-hover-background) !important;
 			}
 		}
 	}
 	
 	tbody {
 		&.disabled {
-			color: rgb(167,167,167);
+			color: var(--cerb-color-background-contrast-160);
 			
 			A {
-				color: rgb(167,167,167);
+				color: var(--cerb-color-background-contrast-160);
 			}
 		}
 	}
@@ -765,7 +670,7 @@ TABLE.worklistBody {
 
 TABLE.calendar {
 	width:98%;
-	border:0px;
+	border:0;
 
 	TR.heading {
 		height:1.5em;
@@ -781,10 +686,10 @@ TABLE.calendar {
 		height:75px;
 
 		TD {
-			width:14%;
-			border-top:1px solid rgb(200,200,200);
-			border-left:1px solid rgb(200,200,200);
-			vertical-align:top;
+			width: 14%;
+			border-top: 1px solid var(--cerb-color-background-contrast-200);
+			border-left: 1px solid var(--cerb-color-background-contrast-200);
+			vertical-align: top;
 
 			DIV.day_header {
 				padding-left:5px;
@@ -799,28 +704,28 @@ TABLE.calendar {
 			}
 
 			&.hover {
-				background-color:rgb(251,236,136);
+				background-color: var(--cerb-color-table-row-hover-background);
 			}
 
 			&.inactive {
-				background-color:rgb(240,240,240);
+				background-color: var(--cerb-color-background-contrast-230);
 			}
 
 			&.cellborder_r {
-				border-right:1px solid rgb(200,200,200);
+				border-right:1px solid var(--cerb-color-background-contrast-200);
 			}
 
 			&.cellborder_b {
-				border-bottom:1px solid rgb(200,200,200);
+				border-bottom:1px solid var(--cerb-color-background-contrast-200);
 			}
 
 			&.today {
-				border:2px solid rgb(74,110,158);
+				border:2px solid var(--cerb-color-action-primary);
 
 				DIV.day_header {
 					A {
-						font-weight:bold;
-						color:rgb(74,110,158);
+						font-weight: bold;
+						color: var(--cerb-color-action-primary);
 					}
 				}
 			}
@@ -831,17 +736,13 @@ TABLE.calendar {
 
 				DIV {
 					padding:3px 0 3px 3px;
-					background-color:rgb(200,200,200);
+					background-color: var(--cerb-color-background-contrast-200);
 					margin-top:2px;
 					height:1em;
 					overflow:hidden;
-					@include border-radius(5px);
+					border-radius: 5px;
 					word-wrap:break-word;
 					word-break:break-all;
-				}
-
-				DIV.available {
-					background-color:rgb(180,220,110);
 				}
 
 				A {
@@ -857,79 +758,57 @@ TABLE.calendar {
 	}
 }
 
-// Toggle grid
-
-TABLE.toggle_grid TR TD {
-	text-align:center;
-	cursor:pointer;
-	border:1px solid rgb(240,240,240);
-	background-color:rgb(240,240,240);
-	color:rgb(150,150,150);
-
-	&.selected {
-		border:1px solid rgb(121,183,231);
-		background-color:rgb(240,250,255);
-		color:rgb(74,110,158);
-		font-weight:bold;
-	}
-
-	INPUT[type=checkbox] {
-		display:none;
-		visibility:hidden;
-	}
-}
-
 // Error Handling
 
 DIV.error-box {
-	background-color: rgb(255,235,235);
-	border: 1px solid rgb(180,0,0);
-	color: rgb(180, 0, 0);
+	background-color: var(--cerb-color-error-background);
+	border: var(--cerb-color-error-text);
+	color: var(--cerb-color-error-text);
 	margin-bottom: 10px;
 	padding: 10px;
 
-	@include border-radius(5px);
+	border-radius: 5px;
 
 	H1 {
-		color: rgb(150,0,0);
+		color: var(--cerb-color-error-text);
 	}
 
 	P {
-		margin: 0px 0px 5px 5px;
+		margin: 0 0 5px 5px;
 	}
 }
 
 // Help box
 
 DIV.help-box {
-	@include linear-gradient(rgb(251,236,136), rgb(255,255,200));
-	border:1px solid rgb(215,115,15);
+	background: var(--cerb-color-help-background) linear-gradient(to bottom, var(--cerb-color-help-background), var(--cerb-color-help-background-gradient));
+	border: 1px solid var(--cerb-color-help-h1);
 	padding: 10px;
 	margin-bottom:10px;
 
-	@include border-radius(5px);
+	border-radius: 5px;
 
 	H1 {
-		color:rgb(215,115,15);
+		color:var(--cerb-color-help-h1);
 		margin-bottom: 5px;
 	}
 
 	P {
-		margin:0px 0px 5px 5px;
+		margin:0 0 5px 5px;
 	}
 
 	A {
 		font-weight:bold;
-		color:rgb(50,50,50);
+		color: var(--cerb-color-background-contrast-50);
 	}
 
 	SPAN.help.callout-worklist {
 		font-weight:bold;
-		color:white;
-		background-color:rgb(100,135,225);
+		color: var(--cerb-color-text-inverse);
+		background-color: var(--cerb-color-table-header-background);
 		padding:5px 10px;
 
-		@include border-radius-trbl(5px, 5px, 0px, 0px);
+		border-radius: 5px 5px 0 0;
 	}
 }
 
@@ -979,7 +858,7 @@ DIV.help-box {
 
 .cerb-comments-thread {
 	margin: 10px 0 0 15px;
-	border-left:2px solid #c8c8c8;
+	border-left:2px solid var(--cerb-color-background-contrast-200);
 
 	.cerb-comments-thread--comment {
 		&:first-child {
@@ -996,7 +875,7 @@ DIV.help-box {
 			font-weight: bold;
 			font-size: 18px;
 			margin: 0;
-			color: rgb(102, 102, 102);
+			color: var(--cerb-color-background-contrast-100);
 		}
 	}
 
@@ -1008,11 +887,10 @@ DIV.help-box {
 
 DIV.block {
 	padding: 5px;
-	@include linear-gradient-boundary(rgb(245,245,245) 25px, rgb(255,255,255) 75px);
-	background-color: white;
-	border: 1px solid rgb(230, 230, 230);
+	background: var(--cerb-color-background) linear-gradient(to bottom, var(--cerb-color-background-contrast-240) 25px, var(--cerb-color-background) 75px);
+	border: 1px solid var(--cerb-color-background-contrast-230);
 
-	@include border-radius(5px);
+	border-radius: 5px;
 
 	&.hover-underline A {
 		text-decoration: none;
@@ -1025,45 +903,33 @@ DIV.block {
 	H2, H3 {
 		font-weight: bold;
 		font-size: 18px;
-		margin: 0px;
+		margin: 0;
 	}
 
 	H2 {
-		color: rgb(0,150,0);
+		color: var(--cerb-color-h1);
 	}
 
 	H3 {
-		color: rgb(85, 85, 85);
+		color: var(--cerb-color-background-contrast-75);
 	}
 }
 
 DIV.error {
-	border: 1px solid rgb(180, 0, 0);
-	background-color: rgb(255, 235, 235);
-	color: rgb(180, 0, 0);
+	border: 1px solid var(--cerb-color-error-text);
+	background-color: var(--cerb-color-error-background);
+	color: var(--cerb-color-error-text);
 	font-weight: bold;
 	margin: 10px;
 	padding: 5px;
 }
 
 DIV.success {
-	border: 1px solid rgb(0, 180, 0);
-	background-color: rgb(235, 255, 235);
-	color: rgb(0, 180, 0);
+	border: 1px solid var(--cerb-color-success-text);
+	background-color: var(--cerb-color-success-background);
+	color: var(--cerb-color-success-text);
 	font-weight: bold;
 	margin: 10px;
-	padding: 5px;
-}
-
-DIV.subtle {
-	background-color: rgb(235, 255, 211);
-	margin: 5px;
-	padding: 5px;
-}
-
-DIV.subtle2 {
-	background-color: rgb(239, 245, 255);
-	margin: 5px;
 	padding: 5px;
 }
 
@@ -1071,65 +937,50 @@ DIV.subtle2 {
 
 DIV.bubble {
 	line-height:1.5em;
-	white-space:nowrap;
 	padding:0 0.2em 0 0.2em;
-	margin:0px;
+	margin:0;
 	display:inline-block;
-	color:rgb(0,0,0);
-	background-color:rgb(220,220,220);
-	border:1px solid rgb(200,200,200);
-	white-space:normal;
-	word-break:break-all;
+	color: var(--cerb-color-text);
+	border:1px solid var(--cerb-color-background-contrast-200);
+	white-space: normal;
+	word-break: break-all;
 
-	@include border-radius(5px);
-	@include linear-gradient($white, rgb(220,220,220));
+	border-radius: 5px;
+	background: var(--cerb-color-text-inverse) linear-gradient(to bottom, var(--cerb-color-background), var(--cerb-color-background-contrast-220));
 
 	A {
-		color:rgb(0,0,0);
+		color: var(--cerb-color-text);
 		text-decoration:none;
 
 		&:hover {
 			text-decoration:underline;
 		}
 	}
-	
-	&.bubble-blue {
-		@include linear-gradient($white, rgb(232,242,254));
-		color:rgb(50,115,185);
-		background-color:rgb(232,242,254);
-		border:1px solid rgb(197,219,236);
-		
-		A {
-			color:rgb(50,115,185);
-		}
-	}
 }
 
 UL.bubbles {
 	display:inline;
-	margin:0px;
-	padding:0px;
+	margin:0;
+	padding:0;
 
 	LI {
 		display:inline-block;
 		position: relative;
-		list-style-type:none;
-		list-style:none;
+		list-style: none;
 		line-height:1.5em;
-		white-space:nowrap;
 		padding:0 0.5em;
 		margin:0;
-		color:rgb(0,0,0);
-		border:1px solid rgb(200,200,200);
+		color: var(--cerb-color-text);
+		border:1px solid var(--cerb-color-background-contrast-200);
 		white-space:normal;
 		word-break:break-all;
 
-		@include border-radius(5px);
+		border-radius: 5px;
 
-		@include linear-gradient($white, rgb(220,220,220));
+		background: var(--cerb-color-background) linear-gradient(to bottom, var(--cerb-color-background), var(--cerb-color-background-contrast-200));
 
 		A {
-			color:rgb(0,0,0);
+			color: var(--cerb-color-text);
 			text-decoration:none;
 
 			&:hover {
@@ -1138,23 +989,22 @@ UL.bubbles {
 		}
 		
 		&.bubble-gray {
-			@include linear-gradient($white, rgb(220,220,220));
-			border:1px solid rgb(200,200,200);
-			
-			color:rgb(0,0,0);
+			background: var(--cerb-color-background) linear-gradient(to bottom, var(--cerb-color-background), var(--cerb-color-background-contrast-200));
+			border:1px solid var(--cerb-color-background-contrast-200);
+			color: var(--cerb-color-text);
 			
 			A {
-				color:rgb(0,0,0);
+				color: var(--cerb-color-text);
 			}
 		}
 		
 		&.bubble-blue {
-			@include linear-gradient($white, rgb(232,242,254));
-			border:1px solid rgb(197,219,236);
-			color:rgb(50,115,185);
-			
+			background: var(--cerb-color-bubble-background) linear-gradient(to bottom, var(--cerb-color-bubble-background), var(--cerb-color-bubble-background-gradient));
+			color: var(--cerb-color-bubble-text);
+			border: 1px solid var(--cerb-color-bubble-border);
+
 			A {
-				color:rgb(49,116,165);
+				color: var(--cerb-color-bubble-text);
 			}
 		}
 	}
@@ -1162,12 +1012,12 @@ UL.bubbles {
 	&.chooser-container {
 		LI {
 			margin: 3px;
-			@include linear-gradient($white, rgb(220,220,220));
+			background: var(--cerb-color-background) linear-gradient(to bottom, var(--cerb-color-background), var(--cerb-color-background-contrast-200));
 			
-			color:rgb(0,0,0);
+			color: var(--cerb-color-text);
 			
 			A {
-				color:rgb(0,0,0);
+				color: var(--cerb-color-text);
 			}
 		
 			.glyphicons-circle-remove {
@@ -1193,12 +1043,12 @@ IMG.cerb-avatar {
 	height:16px;
 	width:16px;
 	margin-right:3px;
-	@include border-radius(16px);
+	border-radius: 16px;
 	vertical-align:middle;
 }
 
 IMG.cerb-rounded {
-	@include border-radius(100px);
+	border-radius: 100px;
 	vertical-align:middle;
 }
 
@@ -1207,17 +1057,17 @@ IMG.cerb-rounded {
 DIV.badge-count {
 	font-size: 12px;
 
-	padding: 0px 5px;
+	padding: 0 5px;
 	font-weight: 500;
 	display: inline-block;
 	vertical-align: middle;
 
 	margin-top: -1px;
 
-	@include border-radius(10px);
+	border-radius: 10px;
 
-	background-color: rgb(120,120,120);
-	color: $white;
+	background-color: var(--cerb-color-button-icon);
+	color: var(--cerb-color-text-inverse);
 }
 
 DIV.badge {
@@ -1226,46 +1076,36 @@ DIV.badge {
 	font-weight:normal;
 	padding:1px 4px 1px 4px;
 
-	@include border-radius(5px);
-	@include linear-gradient(rgb(185,185,185), rgb(165,165,165));
+	background: var(--cerb-color-background-contrast-180) linear-gradient(to bottom, var(--cerb-color-background-contrast-180), var(--cerb-color-background-contrast-160));
+	border: 1px solid var(--cerb-color-background-contrast-150);
+	border-radius: 5px;
 
-	color: $white;
-	border: 1px solid rgb(150,150,150);
+	color: var(--cerb-color-text-inverse);
 
 	A {
-		color:$white;
+		color:var(--cerb-color-text-inverse);
 	}
 
 	&.selected {
-		border:1px dashed;
-		background: none;
-		background-color: rgb(255, 250, 160);
+		border: 1px dashed;
+		background: var(--cerb-color-table-row-selected-background) none;
 	}
 }
 
 DIV.badge-lightgray {
-	@include linear-gradient(rgb(240,240,240), rgb(230,230,230));
-
-	color:rgb(120,120,120);
-	border:1px solid rgb(200,200,200);
+	background: var(--cerb-color-background-contrast-240) linear-gradient(to bottom, var(--cerb-color-background-contrast-240), var(--cerb-color-background-contrast-230));
+	color: var(--cerb-color-background-contrast-125);
+	border:1px solid var(--cerb-color-background-contrast-200);
 
 	A {
-		color:rgb(120,120,120);
+		color: var(--cerb-color-background-contrast-125);
 	}
 }
 
 DIV.badge-red {
-	@include linear-gradient(rgb(255,0,0), rgb(210,0,0));
-
-	color:$white;
-	border:1px solid rgb(200,0,0);
-}
-
-DIV.badge-green {
-	@include linear-gradient(rgb(0,150,0), $green);
-
-	color:$white;
-	border:1px solid rgb(0,100,0);
+	background: var(--cerb-color-button-icon-alert-background) linear-gradient(to bottom, var(--cerb-color-button-icon-alert-background), var(--cerb-color-button-icon-alert-gradient));
+	color: var(--cerb-color-text-inverse);
+	border: 1px solid var(--cerb-color-button-icon-alert-background);
 }
 
 // Tags
@@ -1274,49 +1114,33 @@ SPAN.tag {
 	padding:2px 4px;
 	font-weight:bold;
 	vertical-align:top;
-
-	@include border-radius(5px);
+	border-radius: 5px;
 
 	&.tag-blue {
-		background-color:rgb(71,133,210);
-		color:$white;
+		background-color: var(--cerb-color-tag-blue);
+		color: var(--cerb-color-text-inverse);
 	}
 
 	&.tag-green {
-		background-color:rgb(85,185,75);
-		color:$white;
+		background-color: var(--cerb-color-tag-green);
+		color: var(--cerb-color-text-inverse);
 	}
 
 	&.tag-gray {
-		background-color:rgb(100,100,100);
-		color:$white;
+		background-color: var(--cerb-color-tag-gray);
+		color: var(--cerb-color-text-inverse);
 	}
 
 	&.tag-red {
-		background-color:rgb(185,50,40);
-		color:$white;
+		background-color: var(--cerb-color-tag-red);
+		color: var(--cerb-color-text-inverse);
 	}
 
 	&.tag-orange {
-		background-color:rgb(255,138,0);
-		color:$white;
+		background-color: var(--cerb-color-tag-orange);
+		color: var(--cerb-color-text-inverse);
 	}
 }
-
-// Property List
-
-/*
-DIV.cerb-fields-container {
-	display: flex;
-	flex-flow: row wrap;
-
-	.cerb-fields-container-item {
-		flex: 1 1 200px;
-		margin: 2px 0px;
-		text-overflow: ellipsis;
-	}
-}
-*/
 
 DIV.cerb-fields-container {
 	display: grid;
@@ -1333,11 +1157,11 @@ DIV.cerb-fields-container {
 }
 
 DIV.cerb-properties {
-	margin:0px;
+	margin:0;
 
 	> DIV {
 		display:inline-block;
-		margin:1px 10px 1px 0px;
+		margin:1px 10px 1px 0;
 
 		> LABEL {
 			font-weight:bold;
@@ -1347,11 +1171,11 @@ DIV.cerb-properties {
 }
 
 DIV.cerb-properties {
-	margin:0px;
+	margin:0;
 
 	> DIV {
 		display:inline-block;
-		margin:1px 10px 1px 0px;
+		margin:1px 10px 1px 0;
 
 		> LABEL {
 			font-weight:bold;
@@ -1363,14 +1187,13 @@ DIV.cerb-properties {
 // Property fieldsets
 
 FIELDSET.properties {
-	border-width:1px 0px 0px 0px;
-	//background-color: white;
+	border-width: 1px 0 0 0;
 
 	LEGEND {
-		color:rgb(50,50,50);
+		color: var(--cerb-color-background-contrast-50);
 		
 		A {
-			color:inherit;
+			color: inherit;
 		}
 	}
 
@@ -1385,21 +1208,21 @@ FIELDSET.properties {
 
 	SMALL {
 		font-size:90%;
-		color:rgb(100,100,100);
+		color: var(--cerb-color-background-contrast-100);
 	}
 }
 
 DIV.cerb-properties-grid {
-	font-size: 0px;
-	letter-spacing: 0px;
-	word-spacing: 0px;
+	font-size: 0;
+	letter-spacing: 0;
+	word-spacing: 0;
 
 	> DIV {
 		display:inline-block;
-		font-size: $cerb-base-font-size;
-		letter-spacing: 0px;
-		word-spacing: 0px;
-		padding:0px 0px 5px 0px;
+		font-size: var(--cerb-font-size);
+		letter-spacing: 0;
+		word-spacing: 0;
+		padding:0 0 5px 0;
 		vertical-align: top;
 	}
 	
@@ -1418,31 +1241,32 @@ DIV.cerb-properties-grid {
 // Peek fieldsets
 
 FIELDSET.peek {
-	border-width:1px 0px 0px 0px;
+	border-width:1px 0 0 0;
 
 	LEGEND {
-		color:$green;
+		color: var(--cerb-color-fieldset-legend);
 
 		A {
-			color:inherit;
+			color: inherit;
 		}
 	}
 }
 
 FIELDSET.block {
-	border-width:1px 0px 0px 5px;
+	border-width: 1px 0 0 5px;
 	border-style: solid;
 }
 
+// [TODO] This is used in one place
 FIELDSET.block-cell {
 	border-width: 1px 1px 1px 8px;
-	border-color: rgb(225,225,225);
+	border-color: var(--cerb-color-background-contrast-220);
 	border-style: solid;
 	position: relative;
 	margin-bottom: 10px;
 
 	legend {
-		color: $green;
+		color: var(--cerb-color-fieldset-legend);
 		margin: 0;
 	}
 }
@@ -1459,105 +1283,50 @@ FIELDSET.peek-noborder {
 	LEGEND {
 		margin-left: 0;
 		padding-left: 0;
-		color:$green;
+		color: var(--cerb-color-fieldset-legend);
 	}
 }
 
 FIELDSET.black {
 	LEGEND {
-		color:rgb(50,50,50);
+		color: var(--cerb-color-background-contrast-50);
 		
 		A {
-			color:rgb(50,50,50);
+			color: var(--cerb-color-background-contrast-50);
 		}
 	}
-}
-
-// Profiles
-
-DIV.cerb-profile-header H1 {
-	color:black;
-}
-
-DIV.cerb-profile-header H1 > SMALL {
-	color:rgb(100,100,100);
-	font-weight:normal;
-	margin-left:5px;
-}
-
-DIV.cerb-profile-header span.glyphicons-male {
-	color:rgb(2,139,212);
-	vertical-align:middle;
-}
-
-DIV.cerb-profile-header span.glyphicons-female {
-	color:rgb(243,80,157);
-	vertical-align:middle;
 }
 
 DIV.cerb-profile-toolbar {
 	margin-bottom: 10px;
 
 	SMALL {
-		font-size:90%;
-		color:rgb(100,100,100);
+		font-size: 90%;
+		color: var(--cerb-color-background-contrast-100);
 	}
 }
 
 // Popup menu
 
 DIV.cerb-popupmenu {
-	min-width:200px;
-	margin:5px 0px 20px 0px;
-	padding:5px;
-	display:none;
-	background-color:$white;
-	border:1px solid rgb(204,204,204);
-	
-	@include box-shadow-trbl(0px, 0px, 15px, 0px, rgb(175,175,175));
-	
-	> div.cerb-popupmenu-item {
-		padding:2px;
-		font-weight:normal;
-		cursor:pointer;
-		break-inside: avoid-column;
-		page-break-inside: avoid;
-
-		A {
-			text-decoration:none;
-			color:rgb(74,110,158);
-			font-weight:bold;
-		}
-
-		HR {
-			height:1px;
-			padding:0px;
-			margin:5px 5px;
-			border:0px;
-			border-top:1px dashed rgb(200,200,200);
-		}
-
-		&:hover {
-			background-color:rgb(105,140,221);
-			color:$white;
-
-			A {
-				color:$white;
-			}
-		}
-	}
+	min-width: 200px;
+	margin: 5px 0 20px 0;
+	padding: 5px;
+	display: none;
+	background-color: var(--cerb-color-background);
+	border: 1px solid var(--cerb-color-background-contrast-200);
+	box-shadow: 0 0 15px 0 var(--cerb-color-background-contrast-170);
 }
 
 UL.cerb-popupmenu {
 	min-width:200px;
 	list-style:none;
-	margin:5px 0px 20px 0px;
+	margin:5px 0 20px 0;
 	padding:5px;
 	display:none;
-	background-color:$white;
-	border:1px solid rgb(204,204,204);
-
-	@include box-shadow-trbl(0px, 0px, 15px, 0px, rgb(175,175,175));
+	background-color: var(--cerb-color-background);
+	border: 0;
+	box-shadow: 0 0 15px 0 var(--cerb-color-background-contrast-170);
 
 	> LI {
 		padding:2px;
@@ -1568,24 +1337,24 @@ UL.cerb-popupmenu {
 
 		A {
 			text-decoration:none;
-			color:rgb(74,110,158);
+			color: var(--cerb-color-menu-item-text);
 			font-weight:bold;
 		}
 
 		HR {
 			height:1px;
-			padding:0px;
+			padding:0;
 			margin:5px 5px;
-			border:0px;
-			border-top:1px dashed rgb(200,200,200);
+			border:0;
+			border-top:1px dashed var(--cerb-color-background-contrast-200);
 		}
 
 		&:hover {
-			background-color:rgb(105,140,221);
-			color:$white;
+			background-color: var(--cerb-color-menu-item-hover);
+			color: var(--cerb-color-text-inverse);
 
 			A {
-				color:$white;
+				color: inherit;
 			}
 		}
 	}
@@ -1604,37 +1373,37 @@ UL.cerb-popupmenu {
 
 .cerb-subpage {
 	H1 {
-		color:rgb(0,0,0);
-		margin-bottom:5px;
+		color: var(--cerb-color-text);
+		margin-bottom: 5px;
 	}
 	
 	H2 {
-		color:rgb(74,110,158);
-		margin-bottom:5px;
+		color: var(--cerb-color-h2);
+		margin-bottom: 5px;
 	}
 }
 
 // KB
 
 .cerb-kb-article-content {
-	color: rgb(50,50,50);
+	color: var(--cerb-color-background-contrast-50);
 	font-size: 100%;
 	line-height: 140%;
 
 	H1, H2, H3, H4, H5, H6 {
 		font-weight: bold;
-		color: rgb(50,50,50);
-		margin:10px 0px;
+		color: var(--cerb-color-background-contrast-50);
+		margin:10px 0;
 		line-height: normal;
 	}
 
 	H1 {
 		font-size: 190%;
-		color: rgb(50,50,50);
+		color: var(--cerb-color-background-contrast-50);
 
 		&.title {
 			font-size: 200%;
-			color: rgb(50,50,50);
+			color: var(--cerb-color-background-contrast-50);
 			font-weight: bold;
 			text-align: left;
 			border: none;
@@ -1643,45 +1412,45 @@ UL.cerb-popupmenu {
 
 	H2 {
 		font-size: 170%;
-		color: rgb(74,110,158);
-		border-bottom: 1px solid rgb(220,230,240);
+		color: var(--cerb-color-h2);
+		border-bottom: 1px solid var(--cerb-color-background-contrast-230);
 	}
 
 	H3 {
 		font-size: 150%;
-		color: rgb(50,50,50);
+		color: var(--cerb-color-background-contrast-50);
 	}
 
 	H4 {
 		font-size: 130%;
-		color: rgb(50,50,50);
+		color: var(--cerb-color-background-contrast-50);
 	}
 
 	H5 {
 		font-size: 120%;
-		color: rgb(50,50,50);
+		color: var(--cerb-color-background-contrast-50);
 	}
 
 	H6 {
 		font-size: 110%;
-		color: rgb(50,50,50);
+		color: var(--cerb-color-background-contrast-50);
 	}
 
 	PRE {
-		border-top: 1px solid rgb(200,200,200);
-		border-right: 1px solid rgb(200,200,200);
-		border-left: 3px solid rgb(150,150,150);
-		border-bottom: 3px solid rgb(150,150,150);
-		background-color: rgb(240,240,240);
-		color: #111111;
+		border-top: 1px solid var(--cerb-color-background-contrast-200);
+		border-right: 1px solid var(--cerb-color-background-contrast-200);
+		border-left: 3px solid var(--cerb-color-background-contrast-150);
+		border-bottom: 3px solid var(--cerb-color-background-contrast-150);
+		background-color: var(--cerb-color-background-contrast-240);
+		color: var(--cerb-color-background-contrast-25);
 		padding: 0.5em;
 	}
 
 	CODE {
-		background-color:rgb(240,240,240);
-		color:rgb(0,0,0);
-		padding:0px 3px;
-		font-weight:bold;
+		background-color: var(--cerb-color-background-contrast-240);
+		color: var(--cerb-color-text);
+		padding: 0 3px;
+		font-weight: bold;
 	}
 
 	PRE > CODE {
@@ -1690,11 +1459,10 @@ UL.cerb-popupmenu {
 
 	BLOCKQUOTE {
 		font-style:italic;
-		color:rgb(50,50,50);
-		padding:0px 3px;
-		margin-left:20px;
-		border-left:solid 5px rgb(240,240,240);
-		padding-left:5px;
+		color: var(--cerb-color-background-contrast-50);
+		border-left: solid 5px var(--cerb-color-background-contrast-240);
+		margin-left: 20px;
+		padding: 0 3px 0 5px;
 	}
 
 	IMG {
@@ -1708,34 +1476,34 @@ DIV.cerb-menu {
 	margin-top:-5px;
 
 	> UL {
-		padding:0px;
-		margin:0px;
+		padding:0;
+		margin:0;
 		list-style:none;
 
 		> LI {
-			padding:5px 10px;
-			background-color:rgb(100,135,225);
-			float:left;
+			padding: 5px 10px;
+			background-color: var(--cerb-color-menu-submenu);
+			float: left;
 
 			&:hover {
-				background-color:rgb(85,100,150);
+				background-color: var(--cerb-color-menu-submenu-hover);
 			}
 
 			> DIV {
-				cursor:pointer;
+				cursor: pointer;
 
 				> A {
-					color:white;
-					text-decoration:none;
-					font-weight:normal;
+					color: var(--cerb-color-text-inverse);
+					text-decoration: none;
+					font-weight: normal;
 				}
 			}
 		}
 	}
 
 	&.cerb-popupmenu {
-		margin-top:5px;
-		margin-left:-10px;
+		margin-top: 5px;
+		margin-left: -10px;
 	}
 }
 
@@ -1748,15 +1516,7 @@ SPAN.plugin_icon_overlay_disabled {
 	height:100px;
 	position:absolute;
 	left:1px;
-	top:0px;
-}
-
-// jQuery Validation
-
-LABEL.error {
-	color: rgb(255,0,0);
-	padding-left: .5em;
-	vertical-align: top;
+	top:0;
 }
 
 // Markdown container
@@ -1771,7 +1531,7 @@ DIV.cerb-markdown-content {
 	}
 
 	CODE {
-		background-color: rgb(245,245,245);
+		background-color: var(--cerb-color-background-contrast-240);
 		padding: 2px;
 	}
 }
@@ -1780,17 +1540,18 @@ DIV.cerb-markdown-content {
 
 DIV.emailBodyHtml {
 	overflow-x: scroll;
+	color: var(--cerb-color-text);
 
 	A {
-		color: initial;
+		color: var(--cerb-color-text);
 	}
 
 	ABBR {
-		border-bottom: initial;
+		border-bottom: var(--cerb-color-text);
 	}
 
 	BLOCKQUOTE {
-		color: rgb(100,100,100);
+		color: var(--cerb-color-background-contrast-100);
 		border-left: 5px solid;
 		margin: 0 0 0 10px;
 		padding: 0 0 0 10px;
@@ -1799,14 +1560,14 @@ DIV.emailBodyHtml {
 	PRE > CODE {
 		display: block;
 		overflow-x: scroll;
-		border: 1px solid rgb(232,232,232);
-		background-color: rgb(246,242,240);
+		border: 1px solid var(--cerb-color-background-contrast-230);
+		background-color: var(--cerb-color-email-code);
 		padding: 10px;
 	}
 
 	P > CODE {
-		background-color: rgb(246,242,240);
-		border: 1px solid rgb(232,232,232);
+		border: 1px solid var(--cerb-color-background-contrast-230);
+		background-color: var(--cerb-color-email-code);
 		font-weight: bold;
 		padding: 0.1em 0.2em;
 		line-height: 1.75em;
@@ -1851,7 +1612,7 @@ DIV.commentBodyHtml {
 
 	BLOCKQUOTE {
 		clear: both;
-		color: rgb(100,100,100);
+		color: var(--cerb-color-background-contrast-100);
 		border-left: 5px solid;
 		margin: 0 0 0 10px;
 		padding: 0 0 0 10px;
@@ -1861,14 +1622,14 @@ DIV.commentBodyHtml {
 		clear: both;
 		display: block;
 		overflow-x: scroll;
-		border: 1px solid rgb(232,232,232);
-		background-color: rgb(246,242,240);
+		border: 1px solid var(--cerb-color-background-contrast-230);
+		background-color: var(--cerb-color-email-code);
 		padding: 10px;
 	}
 
 	P > CODE {
-		background-color: rgb(246,242,240);
-		border: 1px solid rgb(232,232,232);
+		border: 1px solid var(--cerb-color-background-contrast-230);
+		background-color: var(--cerb-color-email-code);
 		font-weight: bold;
 		padding: 0.1em 0.2em;
 		line-height: 1.75em;
@@ -1945,20 +1706,14 @@ DIV.commentBodyHtml {
 		max-height: 35em;
 		
 		LI {
-			color: black;
-			
-			&.ui-state-focus {
-				color: inherit;
-				border-color: rgba(200,200,200,0.5);
-				background-color: rgba(128,128,128,0.1);
-			}
+			color: var(--cerb-color-text);
 			
 			&.ui-menu-item {
-				background-color: rgb(255,255,255);
+				background-color: var(--cerb-color-text-inverse);
 			
 				&:hover {
-					background-color: rgb(240,240,240);
-					border-color: rgb(240,240,240);
+					background-color: var(--cerb-color-background-contrast-240);
+					border-color: var(--cerb-color-background-contrast-240);
 				}
 			}
 		}
@@ -1967,14 +1722,13 @@ DIV.commentBodyHtml {
 			width: 12px;
 		}
 		&::-webkit-scrollbar-track {
-			background-color: rgb(245,245,245);
+			background-color: var(--cerb-color-background-contrast-240);
 			border-radius: 10px;
 		}
 		&::-webkit-scrollbar-thumb {
-			background-color: rgb(200,200,200);
-			border-radius:10px;
+			background-color: var(--cerb-color-background-contrast-200);
+			border-radius: 10px;
 		}
-
 	}
 	
 	.expression {
@@ -1982,32 +1736,33 @@ DIV.commentBodyHtml {
 			outline: none;
 		}
 		
+		// [TODO] Tags
 		SPAN {
-			color: black;
-			font-weight:bold;
-			border-radius:10px;
-			padding:0px 6px;
-			background-color:rgb(220,220,220);
+			color: var(--cerb-color-text);
+			font-weight: bold;
+			border-radius: 10px;
+			padding: 0 6px;
+			background-color: var(--cerb-color-background-contrast-200);
 			
 			&.default {
 				font-weight: normal;
-				background-color:rgb(220,220,220);
+				background-color: var(--cerb-color-background-contrast-200);
 			}
 			&.alias {
-				background-color:rgb(220,220,220);
+				background-color: var(--cerb-color-background-contrast-200);
 			}
 			&.avail {
-				background-color:rgb(220,220,220);
+				background-color: var(--cerb-color-background-contrast-200);
 			}
 			&.contact {
 				color:rgb(0,120,0);
 				background-color:rgb(235,255,205);
 			}
 			&.contact_method {
-				background-color:rgb(220,220,220);
+				background-color: var(--cerb-color-background-contrast-200);
 			}
 			&.context {
-				background-color:rgb(220,220,220);
+				background-color: var(--cerb-color-background-contrast-200);
 			}
 			&.date {
 				color:rgb(68,147,224);
@@ -2016,31 +1771,30 @@ DIV.commentBodyHtml {
 			&.duration {
 				color: rgb(188, 121, 20);
 				background-color: rgb(255, 228, 16);
-				//background-color: rgb(252, 255, 15);
 			}
 			&.entity {
-				background-color:rgb(220,220,220);
+				background-color: var(--cerb-color-background-contrast-200);
 			}
 			&.event {
-				background-color:rgb(220,220,220);
+				background-color: var(--cerb-color-background-contrast-200);
 			}
 			&.number {
-				background-color:rgb(220,220,220);
+				background-color: var(--cerb-color-background-contrast-200);
 			}
 			&.org {
-				background-color:rgb(220,220,220);
+				background-color: var(--cerb-color-background-contrast-200);
 			}
 			&.phone {
-				background-color:rgb(220,220,220);
+				background-color: var(--cerb-color-background-contrast-200);
 			}
 			&.place {
-				background-color:rgb(220,220,220);
+				background-color: var(--cerb-color-background-contrast-200);
 			}
 			&.remind {
-				background-color:rgb(220,220,220);
+				background-color: var(--cerb-color-background-contrast-200);
 			}
 			&.status {
-				background-color:rgb(220,220,220);
+				background-color: var(--cerb-color-background-contrast-200);
 			}
 			&.temperature {
 				color:rgb(212,4,30);
@@ -2067,16 +1821,16 @@ div.cerb-uploads {
 		padding: 2px 5px;
 		margin: 2px 0;
 		border-radius: 5px;
-		background-color: rgb(200,200,200);
-		color: white;
+		background-color: var(--cerb-color-background-contrast-200);
+		color: var(--cerb-color-text-inverse);
 		
 		&.success {
-			background: rgb(40,130,250) none 0 0 no-repeat;
+			background: var(--cerb-color-action-primary) none 0 0 no-repeat;
 			font-weight: bold;
 		}
 		
 		&.failure {
-			background: rgb(255,60,100) none 0 0 no-repeat;
+			background: var(--cerb-color-alert-error-background) none 0 0 no-repeat;
 			font-weight: bold;
 		}
 	}
@@ -2098,13 +1852,13 @@ div.cerb-uploads {
 		input.input_search {
 			width:100%;
 			border-radius:10px;
-			border:1px solid rgb(200,200,200);
+			border:1px solid var(--cerb-color-background-contrast-200);
 			box-sizing:border-box;
 		}
 		
 		.package-library--package-container {
-			margin:5px 0px 20px 0px;
-			border:1px solid rgb(240,240,240);
+			margin:5px 0 20px 0;
+			border:1px solid var(--cerb-color-background-contrast-240);
 			padding:5px;
 		}
 		
@@ -2112,7 +1866,7 @@ div.cerb-uploads {
 			width:250px;
 			display:inline-block;
 			vertical-align:top;
-			border: 2px solid white;
+			border: 2px solid var(--cerb-color-text-inverse);
 			padding:5px;
 			text-align:center;
 			cursor:pointer;
@@ -2120,8 +1874,8 @@ div.cerb-uploads {
 			.package-library--package-image {
 				height:135px;
 				width:240px;
-				background-color:white;
-				border:1px solid rgb(200,200,200);
+				background-color: var(--cerb-color-background);
+				border:1px solid var(--cerb-color-background-contrast-200);
 				margin-bottom:5px;
 			}
 			
@@ -2136,8 +1890,8 @@ div.cerb-uploads {
 		}
 		
 		.package-library--package-selected {
-			border: 2px solid orange;
-			background-color: rgba(255,230,110,0.2);
+			border: 2px solid var(--cerb-library-border);
+			background-color: var(--cerb-library-background-selected);
 		}
 	}
 	
@@ -2160,7 +1914,7 @@ div.cerb-uploads {
 				
 				span.glyphicons-circle-remove {
 					&:hover {
-						color: rgb(180,0,0);
+						color: var(--cerb-color-error-text);
 					}
 				}
 			}
@@ -2169,9 +1923,9 @@ div.cerb-uploads {
 		.package-library--package {
 			.package-library--package-image {
 				float:left;
-				background-color:white;
-				border:1px solid rgb(200,200,200);
-				margin:0 10px 10px 0;
+				background-color: var(--cerb-color-background);
+				border: 1px solid var(--cerb-color-background-contrast-200);
+				margin: 0 10px 10px 0;
 			}
 			
 			.package-library--package-title {
@@ -2215,12 +1969,12 @@ UL.ui-menu {
 	}
 	
 	li.ui-menu-item.ui-state-focus {
-		color: white;
+		color: var(--cerb-color-background);
 	}
 
 	li.ui-state-focus {
 		border: 0;
 		margin: 0;
-		background: rgb(97,140,227);
+		background: var(--cerb-color-menu-item-text);
 	}
 }

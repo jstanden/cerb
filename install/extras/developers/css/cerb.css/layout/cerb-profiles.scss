@@ -1,0 +1,35 @@
+.cerb-profile-widget {
+	min-width: 345px;
+	margin-bottom: 15px;
+
+	> DIV {
+		padding: 0 5px 10px 5px;
+	}
+}
+
+.cerb-profile-widget--header {
+	border-bottom: 1px solid var(--cerb-color-background-contrast-240);
+	margin: 0 0 10px 0;
+	position: relative;
+
+	b {
+		font-size:1.7em;
+		color: var(--cerb-color-text);
+
+		.glyphicons-menu-hamburger {
+			vertical-align: middle;
+			cursor: move;
+			color: var(--cerb-color-background-contrast-180);
+			font-size: 0.8em;
+		}
+
+		.glyphicons-chevron-down {
+			font-size: 0.5em;
+			vertical-align: middle;
+			margin-left: 5px;
+		}
+	}
+}
+
+.cerb-profile-widget--content {
+}

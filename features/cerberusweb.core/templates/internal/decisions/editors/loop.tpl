@@ -101,8 +101,8 @@
 		<fieldset class="delete" style="display:none;">
 			<legend>Delete this loop?</legend>
 			<p>Are you sure you want to permanently delete this loop and its children?</p>
-			<button type="button" class="green" data-cerb-button="delete-confirm"> {'common.yes'|devblocks_translate|capitalize}</button>
-			<button type="button" class="red" data-cerb-button="delete-reject"> {'common.no'|devblocks_translate|capitalize}</button>
+			<button type="button" class="red" data-cerb-button="delete-confirm"> {'common.yes'|devblocks_translate|capitalize}</button>
+			<button type="button" data-cerb-button="delete-reject"> {'common.no'|devblocks_translate|capitalize}</button>
 		</fieldset>
 		{/if}
 		

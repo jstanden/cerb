@@ -41,7 +41,7 @@
 .minicolors-panel {
   position: absolute;
   width: 173px;
-  background: white;
+  background: var(--cerb-color-background);
   border: solid 1px #CCC;
   box-shadow: 0 0 20px rgba(0, 0, 0, .2);
   z-index: 99999;

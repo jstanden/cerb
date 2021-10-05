@@ -92,6 +92,11 @@ class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget implemen
 					]
 				]
 			],
+			'grid' => [
+				'y' => [
+					'show' => true,
+				]
+			],
 			'subchart' => [
 				'show' => false,
 				'size' => [

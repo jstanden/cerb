@@ -312,23 +312,6 @@ $(function() {
 				$frm.find('tbody.repeat, tbody.end').show();
 			}
 		});	
-		
-		// Toggle grids
-		
-		$frm.find('TABLE.toggle_grid TR TD').click(function(e) {
-			var $td = $(this).closest('td');
-			
-			if($td.is('.selected')) {
-				$td.find('input:checkbox').prop('checked', false);
-			} else {
-				$td.find('input:checkbox').prop('checked', true);
-			}
-			
-			$td.toggleClass('selected');
-			
-			e.stopPropagation();
-		});
-		
 	});
 });
 </script>

@@ -38,9 +38,8 @@
 	}
 
 	.cerb-button {
-		background: none;
-		background-color: rgb(18,131,225);
-		color: white;
+		background: var(--cerb-color-action-primary) none;
+		color: var(--cerb-color-text-inverse);
 		height: unset;
 		font-size: 1.1em;
 		border-radius: 50px;
@@ -48,27 +47,25 @@
 		margin: 0 5px;
 		
 		&:hover {
-			box-shadow: 0 0 5px 0 rgba(15, 85, 140, 0.5);
-			background-color: rgb(70, 169, 255);
+			box-shadow: 0 0 5px 0 var(--cerb-color-shadow-action-primary-hover);
+			background-color: var(--cerb-color-action-primary-hover);
 		}
 	}
 
 	.cerb-button-style-secondary {
-		background-color: rgb(230,230,230);
-		color: black;
+		background-color: var(--cerb-color-action-secondary);
+		color: var(--cerb-color-text);
 		
 		&:hover {
-			box-shadow: 0 0 5px 0 rgba(50, 50, 50, 0.5);
-			background-color: rgb(230,230,230);
+			box-shadow: 0 0 5px 0 var(--cerb-color-shadow-action-secondary-hover);
+			background-color: var(--cerb-color-action-secondary-hover);
 		}
 	}
 	
 	.cerb-button-style-outline {
 		background: none;
-		color: rgb(18,131,225);
-		border-style: solid;
-		border-color: rgb(18,131,225);
-		border-width: 2px;
+		color: var(--cerb-color-action-primary);
+		border: 2px solid var(--cerb-color-action-primary);
 	}
 	
 	.cerb-form-builder-continue {
@@ -85,8 +82,8 @@
 	}
 	
 	.cerb-form-builder-response-say {
-		color:black;
-		background-color:#eee;
+		color: var(--cerb-color-text);
+		background-color: var(--cerb-color-background-contrast-240);
 		border:0;
 		border-radius:12px 12px 12px 0;
 		padding: 9px 10px;
@@ -105,13 +102,13 @@
 
 	.cerb-form-builder-prompt-text INPUT[type=text],
 	.cerb-form-builder-prompt-text TEXTAREA {
-		border: 1px solid rgb(220,220,220);
+		border: 1px solid var(--cerb-color-background-contrast-220);
 		width: 99%;
 		box-sizing: border-box;
 	}
 
 	.cerb-form-builder-prompt-captcha INPUT[type=text] {
-		border: 1px solid rgb(220,220,220);
+		border: 1px solid var(--cerb-color-background-contrast-220);
 		box-sizing: border-box;
 	}
 
@@ -120,7 +117,7 @@
 			font-weight: bold;
 			font-size: 1.25em;
 			text-align: left;
-			padding: 0px 5px 5px 5px;
+			padding: 0 5px 5px 5px;
 		}
 
 		td {
@@ -128,30 +125,30 @@
 		}
 
 		tbody:nth-child(even) td {
-			background-color: rgb(245,245,245);
+			background-color: var(--cerb-color-table-row-alt-background);
 		}
 
 		tbody {
 			cursor: pointer;
 
 			&.selected td {
-				background-color: #fbec88;
+				background-color: var(--cerb-color-table-row-selected-background);
 			}
 
 			&.hover tr td {
-				background-color: #ffffc8 !important;
+				background-color: var(--cerb-color-table-row-hover-background) !important;
 			}
 		}
 	}
 
 	.cerb-form-builder-error {
-		background-color: rgb(255, 240, 240);
-		color: rgb(200,0,0);
+		background-color: var(--cerb-color-error-background);
+		color: var(--cerb-color-error-text);
 		padding: 15px;
 
 		> H1 {
 			margin: 0;
-			color: rgb(200,0,0);
+			color: var(--cerb-color-error-text);
 		}
 		
 		> P {

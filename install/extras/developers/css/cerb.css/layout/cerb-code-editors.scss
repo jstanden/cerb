@@ -1,0 +1,61 @@
+.cerb-code-editor-toolbar {
+	background: var(--cerb-color-background-contrast-240);
+	border-bottom:1px solid var(--cerb-color-background-contrast-220);
+	border-top:1px solid var(--cerb-color-background-contrast-220);
+
+	button {
+		background: var(--cerb-color-background-contrast-240);
+		border:0;
+
+		img {
+			-webkit-filter: grayscale(100%);
+			filter: grayscale(100%);
+
+			&:hover {
+				filter: grayscale(0%);
+				-webkit-filter: grayscale(0%);
+			}
+		}
+		
+		&.split-left {
+			padding-right: 0;
+		}
+		
+		&.split-right {
+			.glyphicons-chevron-down {
+				font-size:10px;
+				padding-left: 0;
+				color: var(--cerb-color-button-icon);
+				
+				&:hover {
+					color: var(--cerb-color-button-icon--hover);
+				}
+			}
+
+			&:hover {
+				background-color: transparent;
+			}
+		}
+
+		&.cerb-code-editor-toolbar-button--enabled {
+			background-color: var(--cerb-color-button-icon-enabled-background);
+
+			span.glyphicons {
+				color: var(--cerb-color-button-icon-enabled);
+			}
+		}
+
+		&.cerb-code-editor-toolbar-button--disabled {
+		}
+	}
+	
+	.cerb-code-editor-toolbar-divider {
+		border-left: 1px solid var(--cerb-color-background-contrast-220);
+		display: inline-block;
+		margin: 0;
+		padding: 0;
+		vertical-align: middle;
+		height: 16px;
+		width: 2px;
+	}
+}

@@ -1,5 +1,3 @@
-<ul class="submenu">
-</ul>
 <div style="clear:both;"></div>
 
 <h2>Welcome to Cerb!</h2>

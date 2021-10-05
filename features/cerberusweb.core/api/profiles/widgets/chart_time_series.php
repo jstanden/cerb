@@ -85,6 +85,11 @@ class ProfileWidget_ChartTimeSeries extends Extension_ProfileWidget {
 					]
 				]
 			],
+			'grid' => [
+				'y' => [
+					'show' => true,
+				]
+			],
 			'subchart' => [
 				'show' => false,
 				'size' => [

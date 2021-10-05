@@ -260,7 +260,6 @@ function DevblocksClass() {
 			},
 			beforeLoad: function(event, ui) {
 				var tab_title = ui.tab.find('> a').first().clone();
-				tab_title.find('div.tab-badge').remove();
 				var $div = $('<div style="font-size:18px;font-weight:bold;text-align:center;padding:10px;margin:10px;"/>')
 					.text('Loading: ' + $.trim(tab_title.text()))
 					.append($('<br>'))

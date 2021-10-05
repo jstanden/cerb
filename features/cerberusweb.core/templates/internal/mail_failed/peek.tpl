@@ -20,8 +20,8 @@
 	<p>Are you sure you want to permanently delete this message source?</p>
 	
 	<div>
-		<button type="button" class="green delete"> {'common.yes'|devblocks_translate|capitalize}</button>
-		<button type="button" class="red" onclick="$(this).closest('fieldset').hide().next('div.toolbar').show();"> {'common.no'|devblocks_translate|capitalize}</button>
+		<button type="button" class="red delete"> {'common.yes'|devblocks_translate|capitalize}</button>
+		<button type="button" onclick="$(this).closest('fieldset').hide().next('div.toolbar').show();"> {'common.no'|devblocks_translate|capitalize}</button>
 	</div>
 </fieldset>
 

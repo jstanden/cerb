@@ -4,14 +4,14 @@ svg.cerb-spinner {
   animation: 2s linear infinite cerb-spinner-animation;
   display: inline-block;
   max-width: 32px;
-  margin:5px;
+  margin: 5px;
   vertical-align: middle;
-  opacity:1;
+  opacity: 1;
 
   circle {
     animation: 1.4s ease-in-out infinite both cerb-spinner-circle-animation;
     fill: transparent;
-    stroke: #2f3d4c;
+    stroke: var(--cerb-color-background-contrast-50);
     stroke-linecap: round;
     stroke-dasharray: 283;
     stroke-dashoffset: 280;

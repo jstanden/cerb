@@ -1,0 +1,150 @@
+// Cerb base HTML styles
+
+HTML, BODY {
+	background-color: var(--cerb-color-background);
+}
+
+BODY, FORM, TD {
+	font-family: var(--cerb-font-stack);
+	font-size: var(--cerb-font-size);
+	color: var(--cerb-color-background-contrast-25);
+}
+
+A {
+	color: var(--cerb-color-link);
+}
+
+ABBR {
+	text-decoration: none;
+	border-bottom: 1px dotted var(--cerb-color-background-contrast-170);
+}
+
+H1 {
+	font-weight: bold;
+	font-size: 1.5em;
+	color: var(--cerb-color-h1);
+	margin: 0;
+}
+
+H2 {
+	font-weight: bold;
+	font-size: 1.5em;
+	color: var(--cerb-color-h2);
+	margin: 0 0 5px 0;
+}
+
+FIELDSET {
+	border: 1px double var(--cerb-color-fieldset-border);
+	margin-bottom: 5px;
+
+	H1 {
+		font-weight: normal;
+		color: var(--cerb-color-fieldset-h1);
+		margin: 0 0 5px 0;
+		padding: 0;
+		font-size: 120%;
+	}
+
+	LEGEND {
+		color: var(--cerb-color-fieldset-legend);
+		padding: 0 5px 0 0;
+		font-size: 120%;
+		font-weight: bold;
+
+		A {
+			color: var(--cerb-color-fieldset-legend);
+		}
+
+		span.glyphicons {
+			vertical-align: baseline;
+			color: var(--cerb-color-fieldset-icon);
+			margin-left: 5px;
+
+			&:hover {
+				color: var(--cerb-color-fieldset-icon--hover);
+			}
+		}
+	}
+
+	P {
+		padding: 0;
+		margin: 5px 2px;
+	}
+}
+
+FORM {
+	margin: 0;
+
+	INPUT[type=text], INPUT[type=password], INPUT[type=search] {
+		border: 1px solid var(--cerb-color-background-contrast-150);
+		padding: 3px;
+
+		&:focus {
+			border: 1px solid var(--cerb-color-form-element-focus);
+		}
+	}
+
+	TEXTAREA {
+		border: 1px solid var(--cerb-color-background-contrast-150);
+		padding: 3px;
+
+		&:focus {
+			border: 1px solid var(--cerb-color-form-element-focus);
+		}
+	}
+
+	SELECT {
+		-webkit-appearance: menulist;
+		-moz-appearance: menulist;
+
+		background: white none;
+		border: 1px solid var(--cerb-color-background-contrast-150);
+		padding: 2px 4px;
+
+		border-radius: 5px;
+
+		OPTGROUP {
+			font-style: normal;
+			font-weight: bold;
+			color: var(--cerb-color-background-contrast-75);
+		}
+	}
+}
+
+BUTTON {
+	height: 26px;
+	vertical-align: middle;
+	color: var(--cerb-color-button-text);
+	padding: 5px;
+	font-weight: bold;
+	margin: 0 1px 0 0;
+	border: 0;
+	cursor: pointer;
+
+	background: linear-gradient(to bottom, var(--cerb-color-button-gradient), var(--cerb-color-button-gradient-to));
+	border-radius: 5px;
+
+	&:hover {
+		background: linear-gradient(to bottom, var(--cerb-color-button-gradient), var(--cerb-color-button-gradient-to--hover));
+		color: var(--cerb-color-button-icon--hover);
+		cursor:pointer;
+		
+		SPAN.glyphicons {
+			color: var(--cerb-color-button-icon--hover);
+		}
+	}
+
+	&::-moz-focus-inner {
+		border: 0;
+		padding: 0;
+	}
+	
+	SPAN.glyphicons {
+		color: var(--cerb-color-button-icon);
+		font-size: 16px;
+	}
+
+	SPAN {
+		vertical-align: middle;
+	}
+}

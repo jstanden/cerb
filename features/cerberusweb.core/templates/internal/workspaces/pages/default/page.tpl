@@ -1,6 +1,6 @@
 {$is_writeable = Context_WorkspacePage::isWriteableByActor($page, $active_worker)}
 {if !$is_writeable && empty($page_tabs)}
-	<div class="help-box" style="padding:5px;border:0;">
+	<div class="help-box">
 		<h1 style="margin-bottom:5px;text-align:left;">This workspace is empty</h1>
 		
 		<p>

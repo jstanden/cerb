@@ -45,7 +45,7 @@
 			<div class="custom" style="display:none;">
 				<textarea cols="45" rows="2" style="width:100%;" name="column_custom[]"></textarea>
 			</div>
-			<label for="columns[]" class="error" style="display:none;"></label>
+			<label for="columns[]" style="display:none;"></label>
 		</td>
 	</tr>
 	{/foreach}

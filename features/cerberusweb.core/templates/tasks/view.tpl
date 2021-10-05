@@ -42,7 +42,7 @@
 	<tr>
 		{if !$view->options.disable_watchers}
 		<th class="no-sort" style="text-align:center;width:40px;padding-left:0;padding-right:0;" title="{'common.watchers'|devblocks_translate|capitalize}">
-			<span class="glyphicons glyphicons-eye-open" style="color:rgb(80,80,80);"></span>
+			<span class="glyphicons glyphicons-eye-open"></span>
 		</th>
 		{/if}
 		

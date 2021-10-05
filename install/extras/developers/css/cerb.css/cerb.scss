@@ -6,20 +6,22 @@
  * Instead, modify the .scss files in install/extras/developers/css/
  *
  */
+@import "theme/cerb-theme.scss";
 
-@import "cerb-base.scss";
-@import "cerb-styles.scss";
-@import "cerb-code-editors.scss";
-@import "cerb-botchat.scss";
-@import "cerb-form-builder.scss";
-@import "cerb-cards.scss";
-@import "cerb-profiles.scss";
-@import "cerb-spinner.scss";
-@import "cerb-workspaces.scss";
-@import "cerb-project-boards.scss";
-@import "cerb-widgets.scss";
-@import "jquery-ui.scss";
-@import "jquery-minicolors.scss";
-@import "glyphicons.scss";
-@import "cerb-responsive.scss";
-@import "cerb-print.scss";
+@import "layout/cerb-base.scss";
+@import "layout/cerb-styles.scss";
+@import "layout/cerb-code-editors.scss";
+@import "layout/cerb-botchat.scss";
+@import "layout/cerb-form-builder.scss";
+@import "layout/cerb-cards.scss";
+@import "layout/cerb-profiles.scss";
+@import "layout/cerb-spinner.scss";
+@import "layout/cerb-workspaces.scss";
+@import "layout/cerb-project-boards.scss";
+@import "layout/cerb-widgets.scss";
+@import "jquery/jquery-ui.scss";
+@import "jquery/jquery-minicolors.scss";
+@import "jquery/c3.scss";
+@import "icons/glyphicons.scss";
+@import "layout/cerb-responsive.scss";
+@import "layout/cerb-print.scss";

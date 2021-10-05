@@ -150,8 +150,8 @@
 	</select>
 	</div>
 
-	{if !empty($bucket->id) && !$bucket->is_default}<button type="button" class="green delete">{'common.yes'|devblocks_translate|capitalize}</button>{/if}
-	<button type="button" class="red" onclick="$(this).closest('form').find('div.buttons').fadeIn();$(this).closest('fieldset.delete').fadeOut();">{'common.no'|devblocks_translate|capitalize}</button>
+	{if !empty($bucket->id) && !$bucket->is_default}<button type="button" class="red delete">{'common.yes'|devblocks_translate|capitalize}</button>{/if}
+	<button type="button" onclick="$(this).closest('form').find('div.buttons').fadeIn();$(this).closest('fieldset.delete').fadeOut();">{'common.no'|devblocks_translate|capitalize}</button>
 </fieldset>
 {/if}
 
