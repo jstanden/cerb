@@ -14,12 +14,6 @@
 			</div>
 		{/if}
 
-		{if $toolbar}
-			<div data-cerb-sheet-toolbar class="cerb-code-editor-toolbar">
-			{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
-			</div>
-		{/if}
-
 		{$selection_key = uniqid('selection_')}
 
 		<div data-cerb-sheet-container>
@@ -33,6 +27,16 @@
 			{include file="devblocks:cerberusweb.core::ui/sheets/render.tpl" sheet_selection_key=$selection_key default=$default}
 		{/if}
 		</div>
+
+		{if $has_toolbar}
+			<div style="clear:both;"></div>
+			
+			<div data-cerb-sheet-toolbar style="{if !$toolbar}display:none;{/if}">
+				{if $toolbar}
+					{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
+				{/if}
+			</div>
+		{/if}
 
 		<div data-cerb-sheet-selections style="display:none;">
 			<ul class="bubbles chooser-container">
@@ -98,7 +102,7 @@ $(function() {
 	$prompt.on('cerb-sheet--toolbar-refresh', function(e) {
 		e.stopPropagation();
 
-		{if $toolbar}
+		{if $has_toolbar}
 		// Update the toolbar
 		var formData = new FormData();
 		formData.set('c', 'profiles');
@@ -113,13 +117,17 @@ $(function() {
 			formData.append('selections[]', $(this).val());
 		});
 
-		$sheet_toolbar.html(Devblocks.getSpinner().css('max-width', '16px'));
+		$sheet_toolbar.html(Devblocks.getSpinner().css('max-width', '16px')).show();
 
 		genericAjaxPost(formData, null, null, function(html) {
 			$sheet_toolbar
 				.html(html)
+				.show()
 				.triggerHandler('cerb-toolbar--refreshed')
 			;
+			
+			if(0 === $sheet_toolbar.children().length)
+				$sheet_toolbar.hide().html('');
 		});
 		{/if}
 	});
@@ -175,6 +183,7 @@ $(function() {
 		e.stopPropagation();
 
 		var $item = null;
+		var no_toolbar_update = e.hasOwnProperty('no_toolbar_update') && e.no_toolbar_update;
 
 		if(e.hasOwnProperty('is_multiple') && e.is_multiple) {
 			if(e.selected) {
@@ -217,11 +226,14 @@ $(function() {
 		}
 		{/if}
 
-		$prompt.triggerHandler('cerb-sheet--toolbar-refresh');
+		if(!no_toolbar_update) {
+			$prompt.triggerHandler('cerb-sheet--toolbar-refresh');
+		}
 	});
 
 	$sheet.on('cerb-sheet--selections-changed', function(e) {
 		e.stopPropagation();
+		$prompt.triggerHandler('cerb-sheet--toolbar-refresh');
 	});
 
 	{if $layout.filtering}
