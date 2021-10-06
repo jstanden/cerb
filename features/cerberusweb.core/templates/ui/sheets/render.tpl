@@ -10,7 +10,9 @@
 				{if $layout.title_column == $column.key}
 				{elseif $column._type == 'selection'}
 					<th style="width:20px;text-align:center;">
+						{if $column.params.mode != 'single'}
 						<input type="checkbox" title="Toggle all" data-cerb-select-all>
+						{/if}
 					</th>
 				{else}
 				<th data-column-key="{$column.key}" data-column-type="{$column._type}">{$column.label}</th>
@@ -99,10 +101,34 @@ $(function() {
 		
 		var $checkbox = $(this);
 		var is_checked = $checkbox.is(':checked');
+		var $table = $checkbox.closest('table.cerb-sheet');
+		var $tbody = $table.find('tbody');
+		var row_selections = [];
 		
-		$checkbox.closest('table').find('tbody').find('input:checkbox').each(function() {
-			$(this).prop('checked', is_checked ? 'checked' : null);
+		$tbody.find('input:checkbox').each(function() {
+			var $checkbox = $(this);
+			$checkbox.prop('checked', is_checked ? 'checked' : null);
+			
+			if(is_checked)
+				row_selections.push($checkbox.val());
+
+			var event_data = {
+				ui: {
+					item: $checkbox
+				},
+				is_multiple: true, 
+				no_toolbar_update: true,
+				selected: is_checked
+			};
+			
+			$sheet.trigger(
+				$.Event('cerb-sheet--selection', event_data)
+			);
 		});
+
+		$sheet.trigger(
+			$.Event('cerb-sheet--selections-changed', { row_selections: row_selections, is_multiple: true })
+		);
 	});
 
 	$sheet.parent().find('.cerb-paging')
@@ -136,7 +162,6 @@ $(function() {
 				return;
 
 			var $tbody = $(this);
-			var evt;
 
 			// If removing selected, add back hover
 
@@ -154,8 +179,9 @@ $(function() {
 			var is_multiple = $checkbox.is('[type=checkbox]');
 
 			// [TODO] Can we include a label/avatar with selections?
-			evt = $.Event('cerb-sheet--selection', { ui: { item: $checkbox }, is_multiple: is_multiple, selected: $checkbox.prop('checked') });
-			$sheet.trigger(evt);
+			$sheet.trigger(
+				$.Event('cerb-sheet--selection', { ui: { item: $checkbox }, is_multiple: is_multiple, selected: $checkbox.prop('checked') })				
+			);
 
 			// [TODO] Is this second variation really needed?
 			var row_selections = [];
@@ -168,8 +194,9 @@ $(function() {
 				;
 
 			// [TODO] Can we include a label/avatar with selections?
-			evt = $.Event('cerb-sheet--selections-changed', { row_selections: row_selections, is_multiple: is_multiple });
-			$sheet.trigger(evt);
+			$sheet.trigger(
+				$.Event('cerb-sheet--selections-changed', { row_selections: row_selections, is_multiple: is_multiple })
+			);
 		})
 		.hover(
 			function(e) {
