@@ -1078,7 +1078,10 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 				if(false == ($view = $context_ext->getTempView()))
 					return null;
 				
-				$params = $view->getParamsFromQuickSearch($param->value);
+				$not = DevblocksPlatform::strStartsWith($param->value, '!');
+				$query = ltrim($param->value, '!');
+				
+				$params = $view->getParamsFromQuickSearch($query);
 				
 				$query_parts = DAO_Worker::getSearchQueryComponents(
 					[],
@@ -1093,10 +1096,9 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 					. $query_parts['where']
 				;
 				
-				// [TODO] NOT
-				
-				return sprintf("%s IN (SELECT from_context_id FROM context_link WHERE context_link.from_context = %s AND context_link.from_context_id = %s AND context_link.to_context = %s AND context_link.to_context_id IN (%s)) ",
+				return sprintf("%s %sIN (SELECT from_context_id FROM context_link WHERE context_link.from_context = %s AND context_link.from_context_id = %s AND context_link.to_context = %s AND context_link.to_context_id IN (%s)) ",
 					$pkey,
+					$not ? 'NOT ' : '',
 					Cerb_ORMHelper::qstr($from_context),
 					$pkey,
 					Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_WORKER),
@@ -2167,7 +2169,7 @@ class DevblocksSearchCriteria {
 			switch ($token->type) {
 				// Parameterized expression
 				case 'T_GROUP':
-					$query = substr(CerbQuickSearchLexer::getTokensAsQuery($tokens), 1, -1);
+					$query = CerbQuickSearchLexer::getTokensAsQuery($tokens);
 					
 					return new DevblocksSearchCriteria(
 						$field_key,
