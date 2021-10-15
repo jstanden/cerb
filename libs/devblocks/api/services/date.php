@@ -192,6 +192,9 @@ class _DevblocksDateManager {
 					break;
 			}
 			
+			if(false === strpos($value, ' to '))
+				$value .= ' to now';
+			
 			if(false == ($value = explode(' to ', DevblocksPlatform::strLower($value), 2)))
 				return false;
 			

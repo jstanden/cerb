@@ -404,6 +404,24 @@ class DevblocksDateTest extends TestCase {
 		];
 		
 		$this->assertEquals($expected, $actual);
+		
+		// One operand (implied "to now")
+		
+		$expected = [
+			strtotime('first day of this month 00:00:00'),
+			time()
+		];
+		
+		$results = $date->parseDateRange('first day of this month');
+		
+		$this->assertTrue(is_array($results));
+		
+		$actual = [
+			$results['from_ts'],
+			$results['to_ts'],
+		];
+		
+		$this->assertEquals($expected, $actual);
 	}
 	
 	function testParseDays() {
