@@ -242,7 +242,7 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 				if($opp_id==$explore_from)
 					$orig_pos = $pos;
 				
-				$url = $url_writer->writeNoProxy(sprintf("c=profiles&type=kb&id=%d-%s", $row[SearchFields_KbArticle::ID], DevblocksPlatform::strToPermalink($row[SearchFields_KbArticle::NAME])), true);
+				$url = $url_writer->writeNoProxy(sprintf("c=profiles&type=kb&id=%d-%s", $row[SearchFields_KbArticle::ID], DevblocksPlatform::strToPermalink($row[SearchFields_KbArticle::TITLE])), true);
 				
 				$model = new Model_ExplorerSet();
 				$model->hash = $hash;
