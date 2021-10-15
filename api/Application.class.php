@@ -2339,16 +2339,27 @@ class CerberusContexts {
 			self::$_context_checkpoints[$context] = [];
 
 		// Cache full model objects the first time we encounter an ID (before persisting any changes)
-		// [TODO] If events could tell us what fields we're watching, we could lazy load ahead of time (custom_, deeply_nested_field_key)
 
 		$load_ids = array_diff($ids, array_keys(self::$_context_checkpoints[$context]));
 
 		if(!empty($load_ids)) {
 			$models = CerberusContexts::getModels($context, $load_ids);
+			$custom_fields = DAO_CustomField::getByContext($context);
 			$values = DAO_CustomFieldValue::getValuesByContextIds($context, $load_ids);
 
 			foreach($models as $model_id => $model) {
-				$model->custom_fields = @$values[$model_id] ?: [];
+				$custom_field_values = $values[$model_id] ?? [];
+				
+				// `custom_` keys
+				$model->custom_fields = $custom_field_values;
+				
+				// Custom field URI keys
+				$model->customfields = array_combine(
+					array_map(fn($k) => $custom_fields[$k]->uri ?? $k, array_keys($custom_field_values)),
+					$custom_field_values
+				);
+				
+				// Actor
 				$model->_actor = $actor;
 
 				self::$_context_checkpoints[$context][$model_id] =
@@ -2411,7 +2422,7 @@ class CerberusContexts {
 					// Trigger automations
 					if($record_changed_events) {
 						$dict_new = DevblocksDictionaryDelegate::getDictionaryFromModel($new_model, $context);
-						$dict_old = DevblocksDictionaryDelegate::getDictionaryFromModel($old_model, $context, ['custom_']);
+						$dict_old = DevblocksDictionaryDelegate::getDictionaryFromModel($old_model, $context);
 						
 						$initial_state = array_merge(
 							$dict_new->getDictionary(null, false, 'record_'),

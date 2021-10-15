@@ -1584,10 +1584,21 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 				'custom_',
 				$token_values['_context'],
 				$token_values['id'],
-				false, // [TODO]
+				false,
 				$custom_fields
 			);
+			
+			// Also write URIs
+			$custom_values_uris = $this->_lazyLoadCustomFields(
+				'customfields',
+				$token_values['_context'],
+				$token_values['id'],
+				true,
+				$custom_fields
+			);
+			
 			$token_values = array_merge($token_values, $custom_values);
+			$token_values = array_merge($token_values, $custom_values_uris);
 		}
 
 		return $token_values;
