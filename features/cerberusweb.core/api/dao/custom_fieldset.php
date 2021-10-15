@@ -228,6 +228,8 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 	}
 	
 	static function addToContext($fieldset_ids, $context, $context_ids) {
+		CerberusContexts::checkpointChanges($context, $context_ids);
+		
 		$db = DevblocksPlatform::services()->database();
 		
 		if(!is_array($context_ids))
@@ -267,6 +269,8 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 	}
 	
 	static function removeFromContext($ids, $context, $context_id) {
+		CerberusContexts::checkpointChanges($context, [$context_id]);
+		
 		$db = DevblocksPlatform::services()->database();
 		
 		if(!is_array($ids))
