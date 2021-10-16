@@ -1912,6 +1912,13 @@ class CerberusMail {
 					DAO_Comment::CREATED => time(),
 				);
 				DAO_Comment::create($fields);
+				
+				// If we have a ticket, reopen it
+				if(array_key_exists('ticket_id', $properties) && $properties['ticket_id']) {
+					DAO_Ticket::update($properties['ticket_id'], [
+						DAO_Ticket::STATUS_ID => 0,
+					]);
+				}
 			}
 			
 			return [CerberusContexts::CONTEXT_DRAFT, $draft_id];
