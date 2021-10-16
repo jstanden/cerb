@@ -2462,7 +2462,7 @@ class CerberusContexts {
 										]
 									);
 									
-								} else if($behavior->event_point == Event_TaskCreatedByWorker::ID) {
+								} else if($behavior->event_point == Event_TaskCreatedByWorker::ID && $new_model instanceof Model_Task) {
 									$event_model = new Model_DevblocksEvent(
 										Event_TaskCreatedByWorker::ID,
 										[
@@ -2471,7 +2471,7 @@ class CerberusContexts {
 										]
 									);
 									
-								} else if($behavior->event_point == Event_CommentCreatedByWorker::ID) {
+								} else if($behavior->event_point == Event_CommentCreatedByWorker::ID && $new_model instanceof Model_Comment) {
 									$event_model = new Model_DevblocksEvent(
 										Event_CommentCreatedByWorker::ID,
 										[
@@ -2479,7 +2479,15 @@ class CerberusContexts {
 										]
 									);
 									
-								} else if($behavior->event_point == Event_CommentOnTicketInGroup::ID) {
+								} else if($behavior->event_point == Event_CommentOnTicketInGroup::ID && $new_model instanceof Model_Comment) {
+									$behavior_bot = $behavior->getBot();
+									
+									if(
+										$behavior_bot->owner_context != CerberusContexts::CONTEXT_GROUP
+										|| $behavior_bot->owner_context_id != ($new_model->getTargetDictionary()->get('group_id') ?? null)
+										)
+										return false;
+									
 									$event_model = new Model_DevblocksEvent(
 										Event_CommentOnTicketInGroup::ID,
 										[
