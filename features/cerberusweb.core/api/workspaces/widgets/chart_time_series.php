@@ -141,7 +141,12 @@ class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget implemen
 				$config_json['bar']['width'] = [
 					'ratio' => 0.75,
 				];
-				$config_json['data']['groups'] = [array_values(array_diff(array_keys($results['data']), [$xaxis_key]))];
+				
+				if(array_key_exists('groups', $results['_']) && $results['_']['groups']) {
+					$config_json['data']['groups'] = $results['_']['groups'];
+				} else {
+					$config_json['data']['groups'] = [array_values(array_diff(array_keys($results['data']), [$xaxis_key]))];
+				}
 				break;
 		}
 		
