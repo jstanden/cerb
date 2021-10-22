@@ -190,6 +190,18 @@ class _DevblocksDateManager {
 				case 'last month':
 					$value = 'first day of last month to last day of last month';
 					break;
+					
+				case 'today':
+					$value = 'today 00:00:00 to today 23:59:59';
+					break;
+					
+				case 'yesterday':
+					$value = 'yesterday 00:00:00 to yesterday 23:59:59';
+					break;
+					
+				case 'tomorrow':
+					$value = 'tomorrow 00:00:00 to tomorrow 23:59:59';
+					break;
 			}
 			
 			if(false === strpos($value, ' to '))
