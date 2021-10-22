@@ -468,6 +468,7 @@ class SearchFields_Calendar extends DevblocksSearchFields {
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_OWNER = '*_owner';
 	const VIRTUAL_WATCHERS = '*_workers';
+	const VIRTUAL_WORKER_AVAILABILITY = '*_workerAvailability';
 	
 	static private $_fields = null;
 	
@@ -494,6 +495,9 @@ class SearchFields_Calendar extends DevblocksSearchFields {
 				
 			case self::VIRTUAL_WATCHERS:
 				return self::_getWhereSQLFromWatchersField($param, CerberusContexts::CONTEXT_CALENDAR, self::getPrimaryKey());
+				
+			case self::VIRTUAL_WORKER_AVAILABILITY:
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_WORKER, sprintf('SELECT calendar_id FROM worker WHERE id IN (%s)', '%s'), self::getPrimaryKey());
 				
 			default:
 				if('cf_' == substr($param->field, 0, 3)) {
@@ -575,6 +579,7 @@ class SearchFields_Calendar extends DevblocksSearchFields {
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			self::VIRTUAL_OWNER => new DevblocksSearchField(self::VIRTUAL_OWNER, '*', 'owner', $translate->_('common.owner'), null, false),
 			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS', false),
+			self::VIRTUAL_WORKER_AVAILABILITY => new DevblocksSearchField(self::VIRTUAL_WORKER_AVAILABILITY, '*', 'workerAvailability', $translate->_('common.workers'), null, false),
 		);
 		
 		// Custom Fields
@@ -944,6 +949,7 @@ class View_Calendar extends C4_AbstractView implements IAbstractView_Subtotals, 
 			SearchFields_Calendar::VIRTUAL_CONTEXT_LINK,
 			SearchFields_Calendar::VIRTUAL_HAS_FIELDSET,
 			SearchFields_Calendar::VIRTUAL_WATCHERS,
+			SearchFields_Calendar::VIRTUAL_WORKER_AVAILABILITY,
 		));
 		
 		$this->doResetCriteria();
@@ -1105,6 +1111,14 @@ class View_Calendar extends C4_AbstractView implements IAbstractView_Subtotals, 
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => ''],
 					],
 				],
+			'workerAvailability' => 
+				[
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_Calendar::VIRTUAL_WORKER_AVAILABILITY),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => ''],
+					],
+				],
 		);
 		
 		// Add dynamic owner.* fields
@@ -1137,6 +1151,9 @@ class View_Calendar extends C4_AbstractView implements IAbstractView_Subtotals, 
 
 			case 'watchers':
 				return DevblocksSearchCriteria::getWatcherParamFromTokens(SearchFields_Calendar::VIRTUAL_WATCHERS, $tokens);
+			
+			case 'workerAvailability':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Calendar::VIRTUAL_WORKER_AVAILABILITY);
 			
 			default:
 				if($field == 'owner' || substr($field, 0, strlen('owner.')) == 'owner.')
@@ -1193,6 +1210,13 @@ class View_Calendar extends C4_AbstractView implements IAbstractView_Subtotals, 
 			
 			case SearchFields_Calendar::VIRTUAL_WATCHERS:
 				$this->_renderVirtualWatchers($param);
+				break;
+				
+			case SearchFields_Calendar::VIRTUAL_WORKER_AVAILABILITY:
+				echo sprintf("%s matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.worker')),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
 				break;
 		}
 	}
