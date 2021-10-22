@@ -112,7 +112,8 @@ class CerberusParserModel {
 	private $_ticket_id = 0;
 	private $_ticket_model = null;
 	private $_message_id = 0;
-	private $_group_id = 0;
+	private $_route_group = null;
+	private $_route_bucket = null;
 	
 	public function __construct(CerberusParserMessage $message) {
 		$this->setMessage($message);
@@ -538,29 +539,66 @@ class CerberusParserModel {
 		return $this->_message_id;
 	}
 	
-	public function setGroupId($id) {
-		$groups = DAO_Group::getAll();
+	public function setRouteGroup($id) {
+		$this->_route_group = null;
+		$this->_route_bucket = null;
+
+		if($id instanceof Model_Group) {
+			$this->_route_group = $id;
+			$this->_route_bucket = $this->_route_group->getDefaultBucket();
 		
-		if(!isset($groups[$id])) {
-			$id = 0;
+		} elseif (is_numeric($id) && false != ($to_group = DAO_Group::get($id))) {
+			$this->_route_group = $to_group;
+			$this->_route_bucket = $to_group->getDefaultBucket();
 		}
 		
-		$this->_group_id = $id;
+		return $this->_route_group;
 	}
 	
-	public function getGroupId() {
-		if(!empty($this->_group_id))
-			return $this->_group_id;
-		
-		$ticket_id = $this->getTicketId();
+	public function getRouteGroup() {
+		if($this->_route_group)
+			return $this->_route_group;
 			
-		if(!empty($ticket_id)) {
-			if(null != ($model = $this->getTicketModel())) {
-				$this->_group_id = $model->group_id;
-			}
+		if(null != ($model = $this->getTicketModel())) {
+			$this->_route_group = $model->getGroup();
+			$this->_route_bucket = $model->getBucket();
+		} else {
+			$this->_route_group = null;
+			$this->_route_bucket = null;
 		}
 		
-		return $this->_group_id;
+		return $this->_route_group;
+	}
+	
+	public function setRouteBucket($id) {
+		$this->_route_group = null;
+		$this->_route_bucket = null;
+		
+		if($id instanceof Model_Bucket) {
+			$this->_route_bucket = $id;
+			$this->_route_group = $this->_route_bucket->getGroup();
+		
+		} elseif (is_numeric($id) && $to_bucket = DAO_Bucket::get($id)) {
+			$this->_route_bucket = $to_bucket;
+			$this->_route_group = $this->_route_bucket->getGroup();
+		}
+		
+		return $this->_route_bucket;
+	}
+	
+	public function getRouteBucket() {
+		if($this->_route_bucket)
+			return $this->_route_bucket;
+		
+		if(null != ($model = $this->getTicketModel())) {
+			$this->_route_group = $model->getGroup();
+			$this->_route_bucket = $model->getBucket();
+		} else {
+			$this->_route_group = null;
+			$this->_route_bucket = null;
+		}
+		
+		return $this->_route_bucket;
 	}
 	
 	/**
@@ -1404,16 +1442,40 @@ class CerberusParser {
 			if($automation_results instanceof DevblocksDictionaryDelegate) {
 				if('return' == $automation_results->getKeyPath('__exit')) {
 					$group_id = $automation_results->getKeyPath('__return.group_id');
+					$group_name = $automation_results->getKeyPath('__return.group_name');
+					$bucket_id = $automation_results->getKeyPath('__return.bucket_id');
+					$bucket_name = $automation_results->getKeyPath('__return.bucket_name');
 					
-					// If `group_id` was null, check `group_name`
-					if(is_null($group_id) 
-						&& null != ($group_id = $automation_results->getKeyPath('__return.group_name')))
-							$group_id = DAO_Group::getByName($group_id);
+					if($bucket_id && null != ($model->setRouteBucket($bucket_id))) {
+						$did_rule_match = true;
 					
-					if($group_id)
-						$model->setGroupId($group_id);
+					} elseif($bucket_name && ($group_id || $group_name)) {
+						if($group_name && !$group_id)
+							$group_id = DAO_Group::getByName($group_name);
+						
+						if(null != ($model->setRouteGroup($group_id))) {
+							$buckets = $model->getRouteGroup()->getBuckets();
+							$bucket_name = DevblocksPlatform::strLower($bucket_name);
+							
+							$bucket_names = array_change_key_case(
+								array_column($buckets, 'id', 'name'),
+								CASE_LOWER
+							);
+							
+							if(array_key_exists($bucket_name, $bucket_names)) {
+								if(null != ($model->setRouteBucket($buckets[$bucket_names[$bucket_name]])))
+									$did_rule_match = true;
+							}
+						}
 					
-					$did_rule_match = true;
+					} elseif($group_id) {
+						if(null != ($model->setRouteGroup($group_id)))
+							$did_rule_match = true;
+						
+					} elseif($group_name) {
+						if(null != ($model->setRouteGroup(DAO_Group::getByName($group_name))))
+							$did_rule_match = true;
+					}
 				}
 			}
 			
@@ -1435,14 +1497,15 @@ class CerberusParser {
 			}
 			
 			// Last ditch effort to check for a default group to deliver to
-			if(null == $model->getGroupId()) {
+			if(null == $model->getRouteGroup()) {
 				if(null != ($default_group = DAO_Group::getDefaultGroup())) {
-					$model->setGroupId($default_group->id);
+					$model->setRouteGroup($default_group);
+					$model->setRouteBucket($default_group->getDefaultBucket());
 				}
 			}
 
 			// Bounce if we can't set the group id
-			if(null == $model->getGroupId()) {
+			if(null == $model->getRouteGroup()) {
 				$logger->error("[Parser] Can't determine a default group to deliver to.");
 				return false;
 			}
@@ -1670,8 +1733,8 @@ class CerberusParser {
 		// Finalize our new ticket details (post-message creation)
 		/* @var $model CerberusParserModel */
 		if($model->getIsNew()) {
-			$deliver_to_group = DAO_Group::get($model->getGroupId());
-			$deliver_to_bucket = $deliver_to_group->getDefaultBucket();
+			$deliver_to_group = $model->getRouteGroup();
+			$deliver_to_bucket = $model->getRouteBucket();
 			
 			$change_fields = array(
 				DAO_Ticket::MASK => CerberusApplication::generateTicketMask(),
@@ -1685,7 +1748,7 @@ class CerberusParser {
 				DAO_Ticket::FIRST_MESSAGE_ID => $model->getMessageId(),
 				DAO_Ticket::LAST_MESSAGE_ID => $model->getMessageId(),
 				DAO_Ticket::GROUP_ID => $deliver_to_group->id, // this triggers move rules
-				DAO_Ticket::BUCKET_ID => $deliver_to_bucket->id, // this triggers move rules
+				DAO_Ticket::BUCKET_ID => $deliver_to_bucket->id ?? $deliver_to_group->getDefaultBucket()->id, // this triggers move rules
 			);
 			
 			// Spam probabilities
@@ -1746,7 +1809,7 @@ class CerberusParser {
 		Event_MailReceived::trigger($model->getMessageId());
 		
 		// Trigger Group Mail Received
-		Event_MailReceivedByGroup::trigger($model->getMessageId(), $model->getGroupId());
+		Event_MailReceivedByGroup::trigger($model->getMessageId(), $model->getRouteGroup()->id);
 		
 		// Trigger Watcher Mail Received
 		$context_watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_TICKET, $model->getTicketId());

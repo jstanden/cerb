@@ -2,8 +2,8 @@
     "name": "cerb.mailRouting.moveToGroup",
     "description": "Move a matching ticket to a group inbox",
     "extension_id": "cerb.trigger.mail.route",
-    "script": "inputs:\r\n  text/group_name:\r\n    type: freeform\r\n    required@bool: yes\r\n    snippet:\r\n      group_name: Support\r\n\r\nstart:\r\n  return:\r\n    group_name: {{inputs.group_name}}",
+    "script": "inputs:\n  text/group_name:\n    type: freeform\n    required@bool: yes\n    snippet:\n      group_name: Support\n  text/bucket_name:\n    type: freeform\n    default@text:\n    snippet:\n      bucket_name: Inbox\n\nstart:\n  return:\n    group_name: {{inputs.group_name}}\n    bucket_name@optional: {{inputs.bucket_name}}",
     "policy_kata": "",
     "created_at": 1610415817,
-    "updated_at": 1610415817
+    "updated_at": 1632789405
 }

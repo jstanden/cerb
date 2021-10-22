@@ -41,6 +41,7 @@ $automation_files = [
 	'ai.cerb.eventHandler.automation.json',
 	'ai.cerb.toolbarBuilder.interaction.json',
 	'cerb.data.records.json',
+	'cerb.mailRouting.moveToGroup.json',
 	'cerb.projectBoard.toolbar.task.find.json',
 	'cerb.ticket.move.json',
 	'cerb.ticket.participants.manage.json',

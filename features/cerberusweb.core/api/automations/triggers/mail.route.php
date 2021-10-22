@@ -67,7 +67,19 @@ class AutomationTrigger_MailRoute extends Extension_AutomationTrigger {
 					'type' => 'text',
 					'notes' => 'The group name to deliver the message to. Alternative to `group_id`.',
 					'required' => false,
-				]
+				],
+				[
+					'key' => 'bucket_id',
+					'type' => 'text',
+					'notes' => 'The optional bucket ID to deliver the message to. This can be provided instead of `group_id`.',
+					'required' => false,
+				],
+				[
+					'key' => 'bucket_name',
+					'type' => 'text',
+					'notes' => "The optional bucket name to deliver the message to. A `group_id` or `group_name` must also be provided to disambiguate names like 'Inbox'.",
+					'required' => false,
+				],
 			]
 		];
 	}

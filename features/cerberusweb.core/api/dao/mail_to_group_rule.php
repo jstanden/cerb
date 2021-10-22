@@ -592,9 +592,10 @@ class Model_MailToGroupRule {
 		foreach($this->actions as $action => $params) {
 			switch($action) {
 				case 'move':
-					if(isset($params['group_id']) && isset($groups[$params['group_id']])) {
-						$model->setGroupId($params['group_id']);
+					if(array_key_exists('group_id', $params) && array_key_exists($params['group_id'], $groups)) {
+						$model->setRouteGroup($groups[$params['group_id']]);
 					}
+					break;
 					
 				default:
 					// Custom fields
