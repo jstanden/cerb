@@ -408,7 +408,7 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 		
 		sort($x_domain);
 		
-		$x_domain = DevblocksPlatform::dateLerpArray($x_domain, $xaxis_step, $xaxis_format);
+		$x_domain = DevblocksPlatform::dateLerpArray($x_domain, $xaxis_step, 1, $xaxis_format);
 		
 		$response = [
 			'ts' => $x_domain,

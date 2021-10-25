@@ -559,4 +559,50 @@ class DevblocksDateTest extends TestCase {
 		$actual = $date->getNextOccurrence($patterns, 'GMT', 'Jan 1 2021 00:00:00');
 		$this->assertEquals($expected, $actual);
 	}
+	
+	function testDateLerpArray() {
+		$expected = [
+			'2021-01-15 10:00',
+			'2021-01-15 10:05',
+			'2021-01-15 10:10',
+			'2021-01-15 10:15',
+			'2021-01-15 10:20',
+			'2021-01-15 10:25',
+			'2021-01-15 10:30',
+			'2021-01-15 10:35',
+			'2021-01-15 10:40',
+			'2021-01-15 10:45',
+			'2021-01-15 10:50',
+			'2021-01-15 10:55',
+			'2021-01-15 11:00',
+		];
+		
+		$actual = DevblocksPlatform::dateLerpArray(['2021-01-15 10:00:00', '2021-01-15 11:00:00'], 'minute', 5);
+		
+		$this->assertEquals($expected, $actual);
+
+		// Unix timestamps
+		
+		$from = 1610733600;
+		
+		$expected = [
+			$from,
+			$from + 300,
+			$from + 600,
+			$from + 900,
+			$from + 1200,
+			$from + 1500,
+			$from + 1800,
+			$from + 2100,
+			$from + 2400,
+			$from + 2700,
+			$from + 3000,
+			$from + 3300,
+			$from + 3600,
+		];
+		
+		$actual = DevblocksPlatform::dateLerpArray(['2021-01-15 10:00:00', '2021-01-15 11:00:00'], 'minute', 5, '%s');
+		
+		$this->assertEquals($expected, $actual);
+	}
 }

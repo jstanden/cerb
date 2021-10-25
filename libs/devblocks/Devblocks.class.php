@@ -465,14 +465,14 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @param string $format
 	 * @return array
 	 */
-	static function dateLerpArray(array $array, $step, $format=null) {
-		// [TODO] Unit test
+	static function dateLerpArray(array $array, $unit, $step=1, $format=null) {
 		
 		if(empty($array))
 			return [];
 		
 		if(!$format) {
 			$formats = [
+				'minute' => '%Y-%m-%d %H:%M',
 				'hourofday' => '%H:00',
 				'hour' => '%Y-%m-%d %H:00',
 				'day' => '%Y-%m-%d',
@@ -485,34 +485,33 @@ class DevblocksPlatform extends DevblocksEngine {
 				'year' => '%Y',
 			];
 			
-			if(!array_key_exists($step, $formats))
+			if(!array_key_exists($unit, $formats))
 				return [];
 			
-			$format = $formats[$step];
+			$format = $formats[$unit];
 		}
 		
-		if($step == 'dayofmonth' || $step == 'dayofweek') {
-			$step = 'day';
-		} else if($step == 'hourofday') {
-			$step = 'hour';
-		} else if($step == 'monthofyear') {
-			$step = 'month';
-		} else if($step == 'weekofyear') {
-			$step = 'week';
+		if($unit == 'dayofmonth' || $unit == 'dayofweek') {
+			$unit = 'day';
+		} else if($unit == 'hourofday') {
+			$unit = 'hour';
+		} else if($unit == 'monthofyear') {
+			$unit = 'month';
+		} else if($unit == 'weekofyear') {
+			$unit = 'week';
 		}
 		
 		$ts = strtotime(min($array));
 		$ts_end = strtotime(max($array));
 		
-		$values = array_fill_keys($array, 0);
+		$values = [];
 		
 		while($ts <= $ts_end) {
 			$tick = strftime($format, $ts);
 			
-			if(!array_key_exists($tick, $values))
-				$values[$tick] = 0;
+			$values[$tick] = 0;
 			
-			$next_ts = strtotime(sprintf('+1 %s', $step), $ts);
+			$next_ts = strtotime(sprintf('+%d %s', $step, $unit), $ts);
 			
 			if($next_ts == $ts)
 				break;
