@@ -317,13 +317,13 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 		}
 	}
 	
-	static public function getAllContextLinks($from_context, $from_context_id, $limit=0) {
+	static public function getAllContextLinks($from_context, $from_context_id, $sort=false) {
 		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("SELECT to_context, to_context_id ".
 			"FROM context_link ".
 			"WHERE (%s = %s AND %s IN (%s)) ".
-			($limit ? sprintf('LIMIT %d', $limit) : ''),
+			($sort ? "ORDER BY to_context, to_context_id " : '') ,
 			self::FROM_CONTEXT,
 			$db->qstr($from_context),
 			self::FROM_CONTEXT_ID,

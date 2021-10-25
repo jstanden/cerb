@@ -541,63 +541,78 @@ class Model_ProjectBoardColumn {
 		return $this->_board;
 	}
 	
-	function getCards() {
-		$cards = [];
+	function getLimit() : int {
+		return 100;
+	}
+	
+	function getCards($since=null, $limit=null) {
+		if(!is_numeric($limit))
+			$limit = $this->getLimit();
+		
 		$card_models = [];
+		$offset = 0;
 		
-		$links = DAO_ContextLink::getAllContextLinks(Context_ProjectBoardColumn::ID, $this->id);
+		$links = DAO_ContextLink::getAllContextLinks(Context_ProjectBoardColumn::ID, $this->id, true);
 		
-		// Find all the distinct models
-		foreach($links as $link) {
-			if(!array_key_exists($link->context, $card_models))
-				$card_models[$link->context] = [];
+		// Append links that aren't in the sorted cards
+		$this->cards = array_merge(
+			$this->cards,
+			array_diff(
+				array_keys($links),
+				$this->cards
+			)
+		);
+		
+		// If we're paging, slice the cards array
+		if($limit) {
+			if($since) {
+				if(false == ($offset = array_search($since, $this->cards)))
+					$offset = -1;
 				
-			$card_models[$link->context][] = $link->context_id;
+				$offset++;
+			}
+			
+			$this->cards = array_slice($this->cards, $offset, $limit, true);
 		}
+		
+		$this->cards = array_fill_keys($this->cards, null);
+		
+		array_map(
+			function($k) use (&$card_models) {
+				list($context, $context_id) = array_pad(explode(':', $k, 2), 2, null);
+				
+				if(!array_key_exists($context, $card_models))
+					$card_models[$context] = [];
+				
+				$card_models[$context][] = $context_id;
+			},
+			array_keys($this->cards)
+		);
 		
 		foreach($card_models as $model_context => $model_ids) {
 			$models = CerberusContexts::getModels($model_context, $model_ids);
-			$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $model_context);
-			DevblocksDictionaryDelegate::bulkLazyLoad($dicts, '_label');
-			$card_models[$model_context] = $dicts;
+			$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $model_context, ['_label']);
+			
+			// Iterate model IDs in case the dictionary doesn't exist
+			foreach($model_ids as $model_id) {
+				// Skip cards for missing dictionaries
+				if(null == ($dict = ($dicts[$model_id] ?? null))) {
+					unset($this->cards[$model_context . ':' . $model_id]);
+					continue;
+				}
+				
+				// Add keys for the project board column
+				$dict->set('column__context', Context_ProjectBoardColumn::ID);
+				$dict->set('column_id', $this->id);
+				
+				$this->cards[$model_context . ':' . $model_id] = $dict;
+			}
 		}
 		
-		foreach($links as $link) {
-			$row = implode(':', [$link->context, $link->context_id]);
-			$key = sha1($row);
-			
-			if(false == (@$card = $card_models[$link->context][$link->context_id]))
-				continue;
-			
-			// Add keys for the project board column
-			$card->set('column__context', Context_ProjectBoardColumn::ID);
-			$card->set('column_id', $this->id);
-			
-			$cards[$key] = $card;
-		}
-		
-		unset($card_models);
-		
-		$sort = [];
-		
-		foreach($this->cards as $row) {
-			$key = sha1($row);
-			$sort[] = $key;
-		}
-		
-		$sort = array_flip($sort);
-		
-		uksort($cards, function($a, $b) use ($sort) {
-			$a_pos = isset($sort[$a]) ? $sort[$a] : -1; // PHP_INT_MAX
-			$b_pos = isset($sort[$b]) ? $sort[$b] : -1;
-			
-			if($a_pos == $b_pos)
-				return 0;
-			
-			return ($a_pos < $b_pos) ? -1 : 1;
-		});
-		
-		return $cards;
+		return array_combine(
+			array_map(fn($k) => sha1($k), array_keys($this->cards)),
+			$this->cards
+		);
 	}
 	
 	/**

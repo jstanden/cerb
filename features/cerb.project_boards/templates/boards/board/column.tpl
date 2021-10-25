@@ -26,11 +26,23 @@
 	</div>
 </div>
 
+<form action="#" style="width:100%;padding-top:10px;min-height:500px;max-height:500px;overflow:scroll;">
+{$cards = $column->getCards()}
+{include file="devblocks:cerb.project_boards::boards/board/cards.tpl"}
+{if $column->getLimit() == count($cards)}
+<div style="cursor:pointer;text-decoration:underline;padding:10px;" data-cerb-column-cards-more>
+	<b>(show more)</b>
+</div>
+{/if}
+</form>
+
 {$script_uid = uniqid('script')}
 <script type="text/javascript" id="{$script_uid}">
 $(function() {
 	var $script = $('#{$script_uid}');
-	var $toolbar = $script.closest('.cerb-board-column').find('[data-cerb-toolbar]');
+	
+	var $column = $script.closest('.cerb-board-column');
+	var $toolbar = $column.find('[data-cerb-toolbar]');
 
 	$toolbar.cerbToolbar({
 		caller: {
@@ -52,13 +64,32 @@ $(function() {
 			$column.trigger('cerb-refresh');
 		}
 	});
+	
+	var $more = $script.siblings('form').find('[data-cerb-column-cards-more]');
+	
+	$more.on('click', function(e) {
+		e.stopPropagation();
+		
+		var $last_card = $column.find('.cerb-board-card').last();
+		var last_card_id = $last_card.find('[name="cards[]"]').val();
+		var limit = {$column->getLimit()};
+
+		var formData = new FormData();
+		formData.set('c', 'profiles');
+		formData.set('a', 'invoke');
+		formData.set('module', 'project_board_column');
+		formData.set('action', 'loadCards');
+		formData.set('column_id', '{$column->id}');
+		formData.set('since', last_card_id);
+		
+		genericAjaxPost(formData, null, null, function(html) {
+			var $new_cards = $(html);
+			
+			if($new_cards.filter('.cerb-board-card').length < limit)
+				$more.hide();
+
+			$new_cards.insertAfter($last_card);
+		});
+	});
 });
 </script>
-
-<form action="#" style="width:100%;padding-top:10px;min-height:500px;max-height:500px;overflow:scroll;">
-{foreach from=$column->getCards() item=card}
-<div class="cerb-board-card" data-context="{$card->_context}" data-context-id="{$card->id}">
-{include file="devblocks:cerb.project_boards::boards/board/card.tpl"}
-</div>
-{/foreach}
-</form>

@@ -32,6 +32,8 @@ class PageSection_ProfilesProjectBoardColumn extends Extension_PageSection {
 	function handleActionForPage(string $action, string $scope=null) {
 		if('profileAction' == $scope) {
 			switch ($action) {
+				case 'loadCards':
+					return $this->_profileAction_loadCards();
 				case 'savePeekJson':
 					return $this->_profileAction_savePeekJson();
 				case 'viewExplore':
@@ -39,6 +41,34 @@ class PageSection_ProfilesProjectBoardColumn extends Extension_PageSection {
 			}
 		}
 		return false;
+	}
+	
+	private function _profileAction_loadCards() {
+		@$column_id = DevblocksPlatform::importGPC($_POST['column_id'], 'integer', 0);
+		@$since_id = DevblocksPlatform::importGPC($_POST['since'], 'string', '');
+		
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		if(false == ($column = DAO_ProjectBoardColumn::get($column_id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		if(false == ($board = $column->getProjectBoard()))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		if(!Context_ProjectBoardColumn::isReadableByActor($board, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		$cards = $column->getCards($since_id);
+		
+		$tpl->assign('board', $board);
+		$tpl->assign('column', $column);
+		$tpl->assign('cards', $cards);
+		
+		$tpl->display('devblocks:cerb.project_boards::boards/board/cards.tpl');
 	}
 	
 	private function _profileAction_savePeekJson() {
