@@ -5230,7 +5230,18 @@
 			<params>
 			</params>
 		</extension>
-		
+
+		<extension point="cerb.card.widget">
+			<id>cerb.card.widget.chart.timeseries</id>
+			<name>Chart: Time Series</name>
+			<class>
+				<file>api/cards/widgets/chart_time_series.php</file>
+				<name>CardWidget_ChartTimeSeries</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
 		<extension point="cerb.card.widget">
 			<id>cerb.card.widget.classifier.trainer</id>
 			<name>Classifier Trainer</name>
