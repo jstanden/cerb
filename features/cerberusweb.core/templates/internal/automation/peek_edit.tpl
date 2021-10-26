@@ -221,7 +221,7 @@ $(function() {
 
 		var $extension_params = $frm.find('[data-cerb-extension-params]');
 
-		$popup.dialog('option', 'title', "{'common.automation'|devblocks_translate|capitalize|escape:js}");
+		$popup.dialog('option', 'title', "{'common.automation'|devblocks_translate|capitalize}");
 		$popup.css('overflow', 'inherit');
 
 		// Buttons

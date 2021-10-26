@@ -9,7 +9,7 @@
         };
         
         {if $event_data && is_array($event_data)}
-        event_data.eventData = {$event_data|json_encode|escape:'js' nofilter};
+        event_data.eventData = {$event_data|json_encode nofilter};
         {/if}
 
         var evt = $.Event('cerb-form-builder-end', event_data);
