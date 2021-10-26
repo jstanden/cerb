@@ -103,16 +103,6 @@ class CerberusApplication extends DevblocksApplication {
 			;
 	}
 	
-	static function getBotsByAtMentionsText($text) {
-		$bots = [];
-
-		if(false !== ($at_mentions = DevblocksPlatform::parseAtMentionString($text))) {
-			$bots = DAO_Bot::getByAtMentions($at_mentions);
-		}
-
-		return $bots;
-	}
-
 	static function getWorkersByAtMentionsText($text, $with_searches=true) {
 		$workers = [];
 
@@ -3401,7 +3391,7 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 	/**
 	 *
 	 * @param array $ids
-	 * @return array
+	 * @return Model_Calendar[]
 	 */
 	static function getIds(array $ids) : array {
 		if(!is_array($ids)) {

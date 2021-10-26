@@ -128,7 +128,6 @@ class ProfileWidget_Fields extends Extension_ProfileWidget {
 						// Sliders can have empty values
 						case 'slider':
 							continue 2;
-							break;
 						
 						case Model_CustomField::TYPE_LINK:
 							// App-owned context links can be blank

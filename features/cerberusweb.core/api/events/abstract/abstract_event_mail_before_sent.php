@@ -839,8 +839,6 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 				
 				@$replace = $tpl_builder->build($params['replace'], $dict);
 				@$with = $tpl_builder->build($params['with'], $dict);
-				@$replace_on = $params['replace_on'];
-				@$replace_is_regexp = $params['is_regexp'];
 				
 				if(!array_key_exists('content_modifications', $dict->_properties))
 					$dict->_properties['content_modifications'] = [];

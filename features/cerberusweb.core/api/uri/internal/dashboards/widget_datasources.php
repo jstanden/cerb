@@ -425,7 +425,13 @@ class WorkspaceWidgetDatasource_WorklistSeries extends Extension_WorkspaceWidget
 					$results = $db->GetArrayReader($sql);
 					
 					// Find the first and last date
-					@$xaxis_param = array_shift(C4_AbstractView::findParam($xaxis_field->token, $view->getParams()));
+					$xaxis_param = C4_AbstractView::findParam($xaxis_field->token, $view->getParams());
+					
+					if(is_array($xaxis_param)) {
+						$xaxis_param = array_shift($xaxis_param);
+					} else {
+						$xaxis_param = null;
+					}
 
 					$current_tick = null;
 					$last_tick = null;

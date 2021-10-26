@@ -387,14 +387,22 @@ class DevblocksPlatform extends DevblocksEngine {
 				
 			case 'int':
 			case 'integer':
-				$value = intval($value);
+				if(is_scalar($value)) {
+					$value = intval($value);
+				} else {
+					$value = 0;
+				}
 				break;
 				
 			case 'string':
 				if(is_bool($value))
 					return $value ? 'true' : 'false';
 				
-				@$value = (string) $value;
+				if(is_scalar($value)) {
+					$value = strval($value);
+				} else {
+					$value = '';
+				}
 				break;
 				
 			case 'timestamp':
@@ -2837,15 +2845,6 @@ class DevblocksPlatform extends DevblocksEngine {
 		return _DevblocksServices::getInstance();
 	}
 	
-	/**
-	 * 
-	 * @deprecated
-	 * @return _DevblocksPluginSettingsManager
-	 */
-	static function getPluginSettingsService() {
-		return _DevblocksPluginSettingsManager::getInstance();
-	}
-	
 	static function getPluginSetting($plugin_id, $key, $default=null, $json_decode=false, $encrypted=false) {
 		$settings = DevblocksPlatform::services()->pluginSettings();
 		return $settings->get($plugin_id, $key, $default, $json_decode, $encrypted);
@@ -2854,56 +2853,6 @@ class DevblocksPlatform extends DevblocksEngine {
 	static function setPluginSetting($plugin_id, $key, $value, $json_encode=false, $encrypted=false) {
 		$settings = DevblocksPlatform::services()->pluginSettings();
 		return $settings->set($plugin_id, $key, $value, $json_encode, $encrypted);
-	}
-
-	/**
-	 * @deprecated
-	 * @return _DevblocksLogManager
-	 */
-	static function getConsoleLog($prefix='') {
-		return DevblocksPlatform::services()->log($prefix);
-	}
-	
-	/**
-	 *
-	 * @deprecated
-	 * @return _DevblocksCacheManager
-	 */
-	static function getCacheService() {
-		return _DevblocksCacheManager::getInstance();
-	}
-	
-	/**
-	 *
-	 * @deprecated
-	 * @return _DevblocksDatabaseManager
-	 */
-	static function getDatabaseService() {
-		return _DevblocksDatabaseManager::getInstance();
-	}
-
-	/**
-	 * @deprecated
-	 * @return _DevblocksUrlManager
-	 */
-	static function getUrlService() {
-		return _DevblocksUrlManager::getInstance();
-	}
-
-	/**
-	 * @deprecated
-	 * @return _DevblocksEncryptionService
-	 */
-	static function getEncryptionService() {
-		return _DevblocksEncryptionService::getInstance();
-	}
-
-	/**
-	 * @deprecated
-	 * @return _DevblocksEventManager
-	 */
-	static function getEventService() {
-		return _DevblocksEventManager::getInstance();
 	}
 	
 	static function setRegistryKey($key, $value, $as=DevblocksRegistryEntry::TYPE_STRING, $persist=false, $expires_at=0) {
@@ -3073,22 +3022,6 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 
 	/**
-	 * @deprecated
-	 * @return Smarty
-	 */
-	static function getTemplateService() {
-		return _DevblocksTemplateManager::getInstance();
-	}
-	
-	/**
-	 * @deprecated
-	 * @return Smarty
-	 */
-	static function getTemplateSandboxService() {
-		return _DevblocksTemplateManager::getInstanceSandbox();
-	}
-
-	/**
 	 *
 	 * @param string $set
 	 * @return DevblocksTemplate[]
@@ -3115,14 +3048,6 @@ class DevblocksPlatform extends DevblocksEngine {
 		return $templates;
 	}
 	
-	/**
-	 * @deprecated
-	 * @return _DevblocksTemplateBuilder
-	 */
-	static function getTemplateBuilder() {
-		return _DevblocksTemplateBuilder::getInstance();
-	}
-
 	private static function _discoverTimezone() {
 		$timezone = null;
 		

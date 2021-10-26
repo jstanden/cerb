@@ -813,8 +813,6 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 		 * no longer nested.
 		 */
 		if(0 == self::getDepth()) {
-			//var_dump(self::getTriggerLog());
-			//var_dump(self::getNodeLog());
 			self::clear();
 		}
 		

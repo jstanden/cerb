@@ -102,8 +102,6 @@ class PageSection_ProfilesGpgPublicKey extends Extension_PageSection {
 					if (($keyinfo['expired'] ?? false) || ($keyinfo['disabled'] ?? false) || ($keyinfo['revoked'] ?? false))
 						throw new Exception_DevblocksAjaxValidationError("This public key is expired, revoked, or disabled.", "key_text");
 
-					DevblocksPlatform::logError($keyinfo);
-					
 					@$key = $keyinfo['subkeys'][0];
 					
 					if (empty($key))

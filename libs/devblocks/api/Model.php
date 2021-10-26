@@ -376,7 +376,6 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 								Cerb_ORMHelper::escape($search_field->db_column)
 							),
 						];
-						break;
 						
 					case 'week':
 					case 'week-mon':
@@ -397,7 +396,6 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 								Cerb_ORMHelper::qstr($ts_format)
 							),
 						];
-						break;
 						
 					case 'week-sun':
 					case 'week-sunday':
@@ -455,7 +453,6 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 								Cerb_ORMHelper::qstr($ts_format)
 							),
 						];
-						break;
 				}
 				
 			} else {
@@ -2176,7 +2173,6 @@ class DevblocksSearchCriteria {
 	public static function getWatcherParamFromTokens($field_key, $tokens) {
 		$oper = self::OPER_IN;
 		$not = false;
-		$value = null;
 		$terms = null;
 		
 		foreach($tokens as $token) {
@@ -2190,27 +2186,26 @@ class DevblocksSearchCriteria {
 						DevblocksSearchCriteria::OPER_CUSTOM,
 						$query
 					);
-					break;
 		
 				case 'T_NOT':
 				case 'T_ARRAY':
 				case 'T_QUOTED_TEXT':
 				case 'T_TEXT':
-					foreach($tokens as $token) {
-						switch($token->type) {
+					foreach($tokens as $sub_token) {
+						switch($sub_token->type) {
 							case 'T_NOT':
 								$not = !$not;
 								break;
 							
 							case 'T_ARRAY':
 								$oper = ($not) ? self::OPER_NIN : self::OPER_IN;
-								$terms = $token->value;
+								$terms = $sub_token->value;
 								break;
 							
 							case 'T_QUOTED_TEXT':
 							case 'T_TEXT':
 								$oper = ($not) ? self::OPER_NIN : self::OPER_IN;
-								$terms = DevblocksPlatform::parseCsvString($token->value);
+								$terms = DevblocksPlatform::parseCsvString($sub_token->value);
 								break;
 						}
 					}
@@ -2664,7 +2659,6 @@ class DevblocksSearchCriteria {
 				
 				if(!is_array($this->value) || 2 != count($this->value)) {
 					return 0;
-					break;
 				}
 			
 				$from_date = $this->value[0];
@@ -3119,7 +3113,7 @@ class DevblocksExtensionManifest {
  * [TODO] Evaluate if this is even needed, or if apps can have their own unguided visit object
  */
 abstract class DevblocksVisit {
-	private $registry = array();
+	private array $registry = [];
 	
 	public function exists($key) {
 		return isset($this->registry[$key]);

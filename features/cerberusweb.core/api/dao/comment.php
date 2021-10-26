@@ -592,7 +592,6 @@ class SearchFields_Comment extends DevblocksSearchFields {
 					),
 					'get_value_as_filter_callback' => parent::getValueAsFilterCallback()->link('author'),
 				];
-				break;
 				
 			case 'on':
 				$key = 'on';

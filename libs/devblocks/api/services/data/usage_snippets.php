@@ -29,24 +29,15 @@ class _DevblocksDataProviderUsageSnippets extends _DevblocksDataProvider {
 		switch($format) {
 			case 'timeseries':
 				return $this->_formatDataAsTimeSeries($chart_fields, $error);
-				break;
 				
 			case 'table':
 			default:
 				return $this->_formatDataAsTable($chart_fields, $error);
-				break;
 		}
 	}
 	
 	private function _formatDataAsTable(array $chart_fields=[], &$error=null) {
 		$db = DevblocksPlatform::services()->database();
-		
-		/*
-		$chart_model = [
-			'type' => 'usage.snippets',
-			'format' => 'table',
-		];
-		*/
 		
 		foreach($chart_fields as $field) {
 			if(!($field instanceof DevblocksSearchCriteria))
@@ -144,6 +135,7 @@ class _DevblocksDataProviderUsageSnippets extends _DevblocksDataProvider {
 			
 			if(in_array($field->key, ['type', 'format'])) {
 				// Do nothing
+				DevblocksPlatform::noop();
 				
 			} else if($field->key == 'ids') {
 				CerbQuickSearchLexer::getOperArrayFromTokens($field->tokens, $oper, $value);

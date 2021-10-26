@@ -179,7 +179,6 @@ class _DevblocksDataProviderCalendarEvents extends _DevblocksDataProvider {
 		switch($format) {
 			case 'dictionaries':
 				return $this->_formatDataAsDictionaries($chart_model);
-				break;
 				
 			default:
 				$error = sprintf("`format:%s` is not valid for `type:%s`. Must be one of: dictionaries",
@@ -191,14 +190,12 @@ class _DevblocksDataProviderCalendarEvents extends _DevblocksDataProvider {
 	}
 	
 	function _formatDataAsDictionaries($chart_model) {
-		$meta = [
+		return [
 			'data' => $chart_model['data'],
 			'_' => [
 				'type' => 'calendar.events',
 				'format' => 'dictionaries',
 			]
 		];
-		
-		return $meta;
 	}
 };

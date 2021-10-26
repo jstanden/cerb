@@ -607,7 +607,8 @@ abstract class DevblocksORMHelper {
 			
 		$db_option_bits = ($option_bits & DevblocksORMHelper::OPT_UPDATE_NO_READ_AFTER_WRITE) ? _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE : 0;
 		
-		$sql = sprintf("UPDATE %s SET %s WHERE %s IN (%s)",
+		/** @noinspection SqlDialectInspection */
+		$sql = sprintf(/** @lang text */"UPDATE %s SET %s WHERE %s IN (%s)",
 			$table,
 			implode(', ', $sets),
 			$idcol,
@@ -635,7 +636,8 @@ abstract class DevblocksORMHelper {
 			);
 		}
 		
-		$sql = sprintf("UPDATE %s SET %s WHERE %s",
+		/** @noinspection SqlDialectInspection */
+		$sql = sprintf(/** @lang text */"UPDATE %s SET %s WHERE %s",
 			$table,
 			implode(', ', $sets),
 			$where
@@ -1088,7 +1090,7 @@ class DAO_Platform extends DevblocksORMHelper {
 			);
 		}
 			
-		$sql = sprintf("UPDATE cerb_plugin SET %s WHERE id = %s",
+		$sql = sprintf(/** @lang text */ "UPDATE cerb_plugin SET %s WHERE id = %s",
 			implode(', ', $sets),
 			$db->qstr($id)
 		);

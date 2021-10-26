@@ -338,9 +338,6 @@ class _DevblocksDatabaseManager {
 			$time_limits = array_fill(0, count($sqls), 10000);
 		}
 		
-		$user = (defined('APP_DB_READER_USER') && APP_DB_READER_USER) ? APP_DB_READER_USER : APP_DB_USER;
-		$pass = (defined('APP_DB_READER_PASS') && APP_DB_READER_PASS) ? APP_DB_READER_PASS : APP_DB_PASS;
-		
 		$started_at = microtime(true) * 1000;
 		
 		$results = [];

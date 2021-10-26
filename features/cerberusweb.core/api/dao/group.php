@@ -678,7 +678,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("INSERT INTO worker_to_group (worker_id, group_id, is_manager) VALUES (%d, %d, %d) ".
-			"ON DUPLICATE KEY UPDATE  is_manager=%d",
+			"ON DUPLICATE KEY UPDATE is_manager=%d",
 			$worker_id,
 			$group_id,
 			($is_manager?1:0),

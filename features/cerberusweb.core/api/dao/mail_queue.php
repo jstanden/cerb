@@ -648,7 +648,6 @@ class SearchFields_MailQueue extends DevblocksSearchFields {
 				} else {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
-				break;
 		}
 	}
 	
@@ -668,7 +667,6 @@ class SearchFields_MailQueue extends DevblocksSearchFields {
 				$models = DAO_MailQueue::getIds($values);
 				$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_DRAFT);
 				return array_column(DevblocksPlatform::objectsToArrays($dicts), '_label', 'id');
-				break;
 				
 			case SearchFields_MailQueue::TYPE:
 				$label_map = array(
@@ -678,13 +676,11 @@ class SearchFields_MailQueue extends DevblocksSearchFields {
 					'ticket.forward' => 'Forward',
 				);
 				return $label_map;
-				break;
 				
 			case SearchFields_MailQueue::WORKER_ID:
 				$models = DAO_Worker::getIds($values);
 				$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_WORKER);
 				return array_column(DevblocksPlatform::objectsToArrays($dicts), '_label', 'id');
-				break;
 		}
 		
 		return parent::getLabelsForKeyValues($key, $values);

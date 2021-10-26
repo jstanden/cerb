@@ -1,5 +1,4 @@
 <?php
-// [TODO] opcache, XCache, and APC drivers
 class _DevblocksCacheManager {
 	private static $instance = null;
 	private static $_cacher = null;

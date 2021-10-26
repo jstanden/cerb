@@ -686,11 +686,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				return $out;
 				
 			case 'replace_content':
-				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-				
-				//@$replace = $tpl_builder->build($params['replace'], $dict);
-				//@$with = $tpl_builder->build($params['with'], $dict);
-				@$replace_mode = $params['replace_mode'];
+				$replace_mode = $params['replace_mode'] ?? null;
 				
 				$out = '';
 				

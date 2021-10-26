@@ -1069,7 +1069,6 @@ class CerberusParser {
 	}
 
 	static private function _handleMimepartTextPlain($section, CerberusParserMessage $message) {
-		//@$transfer_encoding = $section->data['transfer-encoding'];
 		$text = $section->extract_body(MAILPARSE_EXTRACT_RETURN);
 		
 		if(isset($section->data['charset']) && !empty($section->data['charset'])) {
@@ -1105,7 +1104,6 @@ class CerberusParser {
 	}
 	
 	static private function _handleMimepartTextHtml($section, CerberusParserMessage $message) {
-		//@$transfer_encoding = $section->data['transfer-encoding'];
 		$text = $section->extract_body(MAILPARSE_EXTRACT_RETURN);
 		
 		if(isset($section->data['charset']) && !empty($section->data['charset'])) {

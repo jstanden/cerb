@@ -564,6 +564,7 @@ class DevblocksCalendarHelper {
 			'next_year' => $next_year,
 			'date_range_from' => $date_range_from,
 			'date_range_to' => $date_range_to,
+			'start_on_mon' => $start_on_mon,
 			'calendar_date' => $calendar_date,
 			'calendar_weeks' => $calendar_weeks,
 		];

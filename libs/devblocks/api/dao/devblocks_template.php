@@ -244,7 +244,7 @@ class DAO_DevblocksTemplate extends DevblocksORMHelper {
 		
 		$db = DevblocksPlatform::services()->database();
 		$tpl = DevblocksPlatform::services()->template();
-		$tpl_sandbox = DevblocksPlatform::getTemplateSandboxService();
+		$tpl_sandbox = DevblocksPlatform::services()->templateSandbox();
 		
 		if(empty($ids))
 			return;

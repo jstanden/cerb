@@ -11,7 +11,7 @@ class Controller_Security extends DevblocksControllerExtension {
 	 */
 	function handleRequest(DevblocksHttpRequest $request) {
 		// Security
-		if(null == ($active_worker = CerberusApplication::getActiveWorker()))
+		if(null == CerberusApplication::getActiveWorker())
 			DevblocksPlatform::dieWithHttpError(DevblocksPlatform::translate('common.access_denied'), 403);
 		
 		$path = $request->path;
@@ -36,7 +36,7 @@ class Controller_Security extends DevblocksControllerExtension {
 		$tpl = DevblocksPlatform::services()->template();
 		
 		// Security
-		if(null == ($active_worker = CerberusApplication::getActiveWorker()))
+		if(null == CerberusApplication::getActiveWorker())
 			DevblocksPlatform::dieWithHttpError(DevblocksPlatform::translate('common.access_denied'), 403);
 		
 		@$url = DevblocksPlatform::importGPC($_GET['url'], 'string', null);

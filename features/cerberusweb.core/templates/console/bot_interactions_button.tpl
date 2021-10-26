@@ -56,7 +56,7 @@ $(function() {
 		if(null == $menu) {
 			Devblocks.getSpinner().css('max-width', '16px').appendTo($interaction_menu);
 			
-			genericAjaxGet($interaction_menu, 'c=profiles&a=invoke&module=bot&action=getInteractionsMenu', function(html) {
+			genericAjaxGet($interaction_menu, 'c=profiles&a=invoke&module=bot&action=getInteractionsMenu', function() {
 				$menu = $interaction_menu.find('> ul');
 				
 				$menu

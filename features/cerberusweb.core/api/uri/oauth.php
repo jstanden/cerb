@@ -164,7 +164,6 @@ class Controller_OAuth extends DevblocksControllerExtension {
 					error_log($e->getMessage());
 					return;
 				}
-				break;
 				
 			case 'access_token':
 				try {
@@ -195,8 +194,7 @@ class Controller_OAuth extends DevblocksControllerExtension {
 					error_log($e->getMessage());
 					return;
 				}
-				break;
-			
+				
 			case 'callback':
 				@$ext_id = array_shift($stack);
 				
@@ -224,6 +222,5 @@ class Controller_OAuth extends DevblocksControllerExtension {
 				DevblocksPlatform::dieWithHttpError($translate->_('common.access_denied'), 403);
 				break;
 		}
-		
 	}
 };

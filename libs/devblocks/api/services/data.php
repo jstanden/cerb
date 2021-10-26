@@ -343,10 +343,6 @@ class _DevblocksDataService {
 		return $results;
 	}
 	
-	function stripQuotes($string) {
-		return '"' . str_replace('"','', $string) . '"';
-	}
-	
 	public function parseQuery($query) {
 		$oper = $query_type = null;
 		$query_fields = CerbQuickSearchLexer::getFieldsFromQuery($query);

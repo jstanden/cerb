@@ -3988,6 +3988,11 @@ var ajax = new cAjaxCalls();
 					var token_path = Devblocks.cerbCodeEditor.getQueryTokenPath(pos, editor);
 					var scope_key = token_path.scope.join('');
 					
+					if(!(autocomplete_suggestions instanceof Object)) {
+						callback(false);
+						return;
+					}
+					
 					if(autocomplete_suggestions[scope_key]) {
 						if($.isArray(autocomplete_suggestions[scope_key])) {
 							var results = completer.formatData(scope_key);

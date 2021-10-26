@@ -120,7 +120,7 @@ $(function() {
 		if(!$target.is('li'))
 			return;
 		
-		$link = $target.find('> a');
+		var $link = $target.find('> a');
 		
 		if($link.length > 0)
 			window.location.href = $link.attr('href');

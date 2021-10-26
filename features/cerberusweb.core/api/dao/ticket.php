@@ -1470,9 +1470,6 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				 * Log activity
 				 */
 				
-				$status_to = null;
-				$activity_point = null;
-				
 				if($model->status_id == Model_Ticket::STATUS_DELETED) {
 					$status_to = 'deleted';
 					$activity_point = 'ticket.status.deleted';
@@ -1490,7 +1487,6 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				} else {
 					$status_to = 'open';
 					$activity_point = 'ticket.status.open';
-					
 				}
 				
 				if(!empty($status_to) && !empty($activity_point)) {
@@ -5069,7 +5065,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 	function getKeyToDaoFieldMap() {
 		$map = parent::getKeyToDaoFieldMap();
 		
-		$map = array_merge($map, [
+		return array_merge($map, [
 			'bucket_id' => DAO_Ticket::BUCKET_ID,
 			'closed' => DAO_Ticket::CLOSED_AT,
 			'created' => DAO_Ticket::CREATED_DATE,
@@ -5088,8 +5084,6 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			'subject' => DAO_Ticket::SUBJECT,
 			'updated' => DAO_Ticket::UPDATED_DATE,
 		]);
-		
-		return $map;
 	}
 	
 	function getKeyMeta($with_dao_fields=true) {

@@ -247,10 +247,10 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 				$model = new Model_ExplorerSet();
 				$model->hash = $hash;
 				$model->pos = $pos++;
-				$model->params = array(
+				$model->params = [
 					'id' => $row[SearchFields_KbArticle::ID],
 					'url' => $url,
-				);
+				];
 				$models[] = $model;
 			}
 			

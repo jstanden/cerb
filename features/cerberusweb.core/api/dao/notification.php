@@ -717,17 +717,14 @@ class SearchFields_Notification extends DevblocksSearchFields {
 					$strings[$v] = $string;
 				}
 				return $strings;
-				break;
 				
 			case SearchFields_Notification::ID:
 				$models = DAO_Notification::getIds($values);
 				$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_NOTIFICATION);
 				return array_column(DevblocksPlatform::objectsToArrays($dicts), '_label', 'id');
-				break;
 				
 			case SearchFields_Notification::IS_READ:
 				return parent::_getLabelsForKeyBooleanValues();
-				break;
 				
 			case SearchFields_Notification::WORKER_ID:
 				$models = DAO_Worker::getIds($values);
@@ -736,7 +733,6 @@ class SearchFields_Notification extends DevblocksSearchFields {
 				if(in_array(0, $values))
 					$label_map[0] = DevblocksPlatform::translate('common.nobody');
 				return $label_map;
-				break;
 		}
 		
 		return parent::getLabelsForKeyValues($key, $values);

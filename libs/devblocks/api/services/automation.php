@@ -810,7 +810,7 @@ class CerbAutomationPolicy {
 			}
 		}
 		
-		if(array_key_exists('callers', $policy_data)) {
+		if(array_key_exists('callers', $policy_data) && is_iterable($policy_data['callers'])) {
 			foreach($policy_data['callers'] as $caller => $rules) {
 				$this->_callers[$caller] = [];
 				
@@ -839,7 +839,7 @@ class CerbAutomationPolicy {
 			}
 		}
 		
-		if(array_key_exists('commands', $policy_data)) {
+		if(array_key_exists('commands', $policy_data) && is_iterable($policy_data['commands'])) {
 			foreach($policy_data['commands'] as $command => $rules) {
 				$this->_commands[$command] = [];
 				

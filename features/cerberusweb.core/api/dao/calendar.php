@@ -704,10 +704,6 @@ class Model_Calendar {
 				$event_start = $row['date_start'];
 				$event_end = $row['date_end'];
 				
-				// If the day segment is outside of our desired range, skip
-				//if($epoch < $date_from || $epoch > $date_to)
-				//	continue;
-				
 				// Segment multi-day events with day-based start/end times
 				
 				if($event_start < $day_start)
@@ -769,9 +765,9 @@ class Model_Calendar {
 };
 
 class Model_CalendarAvailability {
-	private $_start = null;
-	private $_end = null;
-	private $_mins = array();
+	private int $_start;
+	private int $_end;
+	private string $_mins;
 	
 	function __construct($start, $end, $mins) {
 		$this->_start = $start;
@@ -779,7 +775,7 @@ class Model_CalendarAvailability {
 		$this->_mins = $mins;
 	}
 	
-	function getMinutes() {
+	function getMinutes() : string {
 		return $this->_mins;
 	}
 	

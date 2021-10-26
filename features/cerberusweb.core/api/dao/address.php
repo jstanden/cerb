@@ -1084,29 +1084,24 @@ class SearchFields_Address extends DevblocksSearchFields {
 			case SearchFields_Address::ID:
 				$models = DAO_Address::getIds($values);
 				return array_column(DevblocksPlatform::objectsToArrays($models), 'email', 'id');
-				break;
 				
 			case SearchFields_Address::CONTACT_ID:
 				$models = DAO_Contact::getIds($values);
 				$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_CONTACT);
 				return array_column(DevblocksPlatform::objectsToArrays($dicts), '_label', 'id');
-				break;
 				
 			case SearchFields_Address::CONTACT_ORG_ID:
 				$models = DAO_ContactOrg::getIds($values);
 				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
-				break;
 				
 			case SearchFields_Address::MAIL_TRANSPORT_ID:
 				$models = DAO_MailTransport::getIds($values);
 				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
-				break;
 				
 			case SearchFields_Address::WORKER_ID:
 				$models = DAO_Worker::getIds($values);
 				$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_WORKER);
 				return array_column(DevblocksPlatform::objectsToArrays($dicts), '_label', 'id');
-				break;
 		}
 		
 		return parent::getLabelsForKeyValues($key, $values);

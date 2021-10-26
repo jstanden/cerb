@@ -4335,7 +4335,6 @@ abstract class Extension_DevblocksSearchEngine extends DevblocksExtension implem
 		$start = 0;
 		$len = mb_strlen($content);
 		$end = $start + $length;
-		$next_ws = $end;
 
 		// If our offset is past EOS, use the last pos
 		if($end > $len) {

@@ -596,7 +596,6 @@ class Model_CalendarRecurringProfile {
 			return array();
 		
 		$day = strtotime('today', $date_from);
-		$end_day = strtotime('today', $date_to);
 		
 		while($day <= $date_to) {
 			$passed = false;

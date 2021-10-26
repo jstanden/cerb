@@ -1457,19 +1457,15 @@ class SearchFields_Worker extends DevblocksSearchFields {
 		switch($param->field) {
 			case self::FULLTEXT_WORKER:
 				return self::_getWhereSQLFromFulltextField($param, Search_Worker::ID, self::getPrimaryKey());
-				break;
 				
 			case self::VIRTUAL_ALIAS:
 				return self::_getWhereSQLFromAliasesField($param, CerberusContexts::CONTEXT_WORKER, self::getPrimaryKey());
-				break;
 				
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_WORKER, self::getPrimaryKey());
-				break;
 				
 			case self::VIRTUAL_EMAIL_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_ADDRESS, 'w.email_id');
-				break;
 				
 			case self::VIRTUAL_GROUPS:
 				@$ids = $param->value;
@@ -1480,21 +1476,17 @@ class SearchFields_Worker extends DevblocksSearchFields {
 					return '0';
 				
 				return sprintf("w.id IN (SELECT worker_id FROM worker_to_group WHERE group_id IN (%s))", implode(',', $ids));
-				break;
 				
 			case self::VIRTUAL_GROUP_SEARCH:
 				$sql = "SELECT worker_id FROM worker_to_group WHERE group_id IN (%s)";
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_GROUP, $sql, 'w.id');
-				break;
 				
 			case self::VIRTUAL_GROUP_MANAGER_SEARCH:
 				$sql = "SELECT worker_id FROM worker_to_group WHERE is_manager = 1 AND group_id IN (%s)";
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_GROUP, $sql, 'w.id');
-				break;
 				
 			case self::VIRTUAL_HAS_FIELDSET:
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_WORKER), '%s'), self::getPrimaryKey());
-				break;
 				
 			case self::VIRTUAL_CALENDAR_AVAILABILITY:
 				if(!is_array($param->value) || count($param->value) != 3)
@@ -1543,29 +1535,24 @@ class SearchFields_Worker extends DevblocksSearchFields {
 					$results[] = '-1';
 				
 				return sprintf("w.id IN (%s) ", implode(', ', $results));
-				break;
 			
 			case self::VIRTUAL_SESSION_ACTIVITY:
 				@$from_ts = strtotime($param->value[0]);
 				@$to_ts = strtotime($param->value[1]);
 				
 				return sprintf('w.id IN (SELECT DISTINCT user_id FROM devblocks_session WHERE refreshed_at BETWEEN %d AND %d)', $from_ts, $to_ts);
-				break;
 			
 			case self::VIRTUAL_ROLE_SEARCH:
 				$sql = "SELECT worker_id FROM worker_to_role WHERE is_member = 1 AND role_id IN (%s)";
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_ROLE, $sql, 'w.id');
-				break;
 				
 			case self::VIRTUAL_ROLE_EDITOR_SEARCH:
 				$sql = "SELECT worker_id FROM worker_to_role WHERE is_editable = 1 AND role_id IN (%s)";
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_ROLE, $sql, 'w.id');
-				break;
 				
 			case self::VIRTUAL_ROLE_READER_SEARCH:
 				$sql = "SELECT worker_id FROM worker_to_role WHERE is_readable = 1 AND role_id IN (%s)";
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_ROLE, $sql, 'w.id');
-				break;
 				
 			case self::VIRTUAL_USING_WORKSPACE_PAGE:
 				$db = DevblocksPlatform::services()->database();
@@ -1578,7 +1565,6 @@ class SearchFields_Worker extends DevblocksSearchFields {
 					return '0';
 				
 				return sprintf('w.id IN (%s)', implode(',', $worker_ids));
-				break;
 				
 			default:
 				if('cf_' == substr($param->field, 0, 3)) {
@@ -1586,7 +1572,6 @@ class SearchFields_Worker extends DevblocksSearchFields {
 				} else {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
-				break;
 		}
 		
 		return false;
@@ -1615,7 +1600,6 @@ class SearchFields_Worker extends DevblocksSearchFields {
 						return $value;
 					}
 				];
-				break;
 			
 			case 'lang':
 				$key = 'language';
