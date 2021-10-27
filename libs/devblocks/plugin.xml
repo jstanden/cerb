@@ -46,6 +46,9 @@
 		<file path="api/services/data/bot_behavior.php">
 			<class name="_DevblocksDataProviderBotBehavior" />
 		</file>
+		<file path="api/services/data/calendar_availability.php">
+			<class name="_DevblocksDataProviderCalendarAvailability" />
+		</file>
 		<file path="api/services/data/calendar_events.php">
 			<class name="_DevblocksDataProviderCalendarEvents" />
 		</file>

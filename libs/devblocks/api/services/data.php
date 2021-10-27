@@ -21,6 +21,10 @@ class _DevblocksDataService {
 	
 	function getTypeMeta($type, $params) {
 		switch($type) {
+			case 'calendar.availability':
+				$provider = new _DevblocksDataProviderCalendarAvailability();
+				return $provider->getSuggestions($type, $params);
+
 			case 'calendar.events':
 				$provider = new _DevblocksDataProviderCalendarEvents();
 				return $provider->getSuggestions($type, $params);
@@ -112,6 +116,7 @@ class _DevblocksDataService {
 			'worklist.metrics',
 			'worklist.xy',
 			'worklist.geo.points',
+			'calendar.availability',
 			'calendar.events',
 			'classifier.prediction',
 			'gpg.keyinfo',
@@ -163,6 +168,14 @@ class _DevblocksDataService {
 		CerbQuickSearchLexer::getOperStringFromTokens($type_field->tokens, $oper, $chart_type);
 		
 		switch($chart_type) {
+			case 'calendar.availability':
+				$provider = new _DevblocksDataProviderCalendarAvailability();
+				
+				if(false === ($results = $provider->getData($query, $chart_fields, $error)))
+					return false;
+				
+				break;
+				
 			case 'calendar.events':
 				$provider = new _DevblocksDataProviderCalendarEvents();
 				
