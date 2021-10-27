@@ -649,37 +649,44 @@ class Model_WorkspaceTab {
 	function getDashboardPrefsAsWorker(Model_Worker $worker) {
 		$prefs = [];
 		
-		if(false != ($placeholder_prompts = $this->getPlaceholderPrompts()) 
-			&& is_array($placeholder_prompts)) {
-			
-			foreach($placeholder_prompts as $prompt) {
-				$prefs[$prompt['placeholder']] = @$prompt['default'] ?: null;
-			}
-		}
+		$placeholder_prompts = $this->getPlaceholderPrompts();
 		
 		$results = DAO_WorkerDashboardPref::get($this->id, $worker);
 		
+		$results = array_combine(
+			array_column($results, 'pref_key'),
+			$results
+		);
+		
 		// Set values based on prompts
 		
-		foreach($results as $result) {
-			if(false == (@$prompt = $placeholder_prompts[$result['pref_key']]))
-				continue;
+		foreach($placeholder_prompts as $prompt) {
+			$pref_key = $prompt['placeholder'];
+			$pref_value = $results[$pref_key]['pref_value'] ?? ($prompt['default'] ?? '');
 			
 			switch($prompt['type']) {
 				case 'picklist':
 					if(@$prompt['params']['multiple']) {
-						$prefs[$result['pref_key']] = json_decode($result['pref_value'], true);
+						$prefs[$pref_key] = json_decode($pref_value, true);
 						
 					} else {
-						$prefs[$result['pref_key']] = $result['pref_value'];
+						$prefs[$pref_key] = $pref_value;
 					}
 					break;
 					
-				case 'chooser':
 				case 'date_range':
+					$prefs[$pref_key] = $pref_value;
+					
+					list($date_from, $date_to) = array_pad(explode(' to ', $pref_value), 2, '');
+					
+					$prefs[$pref_key . '__from'] = $date_from;
+					$prefs[$pref_key . '__to'] = $date_to;
+					break;
+					
+				case 'chooser':
 				case 'text':
 				default:
-					$prefs[$result['pref_key']] = $result['pref_value'];
+					$prefs[$pref_key] = $pref_value;
 					break;
 			}
 		}
