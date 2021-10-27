@@ -1365,9 +1365,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 		return $results;
 	}
 	
-	public static function handleFormPost($context, $context_id, $field_ids, &$error) {
-		$field_values = self::parseFormPost($context, $field_ids);
-		
+	public static function handleFormValues($context, $context_id, $field_values, &$error) : bool {
 		if(false == (Extension_DevblocksContext::get($context, true)))
 			return false;
 		
@@ -1386,6 +1384,12 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 		
 		self::formatAndSetFieldValues($context, $context_id, $field_values);
 		return true;
+	}
+	
+	public static function handleFormPost($context, $context_id, $field_ids, &$error) : bool {
+		$field_values = self::parseFormPost($context, $field_ids);
+		
+		return self::handleFormValues($context, $context_id, $field_values, $error);
 	}
 
 	public static function getValuesByContextIds($context, $context_ids, $only_field_ids=null) {
