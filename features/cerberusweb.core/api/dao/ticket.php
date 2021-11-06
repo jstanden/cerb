@@ -1099,40 +1099,61 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
 			return false;
 
-		@$group_id = $fields[self::GROUP_ID];
-		@$bucket_id = $fields[self::BUCKET_ID];
+		$group_id = $fields[self::GROUP_ID] ?? null;
+		$bucket_id = $fields[self::BUCKET_ID] ?? null;
+		$owner_id = $fields[self::OWNER_ID] ?? null;
+		$group = null;
 		
-		if(!$id && !$group_id) {
+		// Group
+		if($group_id) {
+			if (false == ($group = DAO_Group::get($group_id))) {
+				$error = "The given 'Group' is invalid.";
+				return false;
+			}
+		}
+		
+		if(!$id && !$group) {
 			$error = "A 'group_id' is required.";
 			return false;
 		}
 		
-		if($group_id) {
-			if(false == DAO_Group::get($group_id)) {
-				$error = "Invalid 'group_id' value.";
+		// Owner
+		if($owner_id) {
+			if (false == ($owner = DAO_Worker::get($owner_id))) {
+				$error = "The given 'Owner' is invalid.";
 				return false;
 			}
 			
-			// Find the default bucket for this group
-			if(!$bucket_id) {
-				if(false != ($default_bucket = DAO_Bucket::getDefaultForGroup($fields[self::GROUP_ID]))) {
-					$bucket_id = $default_bucket->id;
-					$fields[self::BUCKET_ID] = $bucket_id;
+			if(!$group && $id) {
+				if(false == ($ticket = DAO_Ticket::get($id))) {
+					$error = sprintf("Invalid ticket #%d", $id);
+					return false;
 				}
+				
+				$group = $ticket->getGroup();
+			}
+			
+			if($group && !$owner->isGroupMember($group->id)) {
+				$error = sprintf("%s can't own this ticket because they are not a member of the group: %s", $owner->getName(), $group->name);
+				return false;
+			}
+		}
+		
+		// Find the default bucket for this group
+		if($group_id && !$bucket_id) {
+			if(false != ($default_bucket = DAO_Bucket::getDefaultForGroup($fields[self::GROUP_ID]))) {
+				$bucket_id = $default_bucket->id;
+				$fields[self::BUCKET_ID] = $bucket_id;
 			}
 			
 		// If we have only a bucket_id and no group_id then figure it out
 		} else if (!$group_id && $bucket_id) {
-			
 			if(false == ($bucket = DAO_Bucket::get($bucket_id))) {
 				$error = "Invalid 'bucket_id' value.";
 				return false;
 			}
 			
-			if(!$group_id) {
-				$bucket_id = $bucket->group_id;
-				$fields[self::GROUP_ID] = $bucket_id;
-			}
+			$fields[self::GROUP_ID] = $bucket->group_id;
 		}
 		
 		return true;
