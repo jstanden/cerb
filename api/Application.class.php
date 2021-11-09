@@ -811,6 +811,7 @@ class CerberusContexts {
 	const CONTEXT_PORTAL = 'cerberusweb.contexts.portal';
 	const CONTEXT_PROFILE_TAB = 'cerberusweb.contexts.profile.tab';
 	const CONTEXT_PROFILE_WIDGET = 'cerberusweb.contexts.profile.widget';
+	const CONTEXT_QUEUE = 'cerb.contexts.queue';
 	const CONTEXT_REMINDER = 'cerberusweb.contexts.reminder';
 	const CONTEXT_RESOURCE = 'cerb.contexts.resource';
 	const CONTEXT_ROLE = 'cerberusweb.contexts.role';

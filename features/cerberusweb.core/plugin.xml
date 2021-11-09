@@ -615,6 +615,16 @@
 			<class name="SearchFields_ProfileWidget" />
 			<class name="View_ProfileWidget" />
 		</file>
+
+		<file path="api/dao/queue.php">
+			<class name="Context_Queue" />
+			<class name="DAO_Queue" />
+			<class name="DAO_QueueMessage" />
+			<class name="Model_Queue" />
+			<class name="Model_QueueMessage" />
+			<class name="SearchFields_Queue" />
+			<class name="View_Queue" />
+		</file>
 		
 		<file path="api/dao/reminder.php">
 			<class name="Context_Reminder" />
@@ -3543,6 +3553,47 @@
 						<data key="delete" />
 						<data key="export" />
 						<data key="import" />
+						<data key="update" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<extension point="devblocks.context">
+			<id>cerb.contexts.queue</id>
+			<name>Queue</name>
+			<class>
+				<file>api/dao/queue.php</file>
+				<name>Context_Queue</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="queue" value="singular" />
+						<data key="queues" value="plural" />
+					</value>
+				</param>
+				<param key="alias" value="queue" />
+				<param key="dao_class" value="DAO_Queue" />
+				<param key="view_class" value="View_Queue" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="comments" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="records" />
+						<data key="search" />
+						<data key="va_variable" />
+						<data key="watchers" />
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
 						<data key="update" />
 					</value>
 				</param>
@@ -7235,7 +7286,20 @@
 					<param key="uri" value="profile_widget" />
 				</params>
 			</extension>
-			
+
+			<extension point="cerberusweb.ui.page.section">
+				<id>cerb.page.profiles.queue</id>
+				<name>Queue Section</name>
+				<class>
+					<file>api/uri/profiles/queue.php</file>
+					<name>PageSection_ProfilesQueue</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="queue" />
+				</params>
+			</extension>
+
 			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.profiles.reminder</id>
 				<name>Reminder Section</name>

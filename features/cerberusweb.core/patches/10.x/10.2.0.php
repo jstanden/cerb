@@ -4,6 +4,47 @@ $logger = DevblocksPlatform::services()->log();
 $tables = $db->metaTables();
 
 // ===========================================================================
+// Add `queue` table
+
+if(!isset($tables['queue'])) {
+	$sql = sprintf("
+		CREATE TABLE `queue` (
+		`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+		`name` varchar(128) NOT NULL DEFAULT '',
+		`created_at` int(10) unsigned NOT NULL DEFAULT 0,
+		`updated_at` int(10) unsigned NOT NULL DEFAULT 0,
+		PRIMARY KEY (id),
+		UNIQUE (name),
+		INDEX (updated_at)
+		) ENGINE=%s
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+	
+	$tables['queue'] = 'queue';
+}
+
+// ===========================================================================
+// Add `queue_message` table
+
+if(!isset($tables['queue_message'])) {
+	$sql = sprintf("
+		CREATE TABLE `queue_message` (
+			`uuid` binary(16),
+			`queue_id` int(10) unsigned NOT NULL,
+			`status_id` tinyint unsigned NOT NULL DEFAULT 0,
+			`status_at` int unsigned NOT NULL DEFAULT 0,
+			`consumer_id` binary(16),
+			`message` TEXT,
+			PRIMARY KEY (uuid),
+			INDEX queue_claimed (queue_id, status_id, consumer_id)
+		) ENGINE=%s
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+	
+	$tables['queue_message'] = 'queue_message';
+}
+
+// ===========================================================================
 // Add `automation_resource`
 
 if(!isset($tables['automation_resource'])) {

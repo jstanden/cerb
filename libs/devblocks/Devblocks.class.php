@@ -202,6 +202,13 @@ class _DevblocksServices {
 	}
 	
 	/**
+	 * @return _DevblocksQueueService
+	 */
+	function queue() {
+		return _DevblocksQueueService::getInstance();
+	}
+	
+	/**
 	 * 
 	 * @return _DevblocksRegistryManager
 	 */

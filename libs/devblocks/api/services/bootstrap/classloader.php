@@ -225,6 +225,9 @@ class _DevblocksClassLoadManager {
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/openid.php', array(
 			'_DevblocksOpenIDManager',
 		));
+		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/queue.php', [
+			'_DevblocksQueueService',
+		]);
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/registry.php', array(
 			'_DevblocksRegistryManager',
 			'DevblocksRegistryEntry',

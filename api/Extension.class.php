@@ -1144,6 +1144,18 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'(.*):log.error:' => $action_base,
 				'(.*):log.warn:' => $action_base,
 				
+				'(.*):queue.pop:' => $action_base,
+				'(.*):queue.pop:inputs:' => [
+					'queue_name:',
+					'limit:',
+				],
+				
+				'(.*):queue.push:' => $action_base,
+				'(.*):queue.push:inputs:' => [
+					'queue_name:',
+					'messages:',
+				],
+				
 				'(.*):record.create:' => $action_base,
 				'(.*):record.delete:' => $action_base,
 				'(.*):record.get:' => $action_base,
