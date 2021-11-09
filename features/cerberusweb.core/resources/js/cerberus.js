@@ -4460,10 +4460,11 @@ var ajax = new cAjaxCalls();
 							
 						// Open a blank popup and assign content
 						} else if('await' === json.exit) {
-							// [TODO] Get popup properties from the interaction (width/modal) 
+							var popup_width = options.width || '50%';
+							
 							// [TODO] If mobile, use 100% width
 							
-							var $popup = genericAjaxPopup(layer, null, null, options && options.modal, '50%');
+							var $popup = genericAjaxPopup(layer, null, null, options && options.modal, popup_width);
 							
 							$popup
 								.on('cerb-interaction-reset', function(e) {
