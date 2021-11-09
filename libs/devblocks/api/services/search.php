@@ -867,10 +867,13 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		return true;
 	}
 	
-	public function generateSql(Extension_DevblocksSearchSchema $schema, string $query, array $attributes=[], ?callable $where_callback=null) : ?string {
+	public function generateSql(Extension_DevblocksSearchSchema $schema, string $query, array $attributes=[], ?callable $where_callback=null, &$as_exists=false) : ?string {
 		$db = DevblocksPlatform::services()->database();
 		$tables = DevblocksPlatform::getDatabaseTables();
 		$ns = $schema->getNamespace();
+		
+		$threshold_ids = APP_OPT_FULLTEXT_THRESHOLD_IDS;
+		$threshold_exists = APP_OPT_FULLTEXT_THRESHOLD_EXISTS;
 		
 		if(!isset($tables['fulltext_' . $ns]))
 			return false;
@@ -893,6 +896,49 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		if(is_callable($where_callback)) {
 			if(false != ($and_where = $where_callback($id_key, $content_key))) {
 				$where_sql = array_merge($where_sql, $and_where);
+			}
+		}
+		
+		try {
+			if(APP_OPT_FULLTEXT_OPTIMIZE_IN_EXISTS) { // kill-switch
+				// COUNT the matches first, to later decide on IN or EXISTS
+				$sql_hits = sprintf("SELECT COUNT(1) " .
+					"FROM fulltext_%s " .
+					"WHERE MATCH (%s) AGAINST ('%s' IN BOOLEAN MODE)",
+					$this->escapeNamespace($ns),
+					$db->escape($content_key),
+					$escaped_query
+				);
+				$hits = $db->GetOneReader($sql_hits, 2500);
+				
+			} else {
+				$hits = false;
+			}
+		} catch (Exception_DevblocksDatabaseQueryTimeout $e) {
+			$hits = false;
+		}
+		
+		// If fewer than 1,000 return IDs
+		
+		if(false !== $hits) {
+			if($hits <= $threshold_ids) {
+				try {
+					$sql_ids = sprintf("SELECT id ".
+						"FROM fulltext_%s ".
+						"WHERE MATCH (%s) AGAINST ('%s' IN BOOLEAN MODE)",
+						$this->escapeNamespace($ns),
+						$db->escape($content_key),
+						$escaped_query
+					);
+					
+					$ids = $db->GetArrayReader($sql_ids, 5000);
+					return implode(',', array_column($ids, 'id'));
+					
+				} catch (Exception_DevblocksDatabaseQueryTimeout $e) {}
+			
+			// If over 10,000 recommend EXISTS
+			} elseif($hits >= $threshold_exists) {
+				$as_exists = true;
 			}
 		}
 		

@@ -136,6 +136,15 @@ if(!defined('DEVELOPMENT_MODE_ALLOW_CSRF'))
 if(!defined('APP_OPT_DEPRECATED_PROFILE_QUICK_SEARCH'))
     define('APP_OPT_DEPRECATED_PROFILE_QUICK_SEARCH', false);
 
+if(!defined('APP_OPT_FULLTEXT_OPTIMIZE_IN_EXISTS'))
+	define('APP_OPT_FULLTEXT_OPTIMIZE_IN_EXISTS', true);
+
+if(!defined('APP_OPT_FULLTEXT_THRESHOLD_IDS'))
+	define('APP_OPT_FULLTEXT_THRESHOLD_IDS', 1000);
+
+if(!defined('APP_OPT_FULLTEXT_THRESHOLD_EXISTS'))
+	define('APP_OPT_FULLTEXT_THRESHOLD_EXISTS', 10000);
+
 // ----
 
 @date_default_timezone_set(date_default_timezone_get());

@@ -2305,14 +2305,22 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 				return $search->generateSql(
 					$query,
 					[],
-					function($sql) use ($join_key, $not) {
-						//return sprintf('%sEXISTS (SELECT message.ticket_id FROM message WHERE ticket_id=%s AND EXISTS (%s))',
-						return sprintf('%s %sIN (SELECT message.ticket_id FROM message WHERE ticket_id=%s AND id IN (%s))',
-							$join_key,
-							$not ? 'NOT ' : '',
-							$join_key,
-							$sql
-						);
+					function($sql, $exists=false) use ($join_key, $not) {
+						if($exists) {
+							return sprintf('%sEXISTS (SELECT message.ticket_id FROM message WHERE ticket_id=%s AND EXISTS (%s))',
+								$not ? 'NOT ' : '',
+								$join_key,
+								$sql
+							);
+							
+						} else {
+							return sprintf('%s %sIN (SELECT message.ticket_id FROM message WHERE ticket_id=%s AND id IN (%s))',
+								$join_key,
+								$not ? 'NOT ' : '',
+								$join_key,
+								$sql
+							);
+						}
 					},
 					function($id_key) use ($join_key) {
 						return [

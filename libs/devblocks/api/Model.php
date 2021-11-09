@@ -604,13 +604,20 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 		return $search->generateSql(
 			$query,
 			$attributes,
-			function($sql) use ($join_key, $not) {
-				//return sprintf('%sEXISTS (%s)',
-				return sprintf('%s %sIN (%s)',
-					$join_key,
-					$not ? 'NOT ' : '',
-					$sql
-				);
+			function($sql, $exists=false) use ($join_key, $not) {
+				if($exists) {
+					return sprintf('%sEXISTS (%s)',
+						$not ? 'NOT ' : '',
+						$sql
+					);
+					
+				} else {
+					return sprintf('%s %sIN (%s)',
+						$join_key,
+						$not ? 'NOT ' : '',
+						$sql
+					);
+				}
 			},
 			function($id_key) use ($join_key) {
 				return [
@@ -648,13 +655,20 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 		return $search->generateSql(
 			$query,
 			$attributes,
-			function($sql) use ($join_key, $not) {
-				//return sprintf('%sEXISTS (%s)',
-				return sprintf('%s %sIN (%s)',
-					$join_key,
-					$not ? 'NOT ' : '',
-					$sql
-				);
+			function($sql, $exists=false) use ($join_key, $not) {
+				if($exists) {
+					return sprintf('%sEXISTS (%s)',
+						$not ? 'NOT ' : '',
+						$sql
+					);
+					
+				} else {
+					return sprintf('%s %sIN (%s)',
+						$join_key,
+						$not ? 'NOT ' : '',
+						$sql
+					);
+				}
 			},
 			function($id_key) use ($join_key) {
 				return [

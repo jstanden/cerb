@@ -4475,13 +4475,15 @@ abstract class Extension_DevblocksSearchSchema extends DevblocksExtension {
 		$engine = $this->getEngine();
 		
 		if($engine->canGenerateSql()) {
-			if(null == ($sql = $engine->generateSql($this, $query, $attributes, $where_callback)))
+			$as_exists = false;
+			
+			if(null == ($sql = $engine->generateSql($this, $query, $attributes, $where_callback, $as_exists)))
 				return '0';
 			
 			if(!is_callable($join_callback))
 				return $sql;
 			
-			return $join_callback($sql);
+			return $join_callback($sql, $as_exists);
 			
 		} else {
 			if(false === ($ids = $this->query($query, $attributes)))
