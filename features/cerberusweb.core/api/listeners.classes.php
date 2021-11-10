@@ -1066,6 +1066,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 	}
 	
 	private function _handleCronHeartbeat($event) {
+		$this->_handleCronHeartbeatMetrics();
 		$this->_handleCronHeartbeatReopenTickets();
 		$this->_handleCronHeartbeatReopenTasks();
 		DAO_AutomationDatastore::maint();
@@ -1075,6 +1076,20 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		DAO_DevblocksRegistry::maint();
 		DAO_MessageHtmlCache::maint();
 		Cerb_DevblocksSessionHandler::gc(0); // Purge inactive sessions
+	}
+	
+	private function _handleCronHeartbeatMetrics() {
+		$metrics = DevblocksPlatform::services()->metrics();
+		
+		// Active workers
+		
+		$results = Cerb_DevblocksSessionHandler::getLoggedInSeats();
+		
+		if (is_array($results)) {
+			foreach ($results as $row) {
+				$metrics->increment('cerb.workers.active', 1, ['worker_id' => $row['user_id']]);
+			}
+		}
 	}
 	
 	private function _handleCronHeartbeatReopenTickets() {
