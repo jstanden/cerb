@@ -206,6 +206,15 @@ $db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, dimens
 	time()
 ));
 
+$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, dimensions_kata, created_at, updated_at) ".
+	"VALUES (%s, %s, %s, %d, %d)",
+	$db->qstr('cerb.record.search'),
+	$db->qstr('Search popup count by record type and worker'),
+	$db->qstr("text/record_type:\nrecord/worker_id:\n  record_type: worker"),
+	time(),
+	time()
+));
+
 // ===========================================================================
 // Finish up
 
