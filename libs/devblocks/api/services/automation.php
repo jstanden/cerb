@@ -458,6 +458,13 @@ class _DevblocksAutomationService {
 			}
 		}
 		
+		$metrics = DevblocksPlatform::services()->metrics();
+		
+		if($automation->id) {
+			$metrics->increment('cerb.automation.invocations', 1, ['automation_id'=>$automation->id, 'trigger'=>$automation->extension_id]);
+			$metrics->increment('cerb.automation.duration', $elapsed_ms, ['automation_id'=>$automation->id, 'trigger'=>$automation->extension_id]);
+		}
+		
 		return true;
 	}
 	

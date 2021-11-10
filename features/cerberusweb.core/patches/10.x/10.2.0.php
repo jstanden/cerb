@@ -177,6 +177,27 @@ if(!isset($tables['metric_value'])) {
 }
 
 // ===========================================================================
+// Add default metrics
+
+$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, dimensions_kata, created_at, updated_at) ".
+	"VALUES (%s, %s, %s, %d, %d)",
+	$db->qstr('cerb.automation.invocations'),
+	$db->qstr('Invocation count by automation and trigger'),
+	$db->qstr("record/automation_id:\n  record_type: automation\nextension/trigger:"),
+	time(),
+	time()
+));
+
+$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, dimensions_kata, created_at, updated_at) ".
+	"VALUES (%s, %s, %s, %d, %d)",
+	$db->qstr('cerb.automation.duration'),
+	$db->qstr('Invocation duration by automation and trigger'),
+	$db->qstr("record/automation_id:\n  record_type: automation\nextension/trigger:"),
+	time(),
+	time()
+));
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
