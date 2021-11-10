@@ -804,6 +804,7 @@ class CerberusContexts {
 	const CONTEXT_MAILBOX = 'cerberusweb.contexts.mailbox';
 	const CONTEXT_MAIL_HTML_TEMPLATE = 'cerberusweb.contexts.mail.html_template';
 	const CONTEXT_MESSAGE = 'cerberusweb.contexts.message';
+	const CONTEXT_METRIC = 'cerb.contexts.metric';
 	const CONTEXT_NOTIFICATION= 'cerberusweb.contexts.notification';
 	const CONTEXT_OPPORTUNITY = 'cerberusweb.contexts.opportunity';
 	const CONTEXT_ORG = 'cerberusweb.contexts.org';
@@ -4772,6 +4773,32 @@ class _CerbApplication_KataSchemas {
                           types:
                             # [TODO] Format cerb URI
                             string:
+    EOD;
+	}
+	
+	function metricDimensions() : string {
+		return <<< EOD
+    schema:
+      attributes:
+        extension:
+          multiple@bool: yes
+          types:
+            object:
+              attributes:
+        record:
+          multiple@bool: yes
+          types:
+            object:
+              attributes:
+                record_type:
+                  required@bool: yes
+                  types:
+                    string:
+        text:
+          multiple@bool: yes
+          types:
+            object:
+              attributes:
     EOD;
 	}
 	

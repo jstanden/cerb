@@ -420,6 +420,34 @@ var cerbAutocompleteSuggestions = {
 			}
 		]
 	},
+	kataSchemaMetricDimension: {
+		'': [
+			{
+				'caption': 'extension:',
+				'snippet': 'extension/${1:name}:\n'
+			},
+			{
+				'caption': 'record:',
+				'snippet': 'record/${1:name}:\n  record_type: ${2:ticket}\n'
+			},
+			{
+				'caption': 'text:',
+				'snippet': 'text/${1:name}:\n'
+			}
+		],
+		'extension:': [
+
+		],
+		'record:': [
+			{
+				'caption': 'record_type:',
+				'snippet': 'record_type: ${1:ticket}'
+			}
+		],
+		'text:': [
+
+		]
+	},
 	kataToolbar: {
 		'': [
 			{

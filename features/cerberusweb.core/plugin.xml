@@ -579,6 +579,20 @@
 		<file path="api/dao/message_html_cache.php">
 			<class name="DAO_MessageHtmlCache" />
 		</file>
+
+		<file path="api/dao/metric.php">
+			<class name="Context_Metric" />
+			<class name="DAO_Metric" />
+			<class name="DAO_MetricDimension" />
+			<class name="Model_Metric" />
+			<class name="Model_MetricValueSampleSet" />
+			<class name="SearchFields_Metric" />
+			<class name="View_Metric" />
+		</file>
+		
+		<file path="api/dao/metric_value.php">
+			<class name="DAO_MetricValue" />
+		</file>
 		
 		<file path="api/dao/oauth_app.php">
 			<class name="Context_OAuthApp" />
@@ -2957,6 +2971,46 @@
 						<data key="create" />
 						<!--<data key="delete" />-->
 						<data key="export" />
+						<data key="update" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<extension point="devblocks.context">
+			<id>cerb.contexts.metric</id>
+			<name>Metric</name>
+			<class>
+				<file>api/dao/metric.php</file>
+				<name>Context_Metric</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="metric" value="singular" />
+						<data key="metrics" value="plural" />
+					</value>
+				</param>
+				<param key="alias" value="metric" />
+				<param key="dao_class" value="DAO_Metric" />
+				<param key="view_class" value="View_Metric" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="records" />
+						<data key="search" />
+						<data key="watchers" />
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="import" />
 						<data key="update" />
 					</value>
 				</param>
@@ -7234,6 +7288,19 @@
 			</extension>
 
 			<extension point="cerberusweb.ui.page.section">
+				<id>cerb.page.profiles.metric</id>
+				<name>Metric Section</name>
+				<class>
+					<file>api/uri/profiles/metric.php</file>
+					<name>PageSection_ProfilesMetric</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="metric" />
+				</params>
+			</extension>
+	
+			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.profiles.oauth_app</id>
 				<name>OAuth App Section</name>
 				<class>
@@ -8290,6 +8357,16 @@
 			<class>
 				<file>api/crons/maint.php</file>
 				<name>MaintCron</name>
+			</class>
+			<params />
+		</extension>
+
+		<extension point="cerberusweb.cron">
+			<id>cron.metrics</id>
+			<name>Metrics</name>
+			<class>
+				<file>api/crons/metrics.php</file>
+				<name>Cron_Metrics</name>
 			</class>
 			<params />
 		</extension>

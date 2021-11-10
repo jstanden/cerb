@@ -3496,6 +3496,15 @@
 		<tu tuid='dao.mailbox.ssl_ignore_validation'>
 			<tuv xml:lang="en_US"><seg>SSL Ignore Validation</seg></tuv>
 		</tu>
+		
+		<!-- Metric -->
+
+		<tu tuid='dao.metric.dimension'>
+			<tuv xml:lang="en_US"><seg>Dimension</seg></tuv>
+		</tu>
+		<tu tuid='dao.metric.dimensions'>
+			<tuv xml:lang="en_US"><seg>Dimensions</seg></tuv>
+		</tu>
 
 		<!-- OAuthApp -->
 		

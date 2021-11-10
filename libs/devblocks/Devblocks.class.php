@@ -152,6 +152,13 @@ class _DevblocksServices {
 	}
 	
 	/**
+	 * @return _DevblocksMetricsService
+	 */
+	function metrics() {
+		return _DevblocksMetricsService::getInstance();
+	}
+	
+	/**
 	 * @return _DevblocksMultiFactorAuthService
 	 */
 	function mfa() {
@@ -3366,6 +3373,10 @@ class DevblocksPlatform extends DevblocksEngine {
 		// Persist the registry
 		$registry = DevblocksPlatform::services()->registry();
 		$registry->save();
+		
+		// Publish aggregated metrics
+		$metrics = DevblocksPlatform::services()->metrics();
+		$metrics->publish();
 	}
 
 	static function setHandlerSession($class) {

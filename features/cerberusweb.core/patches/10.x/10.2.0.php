@@ -100,6 +100,83 @@ foreach($automation_files as $automation_file) {
 }
 
 // ===========================================================================
+// Add `metric` table
+
+if(!isset($tables['metric'])) {
+	$sql = sprintf("
+		CREATE TABLE `metric` (
+		`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+		`name` varchar(128) NOT NULL DEFAULT '',
+		`description` varchar(128) NOT NULL DEFAULT '',
+		`dimensions_kata` mediumtext,
+		`created_at` int(10) unsigned NOT NULL DEFAULT 0,
+		`updated_at` int(10) unsigned NOT NULL DEFAULT 0,
+		PRIMARY KEY (id),
+		UNIQUE (name),
+		INDEX (updated_at)
+		) ENGINE=%s
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+	
+	$tables['metric'] = 'metric';
+	
+	// Configure the scheduler job
+	$db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.metrics', 'enabled', '1')");
+	$db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.metrics', 'duration', '1')");
+	$db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.metrics', 'term', 'm')");
+	$db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.metrics', 'lastrun', '0')");
+	$db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.metrics', 'locked', '0')");
+	
+	// Add default queues
+	$db->ExecuteWriter("INSERT IGNORE INTO queue (name, created_at, updated_at) VALUES ('cerb.metrics.publish', UNIX_TIMESTAMP(), UNIX_TIMESTAMP())");
+}
+
+// ===========================================================================
+// Add `metric_dimension` table
+
+if(!isset($tables['metric_dimension'])) {
+	$sql = sprintf("
+		CREATE TABLE `metric_dimension` (
+		`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+		`name` varchar(255) NOT NULL DEFAULT '',
+		PRIMARY KEY (id),
+		UNIQUE (name)
+		) ENGINE=%s
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+	
+	$tables['metric_dimension'] = 'metric_dimension';
+}
+
+// ===========================================================================
+// Add `metric_value` table
+
+if(!isset($tables['metric_value'])) {
+	$sql = sprintf("
+		CREATE TABLE `metric_value` (
+		`metric_id` int unsigned NOT NULL,
+		`granularity` mediumint unsigned NOT NULL DEFAULT 0,
+		`bin` int unsigned NOT NULL DEFAULT 0,
+		`samples` mediumint NOT NULL DEFAULT 0,
+		`sum` decimal(22,4) NOT NULL DEFAULT 0,
+		`min` decimal(22,4) NOT NULL DEFAULT 0,
+		`max` decimal(22,4) NOT NULL DEFAULT 0,
+		`dim0_value_id` int unsigned NOT NULL DEFAULT 0,
+		`dim1_value_id` int unsigned NOT NULL DEFAULT 0,
+		`dim2_value_id` int unsigned NOT NULL DEFAULT 0,
+		`expires_at` int unsigned NOT NULL DEFAULT 0,
+		PRIMARY KEY (metric_id, granularity, bin, dim0_value_id, dim1_value_id, dim2_value_id),
+		INDEX metric_dim1 (metric_id, granularity, bin, dim1_value_id, dim2_value_id),
+		INDEX metric_dim2 (metric_id, granularity, bin, dim2_value_id),
+		INDEX (expires_at)
+		) ENGINE=%s
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+	
+	$tables['metric_value'] = 'metric_value';
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
