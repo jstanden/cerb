@@ -5283,6 +5283,17 @@
 		</extension>
 
 		<extension point="cerb.card.widget">
+			<id>cerb.card.widget.chart.timeblocks</id>
+			<name>Chart: Time Blocks</name>
+			<class>
+				<file>api/cards/widgets/chart_time_blocks.php</file>
+				<name>CardWidget_ChartTimeBlocks</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+		<extension point="cerb.card.widget">
 			<id>cerb.card.widget.chart.timeseries</id>
 			<name>Chart: Time Series</name>
 			<class>
@@ -7632,7 +7643,18 @@
 			<params>
 			</params>
 		</extension>
-		
+
+		<extension point="cerb.profile.tab.widget">
+			<id>cerb.profile.tab.widget.chart.timeblocks</id>
+			<name>Chart: Time Blocks</name>
+			<class>
+				<file>api/profiles/widgets/chart_time_blocks.php</file>
+				<name>ProfileWidget_ChartTimeBlocks</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
 		<extension point="cerb.profile.tab.widget">
 			<id>cerb.profile.tab.widget.chart.time_series</id>
 			<name>Chart: Time Series</name>
@@ -7941,6 +7963,17 @@
 			<class>
 				<file>api/workspaces/widgets/chart_table.php</file>
 				<name>WorkspaceWidget_ChartTable</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.ui.workspace.widget">
+			<id>cerb.workspace.widget.chart.timeblocks</id>
+			<name>Chart: Time Blocks</name>
+			<class>
+				<file>api/workspaces/widgets/chart_time_blocks.php</file>
+				<name>WorkspaceWidget_ChartTimeBlocks</name>
 			</class>
 			<params>
 			</params>
