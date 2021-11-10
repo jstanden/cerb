@@ -2,6 +2,7 @@
 class Controller_Webhooks implements DevblocksHttpRequestHandler {
 	function handleRequest(DevblocksHttpRequest $request) {
 		$stack = $request->path;
+		$metrics = DevblocksPlatform::services()->metrics();
 		
 		array_shift($stack); // webhooks
 		@$guid = array_shift($stack); // guid
@@ -11,6 +12,8 @@ class Controller_Webhooks implements DevblocksHttpRequestHandler {
 			
 		if(false == ($webhook = DAO_WebhookListener::getByGUID($guid)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		$metrics->increment('cerb.webhook.invocations', 1, ['webhook_id' => $webhook->id, 'client_ip' => DevblocksPlatform::getClientIp()]);
 		
 		$error = null;
 		

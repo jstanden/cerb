@@ -197,6 +197,15 @@ $db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, dimens
 	time()
 ));
 
+$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, dimensions_kata, created_at, updated_at) ".
+	"VALUES (%s, %s, %s, %d, %d)",
+	$db->qstr('cerb.webhook.invocations'),
+	$db->qstr('Invocation count by webhook and client IP'),
+	$db->qstr("record/webhook_id:\n  record_type: webhook_listener\ntext/client_ip:"),
+	time(),
+	time()
+));
+
 // ===========================================================================
 // Finish up
 
