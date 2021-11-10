@@ -32,6 +32,8 @@ var cerbAutocompleteSuggestions = {
 			'file.read:',
 			'function:',
 			'http.request:',
+			'queue.pop:',
+			'queue.push:',
 			'record.create:',
 			'record.delete:',
 			'record.get:',
@@ -93,6 +95,24 @@ var cerbAutocompleteSuggestions = {
 			},
 			'deny@bool: yes',
 			'allow@bool: yes'
+		],
+		'commands:queue.pop:': [
+			{
+				'caption': 'deny/queue_name:',
+				'snippet': "deny/queue_name@bool: {{inputs.queue_name != '${1:your.queue.name}'}}",
+				'docHTML': 'Validate queue name'
+			},
+			'deny@bool: yes',
+			'allow@bool: yes',
+		],
+		'commands:queue.push:': [
+			{
+				'caption': 'deny/queue_name:',
+				'snippet': "deny/queue_name@bool: {{inputs.queue_name != '${1:your.queue.name}'}}",
+				'docHTML': 'Validate queue name'
+			},
+			'deny@bool: yes',
+			'allow@bool: yes',
 		],
 		'commands:record.create:': [
 			{

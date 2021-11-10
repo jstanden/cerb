@@ -513,6 +513,8 @@ class _DevblocksAutomationService {
 			'log.alert',
 			'log.error',
 			'log.warn',
+			'queue.push',
+			'queue.pop',
 			'record.create',
 			'record.delete',
 			'record.get',

@@ -372,26 +372,35 @@ class DAO_QueueMessage {
 	const STATUS_FAILED = 2;
 	const STATUS_COMPLETE = 3;
 	
-	static function enqueue(Model_Queue $queue, array $messages) : bool {
+	/**
+	 * @param Model_Queue $queue
+	 * @param array $messages
+	 * @return array|false
+	 */
+	static function enqueue(Model_Queue $queue, array $messages) {
 		$db = DevblocksPlatform::services()->database();
 		$nodeProvider = new RandomNodeProvider();
 		
 		if(!is_array($messages) || empty($messages))
 			return false;
 		
+		$results = [];
 		$insert_values = [];
 		
 		foreach($messages as $message) {
 			$uuid = Uuid::uuid6($nodeProvider->getNode());
+			$message_uuid = $uuid->getHex();
 			
 			$insert_values[] = sprintf("(%s, %d, %d, %d, %s, %s)",
-				'0x' . $db->escape($uuid->getHex()),
+				'0x' . $db->escape($message_uuid),
 				$queue->id,
 				self::STATUS_AVAILABLE,
 				time(),
 				$db->escape('NULL'),
 				$db->qstr(json_encode($message))
 			);
+			
+			$results[] = $message_uuid->toString();
 		}
 		
 		$db->ExecuteWriter(
@@ -399,7 +408,7 @@ class DAO_QueueMessage {
 			implode(',', $insert_values)
 		));
 		
-		return true;
+		return $results;
 	}
 	
 	static function dequeue(Model_Queue $queue, ?int $limit=1, &$consumer_id=null) : array {

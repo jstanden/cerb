@@ -994,6 +994,14 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'snippet' => "log:\n\t",
 			],
 			[
+				'caption' => 'queue.pop:',
+				'snippet' => "queue.pop:\n\t",
+			],
+			[
+				'caption' => 'queue.push:',
+				'snippet' => "queue.push:\n\t",
+			],
+			[
 				'caption' => 'record.create:',
 				'snippet' => "record.create:\n\t",
 			],

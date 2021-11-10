@@ -22,9 +22,17 @@ class _DevblocksQueueService {
 		return $this->_queue_cache[$queue_name];
 	}
 	
-	public function enqueue(string $queue_name, array $messages, &$error=null) : bool {
-		if(null == ($queue = $this->_getQueueByName($queue_name)))
+	/**
+	 * @param string $queue_name
+	 * @param array $messages
+	 * @param string $error
+	 * @return array|false
+	 */
+	public function enqueue(string $queue_name, array $messages, string &$error=null) {
+		if(null == ($queue = $this->_getQueueByName($queue_name))) {
+			$error = sprintf("Unknown queue `%s`", $queue_name);
 			return false;
+		}
 		
 		return DAO_QueueMessage::enqueue($queue, $messages);
 	}

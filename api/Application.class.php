@@ -3836,6 +3836,56 @@ class _CerbApplication_KataSchemas {
                       then:
                         ref: commands
               
+              queue.pop:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+                      inputs:
+                        types:
+                          object:
+                            attributes:
+                              queue_name:
+                                types:
+                                  string:
+                              limit:
+                                types:
+                                  number:
+                      output:
+                        types:
+                          string:
+                      on_error:
+                        ref: commands
+                      on_success:
+                        ref: commands
+                      on_simulate:
+                        ref: commands
+              
+              queue.push:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+                      inputs:
+                        types:
+                          object:
+                            attributes:
+                              queue_name:
+                                types:
+                                  string:
+                              messages:
+                                types:
+                                  list:
+                      output:
+                        types:
+                          string:
+                      on_error:
+                        ref: commands
+                      on_success:
+                        ref: commands
+                      on_simulate:
+                        ref: commands
+              
               record.create:
                 multiple@bool: yes
                 types:
@@ -4319,6 +4369,8 @@ class _CerbApplication_KataSchemas {
                 file.read@ref: policyRule
                 function@ref: policyRule
                 http.request@ref: policyRule
+                queue.pop@ref: policyRule
+                queue.push@ref: policyRule
                 record.create@ref: policyRule
                 record.delete@ref: policyRule
                 record.get@ref: policyRule
