@@ -850,6 +850,33 @@ abstract class C4_AbstractView {
 		return count(self::findParam($field_key, $params, $recursive)) > 0;
 	}
 	
+	public static function findKey(string $key, array $params, $recursive=true) : array {
+		$results = [];
+		
+		if($recursive) {
+			array_walk_recursive($params, function(&$v, $k) use (&$results, $key) {
+				if(!($v instanceof DevblocksSearchCriteria))
+					return;
+				
+				if($v->key == $key) {
+					$results[$k] = $v;
+				}
+			});
+			
+		} else {
+			array_walk($params, function(&$v, $k) use (&$results, $key) {
+				if(!($v instanceof DevblocksSearchCriteria))
+					return;
+				
+				if($v->key == $key) {
+					$results[$k] = $v;
+				}
+			});
+		}
+		
+		return $results;
+	}
+	
 	// Placeholders
 	
 	function setPlaceholderLabels($labels, $replace=true) {

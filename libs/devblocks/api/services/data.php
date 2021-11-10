@@ -32,6 +32,10 @@ class _DevblocksDataService {
 			case 'classifier.prediction':
 				$provider = new _DevblocksDataProviderClassifierPrediction();
 				return $provider->getSuggestions($type, $params);
+			
+			case 'metrics.timeseries':
+				$provider = new _DevblocksDataProviderMetricsTimeseries();
+				return $provider->getSuggestions($type, $params);
 
 			case 'worklist.records':
 				$provider = new _DevblocksDataProviderWorklistRecords();
@@ -120,6 +124,7 @@ class _DevblocksDataService {
 			'calendar.events',
 			'classifier.prediction',
 			'gpg.keyinfo',
+			'metrics.timeseries',
 			'platform.extensions',
 			'record.fields',
 			'record.types',
@@ -186,6 +191,14 @@ class _DevblocksDataService {
 				
 			case 'classifier.prediction':
 				$provider = new _DevblocksDataProviderClassifierPrediction();
+				
+				if(false === ($results = $provider->getData($query, $chart_fields, $error)))
+					return false;
+				
+				break;
+				
+			case 'metrics.timeseries':
+				$provider = new _DevblocksDataProviderMetricsTimeseries();
 				
 				if(false === ($results = $provider->getData($query, $chart_fields, $error)))
 					return false;
