@@ -627,6 +627,7 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 	 */
 	function handleEvent(Model_DevblocksEvent $event) {
 		$logger = DevblocksPlatform::services()->log('Bot');
+		$metrics = DevblocksPlatform::services()->metrics();
 		
 		$logger->info(sprintf("EVENT: %s",
 			$event->id
@@ -721,9 +722,6 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 		// Load only if needed
 		$dict = null;
 		
-		// Registry (trigger variables, etc)
-		$registry = DevblocksPlatform::services()->registry();
-		
 		foreach($triggers as $trigger) { /* @var $trigger Model_TriggerEvent */
 			if(false == (@$trigger_va = $trigger_vas[$trigger->bot_id]))
 				continue;
@@ -798,12 +796,10 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 			// Snapshot the dictionary of the behavior at conclusion
 			$runners[$trigger->id] = $dict;
 			
-			// Increase the trigger run count
-			$registry->increment('trigger.'.$trigger->id.'.counter', 1);
-			
 			$runtime_ms = intval((microtime(true) - $start_runtime) * 1000);
-
-			$trigger->logUsage($runtime_ms);
+			
+			$metrics->increment('cerb.behavior.invocations', 1, ['behavior_id'=>$trigger->id,'event'=>$trigger->event_point]);
+			$metrics->increment('cerb.behavior.duration', $runtime_ms, ['behavior_id'=>$trigger->id,'event'=>$trigger->event_point]);
 			
 			self::decreaseDepth();
 		}

@@ -37,31 +37,20 @@ class _DevblocksDataProviderUsageBotBehaviors extends _DevblocksDataProvider {
 	}
 	
 	private function _formatDataAsTable(array $chart_fields=[], &$error=null) {
-		/*
-		$chart_model = [
-			'type' => 'usage.behaviors',
-			'format' => 'table',
-		];
-		*/
+		$db = DevblocksPlatform::services()->database();
 		
 		foreach($chart_fields as $field) {
 			if(!($field instanceof DevblocksSearchCriteria))
 				continue;
 			
 			if(in_array($field->key, ['type', 'format'])) {
-				// Do nothing
+				DevblocksPlatform::noop();
 				
 			} else {
 				$error = sprintf("The parameter '%s' is unknown.", $field->key);
 				return false;
 			}
 		}
-		
-		// [TODO] bot.id
-		// [TODO] Sort
-		// [TODO] Limit
-		
-		$db = DevblocksPlatform::services()->database();
 		
 		$start = 'first day of this month -1 year';
 		@$start_time = strtotime($start);
@@ -82,11 +71,17 @@ class _DevblocksDataProviderUsageBotBehaviors extends _DevblocksDataProvider {
 		// Data
 		
 		$sql = sprintf("SELECT trigger_event.id AS behavior_id, trigger_event.title AS behavior_name, trigger_event.bot_id, trigger_event.event_point, ".
-			"SUM(trigger_event_history.uses) AS uses, SUM(trigger_event_history.elapsed_ms) AS elapsed_ms ".
-			"FROM trigger_event_history ".
-			"INNER JOIN trigger_event ON (trigger_event_history.trigger_id=trigger_event.id) ".
-			"WHERE trigger_event_history.ts_day BETWEEN %d AND %d ".
+			"SUM(metric_invocations.sum) AS uses, SUM(metric_duration.sum) AS elapsed_ms ".
+			"FROM trigger_event ".
+			"INNER JOIN metric_value AS metric_invocations ON (metric_invocations.metric_id = (SELECT id FROM metric WHERE name = 'cerb.behavior.invocations') AND metric_invocations.dim0_value_id=trigger_event.id) ".
+			"INNER JOIN metric_value AS metric_duration ON (metric_duration.metric_id = (SELECT id FROM metric WHERE name = 'cerb.behavior.duration') AND metric_duration.dim0_value_id=trigger_event.id)  ".
+			"WHERE metric_invocations.granularity = 86400 ".
+			"AND metric_duration.granularity = 86400 ".
+			"AND metric_invocations.bin BETWEEN %d AND %d ".
+			"AND metric_duration.bin BETWEEN %d AND %d ".
 			"GROUP BY trigger_event.id, trigger_event.title, trigger_event.bot_id, trigger_event.event_point ",
+			$start_time,
+			$end_time,
 			$start_time,
 			$end_time
 		);
@@ -96,6 +91,9 @@ class _DevblocksDataProviderUsageBotBehaviors extends _DevblocksDataProvider {
 		$bots = DAO_Bot::getAll();
 		
 		foreach($stats as &$stat) {
+			$stat['uses'] = intval($stat['uses']);
+			$stat['elapsed_ms'] = intval($stat['elapsed_ms']);
+			
 			// Avg. Runtime
 			
 			$stat['avg_elapsed_ms'] = !empty($stat['uses']) ? intval($stat['elapsed_ms'] / $stat['uses']) : $stat['elapsed_ms'];
@@ -206,39 +204,35 @@ class _DevblocksDataProviderUsageBotBehaviors extends _DevblocksDataProvider {
 		}
 		
 		// Default IDs
-		// [TODO] Limit
 		
 		if(!$chart_model['ids']) {
-			$sql = sprintf("SELECT trigger_id AS behavior_id ".
-				"FROM trigger_event_history ".
-				"WHERE ts_day BETWEEN %d AND %d ".
+			$sql = sprintf("SELECT dim0_value_id AS behavior_id ".
+				"FROM metric_value ".
+				"WHERE metric_id = (SELECT id FROM metric WHERE name = 'cerb.behavior.invocations') ".
+				"AND granularity = 86400 ".
+				"AND bin BETWEEN %d AND %d ".
 				"GROUP BY behavior_id ".
-				"ORDER BY COUNT(*) DESC ".
+				"ORDER BY SUM(sum) DESC ".
 				"LIMIT 10",
-				strtotime('first day of this month -1 year 00:00:00'),
-				strtotime('today 00:00:00')
+				strtotime('first day of this month -1 year 00:00:00 UTC'),
+				strtotime('tomorrow UTC')
 			);
 			$results = $db->GetArrayReader($sql);
 			$chart_model['ids'] = array_column($results, 'behavior_id');
 		}
 		
-		// [TODO] Pick a range
-		// [TODO] Pick a metric
-		// [TODO] Pick a granularity on date
-		// [TODO] Pick specific workers
-		// [TODO] Top-N behaviors
-		// [TODO] Filter event
-		
-		$sql = sprintf("SELECT SUM(uses) AS metric, trigger_id AS behavior_id, DATE_FORMAT(FROM_UNIXTIME(ts_day),'%%Y-%%m') AS label ".
-			"FROM trigger_event_history ".
-			"WHERE ts_day BETWEEN %d AND %d ".
+		$sql = sprintf("SELECT SUM(sum) AS metric, dim0_value_id AS behavior_id, DATE_FORMAT(FROM_UNIXTIME(bin),'%%Y-%%m') AS label ".
+			"FROM metric_value ".
+			"WHERE metric_id = (SELECT id FROM metric WHERE name = 'cerb.behavior.invocations') ".
+			"AND granularity = 86400 ".
+			"AND bin BETWEEN %d AND %d ".
 			"%s".
-			"GROUP BY label, trigger_id ".
+			"GROUP BY label, dim0_value_id ".
 			"ORDER BY label ",
-			strtotime('first day of this month -1 year 00:00:00'),
-			strtotime('today 00:00:00'),
+			strtotime('first day of this month -1 year 00:00:00 UTC'),
+			strtotime('tomorrow UTC'),
 			$chart_model['ids'] 
-				? sprintf("AND trigger_id IN (%s) ", implode(',', $chart_model['ids']))
+				? sprintf("AND dim0_value_id IN (%s) ", implode(',', $chart_model['ids']))
 				: ''
 		);
 		

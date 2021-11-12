@@ -242,6 +242,24 @@ $db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, dimens
 	time()
 ));
 
+$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, dimensions_kata, created_at, updated_at) ".
+	"VALUES (%s, %s, %s, %d, %d)",
+	$db->qstr('cerb.behavior.invocations'),
+	$db->qstr('Invocation count by behavior and event'),
+	$db->qstr("record/behavior_id:\n  record_type: behavior\nextension/event:"),
+	time(),
+	time()
+));
+
+$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, dimensions_kata, created_at, updated_at) ".
+	"VALUES (%s, %s, %s, %d, %d)",
+	$db->qstr('cerb.behavior.duration'),
+	$db->qstr('Invocation duration by behavior and event'),
+	$db->qstr("record/behavior_id:\n  record_type: behavior\nextension/event:"),
+	time(),
+	time()
+));
+
 // ===========================================================================
 // Migrate `snippet_use_history` to metric
 
@@ -258,6 +276,35 @@ if(array_key_exists('snippet_use_history', $tables)) {
 	$db->ExecuteWriter("DROP TABLE snippet_use_history");
 	
 	unset($tables['snippet_use_history']);
+}
+
+// ===========================================================================
+// Migrate `trigger_event_history` to metric
+
+if(array_key_exists('trigger_event_history', $tables)) {
+	$metric_id_invocations = $db->GetOneMaster("SELECT id FROM metric WHERE name = 'cerb.behavior.invocations'");
+	$metric_id_duration = $db->GetOneMaster("SELECT id FROM metric WHERE name = 'cerb.behavior.duration'");
+	
+	// Insert behavior triggers as dimensions
+	$db->ExecuteWriter("INSERT IGNORE INTO metric_dimension (name) SELECT DISTINCT event_point FROM trigger_event");
+	
+	if($metric_id_invocations) {
+		$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric_value (metric_id, granularity, bin, samples, sum, min, max, dim0_value_id, dim1_value_id, dim2_value_id, expires_at) ".
+			"SELECT %d, 86400, th.ts_day, 1, th.uses, th.uses, th.uses, th.trigger_id, (SELECT id FROM metric_dimension WHERE name = b.event_point), 0, 0 from trigger_event_history th inner join trigger_event b on (b.id=th.trigger_id)",
+			$metric_id_invocations
+		));
+	}
+	
+	if($metric_id_duration) {
+		$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric_value (metric_id, granularity, bin, samples, sum, min, max, dim0_value_id, dim1_value_id, dim2_value_id, expires_at) ".
+			"SELECT %d, 86400, th.ts_day, 1, th.elapsed_ms, th.elapsed_ms, th.elapsed_ms, th.trigger_id, (SELECT id FROM metric_dimension WHERE name = b.event_point), 0, 0 from trigger_event_history th inner join trigger_event b on (b.id=th.trigger_id)",
+			$metric_id_duration
+		));
+	}
+	
+	$db->ExecuteWriter("DROP TABLE trigger_event_history");
+	
+	unset($tables['trigger_event_history']);
 }
 
 // ===========================================================================

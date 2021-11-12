@@ -521,24 +521,6 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		return $objects;
 	}
 	
-	static function logUsage($trigger_id, $runtime_ms) {
-		if(empty($trigger_id))
-			return;
-		
-		$db = DevblocksPlatform::services()->database();
-		
-		$sql = sprintf("INSERT INTO trigger_event_history (trigger_id, ts_day, uses, elapsed_ms) ".
-			"VALUES (%d, %d, %d, %d) ".
-			"ON DUPLICATE KEY UPDATE uses = uses + VALUES(uses), elapsed_ms = elapsed_ms + VALUES(elapsed_ms) ",
-			$trigger_id,
-			time() - (time() % 86400),
-			1,
-			$runtime_ms
-		);
-		
-		$db->ExecuteMaster($sql);
-	}
-	
 	static public function countByBot($bot_id) {
 		$db = DevblocksPlatform::services()->database();
 		return $db->GetOneReader(sprintf("SELECT count(*) FROM trigger_event ".
@@ -562,8 +544,6 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		$db->ExecuteMaster(sprintf("DELETE FROM decision_node WHERE trigger_id IN (%s)", $ids_list));
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM trigger_event WHERE id IN (%s)", $ids_list));
-		
-		$db->ExecuteMaster(sprintf("DELETE FROM trigger_event_history WHERE trigger_id IN (%s)", $ids_list));
 		
 		foreach($ids as $id)
 			$db->ExecuteMaster(sprintf("DELETE FROM devblocks_registry WHERE entry_key LIKE 'trigger.%d.%%'", $id));
@@ -1467,10 +1447,6 @@ class Model_TriggerEvent {
 		}
 		
 		return true;
-	}
-	
-	function logUsage($runtime_ms) {
-		return DAO_TriggerEvent::logUsage($this->id, $runtime_ms);
 	}
 	
 	function exportToJson($root_id=0) {
