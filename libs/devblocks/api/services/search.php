@@ -590,16 +590,12 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 		$cache_key = sprintf("elasticsearch:%s:%s", $type, sha1($query));
 		$cache_ttl = 300;
 		$is_only_cached_for_request = !$cache->isVolatile();
-		$is_cached = true;
-		$start_time = microtime(true);
 		
 		if(null === ($ids = $cache->load($cache_key, false, $is_only_cached_for_request))) {
-			$is_cached = false;
 			$filtered_query = $query;
 			
 			$json = $this->_getSearch($type, $filtered_query, $max_results);
 			
-			@$took_ms = intval($json['took']);
 			@$results_hits = count($json['hits']['hits'] ?? 0);
 			
 			if($results_hits) {
@@ -609,20 +605,6 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 			}
 			
 			$cache->save($ids, $cache_key, [], $cache_ttl, $is_only_cached_for_request);
-		}
-		
-		$count = count($ids);
-		
-		// Store the search info in a request registry for later use
-		$meta_key = 'fulltext_meta';
-		$engine = 'elasticsearch';
-		$meta = DevblocksPlatform::getRegistryKey($meta_key, DevblocksRegistryEntry::TYPE_JSON, '[]');
-		$entry_key = sha1($engine.$query.$count.$type);
-		$took_ms = !isset($took_ms) ? ((microtime(true) - $start_time)*1000) : $took_ms;
-		
-		if(!isset($meta[$entry_key])) {
-			$meta[$entry_key] = array('engine' => $engine, 'query' => $query, 'took_ms' => $took_ms, 'results' => $count, 'ns' => $type, 'is_cached' => $is_cached, 'max' => $max_results);
-			DevblocksPlatform::setRegistryKey($meta_key, $meta, DevblocksRegistryEntry::TYPE_JSON, false);
 		}
 		
 		return $ids;
@@ -981,14 +963,10 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		@$max_results = intval($limit) ?: intval($this->_config['max_results']) ?: 1000;
 		@$max_results = DevblocksPlatform::intClamp($max_results, 1, 10000);
 		
-		$start_time = microtime(true);
-		
 		$cache = DevblocksPlatform::services()->cache();
 		$is_only_cached_for_request = !$cache->isVolatile();
 		$cache_ttl = 300;
-		$is_cached = true;
 		$timeout_ms = 15000;
-		$did_timeout = false;
 		
 		$sql = sprintf("SELECT %s ".
 			"FROM fulltext_%s ".
@@ -1005,32 +983,15 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		$cache_key = sprintf("search:%s", sha1($sql));
 		
 		if(null == ($ids = $cache->load($cache_key, false, $is_only_cached_for_request))) {
-			$is_cached = false;
-			
 			$results = $db->QueryReaderAsync($sql, $timeout_ms);
 			
 			if(false === $results || $results instanceof Exception_DevblocksDatabaseQueryTimeout) {
 				$ids = [];
-				$did_timeout = true;
 			} else {
 				$results = $results->fetch_all(MYSQLI_ASSOC);
 				$ids = DevblocksPlatform::sanitizeArray(array_column($results, $id_key), 'int');
 				$cache->save($ids, $cache_key, array(), $cache_ttl, $is_only_cached_for_request);
 			}
-		}
-		
-		$took_ms = (microtime(true) - $start_time) * 1000;
-		$count = count($ids);
-		
-		// Store the search info in a request registry for later use
-		$meta_key = 'fulltext_meta';
-		$engine = 'mysql-fulltext';
-		$meta = DevblocksPlatform::getRegistryKey($meta_key, DevblocksRegistryEntry::TYPE_JSON, '[]');
-		$entry_key = sha1($engine.$query.$count.$ns);
-		
-		if(!$did_timeout && !isset($meta[$entry_key])) {
-			$meta[$entry_key] = array('engine' => $engine, 'query' => $query, 'took_ms' => $took_ms, 'results' => $count, 'ns' => $ns, 'is_cached' => $is_cached, 'max' => $max_results, 'database' => APP_DB_DATABASE);
-			DevblocksPlatform::setRegistryKey($meta_key, $meta, DevblocksRegistryEntry::TYPE_JSON, false);
 		}
 		
 		return $ids;
