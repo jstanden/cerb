@@ -257,7 +257,7 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 		$objects = [];
 		
 		if(!($rs instanceof mysqli_result))
-			return false;
+			return [];
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_<?php echo $class_name; ?>();
@@ -279,11 +279,13 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 	}
 	
 	static function delete($ids) {
-		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::services()->database();
+    
+		if(!is_array($ids))
+            $ids = [$ids];
 		
 		if(empty($ids))
-			return;
+			return false;
 		
 		$ids_list = implode(',', $ids);
 		
@@ -332,13 +334,13 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 			
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_<?php echo $class_name; ?>');
 	
-		return array(
+		return [
 			'primary_table' => '<?php echo $table_name; ?>',
 			'select' => $select_sql,
 			'join' => $join_sql,
 			'where' => $where_sql,
 			'sort' => $sort_sql,
-		);
+		];
 	}
 	
 	/**
@@ -397,9 +399,9 @@ class SearchFields_<?php echo $class_name; ?> extends DevblocksSearchFields {
 	
 	static function getCustomFieldContextKeys() {
 		// [TODO] Context
-		return array(
+		return [
 			'' => new DevblocksSearchFieldContextKeys('<?php echo $table_name; ?>.id', self::ID),
-		);
+		];
 	}
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
@@ -419,7 +421,6 @@ class SearchFields_<?php echo $class_name; ?> extends DevblocksSearchFields {
 				} else {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
-				break;
 		}
 	}
 	
@@ -865,26 +866,32 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		if(is_null($model))
 			$model = new Model_<?php echo $class_name; ?>();
 		
-		$properties['name'] = array(
+		$properties['created'] = [
+			'label' => DevblocksPlatform::translateCapitalized('common.created'),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->created_at,
+		];
+
+		$properties['name'] = [
 			'label' => mb_ucfirst($translate->_('common.name')),
 			'type' => Model_CustomField::TYPE_LINK,
 			'value' => $model->id,
 			'params' => [
 				'context' => self::ID,
 			],
-		);
+		];
 		
-		$properties['updated'] = array(
+		$properties['updated'] = [
 			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
 			'type' => Model_CustomField::TYPE_DATE,
 			'value' => $model->updated_at,
-		);
+		];
   
-		$properties['id'] = array(
+		$properties['id'] = [
 			'label' => DevblocksPlatform::translate('common.id'),
 			'type' => Model_CustomField::TYPE_NUMBER,
 			'value' => $model->id,
-		);
+		];
 		
 		return $properties;
 	}
