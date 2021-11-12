@@ -7,11 +7,7 @@
 		{foreach from=$columns item=column name=columns}
 			{if $column._type == 'selection'}
 				{$is_selection_enabled = true}
-				{if $column.params.mode == 'single'}
-					<input type="radio" name="{$sheet_selection_key|default:'_selection'}" value="{$row[$column.key]}" {if $row[$column.key] == $default}checked="checked"{/if}>
-				{else}
-					<input type="checkbox" name="{$sheet_selection_key|default:'_selection'}[]" value="{$row[$column.key]}" {if is_array($default) && in_array($row[$column.key], $default)}checked="checked"{/if}>
-				{/if}
+				{$row[$column.key]|replace:'${SHEET_SELECTION_KEY}':{$sheet_selection_key|default:'_selection'} nofilter}
 			{else}
 				{if $column.params.bold}<span style="font-weight:bold;">{/if}
 				{$row[$column.key] nofilter}

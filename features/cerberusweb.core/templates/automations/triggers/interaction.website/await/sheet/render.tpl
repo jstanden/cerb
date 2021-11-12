@@ -26,11 +26,7 @@
 						{$is_selection_enabled = true}
 						<tr>
 							<td rowspan="{if $layout.title_column}3{else}2{/if}" colspan="1" style="width:20px;text-align:center;">
-								{if $column.params.mode == 'single'}
-								<input type="radio" name="{$sheet_selection_key|default:'_selection'}" value="{$row[$column.key]}">
-								{else}
-								<input type="checkbox" name="{$sheet_selection_key|default:'_selection'}[]" value="{$row[$column.key]}">
-								{/if}
+								{$row[$column.key]|replace:'${SHEET_SELECTION_KEY}':{$sheet_selection_key|default:'_selection'} nofilter}
 							</td>
 						</tr>
 						{/if}

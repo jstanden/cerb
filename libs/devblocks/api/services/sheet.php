@@ -651,10 +651,22 @@ class _DevblocksSheetServiceTypes {
 		return function($column, DevblocksDictionaryDelegate $sheet_dict) {
 			$tpl_builder = DevblocksPlatform::services()->templateBuilder()::newInstance('html');
 			
-			@$column_params = $column['params'] ?: [];
+			$column_params = ($column['params'] ?? null) ?: [];
+			$is_single = ('single' == ($column_params['mode'] ?? null));
 			
-			$value = '';
+			if(array_key_exists('label', $column_params)) {
+				$text_label = $column_params['label'];
+			} else if(array_key_exists('label_key', $column_params)) {
+				$text_label = $sheet_dict->get($column_params['label_key']);
+			} else if(array_key_exists('label_template', $column_params)) {
+				$text_label = $tpl_builder->build($column_params['label_template'], $sheet_dict);
+			} else {
+				$text_label = '';
+			}
 			
+			if(!empty($text_label))
+				$text_label = ' ' . ltrim($text_label);
+
 			if(array_key_exists('value', $column_params)) {
 				$text_value = $column_params['value'];
 			} else if(array_key_exists('value_key', $column_params)) {
@@ -665,12 +677,19 @@ class _DevblocksSheetServiceTypes {
 				$text_value = $sheet_dict->get($column['key'], null);
 			}
 			
-			if(is_array($text_value))
-				$text_value = json_encode($text_value);
-			
-			$value .= DevblocksPlatform::strEscapeHtml($text_value);
-			
-			return $value;
+			if($is_single) {
+				return sprintf('<label style="font-weight:bold;cursor:pointer;"><input type="radio" name="%s" value="%s">%s</label>',
+					DevblocksPlatform::strEscapeHtml('${SHEET_SELECTION_KEY}'),
+					DevblocksPlatform::strEscapeHtml(is_array($text_value) ? json_encode($text_value) : $text_value),
+					DevblocksPlatform::strEscapeHtml($text_label)
+				);
+			} else {
+				return sprintf('<label style="font-weight:bold;cursor:pointer;"><input type="checkbox" name="%s" value="%s">%s</label>',
+					DevblocksPlatform::strEscapeHtml('${SHEET_SELECTION_KEY}'),
+					DevblocksPlatform::strEscapeHtml(is_array($text_value) ? json_encode($text_value) : $text_value),
+					DevblocksPlatform::strEscapeHtml($text_label)
+				);
+			}
 		};
 	}
 	
