@@ -166,6 +166,8 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 	private function _profileAction_paste() {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$active_worker = CerberusApplication::getActiveWorker();
+		$metrics = DevblocksPlatform::services()->metrics();
+		$db = DevblocksPlatform::services()->database();
 		
 		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
 		@$context_ids = DevblocksPlatform::importGPC($_POST['context_ids'],'array',[]);
@@ -198,8 +200,9 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 			$output = $snippet->content;
 		}
 		
-		// Increment the usage counter
-		$snippet->incrementUse($active_worker->id);
+		// Metrics
+		$db->ExecuteMaster(sprintf("UPDATE snippet SET total_uses = total_uses + 1 WHERE id = %d", $snippet->id));
+		$metrics->increment('cerb.snippet.uses', 1, ['snippet_id' => $snippet->id, 'worker_id' => $active_worker->id]);
 		
 		header('Content-Type: application/json');
 		

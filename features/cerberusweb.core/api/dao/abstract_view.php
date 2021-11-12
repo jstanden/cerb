@@ -1918,7 +1918,7 @@ abstract class C4_AbstractView {
 			}
 			
 		} else if ($param->operator == DevblocksSearchCriteria::OPER_CUSTOM) {
-			if(array_key_exists('label', $param->value)) {
+			if(is_array($param->value) && array_key_exists('label', $param->value)) {
 				echo $param->value['label'];
 				return;
 			}

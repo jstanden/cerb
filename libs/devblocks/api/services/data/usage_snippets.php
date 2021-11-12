@@ -44,7 +44,7 @@ class _DevblocksDataProviderUsageSnippets extends _DevblocksDataProvider {
 				continue;
 			
 			if(in_array($field->key, ['type', 'format'])) {
-				// Do nothing
+				DevblocksPlatform::noop();
 				
 			} else {
 				$error = sprintf("The parameter '%s' is unknown.", $field->key);
@@ -52,16 +52,6 @@ class _DevblocksDataProviderUsageSnippets extends _DevblocksDataProvider {
 			}
 		}
 		
-		// Filter: Start + End
-		
-		$start = 'first day of this month -1 year';
-		@$start_time = strtotime($start);
-		$start_time -= $start_time % 86400;
-		
-		$end = 'now';
-		@$end_time = strtotime($end);
-		$end_time -= $end_time % 86400;
-
 		// Filter: Limit
 		$limit = 0;
 		
@@ -70,28 +60,31 @@ class _DevblocksDataProviderUsageSnippets extends _DevblocksDataProvider {
 		$filter_worker_ids = [];
 		$filter_worker_ids = DevblocksPlatform::sanitizeArray($filter_worker_ids, 'integer', ['unique','nonzero']);
 		
-		// [TODO] Return timestamp data
-		
-		$sql = sprintf("SELECT snippet.id AS snippet_id, snippet.title AS snippet_title, SUM(snippet_use_history.uses) AS snippet_uses ".
-			"FROM snippet_use_history ".
-			"INNER JOIN snippet ON (snippet_use_history.snippet_id=snippet.id) ".
-			"WHERE snippet_use_history.ts_day BETWEEN %d AND %d ".
+		$sql = sprintf("SELECT snippet.id AS snippet_id, snippet.title AS snippet_title, SUM(metric_value.sum) AS snippet_uses ".
+			"FROM metric_value ".
+			"INNER JOIN snippet ON (metric_value.dim0_value_id=snippet.id) ".
+			"WHERE metric_id = (SELECT id FROM metric WHERE name = 'cerb.snippet.uses') ". 
+			"AND metric_value.bin BETWEEN %d AND %d ".
+			"AND granularity = 86400 ".
 			"%s ".
 			"GROUP BY snippet.id, snippet.title ".
-			"ORDER BY snippet_uses %%s ".
+			"ORDER BY snippet_uses DESC ".
 			"%s",
-			$start_time,
-			$end_time,
-			(!empty($filter_worker_ids) && is_array($filter_worker_ids) ? sprintf("AND snippet_use_history.worker_id IN (%s)", implode(',', $filter_worker_ids)) : ''),
+			strtotime('first day of this month -1 year 00:00:00 UTC'),
+			strtotime('tomorrow UTC'),
+			(!empty($filter_worker_ids) && is_array($filter_worker_ids) ? sprintf("AND metric_value.dim1_value_id IN (%s)", implode(',', $filter_worker_ids)) : ''),
 			(!empty($limit) ? sprintf("LIMIT %d", $limit) : '')
 		);
 		
-		// [TODO] sort option
-		if(true) {
-			$results = $db->GetArrayReader(sprintf($sql, 'DESC'));
-		} else {
-			$results = $db->GetArrayReader(sprintf($sql, 'ASC'));
-		}
+		$results = $db->GetArrayReader($sql);
+		
+		$results = array_map(
+			function($result) {
+				$result['snippet_uses'] = intval($result['snippet_uses']);
+				return $result;
+			},
+			$results
+		);
 		
 		return [
 			'data' => [
@@ -149,39 +142,41 @@ class _DevblocksDataProviderUsageSnippets extends _DevblocksDataProvider {
 		
 		// Default IDs
 		
+		$ts_from = strtotime('first day of this month -1 year 00:00:00 UTC');
+		$ts_to = strtotime('tomorrow UTC');
+		
 		if(!$chart_model['ids']) {
-			$sql = sprintf("SELECT snippet_id ".
-				"FROM snippet_use_history ".
-				"WHERE ts_day BETWEEN %d AND %d ".
+			$sql = sprintf("SELECT dim0_value_id AS snippet_id ".
+				"FROM metric_value ".
+				"WHERE metric_id = (SELECT id FROM metric WHERE name = 'cerb.snippet.uses') ".
+				"AND granularity = 86400 ".
+				"AND bin BETWEEN %d AND %d ".
 				"GROUP BY snippet_id ".
-				"ORDER BY COUNT(*) DESC ".
+				"ORDER BY SUM(metric_value.sum) DESC ".
 				"LIMIT 10",
-				strtotime('first day of this month -1 year 00:00:00'),
-				strtotime('today 00:00:00')
+				$ts_from,
+				$ts_to
 			);
 			$results = $db->GetArrayReader($sql);
 			$chart_model['ids'] = array_column($results, 'snippet_id');
 		}
 		
-		// [TODO] Pick a range
-		// [TODO] Pick a metric
-		// [TODO] Pick a granularity on date
-		// [TODO] Pick specific snippets
-		// [TODO] Pick specific workers
-		// [TODO] Top-N snippets
-		
-		$sql = sprintf("SELECT SUM(uses) AS metric, snippet_id, DATE_FORMAT(FROM_UNIXTIME(ts_day),'%%Y-%%m') AS label ".
-			"FROM snippet_use_history ".
-			"WHERE ts_day BETWEEN %d AND %d ".
+		$sql = sprintf("SELECT SUM(metric_value.sum) AS metric, dim0_value_id AS snippet_id, DATE_FORMAT(FROM_UNIXTIME(bin),'%%Y-%%m') AS label ".
+			"FROM metric_value ".
+			"WHERE metric_id = (SELECT id FROM metric WHERE name = 'cerb.snippet.uses') ".
+			"AND granularity = 86400 ".
+			"AND bin BETWEEN %d AND %d ".
 			"%s".
 			"GROUP BY label, snippet_id ".
 			"ORDER BY label ",
-			strtotime('first day of this month -1 year 00:00:00'),
-			strtotime('today 00:00:00'),
+			$ts_from,
+			$ts_to,
 			$chart_model['ids'] 
-				? sprintf("AND snippet_id IN (%s) ", implode(',', $chart_model['ids']))
+				? sprintf("AND dim0_value_id IN (%s) ", implode(',', $chart_model['ids']))
 				: ''
 		);
+		
+		$x_values = DevblocksPlatform::dateLerpArray(['first day of this month -1 year 00:00:00 UTC', 'tomorrow UTC'], 'month');
 		
 		$results = $db->GetArrayReader($sql);
 		
@@ -199,8 +194,6 @@ class _DevblocksDataProviderUsageSnippets extends _DevblocksDataProvider {
 				]
 			]
 		];
-		
-		$x_values = array_values(array_unique(array_column($results, 'label')));
 		
 		$output['data']['ts'] = $x_values;
 		

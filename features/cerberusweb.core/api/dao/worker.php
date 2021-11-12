@@ -1093,10 +1093,6 @@ class DAO_Worker extends Cerb_ORMHelper {
 		if(false == ($db->ExecuteMaster($sql)))
 			return false;
 
-		$sql = sprintf("DELETE FROM snippet_use_history WHERE worker_id = %d", $id);
-		if(false == ($db->ExecuteMaster($sql)))
-			return false;
-		
 		// Sessions
 		DAO_DevblocksSession::deleteByUserIds($id);
 		

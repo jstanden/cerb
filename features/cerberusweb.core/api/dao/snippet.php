@@ -243,26 +243,6 @@ class DAO_Snippet extends Cerb_ORMHelper {
 		return true;
 	}
 	
-	static function incrementUse($id, $worker_id) {
-		$db = DevblocksPlatform::services()->database();
-
-		// Update the aggregate counter
-		$sql = sprintf("UPDATE snippet SET total_uses = total_uses + 1 WHERE id = %d", $id);
-		$db->ExecuteMaster($sql);
-
-		// Update the per-worker usage-over-time data
-		$sql = sprintf("INSERT INTO snippet_use_history (snippet_id, worker_id, ts_day, uses) ".
-			"VALUES (%d,%d,%d,1) ".
-			"ON DUPLICATE KEY UPDATE uses=uses+1",
-			$id,
-			$worker_id,
-			time()-(time() % 86400) // start of today
-		);
-		$db->ExecuteMaster($sql);
-		
-		return TRUE;
-	}
-	
 	/**
 	 * @param string $where
 	 * @param mixed $sortBy
@@ -346,12 +326,6 @@ class DAO_Snippet extends Cerb_ORMHelper {
 			$db->ExecuteMaster("DELETE FROM fulltext_snippet WHERE id NOT IN (SELECT id FROM snippet)");
 			$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' fulltext_snippet records.');
 		}
-		
-		$db->ExecuteMaster("DELETE FROM snippet_use_history WHERE worker_id NOT IN (SELECT id FROM worker)");
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' snippet_use_history records by worker.');
-
-		$db->ExecuteMaster("DELETE FROM snippet_use_history WHERE snippet_id NOT IN (SELECT id FROM snippet)");
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' snippet_use_history records by snippet.');
 	}
 	
 	static function delete($ids) {
@@ -368,7 +342,6 @@ class DAO_Snippet extends Cerb_ORMHelper {
 		$ids_list = implode(',', $ids);
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM snippet WHERE id IN (%s)", $ids_list));
-		$db->ExecuteMaster(sprintf("DELETE FROM snippet_use_history WHERE snippet_id IN (%s)", $ids_list));
 		
 		// Fire event
 		$eventMgr = DevblocksPlatform::services()->event();
@@ -441,8 +414,8 @@ class DAO_Snippet extends Cerb_ORMHelper {
 				SearchFields_Snippet::UPDATED_AT
 			);
 		
-		if(isset($tables['snippet_use_history'])) {
-			$select_sql .= sprintf(", (SELECT SUM(uses) FROM snippet_use_history WHERE worker_id=%d AND snippet_id=snippet.id) AS %s ", $active_worker->id, SearchFields_Snippet::USE_HISTORY_MINE);
+		if(isset($tables['snippet_usage_metric'])) {
+			$select_sql .= sprintf(", CAST((SELECT SUM(sum) FROM metric_value WHERE metric_id = (SELECT id FROM metric WHERE name = 'cerb.snippet.uses') AND granularity = 86400 AND dim0_value_id=snippet.id AND dim1_value_id=%d) AS signed) AS %s ", $active_worker->id, SearchFields_Snippet::USE_HISTORY_MINE);
 		}
 		
 		$join_sql = " FROM snippet ";
@@ -570,12 +543,12 @@ class SearchFields_Snippet extends DevblocksSearchFields {
 		$fields = CerbQuickSearchLexer::getFieldsFromQuery($query);
 		
 		$schema = [
-			'hits' => new DevblocksSearchField('hits', null, 'SUM(uses)', null, null, false),
-			'date' => new DevblocksSearchField('date', null, 'ts_day', null, null, false),
+			'hits' => new DevblocksSearchField('hits', null, 'SUM(sum)', null, null, false),
+			'date' => new DevblocksSearchField('date', null, 'bin', null, null, false),
 		];
 		
 		$sql_wheres = [
-			sprintf('worker_id = %d', $active_worker)
+			sprintf('dim1_value_id = %d', $active_worker)
 		];
 		$sql_havings = [];
 		
@@ -596,7 +569,7 @@ class SearchFields_Snippet extends DevblocksSearchFields {
 			}
 		}
 		
-		return sprintf(' id IN (SELECT snippet_id FROM snippet_use_history WHERE %s GROUP BY snippet_id %s)',
+		return sprintf(" id IN (SELECT dim0_value_id FROM metric_value WHERE metric_id = (SELECT id FROM metric WHERE name = 'cerb.snippet.uses') AND granularity = 86400 AND %s GROUP BY dim0_value_id %s)",
 			implode(' AND ', $sql_wheres),
 			$sql_havings ? ('HAVING ' . implode(' AND ', $sql_havings)) : ''
 		);
@@ -713,8 +686,7 @@ class SearchFields_Snippet extends DevblocksSearchFields {
 			self::TOTAL_USES => new DevblocksSearchField(self::TOTAL_USES, 'snippet', 'total_uses', $translate->_('dao.snippet.total_uses'), Model_CustomField::TYPE_NUMBER, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'snippet', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 			
-			// [TODO] Implement sorting for worklist.records data queries
-			self::USE_HISTORY_MINE => new DevblocksSearchField(self::USE_HISTORY_MINE, 'snippet_use_history', 'uses', $translate->_('dao.snippet_use_history.uses.mine'), Model_CustomField::TYPE_NUMBER, true),
+			self::USE_HISTORY_MINE => new DevblocksSearchField(self::USE_HISTORY_MINE, 'snippet_usage_metric', 'uses', $translate->_('dao.snippet_use_history.uses.mine'), Model_CustomField::TYPE_NUMBER, true),
 			
 			self::FULLTEXT_SNIPPET => new DevblocksSearchField(self::FULLTEXT_SNIPPET, 'ft', 'snippet', $translate->_('common.search.fulltext'), 'FT', false),
 				
