@@ -27,7 +27,7 @@ if(!isset($tables['custom_field']))
 
 list($columns,) = $db->metaTable('custom_field');
 
-if($columns['type'] && 0 == strcasecmp('varchar(1)', $columns['type']['type'])) {
+if($columns['type'] && in_array(strtolower($columns['type']['type']), ['varchar(1)','char(1)'])) {
 	$db->ExecuteMaster("ALTER TABLE custom_field MODIFY COLUMN type VARCHAR(255)");
 }
 

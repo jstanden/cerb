@@ -308,6 +308,18 @@ if(array_key_exists('trigger_event_history', $tables)) {
 }
 
 // ===========================================================================
+// Fix `custom_field` for older installs
+
+if(!isset($tables['custom_field']))
+	return FALSE;
+
+list($columns,) = $db->metaTable('custom_field');
+
+if($columns['type'] && in_array(strtolower($columns['type']['type']), ['varchar(1)','char(1)'])) {
+	$db->ExecuteMaster("ALTER TABLE custom_field MODIFY COLUMN type VARCHAR(255)");
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
