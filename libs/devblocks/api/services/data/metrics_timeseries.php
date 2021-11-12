@@ -143,6 +143,7 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 					'metric' => '',
 					'by' => [],
 					'query' => [],
+					'missing' => 'null',
 					'function' => 'count',
 				];
 				
@@ -174,6 +175,26 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 						}
 						
 						$series_model['function'] = $value;
+						
+					} else if($series_field->key == 'missing') {
+						CerbQuickSearchLexer::getOperStringFromTokens($series_field->tokens, $oper, $value);
+						$value = DevblocksPlatform::strLower($value);
+						
+						$allowed_missing = [
+							'carry',
+							'null',
+							'zero',
+						];
+						
+						if(false === array_search($value, $allowed_missing)) {
+							$error = sprintf("Unknown value for `missing:` (%s). Must be one of: %s",
+								$value,
+								implode(', ', $allowed_missing)
+							);
+							return false;
+						}
+						
+						$series_model['missing'] = $value;
 						
 					} else if($series_field->key == 'by') {
 						CerbQuickSearchLexer::getOperArrayFromTokens($series_field->tokens, $oper, $value);
@@ -569,7 +590,7 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 			$series_label = implode(' | ', $series_label);
 			
 			if(!array_key_exists($series_label, $results))
-				$results[$series_label] = array_fill_keys($chart_model['xaxis'], 0);
+				$results[$series_label] = array_fill_keys($chart_model['xaxis'], null);
 			
 			// [TODO] Aggregate periods (e.g. 3x 5 min = 15 mins)
 			$bin = $row['bin'];
@@ -577,9 +598,26 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 			$results[$series_label][$bin] = floatval($row['value']);
 		}
 		
-		// Convert back to sequential indexes
-		foreach(array_keys($results) as $series_label) {
-			$results[$series_label] = array_values($results[$series_label]);
+		foreach($results as $series_label => $data) {
+			// Convert back to sequential indexes
+			$data = array_values($data);
+			
+			// Format missing data
+			switch($series_model['missing'] ?? 'null') {
+				case 'carry':
+					$last_idx = count($data)-1;
+					foreach($data as $idx => $v) {
+						if(is_null($v) && $idx > 0 && $idx <= $last_idx)
+							$data[$idx] = $data[$idx-1];
+					}
+					break;
+					
+				case 'zero':
+					$data = array_map(fn($v) => $v ?: 0, $data);
+					break;
+			}
+			
+			$results[$series_label] = $data;
 		}
 		
 		return $results;
