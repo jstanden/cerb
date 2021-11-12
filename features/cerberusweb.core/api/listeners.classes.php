@@ -1090,6 +1090,35 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 				$metrics->increment('cerb.workers.active', 1, ['worker_id' => $row['user_id']]);
 			}
 		}
+
+		$this->_handleCronHeartbeatMetricsTicket();
+	}
+	
+	private function _handleCronHeartbeatMetricsTicket() {
+		$metrics = DevblocksPlatform::services()->metrics();
+		$registry = DevblocksPlatform::services()->registry();
+		$db = DevblocksPlatform::services()->database();
+		
+		// ============================
+		// Open tickets by group/bucket
+		
+		$registry_key = 'metrics.cerb.tickets.open.last';
+		
+		$last_ts = $registry->get($registry_key, DevblocksRegistryEntry::TYPE_NUMBER, 0);
+		
+		// If we last persisted this within 15 mins (but non-zero), abort
+		if ($last_ts && (time() - $last_ts) < 900)
+			return;
+		
+		$results = $db->GetArrayReader("SELECT COUNT(id) AS hits, group_id, bucket_id FROM ticket WHERE status_id = 0 GROUP BY group_id, bucket_id");
+		
+		if (is_array($results)) {
+			foreach ($results as $row) {
+				$metrics->increment('cerb.tickets.open', $row['hits'], ['group_id' => $row['group_id'], 'bucket_id' => $row['bucket_id']]);
+			}
+		}
+		
+		$registry->set($registry_key, time(), DevblocksRegistryEntry::TYPE_NUMBER);
 	}
 	
 	private function _handleCronHeartbeatReopenTickets() {
