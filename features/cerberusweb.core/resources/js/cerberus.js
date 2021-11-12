@@ -4163,8 +4163,8 @@ var ajax = new cAjaxCalls();
 						
 					} else {
 						if(
-							('object' == typeof token_path && $.isArray(token_path.scope) && 'object' == typeof token_path.scope[0])
-							&& (
+							('object' == typeof token_path && $.isArray(token_path.scope)) // && 'object' == typeof token_path.scope[0]
+ 							&& (
 								('series.' == token_path.scope[0].substr(0,7) && !autocomplete_suggestions[token_path.scope[0]] && autocomplete_suggestions['series.*:'])
 								||
 								('values.' == token_path.scope[0].substr(0,7) && !autocomplete_suggestions[token_path.scope[0]] && autocomplete_suggestions['values.*:'])
