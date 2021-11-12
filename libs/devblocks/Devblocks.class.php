@@ -2404,6 +2404,9 @@ class DevblocksPlatform extends DevblocksEngine {
 			ini_set('log_errors_max_len', $orig_log_errors_max_len);
 	}
 	
+	public static function noop() : void {
+	}
+	
 	/**
 	 *
 	 * @return boolean
