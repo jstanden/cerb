@@ -1,0 +1,9 @@
+{
+    "name": "cerb.reminder.remind.email",
+    "description": "Remind by email",
+    "extension_id": "cerb.trigger.reminder.remind",
+    "script": "start:\r\n  record.create:\r\n    output: new_draft\r\n    inputs:\r\n      record_type: draft\r\n      # See: https://cerb.ai/docs/records/types/draft/\r\n      fields:\r\n        type: mail.transactional\r\n        to: {{reminder_worker_address_email}}\r\n        name: Reminder: {{reminder__label}}\r\n        is_queued: 1\r\n        queue_delivery_date@date: now\r\n        params:\r\n          to: {{reminder_worker_address_email}}\r\n          subject: Reminder: {{reminder__label}}\r\n          headers:\r\n            Auto-Submitted: auto-generated\r\n          format: parsedown\r\n          content@text:\r\n            Reminder: {{reminder__label}}\r\n            When: {{reminder_remind_at|date('F d, Y h:ia')}}\r\n            URL: {{reminder_record_url}}",
+    "policy_kata": "commands:\r\n  record.create:\r\n    deny/type@bool: {{inputs.record_type is not record type ('draft')}}\r\n    allow@bool: yes",
+    "created_at": 1631830408,
+    "updated_at": 1637092609
+}

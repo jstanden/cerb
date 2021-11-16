@@ -5,5 +5,5 @@
     "script": "start:\r\n  return:\r\n    reject@bool: true",
     "policy_kata": "",
     "created_at": 1611015746,
-    "updated_at": 1611015746
+    "updated_at": 1629423257
 }

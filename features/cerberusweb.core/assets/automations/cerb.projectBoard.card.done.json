@@ -5,5 +5,5 @@
     "script": "start:\r\n  return:\r\n    sheet:\r\n      columns:\r\n        card/card__label:\r\n          params:\r\n            icon:\r\n              image: circle-ok\r\n",
     "policy_kata": "",
     "created_at": 1600378290,
-    "updated_at": 1602109932
+    "updated_at": 1629422553
 }
