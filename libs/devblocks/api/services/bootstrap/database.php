@@ -708,7 +708,7 @@ class _DevblocksDatabaseManager {
 		
 		foreach($resultsets as $rs) {
 			if($rs instanceof mysqli_result)
-				@mysqli_free_result($rs);
+				mysqli_free_result($rs);
 		}
 	}
 };

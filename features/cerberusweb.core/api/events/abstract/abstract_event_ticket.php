@@ -85,7 +85,11 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 			);
 
 		// We can accept a model object or a context_id
-		@$model = $event_model->params['context_model'] ?: $event_model->params['context_id'];
+		if($event_model instanceof Model_DevblocksEvent) {
+			$model = $event_model->params['context_model'] ?? $event_model->params['context_id'] ?? null;
+		} else {
+			$model = null;
+		}
 		
 		/**
 		 * Ticket
@@ -141,7 +145,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 		 * Comment
 		 */
 			
-		@$comment_id = $event_model->params['comment_id'];
+		$comment_id = $event_model->params['comment_id'] ?? null;
 
 		if(get_class($this) == 'Event_CommentOnTicketInGroup') {
 			$merge_token_labels = [];
@@ -431,7 +435,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
 				@$header = rtrim(DevblocksPlatform::strLower($params['header']), ':');
-				@$param_value = $params['value'];
+				$param_value = $params['value'] ?? null;
 				
 				// Lazy load
 				$header_values = $dict->$token;
@@ -464,8 +468,8 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 			case 'ticket_latest_outgoing_activity':
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
-				@$from = $params['from'];
-				@$to = $params['to'];
+				$from = $params['from'] ?? null;
+				$to = $params['to'] ?? null;
 
 				$value = $dict->$token;
 				
@@ -480,7 +484,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
 				
-				@$in_group_ids = $params['group_id'];
+				$in_group_ids = $params['group_id'] ?? null;
 				@$group_id = intval($dict->ticket_group_id);
 				
 				$pass = in_array($group_id, $in_group_ids);
@@ -491,8 +495,8 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
 				
-				@$in_group_id = $params['group_id'];
-				@$in_bucket_ids = $params['bucket_id'];
+				$in_group_id = $params['group_id'] ?? null;
+				$in_bucket_ids = $params['bucket_id'] ?? null;
 				
 				@$group_id = intval($dict->ticket_group_id);
 				@$bucket_id = intval($dict->ticket_bucket_id);
@@ -550,7 +554,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				// Get links by context+id
 				
 				if(!empty($from_context) && !empty($from_context_id)) {
-					@$context_strings = $params['context_objects'];
+					$context_strings = $params['context_objects'] ?? null;
 					$links = DAO_ContextLink::intersect($from_context, $from_context_id, $context_strings);
 					
 					// OPER: any, !any, all
@@ -1069,9 +1073,9 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				// Translate message tokens
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
-				@$content = $tpl_builder->build($params['content'], $dict);
-				@$format = $params['format'];
-				@$html_template_id = $params['html_template_id'];
+				$content = $tpl_builder->build($params['content'] ?? '', $dict);
+				$format = $params['format'] ?? null;
+				$html_template_id = $params['html_template_id'] ?? null;
 				
 				$properties = array(
 					'ticket_id' => $ticket_id,
@@ -1090,7 +1094,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 
 				if(is_array($headers_list))
 				foreach($headers_list as $header_line) {
-					@list($header, $value) = explode(':', $header_line);
+					list($header, $value) = array_pad(explode(':', $header_line), 2, null);
 				
 					if(!empty($header) && !empty($value))
 						$properties['headers'][trim($header)] = trim($value);
@@ -1151,7 +1155,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				break;
 			
 			case 'set_spam_training':
-				@$to_training = $params['value'];
+				$to_training = $params['value'] ?? null;
 				@$current_training = $dict->ticket_spam_training;
 
 				if($to_training == $current_training)
@@ -1170,7 +1174,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				break;
 				
 			case 'set_status':
-				@$to_status = $params['status'];
+				$to_status = $params['status'] ?? null;
 				@$current_status = $dict->ticket_status;
 				
 				if($to_status == $current_status)
@@ -1210,7 +1214,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				
 			case 'set_subject':
 				// Translate message tokens
-				@$value = $params['value'];
+				$value = $params['value'] ?? null;
 				
 				$builder = DevblocksPlatform::services()->templateBuilder();
 				$value = $builder->build($value, $dict);

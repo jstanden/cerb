@@ -554,10 +554,10 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		$labels = [];
 		foreach($events as $event) { /* @var $event DevblocksExtensionManifest */
 			// Remove deprecated events from creation
-			if(@$event->params['deprecated'])
+			if($event->params['deprecated'] ?? null)
 				continue;
 			
-			if(false == ($label = @$event->params['menu_key']))
+			if(false == ($label = ($event->params['menu_key'] ?? null)))
 				$label = $event->name;
 			
 			$labels[$event->id] = $label;

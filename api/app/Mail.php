@@ -919,7 +919,7 @@ class CerberusMail {
 			$outgoing_message_id = $email->getHeaders()->get('message-id')->getFieldBody();
 			
 			// Encryption and signing
-			if(@$properties['gpg_sign'] || @$properties['gpg_encrypt']) {
+			if(($properties['gpg_sign'] ?? null) || ($properties['gpg_encrypt'] ?? null)) {
 				$signer = new Cerb_SwiftPlugin_GPGSigner($properties);
 				$email->attachSigner($signer);
 			}
@@ -1025,18 +1025,18 @@ class CerberusMail {
 			}
 		}
 
-		$fields = array(
+		$fields = [
 			DAO_Message::TICKET_ID => $ticket_id,
 			DAO_Message::CREATED_DATE => time(),
 			DAO_Message::ADDRESS_ID => $fromAddressId,
 			DAO_Message::IS_OUTGOING => 1,
 			DAO_Message::WORKER_ID => intval($worker_id),
 			DAO_Message::IS_BROADCAST => $is_broadcast ? 1 : 0,
-			DAO_Message::IS_NOT_SENT => @$properties['dont_send'] ? 1 : 0,
+			DAO_Message::IS_NOT_SENT => ($properties['dont_send'] ?? null) ? 1 : 0,
 			DAO_Message::HASH_HEADER_MESSAGE_ID => sha1($outgoing_message_id),
-			DAO_Message::WAS_ENCRYPTED => !empty(@$properties['gpg_encrypt']) ? 1 : 0,
+			DAO_Message::WAS_ENCRYPTED => ($properties['gpg_encrypt'] ?? null) ? 1 : 0,
 			DAO_Message::HTML_ATTACHMENT_ID => $html_body_id,
-		);
+		];
 		
 		if(array_key_exists('gpg_sign', $properties) && $properties['gpg_sign']) {
 			$fields[DAO_Message::SIGNED_AT] = time();

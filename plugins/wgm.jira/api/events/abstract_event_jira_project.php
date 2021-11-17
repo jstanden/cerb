@@ -75,7 +75,11 @@ abstract class AbstractEvent_JiraProject extends Extension_DevblocksEvent {
 			);
 		
 		// We can accept a model object or a context_id
-		@$model = $event_model->params['context_model'] ?: $event_model->params['context_id'];
+		if($event_model instanceof Model_DevblocksEvent) {
+			$model = $event_model->params['context_model'] ?? $event_model->params['context_id'] ?? null;
+		} else {
+			$model = null;
+		}
 		
 		/**
 		 * Project
@@ -199,7 +203,7 @@ abstract class AbstractEvent_JiraProject extends Extension_DevblocksEvent {
 				// Get links by context+id
 				
 				if(!empty($from_context) && !empty($from_context_id)) {
-					@$context_strings = $params['context_objects'];
+					$context_strings = $params['context_objects'] ?? null;
 					$links = DAO_ContextLink::intersect($from_context, $from_context_id, $context_strings);
 					
 					// OPER: any, !any, all

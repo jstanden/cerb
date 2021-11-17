@@ -361,7 +361,6 @@ abstract class DevblocksORMHelper {
 					
 				} else {
 					$total = $db->GetOneFromResultset($responses[1]);
-					$db->Free($responses[1]);
 				}
 			}
 			

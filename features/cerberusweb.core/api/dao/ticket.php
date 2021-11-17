@@ -1005,8 +1005,8 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		}
 		
 		if(array_key_exists('status_id', $properties) && !is_null($properties['status_id'])) {
-			@$status_id = DevblocksPlatform::importVar($properties['status_id'], 'int', 0);
-			@$reopen_at = DevblocksPlatform::importVar($properties['ticket_reopen'], 'string', '');
+			$status_id = DevblocksPlatform::importVar($properties['status_id'] ?? null, 'int', 0);
+			$reopen_at = DevblocksPlatform::importVar($properties['ticket_reopen'] ?? null, 'string', '');
 			
 			// Handle reopen date
 			if($reopen_at) {
@@ -1463,7 +1463,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			 * Ticket status change
 			 */
 
-			@$status_id = $change_fields[DAO_Ticket::STATUS_ID];
+			$status_id = $change_fields[DAO_Ticket::STATUS_ID] ?? null;
 			
 			if($status_id == $before_model->status_id)
 				unset($change_fields[DAO_Ticket::STATUS_ID]);

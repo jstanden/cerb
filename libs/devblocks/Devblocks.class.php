@@ -2199,13 +2199,13 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @test DevblocksPlatformTest
 	 */
 	static function &jsonGetPointerFromPath(array &$array, $path) {
+		$ptr = null;
+		$array_keys = [];
+		
 		if(empty($path))
-			return false;
+			return $ptr;
 		
 		$keys = explode('.', $path);
-		$array_keys = array();
-
-		$ptr = null;
 		
 		if(!is_array($keys) || empty($keys))
 			return $ptr;

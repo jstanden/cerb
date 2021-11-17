@@ -54,7 +54,7 @@ class Controller_Portal extends DevblocksControllerExtension {
 		
 		// Allow direct use of /portal URLs
 		
-		@$proxy_type = $_SERVER['HTTP_DEVBLOCKSPROXYTYPE'] ?: ($_SERVER['HTTP_DEVBLOCKSPROXYHOST'] ? 'portal' : 'app');
+		$proxy_type = ($_SERVER['HTTP_DEVBLOCKSPROXYTYPE'] ?? null) ?: (($_SERVER['HTTP_DEVBLOCKSPROXYHOST'] ?? null) ? 'portal' : 'app');
 		
 		switch($proxy_type) {
 			case 'app':

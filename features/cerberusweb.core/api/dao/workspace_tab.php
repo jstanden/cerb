@@ -666,7 +666,8 @@ class Model_WorkspaceTab {
 			
 			switch($prompt['type']) {
 				case 'picklist':
-					if(@$prompt['params']['multiple']) {
+					$is_multiple = (bool)($prompt['params']['multiple'] ?? false);
+					if($is_multiple && is_string($pref_value)) {
 						$prefs[$pref_key] = json_decode($pref_value, true);
 						
 					} else {

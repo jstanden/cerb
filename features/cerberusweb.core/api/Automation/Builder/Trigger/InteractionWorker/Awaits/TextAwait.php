@@ -156,7 +156,7 @@ class TextAwait extends AbstractAwait {
 		$is_required = array_key_exists('required', $this->_data) && $this->_data['required'];
 	
 		// Defaults by type
-		switch(@$this->_data['type']) {
+		switch($this->_data['type'] ?? null) {
 			case 'date':
 				$placeholder = $placeholder ?? '(tomorrow 8am, next Friday, 31 Dec 2025 noon)';
 				break;

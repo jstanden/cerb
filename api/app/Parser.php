@@ -221,7 +221,7 @@ class CerberusParserModel {
 	 * @return int $timestamp
 	 */
 	private function _parseHeadersDate() {
-		$timestamp = @strtotime($this->_message->headers['date']);
+		$timestamp = strtotime($this->_message->headers['date'] ?? null);
 		
 		// If blank, or in the future, set to the current date
 		if(empty($timestamp) || $timestamp > time())

@@ -75,7 +75,11 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 			);
 		
 		// We can accept a model object or a context_id
-		@$model = $event_model->params['context_model'] ?: $event_model->params['context_id'];
+		if($event_model instanceof Model_DevblocksEvent) {
+			$model = $event_model->params['context_model'] ?? $event_model->params['context_id'] ?? null;
+		} else {
+			$model = null;
+		}
 		
 		/**
 		 * Address
@@ -220,7 +224,7 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 				// Get links by context+id
 				
 				if(!empty($from_context) && !empty($from_context_id)) {
-					@$context_strings = $params['context_objects'];
+					$context_strings = $params['context_objects'] ?? null;
 					$links = DAO_ContextLink::intersect($from_context, $from_context_id, $context_strings);
 					
 					// OPER: any, !any, all
@@ -361,7 +365,7 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 		
 		switch($token) {
 			case 'set_is_banned':
-				@$value = $params['value'];
+				$value = $params['value'] ?? null;
 				@$bit = !empty($value) ? 1 : 0;
 				
 				DAO_Address::update($address_id, array(
@@ -371,7 +375,7 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 				break;
 				
 			case 'set_is_defunct':
-				@$value = $params['value'];
+				$value = $params['value'] ?? null;
 				@$bit = !empty($value) ? 1 : 0;
 				
 				DAO_Address::update($address_id, array(

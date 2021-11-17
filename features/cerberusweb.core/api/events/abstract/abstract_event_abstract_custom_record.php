@@ -87,8 +87,8 @@ abstract class AbstractEvent_AbstractCustomRecord extends Extension_DevblocksEve
 				$values
 			);
 		
-		@$context = $this->_getContext($trigger);
-		@$actor = $event_model->params['actor'];
+		$context = $this->_getContext($trigger);
+		$actor = $event_model->params['actor'] ?? null;
 		
 		if(empty($actor))
 			$actor = CerberusContexts::getCurrentActor();
@@ -113,7 +113,11 @@ abstract class AbstractEvent_AbstractCustomRecord extends Extension_DevblocksEve
 		}
 		
 		// We can accept a model object or a context_id
-		@$model = $event_model->params['context_model'] ?: $event_model->params['context_id'];
+		if($event_model instanceof Model_DevblocksEvent) {
+			$model = $event_model->params['context_model'] ?? $event_model->params['context_id'] ?? null;
+		} else {
+			$model = null;
+		}
 		
 		/**
 		 * Custom Record
@@ -305,7 +309,7 @@ abstract class AbstractEvent_AbstractCustomRecord extends Extension_DevblocksEve
 				$context_ext = Extension_DevblocksContext::get($context);
 				$dao_class = $context_ext->getDaoClass();
 				
-				@$value = $params['value'];
+				$value = $params['value'] ?? null;
 				
 				$dao_class::update($record_id, array(
 					'name' => $value,

@@ -916,8 +916,9 @@ class DevblocksEventHelper {
 		$custom_fields = DAO_CustomField::getByContext($context, false);
 		$tpl->assign('custom_fields', $custom_fields);
 
-		if(false != ($params = $tpl->getVariable('params'))) {
-			$params = $params->value;
+		/* @var Smarty $tpl */
+		
+		if(false != ($params = $tpl->getTemplateVars('params'))) {
 
 			$custom_field_values = DevblocksEventHelper::getCustomFieldValuesFromParams($params);
 			$tpl->assign('custom_field_values', $custom_field_values);

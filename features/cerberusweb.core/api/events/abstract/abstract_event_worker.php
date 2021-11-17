@@ -59,13 +59,17 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 			);
 
 		// We can accept a model object or a context_id
-		@$model = $event_model->params['context_model'] ?: $event_model->params['context_id'];
+		if($event_model instanceof Model_DevblocksEvent) {
+			$model = $event_model->params['context_model'] ?? $event_model->params['context_id'] ?? null;
+		} else {
+			$model = null;
+		}
 		
 		/**
 		 * Worker
 		 */
 		
-		@$context_id = $event_model->params['context_id'];
+		$context_id = $event_model->params['context_id'] ?? null;
 		$merge_labels = array();
 		$merge_values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $model, $merge_labels, $merge_values, null, true);
@@ -169,8 +173,8 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 					break;
 				}
 				
-				@$from = $tpl_builder->build($params['from'], $dict);
-				@$to = $tpl_builder->build($params['to'], $dict);
+				$from = $tpl_builder->build($params['from'] ?? '', $dict);
+				$to = $tpl_builder->build($params['to'] ?? '', $dict);
 				$is_available = !empty($params['is_available']) ? 1 : 0;
 				
 				@$availability_calendar_id = $dict->worker_calendar_id;

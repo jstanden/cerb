@@ -56,7 +56,18 @@
 			<div style="margin-left:10px;padding:5px;">
 				<button type="button" class="chooser-abstract" data-field-name="templates[worker_invite][send_from_id]" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-single="true" data-query="mailTransport.id:>0 isBanned:n isDefunct:n" data-autocomplete="mailTransport.id:>0 isBanned:n isDefunct:n" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
 				
-				{$send_from_id = $templates.worker_invite.send_from_id|default:$default_template.send_from_id}
+				{if is_array($templates) && array_key_exists('worker_invite', $templates)}
+					{$send_from_id = $templates.worker_invite.send_from_id}
+					{$template_body = $templates.worker_invite.body}
+					{$template_send_as = $templates.worker_invite.send_as}
+					{$template_subject = $templates.worker_invite.subject}
+				{else}
+					{$send_from_id = $default_template.send_from_id}
+					{$template_body = $default_template.body}
+					{$template_send_as = $default_template.send_as}
+					{$template_subject = $default_template.subject}
+				{/if}
+				
 				{$send_from = DAO_Address::get($send_from_id)}
 				
 				<ul class="bubbles chooser-container">
@@ -69,19 +80,19 @@
 			<b>{'common.send.as'|devblocks_translate}:</b>
 			
 			<div style="margin-left:10px;padding:5px;">
-				<textarea name="templates[worker_invite][send_as]" class="cerb-template-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-key-prefix="worker_" data-placeholders-json="{$template_placeholders}" placeholder="(e.g. Company Support)" style="width:100%;height:3em;">{$templates.worker_invite.send_as|default:$default_template.send_as}</textarea>
+				<textarea name="templates[worker_invite][send_as]" class="cerb-template-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-key-prefix="worker_" data-placeholders-json="{$template_placeholders}" placeholder="(e.g. Company Support)" style="width:100%;height:3em;">{$template_send_as}</textarea>
 			</div>
 			
 			<b>{'message.header.subject'|devblocks_translate}:</b>
 			
 			<div style="margin-left:10px;padding:5px;">
-				<textarea name="templates[worker_invite][subject]" class="cerb-template-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-key-prefix="worker_" data-placeholders-json="{$template_placeholders}" placeholder="(e.g. &quot;Your account recovery confirmation code&quot;)" style="width:100%;height:3em;">{$templates.worker_invite.subject|default:$default_template.subject}</textarea>
+				<textarea name="templates[worker_invite][subject]" class="cerb-template-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-key-prefix="worker_" data-placeholders-json="{$template_placeholders}" placeholder="(e.g. &quot;Your account recovery confirmation code&quot;)" style="width:100%;height:3em;">{$template_subject}</textarea>
 			</div>
 			
 			<b>{'common.message'|devblocks_translate}:</b>
 			
 			<div style="margin-left:10px;padding:5px;">
-				<textarea name="templates[worker_invite][body]" class="cerb-template-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-key-prefix="worker_" data-placeholders-json="{$template_placeholders}" style="width:100%;height:10em;">{$templates.worker_invite.body|default:$default_template.body}</textarea>
+				<textarea name="templates[worker_invite][body]" class="cerb-template-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-key-prefix="worker_" data-placeholders-json="{$template_placeholders}" style="width:100%;height:10em;">{$template_body}</textarea>
 			</div>
 		</fieldset>
 		
@@ -97,7 +108,18 @@
 			<div style="margin-left:10px;padding:5px;">
 				<button type="button" class="chooser-abstract" data-field-name="templates[worker_recover][send_from_id]" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-single="true" data-query="mailTransport.id:>0 isBanned:n isDefunct:n" data-autocomplete="mailTransport.id:>0 isBanned:n isDefunct:n" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
 				
-				{$send_from_id = $templates.worker_recover.send_from_id|default:$default_template.send_from_id}
+				{if is_array($templates) && array_key_exists('worker_recover', $templates)}
+					{$send_from_id = $templates.worker_recover.send_from_id}
+					{$template_body = $templates.worker_recover.body}
+					{$template_send_as = $templates.worker_recover.send_as}
+					{$template_subject = $templates.worker_recover.subject}
+				{else}
+					{$send_from_id = $default_template.send_from_id}
+					{$template_body = $default_template.body}
+					{$template_send_as = $default_template.send_as}
+					{$template_subject = $default_template.subject}
+				{/if}
+				
 				{$send_from = DAO_Address::get($send_from_id)}
 				
 				<ul class="bubbles chooser-container">
@@ -110,19 +132,19 @@
 			<b>{'common.send.as'|devblocks_translate}:</b>
 			
 			<div style="margin-left:10px;padding:5px;">
-				<textarea name="templates[worker_recover][send_as]" class="cerb-template-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-key-prefix="worker_" data-placeholders-json="{$template_placeholders}" placeholder="(e.g. Company Support)" style="width:100%;height:3em;">{$templates.worker_recover.send_as|default:$default_template.send_as}</textarea>
+				<textarea name="templates[worker_recover][send_as]" class="cerb-template-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-key-prefix="worker_" data-placeholders-json="{$template_placeholders}" placeholder="(e.g. Company Support)" style="width:100%;height:3em;">{$template_send_as}</textarea>
 			</div>
 			
 			<b>{'message.header.subject'|devblocks_translate}:</b>
 			
 			<div style="margin-left:10px;padding:5px;">
-				<textarea name="templates[worker_recover][subject]" class="cerb-template-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-key-prefix="worker_" data-placeholders-json="{$template_placeholders}" placeholder="(e.g. &quot;Your account recovery confirmation code&quot;)" style="width:100%;height:3em;">{$templates.worker_recover.subject|default:$default_template.subject}</textarea>
+				<textarea name="templates[worker_recover][subject]" class="cerb-template-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-key-prefix="worker_" data-placeholders-json="{$template_placeholders}" placeholder="(e.g. &quot;Your account recovery confirmation code&quot;)" style="width:100%;height:3em;">{$template_subject}</textarea>
 			</div>
 			
 			<b>{'common.message'|devblocks_translate}:</b>
 			
 			<div style="margin-left:10px;padding:5px;">
-				<textarea name="templates[worker_recover][body]" class="cerb-template-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-key-prefix="worker_" data-placeholders-json="{$template_placeholders}" style="width:100%;height:10em;">{$templates.worker_recover.body|default:$default_template.body}</textarea>
+				<textarea name="templates[worker_recover][body]" class="cerb-template-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-key-prefix="worker_" data-placeholders-json="{$template_placeholders}" style="width:100%;height:10em;">{$template_body}</textarea>
 			</div>
 		</fieldset>
 		

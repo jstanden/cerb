@@ -286,7 +286,7 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 		// Figure out which column this card is in
 		$columns = $board->getColumns();
 		$links = DAO_ContextLink::getContextLinks($context, [$id], Context_ProjectBoardColumn::ID);
-		@$column = array_shift(array_intersect_key($columns, $links[$id]));
+		$column = current(array_intersect_key($columns, $links[$id]));
 		
 		$card = new DevblocksDictionaryDelegate($dict);
 		
