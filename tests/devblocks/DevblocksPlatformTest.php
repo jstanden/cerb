@@ -294,10 +294,8 @@ class DevblocksPlatformTest extends TestCase {
 		$this->assertEquals('this is a string', $actual);
 		
 		// string (array -> string)
-		// [TODO] This could json_encode, etc
 		$actual = DevblocksPlatform::importGPC(array(1,2,3), 'string', 'name');
-		$this->assertEquals('Array', $actual);
-
+		$this->assertEquals('', $actual);
 		
 		// timestamp (null)
 		$time = time();

@@ -40,7 +40,7 @@ class _DevblocksTemplateManager {
 			$instance->compile_id = APP_BUILD;
 
 			$instance->error_unassigned = false;
-			$instance->error_reporting = DEVELOPMENT_MODE ? (E_ALL & ~E_NOTICE) : (E_ERROR & ~E_NOTICE);
+			$instance->error_reporting = DEVELOPMENT_MODE ? (E_ALL & ~E_NOTICE) : (E_ERROR & ~E_WARNING & ~E_NOTICE);
 			$instance->php_handling = false;
 			
 			// Auto-escape HTML output

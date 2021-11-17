@@ -3281,6 +3281,35 @@ class DevblocksPlatform extends DevblocksEngine {
 	static function setStateless($bool) {
 		self::$is_stateless = $bool;
 	}
+	
+	static function errorHandler(int $errno=0, string $errstr=null, string $errfile=null, int $errline=null, array $errcontext=[]) : bool {
+		// Suppress if we're not reporting at this level in production
+		if(!DEVELOPMENT_MODE && 0 == (error_reporting() & $errno)) {
+			return true;
+		}
+		
+		// Temporarily ignore Smarty errors in production
+		if(
+			!DEVELOPMENT_MODE
+			&& false !== stristr($errfile, '/templates_c/')
+			&& (0 == ((E_ALL & ~E_DEPRECATED & ~E_WARNING & ~E_NOTICE) & $errno))
+			) {
+			return true;
+		}
+		
+		// Ignore warnings/notices from dependencies in production
+		if(
+			!DEVELOPMENT_MODE 
+			&& false !== stristr($errfile, '/vendor/')
+			&& (0 == ((E_ALL & ~E_DEPRECATED & ~E_WARNING & ~E_NOTICE) & $errno))
+			) {
+			return true;
+		}
+		
+		error_log(sprintf("[%d] %s %s %d (%d)", $errno, $errstr, $errfile, $errline, error_reporting()));
+		
+		return true;
+	}
 
 	/**
 	 * Initializes the plugin platform (paths, etc).
@@ -3294,6 +3323,8 @@ class DevblocksPlatform extends DevblocksEngine {
 			self::$start_memory = memory_get_usage();
 			self::$start_peak_memory = memory_get_peak_usage();
 		}
+
+		set_error_handler(['DevblocksPlatform','errorHandler']);	
 
 		// Security
 		$app_security_frameoptions = @strtolower(APP_SECURITY_FRAMEOPTIONS);
