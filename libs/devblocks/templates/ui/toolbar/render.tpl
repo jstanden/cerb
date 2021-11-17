@@ -14,6 +14,10 @@
                     </ul>
                     {/if}
                 </li>
+            {elseif 'divider' == $item_key_parts[0]}
+                <li>
+                    <hr/>
+                </li>
             {elseif 'interaction' == $item_key_parts[0]}
                 <li class="cerb-bot-trigger"
                     data-interaction-uri="{$item.uri}"
@@ -127,6 +131,9 @@
             <ul class="cerb-float" style="display:none;text-align:left;">
                 {toolbar_menu items=$toolbar_item.items}
             </ul>
+
+        {elseif 'divider' == $toolbar_item.type}
+            <div class="cerb-code-editor-toolbar-divider"></div>
         {/if}
     {/if}
 {/foreach}

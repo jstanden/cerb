@@ -55,6 +55,18 @@ UL.ui-menu li.ui-menu-item:hover {
 	color: var(--cerb-color-text-inverse);
 }
 
+UL.ui-menu {
+	li.ui-menu-divider {
+		border: 0;
+		margin: 5px 5px;
+		
+		hr {
+			border: 0;
+			border-top: 1px solid var(--cerb-color-background-contrast-220);
+		}
+	}
+}
+
 /* Autocomplete */
 
 SPAN.ui-helper-hidden-accessible { display: none; }
