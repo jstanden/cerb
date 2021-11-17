@@ -5,6 +5,7 @@ class _DevblocksDataProviderRecordTypes extends _DevblocksDataProvider {
 			'' => [
 				'filter:',
 				'limit:',
+				'options:',
 				'page:',
 				'format:',
 			],
@@ -21,6 +22,7 @@ class _DevblocksDataProviderRecordTypes extends _DevblocksDataProvider {
 			'type' => 'record.types',
 			'filter' => null,
 			'limit' => null,
+			'options' => [],
 			'page' => 0,
 			'format' => 'dictionaries',
 		];
@@ -41,6 +43,10 @@ class _DevblocksDataProviderRecordTypes extends _DevblocksDataProvider {
 			} else if($field->key == 'limit') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
 				$chart_model['limit'] = intval($value);
+				
+			} else if($field->key == 'options') {
+				CerbQuickSearchLexer::getOperArrayFromTokens($field->tokens, $oper, $value);
+				$chart_model['options'] = $value;
 				
 			} else if($field->key == 'page') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
@@ -64,6 +70,16 @@ class _DevblocksDataProviderRecordTypes extends _DevblocksDataProvider {
 		$record_type_exts = Extension_DevblocksContext::getAll(true);
 		
 		foreach($record_type_exts as $record_type_ext) {
+			if(null != ($chart_model['options'] ?? null)) {
+				$options = $record_type_ext->manifest->params['options'][0] ?? [];
+				
+				// Filter by options like 'search'
+				$matching_options = array_intersect($chart_model['options'], array_keys($options));
+				
+				if(!$matching_options)
+					continue;
+			}
+			
 			$aliases = Extension_DevblocksContext::getAliasesForContext($record_type_ext->manifest);
 			
 			if ($chart_model['filter']) {
