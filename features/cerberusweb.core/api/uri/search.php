@@ -67,19 +67,24 @@ class Page_Search extends CerberusPageExtension {
 	
 	public function invoke(string $action) {
 		switch($action) {
-			case 'openSearchPopup':
-				return $this->_pageAction_openSearchPopup();
 			case 'ajaxQuickSearch':
 				return $this->_pageAction_ajaxQuickSearch();
+			case 'getSearchMenu':
+				return $this->_pageAction_getSearchMenu();
+			case 'openSearchPopup':
+				return $this->_pageAction_openSearchPopup();
 		}
 		return false;
 	}
 	
 	private function _pageAction_openSearchPopup() {
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
-		@$query = DevblocksPlatform::importGPC($_REQUEST['q'],'string','');
-		@$query_required = DevblocksPlatform::importGPC($_REQUEST['qr'],'string','');
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'string',null);
+		$metrics = DevblocksPlatform::services()->metrics();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$context = DevblocksPlatform::importGPC($_REQUEST['context'] ?? null,'string','');
+		$query = DevblocksPlatform::importGPC($_REQUEST['q'] ?? null,'string','');
+		$query_required = DevblocksPlatform::importGPC($_REQUEST['qr'] ?? null,'string','');
+		$id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null,'string',null);
 		
 		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
 			return;
@@ -97,7 +102,7 @@ class Page_Search extends CerberusPageExtension {
 		$view->setParamsRequiredQuery($query_required);
 		
 		if('*' == $query) {
-			$query = $view->getParamsQuery();
+			DevblocksPlatform::noop();
 		} else {
 			$view->setParamsQuery($query);
 			$view->addParamsWithQuickSearch($query, true);
@@ -108,13 +113,16 @@ class Page_Search extends CerberusPageExtension {
 		$label = @$aliases['plural'] ?: $context_ext->manifest->name;
 		$popup_title = DevblocksPlatform::translateCapitalized('common.search') . ': ' . mb_convert_case($label, MB_CASE_TITLE);
 		
+		// Immediately increment the search metric
 		$metrics->increment(
 			'cerb.record.search',
 			1,
 			[
 				'record_type' => $aliases['uri'],
 				'worker_id' => $active_worker->id,
-			]
+			],
+			time(),
+			false
 		);
 		
 		$tpl = DevblocksPlatform::services()->template();
@@ -160,5 +168,14 @@ class Page_Search extends CerberusPageExtension {
 			'status' => true,
 			'html' => $html,
 		));
+	}
+	
+	private function _pageAction_getSearchMenu() {
+		$tpl = DevblocksPlatform::services()->template();
+		
+		$search_menu = Toolbar_GlobalSearch::getSearchMenu();
+		$tpl->assign('interactions_menu', $search_menu);
+		
+		$tpl->display('devblocks:cerberusweb.core::console/bot_interactions_menu.tpl');
 	}
 };

@@ -45,6 +45,20 @@ if(!isset($tables['queue_message'])) {
 }
 
 // ===========================================================================
+// Add new toolbars
+
+if(!$db->GetOneMaster("SELECT 1 FROM toolbar WHERE name = 'global.search'")) {
+	$db->ExecuteMaster(sprintf('INSERT IGNORE INTO toolbar (name, extension_id, description, toolbar_kata, created_at, updated_at) VALUES (%s,%s,%s,%s,%d,%d)',
+		$db->qstr('global.search'),
+		$db->qstr('cerb.toolbar.global.search'),
+		$db->qstr('Searching from the top right of any page'),
+		$db->qstr(''),
+		time(),
+		time()
+	));
+}
+
+// ===========================================================================
 // Add `automation_resource`
 
 if(!isset($tables['automation_resource'])) {
