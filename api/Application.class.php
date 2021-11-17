@@ -3840,6 +3840,41 @@ class _CerbApplication_KataSchemas {
                       then:
                         ref: commands
               
+              metric.increment:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+                      inputs:
+                        types:
+                          object:
+                            attributes:
+                              dimensions:
+                                types:
+                                  any:
+                              is_realtime:
+                                types:
+                                  bool:
+                              metric_name:
+                                types:
+                                  string:
+                              timestamp:
+                                types:
+                                  number:
+                              values:
+                                types:
+                                  list:
+                                  string:
+                      output:
+                        types:
+                          string:
+                      on_error:
+                        ref: commands
+                      on_success:
+                        ref: commands
+                      on_simulate:
+                        ref: commands
+              
               queue.pop:
                 multiple@bool: yes
                 types:
@@ -4373,6 +4408,7 @@ class _CerbApplication_KataSchemas {
                 file.read@ref: policyRule
                 function@ref: policyRule
                 http.request@ref: policyRule
+                metric.increment@ref: policyRule
                 queue.pop@ref: policyRule
                 queue.push@ref: policyRule
                 record.create@ref: policyRule

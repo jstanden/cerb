@@ -32,6 +32,7 @@ var cerbAutocompleteSuggestions = {
 			'file.read:',
 			'function:',
 			'http.request:',
+			'metric.increment:',
 			'queue.pop:',
 			'queue.push:',
 			'record.create:',
@@ -95,6 +96,15 @@ var cerbAutocompleteSuggestions = {
 			},
 			'deny@bool: yes',
 			'allow@bool: yes'
+		],
+		'commands:metric.increment:': [
+			{
+				'caption': 'deny/metric_name:',
+				'snippet': "deny/metric_name@bool: {{inputs.metric_name != '${1:your.metric.name}'}}",
+				'docHTML': 'Validate metric name'
+			},
+			'deny@bool: yes',
+			'allow@bool: yes',
 		],
 		'commands:queue.pop:': [
 			{

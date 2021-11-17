@@ -22,6 +22,7 @@ class ActionNode extends AbstractNode {
 			'log.alert' => '\Cerb\AutomationBuilder\Action\LogAction',
 			'log.error' => '\Cerb\AutomationBuilder\Action\LogAction',
 			'log.warn' => '\Cerb\AutomationBuilder\Action\LogAction',
+			'metric.increment' => '\Cerb\AutomationBuilder\Action\MetricIncrementAction',
 			'queue.pop' => '\Cerb\AutomationBuilder\Action\QueuePopAction',
 			'queue.push' => '\Cerb\AutomationBuilder\Action\QueuePushAction',
 			'record.create' => '\Cerb\AutomationBuilder\Action\RecordCreateAction',

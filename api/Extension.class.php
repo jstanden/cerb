@@ -994,6 +994,10 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'snippet' => "log:\n\t",
 			],
 			[
+				'caption' => 'metric.increment:',
+				'snippet' => "metric.increment:\n\t",
+			],
+			[
 				'caption' => 'queue.pop:',
 				'snippet' => "queue.pop:\n\t",
 			],
@@ -1151,6 +1155,15 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'(.*):log.alert:' => $action_base,
 				'(.*):log.error:' => $action_base,
 				'(.*):log.warn:' => $action_base,
+				
+				'(.*):metric.increment:' => $action_base,
+				'(.*):metric.increment:inputs:' => [
+					'dimensions:',
+					'is_realtime@bool: yes',
+					'metric_name:',
+					'timestamp@date: now',
+					'values:',
+				],
 				
 				'(.*):queue.pop:' => $action_base,
 				'(.*):queue.pop:inputs:' => [
