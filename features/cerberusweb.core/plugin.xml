@@ -5219,6 +5219,23 @@
 			</params>
 		</extension>
 
+		<extension point="cerb.automation.trigger">
+			<id>cerb.trigger.worker.authenticated</id>
+			<name>worker.authenticated</name>
+			<class>
+				<file>api/automations/triggers/worker.authenticated.php</file>
+				<name>AutomationTrigger_WorkerAuthenticated</name>
+			</class>
+			<params>
+				<param key="description" value="After a worker has authenticated a new session" />
+				<param key="features">
+					<value>
+						<data key="inputs" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
 		<!-- Toolbars -->
 
 		<extension point="cerb.toolbar">

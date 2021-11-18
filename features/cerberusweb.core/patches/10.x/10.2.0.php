@@ -45,6 +45,19 @@ if(!isset($tables['queue_message'])) {
 }
 
 // ===========================================================================
+// Add new automation events
+
+if(!$db->GetOneMaster("SELECT 1 FROM automation_event WHERE name = 'worker.authenticated'")) {
+	$db->ExecuteMaster(sprintf('INSERT IGNORE INTO automation_event (name, extension_id, description, automations_kata, updated_at) VALUES (%s,%s,%s,%s,%d)',
+		$db->qstr('worker.authenticated'),
+		$db->qstr('cerb.trigger.worker.authenticated'),
+		$db->qstr('After a worker has authenticated a new session'),
+		$db->qstr(''),
+		time()
+	));
+}
+
+// ===========================================================================
 // Add new toolbars
 
 if(!$db->GetOneMaster("SELECT 1 FROM toolbar WHERE name = 'global.search'")) {

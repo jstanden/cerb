@@ -46,8 +46,15 @@ class Page_Login extends CerberusPageExtension {
 		
 		$error = "An unexpected error occurred. Please try again.";
 		
-		if(array_key_exists($code, $error_messages))
+		if(array_key_exists($code, $error_messages)) {
 			$error = $error_messages[$code];
+			
+		} else {
+			if(null != ($error_msg = $_SESSION['worker.auth.failed.error'] ?? null)) {
+				$error = $error_msg;
+				unset($_SESSION['worker.auth.failed.error']);
+			}
+		}
 		
 		return $error;
 	}
@@ -820,6 +827,61 @@ class Page_Login extends CerberusPageExtension {
 	private function _processAuthenticated($authenticated_worker) { /* @var $authenticated_worker Model_Worker */
 		$login_state = CerbLoginWorkerAuthState::getInstance();
 		$session = DevblocksPlatform::services()->session();
+		$event_handler = DevblocksPlatform::services()->ui()->eventHandler();
+		
+		$ip_address = DevblocksPlatform::getClientIp() ?: null;
+		
+		if(null != ($user_agent = DevblocksPlatform::getClientUserAgent())) {
+			$user_agent_string = sprintf("%s%s%s",
+				$user_agent['browser'],
+				!empty($user_agent['version']) ? (' ' . $user_agent['version']) : '',
+				!empty($user_agent['platform']) ? (' for ' . $user_agent['platform']) : ''
+			);
+		} else {
+			$user_agent_string = null;
+		}
+		
+		/*
+		 * worker.authenticated automations
+		 */
+		
+		if(false != ($automation_event = DAO_AutomationEvent::getByName('worker.authenticated'))) {
+			$error = null;
+		
+			$event_dict = DevblocksDictionaryDelegate::instance([]);
+			$event_dict->set('client_ip', $ip_address);
+			$event_dict->set('client_browser_name', $user_agent['browser'] ?? null);
+			$event_dict->set('client_browser_platform', $user_agent['platform'] ?? null);
+			$event_dict->set('client_browser_version', $user_agent['version'] ?? null);
+
+			$event_dict->mergeKeys('worker_', DevblocksDictionaryDelegate::getDictionaryFromModel($authenticated_worker, CerberusContexts::CONTEXT_WORKER, ['customfields']));
+		
+			$initial_state = $event_dict->getDictionary(null, false);
+			
+			if(false != ($handlers = $automation_event->getKata($event_dict, $error))) {
+				$results = $event_handler->handleEach(
+					AutomationTrigger_WorkerAuthenticated::ID,
+					$handlers,
+					$initial_state,
+					$error,
+					function(DevblocksDictionaryDelegate $result) {
+						// Continue unless we denied the login
+						return false == $result->getKeyPath('__return.deny');
+					},
+				);
+		
+				foreach($results as $result) {
+					/** @var DevblocksDictionaryDelegate $result */
+					// Are we rejecting the login?
+					if (null != ($deny = $result->getKeyPath('__return.deny'))) {
+						$query = [ 'error' => 'auth.custom'];
+						$_SESSION['worker.auth.failed.error'] = $deny;
+						DevblocksPlatform::redirect(new DevblocksHttpRequest(['login'], $query));
+						break;
+					}
+				}
+			}
+		}
 		
 		// Generate a new session cookie after login
 		session_regenerate_id(true);
@@ -841,24 +903,12 @@ class Page_Login extends CerberusPageExtension {
 		/*
 		 * Log activity (worker.logged_in)
 		 */
-		$ip_address = DevblocksPlatform::getClientIp() ?: 'an unknown IP';
-		
-		if(null != ($user_agent = DevblocksPlatform::getClientUserAgent())) {
-			$user_agent_string = sprintf("%s%s%s",
-				$user_agent['browser'],
-				!empty($user_agent['version']) ? (' ' . $user_agent['version']) : '',
-				!empty($user_agent['platform']) ? (' for ' . $user_agent['platform']) : ''
-			);
-		} else {
-			$user_agent_string = '(unknown user agent)';
-		}
-		
 		$entry = [
 			//{{actor}} logged in from {{ip}} using {{user_agent}}
 			'message' => 'activities.worker.logged_in',
 			'variables' => [
-				'ip' => $ip_address,
-				'user_agent' => $user_agent_string,
+				'ip' => $ip_address ?? 'an unknown IP',
+				'user_agent' => $user_agent_string ?? '(unknown user agent)',
 				],
 			'urls' => [],
 		];
