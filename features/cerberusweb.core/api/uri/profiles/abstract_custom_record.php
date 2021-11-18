@@ -265,7 +265,9 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
 		$view->setAutoPersist(false);
-
+		
+		$actions = DevblocksPlatform::importGPC($_POST['actions'] ?? [],'array');
+		
 		// Scheduled behavior
 		@$behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'],'string','');
 		@$behavior_when = DevblocksPlatform::importGPC($_POST['behavior_when'],'string','');
@@ -280,6 +282,12 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 				'when' => $behavior_when,
 				'params' => $behavior_params,
 			);
+		}
+		
+		// Delete
+		if($active_worker->hasPriv(sprintf('contexts.%s.delete', $context))) {
+			if(in_array('delete', $actions))
+				$do['delete'] = true;
 		}
 		
 		// Broadcast: Compose

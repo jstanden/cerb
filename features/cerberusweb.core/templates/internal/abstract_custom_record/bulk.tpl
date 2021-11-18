@@ -31,6 +31,17 @@
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$bulk_context bulk=true}
 
+{if $active_worker->hasPriv("contexts.{$bulk_context}.delete")}
+<fieldset class="peek" data-cerb-section-name="delete">
+	<legend><label><input type="checkbox" name="actions[]" value="delete"> {'common.delete'|devblocks_translate|capitalize}</label></legend>
+
+	<div style="display:none;margin-left:10px;">
+		The selected records will be permanently deleted.
+		<input type="hidden" name="params[delete]" value="1">
+	</div>
+</fieldset>
+{/if}
+
 {include file="devblocks:cerberusweb.core::internal/macros/behavior/bulk.tpl" macros=$macros}
 
 {if $active_worker->hasPriv("contexts.{$bulk_context}.broadcast")}
@@ -50,6 +61,12 @@ $(function() {
 	$popup.one('popup_open',function(event,ui) {
 		$popup.dialog('option','title',"{'common.bulk_update'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		$popup.css('overflow', 'inherit');
+		
+		var $section = $popup.find('[data-cerb-section-name=delete]');
+		
+		$section.find('legend input[type=checkbox]').click(function() {
+			$section.find('> div').toggle();
+		});
 		
 		$popup.find('button.submit').click(function() {
 			genericAjaxPost('formBatchUpdate', '', null, function(json) {

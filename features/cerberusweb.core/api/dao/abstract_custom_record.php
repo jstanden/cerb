@@ -314,7 +314,6 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 		if(is_array($do))
 		foreach($do as $k => $v) {
 			switch($k) {
-				// [TODO] Check privs
 				case 'delete':
 					$deleted = true;
 					break;
