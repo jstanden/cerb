@@ -1,3 +1,4 @@
+{$peek_context = CerberusContexts::CONTEXT_SNIPPET}
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="formBatchUpdate" name="formBatchUpdate" onsubmit="return false;">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
@@ -48,6 +49,18 @@
 						<option value="{CerberusContexts::CONTEXT_WORKER}:{$worker_id}">Worker: {$worker->getName()}</option>
 						{/if}
 					{/foreach}
+				</select>
+			</td>
+		</tr>
+		{/if}
+
+		{if $active_worker->hasPriv("contexts.{$peek_context}.delete")}
+		<tr>
+			<td width="0%" nowrap="nowrap" align="right">{'common.status'|devblocks_translate|capitalize}:</td>
+			<td width="100%">
+				<select name="status">
+					<option value="">&nbsp;</option>
+					<option value="delete">{'common.delete'|devblocks_translate|capitalize}</option>
 				</select>
 			</td>
 		</tr>

@@ -61,7 +61,7 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 	}
 	
 	private function _profileAction_viewExplore() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
@@ -77,7 +77,7 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 		$view->setAutoPersist(false);
 
 		// Page start
-		@$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'],'integer',0);
+		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'integer',0);
 		if(empty($explore_from)) {
 			$orig_pos = 1+($view->renderPage * $view->renderLimit);
 		} else {
@@ -138,8 +138,8 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 	private function _profileAction_renderToolbar() {
 		$tpl = DevblocksPlatform::services()->template();
 		
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
-		@$form_id = DevblocksPlatform::importGPC($_REQUEST['form_id'],'string','');
+		$context = DevblocksPlatform::importGPC($_REQUEST['context'] ?? null,'string','');
+		$form_id = DevblocksPlatform::importGPC($_REQUEST['form_id'] ?? null, 'string','');
 		
 		$tpl->assign('context', $context);
 		$tpl->assign('form_id', $form_id);
@@ -169,8 +169,8 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 		$metrics = DevblocksPlatform::services()->metrics();
 		$db = DevblocksPlatform::services()->database();
 		
-		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
-		@$context_ids = DevblocksPlatform::importGPC($_POST['context_ids'],'array',[]);
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer',0);
+		$context_ids = DevblocksPlatform::importGPC($_POST['context_ids'] ?? null, 'array',[]);
 		$context_id = 0;
 		
 		$token_labels = $token_values = [];
@@ -217,8 +217,8 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 	private function _profileAction_getPrompts() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
+		$id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null, 'integer',0);
+		$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'] ?? null, 'integer',0);
 		
 		if(!$id)
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -242,7 +242,7 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$prompts_kata = DevblocksPlatform::importGPC($_POST['prompts_kata'],'string','');
+		$prompts_kata = DevblocksPlatform::importGPC($_POST['prompts_kata'] ?? null, 'string','');
 		
 		$snippet = new Model_Snippet();
 		$snippet->prompts_kata = $prompts_kata;
@@ -260,9 +260,9 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
-		@$context_id = DevblocksPlatform::importGPC($_POST['context_id'],'integer',0);
-		@$prompt_values = DevblocksPlatform::importGPC($_POST['prompts'],'array',array());
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer',0);
+		$context_id = DevblocksPlatform::importGPC($_POST['context_id'] ?? null, 'integer',0);
+		$prompt_values = DevblocksPlatform::importGPC($_POST['prompts'] ?? null, 'array', []);
 		
 		if(!$id)
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -309,10 +309,10 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 	private function _profileAction_test() {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
-		@$snippet_context = DevblocksPlatform::importGPC($_REQUEST['snippet_context'],'string','');
-		@$snippet_context_id = DevblocksPlatform::importGPC($_REQUEST['snippet_context_id'],'integer',0);
-		@$snippet_key_prefix = DevblocksPlatform::importGPC($_REQUEST['snippet_key_prefix'],'string','');
-		@$snippet_field = DevblocksPlatform::importGPC($_REQUEST['snippet_field'],'string','');
+		$snippet_context = DevblocksPlatform::importGPC($_REQUEST['snippet_context'] ?? null, 'string','');
+		$snippet_context_id = DevblocksPlatform::importGPC($_REQUEST['snippet_context_id'] ?? null, 'integer',0);
+		$snippet_key_prefix = DevblocksPlatform::importGPC($_REQUEST['snippet_key_prefix'] ?? null, 'string','');
+		$snippet_field = DevblocksPlatform::importGPC($_REQUEST['snippet_field'] ?? null, 'string','');
 		
 		$content = '';
 		if(isset($_REQUEST[$snippet_field]))
@@ -333,8 +333,8 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 		
 		// Add prompted placeholders to the valid tokens
 		
-		@$placeholder_keys = DevblocksPlatform::importGPC($_REQUEST['placeholder_keys'], 'array', array());
-		@$placeholder_defaults = DevblocksPlatform::importGPC($_REQUEST['placeholder_defaults'], 'array', array());
+		$placeholder_keys = DevblocksPlatform::importGPC($_REQUEST['placeholder_keys'] ?? null, 'array', array());
+		$placeholder_defaults = DevblocksPlatform::importGPC($_REQUEST['placeholder_defaults'] ?? null, 'array', array());
 		
 		foreach($placeholder_keys as $idx => $v) {
 			@$placeholder_default = $placeholder_defaults[$idx];
@@ -386,8 +386,8 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 	private function _profileAction_showBulkPanel() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
+		$ids = DevblocksPlatform::importGPC($_REQUEST['ids'] ?? null);
+		$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'] ?? null);
 		
 		if(!$active_worker->hasPriv(sprintf("contexts.%s.update.bulk", CerberusContexts::CONTEXT_SNIPPET)))
 			DevblocksPlatform::dieWithHttpError(null, 403);
@@ -423,16 +423,17 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		// Filter: whole list or check
-		@$filter = DevblocksPlatform::importGPC($_POST['filter'],'string','');
+		$filter = DevblocksPlatform::importGPC($_POST['filter'] ?? null, 'string','');
 		$ids = [];
 		
 		// View
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
 		$view->setAutoPersist(false);
 		
 		// Snippet fields
-		@$owner = trim(DevblocksPlatform::importGPC($_POST['owner'],'string',''));
+		$owner = trim(DevblocksPlatform::importGPC($_POST['owner'] ?? null,'string',''));
+		$status = trim(DevblocksPlatform::importGPC($_POST['status'] ?? null,'string'));
 		
 		$do = [];
 		
@@ -443,18 +444,22 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 		if(0 != strlen($owner))
 			$do['owner'] = $owner;
 		
+		// Do: Status
+		if(0 != strlen($status))
+			$do['status'] = $status;
+		
 		// Do: Custom fields
 		$do = DAO_CustomFieldValue::handleBulkPost($do);
 		
 		switch($filter) {
 			// Checked rows
 			case 'checks':
-				@$ids_str = DevblocksPlatform::importGPC($_POST['ids'],'string');
+				$ids_str = DevblocksPlatform::importGPC($_POST['ids'] ?? null, 'string');
 				$ids = DevblocksPlatform::parseCsvString($ids_str);
 				break;
 			
 			case 'sample':
-				@$sample_size = min(DevblocksPlatform::importGPC($_POST['filter_sample_size'],'integer',0),9999);
+				$sample_size = min(DevblocksPlatform::importGPC($_POST['filter_sample_size'] ?? null,'integer',0),9999);
 				$ids = $view->getDataSample($sample_size);
 				break;
 			
@@ -480,14 +485,14 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 	}
 	
 	private function _profileAction_savePeekJson() {
-		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
-		@$title = DevblocksPlatform::importGPC($_POST['title'],'string','');
-		@$context = DevblocksPlatform::importGPC($_POST['context'],'string','');
-		@$content = DevblocksPlatform::importGPC($_POST['content'],'string','');
-		@$prompts_kata = DevblocksPlatform::importGPC($_POST['prompts_kata'],'string','');
-		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer',0);
+		$title = DevblocksPlatform::importGPC($_POST['title'] ?? null, 'string','');
+		$context = DevblocksPlatform::importGPC($_POST['context'] ?? null, 'string','');
+		$content = DevblocksPlatform::importGPC($_POST['content'] ?? null, 'string','');
+		$prompts_kata = DevblocksPlatform::importGPC($_POST['prompts_kata'] ?? null, 'string','');
+		$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'integer',0);
 
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string','');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -518,7 +523,7 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 				));
 				
 			} else { // Create || Update
-				@list($owner_context, $owner_context_id) = explode(':', DevblocksPlatform::importGPC($_POST['owner'],'string',''));
+				list($owner_context, $owner_context_id) = array_pad(explode(':', DevblocksPlatform::importGPC($_POST['owner'] ?? null,'string','')), 2, null);
 			
 				switch($owner_context) {
 					case CerberusContexts::CONTEXT_APPLICATION:
@@ -582,7 +587,7 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 				}
 				
 				// Custom field saves
-				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+				$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 				if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_SNIPPET, $id, $field_ids, $error))
 					throw new Exception_DevblocksAjaxValidationError($error);
 			
@@ -614,8 +619,8 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 	}
 	
 	private function _profileAction_getSnippetPlaceholders() {
-		@$name_prefix = DevblocksPlatform::importGPC($_REQUEST['name_prefix'],'string', '');
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
+		$name_prefix = DevblocksPlatform::importGPC($_REQUEST['name_prefix'] ?? null, 'string', '');
+		$id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null, 'integer', 0);
 		
 		$tpl = DevblocksPlatform::services()->template();
 		

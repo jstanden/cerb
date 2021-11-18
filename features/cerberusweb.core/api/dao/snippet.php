@@ -204,6 +204,7 @@ class DAO_Snippet extends Cerb_ORMHelper {
 		
 		$change_fields = [];
 		$custom_fields = [];
+		$deleted = false;
 
 		if(is_array($do))
 		foreach($do as $k => $v) {
@@ -218,6 +219,14 @@ class DAO_Snippet extends Cerb_ORMHelper {
 					$change_fields[DAO_Snippet::OWNER_CONTEXT_ID] = $context_id;
 					break;
 					
+				case 'status':
+					switch($v) {
+						case 'delete':
+							$deleted = true;
+							break;
+					}
+					break;
+					
 				default:
 					// Custom fields
 					if(DevblocksPlatform::strStartsWith($k, 'cf_')) {
@@ -227,17 +236,23 @@ class DAO_Snippet extends Cerb_ORMHelper {
 			}
 		}
 		
-		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_SNIPPET, $ids);
+		if(!$deleted) {
+			DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_SNIPPET, $ids);
+			
+			// Fields
+			if(!empty($change_fields))
+				DAO_Snippet::update($ids, $change_fields, false);
+			
+			// Custom Fields
+			if(!empty($custom_fields))
+				C4_AbstractView::_doBulkSetCustomFields(CerberusContexts::CONTEXT_SNIPPET, $custom_fields, $ids);
+			
+			CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_SNIPPET, $ids);
+		} else {
+			CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_SNIPPET, $ids);
 		
-		// Fields
-		if(!empty($change_fields))
-			DAO_Snippet::update($ids, $change_fields, false);
-
-		// Custom Fields
-		if(!empty($custom_fields))
-			C4_AbstractView::_doBulkSetCustomFields(CerberusContexts::CONTEXT_SNIPPET, $custom_fields, $ids);
-		
-		CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_SNIPPET, $ids);
+			DAO_Snippet::delete($ids);
+		}
 		
 		$update->markCompleted();
 		return true;
