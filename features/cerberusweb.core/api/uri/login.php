@@ -60,10 +60,7 @@ class Page_Login extends CerberusPageExtension {
 	}
 	
 	static function logFailedAuthentication(Model_Worker $unauthenticated_worker) {
-		/*
-		 * Log activity (worker.login.failed)
-		 */
-		$ip_address = DevblocksPlatform::getClientIp() ?: 'an unknown IP';
+		$ip_address = DevblocksPlatform::getClientIp() ?: null;
 		
 		if(null != ($user_agent = DevblocksPlatform::getClientUserAgent()) && is_array($user_agent)) {
 			$user_agent_string = sprintf("%s%s%s",
@@ -72,15 +69,47 @@ class Page_Login extends CerberusPageExtension {
 				!empty($user_agent['platform']) ? (' for ' . $user_agent['platform']) : ''
 			);
 		} else {
-			$user_agent_string = '(unknown user agent)';
+			$user_agent_string = null;
 		}
+		
+		/*
+		 * Trigger worker.authenticate.failed automations
+		 */
+		
+		if(false != ($automation_event = DAO_AutomationEvent::getByName('worker.authenticate.failed'))) {
+			$event_handler = DevblocksPlatform::services()->ui()->eventHandler();
+			$error = null;
+		
+			$event_dict = DevblocksDictionaryDelegate::instance([]);
+			$event_dict->set('client_ip', $ip_address);
+			$event_dict->set('client_browser_name', $user_agent['browser'] ?? null);
+			$event_dict->set('client_browser_platform', $user_agent['platform'] ?? null);
+			$event_dict->set('client_browser_version', $user_agent['version'] ?? null);
+		
+			$event_dict->mergeKeys('worker_', DevblocksDictionaryDelegate::getDictionaryFromModel($unauthenticated_worker, CerberusContexts::CONTEXT_WORKER, ['customfields']));
+		
+			$initial_state = $event_dict->getDictionary(null, false);
+			
+			if(false != ($handlers = $automation_event->getKata($event_dict, $error))) {
+				$event_handler->handleEach(
+					AutomationTrigger_WorkerAuthenticateFailed::ID,
+					$handlers,
+					$initial_state,
+					$error
+				);
+			}
+		}
+		
+		/*
+		 * Log activity (worker.login.failed)
+		 */
 		
 		$entry = [
 			//{{ip}} failed to log in as {{target}} using {{user_agent}}
 			'message' => 'activities.worker.login.failed',
 			'variables' => [
-				'ip' => $ip_address,
-				'user_agent' => $user_agent_string,
+				'ip' => $ip_address ?? 'an unknown IP',
+				'user_agent' => $user_agent_string ?? '(unknown user agent)',
 				'target' => sprintf($unauthenticated_worker->getName()),
 				],
 			'urls' => [

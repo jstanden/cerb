@@ -5220,6 +5220,23 @@
 		</extension>
 
 		<extension point="cerb.automation.trigger">
+			<id>cerb.trigger.worker.authenticate.failed</id>
+			<name>worker.authenticate.failed</name>
+			<class>
+				<file>api/automations/triggers/worker.authenticate.failed.php</file>
+				<name>AutomationTrigger_WorkerAuthenticateFailed</name>
+			</class>
+			<params>
+				<param key="description" value="After a worker has failed to authenticate a new session" />
+				<param key="features">
+					<value>
+						<data key="inputs" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="cerb.automation.trigger">
 			<id>cerb.trigger.worker.authenticated</id>
 			<name>worker.authenticated</name>
 			<class>

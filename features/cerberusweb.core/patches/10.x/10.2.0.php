@@ -57,6 +57,16 @@ if(!$db->GetOneMaster("SELECT 1 FROM automation_event WHERE name = 'worker.authe
 	));
 }
 
+if(!$db->GetOneMaster("SELECT 1 FROM automation_event WHERE name = 'worker.authenticate.failed'")) {
+	$db->ExecuteMaster(sprintf('INSERT IGNORE INTO automation_event (name, extension_id, description, automations_kata, updated_at) VALUES (%s,%s,%s,%s,%d)',
+		$db->qstr('worker.authenticate.failed'),
+		$db->qstr('cerb.trigger.worker.authenticate.failed'),
+		$db->qstr('After a worker has failed to authenticate a new session'),
+		$db->qstr(''),
+		time()
+	));
+}
+
 // ===========================================================================
 // Add new toolbars
 
