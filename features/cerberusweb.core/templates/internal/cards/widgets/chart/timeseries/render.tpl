@@ -55,7 +55,7 @@ $(function() {
 				}
 				
 			{else}
-				var chart_meta = {};
+				var chart_meta = { };
 			{/if}
 			
 			{if $is_date_formatted}

@@ -43,8 +43,9 @@ class Cerb_Packages {
 	private function __construct() {}
 	
 	static function loadPackageFromJson(&$json_string) {
-		if(!is_array($json_string) && false == (@$json = json_decode($json_string, true)))
-			throw new Exception_DevblocksValidationError("Invalid JSON");
+		if(!is_array($json_string) && false == (@$json = json_decode($json_string, true))) {
+			throw new Exception_DevblocksValidationError("Invalid JSON: " . json_last_error_msg());
+		}
 		
 		if(!isset($json['package']))
 			throw new Exception_DevblocksValidationError("Invalid package JSON");

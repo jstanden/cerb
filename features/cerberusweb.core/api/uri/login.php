@@ -807,10 +807,10 @@ class Page_Login extends CerberusPageExtension {
 			if($max <= count($online_workers) && !isset($online_workers[$current_worker->id])) {
 				$session->clear();
 				
-				$query = array(
+				$query = [
 					'email' => $current_worker->getEmailString(),
 					'error' => 'seats.limit',
-				);
+				];
 				
 				DevblocksPlatform::redirect(new DevblocksHttpResponse(['login'], $query), 1);
 			}

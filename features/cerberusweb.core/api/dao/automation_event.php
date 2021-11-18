@@ -529,7 +529,7 @@ class View_AutomationEvent extends C4_AbstractView implements IAbstractView_Subt
 		$this->id = self::DEFAULT_ID;
 		$this->name = DevblocksPlatform::translateCapitalized('common.automation.events');
 		$this->renderLimit = 25;
-		$this->renderSortBy = SearchFields_AutomationEvent::ID;
+		$this->renderSortBy = SearchFields_AutomationEvent::NAME;
 		$this->renderSortAsc = true;
 		
 		$this->view_columns = [

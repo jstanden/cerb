@@ -1,7 +1,7 @@
 <?php
 class _DevblocksDataProviderRecordTypes extends _DevblocksDataProvider {
 	function getSuggestions($type, array $params=[]) {
-		$suggestions  = [
+		return [
 			'' => [
 				'filter:',
 				'limit:',
@@ -13,8 +13,6 @@ class _DevblocksDataProviderRecordTypes extends _DevblocksDataProvider {
 				'dictionaries',
 			]
 		];
-		
-		return $suggestions;
 	}
 	
 	function getData($query, $chart_fields, &$error=null, array $options=[]) {

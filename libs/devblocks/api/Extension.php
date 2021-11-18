@@ -3480,7 +3480,6 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					
 				case '_exit':
 					return $tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_action_exit.tpl');
-					break;
 
 				case '_get_key':
 					DevblocksEventHelper::renderActionGetKey($trigger);

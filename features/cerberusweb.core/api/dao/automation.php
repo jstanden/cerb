@@ -1137,11 +1137,11 @@ class Context_Automation extends Extension_DevblocksContext implements IDevblock
 		if(is_null($model))
 			$model = new Model_Automation();
 		
-		$properties['id'] = array(
+		$properties['id'] = [
 			'label' => DevblocksPlatform::translate('common.id'),
 			'type' => Model_CustomField::TYPE_NUMBER,
 			'value' => $model->id,
-		);
+		];
 		
 		$properties['name'] = [
 			'label' => DevblocksPlatform::translateCapitalized('common.name'),

@@ -551,7 +551,7 @@ class View_Toolbar extends C4_AbstractView implements IAbstractView_Subtotals, I
 		$this->id = self::DEFAULT_ID;
 		$this->name = DevblocksPlatform::translateCapitalized('common.toolbars');
 		$this->renderLimit = 25;
-		$this->renderSortBy = SearchFields_Toolbar::ID;
+		$this->renderSortBy = SearchFields_Toolbar::NAME;
 		$this->renderSortAsc = true;
 		
 		$this->view_columns = [

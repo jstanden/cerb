@@ -203,7 +203,7 @@ class BotAction_HttpRequest extends Extension_DevblocksEventAction {
 		$dict->$response_placeholder = $response;
 	}
 	
-	private function _execute($verb='GET', $url, $params=[], $body=null, $headers=[], $options=[]) {
+	private function _execute($verb='GET', $url=null, $params=[], $body=null, $headers=[], $options=[]) {
 		$http = DevblocksPlatform::services()->http();
 		
 		if(!empty($params) && is_array($params))
