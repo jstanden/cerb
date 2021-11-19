@@ -2633,16 +2633,14 @@ class CerberusLicense {
 	 * We trust you.
 	 */
 	private function __construct() {
-																																																																																																																																			try{$l=(null!=(@$data=json_decode(DevblocksPlatform::getPluginSetting('cerberusweb.core',CerberusSettings::LICENSE,''),true)))?$data:[];self::validate(base64_decode(@$l[base64_decode('ZGF0YQ==')]),@$l['company'],@$l['email'])?@$this->data=$l:@$this->data=[];}catch(Exception $e){@$this->data=[];}if(1==1)return;
+																																																																																																																																			try{$l=(null!=($data=json_decode(DevblocksPlatform::getPluginSetting('cerberusweb.core',CerberusSettings::LICENSE,''),true)))?$data:[];self::validate(base64_decode($l[base64_decode('ZGF0YQ==')]??null),$l['company']??null,$l['email']??null)?$this->data=$l:$this->data=[];}catch(Exception $e){$this->data=[];}if(1==1)return;
 		/*
-		 * We've spent many years working on this software.
-		 * Please be honest!
+		 * We've spent many years working on this software. Please be honest!
 		 * https://cerb.ai/pricing
 		 */
 		$this->data = (null != ($data = json_decode(DevblocksPlatform::getPluginSetting('devblocks.core','license_info',[]),true)))?$data:[];
 	}
-
-																																																																																																																																			public function __get($property) {switch($property){case 'w':return(max(1,@intval($this->seats)));break;default:return(isset($this->data[$property]))?$this->data[$property]:null;break;}}
+																																																																																																																																			public function __get($property) {switch($property){case 'w':return(max(1,intval($this->seats ?? null)));default:return(isset($this->data[$property]))?$this->data[$property]:null;}}
 	/**
 	 * @return CerberusLicense
 	 */
@@ -2658,7 +2656,7 @@ class CerberusLicense {
 	 * https://cerb.ai/pricing
 	 */
 	public static function validate($key, $company, $email) {
-																																																																																																																																			$matches=[];$w=$s=$e=$c=$u=null;try{foreach(array('L0tleTogKC4qKS8='=>'s','L0NyZWF0ZWQ6ICguKikv'=>'c','L1VwZGF0ZWQ6ICguKikv'=>'u','L1VwZ3JhZGVzOiAoLiopLw=='=>'e','L1NlYXRzOiAoLiopLw=='=>'w') as $k=>$v)@preg_match(base64_decode($k),$key,$matches)?@$$v=trim($matches[1]):null;$r=[];@$w=intval($w);@$cp=base64_decode('Y29tcGFueQ==');@$em=base64_decode('ZW1haWw=');@$cd=preg_replace('/[^A-Z0-9]/','',$s);@$l=explode('-',$e);@$e=gmmktime(0,0,0,intval($l[1]),intval($l[2]),intval($l[0]));@$l=explode('-',$c);@$c=gmmktime(0,0,0,intval($l[1]),intval($l[2]),intval($l[0]));@$l=explode('-',$u);@$u=gmmktime(0,0,0,intval($l[1]),intval($l[2]),intval($l[0]));@$h=str_split(DevblocksPlatform::strUpper(sha1(sha1('cerb5').sha1($$cp).sha1($$em).sha1(intval($w)).sha1(gmdate('Y-m-d',$c)).sha1(gmdate('Y-m-d',$e)))),1);if(0==@strcasecmp(sprintf("%02X",strlen($$cp)+intval($w)),substr($cd,3,2))&&@intval(hexdec(substr($cd,5,1))==@intval(bindec(sprintf("%d%d%d%d",(182<=gmdate('z',$e))?1:0,(5==gmdate('w',$e))?1:0,('th'==gmdate('S',$e))?1:0,(1==gmdate('w',$e))?1:0))))&&0==@strcasecmp($h[hexdec(substr($cd,1,2))-@hexdec(substr($cd,0,1))],substr($cd,0,1)))@$r=array(base64_decode('a2V5')=>$s,base64_decode('Y3JlYXRlZA==')=>$c,base64_decode('dXBkYXRlZA==')=>$u,base64_decode('dXBncmFkZXM=')=>$e,@$cp=>$$cp,@$em=>$$em,base64_decode('c2VhdHM=')=>intval($w),base64_decode('ZGF0YQ==')=>base64_encode($key));if(1==1)return $r;}catch(Exception $e){return [];}
+																																																																																																																																			$matches=[];$w=$s=$e=$c=$u=null;try{foreach(array('L0tleTogKC4qKS8='=>'s','L0NyZWF0ZWQ6ICguKikv'=>'c','L1VwZGF0ZWQ6ICguKikv'=>'u','L1VwZ3JhZGVzOiAoLiopLw=='=>'e','L1NlYXRzOiAoLiopLw=='=>'w') as $k=>$v)preg_match(base64_decode($k)?:'',$key,$matches)?$$v=trim($matches[1]??null):null;$r=[];$w=intval($w??null);$cp=base64_decode('Y29tcGFueQ==');$em=base64_decode('ZW1haWw=');$cd=preg_replace('/[^A-Z0-9]/','',$s);$l=explode('-',$e??null);$e=gmmktime(0,0,0,intval($l[1]??0),intval($l[2]??0),intval($l[0]??0));$l=explode('-',$c??null);$c=gmmktime(0,0,0,intval($l[1]??0),intval($l[2]??0),intval($l[0]??0));$l=explode('-',$u??null);$u=gmmktime(0,0,0,intval($l[1]??0),intval($l[2]??0),intval($l[0]??0));$h=str_split(DevblocksPlatform::strUpper(sha1(sha1('cerb5').sha1($$cp??null).sha1($$em??null).sha1($w??null).sha1(gmdate('Y-m-d',$c)).sha1(gmdate('Y-m-d',$e)))),1);if(0==strcasecmp(sprintf("%02X",strlen($$cp)+$w),substr($cd,3,2))&&@intval(hexdec(substr($cd,5,1))==@intval(bindec(sprintf("%d%d%d%d",(182<=gmdate('z',$e))?1:0,(5==gmdate('w',$e))?1:0,('th'==gmdate('S',$e))?1:0,(1==gmdate('w',$e))?1:0))))&&0==@strcasecmp($h[hexdec(substr($cd,1,2))-@hexdec(substr($cd,0,1))],substr($cd,0,1)))@$r=array(base64_decode('a2V5')=>$s,base64_decode('Y3JlYXRlZA==')=>$c,base64_decode('dXBkYXRlZA==')=>$u,base64_decode('dXBncmFkZXM=')=>$e,$cp=>$$cp??null,$em=>$$em??null,base64_decode('c2VhdHM=')=>$w,base64_decode('ZGF0YQ==')=>base64_encode($key));if(1==1)return $r;}catch(Exception $e){return [];}
 		/*
 		 * Simple, huh?
 		 */
@@ -2672,17 +2670,17 @@ class CerberusLicense {
 			? array(
 				'company' => $company,
 				'email' => $email,
-				'key' => (list($k,$v)=explode(":",$lines[1]))?trim($v):null,
-				'created' => (list($k,$v)=explode(":",$lines[2]))?trim($v):null,
-				'updated' => (list($k,$v)=explode(":",$lines[3]))?trim($v):null,
-				'upgrades' => (list($k,$v)=explode(":",$lines[4]))?trim($v):null,
-				'seats' => (list($k,$v)=explode(":",$lines[5]))?trim($v):null
+				'key' => (list(,$v)=explode(":",$lines[1]))?trim($v):null,
+				'created' => (list(,$v)=explode(":",$lines[2]))?trim($v):null,
+				'updated' => (list(,$v)=explode(":",$lines[3]))?trim($v):null,
+				'upgrades' => (list(,$v)=explode(":",$lines[4]))?trim($v):null,
+				'seats' => (list(,$v)=explode(":",$lines[5]))?trim($v):null
 			)
 			: [];
 	}
 
 	public static function getReleases() {
-		/*																																																																																																																														*/if(1>0) return json_decode(base64_decode('eyI1LjAuMCI6MTI3MTg5NDQwMCwiNS4xLjAiOjEyODE4MzA0MDAsIjUuMi4wIjoxMjg4NTY5NjAwLCI1LjMuMCI6MTI5NTA0OTYwMCwiNS40LjAiOjEzMDM4NjI0MDAsIjUuNS4wIjoxMzEyNDE2MDAwLCI1LjYuMCI6MTMxNzY4NjQwMCwiNS43LjAiOjEzMjYwNjcyMDAsIjYuMC4wIjoxMzM4MTYzMjAwLCI2LjEuMCI6MTM0NjAyNTYwMCwiNi4yLjAiOjEzNTM4ODgwMDAsIjYuMy4wIjoxMzY0MTY5NjAwLCI2LjQuMCI6MTM3MDIxNzYwMCwiNi41LjAiOjEzNzkyODk2MDAsIjYuNi4wIjoxMzkxMTI2NDAwLCI2LjcuMCI6MTM5ODEyNDgwMCwiNi44LjAiOjE0MTA3MzkyMDAsIjYuOS4wIjoxNDIyMjMwNDAwLCI3LjAuMCI6MTQzMjU5ODQwMCwiNy4xLjAiOjE0NDg5MjgwMDAsIjcuMi4wIjoxNDYyMDYwODAwLCI3LjMuMCI6MTQ3MjY4ODAwMCwiOC4wLjAiOjE0OTU3NTY4MDAsIjguMS4wIjoxNTAzOTY0ODAwLCI4LjIuMCI6MTUwOTMyMTYwMCwiOC4zLjAiOjE1MTk2MDMyMDAsIjkuMC4wIjoxNTMzNTEzNjAwLCI5LjEuMCI6MTU0NDgzMjAwMCwiOS4yLjAiOjE1NTEzMTIwMDAsIjkuMy4wIjoxNTU5MjYwODAwLCI5LjQuMCI6MTU2OTgwMTYwMCwiOS41LjAiOjE1Nzc3NTA0MDAsIjkuNi4wIjoxNTkwODgzMjAwLCIxMC4wLjAiOjE2MDE0MjQwMDAsIjEwLjEuMCI6MTYwOTM3MjgwMH0='),true);/*
+		/*																																																																																																																														*/if(1>0) return json_decode(base64_decode('eyI1LjAuMCI6MTI3MTg5NDQwMCwiNS4xLjAiOjEyODE4MzA0MDAsIjUuMi4wIjoxMjg4NTY5NjAwLCI1LjMuMCI6MTI5NTA0OTYwMCwiNS40LjAiOjEzMDM4NjI0MDAsIjUuNS4wIjoxMzEyNDE2MDAwLCI1LjYuMCI6MTMxNzY4NjQwMCwiNS43LjAiOjEzMjYwNjcyMDAsIjYuMC4wIjoxMzM4MTYzMjAwLCI2LjEuMCI6MTM0NjAyNTYwMCwiNi4yLjAiOjEzNTM4ODgwMDAsIjYuMy4wIjoxMzY0MTY5NjAwLCI2LjQuMCI6MTM3MDIxNzYwMCwiNi41LjAiOjEzNzkyODk2MDAsIjYuNi4wIjoxMzkxMTI2NDAwLCI2LjcuMCI6MTM5ODEyNDgwMCwiNi44LjAiOjE0MTA3MzkyMDAsIjYuOS4wIjoxNDIyMjMwNDAwLCI3LjAuMCI6MTQzMjU5ODQwMCwiNy4xLjAiOjE0NDg5MjgwMDAsIjcuMi4wIjoxNDYyMDYwODAwLCI3LjMuMCI6MTQ3MjY4ODAwMCwiOC4wLjAiOjE0OTU3NTY4MDAsIjguMS4wIjoxNTAzOTY0ODAwLCI4LjIuMCI6MTUwOTMyMTYwMCwiOC4zLjAiOjE1MTk2MDMyMDAsIjkuMC4wIjoxNTMzNTEzNjAwLCI5LjEuMCI6MTU0NDgzMjAwMCwiOS4yLjAiOjE1NTEzMTIwMDAsIjkuMy4wIjoxNTU5MjYwODAwLCI5LjQuMCI6MTU2OTgwMTYwMCwiOS41LjAiOjE1Nzc3NTA0MDAsIjkuNi4wIjoxNTkwODgzMjAwLCIxMC4wLjAiOjE2MDE0MjQwMDAsIjEwLjEuMCI6MTYwOTM3MjgwMCwiMTAuMi4wIjoxNjE5NzQwODAwfQ=='),true);/*
 		 * Major versions by release date (in GMT)
 		 */
 		return [
@@ -2721,6 +2719,7 @@ class CerberusLicense {
 			'9.6.0' => gmmktime(0,0,0,5,31,2020),
 			'10.0.0' => gmmktime(0,0,0,9,30,2020),
 			'10.1.0' => gmmktime(0,0,0,12,31,2020),
+			'10.2.0' => gmmktime(0,0,0,4,30,2021),
 		];
 	}
 
