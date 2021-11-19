@@ -4925,6 +4925,23 @@
 		</extension>
 
 		<extension point="cerb.automation.trigger">
+			<id>cerb.trigger.behavior.action</id>
+			<name>behavior.action</name>
+			<class>
+				<file>api/automations/triggers/behavior.action.php</file>
+				<name>AutomationTrigger_BehaviorAction</name>
+			</class>
+			<params>
+				<param key="description" value="A reusable function called by bot behaviors to simplify the migration to automations" />
+				<param key="features">
+					<value>
+						<data key="inputs" />
+					</value>
+				</param>
+			</params>
+		</extension>		
+
+		<extension point="cerb.automation.trigger">
 			<id>cerb.trigger.interaction.worker</id>
 			<name>interaction.worker</name>
 			<class>
@@ -5689,6 +5706,23 @@
 		</extension>
 		
 		<!-- Bot Actions -->
+
+		<extension point="devblocks.event.action">
+			<id>core.bot.action.automation</id>
+			<name>Automation</name>
+			<class>
+				<file>api/bots/actions/automation.php</file>
+				<name>BotAction_Automation</name>
+			</class>
+			<params>
+				<param key="label" value="Execute automation" />
+				<param key="events">
+					<value>
+						<data key="*" />
+					</value>
+				</param>
+			</params>
+		</extension>
 		
 		<extension point="devblocks.event.action">
 			<id>core.va.action.classifier_prediction</id>
