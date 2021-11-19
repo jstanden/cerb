@@ -1321,12 +1321,15 @@ EOD;
 		
 		$models = DAO_Ticket::getIds($ticket_ids);
 		
+		if(!$active_worker->hasPriv(sprintf('contexts.%s.delete', CerberusContexts::CONTEXT_TICKET)))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		// Privs
 		$models = array_intersect_key(
 			$models,
 			array_flip(
 				array_keys(
-					Context_Ticket::isWriteableByActor($models, $active_worker),
+					Context_Ticket::isDeletableByActor($models, $active_worker),
 					true
 				)
 			)
@@ -1948,6 +1951,10 @@ EOD;
 			case 'd':
 			case 'deleted':
 			case '3':
+				// Check role delete priv
+				if(!$active_worker->hasPriv(sprintf('contexts.%s.delete', CerberusContexts::CONTEXT_TICKET)))
+					DevblocksPlatform::dieWithHttpError(null, 403);
+				
 				$status_id = Model_Ticket::STATUS_DELETED;
 			
 				CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_TICKET, $ticket->id, sprintf("#%s: %s", $ticket->mask, $ticket->subject));
