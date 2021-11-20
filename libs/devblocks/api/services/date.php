@@ -177,32 +177,22 @@ class _DevblocksDateManager {
 			return $this->_parseDateRangeArray($value);
 			
 		} else if(is_string($value)) {
-			// Shortcuts
-			switch(DevblocksPlatform::strLower($value)) {
-				case 'this month':
-					$value = 'first day of this month to last day of this month';
-					break;
-					
-				case 'next month':
-					$value = 'first day of next month to last day of next month';
-					break;
-					
-				case 'last month':
-					$value = 'first day of last month to last day of last month';
-					break;
-					
-				case 'today':
-					$value = 'today 00:00:00 to today 23:59:59';
-					break;
-					
-				case 'yesterday':
-					$value = 'yesterday 00:00:00 to yesterday 23:59:59';
-					break;
-					
-				case 'tomorrow':
-					$value = 'tomorrow 00:00:00 to tomorrow 23:59:59';
-					break;
-			}
+			$shortcuts = [
+				'this month' => 'first day of this month to last day of this month',
+				'next month' => 'first day of next month to last day of next month',
+				'last month' => 'first day of last month to last day of last month',
+				'this week' => 'Monday this week to Monday this week +6 days',
+				'next week' => 'Monday next week to Monday next week +6 days',
+				'last week' => 'Monday last week to Monday last week +6 days',
+				'today' => 'today 00:00:00 to today 23:59:59',
+				'yesterday' => 'yesterday 00:00:00 to yesterday 23:59:59',
+				'tomorrow' => 'tomorrow 00:00:00 to tomorrow 23:59:59',
+			];
+			
+			$shortcut_key = DevblocksPlatform::strLower($value);
+			
+			if(array_key_exists($shortcut_key, $shortcuts))
+				$value = $shortcuts[$shortcut_key];
 			
 			if(false === strpos($value, ' to '))
 				$value .= ' to now';
