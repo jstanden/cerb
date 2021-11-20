@@ -523,8 +523,9 @@ class DevblocksPlatform extends DevblocksEngine {
 			$unit = 'week';
 		}
 		
-		$ts = strtotime(min($array));
-		$ts_end = strtotime(max($array));
+		$timestamps = array_map(fn($ts) => strtotime($ts), $array);
+		$ts = min($timestamps);
+		$ts_end = max($timestamps);
 		
 		$values = [];
 		

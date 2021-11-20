@@ -13,6 +13,7 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 				'period:',
 				'range:',
 				'timeout:',
+				'timezone:',
 				'format:',
 			],
 			'period:' => [
@@ -25,6 +26,11 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 			],
 			'timeout:' => [
 				'20000'
+			],
+			'timezone:' => [
+				'00:00',
+				'-08:00',
+				'+01:00',
 			],
 			'format:' => [
 				'timeseries',
@@ -166,7 +172,7 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 							'sum',
 						];
 						
-						if(false == array_search($function, $allowed_functions)) {
+						if(false === array_search($function, $allowed_functions)) {
 							$error = sprintf("Unknown value for `function:` (%s). Must be one of: %s",
 								$function,
 								implode(', ', $allowed_functions)
@@ -335,6 +341,7 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 		
 		if($chart_model['period'] == 300) {
 			$unit = 'minute';
+			$unit_format = '%Y-%m-%d %H:%M';
 			$step = 5;
 		} else if($chart_model['period'] == 3600) {
 			$unit = 'hour';
@@ -344,17 +351,17 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 			$unit_format = '%Y-%m-%d';
 		}
 		
-		$chart_model['xaxis'] = DevblocksPlatform::dateLerpArray([$range['from_string'], $range['to_string']], $unit, $step, '%s');
+		$chart_model['xaxis'] = DevblocksPlatform::dateLerpArray([$range['from_string'], $range['to_string']], $unit, $step);
 		
 		$results = [
-			'ts' => array_map(fn($ts) => strftime($unit_format, $ts), $chart_model['xaxis']),
+			'ts' => $chart_model['xaxis'],
 		];
 		
 		$chart_model['groups'] = [];
 		
 		// Group expanded series together
 		foreach(array_keys($chart_model['series']) as $series_idx) {
-			if(false === ($series_data = $this->_loadSeriesData($series_idx, $chart_model, $error)))
+			if(false === ($series_data = $this->_loadSeriesData($series_idx, $chart_model, $range, $unit_format, $error)))
 				return false;
 			
 			$chart_model['groups'][] = array_keys($series_data);
@@ -375,7 +382,7 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 		]];
 	}
 	
-	private function _loadSeriesData($series_idx, array $chart_model, &$error=null) {
+	private function _loadSeriesData($series_idx, array $chart_model, array $range, string $unit_format, &$error=null) {
 		$db = DevblocksPlatform::services()->database();
 		
 		$series_model = $chart_model['series'][$series_idx] ?? [];
@@ -451,8 +458,8 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 			'%s',
 			$metric->id,
 			$granularity,
-			$chart_model['xaxis'][0] ?? 0,
-			array_slice($chart_model['xaxis'],-1)[0] ?? 0,
+			$range['from_ts'] ?? 0,
+			$range['to_ts'] ?? 0,
 			$sql_wheres ? ('AND ' . implode(' AND ', $sql_wheres)) : '',
 			'%s'
 		);
@@ -510,9 +517,6 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 			$db->QueryReader("SET @@SESSION.time_zone = @@GLOBAL.time_zone");
 		}
 		
-		if(empty($rows))
-			return $results;
-		
 		// [TODO] Any limit on this expansion?
 		
 		if($series_model['by']) {
@@ -565,37 +569,48 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 			}
 		}
 		
-		foreach($rows as $row) {
-			$series_label = [];
-			
-			// If more than one series, include metric name in labels
-			
-			if(array_key_exists('label', $series_model)) {
-				$series_label[] = $series_model['label'];
-			} else if (count($chart_model['series']) > 1) {
-				$series_label[] = $metric->name;
-			}
-			
-			foreach(array_keys($series_model['by']) as $dim_idx) {
-				$dim_key = 'dim_' . $dim_idx;
-				if(array_key_exists($dim_key, $row)) {
-					$by_label = $row[$dim_key];
-					$series_label[] = $by_label;
+		if(is_array($rows) && $rows) {
+			foreach ($rows as $row) {
+				$series_label = [];
+				
+				// If more than one series, include metric name in labels
+				
+				if (array_key_exists('label', $series_model)) {
+					$series_label[] = $series_model['label'];
+				} else if (count($chart_model['series']) > 1) {
+					$series_label[] = $metric->name;
 				}
+				
+				foreach (array_keys($series_model['by']) as $dim_idx) {
+					$dim_key = 'dim_' . $dim_idx;
+					if (array_key_exists($dim_key, $row)) {
+						$by_label = $row[$dim_key];
+						$series_label[] = $by_label;
+					}
+				}
+				
+				if (empty($series_label))
+					$series_label[] = $metric->name;
+				
+				$series_label = implode(' | ', $series_label);
+				
+				if (!array_key_exists($series_label, $results))
+					$results[$series_label] = array_fill_keys($chart_model['xaxis'], null);
+				
+				// [TODO] Aggregate periods (e.g. 3x 5 min = 15 mins)
+				if (86400 == $granularity) {
+					$bin = gmstrftime($unit_format, $row['bin']);
+				} else {
+					$bin = strftime($unit_format, $row['bin']);
+				}
+				
+				$results[$series_label][$bin] = floatval($row['value']);
 			}
 			
-			if(empty($series_label))
-				$series_label[] = $metric->name;
-			
-			$series_label = implode(' | ', $series_label);
-			
-			if(!array_key_exists($series_label, $results))
-				$results[$series_label] = array_fill_keys($chart_model['xaxis'], null);
-			
-			// [TODO] Aggregate periods (e.g. 3x 5 min = 15 mins)
-			$bin = $row['bin'];
-			
-			$results[$series_label][$bin] = floatval($row['value']);
+		} else {
+			// If series rows are empty, insert a null series
+			$series_label = ($series_model['label'] ?? null) ?: $metric->name;
+			$results[$series_label] = array_fill_keys($chart_model['xaxis'], null);
 		}
 		
 		foreach($results as $series_label => $data) {

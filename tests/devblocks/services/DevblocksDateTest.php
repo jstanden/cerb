@@ -580,29 +580,5 @@ class DevblocksDateTest extends TestCase {
 		$actual = DevblocksPlatform::dateLerpArray(['2021-01-15 10:00:00', '2021-01-15 11:00:00'], 'minute', 5);
 		
 		$this->assertEquals($expected, $actual);
-
-		// Unix timestamps
-		
-		$from = 1610733600;
-		
-		$expected = [
-			$from,
-			$from + 300,
-			$from + 600,
-			$from + 900,
-			$from + 1200,
-			$from + 1500,
-			$from + 1800,
-			$from + 2100,
-			$from + 2400,
-			$from + 2700,
-			$from + 3000,
-			$from + 3300,
-			$from + 3600,
-		];
-		
-		$actual = DevblocksPlatform::dateLerpArray(['2021-01-15 10:00:00', '2021-01-15 11:00:00'], 'minute', 5, '%s');
-		
-		$this->assertEquals($expected, $actual);
 	}
 }
