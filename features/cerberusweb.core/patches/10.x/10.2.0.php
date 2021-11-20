@@ -302,6 +302,24 @@ $db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, dimens
 	time()
 ));
 
+$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, dimensions_kata, created_at, updated_at) ".
+	"VALUES (%s, %s, %s, %d, %d)",
+	$db->qstr('cerb.mail.transport.deliveries'),
+	$db->qstr('Successful outbound mail deliveries by transport and sender email'),
+	$db->qstr("record/transport_id:\n  record_type: mail_transport\nrecord/sender_id:\n  record_type: address"),
+	time(),
+	time()
+));
+
+$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, dimensions_kata, created_at, updated_at) ".
+	"VALUES (%s, %s, %s, %d, %d)",
+	$db->qstr('cerb.mail.transport.failures'),
+	$db->qstr('Unsuccessful outbound mail deliveries by transport and sender email'),
+	$db->qstr("record/transport_id:\n  record_type: mail_transport\nrecord/sender_id:\n  record_type: address"),
+	time(),
+	time()
+));
+
 // ===========================================================================
 // Migrate `snippet_use_history` to metric
 

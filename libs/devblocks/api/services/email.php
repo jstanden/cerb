@@ -36,6 +36,8 @@ class _DevblocksEmailManager {
 	}
 	
 	function send(Swift_Message $message) {
+		$metrics = DevblocksPlatform::services()->metrics();
+		
 		$from = array_keys($message->getFrom());
 		$sender = reset($from);
 		
@@ -80,6 +82,28 @@ class _DevblocksEmailManager {
 				);
 				CerberusContexts::logActivity('transport.delivery.error', CerberusContexts::CONTEXT_MAIL_TRANSPORT, $model->id, $entry, CerberusContexts::CONTEXT_MAIL_TRANSPORT, $model->id);
 			}
+			
+			// Increment mail transport error metric
+			$metrics->increment(
+				'cerb.mail.transport.failures',
+				1,
+				[
+					'transport_id' => $model->id,
+					'sender_id' => $replyto->id,
+				]
+			);
+			
+		} else {
+			// Increment mail transport success metric
+			$metrics->increment(
+				'cerb.mail.transport.deliveries',
+				1,
+				[
+					'transport_id' => $model->id,
+					'sender_id' => $replyto->id,
+				]
+			);
+			
 		}
 		
 		return $result;
