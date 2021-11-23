@@ -11,17 +11,16 @@ class _DevblocksDataProviderCalendarAvailability extends _DevblocksDataProvider 
 					'caption' => 'range:',
 					'snippet' => 'range:"${1:this month}"',
 				],
-				[
-					'caption' => 'period:',
-					'snippet' => 'period:${1:hour}',
-				],
+//				[
+//					'caption' => 'period:',
+//					'snippet' => 'period:${1:hour}',
+//				],
 				'format:',
 			],
 			'calendars:' => [],
-			'period:' => [
-				'hour',
-				'day'
-			],
+//			'period:' => [
+//				'hour',
+//			],
 			'format:' => [
 				'timeblocks',
 				'dictionaries',
@@ -79,9 +78,9 @@ class _DevblocksDataProviderCalendarAvailability extends _DevblocksDataProvider 
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
 				$chart_model['range'] = $value;
 				
-			} else if($field->key == 'period') {
-				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
-				$chart_model['period'] = $value;
+//			} else if($field->key == 'period') {
+//				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
+//				$chart_model['period'] = $value;
 				
 			} else if($field->key == 'format') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
@@ -119,7 +118,7 @@ class _DevblocksDataProviderCalendarAvailability extends _DevblocksDataProvider 
 			return false;
 		}
 		
-		if(!in_array($chart_model['period'], ['hour','day'])) {
+		if(!in_array($chart_model['period'], ['hour'])) {
 			$error = "The `period:` field must be one of: hour, day";
 			return false;
 		}
@@ -153,8 +152,8 @@ class _DevblocksDataProviderCalendarAvailability extends _DevblocksDataProvider 
 			foreach($dates as $date) {
 				if('hour' == $chart_model['period']) {
 					$date_end = strtotime('+1 hour -1 second', $date);
-				} else if('day' == $chart_model['period']) {
-					$date_end = strtotime('+1 day -1 second', $date);
+//				} else if('day' == $chart_model['period']) {
+//					$date_end = strtotime('+1 day -1 second', $date);
 				} else {
 					$error = "The `period:` field must be one of: hour, day";
 					return false;
