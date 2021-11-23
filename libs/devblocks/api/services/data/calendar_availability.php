@@ -95,23 +95,22 @@ class _DevblocksDataProviderCalendarAvailability extends _DevblocksDataProvider 
 		$calendar_ids = [];
 		
 		if(array_key_exists('calendars_query', $chart_model)) {
-			$calendar_ctx = Extension_DevblocksContext::get(Context_Calendar::ID, true);
-			
-			$view = $calendar_ctx->getTempView();
-			$view->renderLimit = 100;
-			$view->addParamsWithQuickSearch($chart_model['calendars_query'], true);
-		
-			$results = $view->getData()[0];
-			
-			$calendar_ids = array_merge($calendar_ids, array_keys($results));
+			if(!empty($chart_model['calendars_query'])) {
+				$calendar_ctx = Extension_DevblocksContext::get(Context_Calendar::ID, true);
+				
+				$view = $calendar_ctx->getTempView();
+				$view->renderLimit = 100;
+				$view->addParamsWithQuickSearch($chart_model['calendars_query'], true);
+				
+				$results = $view->getData()[0];
+				
+				$calendar_ids = array_merge($calendar_ids, array_keys($results));
+			} else {
+				$calendar_ids = [];
+			}
 		}
 		
 		// Sanitize
-		
-		if(!$calendar_ids) {
-			$error = "The `calendars:` field is required.";
-			return false;
-		}
 		
 		if(!$chart_model['range']) {
 			$error = "The `range:` field is required.";
@@ -146,29 +145,36 @@ class _DevblocksDataProviderCalendarAvailability extends _DevblocksDataProvider 
 			'%s'
 		);
 		
-		foreach($calendars as $calendar) {
-			$events = $calendar->getEvents($range_from, $range_to);
-			
-			foreach($dates as $date) {
-				if('hour' == $chart_model['period']) {
-					$date_end = strtotime('+1 hour -1 second', $date);
-//				} else if('day' == $chart_model['period']) {
-//					$date_end = strtotime('+1 day -1 second', $date);
-				} else {
-					$error = "The `period:` field must be one of: hour, day";
-					return false;
+		if(!empty($calendars)) {
+			foreach($calendars as $calendar) {
+				$events = $calendar->getEvents($range_from, $range_to);
+				
+				foreach ($dates as $date) {
+					if ('hour' == $chart_model['period']) {
+						$date_end = strtotime('+1 hour -1 second', $date);
+						//				} else if('day' == $chart_model['period']) {
+						//					$date_end = strtotime('+1 day -1 second', $date);
+					} else {
+						$error = "The `period:` field must be one of: hour, day";
+						return false;
+					}
+					
+					// [TODO] In hourly, do this once per day (not 24x)
+					$tick_events = array_filter($events, function ($ts_day) use ($date, $date_end) {
+						return $date >= $ts_day && $date_end <= strtotime('+1 day -1 second', $ts_day);
+					}, ARRAY_FILTER_USE_KEY);
+					
+					$avail = $calendar->computeAvailability($date, $date_end, $tick_events);
+					$mins = $avail->getMinutes();
+					
+					$value = substr_count($mins, '1');
+					$results[$date] = ($results[$date] ?? 0) + $value;
 				}
-				
-				// [TODO] In hourly, do this once per day (not 24x)
-				$tick_events = array_filter($events, function($ts_day) use ($date, $date_end) {
-					return $date >= $ts_day && $date_end <= strtotime('+1 day -1 second', $ts_day);
-				}, ARRAY_FILTER_USE_KEY);
-				
-				$avail = $calendar->computeAvailability($date, $date_end, $tick_events);
-				$mins = $avail->getMinutes();
-				
-				$value = substr_count($mins, '1');
-				$results[$date] = ($results[$date] ?? 0) + $value;
+			}
+			
+		} else {
+			foreach ($dates as $date) {
+				$results[$date] = ($results[$date] ?? 0) + 0;
 			}
 		}
 		
