@@ -55,6 +55,9 @@
 		<file path="api/services/data/classifier_prediction.php">
 			<class name="_DevblocksDataProviderClassifierPrediction" />
 		</file>
+		<file path="api/services/data/attachment_manifest.php">
+			<class name="_DevblocksDataProviderAttachmentManifest" />
+		</file>
 		<file path="api/services/data/gpg_keyinfo.php">
 			<class name="_DevblocksDataProviderGpgKeyInfo" />
 		</file>

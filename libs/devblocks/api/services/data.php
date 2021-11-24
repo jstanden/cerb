@@ -21,6 +21,10 @@ class _DevblocksDataService {
 	
 	function getTypeMeta($type, $params) {
 		switch($type) {
+			case 'attachment.manifest':
+				$provider = new _DevblocksDataProviderAttachmentManifest();
+				return $provider->getSuggestions($type, $params);
+			
 			case 'calendar.availability':
 				$provider = new _DevblocksDataProviderCalendarAvailability();
 				return $provider->getSuggestions($type, $params);
@@ -114,6 +118,7 @@ class _DevblocksDataService {
 	
 	function getTypes() {
 		$types = [
+			'attachment.manifest',
 			'worklist.records',
 			'worklist.subtotals',
 			'worklist.series',
@@ -173,6 +178,14 @@ class _DevblocksDataService {
 		CerbQuickSearchLexer::getOperStringFromTokens($type_field->tokens, $oper, $chart_type);
 		
 		switch($chart_type) {
+			case 'attachment.manifest':
+				$provider = new _DevblocksDataProviderAttachmentManifest();
+				
+				if(false === ($results = $provider->getData($query, $chart_fields, $error)))
+					return false;
+				
+				break;
+
 			case 'calendar.availability':
 				$provider = new _DevblocksDataProviderCalendarAvailability();
 				
