@@ -2217,11 +2217,11 @@ class CerberusMail {
 	
 	static function parseComposeHashCommands(Model_Worker $worker, array &$message_properties, array &$commands) {
 		$lines_in = DevblocksPlatform::parseCrlfString($message_properties['content'], true, false);
-		$lines_out = array();
+		$lines_out = [];
 		
 		$is_cut = false;
 		
-		foreach($lines_in as $line) {
+		while(false !== ($line = current($lines_in))) {
 			$handled = false;
 			$matches = [];
 			
@@ -2259,6 +2259,7 @@ class CerberusMail {
 						$handled = true;
 						break;
 					
+					case 'sig':
 					case 'signature':
 						$group_id = $message_properties['group_id'] ?? null;
 						$bucket_id = $message_properties['bucket_id'] ?? null;
@@ -2307,6 +2308,26 @@ class CerberusMail {
 						}
 						break;
 					
+					case 'start':
+						if($args != 'comment')
+							break;
+						
+						$comment_body = '';
+						while(false !== ($comment_line = next($lines_in)) 
+							&& !DevblocksPlatform::strStartsWith($comment_line, '#end')
+						) {
+							$comment_body .= $comment_line .  "\n";
+						}
+						
+						if($comment_body) {
+							$handled = true;
+							$commands[] = array(
+								'command' => 'comment',
+								'args' => $comment_body,
+							);
+						}
+						break;
+						
 					case 'comment':
 					case 'watch':
 					case 'unwatch':
@@ -2326,6 +2347,8 @@ class CerberusMail {
 			if(!$handled && !$is_cut) {
 				$lines_out[] = $line;
 			}
+			
+			next($lines_in);
 		}
 		
 		$message_properties['content'] = implode("\n", $lines_out);
@@ -2369,13 +2392,13 @@ class CerberusMail {
 		
 		$is_cut = false;
 		
-		foreach($lines_in as $line) {
+		while(false !== ($line = current($lines_in))) {
 			$handled = false;
 			$matches = [];
 			
 			if(preg_match('/^\#([A-Za-z0-9_]+)(.*)$/', $line, $matches)) {
-				@$command = $matches[1];
-				@$args = ltrim($matches[2]);
+				$command = $matches[1] ?? '';
+				$args = ltrim($matches[2] ?? '');
 				
 				switch($command) {
 					case 'attach':
@@ -2438,6 +2461,7 @@ class CerberusMail {
 						}
 						break;
 					
+					case 'sig':
 					case 'signature':
 						@$group_id = $message_properties['group_id'];
 						@$bucket_id = $message_properties['bucket_id'];
@@ -2486,6 +2510,26 @@ class CerberusMail {
 						}
 						break;
 					
+					case 'start':
+						if($args != 'comment')
+							break;
+						
+						$comment_body = '';
+						while(false !== ($comment_line = next($lines_in))
+							&& !DevblocksPlatform::strStartsWith($comment_line, '#end')
+						) {
+							$comment_body .= $comment_line .  "\n";
+						}
+						
+						if($comment_body) {
+							$handled = true;
+							$commands[] = array(
+								'command' => 'comment',
+								'args' => $comment_body,
+							);
+						}
+						break;
+					
 					case 'comment':
 					case 'watch':
 					case 'unwatch':
@@ -2505,6 +2549,8 @@ class CerberusMail {
 			if(!$handled && !$is_cut) {
 				$lines_out[] = $line;
 			}
+			
+			next($lines_in);
 		}
 		
 		$message_properties['content'] = implode("\n", $lines_out);
