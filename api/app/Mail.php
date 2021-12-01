@@ -858,7 +858,8 @@ class CerberusMail {
 					if(NULL == ($header = $headers->get($header_key))) {
 						$headers->addTextHeader($header_key, $header_val);
 					} else {
-						$header->setValue($header_val);
+						if(method_exists($header, 'setValue'))
+							$header->setValue($header_val);
 					}
 				}
 			}
@@ -1310,7 +1311,8 @@ class CerberusMail {
 						if(NULL == ($header = $headers->get($header_key))) {
 							$headers->addTextHeader($header_key, $header_val);
 						} else {
-							$header->setValue($header_val);
+							if(method_exists($header, 'setValue'))
+								$header->setValue($header_val);
 						}
 					}
 				}
@@ -1724,6 +1726,11 @@ class CerberusMail {
 						
 						// Overrides
 						switch (strtolower(trim($header_key))) {
+							case 'from':
+								if(false != ($address = CerberusMail::parseRfcAddress($header_val)))
+									$mail->setFrom($address['email']);
+								break;
+								
 							case 'to':
 								if (false != ($addresses = CerberusMail::parseRfcAddresses($header_val)))
 									foreach (array_keys($addresses) as $address)
@@ -1752,8 +1759,9 @@ class CerberusMail {
 								} else {
 									if ($header instanceof Swift_Mime_Headers_IdentificationHeader)
 										continue 2;
-									
-									$header->setValue($header_val);
+								
+									if(method_exists($header, 'setValue'))
+										$header->setValue($header_val);
 								}
 								break;
 						}
