@@ -3502,8 +3502,13 @@ abstract class C4_AbstractView {
 				case Model_CustomField::TYPE_NUMBER:
 					$cf_val = (0==strlen($cf_val)) ? '' : intval($cf_val);
 					break;
+				case Model_CustomField::TYPE_MULTI_CHECKBOX:
+					// Remove empty values
+					if(is_array($cf_val)) {
+						$cf_val = array_filter($cf_val, fn($v) => 0 != strlen($v));
+					}
+					break;
 			}
-			
 			
 			if(false != ($cf_type = $cf_field->getTypeExtension())) {
 				if(is_array($ids))
@@ -3515,7 +3520,7 @@ abstract class C4_AbstractView {
 				if(Model_CustomField::hasMultipleValues($cf_field->type)) {
 					if(is_array($cf_val))
 					foreach($cf_val as $val) {
-						if(DevblocksPlatform::strStartsWith($val,'+-')) {
+						if(DevblocksPlatform::strStartsWith($val,['+','-'])) {
 							$op = substr($val,0,1);
 							$val = substr($val,1);
 						} else {
