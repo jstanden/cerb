@@ -24,10 +24,6 @@
 				<button type="button" id="{$message->id}skip" class="cerb-no-print" onclick="document.location='#{$message->id}act';" title="{'display.convo.skip_to_bottom'|devblocks_translate}"><span class="glyphicons glyphicons-down-arrow"></span></button>
 			{/if}
 
-			{if $expanded && $attachments}
-			<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-query="on.message:(id:{$message->id})"><span class="glyphicons glyphicons-paperclip"></span></button>
-			{/if}
-
 			{$permalink_url = "{devblocks_url full=true}c=profiles&type=ticket&mask={$ticket->mask}{/devblocks_url}/#message{$message->id}"}
 			<button type="button" onclick="genericAjaxPopup('permalink', 'c=internal&a=invoke&module=records&action=showPermalinkPopup&url={$permalink_url|escape:'url'}');" title="{'common.permalink'|devblocks_translate|lower}"><span class="glyphicons glyphicons-link"></span></button>
 
