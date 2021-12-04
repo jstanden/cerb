@@ -1236,6 +1236,17 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_MailQueue::QUEUE_DELIVERY_DATE),
 				),
+			'ticket.id' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_CONTEXT,
+					'type_options' => [
+						'context' => CerberusContexts::CONTEXT_TICKET,
+					],
+					'options' => array('param_key' => SearchFields_MailQueue::TICKET_ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_TICKET, 'q' => ''],
+					]
+				),
 			'token' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
