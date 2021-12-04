@@ -256,20 +256,6 @@ class CerberusParserModel {
 		
 		$aReferences = [];
 		
-		// Add all References
-		if(!empty($sReferences)) {
-			$matches = [];
-			if(preg_match("/(\<.*?\@.*?\>)/", $sReferences, $matches)) {
-				unset($matches[0]); // who cares about the pattern
-				foreach($matches as $ref) {
-					$ref = trim($ref);
-					if(!empty($ref) && 0 != strcasecmp($ref,$sMessageId))
-						$aReferences[$ref] = 1;
-				}
-			}
-			unset($matches);
-		}
-		
 		// Append first <*> from In-Reply-To
 		if(!empty($sInReplyTo)) {
 			$matches = [];
@@ -283,7 +269,22 @@ class CerberusParserModel {
 			unset($matches);
 		}
 		
-		// Try matching our references or in-reply-to
+		// Add all References
+		if(!empty($sReferences)) {
+			$matches = [];
+			if(preg_match_all("/(\<[^\>]*?\>)/", $sReferences, $matches)) {
+				$matches = array_reverse($matches[1] ?? []);
+				
+				foreach($matches as $ref) {
+					$ref = trim($ref);
+					if(!empty($ref) && 0 != strcasecmp($ref,$sMessageId))
+						$aReferences[$ref] = 1;
+				}
+			}
+			unset($matches);
+		}
+		
+		// Try matching in-reply-to or references
 		if(is_array($aReferences) && !empty($aReferences)) {
 			foreach(array_keys($aReferences) as $ref) {
 				if(empty($ref))
