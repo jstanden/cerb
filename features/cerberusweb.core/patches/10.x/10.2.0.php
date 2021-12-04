@@ -67,6 +67,16 @@ if(!$db->GetOneMaster("SELECT 1 FROM automation_event WHERE name = 'worker.authe
 	));
 }
 
+if(!$db->GetOneMaster("SELECT 1 FROM automation_event WHERE name = 'mail.reply.validate'")) {
+	$db->ExecuteMaster(sprintf('INSERT IGNORE INTO automation_event (name, extension_id, description, automations_kata, updated_at) VALUES (%s,%s,%s,%s,%d)',
+		$db->qstr('mail.reply.validate'),
+		$db->qstr('cerb.trigger.mail.reply.validate'),
+		$db->qstr('Validate before a worker starts a new reply'),
+		$db->qstr("automation/recentActivity:\n  uri: cerb:automation:cerb.reply.recentActivity\n  inputs:\n    message@key: message_id\n  disabled@bool: no\n\n"),
+		time()
+	));
+}
+
 // ===========================================================================
 // Add new toolbars
 
@@ -126,6 +136,7 @@ $automation_files = [
 	'cerb.projectBoard.toolbar.task.find.json',
 	'cerb.reminder.remind.email.json',
 	'cerb.reminder.remind.notification.json',
+	'cerb.reply.recentActivity.json',
 	'cerb.ticket.move.json',
 	'cerb.ticket.participants.manage.json',
 ];

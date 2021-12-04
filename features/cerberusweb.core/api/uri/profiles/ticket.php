@@ -42,6 +42,8 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 					return $this->_profileAction_requesterAdd();
 				case 'reply':
 					return $this->_profileAction_reply();
+				case 'validateBeforeReplyJson':
+					return $this->_profileAction_validateBeforeReplyJson();
 				case 'validateReplyJson':
 					return $this->_profileAction_validateReplyJson();
 				case 'sendReply':
@@ -493,6 +495,43 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		return $draft;
 	}
 	
+	private function _profileAction_validateBeforeReplyJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer',0);
+		$is_forward = DevblocksPlatform::importGPC($_POST['forward'] ?? null, 'integer',0);
+		$draft_id = DevblocksPlatform::importGPC($_POST['draft_id'] ?? null, 'integer',0);
+		
+		header('Content-Type: application/json; charset=utf-8');
+		
+		if(!$draft_id && !$is_forward) {
+			// Do we need to warn the worker about anything before they reply?
+			if(null != ($automation_event = DAO_AutomationEvent::getByName('mail.reply.validate'))) {
+				$automation_event_dict = DevblocksDictionaryDelegate::instance([]);
+				
+				if(false == ($message = DAO_Message::get($id)))
+					DevblocksPlatform::dieWithHttpError(null, 404);
+				
+				$automation_event_dict->mergeKeys('message_', DevblocksDictionaryDelegate::getDictionaryFromModel($message, CerberusContexts::CONTEXT_MESSAGE));
+				$automation_event_dict->mergeKeys('worker_', DevblocksDictionaryDelegate::getDictionaryFromModel($active_worker, CerberusContexts::CONTEXT_WORKER));
+				
+				$event_kata = $automation_event->getKata($automation_event_dict);
+				
+				echo json_encode([
+					'validation_interactions' => $event_kata,
+				]);
+				return;
+			}
+		}
+		
+		echo json_encode([
+			'status' => true,
+		]);
+	}
+	
 	private function _profileAction_reply() {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -500,12 +539,11 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
-		@$is_forward = DevblocksPlatform::importGPC($_POST['forward'],'integer',0);
-		@$is_confirmed = DevblocksPlatform::importGPC($_POST['is_confirmed'],'integer',0);
-		@$reply_mode = DevblocksPlatform::importGPC($_POST['reply_mode'],'integer',0);
-		@$draft_id = DevblocksPlatform::importGPC($_POST['draft_id'],'integer',0);
-		@$reply_format = DevblocksPlatform::importGPC($_POST['reply_format'],'string','');
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer',0);
+		$is_forward = DevblocksPlatform::importGPC($_POST['forward'] ?? null, 'integer',0);
+		$reply_mode = DevblocksPlatform::importGPC($_POST['reply_mode'] ?? null, 'integer',0);
+		$draft_id = DevblocksPlatform::importGPC($_POST['draft_id'] ?? null, 'integer',0);
+		$reply_format = DevblocksPlatform::importGPC($_POST['reply_format'] ?? null, 'string','');
 		
 		// Get a draft
 		if(!$draft_id) {
@@ -539,15 +577,6 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		
 		if(false == ($bucket = $ticket->getBucket()))
 			DevblocksPlatform::dieWithHttpError(null, 403);
-		
-		// Check to see if other activity has happened on this ticket since the worker started looking
-		if(!$draft_id && !$is_forward && !$is_confirmed) {
-			@$since_timestamp = DevblocksPlatform::importGPC($_POST['timestamp'],'integer',0);
-			$recent_activity = $this->_checkRecentTicketActivity($ticket->id, $since_timestamp);
-			
-			if(!empty($recent_activity))
-				$tpl->assign('recent_activity', $recent_activity);
-		}
 		
 		// Form variables
 		
@@ -852,7 +881,8 @@ EOD;
 					]);
 					
 					$automation_event_dict->mergeKeys('draft_', DevblocksDictionaryDelegate::getDictionaryFromModel($draft, CerberusContexts::CONTEXT_DRAFT));
-			
+					$automation_event_dict->mergeKeys('worker_', DevblocksDictionaryDelegate::getDictionaryFromModel($active_worker, CerberusContexts::CONTEXT_WORKER));
+
 					$event_kata = $automation_event->getKata($automation_event_dict);
 					
 					echo json_encode([
@@ -1760,89 +1790,6 @@ EOD;
 		} while(!empty($results) && $view->renderPage <= $max_pages);
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
-	}
-	
-	private function _checkRecentTicketActivity($ticket_id, $since_timestamp) {
-		$active_worker = CerberusApplication::getActiveWorker();
-		$workers = DAO_Worker::getAll();
-		$activities = [];
-		
-		// Check drafts
-		list($results,) = DAO_MailQueue::search(
-			[],
-			array(
-				SearchFields_MailQueue::IS_QUEUED => new DevblocksSearchCriteria(SearchFields_MailQueue::IS_QUEUED, '=', 0),
-				SearchFields_MailQueue::TICKET_ID => new DevblocksSearchCriteria(SearchFields_MailQueue::TICKET_ID, '=', $ticket_id),
-				SearchFields_MailQueue::WORKER_ID => new DevblocksSearchCriteria(SearchFields_MailQueue::WORKER_ID, '!=', $active_worker->id),
-				SearchFields_MailQueue::UPDATED => new DevblocksSearchCriteria(SearchFields_MailQueue::UPDATED, DevblocksSearchCriteria::OPER_GTE, $since_timestamp-300),
-			),
-			1,
-			0,
-			SearchFields_MailQueue::UPDATED,
-			false,
-			false
-		);
-		
-		if(!empty($results))
-			foreach($results as $row) {
-				if(null == ($worker = @$workers[$row['m_worker_id']]))
-					continue;
-				
-				$activities[] = array(
-					'message' => sprintf("%s is currently replying",
-						$worker->getName()
-					),
-					'timestamp' => intval($row['m_updated']),
-				);
-			}
-		
-		unset($results);
-		
-		// Check activity log
-		$find_events = array(
-			'ticket.status.waiting',
-			'ticket.status.closed',
-			'ticket.status.deleted',
-			'ticket.message.outbound',
-		);
-		
-		list($results,) = DAO_ContextActivityLog::search(
-			[],
-			array(
-				SearchFields_ContextActivityLog::TARGET_CONTEXT => new DevblocksSearchCriteria(SearchFields_ContextActivityLog::TARGET_CONTEXT, '=', CerberusContexts::CONTEXT_TICKET),
-				SearchFields_ContextActivityLog::TARGET_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_ContextActivityLog::TARGET_CONTEXT_ID, '=', $ticket_id),
-				SearchFields_ContextActivityLog::ACTIVITY_POINT => new DevblocksSearchCriteria(SearchFields_ContextActivityLog::ACTIVITY_POINT, 'in', $find_events),
-				SearchFields_ContextActivityLog::CREATED => new DevblocksSearchCriteria(SearchFields_ContextActivityLog::CREATED, DevblocksSearchCriteria::OPER_GTE, $since_timestamp),
-			),
-			10,
-			0,
-			SearchFields_ContextActivityLog::CREATED,
-			false,
-			false
-		);
-		
-		if(!empty($results))
-			foreach($results as $row) {
-				if(false == ($json = json_decode($row['c_entry_json'], true)))
-					continue;
-				
-				// Skip any events from the current worker
-				if($row[SearchFields_ContextActivityLog::ACTOR_CONTEXT] == CerberusContexts::CONTEXT_WORKER
-					&& $row[SearchFields_ContextActivityLog::ACTOR_CONTEXT_ID] == $active_worker->id)
-					continue;
-				
-				$activities[] = array(
-					'message' => CerberusContexts::formatActivityLogEntry($json, [], array('target')),
-					'timestamp' => intval($row['c_created']),
-				);
-			}
-		
-		unset($results);
-		
-		if(!empty($activities))
-			DevblocksPlatform::sortObjects($activities, '[timestamp]', false);
-		
-		return $activities;
 	}
 	
 	private function _profileAction_requesterAdd() {

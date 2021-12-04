@@ -20,6 +20,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		AutomationTrigger_InteractionInternal::ID,
 		AutomationTrigger_InteractionWorker::ID,
 		AutomationTrigger_MailDraftValidate::ID,
+		AutomationTrigger_MailReplyValidate::ID,
 	];
 	
 	function render() {

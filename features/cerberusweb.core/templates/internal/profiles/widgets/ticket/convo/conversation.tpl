@@ -147,72 +147,173 @@ $(function() {
 		var is_forward = (null == e.is_forward || 0 === e.is_forward) ? 0 : 1;
 		var draft_id = (null == e.draft_id) ? 0 : parseInt(e.draft_id);
 		var reply_mode = (null == e.reply_mode) ? 0 : parseInt(e.reply_mode);
-		var is_confirmed = (null == e.is_confirmed || 0 === e.is_confirmed) ? 0 : 1;
 		
-		{* Inline reply form *}
-		{if $mail_reply_format == 'inline'}
-			var $reply = $('#reply' + msgid);
+		var funcValidationInteractions = function(json) {
+			var validation_interactions = Promise.resolve();
 			
-			// Prevent the reply form from rendering twice
-			if(0 === $reply.children().length) {
-				var formData = new FormData();
-				formData.set('c', 'profiles');
-				formData.set('a', 'invoke');
-				formData.set('module', 'ticket');
-				formData.set('action', 'reply');
-				formData.set('forward', String(is_forward));
-				formData.set('draft_id', String(draft_id));
-				formData.set('reply_mode', String(reply_mode));
-				formData.set('reply_format', 'inline');
-				formData.set('is_confirmed', String(is_confirmed));
-				formData.set('timestamp', '{time()}');
-				formData.set('id', String(msgid));
+			if('object' != typeof json || !json.hasOwnProperty('validation_interactions'))
+				return validation_interactions;
 
-				genericAjaxPost(formData, '', '', function(html) {
-					$reply.html(html);
-					$reply[0].scrollIntoView();
+			for(var validation_interaction_key in json.validation_interactions) {
+				if(!json.validation_interactions.hasOwnProperty(validation_interaction_key))
+					continue;
+
+				var validation_interaction = json.validation_interactions[validation_interaction_key];
+
+				if(!validation_interaction.hasOwnProperty('data'))
+					continue;
+
+				validation_interactions = validation_interactions.then(function() {
+					return new Promise(function(resolve, reject) {
+						var interaction_params = '';
+
+						if(this.data.hasOwnProperty('inputs') && 'object' == typeof this.data.inputs)
+							interaction_params = $.param(this.data.inputs);
+						
+						var $interaction =
+							$('<div/>')
+								.attr('data-interaction-uri', this.data.uri)
+								.attr('data-interaction-params', interaction_params)
+								.attr('data-interaction-done', '')
+								.cerbBotTrigger({
+									'modal': true,
+									'caller': 'mail.reply.validate',
+									'start': function(formData) {
+									},
+									'done': function(e) {
+										e.stopPropagation();
+										$interaction.remove();
+										
+										// If the interaction rejected validation
+										if(e.eventData.hasOwnProperty('exit') && 'return' === e.eventData.exit) {
+											if(e.eventData.hasOwnProperty('return') && e.eventData.return.hasOwnProperty('reject')) {
+												reject(e);
+												return;
+											}
+										}
+										
+										resolve(e);
+									},
+									'error': function(e) {
+										reject(e);
+									},
+									'abort': function(e) {
+										reject(e);
+									}
+								})
+								.click()
+						;
+					}.bind(this));
+				}.bind(validation_interaction));
+			}
+			
+			return validation_interactions;
+		};
+		
+		// Do we have interactive validators?
+		var formData = new FormData();
+		formData.set('c', 'profiles');
+		formData.set('a', 'invoke');
+		formData.set('module', 'ticket');
+		formData.set('action', 'validateBeforeReplyJson');
+		formData.set('forward', String(is_forward));
+		formData.set('draft_id', String(draft_id));
+		formData.set('timestamp', '{time()}');
+		formData.set('id', String(msgid));
+
+		var hookSuccess = function() {
+			{* Inline reply form *}
+			{if $mail_reply_format == 'inline'}
+				var $reply = $('#reply' + msgid);
+				
+				// Prevent the reply form from rendering twice
+				if(0 === $reply.children().length) {
+					var formData = new FormData();
+					formData.set('c', 'profiles');
+					formData.set('a', 'invoke');
+					formData.set('module', 'ticket');
+					formData.set('action', 'reply');
+					formData.set('forward', String(is_forward));
+					formData.set('draft_id', String(draft_id));
+					formData.set('reply_mode', String(reply_mode));
+					formData.set('reply_format', 'inline');
+					formData.set('timestamp', '{time()}');
+					formData.set('id', String(msgid));
+	
+					genericAjaxPost(formData, '', '', function(html) {
+						$reply.html(html);
+						$reply[0].scrollIntoView();
+						
+						$reply.on('cerb-reply-sent cerb-reply-saved cerb-reply-draft', function() {
+							// Profile reload
+							document.location.reload();
+						});
+					});
 					
-					$reply.on('cerb-reply-sent cerb-reply-saved cerb-reply-draft', function() {
+				} else {
+					$reply[0].scrollIntoView();
+					$reply.find('textarea').focus();
+				}
+			
+			{* Popup reply form *}
+			{else}
+				var $popup = genericAjaxPopupFind('#popupreply' + msgid);
+				
+				// If this popup isn't already open
+				if(null == $popup) {
+					var formData = new FormData();
+					formData.set('c', 'profiles');
+					formData.set('a', 'invoke');
+					formData.set('module', 'ticket');
+					formData.set('action', 'reply');
+					formData.set('forward', String(is_forward));
+					formData.set('draft_id', String(draft_id));
+					formData.set('reply_mode', String(reply_mode));
+					formData.set('timestamp', '{time()}');
+					formData.set('id', String(msgid));
+	
+					$popup = genericAjaxPopup('reply' + msgid, formData, null, false, '70%');
+					
+					$popup.on('cerb-reply-sent cerb-reply-saved cerb-reply-draft', function(e) {
 						// Profile reload
 						document.location.reload();
 					});
-				});
-				
-			} else {
-				$reply[0].scrollIntoView();
-				$reply.find('textarea').focus();
-			}
-		
-		{* Popup reply form *}
-		{else}
-			var $popup = genericAjaxPopupFind('#popupreply' + msgid);
-			
-			// If this popup isn't already open
-			if(null == $popup) {
-				var formData = new FormData();
-				formData.set('c', 'profiles');
-				formData.set('a', 'invoke');
-				formData.set('module', 'ticket');
-				formData.set('action', 'reply');
-				formData.set('forward', String(is_forward));
-				formData.set('draft_id', String(draft_id));
-				formData.set('reply_mode', String(reply_mode));
-				formData.set('is_confirmed', String(is_confirmed));
-				formData.set('timestamp', '{time()}');
-				formData.set('id', String(msgid));
+					
+				// If the reply window is already open, just focus it
+				} else {
+					$popup.show().find('textarea').focus();
+				}
+			{/if}			
+		};
 
-				$popup = genericAjaxPopup('reply' + msgid, formData, null, false, '70%');
+		var hookError = function(message) {
+		};
+		
+		genericAjaxPost(formData, '', '', function(json) {
+			if(null == json || 'object' != typeof json)
+				return hookError('An unexpected error occurred. Try again.');
+
+			if(json.hasOwnProperty('validation_interactions') && 'object' == typeof json.validation_interactions) {
+				var validation_interactions = funcValidationInteractions(json);
+									
+				validation_interactions
+					.then(function() {
+						hookSuccess();
+					})
+					.catch(function() {
+						// Aborted
+					})
+					.finally(function() {
+					})
+				;
+
+			} else if(json.hasOwnProperty('status') && json.status) {
+				hookSuccess();
 				
-				$popup.on('cerb-reply-sent cerb-reply-saved cerb-reply-draft', function(e) {
-					// Profile reload
-					document.location.reload();
-				});
-				
-			// If the reply window is already open, just focus it
 			} else {
-				$popup.show().find('textarea').focus();
+				hookError(json.message);
 			}
-		{/if}
+		});
 	});
 
 	var anchor = window.location.hash.substr(1);

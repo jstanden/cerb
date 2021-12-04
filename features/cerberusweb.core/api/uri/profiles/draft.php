@@ -112,7 +112,6 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 				'draft_id' => $draft_id,
 				'id' => $draft->params['id'] ?? 0,
 				'reply_mode' => $draft->params['reply_mode'] ?? null,
-				'is_confirmed' => 1,
 				'forward' => ($draft->type == Model_MailQueue::TYPE_TICKET_FORWARD ? 1 : 0),
 				'timestamp' => time(),
 			];
@@ -644,6 +643,7 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 					]);
 					
 					$automation_event_dict->mergeKeys('draft_', DevblocksDictionaryDelegate::getDictionaryFromModel($draft, CerberusContexts::CONTEXT_DRAFT));
+					$automation_event_dict->mergeKeys('worker_', DevblocksDictionaryDelegate::getDictionaryFromModel($active_worker, CerberusContexts::CONTEXT_WORKER));
 					
 					$event_kata = $automation_event->getKata($automation_event_dict);
 					

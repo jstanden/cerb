@@ -5101,6 +5101,25 @@
 		</extension>
 
 		<extension point="cerb.automation.trigger">
+			<id>cerb.trigger.mail.reply.validate</id>
+			<name>mail.reply.validate</name>
+			<class>
+				<file>api/automations/triggers/mail.reply.validate.php</file>
+				<name>AutomationTrigger_MailReplyValidate</name>
+			</class>
+			<params>
+				<param key="description" value="Validate before a worker starts a new reply" />
+				<param key="features">
+					<value>
+						<data key="await" />
+						<data key="callers" />
+						<data key="inputs" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<extension point="cerb.automation.trigger">
 			<id>cerb.trigger.map.clicked</id>
 			<name>map.clicked</name>
 			<class>

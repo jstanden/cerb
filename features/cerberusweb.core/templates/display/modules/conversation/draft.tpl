@@ -158,7 +158,6 @@ $(function() {
 		evt.is_forward = {if $draft->type=='ticket.forward'}1{else}0{/if};
 		evt.draft_id = {$draft->id};
 		evt.reply_mode = 0;
-		evt.is_confirmed = 1;
 
 		$draft.trigger(evt);
 	});

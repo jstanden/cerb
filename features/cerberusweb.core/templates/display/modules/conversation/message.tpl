@@ -286,7 +286,6 @@
 										var is_forward = '0';
 										var draft_id = e.eventData.return.reply.draft_id;
 										var reply_mode = '0';
-										var is_confirmed = '0';
 
 										var formData = new FormData();
 										formData.set('c', 'profiles');
@@ -296,7 +295,6 @@
 										formData.set('forward', is_forward);
 										formData.set('draft_id', draft_id);
 										formData.set('reply_mode', reply_mode);
-										formData.set('is_confirmed', is_confirmed);
 										formData.set('timestamp', '{time()}');
 										formData.set('id', msg_id);
 
@@ -601,7 +599,6 @@ $(function() {
 			evt.is_forward = 0;
 			evt.draft_id = 0;
 			evt.reply_mode = '{$mail_reply_button}';
-			evt.is_confirmed = 0;
 			
 			$msg.trigger(evt);
 		})
@@ -617,7 +614,6 @@ $(function() {
 			evt.is_forward = 0;
 			evt.draft_id = 0;
 			evt.reply_mode = 0;
-			evt.is_confirmed = 0;
 			
 			$msg.trigger(evt);
 		})
@@ -633,7 +629,6 @@ $(function() {
 			evt.is_forward = 0;
 			evt.draft_id = 0;
 			evt.reply_mode = 2;
-			evt.is_confirmed = 0;
 			
 			$msg.trigger(evt);
 		})
@@ -649,7 +644,6 @@ $(function() {
 			evt.is_forward = 0;
 			evt.draft_id = 0;
 			evt.reply_mode = 1;
-			evt.is_confirmed = 0;
 			
 			$msg.trigger(evt);
 		})
@@ -665,7 +659,6 @@ $(function() {
 			evt.is_forward = 1;
 			evt.draft_id = 0;
 			evt.reply_mode = 0;
-			evt.is_confirmed = 0;
 			
 			$msg.trigger(evt);
 		})

@@ -4,25 +4,6 @@
 
 <div class="reply_frame {if "inline" == $reply_format}block{/if}" style="width:98%;margin:10px;">
 
-{if $recent_activity}
-	<div class="cerb-collision">
-		<h1>There is recent activity on this ticket:</h1>
-		<table style="margin-left:20px;">
-			{foreach from=$recent_activity item=activity}
-			<tr>
-				<td align="right" style="padding-right:15px;vertical-align:middle;"><b>{$activity.timestamp|devblocks_prettytime}</b></td>
-				<td style="vertical-align:middle;">{$activity.message}</td>
-			</tr>
-			{/foreach}
-		</table>
-		
-		<div style="margin-top:10px;">
-			<button type="button" class="cerb-collision--continue"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.continue'|devblocks_translate|capitalize}</button>
-			<button type="button" class="cerb-collision--cancel"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(180,0,0);"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
-		</div>
-	</div>
-{/if}
-
 <form id="reply{$message->id}_form" onsubmit="return false;" method="post">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
@@ -370,10 +351,6 @@ $(function() {
 		}
 	});
 
-	{if $recent_activity}
-	$frm.hide();
-	{/if}
-	
 	$reply.on('cerb-reply--close', function(e) {
 		e.stopPropagation();
 		
@@ -385,29 +362,6 @@ $(function() {
 	});
 	
 	var onReplyFormInit = function() {
-		var $collisions = $reply.find('.cerb-collision');
-		
-		// Collision detection
-		
-		$collisions.find('.cerb-collision--continue').on('click', function(e) {
-			$collisions.remove();
-			
-			$frm.fadeIn();
-
-			// Save a draft now
-			$editor_toolbar_button_save_draft.click();
-			
-			// Start draft auto-save timer every 30 seconds
-			enableAutoSaveDraft();
-			
-			// Move cursor
-			editor.focus();
-		});
-		
-		$collisions.find('.cerb-collision--cancel').on('click', function(e) {
-			$reply.triggerHandler('cerb-reply--close');
-		});
-		
 		// Disable ENTER submission on the FORM text input
 		$frm
 			.find('input:text')
@@ -825,12 +779,10 @@ $(function() {
 
 		// Focus
 		
-		{if !$recent_activity}
-			{if !$is_forward}
-				$editor.focus();
-			{else}
-				$frm.find('input:text[name=to]').focus();
-			{/if}
+		{if !$is_forward}
+			$editor.focus();
+		{else}
+			$frm.find('input:text[name=to]').focus();
 		{/if}
 		
 		// Reply action buttons
@@ -1164,13 +1116,8 @@ $(function() {
 		});
 		
 		// Focus 
-		{if $recent_activity}
-			$collisions.find('button:first').focus();
-			
-		{else}
-			$editor_toolbar_button_save_draft.click(); // save now
-			enableAutoSaveDraft();
-		{/if}
+		$editor_toolbar_button_save_draft.click(); // save now
+		enableAutoSaveDraft();
 		
 		// Files
 		$frm.find('button.chooser_file').each(function() {

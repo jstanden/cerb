@@ -21,7 +21,6 @@ $(function() {
 		formData.set('forward', '0');
 		formData.set('draft_id', '{$draft_id}');
 		formData.set('reply_mode', '0');
-		formData.set('is_confirmed', '1');
 
 		$popup = genericAjaxPopup('replyInteraction', formData, null, false, '80%');
 

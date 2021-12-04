@@ -40,7 +40,6 @@ $(function() {
 		var is_forward = 0;
 		var draft_id = 0;
 		var reply_mode = 0;
-		var is_confirmed = 0;
 
 		var formData = new FormData();
 		formData.set('c', 'profiles');
@@ -50,7 +49,6 @@ $(function() {
 		formData.set('forward', is_forward);
 		formData.set('draft_id', draft_id);
 		formData.set('reply_mode', reply_mode);
-		formData.set('is_confirmed', is_confirmed);
 		formData.set('timestamp', '{time()}');
 		formData.set('id', msgid);
 
