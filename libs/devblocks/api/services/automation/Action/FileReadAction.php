@@ -41,6 +41,10 @@ class FileReadAction extends AbstractAction {
 				->number()
 			;
 			
+			$validation->addField('extract', 'inputs:extract:')
+				->string()
+			;
+			
 			$validation->addField('offset', 'inputs:offset:')
 				->number()
 			;
@@ -84,29 +88,38 @@ class FileReadAction extends AbstractAction {
 					throw new Exception_DevblocksAutomationError($error);
 				}
 				
-				$fp = DevblocksPlatform::getTempFile();
+				// Do we have a manifest key?
+				$extract = $inputs['extract'] ?? null;
 				
-				$resource->getFileContents($fp);
-				
-				fseek($fp, $fp_offset);
-				
-				$bytes = fread($fp, $fp_max_size);
-				$length = strlen($bytes);
-				
-				$is_printable = DevblocksPlatform::services()->string()->isPrintable($bytes);
-				
-				if(!$is_printable)
-					$bytes = sprintf('data:%s;base64,%s', $resource->mime_type, base64_encode($bytes));
-				
-				$results = [
-					'bytes' => $bytes,
-					'uri' => $inputs['uri'],
-					'name' => $resource->token,
-					'offset_from' => $fp_offset,
-					'offset_to' => $fp_offset + $length,
-					'mime_type' => $resource->mime_type,
-					'size' => $resource->storage_size,
-				];
+				if($extract) {
+					$error = null;
+					$results = $this->_getFileFromManifestKey($resource, $extract, $error);
+					
+				} else {
+					$fp = DevblocksPlatform::getTempFile();
+					
+					$resource->getFileContents($fp);
+					
+					fseek($fp, $fp_offset);
+					
+					$bytes = fread($fp, $fp_max_size);
+					$length = strlen($bytes);
+					
+					$is_printable = DevblocksPlatform::services()->string()->isPrintable($bytes);
+					
+					if(!$is_printable)
+						$bytes = sprintf('data:%s;base64,%s', $resource->mime_type, base64_encode($bytes));
+					
+					$results = [
+						'bytes' => $bytes,
+						'uri' => $inputs['uri'],
+						'name' => $resource->token,
+						'offset_from' => $fp_offset,
+						'offset_to' => $fp_offset + $length,
+						'mime_type' => $resource->mime_type,
+						'size' => $resource->storage_size,
+					];
+				}
 				
 				if($output)
 					$dict->set($output, $results);
@@ -117,29 +130,38 @@ class FileReadAction extends AbstractAction {
 					throw new Exception_DevblocksAutomationError($error);
 				}
 				
-				$fp = DevblocksPlatform::getTempFile();
+				// Do we have a manifest key?
+				$extract = $inputs['extract'] ?? null;
 				
-				$file->getFileContents($fp);
-				
-				fseek($fp, $fp_offset);
-				
-				$bytes = fread($fp, $fp_max_size);
-				$length = strlen($bytes);
-				
-				$is_printable = DevblocksPlatform::services()->string()->isPrintable($bytes);
-				
-				if(!$is_printable)
-					$bytes = sprintf('data:%s;base64,%s', $file->mime_type, base64_encode($bytes));
-				
-				$results = [
-					'bytes' => $bytes,
-					'uri' => $inputs['uri'],
-					'name' => $file->name,
-					'offset_from' => $fp_offset,
-					'offset_to' => $fp_offset + $length,
-					'mime_type' => $file->mime_type,
-					'size' => $file->storage_size,
-				];
+				if($extract) {
+					$error = null;
+					$results = $this->_getFileFromManifestKey($file, $extract, $error);
+					
+				} else {
+					$fp = DevblocksPlatform::getTempFile();
+					
+					$file->getFileContents($fp);
+					
+					fseek($fp, $fp_offset);
+					
+					$bytes = fread($fp, $fp_max_size);
+					$length = strlen($bytes);
+					
+					$is_printable = DevblocksPlatform::services()->string()->isPrintable($bytes);
+					
+					if (!$is_printable)
+						$bytes = sprintf('data:%s;base64,%s', $file->mime_type, base64_encode($bytes));
+					
+					$results = [
+						'bytes' => $bytes,
+						'uri' => $inputs['uri'],
+						'name' => $file->name,
+						'offset_from' => $fp_offset,
+						'offset_to' => $fp_offset + $length,
+						'mime_type' => $file->mime_type,
+						'size' => $file->storage_size,
+					];
+				}
 				
 				if($output)
 					$dict->set($output, $results);
@@ -170,5 +192,62 @@ class FileReadAction extends AbstractAction {
 		}
 		
 		return $this->node->getParent()->getId();
+	}
+	
+	private function _getFileFromManifestKey($file, $extract, &$error=null) {
+		if(!extension_loaded('zip')) {
+			$error = 'The `zip` extension is not loaded';
+			return false;
+		}
+		
+		$zip = new \ZipArchive();
+		
+		$fp = DevblocksPlatform::getTempFile();
+		$fp_name = DevblocksPlatform::getTempFileInfo($fp);
+		
+		if(false === ($file->getFileContents($fp))) {
+			$error = 'Failed to read file data';
+			return false;
+		}
+		
+		if(false === ($zip->open($fp_name))) {
+			$error = 'The file is not a valid ZIP archive.';
+			return false;	
+		}
+		
+		if(false === ($index = $zip->locateName($extract))) {
+			$error = sprintf('Path (%s) not found in archive manifest.', $extract);
+			return false;
+		}
+		
+		if(false === ($stat = $zip->statIndex($index))) {
+			$error = sprintf('Failed to stat path (%s) in archive manifest.', $extract);
+			return false;
+		}
+		
+		if(false === ($bytes = $zip->getFromIndex($index))) {
+			$error = sprintf('Failed to read bytes from path (%s) in archive manifest.', $extract);
+			return false;
+		}
+		
+		$is_printable = DevblocksPlatform::services()->string()->isPrintable($bytes);
+		
+		$mime_type = 'application/octet-stream';
+		
+		// Detect MIME type from magic bytes
+		if(extension_loaded('fileinfo')) {
+			$finfo = new \finfo(\FILEINFO_MIME_TYPE);
+			$mime_type = $finfo->buffer($bytes);
+		}
+		
+		if (!$is_printable)
+			$bytes = sprintf('data:%s;base64,%s', $mime_type, base64_encode($bytes));
+		
+		return [
+			'bytes' => $bytes,
+			'name' => $stat['name'],
+			'size' => $stat['size'],
+			'mime_type' => $mime_type,
+		];
 	}
 }
