@@ -1126,6 +1126,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'(.*):file.read:' => $action_base,
 				'(.*):file.read:inputs:' => [
 					'uri:',
+					'extract:',
 					'length:',
 					'offset:',
 				],

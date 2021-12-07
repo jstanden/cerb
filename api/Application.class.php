@@ -3737,6 +3737,9 @@ class _CerbApplication_KataSchemas {
                         types:
                           object:
                             attributes:
+                              extract:
+                                types:
+                                  string:
                               length:
                                 types:
                                   number:
