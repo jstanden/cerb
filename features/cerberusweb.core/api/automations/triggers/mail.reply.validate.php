@@ -63,6 +63,12 @@ class AutomationTrigger_MailReplyValidate extends AutomationTrigger_InteractionW
 	}
 	
 	public function getAutocompleteSuggestions() : array {
-		return parent::getAutocompleteSuggestions();
+		$suggestions = parent::getAutocompleteSuggestions();
+		
+		$suggestions['*']['(.*):return:'] = [
+			'reject@bool: yes',
+		];
+		
+		return $suggestions;
 	}
 }
