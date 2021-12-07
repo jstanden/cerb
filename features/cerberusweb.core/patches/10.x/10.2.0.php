@@ -133,6 +133,7 @@ $automation_files = [
 	'ai.cerb.toolbarBuilder.interaction.json',
 	'cerb.data.records.json',
 	'cerb.mailRouting.moveToGroup.json',
+	'cerb.mailRouting.recipientRules.json',
 	'cerb.projectBoard.toolbar.task.find.json',
 	'cerb.reminder.remind.email.json',
 	'cerb.reminder.remind.notification.json',
