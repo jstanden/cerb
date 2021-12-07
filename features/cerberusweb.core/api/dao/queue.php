@@ -227,7 +227,7 @@ class DAO_Queue extends Cerb_ORMHelper {
 		
 		$queues = self::getAll();
 		$queue_names_to_ids = array_change_key_case(array_column($queues, 'id', 'name'), CASE_LOWER);
-		$queues_names_to_find = array_change_key_case($names, CASE_LOWER);
+		$queues_names_to_find = array_map(fn($name) => DevblocksPlatform::strLower($name), $names);
 		$results = [];
 		
 		foreach($queues_names_to_find as $name) {

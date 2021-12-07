@@ -249,7 +249,7 @@ class DAO_Metric extends Cerb_ORMHelper {
 		$metrics = self::getAll();
 		
 		$names_to_ids = array_change_key_case(array_column($metrics, 'id', 'name'), CASE_LOWER);
-		$names_to_find = array_change_key_case($names, CASE_LOWER);
+		$names_to_find = array_map(fn($name) => DevblocksPlatform::strLower($name), $names);
 		$results = [];
 		
 		foreach($names_to_find as $name) {
