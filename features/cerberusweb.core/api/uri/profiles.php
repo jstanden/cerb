@@ -878,6 +878,7 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 			case 'profile':
 				$prefs = [];
 				$prefs['assist_mode'] = intval(DAO_WorkerPref::get($worker->id, 'assist_mode', 1));
+				$prefs['dark_mode'] = intval(DAO_WorkerPref::get($worker->id, 'dark_mode', 1));
 				$prefs['keyboard_shortcuts'] = intval(DAO_WorkerPref::get($worker->id, 'keyboard_shortcuts', 1));
 				$tpl->assign('prefs', $prefs);
 				
@@ -1072,7 +1073,10 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 					@$assist_mode = DevblocksPlatform::importGPC($_POST['assist_mode'],'integer',0);
 					DAO_WorkerPref::set($worker->id, 'assist_mode', $assist_mode);
 					
-					@$keyboard_shortcuts = DevblocksPlatform::importGPC($_POST['keyboard_shortcuts'],'integer',0);
+					$dark_mode = DevblocksPlatform::importGPC($_POST['dark_mode'] ?? null, 'integer',0);
+					DAO_WorkerPref::set($worker->id, 'dark_mode', $dark_mode);
+					
+					$keyboard_shortcuts = DevblocksPlatform::importGPC($_POST['keyboard_shortcuts'] ?? null, 'integer',0);
 					DAO_WorkerPref::set($worker->id, 'keyboard_shortcuts', $keyboard_shortcuts);
 					
 					DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_WORKER, $worker->id, $avatar_image);

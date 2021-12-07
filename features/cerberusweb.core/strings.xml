@@ -5333,6 +5333,11 @@ For example: *receipt*</seg>
 				<seg>Assist Mode:</seg>
 			</tuv>
 		</tu>
+		<tu tuid="preferences.account.dark_mode">
+			<tuv xml:lang="en_US">
+				<seg>Dark Mode: (Experimental)</seg>
+			</tuv>
+		</tu>
 		<tu tuid="preferences.account.keyboard.shortcuts">
 			<tuv xml:lang="en_US">
 				<seg>Keyboard Shortcuts:</seg>
