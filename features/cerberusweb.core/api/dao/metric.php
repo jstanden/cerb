@@ -917,7 +917,7 @@ class View_Metric extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	}
 };
 
-class Context_Metric extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
+class Context_Metric extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
 	const ID = CerberusContexts::CONTEXT_METRIC;
 	const URI = 'metric';
 	
@@ -1029,6 +1029,31 @@ class Context_Metric extends Extension_DevblocksContext implements IDevblocksCon
 			return $model->id;
 		
 		return null;
+	}
+	
+	public function autocomplete($term, $query = null) {
+		$list = [];
+		
+		list($results,) = DAO_Metric::search(
+			array(),
+			array(
+				new DevblocksSearchCriteria(SearchFields_Metric::NAME,DevblocksSearchCriteria::OPER_LIKE,'%'.$term.'%'),
+			),
+			25,
+			0,
+			SearchFields_Metric::NAME,
+			true,
+			false
+		);
+		
+		foreach($results AS $row){
+			$entry = new stdClass();
+			$entry->label = $row[SearchFields_Metric::NAME];
+			$entry->value = $row[SearchFields_Metric::ID];
+			$list[] = $entry;
+		}
+		
+		return $list;
 	}
 	
 	function getContext($metric, &$token_labels, &$token_values, $prefix=null) {
