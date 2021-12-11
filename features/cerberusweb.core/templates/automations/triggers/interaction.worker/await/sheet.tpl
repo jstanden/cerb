@@ -4,7 +4,7 @@
 	<h6>{$label}</h6>
 	{/if}
 
-	<div>
+	<div style="margin-left:10px;">
 		{if $layout.filtering}
 			<div style="position:relative;box-sizing:border-box;width:100%;border:1px solid rgb(220,220,220);border-radius:10px;padding:0 5px;margin-bottom:5px;">
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" style="width:16px;height:16px;top:3px;position:absolute;fill:rgb(180,180,180);">
@@ -90,14 +90,17 @@ $(function() {
 		e.stopPropagation();
 
 		$sheet.find('input[type=checkbox],input[type=radio]').prop('checked', null);
-
+		$sheet.find('.cerb-sheet--row .cerb-sheet--row-selected').removeClass('cerb-sheet--row-selected');
+		
 		$sheet_selections.find('input[type=hidden]').each(function() {
 			var $hidden = $(this);
-			$sheet.find('input[value="' + $hidden.val() + '"]').prop('checked', 'checked');
+			var $input = $sheet.find('input[value="' + $hidden.val() + '"]');
+			$input.prop('checked', 'checked');
+			$input.closest('.cerb-sheet--row').addClass('cerb-sheet--row-selected');
 		});
 
 		$prompt.triggerHandler('cerb-sheet--toolbar-refresh');
-	})
+	});
 
 	$prompt.on('cerb-sheet--toolbar-refresh', function(e) {
 		e.stopPropagation();
@@ -301,5 +304,8 @@ $(function() {
 			$sheet_toolbar.trigger('cerb-sheet--refresh');
 		}
 	});
+
+	// Update selection styles from defaults
+	$prompt.triggerHandler('cerb-sheet--update-selections');
 });
 </script>

@@ -1,10 +1,11 @@
 {$is_selection_enabled = false}
 
-<div style="column-width:200px;" class="cerb-sheet-grid">
+<div class="cerb-sheet-grid">
 	{if $rows}
 	{foreach from=$rows item=row name=rows}
-	<div class="cerb-sheet--row" style="padding:5px;break-inside:avoid-column;page-break-inside:avoid;">
+	<div class="cerb-sheet--row">
 		{foreach from=$columns item=column name=columns}
+			<div data-cerb-column-type="{$column._type}">
 			{if $column._type == 'selection'}
 				{$is_selection_enabled = true}
 				{$row[$column.key]|replace:'${SHEET_SELECTION_KEY}':{$sheet_selection_key|default:'_selection'} nofilter}
@@ -13,6 +14,7 @@
 				{$row[$column.key] nofilter}
 				{if $column.params.bold}</span>{/if}
 			{/if}
+			</div>
 		{/foreach}
 	</div>
 	{/foreach}
@@ -62,10 +64,11 @@ $(function() {
 	;
 
 	{if $is_selection_enabled}
-	$sheet.find('> div')
+	$sheet.find('div.cerb-sheet--row')
 		.disableSelection()
 		.on('click', function(e) {
 			e.stopPropagation();
+			e.preventDefault();
 
 			var $target = $(e.target);
 			var evt;
@@ -81,22 +84,42 @@ $(function() {
 
 			var $tbody = $(this);
 
-			// If removing selected, add back hover
-
 			var $checkbox = $tbody.find('input[type=radio], input[type=checkbox]');
 
 			// If our target was something other than the input toggle
-			if(!$checkbox.is($target)) {
-				if ($checkbox.is(':checked')) {
-					$checkbox.prop('checked', false);
-				} else {
-					$checkbox.prop('checked', true);
-				}
+			if($checkbox.is($target))
+				return;
+			
+			if($checkbox.is(':checked')) {
+				$checkbox.prop('checked', false);
+			} else {
+				$checkbox.prop('checked', true);
 			}
 
 			var is_multiple = $checkbox.is('[type=checkbox]');
+			
+			var $row = $target.closest('.cerb-sheet--row');
+			
+			// Uncheck everything if single selection
+			if(!is_multiple) {
+				$row.closest('.cerb-sheet-grid').find('.cerb-sheet--row').removeClass('cerb-sheet--row-selected');
+			}
 
-			evt = $.Event('cerb-sheet--selection', { ui: { item: $checkbox }, is_multiple: is_multiple, selected: $checkbox.prop('checked') });
+			if($checkbox.is(':checked')) {
+				$row.addClass('cerb-sheet--row-selected');
+			} else if (is_multiple) {
+				$row.removeClass('cerb-sheet--row-selected')
+			}
+			
+			evt = $.Event('cerb-sheet--selection', 
+				{
+					ui: { 
+						item: $checkbox 
+					}, 
+					is_multiple: is_multiple,
+					selected: $checkbox.prop('checked')
+				}
+			);
 			$sheet.trigger(evt);
 
 			var row_selections = [];
