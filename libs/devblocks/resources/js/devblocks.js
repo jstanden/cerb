@@ -954,7 +954,7 @@ function DevblocksClass() {
 			}
 		}
 	};
-};
+}
 
 var Devblocks = new DevblocksClass();
 

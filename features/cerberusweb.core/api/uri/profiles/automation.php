@@ -389,8 +389,8 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		
 		// [TODO] Do this better
 		$session_actor = [
-			'context' => @$continuation->state_data['actor']['context'],
-			'context_id' => @$continuation->state_data['actor']['id'],
+			'context' => $continuation->state_data['actor']['context'] ?? null,
+			'context_id' => $continuation->state_data['actor']['id'] ?? null,
 		];
 		
 		if(!CerberusContexts::isSameActor(CerberusApplication::getActiveWorker(), $session_actor))

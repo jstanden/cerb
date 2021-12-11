@@ -359,7 +359,6 @@ class _DevblocksDataService {
 				
 				$error = sprintf("'%s' is not a known data query type.", $chart_type);
 				return false;
-				break;
 		}
 		
 		if($cache_secs) {

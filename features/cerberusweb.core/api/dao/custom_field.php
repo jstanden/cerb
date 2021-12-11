@@ -1331,7 +1331,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 				case Model_CustomField::TYPE_FILES:
 				case Model_CustomField::TYPE_MULTI_CHECKBOX:
 				case Model_CustomField::TYPE_LIST:
-					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'array',[]);
+					$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id] ?? null,'array',[]);
 					break;
 					
 				case Model_CustomField::TYPE_CHECKBOX:

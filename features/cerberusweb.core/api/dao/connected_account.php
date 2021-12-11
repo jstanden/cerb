@@ -237,7 +237,7 @@ class DAO_ConnectedAccount extends Cerb_ORMHelper {
 		);
 		
 		list($results,) = DAO_ConnectedAccount::search(
-			array(),
+			[],
 			$params,
 			25,
 			0,
@@ -249,11 +249,9 @@ class DAO_ConnectedAccount extends Cerb_ORMHelper {
 		switch($as) {
 			case 'ids':
 				return array_keys($results);
-				break;
 				
 			default:
 				return DAO_ConnectedAccount::getIds(array_keys($results));
-				break;
 		}
 	}
 	

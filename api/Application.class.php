@@ -1243,7 +1243,7 @@ class CerberusContexts {
 				$context_id = $actor['context_id'];
 
 			} else if(2 == count($actor)) {
-				@list($context, $context_id) = $actor;
+				list($context, $context_id) = array_pad(array_values($actor), 2, null);
 
 			} else {
 				return false;
@@ -3395,7 +3395,7 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 	/**
 	 *
 	 * @param array $ids
-	 * @return Model_Calendar[]
+	 * @return object[]
 	 */
 	static function getIds(array $ids) : array {
 		if(!is_array($ids)) {

@@ -191,7 +191,6 @@ abstract class Extension_PageSection extends DevblocksExtension {
 				} else {
 					return $manifest;
 				}
-				break;
 		}
 		
 		return null;

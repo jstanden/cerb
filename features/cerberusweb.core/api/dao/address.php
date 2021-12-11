@@ -864,6 +864,12 @@ class DAO_Address extends Cerb_ORMHelper {
 		return $result;
 	}
 	
+	/**
+	 * @param $term
+	 * @param string $as
+	 * @param null $query
+	 * @return int[]|Model_Address[]|string[]
+	 */
 	static function autocomplete($term, $as='models', $query=null) {
 		$context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_ADDRESS);
 		
@@ -921,11 +927,9 @@ class DAO_Address extends Cerb_ORMHelper {
 		switch($as) {
 			case 'ids':
 				return array_keys($results);
-				break;
 				
 			default:
 				return DAO_Address::getIds(array_keys($results));
-				break;
 		}
 	}
 	
