@@ -908,7 +908,7 @@ class View_Queue extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 	}
 };
 
-class Context_Queue extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
+class Context_Queue extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
 	const ID = CerberusContexts::CONTEXT_QUEUE;
 	const URI = 'queue';
 	
@@ -1012,6 +1012,31 @@ class Context_Queue extends Extension_DevblocksContext implements IDevblocksCont
 			return $model->id;
 		
 		return null;
+	}
+	
+	public function autocomplete($term, $query = null) {
+		$list = [];
+		
+		list($results,) = DAO_Queue::search(
+			array(),
+			array(
+				new DevblocksSearchCriteria(SearchFields_Queue::NAME,DevblocksSearchCriteria::OPER_LIKE,'%'.$term.'%'),
+			),
+			25,
+			0,
+			SearchFields_Queue::NAME,
+			true,
+			false
+		);
+		
+		foreach($results AS $row){
+			$entry = new stdClass();
+			$entry->label = $row[SearchFields_Queue::NAME];
+			$entry->value = $row[SearchFields_Queue::ID];
+			$list[] = $entry;
+		}
+		
+		return $list;
 	}
 	
 	function getContext($queue, &$token_labels, &$token_values, $prefix=null) {
