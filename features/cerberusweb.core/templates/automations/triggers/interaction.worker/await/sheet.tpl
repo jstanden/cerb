@@ -204,17 +204,18 @@ $(function() {
 		} else {
 			$sheet_selections.empty();
 			
-			$item = $('<li/>')
-				//.css('position', 'relative')
-				.text(e.ui.item.closest('.cerb-sheet--row').text())
-				.prepend(
-					e.ui.item
-					.clone()
-					.attr('type', 'hidden')
-					.attr('name', 'prompts[{$var}]')
-				)
-			;
-			$sheet_selections.html($item);
+			if(e.selected) {
+				$item = $('<li/>')
+					.text(e.ui.item.closest('.cerb-sheet--row').text())
+					.prepend(
+						e.ui.item
+						.clone()
+						.attr('type', 'hidden')
+						.attr('name', 'prompts[{$var}]')
+					)
+				;
+				$sheet_selections.html($item);
+			}
 		}
 
 		// [TODO] If there's no submit button, advance
