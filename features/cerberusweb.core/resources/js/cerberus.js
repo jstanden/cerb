@@ -2980,16 +2980,48 @@ var ajax = new cAjaxCalls();
 							if(!data.hasOwnProperty('score'))
 								data.score = 1000;
 
+							data.completer = {
+								insertMatch: autocompleterKata.insertMatch
+							};
+							
 							return data;
 
 						} else if('string' == typeof data) {
 							return {
 								caption: data,
 								snippet: data,
-								score: 1000
+								score: 1000,
+								completer: {
+									insertMatch: autocompleterKata.insertMatch
+								}
 							};
 						}
 					});
+				},
+				insertMatch: function(editor, data) {
+					delete data.completer;
+					
+					// Run the callback, if false then do the default
+					if(
+						autocomplete_options.hasOwnProperty('onSelect') 
+						&& 'function' === typeof autocomplete_options.onSelect) 
+					{
+						var completions = editor.completer.completions;
+						var callback = function(result) {
+							
+							if('string' === typeof result) {
+								data.snippet = result;
+							}
+							
+							editor.completer.completions = completions;
+							editor.completer.insertMatch(data);
+						};
+						
+						autocomplete_options.onSelect(data, editor, callback);
+						
+					} else {
+						editor.completer.insertMatch(data);
+					}
 				},
 				formatData: function(scope_key) {
 					return this.formatSuggestions(editor.completer.autocomplete_suggestions[scope_key]);
