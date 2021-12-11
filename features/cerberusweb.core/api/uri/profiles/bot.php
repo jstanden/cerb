@@ -2518,11 +2518,11 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		if(false == $delegate_results)
 			DevblocksPlatform::dieWithHttpError("null delegate results", 404);
 		
-		// [TODO] Copy the state data from the parent
-		$state_data = [
-			'trigger' => $this->_interaction_extensions,
-			'dict' => $delegate_results->getDictionary(),
-		];
+		// Copy the parent state (actor, caller, params)
+		$state_data = $continuation->state_data ?? [];
+		
+		$state_data['trigger'] = $this->_interaction_extensions;
+		$state_data['dict'] = $delegate_results->getDictionary();
 		
 		// Create a new continuation to track the delegate
 		
