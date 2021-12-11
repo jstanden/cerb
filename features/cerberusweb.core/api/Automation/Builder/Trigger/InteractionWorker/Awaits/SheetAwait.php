@@ -115,8 +115,13 @@ class SheetAwait extends AbstractAwait {
 			
 			// If the values are empty, synthesize a key
 			foreach($sheet_data as $k => $v) {
-				if(is_array($v) && empty($v))
-					$sheet_data[$k] = ['key' => $k];
+				if(is_array($v)) {
+					if(empty($v)) {
+						$sheet_data[$k] = ['key' => $k];
+					}
+					
+					$sheet_data[$k]['__index'] = $k;
+				}
 			}
 		}
 		
