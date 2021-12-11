@@ -1477,7 +1477,8 @@ class Context_Automation extends Extension_DevblocksContext implements IDevblock
 			} else {
 				$model = new Model_Automation();
 				$model->id = 0;
-				$model->script = "start:\n  ";
+				$model->script = "# [TODO] You can optionally declare custom inputs here\n#inputs:\n#  text/name:\n#    required@bool: yes\n#  record/ticket:\n#    required@bool: yes\n#    record_type: ticket\n\nstart:\n  # [TODO] Your logic goes here (use Ctrl+Space for autocompletion)\n  ";
+				$model->policy_kata = "commands:\n  # [TODO] Specify a command policy here (use Ctrl+Space for autocompletion)\n  ";
 				
 				if(is_string($lookup_id) && $lookup_id)
 					$model->name = $lookup_id;
