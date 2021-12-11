@@ -3029,15 +3029,22 @@ var ajax = new cAjaxCalls();
 					} while(iter.stepBackward());
 
 					var token_path = Devblocks.cerbCodeEditor.getKataTokenPath(pos, editor);
-
-					// Normalize path (remove namespaces)
+					
+					// Normalize path (remove key names and annotations)
 					token_path = token_path.map(function(v) {
-						var pos = v.indexOf('/');
+						var pos = v.indexOf('@');
 						
-						if(-1 === pos)
-							return v;
+						if(-1 !== pos) {
+							v = v.substr(0, pos) + ':';
+						}
+						
+						pos = v.indexOf('/');
+						
+						if(-1 !== pos) {
+							v = v.substr(0, pos) + ':';
+						}
 
-						return v.substr(0,pos) + ':';
+						return v; 
 					});
 					
 					var scope_key = token_path.join('');
