@@ -1834,8 +1834,11 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		$fields = DAO_CustomField::getByContext($context);
 		$token_values = [];
 		
-		if(!$as_keys)
+		if($as_keys) {
+			$token_values['customfields'] = [];
+		} else {
 			$token_values['custom'] = [];
+		}
 		
 		// If (0 == $context_id), we need to null out all the fields and return w/o queries
 		if(empty($context_id))
@@ -1855,6 +1858,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 			
 			if($as_keys) {
 				$key_prefix = $fields[$cf_id]->uri;
+				$token_values['customfields'][] = $key_prefix;
 			} else {
 				$key_prefix = 'custom_' . $cf_id;
 			}
