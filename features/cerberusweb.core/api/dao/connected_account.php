@@ -1075,7 +1075,7 @@ class View_ConnectedAccount extends C4_AbstractView implements IAbstractView_Sub
 	}
 };
 
-class Context_ConnectedAccount extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
+class Context_ConnectedAccount extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete, IDevblocksContextUri {
 	const ID = CerberusContexts::CONTEXT_CONNECTED_ACCOUNT;
 	const URI = 'connected_account';
 	
@@ -1097,6 +1097,30 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 	
 	function getRandom() {
 		return DAO_ConnectedAccount::random();
+	}
+	
+	function autocompleteUri($term, $uri_params = null): array {
+		$where_sql = sprintf("%s LIKE %s", DAO_ConnectedAccount::URI, Cerb_ORMHelper::qstr('%' . $term . '%'));
+		
+		$connected_accounts = DAO_ConnectedAccount::getWhere(
+			$where_sql,
+			null,
+			null,
+			25
+		);
+		
+		if(!is_iterable($connected_accounts))
+			return [];
+		
+		return array_map(
+			function ($account) {
+				return [
+					'caption' => $account->name,
+					'snippet' => $account->uri ?: $account->id,
+				];
+			},
+			$connected_accounts
+		);
 	}
 	
 	function autocomplete($term, $query=null) {
