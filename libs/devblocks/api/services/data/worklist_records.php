@@ -20,7 +20,7 @@ class _DevblocksDataProviderWorklistRecords extends _DevblocksDataProvider {
 				'' => [
 					'of:',
 				],
-				'type:' => DevblocksPlatform::services()->data()->getTypes(),
+				'type:' => array_keys(DevblocksPlatform::services()->data()->getTypes()),
 				'of:' => array_values(Extension_DevblocksContext::getUris()),
 			];
 			return $suggestions;

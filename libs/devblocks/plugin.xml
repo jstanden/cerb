@@ -61,6 +61,9 @@
 		<file path="api/services/data/gpg_keyinfo.php">
 			<class name="_DevblocksDataProviderGpgKeyInfo" />
 		</file>
+		<file path="api/services/data/data_query_types.php">
+			<class name="_DevblocksDataProviderDataQueryTypes" />
+		</file>
 		<file path="api/services/data/metrics_timeseries.php">
 			<class name="_DevblocksDataProviderMetricsTimeseries" />
 		</file>

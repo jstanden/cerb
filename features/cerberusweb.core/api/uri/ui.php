@@ -283,7 +283,7 @@ class Controller_UI extends DevblocksControllerExtension {
 		$results = [
 			'schemaVersion' => $cache->getTagVersion('schema_records'),
 			'recordTypes' => array_values(Extension_DevblocksContext::getUris()),
-			'dataQueryTypes' => $data->getTypes(),
+			'dataQueryTypes' => array_keys($data->getTypes()),
 		];
 		
 		echo DevblocksPlatform::strFormatJson(json_encode($results));

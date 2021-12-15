@@ -37,6 +37,10 @@ class _DevblocksDataService {
 				$provider = new _DevblocksDataProviderClassifierPrediction();
 				return $provider->getSuggestions($type, $params);
 			
+			case 'data.query.types':
+				$provider = new _DevblocksDataProviderDataQueryTypes();
+				return $provider->getSuggestions($type, $params);
+			
 			case 'metrics.timeseries':
 				$provider = new _DevblocksDataProviderMetricsTimeseries();
 				return $provider->getSuggestions($type, $params);
@@ -118,27 +122,98 @@ class _DevblocksDataService {
 	
 	function getTypes() {
 		$types = [
-			'attachment.manifest',
-			'worklist.records',
-			'worklist.subtotals',
-			'worklist.series',
-			'worklist.metrics',
-			'worklist.xy',
-			'worklist.geo.points',
-			'calendar.availability',
-			'calendar.events',
-			'classifier.prediction',
-			'gpg.keyinfo',
-			'metrics.timeseries',
-			'platform.extensions',
-			'record.fields',
-			'record.types',
-			'sample.geo.points',
-			'sample.timeseries',
-			'sample.xy',
-			'ui.icons',
-			'usage.behaviors',
-			'usage.snippets',
+			[
+				'name' => 'attachment.manifest',
+				'description' => 'Read and filter file contents from archives',
+			],
+			[
+				'name' => 'automation.autocomplete',
+				'description' => 'Autocomplete suggestions for an automation key path',
+			],
+			[
+				'name' => 'calendar.availability',
+				'description' => 'Combined availability from calendars',
+			],
+			[
+				'name' => 'calendar.events',
+				'description' => 'Get events and recurring events from calendars',
+			],
+			[
+				'name' => 'classifier.prediction',
+				'description' => 'Predict classification for text with a classifier',
+			],
+			[
+				'name' => 'data.query.types',
+				'description' => 'Get metadata for data query types',
+			],
+			[
+				'name' => 'gpg.keyinfo',
+				'description' => 'Get info for a PGP public key',
+			],
+			[
+				'name' => 'metrics.timeseries',
+				'description' => 'Chart and aggregate time-based metrics',
+			],
+			[
+				'name' => 'platform.extensions',
+				'description' => 'Filterable and pageable list of plugin extensions for a given hook',
+			],
+			[
+				'name' => 'record.fields',
+				'description' => 'Filterable and pageable list of fields from a record type',
+			],
+			[
+				'name' => 'record.types',
+				'description' => 'Filterable and pageable list of record types',
+			],
+			[
+				'name' => 'sample.geo.points',
+				'description' => 'Simulated GeoJSON data',
+			],
+			[
+				'name' => 'sample.timeseries',
+				'description' => 'Simulated time-series data',
+			],
+			[
+				'name' => 'sample.xy',
+				'description' => 'Simulated X/Y data for scatterplots',
+			],
+			[
+				'name' => 'ui.icons',
+				'description' => 'Filterable and pageable list of icons',
+			],
+			[
+				'name' => 'usage.behaviors',
+				'description' => 'Historical usage data for bot behaviors',
+			],
+			[
+				'name' => 'usage.snippets',
+				'description' => 'Historical usage data for snippets',
+			],
+			[
+				'name' => 'worklist.geo.points',
+				'description' => 'Geolocation data from worklist records',
+			],
+			[
+				'name' => 'worklist.metrics',
+				'description' => 'Computed metrics based on worklist data',
+			],
+			[
+				'name' => 'worklist.records',
+				'description' => 'Record dictionaries with a search query',
+			],
+			[
+				'name' => 'worklist.series',
+				'description' => 'Series-based data from any worklist',
+			],
+			[
+				'name' => 'worklist.subtotals',
+				'description' => 'Aggregations on worklist record fields',
+			],
+			[
+				'name' => 'worklist.xy',
+				'description' => 'Compute clusters of two dimensional data from records',
+			],
 		];
 		
 		$behaviors = DAO_TriggerEvent::getByEvent(Event_DataQueryDatasource::ID);
@@ -146,8 +221,18 @@ class _DevblocksDataService {
 			if(false == ($alias = $behavior->event_params['alias']))
 				continue;
 			
-			$types[] = 'behavior.' . $alias;
+			$types[] = [
+				'name' => 'behavior.' . $alias,
+				'description' => $behavior->title ?? '',
+			];
 		}
+		
+		$types = array_combine(
+			array_column($types, 'name'),
+			$types
+		);
+		
+		DevblocksPlatform::sortObjects($types, '[name]', true);
 		
 		return $types;
 	}
@@ -204,6 +289,14 @@ class _DevblocksDataService {
 				
 			case 'classifier.prediction':
 				$provider = new _DevblocksDataProviderClassifierPrediction();
+				
+				if(false === ($results = $provider->getData($query, $chart_fields, $error)))
+					return false;
+				
+				break;
+				
+			case 'data.query.types':
+				$provider = new _DevblocksDataProviderDataQueryTypes();
 				
 				if(false === ($results = $provider->getData($query, $chart_fields, $error)))
 					return false;
