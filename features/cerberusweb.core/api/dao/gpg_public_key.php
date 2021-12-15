@@ -901,7 +901,7 @@ class View_GpgPublicKey extends C4_AbstractView implements IAbstractView_Subtota
 	}
 };
 
-class Context_GpgPublicKey extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
+class Context_GpgPublicKey extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextUri { // IDevblocksContextImport
 	const ID = CerberusContexts::CONTEXT_GPG_PUBLIC_KEY;
 	const URI = 'gpg_public_key';
 	
@@ -1001,6 +1001,31 @@ class Context_GpgPublicKey extends Extension_DevblocksContext implements IDevblo
 			return $model->id;
 		
 		return null;
+	}
+	
+	function autocompleteUri($term, $uri_params = null): array {
+		$where_sql = sprintf("%s LIKE %s", DAO_GpgPublicKey::NAME, Cerb_ORMHelper::qstr('%' . $term . '%'));
+		
+		$public_keys = DAO_GpgPublicKey::getWhere(
+			$where_sql,
+			null,
+			null,
+			25
+		);
+		
+		if(!is_iterable($public_keys))
+			return [];
+		
+		return array_map(
+			function ($public_key) {
+				return [
+					'caption' => $public_key->name,
+					'snippet' => $public_key->fingerprint,
+					'description' => DevblocksPlatform::strEscapeHtml($public_key->name . ' (' . $public_key->fingerprint . ')'),
+				];
+			},
+			$public_keys
+		);
 	}
 	
 	function getContext($gpg_public_key, &$token_labels, &$token_values, $prefix=null) {
