@@ -452,6 +452,58 @@ class _DevblocksDateManager {
 		
 		return $earliest;
 	}
+	
+	public function getEasterDayByYear($year) : ?string {
+		if(extension_loaded('calendar') && function_exists('easter_date')) {
+			try {
+				$base = new DateTime($year . '-03-21');
+				$days = easter_days($year);
+				$date = $base->add(new DateInterval('P' . $days . 'D'));
+				return $date->format('F j');
+				
+			} catch(Exception $e) {
+				DevblocksPlatform::logError($e->getMessage());
+			}
+		}
+		
+		// If `ext/calendar` isn't enabled, use a precomputed table
+		$easter_years = [
+			'2012' => 'April 8',
+			'2013' => 'March 31',
+			'2014' => 'April 20',
+			'2015' => 'April 5',
+			'2016' => 'March 27',
+			'2017' => 'April 16',
+			'2018' => 'April 1',
+			'2019' => 'April 21',
+			'2020' => 'April 12',
+			'2021' => 'April 4',
+			'2022' => 'April 17',
+			'2023' => 'April 9',
+			'2024' => 'March 31',
+			'2025' => 'April 20',
+			'2026' => 'April 5',
+			'2027' => 'March 28',
+			'2028' => 'April 16',
+			'2029' => 'April 1',
+			'2030' => 'April 21',
+			'2031' => 'April 13',
+			'2032' => 'March 28',
+			'2033' => 'April 17',
+			'2034' => 'April 9',
+			'2035' => 'March 25',
+			'2036' => 'April 13',
+			'2037' => 'April 5',
+			'2038' => 'April 25',
+			'2039' => 'April 10',
+			'2040' => 'April 1',			
+		];
+		
+		if(!array_key_exists($year, $easter_years))
+			return null;
+		
+		return $easter_years[$year];
+	}
 };
 
 class DevblocksCalendarHelper {

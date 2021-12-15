@@ -599,6 +599,8 @@ class Model_CalendarRecurringProfile {
 		
 		while($day <= $date_to) {
 			$passed = false;
+			$year = date('Y', $day);
+			$easter_date = DevblocksPlatform::services()->date()->getEasterDayByYear($year);
 			
 			$patterns = DevblocksPlatform::parseCrlfString($this->patterns);
 
@@ -628,8 +630,13 @@ class Model_CalendarRecurringProfile {
 					$passed = ($day == mktime(0,0,0,date('n', $day),$pattern,date('Y', $day)));
 					
 				} else {
-					if(preg_match('#of every month$#i', $pattern))
+					if(false !== stristr($pattern, 'Easter')) {
+						$pattern = str_ireplace('Easter', $easter_date, $pattern);
+					}
+					
+					if(preg_match('#of every month$#i', $pattern)) {
 						$pattern = str_replace('of every month', 'of this month', $pattern);
+					}
 					
 					@$pattern_day = strtotime('today', strtotime($pattern, $day));
 					$passed = ($pattern_day == $day);

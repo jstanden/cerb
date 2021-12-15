@@ -66,6 +66,12 @@
 					<option value="{$example}">{$example}</option>
 					{/foreach}
 				</optgroup>
+				<optgroup label="Specific holidays">
+					{$examples = ["Easter","Easter -7 weeks Wednesday","Easter +3 days"]}
+					{foreach from=$examples item=example}
+					<option value="{$example}">{$example}</option>
+					{/foreach}
+				</optgroup>
 			</select>
 		</td>
 	</tr>
