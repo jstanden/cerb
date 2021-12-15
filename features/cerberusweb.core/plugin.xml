@@ -78,7 +78,7 @@
 
 		<patch version="10.0.0" revision="1392" file="patches/10.x/10.0.0.php" />
 		<patch version="10.1.0" revision="1404" file="patches/10.x/10.1.0.php" />
-		<patch version="10.2.0" revision="1407" file="patches/10.x/10.2.0.php" />
+		<patch version="10.2.0" revision="1408" file="patches/10.x/10.2.0.php" />
 	</patches>
 
 	<!-- Exported Classes -->
@@ -5170,6 +5170,23 @@
 			</params>
 		</extension>
 
+		<extension point="cerb.automation.trigger">
+			<id>cerb.trigger.record.profile.viewed</id>
+			<name>record.profile.viewed</name>
+			<class>
+				<file>api/automations/triggers/record.profile.viewed.php</file>
+				<name>AutomationTrigger_RecordProfileViewed</name>
+			</class>
+			<params>
+				<param key="description" value="After a record profile is viewed by a worker" />
+				<param key="features">
+					<value>
+						<data key="inputs" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
 		<extension point="cerb.automation.trigger">
 			<id>cerb.trigger.reminder.remind</id>
 			<name>reminder.remind</name>

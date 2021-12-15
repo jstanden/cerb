@@ -77,6 +77,16 @@ if(!$db->GetOneMaster("SELECT 1 FROM automation_event WHERE name = 'mail.reply.v
 	));
 }
 
+if(!$db->GetOneMaster("SELECT 1 FROM automation_event WHERE name = 'record.profile.viewed'")) {
+	$db->ExecuteMaster(sprintf('INSERT IGNORE INTO automation_event (name, extension_id, description, automations_kata, updated_at) VALUES (%s,%s,%s,%s,%d)',
+		$db->qstr('record.profile.viewed'),
+		$db->qstr('cerb.trigger.record.profile.viewed'),
+		$db->qstr('After a record profile is viewed by a worker'),
+		$db->qstr(""),
+		time()
+	));
+}
+
 // ===========================================================================
 // Add new toolbars
 
