@@ -401,7 +401,7 @@ class DAO_Automation extends Cerb_ORMHelper {
 		$view->addParamsWithQuickSearch($query, true);
 		
 		$params = [
-			SearchFields_Automation::NAME => new DevblocksSearchCriteria(SearchFields_Automation::NAME, DevblocksSearchCriteria::OPER_LIKE, $term.'*'),
+			SearchFields_Automation::NAME => new DevblocksSearchCriteria(SearchFields_Automation::NAME, DevblocksSearchCriteria::OPER_LIKE, '*'.$term.'*'),
 		];
 			
 		$view->addParams($params);
@@ -1093,7 +1093,7 @@ class View_Automation extends C4_AbstractView implements IAbstractView_Subtotals
 	}
 };
 
-class Context_Automation extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
+class Context_Automation extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete, IDevblocksContextUri {
 	const ID = CerberusContexts::CONTEXT_AUTOMATION;
 	const URI = 'automation';
 	
@@ -1205,6 +1205,18 @@ class Context_Automation extends Extension_DevblocksContext implements IDevblock
 			'trigger_event',
 			'updated_at',
 		);
+	}
+	
+	function autocompleteUri($term, $uri_params=null) : array {
+		$query = null;
+		
+		if(array_key_exists('triggers', $uri_params) && $uri_params['triggers']) {
+			$query = sprintf('trigger:[%s]', implode(',', $uri_params['triggers']));
+		}
+		
+		$results = DAO_Automation::autocomplete($term, 'models', $query);
+		
+		return array_column($results, 'name');
 	}
 	
 	function autocomplete($term, $query=null) {
