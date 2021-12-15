@@ -59,6 +59,20 @@ class Controller_UI extends DevblocksControllerExtension {
 				return $this->_uiAction_getContextPlaceholdersJson();
 			case 'getMentionsJson':
 				return $this->_uiAction_getMentionsJson();
+			case 'kataSuggestionsAutomationInputsJson':
+				return $this->_uiAction_kataSuggestionsAutomationInputsJson();
+			case 'kataSuggestionsCerbUriJson':
+				return $this->_uiAction_kataSuggestionsCerbUriJson();
+			case 'kataSuggestionsIconJson':
+				return $this->_uiAction_kataSuggestionsIconJson();
+			case 'kataSuggestionsMetricDimensionJson':
+				return $this->_uiAction_kataSuggestionsMetricDimensionJson();
+			case 'kataSuggestionsRecordFieldJson':
+				return $this->_uiAction_kataSuggestionsRecordFieldJson();
+			case 'kataSuggestionsRecordFieldsJson':
+				return $this->_uiAction_kataSuggestionsRecordFieldsJson();
+			case 'kataSuggestionsRecordTypeJson':
+				return $this->_uiAction_kataSuggestionsRecordTypeJson();
 			case 'queryFieldSuggestions':
 				return $this->_uiAction_queryFieldSuggestions();
 			case 'querySuggestionMeta':
@@ -71,6 +85,274 @@ class Controller_UI extends DevblocksControllerExtension {
 				return $this->_uiAction_sheet();
 		}
 		return false;
+	}
+	
+	private function _uiAction_kataSuggestionsRecordFieldJson() {
+		header('Content-Type: application/json');
+		
+		$prefix = DevblocksPlatform::importGPC($_POST['prefix'] ?? null, 'string', null);
+		$params = DevblocksPlatform::importGPC($_POST['params'] ?? [], 'array', []);
+		
+		$record_type = $params['record_type'] ?? null;
+		
+		if(false == ($context_ext = Extension_DevblocksContext::getByAlias($record_type, true)))
+			return;
+		
+		if(!($context_ext instanceof IDevblocksContextAutocomplete))
+			return;
+		
+		/* @var $context_ext IDevblocksContextAutocomplete */
+		
+		if(false == ($results = $context_ext->autocomplete($prefix)))
+			return;
+		
+		echo json_encode(
+			array_column(
+				DevblocksPlatform::objectsToArrays($results),
+				'label'
+			)
+		);
+	}
+		
+	private function _uiAction_kataSuggestionsRecordFieldsJson() {
+		header('Content-Type: application/json');
+		
+		$params = DevblocksPlatform::importGPC($_POST['params'] ?? [], 'array', []);
+		
+		if(false == ($record_type = $params['record_type'] ?? null))
+			return;
+		
+		if(false == ($context_ext = Extension_DevblocksContext::getByAlias($record_type, true)))
+			return;
+		
+		if(false == ($dao_fieldmap = $context_ext->getKeyMeta()))
+			return;
+		
+		ksort($dao_fieldmap);
+		
+		$dao_fieldmap = array_filter(
+			$dao_fieldmap,
+			function($key_meta) {
+				$key = $key_meta['key'] ?? null;
+				$type = $key_meta['type'] ?? null;
+				$is_immutable = $key_meta['is_immutable'] ?? false;
+				
+				return $key && $type && !$is_immutable;
+			}
+		);
+		
+		echo json_encode(
+			array_values(
+				array_map(
+					function($key_meta) {
+						$key = $key_meta['key'] ?? null;
+						
+						return [
+							'caption' => $key . ':',
+							'snippet' => $key . ':',
+						];
+					},
+					$dao_fieldmap
+				)
+			)
+		);
+	}
+		
+	private function _uiAction_kataSuggestionsRecordTypeJson() {
+		header('Content-Type: application/json');
+		
+		echo json_encode(
+			array_values(
+				Extension_DevblocksContext::getUris()
+			)
+		);
+	}
+	
+	private function _uiAction_kataSuggestionsMetricDimensionJson() {
+		header('Content-Type: application/json');
+		
+		$params = DevblocksPlatform::importGPC($_POST['params'] ?? [], 'array', []);
+		
+		if(false == ($metric_name = $params['metric'] ?? null))
+			return;
+		
+		if(false == ($metric = DAO_Metric::getByName($metric_name)))
+			return;
+		
+		if(
+			false == ($dimensions = $metric->getDimensions())
+			|| !is_iterable($dimensions)
+		)
+			return;
+		
+		echo json_encode(
+			array_values(
+				array_map(
+					function($dimension_key) use ($dimensions) {
+						$dimension_type = $dimensions[$dimension_key]['type'] ?? '';
+						$dimension_snippet = $dimension_key . ':';
+						
+						// [TODO] Placeholders/defaults (e.g. `ip: 1.2.3.4`)
+						if('record' == $dimension_type) {
+							$dimension_type = 'Record ID of type `' . ($dimensions[$dimension_key]['params']['record_type'] ?? '') . '`';
+							$dimension_snippet .= " \${1:123}";
+							
+						} elseif('text' == $dimension_type) {
+							$dimension_type = 'Text';
+							$dimension_snippet .= " \${1:Value}";
+						}
+						
+						return [
+							'caption' => $dimension_key . ':',
+							'snippet' => $dimension_snippet,
+							'docHTML' => "<b>" . DevblocksPlatform::strEscapeHtml($dimension_key) . ":</b><br>" . DevblocksPlatform::strEscapeHtml($dimension_type),
+						];
+					},
+					array_keys($dimensions)
+				)
+			)
+		);
+	}
+		
+	private function _uiAction_kataSuggestionsAutomationInputsJson() {
+		header('Content-Type: application/json');
+		
+		$params = DevblocksPlatform::importGPC($_POST['params'] ?? [], 'array', []);
+		
+		if(!array_key_exists('uri', $params)) {
+			echo json_encode([]);
+			return;
+		}
+		
+		if(false === ($uri_parts = DevblocksPlatform::services()->ui()->parseURI($params['uri']))) {
+			echo json_encode([]);
+			return;
+		}
+		
+		if(!CerberusContexts::isSameContext(CerberusContexts::CONTEXT_AUTOMATION, $uri_parts['context'])) {
+			echo json_encode([]);
+			return;
+		}
+		
+		if(false == ($automation = DAO_Automation::getByUri($uri_parts['context_id']))) {
+			echo json_encode([]);
+			return;
+		}
+		
+		$dict = DevblocksDictionaryDelegate::getDictionaryFromModel($automation,CerberusContexts::CONTEXT_AUTOMATION, ['inputs']);
+		
+		$inputs = $dict->get('inputs', []);
+		
+		echo json_encode(
+			array_values(
+				array_map(
+					function($input_key) use ($inputs) {
+						return [
+							'caption' => $input_key . ':',
+							'snippet' => $inputs[$input_key]['key'] . ': ',
+						];
+					},
+					array_keys($inputs)
+				)
+			)
+		);
+	}
+	
+	private function _uiAction_kataSuggestionsCerbUriJson() {
+		header('Content-Type: application/json');
+		
+		$prefix = DevblocksPlatform::importGPC($_POST['prefix'] ?? null, 'string', null);
+		$params = DevblocksPlatform::strParseQueryString(DevblocksPlatform::importGPC($_POST['params'] ?? null, 'string', null));
+		
+		$uri_parts = explode(':', $prefix);
+		
+		switch(count($uri_parts)) {
+			// cerb:record_type:
+			case 1:
+			case 2:
+				// If we were given specific record types, only return those
+				if(is_array($params) && !empty($params)) {
+					$record_types = Extension_DevblocksContext::getByAliases(array_keys($params), false);
+				} else { // otherwise, return every record type that supports card popups
+					$record_types = Extension_DevblocksContext::getAll(false, ['cards']);
+				}
+				
+				echo json_encode(
+					array_values(
+						array_map(
+							fn($mft) => 'cerb:' . ($mft->params['alias'] ?? '') . ':',
+							$record_types
+						)
+					)
+				);
+				return;
+				
+			// cerb:record_type:123
+			case 3:
+				if(false == ($context_ext = Extension_DevblocksContext::getByAlias($uri_parts[1], true)))
+					return;
+				
+				if(!($context_ext instanceof IDevblocksContextUri))
+					return;
+				
+				$uri_params = $params[$uri_parts[1]] ?? [];
+				
+				if(false == ($results = $context_ext->autocompleteUri($uri_parts[2], $uri_params)))
+					return;
+				
+				if(!is_iterable($results))
+					return;
+				
+				$results = array_values(
+					array_map(
+						function ($result) use ($uri_parts) {
+							if(
+								is_array($result)
+								&& array_key_exists('caption', $result)
+								&& array_key_exists('snippet', $result)
+							) {
+								$result['caption'] = 'cerb:' . $uri_parts[1] . ':' . $result['caption'];
+								$result['snippet'] = 'cerb:' . $uri_parts[1] . ':' . $result['snippet'];
+							} else if (is_string($result)) {
+								return 'cerb:' . $uri_parts[1] . ':' . $result;
+							}
+							
+							return $result;
+						},
+						$results
+					),
+				);
+				
+				echo json_encode(array_values($results));
+				return;
+		}
+		
+		echo json_encode([]);
+	}
+	
+	private function _uiAction_kataSuggestionsIconJson() {
+		header('Content-Type: application/json');
+		
+		$prefix = DevblocksPlatform::importGPC($_POST['prefix'] ?? null, 'string', null);
+		
+		$icons = PageSection_SetupDevelopersReferenceIcons::getIcons(
+			25,
+			0,
+			$prefix
+		);
+		
+		echo json_encode(
+			array_map(
+				function($icon) {
+					return [
+						'caption' => $icon,
+						'snippet' => $icon,
+						'docHTML' => sprintf('<span class="glyphicons glyphicons-%s"></span>', $icon),
+					];
+				},
+				$icons
+			)
+		);
 	}
 	
 	private function _uiAction_getContextFieldsJson() {

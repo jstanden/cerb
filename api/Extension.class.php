@@ -703,161 +703,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 	public function getEditorToolbar() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		$toolbar = [
-			'menu/insert' => [
-				'icon' => 'circle-plus',
-				'items' => [
-					
-					'menu/inputs' => [
-						'label' => 'Inputs',
-						'items' => [
-							'interaction/array' => [
-								'label' => 'Array',
-								'uri' => 'ai.cerb.automationBuilder.input.array',
-							],
-							'interaction/record' => [
-								'label' => 'Record',
-								'uri' => 'ai.cerb.automationBuilder.input.record',
-							],
-							'interaction/records' => [
-								'label' => 'Records',
-								'uri' => 'ai.cerb.automationBuilder.input.records',
-							],
-							'interaction/text' => [
-								'label' => 'Text',
-								'uri' => 'ai.cerb.automationBuilder.input.text',
-							],
-						],
-					], // menu/inputs
-					
-					'menu/control' => [
-						'label' => 'Control',
-						'items' => [
-							'interaction/decision' => [
-								'label' => 'Decision',
-								'uri' => 'ai.cerb.automationBuilder.command.decision',
-							],
-							'interaction/outcome' => [
-								'label' => 'Outcome',
-								'uri' => 'ai.cerb.automationBuilder.command.outcome',
-							],
-							'interaction/repeat' => [
-								'label' => 'Repeat',
-								'uri' => 'ai.cerb.automationBuilder.command.repeat',
-							],
-						],
-					], // menu/control
-					
-					'menu/actions' => [
-						'label' => 'Actions',
-						'items' => [
-							'interaction/data_query' => [
-								'label' => 'Data query',
-								'uri' => 'ai.cerb.automationBuilder.action.dataQuery',
-							],
-							'menu/actions_email' => [
-								'label' => 'Email',
-								'items' => [
-									'interaction/email_parser' => [
-										'label' => 'Parser',
-										'uri' => 'ai.cerb.automationBuilder.action.emailParser',
-									],
-								],
-							],
-							'interaction/function' => [
-								'label' => 'Function',
-								'uri' => 'ai.cerb.automationBuilder.action.function',
-							],
-							'interaction/http_request' => [
-								'label' => 'HTTP request',
-								'uri' => 'ai.cerb.automationBuilder.action.httpRequest',
-							],
-							'menu/actions_pgp' => [
-								'label' => 'PGP',
-								'items' => [
-									'interaction/pgp_decrypt' => [
-										'label' => 'Decrypt',
-										'uri' => 'ai.cerb.automationBuilder.action.pgpDecrypt',
-									],
-									'interaction/pgp_encrypt' => [
-										'label' => 'Encrypt',
-										'uri' => 'ai.cerb.automationBuilder.action.pgpEncrypt',
-									],
-								],
-							],
-							'menu/actions_record' => [
-								'label' => 'Record',
-								'items' => [
-									'interaction/record_create' => [
-										'label' => 'Create',
-										'uri' => 'ai.cerb.automationBuilder.action.recordCreate',
-									],
-									'interaction/record_delete' => [
-										'label' => 'Delete',
-										'uri' => 'ai.cerb.automationBuilder.action.recordDelete',
-									],
-									'interaction/record_get' => [
-										'label' => 'Get',
-										'uri' => 'ai.cerb.automationBuilder.action.recordGet',
-									],
-									'interaction/record_search' => [
-										'label' => 'Search',
-										'uri' => 'ai.cerb.automationBuilder.action.recordSearch',
-									],
-									'interaction/record_update' => [
-										'label' => 'Update',
-										'uri' => 'ai.cerb.automationBuilder.action.recordUpdate',
-									],
-									'interaction/record_upsert' => [
-										'label' => 'Upsert',
-										'uri' => 'ai.cerb.automationBuilder.action.recordUpsert',
-									],
-								],
-							],
-							'menu/actions_storage' => [
-								'label' => 'Storage',
-								'items' => [
-									'interaction/storage_delete' => [
-										'label' => 'Delete',
-										'uri' => 'ai.cerb.automationBuilder.action.storageDelete',
-									],
-									'interaction/storage_get' => [
-										'label' => 'Get',
-										'uri' => 'ai.cerb.automationBuilder.action.storageGet',
-									],
-									'interaction/storage_set' => [
-										'label' => 'Set',
-										'uri' => 'ai.cerb.automationBuilder.action.storageSet',
-									],
-								],
-							],
-						],
-					], // menu/actions
-					
-					'menu/exit' => [
-						'label' => 'Exit',
-						'items' => [
-							'interaction/return' => [
-								'label' => 'Return',
-								'uri' => 'ai.cerb.automationBuilder.exit.return',
-							],
-							'interaction/await' => [
-								'label' => 'Await',
-								'uri' => 'ai.cerb.automationBuilder.exit.await',
-							],
-							'interaction/error' => [
-								'label' => 'Error',
-								'uri' => 'ai.cerb.automationBuilder.exit.error',
-							],
-						],
-					], // menu/exit
-				
-				], // items
-			], // menu/insert
-			
-			// [TODO] Divider
-			
-		]; // $toolbar
+		$toolbar = [];
 		
 		// Merge Options from `automation.editor`
 		
@@ -885,23 +731,8 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 			]
 		];
 		
-		// Trigger features
-		
-		$features = $this->manifest->params['features'][0] ?? [];
-		
-		if(!array_key_exists('inputs', $features)) {
-			unset($toolbar['menu/insert']['items']['menu/inputs']);
-		}
-		
-		if(!array_key_exists('await', $features)) {
-			unset($toolbar['menu/insert']['items']['menu/exit']['items']['interaction/await']);
-		}
-		
 		// Get toolbar modifications from trigger
-		
-		$toolbar = $this->getEditorToolbarItems($toolbar);
-		
-		return $toolbar;
+		return $this->getEditorToolbarItems($toolbar);
 	}
 	
 	public function getEventToolbarItems(array $toolbar) : array {
@@ -932,214 +763,407 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 	
 	public function getAutocompleteSuggestionsJson() {
 		$common_actions = [
-			'decision:',
-			'outcome:',
+			[
+				'caption' => 'decision:',
+				'snippet' => "decision/\${1:key}:\n\t\${2:}",
+				'description' => "Run commands only in the first matching outcome",
+			],
+			[
+				'caption' => 'outcome:',
+				'snippet' => "outcome/\${1:key}:\n\tif@bool: {{\${2:condition}}}\n\tthen:\n\t\t\${3:}",
+				'description' => "Run commands when conditions are true",
+			],
 			[
 				'caption' => 'error:',
 				'snippet' => "error:\n\t",
-				'docHTML' => "<b>error:</b><br>Finish and return an error response",
+				'description' => "Exit and return an error response",
+				//'interaction' => 'ai.cerb.automationBuilder.exit.error',
 			],
-			'repeat:',
-			'while:',
+			[
+				'caption' => 'repeat:',
+				'snippet' => "repeat:\n\t",
+				'description' => "Repeat commands for every collection item",
+			],
+			[
+				'caption' => 'while:',
+				'snippet' => "while/\${1:key}:\n\tif@bool: {{\${2:condition}}}\n\tdo:\n\t\t\${3:}",
+				'description' => "Repeat commands while conditions are true",
+			],
 			[
 				'caption' => 'return:',
 				'snippet' => "return:\n\t",
-				'docHTML' => "<b>return:</b><br>Finish and return a successful response",
+				'description' => "Exit and return a successful response",
+				//'interaction' => 'ai.cerb.automationBuilder.exit.return',
 			],
 			[
 				'caption' => 'await:',
 				'snippet' => "await:\n\t",
-				'docHTML' => "<b>await:</b><br>Pause and wait for the specified inputs",
+				'description' => "Pause and wait for the specified inputs before resuming",
+				//'interaction' => 'ai.cerb.automationBuilder.exit.await',
 			],
 			[
 				'caption' => 'set:',
 				'snippet' => "set:\n\t\${1:key}: \${2:value}\n",
-				'docHTML' => "<b>set:</b><br>Set one or more placeholders",
+				'description' => "Set one or more keys",
 			],
 			[
 				'caption' => 'data.query:',
-				'snippet' => "data.query:\n\t",
+				'snippet' => "data.query:\n\tinputs:\n\t\t\${1:}\n\toutput: results\n\t#on_simulate:\n\t#on_success:\n\t#on_error:\n",
+				'description' => 'Get results from a data query',
+				'interaction' => 'ai.cerb.automationBuilder.action.dataQuery',
 			],
 			[
 				'caption' => 'decrypt.pgp:',
-				'snippet' => "decrypt.pgp:\n\t",
+				'snippet' => "decrypt.pgp:\n\tinputs:\n\t\t\${1:}\n\toutput: results\n\t#on_simulate:\n\t#on_success:\n\t#on_error:\n",
+				'description' => "Decrypt a block of PGP encrypted text",
+				'interaction' => 'ai.cerb.automationBuilder.action.pgpDecrypt',
 			],
 			[
 				'caption' => 'email.parse:',
-				'snippet' => "email.parse:\n\t",
-			],
-			[
-				'caption' => 'email.send:',
-				'snippet' => "email.send:\n\t",
+				'snippet' => "email.parse:\n\tinputs:\n\t\t\${1:}\n\toutput: results\n\t#on_simulate:\n\t#on_success:\n\t#on_error:\n",
+				'description' => 'Parse an email message in RFC-5322 format',
+				'interaction' => 'ai.cerb.automationBuilder.action.emailParser',
 			],
 			[
 				'caption' => 'encrypt.pgp:',
-				'snippet' => "encrypt.pgp:\n\t",
+				'snippet' => "encrypt.pgp:\n\tinputs:\n\t\t\${1:}\n\toutput: results\n\t#on_simulate:\n\t#on_success:\n\t#on_error:\n",
+				'description' => "Encrypt a block of text using PGP public keys",
+				'interaction' => 'ai.cerb.automationBuilder.action.pgpEncrypt',
 			],
 			[
 				'caption' => 'file.read:',
-				'snippet' => "file.read:\n\t",
+				'snippet' => "file.read:\n\tinputs:\n\t\t\${1:}\n\toutput: results\n\t#on_simulate:\n\t#on_success:\n\t#on_error:\n",
+				'description' => "Read attachment content",
 			],
 			[
 				'caption' => 'function:',
-				'snippet' => "function:\n\t",
+				'snippet' => "function:\n\turi: \${1:}\n\tinputs:\n\t\t\${2:}\n\toutput: results\n\t#on_simulate:\n\t#on_success:\n\t#on_error:\n",
+				'description' => "Run an automation function",
+				'interaction' => 'ai.cerb.automationBuilder.action.function'
 			],
 			[
 				'caption' => 'http.request:',
-				'snippet' => "http.request:\n\t",
+				'snippet' => "http.request:\n\tinputs:\n\t\t\${1:}\n\toutput: results\n\t#on_simulate:\n\t#on_success:\n\t#on_error:\n",
+				'description' => "Execute a request to an HTTP endpoint",
+				'interaction' => 'ai.cerb.automationBuilder.action.httpRequest',
 			],
 			[
 				'caption' => 'log:',
-				'snippet' => "log:\n\t",
+				'snippet' => "log: \${1:Your log message}",
+				'description' => "Append debug output to the automation log",
 			],
 			[
 				'caption' => 'metric.increment:',
-				'snippet' => "metric.increment:\n\t",
+				'snippet' => "metric.increment:\n\tinputs:\n\t\t\${1:}\n\toutput: results\n\t#on_simulate:\n\t#on_success:\n\t#on_error:\n",
+				'description' => "Record new samples on a metric",
 			],
 			[
 				'caption' => 'queue.pop:',
-				'snippet' => "queue.pop:\n\t",
+				'snippet' => "queue.pop:\n\tinputs:\n\t\t\${1:}\n\toutput: results\n\t#on_simulate:\n\t#on_success:\n\t#on_error:\n",
+				'description' => "Read messages from a queue",
 			],
 			[
 				'caption' => 'queue.push:',
-				'snippet' => "queue.push:\n\t",
+				'snippet' => "queue.push:\n\tinputs:\n\t\t\${1:}\n\toutput: results\n\t#on_simulate:\n\t#on_success:\n\t#on_error:\n",
+				'description' => "Write messages to a queue",
 			],
 			[
 				'caption' => 'record.create:',
-				'snippet' => "record.create:\n\t",
+				'snippet' => "record.create:\n\tinputs:\n\t\t\${1:}\n\toutput: results\n\t#on_simulate:\n\t#on_success:\n\t#on_error:\n",
+				'description' => "Create a new record of a given type",
+				'interaction' => 'ai.cerb.automationBuilder.action.recordCreate',
 			],
 			[
 				'caption' => 'record.delete:',
-				'snippet' => "record.delete:\n\t",
+				'snippet' => "record.delete:\n\tinputs:\n\t\t\${1:}\n\toutput: results\n\t#on_simulate:\n\t#on_success:\n\t#on_error:\n",
+				'description' => "Delete a target record by type and ID",
+				'interaction' => 'ai.cerb.automationBuilder.action.recordDelete',
 			],
 			[
 				'caption' => 'record.get:',
-				'snippet' => "record.get:\n\t",
+				'snippet' => "record.get:\n\tinputs:\n\t\t\${1:}\n\toutput: results\n\t#on_simulate:\n\t#on_success:\n\t#on_error:\n",
+				'description' => "Read a target record by type and ID",
+				'interaction' => 'ai.cerb.automationBuilder.action.recordGet',
 			],
 			[
 				'caption' => 'record.search:',
-				'snippet' => "record.search:\n\t",
+				'snippet' => "record.search:\n\tinputs:\n\t\t\${1:}\n\toutput: results\n\t#on_simulate:\n\t#on_success:\n\t#on_error:\n",
+				'description' => "Search a record type with a query and return matches",
+				'interaction' => 'ai.cerb.automationBuilder.action.recordSearch',
 			],
 			[
 				'caption' => 'record.update:',
-				'snippet' => "record.update:\n\t",
+				'snippet' => "record.update:\n\tinputs:\n\t\t\${1:}\n\toutput: results\n\t#on_simulate:\n\t#on_success:\n\t#on_error:\n",
+				'description' => "Update a target record by type and ID",
+				'interaction' => 'ai.cerb.automationBuilder.action.recordUpdate',
 			],
 			[
 				'caption' => 'record.upsert:',
-				'snippet' => "record.upsert:\n\t",
-			],
-			[
-				'caption' => 'simulate.error:',
-				'snippet' => "simulate.error:\n\t",
-			],
-			[
-				'caption' => 'simulate.success:',
-				'snippet' => "simulate.success:\n\t",
+				'snippet' => "record.upsert:\n\tinputs:\n\t\t\${1:}\n\toutput: results\n\t#on_simulate:\n\t#on_success:\n\t#on_error:\n",
+				'description' => "Insert or update a record based query matches",
+				'interaction' => 'ai.cerb.automationBuilder.action.recordUpsert',
 			],
 			[
 				'caption' => 'storage.delete:',
-				'snippet' => "storage.delete:\n\t",
+				'snippet' => "storage.delete:\n\tinputs:\n\t\t\${1:}\n\toutput: results\n\t#on_simulate:\n\t#on_success:\n\t#on_error:\n",
+				'description' => "Delete a persistent key",
+				'interaction' => 'ai.cerb.automationBuilder.action.storageDelete',
 			],
 			[
 				'caption' => 'storage.get:',
-				'snippet' => "storage.get:\n\t",
+				'snippet' => "storage.get:\n\tinputs:\n\t\t\${1:}\n\toutput: results\n\t#on_simulate:\n\t#on_success:\n\t#on_error:\n",
+				'description' => "Read a persistent value by key",
+				'interaction' => 'ai.cerb.automationBuilder.action.storageGet',
 			],
 			[
 				'caption' => 'storage.set:',
-				'snippet' => "storage.set:\n\t",
+				'snippet' => "storage.set:\n\tinputs:\n\t\t\${1:}\n\toutput: results\n\t#on_simulate:\n\t#on_success:\n\t#on_error:\n",
+				'description' => "Write a persistent value by key",
+				'interaction' => 'ai.cerb.automationBuilder.action.storageSet',
 			],
 			[
 				'caption' => 'var.expand:',
-				'snippet' => "var.expand:\n\t",
+				'snippet' => "var.expand:\n\tinputs:\n\t\t\${1:}\n\toutput: results\n\t#on_simulate:\n\t#on_success:\n\t#on_error:\n",
+				'description' => "Expand a dictionary by key path",
 			],
 			[
 				'caption' => 'var.push:',
-				'snippet' => "var.push:\n\t",
+				'snippet' => "var.push:\n\tinputs:\n\t\t\${1:}\n\toutput: results\n\t#on_simulate:\n\t#on_success:\n\t#on_error:\n",
+				'description' => "Append to a list by key path",
 			],
 			[
 				'caption' => 'var.set:',
-				'snippet' => "var.set:\n\t",
+				'snippet' => "var.set:\n\tinputs:\n\t\t\${1:}\n\toutput: results\n\t#on_simulate:\n\t#on_success:\n\t#on_error:\n",
+				'description' => "Set a key by path",
 			],
 			[
 				'caption' => 'var.unset:',
-				'snippet' => "var.unset:\n\t",
+				'snippet' => "var.unset:\n\tinputs:\n\t\t\${1:}\n\toutput: results\n\t#on_simulate:\n\t#on_success:\n\t#on_error:\n",
+				'description' => "Unset a key by path",
 			]
 		];
 		
 		$action_base = [
-			'inputs:',
-			'output:',
-			'on_simulate:',
-			'on_success:',
-			'on_error:'
+			[
+				'caption' => 'inputs:',
+				'snippet' => "inputs:\n\t\${1:}",
+				'description' => "Pass these inputs to the command",
+			],
+			[
+				'caption' => 'output:',
+				'snippet' => "output: \${1:results}",
+				'description' => "Write command output to this key",
+			],
+			[
+				'caption' => 'on_simulate:',
+				'snippet' => "on_simulate:\n\t\${1:}",
+				'description' => "Run these commands during simulation<br>Return with <code>simulate.success:</code> or <code>simulate.error:</code>",
+			],
+			[
+				'caption' => 'on_success:',
+				'snippet' => "on_success:\n\t\${1:}",
+				'description' => "Run these commands when the command is successful",
+			],
+			[
+				'caption' => 'on_error:',
+				'snippet' => "on_error:\n\t\${1:}",
+				'description' => "Run these commands when the command fails",
+			],
 		];
 		
 		$schema = [
 			''=> [
-				'start:',
-				'inputs:',
+				[
+					'caption' => 'inputs:',
+					'snippet' => "inputs:\n\t\${1:}",
+					'description' => "Accept these inputs from the caller",
+				],
+				[
+					'caption' => 'start:',
+					'snippet' => "start:\n\t\${1:}",
+					'description' => "Run these commands when the automation starts",
+				],
 			],
 			
 			'*' => [
 				'(.*):on_error:' => $common_actions,
 				'(.*):on_success:' => $common_actions,
-				'(.*):on_simulate:' => $common_actions,
-				
+				'(.*):on_simulate:' => array_merge(
+					[
+						[
+							'caption' => 'simulate.error:',
+							'snippet' => "simulate.success:\n\t\${1:key}: \${2:value}",
+							'description' => "Trigger a command <code>on_error:</code> event",
+						],
+						[
+							'caption' => 'simulate.success:',
+							'snippet' => "simulate.success:\n\t\${1:key}: \${2:value}",
+							'description' => "Trigger a command <code>on_success:</code> event",
+						],
+					],					
+					$common_actions
+				),
+					
 				'(.*):decision:' => [
-					'outcome:',
+					[
+						'caption' => 'outcome:',
+						'snippet' => "outcome/\${1:key}:\n\tif@bool: {{\${2:condition}}}\n\tthen:\n\t\t\${3:}",
+						'description' => "Run commands when these conditions are true",
+					],
 				],
 				
 				'(.*):outcome:' => [
-					'if@bool:',
-					'then:'
+					[
+						'caption' => 'if:',
+						'snippet' => "if@bool: {{\${1:condition}}}",
+						'description' => "When these conditions are true",
+					],
+					[
+						'caption' => 'then:',
+						'snippet' => "then:\n\t\${1:}",
+						'description' => "Run these commands",
+					],
 				],
 				'(.*):outcome:then:' => $common_actions,
 				
 				'(.*):data.query:' => $action_base,
 				'(.*):data.query:inputs:' => [
-					'query@text:',
-					'query_params:',
+					[
+						'caption' => 'query:',
+						'snippet' => "query@text:\n\ttype:\${1:}worklist.records\n\tof:ticket\n\tquery:()\n\tformat:dictionaries",
+						'score' => 2000,
+					],
+					[
+						'caption' => 'query_params:',
+						'snippet' => "query_params:\n\t\${1:}",
+						'score' => 1999,
+					],
 				],
 				
 				'(.*):decrypt.pgp:' => $action_base,
 				'(.*):decrypt.pgp:inputs:' => [
-					'message:',
+					[
+						'caption' => 'message:',
+						'snippet' => "message:\n\t\${1:}",
+					],
 				],
 				
 				'(.*):email.parse:' => $action_base,
 				'(.*):email.parse:inputs:' => [
-					'message:',
+					[
+						'caption' => 'message:',
+						'snippet' => "message:\n\t\${1:}",
+					],
 				],
-				
-				'(.*):email.send:' => $action_base,
 				
 				'(.*):encrypt.pgp:' => $action_base,
 				'(.*):encrypt.pgp:inputs:' => [
-					'message:',
+					[
+						'caption' => 'message:',
+						'snippet' => "message:\n\t\${1:}",
+					],
 					'public_keys:',
 				],
 				'(.*):encrypt.pgp:inputs:public_keys:' => [
+					'fingerprint: a1b2c3',
+					'id: 123',
+					'ids@csv: 1,2,3',
 					'uri:',
+				],
+				'(.*):encrypt.pgp:inputs:public_keys:uri:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'gpg_public_key' => null,
+					]
 				],
 				
 				'(.*):file.read:' => $action_base,
 				'(.*):file.read:inputs:' => [
-					'uri:',
-					'extract:',
-					'length:',
-					'offset:',
+					[
+						'caption' => 'uri:',
+						'snippet' => 'uri:',
+						'description' => "The `attachment` or `automation_resource` record to read content from",
+						'score' => 2000,
+					],
+					[
+						'caption' => 'extract:',
+						'snippet' => "extract:",
+						'description' => "Extract a file by path from an archive",
+					],
+					[
+						'caption' => 'length:',
+						'snippet' => "length: 4096",
+						'description' => "Read this many bytes from the content (omit to read the full content)",
+					],
+					[
+						'caption' => 'offset:',
+						'snippet' => "offset: 4096",
+						'description' => "Start reading content after this many bytes",
+					],
+				],
+				'(.*):file.read:inputs:uri:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'attachment' => null,
+						'automation_resource' => null,
+					],
 				],
 				
-				'(.*):function:' => array_merge(['uri:'], $action_base),
+				'(.*):function:' => array_merge(
+					[
+						[
+							'caption' => 'uri:',
+							'snippet' => "uri:",
+							'description' => "The automation function to run",
+							'score' => 2000,
+						],
+					],
+					$action_base
+				),
+				'(.*):function:uri:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'automation' => [
+							'triggers' => [
+								'cerb.trigger.automation.function'
+							]
+						]
+					]
+				],
+				'(.*):function:inputs:' => [
+					'type' => 'automation-inputs',
+				],
 				
 				'(.*):http.request:' => $action_base,
 				'(.*):http.request:inputs:' => [
-					'url:',
-					'method:',
-					'headers:',
-					'body:',
+					[
+						'caption' => 'url:',
+						'snippet' => 'url: https://',
+						'score' => 2000,
+					],
+					[
+						'caption' => 'method:',
+						'snippet' => "method: \${1:GET}",
+						'score' => 1999,
+					],
+					[
+						'caption' => 'headers:',
+						'snippet' => "headers:\n\t\${1:X-Example: Value}",
+						'score' => 1998,
+					],
+					[
+						'caption' => 'body:',
+						'snippet' => "body:\n\t",
+						'score' => 1997,
+					],
 					'timeout:',
 					'authentication:',
+				],
+				'(.*):http.request:inputs:authentication:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'connected_account' => null,
+					]
 				],
 				'(.*):http.request:inputs:method:' => [
 					'GET',
@@ -1158,23 +1182,70 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				
 				'(.*):metric.increment:' => $action_base,
 				'(.*):metric.increment:inputs:' => [
-					'dimensions:',
+					[
+						'caption' => 'metric_name:',
+						'snippet' => 'metric_name:',
+						'score' => 2000,
+					],
+					[
+						'caption' => 'dimensions:',
+						'snippet' => "dimensions:\n\t",
+						'score' => 1999,
+					],
 					'is_realtime@bool: yes',
-					'metric_name:',
 					'timestamp@date: now',
 					'values:',
+				],
+				'(.*):metric.increment:inputs:metric_name:' => [
+					'type' => 'record-field',
+					'params' => [
+						'record_type' => 'metric',
+						'field_key' => 'name',
+					]
+				],
+				'(.*):metric.increment:inputs:dimensions:' => [
+					'type' => 'metric-dimensions',
 				],
 				
 				'(.*):queue.pop:' => $action_base,
 				'(.*):queue.pop:inputs:' => [
-					'queue_name:',
-					'limit:',
+					[
+						'caption' => 'queue_name:',
+						'snippet' => 'queue_name:',
+						'score' => 2000,
+					],
+					"limit: 10",
+				],
+				'(.*):queue.pop:inputs:queue_name:' => [
+					'type' => 'record-field',
+					'params' => [
+						'record_type' => 'queue',
+						'field_key' => 'name',
+					]
 				],
 				
 				'(.*):queue.push:' => $action_base,
 				'(.*):queue.push:inputs:' => [
-					'queue_name:',
-					'messages:',
+					[
+						'caption' => 'queue_name:',
+						'snippet' => 'queue_name:',
+						'score' => 2000,
+					],
+					[
+						'caption' => 'messages@list:',
+						'snippet' => "# [TODO] Build a collection with one message per line\nmessages@list:\n\tMessage 1\n\tMessage 2",
+					],
+					[
+						'caption' => 'messages@key:',
+						'snippet' => "# [TODO] Refer to a key with a collection of messages\nmessages@key: \${1:key}",
+					],
+				],
+				'(.*):queue.push:inputs:queue_name:' => [
+					'type' => 'record-field',
+					'params' => [
+						'record_type' => 'queue',
+						'field_key' => 'name',
+					]
 				],
 				
 				'(.*):record.create:' => $action_base,
@@ -1185,54 +1256,193 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'(.*):record.upsert:' => $action_base,
 				
 				'(.*):record.create:inputs:' => [
-					'record_type:',
-					'fields:',
+					[
+						'caption' => 'record_type:',
+						'snippet' => 'record_type:',
+						'score' => 2000,
+						'description' => "The record type to create",
+					],
+					[
+						'caption' => 'fields:',
+						'snippet' => "fields:\n\t\${1:}",
+						'score' => 1999,
+						'description' => "The record fields to set",
+					],
 					'expand:',
+				],
+				'(.*):record.create:inputs:fields:' => [
+					'type' => 'record-fields',
+					'params' => [
+						'parent_key' => 'record_type',
+					],
+				],
+				'(.*):record.create:inputs:record_type:' => [
+					'type' => 'record-type',
 				],
 				
 				'(.*):record.delete:inputs:' => [
-					'record_type:',
+					[
+						'caption' => 'record_type:',
+						'snippet' => 'record_type:',
+						'score' => 2000,
+						'description' => "The record type to delete",
+					],
 					'record_id:',
+				],
+				'(.*):record.delete:inputs:record_type:' => [
+					'type' => 'record-type',
 				],
 				
 				'(.*):record.get:inputs:' => [
-					'record_type:',
+					[
+						'caption' => 'record_type:',
+						'snippet' => 'record_type:',
+						'score' => 2000,
+						'description' => "The record type to load",
+					],
 					'record_id:',
+				],
+				'(.*):record.get:inputs:record_type:' => [
+					'type' => 'record-type',
 				],
 				
 				'(.*):record.search:inputs:' => [
-					'record_type:',
-					'record_query:',
-					'record_query_params:',
+					[
+						'caption' => 'record_type:',
+						'snippet' => 'record_type:',
+						'score' => 2000,
+						'description' => "The record type to search",
+					],
+					[
+						'caption' => 'record_query:',
+						'snippet' => "record_query@text:\n\t\${1:}",
+						'score' => 1999,
+						'description' => "The query to filter records with",
+					],
+					[
+						'caption' => 'record_query_params:',
+						'snippet' => "record_query_params:\n\t\${1:}",
+						'score' => 1998,
+						'description' => "The key/value pairs to substitute in the query",
+					],
 					'record_expand:',
+				],
+				'(.*):record.search:inputs:record_type:' => [
+					'type' => 'record-type',
 				],
 				
 				'(.*):record.update:inputs:' => [
-					'record_id:',
-					'record_type:',
-					'fields:',
+					[
+						'caption' => 'record_type:',
+						'snippet' => 'record_type:',
+						'score' => 2000,
+						'description' => "The record type to update",
+					],
+					[
+						'caption' => 'record_id:',
+						'snippet' => "record_id: \${1:123}",
+						'score' => 1999,
+						'description' => "The record ID to update",
+					],
+					[
+						'caption' => 'fields:',
+						'snippet' => "fields:\n\t\${1:}",
+						'score' => 1998,
+						'description' => "The record fields to update",
+					],
 					'expand:',
+				],
+				'(.*):record.update:inputs:fields:' => [
+					'type' => 'record-fields',
+					'params' => [
+						'parent_key' => 'record_type',
+					],
+				],
+				'(.*):record.update:inputs:record_type:' => [
+					'type' => 'record-type',
 				],
 				
 				'(.*):record.upsert:inputs:' => [
-					'record_type:',
-					'record_query:',
-					'record_query_params:',
-					'fields:',
+					[
+						'caption' => 'record_type:',
+						'snippet' => 'record_type:',
+						'score' => 2000,
+						'description' => "The record type to insert or update",
+					],
+					[
+						'caption' => 'record_query:',
+						'snippet' => "record_query@text:\n\t\${1:}",
+						'score' => 1999,
+						'description' => "The query to match exactly zero (create) or one (update) records",
+					],
+					[
+						'caption' => 'record_query_params:',
+						'snippet' => "record_query_params:\n\t\${1:}",
+						'score' => 1998,
+						'description' => "The key/value pairs to substitute in the query",
+					],
+					[
+						'caption' => 'fields:',
+						'snippet' => "fields:\n\t\${1:}",
+						'score' => 1997,
+						'description' => "The record fields to insert or update",
+					],
+				],
+				'(.*):record.upsert:inputs:fields:' => [
+					'type' => 'record-fields',
+					'params' => [
+						'parent_key' => 'record_type',
+					],
+				],
+				'(.*):record.upsert:inputs:record_type:' => [
+					'type' => 'record-type',
 				],
 				
 				'(.*):repeat:' => [
-					'each@list:',
-					'each@key:',
-					'each@json:',
-					'as:',
-					'do:',
+					[
+						'caption' => 'each@csv:',
+						'snippet' => "each@csv:",
+						'score' => 2000,
+					],
+					[
+						'caption' => 'each@key:',
+						'snippet' => "each@key:",
+						'score' => 2000,
+					],
+					[
+						'caption' => 'each@list:',
+						'snippet' => "each@list:",
+						'score' => 2000,
+					],
+					[
+						'caption' => 'each@json:',
+						'snippet' => "each@json:",
+						'score' => 2000,
+					],
+					[
+						'caption' => 'as:',
+						'snippet' => "as: \${key}",
+						'score' => 1999,
+					],
+					[
+						'caption' => 'do:',
+						'snippet' => "do:\n\t\${1:# [TODO] Your commands to repeat go here}",
+						'score' => 1998,
+					]
 				],
 				'(.*):repeat:do:' => $common_actions,
 				
 				'(.*):while:' => [
-					'if@bool:',
-					'do:',
+					[
+						'caption' => 'if:',
+						'snippet' => "if@bool: {{\${1:condition}}}",
+						'score' => 2000,
+					],
+					[
+						'caption' => 'do:',
+						'snippet' => "do:\n\t\${1:# [TODO] Your commands to repeat go here}",
+						'score' => 1999,
+					],
 				],
 				'(.*):while:do:' => $common_actions,
 				
@@ -1247,7 +1457,11 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'key:',
 				],
 				'(.*):storage.set:inputs:' => [
-					'key:',
+					[
+						'caption' => 'key:',
+						'snippet' => "key:",
+						'score' => 2000,
+					],
 					'value:',
 					'expires:',
 				],
@@ -1258,15 +1472,27 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'(.*):var.unset:' => $action_base,
 				
 				'(.*):var.expand:inputs:' => [
-					'key:',
+					[
+						'caption' => 'key:',
+						'snippet' => "key:",
+						'score' => 2000,
+					],
 					'paths:',
 				],
 				'(.*):var.push:inputs:' => [
-					'key:',
+					[
+						'caption' => 'key:',
+						'snippet' => "key:",
+						'score' => 2000,
+					],
 					'value:',
 				],
 				'(.*):var.set:inputs:' => [
-					'key:',
+					[
+						'caption' => 'key:',
+						'snippet' => "key:",
+						'score' => 2000,
+					],
 					'value:',
 				],
 				'(.*):var.unset:inputs:' => [
@@ -1279,18 +1505,26 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					[
 						'caption' => 'array:',
 						'snippet' => "array/\${1:name}:",
+						'description' => 'An array of values',
+						'interaction' => 'ai.cerb.automationBuilder.input.array',
 					],
 					[
 						'caption' => 'record:',
 						'snippet' => "record/\${1:name}:",
+						'description' => 'A record dictionary from an ID',
+						'interaction' => 'ai.cerb.automationBuilder.input.record',
 					],
 					[
 						'caption' => 'records:',
 						'snippet' => "records/\${1:name}:",
+						'description' => 'A collection of record dictionaries from IDs',
+						'interaction' => 'ai.cerb.automationBuilder.input.records',
 					],
 					[
 						'caption' => 'text:',
 						'snippet' => "text/\${1:name}:",
+						'description' => 'A text value with an optional type',
+						'interaction' => 'ai.cerb.automationBuilder.input.text',
 					],
 				],
 				
@@ -1300,7 +1534,11 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				],
 				
 				'inputs:record:' => [
-					'record_type:',
+					[
+						'caption' => 'record_type:',
+						'snippet' => "record_type:",
+						'score' => 2000,
+					],
 					'required@bool: yes',
 					'expand:',
 					'default:',
@@ -1308,7 +1546,11 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'inputs:record:record_type:' => $this->_getRecordTypeSuggestions(),
 				
 				'inputs:records:' => [
-					'record_type:',
+					[
+						'caption' => 'record_type:',
+						'snippet' => "record_type:",
+						'score' => 2000,
+					],
 					'required@bool: yes',
 					'expand:',
 					'default:',
@@ -1316,7 +1558,11 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'inputs:records:record_type:' => $this->_getRecordTypeSuggestions(),
 				
 				'inputs:text:' => [
-					'type:',
+					[
+						'caption' => 'type:',
+						'snippet' => "type:",
+						'score' => 2000,
+					],
 					'type_options:',
 					'required@bool: yes',
 					'default:',

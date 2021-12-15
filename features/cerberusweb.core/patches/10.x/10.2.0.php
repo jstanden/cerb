@@ -122,8 +122,10 @@ if(!isset($tables['automation_resource'])) {
 // Update built-in automations
 
 $automation_files = [
+	'ai.cerb.automationBuilder.action.dataQuery.json',
 	'ai.cerb.automationBuilder.action.function.json',
 	'ai.cerb.automationBuilder.action.httpRequest.json',
+	'ai.cerb.automationBuilder.interaction.worker.await.promptEditor.json',
 	'ai.cerb.automationBuilder.interaction.worker.await.promptSheet.json',
 	'ai.cerb.editor.mapBuilder.json',
 	'ai.cerb.editor.toolbar.markdownLink.json',

@@ -53,32 +53,6 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 	}
 	
 	public function getEditorToolbarItems(array $toolbar): array {
-		$toolbar['menu/insert']['items']['menu/await'] = [
-			'label' => 'Await',
-			'items' => [
-				'interaction/prompt_editor' => [
-					'label' => 'Editor',
-					'uri' => 'ai.cerb.automationBuilder.interaction.worker.await.promptEditor',
-				],
-				'interaction/respond_map' => [
-					'label' => 'Map',
-					'uri' => 'ai.cerb.automationBuilder.interaction.worker.await.map',
-				],
-				'interaction/respond_say' => [
-					'label' => 'Say',
-					'uri' => 'ai.cerb.automationBuilder.interaction.worker.await.say',
-				],
-				'interaction/prompt_sheet' => [
-					'label' => 'Sheet',
-					'uri' => 'ai.cerb.automationBuilder.interaction.worker.await.promptSheet',
-				],
-				'interaction/prompt_text' => [
-					'label' => 'Text',
-					'uri' => 'ai.cerb.automationBuilder.interaction.worker.await.promptText',
-				]
-			], // items
-		];
-		
 		return $toolbar;
 	}
 	
@@ -86,16 +60,52 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 		return [
 			'*' => [
 				'(.*):await:' => [
-					'draft:',
-					'duration:',
-					'form:',
-					'interaction:',
-					'record:',
+					[
+						'caption' => 'form:',
+						'snippet' => "form:\n\ttitle: Form Title\n\telements:\n\t\t\${1:}",
+						'score' => 2000,
+						'description' => "Display a form and wait for valid user input",
+					],
+					[
+						'caption' => 'interaction:',
+						'snippet' => "interaction:\n\t",
+						'score' => 1999,
+						'description' => "Run an interaction and wait for completion",
+					],
+					[
+						'caption' => 'draft:',
+						'snippet' => "draft:\n\t",
+						'description' => "Open the email editor popup and wait for completion",
+					],
+					[
+						'caption' => 'duration:',
+						'snippet' => "duration:\n\t",
+						'description' => "Wait for an amount of time",
+					],
+					[
+						'caption' => 'record:',
+						'snippet' => "record:\n\t",
+						'description' => "Open a record editor popup and wait for completion",
+					],
 				],
 				
 				'(.*):await:draft:' => [
-					'uri:',
-					'output:',
+					[
+						'caption' => 'uri:',
+						'snippet' => "uri:",
+						'score' => 2000,
+						'description' => "The draft record to open in the editor",
+					],
+					[
+						'caption' => 'output:',
+						'snippet' => "output: \${1:results}",
+					],
+				],
+				'(.*):await:draft:uri' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'draft' => null,	
+					]			
 				],
 				
 				'(.*):await:duration:' => [
@@ -104,61 +114,92 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 				],
 				
 				'(.*):await:form:' => [
-					'title:',
-					'elements:',
+					[
+						'caption' => 'title:',
+						'snippet' => "title:",
+						'score' => 2000,
+					],
+					[
+						'caption' => 'elements:',
+						'snippet' => "elements:",
+						'score' => 1999,
+					],
 				],
 				'(.*):await:form:elements:' => [
 					[
 						'caption' => 'editor:',
-						'snippet' => 'editor/${1:prompt_name}:',
+						'snippet' => "editor/\${1:prompt_editor}:\n\t\${2:}",
+						'description' => "Prompt with a code editor",
+						'interaction' => 'ai.cerb.automationBuilder.interaction.worker.await.promptEditor',
 					],
 					[
 						'caption' => 'fileUpload:',
-						'snippet' => 'fileUpload/${1:prompt_name}:',
+						'snippet' => "fileUpload/\${1:prompt_file}:\n\t\${2:}",
+						'description' => "Prompt for a file upload",
 					],
 					[
 						'caption' => 'map:',
-						'snippet' => 'map/${1:prompt_name}:',
+						'snippet' => "map/\${1:prompt_map}:\n\t\${2:}",
+						'description' => "Display an interactive map",
+						'interaction' => 'ai.cerb.automationBuilder.interaction.worker.await.map',
 					],
 					[
 						'caption' => 'say:',
-						'snippet' => 'say/${1:prompt_name}:',
+						'snippet' => "say/\${1:prompt_say}:\n\t\${2:}",
+						'description' => "Display arbitrary plaintext or Markdown",
+						'interaction' => 'ai.cerb.automationBuilder.interaction.worker.await.say',
 					],
 					[
 						'caption' => 'sheet:',
-						'snippet' => 'sheet/${1:prompt_name}:',
+						'snippet' => "sheet/\${1:prompt_sheet}:\n\t\${2:}",
+						'description' => "Prompt using a table with single/multiple selection, filtering, and paging",
+						'interaction' => 'ai.cerb.automationBuilder.interaction.worker.await.promptSheet',
 					],
 					[
 						'caption' => 'submit:',
-						'snippet' => 'submit:',
+						'snippet' => "submit:\n\t\${1:}",
+						'description' => "Prompt for one or more submit actions",
 					],
 					[
 						'caption' => 'text:',
-						'snippet' => 'text/${1:prompt_name}:',
+						'snippet' => "text/\${1:prompt_text}:\n\t\${2:}",
+						'description' => "Prompt for a line of text",
+						'interaction' => 'ai.cerb.automationBuilder.interaction.worker.await.promptText',
 					],
 					[
 						'caption' => 'textarea:',
-						'snippet' => 'textarea/${1:prompt_name}:',
+						'snippet' => "textarea/\${1:prompt_textarea}:\n\t\${2:}",
+						'description' => "Prompt for multiple lines of text",
 					],
 				],
 				
 				'(.*):await:form:elements:editor:' => [
-					'label:',
+					[
+						'caption' => 'label:',
+						'snippet' => "label: \${1:Label:}",
+						'score' => 2000,
+					],
 					'syntax:',
 					'default:',
 					'validation@raw:',
 				],
 				'(.*):await:form:elements:editor:syntax:' => [
-					'cerb_query',
+					'cerb_query_data',
+					'cerb_query_search',
 					'html',
 					'json',
+					'kata',
 					'markdown',
 					'text',
 					'yaml',
 				],
 				
 				'(.*):await:form:elements:fileUpload:' => [
-					'label:',
+					[
+						'caption' => 'label:',
+						'snippet' => "label: \${1:Label:}",
+						'score' => 2000,
+					],
 					'validation@raw:',
 				],
 			
@@ -171,18 +212,40 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 				],
 				
 				'(.*):await:form:elements:say:' => [
-					'content@text:',
-					'message@text:',
+					[
+						'caption' => 'content:',
+						'snippet' => "content@text:\n\t\${1:}",
+						'score' => 2000,
+						'description' => "Display Markdown formatted text",
+					],
+					[
+						'caption' => 'message:',
+						'snippet' => "message@text:\n\t\${1:}",
+						'score' => 1999,
+						'description' => "Display plaintext without formatting",
+					],
 				],
 				
 				'(.*):await:form:elements:sheet:' => [
-					'data:',
+					[
+						'caption' => 'label:',
+						'snippet' => "label: \${1:Label:}",
+						'score' => 2000,
+					],
+					[
+						'caption' => 'data:',
+						'snippet' => "data:\n\t\${1:}",
+						'score' => 1999,
+					],
+					[
+						'caption' => 'schema:',
+						'snippet' => "schema:\n\tlayout:\n\t\t\${1:}\n\tcolumns:\n\t\t\${2:}",
+						'score' => 1998,
+					],
 					'default:',
-					'label:',
 					'limit:',
 					'page:',
 					'required@bool: yes',
-					'schema:',
 					'validation@raw:',
 				],
 				'(.*):await:form:elements:sheet:data:' => [
@@ -196,15 +259,39 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					]
 				],
 				'(.*):await:form:elements:sheet:data:automation:' => [
-					'uri:',
-					'inputs:',
+					[
+						'caption' => 'uri:',
+						'snippet' => "uri:",
+						'score' => 2000,
+					],
+					[
+						'caption' => 'inputs:',
+						'snippet' => "inputs:\n\t\${1:}",
+						'score' => 1999,
+					],
+				],
+				'(.*):await:form:elements:sheet:data:automation:inputs:' => [
+					'type' => 'automation-inputs',
+				],
+				'(.*):await:form:elements:sheet:data:automation:uri:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'automation' => [
+							'triggers' => [
+								'cerb.trigger.ui.sheet.data',
+							]
+						]
+					]
 				],
 				'(.*):await:form:elements:sheet:schema:' => [
 					'columns:',
 					'layout:',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:' => [
-					'card/key:',
+					[
+						'caption' => 'card:',
+						'snippet' => "card/\${1:_label}:",
+					],
 					'date/key:',
 					'icon/key:',
 					'link/key:',
@@ -232,10 +319,19 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'underline@bool: yes',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:card:params:icon:' => [
-					'image: circle-ok',
+					[
+						'caption' => 'image: circle-ok',
+						'snippet' => "image: \${1:circle-ok}",
+					],
 					'image_key: icon_key',
 					'image_template@raw:',
 					'record_uri@raw:',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:card:params:image:' => [
+					'type' => 'icon'
+				],
+				'(.*):await:form:elements:sheet:schema:columns:card:params:record_uri:' => [
+					'type' => 'cerb-uri',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:date:' => [
 					'params:',
@@ -249,10 +345,19 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'params:',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:icon:params:' => [
-					'image: circle-ok',
+					[
+						'caption' => 'image: circle-ok',
+						'snippet' => "image: \${1:circle-ok}",
+					],
 					'image_key: icon_key',
 					'image_template@raw:',
 					'record_uri@raw:',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:icon:params:image:' => [
+					'type' => 'icon',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:icon:params:record_uri:' => [
+					'type' => 'cerb-uri',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:link:' => [
 					'params:',
@@ -269,27 +374,49 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'params:',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:search:params:' => [
-					'context: ticket',
+					[
+						'caption' => 'context: ticket',
+						'snippet' => "context: \${1:ticket}",
+					],
 					'query_key: query',
 					'query_template@raw:',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:search:params:context:' => [
+					'type' => 'record-type',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:search_button:' => [
 					'params:',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:search_button:params:' => [
-					'context: ticket',
+					[
+						'caption' => 'context: ticket',
+						'snippet' => "context: \${1:ticket}",
+					],
 					'query_key: query',
 					'query_template@raw:',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:search_button:params:context:' => [
+					'type' => 'record-type',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:selection:' => [
 					'params:',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:selection:params:' => [
-					'mode: single',
-					'mode: multiple',
+					[
+						'caption' => 'mode:',
+						'snippet' => "mode: \${1:single}",
+						'description' => "<code>single</code> or <code>multiple</code> row selection",
+					],
+					'label: Description',
+					'label_key: description',
+					'label_template@raw: {{description}}',
 					'value: 123',
 					'value_key: key',
 					'value_template@raw: {{key}}',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:selection:params:mode:' => [
+					'single',
+					'multiple',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:slider:' => [
 					'params:',
@@ -313,10 +440,19 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'icon:',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:text:params:icon:' => [
-					'image: circle-ok',
+					[
+						'caption' => 'image: circle-ok',
+						'snippet' => "image: \${1:circle-ok}",
+					],
 					'image_key: icon_key',
 					'image_template@raw:',
 					'record_uri@raw:',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:text:params:icon:image:' => [
+					'type' => 'icon',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:text:params:icon:record_uri:' => [
+					'type' => 'cerb-uri',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:time_elapsed:' => [
 					'params:',
@@ -328,14 +464,38 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'filtering@bool: yes',
 					'headings@bool: yes',
 					'paging@bool: yes',
-					'style: table',
-					'title_column:',
+					[
+						'caption' => 'style:',
+						'snippet' => "style: \${1:table}",
+					],
+					[
+						'caption' => 'title_column:',
+						'snippet' => "title_column: \${1:_label}",
+						'description' => "The column to emphasize as the row title",
+					],
 				],
-				'(.*):await:form:elements:sheet:schema:layout:style' => [
-					'buttons',
-					'fieldsets',
-					'grid',
-					'table',
+				'(.*):await:form:elements:sheet:schema:layout:style:' => [
+					[
+						'caption' => 'table',
+						'snippet' => 'table',
+						'description' => "Display the rows as a table",
+						'score' => 2000,
+					],
+					[
+						'caption' => 'buttons',
+						'snippet' => 'buttons',
+						'description' => "Display the rows as buttons",
+					],
+					[
+						'caption' => 'fieldsets',
+						'snippet' => 'fieldsets',
+						'description' => "Display the rows as fieldsets",
+					],
+					[
+						'caption' => 'grid',
+						'snippet' => 'grid',
+						'description' => "Display the rows as a grid",
+					],
 				],
 				
 				'(.*):await:form:elements:submit:' => [
@@ -356,11 +516,19 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 				],
 				
 				'(.*):await:form:elements:submit:buttons:continue:' => [
-					'label:',
+					[
+						'caption' => 'label:',
+						'snippet' => "label: \${1:Label:}",
+						'score' => 2000,
+					],
 					'icon:',
 					'icon_at:',
 					'style:',
 					'value:',
+				],
+				
+				'(.*):await:form:elements:submit:buttons:continue:icon:' => [
+					'type' => 'icon',
 				],
 				
 				'(.*):await:form:elements:submit:buttons:continue:icon_at:' => [
@@ -374,10 +542,18 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 				],
 				
 				'(.*):await:form:elements:submit:buttons:reset:' => [
-					'label:',
+					[
+						'caption' => 'label:',
+						'snippet' => "label: \${1:Label:}",
+						'score' => 2000,
+					],
 					'icon:',
 					'icon_at:',
 					'style:',
+				],
+				
+				'(.*):await:form:elements:submit:buttons:reset:icon' => [
+					'type' => 'icon',
 				],
 				
 				'(.*):await:form:elements:submit:buttons:reset:icon_at:' => [
@@ -391,8 +567,12 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 				],
 				
 				'(.*):await:form:elements:text:' => [
+					[
+						'caption' => 'label:',
+						'snippet' => "label: \${1:Label:}",
+						'score' => 2000,
+					],
 					'default:',
-					'label:',
 					'max_length@int:',
 					'min_length@int:',
 					'placeholder:',
@@ -428,13 +608,32 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 				],
 				
 				'(.*):await:interaction:' => [
+					[
+						'caption' => 'output:',
+						'snippet' => "output: \${1:results}",
+					],
 					'uri:',
-					'output:',
+				],
+				'(.*):await:interaction:uri:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'automation' => [
+							'triggers' => [
+								'cerb.trigger.interaction.worker',
+							]
+						]
+					]
 				],
 				
 				'(.*):await:record:' => [
 					'uri:',
-					'output:',
+					[
+						'caption' => 'output:',
+						'snippet' => "output: \${1:results}",
+					],
+				],
+				'(.*):await:record:uri:' => [
+					'type' => 'cerb-uri',
 				],
 			]
 		];

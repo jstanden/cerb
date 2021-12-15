@@ -27,7 +27,6 @@ var cerbAutocompleteSuggestions = {
 			'data.query:',
 			'decrypt.pgp:',
 			'email.parse:',
-			'email.send:',
 			'encrypt.pgp:',
 			'file.read:',
 			'function:',
@@ -47,6 +46,11 @@ var cerbAutocompleteSuggestions = {
 		],
 		'commands:data.query:': [
 			'allow@bool: yes',
+			{
+				'caption': 'deny/type:',
+				'snippet': "deny/type@bool: {{query.type != \${1:'example.type'}}}",
+				'docHTML': 'Validate data query type'
+			},
 			'deny@bool: yes'
 		],
 		'commands:decrypt.pgp:': [
@@ -54,10 +58,6 @@ var cerbAutocompleteSuggestions = {
 			'deny@bool: yes'
 		],
 		'commands:email.parse:': [
-			'allow@bool: yes',
-			'deny@bool: yes'
-		],
-		'commands:email.send:': [
 			'allow@bool: yes',
 			'deny@bool: yes'
 		],
@@ -540,7 +540,10 @@ var cerbAutocompleteSuggestions = {
 				caption: 'paging:',
 				snippet: 'paging@bool: ${1:yes}'
 			},
-			'title_column: '
+			{
+				caption: 'title_column:',
+				snippet: 'title_column: ${1:key}'
+			},
 		],
 		'layout:style:': [
 			'table',
@@ -2843,6 +2846,9 @@ var ajax = new cAjaxCalls();
 				editor.completer.autocomplete_suggestions = autocomplete_options.autocomplete_suggestions;
 			
 			var autocompleterKata = {
+				identifierRegexps: [
+					/[a-zA-Z_0-9\*\#\@\.\$\:\-\u00A2-\uFFFF]/
+				],
 				twigTags: [
 					{ value: "apply", meta: "command" },
 					{ value: "do", meta: "command" },
@@ -2977,6 +2983,19 @@ var ajax = new cAjaxCalls();
 				formatSuggestions: function(suggestions) {
 					return suggestions.map(function(data) {
 						if('object' == typeof data) {
+							if(
+								!data.hasOwnProperty('docHTML') 
+								&& data.hasOwnProperty('caption')
+								&& data.hasOwnProperty('description')
+							) {
+								var $help = $('<div/>')
+									.append($('<b/>').text(data.caption))
+									.append($('<br>'))
+									.append($('<span/>').text(data.description))
+								;
+								data.docHTML = $help.html();
+							}
+							
 							if(!data.hasOwnProperty('score'))
 								data.score = 1000;
 
@@ -3026,8 +3045,152 @@ var ajax = new cAjaxCalls();
 				formatData: function(scope_key) {
 					return this.formatSuggestions(editor.completer.autocomplete_suggestions[scope_key]);
 				},
+				parseCompletions: function(callback, editor, scope_key, prefix) {
+					var completions = editor.completer.autocomplete_suggestions[scope_key];
+
+					editor.completer.isDynamic = false;
+					
+					if($.isArray(completions)) {
+						return callback(null, autocompleterKata.formatSuggestions(completions));
+						
+					} else if(typeof completions == 'object') {
+						editor.completer.isDynamic = true;
+						
+						if(completions.hasOwnProperty('type')) {
+							var formData = null;
+							
+							if('cerb-uri' === completions['type']) {
+								editor.completer.getPopup().container.style.width = '500px';
+								
+								formData = new FormData();
+								formData.set('c', 'ui');
+								formData.set('a', 'kataSuggestionsCerbUriJson');
+								formData.set('prefix', prefix);
+								
+								if(completions.hasOwnProperty('params')) {
+									formData.set('params', $.param(completions.params));
+								}
+								
+							} else if('record-field' === completions['type']) {
+								editor.completer.getPopup().container.style.width = '500px';
+								
+								formData = new FormData();
+								formData.set('c', 'ui');
+								formData.set('a', 'kataSuggestionsRecordFieldJson');
+								formData.set('prefix', prefix);
+
+								if(completions.hasOwnProperty('params')) {
+									if(completions.params.hasOwnProperty('record_type') && 'string' === typeof completions.params.record_type)
+										formData.set('params[record_type]', completions.params.record_type);
+									if(completions.params.hasOwnProperty('field_key') && 'string' === typeof completions.params.field_key)
+										formData.set('params[field_key]', completions.params.field_key);
+								}
+								
+							} else if('record-fields' === completions['type']) {
+								editor.completer.getPopup().container.style.width = '400px';
+
+								var record_type_path = Devblocks.cerbCodeEditor.getKataTokenPath(
+									null,
+									editor
+								);
+
+								record_type_path.pop();
+								record_type_path.push('record_type:');
+								
+								var key_row = Devblocks.cerbCodeEditor.getKataRowByPath(editor, record_type_path.join(''));
+								var key_line = editor.session.getLine(key_row);
+								var matches = key_line.match(/[^:]*:\s*(.*)/i);
+
+								if($.isArray(matches) && 2 == matches.length) {
+									formData = new FormData();
+									formData.set('c', 'ui');
+									formData.set('a', 'kataSuggestionsRecordFieldsJson');
+									formData.set('prefix', prefix);
+									formData.set('params[record_type]', matches[1]);
+								}
+								
+							} else if('record-type' === completions['type']) {
+								editor.completer.getPopup().container.style.width = '300px';
+								editor.completer.isDynamic = false;
+
+								formData = new FormData();
+								formData.set('c', 'ui');
+								formData.set('a', 'kataSuggestionsRecordTypeJson');
+								formData.set('prefix', prefix);
+								
+							} else if('icon' === completions['type']) {
+								editor.completer.getPopup().container.style.width = '200px';
+								
+								formData = new FormData();
+								formData.set('c', 'ui');
+								formData.set('a', 'kataSuggestionsIconJson');
+								formData.set('prefix', prefix);
+								
+							} else if('automation-inputs' === completions['type']) {
+								editor.completer.getPopup().container.style.width = '300px';
+								
+								var uri_path = Devblocks.cerbCodeEditor.getKataTokenPath(
+									null,
+									editor
+								);
+								
+								uri_path.pop();
+								uri_path.push('uri:');
+								
+								var key_row = Devblocks.cerbCodeEditor.getKataRowByPath(editor, uri_path.join(''));
+								var key_line = editor.session.getLine(key_row);
+								var matches = key_line.match(/[^:]*:\s*(.*)/i);
+								
+								if($.isArray(matches) && 2 === matches.length) {
+									formData = new FormData();
+									formData.set('c', 'ui');
+									formData.set('a', 'kataSuggestionsAutomationInputsJson');
+									formData.set('prefix', prefix);
+									formData.set('params[uri]', matches[1]);
+								}
+								
+							} else if('metric-dimensions' === completions['type']) {
+								editor.completer.getPopup().container.style.width = '300px';
+								
+								var key_path = Devblocks.cerbCodeEditor.getKataTokenPath(
+									null,
+									editor
+								);
+								
+								key_path.pop();
+								key_path.push('metric_name:');
+								
+								var key_row = Devblocks.cerbCodeEditor.getKataRowByPath(editor, key_path.join(''));
+								var key_line = editor.session.getLine(key_row);
+								var matches = key_line.match(/[^:]*:\s*(.*)/i);
+								
+								if($.isArray(matches) && 2 === matches.length) {
+									formData = new FormData();
+									formData.set('c', 'ui');
+									formData.set('a', 'kataSuggestionsMetricDimensionJson');
+									formData.set('prefix', prefix);
+									formData.set('params[metric]', matches[1]);
+								}
+							}
+
+							if(null === formData) {
+								return callback(null, []);
+								
+							} else {
+								genericAjaxPost(formData, '', '', function (json) {
+									if ($.isArray(json)) {
+										return callback(null, autocompleterKata.formatSuggestions(json));
+									}
+
+									return callback(null, []);
+								});
+							}
+						} 
+					}
+				},
 				getCompletions: function(editor, session, pos, prefix, callback) {
 					editor.completer.autoSelect = false;
+					editor.completer.getPopup().container.style.width = '300px';
 					
 					// Check for Twig autocompletion first
 					
@@ -3083,7 +3246,7 @@ var ajax = new cAjaxCalls();
 
 					// Simple static path full match
 					if(editor.completer.autocomplete_suggestions.hasOwnProperty(scope_key)) {
-						return callback(null, autocompleterKata.formatData(scope_key));
+						autocompleterKata.parseCompletions(callback, editor, scope_key, prefix);
 
 					} else if (editor.completer.autocomplete_suggestions.hasOwnProperty('*')) {
 						var regexps = editor.completer.autocomplete_suggestions['*'];
@@ -3091,7 +3254,7 @@ var ajax = new cAjaxCalls();
 						for(var regexp in regexps) {
 							if(scope_key.match(new RegExp('^' + regexp + '$'))) {
 								editor.completer.autocomplete_suggestions[scope_key] = regexps[regexp];
-								callback(null, autocompleterKata.formatData(scope_key));
+								autocompleterKata.parseCompletions(callback, editor, scope_key, prefix);
 								return;
 							}
 						}
@@ -4412,6 +4575,9 @@ var ajax = new cAjaxCalls();
 	// Abstract bot interaction trigger
 	
 	$.fn.cerbBotTrigger = function(options) {
+		if(null == options)
+			options = {};
+		
 		return this.each(function() {
 			var $trigger = $(this);
 			

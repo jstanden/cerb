@@ -66,24 +66,6 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 	}
 	
 	public function getEditorToolbarItems(array $toolbar): array {
-		$toolbar['menu/insert']['items']['menu/await'] = [
-			'label' => 'Await',
-			'items' => [
-//				'interaction/respond_say' => [
-//					'label' => 'Say',
-//					'uri' => 'ai.cerb.automationBuilder.interaction.worker.await.say',
-//				],
-//				'interaction/prompt_sheet' => [
-//					'label' => 'Sheet',
-//					'uri' => 'ai.cerb.automationBuilder.interaction.worker.await.promptSheet',
-//				],
-//				'interaction/prompt_text' => [
-//					'label' => 'Text',
-//					'uri' => 'ai.cerb.automationBuilder.interaction.worker.await.promptText',
-//				]
-			], // items
-		];
-		
 		return $toolbar;
 	}
 	
@@ -91,26 +73,74 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 		return [
 			'*' => [
 				'(.*):await:' => [
-					'form:',
-					'interaction:',
+					[
+						'caption' => 'form:',
+						'snippet' => "form:\n\ttitle: \${1:Form Title}\n\telements:\n\t\t",
+						'score' => 2000,
+						'description' => "Display a form and wait for valid user input",
+					],
+					[
+						'caption' => 'interaction:',
+						'snippet' => "interaction:\n\t",
+						'score' => 1999,
+						'description' => "Run an interaction and wait for completion",
+					],
 				],
 				
 				'(.*):await:form:' => [
-					'title:',
-					'elements:',
+					[
+						'caption' => 'title:',
+						'snippet' => "title:",
+						'score' => 2000,
+					],
+					[
+						'caption' => 'elements:',
+						'snippet' => "elements:",
+						'score' => 1999,
+					],
 				],
 				
 				'(.*):await:form:elements:' => [
-					'say:',
-					'sheet:',
-					'submit:',
-					'text:',
-					'textarea:',
+					[
+						'caption' => 'say:',
+						'snippet' => "say/\${1:prompt_say}:\n\t\${2:}",
+						'description' => "Display arbitrary plaintext or Markdown",
+					],
+					[
+						'caption' => 'sheet:',
+						'snippet' => "sheet/\${1:prompt_sheet}:\n\t\${2:}",
+						'description' => "Prompt using a table with single/multiple selection, filtering, and paging",
+					],
+					[
+						'caption' => 'submit:',
+						'snippet' => "submit:\n\t\${1:}",
+						'description' => "Prompt for one or more submit actions",
+					],
+					[
+						'caption' => 'text:',
+						'snippet' => "text/\${1:prompt_text}:\n\t\${2:}",
+						'description' => "Prompt for a line of text",
+					],
+					[
+						'caption' => 'textarea:',
+						'snippet' => "textarea/\${1:prompt_textarea}:\n\t\${2:}",
+						'description' => "Prompt for multiple lines of text",
+					]
 				],
 				
 				'(.*):await:form:elements:say:' => [
-					'content@text:',
-					'message@text:',
+					[
+						'caption' => 'content:',
+						'snippet' => "content@text:\n\t\${1:}",
+						'score' => 2000,
+						'description' => "Display Markdown formatted text",
+					],
+					[
+						'caption' => 'message:',
+						'snippet' => "message@text:\n\t\${1:}",
+						'score' => 1999,
+						'description' => "Display plaintext without formatting",
+					],
 				],
 				
 				'(.*):await:form:elements:sheet:' => [
@@ -173,6 +203,9 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 				'(.*):await:form:elements:sheet:schema:columns:selection:params:' => [
 					'mode: single',
 					'mode: multiple',
+					'label: Description',
+					'label_key: description',
+					'label_template@raw: {{description}}',
 					'value: 123',
 					'value_key: key',
 					'value_template@raw: {{key}}',
@@ -214,7 +247,7 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 					'style: table',
 					'title_column:',
 				],
-				'(.*):await:form:elements:sheet:schema:layout:style' => [
+				'(.*):await:form:elements:sheet:schema:layout:style:' => [
 					'buttons',
 					'scale',
 					'table',
@@ -256,10 +289,23 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 				],
 				
 				'(.*):await:interaction:' => [
+					[
+						'caption' => 'output:',
+						'snippet' => "output: \${1:results}",
+					],
 					'uri:',
-					'output:',
 				],
-			]
+				'(.*):await:interaction:uri:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'automation' => [
+							'triggers' => [
+								'cerb.trigger.interaction.worker',
+							]
+						]
+					]
+				],
+			],
 		];
 	}
 }

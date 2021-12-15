@@ -510,7 +510,6 @@ class _DevblocksAutomationService {
 			'data.query',
 			'decrypt.pgp',
 			'email.parse',
-			'email.send',
 			'encrypt.pgp',
 			'error',
 			'file.read',

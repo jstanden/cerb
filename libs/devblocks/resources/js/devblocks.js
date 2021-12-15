@@ -676,6 +676,9 @@ function DevblocksClass() {
 			}
 		},
 		getKataTokenPath: function(pos, editor) {
+			if(null == pos)
+				pos = editor.getCursorPosition();
+
 			var TokenIterator = require('ace/token_iterator').TokenIterator;
 			var iter = new TokenIterator(editor.session, pos.row, pos.column);
 			var results = [];
@@ -683,32 +686,50 @@ function DevblocksClass() {
 			var token = iter.getCurrentToken();
 			var current_indent = null;
 			
-			if(!String.prototype.trimStart) {
-				String.prototype.trimStart = function() {
-					if(String.prototype.trimLeft)
-						return this.trimLeft();
-					
-					var matches = this.match(/^( +)/);
-					
-					if(null === matches)
-						return this.valueOf();
-					
-					return this.substr(matches[1].length);
-				}
-			}
-			
 			if(null != token) {
 				var token_column = iter.getCurrentTokenColumn();
-
-				// We're on a new indent
-				if(token.type === 'text' && token.value.length > 0 && 0 === token.value.trimStart().length) {
-					current_indent = token.value;
+				var token_row = iter.getCurrentTokenRow();
+				var currentTokenLine = editor.session.getLine(token_row);
+				
+				// If our previous token is a tag, and we're on the same line, autocomplete inline
+				if(token.type === 'text') {
 					iter.stepBackward();
+					var prevToken = iter.getCurrentToken();
+					var prevTokenLine = editor.session.getLine(iter.getCurrentTokenRow());
+
+					// If we're a text token on the same row as our parent tag token 
+					if(
+						prevToken 
+						&& prevToken.type === 'meta.tag' 
+						&& iter.getCurrentTokenRow() === token_row
+					) {
+						current_indent = prevToken.value;
+						iter.stepForward();
+
+					// If we're a text token with a sibling tag token
+					} else if(
+						iter.getCurrentTokenRow() !== token_row
+						&& Devblocks.cerbCodeEditor.lineIsKataField(iter.getCurrentTokenRow(), editor)
+						&& Devblocks.cerbCodeEditor.linesAreSiblings(prevTokenLine, currentTokenLine)
+					) {
+						Devblocks.cerbCodeEditor.iterToKataParent(iter, editor);
+					
+					// If this isn't a blank line
+					} else if(
+						token.value.length > 0 
+						&& 0 === token.value.trimStart().length
+					) {
+						current_indent = token.value;
+						
+					} else {
+						iter.stepForward();
+					}
 				}
 
 				do {
 					token = iter.getCurrentToken();
-					token_column = iter.getCurrentTokenColumn()
+					token_column = iter.getCurrentTokenColumn();
+					token_row = iter.getCurrentTokenRow();
 
 					if(token.type === 'meta.tag' && 0 === token_column) {
 						var token_value = token.value;
@@ -741,6 +762,10 @@ function DevblocksClass() {
 
 			if(typeof path != 'string')
 				return false;
+
+			// Remove trailing colons on the path
+			if(path.substr(-1,1) === ':')
+				path = path.substr(0, path.length-1);
 
 			path = path.split(':');
 			var depth_stack = [];
@@ -788,7 +813,7 @@ function DevblocksClass() {
 						}
 					}
 
-					if(path.hasOwnProperty(depth) && tag_trimmed === path[depth]) {
+					if(path.hasOwnProperty(depth) && tag_trimmed === (path[depth] + ':')) {
 						if(matches === depth) {
 							matches++;
 
@@ -951,6 +976,45 @@ function DevblocksClass() {
 			return {
 				'scope': scope.reverse(),
 				'nodes': results.reverse()
+			}
+		},
+		trimLineStart: function(line) {
+			if(String.prototype.trimStart)
+				return line.trimStart();
+	
+			if(String.prototype.trimLeft)
+				return line.trimLeft();
+	
+			var matches = line.match(/^( +)/);
+	
+			if(null === matches)
+				return line.valueOf();
+	
+			return line.substr(matches[1].length);
+		},
+		getLineIndent: function(line) {
+			var trimmedLine = this.trimLineStart(line);
+			return " ".repeat(line.length - trimmedLine.length);
+		},
+		linesAreSiblings: function(a, b) {
+			return this.getLineIndent(a) === this.getLineIndent(b);
+		},
+		lineIsKataField: function(row, editor) {
+			var token = editor.session.getTokenAt(row, 0);
+			return token && 'meta.tag' === token.type;
+		},
+		iterToKataParent: function(iter, editor) {
+			var refLineRow = iter.getCurrentTokenRow();
+			var refLine = editor.session.getLine(refLineRow);
+			var refLineIndent = this.getLineIndent(refLine);
+			
+			while(iter.stepBackward()) {
+				var currentLineRow = iter.getCurrentTokenRow();
+				var currentLine = editor.session.getLine(currentLineRow);
+				var currentLineIndent = this.getLineIndent(currentLine);
+				
+				if(currentLineIndent < refLineIndent)
+					return;
 			}
 		}
 	};
