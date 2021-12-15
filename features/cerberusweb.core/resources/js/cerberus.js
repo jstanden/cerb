@@ -473,7 +473,7 @@ var cerbAutocompleteSuggestions = {
 			'(.*):?interaction:': [
 				{
 					'caption': 'uri:',
-					'snippet': 'uri: cerb:automation:${1:name}'
+					'snippet': 'uri: cerb:automation:${1:}'
 				},
 				'label:',
 				'icon:',
@@ -488,6 +488,34 @@ var cerbAutocompleteSuggestions = {
 				},
 				'inputs:'
 			],
+			'(.*):?interaction:hidden:': [
+				'yes',
+				'no',
+				{
+					'caption': '{{key}}',
+					'snippet': '{{${1:key}}}',
+				},
+				{
+					'caption': '{{not key}}',
+					'snippet': '{{not ${1:key}}}',
+				}
+			],
+			'(.*):?interaction:icon:': {
+				'type': 'icon'
+			},
+			'(.*):?interaction:inputs:': {
+				'type': 'automation-inputs'
+			},
+			'(.*):?interaction:uri:': {
+				'type': 'cerb-uri',
+				'params': {
+					'automation': {
+						'triggers': [
+							'cerb.trigger.interaction.worker'
+						]
+					}
+				}
+			},
 			'(.*):?menu:': [
 				'label:',
 				{
