@@ -1799,9 +1799,11 @@ class CerberusContexts {
 		$context = $context_pair[0];
 		$context_id = $context_pair[1];
 
-		if(null == ($context_ext = Extension_DevblocksContext::get($context)))
+		if(null == ($context_ext = Extension_DevblocksContext::getByAlias($context, true)))
 			return false;
 
+		$context = $context_ext->id;
+		
 		switch($context) {
 			case CerberusContexts::CONTEXT_TICKET:
 				if(!is_numeric($context_id)) {
@@ -1843,7 +1845,7 @@ class CerberusContexts {
 		$context = $context_pair[0];
 		$context_id = $context_pair[1];
 
-		if(null == ($context_ext = Extension_DevblocksContext::get($context)))
+		if(null == ($context_ext = Extension_DevblocksContext::getByAlias($context, true)))
 			return null;
 
 		if($context_ext instanceof IDevblocksContextProfile) {
