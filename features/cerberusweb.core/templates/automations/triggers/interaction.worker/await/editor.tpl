@@ -16,6 +16,15 @@ $(function() {
 
     var $editor = $prompt.find('textarea[data-editor-mode]')
         .cerbCodeEditor()
+                
+        {if $editor_autocompletion == 'data_query'}
+        .cerbCodeEditorAutocompleteDataQueries()
+        {elseif $editor_autocompletion == 'search_query'}
+        .cerbCodeEditorAutocompleteSearchQueries({
+            "context": ""
+        })
+        {/if}
+        
         .nextAll('pre.ace_editor')
     ;
 

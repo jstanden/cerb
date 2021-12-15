@@ -27,14 +27,31 @@ class EditorAwait extends AbstractAwait {
 	function render(Model_AutomationContinuation $continuation) {
 		$tpl = DevblocksPlatform::services()->template();
 		
-		@$label = $this->_data['label'];
-		@$default = $this->_data['default'];
-		@$mode = $this->_data['mode'];
+		$label = $this->_data['label'] ?? null;
+		$default = $this->_data['default'] ?? null;
+		$syntax = $this->_data['syntax'] ?? null;
+		
+		$editor_mode = '';
+		$editor_autocompletion = '';
+		
+		switch($syntax) {
+			case 'cerb_query_data':
+				$editor_mode = 'ace/mode/cerb_query';
+				$editor_autocompletion = 'data_query';
+				break;
+			
+			case 'cerb_query':
+			case 'cerb_query_search':
+				$editor_mode = 'ace/mode/cerb_query';
+				$editor_autocompletion = 'search_query';
+				break;
+		}
 		
 		$tpl->assign('var', $this->_key);
 		$tpl->assign('label', $label);
 		$tpl->assign('default', $default);
-		$tpl->assign('editor_mode', $mode);
+		$tpl->assign('editor_mode', $editor_mode);
+		$tpl->assign('editor_autocompletion', $editor_autocompletion);
 		
 		$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.worker/await/editor.tpl');
 	}
