@@ -2055,7 +2055,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 	}
 };
 
-class Context_Address extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport, IDevblocksContextBroadcast, IDevblocksContextMerge, IDevblocksContextAutocomplete {
+class Context_Address extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport, IDevblocksContextBroadcast, IDevblocksContextMerge, IDevblocksContextAutocomplete, IDevblocksContextUri {
 	const ID = 'cerberusweb.contexts.address';
 	const URI = 'address';
 	
@@ -2237,6 +2237,11 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			'created',
 			'updated',
 		];
+	}
+	
+	function autocompleteUri($term, $uri_params=null) : array {
+		$results = DAO_Address::autocomplete($term);
+		return array_column($results, 'email');
 	}
 	
 	function autocomplete($term, $query=null) {
@@ -2667,14 +2672,25 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		$tpl->assign('view_id', $view_id);
 		
 		if($context_id) {
-			if(false == ($addy = DAO_Address::get($context_id)))
+			if(is_numeric($context_id)) {
+				if(false == ($address = DAO_Address::get($context_id)))
+					DevblocksPlatform::dieWithHttpError(null, 404);
+				
+			} elseif (is_string($context_id)) {
+				if(false == ($address = DAO_Address::getByEmail($context_id)))
+					DevblocksPlatform::dieWithHttpError(null, 404);
+				
+			} else {
 				DevblocksPlatform::dieWithHttpError(null, 404);
+			}
 			
-			@$email = $addy->email;
+			$context_id = $address->id;
+			$email = $address->email;
 		}
+		
 		$tpl->assign('email', $email);
 		
-		if($email) {
+		if(!$address && $email) {
 			$address = DAO_Address::getByEmail($email);
 			$tpl->assign('address', $address);
 			
