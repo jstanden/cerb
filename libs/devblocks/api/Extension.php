@@ -177,6 +177,10 @@ interface IDevblocksContextAutocomplete {
 	function autocomplete($term, $query=null);
 }
 
+interface IDevblocksContextUri {
+	function autocompleteUri($term, $uri_params=null) : array;
+}
+
 class DevblocksMenuItemPlaceholder {
 	var $label = null;
 	var $key = null;
