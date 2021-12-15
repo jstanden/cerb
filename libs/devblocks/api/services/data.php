@@ -25,6 +25,10 @@ class _DevblocksDataService {
 				$provider = new _DevblocksDataProviderAttachmentManifest();
 				return $provider->getSuggestions($type, $params);
 			
+			case 'automation.autocomplete':
+				$provider = new _DevblocksDataProviderAutomationAutocomplete();
+				return $provider->getSuggestions($type, $params);
+			
 			case 'calendar.availability':
 				$provider = new _DevblocksDataProviderCalendarAvailability();
 				return $provider->getSuggestions($type, $params);
@@ -265,6 +269,14 @@ class _DevblocksDataService {
 		switch($chart_type) {
 			case 'attachment.manifest':
 				$provider = new _DevblocksDataProviderAttachmentManifest();
+				
+				if(false === ($results = $provider->getData($query, $chart_fields, $error)))
+					return false;
+				
+				break;
+
+			case 'automation.autocomplete':
+				$provider = new _DevblocksDataProviderAutomationAutocomplete();
 				
 				if(false === ($results = $provider->getData($query, $chart_fields, $error)))
 					return false;

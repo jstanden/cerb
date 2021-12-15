@@ -58,6 +58,9 @@
 		<file path="api/services/data/attachment_manifest.php">
 			<class name="_DevblocksDataProviderAttachmentManifest" />
 		</file>
+		<file path="api/services/data/automation_autocomplete.php">
+			<class name="_DevblocksDataProviderAutomationAutocomplete" />
+		</file>
 		<file path="api/services/data/gpg_keyinfo.php">
 			<class name="_DevblocksDataProviderGpgKeyInfo" />
 		</file>
