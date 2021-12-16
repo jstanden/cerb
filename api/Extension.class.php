@@ -705,6 +705,11 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 		
 		$toolbar = [];
 		
+		$toolbar['interaction/builder'] = [
+			'uri' => 'cerb:automation:ai.cerb.automationBuilder',
+			'icon' => 'magic',
+		];
+		
 		// Merge Options from `automation.editor`
 		
 		if(false != ($editor_toolbar = DAO_Toolbar::getByName('automation.editor'))) {
