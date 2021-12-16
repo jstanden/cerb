@@ -194,6 +194,7 @@ class DevblocksValidationField {
 		
 		return $this->_type
 			->setMaxLength(255)
+			->setTruncation()
 			->addValidator($validation->validators()->url())
 			;
 	}
