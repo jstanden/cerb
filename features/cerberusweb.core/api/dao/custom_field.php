@@ -2430,7 +2430,7 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 		$keys['context']['notes'] = "The [record type](/docs/records/#record-type) to add the field to";
 		$keys['custom_fieldset_id']['notes'] = "The ID of the parent [custom fieldset](/docs/records/types/custom_fieldset/); if any";
 		$keys['pos']['notes'] = "Display order; positive integer; `0` is first";
-		$keys['type']['notes'] = "`C` (checkbox)<br>`D` (picklist)<br>`E` (date)<br>`F` (file)<br>`I` (files)<br>`L` (record link)<br>`M` (list)<br>`N` (number)<br>`O` (decimal)<br>`S` (single line of text)<br>`T` (multiple lines of text)<br>`U` (url)<br>`W` (worker)<br>`X` (multiple checkboxes)<br>`Y` (currency)<br>";
+		$keys['type']['notes'] = "`C` (checkbox), `D` (picklist), `E` (date), `F` (file), `I` (files), `L` (record link), `M` (list), `N` (number), `O` (decimal), `S` (single line of text), `T` (multiple lines of text), `U` (url), `W` (worker), `X` (multiple checkboxes), `Y` (currency)";
 		$keys['uri']['notes'] = "The unique alias for this custom field";
 		
 		return $keys;

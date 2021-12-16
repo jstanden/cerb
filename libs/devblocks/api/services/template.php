@@ -223,12 +223,12 @@ class _DevblocksTemplateManager {
 		return DevblocksPlatform::strToPermalink($string);
 	}
 
-	static function modifier_devblocks_markdown_to_html($string) {
+	static function modifier_devblocks_markdown_to_html($string, $is_untrusted=true) {
 		if($string instanceof Twig\Markup)
 			$string = strval($string);
 		
 		@$string = strval($string);
-		return DevblocksPlatform::parseMarkdown($string);
+		return DevblocksPlatform::parseMarkdown($string, $is_untrusted);
 	}
 	
 	static function modifier_devblocks_prettytime($string, $is_delta=false) {

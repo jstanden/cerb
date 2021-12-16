@@ -1960,12 +1960,12 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 		return DevblocksPlatform::services()->kata()->emit($array);
 	}
 	
-	function filter_markdown_to_html($string) {
+	function filter_markdown_to_html($string, $is_untrusted=true) {
 		if($string instanceof Twig\Markup)
 			$string = strval($string);
 		
-		@$string = strval($string);
-		return DevblocksPlatform::parseMarkdown($string);
+		$string = strval($string);
+		return DevblocksPlatform::parseMarkdown($string, $is_untrusted);
 	}
 	
 	function filter_md5($string) {
