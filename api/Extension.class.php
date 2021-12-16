@@ -767,6 +767,8 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 	}
 	
 	public function getAutocompleteSuggestionsJson() {
+		$trigger_features = current($this->manifest->params['features'] ?? []);
+		
 		$common_actions = [
 			[
 				'caption' => 'decision:',
@@ -799,12 +801,6 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'snippet' => "return:\n\t",
 				'description' => "Exit and return a successful response",
 				//'interaction' => 'ai.cerb.automationBuilder.exit.return',
-			],
-			[
-				'caption' => 'await:',
-				'snippet' => "await:\n\t",
-				'description' => "Pause and wait for the specified inputs before resuming",
-				//'interaction' => 'ai.cerb.automationBuilder.exit.await',
 			],
 			[
 				'caption' => 'set:',
@@ -947,6 +943,15 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'description' => "Unset a key by path",
 			]
 		];
+		
+		if(array_key_exists('await', $trigger_features)) {
+			$common_actions[] =
+				[
+					'caption' => 'await:',
+					'snippet' => "await:\n\t",
+					'description' => "Pause and wait for the specified inputs before resuming",
+				];
+		}
 		
 		$action_base = [
 			[
