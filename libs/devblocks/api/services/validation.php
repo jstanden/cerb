@@ -1105,7 +1105,7 @@ class _DevblocksValidationService {
 				break;
 				
 			case '_DevblocksValidationTypeString':
-				if(!is_null($value) && !is_string($value)) {
+				if(!is_null($value) && !is_string($value) && !is_numeric($value)) {
 					throw new Exception_DevblocksValidationError(sprintf("'%s' must be a string (%s).", $field_label, gettype($value)));
 				}
 				
@@ -1134,7 +1134,7 @@ class _DevblocksValidationService {
 				break;
 				
 			case '_DevblocksValidationTypeStringOrArray':
-				if(!is_null($value) && !is_string($value) && !is_array($value)) {
+				if(!is_null($value) && !is_string($value) && !is_numeric($value) && !is_array($value)) {
 					throw new Exception_DevblocksValidationError(sprintf("'%s' must be a string or array (%s).", $field_label, gettype($value)));
 				}
 				
