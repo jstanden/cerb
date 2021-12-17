@@ -83,6 +83,28 @@ class _DevblocksDataProviderRecordFields extends _DevblocksDataProvider {
 		
 		$fields = array_merge($fields, $custom_fields);
 		
+		// Filter out fields with no key
+		$fields = array_filter(
+			$fields,
+			function($field) {
+				return array_key_exists('key', $field);
+			}
+		);
+		
+		// Fix field capitalization (until ::getMetaByContext doesn't force lowercase)
+		$fields = array_combine(
+			array_map(
+				function($key) use ($fields) {
+					if(array_key_exists('key', $fields[$key]))
+						return $fields[$key]['key'];
+					
+					return $key;
+				},
+				array_keys($fields)
+			),
+			$fields
+		);
+		
 		ksort($fields);
 		
 		if ($chart_model['filter']) {
