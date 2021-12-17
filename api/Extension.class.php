@@ -967,7 +967,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 			[
 				'caption' => 'on_simulate:',
 				'snippet' => "on_simulate:\n\t\${1:}",
-				'description' => "Run these commands during simulation<br>Return with <code>simulate.success:</code> or <code>simulate.error:</code>",
+				'description' => "Run these commands during simulation. Return with `simulate.success:` or `simulate.error:`",
 			],
 			[
 				'caption' => 'on_success:',
@@ -1002,13 +1002,13 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					[
 						[
 							'caption' => 'simulate.error:',
-							'snippet' => "simulate.success:\n\t\${1:key}: \${2:value}",
-							'description' => "Trigger a command <code>on_error:</code> event",
+							'snippet' => "simulate.error:\n\t\${1:key}: \${2:value}",
+							'description' => "Trigger a command `on_error:` event",
 						],
 						[
 							'caption' => 'simulate.success:',
 							'snippet' => "simulate.success:\n\t\${1:key}: \${2:value}",
-							'description' => "Trigger a command <code>on_success:</code> event",
+							'description' => "Trigger a command `on_success:` event",
 						],
 					],					
 					$common_actions

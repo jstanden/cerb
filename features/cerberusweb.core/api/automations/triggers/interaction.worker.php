@@ -405,7 +405,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					[
 						'caption' => 'mode:',
 						'snippet' => "mode: \${1:single}",
-						'description' => "<code>single</code> or <code>multiple</code> row selection",
+						'description' => "`single` or `multiple` row selection",
 					],
 					'label: Description',
 					'label_key: description',

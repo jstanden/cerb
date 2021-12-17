@@ -12,7 +12,7 @@ class _DevblocksDataProviderRecordFields extends _DevblocksDataProvider {
 			'format:' => [
 				'dictionaries',
 			],
-			'of' => array_values(Extension_DevblocksContext::getUris()),
+			'of:' => array_values(Extension_DevblocksContext::getUris()),
 		];
 		
 		return $suggestions;
@@ -78,11 +78,12 @@ class _DevblocksDataProviderRecordFields extends _DevblocksDataProvider {
 		$paging = [];
 		
 		$fields = $record_type_ext->getKeyMeta(false);
-		ksort($fields);
 
 		$custom_fields = DAO_CustomField::getMetaByContext($record_type_ext->id);
 		
 		$fields = array_merge($fields, $custom_fields);
+		
+		ksort($fields);
 		
 		if ($chart_model['filter']) {
 			$fields = array_filter($fields, function($field, $field_key) use ($chart_model) {

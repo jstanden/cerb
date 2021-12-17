@@ -125,8 +125,12 @@ class Controller_UI extends DevblocksControllerExtension {
 		if(false == ($context_ext = Extension_DevblocksContext::getByAlias($record_type, true)))
 			return;
 		
-		if(false == ($dao_fieldmap = $context_ext->getKeyMeta()))
+		if(false == ($fields = $context_ext->getKeyMeta()))
 			return;
+		
+		$custom_fields = DAO_CustomField::getMetaByContext($context_ext->id);
+		
+		$dao_fieldmap = array_merge($fields, $custom_fields);
 		
 		ksort($dao_fieldmap);
 		
@@ -146,10 +150,12 @@ class Controller_UI extends DevblocksControllerExtension {
 				array_map(
 					function($key_meta) {
 						$key = $key_meta['key'] ?? null;
+						$is_required = $key_meta['is_required'] ?? false;
 						
 						return [
 							'caption' => $key . ':',
 							'snippet' => $key . ':',
+							'score' => $is_required ? 2000 : 1000,
 						];
 					},
 					$dao_fieldmap

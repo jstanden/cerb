@@ -48,7 +48,7 @@ var cerbAutocompleteSuggestions = {
 			'allow@bool: yes',
 			{
 				'caption': 'deny/type:',
-				'snippet': "deny/type@bool: {{query.type != \${1:'example.type'}}}",
+				'snippet': "deny/type@bool: {{query.type != '\${1:example.type}'}}",
 				'docHTML': 'Validate data query type'
 			},
 			'deny@bool: yes'
@@ -1797,6 +1797,7 @@ var ajax = new cAjaxCalls();
 					{ value: "length", meta: "filter" },
 					{ value: "lower", meta: "filter" },
 					{ value: "map(func)", snippet: "map((v,k) => v)", meta: "filter" },
+					{ value: "markdown_to_html(is_untrusted=true)", meta: "filter" },
 					{ value: "md5", meta: "filter" },
 					{ value: "merge", meta: "filter" },
 					{ value: "nl2br", meta: "filter" },
@@ -2928,6 +2929,7 @@ var ajax = new cAjaxCalls();
 					{ value: "length", meta: "filter" },
 					{ value: "lower", meta: "filter" },
 					{ value: "map(func)", snippet: "map((v,k) => v)", meta: "filter" },
+					{ value: "markdown_to_html(is_untrusted=true)", meta: "filter" },
 					{ value: "md5", meta: "filter" },
 					{ value: "merge", meta: "filter" },
 					{ value: "nl2br", meta: "filter" },

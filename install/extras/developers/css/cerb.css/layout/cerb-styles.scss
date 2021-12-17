@@ -568,6 +568,10 @@ UL {
 		
 		border-radius: 5px;
 		
+		p {
+			margin: 0;
+		}
+		
 		&:hover {
 			background-color: var(--cerb-color-background-contrast-220);
 			border: 1px solid var(--cerb-color-background-contrast-220);
@@ -604,11 +608,16 @@ UL {
 
 	.cerb-sheet--row {
 		padding: 5px;
+		margin-bottom: 0.25em;
 		border-radius: 5px;
 		cursor: pointer;
 		word-break: break-word;
 		page-break-inside: avoid;
 		break-inside: avoid-column;
+
+		p {
+			margin: 0;
+		}
 
 		&:hover {
 			background-color: var(--cerb-color-background-contrast-220);
