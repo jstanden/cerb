@@ -1520,6 +1520,10 @@ var ajax = new cAjaxCalls();
 			options.target = null;
 		}
 
+		if(!options.hasOwnProperty('width') || null == options.width) {
+			options.target = '50%';
+		}
+
 		if(!options.hasOwnProperty('start') || 'function' !== typeof options.start) {
 			options.start = function() {};
 		}
@@ -1547,6 +1551,7 @@ var ajax = new cAjaxCalls();
 						'caller': options.caller,
 						'mode': options.mode,
 						'target': options.target,
+						'width': options.width,
 						'start': options.start,
 						'reset': options.reset,
 						'done': options.done,
@@ -4754,8 +4759,6 @@ var ajax = new cAjaxCalls();
 						// Open a blank popup and assign content
 						} else if('await' === json.exit) {
 							var popup_width = options.width || '50%';
-							
-							// [TODO] If mobile, use 100% width
 							
 							var $popup = genericAjaxPopup(layer, null, null, options && options.modal, popup_width);
 							

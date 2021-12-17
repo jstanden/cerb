@@ -553,6 +553,7 @@ $(function() {
 					selected_text: ''
 				}
 			},
+			width: '75%',
 			start: function(formData) {
 				var pos = editor_automation.getCursorPosition();
 				var token_path = Devblocks.cerbCodeEditor.getKataTokenPath(pos, editor_automation).join('');
