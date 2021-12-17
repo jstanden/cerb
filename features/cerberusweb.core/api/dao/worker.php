@@ -3614,6 +3614,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		$keys['title']['notes'] = "Job title / Position";
 		
 		$keys['email'] = [
+			'key' => 'email',
 			'is_immutable' => false,
 			'is_required' => false,
 			'notes' => 'The primary email address of the worker; alternative to `email_id`',
@@ -3621,6 +3622,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		];
 		
 		$keys['email_ids'] = [
+			'key' => 'email_ids',
 			'is_immutable' => false,
 			'is_required' => false,
 			'notes' => 'A comma-separated list of IDs for alternative [email addresses](/docs/records/types/address/)',
@@ -3628,6 +3630,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		];
 		
 		$keys['password'] = [
+			'key' => 'password',
 			'is_immutable' => false,
 			'is_required' => false,
 			'notes' => "The worker's password, if applicable; stored security; will be automatically generated if blank",
