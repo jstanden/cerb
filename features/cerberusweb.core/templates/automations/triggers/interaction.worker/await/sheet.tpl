@@ -218,17 +218,13 @@ $(function() {
 					)
 				;
 				$sheet_selections.html($item);
+
+				// If this is the only single selection prompt (no continue or other inputs)
+				if(1 === $form.find('.cerb-form-builder-prompt,.cerb-form-builder-continue').length) {
+					$form.triggerHandler($.Event('cerb-form-builder-submit'));
+				}
 			}
 		}
-
-		// [TODO] If there's no submit button, advance
-		// [TODO] if there's a submit, but no continue button
-		// [TODO] If we're the only prompt
-		{if $layout.style == 'buttons'}
-		if(0 === $form.find('.cerb-form-builder-continue').length) {
-			$form.triggerHandler($.Event('cerb-form-builder-submit'));
-		}
-		{/if}
 
 		if(!no_toolbar_update) {
 			$prompt.triggerHandler('cerb-sheet--toolbar-refresh');
