@@ -1999,8 +1999,13 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		$keys['mime_type']['notes'] = 'The MIME type of this file (e.g. `image/png`); defaults to `application/octet-stream`';
 		$keys['name']['notes'] = 'The filename';
 		
-		$keys['url_download']['is_immutable'] = true;
-		$keys['url_download']['notes'] = 'The download URL for the attachment';
+		$keys['url_download'] = [
+			'key' => 'url_download',
+			'is_immutable' => true,
+			'is_required' => false,
+			'notes' => 'The download URL for the attachment',
+			'type' => 'string',
+		];
 		
 		return $keys;
 	}

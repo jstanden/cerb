@@ -143,6 +143,7 @@ $automation_files = [
 	'ai.cerb.automationBuilder.action.recordUpsert.json',
 	'ai.cerb.automationBuilder.interaction.worker.await.promptEditor.json',
 	'ai.cerb.automationBuilder.interaction.worker.await.promptSheet.json',
+	'ai.cerb.cardEditor.automation.triggerChooser',
 	'ai.cerb.editor.mapBuilder.json',
 	'ai.cerb.editor.toolbar.markdownLink.json',
 	'ai.cerb.eventHandler.automation.json',

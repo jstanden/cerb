@@ -614,6 +614,7 @@ UL {
 		word-break: break-word;
 		page-break-inside: avoid;
 		break-inside: avoid-column;
+		background-color: var(--cerb-color-background-contrast-240);
 
 		p {
 			margin: 0;
