@@ -101,7 +101,7 @@ EOD;
 	
 	foreach($dao_fieldmap as $record_key => $key_meta) {
 		// Only editable fields
-		if(@$key_meta['is_immutable'])
+		if($key_meta['is_immutable'] ?? null)
 			continue;
 		
 		@$type = $key_meta['type'];
@@ -203,6 +203,18 @@ EOD;
 				$out .= sprintf("|---\n| Key | Value\n|-|-\n");
 				
 				foreach($refs as $ref_key => $ref_value) {
+					$ref_value = str_replace(
+						[
+							'{{',
+							'}}',
+						],
+						[
+							'{% raw %}{{',
+							'}}{% endraw %}',
+						],
+						$ref_value
+					);
+					
 					$out .= sprintf("| `%s` | %s\n",
 						$ref_key,
 						$ref_value
@@ -291,7 +303,7 @@ EOD;
 		if(1 == $hits && !DevblocksPlatform::strEndsWith($k, ['_label']))
 			continue;
 		
-		@$type = $values['_types'][$k];
+		$type = $values['_types'][$k] ?? null;
 		
 		if(is_array($type) || is_object($type))
 			continue;
@@ -370,7 +382,7 @@ EOD;
 			$k = substr($k, 0, -6);
 			$type = 'Record';
 			
-			if(false != (@$context = $context_prefixes[$k])) {
+			if(false != ($context = ($context_prefixes[$k] ?? null))) {
 				$context_mft = Extension_DevblocksContext::get($context, false);
 				
 				$label = sprintf("[%s](/docs/records/types/%s/)",
@@ -563,13 +575,13 @@ EOD;
 		if($k == 'text')
 			continue;
 		
-		@$field = $fields[$param_key];
+		$field = $fields[$param_key] ?? null;
 		
-		if(false == (@$label = @$field->db_label)) {
+		if(false == ($label = ($field->db_label ?? null))) {
 			$label = str_replace('.', ' ', $k);
 		}
 		
-		@$type = @$field->type ?: $v['type'];
+		$type = ($field->type ?? null) ?: $v['type'];
 		
 		if(array_key_exists($type, $custom_field_types))
 			$type = $custom_field_types[$type];
@@ -587,9 +599,11 @@ EOD;
 		}
 		
 		else if(
-			@$k != 'id'
-			&& @$v['examples'][0]['type'] == 'chooser'
-			&& @$v['examples'][0]['context']
+			$k != 'id'
+			&& ($v['examples'] ?? null)
+			&& ($v['examples'][0] ?? null)
+			&& ($v['examples'][0]['type'] ?? null) == 'chooser'
+			&& ($v['examples'][0]['context'] ?? null)
 			) {
 				$context = $v['examples'][0]['context'];
 				$context_mft = Extension_DevblocksContext::get($context, false);
@@ -606,8 +620,10 @@ EOD;
 		}
 		
 		else if(
-			@$v['examples'][0]['type'] == 'search'
-			&& @$v['examples'][0]['context']
+			($v['examples'] ?? null)
+			&&($v['examples'][0] ?? null)
+			&& ($v['examples'][0]['type'] ?? null) == 'search'
+			&& ($v['examples'][0]['context'] ?? null)
 			) {
 				$context = $v['examples'][0]['context'];
 				$context_mft = Extension_DevblocksContext::get($context, false);

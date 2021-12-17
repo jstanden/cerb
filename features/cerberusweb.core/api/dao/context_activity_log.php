@@ -1251,7 +1251,7 @@ class Context_ContextActivityLog extends Extension_DevblocksContext implements I
 	function getKeyMeta($with_dao_fields=true) {
 		$keys = parent::getKeyMeta($with_dao_fields);
 
-		$keys['activity_point']['notes'] = "The event that occurred";
+		$keys['activity_point']['notes'] = "The event ID that occurred (or `custom.other`)";
 		$keys['actor__context']['notes'] = "The actor's record type";
 		$keys['actor_id']['notes'] = "The actor's record ID";
 		$keys['target__context']['notes'] = "The target's record type";
@@ -1263,6 +1263,13 @@ class Context_ContextActivityLog extends Extension_DevblocksContext implements I
 			'is_required' => false,
 			'notes' => 'JSON-encoded key/value object',
 			'type' => 'object',
+			'_reference' => [
+				'params' => [
+					'message' => 'The log message with your own `{{variables}}`',
+					'variables' => 'A key/value object of placeholder values',
+					'urls' => 'A key/value object of optional variable urls in the format `ctx://record_type:123`',
+				]
+			],		
 		];
 		
 		return $keys;

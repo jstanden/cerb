@@ -1402,9 +1402,16 @@ class Context_Notification extends Extension_DevblocksContext {
 			'is_required' => true,
 			'notes' => 'A key/value object of notification properties',
 			'type' => 'object',
+			'_reference' => [
+				'params' => [
+					'message' => 'The notification message with your own `{{variables}}`',
+					'variables' => 'A key/value object of placeholder values',
+					'urls' => 'A key/value object of optional variable urls in the format `ctx://record_type:123`',
+				]
+			],	
 		];
 		
-		$keys['activity_point']['notes'] = "The event that triggered the notification";
+		$keys['activity_point']['notes'] = "The event that triggered the notification (or `custom.other`)";
 		$keys['is_read']['notes'] = "Has this been read by the worker?";
 		$keys['target__context']['notes'] = "The [record type](/docs/records/types/) of the target record";
 		$keys['target_id']['notes'] = "The ID of the target record";
