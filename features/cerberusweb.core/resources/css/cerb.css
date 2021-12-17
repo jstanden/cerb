@@ -756,13 +756,14 @@ UL.navmenu > LI.selected > A {
   flex: 1 1 auto;
   text-align: center;
   cursor: pointer;
+  word-break: break-word;
   background-color: var(--cerb-color-background-contrast-240);
   border: 1px solid var(--cerb-color-background-contrast-240);
   border-radius: 5px;
 }
 .cerb-sheet-grid .cerb-sheet--row:hover {
-  background-color: var(--cerb-color-background-contrast-200);
-  border: 1px solid var(--cerb-color-background-contrast-200);
+  background-color: var(--cerb-color-background-contrast-220);
+  border: 1px solid var(--cerb-color-background-contrast-220);
 }
 .cerb-sheet-grid .cerb-sheet--row DIV[data-cerb-column-type=selection] {
   font-weight: bold;
@@ -782,6 +783,38 @@ UL.navmenu > LI.selected > A {
 .cerb-sheet-grid .cerb-sheet--row-selected:hover {
   background-color: var(--cerb-color-background-contrast-50);
   border: 1px solid var(--cerb-color-background-contrast-50);
+}
+
+.cerb-sheet-columns {
+  column-width: 200px;
+}
+.cerb-sheet-columns .cerb-sheet--row {
+  padding: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  word-break: break-word;
+  page-break-inside: avoid;
+  break-inside: avoid-column;
+}
+.cerb-sheet-columns .cerb-sheet--row:hover {
+  background-color: var(--cerb-color-background-contrast-220);
+}
+.cerb-sheet-columns .cerb-sheet--row DIV[data-cerb-column-type=selection] {
+  font-weight: bold;
+  font-size: 110%;
+}
+.cerb-sheet-columns .cerb-sheet--row DIV[data-cerb-column-type=selection] INPUT[type=radio], .cerb-sheet-columns .cerb-sheet--row DIV[data-cerb-column-type=selection] INPUT[type=checkbox] {
+  display: none;
+}
+.cerb-sheet-columns .cerb-sheet--row-selected {
+  background-color: var(--cerb-color-background-contrast-75);
+  color: var(--cerb-color-text-inverse);
+}
+.cerb-sheet-columns .cerb-sheet--row-selected DIV[data-cerb-column-type=selection] {
+  color: var(--cerb-color-text-inverse);
+}
+.cerb-sheet-columns .cerb-sheet--row-selected:hover {
+  background-color: var(--cerb-color-background-contrast-50);
 }
 
 TABLE.worklist {

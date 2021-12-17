@@ -4,7 +4,7 @@
 	<h6>{$label}</h6>
 	{/if}
 
-	<div style="margin-left:10px;">
+	<div style="margin:0 10px;">
 		{if $layout.filtering}
 			<div style="position:relative;box-sizing:border-box;width:100%;border:1px solid rgb(220,220,220);border-radius:10px;padding:0 5px;margin-bottom:5px;">
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" style="width:16px;height:16px;top:3px;position:absolute;fill:rgb(180,180,180);">
@@ -17,10 +17,8 @@
 		{$selection_key = uniqid('selection_')}
 
 		<div data-cerb-sheet-container>
-		{if $layout.style == 'buttons'}
-			{include file="devblocks:cerberusweb.core::ui/sheets/render_buttons.tpl" sheet_selection_key=$selection_key default=$default}
-		{elseif $layout.style == 'grid'}
-			{include file="devblocks:cerberusweb.core::ui/sheets/render_grid.tpl" sheet_selection_key=$selection_key default=$default}
+		{if in_array($layout.style, ['columns','grid'])}
+			{include file="devblocks:cerberusweb.core::ui/sheets/render_grid.tpl" layout_style=$layout.style sheet_selection_key=$selection_key default=$default}
 		{elseif $layout.style == 'fieldsets'}
 			{include file="devblocks:cerberusweb.core::ui/sheets/render_fieldsets.tpl" sheet_selection_key=$selection_key default=$default}
 		{else}

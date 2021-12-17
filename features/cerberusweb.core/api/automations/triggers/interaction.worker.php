@@ -482,9 +482,9 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 						'score' => 2000,
 					],
 					[
-						'caption' => 'buttons',
-						'snippet' => 'buttons',
-						'description' => "Display the rows as buttons",
+						'caption' => 'columns',
+						'snippet' => 'columns',
+						'description' => "Display items as columns",
 					],
 					[
 						'caption' => 'fieldsets',

@@ -227,7 +227,7 @@ class SheetAwait extends AbstractAwait {
 		
 		$tpl->assign('sheet_selection_key', uniqid('selection_'));
 		
-		if($layout_style == 'grid') {
+		if(in_array($layout_style, ['columns', 'grid'])) {
 			$tpl->display('devblocks:cerberusweb.core::ui/sheets/render_grid.tpl');
 		} else if($layout_style == 'fieldsets') {
 			$tpl->display('devblocks:cerberusweb.core::ui/sheets/render_fieldsets.tpl');

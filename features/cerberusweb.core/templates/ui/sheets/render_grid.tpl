@@ -1,6 +1,6 @@
 {$is_selection_enabled = false}
 
-<div class="cerb-sheet-grid">
+<div class="cerb-sheet-layout {if $layout_style == 'columns'}cerb-sheet-columns{else}cerb-sheet-grid{/if}">
 	{if $rows}
 	{foreach from=$rows item=row name=rows}
 	<div class="cerb-sheet--row">
@@ -36,7 +36,7 @@
 <script type="text/javascript" id="{$script_uid}">
 $(function() {
 	var $script = $('#{$script_uid}');
-	var $sheet = $script.siblings('div.cerb-sheet-grid');
+	var $sheet = $script.siblings('div.cerb-sheet-layout');
 
 	$sheet.find('.cerb-peek-trigger')
 		.cerbPeekTrigger()
@@ -102,7 +102,7 @@ $(function() {
 			
 			// Uncheck everything if single selection
 			if(!is_multiple) {
-				$row.closest('.cerb-sheet-grid').find('.cerb-sheet--row').removeClass('cerb-sheet--row-selected');
+				$row.closest('.cerb-sheet-layout').find('.cerb-sheet--row').removeClass('cerb-sheet--row-selected');
 			}
 
 			if($checkbox.is(':checked')) {
