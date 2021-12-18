@@ -1114,6 +1114,7 @@ class Context_Queue extends Extension_DevblocksContext implements IDevblocksCont
 	
 	function getKeyToDaoFieldMap() {
 		return [
+			'created_at' => DAO_Queue::CREATED_AT,
 			'id' => DAO_Queue::ID,
 			'links' => '_links',
 			'name' => DAO_Queue::NAME,

@@ -447,7 +447,7 @@ class SearchFields_AutomationResource extends DevblocksSearchFields {
 		
 		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'automation_resource', 'id', $translate->_('common.id'), null, true),
-			self::MIME_TYPE => new DevblocksSearchField(self::MIME_TYPE, 'automation_resource', 'mime_type', $translate->_('common.mime_type'), null, true),
+			self::MIME_TYPE => new DevblocksSearchField(self::MIME_TYPE, 'automation_resource', 'mime_type', $translate->_('attachment.mime_type'), null, true),
 			self::STORAGE_EXTENSION => new DevblocksSearchField(self::STORAGE_EXTENSION, 'automation_resource', 'storage_extension', $translate->_('common.storage_extension'), null, true),
 			self::STORAGE_KEY => new DevblocksSearchField(self::STORAGE_KEY, 'automation_resource', 'storage_key', $translate->_('common.storage_key'), null, true),
 			self::STORAGE_PROFILE_ID => new DevblocksSearchField(self::STORAGE_PROFILE_ID, 'automation_resource', 'storage_profile_id', $translate->_('common.storage_profile_id'), null, true),
@@ -1177,7 +1177,7 @@ class Context_AutomationResource extends Extension_DevblocksContext {
 		$token_labels = array(
 			'_label' => $prefix,
 			'id' => $prefix.$translate->_('common.id'),
-			'mime_type' => $prefix.$translate->_('common.mime_type'),
+			'mime_type' => $prefix.$translate->_('attachment.mime_type'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 			'size' => $prefix.$translate->_('common.size'),
 			'token' => $prefix.$translate->_('common.token'),
@@ -1229,8 +1229,13 @@ class Context_AutomationResource extends Extension_DevblocksContext {
 	
 	function getKeyToDaoFieldMap() {
 		return [
+			'expires_at' => DAO_AutomationResource::EXPIRES_AT,
 			'id' => DAO_AutomationResource::ID,
 			'links' => '_links',
+			'mime_type' => DAO_AutomationResource::MIME_TYPE,
+			'size' => DAO_AutomationResource::STORAGE_SIZE,
+			'storage_extension' => DAO_AutomationResource::STORAGE_EXTENSION,
+			'storage_key' => DAO_AutomationResource::STORAGE_KEY,
 			'token' => DAO_AutomationResource::TOKEN,
 			'updated_at' => DAO_AutomationResource::UPDATED_AT,
 		];

@@ -1080,6 +1080,7 @@ class Context_Metric extends Extension_DevblocksContext implements IDevblocksCon
 			'_label' => $prefix,
 			'created_at' => $prefix.$translate->_('common.created'),
 			'description' => $prefix.$translate->_('common.description'),
+			'dimensions_kata' => $prefix.$translate->_('dao.metric.dimensions_kata'),
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
@@ -1091,6 +1092,7 @@ class Context_Metric extends Extension_DevblocksContext implements IDevblocksCon
 			'_label' => 'context_url',
 			'created_at' => Model_CustomField::TYPE_DATE,
 			'description' => Model_CustomField::TYPE_SINGLE_LINE,
+			'dimensions_kata' => Model_CustomField::TYPE_MULTI_LINE,
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
@@ -1117,6 +1119,7 @@ class Context_Metric extends Extension_DevblocksContext implements IDevblocksCon
 			$token_values['_label'] = $metric->name;
 			$token_values['created_at'] = $metric->created_at;
 			$token_values['description'] = $metric->description;
+			$token_values['dimensions_kata'] = $metric->dimensions_kata;
 			$token_values['id'] = $metric->id;
 			$token_values['name'] = $metric->name;
 			$token_values['updated_at'] = $metric->updated_at;
@@ -1134,7 +1137,10 @@ class Context_Metric extends Extension_DevblocksContext implements IDevblocksCon
 	
 	function getKeyToDaoFieldMap() {
 		return [
+			'created_at' => DAO_Metric::CREATED_AT,
 			'id' => DAO_Metric::ID,
+			'description' => DAO_Metric::DESCRIPTION,
+			'dimensions_kata' => DAO_Metric::DIMENSIONS_KATA,
 			'links' => '_links',
 			'name' => DAO_Metric::NAME,
 			'updated_at' => DAO_Metric::UPDATED_AT,
