@@ -114,7 +114,16 @@
 			var is_multiple = 'checkbox' === $checkbox.attributes.type.value.toLowerCase();
 
 			$sheet.dispatchEvent(
-				$$.createEvent('cerb-sheet--selection', { ui: { item: $checkbox }, is_multiple: is_multiple })
+				$$.createEvent(
+					'cerb-sheet--selection',
+					{
+						ui: {
+							item: $checkbox
+						},
+						is_multiple: is_multiple,
+						selected: $checkbox.checked
+					}
+				)
 			);
 
 			var row_selections = [];

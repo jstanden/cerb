@@ -14,11 +14,7 @@
 					{if $layout.title_column == $column.key}
 					{elseif $column._type == 'selection'}
 						{$is_selection_enabled = true}
-						{if $column.params.mode == 'single'}
-							<input type="radio" name="{$sheet_selection_key|default:'_selection'}" value="{$row[$column.key]}">
-						{else}
-							<input type="checkbox" name="{$sheet_selection_key|default:'_selection'}[]" value="{$row[$column.key]}">
-						{/if}
+						{$row[$column.key]|replace:'${SHEET_SELECTION_KEY}':{$sheet_selection_key|default:'_selection'} nofilter}
 					{else}
 						{$row[$column.key] nofilter}
 					{/if}
@@ -66,7 +62,16 @@
 			}
 
 			$sheet.dispatchEvent(
-				$$.createEvent('cerb-sheet--selection', { ui: { item: $checkbox }, is_multiple: is_multiple })
+				$$.createEvent(
+					'cerb-sheet--selection',
+					{
+						ui: {
+							item: $checkbox 
+						},
+						is_multiple: is_multiple,
+						selected: $checkbox.checked
+					}
+				)
 			);
 
 			var row_selections = [];

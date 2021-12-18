@@ -133,9 +133,11 @@
 		var $li = null;
 		var $clone = null;
 		var is_multiple = e.detail.hasOwnProperty('is_multiple') ? e.detail.is_multiple : false;
+		var is_selected = e.detail.hasOwnProperty('selected') ? e.detail.selected : false;
 		var item = e.detail.hasOwnProperty('ui') ? e.detail.ui.item : null;
 		
-		if(!item) return;
+		if(!item || !item.value || 0 === item.value.length)
+			return;
 
 		var $checkbox = $sheet_selections.querySelector('input[value="' + item.value + '"]');
 
@@ -157,22 +159,23 @@
 		} else {
 			$sheet_selections.innerHTML = '';
 			
-			$li = document.createElement('li');
-			$li.innerText = item.closest('.cerb-sheet--row').innerText;
-			
-			$clone = item.cloneNode(true);
-			$clone.setAttribute('type', 'hidden');
-			$clone.setAttribute('name', 'prompts[{$var}]');
-			$li.appendChild($clone);
-			
-			$sheet_selections.appendChild($li);
-		}
-		
-		{if $layout.style == 'buttons'}
-			if(0 === $popup.querySelectorAll('.cerb-interaction-popup--form-elements-continue').length) {
-				$popup.dispatchEvent($$.createEvent('cerb-interaction-event--submit'));
+			if(is_selected) {
+				$li = document.createElement('li');
+				$li.innerText = item.closest('.cerb-sheet--row').innerText;
+
+				$clone = item.cloneNode(true);
+				$clone.setAttribute('type', 'hidden');
+				$clone.setAttribute('name', 'prompts[{$var}]');
+				$li.appendChild($clone);
+
+				$sheet_selections.appendChild($li);
+				
+				// If single selection and this is the only prompt
+				if(1 === $popup.querySelectorAll('.cerb-interaction-popup--form-elements--prompt, .cerb-interaction-popup--form-elements-continue').length) {
+					$popup.dispatchEvent($$.createEvent('cerb-interaction-event--submit'));
+				}
 			}
-		{/if}
+		}
 	});
 
 	$sheet.addEventListener('cerb-sheet--selections-changed', function(e) {
