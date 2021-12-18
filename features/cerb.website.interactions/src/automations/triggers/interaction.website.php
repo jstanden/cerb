@@ -144,13 +144,25 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 				],
 				
 				'(.*):await:form:elements:sheet:' => [
-					'data:',
+					[
+						'caption' => 'label:',
+						'snippet' => "label: \${1:Label:}",
+						'score' => 2000,
+					],
+					[
+						'caption' => 'data:',
+						'snippet' => "data:\n\t\${1:}",
+						'score' => 1999,
+					],
+					[
+						'caption' => 'schema:',
+						'snippet' => "schema:\n\tlayout:\n\t\t\${1:}\n\tcolumns:\n\t\t\${2:}",
+						'score' => 1998,
+					],
 					'default:',
-					'label:',
 					'limit:',
 					'page:',
 					'required@bool: yes',
-					'schema:',
 				],
 				'(.*):await:form:elements:sheet:data:' => [
 					[
@@ -163,8 +175,29 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 					]
 				],
 				'(.*):await:form:elements:sheet:data:automation:' => [
-					'uri:',
-					'inputs:',
+					[
+						'caption' => 'uri:',
+						'snippet' => "uri:",
+						'score' => 2000,
+					],
+					[
+						'caption' => 'inputs:',
+						'snippet' => "inputs:\n\t\${1:}",
+						'score' => 1999,
+					],
+				],
+				'(.*):await:form:elements:sheet:data:automation:inputs:' => [
+					'type' => 'automation-inputs',
+				],
+				'(.*):await:form:elements:sheet:data:automation:uri:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'automation' => [
+							'triggers' => [
+								'cerb.trigger.ui.sheet.data',
+							]
+						]
+					]
 				],
 				'(.*):await:form:elements:sheet:schema:' => [
 					'columns:',
@@ -251,6 +284,11 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 					'buttons',
 					'scale',
 					'table',
+				],
+				
+				'(.*):await:form:elements:submit:' => [
+					'continue@bool: no',
+					'reset@bool: no',
 				],
 				
 				'(.*):await:form:elements:text:' => [
