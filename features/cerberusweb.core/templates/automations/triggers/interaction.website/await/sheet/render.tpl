@@ -99,7 +99,7 @@
 			if(!$tbody)
 				return;
 			
-			if('a' === e.target.nodeName.toLowerCase() || 'input' === e.target.nodeName.toLowerCase())
+			if('a' === e.target.nodeName.toLowerCase())
 				return;
 
 			// If removing selected, add back hover
