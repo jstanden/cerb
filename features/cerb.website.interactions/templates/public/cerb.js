@@ -278,13 +278,13 @@ CerbInteractions.prototype.interactionInvoke = function(formData, callback) {
     xhttp.onreadystatechange = function () {
         if (4 === this.readyState) {
             if(200 === this.status) {
-                return callback(this);
+                return callback(null, this);
 
             } else if (404 === this.status) {
-                return callback(this);
+                return callback('404', this);
 
             } else {
-                return callback(this);
+                return callback('non-200', this);
             }
         }
     };

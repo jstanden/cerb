@@ -116,7 +116,11 @@
 		$sheet.prepend($spinner);
 		$sheet.style.opacity = 0.35;
 		
-		$$.interactionInvoke(formData, function(res) {
+		$$.interactionInvoke(formData, function(err, res) {
+			if(err) {
+				return;
+			}
+			
 			$sheet.style.opacity = 1.0;
 			$spinner.remove();
 			
