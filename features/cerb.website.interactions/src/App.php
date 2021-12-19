@@ -171,8 +171,12 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 			'client_browser_version' => $user_agent['version'] ?? null,
 		]);
 		
-		$handlers = $event_handler->parse($config[self::PARAM_AUTOMATIONS_KATA] ?? '', $toolbar_dict, $error);
 		$handler = null;
+		
+		if(false == ($handlers = $event_handler->parse($config[self::PARAM_AUTOMATIONS_KATA] ?? '', $toolbar_dict, $error))) {
+			error_log('Interaction error:' . $error);
+			DevblocksPlatform::dieWithHttpError("null automation results", 404);
+		}
 		
 		// This is only part of the events KATA toolbar, not the trigger
 		$initial_state = [

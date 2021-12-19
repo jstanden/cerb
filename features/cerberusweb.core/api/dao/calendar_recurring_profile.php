@@ -589,11 +589,11 @@ class Model_CalendarRecurringProfile {
 
 		// Commencement date for recurring event
 		if($this->recur_start && $this->recur_start > $date_to)
-			return array();
+			return [];
 		
 		// Termination date for recurring event
 		if($this->recur_end && $this->recur_end < $date_from)
-			return array();
+			return [];
 		
 		$day = strtotime('today', $date_from);
 		
@@ -609,13 +609,10 @@ class Model_CalendarRecurringProfile {
 				if(0 == strcasecmp($pattern, 'weekdays')) {
 					unset($patterns[$idx]);
 					array_push($patterns, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday');
-					continue;
-				}
 				
-				if(0 == strcasecmp($pattern, 'weekends')) {
+				} else if (0 == strcasecmp($pattern, 'weekends')) {
 					unset($patterns[$idx]);
 					array_push($patterns, 'Saturday', 'Sunday');
-					continue;
 				}
 			}
 			

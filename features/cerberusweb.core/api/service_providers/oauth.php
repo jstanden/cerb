@@ -1,4 +1,5 @@
 <?php
+
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessToken;
 
@@ -136,6 +137,7 @@ class ServiceProvider_OAuth1 extends Extension_ConnectedServiceProvider implemen
 		
 		$tokens = $oauth->getRequestTokens($service_params['request_token_url'], $redirect_url);
 		
+		// [TODO] We need to pass through the actual error
 		if(!isset($tokens['oauth_token'])) {
 			echo DevblocksPlatform::strEscapeHtml(sprintf("ERROR: %s didn't return an access token. Verify the callback URL: %s", $service->name, $redirect_url));
 			return false;
@@ -150,9 +152,11 @@ class ServiceProvider_OAuth1 extends Extension_ConnectedServiceProvider implemen
 	function oauthCallback() {
 		$form_id = $_SESSION['oauth_form_id'];
 		$service_id = $_SESSION['oauth_service_id'];
+		//$state = $_SESSION['oauth_state'];
 		
 		unset($_SESSION['oauth_form_id']);
 		unset($_SESSION['oauth_service_id']);
+		//unset($_SESSION['oauth_state']);
 		
 		$encrypt = DevblocksPlatform::services()->encryption();
 		
@@ -193,6 +197,9 @@ class ServiceProvider_OAuth1 extends Extension_ConnectedServiceProvider implemen
 		$oauth = DevblocksPlatform::services()->oauth()->getOAuth1Client($service_params['client_id'], $service_params['client_secret'], $signature_method);
 		$oauth->setTokens($account_params['oauth_token'], $account_params['oauth_token_secret']);
 		
+		// [TODO] Whitelist hosts
+		// [TODO] Expired tokens?
+		
 		$oauth->authenticateHttpRequest($request, $options);
 		
 		return true;
@@ -211,14 +218,14 @@ class ServiceProvider_OAuth2 extends Extension_ConnectedServiceProvider implemen
 		$service_params = $service->decryptParams();
 		
 		$settings = [
-			'clientId' => $service_params['client_id'],
-			'clientSecret' => $service_params['client_secret'],
+			'clientId' => $service_params['client_id'] ?? null,
+			'clientSecret' => $service_params['client_secret'] ?? null,
 			'redirectUri' => $url_writer->write('c=oauth&a=callback', true),
-			'urlAuthorize' => $service_params['authorization_url'],
-			'urlAccessToken' => $service_params['access_token_url'],
-			'urlResourceOwnerDetails' => @$service_params['resource_owner_url'],
-			'approvalPrompt' => $service_params['approval_prompt'],
-			'scopes' => $service_params['scope'],
+			'urlAuthorize' => $service_params['authorization_url'] ?? null,
+			'urlAccessToken' => $service_params['access_token_url'] ?? null,
+			'urlResourceOwnerDetails' => $service_params['resource_owner_url'] ?? null,
+			'approvalPrompt' => $service_params['approval_prompt'] ?? null,
+			'scopes' => $service_params['scope'] ?? null,
 		];
 		
 		if(defined('DEVBLOCKS_HTTP_PROXY') && DEVBLOCKS_HTTP_PROXY)

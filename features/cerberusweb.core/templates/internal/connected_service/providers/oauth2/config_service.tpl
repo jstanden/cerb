@@ -27,15 +27,15 @@
 	<input type="text" name="params[access_token_url]" value="{$params.access_token_url}" style="width:100%;" size="50" spellcheck="false"><br>
 	<br>
 	
-	<b>Resource Owner URL:</b><br>
+	<b>Resource Owner URL:</b> (optional) <br>
 	<input type="text" name="params[resource_owner_url]" value="{$params.resource_owner_url}" style="width:100%;" size="50" spellcheck="false"><br>
 	<br>
-	
+
 	<b>Scope:</b><br>
 	<input type="text" name="params[scope]" value="{$params.scope}" style="width:100%;" size="50" spellcheck="false"><br>
 	<br>
-	
-	<b>Approval Prompt:</b><br>
+
+	<b>Approval Prompt:</b> (optional) <br>
 	<input type="text" name="params[approval_prompt]" value="{$params.approval_prompt}" style="width:100%;" size="50" spellcheck="false" placeholder="e.g. auto, force"><br>
 	<br>
 </fieldset>

@@ -1521,7 +1521,7 @@ var ajax = new cAjaxCalls();
 		}
 
 		if(!options.hasOwnProperty('width') || null == options.width) {
-			options.target = '50%';
+			options.width = '50%';
 		}
 
 		if(!options.hasOwnProperty('start') || 'function' !== typeof options.start) {
@@ -4723,7 +4723,7 @@ var ajax = new cAjaxCalls();
 								.html(json.html)
 							;
 
-							if(options.target) {
+							if(options.target.html) {
 								options.target.html($html);
 							}
 						}						
