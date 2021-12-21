@@ -2535,6 +2535,229 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		return $extensions;
 	}
+	
+	static function getExtensionPoints() {
+		$extension_point_meta = [
+			'cerb.automation.trigger' => [
+				'id' => 'cerb.automation.trigger',
+				'label' => 'Automation Trigger',
+				'class' => 'Extension_AutomationTrigger',
+				'examples' => [],
+				'extensible' => true,
+			],
+			'cerb.resource.type' => [
+				'id' => 'cerb.resource.type',
+				'label' => 'Resource Type',
+				'class' => 'Extension_ResourceType',
+				'examples' => [],
+				'extensible' => true,
+			],
+			'cerberusweb.plugin.setup' => [
+				'label' => 'Plugin Setup',
+				'class' => 'Extension_PluginSetup',
+				'examples' => [],
+			],
+			'cerb.card.widget' => [
+				'label' => 'Card Widget',
+				'class' => 'Extension_CardWidget',
+				'examples' => [],
+				'extensible' => true,
+			],
+			'cerb.custom_field' => [
+				'label' => 'Custom Field Type',
+				'class' => 'Extension_CustomField',
+				'examples' => [],
+				'extensible' => true,
+			],
+			'cerb.portal' => [
+				'label' => 'Portal',
+				'class' => 'Extension_CommunityPortal',
+				'examples' => [],
+				'extensible' => true,
+			],
+			'cerb.portal.layout.widget' => [
+				'label' => 'Portal Layout Widget',
+				'class' => 'Extension_PortalLayoutWidget',
+				'examples' => [],
+				'extensible' => true,
+			],
+			'cerb.portal.page' => [
+				'label' => 'Portal Page',
+				'class' => 'Extension_PortalPage',
+				'examples' => [],
+				'extensible' => true,
+			],
+			'cerb.portal.widget' => [
+				'label' => 'Portal Widget',
+				'class' => 'Extension_PortalWidget',
+				'examples' => [],
+				'extensible' => true,
+			],
+			'cerb.profile.tab' => [
+				'label' => 'Profile Tab Type',
+				'class' => 'Extension_ProfileTab',
+				'examples' => [],
+				'extensible' => true,
+			],
+			'cerb.profile.tab.widget' => [
+				'label' => 'Profile Widget Type',
+				'class' => 'Extension_ProfileWidget',
+				'examples' => [],
+				'extensible' => true,
+			],
+			'cerb.connected_service.provider' => [
+				'label' => 'Connected Service Provider',
+				'class' => 'Extension_ConnectedServiceProvider',
+				'examples' => [],
+				'extensible' => true,
+			],
+			'cerberusweb.calendar.datasource' => [
+				'label' => 'Calendar Datasource',
+				'class' => 'Extension_CalendarDatasource',
+				'examples' => [],
+			],
+			'cerberusweb.cron' => [
+				'label' => 'Scheduled Job',
+				'class' => 'CerberusCronPageExtension',
+				'examples' => [],
+			],
+			'cerberusweb.datacenter.sensor' => [
+				'label' => 'Sensor Type',
+				'class' => 'Extension_Sensor',
+				'examples' => [],
+			],
+			'cerberusweb.mail.transport' => [
+				'label' => 'Mail Transport Type',
+				'class' => 'Extension_MailTransport',
+				'examples' => [],
+				'extensible' => true,
+			],
+			'cerberusweb.page' => [
+				'label' => 'Page Type',
+				'class' => 'CerberusPageExtension',
+				'examples' => [],
+			],
+			'cerberusweb.renderer.prebody' => [
+				'label' => 'Prebody Renderer',
+				'class' => 'Extension_AppPreBodyRenderer',
+				'examples' => [],
+			],
+			'cerberusweb.rest.controller' => [
+				'label' => 'Rest API Controller',
+				'class' => 'Extension_RestController',
+				'examples' => [],
+			],
+			'cerberusweb.ui.page.menu.item' => [
+				'label' => 'Page Menu Item',
+				'class' => 'Extension_PageMenuItem',
+				'examples' => [],
+			],
+			'cerberusweb.ui.page.section' => [
+				'label' => 'Page Section',
+				'class' => 'Extension_PageSection',
+				'examples' => [],
+			],
+			'cerberusweb.ui.workspace.page' => [
+				'label' => 'Workspace Page Type',
+				'class' => 'Extension_WorkspacePage',
+				'examples' => [],
+				'extensible' => true,
+			],
+			'cerberusweb.ui.workspace.tab' => [
+				'label' => 'Workspace Tab Type',
+				'class' => 'Extension_WorkspaceTab',
+				'examples' => [],
+				'extensible' => true,
+			],
+			'cerberusweb.ui.workspace.widget' => [
+				'label' => 'Workspace Widget Type',
+				'class' => 'Extension_WorkspaceWidget',
+				'examples' => [],
+				'extensible' => true,
+			],
+			'cerberusweb.ui.workspace.widget.datasource' => [
+				'label' => 'Workspace Widget Datasource',
+				'class' => 'Extension_WorkspaceWidgetDatasource',
+				'examples' => [],
+				'extensible' => true,
+			],
+			'devblocks.cache.engine' => [
+				'label' => 'Cache Engine',
+				'class' => 'Extension_DevblocksCacheEngine',
+				'examples' => [],
+				'extensible' => true,
+			],
+			'devblocks.context' => [
+				'label' => 'Record Type',
+				'class' => 'Extension_DevblocksContext',
+				'examples' => [],
+			],
+			'devblocks.controller' => [
+				'label' => 'Controller',
+				'class' => 'DevblocksControllerExtension',
+				'examples' => [],
+			],
+			'devblocks.event' => [
+				'label' => 'Bot Event',
+				'class' => 'Extension_DevblocksEvent',
+				'examples' => [],
+			],
+			'devblocks.event.action' => [
+				'label' => 'Bot Action',
+				'class' => 'Extension_DevblocksEventAction',
+				'examples' => [],
+			],
+			'devblocks.listener.event' => [
+				'label' => 'Event Listener',
+				'class' => 'DevblocksEventListenerExtension',
+				'examples' => [],
+			],
+			'devblocks.listener.http' => [
+				'label' => 'Http Request Listener',
+				'class' => 'DevblocksHttpResponseListenerExtension',
+				'examples' => [],
+			],
+			'devblocks.search.engine' => [
+				'label' => 'Search Engine',
+				'class' => 'Extension_DevblocksSearchEngine',
+				'examples' => [],
+			],
+			'devblocks.search.schema' => [
+				'label' => 'Search Schema',
+				'class' => 'Extension_DevblocksSearchSchema',
+				'examples' => [],
+			],
+			'devblocks.storage.engine' => [
+				'label' => 'Storage Engine',
+				'class' => 'Extension_DevblocksStorageEngine',
+				'examples' => [],
+			],
+			'devblocks.storage.schema' => [
+				'label' => 'Storage Schema',
+				'class' => 'Extension_DevblocksStorageSchema',
+				'examples' => [],
+			],
+			'usermeet.login.authenticator' => [
+				'label' => 'Support Center Login Authenticator',
+				'class' => 'Extension_ScLoginAuthenticator',
+				'examples' => [],
+			],
+			'usermeet.sc.controller' => [
+				'label' => 'Support Center Controller',
+				'class' => 'Extension_UmScController',
+				'examples' => [],
+			],
+			'usermeet.sc.rss.controller' => [
+				'label' => 'Support Center RSS Feed',
+				'class' => 'Extension_UmScRssController',
+				'examples' => [],
+			],
+		];
+		
+		DevblocksPlatform::sortObjects($extension_point_meta, '[label]');
+		
+		return $extension_point_meta;
+	}	
 
 	static function getActivityPointRegistry() {
 		$cache = DevblocksPlatform::services()->cache();

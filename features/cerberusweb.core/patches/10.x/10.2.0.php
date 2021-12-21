@@ -150,6 +150,7 @@ $automation_files = [
 	'ai.cerb.eventHandler.automation.mail.received.json',
 	'ai.cerb.interaction.search.json',
 	'ai.cerb.toolbarBuilder.interaction.json',
+	'cerb.data.platform.extension.points.json',
 	'cerb.data.records.json',
 	'cerb.mailRouting.moveToGroup.json',
 	'cerb.mailRouting.recipientRules.json',

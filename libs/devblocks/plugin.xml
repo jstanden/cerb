@@ -70,6 +70,9 @@
 		<file path="api/services/data/metrics_timeseries.php">
 			<class name="_DevblocksDataProviderMetricsTimeseries" />
 		</file>
+		<file path="api/services/data/platform_extension_points.php">
+			<class name="_DevblocksDataProviderPlatformExtensionPoints" />
+		</file>
 		<file path="api/services/data/platform_extensions.php">
 			<class name="_DevblocksDataProviderPlatformExtensions" />
 		</file>

@@ -1,9 +1,8 @@
 <?php
-class _DevblocksDataProviderPlatformExtensions extends _DevblocksDataProvider {
+class _DevblocksDataProviderPlatformExtensionPoints extends _DevblocksDataProvider {
 	function getSuggestions($type, array $params=[]) {
 		$suggestions  = [
 			'' => [
-				'point:',
 				'filter:',
 				'limit:',
 				'page:',
@@ -12,7 +11,6 @@ class _DevblocksDataProviderPlatformExtensions extends _DevblocksDataProvider {
 			'format:' => [
 				'dictionaries',
 			],
-			'point:' => array_keys(DevblocksPlatform::getExtensionPoints()),
 		];
 		
 		return $suggestions;
@@ -22,8 +20,7 @@ class _DevblocksDataProviderPlatformExtensions extends _DevblocksDataProvider {
 		$extension_points = DevblocksPlatform::getExtensionPoints();
 		
 		$chart_model = [
-			'type' => 'platform.extensions',
-			'point' => null,
+			'type' => 'platform.extension.points',
 			'filter' => null,
 			'limit' => null,
 			'page' => 0,
@@ -37,11 +34,7 @@ class _DevblocksDataProviderPlatformExtensions extends _DevblocksDataProvider {
 				continue;
 			
 			if($field->key == 'type') {
-				null;
-				
-			} else if($field->key == 'point') {
-				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
-				$chart_model['point'] = $value;
+				DevblocksPlatform::noop();
 				
 			} else if($field->key == 'filter') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
@@ -65,37 +58,23 @@ class _DevblocksDataProviderPlatformExtensions extends _DevblocksDataProvider {
 			}
 		}
 		
-		if(!$chart_model['point']) {
-			$error = 'The `point:` parameter is required.';
-			return false;
-		}
-		
-		if(!array_key_exists($chart_model['point'], $extension_points)) {
-			$error = sprintf('The `point:` parameter (%s) is not a valid extension point.', $chart_model['point']);
-			return false;
-		}
-		
 		// Data
 		
 		$data = [];
 		$paging = [];
 		
-		$extensions = DevblocksPlatform::getExtensions($chart_model['point'], false);
-		
 		if ($chart_model['filter']) {
-			$extensions = array_filter($extensions, function($extension) use ($chart_model) {
-				$match = sprintf('%s %s', $extension->name, $extension->id);
+			$extension_points = array_filter($extension_points, function($extension_point) use ($chart_model) {
+				$match = sprintf('%s %s', $extension_point->name, $extension_point->id);
 				return stristr($match, $chart_model['filter']);
 			});
 		}
 		
-		foreach($extensions as $extension) {
+		foreach($extension_points as $extension_point_key => $extension_point) {
 			$data[] = [
-				'id' => $extension->id,
-				'name' => $extension->name,
-				'class' => $extension->class,
-				'plugin_id' => $extension->plugin_id,
-				'params' => $extension->params,
+				'id' => $extension_point_key,
+				'name' => $extension_point['label'] ?? null,
+				'class' => $extension_point['class'] ?? null,
 			];
 		}
 		

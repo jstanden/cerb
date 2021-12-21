@@ -32,7 +32,7 @@ $plugins = DevblocksPlatform::getPluginRegistry();
 
 DevblocksPlatform::sortObjects($plugins, 'name');
 
-$extension_point_meta = _DevblocksDataProviderPlatformExtensions::getExtensionPoints();
+$extension_point_meta = DevblocksPlatform::getExtensionPoints();
 
 $out = "";
 

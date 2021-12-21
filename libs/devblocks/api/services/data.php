@@ -77,6 +77,10 @@ class _DevblocksDataService {
 				$provider = new _DevblocksDataProviderGpgKeyInfo();
 				return $provider->getSuggestions($type, $params);
 				
+			case 'platform.extension.points':
+				$provider = new _DevblocksDataProviderPlatformExtensionPoints();
+				return $provider->getSuggestions($type, $params);
+				
 			case 'platform.extensions':
 				$provider = new _DevblocksDataProviderPlatformExtensions();
 				return $provider->getSuggestions($type, $params);
@@ -161,6 +165,10 @@ class _DevblocksDataService {
 			[
 				'name' => 'platform.extensions',
 				'description' => 'Filterable and pageable list of plugin extensions for a given hook',
+			],
+			[
+				'name' => 'platform.extension.points',
+				'description' => 'Filterable and pageable list of plugin extensions hooks',
 			],
 			[
 				'name' => 'record.fields',
@@ -325,6 +333,14 @@ class _DevblocksDataService {
 				
 			case 'gpg.keyinfo':
 				$provider = new _DevblocksDataProviderGpgKeyInfo();
+				
+				if(false === ($results = $provider->getData($query, $chart_fields, $error)))
+					return false;
+				
+				break;
+				
+			case 'platform.extension.points':
+				$provider = new _DevblocksDataProviderPlatformExtensionPoints();
 				
 				if(false === ($results = $provider->getData($query, $chart_fields, $error)))
 					return false;
