@@ -4872,7 +4872,7 @@ class DevblocksEventHelper {
 		}
 		$tpl->assign('addresses', $addresses);
 		
-		$tpl->assign('default_content', vsprintf($translate->_('va.actions.ticket.relay.default_content'), $content_token));
+		$tpl->assign('default_content', sprintf($translate->_('va.actions.ticket.relay.default_content'), $content_token));
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_relay_email.tpl');
 	}

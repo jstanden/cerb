@@ -558,18 +558,17 @@ class Model_TimeTrackingEntry {
 			$who = $worker->getName();
 
 		if(!empty($activity)) {
-			$out = vsprintf($translate->_('timetracking.ui.tracked_desc'), array(
+			$out = vsprintf($translate->_('timetracking.ui.tracked_desc'), [
 				$who,
 				$time_increment,
 				$activity->name
-			));
+			]);
 			
 		} else {
-			$out = vsprintf("%s tracked %s", array(
+			$out = vsprintf("%s tracked %s", [
 				$who,
 				$time_increment
-			));
-			
+			]);
 		}
 
 		return $out;

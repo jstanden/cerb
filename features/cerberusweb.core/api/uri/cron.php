@@ -37,7 +37,7 @@ class ChCronController extends DevblocksControllerExtension {
 		@$is_ignoring_internal = DevblocksPlatform::importGPC($_REQUEST['ignore_internal'],'integer',0);
 		
 		if(!DevblocksPlatform::isIpAuthorized(DevblocksPlatform::getClientIp(), $authorized_ips)) {
-			echo vsprintf($translate->_('cron.ip_unauthorized'), DevblocksPlatform::strEscapeHtml(DevblocksPlatform::getClientIp()));
+			echo sprintf($translate->_('cron.ip_unauthorized'), DevblocksPlatform::strEscapeHtml(DevblocksPlatform::getClientIp()));
 			return;
 		}
 		
@@ -139,7 +139,7 @@ class ChCronController extends DevblocksControllerExtension {
 				$logger->info(sprintf("[Scheduler] Time Remaining: %d seconds", $time_left));
 			}
 		} elseif($reload) {
-			$logger->info(vsprintf($translate->_('cron.nothing_to_do'), intval($reload)));
+			$logger->info(sprintf($translate->_('cron.nothing_to_do'), intval($reload)));
 		}
 		
 		if($reload) {

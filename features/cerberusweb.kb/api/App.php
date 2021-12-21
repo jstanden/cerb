@@ -163,7 +163,7 @@ class WorkspaceWidget_KnowledgebaseBrowser extends Extension_WorkspaceWidget {
 			$view->addParamsRequired(array(
 				new DevblocksSearchCriteria(SearchFields_KbArticle::CATEGORY_ID,'=',$root_id),
 			), true);
-			$view->name = vsprintf($translate->_('kb.view.articles'), $categories[$root_id]->name);
+			$view->name = sprintf($translate->_('kb.view.articles'), $categories[$root_id]->name);
 		}
 
 		$view->renderPage = 0;

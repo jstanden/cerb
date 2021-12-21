@@ -155,7 +155,7 @@ class _DevblocksTemplateManager {
 		$translated = $translate->_($string);
 		
 		if(!empty($args))
-			@$translated = vsprintf($translated, $args);
+			$translated = vsprintf($translated ?? '', $args ?? []);
 		
 		return $translated;
 	}

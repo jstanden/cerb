@@ -96,7 +96,7 @@ class ChUpdateController extends DevblocksControllerExtension {
 				
 				// Is this IP authorized?
 				if(!DevblocksPlatform::isIpAuthorized(DevblocksPlatform::getClientIp(), $authorized_ips)) {
-					echo vsprintf($translate->_('update.ip_unauthorized'), DevblocksPlatform::getClientIp());
+					echo sprintf($translate->_('update.ip_unauthorized'), DevblocksPlatform::getClientIp());
 					return;
 				}
 				
