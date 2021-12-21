@@ -604,26 +604,30 @@ UL {
 }
 
 .cerb-sheet-columns {
-	column-width: 200px;
+	columns: 200px 4;
 
 	.cerb-sheet--row {
-		padding: 5px;
-		margin-bottom: 0.25em;
-		border-radius: 5px;
+		padding-bottom: 0.25em;
 		cursor: pointer;
 		word-break: break-word;
 		page-break-inside: avoid;
 		break-inside: avoid-column;
-		background-color: var(--cerb-color-background-contrast-240);
 
-		p {
-			margin: 0;
+
+		.cerb-sheet--row-item {
+			padding: 5px;
+			border-radius: 5px;
+			background-color: var(--cerb-color-background-contrast-240);
+			
+			&:hover {
+				background-color: var(--cerb-color-background-contrast-220);
+			}
+			
+			p {
+				margin: 0;
+			}
 		}
-
-		&:hover {
-			background-color: var(--cerb-color-background-contrast-220);
-		}
-
+		
 		DIV[data-cerb-column-type=selection] {
 			font-weight: bold;
 			font-size: 110%;
@@ -635,15 +639,17 @@ UL {
 	}
 
 	.cerb-sheet--row-selected {
-		background-color: var(--cerb-color-background-contrast-75);
-		color: var(--cerb-color-text-inverse);
+		.cerb-sheet--row-item {
+			color: var(--cerb-color-text-inverse);
+			background-color: var(--cerb-color-background-contrast-75);
+			
+			&:hover {
+				background-color: var(--cerb-color-background-contrast-50);
+			}
+		}
 
 		DIV[data-cerb-column-type=selection] {
 			color: var(--cerb-color-text-inverse);
-		}
-
-		&:hover {
-			background-color: var(--cerb-color-background-contrast-50);
 		}
 	}
 }

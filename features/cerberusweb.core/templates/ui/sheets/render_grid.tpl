@@ -4,6 +4,7 @@
 	{if $rows}
 	{foreach from=$rows item=row name=rows}
 	<div class="cerb-sheet--row">
+		<div class="cerb-sheet--row-item">
 		{foreach from=$columns item=column name=columns}
 			<div data-cerb-column-type="{$column._type}">
 			{if $column._type == 'selection'}
@@ -16,6 +17,7 @@
 			{/if}
 			</div>
 		{/foreach}
+		</div>
 	</div>
 	{/foreach}
 	{/if}
