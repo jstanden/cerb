@@ -1249,8 +1249,10 @@ class Context_Metric extends Extension_DevblocksContext implements IDevblocksCon
 			if($model) {
 				if(!CerberusContexts::isWriteableByActor($context, $model, $active_worker))
 					DevblocksPlatform::dieWithHttpError(null, 403);
-				
-				$tpl->assign('model', $model);
+			} else {
+				$model = new Model_Metric();
+				$model->id = 0;
+				$model->dimensions_kata = "# [TODO] Dimensions are key/value pairs that partition a metric.\n# (use Ctrl+Space for autocompletion)\n";
 			}
 			
 			// Custom fields
@@ -1266,6 +1268,7 @@ class Context_Metric extends Extension_DevblocksContext implements IDevblocksCon
 			
 			// View
 			$tpl->assign('id', $context_id);
+			$tpl->assign('model', $model);
 			$tpl->assign('view_id', $view_id);
 			$tpl->display('devblocks:cerberusweb.core::records/types/metric/peek_edit.tpl');
 			

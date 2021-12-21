@@ -1,0 +1,9 @@
+{
+    "name": "ai.cerb.metricBuilder.help",
+    "description": "Help interaction for the metric editor",
+    "extension_id": "cerb.trigger.interaction.internal",
+    "script": "start:\r\n  await:\r\n    form:\r\n      title: Help\r\n      elements:\r\n        say/prompt_say:\r\n          content@text:\r\n            ## Metric Dimensions\r\n            \r\n            Each metric collects samples for a numeric value over time. This value could be a counter (+1 for each sample) or a gauge (a discrete reading at a specific time).\r\n            \r\n            Metrics may be further partitioned by including optional key/value pairs called \"dimensions\" with samples.\r\n            \r\n            For instance, if you add dimensions for group, bucket, and worker, then statistics may be calculated for any combination of those dimensions.\r\n            \r\n            Dimensions are defined using [KATA](https://cerb.ai/docs/kata/) syntax. Each dimension has a type that describes its value: text, record, or extension.\r\n            \r\n            Currently you may define up to three dimensions per metric.\r\n            ",
+    "policy_kata": "commands:\r\n  # [TODO] Specify a command policy here (use Ctrl+Space for autocompletion)\r\n  ",
+    "created_at": 1640125433,
+    "updated_at": 1640126987
+}

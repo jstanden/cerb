@@ -149,6 +149,8 @@ $automation_files = [
 	'ai.cerb.eventHandler.automation.json',
 	'ai.cerb.eventHandler.automation.mail.received.json',
 	'ai.cerb.interaction.search.json',
+	'ai.cerb.metricBuilder.dimension.json',
+	'ai.cerb.metricBuilder.help.json',
 	'ai.cerb.toolbarBuilder.interaction.json',
 	'cerb.data.platform.extension.points.json',
 	'cerb.data.records.json',

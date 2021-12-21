@@ -454,6 +454,9 @@ var cerbAutocompleteSuggestions = {
 				'snippet': 'record_type: ${1:ticket}'
 			}
 		],
+		'record:record_type:': {
+			'type': 'record-type'
+		},
 		'text:': [
 
 		]

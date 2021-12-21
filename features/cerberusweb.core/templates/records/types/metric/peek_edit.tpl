@@ -15,14 +15,14 @@
         <tr>
             <td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate|capitalize}:</b></td>
             <td width="99%">
-                <input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus" spellcheck="false">
+                <input type="text" name="name" value="{$model->name}" style="width:98%;" placeholder="(example.metric.name)" autofocus="autofocus" spellcheck="false">
             </td>
         </tr>
         
         <tr>
             <td width="1%" nowrap="nowrap"><b>{'common.description'|devblocks_translate|capitalize}:</b></td>
             <td width="99%">
-                <input type="text" name="description" value="{$model->description}" style="width:98%;">
+                <input type="text" name="description" value="{$model->description}" placeholder="(a description of your metric)" style="width:98%;">
             </td>
         </tr>
 
@@ -34,12 +34,29 @@
     <fieldset class="peek">
         <legend>Dimensions: <small>(KATA)</small></legend>
         <div class="cerb-code-editor-toolbar">
-            {if $toolbar}
-              {DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
-                <div class="cerb-code-editor-toolbar-divider"></div>
-            {/if}
+            {$toolbar_dict = DevblocksDictionaryDelegate::instance([
+            'caller_name' => 'cerb.toolbar.eventHandlers.editor',
 
-            <button type="button" class="cerb-code-editor-toolbar-button cerb-editor-button-help"><a href="https://cerb.ai/docs/automations/#events" target="_blank"><span class="glyphicons glyphicons-circle-question-mark"></span></a></button>
+            'worker__context' => CerberusContexts::CONTEXT_WORKER,
+            'worker_id' => $active_worker->id
+            ])}
+
+            {$toolbar_kata =
+"interaction/add:
+  tooltip: Add dimension
+  icon: magic
+  uri: ai.cerb.metricBuilder.dimension
+interaction/help:
+  icon: circle-question-mark
+  tooltip: Help
+  uri: ai.cerb.metricBuilder.help
+"}
+
+            {$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)}
+            
+            {if $toolbar}
+                {DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
+            {/if}
         </div>
 
         <textarea name="dimensions_kata" data-editor-mode="ace/mode/cerb_kata">{$model->dimensions_kata}</textarea>
@@ -146,10 +163,6 @@
                     e.stopPropagation();
                 }
             });
-
-            $toolbar.cerbCodeEditorToolbarEventHandler({
-                editor: editor
-            });            
         });
     });
 </script>
