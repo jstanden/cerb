@@ -42,6 +42,7 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 						'snippet' => 'by:[${1:dimension_name}]',
 					],
 					'function:',
+					'label:',
 					'metric:',
 					'missing:',
 					'query:',

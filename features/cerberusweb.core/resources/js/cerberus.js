@@ -461,7 +461,12 @@ var cerbAutocompleteSuggestions = {
 		'record:': [
 			{
 				'caption': 'record_type:',
-				'snippet': 'record_type: ${1:ticket}'
+				'snippet': 'record_type: ${1:ticket}',
+				'score': 2000,
+			},
+			{
+				'caption': 'record_label:',
+				'snippet': 'record_label: ${1:_label}'
 			}
 		],
 		'record:record_type:': {

@@ -993,6 +993,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'caption' => 'start:',
 					'snippet' => "start:\n\t\${1:}",
 					'description' => "Run these commands when the automation starts",
+					'score' => 2000,
 				],
 			],
 			
