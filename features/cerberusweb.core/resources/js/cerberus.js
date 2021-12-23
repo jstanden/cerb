@@ -3104,13 +3104,26 @@ var ajax = new cAjaxCalls();
 							if('cerb-uri' === completions['type']) {
 								editor.completer.getPopup().container.style.width = '500px';
 								
+								var params = {};
+								
+								if(completions.hasOwnProperty('params')) {
+									params = completions.params;
+								}
+								
+								if(
+									autocomplete_options.hasOwnProperty('autocomplete_type_defaults')
+									&& autocomplete_options.autocomplete_type_defaults.hasOwnProperty('cerb-uri')
+								) {
+									params = Object.assign(autocomplete_options.autocomplete_type_defaults['cerb-uri'], params);
+								}
+								
 								formData = new FormData();
 								formData.set('c', 'ui');
 								formData.set('a', 'kataSuggestionsCerbUriJson');
 								formData.set('prefix', prefix);
 								
-								if(completions.hasOwnProperty('params')) {
-									formData.set('params', $.param(completions.params));
+								if(params) {
+									formData.set('params', $.param(params));
 								}
 								
 							} else if('record-field' === completions['type']) {
