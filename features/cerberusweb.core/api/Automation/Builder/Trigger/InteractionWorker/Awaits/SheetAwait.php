@@ -187,6 +187,7 @@ class SheetAwait extends AbstractAwait {
 			
 			$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_schema, $toolbar_dict);
 			$tpl->assign('toolbar', $toolbar);
+			$tpl->assign('has_toolbar', true);
 		}
 		
 		$tpl->assign('continuation_token', $continuation->token);
