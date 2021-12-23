@@ -216,7 +216,12 @@ CerbInteractions.prototype.interactionStart = function(interaction, interaction_
 
                     inst.$popup.addEventListener('cerb-interaction-event--end', function (e) {
                         e.stopPropagation();
-                        inst.interactionEnd();
+                        var eventData = {};
+                        
+                        if(e.detail && e.detail.eventData)
+                            eventData = e.detail.eventData;
+                        
+                        inst.interactionEnd(eventData);
                     });
 
                     inst.interactionContinue(false);
@@ -259,11 +264,11 @@ CerbInteractions.prototype.interactionContinue = function(is_submit) {
                 
             } else if (404 === this.status) {
                 $spinner.remove();
-                inst.interactionEnd();
+                inst.interactionEnd({ 'exit': 'error' });
                 
             } else {
                 $spinner.remove();
-                inst.interactionEnd();
+                inst.interactionEnd({ 'exit': 'error' });
             }
         }
     };
@@ -293,10 +298,18 @@ CerbInteractions.prototype.interactionInvoke = function(formData, callback) {
     xhttp.send(formData);
 }
 
-CerbInteractions.prototype.interactionEnd = function() {
+CerbInteractions.prototype.interactionEnd = function(eventData) {
+    if(null == eventData)
+        eventData = { };
+    
     this.$body.removeChild(this.$popup);
     this.$popup = null;
     if(this.$badge) this.$badge.style.display = 'block';
+    
+    if(eventData.hasOwnProperty('exit') && 'return' === eventData.exit) {
+        if(eventData.hasOwnProperty('return') && 'object' == typeof eventData.return) {
+        }
+    }
 }
 
 var $$ = new CerbInteractions();
