@@ -91,7 +91,16 @@ $(function() {
 	var $automation_editor = $frm.find('textarea[name="params[automations_kata]"]')
 		.cerbCodeEditor()
 		.cerbCodeEditorAutocompleteKata({
-			autocomplete_suggestions: cerbAutocompleteSuggestions.kataAutomationEvent
+			autocomplete_suggestions: cerbAutocompleteSuggestions.kataAutomationEvent,
+			autocomplete_type_defaults: {
+				'cerb-uri': {
+					'automation': {
+						'triggers': [
+							'cerb.trigger.interaction.website'
+						]
+					}
+				}
+			}
 		})
 		.nextAll('pre.ace_editor')
 	;

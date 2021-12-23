@@ -16,7 +16,13 @@ var cerbAutocompleteSuggestions = {
 				'snippet': 'disabled@bool: ${1:yes}'
 			},
 			'inputs:'
-		]
+		],
+		'automation:uri:': {
+			'type': 'cerb-uri'
+		},
+		'automation:inputs:': {
+			'type': 'automation-inputs'
+		}
 	},
 	kataAutomationPolicy: {
 		'': [
