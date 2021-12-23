@@ -69,11 +69,16 @@
 
 		$cell.addEventListener('click', function(e) {
 			e.stopPropagation();
+			e.preventDefault();
 
 			if('a' === e.target.nodeName.toLowerCase())
 				return;
 
 			var $checkbox = $cell.querySelector('input[type=radio], input[type=checkbox]');
+			
+			if(e.target.nodeName.toLowerCase() === 'label') {
+				e.target = $checkbox;
+			}
 
 			var is_multiple = 'checkbox' === $checkbox.attributes.type.value.toLowerCase();
 
@@ -89,9 +94,9 @@
 			}
 
 			if($checkbox.checked) {
-				e.target.classList.add('cerb-sheet-scale--cell-selected');
+				$cell.classList.add('cerb-sheet-scale--cell-selected');
 			} else {
-				e.target.classList.remove('cerb-sheet-scale--cell-selected');
+				$cell.classList.remove('cerb-sheet-scale--cell-selected');
 			}
 
 			$sheet.dispatchEvent(
