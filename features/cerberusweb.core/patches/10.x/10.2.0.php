@@ -136,6 +136,7 @@ $automation_files = [
 	'ai.cerb.automationBuilder.action.dataQuery.json',
 	'ai.cerb.automationBuilder.action.function.json',
 	'ai.cerb.automationBuilder.action.httpRequest.json',
+	'ai.cerb.automationBuilder.action.metricIncrement.json',
 	'ai.cerb.automationBuilder.action.recordCreate.json',
 	'ai.cerb.automationBuilder.action.recordDelete.json',
 	'ai.cerb.automationBuilder.action.recordSearch.json',

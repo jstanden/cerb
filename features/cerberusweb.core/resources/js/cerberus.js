@@ -107,7 +107,7 @@ var cerbAutocompleteSuggestions = {
 			{
 				'caption': 'deny/metric_name:',
 				'snippet': "deny/metric_name@bool: {{inputs.metric_name != '${1:your.metric.name}'}}",
-				'docHTML': 'Validate metric name'
+				'docHTML': 'Validate metric name',
 			},
 			'deny@bool: yes',
 			'allow@bool: yes',

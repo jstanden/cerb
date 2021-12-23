@@ -857,6 +857,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'caption' => 'metric.increment:',
 				'snippet' => "metric.increment:\n\tinputs:\n\t\t\${1:}\n\toutput: results\n\t#on_simulate:\n\t#on_success:\n\t#on_error:\n",
 				'description' => "Record new samples on a metric",
+				'interaction' => 'ai.cerb.automationBuilder.action.metricIncrement',
 			],
 			[
 				'caption' => 'queue.pop:',
