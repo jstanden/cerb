@@ -242,6 +242,7 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 							CerbQuickSearchLexer::getOperStringFromTokens($as->tokens, $oper, $value);
 							
 							switch($value) {
+								case 'number':
 								case 'string':
 									break;
 								
@@ -423,6 +424,7 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 				$dim_key = sprintf('dim%d_value_id', array_search($filter['key'], array_keys($metric_dimensions)));
 				
 				switch($metric_dimension['type']) {
+					case 'number':
 					case 'record':
 						if($filter['oper'] == DevblocksSearchCriteria::OPER_IN && is_array($filter['value']) && $filter['value']) {
 							if($metric_dimension)
@@ -545,6 +547,9 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 						$rows[$row_idx][$dim_key . '_id'] = $row[$dim_key];
 						$rows[$row_idx][$dim_key] = $dicts[$row[$dim_key]]->get($record_label);
 					}
+					
+				} else if ('number' == $by_type) { // Number
+					DevblocksPlatform::noop();
 					
 				} else { // String
 					$dimension_labels = array_column(DAO_MetricDimension::getIds(array_unique(array_column($rows, $dim_key))), 'name', 'id');

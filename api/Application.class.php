@@ -4828,6 +4828,11 @@ class _CerbApplication_KataSchemas {
           types:
             object:
               attributes:
+        number:
+          multiple@bool: yes
+          types:
+            object:
+              attributes:
         record:
           multiple@bool: yes
           types:

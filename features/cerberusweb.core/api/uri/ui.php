@@ -203,6 +203,10 @@ class Controller_UI extends DevblocksControllerExtension {
 							$dimension_type = 'Record ID of type `' . ($dimensions[$dimension_key]['params']['record_type'] ?? '') . '`';
 							$dimension_snippet .= " \${1:123}";
 							
+						} elseif('number' == $dimension_type) {
+							$dimension_type = 'Number';
+							$dimension_snippet .= " \${1:Value}";
+							
 						} elseif('text' == $dimension_type) {
 							$dimension_type = 'Text';
 							$dimension_snippet .= " \${1:Value}";

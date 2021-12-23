@@ -437,6 +437,10 @@ var cerbAutocompleteSuggestions = {
 				'snippet': 'extension/${1:name}:\n'
 			},
 			{
+				'caption': 'number:',
+				'snippet': 'number/${1:name}:\n'
+			},
+			{
 				'caption': 'record:',
 				'snippet': 'record/${1:name}:\n  record_type: ${2:ticket}\n'
 			},

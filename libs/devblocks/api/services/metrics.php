@@ -180,6 +180,7 @@ class _DevblocksMetricsService {
 			foreach($metric_dimensions as $dim_key => $dim_data) {
 				if(array_key_exists($dim_key, $sample_dimensions)) {
 					switch($dim_data['type'] ?? '') {
+						case 'number':
 						case 'record':
 							$sample_dimension_values[$dim_key] = intval($sample_dimensions[$dim_key]);
 							break;
