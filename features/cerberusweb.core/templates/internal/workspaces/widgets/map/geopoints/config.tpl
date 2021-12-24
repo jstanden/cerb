@@ -32,9 +32,9 @@
 
 			{$toolbar_kata =
 "interaction/automation:
-  icon: circle-plus
-  #label: Automation
   uri: ai.cerb.eventHandler.automation
+  icon: circle-plus
+  tooltip: Automation
   inputs:
     trigger: cerb.trigger.map.clicked
 "}
@@ -64,13 +64,16 @@ $(function() {
 	
 	// Editors
 	
-	$config.find('textarea[name="params[map_kata]"]')
+	var $map_editor = $config.find('textarea[name="params[map_kata]"]')
 		.cerbCodeEditor()
 		.cerbCodeEditorAutocompleteKata({
 			autocomplete_suggestions: cerbAutocompleteSuggestions.kataSchemaMap
 		})
+		.nextAll('pre.ace_editor')
 	;
 
+	var map_editor = ace.edit($map_editor.attr('id'));
+	
 	var $automation_editor = $config.find('textarea[name="params[automation][map_clicked]"]')
 		.cerbCodeEditor()
 		.nextAll('pre.ace_editor')
@@ -78,25 +81,6 @@ $(function() {
 
 	var automation_editor = ace.edit($automation_editor.attr('id'));
 	
-	var doneFunc = function(e) {
-		e.stopPropagation();
-
-		var $target = e.trigger;
-
-		if(!$target.is('.cerb-bot-trigger'))
-			return;
-
-		if(!e.eventData || !e.eventData.exit)
-			return;
-
-		if (e.eventData.exit === 'error') {
-			// [TODO] Show error
-
-		} else if(e.eventData.exit === 'return' && e.eventData.return.snippet) {
-			automation_editor.insertSnippet(e.eventData.return.snippet);
-		}
-	};
-
 	// Toolbars
 
 	$fieldset_map_get_data.find('.cerb-code-editor-toolbar')
@@ -109,7 +93,24 @@ $(function() {
 			},
 			start: function(formData) {
 			},
-			done: doneFunc
+			done: function(e) {
+				e.stopPropagation();
+
+				var $target = e.trigger;
+
+				if(!$target.is('.cerb-bot-trigger'))
+					return;
+
+				if(!e.eventData || !e.eventData.exit)
+					return;
+
+				if (e.eventData.exit === 'error') {
+					// [TODO] Show error
+
+				} else if(e.eventData.exit === 'return' && e.eventData.return.snippet) {
+					map_editor.insertSnippet(e.eventData.return.snippet);
+				}
+			}
 		})
 	;
 	
@@ -118,13 +119,39 @@ $(function() {
 			caller: {
 				name: 'cerb.toolbar.eventHandlers.editor',
 				params: {
-					trigger: 'cerb.trigger.map.clicked',
 					selected_text: ''
 				}
 			},
+			width: '75%',
 			start: function(formData) {
+				var pos = automation_editor.getCursorPosition();
+				var token_path = Devblocks.cerbCodeEditor.getKataTokenPath(pos, automation_editor).join('');
+
+				formData.set('caller[params][selected_text]', automation_editor.getSelectedText());
+				formData.set('caller[params][token_path]', token_path);
+				formData.set('caller[params][cursor_row]', pos.row);
+				formData.set('caller[params][cursor_column]', pos.column);
+				formData.set('caller[params][trigger]', 'cerb.trigger.map.clicked');
+				formData.set('caller[params][value]', automation_editor.getValue());
 			},
-			done: doneFunc
+			done: function(e) {
+				e.stopPropagation();
+
+				var $target = e.trigger;
+
+				if(!$target.is('.cerb-bot-trigger'))
+					return;
+
+				if(!e.eventData || !e.eventData.exit)
+					return;
+
+				if (e.eventData.exit === 'error') {
+					// [TODO] Show error
+
+				} else if(e.eventData.exit === 'return' && e.eventData.return.snippet) {
+					automation_editor.insertSnippet(e.eventData.return.snippet);
+				}
+			}
 		})
 	;
 	

@@ -17,14 +17,12 @@
 		])}
 
 		{$toolbar_kata =
-"menu/add:
+"interaction/automation:
+  uri: ai.cerb.eventHandler.automation
   icon: circle-plus
-  items:
-    interaction/automation:
-      label: Automation
-      uri: ai.cerb.eventHandler.automation
-      inputs:
-        trigger: cerb.trigger.interaction.website
+  tooltip: Add automation
+  inputs:
+    trigger: cerb.trigger.interaction.website
 "}
 
 		{$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)}
@@ -116,12 +114,20 @@ $(function() {
 		caller: {
 			name: 'cerb.toolbar.eventHandlers.editor',
 			params: {
-				trigger: 'cerb.trigger.interaction.website',
 				selected_text: ''
 			}
 		},
+		width: '75%',
 		start: function(formData) {
-			formData.set('caller[params][selected_text]', automation_editor.getSelectedText())
+			var pos = automation_editor.getCursorPosition();
+			var token_path = Devblocks.cerbCodeEditor.getKataTokenPath(pos, automation_editor).join('');
+
+			formData.set('caller[params][selected_text]', automation_editor.getSelectedText());
+			formData.set('caller[params][token_path]', token_path);
+			formData.set('caller[params][cursor_row]', pos.row);
+			formData.set('caller[params][cursor_column]', pos.column);
+			formData.set('caller[params][trigger]', 'cerb.trigger.interaction.website');
+			formData.set('caller[params][value]', automation_editor.getValue());
 		},
 		done: function(e) {
 			e.stopPropagation();

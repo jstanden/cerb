@@ -9,14 +9,12 @@
 		])}
 
 		{$toolbar_kata =
-"menu/add:
+"interaction/automation:
+  uri: ai.cerb.eventHandler.automation
+  tooltip: Automation
   icon: circle-plus
-  items:
-    interaction/automation:
-      label: Automation
-      uri: ai.cerb.eventHandler.automation
-      inputs:
-        trigger: cerb.trigger.behavior.action
+  inputs:
+    trigger: cerb.trigger.behavior.action
 "}
 
 		{$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)}
@@ -68,12 +66,20 @@ var $toolbar_functions = $functions.find('.cerb-code-editor-toolbar').cerbToolba
 	caller: {
 		name: 'cerb.toolbar.eventHandlers.editor',
 		params: {
-			trigger: 'cerb.trigger.automation.function',
 			selected_text: ''
 		}
 	},
+	width: '75%',
 	start: function(formData) {
-		formData.set('caller[params][selected_text]', editor_functions.getSelectedText())
+		var pos = editor_functions.getCursorPosition();
+		var token_path = Devblocks.cerbCodeEditor.getKataTokenPath(pos, editor_functions).join('');
+
+		formData.set('caller[params][selected_text]', editor_functions.getSelectedText());
+		formData.set('caller[params][token_path]', token_path);
+		formData.set('caller[params][cursor_row]', pos.row);
+		formData.set('caller[params][cursor_column]', pos.column);
+		formData.set('caller[params][trigger]', 'cerb.trigger.behavior.action');
+		formData.set('caller[params][value]', editor_functions.getValue());
 	},
 	done: function(e) {
 		e.stopPropagation();

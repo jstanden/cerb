@@ -35,7 +35,7 @@
         <legend>Dimensions: <small>(KATA)</small></legend>
         <div class="cerb-code-editor-toolbar">
             {$toolbar_dict = DevblocksDictionaryDelegate::instance([
-            'caller_name' => 'cerb.toolbar.eventHandlers.editor',
+            'caller_name' => 'cerb.toolbar.metrics.dimensions.editor',
 
             'worker__context' => CerberusContexts::CONTEXT_WORKER,
             'worker_id' => $active_worker->id

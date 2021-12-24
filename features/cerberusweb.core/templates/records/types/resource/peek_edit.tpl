@@ -83,9 +83,9 @@
 
                         {$toolbar_kata =
 "interaction/automation:
-  icon: circle-plus
-  #label: Automation
   uri: ai.cerb.eventHandler.automation
+  icon: circle-plus
+  tooltip: Automation
   inputs:
     trigger: cerb.trigger.resource.get
 "}
@@ -212,11 +212,20 @@
                     caller: {
                         name: 'cerb.toolbar.eventHandlers.editor',
                         params: {
-                            trigger: 'cerb.trigger.resource.get',
                             selected_text: ''
                         }
                     },
+                    width: '75%',
                     start: function(formData) {
+                        var pos = automation_editor.getCursorPosition();
+                        var token_path = Devblocks.cerbCodeEditor.getKataTokenPath(pos, automation_editor).join('');
+
+                        formData.set('caller[params][selected_text]', automation_editor.getSelectedText());
+                        formData.set('caller[params][token_path]', token_path);
+                        formData.set('caller[params][cursor_row]', pos.row);
+                        formData.set('caller[params][cursor_column]', pos.column);
+                        formData.set('caller[params][trigger]', 'cerb.trigger.resource.get');
+                        formData.set('caller[params][value]', automation_editor.getValue());
                     },
                     done: doneFunc
                 })

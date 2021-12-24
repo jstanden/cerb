@@ -58,14 +58,12 @@
 		])}
 
 		{$toolbar_kata =
-"menu/add:
+"interaction/automation:
+  uri: ai.cerb.eventHandler.automation
   icon: circle-plus
-  items:
-    interaction/automation:
-      label: Automation
-      uri: ai.cerb.eventHandler.automation
-      inputs:
-        trigger: cerb.trigger.projectBoard.renderCard
+  tooltip: Automation
+  inputs:
+    trigger: cerb.trigger.projectBoard.renderCard
 "}
 
 		{$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)}
@@ -103,14 +101,12 @@
 		])}
 
 		{$toolbar_kata =
-"menu/add:
+"interaction/automation:
+  uri: ai.cerb.eventHandler.automation
   icon: circle-plus
-  items:
-    interaction/automation:
-      label: Automation
-      uri: ai.cerb.eventHandler.automation
-      inputs:
-        trigger: cerb.trigger.projectBoard.cardAction
+  tooltip: Automation
+  inputs:
+    trigger: cerb.trigger.projectBoard.cardAction
 "}
 
 		{$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)}
@@ -238,12 +234,20 @@ $(function() {
 			caller: {
 				name: 'cerb.toolbar.eventHandlers.editor',
 				params: {
-					trigger: 'cerb.trigger.projectBoard.renderCard',
 					selected_text: ''
 				}
 			},
+			width: '75%',
 			start: function(formData) {
-				formData.set('caller[params][selected_text]', editor_cards.getSelectedText())
+				var pos = editor_cards.getCursorPosition();
+				var token_path = Devblocks.cerbCodeEditor.getKataTokenPath(pos, editor_cards).join('');
+
+				formData.set('caller[params][selected_text]', editor_cards.getSelectedText());
+				formData.set('caller[params][token_path]', token_path);
+				formData.set('caller[params][cursor_row]', pos.row);
+				formData.set('caller[params][cursor_column]', pos.column);
+				formData.set('caller[params][trigger]', 'cerb.trigger.projectBoard.renderCard');
+				formData.set('caller[params][value]', editor_cards.getValue());
 			},
 			done: function(e) {
 				e.stopPropagation();
@@ -287,12 +291,20 @@ $(function() {
 			caller: {
 				name: 'cerb.toolbar.eventHandlers.editor',
 				params: {
-					trigger: 'cerb.trigger.projectBoard.cardAction',
 					selected_text: ''
 				}
 			},
+			width: '75%',
 			start: function(formData) {
-				formData.set('caller[params][selected_text]', editor_functions.getSelectedText())
+				var pos = editor_functions.getCursorPosition();
+				var token_path = Devblocks.cerbCodeEditor.getKataTokenPath(pos, editor_functions).join('');
+
+				formData.set('caller[params][selected_text]', editor_functions.getSelectedText());
+				formData.set('caller[params][token_path]', token_path);
+				formData.set('caller[params][cursor_row]', pos.row);
+				formData.set('caller[params][cursor_column]', pos.column);
+				formData.set('caller[params][trigger]', 'cerb.trigger.projectBoard.cardAction');
+				formData.set('caller[params][value]', editor_functions.getValue());
 			},
 			done: function(e) {
 				e.stopPropagation();
