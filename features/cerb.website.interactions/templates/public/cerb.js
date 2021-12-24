@@ -308,6 +308,13 @@ CerbInteractions.prototype.interactionEnd = function(eventData) {
     
     if(eventData.hasOwnProperty('exit') && 'return' === eventData.exit) {
         if(eventData.hasOwnProperty('return') && 'object' == typeof eventData.return) {
+            if(
+                eventData.return.hasOwnProperty('redirect_url') 
+                && 'string' == typeof eventData.return.redirect_url
+                && eventData.return.redirect_url
+            ) {
+                document.location.href = eventData.return.redirect_url;
+            }
         }
     }
 }
