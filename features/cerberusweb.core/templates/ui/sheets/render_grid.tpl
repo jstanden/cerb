@@ -3,7 +3,7 @@
 <div class="cerb-sheet-layout {if $layout_style == 'columns'}cerb-sheet-columns{else}cerb-sheet-grid{/if}">
 	{if $rows}
 	{foreach from=$rows item=row name=rows}
-	<div class="cerb-sheet--row">
+	<div class="cerb-sheet--row" {if $layout_style == 'grid' && $layout.params.width}style="flex:1 1 {$layout.params.width|round}px;"{/if}>
 		<div class="cerb-sheet--row-item">
 		{foreach from=$columns item=column name=columns}
 			<div data-cerb-column-type="{$column._type}">

@@ -4,6 +4,16 @@
 	<h6>{$label}</h6>
 	{/if}
 
+	{if isset($has_toolbar) && $has_toolbar}
+		<div style="clear:both;"></div>
+
+		<div data-cerb-sheet-toolbar class="cerb-code-editor-toolbar" style="margin:0.5em 0;">
+			{if $toolbar}
+				{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
+			{/if}
+		</div>
+	{/if}
+
 	<div style="margin:0 10px;">
 		{if $layout.filtering}
 			<div style="position:relative;box-sizing:border-box;width:100%;border:1px solid rgb(220,220,220);border-radius:10px;padding:0 5px;margin-bottom:5px;">

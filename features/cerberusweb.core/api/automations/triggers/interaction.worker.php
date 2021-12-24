@@ -465,6 +465,10 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'headings@bool: yes',
 					'paging@bool: yes',
 					[
+						'caption' => 'params:',
+						'snippet' => "params:\n  \${1:}",
+					],
+					[
 						'caption' => 'style:',
 						'snippet' => "style: \${1:table}",
 					],
