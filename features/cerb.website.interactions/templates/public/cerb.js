@@ -202,12 +202,18 @@ CerbInteractions.prototype.interactionStart = function(interaction, interaction_
                     inst.$body.append(inst.$popup);
                     inst.html(inst.$popup, this.responseText);
 
-                    inst.$popup.querySelector('.cerb-interaction-popup--close')
-                        .addEventListener('click', function (e) {
-                            e.stopPropagation();
-                            inst.$popup.dispatchEvent($$.createEvent('cerb-interaction-event--end'));
-                        })
-                    ;
+                    var $close = inst.$popup.querySelector('.cerb-interaction-popup--close');
+                    
+                    if($close) {
+                        if(inst.$badge) {
+                            $close.addEventListener('click', function (e) {
+                                e.stopPropagation();
+                                inst.$popup.dispatchEvent($$.createEvent('cerb-interaction-event--end'));
+                            });
+                        } else {
+                            $close.style.display = 'none';
+                        }
+                    }
 
                     inst.$popup.addEventListener('cerb-interaction-event--submit', function (e) {
                         e.stopPropagation();

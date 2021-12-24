@@ -5,6 +5,7 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 	
 	const PARAM_AUTOMATIONS_KATA = 'automations_kata';
 	const PARAM_CORS_ORIGINS_ALLOWED = 'cors_origins_allowed';
+	const PARAM_PORTAL_BADGE_DISABLED = 'portal_badge_disabled';
 	
 	private ?array $_config = null;
 	
@@ -42,6 +43,11 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 			$value = strval($params[self::PARAM_CORS_ORIGINS_ALLOWED]);
 			DAO_CommunityToolProperty::set($instance->code, self::PARAM_CORS_ORIGINS_ALLOWED, $value);
 		}
+		
+		if(array_key_exists(self::PARAM_PORTAL_BADGE_DISABLED, $params)) {
+			$value = intval($params[self::PARAM_PORTAL_BADGE_DISABLED]);
+			DAO_CommunityToolProperty::set($instance->code, self::PARAM_PORTAL_BADGE_DISABLED, $value);
+		}
 	}
 	
 	/**
@@ -76,6 +82,8 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 	public function writeResponse(DevblocksHttpResponse $response) {
 		$path = $response->path;
 		$stack = array_shift($path);
+		
+		$config = $this->getConfig();
 		
 		switch($stack) {
 			case 'interaction':
@@ -137,6 +145,8 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 					$tpl->assign('page_interaction', $interaction);
 					$tpl->assign('page_interaction_params', $interaction_params);
 				}
+				
+				$tpl->assign('portal_badge_disabled', $config[self::PARAM_PORTAL_BADGE_DISABLED] ?? 0);
 				
 				$tpl->display('devblocks:cerb.website.interactions::public/index.tpl');
 				break;

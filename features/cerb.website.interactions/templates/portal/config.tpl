@@ -5,7 +5,9 @@
 <input type="hidden" name="module" value="community_portal">
 <input type="hidden" name="action" value="saveConfigTabJson">
 <input type="hidden" name="portal_id" value="{$portal->id}">
-
+	
+<h1>Interactions</h1>
+	
 <fieldset class="peek">
 	<legend>Event: Website Interaction (KATA)</legend>
 	<div class="cerb-code-editor-toolbar">
@@ -42,8 +44,10 @@
 	{/if}
 </fieldset>
 
+<h1>Website Widget</h1>
+	
 <fieldset class="peek">
-	<legend>Security: Cross-Origin Request Sharing (CORS)</legend>
+	<legend>Cross-Origin Request Sharing (CORS)</legend>
 	
 	<div>
 		<b>Only allow these origins to make requests:</b> (one per line)
@@ -59,7 +63,18 @@
 			Use <code>*</code> (asterisk) to allow any origin.
 		</p>
 	</div>
-</fieldset>	
+</fieldset>
+
+<h1>Portal</h1>
+	
+<fieldset class="peek">
+	<legend>Badge</legend>
+
+	<div>
+		<label><input type="radio" name="params[portal_badge_disabled]" value="0" {if !$params.portal_badge_disabled}checked{/if}> Enabled</label>
+		<label><input type="radio" name="params[portal_badge_disabled]" value="1" {if $params.portal_badge_disabled}checked{/if}> Disabled</label>
+	</div>
+</fieldset>
 
 <div class="status"></div>
 
