@@ -4147,6 +4147,7 @@ class CerbQuickSearchLexer {
 			$token_dict = DevblocksDictionaryDelegate::instance($bindings);
 			
 			self::_recurse($tokens, ['T_TEXT', 'T_QUOTED_TEXT'], function (CerbQuickSearchLexerToken $token) use ($tpl_builder, $token_dict, $lexer) {
+				$token->type = 'T_QUOTED_TEXT';
 				$token->value = $tpl_builder->build($token->value, $token_dict, $lexer);
 			});
 			
