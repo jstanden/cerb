@@ -1065,6 +1065,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		$this->_handleCronHeartbeatMetrics();
 		$this->_handleCronHeartbeatReopenTickets();
 		$this->_handleCronHeartbeatReopenTasks();
+		DAO_AutomationContinuation::maint();
 		DAO_AutomationDatastore::maint();
 		DAO_AutomationResource::maint();
 		DAO_BotDatastore::maint();
