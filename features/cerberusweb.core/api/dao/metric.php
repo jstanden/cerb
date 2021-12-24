@@ -1161,6 +1161,12 @@ class Context_Metric extends Extension_DevblocksContext implements IDevblocksCon
 	
 	function lazyLoadGetKeys() {
 		$lazy_keys = parent::lazyLoadGetKeys();
+		
+		$lazy_keys['dimensions'] = [
+			'label' => 'Dimensions',
+			'type' => 'HashMap',
+		];
+		
 		return $lazy_keys;
 	}
 	
@@ -1180,6 +1186,12 @@ class Context_Metric extends Extension_DevblocksContext implements IDevblocksCon
 		}
 		
 		switch($token) {
+			case 'dimensions':
+				$metric = new Model_Metric();
+				$metric->dimensions_kata = $dictionary['dimensions_kata'] ?? $values['dimensions_kata'] ?? '';
+				$values[$token] = $metric->getDimensions();
+				break;
+				
 			default:
 				$defaults = $this->_lazyLoadDefaults($token, $context, $context_id);
 				$values = array_merge($values, $defaults);
