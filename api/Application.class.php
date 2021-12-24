@@ -413,6 +413,10 @@ class CerberusApplication extends DevblocksApplication {
 		return new _CerbApplication_KataSchemas();
 	}
 	
+	static function kataAutocompletions() : _CerbApplication_KataAutocompletions {
+		return new _CerbApplication_KataAutocompletions();
+	}
+	
 	static function packages() {
 		return new _CerbApplication_Packages();
 	}
@@ -3510,6 +3514,36 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 		}
 	}
 };
+
+class _CerbApplication_KataAutocompletions {
+	function automationEvent() {
+		return [
+			'' => [
+				[
+					'caption' => 'automation:',
+					'snippet' => 'automation/${1:name}:'
+				]
+			],
+			'automation:' => [
+				[
+					'caption' => 'uri:',
+					'snippet' => 'uri: cerb:automation:${1:name}'
+				],
+				[
+					'caption' => 'disabled:',
+					'snippet' => 'disabled@bool: ${1:yes}'
+				],
+				'inputs:'
+			],
+			'automation:uri:' => [
+				'type' => 'cerb-uri'
+			],
+			'automation:inputs:' => [
+				'type' => 'automation-inputs'
+			],
+		];
+	}
+}
 
 class _CerbApplication_KataSchemas {
 	function automation() : string {

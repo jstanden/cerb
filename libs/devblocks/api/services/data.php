@@ -25,8 +25,8 @@ class _DevblocksDataService {
 				$provider = new _DevblocksDataProviderAttachmentManifest();
 				return $provider->getSuggestions($type, $params);
 			
-			case 'automation.autocomplete':
-				$provider = new _DevblocksDataProviderAutomationAutocomplete();
+			case 'autocomplete.completions':
+				$provider = new _DevblocksDataProviderAutocompleteCompletions();
 				return $provider->getSuggestions($type, $params);
 			
 			case 'calendar.availability':
@@ -135,8 +135,8 @@ class _DevblocksDataService {
 				'description' => 'Read and filter file contents from archives',
 			],
 			[
-				'name' => 'automation.autocomplete',
-				'description' => 'Autocomplete suggestions for an automation key path',
+				'name' => 'autocomplete.completions',
+				'description' => 'Autocomplete completions for a schema',
 			],
 			[
 				'name' => 'calendar.availability',
@@ -283,8 +283,8 @@ class _DevblocksDataService {
 				
 				break;
 
-			case 'automation.autocomplete':
-				$provider = new _DevblocksDataProviderAutomationAutocomplete();
+			case 'autocomplete.completions':
+				$provider = new _DevblocksDataProviderAutocompleteCompletions();
 				
 				if(false === ($results = $provider->getData($query, $chart_fields, $error)))
 					return false;
