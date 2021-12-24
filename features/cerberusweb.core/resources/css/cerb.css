@@ -75,7 +75,7 @@
   --cerb-color-action-primary: rgb(18,131,225);
   --cerb-color-action-primary-hover: rgb(70,169,255);
   --cerb-color-action-secondary: rgb(230,230,230);
-  --cerb-color-action-secondary-hover: rgb(230,230,230);
+  --cerb-color-action-secondary-hover: rgb(210,210,210);
   --cerb-color-alert-background: rgb(253,226,108);
   --cerb-color-alert-border: rgb(255,255,255);
   --cerb-color-alert-error-background: rgb(253,58,71);
@@ -2228,7 +2228,6 @@ UL.ui-menu li.ui-state-focus {
   margin: 0 5px;
 }
 .cerb-form-builder .cerb-button:hover {
-  box-shadow: 0 0 5px 0 var(--cerb-color-shadow-action-primary-hover);
   background-color: var(--cerb-color-action-primary-hover);
 }
 .cerb-form-builder .cerb-button-style-secondary {
@@ -2236,7 +2235,6 @@ UL.ui-menu li.ui-state-focus {
   color: var(--cerb-color-text);
 }
 .cerb-form-builder .cerb-button-style-secondary:hover {
-  box-shadow: 0 0 5px 0 var(--cerb-color-shadow-action-secondary-hover);
   background-color: var(--cerb-color-action-secondary-hover);
 }
 .cerb-form-builder .cerb-button-style-outline {
@@ -2324,8 +2322,8 @@ UL.ui-menu li.ui-state-focus {
   position: relative;
 }
 .cerb-card-widget--header b {
-  font-size: 1.4em;
-  color: var(--cerb-color-h1);
+  font-size: 1.5em;
+  color: var(--cerb-color-text);
 }
 .cerb-card-widget--header b .glyphicons-menu-hamburger {
   vertical-align: middle;
@@ -2741,9 +2739,9 @@ UL.ui-autocomplete.ui-menu li.ui-menu-item.ui-state-focus {
 }
 
 .ui-dialog .ui-dialog-titlebar {
-  background-color: #6284dd;
+  background-color: #547de7;
   border: 0;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: bold;
   padding: 5px 5px 5px 10px;
 }
