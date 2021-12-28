@@ -1270,7 +1270,7 @@ class Storage_Resource extends Extension_DevblocksStorageSchema {
 	}
 };
 
-class Context_Resource extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
+class Context_Resource extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextUri {
 	const ID = CerberusContexts::CONTEXT_RESOURCE;
 	const URI = 'resource';
 	
@@ -1298,6 +1298,37 @@ class Context_Resource extends Extension_DevblocksContext implements IDevblocksC
 	function getRandom() {
 		return DAO_Resource::random();
 	}
+	
+	function autocompleteUri($term, $uri_params = null) : array {
+		$where_sql = sprintf("%s LIKE %s", DAO_Resource::NAME, Cerb_ORMHelper::qstr('%' . $term . '%'));
+		
+		if(array_key_exists('types', $uri_params) && is_iterable($uri_params['types'])) {
+			$where_sql .= sprintf(" AND %s IN (%s)",
+				Cerb_ORMHelper::escape(DAO_Resource::EXTENSION_ID),
+				implode(',', Cerb_ORMHelper::qstrArray($uri_params['types']))
+			);
+		}
+		
+		$resources = DAO_Resource::getWhere(
+			$where_sql,
+			null,
+			null,
+			25
+		);
+		
+		if(!is_iterable($resources))
+			return [];
+		
+		return array_map(
+			function ($resource) {
+				return [
+					'caption' => $resource->name,
+					'snippet' => $resource->name,
+				];
+			},
+			$resources
+		);
+	}	
 	
 	function profileGetUrl($context_id) {
 		$url_writer = DevblocksPlatform::services()->url();
