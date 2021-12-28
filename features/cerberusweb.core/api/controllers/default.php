@@ -138,7 +138,7 @@ class Controller_Default extends DevblocksControllerExtension {
 			$keyboard_shortcuts = intval(DAO_WorkerPref::get($active_worker->id,'keyboard_shortcuts',1));
 			$tpl->assign('pref_keyboard_shortcuts', $keyboard_shortcuts);
 			
-			$dark_mode = intval(DAO_WorkerPref::get($active_worker->id,'dark_mode',1));
+			$dark_mode = intval(DAO_WorkerPref::get($active_worker->id,'dark_mode',0));
 			$tpl->assign('pref_dark_mode', $dark_mode);
 			
 			$active_worker_memberships = $active_worker->getMemberships();
