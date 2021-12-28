@@ -4858,6 +4858,16 @@
 		<!-- Resource Types -->
 
 		<extension point="cerb.resource.type">
+			<id>cerb.resource.portal.image</id>
+			<name>Portal Image</name>
+			<class>
+				<file>api/resources/types/cerb.resource.portal.image.php</file>
+				<name>ResourceType_PortalImage</name>
+			</class>
+			<params/>
+		</extension>
+		
+		<extension point="cerb.resource.type">
 			<id>cerb.resource.map</id>
 			<name>Map</name>
 			<class>
