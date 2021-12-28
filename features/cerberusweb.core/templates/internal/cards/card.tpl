@@ -21,7 +21,7 @@
 
             {if !is_array($toolbar_card) || !array_key_exists('edit', $toolbar_card)}
                 {if $is_writeable && $active_worker->hasPriv("contexts.{$peek_context}.update")}
-                    <button type="button" class="cerb-peek-edit" data-context="{$peek_context}" data-context-id="{$dict->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
+                    <button type="button" class="cerb-peek-edit" data-context="{$peek_context}" data-context-id="{$dict->id}" data-width="75%" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
                 {/if}
             {/if}
 
