@@ -3,6 +3,7 @@ class DAO_Resource extends Cerb_ORMHelper {
 	const AUTOMATION_KATA = 'automation_kata';
 	const DESCRIPTION = 'description';
 	const EXTENSION_ID = 'extension_id';
+	const EXTENSION_KATA = 'extension_kata';
 	const ID = 'id';
 	const IS_DYNAMIC = 'is_dynamic';
 	const NAME = 'name';
@@ -36,6 +37,11 @@ class DAO_Resource extends Cerb_ORMHelper {
 			->string()
 			->setRequired(true)
 			->addValidator($validation->validators()->extension('Extension_ResourceType'))
+		;
+		$validation
+			->addField(self::EXTENSION_KATA)
+			->string()
+			->setMaxLength('16 bits')
 		;
 		$validation
 			->addField(self::IS_DYNAMIC)
@@ -163,7 +169,7 @@ class DAO_Resource extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, automation_kata, description, is_dynamic, extension_id, storage_size, storage_key, storage_extension, storage_profile_id, updated_at ".
+		$sql = "SELECT id, name, automation_kata, description, is_dynamic, extension_id, extension_kata, storage_size, storage_key, storage_extension, storage_profile_id, updated_at ".
 			"FROM resource ".
 			$where_sql.
 			$sort_sql.
@@ -235,7 +241,7 @@ class DAO_Resource extends Cerb_ORMHelper {
 	
 	/**
 	 * @param mysqli_result|false $rs
-	 * @return Model_Resource[]
+	 * @return Model_Resource[]|false
 	 */
 	static private function _getObjectsFromResult($rs) {
 		$objects = [];
@@ -248,6 +254,7 @@ class DAO_Resource extends Cerb_ORMHelper {
 			$object->automation_kata = $row['automation_kata'];
 			$object->description = $row['description'];
 			$object->extension_id = $row['extension_id'];
+			$object->extension_kata = $row['extension_kata'];
 			$object->id = intval($row['id']);
 			$object->is_dynamic = $row['is_dynamic'] ? 1 : 0;
 			$object->name = $row['name'];
@@ -388,6 +395,7 @@ class DAO_Resource extends Cerb_ORMHelper {
 				'data' => '',
 				'description' => '',
 				'extension_id' => '',
+				'extension_kata' => '',
 				'automation_kata' => '',
 				'is_dynamic' => 0,
 				'expires_at' => 0,
@@ -396,19 +404,38 @@ class DAO_Resource extends Cerb_ORMHelper {
 			$resource_data
 		);
 		
-		$db->ExecuteMaster(sprintf("INSERT INTO resource (name, description, extension_id, automation_kata, is_dynamic, expires_at, updated_at) ".
-			"VALUES (%s, %s, %s, %s, %d, %d, %d) ".
-			"ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id), name=VALUES(name), extension_id=VALUES(extension_id), description=VALUES(description), automation_kata=VALUES(automation_kata), is_dynamic=VALUES(is_dynamic), expires_at=VALUES(expires_at), updated_at=VALUES(updated_at)",
-			$db->qstr($resource_data['name']),
-			$db->qstr($resource_data['description']),
-			$db->qstr($resource_data['extension_id']),
-			$db->qstr($resource_data['automation_kata']),
-			$resource_data['is_dynamic'],
-			$resource_data['expires_at'],
-			$resource_data['updated_at']
+		$resource_id = $db->GetOneMaster(sprintf("SELECT id FROM resource WHERE name = %s",
+			$db->qstr($resource_data['name'])
 		));
 		
-		$resource_id = $db->LastInsertId();
+		if($resource_id) {
+			$db->ExecuteMaster(sprintf("UPDATE resource SET name = %s, description = %s, extension_id = %s, extension_kata = %s, automation_kata = %s, is_dynamic = %d, expires_at = %d, updated_at = %d WHERE id = %d",
+				$db->qstr($resource_data['name']),
+				$db->qstr($resource_data['description']),
+				$db->qstr($resource_data['extension_id']),
+				$db->qstr($resource_data['extension_kata']),
+				$db->qstr($resource_data['automation_kata']),
+				$resource_data['is_dynamic'],
+				$resource_data['expires_at'],
+				$resource_data['updated_at'],
+				$resource_id
+			));
+			
+		} else {
+			$db->ExecuteMaster(sprintf("INSERT INTO resource (name, description, extension_id, extension_kata, automation_kata, is_dynamic, expires_at, updated_at) ".
+				"VALUES (%s, %s, %s, %s, %s, %d, %d, %d)",
+				$db->qstr($resource_data['name']),
+				$db->qstr($resource_data['description']),
+				$db->qstr($resource_data['extension_id']),
+				$db->qstr($resource_data['extension_kata']),
+				$db->qstr($resource_data['automation_kata']),
+				$resource_data['is_dynamic'],
+				$resource_data['expires_at'],
+				$resource_data['updated_at']
+			));
+			
+			$resource_id = $db->LastInsertId();
+		}
 		
 		if($resource_id) {
 			if($resource_data['data']) {
@@ -549,6 +576,7 @@ class Model_Resource {
 	public $id;
 	public $is_dynamic;
 	public $extension_id;
+	public $extension_kata;
 	public $name;
 	public $storage_extension;
 	public $storage_key;
@@ -562,6 +590,23 @@ class Model_Resource {
 	 */
 	public function getExtension($as_instance=true) {
 		return Extension_ResourceType::get($this->extension_id, $as_instance);
+	}
+	
+	public function getExtensionParams() : array {
+		$kata = DevblocksPlatform::services()->kata();
+		
+		$error = null;
+		
+		if(!$this->extension_kata)
+			return [];
+		
+		if(false == ($params = $kata->parse($this->extension_kata, $error)))
+			return [];
+		
+		if(false == ($params = $kata->formatTree($params, null, $error)))
+			return [];
+		
+		return $params;
 	}
 };
 
@@ -693,7 +738,8 @@ class View_Resource extends C4_AbstractView implements IAbstractView_Subtotals, 
 		
 		switch($column) {
 			case SearchFields_Resource::EXTENSION_ID:
-				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
+				$label_map = array_column(Extension_ResourceType::getAll(false), 'name', 'id');
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
 				break;
 			
 			case SearchFields_Resource::IS_DYNAMIC:
@@ -834,6 +880,11 @@ class View_Resource extends C4_AbstractView implements IAbstractView_Subtotals, 
 		$field = $param->field;
 		
 		switch($field) {
+			case SearchFields_Resource::EXTENSION_ID:
+				$label_map = array_column(Extension_ResourceType::getAll(false), 'name', 'id');
+				parent::_renderCriteriaParamString($param, $label_map);
+				break;
+				
 			default:
 				parent::renderCriteriaParam($param);
 				break;

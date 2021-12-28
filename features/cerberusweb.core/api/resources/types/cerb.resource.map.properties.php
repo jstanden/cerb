@@ -2,6 +2,10 @@
 class ResourceType_MapProperties extends Extension_ResourceType {
 	const ID = 'cerb.resource.map.properties';
 	
+	function validateContentData($fp, &$extension_params=[], &$error=null) : bool {
+		return [];
+	}
+	
 	/**
 	 * @param Model_Resource $resource
 	 * @return Model_Resource_ContentData

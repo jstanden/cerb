@@ -619,6 +619,18 @@ if($columns['type'] && in_array(strtolower($columns['type']['type']), ['varchar(
 }
 
 // ===========================================================================
+// Add `extension_kata` to resources
+
+if(!isset($tables['resource']))
+	return FALSE;
+
+list($columns,) = $db->metaTable('resource');
+
+if(!array_key_exists('extension_kata', $columns)) {
+	$db->ExecuteMaster("ALTER TABLE resource ADD COLUMN extension_kata TEXT AFTER extension_id");
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

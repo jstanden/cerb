@@ -84,6 +84,7 @@ class PageSection_ProfilesResource extends Extension_PageSection {
 				@$file = DevblocksPlatform::importGPC($_FILES['file'], 'array', []);
 				
 				$error = null;
+				$fp = null;
 				
 				$fields = [
 					DAO_Resource::AUTOMATION_KATA => $automation_kata,
@@ -93,6 +94,24 @@ class PageSection_ProfilesResource extends Extension_PageSection {
 					DAO_Resource::NAME => $name,
 					DAO_Resource::UPDATED_AT => time(),
 				];
+				
+				/** @var $resource_ext Extension_ResourceType */
+				if(false == ($resource_ext = Extension_ResourceType::get($extension_id, true)))
+						throw new Exception_DevblocksAjaxValidationError('Invalid resource extension.');
+				
+				if(is_array($file) && array_key_exists('tmp_name', $file) && $file['tmp_name']) {
+					$extension_params = [];
+					
+					if(false == ($fp = fopen($file['tmp_name'], 'rb'))) {
+						throw new Exception_DevblocksAjaxValidationError('Failed to upload file.');
+					}
+					
+					if(false == ($resource_ext->validateContentData($fp, $extension_params, $error))) {
+						throw new Exception_DevblocksAjaxValidationError($error ?? 'Uploaded file is not a valid image.');
+					}
+					
+					$fields[DAO_Resource::EXTENSION_KATA] = DevblocksPlatform::services()->kata()->emit($extension_params);
+				}
 				
 				if(empty($id)) { // New
 					if(!DAO_Resource::validate($fields, $error))
@@ -120,11 +139,9 @@ class PageSection_ProfilesResource extends Extension_PageSection {
 				
 				if($id) {
 					// File upload
-					if(is_array($file) && array_key_exists('tmp_name', $file) && $file['tmp_name']) {
-						if(null != ($fp = fopen($file['tmp_name'], 'rb'))) {
-							Storage_Resource::put($id, $fp);
-							fclose($fp);
-						}
+					if(is_resource($fp)) {
+						Storage_Resource::put($id, $fp);
+						fclose($fp);
 					}
 					
 					// Custom field saves

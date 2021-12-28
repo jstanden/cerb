@@ -603,6 +603,8 @@ abstract class Extension_ResourceType extends DevblocksExtension {
 	 */
 	abstract function getContentData(Model_Resource $resource);
 	
+	abstract function validateContentData($fp, &$extension_params=[], &$error=null) : bool;
+	
 	/**
 	 * @param Model_Resource $resource
 	 * @param Model_Resource_ContentData $content_data
