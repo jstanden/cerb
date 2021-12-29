@@ -61,21 +61,22 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 	public function _respondWithCORS() {
 		$config = $this->getConfig();
 		
-		if(!array_key_exists(self::PARAM_CORS_ORIGINS_ALLOWED, $config))
-			return;
-		
-		$allowed_origins = array_fill_keys(DevblocksPlatform::parseCrlfString($config[self::PARAM_CORS_ORIGINS_ALLOWED]), true);
-		
 		if(!array_key_exists('HTTP_ORIGIN', $_SERVER))
 			return;
 		
 		$origin = rtrim(DevblocksPlatform::strLower($_SERVER['HTTP_ORIGIN']), '/');
 		
+		if(array_key_exists(self::PARAM_CORS_ORIGINS_ALLOWED, $config) && $config[self::PARAM_CORS_ORIGINS_ALLOWED]) {
+			$allowed_origins = array_fill_keys(DevblocksPlatform::parseCrlfString($config[self::PARAM_CORS_ORIGINS_ALLOWED]), true);
+		} else {
+			$allowed_origins = [$origin => true];	
+		}
+		
 		if(!array_key_exists('*', $allowed_origins) && !array_key_exists($origin, $allowed_origins))
 			return;
 		
 		header('Access-Control-Allow-Origin: ' . $_SERVER['HTTP_ORIGIN']);
-		header('Access-Control-Allow-Methods: POST');
+		header('Access-Control-Allow-Methods: GET, POST');
 		header('Access-Control-Allow-Headers: User-Agent, Content-Type');
 	}
 	
@@ -122,6 +123,9 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 				
 				switch($file) {
 					case 'cerb.js':
+						// Add conditional CORS headers
+						$this->_respondWithCORS();
+						
 						// Allow caching, but invalidate from the `X-Cerb-Version` header
 						$ttl_secs = 86400; // 1 day
 						header('Content-Type: text/javascript');
