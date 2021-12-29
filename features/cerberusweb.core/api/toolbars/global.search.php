@@ -35,9 +35,19 @@ class Toolbar_GlobalSearch extends Extension_Toolbar {
 		
 		$toolbar_kata = '';
 		$legacy_kata = '';
+		$results = [];
 		
 		if(null != ($toolbar = DAO_Toolbar::getByName('global.search')))
 			$toolbar_kata = $toolbar->toolbar_kata;
+		
+		// Start with the worker's search favorites
+		if(null != ($search_favorites = DAO_WorkerPref::getAsJson($active_worker->id, 'search_favorites_json'))) {
+			foreach($search_favorites as $favorite_ext_id) {
+				if(false != ($context_mft = Extension_DevblocksContext::get($favorite_ext_id, false))) {
+					$results[$context_mft->params['alias']] = 100;
+				}
+			}
+		}
 		
 		$search_history_limit = 50;
 		
@@ -47,51 +57,46 @@ class Toolbar_GlobalSearch extends Extension_Toolbar {
 			$search_history_limit
 		);
 		
-		if(false != ($results = $db->GetArrayReader($sql))) {
-			$results = array_count_values(array_column($results, 'record_type'));
+		if(false != ($metric_results = $db->GetArrayReader($sql))) {
+			$metric_results = array_count_values(array_column($metric_results, 'record_type'));
 			
 			// Sort by the most used record types
-			arsort($results);
+			arsort($metric_results);
 			
 			// Keep the top 10
-			$results = array_slice($results, 0, 10, true);
+			$metric_results = array_slice($metric_results, 0, 10, true);
 			
-			// Merge in the worker's search favorites
-			if(null != ($search_favorites = DAO_WorkerPref::getAsJson($active_worker->id, 'search_favorites_json'))) {
-				foreach($search_favorites as $favorite_ext_id) {
-					if(false != ($context_mft = Extension_DevblocksContext::get($favorite_ext_id, false))) {
-						$results[$context_mft->params['alias']] = 99;
-					}
-				}
-			}
-			
-			// Load record type metadata
-			$record_types = 
-				array_combine(
-					array_keys($results),
-					array_map(
-						function($record_type) {
-							$context_mft = Extension_DevblocksContext::getByAlias($record_type, false);
-							$context_aliases = Extension_DevblocksContext::getAliasesForContext($context_mft);
-							return [
-								'id' => $context_mft->id,
-								'label' => DevblocksPlatform::strTitleCase($context_aliases['plural'] ?? $context_aliases['singular'] ?? $record_type),
-							];
-						},
-						array_keys($results)
-					)
+			// Merge results
+			foreach ($metric_results as $k => $count)
+				$results[$k] = ($results[$k] ?? 0) + $count;
+		}
+		
+		// Load record type metadata
+		$record_types = 
+			array_combine(
+				array_keys($results),
+				array_map(
+					function($record_type) {
+						$context_mft = Extension_DevblocksContext::getByAlias($record_type, false);
+						$context_aliases = Extension_DevblocksContext::getAliasesForContext($context_mft);
+						return [
+							'id' => $context_mft->id,
+							'label' => DevblocksPlatform::strTitleCase($context_aliases['plural'] ?? $context_aliases['singular'] ?? $record_type),
+						];
+					},
+					array_keys($results)
+				)
+		);
+		
+		DevblocksPlatform::sortObjects($record_types, '[label]');
+		
+		foreach($record_types as $record_type => $record_type_data) {
+			$legacy_kata .= sprintf("\ninteraction/%s:\n  label: %s\n  uri: cerb:automation:%s\n  inputs:\n    record_type: %s\n",
+				$record_type,
+				$record_type_data['label'],
+				'ai.cerb.interaction.search',
+				$record_type_data['id'],
 			);
-			
-			DevblocksPlatform::sortObjects($record_types, '[label]');
-			
-			foreach($record_types as $record_type => $record_type_data) {
-				$legacy_kata .= sprintf("\ninteraction/%s:\n  label: %s\n  uri: cerb:automation:%s\n  inputs:\n    record_type: %s\n",
-					$record_type,
-					$record_type_data['label'],
-					'ai.cerb.interaction.search',
-					$record_type_data['id'],
-				);
-			}
 		}
 		
 		if($legacy_kata)
