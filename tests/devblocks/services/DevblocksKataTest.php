@@ -383,7 +383,7 @@ EOD;
 		$expected = <<< EOD
 object:
   string: Cerb
-  int: 2020
+  int@int: 2020
   float: 3.1415
   list_int@list:
     1
@@ -400,7 +400,7 @@ object:
     a text block
   nested_object:
     string: Cerb
-    int: 2020
+    int@int: 2020
     float: 3.1415
     list_int@list:
       1
