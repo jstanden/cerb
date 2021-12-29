@@ -16,6 +16,11 @@
 			"role" : "Software Architect"
 		}
 	],
+	"config": {
+		"platform": {
+			"php": "7.4"
+		}
+	},
 	"repositories": [
 		{
 			"type": "vcs",
@@ -31,6 +36,7 @@
 		}
 	],
 	"require" : {
+		"php": ">=7.4",
 		"ext-curl": "*",
 		"ext-dom": "*",
 		"ext-gd": "*",
