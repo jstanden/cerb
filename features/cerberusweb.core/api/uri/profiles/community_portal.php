@@ -276,6 +276,10 @@ class PageSection_ProfilesCommunityPortal extends Extension_PageSection {
 		
 		$extension->saveConfiguration($portal);
 		
+		DAO_CommunityTool::update($portal_id, [
+			DAO_CommunityTool::UPDATED_AT => time(),
+		]);
+		
 		echo json_encode([
 			'message' => 'Saved!',
 		]);

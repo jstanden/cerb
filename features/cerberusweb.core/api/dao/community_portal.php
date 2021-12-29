@@ -147,7 +147,7 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 		if(!is_array($ids))
 			$ids = array($ids);
 		
-		@$params_json = $fields[self::_PARAMS_JSON];
+		$params_json = $fields[self::_PARAMS_JSON] ?? '';
 		unset($fields[self::_PARAMS_JSON]);
 		
 		if(!isset($fields[self::UPDATED_AT]))
