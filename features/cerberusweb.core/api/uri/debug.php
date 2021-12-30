@@ -118,6 +118,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 				$status = array(
 					'counts' => array(
 						'attachments' => intval($db->GetOneMaster('SELECT count(id) FROM attachment')),
+						'automations' => intval($db->GetOneMaster('SELECT count(id) FROM automation')),
 						'bots' => intval($db->GetOneMaster('SELECT count(id) FROM bot')),
 						'bot_behaviors' => intval($db->GetOneMaster('SELECT count(id) FROM trigger_event')),
 						'bot_events' => is_array($bot_behavior_counts) ? $bot_behavior_counts : [],
@@ -137,6 +138,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 							'sent_24h' => intval($db->GetOneMaster(sprintf('SELECT count(id) FROM message WHERE is_outgoing=1 AND created_date >= %d', time()-86400))),
 						),
 						'portals' => intval(@$db->GetOneMaster('SELECT count(id) FROM community_tool')),
+						'resources' => intval(@$db->GetOneMaster('SELECT count(id) FROM resource')),
 						'tickets' => intval($db->GetOneMaster('SELECT count(id) FROM ticket')),
 						'tickets_status' => $tickets_by_status,
 						'workers' => intval($db->GetOneMaster('SELECT count(id) FROM worker')),
@@ -200,6 +202,28 @@ class ChDebugController extends DevblocksControllerExtension  {
 					$status['database']['data_bytes'] += $info['Data_length'];
 					$status['database']['index_bytes'] += $info['Index_length'];
 					$status['database']['data_slack_bytes'] += $info['Data_free'];
+				}
+				
+				// Schedule
+			
+				$status['scheduler'] = [];
+			
+				$crons = DevblocksPlatform::getExtensions(CerberusCronPageExtension::POINT);
+				
+				ksort($crons);
+				
+				foreach($crons as $cron) {
+					$cron_params = $cron->getParams();
+					$last_run = intval($cron_params['lastrun'] ?? 0);
+					
+					$status['scheduler'][$cron->id] = [
+						'enabled' => (bool)($cron_params['enabled'] ?? null),
+						'duration' => intval($cron_params['duration'] ?? null),
+						'term' => $cron_params['term'] ?? null,
+						'locked_ts' => intval($cron_params['locked'] ?? 0),
+						'last_run_ts' => $last_run,
+						'last_run_string' => $last_run ? gmdate('r', $last_run) : '',
+					];
 				}
 				
 				// Output
