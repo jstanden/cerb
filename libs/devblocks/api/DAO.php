@@ -1273,6 +1273,8 @@ class DAO_DevblocksExtensionPropertyStore extends DevblocksORMHelper {
 	const PROPERTY = 'property';
 	const VALUE = 'value';
 	
+	const _CACHE_ALL = '_cache_all';
+	
 	private function __construct() {}
 
 	static function getFields() {

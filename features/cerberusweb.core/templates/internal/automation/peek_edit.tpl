@@ -273,6 +273,7 @@ $(function() {
 				params: {
 				}
 			},
+			width: '75%',
 			start: function(formData) {
 			},
 			done: function(e) {

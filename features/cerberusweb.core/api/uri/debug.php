@@ -233,7 +233,6 @@ class ChDebugController extends DevblocksControllerExtension  {
 				
 			case 'report':
 				@$db = DevblocksPlatform::services()->database();
-				@$settings = DevblocksPlatform::services()->pluginSettings();
 				
 				@$tables = $db->metaTablesDetailed();
 				
