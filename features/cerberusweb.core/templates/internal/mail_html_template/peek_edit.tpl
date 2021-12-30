@@ -194,6 +194,14 @@ $(function() {
 		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
 
+		// Close confirmation
+
+		$popup.on('dialogbeforeclose', function(e, ui) {
+			var keycode = e.keyCode || e.which;
+			if(keycode === 27)
+				return confirm('{'warning.core.editor.close'|devblocks_translate}');
+		});
+		
 		// Choosers
 
 		$popup.find('button.chooser-abstract')
