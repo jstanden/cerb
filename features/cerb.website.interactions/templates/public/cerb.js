@@ -40,11 +40,15 @@ CerbInteractions.prototype.init = function() {
     // Badge
     
     var badge_interaction = this.$script.getAttribute('data-cerb-badge-interaction');
+    var badge_interaction_style = this.$script.getAttribute('data-cerb-badge-interaction-style');
     
     if(badge_interaction) {
         this.$badge = document.createElement('div');
         this.$badge.classList.add('cerb-interaction-badge');
         this.$badge.setAttribute('data-cerb-interaction', badge_interaction);
+        
+        if(badge_interaction_style)
+            this.$badge.setAttribute('data-cerb-interaction-style', badge_interaction_style);
         
         var $icon = document.createElement('div');
         $icon.classList.add('cerb-interaction-badge--icon');

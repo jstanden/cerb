@@ -3609,6 +3609,10 @@ class _CerbApplication_KataAutocompletions {
 				'navbar:',
 			],
 			'layout:header:logo:' => [
+				'text:',
+				'image:',
+			],
+			'layout:header:logo:image:' => [
 				[
 					'caption' => 'uri:',
 					'snippet' => 'uri:',

@@ -5,7 +5,42 @@
 <input type="hidden" name="module" value="community_portal">
 <input type="hidden" name="action" value="saveConfigTabJson">
 <input type="hidden" name="portal_id" value="{$portal->id}">
+
+<h1>Website Widget</h1>
+
+<fieldset class="peek">
+	<legend>Code Snippet</legend>
 	
+	<b>Paste this code fragment above <code>&lt;/BODY&gt;</code> on your website:</b>
+	
+	<textarea data-editor-mode="ace/mode/html" data-editor-line-numbers="false" data-editor-readonly="true">&lt;script id="cerb-interactions" 
+  data-cerb-badge-interaction="menu" 
+  type="text/javascript" 
+  src="{devblocks_url full=true}c=portal&a={if $portal->uri}{$portal->uri}{else}{$portal->code}{/if}&path=assets/cerb.js{/devblocks_url}" 
+  crossorigin="anonymous" 
+  defer
+&gt;&lt;/script&gt;</textarea>
+</fieldset>
+	
+<fieldset class="peek">
+	<legend>Cross-Origin Request Sharing (CORS)</legend>
+	
+	<div>
+		<b>Only allow these origins to make requests:</b> (one per line)
+	</div>
+	
+	<textarea name="params[cors_origins_allowed]" data-editor-mode="ace/mode/text">{$params.cors_origins_allowed}</textarea>
+	
+	<div style="margin:10px 0 0 15px;">
+		<p>
+			Enter origins like: <code>https://example.com</code>
+		</p>
+		<p>
+			Leave blank to allow any origin.
+		</p>
+	</div>
+</fieldset>
+
 <h1>Interactions</h1>
 	
 <fieldset class="peek">
@@ -44,36 +79,11 @@
 	{/if}
 </fieldset>
 
-<h1>Website Widget</h1>
+<h1>Portal Website</h1>
 	
 <fieldset class="peek">
-	<legend>Cross-Origin Request Sharing (CORS)</legend>
-	
-	<div>
-		<b>Only allow these origins to make requests:</b> (one per line)
-	</div>
-	
-	<textarea name="params[cors_origins_allowed]" data-editor-mode="ace/mode/text">{$params.cors_origins_allowed}</textarea>
-	
-	<div style="margin:10px 0 0 15px;">
-		<p>
-			Enter origins like: <code>https://example.com</code>
-		</p>
-		<p>
-			Use <code>*</code> (asterisk) to allow any origin.
-		</p>
-	</div>
-</fieldset>
-
-<h1>Portal</h1>
-	
-<fieldset class="peek">
-	<legend>Badge</legend>
-
-	<div>
-		<label><input type="radio" name="params[portal_badge_disabled]" value="0" {if !$params.portal_badge_disabled}checked{/if}> Enabled</label>
-		<label><input type="radio" name="params[portal_badge_disabled]" value="1" {if $params.portal_badge_disabled}checked{/if}> Disabled</label>
-	</div>
+	<legend>Schema (KATA)</legend>
+	<textarea name="params[portal_kata]" data-editor-mode="ace/mode/cerb_kata">{$params.portal_kata}</textarea>
 </fieldset>
 
 <div class="status"></div>
@@ -101,6 +111,11 @@ $(function() {
 	});
 
 	// Editors
+	
+	$frm.find('textarea[data-editor-mode="ace/mode/html"]')
+		.cerbCodeEditor()
+	;
+	
 	var $automation_editor = $frm.find('textarea[name="params[automations_kata]"]')
 		.cerbCodeEditor()
 		.cerbCodeEditorAutocompleteKata({
@@ -123,6 +138,16 @@ $(function() {
 	$frm.find('textarea[name="params[cors_origins_allowed]"]')
 		.cerbCodeEditor()
 	;
+	
+	var $portal_editor = $frm.find('textarea[name="params[portal_kata]"]')
+		.cerbCodeEditor()
+		.cerbCodeEditorAutocompleteKata({
+			autocomplete_suggestions: {CerberusApplication::kataAutocompletions()->portalInteractionWebsite()|json_encode nofilter}
+		})
+		.nextAll('pre.ace_editor')
+	;
+
+	ace.edit($portal_editor.attr('id'));
 
 	// Toolbars
 	var $toolbar = $frm.find('.cerb-code-editor-toolbar').cerbToolbar({

@@ -5,9 +5,10 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 	
 	const PARAM_AUTOMATIONS_KATA = 'automations_kata';
 	const PARAM_CORS_ORIGINS_ALLOWED = 'cors_origins_allowed';
-	const PARAM_PORTAL_BADGE_DISABLED = 'portal_badge_disabled';
+	const PARAM_PORTAL_KATA = 'portal_kata';
 	
 	private ?array $_config = null;
+	private ?CerbPortalWebsiteInteractions_Model $_schema = null;
 	
 	private function getConfig() {
 		if(is_null($this->_config)) {
@@ -18,8 +19,29 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 		return $this->_config;
 	}
 	
+	private function _getPortalSchema() : CerbPortalWebsiteInteractions_Model {
+		if(!is_null($this->_schema))
+			return $this->_schema;
+		
+		$kata = DevblocksPlatform::services()->kata();
+		$portal = ChPortalHelper::getPortal();
+		$config = $this->getConfig();
+			
+		if(false === ($portal_schema = $kata->parse($config[self::PARAM_PORTAL_KATA] ?? '', $error)))
+			$portal_schema = [];
+		
+		$portal_dict = DevblocksDictionaryDelegate::instance([]);
+		$portal_dict->mergeKeys('portal_', DevblocksDictionaryDelegate::getDictionaryFromModel($portal, CerberusContexts::CONTEXT_PORTAL));
+		
+		if(false === ($portal_schema = $kata->formatTree($portal_schema, $portal_dict, $error)))
+			$portal_schema = [];
+		
+		return new CerbPortalWebsiteInteractions_Model($portal_schema);
+	}
+	
 	/**
 	 * @param Model_CommunityTool $instance
+	 * @throws SmartyException
 	 */
 	public function configure(Model_CommunityTool $instance) {
 		$tpl = DevblocksPlatform::services()->template();
@@ -44,15 +66,15 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 			DAO_CommunityToolProperty::set($instance->code, self::PARAM_CORS_ORIGINS_ALLOWED, $value);
 		}
 		
-		if(array_key_exists(self::PARAM_PORTAL_BADGE_DISABLED, $params)) {
-			$value = intval($params[self::PARAM_PORTAL_BADGE_DISABLED]);
-			DAO_CommunityToolProperty::set($instance->code, self::PARAM_PORTAL_BADGE_DISABLED, $value);
+		if(array_key_exists(self::PARAM_PORTAL_KATA, $params)) {
+			$value = strval($params[self::PARAM_PORTAL_KATA]);
+			DAO_CommunityToolProperty::set($instance->code, self::PARAM_PORTAL_KATA, $value);
 		}
 	}
 	
 	/**
 	 * @param DevblocksHttpRequest
-	 * @return DevblocksHttpResponse
+	 * @return DevblocksHttpResponse|null
 	 */
 	public function handleRequest(DevblocksHttpRequest $request) {
 		return null;
@@ -84,7 +106,7 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 		$path = $response->path;
 		$stack = array_shift($path);
 		
-		$config = $this->getConfig();
+		$portal = ChPortalHelper::getPortal();
 		
 		switch($stack) {
 			case 'interaction':
@@ -122,6 +144,30 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 				$file = array_shift($path);
 				
 				switch($file) {
+					case 'logo':
+						$portal_schema = $this->_getPortalSchema();
+						
+						if(false == ($logo = $portal_schema->getLogo()))
+							break;
+				
+						$this->_renderPortalImage($logo);
+						break;
+						
+					case 'favicon':
+						$portal_schema = $this->_getPortalSchema();
+						
+						if(false == ($icon = $portal_schema->getFavicon()))
+							break;
+				
+						$this->_renderPortalImage($icon);
+						break;
+						
+					case 'cerb.css':
+						header('Content-Type: text/css');
+						$tpl = DevblocksPlatform::services()->templateSandbox();
+						$tpl->display('devblocks:cerb.website.interactions::public/cerb.css');
+						break;
+						
 					case 'cerb.js':
 						// Add conditional CORS headers
 						$this->_respondWithCORS();
@@ -140,8 +186,11 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 				break;
 				
 			default:
-				header('Content-Type: text/html');
 				$tpl = DevblocksPlatform::services()->templateSandbox();
+				
+				header('Content-Type: text/html');
+				
+				$portal_schema = $this->_getPortalSchema();
 				
 				if(null != ($interaction = $stack)) {
 					$interaction_params = DevblocksPlatform::services()->url()->arrayToQueryString($_GET ?? []);
@@ -150,11 +199,44 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 					$tpl->assign('page_interaction_params', $interaction_params);
 				}
 				
-				$tpl->assign('portal_badge_disabled', $config[self::PARAM_PORTAL_BADGE_DISABLED] ?? 0);
-				
+				$tpl->assign('portal', $portal);
+				$tpl->assign('portal_schema', $portal_schema);
 				$tpl->display('devblocks:cerb.website.interactions::public/index.tpl');
 				break;
 		}
+	}
+	
+	private function _renderPortalImage(Model_Resource $resource) {
+		if(false == ($resource_type = $resource->getExtension()))
+			DevblocksPlatform::dieWithHttpError('Not found', 404);
+		
+		// Only portal images
+		if($resource_type->id != ResourceType_PortalImage::ID)
+			DevblocksPlatform::dieWithHttpError('Forbidden', 403);
+		
+		if(false == ($resource_content = $resource_type->getContentData($resource)))
+			DevblocksPlatform::dieWithHttpError(null, 500);
+		
+		if($resource_content->error) {
+			DevblocksPlatform::dieWithHttpError($resource_content->error, 500);
+		}
+		
+		if($resource_content->expires_at) {
+			$resource_content->headers =
+				array_merge(
+					$resource_content->headers,
+					[
+						'Pragma: cache',
+						sprintf('Cache-control: max-age=%d', $resource_content->expires_at - time()),
+						'Expires: ' . gmdate('D, d M Y H:i:s', $resource_content->expires_at) . ' GMT',
+						'Accept-Ranges: bytes',
+					]
+				)
+			;
+		}
+		
+		$resource_content->writeHeaders();
+		$resource_content->writeBody();		
 	}
 	
 	private function _handleInteractionStart() {
@@ -641,5 +723,90 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 		} else {
 			$this->_respondAwaitForm($delegate_results, $delegate_continuation);
 		}
+	}
+}
+
+class CerbPortalWebsiteInteractions_Model {
+	private array $_schema = [];
+	
+	function __construct(array $schema) {
+		$this->_schema = $schema;
+	}
+	
+	function getTitle() {
+		return $this->_schema['layout']['meta']['title'] ?? null;
+	}
+	
+	function getLogoText() {
+		if(false == ($logo_text = $this->_schema['layout']['header']['logo']['text'] ?? null))
+			return null;
+
+		return $logo_text;
+	}
+	
+	function getLogoImageUri() {
+		if(false == ($logo_uri = $this->_schema['layout']['header']['logo']['image']['uri'] ?? null))
+			return null;
+
+		return $logo_uri;
+	}
+	
+	function getLogo() {
+		if(false == ($logo_uri = $this->getLogoImageUri()))
+			return null;
+		
+		if(false == ($uri_parts = DevblocksPlatform::services()->ui()->parseURI($logo_uri)))
+			return null;
+		
+		if(false == ($resource = DAO_Resource::getByName($uri_parts['context_id'] ?? null)))
+			return null;
+		
+		return $resource;
+	}
+	
+	function getFaviconUri() {
+		if(false == ($icon_uri = $this->_schema['layout']['meta']['favicon']['uri'] ?? null))
+			return null;
+
+		return $icon_uri;
+	}
+	
+	function getFavicon() {
+		if(false == ($icon_uri = $this->getFaviconUri()))
+			return null;
+		
+		if(false == ($uri_parts = DevblocksPlatform::services()->ui()->parseURI($icon_uri)))
+			return null;
+		
+		if(false == ($resource = DAO_Resource::getByName($uri_parts['context_id'] ?? null)))
+			return null;
+		
+		return $resource;
+	}
+	
+	function getBadgeInteraction() {
+		return $this->_schema['layout']['badge']['interaction'] ?? null;
+	}
+	
+	function getNavbar() {
+		$url_writer = DevblocksPlatform::services()->url();
+		
+		$base_url = rtrim($url_writer->write('', true), '/');
+		
+		$navbar = $this->_schema['layout']['header']['navbar'] ?? [];
+		
+		if(is_iterable($navbar)) {
+			foreach($navbar as $k => $v) {
+				if(
+					is_array($v)
+					&& array_key_exists('href', $v)
+					&& DevblocksPlatform::strStartsWith($v['href'], '/')
+				) {
+					$navbar[$k]['href'] = $base_url . $v['href'];
+				}
+			}
+		}
+		
+		return $navbar;
 	}
 }

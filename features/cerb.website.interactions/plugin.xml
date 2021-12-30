@@ -20,6 +20,12 @@
 		<require plugin_id="cerberusweb.core" />
 	</dependencies>
 
+	<class_loader>
+		<file path="src/App.php">
+			<class name="CerbPortalWebsiteInteractions_Model" />
+		</file>
+	</class_loader>
+
 	<!-- Extensions -->
 
 	<extensions>

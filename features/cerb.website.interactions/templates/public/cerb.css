@@ -1,0 +1,133 @@
+:root {
+    --cerb-portal-background-color: rgb(235,235,235);
+    --cerb-portal-background-gradient: linear-gradient(white 20%, gray);
+    
+    --cerb-portal-header-background-button-color: rgb(65,120,225);
+    
+    --cerb-portal-text-color: black;
+    --cerb-portal-header-text-color: black;
+    --cerb-portal-header-text-shadow-color: rgba(230,230,230,0.5);
+}
+
+.cerb-portal {
+    font-family: "Helvetica Neue", "Helvetica", "Roboto", sans-serif;
+    
+    background-color: var(--cerb-portal-background-color);
+    background: var(--cerb-portal-background-gradient);
+    background-position: center 0;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+    -webkit-background-size: cover;
+    -o-background-size: cover;
+    -moz-background-size: cover;
+    -ms-background-size: cover;    
+}
+
+.cerb-portal.dark {
+    --cerb-portal-background-color: rgb(80,80,80);
+    --cerb-portal-background-gradient: linear-gradient(rgb(50,50,50) 20%, rgb(50,50,50) 50%, rgb(100,100,100));
+
+    --cerb-portal-header-background-button-color: rgb(65,120,225);
+
+    --cerb-portal-text-color: white;
+    --cerb-portal-header-text-color: white;
+    --cerb-portal-header-text-shadow-color: rgba(100,100,100,0.5);
+}
+
+.cerb-portal .cerb-interaction-popup--style-full {
+    top: 120px;
+}
+
+.cerb-portal .cerb-interaction-popup {
+    position: absolute;
+}
+
+.cerb-portal .cerb-header {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-content: flex-start;
+    align-items: flex-start;
+    height: 100px;
+    margin: 0 25px;
+}
+
+.cerb-portal .cerb-logo {
+    flex: 0 0 auto;
+    margin: auto 0;
+}
+
+.cerb-portal .cerb-logo img {
+    height: 90px;
+}
+
+.cerb-portal .cerb-logo-text {
+    flex: 0 0 auto;
+    font-size: 200%;
+    font-weight: bold;
+    margin: auto 0.2em;
+}
+
+.cerb-portal .cerb-links {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-content: flex-end;
+    align-items: flex-end;
+    margin: auto 0;
+    padding: 0;
+}
+
+.cerb-portal .cerb-links li {
+    list-style: none;
+    padding: 0.5em;
+    margin: 0.2em;
+    border-radius: 5px;
+}
+
+.cerb-portal .cerb-links a {
+    color: var(--cerb-portal-header-text-color);
+    text-shadow: 1px 1px var(--cerb-portal-header-text-shadow-color);
+    text-decoration: none;
+}
+
+.cerb-portal .cerb-links a:hover {
+    text-decoration: underline;
+}
+
+.cerb-portal .cerb-links .cerb-link-button {
+    background-color: var(--cerb-portal-header-background-button-color);
+}
+
+.cerb-portal .cerb-links .cerb-link-button a {
+    text-shadow: 1px 1px rgba(100,100,100,0.5);
+    color: white;
+}
+
+@media screen and (max-width: 768px) {
+    .cerb-portal .cerb-interaction-popup--style-full {
+        top: 65px;
+    }
+    .cerb-portal .cerb-header {
+        height: 50px;
+    }
+    .cerb-portal .cerb-logo-text {
+        flex: 0 0 auto;
+        font-size: 150%;
+    }
+    .cerb-portal .cerb-logo {
+        flex: 0 0 auto;
+    }
+    .cerb-portal .cerb-logo img {
+        height: 45px;
+    }
+    .cerb-portal .cerb-links {
+        font-size: 90%;
+    }
+    .cerb-portal .cerb-links li {
+        padding: 0.5em;
+    }
+}
