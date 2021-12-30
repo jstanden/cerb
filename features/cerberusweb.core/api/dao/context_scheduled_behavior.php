@@ -1307,15 +1307,18 @@ class Context_ContextScheduledBehavior extends Extension_DevblocksContext implem
 		$token_values['_types'] = $token_types;
 		
 		if($context_scheduled_behavior) {
-			$behavior = $context_scheduled_behavior->getBehavior();
-			
 			$token_values['_loaded'] = true;
-			$token_values['_label'] = $behavior->title;
+			$token_values['_label'] = '(no behavior)';
 			$token_values['id'] = $context_scheduled_behavior->id;
-			$token_values['behavior_id'] = $context_scheduled_behavior->behavior_id;
+			$token_values['behavior_id'] = 0;
 			$token_values['run_date'] = $context_scheduled_behavior->run_date;
 			$token_values['target__context'] = $context_scheduled_behavior->context;
 			$token_values['target_id'] = $context_scheduled_behavior->context_id;
+			
+			if(null != ($behavior = $context_scheduled_behavior->getBehavior())) {
+				$token_values['behavior_id'] = $behavior->id;
+				$token_values['_label'] = $behavior->title;
+			}
 			
 			// Custom fields
 			$token_values = $this->_importModelCustomFieldsAsValues($context_scheduled_behavior, $token_values);
