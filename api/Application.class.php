@@ -3589,20 +3589,16 @@ class _CerbApplication_KataAutocompletions {
 	function portalInteractionWebsite() {
 		return [
 			'' => [
-				'interactions:',
 				'layout:',
 			],
 			
-			'interactions:' => [
-				'badge:',
-			],
-			'interactions:badge:' => [
-				'name:',
-			],
-			
 			'layout:' => [
+				'badge:',
 				'header:',
 				'meta:',
+			],
+			'layout:badge:' => [
+				'interaction:'
 			],
 			'layout:header:' => [
 				'logo:',
