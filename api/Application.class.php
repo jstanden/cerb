@@ -3543,6 +3543,140 @@ class _CerbApplication_KataAutocompletions {
 			],
 		];
 	}
+	
+	function snippetPrompt() : array {
+		return [
+			'' => [
+				[
+					'caption' => 'checkbox:',
+					'snippet' => "checkbox/\${1:name}:\n  label: \${2:Checkbox:}\n  default@bool: no\n",
+				],
+				[
+					'caption' => 'picklist:',
+					'snippet' => "picklist/\${1:name}:\n  label: \${2:Picklist:}\n  default: one\n  params:\n    options@list:\n      one\n      two\n      three\n",
+				],
+				[
+					'caption' => 'text:',
+					'snippet' => "text/\${1:name}:\n  label: \${2:Text:}\n  params:\n    multiple@bool: no\n",
+				],
+			],
+			'checkbox:' => [
+				'label:',
+				'default:',
+			],
+			'picklist:' => [
+				'label:',
+				'params:',
+				'default:',
+			],
+			'picklist:params:' => [
+				[
+					'caption' => 'options:',
+					'snippet' => "options@list:\n  one\n  two\n  three\n",
+				]
+			],
+			'text:' => [
+				'label:',
+				'params:',
+				'default:',
+			],
+			'text:params:' => [
+				'multiple@bool: no',
+			],
+		];
+	}
+	
+	function portalInteractionWebsite() {
+		return [
+			'' => [
+				'interactions:',
+				'layout:',
+			],
+			
+			'interactions:' => [
+				'badge:',
+			],
+			'interactions:badge:' => [
+				'name:',
+			],
+			
+			'layout:' => [
+				'header:',
+				'meta:',
+			],
+			'layout:header:' => [
+				'logo:',
+				'navbar:',
+			],
+			'layout:header:logo:' => [
+				[
+					'caption' => 'uri:',
+					'snippet' => 'uri:',
+					'score' => 2000,
+				],
+			],
+			'layout:header:logo:uri:' => [
+				'type' => 'cerb-uri',
+				'params' => [
+					'resource' => [
+						'types' => [
+							ResourceType_PortalImage::ID,
+						]
+					]
+				]
+			],
+			'layout:header:navbar:' => [
+				[
+					'caption' => 'link:',
+					'snippet' => "link/\${1:name}:\n  label: \${2:Label}\n  href: \${3:https://example.com}\n",
+				]
+			],
+			'layout:header:navbar:link:' => [
+				[
+					'caption' => 'label:',
+					'snippet' => 'label:',
+					'score' => 1999,
+				],
+				[
+					'caption' => 'href:',
+					'snippet' => 'href:',
+					'score' => 2000,
+				],
+				'class:',
+			],
+			'layout:header:navbar:link:class:' => [
+				'cerb-link-button',
+			],
+			'layout:header:navbar:href:' => [
+				[
+					'caption' => '(External URL)',
+					'snippet' => "\${1:https://example.com/}",
+				],
+				[
+					'caption' => '(Relative path)',
+					'snippet' => "\${1:/relative/path}",
+				],
+			],
+				
+			'layout:meta:' => [
+				'favicon:',
+				'title:',
+			],
+			'layout:meta:favicon:' => [
+				'uri:',
+			],
+			'layout:meta:favicon:uri:' => [
+				'type' => 'cerb-uri',
+				'params' => [
+					'resource' => [
+						'types' => [
+							ResourceType_PortalImage::ID,
+						]
+					]
+				]
+			],
+		];
+	}
 }
 
 class _CerbApplication_KataSchemas {

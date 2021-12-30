@@ -110,6 +110,9 @@ $(function() {
 
 		var $editor = $popup.find('.cerb-editor-kata-placeholders')
 			.cerbCodeEditor()
+			.cerbCodeEditorAutocompleteKata({
+				autocomplete_suggestions: {CerberusApplication::kataAutocompletions()->snippetPrompt()|json_encode nofilter}
+			})
 			.nextAll('pre.ace_editor')
 		;
 

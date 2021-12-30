@@ -1738,8 +1738,6 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 		
 		$tpl->assign('view_id', $view_id);
 		
-		$model = null;
-
 		if($context_id) {
 			if(false == ($model = DAO_Snippet::get($context_id)))
 				DevblocksPlatform::dieWithHttpError(null, 404);
@@ -1750,14 +1748,13 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 			$model = new Model_Snippet();
 			$model->id = 0;
 			$model->content = $text;
+			$model->prompts_kata = "# Add prompted placeholders here\n# (use Ctrl+Shift for autocompletion)\n";
 		}
 		
 		if(!$context_id || $edit) {
 			if($model && $model->id) {
 				if(!Context_Snippet::isWriteableByActor($model, $active_worker))
 					DevblocksPlatform::dieWithHttpError(null, 403);
-				
-				$tpl->assign('model', $model);
 			}
 			
 			// Owner
@@ -1781,6 +1778,7 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 			
 			// View
 			$tpl->assign('id', $context_id);
+			$tpl->assign('model', $model);
 			$tpl->assign('view_id', $view_id);
 			$tpl->display('devblocks:cerberusweb.core::internal/snippets/peek_edit.tpl');
 			
