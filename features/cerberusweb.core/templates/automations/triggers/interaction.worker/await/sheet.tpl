@@ -36,16 +36,6 @@
 		{/if}
 		</div>
 
-		{if $has_toolbar}
-			<div style="clear:both;"></div>
-			
-			<div data-cerb-sheet-toolbar style="{if !$toolbar}display:none;{/if}">
-				{if $toolbar}
-					{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
-				{/if}
-			</div>
-		{/if}
-
 		<div data-cerb-sheet-selections style="display:none;">
 			<ul class="bubbles chooser-container">
 				{if is_array($default) && $default}
