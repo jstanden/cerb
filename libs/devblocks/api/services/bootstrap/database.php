@@ -507,6 +507,9 @@ class _DevblocksDatabaseManager {
 	}
 	
 	function qstr($string) {
+		if(!is_string($string))
+			$string = strval($string);
+
 		return "'".mysqli_real_escape_string($this->_reader_db, $string)."'";
 	}
 	

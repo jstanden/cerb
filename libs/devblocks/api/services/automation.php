@@ -957,7 +957,7 @@ class CerbAutomationAstNode implements JsonSerializable {
 		$this->setParams($params);
 	}
 	
-	public function jsonSerialize() {
+	public function jsonSerialize() : array {
 		return [
 			'id' => $this->getId(),
 			'type' => $this->getType(),

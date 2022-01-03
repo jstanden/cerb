@@ -1477,7 +1477,7 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 			$label = trim(mb_ereg_replace(' {2,}',' ', str_replace(
 				["\t","\r","\n"],
 				["  ","",""],
-				$comment->comment
+				$comment->comment ?? ''
 			)));
 			$token_values['_label'] = mb_strlen($label) > 128 ? (mb_substr($label, 0, 128) . '...') : $label;
 			$token_values['id'] = $comment->id;

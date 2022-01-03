@@ -501,7 +501,7 @@ class DevblocksDictionaryDelegate implements JsonSerializable, IteratorAggregate
 		return new DevblocksDictionaryDelegate($values);
 	}
 	
-	public function getIterator() {
+	public function getIterator() : ArrayIterator {
 		return new ArrayIterator($this->_dictionary);
 	}
 	
@@ -510,7 +510,7 @@ class DevblocksDictionaryDelegate implements JsonSerializable, IteratorAggregate
 		return DevblocksPlatform::strFormatJson(json_encode($dictionary));
 	}
 	
-	function jsonSerialize() {
+	function jsonSerialize(): array {
 		return $this->_dictionary;
 	}
 
@@ -820,8 +820,11 @@ class DevblocksDictionaryDelegate implements JsonSerializable, IteratorAggregate
 		return $this->get($name);
 	}
 	
-	public function getDictionary($with_prefix=null, $with_meta=true, $add_prefix=null) {
+	public function getDictionary($with_prefix='', $with_meta=true, $add_prefix=null) {
 		$dict = $this->_dictionary;
+
+		if(!is_string($with_prefix))
+			$with_prefix = strval($with_prefix);
 		
 		if(!$with_meta) {
 			unset($dict['_labels']);
@@ -834,7 +837,7 @@ class DevblocksDictionaryDelegate implements JsonSerializable, IteratorAggregate
 		// Convert any nested dictionaries to arrays
 		array_walk_recursive($dict, function(&$v) use ($with_meta, $add_prefix) {
 			if($v instanceof DevblocksDictionaryDelegate)
-				$v = $v->getDictionary(null, $with_meta, $add_prefix);
+				$v = $v->getDictionary('', $with_meta, $add_prefix);
 		});
 		
 		if(!$with_prefix && !$add_prefix)

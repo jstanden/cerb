@@ -3833,7 +3833,7 @@ class CerbQuickSearchLexer {
 		$matches = [];
 		
 		while(isset($query[$offset])) {
-			if(!preg_match($regexp, $query, $matches, null, $offset))
+			if(!preg_match($regexp, $query, $matches, 0, $offset))
 				break;
 			
 			if('' == $matches[0])

@@ -1334,7 +1334,7 @@ class Context_Notification extends Extension_DevblocksContext {
 		$token_values['_types'] = $token_types;
 		
 		if($notification) {
-			$entry = json_decode($notification->entry_json, true);
+			$entry = json_decode($notification->entry_json ?? '', true);
 			
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = trim(strtr(CerberusContexts::formatActivityLogEntry($entry,'text'),"\r\n",' '));

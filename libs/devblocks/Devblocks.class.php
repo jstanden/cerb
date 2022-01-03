@@ -997,8 +997,13 @@ class DevblocksPlatform extends DevblocksEngine {
 		if(empty($var))
 			$var = is_array($var) ? [] : new stdClass();
 		
-		if(!is_array($paths))
-			$paths = [$paths];
+		if(!is_array($paths)) {
+			if(!is_null($paths)) {
+				$paths = [$paths];
+			} else {
+				$paths = [];
+			}
+		}
 		
 		foreach($paths as $path) {
 			$parts = explode('.', $path);
@@ -1043,7 +1048,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		if($sort)
 			ksort($args);
 		
-		$str = http_build_query($args, null, '&', PHP_QUERY_RFC3986);
+		$str = http_build_query($args, '', '&', PHP_QUERY_RFC3986);
 		
 		// Fix numeric indices
 		if($fix_numeric_indices)
@@ -1110,6 +1115,9 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	static function strStartsWith($string, $prefixes, $case_sensitive=true) {
+		if(!is_string($string))
+			$string = strval($string);
+
 		if(!is_array($prefixes))
 			$prefixes = [$prefixes];
 		
@@ -1335,7 +1343,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @return string
 	 * @test DevblocksPlatformTest
 	 */
-	static function strAlphaNum($arg, $also=null, $replace="") {
+	static function strAlphaNum($arg, $also='', $replace="") {
 		return preg_replace("/[^A-Z0-9" . preg_quote($also, '/') . "]/i", $replace, $arg);
 	}
 	
@@ -1349,7 +1357,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @test DevblocksPlatformTest
 	 */
 	static function strNum($arg, $also=null, $replace="") {
-		return preg_replace("/[^0-9" . preg_quote($also, '/') . "]/i", $replace, $arg);
+		return preg_replace("/[^0-9" . preg_quote($also ?? '', '/') . "]/i", $replace, $arg);
 	}
 	
 	/**

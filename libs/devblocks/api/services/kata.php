@@ -35,7 +35,7 @@ class _DevblocksKataService {
 			str_replace(
 				["\r"],
 				[''],
-				$kata_string
+				$kata_string ?? ''
 			)
 		);
 		
@@ -114,7 +114,7 @@ class _DevblocksKataService {
 						if(!$funcValidateKeyName($field_id, $line_number, $error))
 							return false;
 						
-						$field_attributes = DevblocksPlatform::parseCsvString(ltrim($matches[2] ?? null, '@'));
+						$field_attributes = DevblocksPlatform::parseCsvString(ltrim($matches[2] ?? '', '@'));
 						
 						$new_attributes = array_diff($field_attributes, ['text']);
 						$field_key = $field_id . ($new_attributes ? ('@' . implode(',', $new_attributes)) : '');

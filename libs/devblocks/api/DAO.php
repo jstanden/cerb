@@ -414,13 +414,16 @@ abstract class DevblocksORMHelper {
 			
 			foreach($sortBy as $idx => $field) {
 				// We can't sort on virtual fields, the field must exist, and must be flagged sortable
-				if('*'==substr($field,0,1) 
-						|| !isset($fields[$field]) 
-						|| !$fields[$field]->is_sortable) {
+				if(
+					!is_string($field)
+					|| '*'==substr($field,0,1)
+					|| !isset($fields[$field])
+					|| !$fields[$field]->is_sortable
+				) {
 					continue;
 				}
 				
-				@$asc = $sortAsc[$idx];
+				$asc = $sortAsc[$idx] ?? null;
 				
 				$sorts[] = sprintf("%s %s",
 					$field,

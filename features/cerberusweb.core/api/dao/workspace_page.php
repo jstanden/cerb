@@ -635,7 +635,7 @@ class Model_WorkspacePage {
 			$tabs = [];
 			
 			// Do we have prefs?
-			@$json = DAO_WorkerPref::get($as_worker->id, 'page_tabs_' . $this->id . '_json', null);
+			$json = DAO_WorkerPref::get($as_worker->id, 'page_tabs_' . $this->id . '_json', '');
 			$tab_ids = json_decode($json);
 			
 			if(!is_array($tab_ids) || empty($json))
