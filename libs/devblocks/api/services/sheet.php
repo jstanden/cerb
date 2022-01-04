@@ -177,10 +177,10 @@ class _DevblocksSheetService {
 			$sheet_dict->setKeyPath('__row.index', $index++);
 			
 			foreach($columns as $column) {
-				if(false == (@$column_key = $column['key']))
+				if(false == ($column_key = $column['key'] ?? null))
 					continue;
 				
-				if(false == ($column_type = @$column['_type']))
+				if(false == ($column_type = $column['_type'] ?? null))
 					$column_type = $this->_default_type;
 				
 				if(!array_key_exists($column_type, $this->_types))

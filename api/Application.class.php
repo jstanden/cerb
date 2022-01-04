@@ -504,22 +504,22 @@ class CerberusApplication extends DevblocksApplication {
 		if(!isset($templates[$template_id]) && !isset($default_templates[$template_id]))
 			return false;
 		
-		@$default_template = $default_templates[$template_id];
+		$default_template = $default_templates[$template_id] ?? [];
 		
-		if(false == (@$template = $templates[$template_id]))
+		if(false == ($template = $templates[$template_id] ?? null))
 			$template = $default_template;
 
-		@$send_from_id = $template['send_from_id'] ?: $default_template['send_from_id'];
-		@$send_as = $template['send_as'] ?: $default_template['send_as'];
-		@$subject = $template['subject'] ?: $default_template['subject'];
-		@$body = $template['body'] ?: $default_template['body'];
+		$send_from_id = ($template['send_from_id'] ?? null) ?: ($default_template['send_from_id'] ?? null);
+		$send_as = ($template['send_as'] ?? null) ?: ($default_template['send_as'] ?? null);
+		$subject = ($template['subject'] ?? null) ?: ($default_template['subject'] ?? null);
+		$body = ($template['body'] ?? null) ?: ($default_template['body'] ?? null);
 		
 		if(!$send_from_id || false == (@$send_from = $sender_addresses[$send_from_id]))
 			$send_from = DAO_Address::getDefaultLocalAddress();
 		
-		@$send_as = $tpl_builder->build($send_as, $values);
-		@$subject = $tpl_builder->build($subject, $values);
-		@$body = $tpl_builder->build($body, $values);
+		$send_as = $tpl_builder->build($send_as, $values);
+		$subject = $tpl_builder->build($subject, $values);
+		$body = $tpl_builder->build($body, $values);
 		
 		if(empty($subject) || empty($body))
 			return false;
@@ -3293,13 +3293,13 @@ class CerbLoginWorkerAuthState {
 	}
 	
 	function setParamIncr($key, $n, $min=PHP_INT_MIN, $max=PHP_INT_MAX) {
-		@$value = intval($this->params[$key]);
+		$value = intval($this->params[$key] ?? 0);
 		$this->params[$key] = DevblocksPlatform::intClamp($value + intval($n), $min, $max);
 		return $this;
 	}
 	
 	function setParamDecr($key, $n, $min=PHP_INT_MIN, $max=PHP_INT_MAX) {
-		@$value = intval($this->params[$key]);
+		$value = intval($this->params[$key] ?? 0);
 		$this->params[$key] = DevblocksPlatform::intClamp($value - intval($n), $min, $max);
 		return $this;
 	}
