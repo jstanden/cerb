@@ -2692,12 +2692,13 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		
 		if(!$address && $email) {
 			$address = DAO_Address::getByEmail($email);
-			$tpl->assign('address', $address);
 			
 			if(!$context_id && $address instanceof Model_Address) {
 				$context_id = $address->id;
 			}
 		}
+		
+		$tpl->assign('address', $address);
 		
 		// Display
 		$tpl->assign('id', $context_id);
