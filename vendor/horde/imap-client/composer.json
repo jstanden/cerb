@@ -1,0 +1,36 @@
+{
+  "name": "horde/imap-client",
+  "description": "IMAP client library",
+  "type": "library",
+  "homepage": "https://www.horde.org/libraries/Horde_Imap_Client",
+  "license": "LGPL-2.1",
+  "authors": [
+    {
+      "name": "Michael Slusarz",
+      "email": "slusarz@horde.org",
+      "role": "lead"
+    }
+  ],
+  "version": "2.30.0",
+  "time": "2019-09-29",
+  "require": {
+    "php": "^5.3 || ^7 || ^8",
+    "ext-hash": "*",
+    "ext-json": "*"
+  },
+  "suggest": {
+    "ext-intl": "*",
+    "ext-mbstring": "*"
+  },
+  "autoload": {
+    "classmap": [
+      "lib/pear-pear.horde.org/"
+    ],
+    "exclude-from-classmap": [
+      "lib/pear-pear.horde.org/Horde_Socket_Client/"
+    ],
+    "psr-4": {
+      "Horde\\Socket\\": "lib/pear-pear.horde.org/Horde_Socket_Client/Horde/Socket/"
+    }
+  }
+}
