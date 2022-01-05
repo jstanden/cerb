@@ -6617,6 +6617,19 @@
 			</extension>
 			
 			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.setup.developers.automation_logs</id>
+				<name>Bot Scripting Tester</name>
+				<class>
+					<file>api/uri/config/automation_logs.php</file>
+					<name>PageSection_SetupDevelopersAutomationLogs</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.configuration" />
+					<param key="uri" value="automation_logs" />
+				</params>
+			</extension>
+		
+			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.setup.developers.bot_scripting_tester</id>
 				<name>Bot Scripting Tester</name>
 				<class>
