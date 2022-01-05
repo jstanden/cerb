@@ -905,7 +905,7 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 			case 'profile':
 				$prefs = [];
 				$prefs['assist_mode'] = intval(DAO_WorkerPref::get($worker->id, 'assist_mode', 1));
-				$prefs['dark_mode'] = intval(DAO_WorkerPref::get($worker->id, 'dark_mode', 1));
+				$prefs['dark_mode'] = intval(DAO_WorkerPref::get($worker->id, 'dark_mode', 0));
 				$prefs['keyboard_shortcuts'] = intval(DAO_WorkerPref::get($worker->id, 'keyboard_shortcuts', 1));
 				$tpl->assign('prefs', $prefs);
 				
