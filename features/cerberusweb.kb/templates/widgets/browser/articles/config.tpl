@@ -17,9 +17,3 @@
 	
 </div> 
 </fieldset>
-
-<script type="text/javascript">
-$(function() {
-	var $fieldset = $('#widgetConfig{$widget->id}');
-});
-</script>

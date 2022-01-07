@@ -142,7 +142,7 @@ class WorkspaceWidget_KnowledgebaseBrowser extends Extension_WorkspaceWidget {
 		
 		$tpl->assign('breadcrumb',array_reverse($breadcrumb));
 		
-		$tpl->assign('mid', @intval(ceil(count($tree[$root_id])/2)));
+		$tpl->assign('mid', intval(ceil(count($tree[$root_id] ?? [])/2)));
 		
 		// Each view_id should be unique to the tab it's on
 		$view_id = 'kb_browse_' . $widget->id;
