@@ -4,7 +4,7 @@
 <input type="hidden" name="action" value="saveCustomize">
 <input type="hidden" name="id" value="{$view->id}">
 <div class="block" style="margin:5px;">
-<h1 style="margin-bottom:10px;">{'common.customize'|devblocks_translate|capitalize}</h1>
+<h1 style="margin-bottom:10px;color:inherit;">{'common.customize'|devblocks_translate|capitalize}</h1>
 
 {* Custom Views *}
 {$is_custom = $view->isCustom()}
@@ -89,7 +89,7 @@
 {/if}
 
 <button type="button" class="save"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-<button type="button" class="cancel" onclick="toggleDiv('customize{$view->id}','none');"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+<button type="button" class="cancel" onclick="toggleDiv('customize{$view->id}','none');"><span class="glyphicons glyphicons-circle-remove"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 
 </div>
 
