@@ -106,8 +106,11 @@ border: 1px solid rgb(181, 213, 255);\
 .ace-cerb .ace_snippet-marker {\
 border: 0;\
 }\
+.dark .ace-cerb .ace_indent-guide {\
+background: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAYAAACZgbYnAAAACXBIWXMAAAsSAAALEgHS3X78AAAAEklEQVQImWOwtLT8z8TAwMAAAAtmAa30QJ4OAAAAAElFTkSuQmCC\") right repeat-y;\
+}\
 .ace-cerb .ace_indent-guide {\
-border-right: 1px solid var(--cerb-color-background-contrast-230);\
+background: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAYAAACZgbYnAAAACXBIWXMAAAsSAAALEgHS3X78AAAAEklEQVQImWN49uzZfyYGBgYGABueA7QT9sNDAAAAAElFTkSuQmCC\") right repeat-y;\
 }";
 
 exports.cssClass = "ace-cerb";
