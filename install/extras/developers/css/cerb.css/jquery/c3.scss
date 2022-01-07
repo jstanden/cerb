@@ -27,5 +27,11 @@
       color: var(--cerb-color-text);
     }
   }
+  
+  .c3-chart-arc {
+    path {
+      stroke: var(--cerb-color-background);
+    }
+  }
 }
 

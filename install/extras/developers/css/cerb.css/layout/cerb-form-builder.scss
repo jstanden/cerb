@@ -39,7 +39,7 @@
 
 	.cerb-button {
 		background: var(--cerb-color-action-primary) none;
-		color: var(--cerb-color-text-inverse);
+		color: var(--cerb-color-action-primary-text);
 		height: unset;
 		font-size: 1.1em;
 		border-radius: 50px;
@@ -53,7 +53,7 @@
 
 	.cerb-button-style-secondary {
 		background-color: var(--cerb-color-action-secondary);
-		color: var(--cerb-color-text);
+		color: var(--cerb-color-action-secondary-text);
 		
 		&:hover {
 			background-color: var(--cerb-color-action-secondary-hover);

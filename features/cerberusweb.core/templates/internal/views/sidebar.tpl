@@ -91,10 +91,10 @@ $(function() {
 		.find('TBODY > TR')
 		.css('cursor','pointer')
 		.hover(
-			function(e) {
-				$(this).css('background-color','rgb(255,255,200)');
+			function() {
+				$(this).css('background-color','var(--cerb-color-background-contrast-240)');
 			},
-			function(e) {
+			function() {
 				$(this).css('background','none');
 			}
 		)

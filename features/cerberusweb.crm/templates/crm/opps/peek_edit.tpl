@@ -74,8 +74,8 @@
 
 <div class="buttons">
 	{if (!$opp->id && $active_worker->hasPriv("contexts.{$peek_context}.create")) || ($opp->id && $active_worker->hasPriv("contexts.{$peek_context}.update"))}
-		<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>
-		{if $active_worker->hasPriv("contexts.{$peek_context}.delete") && !empty($opp)}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+		<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button>
+		{if $active_worker->hasPriv("contexts.{$peek_context}.delete") && !empty($opp)}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 	{else}
 		<fieldset class="delete">
 			You do not have permission to modify this record.

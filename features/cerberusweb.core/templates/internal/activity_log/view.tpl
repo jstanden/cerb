@@ -66,7 +66,7 @@
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
-			<td data-column="label" colspan="{$smarty.foreach.headers.total}" style="font-size:12px;color:rgb(80,80,80);padding:2px 0px;">
+			<td data-column="label" colspan="{$smarty.foreach.headers.total}" style="font-size:12px;padding:2px 0;">
 				<input type="checkbox" name="row_id[]" value="{$result.c_id}" style="display:none;">
 				<span class="subject">
 				{* If we're looking at the target context, hide the text in the entry *}

@@ -24,7 +24,7 @@
 		<label><input type="radio" name="avatar_default_style_worker" value="silhouettes" {if $avatar_default_style_worker == 'silhouettes'}checked="checked"{/if}> Silhouettes</label>
 	</div>
 	
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 </fieldset>
 </form>
 

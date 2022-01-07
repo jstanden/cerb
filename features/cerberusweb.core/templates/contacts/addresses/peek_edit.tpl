@@ -152,7 +152,7 @@
 
 {if (!$address && $active_worker->hasPriv("contexts.{$peek_context}.create")) 
 	|| ($address && $active_worker->hasPriv("contexts.{$peek_context}.update"))}
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>
+	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button>
 {else}
 	<div class="error">{'error.core.no_acl.edit'|devblocks_translate}</div>
 {/if}

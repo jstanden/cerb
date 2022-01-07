@@ -19,7 +19,7 @@
 	{include file="devblocks:cerberusweb.core::internal/workers/worker_picker_container.tpl" context=$context context_id=$context_id}
 	</div>
 	
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>
+	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button>
 </form>
 
 <script type="text/javascript">

@@ -424,7 +424,7 @@ BUTTON.split-right {
 	border-radius: 5px;
 
 	A {
-		color: var(--cerb-color-text-inverse);
+		color: white;
 		text-decoration: none;
 		font-weight: bold;
 
@@ -734,7 +734,7 @@ TABLE.worklistBody {
 		A.subject, B.subject {
 			font-size: 12px;
 			font-weight: bold;
-			color: var(--cerb-color-text);
+			color: var(--cerb-color-table-row-subject);
 		}
 	}
 
@@ -852,6 +852,7 @@ TABLE.calendar {
 
 				A {
 					text-decoration:none;
+					color: rgb(32, 32, 32);
 
 					&:hover {
 						text-decoration:underline;
@@ -887,6 +888,7 @@ DIV.error-box {
 
 DIV.help-box {
 	background: var(--cerb-color-help-background) linear-gradient(to bottom, var(--cerb-color-help-background), var(--cerb-color-help-background-gradient));
+	color: var(--cerb-color-help-text);
 	border: 1px solid var(--cerb-color-help-h1);
 	padding: 10px;
 	margin-bottom:10px;
@@ -904,12 +906,12 @@ DIV.help-box {
 
 	A {
 		font-weight:bold;
-		color: var(--cerb-color-background-contrast-50);
+		color: var(--cerb-color-help-text);
 	}
 
 	SPAN.help.callout-worklist {
 		font-weight:bold;
-		color: var(--cerb-color-text-inverse);
+		color: var(--cerb-color-table-header-text);
 		background-color: var(--cerb-color-table-header-background);
 		padding:5px 10px;
 
@@ -1420,7 +1422,7 @@ DIV.cerb-popupmenu {
 	display: none;
 	background-color: var(--cerb-color-background);
 	border: 1px solid var(--cerb-color-background-contrast-200);
-	box-shadow: 0 0 15px 0 var(--cerb-color-background-contrast-170);
+	box-shadow: 0 0 10px 3px var(--cerb-color-shadow-menu);
 }
 
 UL.cerb-popupmenu {
@@ -1431,7 +1433,7 @@ UL.cerb-popupmenu {
 	display:none;
 	background-color: var(--cerb-color-background);
 	border: 0;
-	box-shadow: 0 0 15px 0 var(--cerb-color-background-contrast-170);
+	box-shadow: 0 0 10px 3px var(--cerb-color-shadow-menu);
 
 	> LI {
 		padding:2px;

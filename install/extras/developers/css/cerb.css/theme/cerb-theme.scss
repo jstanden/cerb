@@ -25,6 +25,7 @@ $timestamp: 2020100101;
   --cerb-color-background-contrast-50: rgb(50,50,50);
   --cerb-color-background-contrast-25: rgb(25,25,25);
   --cerb-color-background-inverse: rgb(0,0,0);
+  --cerb-color-background-overlay: rgb(170,170,170);
 
   --cerb-color-button-gradient: rgb(240,240,240);
   --cerb-color-button-gradient-to--hover: rgb(160,198,254);
@@ -74,16 +75,19 @@ $timestamp: 2020100101;
   --cerb-color-help-background: rgb(251,236,136);
   --cerb-color-help-background-gradient: rgb(255,255,200);
   --cerb-color-help-h1: rgb(215,115,15);
+  --cerb-color-help-text: rgb(50,50,50);
   
   --cerb-color-bubble-background: rgb(255,255,255);
   --cerb-color-bubble-background-gradient: rgb(232,242,254);
   --cerb-color-bubble-border: rgb(197,219,236);
   --cerb-color-bubble-text: rgb(50,115,185);
 
-  --cerb-color-action-primary: rgb(18,131,225);
+  --cerb-color-action-primary: rgb(85,125,230);
   --cerb-color-action-primary-hover: rgb(70,169,255);
+  --cerb-color-action-primary-text: rgb(255,255,255);
   --cerb-color-action-secondary: rgb(230,230,230);
   --cerb-color-action-secondary-hover: rgb(210,210,210);
+  --cerb-color-action-secondary-text: rgb(0,0,0);
   
   --cerb-color-alert-background: rgb(253,226,108);
   --cerb-color-alert-border: rgb(255,255,255);
@@ -94,6 +98,7 @@ $timestamp: 2020100101;
   --cerb-color-bot-badge-alert-border: rgb(153, 0, 0);
   --cerb-color-bot-badge-alert-background: rgb(255, 0, 0);
   
+  --cerb-color-shadow-menu: rgb(170, 170, 170);
   --cerb-color-shadow-action-primary-hover: rgba(15,85,140,0.5);
   --cerb-color-shadow-action-secondary-hover: rgba(50,50,50,0.5);
   
@@ -109,8 +114,9 @@ $timestamp: 2020100101;
   --cerb-color-table-header-text: rgb(255,255,255);
   --cerb-color-table-header--icons-shadow: rgba(116,116,116,0.9);
   --cerb-color-table-row-alt-background: rgb(245,245,245);
-  --cerb-color-table-row-selected-background: rgb(251,236,136);
   --cerb-color-table-row-hover-background: rgb(255,255,200);
+  --cerb-color-table-row-selected-background: rgb(251,236,136);
+  --cerb-color-table-row-subject: rgb(0,0,0);
 
   --cerb-tab-active: rgb(239,249,255);
   --cerb-tab-active-gradient: rgb(255,255,255);
@@ -128,37 +134,54 @@ $timestamp: 2020100101;
   --cerb-color-tag-gray: rgb(100,100,100);
   --cerb-color-tag-orange: rgb(255,138,0);
   
+  --cerb-callout-background: rgba(220,220,220,0.8);
+  
+  --cerb-editor-completion-highlight: rgb(45,105,199);
+  --cerb-editor-fold: rgb(60,76,114);
+  --cerb-editor-line-active: rgb(232,242,254);
+  --cerb-editor-marker: rgb(255,255,0);
+  --cerb-editor-selection: rgb(181,213,255);
+  --cerb-editor-syntax-comment: rgb(113,150,130);
+  --cerb-editor-syntax-fold: rgb(192,192,192);
+  --cerb-editor-syntax-function: rgb(60,76,114);
+  --cerb-editor-syntax-numeric: darkblue;
+  --cerb-editor-syntax-oper: rgb(50,50,50);
+  --cerb-editor-syntax-string: rgb(42,0,255);
+  --cerb-editor-syntax-tag: rgb(25,118,116);
+  --cerb-editor-syntax-twig: rgb(127,0,85);
+  --cerb-editor-syntax-var: rgb(127,0,85);
+  
   --cerb-library-background-selected: rgba(255,230,110,0.2);
   --cerb-library-border: orange;
 }
 
 .dark {
-  --cerb-color-text: rgb(255,255,255);
-  --cerb-color-text-inverse: rgb(0,0,0);
+  --cerb-color-text: rgb(220,220,220);
+  --cerb-color-text-inverse: rgb(32,32,32);
 
-  //--cerb-color-background: rgb(30,30,30);
-  --cerb-color-background: rgb(0,0,0);
-  --cerb-color-background-contrast-250: rgb(5,5,5);
-  --cerb-color-background-contrast-240: rgb(15,15,15);
-  --cerb-color-background-contrast-230: rgb(25,25,25);
-  --cerb-color-background-contrast-220: rgb(35,35,35);
-  --cerb-color-background-contrast-210: rgb(45,45,45);
-  --cerb-color-background-contrast-200: rgb(55,55,55);
-  --cerb-color-background-contrast-190: rgb(65,65,65);
-  --cerb-color-background-contrast-180: rgb(75,75,75);
-  --cerb-color-background-contrast-170: rgb(85,85,85);
-  --cerb-color-background-contrast-160: rgb(95,95,95);
-  --cerb-color-background-contrast-150: rgb(105,105,105);
-  --cerb-color-background-contrast-125: rgb(130,130,130);
-  --cerb-color-background-contrast-100: rgb(155,155,155);
-  --cerb-color-background-contrast-75: rgb(180,180,180);
-  --cerb-color-background-contrast-50: rgb(205,205,205);
-  --cerb-color-background-contrast-25: rgb(230,230,230);
-  --cerb-color-background-inverse: rgb(255,255,255);
+  --cerb-color-background: rgb(32,32,32);
+  --cerb-color-background-contrast-250: rgb(37,37,37);
+  --cerb-color-background-contrast-240: rgb(47,47,47);
+  --cerb-color-background-contrast-230: rgb(57,57,57);
+  --cerb-color-background-contrast-220: rgb(67,67,67);
+  --cerb-color-background-contrast-210: rgb(77,77,77);
+  --cerb-color-background-contrast-200: rgb(87,87,87);
+  --cerb-color-background-contrast-190: rgb(97,97,97);
+  --cerb-color-background-contrast-180: rgb(107,107,107);
+  --cerb-color-background-contrast-170: rgb(117,117,117);
+  --cerb-color-background-contrast-160: rgb(127,127,127);
+  --cerb-color-background-contrast-150: rgb(137,137,137);
+  --cerb-color-background-contrast-125: rgb(162,162,162);
+  --cerb-color-background-contrast-100: rgb(187,187,187);
+  --cerb-color-background-contrast-75: rgb(212,212,212);
+  --cerb-color-background-contrast-50: rgb(227,227,227);
+  --cerb-color-background-contrast-25: rgb(242,242,242);
+  --cerb-color-background-inverse: rgb(250,250,250);
+  --cerb-color-background-overlay: rgb(0,0,0);
   
-  --cerb-color-button-gradient: rgb(15,15,15);
+  --cerb-color-button-gradient: rgb(45,45,45);
   --cerb-color-button-gradient-to--hover: rgb(60,98,154);
-  --cerb-color-button-gradient-to: rgb(45,45,45);
+  --cerb-color-button-gradient-to: rgb(15,15,15);
   --cerb-color-button-icon-alert-background: rgb(255,0,0);
   --cerb-color-button-icon-alert-gradient: rgb(210,0,0);
   --cerb-color-button-icon--hover: rgb(39,123,213);
@@ -167,35 +190,76 @@ $timestamp: 2020100101;
   --cerb-color-button-icon: rgb(175,175,175);
   --cerb-color-button-text: rgb(205,205,205);
 
-  --cerb-color-fieldset-border: rgb(25,25,25);
+  --cerb-color-fieldset-border: rgb(100,100,100);
   --cerb-color-fieldset-h1: rgb(175,175,175);
   --cerb-color-fieldset-icon--hover: rgb(155,155,155);
   --cerb-color-fieldset-icon: rgb(80,80,80);
-  --cerb-color-fieldset-legend: rgb(0,170,0);
+  --cerb-color-fieldset-legend: rgb(255,255,255);
 
   --cerb-color-h1: rgb(0,170,0);
-  --cerb-color-h2: rgb(60,140,220);
+  --cerb-color-h2: rgb(90,165,248);
   --cerb-color-link: rgb(220,220,220);
 
   --cerb-color-email-code: rgb(9,13,15);
+  --cerb-color-email-link: rgb(100, 179, 255);
+
+  --cerb-color-error-background: rgb(67,47,45);
+  --cerb-color-error-text: rgb(223,127,103);
+
+  --cerb-color-success-background: rgb(235,255,235);
+  --cerb-color-success-text: rgb(0,180,0);
+
+  --cerb-color-help-background: rgb(108,82,38);
+  --cerb-color-help-background-gradient: rgb(108,82,38);
+  --cerb-color-help-text: rgb(232,161,110);
+  --cerb-color-help-h1: rgb(232,161,110);
 
   --cerb-color-bubble-background: rgb(0,0,0);
   --cerb-color-bubble-background-gradient: rgb(50,50,50);
   --cerb-color-bubble-border: rgb(50,50,50);
-  --cerb-color-bubble-text: rgb(59,135,217);
+  --cerb-color-bubble-text: rgb(200,200,200);
 
+  --cerb-color-action-primary: rgb(85,125,230);
+  --cerb-color-action-primary-hover: rgb(70,169,255);
+  --cerb-color-action-primary-text: rgb(255,255,255);
+  --cerb-color-action-secondary: rgb(57,57,57);
+  --cerb-color-action-secondary-hover: rgb(77,77,77);
+  --cerb-color-action-secondary-text: rgb(230,230,230);
+
+  --cerb-color-shadow-menu: rgb(0, 0, 0);
+  --cerb-color-shadow-action-primary-hover: rgba(15,85,140,0.5);
+  --cerb-color-shadow-action-secondary-hover: rgba(50,50,50,0.5);
+  
   --cerb-color-menu-item-text: rgb(132,137,141);
   --cerb-color-menu-item-hover: rgb(97,140,227);
   --cerb-color-menu-submenu: rgb(97,140,227);
   --cerb-color-menu-submenu-hover: rgb(85,100,150);
 
   --cerb-color-table-header-background: rgb(60,80,128);
-  --cerb-color-table-row-alt-background: rgb(15,15,15);
-  --cerb-color-table-row-selected-background: rgb(30,40,70);
+  --cerb-color-table-row-alt-background: rgb(32,32,32);
   --cerb-color-table-row-hover-background: rgb(50,60,90);
+  --cerb-color-table-row-selected-background: rgb(75,85,120);
+  --cerb-color-table-row-subject: rgb(255,255,255);
 
   --cerb-tab-active: rgb(60,60,60);
-  --cerb-tab-active-gradient: rgb(0,0,0);
+  --cerb-tab-active-gradient: rgb(32,32,32);
   --cerb-tab-active-border: rgb(50,50,50);
-  --cerb-tab-active-text: rgb(121,183,231);
+  --cerb-tab-active-text: rgb(240,240,240);
+
+  --cerb-callout-background: rgba(57,57,57,0.8);
+  
+  --cerb-editor-completion-highlight: rgb(255,255,255);
+  --cerb-editor-fold: rgb(60,76,114);
+  --cerb-editor-line-active: rgb(32,42,54);
+  --cerb-editor-marker: rgb(33,66,131);
+  --cerb-editor-selection: rgb(81, 113, 155);
+  --cerb-editor-syntax-comment: rgb(95,95,95);
+  --cerb-editor-syntax-fold: rgb(97,97,97);
+  --cerb-editor-syntax-function: rgb(60,76,114);
+  --cerb-editor-syntax-oper: rgb(227,227,227);
+  --cerb-editor-syntax-numeric: rgb(101,146,180);
+  --cerb-editor-syntax-string: rgb(102,129,86);
+  --cerb-editor-syntax-tag: rgb(160,173,187);
+  --cerb-editor-syntax-twig: rgb(239,97,192);
+  --cerb-editor-syntax-var: rgb(229,188,105);
 }

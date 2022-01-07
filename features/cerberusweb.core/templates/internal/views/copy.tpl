@@ -37,7 +37,7 @@ You can copy this worklist to other pages in order to build your ideal workspace
 <br>
 <br>
 
-<button type="button" onclick="genericAjaxPost('frmCopy{$view->id}','view{$view->id}','');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>
+<button type="button" onclick="genericAjaxPost('frmCopy{$view->id}','view{$view->id}','');"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button>
 <button type="button" onclick="$('#{$view_id}_tips').hide().html('');" style=""><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> Do nothing</button><br>
 </form>
 
