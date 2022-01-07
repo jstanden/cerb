@@ -67,8 +67,8 @@
 </div>
 
 {if $active_worker->is_superuser}
-<div class="cerb-button-add-widget" style="cursor:pointer;border:1px dashed rgb(220,220,220);padding:2px;text-align:center;" data-context="{CerberusContexts::CONTEXT_CARD_WIDGET}" data-context-id="0" data-edit="context:{$peek_context}" data-width="75%">
-    <button style="background:none;color:rgb(150,150,150);" type="button"><span class="glyphicons glyphicons-circle-plus" style="color:rgb(150,150,150);"></span> {'common.add.widget'|devblocks_translate|capitalize}</button>
+<div class="cerb-button-add-widget" style="cursor:pointer;border:1px dashed var(--cerb-color-background-contrast-220);padding:2px;text-align:center;" data-context="{CerberusContexts::CONTEXT_CARD_WIDGET}" data-context-id="0" data-edit="context:{$peek_context}" data-width="75%">
+    <button style="background:none;color:var(--cerb-color-background-contrast-150);" type="button"><span class="glyphicons glyphicons-circle-plus" style="color:rgb(150,150,150);"></span> {'common.add.widget'|devblocks_translate|capitalize}</button>
 </div>
 {/if}
 

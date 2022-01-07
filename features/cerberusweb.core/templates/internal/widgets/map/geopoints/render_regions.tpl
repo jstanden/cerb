@@ -1,9 +1,9 @@
 {$map_divid = uniqid('map_')}
 
 <div id="{$map_divid}">
-    <div data-cerb-label style="font-weight:bold;margin:5px;padding:5px;position:absolute;top:0;left:0;background-color:rgba(220,220,220,0.7);display:none;">
-        <div data-cerb-label--close style="position:absolute;top:5px;right:2px;cursor:pointer;">
-            <span class="glyphicons glyphicons-circle-remove" style="font-size:16px;"></span>
+    <div data-cerb-label style="font-weight:bold;margin:5px;padding:5px;position:absolute;top:0;left:0;background-color:var(--cerb-callout-background);border: 1px solid var(--cerb-color-background-contrast-160);display:none;">
+        <div data-cerb-label--close style="position:absolute;top:-7px;right:-8px;cursor:pointer;">
+            <span class="glyphicons glyphicons-remove-2" style="font-size:16px;"></span>
         </div>
         <div data-cerb-label--contents style="max-height:25.5em;max-width:25.5em;overflow:scroll;"></div>
     </div>
@@ -13,7 +13,7 @@
         <button type="button" data-cerb-button="zoom-in"><span class="glyphicons glyphicons-zoom-in"></span></button>
         <button type="button" data-cerb-button="zoom-out"><span class="glyphicons glyphicons-zoom-out"></span></button>
     </div>
-    <div data-cerb-legend style="display:none;position:absolute;bottom:5px;left:5px;padding:2px;background-color:rgba(235,235,235,0.5);text-shadow:0 0 1.5px white;"></div>
+    <div data-cerb-legend style="display:none;position:absolute;bottom:5px;left:5px;padding:2px;background-color:var(--cerb-callout-background);text-shadow:0 0 1.5px white;"></div>
     <div data-cerb-coordinates style="position:absolute;bottom:5px;right:5px;text-shadow:0 0 1.5px white;"></div>
 </div>
 
@@ -357,7 +357,7 @@ $(function() {
                     .append('path')
                     .attr('d', path)
                     .attr('class', 'region')
-                    .attr('stroke', '#fff')
+                    .attr('stroke', 'var(--cerb-color-background)')
                     .attr('stroke-width', '0.2px')
                     .attr('stroke-linejoin', 'round')
                     .attr('stroke-linecap', 'round')
@@ -368,15 +368,15 @@ $(function() {
                             return colors(v);
                         }
                         
-                        return '#aaa';
+                        return 'var(--cerb-color-background-contrast-170)';
                     })
                     {elseif $map.regions.fill.color_key}
                     .attr('fill', function(d) {
                         if(fill_color_key && d.properties.hasOwnProperty(fill_color_key)) {
                             return d.properties[fill_color_key];
                         }
-                        
-                        return '#aaa';
+
+                        return 'var(--cerb-color-background-contrast-170)';
                     })
                     {elseif $map.regions.fill.color_map}
                     .attr('fill', function(d) {
@@ -386,11 +386,11 @@ $(function() {
                             if(fill_color_map.hasOwnProperty(v))
                                 return fill_color_map[v];
                         }
-                        
-                        return '#aaa';
+
+                        return 'var(--cerb-color-background-contrast-170)';
                     })
                     {else}
-                    .attr('fill', '#aaa')
+                    .attr('fill', 'var(--cerb-color-background-contrast-170)')
                     {/if}
                     .style('pointer-events', 'all')
                     .on('click.zoom', clickedRegion)
@@ -505,7 +505,7 @@ $(function() {
                         {if $map.points.fill.color_map}
                         .attr('fill', function(d) {
                             var k = {$map.points.fill.color_map.property|json_encode nofilter};
-                            var v_default = {$map.points.fill.default|json_encode nofilter} || '#333';
+                            var v_default = {$map.points.fill.default|json_encode nofilter} || 'var(--cerb-color-background-contrast-50)';
                             var v_map = {$map.points.fill.color_map.colors|json_encode nofilter} || [];
 
                             if(!k || !d.properties.hasOwnProperty(k))
@@ -520,11 +520,11 @@ $(function() {
                         })
                         {elseif $map.points.fill.default}
                         .attr('fill', function(d) {
-                            var v_default = {$map.points.fill.default|json_encode nofilter} || '#646464';
+                            var v_default = {$map.points.fill.default|json_encode nofilter} || 'var(--cerb-color-background-contrast-100)';
                             return v_default;
                         })
                         {else}
-                        .attr('fill', '#646464')
+                        .attr('fill', 'var(--cerb-color-background-contrast-100)')
                         {/if}
                         .attr('stroke', 'white')
                         .attr('transform', function (d) {
@@ -754,7 +754,7 @@ $(function() {
                             ;
                         } else {
                             d3.select(this)
-                                .style('fill', 'rgb(230,230,230)')
+                                .style('fill', 'var(--cerb-color-background-contrast-230)')
                             ;
                         }
                         return selected;
@@ -773,7 +773,7 @@ $(function() {
                             ;
                         } else {
                             d3.select(this)
-                                .style('fill', 'rgba(0,0,0,0.2)')
+                                .style('fill', 'var(--cerb-color-background-contrast-50)')
                             ;
                         }
                         return selected;

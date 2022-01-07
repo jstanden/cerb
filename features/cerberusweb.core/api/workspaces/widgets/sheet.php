@@ -78,7 +78,8 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget {
 				
 				@$sheet_kata = DevblocksPlatform::importGPC($widget->params['sheet_kata'], 'string', null);
 				
-				$sheet = $sheets->parse($sheet_kata, $error);
+				if(false == ($sheet = $sheets->parse($sheet_kata, $error)))
+					$sheet = [];
 				
 				$sheets->addType('card', $sheets->types()->card());
 				$sheets->addType('date', $sheets->types()->date());

@@ -54,7 +54,7 @@
 </fieldset>
 
 <div style="margin-top:10px;" id="divCerbPluginPopupToolbar">
-	<button type="button" id="btnPluginSave"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	<button type="button" id="btnPluginSave"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 	{if $is_uninstallable}<button type="button" onclick="$('#divCerbPluginPopupToolbar').fadeOut();$(this).closest('form').find('#fsCerb6PluginUninstall').fadeIn();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> Uninstall</button>{/if}
 </div>
 </form>

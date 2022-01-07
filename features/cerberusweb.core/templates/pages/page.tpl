@@ -26,7 +26,7 @@
 			</div>
 		{/if}
 	
-		<button class="add" type="button" page_id="{$page->id}" page_label="{$page->name|lower}" page_url="{devblocks_url}c=pages&page={$page->id}-{$page->name|devblocks_permalink}{/devblocks_url}">{if $in_menu}<span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span>{else}<span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span>{/if} Menu</button>
+		<button class="add" type="button" page_id="{$page->id}" page_label="{$page->name|lower}" page_url="{devblocks_url}c=pages&page={$page->id}-{$page->name|devblocks_permalink}{/devblocks_url}">{if $in_menu}<span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span>{else}<span class="glyphicons glyphicons-circle-plus"></span>{/if} Menu</button>
 	
 		{if Context_WorkspacePage::isWriteableByActor($page, $active_worker)}
 		<div style="display:inline-block;vertical-align:middle;">
@@ -203,7 +203,7 @@ $(function() {
 				$(this).remove();
 			});
 			
-			$this.html('<span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span> Menu');
+			$this.html('<span class="glyphicons glyphicons-circle-plus"></span> Menu');
 
 			var formData = new FormData();
 			formData.set('c', 'pages');

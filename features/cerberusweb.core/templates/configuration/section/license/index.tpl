@@ -54,7 +54,7 @@
 		</div>
 	</div>
 	
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 	{if $we_trust_you->key}<button type="button" class="delete"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span> Remove License</button>{/if}
 
 </fieldset>

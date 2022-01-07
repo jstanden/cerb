@@ -40,7 +40,7 @@
 	<thead>
 	<tr>
 		<th class="no-sort" style="text-align:center;width:40px;padding-left:0;padding-right:0;" title="{'common.image'|devblocks_translate|capitalize}">
-			<span class="glyphicons glyphicons-camera" style="color:rgb(80,80,80);"></span>
+			<span class="glyphicons glyphicons-camera"></span>
 		</th>
 	
 		{foreach from=$view->view_columns item=header name=headers}

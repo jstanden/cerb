@@ -253,7 +253,7 @@
 			</thead>
 			{foreach from=$groups item=group key=group_id name=groups}
 			{$member = $worker_groups.$group_id}
-			<tbody style="{if 0 == $smarty.foreach.groups.iteration % 2}background-color:rgb(240,240,240);{/if}">
+			<tbody style="{if 0 == $smarty.foreach.groups.iteration % 2}background-color:var(--cerb-color-background-contrast-240);{/if}">
 				<tr>
 					<td style="text-align:left;padding-right:30px;">
 						<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$group->id}"><b>{$group->name}</b></a>
@@ -306,8 +306,8 @@
 
 {if $active_worker->is_superuser}
 <div class="buttons" style="margin-top:10px;">
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>
-	{if !empty($worker->id) && $active_worker->is_superuser && $active_worker->id != $worker->id}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button>
+	{if !empty($worker->id) && $active_worker->is_superuser && $active_worker->id != $worker->id}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 {else}
 	<div class="error">{'error.core.no_acl.edit'|devblocks_translate}</div>	

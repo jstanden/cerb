@@ -140,7 +140,7 @@ try {
 		context.lineTo(chart_x, chart_height);
 		context.fill();
 		
-		var $label = $('<span style="background-color:rgb(240,240,240);padding:2px 2px 2px 7px;font-weight:bold;"/>');
+		var $label = $('<span style="background-color:var(--cerb-color-background-contrast-240);padding:2px 2px 2px 7px;font-weight:bold;"/>');
 		$label.append($('<span style="margin-right:5px;"/>').text(options.series[0].data[closest.data.index].x_label+':'));
 		
 		for(series_idx in options.series) {

@@ -115,7 +115,7 @@
 			<img class="cerb-avatar" src="{devblocks_url}c=avatars&what=worker&id={$draft_worker->id}{/devblocks_url}?v={$draft_worker->updated}" title="({$ticket_draft->updated|devblocks_prettytime}) {'mail.worklist.draft_in_progress'|devblocks_translate:{$workers.{$ticket_draft->worker_id}->getName()}}">
 			{/if}
 		{/if}
-		{if $result.t_status_id == Model_Ticket::STATUS_DELETED}<span class="glyphicons glyphicons-circle-remove" style="color:rgb(80,80,80);font-size:14px;"></span> {elseif $result.t_status_id == Model_Ticket::STATUS_CLOSED}<span class="glyphicons glyphicons-circle-ok" style="color:rgb(80,80,80);font-size:14px;"></span> {elseif $result.t_status_id == Model_Ticket::STATUS_WAITING}<span class="glyphicons glyphicons-clock" style="color:rgb(39,123,213);font-size:14px;"></span>{/if}
+		{if $result.t_status_id == Model_Ticket::STATUS_DELETED}<span class="glyphicons glyphicons-circle-remove" style="color:var(--cerb-color-text);font-size:14px;"></span> {elseif $result.t_status_id == Model_Ticket::STATUS_CLOSED}<span class="glyphicons glyphicons-circle-ok" style="color:var(--cerb-color-text);font-size:14px;"></span> {elseif $result.t_status_id == Model_Ticket::STATUS_WAITING}<span class="glyphicons glyphicons-clock" style="color:var(--cerb-color-text);font-size:14px;"></span>{/if}
 		<a href="{devblocks_url}c=profiles&type=ticket&id={$result.t_mask}&tab=conversation{/devblocks_url}" class="subject">{$result.t_subject|default:'(no subject)'}</a> 
 		<button type="button" class="peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="{$result.t_id}" data-width="55%"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 	{/capture}

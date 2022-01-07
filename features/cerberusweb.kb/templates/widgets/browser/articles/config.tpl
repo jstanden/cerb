@@ -3,7 +3,7 @@
 
 <b>Start the knowledgebase browser at this category:</b>
 <div>
-	<div style="overflow:auto;height:150px;border:solid 1px rgb(180,180,180);background-color:rgb(255,255,255);">
+	<div style="overflow:auto;height:150px;border:solid 1px var(--cerb-color-background-contrast-180);background-color:var(--cerb-color-background);">
 		<label><input type="radio" name="params[topic_id]" value="0" {if !$widget->params.topic_id}checked="checked"{/if}> - show all - </label> 
 		<br>
 		{foreach from=$levels item=depth key=node_id}
@@ -17,9 +17,3 @@
 	
 </div> 
 </fieldset>
-
-<script type="text/javascript">
-$(function() {
-	var $fieldset = $('#widgetConfig{$widget->id}');
-});
-</script>

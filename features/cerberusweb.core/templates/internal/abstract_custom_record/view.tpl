@@ -49,7 +49,7 @@
 
 		{if $custom_record->hasOption('avatars') && $data_count <= $avatar_limit}
 		<th class="no-sort" style="text-align:center;width:40px;padding-left:0;padding-right:0;" title="{'common.photo'|devblocks_translate|capitalize}">
-			<span class="glyphicons glyphicons-camera" style="color:rgb(80,80,80);"></span>
+			<span class="glyphicons glyphicons-camera"></span>
 		</th>
 		{/if}
 		

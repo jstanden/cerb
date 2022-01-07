@@ -20,6 +20,12 @@ Devblocks.loadResources({
     var $panel = $graph.closest('.ui-tabs-panel');
     var $tabs = $panel.closest('.ui-tabs');
     var $toolbar = $panel.find('.cerb-code-editor-toolbar');
+    
+    var color_text = 'black';
+
+    if('function' == typeof getComputedStyle) {
+        color_text = getComputedStyle(document.documentElement).getPropertyValue('--cerb-color-text');
+    }
 
     $toolbar.find('button').on('click', function() {
         var tab_id = $tabs.tabs('option','active');
@@ -230,11 +236,9 @@ Devblocks.loadResources({
     nodes.append('text')
         .attr('x', function(d) { return d.y; })
         .attr('y', function(d) { return d.x-10; })
-        .attr('fill', 'black')
-        //.attr('stroke', 'white')
+        .attr('fill', color_text)
         .attr('dominant-baseline', 'middle')
         .attr('text-anchor', 'middle')
-        //.attr('text-length', '50px')
         .style('font-weight', 'bold')
         .style('cursor', 'pointer')
         .text(function(d) {

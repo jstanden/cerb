@@ -20,7 +20,7 @@
 	{/foreach}
 	
 	<li style="border-right:0;" class="add {if $page->id=='core.page.pages' && count($response_path)==1}selected{/if}">
-		<a href="{devblocks_url}c=pages{/devblocks_url}" style="font-weight:normal;text-decoration:none;">{if $page->id=='core.page.pages' && count($response_path)==1}<span class="glyphicons glyphicons-chevron-down" style="font-size:12px;color:white;"></span>{else}<span class="glyphicons glyphicons-chevron-down" style="font-size:12px;color:rgb(50,50,50);"></span>{/if}</a>
+		<a href="{devblocks_url}c=pages{/devblocks_url}" style="font-weight:normal;text-decoration:none;">{if $page->id=='core.page.pages' && count($response_path)==1}<span class="glyphicons glyphicons-chevron-down" style="font-size:12px;"></span>{else}<span class="glyphicons glyphicons-chevron-down" style="font-size:12px;"></span>{/if}</a>
 	</li>
 	
 	{if $active_worker->is_superuser}

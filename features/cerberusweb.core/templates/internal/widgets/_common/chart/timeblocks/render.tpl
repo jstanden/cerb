@@ -38,10 +38,13 @@
             if('0,0' === fill_extents.join())
                 fill_extents = [0,60];
 
-            // [TODO] Dark mode colors
             var fill_color_from = '#ffffff';
             var fill_color_to = 'rgb(19,134,3)';
             var fill_classes = 12;
+
+            if('function' == typeof getComputedStyle) {
+                fill_color_from = getComputedStyle(document.documentElement).getPropertyValue('--cerb-color-background');
+            }
 
             var colorFill = d3.scaleQuantize()
                 .domain(fill_extents)

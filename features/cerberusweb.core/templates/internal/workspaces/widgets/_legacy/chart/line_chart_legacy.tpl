@@ -135,7 +135,7 @@ try {
 		context.arc(chart_x, chart_y, 4, 0, 2 * Math.PI, false);
 		context.fill();
 		
-		var $label = $('<span style="padding:2px;font-weight:bold;background-color:rgb(240,240,240);"/>').text(closest.data.x_label + ': ');
+		var $label = $('<span style="padding:2px;font-weight:bold;background-color:var(--cerb-color-background-contrast-240);"/>').text(closest.data.x_label + ': ');
 		$label.append($('<span/>').css('color',series.options.line_color).text(closest.data.y_label));
 		
 		var $tooltip = $canvas.siblings('DIV.chart-tooltip');
