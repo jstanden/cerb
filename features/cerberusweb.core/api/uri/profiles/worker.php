@@ -56,6 +56,8 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 					return $this->_profileAction_su();
 				case 'suRevert':
 					return $this->_profileAction_suRevert();
+				case 'themeToggle':
+					return $this->_profileAction_themeToggle();
 				case 'viewExplore':
 					return $this->_profileAction_viewExplore();
 			}
@@ -434,6 +436,18 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				$visit->setImposter(null);
 			}
 		}
+	}
+	
+	private function _profileAction_themeToggle() {
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		if(null == ($active_worker = CerberusApplication::getActiveWorker()))
+			return;
+		
+		$dark_mode = intval(DAO_WorkerPref::get($active_worker->id,'dark_mode',0));
+		
+		DAO_WorkerPref::set($active_worker->id, 'dark_mode', $dark_mode ? 0 : 1);
 	}
 	
 	private function _profileAction_showBulkPopup() {

@@ -719,6 +719,7 @@ BUTTON.split-right .glyphicons-chevron-down {
 #badgeNotifications {
   display: none;
   padding: 3px 5px 3px 5px;
+  margin-left: 5px;
   background-color: var(--cerb-color-tag-red);
   border-radius: 5px;
 }
