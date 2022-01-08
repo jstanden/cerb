@@ -17,16 +17,15 @@
 		border: 0;
 		background: var(--cerb-color-alert-background);
 		font-weight: bold;
-		border-bottom:solid 1px var(--cerb-color-alert-border);
 		
 		&.cerb-alert-note {
-			color: var(--cerb-color-text);
 			background: var(--cerb-color-alert-background);
+			color: black;
 		}
 		
 		&.cerb-alert-error {
-			background-color: var(--cerb-color-alert-error-background);
-			color: var(--cerb-color-text-inverse);
+			background: var(--cerb-color-alert-error-background);
+			color: white;
 		}
 		
 		.cerb-alert-close {
@@ -734,7 +733,12 @@ TABLE.worklistBody {
 		A.subject, B.subject {
 			font-size: 12px;
 			font-weight: bold;
+			text-decoration: none;
 			color: var(--cerb-color-table-row-subject);
+			
+			&:hover {
+				text-decoration: underline;
+			}
 		}
 	}
 
@@ -1600,7 +1604,7 @@ DIV.cerb-menu {
 				cursor: pointer;
 
 				> A {
-					color: var(--cerb-color-text-inverse);
+					color: white;
 					text-decoration: none;
 					font-weight: normal;
 				}

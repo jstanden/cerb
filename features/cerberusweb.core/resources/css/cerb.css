@@ -81,7 +81,6 @@
   --cerb-color-action-secondary-hover: rgb(210,210,210);
   --cerb-color-action-secondary-text: rgb(0,0,0);
   --cerb-color-alert-background: rgb(253,226,108);
-  --cerb-color-alert-border: rgb(255,255,255);
   --cerb-color-alert-error-background: rgb(253,58,71);
   --cerb-color-bot-badge-border: rgb(65, 172, 255);
   --cerb-color-bot-badge-background: rgb(207, 221, 235);
@@ -203,7 +202,7 @@
   --cerb-color-menu-submenu: rgb(97,140,227);
   --cerb-color-menu-submenu-hover: rgb(85,100,150);
   --cerb-color-table-header-background: rgb(60,80,128);
-  --cerb-color-table-row-alt-background: rgb(32,32,32);
+  --cerb-color-table-row-alt-background: rgb(47,47,47);
   --cerb-color-table-row-hover-background: rgb(50,60,90);
   --cerb-color-table-row-selected-background: rgb(75,85,120);
   --cerb-color-table-row-subject: rgb(255,255,255);
@@ -216,7 +215,7 @@
   --cerb-editor-fold: rgb(60,76,114);
   --cerb-editor-line-active: rgb(32,42,54);
   --cerb-editor-marker: rgb(33,66,131);
-  --cerb-editor-selection: rgb(81, 113, 155);
+  --cerb-editor-selection: rgba(81, 113, 155,0.5);
   --cerb-editor-syntax-comment: rgb(95,95,95);
   --cerb-editor-syntax-fold: rgb(97,97,97);
   --cerb-editor-syntax-function: rgb(60,76,114);
@@ -391,15 +390,14 @@ BUTTON SPAN {
   border: 0;
   background: var(--cerb-color-alert-background);
   font-weight: bold;
-  border-bottom: solid 1px var(--cerb-color-alert-border);
 }
 #cerb-alerts .cerb-alert.cerb-alert-note {
-  color: var(--cerb-color-text);
   background: var(--cerb-color-alert-background);
+  color: black;
 }
 #cerb-alerts .cerb-alert.cerb-alert-error {
-  background-color: var(--cerb-color-alert-error-background);
-  color: var(--cerb-color-text-inverse);
+  background: var(--cerb-color-alert-error-background);
+  color: white;
 }
 #cerb-alerts .cerb-alert .cerb-alert-close {
   float: right;
@@ -968,7 +966,11 @@ TABLE.worklistBody TD {
 TABLE.worklistBody TD A.subject, TABLE.worklistBody TD B.subject {
   font-size: 12px;
   font-weight: bold;
+  text-decoration: none;
   color: var(--cerb-color-table-row-subject);
+}
+TABLE.worklistBody TD A.subject:hover, TABLE.worklistBody TD B.subject:hover {
+  text-decoration: underline;
 }
 TABLE.worklistBody TR.even {
   background-color: var(--cerb-color-background);
@@ -1665,7 +1667,7 @@ DIV.cerb-menu > UL > LI > DIV {
   cursor: pointer;
 }
 DIV.cerb-menu > UL > LI > DIV > A {
-  color: var(--cerb-color-text-inverse);
+  color: white;
   text-decoration: none;
   font-weight: normal;
 }
