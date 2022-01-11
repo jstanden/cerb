@@ -202,6 +202,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 						'score' => 2000,
 					],
 					'validation@raw:',
+					'required@bool:',
 				],
 			
 				// [TODO] Maps KATA	
