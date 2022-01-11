@@ -182,6 +182,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'syntax:',
 					'default:',
 					'validation@raw:',
+					'required@bool:',
 				],
 				'(.*):await:form:elements:editor:syntax:' => [
 					'cerb_query_data',
