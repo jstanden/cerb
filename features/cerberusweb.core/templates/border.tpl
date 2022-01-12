@@ -19,6 +19,12 @@
 			{if $visit->isImposter()}
 				[ <a href="javascript:;" id="aImposter">{$visit->getImposter()->getName()}</a> ]
 			{/if}
+
+			{if $pref_dark_mode}
+				<span id="cerb-theme" data-theme="dark" title="Switch to light mode" class="glyphicons glyphicons-moon" style="margin:0 0 0 5px;vertical-align:baseline;cursor:pointer;"></span>
+			{else}
+				<span id="cerb-theme" data-theme="light" title="Switch to dark mode" class="glyphicons glyphicons-brightness-increase" style="margin:0 0 0 5px;vertical-align:baseline;cursor:pointer;"></span>
+			{/if}
 			
 			<span id="badgeNotifications"><a href="javascript:;"></a></span>
 			
@@ -120,6 +126,22 @@ $(function(e) {
 
 	$menu.find('.cerb-peek-trigger').cerbPeekTrigger();
 	$menu.find('.cerb-search-trigger').cerbSearchTrigger();
+	
+	var $theme = $('#cerb-theme');
+	
+	$theme
+		.on('click', function() {
+			var formData = new FormData();
+			formData.set('c', 'profiles');
+			formData.set('a', 'invoke');
+			formData.set('module', 'worker');
+			formData.set('action', 'themeToggle');
+			
+			genericAjaxPost(formData, '', '', function() {
+				window.document.location.reload();
+			});
+		})
+	;
 });
 </script>
 

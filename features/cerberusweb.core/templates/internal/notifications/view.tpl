@@ -60,12 +60,12 @@
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
-			<td data-column="label" colspan="{$smarty.foreach.headers.total}" style="font-size:12px;color:rgb(80,80,80);padding:2px 0px 2px 5px;">
+			<td data-column="label" colspan="{$smarty.foreach.headers.total}" style="font-size:12px;padding:2px 0 2px 5px;">
 				<input type="checkbox" name="row_id[]" value="{$result.we_id}" style="display:none;">
 				{* If we're looking at the target context, hide the text in the entry *}
 				{$entry = json_decode($result.we_entry_json, true)}
 				{$params_req = $view->getParamsRequired()}
-				{if $result.we_is_read}<span class="glyphicons glyphicons-circle-ok" style="font-size:16px;color:rgb(80,80,80);"></span> {/if}
+				{if $result.we_is_read}<span class="glyphicons glyphicons-circle-ok" style="font-size:16px;"></span> {/if}
 				<span class="subject">{CerberusContexts::formatActivityLogEntry($entry,'html-cards',null,true) nofilter}</span>
 			</td>
 		</tr>
@@ -87,7 +87,7 @@
 					&nbsp;
 				</td>
 			{elseif $column=="we_is_read"}
-				<td data-column="{$column}" valign="top">{if $result.$column}<span class="glyphicons glyphicons-circle-ok" style="font-size:16px;color:rgb(80,80,80);"></span>{/if}&nbsp;</td>
+				<td data-column="{$column}" valign="top">{if $result.$column}<span class="glyphicons glyphicons-circle-ok" style="font-size:16px;"></span>{/if}&nbsp;</td>
 			{else}
 				<td data-column="{$column}" valign="top">{$result.$column}&nbsp;</td>
 			{/if}

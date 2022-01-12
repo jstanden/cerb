@@ -247,7 +247,7 @@ A.no-underline {
 
 @mixin form-input-icon($icon) {
 	padding: 2px 2px 2px 25px;
-	background: url(#{$icon}?v=#{$timestamp}) no-repeat scroll 5px 50% var(--cerb-color-background);
+	background: url(#{$icon}?v=#{$timestamp}) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
 }
 
 INPUT[type=text] {
@@ -419,6 +419,7 @@ BUTTON.split-right {
 #badgeNotifications {
 	display: none;
 	padding: 3px 5px 3px 5px;
+	margin-left: 5px;
 	background-color: var(--cerb-color-tag-red);
 	border-radius: 5px;
 
@@ -727,8 +728,15 @@ TABLE.worklistBody {
 
 	TD {
 		overflow: hidden;
-		font-size:11px;
-		padding-right:5px;
+		font-size: 11px;
+		padding-top: 0.5em;
+		padding-right: 0.5em;
+		color: var(--cerb-color-background-contrast-100);
+		
+		&:not([colspan]) {
+			padding-top: 0;
+			padding-bottom: 0.5em;
+		}
 
 		A.subject, B.subject {
 			font-size: 12px;

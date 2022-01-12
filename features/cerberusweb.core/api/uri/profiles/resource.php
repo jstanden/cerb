@@ -102,7 +102,7 @@ class PageSection_ProfilesResource extends Extension_PageSection {
 				if(is_array($file) && array_key_exists('tmp_name', $file) && $file['tmp_name']) {
 					$extension_params = [];
 					
-					if(false == ($fp = fopen($file['tmp_name'], 'rb'))) {
+					if(false == ($fp = fopen($file['tmp_name'], 'r+b'))) {
 						throw new Exception_DevblocksAjaxValidationError('Failed to upload file.');
 					}
 					

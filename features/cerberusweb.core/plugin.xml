@@ -78,7 +78,7 @@
 
 		<patch version="10.0.0" revision="1392" file="patches/10.x/10.0.0.php" />
 		<patch version="10.1.0" revision="1404" file="patches/10.x/10.1.0.php" />
-		<patch version="10.2.0" revision="1414" file="patches/10.x/10.2.0.php" />
+		<patch version="10.2.0" revision="1415" file="patches/10.x/10.2.0.php" />
 	</patches>
 
 	<!-- Exported Classes -->
@@ -4856,6 +4856,16 @@
 		</extension>
 		
 		<!-- Resource Types -->
+
+		<extension point="cerb.resource.type">
+			<id>cerb.resource.image</id>
+			<name>Image</name>
+			<class>
+				<file>api/resources/types/cerb.resource.image.php</file>
+				<name>ResourceType_Image</name>
+			</class>
+			<params/>
+		</extension>
 
 		<extension point="cerb.resource.type">
 			<id>cerb.resource.portal.image</id>

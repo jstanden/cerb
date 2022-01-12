@@ -58,6 +58,7 @@ $timestamp: 2020100101;
   --cerb-color-fieldset-legend: rgb(0,120,0);
 
   --cerb-color-form-element-focus: rgb(121,183,231);
+  --cerb-color-form-input-background: rgb(255,255,255);
 
   --cerb-color-h1: rgb(0,120,0);
   --cerb-color-h2: rgb(52,117,186);
@@ -134,7 +135,8 @@ $timestamp: 2020100101;
   --cerb-color-tag-orange: rgb(255,138,0);
   
   --cerb-callout-background: rgba(220,220,220,0.8);
-  
+
+  --cerb-editor-background: rgb(255,255,255);
   --cerb-editor-completion-highlight: rgb(45,105,199);
   --cerb-editor-fold: rgb(60,76,114);
   --cerb-editor-line-active: rgb(232,242,254);
@@ -195,6 +197,8 @@ $timestamp: 2020100101;
   --cerb-color-fieldset-icon: rgb(80,80,80);
   --cerb-color-fieldset-legend: rgb(255,255,255);
 
+  --cerb-color-form-input-background: rgb(22,22,22);
+  
   --cerb-color-h1: rgb(0,170,0);
   --cerb-color-h2: rgb(90,165,248);
   --cerb-color-link: rgb(220,220,220);
@@ -246,7 +250,8 @@ $timestamp: 2020100101;
   --cerb-tab-active-text: rgb(240,240,240);
 
   --cerb-callout-background: rgba(57,57,57,0.8);
-  
+
+  --cerb-editor-background: rgb(22,22,22);
   --cerb-editor-completion-highlight: rgb(255,255,255);
   --cerb-editor-fold: rgb(60,76,114);
   --cerb-editor-line-active: rgb(32,42,54);

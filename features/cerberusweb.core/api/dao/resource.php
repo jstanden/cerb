@@ -1618,7 +1618,30 @@ class Context_Resource extends Extension_DevblocksContext implements IDevblocksC
 		
 		if($context_id) {
 			if(!is_numeric($context_id)) {
-				$model = DAO_Resource::getByName($context_id);
+				if(false == ($model = DAO_Resource::getByName($context_id))) {
+					$model = new Model_Resource();
+					$model->id = 0;
+					$model->name = $context_id;
+					
+					if($edit) {
+						foreach (CerbQuickSearchLexer::getFieldsFromQuery($edit) as $field) {
+							$oper = $value = null;
+							
+							switch($field->key) {
+								case 'description':
+									CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
+									$model->description = $value;
+									break;
+									
+								case 'type':
+									CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
+									$model->extension_id = $value;
+									break;
+							}	
+						}
+					}
+				}
+				
 			} else {
 				$model = DAO_Resource::get($context_id);
 			}

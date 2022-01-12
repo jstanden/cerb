@@ -192,10 +192,12 @@
 		</td>
 		{elseif $column=="t_owner_id"}
 		<td data-column="{$column}">
-			{$owner = $workers.{$result.t_owner_id}}
-			{if $owner instanceof Model_Worker}
-				<img src="{devblocks_url}c=avatars&context=worker&context_id={$owner->id}{/devblocks_url}?v={$owner->updated}" style="height:1.5em;width:1.5em;border-radius:0.75em;vertical-align:middle;"> 
+			{if array_key_exists($result.t_owner_id, $workers)}
+				{$owner = $workers.{$result.t_owner_id}}
+				{if $owner instanceof Model_Worker}
+				<img src="{devblocks_url}c=avatars&context=worker&context_id={$owner->id}{/devblocks_url}?v={$owner->updated}" style="height:1.2em;width:1.2em;border-radius:0.75em;vertical-align:middle;"> 
 				<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$owner->id}">{$owner->getName()}</a>
+				{/if}
 			{/if}
 		</td>
 		{elseif $column=="t_org_id"}
@@ -235,13 +237,13 @@
 		</td>
 		{elseif $column=="t_importance"}
 		<td data-column="{$column}" title="{$result.$column}">
-			<div style="display:inline-block;margin-left:5px;width:40px;height:8px;background-color:rgb(220,220,220);border-radius:8px;">
+			<div style="display:inline-block;margin-left:5px;width:40px;height:8px;background-color:var(--cerb-color-background-contrast-220);border-radius:8px;">
 				<div style="position:relative;margin-left:-5px;top:-1px;left:{$result.$column}%;width:10px;height:10px;border-radius:10px;background-color:{if $result.$column < 50}rgb(0,200,0);{elseif $result.$column > 50}rgb(230,70,70);{else}rgb(175,175,175);{/if}"></div>
 			</div>
 		</td>
 		{elseif $column=="wtb_responsibility"}
 		<td data-column="{$column}">
-			<div style="display:inline-block;margin-left:5px;width:40px;height:8px;background-color:rgb(220,220,220);border-radius:8px;">
+			<div style="display:inline-block;margin-left:5px;width:40px;height:8px;background-color:var(--cerb-color-background-contrast-220);border-radius:8px;">
 				<div style="position:relative;margin-left:-5px;top:-1px;left:{$result.$column}%;width:10px;height:10px;border-radius:10px;background-color:{if $result.$column < 50}rgb(230,70,70);{elseif $result.$column > 50}rgb(0,200,0);{else}rgb(175,175,175);{/if}"></div>
 			</div>
 		</td>

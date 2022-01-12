@@ -27,7 +27,7 @@
 		#cerb-logo {
 			display: inline-block;
 			max-width: 100vw;
-			background: url({devblocks_url}c=resource&p=cerberusweb.core&f=css/logo{/devblocks_url}?v={$settings->get('cerberusweb.core','ui_user_logo_updated_at',0)}) no-repeat;
+			background: url({devblocks_url}c=resource&p=cerberusweb.core&f=css/logo{if $pref_dark_mode}-dark{/if}{/devblocks_url}?v={$settings->get('cerberusweb.core','ui_user_logo_updated_at',0)}) no-repeat;
 			background-size: contain;
 			width: 281px;
 			height: 80px;

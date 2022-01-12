@@ -632,6 +632,11 @@ abstract class Extension_ResourceType extends DevblocksExtension {
 				$error
 			);
 			
+			if(!($automation_results instanceof DevblocksDictionaryDelegate)) {
+				$content_data->error = 'No automations returned content.';
+				return false;
+			}
+			
 			$exit_code = $automation_results->get('__exit');
 			
 			if($exit_code != 'return') {

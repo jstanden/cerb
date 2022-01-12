@@ -1,13 +1,13 @@
 {$uniqid = uniqid()}
 {if $view instanceof IAbstractView_QuickSearch}
 
-<form action="javascript:;" method="post" id="{$uniqid}" class="quick-search">
+<form action="javascript:;" method="post" id="{$uniqid}" class="quick-search" style="background-color:var(--cerb-editor-background);">
 	<input type="hidden" name="c" value="search">
 	<input type="hidden" name="a" value="ajaxQuickSearch">
 	<input type="hidden" name="view_id" value="{$view->id}">
 	<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-	<div style="border:1px solid rgb(200,200,200);">
+	<div style="border:1px solid var(--cerb-color-background-contrast-200);">
 		<table cellpadding="0" cellspacing="0" width="100%">
 			<tr>
 				<td width="100%" valign="top">
