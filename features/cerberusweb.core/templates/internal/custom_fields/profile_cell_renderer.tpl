@@ -120,7 +120,7 @@
 	{$max = $v.params.max}
 	{$mid = $v.params.mid}
 	{$pos = (($v.value-$min)/($max-$min))*100}
-	<div style="display:inline-block;margin-top:5px;width:100px;height:10px;background-color:rgb(220,220,220);border-radius:8px;">
+	<div style="display:inline-block;margin-top:5px;width:100px;height:10px;background-color:var(--cerb-color-background-contrast-220);border-radius:8px;">
 		<div style="position:relative;margin-left:-5px;top:-1px;left:{$v.value}%;width:12px;height:12px;border-radius:12px;background-color:{if $v.value < $mid}rgb(0,200,0);{elseif $v.value > $mid}rgb(230,70,70);{else}rgb(175,175,175);{/if}"></div>
 	</div>
 {elseif $v.type == 'size_bytes'}

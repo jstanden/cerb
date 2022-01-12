@@ -727,7 +727,7 @@ class _DevblocksSheetServiceTypes {
 			}
 			
 			return sprintf(
-				'<div title="%d" style="width:60px;height:8px;background-color:rgb(220,220,220);border-radius:8px;text-align:center;">'.
+				'<div title="%d" style="width:60px;height:8px;background-color:var(--cerb-color-background-contrast-220);border-radius:8px;text-align:center;">'.
 					'<div style="position:relative;margin-left:5px;width:50px;height:8px;">'.
 						'<div style="position:absolute;margin-left:-5px;top:-1px;left:%d%%;width:10px;height:10px;border-radius:10px;background-color:%s;"></div>'.
 					'</div>'.

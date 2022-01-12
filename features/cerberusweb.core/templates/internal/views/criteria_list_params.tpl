@@ -29,17 +29,17 @@
 				{/if}
 
 				{if $group_not}
-					<code style="color:black;font-weight:bold;padding:0px 5px;">NOT (</code>
+					<code style="color:var(--cerb-color-text);font-weight:bold;padding:0px 5px;">NOT (</code>
 				{/if}
 
 				{if $nested}
-				<code style="color:black;font-weight:bold;padding:0px 2px 0px 0px;">(</code>
+				<code style="color:var(--cerb-color-text);font-weight:bold;padding:0px 2px 0px 0px;">(</code>
 				{/if}
 			{else}
 				{if is_array($p)}
-					<code style="color:black;font-weight:bold;padding:0px 2px 0px 0px;">(</code>
+					<code style="color:var(--cerb-color-text);font-weight:bold;padding:0px 2px 0px 0px;">(</code>
 					{include file="devblocks:cerberusweb.core::internal/views/criteria_list_params.tpl" params=$p nested=true}
-					<code style="color:black;font-weight:bold;padding:0px 2px 0px 0px;">)</code>
+					<code style="color:var(--cerb-color-text);font-weight:bold;padding:0px 2px 0px 0px;">)</code>
 				{else}
 					{if '*_' == substr($p->field,0,2)}
 						{$view->renderVirtualCriteria($p)}
@@ -96,17 +96,17 @@
 				{/if}
 
 				{if !$smarty.foreach.p.last}
-					<code style="color:black;font-weight:bold;padding:0px 5px;">{$group_oper}</code>
+					<code style="color:var(--cerb-color-text);font-weight:bold;padding:0px 5px;">{$group_oper}</code>
 				{else}
 					{if $group_not}
-					<code style="color:black;font-weight:bold;padding:0px 5px;">)</code>
+					<code style="color:var(--cerb-color-text);font-weight:bold;padding:0px 5px;">)</code>
 					{/if}
 				{/if}
 			{/if}
 		{/foreach}
 
 		{if $nested}
-		<code style="color:black;font-weight:bold;padding:0px 2px 0px 0px;">)</code>
+		<code style="color:var(--cerb-color-text);font-weight:bold;padding:0px 2px 0px 0px;">)</code>
 		{/if}
 	{else}
 		{$field = $param->field}
@@ -162,7 +162,7 @@
 	{/if}
 
 	{if $nested && !$smarty.foreach.params.first && !$smarty.foreach.params.last}
-		<code style="color:black;font-weight:bold;padding:0px 5px;">{$params.0}</code>
+		<code style="color:var(--cerb-color-text);font-weight:bold;padding:0px 5px;">{$params.0}</code>
 	{/if}
 		
 	{if !$nested && !$readonly}</div>{/if}

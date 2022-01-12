@@ -1,7 +1,7 @@
 {$map_divid = uniqid('map_')}
 
 <div id="{$map_divid}">
-    <div data-cerb-label style="font-weight:bold;margin:5px;padding:5px;position:absolute;top:0;left:0;background-color:var(--cerb-callout-background);border: 1px solid var(--cerb-color-background-contrast-160);display:none;">
+    <div data-cerb-label style="font-weight:bold;margin:5px;padding:5px;position:absolute;top:0;left:0;background-color:var(--cerb-callout-background);border: 1px solid var(--cerb-color-background-contrast-160);z-index:2;display:none;">
         <div data-cerb-label--close style="position:absolute;top:-7px;right:-8px;cursor:pointer;">
             <span class="glyphicons glyphicons-remove-2" style="font-size:16px;"></span>
         </div>

@@ -131,6 +131,7 @@
   --cerb-editor-syntax-string: rgb(42,0,255);
   --cerb-editor-syntax-tag: rgb(25,118,116);
   --cerb-editor-syntax-twig: rgb(127,0,85);
+  --cerb-editor-syntax-type: rgb(127,0,127);
   --cerb-editor-syntax-var: rgb(127,0,85);
   --cerb-library-background-selected: rgba(255,230,110,0.2);
   --cerb-library-border: orange;
@@ -228,6 +229,7 @@
   --cerb-editor-syntax-string: rgb(102,129,86);
   --cerb-editor-syntax-tag: rgb(160,173,187);
   --cerb-editor-syntax-twig: rgb(239,97,192);
+  --cerb-editor-syntax-type: rgb(180,180,180);
   --cerb-editor-syntax-var: rgb(229,188,105);
 }
 
@@ -299,6 +301,9 @@ FIELDSET P {
 
 FORM {
   margin: 0;
+}
+FORM ::placeholder {
+  color: var(--cerb-color-background-contrast-170);
 }
 FORM INPUT[type=text], FORM INPUT[type=password], FORM INPUT[type=search] {
   border: 1px solid var(--cerb-color-background-contrast-180);
@@ -1739,7 +1744,7 @@ DIV.emailBodyHtml P > CODE {
 }
 DIV.emailBodyHtml H1, DIV.emailBodyHtml H2, DIV.emailBodyHtml H3, DIV.emailBodyHtml H4, DIV.emailBodyHtml H5, DIV.emailBodyHtml H6, DIV.emailBodyHtml DIV.block H1, DIV.emailBodyHtml DIV.block H2, DIV.emailBodyHtml DIV.block H3, DIV.emailBodyHtml DIV.block H4, DIV.emailBodyHtml DIV.block H5, DIV.emailBodyHtml DIV.block H6, DIV.commentBodyHtml DIV.block DIV.emailBodyHtml H1, DIV.commentBodyHtml DIV.block DIV.emailBodyHtml H2, DIV.commentBodyHtml DIV.block DIV.emailBodyHtml H3, DIV.commentBodyHtml DIV.block DIV.emailBodyHtml H4, DIV.commentBodyHtml DIV.block DIV.emailBodyHtml H5, DIV.commentBodyHtml DIV.block DIV.emailBodyHtml H6 {
   font-size: initial;
-  color: initial;
+  color: inherit;
   margin: initial;
   font-weight: bold;
 }
@@ -1751,10 +1756,10 @@ DIV.emailBodyHtml UL, DIV.emailBodyHtml OL {
 }
 
 DIV.commentBodyHtml A {
-  color: initial;
+  color: inherit;
 }
 DIV.commentBodyHtml ABBR {
-  border-bottom: initial;
+  border-bottom: inherit;
 }
 DIV.commentBodyHtml BLOCKQUOTE {
   clear: both;
@@ -1780,7 +1785,7 @@ DIV.commentBodyHtml P > CODE {
 }
 DIV.emailBodyHtml DIV.block DIV.commentBodyHtml H1, DIV.emailBodyHtml DIV.block DIV.commentBodyHtml H2, DIV.emailBodyHtml DIV.block DIV.commentBodyHtml H3, DIV.emailBodyHtml DIV.block DIV.commentBodyHtml H4, DIV.emailBodyHtml DIV.block DIV.commentBodyHtml H5, DIV.emailBodyHtml DIV.block DIV.commentBodyHtml H6, DIV.commentBodyHtml H1, DIV.commentBodyHtml H2, DIV.commentBodyHtml H3, DIV.commentBodyHtml H4, DIV.commentBodyHtml H5, DIV.commentBodyHtml H6, DIV.commentBodyHtml DIV.block H1, DIV.commentBodyHtml DIV.block H2, DIV.commentBodyHtml DIV.block H3, DIV.commentBodyHtml DIV.block H4, DIV.commentBodyHtml DIV.block H5, DIV.commentBodyHtml DIV.block H6 {
   font-size: initial;
-  color: initial;
+  color: inherit;
   margin: initial;
   font-weight: bold;
   clear: both;
@@ -2099,6 +2104,7 @@ UL.ui-menu li.ui-state-focus {
 .ace_editor.ace_autocomplete {
   background: var(--cerb-color-background);
   color: var(--cerb-color-text);
+  margin-top: 0.5em;
   box-shadow: 0 0 5px 3px var(--cerb-color-shadow-menu);
   border: 0;
 }

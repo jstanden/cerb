@@ -67,7 +67,7 @@ color: var(--cerb-editor-syntax-numeric);\
 color: var(--cerb-editor-syntax-tag);\
 }\
 .ace-cerb .ace_type {\
-color: rgb(127, 0, 127);\
+color: var(--cerb-editor-syntax-type);\
 }\
 .ace-cerb .ace_xml-pe {\
 color: rgb(104, 104, 91);\
