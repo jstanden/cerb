@@ -1722,17 +1722,22 @@ DIV.cerb-markdown-content CODE {
 }
 
 DIV.emailBodyHtml {
-  overflow-x: scroll;
-  color: var(--cerb-color-text);
+  overflow-x: auto;
+  background-color: white;
+  padding: 5px;
+  color: black;
 }
 DIV.emailBodyHtml A {
-  color: var(--cerb-color-email-link);
+  color: #2b6dad;
 }
 DIV.emailBodyHtml ABBR {
-  border-bottom: var(--cerb-color-text);
+  border-bottom-color: black;
+}
+DIV.emailBodyHtml BODY, DIV.emailBodyHtml FORM, DIV.emailBodyHtml TD {
+  color: black;
 }
 DIV.emailBodyHtml BLOCKQUOTE {
-  color: var(--cerb-color-background-contrast-100);
+  color: #646464;
   border-left: 5px solid;
   margin: 0 0 0 10px;
   padding: 0 0 0 10px;
@@ -1740,13 +1745,13 @@ DIV.emailBodyHtml BLOCKQUOTE {
 DIV.emailBodyHtml PRE > CODE {
   display: block;
   overflow-x: scroll;
-  border: 1px solid var(--cerb-color-background-contrast-230);
-  background-color: var(--cerb-color-email-code);
+  border: 1px solid #e6e6e6;
+  background-color: #f6f2f0;
   padding: 10px;
 }
 DIV.emailBodyHtml P > CODE {
-  border: 1px solid var(--cerb-color-background-contrast-230);
-  background-color: var(--cerb-color-email-code);
+  border: 1px solid #e6e6e6;
+  background-color: #f6f2f0;
   font-weight: bold;
   padding: 0.1em 0.2em;
   line-height: 1.75em;
