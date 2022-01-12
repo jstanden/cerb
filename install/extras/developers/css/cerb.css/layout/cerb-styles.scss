@@ -259,9 +259,9 @@ INPUT[type=text] {
 		@include form-input-icon('input_icons/colors.png');
 	}
 
-	&.input_date {
-		@include form-input-icon('input_icons/date.png');
-	}
+	//&.input_date {
+	//	@include form-input-icon('input_icons/date.png');
+	//}
 
 	&.input_email {
 		@include form-input-icon('input_icons/mail.png');
@@ -341,6 +341,11 @@ PRE.emailbody, DIV.emailbody {
 
 	A {
 		color: var(--cerb-color-email-link);
+	}
+
+	.cerb-email-quote {
+		font-style: italic;
+		color: var(--cerb-color-email-quote);
 	}
 }
 
@@ -1263,15 +1268,21 @@ SPAN.tag {
 
 DIV.cerb-fields-container {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(195px,1fr));
+	grid-template-columns: repeat(auto-fill, minmax(150px,1fr));
 	grid-gap: 0 5px;
 	align-items: stretch;
 	justify-content: space-between;
 	
 	.cerb-fields-container-item {
 		text-overflow: ellipsis;
-		word-break: break-all;
+		word-break: break-word;
 		word-wrap: break-word;
+		margin: 0.2em 0.5em;
+		
+		.bubbles LI {
+			word-break: break-word;
+			word-wrap: break-word;
+		}
 	}
 }
 
@@ -1662,7 +1673,7 @@ DIV.emailBodyHtml {
 	color: var(--cerb-color-text);
 
 	A {
-		color: var(--cerb-color-text);
+		color: var(--cerb-color-email-link);
 	}
 
 	ABBR {

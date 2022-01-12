@@ -112,7 +112,7 @@
 			<b>{'message.header.date'|devblocks_translate|capitalize}:</b> {$message->created_date|devblocks_date} (<abbr title="{$headers.date}">{$message->created_date|devblocks_prettytime}</abbr>)
 
 			{if !empty($message->response_time)}
-				<span style="margin-left:10px;color:rgb(100,140,25);">Replied in {$message->response_time|devblocks_prettysecs:2}</span>
+				<span style="margin-left:10px;color:var(--cerb-color-email-headers-meta);">Replied in {$message->response_time|devblocks_prettysecs:2}</span>
 			{/if}
 		</div>
 

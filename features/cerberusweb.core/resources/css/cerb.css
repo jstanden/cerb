@@ -62,7 +62,9 @@
   --cerb-color-h2: rgb(52,117,186);
   --cerb-color-link: rgb(35,35,35);
   --cerb-color-email-code: rgb(246,242,240);
+  --cerb-color-email-headers-meta: rgb(100,140,25);
   --cerb-color-email-link: rgb(43,109,173);
+  --cerb-color-email-quote: rgb(150,150,150);
   --cerb-color-error-background: rgb(255,235,235);
   --cerb-color-error-text: rgb(180,0,0);
   --cerb-color-success-background: rgb(235,255,235);
@@ -76,7 +78,7 @@
   --cerb-color-bubble-border: rgb(197,219,236);
   --cerb-color-bubble-text: rgb(50,115,185);
   --cerb-color-action-primary: rgb(85,125,230);
-  --cerb-color-action-primary-hover: rgb(70,169,255);
+  --cerb-color-action-primary-hover: rgba(85,125,230,0.8);
   --cerb-color-action-primary-text: rgb(255,255,255);
   --cerb-color-action-secondary: rgb(230,230,230);
   --cerb-color-action-secondary-hover: rgb(210,210,210);
@@ -164,7 +166,7 @@
   --cerb-color-button-gradient-to: rgb(15,15,15);
   --cerb-color-button-icon-alert-background: rgb(255,0,0);
   --cerb-color-button-icon-alert-gradient: rgb(210,0,0);
-  --cerb-color-button-icon--hover: rgb(39,123,213);
+  --cerb-color-button-icon--hover: rgb(49, 147, 253);
   --cerb-color-button-icon-enabled-background: rgb(250,220,74);
   --cerb-color-button-icon-enabled: rgb(165,100,33);
   --cerb-color-button-icon: rgb(175,175,175);
@@ -179,7 +181,9 @@
   --cerb-color-h2: rgb(90,165,248);
   --cerb-color-link: rgb(220,220,220);
   --cerb-color-email-code: rgb(9,13,15);
+  --cerb-color-email-headers-meta: rgb(127,127,127);
   --cerb-color-email-link: rgb(100, 179, 255);
+  --cerb-color-email-quote: rgb(135,135,135);
   --cerb-color-error-background: rgb(67,47,45);
   --cerb-color-error-text: rgb(223,127,103);
   --cerb-color-success-background: rgb(235,255,235);
@@ -193,7 +197,7 @@
   --cerb-color-bubble-border: rgb(50,50,50);
   --cerb-color-bubble-text: rgb(200,200,200);
   --cerb-color-action-primary: rgb(85,125,230);
-  --cerb-color-action-primary-hover: rgb(70,169,255);
+  --cerb-color-action-primary-hover: rgba(85,125,230,0.8);
   --cerb-color-action-primary-text: rgb(255,255,255);
   --cerb-color-action-secondary: rgb(57,57,57);
   --cerb-color-action-secondary-hover: rgb(77,77,77);
@@ -201,7 +205,7 @@
   --cerb-color-shadow-menu: rgb(0, 0, 0);
   --cerb-color-shadow-action-primary-hover: rgba(15,85,140,0.5);
   --cerb-color-shadow-action-secondary-hover: rgba(50,50,50,0.5);
-  --cerb-color-menu-item-text: rgb(132,137,141);
+  --cerb-color-menu-item-text: rgb(200,200,200);
   --cerb-color-menu-item-hover: rgb(97,140,227);
   --cerb-color-menu-submenu: rgb(97,140,227);
   --cerb-color-menu-submenu-hover: rgb(85,100,150);
@@ -587,68 +591,64 @@ A.no-underline:hover {
 
 INPUT[type=text].input_add {
   padding: 2px 2px 2px 25px;
-  background: url(input_icons/add.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
+  background: url(input_icons/add.png?v=2022011101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
 }
 INPUT[type=text].input_color {
   padding: 2px 2px 2px 25px;
-  background: url(input_icons/colors.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
-}
-INPUT[type=text].input_date {
-  padding: 2px 2px 2px 25px;
-  background: url(input_icons/date.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
+  background: url(input_icons/colors.png?v=2022011101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
 }
 INPUT[type=text].input_email {
   padding: 2px 2px 2px 25px;
-  background: url(input_icons/mail.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
+  background: url(input_icons/mail.png?v=2022011101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
 }
 INPUT[type=text].input_location {
   padding: 2px 2px 2px 25px;
-  background: url(input_icons/location.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
+  background: url(input_icons/location.png?v=2022011101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
 }
 INPUT[type=text].input_money {
   padding: 2px 2px 2px 25px;
-  background: url(input_icons/money.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
+  background: url(input_icons/money.png?v=2022011101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
 }
 INPUT[type=text].input_number {
   padding: 2px 2px 2px 25px;
-  background: url(input_icons/number.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
+  background: url(input_icons/number.png?v=2022011101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
 }
 INPUT[type=text].input_openid {
   padding: 2px 2px 2px 25px;
-  background: url(input_icons/openid.gif?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
+  background: url(input_icons/openid.gif?v=2022011101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
 }
 INPUT[type=text].input_password {
   padding: 2px 2px 2px 25px;
-  background: url(input_icons/lock.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
+  background: url(input_icons/lock.png?v=2022011101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
 }
 INPUT[type=text].input_percent {
   padding: 2px 2px 2px 25px;
-  background: url(input_icons/percent.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
+  background: url(input_icons/percent.png?v=2022011101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
 }
 INPUT[type=text].input_phone {
   padding: 2px 2px 2px 25px;
-  background: url(input_icons/phone.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
+  background: url(input_icons/phone.png?v=2022011101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
 }
 INPUT[type=text].input_remove {
   padding: 2px 2px 2px 25px;
-  background: url(input_icons/forbidden.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
+  background: url(input_icons/forbidden.png?v=2022011101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
 }
 INPUT[type=text].input_search {
   padding: 2px 2px 2px 25px;
-  background: url(input_icons/view.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
+  background: url(input_icons/view.png?v=2022011101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
 }
 INPUT[type=text].input_tags {
   padding: 2px 2px 2px 25px;
-  background: url(input_icons/tag.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
+  background: url(input_icons/tag.png?v=2022011101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
 }
 INPUT[type=text].input_url {
   padding: 2px 2px 2px 25px;
-  background: url(input_icons/link.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
+  background: url(input_icons/link.png?v=2022011101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
 }
 
 INPUT[type=password] {
   padding: 2px 2px 2px 25px;
-  background: url(input_icons/lock.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
+  background: url(input_icons/lock.png?v=2022011101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
 }
 
 PRE.emailbody, DIV.emailbody {
@@ -665,6 +665,10 @@ PRE.emailbody, DIV.emailbody {
 }
 PRE.emailbody A, DIV.emailbody A {
   color: var(--cerb-color-email-link);
+}
+PRE.emailbody .cerb-email-quote, DIV.emailbody .cerb-email-quote {
+  font-style: italic;
+  color: var(--cerb-color-email-quote);
 }
 
 BUTTON:hover DIV.badge-count {
@@ -1390,14 +1394,19 @@ SPAN.tag.tag-orange {
 
 DIV.cerb-fields-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   grid-gap: 0 5px;
   align-items: stretch;
   justify-content: space-between;
 }
 DIV.cerb-fields-container .cerb-fields-container-item {
   text-overflow: ellipsis;
-  word-break: break-all;
+  word-break: break-word;
+  word-wrap: break-word;
+  margin: 0.2em 0.5em;
+}
+DIV.cerb-fields-container .cerb-fields-container-item .bubbles LI {
+  word-break: break-word;
   word-wrap: break-word;
 }
 
@@ -1693,7 +1702,7 @@ DIV.cerb-menu.cerb-popupmenu {
 }
 
 SPAN.plugin_icon_overlay_disabled {
-  background: url(plugin_overlay_disabled.png?v=2020100101) no-repeat top left;
+  background: url(plugin_overlay_disabled.png?v=2022011101) no-repeat top left;
   width: 100px;
   height: 100px;
   position: absolute;
@@ -1717,7 +1726,7 @@ DIV.emailBodyHtml {
   color: var(--cerb-color-text);
 }
 DIV.emailBodyHtml A {
-  color: var(--cerb-color-text);
+  color: var(--cerb-color-email-link);
 }
 DIV.emailBodyHtml ABBR {
   border-bottom: var(--cerb-color-text);
