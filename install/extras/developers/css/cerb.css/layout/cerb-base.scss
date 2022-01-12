@@ -74,6 +74,10 @@ FIELDSET {
 
 FORM {
 	margin: 0;
+	
+	::placeholder {
+		color: var(--cerb-color-background-contrast-170);
+	}
 
 	INPUT[type=text], INPUT[type=password], INPUT[type=search] {
 		border: 1px solid var(--cerb-color-background-contrast-180);

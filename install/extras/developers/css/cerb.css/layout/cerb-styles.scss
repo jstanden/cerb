@@ -1694,7 +1694,7 @@ DIV.emailBodyHtml {
 
 	%heading {
 		font-size: initial;
-		color: initial;
+		color: inherit;
 		margin: initial;
 		font-weight: bold;
 	}
@@ -1722,11 +1722,11 @@ DIV.emailBodyHtml {
 
 DIV.commentBodyHtml {
 	A {
-		color: initial;
+		color: inherit;
 	}
 
 	ABBR {
-		border-bottom: initial;
+		border-bottom: inherit;
 	}
 
 	BLOCKQUOTE {
@@ -1756,7 +1756,7 @@ DIV.commentBodyHtml {
 
 	%heading {
 		font-size: initial;
-		color: initial;
+		color: inherit;
 		margin: initial;
 		font-weight: bold;
 		clear: both;

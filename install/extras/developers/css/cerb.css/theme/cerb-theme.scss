@@ -1,4 +1,4 @@
-$timestamp: 2020100101;
+$timestamp: 2022011101;
 
 :root {
   --cerb-font-size: 12px;
@@ -150,6 +150,7 @@ $timestamp: 2020100101;
   --cerb-editor-syntax-string: rgb(42,0,255);
   --cerb-editor-syntax-tag: rgb(25,118,116);
   --cerb-editor-syntax-twig: rgb(127,0,85);
+  --cerb-editor-syntax-type: rgb(127,0,127);
   --cerb-editor-syntax-var: rgb(127,0,85);
   
   --cerb-library-background-selected: rgba(255,230,110,0.2);
@@ -265,5 +266,6 @@ $timestamp: 2020100101;
   --cerb-editor-syntax-string: rgb(102,129,86);
   --cerb-editor-syntax-tag: rgb(160,173,187);
   --cerb-editor-syntax-twig: rgb(239,97,192);
+  --cerb-editor-syntax-type: rgb(180,180,180);
   --cerb-editor-syntax-var: rgb(229,188,105);
 }

@@ -1704,16 +1704,16 @@ class CerberusContexts {
 					if(0 == strcasecmp('ctx://',substr($url,0,6))) {
 						$url = self::getUrlFromContextUrl($url);
 						if(isset($vars[$token])) {
-							$vars[$token] = '<a href="'.$url.'" style="font-weight:bold;">'.$vars[$token].'</a>';
+							$vars[$token] = '<a href="'.$url.'" class="subject">'.$vars[$token].'</a>';
 						}
 					} elseif(0 == strcasecmp('http',substr($url,0,4))) {
 						if(isset($vars[$token])) {
-							$vars[$token] = '<a href="'.$url.'" target="_blank" rel="noopener" style="font-weight:bold;">'.$vars[$token].'</a>';
+							$vars[$token] = '<a href="'.$url.'" target="_blank" rel="noopener" class="subject">'.$vars[$token].'</a>';
 						}
 					} else {
 						$url = $url_writer->writeNoProxy($url, true);
 						if(isset($vars[$token])) {
-							$vars[$token] = '<a href="'.$url.'" style="font-weight:bold;">'.$vars[$token].'</a>';
+							$vars[$token] = '<a href="'.$url.'" class="subject">'.$vars[$token].'</a>';
 						}
 					}
 				}
@@ -1730,7 +1730,7 @@ class CerberusContexts {
 				foreach($entry['urls'] as $token => $url) {
 					if(0 == strcasecmp('ctx://',substr($url,0,6))) {
 						if(false != ($parts = self::parseContextUrl($url))) {
-							$vars[$token] = sprintf('<a href="javascript:;" class="cerb-peek-trigger" data-context="%s" data-context-id="%d" data-profile-url="%s" style="font-weight:bold;">%s</a>',
+							$vars[$token] = sprintf('<a href="javascript:;" class="cerb-peek-trigger subject" data-context="%s" data-context-id="%d" data-profile-url="%s">%s</a>',
 								$parts['context'],
 								$parts['id'],
 								$parts['url'],
@@ -1738,11 +1738,11 @@ class CerberusContexts {
 							);
 						}
 					} elseif(0 == strcasecmp('http',substr($url,0,4))) {
-						$vars[$token] = '<a href="'.$url.'" target="_blank" rel="noopener" style="font-weight:bold;">'.$vars[$token].'</a>';
+						$vars[$token] = '<a href="'.$url.'" target="_blank" rel="noopener" class="subject">'.$vars[$token].'</a>';
 
 					} else {
 						$url = $url_writer->writeNoProxy($url, true);
-						$vars[$token] = '<a href="'.$url.'" style="font-weight:bold;">'.$vars[$token].'</a>';
+						$vars[$token] = '<a href="'.$url.'" class="subject">'.$vars[$token].'</a>';
 					}
 				}
 				break;
