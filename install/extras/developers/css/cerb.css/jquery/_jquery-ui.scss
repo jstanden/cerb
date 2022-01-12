@@ -84,13 +84,13 @@ UL.ui-menu {
 SPAN.ui-helper-hidden-accessible { display: none; }
 
 UL.ui-autocomplete.ui-menu li.ui-menu-item {
-	color: rgb(74,110,158);
+	color: var(--cerb-color-menu-item-text);
 	font-weight: bold;
 }
 
 UL.ui-autocomplete.ui-menu li.ui-menu-item.ui-state-focus {
-	background-color: rgb(105,140,221);
-	color: var(--cerb-color-text-inverse);
+	background-color: var(--cerb-color-menu-item-hover);
+	color: white;
 	font-weight: bold;
 }
 

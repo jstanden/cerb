@@ -68,9 +68,9 @@
 			<td data-column="icon" rowspan="4" align="center">
 				<div style="margin:0px 5px 5px 5px;position:relative;">
 					{if !empty($plugin) && isset($plugin->manifest_cache.plugin_image) && !empty($plugin->manifest_cache.plugin_image)}
-						<img src="{devblocks_url}c=resource&p={$plugin->id}&f={$plugin->manifest_cache.plugin_image}{/devblocks_url}" width="100" height="100" style="border:1px solid rgb(200,200,200);">
+						<img src="{devblocks_url}c=resource&p={$plugin->id}&f={$plugin->manifest_cache.plugin_image}{/devblocks_url}" width="100" height="100" style="border:1px solid var(--cerb-color-background-contrast-200);">
 					{else}
-						<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/wgm/plugin_code_gray.gif{/devblocks_url}" width="100" height="100" style="border:1px solid rgb(200,200,200);">
+						<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/wgm/plugin_code_gray.gif{/devblocks_url}" width="100" height="100" style="border:1px solid var(--cerb-color-background-contrast-200);">
 					{/if}
 					{if !$result.c_enabled}
 						<span class="plugin_icon_overlay_disabled"></span>
@@ -108,9 +108,9 @@
 			{elseif $column=="c_enabled"}
 				<td data-column="{$column}">
 					{if !$result.c_enabled}
-						<a href="javascript:;" onclick="" style="color:rgb(120,0,0);text-decoration:none;font-weight:bold;">{'common.no'|devblocks_translate}</a>
+						<a href="javascript:;" onclick="" style="color:var(--cerb-color-error-text);text-decoration:none;font-weight:bold;">{'common.no'|devblocks_translate}</a>
 					{else}
-						<a href="javascript:;" onclick="" style="color:rgb(0,0,0);text-decoration:none;font-weight:normal;">{'common.yes'|devblocks_translate}</a>
+						<a href="javascript:;" onclick="" style="color:var(--cerb-color-text);text-decoration:none;font-weight:normal;">{'common.yes'|devblocks_translate}</a>
 					{/if}
 				</td>
 			{elseif $column=="c_author"}
@@ -133,7 +133,7 @@
 				</div>
 				<div style="margin:5px;">
 					{if !empty($plugin)}
-						<div class="badge badge-lightgray" style="padding:3px;"><a href="javascript:;" onclick="genericAjaxPopup('peek','c=config&a=invoke&module=plugins&action=showPopup&plugin_id={$result.c_id}&view_id={$view->id}',null,true,'550');" style="color:rgb(0,0,0);text-decoration:none;font-weight:bold;">Configure &#x25be;</a></div>
+						<div class="badge badge-lightgray" style="padding:3px;"><a href="javascript:;" onclick="genericAjaxPopup('peek','c=config&a=invoke&module=plugins&action=showPopup&plugin_id={$result.c_id}&view_id={$view->id}',null,true,'550');" style="color:var(--cerb-color-text);text-decoration:none;font-weight:bold;">Configure &#x25be;</a></div>
 					{/if}
 					
 					{if !$meets_requirements && !empty($plugin)}

@@ -3,7 +3,7 @@
 		{if $worker->__is_online}
 		<div style="display:inline-block;border-radius:10px;width:10px;height:10px;background-color:rgb(0,180,0);margin-right:5px;line-height:10px;"></div>
 		{else}
-		<div style="display:inline-block;border-radius:10px;width:10px;height:10px;background-color:rgb(230,230,230);margin-right:5px;line-height:10px;"></div>
+		<div style="display:inline-block;border-radius:10px;width:10px;height:10px;background-color:var(--cerb-color-background-contrast-230);margin-right:5px;line-height:10px;"></div>
 		{/if}
 		<img src="{devblocks_url}c=avatars&context=worker&context_id={$worker->id}{/devblocks_url}?v={$worker->updated}" style="height:25px;width:25px;border-radius:25px;" align="middle">
 		<a href="javascript:;" class="item no-underline"><b>{$worker->getName()}</b></a>
@@ -19,7 +19,7 @@
 			{$availability = $worker->__availability}
 			{foreach from=$availability.blocks item=block name=blocks}
 			{var_dump($block)}
-			--><div style="width:{{$block.length/$availability.ticks*100}|round}px;height:10px;{if $block.available}background-color:rgb(0,200,0);{else}background-color:rgb(230,230,230);{/if}display:inline-block;{if $smarty.foreach.blocks.first && $smarty.foreach.blocks.last}border-radius:10px;{elseif $smarty.foreach.blocks.first}border-radius:10px 0px 0px 10px;{elseif $smarty.foreach.blocks.last}border-radius:0px 10px 10px 0px;{/if}" title="{$block.start|devblocks_date} - {$block.end|devblocks_date}"></div><!--
+			--><div style="width:{{$block.length/$availability.ticks*100}|round}px;height:10px;{if $block.available}background-color:rgb(0,200,0);{else}background-color:var(--cerb-color-background-contrast-230);{/if}display:inline-block;{if $smarty.foreach.blocks.first && $smarty.foreach.blocks.last}border-radius:10px;{elseif $smarty.foreach.blocks.first}border-radius:10px 0px 0px 10px;{elseif $smarty.foreach.blocks.last}border-radius:0px 10px 10px 0px;{/if}" title="{$block.start|devblocks_date} - {$block.end|devblocks_date}"></div><!--
 			{/foreach}-->
 		</div>
 	</td>
@@ -33,7 +33,7 @@
 	</td>
 	{if $show_responsibilities}
 	<td nowrap="nowrap">
-		<div style="position:relative;margin:0px 5px;width:70px;height:10px;background-color:rgb(230,230,230);border-radius:10px;display:inline-block;">
+		<div style="position:relative;margin:0px 5px;width:70px;height:10px;background-color:var(--cerb-color-background-contrast-230);border-radius:10px;display:inline-block;">
 			<span style="display:inline-block;background-color:rgb(200,200,200);height:14px;width:1px;position:absolute;top:-2px;margin-left:1px;left:50%;"></span>
 			<div style="position:relative;margin-left:-6px;top:-2px;left:{$worker->__responsibility}%;width:14px;height:14px;border-radius:14px;background-color:{if $worker->__responsibility < 50}rgb(230,70,70);{elseif $worker->__responsibility > 50}rgb(0,200,0);{else}rgb(175,175,175);{/if}"></div>
 		</div>

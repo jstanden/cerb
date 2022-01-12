@@ -16,7 +16,7 @@
 	<a href="javascript:;" onclick="toggleDiv('jobedit_{$jobdiv}');">{$job->manifest->name}</a>
 </h3>
 
-<div style="display:block;border:1px solid rgb(200,200,200);background-color:rgb(255,255,255);padding:5px;margin:5px;">
+<div style="display:block;border:1px solid var(--cerb-color-background-contrast-200);background-color:var(--cerb-color-background);padding:5px;margin:5px;">
 	{assign var=duration value=$job->getParam('duration',5)}
 	{assign var=term value=$job->getParam('term','m')}
 	Runs every: {$duration}

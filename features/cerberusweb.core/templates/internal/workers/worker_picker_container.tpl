@@ -33,7 +33,7 @@
 	
 </table>
 
-<fieldset class="peek" style="margin-top:10px;border:0;background:0;box-shadow: 0px 5px 15px 0px #afafaf;border-radius:5px;">
+<fieldset class="peek" style="margin-top:10px;border:0;background:0;box-shadow:0 0 10px 3px var(--cerb-color-shadow-menu);border-radius:5px;">
 	<div>
 		<b>{'common.add'|devblocks_translate|capitalize}:</b>
 		<input type="text" class="input_search" size="45" style="border-radius:10px;border-color:rgb(200,200,200);" autofocus="autofocus">

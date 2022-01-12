@@ -38,7 +38,7 @@
 				{if $layout.title_column}
 				{$column = $columns[$layout.title_column]}
 				<tr>
-					<td colspan="{$columns|count-1}" style="padding:0 0 0 5px;font-size:1.1em;font-weight:bold;">{$row[$column.key] nofilter}</td>
+					<td class="cerb-sheet--row-title" colspan="{$columns|count-1}">{$row[$column.key] nofilter}</td>
 				</tr>
 				{/if}
 
