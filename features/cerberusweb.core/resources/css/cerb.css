@@ -2664,6 +2664,7 @@ TABLE.cerb-widget-data-table td {
   padding: 5px;
   white-space: normal;
   word-break: break-word;
+  color: var(--cerb-color-background-contrast-100);
 }
 TABLE.cerb-widget-data-table tbody:nth-child(even) td {
   background-color: var(--cerb-color-table-row-alt-background);
@@ -2676,6 +2677,12 @@ TABLE.cerb-widget-data-table tbody.selected td {
 }
 TABLE.cerb-widget-data-table tbody.hover tr td {
   background-color: var(--cerb-color-table-row-hover-background) !important;
+}
+TABLE.cerb-widget-data-table .cerb-sheet--row-title {
+  font-size: 1.1em;
+  font-weight: bold;
+  color: var(--cerb-color-table-row-subject);
+  padding: 0 0 0 5px;
 }
 
 .cerb-widget-drag-placeholder {
@@ -2789,13 +2796,13 @@ SPAN.ui-helper-hidden-accessible {
 }
 
 UL.ui-autocomplete.ui-menu li.ui-menu-item {
-  color: #4a6e9e;
+  color: var(--cerb-color-menu-item-text);
   font-weight: bold;
 }
 
 UL.ui-autocomplete.ui-menu li.ui-menu-item.ui-state-focus {
-  background-color: #698cdd;
-  color: var(--cerb-color-text-inverse);
+  background-color: var(--cerb-color-menu-item-hover);
+  color: white;
   font-weight: bold;
 }
 

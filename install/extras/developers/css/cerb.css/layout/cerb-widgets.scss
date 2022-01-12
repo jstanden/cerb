@@ -10,6 +10,7 @@ TABLE.cerb-widget-data-table {
 		padding: 5px;
 		white-space: normal;
 		word-break: break-word;
+		color: var(--cerb-color-background-contrast-100);
 	}
 	
 	tbody:nth-child(even) td {
@@ -26,6 +27,13 @@ TABLE.cerb-widget-data-table {
 		&.hover tr td {
 			background-color: var(--cerb-color-table-row-hover-background) !important;
 		}
+	}
+
+	.cerb-sheet--row-title {
+		font-size:1.1em;		
+		font-weight: bold;
+		color: var(--cerb-color-table-row-subject);
+		padding:0 0 0 5px;
 	}
 }
 

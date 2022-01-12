@@ -70,7 +70,6 @@
 						<div class="event" style="background-color:{$event.color|default:'#C8C8C8'};" link="{$event.link}">
 							{if $is_today && $now >= $event.ts && $now <= $event.ts_end}<span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span>{/if}
 							<span style="color:rgb(0,0,0);">{$event.label}</span>
-							{*<a href="javascript:;" style="color:rgb(0,0,0);">{$event.label}</a>*}
 						</div>
 					{/foreach}
 				{/if}

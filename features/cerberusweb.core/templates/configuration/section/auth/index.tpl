@@ -16,7 +16,7 @@
 		<div class="cerb-sortable" style="margin:5px 0px 0px 10px;">
 			{foreach from=$sso_services_available item=sso_service}
 			<div class="cerb-sort-item">
-				<span class="glyphicons glyphicons-menu-hamburger" style="cursor:move;vertical-align:top;color:rgb(175,175,175);line-height:1.4em;margin-right:2px;"></span>
+				<span class="glyphicons glyphicons-menu-hamburger" style="cursor:move;vertical-align:top;color:var(--cerb-color-background-contrast-170);line-height:1.4em;margin-right:2px;"></span>
 				
 				<label>
 					<input type="checkbox" name="params[auth_sso_service_ids][]" value="{$sso_service->id}" {if array_key_exists($sso_service->id, $sso_services_enabled)}checked="checked"{/if}> 

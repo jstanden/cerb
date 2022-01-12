@@ -46,7 +46,7 @@
 	<div class="status"></div>
 	
 	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	<button type="button" onclick="javascript:toggleDiv('jobedit_{$extid}');"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+	<button type="button" onclick="javascript:toggleDiv('jobedit_{$extid}');"><span class="glyphicons glyphicons-circle-remove"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 	</form>
 </fieldset>
 

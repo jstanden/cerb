@@ -73,12 +73,12 @@
 					{assign var=string_id value=$result.tl_string_id}
 					{assign var=english_string value=$english_map.$string_id}
 					{if !empty($result.tl_string_default) || !empty($result.tl_string_override)}
-						<b style="color:rgb(50,50,50);">{$langs.$lang_code}:</b><br>
+						<b style="color:var(--cerb-color-background-contrast-50);">{$langs.$lang_code}:</b><br>
 						{if !empty($result.tl_string_default)}{* if official translation *}
 						<div style="margin-top:5px;">
 						<table cellpadding="0" cellspacing="0" style="border:1px dotted rgb(0,102,255);">
 							<tr>
-							<td style="padding:3px;color:rgb(0, 102, 255);font-size:10pt;">
+							<td style="padding:3px;color:var(--cerb-color-action-primary);font-size:10pt;">
 								{$result.tl_string_default|escape|nl2br nofilter}
 							</td>
 							</tr>
@@ -87,10 +87,10 @@
 						{else}{* If unofficial translation *}
 							{if 'en_US' != $result.tl_lang_code}
 							{if !empty($english_string)}
-							<span style="color:rgb(50,50,50);">{'translators.config.translate_from'|devblocks_translate:$langs.en_US}</span><br>
-							<table cellpadding="0" cellspacing="0" style="margin-top:5px;margin-bottom:5px;border:1px dotted rgb(0, 102, 255);">
+							<span style="color:var(--cerb-color-background-contrast-50);">{'translators.config.translate_from'|devblocks_translate:$langs.en_US}</span><br>
+							<table cellpadding="0" cellspacing="0" style="margin-top:5px;margin-bottom:5px;border:1px dotted var(--cerb-color-action-primary);">
 							<tr>
-							<td style="padding:3px;color:rgb(0, 102, 255);font-size:10pt;">
+							<td style="padding:3px;color:var(--cerb-color-action-primary);font-size:10pt;">
 								{$english_string->string_default|escape|nl2br nofilter}
 							</td>
 							</tr>
@@ -101,11 +101,11 @@
 					{else}{* String not set *}
 						{if 'en_US' != $result.tl_lang_code}
 						{if !empty($english_string)}
-						<b style="color:rgb(175,0,0);"><span class="glyphicons glyphicons-alert"></span> {$langs.$lang_code}</b><br>
-						<span style="color:rgb(50,50,50);">{'translators.config.translate_from'|devblocks_translate:$langs.en_US}</span><br>
-						<table cellpadding="0" cellspacing="0" style="margin-top:5px;margin-bottom:5px;border:1px dotted rgb(200,0,0);">
+						<b style="color:var(--cerb-color-error-text);"><span class="glyphicons glyphicons-alert"></span> {$langs.$lang_code}</b><br>
+						<span style="color:var(--cerb-color-background-contrast-50);">{'translators.config.translate_from'|devblocks_translate:$langs.en_US}</span><br>
+						<table cellpadding="0" cellspacing="0" style="margin-top:5px;margin-bottom:5px;border:1px dotted var(--cerb-color-error-text);">
 						<tr>
-						<td style="padding:3px;color:rgb(50,50,50);font-size:10pt;">
+						<td style="padding:3px;color:var(--cerb-color-background-contrast-50);font-size:10pt;">
 							{$english_string->string_default|escape|nl2br nofilter}
 						</td>
 						</tr>
@@ -126,7 +126,7 @@
 			{elseif $column=="tl_string_override"}
 				<td data-column="{$column}">
 					{math assign=height equation="25+(25*floor(x/65))" x=$english_string->string_default|count_characters format="%d"}
-					<textarea name="translations[]" style="width:98%;height:{$height}px;border:1px solid rgb(80,80,80);" rows="3" cols="45">{if !empty($result.$column)}{$result.$column}{/if}</textarea>
+					<textarea name="translations[]" style="width:98%;height:{$height}px;" rows="3" cols="45">{if !empty($result.$column)}{$result.$column}{/if}</textarea>
 				</td>
 			{elseif $column=="tl_string_id"}
 				<td data-column="{$column}" valign="top">{$result.$column}&nbsp;</td>

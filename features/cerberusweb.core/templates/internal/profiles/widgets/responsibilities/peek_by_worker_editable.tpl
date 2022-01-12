@@ -28,7 +28,7 @@
 				
 				<div class="cerb-slider-readonly" style="margin-bottom:15px;">
 					<input type="hidden" name="responsibilities[{$bucket->id}]" value="{$responsibility|default:0}" data-worker-id="{$worker->id}" data-bucket-id="{$bucket->id}">
-					<div style="margin:5px 0 0 5px;position:relative;width:250px;height:9px;background-color:rgb(230,230,230);border-radius:9px;">
+					<div style="margin:5px 0 0 5px;position:relative;width:250px;height:9px;background-color:var(--cerb-color-background-contrast-230);border-radius:9px;">
 						<span style="display:inline-block;background-color:rgb(200,200,200);height:18px;width:1px;position:absolute;top:-4px;margin-left:1px;left:50%;"></span>
 						<div class="cerb-slider-handle" style="position:relative;margin-left:-6px;top:-3px;left:{$responsibility}%;width:15px;height:15px;border-radius:15px;background-color:{if $responsibility < 50}rgb(230,70,70);{elseif $responsibility > 50}rgb(0,200,0);{else}rgb(175,175,175);{/if}"></div>
 					</div>
