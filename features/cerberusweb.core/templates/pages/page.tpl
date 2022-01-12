@@ -15,7 +15,7 @@
 		{if !empty($page_owner_meta)}
 			<div style="display:inline-block;margin-right:5px;vertical-align:middle;">
 				Managed by
-				<img src="{devblocks_url}c=avatars&context={$page->owner_context}&context_id={$page->owner_context_id}{/devblocks_url}?v={$page_owner_meta.updated}" style="height:1.5em;width:1.5em;border-radius:0.75em;vertical-align:middle;">
+				<img src="{devblocks_url}c=avatars&context={$page->owner_context}&context_id={$page->owner_context_id}{/devblocks_url}?v={$page_owner_meta.updated}" style="height:1.2em;width:1.2em;border-radius:0.75em;vertical-align:middle;">
 				<b>
 				{if $page->owner_context_id} 
 				<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{$page->owner_context}" data-context-id="{$page->owner_context_id}">{$page_owner_meta.name}</a>

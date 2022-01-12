@@ -57,6 +57,7 @@
   --cerb-color-fieldset-icon: rgb(175,175,175);
   --cerb-color-fieldset-legend: rgb(0,120,0);
   --cerb-color-form-element-focus: rgb(121,183,231);
+  --cerb-color-form-input-background: rgb(255,255,255);
   --cerb-color-h1: rgb(0,120,0);
   --cerb-color-h2: rgb(52,117,186);
   --cerb-color-link: rgb(35,35,35);
@@ -116,6 +117,7 @@
   --cerb-color-tag-gray: rgb(100,100,100);
   --cerb-color-tag-orange: rgb(255,138,0);
   --cerb-callout-background: rgba(220,220,220,0.8);
+  --cerb-editor-background: rgb(255,255,255);
   --cerb-editor-completion-highlight: rgb(45,105,199);
   --cerb-editor-fold: rgb(60,76,114);
   --cerb-editor-line-active: rgb(232,242,254);
@@ -171,6 +173,7 @@
   --cerb-color-fieldset-icon--hover: rgb(155,155,155);
   --cerb-color-fieldset-icon: rgb(80,80,80);
   --cerb-color-fieldset-legend: rgb(255,255,255);
+  --cerb-color-form-input-background: rgb(22,22,22);
   --cerb-color-h1: rgb(0,170,0);
   --cerb-color-h2: rgb(90,165,248);
   --cerb-color-link: rgb(220,220,220);
@@ -211,6 +214,7 @@
   --cerb-tab-active-border: rgb(50,50,50);
   --cerb-tab-active-text: rgb(240,240,240);
   --cerb-callout-background: rgba(57,57,57,0.8);
+  --cerb-editor-background: rgb(22,22,22);
   --cerb-editor-completion-highlight: rgb(255,255,255);
   --cerb-editor-fold: rgb(60,76,114);
   --cerb-editor-line-active: rgb(32,42,54);
@@ -234,7 +238,7 @@ HTML, BODY {
 BODY, FORM, TD {
   font-family: var(--cerb-font-stack);
   font-size: var(--cerb-font-size);
-  color: var(--cerb-color-background-contrast-25);
+  color: var(--cerb-color-background-contrast-50);
 }
 
 A {
@@ -298,7 +302,7 @@ FORM {
 }
 FORM INPUT[type=text], FORM INPUT[type=password], FORM INPUT[type=search] {
   border: 1px solid var(--cerb-color-background-contrast-180);
-  background-color: var(--cerb-color-background);
+  background-color: var(--cerb-color-form-input-background);
   color: var(--cerb-color-text);
   outline: none;
   padding: 3px;
@@ -308,7 +312,7 @@ FORM INPUT[type=text]:focus, FORM INPUT[type=password]:focus, FORM INPUT[type=se
 }
 FORM TEXTAREA {
   border: 1px solid var(--cerb-color-background-contrast-180);
-  background-color: var(--cerb-color-background);
+  background-color: var(--cerb-color-form-input-background);
   color: var(--cerb-color-text);
   outline: none;
   padding: 3px;
@@ -317,7 +321,7 @@ FORM TEXTAREA:focus {
   border: 1px solid var(--cerb-color-form-element-focus);
 }
 FORM SELECT {
-  background-color: var(--cerb-color-background);
+  background-color: var(--cerb-color-form-input-background);
   background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20256%20448%22%20enable-background%3D%22new%200%200%20256%20448%22%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E.arrow%7Bfill%3Argb(128,128,128)%3B%7D%3C%2Fstyle%3E%3Cpath%20class%3D%22arrow%22%20d%3D%22M255.9%20168c0-4.2-1.6-7.9-4.8-11.2-3.2-3.2-6.9-4.8-11.2-4.8H16c-4.2%200-7.9%201.6-11.2%204.8S0%20163.8%200%20168c0%204.4%201.6%208.2%204.8%2011.4l112%20112c3.1%203.1%206.8%204.6%2011.2%204.6%204.4%200%208.2-1.5%2011.4-4.6l112-112c3-3.2%204.5-7%204.5-11.4z%22%2F%3E%3C%2Fsvg%3E%0A");
   background-position: right 10px center;
   background-repeat: no-repeat;
@@ -578,68 +582,68 @@ A.no-underline:hover {
 
 INPUT[type=text].input_add {
   padding: 2px 2px 2px 25px;
-  background: url(input_icons/add.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-background);
+  background: url(input_icons/add.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
 }
 INPUT[type=text].input_color {
   padding: 2px 2px 2px 25px;
-  background: url(input_icons/colors.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-background);
+  background: url(input_icons/colors.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
 }
 INPUT[type=text].input_date {
   padding: 2px 2px 2px 25px;
-  background: url(input_icons/date.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-background);
+  background: url(input_icons/date.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
 }
 INPUT[type=text].input_email {
   padding: 2px 2px 2px 25px;
-  background: url(input_icons/mail.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-background);
+  background: url(input_icons/mail.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
 }
 INPUT[type=text].input_location {
   padding: 2px 2px 2px 25px;
-  background: url(input_icons/location.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-background);
+  background: url(input_icons/location.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
 }
 INPUT[type=text].input_money {
   padding: 2px 2px 2px 25px;
-  background: url(input_icons/money.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-background);
+  background: url(input_icons/money.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
 }
 INPUT[type=text].input_number {
   padding: 2px 2px 2px 25px;
-  background: url(input_icons/number.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-background);
+  background: url(input_icons/number.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
 }
 INPUT[type=text].input_openid {
   padding: 2px 2px 2px 25px;
-  background: url(input_icons/openid.gif?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-background);
+  background: url(input_icons/openid.gif?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
 }
 INPUT[type=text].input_password {
   padding: 2px 2px 2px 25px;
-  background: url(input_icons/lock.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-background);
+  background: url(input_icons/lock.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
 }
 INPUT[type=text].input_percent {
   padding: 2px 2px 2px 25px;
-  background: url(input_icons/percent.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-background);
+  background: url(input_icons/percent.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
 }
 INPUT[type=text].input_phone {
   padding: 2px 2px 2px 25px;
-  background: url(input_icons/phone.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-background);
+  background: url(input_icons/phone.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
 }
 INPUT[type=text].input_remove {
   padding: 2px 2px 2px 25px;
-  background: url(input_icons/forbidden.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-background);
+  background: url(input_icons/forbidden.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
 }
 INPUT[type=text].input_search {
   padding: 2px 2px 2px 25px;
-  background: url(input_icons/view.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-background);
+  background: url(input_icons/view.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
 }
 INPUT[type=text].input_tags {
   padding: 2px 2px 2px 25px;
-  background: url(input_icons/tag.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-background);
+  background: url(input_icons/tag.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
 }
 INPUT[type=text].input_url {
   padding: 2px 2px 2px 25px;
-  background: url(input_icons/link.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-background);
+  background: url(input_icons/link.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
 }
 
 INPUT[type=password] {
   padding: 2px 2px 2px 25px;
-  background: url(input_icons/lock.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-background);
+  background: url(input_icons/lock.png?v=2020100101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
 }
 
 PRE.emailbody, DIV.emailbody {
@@ -962,7 +966,13 @@ TABLE.worklistBody th.no-sort:hover A {
 TABLE.worklistBody TD {
   overflow: hidden;
   font-size: 11px;
-  padding-right: 5px;
+  padding-top: 0.5em;
+  padding-right: 0.5em;
+  color: var(--cerb-color-background-contrast-100);
+}
+TABLE.worklistBody TD:not([colspan]) {
+  padding-top: 0;
+  padding-bottom: 0.5em;
 }
 TABLE.worklistBody TD A.subject, TABLE.worklistBody TD B.subject {
   font-size: 12px;

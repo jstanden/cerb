@@ -149,7 +149,7 @@
 				{$worker_id = $result.$column}
 				{if isset($workers.$worker_id)}
 					{$worker = $workers.$worker_id}
-					<img src="{devblocks_url}c=avatars&context=worker&context_id={$worker->id}{/devblocks_url}?v={$worker->updated}" style="height:1.5em;width:1.5em;border-radius:0.75em;vertical-align:middle;">
+					<img src="{devblocks_url}c=avatars&context=worker&context_id={$worker->id}{/devblocks_url}?v={$worker->updated}" style="height:1.2em;width:1.2em;border-radius:0.75em;vertical-align:middle;">
 					<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$worker_id}">{$workers.{$worker_id}->getName()}</a>
 				{/if}
 				</td>

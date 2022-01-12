@@ -12,7 +12,7 @@ width: 1px;\
 background: #ebebeb;\
 }\
 .ace-cerb {\
-background-color: var(--cerb-color-background);\
+background-color: var(--cerb-editor-background);\
 color: var(--cerb-color-text);\
 }\
 .ace-cerb .ace_fold {\
