@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit9b9a1d2603e0a2a73097c05926069c28
+class ComposerStaticInit0b1d5c52a8a0d95287018a0c89539916
 {
     public static $files = array (
         '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
@@ -14,10 +14,10 @@ class ComposerStaticInit9b9a1d2603e0a2a73097c05926069c28
         'f598d06aa772fa33d905e87be6398fb1' => __DIR__ . '/..' . '/symfony/polyfill-intl-idn/bootstrap.php',
         '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
         'a4a119a56e50fbb293281d9a48007e0e' => __DIR__ . '/..' . '/symfony/polyfill-php80/bootstrap.php',
+        '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
         'c964ee0ededf28c96ebd9db5099ef910' => __DIR__ . '/..' . '/guzzlehttp/promises/src/functions_include.php',
         'a0edc8309cc5e1d60e3047b5df6b7052' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/functions_include.php',
         '23c18046f52bef3eea034657bafda50f' => __DIR__ . '/..' . '/symfony/polyfill-php81/bootstrap.php',
-        '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
         '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
         '6124b4c8570aa390c21fafd04a26c69f' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/deep_copy.php',
         'decc78cc4436b1292c6c0d151b19445c' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/bootstrap.php',
@@ -33,6 +33,10 @@ class ComposerStaticInit9b9a1d2603e0a2a73097c05926069c28
         array (
             'phpseclib\\' => 10,
             'phpDocumentor\\Reflection\\' => 25,
+        ),
+        'e' => 
+        array (
+            'enshrined\\svgSanitize\\' => 22,
         ),
         'd' => 
         array (
@@ -124,6 +128,10 @@ class ComposerStaticInit9b9a1d2603e0a2a73097c05926069c28
             0 => __DIR__ . '/..' . '/phpdocumentor/reflection-common/src',
             1 => __DIR__ . '/..' . '/phpdocumentor/type-resolver/src',
             2 => __DIR__ . '/..' . '/phpdocumentor/reflection-docblock/src',
+        ),
+        'enshrined\\svgSanitize\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/enshrined/svg-sanitize/src',
         ),
         'donatj\\UserAgent\\' => 
         array (
@@ -1381,10 +1389,10 @@ class ComposerStaticInit9b9a1d2603e0a2a73097c05926069c28
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit9b9a1d2603e0a2a73097c05926069c28::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit9b9a1d2603e0a2a73097c05926069c28::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInit9b9a1d2603e0a2a73097c05926069c28::$prefixesPsr0;
-            $loader->classMap = ComposerStaticInit9b9a1d2603e0a2a73097c05926069c28::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit0b1d5c52a8a0d95287018a0c89539916::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit0b1d5c52a8a0d95287018a0c89539916::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit0b1d5c52a8a0d95287018a0c89539916::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInit0b1d5c52a8a0d95287018a0c89539916::$classMap;
 
         }, null, ClassLoader::class);
     }

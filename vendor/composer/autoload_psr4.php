@@ -8,6 +8,7 @@ $baseDir = dirname($vendorDir);
 return array(
     'phpseclib\\' => array($vendorDir . '/phpseclib/phpseclib/phpseclib'),
     'phpDocumentor\\Reflection\\' => array($vendorDir . '/phpdocumentor/reflection-common/src', $vendorDir . '/phpdocumentor/type-resolver/src', $vendorDir . '/phpdocumentor/reflection-docblock/src'),
+    'enshrined\\svgSanitize\\' => array($vendorDir . '/enshrined/svg-sanitize/src'),
     'donatj\\UserAgent\\' => array($vendorDir . '/donatj/phpuseragentparser/src/UserAgent'),
     'Webmozart\\Assert\\' => array($vendorDir . '/webmozart/assert/src'),
     'Twig\\' => array($vendorDir . '/twig/twig/src'),
