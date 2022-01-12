@@ -631,6 +631,66 @@ if(!array_key_exists('extension_kata', $columns)) {
 }
 
 // ===========================================================================
+// Convert storage logo to a resource record
+
+$logo_id = $db->GetOneMaster("SELECT id FROM resource WHERE name = 'ui.logo'");
+
+if(!$logo_id && file_exists(APP_STORAGE_PATH . '/logo')) {
+	$image_stats = getimagesizefromstring(file_get_contents(APP_STORAGE_PATH . '/logo'));
+	
+	if($image_stats) {
+		$logo_params = [
+			'width' => $image_stats[0] ?? 0,
+			'height' => $image_stats[1] ?? 0,
+			'mime_type' => $image_stats['mime'] ?? '',
+		];
+		
+		$db->ExecuteWriter(
+			sprintf(
+				"INSERT INTO resource (name, storage_size, storage_key, storage_extension, storage_profile_id, updated_at, description, extension_id, extension_kata, automation_kata, is_dynamic, expires_at) " .
+				"VALUES (%s, %d, %s, %s, %d, %d, %s, %s, %s, %s, %d, %d)",
+				$db->qstr('ui.logo'),
+				0,
+				$db->qstr(''),
+				$db->qstr(''),
+				0,
+				time(),
+				$db->qstr('The logo displayed in the top left of the UI'),
+				$db->qstr('cerb.resource.image'),
+				$db->qstr(DevblocksPlatform::services()->kata()->emit($logo_params)),
+				$db->qstr(''),
+				0,
+				0
+			)
+		);
+		
+		$logo_id = $db->LastInsertId();
+		
+		if($logo_id) {
+			$fp = fopen(APP_STORAGE_PATH . '/logo', 'rb');
+			$fp_stat = fstat($fp);
+			
+			$storage = new DevblocksStorageEngineDatabase();
+			$storage->setOptions([]);
+			$storage_key = $storage->put('resources', $logo_id, $fp);
+			
+			$sql = sprintf("UPDATE resource SET storage_extension = %s, storage_key = %s, storage_size = %d WHERE id = %d",
+				$db->qstr('devblocks.storage.engine.database'),
+				$db->qstr($storage_key),
+				$fp_stat['size'],
+				$logo_id
+			);
+			$db->ExecuteMaster($sql);
+			
+			fclose($fp);
+			
+			$db->ExecuteMaster("UPDATE IGNORE devblocks_setting SET value = UNIX_TIMESTAMP() WHERE setting = 'ui_user_logo_updated_at'");
+			$db->ExecuteMaster("DELETE FROM devblocks_setting WHERE setting = 'ui_user_logo_mimetype'");
+		}
+	}
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

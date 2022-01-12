@@ -7,7 +7,7 @@
 
 <body>
 <div>
-	<img src="cerb_logo.png">
+	<img src="cerb_logo.svg" height="80" width="280">
 </div>
 
 <H1>Installing Cerb {$smarty.const.APP_VERSION}</H1>

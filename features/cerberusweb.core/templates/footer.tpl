@@ -20,7 +20,13 @@
 			</span>
 		</td>
 		<td valign="top" align="right">
-			<a href="https://cerb.ai/" target="_blank" rel="noopener"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/wgm/powered_by_cerb.png{/devblocks_url}?v={$smarty.const.APP_BUILD}" border="0"></a>
+			<a href="https://cerb.ai/" target="_blank" rel="noopener">
+				{if $pref_dark_mode}
+				<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/wgm/powered_by_cerb_dark.svg{/devblocks_url}?v={$smarty.const.APP_BUILD}" border="0" width="140" height="50">
+				{else}
+				<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/wgm/powered_by_cerb.svg{/devblocks_url}?v={$smarty.const.APP_BUILD}" border="0" width="140" height="50">
+				{/if}
+			</a>
 		</td>
 	</tr>
 </table>
