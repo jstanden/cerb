@@ -198,8 +198,8 @@ EOD;
 		$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
 		$output = DevblocksPlatform::purifyHTML($output, true, true, [$filter]);
 		
+		$tpl->assign('css_class', 'emailBodyHtmlLight');
 		$tpl->assign('content', $output);
-		
 		$tpl->display('devblocks:cerberusweb.core::internal/editors/preview_popup.tpl');
 	}
 	

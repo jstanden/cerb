@@ -202,6 +202,7 @@ class PageSection_ProfilesEmailSignature extends Extension_PageSection {
 			$signature = nl2br($signature);
 		}
 		
+		$tpl->assign('css_class', 'emailBodyHtmlLight');
 		$tpl->assign('content', $signature);
 		$tpl->display('devblocks:cerberusweb.core::internal/editors/preview_popup.tpl');
 	}
