@@ -420,7 +420,7 @@ class _DevblocksTemplateManager {
 			
 			if($quote_started && $quote_ended) {
 				if($quote_ended - $quote_started >= $length) {
-					$line_count = count($lines) . ' line' . (count($lines) == 1 ? '' : 's');
+					$line_count = ($quote_ended - $quote_started + 1) . ' line' . (count($lines) == 1 ? '' : 's');
 					$lines[$quote_started] = "<div class='cerb-code-editor-toolbar' style='display:inline-block;margin:0.5em 0;'><button type='button' class='cerb-code-editor-toolbar-button' onclick=\"$(this).closest('div').next('div').toggle();$(this).parent().fadeOut();\"><span class=\"glyphicons glyphicons-quote\"></span> Expand quoted text (" . $line_count . ")</button></div><div class='cerb-email-quote' style='display:none;'>" . $lines[$quote_started];
 					$lines[$quote_ended] = $lines[$quote_ended]."</div>";
 				}
