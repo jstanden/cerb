@@ -181,7 +181,7 @@
 				</button>
 			</div>
 			{/if}
-			<div class="emailBodyHtml" dir="auto">
+			<div class="{if $is_outgoing}emailBodyHtml{else}emailBodyHtmlLight{/if}" dir="auto">
 				{$html_body nofilter}
 			</div>
 		{else}

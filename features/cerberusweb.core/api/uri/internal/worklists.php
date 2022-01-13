@@ -544,6 +544,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 			}
 			
 			if($success) {
+				$tpl->assign('css_class', 'emailBodyHtmlLight');
 				$tpl->assign('content', $output);
 				$tpl->display('devblocks:cerberusweb.core::internal/editors/preview_popup.tpl');
 				

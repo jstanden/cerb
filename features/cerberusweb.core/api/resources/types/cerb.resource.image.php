@@ -17,7 +17,7 @@ class ResourceType_Image extends Extension_ResourceType {
 			
 			fseek($fp, 0);
 			
-			if(DevblocksPlatform::strStartsWith($bytes, '<svg ')) {
+			if(DevblocksPlatform::strStartsWith($bytes, ['<svg ','<?xml'])) {
 				$sanitizer = new Sanitizer();
 				$sanitizer->removeRemoteReferences(true);
 				

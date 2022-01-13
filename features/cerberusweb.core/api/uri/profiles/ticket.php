@@ -1005,6 +1005,7 @@ EOD;
 		}
 		
 		$tpl->assign('is_inline', true);
+		$tpl->assign('css_class', 'emailBodyHtmlLight');
 		$tpl->assign('content', $output);
 		$tpl->display('devblocks:cerberusweb.core::internal/editors/preview_popup.tpl');
 	}
