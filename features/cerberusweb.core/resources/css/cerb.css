@@ -105,6 +105,7 @@
   --cerb-color-table-row-hover-background: rgb(255,255,200);
   --cerb-color-table-row-selected-background: rgb(251,236,136);
   --cerb-color-table-row-subject: rgb(0,0,0);
+  --cerb-color-table-row-text: rgb(75,75,75);
   --cerb-tab-active: rgb(239,249,255);
   --cerb-tab-active-gradient: rgb(255,255,255);
   --cerb-tab-active-border: rgb(121,183,231);
@@ -214,6 +215,7 @@
   --cerb-color-table-row-hover-background: rgb(50,60,90);
   --cerb-color-table-row-selected-background: rgb(75,85,120);
   --cerb-color-table-row-subject: rgb(255,255,255);
+  --cerb-color-table-row-text: rgb(187,187,187);
   --cerb-tab-active: rgb(60,60,60);
   --cerb-tab-active-gradient: rgb(32,32,32);
   --cerb-tab-active-border: rgb(50,50,50);
@@ -977,7 +979,7 @@ TABLE.worklistBody TD {
   font-size: 11px;
   padding-top: 0.5em;
   padding-right: 0.5em;
-  color: var(--cerb-color-background-contrast-100);
+  color: var(--cerb-color-table-row-text);
 }
 TABLE.worklistBody TD:not([colspan]) {
   padding-top: 0;
@@ -1733,7 +1735,7 @@ DIV.emailBodyHtml ABBR {
   border-bottom-color: var(--cerb-color-text);
 }
 DIV.emailBodyHtml BODY, DIV.emailBodyHtml FORM, DIV.emailBodyHtml TD {
-  color: var(--cerb-color-background-contrast-75);
+  color: var(--cerb-color-table-row-text);
 }
 DIV.emailBodyHtml BLOCKQUOTE {
   color: var(--cerb-color-background-contrast-100);
@@ -2716,7 +2718,7 @@ TABLE.cerb-widget-data-table td {
   padding: 5px;
   white-space: normal;
   word-break: break-word;
-  color: var(--cerb-color-background-contrast-100);
+  color: var(--cerb-color-table-row-text);
 }
 TABLE.cerb-widget-data-table tbody:nth-child(even) td {
   background-color: var(--cerb-color-table-row-alt-background);

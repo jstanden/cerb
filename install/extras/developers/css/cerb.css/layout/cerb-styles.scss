@@ -735,7 +735,7 @@ TABLE.worklistBody {
 		font-size: 11px;
 		padding-top: 0.5em;
 		padding-right: 0.5em;
-		color: var(--cerb-color-background-contrast-100);
+		color: var(--cerb-color-table-row-text);
 		
 		&:not([colspan]) {
 			padding-top: 0;
@@ -1681,7 +1681,7 @@ DIV.emailBodyHtml {
 	}
 
 	BODY, FORM, TD {
-		color: var(--cerb-color-background-contrast-75);
+		color: var(--cerb-color-table-row-text);
 	}
 
 	BLOCKQUOTE {
