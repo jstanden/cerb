@@ -15,15 +15,15 @@
 	</div>
 	<div style="flex:1 1 250px;text-align:right;padding-bottom:5px;margin-top:auto;">
 			<img src="{devblocks_url}c=avatars&context=worker&context_id={$active_worker->id}{/devblocks_url}?v={$active_worker->updated}" style="height:1.75em;width:1.75em;border-radius:0.875em;vertical-align:middle;">
-			<b><a href="javascript:;" id="lnkSignedIn" data-worker-id="{$active_worker->id}" data-worker-name="{$active_worker->getName()}">{$active_worker->getName()}</a></b><span class="glyphicons glyphicons-chevron-down" style="margin:2px 0px 0px 2px;"></span>
+			<b><a href="javascript:;" id="lnkSignedIn" data-worker-id="{$active_worker->id}" data-worker-name="{$active_worker->getName()}">{$active_worker->getName()}</a></b><span class="glyphicons glyphicons-chevron-down" style="margin:2px 0 0 2px;vertical-align:baseline;"></span>
 			{if $visit->isImposter()}
 				[ <a href="javascript:;" id="aImposter">{$visit->getImposter()->getName()}</a> ]
 			{/if}
 
 			{if $pref_dark_mode}
-				<span id="cerb-theme" data-theme="dark" title="Switch to light mode" class="glyphicons glyphicons-moon" style="margin:0 0 0 5px;vertical-align:baseline;cursor:pointer;"></span>
+				<button type="button" id="cerb-theme" data-theme="dark" title="Switch to light mode" style="margin:0 0 0 5px;vertical-align:middle;"><span class="glyphicons glyphicons-moon"></span></button>
 			{else}
-				<span id="cerb-theme" data-theme="light" title="Switch to dark mode" class="glyphicons glyphicons-brightness-increase" style="margin:0 0 0 5px;vertical-align:baseline;cursor:pointer;"></span>
+				<button type="button" id="cerb-theme" data-theme="light" title="Switch to dark mode" style="margin:0 0 0 5px;vertical-align:middle;"><span class="glyphicons glyphicons-brightness-increase"></span></button>
 			{/if}
 			
 			<span id="badgeNotifications"><a href="javascript:;"></a></span>
