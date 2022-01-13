@@ -1668,19 +1668,29 @@ DIV.cerb-markdown-content {
 // HTML email container (reset styles)
 
 DIV.emailBodyHtml {
-	overflow-x: scroll;
-	color: var(--cerb-color-text);
+	overflow-x: auto;
+	background-color: white;
+	//color: var(--cerb-color-text);
+	padding: 5px;
+	color: black;
 
 	A {
-		color: var(--cerb-color-email-link);
+		//color: var(--cerb-color-email-link);
+		color: rgb(43,109,173);
 	}
 
 	ABBR {
-		border-bottom: var(--cerb-color-text);
+		//border-bottom-color: var(--cerb-color-text);
+		border-bottom-color: black; 
+	}
+	
+	BODY, FORM, TD {
+		color: black;
 	}
 
 	BLOCKQUOTE {
-		color: var(--cerb-color-background-contrast-100);
+		//color: var(--cerb-color-background-contrast-100);
+		color: rgb(100,100,100);
 		border-left: 5px solid;
 		margin: 0 0 0 10px;
 		padding: 0 0 0 10px;
@@ -1689,14 +1699,18 @@ DIV.emailBodyHtml {
 	PRE > CODE {
 		display: block;
 		overflow-x: scroll;
-		border: 1px solid var(--cerb-color-background-contrast-230);
-		background-color: var(--cerb-color-email-code);
+		//border: 1px solid var(--cerb-color-background-contrast-230);
+		border: 1px solid rgb(230,230,230);
+		//background-color: var(--cerb-color-email-code);
+		background-color: rgb(246,242,240);
 		padding: 10px;
 	}
 
 	P > CODE {
-		border: 1px solid var(--cerb-color-background-contrast-230);
-		background-color: var(--cerb-color-email-code);
+		//border: 1px solid var(--cerb-color-background-contrast-230);
+		border: 1px solid rgb(230,230,230);
+		//background-color: var(--cerb-color-email-code);
+		background-color: rgb(246,242,240);
 		font-weight: bold;
 		padding: 0.1em 0.2em;
 		line-height: 1.75em;
