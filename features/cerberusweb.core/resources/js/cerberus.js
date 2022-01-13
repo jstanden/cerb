@@ -1701,7 +1701,7 @@ var ajax = new cAjaxCalls();
 			
 			var editor = ace.edit(editor_id);
 			editor.$blockScrolling = Infinity;
-			editor.setTheme("ace/theme/cerb");
+			editor.setTheme("ace/theme/cerb-2022011201");
 			editor.session.setMode(mode);
 			editor.session.setValue($this.val());
 
