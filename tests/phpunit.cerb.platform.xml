@@ -9,6 +9,7 @@
 			<file>devblocks/services/DevblocksStringTest.php</file>
 			<file>devblocks/services/DevblocksMfaTest.php</file>
 			<file>devblocks/services/DevblocksDictionaryTest.php</file>
+			<file>devblocks/services/DevblocksQueryTest.php</file>
 			<file>devblocks/services/DevblocksKataTest.php</file>
 			<file>devblocks/services/DevblocksAutomationTest.php</file>
 		</testsuite>

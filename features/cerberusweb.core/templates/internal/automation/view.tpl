@@ -3,6 +3,7 @@
 {$results = $view->getData()}
 {$total = $results[1]}
 {$data = $results[0]}
+{$are_rows_two_lines = !in_array('a_name', $view->view_columns)}
 
 {include file="devblocks:cerberusweb.core::internal/views/view_marquee.tpl" view=$view}
 
@@ -72,19 +73,37 @@
 	{else}
 		{$tableRowClass = "odd"}
 	{/if}
+
+	{* This is used in two places depending on if the row is one or two lines *}
+	{capture name="a_name"}
+		<input type="checkbox" name="row_id[]" value="{$result.a_id}" style="display:none;">
+		<a href="{devblocks_url}c=profiles&type=automation&id={$result.a_id}-{$result.a_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.a_name}</a>
+		<button type="button" class="peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="{$result.a_id}"><span class="glyphicons glyphicons-new-window-alt"></span></button>
+	{/capture}
+		
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
-			<td data-column="*_watchers" align="center" nowrap="nowrap" style="padding:5px;">
+			<td data-column="*_watchers" align="center" {if $are_rows_two_lines}rowspan="2"{/if} nowrap="nowrap" style="padding-right:0;">
 				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$view_context context_id=$result.a_id}
 			</td>
+
+			{if !in_array('a_name',$view->view_columns)}
+				<td data-column="label" colspan="{$smarty.foreach.headers.total}">
+					{$smarty.capture.a_name nofilter}
+				</td>
+			{/if}
+
+		{if $are_rows_two_lines}
+		</tr>
+		<tr class="{$tableRowClass}">
+		{/if}
+		
 		{foreach from=$view->view_columns item=column name=columns}
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column == "a_name"}
 			<td>
-				<input type="checkbox" name="row_id[]" value="{$result.a_id}" style="display:none;">
-				<a href="{devblocks_url}c=profiles&type=automation&id={$result.a_id}-{$result.a_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.a_name}</a>
-				<button type="button" class="peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="{$result.a_id}"><span class="glyphicons glyphicons-new-window-alt"></span></button>
+				{$smarty.capture.a_name nofilter}
 			</td>
 			{elseif $column == "a_extension_id"}
 			<td data-column="{$column}">

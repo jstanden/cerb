@@ -1,4 +1,6 @@
 {$headers = $message->getHeaders()}
+{if !isset($pref_dark_mode)}{$pref_dark_mode = DAO_WorkerPref::get($active_worker->id,'dark_mode',0)}{/if}
+{if !isset($always_bright)}{$always_bright = !boolval($pref_dark_mode)}{/if}
 {$is_outgoing = $message->is_outgoing}
 {$is_not_sent = $message->is_not_sent}
 
@@ -134,11 +136,11 @@
 
 		{if !$display_format}
 			{if !DAO_WorkerPref::get($active_worker->id, 'mail_disable_html_display', 0) && $message->html_attachment_id}
-				{$html_body = $message->getContentAsHtml($sender->is_trusted, $filtering_results)}
+				{$html_body = $message->getContentAsHtml($sender->is_trusted, $filtering_results, $pref_dark_mode && !$always_bright)}
 			{/if}
 		{else}
 			{if 'html' == $display_format && $message->html_attachment_id}
-				{$html_body = $message->getContentAsHtml($sender->is_trusted, $filtering_results)}
+				{$html_body = $message->getContentAsHtml($sender->is_trusted, $filtering_results, $pref_dark_mode && !$always_bright)}
 			{/if}
 		{/if}
 
@@ -175,13 +177,19 @@
 						Links
 					</button>
 				{/if}
+				{if $pref_dark_mode && !$always_bright}
+					<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-button="email-html-light" data-message-id="{$message->id}">
+						<span class="glyphicons glyphicons-brightness-increase"></span>
+						Bright mode
+					</button>
+				{/if}
 				<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-button="email-plaintext" data-message-id="{$message->id}">
 					<span class="glyphicons glyphicons-file"></span>
 					View plaintext
 				</button>
 			</div>
 			{/if}
-			<div class="{if $is_outgoing}emailBodyHtml{else}emailBodyHtmlLight{/if}" dir="auto">
+			<div class="emailBodyHtml" dir="auto" {if $always_bright}style="background-color: white;"{/if}>
 				{$html_body nofilter}
 			</div>
 		{else}
@@ -491,6 +499,11 @@ $(function() {
 	$msg.find('[data-cerb-button=email-html]').on('click', function(e) {
 		e.stopPropagation();
 		genericAjaxGet('message{$message->id}','c=profiles&a=invoke&module=message&action=get&id={$message->id}&format=html&widget_id={$widget->id}');
+	});
+
+	$msg.find('[data-cerb-button=email-html-light]').on('click', function(e) {
+		e.stopPropagation();
+		genericAjaxGet('message{$message->id}','c=profiles&a=invoke&module=message&action=get&id={$message->id}&format=html&light=1&widget_id={$widget->id}');
 	});
 
 	$msg.find('[data-cerb-button=display-images]').on('click', function(e) {

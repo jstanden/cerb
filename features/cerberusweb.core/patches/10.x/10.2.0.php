@@ -142,6 +142,7 @@ $automation_files = [
 	'ai.cerb.automationBuilder.action.recordSearch.json',
 	'ai.cerb.automationBuilder.action.recordUpdate.json',
 	'ai.cerb.automationBuilder.action.recordUpsert.json',
+	'ai.cerb.automationBuilder.input.text.json',
 	'ai.cerb.automationBuilder.interaction.worker.await.promptEditor.json',
 	'ai.cerb.automationBuilder.interaction.worker.await.promptSheet.json',
 	'ai.cerb.automationBuilder.interaction.worker.await.promptText.json',

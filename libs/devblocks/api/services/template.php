@@ -392,7 +392,7 @@ class _DevblocksTemplateManager {
 			$quote_ended = false;
 			
 			// If we're in a quote and on a blank line, check the next line
-			if($quote_started && 0 === strlen(ltrim($line))) {
+			if(false !== $quote_started && 0 === strlen(ltrim($line))) {
 				next($lines);
 				
 				if(DevblocksPlatform::strStartsWith(current($lines), ['>','&gt;'])) {
@@ -418,10 +418,10 @@ class _DevblocksTemplateManager {
 			if(!$quote_ended && $last_line == $idx)
 				$quote_ended = $idx;
 			
-			if($quote_started && $quote_ended) {
+			if(false !== $quote_started && false !== $quote_ended) {
 				if($quote_ended - $quote_started >= $length) {
-					$line_count = count($lines) . ' line' . (count($lines) == 1 ? '' : 's');
-					$lines[$quote_started] = "<div class='cerb-code-editor-toolbar' style='display:inline-block;margin:0.5em 0;'><button type='button' class='cerb-code-editor-toolbar-button' onclick=\"$(this).closest('div').next('div').toggle();$(this).parent().fadeOut();\"><span class=\"glyphicons glyphicons-quote\"></span> Expand quoted text (" . $line_count . ")</button></div><div class='cerb-email-quote' style='display:none;'>" . $lines[$quote_started];
+					$line_count = ($quote_ended - $quote_started + 1) . ' line' . (count($lines) == 1 ? '' : 's');
+					$lines[$quote_started] = "<div class='cerb-code-editor-toolbar' style='display:inline-block;margin:0.5em 0;'><button type='button' class='cerb-code-editor-toolbar-button' onclick=\"$(this).closest('div').next('div').toggle();$(this).parent().hide();\"><span class=\"glyphicons glyphicons-quote\"></span> Expand quoted text (" . $line_count . ")</button></div><div class='cerb-email-quote' style='display:none;'>" . $lines[$quote_started];
 					$lines[$quote_ended] = $lines[$quote_ended]."</div>";
 				}
 				$quote_started = false;

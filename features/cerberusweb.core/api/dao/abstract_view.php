@@ -4236,7 +4236,17 @@ class CerbQuickSearchLexer {
 					break;
 					
 				case 'T_GROUP':
-					$string .= sprintf('%s(', @$token->params['subtype']);
+					if($group_stack && DevblocksPlatform::strEndsWith($string,[')'])) {
+						$group_oper = end($group_stack);
+						
+						if('AND' != $group_oper) {
+							$string .= ' ' . $group_oper;
+						}
+						
+						$string .= ' ' ;
+					}
+					
+					$string .= sprintf('%s(', $token->params['subtype'] ?? null);
 					
 					// The separators are always OR/AND, we use NOT for the overall group in !(
 					switch($token->value) {
@@ -4282,7 +4292,10 @@ class CerbQuickSearchLexer {
 						if(!DevblocksPlatform::strEndsWith($string, [' ']))
 							$string .= ' ';
 						
-						$string .= end($group_stack);
+						$group_oper = end($group_stack);
+						
+						if('AND' != $group_oper)
+							$string .= $group_oper;
 					}
 					
 					if(!DevblocksPlatform::strEndsWith($string, [' ','(']))

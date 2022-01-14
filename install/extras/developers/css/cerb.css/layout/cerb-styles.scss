@@ -367,15 +367,6 @@ BUTTON {
 }
 
 BUTTON.green {
-	background: var(--cerb-color-button-confirm-gradient) linear-gradient(to bottom, var(--cerb-color-button-confirm-gradient), var(--cerb-color-button-confirm-gradient-to));
-	color: var(--cerb-color-button-confirm-text);
-	cursor: pointer;
-
-	&:hover {
-		color: var(--cerb-color-button-confirm-text--hover);
-		background: var(--cerb-color-button-gradient) linear-gradient(to bottom, var(--cerb-color-button-gradient), var(--cerb-color-button-gradient-to--hover));
-	}
-
 	DIV.badge-count {
 		background-color: var(--cerb-color-button-confirm-badge);
 		color: var(--cerb-color-button-confirm-badge-text);
@@ -1502,7 +1493,7 @@ UL.cerb-popupmenu {
 
 .cerb-subpage {
 	H1 {
-		color: var(--cerb-color-text);
+		color: var(--cerb-color-widget-header);
 		margin-bottom: 5px;
 	}
 	
