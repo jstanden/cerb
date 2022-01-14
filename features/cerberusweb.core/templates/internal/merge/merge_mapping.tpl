@@ -83,7 +83,7 @@
 	</table>
 </fieldset>
 
-<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.continue'|devblocks_translate|capitalize}</button>
+<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.continue'|devblocks_translate|capitalize}</button>
 </form>
 
 <script type="text/javascript">

@@ -10,7 +10,7 @@
 	{/if}
 
 	{if is_array($messages_highlighted) && $messages_highlighted}
-    <div class="cerb-conversation--new-messages-warning" style="color:rgb(236,87,29);">
+    <div class="cerb-conversation--new-messages-warning" style="color:var(--cerb-color-warning-text);">
         <span class="glyphicons glyphicons-circle-exclamation-mark"></span>
         There are <strong>{$messages_highlighted|count nofilter}</strong> messages without a response:
         {foreach from=$messages_highlighted item=message name=messages}
@@ -71,7 +71,7 @@
 			{/if}
 		{/foreach}
 	{else}
-		<div style="color:rgb(120,120,120);text-align:center;font-size:1.2em;">
+		<div style="color:var(--cerb-color-background-contrast-125);text-align:center;font-size:1.2em;">
 			({'display.convo.no_messages'|devblocks_translate})
 		</div>
 		<br>

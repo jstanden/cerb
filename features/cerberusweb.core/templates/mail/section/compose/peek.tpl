@@ -41,13 +41,13 @@
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.organization'|devblocks_translate|capitalize}:&nbsp;</td>
 		<td width="100%">
-			<input type="text" name="org_name" value="{$draft->params.org_name}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;" placeholder="(optional) Link this ticket to an organization for suggested recipients">
+			<input type="text" name="org_name" value="{$draft->params.org_name}" style="padding:2px;width:98%;" placeholder="(optional) Link this ticket to an organization for suggested recipients">
 		</td>
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top" align="right"><a href="javascript:;" class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="">{'message.header.to'|devblocks_translate|capitalize}</a>:&nbsp;</td>
 		<td width="100%">
-			<input type="text" name="to" id="emailinput{$popup_uniqid}" value="{$draft->getParam('to')}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;" placeholder="These recipients will automatically be included in all future correspondence">
+			<input type="text" name="to" id="emailinput{$popup_uniqid}" value="{$draft->getParam('to')}" style="padding:2px;width:98%;" placeholder="These recipients will automatically be included in all future correspondence">
 
 			<div id="compose_suggested{$popup_uniqid}" style="display:none;">
 				<a href="javascript:;" onclick="$(this).closest('div').hide();">x</a>
@@ -59,19 +59,19 @@
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top" align="right"><a href="javascript:;" class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="">{'message.header.cc'|devblocks_translate|capitalize}</a>:&nbsp;</td>
 		<td width="100%">
-			<input type="text" name="cc" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{$draft->params.cc}" placeholder="These recipients will publicly receive a copy of this message" autocomplete="off">
+			<input type="text" name="cc" style="width:98%;padding:2px;" value="{$draft->params.cc}" placeholder="These recipients will publicly receive a copy of this message" autocomplete="off">
 		</td>
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top" align="right"><a href="javascript:;" class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="">{'message.header.bcc'|devblocks_translate|capitalize}</a>:&nbsp;</td>
 		<td width="100%">
-			<input type="text" name="bcc" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{$draft->params.bcc}" placeholder="These recipients will secretly receive a copy of this message" autocomplete="off">
+			<input type="text" name="bcc" style="width:98%;padding:2px;" value="{$draft->params.bcc}" placeholder="These recipients will secretly receive a copy of this message" autocomplete="off">
 		</td>
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'message.header.subject'|devblocks_translate|capitalize}:</b>&nbsp;</td>
 		<td width="100%">
-			<input type="text" name="subject" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{if $draft}{$draft->getParam('subject')}{/if}" autocomplete="off" maxlength="255">
+			<input type="text" name="subject" style="width:98%;padding:2px;" value="{if $draft}{$draft->getParam('subject')}{/if}" autocomplete="off" maxlength="255">
 		</td>
 	</tr>
 	<tr>
@@ -245,7 +245,7 @@
 <div class="submit-normal">
 	<button type="button" class="submit" title="{if $pref_keyboard_shortcuts}(Ctrl+Shift+Enter){/if}"><span class="glyphicons glyphicons-send"></span> {'display.ui.send_message'|devblocks_translate}</button>
 	<button type="button" class="draft"><span class="glyphicons glyphicons-disk-save"></span> {'display.ui.continue_later'|devblocks_translate}</button>
-	<button type="button" class="discard"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(180,0,0);"></span> {'common.discard'|devblocks_translate|capitalize}</button>
+	<button type="button" class="discard"><span class="glyphicons glyphicons-circle-remove"></span> {'common.discard'|devblocks_translate|capitalize}</button>
 </div>
 </form>
 

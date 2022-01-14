@@ -20,7 +20,7 @@
 	
 	<div class="prompts" style="margin-bottom:10px;"></div>
 	
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.import'|devblocks_translate|capitalize}</button>
+	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.import'|devblocks_translate|capitalize}</button>
 </fieldset>
 </form>
 

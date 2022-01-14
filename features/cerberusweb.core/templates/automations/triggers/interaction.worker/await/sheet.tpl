@@ -16,8 +16,8 @@
 
 	<div style="margin:0 10px;">
 		{if $layout.filtering}
-			<div style="position:relative;box-sizing:border-box;width:100%;border:1px solid rgb(220,220,220);border-radius:10px;padding:0 5px;margin-bottom:5px;">
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" style="width:16px;height:16px;top:3px;position:absolute;fill:rgb(180,180,180);">
+			<div style="position:relative;box-sizing:border-box;width:100%;border:1px solid var(--cerb-color-background-contrast-220);border-radius:10px;padding:0 5px;margin-bottom:5px;">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" style="width:16px;height:16px;top:3px;position:absolute;fill:var(--cerb-color-background-contrast-180);">
 					<path d="M27.207,24.37866,20.6106,17.78235a9.03069,9.03069,0,1,0-2.82825,2.82825L24.37878,27.207a1,1,0,0,0,1.41425,0l1.414-1.41418A1,1,0,0,0,27.207,24.37866ZM13,19a6,6,0,1,1,6-6A6.00657,6.00657,0,0,1,13,19Z"/>
 				</svg>
 				<input data-cerb-sheet-query type="text" value="{$filter}" placeholder="Search" style="border:0;background-color:inherit;outline:none;margin-left:16px;width:calc(100% - 16px);">

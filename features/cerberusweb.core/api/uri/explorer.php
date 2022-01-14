@@ -35,7 +35,7 @@ class ChExplorerController extends DevblocksControllerExtension {
 	function writeResponse(DevblocksHttpResponse $response) {
 		$tpl = DevblocksPlatform::services()->template();
 
-		if(false == ($worker = CerberusApplication::getActiveWorker())) {
+		if(false == ($active_worker = CerberusApplication::getActiveWorker())) {
 			DevblocksPlatform::redirect(new DevblocksHttpResponse(['login']));
 			exit;
 		}
@@ -92,6 +92,9 @@ class ChExplorerController extends DevblocksControllerExtension {
 		// Common scope
 		$translate = DevblocksPlatform::getTranslationService();
 		$tpl->assign('translate', $translate);
+		
+		$tpl->assign('active_worker', $active_worker);
+		$tpl->assign('pref_dark_mode', DAO_WorkerPref::get($active_worker->id,'dark_mode',0));
 			
 		$tpl->display('devblocks:cerberusweb.core::explorer/index.tpl');
 	}

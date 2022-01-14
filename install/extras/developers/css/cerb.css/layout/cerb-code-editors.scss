@@ -66,6 +66,12 @@
 	margin-top: 0.5em;
 	box-shadow: 0 0 5px 3px var(--cerb-color-shadow-menu);
 	border: 0;
+
+	.ace_marker-layer {
+		.ace_active-line {
+			background-color: var(--cerb-editor-line-active);
+		}
+	}
 	
 	.ace_active-line {
 		background-color: var(--cerb-editor-line-active);
@@ -82,5 +88,6 @@
 	
 	.ace_line-hover {
 		border: 0;
+		background-color: var(--cerb-editor-line-hover);
 	}
 }
