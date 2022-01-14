@@ -1484,8 +1484,8 @@ class DevblocksPlatform extends DevblocksEngine {
 	
 	static private $_purifier_configs = null;
 	
-	static function purifyHTMLOptions($inline_css=false, $untrusted=true) {
-		@$config = self::$_purifier_configs[$inline_css][$untrusted];
+	static function purifyHTMLOptions($inline_css=false, $untrusted=true, $unstyled=false) {
+		$config = self::$_purifier_configs[$inline_css][$untrusted][$unstyled] ?? null;
 		
 		if(!$config) {
 			$config = HTMLPurifier_Config::createDefault();
@@ -1506,6 +1506,17 @@ class DevblocksPlatform extends DevblocksEngine {
 				$config->set('HTML.ForbiddenAttributes', array(
 					'class',
 				));
+			}
+			
+			if($unstyled) {
+				$config->set('CSS.ForbiddenProperties', [
+					'background',
+					'background-color',
+					'border-color',
+					'color',
+					'filter',
+					'opacity',
+				]);
 			}
 			
 			$config->set('URI.Host', DevblocksPlatform::getHostname());
@@ -1552,7 +1563,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			);
 			$html_button->excludes = ['a','Formctrl','form','isindex','fieldset','iframe'];
 			
-			self::$_purifier_configs[$inline_css][$untrusted] = $config;
+			self::$_purifier_configs[$inline_css][$untrusted][$unstyled] = $config;
 		}
 		
 		return $config;
@@ -1567,7 +1578,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @return string
 	 * @test DevblocksPlatformTest
 	 */
-	static function purifyHTML($dirty_html, $inline_css=false, $is_untrusted=true, array $filters=[]) {
+	static function purifyHTML($dirty_html, $inline_css=false, $is_untrusted=true, array $filters=[], $unstyled=false) {
 		// If we're passed a file pointer, load the literal string
 		if(is_resource($dirty_html)) {
 			$fp = $dirty_html;
@@ -1584,7 +1595,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			}
 		}
 		
-		$config = self::purifyHTMLOptions($inline_css, $is_untrusted);
+		$config = self::purifyHTMLOptions($inline_css, $is_untrusted, $unstyled);
 		
 		if($filters) {
 			foreach ($filters as $filter) {

@@ -1100,7 +1100,7 @@ class Model_Message {
 		return Storage_MessageContent::get($this, $fp);
 	}
 	
-	function getContentAsHtml($allow_images=false, &$filtering_results=null) {
+	function getContentAsHtml($allow_images=false, &$filtering_results=null, $unstyled=false) {
 		// If we don't have an HTML part, or the given ID fails to load, HTMLify the regular content
 		if(empty($this->html_attachment_id) 
 			|| false == ($attachment = DAO_Attachment::get($this->html_attachment_id))) {
@@ -1171,7 +1171,7 @@ class Model_Message {
 		
 		$filter = new Cerb_HTMLPurifier_URIFilter_Email($allow_images);
 		
-		$dirty_html = DevblocksPlatform::purifyHTML($dirty_html, true, true, [$filter]);
+		$dirty_html = DevblocksPlatform::purifyHTML($dirty_html, true, true, [$filter], $unstyled);
 		
 		$filtering_results = $filter->flush();
 		

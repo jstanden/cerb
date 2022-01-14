@@ -1,4 +1,4 @@
-<div id="widget{$widget->id}_clock" style="font-family:Arial,Helvetica;font-weight:bold;color:{$widget->params.color|default:'#57970A'};text-align:center;">
+<div id="widget{$widget->id}_clock" style="font-weight:bold;color:var(--cerb-color-table-row-text);text-align:center;">
 	<div class="date" style="font-size:22px;"></div>
 	<div class="time" style="font-size:32px;"></div>
 </div>

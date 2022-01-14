@@ -125,11 +125,12 @@ class PageSection_ProfilesMessage extends Extension_PageSection {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id']); // message id
-		@$widget_id = DevblocksPlatform::importGPC($_REQUEST['widget_id'], 'integer', 0);
-		@$hide = DevblocksPlatform::importGPC($_REQUEST['hide'],'integer',0);
-		@$format = DevblocksPlatform::importGPC($_REQUEST['format'],'string',null);
-		@$images = DevblocksPlatform::importGPC($_REQUEST['images'],'integer',0);
+		$id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null); // message id
+		$widget_id = DevblocksPlatform::importGPC($_REQUEST['widget_id'] ?? null, 'integer', 0);
+		$hide = DevblocksPlatform::importGPC($_REQUEST['hide'] ?? null, 'integer',0);
+		$format = DevblocksPlatform::importGPC($_REQUEST['format'] ?? null, 'string',null);
+		$always_bright = DevblocksPlatform::importGPC($_REQUEST['light'] ?? null, 'integer',0);
+		$images = DevblocksPlatform::importGPC($_REQUEST['images'] ?? null, 'integer',0);
 		
 		if(false == ($message = DAO_Message::get($id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -189,6 +190,9 @@ class PageSection_ProfilesMessage extends Extension_PageSection {
 		
 		$tpl->assign('expanded', (!$hide ? true : false));
 		$tpl->assign('is_refreshed', true);
+		
+		if($always_bright)
+			$tpl->assign('always_bright', 1);
 		
 		$tpl->display('devblocks:cerberusweb.core::display/modules/conversation/message.tpl');
 	}
