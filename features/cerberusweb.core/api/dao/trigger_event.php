@@ -2451,7 +2451,8 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 				if(false != ($filter = array_shift($filters))) {
 					$bot_id = is_array($filter->value) ? array_shift($filter->value) : $filter->value;
 					
-					if(false !== ($bot = $bots[$bot_id])) {
+					if(array_key_exists($bot_id, $bots)) {
+						$bot = $bots[$bot_id];
 						$tpl->assign('bot', $bot);
 						
 						$events = Extension_DevblocksEvent::getByContext($bot->owner_context, false);

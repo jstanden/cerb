@@ -13,7 +13,7 @@ try {
 		var $widget = $('#widget{$widget->id}_clock');
 		var $widget_container = $widget.closest('.cerb-workspace-widget');
 		
-		if($widget_container.length == 0) {
+		if(0 === $widget_container.length) {
 			return;
 		}
 		
