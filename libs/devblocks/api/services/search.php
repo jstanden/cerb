@@ -914,7 +914,28 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 					);
 					
 					$ids = $db->GetArrayReader($sql_ids, 5000);
-					return implode(',', array_column($ids, 'id'));
+					
+					if(!is_array($ids))
+						$ids = [];
+					
+					$ids = array_column($ids, 'id');
+					
+					// If we don't have any extra where clauses, return IDs
+					if(empty($where_sql))
+						return implode(',', array_column($ids, 'id'));
+					
+					if(empty($ids))
+						$ids = [-1];
+					
+					return sprintf("SELECT %s ".
+						"FROM fulltext_%s ".
+						"WHERE id IN (%s) ".
+						"%s",
+						$db->escape($id_key),
+						$this->escapeNamespace($ns),
+						implode(',', DevblocksPlatform::sanitizeArray($ids, 'int')),
+						('AND ' . implode(' AND ', $where_sql))
+					);
 					
 				} catch (Exception_DevblocksDatabaseQueryTimeout $e) {}
 			
