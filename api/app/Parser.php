@@ -2031,6 +2031,8 @@ class CerberusParser {
 		$state = '';
 		$comments = [];
 		$comment_ptr = null;
+		$notes = [];
+		$note_ptr = null;
 		
 		$matches = [];
 		
@@ -2052,6 +2054,11 @@ class CerberusParser {
 					case 'comment':
 						$state = '#comment_block';
 						$comment_ptr =& $comments[];
+						break;
+					
+					case 'note':
+						$state = '#note_block';
+						$note_ptr =& $notes[];
 						break;
 				}
 				
@@ -2114,9 +2121,13 @@ class CerberusParser {
 					case '#comment_block':
 						$comment_ptr .= $line . "\n";
 						break;
+						
+					case '#note_block':
+						$note_ptr .= $line . "\n";
+						break;
 				}
 				
-				if(!in_array($state, array('#cut', '#comment', '#comment_block'))) {
+				if(!in_array($state, array('#cut', '#comment', '#comment_block', '#note_block'))) {
 					$body .= $line . PHP_EOL;
 				}
 			}
@@ -2149,6 +2160,25 @@ class CerberusParser {
 						DAO_Comment::COMMENT => $comment,
 						DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TICKET,
 						DAO_Comment::CONTEXT_ID => $proxy_ticket->id,
+					]);
+				}
+			}
+			
+			// Notes
+			if (
+				is_array($notes) 
+				&& is_array($response) 
+				&& CerberusContexts::CONTEXT_MESSAGE == ($response[0] ?? null)
+				&& null !== ($response[1] ?? null)
+			) {
+				foreach ($notes as $note) {
+					DAO_Comment::create([
+						DAO_Comment::CREATED => time(),
+						DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+						DAO_Comment::OWNER_CONTEXT_ID => $proxy_worker->id,
+						DAO_Comment::COMMENT => $note,
+						DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_MESSAGE,
+						DAO_Comment::CONTEXT_ID => $response[1],
 					]);
 				}
 			}

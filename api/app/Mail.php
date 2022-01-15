@@ -1139,7 +1139,7 @@ class CerberusMail {
 			DAO_WorkerPref::set($worker->id, 'compose.bucket_id', $bucket_id);
 			
 			if($hash_commands)
-				CerberusMail::handleComposeHashCommands($hash_commands, $ticket_id, $worker);
+				CerberusMail::handleComposeHashCommands($hash_commands, $ticket->id, $message_id, $worker);
 		}
 		
 		self::_composeTriggerEvents($message_id, $group_id);
@@ -1842,9 +1842,6 @@ class CerberusMail {
 				}
 			}
 			
-			if($worker && $hash_commands)
-				CerberusMail::handleReplyHashCommands($hash_commands, $ticket, $worker);
-			
 		} catch (Exception $e) {
 			// Only if we weren't trying to send a draft already...
 			if(empty($draft_id)) {
@@ -2076,6 +2073,9 @@ class CerberusMail {
 				}
 			}
 		}
+		
+		if($worker && $hash_commands)
+			CerberusMail::handleReplyHashCommands($hash_commands, $ticket, $message_id, $worker);
 		
 		// Events
 		if(!empty($message_id)) {
@@ -2309,7 +2309,7 @@ class CerberusMail {
 						break;
 					
 					case 'start':
-						if($args != 'comment')
+						if(!in_array($args, ['comment','note']))
 							break;
 						
 						$comment_body = '';
@@ -2321,10 +2321,10 @@ class CerberusMail {
 						
 						if($comment_body) {
 							$handled = true;
-							$commands[] = array(
-								'command' => 'comment',
+							$commands[] = [
+								'command' => $args,
 								'args' => $comment_body,
-							);
+							];
 						}
 						break;
 						
@@ -2354,7 +2354,7 @@ class CerberusMail {
 		$message_properties['content'] = implode("\n", $lines_out);
 	}
 	
-	static function handleComposeHashCommands(array $commands, $ticket_id, Model_Worker $worker) {
+	static function handleComposeHashCommands(array $commands, $ticket_id, $message_id, Model_Worker $worker) {
 		foreach($commands as $command_data) {
 			switch($command_data['command']) {
 				case 'comment':
@@ -2369,6 +2369,24 @@ class CerberusMail {
 							DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
 							DAO_Comment::OWNER_CONTEXT_ID => $worker->id,
 							DAO_Comment::CREATED => time()+2,
+							DAO_Comment::COMMENT => $comment,
+						);
+						DAO_Comment::create($fields, $also_notify_worker_ids);
+					}
+					break;
+				
+				case 'note':
+					$comment = $command_data['args'] ?? null;
+					
+					if(!empty($comment)) {
+						$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));
+						
+						$fields = array(
+							DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_MESSAGE,
+							DAO_Comment::CONTEXT_ID => $message_id,
+							DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+							DAO_Comment::OWNER_CONTEXT_ID => $worker->id,
+							DAO_Comment::CREATED => time(),
 							DAO_Comment::COMMENT => $comment,
 						);
 						DAO_Comment::create($fields, $also_notify_worker_ids);
@@ -2511,7 +2529,7 @@ class CerberusMail {
 						break;
 					
 					case 'start':
-						if($args != 'comment')
+						if(!in_array($args, ['comment','note']))
 							break;
 						
 						$comment_body = '';
@@ -2524,7 +2542,7 @@ class CerberusMail {
 						if($comment_body) {
 							$handled = true;
 							$commands[] = array(
-								'command' => 'comment',
+								'command' => $args,
 								'args' => $comment_body,
 							);
 						}
@@ -2556,7 +2574,7 @@ class CerberusMail {
 		$message_properties['content'] = implode("\n", $lines_out);
 	}
 	
-	static function handleReplyHashCommands(array $commands, Model_Ticket $ticket, Model_Worker $worker) {
+	static function handleReplyHashCommands(array $commands, Model_Ticket $ticket, $message_id, Model_Worker $worker) {
 		foreach($commands as $command_data) {
 			switch($command_data['command']) {
 				case 'comment':
@@ -2571,6 +2589,24 @@ class CerberusMail {
 							DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
 							DAO_Comment::OWNER_CONTEXT_ID => $worker->id,
 							DAO_Comment::CREATED => time()+2,
+							DAO_Comment::COMMENT => $comment,
+						);
+						DAO_Comment::create($fields, $also_notify_worker_ids);
+					}
+					break;
+				
+				case 'note':
+					$comment = $command_data['args'] ?? null;
+					
+					if(!empty($comment)) {
+						$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));
+						
+						$fields = array(
+							DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_MESSAGE,
+							DAO_Comment::CONTEXT_ID => $message_id,
+							DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+							DAO_Comment::OWNER_CONTEXT_ID => $worker->id,
+							DAO_Comment::CREATED => time(),
 							DAO_Comment::COMMENT => $comment,
 						);
 						DAO_Comment::create($fields, $also_notify_worker_ids);
