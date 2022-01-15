@@ -692,6 +692,31 @@ if(!$logo_id && file_exists(APP_STORAGE_PATH . '/logo')) {
 }
 
 // ===========================================================================
+// Update package library
+
+$packages = [
+	'cerb_profile_tab_ticket_overview.json',
+	'cerb_profile_widget_ticket_actions.json',
+	'cerb_profile_widget_ticket_owner.json',
+	'cerb_profile_widget_ticket_status.json',
+];
+
+CerberusApplication::packages()->importToLibraryFromFiles($packages, APP_PATH . '/features/cerberusweb.core/packages/library/');
+
+// ===========================================================================
+// Fix light/dark styles in widgets
+
+// Opp
+$db->ExecuteMaster("UPDATE profile_widget set extension_params_json = replace(extension_params_json,'color:rgb(100,100,100);','color:var(--cerb-color-background-contrast-100);') where profile_tab_id in (select id from profile_tab where context = 'cerberusweb.contexts.opportunity') and name IN ('Status')");
+$db->ExecuteMaster("UPDATE profile_widget set extension_params_json = replace(extension_params_json,'color:rgb(102,172,87);','color:var(--cerb-color-tag-green);') where profile_tab_id in (select id from profile_tab where context = 'cerberusweb.contexts.opportunity') and name IN ('Status')");
+$db->ExecuteMaster("UPDATE profile_widget set extension_params_json = replace(extension_params_json,'color:rgb(211,53,43);','color:var(--cerb-color-tag-red);') where profile_tab_id in (select id from profile_tab where context = 'cerberusweb.contexts.opportunity') and name IN ('Status')");
+
+// Ticket
+$db->ExecuteMaster("UPDATE profile_widget set extension_params_json = replace(extension_params_json,'color:rgb(100,100,100);','color:var(--cerb-color-background-contrast-100);') where profile_tab_id in (select id from profile_tab where context = 'cerberusweb.contexts.ticket') and name IN ('Status','Owner')");
+$db->ExecuteMaster("UPDATE profile_widget set extension_params_json = replace(extension_params_json,'color:rgb(150,150,150);','color:var(--cerb-color-background-contrast-150);') where profile_tab_id in (select id from profile_tab where context = 'cerberusweb.contexts.ticket') and name IN ('Status','Owner')");
+$db->ExecuteMaster("UPDATE profile_widget set extension_params_json = replace(extension_params_json,'color:black;','color:var(--cerb-color-text);') where profile_tab_id in (select id from profile_tab where context = 'cerberusweb.contexts.ticket') and name IN ('Status','Owner')");
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

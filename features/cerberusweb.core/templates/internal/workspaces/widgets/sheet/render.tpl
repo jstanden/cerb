@@ -2,7 +2,7 @@
 	{include file="devblocks:cerberusweb.core::ui/sheets/render.tpl"}
 
 	{if $widget->params.toolbar_kata}
-		<div style="margin-top:5px;" data-cerb-toolbar>
+		<div data-cerb-toolbar style="margin-top:0.5em;">
 			{$widget_ext->renderToolbar($widget)}
 		</div>
 	{/if}

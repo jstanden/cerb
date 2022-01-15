@@ -27,7 +27,7 @@
 <br>
 
 {if $active_worker->hasPriv("contexts.{$context_ext->id}.merge")}
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.continue'|devblocks_translate|capitalize}</button>
+	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.continue'|devblocks_translate|capitalize}</button>
 {/if}
 </form>
 

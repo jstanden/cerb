@@ -189,7 +189,7 @@
 				</button>
 			</div>
 			{/if}
-			<div class="emailBodyHtml" dir="auto" {if $always_bright}style="background-color: white;"{/if}>
+			<div class="{if $always_bright}emailBodyHtmlLight{else}emailBodyHtml{/if}" dir="auto">
 				{$html_body nofilter}
 			</div>
 		{else}

@@ -53,7 +53,7 @@
 </fieldset>
 
 <div class="buttons">
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.continue'|devblocks_translate|capitalize}</button>
+	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.continue'|devblocks_translate|capitalize}</button>
 	<button type="button" class="preview"><span class="glyphicons glyphicons-cogwheel"></span> {'common.preview'|devblocks_translate|capitalize}</button>
 	<button type="button" class="cancel"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 </div>

@@ -33,8 +33,6 @@
   --cerb-color-button-gradient: rgb(240,240,240);
   --cerb-color-button-gradient-to--hover: rgb(160,198,254);
   --cerb-color-button-gradient-to: rgb(210,210,210);
-  --cerb-color-button-icon-alert-background: rgb(255,0,0);
-  --cerb-color-button-icon-alert-gradient: rgb(210,0,0);
   --cerb-color-button-icon--hover: rgb(39,123,213);
   --cerb-color-button-icon-enabled-background: rgb(250,220,74);
   --cerb-color-button-icon-enabled: rgb(165,100,33);
@@ -69,6 +67,7 @@
   --cerb-color-error-text: rgb(180,0,0);
   --cerb-color-success-background: rgb(235,255,235);
   --cerb-color-success-text: rgb(0,180,0);
+  --cerb-color-warning-text: rgb(236,87,29);
   --cerb-color-help-background: rgb(251,236,136);
   --cerb-color-help-background-gradient: rgb(255,255,200);
   --cerb-color-help-h1: rgb(215,115,15);
@@ -84,7 +83,6 @@
   --cerb-color-action-secondary-hover: rgb(210,210,210);
   --cerb-color-action-secondary-text: rgb(0,0,0);
   --cerb-color-alert-background: rgb(253,226,108);
-  --cerb-color-alert-error-background: rgb(253,58,71);
   --cerb-color-bot-badge-border: rgb(65, 172, 255);
   --cerb-color-bot-badge-background: rgb(207, 221, 235);
   --cerb-color-bot-badge-alert-border: rgb(153, 0, 0);
@@ -96,6 +94,7 @@
   --cerb-color-ui-navmenu-selected-text: rgb(255,255,255);
   --cerb-color-menu-item-text: rgb(74,110,158);
   --cerb-color-menu-item-hover: rgb(97,140,227);
+  --cerb-color-menu-item-section: rgb(50,50,50);
   --cerb-color-menu-submenu: rgb(97,140,227);
   --cerb-color-menu-submenu-hover: rgb(85,100,150);
   --cerb-color-table-header-background: rgb(100,135,225);
@@ -104,7 +103,7 @@
   --cerb-color-table-row-alt-background: rgb(245,245,245);
   --cerb-color-table-row-hover-background: rgb(255,255,200);
   --cerb-color-table-row-selected-background: rgb(251,236,136);
-  --cerb-color-table-row-subject: rgb(0,0,0);
+  --cerb-color-table-row-subject: rgb(32,32,32);
   --cerb-color-table-row-text: rgb(75,75,75);
   --cerb-tab-active: rgb(239,249,255);
   --cerb-tab-active-gradient: rgb(255,255,255);
@@ -125,6 +124,7 @@
   --cerb-editor-completion-highlight: rgb(45,105,199);
   --cerb-editor-fold: rgb(60,76,114);
   --cerb-editor-line-active: rgb(232,242,254);
+  --cerb-editor-line-hover: rgb(232,242,254);
   --cerb-editor-marker: rgb(255,255,0);
   --cerb-editor-selection: rgb(181,213,255);
   --cerb-editor-syntax-comment: rgb(113,150,130);
@@ -163,16 +163,14 @@
   --cerb-color-background-contrast-25: rgb(242,242,242);
   --cerb-color-background-inverse: rgb(250,250,250);
   --cerb-color-background-overlay: rgb(0,0,0);
-  --cerb-color-button-gradient: rgb(45,45,45);
+  --cerb-color-button-gradient: rgb(70,70,70);
+  --cerb-color-button-gradient-to: rgb(40,40,40);
   --cerb-color-button-gradient-to--hover: rgb(60,98,154);
-  --cerb-color-button-gradient-to: rgb(15,15,15);
-  --cerb-color-button-icon-alert-background: rgb(255,0,0);
-  --cerb-color-button-icon-alert-gradient: rgb(210,0,0);
   --cerb-color-button-icon--hover: rgb(49, 147, 253);
   --cerb-color-button-icon-enabled-background: rgb(250,220,74);
   --cerb-color-button-icon-enabled: rgb(165,100,33);
   --cerb-color-button-icon: rgb(175,175,175);
-  --cerb-color-button-text: rgb(205,205,205);
+  --cerb-color-button-text: rgb(210,210,210);
   --cerb-color-fieldset-border: rgb(100,100,100);
   --cerb-color-fieldset-h1: rgb(175,175,175);
   --cerb-color-fieldset-icon--hover: rgb(155,155,155);
@@ -180,7 +178,7 @@
   --cerb-color-fieldset-legend: rgb(255,255,255);
   --cerb-color-form-input-background: rgb(22,22,22);
   --cerb-color-h1: rgb(0,170,0);
-  --cerb-color-h2: rgb(90,165,248);
+  --cerb-color-h2: rgb(97,140,227);
   --cerb-color-link: rgb(220,220,220);
   --cerb-color-email-code: rgb(9,13,15);
   --cerb-color-email-headers-meta: rgb(127,127,127);
@@ -190,10 +188,11 @@
   --cerb-color-error-text: rgb(223,127,103);
   --cerb-color-success-background: rgb(235,255,235);
   --cerb-color-success-text: rgb(0,180,0);
-  --cerb-color-help-background: rgb(108,82,38);
-  --cerb-color-help-background-gradient: rgb(108,82,38);
-  --cerb-color-help-text: rgb(232,161,110);
-  --cerb-color-help-h1: rgb(232,161,110);
+  --cerb-color-warning-text: rgb(209, 85, 37);
+  --cerb-color-help-background: rgb(63, 46, 21);
+  --cerb-color-help-background-gradient: rgb(63, 46, 21);
+  --cerb-color-help-text: rgb(222, 166, 127);
+  --cerb-color-help-h1: rgb(222, 166, 127);
   --cerb-color-bubble-background: rgb(0,0,0);
   --cerb-color-bubble-background-gradient: rgb(50,50,50);
   --cerb-color-bubble-border: rgb(50,50,50);
@@ -204,11 +203,13 @@
   --cerb-color-action-secondary: rgb(57,57,57);
   --cerb-color-action-secondary-hover: rgb(77,77,77);
   --cerb-color-action-secondary-text: rgb(230,230,230);
+  --cerb-color-alert-background: rgb(253,226,108);
   --cerb-color-shadow-menu: rgb(0, 0, 0);
   --cerb-color-shadow-action-primary-hover: rgba(15,85,140,0.5);
   --cerb-color-shadow-action-secondary-hover: rgba(50,50,50,0.5);
   --cerb-color-menu-item-text: rgb(200,200,200);
   --cerb-color-menu-item-hover: rgb(97,140,227);
+  --cerb-color-menu-item-section: rgb(100,100,100);
   --cerb-color-menu-submenu: rgb(97,140,227);
   --cerb-color-menu-submenu-hover: rgb(85,100,150);
   --cerb-color-table-header-background: rgb(60,80,128);
@@ -227,6 +228,7 @@
   --cerb-editor-completion-highlight: rgb(255,255,255);
   --cerb-editor-fold: rgb(60,76,114);
   --cerb-editor-line-active: rgb(32,42,54);
+  --cerb-editor-line-hover: rgb(32,42,54);
   --cerb-editor-marker: rgb(33,66,131);
   --cerb-editor-selection: rgba(81, 113, 155,0.5);
   --cerb-editor-syntax-comment: rgb(95,95,95);
@@ -234,7 +236,7 @@
   --cerb-editor-syntax-function: rgb(87, 110, 164);
   --cerb-editor-syntax-oper: rgb(227,227,227);
   --cerb-editor-syntax-numeric: rgb(101,146,180);
-  --cerb-editor-syntax-string: rgb(102,129,86);
+  --cerb-editor-syntax-string: rgb(80, 145, 59);
   --cerb-editor-syntax-tag: rgb(160,173,187);
   --cerb-editor-syntax-twig: rgb(239,97,192);
   --cerb-editor-syntax-type: rgb(180,180,180);
@@ -413,7 +415,7 @@ BUTTON SPAN {
   color: black;
 }
 #cerb-alerts .cerb-alert.cerb-alert-error {
-  background: var(--cerb-color-alert-error-background);
+  background: var(--cerb-color-tag-red);
   color: white;
 }
 #cerb-alerts .cerb-alert .cerb-alert-close {
@@ -1355,9 +1357,9 @@ DIV.badge-lightgray A {
 }
 
 DIV.badge-red {
-  background: var(--cerb-color-button-icon-alert-background) linear-gradient(to bottom, var(--cerb-color-button-icon-alert-background), var(--cerb-color-button-icon-alert-gradient));
-  color: var(--cerb-color-text-inverse);
-  border: 1px solid var(--cerb-color-button-icon-alert-background);
+  background-color: var(--cerb-color-tag-red);
+  border: 1px solid var(--cerb-color-tag-red);
+  color: white;
 }
 
 SPAN.tag {
@@ -1563,6 +1565,9 @@ UL.cerb-popupmenu > LI A {
   text-decoration: none;
   color: var(--cerb-color-menu-item-text);
   font-weight: bold;
+}
+UL.cerb-popupmenu > LI B {
+  color: var(--cerb-color-menu-item-section);
 }
 UL.cerb-popupmenu > LI HR {
   height: 1px;
@@ -1995,7 +2000,7 @@ div.cerb-uploads p.success {
   font-weight: bold;
 }
 div.cerb-uploads p.failure {
-  background: var(--cerb-color-alert-error-background) none 0 0 no-repeat;
+  background: var(--cerb-color-tag-red) none 0 0 no-repeat;
   font-weight: bold;
 }
 
@@ -2164,6 +2169,9 @@ UL.ui-menu li.ui-state-focus {
   box-shadow: 0 0 5px 3px var(--cerb-color-shadow-menu);
   border: 0;
 }
+.ace_editor.ace_autocomplete .ace_marker-layer .ace_active-line {
+  background-color: var(--cerb-editor-line-active);
+}
 .ace_editor.ace_autocomplete .ace_active-line {
   background-color: var(--cerb-editor-line-active);
 }
@@ -2176,6 +2184,7 @@ UL.ui-menu li.ui-state-focus {
 }
 .ace_editor.ace_autocomplete .ace_line-hover {
   border: 0;
+  background-color: var(--cerb-editor-line-hover);
 }
 
 @keyframes cerb-badge-bounce {

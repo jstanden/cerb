@@ -24,7 +24,7 @@
 		}
 		
 		&.cerb-alert-error {
-			background: var(--cerb-color-alert-error-background);
+			background: var(--cerb-color-tag-red);
 			color: white;
 		}
 		
@@ -367,6 +367,15 @@ BUTTON {
 }
 
 BUTTON.green {
+	//background: var(--cerb-color-button-confirm-gradient) linear-gradient(to bottom, var(--cerb-color-button-confirm-gradient), var(--cerb-color-button-confirm-gradient-to));
+	//color: var(--cerb-color-button-confirm-text);
+	//cursor: pointer;
+
+	//&:hover {
+	//	color: var(--cerb-color-button-icon--hover);
+	//	background: var(--cerb-color-button-gradient) linear-gradient(to bottom, var(--cerb-color-button-gradient), var(--cerb-color-button-gradient-to--hover));
+	//}
+
 	DIV.badge-count {
 		background-color: var(--cerb-color-button-confirm-badge);
 		color: var(--cerb-color-button-confirm-badge-text);
@@ -1217,9 +1226,9 @@ DIV.badge-lightgray {
 }
 
 DIV.badge-red {
-	background: var(--cerb-color-button-icon-alert-background) linear-gradient(to bottom, var(--cerb-color-button-icon-alert-background), var(--cerb-color-button-icon-alert-gradient));
-	color: var(--cerb-color-text-inverse);
-	border: 1px solid var(--cerb-color-button-icon-alert-background);
+	background-color: var(--cerb-color-tag-red);
+	border: 1px solid var(--cerb-color-tag-red);
+	color: white;
 }
 
 // Tags
@@ -1459,6 +1468,10 @@ UL.cerb-popupmenu {
 			text-decoration:none;
 			color: var(--cerb-color-menu-item-text);
 			font-weight:bold;
+		}
+		
+		B {
+			color: var(--cerb-color-menu-item-section);
 		}
 
 		HR {
@@ -2022,7 +2035,7 @@ div.cerb-uploads {
 		}
 		
 		&.failure {
-			background: var(--cerb-color-alert-error-background) none 0 0 no-repeat;
+			background: var(--cerb-color-tag-red) none 0 0 no-repeat;
 			font-weight: bold;
 		}
 	}
