@@ -6,6 +6,46 @@ class DevblocksQueryTest extends TestCase {
 		parent::__construct($name, $data, $dataName);
 	}
 	
+	function testTokensTextoQuery() {
+		// Params
+		
+		$query = <<< EOD
+			query:(
+			  cerb
+			)
+			EOD;
+		
+		$fields = CerbQuickSearchLexer::getFieldsFromQuery($query);
+		
+		$this->assertArrayHasKey(0, $fields);
+		
+		$actual = CerbQuickSearchLexer::getTokensAsQuery($fields[0]->tokens);
+		$expected = '(cerb)';
+		
+		$this->assertEquals($expected, $actual);
+	}
+	
+	function testTokensTextoQueryWithBindings() {
+		// Params
+		
+		$query = <<< EOD
+			query:(
+			  \${text}
+			)
+			EOD;
+		
+		$fields = CerbQuickSearchLexer::getFieldsFromQuery($query, [
+			'text' => 'cerb'
+		]);
+		
+		$this->assertArrayHasKey(0, $fields);
+		
+		$actual = CerbQuickSearchLexer::getTokensAsQuery($fields[0]->tokens);
+		$expected = '("cerb")';
+		
+		$this->assertEquals($expected, $actual);
+	}
+	
 	function testTokensToQuery() {
 		// Params
 		
