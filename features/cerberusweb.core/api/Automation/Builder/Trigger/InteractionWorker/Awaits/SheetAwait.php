@@ -247,7 +247,7 @@ class SheetAwait extends AbstractAwait {
 		@$selections = DevblocksPlatform::importGPC($_POST['selections'], 'array:int', []);
 		
 		$dict = $continuation->state_data['dict'];
-		@$form = $dict['__return']['form']['elements'];
+		$form = $dict['__return']['form']['elements'] ?? [];
 		
 		if(!array_key_exists($prompt_key, $form))
 			return;

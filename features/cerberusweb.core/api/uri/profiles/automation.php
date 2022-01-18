@@ -397,7 +397,7 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$dict = $continuation->state_data['dict'];
-		@$form = $dict['__return']['form']['elements'];
+		$form = $dict['__return']['form']['elements'] ?? [];
 		
 		if(!array_key_exists($prompt_key, $form))
 			DevblocksPlatform::dieWithHttpError(null, 404);

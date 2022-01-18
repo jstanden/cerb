@@ -103,9 +103,15 @@
                     }
                 },
                 start: function(formData) {
-                    // [TODO]
-                    //formData.set('toolbar', '');
+                    var pos = editor.getCursorPosition();
+                    var token_path = Devblocks.cerbCodeEditor.getKataTokenPath(pos, editor).join('');
+
                     formData.set('caller[params][selected_text]', editor.getSelectedText());
+                    formData.set('caller[params][token_path]', token_path);
+                    formData.set('caller[params][cursor_row]', pos.row);
+                    formData.set('caller[params][cursor_column]', pos.column);
+                    formData.set('caller[params][trigger]', '{$model->extension_id}');
+                    formData.set('caller[params][value]', editor.getValue());
                 },
                 done: function(e) {
                     e.stopPropagation();
