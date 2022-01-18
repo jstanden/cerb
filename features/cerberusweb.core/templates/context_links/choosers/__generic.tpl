@@ -34,7 +34,7 @@ $(function() {
 			var $view = $('#view{$view->id}');
 			var $worklist = $view.find('TABLE.worklist');
 			$worklist.css('background','none');
-			$worklist.css('background-color','rgb(100,100,100)');
+			$worklist.css('background-color','var(--cerb-color-table-header-background-alt)');
 
 			var $header_links = $worklist.find('> tbody > tr:first td:nth(1)');
 

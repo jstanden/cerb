@@ -85,6 +85,9 @@ color: var(--cerb-editor-syntax-tag);\
 .ace-cerb-2022011201 .ace_meta.ace_tag.ace_twig {\
 color: var(--cerb-editor-syntax-twig);\
 }\
+.ace-cerb-2022011201 .ace_variable.ace_local.ace_twig {\
+color: var(--cerb-editor-syntax-twig-var);\
+}\
 .ace-cerb-2022011201 .ace_invisible {\
 color: var(--cerb-color-background-contrast-220);\
 }\

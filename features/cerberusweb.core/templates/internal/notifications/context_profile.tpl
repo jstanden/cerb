@@ -1,7 +1,7 @@
 {$context_notifications = DAO_Notification::getUnreadByContextAndWorker($context, $context_id, $active_worker->id, true)}
 
 {if !empty($context_notifications)}
-<fieldset class="properties" style="color:rgb(100,100,100);">
+<fieldset class="properties" style="color:var(--cerb-color-background-contrast-100);">
 	<legend>{'header.notifications.unread'|devblocks_translate:{$context_notifications|count}}</legend>
 
 	<table cellpadding="3" cellspacing="2" border="0" width="100%">

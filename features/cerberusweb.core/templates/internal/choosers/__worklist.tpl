@@ -23,7 +23,7 @@ $(function() {
 		var on_refresh = function() {
 			var $worklist = $('#view{$view->id}').find('TABLE.worklist');
 			$worklist.css('background','none');
-			$worklist.css('background-color','rgb(100,100,100)');
+			$worklist.css('background-color','var(--cerb-color-table-header-background-alt)');
 			
 			var $header = $worklist.find('> tbody > tr:first > td:first > span.title');
 			var $header_links = $worklist.find('> tbody > tr:first td:nth(1)');

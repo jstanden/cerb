@@ -12,17 +12,15 @@
 	font-size:16pt;
 	padding:8px;
 	
-	color:rgb(255,255,255);
-	background-color:rgb(50,50,50);
-	background: linear-gradient(top, rgb(100,100,100), rgb(50,50,50));
-	background: -webkit-gradient(linear, left top, left bottom, from(rgb(100,100,100)), to(rgb(50,50,50)));
-	background: -moz-linear-gradient(top, rgb(100,100,100), rgb(50,50,50));
-	background: -o-linear-gradient(top, rgb(100,100,100), rgb(50,50,50));
-	background: -ms-linear-gradient(top, rgb(100,100,100), rgb(50,50,50));
+	color:var(--cerb-color-text);
+	background-color:var(--cerb-color-background-contrast-50);
+	background: linear-gradient(top, var(--cerb-color-background-contrast-100), var(--cerb-color-background-contrast-50));
+	background: -webkit-gradient(linear, left top, left bottom, from(var(--cerb-color-background-contrast-100)), to(var(--cerb-color-background-contrast-50)));
+	background: -moz-linear-gradient(top, var(--cerb-color-background-contrast-100), var(--cerb-color-background-contrast-50));
+	background: -o-linear-gradient(top, var(--cerb-color-background-contrast-100), var(--cerb-color-background-contrast-50));
+	background: -ms-linear-gradient(top, var(--cerb-color-background-contrast-100), var(--cerb-color-background-contrast-50));
 	
-	-moz-box-shadow: 0 5px 15px 0px rgb(175,175,175);
-	-webkit-box-shadow: 0 5px 15px 0px rgb(175,175,175);
-	box-shadow: 0 5px 15px 0px rgb(175,175,175);
+	box-shadow: 0 0 10px 0 var(--cerb-color-shadow-menu);
 	
 	border-radius:5px;
 	-moz-border-radius:5px;

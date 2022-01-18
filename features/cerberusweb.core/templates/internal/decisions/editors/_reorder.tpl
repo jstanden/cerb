@@ -35,7 +35,7 @@
 			{elseif $child->node_type == 'loop'}
 				<div class="badge badge-lightgray">
 					<input type="hidden" name="child_id[]" value="{$child->id}">
-					<span style="text-decoration:none;font-weight:bold;color:rgb(100,100,100);" node_id="{$child->id}" trigger_id="{$trigger_id}">
+					<span style="text-decoration:none;font-weight:bold;color:var(--cerb-color-background-contrast-100);" node_id="{$child->id}" trigger_id="{$trigger_id}">
 						<span style="font-weight:normal;">&#x27f3;</span> {$child->title}{if $is_writeable} &#x25be;{/if}
 					</span>
 				</div>

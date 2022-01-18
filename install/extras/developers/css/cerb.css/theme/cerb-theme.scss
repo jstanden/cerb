@@ -113,6 +113,7 @@ $timestamp: 2022011101;
   --cerb-color-menu-submenu-hover: rgb(85,100,150);
   
   --cerb-color-table-header-background: rgb(100,135,225);
+  --cerb-color-table-header-background-alt: rgb(100,100,100);
   --cerb-color-table-header-text: rgb(255,255,255);
   --cerb-color-table-header--icons-shadow: rgba(116,116,116,0.9);
   --cerb-color-table-row-alt-background: rgb(245,245,245);
@@ -156,6 +157,7 @@ $timestamp: 2022011101;
   --cerb-editor-syntax-string: rgb(42,0,255);
   --cerb-editor-syntax-tag: rgb(25,118,116);
   --cerb-editor-syntax-twig: rgb(127,0,85);
+  --cerb-editor-syntax-twig-var: rgb(127,0,85);
   --cerb-editor-syntax-type: rgb(127,0,127);
   --cerb-editor-syntax-var: rgb(127,0,85);
   
@@ -207,7 +209,7 @@ $timestamp: 2022011101;
   --cerb-color-form-input-background: rgb(22,22,22);
   
   --cerb-color-h1: rgb(0,170,0);
-  --cerb-color-h2: rgb(97,140,227);
+  --cerb-color-h2: rgb(128,128,128);
   --cerb-color-link: rgb(220,220,220);
 
   --cerb-color-email-code: rgb(9,13,15);
@@ -253,6 +255,7 @@ $timestamp: 2022011101;
   --cerb-color-menu-submenu-hover: rgb(85,100,150);
 
   --cerb-color-table-header-background: rgb(60,80,128);
+  --cerb-color-table-header-background-alt: rgb(100,100,100);
   --cerb-color-table-row-alt-background: rgb(47,47,47);
   --cerb-color-table-row-hover-background: rgb(50,60,90);
   --cerb-color-table-row-selected-background: rgb(75,85,120);
@@ -280,9 +283,10 @@ $timestamp: 2022011101;
   --cerb-editor-syntax-function: rgb(87, 110, 164);
   --cerb-editor-syntax-oper: rgb(227,227,227);
   --cerb-editor-syntax-numeric: rgb(101,146,180);
-  --cerb-editor-syntax-string: rgb(80, 145, 59);
+  --cerb-editor-syntax-string: rgb(86, 180, 56);
   --cerb-editor-syntax-tag: rgb(160,173,187);
   --cerb-editor-syntax-twig: rgb(239,97,192);
+  --cerb-editor-syntax-twig-var: rgb(229,188,105);
   --cerb-editor-syntax-type: rgb(180,180,180);
-  --cerb-editor-syntax-var: rgb(229,188,105);
+  --cerb-editor-syntax-var: rgb(186,186,186);
 }

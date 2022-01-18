@@ -75,7 +75,7 @@
 						{/if}
 					{/foreach}
 					
-					<blockquote style="margin:2px;margin-left:20px;font-size:95%;color:rgb(100,100,100);">
+					<blockquote style="margin:2px;margin-left:20px;font-size:95%;color:var(--cerb-color-background-contrast-100);">
 						{foreach from=$rule->actions item=action key=action_key}
 							{if $action_key=="move"}
 								{assign var=g_id value=$action.group_id}

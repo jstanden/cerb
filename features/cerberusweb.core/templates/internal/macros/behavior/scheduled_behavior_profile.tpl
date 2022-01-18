@@ -3,7 +3,7 @@
 {$trigger_events = DAO_TriggerEvent::getAll()}
 
 {if !empty($scheduled_behavior)}
-<fieldset class="properties" style="color:rgb(100,100,100);" id="{$fieldset_id}">
+<fieldset class="properties" style="color:var(--cerb-color-background-contrast-100);" id="{$fieldset_id}">
 	{$target_ext = Extension_DevblocksContext::get($context, false)}
 	<legend>Upcoming scheduled behavior on this {$target_ext->name|lower}</legend>
 

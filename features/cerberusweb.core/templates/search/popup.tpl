@@ -20,7 +20,7 @@ $(function() {
 			var $worklist = $popup.find('TABLE.worklist');
 
 			$worklist.css('background','none');
-			$worklist.css('background-color','rgb(100,100,100)');
+			$worklist.css('background-color','var(--cerb-color-table-header-background-alt)');
 		};
 		
 		on_refresh();

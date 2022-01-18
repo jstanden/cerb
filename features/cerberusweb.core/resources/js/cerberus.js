@@ -4853,7 +4853,7 @@ var ajax = new cAjaxCalls();
 				return;
 			
 			$trigger
-				.css('color', 'rgb(100,100,100)')
+				.css('color', 'var(--cerb-color-background-contrast-100)')
 				.css('cursor', 'text')
 				.attr('readonly', 'readonly')
 			;
@@ -4890,7 +4890,7 @@ var ajax = new cAjaxCalls();
 	$.fn.cerbTemplateTrigger = function(options) {
 		return this.each(function() {
 			var $trigger = $(this)
-				.css('color', 'rgb(100,100,100)')
+				.css('color', 'var(--cerb-color-background-contrast-100)')
 				.css('cursor', 'text')
 				.attr('readonly', 'readonly')
 			;

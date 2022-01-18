@@ -87,7 +87,7 @@
 				</td>
 			{elseif $column == "b_is_default"}
 				<td data-column="{$column}">
-					{if $result.$column}<span class="glyphicons glyphicons-circle-ok" style="color:rgb(100,100,100);vertical-align:middle;font-size:120%;"></span>{/if}
+					{if $result.$column}<span class="glyphicons glyphicons-circle-ok" style="vertical-align:middle;font-size:120%;"></span>{/if}
 				</td>
 			{elseif $column == "b_reply_address_id"}
 				{$replyto_address = $replyto_addresses.{$result.$column}}

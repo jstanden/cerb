@@ -228,9 +228,9 @@
 			{if empty($result.t_spam_training)}
 			{if $active_worker->hasPriv('core.ticket.actions.spam')}<a href="javascript:;" class="cerb-view-shortcut-spam" data-ticket-id="{$result.t_id}">{/if}
 			{if $result.t_spam_score >= 0.90}
-			<span class="glyphicons glyphicons-ban" style="color:rgb(200,0,0);" title="Report Spam ({$score})"></span>
+			<span class="glyphicons glyphicons-ban" style="color:var(--cerb-color-error-text);" title="Report Spam ({$score})"></span>
 			{else}
-			<span class="glyphicons glyphicons-ban" style="color:rgb(100,100,100);" title="Report Spam ({$score})"></span>
+			<span class="glyphicons glyphicons-ban" style="color:var(--cerb-color-background-contrast-100);" title="Report Spam ({$score})"></span>
 			{/if}
 			{if $active_worker->hasPriv('core.ticket.actions.spam')}</a>{/if}
 			{/if}

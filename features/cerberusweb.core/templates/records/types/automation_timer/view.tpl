@@ -94,7 +94,7 @@
                     {elseif in_array($column, ["a_is_disabled","a_is_recurring"])}
                         <td style="text-align:center;">
                             {if !empty($result.$column)}
-                                <span class="glyphicons glyphicons-circle-ok" style="color:rgb(100,100,100);"></span>
+                                <span class="glyphicons glyphicons-circle-ok"></span>
                             {/if}
                         </td>
                     {else}

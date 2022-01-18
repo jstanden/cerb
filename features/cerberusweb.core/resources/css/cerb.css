@@ -98,6 +98,7 @@
   --cerb-color-menu-submenu: rgb(97,140,227);
   --cerb-color-menu-submenu-hover: rgb(85,100,150);
   --cerb-color-table-header-background: rgb(100,135,225);
+  --cerb-color-table-header-background-alt: rgb(100,100,100);
   --cerb-color-table-header-text: rgb(255,255,255);
   --cerb-color-table-header--icons-shadow: rgba(116,116,116,0.9);
   --cerb-color-table-row-alt-background: rgb(245,245,245);
@@ -135,6 +136,7 @@
   --cerb-editor-syntax-string: rgb(42,0,255);
   --cerb-editor-syntax-tag: rgb(25,118,116);
   --cerb-editor-syntax-twig: rgb(127,0,85);
+  --cerb-editor-syntax-twig-var: rgb(127,0,85);
   --cerb-editor-syntax-type: rgb(127,0,127);
   --cerb-editor-syntax-var: rgb(127,0,85);
   --cerb-library-background-selected: rgba(255,230,110,0.2);
@@ -178,7 +180,7 @@
   --cerb-color-fieldset-legend: rgb(255,255,255);
   --cerb-color-form-input-background: rgb(22,22,22);
   --cerb-color-h1: rgb(0,170,0);
-  --cerb-color-h2: rgb(97,140,227);
+  --cerb-color-h2: rgb(128,128,128);
   --cerb-color-link: rgb(220,220,220);
   --cerb-color-email-code: rgb(9,13,15);
   --cerb-color-email-headers-meta: rgb(127,127,127);
@@ -213,6 +215,7 @@
   --cerb-color-menu-submenu: rgb(97,140,227);
   --cerb-color-menu-submenu-hover: rgb(85,100,150);
   --cerb-color-table-header-background: rgb(60,80,128);
+  --cerb-color-table-header-background-alt: rgb(100,100,100);
   --cerb-color-table-row-alt-background: rgb(47,47,47);
   --cerb-color-table-row-hover-background: rgb(50,60,90);
   --cerb-color-table-row-selected-background: rgb(75,85,120);
@@ -236,11 +239,12 @@
   --cerb-editor-syntax-function: rgb(87, 110, 164);
   --cerb-editor-syntax-oper: rgb(227,227,227);
   --cerb-editor-syntax-numeric: rgb(101,146,180);
-  --cerb-editor-syntax-string: rgb(80, 145, 59);
+  --cerb-editor-syntax-string: rgb(86, 180, 56);
   --cerb-editor-syntax-tag: rgb(160,173,187);
   --cerb-editor-syntax-twig: rgb(239,97,192);
+  --cerb-editor-syntax-twig-var: rgb(229,188,105);
   --cerb-editor-syntax-type: rgb(180,180,180);
-  --cerb-editor-syntax-var: rgb(229,188,105);
+  --cerb-editor-syntax-var: rgb(186,186,186);
 }
 
 HTML, BODY {
@@ -315,27 +319,30 @@ FORM {
 FORM ::placeholder {
   color: var(--cerb-color-background-contrast-170);
 }
-FORM INPUT[type=text], FORM INPUT[type=password], FORM INPUT[type=search] {
+
+INPUT[type=text], INPUT[type=password], INPUT[type=search] {
   border: 1px solid var(--cerb-color-background-contrast-180);
   background-color: var(--cerb-color-form-input-background);
   color: var(--cerb-color-text);
   outline: none;
   padding: 3px;
 }
-FORM INPUT[type=text]:focus, FORM INPUT[type=password]:focus, FORM INPUT[type=search]:focus {
+INPUT[type=text]:focus, INPUT[type=password]:focus, INPUT[type=search]:focus {
   border: 1px solid var(--cerb-color-form-element-focus);
 }
-FORM TEXTAREA {
+
+TEXTAREA {
   border: 1px solid var(--cerb-color-background-contrast-180);
   background-color: var(--cerb-color-form-input-background);
   color: var(--cerb-color-text);
   outline: none;
   padding: 3px;
 }
-FORM TEXTAREA:focus {
+TEXTAREA:focus {
   border: 1px solid var(--cerb-color-form-element-focus);
 }
-FORM SELECT {
+
+SELECT {
   background-color: var(--cerb-color-form-input-background);
   background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20256%20448%22%20enable-background%3D%22new%200%200%20256%20448%22%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E.arrow%7Bfill%3Argb(128,128,128)%3B%7D%3C%2Fstyle%3E%3Cpath%20class%3D%22arrow%22%20d%3D%22M255.9%20168c0-4.2-1.6-7.9-4.8-11.2-3.2-3.2-6.9-4.8-11.2-4.8H16c-4.2%200-7.9%201.6-11.2%204.8S0%20163.8%200%20168c0%204.4%201.6%208.2%204.8%2011.4l112%20112c3.1%203.1%206.8%204.6%2011.2%204.6%204.4%200%208.2-1.5%2011.4-4.6l112-112c3-3.2%204.5-7%204.5-11.4z%22%2F%3E%3C%2Fsvg%3E%0A");
   background-position: right 10px center;
@@ -350,13 +357,13 @@ FORM SELECT {
   -webkit-appearance: none;
   appearance: none;
 }
-FORM SELECT::-ms-expand {
+SELECT::-ms-expand {
   display: none;
 }
-FORM SELECT:focus {
+SELECT:focus {
   border: 1px solid var(--cerb-color-form-element-focus);
 }
-FORM SELECT OPTGROUP {
+SELECT OPTGROUP {
   font-style: normal;
   font-weight: bold;
   color: var(--cerb-color-background-contrast-75);
