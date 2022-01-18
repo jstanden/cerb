@@ -1937,9 +1937,12 @@ class CerberusParser {
 		if(false == ($proxy_ticket = $model->getTicketModel()))
 			return null;
 		
-		if(false == ($proxy_worker = $model->getSenderWorkerModel()) || $proxy_worker->is_disabled)
+		if(false == ($proxy_worker = $model->getSenderWorkerModel()))
 			return null;
-			
+		
+		if($proxy_worker->is_disabled)
+			return null;
+		
 		$logger->info("[Worker Relay] Handling an external worker relay for " . $model->getSenderAddressModel()->email);
 		
 		$is_authenticated = false;

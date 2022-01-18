@@ -769,7 +769,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 	private function _getQueryWhereClauses(Extension_DevblocksSearchSchema $schema, array $attributes, array $query_parts) {
 		$db = DevblocksPlatform::services()->database();
 		
-		$content_key = $schema-> getDataField();
+		$content_key = $schema->getDataField();
 
 		$where_sql = [];
 		

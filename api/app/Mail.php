@@ -2766,7 +2766,7 @@ class CerberusMail {
 		
 		// Procedural signing format
 		if(@preg_match('#\<(.*?)\.([a-f0-9]+)\@cerb\>#', $auth_header, $hits)) {
-			@$encrypted_message = $hits[1];
+			$encrypted_message = $hits[1] ?? null;
 			
 			if(!$encrypted_message)
 				return false;
@@ -2775,8 +2775,8 @@ class CerberusMail {
 			
 			$ids = explode(':', $decrypted_message, 2);
 			
-			@$in_message_id = base_convert($ids[0], 16, 10);
-			@$in_worker_id = base_convert($ids[1], 16, 10);
+			$in_message_id = base_convert($ids[0] ?? '', 16, 10);
+			$in_worker_id = base_convert($ids[1] ?? '', 16, 10);
 			
 			if($in_worker_id != $worker_id)
 				return false;

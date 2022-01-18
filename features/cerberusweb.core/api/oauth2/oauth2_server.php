@@ -273,7 +273,7 @@ class Cerb_OAuth2AuthCodeRepository implements AuthCodeRepositoryInterface {
 class Cerb_OAuth2ScopeEntity implements ScopeEntityInterface {
 	use EntityTrait;
 	
-	public function jsonSerialize() : array {
+	public function jsonSerialize() {
 		return $this->getIdentifier();
 	}
 }

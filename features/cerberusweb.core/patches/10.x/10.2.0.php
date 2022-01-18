@@ -364,12 +364,14 @@ if(array_key_exists('snippet_use_history', $tables)) {
 	$metric_id = $db->GetOneMaster("SELECT id FROM metric WHERE name = 'cerb.snippet.uses'");
 	
 	if($metric_id) {
+		/** @noinspection SqlResolve */
 		$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric_value (metric_id, granularity, bin, samples, sum, min, max, dim0_value_id, dim1_value_id, dim2_value_id, expires_at)  ".
 			"SELECT %d, 86400, ts_day, 1, uses, uses, uses, snippet_id, worker_id, 0, 0 from snippet_use_history;",
 			$metric_id
 		));
 	}
 	
+	/** @noinspection SqlResolve */
 	$db->ExecuteWriter("DROP TABLE snippet_use_history");
 	
 	unset($tables['snippet_use_history']);
@@ -386,6 +388,7 @@ if(array_key_exists('trigger_event_history', $tables)) {
 	$db->ExecuteWriter("INSERT IGNORE INTO metric_dimension (name) SELECT DISTINCT event_point FROM trigger_event");
 	
 	if($metric_id_invocations) {
+		/** @noinspection SqlResolve */
 		$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric_value (metric_id, granularity, bin, samples, sum, min, max, dim0_value_id, dim1_value_id, dim2_value_id, expires_at) ".
 			"SELECT %d, 86400, th.ts_day, 1, th.uses, th.uses, th.uses, th.trigger_id, (SELECT id FROM metric_dimension WHERE name = b.event_point), 0, 0 from trigger_event_history th inner join trigger_event b on (b.id=th.trigger_id)",
 			$metric_id_invocations
@@ -393,12 +396,14 @@ if(array_key_exists('trigger_event_history', $tables)) {
 	}
 	
 	if($metric_id_duration) {
+		/** @noinspection SqlResolve */
 		$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric_value (metric_id, granularity, bin, samples, sum, min, max, dim0_value_id, dim1_value_id, dim2_value_id, expires_at) ".
 			"SELECT %d, 86400, th.ts_day, 1, th.elapsed_ms, th.elapsed_ms, th.elapsed_ms, th.trigger_id, (SELECT id FROM metric_dimension WHERE name = b.event_point), 0, 0 from trigger_event_history th inner join trigger_event b on (b.id=th.trigger_id)",
 			$metric_id_duration
 		));
 	}
 	
+	/** @noinspection SqlResolve */
 	$db->ExecuteWriter("DROP TABLE trigger_event_history");
 	
 	unset($tables['trigger_event_history']);
