@@ -24,7 +24,7 @@ class _DevblocksUrlManager {
 			if(empty($q)) continue;
 			$v = explode('=',$q);
 			if(empty($v)) continue;
-			@$argc[DevblocksPlatform::strLower($v[0])] = $v[1];
+			$argc[DevblocksPlatform::strLower($v[0] ?? '')] = $v[1] ?? '';
 		}
 		
 		return $argc;

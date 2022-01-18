@@ -71,15 +71,15 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 	}
 	
 	function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger=null) {
-		$labels = array();
-		$values = array();
+		$labels = [];
+		$values = [];
 		
 		/**
 		 * Behavior
 		 */
 		
-		$merge_labels = array();
-		$merge_values = array();
+		$merge_labels = [];
+		$merge_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_BEHAVIOR, $trigger, $merge_labels, $merge_values, null, true);
 
 			// Merge
@@ -95,7 +95,12 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		/**
 		 * Parser Message
 		 */
-		@$parser_model =& $event_model->params['parser_model']; /* @var $parser_model CerberusParserModel */
+		$parser_model = null;
+		
+		if($parser_model instanceof Model_DevblocksEvent) {
+			/* @var $parser_model CerberusParserModel */
+			$parser_model =& $event_model->params['parser_model'];
+		}
 		
 		$prefix = 'Message ';
 
