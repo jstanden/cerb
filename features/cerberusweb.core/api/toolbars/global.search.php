@@ -71,6 +71,11 @@ class Toolbar_GlobalSearch extends Extension_Toolbar {
 				$results[$k] = ($results[$k] ?? 0) + $count;
 		}
 		
+		// Sanitize the metric aliases
+		$results = array_filter($results, function($k) {
+			return false != Extension_DevblocksContext::getByAlias($k);
+		}, ARRAY_FILTER_USE_KEY);
+		
 		// Load record type metadata
 		$record_types = 
 			array_combine(
