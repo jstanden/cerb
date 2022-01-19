@@ -61,16 +61,10 @@ class _DevblocksDataProviderAutocompleteCompletions extends _DevblocksDataProvid
 				$chart_model['schema'] = $value;
 				
 			} else if($field->key == 'params') {
-				DevblocksPlatform::logError(json_encode($field));
-				
 				$params_query = CerbQuickSearchLexer::getTokensAsQuery($field->tokens);
 				$params_query = substr($params_query, 1, -1);
 				
-				DevblocksPlatform::logError($params_query);
-				
 				$params_fields = CerbQuickSearchLexer::getFieldsFromQuery($params_query);
-				
-				DevblocksPlatform::logError(json_encode($params_fields));
 				
 			} else if($field->key == 'format') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
@@ -147,15 +141,12 @@ class _DevblocksDataProviderAutocompleteCompletions extends _DevblocksDataProvid
 			} else if($field->key == 'path') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
 				$params['path'] = $value;
-				DevblocksPlatform::logError('Path: ' . $value);
 				
 			} else if($field->key == 'trigger') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
 				$params['trigger'] = $value;
 			}
 		}
-		
-		DevblocksPlatform::logError($params);
 		
 		$path = implode(':', array_map(
 			function($p) {
@@ -195,7 +186,6 @@ class _DevblocksDataProviderAutocompleteCompletions extends _DevblocksDataProvid
 		if(is_iterable($suggestions)) {
 			$suggestions = array_map(
 				function($suggestion) {
-					DevblocksPlatform::logError($suggestion);
 					if(is_array($suggestion)) {
 						if(!array_key_exists('score', $suggestion))
 							$suggestion['score'] = 1000;
