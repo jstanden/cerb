@@ -62,7 +62,14 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 	}
 	
 	function getOutputsMeta() : array {
-		return [];
+		return [
+			'return' => [
+				[
+					'key' => 'redirect_url',
+					'notes' => 'Redirect the visitor to a URL'
+				]
+			],
+		];
 	}
 	
 	public function getEditorToolbarItems(array $toolbar): array {
