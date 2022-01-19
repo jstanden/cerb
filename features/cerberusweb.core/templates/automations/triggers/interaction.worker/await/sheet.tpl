@@ -220,6 +220,7 @@ $(function() {
 				// If this is the only single selection prompt (no continue or other inputs)
 				if(1 === $form.find('.cerb-form-builder-prompt,.cerb-form-builder-continue').length) {
 					$form.triggerHandler($.Event('cerb-form-builder-submit'));
+					return;
 				}
 			}
 		}
@@ -231,6 +232,15 @@ $(function() {
 
 	$sheet.on('cerb-sheet--selections-changed', function(e) {
 		e.stopPropagation();
+		
+		// If we're in single selection and auto-submitting, don't refresh the toolbar
+		if(
+			!(e.hasOwnProperty('is_multiple') && e.is_multiple) 
+			&& 1 === $form.find('.cerb-form-builder-prompt,.cerb-form-builder-continue').length
+		) {
+			return;
+		}
+		
 		$prompt.triggerHandler('cerb-sheet--toolbar-refresh');
 	});
 
