@@ -14,7 +14,7 @@
 
 {$btn_cfield_group_domid = "cfield_sets_{uniqid()}"}
 <div style="margin-left:10px;margin-bottom:10px;">
-	<div id="{$btn_cfield_group_domid}" class="badge badge-lightgray" style="cursor:pointer;"><a href="javascript:;" style="text-decoration:none;color:rgb(50,50,50);">Add Fieldset &#x25be;</a></div>
+	<div id="{$btn_cfield_group_domid}" class="badge badge-lightgray" style="cursor:pointer;"><a href="javascript:;" style="text-decoration:none;color:var(--cerb-color-background-contrast-50);">Add Fieldset &#x25be;</a></div>
 	<ul class="cerb-popupmenu" style="border:0;">
 		<li style="background:none;">
 			<input type="text" size="32" class="input_search filter">

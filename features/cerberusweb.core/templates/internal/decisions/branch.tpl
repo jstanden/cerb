@@ -6,7 +6,7 @@
 
 	{if $node->node_type == 'subroutine'}
 		<div class="badge badge-lightgray" style="margin:2px;">
-			<a href="javascript:;" style="text-decoration:none;font-weight:bold;color:rgb(50,50,50);" node_id="{$node->id}" trigger_id="{$trigger_id}">
+			<a href="javascript:;" style="text-decoration:none;font-weight:bold;color:var(--cerb-color-background-contrast-50);" node_id="{$node->id}" trigger_id="{$trigger_id}">
 				<span style="font-weight:normal;"></span> {$node->title}{if $is_writeable} &#x25be;{/if}
 			</a>
 		</div>

@@ -188,7 +188,7 @@
 		Are you sure you want to delete this group?
 		
 		{if !empty($destination_buckets)}
-		<div style="color:rgb(50,50,50);margin:10px;">
+		<div style="color:var(--cerb-color-background-contrast-50);margin:10px;">
 		
 		<b>Move records from this group's buckets to:</b>
 		
