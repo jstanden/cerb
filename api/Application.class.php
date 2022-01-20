@@ -3613,7 +3613,7 @@ class _CerbApplication_KataAutocompletions {
 					'score' => 2000,
 				],
 			],
-			'layout:header:logo:uri:' => [
+			'layout:header:logo:image:uri:' => [
 				'type' => 'cerb-uri',
 				'params' => [
 					'resource' => [
