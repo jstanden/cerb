@@ -316,6 +316,41 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
                                        ],
                                 ],
 
+                               '(.*):await:form:elements:map:regions:filter:' => [
+                                        [
+                                                'caption' => 'is:',
+                                                'snippet' => "is: Value",
+                                                'score' => 2000,
+                                       ],
+                                        [
+                                                'caption' => 'is@list:',
+                                                'snippet' => "is@list:\n  Value 1\n  Value 2\n  Value 3",
+                                                'score' => 1999,
+                                       ],
+                                        [
+                                                'caption' => 'is@csv:',
+                                                'snippet' => "is@csv: Value 1, Value 2, Value 3",
+                                                'score' => 1998,
+                                       ],
+					[
+                                                'caption' => 'not:',
+                                                'snippet' => "not: Value",
+                                                'score' => 1997,
+                                       ],
+                                        [
+                                                'caption' => 'not@list:',
+                                                'snippet' => "not@list:\n  Value 1\n  Value 2\n  Value 3",
+                                                'score' => 1996,
+                                       ],
+                                        [
+                                                'caption' => 'not@csv:',
+                                                'snippet' => "not@csv: Value 1, Value 2, Value 3",
+                                                'score' => 1996,
+                                       ],
+                                        'property:',
+                                ],
+
+
 				'(.*):await:form:elements:say:' => [
 					[
 						'caption' => 'content:',
