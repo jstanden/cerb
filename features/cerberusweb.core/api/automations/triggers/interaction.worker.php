@@ -252,6 +252,13 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
                                         'latitude:',
                                         'longitude:',
                                 ],
+
+                                '(.*):await:form:elements:map:projection:zoom:' => [
+                                        'latitude:',
+                                        'longitude:',
+					'scale:',
+                                ],
+
 	
 				'(.*):await:form:elements:say:' => [
 					[
