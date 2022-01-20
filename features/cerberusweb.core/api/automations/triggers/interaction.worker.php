@@ -229,7 +229,13 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
                                         ],
                                 ],
 
-				
+				 '(.*):await:form:elements:map:projection:' => [
+                                	'type:',
+					'scale:',
+					'center:',
+					'zoom:',
+				],
+	
 				'(.*):await:form:elements:say:' => [
 					[
 						'caption' => 'content:',
