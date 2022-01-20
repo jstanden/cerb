@@ -210,6 +210,25 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'regions:',
 					'points:',
 				],
+
+                                '(.*):await:form:elements:map:resource:' => [
+                                	 [
+                                                'caption' => 'uri:',
+                                                'snippet' => "uri: cerb:resource:\${1:cerb.data.records}",
+                                        ],
+				],
+
+				 '(.*):await:form:elements:map:resource:uri:' => [
+                                       'type' => 'cerb-uri',
+                                       'params' => [
+                                       	       'automation' => [
+                                               	        'triggers' => [
+                                                       	        'cerb.trigger.ui.sheet.data',
+                                                       	]
+                                       		]
+                                        ],
+                                ],
+
 				
 				'(.*):await:form:elements:say:' => [
 					[
