@@ -211,7 +211,12 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 						'score' => 2000,
 					],
 					'projection:',
-					'regions:',
+					[
+						'caption' => 'regions:',
+						'snippet' => "regions:\n  properties:\n  #label:\n  #filter:\n  #fill:",
+						'description' => "Define the shapes used in the base map (countries, states, etc.)",
+						'score' => 1999,
+					],
 					'points:',
 				],
 
