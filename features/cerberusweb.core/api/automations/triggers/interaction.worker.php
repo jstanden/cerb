@@ -301,6 +301,31 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
                                         ]
                                 ],
 
+                                '(.*):await:form:elements:map:regions:properties:join:' => [
+                                        [
+                                                'caption' => 'property:',
+                                                'snippet' => "property: \${1:name}",
+                                                'score' => 2000,
+                                        ],
+                                        'case:',
+                                ],
+
+                                '(.*):await:form:elements:map:regions:properties:join:case:' => [
+                                        [
+                                                'caption' => 'upper',
+                                                'snippet' => "upper",
+						'description' => "Normalize values of keys to upper case",
+                                                'score' => 2000,
+                                        ],
+					[
+                                                'caption' => 'lower',
+                                                'snippet' => 'lower',
+                                                'description' => "Normalize values of keys to lower case",
+                                                'score' => 1999,
+                                        ],
+                                ],
+
+
                                 '(.*):await:form:elements:map:regions:label:' => [
 					[
                                                 'caption' => 'title:',
