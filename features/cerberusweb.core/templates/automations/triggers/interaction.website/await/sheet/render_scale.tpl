@@ -1,8 +1,8 @@
 {$is_selection_enabled = false}
 
-<div style="margin-top:5px;">
+<div>
 	<div class="cerb-sheet-scale">
-		<div class="cerb-sheet-scale--cells" style="column-count:{$rows|count};">
+		<div class="cerb-sheet-scale--cells">
 		{if $rows}
 			{foreach from=$rows item=row name=rows}
 				<div class="cerb-sheet-scale--cell cerb-sheet--row">
@@ -46,7 +46,7 @@
 	</div>
 
 	{if $paging && $paging.page.of > 1}
-	<span style="float:right;margin-top:5px;">
+	<span class="cerb-sheet-paging">
 		{if array_key_exists('first', $paging.page)}<a href="javascript:;" class="cerb-paging" data-page="{$paging.page.first}">&lt;&lt;</a>{/if}
 		{if array_key_exists('prev', $paging.page)}<a href="javascript:;" class="cerb-paging" data-page="{$paging.page.prev}">&lt;{'common.previous_short'|devblocks_translate|capitalize}</a>{/if}
 		(Showing {if $paging.page.rows.from==$paging.page.rows.to}{$paging.page.rows.from}{else}{$paging.page.rows.from}-{$paging.page.rows.to}{/if}
@@ -62,6 +62,8 @@
 {
 	var $script = document.querySelector('#{$script_uid}');
 	var $sheet = $script.parentElement.querySelector('.cerb-sheet-scale');
+	
+	$sheet.querySelector('.cerb-sheet-scale--cells').style['column-count'] = {$rows|count|json_encode};
 
 	{if $is_selection_enabled}
 	$$.forEach($sheet.querySelectorAll('.cerb-sheet-scale--cell'), function(index, $cell) {

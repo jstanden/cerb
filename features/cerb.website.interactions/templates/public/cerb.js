@@ -33,7 +33,6 @@ CerbInteractions.prototype.init = function() {
     
     this.$spinner = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     this.$spinner.setAttribute('viewBox', '0 0 100 100');
-    this.$spinner.style.width = '32px';
     this.$spinner.appendChild($circle);
     this.$spinner.classList.add('cerb-spinner');
     

@@ -17,7 +17,7 @@
 			{/if}
 		</div>
 
-		<div data-cerb-sheet-selections style="display:none;">
+		<div data-cerb-sheet-selections class="cerb-interaction--hidden">
 			<ul class="bubbles chooser-container">
 				{if is_array($default) && $default}
 					{foreach from=$default item=v}

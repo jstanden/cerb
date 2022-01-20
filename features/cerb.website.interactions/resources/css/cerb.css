@@ -20,6 +20,10 @@
     --cerb-interaction-window-title-text-color: white;
 }
 
+.cerb-interaction--hidden {
+    display: none;
+}
+
 .cerb-interaction-popup {
     font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     width: 40vw;
@@ -202,6 +206,10 @@
     background-position: center center;
 }
 
+.cerb-interaction-popup--form-elements-spacer {
+    flex: 2 2;
+}
+
 .cerb-interaction-popup--form-elements-text input[type=text],
 .cerb-interaction-popup--form-elements-textarea textarea {
     border: var(--cerb-interaction-form-element-border);
@@ -221,8 +229,17 @@
     color: #333333;
 }
 
+.cerb-interaction-popup--form-elements-sheet .cerb-shadow {
+    box-shadow: 0 0 5px rgb(200,200,200);
+}
+
 .cerb-interaction-popup--form-elements-sheet [data-cerb-sheet-container] {
     position: relative;
+}
+
+.cerb-interaction-popup--form-elements-sheet .cerb-sheet {
+    width: 100%;
+    margin-top: 5px;
 }
 
 .cerb-interaction-popup--form-elements-sheet .cerb-sheet th {
@@ -244,8 +261,32 @@
     background-color: #fbec88;
 }
 
+.cerb-interaction-popup--form-elements-sheet .cerb-font-bold {
+    font-weight: bold;
+}
+
+.cerb-interaction-popup--form-elements-sheet .cerb-sheet--row-title {
+    font-size: 1.1em;
+    font-weight: bold;
+    padding: 0 0 0 5px;
+}
+
+.cerb-interaction-popup--form-elements-sheet .cerb-sheet tbody.cerb-sheet--row .cerb-sheet--row-selection {
+    width: 20px;
+    text-align: center;
+}
+
+.cerb-interaction-popup--form-elements-sheet .cerb-sheet tbody.cerb-sheet--row .cerb-sheet-row--selection-label {
+    font-weight: bold;
+    cursor: pointer;
+}
+
 .cerb-interaction-popup--form-elements-sheet .cerb-sheet tbody.cerb-sheet--row:hover td {
     background-color: #ffffc8;
+}
+
+.cerb-interaction-popup--form-elements-sheet .cerb-sheet-buttons {
+    margin-top: 5px;
 }
 
 .cerb-interaction-popup--form-elements-sheet .cerb-sheet-buttons--button {
@@ -273,6 +314,12 @@
 }
 
 .cerb-interaction-popup--form-elements-sheet .cerb-sheet-scale {
+    margin-top: 5px;
+}
+
+.cerb-interaction-popup--form-elements-sheet .cerb-sheet-paging {
+    float: right;
+    margin-top: 5px;
 }
 
 .cerb-interaction-popup--form-elements-sheet .cerb-sheet-scale--cells {
@@ -331,6 +378,7 @@
 svg.cerb-spinner {
     animation: 2s linear infinite cerb-spinner-animation;
     display: inline-block;
+    width: 32px;
     max-width: 32px;
     margin: 5px;
     vertical-align: middle;

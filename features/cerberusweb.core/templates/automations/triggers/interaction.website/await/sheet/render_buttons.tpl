@@ -1,6 +1,6 @@
 {$is_selection_enabled = false}
 
-<div style="margin-top:5px;">
+<div>
 	<div class="cerb-sheet-buttons">
 	{if $rows}
 		{foreach from=$rows item=row name=rows}
@@ -25,7 +25,7 @@
 	</div>
 
 	{if $paging && $paging.page.of > 1}
-	<span style="float:right;margin-top:5px;">
+	<span class="cerb-sheet-paging">
 		{if array_key_exists('first', $paging.page)}<a href="javascript:;" class="cerb-paging" data-page="{$paging.page.first}">&lt;&lt;</a>{/if}
 		{if array_key_exists('prev', $paging.page)}<a href="javascript:;" class="cerb-paging" data-page="{$paging.page.prev}">&lt;{'common.previous_short'|devblocks_translate|capitalize}</a>{/if}
 		(Showing {if $paging.page.rows.from==$paging.page.rows.to}{$paging.page.rows.from}{else}{$paging.page.rows.from}-{$paging.page.rows.to}{/if}

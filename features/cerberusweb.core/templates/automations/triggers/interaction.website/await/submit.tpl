@@ -4,7 +4,7 @@
 	<button type="button" class="cerb-interaction-popup--form-elements-button cerb-interaction-popup--form-elements-reset" tabindex="-1"><span></span></button>
 	{/if}
 	
-	<div style="flex:2 2;"></div>
+	<div class="cerb-interaction-popup--form-elements-spacer"></div>
 	
 	{if $continue_options.continue}
 	<button type="button" class="cerb-interaction-popup--form-elements-button cerb-interaction-popup--form-elements-continue"><span></span></button>

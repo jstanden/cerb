@@ -678,13 +678,13 @@ class _DevblocksSheetServiceTypes {
 			}
 			
 			if($is_single) {
-				return sprintf('<label style="font-weight:bold;cursor:pointer;"><input type="radio" name="%s" value="%s">%s</label>',
+				return sprintf('<label class="cerb-sheet-row--selection-label"><input type="radio" name="%s" value="%s">%s</label>',
 					DevblocksPlatform::strEscapeHtml('${SHEET_SELECTION_KEY}'),
 					DevblocksPlatform::strEscapeHtml(is_array($text_value) ? json_encode($text_value) : $text_value),
 					DevblocksPlatform::strEscapeHtml($text_label)
 				);
 			} else {
-				return sprintf('<label style="font-weight:bold;cursor:pointer;"><input type="checkbox" name="%s" value="%s">%s</label>',
+				return sprintf('<label class="cerb-sheet-row--selection-label"><input type="checkbox" name="%s" value="%s">%s</label>',
 					DevblocksPlatform::strEscapeHtml('${SHEET_SELECTION_KEY}'),
 					DevblocksPlatform::strEscapeHtml(is_array($text_value) ? json_encode($text_value) : $text_value),
 					DevblocksPlatform::strEscapeHtml($text_label)

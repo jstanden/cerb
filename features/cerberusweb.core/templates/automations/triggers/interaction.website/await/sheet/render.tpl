@@ -1,8 +1,8 @@
 {$is_selection_enabled = false}
 
-<div style="box-shadow:0 0 5px rgb(200,200,200);">
-	<div style="margin-top:5px;">
-		<table cellpadding="0" cellspacing="0" style="width:100%;" class="cerb-sheet">
+<div class="cerb-shadow">
+	<div>
+		<table cellpadding="0" cellspacing="0" class="cerb-sheet">
 		{if $rows}
 			{if $layout.headings}
 			<thead>
@@ -10,7 +10,7 @@
 					{foreach from=$columns item=column name=columns}
 					{if $layout.title_column == $column.key}
 					{elseif $column._type == 'selection'}
-						<th style="width:20px;text-align:center;"></th>
+						<th class="cerb-sheet--row-selection"></th>
 					{else}
 					<th data-column-key="{$column.key}" data-column-type="{$column._type}">{$column.label}</th>
 					{/if}
@@ -25,7 +25,7 @@
 						{if $column._type == 'selection'}
 						{$is_selection_enabled = true}
 						<tr>
-							<td rowspan="{if $layout.title_column}3{else}2{/if}" colspan="1" style="width:20px;text-align:center;">
+							<td class="cerb-sheet--row-selection" rowspan="{if $layout.title_column}3{else}2{/if}" colspan="1">
 								{$row[$column.key]|replace:'${SHEET_SELECTION_KEY}':{$sheet_selection_key|default:'_selection'} nofilter}
 							</td>
 						</tr>
@@ -35,7 +35,7 @@
 					{if $layout.title_column}
 					{$column = $columns[$layout.title_column]}
 					<tr>
-						<td colspan="{$columns|count-1}" style="padding:0 0 0 5px;font-size:1.1em;font-weight:bold;">{$row[$column.key] nofilter}</td>
+						<td colspan="{$columns|count-1}" class="cerb-sheet--row-title">{$row[$column.key] nofilter}</td>
 					</tr>
 					{/if}
 	
@@ -44,7 +44,7 @@
 						{if $layout.title_column == $column.key}
 						{elseif $column._type == 'selection'}
 						{else}
-						<td style="{if $column.params.bold}font-weight:bold;{/if}">{$row[$column.key] nofilter}</td>
+						<td class="{if $column.params.bold}cerb-font-bold{/if}">{$row[$column.key] nofilter}</td>
 						{/if}
 					{/foreach}
 					</tr>
@@ -60,7 +60,7 @@
 		</table>
 	
 		{if $paging && $paging.page.of > 1}
-		<span style="float:right;margin-top:5px;">
+		<span class="cerb-sheet-paging">
 			{if array_key_exists('first', $paging.page)}<a href="javascript:;" class="cerb-paging" data-page="{$paging.page.first}">&lt;&lt;</a>{/if}
 			{if array_key_exists('prev', $paging.page)}<a href="javascript:;" class="cerb-paging" data-page="{$paging.page.prev}">&lt;{'common.previous_short'|devblocks_translate|capitalize}</a>{/if}
 			(Showing {if $paging.page.rows.from==$paging.page.rows.to}{$paging.page.rows.from}{else}{$paging.page.rows.from}-{$paging.page.rows.to}{/if}
