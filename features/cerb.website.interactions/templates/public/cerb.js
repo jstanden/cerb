@@ -148,6 +148,7 @@ CerbInteractions.prototype.html = function (el, html) {
         var $newScript = document.createElement('script');
         var scriptData = ($oldScript.text || $oldScript.textContent || $oldScript.innerHTML || "");
         $newScript.setAttribute('type', 'text/javascript');
+        $newScript.setAttribute('nonce', this.$script.getAttribute('nonce'));
         $newScript.appendChild(document.createTextNode(scriptData));
         $parent.insertBefore($newScript, $oldScript)
         $parent.removeChild($oldScript);

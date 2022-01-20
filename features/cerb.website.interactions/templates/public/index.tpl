@@ -48,6 +48,6 @@
         <div data-cerb-interaction="{$page_interaction}" data-cerb-interaction-params="{$page_interaction_params}" data-cerb-interaction-style="full" data-cerb-interaction-autostart></div>
         {/if}
 
-        <script id="cerb-interactions" data-cerb-badge-interaction="{$badge_interaction}" data-cerb-badge-interaction-style="full" src="{devblocks_url full=true}c=assets&f=cerb.js{/devblocks_url}?v={$version}" type="text/javascript" crossorigin="anonymous" defer></script>
+        <script id="cerb-interactions" data-cerb-badge-interaction="{$badge_interaction}" data-cerb-badge-interaction-style="full" src="{devblocks_url full=true}c=assets&f=cerb.js{/devblocks_url}?v={$version}" type="text/javascript" nonce="{$session->nonce}" crossorigin="anonymous" defer></script>
     </body>
 </html>

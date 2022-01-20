@@ -107,6 +107,7 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 		$stack = array_shift($path);
 		
 		$portal = ChPortalHelper::getPortal();
+		$session = ChPortalHelper::getSession();
 		
 		switch($stack) {
 			case 'interaction':
@@ -199,6 +200,7 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 					$tpl->assign('page_interaction_params', $interaction_params);
 				}
 				
+				$tpl->assign('session', $session);
 				$tpl->assign('portal', $portal);
 				$tpl->assign('portal_schema', $portal_schema);
 				$tpl->display('devblocks:cerb.website.interactions::public/index.tpl');
