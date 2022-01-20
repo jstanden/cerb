@@ -84,6 +84,7 @@ class DAO_CommunitySession extends Cerb_ORMHelper {
 			$session->created = intval($row['created']);
 			$session->updated = intval($row['updated']);
 			$session->csrf_token = $row['csrf_token'];
+			$session->nonce = sha1($session->csrf_token);
 			
 			if(!empty($row['properties']))
 				@$session->setProperties(unserialize($row['properties']));
@@ -129,6 +130,7 @@ class DAO_CommunitySession extends Cerb_ORMHelper {
 		$session->created = time();
 		$session->updated = time();
 		$session->csrf_token = CerberusApplication::generatePassword(128);
+		$session->nonce = sha1($session->csrf_token);
 		
 		$sql = sprintf("INSERT INTO community_session (session_id, portal_id, created, updated, csrf_token, properties) ".
 			"VALUES (%s, %d, %d, %d, %s, '')",
@@ -160,6 +162,8 @@ class Model_CommunitySession {
 	public $created = 0;
 	public $updated = 0;
 	public $csrf_token = '';
+	public $nonce = '';
+	
 	private $_properties = [];
 
 	function login(Model_Contact $contact) {
