@@ -264,7 +264,15 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'scale:',
                                 ],
 
-	
+
+				'(.*):await:form:elements:map:regions:' => [
+					'properties:',
+					'label:',
+					'filter:',
+					'fill:',
+				],
+
+
 				'(.*):await:form:elements:say:' => [
 					[
 						'caption' => 'content:',
