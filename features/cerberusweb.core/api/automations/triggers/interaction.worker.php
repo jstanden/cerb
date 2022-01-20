@@ -205,7 +205,11 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 			
 				// [TODO] Maps KATA	
 				'(.*):await:form:elements:map:' => [
-					'resource:',
+					[
+						'caption' => 'resource:',
+						'snippet' => "resource:\n  uri: cerb:resource:\${1:cerb.data.records:}",
+						'score' => 2000,
+					],
 					'projection:',
 					'regions:',
 					'points:',
@@ -214,7 +218,8 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
                                 '(.*):await:form:elements:map:resource:' => [
                                 	 [
                                                 'caption' => 'uri:',
-                                                'snippet' => "uri: cerb:resource:\${1:cerb.data.records}",
+                                                'snippet' => "uri: cerb:resource:\${1:cerb.data.records:}",
+						'score' => 2000,
                                         ],
 				],
 
