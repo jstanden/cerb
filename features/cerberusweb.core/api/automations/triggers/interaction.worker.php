@@ -459,6 +459,9 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 				],
 				'(.*):await:form:elements:sheet:schema:columns:time_elapsed:params:' => [
 					'precision: 2',
+					'value: 123',
+					'value_key: key',
+					'value_template@raw: {{key}}',
 				],
 				'(.*):await:form:elements:sheet:schema:layout:' => [
 					'filtering@bool: yes',
