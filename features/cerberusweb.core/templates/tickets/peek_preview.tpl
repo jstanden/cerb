@@ -36,7 +36,7 @@ $(function() {
 		e.preventDefault();
 		e.stopPropagation();
 		
-		var msgid = {$message->id};
+		var msg_id = '{$message->id}';
 		var is_forward = 0;
 		var draft_id = 0;
 		var reply_mode = 0;
@@ -50,15 +50,19 @@ $(function() {
 		formData.set('draft_id', draft_id);
 		formData.set('reply_mode', reply_mode);
 		formData.set('timestamp', '{time()}');
-		formData.set('id', msgid);
+		formData.set('id', String(msg_id));
 
-		var $popup_reply = genericAjaxPopup('reply' + msgid, formData, null, false, '70%');
+		var $popup_reply = genericAjaxPopup('reply' + msg_id, formData, null, false, '70%');
 		
 		$popup_reply.on('cerb-reply-sent cerb-reply-saved cerb-reply-draft', function(e) {
-			genericAjaxPopup($layer,'c=internal&a=invoke&module=records&action=showPeekPopup&context={CerberusContexts::CONTEXT_TICKET}&context_id={$message->ticket_id}&view_id={$view_id}','reuse',false,'50%');
-			{if $view_id}
-			genericAjaxGet('view{$view_id}', 'c=internal&a=invoke&module=worklists&action=refresh&id={$view_id}');
-			{/if}
+			// Reload the popup outside the main loop so the scrollTop updates first
+			setTimeout(function() {
+				genericAjaxPopup($layer,'c=internal&a=invoke&module=records&action=showPeekPopup&context={CerberusContexts::CONTEXT_TICKET}&context_id={$message->ticket_id}&view_id={$view_id}','reuse',false,'50%');
+
+				{if $view_id}
+				genericAjaxGet('view{$view_id}', 'c=internal&a=invoke&module=worklists&action=refresh&id={$view_id}');
+				{/if}
+			}, 0);
 		});
 	});
 	{elseif $draft && is_a($draft, 'Model_MailQueue') && $is_writeable}
@@ -86,10 +90,14 @@ $(function() {
 		});
 		
 		$popup_draft.on('cerb-compose-draft cerb-reply-draft', function() {
-			genericAjaxPopup($layer,'c=internal&a=invoke&module=records&action=showPeekPopup&context={CerberusContexts::CONTEXT_DRAFT}&context_id={$draft->id}','reuse',false,'50%');
-			{if $view_id}
-			genericAjaxGet('view{$view_id}', 'c=internal&a=invoke&module=worklists&action=refresh&id={$view_id}');
-			{/if}
+			// Reload the popup outside the main loop so the scrollTop updates first
+			setTimeout(function() {
+				genericAjaxPopup($layer, 'c=internal&a=invoke&module=records&action=showPeekPopup&context={CerberusContexts::CONTEXT_DRAFT}&context_id={$draft->id}', 'reuse', false, '50%');
+				
+				{if $view_id}
+				genericAjaxGet('view{$view_id}', 'c=internal&a=invoke&module=worklists&action=refresh&id={$view_id}');
+				{/if}
+			}, 0);
 		});
 	});
 	{/if}
