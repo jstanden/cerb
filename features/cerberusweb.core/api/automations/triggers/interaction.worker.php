@@ -301,6 +301,21 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
                                         ]
                                 ],
 
+                                '(.*):await:form:elements:map:regions:label:' => [
+					[
+                                                'caption' => 'title:',
+                                                'snippet' => "title: \${1:key}",
+                                                'description' => 'Define the property use as title',
+                                                'score' => 2000,
+                                       ],
+					[
+                                                'caption' => 'properties:',
+                                                'snippet' => "properties:\n  key:\n    label: Value\n    format: number\n  #key2:\n    #label: Value 2\n    #format: number",
+						'description' => 'Define the properties which should be displayed',
+						'score' => 1999,
+                                       ],
+                                ],
+
 				'(.*):await:form:elements:say:' => [
 					[
 						'caption' => 'content:',
