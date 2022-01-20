@@ -235,6 +235,12 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'center:',
 					'zoom:',
 				],
+
+                                '(.*):await:form:elements:map:projection:type:' => [
+					'mercator',
+					'naturalEarth',
+					'albersUsa',
+				],
 	
 				'(.*):await:form:elements:say:' => [
 					[
