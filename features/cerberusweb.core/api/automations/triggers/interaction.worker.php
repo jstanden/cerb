@@ -272,6 +272,11 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'fill:',
 				],
 
+				'(.*):await:form:elements:map:regions:properties:' => [
+					'resource:',
+					'data:',
+					'join:',
+				],
 
 				'(.*):await:form:elements:say:' => [
 					[
