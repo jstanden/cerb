@@ -246,6 +246,12 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'naturalEarth',
 					'albersUsa',
 				],
+
+
+                                '(.*):await:form:elements:map:projection:center:' => [
+                                        'latitude:',
+                                        'longitude:',
+                                ],
 	
 				'(.*):await:form:elements:say:' => [
 					[
