@@ -350,6 +350,27 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
                                         'property:',
                                 ],
 
+                               '(.*):await:form:elements:map:regions:fill:' => [
+                                        [
+                                                'caption' => 'color_key:',
+                                                'snippet' => "color_key:\n\tproperty: key",
+						'description' => "Select colors directly from a property.",
+                                                'score' => 2000,
+                                       ],
+                                        [
+                                                'caption' => 'color_map:',
+                                                'snippet' => "color_map:\n\tproperty: key\n\tcolors:\n\t\t1: gray\n\t\t2: blue\n\t\t3: green\n\t\t4: orange\n\t\t5: red",
+						'description' => "Associate colors with specific property values",
+                                                'score' => 1999,
+                                       ],
+                                        [
+                                                'caption' => 'choropleth:',
+                                                'snippet' => "choropleth:\n\tproperty: key\n\tclasses: value",
+						'description' => "Interpolate color intensity on a scale based on a numeric property",
+                                                'score' => 1998,
+                                       ],
+                                ],
+
 
 				'(.*):await:form:elements:say:' => [
 					[
