@@ -190,6 +190,7 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 				$tpl = DevblocksPlatform::services()->templateSandbox();
 				
 				header('Content-Type: text/html');
+				header(sprintf("Content-Security-Policy: default-src 'self'; img-src 'self' data:; script-src 'nonce-%s'; object-src 'none';", $session->nonce));
 				
 				$portal_schema = $this->_getPortalSchema();
 				
