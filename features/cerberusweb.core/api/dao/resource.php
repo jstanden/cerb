@@ -220,6 +220,24 @@ class DAO_Resource extends Cerb_ORMHelper {
 	}
 	
 	/**
+	 * @param string $resource_key
+	 * @return Model_Resource|null
+	 */
+	public static function getByNameAndType(string $resource_key, string $extension_id) {
+		$objects = self::getWhere(sprintf("%s = %s AND %s = %d",
+			self::NAME,
+			self::qstr($resource_key),
+			self::EXTENSION_ID,
+			self::qstr($extension_id),
+		));
+		
+		if(!is_array($objects) || !count($objects))
+			return null;
+		
+		return current($objects);
+	}
+	
+	/**
 	 * @param string[] $resource_keys
 	 * @return Model_Resource[]
 	 */
