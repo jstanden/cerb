@@ -1,4 +1,6 @@
 <?php
+use enshrined\svgSanitize\Sanitizer;
+
 class ResourceType_PortalImage extends Extension_ResourceType {
 	const ID = 'cerb.resource.portal.image';
 	
@@ -15,14 +17,33 @@ class ResourceType_PortalImage extends Extension_ResourceType {
 			
 			fseek($fp, 0);
 			
-			if(false === ($image_stats = getimagesizefromstring($bytes))) {
-				$error = "The upload file is not a valid image.";
-				return false;
+			if(DevblocksPlatform::strStartsWith($bytes, ['<svg ','<?xml'])) {
+				$sanitizer = new Sanitizer();
+				$sanitizer->removeRemoteReferences(true);
+				
+				if(false == ($bytes = $sanitizer->sanitize($bytes))) {
+					$error = 'The upload file is not a valid SVG image.';
+					return false;
+				}
+				
+				ftruncate($fp, 0);
+				fwrite($fp, $bytes);
+				fseek($fp, 0);
+				
+				$extension_params[self::PARAM_WIDTH] = 0;
+				$extension_params[self::PARAM_HEIGHT] = 0;
+				$extension_params[self::PARAM_MIME_TYPE] = 'image/svg+xml';
+				
+			} else {
+				if(false === ($image_stats = getimagesizefromstring($bytes))) {
+					$error = "The upload file is not a valid image.";
+					return false;
+				}
+				
+				$extension_params[self::PARAM_WIDTH] = $image_stats[0] ?? 0;
+				$extension_params[self::PARAM_HEIGHT] = $image_stats[1] ?? 0;
+				$extension_params[self::PARAM_MIME_TYPE] = $image_stats['mime'] ?? '';
 			}
-			
-			$extension_params[self::PARAM_WIDTH] = $image_stats[0] ?? 0;
-			$extension_params[self::PARAM_HEIGHT] = $image_stats[1] ?? 0;
-			$extension_params[self::PARAM_MIME_TYPE] = $image_stats['mime'] ?? '';
 		}
 		
 		return true;
