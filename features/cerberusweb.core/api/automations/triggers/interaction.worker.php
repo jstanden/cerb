@@ -429,6 +429,12 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
                                                 'snippet' => "size:\n\tdefault: \${1:2.5}\n\t#value_map:",
                                                 'score' => 1996,
                                        ],
+                                        [
+                                                'caption' => 'fill:',
+                                                'snippet' => "fill:\n\tdefault: \${1:red}\n\t#color_map:\n\t\t#property: key\n\t\t#colors: \n\t\t\t#1: red\n\t\t\t#2: blue\n\t\t\t#3: green",
+                                                'score' => 1995,
+                                       ],
+
 
                                 ],
 
