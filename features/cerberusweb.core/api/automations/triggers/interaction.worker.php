@@ -501,6 +501,20 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
                                        ],
 
                                 ],
+
+				'(.*):await:form:elements:map:points:fill:' => [
+					[
+						'caption' => 'default:',
+						'snippet' => "default: \${1:red}",
+						'score' => 2000,
+					],
+					[
+						'caption' => 'color_map:',
+						'snippet' => "color_map:\n\tproperty: \${1:key}\n\tcolors: \n\t\t1: red\n\t\t2: blue\n\t\t3: green",
+						'score' => 1999,
+					],
+
+				],
 	
 				'(.*):await:form:elements:say:' => [
 					[
