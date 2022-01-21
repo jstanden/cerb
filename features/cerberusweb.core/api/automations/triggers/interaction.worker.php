@@ -372,7 +372,12 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
                                                 'snippet' => "not@csv: Value 1, Value 2, Value 3",
                                                 'score' => 1996,
                                        ],
-                                        'property:',
+                                       [
+						'caption' => 'property:',
+                                                'snippet' => "property: \${1:key}",
+                                                'score' => 1995,
+                                       ],
+
                                 ],
 
                                '(.*):await:form:elements:map:regions:fill:' => [
