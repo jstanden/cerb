@@ -401,6 +401,36 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
                                        ],
                                 ],
 
+                               '(.*):await:form:elements:map:points:' => [
+                                        [
+                                                'caption' => 'resource:',
+                                                'snippet' => "resource:\n  uri: cerb:resource:\${1:cerb.data.records}",
+                                                'score' => 2000,
+                                       ],
+					[
+                                                'caption' => 'data:',
+                                                'snippet' => "data:\n\tpoint/berlin:\n\t\tlatitude: 52.549636074382285\n\t\tlongitude: 13.403320312499998\n\t\tproperties:\n\t\t\tname: Berlin\n\t\t\tcountry: Germany\n\t\t\tcontinent: Europe\n\tpoint/los_angeles:\n\t\tlatitude: 34.08906131584994\n\t\tlongitude: 241.69921874999997\n\t\tproperties:\n\t\t\tname: Los Angeles\n\t\t\tcountry: United States of America\n\t\t\tcontinent: North America",
+                                                'description' => "Select colors directly from a property",
+                                                'score' => 1999,
+                                       ],
+                                        [
+                                                'caption' => 'label:',
+                                                'snippet' => "label:\n\ttitle: key\n\tproperties:\n\t\tkey:\n\t\t\tlabel: Value\n\t\tkey2:\n\t\t\tlabel: Value 2\n\t\t\tformat: number",
+                                                'description' => "Define the properties which should be displayed",
+                                                'score' => 1998,
+                                       ],
+                                        [
+                                                'caption' => 'filter:',
+                                                'snippet' => "filter:\n\tproperty: \${1:key}\n\t#is@list:\n\t\t#Value 1\n\t\t#Value 2",
+                                                'score' => 1997,
+                                       ],
+					[
+                                                'caption' => 'size:',
+                                                'snippet' => "size:\n\tdefault: \${1:2.5}\n\t#value_map:",
+                                                'score' => 1996,
+                                       ],
+
+                                ],
 
 				'(.*):await:form:elements:say:' => [
 					[
