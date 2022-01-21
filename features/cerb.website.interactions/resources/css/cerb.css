@@ -12,11 +12,14 @@
     --cerb-interaction-sheet-cell-selected-text-color: white;
     --cerb-interaction-window-bg-color: white;
     --cerb-interaction-window-close-bg-color: rgb(95, 95, 95);
-    --cerb-interaction-window-close-hover-bg-color: rgb(105, 105, 105);
+    --cerb-interaction-window-close-hover-bg-color: rgb(125, 125, 125);
     --cerb-interaction-window-close-text-color: white;
     --cerb-interaction-window-error-bg-color: rgb(255, 240, 240);
     --cerb-interaction-window-error-text-color: rgb(200, 0, 0);
-    --cerb-interaction-window-title-bg-color: rgb(75, 75, 75);
+    --cerb-interaction-window-title-bg: rgb(26, 26, 26);
+    --cerb-interaction-window-title-bg-color: rgb(35,35,35);
+    --cerb-interaction-window-title-bg-color-gradient: rgb(75,75,75);
+    --cerb-interaction-window-title-bg-gradient: linear-gradient( 0deg, var(--cerb-interaction-window-title-bg-color) 10%, var(--cerb-interaction-window-title-bg-color-gradient) 90% );
     --cerb-interaction-window-title-text-color: white;
 }
 
@@ -27,7 +30,8 @@
 .cerb-interaction-popup {
     font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     width: 40vw;
-    bottom: 2.5vw;
+    max-height: 95vh;
+    bottom: 2.5vh;
     right: 2.5vw;
     position: fixed;
     z-index: 10000;
@@ -40,7 +44,16 @@
     width: 75vw;
     right: 12.5vw;
     bottom: unset;
+    max-height: unset;
     top: 2.5vh;
+}
+
+.cerb-interaction-popup--style-full:after {
+    position: absolute;
+    content: "";
+    bottom: -40px;
+    height: 40px;
+    width: 1px;
 }
 
 .cerb-interaction-popup--close {
@@ -68,6 +81,7 @@
 .cerb-interaction-popup--title {
     text-align: center;
     background-color: var(--cerb-interaction-window-title-bg-color);
+    background: var(--cerb-interaction-window-title-bg-gradient);    
     color: var(--cerb-interaction-window-title-text-color);
     font-weight: bold;
     width: 100%;
@@ -77,6 +91,13 @@
 }
 
 .cerb-interaction-popup--container {
+    max-height: 95vh;
+    overflow: auto;
+}
+
+.cerb-interaction-popup--style-full .cerb-interaction-popup--container {
+    max-height: unset;
+    overflow: unset;
 }
 
 .cerb-interaction-badge {
@@ -124,27 +145,27 @@
 }
 
 .cerb-interaction-popup--form-elements H1 {
-    font-size: 1.9em;
-}
-
-.cerb-interaction-popup--form-elements H2 {
-    font-size: 1.75em;
-}
-
-.cerb-interaction-popup--form-elements H3 {
     font-size: 1.6em;
 }
 
-.cerb-interaction-popup--form-elements H4 {
-    font-size: 1.45em;
+.cerb-interaction-popup--form-elements H2 {
+    font-size: 1.5em;
 }
 
-.cerb-interaction-popup--form-elements H5 {
+.cerb-interaction-popup--form-elements H3 {
+    font-size: 1.4em;
+}
+
+.cerb-interaction-popup--form-elements H4 {
     font-size: 1.3em;
 }
 
+.cerb-interaction-popup--form-elements H5 {
+    font-size: 1.2em;
+}
+
 .cerb-interaction-popup--form-elements H6 {
-    font-size: 1.15em;
+    font-size: 1.1em;
 }
 
 .cerb-interaction-popup--form-elements-say {
@@ -427,11 +448,17 @@ svg.cerb-spinner circle {
 @media screen and (min-width: 1500px) {
     .cerb-interaction-popup {
         width: 50vw;
-        bottom: 2.5vw;
+        max-height: 90vh;
+        bottom: 5vh;
         right: 2.5vw;
+    }
+    
+    .cerb-interaction-popup--container {
+        max-height: 90vh;
     }
 
     .cerb-interaction-popup--style-full {
+        max-height: unset;
         width: 60vw;
         right: 20vw;
         bottom: unset;
@@ -442,11 +469,17 @@ svg.cerb-spinner circle {
 @media screen and (max-width: 1050px) {
     .cerb-interaction-popup {
         width: 50vw;
-        bottom: 2.5vw;
+        max-height: 90vh;
+        bottom: 5vh;
         right: 2.5vw;
     }
 
+    .cerb-interaction-popup--container {
+        max-height: 90vh;
+    }
+
     .cerb-interaction-popup--style-full {
+        max-height: unset;
         width: 75vw;
         right: 12.5vw;
         bottom: unset;
@@ -457,11 +490,17 @@ svg.cerb-spinner circle {
 @media screen and (max-width: 800px) {
     .cerb-interaction-popup {
         width: 75vw;
-        bottom: 2.5vw;
+        max-height: 90vh;
+        bottom: 5vh;
         right: 2.5vw;
     }
 
+    .cerb-interaction-popup--container {
+        max-height: 90vh;
+    }
+
     .cerb-interaction-popup--style-full {
+        max-height: unset;
         width: 90vw;
         right: 5vw;
         bottom: unset;
@@ -472,11 +511,17 @@ svg.cerb-spinner circle {
 @media screen and (max-width: 500px) {
     .cerb-interaction-popup {
         width: 95vw;
-        bottom: 2.5vw;
+        max-height: 95vh;
+        bottom: 2.5vh;
         right: 2.5vw;
     }
 
+    .cerb-interaction-popup--container {
+        max-height: 95vh;
+    }
+
     .cerb-interaction-popup--style-full {
+        max-height: unset;
         width: 95vw;
         right: 2.5vw;
         bottom: unset;
