@@ -481,6 +481,20 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
                                        ],
 
                                 ],
+
+				'(.*):await:form:elements:map:points:size:' => [
+					[
+						'caption' => 'default:',
+                                                'snippet' => "default: \${1:2.5}",
+                                                'score' => 2000,
+                                       ],
+					[
+                                                'caption' => 'value_map:',
+                                                'snippet' => "value_map:\n\tproperty: \${1:key}\n\tvalues:\n\t\t1: 5.0\n\t\t2: 7.5",
+                                                'score' => 1999,
+                                       ],
+
+                                ],
 	
 				'(.*):await:form:elements:say:' => [
 					[
