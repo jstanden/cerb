@@ -207,63 +207,62 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 				'(.*):await:form:elements:map:' => [
 					[
 						'caption' => 'resource:',
-						'snippet' => "resource:\n  uri: cerb:resource:\${1:cerb.data.records:}",
+						'snippet' => "resource:\n\turi: cerb:resource:\${1:cerb.data.records:}",
 						'score' => 2000,
 					],
 					'projection:',
 					[
 						'caption' => 'regions:',
-						'snippet' => "regions:\n  properties:\n  #label:\n  #filter:\n  #fill:",
+						'snippet' => "regions:\n\tproperties:\n\t#label:\n\t#filter:\n\t#fill:",
 						'description' => "Define the shapes used in the base map (countries, states, etc.)",
 						'score' => 1999,
 					],
 					'points:',
 				],
 
-                                '(.*):await:form:elements:map:resource:' => [
-                                	 [
-                                                'caption' => 'uri:',
-                                                'snippet' => "uri: cerb:resource:\${1:cerb.data.records:}",
+				'(.*):await:form:elements:map:resource:' => [
+					[
+						'caption' => 'uri:',
+						'snippet' => "uri: cerb:resource:\${1:cerb.data.records:}",
 						'score' => 2000,
-                                        ],
+					],
 				],
 
 				 '(.*):await:form:elements:map:resource:uri:' => [
-                                       'type' => 'cerb-uri',
-                                       'params' => [
-                                       	       'automation' => [
-                                               	        'triggers' => [
-                                                       	        'cerb.trigger.ui.sheet.data',
-                                                       	]
-                                       		]
-                                        ],
-                                ],
+						'type' => 'cerb-uri',
+						'params' => [
+								'automation' => [
+										'triggers' => [
+												'cerb.trigger.ui.sheet.data',
+										]
+							]
+						],
+				],
 
 				 '(.*):await:form:elements:map:projection:' => [
-                                	'type:',
+					'type:',
 					'scale:',
 					'center:',
 					'zoom:',
 				],
 
-                                '(.*):await:form:elements:map:projection:type:' => [
+				'(.*):await:form:elements:map:projection:type:' => [
 					'mercator',
 					'naturalEarth',
 					'albersUsa',
 				],
 
 
-                                '(.*):await:form:elements:map:projection:center:' => [
-                                        'latitude:',
-                                        'longitude:',
-                                ],
+				'(.*):await:form:elements:map:projection:center:' => [
+					'latitude:',
+					'longitude:',
+				],
 
-                                '(.*):await:form:elements:map:projection:zoom:' => [
-                                        'latitude:',
-                                        'longitude:',
+				'(.*):await:form:elements:map:projection:zoom:' => [
+					'latitude:',
+					'longitude:',
 					'scale:',
-                                ],
-
+				],
 
 				'(.*):await:form:elements:map:regions:' => [
 					'properties:',
@@ -273,234 +272,229 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 				],
 
 				'(.*):await:form:elements:map:regions:properties:' => [
-                                        [
-                                                'caption' => 'resource:',
-                                                'snippet' => "resource:\n  uri: cerb:resource:\${1:cerb.data.records}",
-                                                'score' => 2000,
-                                        ],
+					[
+						'caption' => 'resource:',
+						'snippet' => "resource:\n\turi: cerb:resource:\${1:cerb.data.records}",
+						'score' => 2000,
+					],
 					'data:',
 					'join:',
 				],
 
-                                '(.*):await:form:elements:map:regions:properties:resource:' => [
-                                        [
-                                                'caption' => 'uri:',
-                                                'snippet' => "uri: cerb:resource:\${1:cerb.data.records}",
+				'(.*):await:form:elements:map:regions:properties:resource:' => [
+					[
+						'caption' => 'uri:',
+						'snippet' => "uri: cerb:resource:\${1:cerb.data.records}",
 						'score' => 2000,
-                                        ],
+					],
 				],
 
-                                '(.*):await:form:elements:map:regions:properties:resource:uri:' => [
-                                       'type' => 'cerb-uri',
-                                        'params' => [
-                                                'automation' => [
-                                                        'triggers' => [
-                                                                'cerb.trigger.ui.sheet.data',
-                                                        ]
-                                                ]
-                                        ]
-                                ],
+				'(.*):await:form:elements:map:regions:properties:resource:uri:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'automation' => [
+							'triggers' => [
+								'cerb.trigger.ui.sheet.data',
+							]
+						]
+					]
+				],
 
-                                '(.*):await:form:elements:map:regions:properties:join:' => [
-                                        [
-                                                'caption' => 'property:',
-                                                'snippet' => "property: \${1:name}",
-                                                'score' => 2000,
-                                        ],
-                                        'case:',
-                                ],
+				'(.*):await:form:elements:map:regions:properties:join:' => [
+					[
+						'caption' => 'property:',
+						'snippet' => "property: \${1:name}",
+						'score' => 2000,
+					],
+					'case:',
+				],
 
-                                '(.*):await:form:elements:map:regions:properties:join:case:' => [
-                                        [
-                                                'caption' => 'upper',
-                                                'snippet' => "upper",
+				'(.*):await:form:elements:map:regions:properties:join:case:' => [
+					[
+						'caption' => 'upper',
+						'snippet' => "upper",
 						'description' => "Normalize values of keys to upper case",
-                                                'score' => 2000,
-                                        ],
+						'score' => 2000,
+					],
 					[
-                                                'caption' => 'lower',
-                                                'snippet' => 'lower',
-                                                'description' => "Normalize values of keys to lower case",
-                                                'score' => 1999,
-                                        ],
-                                ],
+						'caption' => 'lower',
+						'snippet' => 'lower',
+						'description' => "Normalize values of keys to lower case",
+						'score' => 1999,
+					],
+				],
 
 
-                                '(.*):await:form:elements:map:regions:label:' => [
+				'(.*):await:form:elements:map:regions:label:' => [
 					[
-                                                'caption' => 'title:',
-                                                'snippet' => "title: \${1:key}",
-                                                'description' => 'Define the property use as title',
-                                                'score' => 2000,
-                                       ],
+						'caption' => 'title:',
+						'snippet' => "title: \${1:key}",
+						'description' => 'Define the property use as title',
+						'score' => 2000,
+					],
 					[
-                                                'caption' => 'properties:',
-                                                'snippet' => "properties:\n  key:\n    label: Value\n    format: number\n  #key2:\n    #label: Value 2\n    #format: number",
+						'caption' => 'properties:',
+						'snippet' => "properties:\n\tkey:\n\t\tlabel: Value\n\t\tformat: number\n\t#key2:\n\t\t#label: Value 2\n\t\t#format: number",
 						'description' => 'Define the properties which should be displayed',
 						'score' => 1999,
-                                       ],
-                                ],
+					],
+				],
 
-                               '(.*):await:form:elements:map:regions:filter:' => [
-                                        [
-                                                'caption' => 'is:',
-                                                'snippet' => "is: Value",
-                                                'score' => 2000,
-                                       ],
-                                        [
-                                                'caption' => 'is@list:',
-                                                'snippet' => "is@list:\n  Value 1\n  Value 2\n  Value 3",
-                                                'score' => 1999,
-                                       ],
-                                        [
-                                                'caption' => 'is@csv:',
-                                                'snippet' => "is@csv: Value 1, Value 2, Value 3",
-                                                'score' => 1998,
-                                       ],
+				'(.*):await:form:elements:map:regions:filter:' => [
 					[
-                                                'caption' => 'not:',
-                                                'snippet' => "not: Value",
-                                                'score' => 1997,
-                                       ],
-                                        [
-                                                'caption' => 'not@list:',
-                                                'snippet' => "not@list:\n  Value 1\n  Value 2\n  Value 3",
-                                                'score' => 1996,
-                                       ],
-                                        [
-                                                'caption' => 'not@csv:',
-                                                'snippet' => "not@csv: Value 1, Value 2, Value 3",
-                                                'score' => 1996,
-                                       ],
-                                       [
+						'caption' => 'is:',
+						'snippet' => "is: Value",
+						'score' => 2000,
+					],
+					[
+						'caption' => 'is@list:',
+						'snippet' => "is@list:\n\tValue 1\n\tValue 2\n\tValue 3",
+						'score' => 1999,
+					],
+					[
+						'caption' => 'is@csv:',
+						'snippet' => "is@csv: Value 1, Value 2, Value 3",
+						'score' => 1998,
+					],
+					[
+						'caption' => 'not:',
+						'snippet' => "not: Value",
+						'score' => 1997,
+					],
+					[
+						'caption' => 'not@list:',
+						'snippet' => "not@list:\n\tValue 1\n\tValue 2\n\tValue 3",
+						'score' => 1996,
+					],
+					[
+						'caption' => 'not@csv:',
+						'snippet' => "not@csv: Value 1, Value 2, Value 3",
+						'score' => 1996,
+					],
+					[
 						'caption' => 'property:',
-                                                'snippet' => "property: \${1:key}",
-                                                'score' => 1995,
-                                       ],
+						'snippet' => "property: \${1:key}",
+						'score' => 1995,
+					],
+				],
 
-                                ],
-
-                               '(.*):await:form:elements:map:regions:fill:' => [
-                                        [
-                                                'caption' => 'color_key:',
-                                                'snippet' => "color_key:\n\tproperty: key",
+				'(.*):await:form:elements:map:regions:fill:' => [
+					[
+						'caption' => 'color_key:',
+						'snippet' => "color_key:\n\tproperty: key",
 						'description' => "Select colors directly from a property.",
-                                                'score' => 2000,
-                                       ],
-                                        [
-                                                'caption' => 'color_map:',
-                                                'snippet' => "color_map:\n\tproperty: key\n\tcolors:\n\t\t1: gray\n\t\t2: blue\n\t\t3: green\n\t\t4: orange\n\t\t5: red",
-						'description' => "Associate colors with specific property values",
-                                                'score' => 1999,
-                                       ],
-                                        [
-                                                'caption' => 'choropleth:',
-                                                'snippet' => "choropleth:\n\tproperty: key\n\tclasses: value",
-						'description' => "Interpolate color intensity on a scale based on a numeric property",
-                                                'score' => 1998,
-                                       ],
-                                ],
-
-                               '(.*):await:form:elements:map:points:' => [
-                                        [
-                                                'caption' => 'resource:',
-                                                'snippet' => "resource:\n  uri: cerb:resource:\${1:cerb.data.records}",
-                                                'score' => 2000,
-                                       ],
+						'score' => 2000,
+					],
 					[
-                                                'caption' => 'data:',
-                                                'snippet' => "data:\n\tpoint/berlin:\n\t\tlatitude: 52.549636074382285\n\t\tlongitude: 13.403320312499998\n\t\tproperties:\n\t\t\tname: Berlin\n\t\t\tcountry: Germany\n\t\t\tcontinent: Europe\n\tpoint/los_angeles:\n\t\tlatitude: 34.08906131584994\n\t\tlongitude: 241.69921874999997\n\t\tproperties:\n\t\t\tname: Los Angeles\n\t\t\tcountry: United States of America\n\t\t\tcontinent: North America",
-                                                'description' => "Select colors directly from a property",
-                                                'score' => 1999,
-                                       ],
-                                        [
-                                                'caption' => 'label:',
-                                                'snippet' => "label:\n\ttitle: key\n\tproperties:\n\t\tkey:\n\t\t\tlabel: Value\n\t\tkey2:\n\t\t\tlabel: Value 2\n\t\t\tformat: number",
-                                                'description' => "Define the properties which should be displayed",
-                                                'score' => 1998,
-                                       ],
-                                        [
-                                                'caption' => 'filter:',
-                                                'snippet' => "filter:\n\tproperty: \${1:key}\n\t#is@list:\n\t\t#Value 1\n\t\t#Value 2",
-                                                'score' => 1997,
-                                       ],
+						'caption' => 'color_map:',
+						'snippet' => "color_map:\n\tproperty: key\n\tcolors:\n\t\t1: gray\n\t\t2: blue\n\t\t3: green\n\t\t4: orange\n\t\t5: red",
+'description' => "Associate colors with specific property values",
+						'score' => 1999,
+					],
 					[
-                                                'caption' => 'size:',
-                                                'snippet' => "size:\n\tdefault: \${1:2.5}\n\t#value_map:",
-                                                'score' => 1996,
-                                       ],
-                                        [
-                                                'caption' => 'fill:',
-                                                'snippet' => "fill:\n\tdefault: \${1:red}\n\t#color_map:\n\t\t#property: key\n\t\t#colors: \n\t\t\t#1: red\n\t\t\t#2: blue\n\t\t\t#3: green",
-                                                'score' => 1995,
-                                       ],
+						'caption' => 'choropleth:',
+						'snippet' => "choropleth:\n\tproperty: key\n\tclasses: value",
+'description' => "Interpolate color intensity on a scale based on a numeric property",
+						'score' => 1998,
+					],
+				],
 
-
-                                ],
+				'(.*):await:form:elements:map:points:' => [
+					[
+						'caption' => 'resource:',
+						'snippet' => "resource:\n\turi: cerb:resource:\${1:cerb.data.records}",
+						'score' => 2000,
+					],
+					[
+						'caption' => 'data:',
+						'snippet' => "data:\n\tpoint/berlin:\n\t\tlatitude: 52.549636074382285\n\t\tlongitude: 13.403320312499998\n\t\tproperties:\n\t\t\tname: Berlin\n\t\t\tcountry: Germany\n\t\t\tcontinent: Europe\n\tpoint/los_angeles:\n\t\tlatitude: 34.08906131584994\n\t\tlongitude: 241.69921874999997\n\t\tproperties:\n\t\t\tname: Los Angeles\n\t\t\tcountry: United States of America\n\t\t\tcontinent: North America",
+						'description' => "Select colors directly from a property",
+						'score' => 1999,
+					],
+					[
+						'caption' => 'label:',
+						'snippet' => "label:\n\ttitle: key\n\tproperties:\n\t\tkey:\n\t\t\tlabel: Value\n\t\tkey2:\n\t\t\tlabel: Value 2\n\t\t\tformat: number",
+						'description' => "Define the properties which should be displayed",
+						'score' => 1998,
+					],
+					[
+						'caption' => 'filter:',
+						'snippet' => "filter:\n\tproperty: \${1:key}\n\t#is@list:\n\t\t#Value 1\n\t\t#Value 2",
+						'score' => 1997,
+					],
+					[
+						'caption' => 'size:',
+						'snippet' => "size:\n\tdefault: \${1:2.5}\n\t#value_map:",
+						'score' => 1996,
+					],
+					[
+						'caption' => 'fill:',
+						'snippet' => "fill:\n\tdefault: \${1:red}\n\t#color_map:\n\t\t#property: key\n\t\t#colors: \n\t\t\t#1: red\n\t\t\t#2: blue\n\t\t\t#3: green",
+						'score' => 1995,
+					],
+				],
 
 				'(.*):await:form:elements:map:points:resource:uri:' => [
-                                       'type' => 'cerb-uri',
-                                       'params' => [
-                                       	       'automation' => [
-                                               	        'triggers' => [
-                                                       	        'cerb.trigger.ui.sheet.data',
-                                                       	]
-                                       		]
-                                        ],
-                                ],
+					'type' => 'cerb-uri',
+					'params' => [
+						'automation' => [
+							'triggers' => [
+								'cerb.trigger.ui.sheet.data',
+							]
+						]
+					],
+				],
 
 				'(.*):await:form:elements:map:points:filter:' => [
-                                        [
-                                                'caption' => 'is:',
-                                                'snippet' => "is: Value",
-                                                'score' => 2000,
-                                       ],
-                                        [
-                                                'caption' => 'is@list:',
-                                                'snippet' => "is@list:\n  Value 1\n  Value 2\n  Value 3",
-                                                'score' => 1999,
-                                       ],
-                                        [
-                                                'caption' => 'is@csv:',
-                                                'snippet' => "is@csv: Value 1, Value 2, Value 3",
-                                                'score' => 1998,
-                                       ],
 					[
-                                                'caption' => 'not:',
-                                                'snippet' => "not: Value",
-                                                'score' => 1997,
-                                       ],
-                                        [
-                                                'caption' => 'not@list:',
-                                                'snippet' => "not@list:\n  Value 1\n  Value 2\n  Value 3",
-                                                'score' => 1996,
-                                       ],
-                                        [
-                                                'caption' => 'not@csv:',
-                                                'snippet' => "not@csv: Value 1, Value 2, Value 3",
-                                                'score' => 1996,
-                                       ],
-                                       [
+						'caption' => 'is:',
+						'snippet' => "is: Value",
+						'score' => 2000,
+					],
+					[
+						'caption' => 'is@list:',
+						'snippet' => "is@list:\n\tValue 1\n\tValue 2\n\tValue 3",
+						'score' => 1999,
+					],
+					[
+						'caption' => 'is@csv:',
+						'snippet' => "is@csv: Value 1, Value 2, Value 3",
+						'score' => 1998,
+					],
+					[	
+						'caption' => 'not:',
+						'snippet' => "not: Value",
+						'score' => 1997,
+					],
+					[
+						'caption' => 'not@list:',
+						'snippet' => "not@list:\n\tValue 1\n\tValue 2\n\tValue 3",
+						'score' => 1996,
+					],
+					[
+						'caption' => 'not@csv:',
+						'snippet' => "not@csv: Value 1, Value 2, Value 3",
+						'score' => 1996,
+					],
+					[
 						'caption' => 'property:',
-                                                'snippet' => "property: \${1:key}",
-                                                'score' => 1995,
-                                       ],
-
-                                ],
+						'snippet' => "property: \${1:key}",
+						'score' => 1995,
+					],
+				],
 
 				'(.*):await:form:elements:map:points:size:' => [
 					[
 						'caption' => 'default:',
-                                                'snippet' => "default: \${1:2.5}",
-                                                'score' => 2000,
-                                       ],
+						'snippet' => "default: \${1:2.5}",
+						'score' => 2000,
+					],
 					[
-                                                'caption' => 'value_map:',
-                                                'snippet' => "value_map:\n\tproperty: \${1:key}\n\tvalues:\n\t\t1: 5.0\n\t\t2: 7.5",
-                                                'score' => 1999,
-                                       ],
-
-                                ],
+						'caption' => 'value_map:',
+						'snippet' => "value_map:\n\tproperty: \${1:key}\n\tvalues:\n\t\t1: 5.0\n\t\t2: 7.5",
+						'score' => 1999,
+					],
+				],
 
 				'(.*):await:form:elements:map:points:fill:' => [
 					[
@@ -556,11 +550,11 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 				'(.*):await:form:elements:sheet:data:' => [
 					[
 						'caption' => 'automation:',
-						'snippet' => "automation:\n  uri: cerb:automation:\${1:cerb.data.records}\n  inputs:\n    record_type: ticket\n    query_required: status:o\n",
+						'snippet' => "automation:\n\turi: cerb:automation:\${1:cerb.data.records}\n\tinputs:\n\t\trecord_type: ticket\n\t\tquery_required: status:o\n",
 					],
 					[
 						'caption' => '(manual)',
-						'snippet' => "0:\n  key: key1\n  value: value1\n1:\n  key: key2\n  value: value2\n",
+						'snippet' => "0:\n\tkey: key1\n\tvalue: value1\n1:\n\tkey: key2\n\tvalue: value2\n",
 					]
 				],
 				'(.*):await:form:elements:sheet:data:automation:' => [
@@ -771,7 +765,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'paging@bool: yes',
 					[
 						'caption' => 'params:',
-						'snippet' => "params:\n  \${1:}",
+						'snippet' => "params:\n\t\${1:}",
 					],
 					[
 						'caption' => 'style:',
@@ -816,11 +810,11 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 				'(.*):await:form:elements:submit:buttons:' => [
 					[
 						'caption' => 'continue:',
-						'snippet' => "continue/\${1:yes}:\n  label: Continue\n  icon: circle-ok\n  icon_at: start\n  value: yes\n",
+						'snippet' => "continue/\${1:yes}:\n\tlabel: Continue\n\ticon: circle-ok\n\ticon_at: start\n\tvalue: yes\n",
 					],
 					[
 						'caption' => 'reset:',
-						'snippet' => "reset:\n  label: Reset\n  icon: refresh\n  icon_at: start",
+						'snippet' => "reset:\n\tlabel: Reset\n\ticon: refresh\n\ticon_at: start",
 					],
 				],
 				
