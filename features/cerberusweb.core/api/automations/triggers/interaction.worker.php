@@ -432,6 +432,17 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 
                                 ],
 
+				'(.*):await:form:elements:map:points:resource:uri:' => [
+                                       'type' => 'cerb-uri',
+                                       'params' => [
+                                       	       'automation' => [
+                                               	        'triggers' => [
+                                                       	        'cerb.trigger.ui.sheet.data',
+                                                       	]
+                                       		]
+                                        ],
+                                ],
+	
 				'(.*):await:form:elements:say:' => [
 					[
 						'caption' => 'content:',
