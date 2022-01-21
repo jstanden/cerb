@@ -10,7 +10,7 @@ function CerbInteractions() {
     this.$badge = null;
     this.$popup = null;
     this.$spinner = null;
-    this.focusableSelector = 'a:not([disabled]), button:not([disabled]), input[type=text]:not([disabled]), textarea:not([disabled]), [tabindex]:not([disabled]):not([tabindex="-1"])';
+    this.focusableSelector = 'a:not([disabled]), input[type=text]:not([disabled]), textarea:not([disabled]), [tabindex]:not([disabled]):not([tabindex="-1"])';
     
     this.init();
 }
