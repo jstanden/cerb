@@ -188,11 +188,18 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 				
 			default:
 				$tpl = DevblocksPlatform::services()->templateSandbox();
+				$portal_schema = $this->_getPortalSchema();
 				
 				header('Content-Type: text/html');
-				header(sprintf("Content-Security-Policy: default-src 'self'; img-src 'self' data:; script-src 'nonce-%s'; object-src 'none';", $session->nonce));
 				
-				$portal_schema = $this->_getPortalSchema();
+				$csp = $portal_schema->getContentSecurityPolicy();
+				
+				$csp_header = sprintf("Content-Security-Policy: default-src 'self'; img-src 'self' data: %s; script-src 'nonce-%s'; object-src 'none';",
+					implode(' ', $csp['imageHosts'] ?? []),
+					$session->nonce
+				);
+				
+				header($csp_header);
 				
 				if(null != ($interaction = $stack)) {
 					$interaction_params = DevblocksPlatform::services()->url()->arrayToQueryString($_GET ?? []);
@@ -811,5 +818,9 @@ class CerbPortalWebsiteInteractions_Model {
 		}
 		
 		return $navbar;
+	}
+	
+	function getContentSecurityPolicy() {
+		return $this->_schema['security']['contentSecurityPolicy'] ?? [];
 	}
 }

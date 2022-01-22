@@ -3588,6 +3588,7 @@ class _CerbApplication_KataAutocompletions {
 		return [
 			'' => [
 				'layout:',
+				'security:',
 			],
 			
 			'layout:' => [
@@ -3673,6 +3674,16 @@ class _CerbApplication_KataAutocompletions {
 					]
 				]
 			],
+			
+			'security:' => [
+				'contentSecurityPolicy:',
+			],
+			'security:contentSecurityPolicy:' => [
+				[
+					'caption' => 'imageHosts:',
+					'snippet' => "imageHosts@list:\n\thttps://example.com",
+				],
+			]
 		];
 	}
 }
