@@ -130,6 +130,9 @@ class PageSection_SetupStorageProfiles extends Extension_PageSection {
 	}
 	
 	private function _configAction_testProfileJson() {
+		if(DEVBLOCKS_STORAGE_ENGINE_PREVENT_CHANGE)
+			return;
+		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(!$active_worker || !$active_worker->is_superuser)
