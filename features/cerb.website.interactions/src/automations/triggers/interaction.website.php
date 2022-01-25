@@ -148,8 +148,21 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 						'score' => 1999,
 						'description' => "Display plaintext without formatting",
 					],
+					"references:",
 				],
-				
+				'(.*):await:form:elements:say:references:' => [
+					'resource:',
+				],
+				'(.*):await:form:elements:say:references:resource:uri:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'resource' => [
+							'types' => [
+								ResourceType_PortalImage::ID,
+							]
+						]
+					]
+				],				
 				'(.*):await:form:elements:sheet:' => [
 					[
 						'caption' => 'label:',
