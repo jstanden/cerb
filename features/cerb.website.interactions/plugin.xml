@@ -23,6 +23,7 @@
 	<class_loader>
 		<file path="src/App.php">
 			<class name="CerbPortalWebsiteInteractions_Model" />
+			<class name="CerbMarkdown_InteractionWebsite" />
 		</file>
 	</class_loader>
 

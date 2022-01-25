@@ -172,6 +172,14 @@
     
 }
 
+.cerb-interaction-popup--form-elements-say a {
+    color: black;
+}
+
+.cerb-interaction-popup--form-elements-say img {
+    max-width: 100%;
+}
+
 .cerb-interaction-popup--form-elements-say-error {
     background-color: var(--cerb-interaction-window-error-bg-color);
     color: var(--cerb-interaction-window-error-text-color);

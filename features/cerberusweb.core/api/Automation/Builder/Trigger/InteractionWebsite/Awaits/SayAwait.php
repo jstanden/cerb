@@ -28,7 +28,7 @@ class SayAwait extends AbstractAwait {
 			$msg = $this->_data;
 			
 		} else if(array_key_exists('content', $this->_data)) {
-			$msg = DevblocksPlatform::parseMarkdown($this->_data['content'], true);
+			$msg = \Portal_WebsiteInteractions::parseMarkdown($this->_data['content']);
 			$format = 'markdown';
 			
 			$msg = DevblocksPlatform::purifyHTML($msg, true, true);
