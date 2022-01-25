@@ -1072,31 +1072,38 @@ class CerberusParser {
 	static private function _handleMimepartTextPlain($section, CerberusParserMessage $message) {
 		$text = $section->extract_body(MAILPARSE_EXTRACT_RETURN);
 		
-		if(isset($section->data['charset']) && !empty($section->data['charset'])) {
+		if(array_key_exists('charset', $section->data) && !empty($section->data['charset'])) {
 			
 			// Extract inline bounces as attachments
 			
 			$bounce_token = '------ This is a copy of the message, including all the headers. ------';
 			
-			if(false !== ($bounce_pos = @mb_strpos($text, $bounce_token, 0, $section->data['charset']))) {
-				$bounce_text = mb_substr($text, $bounce_pos + strlen($bounce_token), strlen($text), $section->data['charset']);
-				$text = mb_substr($text, 0, $bounce_pos, $section->data['charset']);
+			try {
+				mb_check_encoding($text, $section->data['charset']);
 				
-				$bounce_text = self::convertEncoding($bounce_text);
+				if(false !== ($bounce_pos = @mb_strpos($text, $bounce_token, 0, $section->data['charset']))) {
+					$bounce_text = mb_substr($text, $bounce_pos + strlen($bounce_token), strlen($text), $section->data['charset']);
+					$text = mb_substr($text, 0, $bounce_pos, $section->data['charset']);
+					
+					$bounce_text = self::convertEncoding($bounce_text);
+					
+					$tmpname = ParserFile::makeTempFilename();
+					$rfc_attach = new ParserFile();
+					$rfc_attach->setTempFile($tmpname,'message/rfc822');
+					@file_put_contents($tmpname, $bounce_text);
+					$rfc_attach->file_size = filesize($tmpname);
+					$rfc_attach->mime_type = 'text/plain';
+					$rfc_attach_filename = sprintf("attached_message_%s.txt", uniqid());
+					$message->files[$rfc_attach_filename] = $rfc_attach;
+					unset($rfc_attach);
+				}
 				
-				$tmpname = ParserFile::makeTempFilename();
-				$rfc_attach = new ParserFile();
-				$rfc_attach->setTempFile($tmpname,'message/rfc822');
-				@file_put_contents($tmpname, $bounce_text);
-				$rfc_attach->file_size = filesize($tmpname);
-				$rfc_attach->mime_type = 'text/plain';
-				$rfc_attach_filename = sprintf("attached_message_%s.txt", uniqid());
-				$message->files[$rfc_attach_filename] = $rfc_attach;
-				unset($rfc_attach);
+				$message->body_encoding = $section->data['charset'];
+				$text = self::convertEncoding($text, $section->data['charset']);
+				
+			} catch (Error $e) {
+				DevblocksPlatform::logError($e->getMessage());
 			}
-			
-			$message->body_encoding = $section->data['charset'];
-			$text = self::convertEncoding($text, $section->data['charset']);
 		}
 		
 		$message->body .= $text;
