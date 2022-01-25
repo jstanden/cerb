@@ -131,8 +131,10 @@ class MailboxCron extends CerberusCronPageExtension {
 				if($total) {
 					$fetch_query = new Horde_Imap_Client_Fetch_Query();
 					$fetch_query->uid();
-					$fetch_query->envelope();
 					$fetch_query->size();
+					$fetch_query->headerText([
+						'peek' => true,
+					]);
 					$fetch_query->fullText([
 						'peek' => true,
 					]);
@@ -165,24 +167,30 @@ class MailboxCron extends CerberusCronPageExtension {
 							DevblocksPlatform::strPrettyBytes($account->max_msg_size_kb*1000)
 						);
 						
-						$envelope = $message->getEnvelope(); /** @var Horde_Imap_Client_Data_Envelope $envelope */
+						$model = new Model_Message();
+						$model->setHeadersRaw($message->getHeaderText());
+						
+						if(false == ($model_headers = $model->getHeaders()))
+							$model_headers = [];
 						
 						$truncated_message = sprintf(
 							"X-Cerb-Parser-Error: message-size-limit-exceeded\r\n".
 							"X-Cerb-Parser-ErrorMsg: %s\r\n".
 							"From: %s\r\n".
-							"To: %s\r\n".
+							"%s". // To:
+							"%s". // Cc:
 							"Subject: %s\r\n".
-							"Date: %s\r\n".
-							"Message-Id: %s\r\n".
+							"%s". // Date:
+							"%s". // Message-Id:
 							"\r\n".
 							"(%s)\r\n",
 							$error_msg,
-							$envelope->from,
-							$envelope->to,
-							$envelope->subject,
-							$envelope->date->format('r'),
-							$envelope->message_id,
+							$model_headers['from'] ?? '<>',
+							(array_key_exists('to', $model_headers) ? sprintf("To: %s\r\n", $model_headers['to']) : ''),
+							(array_key_exists('cc', $model_headers) ? sprintf("Cc: %s\r\n", $model_headers['cc']) : ''),
+							$model_headers['subject'] ?? '(no subject)',
+							(array_key_exists('date', $model_headers) ? sprintf("Date: %s\r\n", $model_headers['date']) : ''),
+							(array_key_exists('message-id', $model_headers) ? sprintf("Message-Id: %s\r\n", $model_headers['message-id']) : ''),
 							$error_msg
 						);
 						
