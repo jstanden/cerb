@@ -153,7 +153,7 @@ class ChPortalHelper {
 		
 		if(empty($session_id)) {
 			$cookie_name = 'CerbPortal' . $portal->code;
-			@$session_id = DevblocksPlatform::importGPC($_COOKIE[$cookie_name],'string','');
+			$session_id = DevblocksPlatform::importGPC($_COOKIE[$cookie_name] ?? null,'string','');
 			
 			if(empty($session_id)) {
 				$session_id = sha1(DevblocksPlatform::getClientIp() . $portal->code . random_bytes(32));

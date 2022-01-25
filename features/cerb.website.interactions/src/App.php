@@ -355,6 +355,7 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 			DevblocksPlatform::dieWithHttpError("null continuation token", 404);
 		
 		$form_components = AutomationTrigger_InteractionWebsite::getFormComponentMeta();
+		$portal_schema = $this->_getPortalSchema();
 		
 		$initial_state = $continuation->state_data['dict'] ?? [];
 		$last_prompts = $initial_state['__return']['form']['elements'] ?? [];
@@ -370,7 +371,7 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 		list($prompt_type, $prompt_set_key) = array_pad(explode('/', $prompt_key), 2, null);
 		
 		if(array_key_exists($prompt_type, $form_components)) {
-			$component = new $form_components[$prompt_type]($prompt_set_key, null, $last_prompt);
+			$component = new $form_components[$prompt_type]($prompt_set_key, null, $last_prompt, $portal_schema);
 			$component->invoke($prompt_key, $prompt_action, $continuation);
 		}
 	}
@@ -405,6 +406,8 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 			$validation_errors = [];
 			$validation_values = [];
 			
+			$portal_schema = $this->_getPortalSchema();
+			
 			foreach ($last_prompts as $last_prompt_key => $last_prompt) {
 				list($last_prompt_type, $prompt_set_key) = array_pad(explode('/', $last_prompt_key, 2), 2, null);
 				
@@ -423,7 +426,7 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 						|| (is_array($prompt_value) && count($prompt_value));
 					
 					if ($is_required || $is_set) {
-						$component = new $form_components[$last_prompt_type]($prompt_set_key, $prompt_value, $last_prompt);
+						$component = new $form_components[$last_prompt_type]($prompt_set_key, $prompt_value, $last_prompt, $portal_schema);
 						
 						$component->validate($validation);
 						
@@ -483,7 +486,7 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 						if(in_array($last_prompt_type, $prompts_without_output))
 							continue;
 						
-						$component = new $form_components[$last_prompt_type]($prompt_set_key, $prompt_value, $last_prompt);
+						$component = new $form_components[$last_prompt_type]($prompt_set_key, $prompt_value, $last_prompt, $portal_schema);
 						$initial_state[$prompt_set_key] = $component->formatValue();
 					}
 				}
@@ -627,6 +630,8 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 			}
 		}
 		
+		$portal_schema = self::_getPortalSchema();
+		
 		foreach($elements as $element_key => $element_data) {
 			list($action_key_type, $var) = array_pad(explode('/', $element_key, 2), 2, null);
 			
@@ -636,10 +641,7 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 			if(array_key_exists($action_key_type, $form_components)) {
 				$value = $automation_results->get($var, null);
 				
-				if(!array_key_exists($action_key_type, $form_components))
-					continue;
-				
-				$component = new $form_components[$action_key_type]($var, $value, $element_data);
+				$component = new $form_components[$action_key_type]($var, $value, $element_data, $portal_schema);
 				$component->render($continuation);
 			}
 		}
