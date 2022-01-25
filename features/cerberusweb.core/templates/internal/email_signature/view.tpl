@@ -100,7 +100,7 @@
 					{/if}
 				</td>
 			{elseif in_array($column, ["e_is_default"])}
-				<td data-column="{$column}">{if $result.$column}<span class="glyphicons glyphicons-circle-ok" style="font-size:16px;color:rgb(75,75,75);"></span>{else}{/if}</td>
+				<td data-column="{$column}">{if $result.$column}<span class="glyphicons glyphicons-circle-ok"></span>{else}{/if}</td>
 			{else}
 				<td data-column="{$column}">{$result.$column}</td>
 			{/if}

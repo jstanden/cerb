@@ -1,9 +1,9 @@
 {$uniq_id = uniqid()}
-<fieldset style="background-image:none;background-color:rgb(239,245,255);border:0;cursor:move;" id="{$uniq_id}" class="drag">
+<fieldset style="cursor:move;" id="{$uniq_id}" class="drag">
 {if !empty($reason)}
-	<legend style="{if empty($params.is_hidden)}color:rgb(74,110,158);{else}color:rgb(130,130,130);{/if}cursor:pointer;">{$reason}{if !empty($params.is_hidden)} ({'portal.sc.cfg.situation.hidden'|devblocks_translate|lower}){/if}</legend>
+	<legend style="{if $params.is_hidden}color:var(--cerb-color-background-contrast-125);{/if}cursor:pointer;">{$reason}{if !empty($params.is_hidden)} ({'portal.sc.cfg.situation.hidden'|devblocks_translate|lower}){/if}</legend>
 {else}
-	<legend style="color:rgb(74,110,158);cursor:pointer;">{'portal.sc.cfg.add_contact_situation'|devblocks_translate}</legend>
+	<legend style="cursor:pointer;">{'portal.sc.cfg.add_contact_situation'|devblocks_translate}</legend>
 {/if}
 
 <div style="padding-left:20px;">

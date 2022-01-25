@@ -73,13 +73,13 @@
 			{elseif $column == "r_name"}
 				<td>
 					<input type="checkbox" name="row_id[]" value="{$result.r_id}" style="display:none;">
-					{if $result.r_is_closed}<span class="glyphicons glyphicons-circle-ok" style="font-size:16px;color:rgb(75,75,75);"></span>{/if}
+					{if $result.r_is_closed}<span class="glyphicons glyphicons-circle-ok"></span>{/if}
 					<a href="{devblocks_url}c=profiles&type=reminder&id={$result.r_id}-{$result.r_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.r_name}</a>
 					<button type="button" class="peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="{$result.r_id}"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 				</td>
 			{elseif $column == "r_is_closed"}
 				<td>
-					{if $result.r_is_closed}<span class="glyphicons glyphicons-circle-ok" style="font-size:16px;color:rgb(75,75,75);"></span>{/if}
+					{if $result.r_is_closed}<span class="glyphicons glyphicons-circle-ok"></span>{/if}
 				</td>
 			{elseif in_array($column, ["r_worker_id"])}
 				<td>

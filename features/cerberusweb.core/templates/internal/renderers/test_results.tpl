@@ -1,23 +1,17 @@
 {if !$success}
-	<div class="ui-widget">
-		<div class="ui-state-error ui-corner-all" style="padding: 0.7em; margin: 0.2em; "> 
-			<strong>Error!</strong>
-			<span style="float:right;"><a href="javascript:;" onclick="$(this).closest('DIV.ui-widget').remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></span>
-			<br>
-<pre class="emailbody" dir="auto">
-{$output|escape nofilter}
-</pre>
-		</div>
+	<div class="error-box">
+		<span style="float:right;cursor:pointer;font-size:1.5em;"><span class="glyphicons glyphicons-circle-remove" onclick="$(this).closest('.error-box').remove();"></span></span>
+		<h1 style="font-size:1.5em;font-weight:bold;">Error!</h1>
+		<p>
+			<pre class="emailbody" dir="auto">{$output|escape nofilter}</pre>
+		</p>
 	</div>
 {else}
-	<div class="ui-widget">
-		<div class="ui-state-highlight ui-corner-all" style="padding: 0.7em; margin: 0.2em; "> 
-			<strong>Success!</strong>
-			<span style="float:right;"><a href="javascript:;" onclick="$(this).closest('DIV.ui-widget').remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></span>
-			<br>
-<pre class="emailbody" dir="auto">
-{$output|escape nofilter}
-</pre>
-		</div>
+	<div class="help-box">
+		<span style="float:right;cursor:pointer;font-size:1.5em;"><span class="glyphicons glyphicons-circle-remove" onclick="$(this).closest('.help-box').remove();"></span></span>
+		<h1 style="font-size:1.5em;font-weight:bold;">Success!</h1>
+		<p>
+			<pre class="emailbody" dir="auto">{$output|escape nofilter}</pre>
+		</p>
 	</div>
 {/if}

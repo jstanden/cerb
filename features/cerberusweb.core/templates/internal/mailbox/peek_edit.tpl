@@ -15,12 +15,14 @@
 	{if $model->enabled && $model->num_fails}
 	<tr>
 		<td colspan="2">
-			<div class="ui-widget">
-				<div class="ui-state-error ui-corner-all" style="padding: 0.7em; margin: 0.2em; "> 
-					<span class="glyphicons glyphicons-circle-exclamation-mark" style="font-size:16px;color:rgb(200,0,0);"></span>
-					<strong>Error!</strong>
+			<div class="error-box">
+				<h1>
+					<span class="glyphicons glyphicons-circle-exclamation-mark"></span>
+					Error!
+				</h1>
+				<p>
 					This mailbox has failed to check mail for {$model->num_fails} consecutive attempt{if $model->num_fails > 1}s{/if}.
-				</div>
+				</p>
 			</div>
 		</td>
 	</tr>
@@ -129,8 +131,6 @@
 </fieldset>
 {/if}
 
-<div class="status"></div>
-
 <div class="buttons">
 	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 	<button type="button" class="tester"><span class="glyphicons glyphicons-cogwheel"></span> {'common.test'|devblocks_translate|capitalize}</button>
@@ -143,7 +143,6 @@
 $(function() {
 	var $frm = $('#{$form_id}');
 	var $popup = genericAjaxPopupFind($frm);
-	var $status = $frm.find('div.status');
 	
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{'Mailbox'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
@@ -167,11 +166,12 @@ $(function() {
 		// Tester
 		
 		$popup.find('BUTTON.tester')
-			.click(function(e) {
+			.click(function() {
 				var $button = $(this);
 				$button.hide();
-		
-				Devblocks.showSuccess($status, "Testing mailbox... please wait.", false, false);
+				
+				Devblocks.clearAlerts();
+				Devblocks.createAlert('Testing mailbox... please wait.', null, 0);
 
 				var formData = new FormData($frm[0]);
 				formData.set('c', 'profiles');
@@ -180,10 +180,12 @@ $(function() {
 				formData.set('action', 'testMailboxJson');
 
 				genericAjaxPost(formData,'','',function(json) {
-					if(false == json || false == json.status) {
-						Devblocks.showError($status, json.error);
+					Devblocks.clearAlerts();
+					
+					if('object' != typeof json || false == json.status) {
+						Devblocks.createAlertError(json.error);
 					} else {
-						Devblocks.showSuccess($status, 'Connected to your mailbox successfully!');
+						Devblocks.createAlert('Connected to your mailbox successfully!', 'success', 5000);
 					}
 					
 					$button.show();

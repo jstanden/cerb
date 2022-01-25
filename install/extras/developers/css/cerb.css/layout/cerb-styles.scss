@@ -9,31 +9,46 @@
 	left: 0;
 	right: 0;
 	text-align: center;
-	line-height: 2.5;
 	overflow: hidden;
+}
+
+.cerb-alert {
+	line-height: 2em;
+	vertical-align: middle;
+	margin: 0.5em 0;
+	padding: 0.5em 0.5em 0.5em 1em;
+	border: 0;
+	background: var(--cerb-color-alert-background);
+	font-weight: bold;
+	color: black;
 	
-	.cerb-alert {
-		padding: 2px;
-		border: 0;
-		background: var(--cerb-color-alert-background);
-		font-weight: bold;
+	A {
+		color: black;
+	}
+	
+	&.cerb-alert-rounded {
+		border-radius: 0.5em;
+	}
+	
+	&.cerb-alert-error {
+		background: var(--cerb-color-tag-red);
+		color: white;
 		
-		&.cerb-alert-note {
-			background: var(--cerb-color-alert-background);
-			color: black;
-		}
-		
-		&.cerb-alert-error {
-			background: var(--cerb-color-tag-red);
+		A {
 			color: white;
 		}
-		
-		.cerb-alert-close {
-			float: right;
-			font-size: 1.5em;
-			cursor: pointer;
-		}
 	}
+
+	.cerb-alert-close {
+		vertical-align: middle;
+		float: right;
+		font-size: 1.5em;
+		cursor: pointer;
+	}
+}
+
+#cerb-alerts .cerb-alert {
+	margin: 0;
 }
 
 // Forms
@@ -884,15 +899,14 @@ TABLE.calendar {
 
 DIV.error-box {
 	background-color: var(--cerb-color-error-background);
-	border: var(--cerb-color-error-text);
 	color: var(--cerb-color-error-text);
 	margin-bottom: 10px;
 	padding: 10px;
-
 	border-radius: 5px;
 
 	H1 {
 		color: var(--cerb-color-error-text);
+		margin-bottom: 5px;
 	}
 
 	P {
@@ -903,16 +917,14 @@ DIV.error-box {
 // Help box
 
 DIV.help-box {
-	background: var(--cerb-color-help-background) linear-gradient(to bottom, var(--cerb-color-help-background), var(--cerb-color-help-background-gradient));
+	background-color: var(--cerb-color-help-background);
 	color: var(--cerb-color-help-text);
-	border: 1px solid var(--cerb-color-help-h1);
+	margin-bottom: 10px;
 	padding: 10px;
-	margin-bottom:10px;
-
 	border-radius: 5px;
 
 	H1 {
-		color:var(--cerb-color-help-h1);
+		color:var(--cerb-color-help-text);
 		margin-bottom: 5px;
 	}
 

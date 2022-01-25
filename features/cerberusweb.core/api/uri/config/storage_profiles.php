@@ -141,9 +141,11 @@ class PageSection_SetupStorageProfiles extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'],'string','');
-		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
-
+		$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'] ?? null,'string','');
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null,'integer',0);
+		
+		header('Content-Type: application/json; charset=utf-8');
+		
 		try {
 			if(null == ($profile = DAO_DevblocksStorageProfile::get($id)))
 				$profile = new Model_DevblocksStorageProfile();

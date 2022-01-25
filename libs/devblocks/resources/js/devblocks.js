@@ -178,7 +178,7 @@ function DevblocksClass() {
 			.appendTo($alerts)
 			;
 		
-		var $close = $('<span class="cerb-alert-close"><span class="glyphicons glyphicons-remove"></span></span>')
+		$('<span class="cerb-alert-close"><span class="glyphicons glyphicons-remove"></span></span>')
 			.on('click', function(e) {
 				var $alert = $(this).closest('.cerb-alert');
 				
@@ -194,13 +194,15 @@ function DevblocksClass() {
 				.addClass('cerb-alert-' + style)
 				;
 		
-		$alert.effect('slide',{ direction:'up', mode:'show' }, 250);
+		$alert.delay(0).effect('slide',{ direction:'up', mode:'show' }, 250);
 		
 		if(parseInt(duration) > 0) {
 			$alert.delay(duration).effect('slide',{ direction:'up', mode:'hide' }, 500, function() {
 				$alert.remove();
 			});
 		}
+		
+		return $alert;
 	};
 	
 	this.showError = function(target, message, animate) {
@@ -220,28 +222,6 @@ function DevblocksClass() {
 		if(animate)
 			$status.effect('slide',{ direction:'up', mode:'show' },250);
 		
-		return $status;
-	};
-	
-	this.showSuccess = function(target, message, autohide, animate) {
-		$html = $('<div class="ui-widget"/>')
-			.append(
-				$('<div class="ui-state-highlight ui-corner-all" style="padding:0 0.5em;margin:0.5em;"/>')
-				.append(
-					$('<p/>').text(message)
-						.prepend($('<span class="glyphicons glyphicons-circle-ok" style="margin-right:5px;"></span>'))
-				)
-			)
-		;
-		
-		var $status = $(target).html($html).show();
-		
-		animate = (null == animate || false != animate) ? true: false; 
-		if(animate)
-			$status.effect('slide',{ direction:'up', mode:'show' },250);
-		if(animate && (autohide || null == autohide))
-			$status.delay(5000).effect('slide',{ direction:'up', mode:'hide' }, 250);
-			
 		return $status;
 	};
 	

@@ -1,7 +1,11 @@
 {if !empty($profile->id) && !empty($storage_schema_stats)}
-<div class="ui-state-error ui-corner-all" style="margin: 0 0 .5em 0; padding: 0 .7em;"> 
-	<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
-	<b>Warning!</b>  You are changing the configuration of an active storage profile.  Unless you are very careful you may lose content.  You cannot delete this profile until you've migrated its content to another location.
+<div class="error-box">
+	<h1>
+		<span class="glyphicons glyphicons-warning-sign"></span>
+		Warning!
+	</h1>
+	<p>
+		You are changing the configuration of an active storage profile.  Unless you are very careful you may lose content.  You cannot delete this profile until you've migrated its content to another location.
 	</p>
 </div>
 {/if}
@@ -57,8 +61,6 @@ Used by:<br>
 <br>
 {/if}
 
-<div class="status"></div>
-
 {if $active_worker->is_superuser}
 	<button type="button" value="saveStorageProfilePeek" onclick="$(this.form).find('input:hidden[name=action]').val($(this).val());genericAjaxPopupPostCloseReloadView(null,'formStorageProfilePeek', '{$view_id}');"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button> 
 	{if !empty($profile->id) && empty($storage_schema_stats)}<button type="button" onclick="if(confirm('Are you sure you want to delete this storage profile?')) { this.form.do_delete.value='1';genericAjaxPopupPostCloseReloadView(null,'formStorageProfilePeek', '{$view_id}'); } "><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if} 
@@ -78,21 +80,24 @@ $(function() {
 
 		$('#formStorageProfilePeek BUTTON.tester')
 		.click(function() {
-			$frm = $(this.form);
-			$frm.find('input:hidden[name=action]').val($(this).val());
+			var $btn = $(this);
+			var $frm = $btn.closest('form');
+			Devblocks.clearAlerts();
+			
+			$frm.find('input:hidden[name=action]').val($btn.val());
 			
 			genericAjaxPost('formStorageProfilePeek',null,null,function(json) {
-				$o = $.parseJSON(json);
-				if(false == $o || false == $o.status) {
-					Devblocks.showError('#formStorageProfilePeek div.status',$o.error);
-				} else {
-					Devblocks.showSuccess('#formStorageProfilePeek div.status',$o.message);
+				if(json && typeof json == 'object') {
+					if (json.error) {
+						Devblocks.createAlertError(json.error);
+					} else if (json.hasOwnProperty('message')) {
+						Devblocks.createAlert(json.message, null, 5000);
+					} else {
+						Devblocks.createAlert('Saved!', null, 5000);
+					}
 				}
-				
-				$this.show();
 			});			
-		})
-		;
+		});
 	});
 });
 </script>

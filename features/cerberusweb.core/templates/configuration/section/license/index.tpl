@@ -44,18 +44,15 @@
 	<b>Paste the license information you received with your order:</b><br>
 	<textarea rows="8" cols="80" name="key"></textarea><br>
 
-	<div class="delete_confirm" style="display:none;">
-		<div class="ui-widget">
-			<div class="ui-state-highlight ui-corner-all" style="margin:10px;padding:5px;display:inline-block;">
-				Are you sure you want to remove your license?<br>
-				<button type="button" onclick="$frm=$(this.form);$frm.find('input:hidden[name=do_delete]').val('1');$frm.find('BUTTON.submit').click();"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> Yes</button>
-				<button type="button" onclick="$(this).closest('div.delete_confirm').hide();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span> No</button>
-			</div>
-		</div>
-	</div>
+	<fieldset class="delete delete_confirm" style="display:none;">
+		<legend>Are you sure you want to remove your license?</legend>
+		
+		<button type="button" class="red" onclick="$frm=$(this.form);$frm.find('input:hidden[name=do_delete]').val('1');$frm.find('BUTTON.submit').click();">{'common.yes'|devblocks_translate|capitalize}</button>
+		<button type="button" onclick="$(this).closest('.delete_confirm').hide();">{'common.no'|devblocks_translate|capitalize}</button>
+	</fieldset>
 	
 	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if $we_trust_you->key}<button type="button" class="delete"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span> Remove License</button>{/if}
+	{if $we_trust_you->key}<button type="button" class="delete"><span class="glyphicons glyphicons-circle-minus"></span> Remove License</button>{/if}
 
 </fieldset>
 </form>
@@ -75,7 +72,7 @@ $(function() {
 	;
 	$frm.find('BUTTON.delete')
 		.click(function(e) {
-			$frm.find('div.delete_confirm').fadeIn();
+			$frm.find('.delete_confirm').fadeIn();
 		})
 	;
 });

@@ -1,11 +1,12 @@
 {if !empty($last_action)}
 <div id="{$view->id}_output">
-	<div class="help-box">
-		<div style="float:right;">
-			(<a href="javascript:;" onclick="$('#{$view->id}_output').html('');ajax.viewUndo('{$view->id}', true);">dismiss</a>)
+	<div class="cerb-alert cerb-alert-rounded">
+		<div class="cerb-alert-close">
+			<span class="glyphicons glyphicons-circle-remove" onclick="$('#{$view->id}_output').html('');ajax.viewUndo('{$view->id}', true);"></span>
 		</div>
 	
-		<span class="glyphicons glyphicons-circle-info"></span>
+		<span class="glyphicons glyphicons-circle-info" style="vertical-align:baseline;"></span>
+		
 		{$last_action_count} ticket{if $last_action_count!=1}s{/if} 
 	
 		{if $last_action->action == 'spam'}

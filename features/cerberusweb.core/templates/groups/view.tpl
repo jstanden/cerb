@@ -79,7 +79,7 @@
 				<button type="button" class="peek cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$result.g_id}"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 			</td>
 			{elseif in_array($column, ["g_is_private", "g_is_default"])}
-				<td data-column="{$column}">{if $result.$column}<span class="glyphicons glyphicons-circle-ok" style="font-size:16px;color:rgb(75,75,75);"></span>{else}{/if}</td>
+				<td data-column="{$column}">{if $result.$column}<span class="glyphicons glyphicons-circle-ok"></span>{else}{/if}</td>
 			{elseif in_array($column, ["g_created", "g_updated"])}
 				<td data-column="{$column}"><abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>&nbsp;</td>
 			{elseif $column == "g_reply_address_id"}

@@ -66,8 +66,6 @@
 	</div>
 </fieldset>
 
-<div class="status"></div>
-
 <button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 </form>
 
@@ -75,7 +73,6 @@
 $(function() {
 	var $frm = $('#{$form_id}');
 	var $modules = $frm.find('FIELDSET[data-id="cerb-modules"]');
-	var $status = $frm.find('div.status');
 		
 	$modules.find('DIV.container')
 		.sortable({ items: 'DIV.drag', placeholder:'ui-state-highlight' })
@@ -83,13 +80,14 @@ $(function() {
 	
 	$frm.find('button.submit').on('click', function(e) {
 		genericAjaxPost($frm, '', null, function(json) {
+			Devblocks.clearAlerts();
 			if(json && typeof json == 'object') {
 				if(json.error) {
-					Devblocks.showError($status, json.error);
+					Devblocks.createAlertError(json.error);
 				} else if (json.message) {
-					Devblocks.showSuccess($status, json.message);
+					Devblocks.createAlert(json.message, 'success', 5000);
 				} else {
-					Devblocks.showSuccess($status, "Saved!");
+					Devblocks.createAlert('Saved!', 'success', 5000);
 				}
 			}
 		});

@@ -69,9 +69,7 @@
   --cerb-color-success-text: rgb(0,180,0);
   --cerb-color-warning-text: rgb(236,87,29);
   --cerb-color-help-background: rgb(251,236,136);
-  --cerb-color-help-background-gradient: rgb(255,255,200);
-  --cerb-color-help-h1: rgb(215,115,15);
-  --cerb-color-help-text: rgb(50,50,50);
+  --cerb-color-help-text: rgb(75,75,75);
   --cerb-color-bubble-background: rgb(255,255,255);
   --cerb-color-bubble-background-gradient: rgb(232,242,254);
   --cerb-color-bubble-border: rgb(197,219,236);
@@ -192,9 +190,7 @@
   --cerb-color-success-text: rgb(0,180,0);
   --cerb-color-warning-text: rgb(209, 85, 37);
   --cerb-color-help-background: rgb(63, 46, 21);
-  --cerb-color-help-background-gradient: rgb(63, 46, 21);
   --cerb-color-help-text: rgb(222, 166, 127);
-  --cerb-color-help-h1: rgb(222, 166, 127);
   --cerb-color-bubble-background: rgb(0,0,0);
   --cerb-color-bubble-background-gradient: rgb(50,50,50);
   --cerb-color-bubble-border: rgb(50,50,50);
@@ -408,27 +404,41 @@ BUTTON SPAN {
   left: 0;
   right: 0;
   text-align: center;
-  line-height: 2.5;
   overflow: hidden;
 }
-#cerb-alerts .cerb-alert {
-  padding: 2px;
+
+.cerb-alert {
+  line-height: 2em;
+  vertical-align: middle;
+  margin: 0.5em 0;
+  padding: 0.5em 0.5em 0.5em 1em;
   border: 0;
   background: var(--cerb-color-alert-background);
   font-weight: bold;
-}
-#cerb-alerts .cerb-alert.cerb-alert-note {
-  background: var(--cerb-color-alert-background);
   color: black;
 }
-#cerb-alerts .cerb-alert.cerb-alert-error {
+.cerb-alert A {
+  color: black;
+}
+.cerb-alert.cerb-alert-rounded {
+  border-radius: 0.5em;
+}
+.cerb-alert.cerb-alert-error {
   background: var(--cerb-color-tag-red);
   color: white;
 }
-#cerb-alerts .cerb-alert .cerb-alert-close {
+.cerb-alert.cerb-alert-error A {
+  color: white;
+}
+.cerb-alert .cerb-alert-close {
+  vertical-align: middle;
   float: right;
   font-size: 1.5em;
   cursor: pointer;
+}
+
+#cerb-alerts .cerb-alert {
+  margin: 0;
 }
 
 DIV.cerb-form {
@@ -1091,7 +1101,6 @@ TABLE.calendar TR.week TD DIV.day_contents A:hover {
 
 DIV.error-box {
   background-color: var(--cerb-color-error-background);
-  border: var(--cerb-color-error-text);
   color: var(--cerb-color-error-text);
   margin-bottom: 10px;
   padding: 10px;
@@ -1099,21 +1108,21 @@ DIV.error-box {
 }
 DIV.error-box H1 {
   color: var(--cerb-color-error-text);
+  margin-bottom: 5px;
 }
 DIV.error-box P {
   margin: 0 0 5px 5px;
 }
 
 DIV.help-box {
-  background: var(--cerb-color-help-background) linear-gradient(to bottom, var(--cerb-color-help-background), var(--cerb-color-help-background-gradient));
+  background-color: var(--cerb-color-help-background);
   color: var(--cerb-color-help-text);
-  border: 1px solid var(--cerb-color-help-h1);
-  padding: 10px;
   margin-bottom: 10px;
+  padding: 10px;
   border-radius: 5px;
 }
 DIV.help-box H1 {
-  color: var(--cerb-color-help-h1);
+  color: var(--cerb-color-help-text);
   margin-bottom: 5px;
 }
 DIV.help-box P {

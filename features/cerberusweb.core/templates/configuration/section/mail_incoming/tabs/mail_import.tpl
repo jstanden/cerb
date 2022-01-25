@@ -10,8 +10,6 @@
 	<textarea name="message_source" style="width:98%;height:250px;">{$message_source}</textarea>
 </div>
 
-<div class="output" style="display:none;"></div>
-
 <button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.import'|devblocks_translate|capitalize}</button>
 
 </form>
@@ -22,20 +20,17 @@ $(function() {
 	
 	$frm.find('button.submit').click(function() {
 		var $frm = $('#frmSetupMailImport');
-		var $output = $frm.find('div.output');
-		$output.hide().html('');
+		Devblocks.clearAlerts();
 		
 		genericAjaxPost($frm, null, null, function(json) {
 			var $frm = $('#frmSetupMailImport');
 			var $txt = $frm.find('textarea[name=message_source]');
-			var $output = $frm.find('div.output');
 			
 			// If successful, display a link to the new ticket
-			if(undefined !== json.status && true === json.status) {
+			if('object' == typeof json && undefined !== json.status && true === json.status) {
 				$txt.val('');
-				$output.html('');
 				
-				if(undefined !== json.ticket_label && undefined !== json.ticket_url) {
+				if(json.hasOwnProperty('ticket_label') && json.hasOwnProperty('ticket_url')) {
 					var $b = $('<b>Created: </b>');
 					
 					var $a = $('<a/>')
@@ -45,14 +40,14 @@ $(function() {
 						.text(json.ticket_label)
 					;
 
-					Devblocks.showSuccess($output, '', false, true);
-					$output.find('p').append($b).append($a);
+					var $alert = Devblocks.createAlert('', 'success', 0);
+					$alert.append($b).append($a);
 				}
 				
 			// If an error, display it
 			} else if(undefined !== json.status && false === json.status) {
 				var message = (undefined !== json.log && json.log.length > 0) ? json.log : json.error;
-				Devblocks.showError($output, message, false, true);
+				Devblocks.createAlertError(message);
 			}
 		});
 	});
