@@ -3677,13 +3677,17 @@ class _CerbApplication_KataAutocompletions {
 			
 			'security:' => [
 				'contentSecurityPolicy:',
+				'imageRequests:',
 			],
 			'security:contentSecurityPolicy:' => [
 				[
 					'caption' => 'imageHosts:',
 					'snippet' => "imageHosts@list:\n\thttps://example.com",
 				],
-			]
+			],
+			'security:imageRequests:' => [
+				'secret:',
+			],
 		];
 	}
 }

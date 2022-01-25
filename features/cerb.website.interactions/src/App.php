@@ -183,6 +183,25 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 						$tpl = DevblocksPlatform::services()->templateSandbox();
 						$tpl->display('devblocks:cerb.website.interactions::public/cerb.js');
 						break;
+						
+					case 'image':
+						$portal_schema = $this->_getPortalSchema();
+						$portal_code = ChPortalHelper::getCode();
+						
+						$hash = array_shift($path);
+						$file = array_shift($path);
+						
+						$secret = $portal_schema->getImageRequestsSecret() ?? sha1(DevblocksPlatform::services()->encryption()->getSystemKey());
+						$hash_calc = hash_hmac('sha256', implode('/',[$file,$portal_code]), $secret);
+						
+						// If the signature doesn't match or is expired, forbid
+						if(!($hash===$hash_calc))
+							DevblocksPlatform::dieWithHttpError(null, 403);
+						
+						if(false != ($resource = \DAO_Resource::getByNameAndType($file, \ResourceType_PortalImage::ID))) {
+							$this->_renderPortalImage($resource);
+						}
+						break;
 				}
 				break;
 				
@@ -833,6 +852,10 @@ class CerbPortalWebsiteInteractions_Model {
 	
 	function getContentSecurityPolicy() {
 		return $this->_schema['security']['contentSecurityPolicy'] ?? [];
+	}
+	
+	public function getImageRequestsSecret() {
+		return $this->_schema['security']['imageRequests']['secret'] ?? null;
 	}
 }
 
