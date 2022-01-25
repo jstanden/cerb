@@ -206,7 +206,7 @@ function DevblocksClass() {
 	};
 	
 	this.showError = function(target, message, animate) {
-		$html = $('<div class="ui-widget"/>')
+		var $html = $('<div class="ui-widget"/>')
 			.append(
 				$('<div class="ui-state-error ui-corner-all" style="padding:0 0.5em;margin:0.5em;"/>')
 				.append(
@@ -218,7 +218,7 @@ function DevblocksClass() {
 		
 		var $status = $(target).html($html).show();
 		
-		animate = (null == animate || false != animate) ? true: false;
+		animate = (null == animate || false !== animate);
 		if(animate)
 			$status.effect('slide',{ direction:'up', mode:'show' },250);
 		

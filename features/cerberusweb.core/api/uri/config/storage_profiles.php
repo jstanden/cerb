@@ -151,7 +151,7 @@ class PageSection_SetupStorageProfiles extends Extension_PageSection {
 				$profile = new Model_DevblocksStorageProfile();
 			
 			if(empty($extension_id)
-				|| null == ($ext = $ext = DevblocksPlatform::getExtension($extension_id, true)))
+				|| null == ($ext = DevblocksPlatform::getExtension($extension_id, true)))
 				throw new Exception("Can't load extension.");
 				
 			/* @var $ext Extension_DevblocksStorageEngine */

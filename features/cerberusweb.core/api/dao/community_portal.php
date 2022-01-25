@@ -1054,7 +1054,7 @@ class Context_CommunityTool extends Extension_DevblocksContext implements IDevbl
 		$properties['extension'] = array(
 			'label' => mb_ucfirst($translate->_('common.extension')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => @$model->getExtension()->manifest->name,
+			'value' => $model->getExtension()->manifest->name ?? '',
 		);
 		
 		$properties['path'] = array(

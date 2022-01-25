@@ -14,39 +14,6 @@ $(function() {
 	var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
 	tabOptions.active = Devblocks.getjQueryUiTabSelected('tabsSetupTeam', '{$tab}');
 	
-	var $tabs = $('#tabsSetupTeam').tabs(tabOptions);
-	
-	$tabs.find('.cerb-peek-trigger')
-		.cerbPeekTrigger()
-		;
-	
-	$tabs.find('.chooser-abstract')
-		.cerbChooserTrigger()
-		;
-	
-	$tabs.find('.cerb-code-editor')
-		.cerbCodeEditor()
-		;
-	
-	$tabs.find('.cerb-template-trigger')
-		.cerbTemplateTrigger()
-		;
-	
-	$tabs.find('BUTTON.submit')
-		.click(function(e) {
-			var $button = $(this);
-			var $button_form = $button.closest('form');
-			var $status = $button_form.find('div.status');
-			
-			genericAjaxPost($button_form,'',null,function(json) {
-				$o = $.parseJSON(json);
-				if(false == $o || false == $o.status) {
-					Devblocks.showError($status, $o.error);
-				} else {
-					Devblocks.showSuccess($status,'Saved!');
-				}
-			});
-		})
-	;
+	$('#tabsSetupTeam').tabs(tabOptions);
 });
 </script>

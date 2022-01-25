@@ -62,7 +62,7 @@ $(function() {
             return;
 	    
 		genericAjaxPost('{$uniqid}','',null,function(json) {
-			if(true === json.status) {
+			if(json && true === json.status) {
 				{if !empty($return_url)}
 					window.location.href = '{$return_url}';
 				{else}
