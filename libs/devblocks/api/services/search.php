@@ -891,13 +891,15 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 					$db->escape($content_key),
 					$escaped_query
 				);
-				$hits = $db->GetOneReader($sql_hits, 2500);
+				$hits = $db->GetOneReader($sql_hits, 3500);
 				
 			} else {
 				$hits = false;
 			}
 		} catch (Exception_DevblocksDatabaseQueryTimeout $e) {
+			// If this times out, we can assume an EXISTS would be faster
 			$hits = false;
+			$as_exists = true;
 		}
 		
 		// If fewer than 1,000 return IDs
