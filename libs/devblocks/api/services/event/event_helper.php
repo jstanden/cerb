@@ -4522,7 +4522,7 @@ class DevblocksEventHelper {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
 		$results = [];
-		@$vars = @$params[$var_key];
+		$vars = $params[$var_key] ?? null;
 		
 		// To
 		

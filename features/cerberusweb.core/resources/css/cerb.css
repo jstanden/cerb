@@ -2054,7 +2054,7 @@ div.cerb-uploads p.failure {
 .package-library--container .package-library--package-chooser .package-library--package .package-library--package-image {
   height: 135px;
   width: 240px;
-  background-color: var(--cerb-color-background);
+  background-color: white;
   border: 1px solid var(--cerb-color-background-contrast-200);
   margin-bottom: 5px;
 }

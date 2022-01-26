@@ -1904,7 +1904,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		@$response_format = DevblocksPlatform::importGPC($_POST['format'],'string','');
 		@$trigger_id = DevblocksPlatform::importGPC($_POST['trigger_id'],'integer',0);
 		
-		@$placeholders_kata = DevblocksPlatform::importVar($_POST[$prefix]['placeholder_simulator_kata'], 'string', '');
+		$placeholders_kata = DevblocksPlatform::importVar($_POST[$prefix]['placeholder_simulator_kata'] ?? null, 'string', '');
 		
 		$error = null;
 		$content = '';
