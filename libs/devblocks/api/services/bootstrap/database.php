@@ -342,7 +342,6 @@ class _DevblocksDatabaseManager {
 		
 		$results = [];
 		$connections = [];
-		$processed = 0;
 		$monitor_db = null;
 		
 		foreach($sqls as $idx => $sql) {
@@ -401,7 +400,7 @@ class _DevblocksDatabaseManager {
 			
 			foreach ($links as $idx => $link) {
 				$rs = mysqli_reap_async_query($link);
-					
+				
 				// If we already have a result, skip it
 				if(false !== $results[$link->thread_id]) {
 					/** @noinspection PhpExpressionResultUnusedInspection */
@@ -426,9 +425,9 @@ class _DevblocksDatabaseManager {
 					
 					DevblocksPlatform::logError($error_msg, true);
 				}
-				
-				$processed++;
 			}
+			
+			$processed = count(array_filter($results, fn($res) => $res !== false));
 			
 		} while ($processed < count($sqls));
 		
