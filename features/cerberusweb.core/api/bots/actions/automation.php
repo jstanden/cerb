@@ -33,10 +33,15 @@ class BotAction_Automation extends Extension_DevblocksEventAction {
 		$event_handler = DevblocksPlatform::services()->ui()->eventHandler();
 		
 		$object_placeholder = ($params['object_placeholder'] ?? null) ?: '_results';
-		$initial_state = [];
 		$error = null;
 		
-		$event_dict = DevblocksDictionaryDelegate::instance($initial_state);
+		$event_state = $dict->getDictionary();
+		unset($event_state['_labels']);
+		unset($event_state['_types']);
+		unset($event_state['_current_time']);
+		unset($event_state['__trigger']);
+		
+		$event_dict = DevblocksDictionaryDelegate::instance($event_state);
 		
 		$handlers = $event_handler->parse($params['automations_kata'] ?? null, $event_dict, $error);
 		
@@ -74,9 +79,13 @@ class BotAction_Automation extends Extension_DevblocksEventAction {
 		$error = null;
 		$handler = null;
 		
-		$event_dict = DevblocksDictionaryDelegate::instance($initial_state);
+		$event_state = $dict->getDictionary();
+		unset($event_state['_labels']);
+		unset($event_state['_types']);
+		unset($event_state['_current_time']);
+		unset($event_state['__trigger']);
 		
-		$event_dict->mergeKeys('behavior_', DevblocksDictionaryDelegate::getDictionaryFromModel($trigger, CerberusContexts::CONTEXT_BEHAVIOR, ['bot_']));
+		$event_dict = DevblocksDictionaryDelegate::instance($event_state);
 		
 		$handlers = $event_handler->parse($params['automations_kata'] ?? null, $event_dict, $error);
 		
