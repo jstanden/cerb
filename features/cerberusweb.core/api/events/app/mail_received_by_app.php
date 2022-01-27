@@ -97,7 +97,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		 */
 		$parser_model = null;
 		
-		if($parser_model instanceof Model_DevblocksEvent) {
+		if($event_model instanceof Model_DevblocksEvent) {
 			/* @var $parser_model CerberusParserModel */
 			$parser_model =& $event_model->params['parser_model'];
 		}
