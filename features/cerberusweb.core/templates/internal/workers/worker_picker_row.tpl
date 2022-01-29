@@ -14,16 +14,6 @@
 		{/if}
 	</td>
 	<td nowrap="nowrap">
-		<div>
-			<!--
-			{$availability = $worker->__availability}
-			{foreach from=$availability.blocks item=block name=blocks}
-			{var_dump($block)}
-			--><div style="width:{{$block.length/$availability.ticks*100}|round}px;height:10px;{if $block.available}background-color:rgb(0,200,0);{else}background-color:var(--cerb-color-background-contrast-230);{/if}display:inline-block;{if $smarty.foreach.blocks.first && $smarty.foreach.blocks.last}border-radius:10px;{elseif $smarty.foreach.blocks.first}border-radius:10px 0px 0px 10px;{elseif $smarty.foreach.blocks.last}border-radius:0px 10px 10px 0px;{/if}" title="{$block.start|devblocks_date} - {$block.end|devblocks_date}"></div><!--
-			{/foreach}-->
-		</div>
-	</td>
-	<td nowrap="nowrap">
 		{$num_assignments = $worker->__workload.records.{CerberusContexts::CONTEXT_TICKET}|default:0 + $worker->__workload.records.{CerberusContexts::CONTEXT_TASK}|default:0}
 		{$num_unread_notifications = $worker->__workload.records.{CerberusContexts::CONTEXT_NOTIFICATION}|default:0}
 		

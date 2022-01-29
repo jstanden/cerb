@@ -121,7 +121,6 @@ class CerberusApplication extends DevblocksApplication {
 		$group_responsibilities = DAO_Group::getResponsibilities($group_id);
 		$bucket_responsibilities = @$group_responsibilities[$bucket_id] ?: [];
 		$workloads = DAO_Worker::getWorkloads();
-		// [TODO] Do availability efficiently
 
 		// Workers
 
@@ -134,7 +133,6 @@ class CerberusApplication extends DevblocksApplication {
 		foreach($population as $worker) {
 			$worker->__is_selected = isset($sample[$worker->id]);
 			$worker->__is_online = isset($online_workers[$worker->id]);
-			$worker->__availability = $worker->getAvailabilityAsBlocks();
 			$worker->__workload = isset($workloads[$worker->id]) ? $workloads[$worker->id] : [];
 			$worker->__responsibility = isset($bucket_responsibilities[$worker->id]) ? $bucket_responsibilities[$worker->id] : 0;
 		}

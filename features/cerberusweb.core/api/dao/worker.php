@@ -2040,8 +2040,6 @@ class Model_Worker {
 		$day_from = strtotime('midnight', $date_from);
 		$day_to = strtotime('23:59:59', $date_to);
 		
-		$calendar = DAO_Calendar::get($this->calendar_id);
-		
 		if(false == ($calendar = DAO_Calendar::get($this->calendar_id))) {
 			$calendar = new Model_Calendar();
 			$calendar_events = [];
@@ -2050,9 +2048,7 @@ class Model_Worker {
 			$calendar_events = $calendar->getEvents($day_from, $day_to);
 		}
 		
-		$availability = $calendar->computeAvailability($date_from, $date_to, $calendar_events);
-		
-		return $availability;
+		return $calendar->computeAvailability($date_from, $date_to, $calendar_events);
 	}
 	
 	function getAvailabilityAsBlocks() {
