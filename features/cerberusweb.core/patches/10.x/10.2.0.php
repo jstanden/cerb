@@ -701,6 +701,8 @@ if(!$logo_id && file_exists(APP_STORAGE_PATH . '/logo')) {
 			$db->ExecuteMaster("UPDATE IGNORE devblocks_setting SET value = UNIX_TIMESTAMP() WHERE setting = 'ui_user_logo_updated_at'");
 			$db->ExecuteMaster("DELETE FROM devblocks_setting WHERE setting = 'ui_user_logo_mimetype'");
 		}
+		
+		rename(APP_STORAGE_PATH . '/logo', APP_STORAGE_PATH . '/logo.old');
 	}
 }
 
