@@ -10,9 +10,6 @@
 			<b>{'common.worker'|devblocks_translate|capitalize}</b>
 		</td>
 		<td>
-			<b>{'common.availability'|devblocks_translate|capitalize} (24h)</b>
-		</td>
-		<td>
 			<abbr title="Open assignments / Unread notifications" style="font-weight:bold;">Workload</abbr>
 		</td>
 		{if $worker_picker_data.show_responsibilities}
@@ -45,9 +42,6 @@
 		<tr>
 			<td>
 				<b>{'common.worker'|devblocks_translate|capitalize}</b>
-			</td>
-			<td>
-				<b>{'common.availability'|devblocks_translate|capitalize} (24h)</b>
 			</td>
 			<td>
 				<abbr title="Open assignments / Unread notifications" style="font-weight:bold;">Workload</abbr>
