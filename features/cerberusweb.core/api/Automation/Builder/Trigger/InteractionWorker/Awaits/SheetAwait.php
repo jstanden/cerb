@@ -259,14 +259,21 @@ class SheetAwait extends AbstractAwait {
 		
 		$toolbar_kata = $prompt['toolbar'];
 		
-		$toolbar_dict = DevblocksDictionaryDelegate::instance([
-			'caller_name' => 'cerb.toolbar.interaction.worker.await.sheet',
+		if(is_array($dict) && !empty($dict)) {
+			$toolbar_dict = DevblocksDictionaryDelegate::instance($dict);
+			$toolbar_dict->scrubKeys('__');
+		
+		} else {
+			$toolbar_dict = DevblocksDictionaryDelegate::instance([
+				'caller_name' => 'cerb.toolbar.interaction.worker.await.sheet',
+				'worker__context' => CerberusContexts::CONTEXT_WORKER,
+				'worker_id' => CerberusApplication::getActiveWorker()->id,
+			]);
 			
-			'worker__context' => CerberusContexts::CONTEXT_WORKER,
-			'worker_id' => CerberusApplication::getActiveWorker()->id,
-			
-			'row_selections' => $selections,
-		]);
+			$toolbar_dict->mergeKeys('worker_', DevblocksDictionaryDelegate::getDictionaryFromModel(CerberusApplication::getActiveWorker(), CerberusContexts::CONTEXT_WORKER));
+		}
+		
+		$toolbar_dict->set('row_selections', $selections);
 		
 		if(is_array($toolbar_kata))
 			$toolbar_kata = DevblocksPlatform::services()->kata()->emit($toolbar_kata);
