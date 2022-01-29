@@ -1039,7 +1039,7 @@ class DevblocksEventHelper {
 	}
 	
 	static function simulateActionCreateRecordSetLinks($params, $dict) {
-		@$link_to = DevblocksPlatform::importVar($params['link_to'],'array',[]);
+		$link_to = DevblocksPlatform::importVar($params['link_to'] ?? null,'array',[]);
 		$out = '';
 		
 		if(!empty($link_to)) {
@@ -1065,7 +1065,7 @@ class DevblocksEventHelper {
 	}
 	
 	static function runActionCreateRecordSetLinks($context, $context_id, $params, &$dict) {
-		@$link_to = DevblocksPlatform::importVar($params['link_to'],'array',[]);
+		$link_to = DevblocksPlatform::importVar($params['link_to'] ?? null,'array',[]);
 		
 		if(!empty($link_to)) {
 			$trigger = $dict->__trigger;
@@ -1085,8 +1085,8 @@ class DevblocksEventHelper {
 	}
 	
 	static function simulateActionCreateRecordSetVariable($params, $dict) {
-		@$trigger = $dict->__trigger;
-		@$object_var = $params['object_var'];
+		$trigger = $dict->__trigger ?? null;
+		$object_var = $params['object_var'] ?? null;
 		$out = '';
 		
 		if($object_var && $trigger && isset($trigger->variables[$object_var])) {

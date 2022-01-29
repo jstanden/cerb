@@ -86,7 +86,7 @@ class RecordUpdateAction extends AbstractAction {
 			$record_type = $inputs['record_type'];
 			$record_id = $inputs['record_id'];
 			$expand = $inputs['expand'] ?? null;
-			@$fields = $inputs['fields'] ?: [];
+			$fields = $inputs['fields'] ?? [];
 			
 			if(false == ($context_ext = Extension_DevblocksContext::getByAlias($record_type, true))) {
 				throw new Exception_DevblocksAutomationError(sprintf(
@@ -135,6 +135,7 @@ class RecordUpdateAction extends AbstractAction {
 			// [TODO] Expand (also in record_create)
 			// [TODO] Handle multiples
 			if($expand)
+				/** @noinspection PhpExpressionResultUnusedInspection */
 				$record_dict->get($expand);
 			
 			if ($output)

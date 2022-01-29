@@ -376,7 +376,8 @@ class ServiceProvider_OpenIdConnect extends Extension_ConnectedServiceProvider {
 			->clearAuthState()
 			;
 		
-		$provider = $this->_getProvider($service);
+		if(false == ($provider = $this->_getProvider($service)))
+			return;
 		
 		if(!array_key_exists('code', $_GET)) {
 			// Send to the authentication URL

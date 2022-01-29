@@ -84,7 +84,7 @@ $(function() {
 	$search.keypress(
 		function(e) {
 			var code = e.keyCode || e.which;
-			if(code == 13) {
+			if(13 === code) {
 				e.preventDefault();
 				e.stopPropagation();
 				$(this).select().focus();
@@ -110,7 +110,6 @@ $(function() {
 	
 	$table.on('click', 'tbody a.delete', function() {
 		var $tr = $(this).closest('tr');
-		var worker_id = $tr.attr('data-worker-id');
 		
 		$tr.find('a.delete').hide();
 		
@@ -125,7 +124,6 @@ $(function() {
 		var $tr = $(this).closest('tr');
 		var $input = $('<input type="hidden">');
 		var worker_id = $tr.attr('data-worker-id');
-		var score = $tr.attr('data-score');
 		
 		$input.attr('name', 'current_sample[]');
 		$input.attr('value', worker_id);

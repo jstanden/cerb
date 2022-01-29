@@ -2,7 +2,7 @@
 	{$response_uid = "response{uniqid()}"}
 	<div id="{$response_uid}" style="display:flex;margin-top:30px;">
 		{if $continue_options.reset}
-			<button style="flex:1 1;" type="button" class="cerb-button cerb-form-builder-reset cerb-button-style-secondary" tabindex="-1"><span class="glyphicons glyphicons-refresh" style="color:black;"></span> Reset</button>
+			<button style="flex:1 1;" type="button" class="cerb-button cerb-form-builder-reset cerb-button-style-secondary" tabindex="-1"><span class="glyphicons glyphicons-refresh" style="color:var(--cerb-color-text);"></span> Reset</button>
 		{/if}
 		<div style="flex:2 2;"></div>
 		{if $continue_options.continue}

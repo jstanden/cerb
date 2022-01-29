@@ -119,7 +119,7 @@ class CerberusApplication extends DevblocksApplication {
 
 		$online_workers = DAO_Worker::getOnlineWithoutIdle();
 		$group_responsibilities = DAO_Group::getResponsibilities($group_id);
-		$bucket_responsibilities = @$group_responsibilities[$bucket_id] ?: [];
+		$bucket_responsibilities = $group_responsibilities[$bucket_id] ?? [];
 		$workloads = DAO_Worker::getWorkloads();
 
 		// Workers
@@ -130,7 +130,7 @@ class CerberusApplication extends DevblocksApplication {
 		);
 
 		// Bulk load population statistics
-		foreach($population as $worker) {
+		foreach($population as $worker) { /* @var Model_Worker $worker */
 			$worker->__is_selected = isset($sample[$worker->id]);
 			$worker->__is_online = isset($online_workers[$worker->id]);
 			$worker->__workload = isset($workloads[$worker->id]) ? $workloads[$worker->id] : [];
@@ -5512,11 +5512,11 @@ class _CerbApplication_Packages {
 		$db->ExecuteMaster(sprintf("INSERT INTO package_library (uri, name, description, instructions, point, updated_at, package_json) ".
 			"VALUES (%s, %s, %s, %s, %s, %d, %s) ".
 			"ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id), name=VALUES(name), uri=VALUES(uri), description=VALUES(description), instructions=VALUES(instructions), point=VALUES(point), updated_at=VALUES(updated_at), package_json=VALUES(package_json)",
-			$db->qstr($library_meta['uri']),
-			$db->qstr($library_meta['name']),
-			$db->qstr($library_meta['description']),
-			$db->qstr(@$library_meta['instructions']),
-			$db->qstr($library_meta['point']),
+			$db->qstr($library_meta['uri'] ?? ''),
+			$db->qstr($library_meta['name'] ?? ''),
+			$db->qstr($library_meta['description'] ?? ''),
+			$db->qstr($library_meta['instructions'] ?? ''),
+			$db->qstr($library_meta['point'] ?? ''),
 			time(),
 			$db->qstr($package_json)
 		));
