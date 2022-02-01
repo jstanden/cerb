@@ -18,9 +18,7 @@ class CalendarDatasource_Calendar extends Extension_CalendarDatasource {
 		$tpl->assign('params', $params);
 		$tpl->assign('params_prefix', $params_prefix);
 		
-		$calendars = [];
-		
-		if($calendar instanceof Model_Calendar && $calendar->id) {
+		if($calendar->owner_context) {
 			$calendars = DAO_Calendar::getReadableByActor([$calendar->owner_context, $calendar->owner_context_id]);
 		} else {
 			$calendars = DAO_Calendar::getReadableByActor([CerberusContexts::CONTEXT_WORKER, $active_worker->id]);

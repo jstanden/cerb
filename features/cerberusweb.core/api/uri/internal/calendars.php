@@ -69,8 +69,9 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 	}
 	
 	private function _internalAction_getCalendarDatasourceParams() {
-		@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'],'string', '');
-		@$params_prefix = DevblocksPlatform::importGPC($_REQUEST['params_prefix'],'string', '');
+		$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'] ?? null, 'string', '');
+		$owner = DevblocksPlatform::importGPC($_REQUEST['owner'] ?? null, 'string', '');
+		$params_prefix = DevblocksPlatform::importGPC($_REQUEST['params_prefix'] ?? null, 'string', '');
 		
 		if(empty($extension_id))
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -79,7 +80,18 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		$calendar = new Model_Calendar();
-		$extension->renderConfig($calendar, array(), $params_prefix);
+		
+		// Do we have a target owner?
+		if($owner) {
+			$owner_parts = explode(':', $owner);
+			
+			if(is_array($owner_parts) && 2 == count($owner_parts)) {
+				$calendar->owner_context = $owner_parts[0];
+				$calendar->owner_context_id = intval($owner_parts[1]);
+			}
+		}
+		
+		$extension->renderConfig($calendar, [], $params_prefix);
 	}
 	
 	private function _internalAction_parseDateJson() {

@@ -13,7 +13,7 @@
 
  data using 
 
-<div id="popup{$uniqid}" class="badge badge-lightgray" style="font-weight:bold;color:rgb(80,80,80);cursor:pointer;display:inline;"><span class="name">Worklist</span> &#x25be;</div>
+<div id="popup{$uniqid}" class="badge badge-lightgray" style="font-weight:bold;color:var(--cerb-color-background-contrast-75);cursor:pointer;display:inline;"><span class="name">Worklist</span> &#x25be;</div>
 
 <input type="hidden" name="params{$params_prefix}[worklist_model_json]" value="{$params.worklist_model|json_encode}" class="model">
 
