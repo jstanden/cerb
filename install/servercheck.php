@@ -92,6 +92,14 @@ if(extension_loaded("mysqli")) {
 	$fails++;
 }
 
+// Extension: MySQLnd
+if(extension_loaded("mysqlnd")) {
+	$results['ext_mysqlnd'] = true;
+} else {
+	$results['ext_mysqlnd'] = false;
+	$fails++;
+}
+
 // Extension: Sessions
 if(extension_loaded("session")) {
 	$results['ext_session'] = true;
@@ -221,6 +229,9 @@ if($fails) {
 		
 	if(!$results['ext_mysqli'])
 		echo "<li>The 'MySQLi' PHP extension is required.  Please enable it.</li>";
+		
+	if(!$results['ext_mysqlnd'])
+		echo "<li>The 'mysqlnd' PHP extension is required.  Please enable it.</li>";
 		
 	if(!$results['ext_session'])
 		echo "<li>The 'Session' PHP extension is required.  Please enable it.</li>";

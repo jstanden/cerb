@@ -25,6 +25,11 @@ if(!extension_loaded('mysqli')) {
 	die("Cerb requires the 'mysqli' PHP extension.  Please enable it.");
 }
 
+if(!extension_loaded('mysqlnd')) {
+	http_response_code(500);
+	die("Cerb requires the 'mysqlnd' PHP extension.  Please enable it.");
+}
+
 if(!extension_loaded('mbstring')) {
 	http_response_code(500);
 	die("Cerb requires the 'mbstring' PHP extension.  Please enable it.");
@@ -240,6 +245,14 @@ switch($step) {
 			$results['ext_mysqli'] = true;
 		} else {
 			$results['ext_mysqli'] = false;
+			$fails++;
+		}
+		
+		// Extension: mysqlnd
+		if(extension_loaded("mysqlnd")) {
+			$results['ext_mysqlnd'] = true;
+		} else {
+			$results['ext_mysqlnd'] = false;
 			$fails++;
 		}
 		

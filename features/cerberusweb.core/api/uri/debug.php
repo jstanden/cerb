@@ -262,6 +262,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 					"[php.ini] post_max_size: %s\n".
 					"\n".
 					"[PHP:Extension] MySQLi: %s\n".
+					"[PHP:Extension] mysqlnd: %s\n".
 					"[PHP:Extension] MailParse: %s\n".
 					"[PHP:Extension] cURL: %s\n".
 					"[PHP:Extension] Session: %s\n".
@@ -303,6 +304,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 					ini_get('upload_max_filesize'),
 					ini_get('post_max_size'),
 					(extension_loaded("mysqli") ? 'YES' : 'NO'),
+					(extension_loaded("mysqlnd") ? 'YES' : 'NO'),
 					(extension_loaded("mailparse") ? 'YES' : 'NO'),
 					(extension_loaded("curl") ? 'YES' : 'NO'),
 					(extension_loaded("session") ? 'YES' : 'NO'),
