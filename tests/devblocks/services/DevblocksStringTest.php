@@ -53,6 +53,12 @@ class DevblocksStringTest extends TestCase {
 	function testHtmlToText() {
 		$strings = DevblocksPlatform::services()->string();
 		
+		// Empty string
+		$html = '';
+		$expected = '';
+		$actual = $strings->htmlToText($html);
+		$this->assertEquals($expected, $actual);
+		
 		// Styles
 		$html = '<b>bold</b>, <strong>strong</strong>, <i>italics</i>, <em>emphasis</em>, <code>$variable</code>';
 		$expected = 'bold, strong, italics, emphasis, $variable';
@@ -140,6 +146,36 @@ class DevblocksStringTest extends TestCase {
 		// Maximum of two consecutive linefeeds
 		$html = "this<br><br><br>had<br>multiple<br><div>linefeeds</div><br>";
 		$expected = "this\n\n\nhad\nmultiple\n\nlinefeeds\n\n";
+		$actual = $strings->htmlToText($html);
+		$this->assertEquals($expected, $actual);
+		
+		// High ASCII encoding
+		$html = "à á â ã ä å æ ç è é ê ë ì í î ï";
+		$expected = "à á â ã ä å æ ç è é ê ë ì í î ï\n";
+		$actual = $strings->htmlToText($html);
+		$this->assertEquals($expected, $actual);
+		
+		// High ASCII encoding with html+head+body
+		$html = "<html><head></head><body>à á â ã ä å æ ç è é ê ë ì í î ï</body></html>";
+		$expected = "à á â ã ä å æ ç è é ê ë ì í î ï";
+		$actual = $strings->htmlToText($html);
+		$this->assertEquals($expected, $actual);
+		
+		// High ASCII encoding with an explicit charset
+		$html = "<html><head><meta http-equiv='content-type' content='text/html; charset=iso-8859-1'></head><body>à á â ã ä å æ ç è é ê ë ì í î ï</body></html>";
+		$expected = "à á â ã ä å æ ç è é ê ë ì í î ï";
+		$actual = $strings->htmlToText($html);
+		$this->assertEquals($expected, $actual);
+		
+		// GB2312 encoding with an explicit charset
+		$html = "<html><head><meta http-equiv='content-type' content='text/html; charset=gb2312'></head><body>善讼的人的故事 赖和</body></html>";
+		$expected = "善讼的人的故事 赖和";
+		$actual = $strings->htmlToText($html);
+		$this->assertEquals($expected, $actual);
+		
+		// GB2312 encoding with html-entities and an explicit charset
+		$html = "<html><head><meta http-equiv='content-type' content='text/html; charset=gb2312'></head><body>&#21892;&#35772;&#30340;&#20154;&#30340;&#25925;&#20107; &#36182;&#21644;</body></html>";
+		$expected = "善讼的人的故事 赖和";
 		$actual = $strings->htmlToText($html);
 		$this->assertEquals($expected, $actual);
 		

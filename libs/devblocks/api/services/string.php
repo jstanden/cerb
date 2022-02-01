@@ -263,6 +263,8 @@ class _DevblocksStringService {
 		
 		libxml_use_internal_errors(true);
 		
+		$str = mb_convert_encoding($str, 'HTML-ENTITIES');
+		
 		$dom->loadHTML(sprintf('<?xml version="1.0" encoding="%s">', LANG_CHARSET_CODE) . $str);
 		
 		$dom->normalizeDocument();
