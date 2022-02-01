@@ -10,7 +10,10 @@
 			<b>{'common.worker'|devblocks_translate|capitalize}</b>
 		</td>
 		<td>
-			<abbr title="Open assignments / Unread notifications" style="font-weight:bold;">Workload</abbr>
+			<abbr title="Open tickets and tasks" style="font-weight:bold;">Assignments</abbr>
+		</td>
+		<td>
+			<abbr title="Unread notifications" style="font-weight:bold;">Notifications</abbr>
 		</td>
 		{if $worker_picker_data.show_responsibilities}
 		<td>
@@ -44,7 +47,10 @@
 				<b>{'common.worker'|devblocks_translate|capitalize}</b>
 			</td>
 			<td>
-				<abbr title="Open assignments / Unread notifications" style="font-weight:bold;">Workload</abbr>
+				<abbr title="Open tickets and tasks" style="font-weight:bold;">Assignments</abbr>
+			</td>
+			<td>
+				<abbr title="Unread notifications" style="font-weight:bold;">Notifications</abbr>
 			</td>
 			{if $worker_picker_data.show_responsibilities}
 			<td>

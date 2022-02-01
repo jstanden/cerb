@@ -15,11 +15,11 @@
 	</td>
 	<td nowrap="nowrap">
 		{$num_assignments = $worker->__workload.records.{CerberusContexts::CONTEXT_TICKET}|default:0 + $worker->__workload.records.{CerberusContexts::CONTEXT_TASK}|default:0}
+		{if $num_assignments}{$num_assignments}{else}0{/if}
+	</td>
+	<td nowrap="nowrap">
 		{$num_unread_notifications = $worker->__workload.records.{CerberusContexts::CONTEXT_NOTIFICATION}|default:0}
-		
-		{if $num_assignments}<span style="color:green;font-weight:bold;">{$num_assignments}</span>{else}0{/if}
-		<span style="color:var(--cerb-color-background-contrast-200);"> / </span>
-		{if $num_unread_notifications}<span style="color:red;font-weight:bold;">{$num_unread_notifications}</span>{else}0{/if}
+		{if $num_unread_notifications}{$num_unread_notifications}{else}0{/if}
 	</td>
 	{if $show_responsibilities}
 	<td nowrap="nowrap">

@@ -113,14 +113,27 @@ class CerberusApplication extends DevblocksApplication {
 		return $workers;
 	}
 
-	// [TODO] Cache by worker? (esp responsibility + availability + workloads)
 	static function getWorkerPickerData($population, $sample, $group_id=0, $bucket_id=0) {
+		$cache = DevblocksPlatform::services()->cache();
+		
+		$cache_key_responsibilities = sprintf('watchers:responsibilities:%d', $group_id);
+		$cache_key_workloads = 'watchers:workloads';
+		
 		// Shared objects
 
 		$online_workers = DAO_Worker::getOnlineWithoutIdle();
-		$group_responsibilities = DAO_Group::getResponsibilities($group_id);
+		
+		if(null === ($group_responsibilities = $cache->load($cache_key_responsibilities))) {
+			$group_responsibilities = DAO_Group::getResponsibilities($group_id);
+			$cache->save($group_responsibilities, $cache_key_responsibilities, [], 300);
+		}
+		
 		$bucket_responsibilities = $group_responsibilities[$bucket_id] ?? [];
-		$workloads = DAO_Worker::getWorkloads();
+		
+		if(null === ($workloads = $cache->load($cache_key_workloads))) {
+			$workloads = DAO_Worker::getWorkloads();
+			$cache->save($workloads, $cache_key_workloads, [], 300);
+		}
 
 		// Workers
 
