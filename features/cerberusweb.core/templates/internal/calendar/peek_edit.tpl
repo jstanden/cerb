@@ -243,8 +243,14 @@ $(function() {
 		
 		$popup.find('select.datasource-selector').change(function(e) {
 			var $select = $(this);
+			var extension_id = $select.val();
+			var owner = $frm.find('input[name=owner]').val();
+			
+			if(0 === extension_id.length)
+				return;
+			
 			var params_prefix = $select.attr('params_prefix');
-			genericAjaxGet($select.siblings('div.calendar-datasource-params'), 'c=internal&a=invoke&module=calendars&action=getCalendarDatasourceParams&extension_id=' + $select.val() + '&params_prefix=' + params_prefix);
+			genericAjaxGet($select.siblings('div.calendar-datasource-params'), 'c=internal&a=invoke&module=calendars&action=getCalendarDatasourceParams&extension_id=' + encodeURIComponent(extension_id) + '&owner=' + encodeURIComponent(owner) + '&params_prefix=' + encodeURIComponent(params_prefix));
 		});
 		
 		$popup.find('input:radio[name="params[manual_disabled]"]').change(function() {
