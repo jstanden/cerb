@@ -146,7 +146,7 @@ class _DevblocksDataProviderCalendarAvailability extends _DevblocksDataProvider 
 		);
 		
 		if(!empty($calendars)) {
-			foreach($calendars as $calendar) {
+			foreach($calendars as $calendar) { /* @var Model_Calendar $calendar */
 				$events = $calendar->getEvents($range_from, $range_to);
 				
 				foreach ($dates as $date) {
