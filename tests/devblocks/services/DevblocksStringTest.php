@@ -149,6 +149,12 @@ class DevblocksStringTest extends TestCase {
 		$actual = $strings->htmlToText($html);
 		$this->assertEquals($expected, $actual);
 		
+		// Non-breaking spaces
+		$html = "this has &nbsp;non-breaking&nbsp; spaces";
+		$expected = "this has non-breaking spaces\n";
+		$actual = $strings->htmlToText($html);
+		$this->assertEquals($expected, $actual);
+		
 		// High ASCII encoding
 		$html = "à á â ã ä å æ ç è é ê ë ì í î ï";
 		$expected = "à á â ã ä å æ ç è é ê ë ì í î ï\n";
