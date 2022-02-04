@@ -29,6 +29,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	const IMPORTANCE = 'importance';
 	const INTERESTING_WORDS = 'interesting_words';
 	const LAST_MESSAGE_ID = 'last_message_id';
+	const LAST_OPENED_DELTA = 'last_opened_delta';
 	const LAST_WROTE_ID = 'last_wrote_address_id';
 	const MASK = 'mask';
 	const NUM_MESSAGES = 'num_messages';
@@ -118,6 +119,11 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			->id()
 			->setEditable(false)
 			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_MESSAGE))
+			;
+		$validation
+			->addField(self::LAST_OPENED_DELTA)
+			->timestamp()
+			->setEditable(false)
 			;
 		$validation
 			->addField(self::LAST_WROTE_ID)
@@ -739,6 +745,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			DAO_Ticket::FIRST_MESSAGE_ID => 0,
 			DAO_Ticket::FIRST_WROTE_ID => 0,
 			DAO_Ticket::LAST_MESSAGE_ID => 0,
+			DAO_Ticket::LAST_OPENED_DELTA => time(),
 			DAO_Ticket::LAST_WROTE_ID => 0,
 			DAO_Ticket::FIRST_OUTGOING_MESSAGE_ID => 0,
 			DAO_Ticket::ELAPSED_RESPONSE_FIRST => 0,
@@ -766,6 +773,13 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				$fields[DAO_Ticket::FIRST_OUTGOING_MESSAGE_ID] = $message_id;
 				$fields[DAO_Ticket::ELAPSED_RESPONSE_FIRST] = max($message->created_date - $ticket->created_date, 0);
 			}
+		}
+		
+		// Reindex last opened delta
+		if(Model_Ticket::STATUS_OPEN == $ticket->status_id) {
+			$sql = sprintf("SELECT MAX(created) FROM context_activity_log WHERE activity_point IN ('ticket.status.open','ticket.moved') AND target_context = 'cerberusweb.contexts.ticket' AND target_context_id = %d", $id);
+			$opened_delta = intval($db->GetOneMaster($sql));
+			$fields[DAO_Ticket::LAST_OPENED_DELTA] = $opened_delta;
 		}
 
 		// Reindex the earliest close date from activity log
@@ -813,7 +827,8 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		
 		$sql = "SELECT id , mask, subject, status_id, group_id, bucket_id, org_id, owner_id, importance, first_message_id, first_outgoing_message_id, last_message_id, ".
 			"first_wrote_address_id, last_wrote_address_id, created_date, updated_date, closed_at, reopen_at, spam_training, ".
-			"spam_score, interesting_words, num_messages, num_messages_in, num_messages_out, elapsed_response_first, elapsed_resolution_first ".
+			"spam_score, interesting_words, num_messages, num_messages_in, num_messages_out, elapsed_response_first, elapsed_resolution_first, ".
+ 			"last_opened_delta ".
 			"FROM ticket ".
 			$where_sql.
 			$sort_sql.
@@ -842,6 +857,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			$object->first_message_id = intval($row['first_message_id']);
 			$object->first_outgoing_message_id = intval($row['first_outgoing_message_id']);
 			$object->last_message_id = intval($row['last_message_id']);
+			$object->last_opened_delta = intval($row['last_opened_delta']);
 			$object->group_id = intval($row['group_id']);
 			$object->bucket_id = intval($row['bucket_id']);
 			$object->org_id = intval($row['org_id']);
@@ -1442,6 +1458,22 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				@$to_bucket = DAO_Bucket::get($model->bucket_id);
 				
 				if($to_group && $to_bucket) {
+					// If we moved the ticket, but it's remaining open, then log a metric here
+					if(
+						Model_Ticket::STATUS_OPEN == $model->status_id
+						&& Model_Ticket::STATUS_OPEN == $before_model->status_id
+					) {
+						// Reset the last opened metric for the new group/bucket
+						$model->last_opened_delta = time();
+						
+						DAO_Ticket::update(
+							$model->id,
+							[
+								DAO_Ticket::LAST_OPENED_DELTA => $model->last_opened_delta,
+							]
+						);
+					}
+					
 					$entry = [
 						//{{actor}} moved ticket {{target}} to {{group}} {{bucket}}
 						'message' => 'activities.ticket.moved',
@@ -1508,6 +1540,16 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				} else {
 					$status_to = 'open';
 					$activity_point = 'ticket.status.open';
+					
+					$model->last_opened_delta = time();
+					
+					DAO_Ticket::update(
+						$model->id,
+						[
+							DAO_Ticket::LAST_OPENED_DELTA => $model->last_opened_delta,
+						],
+						false
+					);
 				}
 				
 				if(!empty($status_to) && !empty($activity_point)) {
@@ -1998,6 +2040,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				DAO_Ticket::FIRST_MESSAGE_ID => 0,
 				DAO_Ticket::FIRST_OUTGOING_MESSAGE_ID => 0,
 				DAO_Ticket::LAST_MESSAGE_ID => 0,
+				DAO_Ticket::LAST_OPENED_DELTA => 0,
 				DAO_Ticket::NUM_MESSAGES => 0,
 				DAO_Ticket::NUM_MESSAGES_IN => 0,
 				DAO_Ticket::NUM_MESSAGES_OUT => 0,
@@ -2725,6 +2768,7 @@ class Model_Ticket {
 	public $first_message_id;
 	public $first_outgoing_message_id;
 	public $last_message_id;
+	public $last_opened_delta;
 	public $first_wrote_address_id;
 	public $last_wrote_address_id;
 	public $created_date;

@@ -1755,6 +1755,7 @@ class CerberusParser {
 				DAO_Ticket::LAST_MESSAGE_ID => $model->getMessageId(),
 				DAO_Ticket::GROUP_ID => $deliver_to_group->id, // this triggers move rules
 				DAO_Ticket::BUCKET_ID => $deliver_to_bucket->id ?? $deliver_to_group->getDefaultBucket()->id, // this triggers move rules
+				DAO_Ticket::LAST_OPENED_DELTA => time(),
 			);
 			
 			// Spam probabilities
