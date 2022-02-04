@@ -82,6 +82,15 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 				if(!Context_Automation::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
+				// The `cerb.` namespace is reserved
+				if(
+					DevblocksPlatform::strStartsWith(DevblocksPlatform::strLower($model->name), 'cerb.')
+					&& !DEVELOPMENT_MODE
+				) {
+					$error = 'The `cerb.` namespace is managed automatically. This automation may not be deleted.';
+					throw new Exception_DevblocksAjaxValidationError($error);
+				}
+				
 				CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_AUTOMATION, $model->id, $model->name);
 				
 				DAO_Automation::delete($id);
@@ -128,6 +137,15 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 				}
 				
 				if(empty($id)) { // New
+					// The `cerb.` namespace is reserved
+					if(
+						DevblocksPlatform::strStartsWith(DevblocksPlatform::strLower($name), 'cerb.')
+						&& !DEVELOPMENT_MODE
+					) {
+						$error = 'The `cerb.` namespace is reserved. Use your own prefix for `Name:`';
+						throw new Exception_DevblocksAjaxValidationError($error);
+					}
+					
 					$fields[DAO_Automation::NAME] = $name;
 					$fields[DAO_Automation::DESCRIPTION] = $description;
 					$fields[DAO_Automation::SCRIPT] = $script;
@@ -142,6 +160,15 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 					$id = DAO_Automation::create($fields);
 					
 				} else { // Edit
+					// The `cerb.` namespace is reserved
+					if(
+						DevblocksPlatform::strStartsWith(DevblocksPlatform::strLower($name), 'cerb.')
+						&& !DEVELOPMENT_MODE
+					) {
+						$error = 'The `cerb.` namespace is managed automatically. Clone this automation to modify it.';
+						throw new Exception_DevblocksAjaxValidationError($error);
+					}
+					
 					$fields[DAO_Automation::NAME] = $name;
 					$fields[DAO_Automation::DESCRIPTION] = $description;
 					$fields[DAO_Automation::SCRIPT] = $script;
