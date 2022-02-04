@@ -1686,6 +1686,7 @@ UL.cerb-popupmenu > LI:hover A {
 }
 .cerb-kb-article-content IMG {
   max-width: 100%;
+  height: auto;
 }
 
 DIV.cerb-menu {
@@ -1779,6 +1780,7 @@ DIV.emailBodyHtml H1, DIV.emailBodyHtml H2, DIV.emailBodyHtml H3, DIV.emailBodyH
 }
 DIV.emailBodyHtml IMG {
   max-width: 100%;
+  height: auto;
 }
 DIV.emailBodyHtml UL, DIV.emailBodyHtml OL {
   padding-left: 2em;
@@ -1827,6 +1829,7 @@ DIV.emailBodyHtml DIV.block DIV.emailBodyHtmlLight H1, DIV.emailBodyHtml DIV.blo
 }
 DIV.emailBodyHtmlLight IMG {
   max-width: 100%;
+  height: auto;
 }
 DIV.emailBodyHtmlLight UL, DIV.emailBodyHtmlLight OL {
   padding-left: 2em;
@@ -1887,6 +1890,7 @@ DIV.commentBodyHtml H6 {
 }
 DIV.commentBodyHtml IMG {
   max-width: 100%;
+  height: auto;
 }
 DIV.commentBodyHtml OL, DIV.commentBodyHtml UL {
   margin: 0 0 0.5em 1.5em;
