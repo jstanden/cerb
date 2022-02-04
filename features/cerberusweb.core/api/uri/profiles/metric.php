@@ -64,6 +64,15 @@ class PageSection_ProfilesMetric extends Extension_PageSection {
 				if(!Context_Metric::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
+				// The `cerb.` namespace is reserved
+				if(
+					DevblocksPlatform::strStartsWith(DevblocksPlatform::strLower($model->name), 'cerb.')
+					&& !DEVELOPMENT_MODE
+				) {
+					$error = 'The `cerb.` namespace is managed automatically. This metric may not be deleted.';
+					throw new Exception_DevblocksAjaxValidationError($error);
+				}
+				
 				CerberusContexts::logActivityRecordDelete(Context_Metric::ID, $model->id, $model->name);
 				
 				DAO_Metric::delete($id);
@@ -90,6 +99,15 @@ class PageSection_ProfilesMetric extends Extension_PageSection {
 				];
 				
 				if(empty($id)) { // New
+					// The `cerb.` namespace is reserved
+					if(
+						DevblocksPlatform::strStartsWith(DevblocksPlatform::strLower($name), 'cerb.')
+						&& !DEVELOPMENT_MODE
+					) {
+						$error = 'The `cerb.` namespace is reserved. Use your own prefix for `Name:`';
+						throw new Exception_DevblocksAjaxValidationError($error);
+					}
+					
 					$fields[DAO_Metric::CREATED_AT] = time();
 					
 					if(!DAO_Metric::validate($fields, $error))
@@ -105,6 +123,15 @@ class PageSection_ProfilesMetric extends Extension_PageSection {
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_METRIC, $id);
 					
 				} else { // Edit
+					// The `cerb.` namespace is reserved
+					if(
+						DevblocksPlatform::strStartsWith(DevblocksPlatform::strLower($name), 'cerb.')
+						&& !DEVELOPMENT_MODE
+					) {
+						$error = 'The `cerb.` namespace is managed automatically. Clone this metric to modify it.';
+						throw new Exception_DevblocksAjaxValidationError($error);
+					}
+					
 					if(!DAO_Metric::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
