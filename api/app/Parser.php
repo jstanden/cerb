@@ -1837,33 +1837,9 @@ class CerberusParser {
 	}
 	
 	static function convertEncoding($text, $charset=null) {
-		$has_iconv = extension_loaded('iconv') ? true : false;
-		$charset = DevblocksPlatform::strLower($charset);
+		$has_iconv = extension_loaded('iconv');
 		
-		// Otherwise, fall back to mbstring's auto-detection
-		mb_detect_order('iso-2022-jp-ms, iso-2022-jp, utf-8, iso-8859-1, windows-1252');
-		
-		// Normalize charsets
-		switch($charset) {
-			case 'us-ascii':
-				$charset = 'ascii';
-				break;
-				
-			case 'win-1252':
-				$charset = 'windows-1252';
-				break;
-				
-			case 'ks_c_5601-1987':
-			case 'ks_c_5601-1992':
-			case 'ks_c_5601-1998':
-			case 'ks_c_5601-2002':
-				$charset = 'cp949';
-				break;
-				
-			case NULL:
-				$charset = mb_detect_encoding($text);
-				break;
-		}
+		$charset = DevblocksPlatform::services()->string()->detectEncoding($text, $charset);
 		
 		// If we're starting with Windows-1252, convert some special characters
 		if(0 == strcasecmp($charset, 'windows-1252')) {

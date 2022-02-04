@@ -253,6 +253,37 @@ class _DevblocksStringService {
 		}
 	}
 	
+	function detectEncoding($text, $charset=null) {
+		$charset = DevblocksPlatform::strLower($charset);
+		
+		// Otherwise, fall back to mbstring's auto-detection
+		mb_detect_order('iso-2022-jp-ms, iso-2022-jp, utf-8, iso-8859-1, windows-1252');
+		
+		// Normalize charsets
+		switch($charset) {
+			case 'us-ascii':
+				$charset = 'ascii';
+				break;
+			
+			case 'win-1252':
+				$charset = 'windows-1252';
+				break;
+			
+			case 'ks_c_5601-1987':
+			case 'ks_c_5601-1992':
+			case 'ks_c_5601-1998':
+			case 'ks_c_5601-2002':
+				$charset = 'cp949';
+				break;
+			
+			case NULL:
+				$charset = mb_detect_encoding($text);
+				break;
+		}
+		
+		return $charset;
+	}
+	
 	function htmlToText($str, $truncate=50000) {
 		$dom = new DOMDocument('1.0', LANG_CHARSET_CODE);
 		$dom->preserveWhiteSpace = false;
