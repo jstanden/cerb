@@ -365,6 +365,15 @@ $db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, dimens
 	time()
 ));
 
+$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, dimensions_kata, created_at, updated_at) ".
+	"VALUES (%s, %s, %s, %d, %d)",
+	$db->qstr('cerb.tickets.open.elapsed'),
+	$db->qstr('Time elapsed in the open status for tickets by group and bucket'),
+	$db->qstr("record/group_id:\n  record_type: group\nrecord/bucket_id:\n  record_type: bucket"),
+	time(),
+	time()
+));
+
 // ===========================================================================
 // Migrate `snippet_use_history` to metric
 

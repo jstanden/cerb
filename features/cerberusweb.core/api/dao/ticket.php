@@ -1349,6 +1349,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	}
 	
 	static function processUpdateEvents($ids, $change_fields) {
+		$metrics = DevblocksPlatform::services()->metrics();
 
 		// We only care about these fields, so abort if they aren't referenced
 
@@ -1372,11 +1373,11 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		if(false == ($models = DAO_Ticket::getIds($ids)))
 			return;
 		
-		foreach($models as $id => $model) {
+		foreach($models as $id => $model) { /* @var $model Model_Ticket */
 			if(!isset($before_models[$id]))
 				continue;
 			
-			$before_model = (object) $before_models[$id];
+			$before_model = (object) $before_models[$id]; /* @var $before_model Model_Ticket */
 			
 			/*
 			 * Owner changed
@@ -1463,6 +1464,17 @@ class DAO_Ticket extends Cerb_ORMHelper {
 						Model_Ticket::STATUS_OPEN == $model->status_id
 						&& Model_Ticket::STATUS_OPEN == $before_model->status_id
 					) {
+						if($before_model->last_opened_delta) {
+							$metrics->increment(
+								'cerb.tickets.open.elapsed',
+								time() - $before_model->last_opened_delta,
+								[
+									'group_id' => $before_model->group_id,
+									'bucket_id' => $before_model->bucket_id,
+								]
+							);
+						}
+						
 						// Reset the last opened metric for the new group/bucket
 						$model->last_opened_delta = time();
 						
@@ -1549,6 +1561,22 @@ class DAO_Ticket extends Cerb_ORMHelper {
 							DAO_Ticket::LAST_OPENED_DELTA => $model->last_opened_delta,
 						],
 						false
+					);
+				}
+				
+				// If the ticket is transitioning from open to non-open
+				if(
+					Model_Ticket::STATUS_OPEN == $before_model->status_id
+					&& Model_Ticket::STATUS_OPEN != $model->status_id
+					&& $before_model->last_opened_delta
+				) {
+					$metrics->increment(
+						'cerb.tickets.open.elapsed',
+						time() - $before_model->last_opened_delta,
+						[
+							'group_id' => $before_model->group_id,
+							'bucket_id' => $before_model->bucket_id,
+						]
 					);
 				}
 				
