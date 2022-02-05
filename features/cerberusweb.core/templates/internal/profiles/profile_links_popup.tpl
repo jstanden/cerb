@@ -20,7 +20,7 @@ $(function() {
 			var $worklist_actions = $popup.find('#{$view->id}_actions');
 			
 			$worklist.css('background','none');
-			$worklist.css('background-color','var(--cerb-color-background-contrast-100)');
+			$worklist.css('background-color','var(--cerb-color-table-header-background-alt)');
 			
 			var $button = $('<button type="button" />')
 				.text('Unlink')

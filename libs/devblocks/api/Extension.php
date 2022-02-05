@@ -4698,16 +4698,16 @@ class _DevblocksSortHelper {
 				if(!isset($a_test[$prop]) && !isset($b_test[$prop]))
 					return 0;
 
-				@$a_test = $a_test[$prop];
-				@$b_test = $b_test[$prop];
+				$a_test = $a_test[$prop] ?? null;
+				$b_test = $b_test[$prop] ?? null;
 
 			} else {
 				if(!isset($a_test->$prop) && !isset($b_test->$prop)) {
 					return 0;
 				}
 
-				@$a_test = $a_test->$prop;
-				@$b_test = $b_test->$prop;
+				$a_test = $a_test->$prop ?? null;
+				$b_test = $b_test->$prop ?? null;
 			}
 		}
 

@@ -613,7 +613,7 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 				if (empty($series_label))
 					$series_label[] = $metric->name;
 				
-				$series_label = implode(' | ', $series_label);
+				$series_label = implode(' :: ', $series_label);
 				
 				if (!array_key_exists($series_label, $results))
 					$results[$series_label] = array_fill_keys($chart_model['xaxis'], null);

@@ -25,17 +25,12 @@ function parse_bytes_string($string) {
 			default:
 			case 'm':
 				return $value * 1048576; // 1024^2
-				break;
 			case 'g':
 				return $value * 1073741824; // 1024^3
-				break;
 			case 'k':
 				return $value * 1024; // 1024^1
-				break;
 		}
 	}
-	
-	return FALSE;
 }
 ?>
 
