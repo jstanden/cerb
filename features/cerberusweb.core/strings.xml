@@ -5072,6 +5072,11 @@ For example: *receipt*</seg>
 				<seg>Worker replied</seg>
 			</tuv>
 		</tu>
+		<tu tuid="ticket.last_opened_at">
+			<tuv xml:lang="en_US">
+				<seg>Last Opened At</seg>
+			</tuv>
+		</tu>
 		<tu tuid="ticket.last_wrote">
 			<tuv xml:lang="en_US">
 				<seg>Last Wrote</seg>

@@ -29,6 +29,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	const IMPORTANCE = 'importance';
 	const INTERESTING_WORDS = 'interesting_words';
 	const LAST_MESSAGE_ID = 'last_message_id';
+	const LAST_OPENED_AT = 'last_opened_at';
 	const LAST_OPENED_DELTA = 'last_opened_delta';
 	const LAST_WROTE_ID = 'last_wrote_address_id';
 	const MASK = 'mask';
@@ -119,6 +120,10 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			->id()
 			->setEditable(false)
 			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_MESSAGE))
+			;
+		$validation
+			->addField(self::LAST_OPENED_AT)
+			->timestamp()
 			;
 		$validation
 			->addField(self::LAST_OPENED_DELTA)
@@ -745,6 +750,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			DAO_Ticket::FIRST_MESSAGE_ID => 0,
 			DAO_Ticket::FIRST_WROTE_ID => 0,
 			DAO_Ticket::LAST_MESSAGE_ID => 0,
+			DAO_Ticket::LAST_OPENED_AT => 0,
 			DAO_Ticket::LAST_OPENED_DELTA => time(),
 			DAO_Ticket::LAST_WROTE_ID => 0,
 			DAO_Ticket::FIRST_OUTGOING_MESSAGE_ID => 0,
@@ -779,6 +785,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		if(Model_Ticket::STATUS_OPEN == $ticket->status_id) {
 			$sql = sprintf("SELECT MAX(created) FROM context_activity_log WHERE activity_point IN ('ticket.status.open','ticket.moved') AND target_context = 'cerberusweb.contexts.ticket' AND target_context_id = %d", $id);
 			$opened_delta = intval($db->GetOneMaster($sql));
+			$fields[DAO_Ticket::LAST_OPENED_AT] = $opened_delta;
 			$fields[DAO_Ticket::LAST_OPENED_DELTA] = $opened_delta;
 		}
 
@@ -828,7 +835,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		$sql = "SELECT id , mask, subject, status_id, group_id, bucket_id, org_id, owner_id, importance, first_message_id, first_outgoing_message_id, last_message_id, ".
 			"first_wrote_address_id, last_wrote_address_id, created_date, updated_date, closed_at, reopen_at, spam_training, ".
 			"spam_score, interesting_words, num_messages, num_messages_in, num_messages_out, elapsed_response_first, elapsed_resolution_first, ".
- 			"last_opened_delta ".
+ 			"last_opened_at, last_opened_delta ".
 			"FROM ticket ".
 			$where_sql.
 			$sort_sql.
@@ -857,6 +864,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			$object->first_message_id = intval($row['first_message_id']);
 			$object->first_outgoing_message_id = intval($row['first_outgoing_message_id']);
 			$object->last_message_id = intval($row['last_message_id']);
+			$object->last_opened_at = intval($row['last_opened_at']);
 			$object->last_opened_delta = intval($row['last_opened_delta']);
 			$object->group_id = intval($row['group_id']);
 			$object->bucket_id = intval($row['bucket_id']);
@@ -1553,11 +1561,13 @@ class DAO_Ticket extends Cerb_ORMHelper {
 					$status_to = 'open';
 					$activity_point = 'ticket.status.open';
 					
+					$model->last_opened_at = time();
 					$model->last_opened_delta = time();
 					
 					DAO_Ticket::update(
 						$model->id,
 						[
+							DAO_Ticket::LAST_OPENED_AT => $model->last_opened_at,
 							DAO_Ticket::LAST_OPENED_DELTA => $model->last_opened_delta,
 						],
 						false
@@ -1909,6 +1919,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			"t.first_message_id as %s, ".
 			"t.first_outgoing_message_id as %s, ".
 			"t.last_message_id as %s, ".
+			"t.last_opened_at as %s, ".
 			"t.created_date as %s, ".
 			"t.updated_date as %s, ".
 			"t.closed_at as %s, ".
@@ -1934,6 +1945,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				SearchFields_Ticket::TICKET_FIRST_MESSAGE_ID,
 				SearchFields_Ticket::TICKET_FIRST_OUTGOING_MESSAGE_ID,
 				SearchFields_Ticket::TICKET_LAST_MESSAGE_ID,
+				SearchFields_Ticket::TICKET_LAST_OPENED_AT,
 				SearchFields_Ticket::TICKET_CREATED_DATE,
 				SearchFields_Ticket::TICKET_UPDATED_DATE,
 				SearchFields_Ticket::TICKET_CLOSED_AT,
@@ -2068,6 +2080,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				DAO_Ticket::FIRST_MESSAGE_ID => 0,
 				DAO_Ticket::FIRST_OUTGOING_MESSAGE_ID => 0,
 				DAO_Ticket::LAST_MESSAGE_ID => 0,
+				DAO_Ticket::LAST_OPENED_AT => 0,
 				DAO_Ticket::LAST_OPENED_DELTA => 0,
 				DAO_Ticket::NUM_MESSAGES => 0,
 				DAO_Ticket::NUM_MESSAGES_IN => 0,
@@ -2276,6 +2289,7 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 	const TICKET_FIRST_MESSAGE_ID = 't_first_message_id';
 	const TICKET_FIRST_OUTGOING_MESSAGE_ID = 't_first_outgoing_message_id';
 	const TICKET_LAST_MESSAGE_ID = 't_last_message_id';
+	const TICKET_LAST_OPENED_AT = 't_last_opened_at';
 	const TICKET_FIRST_WROTE_ID = 't_first_wrote_address_id';
 	const TICKET_LAST_WROTE_ID = 't_last_wrote_address_id';
 	const TICKET_CREATED_DATE = 't_created_date';
@@ -2701,6 +2715,7 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 			SearchFields_Ticket::TICKET_FIRST_MESSAGE_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_FIRST_MESSAGE_ID, 't', 'first_message_id', null, null, true),
 			SearchFields_Ticket::TICKET_FIRST_OUTGOING_MESSAGE_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_FIRST_OUTGOING_MESSAGE_ID, 't', 'first_outgoing_message_id', null, null, true),
 			SearchFields_Ticket::TICKET_LAST_MESSAGE_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_LAST_MESSAGE_ID, 't', 'last_message_id', null, null, true),
+			SearchFields_Ticket::TICKET_LAST_OPENED_AT => new DevblocksSearchField(SearchFields_Ticket::TICKET_LAST_OPENED_AT, 't', 'last_opened_at', $translate->_('ticket.last_opened_at'), Model_CustomField::TYPE_DATE, true),
 			
 			SearchFields_Ticket::TICKET_FIRST_WROTE_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_FIRST_WROTE_ID, 't', 'first_wrote_address_id', $translate->_('ticket.first_wrote'), Model_CustomField::TYPE_NUMBER, true),
 			SearchFields_Ticket::TICKET_LAST_WROTE_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_LAST_WROTE_ID, 't', 'last_wrote_address_id', $translate->_('ticket.last_wrote'), Model_CustomField::TYPE_NUMBER, true),
@@ -2796,6 +2811,7 @@ class Model_Ticket {
 	public $first_message_id;
 	public $first_outgoing_message_id;
 	public $last_message_id;
+	public $last_opened_at;
 	public $last_opened_delta;
 	public $first_wrote_address_id;
 	public $last_wrote_address_id;
@@ -3568,6 +3584,14 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER),
+				),
+			'lastOpenedAt' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_DATE,
+					'options' => [
+						'param_key' => SearchFields_Ticket::TICKET_LAST_OPENED_AT,
+						'select_key' => 't.last_opened_at',
+					],
 				),
 			'mask' =>
 				array(
@@ -4664,6 +4688,12 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			'value' => $model->getStatusText(),
 		];
 		
+		$properties['last_opened_at'] = [
+			'label' => mb_ucfirst($translate->_('ticket.last_opened_at')),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->last_opened_at,
+		];
+		
 		$properties['mask'] = [
 			'label' => mb_ucfirst($translate->_('ticket.mask')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -4983,6 +5013,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			$token_values['elapsed_resolution_first'] = $ticket->elapsed_resolution_first;
 			$token_values['id'] = $ticket->id;
 			$token_values['importance'] = $ticket->importance;
+			$token_values['last_opened_at'] = $ticket->last_opened_at;
 			$token_values['mask'] = $ticket->mask;
 			$token_values['num_messages'] = $ticket->num_messages;
 			$token_values['num_messages_in'] = $ticket->num_messages_in;

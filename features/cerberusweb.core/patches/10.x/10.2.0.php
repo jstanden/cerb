@@ -716,7 +716,7 @@ if(!$logo_id && file_exists(APP_STORAGE_PATH . '/logo')) {
 }
 
 // ===========================================================================
-// Add `last_opened_delta` to ticket
+// Add `last_opened_at` and `last_opened_delta` to ticket
 
 if(!isset($tables['ticket']))
 	return FALSE;
@@ -725,19 +725,27 @@ list($columns,) = $db->metaTable('ticket');
 
 $changes = [];
 
+if(!array_key_exists('last_opened_at', $columns)) {
+	$changes[] = 'ADD COLUMN last_opened_at INT UNSIGNED NOT NULL DEFAULT 0';
+	$changes[] = 'ADD INDEX last_opened_and_status (last_opened_at,status_id)';
+}
+
 if(!array_key_exists('last_opened_delta', $columns)) {
 	$changes[] = 'ADD COLUMN last_opened_delta INT UNSIGNED NOT NULL DEFAULT 0';
 }
 
 if($changes) {
-	$db->ExecuteMaster("ALTER TABLE ticket %s " . implode(', ', $changes));
+	$db->ExecuteMaster("ALTER TABLE ticket " . implode(', ', $changes));
 	
 	// Prime the last_opened_delta field for all open tickets
-	if(!array_key_exists('last_opened_delta', $columns)) {
-		$db->ExecuteMaster("create temporary table _tmp_ticket_last_opened select ticket.id as ticket_id,ifnull((select max(created) from context_activity_log where activity_point in ('ticket.status.open','ticket.moved') and target_context = 'cerberusweb.contexts.ticket' and target_context_id=ticket.id),0) as created from ticket where status_id = 0");
+	if(
+		!array_key_exists('last_opened_at', $columns)
+		|| !array_key_exists('last_opened_delta', $columns)
+	) {
+		$db->ExecuteMaster("update ticket set last_opened_at=created_date, last_opened_delta=created_date where status_id=0");
+		$db->ExecuteMaster("create temporary table _tmp_ticket_last_opened select ticket.id as ticket_id,ifnull((select max(created) from context_activity_log where activity_point in ('ticket.status.open','ticket.moved') and target_context = 'cerberusweb.contexts.ticket' and target_context_id=ticket.id),created_date) as created from ticket where status_id = 0");
 		$db->ExecuteMaster("alter table _tmp_ticket_last_opened add primary key (ticket_id)");
-		$db->ExecuteMaster("update ticket inner join _tmp_ticket_last_opened lo on (lo.ticket_id=ticket.id) set last_opened_delta=lo.created");
-		$db->ExecuteMaster("update ticket set last_opened_delta=created_date where status_id=0 and last_opened_delta=0");
+		$db->ExecuteMaster("update ticket inner join _tmp_ticket_last_opened lo on (lo.ticket_id=ticket.id) set last_opened_delta=lo.created, last_opened_at=lo.created");
 		$db->ExecuteMaster("drop table _tmp_ticket_last_opened");
 	}
 }
