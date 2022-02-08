@@ -45,7 +45,9 @@ class CardWidget_ChartTimeSeries extends Extension_CardWidget {
 		
 		$error = null;
 		
-		if(false === ($results = $data->executeQuery($query, [], $error))) {
+		$bindings = $dict->getDictionary();
+		
+		if(false === ($results = $data->executeQuery($query, $bindings, $error))) {
 			echo DevblocksPlatform::strEscapeHtml($error);
 			return;
 		}
