@@ -2139,6 +2139,7 @@ class CerberusContexts {
 	}
 
 	static function getModels($context, array $ids) {
+		$context = trim($context);
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer', []);
 
 		$models = [];

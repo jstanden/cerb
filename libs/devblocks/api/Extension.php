@@ -456,6 +456,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	 * @return Extension_DevblocksContext|DevblocksExtensionManifest
 	 */
 	public static function getByAlias($alias, $as_instance=false) {
+		$alias = trim($alias);
 		$aliases = self::getAliasesForAllContexts();
 		
 		// First, try the fully-qualified ID
