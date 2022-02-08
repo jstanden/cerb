@@ -8519,6 +8519,16 @@
 		</extension>
 		
 		<extension point="cerberusweb.cron">
+			<id>cron.migrations</id>
+			<name>Migrations</name>
+			<class>
+				<file>api/crons/migrations.php</file>
+				<name>Cron_Migrations</name>
+			</class>
+			<params />
+		</extension>
+		
+		<extension point="cerberusweb.cron">
 			<id>cron.heartbeat</id>
 			<name>Heartbeat</name>
 			<class>

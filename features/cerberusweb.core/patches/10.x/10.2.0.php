@@ -45,6 +45,21 @@ if(!isset($tables['queue_message'])) {
 }
 
 // ===========================================================================
+// Add new queues
+
+if(!$db->GetOneMaster("SELECT 1 FROM queue WHERE name = 'cerb.update.migrations'")) {
+	// Configure the scheduler job
+	$db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.migrations', 'enabled', '1')");
+	$db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.migrations', 'duration', '5')");
+	$db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.migrations', 'term', 'm')");
+	$db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.migrations', 'lastrun', '0')");
+	$db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.migrations', 'locked', '0')");
+	
+	// Add default queues
+	$db->ExecuteWriter("INSERT IGNORE INTO queue (name, created_at, updated_at) VALUES ('cerb.update.migrations', UNIX_TIMESTAMP(), UNIX_TIMESTAMP())");
+}
+
+// ===========================================================================
 // Add new automation events
 
 if(!$db->GetOneMaster("SELECT 1 FROM automation_event WHERE name = 'worker.authenticated'")) {
