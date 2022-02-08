@@ -1218,6 +1218,8 @@ class CerberusParser {
 				
 				if(null != ($subject = $result->getKeyPath('__return.set.email_subject'))) {
 					$model->setSubject($subject);
+					$model->getMessage()->headers['subject'] = $subject;
+					$model->updateThreadHeaders();
 				}
 				
 				if(null != ($body = $result->getKeyPath('__return.set.email_body'))) {
@@ -1238,6 +1240,7 @@ class CerberusParser {
 						
 						$model->getMessage()->raw_headers = '';
 						$model->getMessage()->build();
+						$model->updateThreadHeaders();
 					}
 				}
 				
