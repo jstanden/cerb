@@ -150,7 +150,7 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 					'metric' => '',
 					'by' => [],
 					'query' => [],
-					'missing' => 'null',
+					'missing' => null,
 					'function' => 'count',
 				];
 				
@@ -633,6 +633,10 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 			$series_label = ($series_model['label'] ?? null) ?: $metric->name;
 			$results[$series_label] = array_fill_keys($chart_model['xaxis'], null);
 		}
+		
+		// Gauges carry missing data by default
+		if(!$series_model['missing'] && 'gauge' == $metric->type)
+			$series_model['missing'] = 'carry';
 		
 		foreach($results as $series_label => $data) {
 			// Convert back to sequential indexes
