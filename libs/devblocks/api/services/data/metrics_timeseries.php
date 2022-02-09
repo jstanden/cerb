@@ -482,23 +482,46 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 			'%s'
 		);
 		
-		if(in_array($func, ['avg', 'average'])) {
-			$sql_select_func = 'SUM(sum/samples)';
+		// Metric types
+		if('gauge' == $metric->type) {
+			if(in_array($func, ['avg', 'average'])) {
+			$sql_select_func = 'SUM(sum/samples)';				
+				
+			} else if(in_array($func, ['sum', 'total'])) {
+				$sql_select_func = 'SUM(sum)';
+				
+			} else if($func == 'min') {
+				$sql_select_func = 'SUM(min)';
+				
+			} else if($func == 'max') {
+				$sql_select_func = 'SUM(max)';
+				
+			} else if(in_array($func, ['count', 'samples'])) {
+				$sql_select_func = 'SUM(samples)';
+				
+			} else {
+				return [];
+			}
 			
-		} else if(in_array($func, ['sum', 'total'])) {
-			$sql_select_func = 'SUM(sum)';
-			
-		} else if($func == 'min') {
-			$sql_select_func = 'MIN(min)';
-			
-		} else if($func == 'max') {
-			$sql_select_func = 'MAX(max)';
-			
-		} else if(in_array($func, ['count', 'samples'])) {
-			$sql_select_func = 'SUM(samples)';
-			
-		} else {
-			return [];
+		} else { // Counter
+			if(in_array($func, ['avg', 'average'])) {
+				$sql_select_func = 'AVG(sum/samples)';
+				
+			} else if(in_array($func, ['sum', 'total'])) {
+				$sql_select_func = 'SUM(sum)';
+				
+			} else if($func == 'min') {
+				$sql_select_func = 'MIN(min)';
+				
+			} else if($func == 'max') {
+				$sql_select_func = 'MAX(max)';
+				
+			} else if(in_array($func, ['count', 'samples'])) {
+				$sql_select_func = 'SUM(samples)';
+				
+			} else {
+				return [];
+			}
 		}
 		
 		if(array_key_exists('by', $series_model) && $series_model['by']) {
