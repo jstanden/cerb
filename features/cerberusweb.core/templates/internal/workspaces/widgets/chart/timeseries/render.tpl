@@ -77,10 +77,12 @@ $(function() {
 				});
 			
 				var format_seconds = function(secs) {
+					secs = parseInt(secs);
 					return shortEnglishHumanizer(secs * 1000, { largest:2 });
 				};
 				
 				var format_minutes = function(minutes) {
+					minutes = parseInt(minutes);
 					return shortEnglishHumanizer(minutes * 60 * 1000, { largest:2 });
 				};
 			{/if}
