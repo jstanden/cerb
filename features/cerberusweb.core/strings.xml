@@ -5037,6 +5037,11 @@ For example: *receipt*</seg>
 				<seg>First Resolution</seg>
 			</tuv>
 		</tu>
+		<tu tuid="ticket.elapsed_status_open">
+			<tuv xml:lang="en_US">
+				<seg>Time Spent Open</seg>
+			</tuv>
+		</tu>
 		<tu tuid="ticket.first_wrote">
 			<tuv xml:lang="en_US">
 				<seg>First Wrote</seg>
