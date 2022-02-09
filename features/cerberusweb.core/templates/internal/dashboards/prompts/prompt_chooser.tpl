@@ -13,7 +13,15 @@
 			
 			<ul class="bubbles chooser-container">
 				{if $prompt_value}
-					{$context_ids = explode(',', $prompt_value)}
+					{if is_array($prompt_value)}
+						{$context_ids = $prompt_value}
+						{$prompt_value = implode(',', $prompt_value)}
+					{elseif is_string($prompt_value)}
+						{$context_ids = explode(',', $prompt_value)}
+					{else}
+						{$context_ids = []}
+						{$prompt_value = ''}
+					{/if}
 					{$models = CerberusContexts::getModels($context_mft->id, $context_ids)}
 					{$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $context_mft->id)}
 					

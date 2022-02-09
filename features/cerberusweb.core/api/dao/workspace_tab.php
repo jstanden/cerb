@@ -676,7 +676,7 @@ class Model_WorkspaceTab {
 					break;
 					
 				case 'date_range':
-					$prefs[$pref_key] = $pref_value;
+					$prefs[$pref_key] = strval($pref_value);
 					
 					list($date_from, $date_to) = array_pad(explode(' to ', $pref_value), 2, '');
 					
@@ -687,6 +687,11 @@ class Model_WorkspaceTab {
 				case 'chooser':
 				case 'text':
 				default:
+					if(is_array($pref_value))
+						$pref_value = implode(',', $pref_value);
+					
+					$pref_value = strval($pref_value);
+					
 					$prefs[$pref_key] = $pref_value;
 					break;
 			}
