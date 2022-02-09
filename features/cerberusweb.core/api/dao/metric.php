@@ -2,6 +2,7 @@
 class DAO_Metric extends Cerb_ORMHelper {
 	const ID = 'id';
 	const NAME = 'name';
+	const TYPE = 'type';
 	const DESCRIPTION = 'description';
 	const DIMENSIONS_KATA = 'dimensions_kata';
 	const CREATED_AT = 'created_at';
@@ -50,6 +51,14 @@ class DAO_Metric extends Cerb_ORMHelper {
 			->addField(self::DIMENSIONS_KATA)
 			->string()
 			->setMaxLength(65_536)
+		;
+		$validation
+			->addField(self::TYPE)
+			->string()
+			->setPossibleValues([
+				'counter',
+				'gauge'
+			])
 		;
 		$validation
 			->addField(self::UPDATED_AT)
@@ -172,7 +181,7 @@ class DAO_Metric extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, description, dimensions_kata, created_at, updated_at ".
+		$sql = "SELECT id, name, description, type, dimensions_kata, created_at, updated_at ".
 			"FROM metric ".
 			$where_sql.
 			$sort_sql.
@@ -278,6 +287,7 @@ class DAO_Metric extends Cerb_ORMHelper {
 			$object->name = $row['name'];
 			$object->description = $row['description'];
 			$object->dimensions_kata = $row['dimensions_kata'];
+			$object->type = $row['type'];
 			$object->created_at = intval($row['created_at']);
 			$object->updated_at = intval($row['updated_at']);
 			$objects[$object->id] = $object;
@@ -335,11 +345,13 @@ class DAO_Metric extends Cerb_ORMHelper {
 			"metric.id as %s, ".
 			"metric.name as %s, ".
 			"metric.description as %s, ".
+			"metric.type as %s, ".
 			"metric.created_at as %s, ".
 			"metric.updated_at as %s ",
 			SearchFields_Metric::ID,
 			SearchFields_Metric::NAME,
 			SearchFields_Metric::DESCRIPTION,
+			SearchFields_Metric::TYPE,
 			SearchFields_Metric::CREATED_AT,
 			SearchFields_Metric::UPDATED_AT
 		);
@@ -399,6 +411,7 @@ class SearchFields_Metric extends DevblocksSearchFields {
 	const NAME = 'm_name';
 	const DESCRIPTION = 'm_description';
 	const DIMENSIONS_KATA = 'm_dimensions_kata';
+	const TYPE = 'm_type';
 	const CREATED_AT = 'm_created_at';
 	const UPDATED_AT = 'm_updated_at';
 	
@@ -477,6 +490,7 @@ class SearchFields_Metric extends DevblocksSearchFields {
 			self::DIMENSIONS_KATA => new DevblocksSearchField(self::DIMENSIONS_KATA, 'metric', 'dimensions_kata', $translate->_('dao.metric.dimensions'), null, true),
 			self::ID => new DevblocksSearchField(self::ID, 'metric', 'id', $translate->_('common.id'), null, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'metric', 'name', $translate->_('common.name'), null, true),
+			self::TYPE => new DevblocksSearchField(self::TYPE, 'metric', 'type', $translate->_('common.type'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'metric', 'updated_at', $translate->_('common.updated'), null, true),
 			
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
@@ -556,6 +570,7 @@ class Model_Metric {
 	public string $dimensions_kata = '';
 	public int $id = 0;
 	public string $name = '';
+	public string $type = '';
 	public int $updated_at = 0;
 	
 	private ?array $_dimensions = null;
@@ -617,6 +632,7 @@ class View_Metric extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		$this->view_columns = [
 			SearchFields_Metric::NAME,
 			SearchFields_Metric::DESCRIPTION,
+			SearchFields_Metric::TYPE,
 			SearchFields_Metric::UPDATED_AT,
 		];
 		
@@ -766,6 +782,11 @@ class View_Metric extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Metric::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
+			'type' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_Metric::TYPE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
 			'updated' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
@@ -870,6 +891,7 @@ class View_Metric extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Metric::DESCRIPTION:
 			case SearchFields_Metric::DIMENSIONS_KATA:
 			case SearchFields_Metric::NAME:
+			case SearchFields_Metric::TYPE:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 			
@@ -982,6 +1004,12 @@ class Context_Metric extends Extension_DevblocksContext implements IDevblocksCon
 			],
 		];
 		
+		$properties['type'] = [
+			'label' => DevblocksPlatform::translateCapitalized('common.type'),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->type,
+		];
+		
 		$properties['updated'] = [
 			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
 			'type' => Model_CustomField::TYPE_DATE,
@@ -1018,6 +1046,7 @@ class Context_Metric extends Extension_DevblocksContext implements IDevblocksCon
 	function getDefaultProperties() {
 		return array(
 			'description',
+			'type',
 			'created_at',
 			'updated_at',
 		);
@@ -1083,6 +1112,7 @@ class Context_Metric extends Extension_DevblocksContext implements IDevblocksCon
 			'dimensions_kata' => $prefix.$translate->_('dao.metric.dimensions_kata'),
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
+			'type' => $prefix.$translate->_('common.type'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
@@ -1095,6 +1125,7 @@ class Context_Metric extends Extension_DevblocksContext implements IDevblocksCon
 			'dimensions_kata' => Model_CustomField::TYPE_MULTI_LINE,
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
 			'record_url' => Model_CustomField::TYPE_URL,
 		);
@@ -1122,6 +1153,7 @@ class Context_Metric extends Extension_DevblocksContext implements IDevblocksCon
 			$token_values['dimensions_kata'] = $metric->dimensions_kata;
 			$token_values['id'] = $metric->id;
 			$token_values['name'] = $metric->name;
+			$token_values['type'] = $metric->type;
 			$token_values['updated_at'] = $metric->updated_at;
 			
 			// Custom fields
@@ -1143,6 +1175,7 @@ class Context_Metric extends Extension_DevblocksContext implements IDevblocksCon
 			'dimensions_kata' => DAO_Metric::DIMENSIONS_KATA,
 			'links' => '_links',
 			'name' => DAO_Metric::NAME,
+			'type' => DAO_Metric::TYPE,
 			'updated_at' => DAO_Metric::UPDATED_AT,
 		];
 	}

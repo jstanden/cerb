@@ -202,6 +202,7 @@ if(!isset($tables['metric'])) {
 		CREATE TABLE `metric` (
 		`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
 		`name` varchar(128) NOT NULL DEFAULT '',
+		`type` varchar(128) NOT NULL DEFAULT '',
 		`description` varchar(128) NOT NULL DEFAULT '',
 		`dimensions_kata` mediumtext,
 		`created_at` int(10) unsigned NOT NULL DEFAULT 0,
@@ -224,6 +225,16 @@ if(!isset($tables['metric'])) {
 	
 	// Add default queues
 	$db->ExecuteWriter("INSERT IGNORE INTO queue (name, created_at, updated_at) VALUES ('cerb.metrics.publish', UNIX_TIMESTAMP(), UNIX_TIMESTAMP())");
+	
+} else {
+	list($columns,) = $db->metaTable('metric');
+	
+	if(!array_key_exists('type', $columns)) {
+		$db->ExecuteMaster("ALTER TABLE metric ADD COLUMN type VARCHAR(128) NOT NULL DEFAULT ''");
+		
+		$db->ExecuteMaster("UPDATE metric SET type = 'gauge' WHERE name IN ('cerb.tickets.open','cerb.workers.active')");
+		$db->ExecuteMaster("UPDATE metric SET type = 'counter' WHERE type = ''");
+	}
 }
 
 // ===========================================================================
@@ -282,109 +293,121 @@ if(!isset($tables['metric_value'])) {
 // ===========================================================================
 // Add default metrics
 
-$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, dimensions_kata, created_at, updated_at) ".
-	"VALUES (%s, %s, %s, %d, %d)",
+$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, dimensions_kata, created_at, updated_at) ".
+	"VALUES (%s, %s, %s, %s, %d, %d)",
 	$db->qstr('cerb.automation.invocations'),
 	$db->qstr('Invocation count by automation and trigger'),
+	$db->qstr('counter'),
 	$db->qstr("record/automation_id:\n  record_type: automation\nextension/trigger:"),
 	time(),
 	time()
 ));
 
-$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, dimensions_kata, created_at, updated_at) ".
-	"VALUES (%s, %s, %s, %d, %d)",
+$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, dimensions_kata, created_at, updated_at) ".
+	"VALUES (%s, %s, %s, %s, %d, %d)",
 	$db->qstr('cerb.automation.duration'),
 	$db->qstr('Invocation duration by automation and trigger'),
+	$db->qstr('counter'),
 	$db->qstr("record/automation_id:\n  record_type: automation\nextension/trigger:"),
 	time(),
 	time()
 ));
 
-$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, dimensions_kata, created_at, updated_at) ".
-	"VALUES (%s, %s, %s, %d, %d)",
+$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, dimensions_kata, created_at, updated_at) ".
+	"VALUES (%s, %s, %s, %s, %d, %d)",
 	$db->qstr('cerb.webhook.invocations'),
 	$db->qstr('Invocation count by webhook and client IP'),
+	$db->qstr('counter'),
 	$db->qstr("record/webhook_id:\n  record_type: webhook_listener\ntext/client_ip:"),
 	time(),
 	time()
 ));
 
-$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, dimensions_kata, created_at, updated_at) ".
-	"VALUES (%s, %s, %s, %d, %d)",
+$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, dimensions_kata, created_at, updated_at) ".
+	"VALUES (%s, %s, %s, %s, %d, %d)",
 	$db->qstr('cerb.record.search'),
 	$db->qstr('Search popup count by record type and worker'),
+	$db->qstr('counter'),
 	$db->qstr("text/record_type:\nrecord/worker_id:\n  record_type: worker"),
 	time(),
 	time()
 ));
 
-$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, dimensions_kata, created_at, updated_at) ".
-	"VALUES (%s, %s, %s, %d, %d)",
+$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, dimensions_kata, created_at, updated_at) ".
+	"VALUES (%s, %s, %s, %s, %d, %d)",
 	$db->qstr('cerb.workers.active'),
 	$db->qstr('Seat usage by worker'),
+	$db->qstr('gauge'),
 	$db->qstr("record/worker_id:\n  record_type: worker"),
 	time(),
 	time()
 ));
 
-$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, dimensions_kata, created_at, updated_at) ".
-	"VALUES (%s, %s, %s, %d, %d)",
+$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, dimensions_kata, created_at, updated_at) ".
+	"VALUES (%s, %s, %s, %s, %d, %d)",
 	$db->qstr('cerb.tickets.open'),
 	$db->qstr('Open ticket counts over time by group and bucket'),
+	$db->qstr('gauge'),
 	$db->qstr("record/group_id:\n  record_type: group\nrecord/bucket_id:\n  record_type: bucket"),
 	time(),
 	time()
 ));
 
-$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, dimensions_kata, created_at, updated_at) ".
-	"VALUES (%s, %s, %s, %d, %d)",
+$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, dimensions_kata, created_at, updated_at) ".
+	"VALUES (%s, %s, %s, %s, %d, %d)",
 	$db->qstr('cerb.snippet.uses'),
 	$db->qstr('Snippet usage by worker over time'),
+	$db->qstr('counter'),
 	$db->qstr("record/snippet_id:\n  record_type: snippet\nrecord/worker_id:\n  record_type: worker"),
 	time(),
 	time()
 ));
 
-$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, dimensions_kata, created_at, updated_at) ".
-	"VALUES (%s, %s, %s, %d, %d)",
+$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, dimensions_kata, created_at, updated_at) ".
+	"VALUES (%s, %s, %s, %s, %d, %d)",
 	$db->qstr('cerb.behavior.invocations'),
 	$db->qstr('Invocation count by behavior and event'),
+	$db->qstr('counter'),
 	$db->qstr("record/behavior_id:\n  record_type: behavior\nextension/event:"),
 	time(),
 	time()
 ));
 
-$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, dimensions_kata, created_at, updated_at) ".
-	"VALUES (%s, %s, %s, %d, %d)",
+$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, dimensions_kata, created_at, updated_at) ".
+	"VALUES (%s, %s, %s, %s, %d, %d)",
 	$db->qstr('cerb.behavior.duration'),
 	$db->qstr('Invocation duration by behavior and event'),
+	$db->qstr('counter'),
 	$db->qstr("record/behavior_id:\n  record_type: behavior\nextension/event:"),
 	time(),
 	time()
 ));
 
-$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, dimensions_kata, created_at, updated_at) ".
-	"VALUES (%s, %s, %s, %d, %d)",
+$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, dimensions_kata, created_at, updated_at) ".
+	"VALUES (%s, %s, %s, %s, %d, %d)",
 	$db->qstr('cerb.mail.transport.deliveries'),
 	$db->qstr('Successful outbound mail deliveries by transport and sender email'),
+	$db->qstr('counter'),
 	$db->qstr("record/transport_id:\n  record_type: mail_transport\nrecord/sender_id:\n  record_type: address"),
 	time(),
 	time()
 ));
 
-$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, dimensions_kata, created_at, updated_at) ".
-	"VALUES (%s, %s, %s, %d, %d)",
+$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, dimensions_kata, created_at, updated_at) ".
+	"VALUES (%s, %s, %s, %s, %d, %d)",
 	$db->qstr('cerb.mail.transport.failures'),
 	$db->qstr('Unsuccessful outbound mail deliveries by transport and sender email'),
+	$db->qstr('counter'),
 	$db->qstr("record/transport_id:\n  record_type: mail_transport\nrecord/sender_id:\n  record_type: address"),
 	time(),
 	time()
 ));
 
-$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, dimensions_kata, created_at, updated_at) ".
-	"VALUES (%s, %s, %s, %d, %d)",
+$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, dimensions_kata, created_at, updated_at) ".
+	"VALUES (%s, %s, %s, %s, %d, %d)",
 	$db->qstr('cerb.tickets.open.elapsed'),
 	$db->qstr('Time elapsed in the open status for tickets by group and bucket'),
+	$db->qstr('counter'),
 	$db->qstr("record/group_id:\n  record_type: group\nrecord/bucket_id:\n  record_type: bucket"),
 	time(),
 	time()

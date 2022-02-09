@@ -26,6 +26,18 @@
             </td>
         </tr>
 
+        <tr>
+            <td width="1%" nowrap="nowrap"><b>{'common.type'|devblocks_translate|capitalize}:</b></td>
+            <td width="99%">
+                <label>
+                    <input type="radio" name="type" value="counter" {if !$model->type || 'counter' == $model->type}checked="checked"{/if}> Counter
+                </label>
+                <label>
+                    <input type="radio" name="type" value="gauge" {if 'gauge' == $model->type}checked="checked"{/if}> Gauge
+                </label>
+            </td>
+        </tr>
+
         {if !empty($custom_fields)}
             {include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
         {/if}

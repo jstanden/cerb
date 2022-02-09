@@ -88,6 +88,7 @@ class PageSection_ProfilesMetric extends Extension_PageSection {
 				$description = DevblocksPlatform::importGPC($_POST['description'] ?? null, 'string', '');
 				$dimensions_kata = DevblocksPlatform::importGPC($_POST['dimensions_kata'] ?? null, 'string', '');
 				$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');
+				$type = DevblocksPlatform::importGPC($_POST['type'] ?? null, 'string', '');
 				
 				$error = null;
 				
@@ -95,6 +96,7 @@ class PageSection_ProfilesMetric extends Extension_PageSection {
 					DAO_Metric::DESCRIPTION => $description,
 					DAO_Metric::DIMENSIONS_KATA => $dimensions_kata,
 					DAO_Metric::NAME => $name,
+					DAO_Metric::TYPE => $type,
 					DAO_Metric::UPDATED_AT => time(),
 				];
 				
