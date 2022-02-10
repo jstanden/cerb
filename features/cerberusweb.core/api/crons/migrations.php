@@ -146,6 +146,7 @@ class Cron_Migrations extends CerberusCronPageExtension {
 					context_activity_log
 				WHERE
 					target_context = 'cerberusweb.contexts.ticket'
+					AND target_context_id  BETWEEN %d AND %d
 					AND activity_point IN (
 						'ticket.status.waiting',
 						'ticket.status.closed',
@@ -160,7 +161,7 @@ class Cron_Migrations extends CerberusCronPageExtension {
 			t.id BETWEEN %d AND %d
 		EOD;
 		
-		if(!$db->ExecuteMaster(sprintf($sql, $from_id, $to_id)))
+		if(!$db->ExecuteMaster(sprintf($sql, $from_id, $to_id, $from_id, $to_id)))
 			return false;
 		
 		/** @noinspection SqlResolve */
