@@ -135,7 +135,7 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		}
 		
 		if(empty($timestamp))
-			@$timestamp = strtotime($date_string);
+			$timestamp = DevblocksPlatform::services()->date()->parseDateString($date_string);
 		
 		if(empty($timestamp)) {
 			echo json_encode(false);
