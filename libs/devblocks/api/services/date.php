@@ -94,6 +94,36 @@ class _DevblocksDateManager {
 		return timezone_identifiers_list();
 	}
 	
+	// Handle strtotime idiosyncrasies
+	public function parseDateString($date_string, $now=null) {
+		$matches = [];
+		
+		if(is_null($now))
+			$now = time();
+		
+		$units_map = [
+			'd' => 'day',
+			'h' => 'hour',
+			'hr' => 'hour',
+			'hrs' => 'hour',
+			'm' => 'minute',
+			'mo' => 'month',
+		];
+		
+		// +1hr -> +1 hr
+		if(preg_match('#^([+-]?\d*)(\S*)$#', $date_string, $matches)) {
+			$step = $matches[1]; 
+			$unit = $matches[2];
+			
+			if(array_key_exists($unit, $units_map))
+				$unit = $units_map[$unit];
+			
+			$date_string = $step . ' ' . $unit;
+		}
+		
+		return strtotime($date_string, $now);
+	}
+	
 	/**
 	 * @param array $values
 	 * @return array|false

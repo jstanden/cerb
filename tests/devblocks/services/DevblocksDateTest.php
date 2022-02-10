@@ -6,6 +6,44 @@ class DevblocksDateTest extends TestCase {
 		parent::__construct($name, $data, $dataName);
 	}
 	
+	function testParseDateString() {
+		$date = DevblocksPlatform::services()->date();
+		
+		$now = time();
+		
+		// +5mins
+		$actual = $date->parseDateString('+5mins', $now);
+		$expected = strtotime('5 mins', $now);
+		$this->assertEquals($expected, $actual);
+		
+		// +1hr
+		$actual = $date->parseDateString('+1hr', $now);
+		$expected = strtotime('+1 hour', $now);
+		$this->assertEquals($expected, $actual);
+		
+		// 2h
+		$actual = $date->parseDateString('2h', $now);
+		$expected = strtotime('+2 hours', $now);
+		$this->assertEquals($expected, $actual);
+		
+		// -5d
+		$actual = $date->parseDateString('-5d', $now);
+		$expected = strtotime('-5 days', $now);
+		$this->assertEquals($expected, $actual);
+		
+		// +3mo
+		$actual = $date->parseDateString('+3mo', $now);
+		$expected = strtotime('+3 months', $now);
+		$this->assertEquals($expected, $actual);
+		
+		/*
+		// [TODO] Tues, Weds, Thur, Thurs
+		$actual = $date->parseDateString('Tues', $now);
+		$expected = strtotime('Tuesday', $now);
+		$this->assertEquals($expected, $actual);
+		*/
+	}
+	
 	function testParseDateRange() {
 		$date = DevblocksPlatform::services()->date();
 		
