@@ -142,7 +142,7 @@
 
 {include file="devblocks:cerberusweb.core::internal/cards/editors/comment.tpl"}
 
-<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+<button type="button" class="submit" {if $pref_keyboard_shortcuts}title="(Shift+Enter)"{/if}><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 
 </form>
 
@@ -166,6 +166,16 @@ $(function() {
 			if(keycode === 27)
 				return confirm('{'warning.core.editor.close'|devblocks_translate}');
 		});
+
+		{if $pref_keyboard_shortcuts}
+		$frm.keypress(function(e) {
+			if(e.shiftKey && 13 === e.which) {
+				e.preventDefault();
+				e.stopPropagation();
+				$popup.find('button.submit').focus();
+			}
+		});
+		{/if}
 		
 		// Abstract choosers
 		$popup.find('button.chooser-abstract').cerbChooserTrigger();
