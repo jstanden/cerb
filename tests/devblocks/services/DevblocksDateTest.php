@@ -425,7 +425,7 @@ class DevblocksDateTest extends TestCase {
 		
 		$this->assertEquals($expected, $actual);
 		
-		// Shortcuts
+		// Shortcuts (this month)
 		
 		$expected = [
 			strtotime('first day of this month 00:00:00'),
@@ -433,6 +433,60 @@ class DevblocksDateTest extends TestCase {
 		];
 		
 		$results = $date->parseDateRange('this month');
+		
+		$this->assertTrue(is_array($results));
+		
+		$actual = [
+			$results['from_ts'],
+			$results['to_ts'],
+		];
+		
+		$this->assertEquals($expected, $actual);
+		
+		// Shortcuts (last week)
+		
+		$expected = [
+			strtotime('Monday last week'),
+			strtotime('Monday last week +6 days 23:59:59')
+		];
+		
+		$results = $date->parseDateRange('last week');
+		
+		$this->assertTrue(is_array($results));
+		
+		$actual = [
+			$results['from_ts'],
+			$results['to_ts'],
+		];
+		
+		$this->assertEquals($expected, $actual);
+		
+		// Shortcuts (last month)
+		
+		$expected = [
+			strtotime('first day of last month 00:00:00'),
+			strtotime('last day of last month 23:59:59')
+		];
+		
+		$results = $date->parseDateRange('last month');
+		
+		$this->assertTrue(is_array($results));
+		
+		$actual = [
+			$results['from_ts'],
+			$results['to_ts'],
+		];
+		
+		$this->assertEquals($expected, $actual);
+		
+		// Shortcuts (last year)
+		
+		$expected = [
+			strtotime('Jan 1 -1 year 00:00:00'),
+			strtotime('Dec 31 -1 year 23:59:59')
+		];
+		
+		$results = $date->parseDateRange('last year');
 		
 		$this->assertTrue(is_array($results));
 		

@@ -208,6 +208,9 @@ class _DevblocksDateManager {
 			
 		} else if(is_string($value)) {
 			$shortcuts = [
+				'this year' => 'Jan 1 to Dec 31',
+				'next year' => 'Jan 1 +1 year to Dec 31 +1 year',
+				'last year' => 'Jan 1 -1 year to Dec 31 -1 year',
 				'this month' => 'first day of this month to last day of this month',
 				'next month' => 'first day of next month to last day of next month',
 				'last month' => 'first day of last month to last day of last month',
