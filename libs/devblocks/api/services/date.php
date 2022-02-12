@@ -225,6 +225,18 @@ class _DevblocksDateManager {
 		return false;
 	}
 	
+	public function isValidTimezoneLocation($timezone) {
+		$timezones = array_fill_keys(
+			array_map(fn($tz) => DevblocksPlatform::strLower($tz), $this->getTimezones()),
+			true,
+		);
+		
+		if(array_key_exists(DevblocksPlatform::strLower($timezone), $timezones))
+			return true;
+		
+		return false;
+	}
+	
 	// [TODO] Optional timezone override
 	public function parseDateRange($value) {
 		if(is_array($value)) {
