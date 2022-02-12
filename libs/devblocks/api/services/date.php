@@ -418,6 +418,31 @@ class _DevblocksDateManager {
 		}
 	}
 	
+	public function getTimezoneOffsetFromLocation($timezone) {
+		$timezones = array_fill_keys(
+			array_map(fn($tz) => DevblocksPlatform::strLower($tz), self::getTimezones()),
+			true
+		);
+		
+		if(!array_key_exists(DevblocksPlatform::strLower($timezone), $timezones))
+			return false;
+		
+		try {
+			if(false == ($tz = new DateTimeZone($timezone)))
+				return false;
+			
+			if(false == ($now = new DateTime('now', $tz)))
+				return false;
+			
+			$offset = $tz->getOffset($now);
+			
+			return ($offset < 0 ? '-' : '+') . gmdate('H:i', abs($offset));
+			
+		} catch (Exception $e) {
+			return false;
+		}
+	}
+	
 	public function parseTimezoneOffset(string $timezone, ?string &$error=null) {
 		if(!is_string($timezone)) {
 			$error = 'timezone must be a string';
