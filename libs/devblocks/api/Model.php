@@ -1738,10 +1738,16 @@ class DevblocksSearchCriteria {
 							$values = 'never';
 							
 						} else {
+							if(!strstr($token->value, ' to ')) {
+								if(false != ($shortcut = DevblocksPlatform::services()->date()->parseDateRangeShortcut($token->value))) {
+									$token->value = $shortcut;	
+								}
+							}
+						
 							$values = explode(' to ', DevblocksPlatform::strLower($token->value), 2);
-							
+						
 							if(1 == count($values))
-								$values[] = 'now';
+								$values[] = 'now';							
 						}
 				
 					return new DevblocksSearchCriteria(
@@ -1749,7 +1755,6 @@ class DevblocksSearchCriteria {
 						$oper,
 						$values
 					);
-					break;
 			}
 		}
 	}

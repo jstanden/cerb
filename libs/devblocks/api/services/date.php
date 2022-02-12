@@ -201,31 +201,39 @@ class _DevblocksDateManager {
 		];
 	}
 	
+	public function parseDateRangeShortcut($shortcut_key) {
+		$shortcuts = [
+			'this year' => 'Jan 1 to Dec 31',
+			'next year' => 'Jan 1 +1 year to Dec 31 +1 year',
+			'last year' => 'Jan 1 -1 year to Dec 31 -1 year',
+			'this month' => 'first day of this month to last day of this month',
+			'next month' => 'first day of next month to last day of next month',
+			'last month' => 'first day of last month to last day of last month',
+			'this week' => 'Monday this week to Monday this week +6 days',
+			'next week' => 'Monday next week to Monday next week +6 days',
+			'last week' => 'Monday last week to Monday last week +6 days',
+			'today' => 'today 00:00:00 to today 23:59:59',
+			'yesterday' => 'yesterday 00:00:00 to yesterday 23:59:59',
+			'tomorrow' => 'tomorrow 00:00:00 to tomorrow 23:59:59',
+		];
+		
+		$shortcut_key = DevblocksPlatform::strLower($shortcut_key);
+		
+		if(array_key_exists($shortcut_key, $shortcuts))
+			return $shortcuts[$shortcut_key];
+		
+		return false;
+	}
+	
 	// [TODO] Optional timezone override
 	public function parseDateRange($value) {
 		if(is_array($value)) {
 			return $this->_parseDateRangeArray($value);
 			
 		} else if(is_string($value)) {
-			$shortcuts = [
-				'this year' => 'Jan 1 to Dec 31',
-				'next year' => 'Jan 1 +1 year to Dec 31 +1 year',
-				'last year' => 'Jan 1 -1 year to Dec 31 -1 year',
-				'this month' => 'first day of this month to last day of this month',
-				'next month' => 'first day of next month to last day of next month',
-				'last month' => 'first day of last month to last day of last month',
-				'this week' => 'Monday this week to Monday this week +6 days',
-				'next week' => 'Monday next week to Monday next week +6 days',
-				'last week' => 'Monday last week to Monday last week +6 days',
-				'today' => 'today 00:00:00 to today 23:59:59',
-				'yesterday' => 'yesterday 00:00:00 to yesterday 23:59:59',
-				'tomorrow' => 'tomorrow 00:00:00 to tomorrow 23:59:59',
-			];
-			
-			$shortcut_key = DevblocksPlatform::strLower($value);
-			
-			if(array_key_exists($shortcut_key, $shortcuts))
-				$value = $shortcuts[$shortcut_key];
+			if(false != ($shortcut = $this->parseDateRangeShortcut($value))) {
+				$value = $shortcut;
+			}
 			
 			if(false === strpos($value, ' to '))
 				$value .= ' to now';
