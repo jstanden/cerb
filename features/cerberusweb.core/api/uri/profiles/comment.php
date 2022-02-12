@@ -34,6 +34,8 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 			switch ($action) {
 				case 'savePeekJson':
 					return $this->_profileAction_savePeekJson();
+				case 'togglePin':
+					return $this->_profileAction_togglePin();
 				case 'preview':
 					return $this->_profileAction_preview();
 				case 'viewExplore':
@@ -212,6 +214,29 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 			return;
 			
 		}
+	}
+	
+	private function _profileAction_togglePin() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
+		$is_pinned = DevblocksPlatform::importGPC($_POST['pin'] ?? null, 'integer', 0);
+		
+		if(false == ($comment = DAO_Comment::get($id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		if(!Context_Comment::isWriteableByActor($comment, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		DAO_Comment::update(
+			$comment->id,
+			[
+				DAO_Comment::IS_PINNED => $is_pinned ? 1 : 0,
+			]
+		);
 	}
 	
 	private function _profileAction_preview() {

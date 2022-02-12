@@ -247,20 +247,21 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 	private function _threadComments(array $comments, &$convo_timeline, array $display_options) {
 		$tpl = DevblocksPlatform::services()->template();
 		
-		@$comments_mode = $display_options['comments_mode'] ?? 0;
+		$comments_mode = $display_options['comments_mode'] ?? 0;
 		
 		$tpl->assign('comments', $comments);
 		
 		if($comments) {
 			$pin_ts = null;
 			
+			// [TODO] This comments mode is deprecated as of 10.2 @deprecated 
 			if(2 == $comments_mode) {
 				$pin_ts = max(array_column(DevblocksPlatform::objectsToArrays($comments), 'created'));
 			}
 			
 			// build a chrono index of comments
 			foreach($comments as $comment_id => $comment) { /* @var $comment Model_Comment */
-				if($pin_ts && $comment->created == $pin_ts) {
+				if($comment->is_pinned || ($pin_ts && $comment->created == $pin_ts)) {
 					$key = time() . '_c' . $comment_id;
 				} else {
 					$key = $comment->created . '_c' . $comment_id;

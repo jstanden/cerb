@@ -32,6 +32,14 @@
 	{if !$embed}
 	<div class="toolbar">
 		<button type="button" class="cerb-edit-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="{$comment->id}" title="Open card popup (Shift+Click to edit)"><span class="glyphicons glyphicons-new-window-alt"></span></button>
+		
+		{if $is_writeable}
+			{if $comment->is_pinned}
+			<button type="button" class="cerb-button-enabled" data-cerb-comment-id="{$comment->id}" data-cerb-comment-pin="on" title="Un-pin this comment from the top of the conversation"><span class="glyphicons glyphicons-pushpin"></span></button>
+			{else}
+			<button type="button" data-cerb-comment-id="{$comment->id}" data-cerb-comment-pin="off" title="Pin this comment to the top of the conversation"><span class="glyphicons glyphicons-pushpin"></span></button>
+			{/if}
+		{/if}
 
 		{$permalink_url = "{devblocks_url full=true}c=profiles&type={$target_context->params.alias}&id={$comment->context_id}{/devblocks_url}/#comment{$comment->id}"}
 		<button type="button" onclick="genericAjaxPopup('permalink', 'c=internal&a=invoke&module=records&action=showPermalinkPopup&url={$permalink_url|escape:'url'}');" title="{'common.permalink'|devblocks_translate|lower}"><span class="glyphicons glyphicons-link"></span></button>
@@ -137,6 +145,40 @@ $(function() {
 					$('#comment' + e.id).remove();
 				})
 		;
+	
+	{if $is_writeable}
+	$comment
+		.find('.toolbar')
+		.find('[data-cerb-comment-pin]')
+		.on('click', function(e) {
+			var $button = $(this);
+			var comment_id = $button.attr('data-cerb-comment-id');
+			var was_pin_mode = $button.attr('data-cerb-comment-pin');
+			var is_pinned;
+			
+			if('off' === was_pin_mode) {
+				$button.addClass('cerb-button-enabled');
+				$button.attr('data-cerb-comment-pin', 'on');
+				is_pinned = '1';
+			} else {
+				$button.removeClass('cerb-button-enabled');
+				$button.attr('data-cerb-comment-pin', 'off');
+				is_pinned = '0';
+			}
+
+			var formData = new FormData();
+			formData.set('c', 'profiles');
+			formData.set('a', 'invoke');
+			formData.set('module', 'comment');
+			formData.set('action', 'togglePin');
+			formData.set('id', comment_id);
+			formData.set('pin', is_pinned);
+			
+			genericAjaxPost(formData, null, null, function() {
+			});
+		})
+	;
+	{/if}
 });
 </script>
 {/if}

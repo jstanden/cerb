@@ -844,6 +844,15 @@ $db->ExecuteMaster("UPDATE profile_widget set extension_params_json = replace(ex
 $db->ExecuteMaster("UPDATE profile_widget set extension_params_json = replace(extension_params_json,'color:black;','color:var(--cerb-color-text);') where profile_tab_id in (select id from profile_tab where context = 'cerberusweb.contexts.ticket') and name IN ('Status','Owner')");
 
 // ===========================================================================
+// Add an `is_pinned` field to comments
+
+list($columns,) = $db->metaTable('comment');
+
+if(!array_key_exists('is_pinned', $columns)) {
+	$db->ExecuteMaster("ALTER TABLE comment ADD COLUMN is_pinned TINYINT NOT NULL DEFAULT 0");
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
