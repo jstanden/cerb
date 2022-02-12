@@ -60,6 +60,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 					'snippet' => 'query.required:(${1})',
 				],
 				'timeout:',
+				'timezone:',
 				'format:',
 				'metric:',
 				[
@@ -82,6 +83,14 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 					'caption' => '(expression)',
 					'snippet' => '"${1:x*1}"',
 				]
+			],
+			'timezone:' => [
+				'America/Los_Angeles',
+				'America/New_York',
+				'Europe/London',
+				'"-08:00"',
+				'"+00:00"',
+				'"+05:00"',
 			],
 			'format:' => [
 				'tree',
