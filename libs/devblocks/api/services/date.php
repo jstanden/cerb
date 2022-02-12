@@ -452,6 +452,15 @@ class _DevblocksDateManager {
 			return false;
 		}
 		
+		if(!strstr($timezone,':')) {
+			if(false == ($offset = self::getTimezoneOffsetFromLocation($timezone))) {
+				$error = sprintf("Timezone `%s` is unknown.", $timezone);
+				return false;
+			}
+			
+			$timezone = $offset;
+		}
+		
 		$matches = [];
 		$is_neg = DevblocksPlatform::strStartsWith($timezone, '-');
 		$timezone = ltrim($timezone, '+-');

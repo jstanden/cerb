@@ -603,6 +603,9 @@ class DevblocksDateTest extends TestCase {
 		$this->assertEquals($expected, $actual);
 	}
 	
+	/**
+	 * @throws Exception
+	 */
 	function testParseTimezoneOffset() {
 		$date = DevblocksPlatform::services()->date();
 		
@@ -622,6 +625,18 @@ class DevblocksDateTest extends TestCase {
 		
 		$actual = $date->parseTimezoneOffset('abc:123');
 		$this->assertFalse($actual);
+		
+		// Conversion of timezone locations to offsets
+		
+		$ts = new DateTime('now', new DateTimeZone('America/Los_Angeles'));
+		$expected = $ts->format('P');
+		$actual = $date->parseTimezoneOffset('America/Los_Angeles');
+		$this->assertEquals($expected, $actual);
+		
+		$ts = new DateTime('now', new DateTimeZone('America/Toronto'));
+		$expected = $ts->format('P');
+		$actual = $date->parseTimezoneOffset('America/Toronto');
+		$this->assertEquals($expected, $actual);
 	}
 	
 	function testGetNextOccurrence() {
