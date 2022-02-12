@@ -379,6 +379,15 @@ BUTTON {
 		padding: 0;
 		margin: 0 0 0 5px;
 	}
+	
+	&.cerb-button-enabled  {
+		background: none;
+		background-color: var(--cerb-color-button-icon-enabled-background);
+	
+		span.glyphicons {
+			color: var(--cerb-color-button-icon-enabled);
+		}
+	}
 }
 
 BUTTON.green {

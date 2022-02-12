@@ -705,6 +705,13 @@ BUTTON.peek {
   padding: 0;
   margin: 0 0 0 5px;
 }
+BUTTON.cerb-button-enabled {
+  background: none;
+  background-color: var(--cerb-color-button-icon-enabled-background);
+}
+BUTTON.cerb-button-enabled span.glyphicons {
+  color: var(--cerb-color-button-icon-enabled);
+}
 
 BUTTON.green DIV.badge-count {
   background-color: var(--cerb-color-button-confirm-badge);
