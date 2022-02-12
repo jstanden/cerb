@@ -84,14 +84,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 					'snippet' => '"${1:x*1}"',
 				]
 			],
-			'timezone:' => [
-				'America/Los_Angeles',
-				'America/New_York',
-				'Europe/London',
-				'"-08:00"',
-				'"+00:00"',
-				'"+05:00"',
-			],
+			'timezone:' => DevblocksPlatform::services()->date()->getTimezones(),
 			'format:' => [
 				'tree',
 				'dictionaries',
@@ -210,7 +203,18 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				
 			} else if($field->key == 'timezone') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
-				$chart_model['timezone'] = DevblocksPlatform::strLower($value);
+				
+				if(!$value)
+					$value = DevblocksPlatform::getTimezone();
+				
+				if(!is_string($value)) {
+					$error = 'The value for `timezone:` must be a string.';
+					return false;
+				}
+				
+				if(DevblocksPlatform::services()->date()->isValidTimezoneLocation($value)) {
+					$chart_model['timezone'] = $value;
+				}
 				
 			} else if($field->key == 'timeout') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
@@ -224,6 +228,16 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		
 		// Sanitize
 		
+		if(!array_key_exists('timezone', $chart_model))
+			$chart_model['timezone'] = DevblocksPlatform::getTimezone();
+		
+		$chart_model['timezone_location'] = $chart_model['timezone'];
+		
+		if(false == ($tz = DevblocksPlatform::services()->date()->parseTimezoneOffset($chart_model['timezone'], $error)))
+			return false;
+		
+		$chart_model['timezone_offset'] = $tz;
+		
 		if(!isset($chart_model['by'])) {
 			$error = "The `by:` field is required.";
 			return false;
@@ -233,6 +247,46 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			$error = "The `of:` field is not a valid context type.";
 			return false;
 		}
+		
+		$platform_timezone = DevblocksPlatform::getTimezone();
+		
+		try {
+			// Override the platform timezone 
+			if(array_key_exists('timezone_location', $chart_model)) {
+				DevblocksPlatform::setTimezone($chart_model['timezone_location']);
+			}
+			
+			// Override the database timezone 
+			if(array_key_exists('timezone_offset', $chart_model)) {
+				@$db->QueryReader(sprintf("SET @@SESSION.time_zone = %s", $db->qstr($chart_model['timezone_offset'])));
+			}
+			
+			// Fetch the data with the given timezone
+			if(false === ($data = $this->_getData($chart_model, $subtotals_context, $error)))
+				return false;
+			
+			return $data;
+			
+		} catch(Exception $e) {
+			DevblocksPlatform::logError($e->getMessage());
+			$error = "An unexpected error occurred";
+			return false;
+			
+		} finally {
+			// Reset the platform timezone
+			if(array_key_exists('timezone_location', $chart_model)) {
+				DevblocksPlatform::setTimezone($platform_timezone);
+			}
+			
+			// Reset the database timezone
+			if(array_key_exists('timezone_offset', $chart_model)) {
+				$db->QueryReader("SET @@SESSION.time_zone = @@GLOBAL.time_zone");
+			}
+		}
+	}
+	
+	private function _getData($chart_model, $subtotals_context, &$error=null) {
+		$db = DevblocksPlatform::services()->database();
 		
 		// Convert 'by:' keys to fields
 		
@@ -298,16 +352,6 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			return false;
 		}
 		
-		$tz = null;
-		
-		// Timezone
-		if(array_key_exists('timezone', $chart_model)) {
-				if(false == ($tz = DevblocksPlatform::services()->date()->parseTimezoneOffset($chart_model['timezone'], $error)))
-					return false;
-					
-				@$db->QueryReader(sprintf("SET @@SESSION.time_zone = %s", $db->qstr($tz)));
-		}
-		
 		$query_parts = $dao_class::getSearchQueryComponents([], $view->getParams());
 		
 		// Aggregate function
@@ -363,6 +407,8 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				$error = sprintf('Query timed out (%d ms)', $chart_model['timeout']);
 				return false;
 			}
+			
+			// [TODO] Check if $results is not an array
 			
 			$values = array_column($results, $by['key_select']);
 			
@@ -503,6 +549,9 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			foreach($values as $value) {
 				@$filter = $by['key_query'] . ':%s';
 				
+				// [TODO] Implement other types
+				// [TODO] Can this be abstracted?
+				// [TODO] Sometimes we filter by raw value and sometimes by label
 				switch($by['type']) {
 					case 'context':
 						if(array_key_exists('get_value_as_filter_callback',$by) && is_callable($by['get_value_as_filter_callback'])) {
@@ -580,6 +629,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 								$query_value = intval($query_value);
 							}
 						} else if(false !== strpos($query_value, ' ')) {
+							// [TODO] This needs to be more type aware
 							$query_value = '"' . $query_value . '"';
 						}
 						
@@ -601,6 +651,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 								$query_value = intval($query_value);
 							}
 						} else if(false !== strpos($query_value, ' ')) {
+							// [TODO] This needs to be more type aware
 							$query_value = '"' . $query_value . '"';
 						}
 						
@@ -701,10 +752,6 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		$sort_children($response['children']);
 		
 		@$format = $chart_model['format'] ?: 'tree';
-		
-		if($tz instanceof DateTimeZone) {
-			$db->QueryReader("SET @@SESSION.time_zone = @@GLOBAL.time_zone");
-		}
 		
 		switch($format) {
 			case 'categories':
