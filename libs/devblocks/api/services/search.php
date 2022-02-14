@@ -766,34 +766,23 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		);
 	}
 	
-	private function _getQueryWhereClauses(Extension_DevblocksSearchSchema $schema, array $attributes, array $query_parts) {
+	private function _getQueryWhereAnnotations(Extension_DevblocksSearchSchema $schema, array $attributes) : array {
 		$db = DevblocksPlatform::services()->database();
 		
-		$content_key = $schema->getDataField();
-
+		$schema_attributes = $schema->getAttributes();
 		$where_sql = [];
 		
-		if(isset($query_parts['phrases']) && isset($query_parts['phrases']))
-			foreach($query_parts['phrases'] as $phrase) {
-				$where_sql[] = sprintf("%s LIKE '%%%s%%'",
-					$db->escape($content_key),
-					$db->escape($phrase)
-				);
-			}
-		
-		$schema_attributes = $schema->getAttributes();
-		
-		if(is_array($attributes))
-			foreach($attributes as $attr => $attr_val) {
+		if(is_array($attributes)) {
+			foreach ($attributes as $attr => $attr_val) {
 				$attr_type = $schema_attributes[$attr] ?? null;
 				
-				if(empty($attr_type))
+				if (empty($attr_type))
 					continue;
 				
-				switch($attr_type) {
+				switch ($attr_type) {
 					case 'string':
-						if(is_array($attr_val)) {
-							if(!empty($attr_val)) {
+						if (is_array($attr_val)) {
+							if (!empty($attr_val)) {
 								$where_sql[] = sprintf("%s IN (%s)",
 									$db->escape($attr),
 									implode(',', $db->qstrArray($attr_val))
@@ -819,8 +808,8 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 					case 'int8':
 					case 'uint4':
 					case 'uint8':
-						if(is_array($attr_val)) {
-							if(!empty($attr_val)) {
+						if (is_array($attr_val)) {
+							if (!empty($attr_val)) {
 								$where_sql[] = sprintf("%s IN (%s)",
 									$db->escape($attr),
 									implode(',', DevblocksPlatform::sanitizeArray($attr_val, 'int'))
@@ -840,6 +829,25 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 						}
 						break;
 				}
+			}
+		}
+		
+		return $where_sql;
+	}
+	
+	private function _getQueryWhereClauses(Extension_DevblocksSearchSchema $schema, array $query_parts) {
+		$db = DevblocksPlatform::services()->database();
+		
+		$content_key = $schema->getDataField();
+
+		$where_sql = [];
+		
+		if(isset($query_parts['phrases']) && isset($query_parts['phrases']))
+			foreach($query_parts['phrases'] as $phrase) {
+				$where_sql[] = sprintf("%s LIKE '%%%s%%'",
+					$db->escape($content_key),
+					$db->escape($phrase)
+				);
 			}
 		
 		return $where_sql;
@@ -873,7 +881,12 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		if(!trim($escaped_query,'+*'))
 			$escaped_query = '';
 		
-		$where_sql = $this->_getQueryWhereClauses($schema, $attributes, $query_parts);
+		$where_annotation_sql = $this->_getQueryWhereAnnotations($schema, $attributes);
+		$where_sql = $this->_getQueryWhereClauses($schema, $query_parts);
+		
+		if(!empty($where_annotation_sql)) {
+			$where_sql = array_merge($where_sql, $where_annotation_sql);
+		}
 		
 		if(is_callable($where_callback)) {
 			if(false != ($and_where = $where_callback($id_key, $content_key))) {
@@ -886,10 +899,12 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 				// COUNT the matches first, to later decide on IN or EXISTS
 				$sql_hits = sprintf("SELECT COUNT(1) " .
 					"FROM fulltext_%s " .
-					"WHERE MATCH (%s) AGAINST ('%s' IN BOOLEAN MODE)",
+					"WHERE MATCH (%s) AGAINST ('%s' IN BOOLEAN MODE) ".
+					"%s",
 					$this->escapeNamespace($ns),
 					$db->escape($content_key),
-					$escaped_query
+					$escaped_query,
+					$where_annotation_sql ? ('AND ' . implode(' AND ', $where_annotation_sql)) : ''
 				);
 				$hits = $db->GetOneReader($sql_hits, 3500);
 				
@@ -909,11 +924,13 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 				try {
 					$sql_ids = sprintf("SELECT %s ".
 						"FROM fulltext_%s ".
-						"WHERE MATCH (%s) AGAINST ('%s' IN BOOLEAN MODE)",
+						"WHERE MATCH (%s) AGAINST ('%s' IN BOOLEAN MODE) ".
+						"%s",
 						$db->escape($id_key),
 						$this->escapeNamespace($ns),
 						$db->escape($content_key),
-						$escaped_query
+						$escaped_query,
+						$where_annotation_sql ? ('AND ' . implode(' AND ', $where_annotation_sql)) : ''
 					);
 					
 					$ids = $db->GetArrayReader($sql_ids, 5000);
@@ -982,11 +999,16 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		if(!trim($escaped_query,'+*'))
 			$escaped_query = '';
 		
-		$where_sql = $this->_getQueryWhereClauses($schema, $attributes, $query_parts);
+		$where_annotation_sql = $this->_getQueryWhereAnnotations($schema, $attributes);
+		$where_sql = $this->_getQueryWhereClauses($schema, $query_parts);
+		
+		if(!empty($where_annotation_sql)) {
+			$where_sql = array_merge($where_sql, $where_annotation_sql);
+		}
 		
 		// The max desired results (blank for unlimited)
-		@$max_results = intval($limit) ?: intval($this->_config['max_results']) ?: 1000;
-		@$max_results = DevblocksPlatform::intClamp($max_results, 1, 10000);
+		$max_results = intval($limit) ?: intval($this->_config['max_results'] ?? null) ?: 1000;
+		$max_results = DevblocksPlatform::intClamp($max_results, 1, 10000);
 		
 		$cache = DevblocksPlatform::services()->cache();
 		$is_only_cached_for_request = !$cache->isVolatile();
