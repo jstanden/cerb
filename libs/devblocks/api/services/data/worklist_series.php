@@ -11,6 +11,7 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 				'x.label:',
 				'format:',
 				'timeout:',
+				'timezone:',
 			],
 			'series.*:' => [
 				'' => [
@@ -53,6 +54,7 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 					'_type' => 'series_of_query',
 				],
 			],
+			'timezone:' => DevblocksPlatform::services()->date()->getTimezones(),
 			'format:' => [
 				'table',
 				'timeseries',
@@ -71,29 +73,44 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 			'timeout' => 20000,
 		];
 		
-		foreach($chart_fields as $field) {
+		foreach ($chart_fields as $field) {
 			$oper = $value = null;
 			
-			if(!($field instanceof DevblocksSearchCriteria))
+			if (!($field instanceof DevblocksSearchCriteria))
 				continue;
 			
-			if($field->key == 'type') {
+			if ($field->key == 'type') {
 				// Do nothing
 				true;
 				
-			} else if($field->key == 'format') {
+			} else if ($field->key == 'format') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
 				$chart_model['format'] = DevblocksPlatform::strLower($value);
 				
-			} else if($field->key == 'x.label') {
+			} else if ($field->key == 'x.label') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
 				$chart_model['x.label'] = $value;
 				
-			} else if($field->key == 'timeout') {
+			} else if ($field->key == 'timeout') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
 				$chart_model['timeout'] = DevblocksPlatform::intClamp($value, 0, 60000);
 				
-			} else if(DevblocksPlatform::strStartsWith($field->key, 'series.')) {
+			} else if ($field->key == 'timezone') {
+				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
+				
+				if (!$value)
+					$value = DevblocksPlatform::getTimezone();
+				
+				if (!is_string($value)) {
+					$error = 'The value for `timezone:` must be a string.';
+					return false;
+				}
+				
+				if (DevblocksPlatform::services()->date()->isValidTimezoneLocation($value)) {
+					$chart_model['timezone'] = $value;
+				}
+				
+			} else if (DevblocksPlatform::strStartsWith($field->key, 'series.')) {
 				$series_query = CerbQuickSearchLexer::getTokensAsQuery($field->tokens);
 				$series_query = substr($series_query, 1, -1);
 				
@@ -111,40 +128,40 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 				
 				$series_context = null;
 				
-				foreach($series_fields as $series_field) {
-					if($series_field->key == 'of') {
+				foreach ($series_fields as $series_field) {
+					if ($series_field->key == 'of') {
 						CerbQuickSearchLexer::getOperStringFromTokens($series_field->tokens, $oper, $value);
-						if(false == ($series_context = Extension_DevblocksContext::getByAlias($value, true)))
+						if (false == ($series_context = Extension_DevblocksContext::getByAlias($value, true)))
 							continue;
 						
 						$series_model['context'] = $series_context->id;
 						
-					} else if($series_field->key == 'function') {
+					} else if ($series_field->key == 'function') {
 						CerbQuickSearchLexer::getOperStringFromTokens($series_field->tokens, $oper, $value);
 						$series_model['function'] = $value;
 						
-					} else if($series_field->key == 'label') {
+					} else if ($series_field->key == 'label') {
 						CerbQuickSearchLexer::getOperStringFromTokens($series_field->tokens, $oper, $value);
 						$series_model['label'] = $value;
 						
-					} else if($series_field->key == 'x') {
+					} else if ($series_field->key == 'x') {
 						CerbQuickSearchLexer::getOperStringFromTokens($series_field->tokens, $oper, $value);
 						$series_model['x'] = $value;
 						
-					} else if($series_field->key == 'y') {
+					} else if ($series_field->key == 'y') {
 						CerbQuickSearchLexer::getOperStringFromTokens($series_field->tokens, $oper, $value);
 						$series_model['y'] = $value;
 						
-					} else if($series_field->key == 'y.metric') {
+					} else if ($series_field->key == 'y.metric') {
 						CerbQuickSearchLexer::getOperStringFromTokens($series_field->tokens, $oper, $value);
 						$series_model['y_metric'] = $value;
 						
-					} else if($series_field->key == 'query') {
+					} else if ($series_field->key == 'query') {
 						$data_query = CerbQuickSearchLexer::getTokensAsQuery($series_field->tokens);
 						$data_query = substr($data_query, 1, -1);
 						$series_model['query'] = $data_query;
 						
-					} else if(in_array($series_field->key, ['query.require', 'query.required'])) {
+					} else if (in_array($series_field->key, ['query.require', 'query.required'])) {
 						$data_query = CerbQuickSearchLexer::getTokensAsQuery($series_field->tokens);
 						$data_query = substr($data_query, 1, -1);
 						$series_model['query_required'] = $data_query;
@@ -156,12 +173,12 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 				}
 				
 				// If we aren't given a bin, default to months
-				if(!strpos($series_model['x'],'@'))
+				if (!strpos($series_model['x'], '@'))
 					$series_model['x'] .= '@month';
 				
 				// Convert series x/y to SearchFields_* using context
 				
-				if($series_context) {
+				if ($series_context) {
 					$view = $series_context->getTempView();
 					$search_class = $series_context->getSearchClass();
 					$query_fields = $view->getQuickSearchFields();
@@ -194,6 +211,57 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 				return false;
 			}
 		}
+		
+		if (!array_key_exists('timezone', $chart_model))
+			$chart_model['timezone'] = DevblocksPlatform::getTimezone();
+		
+		$chart_model['timezone_location'] = $chart_model['timezone'];
+		
+		if (false == ($tz = DevblocksPlatform::services()->date()->parseTimezoneOffset($chart_model['timezone'], $error)))
+			return false;
+		
+		$chart_model['timezone_offset'] = $tz;
+		
+		$platform_timezone = DevblocksPlatform::getTimezone();
+		
+		try {
+			// Override the platform timezone 
+			if(array_key_exists('timezone_location', $chart_model)) {
+				DevblocksPlatform::setTimezone($chart_model['timezone_location']);
+			}
+			
+			// Override the database timezone 
+			if(array_key_exists('timezone_offset', $chart_model)) {
+				@$db->QueryReader(sprintf("SET @@SESSION.time_zone = %s", $db->qstr($chart_model['timezone_offset'])));
+			}
+			
+			// Fetch the data with the given timezone
+			if(false === ($data = $this->_getData($chart_model, $error)))
+				return false;
+			
+			return $data;
+			
+		} catch (Exception $e) {
+			DevblocksPlatform::logError($e->getMessage());
+			$error = "An unexpected error occurred";
+			return false;
+			
+		} finally {
+			// Reset the platform timezone
+			if(array_key_exists('timezone_location', $chart_model)) {
+				DevblocksPlatform::setTimezone($platform_timezone);
+			}
+			
+			// Reset the database timezone
+			if(array_key_exists('timezone_offset', $chart_model)) {
+				$db->QueryReader("SET @@SESSION.time_zone = @@GLOBAL.time_zone");
+			}
+		}
+		
+	}
+	
+	private function _getData(array $chart_model, &$error=null) {
+		$db = DevblocksPlatform::services()->database();
 		
 		// Fetch data for each series
 		
