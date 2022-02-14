@@ -427,7 +427,7 @@ EOD;
 	
 ### Search Query Fields
 
-These [filters](/docs/search/filters/) are available in {$context_name} [search queries](/docs/search/):
+These [filters](/docs/search/#filters) are available in {$context_name} [search queries](/docs/search/):
 
 |---
 | Field | Type | Description
@@ -731,7 +731,7 @@ EOD;
 				);
 				break;
 			case 'Record':
-				$type = sprintf("[%s](/docs/search/deep-search/)",
+				$type = sprintf("[%s](/docs/search/#deep-search)",
 					$type
 				);
 				break;
