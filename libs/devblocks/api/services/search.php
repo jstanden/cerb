@@ -907,9 +907,10 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		if(false !== $hits) {
 			if($hits <= $threshold_ids) {
 				try {
-					$sql_ids = sprintf("SELECT id ".
+					$sql_ids = sprintf("SELECT %s ".
 						"FROM fulltext_%s ".
 						"WHERE MATCH (%s) AGAINST ('%s' IN BOOLEAN MODE)",
+						$db->escape($id_key),
 						$this->escapeNamespace($ns),
 						$db->escape($content_key),
 						$escaped_query
@@ -920,22 +921,23 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 					if(!is_array($ids))
 						$ids = [];
 					
-					$ids = array_column($ids, 'id');
+					$ids = array_column($ids, $id_key);
 					
 					// If we don't have any extra where clauses, return IDs
 					if(empty($where_sql))
-						return implode(',', array_column($ids, 'id'));
+						return implode(',', array_column($ids, $id_key));
 					
 					if(empty($ids))
 						$ids = [-1];
 					
 					return sprintf("SELECT %s ".
 						"FROM fulltext_%s ".
-						"WHERE id IN (%s) ".
+						"WHERE %s IN (%s) ".
 						"%s",
 						$db->escape($id_key),
 						$this->escapeNamespace($ns),
-						implode(',', DevblocksPlatform::sanitizeArray($ids, 'int')),
+						$db->escape($id_key),
+						implode(',', $db->qstrArray($ids)),
 						('AND ' . implode(' AND ', $where_sql))
 					);
 					
