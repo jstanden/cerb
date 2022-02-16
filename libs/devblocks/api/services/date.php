@@ -111,7 +111,7 @@ class _DevblocksDateManager {
 		];
 		
 		// +1hr -> +1 hr
-		if(preg_match('#^([+-]?\d*)(\S*)$#', $date_string, $matches)) {
+		if(preg_match('#^([+-]?\d*)([a-z]*)$#', DevblocksPlatform::strLower($date_string), $matches)) {
 			$step = $matches[1]; 
 			$unit = $matches[2];
 			
