@@ -41,6 +41,7 @@ abstract class DevblocksEngine {
 	protected static $request = null;
 	protected static $response = null;
 	protected static $is_stateless = false;
+	protected static $_error_last = [];
 
 	static function readPluginManifest($plugin_path, $is_update=true) {
 		return self::_readPluginManifest($plugin_path, $is_update);

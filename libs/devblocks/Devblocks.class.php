@@ -3525,6 +3525,10 @@ class DevblocksPlatform extends DevblocksEngine {
 		self::$is_stateless = $bool;
 	}
 	
+	static function getLastError() {
+		return self::$_error_last;
+	}
+	
 	static function errorHandler(int $errno=0, string $errstr=null, string $errfile=null, int $errline=null, array $errcontext=[]) : bool {
 		// Suppress if we're not reporting at this level in production
 		if(!DEVELOPMENT_MODE && 0 == (error_reporting() & $errno)) {
@@ -3548,6 +3552,13 @@ class DevblocksPlatform extends DevblocksEngine {
 			) {
 			return true;
 		}
+		
+		self::$_error_last = [
+			'type' => $errno,
+			'message' => $errstr,
+			'file' => $errfile,
+			'line' => $errline
+		];
 		
 		error_log(sprintf("[%d] %s %s %d (%d)", $errno, $errstr, $errfile, $errline, error_reporting()));
 		

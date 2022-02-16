@@ -73,8 +73,12 @@ class _DevblocksStringService {
 	}
 	
 	function yamlParse($yaml_string, $pos=-1, &$error=null) {
-		if(false === ($docs = @yaml_parse($yaml_string, $pos))) {
-			$error = error_get_last()['message'];
+		if(false === ($docs = yaml_parse($yaml_string, $pos))) {
+			if(null != ($last_error = DevblocksPlatform::getLastError())) {
+				$error = $last_error['message'] ?? '';
+			} else {
+				$error = 'Invalid YAML syntax.';
+			}
 			return false;
 		}
 		
