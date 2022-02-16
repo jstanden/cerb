@@ -104,24 +104,39 @@ class RecordUpsertAction extends AbstractAction {
 			if($view->renderLimit == 1)
 				$total = $total ? 1 : 0;
 			
+			// We want to proxy our unparsed params to `record.create` or `record.update` 
+			$unparsed_params = $this->node->getParams();
+			
+			$unparsed_params['inputs'] = array_filter(
+				$unparsed_params['inputs'],
+				function($k) {
+					// Exclude `record_query` and `record_query_params` keys
+					if(
+						'record_query' == $k
+						|| DevblocksPlatform::strStartsWith($k, 'record_query@')
+						|| 'record_query_params' == $k
+					) {
+						return false;
+					}
+					
+					return true;
+				},
+				ARRAY_FILTER_USE_KEY
+			);
+			
 			if(0 == $total) {
-				unset($params['inputs']['record_query']);
-				unset($params['inputs']['record_query_params']);
-				
 				$action_node = clone $this->node;
 				$action_node->setType('record.create');
-				$action_node->setParams($params);
+				$action_node->setParams($unparsed_params);
 				$action = new RecordCreateAction($action_node);
 				return $action->activate($automation, $dict, $node_memory, $error);
 				
 			} elseif (1 == $total) {
-				$params['inputs']['record_id'] = key($results);
-				unset($params['inputs']['record_query']);
-				unset($params['inputs']['record_query_params']);
+				$unparsed_params['inputs']['record_id'] = key($results);
 				
 				$action_node = clone $this->node;
 				$action_node->setType('record.update');
-				$action_node->setParams($params);
+				$action_node->setParams($unparsed_params);
 				$action = new RecordUpdateAction($action_node);
 				return $action->activate($automation, $dict, $node_memory, $error);
 				
