@@ -64,6 +64,15 @@ class PageSection_ProfilesResource extends Extension_PageSection {
 				if(!Context_Resource::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
+				// The `cerb.` namespace is reserved
+				if(
+					DevblocksPlatform::strStartsWith(DevblocksPlatform::strLower($model->name), 'cerb.')
+					&& !DEVELOPMENT_MODE
+				) {
+					$error = 'The `cerb.` namespace is managed automatically. This resource may not be deleted.';
+					throw new Exception_DevblocksAjaxValidationError($error);
+				}
+				
 				CerberusContexts::logActivityRecordDelete(Context_Resource::ID, $model->id, $model->name);
 				
 				DAO_Resource::delete($id);
@@ -114,6 +123,15 @@ class PageSection_ProfilesResource extends Extension_PageSection {
 				}
 				
 				if(empty($id)) { // New
+					// The `cerb.` namespace is reserved
+					if(
+						DevblocksPlatform::strStartsWith(DevblocksPlatform::strLower($name), 'cerb.')
+						&& !DEVELOPMENT_MODE
+					) {
+						$error = 'The `cerb.` namespace is reserved. Use your own prefix for `Name:`';
+						throw new Exception_DevblocksAjaxValidationError($error);
+					}
+
 					if(!DAO_Resource::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
@@ -127,6 +145,15 @@ class PageSection_ProfilesResource extends Extension_PageSection {
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_RESOURCE, $id);
 					
 				} else { // Edit
+					// The `cerb.` namespace is reserved
+					if(
+						DevblocksPlatform::strStartsWith(DevblocksPlatform::strLower($name), 'cerb.')
+						&& !DEVELOPMENT_MODE
+					) {
+						$error = 'The `cerb.` namespace is managed automatically. Clone this resource to modify it.';
+						throw new Exception_DevblocksAjaxValidationError($error);
+					}
+
 					if(!DAO_Resource::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
