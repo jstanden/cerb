@@ -96,6 +96,9 @@ class _DevblocksDateManager {
 	
 	// Handle strtotime idiosyncrasies
 	public function parseDateString($date_string, $now=null) {
+		if(empty($date_string))
+			return '';
+		
 		$matches = [];
 		
 		if(is_null($now))

@@ -11,6 +11,11 @@ class DevblocksDateTest extends TestCase {
 		
 		$now = time();
 		
+		// Blank dates
+		$actual = $date->parseDateString('', $now);
+		$expected = '';
+		$this->assertEquals($expected, $actual);
+		
 		// Absolute YYYY-MM-DD
 		$actual = $date->parseDateString('2025-12-31', $now);
 		$expected = strtotime('2025-12-31', $now);
