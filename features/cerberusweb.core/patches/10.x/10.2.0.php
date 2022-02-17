@@ -844,6 +844,13 @@ $db->ExecuteMaster("UPDATE profile_widget set extension_params_json = replace(ex
 $db->ExecuteMaster("UPDATE profile_widget set extension_params_json = replace(extension_params_json,'color:black;','color:var(--cerb-color-text);') where profile_tab_id in (select id from profile_tab where context = 'cerberusweb.contexts.ticket') and name IN ('Status','Owner')");
 
 // ===========================================================================
+// Fix 'Time spent by' reports to use seconds vs mins
+
+if(array_key_exists('workspace_widget', $tables)) {
+	$db->qstr("UPDATE workspace_widget SET params_json = replace(params_json, 'number.minutes', 'number.seconds') where extension_id = 'cerb.workspace.widget.chart.timeseries' and label like 'Time Spent by %'");
+}
+
+// ===========================================================================
 // Add an `is_pinned` field to comments
 
 list($columns,) = $db->metaTable('comment');
