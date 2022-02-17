@@ -164,7 +164,11 @@ class HttpRequestAction extends AbstractAction {
 				if(!array_key_exists('content-type', $headers))
 					$headers['content-type'] = 'application/x-www-form-urlencoded';
 				
-				switch($headers['content-type']) {
+				$request_content_type = $headers['content-type'];
+				list($request_content_type,) = array_pad(explode(';', $request_content_type, 2), 2, '');
+				$request_content_type = trim(DevblocksPlatform::strLower($request_content_type));
+				
+				switch($request_content_type) {
 					case 'application/json':
 					case 'application/x-amz-json-1.0':
 					case 'application/x-amz-json-1.1':
