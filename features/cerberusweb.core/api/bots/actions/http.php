@@ -243,9 +243,8 @@ class BotAction_HttpRequest extends Extension_DevblocksEventAction {
 		$response_headers = [];
 		$info = [];
 		$error = null;
-		$status_code = null;
 		
-		if(false === ($response = $http->sendRequest($request, $request_options, $error, $status_code))) {
+		if(false === ($response = $http->sendRequest($request, $request_options, $error))) {
 			
 		} else {
 			foreach($response->getHeaders() as $k => $v) {

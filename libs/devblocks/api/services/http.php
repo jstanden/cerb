@@ -62,21 +62,22 @@ class _DevblocksHttpService {
 	 * @param RequestInterface $request
 	 * @param array $options
 	 * @param string $error
-	 * @return \Psr\Http\Message\ResponseInterface
+	 * @return \Psr\Http\Message\ResponseInterface|false
 	 */
-	function sendRequest(\Psr\Http\Message\RequestInterface $request, array $options=[], &$error=null, &$status_code=0) {
+	function sendRequest(\Psr\Http\Message\RequestInterface $request, array $options=[], &$error=null, &$error_response=null) {
 		$client = $this->getClient();
 		
+		$error = '';
+		$error_response = null;
+		
 		try {
-			$response = $client->send($request, $options);
-			$status_code = $response->getStatusCode();
-			return $response;
+			return $client->send($request, $options);
 			
 		} catch (\GuzzleHttp\Exception\RequestException $e) {
 			$error = $e->getMessage();
 			
-			if(null != ($response = $e->getResponse()))
-				$status_code = $response->getStatusCode();
+			if($e->hasResponse())
+				$error_response = $e->getResponse();
 			
 			return false;
 		}
