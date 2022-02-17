@@ -308,7 +308,7 @@ class DAO_Automation extends Cerb_ORMHelper {
 		));
 		
 		if(!$objects)
-			return null;
+			return [];
 		
 		if(!$extension_id)
 			return $objects;

@@ -102,7 +102,12 @@ class PageSection_SetupDevelopersAutomationLogs extends Extension_PageSection {
 		);
 		
 		$automations = DAO_Automation::getByUris(array_column($results, SearchFields_AutomationLog::AUTOMATION_NAME));
-		$automation_name_to_id = array_column($automations, 'id', 'name');
+		
+		if(is_array($automations)) {
+			$automation_name_to_id = array_column($automations, 'id', 'name');
+		} else {
+			$automation_name_to_id = [];
+		}
 		
 		foreach($results as $result) {
 			$sheet_dicts[] = DevblocksDictionaryDelegate::instance([
@@ -110,6 +115,7 @@ class PageSection_SetupDevelopersAutomationLogs extends Extension_PageSection {
 				'name' => $result[SearchFields_AutomationLog::AUTOMATION_NAME],
 				'automation__context' => CerberusContexts::CONTEXT_AUTOMATION,
 				'automation_id' => $automation_name_to_id[$result[SearchFields_AutomationLog::AUTOMATION_NAME]] ?? 0,
+				'automation__label' => $result[SearchFields_AutomationLog::AUTOMATION_NAME],
 				'node' => $result[SearchFields_AutomationLog::AUTOMATION_NODE],
 				'created_at' => $result[SearchFields_AutomationLog::CREATED_AT],
 				'log_level_id' => $result[SearchFields_AutomationLog::LOG_LEVEL],
