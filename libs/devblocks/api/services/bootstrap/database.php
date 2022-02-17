@@ -5,6 +5,8 @@ class _DevblocksDatabaseManager {
 	private $_connections = [];
 	private $_last_used_db = null;
 	private $_has_written = false;
+	private $_timezone = null;
+	private $_timezone_stack = [];
 	
 	const OPT_NO_READ_AFTER_WRITE = 1;
 	
@@ -712,5 +714,48 @@ class _DevblocksDatabaseManager {
 			if($rs instanceof mysqli_result)
 				mysqli_free_result($rs);
 		}
+	}
+	
+	public function ResetReaderTimezone() {
+		$db = $this->getReaderConnection();
+		
+		array_pop($this->_timezone_stack);
+		
+		if(false != ($last_timezone = current($this->_timezone_stack))) {
+			$this->_SetReaderTimezone($last_timezone);
+			
+		} else {
+			if(false === mysqli_query($db, "SET @@SESSION.time_zone = @@GLOBAL.time_zone"))
+				return false;
+		}
+		
+		return true;
+	}
+	
+	private function _SetReaderTimezone($timezone) {
+		$db = $this->getReaderConnection();
+		
+		if(false === mysqli_query($db, sprintf("SET @@SESSION.time_zone = %s", $this->qstr($timezone)))) {
+			// If an invalid timezone then the time_zones tables probably aren't populated
+			if(1298 == mysqli_errno($db)) {
+				$timezone_offset = DevblocksPlatform::services()->date()->getTimezoneOffsetFromLocation($timezone);
+				
+				// Try a timezone offset (doesn't account for DST, but gets close enough on misconfigured systems)
+				if(false === mysqli_query($db, sprintf("SET @@SESSION.time_zone = %s", $this->qstr($timezone_offset))))
+					return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	public function SetReaderTimezone($timezone) {
+		if(!DevblocksPlatform::services()->date()->isValidTimezoneLocation($timezone))
+			return false;
+		
+		$this->_timezone = $timezone;
+		$this->_timezone_stack[] = $timezone;
+		
+		return $this->_SetReaderTimezone($timezone);
 	}
 };

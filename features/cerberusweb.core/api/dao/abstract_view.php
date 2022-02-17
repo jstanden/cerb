@@ -29,6 +29,7 @@ abstract class C4_AbstractView {
 	private $_paramsDefault = [];
 	private $_paramsRequired = [];
 	private $_paramsRequiredQuery = null;
+	private $_paramsTimezone = null;
 	
 	public $renderPage = 0;
 	public $renderLimit = 10;
@@ -95,7 +96,16 @@ abstract class C4_AbstractView {
 		if(!method_exists($this, '_getData'))
 			return [];
 		
+		$db = DevblocksPlatform::services()->database();
+		$platform_timezone = DevblocksPlatform::getTimezone();
+		
 		try {
+			// Override the platform timezone
+			if($query_timezone = $this->getParamsTimezone()) {
+				DevblocksPlatform::setTimezone($query_timezone);
+				$db->SetReaderTimezone($query_timezone);
+			}
+			
 			$objects = $this->_getData();
 			
 			if(false === $objects) {
@@ -117,6 +127,11 @@ abstract class C4_AbstractView {
 			$error = "The query timed out.";
 			C4_AbstractView::marqueeAppend($this->id, $error);
 			return [[], -1];
+			
+		} finally {
+			// Reset the platform timezone
+			DevblocksPlatform::setTimezone($platform_timezone);
+			$db->ResetReaderTimezone();
 		}
 	}
 	
@@ -496,6 +511,8 @@ abstract class C4_AbstractView {
 		
 		$fields = CerbQuickSearchLexer::getFieldsFromQuery($query, $bindings);
 		
+		$params_timezone = null;
+		
 		// Quick search multi-sorting
 		
 		foreach($fields as $k => $p) {
@@ -566,8 +583,26 @@ abstract class C4_AbstractView {
 						
 						unset($fields[$k]);
 						break;
+						
+					case 'set.timezone':
+						$oper = null;
+						$value = null;
+						
+						if(false == (CerbQuickSearchLexer::getOperStringFromTokens($p->tokens, $oper, $value)))
+							break;
+						
+						$params_timezone = $value;
+						
+						unset($fields[$k]);
+						break;
 				}
 			}
+		}
+		
+		if($params_timezone) {
+			$this->setParamsTimezone($params_timezone);
+		} else {
+			$this->setParamsTimezone(null);
 		}
 		
 		// Convert fields T_FIELD to DevblocksSearchCriteria
@@ -815,6 +850,14 @@ abstract class C4_AbstractView {
 	
 	function setParamsRequiredQuery($query) {
 		$this->_paramsRequiredQuery = $query;
+	}
+	
+	function getParamsTimezone() {
+		return $this->_paramsTimezone;
+	}
+	
+	function setParamsTimezone($timezone) {
+		$this->_paramsTimezone = $timezone;
 	}
 	
 	// Search params
@@ -4481,6 +4524,7 @@ class C4_AbstractViewModel {
 	public $paramsDefault = [];
 	public $paramsRequired = [];
 	public $paramsRequiredQuery = '';
+	public $paramsTimezone = '';
 
 	public $renderPage = 0;
 	public $renderLimit = 10;
@@ -4607,6 +4651,7 @@ class C4_AbstractViewLoader {
 		$model->paramsDefault = $view->getParamsDefault();
 		$model->paramsRequired = $view->getParamsRequired();
 		$model->paramsRequiredQuery = $view->getParamsRequiredQuery();
+		$model->paramsTimezone = $view->getParamsTimezone();
 		
 		$model->renderPage = intval($view->renderPage);
 		$model->renderLimit = intval($view->renderLimit);
@@ -4655,6 +4700,8 @@ class C4_AbstractViewLoader {
 			$inst->addParamsRequired($model->paramsRequired, true);
 		if($model->paramsRequiredQuery)
 			$inst->setParamsRequiredQuery($model->paramsRequiredQuery);
+		if($model->paramsTimezone)
+			$inst->setParamsTimezone($model->paramsTimezone);
 
 		if(null !== $model->renderPage)
 			$inst->renderPage = intval($model->renderPage);
@@ -4812,6 +4859,7 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 	const PARAMS_EDITABLE_JSON = 'params_editable_json';
 	const PARAMS_REQUIRED_JSON = 'params_required_json';
 	const PARAMS_REQUIRED_QUERY = 'params_required_query';
+	const PARAMS_TIMEZONE = 'params_timezone';
 	const RENDER_LIMIT = 'render_limit';
 	const RENDER_PAGE = 'render_page';
 	const RENDER_SORT_JSON = 'render_sort_json';
@@ -4885,6 +4933,11 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 			->addField(self::PARAMS_REQUIRED_QUERY)
 			->string()
 			->setMaxLength(65535)
+			;
+		// varchar(255)
+		$validation
+			->addField(self::PARAMS_TIMEZONE)
+			->string()
 			;
 		// smallint(5) unsigned
 		$validation
@@ -4964,6 +5017,7 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 			'params_required_json',
 			'params_required_query',
 			'params_default_json',
+			'params_timezone',
 			'render_page',
 			'render_total',
 			'render_limit',
@@ -4989,6 +5043,7 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 			$model->name = $row['title'];
 			$model->paramsQuery = $row['params_query'];
 			$model->paramsRequiredQuery = $row['params_required_query'];
+			$model->paramsTimezone = $row['params_timezone'];
 			$model->renderPage = $row['render_page'];
 			$model->renderTotal = $row['render_total'];
 			$model->renderLimit = $row['render_limit'];
@@ -5088,6 +5143,7 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 			'params_required_json' => $db->qstr(json_encode($model->paramsRequired)),
 			'params_required_query' => $db->qstr($model->paramsRequiredQuery),
 			'params_default_json' => $db->qstr(json_encode($model->paramsDefault)),
+			'params_timezone' => $db->qstr($model->paramsTimezone),
 			'render_page' => abs(intval($model->renderPage)),
 			'render_total' => !empty($model->renderTotal) ? 1 : 0,
 			'render_limit' => max(intval($model->renderLimit),0),

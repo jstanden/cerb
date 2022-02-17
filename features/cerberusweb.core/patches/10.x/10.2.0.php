@@ -853,6 +853,20 @@ if(!array_key_exists('is_pinned', $columns)) {
 }
 
 // ===========================================================================
+// Add `worker_view_model.params_timezone`
+
+if(!array_key_exists('worker_view_model', $tables)) {
+	$logger->error("The 'worker_view_model' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('worker_view_model');
+
+if(!array_key_exists('params_timezone', $columns)) {
+	$db->ExecuteMaster("ALTER TABLE worker_view_model ADD COLUMN params_timezone varchar(255) not null default ''");
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

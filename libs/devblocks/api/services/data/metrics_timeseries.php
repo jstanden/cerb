@@ -339,24 +339,13 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 		
 		$chart_model['timezone_location'] = $chart_model['timezone'];
 		
-		if (false == ($tz = DevblocksPlatform::services()->date()->parseTimezoneOffset($chart_model['timezone'], $error)))
-			return false;
-		
-		$chart_model['timezone_offset'] = $tz;
-		
 		$db = DevblocksPlatform::services()->database();
 		$platform_timezone = DevblocksPlatform::getTimezone();
 		
 		try {
 			// Override the platform timezone
-			if(array_key_exists('timezone_location', $chart_model)) {
-				DevblocksPlatform::setTimezone($chart_model['timezone_location']);
-			}
-			
-			// Override the database timezone
-			if(array_key_exists('timezone_offset', $chart_model)) {
-				@$db->QueryReader(sprintf("SET @@SESSION.time_zone = %s", $db->qstr($chart_model['timezone_offset'])));
-			}
+			DevblocksPlatform::setTimezone($chart_model['timezone_location']);
+			$db->SetReaderTimezone($chart_model['timezone_location']);
 			
 			return $this->_getData($chart_model, $error);
 			
@@ -366,14 +355,8 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 			
 		} finally {
 			// Restore the platform timezone
-			if(array_key_exists('timezone_location', $chart_model)) {
-				DevblocksPlatform::setTimezone($platform_timezone);
-			}
-			
-			// Restore the database timezone
-			if(array_key_exists('timezone_offset', $chart_model)) {
-				$db->QueryReader("SET @@SESSION.time_zone = @@GLOBAL.time_zone");
-			}
+			DevblocksPlatform::setTimezone($platform_timezone);
+			$db->ResetReaderTimezone();
 		}
 	}
 	
