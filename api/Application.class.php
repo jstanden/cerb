@@ -4032,6 +4032,26 @@ class _CerbApplication_KataSchemas {
                           string:
                   string:
               
+              log.error:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+                      message:
+                        types:
+                          string:
+                  string:
+              
+              log.warn:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+                      message:
+                        types:
+                          string:
+                  string:
+              
               outcome:
                 multiple@bool: yes
                 types:
