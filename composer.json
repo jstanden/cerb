@@ -67,7 +67,7 @@
 		"singpolyma/openpgp-php": "dev-cerb",
 		"horde/imap-client": "dev-main",
 		"ramsey/uuid": "^4.1",
-		"enshrined/svg-sanitize": "^0.14.1"
+		"enshrined/svg-sanitize": "^0.15"
 	},
 	"require-dev" : {
 		"phpunit/phpunit": "^9"
