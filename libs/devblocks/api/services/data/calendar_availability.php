@@ -118,63 +118,96 @@ class _DevblocksDataProviderCalendarAvailability extends _DevblocksDataProvider 
 		}
 		
 		if(!in_array($chart_model['period'], ['hour'])) {
-			$error = "The `period:` field must be one of: hour, day";
+			$error = "The `period:` field must be one of: hour";
 			return false;
 		}
 		
-		if(false == ($dates = DevblocksPlatform::services()->date()->parseDateRange($chart_model['range'])))
+		if(false == ($hours = DevblocksPlatform::services()->date()->parseDateRange($chart_model['range'])))
 			return false;
 		
-		$range_from = $dates['from_ts'];
-		$range_to = $dates['to_ts'];
+		$range_from = $hours['from_ts'];
+		$range_to = $hours['to_ts'];
 		
 		$results = [];
 		
 		$calendars = DAO_Calendar::getIds($calendar_ids);
 		
 		$period_mins = 'hour' == $chart_model['period'] ? 60 : 1440;
-		$date_format = '%Y-%m-%d %H:%M:%S';
+		$date_format = 'Y-m-d H:i:s';
 		
-		$dates = DevblocksPlatform::dateLerpArray(
+		$dt_from = new DateTime();
+		$dt_from->setTimestamp($range_from);
+		
+		$dt_to = new DateTime();
+		$dt_to->setTimestamp($range_to);
+		
+		$hours = DevblocksPlatform::dateLerpArray(
 			[
-				strftime($date_format, $range_from),
-				strftime($date_format, $range_to)
+				$dt_from->format($date_format),
+				$dt_to->format($date_format),
 			],
-			$chart_model['period'], 
-			1, 
-			'%s'
+			$chart_model['period'] 
+		);
+		
+		foreach ($hours as $hour) {
+			$results[$hour] = 0;
+		}
+		
+		unset($hours);
+		
+		$months = DevblocksPlatform::dateLerpArray(
+			[
+				$dt_from->format('Y-m-01'),
+				$dt_to->format('Y-m-01'),
+			],
+			'month'
 		);
 		
 		if(!empty($calendars)) {
 			foreach($calendars as $calendar) { /* @var Model_Calendar $calendar */
-				$events = $calendar->getEvents($range_from, $range_to);
+				// Loop through each calendar month in our range as a page
+				foreach($months as $ts_month) {
+					$calendar_properties = DevblocksCalendarHelper::getCalendar(date('m', $ts_month), date('Y', $ts_month), true);
+					
+					// Get base events for this range
+					$events = $calendar->getEvents($range_from, $range_to);
+					
+					$avail = $calendar->computeAvailability($calendar_properties['date_range_from'], $calendar_properties['date_range_to'], $events);
 				
-				foreach ($dates as $date) {
-					if ('hour' == $chart_model['period']) {
-						$date_end = strtotime('+1 hour -1 second', $date);
-						//				} else if('day' == $chart_model['period']) {
-						//					$date_end = strtotime('+1 day -1 second', $date);
-					} else {
-						$error = "The `period:` field must be one of: hour, day";
-						return false;
-					}
+					// Split events that span day boundaries
+					$events = $avail->getAsCalendarEvents($calendar_properties);
 					
-					// [TODO] In hourly, do this once per day (not 24x)
-					$tick_events = array_filter($events, function ($ts_day) use ($date, $date_end) {
-						return $date >= $ts_day && $date_end <= strtotime('+1 day -1 second', $ts_day);
-					}, ARRAY_FILTER_USE_KEY);
-					
-					$avail = $calendar->computeAvailability($date, $date_end, $tick_events);
-					$mins = $avail->getMinutes();
-					
-					$value = substr_count($mins, '1');
-					$results[$date] = ($results[$date] ?? 0) + $value;
+					foreach($events as $ts_day => $models) {
+						$ts_day_end = strtotime('+1 day -1 second', $ts_day);
+						
+						$dt_day_from = new DateTime();
+						$dt_day_from->setTimestamp($ts_day);
+						
+						$dt_day_to = new DateTime();
+						$dt_day_to->setTimestamp($ts_day_end);
+						
+						$day_hours = DevblocksPlatform::dateLerpArray(
+							[
+								date($date_format, $ts_day),
+								$dt_day_to->format($date_format),
+							],
+							'hour'
+						);
+						
+						foreach($day_hours as $hour) {
+							if(!array_key_exists($hour, $results))
+								continue;
+							
+							$hour_end = strtotime('+1 hour -1 second', $hour);
+							$avail = $calendar->computeAvailability($hour, $hour_end, [$ts_day => $models]);
+							
+							$mins = $avail->getMinutes();
+							
+							$value = substr_count($mins, '1');
+							$results[$hour] += $value;
+						}
+					}					
 				}
-			}
-			
-		} else {
-			foreach ($dates as $date) {
-				$results[$date] = ($results[$date] ?? 0) + 0;
 			}
 		}
 		
