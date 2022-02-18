@@ -22,7 +22,13 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 				'day',
 			],
 			'range:' => [
+				'today',
+				'yesterday',
+				'"this week"',
 				'"this month"',
+				'"last week"',
+				'"last month"',
+				'"Jan 1 to Dec 31"',
 			],
 			'timeout:' => [
 				'20000'
