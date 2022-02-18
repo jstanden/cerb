@@ -386,21 +386,29 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 		
 		$unit = 'minute';
 		$step = 1;
-		$unit_format = '%Y-%m-%d %H:%M';
 		
 		if($chart_model['period'] == 300) {
 			$unit = 'minute';
-			$unit_format = '%Y-%m-%d %H:%M';
+			$unit_format_js = '%Y-%m-%d %H:%M';
+			$unit_format_php = 'Y-m-d H:i';
 			$step = 5;
 		} else if($chart_model['period'] == 3600) {
 			$unit = 'hour';
-			$unit_format = '%Y-%m-%d %H:00';
+			$unit_format_js = '%Y-%m-%d %H:00';
+			$unit_format_php = 'Y-m-d H:00';
 		} else if($chart_model['period'] == 86400) {
 			$unit = 'day';
-			$unit_format = '%Y-%m-%d';
+			$unit_format_js = '%Y-%m-%d';
+			$unit_format_php = 'Y-m-d';
+		} else {
+			$error = "`period:` is invalid.";
+			return false;
 		}
 		
-		$chart_model['xaxis'] = DevblocksPlatform::dateLerpArray([$range['from_string'], $range['to_string']], $unit, $step);
+		$chart_model['xaxis'] = DevblocksPlatform::services()->date()->formatTimestamps(
+			DevblocksPlatform::dateLerpArray([$range['from_string'], $range['to_string']], $unit, $step),
+			$unit_format_php
+		);
 		
 		$results = [
 			'ts' => $chart_model['xaxis'],
@@ -410,7 +418,7 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 		
 		// Group expanded series together
 		foreach(array_keys($chart_model['series']) as $series_idx) {
-			if(false === ($series_data = $this->_loadSeriesData($series_idx, $chart_model, $range, $unit_format, $error)))
+			if(false === ($series_data = $this->_loadSeriesData($series_idx, $chart_model, $range, $unit_format_php, $error)))
 				return false;
 			
 			$chart_model['groups'][] = array_keys($series_data);
@@ -426,7 +434,7 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 			'format_params' => [
 				'xaxis_key' => 'ts',
 				'xaxis_step' => $unit,
-				'xaxis_format' => $unit_format,
+				'xaxis_format' => $unit_format_js,
 			],
 		]];
 	}
@@ -659,12 +667,10 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 				if (!array_key_exists($series_label, $results))
 					$results[$series_label] = array_fill_keys($chart_model['xaxis'], null);
 				
-				// [TODO] Aggregate periods (e.g. 3x 5 min = 15 mins)
-				if (86400 == $granularity) {
-					$bin = gmstrftime($unit_format, $row['bin']);
-				} else {
-					$bin = strftime($unit_format, $row['bin']);
-				}
+				$dt = new DateTime();
+				$dt->setTimestamp($row['bin']);
+				
+				$bin = $dt->format($unit_format);
 				
 				$results[$series_label][$bin] = floatval($row['value']);
 			}
