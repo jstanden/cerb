@@ -1527,7 +1527,7 @@ class DAO_Translation extends DevblocksORMHelper {
 				$lang = (string) $attribs['lang'];
 				$string = (string) $tuv->seg[0]; // [TODO] Handle multiple segs?
 				
-				@$hash_obj = $hash[$lang.'_'.$msgid]; /* @var $hash_obj Model_Translation */
+				$hash_obj = $hash[$lang.'_'.$msgid] ?? null; /* @var $hash_obj Model_Translation */
 				
 				// If not found in the DB
 				if(empty($hash_obj)) {

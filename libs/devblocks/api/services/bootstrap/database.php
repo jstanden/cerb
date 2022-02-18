@@ -714,6 +714,8 @@ class _DevblocksDatabaseManager {
 			if($rs instanceof mysqli_result)
 				mysqli_free_result($rs);
 		}
+		
+		return true;
 	}
 	
 	public function ResetReaderTimezone() {

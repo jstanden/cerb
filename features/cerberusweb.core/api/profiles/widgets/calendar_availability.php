@@ -14,8 +14,7 @@ class ProfileWidget_CalendarAvailability extends Extension_ProfileWidget {
 		
 		switch($action) {
 			case 'showCalendarAvailabilityTab':
-				$this->_profileWidgetAction_showCalendarAvailabilityTab($model);
-				break;
+				return $this->_profileWidgetAction_showCalendarAvailabilityTab($model);
 		}
 		return false;
 	}
