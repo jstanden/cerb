@@ -59,6 +59,20 @@
 				</tr>
 				{/if}
 				
+				<tr>
+					<td width="1%" nowrap="nowrap" valign="top">
+						<b>{'common.timezone'|devblocks_translate|capitalize}:</b>
+					</td>
+					<td width="99%">
+						<select name="timezone">
+							<option value="">(use viewer's timezone)</option>
+							{foreach from=$timezones item=timezone}
+								<option value="{$timezone}" {if $timezone == $model->timezone}selected="selected"{/if}>{$timezone}</option>
+							{/foreach}
+						</select>
+					</td>
+				</tr>
+				
 				{if !empty($custom_fields)}
 					{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
 				{/if}

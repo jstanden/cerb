@@ -43,11 +43,12 @@ class PageSection_ProfilesCalendar extends Extension_PageSection {
 	private function _profileAction_savePeekJson() {
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		
-		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
-		@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
-		@$owner = DevblocksPlatform::importGPC($_POST['owner'], 'string', '');
-		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', array());
-		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
+		$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');
+		$owner = DevblocksPlatform::importGPC($_POST['owner'] ?? null, 'string', '');
+		$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', array());
+		$timezone = DevblocksPlatform::importGPC($_POST['timezone'] ?? null, 'string', '');
+		$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -177,6 +178,7 @@ class PageSection_ProfilesCalendar extends Extension_PageSection {
 								DAO_Calendar::OWNER_CONTEXT => $owner_context,
 								DAO_Calendar::OWNER_CONTEXT_ID => $owner_context_id,
 								DAO_Calendar::PARAMS_JSON => json_encode($params),
+								DAO_Calendar::TIMEZONE => $timezone,
 							);
 							
 							if(!DAO_Calendar::validate($fields, $error))
@@ -203,6 +205,7 @@ class PageSection_ProfilesCalendar extends Extension_PageSection {
 								DAO_Calendar::OWNER_CONTEXT => $owner_context,
 								DAO_Calendar::OWNER_CONTEXT_ID => $owner_context_id,
 								DAO_Calendar::PARAMS_JSON => json_encode($params),
+								DAO_Calendar::TIMEZONE => $timezone,
 							);
 							
 							$change_fields = Cerb_ORMHelper::uniqueFields($fields, $calendar);

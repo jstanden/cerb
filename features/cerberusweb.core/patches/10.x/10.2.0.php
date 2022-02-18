@@ -681,6 +681,21 @@ if($columns['type'] && in_array(strtolower($columns['type']['type']), ['varchar(
 }
 
 // ===========================================================================
+// Add `timezone` to calendars
+
+if(!isset($tables['calendar']))
+	return FALSE;
+
+list($columns,) = $db->metaTable('calendar');
+
+if(!array_key_exists('timezone', $columns)) {
+	$db->ExecuteMaster("ALTER TABLE calendar ADD COLUMN timezone varchar(128) not null default ''");
+	
+	// Default worker-owned calendars to their timezone
+	$db->ExecuteMaster("UPDATE calendar INNER JOIN worker ON (calendar.owner_context = 'cerberusweb.contexts.worker' AND calendar.owner_context_id=worker.id) SET calendar.timezone=worker.timezone");
+}
+
+// ===========================================================================
 // Add `extension_kata` to resources
 
 if(!isset($tables['resource']))

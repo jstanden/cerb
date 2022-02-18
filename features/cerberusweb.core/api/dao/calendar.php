@@ -5,6 +5,7 @@ class DAO_Calendar extends Cerb_ORMHelper {
 	const OWNER_CONTEXT = 'owner_context';
 	const OWNER_CONTEXT_ID = 'owner_context_id';
 	const PARAMS_JSON = 'params_json';
+	const TIMEZONE = 'timezone';
 	const UPDATED_AT = 'updated_at';
 	
 	const CACHE_ALL = 'cerb_calendars_all';
@@ -39,6 +40,12 @@ class DAO_Calendar extends Cerb_ORMHelper {
 			->addField(self::PARAMS_JSON)
 			->string()
 			->setMaxLength(16777215)
+			;
+		$validation
+			->addField(self::TIMEZONE)
+			->string()
+			->setMaxLength(128)
+			->addValidator($validation->validators()->timezone())
 			;
 		$validation
 			->addField(self::UPDATED_AT)
@@ -171,7 +178,7 @@ class DAO_Calendar extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, owner_context, owner_context_id, params_json, updated_at ".
+		$sql = "SELECT id, name, owner_context, owner_context_id, params_json, timezone, updated_at ".
 			"FROM calendar ".
 			$where_sql.
 			$sort_sql.
@@ -278,6 +285,7 @@ class DAO_Calendar extends Cerb_ORMHelper {
 			$object->name = $row['name'];
 			$object->owner_context = $row['owner_context'];
 			$object->owner_context_id = $row['owner_context_id'];
+			$object->timezone = $row['timezone'];
 			$object->updated_at = $row['updated_at'];
 			
 			if(!empty($row['params_json']) && false !== ($params_json = json_decode($row['params_json'], true)))
@@ -364,12 +372,14 @@ class DAO_Calendar extends Cerb_ORMHelper {
 			"calendar.owner_context as %s, ".
 			"calendar.owner_context_id as %s, ".
 			"calendar.params_json as %s, ".
+			"calendar.timezone as %s, ".
 			"calendar.updated_at as %s ",
 				SearchFields_Calendar::ID,
 				SearchFields_Calendar::NAME,
 				SearchFields_Calendar::OWNER_CONTEXT,
 				SearchFields_Calendar::OWNER_CONTEXT_ID,
 				SearchFields_Calendar::PARAMS_JSON,
+				SearchFields_Calendar::TIMEZONE,
 				SearchFields_Calendar::UPDATED_AT
 			);
 			
@@ -462,6 +472,7 @@ class SearchFields_Calendar extends DevblocksSearchFields {
 	const OWNER_CONTEXT = 'c_owner_context';
 	const OWNER_CONTEXT_ID = 'c_owner_context_id';
 	const PARAMS_JSON = 'c_params_json';
+	const TIMEZONE = 'c_timezone';
 	const UPDATED_AT = 'c_updated_at';
 
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
@@ -573,6 +584,7 @@ class SearchFields_Calendar extends DevblocksSearchFields {
 			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'calendar', 'owner_context', $translate->_('common.owner_context'), null, true),
 			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'calendar', 'owner_context_id', $translate->_('common.owner_context_id'), null, true),
 			self::PARAMS_JSON => new DevblocksSearchField(self::PARAMS_JSON, 'calendar', 'params_json', $translate->_('dao.calendar.params_json'), null, false),
+			self::TIMEZONE => new DevblocksSearchField(self::TIMEZONE, 'calendar', 'timezone', $translate->_('common.timezone'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'calendar', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
@@ -601,6 +613,7 @@ class Model_Calendar {
 	public $owner_context;
 	public $owner_context_id;
 	public $params;
+	public $timezone;
 	public $updated_at;
 	
 	function getEvents($date_from, $date_to, $sorted=true) {
@@ -934,8 +947,9 @@ class View_Calendar extends C4_AbstractView implements IAbstractView_Subtotals, 
 
 		$this->view_columns = array(
 			SearchFields_Calendar::NAME,
-			SearchFields_Calendar::UPDATED_AT,
+			SearchFields_Calendar::TIMEZONE,
 			SearchFields_Calendar::VIRTUAL_OWNER,
+			SearchFields_Calendar::UPDATED_AT,
 		);
 		
 		$this->addColumnsHidden(array(
@@ -1060,6 +1074,8 @@ class View_Calendar extends C4_AbstractView implements IAbstractView_Subtotals, 
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_Calendar::getFields();
 		
+		$timezones = DevblocksPlatform::services()->date()->getTimezones();
+		
 		$fields = array(
 			'text' => 
 				array(
@@ -1093,6 +1109,14 @@ class View_Calendar extends C4_AbstractView implements IAbstractView_Subtotals, 
 						'key' => 'name',
 						'limit' => 25,
 					]
+				),
+			'timezone' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_Calendar::TIMEZONE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'examples' => array(
+						['type' => 'list', 'values' => array_combine($timezones, $timezones), 'label_delimiter' => '/', 'key_delimiter' => '/'],
+					)
 				),
 			'updated' => 
 				array(
@@ -1226,6 +1250,7 @@ class View_Calendar extends C4_AbstractView implements IAbstractView_Subtotals, 
 
 		switch($field) {
 			case SearchFields_Calendar::NAME:
+			case SearchFields_Calendar::TIMEZONE:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
@@ -1366,6 +1391,12 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 			],
 		);
 		
+		$properties['timezone'] = [
+			'label' => DevblocksPlatform::translateCapitalized('common.timezone'),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->timezone,
+		];
+		
 		$properties['updated'] = array(
 			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
 			'type' => Model_CustomField::TYPE_DATE,
@@ -1417,6 +1448,7 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 	function getDefaultProperties() {
 		return array(
 			'owner__label',
+			'timezone',
 			'updated_at',
 		);
 	}
@@ -1445,6 +1477,7 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
 			'owner__label' => $prefix.$translate->_('common.owner'),
+			'timezone' => $prefix.$translate->_('common.timezone'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
@@ -1455,6 +1488,7 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'owner__label' =>'context_url',
+			'timezone' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
 			'record_url' => Model_CustomField::TYPE_URL,
 		);
@@ -1480,6 +1514,7 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 			$token_values['_label'] = $calendar->name;
 			$token_values['id'] = $calendar->id;
 			$token_values['name'] = $calendar->name;
+			$token_values['timezone'] = $calendar->timezone;
 			$token_values['updated_at'] = $calendar->updated_at;
 			
 			// Custom fields
@@ -1504,6 +1539,7 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 			'name' => DAO_Calendar::NAME,
 			'owner__context' => DAO_Calendar::OWNER_CONTEXT,
 			'owner_id' => DAO_Calendar::OWNER_CONTEXT_ID,
+			'timezone' => DAO_Calendar::TIMEZONE,
 			'updated_at' => DAO_Calendar::UPDATED_AT,
 		];
 	}
@@ -1827,6 +1863,11 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 			
 			$owners_menu = Extension_DevblocksContext::getOwnerTree();
 			$tpl->assign('owners_menu', $owners_menu);
+			
+			// Timezones
+			
+			$timezones = DevblocksPlatform::services()->date()->getTimezones();
+			$tpl->assign('timezones', $timezones);
 			
 			// Datasources
 			
