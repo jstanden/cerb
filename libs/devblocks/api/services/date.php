@@ -240,7 +240,6 @@ class _DevblocksDateManager {
 		return false;
 	}
 	
-	// [TODO] Optional timezone override
 	public function parseDateRange($value) {
 		if(is_array($value)) {
 			return $this->_parseDateRangeArray($value);
@@ -593,6 +592,51 @@ class _DevblocksDateManager {
 			return null;
 		
 		return $easter_years[$year];
+	}
+	
+	public function formatTimestamps(array $timestamps, string $format, ?DateTimeZone $tz=null) {
+		$dt = new DateTime();
+		
+		return array_map(
+			function($ts) use ($dt, $format, $tz) {
+				$dt->setTimestamp($ts);
+				return $dt->format($format);
+			},
+			$timestamps
+		);
+	}
+	
+	public function formatByUnit($unit) {
+		if($unit == 'dayofmonth' || $unit == 'dayofweek') {
+			$unit = 'day';
+		} else if($unit == 'hourofday') {
+			$unit = 'hour';
+		} else if($unit == 'monthofyear') {
+			$unit = 'month';
+		} else if($unit == 'weekofyear') {
+			$unit = 'week';
+		}
+		
+		$formats = [
+			'minute' => 'Y-m-d H:i',
+			'hourofday' => 'H:00',
+			'hour' => 'Y-m-d H:00',
+			'day' => 'Y-m-d',
+			'dayofmonth' => 'd',
+			'dayofweek' => 'l',
+			'week' => 'Y-m-d',
+			'weekofyear' => 'W',
+			'month' => 'Y-m',
+			'monthofyear' => 'F',
+			//'quarter' => '',
+			//'quarterofyear' => '',
+			'year' => 'Y',
+		];
+	
+		if(array_key_exists($unit, $formats))
+			return $formats[$unit];
+		
+		return null;
 	}
 };
 

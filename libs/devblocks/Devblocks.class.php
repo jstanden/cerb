@@ -483,35 +483,13 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * Zero fill and interpolate the series
 	 * 
 	 * @param array $array
-	 * @param string $step
-	 * @param string $format
+	 * @param string $unit
+	 * @param integer $step
 	 * @return array
 	 */
-	static function dateLerpArray(array $array, $unit, $step=1, $format=null) {
-		
+	static function dateLerpArray(array $array, $unit, $step=1) {
 		if(empty($array))
 			return [];
-		
-		if(!$format) {
-			$formats = [
-				'minute' => '%Y-%m-%d %H:%M',
-				'hourofday' => '%H:00',
-				'hour' => '%Y-%m-%d %H:00',
-				'day' => '%Y-%m-%d',
-				'dayofmonth' => '%d',
-				'dayofweek' => '%A',
-				'week' => '%Y-%m-%d',
-				'weekofyear' => '%U',
-				'month' => '%Y-%m',
-				'monthofyear' => '%B',
-				'year' => '%Y',
-			];
-			
-			if(!array_key_exists($unit, $formats))
-				return [];
-			
-			$format = $formats[$unit];
-		}
 		
 		if($unit == 'dayofmonth' || $unit == 'dayofweek') {
 			$unit = 'day';
@@ -523,28 +501,43 @@ class DevblocksPlatform extends DevblocksEngine {
 			$unit = 'week';
 		}
 		
-		$timestamps = array_map(fn($ts) => strtotime($ts), $array);
+		$timestamps = array_map(
+			function($date_string) use ($unit) {
+				try {
+					if($unit == 'year') {
+						$date_string .= '-01-01';
+					}
+					
+					$ts = new DateTimeImmutable($date_string);
+					return $ts->getTimestamp();
+				} catch (Exception $e) {
+					return 0;
+				}
+			},
+			$array
+		);
+		
 		$ts = min($timestamps);
 		$ts_end = max($timestamps);
 		
 		$values = [];
 		
-		while($ts <= $ts_end) {
-			$tick = strftime($format, $ts);
-			
-			$values[$tick] = 0;
-			
-			$next_ts = strtotime(sprintf('+%d %s', $step, $unit), $ts);
-			
-			if($next_ts == $ts)
-				break;
-			
-			$ts = $next_ts;
+		try {
+			$tick = new DateTime(null);
+			$tick->setTimestamp($ts);
+		} catch (Exception $e) {
+			return [];
 		}
 		
-		$values = array_keys($values);
-		
-		sort($values);
+		// Always advance in UTC to avoid DST issues
+		while($tick->getTimestamp() <= $ts_end) {
+			$values[] = $tick->getTimestamp();
+			
+			$tick->add(DateInterval::createFromDateString(sprintf('+%d %s', $step, $unit)));
+			
+			if(end($values) == $tick->getTimestamp())
+				$tick->add(DateInterval::createFromDateString(sprintf('+%d %s', $step+1, $unit)));
+		}
 		
 		return $values;
 	}

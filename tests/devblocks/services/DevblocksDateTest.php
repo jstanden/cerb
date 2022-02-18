@@ -693,6 +693,32 @@ class DevblocksDateTest extends TestCase {
 	}
 	
 	function testDateLerpArray() {
+		// Days
+		
+		$expected = array_map(fn($d) => sprintf('2022-01-%02d', $d), range(1,31));
+		
+		$actual = DevblocksPlatform::dateLerpArray(['2022-01-01', '2022-01-31'], 'day', 1);
+		$actual = DevblocksPlatform::services()->date()->formatTimestamps($actual, 'Y-m-d');
+		$this->assertEquals($expected, $actual);
+		
+		// Months
+		
+		$expected = array_map(fn($d) => sprintf('2022-%02d', $d), range(6,12));
+		
+		$actual = DevblocksPlatform::dateLerpArray(['2022-06-01', '2022-12-31'], 'month', 1);
+		$actual = DevblocksPlatform::services()->date()->formatTimestamps($actual, 'Y-m');
+		$this->assertEquals($expected, $actual);
+		
+		// Years
+		
+		$expected = range(2015,2022);
+		
+		$actual = DevblocksPlatform::dateLerpArray(['2019','2022','2015','2015','2016','2017','2020','2021'], 'year', 1);
+		$actual = DevblocksPlatform::services()->date()->formatTimestamps($actual, 'Y');
+		$this->assertEquals($expected, $actual);
+		
+		// 5 min steps
+		
 		$expected = [
 			'2021-01-15 10:00',
 			'2021-01-15 10:05',
@@ -710,7 +736,7 @@ class DevblocksDateTest extends TestCase {
 		];
 		
 		$actual = DevblocksPlatform::dateLerpArray(['2021-01-15 10:00:00', '2021-01-15 11:00:00'], 'minute', 5);
-		
+		$actual = DevblocksPlatform::services()->date()->formatTimestamps($actual, 'Y-m-d H:i');
 		$this->assertEquals($expected, $actual);
 	}
 }
