@@ -1300,7 +1300,11 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		@$xaxis_step = @$chart_model['by'][0]['timestamp_step'];
 		
 		$x_series = array_column($response['children'], 'name');
-		$x_series = DevblocksPlatform::dateLerpArray($x_series, $xaxis_step, 1, $xaxis_format);
+		
+		$x_series = DevblocksPlatform::services()->date()->formatTimestamps(
+			DevblocksPlatform::dateLerpArray($x_series, $xaxis_step),
+			DevblocksPlatform::services()->date()->formatByUnit($xaxis_step)
+		);
 		$x_series = array_fill_keys($x_series, 0);
 		
 		$output = [ 'ts' => array_map(function($d) { return strval($d); }, array_keys($x_series)) ];
