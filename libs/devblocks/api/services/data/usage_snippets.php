@@ -176,7 +176,13 @@ class _DevblocksDataProviderUsageSnippets extends _DevblocksDataProvider {
 				: ''
 		);
 		
-		$x_values = DevblocksPlatform::dateLerpArray(['first day of this month -1 year 00:00:00 UTC', 'tomorrow UTC'], 'month');
+		$x_values = DevblocksPlatform::services()->date()->formatTimestamps(
+			DevblocksPlatform::dateLerpArray(
+				['first day of this month -1 year 00:00:00 UTC', 'tomorrow UTC'], 
+				'month'
+			), 
+			'Y-m'
+		);
 		
 		$results = $db->GetArrayReader($sql);
 		
