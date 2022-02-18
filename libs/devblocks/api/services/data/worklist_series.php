@@ -459,7 +459,10 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 		
 		sort($x_domain);
 		
-		$x_domain = DevblocksPlatform::dateLerpArray($x_domain, $xaxis_step, 1, $xaxis_format);
+		$x_domain = DevblocksPlatform::services()->date()->formatTimestamps(
+			DevblocksPlatform::dateLerpArray($x_domain, $xaxis_step),
+			DevblocksPlatform::services()->date()->formatByUnit($xaxis_step)
+		);
 		
 		$response = [
 			'ts' => $x_domain,
