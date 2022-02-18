@@ -32,7 +32,7 @@ class CalendarDatasource_Calendar extends Extension_CalendarDatasource {
 		$tpl->display('devblocks:cerberusweb.core::internal/calendar/datasources/calendar/config.tpl');
 	}
 	
-	function getData(Model_Calendar $calendar, array $params=[], $params_prefix=null, $date_range_from=null, $date_range_to=null) {
+	function getData(Model_Calendar $calendar, array $params=[], $params_prefix=null, $date_range_from=null, $date_range_to=null, $timezone=null) {
 		if(
 			!array_key_exists('sync_calendar_id', $params)
 			|| $params['sync_calendar_id'] == $calendar->id // No infinite recursion
@@ -43,7 +43,10 @@ class CalendarDatasource_Calendar extends Extension_CalendarDatasource {
 		
 		$calendar_events = [];
 		
-		$sync_data = $sync_calendar->getEvents($date_range_from, $date_range_to);
+		if(!$timezone)
+			$timezone = $calendar->timezone;
+		
+		$sync_data = $sync_calendar->getEvents($date_range_from, $date_range_to,true, $timezone);
 		
 		if(is_array($sync_data))
 		foreach($sync_data as $epoch => $sync_events) {
@@ -110,7 +113,7 @@ class CalendarDatasource_Worklist extends Extension_CalendarDatasource {
 		$tpl->display('devblocks:cerberusweb.core::internal/calendar/datasources/worklist/config.tpl');
 	}
 	
-	function getData(Model_Calendar $calendar, array $params=array(), $params_prefix=null, $date_range_from=null, $date_range_to=null) {
+	function getData(Model_Calendar $calendar, array $params=array(), $params_prefix=null, $date_range_from=null, $date_range_to=null, $timezone=null) {
 		$calendar_events = array();
 
 		@$series_idx = $this->_getSeriesIdxFromPrefix($params_prefix);

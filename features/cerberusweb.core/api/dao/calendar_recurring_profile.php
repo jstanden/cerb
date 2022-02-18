@@ -584,9 +584,14 @@ class Model_CalendarRecurringProfile {
 		return $this->_calendar_model;
 	}
 	
-	function generateRecurringEvents($date_from, $date_to) {
-		$calendar_events = array();
-
+	function generateRecurringEvents($date_from, $date_to, $timezone=null) {
+		$calendar_events = [];
+		
+		if(!$this->tz)
+			$this->tz = $timezone ?: DevblocksPlatform::getTimezone();
+		
+		$tz = new DateTimeZone($this->tz);
+		
 		// Commencement date for recurring event
 		if($this->recur_start && $this->recur_start > $date_to)
 			return [];
@@ -640,8 +645,7 @@ class Model_CalendarRecurringProfile {
 				}
 				
 				if($passed) {
-					$timezone = new DateTimeZone($this->tz);
-					$datetime = new DateTime(date('Y-m-d', $day), $timezone);
+					$datetime = new DateTime(date('Y-m-d', $day), $tz);
 					
 					$datetime->modify($this->event_start ?: 'midnight');
 					$event_start_local = $datetime->getTimestamp();
@@ -1493,7 +1497,7 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 			} else {
 				$model = new Model_CalendarRecurringProfile();
 				$model->is_available = 0;
-				$model->tz = DevblocksPlatform::getTimezone();
+				$model->tz = '';
 				
 				if(false != ($view = C4_AbstractViewLoader::getView($view_id))) {
 					switch(get_class($view)) {

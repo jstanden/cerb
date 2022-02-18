@@ -616,11 +616,14 @@ class Model_Calendar {
 	public $timezone;
 	public $updated_at;
 	
-	function getEvents($date_from, $date_to, $sorted=true) {
+	function getEvents($date_from, $date_to, $sorted=true, $timezone=null) {
+		if(!$timezone)
+			$timezone = $this->timezone;
+		
 		if(isset($this->params['manual_disabled']) && !empty($this->params['manual_disabled'])) {
-			$calendar_events = array();
+			$calendar_events = [];
 		} else {
-			$calendar_events = $this->_getSelfEvents($date_from, $date_to);
+			$calendar_events = $this->_getSelfEvents($date_from, $date_to, $timezone);
 		}
 		
 		// Load data from each extension
@@ -637,7 +640,7 @@ class Model_Calendar {
 			if(null == ($datasource_extension = Extension_CalendarDatasource::get($series['datasource'])))
 				continue;
 			
-			$series_events = $datasource_extension->getData($this, $series, $series_prefix, $date_from, $date_to);
+			$series_events = $datasource_extension->getData($this, $series, $series_prefix, $date_from, $date_to, $timezone);
 			
 			foreach($series_events as $time => $events) {
 				if(!isset($calendar_events[$time]))
@@ -660,7 +663,7 @@ class Model_Calendar {
 		return $calendar_events;
 	}
 	
-	private function _getSelfEvents($date_from, $date_to) {
+	private function _getSelfEvents($date_from, $date_to, $timezone=null) {
 		$calendar_events = array();
 		
 		@$color_available = $this->params['color_available'] ?: '#A0D95B';
@@ -672,7 +675,7 @@ class Model_Calendar {
 		// Get recurring events
 		if(is_array($recurrings))
 		foreach($recurrings as $recurring) {
-			$events = $recurring->generateRecurringEvents($date_from, $date_to);
+			$events = $recurring->generateRecurringEvents($date_from, $date_to, $timezone);
 
 			if(is_array($events))
 			foreach($events as $event) {
@@ -864,7 +867,7 @@ class Model_CalendarAvailability {
 					
 					// We are busy all day
 					if(false === $next_block) {
-						if($offset > 0 && $bit) {
+						if($bit) {
 							$event_start = $ts + ($offset * 60);
 							$event_end = strtotime('11:59:59pm', $event_start);
 

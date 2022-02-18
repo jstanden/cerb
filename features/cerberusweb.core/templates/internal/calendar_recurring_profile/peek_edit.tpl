@@ -83,6 +83,7 @@
 			<input type="text" name="event_end" value="{$model->event_end}" size="16" placeholder="6pm">
 			
 			<select name="tz">
+				<option value="">(use calendar timezone)</option>
 				{foreach from=$timezones item=timezone}
 				<option value="{$timezone}" {if $timezone == $model->tz}selected="selected"{/if}>{$timezone}</option>
 				{/foreach}

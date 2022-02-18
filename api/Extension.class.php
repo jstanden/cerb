@@ -497,7 +497,7 @@ abstract class Extension_CalendarDatasource extends DevblocksExtension {
 	}
 	
 	abstract function renderConfig(Model_Calendar $calendar, $params, $series_prefix);
-	abstract function getData(Model_Calendar $calendar, array $params=[], $params_prefix=null, $date_range_from=null, $date_range_to=null);
+	abstract function getData(Model_Calendar $calendar, array $params=[], $params_prefix=null, $date_range_from=null, $date_range_to=null, $timezone=null);
 };
 
 abstract class Extension_CardWidget extends DevblocksExtension {
