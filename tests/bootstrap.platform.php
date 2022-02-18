@@ -17,3 +17,5 @@ $classloader->registerClasses(APP_PATH . '/features/cerberusweb.core/api/dao/abs
 $classloader->registerClasses(APP_PATH . '/features/cerberusweb.core/api/dao/automation.php', [
 	'Model_Automation',
 ]);
+
+DevblocksPlatform::setTimezone('UTC');

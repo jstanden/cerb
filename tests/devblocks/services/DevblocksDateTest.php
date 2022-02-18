@@ -717,6 +717,18 @@ class DevblocksDateTest extends TestCase {
 		$actual = DevblocksPlatform::services()->date()->formatTimestamps($actual, 'Y');
 		$this->assertEquals($expected, $actual);
 		
+		// Years with timezones
+		
+		$expected = range(2020,2022);
+		
+		DevblocksPlatform::setTimezone('America/Los_Angeles');
+		
+		$actual = DevblocksPlatform::dateLerpArray(['2020-01-01 00:00:00','2022-12-31 23:59:59'], 'year', 1);
+		$actual = DevblocksPlatform::services()->date()->formatTimestamps($actual, 'Y');
+		$this->assertEquals($expected, $actual);
+		
+		DevblocksPlatform::setTimezone('UTC');
+		
 		// 5 min steps
 		
 		$expected = [

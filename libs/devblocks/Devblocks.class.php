@@ -504,7 +504,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		$timestamps = array_map(
 			function($date_string) use ($unit) {
 				try {
-					if($unit == 'year') {
+					if($unit == 'year' && is_numeric($date_string)) {
 						$date_string .= '-01-01';
 					}
 					
