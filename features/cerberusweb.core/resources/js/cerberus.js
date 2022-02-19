@@ -1860,6 +1860,7 @@ var ajax = new cAjaxCalls();
 				var twig_functions = [
 					{ value: "array_column(array,column_key,index_key)", meta: "function" },
 					{ value: "array_combine(keys,values)", meta: "function" },
+					{ value: "array_count_values(array)", meta: "function" },
 					{ value: "array_diff(array1,array2)", meta: "function" },
 					{ value: "array_extract_keys(array,keys)", meta: "function" },
 					{ value: "array_fill_keys(keys,value)", meta: "function" },
@@ -2991,6 +2992,7 @@ var ajax = new cAjaxCalls();
 				twigFunctions: [
 					{ value: "array_column(array,column_key,index_key)", meta: "function" },
 					{ value: "array_combine(keys,values)", meta: "function" },
+					{ value: "array_count_values(array)", meta: "function" },
 					{ value: "array_diff(array1,array2)", meta: "function" },
 					{ value: "array_extract_keys(array,keys)", meta: "function" },
 					{ value: "array_fill_keys(keys,value)", meta: "function" },
