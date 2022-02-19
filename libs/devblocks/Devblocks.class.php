@@ -485,9 +485,10 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @param array $array
 	 * @param string $unit
 	 * @param integer $step
+	 * @param integer $limit
 	 * @return array
 	 */
-	static function dateLerpArray(array $array, $unit, $step=1) {
+	static function dateLerpArray(array $array, $unit, $step=1, $limit=10000) {
 		if(empty($array))
 			return [];
 		
@@ -529,9 +530,14 @@ class DevblocksPlatform extends DevblocksEngine {
 			return [];
 		}
 		
+		$counter = 0;
+		
 		// Always advance in UTC to avoid DST issues
 		while($tick->getTimestamp() <= $ts_end) {
 			$values[] = $tick->getTimestamp();
+			
+			if($limit && ++$counter >= $limit)
+				break;
 			
 			$tick->add(DateInterval::createFromDateString(sprintf('+%d %s', $step, $unit)));
 			
