@@ -483,7 +483,7 @@ if(!$db->GetOneMaster("select 1 from card_widget where record_type = 'cerb.conte
 				"width_units": "4",
 				"zone": "content",
 				"extension_params": {
-					"data_query": "type:metrics.timeseries\r\nrange:\"-24 hours to now\"\r\nperiod:3600\r\nseries.samples:(\r\n  label:Samples\r\n  metric:{{record_name}}\r\n  function:count\r\n)\r\nseries.sum:(\r\n  label:Sum\r\n  metric:{{record_name}}\r\n  function:sum\r\n)\r\nseries.avg:(\r\n  label:Average\r\n  metric:{{record_name}}\r\n  function:avg\r\n)\r\nseries.min:(\r\n  label:Min\r\n  metric:{{record_name}}\r\n  function:min\r\n)\r\nseries.avg:(\r\n  label:Max\r\n  metric:{{record_name}}\r\n  function:max\r\n)\r\nformat:timeseries",
+					"data_query": "type:metrics.timeseries\r\nrange:\"-24 hours to now\"\r\nperiod:hour\r\nseries.samples:(\r\n  label:Samples\r\n  metric:{{record_name}}\r\n  function:count\r\n)\r\nseries.sum:(\r\n  label:Sum\r\n  metric:{{record_name}}\r\n  function:sum\r\n)\r\nseries.avg:(\r\n  label:Average\r\n  metric:{{record_name}}\r\n  function:avg\r\n)\r\nseries.min:(\r\n  label:Min\r\n  metric:{{record_name}}\r\n  function:min\r\n)\r\nseries.avg:(\r\n  label:Max\r\n  metric:{{record_name}}\r\n  function:max\r\n)\r\nformat:timeseries",
 					"chart_as": "line",
 					"xaxis_label": "",
 					"yaxis_label": "",
@@ -505,6 +505,9 @@ if(!$db->GetOneMaster("select 1 from card_widget where record_type = 'cerb.conte
 	} catch (Exception_DevblocksValidationError $e) {
 		DevblocksPlatform::logError($e->getMessage());
 	}
+	
+} else {
+	$db->ExecuteMaster("UPDATE card_widget SET extension_params_json=replace(extension_params_json,'period:3600','period:hour') WHERE name = 'Statistics' AND record_type = 'cerb.contexts.metric' AND extension_params_json LIKE '%period:3600%'");
 }
 
 // ===========================================================================

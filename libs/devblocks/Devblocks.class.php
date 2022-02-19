@@ -509,7 +509,12 @@ class DevblocksPlatform extends DevblocksEngine {
 						$date_string .= '-01-01';
 					}
 					
-					$ts = new DateTimeImmutable($date_string);
+					$ts = new DateTime($date_string);
+					
+					if($unit == 'month') {
+						$ts->modify('first day of this month 00:00:00');
+					}
+					
 					return $ts->getTimestamp();
 				} catch (Exception $e) {
 					return 0;

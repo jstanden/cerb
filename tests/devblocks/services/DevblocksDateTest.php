@@ -709,6 +709,14 @@ class DevblocksDateTest extends TestCase {
 		$actual = DevblocksPlatform::services()->date()->formatTimestamps($actual, 'Y-m');
 		$this->assertEquals($expected, $actual);
 		
+		// Months from a day not in all months
+		
+		$expected = array_map(fn($d) => sprintf('2022-%02d', $d), range(5,12));
+		
+		$actual = DevblocksPlatform::dateLerpArray(['2022-05-31', '2022-12-31'], 'month', 1);
+		$actual = DevblocksPlatform::services()->date()->formatTimestamps($actual, 'Y-m');
+		$this->assertEquals($expected, $actual);
+		
 		// Years
 		
 		$expected = range(2015,2022);
@@ -728,6 +736,19 @@ class DevblocksDateTest extends TestCase {
 		$this->assertEquals($expected, $actual);
 		
 		DevblocksPlatform::setTimezone('UTC');
+		
+		// Weeks (from Monday)
+		
+		$expected = array_map(
+			function($wk) {
+				return date('Y-m-d', strtotime(sprintf('Dec 28 2020 +%d week', $wk)));
+			},
+			range(0,52)
+		);
+		
+		$actual = DevblocksPlatform::dateLerpArray(['2020-12-28 00:00:00','2021-12-31 23:59:59'], 'week', 1);
+		$actual = DevblocksPlatform::services()->date()->formatTimestamps($actual, 'Y-m-d');
+		$this->assertEquals($expected, $actual);
 		
 		// 5 min steps
 		
