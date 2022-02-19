@@ -180,7 +180,6 @@ $(function() {
 				
 				editor.session.setMode('ace/mode/text');
 				editor.setReadOnly(true);
-				editor.renderer.setOption('showLineNumbers', false);
 				editor.setValue(json.response);
 				editor.clearSelection();
 				
@@ -198,7 +197,6 @@ $(function() {
 				
 				editor.session.setMode('ace/mode/json');
 				editor.setReadOnly(true);
-				editor.renderer.setOption('showLineNumbers', false);
 				editor.setValue(JSON.stringify(json, null, 2));
 				editor.clearSelection();
 				

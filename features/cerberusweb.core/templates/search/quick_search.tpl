@@ -36,7 +36,6 @@ $(function() {
 	var editor = ace.edit($editor.attr('id'));
 	editor.setOption('highlightActiveLine', false);
 	editor.renderer.setOption('showGutter', false);
-	editor.renderer.setOption('showLineNumbers', false);
 	editor.commands.addCommand({
 		name: 'Submit',
 		bindKey: { win: "Enter", mac: "Enter" },

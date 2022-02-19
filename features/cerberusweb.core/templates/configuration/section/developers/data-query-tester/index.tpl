@@ -64,7 +64,6 @@ $(function() {
 					
 				} else {
 					editor_results.setReadOnly(true);
-					editor_results.renderer.setOption('showLineNumbers', false);
 					editor_results.setValue(JSON.stringify(json, null, 2));
 					editor_results.clearSelection();
 					$status.show();
