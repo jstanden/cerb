@@ -71,7 +71,8 @@
 							
 							{if !$calendar->params.hide_start_time}
 							<b>
-							{if $event.ts|devblocks_date:'i' == '00'}
+							{if $event.ts_end-$event.ts == 86399}
+							{elseif $event.ts|devblocks_date:'i' == '00'}
 								{$event.ts|devblocks_date:$hour_format}{if $hour_format=='g'}{$event.ts|devblocks_date:'a'|substr:0:1}{/if}
 							{else}
 								{$event.ts|devblocks_date:"{$hour_format}:i"}{if $hour_format=='g'}{$event.ts|devblocks_date:'a'|substr:0:1}{/if}
