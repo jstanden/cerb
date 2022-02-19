@@ -644,7 +644,7 @@ class Model_Calendar {
 			
 			foreach($series_events as $time => $events) {
 				if(!isset($calendar_events[$time]))
-					$calendar_events[$time] = array();
+					$calendar_events[$time] = [];
 				
 				foreach($events as $event)
 					$calendar_events[$time][] = $event;
@@ -702,20 +702,20 @@ class Model_Calendar {
 		
 		foreach($results as $row) {
 			// If the event spans multiple days, split them up into distinct events
-			$ts_pointer = strtotime('midnight', $row['date_start']);
-			$day_range = array();
-			
-			while($ts_pointer <= $row['date_end']) {
-				$day_range[] = $ts_pointer;
-				$ts_pointer = strtotime('tomorrow', $ts_pointer);
-			}
+			$day_range = DevblocksPlatform::dateLerpArray(
+				[
+					date('Y-m-d 00:00:00', strtotime('midnight', $row['date_start'])),
+					date('Y-m-d 23:59:59', strtotime('23:59:59', $row['date_end']))
+				],
+				'day'
+			);
 			
 			foreach($day_range as $epoch) {
-				$day_start = strtotime('midnight', $epoch);
-				$day_end = strtotime('23:59:59', $epoch);
+				$day_start = $epoch;
+				$day_end = strtotime('+1 day -1 second', $epoch);
 				
 				if(!isset($calendar_events[$epoch]))
-					$calendar_events[$epoch] = array();
+					$calendar_events[$epoch] = [];
 				
 				$event_start = $row['date_start'];
 				$event_end = $row['date_end'];
@@ -728,7 +728,7 @@ class Model_Calendar {
 				if($event_end > $day_end)
 					$event_end = $day_end;
 				
-				$calendar_events[$epoch][] = array(
+				$calendar_events[$epoch][] = [
 					'context' => CerberusContexts::CONTEXT_CALENDAR_EVENT,
 					'context_id' => $row['id'],
 					'label' => $row['name'],
@@ -740,7 +740,7 @@ class Model_Calendar {
 						CerberusContexts::CONTEXT_CALENDAR_EVENT,
 						$row['id']
 					),
-				);
+				];
 			}
 		}
 		
@@ -1706,7 +1706,7 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 				$calendar = DAO_Calendar::get($context_id);
 
 				$calendar_events = $calendar->getEvents($calendar_scope['date_range_from'], $calendar_scope['date_range_to']);
-				$events = array();
+				$events = [];
 				
 				if("events_occluded" == $token) {
 					$availability = $calendar->computeAvailability($calendar_scope['date_range_from'], $calendar_scope['date_range_to'], $calendar_events);

@@ -74,7 +74,7 @@ class ProfileWidget_Calendar extends Extension_ProfileWidget {
 		@$month = DevblocksPlatform::importGPC($_POST['month'],'integer', 0);
 		@$year = DevblocksPlatform::importGPC($_POST['year'],'integer', 0);
 		
-		$start_on_mon = @$calendar->params['start_on_mon'] ? true : false;
+		$start_on_mon = (bool)($calendar->params['start_on_mon'] ?? false);
 		$calendar_properties = DevblocksCalendarHelper::getCalendar($month, $year, $start_on_mon);
 		
 		$calendar_events = $calendar->getEvents($calendar_properties['date_range_from'], $calendar_properties['date_range_to']);
@@ -113,7 +113,7 @@ class ProfileWidget_Calendar extends Extension_ProfileWidget {
 		if(null == ($calendar = DAO_Calendar::get($calendar_id))) /* @var Model_Calendar $calendar */
 			return;
 		
-		$start_on_mon = @$calendar->params['start_on_mon'] ? true : false;
+		$start_on_mon = (bool)($calendar->params['start_on_mon'] ?? false);
 		$calendar_properties = DevblocksCalendarHelper::getCalendar($month, $year, $start_on_mon);
 		
 		$calendar_events = $calendar->getEvents($calendar_properties['date_range_from'], $calendar_properties['date_range_to']);

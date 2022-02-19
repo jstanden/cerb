@@ -50,7 +50,7 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		if(!Context_Calendar::isReadableByActor($calendar, $active_worker))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		$start_on_mon = @$calendar->params['start_on_mon'] ? true : false;
+		$start_on_mon = (bool)($calendar->params['start_on_mon'] ?? false);
 		
 		$calendar_properties = DevblocksCalendarHelper::getCalendar($month, $year, $start_on_mon);
 		

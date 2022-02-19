@@ -58,7 +58,7 @@ class WorkspaceWidget_Calendar extends Extension_WorkspaceWidget implements ICer
 			return;
 		}
 		
-		$start_on_mon = @$calendar->params['start_on_mon'] ? true : false;
+		$start_on_mon = (bool)($calendar->params['start_on_mon'] ?? false);
 		$calendar_properties = DevblocksCalendarHelper::getCalendar($month, $year, $start_on_mon);
 		
 		$calendar_events = $calendar->getEvents($calendar_properties['date_range_from'], $calendar_properties['date_range_to']);
@@ -128,7 +128,7 @@ class WorkspaceWidget_Calendar extends Extension_WorkspaceWidget implements ICer
 		if(!Context_Calendar::isReadableByActor($calendar, $active_worker))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		$start_on_mon = @$calendar->params['start_on_mon'] ? true : false;
+		$start_on_mon = (bool)($calendar->params['start_on_mon'] ?? false);
 		$calendar_properties = DevblocksCalendarHelper::getCalendar($month, $year, $start_on_mon);
 		
 		$calendar_events = $calendar->getEvents($calendar_properties['date_range_from'], $calendar_properties['date_range_to']);
