@@ -48,7 +48,7 @@ class ProfileWidget_ChartTimeSeries extends Extension_ProfileWidget {
 		$bindings = $dict->getDictionary();
 		
 		if(false === ($results = $data->executeQuery($query, $bindings, $error))) {
-			echo DevblocksPlatform::strEscapeHtml($error);
+			echo DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.error') . ': ' . $error);
 			return;
 		}
 		

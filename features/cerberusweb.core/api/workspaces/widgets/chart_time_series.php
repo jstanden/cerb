@@ -54,7 +54,7 @@ class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget implemen
 		$error = null;
 		
 		if(false === ($results = $this->getData($widget, $error))) {
-			echo DevblocksPlatform::strEscapeHtml($error);
+			echo DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.error') . ': ' . $error);
 			return;
 		}
 		

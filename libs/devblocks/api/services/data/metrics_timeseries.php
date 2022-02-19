@@ -412,9 +412,14 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 		}
 		
 		$chart_model['xaxis'] = DevblocksPlatform::services()->date()->formatTimestamps(
-			DevblocksPlatform::dateLerpArray([$range['from_string'], $range['to_string']], $unit, $step),
+			DevblocksPlatform::dateLerpArray([$range['from_string'], $range['to_string']], $unit, $step, 1001),
 			$unit_format_php
 		);
+		
+		if(count($chart_model['xaxis']) > 1000) {
+			$error = "Exceeded the limit of 1000 x-axis ticks. Reduce the `range:` or use a larger `period:`";
+			return false;
+		}
 		
 		$results = [
 			'ts' => $chart_model['xaxis'],
