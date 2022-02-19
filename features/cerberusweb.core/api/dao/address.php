@@ -604,9 +604,9 @@ class DAO_Address extends Cerb_ORMHelper {
 		return $results;
 	}
 	
-	static function getByWorkers() {
+	static function getByWorkers($with_disabled=false) {
 		$addys = self::getAllWithWorker();
-		$workers = DAO_Worker::getAll();
+		$workers = DAO_Worker::getAll(false, $with_disabled);
 		
 		array_walk($addys, function($addy) use ($workers) {
 			if(!isset($workers[$addy->worker_id]))

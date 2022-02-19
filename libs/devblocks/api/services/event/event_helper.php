@@ -4947,7 +4947,19 @@ class DevblocksEventHelper {
 			}
 		}
 		
-		return $to_list;
+		return array_filter(
+			$to_list,
+			function($worker) {
+				if(!($worker instanceof Model_Worker))
+					return false;
+				
+				// Don't relay to disabled workers
+				if($worker->is_disabled)
+					return false;
+				
+				return true;
+			}
+		);
 	}
 	
 	static function simulateActionRelayEmail($params, DevblocksDictionaryDelegate $dict, $context, $context_id, $group_id, $bucket_id, $message_id, $owner_id, $sender_email, $sender_name, $subject) {
