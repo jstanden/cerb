@@ -308,8 +308,25 @@ $(function() {
 		}
 
 		genericAjaxPost(formData, '', '', function(html) {
-			if(0 === html.length) {
+			if('string' !== typeof html || 0 === html.length) {
 				$widget.empty();
+
+				$('<div/>')
+					.text('Error: Widget failed to load.')
+					.css('margin-bottom', '25px')
+					.appendTo($widget)
+				;
+				
+				if(is_full) {
+					var $parent = $widget.closest('.cerb-workspace-widget');
+					var $clone = $parent.clone();
+					
+					addEvents($clone).insertBefore(
+						$widget.closest('.cerb-workspace-widget').hide()
+					);
+
+					$widget.closest('.cerb-workspace-widget').remove();
+				}
 				
 			} else {
 				try {
