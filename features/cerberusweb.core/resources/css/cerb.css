@@ -1089,18 +1089,25 @@ TABLE.calendar TR.week TD DIV.day_contents {
   padding: 5px;
 }
 TABLE.calendar TR.week TD DIV.day_contents DIV {
-  padding: 3px 0 3px 3px;
+  padding: 0.25em 0.25em;
   background-color: var(--cerb-color-background-contrast-200);
   margin-top: 2px;
   height: 1em;
   overflow: hidden;
-  border-radius: 5px;
+  border-radius: 0.25em;
   word-wrap: break-word;
   word-break: break-all;
+}
+TABLE.calendar TR.week TD DIV.day_contents DIV SPAN.time {
+  font-size: 80%;
+  font-weight: normal;
+  opacity: 80%;
+  float: right;
 }
 TABLE.calendar TR.week TD DIV.day_contents A {
   text-decoration: none;
   color: #202020;
+  font-weight: 500;
 }
 TABLE.calendar TR.week TD DIV.day_contents A:hover {
   text-decoration: underline;

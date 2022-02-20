@@ -880,19 +880,27 @@ TABLE.calendar {
 				padding:5px;
 
 				DIV {
-					padding:3px 0 3px 3px;
+					padding:0.25em 0.25em;
 					background-color: var(--cerb-color-background-contrast-200);
 					margin-top:2px;
 					height:1em;
 					overflow:hidden;
-					border-radius: 5px;
+					border-radius: 0.25em;
 					word-wrap:break-word;
 					word-break:break-all;
+					
+					SPAN.time {
+						font-size: 80%;
+						font-weight: normal;
+						opacity:80%;
+						float: right;
+					}
 				}
 
 				A {
 					text-decoration:none;
 					color: rgb(32, 32, 32);
+					font-weight: 500;
 
 					&:hover {
 						text-decoration:underline;
