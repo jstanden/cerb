@@ -918,6 +918,7 @@ class Model_CalendarAvailability {
 	function occludeCalendarEvents(&$calendar_events) {
 		if(is_array($calendar_events))
 		foreach($calendar_events as $ts => $day_schedule) {
+			$dirty = false;
 			if(is_array($day_schedule))
 			foreach($day_schedule as $idx => $event) {
 				if(empty($event['is_available']))
@@ -927,8 +928,64 @@ class Model_CalendarAvailability {
 				$for = max(1, ceil(($event['ts_end'] - $event['ts'])/60));
 				$mins = substr($this->_mins, $at, $for);
 				
-				if(false === strpos($mins, '1'))
+				$available_for = substr_count($mins, '1');
+				
+				// Completely unavailable this day
+				if(0 == $available_for) {
 					unset($calendar_events[$ts][$idx]);
+					
+				// Partially unavailable this day (occulted)
+				} else if($available_for != $for) {
+					// Our start time is occulted
+					if(
+						'0' == $mins[0] 
+						&& false !== ($pos = strpos($mins, '1')) 
+					) {
+						$dirty = true;
+						$duration = $pos;
+						$event['ts'] += 60 * $duration;
+						$calendar_events[$ts][$idx]['ts'] = $event['ts'];
+					}
+					
+					// Our end time is occulted
+					if(
+						'0' == substr($mins,-1,1) 
+						&& false !== ($pos = strrpos($mins, '1'))
+					) {
+						$dirty = true;
+						$duration = $for-$pos-1;
+						$event['ts_end']-= 60 * $duration;
+						$calendar_events[$ts][$idx]['ts_end'] = $event['ts_end'];
+					}
+					
+					if($dirty) {
+						$at = ceil(($event['ts'] - $this->_start)/60);
+						$for = max(1, ceil(($event['ts_end'] - $event['ts'])/60));
+						$mins = substr($this->_mins, $at, $for);
+					}
+					
+					$pos = 0;
+					
+					// While we have busy events within our availability
+					while(false !== ($from_pos = strpos($mins, '0', $pos))) {
+						if(false === ($to_pos = strpos($mins, '1', $from_pos+1)))
+							break;
+						
+						$new_event = $event;
+						$new_event['ts'] += 60 * $to_pos; 
+						$calendar_events[$ts][] = $new_event;
+						
+						$event['ts_end'] -= 60 * ($for-$from_pos);
+						$calendar_events[$ts][$idx]['ts_end'] = $event['ts_end'];
+						
+						$pos = $to_pos+1;
+					}
+				}
+				
+				// If we occulted any events, re-sort on start time
+				if($dirty) {
+					DevblocksPlatform::sortObjects($calendar_events[$ts], '[ts]');
+				}
 			}
 		}
 	}
