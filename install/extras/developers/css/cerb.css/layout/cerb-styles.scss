@@ -888,13 +888,6 @@ TABLE.calendar {
 					border-radius: 0.25em;
 					word-wrap:break-word;
 					word-break:break-all;
-					
-					SPAN.time {
-						font-size: 80%;
-						font-weight: normal;
-						opacity:80%;
-						float: right;
-					}
 				}
 
 				A {
@@ -905,6 +898,14 @@ TABLE.calendar {
 					&:hover {
 						text-decoration:underline;
 					}
+				}
+
+				.time {
+					font-size: 80%;
+					font-weight: normal;
+					color: rgb(32, 32, 32);
+					opacity:80%;
+					float: right;
 				}
 			}
 

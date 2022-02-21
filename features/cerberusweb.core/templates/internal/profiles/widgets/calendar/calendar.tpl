@@ -1,4 +1,7 @@
 {$guid = uniqid()}
+{$worker_prefs = DAO_WorkerPref::getByWorker($active_worker->id)}
+{$time_format = $worker_prefs.time_format|default:'D, d M Y h:i a'}
+{if $time_format = 'D, d M Y h:i a'}{$hour_format = 'g'}{else}{$hour_format = 'H'}{/if}
 
 <form id="frm{$guid}" action="#" style="margin-bottom:5px;width:98%;">
 	<div style="float:left;">
@@ -64,10 +67,8 @@
 					{foreach from=$calendar_events.{$day.timestamp} item=event}
 						<div class="event" style="background-color:{$event.color|default:'#C8C8C8'};" link="{$event.link}">
 							<a href="javascript:;" class="cerb-peek-trigger" data-context="{$event.context}" data-context-id="{$event.context_id}">
-							
-							{$worker_prefs = DAO_WorkerPref::getByWorker($active_worker->id)}
-							{$time_format = $worker_prefs.time_format|default:'D, d M Y h:i a'}
-							{if $time_format = 'D, d M Y h:i a'}{$hour_format = 'g'}{else}{$hour_format = 'H'}{/if}
+							{$event.label}
+							</a>
 							
 							{if !$calendar->params.hide_start_time}
 								<span class="time">
@@ -90,9 +91,6 @@
 								{/if}
 								</span>
 							{/if}
-							
-							{$event.label}
-							</a>
 						</div>
 					{/foreach}
 				{/if}

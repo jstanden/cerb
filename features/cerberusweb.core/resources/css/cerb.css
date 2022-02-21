@@ -1098,12 +1098,6 @@ TABLE.calendar TR.week TD DIV.day_contents DIV {
   word-wrap: break-word;
   word-break: break-all;
 }
-TABLE.calendar TR.week TD DIV.day_contents DIV SPAN.time {
-  font-size: 80%;
-  font-weight: normal;
-  opacity: 80%;
-  float: right;
-}
 TABLE.calendar TR.week TD DIV.day_contents A {
   text-decoration: none;
   color: #202020;
@@ -1111,6 +1105,13 @@ TABLE.calendar TR.week TD DIV.day_contents A {
 }
 TABLE.calendar TR.week TD DIV.day_contents A:hover {
   text-decoration: underline;
+}
+TABLE.calendar TR.week TD DIV.day_contents .time {
+  font-size: 80%;
+  font-weight: normal;
+  color: #202020;
+  opacity: 80%;
+  float: right;
 }
 
 DIV.error-box {
