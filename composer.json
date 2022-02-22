@@ -63,7 +63,7 @@
 		"erusev/parsedown": "^1.7",
 		"erusev/parsedown-extra": "^0.7.1",
 		"donatj/phpuseragentparser": "^1.0",
-		"twig/twig" : "dev-3.x-cerb",
+		"twig/twig" : "dev-3.3.8-cerb",
 		"singpolyma/openpgp-php": "dev-cerb",
 		"horde/imap-client": "dev-main",
 		"ramsey/uuid": "^4.1",
