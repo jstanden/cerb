@@ -115,6 +115,7 @@ class _DevblocksDatabaseManager {
 		$db = mysqli_init();
 		
 		mysqli_options($db, MYSQLI_OPT_CONNECT_TIMEOUT, $timeout_secs);
+		mysqli_report(MYSQLI_REPORT_ERROR);
 		
 		if($persistent)
 			$host = 'p:' . $host;
