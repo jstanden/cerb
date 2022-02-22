@@ -636,7 +636,7 @@ class _DevblocksDateManager {
 		if(array_key_exists($unit, $formats))
 			return $formats[$unit];
 		
-		return null;
+		return '';
 	}
 };
 

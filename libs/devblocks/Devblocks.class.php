@@ -529,8 +529,13 @@ class DevblocksPlatform extends DevblocksEngine {
 		$values = [];
 		
 		try {
-			$tick = new DateTime(null);
+			$tick = new DateTime();
 			$tick->setTimestamp($ts);
+			
+			if(false === ($interval = DateInterval::createFromDateString(sprintf('+%d %s', $step, $unit)))) {
+				return [];
+			}
+			
 		} catch (Exception $e) {
 			return [];
 		}
@@ -544,7 +549,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			if($limit && ++$counter >= $limit)
 				break;
 			
-			$tick->add(DateInterval::createFromDateString(sprintf('+%d %s', $step, $unit)));
+			$tick->add($interval);
 			
 			if(end($values) == $tick->getTimestamp())
 				$tick->add(DateInterval::createFromDateString(sprintf('+%d %s', $step+1, $unit)));
