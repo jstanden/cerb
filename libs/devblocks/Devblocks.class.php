@@ -2184,15 +2184,15 @@ class DevblocksPlatform extends DevblocksEngine {
 				break;
 				
 			case 'number':
-				$label = number_format($number, 0);
+				$label = number_format(floatval($number), 0);
 				break;
 				
 			case 'decimal':
-				$label = number_format($number, 2);
+				$label = number_format(floatval($number), 2);
 				break;
 			
 			case 'percent':
-				$label = number_format($number) . '%';
+				$label = number_format(floatval($number)) . '%';
 				break;
 			
 			// [TODO] Currency

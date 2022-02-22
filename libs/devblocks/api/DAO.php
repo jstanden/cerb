@@ -2045,7 +2045,7 @@ class DAO_DevblocksStorageProfile extends DevblocksORMHelper {
 			$object->extension_id = $row['extension_id'];
 			$object->params = [];
 			
-			if(false !== (@$params = json_decode($row['params_json'], true))) {
+			if(false !== ($params = json_decode($row['params_json'] ?? '', true))) {
 				$object->params = $params;
 			}
 			

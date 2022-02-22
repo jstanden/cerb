@@ -310,33 +310,33 @@ class WorkspaceWidgetDatasource_WorklistSeries extends Extension_WorkspaceWidget
 					switch($xaxis_tick) {
 						case 'hour':
 							$date_format_mysql = '%Y-%m-%d %H:00';
-							$date_format_php = '%Y-%m-%d %H:00';
+							$date_format_php = 'Y-m-d H\:\0\0';
 							$date_label = $date_format_php;
 							break;
 								
 						default:
 						case 'day':
 							$date_format_mysql = '%Y-%m-%d';
-							$date_format_php = '%Y-%m-%d';
+							$date_format_php = 'Y-m-d';
 							$date_label = $date_format_php;
 							break;
 								
 						case 'week':
 							$date_format_mysql = '%xW%v';
-							$date_format_php = '%YW%W';
+							$date_format_php = 'Y\WW';
 							$date_label = $date_format_php;
 							break;
 								
 						case 'month':
 							$date_format_mysql = '%Y-%m';
-							$date_format_php = '%Y-%m';
-							$date_label = '%b %Y';
+							$date_format_php = 'Y-m';
+							$date_label = 'M Y';
 							break;
 								
 						case 'year':
 							$date_format_mysql = '%Y-01-01';
-							$date_format_php = '%Y-01-01';
-							$date_label = '%Y';
+							$date_format_php = 'Y\-\0\1\-\0\1';
+							$date_label = 'Y';
 							break;
 					}
 					
@@ -474,7 +474,7 @@ class WorkspaceWidgetDatasource_WorklistSeries extends Extension_WorkspaceWidget
 						case 'day':
 						case 'month':
 						case 'year':
-							$current_tick = strtotime(strftime($date_format_php, $current_tick));
+							$current_tick = strtotime(date($date_format_php, $current_tick));
 							break;
 							
 						// Always Monday
@@ -484,7 +484,7 @@ class WorkspaceWidgetDatasource_WorklistSeries extends Extension_WorkspaceWidget
 					}
 						
 					do {
-						$histo = strftime($date_format_php, $current_tick);
+						$histo = date($date_format_php, $current_tick);
 						// var_dump($histo);
 
 						$value = (isset($results[$histo])) ? $results[$histo] : 0;
@@ -498,7 +498,7 @@ class WorkspaceWidgetDatasource_WorklistSeries extends Extension_WorkspaceWidget
 						$data[$histo] = array(
 							'x' => $histo,
 							'y' => (float)$value,
-							'x_label' => strftime($date_label, $current_tick),
+							'x_label' => date($date_label, $current_tick),
 							'y_label' => $yaxis_label,
 						);
 

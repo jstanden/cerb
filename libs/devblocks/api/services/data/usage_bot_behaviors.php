@@ -272,7 +272,12 @@ class _DevblocksDataProviderUsageBotBehaviors extends _DevblocksDataProvider {
 		$behaviors = DAO_TriggerEvent::getIds(array_keys($series));
 		
 		foreach($series as $behavior_id => $y_values) {
-			$behavior_name = @$behaviors[$behavior_id]->title ?: '(no name)';
+			if(array_key_exists($behavior_id, $behaviors)) {
+				$behavior_name = $behaviors[$behavior_id]->title ?: '(no name)';
+			} else {
+				$behavior_name = '(no name)';
+			}
+			
 			$output['data'][$behavior_name] = array_values($y_values);
 		}
 		

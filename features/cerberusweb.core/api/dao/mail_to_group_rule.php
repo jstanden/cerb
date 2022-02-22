@@ -266,7 +266,7 @@ class Model_MailToGroupRule {
 							
 				switch($crit_key) {
 					case 'dayofweek':
-						$current_day = strftime('%w');
+						$current_day = date('w');
 //						$current_day = 1;
 
 						// Forced to English abbrevs as indexes
@@ -280,8 +280,8 @@ class Model_MailToGroupRule {
 						break;
 						
 					case 'timeofday':
-						$current_hour = strftime('%H');
-						$current_min = strftime('%M');
+						$current_hour = date('H');
+						$current_min = date('i');
 //						$current_hour = 17;
 //						$current_min = 5;
 

@@ -3,7 +3,7 @@
 <form id="frmKbBrowseWidget{$widget->id}" action="#">
 	{$parent_id = 0}
 	{if $root_id}
-		{assign var=parent_id value=$categories.$root_id->parent_id}
+		{$parent_id = $categories.$root_id->parent_id}
 	{/if}
 		
 	{if !empty($root_id) && $active_worker->hasPriv("contexts.cerberusweb.contexts.kb_category.update")}<button type="button" class="category-edit" data-context="{CerberusContexts::CONTEXT_KB_CATEGORY}" data-context-id="{$root_id}" data-edit="true"><span class="glyphicons glyphicons-folder-closed"></span></a> Edit {if $parent_id}Category{else}Topic{/if}</button>{/if}
@@ -92,7 +92,9 @@ $(function() {
 			genericAjaxGet('divKbWidget{$widget->id}','c=pages&a=invokeWidget&widget_id={$widget->id}&action=changeCategory&category_id=' + category_id);
 		})
 		.on('cerb-peek-deleted', function(e) {
+			{if $root_id}
 			genericAjaxGet('divKbWidget{$widget->id}','c=pages&a=invokeWidget&widget_id={$widget->id}&action=changeCategory&category_id={$categories.$root_id->parent_id}');
+			{/if}
 		})
 	;
 });

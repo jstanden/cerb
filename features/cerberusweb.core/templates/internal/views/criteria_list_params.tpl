@@ -6,7 +6,7 @@
 	{if !$nested && !$readonly}<div><span class="glyphicons glyphicons-circle-remove" style="cursor:pointer;margin-right:5px;"></span> <input type="checkbox" name="field_deletes[]" value="{$param_key}" style="display:none;"> {/if}
 	{if !$nested && $readonly}<li class="bubble-blue" style="position:relative;{if is_array($param)}white-space:normal;{/if}">{/if}
 
-	{if '*_' == substr($param->field,0,2)}
+	{if is_object($param) && '*_' == substr($param->field,0,2)}
 		{$view->renderVirtualCriteria($param)}
 	{elseif is_array($param)}
 		{foreach from=$param item=p name=p}
@@ -40,7 +40,7 @@
 					<code style="color:var(--cerb-color-text);font-weight:bold;padding:0px 2px 0px 0px;">(</code>
 					{include file="devblocks:cerberusweb.core::internal/views/criteria_list_params.tpl" params=$p nested=true}
 					<code style="color:var(--cerb-color-text);font-weight:bold;padding:0px 2px 0px 0px;">)</code>
-				{else}
+				{elseif is_a($p, 'DevblocksSearchCriteria')}
 					{if '*_' == substr($p->field,0,2)}
 						{$view->renderVirtualCriteria($p)}
 					{else}
@@ -76,10 +76,10 @@
 							is <b>null</b>
 						{elseif $p->operator=='is not null'}
 							is <b>not null</b>
-						{elseif $param->operator=='between'}
+						{elseif $p->operator=='between'}
 							is between 
 							<b>{$view->renderCriteriaParam($p)}</b>
-						{elseif $param->operator=='not between'}
+						{elseif $p->operator=='not between'}
 							is not between 
 							<b>{$view->renderCriteriaParam($p)}</b>
 						{elseif $p->operator=='fulltext'}
@@ -108,7 +108,7 @@
 		{if $nested}
 		<code style="color:var(--cerb-color-text);font-weight:bold;padding:0px 2px 0px 0px;">)</code>
 		{/if}
-	{else}
+	{elseif is_a($p, 'DevblocksSearchCriteria')}
 		{$field = $param->field}
 		{$view_filters.$field->db_label|capitalize}
 		{* [TODO] Add operator labels to platform *}

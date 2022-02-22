@@ -123,7 +123,7 @@ class _DevblocksDataProviderSampleTimeSeries extends _DevblocksDataProvider {
 			case 'days':
 				$ts = strtotime(sprintf('today -%d days', $x_count));
 				for($i=$x_count-1; $i >= 0; $i--) {
-					$x_domain[] = strftime('%Y-%m-%d', $ts);
+					$x_domain[] = date('Y-m-d', $ts);
 					$ts = strtotime('+1 day', $ts);
 				}
 				break;
@@ -133,7 +133,7 @@ class _DevblocksDataProviderSampleTimeSeries extends _DevblocksDataProvider {
 				$xaxis_step = 'week';
 				$ts = strtotime(sprintf('Monday -%d weeks', $x_count));
 				for($i=$x_count-1; $i >= 0; $i--) {
-					$x_domain[] = strftime('%Y-%m-%d', $ts);
+					$x_domain[] = date('Y-m-d', $ts);
 					$ts = strtotime('+1 week', $ts);
 				}
 				break;
@@ -145,7 +145,7 @@ class _DevblocksDataProviderSampleTimeSeries extends _DevblocksDataProvider {
 				
 				for($i=$x_count-1; $i >= 0; $i--) {
 					$ts = strtotime(sprintf('first day of this month -%d months', $i));
-					$x_domain[] = strftime('%Y-%m', $ts);
+					$x_domain[] = date('Y-m', $ts);
 				}
 				break;
 				
@@ -156,7 +156,7 @@ class _DevblocksDataProviderSampleTimeSeries extends _DevblocksDataProvider {
 				
 				for($i=$x_count-1; $i >= 0; $i--) {
 					$ts = strtotime(sprintf('first day of this year -%d years', $i));
-					$x_domain[] = strftime('%Y', $ts);
+					$x_domain[] = date('Y', $ts);
 				}
 				break;
 		}

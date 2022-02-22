@@ -272,7 +272,7 @@ class DAO_ProjectBoardColumn extends Cerb_ORMHelper {
 			$object->functions_kata = $row['functions_kata'];
 			$object->updated_at = intval($row['updated_at']);
 			
-			@$json = json_decode($row['cards_json'], true) ?: [];
+			$json = json_decode($row['cards_json'] ?? '', true) ?: [];
 			$object->cards = $json;
 			
 			$objects[$object->id] = $object;

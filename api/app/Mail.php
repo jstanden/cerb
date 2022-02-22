@@ -345,6 +345,9 @@ class CerberusMail {
 	static function parseRfcAddresses($string, $exclude_controlled_addresses=false) {
 		$strings = DevblocksPlatform::services()->string();
 		
+		if(is_null($string))
+			$string = '';
+		
 		// Always terminate the list
 		$string = rtrim($string, ',;') . ';';
 		

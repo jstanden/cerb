@@ -38,7 +38,7 @@ $(function() {
 
 		// Refresh this widget by default
 		if(!done_params.has('refresh_widgets[]')) {
-			done_params.set('refresh_widgets[]', '{$widget->name}');
+			done_params.set('refresh_widgets[]', '{$widget->label}');
 		}
 
 		var refresh = done_params.getAll('refresh_widgets[]');

@@ -34,7 +34,7 @@
         </div>
 
         <input type="hidden" name="comment_is_markdown" value="1">
-        <textarea name="comment" placeholder="{'comment.notify.at_mention'|devblocks_translate}">{$model->comment}</textarea>
+        <textarea name="comment" placeholder="{'comment.notify.at_mention'|devblocks_translate}">{if is_a($model, 'Model_Comment')}{$model->comment}{/if}</textarea>
 
         <div class="cerb-comment-attachments">
             <button type="button" class="chooser_file"><span class="glyphicons glyphicons-paperclip"></span></button>

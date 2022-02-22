@@ -91,7 +91,7 @@
                 </button>
             {/if}
         {elseif 'menu' == $toolbar_item.type}
-            {$item_key_parts = explode('/', $toolbar_item.default)}
+            {$item_key_parts = explode('/', $toolbar_item.default|default:'')}
             {$default = $toolbar_item.items[$toolbar_item.default]}
 
             {* Split menu button *}

@@ -727,10 +727,10 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			
 			'worker_id' => $active_worker ? $active_worker->id : 0,
 			
-			'client_browser' => @$interaction->session_data['dict']['client_browser'],
-			'client_browser_version' => @$interaction->session_data['dict']['client_browser_version'],
-			'client_ip' => @$interaction->session_data['dict']['client_ip'],
-			'client_platform' => @$interaction->session_data['dict']['client_platform'],
+			'client_browser' => $interaction->session_data['dict']['client_browser'] ?? '',
+			'client_browser_version' => $interaction->session_data['dict']['client_browser_version'] ?? '',
+			'client_ip' => $interaction->session_data['dict']['client_ip'] ?? '',
+			'client_platform' => $interaction->session_data['dict']['client_platform'] ?? '',
 		];
 		
 		$event_model = new Model_DevblocksEvent(
@@ -760,7 +760,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		
 		$behavior_dict = new DevblocksDictionaryDelegate($values);
 		
-		$resume_path = @$interaction->session_data['path'];
+		$resume_path = $interaction->session_data['path'] ?? '';
 		
 		if($resume_path) {
 			// Did we try to submit?
@@ -1030,8 +1030,8 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 						break;
 					
 					$tpl->assign('message', $msg);
-					$tpl->assign('format', @$params['format']);
-					$tpl->assign('style', @$params['style']);
+					$tpl->assign('format', $params['format'] ?? '');
+					$tpl->assign('style', $params['style'] ?? '');
 					$tpl->display('devblocks:cerberusweb.core::events/form_interaction/worker/responses/respond_text.tpl');
 					break;
 				
@@ -1135,7 +1135,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 						$otp_key = $prompt_var . '__otp';
 						$otp = $dict->get($otp_key);
 						
-						if(!$otp || 0 !== strcasecmp($otp, $prompt_value)) {
+						if(!$otp || !is_string($otp) || !is_string($prompt_value) || 0 !== strcasecmp($otp, $prompt_value)) {
 							$validation_errors[] = 'Your CAPTCHA text does not match the image.';
 							
 							// Re-generate the challenge
@@ -1219,12 +1219,12 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 				
 				$dict->set($prompt_var, $prompt_value);
 				
-				if(false != (@$format_tpl = $form_element['_prompt']['format'])) {
+				if(false != ($format_tpl = ($form_element['_prompt']['format'] ?? null))) {
 					$var_message = $tpl_builder->build($format_tpl, $dict);
 					$dict->set($prompt_var, $var_message);
 				}
 				
-				if(false != (@$validate_tpl = $form_element['_prompt']['validate'])) {
+				if(false != ($validate_tpl = ($form_element['_prompt']['validate'] ?? null))) {
 					$validation_result = trim($tpl_builder->build($validate_tpl, $dict));
 					
 					if(!empty($validation_result)) {

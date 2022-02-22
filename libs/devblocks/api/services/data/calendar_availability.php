@@ -214,7 +214,7 @@ class _DevblocksDataProviderCalendarAvailability extends _DevblocksDataProvider 
 		$results = array_map(
 			function($k) use ($results, $period_mins) {
 				return [
-					'date' => 60 == $period_mins ? strftime('%Y-%m-%dT%H:00:00', $k) : strftime('%Y-%m-%dT00:00:00', $k),
+					'date' => 60 == $period_mins ? (date('Y-m-d\TH', $k).':00:00') : (date('Y-m-d', $k).'T00:00:00'),
 					'value' => $results[$k]
 				];
 			},

@@ -2,6 +2,7 @@
 {$col_id = $col[1]}
 {$col = $custom_fields[$col_id]}
 
+{if is_a($col, 'Model_CustomField')}
 {if $col->type==Model_CustomField::TYPE_SINGLE_LINE}
 	<td data-column="{$column}">{$result.$column}</td>
 {elseif $col->type==Model_CustomField::TYPE_URL}
@@ -81,4 +82,5 @@
 	</td>
 {else}
 	<td data-column="{$column}"></td>
+{/if}
 {/if}

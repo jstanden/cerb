@@ -316,8 +316,8 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 					$limit = '250';
 				}
 				
-				@$limit_desc = DevblocksPlatform::strStartsWith($limit, '-') ? false : true;
-				@$limit = DevblocksPlatform::intClamp(abs($limit), 0, 2000) ?: 25;
+				$limit_desc = DevblocksPlatform::strStartsWith($limit, '-') ? false : true;
+				$limit = DevblocksPlatform::intClamp(abs($limit ?? 0), 0, 2000) ?: 25;
 				
 				$subtotal_field['limit'] = $limit;
 				$subtotal_field['limit_desc'] = $limit_desc;

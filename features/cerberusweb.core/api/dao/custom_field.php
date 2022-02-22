@@ -336,13 +336,19 @@ class DAO_CustomField extends Cerb_ORMHelper {
 		$fields = self::getAll();
 		$fieldsets = DAO_CustomFieldset::getAll();
 		$results = [];
+		
+		if(is_null($context))
+			$context = '';
 
 		// [TODO] Filter to the fieldsets the active worker is allowed to see
 		
 		// Filter fields to only the requested source
 		foreach($fields as $idx => $field) { /* @var $field Model_CustomField */
+			if(!($field instanceof Model_CustomField))
+				continue;
+			
 			// If we only want a specific context, filter out the rest
-			if(0 != strcasecmp($field->context, $context))
+			if(is_string($context) && 0 != strcasecmp($field->context, $context))
 				continue;
 			
 			if(!$with_fieldsets && !empty($field->custom_fieldset_id))
