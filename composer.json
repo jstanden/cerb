@@ -48,7 +48,7 @@
 		"ext-openssl": "*",
 		"ext-simplexml": "*",
 		"ext-yaml": "*",
-		"smarty/smarty" : "^3.1.43",
+		"smarty/smarty" : "^4.1.0",
 		"swiftmailer/swiftmailer" : "^6.0",
 		"lcobucci/jwt": "^4.0",
 		"dragonmantank/cron-expression": "^2.3",

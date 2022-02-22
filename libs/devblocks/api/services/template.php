@@ -41,10 +41,10 @@ class _DevblocksTemplateManager {
 
 			$instance->error_unassigned = false;
 			$instance->error_reporting = DEVELOPMENT_MODE ? (E_ALL & ~E_NOTICE) : (E_ERROR & ~E_WARNING & ~E_NOTICE);
-			$instance->php_handling = false;
+			$instance->muteUndefinedOrNullWarnings();
 			
 			// Auto-escape HTML output
-			$instance->loadFilter('variable','htmlspecialchars');
+			$instance->registerFilter('variable', ['_DevblocksTemplateManager','devblocks_autoescape'], 'devblocks_autoescape');
 			
 			// Devblocks plugins
 			$instance->registerPlugin('function','fetch', array('_DevblocksTemplateManager', 'function_void'));
@@ -73,6 +73,13 @@ class _DevblocksTemplateManager {
 		return self::$_instance;
 	}
 	
+	static function devblocks_autoescape($source) {
+		if(is_null($source))
+			return '';
+		
+		return htmlspecialchars($source, ENT_QUOTES, Smarty::$_CHARSET);
+	}
+	
 	/**
 	 * Returns an instance of the Smarty Template Engine
 	 *
@@ -84,13 +91,12 @@ class _DevblocksTemplateManager {
 			$instance = clone self::getInstance();
 			
 			// Customize Smarty for the sandbox
-			$instance->compile_dir = APP_SMARTY_SANDBOX_COMPILE_PATH;
-			$instance->use_sub_dirs = APP_SMARTY_COMPILE_USE_SUBDIRS;
-			$instance->compile_id = null; //APP_BUILD;
+			$instance->setCompileDir(APP_SMARTY_SANDBOX_COMPILE_PATH);
+			$instance->setUseSubDirs(APP_SMARTY_COMPILE_USE_SUBDIRS);
+			$instance->setCompileId(null); //APP_BUILD;
 			
 			// Security policy
 			$security = new Smarty_Security($instance);
-			$security->php_handling = Smarty::PHP_REMOVE;
 			$security->secure_dir = array();
 			$security->trusted_uri = array(
 				'#devblocks:.*$#i',
