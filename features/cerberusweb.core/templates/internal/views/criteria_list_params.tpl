@@ -108,7 +108,7 @@
 		{if $nested}
 		<code style="color:var(--cerb-color-text);font-weight:bold;padding:0px 2px 0px 0px;">)</code>
 		{/if}
-	{elseif is_a($p, 'DevblocksSearchCriteria')}
+	{elseif is_a($param, 'DevblocksSearchCriteria')}
 		{$field = $param->field}
 		{$view_filters.$field->db_label|capitalize}
 		{* [TODO] Add operator labels to platform *}
