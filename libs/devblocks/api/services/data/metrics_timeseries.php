@@ -327,6 +327,8 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 					return false;
 				}
 				
+				$chart_model['timezone'] = $value;
+				
 			} else if($field->key == 'timeout') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
 				$chart_model['timeout'] = DevblocksPlatform::intClamp($value, 0, 60000);
@@ -339,8 +341,17 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 		
 		// Sanitize
 		
-		if (!array_key_exists('timezone', $chart_model))
-			$chart_model['timezone'] = DevblocksPlatform::getTimezone();
+		if(!array_key_exists('timezone', $chart_model)) {
+			// If aggregating by day, use UTC time by default
+			if(
+				array_key_exists('period', $chart_model)
+				&& in_array($chart_model['period'], ['day','week','month','year'])
+			) {
+				$chart_model['timezone'] = 'UTC';
+			} else { // Otherwise, aggregate in the local timezone for mins + hours
+				$chart_model['timezone'] = DevblocksPlatform::getTimezone();
+			}
+		}
 		
 		$chart_model['timezone_location'] = $chart_model['timezone'];
 		
@@ -370,23 +381,30 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 		
 		// Normalize
 		if($chart_model['period_unit'] == 86400) {
-			$ts = new DateTime();
-			
-			$ts->setTimestamp($range['from_ts']);
-			$ts->setTime(0,0,0);
-			
-			// Weeks need to start on Monday
-			if('week' == $chart_model['period']) {
-				$ts->modify('Monday this week');
-			}	
-			
-			$range['from_ts'] = $ts->getTimestamp();
-			$range['from_string'] = $ts->format('Y-m-d H:i:s');
-			
-			$ts->setTimestamp($range['to_ts']);
-			$ts->setTime(23,59,59);
-			$range['to_ts'] = $ts->getTimestamp();
-			$range['to_string'] = $ts->format('Y-m-d H:i:s');
+			try {
+				// Our range should start at midnight UTC
+				$ts = new DateTime();
+				$ts->setTimestamp($range['from_ts']);
+				$ts->setTime(0, 0, 0);
+				
+				// Weeks need to start on Monday
+				if ('week' == $chart_model['period']) {
+					$ts->modify('Monday this week');
+				}
+				
+				$range['from_ts'] = $ts->getTimestamp();
+				$range['from_string'] = $ts->format('Y-m-d H:i:s');
+				
+				// Our range should end right before midnight UTC
+				$ts->setTimestamp($range['to_ts']);
+				$ts->setTime(23, 59, 59);
+				$range['to_ts'] = $ts->getTimestamp();
+				$range['to_string'] = $ts->format('Y-m-d H:i:s');
+				
+			} catch(Exception $e) {
+				$error = 'Invalid date range';
+				return false;
+			}
 			
 		} else {
 			$range['from_ts'] -= $range['from_ts'] % $chart_model['period_unit'];
