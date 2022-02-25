@@ -257,7 +257,7 @@ class DAO_ProfileTab extends Cerb_ORMHelper {
 			$object->name = $row['name'];
 			$object->updated_at = intval($row['updated_at']);
 			
-			if(false != ($json = json_decode($row['extension_params_json'], true)))
+			if(false != ($json = json_decode($row['extension_params_json'] ?? '', true)))
 				$object->extension_params = $json;
 			
 			$objects[$object->id] = $object;

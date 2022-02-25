@@ -99,7 +99,7 @@ class BotAction_PackageImport extends Extension_DevblocksEventAction {
 				throw new Exception_DevblocksValidationError("This action is only available to administrators.");
 			
 			@$package_json = DevblocksPlatform::importVar($params['package_json'],'string','');
-			@$prompts_json = @json_decode($tpl_builder->build(DevblocksPlatform::importVar($params['prompts_json'],'string',''), $dict), true);
+			@$prompts_json = json_decode($tpl_builder->build(DevblocksPlatform::importVar($params['prompts_json'] ?? '','string',''), $dict), true);
 			@$object_placeholder = DevblocksPlatform::importVar($params['object_placeholder'],'string','');
 			
 			if(!is_array($prompts_json))

@@ -350,7 +350,7 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 			$object->extension_id = $row['extension_id'];
 			$object->updated_at = intval($row['updated_at']);
 			
-			if(false != (@$params = json_decode($row['extension_params_json'], true)))
+			if(false != ($params = json_decode($row['extension_params_json'] ?? '', true)))
 				$object->extension_params = $params;
 			
 			$objects[$object->id] = $object;

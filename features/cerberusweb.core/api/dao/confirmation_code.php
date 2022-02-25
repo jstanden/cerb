@@ -158,7 +158,7 @@ class DAO_ConfirmationCode extends Cerb_ORMHelper {
 			$object->confirmation_code = $row['confirmation_code'];
 			$object->created = $row['created'];
 			
-			if(!empty($row['meta_json']) && false != (@$json = json_decode($row['meta_json'], true)))
+			if(!empty($row['meta_json']) && false != ($json = json_decode($row['meta_json'], true)))
 				$object->meta = $json;
 			
 			$objects[$object->id] = $object;

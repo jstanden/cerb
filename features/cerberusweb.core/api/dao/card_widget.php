@@ -304,7 +304,7 @@ class DAO_CardWidget extends Cerb_ORMHelper {
 			$object->width_units = $row['width_units'];
 			$object->zone = $row['zone'];
 			
-			$object->extension_params = @json_decode($row['extension_params_json'], true) ?: [];
+			$object->extension_params = json_decode($row['extension_params_json'] ?? '', true) ?: [];
 			
 			$objects[$object->id] = $object;
 		}

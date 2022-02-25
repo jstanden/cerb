@@ -261,9 +261,9 @@ class DAO_ClassifierEntity extends Cerb_ORMHelper {
 			$object->type = $row['type'];
 			$object->updated_at = intval($row['updated_at']);
 
-			@$params_json = $row['params_json'];
+			$params_json = $row['params_json'] ?? '';
 			
-			if($params_json && false != (@$params = json_decode($params_json, true)))
+			if($params_json && false != ($params = json_decode($params_json, true)))
 				$object->params = $params;
 			
 			$objects[$object->id] = $object;

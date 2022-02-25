@@ -121,7 +121,7 @@ class BotAction_ScheduleInteractionProactive extends Extension_DevblocksEventAct
 
 		$event = $trigger->getEvent();
 		
-		if(false == ($interaction_params = @json_decode($interaction_params_json, true)))
+		if(false == ($interaction_params = json_decode($interaction_params_json ?? '', true)))
 			$interaction_params = [];
 		
 		if(empty($expires) || false == (@$expires_at = strtotime($expires)))

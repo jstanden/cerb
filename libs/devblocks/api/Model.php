@@ -1726,7 +1726,6 @@ class DevblocksSearchCriteria {
 							'sql' => $sql,
 						]
 					);
-					break;
 					
 				// String
 				case 'T_QUOTED_TEXT':
@@ -2395,7 +2394,6 @@ class DevblocksSearchCriteria {
 			return $this->where_sql;
 		
 		$db = DevblocksPlatform::services()->database();
-		$where = '';
 		
 		if(!isset($fields[$this->field]))
 			return '';

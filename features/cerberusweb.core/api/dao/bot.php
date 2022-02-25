@@ -345,7 +345,7 @@ class DAO_Bot extends Cerb_ORMHelper {
 			$object->created_at = intval($row['created_at']);
 			$object->updated_at = intval($row['updated_at']);
 			
-			@$params = json_decode($row['params_json'], true);
+			$params = json_decode($row['params_json'] ?? '', true);
 			$object->params = $params ?: array();
 			
 			$objects[$object->id] = $object;

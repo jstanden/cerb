@@ -317,7 +317,7 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 			$object->updated_at = intval($row['updated_at']);
 			$object->workspace_tab_id = intval($row['workspace_tab_id']);
 			
-			if(false != ($params = @json_decode($row['params_json'], true)))
+			if(false != ($params = json_decode($row['params_json'] ?? '', true)))
 				$object->params = $params;
 			
 			$objects[$object->id] = $object;
