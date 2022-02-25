@@ -101,6 +101,11 @@ class _DevblocksDatabaseManager {
 			return false;
 		}
 		
+		// Match the current timezone if set
+		if($this->_timezone) {
+			$this->_SetReaderTimezone($db, $this->_timezone);
+		}
+		
 		return $db;
 	}	
 	
@@ -725,7 +730,7 @@ class _DevblocksDatabaseManager {
 		array_pop($this->_timezone_stack);
 		
 		if(false != ($last_timezone = current($this->_timezone_stack))) {
-			$this->_SetReaderTimezone($last_timezone);
+			$this->_SetReaderTimezone($db, $last_timezone);
 			
 		} else {
 			if(false === mysqli_query($db, "SET @@SESSION.time_zone = @@GLOBAL.time_zone"))
@@ -735,9 +740,7 @@ class _DevblocksDatabaseManager {
 		return true;
 	}
 	
-	private function _SetReaderTimezone($timezone) {
-		$db = $this->getReaderConnection();
-		
+	private function _SetReaderTimezone($db, $timezone) {
 		if(false === mysqli_query($db, sprintf("SET @@SESSION.time_zone = %s", $this->qstr($timezone)))) {
 			// If an invalid timezone then the time_zones tables probably aren't populated
 			if(1298 == mysqli_errno($db)) {
@@ -759,6 +762,8 @@ class _DevblocksDatabaseManager {
 		$this->_timezone = $timezone;
 		$this->_timezone_stack[] = $timezone;
 		
-		return $this->_SetReaderTimezone($timezone);
+		$db = $this->getReaderConnection();
+		
+		return $this->_SetReaderTimezone($db, $timezone);
 	}
 };

@@ -130,8 +130,10 @@ abstract class C4_AbstractView {
 			
 		} finally {
 			// Reset the platform timezone
-			DevblocksPlatform::setTimezone($platform_timezone);
-			$db->ResetReaderTimezone();
+			if($query_timezone) {
+				DevblocksPlatform::setTimezone($platform_timezone);
+				$db->ResetReaderTimezone();
+			}
 		}
 	}
 	
