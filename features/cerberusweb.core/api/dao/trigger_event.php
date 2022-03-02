@@ -1072,6 +1072,10 @@ class Model_TriggerEvent {
 	}
 	
 	private function _runDecisionTree(DevblocksDictionaryDelegate $dict, $dry_run=false, Extension_DevblocksEvent $event=null, array $replay=[]) {
+		$metrics = DevblocksPlatform::services()->metrics();
+		
+		$start_runtime = intval(microtime(true));
+		
 		$nodes = $this->_getNodes();
 		$tree = $this->_getTree();
 		$path = [];
@@ -1104,6 +1108,10 @@ class Model_TriggerEvent {
 			array_pop($path);
 			$exit_state = 'SUSPEND';
 		}
+		
+		$runtime_ms = intval((microtime(true) - $start_runtime) * 1000);
+		$metrics->increment('cerb.behavior.invocations', 1, ['behavior_id'=>$this->id,'event'=>$this->event_point]);
+		$metrics->increment('cerb.behavior.duration', $runtime_ms, ['behavior_id'=>$this->id,'event'=>$this->event_point]);
 		
 		return [
 			'path' => $path,
