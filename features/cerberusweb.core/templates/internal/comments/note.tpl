@@ -47,8 +47,9 @@
 		{include file="devblocks:cerberusweb.core::internal/attachments/list.tpl" context="{CerberusContexts::CONTEXT_COMMENT}" context_id=$note->id attachments=[]}
 
 		{* Custom Fields *}
-		{$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_COMMENT, $note->id))|default:[]}
-		{if $values}
+		{$values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_COMMENT, $note->id)}
+		{if is_array($values)}
+			{$values = $values|array_shift}
 			{$note_custom_fields = Page_Profiles::getProfilePropertiesCustomFields(CerberusContexts::CONTEXT_COMMENT, $values)}
 			{$note_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(CerberusContexts::CONTEXT_COMMENT, $note->id, $values)}
 			<div style="margin-top:10px;">

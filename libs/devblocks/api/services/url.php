@@ -103,7 +103,7 @@ class _DevblocksUrlManager {
 		
 		$args = $this->parseQueryString($sQuery);
 
-		$c = @$args['c'];
+		$c = $args['c'] ?? null;
 		
 		$proxyssl = null;
 		$proxyhost = null;
@@ -111,9 +111,9 @@ class _DevblocksUrlManager {
 	
 		// Allow proxy override
 		if($check_proxy) {
-			@$proxyssl = $_SERVER['HTTP_DEVBLOCKSPROXYSSL'];
-			@$proxyhost = $_SERVER['HTTP_DEVBLOCKSPROXYHOST'];
-			@$proxybase = $_SERVER['HTTP_DEVBLOCKSPROXYBASE'];
+			$proxyssl = $_SERVER['HTTP_DEVBLOCKSPROXYSSL'] ?? null;
+			$proxyhost = $_SERVER['HTTP_DEVBLOCKSPROXYHOST'] ?? null;
+			$proxybase = $_SERVER['HTTP_DEVBLOCKSPROXYBASE'] ?? null;
 		}
 
 		// Proxy (Community Tool)
@@ -207,18 +207,18 @@ class _DevblocksUrlManager {
 	public function isSSL($check_proxy=true) {
 		// Allow proxy override
 		if($check_proxy) {
-			@$proxyssl = $_SERVER['HTTP_DEVBLOCKSPROXYSSL'];
-			@$proxyhost = $_SERVER['HTTP_DEVBLOCKSPROXYHOST'];
+			$proxyssl = $_SERVER['HTTP_DEVBLOCKSPROXYSSL'] ?? null;
+			$proxyhost = $_SERVER['HTTP_DEVBLOCKSPROXYHOST'] ?? null;
 			
 			if($proxyhost)
 				return $proxyssl;
 		}
 		
-		if(@$_SERVER["HTTPS"] == "on"){
+		if(($_SERVER["HTTPS"] ?? null) == "on"){
 			return true;
-		} elseif (@$_SERVER["HTTPS"] == 1){
+		} elseif (($_SERVER["HTTPS"] ?? null) == 1){
 			return true;
-		} elseif (@$_SERVER['SERVER_PORT'] == 443) {
+		} elseif (($_SERVER['SERVER_PORT'] ?? null) == 443) {
 			return true;
 		} elseif (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && 0 == strcasecmp($_SERVER['HTTP_X_FORWARDED_PROTO'], 'https')) {
 			return true;

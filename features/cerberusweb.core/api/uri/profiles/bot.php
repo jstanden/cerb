@@ -1262,17 +1262,17 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			'actions' => &$actions,
 			
 			'bot_name' => $bot_name,
-			'bot_image' => @$bot_session->session_data['bot_image'],
+			'bot_image' => $bot_session->session_data['bot_image'] ?? null,
 			'behavior_id' => $behavior->id,
-			'behavior_has_parent' => @$bot_session->session_data['behavior_has_parent'],
-			'interaction' => @$bot_session->session_data['interaction'],
-			'interaction_params' => @$bot_session->session_data['interaction_params'],
-			'client_browser' => @$bot_session->session_data['client_browser'],
-			'client_browser_version' => @$bot_session->session_data['client_browser_version'],
-			'client_ip' => @$bot_session->session_data['client_ip'],
-			'client_platform' => @$bot_session->session_data['client_platform'],
-			'client_time' => @$bot_session->session_data['client_time'],
-			'client_url' => @$bot_session->session_data['client_url'],
+			'behavior_has_parent' => $bot_session->session_data['behavior_has_parent'] ?? null,
+			'interaction' => $bot_session->session_data['interaction'] ?? null,
+			'interaction_params' => $bot_session->session_data['interaction_params'] ?? [],
+			'client_browser' => $bot_session->session_data['client_browser'] ?? null,
+			'client_browser_version' => $bot_session->session_data['client_browser_version'] ?? null,
+			'client_ip' => $bot_session->session_data['client_ip'] ?? null,
+			'client_platform' => $bot_session->session_data['client_platform'] ?? null,
+			'client_time' => $bot_session->session_data['client_time'] ?? null,
+			'client_url' => $bot_session->session_data['client_url'] ?? null,
 		];
 		
 		//var_dump($event_params);
@@ -1293,14 +1293,14 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		$values = $event->getValues();
 		
 		// Are we resuming a scope?
-		$resume_dict = @$bot_session->session_data['behaviors'][$behavior->id]['dict'];
+		$resume_dict = $bot_session->session_data['behaviors'][$behavior->id]['dict'] ?? null;
 		if($resume_dict) {
 			$values = array_replace($values, $resume_dict);
 		}
 		
 		$dict = new DevblocksDictionaryDelegate($values);
 		
-		$resume_path = @$bot_session->session_data['behaviors'][$behavior->id]['path'];
+		$resume_path = $bot_session->session_data['behaviors'][$behavior->id]['path'] ?? null;
 		
 		if($resume_path) {
 			$behavior->prepareResumeDecisionTree($message, $bot_session, $actions, $dict, $resume_path);
@@ -1321,13 +1321,20 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		// Hibernate
 		if($result['exit_state'] == 'SUSPEND') {
 			// Keep everything as it is
+			DevblocksPlatform::noop();
 		} else {
 			// Start the tree over
 			$result['path'] = [];
 			
 			// Return to the caller if we have one
-			@$caller = array_pop($bot_session->session_data['callers']);
-			$bot_session->session_data['behavior_has_parent'] = !empty($bot_session->session_data['callers']) ? 1 : 0;
+			$caller = null;	
+			if(
+				array_key_exists('callers', $bot_session->session_data) 
+				&& is_array($bot_session->session_data['callers'])
+			) {
+				$caller = array_pop($bot_session->session_data['callers']);
+			}
+			$bot_session->session_data['behavior_has_parent'] = !empty($bot_session->session_data['callers'] ?? []) ? 1 : 0;
 			@$caller_result_key = $caller['return'] ?? '_behavior';
 			
 			if(is_array($caller)) {
