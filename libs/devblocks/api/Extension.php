@@ -887,7 +887,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		
 		if(array_key_exists('fieldsets', $keys)) {
 			$keys['fieldsets']['type'] = 'fieldsets';
-			$keys['fieldsets']['notes'] = 'An array or comma-separated list of [custom fieldset](/docs/records/types/custom_fieldset/) IDs';
+			$keys['fieldsets']['notes'] = 'An array or comma-separated list of [custom fieldset](/docs/records/types/custom_fieldset/) IDs. Prefix an ID with `-` to remove.';
 		}
 		
 		if(array_key_exists('links', $keys)) {
@@ -1514,10 +1514,6 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		} else if(is_string($value)) {
 			$fieldset_ids = DevblocksPlatform::parseCsvString($value);
 		}
-		
-		$custom_fieldsets = DAO_CustomFieldset::getIds($fieldset_ids);
-		
-		$fieldset_ids = array_keys($custom_fieldsets);
 		
 		if(false == ($json = json_encode($fieldset_ids))) {
 			$error = 'could not be JSON encoded.';

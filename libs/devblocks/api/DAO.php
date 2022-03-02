@@ -666,12 +666,27 @@ abstract class DevblocksORMHelper {
 			$fieldsets_json = $fields['_fieldsets'];
 			unset($fields['_fieldsets']);
 			
-			if(false == (@$fieldset_ids = json_decode($fieldsets_json)))
+			if(false == ($fieldset_ids = json_decode($fieldsets_json ?? '')))
 				$fieldset_ids = [];
+			
+			$fieldsets_to_add = $fieldsets_to_remove = [];
+			
+			foreach($fieldset_ids as $fieldset_id) {
+				if($fieldset_id < 0) {
+					$fieldsets_to_remove[] = abs($fieldset_id);
+				} else {
+					$fieldsets_to_add[] = intval($fieldset_id);
+				}
+			}
+			
+			unset($fieldset_ids);
 			
 			if(is_array($ids))
 			foreach($ids as $id) {
-				DAO_CustomFieldset::addToContext($fieldset_ids, $context, $id);
+				if($fieldsets_to_add)
+					DAO_CustomFieldset::addToContext($fieldsets_to_add, $context, $id);
+				if($fieldsets_to_remove)
+					DAO_CustomFieldset::removeFromContext($fieldsets_to_remove, $context, $id);
 			}
 		}
 		

@@ -232,12 +232,17 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 		
 		$db = DevblocksPlatform::services()->database();
 		
+		$fieldsets = DAO_CustomFieldset::getByContext($context);
+		
 		if(!is_array($context_ids))
 			$context_ids = [$context_ids];
 		
 		$values = [];
 		
 		foreach($fieldset_ids as $fieldset_id) {
+			if(!array_key_exists($fieldset_id, $fieldsets))
+				continue;
+			
 			foreach($context_ids as $context_id) {
 				$values[] = sprintf("(%d, %s, %d)",
 					$fieldset_id,
