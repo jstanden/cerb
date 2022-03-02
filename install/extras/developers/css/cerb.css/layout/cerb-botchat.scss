@@ -142,7 +142,7 @@
 		}
 		
 		div.bot-chat-message.bot-chat-right > div.bot-chat-message-bubble {
-			color: var(--cerb-color-text-inverse);
+			color: var(--cerb-color-action-primary-text);
 			background-color: var(--cerb-color-action-primary);
 			border: 0;
 			border-radius: 12px 12px 0 12px;
@@ -173,7 +173,7 @@
 	
 	BUTTON.bot-chat-button {
 		height: inherit;
-		color: var(--cerb-color-text-inverse);
+		color: var(--cerb-color-action-primary-text);
 		padding: 5px;
 		width: 100%;
 		font-size: 1.5em;

@@ -23,7 +23,7 @@
 {$msg_id = uniqid()}
 <div class="bot-chat-object" data-delay-ms="{$delay_ms|default:0}" data-typing-indicator="true" id="{$msg_id}">
 	<div class="bot-chat-message bot-chat-right">
-		<div class="bot-chat-message-bubble" style="background-color:white;">
+		<div class="bot-chat-message-bubble">
 			{foreach from=$options item=option name=options}
 			{$idx = $smarty.foreach.options.iteration}
 			{$color = $colors[$smarty.foreach.options.index]}
