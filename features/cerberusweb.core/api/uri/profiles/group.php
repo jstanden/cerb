@@ -47,9 +47,9 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 	}
 	
 	private function _profileAction_savePeekJson() {
-		@$group_id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
-		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
+		$group_id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer',0);
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string','');
+		$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'integer',0);
 
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -63,7 +63,7 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 				throw new Exception_DevblocksAjaxValidationError("You do not have access to modify this group.");
 		
 			if($do_delete) {
-				@$move_deleted_buckets = DevblocksPlatform::importGPC($_POST['move_deleted_buckets'],'array',array());
+				$move_deleted_buckets = DevblocksPlatform::importGPC($_POST['move_deleted_buckets'] ?? null, 'array', []);
 				$buckets = DAO_Bucket::getAll();
 				
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_GROUP)))
@@ -97,13 +97,13 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$name = DevblocksPlatform::importGPC($_POST['name'],'string','');
-				@$is_private = DevblocksPlatform::importGPC($_POST['is_private'],'bit',0);
-				@$reply_address_id = DevblocksPlatform::importGPC($_POST['reply_address_id'],'integer',0);
-				@$reply_html_template_id = DevblocksPlatform::importGPC($_POST['reply_html_template_id'],'integer',0);
-				@$reply_personal = DevblocksPlatform::importGPC($_POST['reply_personal'],'string','');
-				@$reply_signature_id = DevblocksPlatform::importGPC($_POST['reply_signature_id'],'integer',0);
-				@$reply_signing_key_id = DevblocksPlatform::importGPC($_POST['reply_signing_key_id'],'integer',0);
+				$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string','');
+				$is_private = DevblocksPlatform::importGPC($_POST['is_private'] ?? null, 'bit',0);
+				$reply_address_id = DevblocksPlatform::importGPC($_POST['reply_address_id'] ?? null, 'integer',0);
+				$reply_html_template_id = DevblocksPlatform::importGPC($_POST['reply_html_template_id'] ?? null, 'integer',0);
+				$reply_personal = DevblocksPlatform::importGPC($_POST['reply_personal'] ?? null, 'string','');
+				$reply_signature_id = DevblocksPlatform::importGPC($_POST['reply_signature_id'] ?? null, 'integer',0);
+				$reply_signing_key_id = DevblocksPlatform::importGPC($_POST['reply_signing_key_id'] ?? null, 'integer',0);
 			
 				$fields = [
 					DAO_Group::NAME => $name,
@@ -151,7 +151,7 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 				
 				// Members
 				
-				@$group_memberships = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['group_memberships'], 'array', []), 'int');
+				$group_memberships = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['group_memberships'] ?? null, 'array', []), 'int');
 				$group_members = DAO_Group::getGroupMembers($group_id);
 				
 				// Update group memberships
@@ -184,19 +184,19 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 				if($group_id) {
 					// Settings
 					
-					@$subject_has_mask = DevblocksPlatform::importGPC($_POST['subject_has_mask'],'integer',0);
-					@$subject_prefix = DevblocksPlatform::importGPC($_POST['subject_prefix'],'string','');
+					$subject_has_mask = DevblocksPlatform::importGPC($_POST['subject_has_mask'] ?? null, 'integer',0);
+					$subject_prefix = DevblocksPlatform::importGPC($_POST['subject_prefix'] ?? null, 'string','');
 			
 					DAO_GroupSettings::set($group_id, DAO_GroupSettings::SETTING_SUBJECT_HAS_MASK, $subject_has_mask);
 					DAO_GroupSettings::set($group_id, DAO_GroupSettings::SETTING_SUBJECT_PREFIX, $subject_prefix);
 					
 					// Custom field saves
-					@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+					$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 					if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_GROUP, $group_id, $field_ids, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					// Avatar image
-					@$avatar_image = DevblocksPlatform::importGPC($_POST['avatar_image'], 'string', '');
+					$avatar_image = DevblocksPlatform::importGPC($_POST['avatar_image'] ?? null, 'string', '');
 					DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_GROUP, $group_id, $avatar_image);
 				}
 			} // end new/edit
@@ -231,7 +231,7 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 	}
 	
 	private function _profileAction_viewExplore() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
@@ -247,7 +247,7 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 		$view->setAutoPersist(false);
 
 		// Page start
-		@$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'],'integer',0);
+		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'integer',0);
 		if(empty($explore_from)) {
 			$orig_pos = 1+($view->renderPage * $view->renderLimit);
 		} else {
@@ -306,8 +306,8 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 	private function _profileAction_showBulkPopup() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
+		$ids = DevblocksPlatform::importGPC($_REQUEST['ids'] ?? null);
+		$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'] ?? null);
 		
 		if(!$active_worker->is_superuser)
 			DevblocksPlatform::dieWithHttpError(null, 403);
@@ -332,24 +332,24 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 		if(!$active_worker->is_superuser)
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		@$filter = DevblocksPlatform::importGPC($_POST['filter'],'string','');
+		$filter = DevblocksPlatform::importGPC($_POST['filter'] ?? null, 'string','');
 		$ids = [];
 		
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
 		$view->setAutoPersist(false);
 
-		@$send_as = DevblocksPlatform::importGPC($_POST['send_as'],'string',null);
-		@$send_from_id = DevblocksPlatform::importGPC($_POST['send_from_id'],'string',null);
-		@$signature_id = DevblocksPlatform::importGPC($_POST['signature_id'],'string',null);
-		@$email_template_id = DevblocksPlatform::importGPC($_POST['email_template_id'],'string',null);
-		@$signing_key_id = DevblocksPlatform::importGPC($_POST['signing_key_id'],'string',null);
-		@$is_private = DevblocksPlatform::importGPC($_POST['is_private'],'string',null);
+		$send_as = DevblocksPlatform::importGPC($_POST['send_as'] ?? null, 'string',null);
+		$send_from_id = DevblocksPlatform::importGPC($_POST['send_from_id'] ?? null, 'string',null);
+		$signature_id = DevblocksPlatform::importGPC($_POST['signature_id'] ?? null, 'string',null);
+		$email_template_id = DevblocksPlatform::importGPC($_POST['email_template_id'] ?? null, 'string',null);
+		$signing_key_id = DevblocksPlatform::importGPC($_POST['signing_key_id'] ?? null, 'string',null);
+		$is_private = DevblocksPlatform::importGPC($_POST['is_private'] ?? null, 'string',null);
 
 		// Scheduled behavior
-		@$behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'],'string','');
-		@$behavior_when = DevblocksPlatform::importGPC($_POST['behavior_when'],'string','');
-		@$behavior_params = DevblocksPlatform::importGPC($_POST['behavior_params'],'array',[]);
+		$behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'] ?? null, 'string','');
+		$behavior_when = DevblocksPlatform::importGPC($_POST['behavior_when'] ?? null, 'string','');
+		$behavior_params = DevblocksPlatform::importGPC($_POST['behavior_params'] ?? null, 'array',[]);
 		
 		$do = [];
 		
@@ -396,12 +396,12 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 		switch($filter) {
 			// Checked rows
 			case 'checks':
-				@$ids_str = DevblocksPlatform::importGPC($_POST['ids'],'string');
+				$ids_str = DevblocksPlatform::importGPC($_POST['ids'] ?? null, 'string');
 				$ids = DevblocksPlatform::parseCsvString($ids_str);
 				break;
 				
 			case 'sample':
-				@$sample_size = min(DevblocksPlatform::importGPC($_POST['filter_sample_size'],'integer',0),9999);
+				$sample_size = min(DevblocksPlatform::importGPC($_POST['filter_sample_size'] ?? null,'integer',0),9999);
 				$ids = $view->getDataSample($sample_size);
 				break;
 				

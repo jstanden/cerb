@@ -181,8 +181,8 @@ class _DevblocksDataProviderWorklistGeoPoints extends _DevblocksDataProvider {
 			if(!isset($series['context']))
 				continue;
 			
-			@$query = $series['query'];
-			@$query_required = $series['query_required'];
+			$query = $series['query'] ?? null;
+			$query_required = $series['query_required'] ?? null;
 			
 			$context_ext = Extension_DevblocksContext::get($series['context'], true);
 			$dao_class = $context_ext->getDaoClass();
@@ -351,7 +351,7 @@ class _DevblocksDataProviderWorklistGeoPoints extends _DevblocksDataProvider {
 					$columns[$field['key_query']] = [
 						'label' => DevblocksPlatform::strTitleCase($field['label']),
 						'type' => $field['type'],
-						'type_options' => @$field['type_options'] ?: [],
+						'type_options' => ($field['type_options'] ?? null) ?: [],
 					];
 				}
 			}

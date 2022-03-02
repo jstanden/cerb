@@ -30,11 +30,9 @@ class VaAction_CreateServer extends Extension_DevblocksEventAction {
 	function simulate($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
-		$out = null;
+		$name = $tpl_builder->build($params['name'] ?? '', $dict);
 		
-		@$name = $tpl_builder->build($params['name'], $dict);
-		
-		@$notify_worker_ids = DevblocksPlatform::importVar($params['notify_worker_id'],'array',array());
+		$notify_worker_ids = DevblocksPlatform::importVar($params['notify_worker_id'] ?? null,'array',[]);
 		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $dict);
 		
 		if(empty($name))
@@ -87,9 +85,9 @@ class VaAction_CreateServer extends Extension_DevblocksEventAction {
 	function run($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
-		@$name = $tpl_builder->build($params['name'], $dict);
+		$name = $tpl_builder->build($params['name'] ?? '', $dict);
 
-		@$notify_worker_ids = DevblocksPlatform::importVar($params['notify_worker_id'],'array',array());
+		$notify_worker_ids = DevblocksPlatform::importVar($params['notify_worker_id'] ?? null,'array',[]);
 		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $dict);
 		
 		$comment = $tpl_builder->build($params['comment'], $dict);

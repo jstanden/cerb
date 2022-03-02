@@ -79,7 +79,7 @@ class Event_NewMessageChatPortal extends Extension_DevblocksEvent {
 			);
 		
 		// Message
-		@$message = $event_model->params['message'];
+		$message = $event_model->params['message'] ?? null;
 		$labels['message'] = 'Message';
 		$values['message'] = $message;
 		
@@ -91,52 +91,52 @@ class Event_NewMessageChatPortal extends Extension_DevblocksEvent {
 		}
 		
 		// Bot
-		@$bot_name = $event_model->params['bot_name'];
+		$bot_name = $event_model->params['bot_name'] ?? null;
 		$labels['interaction_bot_name'] = 'Bot Name';
 		$values['interaction_bot_name'] = $bot_name;
 		
-		@$bot_image = $event_model->params['bot_image'];
+		$bot_image = $event_model->params['bot_image'] ?? null;
 		$labels['interaction_bot_image'] = 'Bot Image';
 		$values['interaction_bot_image'] = $bot_image;
 		
 		// Behavior
 		// [TODO] Expand
-		@$behavior_id = $event_model->params['behavior_id'];
+		$behavior_id = $event_model->params['behavior_id'] ?? null;
 		$labels['interaction_behavior_id'] = 'Behavior ID';
 		$values['interaction_behavior_id'] = $behavior_id;
 		
 		// Behavior has parent
-		@$behavior_has_parent = $event_model->params['behavior_has_parent'];
+		$behavior_has_parent = $event_model->params['behavior_has_parent'] ?? null;
 		$labels['interaction_behavior_has_parent'] = 'Behavior has parent';
 		$values['interaction_behavior_has_parent'] = $behavior_has_parent;
 		
 		// Cookie
-		@$cookie = $event_model->params['cookie'];
+		$cookie = $event_model->params['cookie'] ?? null;
 		$labels['cookie'] = 'Cookie';
 		$values['cookie'] = $cookie;
 		
 		// Portal
-		@$portal_code = $event_model->params['portal_code'];
+		$portal_code = $event_model->params['portal_code'] ?? null;
 		$labels['portal_code'] = 'Portal Code';
 		$values['portal_code'] = $portal_code;
 		
 		// Interaction
-		@$interaction = $event_model->params['interaction'];
+		$interaction = $event_model->params['interaction'] ?? null;
 		$labels['interaction'] = 'Interaction';
 		$values['interaction'] = $interaction;
 		
 		// Interaction Parameters
-		@$interaction_params = $event_model->params['interaction_params'];
+		$interaction_params = $event_model->params['interaction_params'] ?? null;
 		$labels['interaction_params'] = 'Interaction Params';
 		$values['interaction_params'] = $interaction_params;
 		
 		// Client
-		@$client_browser = $event_model->params['client_browser'];
-		@$client_browser_version = $event_model->params['client_browser_version'];
-		@$client_ip = $event_model->params['client_ip'];
-		@$client_platform = $event_model->params['client_platform'];
-		@$client_time = $event_model->params['client_time'];
-		@$client_url = $event_model->params['client_url'];
+		$client_browser = $event_model->params['client_browser'] ?? null;
+		$client_browser_version = $event_model->params['client_browser_version'] ?? null;
+		$client_ip = $event_model->params['client_ip'] ?? null;
+		$client_platform = $event_model->params['client_platform'] ?? null;
+		$client_time = $event_model->params['client_time'] ?? null;
+		$client_url = $event_model->params['client_url'] ?? null;
 		
 		$labels['client_browser'] = 'Client Browser';
 		$labels['client_browser_version'] = 'Client Browser Version';
@@ -561,13 +561,13 @@ class Event_NewMessageChatPortal extends Extension_DevblocksEvent {
 			
 			case 'prompt_rating_number':
 				$options = [
-					'label_from' => @$params['label_from'],
-					'label_to' => @$params['label_to'],
-					'range_from' => @$params['range_from'],
-					'range_to' => @$params['range_to'],
-					'color_from' => @$params['color_from'],
-					'color_from' => @$params['color_from'],
-					'color_mid' => @$params['color_mid'],
+					'label_from' => $params['label_from'] ?? null,
+					'label_to' => $params['label_to'] ?? null,
+					'range_from' => $params['range_from'] ?? null,
+					'range_to' => $params['range_to'] ?? null,
+					'color_from' => $params['color_from'] ?? null,
+					'color_to' => $params['color_to'] ?? null,
+					'color_mid' => $params['color_mid'] ?? null,
 				];
 				
 				$out = sprintf(">>> Prompting with numeric rating:\n".
@@ -613,7 +613,7 @@ class Event_NewMessageChatPortal extends Extension_DevblocksEvent {
 				break;
 				
 			case 'switch_behavior':
-				@$behavior_id = $params['behavior_id'];
+				$behavior_id = $params['behavior_id'] ?? null;
 				
 				$out = sprintf(">>> Switching behavior\n".
 					"%d\n",
@@ -639,15 +639,15 @@ class Event_NewMessageChatPortal extends Extension_DevblocksEvent {
 				
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
-				@$options = $tpl_builder->build($params['options'], $dict);
-				@$style = $tpl_builder->build($params['style'], $dict);
-				@$var = $params['var'];
-				@$var_format = $params['var_format'];
-				@$var_validate = $params['var_validate'];
+				$options = $tpl_builder->build($params['options'] ?? '', $dict);
+				$style = $tpl_builder->build($params['style'] ?? '', $dict);
+				$var = $params['var'] ?? null;
+				$var_format = $params['var_format'] ?? null;
+				$var_validate = $params['var_validate'] ?? null;
 				
-				@$color_from = $params['color_from'];
-				@$color_to = $params['color_to'];
-				@$color_mid = $params['color_mid'];
+				$color_from = $params['color_from'] ?? null;
+				$color_to = $params['color_to'] ?? null;
+				$color_mid = $params['color_mid'] ?? null;
 				
 				if($color_from == '#FFFFFF') {
 					$color_from = '';
@@ -684,11 +684,11 @@ class Event_NewMessageChatPortal extends Extension_DevblocksEvent {
 				
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
-				@$images = $params['images'];
-				@$labels = $params['labels'];
-				@$var = $params['var'];
-				@$var_format = $params['var_format'];
-				@$var_validate = $params['var_validate'];
+				$images = $params['images'] ?? null;
+				$labels = $params['labels'] ?? null;
+				$var = $params['var'] ?? null;
+				$var_format = $params['var_format'] ?? null;
+				$var_validate = $params['var_validate'] ?? null;
 				
 				$actions[] = array(
 					'_action' => 'prompt.images',
@@ -708,18 +708,18 @@ class Event_NewMessageChatPortal extends Extension_DevblocksEvent {
 			case 'prompt_rating_number':
 				$actions =& $dict->_actions;
 				
-				@$var = $params['var'];
-				@$var_format = $params['var_format'];
-				@$var_validate = $params['var_validate'];
+				$var = $params['var'] ?? null;
+				$var_format = $params['var_format'] ?? null;
+				$var_validate = $params['var_validate'] ?? null;
 				
 				$options = [
-					'range_from' => @$params['range_from'] ?: 0,
-					'range_to' => @$params['range_to'] ?: 10,
-					'color_from' => @$params['color_from'] ?: '#FF0000',
-					'color_to' => @$params['color_to'] ?: '#19B700',
-					'color_mid' => @$params['color_mid'] ?: '#FFFFFF',
-					'label_from' => @$params['label_from'] ?: '',
-					'label_to' => @$params['label_to'] ?: '',
+					'range_from' => ($params['range_from'] ?? null) ?: 0,
+					'range_to' => ($params['range_to'] ?? null) ?: 10,
+					'color_from' => ($params['color_from'] ?? null) ?: '#FF0000',
+					'color_to' => ($params['color_to'] ?? null) ?: '#19B700',
+					'color_mid' => ($params['color_mid'] ?? null) ?: '#FFFFFF',
+					'label_from' => ($params['label_from'] ?? null) ?: '',
+					'label_to' => ($params['label_to'] ?? null) ?: '',
 				];
 				
 				$actions[] = array(
@@ -741,12 +741,12 @@ class Event_NewMessageChatPortal extends Extension_DevblocksEvent {
 				
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
-				@$placeholder = $tpl_builder->build($params['placeholder'], $dict);
-				@$default = $tpl_builder->build($params['default'], $dict);
-				@$mode = $params['mode'];
-				@$var = $params['var'];
-				@$var_format = $params['var_format'];
-				@$var_validate = $params['var_validate'];
+				$placeholder = $tpl_builder->build($params['placeholder'] ?? '', $dict);
+				$default = $tpl_builder->build($params['default'] ?? '', $dict);
+				$mode = $params['mode'] ?? null;
+				$var = $params['var'] ?? null;
+				$var_format = $params['var_format'] ?? null;
+				$var_validate = $params['var_validate'] ?? null;
 				
 				$actions[] = array(
 					'_action' => 'prompt.text',
@@ -784,8 +784,8 @@ class Event_NewMessageChatPortal extends Extension_DevblocksEvent {
 			case 'send_message':
 				$actions =& $dict->_actions;
 				
-				@$delay_ms = @$params['delay_ms'];
-				@$format = $params['format'];
+				$delay_ms = $params['delay_ms'] ?? null;
+				$format = $params['format'] ?? null;
 				
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				$content = $tpl_builder->build($params['message'], $dict);
@@ -832,7 +832,7 @@ class Event_NewMessageChatPortal extends Extension_DevblocksEvent {
 				
 				@$behavior_id = intval($params['behavior_id']);
 				@$behavior_return = intval($params['return']) ? true : false;
-				@$var_key = $params['var'] ?? '_behavior';
+				$var_key = ($params['var'] ?? null) ?: '_behavior';
 				
 				if(false == ($behavior = DAO_TriggerEvent::get($behavior_id)))
 					break;

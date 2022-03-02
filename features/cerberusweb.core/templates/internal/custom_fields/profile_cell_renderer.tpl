@@ -132,10 +132,14 @@
 {elseif $v.type == 'timezone'}
 	{$v.value}
 {else}
-	{$field_ext = Extension_CustomField::get($v.type)}
-	{$field = DAO_CustomField::get($v.id)}
-	{if $field_ext}
-		{$field_ext->renderValue($field, $v.value)}
+	{if array_key_exists('id', $v) && array_key_exists('type', $v)}
+		{$field_ext = Extension_CustomField::get($v.type)}
+		{if $field_ext}
+			{$field = DAO_CustomField::get($v.id)}
+			{$field_ext->renderValue($field, $v.value)}
+		{else}
+			{$v.value}
+		{/if}
 	{else}
 		{$v.value}
 	{/if}

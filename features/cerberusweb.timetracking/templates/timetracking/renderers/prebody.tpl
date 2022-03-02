@@ -229,9 +229,9 @@ var timeTrackingTimerClass = function() {
 
 var timeTrackingTimer = new timeTrackingTimerClass();
 
-{if isset($session.timetracking_started) && $current_timestamp} {* timer is running *}
+{if array_key_exists('timetracking_started', $session) && $current_timestamp} {* timer is running *}
 	{* Recover the total from any pause/unpause segments *}
-	timeTrackingTimer.counter = {if isset($session.timetracking_total)}{$session.timetracking_total}{else}0{/if};
+	timeTrackingTimer.counter = {if array_key_exists('timetracking_total', $session)}{$session.timetracking_total}{else}0{/if};
 	{* Append the current runtime *}
 	timeTrackingTimer.counter += {math equation="(x-y)" x=$current_timestamp y=$session.timetracking_started};
 	timeTrackingTimer.enabled = true;
@@ -241,11 +241,11 @@ var timeTrackingTimer = new timeTrackingTimerClass();
 	timeTrackingTimer.counter = 0;
 {/if}
 
-{if $session.timetracking_id}
+{if array_key_exists('timetracking_id', $session)}
 	timeTrackingTimer.id = {$session.timetracking_id|json_encode}; 
 {/if}
 
-{if isset($session.timetracking_total) || isset($session.timetracking_started)}
+{if array_key_exists('timetracking_total', $session) || array_key_exists('timetracking_started', $session)}
 	timeTrackingTimer.show();
 {/if} 
 </script>

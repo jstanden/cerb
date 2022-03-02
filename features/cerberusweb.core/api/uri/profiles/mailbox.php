@@ -43,10 +43,10 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 	}
 	
 	private function _profileAction_savePeekJson() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
 		
-		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
+		$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -81,16 +81,16 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$connected_account_id = DevblocksPlatform::importGPC($_POST['connected_account_id'],'integer', 0);
-				@$enabled = DevblocksPlatform::importGPC($_POST['enabled'],'integer',0);
-				@$host = DevblocksPlatform::importGPC($_POST['host'],'string');
-				@$max_msg_size_kb = DevblocksPlatform::importGPC($_POST['max_msg_size_kb'],'integer');
-				@$name = DevblocksPlatform::importGPC($_POST['name'],'string');
-				@$password = DevblocksPlatform::importGPC($_POST['password'],'string');
-				@$port = DevblocksPlatform::importGPC($_POST['port'],'integer');
-				@$protocol = DevblocksPlatform::importGPC($_POST['protocol'],'string');
-				@$timeout_secs = DevblocksPlatform::importGPC($_POST['timeout_secs'],'integer');
-				@$username = DevblocksPlatform::importGPC($_POST['username'],'string');
+				$connected_account_id = DevblocksPlatform::importGPC($_POST['connected_account_id'] ?? null, 'integer', 0);
+				$enabled = DevblocksPlatform::importGPC($_POST['enabled'] ?? null, 'integer',0);
+				$host = DevblocksPlatform::importGPC($_POST['host'] ?? null, 'string');
+				$max_msg_size_kb = DevblocksPlatform::importGPC($_POST['max_msg_size_kb'] ?? null, 'integer');
+				$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string');
+				$password = DevblocksPlatform::importGPC($_POST['password'] ?? null, 'string');
+				$port = DevblocksPlatform::importGPC($_POST['port'] ?? null, 'integer');
+				$protocol = DevblocksPlatform::importGPC($_POST['protocol'] ?? null, 'string');
+				$timeout_secs = DevblocksPlatform::importGPC($_POST['timeout_secs'] ?? null, 'integer');
+				$username = DevblocksPlatform::importGPC($_POST['username'] ?? null, 'string');
 				
 				// Defaults
 				if(empty($port)) {
@@ -169,7 +169,7 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 				}
 				
 				// Custom field saves
-				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+				$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 				if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_MAILBOX, $id, $field_ids, $error))
 					throw new Exception_DevblocksAjaxValidationError($error);
 				
@@ -215,14 +215,14 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 			if(!$active_worker->is_superuser)
 				throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('common.access_denied'));
 			
-			@$protocol = DevblocksPlatform::importGPC($_POST['protocol'],'string','');
-			@$host = DevblocksPlatform::importGPC($_POST['host'],'string','');
-			@$port = DevblocksPlatform::importGPC($_POST['port'],'integer',110);
-			@$user = DevblocksPlatform::importGPC($_POST['username'],'string','');
-			@$pass = DevblocksPlatform::importGPC($_POST['password'],'string','');
-			@$timeout_secs = DevblocksPlatform::importGPC($_POST['timeout_secs'],'integer',0);
-			@$max_msg_size_kb = DevblocksPlatform::importGPC($_POST['max_msg_size_kb'],'integer',25600);
-			@$connected_account_id = DevblocksPlatform::importGPC($_POST['connected_account_id'],'integer',0);
+			$protocol = DevblocksPlatform::importGPC($_POST['protocol'] ?? null, 'string','');
+			$host = DevblocksPlatform::importGPC($_POST['host'] ?? null, 'string','');
+			$port = DevblocksPlatform::importGPC($_POST['port'] ?? null, 'integer',110);
+			$user = DevblocksPlatform::importGPC($_POST['username'] ?? null, 'string','');
+			$pass = DevblocksPlatform::importGPC($_POST['password'] ?? null, 'string','');
+			$timeout_secs = DevblocksPlatform::importGPC($_POST['timeout_secs'] ?? null, 'integer',0);
+			$max_msg_size_kb = DevblocksPlatform::importGPC($_POST['max_msg_size_kb'] ?? null, 'integer',25600);
+			$connected_account_id = DevblocksPlatform::importGPC($_POST['connected_account_id'] ?? null, 'integer',0);
 			
 			// Defaults
 			if(empty($port)) {
@@ -269,7 +269,7 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 	}
 	
 	private function _profileAction_viewExplore() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
@@ -285,7 +285,7 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 		$view->setAutoPersist(false);
 
 		// Page start
-		@$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'],'integer',0);
+		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'integer',0);
 		if(empty($explore_from)) {
 			$orig_pos = 1+($view->renderPage * $view->renderLimit);
 		} else {

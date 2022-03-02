@@ -133,7 +133,7 @@ abstract class Extension_UmScController extends DevblocksExtension implements De
 		$path = $request->path;
 		array_shift($path); // controller
 		
-		@$a = DevblocksPlatform::importGPC($_REQUEST['a'],'string');
+		$a = DevblocksPlatform::importGPC($_REQUEST['a'] ?? null, 'string');
 
 		$action = $a ?: array_shift($path);
 

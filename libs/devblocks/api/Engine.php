@@ -528,12 +528,12 @@ abstract class DevblocksEngine {
 		if(!empty($app_hostname))
 			return $app_hostname;
 		
-		$host = @$_SERVER['HTTP_HOST'];
+		$host = $_SERVER['HTTP_HOST'] ?? null;
 		
 		if(!empty($host))
 			return $host;
 			
-		$server_name = @$_SERVER['SERVER_NAME'];
+		$server_name = $_SERVER['SERVER_NAME'] ?? null;
 		
 		if(!empty($server_name))
 			return $server_name;
@@ -571,7 +571,7 @@ abstract class DevblocksEngine {
 		$parts = $url->parseURL($location);
 
 		// Add any query string arguments (?arg=value&arg=value)
-		@$query = $_SERVER['QUERY_STRING'];
+		$query = $_SERVER['QUERY_STRING'] ?? null;
 		$queryArgs = $url->parseQueryString($query);
 
 		if(empty($parts)) {
@@ -579,17 +579,17 @@ abstract class DevblocksEngine {
 
 			// Controller (GET has precedence over POST)
 			if(isset($_GET['c'])) {
-				@$uri = DevblocksPlatform::importGPC($_GET['c']); // extension
+				$uri = DevblocksPlatform::importGPC($_GET['c'] ?? null); // extension
 			} elseif (isset($_POST['c'])) {
-				@$uri = DevblocksPlatform::importGPC($_POST['c']); // extension
+				$uri = DevblocksPlatform::importGPC($_POST['c'] ?? null); // extension
 			}
 			if(!empty($uri)) $parts[] = DevblocksPlatform::strAlphaNum($uri, '\_\-\.');
 
 			// Action (GET has precedence over POST)
 			if(isset($_GET['a'])) {
-				@$listener = DevblocksPlatform::importGPC($_GET['a']); // listener
+				$listener = DevblocksPlatform::importGPC($_GET['a'] ?? null); // listener
 			} elseif (isset($_POST['a'])) {
-				@$listener = DevblocksPlatform::importGPC($_POST['a']); // listener
+				$listener = DevblocksPlatform::importGPC($_POST['a'] ?? null); // listener
 			}
 			if(!empty($listener)) $parts[] = DevblocksPlatform::strAlphaNum($listener, '\_');
 		}
@@ -611,7 +611,7 @@ abstract class DevblocksEngine {
 		$method = DevblocksPlatform::strUpper(@$_SERVER['REQUEST_METHOD']);
 		
 		$request = new DevblocksHttpRequest($parts,$queryArgs,$method);
-		@$request->csrf_token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? $_POST['_csrf_token'];
+		$request->csrf_token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? $_POST['_csrf_token'] ?? null;
 		
 		DevblocksPlatform::setHttpRequest($request);
 
@@ -651,9 +651,9 @@ abstract class DevblocksEngine {
 			
 			// ...and we're not in DEVELOPMENT_MODE
 			if(!DEVELOPMENT_MODE_ALLOW_CSRF) {
-				@$origin = DevblocksPlatform::strLower($_SERVER['HTTP_ORIGIN']);
-				@$referer = DevblocksPlatform::strLower($_SERVER['HTTP_REFERER']);
-				@$http_method = DevblocksPlatform::getHttpMethod();
+				$origin = DevblocksPlatform::strLower($_SERVER['HTTP_ORIGIN'] ?? '');
+				$referer = DevblocksPlatform::strLower($_SERVER['HTTP_REFERER'] ?? '');
+				$http_method = DevblocksPlatform::getHttpMethod();
 				
 				// Normalize the scheme and host (e.g. ignore /index.php/)
 				$base_url_parts = parse_url($url_writer->write('', true));
@@ -687,8 +687,8 @@ abstract class DevblocksEngine {
 				if ('GET' != $http_method) {
 					// ...if the CSRF token is invalid for this session, freak out
 					if (!array_key_exists('csrf_token', $_SESSION) || $_SESSION['csrf_token'] != $request->csrf_token) {
-						@$referer = $_SERVER['HTTP_REFERER'];
-						@$remote_addr = DevblocksPlatform::getClientIp();
+						//$referer = $_SERVER['HTTP_REFERER'] ?? null;
+						//$remote_addr = DevblocksPlatform::getClientIp();
 						
 						//error_log(sprintf("[Cerb] Possible CSRF attack from IP %s using referer %s", $remote_addr, $referer), E_USER_WARNING);
 						DevblocksPlatform::dieWithHttpError("Access denied", 403);

@@ -262,7 +262,7 @@ class Model_MailToGroupRule {
 			// check criteria
 			if(is_array($rule->criteria))
 			foreach($rule->criteria as $crit_key => $crit) {
-				@$value = $crit['value'];
+				$value = $crit['value'] ?? null;
 							
 				switch($crit_key) {
 					case 'dayofweek':
@@ -361,7 +361,7 @@ class Model_MailToGroupRule {
 						
 					case 'subject':
 						// [TODO] Decode if necessary
-						@$subject = $message_headers['subject'];
+						$subject = $message_headers['subject'] ?? null;
 
 						$regexp_subject = DevblocksPlatform::strToRegExp($value);
 						if(@preg_match($regexp_subject, $subject)) {
@@ -452,7 +452,7 @@ class Model_MailToGroupRule {
 									$field_val = isset($field_values[$field_id]) ? $field_values[$field_id] : 0;
 									$oper = isset($crit['oper']) ? $crit['oper'] : "=";
 									
-									@$currency_id = $field->params['currency_id'];
+									$currency_id = $field->params['currency_id'] ?? null;
 									
 									if(false == ($currency = DAO_Currency::get($currency_id)))
 										break;
@@ -476,7 +476,7 @@ class Model_MailToGroupRule {
 									$field_val = isset($field_values[$field_id]) ? $field_values[$field_id] : 0;
 									$oper = isset($crit['oper']) ? $crit['oper'] : "=";
 									
-									@$decimal_at = $field->params['decimal_at'];
+									$decimal_at = $field->params['decimal_at'] ?? null;
 									$field_val = DevblocksPlatform::strFormatDecimal($field_val, $decimal_at);
 									
 									if($oper=="=" && intval($field_val)==intval($value))

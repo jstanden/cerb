@@ -52,9 +52,9 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 	}
 	
 	private function _profileAction_savePeekJson() {
-		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
-		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
+		$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -86,7 +86,7 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$package_uri = DevblocksPlatform::importGPC($_POST['package'], 'string', '');
+				$package_uri = DevblocksPlatform::importGPC($_POST['package'] ?? null, 'string', '');
 				
 				$mode = 'build';
 				
@@ -95,7 +95,7 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 				
 				switch($mode) {
 					case 'library':
-						@$prompts = DevblocksPlatform::importGPC($_POST['prompts'], 'array', []);
+						$prompts = DevblocksPlatform::importGPC($_POST['prompts'] ?? null, 'array', []);
 						
 						if(empty($package_uri))
 							throw new Exception_DevblocksAjaxValidationError("You must select a package from the library.");
@@ -137,8 +137,8 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 						break;
 						
 					case 'build':
-						@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
-						@$cards_kata = DevblocksPlatform::importGPC($_POST['cards_kata'], 'string', '');
+						$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');
+						$cards_kata = DevblocksPlatform::importGPC($_POST['cards_kata'] ?? null, 'string', '');
 						
 						$error = null;
 						
@@ -181,7 +181,7 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 						
 						if($id) {
 							// Custom field saves
-							@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+							$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 							if(!DAO_CustomFieldValue::handleFormPost(Context_ProjectBoard::ID, $id, $field_ids, $error))
 								throw new Exception_DevblocksAjaxValidationError($error);
 						}
@@ -218,10 +218,10 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 	}
 	
 	private function _profileAction_moveCard() {
-		@$card_context = DevblocksPlatform::importGPC($_POST['context'],'string','');
-		@$card_id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
-		@$from_column_id = DevblocksPlatform::importGPC($_POST['from'],'integer',0);
-		@$to_column_id = DevblocksPlatform::importGPC($_POST['to'],'integer',0);
+		$card_context = DevblocksPlatform::importGPC($_POST['context'] ?? null, 'string','');
+		$card_id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer',0);
+		$from_column_id = DevblocksPlatform::importGPC($_POST['from'] ?? null, 'integer',0);
+		$to_column_id = DevblocksPlatform::importGPC($_POST['to'] ?? null, 'integer',0);
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
@@ -239,7 +239,7 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 	}
 	
 	private function _profileAction_refreshColumn() {
-		@$column_id = DevblocksPlatform::importGPC($_POST['column_id'],'integer',0);
+		$column_id = DevblocksPlatform::importGPC($_POST['column_id'] ?? null, 'integer',0);
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
@@ -266,9 +266,9 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$board_id = DevblocksPlatform::importGPC($_POST['board_id'],'integer',0);
-		@$context = DevblocksPlatform::importGPC($_POST['context'],'string',null);
-		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
+		$board_id = DevblocksPlatform::importGPC($_POST['board_id'] ?? null, 'integer',0);
+		$context = DevblocksPlatform::importGPC($_POST['context'] ?? null, 'string',null);
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer',0);
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
@@ -305,8 +305,8 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 	private function _profileAction_reorderBoard() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$board_id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
-		@$columns = DevblocksPlatform::importGPC($_POST['columns'],'string','');
+		$board_id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer',0);
+		$columns = DevblocksPlatform::importGPC($_POST['columns'] ?? null, 'string','');
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
@@ -324,8 +324,8 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 	}
 	
 	private function _profileAction_reorderColumn() {
-		@$column_id = DevblocksPlatform::importGPC($_POST['column_id'],'integer',0);
-		@$cards = DevblocksPlatform::importGPC($_POST['cards'],'array',[]);
+		$column_id = DevblocksPlatform::importGPC($_POST['column_id'] ?? null, 'integer',0);
+		$cards = DevblocksPlatform::importGPC($_POST['cards'] ?? null, 'array',[]);
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
@@ -348,7 +348,7 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 	}
 	
 	private function _profileAction_viewExplore() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
@@ -367,7 +367,7 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 		$view->setAutoPersist(false);
 
 		// Page start
-		@$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'],'integer',0);
+		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'integer',0);
 		if(empty($explore_from)) {
 			$orig_pos = 1+($view->renderPage * $view->renderLimit);
 		} else {

@@ -17,7 +17,7 @@ class ServiceProvider_SAML extends Extension_ConnectedServiceProvider {
 	}
 
 	public function saveConfigForm(Model_ConnectedService $service, array &$params, &$error=null) {
-		@$edit_params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
+		$edit_params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
 		
 		$validation = DevblocksPlatform::services()->validation();
 		

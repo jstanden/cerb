@@ -156,7 +156,7 @@ class DAO_Attachment extends Cerb_ORMHelper {
 					$link = ltrim($link, '-');
 				}
 			
-			@list($link_context, $link_id) = explode(':', $link, 2);
+			list($link_context, $link_id) = array_pad(explode(':', $link, 2), 2, null);
 			
 			if(false == ($link_context_ext = Extension_DevblocksContext::getByAlias($link_context, false)))
 				continue;
@@ -173,7 +173,7 @@ class DAO_Attachment extends Cerb_ORMHelper {
 		if(!isset($fields['_content']))
 			return;
 			
-		@$content = $fields['_content'];
+		$content = $fields['_content'] ?? null;
 		unset($fields['_content']);
 		
 		// If base64 encoded
@@ -767,7 +767,7 @@ class SearchFields_Attachment extends DevblocksSearchFields {
 	static private function _getWhereSQLFromAttachmentLinks(DevblocksSearchCriteria $param, $pkey) {
 		// Handle nested quick search filters first
 		if($param->operator == DevblocksSearchCriteria::OPER_CUSTOM) {
-			@list($alias, $query) = explode(':', $param->value, 2);
+			list($alias, $query) = array_pad(explode(':', $param->value, 2), 2, null);
 			
 			if(empty($alias) || (false == ($ext = Extension_DevblocksContext::getByAlias(str_replace('.', ' ', $alias), true))))
 				return;
@@ -816,7 +816,7 @@ class SearchFields_Attachment extends DevblocksSearchFields {
 		
 		if(is_array($param->value))
 		foreach($param->value as $context_data) {
-			@list($context, $context_id) = explode(':', $context_data, 2);
+			list($context, $context_id) = array_pad(explode(':', $context_data, 2), 2, null);
 	
 			if(empty($context))
 				return;
@@ -976,9 +976,9 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 	}
 	
 	function saveConfig() {
-		@$active_storage_profile = DevblocksPlatform::importGPC($_POST['active_storage_profile'],'string','');
-		@$archive_storage_profile = DevblocksPlatform::importGPC($_POST['archive_storage_profile'],'string','');
-		@$archive_after_days = DevblocksPlatform::importGPC($_POST['archive_after_days'],'integer',0);
+		$active_storage_profile = DevblocksPlatform::importGPC($_POST['active_storage_profile'] ?? null, 'string','');
+		$archive_storage_profile = DevblocksPlatform::importGPC($_POST['archive_storage_profile'] ?? null, 'string','');
+		$archive_after_days = DevblocksPlatform::importGPC($_POST['archive_after_days'] ?? null, 'integer',0);
 		
 		if(!empty($active_storage_profile))
 			$this->setParam('active_storage_profile', $active_storage_profile);
@@ -1632,12 +1632,12 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 				break;
 				
 			case SearchFields_Attachment::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_POST['context_link'],'array',array());
+				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array', []);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
 			case SearchFields_Attachment::VIRTUAL_HAS_FIELDSET:
-				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',array());
+				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array', []);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
@@ -2040,7 +2040,7 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 				$tuple = ltrim($tuple, '-');
 			}
 			
-			@list($context, $id) = explode(':', $tuple, 2);
+			list($context, $id) = array_pad(explode(':', $tuple, 2), 2, null);
 			
 			if(false == ($context_ext = Extension_DevblocksContext::getByAlias($context, false))) {
 				$error = sprintf("has a link with an invalid context (%s)", $tuple);
@@ -2089,7 +2089,7 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		switch($token) {
 			default:
 				if($token === 'on' || false != ($on_prefix = DevblocksPlatform::strStartsWith($token, ['on.','on:']))) {
-					@list($record_identifier, $record_expands) = explode(':', $token);
+					list($record_identifier, $record_expands) = array_pad(explode(':', $token), 2, null);
 					
 					if(false == ($record_alias = DevblocksPlatform::services()->string()->strAfter($record_identifier, '.'))) {
 						if(false != ($links = $this->_lazyLoadAttach($context_id,$record_expands)) && is_array($links))
@@ -2138,7 +2138,7 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 				]);
 			}
 			
-			@$record_expands = $context_expands[$result_context] ?: $context_expands['*'];
+			$record_expands = ($context_expands[$result_context] ?? null) ?: $context_expands['*'] ?? null;
 			
 			if($record_expands) {
 				foreach(DevblocksPlatform::parseCsvString($record_expands) as $expand_key) {

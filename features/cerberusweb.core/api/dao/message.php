@@ -1492,9 +1492,9 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 	}
 	
 	function saveConfig() {
-		@$active_storage_profile = DevblocksPlatform::importGPC($_POST['active_storage_profile'],'string','');
-		@$archive_storage_profile = DevblocksPlatform::importGPC($_POST['archive_storage_profile'],'string','');
-		@$archive_after_days = DevblocksPlatform::importGPC($_POST['archive_after_days'],'integer',0);
+		$active_storage_profile = DevblocksPlatform::importGPC($_POST['active_storage_profile'] ?? null, 'string','');
+		$archive_storage_profile = DevblocksPlatform::importGPC($_POST['archive_storage_profile'] ?? null, 'string','');
+		$archive_after_days = DevblocksPlatform::importGPC($_POST['archive_after_days'] ?? null, 'integer',0);
 		
 		if(!empty($active_storage_profile))
 			$this->setParam('active_storage_profile', $active_storage_profile);
@@ -2465,33 +2465,33 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			case SearchFields_Message::IS_NOT_SENT:
 			case SearchFields_Message::IS_OUTGOING:
 			case SearchFields_Message::WAS_ENCRYPTED:
-				@$bool = DevblocksPlatform::importGPC($_POST['bool'],'integer',1);
+				$bool = DevblocksPlatform::importGPC($_POST['bool'] ?? null, 'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 
 			case SearchFields_Message::TICKET_GROUP_ID:
-				@$group_ids = DevblocksPlatform::importGPC($_POST['group_id'],'array',[]);
+				$group_ids = DevblocksPlatform::importGPC($_POST['group_id'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$group_ids);
 				break;
 				
 			case SearchFields_Message::WORKER_ID:
-				@$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'],'array',[]);
+				$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
 				break;
 				
 			case SearchFields_Message::FULLTEXT_NOTE_CONTENT:
 			case SearchFields_Message::MESSAGE_CONTENT:
-				@$scope = DevblocksPlatform::importGPC($_POST['scope'],'string','expert');
+				$scope = DevblocksPlatform::importGPC($_POST['scope'] ?? null, 'string','expert');
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
 				
 			case SearchFields_Message::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_POST['context_link'],'array',[]);
+				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
 			case SearchFields_Message::VIRTUAL_HAS_FIELDSET:
-				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',[]);
+				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				

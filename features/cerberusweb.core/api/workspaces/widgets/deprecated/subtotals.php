@@ -95,7 +95,7 @@ class WorkspaceWidget_Subtotals extends Extension_WorkspaceWidget implements ICe
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget, ?string &$error=null) : bool {
-		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
+		$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
 		
 		// Convert the serialized model to proper JSON before saving
 		
@@ -177,7 +177,7 @@ class WorkspaceWidget_Subtotals extends Extension_WorkspaceWidget implements ICe
 	}
 	
 	private function _exportDataAsCsv(Model_WorkspaceWidget $widget) {
-		@$counts = $widget->params['counts'];
+		$counts = $widget->params['counts'] ?? null;
 		
 		if(!is_array($counts))
 			return false;
@@ -216,7 +216,7 @@ class WorkspaceWidget_Subtotals extends Extension_WorkspaceWidget implements ICe
 	}
 	
 	private function _exportDataAsJson(Model_WorkspaceWidget $widget) {
-		@$counts = $widget->params['counts'];
+		$counts = $widget->params['counts'] ?? null;
 		
 		if(!is_array($counts))
 			return false;

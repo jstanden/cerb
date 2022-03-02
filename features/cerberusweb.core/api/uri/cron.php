@@ -20,8 +20,8 @@ class ChCronController extends DevblocksControllerExtension {
 	 * Request Overload
 	 */
 	function handleRequest(DevblocksHttpRequest $request) {
-		@$reload = DevblocksPlatform::importGPC($_REQUEST['reload'],'integer',0);
-		@$loglevel = DevblocksPlatform::importGPC($_REQUEST['loglevel'],'integer',0);
+		$reload = DevblocksPlatform::importGPC($_REQUEST['reload'] ?? null, 'integer',0);
+		$loglevel = DevblocksPlatform::importGPC($_REQUEST['loglevel'] ?? null, 'integer',0);
 		
 		$logger = DevblocksPlatform::services()->log();
 		$translate = DevblocksPlatform::getTranslationService();
@@ -33,8 +33,8 @@ class ChCronController extends DevblocksControllerExtension {
 		$authorized_ip_defaults = DevblocksPlatform::parseCsvString(AUTHORIZED_IPS_DEFAULTS);
 		$authorized_ips = array_merge($authorized_ips, $authorized_ip_defaults);
 		
-		@$is_ignoring_wait = DevblocksPlatform::importGPC($_REQUEST['ignore_wait'],'integer',0);
-		@$is_ignoring_internal = DevblocksPlatform::importGPC($_REQUEST['ignore_internal'],'integer',0);
+		$is_ignoring_wait = DevblocksPlatform::importGPC($_REQUEST['ignore_wait'] ?? null, 'integer',0);
+		$is_ignoring_internal = DevblocksPlatform::importGPC($_REQUEST['ignore_internal'] ?? null, 'integer',0);
 		
 		if(!DevblocksPlatform::isIpAuthorized(DevblocksPlatform::getClientIp(), $authorized_ips)) {
 			echo sprintf($translate->_('cron.ip_unauthorized'), DevblocksPlatform::strEscapeHtml(DevblocksPlatform::getClientIp()));

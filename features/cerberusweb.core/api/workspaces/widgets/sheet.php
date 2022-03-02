@@ -19,8 +19,8 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$active_worker= CerberusApplication::getActiveWorker();
 		
-		@$data_query = DevblocksPlatform::importGPC($widget->params['data_query'], 'string', null);
-		@$cache_secs = DevblocksPlatform::importGPC($widget->params['cache_secs'], 'integer', 0);
+		$data_query = DevblocksPlatform::importGPC($widget->params['data_query'] ?? null, 'string', null);
+		$cache_secs = DevblocksPlatform::importGPC($widget->params['cache_secs'] ?? null, 'integer', 0);
 		
 		if($page) {
 			$data_query .= sprintf(' page:%d', $page);
@@ -51,7 +51,7 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget {
 	function render(Model_WorkspaceWidget $widget) {
 		$tpl = DevblocksPlatform::services()->template();
 		
-		@$page = DevblocksPlatform::importGPC($_POST['page'], 'integer', 0);
+		$page = DevblocksPlatform::importGPC($_POST['page'] ?? null, 'integer', 0);
 		
 		$error = null;
 		
@@ -76,7 +76,7 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget {
 			case 'dictionaries':
 				$sheets = DevblocksPlatform::services()->sheet();
 				
-				@$sheet_kata = DevblocksPlatform::importGPC($widget->params['sheet_kata'], 'string', null);
+				$sheet_kata = DevblocksPlatform::importGPC($widget->params['sheet_kata'] ?? null, 'string', null);
 				
 				if(false == ($sheet = $sheets->parse($sheet_kata, $error)))
 					$sheet = [];
@@ -104,7 +104,7 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget {
 				$columns = $sheets->getColumns($sheet);
 				$tpl->assign('columns', $columns);
 				
-				@$paging = $results['_']['paging'];
+				$paging = $results['_']['paging'] ?? null;
 				
 				if($layout['paging'] && $paging) {
 					$tpl->assign('paging', $paging);
@@ -145,7 +145,7 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget {
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget, ?string &$error=null) : bool {
-		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
+		$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
 		
 		$kata = DevblocksPlatform::services()->kata();
 		
@@ -174,7 +174,7 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::services()->template();
 		
-		@$toolbar_kata = DevblocksPlatform::importGPC($_POST['params']['toolbar_kata'], 'string', '');
+		$toolbar_kata = DevblocksPlatform::importGPC($_POST['params']['toolbar_kata'] ?? null, 'string', '');
 		
 		$toolbar_dict = DevblocksDictionaryDelegate::instance([
 			'caller_name' => 'cerb.toolbar.workspaceWidget.sheet',
@@ -219,7 +219,7 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget {
 	}
 	
 	private function _workspaceWidgetAction_renderToolbar(Model_WorkspaceWidget $widget) {
-		@$row_selections = DevblocksPlatform::importGPC($_POST['row_selections'], 'array', []);
+		$row_selections = DevblocksPlatform::importGPC($_POST['row_selections'] ?? null, 'array', []);
 		$this->renderToolbar($widget, $row_selections);
 	}
 };

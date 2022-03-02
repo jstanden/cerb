@@ -58,9 +58,9 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 	}
 	
 	private function _profileAction_savePeekJson() {
-		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
-		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
+		$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -94,8 +94,8 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$package_uri = DevblocksPlatform::importGPC($_POST['package'], 'string', '');
-				@$import_json = DevblocksPlatform::importGPC($_POST['import_json'],'string', '');
+				$package_uri = DevblocksPlatform::importGPC($_POST['package'] ?? null, 'string', '');
+				$import_json = DevblocksPlatform::importGPC($_POST['import_json'] ?? null, 'string', '');
 				
 				$mode = 'build';
 				
@@ -108,8 +108,8 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 				
 				switch($mode) {
 					case 'library':
-						@$prompts = DevblocksPlatform::importGPC($_POST['prompts'], 'array', []);
-						@$owner = DevblocksPlatform::importGPC($_POST['owner'], 'string', '');
+						$prompts = DevblocksPlatform::importGPC($_POST['prompts'] ?? null, 'array', []);
+						$owner = DevblocksPlatform::importGPC($_POST['owner'] ?? null, 'string', '');
 						
 						if(empty($package_uri))
 							throw new Exception_DevblocksAjaxValidationError("You must select a package from the library.");
@@ -123,7 +123,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 						// Owner
 					
 						$owner_ctx = '';
-						@list($owner_ctx, $owner_ctx_id) = explode(':', $owner, 2);
+						list($owner_ctx, $owner_ctx_id) = array_pad(explode(':', $owner, 2), 2, null);
 						
 						// Make sure we're given a valid ctx
 						
@@ -182,22 +182,22 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 						break;
 						
 					case 'build':
-						@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
-						@$at_mention_name = DevblocksPlatform::importGPC($_POST['at_mention_name'], 'string', '');
-						@$owner = DevblocksPlatform::importGPC($_POST['owner'], 'string', '');
-						@$is_disabled = DevblocksPlatform::importGPC($_POST['is_disabled'], 'integer', 0);
-						@$allowed_events = DevblocksPlatform::importGPC($_POST['allowed_events'], 'string', '');
-						@$itemized_events = DevblocksPlatform::importGPC($_POST['itemized_events'], 'array', array());
-						@$allowed_actions = DevblocksPlatform::importGPC($_POST['allowed_actions'], 'string', '');
-						@$itemized_actions = DevblocksPlatform::importGPC($_POST['itemized_actions'], 'array', array());
-						@$config_json = DevblocksPlatform::importGPC($_POST['config_json'], 'string', '');
+						$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');
+						$at_mention_name = DevblocksPlatform::importGPC($_POST['at_mention_name'] ?? null, 'string', '');
+						$owner = DevblocksPlatform::importGPC($_POST['owner'] ?? null, 'string', '');
+						$is_disabled = DevblocksPlatform::importGPC($_POST['is_disabled'] ?? null, 'integer', 0);
+						$allowed_events = DevblocksPlatform::importGPC($_POST['allowed_events'] ?? null, 'string', '');
+						$itemized_events = DevblocksPlatform::importGPC($_POST['itemized_events'] ?? null, 'array', array());
+						$allowed_actions = DevblocksPlatform::importGPC($_POST['allowed_actions'] ?? null, 'string', '');
+						$itemized_actions = DevblocksPlatform::importGPC($_POST['itemized_actions'] ?? null, 'array', array());
+						$config_json = DevblocksPlatform::importGPC($_POST['config_json'] ?? null, 'string', '');
 						
 						$is_disabled = DevblocksPlatform::intClamp($is_disabled, 0, 1);
 						
 						// Owner
 					
 						$owner_ctx = '';
-						@list($owner_ctx, $owner_ctx_id) = explode(':', $owner, 2);
+						list($owner_ctx, $owner_ctx_id) = array_pad(explode(':', $owner, 2), 2, null);
 						
 						// Make sure we're given a valid ctx
 						
@@ -288,12 +288,12 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			
 						if($id) {
 							// Custom field saves
-							@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+							$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 							if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_BOT, $id, $field_ids, $error))
 								throw new Exception_DevblocksAjaxValidationError($error);
 							
 							// Avatar image
-							@$avatar_image = DevblocksPlatform::importGPC($_POST['avatar_image'], 'string', '');
+							$avatar_image = DevblocksPlatform::importGPC($_POST['avatar_image'] ?? null, 'string', '');
 							DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_BOT, $id, $avatar_image);
 						}
 						
@@ -364,8 +364,8 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$interaction_uri = DevblocksPlatform::importGPC($_POST['interaction_uri'], 'string', null);
-		@$interaction_behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'], 'integer', 0);
+		$interaction_uri = DevblocksPlatform::importGPC($_POST['interaction_uri'] ?? null, 'string', null);
+		$interaction_behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'] ?? null, 'integer', 0);
 		
 		if($interaction_uri && DevblocksPlatform::strStartsWith($interaction_uri, 'cerb:')) {
 			if(false != ($interaction_uri_parts = DevblocksPlatform::services()->ui()->parseURI($interaction_uri))) {
@@ -396,9 +396,9 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 	 * @deprecated
 	 */
 	private function _startBotInteractionAsFormBehavior(Model_TriggerEvent $interaction_behavior) {
-		@$interaction_style = DevblocksPlatform::importGPC($_POST['interaction_style'], 'string', null);
-		@$interaction_params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
-		@$layer = DevblocksPlatform::importGPC($_POST['layer'], 'string', '');
+		$interaction_style = DevblocksPlatform::importGPC($_POST['interaction_style'] ?? null, 'string', null);
+		$interaction_params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
+		$layer = DevblocksPlatform::importGPC($_POST['layer'] ?? null, 'string', '');
 		
 		if(!$layer)
 			$layer = uniqid();
@@ -495,10 +495,10 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 	private function _startBotInteractionAsConvoBehavior(Model_TriggerEvent $interaction_behavior) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$interaction = DevblocksPlatform::importGPC($_POST['interaction'], 'string', '');
-		@$browser = DevblocksPlatform::importGPC($_POST['browser'], 'array', []);
-		@$interaction_params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
-		@$layer = DevblocksPlatform::importGPC($_POST['layer'], 'string', null);
+		$interaction = DevblocksPlatform::importGPC($_POST['interaction'] ?? null, 'string', '');
+		$browser = DevblocksPlatform::importGPC($_POST['browser'] ?? null, 'array', []);
+		$interaction_params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
+		$layer = DevblocksPlatform::importGPC($_POST['layer'] ?? null, 'string', null);
 		
 		if($interaction_behavior->event_point != Event_NewInteractionChatWorker::ID) {
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -512,8 +512,8 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		$client_platform = '';
 		$client_browser = '';
 		$client_browser_version = '';
-		$client_url = @$browser['url'] ?: '';
-		$client_time = @$browser['time'] ?: '';
+		$client_url = ($browser['url'] ?? null) ?: '';
+		$client_time = ($browser['time'] ?? null) ?: '';
 		
 		if(null != ($client_user_agent_parts = DevblocksPlatform::getClientUserAgent())) {
 			$client_platform = $client_user_agent_parts['platform'] ?? '';
@@ -556,8 +556,8 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			switch($action['_action']) {
 				case 'behavior.switch':
 					if(isset($action['behavior_id'])) {
-						@$behavior_id = $action['behavior_id'];
-						@$variables = $action['behavior_variables'];
+						$behavior_id = $action['behavior_id'] ?? null;
+						$variables = $action['behavior_variables'] ?? null;
 						
 						if(is_array($variables))
 							foreach($variables as $k => $v) {
@@ -628,13 +628,13 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$continuation_token = DevblocksPlatform::importGPC($_POST['continuation_token'], 'string', '');
+		$continuation_token = DevblocksPlatform::importGPC($_POST['continuation_token'] ?? null, 'string', '');
 		
 		if($continuation_token) {
 			$this->_consoleSendMessageAsAutomation($continuation_token);
 			
 		} else {
-			@$session_id = DevblocksPlatform::importGPC($_POST['session_id'], 'string', '');
+			$session_id = DevblocksPlatform::importGPC($_POST['session_id'] ?? null, 'string', '');
 			
 			// Load the session
 			if(false == ($bot_session = DAO_BotSession::get($session_id)))
@@ -712,7 +712,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$prompts = DevblocksPlatform::importGPC($_POST['prompts'], 'array', []);
+		$prompts = DevblocksPlatform::importGPC($_POST['prompts'] ?? null, 'array', []);
 		
 		$is_submit = array_key_exists('__submit', $prompts);
 		
@@ -823,8 +823,8 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 				case 'prompt.captcha':
 					$captcha = DevblocksPlatform::services()->captcha();
 					
-					@$label = $params['label'];
-					@$var = $params['_prompt']['var'];
+					$label = $params['label'] ?? null;
+					$var = $params['_prompt']['var'] ?? null;
 					
 					$otp_key = $var . '__otp';
 					$otp = $behavior_dict->get($otp_key);
@@ -839,10 +839,10 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 					break;
 				
 				case 'prompt.checkboxes':
-					@$label = $params['label'];
-					@$options = $params['options'];
-					@$default = $params['default'];
-					@$var = $params['_prompt']['var'];
+					$label = $params['label'] ?? null;
+					$options = $params['options'] ?? null;
+					$default = $params['default'] ?? null;
+					$var = $params['_prompt']['var'] ?? null;
 					
 					$tpl->assign('label', $label);
 					$tpl->assign('options', $options);
@@ -853,14 +853,14 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 					break;
 				
 				case 'prompt.chooser':
-					@$label = $params['label'];
-					@$var = $params['_prompt']['var'];
-					@$record_type = $params['record_type'];
-					@$record_query = $params['record_query'];
-					@$record_query_required = $params['record_query_required'];
-					@$selection = $params['selection'];
+					$label = $params['label'] ?? null;
+					$var = $params['_prompt']['var'] ?? null;
+					$record_type = $params['record_type'] ?? null;
+					$record_query = $params['record_query'] ?? null;
+					$record_query_required = $params['record_query_required'] ?? null;
+					$selection = $params['selection'] ?? null;
 					@$autocomplete = !empty($params['autocomplete']);
-					@$default = $params['default'];
+					$default = $params['default'] ?? null;
 					
 					if(!$behavior_dict->exists($var)) {
 						$records = [];
@@ -900,8 +900,8 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 					break;
 				
 				case 'prompt.compose':
-					@$draft_id = $params['draft_id'];
-					@$var = $params['_prompt']['var'];
+					$draft_id = $params['draft_id'] ?? null;
+					$var = $params['_prompt']['var'] ?? null;
 					
 					$tpl->assign('draft_id', $draft_id);
 					$tpl->assign('var', $var);
@@ -911,9 +911,9 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 					break;
 				
 				case 'prompt.files':
-					@$label = $params['label'];
-					@$var = $params['_prompt']['var'];
-					@$selection = $params['selection'];
+					$label = $params['label'] ?? null;
+					$var = $params['_prompt']['var'] ?? null;
+					$selection = $params['selection'] ?? null;
 					
 					$records = array_map(function($record) {
 						if($record instanceof DevblocksDictionaryDelegate)
@@ -932,12 +932,12 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 					break;
 				
 				case 'prompt.radios':
-					@$label = $params['label'];
-					@$style = $params['style'];
-					@$orientation = $params['orientation'];
-					@$options = $params['options'];
-					@$default = $params['default'];
-					@$var = $params['_prompt']['var'];
+					$label = $params['label'] ?? null;
+					$style = $params['style'] ?? null;
+					$orientation = $params['orientation'] ?? null;
+					$options = $params['options'] ?? null;
+					$default = $params['default'] ?? null;
+					$var = $params['_prompt']['var'] ?? null;
 					
 					$tpl->assign('label', $label);
 					$tpl->assign('orientation', $orientation);
@@ -956,8 +956,8 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 					break;
 				
 				case 'prompt.reply':
-					@$draft_id = $params['draft_id'];
-					@$var = $params['_prompt']['var'];
+					$draft_id = $params['draft_id'] ?? null;
+					$var = $params['_prompt']['var'] ?? null;
 					
 					$tpl->assign('draft_id', $draft_id);
 					$tpl->assign('var', $var);
@@ -967,10 +967,10 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 					break;
 				
 				case 'prompt.sheet':
-					@$label = $params['label'];
-					@$data = $params['data'];
-					@$schema = $params['schema'];
-					@$var = $params['_prompt']['var'];
+					$label = $params['label'] ?? null;
+					$data = $params['data'] ?? null;
+					$schema = $params['schema'] ?? null;
+					$var = $params['_prompt']['var'] ?? null;
 					
 					$sheets = DevblocksPlatform::services()->sheet();
 					@$sheet_kata = DevblocksPlatform::importGPC($schema, 'string', null);
@@ -1008,12 +1008,12 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 					break;
 				
 				case 'prompt.text':
-					@$label = $params['label'];
-					@$placeholder = $params['placeholder'];
-					@$default = $params['default'];
-					@$mode = $params['mode'];
-					@$var = $params['_prompt']['var'];
-					@$max_length = $params['max_length'];
+					$label = $params['label'] ?? null;
+					$placeholder = $params['placeholder'] ?? null;
+					$default = $params['default'] ?? null;
+					$mode = $params['mode'] ?? null;
+					$var = $params['_prompt']['var'] ?? null;
+					$max_length = $params['max_length'] ?? null;
 					
 					$tpl->assign('label', $label);
 					$tpl->assign('placeholder', $placeholder);
@@ -1150,7 +1150,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 						break;
 					
 					case 'prompt.chooser':
-						@$record_type = $form_element['record_type'];
+						$record_type = $form_element['record_type'] ?? null;
 						
 						if(is_null($prompt_value))
 							$prompt_value = [];
@@ -1248,8 +1248,8 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::services()->template();
 		
-		@$layer = DevblocksPlatform::importGPC($_POST['layer'], 'string', '');
-		@$message = DevblocksPlatform::importGPC($_POST['message'], 'string', '');
+		$layer = DevblocksPlatform::importGPC($_POST['layer'] ?? null, 'string', '');
+		$message = DevblocksPlatform::importGPC($_POST['message'] ?? null, 'string', '');
 		
 		if(false == (@$bot_name = $bot_session->session_data['bot_name']))
 			$bot_name = 'Cerb';
@@ -1366,8 +1366,8 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			
 			switch(@$params['_action']) {
 				case 'behavior.switch':
-					@$behavior_return = $params['behavior_return'];
-					@$variables = $params['behavior_variables'];
+					$behavior_return = $params['behavior_return'] ?? null;
+					$variables = $params['behavior_variables'] ?? null;
 					@$var_key = $params['var'] ?: '_behavior';
 					
 					if(!isset($bot_session->session_data['callers']))
@@ -1426,11 +1426,11 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 					break;
 				
 				case 'prompt.buttons':
-					@$options = $params['options'];
-					@$color_from = $params['color_from'];
-					@$color_to = $params['color_to'];
-					@$color_mid = $params['color_mid'];
-					@$style = $params['style'];
+					$options = $params['options'] ?? null;
+					$color_from = $params['color_from'] ?? null;
+					$color_to = $params['color_to'] ?? null;
+					$color_mid = $params['color_mid'] ?? null;
+					$style = $params['style'] ?? null;
 					
 					if(!is_array($options))
 						break;
@@ -1445,10 +1445,10 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 					break;
 				
 				case 'prompt.chooser':
-					@$context = $params['context'];
-					@$query = $params['query'];
-					@$selection = $params['selection'];
-					@$autocomplete = !empty($params['autocomplete']);
+					$context = $params['context'] ?? null;
+					$query = $params['query'] ?? null;
+					$selection = $params['selection'] ?? null;
+					$autocomplete = (bool)($params['autocomplete'] ?? false);
 					
 					if(!$context)
 						break;
@@ -1462,7 +1462,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 					break;
 				
 				case 'prompt.date':
-					@$placeholder = $params['placeholder'];
+					$placeholder = $params['placeholder'] ?? null;
 					
 					if(empty($placeholder))
 						$placeholder = 'e.g. tomorrow 5pm, 2 hours';
@@ -1478,8 +1478,8 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 					break;
 				
 				case 'prompt.images':
-					@$images = $params['images'];
-					@$labels = $params['labels'];
+					$images = $params['images'] ?? null;
+					$labels = $params['labels'] ?? null;
 					
 					if(!is_array($images) || !is_array($images))
 						break;
@@ -1491,9 +1491,9 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 					break;
 				
 				case 'prompt.text':
-					@$placeholder = $params['placeholder'];
-					@$default = $params['default'];
-					@$mode = $params['mode'];
+					$placeholder = $params['placeholder'] ?? null;
+					$default = $params['default'] ?? null;
+					$mode = $params['mode'] ?? null;
 					
 					if(empty($placeholder))
 						$placeholder = 'say something';
@@ -1571,7 +1571,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		$id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null, 'integer',0);
 		
 		if(false == ($bot = DAO_Bot::get($id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -1605,7 +1605,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 	}
 	
 	private function _profileAction_viewExplore() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
@@ -1621,7 +1621,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		$view->setAutoPersist(false);
 
 		// Page start
-		@$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'],'integer',0);
+		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'integer',0);
 		if(empty($explore_from)) {
 			$orig_pos = 1+($view->renderPage * $view->renderLimit);
 		} else {
@@ -1682,10 +1682,10 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 	private function _startBotInteractionAsAutomation(Model_Automation $automation) {
 		$automator = DevblocksPlatform::services()->automation();
 		
-		@$interaction_style = DevblocksPlatform::importGPC($_POST['interaction_style'], 'string');
-		@$interaction_params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
-		@$layer = DevblocksPlatform::importGPC($_POST['layer'], 'string', '');
-		@$caller = DevblocksPlatform::importGPC($_POST['caller'], 'array', []);
+		$interaction_style = DevblocksPlatform::importGPC($_POST['interaction_style'] ?? null, 'string');
+		$interaction_params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
+		$layer = DevblocksPlatform::importGPC($_POST['layer'] ?? null, 'string', '');
+		$caller = DevblocksPlatform::importGPC($_POST['caller'] ?? null, 'array', []);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$error = null;
@@ -2104,8 +2104,8 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$prompts = DevblocksPlatform::importGPC($_POST['prompts'], 'array', []);
-		@$reset = DevblocksPlatform::importGPC($_POST['reset'], 'integer', 0);
+		$prompts = DevblocksPlatform::importGPC($_POST['prompts'] ?? null, 'array', []);
+		$reset = DevblocksPlatform::importGPC($_POST['reset'] ?? null, 'integer', 0);
 		
 		$prompts_without_output = ['say'];
 		
@@ -2147,7 +2147,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		unset($initial_state['__return']['form']['elements']['say/__validation']);
 		
 		if($is_submit) {
-			@$last_prompts = $initial_state['__return']['form']['elements'] ?: [];
+			$last_prompts = ($initial_state['__return']['form']['elements'] ?? null) ?: [];
 			$validation_errors = [];
 			$validation_values = [];
 			

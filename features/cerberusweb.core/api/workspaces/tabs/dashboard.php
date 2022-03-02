@@ -10,7 +10,7 @@ class WorkspaceTab_Dashboards extends Extension_WorkspaceTab {
 	}
 	
 	function saveTabConfig(Model_WorkspacePage $page, Model_WorkspaceTab $tab, ?string &$error=null) : bool {
-		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
+		$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
 		
 		if(array_key_exists('prompts_kata', $params)) {
 			$kata = DevblocksPlatform::services()->kata();

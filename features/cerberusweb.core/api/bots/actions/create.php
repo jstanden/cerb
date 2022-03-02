@@ -26,10 +26,10 @@ class BotAction_CreateAttachment extends Extension_DevblocksEventAction {
 
 		$out = null;
 		
-		@$file_name = $tpl_builder->build($params['file_name'], $dict);
-		@$file_type = $tpl_builder->build($params['file_type'], $dict);
-		@$content = $tpl_builder->build($params['content'], $dict);
-		@$object_placeholder = $params['object_placeholder'] ?: '_attachment_meta';
+		$file_name = $tpl_builder->build($params['file_name'] ?? '', $dict);
+		$file_type = $tpl_builder->build($params['file_type'] ?? '', $dict);
+		$content = $tpl_builder->build($params['content'] ?? '', $dict);
+		$object_placeholder = ($params['object_placeholder'] ?? null) ?: '_attachment_meta';
 		
 		if(empty($file_name))
 			return "[ERROR] File name is required.";
@@ -73,11 +73,11 @@ class BotAction_CreateAttachment extends Extension_DevblocksEventAction {
 	function run($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
-		@$file_name = $tpl_builder->build($params['file_name'], $dict);
-		@$file_type = $tpl_builder->build($params['file_type'], $dict);
-		@$content = $tpl_builder->build($params['content'], $dict);
-		@$content_encoding = $params['content_encoding'];
-		@$object_placeholder = $params['object_placeholder'] ?: '_attachment_meta';
+		$file_name = $tpl_builder->build($params['file_name'] ?? '', $dict);
+		$file_type = $tpl_builder->build($params['file_type'] ?? '', $dict);
+		$content = $tpl_builder->build($params['content'] ?? '', $dict);
+		$content_encoding = $params['content_encoding'] ?? null;
+		$object_placeholder = ($params['object_placeholder'] ?? null) ?: '_attachment_meta';
 		
 		// MIME Type
 		
@@ -164,9 +164,9 @@ class BotAction_CreateReminder extends Extension_DevblocksEventAction {
 	function simulate($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
-		@$name = $tpl_builder->build($params['name'], $dict);
-		@$remind_at = $tpl_builder->build($params['remind_at'], $dict);
-		@$object_placeholder = $params['object_placeholder'] ?: '_attachment_meta';
+		$name = $tpl_builder->build($params['name'] ?? '', $dict);
+		$remind_at = $tpl_builder->build($params['remind_at'] ?? '', $dict);
+		$object_placeholder = ($params['object_placeholder'] ?? null) ?: '_attachment_meta';
 		
 		if(empty($name))
 			return "[ERROR] 'Name' is required.";
@@ -208,9 +208,9 @@ class BotAction_CreateReminder extends Extension_DevblocksEventAction {
 	function run($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
-		@$name = $tpl_builder->build($params['name'], $dict);
-		@$remind_at = $tpl_builder->build($params['remind_at'], $dict);
-		@$object_placeholder = $params['object_placeholder'] ?: '_reminder_meta';
+		$name = $tpl_builder->build($params['name'] ?? '', $dict);
+		$remind_at = $tpl_builder->build($params['remind_at'] ?? '', $dict);
+		$object_placeholder = ($params['object_placeholder'] ?? null) ?: '_reminder_meta';
 		
 		@$worker_ids = DevblocksPlatform::importVar($params['worker_id'],'string','');
 		$worker_ids = DevblocksEventHelper::mergeWorkerVars($worker_ids, $dict);

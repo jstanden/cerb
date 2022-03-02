@@ -57,8 +57,8 @@ class DevblocksGpgEngine_OpenPGP extends Extension_DevblocksGpgEngine {
 		$keyid = substr($fingerprint, -16);
 		
 		foreach($uids as $uid_data) {
-			@$uid_name = $uid_data['name'];
-			@$uid_email = $uid_data['email'];
+			$uid_name = $uid_data['name'] ?? null;
+			$uid_email = $uid_data['email'] ?? null;
 			
 			if(!$uid_name || !$uid_email)
 				continue;

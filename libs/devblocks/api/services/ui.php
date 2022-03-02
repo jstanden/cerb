@@ -156,7 +156,7 @@ class DevblocksUiEventHandler {
 			// @deprecated
 			} elseif('behavior' == @$handler['type']) {
 				if(is_callable($behavior_callback)) {
-					@$behavior_uri = $handler['data']['uri'];
+					$behavior_uri = $handler['data']['uri'] ?? null;
 					
 					if(DevblocksPlatform::strStartsWith($behavior_uri, 'cerb:')) {
 						if(false == ($uri_parts = DevblocksPlatform::services()->ui()->parseURI($behavior_uri)))
@@ -292,19 +292,19 @@ class DevblocksUiMap {
 		
 		$resource_keys = [];
 		
-		if(@$map['resource']['uri']) {
+		if(null != ($map['resource']['uri'] ?? null)) {
 			$uri_parts = DevblocksPlatform::services()->ui()->parseURI($map['resource']['uri']);
 			$resource_keys[] = $uri_parts['context_id'];
 			$map['resource']['uri'] = $uri_parts['context_id'];
 		}
 		
-		if(@$map['regions']['properties']['resource']['uri']) {
+		if(null != ($map['regions']['properties']['resource']['uri'] ?? null)) {
 			$uri_parts = DevblocksPlatform::services()->ui()->parseURI($map['regions']['properties']['resource']['uri']);
 			$resource_keys[] = $uri_parts['context_id'];
 			$map['regions']['properties']['resource']['uri'] = $uri_parts['context_id'];
 		}
 		
-		if(@$map['points']['resource']['uri']) {
+		if(null != ($map['points']['resource']['uri'] ?? null)) {
 			$uri_parts = DevblocksPlatform::services()->ui()->parseURI($map['points']['resource']['uri']);
 			$resource_keys[] = $uri_parts['context_id'];
 			$map['points']['resource']['uri'] = $uri_parts['context_id'];
@@ -313,7 +313,7 @@ class DevblocksUiMap {
 		$resources = DAO_Resource::getByNames($resource_keys);
 		$resources = array_combine(array_column($resources, 'name'), $resources);
 		
-		if(@$map['resource']['uri']) {
+		if(null != ($map['resource']['uri'] ?? null)) {
 			if (false != ($resource = @$resources[$map['resource']['uri']])) {
 				$map['resource']['name'] = $resource->name;
 				$map['resource']['size'] = $resource->storage_size;
@@ -321,7 +321,7 @@ class DevblocksUiMap {
 			}
 		}
 		
-		if(@$map['regions']['properties']['resource']['uri']) {
+		if(null != ($map['regions']['properties']['resource']['uri'] ?? null)) {
 			if(false != ($regions_resource = @$resources[$map['regions']['properties']['resource']['uri']])) {
 				$map['regions']['properties']['resource']['name'] = $regions_resource->name;
 				$map['regions']['properties']['resource']['size'] = $regions_resource->storage_size;
@@ -329,8 +329,8 @@ class DevblocksUiMap {
 			}
 		}
 		
-		if(@$map['points']['resource']['uri']) {
-			if(false != ($points_resource = @$resources[$map['points']['resource']['uri']])) {
+		if(null != ($map['points']['resource']['uri'] ?? null)) {
+			if(false != ($points_resource = ($resources[$map['points']['resource']['uri']] ?? null))) {
 				$map['points']['resource']['name'] = $points_resource->name;
 				$map['points']['resource']['size'] = $points_resource->storage_size;
 				$map['points']['resource']['updated_at'] = $points_resource->updated_at;
@@ -344,7 +344,7 @@ class DevblocksUiMap {
 		$tpl = DevblocksPlatform::services()->template();
 		
 		// Manual region properties
-		if(@$map['regions']['properties']['data']) {
+		if(null != ($map['regions']['properties']['data'] ?? null)) {
 			if(is_array($map['regions']['properties']['data'])) {
 				$region_properties = $map['regions']['properties']['data'];
 				$tpl->assign('region_properties_json', json_encode($region_properties));
@@ -352,7 +352,7 @@ class DevblocksUiMap {
 		}
 		
 		// Manual points
-		if(@$map['points']['data']) {
+		if(null != ($map['points']['data'] ?? null)) {
 			$points = [
 				'type' => 'FeatureCollection',
 				'features' => []
@@ -485,7 +485,7 @@ class DevblocksUiToolbar {
 				}
 				
 				// If no automation
-				if(false == ($automation = @$automations[$node['uri']])) {
+				if(false == ($automation = ($automations[$node['uri']] ?? null))) {
 					$node['hidden'] = true;
 					return;
 				}

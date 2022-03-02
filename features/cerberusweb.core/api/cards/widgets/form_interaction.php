@@ -37,7 +37,7 @@ class CardWidget_FormInteraction extends Extension_CardWidget {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$interactions_kata = DevblocksPlatform::importGPC($_POST['interactions_kata'], 'string', '');
+		$interactions_kata = DevblocksPlatform::importGPC($_POST['interactions_kata'] ?? null, 'string', '');
 		
 		$model->extension_params['interactions_kata'] = $interactions_kata;
 		

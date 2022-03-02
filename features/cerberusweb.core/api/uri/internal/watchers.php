@@ -36,10 +36,10 @@ class PageSection_InternalWatchers extends Extension_PageSection {
 	private function _internalAction_showContextWatchersPopup() {
 		$tpl = DevblocksPlatform::services()->template();
 		
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', '');
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'], 'integer', 0);
-		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'], 'integer', 0);
-		@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'], 'integer', 0);
+		$context = DevblocksPlatform::importGPC($_REQUEST['context'] ?? null, 'string', '');
+		$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'] ?? null, 'integer', 0);
+		$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'] ?? null, 'integer', 0);
+		$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'] ?? null, 'integer', 0);
 		
 		$tpl->assign('context', $context);
 		$tpl->assign('context_id', $context_id);
@@ -77,10 +77,10 @@ class PageSection_InternalWatchers extends Extension_PageSection {
 	private function _internalAction_saveContextWatchersPopupJson() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$context = DevblocksPlatform::importGPC($_POST['context'], 'string', '');
-		@$context_id = DevblocksPlatform::importGPC($_POST['context_id'], 'integer', 0);
-		@$initial_sample = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['initial_sample'], 'array', []), 'int');
-		@$current_sample = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['current_sample'], 'array', []), 'int');
+		$context = DevblocksPlatform::importGPC($_POST['context'] ?? null, 'string', '');
+		$context_id = DevblocksPlatform::importGPC($_POST['context_id'] ?? null, 'integer', 0);
+		$initial_sample = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['initial_sample'] ?? null, 'array', []), 'int');
+		$current_sample = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['current_sample'] ?? null, 'array', []), 'int');
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
@@ -113,8 +113,8 @@ class PageSection_InternalWatchers extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$context = DevblocksPlatform::importGPC($_POST['context'], 'string', '');
-		@$context_id = DevblocksPlatform::importGPC($_POST['context_id'], 'integer', 0);
+		$context = DevblocksPlatform::importGPC($_POST['context'] ?? null, 'string', '');
+		$context_id = DevblocksPlatform::importGPC($_POST['context_id'] ?? null, 'integer', 0);
 		
 		if(!$context || !$context_id || !$active_worker)
 			DevblocksPlatform::dieWithHttpError(null, 404);

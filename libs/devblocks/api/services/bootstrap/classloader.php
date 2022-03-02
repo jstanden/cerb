@@ -43,7 +43,7 @@ class _DevblocksClassLoadManager {
 		if(class_exists($className, false))
 			return;
 		
-		@$file = $this->classMap[$className];
+		$file = $this->classMap[$className] ?? null;
 		
 		if(!is_null($file) && file_exists($file)) {
 			require_once($file);

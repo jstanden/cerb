@@ -849,7 +849,7 @@ class View_ClassifierExample extends C4_AbstractView implements IAbstractView_Su
 				break;
 				
 			case SearchFields_ClassifierExample::VIRTUAL_HAS_FIELDSET:
-				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',array());
+				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array', []);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
@@ -1225,7 +1225,7 @@ class Context_ClassifierExample extends Extension_DevblocksContext implements ID
 					$tokens = explode(' ', trim($edit));
 					
 					foreach($tokens as $token) {
-						@list($k,$v) = explode(':', $token);
+						list($k,$v) = array_pad(explode(':', $token, 2), 2, null);
 						
 						if(empty($k) || empty($v))
 							continue;

@@ -500,7 +500,7 @@ class _DevblocksSmartyTemplateResource extends Smarty_Resource_Custom {
 		
 		$plugins = DevblocksPlatform::getPluginRegistry();
 			
-		if(null == ($plugin = @$plugins[$plugin_id])) /* @var $plugin DevblocksPluginManifest */
+		if(null == ($plugin = ($plugins[$plugin_id] ?? null))) /* @var $plugin DevblocksPluginManifest */
 			return false;
 		
 		// If we can overload this template through the DB, don't return an mtime (faster to do one query)

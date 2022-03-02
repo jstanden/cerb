@@ -41,7 +41,7 @@ class UmScHistoryController extends Extension_UmScController {
 			// Ticket history
 			
 			// Prompts
-			@$prompts = DevblocksPlatform::importGPC($_POST['prompts'],'array',[]);
+			$prompts = DevblocksPlatform::importGPC($_POST['prompts'] ?? null, 'array',[]);
 			$prompts['status'] = array_intersect($prompts['status'] ?: ['o','w','c'], ['o','w','c']);
 			$tpl->assign('prompts', $prompts);
 			
@@ -166,7 +166,7 @@ class UmScHistoryController extends Extension_UmScController {
 	}
 	
 	function saveConfiguration(Model_CommunityTool $portal) {
-		@$columns = DevblocksPlatform::importGPC($_POST['history_columns'],'array',array());
+		$columns = DevblocksPlatform::importGPC($_POST['history_columns'] ?? null, 'array', []);
 
 		$columns = array_filter($columns, function($column) {
 			return !empty($column);
@@ -181,10 +181,10 @@ class UmScHistoryController extends Extension_UmScController {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$mask = DevblocksPlatform::importGPC($_POST['mask'],'string','');
-		@$subject = DevblocksPlatform::importGPC($_POST['subject'],'string','');
-		@$participants = DevblocksPlatform::importGPC($_POST['participants'],'string','');
-		@$is_closed = DevblocksPlatform::importGPC($_POST['is_closed'],'integer','0');
+		$mask = DevblocksPlatform::importGPC($_POST['mask'] ?? null, 'string','');
+		$subject = DevblocksPlatform::importGPC($_POST['subject'] ?? null, 'string','');
+		$participants = DevblocksPlatform::importGPC($_POST['participants'] ?? null, 'string','');
+		$is_closed = DevblocksPlatform::importGPC($_POST['is_closed'] ?? null, 'integer','0');
 		
 		if(false == ($active_contact = $umsession->getProperty('sc_login', null)))
 			DevblocksPlatform::dieWithHttpError(null, 403);
@@ -246,9 +246,9 @@ class UmScHistoryController extends Extension_UmScController {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$from = DevblocksPlatform::importGPC($_POST['from'],'string','');
-		@$mask = DevblocksPlatform::importGPC($_POST['mask'],'string','');
-		@$content = DevblocksPlatform::importGPC($_POST['content'],'string','');
+		$from = DevblocksPlatform::importGPC($_POST['from'] ?? null, 'string','');
+		$mask = DevblocksPlatform::importGPC($_POST['mask'] ?? null, 'string','');
+		$content = DevblocksPlatform::importGPC($_POST['content'] ?? null, 'string','');
 		
 		if(false == ($active_contact = $umsession->getProperty('sc_login', null)))
 			DevblocksPlatform::dieWithHttpError(null, 403);
@@ -518,19 +518,19 @@ class UmSc_TicketHistoryView extends C4_AbstractView implements IAbstractView_Qu
 				break;
 				
 			case SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT:
-				@$scope = DevblocksPlatform::importGPC($_POST['scope'],'string','expert');
+				$scope = DevblocksPlatform::importGPC($_POST['scope'] ?? null, 'string','expert');
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_STATUS:
-				@$statuses = DevblocksPlatform::importGPC($_POST['value'],'array',array());
+				$statuses = DevblocksPlatform::importGPC($_POST['value'] ?? null, 'array', []);
 				$criteria = new DevblocksSearchCriteria($field, $oper, $statuses);
 				break;
 				
 			case SearchFields_Ticket::TICKET_CREATED_DATE:
 			case SearchFields_Ticket::TICKET_UPDATED_DATE:
-				@$from = DevblocksPlatform::importGPC($_POST['from'],'string','');
-				@$to = DevblocksPlatform::importGPC($_POST['to'],'string','');
+				$from = DevblocksPlatform::importGPC($_POST['from'] ?? null, 'string','');
+				$to = DevblocksPlatform::importGPC($_POST['to'] ?? null, 'string','');
 
 				if(empty($from) || (!is_numeric($from) && @false === strtotime(str_replace('.','-',$from))))
 					$from = 0;
@@ -542,7 +542,7 @@ class UmSc_TicketHistoryView extends C4_AbstractView implements IAbstractView_Qu
 				break;
 				
 			case SearchFields_Ticket::REQUESTER_ID:
-				@$requester_ids = DevblocksPlatform::importGPC($_POST['requester_ids'],'array',array());
+				$requester_ids = DevblocksPlatform::importGPC($_POST['requester_ids'] ?? null, 'array', []);
 				
 				// If blank, this is pointless.
 				if(empty($active_contact) || empty($requester_ids))

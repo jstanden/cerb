@@ -17,7 +17,7 @@ class ServiceProvider_TokenBearer extends Extension_ConnectedServiceProvider {
 	}
 	
 	function saveConfigForm(Model_ConnectedService $service, array &$params, &$error=null) {
-		@$edit_params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
+		$edit_params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
 		
 		$validation = DevblocksPlatform::services()->validation();
 	
@@ -47,7 +47,7 @@ class ServiceProvider_TokenBearer extends Extension_ConnectedServiceProvider {
 	}
 
 	public function saveAccountConfigForm(Model_ConnectedService $service, Model_ConnectedAccount $account, array &$params, &$error = null) {
-		@$edit_params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
+		$edit_params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
 		
 		$validation = DevblocksPlatform::services()->validation();
 	

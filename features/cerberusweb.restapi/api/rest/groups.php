@@ -265,7 +265,7 @@ class ChRest_Groups extends Extension_RestController implements IExtensionRestCo
 	function putMembers() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$json = DevblocksPlatform::importGPC($_POST['json'],'string','');
+		$json = DevblocksPlatform::importGPC($_POST['json'] ?? null, 'string','');
 		$groups = DAO_Group::getAll();
 		$workers = DAO_Worker::getAll();
 		

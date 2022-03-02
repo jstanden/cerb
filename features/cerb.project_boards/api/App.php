@@ -19,7 +19,7 @@ class ProfileWidget_ProjectBoard extends Extension_ProfileWidget {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
-		@$target_context_id = $model->extension_params['context_id'];
+		$target_context_id = $model->extension_params['context_id'] ?? null;
 		
 		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
 			return;
@@ -103,7 +103,7 @@ class WorkspaceWidget_ProjectBoard extends Extension_WorkspaceWidget {
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$project_board_template = $widget->params['project_board_id'];
+		$project_board_template = $widget->params['project_board_id'] ?? null;
 		
 		$record_dict = DevblocksDictionaryDelegate::instance([
 			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
@@ -135,7 +135,7 @@ class WorkspaceWidget_ProjectBoard extends Extension_WorkspaceWidget {
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget, ?string &$error=null) : bool {
-		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
+		$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
 		
 		DAO_WorkspaceWidget::update($widget->id, array(
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),

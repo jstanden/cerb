@@ -73,15 +73,15 @@ class ChFilesController extends DevblocksControllerExtension {
 			header("Content-Disposition: attachment; filename=\"" . $file->name . "\"");
 			
 		} else {
-			@$range = DevblocksPlatform::importGPC($_SERVER['HTTP_RANGE'], 'string', null);
+			$range = DevblocksPlatform::importGPC($_SERVER['HTTP_RANGE'] ?? null, 'string', null);
 			
 			if($range) {
-				@list($range_unit, $value) = explode('=', $range, 2);
+				list($range_unit, $value) = array_pad(explode('=', $range, 2), 2, null);
 				
 				if($range_unit != 'bytes')
 					DevblocksPlatform::dieWithHttpError('Bad Request', 400);
 				
-				@list($range_from, $range_to) = explode('-', $value, 2);
+				list($range_from, $range_to) = array_pad(explode('-', $value, 2), 2, null);
 				
 				if(!$range_to)
 					$range_to = $size - 1;

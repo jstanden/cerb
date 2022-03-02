@@ -849,9 +849,9 @@ class DevblocksPlatform extends DevblocksEngine {
 		}
 		
 		if($is_latlong) {
-			@list($latitude, $longitude) = $coords;
+			list($latitude, $longitude) = array_pad($coords, 2, null);
 		} else {
-			@list($longitude, $latitude) = $coords;
+			list($longitude, $latitude) = array_pad($coords, 2, null);
 		}
 		
 		if(!is_numeric($latitude) || $latitude < -90 || $latitude > 90) {
@@ -2884,7 +2884,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		// [JAS]: Event point hashing/caching
 		if(is_array($extensions))
 		foreach($extensions as $extension) { /* @var $extension DevblocksExtensionManifest */
-			@$evts = $extension->params['events'][0];
+			$evts = $extension->params['events'][0] ?? null;
 			
 			// Global listeners (every point)
 			if(empty($evts) && !is_array($evts)) {
@@ -2929,14 +2929,14 @@ class DevblocksPlatform extends DevblocksEngine {
 
 		foreach($results as $row) {
 			$plugin = new DevblocksPluginManifest();
-			@$plugin->id = $row['id'];
-			@$plugin->enabled = intval($row['enabled']);
-			@$plugin->name = $row['name'];
-			@$plugin->description = $row['description'];
-			@$plugin->author = $row['author'];
-			@$plugin->version = intval($row['version']);
-			@$plugin->link = $row['link'];
-			@$plugin->dir = $row['dir'];
+			$plugin->id = $row['id'] ?? null;
+			$plugin->enabled = intval($row['enabled'] ?? null);
+			$plugin->name = $row['name'] ?? null;
+			$plugin->description = $row['description'] ?? null;
+			$plugin->author = $row['author'] ?? null;
+			$plugin->version = intval($row['version'] ?? null);
+			$plugin->link = $row['link'] ?? null;
+			$plugin->dir = $row['dir'] ?? null;
 
 			// JSON decode
 			if(isset($row['manifest_cache_json'])
@@ -2989,7 +2989,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		// Dependencies
 		foreach($plugins as $plugin) {
-			@$deps = $plugin->manifest_cache['dependencies'];
+			$deps = $plugin->manifest_cache['dependencies'] ?? null;
 			$dependencies[$plugin->id] = is_array($deps) ? $deps : array();
 		}
 		
@@ -3499,7 +3499,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	static function getHttpMethod() {
-		return DevblocksPlatform::strUpper($_SERVER['REQUEST_METHOD']);
+		return DevblocksPlatform::strUpper($_SERVER['REQUEST_METHOD'] ?? '');
 	}
 	
 	static function getHttpParams() {
@@ -3613,7 +3613,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			mb_regex_encoding(LANG_CHARSET_CODE);
 		
 		// [JAS] [MDF]: Automatically determine the relative webpath to Devblocks files
-		//@$proxyhost = $_SERVER['HTTP_DEVBLOCKSPROXYHOST'];
+		//$proxyhost = $_SERVER['HTTP_DEVBLOCKSPROXYHOST'] ?? null;
 		$proxybase = $_SERVER['HTTP_DEVBLOCKSPROXYBASE'] ?? null;
 	
 		// App path (always backend)
@@ -3662,7 +3662,8 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		// Clean up any temporary files
 		while(null != ($tmpfile = array_pop(self::$_tmp_files))) {
-			@unlink($tmpfile);
+			if(file_exists($tmpfile))
+				unlink($tmpfile);
 		}
 		
 		// Persist the registry

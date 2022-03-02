@@ -601,7 +601,7 @@ class Model_WorkspaceTab {
 	}
 	
 	function getPlaceholderPrompts() {
-		if(false == (@$prompts_kata = $this->params['prompts_kata']))
+		if(false == ($prompts_kata = $this->params['prompts_kata'] ?? null))
 			return [];
 		
 		if(false == (@$placeholder_tree = DevblocksPlatform::services()->kata()->parse($prompts_kata)))
@@ -667,9 +667,9 @@ class Model_WorkspaceTab {
 			switch($prompt['type']) {
 				case 'picklist':
 					$is_multiple = (bool)($prompt['params']['multiple'] ?? false);
+					
 					if($is_multiple && is_string($pref_value)) {
 						$prefs[$pref_key] = json_decode($pref_value, true);
-						
 					} else {
 						$prefs[$pref_key] = $pref_value;
 					}
@@ -704,7 +704,7 @@ class Model_WorkspaceTab {
 		$placeholder_prompts = $this->getPlaceholderPrompts();
 		
 		foreach($prefs as $pref_key => $pref_value) {
-			if(false == (@$prompt = $placeholder_prompts[$pref_key]))
+			if(false == (@$prompt = ($placeholder_prompts[$pref_key] ?? null)))
 				continue;
 			
 			switch($prompt['type']) {
@@ -713,7 +713,7 @@ class Model_WorkspaceTab {
 					break;
 					
 				case 'picklist':
-					if(@$prompt['params']['multiple']) {
+					if(($prompt['params']['multiple'] ?? null)) {
 						$prefs[$pref_key] = json_encode($pref_value);
 					}
 					break;
@@ -1034,12 +1034,12 @@ class View_WorkspaceTab extends C4_AbstractView implements IAbstractView_Subtota
 				break;
 				
 			case SearchFields_WorkspaceTab::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_POST['context_link'],'array',[]);
+				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
 			case SearchFields_WorkspaceTab::VIRTUAL_HAS_FIELDSET:
-				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',[]);
+				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
@@ -1487,7 +1487,7 @@ class Context_WorkspaceTab extends Extension_DevblocksContext implements IDevblo
 				$tokens = explode(' ', trim($edit));
 				
 				foreach($tokens as $token) {
-					@list($k,$v) = explode(':', $token);
+					list($k,$v) = array_pad(explode(':', $token, 2), 2, null);
 					
 					if($v)
 					switch($k) {

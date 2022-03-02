@@ -46,9 +46,9 @@ class PageSection_ProfilesJiraIssue extends Extension_PageSection {
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
-		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
+		$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'string', '');
 		
 		try {
 			if (!empty($id) && !empty($do_delete)) { // Delete
@@ -67,7 +67,7 @@ class PageSection_ProfilesJiraIssue extends Extension_PageSection {
 				
 			} else {
 				// Custom field saves
-				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+				$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 				if (!DAO_CustomFieldValue::handleFormPost(Context_JiraIssue::ID, $id, $field_ids, $error))
 					throw new Exception_DevblocksAjaxValidationError($error);
 			}
@@ -78,7 +78,7 @@ class PageSection_ProfilesJiraIssue extends Extension_PageSection {
 	}
 	
 	private function _profileAction_viewExplore() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
@@ -94,7 +94,7 @@ class PageSection_ProfilesJiraIssue extends Extension_PageSection {
 		$view->setAutoPersist(false);
 
 		// Page start
-		@$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'],'integer',0);
+		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'integer',0);
 		if(empty($explore_from)) {
 			$orig_pos = 1+($view->renderPage * $view->renderLimit);
 		} else {

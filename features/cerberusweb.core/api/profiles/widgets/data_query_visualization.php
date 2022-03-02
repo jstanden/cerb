@@ -16,10 +16,10 @@ class ProfileWidget_Visualization extends Extension_ProfileWidget {
 	}
 	
 	function render(Model_ProfileWidget $model, $context, $context_id) {
-		@$data_query = DevblocksPlatform::importGPC($model->extension_params['data_query'], 'string', '');
-		@$cache_ttl = DevblocksPlatform::importGPC($model->extension_params['cache_ttl'], 'integer', 0);
-		@$cache_by_worker = DevblocksPlatform::importGPC($model->extension_params['cache_by_worker'], 'integer', 0);
-		@$template = DevblocksPlatform::importGPC($model->extension_params['template'], 'string', '');
+		$data_query = DevblocksPlatform::importGPC($model->extension_params['data_query'] ?? null, 'string', '');
+		$cache_ttl = DevblocksPlatform::importGPC($model->extension_params['cache_ttl'] ?? null, 'integer', 0);
+		$cache_by_worker = DevblocksPlatform::importGPC($model->extension_params['cache_by_worker'] ?? null, 'integer', 0);
+		$template = DevblocksPlatform::importGPC($model->extension_params['template'] ?? null, 'string', '');
 		
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$data_service = DevblocksPlatform::services()->data();
@@ -97,8 +97,8 @@ class ProfileWidget_Visualization extends Extension_ProfileWidget {
 		if(false == (@$json = json_decode($fields[DAO_ProfileWidget::EXTENSION_PARAMS_JSON], true)))
 			return true;
 		
-		@$cache_ttl = DevblocksPlatform::importGPC($json['cache_ttl'], 'integer', 0);
-		@$cache_by_worker = DevblocksPlatform::importGPC($json['cache_by_worker'], 'integer', 0);
+		$cache_ttl = DevblocksPlatform::importGPC($json['cache_ttl'] ?? null, 'integer', 0);
+		$cache_by_worker = DevblocksPlatform::importGPC($json['cache_by_worker'] ?? null, 'integer', 0);
 		
 		if(!$cache_ttl)
 			return true;

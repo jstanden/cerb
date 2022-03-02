@@ -47,9 +47,9 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 	}
 	
 	private function _profileAction_savePeekJson() {
-		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer','');
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
-		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer','');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string','');
+		$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'integer',0);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -81,7 +81,7 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 				return;
 				
 			} else { // create/edit
-				@$package_uri = DevblocksPlatform::importGPC($_POST['package'], 'string', '');
+				$package_uri = DevblocksPlatform::importGPC($_POST['package'] ?? null, 'string', '');
 				
 				$mode = 'build';
 				$error = null;
@@ -91,7 +91,7 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 				
 				switch($mode) {
 					case 'library':
-						@$prompts = DevblocksPlatform::importGPC($_POST['prompts'], 'array', []);
+						$prompts = DevblocksPlatform::importGPC($_POST['prompts'] ?? null, 'array', []);
 						
 						if(empty($package_uri))
 							throw new Exception_DevblocksAjaxValidationError("You must select a package from the library.");
@@ -141,12 +141,12 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 						$fields = [];
 			
 						// Title
-						@$title = DevblocksPlatform::importGPC($_POST['title'],'string','');
+						$title = DevblocksPlatform::importGPC($_POST['title'] ?? null, 'string','');
 						
 						$fields[DAO_Task::TITLE] = $title;
 						
 						// Completed
-						@$status_id = DevblocksPlatform::importGPC($_POST['status_id'],'integer',0);
+						$status_id = DevblocksPlatform::importGPC($_POST['status_id'] ?? null, 'integer',0);
 						$status_id = DevblocksPlatform::intClamp($status_id, 0, 2);
 						$fields[DAO_Task::STATUS_ID] = $status_id;
 						
@@ -162,19 +162,19 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 						$fields[DAO_Task::UPDATED_DATE] = time();
 						
 						// Reopen Date
-						@$reopen_at = DevblocksPlatform::importGPC($_POST['reopen_at'],'string','');
+						$reopen_at = DevblocksPlatform::importGPC($_POST['reopen_at'] ?? null, 'string','');
 						@$fields[DAO_Task::REOPEN_AT] = empty($reopen_at) ? 0 : intval(strtotime($reopen_at));
 						
 						// Due Date
-						@$due_date = DevblocksPlatform::importGPC($_POST['due_date'],'string','');
+						$due_date = DevblocksPlatform::importGPC($_POST['due_date'] ?? null, 'string','');
 						@$fields[DAO_Task::DUE_DATE] = empty($due_date) ? 0 : intval(strtotime($due_date));
 				
 						// Importance
-						@$importance = DevblocksPlatform::importGPC($_POST['importance'],'integer',0);
+						$importance = DevblocksPlatform::importGPC($_POST['importance'] ?? null, 'integer',0);
 						$fields[DAO_Task::IMPORTANCE] = $importance;
 						
 						// Owner
-						@$owner_id = DevblocksPlatform::importGPC($_POST['owner_id'],'integer',0);
+						$owner_id = DevblocksPlatform::importGPC($_POST['owner_id'] ?? null, 'integer',0);
 						$fields[DAO_Task::OWNER_ID] = $owner_id;
 				
 						// Save
@@ -201,7 +201,7 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 							DAO_Task::onUpdateByActor($active_worker, $fields, $id);
 							
 							// Watchers
-							@$add_watcher_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST ['add_watcher_ids'], 'array', []), 'integer', ['unique','nonzero']);
+							$add_watcher_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST ['add_watcher_ids'] ?? null, 'array', []), 'integer', ['unique','nonzero']);
 							if(!empty($add_watcher_ids))
 								CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TASK, $id, $add_watcher_ids);
 			
@@ -217,7 +217,7 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 						}
 						
 						// Custom field saves
-						@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+						$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 						if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_TASK, $id, $field_ids, $error))
 							throw new Exception_DevblocksAjaxValidationError($error);
 						
@@ -257,8 +257,8 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 		if(!$active_worker->hasPriv(sprintf('contexts.%s.update.bulk', Context_Task::ID)))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
+		$ids = DevblocksPlatform::importGPC($_REQUEST['ids'] ?? null);
+		$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'] ?? null);
 
 		$tpl->assign('view_id', $view_id);
 
@@ -287,22 +287,22 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		// Filter: whole list or check
-		@$filter = DevblocksPlatform::importGPC($_POST['filter'],'string','');
+		$filter = DevblocksPlatform::importGPC($_POST['filter'] ?? null, 'string','');
 		$ids = [];
 		
 		// View
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
 		$view->setAutoPersist(false);
 		
 		// Actions
-		@$actions = DevblocksPlatform::importGPC($_POST['actions'],'array',array());
-		@$params = DevblocksPlatform::importGPC($_POST['params'],'array',array());
+		$actions = DevblocksPlatform::importGPC($_POST['actions'] ?? null, 'array', []);
+		$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
 		
 		// Scheduled behavior
-		@$behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'],'string','');
-		@$behavior_when = DevblocksPlatform::importGPC($_POST['behavior_when'],'string','');
-		@$behavior_params = DevblocksPlatform::importGPC($_POST['behavior_params'],'array',array());
+		$behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'] ?? null, 'string','');
+		$behavior_when = DevblocksPlatform::importGPC($_POST['behavior_when'] ?? null, 'string','');
+		$behavior_params = DevblocksPlatform::importGPC($_POST['behavior_params'] ?? null, 'array', []);
 		
 		$do = array();
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -361,12 +361,12 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 		switch($filter) {
 			// Checked rows
 			case 'checks':
-				@$ids_str = DevblocksPlatform::importGPC($_POST['ids'],'string');
+				$ids_str = DevblocksPlatform::importGPC($_POST['ids'] ?? null, 'string');
 				$ids = DevblocksPlatform::parseCsvString($ids_str);
 				break;
 				
 			case 'sample':
-				@$sample_size = min(DevblocksPlatform::importGPC($_POST['filter_sample_size'],'integer',0),9999);
+				$sample_size = min(DevblocksPlatform::importGPC($_POST['filter_sample_size'] ?? null,'integer',0),9999);
 				$filter = 'checks';
 				$ids = $view->getDataSample($sample_size);
 				break;
@@ -400,8 +400,8 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
-		@$row_ids = DevblocksPlatform::importGPC($_POST['row_id'],'array', []);
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
+		$row_ids = DevblocksPlatform::importGPC($_POST['row_id'] ?? null, 'array', []);
 		
 		try {
 			// Check privs
@@ -436,7 +436,7 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
 		
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
@@ -449,7 +449,7 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 		$view->setAutoPersist(false);
 
 		// Page start
-		@$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'],'integer',0);
+		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'integer',0);
 		if(empty($explore_from)) {
 			$orig_pos = 1+($view->renderPage * $view->renderLimit);
 		} else {

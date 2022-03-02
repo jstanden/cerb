@@ -253,8 +253,8 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 			if(!isset($series['context']))
 				continue;
 			
-			@$query = $series['query'];
-			@$query_required = $series['query_required'];
+			$query = $series['query'] ?? null;
+			$query_required = $series['query_required'] ?? null;
 			
 			$context_ext = Extension_DevblocksContext::get($series['context'], true);
 			$dao_class = $context_ext->getDaoClass();
@@ -273,8 +273,8 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 			
 			$query_parts = $dao_class::getSearchQueryComponents([], $view->getParams());
 			
-			@$date_field = $series['x']['sql_select'];
-			@$function = $series['function'];
+			$date_field = $series['x']['sql_select'] ?? null;
+			$function = $series['function'] ?? null;
 			
 			switch($function) {
 				case 'average':
@@ -473,7 +473,7 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 			$values = [];
 			
 			foreach($x_domain as $k) {
-				$values[] = floatval(@$series['data'][$k] ?: 0);
+				$values[] = floatval(($series['data'][$k] ?? null) ?: 0);
 			}
 			
 			$response[$series['label']] = $values;

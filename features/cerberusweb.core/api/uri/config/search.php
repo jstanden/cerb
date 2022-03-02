@@ -57,7 +57,7 @@ class PageSection_SetupSearch extends Extension_PageSection {
 		if(!$active_worker || !$active_worker->is_superuser)
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
+		$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'] ?? null, 'string','');
 		
 		$schema = Extension_DevblocksSearchSchema::get($ext_id);
 		$tpl->assign('schema', $schema);
@@ -81,9 +81,9 @@ class PageSection_SetupSearch extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$schema_extension_id = DevblocksPlatform::importGPC($_POST['schema_extension_id'],'string','');
-		@$engine_extension_id = DevblocksPlatform::importGPC($_POST['engine_extension_id'],'string','');
-		@$params = DevblocksPlatform::importGPC($_POST['params'],'array',array());
+		$schema_extension_id = DevblocksPlatform::importGPC($_POST['schema_extension_id'] ?? null, 'string','');
+		$engine_extension_id = DevblocksPlatform::importGPC($_POST['engine_extension_id'] ?? null, 'string','');
+		$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
 
 		header('Content-Type: application/json');
 		

@@ -57,8 +57,8 @@ class ChInternalController extends DevblocksControllerExtension {
 	}
 
 	function _internalAction_invoke() {
-		@$page_uri = DevblocksPlatform::importGPC($_GET['module'] ?? $_REQUEST['module'],'string','');
-		@$action = DevblocksPlatform::importGPC($_GET['action'] ?? $_REQUEST['action'],'string','');
+		$page_uri = DevblocksPlatform::importGPC($_GET['module'] ?? $_REQUEST['module'] ?? null,'string','');
+		$action = DevblocksPlatform::importGPC($_GET['action'] ?? $_REQUEST['action'] ?? null,'string','');
 
 		$page = Extension_PageSection::getExtensionByPageUri($this->manifest->id, $page_uri, true);
 		

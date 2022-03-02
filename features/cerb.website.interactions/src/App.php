@@ -54,7 +54,7 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 	}
 	
 	public function saveConfiguration(Model_CommunityTool $instance) {
-		@$params = DevblocksPlatform::importGPC($_POST['params'],'array',[]);
+		$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array',[]);
 		
 		if(array_key_exists(self::PARAM_AUTOMATIONS_KATA, $params)) {
 			$value = strval($params[self::PARAM_AUTOMATIONS_KATA]);
@@ -386,7 +386,7 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 		$portal_schema = $this->_getPortalSchema();
 		
 		$initial_state = $continuation->state_data['dict'] ?? [];
-		$last_prompts = $initial_state['__return']['form']['elements'] ?? [];
+		$last_prompts = ($initial_state['__return']['form']['elements'] ?? null) ?: [];
 		
 		$prompt_key = rtrim(DevblocksPlatform::importGPC($_POST['prompt_key'] ?? null, 'string'), '/');
 		$prompt_action = DevblocksPlatform::importGPC($_POST['prompt_action'] ?? null, 'string');
@@ -430,7 +430,7 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 		unset($initial_state['__return']['form']['elements']['say/__validation']);
 		
 		if($is_submit) {
-			$last_prompts = $initial_state['__return']['form']['elements'] ?? [];
+			$last_prompts = ($initial_state['__return']['form']['elements'] ?? null) ?: [];
 			$validation_errors = [];
 			$validation_values = [];
 			

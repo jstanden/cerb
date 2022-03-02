@@ -39,21 +39,21 @@ class PageSection_ProfilesCalendarRecurringProfile extends Extension_PageSection
 	}
 	
 	private function _profileAction_savePeekJson() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
 		
 		$default_tz = DevblocksPlatform::getTimezone();
 		
-		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
-		@$calendar_id = DevblocksPlatform::importGPC($_POST['calendar_id'], 'integer', 0);
-		@$event_name = DevblocksPlatform::importGPC($_POST['event_name'], 'string', '');
-		@$event_start = DevblocksPlatform::importGPC($_POST['event_start'], 'string', '');
-		@$event_end = DevblocksPlatform::importGPC($_POST['event_end'], 'string', '');
-		@$tz = DevblocksPlatform::importGPC($_POST['tz'], 'string', $default_tz);
-		@$recur_start = intval(strtotime(DevblocksPlatform::importGPC($_POST['recur_start'], 'string', '')));
-		@$recur_end = intval(strtotime(DevblocksPlatform::importGPC($_POST['recur_end'], 'string', '')));
-		@$is_available = DevblocksPlatform::importGPC($_POST['is_available'], 'integer', 0);
-		@$patterns = DevblocksPlatform::importGPC($_POST['patterns'], 'string', '');
-		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
+		$calendar_id = DevblocksPlatform::importGPC($_POST['calendar_id'] ?? null, 'integer', 0);
+		$event_name = DevblocksPlatform::importGPC($_POST['event_name'] ?? null, 'string', '');
+		$event_start = DevblocksPlatform::importGPC($_POST['event_start'] ?? null, 'string', '');
+		$event_end = DevblocksPlatform::importGPC($_POST['event_end'] ?? null, 'string', '');
+		$tz = DevblocksPlatform::importGPC($_POST['tz'] ?? null, 'string', $default_tz);
+		$recur_start = intval(strtotime(DevblocksPlatform::importGPC($_POST['recur_start'] ?? null, 'string', '')));
+		$recur_end = intval(strtotime(DevblocksPlatform::importGPC($_POST['recur_end'] ?? null, 'string', '')));
+		$is_available = DevblocksPlatform::importGPC($_POST['is_available'] ?? null, 'integer', 0);
+		$patterns = DevblocksPlatform::importGPC($_POST['patterns'] ?? null, 'string', '');
+		$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -136,7 +136,7 @@ class PageSection_ProfilesCalendarRecurringProfile extends Extension_PageSection
 				}
 				
 				// Custom field saves
-				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+				$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 				if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING, $id, $field_ids, $error))
 					throw new Exception_DevblocksAjaxValidationError($error);
 				

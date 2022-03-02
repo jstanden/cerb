@@ -1024,7 +1024,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		}
 		
 		if(array_key_exists('owner_id', $properties)) {
-			@$owner_id = DevblocksPlatform::importVar($properties['owner_id'], 'int', 0);
+			$owner_id = DevblocksPlatform::importVar($properties['owner_id'] ?? null, 'int', 0);
 			
 			if(!$owner_id || null != (DAO_Worker::get($owner_id))) {
 				$ticket->owner_id = $owner_id;
@@ -1398,7 +1398,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			 * Owner changed
 			 */
 			
-			@$owner_id = $change_fields[DAO_Ticket::OWNER_ID];
+			$owner_id = $change_fields[DAO_Ticket::OWNER_ID] ?? null;
 			
 			if($owner_id == $before_model->owner_id)
 				unset($change_fields[DAO_Ticket::OWNER_ID]);
@@ -1454,8 +1454,8 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			 * Ticket moved
 			 */
 			
-			@$group_id = $change_fields[DAO_Ticket::GROUP_ID];
-			@$bucket_id = $change_fields[DAO_Ticket::BUCKET_ID];
+			$group_id = $change_fields[DAO_Ticket::GROUP_ID] ?? null;
+			$bucket_id = $change_fields[DAO_Ticket::BUCKET_ID] ?? null;
 			
 			if($group_id == $before_model->group_id)
 				unset($change_fields[DAO_Ticket::GROUP_ID]);
@@ -1470,8 +1470,8 @@ class DAO_Ticket extends Cerb_ORMHelper {
 
 				// Activity log
 				
-				@$to_group = DAO_Group::get($model->group_id);
-				@$to_bucket = DAO_Bucket::get($model->bucket_id);
+				$to_group = DAO_Group::get($model->group_id);
+				$to_bucket = DAO_Bucket::get($model->bucket_id);
 				
 				if($to_group && $to_bucket) {
 					// If we moved the ticket, but it's remaining open, then log a metric here
@@ -1666,15 +1666,15 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		$results = [];
 		$addys = [];
 
-		@$from = CerberusMail::parseRfcAddresses($headers['from']);
+		$from = CerberusMail::parseRfcAddresses($headers['from'] ?? null);
 		if(!empty($from))
 			$addys = array_merge($addys, !is_array($from) ? array($from) : $from);
 		
-		@$to = CerberusMail::parseRfcAddresses($headers['to']);
+		$to = CerberusMail::parseRfcAddresses($headers['to'] ?? null);
 		if(!empty($to))
 			$addys = array_merge($addys, !is_array($to) ? array($to) : $to);
 		
-		@$cc = CerberusMail::parseRfcAddresses($headers['cc']);
+		$cc = CerberusMail::parseRfcAddresses($headers['cc'] ?? null);
 		if(!empty($cc))
 			$addys = array_merge($addys, !is_array($cc) ? array($cc) : $cc);
 
@@ -2989,7 +2989,7 @@ class Model_Ticket {
 				CerberusContexts::CONTEXT_MESSAGE => 'Model_Message',
 			];
 			
-			if(false != (@$target_class = $target_classes[$target_context])) {
+			if(false != ($target_class = ($target_classes[$target_context] ?? null))) {
 				foreach($timeline as $object_idx => $object) {
 					if($object instanceof $target_class && $object->id == $target_context_id) {
 						$start_at = $object_idx;
@@ -4519,7 +4519,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				break;
 
 			case SearchFields_Ticket::TICKET_SPAM_SCORE:
-				@$score = DevblocksPlatform::importGPC($_POST['score'],'integer',null);
+				$score = DevblocksPlatform::importGPC($_POST['score'] ?? null, 'integer',null);
 				if(!is_null($score) && is_numeric($score)) {
 					$criteria = new DevblocksSearchCriteria($field,$oper,$score/100);
 				}
@@ -4527,7 +4527,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 
 			case SearchFields_Ticket::TICKET_SPAM_TRAINING:
 			case SearchFields_Ticket::VIRTUAL_STATUS:
-				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',[]);
+				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$options);
 				break;
 			
@@ -4537,7 +4537,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				break;
 
 			case SearchFields_Ticket::TICKET_GROUP_ID:
-				@$group_ids = DevblocksPlatform::importGPC($_POST['options'],'array');
+				$group_ids = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array');
 
 				// Groups
 				if(!empty($group_ids)) {
@@ -4548,7 +4548,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				break;
 				
 			case SearchFields_Ticket::TICKET_BUCKET_ID:
-				@$bucket_ids = DevblocksPlatform::importGPC($_POST['options'],'array');
+				$bucket_ids = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array');
 
 				// Buckets
 				if(!empty($bucket_ids)) {
@@ -4560,7 +4560,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				
 			case SearchFields_Ticket::FULLTEXT_COMMENT_CONTENT:
 			case SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT:
-				@$scope = DevblocksPlatform::importGPC($_POST['scope'],'string','expert');
+				$scope = DevblocksPlatform::importGPC($_POST['scope'] ?? null, 'string','expert');
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
 				
@@ -4569,24 +4569,24 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_POST['context_link'],'array',[]);
+				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER:
-				@$worker_id = DevblocksPlatform::importGPC($_POST['worker_id'],'string','');
+				$worker_id = DevblocksPlatform::importGPC($_POST['worker_id'] ?? null, 'string','');
 				$criteria = new DevblocksSearchCriteria($field, '=', $worker_id);
 				break;
 
 			case SearchFields_Ticket::VIRTUAL_HAS_FIELDSET:
-				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',[]);
+				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_WATCHERS:
 			case SearchFields_Ticket::VIRTUAL_WORKER_COMMENTED:
 			case SearchFields_Ticket::VIRTUAL_WORKER_REPLIED:
-				@$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'],'array',[]);
+				$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field, $oper, $worker_ids);
 				break;
 				
@@ -5561,8 +5561,8 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			case 'latest_outgoing_activity':
 				// We have some hints about the latest message
 				// It'll either be incoming or outgoing
-				@$latest_created = $dictionary['latest_message_created'];
-				@$latest_is_outgoing = !empty($dictionary['latest_message_is_outgoing']);
+				$latest_created = $dictionary['latest_message_created'] ?? null;
+				$latest_is_outgoing = !empty($dictionary['latest_message_is_outgoing'] ?? null);
 				
 				switch($token) {
 					case 'latest_incoming_activity':
@@ -5719,9 +5719,9 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 	}
 	
 	function _renderPeekComposePopup($view_id, $edit=null) {
-		@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
-		@$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer',0);
-		@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'integer',0);
+		$to = DevblocksPlatform::importGPC($_REQUEST['to'] ?? null, 'string','');
+		$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'] ?? null, 'integer',0);
+		$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'] ?? null, 'integer',0);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -6025,7 +6025,7 @@ EOD;
 	}
 	
 	function _renderPeekTicketPopup($context_id, $view_id) {
-		@$edit_mode = DevblocksPlatform::importGPC($_REQUEST['edit'],'string',null);
+		$edit_mode = DevblocksPlatform::importGPC($_REQUEST['edit'] ?? null, 'string',null);
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -6054,7 +6054,7 @@ EOD;
 				$tokens = explode(' ', trim($edit_mode));
 				
 				foreach($tokens as $token) {
-					@list($k,$v) = explode(':', $token);
+					list($k,$v) = array_pad(explode(':', $token, 2), 2, null);
 					
 					if($v)
 					switch($k) {
@@ -6240,7 +6240,7 @@ EOD;
 			// Watchers
 			
 			if(isset($meta['virtual_fields']['_watchers'])) {
-				@list($watchers_add, $watchers_del) = self::getWatcherDeltasFromString($meta['virtual_fields']['_watchers']);
+				list($watchers_add, $watchers_del) = array_pad(self::getWatcherDeltasFromString($meta['virtual_fields']['_watchers']), 2, null);
 				
 				if(!empty($watchers_del))
 					CerberusContexts::removeWatchers(CerberusContexts::CONTEXT_TICKET, $meta['object_id'], array_keys($watchers_del));

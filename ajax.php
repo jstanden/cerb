@@ -52,7 +52,7 @@ DevblocksPlatform::setHandlerSession('Cerb_DevblocksSessionHandler');
 
 $tpl = DevblocksPlatform::services()->template();
 
-DevblocksPlatform::setStateless(in_array(@$request->path[0], ['cron','portal','resource']));
+DevblocksPlatform::setStateless(in_array($request->path[0] ?? [], ['cron','portal','resource']));
 
 if(DevblocksPlatform::isStateless()) {
 	$_SESSION = [];

@@ -78,8 +78,8 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 	}
 	
 	function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger=null) {
-		@$message_id = $event_model->params['message_id'];
-		@$worker_id = $event_model->params['worker_id'];
+		$message_id = $event_model->params['message_id'] ?? null;
+		$worker_id = $event_model->params['worker_id'] ?? null;
 		
 		$labels = array();
 		$values = array();
@@ -110,7 +110,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 		/**
 		 * Ticket
 		 */
-		@$ticket_id = $values['ticket_id'];
+		$ticket_id = $values['ticket_id'] ?? null;
 		$ticket_labels = array();
 		$ticket_values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $ticket_id, $ticket_labels, $ticket_values, null, true);
@@ -122,7 +122,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 			
 			$values['ticket_has_owner'] = !empty($ticket_values['owner_id']) ? 1 : 0;
 
-			@$group_id = $ticket_values['group_id'];
+			$group_id = $ticket_values['group_id'] ?? null;
 			
 			// Clear dupe content
 			CerberusContexts::scrubTokensWithRegexp(
@@ -168,7 +168,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 		/**
 		 * Sender Worker
 		 */
-		@$worker_id = $values['worker_id'];
+		$worker_id = $values['worker_id'] ?? null;
 		$worker_labels = array();
 		$worker_values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker_id, $worker_labels, $worker_values, null, true);
@@ -352,7 +352,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
 				
-				@$in_group_ids = $params['group_id'];
+				$in_group_ids = $params['group_id'] ?? null;
 				@$group_id = intval($dict->group_id);
 				
 				$pass = in_array($group_id, $in_group_ids);
@@ -363,8 +363,8 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
 				
-				@$in_group_id = $params['group_id'];
-				@$in_bucket_ids = $params['bucket_id'];
+				$in_group_id = $params['group_id'] ?? null;
+				$in_bucket_ids = $params['bucket_id'] ?? null;
 				
 				@$group_id = intval($dict->group_id);
 				@$bucket_id = intval($dict->ticket_bucket_id);
@@ -379,8 +379,8 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 			case 'ticket_latest_message_headers':
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
-				@$header = rtrim(DevblocksPlatform::strLower($params['header']), ':');
-				@$param_value = $params['value'];
+				$header = rtrim(DevblocksPlatform::strLower($params['header'] ?? null), ':');
+				$param_value = $params['value'] ?? null;
 				
 				// Lazy load
 				$header_values = $dict->$token;
@@ -620,9 +620,9 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 				// Translate message tokens
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
-				@$content = $tpl_builder->build($params['content'], $dict);
-				@$format = $params['format'];
-				@$html_template_id = $params['html_template_id'];
+				$content = $tpl_builder->build($params['content'] ?? '', $dict);
+				$format = $params['format'] ?? null;
+				$html_template_id = $params['html_template_id'] ?? null;
 				
 				$properties = array(
 					'ticket_id' => $ticket_id,
@@ -641,7 +641,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 
 				if(is_array($headers_list))
 				foreach($headers_list as $header_line) {
-					@list($header, $value) = explode(':', $header_line);
+					list($header, $value) = array_pad(explode(':', $header_line), 2, null);
 				
 					if(!empty($header) && !empty($value))
 						$properties['headers'][trim($header)] = trim($value);

@@ -33,8 +33,8 @@ $results = $db->GetArrayMaster($sql);
 
 if(is_array($results))
 foreach($results as $result) {
-	@$params = json_decode($result['params_json'], true);
-	@$board_id = $params['board_id'];
+	$params = json_decode($result['params_json'], true);
+	$board_id = $params['board_id'] ?? null;
 	
 	// Switch the tab to a dashboard
 	$sql = sprintf("UPDATE workspace_tab SET extension_id = 'core.workspace.tab.dashboard', params_json = %s WHERE id = %d",

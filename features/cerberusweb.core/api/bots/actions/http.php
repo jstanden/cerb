@@ -72,13 +72,13 @@ class BotAction_HttpRequest extends Extension_DevblocksEventAction {
 	function simulate($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
-		@$http_verb = $params['http_verb'];
-		@$http_url = $tpl_builder->build($params['http_url'], $dict);
-		@$http_headers = DevblocksPlatform::parseCrlfString($tpl_builder->build($params['http_headers'], $dict));
-		@$http_body = $tpl_builder->build($params['http_body'], $dict);
-		@$auth = $params['auth'];
-		@$run_in_simulator = $params['run_in_simulator'];
-		@$response_placeholder = $params['response_placeholder'];
+		$http_verb = $params['http_verb'] ?? null;
+		$http_url = $tpl_builder->build($params['http_url'] ?? '', $dict);
+		$http_headers = DevblocksPlatform::parseCrlfString($tpl_builder->build($params['http_headers'] ?? '', $dict));
+		$http_body = $tpl_builder->build($params['http_body'] ?? '', $dict);
+		$auth = $params['auth'] ?? null;
+		$run_in_simulator = $params['run_in_simulator'] ?? null;
+		$response_placeholder = $params['response_placeholder'] ?? null;
 		
 		if(empty($http_verb))
 			return "[ERROR] HTTP verb is required.";
@@ -107,7 +107,7 @@ class BotAction_HttpRequest extends Extension_DevblocksEventAction {
 		
 		switch($auth) {
 			case 'connected_account':
-				@$connected_account_id = $params['auth_connected_account_id'];
+				$connected_account_id = $params['auth_connected_account_id'] ?? null;
 				if(false != ($connected_account = DAO_ConnectedAccount::get($connected_account_id))) {
 					if(!Context_ConnectedAccount::isUsableByActor($connected_account, $trigger->getBot()))
 						return "[ERROR] This behavior is attempting to use an unauthorized connected account.";
@@ -117,7 +117,7 @@ class BotAction_HttpRequest extends Extension_DevblocksEventAction {
 				break;
 				
 			case 'placeholder':
-				@$placeholder = $params['auth_placeholder'];
+				$placeholder = $params['auth_placeholder'] ?? null;
 				@$connected_account_id = $tpl_builder->build($placeholder, $dict);
 				
 				if(!$connected_account_id || false != ($connected_account = DAO_ConnectedAccount::get($connected_account_id))) {
@@ -171,13 +171,13 @@ class BotAction_HttpRequest extends Extension_DevblocksEventAction {
 	function run($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
-		@$http_verb = $params['http_verb'];
-		@$http_url = $tpl_builder->build($params['http_url'], $dict);
-		@$http_headers = DevblocksPlatform::parseCrlfString($tpl_builder->build($params['http_headers'], $dict));
-		@$http_body = $tpl_builder->build($params['http_body'], $dict);
-		@$auth = $params['auth'];
-		@$options = $params['options'] ?: array();
-		@$response_placeholder = $params['response_placeholder'];
+		$http_verb = $params['http_verb'] ?? null;
+		$http_url = $tpl_builder->build($params['http_url'] ?? '', $dict);
+		$http_headers = DevblocksPlatform::parseCrlfString($tpl_builder->build($params['http_headers'] ?? '', $dict));
+		$http_body = $tpl_builder->build($params['http_body'] ?? '', $dict);
+		$auth = $params['auth'] ?? null;
+		$options = $params['options'] ?? [];
+		$response_placeholder = $params['response_placeholder'] ?? null;
 		
 		if(empty($http_verb) || empty($http_url))
 			return false;
@@ -192,8 +192,7 @@ class BotAction_HttpRequest extends Extension_DevblocksEventAction {
 				break;
 				
 			case 'placeholder':
-				@$placeholder = $params['auth_placeholder'];
-				@$connected_account_id = $tpl_builder->build($placeholder, $dict);
+				$connected_account_id = $tpl_builder->build($params['auth_placeholder'] ?? '', $dict);
 				$options['connected_account_id'] = @intval($connected_account_id);
 				$options['trigger'] = $trigger;
 				break;
@@ -260,7 +259,7 @@ class BotAction_HttpRequest extends Extension_DevblocksEventAction {
 			];
 			
 			// Split content_type + charset in the header
-			@list($content_type, $content_attributes) = explode(';', $content_type, 2);
+			list($content_type, $content_attributes) = array_pad(explode(';', $content_type, 2), 2, null);
 			
 			$content_type = trim(DevblocksPlatform::strLower($content_type));
 			$content_attributes = DevblocksPlatform::parseHttpHeaderAttributes($content_attributes);

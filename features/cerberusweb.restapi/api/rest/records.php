@@ -102,7 +102,7 @@ class ChRest_Records extends Extension_RestController {
 	}
 	
 	private function _verifyContextString($string) {
-		@list($context, $context_id) = explode(':', $string, 2);
+		list($context, $context_id) = array_pad(explode(':', $string, 2), 2, null);
 		return $this->_verifyContext($context, $context_id);
 	}
 	
@@ -126,7 +126,7 @@ class ChRest_Records extends Extension_RestController {
 	}
 	
 	private function _upsertContextRecord(DevblocksExtensionManifest $context) {
-		@$query = DevblocksPlatform::importGPC($_REQUEST['query'], 'string', '');
+		$query = DevblocksPlatform::importGPC($_REQUEST['query'] ?? null, 'string', '');
 		
 		if(empty($query))
 			$this->error(self::ERRNO_PARAM_REQUIRED, "The 'query' parameter is required.");
@@ -153,7 +153,7 @@ class ChRest_Records extends Extension_RestController {
 	}
 	
 	private function _createContextRecord(DevblocksExtensionManifest $context) {
-		@$fields = DevblocksPlatform::importGPC($_REQUEST['fields'], 'array', []);
+		$fields = DevblocksPlatform::importGPC($_REQUEST['fields'] ?? null, 'array', []);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -207,7 +207,7 @@ class ChRest_Records extends Extension_RestController {
 	
 	private function _updateContextRecord(DevblocksExtensionManifest $context, array $stack) {
 		@$id = intval(array_shift($stack));
-		@$fields = DevblocksPlatform::importGPC($_REQUEST['fields'], 'array', []);
+		$fields = DevblocksPlatform::importGPC($_REQUEST['fields'] ?? null, 'array', []);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		

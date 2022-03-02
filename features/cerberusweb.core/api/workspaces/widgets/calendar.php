@@ -18,10 +18,10 @@ class WorkspaceWidget_Calendar extends Extension_WorkspaceWidget implements ICer
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
-		@$month = DevblocksPlatform::importGPC($_REQUEST['month'], 'integer', null);
-		@$year = DevblocksPlatform::importGPC($_REQUEST['year'], 'integer', null);
+		$month = DevblocksPlatform::importGPC($_REQUEST['month'] ?? null, 'integer', null);
+		$year = DevblocksPlatform::importGPC($_REQUEST['year'] ?? null, 'integer', null);
 		
-		@$calendar_id_template = $widget->params['calendar_id'];
+		$calendar_id_template = $widget->params['calendar_id'] ?? null;
 		
 		$labels = $values = $merge_token_labels = $merge_token_values = [];
 		
@@ -105,7 +105,7 @@ class WorkspaceWidget_Calendar extends Extension_WorkspaceWidget implements ICer
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget, ?string &$error=null) : bool {
-		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', array());
+		$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', array());
 		
 		DAO_WorkspaceWidget::update($widget->id, array(
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
@@ -118,9 +118,9 @@ class WorkspaceWidget_Calendar extends Extension_WorkspaceWidget implements ICer
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$calendar_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
-		@$month = DevblocksPlatform::importGPC($_REQUEST['month'],'integer', 0);
-		@$year = DevblocksPlatform::importGPC($_REQUEST['year'],'integer', 0);
+		$calendar_id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null, 'integer');
+		$month = DevblocksPlatform::importGPC($_REQUEST['month'] ?? null, 'integer', 0);
+		$year = DevblocksPlatform::importGPC($_REQUEST['year'] ?? null, 'integer', 0);
 		
 		if(null == ($calendar = DAO_Calendar::get($calendar_id))) /* @var Model_Calendar $calendar */
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -167,7 +167,7 @@ class WorkspaceWidget_Calendar extends Extension_WorkspaceWidget implements ICer
 	}
 	
 	private function _exportDataAsCsv(Model_WorkspaceWidget $widget) {
-		@$calendar_id = $widget->params['calendar_id'];
+		$calendar_id = $widget->params['calendar_id'] ?? null;
 		
 		if(false == ($calendar = DAO_Calendar::get($calendar_id)))
 			return false;
@@ -221,7 +221,7 @@ class WorkspaceWidget_Calendar extends Extension_WorkspaceWidget implements ICer
 	}
 	
 	private function _exportDataAsJson(Model_WorkspaceWidget $widget) {
-		@$calendar_id = $widget->params['calendar_id'];
+		$calendar_id = $widget->params['calendar_id'] ?? null;
 		
 		if(false == ($calendar = DAO_Calendar::get($calendar_id)))
 			return false;

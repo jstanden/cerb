@@ -40,9 +40,9 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$calendar_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
-		@$month = DevblocksPlatform::importGPC($_REQUEST['month'],'integer', 0);
-		@$year = DevblocksPlatform::importGPC($_REQUEST['year'],'integer', 0);
+		$calendar_id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null, 'integer');
+		$month = DevblocksPlatform::importGPC($_REQUEST['month'] ?? null, 'integer', 0);
+		$year = DevblocksPlatform::importGPC($_REQUEST['year'] ?? null, 'integer', 0);
 		
 		if(false == ($calendar = DAO_Calendar::get($calendar_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -95,9 +95,9 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 	}
 	
 	private function _internalAction_parseDateJson() {
-		@$date_string = DevblocksPlatform::importGPC($_POST['date'], 'string', '');
+		$date_string = DevblocksPlatform::importGPC($_POST['date'] ?? null, 'string', '');
 		
-		@$active_worker = CerberusApplication::getActiveWorker();
+		$active_worker = CerberusApplication::getActiveWorker();
 		$date = DevblocksPlatform::services()->date();
 		
 		header('Content-Type: application/json');
@@ -151,7 +151,7 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 	private function _internalAction_getDateInputAutoCompleteOptionsJson() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$term = DevblocksPlatform::importGPC($_REQUEST['term'], 'string', '');
+		$term = DevblocksPlatform::importGPC($_REQUEST['term'] ?? null, 'string', '');
 		
 		$calendars = DAO_Calendar::getReadableByActor($active_worker);
 		$date = DevblocksPlatform::services()->date();

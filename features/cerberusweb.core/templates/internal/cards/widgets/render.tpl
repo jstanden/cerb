@@ -30,7 +30,7 @@
 		</div>
 		<div id="cardWidget{if $context_id}{$widget->getUniqueId($context_id)}{else}{$widget->getUniqueId($dict->id)}{/if}" class="cerb-card-widget--content">
 			{* We only have full content on create/edit *}
-			{if $full}
+			{if isset($full) && $full}
 				{$widget_extension->render($widget, $context, $context_id, [])}
 			{/if}
 		</div>

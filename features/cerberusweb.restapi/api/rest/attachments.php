@@ -294,10 +294,10 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 	}
 	
 	private function _handlePostUpload() {
-		@$file_name = DevblocksPlatform::importGPC($_REQUEST['file_name'],'string','');
-		@$mime_type = DevblocksPlatform::importGPC($_REQUEST['mime_type'],'string','application/octet-stream');
-		@$encoding = DevblocksPlatform::importGPC($_REQUEST['encoding'],'string','');
-		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
+		$file_name = DevblocksPlatform::importGPC($_REQUEST['file_name'] ?? null, 'string','');
+		$mime_type = DevblocksPlatform::importGPC($_REQUEST['mime_type'] ?? null, 'string','application/octet-stream');
+		$encoding = DevblocksPlatform::importGPC($_REQUEST['encoding'] ?? null, 'string','');
+		$content = DevblocksPlatform::importGPC($_REQUEST['content'] ?? null, 'string','');
 		
 		if(empty($file_name))
 			$this->error(self::ERRNO_CUSTOM, "The 'file_name' parameter is required.");

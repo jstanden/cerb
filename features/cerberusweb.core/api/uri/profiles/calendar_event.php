@@ -39,16 +39,16 @@ class PageSection_ProfilesCalendarEvent extends Extension_PageSection {
 	}
 	
 	private function _profileAction_savePeekJson() {
-		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer', 0);
-		@$name = DevblocksPlatform::importGPC($_POST['name'],'string', '');
-		@$date_start = DevblocksPlatform::importGPC($_POST['date_start'],'string', '');
-		@$date_end = DevblocksPlatform::importGPC($_POST['date_end'],'string', '');
-		@$is_available = DevblocksPlatform::importGPC($_POST['is_available'],'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer', 0);
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
+		$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');
+		$date_start = DevblocksPlatform::importGPC($_POST['date_start'] ?? null, 'string', '');
+		$date_end = DevblocksPlatform::importGPC($_POST['date_end'] ?? null, 'string', '');
+		$is_available = DevblocksPlatform::importGPC($_POST['is_available'] ?? null, 'integer', 0);
+		$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'integer', 0);
 		
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string', '');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
 
-		@$calendar_id = DevblocksPlatform::importGPC($_POST['calendar_id'],'integer', 0);
+		$calendar_id = DevblocksPlatform::importGPC($_POST['calendar_id'] ?? null, 'integer', 0);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -143,7 +143,7 @@ class PageSection_ProfilesCalendarEvent extends Extension_PageSection {
 			}
 			
 			// Custom field saves
-			@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+			$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 			if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_CALENDAR_EVENT, $id, $field_ids, $error))
 				throw new Exception_DevblocksAjaxValidationError($error);
 			

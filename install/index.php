@@ -70,7 +70,7 @@ define('STEP_FINISHED', 11);
 define('TOTAL_STEPS', 11);
 
 // Import GPC variables to determine our scope/step.
-@$step = DevblocksPlatform::importGPC($_REQUEST['step'],'integer',0) ?: STEP_ENVIRONMENT;
+$step = DevblocksPlatform::importGPC($_REQUEST['step'] ?? null, 'integer',0) ?: STEP_ENVIRONMENT;
 
 // [TODO] Could convert to CerberusApplication::checkRequirements()
 
@@ -311,7 +311,7 @@ switch($step) {
 		break;
 	
 	case STEP_LICENSE:
-			@$accept = DevblocksPlatform::importGPC($_POST['accept'],'integer', 0);
+			$accept = DevblocksPlatform::importGPC($_POST['accept'] ?? null, 'integer', 0);
 			
 			if(1 == $accept) {
 			$tpl->assign('step', STEP_DATABASE);
@@ -326,12 +326,12 @@ switch($step) {
 	// Configure and test the database connection
 	case STEP_DATABASE:
 		// Import scope (if post)
-		@$db_driver = DevblocksPlatform::importGPC($_POST['db_driver'],'string');
-		@$db_engine = DevblocksPlatform::importGPC($_POST['db_engine'],'string');
-		@$db_server = DevblocksPlatform::importGPC($_POST['db_server'],'string');
-		@$db_name = DevblocksPlatform::importGPC($_POST['db_name'],'string');
-		@$db_user = DevblocksPlatform::importGPC($_POST['db_user'],'string');
-		@$db_pass = DevblocksPlatform::importGPC($_POST['db_pass'],'string');
+		$db_driver = DevblocksPlatform::importGPC($_POST['db_driver'] ?? null, 'string');
+		$db_engine = DevblocksPlatform::importGPC($_POST['db_engine'] ?? null, 'string');
+		$db_server = DevblocksPlatform::importGPC($_POST['db_server'] ?? null, 'string');
+		$db_name = DevblocksPlatform::importGPC($_POST['db_name'] ?? null, 'string');
+		$db_user = DevblocksPlatform::importGPC($_POST['db_user'] ?? null, 'string');
+		$db_pass = DevblocksPlatform::importGPC($_POST['db_pass'] ?? null, 'string');
 
 		if(defined('APP_DB_HOST') && defined('APP_DB_DATABASE') && APP_DB_HOST && APP_DB_DATABASE) {
 			// If we've been to this step, skip past framework.config.php
@@ -511,13 +511,13 @@ switch($step) {
 		
 	// [JAS]: If we didn't save directly to the config file, user action required
 	case STEP_SAVE_CONFIG_FILE:
-		@$db_driver = DevblocksPlatform::importGPC($_POST['db_driver'],'string');
-		@$db_engine = DevblocksPlatform::importGPC($_POST['db_engine'],'string');
-		@$db_server = DevblocksPlatform::importGPC($_POST['db_server'],'string');
-		@$db_name = DevblocksPlatform::importGPC($_POST['db_name'],'string');
-		@$db_user = DevblocksPlatform::importGPC($_POST['db_user'],'string');
-		@$db_pass = DevblocksPlatform::importGPC($_POST['db_pass'],'string');
-		@$result = DevblocksPlatform::importGPC($_POST['result'],'string');
+		$db_driver = DevblocksPlatform::importGPC($_POST['db_driver'] ?? null, 'string');
+		$db_engine = DevblocksPlatform::importGPC($_POST['db_engine'] ?? null, 'string');
+		$db_server = DevblocksPlatform::importGPC($_POST['db_server'] ?? null, 'string');
+		$db_name = DevblocksPlatform::importGPC($_POST['db_name'] ?? null, 'string');
+		$db_user = DevblocksPlatform::importGPC($_POST['db_user'] ?? null, 'string');
+		$db_pass = DevblocksPlatform::importGPC($_POST['db_pass'] ?? null, 'string');
+		$result = DevblocksPlatform::importGPC($_POST['result'] ?? null, 'string');
 		
 		// Check to make sure our constants match our input
 		if(
@@ -736,18 +736,18 @@ switch($step) {
 	case STEP_OUTGOING_MAIL:
 		$settings = DevblocksPlatform::services()->pluginSettings();
 		
-		@$default_reply_from = DevblocksPlatform::importGPC($_POST['default_reply_from'],'string','noreply@cerb.example');
-		@$default_reply_personal = DevblocksPlatform::importGPC($_POST['default_reply_personal'],'string','');
+		$default_reply_from = DevblocksPlatform::importGPC($_POST['default_reply_from'] ?? null, 'string','noreply@cerb.example');
+		$default_reply_personal = DevblocksPlatform::importGPC($_POST['default_reply_personal'] ?? null, 'string','');
 		
-		@$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'],'string');
-		@$smtp_host = DevblocksPlatform::importGPC($_POST['smtp_host'],'string');
-		@$smtp_port = DevblocksPlatform::importGPC($_POST['smtp_port'],'integer');
-		@$smtp_enc = DevblocksPlatform::importGPC($_POST['smtp_enc'],'string');
-		@$smtp_auth_user = DevblocksPlatform::importGPC($_POST['smtp_auth_user'],'string');
-		@$smtp_auth_pass = DevblocksPlatform::importGPC($_POST['smtp_auth_pass'],'string');
+		$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'] ?? null, 'string');
+		$smtp_host = DevblocksPlatform::importGPC($_POST['smtp_host'] ?? null, 'string');
+		$smtp_port = DevblocksPlatform::importGPC($_POST['smtp_port'] ?? null, 'integer');
+		$smtp_enc = DevblocksPlatform::importGPC($_POST['smtp_enc'] ?? null, 'string');
+		$smtp_auth_user = DevblocksPlatform::importGPC($_POST['smtp_auth_user'] ?? null, 'string');
+		$smtp_auth_pass = DevblocksPlatform::importGPC($_POST['smtp_auth_pass'] ?? null, 'string');
 		
-		@$form_submit = DevblocksPlatform::importGPC($_POST['form_submit'],'integer');
-		@$passed = DevblocksPlatform::importGPC($_POST['passed'],'integer');
+		$form_submit = DevblocksPlatform::importGPC($_POST['form_submit'] ?? null, 'integer');
+		$passed = DevblocksPlatform::importGPC($_POST['passed'] ?? null, 'integer');
 		
 		if(!empty($form_submit)) {
 			if(!$default_reply_from)
@@ -848,14 +848,14 @@ switch($step) {
 
 	// Set up the default objects
 	case STEP_DEFAULTS:
-		@$form_submit = DevblocksPlatform::importGPC($_POST['form_submit'],'integer');
-		@$org_name = DevblocksPlatform::importGPC($_POST['org_name'],'string');
-		@$worker_email = DevblocksPlatform::importGPC($_POST['worker_email'],'string');
-		@$worker_firstname = DevblocksPlatform::importGPC($_POST['worker_firstname'],'string');
-		@$worker_lastname = DevblocksPlatform::importGPC($_POST['worker_lastname'],'string');
-		@$worker_pass = DevblocksPlatform::importGPC($_POST['worker_pass'],'string');
-		@$worker_pass2 = DevblocksPlatform::importGPC($_POST['worker_pass2'],'string');
-		@$timezone = DevblocksPlatform::importGPC($_POST['timezone'],'string');
+		$form_submit = DevblocksPlatform::importGPC($_POST['form_submit'] ?? null, 'integer');
+		$org_name = DevblocksPlatform::importGPC($_POST['org_name'] ?? null, 'string');
+		$worker_email = DevblocksPlatform::importGPC($_POST['worker_email'] ?? null, 'string');
+		$worker_firstname = DevblocksPlatform::importGPC($_POST['worker_firstname'] ?? null, 'string');
+		$worker_lastname = DevblocksPlatform::importGPC($_POST['worker_lastname'] ?? null, 'string');
+		$worker_pass = DevblocksPlatform::importGPC($_POST['worker_pass'] ?? null, 'string');
+		$worker_pass2 = DevblocksPlatform::importGPC($_POST['worker_pass2'] ?? null, 'string');
+		$timezone = DevblocksPlatform::importGPC($_POST['timezone'] ?? null, 'string');
 
 		$date = DevblocksPlatform::services()->date();
 		
@@ -901,10 +901,10 @@ switch($step) {
 		break;
 		
 	case STEP_PACKAGES:
-		@$form_submit = DevblocksPlatform::importGPC($_POST['form_submit'],'integer');
+		$form_submit = DevblocksPlatform::importGPC($_POST['form_submit'] ?? null, 'integer');
 		
 		if(!empty($form_submit)) {
-			@$package = DevblocksPlatform::importGPC($_POST['package'],'string', '');
+			$package = DevblocksPlatform::importGPC($_POST['package'] ?? null, 'string', '');
 			
 			$encrypt = DevblocksPlatform::services()->encryption();
 			@$setup_defaults = json_decode($encrypt->decrypt(file_get_contents(APP_TEMP_PATH . '/setup.json')), true) ?: [];
@@ -938,8 +938,8 @@ switch($step) {
 		break;
 		
 	case STEP_REGISTER:
-		@$form_submit = DevblocksPlatform::importGPC($_POST['form_submit'],'integer');
-		@$skip = DevblocksPlatform::importGPC($_POST['skip'],'integer',0);
+		$form_submit = DevblocksPlatform::importGPC($_POST['form_submit'] ?? null, 'integer');
+		$skip = DevblocksPlatform::importGPC($_POST['skip'] ?? null, 'integer',0);
 		
 		if(!empty($form_submit)) {
 			$tpl->assign('step', STEP_FINISHED);

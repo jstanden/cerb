@@ -10,7 +10,7 @@ class WorkspaceWidget_Scatterplot extends Extension_WorkspaceWidget implements I
 	}
 
 	private function _loadData(Model_WorkspaceWidget &$widget) {
-		@$series = $widget->params['series'];
+		$series = $widget->params['series'] ?? null;
 		
 		if(empty($series)) {
 			return false;
@@ -19,7 +19,7 @@ class WorkspaceWidget_Scatterplot extends Extension_WorkspaceWidget implements I
 		// Multiple datasources
 		if(is_array($series))
 		foreach($series as $series_idx => $series_params) {
-			@$datasource_extid = $series_params['datasource'];
+			$datasource_extid = $series_params['datasource'] ?? null;
 
 			if(empty($datasource_extid)) {
 				unset($widget->params['series'][$series_idx]);
@@ -85,7 +85,7 @@ class WorkspaceWidget_Scatterplot extends Extension_WorkspaceWidget implements I
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget, ?string &$error=null) : bool {
-		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', array());
+		$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', array());
 		
 		// [TODO] The extension should be able to filter the properties here
 		

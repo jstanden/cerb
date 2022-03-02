@@ -300,7 +300,7 @@ class DAO_Notification extends Cerb_ORMHelper {
 		
 		if(is_array($context_tuples))
 		foreach($context_tuples as $context_tuple) {
-			@list($context, $context_id) = $context_tuple;
+			list($context, $context_id) = array_pad($context_tuple, 2, null);
 			
 			if(empty($context))
 				continue;
@@ -709,7 +709,7 @@ class SearchFields_Notification extends DevblocksSearchFields {
 				foreach($values as $v) {
 					$string = $v;
 					if(isset($activities[$v])) {
-						@$string_id = $activities[$v]['params']['label_key'];
+						$string_id = $activities[$v]['params']['label_key'] ?? null;
 						if(!empty($string_id))
 							$string = $translate->_($string_id);
 					}
@@ -956,7 +956,7 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 				$activities = DevblocksPlatform::getActivityPointRegistry();
 				if(is_array($activities))
 				foreach($activities as $k => $data) {
-					@$string_id = $data['params']['label_key'];
+					$string_id = $data['params']['label_key'] ?? null;
 					if(!empty($string_id)) {
 						$label_map[$k] = $translate->_($string_id);
 					}
@@ -1146,7 +1146,7 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 				break;
 				
 			case SearchFields_Notification::WORKER_ID:
-				@$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'],'array',[]);
+				$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
 				break;
 				
@@ -1155,12 +1155,12 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 				break;
 				
 			case SearchFields_Notification::IS_READ:
-				@$bool = DevblocksPlatform::importGPC($_POST['bool'],'integer',1);
+				$bool = DevblocksPlatform::importGPC($_POST['bool'] ?? null, 'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 				
 			case SearchFields_Notification::ACTIVITY_POINT:
-				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',[]);
+				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 		}

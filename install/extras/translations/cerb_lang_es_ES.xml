@@ -3,11 +3,6 @@
 <tmx version="1.4">
 	<header creationtool="Cerb" creationtoolversion="6.8.7" srclang="en_US" adminlang="en" datatype="unknown" o-tmf="unknown" segtype="sentence" creationid="" creationdate=""/>
 	<body>
-		<tu tuid="acl.calls.actions.create">
-			<tuv xml:lang="es_ES">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="acl.calls.actions.update_nobody">
 			<tuv xml:lang="es_ES">
 				<seg/>

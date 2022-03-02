@@ -39,7 +39,7 @@ class Controller_Security extends DevblocksControllerExtension {
 		if(null == CerberusApplication::getActiveWorker())
 			DevblocksPlatform::dieWithHttpError(DevblocksPlatform::translate('common.access_denied'), 403);
 		
-		@$url = DevblocksPlatform::importGPC($_GET['url'], 'string', null);
+		$url = DevblocksPlatform::importGPC($_GET['url'] ?? null, 'string', null);
 		$tpl->assign('url', $url);
 		
 		$url_parts = parse_url($url);
@@ -56,8 +56,8 @@ class Controller_Security extends DevblocksControllerExtension {
 	}
 	
 	private function _controllerAction_proxyImage() {
-		@$url = DevblocksPlatform::importGPC($_REQUEST['url'], 'string', null);
-		@$url_sig = DevblocksPlatform::importGPC($_REQUEST['s'], 'string', null);
+		$url = DevblocksPlatform::importGPC($_REQUEST['url'] ?? null, 'string', null);
+		$url_sig = DevblocksPlatform::importGPC($_REQUEST['s'] ?? null, 'string', null);
 		
 		// If the URL is blank, 404
 		if(!$url)

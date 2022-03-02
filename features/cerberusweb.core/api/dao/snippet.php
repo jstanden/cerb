@@ -210,7 +210,7 @@ class DAO_Snippet extends Cerb_ORMHelper {
 		foreach($do as $k => $v) {
 			switch($k) {
 				case 'owner':
-					@list($context, $context_id) = explode(':', $v);
+					list($context, $context_id) = array_pad(explode(':', $v), 2, null);
 					
 					if(empty($context))
 						break;
@@ -873,7 +873,7 @@ class Model_Snippet {
 		$prompts = $kata->formatTree($tree);
 		
 		foreach($prompts as $prompt_key => &$prompt) {
-			@list($prompt_type, $prompt_name) = explode('/', $prompt_key, 2);
+			list($prompt_type, $prompt_name) = array_pad(explode('/', $prompt_key, 2), 2, null);
 			$prompt['type'] = $prompt_type;
 			$prompt['name'] = $prompt_name;
 		}
@@ -1322,27 +1322,27 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 				break;
 				
 			case SearchFields_Snippet::CONTEXT:
-				@$in_contexts = DevblocksPlatform::importGPC($_POST['contexts'],'array',[]);
+				$in_contexts = DevblocksPlatform::importGPC($_POST['contexts'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$in_contexts);
 				break;
 				
 			case SearchFields_Snippet::FULLTEXT_SNIPPET:
-				@$scope = DevblocksPlatform::importGPC($_POST['scope'],'string','expert');
+				$scope = DevblocksPlatform::importGPC($_POST['scope'] ?? null, 'string','expert');
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
 				
 			case SearchFields_Snippet::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_POST['context_link'],'array',[]);
+				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
 			case SearchFields_Snippet::VIRTUAL_HAS_FIELDSET:
-				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',[]);
+				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
 			case SearchFields_Snippet::VIRTUAL_OWNER:
-				@$owner_contexts = DevblocksPlatform::importGPC($_POST['owner_context'],'array',[]);
+				$owner_contexts = DevblocksPlatform::importGPC($_POST['owner_context'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$owner_contexts);
 				break;
 				
@@ -1743,7 +1743,7 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 				DevblocksPlatform::dieWithHttpError(null, 404);
 			
 		} else {
-			@$text = DevblocksPlatform::importGPC($_REQUEST['text'], 'string', '');
+			$text = DevblocksPlatform::importGPC($_REQUEST['text'] ?? null, 'string', '');
 			
 			$model = new Model_Snippet();
 			$model->id = 0;

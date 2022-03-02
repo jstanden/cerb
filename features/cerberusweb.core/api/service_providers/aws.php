@@ -26,7 +26,7 @@ class ServiceProvider_Aws extends Extension_ConnectedServiceProvider {
 	}
 
 	public function saveAccountConfigForm(Model_ConnectedService $service, Model_ConnectedAccount $account, array &$params, &$error = null) {
-		@$edit_params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
+		$edit_params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
 		
 		$validation = DevblocksPlatform::services()->validation();
 	
@@ -315,12 +315,12 @@ class BotAction_AwsGetPresignedUrl extends Extension_DevblocksEventAction {
 		
 		$out = null;
 		
-		@$http_verb = $params['http_verb'];
-		@$http_url = $tpl_builder->build($params['http_url'], $dict);
-		@$http_headers = DevblocksPlatform::parseCrlfString($tpl_builder->build($params['http_headers'], $dict));
-		@$http_body = $tpl_builder->build($params['http_body'], $dict);
-		@$connected_account_id = $params['auth_connected_account_id'];
-		@$response_placeholder = $params['response_placeholder'];
+		$http_verb = $params['http_verb'] ?? null;
+		$http_url = $tpl_builder->build($params['http_url'] ?? '', $dict);
+		$http_headers = DevblocksPlatform::parseCrlfString($tpl_builder->build($params['http_headers'] ?? '', $dict));
+		$http_body = $tpl_builder->build($params['http_body'] ?? '', $dict);
+		$connected_account_id = $params['auth_connected_account_id'] ?? null;
+		$response_placeholder = $params['response_placeholder'] ?? null;
 		
 		if(empty($http_verb))
 			return "[ERROR] HTTP verb is required.";
@@ -362,12 +362,12 @@ class BotAction_AwsGetPresignedUrl extends Extension_DevblocksEventAction {
 	function run($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
-		@$http_verb = $params['http_verb'];
-		@$http_url = $tpl_builder->build($params['http_url'], $dict);
-		@$http_headers = DevblocksPlatform::parseCrlfString($tpl_builder->build($params['http_headers'], $dict));
-		@$http_body = $tpl_builder->build($params['http_body'], $dict);
-		@$response_placeholder = $params['response_placeholder'];
-		@$expires_secs = $params['expires_secs'];
+		$http_verb = $params['http_verb'] ?? null;
+		$http_url = $tpl_builder->build($params['http_url'] ?? '', $dict);
+		$http_headers = DevblocksPlatform::parseCrlfString($tpl_builder->build($params['http_headers'] ?? '', $dict));
+		$http_body = $tpl_builder->build($params['http_body'] ?? '', $dict);
+		$response_placeholder = $params['response_placeholder'] ?? null;
+		$expires_secs = $params['expires_secs'] ?? null;
 		
 		// [TODO] Validation
 		if(empty($http_verb) || empty($http_url))

@@ -212,7 +212,7 @@ class Portal_Webhook extends Extension_CommunityPortal {
 	}
 	
 	public function saveConfiguration(Model_CommunityTool $instance) {
-		@$params = DevblocksPlatform::importGPC($_POST['params'],'array',[]);
+		$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array',[]);
 		
 		$automations_kata = $params[self::PARAM_WEBHOOK_AUTOMATIONS_KATA] ?? '';
 		

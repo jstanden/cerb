@@ -66,10 +66,10 @@ class PageSection_InternalRecords extends Extension_PageSection {
 	}
 	
 	private function _internalAction_showPeekPopup() {
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'string',null);
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-		@$edit = DevblocksPlatform::importGPC($_REQUEST['edit'], 'string', null);
+		$context = DevblocksPlatform::importGPC($_REQUEST['context'] ?? null,'string','');
+		$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'] ?? null,'string',null);
+		$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'] ?? null,'string','');
+		$edit = DevblocksPlatform::importGPC($_REQUEST['edit'] ?? null, 'string', null);
 		
 		if(null == ($context_ext = Extension_DevblocksContext::getByAlias($context, true)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -81,7 +81,7 @@ class PageSection_InternalRecords extends Extension_PageSection {
 	}
 	
 	private function _internalAction_showPermalinkPopup() {
-		@$url = DevblocksPlatform::importGPC($_REQUEST['url'],'string','');
+		$url = DevblocksPlatform::importGPC($_REQUEST['url'] ?? null,'string','');
 		
 		if(empty($url))
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -95,9 +95,9 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$context = DevblocksPlatform::importGPC($_POST['context'],'string');
-		@$context_id = DevblocksPlatform::importGPC($_POST['context_id'],'integer');
-		@$to_context = DevblocksPlatform::importGPC($_POST['to_context'],'string');
+		$context = DevblocksPlatform::importGPC($_POST['context'] ?? null,'string');
+		$context_id = DevblocksPlatform::importGPC($_POST['context_id'] ?? null,'integer');
+		$to_context = DevblocksPlatform::importGPC($_POST['to_context'] ?? null,'string');
 		
 		if(null == ($to_context_extension = Extension_DevblocksContext::get($to_context))
 			|| null == ($from_context_extension = Extension_DevblocksContext::get($context)))
@@ -119,8 +119,8 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$context = DevblocksPlatform::importGPC($_POST['context'],'string');
-		@$context_id = DevblocksPlatform::importGPC($_POST['context_id'],'integer');
+		$context = DevblocksPlatform::importGPC($_POST['context'] ?? null,'string');
+		$context_id = DevblocksPlatform::importGPC($_POST['context_id'] ?? null,'integer');
 		
 		$contexts = Extension_DevblocksContext::getAll(false);
 		
@@ -148,12 +148,12 @@ class PageSection_InternalRecords extends Extension_PageSection {
 	}
 	
 	private function _internalAction_chooserOpen() {
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string', '');
-		@$layer = DevblocksPlatform::importGPC($_REQUEST['layer'],'string', '');
-		@$single = DevblocksPlatform::importGPC($_REQUEST['single'],'integer',0);
-		@$query = DevblocksPlatform::importGPC($_REQUEST['q'],'string', '');
-		@$query_req = DevblocksPlatform::importGPC($_REQUEST['qr'],'string', '');
-		@$worklist = DevblocksPlatform::importGPC($_REQUEST['worklist'], 'array', []);
+		$context = DevblocksPlatform::importGPC($_REQUEST['context'] ?? null,'string', '');
+		$layer = DevblocksPlatform::importGPC($_REQUEST['layer'] ?? null,'string', '');
+		$single = DevblocksPlatform::importGPC($_REQUEST['single'] ?? null,'integer',0);
+		$query = DevblocksPlatform::importGPC($_REQUEST['q'] ?? null,'string', '');
+		$query_req = DevblocksPlatform::importGPC($_REQUEST['qr'] ?? null,'string', '');
+		$worklist = DevblocksPlatform::importGPC($_REQUEST['worklist'] ?? null, 'array', []);
 		
 		if(null == ($context_extension = Extension_DevblocksContext::getByAlias($context, true)))
 			return;
@@ -186,10 +186,10 @@ class PageSection_InternalRecords extends Extension_PageSection {
 	}
 	
 	private function _internalAction_chooserOpenParams() {
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
-		@$layer = DevblocksPlatform::importGPC($_REQUEST['layer'],'string');
-		@$q = DevblocksPlatform::importGPC($_REQUEST['q'],'string','');
+		$context = DevblocksPlatform::importGPC($_REQUEST['context'] ?? null,'string');
+		$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'] ?? null,'string');
+		$layer = DevblocksPlatform::importGPC($_REQUEST['layer'] ?? null,'string');
+		$q = DevblocksPlatform::importGPC($_REQUEST['q'] ?? null,'string','');
 		
 		// [TODO] This should be able to take a simplified JSON view model
 		
@@ -226,10 +226,10 @@ class PageSection_InternalRecords extends Extension_PageSection {
 	}
 	
 	private function _internalAction_getCustomFieldSet() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-		@$bulk = DevblocksPlatform::importGPC($_REQUEST['bulk'], 'integer', 0);
-		@$field_wrapper = DevblocksPlatform::importGPC($_REQUEST['field_wrapper'], 'string', '');
-		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'], 'integer', 0);
+		$id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null, 'integer', 0);
+		$bulk = DevblocksPlatform::importGPC($_REQUEST['bulk'] ?? null, 'integer', 0);
+		$field_wrapper = DevblocksPlatform::importGPC($_REQUEST['field_wrapper'] ?? null, 'string', '');
+		$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'] ?? null, 'integer', 0);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::services()->template();
@@ -264,10 +264,10 @@ class PageSection_InternalRecords extends Extension_PageSection {
 	}
 	
 	private function _internalAction_autocomplete() {
-		@$callback = DevblocksPlatform::importGPC($_REQUEST['callback'],'string','');
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
-		@$query = DevblocksPlatform::importGPC($_REQUEST['query'],'string','');
-		@$term = DevblocksPlatform::importGPC($_REQUEST['term'],'string','');
+		$callback = DevblocksPlatform::importGPC($_REQUEST['callback'] ?? null, 'string','');
+		$context = DevblocksPlatform::importGPC($_REQUEST['context'] ?? null,'string','');
+		$query = DevblocksPlatform::importGPC($_REQUEST['query'] ?? null, 'string','');
+		$term = DevblocksPlatform::importGPC($_REQUEST['term'] ?? null, 'string','');
 		
 		header('Content-Type: application/json');
 		
@@ -290,11 +290,11 @@ class PageSection_InternalRecords extends Extension_PageSection {
 	}
 	
 	private function _internalAction_editorOpenTemplate() {
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
-		@$label_prefix = DevblocksPlatform::importGPC($_REQUEST['label_prefix'],'string', '');
-		@$key_prefix = DevblocksPlatform::importGPC($_REQUEST['key_prefix'],'string', '');
-		@$template = DevblocksPlatform::importGPC($_REQUEST['template'],'string');
-		@$placeholders = DevblocksPlatform::importGPC($_REQUEST['placeholders'],'array',[]);
+		$context = DevblocksPlatform::importGPC($_REQUEST['context'] ?? null, 'string');
+		$label_prefix = DevblocksPlatform::importGPC($_REQUEST['label_prefix'] ?? null, 'string', '');
+		$key_prefix = DevblocksPlatform::importGPC($_REQUEST['key_prefix'] ?? null, 'string', '');
+		$template = DevblocksPlatform::importGPC($_REQUEST['template'] ?? null, 'string');
+		$placeholders = DevblocksPlatform::importGPC($_REQUEST['placeholders'] ?? null, 'array',[]);
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('template', $template);
@@ -330,8 +330,8 @@ class PageSection_InternalRecords extends Extension_PageSection {
 	}
 	
 	private function _internalAction_chooserOpenFile() {
-		@$layer = DevblocksPlatform::importGPC($_REQUEST['layer'], 'string');
-		@$single = DevblocksPlatform::importGPC($_REQUEST['single'], 'integer', 0);
+		$layer = DevblocksPlatform::importGPC($_REQUEST['layer'] ?? null, 'string');
+		$single = DevblocksPlatform::importGPC($_REQUEST['single'] ?? null, 'integer', 0);
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('layer', $layer);
@@ -419,7 +419,7 @@ class PageSection_InternalRecords extends Extension_PageSection {
 	private function _internalAction_chooserOpenFileLoadBundle() {
 		$url_writer = DevblocksPlatform::services()->url();
 		
-		@$bundle_id = DevblocksPlatform::importGPC($_REQUEST['bundle_id'], 'integer', 0);
+		$bundle_id = DevblocksPlatform::importGPC($_REQUEST['bundle_id'] ?? null, 'integer', 0);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -446,11 +446,11 @@ class PageSection_InternalRecords extends Extension_PageSection {
 	}
 	
 	private function _internalAction_chooserOpenAvatar() {
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
-		@$defaults_string = DevblocksPlatform::importGPC($_REQUEST['defaults'],'string','');
-		@$image_width = DevblocksPlatform::importGPC($_REQUEST['image_width'],'integer',0);
-		@$image_height = DevblocksPlatform::importGPC($_REQUEST['image_height'],'integer',0);
+		$context = DevblocksPlatform::importGPC($_REQUEST['context'] ?? null,'string','');
+		$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'] ?? null, 'integer',0);
+		$defaults_string = DevblocksPlatform::importGPC($_REQUEST['defaults'] ?? null, 'string','');
+		$image_width = DevblocksPlatform::importGPC($_REQUEST['image_width'] ?? null, 'integer',0);
+		$image_height = DevblocksPlatform::importGPC($_REQUEST['image_height'] ?? null, 'integer',0);
 		
 		if(empty($image_width))
 			$image_width = 100;
@@ -479,7 +479,7 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		
 		$tokens = explode(' ', trim($defaults_string));
 		foreach($tokens as $token) {
-			@list($k,$v) = explode(':', $token);
+			list($k,$v) = array_pad(explode(':', $token, 2), 2, null);
 			$defaults[trim($k)] = trim($v);
 		}
 		
@@ -617,10 +617,10 @@ class PageSection_InternalRecords extends Extension_PageSection {
 	private function _internalAction_contextAddLinksJson() {
 		header('Content-type: application/json');
 		
-		@$from_context = DevblocksPlatform::importGPC($_POST['from_context'],'string','');
-		@$from_context_id = DevblocksPlatform::importGPC($_POST['from_context_id'],'integer',0);
-		@$context = DevblocksPlatform::importGPC($_POST['context'],'string','');
-		@$context_ids = DevblocksPlatform::importGPC($_POST['context_id'],'array',[]);
+		$from_context = DevblocksPlatform::importGPC($_POST['from_context'] ?? null, 'string','');
+		$from_context_id = DevblocksPlatform::importGPC($_POST['from_context_id'] ?? null, 'integer',0);
+		$context = DevblocksPlatform::importGPC($_POST['context'] ?? null, 'string','');
+		$context_ids = DevblocksPlatform::importGPC($_POST['context_id'] ?? null, 'array',[]);
 		
 		// [TODO] Privs
 		
@@ -637,10 +637,10 @@ class PageSection_InternalRecords extends Extension_PageSection {
 	private function _internalAction_contextDeleteLinksJson() {
 		header('Content-type: application/json');
 		
-		@$from_context = DevblocksPlatform::importGPC($_POST['from_context'],'string','');
-		@$from_context_id = DevblocksPlatform::importGPC($_POST['from_context_id'],'integer',0);
-		@$context = DevblocksPlatform::importGPC($_POST['context'],'string','');
-		@$context_ids = DevblocksPlatform::importGPC($_POST['context_id'],'array',[]);
+		$from_context = DevblocksPlatform::importGPC($_POST['from_context'] ?? null, 'string','');
+		$from_context_id = DevblocksPlatform::importGPC($_POST['from_context_id'] ?? null, 'integer',0);
+		$context = DevblocksPlatform::importGPC($_POST['context'] ?? null, 'string','');
+		$context_ids = DevblocksPlatform::importGPC($_POST['context_id'] ?? null, 'array',[]);
 		
 		// [TODO] Privs
 		
@@ -658,9 +658,9 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
-		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids'],'string','');
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		$context = DevblocksPlatform::importGPC($_REQUEST['context'] ?? null,'string','');
+		$ids = DevblocksPlatform::importGPC($_REQUEST['ids'] ?? null, 'string','');
+		$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'] ?? null,'string','');
 		
 		try {
 			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
@@ -718,9 +718,9 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
-		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids'],'array',[]);
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		$context = DevblocksPlatform::importGPC($_REQUEST['context'] ?? null,'string','');
+		$ids = DevblocksPlatform::importGPC($_REQUEST['ids'] ?? null, 'array',[]);
+		$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'] ?? null,'string','');
 		
 		$DEBUG = false;
 		
@@ -823,7 +823,7 @@ class PageSection_InternalRecords extends Extension_PageSection {
 							break;
 						
 						case Model_CustomField::TYPE_DROPDOWN:
-							@$options = $custom_fields[$cfield_id]->params['options'];
+							$options = $custom_fields[$cfield_id]->params['options'] ?? null;
 							
 							// Ignore invalid options
 							if(!in_array($v, $options)) {
@@ -877,8 +877,8 @@ class PageSection_InternalRecords extends Extension_PageSection {
 							break;
 						
 						case Model_CustomField::TYPE_MULTI_CHECKBOX:
-							@$values = $dict->custom[$cfield_id];
-							@$options = $custom_fields[$cfield_id]->params['options'];
+							$values = $dict->custom[$cfield_id] ?? null;
+							$options = $custom_fields[$cfield_id]->params['options'] ?? null;
 							
 							if(!is_array($values))
 								break;
@@ -950,12 +950,12 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$context = DevblocksPlatform::importGPC($_POST['context'],'string','');
-		@$ids = DevblocksPlatform::importGPC($_POST['ids'],'array',[]);
-		@$target_id = DevblocksPlatform::importGPC($_POST['target_id'],'integer',0);
-		@$keys = DevblocksPlatform::importGPC($_POST['keys'],'array',[]);
-		@$values = DevblocksPlatform::importGPC($_POST['values'],'array',[]);
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
+		$context = DevblocksPlatform::importGPC($_POST['context'] ?? null, 'string','');
+		$ids = DevblocksPlatform::importGPC($_POST['ids'] ?? null, 'array',[]);
+		$target_id = DevblocksPlatform::importGPC($_POST['target_id'] ?? null, 'integer',0);
+		$keys = DevblocksPlatform::importGPC($_POST['keys'] ?? null, 'array',[]);
+		$values = DevblocksPlatform::importGPC($_POST['values'] ?? null, 'array',[]);
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string','');
 		
 		$DEBUG = false;
 		
@@ -1222,8 +1222,8 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		if(!$active_worker->is_superuser)
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
-		@$row_ids = DevblocksPlatform::importGPC($_POST['row_id'], 'array', []);
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
+		$row_ids = DevblocksPlatform::importGPC($_POST['row_id'] ?? null, 'array', []);
 		
 		$row_ids = DevblocksPlatform::sanitizeArray($row_ids, 'int');
 		

@@ -40,9 +40,9 @@ class BotAction_ClassifierPrediction extends Extension_DevblocksEventAction {
 	function simulate($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
-		@$classifier_id = $params['classifier_id'];
-		@$content = $tpl_builder->build($params['content'], $dict);
-		@$object_placeholder = $params['object_placeholder'] ?: '_prediction';
+		$classifier_id = $params['classifier_id'] ?? null;
+		$content = $tpl_builder->build($params['content'] ?? '', $dict);
+		$object_placeholder = ($params['object_placeholder'] ?? null) ?: '_prediction';
 
 		if(false == (DAO_Classifier::get($classifier_id)))
 			return "[ERROR] The configured classifier does not exist.";
@@ -75,9 +75,9 @@ class BotAction_ClassifierPrediction extends Extension_DevblocksEventAction {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$bayes = DevblocksPlatform::services()->bayesClassifier();
 		
-		@$classifier_id = $params['classifier_id'];
-		@$content = $tpl_builder->build($params['content'], $dict);
-		@$object_placeholder = $params['object_placeholder'] ?: '_prediction';
+		$classifier_id = $params['classifier_id'] ?? null;
+		$content = $tpl_builder->build($params['content'] ?? '', $dict);
+		$object_placeholder = ($params['object_placeholder'] ?? null) ?: '_prediction';
 		
 		$environment = [
 			'lang' => 'en_US',

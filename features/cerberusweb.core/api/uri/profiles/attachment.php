@@ -48,10 +48,10 @@ class PageSection_ProfilesAttachment extends Extension_PageSection {
 	private function _profileAction_savePeekJson() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
 		
-		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
+		$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'string', '');
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
@@ -81,8 +81,8 @@ class PageSection_ProfilesAttachment extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
-				@$mime_type = DevblocksPlatform::importGPC($_POST['mime_type'], 'string', 'application/octet-stream');
+				$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');
+				$mime_type = DevblocksPlatform::importGPC($_POST['mime_type'] ?? null, 'string', 'application/octet-stream');
 				
 				if(!$id) { // New
 					$fields = array(
@@ -121,7 +121,7 @@ class PageSection_ProfilesAttachment extends Extension_PageSection {
 				}
 				
 				// Custom field saves
-				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+				$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 				if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_ATTACHMENT, $id, $field_ids, $error))
 					throw new Exception_DevblocksAjaxValidationError($error);
 				
@@ -152,7 +152,7 @@ class PageSection_ProfilesAttachment extends Extension_PageSection {
 	}
 	
 	private function _profileAction_viewExplore() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
@@ -168,7 +168,7 @@ class PageSection_ProfilesAttachment extends Extension_PageSection {
 		$view->setAutoPersist(false);
 
 		// Page start
-		@$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'],'integer',0);
+		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'integer',0);
 		if(empty($explore_from)) {
 			$orig_pos = 1+($view->renderPage * $view->renderLimit);
 		} else {
@@ -228,8 +228,8 @@ class PageSection_ProfilesAttachment extends Extension_PageSection {
 	private function _profileAction_showBulkPopup() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
+		$ids = DevblocksPlatform::importGPC($_REQUEST['ids'] ?? null);
+		$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'] ?? null);
 		
 		if(!$active_worker->is_superuser)
 			DevblocksPlatform::dieWithHttpError(null, 403);
@@ -255,20 +255,20 @@ class PageSection_ProfilesAttachment extends Extension_PageSection {
 		if(!$active_worker->is_superuser)
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		@$filter = DevblocksPlatform::importGPC($_POST['filter'],'string','');
+		$filter = DevblocksPlatform::importGPC($_POST['filter'] ?? null, 'string','');
 		$ids = [];
 		
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
 		$view->setAutoPersist(false);
 
-		@$mime_type = DevblocksPlatform::importGPC($_POST['mime_type'],'string',null);
-		@$status = DevblocksPlatform::importGPC($_POST['status'],'string',null);
+		$mime_type = DevblocksPlatform::importGPC($_POST['mime_type'] ?? null, 'string',null);
+		$status = DevblocksPlatform::importGPC($_POST['status'] ?? null, 'string',null);
 		
 		// Scheduled behavior
-		@$behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'],'string','');
-		@$behavior_when = DevblocksPlatform::importGPC($_POST['behavior_when'],'string','');
-		@$behavior_params = DevblocksPlatform::importGPC($_POST['behavior_params'],'array',[]);
+		$behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'] ?? null, 'string','');
+		$behavior_when = DevblocksPlatform::importGPC($_POST['behavior_when'] ?? null, 'string','');
+		$behavior_params = DevblocksPlatform::importGPC($_POST['behavior_params'] ?? null, 'array',[]);
 		
 		$do = [];
 		
@@ -295,7 +295,7 @@ class PageSection_ProfilesAttachment extends Extension_PageSection {
 		switch($filter) {
 			// Checked rows
 			case 'checks':
-				@$ids_str = DevblocksPlatform::importGPC($_POST['ids'],'string');
+				$ids_str = DevblocksPlatform::importGPC($_POST['ids'] ?? null, 'string');
 				$ids = DevblocksPlatform::parseCsvString($ids_str);
 				break;
 				

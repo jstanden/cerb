@@ -1,7 +1,7 @@
 <?php
 class _DevblocksDataProviderWorklistRecords extends _DevblocksDataProvider {
 	function getSuggestions($type, array $params=[]) {
-		@$of = $params['of'];
+		$of = $params['of'] ?? null;
 		$of_schema = null;
 		
 		if($of) {

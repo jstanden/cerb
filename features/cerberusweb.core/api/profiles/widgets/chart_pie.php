@@ -21,10 +21,10 @@ class ProfileWidget_ChartPie extends Extension_ProfileWidget {
 		$data = DevblocksPlatform::services()->data();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$data_query = DevblocksPlatform::importGPC($model->extension_params['data_query'], 'string', null);
-		@$chart_as = DevblocksPlatform::importGPC($model->extension_params['chart_as'], 'string', null);
-		@$options = DevblocksPlatform::importGPC($model->extension_params['options'], 'array', []);
-		@$height = DevblocksPlatform::importGPC($model->extension_params['height'], 'integer', 0);
+		$data_query = DevblocksPlatform::importGPC($model->extension_params['data_query'] ?? null, 'string', null);
+		$chart_as = DevblocksPlatform::importGPC($model->extension_params['chart_as'] ?? null, 'string', null);
+		$options = DevblocksPlatform::importGPC($model->extension_params['options'] ?? null, 'array', []);
+		$height = DevblocksPlatform::importGPC($model->extension_params['height'] ?? null, 'integer', 0);
 		
 		$dict = DevblocksDictionaryDelegate::instance([
 			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,

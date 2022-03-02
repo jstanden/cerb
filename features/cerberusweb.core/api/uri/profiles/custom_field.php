@@ -43,10 +43,10 @@ class PageSection_ProfilesCustomField extends Extension_PageSection {
 	}
 	
 	private function _profileAction_savePeekJson() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
 		
-		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
+		$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -78,13 +78,13 @@ class PageSection_ProfilesCustomField extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$context = DevblocksPlatform::importGPC($_POST['context'], 'string', '');
-				@$custom_fieldset_id = DevblocksPlatform::importGPC($_POST['custom_fieldset_id'], 'integer', 0);
-				@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
-				@$pos = DevblocksPlatform::importGPC($_POST['pos'], 'integer', 0);
-				@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
-				@$type = DevblocksPlatform::importGPC($_POST['type'], 'string', '');
-				@$uri = DevblocksPlatform::importGPC($_POST['uri'], 'string', '');
+				$context = DevblocksPlatform::importGPC($_POST['context'] ?? null, 'string', '');
+				$custom_fieldset_id = DevblocksPlatform::importGPC($_POST['custom_fieldset_id'] ?? null, 'integer', 0);
+				$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');
+				$pos = DevblocksPlatform::importGPC($_POST['pos'] ?? null, 'integer', 0);
+				$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
+				$type = DevblocksPlatform::importGPC($_POST['type'] ?? null, 'string', '');
+				$uri = DevblocksPlatform::importGPC($_POST['uri'] ?? null, 'string', '');
 				
 				// [TODO] Validate param keys by type
 				if(isset($params['options']))
@@ -172,7 +172,7 @@ class PageSection_ProfilesCustomField extends Extension_PageSection {
 	private function _profileAction_getFieldParams() {
 		$tpl = DevblocksPlatform::services()->template();
 		
-		@$type = DevblocksPlatform::importGPC($_REQUEST['type'],'string',null);
+		$type = DevblocksPlatform::importGPC($_REQUEST['type'] ?? null, 'string',null);
 		
 		$model = new Model_CustomField();
 		$model->type = $type;
@@ -188,7 +188,7 @@ class PageSection_ProfilesCustomField extends Extension_PageSection {
 	}
 	
 	private function _profileAction_viewExplore() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
@@ -204,7 +204,7 @@ class PageSection_ProfilesCustomField extends Extension_PageSection {
 		$view->setAutoPersist(false);
 
 		// Page start
-		@$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'],'integer',0);
+		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'integer',0);
 		if(empty($explore_from)) {
 			$orig_pos = 1+($view->renderPage * $view->renderLimit);
 		} else {

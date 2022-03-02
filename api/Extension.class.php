@@ -82,8 +82,7 @@ abstract class Extension_CustomField extends DevblocksExtension {
 	}
 	
 	function parseFormPost(Model_CustomField $field) {
-		@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field->id],'string','');
-		return $field_value;
+		return DevblocksPlatform::importGPC($_POST['field_'.$field->id] ?? null,'string','');
 	}
 }
 
@@ -340,7 +339,7 @@ abstract class Extension_ProfileTab extends DevblocksExtension {
 			if(!array_key_exists('contexts', $ptr->params))
 				return true;
 			
-			@$contexts = $ptr->params['contexts'][0] ?: [];
+			$contexts = ($ptr->params['contexts'][0] ?? null) ?: [];
 			
 			return isset($contexts[$context]);
 		});
@@ -422,7 +421,7 @@ abstract class Extension_ProfileWidget extends DevblocksExtension {
 			if(!array_key_exists('contexts', $ptr->params))
 				return true;
 			
-			@$contexts = $ptr->params['contexts'][0] ?: [];
+			$contexts = ($ptr->params['contexts'][0] ?? null) ?: [];
 			
 			return isset($contexts[$context]);
 		});
@@ -554,7 +553,7 @@ abstract class Extension_CardWidget extends DevblocksExtension {
 			if(!array_key_exists('contexts', $ptr->params))
 				return true;
 			
-			@$contexts = $ptr->params['contexts'][0] ?: [];
+			$contexts = ($ptr->params['contexts'][0] ?? null) ?: [];
 			
 			return isset($contexts[$context]);
 		});
@@ -1895,8 +1894,8 @@ abstract class Extension_WorkspaceWidget extends DevblocksExtension {
 		$view->setAutoPersist(true);
 		
 		// Check for quick search
-		@$mode = $params['search_mode'];
-		@$q = $params['quick_search'];
+		$mode = $params['search_mode'] ?? null;
+		$q = $params['quick_search'] ?? null;
 		
 		if($mode == 'quick_search' && $q)
 			$view->addParamsWithQuickSearch($q, true);

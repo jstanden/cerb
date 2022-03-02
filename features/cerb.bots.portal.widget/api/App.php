@@ -49,12 +49,12 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 				
 				switch($action) {
 					case 'start':
-						@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'string', '');
-						@$browser = DevblocksPlatform::importGPC($_REQUEST['browser'], 'array', []);
-						@$interaction_params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
+						$id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null, 'string', '');
+						$browser = DevblocksPlatform::importGPC($_REQUEST['browser'] ?? null, 'array', []);
+						$interaction_params = DevblocksPlatform::importGPC($_REQUEST['params'] ?? null, 'array', []);
 
-						@$interaction_behavior_id = $config[self::PARAM_INTERACTION_BEHAVIOR_ID];
-						@$bot_name = @$config[self::PARAM_BOT_NAME] ?: 'Cerb';
+						$interaction_behavior_id = $config[self::PARAM_INTERACTION_BEHAVIOR_ID] ?? null;
+						$bot_name = ($config[self::PARAM_BOT_NAME] ?? null) ?: 'Cerb';
 						
 						// [TODO] We have their whole session here
 						// [TODO] Be able to remember things about their session
@@ -123,8 +123,8 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 							switch($action['_action']) {
 								case 'behavior.switch':
 									if(isset($action['behavior_id'])) {
-										@$behavior_id = $action['behavior_id'];
-										@$variables = $action['behavior_variables'];
+										$behavior_id = $action['behavior_id'] ?? null;
+										$variables = $action['behavior_variables'] ?? null;
 										
 										if(is_array($variables))
 										foreach($variables as $k => $v) {
@@ -180,8 +180,8 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 						break;
 						
 					case 'message':
-						@$session_id = DevblocksPlatform::importGPC($_POST['session_id'], 'string', '');
-						@$message = DevblocksPlatform::importGPC($_POST['message'], 'string', '');
+						$session_id = DevblocksPlatform::importGPC($_POST['session_id'] ?? null, 'string', '');
+						$message = DevblocksPlatform::importGPC($_POST['message'] ?? null, 'string', '');
 						
 						$tpl = DevblocksPlatform::services()->template();
 						
@@ -306,8 +306,8 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 							
 							switch(@$params['_action']) {
 								case 'behavior.switch':
-									@$variables = $params['behavior_variables'];
-									@$var_key = $params['var'] ?: '_behavior';
+									$variables = $params['behavior_variables'] ?? null;
+									$var_key = ($params['var'] ?? null) ?: '_behavior';
 									
 									if(!isset($interaction->session_data['callers']))
 										$interaction->session_data['callers'] = [];
@@ -359,11 +359,11 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 									break;
 								
 								case 'prompt.buttons':
-									@$options = $params['options'];
-									@$color_from = $params['color_from'];
-									@$color_to = $params['color_to'];
-									@$color_mid = $params['color_mid'];
-									@$style = $params['style'];
+									$options = $params['options'] ?? null;
+									$color_from = $params['color_from'] ?? null;
+									$color_to = $params['color_to'] ?? null;
+									$color_mid = $params['color_mid'] ?? null;
+									$style = $params['style'] ?? null;
 									
 									if(!is_array($options))
 										break;
@@ -379,8 +379,8 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 									break;
 									
 								case 'prompt.images':
-									@$images = $params['images'];
-									@$labels = $params['labels'];
+									$images = $params['images'] ?? null;
+									$labels = $params['labels'] ?? null;
 									
 									if(!is_array($images) || !is_array($images))
 										break;
@@ -392,7 +392,7 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 									break;
 								
 								case 'prompt.rating.number':
-									@$options = $params['options'];
+									$options = $params['options'] ?? null;
 									
 									if(!is_array($options))
 										break;
@@ -404,9 +404,9 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 									break;
 									
 								case 'prompt.text':
-									@$placeholder = $params['placeholder'];
-									@$default = $params['default'];
-									@$mode = $params['mode'];
+									$placeholder = $params['placeholder'] ?? null;
+									$default = $params['default'] ?? null;
+									$mode = $params['mode'] ?? null;
 									
 									if(empty($placeholder))
 										$placeholder = 'say something';
@@ -509,7 +509,7 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 	}
 	
 	public function saveConfiguration(Model_CommunityTool $instance) {
-		@$params = DevblocksPlatform::importGPC($_POST['params'],'array',[]);
+		$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array',[]);
 		
 		if(isset($params[self::PARAM_BOT_NAME])) {
 			$value = strval($params[self::PARAM_BOT_NAME]);

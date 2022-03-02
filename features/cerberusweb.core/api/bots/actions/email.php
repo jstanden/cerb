@@ -36,9 +36,9 @@ class BotAction_EmailParser extends Extension_DevblocksEventAction {
 
 		$out = null;
 		
-		@$message_source = $tpl_builder->build($params['message_source'], $dict);
-		@$run_in_simulator = $params['run_in_simulator'];
-		@$response_placeholder = $params['response_placeholder'];
+		$message_source = $tpl_builder->build($params['message_source'] ?? '', $dict);
+		$run_in_simulator = $params['run_in_simulator'] ?? null;
+		$response_placeholder = $params['response_placeholder'] ?? null;
 		
 		if(empty($message_source))
 			return "[ERROR] Message source is required.";
@@ -79,8 +79,8 @@ class BotAction_EmailParser extends Extension_DevblocksEventAction {
 		
 		try {
 			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-			@$message_source = $tpl_builder->build($params['message_source'], $dict);
-			@$response_placeholder = $params['response_placeholder'];
+			$message_source = $tpl_builder->build($params['message_source'] ?? '', $dict);
+			$response_placeholder = $params['response_placeholder'] ?? null;
 			
 			if(empty($message_source))
 				throw new Exception_DevblocksValidationError("The message is empty.");

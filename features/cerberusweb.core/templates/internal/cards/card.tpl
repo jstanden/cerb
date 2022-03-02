@@ -1,6 +1,7 @@
 {$div_id = uniqid('peek_')}
 {$record_uri = $context_ext->manifest->params.alias}
 {$record_aliases = Extension_DevblocksContext::getAliasesForContext($context_ext->manifest)}
+{if !isset($toolbar_card)}{$toolbar_card = null}{/if}
 
 <div id="{$div_id}">
     {if $context_ext->hasOption('avatars')}

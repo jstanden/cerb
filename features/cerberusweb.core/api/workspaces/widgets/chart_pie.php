@@ -14,8 +14,8 @@ class WorkspaceWidget_ChartPie extends Extension_WorkspaceWidget implements ICer
 		$data = DevblocksPlatform::services()->data();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
-		@$data_query = DevblocksPlatform::importGPC($widget->params['data_query'], 'string', null);
-		@$cache_secs = DevblocksPlatform::importGPC($widget->params['cache_secs'], 'integer', 0);
+		$data_query = DevblocksPlatform::importGPC($widget->params['data_query'] ?? null, 'string', null);
+		$cache_secs = DevblocksPlatform::importGPC($widget->params['cache_secs'] ?? null, 'integer', 0);
 		
 		$dict = DevblocksDictionaryDelegate::instance([
 			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
@@ -44,9 +44,9 @@ class WorkspaceWidget_ChartPie extends Extension_WorkspaceWidget implements ICer
 	function render(Model_WorkspaceWidget $widget) {
 		$tpl = DevblocksPlatform::services()->template();
 		
-		@$chart_as = DevblocksPlatform::importGPC($widget->params['chart_as'], 'string', null);
-		@$options = DevblocksPlatform::importGPC($widget->params['options'], 'array', []);
-		@$height = DevblocksPlatform::importGPC($widget->params['height'], 'integer', 0);
+		$chart_as = DevblocksPlatform::importGPC($widget->params['chart_as'] ?? null, 'string', null);
+		$options = DevblocksPlatform::importGPC($widget->params['options'] ?? null, 'array', []);
+		$height = DevblocksPlatform::importGPC($widget->params['height'] ?? null, 'integer', 0);
 		
 		$error = null;
 		
@@ -111,7 +111,7 @@ class WorkspaceWidget_ChartPie extends Extension_WorkspaceWidget implements ICer
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget, ?string &$error=null) : bool {
-		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
+		$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
 		
 		DAO_WorkspaceWidget::update($widget->id, array(
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),

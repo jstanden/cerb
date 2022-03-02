@@ -141,7 +141,7 @@ class CustomField_GeoPoint extends Extension_CustomField {
 		
 		$out = ">>> Setting value to:\n";
 		
-		@$value = $params['value'];
+		$value = $params['value'] ?? null;
 		$value = $tpl_builder->build($value, $dict);
 
 		$value = $this->getValue($field, $value);
@@ -169,7 +169,7 @@ class CustomField_GeoPoint extends Extension_CustomField {
 	}
 	
 	function botActionGetValueFromParams(Model_CustomField $field, array $params, DevblocksDictionaryDelegate $dict) {
-		@$value = $params['value'];
+		$value = $params['value'] ?? null;
 		return $this->formatFieldValue($value);
 	}
 };
@@ -191,8 +191,8 @@ class CustomField_Slider extends Extension_CustomField {
 		$tpl->assign('form_key', $form_key);
 		$tpl->assign('form_value', $this->getValue($field, $form_value));
 		
-		@$value_min = $field->params['value_min'];
-		@$value_max = $field->params['value_max'];
+		$value_min = $field->params['value_min'] ?? null;
+		$value_max = $field->params['value_max'] ?? null;
 		
 		if(0 == strlen($value_min))
 			$value_min = 0;
@@ -211,10 +211,10 @@ class CustomField_Slider extends Extension_CustomField {
 	}
 	
 	function validationRegister(Model_CustomField $field, _DevblocksValidationService &$validation) {
-		@$field_context = $field->params['context'];
+		$field_context = $field->params['context'] ?? null;
 		
-		@$value_min = $field->params['value_min'];
-		@$value_max = $field->params['value_max'];
+		$value_min = $field->params['value_min'] ?? null;
+		$value_max = $field->params['value_max'] ?? null;
 		
 		if(0 == strlen($value_min))
 			$value_min = 0;
@@ -299,8 +299,8 @@ class CustomField_Slider extends Extension_CustomField {
 	function renderValue(Model_CustomField $field, $value) {
 		$tpl = DevblocksPlatform::services()->template();
 		
-		@$value_min = $field->params['value_min'];
-		@$value_max = $field->params['value_max'];
+		$value_min = $field->params['value_min'] ?? null;
+		$value_max = $field->params['value_max'] ?? null;
 		
 		if(0 == strlen($value_min))
 			$value_min = 0;
@@ -377,7 +377,7 @@ class CustomField_Slider extends Extension_CustomField {
 		
 		$out = ">>> Setting value to:\n";
 		
-		@$value = $params['value'];
+		$value = $params['value'] ?? null;
 		$value = $tpl_builder->build($value, $dict);
 		
 		$value = $this->getValue($field, $value);
@@ -405,7 +405,7 @@ class CustomField_Slider extends Extension_CustomField {
 	}
 	
 	function botActionGetValueFromParams(Model_CustomField $field, array $params, DevblocksDictionaryDelegate $dict) {
-		@$value = $params['value'];
+		$value = $params['value'] ?? null;
 		return $this->formatFieldValue($value);
 	}
 };
@@ -434,7 +434,7 @@ class CustomField_RecordLinks extends Extension_CustomField {
 		
 		$form_value = $this->getValue($field, $form_value);
 		
-		@$linked_context = $field->params['context'];
+		$linked_context = $field->params['context'] ?? null;
 		$linked_dicts = [];
 		
 		if($linked_context && is_array($form_value)) {
@@ -448,7 +448,7 @@ class CustomField_RecordLinks extends Extension_CustomField {
 	}
 	
 	function validationRegister(Model_CustomField $field, _DevblocksValidationService &$validation) {
-		@$field_context = $field->params['context'];
+		$field_context = $field->params['context'] ?? null;
 		
 		$validation
 			->addField($field->id, $field->name)
@@ -582,7 +582,7 @@ class CustomField_RecordLinks extends Extension_CustomField {
 		
 		$tpl = DevblocksPlatform::services()->template();
 		
-		@$target_context = $field->params['context'];
+		$target_context = $field->params['context'] ?? null;
 		
 		$models = CerberusContexts::getModels($target_context, $values);
 		$target_dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $target_context, ['_label']);
@@ -614,8 +614,8 @@ class CustomField_RecordLinks extends Extension_CustomField {
 		// [TODO] query config
 		$search_field_meta['examples'][] = [
 			'type' => 'search',
-			'context' => @$field->params['context'],
-			'q' => @$field->params['query'],
+			'context' => $field->params['context'] ?? null,
+			'q' => $field->params['query'] ?? null,
 		];
 		
 		return true;
@@ -631,7 +631,7 @@ class CustomField_RecordLinks extends Extension_CustomField {
 	function getWhereSQLFromParam(Model_CustomField $field, DevblocksSearchCriteria $param) {
 		switch($param->operator) {
 			case DevblocksSearchCriteria::OPER_CUSTOM:
-				@$links_context = $field->params['context'];
+				$links_context = $field->params['context'] ?? null;
 				
 				if(false == ($context_ext = Extension_DevblocksContext::get($field->context, true)))
 					return null;
@@ -699,7 +699,7 @@ class CustomField_RecordLinks extends Extension_CustomField {
 		
 		$out = ">>> Setting value to:\n";
 		
-		@$value = $params['value'];
+		$value = $params['value'] ?? null;
 		$value = $tpl_builder->build($value, $dict);
 		
 		$value = $this->getValue($field, $value);
@@ -727,7 +727,7 @@ class CustomField_RecordLinks extends Extension_CustomField {
 	}
 	
 	function botActionGetValueFromParams(Model_CustomField $field, array $params, DevblocksDictionaryDelegate $dict) {
-		@$value = $params['value'];
+		$value = $params['value'] ?? null;
 		return $this->formatFieldValue($value);
 	}
 };

@@ -43,8 +43,8 @@ class PageSection_InternalPortals extends Extension_PageSection {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'] ?? null,'string','');
+		$id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null, 'integer',0);
 		
 		$tpl->assign('view_id', $view_id);
 		
@@ -73,10 +73,10 @@ class PageSection_InternalPortals extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
-		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
-		@$content = DevblocksPlatform::importGPC($_POST['content'],'string','');
-		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string','');
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer',0);
+		$content = DevblocksPlatform::importGPC($_POST['content'] ?? null, 'string','');
+		$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'integer',0);
 		
 		if(false == ($template = DAO_DevblocksTemplate::get($id)))
 			return false;
@@ -116,8 +116,8 @@ class PageSection_InternalPortals extends Extension_PageSection {
 	private function _internalAction_showImportTemplatesPeek() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-		@$portal_id = DevblocksPlatform::importGPC($_REQUEST['portal_id'],'integer',0);
+		$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'] ?? null,'string','');
+		$portal_id = DevblocksPlatform::importGPC($_REQUEST['portal_id'] ?? null, 'integer',0);
 		
 		if(!$portal_id)
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -141,8 +141,8 @@ class PageSection_InternalPortals extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$portal_id = DevblocksPlatform::importGPC($_POST['portal_id'],'integer',0);
-		@$file_id = DevblocksPlatform::importGPC($_POST['file_id'],'integer',0);
+		$portal_id = DevblocksPlatform::importGPC($_POST['portal_id'] ?? null, 'integer',0);
+		$file_id = DevblocksPlatform::importGPC($_POST['file_id'] ?? null, 'integer',0);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -182,8 +182,8 @@ class PageSection_InternalPortals extends Extension_PageSection {
 	private function _internalAction_showExportTemplatesPeek() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-		@$portal = DevblocksPlatform::importGPC($_REQUEST['portal'],'string','');
+		$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'] ?? null,'string','');
+		$portal = DevblocksPlatform::importGPC($_REQUEST['portal'] ?? null, 'string','');
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
@@ -201,10 +201,10 @@ class PageSection_InternalPortals extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
-		@$filename = DevblocksPlatform::importGPC($_POST['filename'],'string','');
-		@$author = DevblocksPlatform::importGPC($_POST['author'],'string','');
-		@$email = DevblocksPlatform::importGPC($_POST['email'],'string','');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string','');
+		$filename = DevblocksPlatform::importGPC($_POST['filename'] ?? null, 'string','');
+		$author = DevblocksPlatform::importGPC($_POST['author'] ?? null, 'string','');
+		$email = DevblocksPlatform::importGPC($_POST['email'] ?? null, 'string','');
 		
 		// Build XML file
 		$xml = simplexml_load_string(

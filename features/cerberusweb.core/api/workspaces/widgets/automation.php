@@ -58,7 +58,7 @@ class WorkspaceWidget_Automation extends Extension_WorkspaceWidget {
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget, ?string &$error=null) : bool {
-		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
+		$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
 		
 		DAO_WorkspaceWidget::update($widget->id, [
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),

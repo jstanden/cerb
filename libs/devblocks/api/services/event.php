@@ -36,7 +36,7 @@ class _DevblocksEventManager {
 		 */
 		$events = DevblocksPlatform::getEventRegistry();
 
-		if(null == ($listeners = @$events[$event->id])) {
+		if(null == ($listeners = ($events[$event->id] ?? null))) {
 			$listeners = [];
 		}
 

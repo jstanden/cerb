@@ -36,7 +36,7 @@ class UmScKbController extends Extension_UmScController {
 	function renderSidebar(DevblocksHttpResponse $response) {
 		$tpl = DevblocksPlatform::services()->templateSandbox();
 		
-		@$q = DevblocksPlatform::importGPC($_POST['q'],'string','');
+		$q = DevblocksPlatform::importGPC($_POST['q'] ?? null, 'string','');
 		$tpl->assign('q', $q);
 		
 		$tpl->display("devblocks:cerberusweb.kb:portal_".ChPortalHelper::getCode() . ":support_center/kb/sidebar.tpl");
@@ -70,8 +70,8 @@ class UmScKbController extends Extension_UmScController {
 		
 		switch(array_shift($stack)) {
 			case 'search':
-				@$q = DevblocksPlatform::importGPC($_REQUEST['q'],'string','');
-				@$scope = DevblocksPlatform::importGPC($_REQUEST['scope'],'string','all');
+				$q = DevblocksPlatform::importGPC($_REQUEST['q'] ?? null, 'string','');
+				$scope = DevblocksPlatform::importGPC($_REQUEST['scope'] ?? null, 'string','all');
 
 				$tpl->assign('q', $q);
 				$tpl->assign('scope', $scope);
@@ -318,18 +318,18 @@ class UmScKbController extends Extension_UmScController {
 	function saveConfiguration(Model_CommunityTool $instance) {
 		// KB topics
 		
-		@$aKbRoots = DevblocksPlatform::importGPC($_POST['category_ids'],'array',array());
+		$aKbRoots = DevblocksPlatform::importGPC($_POST['category_ids'] ?? null, 'array', []);
 		$aKbRoots = array_flip($aKbRoots);
 		DAO_CommunityToolProperty::set($instance->code, self::PARAM_KB_ROOTS, serialize($aKbRoots));
 		
 		// Worklist num rows
 		
-		@$prop_kb_view_numrows = DevblocksPlatform::importGPC($_POST['kb_view_numrows'],'integer',10);
+		$prop_kb_view_numrows = DevblocksPlatform::importGPC($_POST['kb_view_numrows'] ?? null, 'integer',10);
 		DAO_CommunityToolProperty::set($instance->code, self::PARAM_KB_VIEW_NUMROWS, max($prop_kb_view_numrows, 5));
 		
 		// Worklist columns
 		
-		@$columns = DevblocksPlatform::importGPC($_POST['kb_columns'],'array',array());
+		$columns = DevblocksPlatform::importGPC($_POST['kb_columns'] ?? null, 'array', []);
 
 		$columns = array_filter($columns, function($column) {
 			return !empty($column);

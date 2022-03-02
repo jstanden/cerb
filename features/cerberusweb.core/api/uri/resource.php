@@ -47,7 +47,8 @@ class Controller_Resource extends DevblocksControllerExtension {
 			if(!DevblocksPlatform::strStartsWith($resource, $dir))
 				DevblocksPlatform::dieWithHttpError(null, 403);
 			
-			$ext = DevblocksPlatform::strLower(@array_pop(explode('.', $resource)));
+			$ext = explode('.', DevblocksPlatform::strLower($resource));
+			$ext = end($ext);
 			
 			// Security
 			switch($ext) {

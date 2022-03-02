@@ -127,8 +127,8 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$lang_codes = DevblocksPlatform::importGPC($_POST['lang_codes'],'array',array());
-		@$lang_actions = DevblocksPlatform::importGPC($_POST['lang_actions'],'array',array());
+		$lang_codes = DevblocksPlatform::importGPC($_POST['lang_codes'] ?? null, 'array', []);
+		$lang_actions = DevblocksPlatform::importGPC($_POST['lang_actions'] ?? null, 'array', []);
 			
 		$strings_en = DAO_Translation::getMapByLang('en_US');
 
@@ -206,9 +206,9 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 		
 		$codes = DAO_Translation::getDefinedLangCodes();
 			
-		@$add_lang_code = DevblocksPlatform::importGPC($_POST['add_lang_code'],'string','');
-		@$copy_lang_code = DevblocksPlatform::importGPC($_POST['copy_lang_code'],'string','');
-		@$del_lang_ids = DevblocksPlatform::importGPC($_POST['del_lang_ids'],'array',array());
+		$add_lang_code = DevblocksPlatform::importGPC($_POST['add_lang_code'] ?? null, 'string','');
+		$copy_lang_code = DevblocksPlatform::importGPC($_POST['copy_lang_code'] ?? null, 'string','');
+		$del_lang_ids = DevblocksPlatform::importGPC($_POST['del_lang_ids'] ?? null, 'array', []);
 		
 		if(!empty($del_lang_ids)) {
 			if(is_array($del_lang_ids))
@@ -307,7 +307,7 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$import_file = $_FILES['import_file'];
+		$import_file = $_FILES['import_file'] ?? null;
 		
 		DAO_Translation::importTmxFile($import_file['tmp_name']);
 		
@@ -418,8 +418,8 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$row_ids = DevblocksPlatform::importGPC($_POST['row_ids'],'array',array());
-		@$translations = DevblocksPlatform::importGPC($_POST['translations'],'array',array());
+		$row_ids = DevblocksPlatform::importGPC($_POST['row_ids'] ?? null, 'array', []);
+		$translations = DevblocksPlatform::importGPC($_POST['translations'] ?? null, 'array', []);
 
 		// Save the form strings
 		if(is_array($row_ids))
@@ -802,7 +802,7 @@ class View_Translation extends C4_AbstractView implements IAbstractView_Subtotal
 				break;
 				
 			case SearchFields_Translation::LANG_CODE:
-				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',array());
+				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array', []);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$options);
 				break;
 		}

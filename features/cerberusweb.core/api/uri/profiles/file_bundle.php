@@ -41,12 +41,12 @@ class PageSection_ProfilesFileBundle extends Extension_PageSection {
 	}
 	
 	private function _profileAction_savePeekJson() {
-		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
-		@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
-		@$tag = DevblocksPlatform::importGPC($_POST['tag'], 'string', '');
-		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
+		$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');
+		$tag = DevblocksPlatform::importGPC($_POST['tag'] ?? null, 'string', '');
+		$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'string', '');
 		
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -84,7 +84,7 @@ class PageSection_ProfilesFileBundle extends Extension_PageSection {
 				
 			} else {
 				// Owner
-				@list($owner_context, $owner_context_id) = explode(':', DevblocksPlatform::importGPC($_POST['owner'],'string',''));
+				list($owner_context, $owner_context_id) = array_pad(explode(':', DevblocksPlatform::importGPC($_POST['owner'] ?? null,'string','')), 2, null);
 				
 				switch($owner_context) {
 					case CerberusContexts::CONTEXT_APPLICATION:
@@ -137,7 +137,7 @@ class PageSection_ProfilesFileBundle extends Extension_PageSection {
 	
 				// Attachments
 				
-				@$file_ids = DevblocksPlatform::importGPC($_POST['file_ids'], 'array:integer', []);
+				$file_ids = DevblocksPlatform::importGPC($_POST['file_ids'] ?? null, 'array:integer', []);
 				
 				if(is_array($file_ids))
 					DAO_Attachment::setLinks(CerberusContexts::CONTEXT_FILE_BUNDLE, $id, $file_ids);
@@ -159,7 +159,7 @@ class PageSection_ProfilesFileBundle extends Extension_PageSection {
 				}
 				
 				// Custom field saves
-				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+				$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 				if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_FILE_BUNDLE, $id, $field_ids, $error))
 					throw new Exception_DevblocksAjaxValidationError($error);
 		
@@ -193,7 +193,7 @@ class PageSection_ProfilesFileBundle extends Extension_PageSection {
 	}
 	
 	private function _profileAction_viewExplore() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
@@ -209,7 +209,7 @@ class PageSection_ProfilesFileBundle extends Extension_PageSection {
 		$view->setAutoPersist(false);
 
 		// Page start
-		@$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'],'integer',0);
+		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'integer',0);
 		if(empty($explore_from)) {
 			$orig_pos = 1+($view->renderPage * $view->renderLimit);
 		} else {

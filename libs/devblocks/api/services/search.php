@@ -25,7 +25,7 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 	}
 	
 	private function _connect() {
-		@$host = $this->_config['host'];
+		$host = $this->_config['host'] ?? null;
 		$port = isset($this->_config['port']) ? intval($this->_config['port']) : 9306;
 
 		if(empty($host))
@@ -42,10 +42,10 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 	}
 	
 	public function testConfig(array $config) {
-		@$host = $config['host'];
+		$host = $config['host'] ?? null;
 		$port = isset($config['port']) ? intval($config['port']) : 9306;
-		@$index = $config['index'];
-		@$index_rt = $config['index_rt'];
+		$index = $config['index'] ?? null;
+		$index_rt = $config['index_rt'] ?? null;
 
 		if(empty($host))
 			return "A hostname is required.";
@@ -96,7 +96,7 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 		$tpl->assign('engine', $this);
 		
 		$engine_params = $schema->getEngineParams();
-		@$engine_extension_id = $engine_params['engine_extension_id'];
+		$engine_extension_id = $engine_params['engine_extension_id'] ?? null;
 		
 		if($engine_extension_id == $this->id & isset($engine_params['config']))
 			$tpl->assign('engine_params', $engine_params['config']);
@@ -105,8 +105,8 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 	}
 	
 	public function getIndexMeta(Extension_DevblocksSearchSchema $schema) {
-		@$index = $this->_config['index'];
-		@$index_rt = $this->_config['index_rt'];
+		$index = $this->_config['index'] ?? null;
+		$index_rt = $this->_config['index_rt'] ?? null;
 		
 		return array(
 			'count' => false, // Sphinx can't always count rows (if no attributes, non-extern-docinfo)
@@ -229,7 +229,7 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 		if(is_null($this->db))
 			return false;
 		
-		@$index_rt = $this->_config['index_rt'];
+		$index_rt = $this->_config['index_rt'] ?? null;
 		
 		if(empty($index_rt))
 			return false;
@@ -291,7 +291,7 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 		if(is_null($this->db))
 			return false;
 		
-		@$index_rt = $this->_config['index_rt'];
+		$index_rt = $this->_config['index_rt'] ?? null;
 		
 		if(empty($index_rt))
 			return false;
@@ -359,9 +359,9 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 	}
 	
 	private function _putRecord($type, $id, $doc) {
-		@$base_url = rtrim($this->_config['base_url'], '/');
-		@$index = trim($this->_config['index'], '/');
-		@$version = $this->_config['version'];
+		$base_url = rtrim($this->_config['base_url'] ?? '', '/');
+		$index = trim($this->_config['index'] ?? '', '/');
+		$version = $this->_config['version'] ?? null;
 		
 		if(empty($base_url) || empty($index) || empty($type))
 			return false;
@@ -394,9 +394,9 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 	}
 	
 	private function _getSearch($type, $query, $limit=1000) {
-		@$base_url = rtrim($this->_config['base_url'], '/');
-		@$index = trim($this->_config['index'], '/');
-		@$version = $this->_config['version'];
+		$base_url = rtrim($this->_config['base_url'] ?? '', '/');
+		$index = trim($this->_config['index'] ?? '', '/');
+		$version = $this->_config['version'] ?? null;
 		
 		if(empty($base_url) || empty($index) || empty($type))
 			return false;
@@ -432,9 +432,9 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 	}
 	
 	private function _getCount($type) {
-		@$base_url = rtrim($this->_config['base_url'], '/');
-		@$index = trim($this->_config['index'], '/');
-		@$version = $this->_config['version'];
+		$base_url = rtrim($this->_config['base_url'] ?? '', '/');
+		$index = trim($this->_config['index'] ?? '', '/');
+		$version = $this->_config['version'] ?? null;
 		
 		if(empty($base_url) || empty($index) || empty($type))
 			return false;
@@ -464,8 +464,8 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 	}
 	
 	public function testConfig(array $config) {
-		@$base_url = $config['base_url'];
-		@$index = $config['index'];
+		$base_url = $config['base_url'] ?? null;
+		$index = $config['index'] ?? null;
 		
 		if(empty($base_url))
 			return "A base URL is required.";
@@ -493,7 +493,7 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 		$tpl->assign('engine', $this);
 		
 		$engine_params = $schema->getEngineParams();
-		@$engine_extension_id = $engine_params['engine_extension_id'];
+		$engine_extension_id = $engine_params['engine_extension_id'] ?? null;
 		
 		if($engine_extension_id == $this->id & isset($engine_params['config']))
 			$tpl->assign('engine_params', $engine_params['config']);
@@ -502,8 +502,7 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 	}
 	
 	public function getIndexMeta(Extension_DevblocksSearchSchema $schema) {
-		//@$index = $this->_config['index'];
-		@$type = $schema->getNamespace();
+		$type = $schema->getNamespace();
 		
 		$count = $this->_getCount($type);
 		
@@ -660,9 +659,9 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 	}
 
 	public function delete(Extension_DevblocksSearchSchema $schema, $ids) {
-		@$base_url = $this->_config['base_url'];
-		@$index = $this->_config['index'];
-		@$type = $schema->getNamespace();
+		$base_url = $this->_config['base_url'] ?? null;
+		$index = $this->_config['index'] ?? null;
+		$type = $schema->getNamespace();
 		
 		if(empty($base_url) || empty($index) || empty($type))
 			return false;
@@ -709,7 +708,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		$tpl->assign('engine', $this);
 		
 		$engine_params = $schema->getEngineParams();
-		@$engine_extension_id = $engine_params['engine_extension_id'];
+		$engine_extension_id = $engine_params['engine_extension_id'] ?? null;
 		
 		if($engine_extension_id == $this->id & isset($engine_params['config']))
 			$tpl->assign('engine_params', $engine_params['config']);

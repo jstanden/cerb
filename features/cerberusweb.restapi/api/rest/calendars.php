@@ -111,8 +111,8 @@ class ChRest_Calendars extends Extension_RestController implements IExtensionRes
 		
 		$context = CerberusContexts::getContext(CerberusContexts::CONTEXT_CALENDAR, $model, $labels, $values, null, true);
 
-		@$month = DevblocksPlatform::importGPC($_REQUEST['month'], 'integer', date('m'));
-		@$year = DevblocksPlatform::importGPC($_REQUEST['year'], 'integer', date('Y'));
+		$month = DevblocksPlatform::importGPC($_REQUEST['month'] ?? null, 'integer', date('m'));
+		$year = DevblocksPlatform::importGPC($_REQUEST['year'] ?? null, 'integer', date('Y'));
 		
 		// Sanitize
 		$month = DevblocksPlatform::intClamp($month, 1, 12);

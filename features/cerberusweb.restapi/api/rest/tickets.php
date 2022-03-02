@@ -137,12 +137,12 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		$worker = CerberusApplication::getActiveWorker();
 		$workers = DAO_Worker::getAll();
 		
-		@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'string', '');
-		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'string', '');
-		@$status_id = DevblocksPlatform::importGPC($_REQUEST['status_id'],'string','');
-		@$org_id = DevblocksPlatform::importGPC($_REQUEST['org_id'],'string', '');
-		@$owner_id = DevblocksPlatform::importGPC($_REQUEST['owner_id'],'string', '');
-		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string','');
+		$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'] ?? null, 'string', '');
+		$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'] ?? null, 'string', '');
+		$status_id = DevblocksPlatform::importGPC($_REQUEST['status_id'] ?? null, 'string','');
+		$org_id = DevblocksPlatform::importGPC($_REQUEST['org_id'] ?? null, 'string', '');
+		$owner_id = DevblocksPlatform::importGPC($_REQUEST['owner_id'] ?? null, 'string', '');
+		$subject = DevblocksPlatform::importGPC($_REQUEST['subject'] ?? null, 'string','');
 		
 		if(null == ($ticket = DAO_Ticket::get($id)))
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid ticket ID %d", $id));
@@ -274,7 +274,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		if(!$worker->is_superuser && !isset($memberships[$ticket->group_id]))
 			$this->error(self::ERRNO_ACL, 'Access denied to modify tickets in this group.');
 
-		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
+		$email = DevblocksPlatform::importGPC($_REQUEST['email'] ?? null, 'string','');
 			
 		if(!empty($email))
 			DAO_Ticket::createRequester($email, $id);
@@ -324,7 +324,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		if(!$worker->is_superuser && !isset($memberships[$ticket->group_id]))
 			$this->error(self::ERRNO_ACL, 'Access denied to modify tickets in this group.');
 
-		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
+		$email = DevblocksPlatform::importGPC($_REQUEST['email'] ?? null, 'string','');
 		
 		if(!empty($email)) {
 			if(null != ($email = DAO_Address::lookupAddress($email, false))) {
@@ -508,25 +508,25 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 	private function _handlePostCompose() {
 		$worker = CerberusApplication::getActiveWorker();
 		
-		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
-		@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'integer',0);
-		@$org_id = DevblocksPlatform::importGPC($_REQUEST['org_id'],'integer',0);
-		@$owner_id = DevblocksPlatform::importGPC($_REQUEST['owner_id'],'integer',0);
-		@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
-		@$cc = DevblocksPlatform::importGPC($_REQUEST['cc'],'string','');
-		@$bcc = DevblocksPlatform::importGPC($_REQUEST['bcc'],'string','');
-		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string','');
-		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
-		@$content_format = DevblocksPlatform::importGPC($_REQUEST['content_format'],'string','');
-		@$html_template_id = DevblocksPlatform::importGPC($_REQUEST['html_template_id'],'integer',0);
+		$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'] ?? null, 'integer',0);
+		$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'] ?? null, 'integer',0);
+		$org_id = DevblocksPlatform::importGPC($_REQUEST['org_id'] ?? null, 'integer',0);
+		$owner_id = DevblocksPlatform::importGPC($_REQUEST['owner_id'] ?? null, 'integer',0);
+		$to = DevblocksPlatform::importGPC($_REQUEST['to'] ?? null, 'string','');
+		$cc = DevblocksPlatform::importGPC($_REQUEST['cc'] ?? null, 'string','');
+		$bcc = DevblocksPlatform::importGPC($_REQUEST['bcc'] ?? null, 'string','');
+		$subject = DevblocksPlatform::importGPC($_REQUEST['subject'] ?? null, 'string','');
+		$content = DevblocksPlatform::importGPC($_REQUEST['content'] ?? null, 'string','');
+		$content_format = DevblocksPlatform::importGPC($_REQUEST['content_format'] ?? null, 'string','');
+		$html_template_id = DevblocksPlatform::importGPC($_REQUEST['html_template_id'] ?? null, 'integer',0);
 		
-		@$file_ids = DevblocksPlatform::importGPC($_REQUEST['file_id'],'array',array());
+		$file_ids = DevblocksPlatform::importGPC($_REQUEST['file_id'] ?? null, 'array', []);
 		
-		@$status = DevblocksPlatform::importGPC($_REQUEST['status'],'integer',0);
-		@$reopen_at = DevblocksPlatform::importGPC($_REQUEST['reopen_at'],'string','');
+		$status = DevblocksPlatform::importGPC($_REQUEST['status'] ?? null, 'integer',0);
+		$reopen_at = DevblocksPlatform::importGPC($_REQUEST['reopen_at'] ?? null, 'string','');
 		
-		@$send_at = DevblocksPlatform::importGPC($_REQUEST['send_at'],'string','');
-		@$dont_send = DevblocksPlatform::importGPC($_REQUEST['dont_send'],'integer',0);
+		$send_at = DevblocksPlatform::importGPC($_REQUEST['send_at'] ?? null, 'string','');
+		$dont_send = DevblocksPlatform::importGPC($_REQUEST['dont_send'] ?? null, 'integer',0);
 		
 		if(empty($subject))
 			$this->error(self::ERRNO_CUSTOM, "The 'subject' parameter is required");
@@ -644,29 +644,29 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		*/
 		
 		// Required
-		@$message_id = DevblocksPlatform::importGPC($_REQUEST['message_id'],'integer',0);
-		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
+		$message_id = DevblocksPlatform::importGPC($_REQUEST['message_id'] ?? null, 'integer',0);
+		$content = DevblocksPlatform::importGPC($_REQUEST['content'] ?? null, 'string','');
 
 		// Optional
-		@$bcc = DevblocksPlatform::importGPC($_REQUEST['bcc'],'string','');
-		@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'string',null);
-		@$cc = DevblocksPlatform::importGPC($_REQUEST['cc'],'string','');
-		@$content_format = DevblocksPlatform::importGPC($_REQUEST['content_format'],'string','');
-		@$dont_keep_copy = DevblocksPlatform::importGPC($_REQUEST['dont_keep_copy'],'integer',0);
-		@$dont_send = DevblocksPlatform::importGPC($_REQUEST['dont_send'],'integer',0);
-		@$file_ids = DevblocksPlatform::importGPC($_REQUEST['file_id'],'array',array());
-		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
-		@$is_autoreply = DevblocksPlatform::importGPC($_REQUEST['is_autoreply'],'integer',0);
-		@$is_broadcast = DevblocksPlatform::importGPC($_REQUEST['is_broadcast'],'integer',0);
-		@$is_forward = DevblocksPlatform::importGPC($_REQUEST['is_forward'],'integer',0);
-		@$owner_id = DevblocksPlatform::importGPC($_REQUEST['owner_id'],'string',null);
-		@$reopen_at = DevblocksPlatform::importGPC($_REQUEST['reopen_at'],'string','');
-		@$send_at = DevblocksPlatform::importGPC($_REQUEST['send_at'],'string','');
-		@$status = DevblocksPlatform::importGPC($_REQUEST['status'],'integer',0);
-		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string','');
-		@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
-		@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer',0);
-		@$html_template_id = DevblocksPlatform::importGPC($_REQUEST['html_template_id'],'integer',0);
+		$bcc = DevblocksPlatform::importGPC($_REQUEST['bcc'] ?? null, 'string','');
+		$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'] ?? null, 'string',null);
+		$cc = DevblocksPlatform::importGPC($_REQUEST['cc'] ?? null, 'string','');
+		$content_format = DevblocksPlatform::importGPC($_REQUEST['content_format'] ?? null, 'string','');
+		$dont_keep_copy = DevblocksPlatform::importGPC($_REQUEST['dont_keep_copy'] ?? null, 'integer',0);
+		$dont_send = DevblocksPlatform::importGPC($_REQUEST['dont_send'] ?? null, 'integer',0);
+		$file_ids = DevblocksPlatform::importGPC($_REQUEST['file_id'] ?? null, 'array', []);
+		$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'] ?? null, 'integer',0);
+		$is_autoreply = DevblocksPlatform::importGPC($_REQUEST['is_autoreply'] ?? null, 'integer',0);
+		$is_broadcast = DevblocksPlatform::importGPC($_REQUEST['is_broadcast'] ?? null, 'integer',0);
+		$is_forward = DevblocksPlatform::importGPC($_REQUEST['is_forward'] ?? null, 'integer',0);
+		$owner_id = DevblocksPlatform::importGPC($_REQUEST['owner_id'] ?? null, 'string',null);
+		$reopen_at = DevblocksPlatform::importGPC($_REQUEST['reopen_at'] ?? null, 'string','');
+		$send_at = DevblocksPlatform::importGPC($_REQUEST['send_at'] ?? null, 'string','');
+		$status = DevblocksPlatform::importGPC($_REQUEST['status'] ?? null, 'integer',0);
+		$subject = DevblocksPlatform::importGPC($_REQUEST['subject'] ?? null, 'string','');
+		$to = DevblocksPlatform::importGPC($_REQUEST['to'] ?? null, 'string','');
+		$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'] ?? null, 'integer',0);
+		$html_template_id = DevblocksPlatform::importGPC($_REQUEST['html_template_id'] ?? null, 'integer',0);
 		
 		if(empty($content))
 			$this->error(self::ERRNO_CUSTOM, "The 'content' parameter is required");
@@ -809,7 +809,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 	private function postComment($id) {
 		$worker = CerberusApplication::getActiveWorker();
 
-		@$comment = DevblocksPlatform::importGPC($_POST['comment'],'string','');
+		$comment = DevblocksPlatform::importGPC($_POST['comment'] ?? null, 'string','');
 		
 		if(null == ($ticket = DAO_Ticket::get($id)))
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid ticket ID %d", $id));
@@ -844,7 +844,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 	}
 	
 	private function _postMerge() {
-		@$ticket_ids = DevblocksPlatform::importGPC($_POST['ticket_ids'],'array:int',[]);
+		$ticket_ids = DevblocksPlatform::importGPC($_POST['ticket_ids'] ?? null, 'array:int',[]);
 		
 		$worker = CerberusApplication::getActiveWorker();
 		$eventMgr = DevblocksPlatform::services()->event();
@@ -905,7 +905,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 	private function _postSplit() {
 		$worker = CerberusApplication::getActiveWorker();
 		
-		@$message_id = DevblocksPlatform::importGPC($_POST['message_id'],'integer',0);
+		$message_id = DevblocksPlatform::importGPC($_POST['message_id'] ?? null, 'integer',0);
 		
 		if(!$message_id)
 			$this->error(self::ERRNO_PARAM_INVALID, "The 'message_id' is required.");

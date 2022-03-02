@@ -778,17 +778,17 @@ class View_AutomationEvent extends C4_AbstractView implements IAbstractView_Subt
 				break;
 			
 			case 'placeholder_bool':
-				@$bool = DevblocksPlatform::importGPC($_POST['bool'],'integer',1);
+				$bool = DevblocksPlatform::importGPC($_POST['bool'] ?? null, 'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 			
 			case SearchFields_AutomationEvent::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_POST['context_link'],'array',[]);
+				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 			
 			case SearchFields_AutomationEvent::VIRTUAL_HAS_FIELDSET:
-				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',[]);
+				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 			

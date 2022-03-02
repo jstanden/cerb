@@ -65,18 +65,18 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 			if(empty($active_worker) || empty($active_worker->id))
 				throw new Exception_DevblocksAjaxValidationError("You must be logged in to edit records.");
 			
-			@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
-			@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
-			@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
+			$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer',0);
+			$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string','');
+			$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'integer',0);
 				
-			@$activity_id = DevblocksPlatform::importGPC($_POST['activity_id'],'integer',0);
-			@$time_actual = DevblocksPlatform::importGPC($_POST['time_actual'],'string','');
-			@$is_closed = DevblocksPlatform::importGPC($_POST['is_closed'],'integer',0);
+			$activity_id = DevblocksPlatform::importGPC($_POST['activity_id'] ?? null, 'integer',0);
+			$time_actual = DevblocksPlatform::importGPC($_POST['time_actual'] ?? null, 'string','');
+			$is_closed = DevblocksPlatform::importGPC($_POST['is_closed'] ?? null, 'integer',0);
 			
-			@$comment = DevblocksPlatform::importGPC(@$_POST['comment'],'string','');
+			$comment = DevblocksPlatform::importGPC($_POST['comment'] ?? null,'string','');
 			
 			// Date
-			@$log_date = DevblocksPlatform::importGPC($_POST['log_date'],'string','now');
+			$log_date = DevblocksPlatform::importGPC($_POST['log_date'] ?? null, 'string','now');
 			if(false == (@$log_date = strtotime($log_date)))
 				$log_date = time();
 			
@@ -135,8 +135,8 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 				$url_writer = DevblocksPlatform::services()->url();
 				
 				// Context Link (if given)
-				@$link_context = DevblocksPlatform::importGPC($_POST['link_context'],'string','');
-				@$link_context_id = DevblocksPlatform::importGPC($_POST['link_context_id'],'integer','');
+				$link_context = DevblocksPlatform::importGPC($_POST['link_context'] ?? null, 'string','');
+				$link_context_id = DevblocksPlatform::importGPC($_POST['link_context_id'] ?? null, 'integer','');
 				
 				// Procedurally create a comment
 				// [TODO] Check context for 'comment' option
@@ -217,11 +217,11 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 							
 							if(is_array($values)) {
 								// Try the ticket's org
-								@$org_id = $values['org_id'];
+								$org_id = $values['org_id'] ?? null;
 								
 								// Fallback to the initial sender's org
 								if(empty($org_id))
-									@$org_id = $values['initial_message_sender_org_id'];
+									$org_id = $values['initial_message_sender_org_id'] ?? null;
 								
 								// Is there an org associated with this context?
 								if(!empty($org_id)) {
@@ -250,7 +250,7 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 			
 			if($id) {
 				// Custom field saves
-				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+				$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 				if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_TIMETRACKING, $id, $field_ids, $error))
 					throw new Exception_DevblocksAjaxValidationError($error);
 				
@@ -298,7 +298,7 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 			@$_SESSION['timetracking_total'] = intval($_SESSION['timetracking_total']) + $elapsed;
 		}
 		
-		@$total = $_SESSION['timetracking_total'];
+		$total = $_SESSION['timetracking_total'] ?? null;
 		if(empty($total))
 			return false;
 		
@@ -395,8 +395,8 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
-		@$row_ids = DevblocksPlatform::importGPC($_POST['row_id'],'array', []);
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
+		$row_ids = DevblocksPlatform::importGPC($_POST['row_id'] ?? null, 'array', []);
 		
 		$models = DAO_TimeTrackingEntry::getIds($row_ids);
 		
@@ -444,8 +444,8 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 		if(!$active_worker->hasPriv(sprintf('contexts.%s.update.bulk', Context_TimeTracking::ID)))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		@$id_csv = DevblocksPlatform::importGPC($_REQUEST['ids']);
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
+		$id_csv = DevblocksPlatform::importGPC($_REQUEST['ids'] ?? null);
+		$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'] ?? null);
 
 		$tpl->assign('view_id', $view_id);
 
@@ -475,22 +475,22 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		// Filter: whole list or check
-		@$filter = DevblocksPlatform::importGPC($_POST['filter'],'string','');
+		$filter = DevblocksPlatform::importGPC($_POST['filter'] ?? null, 'string','');
 		$ids = array();
 		
 		// View
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
 		$view->setAutoPersist(false);
 		
 		// Time Tracking fields
-		@$activity = DevblocksPlatform::importGPC($_POST['activity_id'],'string','');
-		@$is_closed = DevblocksPlatform::importGPC($_POST['is_closed'],'string','');
+		$activity = DevblocksPlatform::importGPC($_POST['activity_id'] ?? null, 'string','');
+		$is_closed = DevblocksPlatform::importGPC($_POST['is_closed'] ?? null, 'string','');
 
 		// Scheduled behavior
-		@$behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'],'string','');
-		@$behavior_when = DevblocksPlatform::importGPC($_POST['behavior_when'],'string','');
-		@$behavior_params = DevblocksPlatform::importGPC($_POST['behavior_params'],'array',array());
+		$behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'] ?? null, 'string','');
+		$behavior_when = DevblocksPlatform::importGPC($_POST['behavior_when'] ?? null, 'string','');
+		$behavior_params = DevblocksPlatform::importGPC($_POST['behavior_params'] ?? null, 'array', []);
 		
 		$do = array();
 		
@@ -513,11 +513,11 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 		// Watchers
 		$watcher_params = [];
 		
-		@$watcher_add_ids = DevblocksPlatform::importGPC($_POST['do_watcher_add_ids'],'array',array());
+		$watcher_add_ids = DevblocksPlatform::importGPC($_POST['do_watcher_add_ids'] ?? null, 'array', []);
 		if(!empty($watcher_add_ids))
 			$watcher_params['add'] = $watcher_add_ids;
 			
-		@$watcher_remove_ids = DevblocksPlatform::importGPC($_POST['do_watcher_remove_ids'],'array',array());
+		$watcher_remove_ids = DevblocksPlatform::importGPC($_POST['do_watcher_remove_ids'] ?? null, 'array', []);
 		if(!empty($watcher_remove_ids))
 			$watcher_params['remove'] = $watcher_remove_ids;
 		
@@ -530,7 +530,7 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 		switch($filter) {
 			// Checked rows
 			case 'checks':
-				@$ids_str = DevblocksPlatform::importGPC($_POST['ids'],'string');
+				$ids_str = DevblocksPlatform::importGPC($_POST['ids'] ?? null, 'string');
 				$ids = DevblocksPlatform::parseCsvString($ids_str);
 				break;
 				
@@ -567,7 +567,7 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
 		
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
@@ -580,7 +580,7 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 		$view->setAutoPersist(false);
 		
 		// Page start
-		@$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'],'integer',0);
+		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'integer',0);
 		if(empty($explore_from)) {
 			$orig_pos = 1+($view->renderPage * $view->renderLimit);
 		} else {

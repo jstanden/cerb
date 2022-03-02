@@ -1471,27 +1471,27 @@ class View_Domain extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				break;
 				
 			case SearchFields_Domain::SERVER_ID:
-				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',[]);
+				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$options);
 				break;
 				
 			case SearchFields_Domain::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_POST['context_link'],'array',[]);
+				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
 			case SearchFields_Domain::VIRTUAL_HAS_FIELDSET:
-				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',[]);
+				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
 			case SearchFields_Domain::VIRTUAL_WATCHERS:
-				@$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'],'array',[]);
+				$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
 				break;
 				
 			case SearchFields_Domain::FULLTEXT_COMMENT_CONTENT:
-				@$scope = DevblocksPlatform::importGPC($_POST['scope'],'string','expert');
+				$scope = DevblocksPlatform::importGPC($_POST['scope'] ?? null, 'string','expert');
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
 				

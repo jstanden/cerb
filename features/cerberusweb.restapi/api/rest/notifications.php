@@ -126,10 +126,10 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 	private function getList() {
 		$worker = CerberusApplication::getActiveWorker();
 
-		@$page = DevblocksPlatform::importGPC($_REQUEST['page'],'integer',1);
-		@$unread = DevblocksPlatform::importGPC($_REQUEST['unread'],'string','');
-		@$sortAsc = DevblocksPlatform::importGPC($_REQUEST['sortAsc'],'integer',0);
-		@$sortBy = DevblocksPlatform::importGPC($_REQUEST['sortBy'],'string','');
+		$page = DevblocksPlatform::importGPC($_REQUEST['page'] ?? null, 'integer',1);
+		$unread = DevblocksPlatform::importGPC($_REQUEST['unread'] ?? null, 'string','');
+		$sortAsc = DevblocksPlatform::importGPC($_REQUEST['sortAsc'] ?? null, 'integer',0);
+		$sortBy = DevblocksPlatform::importGPC($_REQUEST['sortBy'] ?? null, 'string','');
 		
 		$filters = array(
 			array('worker_id', '=', $worker->id),

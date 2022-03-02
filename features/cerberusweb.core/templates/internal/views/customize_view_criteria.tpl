@@ -1,4 +1,6 @@
 {$view_params = []}
+{$is_custom = isset($is_custom) && $is_custom}
+
 {if $is_custom}
 	{* Get required params only from parent worklist *}
 	{$workspace_list = $view->getCustomWorklistModel()}

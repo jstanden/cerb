@@ -386,7 +386,7 @@ while($row = mysqli_fetch_assoc($rs)) {
 		
 	if(!empty($filter_actions)) {
 		if(isset($filter_actions['assign'])) {
-			@$worker_id = $filter_actions['assign']['worker_id'];
+			$worker_id = $filter_actions['assign']['worker_id'] ?? null;
 			
 			if(!empty($worker_id)) {
 				$filter_actions['owner'] = array(

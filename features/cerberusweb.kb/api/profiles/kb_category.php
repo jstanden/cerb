@@ -41,10 +41,10 @@ class PageSection_ProfilesKbCategory extends Extension_PageSection {
 	}
 	
 	private function _profileAction_savePeekJson() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
 		
-		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
+		$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -76,8 +76,8 @@ class PageSection_ProfilesKbCategory extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
-				@$parent_id = DevblocksPlatform::importGPC($_POST['parent_id'], 'integer', 0);
+				$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');
+				$parent_id = DevblocksPlatform::importGPC($_POST['parent_id'] ?? null, 'integer', 0);
 				
 				if($parent_id) {
 					if(false == ($parent = DAO_KbCategory::get($parent_id)))
@@ -130,7 +130,7 @@ class PageSection_ProfilesKbCategory extends Extension_PageSection {
 				}
 				
 				// Custom field saves
-				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+				$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 				if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_KB_CATEGORY, $id, $field_ids, $error))
 					throw new Exception_DevblocksAjaxValidationError($error);
 				
@@ -163,7 +163,7 @@ class PageSection_ProfilesKbCategory extends Extension_PageSection {
 	}
 	
 	private function _profileAction_viewExplore() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
@@ -179,7 +179,7 @@ class PageSection_ProfilesKbCategory extends Extension_PageSection {
 		$view->setAutoPersist(false);
 
 		// Page start
-		@$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'],'integer',0);
+		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'integer',0);
 		if(empty($explore_from)) {
 			$orig_pos = 1+($view->renderPage * $view->renderLimit);
 		} else {

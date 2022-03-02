@@ -6,7 +6,7 @@
 
 {include file="devblocks:cerberusweb.core::internal/views/view_marquee.tpl" view=$view}
 
-<table cellpadding="0" cellspacing="0" border="0" class="worklist" width="100%" {if $view->options.header_color}style="background-color:{$view->options.header_color};"{/if}>
+<table cellpadding="0" cellspacing="0" border="0" class="worklist" width="100%" {if array_key_exists('header_color', $view->options) && $view->options.header_color}style="background-color:{$view->options.header_color};"{/if}>
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
 		<td nowrap="nowrap" align="right" class="title-toolbar">
@@ -41,8 +41,8 @@
 		
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
-			<th class="{if $view->options.disable_sorting}no-sort{/if}">
-			{if !$view->options.disable_sorting && !empty($view_fields.$header->db_column)}
+			<th class="{if array_key_exists('disable_sorting', $view->options) && $view->options.disable_sorting}no-sort{/if}">
+			{if (!array_key_exists('disable_sorting', $view->options) || !$view->options.disable_sorting) && !empty($view_fields.$header->db_column)}
 				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=invoke&module=worklists&action=sort&id={$view->id}&sortBy={$header}');">{$view_fields.$header->db_label|capitalize}</a>
 			{else}
 				<a href="javascript:;" style="text-decoration:none;">{$view_fields.$header->db_label|capitalize}</a>
@@ -50,7 +50,7 @@
 			
 			{* add arrow if sorting by this column, finish table header tag *}
 			{if $header==$view->renderSortBy}
-				<span class="glyphicons {if $view->renderSortAsc}glyphicons-sort-by-attributes{else}glyphicons-sort-by-attributes-alt{/if}" style="font-size:14px;{if $view->options.disable_sorting}color:rgb(80,80,80);{else}color:rgb(39,123,213);{/if}"></span>
+				<span class="glyphicons {if $view->renderSortAsc}glyphicons-sort-by-attributes{else}glyphicons-sort-by-attributes-alt{/if}" style="font-size:14px;{if array_key_exists('disable_sorting', $view->options) && $view->options.disable_sorting}color:rgb(80,80,80);{else}color:rgb(39,123,213);{/if}"></span>
 			{/if}
 			</th>
 		{/foreach}
@@ -77,7 +77,7 @@
 				<input type="checkbox" name="row_id[]" value="{$result.w_id}" style="display:none;">
 			</td>
 		{foreach from=$view->view_columns item=column name=columns}
-			{if substr($column,0,3)=="cf_"}
+			{if DevblocksPlatform::strStartsWith($column, "cf_")}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column=="w_name"}
 			<td data-column="{$column}">

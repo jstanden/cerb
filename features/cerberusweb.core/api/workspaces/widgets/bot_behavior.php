@@ -115,7 +115,7 @@ class WorkspaceWidget_BotBehavior extends Extension_WorkspaceWidget {
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget, ?string &$error=null) : bool {
-		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', array());
+		$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', array());
 		
 		DAO_WorkspaceWidget::update($widget->id, array(
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),

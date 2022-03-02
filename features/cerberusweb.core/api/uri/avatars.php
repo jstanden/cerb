@@ -34,7 +34,7 @@ class Controller_Avatars extends DevblocksControllerExtension {
 
 		switch($alias) {
 			case '_fetch':
-				@$url = DevblocksPlatform::importGPC($_REQUEST['url'], 'string', '');
+				$url = DevblocksPlatform::importGPC($_REQUEST['url'] ?? null, 'string', '');
 				$this->_fetchImageFromUrl($url);
 				return;
 		}

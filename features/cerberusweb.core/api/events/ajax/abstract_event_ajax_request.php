@@ -69,7 +69,7 @@ abstract class AbstractEvent_AjaxHttpRequest extends Extension_DevblocksEvent {
 		
 		// Current worker
 		
-		@$current_worker = $event_model->params['current_worker'];
+		$current_worker = $event_model->params['current_worker'] ?? null;
 		
 		$merge_labels = [];
 		$merge_values = [];
@@ -87,7 +87,7 @@ abstract class AbstractEvent_AjaxHttpRequest extends Extension_DevblocksEvent {
 		
 		// Request
 		
-		@$http_request = $event_model->params['http_request'];
+		$http_request = $event_model->params['http_request'] ?? null;
 		
 		// HTTP client IP
 		
@@ -289,7 +289,7 @@ abstract class AbstractEvent_AjaxHttpRequest extends Extension_DevblocksEvent {
 				// Get links by context+id
 				
 				if(!empty($from_context) && !empty($from_context_id)) {
-					@$context_strings = $params['context_objects'];
+					$context_strings = $params['context_objects'] ?? null;
 					$links = DAO_ContextLink::intersect($from_context, $from_context_id, $context_strings);
 					
 					// OPER: any, !any, all
@@ -459,8 +459,8 @@ abstract class AbstractEvent_AjaxHttpRequest extends Extension_DevblocksEvent {
 			case 'set_http_header':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
-				@$name = $tpl_builder->build($params['name'], $dict);
-				@$value = $tpl_builder->build($params['value'], $dict);
+				$name = $tpl_builder->build($params['name'] ?? '', $dict);
+				$value = $tpl_builder->build($params['value'] ?? '', $dict);
 
 				if(!isset($dict->_http_response_headers) || !is_array($dict->_http_response_headers))
 					$dict->_http_response_headers = [];
@@ -476,7 +476,7 @@ abstract class AbstractEvent_AjaxHttpRequest extends Extension_DevblocksEvent {
 			case 'set_http_body':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
-				@$value = $tpl_builder->build($params['value'], $dict);
+				$value = $tpl_builder->build($params['value'] ?? '', $dict);
 
 				$dict->_http_response_body = $value;
 				
@@ -488,7 +488,7 @@ abstract class AbstractEvent_AjaxHttpRequest extends Extension_DevblocksEvent {
 			case 'set_http_status':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
-				@$value = $tpl_builder->build($params['value'], $dict);
+				$value = $tpl_builder->build($params['value'] ?? '', $dict);
 
 				$dict->_http_status = $value;
 				
@@ -500,7 +500,7 @@ abstract class AbstractEvent_AjaxHttpRequest extends Extension_DevblocksEvent {
 			case 'set_timezone':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
-				@$value = $tpl_builder->build($params['value'], $dict);
+				$value = $tpl_builder->build($params['value'] ?? '', $dict);
 
 				DevblocksPlatform::setTimezone($value);
 				
@@ -527,8 +527,8 @@ abstract class AbstractEvent_AjaxHttpRequest extends Extension_DevblocksEvent {
 			case 'set_http_header':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
-				@$name = $tpl_builder->build($params['name'], $dict);
-				@$value = $tpl_builder->build($params['value'], $dict);
+				$name = $tpl_builder->build($params['name'] ?? '', $dict);
+				$value = $tpl_builder->build($params['value'] ?? '', $dict);
 
 				if(!isset($dict->_http_response_headers) || !is_array($dict->_http_response_headers))
 					$dict->_http_response_headers = [];
@@ -539,7 +539,7 @@ abstract class AbstractEvent_AjaxHttpRequest extends Extension_DevblocksEvent {
 			case 'set_http_body':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
-				@$value = $tpl_builder->build($params['value'], $dict);
+				$value = $tpl_builder->build($params['value'] ?? '', $dict);
 				
 				if(false !== $value)
 					$dict->_http_response_body = $value;
@@ -548,7 +548,7 @@ abstract class AbstractEvent_AjaxHttpRequest extends Extension_DevblocksEvent {
 			case 'set_http_status':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
-				@$value = $tpl_builder->build($params['value'], $dict);
+				$value = $tpl_builder->build($params['value'] ?? '', $dict);
 				
 				if(false !== $value)
 					$dict->_http_status = $value;
@@ -557,7 +557,7 @@ abstract class AbstractEvent_AjaxHttpRequest extends Extension_DevblocksEvent {
 			case 'set_timezone':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
-				@$value = $tpl_builder->build($params['value'], $dict);
+				$value = $tpl_builder->build($params['value'] ?? '', $dict);
 
 				DevblocksPlatform::setTimezone($value);
 				break;

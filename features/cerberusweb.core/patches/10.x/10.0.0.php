@@ -616,9 +616,9 @@ foreach($nodes as $node) {
 	
 	foreach($actions['actions'] as $action_idx => $action) {
 		if($action['action'] == 'prompt_sheet') {
-			@$selection_key = $action['selection_key'];
-			@$selection_mode = $action['mode'] ?: 'single';
-			@$sheet_kata = $action['schema'];
+			$selection_key = $action['selection_key'] ?? null;
+			$selection_mode = ($action['mode'] ?? null) ?: 'single';
+			$sheet_kata = $action['schema'] ?? null;
 			
 			if($selection_key && $sheet_kata) {
 				$sheet_kata = preg_replace(

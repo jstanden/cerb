@@ -52,8 +52,8 @@ class PageSection_SetupAvatars extends Extension_PageSection {
 			if(!$active_worker || !$active_worker->is_superuser)
 				throw new Exception(DevblocksPlatform::translate('error.core.no_acl.admin'));
 			
-			@$avatar_default_style_contact = DevblocksPlatform::importGPC($_POST['avatar_default_style_contact'],'string',CerberusSettingsDefaults::AVATAR_DEFAULT_STYLE_CONTACT);
-			@$avatar_default_style_worker = DevblocksPlatform::importGPC($_POST['avatar_default_style_worker'],'string',CerberusSettingsDefaults::AVATAR_DEFAULT_STYLE_WORKER);
+			$avatar_default_style_contact = DevblocksPlatform::importGPC($_POST['avatar_default_style_contact'] ?? null, 'string',CerberusSettingsDefaults::AVATAR_DEFAULT_STYLE_CONTACT);
+			$avatar_default_style_worker = DevblocksPlatform::importGPC($_POST['avatar_default_style_worker'] ?? null, 'string',CerberusSettingsDefaults::AVATAR_DEFAULT_STYLE_WORKER);
 	
 			$settings = DevblocksPlatform::services()->pluginSettings();
 			$settings->set('cerberusweb.core',CerberusSettings::AVATAR_DEFAULT_STYLE_CONTACT, $avatar_default_style_contact);

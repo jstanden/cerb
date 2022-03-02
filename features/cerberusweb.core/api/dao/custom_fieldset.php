@@ -936,17 +936,17 @@ class View_CustomFieldset extends C4_AbstractView implements IAbstractView_Subto
 				break;
 				
 			case SearchFields_CustomFieldset::CONTEXT:
-				@$in_contexts = DevblocksPlatform::importGPC($_POST['contexts'],'array',array());
+				$in_contexts = DevblocksPlatform::importGPC($_POST['contexts'] ?? null, 'array', []);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$in_contexts);
 				break;
 				
 			case SearchFields_CustomFieldset::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_POST['context_link'],'array',array());
+				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array', []);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
 			case SearchFields_CustomFieldset::VIRTUAL_OWNER:
-				@$owner_contexts = DevblocksPlatform::importGPC($_POST['owner_context'],'array',array());
+				$owner_contexts = DevblocksPlatform::importGPC($_POST['owner_context'] ?? null, 'array', []);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$owner_contexts);
 				break;
 		}
@@ -1280,8 +1280,8 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 				DevblocksPlatform::dieWithHttpError(null, 404);
 			
 		} else {
-			@$owner_context = DevblocksPlatform::importGPC($_REQUEST['owner_context'],'string','');
-			@$owner_context_id = DevblocksPlatform::importGPC($_REQUEST['owner_context_id'],'integer',0);
+			$owner_context = DevblocksPlatform::importGPC($_REQUEST['owner_context'] ?? null, 'string','');
+			$owner_context_id = DevblocksPlatform::importGPC($_REQUEST['owner_context_id'] ?? null, 'integer',0);
 		
 			$model = new Model_CustomFieldset();
 			$model->id = 0;

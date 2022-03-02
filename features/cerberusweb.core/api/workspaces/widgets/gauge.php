@@ -10,7 +10,7 @@ class WorkspaceWidget_Gauge extends Extension_WorkspaceWidget implements ICerbWo
 	}
 
 	private function _loadData(Model_WorkspaceWidget &$widget) {
-		@$datasource_extid = $widget->params['datasource'];
+		$datasource_extid = $widget->params['datasource'] ?? null;
 
 		if(empty($datasource_extid)) {
 			return false;
@@ -67,7 +67,7 @@ class WorkspaceWidget_Gauge extends Extension_WorkspaceWidget implements ICerbWo
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget, ?string &$error=null) : bool {
-		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', array());
+		$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', array());
 		
 		// Convert the serialized model to proper JSON before saving
 		

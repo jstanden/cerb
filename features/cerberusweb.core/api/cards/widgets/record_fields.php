@@ -72,7 +72,7 @@ class CardWidget_Fields extends Extension_CardWidget {
 		
 		// Properties
 		
-		$properties_selected = @$model->extension_params['properties'] ?: [];
+		$properties_selected = ($model->extension_params['properties'] ?? null) ?: [];
 		
 		foreach($properties_selected as &$v)
 			$v = array_flip($v);
@@ -98,7 +98,7 @@ class CardWidget_Fields extends Extension_CardWidget {
 		
 		// Empty fields
 		
-		$show_empty_fields = @$model->extension_params['options']['show_empty_properties'] ?: false;
+		$show_empty_fields = (bool)($model->extension_params['options']['show_empty_properties'] ?? null);
 		
 		// Custom Fieldsets
 		
@@ -150,7 +150,7 @@ class CardWidget_Fields extends Extension_CardWidget {
 		
 		// Link counts
 		
-		@$show_links = $model->extension_params['links']['show'];
+		$show_links = $model->extension_params['links']['show'] ?? null;
 		
 		if($show_links) {
 			$properties_links = [
@@ -251,7 +251,7 @@ class CardWidget_Fields extends Extension_CardWidget {
 	}
 	
 	private function _getSearchButtons(Model_CardWidget $model, DevblocksDictionaryDelegate $dict=null) {
-		@$search = $model->extension_params['search'] ?: [];
+		$search = ($model->extension_params['search'] ?? null) ?: [];
 		
 		$search_buttons = [];
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();

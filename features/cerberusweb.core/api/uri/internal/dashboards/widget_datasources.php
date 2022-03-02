@@ -72,7 +72,7 @@ class WorkspaceWidgetDatasource_WorklistMetric extends Extension_WorkspaceWidget
 		
 		// We need to know what date fields we have
 		$fields = $view->getFields();
-		@$metric_func = $params['metric_func'];
+		$metric_func = $params['metric_func'] ?? null;
 		
 		switch($metric_func) {
 			case 'count':
@@ -236,7 +236,7 @@ class WorkspaceWidgetDatasource_WorklistSeries extends Extension_WorkspaceWidget
 		if(null == ($view = Extension_WorkspaceWidget::getViewFromParams($widget, $params, $view_id)))
 			return;
 		
-		@$view_context = $params['worklist_model']['context'];
+		$view_context = $params['worklist_model']['context'] ?? null;
 		
 		if(empty($view_context))
 			return;
@@ -283,7 +283,7 @@ class WorkspaceWidgetDatasource_WorklistSeries extends Extension_WorkspaceWidget
 		}
 		
 		if(!empty($xaxis_field)) {
-			@$yaxis_func = $params['yaxis_func'];
+			$yaxis_func = $params['yaxis_func'] ?? null;
 			$yaxis_field = null;
 			
 			switch($yaxis_func) {
@@ -302,7 +302,7 @@ class WorkspaceWidgetDatasource_WorklistSeries extends Extension_WorkspaceWidget
 			switch($xaxis_field->type) {
 				case Model_CustomField::TYPE_DATE:
 					// X-axis tick
-					@$xaxis_tick = $params['xaxis_tick'];
+					$xaxis_tick = $params['xaxis_tick'] ?? null;
 						
 					if(empty($xaxis_tick))
 						$xaxis_tick = 'day';
@@ -683,7 +683,7 @@ class WorkspaceWidgetDatasource_DataQueryMetric extends Extension_WorkspaceWidge
 	function getData(Model_WorkspaceWidget $widget, array $params=[], $params_prefix=null) {
 		$data = DevblocksPlatform::services()->data();
 		
-		@$data_query = DevblocksPlatform::importGPC($params['data_query'], 'string', '');
+		$data_query = DevblocksPlatform::importGPC($params['data_query'] ?? null, 'string', '');
 		
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -702,8 +702,8 @@ class WorkspaceWidgetDatasource_DataQueryMetric extends Extension_WorkspaceWidge
 		if(false === ($results = $data->executeQuery($query, [])))
 			return [];
 		
-		@$type = $results['_']['type'];
-		@$format = $results['_']['format'];
+		$type = $results['_']['type'] ?? null;
+		$format = $results['_']['format'] ?? null;
 		$data = $results['data'];
 		
 		switch($type) {
@@ -792,9 +792,9 @@ class WorkspaceWidgetDatasource_URL extends Extension_WorkspaceWidgetDatasource 
 	function getData(Model_WorkspaceWidget $widget, array $params=array(), $params_prefix=null) {
 		$cache = DevblocksPlatform::services()->cache();
 		
-		@$url = $params['url'];
+		$url = $params['url'] ?? null;
 		
-		@$cache_mins = $params['url_cache_mins'];
+		$cache_mins = $params['url_cache_mins'] ?? null;
 		$cache_mins = max(1, intval($cache_mins));
 		
 		$cache_key = sprintf("widget%d_datasource", $widget->id);
@@ -806,7 +806,7 @@ class WorkspaceWidgetDatasource_URL extends Extension_WorkspaceWidgetDatasource 
 			$raw_data = DevblocksPlatform::curlExec($ch);
 			$info = curl_getinfo($ch);
 			
-			//@$status = $info['http_code'];
+			//$status = $info['http_code'] ?? null;
 			//@$content_type = DevblocksPlatform::strLower($info['content_type']);
 			
 			$data = array(

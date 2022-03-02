@@ -64,7 +64,7 @@
 		<input type="text" name="view_options[header_color]" value="{$workspace_list->options.header_color|default:'#6A87DB'}" class="color-picker">
 	</div>
 	<div style="margin-top:1em;">
-		<label><input type="checkbox" name="view_options[disable_sorting]" value="1" {if $view->options.disable_sorting}checked="checked"{/if}> Prevent workers from changing the sort column</label>
+		<label><input type="checkbox" name="view_options[disable_sorting]" value="1" {if array_key_exists('disable_sorting', $view->options) && $view->options.disable_sorting}checked="checked"{/if}> Prevent workers from changing the sort column</label>
 	</div>
 	{/if}
 	

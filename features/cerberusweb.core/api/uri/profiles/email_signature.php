@@ -43,10 +43,10 @@ class PageSection_ProfilesEmailSignature extends Extension_PageSection {
 	}
 	
 	private function _profileAction_savePeekJson() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
 		
-		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
+		$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -78,18 +78,17 @@ class PageSection_ProfilesEmailSignature extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
-				@$owner = DevblocksPlatform::importGPC($_POST['owner'], 'string', '');
-				@$signature = DevblocksPlatform::importGPC($_POST['signature'], 'string', '');
-				@$signature_html = DevblocksPlatform::importGPC($_POST['signature_html'], 'string', '');
-				@$file_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['file_ids'],'array',array()), 'int');
+				$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');
+				$owner = DevblocksPlatform::importGPC($_POST['owner'] ?? null, 'string', '');
+				$signature = DevblocksPlatform::importGPC($_POST['signature'] ?? null, 'string', '');
+				$signature_html = DevblocksPlatform::importGPC($_POST['signature_html'] ?? null, 'string', '');
+				$file_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['file_ids'] ?? null,'array',array()), 'int');
 				
 				$error = null;
 				
 				// Owner
 				
-				$owner_ctx = '';
-				@list($owner_ctx, $owner_ctx_id) = explode(':', $owner, 2);
+				list($owner_ctx, $owner_ctx_id) = array_pad(explode(':', $owner, 2), 2, null);
 				
 				// Make sure we're given a valid ctx
 				
@@ -142,7 +141,7 @@ class PageSection_ProfilesEmailSignature extends Extension_PageSection {
 					DAO_Attachment::setLinks(CerberusContexts::CONTEXT_EMAIL_SIGNATURE, $id, $file_ids);
 					
 					// Custom field saves
-					@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+					$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 					if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_EMAIL_SIGNATURE, $id, $field_ids, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 				}
@@ -179,8 +178,8 @@ class PageSection_ProfilesEmailSignature extends Extension_PageSection {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$tpl = DevblocksPlatform::services()->template();
 		
-		@$signature = DevblocksPlatform::importGPC($_REQUEST['signature'],'string');
-		@$format = DevblocksPlatform::importGPC($_REQUEST['format'],'string');
+		$signature = DevblocksPlatform::importGPC($_REQUEST['signature'] ?? null, 'string');
+		$format = DevblocksPlatform::importGPC($_REQUEST['format'] ?? null, 'string');
 		
 		$dict = DevblocksDictionaryDelegate::instance([
 			'_context' => CerberusContexts::CONTEXT_WORKER,
@@ -208,7 +207,7 @@ class PageSection_ProfilesEmailSignature extends Extension_PageSection {
 	}
 	
 	private function _profileAction_viewExplore() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
@@ -224,7 +223,7 @@ class PageSection_ProfilesEmailSignature extends Extension_PageSection {
 		$view->setAutoPersist(false);
 
 		// Page start
-		@$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'],'integer',0);
+		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'integer',0);
 		if(empty($explore_from)) {
 			$orig_pos = 1+($view->renderPage * $view->renderLimit);
 		} else {

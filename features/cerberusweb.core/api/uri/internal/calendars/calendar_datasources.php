@@ -85,7 +85,7 @@ class CalendarDatasource_Worklist extends Extension_CalendarDatasource {
 		$context_mfts = Extension_DevblocksContext::getAll(false, array('workspace'));
 		$tpl->assign('context_mfts', $context_mfts);
 		
-		@$worklist_context = $params['worklist_model']['context'];
+		$worklist_context = $params['worklist_model']['context'] ?? null;
 		
 		// Load the initial fields from the context
 		
@@ -105,8 +105,8 @@ class CalendarDatasource_Worklist extends Extension_CalendarDatasource {
 		
 		// Prime the worklist views
 		
-		@$worklist_view_id = sprintf("calendar%d_worklist%d", $calendar->id, $series_idx);
-		@$worklist_model = $params['worklist_model'];
+		$worklist_view_id = sprintf("calendar%d_worklist%d", $calendar->id ?? 0, $series_idx ?? 0);
+		$worklist_model = $params['worklist_model'] ?? null;
 		
 		C4_AbstractViewLoader::unserializeViewFromAbstractJson($worklist_model, $worklist_view_id);
 		
@@ -119,7 +119,7 @@ class CalendarDatasource_Worklist extends Extension_CalendarDatasource {
 		@$series_idx = $this->_getSeriesIdxFromPrefix($params_prefix);
 		
 		if(isset($params['worklist_model'])) {
-			@$worklist_context = $params['worklist_model']['context'];
+			$worklist_context = $params['worklist_model']['context'] ?? null;
 			
 			if(!empty($worklist_context) && null != ($context_ext = Extension_DevblocksContext::get($worklist_context))) {
 				$worklist_model = $params['worklist_model'];
@@ -180,7 +180,7 @@ class CalendarDatasource_Worklist extends Extension_CalendarDatasource {
 					// [TODO] Subtotals
 					
 					$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-					@$template = $params['label'];
+					$template = $params['label'] ?? null;
 					
 					if(empty($template))
 						$template = '{{_label}}';
@@ -233,7 +233,7 @@ class CalendarDatasource_Worklist extends Extension_CalendarDatasource {
 								'color' => $params['color'],
 								'ts' => $event_start,
 								'ts_end' => $event_end,
-								'is_available' => @$params['is_available'] ?: 0,
+								'is_available' => ($params['is_available'] ?? null) ?: 0,
 								'link' => sprintf("ctx://%s:%d",
 									$context_ext->id,
 									$id

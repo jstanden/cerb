@@ -41,9 +41,9 @@ class Cron_BotScheduledBehavior extends CerberusCronPageExtension {
 			$behavior->runDecisionTree($dict, false, $event);
 			
 			// Update the next runtime timestamp
-			@$patterns = DevblocksPlatform::parseCrlfString($behavior->event_params['repeat_patterns']);
-			@$timezone = $behavior->event_params['timezone'];
-			@$history = $behavior->event_params['repeat_history'];
+			$patterns = DevblocksPlatform::parseCrlfString($behavior->event_params['repeat_patterns'] ?? null);
+			$timezone = $behavior->event_params['timezone'] ?? null;
+			$history = $behavior->event_params['repeat_history'] ?? null;
 			
 			if(!is_array($history))
 				$history = [];

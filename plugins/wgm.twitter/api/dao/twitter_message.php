@@ -803,7 +803,7 @@ class View_TwitterMessage extends C4_AbstractView implements IAbstractView_Subto
 		$tpl->assign('view_fields', $view_fields);
 		
 		$results = $this->getData();
-		@list($data, $total) = $results;
+		list($data, $total) = array_pad($results, 2, null);
 		$tpl->assign('total', $total);
 		$tpl->assign('data', $data);
 		
@@ -879,18 +879,18 @@ class View_TwitterMessage extends C4_AbstractView implements IAbstractView_Subto
 				break;
 				
 			case SearchFields_TwitterMessage::IS_CLOSED:
-				@$bool = DevblocksPlatform::importGPC($_POST['bool'],'integer',1);
+				$bool = DevblocksPlatform::importGPC($_POST['bool'] ?? null, 'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 				
 			case SearchFields_TwitterMessage::CONNECTED_ACCOUNT_ID:
-				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',[]);
+				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array',[]);
 				$options = DevblocksPlatform::sanitizeArray($options, 'integer', array('nonzero','unique'));
 				$criteria = new DevblocksSearchCriteria($field,$oper,$options);
 				break;
 				
 			case SearchFields_TwitterMessage::VIRTUAL_HAS_FIELDSET:
-				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',[]);
+				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				

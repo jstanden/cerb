@@ -5,11 +5,11 @@
 		</legend>
 		
 		<label>
-			<input type="radio" name="params[tab_style]" value="" {if !$page->extension_params.tab_style}checked="checked"{/if}> Tab set (default)
+			<input type="radio" name="params[tab_style]" value="" {if !array_key_exists('tab_style', $page->extension_params) || !$page->extension_params.tab_style}checked="checked"{/if}> Tab set (default)
 		</label>
 		
 		<label>
-			<input type="radio" name="params[tab_style]" value="menu" {if 'menu' == $page->extension_params.tab_style}checked="checked"{/if}> Dropdown menu
+			<input type="radio" name="params[tab_style]" value="menu" {if array_key_exists('tab_style', $page->extension_params) && 'menu' == $page->extension_params.tab_style}checked="checked"{/if}> Dropdown menu
 		</label>
 	</fieldset>
 </div>

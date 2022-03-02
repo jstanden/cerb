@@ -103,7 +103,7 @@ $(function() {
 	$prompt.on('cerb-sheet--toolbar-refresh', function(e) {
 		e.stopPropagation();
 
-		{if $has_toolbar}
+		{if isset($has_toolbar) && $has_toolbar}
 		// Update the toolbar
 		var formData = new FormData();
 		formData.set('c', 'profiles');

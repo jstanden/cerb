@@ -50,7 +50,7 @@ class SheetAwait extends AbstractAwait {
 		$sheet_filter = $prompt['filter'] ?? null;
 		$sheet_limit = $prompt['limit'] ?? 10;
 		
-		@$default = $continuation->state_data['dict'][$this->_key] ?? $prompt['default'];
+		$default = $continuation->state_data['dict'][$this->_key] ?? $prompt['default'] ?? null;
 		
 		$sheet_paging = [];
 		
@@ -178,8 +178,8 @@ class SheetAwait extends AbstractAwait {
 	private function _promptAction_refresh(string $prompt_key, Model_AutomationContinuation $continuation) {
 		$tpl = DevblocksPlatform::services()->template();
 		
-		@$page = DevblocksPlatform::importGPC($_POST['page']);
-		@$filter = DevblocksPlatform::importGPC($_POST['filter']);
+		$page = DevblocksPlatform::importGPC($_POST['page'] ?? null);
+		$filter = DevblocksPlatform::importGPC($_POST['filter'] ?? null);
 		
 		$is_dirty = false;
 		

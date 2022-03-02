@@ -56,7 +56,7 @@ class PageSection_SetupDevelopersBotScriptingTester extends Extension_PageSectio
 		if(!$active_worker || !$active_worker->is_superuser)
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		@$bot_script = DevblocksPlatform::importGPC($_POST['bot_script'], 'string', null);
+		$bot_script = DevblocksPlatform::importGPC($_POST['bot_script'] ?? null, 'string', null);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		

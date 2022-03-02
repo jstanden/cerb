@@ -42,10 +42,10 @@ class BotAction_PgpEncrypt extends Extension_DevblocksEventAction {
 	function simulate($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
-		@$public_key_ids = DevblocksPlatform::importVar($params['public_key_ids'], 'array', []);
-		@$public_key_template = $tpl_builder->build($params['public_key_template'], $dict);
-		@$message = $tpl_builder->build($params['message'], $dict);
-		@$object_placeholder = $params['object_placeholder'] ?: '_results';
+		$public_key_ids = DevblocksPlatform::importVar($params['public_key_ids'] ?? null, 'array', []);
+		$public_key_template = $tpl_builder->build($params['public_key_template'] ?? '', $dict);
+		$message = $tpl_builder->build($params['message'] ?? '', $dict);
+		$object_placeholder = ($params['object_placeholder'] ?? null) ?: '_results';
 
 		if($public_key_template) {
 			$public_key_ids = array_merge(
@@ -81,10 +81,10 @@ class BotAction_PgpEncrypt extends Extension_DevblocksEventAction {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$gpg = DevblocksPlatform::services()->gpg();
 		
-		@$public_key_ids = DevblocksPlatform::importVar($params['public_key_ids'], 'array', []);
-		@$public_key_template = $tpl_builder->build($params['public_key_template'], $dict);
-		@$message = $tpl_builder->build($params['message'], $dict);
-		@$object_placeholder = $params['object_placeholder'] ?: '_results';
+		$public_key_ids = DevblocksPlatform::importVar($params['public_key_ids'] ?? null, 'array', []);
+		$public_key_template = $tpl_builder->build($params['public_key_template'] ?? '', $dict);
+		$message = $tpl_builder->build($params['message'] ?? '', $dict);
+		$object_placeholder = ($params['object_placeholder'] ?? null) ?: '_results';
 		
 		if($public_key_template) {
 			$public_key_ids = array_merge(

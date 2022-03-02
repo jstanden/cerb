@@ -1001,9 +1001,9 @@ class CerberusContexts {
 			// Plugin-provided tokens
 			$token_extension_mfts = DevblocksPlatform::getExtensions('cerberusweb.snippet.token', false);
 			foreach($token_extension_mfts as $mft) { /* @var $mft DevblocksExtensionManifest */
-				@$token = $mft->params['token'];
-				@$label = $mft->params['label'];
-				@$contexts = $mft->params['contexts'][0];
+				$token = $mft->params['token'] ?? null;
+				$label = $mft->params['label'] ?? null;
+				$contexts = $mft->params['contexts'][0] ?? null;
 
 				if(empty($token) || empty($label) || !is_array($contexts))
 					continue;
@@ -1655,7 +1655,7 @@ class CerberusContexts {
 
 		// Variables
 
-		@$vars = $entry['variables'];
+		$vars = $entry['variables'] ?? null;
 
 		// Do we need to translate any token variables/urls?
 		$matches = null;
@@ -2268,7 +2268,7 @@ class CerberusContexts {
 
 				foreach($new_models as $context_id => $new_model) {
 					$old_model = $old_models[$context_id];
-					$new_model->custom_fields = @$values[$context_id] ?: [];
+					$new_model->custom_fields = ($values[$context_id] ?? null) ?: [];
 					$actor = null;
 
 					if(isset($old_model['_actor'])) {

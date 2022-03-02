@@ -52,8 +52,8 @@ class BotAction_RecordCreate extends Extension_DevblocksEventAction {
 		$out = null;
 		$error = null;
 		
-		@$context = $tpl_builder->build(DevblocksPlatform::importVar($params['context'],'string',''), $dict);
-		@$changeset_json = $tpl_builder->build(DevblocksPlatform::importVar($params['changeset_json'],'string',''), $dict);
+		$context = $tpl_builder->build(DevblocksPlatform::importVar($params['context'] ?? null,'string',''), $dict);
+		$changeset_json = $tpl_builder->build(DevblocksPlatform::importVar($params['changeset_json'] ?? null,'string',''), $dict);
 		
 		if(false == (@$changeset = json_decode($changeset_json, true)))
 			return "Invalid changeset JSON.";
@@ -104,8 +104,8 @@ class BotAction_RecordCreate extends Extension_DevblocksEventAction {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$actor = $trigger->getBot();
 		
-		@$context = $tpl_builder->build(DevblocksPlatform::importVar($params['context'],'string',''), $dict);
-		@$changeset_json = $tpl_builder->build(DevblocksPlatform::importVar($params['changeset_json'],'string',''), $dict);
+		$context = $tpl_builder->build(DevblocksPlatform::importVar($params['context'] ?? null,'string',''), $dict);
+		$changeset_json = $tpl_builder->build(DevblocksPlatform::importVar($params['changeset_json'] ?? null,'string',''), $dict);
 		$object_placeholder = $params['object_placeholder'] ?? null;
 		
 		if(!empty($object_placeholder)) {
@@ -225,9 +225,9 @@ class BotAction_RecordUpdate extends Extension_DevblocksEventAction {
 
 		$out = null;
 		
-		@$context = $tpl_builder->build(DevblocksPlatform::importVar($params['context'],'string',''), $dict);
-		@$id = $tpl_builder->build(DevblocksPlatform::importVar($params['id'],'string',''), $dict);
-		@$changeset_json = $tpl_builder->build(DevblocksPlatform::importVar($params['changeset_json'],'string',''), $dict);
+		$context = $tpl_builder->build(DevblocksPlatform::importVar($params['context'] ?? null,'string',''), $dict);
+		$id = $tpl_builder->build(DevblocksPlatform::importVar($params['id'] ?? null,'string',''), $dict);
+		$changeset_json = $tpl_builder->build(DevblocksPlatform::importVar($params['changeset_json'] ?? null,'string',''), $dict);
 		
 		if(false == (@$changeset = json_decode($changeset_json, true)))
 			return "Invalid changeset JSON.";
@@ -286,10 +286,10 @@ class BotAction_RecordUpdate extends Extension_DevblocksEventAction {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$actor = $trigger->getBot();
 		
-		@$context = $tpl_builder->build(DevblocksPlatform::importVar($params['context'],'string',''), $dict);
-		@$id = $tpl_builder->build(DevblocksPlatform::importVar($params['id'],'string',''), $dict);
-		@$changeset_json = $tpl_builder->build(DevblocksPlatform::importVar($params['changeset_json'],'string',''), $dict);
-		@$object_placeholder = $params['object_placeholder'];
+		$context = $tpl_builder->build(DevblocksPlatform::importVar($params['context'] ?? null,'string',''), $dict);
+		$id = $tpl_builder->build(DevblocksPlatform::importVar($params['id'] ?? null,'string',''), $dict);
+		$changeset_json = $tpl_builder->build(DevblocksPlatform::importVar($params['changeset_json'] ?? null,'string',''), $dict);
+		$object_placeholder = $params['object_placeholder'] ?? null;
 		
 		if(!empty($object_placeholder)) {
 			$dict->$object_placeholder = null;
@@ -410,8 +410,8 @@ class BotAction_RecordUpsert extends Extension_DevblocksEventAction {
 	function simulate($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
-		@$context = $tpl_builder->build(DevblocksPlatform::importVar($params['context'],'string',''), $dict);
-		@$query = $tpl_builder->build(DevblocksPlatform::importVar($params['query'],'string',''), $dict);
+		$context = $tpl_builder->build(DevblocksPlatform::importVar($params['context'] ?? null,'string',''), $dict);
+		$query = $tpl_builder->build(DevblocksPlatform::importVar($params['query'] ?? null,'string',''), $dict);
 		
 		if(!$query)
 			return "Query is empty.";
@@ -462,8 +462,8 @@ class BotAction_RecordUpsert extends Extension_DevblocksEventAction {
 	function run($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
-		@$query = $tpl_builder->build(DevblocksPlatform::importVar($params['query'],'string',''), $dict);
-		@$context = $tpl_builder->build(DevblocksPlatform::importVar($params['context'],'string',''), $dict);
+		$query = $tpl_builder->build(DevblocksPlatform::importVar($params['query'] ?? null,'string',''), $dict);
+		$context = $tpl_builder->build(DevblocksPlatform::importVar($params['context'] ?? null,'string',''), $dict);
 		
 		if(!$query)
 			return false;
@@ -553,8 +553,8 @@ class BotAction_RecordDelete extends Extension_DevblocksEventAction {
 
 		$out = null;
 		
-		@$context = $tpl_builder->build(DevblocksPlatform::importVar($params['context'],'string',''), $dict);
-		@$id = $tpl_builder->build(DevblocksPlatform::importVar($params['id'],'string',''), $dict);
+		$context = $tpl_builder->build(DevblocksPlatform::importVar($params['context'] ?? null,'string',''), $dict);
+		$id = $tpl_builder->build(DevblocksPlatform::importVar($params['id'] ?? null,'string',''), $dict);
 		
 		if(!$id)
 			return "ID is empty.";
@@ -595,8 +595,8 @@ class BotAction_RecordDelete extends Extension_DevblocksEventAction {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$actor = $trigger->getBot();
 		
-		@$context = $tpl_builder->build(DevblocksPlatform::importVar($params['context'],'string',''), $dict);
-		@$id = $tpl_builder->build(DevblocksPlatform::importVar($params['id'],'string',''), $dict);
+		$context = $tpl_builder->build(DevblocksPlatform::importVar($params['context'] ?? null,'string',''), $dict);
+		$id = $tpl_builder->build(DevblocksPlatform::importVar($params['id'] ?? null,'string',''), $dict);
 		
 		if(!$id)
 			return false;
@@ -673,9 +673,9 @@ class BotAction_RecordRetrieve extends Extension_DevblocksEventAction {
 
 		$out = null;
 		
-		@$context = $tpl_builder->build(DevblocksPlatform::importVar($params['context'],'string',''), $dict);
-		@$id = $tpl_builder->build(DevblocksPlatform::importVar($params['id'],'string',''), $dict);
-		@$object_placeholder = $params['object_placeholder'];
+		$context = $tpl_builder->build(DevblocksPlatform::importVar($params['context'] ?? null,'string',''), $dict);
+		$id = $tpl_builder->build(DevblocksPlatform::importVar($params['id'] ?? null,'string',''), $dict);
+		$object_placeholder = $params['object_placeholder'] ?? null;
 		
 		if(!$id)
 			return "ID is empty.";
@@ -715,9 +715,9 @@ class BotAction_RecordRetrieve extends Extension_DevblocksEventAction {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$actor = $trigger->getBot();
 		
-		@$context = $tpl_builder->build(DevblocksPlatform::importVar($params['context'],'string',''), $dict);
-		@$id = $tpl_builder->build(DevblocksPlatform::importVar($params['id'],'string',''), $dict);
-		@$object_placeholder = $params['object_placeholder'];
+		$context = $tpl_builder->build(DevblocksPlatform::importVar($params['context'] ?? null,'string',''), $dict);
+		$id = $tpl_builder->build(DevblocksPlatform::importVar($params['id'] ?? null,'string',''), $dict);
+		$object_placeholder = $params['object_placeholder'] ?? null;
 		
 		if(!empty($object_placeholder)) {
 			$dict->$object_placeholder = null;
@@ -801,9 +801,9 @@ class BotAction_RecordSearch extends Extension_DevblocksEventAction {
 
 		$out = null;
 		
-		@$context = $tpl_builder->build(DevblocksPlatform::importVar($params['context'],'string',''), $dict);
-		@$query = $tpl_builder->build(DevblocksPlatform::importVar($params['query'],'string',''), $dict);
-		@$object_placeholder = $params['object_placeholder'];
+		$context = $tpl_builder->build(DevblocksPlatform::importVar($params['context'] ?? null,'string',''), $dict);
+		$query = $tpl_builder->build(DevblocksPlatform::importVar($params['query'] ?? null,'string',''), $dict);
+		$object_placeholder = $params['object_placeholder'] ?? null;
 		
 		if(!$context || false == ($context = Extension_DevblocksContext::getByAlias($context, false)))
 			return "Invalid record type.";
@@ -872,10 +872,10 @@ class BotAction_RecordSearch extends Extension_DevblocksEventAction {
 	function run($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
-		@$context = $tpl_builder->build(DevblocksPlatform::importVar($params['context'],'string',''), $dict);
-		@$query = $tpl_builder->build(DevblocksPlatform::importVar($params['query'],'string',''), $dict);
-		@$expands = DevblocksPlatform::parseCrlfString($tpl_builder->build(DevblocksPlatform::importVar($params['expand'],'string',''), $dict));
-		@$object_placeholder = $params['object_placeholder'];
+		$context = $tpl_builder->build(DevblocksPlatform::importVar($params['context'] ?? null,'string',''), $dict);
+		$query = $tpl_builder->build(DevblocksPlatform::importVar($params['query'] ?? null,'string',''), $dict);
+		$expands = DevblocksPlatform::parseCrlfString($tpl_builder->build(DevblocksPlatform::importVar($params['expand'] ?? null,'string',''), $dict));
+		$object_placeholder = $params['object_placeholder'] ?? null;
 		
 		if(!empty($object_placeholder)) {
 			$dict->$object_placeholder = [];

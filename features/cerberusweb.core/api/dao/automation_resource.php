@@ -765,12 +765,12 @@ class View_AutomationResource extends C4_AbstractView implements IAbstractView_S
 				break;
 			
 			case SearchFields_AutomationResource::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_POST['context_link'],'array',[]);
+				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 			
 			case SearchFields_AutomationResource::VIRTUAL_HAS_FIELDSET:
-				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',[]);
+				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 			
@@ -817,9 +817,9 @@ class Storage_AutomationResource extends Extension_DevblocksStorageSchema {
 	}
 	
 	function saveConfig() {
-		@$active_storage_profile = DevblocksPlatform::importGPC($_POST['active_storage_profile'],'string','');
-		@$archive_storage_profile = DevblocksPlatform::importGPC($_POST['archive_storage_profile'],'string','');
-		@$archive_after_days = DevblocksPlatform::importGPC($_POST['archive_after_days'],'integer',0);
+		$active_storage_profile = DevblocksPlatform::importGPC($_POST['active_storage_profile'] ?? null, 'string','');
+		$archive_storage_profile = DevblocksPlatform::importGPC($_POST['archive_storage_profile'] ?? null, 'string','');
+		$archive_after_days = DevblocksPlatform::importGPC($_POST['archive_after_days'] ?? null, 'integer',0);
 		
 		if(!empty($active_storage_profile))
 			$this->setParam('active_storage_profile', $active_storage_profile);

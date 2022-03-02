@@ -12,7 +12,7 @@ class CardWidget_ClassifierTrainer extends Extension_CardWidget {
 	}
 	
 	function render(Model_CardWidget $model, $context, $context_id) {
-		@$target_context_id = $model->extension_params['classifier_id'];
+		$target_context_id = $model->extension_params['classifier_id'] ?? null;
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();

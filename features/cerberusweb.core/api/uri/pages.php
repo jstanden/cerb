@@ -79,8 +79,8 @@ class Page_Custom extends CerberusPageExtension {
 	}
 	
 	private function _pageAction_invoke() {
-		@$page_uri = DevblocksPlatform::importGPC($_GET['module'] ?? $_POST['module'],'string','');
-		@$action = DevblocksPlatform::importGPC($_GET['action'] ?? $_POST['action'],'string','');
+		$page_uri = DevblocksPlatform::importGPC($_GET['module'] ?? $_POST['module'] ?? null, 'string','');
+		$action = DevblocksPlatform::importGPC($_GET['action'] ?? $_POST['action'] ?? null, 'string','');
 		
 		$inst = Extension_PageSection::getExtensionByPageUri($this->manifest->id, $page_uri, true);
 		
@@ -103,7 +103,7 @@ class Page_Custom extends CerberusPageExtension {
 	private function _pageAction_invokeWidget() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$widget_id = DevblocksPlatform::importGPC($_REQUEST['widget_id'],'integer',0);
+		$widget_id = DevblocksPlatform::importGPC($_REQUEST['widget_id'] ?? null, 'integer',0);
 		@$action = DevblocksPlatform::importGPC(isset($_GET['action']) ? $_GET['action'] : $_REQUEST['action'],'string','');
 		
 		if(false == ($workspace_widget = DAO_WorkspaceWidget::get($widget_id)))
@@ -207,7 +207,7 @@ class Page_Custom extends CerberusPageExtension {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$page_ids_str = DevblocksPlatform::importGPC($_POST['pages'],'string','');
+		$page_ids_str = DevblocksPlatform::importGPC($_POST['pages'] ?? null, 'string','');
 		
 		$menu = [];
 		$pages = DAO_WorkspacePage::getAll();
@@ -233,8 +233,8 @@ class Page_Custom extends CerberusPageExtension {
 	private function _pageAction_setTabOrder() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$page_id = DevblocksPlatform::importGPC($_POST['page_id'],'integer','0');
-		@$tab_ids_str = DevblocksPlatform::importGPC($_POST['tabs'],'string','');
+		$page_id = DevblocksPlatform::importGPC($_POST['page_id'] ?? null, 'integer','0');
+		$tab_ids_str = DevblocksPlatform::importGPC($_POST['tabs'] ?? null, 'string','');
 		
 		if(null == ($page = DAO_WorkspacePage::get($page_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -254,7 +254,7 @@ class Page_Custom extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$page_id = DevblocksPlatform::importGPC($_REQUEST['page_id'],'integer','0');
+		$page_id = DevblocksPlatform::importGPC($_REQUEST['page_id'] ?? null, 'integer','0');
 		
 		if(null == ($page = DAO_WorkspacePage::get($page_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -272,8 +272,8 @@ class Page_Custom extends CerberusPageExtension {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$page_id = DevblocksPlatform::importGPC($_POST['page_id'],'integer','0');
-		@$toggle = DevblocksPlatform::importGPC($_POST['toggle'],'integer','0');
+		$page_id = DevblocksPlatform::importGPC($_POST['page_id'] ?? null, 'integer','0');
+		$toggle = DevblocksPlatform::importGPC($_POST['toggle'] ?? null, 'integer','0');
 		
 		header('Content-type: application/json');
 
@@ -319,8 +319,8 @@ class Page_Custom extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 
-		@$tab_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
-		@$request = DevblocksPlatform::importGPC($_REQUEST['request'],'string', '');
+		$tab_id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null, 'integer', 0);
+		$request = DevblocksPlatform::importGPC($_REQUEST['request'] ?? null, 'string', '');
 
 		if(null == ($tab = DAO_WorkspaceTab::get($tab_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -347,7 +347,7 @@ class Page_Custom extends CerberusPageExtension {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$list_id = DevblocksPlatform::importGPC($_POST['list_id'],'integer', 0);
+		$list_id = DevblocksPlatform::importGPC($_POST['list_id'] ?? null, 'integer', 0);
 	
 		if(empty($list_id))
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -398,7 +398,7 @@ class Page_Custom extends CerberusPageExtension {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::services()->template();
 		
-		@$page_id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
+		$page_id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null, 'integer', 0);
 		
 		if(null == ($page = DAO_WorkspacePage::get($page_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -420,7 +420,7 @@ class Page_Custom extends CerberusPageExtension {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::services()->template();
 		
-		@$tab_id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
+		$tab_id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null, 'integer', 0);
 		
 		if(null == ($tab = DAO_WorkspaceTab::get($tab_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);

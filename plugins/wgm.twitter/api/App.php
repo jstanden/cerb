@@ -30,8 +30,8 @@ class WgmTwitter_MessageProfileSection extends Extension_PageSection {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
+		$id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null, 'integer', 0);
+		$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'] ?? null, 'string', '');
 		
 		$tpl->assign('view_id', $view_id);
 		
@@ -64,10 +64,10 @@ class WgmTwitter_MessageProfileSection extends Extension_PageSection {
 	private function _profileAction_savePeekPopup() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
-		@$do_reply = DevblocksPlatform::importGPC($_POST['do_reply'], 'integer', 0);
-		@$reply = DevblocksPlatform::importGPC($_POST['reply'], 'string', '');
-		@$is_closed = DevblocksPlatform::importGPC($_POST['is_closed'], 'integer', 0);
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
+		$do_reply = DevblocksPlatform::importGPC($_POST['do_reply'] ?? null, 'integer', 0);
+		$reply = DevblocksPlatform::importGPC($_POST['reply'] ?? null, 'string', '');
+		$is_closed = DevblocksPlatform::importGPC($_POST['is_closed'] ?? null, 'integer', 0);
 
 		if(!$id || null == ($message = DAO_TwitterMessage::get($id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -89,7 +89,7 @@ class WgmTwitter_MessageProfileSection extends Extension_PageSection {
 		
 		// Custom field saves
 		$error = null;
-		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+		$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 		if(!DAO_CustomFieldValue::handleFormPost(Context_TwitterMessage::ID, $id, $field_ids, $error))
 			throw new Exception_DevblocksAjaxValidationError($error);
 		
@@ -135,8 +135,8 @@ class WgmTwitter_MessageProfileSection extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
-		@$row_ids = DevblocksPlatform::importGPC($_POST['row_id'],'array', []);
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
+		$row_ids = DevblocksPlatform::importGPC($_POST['row_id'] ?? null, 'array', []);
 		
 		$models = DAO_TwitterMessage::getIds($row_ids);
 		
@@ -175,8 +175,8 @@ class WgmTwitter_MessageProfileSection extends Extension_PageSection {
 		if(!$active_worker->hasPriv(sprintf('contexts.%s.update.bulk', Context_TwitterMessage::ID)))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
+		$ids = DevblocksPlatform::importGPC($_REQUEST['ids'] ?? null);
+		$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'] ?? null);
 
 		$tpl->assign('view_id', $view_id);
 
@@ -205,16 +205,16 @@ class WgmTwitter_MessageProfileSection extends Extension_PageSection {
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		// Filter: whole list or check
-		@$filter = DevblocksPlatform::importGPC($_POST['filter'],'string','');
+		$filter = DevblocksPlatform::importGPC($_POST['filter'] ?? null, 'string','');
 		$ids = [];
 		
 		// View
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
 		$view->setAutoPersist(false);
 		
 		// Fields
-		@$status = trim(DevblocksPlatform::importGPC($_POST['status'],'string',''));
+		$status = trim(DevblocksPlatform::importGPC($_POST['status'] ?? null,'string',''));
 
 		$do = [];
 		
@@ -233,7 +233,7 @@ class WgmTwitter_MessageProfileSection extends Extension_PageSection {
 		switch($filter) {
 			// Checked rows
 			case 'checks':
-				@$ids_str = DevblocksPlatform::importGPC($_POST['ids'],'string');
+				$ids_str = DevblocksPlatform::importGPC($_POST['ids'] ?? null, 'string');
 				$ids = DevblocksPlatform::parseCsvString($ids_str);
 				break;
 				
@@ -342,7 +342,7 @@ class Cron_WgmTwitterChecker extends CerberusCronPageExtension {
 	
 	public function saveConfiguration() {
 		try {
-			@$sync_account_ids = DevblocksPlatform::importGPC($_POST['sync_account_ids'],'array',[]);
+			$sync_account_ids = DevblocksPlatform::importGPC($_POST['sync_account_ids'] ?? null, 'array',[]);
 			
 			$sync_account_ids = DevblocksPlatform::sanitizeArray($sync_account_ids, 'int');
 			DevblocksPlatform::setPluginSetting('wgm.twitter', 'sync_account_ids_json', $sync_account_ids, true);

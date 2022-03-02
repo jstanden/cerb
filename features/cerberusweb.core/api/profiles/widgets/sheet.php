@@ -26,8 +26,8 @@ class ProfileWidget_Sheet extends Extension_ProfileWidget {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$active_worker= CerberusApplication::getActiveWorker();
 		
-		@$data_query = DevblocksPlatform::importGPC($widget->extension_params['data_query'], 'string', null);
-		@$cache_secs = DevblocksPlatform::importGPC($widget->extension_params['cache_secs'], 'integer', 0);
+		$data_query = DevblocksPlatform::importGPC($widget->extension_params['data_query'] ?? null, 'string', null);
+		$cache_secs = DevblocksPlatform::importGPC($widget->extension_params['cache_secs'] ?? null, 'integer', 0);
 		
 		if($page) {
 			$data_query .= sprintf(' page:%d', $page);
@@ -58,7 +58,7 @@ class ProfileWidget_Sheet extends Extension_ProfileWidget {
 	function render(Model_ProfileWidget $model, $context, $context_id) {
 		$tpl = DevblocksPlatform::services()->template();
 		
-		@$page = DevblocksPlatform::importGPC($_POST['page'], 'integer', 0);
+		$page = DevblocksPlatform::importGPC($_POST['page'] ?? null, 'integer', 0);
 		
 		$error = null;
 		
@@ -83,7 +83,7 @@ class ProfileWidget_Sheet extends Extension_ProfileWidget {
 			case 'dictionaries':
 				$sheets = DevblocksPlatform::services()->sheet();
 				
-				@$sheet_kata = DevblocksPlatform::importGPC($model->extension_params['sheet_kata'], 'string', null);
+				$sheet_kata = DevblocksPlatform::importGPC($model->extension_params['sheet_kata'] ?? null, 'string', null);
 				$sheet = $sheets->parse($sheet_kata, $error);
 				
 				$sheets->addType('card', $sheets->types()->card());
@@ -109,7 +109,7 @@ class ProfileWidget_Sheet extends Extension_ProfileWidget {
 				$columns = $sheets->getColumns($sheet);
 				$tpl->assign('columns', $columns);
 				
-				@$paging = $results['_']['paging'];
+				$paging = $results['_']['paging'] ?? null;
 				
 				if($paging) {
 					$tpl->assign('paging', $paging);
@@ -179,7 +179,7 @@ class ProfileWidget_Sheet extends Extension_ProfileWidget {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::services()->template();
 		
-		@$toolbar_kata = DevblocksPlatform::importGPC($_POST['params']['toolbar_kata'], 'string', '');
+		$toolbar_kata = DevblocksPlatform::importGPC($_POST['params']['toolbar_kata'] ?? null, 'string', '');
 		
 		$toolbar_dict = DevblocksDictionaryDelegate::instance([
 			'caller_id' => 'cerb.toolbar.profileWidget.sheet',
@@ -230,9 +230,9 @@ class ProfileWidget_Sheet extends Extension_ProfileWidget {
 	}
 	
 	private function _profileWidgetAction_renderToolbar(Model_ProfileWidget $widget) {
-		@$row_selections = DevblocksPlatform::importGPC($_POST['row_selections'], 'array', []);
-		@$profile_context = DevblocksPlatform::importGPC($_POST['profile_context'], 'string', null);
-		@$profile_context_id = DevblocksPlatform::importGPC($_POST['profile_context_id'], 'integer', null);
+		$row_selections = DevblocksPlatform::importGPC($_POST['row_selections'] ?? null, 'array', []);
+		$profile_context = DevblocksPlatform::importGPC($_POST['profile_context'] ?? null, 'string', null);
+		$profile_context_id = DevblocksPlatform::importGPC($_POST['profile_context_id'] ?? null, 'integer', null);
 		
 		$this->renderToolbar($widget, $profile_context, $profile_context_id, $row_selections);
 	}

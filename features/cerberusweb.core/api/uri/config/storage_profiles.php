@@ -64,8 +64,8 @@ class PageSection_SetupStorageProfiles extends Extension_PageSection {
 		if(!$active_worker || !$active_worker->is_superuser)
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		$id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null,'integer',0);
+		$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'] ?? null,'string','');
 		
 		$tpl->assign('view_id', $view_id);
 		
@@ -114,8 +114,8 @@ class PageSection_SetupStorageProfiles extends Extension_PageSection {
 		if(!$active_worker || !$active_worker->is_superuser)
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'] ?? null,'string','');
+		$id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null,'integer',0);
 		
 		if(null == ($profile = DAO_DevblocksStorageProfile::get($id)))
 			$profile = new Model_DevblocksStorageProfile();
@@ -181,11 +181,11 @@ class PageSection_SetupStorageProfiles extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer');
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
-		@$name = DevblocksPlatform::importGPC($_POST['name'],'string');
-		@$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'],'string');
-		@$delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null,'integer');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null,'string');
+		$name = DevblocksPlatform::importGPC($_POST['name'] ?? null,'string');
+		$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'] ?? null,'string');
+		$delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null,'integer',0);
 
 		if(empty($name))
 			$name = "New Storage Profile";

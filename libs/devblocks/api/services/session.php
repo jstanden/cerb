@@ -26,7 +26,8 @@ class _DevblocksSessionManager {
 		if(null == $instance) {
 			$url_writer = DevblocksPlatform::services()->url();
 			
-			@session_destroy();
+			if(PHP_SESSION_ACTIVE == session_status())
+				session_destroy();
 			
 			$handler_class = DevblocksPlatform::getHandlerSession();
 			

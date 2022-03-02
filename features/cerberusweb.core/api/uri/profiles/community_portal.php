@@ -45,10 +45,10 @@ class PageSection_ProfilesCommunityPortal extends Extension_PageSection {
 	}
 	
 	private function _profileAction_savePeekJson() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
 		
-		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
+		$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -80,13 +80,13 @@ class PageSection_ProfilesCommunityPortal extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
-				@$path = DevblocksPlatform::importGPC($_POST['path'], 'string', '');
+				$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');
+				$path = DevblocksPlatform::importGPC($_POST['path'] ?? null, 'string', '');
 				
 				$error = null;
 				
 				if(empty($id)) { // New
-					@$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'], 'string', '');
+					$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'] ?? null, 'string', '');
 					
 					$fields = array(
 						DAO_CommunityTool::EXTENSION_ID => $extension_id,
@@ -126,7 +126,7 @@ class PageSection_ProfilesCommunityPortal extends Extension_PageSection {
 				}
 				
 				// Custom field saves
-				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+				$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 				if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_PORTAL, $id, $field_ids, $error))
 					throw new Exception_DevblocksAjaxValidationError($error);
 				
@@ -158,7 +158,7 @@ class PageSection_ProfilesCommunityPortal extends Extension_PageSection {
 	}
 	
 	private function _profileAction_viewExplore() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
@@ -174,7 +174,7 @@ class PageSection_ProfilesCommunityPortal extends Extension_PageSection {
 		$view->setAutoPersist(false);
 
 		// Page start
-		@$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'],'integer',0);
+		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'integer',0);
 		if(empty($explore_from)) {
 			$orig_pos = 1+($view->renderPage * $view->renderLimit);
 		} else {
@@ -235,7 +235,7 @@ class PageSection_ProfilesCommunityPortal extends Extension_PageSection {
 	private function _profileAction_showConfigTab() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$portal_id = DevblocksPlatform::importGPC($_REQUEST['portal_id'], 'integer', 0);
+		$portal_id = DevblocksPlatform::importGPC($_REQUEST['portal_id'] ?? null, 'integer', 0);
 		
 		if(false == ($portal = DAO_CommunityTool::get($portal_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -260,7 +260,7 @@ class PageSection_ProfilesCommunityPortal extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$portal_id = DevblocksPlatform::importGPC($_POST['portal_id'], 'integer', 0);
+		$portal_id = DevblocksPlatform::importGPC($_POST['portal_id'] ?? null, 'integer', 0);
 		
 		if(false == ($portal = DAO_CommunityTool::get($portal_id)))
 			return;

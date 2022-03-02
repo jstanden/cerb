@@ -250,7 +250,7 @@ class ServiceProvider_OpenIdConnect extends Extension_ConnectedServiceProvider {
 	}
 
 	public function saveConfigForm(Model_ConnectedService $service, array &$params, &$error=null) {
-		@$edit_params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
+		$edit_params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
 		
 		$validation = DevblocksPlatform::services()->validation();
 		
@@ -309,7 +309,7 @@ class ServiceProvider_OpenIdConnect extends Extension_ConnectedServiceProvider {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$issuer = DevblocksPlatform::importGPC($_POST['issuer'], 'string', '');
+		$issuer = DevblocksPlatform::importGPC($_POST['issuer'] ?? null, 'string', '');
 		
 		header('Content-Type: application/json; charset=utf-8');
 		

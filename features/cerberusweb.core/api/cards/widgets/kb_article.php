@@ -12,7 +12,7 @@ class CardWidget_KbArticle extends Extension_CardWidget {
 	}
 	
 	function render(Model_CardWidget $model, $context, $context_id) {
-		@$target_context_id = $model->extension_params['article_id'];
+		$target_context_id = $model->extension_params['article_id'] ?? null;
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();

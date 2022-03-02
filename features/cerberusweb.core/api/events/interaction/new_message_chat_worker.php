@@ -77,10 +77,10 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 				$values
 			);
 
-		@$worker_id = $event_model->params['worker_id'];
+		$worker_id = $event_model->params['worker_id'] ?? null;
 
 		// Message
-		@$message = $event_model->params['message'];
+		$message = $event_model->params['message'] ?? null;
 		$labels['message'] = 'Message';
 		$values['message'] = $message;
 		
@@ -110,41 +110,41 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 			);
 
 		// Bot
-		@$bot_name = $event_model->params['bot_name'];
+		$bot_name = $event_model->params['bot_name'] ?? null;
 		$labels['interaction_bot_name'] = 'Bot Name';
 		$values['interaction_bot_name'] = $bot_name;
 
-		@$bot_image = $event_model->params['bot_image'];
+		$bot_image = $event_model->params['bot_image'] ?? null;
 		$labels['interaction_bot_image'] = 'Bot Image';
 		$values['interaction_bot_image'] = $bot_image;
 
 		// Behavior
 		// [TODO] Expand
-		@$behavior_id = $event_model->params['behavior_id'];
+		$behavior_id = $event_model->params['behavior_id'] ?? null;
 		$labels['interaction_behavior_id'] = 'Behavior ID';
 		$values['interaction_behavior_id'] = $behavior_id;
 
 		// Behavior has parent
-		@$behavior_has_parent = $event_model->params['behavior_has_parent'];
+		$behavior_has_parent = $event_model->params['behavior_has_parent'] ?? null;
 		$labels['interaction_behavior_has_parent'] = 'Behavior has parent';
 		$values['interaction_behavior_has_parent'] = $behavior_has_parent;
 
 		// Interaction
-		@$interaction = $event_model->params['interaction'];
+		$interaction = $event_model->params['interaction'] ?? null;
 		$labels['interaction'] = 'Interaction';
 		$values['interaction'] = $interaction;
 
 		// Interaction Parameters
-		@$interaction_params = $event_model->params['interaction_params'];
+		$interaction_params = $event_model->params['interaction_params'] ?? null;
 		$labels['interaction_params'] = 'Interaction Params';
 		$values['interaction_params'] = $interaction_params;
 
 		// Client
-		@$client_browser = $event_model->params['client_browser'];
-		@$client_browser_version = $event_model->params['client_browser_version'];
-		@$client_ip = $event_model->params['client_ip'];
-		@$client_platform = $event_model->params['client_platform'];
-		@$client_url = $event_model->params['client_url'];
+		$client_browser = $event_model->params['client_browser'] ?? null;
+		$client_browser_version = $event_model->params['client_browser_version'] ?? null;
+		$client_ip = $event_model->params['client_ip'] ?? null;
+		$client_platform = $event_model->params['client_platform'] ?? null;
+		$client_url = $event_model->params['client_url'] ?? null;
 
 		$labels['client_browser'] = 'Client Browser';
 		$labels['client_browser_version'] = 'Client Browser Version';
@@ -623,9 +623,9 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 			case 'prompt_chooser':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
-				@$context = $params['context'];
-				@$query = $tpl_builder->build($params['query'], $dict);
-				@$selection = $params['selection'];
+				$context = $params['context'] ?? null;
+				$query = $tpl_builder->build($params['query'] ?? '', $dict);
+				$selection = $params['selection'] ?? null;
 
 				$out = sprintf(">>> Prompting with chooser:\n".
 					"Context: %s\n".
@@ -733,15 +733,15 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
-				@$options = $tpl_builder->build($params['options'], $dict);
-				@$style = $tpl_builder->build($params['style'], $dict);
-				@$var = $params['var'];
-				@$var_format = $params['var_format'];
-				@$var_validate = $params['var_validate'];
+				$options = $tpl_builder->build($params['options'] ?? '', $dict);
+				$style = $tpl_builder->build($params['style'] ?? '', $dict);
+				$var = $params['var'] ?? null;
+				$var_format = $params['var_format'] ?? null;
+				$var_validate = $params['var_validate'] ?? null;
 				
-				@$color_from = $params['color_from'];
-				@$color_to = $params['color_to'];
-				@$color_mid = $params['color_mid'];
+				$color_from = $params['color_from'] ?? null;
+				$color_to = $params['color_to'] ?? null;
+				$color_mid = $params['color_mid'] ?? null;
 				
 				if($color_from == '#FFFFFF') {
 					$color_from = '';
@@ -779,13 +779,13 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
-				@$context = $params['context'];
-				@$query = $tpl_builder->build($params['query'], $dict);
-				@$selection = $params['selection'];
-				@$autocomplete = !empty($params['autocomplete']);
-				@$var = $params['var'];
-				@$var_format = $params['var_format'];
-				@$var_validate = $params['var_validate'];
+				$context = $params['context'] ?? null;
+				$query = $tpl_builder->build($params['query'] ?? '', $dict);
+				$selection = $params['selection'] ?? null;
+				$autocomplete = (bool)($params['autocomplete'] ?? null);
+				$var = $params['var'] ?? null;
+				$var_format = $params['var_format'] ?? null;
+				$var_validate = $params['var_validate'] ?? null;
 				
 				$actions[] = array(
 					'_action' => 'prompt.chooser',
@@ -812,9 +812,9 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
 				$placeholder = $tpl_builder->build($params['placeholder'], $dict);
-				@$var = $params['var'];
-				@$var_format = $params['var_format'];
-				@$var_validate = $params['var_validate'];
+				$var = $params['var'] ?? null;
+				$var_format = $params['var_format'] ?? null;
+				$var_validate = $params['var_validate'] ?? null;
 
 				$actions[] = array(
 					'_action' => 'prompt.date',
@@ -836,9 +836,9 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 				
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
-				@$var = $params['var'];
-				@$var_format = $params['var_format'];
-				@$var_validate = $params['var_validate'];
+				$var = $params['var'] ?? null;
+				$var_format = $params['var_format'] ?? null;
+				$var_validate = $params['var_validate'] ?? null;
 				
 				$actions[] = array(
 					'_action' => 'prompt.file',
@@ -861,9 +861,9 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 				
 				$images = $params['images'];
 				$labels = $params['labels'];
-				@$var = $params['var'];
-				@$var_format = $params['var_format'];
-				@$var_validate = $params['var_validate'];
+				$var = $params['var'] ?? null;
+				$var_format = $params['var_format'] ?? null;
+				$var_validate = $params['var_validate'] ?? null;
 				
 				$actions[] = array(
 					'_action' => 'prompt.images',
@@ -886,12 +886,12 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
-				@$placeholder = $tpl_builder->build($params['placeholder'], $dict);
-				@$default = $tpl_builder->build($params['default'], $dict);
-				@$mode = $params['mode'];
-				@$var = $params['var'];
-				@$var_format = $params['var_format'];
-				@$var_validate = $params['var_validate'];
+				$placeholder = $tpl_builder->build($params['placeholder'] ?? '', $dict);
+				$default = $tpl_builder->build($params['default'] ?? '', $dict);
+				$mode = $params['mode'] ?? null;
+				$var = $params['var'] ?? null;
+				$var_format = $params['var_format'] ?? null;
+				$var_validate = $params['var_validate'] ?? null;
 
 				$actions[] = array(
 					'_action' => 'prompt.text',
@@ -926,8 +926,8 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 			case 'send_message':
 				$actions =& $dict->_actions;
 
-				@$format = $params['format'];
-				@$delay_ms = @$params['delay_ms'];
+				$format = $params['format'] ?? null;
+				$delay_ms = @$params['delay_ms'] ?? null;
 
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				$content = $tpl_builder->build($params['message'], $dict);
@@ -974,7 +974,7 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 
 				@$behavior_id = intval($params['behavior_id']);
 				@$behavior_return = intval($params['return']) ? true : false;
-				@$var_key = $params['var'] ?? '_behavior';
+				$var_key = ($params['var'] ?? null) ?: '_behavior';
 
 				if(false == ($behavior = DAO_TriggerEvent::get($behavior_id)))
 					break;

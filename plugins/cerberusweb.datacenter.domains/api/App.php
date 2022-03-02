@@ -32,12 +32,12 @@ class VaAction_CreateDomain extends Extension_DevblocksEventAction {
 
 		$out = null;
 		
-		@$name = $tpl_builder->build($params['name'], $dict);
+		$name = $tpl_builder->build($params['name'] ?? '', $dict);
 		
-		@$server_id = DevblocksPlatform::importVar($params['server_id'],'string','');
-		@$email_ids = DevblocksPlatform::importVar($params['email_ids'],'array',array());
+		$server_id = DevblocksPlatform::importVar($params['server_id'] ?? null,'string','');
+		$email_ids = DevblocksPlatform::importVar($params['email_ids'] ?? null,'array',[]);
 		
-		@$notify_worker_ids = DevblocksPlatform::importVar($params['notify_worker_id'],'array',array());
+		$notify_worker_ids = DevblocksPlatform::importVar($params['notify_worker_id'] ?? null,'array',[]);
 		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $dict);
 		
 		if(empty($name))
@@ -134,12 +134,12 @@ class VaAction_CreateDomain extends Extension_DevblocksEventAction {
 	function run($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
-		@$name = $tpl_builder->build($params['name'], $dict);
+		$name = $tpl_builder->build($params['name'] ?? '', $dict);
 		
-		@$server_id = DevblocksPlatform::importVar($params['server_id'],'string','');
-		@$email_ids = DevblocksPlatform::importVar($params['email_ids'],'array',array());
+		$server_id = DevblocksPlatform::importVar($params['server_id'] ?? null,'string','');
+		$email_ids = DevblocksPlatform::importVar($params['email_ids'] ?? null,'array',[]);
 		
-		@$notify_worker_ids = DevblocksPlatform::importVar($params['notify_worker_id'],'array',array());
+		$notify_worker_ids = DevblocksPlatform::importVar($params['notify_worker_id'] ?? null,'array',[]);
 		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $dict);
 		
 		$comment = $tpl_builder->build($params['comment'], $dict);

@@ -299,10 +299,10 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		switch($as_token) {
 			case 'attachment_name':
 			case 'attachment_mimetype':
-				@$not = (substr($params['oper'],0,1) == '!');
-				@$oper = ltrim($params['oper'],'!');
-				@$attachments = $dict->attachments;
-				@$param_value = $params['value'];
+				$not = (substr($params['oper'] ?? '',0,1) == '!');
+				$oper = ltrim($params['oper'] ?? '','!');
+				$attachments = $dict->get('attachments');
+				$param_value = $params['value'] ?? null;
 				
 				$found = false;
 				
@@ -348,7 +348,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
 				$attachments = $dict->attachments;
-				@$param_value = $params['value'];
+				$param_value = $params['value'] ?? null;
 				
 				$found = false;
 				
@@ -381,8 +381,8 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 			case 'recipients':
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
-				@$recipients = $dict->recipients;
-				@$param_value = $params['value'];
+				$recipients = $dict->get('recipients');
+				$param_value = $params['value'] ?? null;
 
 				$pass = false;
 				
@@ -401,8 +401,8 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 			case 'header':
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
-				@$header = DevblocksPlatform::strLower($params['header']);
-				@$param_value = $params['value'];
+				$header = DevblocksPlatform::strLower($params['header'] ?? null);
+				$param_value = $params['value'] ?? null;
 
 				if(!isset($dict->headers[$header])) {
 					$value = '';
@@ -826,12 +826,12 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 							break;
 						
 						case Model_CustomField::TYPE_DATE:
-							@$mode = $params['mode'];
+							$mode = $params['mode'] ?? null;
 							
 							switch($mode) {
 								case 'calendar':
-									@$calendar_id = $params['calendar_id'];
-									@$rel_date = $params['calendar_reldate'];
+									$calendar_id = $params['calendar_id'] ?? null;
+									$rel_date = $params['calendar_reldate'] ?? null;
 			
 									$value = DevblocksEventHelper::getRelativeDateUsingCalendar($calendar_id, $rel_date);
 									
@@ -912,9 +912,9 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 			case 'replace_content':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
-				@$replace = $tpl_builder->build($params['replace'], $dict);
-				@$replace_mode = $tpl_builder->build($params['replace_mode'], $dict);
-				@$with = $tpl_builder->build($params['with'], $dict);
+				$replace = $tpl_builder->build($params['replace'] ?? '', $dict);
+				$replace_mode = $tpl_builder->build($params['replace_mode'] ?? '', $dict);
+				$with = $tpl_builder->build($params['with'] ?? '', $dict);
 				
 				if(!$replace_mode || $replace_mode == 'text') {
 					if(isset($params['is_regexp']) && !empty($params['is_regexp'])) {
@@ -947,7 +947,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				
 			case 'redirect_email':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-				@$to = $tpl_builder->build($params['to'], $dict);
+				$to = $tpl_builder->build($params['to'] ?? '', $dict);
 				
 				@$parser_model = $dict->_parser_model;
 				if(empty($parser_model) || !is_a($parser_model,'CerberusParserModel'))
@@ -957,8 +957,8 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				break;
 				
 			case 'remove_attachments':
-				@$oper = $params['match_oper'];
-				@$value = $params['match_value'];
+				$oper = $params['match_oper'] ?? null;
+				$value = $params['match_value'] ?? null;
 				
 				if(empty($oper) || empty($value))
 					break;
@@ -1057,7 +1057,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				if(empty($address_id))
 					break;
 				
-				@$value = $params['value'];
+				$value = $params['value'] ?? null;
 				@$bit = !empty($value) ? 1 : 0;
 				
 				DAO_Address::update($address_id, array(
@@ -1072,7 +1072,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				if(empty($address_id))
 					break;
 				
-				@$value = $params['value'];
+				$value = $params['value'] ?? null;
 				@$bit = !empty($value) ? 1 : 0;
 				
 				DAO_Address::update($address_id, array(
@@ -1104,12 +1104,12 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 							break;
 						
 						case Model_CustomField::TYPE_DATE:
-							@$mode = $params['mode'];
+							$mode = $params['mode'] ?? null;
 							
 							switch($mode) {
 								case 'calendar':
-									@$calendar_id = $params['calendar_id'];
-									@$rel_date = $params['calendar_reldate'];
+									$calendar_id = $params['calendar_id'] ?? null;
+									$rel_date = $params['calendar_reldate'] ?? null;
 			
 									$value = DevblocksEventHelper::getRelativeDateUsingCalendar($calendar_id, $rel_date);
 									break;

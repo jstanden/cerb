@@ -60,7 +60,7 @@ class Event_DashboardWidgetGetMetric extends Extension_DevblocksEvent {
 			);
 		
 		// Widget
-		@$widget = $event_model->params['widget'];
+		$widget = $event_model->params['widget'] ?? null;
 		$labels['widget'] = 'Widget';
 		$values['widget'] = $widget;
 		
@@ -185,7 +185,7 @@ class Event_DashboardWidgetGetMetric extends Extension_DevblocksEvent {
 			case 'return_value':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
-				@$return_value = $params['value'];
+				$return_value = $params['value'] ?? null;
 				$return_value = $tpl_builder->build($return_value, $dict);
 				
 				$out = sprintf(">>> Returning value\n".
@@ -203,7 +203,7 @@ class Event_DashboardWidgetGetMetric extends Extension_DevblocksEvent {
 			case 'return_value':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
-				@$return_value = $params['value'];
+				$return_value = $params['value'] ?? null;
 				$return_value = $tpl_builder->build($return_value, $dict);
 				
 				$actions =& $dict->_actions;

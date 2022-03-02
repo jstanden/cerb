@@ -65,7 +65,7 @@
 				{/if}
 			</div>
 			<div class="day_contents">
-				{if $calendar_events.{$day.timestamp}}
+				{if array_key_exists($day.timestamp, $calendar_events)}
 					{foreach from=$calendar_events.{$day.timestamp} item=event}
 						<div class="event" style="background-color:{$event.color|default:'#C8C8C8'};" link="{$event.link}">
 							{if $is_today && $now >= $event.ts && $now <= $event.ts_end}<span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span>{/if}

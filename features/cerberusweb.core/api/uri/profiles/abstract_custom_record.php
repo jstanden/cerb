@@ -58,11 +58,11 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
 		
-		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
-		@$record_id = DevblocksPlatform::importGPC($_POST['_record_id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
+		$record_id = DevblocksPlatform::importGPC($_POST['_record_id'] ?? null, 'integer', 0);
+		$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'string', '');
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -95,14 +95,14 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
-				@$owner = DevblocksPlatform::importGPC($_POST['owner'], 'string', '');
+				$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');
+				$owner = DevblocksPlatform::importGPC($_POST['owner'] ?? null, 'string', '');
 				@$file_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['file_ids'],'array',array()), 'int');
 				
 				// Owner
 			
 				$owner_ctx = '';
-				@list($owner_ctx, $owner_ctx_id) = explode(':', $owner, 2);
+				list($owner_ctx, $owner_ctx_id) = array_pad(explode(':', $owner, 2), 2, null);
 				
 				// Make sure we're given a valid ctx
 				
@@ -157,12 +157,12 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 					DAO_Attachment::setLinks($context, $id, $file_ids);
 					
 					// Custom field saves
-					@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+					$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 					if (!DAO_CustomFieldValue::handleFormPost($context, $id, $field_ids, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					// Avatar image
-					@$avatar_image = DevblocksPlatform::importGPC($_POST['avatar_image'], 'string', '');
+					$avatar_image = DevblocksPlatform::importGPC($_POST['avatar_image'] ?? null, 'string', '');
 					DAO_ContextAvatar::upsertWithImage($context, $id, $avatar_image);
 				}
 				
@@ -199,8 +199,8 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 		if(!$active_worker->hasPriv(sprintf('contexts.%s.update.bulk', static::_ID)))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
+		$ids = DevblocksPlatform::importGPC($_REQUEST['ids'] ?? null);
+		$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'] ?? null);
 		
 		$context = $this->_getContextName();
 		
@@ -259,19 +259,19 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 		if(!$active_worker->hasPriv(sprintf('contexts.%s.update.bulk', static::_ID)))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		@$filter = DevblocksPlatform::importGPC($_POST['filter'],'string','');
+		$filter = DevblocksPlatform::importGPC($_POST['filter'] ?? null, 'string','');
 		$ids = [];
 		
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
 		$view->setAutoPersist(false);
 		
 		$actions = DevblocksPlatform::importGPC($_POST['actions'] ?? [],'array');
 		
 		// Scheduled behavior
-		@$behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'],'string','');
-		@$behavior_when = DevblocksPlatform::importGPC($_POST['behavior_when'],'string','');
-		@$behavior_params = DevblocksPlatform::importGPC($_POST['behavior_params'],'array',array());
+		$behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'] ?? null, 'string','');
+		$behavior_when = DevblocksPlatform::importGPC($_POST['behavior_when'] ?? null, 'string','');
+		$behavior_params = DevblocksPlatform::importGPC($_POST['behavior_params'] ?? null, 'array', []);
 		
 		$do = [];
 		
@@ -292,17 +292,17 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 		
 		// Broadcast: Compose
 		if($active_worker->hasPriv(sprintf('contexts.%s.broadcast', $context))) {
-			@$do_broadcast = DevblocksPlatform::importGPC($_POST['do_broadcast'],'string',null);
-			@$broadcast_group_id = DevblocksPlatform::importGPC($_POST['broadcast_group_id'],'integer',0);
-			@$broadcast_bucket_id = DevblocksPlatform::importGPC($_POST['broadcast_bucket_id'],'integer',0);
-			@$broadcast_to = DevblocksPlatform::importGPC($_POST['broadcast_to'],'array',[]);
-			@$broadcast_subject = DevblocksPlatform::importGPC($_POST['broadcast_subject'],'string',null);
-			@$broadcast_message = DevblocksPlatform::importGPC($_POST['broadcast_message'],'string',null);
-			@$broadcast_format = DevblocksPlatform::importGPC($_POST['broadcast_format'],'string',null);
-			@$broadcast_html_template_id = DevblocksPlatform::importGPC($_POST['broadcast_html_template_id'],'integer',0);
-			@$broadcast_is_queued = DevblocksPlatform::importGPC($_POST['broadcast_is_queued'],'integer',0);
-			@$broadcast_status_id = DevblocksPlatform::importGPC($_POST['broadcast_status_id'],'integer',0);
-			@$broadcast_file_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['broadcast_file_ids'],'array',[]), 'integer', array('nonzero','unique'));
+			$do_broadcast = DevblocksPlatform::importGPC($_POST['do_broadcast'] ?? null, 'string',null);
+			$broadcast_group_id = DevblocksPlatform::importGPC($_POST['broadcast_group_id'] ?? null, 'integer',0);
+			$broadcast_bucket_id = DevblocksPlatform::importGPC($_POST['broadcast_bucket_id'] ?? null, 'integer',0);
+			$broadcast_to = DevblocksPlatform::importGPC($_POST['broadcast_to'] ?? null, 'array',[]);
+			$broadcast_subject = DevblocksPlatform::importGPC($_POST['broadcast_subject'] ?? null, 'string',null);
+			$broadcast_message = DevblocksPlatform::importGPC($_POST['broadcast_message'] ?? null, 'string',null);
+			$broadcast_format = DevblocksPlatform::importGPC($_POST['broadcast_format'] ?? null, 'string',null);
+			$broadcast_html_template_id = DevblocksPlatform::importGPC($_POST['broadcast_html_template_id'] ?? null, 'integer',0);
+			$broadcast_is_queued = DevblocksPlatform::importGPC($_POST['broadcast_is_queued'] ?? null, 'integer',0);
+			$broadcast_status_id = DevblocksPlatform::importGPC($_POST['broadcast_status_id'] ?? null, 'integer',0);
+			$broadcast_file_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['broadcast_file_ids'] ?? null,'array',[]), 'integer', array('nonzero','unique'));
 			
 			if(0 != strlen($do_broadcast) && !empty($broadcast_subject) && !empty($broadcast_message)) {
 				$do['broadcast'] = [
@@ -327,7 +327,7 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 		switch($filter) {
 			// Checked rows
 			case 'checks':
-				@$ids_str = DevblocksPlatform::importGPC($_POST['ids'],'string');
+				$ids_str = DevblocksPlatform::importGPC($_POST['ids'] ?? null, 'string');
 				$ids = DevblocksPlatform::parseCsvString($ids_str);
 				break;
 			case 'sample':
@@ -364,7 +364,7 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		
 		// Abstraction
 		
@@ -379,7 +379,7 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 		$view->setAutoPersist(false);
 
 		// Page start
-		@$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'],'integer',0);
+		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'integer',0);
 		if(empty($explore_from)) {
 			$orig_pos = 1+($view->renderPage * $view->renderLimit);
 		} else {

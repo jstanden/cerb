@@ -106,7 +106,7 @@ abstract class AbstractEvent_Webhook extends Extension_DevblocksEvent {
 		 * Bot
 		 */
 		
-		@$bot_id = $event_model->params['bot_id'];
+		$bot_id = $event_model->params['bot_id'] ?? null;
 		$merge_labels = array();
 		$merge_values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_BOT, $bot_id, $merge_labels, $merge_values, null, true);
@@ -266,7 +266,7 @@ abstract class AbstractEvent_Webhook extends Extension_DevblocksEvent {
 				// Get links by context+id
 				
 				if(!empty($from_context) && !empty($from_context_id)) {
-					@$context_strings = $params['context_objects'];
+					$context_strings = $params['context_objects'] ?? null;
 					$links = DAO_ContextLink::intersect($from_context, $from_context_id, $context_strings);
 					
 					// OPER: any, !any, all
@@ -436,8 +436,8 @@ abstract class AbstractEvent_Webhook extends Extension_DevblocksEvent {
 			case 'set_http_header':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
-				@$name = $tpl_builder->build($params['name'], $dict);
-				@$value = $tpl_builder->build($params['value'], $dict);
+				$name = $tpl_builder->build($params['name'] ?? '', $dict);
+				$value = $tpl_builder->build($params['value'] ?? '', $dict);
 
 				if(!isset($dict->_http_response_headers) || !is_array($dict->_http_response_headers))
 					$dict->_http_response_headers = array();
@@ -453,7 +453,7 @@ abstract class AbstractEvent_Webhook extends Extension_DevblocksEvent {
 			case 'set_http_body':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
-				@$value = $tpl_builder->build($params['value'], $dict);
+				$value = $tpl_builder->build($params['value'] ?? '', $dict);
 
 				$dict->_http_response_body = $value;
 				
@@ -465,7 +465,7 @@ abstract class AbstractEvent_Webhook extends Extension_DevblocksEvent {
 			case 'set_http_status':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
-				@$value = $tpl_builder->build($params['value'], $dict);
+				$value = $tpl_builder->build($params['value'] ?? '', $dict);
 
 				$dict->_http_status = $value;
 				
@@ -477,7 +477,7 @@ abstract class AbstractEvent_Webhook extends Extension_DevblocksEvent {
 			case 'set_timezone':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
-				@$value = $tpl_builder->build($params['value'], $dict);
+				$value = $tpl_builder->build($params['value'] ?? '', $dict);
 
 				DevblocksPlatform::setTimezone($value);
 				
@@ -504,8 +504,8 @@ abstract class AbstractEvent_Webhook extends Extension_DevblocksEvent {
 			case 'set_http_header':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
-				@$name = $tpl_builder->build($params['name'], $dict);
-				@$value = $tpl_builder->build($params['value'], $dict);
+				$name = $tpl_builder->build($params['name'] ?? '', $dict);
+				$value = $tpl_builder->build($params['value'] ?? '', $dict);
 
 				if(!isset($dict->_http_response_headers) || !is_array($dict->_http_response_headers))
 					$dict->_http_response_headers = array();
@@ -516,7 +516,7 @@ abstract class AbstractEvent_Webhook extends Extension_DevblocksEvent {
 			case 'set_http_body':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
-				@$value = $tpl_builder->build($params['value'], $dict);
+				$value = $tpl_builder->build($params['value'] ?? '', $dict);
 				
 				if(false !== $value)
 					$dict->_http_response_body = $value;
@@ -525,7 +525,7 @@ abstract class AbstractEvent_Webhook extends Extension_DevblocksEvent {
 			case 'set_http_status':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
-				@$value = $tpl_builder->build($params['value'], $dict);
+				$value = $tpl_builder->build($params['value'] ?? '', $dict);
 				
 				if(false !== $value)
 					$dict->_http_status = $value;
@@ -534,7 +534,7 @@ abstract class AbstractEvent_Webhook extends Extension_DevblocksEvent {
 			case 'set_timezone':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
-				@$value = $tpl_builder->build($params['value'], $dict);
+				$value = $tpl_builder->build($params['value'] ?? '', $dict);
 
 				DevblocksPlatform::setTimezone($value);
 				break;

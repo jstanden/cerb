@@ -60,7 +60,7 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
+		$id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null, 'integer', 0);
 		
 		if(false == ($draft = DAO_MailQueue::get($id)))
 			DevblocksPlatform::dieWithHttpError(null,404);
@@ -86,7 +86,7 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 	private function _profileAction_resume() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'], 'integer', 0);
+		$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'] ?? null, 'integer', 0);
 		
 		if(false == ($draft = DAO_MailQueue::get($draft_id)))
 			DevblocksPlatform::dieWithHttpError(null,404);
@@ -122,9 +122,9 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 	}
 	
 	private function _profileAction_savePeekJson() {
-		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer','');
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
-		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer','');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string','');
+		$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'integer',0);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -165,8 +165,8 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 				$fields = [];
 				
 				// Fields
-				@$is_queued = DevblocksPlatform::importGPC($_POST['is_queued'], 'bit', 0);
-				@$send_at = DevblocksPlatform::importGPC($_POST['send_at'], 'string', '');
+				$is_queued = DevblocksPlatform::importGPC($_POST['is_queued'] ?? null, 'bit', 0);
+				$send_at = DevblocksPlatform::importGPC($_POST['send_at'] ?? null, 'string', '');
 				
 				$fields[DAO_MailQueue::IS_QUEUED] = $is_queued;
 				$fields[DAO_MailQueue::QUEUE_FAILS] = 0;
@@ -216,7 +216,7 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 				}
 				
 				// Custom field saves
-				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+				$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 				if (!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_DRAFT, $id, $field_ids, $error))
 					throw new Exception_DevblocksAjaxValidationError($error);
 				
@@ -249,7 +249,7 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 	private function _profileAction_saveDraftReply() {
 		$tpl = DevblocksPlatform::services()->template();
 		
-		@$is_ajax = DevblocksPlatform::importGPC($_POST['is_ajax'],'integer',0);
+		$is_ajax = DevblocksPlatform::importGPC($_POST['is_ajax'] ?? null, 'integer',0);
 		
 		$error = null;
 		
@@ -291,9 +291,9 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 	function saveDraftCompose(&$error=null) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$draft_id = DevblocksPlatform::importGPC($_POST['draft_id'],'integer',0);
-		@$to = DevblocksPlatform::importGPC($_POST['to'],'string','');
-		@$subject = DevblocksPlatform::importGPC($_POST['subject'],'string','');
+		$draft_id = DevblocksPlatform::importGPC($_POST['draft_id'] ?? null, 'integer',0);
+		$to = DevblocksPlatform::importGPC($_POST['to'] ?? null, 'string','');
+		$subject = DevblocksPlatform::importGPC($_POST['subject'] ?? null, 'string','');
 
 		$params = [];
 		
@@ -317,7 +317,7 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 		
 		// Custom fields
 		
-		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'],'array',array());
+		$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 		$field_ids = DevblocksPlatform::sanitizeArray($field_ids, 'integer', array('nonzero','unique'));
 
 		if(!empty($field_ids)) {
@@ -375,13 +375,13 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 	function saveDraftReply(&$error=null) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$ticket_id = DevblocksPlatform::importGPC($_POST['ticket_id'],'integer',0);
-		@$msg_id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
-		@$draft_id = DevblocksPlatform::importGPC($_POST['draft_id'],'integer',0);
+		$ticket_id = DevblocksPlatform::importGPC($_POST['ticket_id'] ?? null, 'integer',0);
+		$msg_id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer',0);
+		$draft_id = DevblocksPlatform::importGPC($_POST['draft_id'] ?? null, 'integer',0);
 		
-		@$is_forward = DevblocksPlatform::importGPC($_POST['is_forward'],'integer',0);
+		$is_forward = DevblocksPlatform::importGPC($_POST['is_forward'] ?? null, 'integer',0);
 		
-		@$subject = DevblocksPlatform::importGPC($_POST['subject'],'string','');
+		$subject = DevblocksPlatform::importGPC($_POST['subject'] ?? null, 'string','');
 		
 		// Validate
 		if(empty($msg_id)
@@ -426,7 +426,7 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 		unset($params['custom_fieldset_deletes']);
 		unset($params['_csrf_token']);
 		
-		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'],'array',[]);
+		$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array',[]);
 		$field_ids = DevblocksPlatform::sanitizeArray($field_ids, 'integer', array('nonzero','unique'));
 		
 		if(!empty($field_ids)) {
@@ -541,7 +541,7 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 	private function _profileAction_validateComposeJson() {
 		header('Content-Type: application/json; charset=utf-8');
 		
-		@$compose_mode = DevblocksPlatform::strLower(DevblocksPlatform::importGPC($_POST['compose_mode'],'string'));
+		$compose_mode = DevblocksPlatform::strLower(DevblocksPlatform::importGPC($_POST['compose_mode'] ?? null,'string'));
 		$compose_modes = ['send','save','draft'];
 		
 		try {
@@ -681,7 +681,7 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', null);
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', null);
 		
 		if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.ticket.create'))
 			return false;
@@ -715,12 +715,12 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 	}
 	
 	private function _profileAction_deleteDraft() {
-		@$active_worker = CerberusApplication::getActiveWorker();
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$draft_id = DevblocksPlatform::importGPC($_POST['draft_id'],'integer');
+		$draft_id = DevblocksPlatform::importGPC($_POST['draft_id'] ?? null, 'integer');
 		
 		if(false == ($model = DAO_MailQueue::get($draft_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -740,8 +740,8 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 		if(!$active_worker->hasPriv(sprintf('contexts.%s.update.bulk', Context_Draft::ID)))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		@$id_csv = DevblocksPlatform::importGPC($_REQUEST['ids']);
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
+		$id_csv = DevblocksPlatform::importGPC($_REQUEST['ids'] ?? null);
+		$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'] ?? null);
 
 		$tpl->assign('view_id', $view_id);
 
@@ -763,16 +763,16 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		// Filter: whole list or check
-		@$filter = DevblocksPlatform::importGPC($_POST['filter'],'string','');
+		$filter = DevblocksPlatform::importGPC($_POST['filter'] ?? null, 'string','');
 		$ids = array();
 		
 		// View
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
 		$view->setAutoPersist(false);
 		
 		// Draft fields
-		@$status = trim(DevblocksPlatform::importGPC($_POST['status'],'string'));
+		$status = trim(DevblocksPlatform::importGPC($_POST['status'] ?? null,'string'));
 
 		$do = array();
 		
@@ -783,12 +783,12 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 		switch($filter) {
 			// Checked rows
 			case 'checks':
-				@$ids_str = DevblocksPlatform::importGPC($_POST['ids'],'string');
+				$ids_str = DevblocksPlatform::importGPC($_POST['ids'] ?? null, 'string');
 				$ids = DevblocksPlatform::parseCsvString($ids_str);
 				break;
 				
 			case 'sample':
-				@$sample_size = min(DevblocksPlatform::importGPC($_POST['filter_sample_size'],'integer',0),9999);
+				$sample_size = min(DevblocksPlatform::importGPC($_POST['filter_sample_size'] ?? null,'integer',0),9999);
 				$filter = 'checks';
 				$ids = $view->getDataSample($sample_size);
 				break;

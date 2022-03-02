@@ -28,8 +28,8 @@ class MailboxCron extends CerberusCronPageExtension {
 		$timeout = ini_get('max_execution_time');
 		
 		// Allow runtime overloads (by host, etc.)
-		@$opt_max_messages = DevblocksPlatform::importGPC($_REQUEST['max_messages'],'integer');
-		@$opt_max_mailboxes = DevblocksPlatform::importGPC($_REQUEST['max_mailboxes'],'integer');
+		$opt_max_messages = DevblocksPlatform::importGPC($_REQUEST['max_messages'] ?? null, 'integer');
+		$opt_max_mailboxes = DevblocksPlatform::importGPC($_REQUEST['max_mailboxes'] ?? null, 'integer');
 		
 		$max_downloads = !empty($opt_max_messages) ? $opt_max_messages : $this->getParam('max_messages', (($timeout) ? 20 : 50));
 		
@@ -298,7 +298,7 @@ class MailboxCron extends CerberusCronPageExtension {
 
 	function saveConfiguration() {
 
-		@$max_messages = DevblocksPlatform::importGPC($_POST['max_messages'],'integer');
+		$max_messages = DevblocksPlatform::importGPC($_POST['max_messages'] ?? null, 'integer');
 		$this->setParam('max_messages', $max_messages);
 
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','jobs')));
@@ -393,7 +393,7 @@ class ParseCron extends CerberusCronPageExtension {
 		$runtime = microtime(true);
 		
 		// Allow runtime overloads (by host, etc.)
-		@$opt_parse_max = DevblocksPlatform::importGPC($_REQUEST['parse_max'],'integer');
+		$opt_parse_max = DevblocksPlatform::importGPC($_REQUEST['parse_max'] ?? null, 'integer');
 		
 		$total = !empty($opt_parse_max) ? $opt_parse_max : $this->getParam('max_messages', 500);
 
@@ -507,7 +507,7 @@ class ParseCron extends CerberusCronPageExtension {
 	}
 
 	function saveConfiguration() {
-		@$max_messages = DevblocksPlatform::importGPC($_POST['max_messages'],'integer');
+		$max_messages = DevblocksPlatform::importGPC($_POST['max_messages'] ?? null, 'integer');
 		$this->setParam('max_messages', $max_messages);
 	}
 };

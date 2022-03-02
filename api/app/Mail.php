@@ -75,7 +75,7 @@ class Cerb_SwiftPlugin_GPGSigner implements Swift_Signers_BodySigner {
 		
 		// Check for group/bucket overrides
 		
-		@$bucket_id = $this->_properties['bucket_id'];
+		$bucket_id = $this->_properties['bucket_id'] ?? null;
 		
 		if($bucket_id && false != ($bucket = DAO_Bucket::get($bucket_id))) {
 			if(false != ($reply_signing_key = $bucket->getReplySigningKey())) {
@@ -520,7 +520,7 @@ class CerberusMail {
 		$results = [];
 		
 		foreach($headers as $header) {
-			@list($name, $value) = explode(':', $header);
+			list($name, $value) = array_pad(explode(':', $header, 2), 2, null);
 			
 			$name = trim(DevblocksPlatform::strLower($name));
 			$value = trim($value);
@@ -778,16 +778,16 @@ class CerberusMail {
 			CerberusMail::parseComposeHashCommands($worker, $properties, $hash_commands);
 		}
 		
-		@$org_id = $properties['org_id'];
-		@$toStr = $properties['to'];
-		@$cc = $properties['cc'];
-		@$bcc = $properties['bcc'];
-		@$subject = $properties['subject'];
-		@$content_format = $properties['content_format'];
-		@$files = $properties['files'];
-		@$embedded_files = [];
-		@$forward_files = $properties['forward_files'];
-		@$is_broadcast = intval($properties['is_broadcast']);
+		$org_id = $properties['org_id'] ?? null;
+		$toStr = $properties['to'] ?? null;
+		$cc = $properties['cc'] ?? null;
+		$bcc = $properties['bcc'] ?? null;
+		$subject = $properties['subject'] ?? null;
+		$content_format = $properties['content_format'] ?? null;
+		$files = $properties['files'] ?? null;
+		$embedded_files = [];
+		$forward_files = $properties['forward_files'] ?? null;
+		$is_broadcast = intval($properties['is_broadcast'] ?? null);
 		
 		if(empty($subject)) $subject = '(no subject)';
 		
@@ -1484,8 +1484,8 @@ class CerberusMail {
 			$mail_service = DevblocksPlatform::services()->mail();
 			$mail = $mail_service->createMessage();
 			
-			@$reply_message_id = $properties['message_id'];
-			@$draft_id = $properties['draft_id'];
+			$reply_message_id = $properties['message_id'] ?? null;
+			$draft_id = $properties['draft_id'] ?? null;
 			
 			if(null == ($message = DAO_Message::get($reply_message_id))) {
 				if(false == ($ticket = DAO_Ticket::get($properties['ticket_id'] ?? 0)))
@@ -1570,16 +1570,16 @@ class CerberusMail {
 			}
 			
 			// Re-read properties
-			@$content_format = $properties['content_format'];
-			@$files = $properties['files'];
-			@$is_forward = $properties['is_forward'];
-			@$is_broadcast = $properties['is_broadcast'];
-			@$forward_files = $properties['forward_files'];
-			@$embedded_files = [];
-			@$worker_id = $properties['worker_id'];
-			@$subject = $properties['subject'];
+			$content_format = $properties['content_format'] ?? null;
+			$files = $properties['files'] ?? null;
+			$is_forward = $properties['is_forward'] ?? null;
+			$is_broadcast = $properties['is_broadcast'] ?? null;
+			$forward_files = $properties['forward_files'] ?? null;
+			$embedded_files = [];
+			$worker_id = $properties['worker_id'] ?? null;
+			$subject = $properties['subject'] ?? null;
 			
-			@$is_autoreply = $properties['is_autoreply'];
+			$is_autoreply = $properties['is_autoreply'] ?? null;
 			
 			$message_id = null;
 			$message_headers = DAO_MessageHeaders::getAll($reply_message_id);
@@ -1981,9 +1981,9 @@ class CerberusMail {
 				DAO_Message::WORKER_ID => (!empty($worker_id) ? $worker_id : 0),
 				DAO_Message::RESPONSE_TIME => $response_time,
 				DAO_Message::IS_BROADCAST => $is_broadcast ? 1 : 0,
-				DAO_Message::IS_NOT_SENT => @$properties['dont_send'] ? 1 : 0,
+				DAO_Message::IS_NOT_SENT => ($properties['dont_send'] ?? null) ? 1 : 0,
 				DAO_Message::HASH_HEADER_MESSAGE_ID => sha1($outgoing_message_id),
-				DAO_Message::WAS_ENCRYPTED => !empty(@$properties['gpg_encrypt']) ? 1 : 0,
+				DAO_Message::WAS_ENCRYPTED => ($properties['gpg_encrypt'] ?? null) ? 1 : 0,
 				DAO_Message::HTML_ATTACHMENT_ID => $html_body_id,
 			);
 			
@@ -2361,7 +2361,7 @@ class CerberusMail {
 		foreach($commands as $command_data) {
 			switch($command_data['command']) {
 				case 'comment':
-					@$comment = $command_data['args'];
+					$comment = $command_data['args'] ?? null;
 					
 					if(!empty($comment)) {
 						$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));
@@ -2484,10 +2484,10 @@ class CerberusMail {
 					
 					case 'sig':
 					case 'signature':
-						@$group_id = $message_properties['group_id'];
-						@$bucket_id = $message_properties['bucket_id'];
-						@$content_format = $message_properties['content_format'];
-						@$html_template_id = $message_properties['html_template_id'];
+						$group_id = $message_properties['group_id'] ?? null;
+						$bucket_id = $message_properties['bucket_id'] ?? null;
+						$content_format = $message_properties['content_format'] ?? null;
+						$html_template_id = $message_properties['html_template_id'] ?? null;
 						
 						if(false == ($group = DAO_Group::get($group_id)))
 							break;
@@ -2581,7 +2581,7 @@ class CerberusMail {
 		foreach($commands as $command_data) {
 			switch($command_data['command']) {
 				case 'comment':
-					@$comment = $command_data['args'];
+					$comment = $command_data['args'] ?? null;
 					
 					if(!empty($comment)) {
 						$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));
@@ -3019,10 +3019,10 @@ class CerberusMail {
 		$content = $properties['content'] ?? '';
 		
 		// Apply content modifications in FIFO order
-		if(false != ($content_modifications = @$properties['content_modifications']))
+		if(false != ($content_modifications = ($properties['content_modifications'] ?? null)))
 		foreach($content_modifications as $content_modification) {
-			@$action = $content_modification['action'];
-			@$params = $content_modification['params'];
+			$action = $content_modification['action'] ?? null;
+			$params = $content_modification['params'] ?? null;
 			
 			$params_on = $params['on'] ?? [];
 			
@@ -3063,9 +3063,9 @@ class CerberusMail {
 			
 			// Replacement
 			if($action == 'replace') {
-				@$replace = $params['replace'];
-				@$replace_is_regexp = $params['replace_is_regexp'];
-				@$with = $params['with'];
+				$replace = $params['replace'] ?? null;
+				$replace_is_regexp = $params['replace_is_regexp'] ?? null;
+				$with = $params['with'] ?? null;
 				
 				if($replace_is_regexp) {
 					$content = preg_replace($replace, $with, $content);
@@ -3075,13 +3075,13 @@ class CerberusMail {
 			
 			// Prepends
 			} elseif ($action == 'prepend') {
-				@$prepend_content = $params['content'];
+				$prepend_content = $params['content'] ?? null;
 				
 				$content = $prepend_content . "\n" . $content;
 				
 			// Appends
 			} elseif ($action == 'append') {
-				@$append_content = $params['content'];
+				$append_content = $params['content'] ?? null;
 			
 				$content = $content . "\n" . $append_content;
 			}
@@ -3103,7 +3103,7 @@ class CerberusMail {
 				sprintf('|(\!\[(.*?)\]\(%s(.*?)\))|', preg_quote($base_url)),
 				function($matches) use ($base_url) {
 					if(4 == count($matches)) {
-						@list($file_id, $file_name) = explode('/', $matches[3], 2);
+						list($file_id, $file_name) = array_pad(explode('/', $matches[3], 2), 2, null);
 						
 						$file_name = urldecode($file_name);
 						

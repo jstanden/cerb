@@ -228,10 +228,10 @@ class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 			$dao_class = $context_ext->getDaoClass();
 			$view = $context_ext->getTempView();
 			
-			if(false === $view->addParamsRequiredWithQuickSearch(@$series['query_required'], true, [], $error))
+			if(false === $view->addParamsRequiredWithQuickSearch($series['query_required'] ?? null, true, [], $error))
 				return false;
 			
-			if(false === $view->addParamsWithQuickSearch(@$series['query'], true, [], $error))
+			if(false === $view->addParamsWithQuickSearch($series['query'] ?? null, true, [], $error))
 				return false;
 			
 			if(!method_exists($dao_class, 'getSearchQueryComponents')) {
@@ -294,7 +294,7 @@ class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 			if(array_key_exists('field', $series))
 			switch($series['field']['type']) {
 				case Model_CustomField::TYPE_CURRENCY:
-					@$currency_id = $series['field']['type_options']['currency_id'];
+					$currency_id = $series['field']['type_options']['currency_id'] ?? null;
 					
 					if(!$currency_id || false == ($currency = DAO_Currency::get($currency_id)))
 						break;
@@ -314,7 +314,7 @@ class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 					break;
 					
 				case Model_CustomField::TYPE_DECIMAL:
-					@$decimal_at = $series['field']['type_options']['decimal_at'];
+					$decimal_at = $series['field']['type_options']['decimal_at'] ?? null;
 					
 					switch($series['function']) {
 						case 'average':
@@ -420,8 +420,8 @@ class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 			if(!isset($value['id']) || !isset($value['value']))
 				continue;
 			
-			$type = @$value['field']['type'] ?: DevblocksSearchCriteria::TYPE_TEXT;
-			$type_options = @$value['field']['type_options'] ?:[];
+			$type = ($value['field']['type'] ?? null) ?: DevblocksSearchCriteria::TYPE_TEXT;
+			$type_options = ($value['field']['type_options'] ?? null) ?: [];
 			
 			$row = [
 				'_types' => [

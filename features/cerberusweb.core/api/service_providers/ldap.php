@@ -57,7 +57,7 @@ class ServiceProvider_Ldap extends Extension_ConnectedServiceProvider {
 	}
 	
 	function saveConfigForm(Model_ConnectedService $service, array &$params, &$error=null) {
-		@$edit_params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
+		$edit_params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
 		
 		if(true !== ($result = $this->_testLdap($edit_params))) {
 			$error = $result;
@@ -173,7 +173,7 @@ class ServiceProvider_Ldap extends Extension_ConnectedServiceProvider {
 	
 	public function sso(Model_ConnectedService $service, array $path) {
 		@$uri = array_shift($path);
-		@$error = DevblocksPlatform::importGPC($_REQUEST['error'], 'string', '');
+		$error = DevblocksPlatform::importGPC($_REQUEST['error'] ?? null, 'string', '');
 		
 		if(!extension_loaded('ldap'))
 			DevblocksPlatform::dieWithHttpError("The `ldap` PHP extension is not enabled.");
@@ -202,8 +202,8 @@ class ServiceProvider_Ldap extends Extension_ConnectedServiceProvider {
 				break;
 				
 			case 'authenticate':
-				@$email = DevblocksPlatform::importGPC($_POST['email'], 'string', '');
-				@$password = DevblocksPlatform::importGPC($_POST['password'], 'string', '');
+				$email = DevblocksPlatform::importGPC($_POST['email'] ?? null, 'string', '');
+				$password = DevblocksPlatform::importGPC($_POST['password'] ?? null, 'string', '');
 				
 				sleep(2);
 				

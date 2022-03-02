@@ -16,10 +16,10 @@ class ProfileWidget_ChartCategories extends Extension_ProfileWidget {
 	}
 	
 	function render(Model_ProfileWidget $model, $context, $context_id) {
-		@$data_query = DevblocksPlatform::importGPC($model->extension_params['data_query'], 'string', null);
-		@$xaxis_format = DevblocksPlatform::importGPC($model->extension_params['xaxis_format'], 'string', 'label');
-		@$yaxis_format = DevblocksPlatform::importGPC($model->extension_params['yaxis_format'], 'string', 'label');
-		@$height = DevblocksPlatform::importGPC($model->extension_params['height'], 'integer', 0);
+		$data_query = DevblocksPlatform::importGPC($model->extension_params['data_query'] ?? null, 'string', null);
+		$xaxis_format = DevblocksPlatform::importGPC($model->extension_params['xaxis_format'] ?? null, 'string', 'label');
+		$yaxis_format = DevblocksPlatform::importGPC($model->extension_params['yaxis_format'] ?? null, 'string', 'label');
+		$height = DevblocksPlatform::importGPC($model->extension_params['height'] ?? null, 'integer', 0);
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();

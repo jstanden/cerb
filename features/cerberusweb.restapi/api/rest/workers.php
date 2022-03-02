@@ -375,7 +375,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 		DAO_Worker::update($id, $fields);
 		
 		// Password change?
-		@$password = DevblocksPlatform::importGPC($_POST['password'], 'string', '');
+		$password = DevblocksPlatform::importGPC($_POST['password'] ?? null, 'string', '');
 		if(!empty($password))
 			DAO_Worker::setAuth($id, $password);
 	
@@ -412,7 +412,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 		
 		// If we're given an email address as a string, convert it to email_id
 		if(isset($_POST['email'])) {
-			@$email = DevblocksPlatform::importGPC($_POST['email'], 'string', '');
+			$email = DevblocksPlatform::importGPC($_POST['email'] ?? null, 'string', '');
 			
 			if(false == ($addy_model = DAO_Address::lookupAddress($email, true)))
 				$this->error(self::ERRNO_CUSTOM, "'email' is an invalid value.");
@@ -453,7 +453,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 		// Create
 		if(false != ($id = DAO_Worker::create($fields))) {
 			// Password (optional)
-			@$password = DevblocksPlatform::importGPC($_POST['password'], 'string', '');
+			$password = DevblocksPlatform::importGPC($_POST['password'] ?? null, 'string', '');
 			if(!empty($password))
 				DAO_Worker::setAuth($id, $password);
 			

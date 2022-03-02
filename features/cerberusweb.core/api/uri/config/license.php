@@ -51,10 +51,10 @@ class PageSection_SetupLicense extends Extension_PageSection {
 			if(!$active_worker || !$active_worker->is_superuser)
 				throw new Exception(DevblocksPlatform::translate('error.core.no_acl.admin'));
 				
-			@$key = DevblocksPlatform::importGPC($_POST['key'],'string','');
-			@$company = DevblocksPlatform::importGPC($_POST['company'],'string','');
-			@$email = DevblocksPlatform::importGPC($_POST['email'],'string','');
-			@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
+			$key = DevblocksPlatform::importGPC($_POST['key'] ?? null, 'string','');
+			$company = DevblocksPlatform::importGPC($_POST['company'] ?? null, 'string','');
+			$email = DevblocksPlatform::importGPC($_POST['email'] ?? null, 'string','');
+			$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'integer',0);
 
 			// Deleting license?
 			if(!empty($do_delete)) {

@@ -80,8 +80,8 @@ class WorkspacePage_Workspace extends Extension_WorkspacePage {
 			if(null == ($tab_extension = Extension_WorkspaceTab::get($tab_extension_id)))
 				return false;
 			
-			@$name = $tab_json['name'];
-			@$params = $tab_json['params'] ?: [];
+			$name = $tab_json['name'] ?? null;
+			$params = $tab_json['params'] ?? [];
 			
 			$tab_id = DAO_WorkspaceTab::create(array(
 				DAO_WorkspaceTab::NAME => $name ?: 'New Tab',

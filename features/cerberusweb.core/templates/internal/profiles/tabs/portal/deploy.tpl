@@ -378,7 +378,7 @@ class DevblocksProxy_Curl extends DevblocksProxy {
 		list($raw_headers, $content) = $this->_parseResponse($out);
 		
 		foreach($raw_headers as $raw_header) {
-			@list($k, $v) = explode(':', $raw_header, 2);
+			list($k, $v) = array_pad(explode(':', $raw_header, 2), 2, null);
 			
 			if(empty($k) || empty($v))
 				continue;

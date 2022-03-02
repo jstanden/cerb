@@ -84,7 +84,7 @@ class Event_MailBeforeUiReplyByWorker extends AbstractEvent_Message {
 			);
 		
 		// Add the worker_id
-		@$worker_id = $event_model->params['worker_id'];
+		$worker_id = $event_model->params['worker_id'] ?? null;
 		
 		/**
 		 * Current worker

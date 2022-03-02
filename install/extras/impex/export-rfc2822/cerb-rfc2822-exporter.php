@@ -189,7 +189,7 @@ namespace Cerb\Impex\Exporters {
 		private function _exportTickets() {
 			$db = $this->_getDatabase();
 			
-			//@$mask_prefix = $this->_config['mask_prefix'];
+			//$mask_prefix = $this->_config['mask_prefix'] ?? null;
 			
 			if(false == (@$storage_path = $this->_config['storage_path']))
 				die("The 'storage_path' configuration setting is required.\n");

@@ -924,7 +924,7 @@ class Context_KbCategory extends Extension_DevblocksContext implements IDevblock
 				$tokens = explode(' ', trim($edit));
 				
 				foreach($tokens as $token) {
-					@list($k,$v) = explode(':', $token);
+					list($k,$v) = array_pad(explode(':', $token, 2), 2, null);
 					
 					if($v)
 					switch($k) {
@@ -1266,17 +1266,17 @@ class View_KbCategory extends C4_AbstractView implements IAbstractView_Subtotals
 				break;
 				
 			case SearchFields_KbCategory::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_POST['context_link'],'array',[]);
+				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
 			case SearchFields_KbCategory::VIRTUAL_HAS_FIELDSET:
-				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',[]);
+				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
 			case SearchFields_KbCategory::VIRTUAL_WATCHERS:
-				@$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'],'array',[]);
+				$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
 				break;
 				

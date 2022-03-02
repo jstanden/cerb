@@ -188,7 +188,7 @@ if(array_key_exists('params_json', $columns)) {
 		
 		$member_query = '';
 		
-		@$who_list = $params['who_list'];
+		$who_list = $params['who_list'] ?? null;
 		
 		if(!is_array($who_list))
 			$who_list = [];

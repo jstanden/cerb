@@ -10,7 +10,7 @@ class WorkspaceWidget_ChartLegacy extends Extension_WorkspaceWidget implements I
 	}
 
 	private function _loadData(Model_WorkspaceWidget &$widget) {
-		@$series = $widget->params['series'];
+		$series = $widget->params['series'] ?? null;
 
 		if(empty($series)) {
 			return false;
@@ -21,7 +21,7 @@ class WorkspaceWidget_ChartLegacy extends Extension_WorkspaceWidget implements I
 		// Multiple datasources
 		if(is_array($series))
 		foreach($series as $series_idx => $series_params) {
-			@$datasource_extid = $series_params['datasource'];
+			$datasource_extid = $series_params['datasource'] ?? null;
 
 			if(empty($datasource_extid)) {
 				unset($widget->params['series'][$series_idx]);
@@ -96,9 +96,9 @@ class WorkspaceWidget_ChartLegacy extends Extension_WorkspaceWidget implements I
 		
 		// Calculate subtotals
 		
-		$chart_type = DevblocksPlatform::importVar(@$widget->params['chart_type'], 'string', '');
-		$chart_display = DevblocksPlatform::importVar(@$widget->params['chart_display'], 'string', '');
-		$series_subtotals = DevblocksPlatform::importVar(@$widget->params['chart_subtotal_series'], 'array', []);
+		$chart_type = DevblocksPlatform::importVar($widget->params['chart_type'] ?? null, 'string', '');
+		$chart_display = DevblocksPlatform::importVar($widget->params['chart_display'] ?? null, 'string', '');
+		$series_subtotals = DevblocksPlatform::importVar($widget->params['chart_subtotal_series'] ?? null, 'array', []);
 		
 		if(in_array($chart_display,['','table']) && $series_subtotals) {
 			$subtotals = array_fill_keys($series_subtotals, []);
@@ -142,7 +142,7 @@ class WorkspaceWidget_ChartLegacy extends Extension_WorkspaceWidget implements I
 			$widget->params['subtotals'] = $subtotals;
 		}
 		
-		$row_subtotals = DevblocksPlatform::importVar(@$widget->params['chart_subtotal_row'], 'array', []);
+		$row_subtotals = DevblocksPlatform::importVar($widget->params['chart_subtotal_row'] ?? null, 'array', []);
 		
 		// If this is a bar chart with more than one series
 		if($chart_type == 'bar' && $row_subtotals && count($widget->params['series']) > 1) {
@@ -234,7 +234,7 @@ class WorkspaceWidget_ChartLegacy extends Extension_WorkspaceWidget implements I
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget, ?string &$error=null) : bool {
-		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', array());
+		$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', array());
 		
 		foreach($params['series'] as $idx => $series) {
 			// [TODO] The extension should be able to filter the properties here (on all widgets)

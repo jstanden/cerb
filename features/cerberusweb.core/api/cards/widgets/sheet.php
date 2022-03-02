@@ -21,8 +21,8 @@ class CardWidget_Sheet extends Extension_CardWidget {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$active_worker= CerberusApplication::getActiveWorker();
 		
-		@$data_query = DevblocksPlatform::importGPC($widget->extension_params['data_query'], 'string', null);
-		@$cache_secs = DevblocksPlatform::importGPC($widget->extension_params['cache_secs'], 'integer', 0);
+		$data_query = DevblocksPlatform::importGPC($widget->extension_params['data_query'] ?? null, 'string', null);
+		$cache_secs = DevblocksPlatform::importGPC($widget->extension_params['cache_secs'] ?? null, 'integer', 0);
 		
 		if($page) {
 			$data_query .= sprintf(' page:%d', $page);
@@ -51,7 +51,7 @@ class CardWidget_Sheet extends Extension_CardWidget {
 	}
 	
 	function render(Model_CardWidget $model, $context, $context_id) {
-		@$page = DevblocksPlatform::importGPC($_POST['page'], 'integer', 0);
+		$page = DevblocksPlatform::importGPC($_POST['page'] ?? null, 'integer', 0);
 		
 		$tpl = DevblocksPlatform::services()->template();
 		
@@ -78,7 +78,7 @@ class CardWidget_Sheet extends Extension_CardWidget {
 			case 'dictionaries':
 				$sheets = DevblocksPlatform::services()->sheet();
 				
-				@$sheet_kata = DevblocksPlatform::importGPC($model->extension_params['sheet_kata'], 'string', null);
+				$sheet_kata = DevblocksPlatform::importGPC($model->extension_params['sheet_kata'] ?? null, 'string', null);
 				$sheet = $sheets->parse($sheet_kata, $error);
 				
 				$sheets->addType('card', $sheets->types()->card());
@@ -104,7 +104,7 @@ class CardWidget_Sheet extends Extension_CardWidget {
 				$columns = $sheets->getColumns($sheet);
 				$tpl->assign('columns', $columns);
 				
-				@$paging = $results['_']['paging'];
+				$paging = $results['_']['paging'] ?? null;
 				
 				if($paging) {
 					$tpl->assign('paging', $paging);
@@ -174,7 +174,7 @@ class CardWidget_Sheet extends Extension_CardWidget {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::services()->template();
 		
-		@$toolbar_kata = DevblocksPlatform::importGPC($_POST['params']['toolbar_kata'], 'string', '');
+		$toolbar_kata = DevblocksPlatform::importGPC($_POST['params']['toolbar_kata'] ?? null, 'string', '');
 		
 		$toolbar_dict = DevblocksDictionaryDelegate::instance([
 			'caller_name' => 'cerb.toolbar.cardWidget.sheet',
@@ -225,8 +225,8 @@ class CardWidget_Sheet extends Extension_CardWidget {
 	}
 	
 	private function _cardWidgetAction_renderToolbar(Model_CardWidget $widget) {
-		@$row_selections = DevblocksPlatform::importGPC($_POST['row_selections'], 'array', []);
-		@$card_context_id = DevblocksPlatform::importGPC($_POST['card_context_id'], 'integer', null);
+		$row_selections = DevblocksPlatform::importGPC($_POST['row_selections'] ?? null, 'array', []);
+		$card_context_id = DevblocksPlatform::importGPC($_POST['card_context_id'] ?? null, 'integer', null);
 		
 		$this->renderToolbar($widget, $card_context_id, $row_selections);
 	}

@@ -43,7 +43,7 @@ class WorkspaceWidget_MapGeoPoints extends Extension_WorkspaceWidget {
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget, ?string &$error=null) : bool {
-		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
+		$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
 		
 		$kata = DevblocksPlatform::services()->kata();
 		
@@ -71,8 +71,8 @@ class WorkspaceWidget_MapGeoPoints extends Extension_WorkspaceWidget {
 	}
 	
 	private function _workspaceWidgetAction_mapClicked(Model_WorkspaceWidget $widget) {
-		@$feature_type = DevblocksPlatform::importGPC($_POST['feature_type'], 'string', []);
-		@$feature_properties = DevblocksPlatform::importGPC($_POST['feature_properties'], 'array', []);
+		$feature_type = DevblocksPlatform::importGPC($_POST['feature_type'] ?? null, 'string', []);
+		$feature_properties = DevblocksPlatform::importGPC($_POST['feature_properties'] ?? null, 'array', []);
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$event_handler = DevblocksPlatform::services()->ui()->eventHandler();

@@ -244,7 +244,7 @@ class DAO_Calendar extends Cerb_ORMHelper {
 		$calendars = DAO_Calendar::getAll();
 
 		$calendars = array_filter($calendars, function($calendar) {
-			@$manual_disabled = $calendar->params['manual_disabled'];
+			$manual_disabled = $calendar->params['manual_disabled'] ?? null;
 			
 			if(!empty($manual_disabled))
 				return false;
@@ -1325,27 +1325,27 @@ class View_Calendar extends C4_AbstractView implements IAbstractView_Subtotals, 
 				break;
 				
 			case 'placeholder_bool':
-				@$bool = DevblocksPlatform::importGPC($_POST['bool'],'integer',1);
+				$bool = DevblocksPlatform::importGPC($_POST['bool'] ?? null, 'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 				
 			case SearchFields_Calendar::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_POST['context_link'],'array',array());
+				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array', []);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
 			case SearchFields_Calendar::VIRTUAL_HAS_FIELDSET:
-				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',array());
+				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array', []);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
 			case SearchFields_Calendar::VIRTUAL_OWNER:
-				@$owner_contexts = DevblocksPlatform::importGPC($_POST['owner_context'],'array',array());
+				$owner_contexts = DevblocksPlatform::importGPC($_POST['owner_context'] ?? null, 'array', []);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$owner_contexts);
 				break;
 				
 			case SearchFields_Calendar::VIRTUAL_WATCHERS:
-				@$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'],'array',array());
+				$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'] ?? null, 'array', []);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
 				break;
 				
@@ -1736,14 +1736,14 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 			case 'weeks':
 				if(!isset($dictionary['scope'])) {
 					$values = self::lazyLoadContextValues('scope', $dictionary);
-					@$month = $values['scope']['month'];
-					@$year = $values['scope']['year'];
+					$month = $values['scope']['month'] ?? null;
+					$year = $values['scope']['year'] ?? null;
 
 					unset($values['scope']['calendar_weeks']);
 					
 				} else {
-					@$month = $dictionary['scope']['month'];
-					@$year = $dictionary['scope']['year'];
+					$month = $dictionary['scope']['month'] ?? null;
+					$year = $dictionary['scope']['year'] ?? null;
 				}
 				
 				$calendar_scope = DevblocksCalendarHelper::getCalendar($month, $year);
@@ -1756,10 +1756,10 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 			case 'events_occluded':
 				if(!isset($dictionary['scope'])) {
 					$values = self::lazyLoadContextValues('scope', $dictionary);
-					@$calendar_scope = $values['scope'];
+					$calendar_scope = $values['scope'] ?? null;
 					
 				} else {
-					@$calendar_scope = $dictionary['scope'];
+					$calendar_scope = $dictionary['scope'] ?? null;
 				}
 
 				$calendar = DAO_Calendar::get($context_id);
@@ -1801,8 +1801,8 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 					$calendar_scope = $dictionary['scope'];
 				}
 				
-				@$month = $calendar_scope['month'];
-				@$year = $calendar_scope['year'];
+				$month = $calendar_scope['month'] ?? null;
+				$year = $calendar_scope['year'] ?? null;
 				
 				$calendar = DAO_Calendar::get($context_id);
 				

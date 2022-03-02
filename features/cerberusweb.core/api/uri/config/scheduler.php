@@ -46,7 +46,7 @@ class PageSection_SetupScheduler extends Extension_PageSection {
 		if(!$active_worker || !$active_worker->is_superuser)
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'string','');
+		$id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null,'string','');
 
 		if(null == ($job = DevblocksPlatform::getExtension($id, true)))
 			return;
@@ -67,12 +67,12 @@ class PageSection_SetupScheduler extends Extension_PageSection {
 		
 		try {
 			// Save the job changes
-			@$id = DevblocksPlatform::importGPC($_POST['id'],'string','');
-			@$enabled = DevblocksPlatform::importGPC($_POST['enabled'],'integer',0);
-			@$locked = DevblocksPlatform::importGPC($_POST['locked'],'integer',0);
-			@$duration = DevblocksPlatform::importGPC($_POST['duration'],'integer',5);
-			@$term = DevblocksPlatform::importGPC($_POST['term'],'string','m');
-			@$starting = DevblocksPlatform::importGPC($_POST['starting'],'string','');
+			$id = DevblocksPlatform::importGPC($_POST['id'] ?? null,'string','');
+			$enabled = DevblocksPlatform::importGPC($_POST['enabled'] ?? null,'integer',0);
+			$locked = DevblocksPlatform::importGPC($_POST['locked'] ?? null,'integer',0);
+			$duration = DevblocksPlatform::importGPC($_POST['duration'] ?? null,'integer',5);
+			$term = DevblocksPlatform::importGPC($_POST['term'] ?? null,'string','m');
+			$starting = DevblocksPlatform::importGPC($_POST['starting'] ?? null,'string','');
 					
 			$manifest = DevblocksPlatform::getExtension($id);
 			$job = $manifest->createInstance(); /* @var $job CerberusCronPageExtension */

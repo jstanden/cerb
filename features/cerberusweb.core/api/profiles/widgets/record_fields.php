@@ -76,7 +76,7 @@ class ProfileWidget_Fields extends Extension_ProfileWidget {
 		
 		// Properties
 		
-		$properties_selected = @$model->extension_params['properties'] ?: [];
+		$properties_selected = $model->extension_params['properties'] ?? [];
 		
 		foreach($properties_selected as &$v)
 			$v = array_flip($v);
@@ -102,7 +102,7 @@ class ProfileWidget_Fields extends Extension_ProfileWidget {
 		
 		// Empty fields
 		
-		$show_empty_fields = @$model->extension_params['options']['show_empty_properties'] ?: false;
+		$show_empty_fields = (bool)($model->extension_params['options']['show_empty_properties'] ?? null);
 		
 		// Custom Fieldsets
 		
@@ -111,7 +111,7 @@ class ProfileWidget_Fields extends Extension_ProfileWidget {
 		
 		// Only keep selected properties
 		foreach($properties_custom_fieldsets as $fieldset_id => &$fieldset_properties)
-			$fieldset_properties['properties'] = array_intersect_key($fieldset_properties['properties'], @$properties_selected[$fieldset_id] ?: []);
+			$fieldset_properties['properties'] = array_intersect_key(($fieldset_properties['properties'] ?? []), ($properties_selected[$fieldset_id] ?? []));
 		
 		if(!$show_empty_fields) {
 			$filter_empty_properties = function(&$properties) {
@@ -131,7 +131,7 @@ class ProfileWidget_Fields extends Extension_ProfileWidget {
 						
 						case Model_CustomField::TYPE_LINK:
 							// App-owned context links can be blank
-							if(@$property['params']['context'] == CerberusContexts::CONTEXT_APPLICATION)
+							if(($property['params']['context'] ?? null) == CerberusContexts::CONTEXT_APPLICATION)
 								continue 2;
 							break;
 					}
@@ -155,7 +155,7 @@ class ProfileWidget_Fields extends Extension_ProfileWidget {
 		
 		// Link counts
 		
-		@$show_links = $model->extension_params['links']['show'];
+		$show_links = $model->extension_params['links']['show'] ?? null;
 		
 		if($show_links) {
 			$properties_links = [
@@ -195,7 +195,7 @@ class ProfileWidget_Fields extends Extension_ProfileWidget {
 		$context_mfts = Extension_DevblocksContext::getAll(false);
 		$tpl->assign('context_mfts', $context_mfts);
 		
-		@$context = $model->extension_params['context'];
+		$context = $model->extension_params['context'] ?? null;
 		
 		if($context) {
 			if(false == ($context_ext = Extension_DevblocksContext::get($context))) {
@@ -220,7 +220,7 @@ class ProfileWidget_Fields extends Extension_ProfileWidget {
 				
 				// Sort properties by the configured order
 				
-				@$properties_enabled = array_flip($model->extension_params['properties'][0] ?: []);
+				$properties_enabled = array_flip($model->extension_params['properties'][0] ?? []);
 				
 				uksort($properties, function($a, $b) use ($properties_enabled, $properties) {
 					$a_pos = array_key_exists($a, $properties_enabled) ? $properties_enabled[$a] : 1000;
@@ -256,7 +256,7 @@ class ProfileWidget_Fields extends Extension_ProfileWidget {
 	}
 	
 	private function _getSearchButtons(Model_ProfileWidget $model, DevblocksDictionaryDelegate $dict=null) {
-		@$search = $model->extension_params['search'] ?: [];
+		$search = $model->extension_params['search'] ?? [];
 		
 		$search_buttons = [];
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
@@ -293,8 +293,8 @@ class ProfileWidget_Fields extends Extension_ProfileWidget {
 					continue;
 				
 				$label_aliases = Extension_DevblocksContext::getAliasesForContext($search_button_context->manifest);
-				$label_singular = @$search_button['label_singular'] ?: $label_aliases['singular'];
-				$label_plural = @$search_button['label_plural'] ?: $label_aliases['plural'];
+				$label_singular = $search_button['label_singular'] ?? $label_aliases['singular'] ?? $search_button_context->id;
+				$label_plural = $search_button['label_plural'] ?? $label_aliases['plural'] ?? $search_button_context->id;
 				
 				$search_button_query = $tpl_builder->build($search_button['query'], $dict);
 				$view->addParamsWithQuickSearch($search_button_query);

@@ -24,31 +24,26 @@ class UmScAjaxController extends Extension_UmScController {
 	}
 	
 	function handleRequest(DevblocksHttpRequest $request) {
-		@$path = $request->path;
-		@$a = DevblocksPlatform::importGPC($_REQUEST['a'],'string', '');
+		$path = $request->path ?? [];
+		$a = DevblocksPlatform::importGPC($_REQUEST['a'] ?? null, 'string', '');
 		
 		$tpl = DevblocksPlatform::services()->templateSandbox();
 		$umsession = ChPortalHelper::getSession();
 		
-		@$active_contact = $umsession->getProperty('sc_login',null);
+		$active_contact = $umsession->getProperty('sc_login');
 		$tpl->assign('active_contact', $active_contact);
 		
-		@array_shift($path); // ajax
+		array_shift($path); // ajax
 		
-		@$action = $a ?: array_shift($path);
+		$action = strval($a ?: array_shift($path));
 		
-		switch($action) {
-			default:
-				if(false === ($this->invoke($action, new DevblocksHttpRequest($path)))) {
-					// Log
-				}
-				break;
-		}
+		$this->invoke($action, new DevblocksHttpRequest($path));
+
 		DevblocksPlatform::exit();
 	}
 	
 	private function _portalAction_viewRefresh() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['id'],'string','');
+		$view_id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null, 'string','');
 		
 		if(null != ($view = UmScAbstractViewLoader::getView('', $view_id))) {
 			$view->render();
@@ -56,8 +51,8 @@ class UmScAjaxController extends Extension_UmScController {
 	}
 	
 	private function _portalAction_viewPage() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['id'],'string','');
-		@$page = DevblocksPlatform::importGPC($_REQUEST['page'],'integer',0);
+		$view_id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null, 'string','');
+		$page = DevblocksPlatform::importGPC($_REQUEST['page'] ?? null, 'integer',0);
 		
 		if(null != ($view = UmScAbstractViewLoader::getView('', $view_id))) {
 			$view->renderPage = $page;
@@ -68,8 +63,8 @@ class UmScAjaxController extends Extension_UmScController {
 	}
 	
 	private function _portalAction_viewSortBy() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['id'],'string','');
-		@$sort_by = DevblocksPlatform::importGPC($_REQUEST['sort_by'],'string','');
+		$view_id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null, 'string','');
+		$sort_by = DevblocksPlatform::importGPC($_REQUEST['sort_by'] ?? null, 'string','');
 		
 		if(null != ($view = UmScAbstractViewLoader::getView('', $view_id))) {
 			$fields = $view->getColumnsAvailable();

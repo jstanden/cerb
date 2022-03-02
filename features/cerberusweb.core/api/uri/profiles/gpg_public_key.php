@@ -41,10 +41,10 @@ class PageSection_ProfilesGpgPublicKey extends Extension_PageSection {
 	}
 	
 	private function _profileAction_savePeekJson() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
 		
-		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
+		$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'string', '');
 		
 		$gpg = DevblocksPlatform::services()->gpg();
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -77,8 +77,8 @@ class PageSection_ProfilesGpgPublicKey extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
-				@$key_text = DevblocksPlatform::importGPC($_POST['key_text'], 'string', '');
+				$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');
+				$key_text = DevblocksPlatform::importGPC($_POST['key_text'] ?? null, 'string', '');
 				
 				$keyinfo = [];
 				$expires_at = 0;
@@ -108,7 +108,7 @@ class PageSection_ProfilesGpgPublicKey extends Extension_PageSection {
 						throw new Exception_DevblocksAjaxValidationError("Failed to retrieve public key subkey info.", "key_text");
 					
 					if (empty($name))
-						@$name = $keyinfo['uids'][0]['uid'];
+						$name = $keyinfo['uids'][0]['uid'] ?? null;
 					
 					$expires_at = $key['expires'];
 				}
@@ -178,7 +178,7 @@ class PageSection_ProfilesGpgPublicKey extends Extension_PageSection {
 				
 				if($id) {
 					// Custom field saves
-					@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+					$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 					if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_GPG_PUBLIC_KEY, $id, $field_ids, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
@@ -241,7 +241,7 @@ class PageSection_ProfilesGpgPublicKey extends Extension_PageSection {
 	}
 	
 	private function _profileAction_viewExplore() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
@@ -257,7 +257,7 @@ class PageSection_ProfilesGpgPublicKey extends Extension_PageSection {
 		$view->setAutoPersist(false);
 
 		// Page start
-		@$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'],'integer',0);
+		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'integer',0);
 		if(empty($explore_from)) {
 			$orig_pos = 1+($view->renderPage * $view->renderLimit);
 		} else {

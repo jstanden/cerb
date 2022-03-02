@@ -186,7 +186,7 @@ class _DevblocksOAuth1Client {
 		$content_type = $this->_response_info['content_type'];
 		
 		if(false !== strpos($content_type, ';'))
-			@list($content_type,) = explode(';', $content_type);
+			list($content_type,) = array_pad(explode(';', $content_type), 2, null);
 		
 		$results = array();
 		
@@ -289,7 +289,7 @@ class _DevblocksOAuth1Client {
 		$content_type = $this->_response_info['content_type'];
 		
 		if(false !== strpos($content_type, ';'))
-			@list($content_type,) = explode(';', $content_type);
+			list($content_type,) = array_pad(explode(';', $content_type), 2, null);
 		
 		$results = array();
 		
@@ -346,7 +346,7 @@ class _DevblocksOAuth1Client {
 		$content_type = $this->_response_info['content_type'];
 		
 		if(false !== strpos($content_type, ';'))
-			@list($content_type,) = explode(';', $content_type);
+			list($content_type,) = array_pad(explode(';', $content_type), 2, null);
 		
 		$results = array();
 		
@@ -388,7 +388,7 @@ class _DevblocksOAuth1Client {
 		foreach($headers as $k => $v) {
 			if(0 == strcasecmp($k, 'Content-Type')) {
 				$v = implode('; ', $v);
-				@list($content_type,) = explode(';', $v);
+				list($content_type,) = array_pad(explode(';', $v), 2, null);
 				return trim(DevblocksPlatform::strLower($content_type));
 			}
 		}

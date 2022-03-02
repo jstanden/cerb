@@ -77,8 +77,8 @@ class ChRest_Snippets extends Extension_RestController implements IExtensionRest
 	}
 	
 	function getId($id) {
-		@$context_id = DevblocksPlatform::importVar($_REQUEST['context_id'], 'integer', 0);
-		@$prompts = DevblocksPlatform::importVar($_REQUEST['prompts'], 'array', []);
+		$context_id = DevblocksPlatform::importVar($_REQUEST['context_id'] ?? null, 'integer', 0);
+		$prompts = DevblocksPlatform::importVar($_REQUEST['prompts'] ?? null, 'array', []);
 		
 		$worker = CerberusApplication::getActiveWorker();
 		
@@ -87,8 +87,8 @@ class ChRest_Snippets extends Extension_RestController implements IExtensionRest
 		));
 		
 		if(is_array($container) && isset($container['results']) && isset($container['results'][$id])) {
-			@$values = $container['results'][$id];
-			@$context = $values['context'];
+			$values = $container['results'][$id] ?? null;
+			$context = $values['context'] ?? null;
 			
 			if($context_id || $prompts) {
 				if(!$context && $context_id)

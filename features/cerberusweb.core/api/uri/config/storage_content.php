@@ -98,7 +98,7 @@ class PageSection_SetupStorageContent extends Extension_PageSection {
 		if(!$active_worker || !$active_worker->is_superuser)
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
+		$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'] ?? null, 'string','');
 		
 		$storage_engines = DevblocksPlatform::getExtensions('devblocks.storage.engine', false);
 		$tpl->assign('storage_engines', $storage_engines);
@@ -122,7 +122,7 @@ class PageSection_SetupStorageContent extends Extension_PageSection {
 		if(!$active_worker || !$active_worker->is_superuser)
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
+		$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'] ?? null, 'string','');
 		
 		$extension = DevblocksPlatform::getExtension($ext_id, true);
 		$tpl->assign('schema', $extension);
@@ -145,7 +145,7 @@ class PageSection_SetupStorageContent extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$ext_id = DevblocksPlatform::importGPC($_POST['ext_id'],'string','');
+		$ext_id = DevblocksPlatform::importGPC($_POST['ext_id'] ?? null, 'string','');
 		
 		$extension = DevblocksPlatform::getExtension($ext_id, true);
 		/* @var $extension Extension_DevblocksStorageSchema */

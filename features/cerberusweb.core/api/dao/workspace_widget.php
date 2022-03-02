@@ -944,12 +944,12 @@ class View_WorkspaceWidget extends C4_AbstractView implements IAbstractView_Subt
 				break;
 				
 			case SearchFields_WorkspaceWidget::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_POST['context_link'],'array',[]);
+				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
 			case SearchFields_WorkspaceWidget::VIRTUAL_HAS_FIELDSET:
-				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',[]);
+				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
@@ -1349,7 +1349,7 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext implements IDev
 				$tokens = explode(' ', trim($edit));
 				
 				foreach($tokens as $token) {
-					@list($k,$v) = explode(':', $token);
+					list($k,$v) = array_pad(explode(':', $token, 2), 2, null);
 					
 					if($v)
 					switch($k) {

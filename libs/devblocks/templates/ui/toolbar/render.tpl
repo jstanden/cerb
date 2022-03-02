@@ -50,7 +50,7 @@
 {/function}
 
 {foreach from=$toolbar item=toolbar_item}
-    {if !$toolbar_item.hidden}
+    {if !array_key_exists('hidden', $toolbar_item) || !$toolbar_item.hidden}
         {if 'interaction' == $toolbar_item.type}
             {if $toolbar_item.uri}
                 <button type="button" class="cerb-bot-trigger"

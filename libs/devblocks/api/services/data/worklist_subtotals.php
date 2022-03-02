@@ -284,10 +284,10 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		$search_class = $subtotals_context->getSearchClass();
 		$view = $subtotals_context->getTempView();
 		
-		if(false === $view->addParamsRequiredWithQuickSearch(@$chart_model['query_required'], true, [], $error))
+		if(false === $view->addParamsRequiredWithQuickSearch($chart_model['query_required'] ?? null, true, [], $error))
 			return false;
 			
-		if(false === $view->addParamsWithQuickSearch(@$chart_model['query'], true, [], $error))
+		if(false === $view->addParamsWithQuickSearch($chart_model['query'] ?? null, true, [], $error))
 			return false;
 		
 		if(!method_exists($view, 'getQuickSearchFields')) {
@@ -305,7 +305,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			if(!is_array($subtotal_by))
 				$subtotal_by = [$subtotal_by];
 			
-			$group_by = @$chart_model['group'] ?: [];
+			$group_by = ($chart_model['group'] ?? null) ?: [];
 			unset($chart_model['group']);
 			
 			if(!is_array($group_by))
@@ -378,7 +378,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		
 		foreach($by_fields as $by) {
 			$limit = DevblocksPlatform::intClamp($by['limit'], 0, 2000) ?: 25;
-			@$limit_desc = $by['limit_desc'];
+			$limit_desc = $by['limit_desc'] ?? null;
 			
 			$sql = sprintf("SELECT COUNT(*) AS hits, %s %s %s %s GROUP BY `%s` ORDER BY hits %s LIMIT %d",
 				sprintf("%s AS `%s`",
@@ -386,7 +386,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 					$db->escape($by['key_select'])
 				),
 				$query_parts['join'],
-				@$by['sql_join'] ?: '',
+				($by['sql_join'] ?? null) ?: '',
 				$query_parts['where'],
 				$db->escape($by['key_select']),
 				$limit_desc ? 'DESC' : 'ASC',
@@ -435,7 +435,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				}, $by_fields)),
 				$query_parts['join'],
 				implode(' ', array_map(function($e) use ($db) {
-					return @$e['sql_join'];
+					return $e['sql_join'] ?? null;
 				}, $by_fields)),
 				$sql_where,
 				implode(', ', array_map(function($e) use ($db) {
@@ -501,7 +501,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			// Re-label
 			switch($by['type']) {
 				case Model_CustomField::TYPE_CURRENCY:
-					@$currency_id = $by['type_options']['currency_id'];
+					$currency_id = $by['type_options']['currency_id'] ?? null;
 					
 					if(!$currency_id || false == ($currency = DAO_Currency::get($currency_id)))
 						break;
@@ -514,7 +514,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 					break;
 					
 				case Model_CustomField::TYPE_DECIMAL:
-					@$decimal_at = $by['type_options']['decimal_at'];
+					$decimal_at = $by['type_options']['decimal_at'] ?? null;
 					
 					foreach($values as $row_idx => $value) {
 						$value = DevblocksPlatform::strFormatDecimal($value, $decimal_at, '.', '');
@@ -659,12 +659,12 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		}
 
 		$response = ['children' => []];
-		@$last_k = array_slice(array_keys($rows[0] ?? []), -1, 1)[0] ?: [];
+		$last_k = (array_slice(array_keys($rows[0] ?? []), -1, 1)[0] ?? null) ?: [];
 		
 		foreach($rows as $row) {
 			$ptr =& $response['children'];
 			
-			if(@$chart_model['query']) {
+			if(($chart_model['query'] ?? null)) {
 				$query = ['(' . $chart_model['query'] . ')'];
 			} else {
 				$query = [];
@@ -760,7 +760,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		
 		$sort_children($response['children']);
 		
-		@$format = $chart_model['format'] ?: 'tree';
+		$format = ($chart_model['format'] ?? null) ?: 'tree';
 		
 		switch($format) {
 			case 'categories':
@@ -806,7 +806,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			return [];
 		
 		// Do we have nested data?
-		$nested = @$response['children'][0]['children'] ? true : false;
+		$nested = (bool)($response['children'][0]['children'] ?? null);
 		$series_meta = [];
 		
 		if($nested) {
@@ -903,11 +903,11 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 						if(array_key_exists('context_key', $by['type_options']))
 							$type_options['context_key'] = $by['type_options']['context_key'];
 					
-						@$type_options['context_id_key'] = $by['type_options']['context_id_key'] ?: $by['key_query'];
+						$type_options['context_id_key'] = ($by['type_options']['context_id_key'] ?? null) ?: ($by['key_query'] ?? null);
 						
 					} else {
-						@$type_options['context_key'] = $by['key_query'] . '__context';
-						@$type_options['context_id_key'] = $by['key_query'];
+						$type_options['context_key'] = ($by['key_query'] ?? null) . '__context';
+						$type_options['context_id_key'] = $by['key_query'] ?? null;
 					}
 					
 					$output['columns'][$by['key_query'] . '_label'] = [
@@ -1005,7 +1005,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 								
 								if(!array_key_exists('type_options', $column)) {
 									if(false !== (strpos($value,':'))) {
-										@list($context, $context_id) = explode(':', $value, 2);
+										list($context, $context_id) = array_pad(explode(':', $value, 2), 2, null);
 										$row[$key_prefix . '_context'] = $context;
 										$row[$key_prefix . 'id'] = $context_id;
 										$row[$key_prefix . '_label'] = $name;
@@ -1124,7 +1124,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			
 			// If this is the last column
 			if($by_index+1 == $by_len) {
-				@$func_label = $chart_model['function'];
+				$func_label = $chart_model['function'] ?? null;
 				
 				switch($chart_model['function']) {
 					case 'avg':
@@ -1169,15 +1169,15 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 						if(array_key_exists('context_key', $by['type_options']))
 							$type_options['context_key'] = $by['type_options']['context_key'];
 					
-						@$type_options['context_id_key'] = $by['type_options']['context_id_key'] ?: $by['key_query'];
+						$type_options['context_id_key'] = ($by['type_options']['context_id_key'] ?? null) ?: ($by['key_query'] ?? null);
 						
 					} else {
-						@$type_options['context_key'] = $by['key_query'] . '__context';
-						@$type_options['context_id_key'] = $by['key_query'];
+						$type_options['context_key'] = ($by['key_query'] ?? null) . '__context';
+						$type_options['context_id_key'] = $by['key_query'] ?? null;
 					}
 					
 					$output['columns'][$by['key_query'] . '_label'] = [
-						'label' => $label . DevblocksPlatform::strTitleCase(@$by['label'] ?: $by['key_query']),
+						'label' => $label . DevblocksPlatform::strTitleCase(($by['label'] ?? null) ?: ($by['key_query'] ?? null)),
 						'type' => $type,
 						'type_options' => $type_options,
 					];
@@ -1185,7 +1185,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 					
 				case DevblocksSearchCriteria::TYPE_WORKER:
 					$output['columns'][$by['key_query'] . '_label'] = [
-						'label' => $label . DevblocksPlatform::strTitleCase(@$by['label'] ?: $by['key_query']),
+						'label' => $label . DevblocksPlatform::strTitleCase(($by['label'] ?? null) ?: ($by['key_query'] ?? null)),
 						'type' => $type,
 						'type_options' => [
 							'context_id_key' => $by['key_query'],
@@ -1195,7 +1195,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				
 				default:
 					$output['columns'][$by['key_query']] = [
-						'label' => $label . DevblocksPlatform::strTitleCase(@$by['label'] ?: $by['key_query']),
+						'label' => $label . DevblocksPlatform::strTitleCase(($by['label'] ?? null) ?: ($by['key_query'] ?? null)),
 						'type' => $type,
 					];
 					break;

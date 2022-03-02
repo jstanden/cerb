@@ -743,7 +743,7 @@ class _DevblocksBayesClassifierService {
 		foreach($custom_entities as $entity) {
 			switch($entity->type) {
 				case 'list':
-					@$label_map = $entity->params['map'];
+					$label_map = $entity->params['map'] ?? null;
 					
 					if(empty($label_map) || !is_array($label_map))
 						break;
@@ -752,7 +752,7 @@ class _DevblocksBayesClassifierService {
 					break;
 					
 				case 'regexp':
-					@$pattern = $entity->params['pattern'];
+					$pattern = $entity->params['pattern'] ?? null;
 					$entity_name = DevblocksPlatform::strLower($entity->name);
 					
 					if(empty($pattern))
@@ -1210,7 +1210,7 @@ class _DevblocksBayesClassifierService {
 					
 				case 'regexp':
 					foreach($tags as $idx => $tagset) {
-						@$entity_value = $tagset['{' . $entity_token . '}'];
+						$entity_value = $tagset['{' . $entity_token . '}'] ?? null;
 						
 						if($entity_value) {
 							if(!isset($entities[$entity_token]))
@@ -1251,7 +1251,7 @@ class _DevblocksBayesClassifierService {
 					// [TODO] These patterns should be learnable
 					// [TODO] These can be optimized as a tree
 					
-					@$patterns = $entity->params['patterns'];
+					$patterns = $entity->params['patterns'] ?? null;
 					
 					if(empty($patterns) || !is_array($patterns))
 						break;

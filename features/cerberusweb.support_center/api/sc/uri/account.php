@@ -88,8 +88,8 @@ class UmScAccountController extends Extension_UmScController {
 				@$id = array_shift($path);
 				
 				if('confirm' == $id) {
-					@$email = DevblocksPlatform::importGPC($_POST['email'],'string','');
-					@$confirm = DevblocksPlatform::importGPC($_POST['confirm'],'string','');
+					$email = DevblocksPlatform::importGPC($_POST['email'] ?? null, 'string','');
+					$confirm = DevblocksPlatform::importGPC($_POST['confirm'] ?? null, 'string','');
 					
 					if(empty($email))
 						$email = $umsession->getProperty('account.email.add', '');
@@ -159,31 +159,31 @@ class UmScAccountController extends Extension_UmScController {
 		
 		// First name
 		if(isset($show_fields['contact_first_name']) && $show_fields['contact_first_name'] == 2) {
-			@$first_name = DevblocksPlatform::importGPC($_POST['first_name'],'string','');
+			$first_name = DevblocksPlatform::importGPC($_POST['first_name'] ?? null, 'string','');
 			$fields[DAO_Contact::FIRST_NAME] = $first_name;
 		}
 		
 		// Last name
 		if(isset($show_fields['contact_last_name']) && $show_fields['contact_last_name'] == 2) {
-			@$last_name = DevblocksPlatform::importGPC($_POST['last_name'],'string','');
+			$last_name = DevblocksPlatform::importGPC($_POST['last_name'] ?? null, 'string','');
 			$fields[DAO_Contact::LAST_NAME] = $last_name;
 		}
 		
 		// Title
 		if(isset($show_fields['contact_title']) && $show_fields['contact_title'] == 2) {
-			@$title = DevblocksPlatform::importGPC($_POST['title'],'string','');
+			$title = DevblocksPlatform::importGPC($_POST['title'] ?? null, 'string','');
 			$fields[DAO_Contact::TITLE] = $title;
 		}
 		
 		// Username
 		if(isset($show_fields['contact_username']) && $show_fields['contact_username'] == 2) {
-			@$username = DevblocksPlatform::importGPC($_POST['username'],'string','');
+			$username = DevblocksPlatform::importGPC($_POST['username'] ?? null, 'string','');
 			$fields[DAO_Contact::USERNAME] = $username;
 		}
 		
 		// Gender
 		if(isset($show_fields['contact_gender']) && $show_fields['contact_gender'] == 2) {
-			@$gender = DevblocksPlatform::importGPC($_POST['gender'],'string','');
+			$gender = DevblocksPlatform::importGPC($_POST['gender'] ?? null, 'string','');
 			if(!in_array($gender, array('M','F')))
 				$gender = '';
 			
@@ -192,13 +192,13 @@ class UmScAccountController extends Extension_UmScController {
 		
 		// Location
 		if(isset($show_fields['contact_location']) && $show_fields['contact_location'] == 2) {
-			@$location = DevblocksPlatform::importGPC($_POST['location'],'string','');
+			$location = DevblocksPlatform::importGPC($_POST['location'] ?? null, 'string','');
 			$fields[DAO_Contact::LOCATION] = $location;
 		}
 		
 		// DOB
 		if(isset($show_fields['contact_dob']) && $show_fields['contact_dob'] == 2) {
-			@$dob = DevblocksPlatform::importGPC($_POST['dob'],'string','');
+			$dob = DevblocksPlatform::importGPC($_POST['dob'] ?? null, 'string','');
 			
 			$dob_ts = null;
 			
@@ -210,18 +210,18 @@ class UmScAccountController extends Extension_UmScController {
 		
 		// Phone
 		if(isset($show_fields['contact_phone']) && $show_fields['contact_phone'] == 2) {
-			@$phone = DevblocksPlatform::importGPC($_POST['phone'],'string','');
+			$phone = DevblocksPlatform::importGPC($_POST['phone'] ?? null, 'string','');
 			$fields[DAO_Contact::PHONE] = $phone;
 		}
 		
 		// Mobile
 		if(isset($show_fields['contact_mobile']) && $show_fields['contact_mobile'] == 2) {
-			@$mobile = DevblocksPlatform::importGPC($_POST['mobile'],'string','');
+			$mobile = DevblocksPlatform::importGPC($_POST['mobile'] ?? null, 'string','');
 			$fields[DAO_Contact::MOBILE] = $mobile;
 		}
 		
 		// Change the primary email if requested, but verify ownership
-		@$primary_email_id = DevblocksPlatform::importGPC($_POST['primary_email_id'],'integer',0);
+		$primary_email_id = DevblocksPlatform::importGPC($_POST['primary_email_id'] ?? null, 'integer',0);
 		if($primary_email_id && $primary_email_id != $active_contact->primary_email_id) {
 			if(false != ($address = DAO_Address::get($primary_email_id)) && $address->contact_id == $active_contact->id) {
 				$fields[DAO_Contact::PRIMARY_EMAIL_ID] = $primary_email_id;
@@ -231,7 +231,7 @@ class UmScAccountController extends Extension_UmScController {
 		// Photo
 		// [TODO] Do this as Ajax with a save button?
 		if(isset($show_fields['contact_photo']) && $show_fields['contact_photo'] == 2) {
-			@$image_data = DevblocksPlatform::importGPC($_POST['imagedata'],'string','');
+			$image_data = DevblocksPlatform::importGPC($_POST['imagedata'] ?? null, 'string','');
 			DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_CONTACT, $active_contact->id, $image_data);
 		}
 		
@@ -254,8 +254,8 @@ class UmScAccountController extends Extension_UmScController {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$action = DevblocksPlatform::importGPC($_POST['action'],'string','');
-		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
+		$action = DevblocksPlatform::importGPC($_POST['action'] ?? null, 'string','');
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer',0);
 		
 		if(!$id)
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -395,7 +395,7 @@ class UmScAccountController extends Extension_UmScController {
 			$contact_addresses = $active_contact->getEmails();
 			
 			// *** Handle shared by
-			@$share_email = DevblocksPlatform::importGPC($_POST['share_email'],'array','');
+			$share_email = DevblocksPlatform::importGPC($_POST['share_email'] ?? null, 'array','');
 
 			if(is_array($share_email) && !empty($share_email)) {
 				foreach($share_email as $idx => $share_id) {
@@ -438,9 +438,9 @@ class UmScAccountController extends Extension_UmScController {
 			}
 
 			// *** Handle shared with
-			@$address_with_id = DevblocksPlatform::importGPC($_POST['address_with_id'],'array','');
-			@$address_from_id = DevblocksPlatform::importGPC($_POST['address_from_id'],'array','');
-			@$share_with_status = DevblocksPlatform::importGPC($_POST['share_with_status'],'array','');
+			$address_with_id = DevblocksPlatform::importGPC($_POST['address_with_id'] ?? null, 'array','');
+			$address_from_id = DevblocksPlatform::importGPC($_POST['address_from_id'] ?? null, 'array','');
+			$share_with_status = DevblocksPlatform::importGPC($_POST['share_with_status'] ?? null, 'array','');
 			
 			if(is_array($address_with_id) && !empty($address_with_id)) {
 				foreach($address_with_id as $idx => $with_id) {
@@ -496,9 +496,9 @@ class UmScAccountController extends Extension_UmScController {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$current_password = DevblocksPlatform::importGPC($_POST['current_password'],'string','');
-		@$change_password = DevblocksPlatform::importGPC($_POST['change_password'],'string','');
-		@$verify_password = DevblocksPlatform::importGPC($_POST['verify_password'],'string','');
+		$current_password = DevblocksPlatform::importGPC($_POST['current_password'] ?? null, 'string','');
+		$change_password = DevblocksPlatform::importGPC($_POST['change_password'] ?? null, 'string','');
+		$verify_password = DevblocksPlatform::importGPC($_POST['verify_password'] ?? null, 'string','');
 
 		try {
 			if(empty($active_contact) || empty($active_contact->id))
@@ -600,8 +600,8 @@ class UmScAccountController extends Extension_UmScController {
 		$umsession = ChPortalHelper::getSession();
 		$active_contact = $umsession->getProperty('sc_login', null);
 		
-		@$email = DevblocksPlatform::importGPC($_POST['email'],'string','');
-		@$confirm = DevblocksPlatform::importGPC($_POST['confirm'],'string','');
+		$email = DevblocksPlatform::importGPC($_POST['email'] ?? null, 'string','');
+		$confirm = DevblocksPlatform::importGPC($_POST['confirm'] ?? null, 'string','');
 
 		try {
 			if(null == $active_contact)
@@ -652,7 +652,7 @@ class UmScAccountController extends Extension_UmScController {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$captcha = DevblocksPlatform::importGPC($_POST['captcha'], 'string', '');
+		$captcha = DevblocksPlatform::importGPC($_POST['captcha'] ?? null, 'string', '');
 		
 		try {
 			// Load the contact account
@@ -703,8 +703,8 @@ class UmScAccountController extends Extension_UmScController {
 	}
 	
 	function saveConfiguration(Model_CommunityTool $portal) {
-		@$aFields = DevblocksPlatform::importGPC($_POST['fields'],'array',array());
-		@$aFieldsVisible = DevblocksPlatform::importGPC($_POST['fields_visible'],'array',array());
+		$aFields = DevblocksPlatform::importGPC($_POST['fields'] ?? null, 'array', []);
+		$aFieldsVisible = DevblocksPlatform::importGPC($_POST['fields_visible'] ?? null, 'array', []);
 
 		$fields = array();
 		

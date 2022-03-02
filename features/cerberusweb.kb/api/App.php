@@ -57,7 +57,7 @@ class WorkspaceWidget_KnowledgebaseBrowser extends Extension_WorkspaceWidget {
 	function render(Model_WorkspaceWidget $widget) {
 		@$root_category_id = intval($widget->params['topic_id']);
 		
-		$this->_renderCategory($root_category_id, $widget);
+		$this->_renderCategory($widget, $root_category_id);
 	}
 	
 	function renderConfig(Model_WorkspaceWidget $widget) {
@@ -83,7 +83,7 @@ class WorkspaceWidget_KnowledgebaseBrowser extends Extension_WorkspaceWidget {
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget, ?string &$error=null) : bool {
-		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
+		$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
 		
 		@$topic_id = intval($params['topic_id']);
 		
@@ -99,16 +99,16 @@ class WorkspaceWidget_KnowledgebaseBrowser extends Extension_WorkspaceWidget {
 	}
 	
 	private function _workspaceWidgetAction_changeCategory(Model_WorkspaceWidget $model) {
-		@$widget_id = DevblocksPlatform::importGPC($_REQUEST['widget_id'],'integer',0);
-		@$category_id = DevblocksPlatform::importGPC($_REQUEST['category_id'],'integer',0);
+		$widget_id = DevblocksPlatform::importGPC($_REQUEST['widget_id'] ?? null, 'integer',0);
+		$category_id = DevblocksPlatform::importGPC($_REQUEST['category_id'] ?? null, 'integer',0);
 		
 		if(false == ($widget = DAO_WorkspaceWidget::get($widget_id)))
 			return;
 
-		$this->_renderCategory($category_id, $widget);
+		$this->_renderCategory($widget, $category_id);
 	}
 	
-	private function _renderCategory($category_id=0, Model_WorkspaceWidget $widget) {
+	private function _renderCategory(Model_WorkspaceWidget $widget, $category_id=0) {
 		$tpl = DevblocksPlatform::services()->template();
 		$translate = DevblocksPlatform::getTranslationService();
 
@@ -207,7 +207,7 @@ class ProfileWidget_KbArticle extends Extension_ProfileWidget {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
-		@$target_context_id = $model->extension_params['context_id'];
+		$target_context_id = $model->extension_params['context_id'] ?? null;
 		
 		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
 			return;

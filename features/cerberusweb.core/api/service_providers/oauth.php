@@ -28,7 +28,7 @@ class ServiceProvider_OAuth1 extends Extension_ConnectedServiceProvider implemen
 	}
 	
 	function saveConfigForm(Model_ConnectedService $service, array &$params, &$error=null) {
-		@$edit_params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
+		$edit_params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
 		
 		$validation = DevblocksPlatform::services()->validation();
 		
@@ -86,7 +86,7 @@ class ServiceProvider_OAuth1 extends Extension_ConnectedServiceProvider implemen
 	}
 
 	public function saveAccountConfigForm(Model_ConnectedService $service, Model_ConnectedAccount $account, array &$params, &$error=null) {
-		@$edit_params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
+		$edit_params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
 		
 		$encrypt = DevblocksPlatform::services()->encryption();
 		
@@ -111,8 +111,8 @@ class ServiceProvider_OAuth1 extends Extension_ConnectedServiceProvider implemen
 	}
 	
 	function oauthRender() {
-		@$form_id = DevblocksPlatform::importGPC($_REQUEST['form_id'], 'string', '');
-		@$service_id = DevblocksPlatform::importGPC($_REQUEST['service_id'], 'integer', 0);
+		$form_id = DevblocksPlatform::importGPC($_REQUEST['form_id'] ?? null, 'string', '');
+		$service_id = DevblocksPlatform::importGPC($_REQUEST['service_id'] ?? null, 'integer', 0);
 		
 		if(false == ($service = DAO_ConnectedService::get($service_id)))
 			DevblocksPlatform::dieWithHttpError();
@@ -255,7 +255,7 @@ class ServiceProvider_OAuth2 extends Extension_ConnectedServiceProvider implemen
 	}
 	
 	function saveConfigForm(Model_ConnectedService $service, array &$params, &$error=null) {
-		@$edit_params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
+		$edit_params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
 		
 		$validation = DevblocksPlatform::services()->validation();
 		
@@ -323,7 +323,7 @@ class ServiceProvider_OAuth2 extends Extension_ConnectedServiceProvider implemen
 	}
 
 	public function saveAccountConfigForm(Model_ConnectedService $service, Model_ConnectedAccount $account, array &$params, &$error=null) {
-		@$edit_params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
+		$edit_params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
 		
 		$encrypt = DevblocksPlatform::services()->encryption();
 		
@@ -348,8 +348,8 @@ class ServiceProvider_OAuth2 extends Extension_ConnectedServiceProvider implemen
 	}
 	
 	function oauthRender() {
-		@$form_id = DevblocksPlatform::importGPC($_REQUEST['form_id'], 'string', '');
-		@$service_id = DevblocksPlatform::importGPC($_REQUEST['service_id'], 'integer', 0);
+		$form_id = DevblocksPlatform::importGPC($_REQUEST['form_id'] ?? null, 'string', '');
+		$service_id = DevblocksPlatform::importGPC($_REQUEST['service_id'] ?? null, 'integer', 0);
 		
 		if(false == ($service = DAO_ConnectedService::get($service_id)))
 			DevblocksPlatform::dieWithHttpError();
@@ -369,10 +369,10 @@ class ServiceProvider_OAuth2 extends Extension_ConnectedServiceProvider implemen
 	}
 	
 	function oauthCallback() {
-		@$form_id = $_SESSION['oauth_form_id'];
-		@$service_id = $_SESSION['oauth_service_id'];
-		@$oauth_state = $_SESSION['oauth2state'];
-		@$state = $_GET['state'];
+		$form_id = $_SESSION['oauth_form_id'] ?? null;
+		$service_id = $_SESSION['oauth_service_id'] ?? null;
+		$oauth_state = $_SESSION['oauth2state'] ?? null;
+		$state = $_GET['state'] ?? null;
 		
 		unset($_SESSION['oauth_form_id']);
 		unset($_SESSION['oauth_service_id']);

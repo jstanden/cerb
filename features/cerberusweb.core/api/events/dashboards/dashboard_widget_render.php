@@ -64,7 +64,7 @@ class Event_DashboardWidgetRender extends Extension_DevblocksEvent {
 		 * Widget
 		 */
 			
-		@$widget = $event_model->params['widget'];
+		$widget = $event_model->params['widget'] ?? null;
 		$widget_record_type = CerberusContexts::CONTEXT_WORKSPACE_WIDGET;
 		
 		if($widget && $widget instanceof Model_ProfileWidget)
@@ -88,7 +88,7 @@ class Event_DashboardWidgetRender extends Extension_DevblocksEvent {
 		 * Worker
 		 */
 		
-		@$worker = $event_model->params['worker'];
+		$worker = $event_model->params['worker'] ?? null;
 		
 		$merge_labels = [];
 		$merge_values = [];
@@ -234,7 +234,7 @@ class Event_DashboardWidgetRender extends Extension_DevblocksEvent {
 			case 'render_html':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
-				@$html = $params['html'];
+				$html = $params['html'] ?? null;
 				$html = $tpl_builder->build($html, $dict);
 				
 				$out = sprintf(">>> Rendering HTML\n".
@@ -257,7 +257,7 @@ class Event_DashboardWidgetRender extends Extension_DevblocksEvent {
 				if(!is_array($actions))
 					$actions = [];
 				
-				@$html = $params['html'];
+				$html = $params['html'] ?? null;
 				$html = $tpl_builder->build($html, $dict);
 				
 				$actions[] = array(

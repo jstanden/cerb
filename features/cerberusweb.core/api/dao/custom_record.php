@@ -574,8 +574,7 @@ class Model_CustomRecord {
 	}
 	
 	function getRecordOwnerContexts() {
-		@$owner_contexts = $this->params['owners']['contexts'] ?: [];
-		return $owner_contexts;
+		return ($this->params['owners']['contexts'] ?? null) ?: [];
 	}
 	
 	function hasOption($option) {
@@ -858,12 +857,12 @@ class View_CustomRecord extends C4_AbstractView implements IAbstractView_Subtota
 				break;
 				
 			case SearchFields_CustomRecord::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_POST['context_link'],'array',array());
+				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array', []);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
 			case SearchFields_CustomRecord::VIRTUAL_HAS_FIELDSET:
-				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',array());
+				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array', []);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				

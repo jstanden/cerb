@@ -12,7 +12,7 @@ class WorkspaceWidget_Clock extends Extension_WorkspaceWidget implements ICerbWo
 	function render(Model_WorkspaceWidget $widget) {
 		$tpl = DevblocksPlatform::services()->template();
 
-		@$timezone = $widget->params['timezone'];
+		$timezone = $widget->params['timezone'] ?? null;
 		
 		if(empty($timezone)) {
 			echo "This clock doesn't have a timezone. Configure it and set one.";
@@ -59,7 +59,7 @@ class WorkspaceWidget_Clock extends Extension_WorkspaceWidget implements ICerbWo
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget, ?string &$error=null) : bool {
-		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', array());
+		$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', array());
 		
 		DAO_WorkspaceWidget::update($widget->id, array(
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
@@ -86,7 +86,7 @@ class WorkspaceWidget_Clock extends Extension_WorkspaceWidget implements ICerbWo
 	}
 	
 	private function _exportDataAsCsv(Model_WorkspaceWidget $widget) {
-		@$timezone = $widget->params['timezone'];
+		$timezone = $widget->params['timezone'] ?? null;
 		$datetimezone = new DateTimeZone($timezone);
 		$datetime = new DateTime('now', $datetimezone);
 		
@@ -116,7 +116,7 @@ class WorkspaceWidget_Clock extends Extension_WorkspaceWidget implements ICerbWo
 	}
 	
 	private function _exportDataAsJson(Model_WorkspaceWidget $widget) {
-		@$timezone = $widget->params['timezone'];
+		$timezone = $widget->params['timezone'] ?? null;
 		$datetimezone = new DateTimeZone($timezone);
 		$datetime = new DateTime('now', $datetimezone);
 		

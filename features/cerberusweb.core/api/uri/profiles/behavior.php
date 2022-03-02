@@ -108,9 +108,9 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 	}
 	
 	private function _profileAction_savePeekJson() {
-		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
+		$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'string', '');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -142,8 +142,8 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$package_uri = DevblocksPlatform::importGPC($_POST['package'], 'string', '');
-				@$import_json = DevblocksPlatform::importGPC($_POST['import_json'],'string', '');
+				$package_uri = DevblocksPlatform::importGPC($_POST['package'] ?? null, 'string', '');
+				$import_json = DevblocksPlatform::importGPC($_POST['import_json'] ?? null, 'string', '');
 				
 				$mode = 'build';
 				
@@ -156,8 +156,8 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 				
 				switch($mode) {
 					case 'library':
-						@$prompts = DevblocksPlatform::importGPC($_POST['prompts'], 'array', []);
-						@$bot_id = DevblocksPlatform::importGPC($_POST['bot_id'],'integer', 0);
+						$prompts = DevblocksPlatform::importGPC($_POST['prompts'] ?? null, 'array', []);
+						$bot_id = DevblocksPlatform::importGPC($_POST['bot_id'] ?? null, 'integer', 0);
 						
 						if(empty($package_uri))
 							throw new Exception_DevblocksAjaxValidationError("You must select a package from the library.");
@@ -214,8 +214,8 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 						break;
 					
 					case 'import':
-						@$bot_id = DevblocksPlatform::importGPC($_POST['bot_id'],'integer', 0);
-						@$configure = DevblocksPlatform::importGPC($_POST['configure'],'array', []);
+						$bot_id = DevblocksPlatform::importGPC($_POST['bot_id'] ?? null, 'integer', 0);
+						$configure = DevblocksPlatform::importGPC($_POST['configure'] ?? null, 'array', []);
 						
 						if(empty($import_json))
 							throw new Exception_DevblocksAjaxValidationError("The JSON to import is required.", "import_json");
@@ -228,7 +228,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 							throw new Exception_DevblocksAjaxValidationError("The JSON to import is invalid.", "import_json");
 						}
 						
-						@$event_point = $json['behavior']['event']['key'];
+						$event_point = $json['behavior']['event']['key'] ?? null;
 						
 						if(
 							false == ($event = Extension_DevblocksEvent::get($event_point, true))
@@ -269,7 +269,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 						
 						// Allow prompted configuration of the VA behavior import
 						
-						@$configure_fields = $json['behavior']['configure'];
+						$configure_fields = $json['behavior']['configure'] ?? null;
 						
 						// Are there configurable fields in this import file?
 						if(is_array($configure_fields) && !empty($configure_fields)) {
@@ -355,23 +355,23 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 						break;
 						
 					case 'build':
-						@$title = DevblocksPlatform::importGPC($_POST['title'],'string', '');
-						@$uri = DevblocksPlatform::importGPC($_POST['uri'],'string', '');
-						@$is_disabled = DevblocksPlatform::importGPC($_POST['is_disabled'],'integer', 0);
-						@$is_private = DevblocksPlatform::importGPC($_POST['is_private'],'integer', 0);
-						@$priority = DevblocksPlatform::importGPC($_POST['priority'],'integer', 0);
-						@$event_params = DevblocksPlatform::importGPC($_POST['event_params'],'array', array());
-						@$json = DevblocksPlatform::importGPC($_POST['json'],'integer', 0);
+						$title = DevblocksPlatform::importGPC($_POST['title'] ?? null, 'string', '');
+						$uri = DevblocksPlatform::importGPC($_POST['uri'] ?? null, 'string', '');
+						$is_disabled = DevblocksPlatform::importGPC($_POST['is_disabled'] ?? null, 'integer', 0);
+						$is_private = DevblocksPlatform::importGPC($_POST['is_private'] ?? null, 'integer', 0);
+						$priority = DevblocksPlatform::importGPC($_POST['priority'] ?? null, 'integer', 0);
+						$event_params = DevblocksPlatform::importGPC($_POST['event_params'] ?? null, 'array', array());
+						$json = DevblocksPlatform::importGPC($_POST['json'] ?? null, 'integer', 0);
 			
 						$priority = DevblocksPlatform::intClamp($priority, 1, 99);
 						
 						// Variables
 			
-						@$var_idxs = DevblocksPlatform::importGPC($_POST['var'],'array',array());
-						@$var_keys = DevblocksPlatform::importGPC($_POST['var_key'],'array',array());
-						@$var_types = DevblocksPlatform::importGPC($_POST['var_type'],'array',array());
-						@$var_labels = DevblocksPlatform::importGPC($_POST['var_label'],'array',array());
-						@$var_is_private = DevblocksPlatform::importGPC($_POST['var_is_private'],'array',array());
+						$var_idxs = DevblocksPlatform::importGPC($_POST['var'] ?? null, 'array', []);
+						$var_keys = DevblocksPlatform::importGPC($_POST['var_key'] ?? null, 'array', []);
+						$var_types = DevblocksPlatform::importGPC($_POST['var_type'] ?? null, 'array', []);
+						$var_labels = DevblocksPlatform::importGPC($_POST['var_label'] ?? null, 'array', []);
+						$var_is_private = DevblocksPlatform::importGPC($_POST['var_is_private'] ?? null, 'array', []);
 						
 						$variables = [];
 						
@@ -398,8 +398,8 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 						
 						// Create behavior
 						if(empty($id)) {
-							@$bot_id = DevblocksPlatform::importGPC($_POST['bot_id'], 'integer', 0);
-							@$event_point = DevblocksPlatform::importGPC($_POST['event_point'],'string', '');
+							$bot_id = DevblocksPlatform::importGPC($_POST['bot_id'] ?? null, 'integer', 0);
+							$event_point = DevblocksPlatform::importGPC($_POST['event_point'] ?? null, 'string', '');
 							
 							$error = null;
 							
@@ -493,7 +493,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 						
 						if($id) {
 							// Custom field saves
-							@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+							$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 							if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_BEHAVIOR, $id, $field_ids, $error))
 								throw new Exception_DevblocksAjaxValidationError($error);
 							
@@ -536,7 +536,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$bot_id = DevblocksPlatform::importGPC($_REQUEST['bot_id'], 'integer', 0);
+		$bot_id = DevblocksPlatform::importGPC($_REQUEST['bot_id'] ?? null, 'integer', 0);
 		
 		if(false == ($bot = DAO_Bot::get($bot_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -578,10 +578,10 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$trigger_id = DevblocksPlatform::importGPC($_POST['trigger_id'],'integer', 0);
-		@$node_id = DevblocksPlatform::importGPC($_POST['node_id'],'integer', 0);
-		@$behavior_json = DevblocksPlatform::importGPC($_POST['behavior_json'],'string', null);
-		@$configure = DevblocksPlatform::importGPC($_POST['configure'],'array', array());
+		$trigger_id = DevblocksPlatform::importGPC($_POST['trigger_id'] ?? null, 'integer', 0);
+		$node_id = DevblocksPlatform::importGPC($_POST['node_id'] ?? null, 'integer', 0);
+		$behavior_json = DevblocksPlatform::importGPC($_POST['behavior_json'] ?? null, 'string', null);
+		$configure = DevblocksPlatform::importGPC($_POST['configure'] ?? null, 'array', array());
 		$parent = null;
 		
 		header('Content-Type: application/json');
@@ -638,7 +638,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 			return;
 		}
 		
-		@$nodes = $json['behavior_fragment']['nodes'];
+		$nodes = $json['behavior_fragment']['nodes'] ?? null;
 		
 		$validation = [
 			'action' => [],
@@ -671,7 +671,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		
 		// Allow prompted configuration of the VA behavior import
 		
-		@$configure_fields = $json['behavior_fragment']['configure'];
+		$configure_fields = $json['behavior_fragment']['configure'] ?? null;
 		
 		// Are there configurable fields in this import file?
 		if(is_array($configure_fields) && !empty($configure_fields)) {
@@ -718,7 +718,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 	}
 	
 	private function _profileAction_viewExplore() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
@@ -734,7 +734,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		$view->setAutoPersist(false);
 
 		// Page start
-		@$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'],'integer',0);
+		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'integer',0);
 		if(empty($explore_from)) {
 			$orig_pos = 1+($view->renderPage * $view->renderLimit);
 		} else {
@@ -796,8 +796,8 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
-		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
+		$id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null, 'integer', 0);
+		$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'] ?? null, 'integer', 0);
 		
 		$trigger = null;
 		
@@ -827,7 +827,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::services()->template();
 		
-		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
+		$trigger_id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null, 'integer', 0);
 		
 		if(null == ($trigger = DAO_TriggerEvent::get($trigger_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -853,7 +853,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
+		$id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null, 'integer', 0);
 		
 		$trigger_id = 0;
 		$trigger = null;
@@ -874,9 +874,9 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 			$tpl->assign('trigger_id', $trigger_id);
 			
 		} elseif(array_key_exists('parent_id', $_REQUEST)) { // Add child node
-			@$parent_id = DevblocksPlatform::importGPC($_REQUEST['parent_id'],'integer', 0);
-			@$type = DevblocksPlatform::importGPC($_REQUEST['type'],'string', '');
-			@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
+			$parent_id = DevblocksPlatform::importGPC($_REQUEST['parent_id'] ?? null, 'integer', 0);
+			$type = DevblocksPlatform::importGPC($_REQUEST['type'] ?? null, 'string', '');
+			$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'] ?? null, 'integer', 0);
 			
 			if(false == ($trigger = DAO_TriggerEvent::get($trigger_id)))
 				DevblocksPlatform::dieWithHttpError(null, 404);
@@ -889,7 +889,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 			$tpl->assign('trigger_id', $trigger_id);
 			
 		} elseif(array_key_exists('trigger_id', $_REQUEST)) { // Add child node
-			@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
+			$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'] ?? null, 'integer', 0);
 			
 			if(false == ($trigger = DAO_TriggerEvent::get($trigger_id)))
 				DevblocksPlatform::dieWithHttpError(null, 404);
@@ -1056,15 +1056,15 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 	}
 	
 	private function _profileAction_saveDecisionPopup() {
-		@$active_worker = CerberusApplication::getActiveWorker();
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer', 0);
-		@$title = DevblocksPlatform::importGPC($_POST['title'],'string', '');
-		@$status_id = DevblocksPlatform::importGPC($_POST['status_id'],'integer', 0);
-		@$package_uri = DevblocksPlatform::importGPC($_POST['package'], 'string', '');
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
+		$title = DevblocksPlatform::importGPC($_POST['title'] ?? null, 'string', '');
+		$status_id = DevblocksPlatform::importGPC($_POST['status_id'] ?? null, 'integer', 0);
+		$package_uri = DevblocksPlatform::importGPC($_POST['package'] ?? null, 'string', '');
 		
 		$mode = 'build';
 		
@@ -1073,10 +1073,10 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		
 		switch($mode) {
 			case 'library':
-				@$behavior_id = DevblocksPlatform::importGPC($_POST['trigger_id'],'integer', 0);
-				@$parent_id = DevblocksPlatform::importGPC($_POST['parent_id'],'integer', 0);
-				@$type = DevblocksPlatform::importGPC($_POST['type'],'string', '');
-				@$prompts = DevblocksPlatform::importGPC($_POST['prompts'], 'array', []);
+				$behavior_id = DevblocksPlatform::importGPC($_POST['trigger_id'] ?? null, 'integer', 0);
+				$parent_id = DevblocksPlatform::importGPC($_POST['parent_id'] ?? null, 'integer', 0);
+				$type = DevblocksPlatform::importGPC($_POST['type'] ?? null, 'string', '');
+				$prompts = DevblocksPlatform::importGPC($_POST['prompts'] ?? null, 'array', []);
 				
 				header('Content-Type: application/json; charset=utf-8');
 				
@@ -1175,9 +1175,9 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 					}
 					
 				} elseif(isset($_POST['parent_id'])) { // Create
-					@$parent_id = DevblocksPlatform::importGPC($_POST['parent_id'],'integer', 0);
-					@$trigger_id = DevblocksPlatform::importGPC($_POST['trigger_id'],'integer', 0);
-					@$type = DevblocksPlatform::importGPC($_POST['type'],'string', '');
+					$parent_id = DevblocksPlatform::importGPC($_POST['parent_id'] ?? null, 'integer', 0);
+					$trigger_id = DevblocksPlatform::importGPC($_POST['trigger_id'] ?? null, 'integer', 0);
+					$type = DevblocksPlatform::importGPC($_POST['type'] ?? null, 'string', '');
 					
 					// Security
 					
@@ -1216,14 +1216,14 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 						break;
 					
 					case 'loop':
-						@$params = DevblocksPlatform::importGPC($_POST['params'],'array',array());
+						$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
 						DAO_DecisionNode::update($id, array(
 							DAO_DecisionNode::PARAMS_JSON => json_encode($params),
 						));
 						break;
 					
 					case 'outcome':
-						@$nodes = DevblocksPlatform::importGPC($_POST['nodes'],'array',array());
+						$nodes = DevblocksPlatform::importGPC($_POST['nodes'] ?? null, 'array', []);
 						
 						$groups = [];
 						$group_key = null;
@@ -1256,7 +1256,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 						break;
 					
 					case 'action':
-						@$action_ids = DevblocksPlatform::importGPC($_POST['actions'],'array',array());
+						$action_ids = DevblocksPlatform::importGPC($_POST['actions'] ?? null, 'array', []);
 						$params = [];
 						$params['actions'] = $this->_parseActions($action_ids, $_POST);
 						DAO_DecisionNode::update($id, array(
@@ -1275,8 +1275,8 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$child_id = DevblocksPlatform::importGPC($_POST['child_id'],'integer', 0);
-		@$parent_id = DevblocksPlatform::importGPC($_POST['parent_id'],'integer', 0);
+		$child_id = DevblocksPlatform::importGPC($_POST['child_id'] ?? null, 'integer', 0);
+		$parent_id = DevblocksPlatform::importGPC($_POST['parent_id'] ?? null, 'integer', 0);
 		
 		// The parent node must exist
 		if($parent_id && null == ($parent_node = DAO_DecisionNode::get($parent_id)))
@@ -1320,7 +1320,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 	}
 	
 	private function _profileAction_getTriggerEventParams() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'string', '');
+		$id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null, 'string', '');
 		
 		if(empty($id))
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -1334,7 +1334,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 	private function _profileAction_getTriggerVariableParams() {
 		$tpl = DevblocksPlatform::services()->template();
 		
-		@$type = DevblocksPlatform::importGPC($_REQUEST['type'],'string', '');
+		$type = DevblocksPlatform::importGPC($_REQUEST['type'] ?? null, 'string', '');
 		
 		$tpl->assign('seq', uniqid());
 		
@@ -1365,8 +1365,8 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer', 0);
+		$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'] ?? null, 'integer', 0);
+		$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'] ?? null, 'integer', 0);
 		
 		if(null == ($trigger = DAO_TriggerEvent::get($trigger_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -1450,9 +1450,9 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$trigger_id = DevblocksPlatform::importGPC($_POST['trigger_id'],'integer', 0);
-		@$event_params_json = DevblocksPlatform::importGPC($_POST['event_params_json'],'string', '');
-		@$custom_values = DevblocksPlatform::importGPC($_POST['values'],'array', []);
+		$trigger_id = DevblocksPlatform::importGPC($_POST['trigger_id'] ?? null, 'integer', 0);
+		$event_params_json = DevblocksPlatform::importGPC($_POST['event_params_json'] ?? null, 'string', '');
+		$custom_values = DevblocksPlatform::importGPC($_POST['values'] ?? null, 'array', []);
 		
 		$logger->setLogLevel(6);
 		
@@ -1559,8 +1559,8 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
-		@$node_id = DevblocksPlatform::importGPC($_REQUEST['node_id'],'integer', 0);
+		$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'] ?? null, 'integer', 0);
+		$node_id = DevblocksPlatform::importGPC($_REQUEST['node_id'] ?? null, 'integer', 0);
 		
 		if(null == ($trigger = DAO_TriggerEvent::get($trigger_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -1579,7 +1579,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
+		$id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null, 'integer', 0);
 		
 		$trigger_id = 0;
 		
@@ -1591,7 +1591,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 			$tpl->assign('node', $node);
 			
 		} elseif(isset($_REQUEST['trigger_id'])) {
-			@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
+			$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'] ?? null, 'integer', 0);
 		}
 		
 		if(!$trigger_id)
@@ -1617,9 +1617,9 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$trigger_id = DevblocksPlatform::importGPC($_POST['trigger_id'],'integer', 0);
-		@$node_id = DevblocksPlatform::importGPC($_POST['id'],'integer', 0);
-		@$child_ids = DevblocksPlatform::importGPC($_POST['child_id'],'array', []);
+		$trigger_id = DevblocksPlatform::importGPC($_POST['trigger_id'] ?? null, 'integer', 0);
+		$node_id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
+		$child_ids = DevblocksPlatform::importGPC($_POST['child_id'] ?? null, 'array', []);
 		
 		$trigger = null;
 		
@@ -1664,7 +1664,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer', 0);
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
 		
 		if($id) {
 			if(false == ($node = DAO_DecisionNode::get($id)))
@@ -1704,7 +1704,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 			DAO_DecisionNode::delete($ids_to_delete);
 			
 		} elseif(array_key_exists('trigger_id', $_POST)) {
-			@$trigger_id = DevblocksPlatform::importGPC($_POST['trigger_id'],'integer', 0);
+			$trigger_id = DevblocksPlatform::importGPC($_POST['trigger_id'] ?? null, 'integer', 0);
 			
 			if(false == ($trigger = DAO_TriggerEvent::get($trigger_id)))
 				DevblocksPlatform::dieWithHttpError(null, 404);
@@ -1725,10 +1725,10 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$action_uid = DevblocksPlatform::importGPC($_POST['action_uid'],'string', '');
-		@$trigger_id = DevblocksPlatform::importGPC($_POST['trigger_id'],'integer', 0);
-		@$seq = DevblocksPlatform::importGPC($_POST['seq'],'integer', 0);
-		@$nonce = DevblocksPlatform::importGPC($_POST['nonce'],'string', '');
+		$action_uid = DevblocksPlatform::importGPC($_POST['action_uid'] ?? null, 'string', '');
+		$trigger_id = DevblocksPlatform::importGPC($_POST['trigger_id'] ?? null, 'integer', 0);
+		$seq = DevblocksPlatform::importGPC($_POST['seq'] ?? null, 'integer', 0);
+		$nonce = DevblocksPlatform::importGPC($_POST['nonce'] ?? null, 'string', '');
 		
 		if(null == ($trigger = DAO_TriggerEvent::get($trigger_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -1756,10 +1756,10 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$condition = DevblocksPlatform::importGPC($_POST['condition'],'string', '');
-		@$trigger_id = DevblocksPlatform::importGPC($_POST['trigger_id'],'integer', 0);
-		@$seq = DevblocksPlatform::importGPC($_POST['seq'],'integer', 0);
-		@$nonce = DevblocksPlatform::importGPC($_POST['nonce'],'string', '');
+		$condition = DevblocksPlatform::importGPC($_POST['condition'] ?? null, 'string', '');
+		$trigger_id = DevblocksPlatform::importGPC($_POST['trigger_id'] ?? null, 'integer', 0);
+		$seq = DevblocksPlatform::importGPC($_POST['seq'] ?? null, 'integer', 0);
+		$nonce = DevblocksPlatform::importGPC($_POST['nonce'] ?? null, 'string', '');
 		
 		if(null == ($trigger = DAO_TriggerEvent::get($trigger_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -1784,7 +1784,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer', 0);
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
 		
 		if(false == ($node = DAO_DecisionNode::get($id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -1816,8 +1816,8 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
-		@$node_id = DevblocksPlatform::importGPC($_REQUEST['node_id'],'integer', 0);
+		$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'] ?? null, 'integer', 0);
+		$node_id = DevblocksPlatform::importGPC($_REQUEST['node_id'] ?? null, 'integer', 0);
 		
 		if(null == ($trigger = DAO_TriggerEvent::get($trigger_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -1834,8 +1834,8 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::services()->template();
 		
-		@$name_prefix = DevblocksPlatform::importGPC($_REQUEST['name_prefix'],'string', '');
-		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
+		$name_prefix = DevblocksPlatform::importGPC($_REQUEST['name_prefix'] ?? null, 'string', '');
+		$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'] ?? null, 'integer', 0);
 		
 		$tpl->assign('namePrefix', $name_prefix);
 		
@@ -1852,7 +1852,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 	private function _profileAction_getParamsAsJson() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
+		$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'] ?? null, 'integer', 0);
 		
 		header('Content-Type: text/plain; charset=utf-8');
 		
@@ -1900,9 +1900,9 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$prefix = DevblocksPlatform::importGPC($_POST['prefix'],'string','');
-		@$response_format = DevblocksPlatform::importGPC($_POST['format'],'string','');
-		@$trigger_id = DevblocksPlatform::importGPC($_POST['trigger_id'],'integer',0);
+		$prefix = DevblocksPlatform::importGPC($_POST['prefix'] ?? null, 'string','');
+		$response_format = DevblocksPlatform::importGPC($_POST['format'] ?? null, 'string','');
+		$trigger_id = DevblocksPlatform::importGPC($_POST['trigger_id'] ?? null, 'integer',0);
 		
 		$placeholders_kata = DevblocksPlatform::importVar($_POST[$prefix]['placeholder_simulator_kata'] ?? null, 'string', '');
 		
@@ -1912,7 +1912,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		$placeholders = DevblocksPlatform::services()->kata()->parse($placeholders_kata, $error);
 		
 		if(array_key_exists('field', $_POST) && is_array($_POST['field'])) {
-			@$fields = DevblocksPlatform::importGPC($_POST['field'],'array',[]);
+			$fields = DevblocksPlatform::importGPC($_POST['field'] ?? null, 'array',[]);
 			
 			if(is_array($fields))
 				foreach($fields as $field) {
@@ -1922,7 +1922,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 				}
 			
 		} else {
-			@$field = DevblocksPlatform::importGPC($_POST['field'],'string','');
+			$field = DevblocksPlatform::importGPC($_POST['field'] ?? null, 'string','');
 			@$content = $this->_getValueFromNestedArray($field, $_POST[$prefix]);
 		}
 		
@@ -1959,7 +1959,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 				$output = $out;
 				
 				if(isset($_POST['is_editor'])) {
-					@$is_editor = DevblocksPlatform::importGPC($_POST['is_editor'],'string','');
+					$is_editor = DevblocksPlatform::importGPC($_POST['is_editor'] ?? null, 'string','');
 					@$format = DevblocksPlatform::importGPC($_POST[$prefix][$is_editor],'string','');
 					
 					switch($format) {
@@ -1968,15 +1968,15 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 								
 								// HTML template
 								
-								@$html_template_id = DevblocksPlatform::importGPC($_POST[$prefix]['html_template_id'],'integer',0);
+								$html_template_id = DevblocksPlatform::importGPC($_POST[$prefix]['html_template_id'] ?? null,'integer',0);
 								$html_template = null;
 								
 								// Key mapping
 								
-								@$_group_key = DevblocksPlatform::importGPC($_POST['_group_key'],'string','');
+								$_group_key = DevblocksPlatform::importGPC($_POST['_group_key'] ?? null, 'string','');
 								@$_group_id = intval($values[$_group_key]);
 								
-								@$_bucket_key = DevblocksPlatform::importGPC($_POST['_bucket_key'],'string','');
+								$_bucket_key = DevblocksPlatform::importGPC($_POST['_bucket_key'] ?? null, 'string','');
 								@$_bucket_id = intval($values[$_bucket_key]);
 								
 								// Try the given HTML template

@@ -284,8 +284,8 @@ class Page_Profiles extends CerberusPageExtension {
 	}
 	
 	private function _profileAction_invoke() {
-		@$page_uri = DevblocksPlatform::importGPC($_GET['module'] ?? $_REQUEST['module'],'string','');
-		@$action = DevblocksPlatform::importGPC($_GET['action'] ?? $_REQUEST['action'],'string','');
+		$page_uri = DevblocksPlatform::importGPC($_GET['module'] ?? $_REQUEST['module'] ?? null, 'string','');
+		$action = DevblocksPlatform::importGPC($_GET['action'] ?? $_REQUEST['action'] ?? null, 'string','');
 
 		$inst = Extension_PageSection::getExtensionByPageUri($this->manifest->id, $page_uri, true);
 		
@@ -309,7 +309,7 @@ class Page_Profiles extends CerberusPageExtension {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::services()->template();
 		
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		$context = DevblocksPlatform::importGPC($_REQUEST['context'] ?? null,'string','');
 		
 		if(!$active_worker->is_superuser)
 			DevblocksPlatform::dieWithHttpError(null, 403);
@@ -352,8 +352,8 @@ class Page_Profiles extends CerberusPageExtension {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$context = DevblocksPlatform::importGPC($_POST['context'],'string','');
-		@$profile_tabs = DevblocksPlatform::importGPC($_POST['profile_tabs'],'array',[]);
+		$context = DevblocksPlatform::importGPC($_POST['context'] ?? null, 'string','');
+		$profile_tabs = DevblocksPlatform::importGPC($_POST['profile_tabs'] ?? null, 'array',[]);
 		
 		if(!$active_worker->is_superuser)
 			DevblocksPlatform::dieWithHttpError(null, 403);
@@ -364,7 +364,7 @@ class Page_Profiles extends CerberusPageExtension {
 	}
 	
 	private function _profileAction_renderWidgetConfig() {
-		@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension'], 'string', '');
+		$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension'] ?? null, 'string', '');
 		
 		if(false == ($extension = Extension_ProfileWidget::get($extension_id)))
 			return;
@@ -378,9 +378,9 @@ class Page_Profiles extends CerberusPageExtension {
 	private function _profileAction_renderToolbar() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$toolbar_id = DevblocksPlatform::importGPC($_REQUEST['toolbar'],'string','');
-		@$record_type = DevblocksPlatform::importGPC($_REQUEST['record_type'],'string','');
-		@$record_id = DevblocksPlatform::importGPC($_REQUEST['record_id'],'integer',0);
+		$toolbar_id = DevblocksPlatform::importGPC($_REQUEST['toolbar'] ?? null, 'string','');
+		$record_type = DevblocksPlatform::importGPC($_REQUEST['record_type'] ?? null, 'string','');
+		$record_id = DevblocksPlatform::importGPC($_REQUEST['record_id'] ?? null, 'integer',0);
 		
 		$toolbar_dict = DevblocksDictionaryDelegate::instance([
 			'record__context' => $record_type,
@@ -399,9 +399,9 @@ class Page_Profiles extends CerberusPageExtension {
 	private function _profileAction_renderTab() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$tab_id = DevblocksPlatform::importGPC($_REQUEST['tab_id'],'string','');
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
+		$tab_id = DevblocksPlatform::importGPC($_REQUEST['tab_id'] ?? null, 'string','');
+		$context = DevblocksPlatform::importGPC($_REQUEST['context'] ?? null,'string','');
+		$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'] ?? null, 'integer',0);
 		
 		if(false == ($profile_tab = DAO_ProfileTab::get($tab_id)))
 			return;
@@ -418,7 +418,7 @@ class Page_Profiles extends CerberusPageExtension {
 	private function _profileAction_invokeTab() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$tab_id = DevblocksPlatform::importGPC($_REQUEST['tab_id'],'integer',0);
+		$tab_id = DevblocksPlatform::importGPC($_REQUEST['tab_id'] ?? null, 'integer',0);
 		@$action = DevblocksPlatform::importGPC(isset($_GET['action']) ? $_GET['action'] : $_REQUEST['action'],'string','');
 		
 		if(false == ($profile_tab = DAO_ProfileTab::get($tab_id)))
@@ -446,7 +446,7 @@ class Page_Profiles extends CerberusPageExtension {
 	private function _profileAction_invokeWidget() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$widget_id = DevblocksPlatform::importGPC($_REQUEST['widget_id'],'integer',0);
+		$widget_id = DevblocksPlatform::importGPC($_REQUEST['widget_id'] ?? null, 'integer',0);
 		@$action = DevblocksPlatform::importGPC(isset($_GET['action']) ? $_GET['action'] : $_REQUEST['action'],'string','');
 		
 		if(false == ($profile_widget = DAO_ProfileWidget::get($widget_id)))
@@ -626,7 +626,7 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 		
 		$widgets = $model->getWidgets();
 		
-		@$layout = $model->extension_params['layout'] ?: '';
+		$layout = ($model->extension_params['layout'] ?? null) ?: '';
 		
 		$zones = [
 			'content' => [],
@@ -669,10 +669,10 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 	private function _profileTabAction_renderWidget(Model_ProfileTab $profile_tab) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
-		@$context = DevblocksPlatform::importGPC($_POST['context'], 'string', '');
-		@$context_id = DevblocksPlatform::importGPC($_POST['context_id'], 'integer', 0);
-		@$full = DevblocksPlatform::importGPC($_POST['full'], 'bool', false);
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
+		$context = DevblocksPlatform::importGPC($_POST['context'] ?? null, 'string', '');
+		$context_id = DevblocksPlatform::importGPC($_POST['context_id'] ?? null, 'integer', 0);
+		$full = DevblocksPlatform::importGPC($_POST['full'] ?? null, 'bool', false);
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
@@ -711,7 +711,7 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 	private function _profileTabAction_reorderWidgets(Model_ProfileTab $profile_tab) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$zones = DevblocksPlatform::importGPC($_POST['zones'], 'array', []);
+		$zones = DevblocksPlatform::importGPC($_POST['zones'] ?? null, 'array', []);
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(403);
@@ -887,8 +887,8 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 	private function _profileTabAction_showSettingsSectionTab(Model_ProfileTab $model) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'], 'integer', 0);
-		@$tab = DevblocksPlatform::importGPC($_REQUEST['tab'], 'string', null);
+		$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'] ?? null, 'integer', 0);
+		$tab = DevblocksPlatform::importGPC($_REQUEST['tab'] ?? null, 'string', null);
 		
 		// ACL
 		if(!($active_worker->is_superuser || $active_worker->id == $worker_id))
@@ -1048,8 +1048,8 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 	private function _profileTabAction_saveSettingsSectionTabJson(Model_ProfileTab $model) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$worker_id = DevblocksPlatform::importGPC($_POST['worker_id'], 'integer', 0);
-		@$tab = DevblocksPlatform::importGPC($_POST['tab'], 'string', null);
+		$worker_id = DevblocksPlatform::importGPC($_POST['worker_id'] ?? null, 'integer', 0);
+		$tab = DevblocksPlatform::importGPC($_POST['tab'] ?? null, 'string', null);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -1063,12 +1063,12 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 			
 			switch($tab) {
 				case 'profile':
-					@$gender = DevblocksPlatform::importGPC($_POST['gender'],'string');
-					@$location = DevblocksPlatform::importGPC($_POST['location'],'string');
-					@$phone = DevblocksPlatform::importGPC($_POST['phone'],'string');
-					@$mobile = DevblocksPlatform::importGPC($_POST['mobile'],'string');
-					@$dob = DevblocksPlatform::importGPC($_POST['dob'],'string');
-					@$avatar_image = DevblocksPlatform::importGPC($_POST['avatar_image'],'string');
+					$gender = DevblocksPlatform::importGPC($_POST['gender'] ?? null, 'string');
+					$location = DevblocksPlatform::importGPC($_POST['location'] ?? null, 'string');
+					$phone = DevblocksPlatform::importGPC($_POST['phone'] ?? null, 'string');
+					$mobile = DevblocksPlatform::importGPC($_POST['mobile'] ?? null, 'string');
+					$dob = DevblocksPlatform::importGPC($_POST['dob'] ?? null, 'string');
+					$avatar_image = DevblocksPlatform::importGPC($_POST['avatar_image'] ?? null, 'string');
 					
 					$worker_fields = [];
 					
@@ -1097,7 +1097,7 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 					if(!empty($worker_fields))
 						DAO_Worker::update($worker->id, $worker_fields);
 					
-					@$assist_mode = DevblocksPlatform::importGPC($_POST['assist_mode'],'integer',0);
+					$assist_mode = DevblocksPlatform::importGPC($_POST['assist_mode'] ?? null, 'integer',0);
 					DAO_WorkerPref::set($worker->id, 'assist_mode', $assist_mode);
 					
 					$dark_mode = DevblocksPlatform::importGPC($_POST['dark_mode'] ?? null, 'integer',0);
@@ -1115,7 +1115,7 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 					return;
 					
 				case 'pages':
-					@$page_ids = DevblocksPlatform::importGPC($_POST['pages'],'array:integer',[]);
+					$page_ids = DevblocksPlatform::importGPC($_POST['pages'] ?? null, 'array:integer',[]);
 					
 					if(false != ($pages = DAO_WorkspacePage::getIds($page_ids))) {
 						if(!Context_WorkspacePage::isReadableByActor($pages, $worker))
@@ -1135,7 +1135,7 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 					return;
 					
 				case 'availability':
-					@$availability_calendar_id = DevblocksPlatform::importGPC($_POST['availability_calendar_id'],'integer',0);
+					$availability_calendar_id = DevblocksPlatform::importGPC($_POST['availability_calendar_id'] ?? null, 'integer',0);
 					
 					$worker_fields = [];
 					$worker_fields[DAO_Worker::CALENDAR_ID] = $availability_calendar_id;
@@ -1155,9 +1155,9 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 					return;
 					
 				case 'localization':
-					@$lang_code = DevblocksPlatform::importGPC($_POST['lang_code'],'string','en_US');
-					@$time_format = DevblocksPlatform::importGPC($_POST['time_format'],'string',null);
-					@$timezone = DevblocksPlatform::importGPC($_POST['timezone'],'string');
+					$lang_code = DevblocksPlatform::importGPC($_POST['lang_code'] ?? null, 'string','en_US');
+					$time_format = DevblocksPlatform::importGPC($_POST['time_format'] ?? null, 'string',null);
+					$timezone = DevblocksPlatform::importGPC($_POST['timezone'] ?? null, 'string');
 					
 					$worker_fields = [];
 					
@@ -1189,28 +1189,28 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 					return;
 					
 				case 'mail':
-					@$mail_disable_html_display = DevblocksPlatform::importGPC($_POST['mail_disable_html_display'],'integer',0);
+					$mail_disable_html_display = DevblocksPlatform::importGPC($_POST['mail_disable_html_display'] ?? null, 'integer',0);
 					DAO_WorkerPref::set($worker->id, 'mail_disable_html_display', $mail_disable_html_display);
 					
-					@$mail_always_read_all = DevblocksPlatform::importGPC($_POST['mail_always_read_all'],'integer',0);
+					$mail_always_read_all = DevblocksPlatform::importGPC($_POST['mail_always_read_all'] ?? null, 'integer',0);
 					DAO_WorkerPref::set($worker->id, 'mail_always_read_all', $mail_always_read_all);
 					
-					@$mail_reply_html = DevblocksPlatform::importGPC($_POST['mail_reply_html'],'integer',0);
+					$mail_reply_html = DevblocksPlatform::importGPC($_POST['mail_reply_html'] ?? null, 'integer',0);
 					DAO_WorkerPref::set($worker->id, 'mail_reply_html', $mail_reply_html);
 					
-					@$mail_reply_button = DevblocksPlatform::importGPC($_POST['mail_reply_button'],'integer',0);
+					$mail_reply_button = DevblocksPlatform::importGPC($_POST['mail_reply_button'] ?? null, 'integer',0);
 					DAO_WorkerPref::set($worker->id, 'mail_reply_button', $mail_reply_button);
 					
-					@$mail_reply_format = DevblocksPlatform::importGPC($_POST['mail_reply_format'],'string','');
+					$mail_reply_format = DevblocksPlatform::importGPC($_POST['mail_reply_format'] ?? null, 'string','');
 					DAO_WorkerPref::set($worker->id, 'mail_reply_format', $mail_reply_format);
 					
-					@$mail_signature_pos = DevblocksPlatform::importGPC($_POST['mail_signature_pos'],'integer',0);
+					$mail_signature_pos = DevblocksPlatform::importGPC($_POST['mail_signature_pos'] ?? null, 'integer',0);
 					DAO_WorkerPref::set($worker->id, 'mail_signature_pos', $mail_signature_pos);
 					
-					@$mail_status_compose = DevblocksPlatform::importGPC($_POST['mail_status_compose'],'string','waiting');
+					$mail_status_compose = DevblocksPlatform::importGPC($_POST['mail_status_compose'] ?? null, 'string','waiting');
 					DAO_WorkerPref::set($worker->id, 'compose.status', $mail_status_compose);
 					
-					@$mail_status_reply = DevblocksPlatform::importGPC($_POST['mail_status_reply'],'string','waiting');
+					$mail_status_reply = DevblocksPlatform::importGPC($_POST['mail_status_reply'] ?? null, 'string','waiting');
 					DAO_WorkerPref::set($worker->id, 'mail_status_reply', $mail_status_reply);
 					
 					echo json_encode([
@@ -1220,7 +1220,7 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 					return;
 					
 				case 'records':
-					@$comment_disable_formatting = DevblocksPlatform::importGPC($_POST['comment_disable_formatting'],'integer',0);
+					$comment_disable_formatting = DevblocksPlatform::importGPC($_POST['comment_disable_formatting'] ?? null, 'integer',0);
 					DAO_WorkerPref::set($worker->id, 'comment_disable_formatting', $comment_disable_formatting);
 					
 					echo json_encode([
@@ -1230,7 +1230,7 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 					return;
 					
 				case 'search':
-					@$search_favorites = DevblocksPlatform::importGPC($_POST['search_favorites'],'array',[]);
+					$search_favorites = DevblocksPlatform::importGPC($_POST['search_favorites'] ?? null, 'array',[]);
 					DAO_WorkerPref::setAsJson($worker->id, 'search_favorites_json', $search_favorites);
 					
 					$cache = DevblocksPlatform::services()->cache();
@@ -1246,9 +1246,9 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 				case 'security':
 					// Secret questions
 					
-					@$q = DevblocksPlatform::importGPC($_POST['sq_q'], 'array', array('','',''));
-					@$h = DevblocksPlatform::importGPC($_POST['sq_h'], 'array', array('','',''));
-					@$a = DevblocksPlatform::importGPC($_POST['sq_a'], 'array', array('','',''));
+					$q = DevblocksPlatform::importGPC($_POST['sq_q'] ?? null, 'array', array('','',''));
+					$h = DevblocksPlatform::importGPC($_POST['sq_h'] ?? null, 'array', array('','',''));
+					$a = DevblocksPlatform::importGPC($_POST['sq_a'] ?? null, 'array', array('','',''));
 					
 					$secret_questions = array(
 						array('q'=>$q[0], 'h'=>$h[0], 'a'=>$a[0]),
@@ -1261,10 +1261,10 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 					// MFA
 					
 					if(!$worker->is_mfa_required) {
-						@$mfa_params = DevblocksPlatform::importGPC($_POST['mfa_params'], 'array', []);
-						@$state = DevblocksPlatform::importGPC($mfa_params['state'], 'integer', 0);
-						@$seed = DevblocksPlatform::importGPC($mfa_params['seed'], 'string', '');
-						@$otp = DevblocksPlatform::importGPC($mfa_params['otp'], 'string', '');
+						$mfa_params = DevblocksPlatform::importGPC($_POST['mfa_params'] ?? null, 'array', []);
+						$state = DevblocksPlatform::importGPC($mfa_params['state'] ?? null, 'integer', 0);
+						$seed = DevblocksPlatform::importGPC($mfa_params['seed'] ?? null, 'string', '');
+						$otp = DevblocksPlatform::importGPC($mfa_params['otp'] ?? null, 'string', '');
 						
 						try {
 							$is_mfa_enabled = !is_null(DAO_WorkerPref::get($worker_id, 'mfa.totp.seed', null));
@@ -1312,8 +1312,8 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 					return;
 					
 				case 'watchers':
-					@$activity_points = DevblocksPlatform::importGPC($_POST['activity_point'],'array',array());
-					@$activity_points_enabled = DevblocksPlatform::importGPC($_POST['activity_enable'],'array',array());
+					$activity_points = DevblocksPlatform::importGPC($_POST['activity_point'] ?? null, 'array', []);
+					$activity_points_enabled = DevblocksPlatform::importGPC($_POST['activity_enable'] ?? null, 'array', []);
 					
 					$dont_notify_on_activities = array_diff($activity_points, $activity_points_enabled);
 					WorkerPrefs::setDontNotifyOnActivities($worker->id, $dont_notify_on_activities);

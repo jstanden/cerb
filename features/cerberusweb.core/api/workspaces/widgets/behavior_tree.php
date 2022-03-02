@@ -12,7 +12,7 @@ class WorkspaceWidget_BehaviorTree extends Extension_WorkspaceWidget {
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$behavior_id_template = $widget->params['behavior'];
+		$behavior_id_template = $widget->params['behavior'] ?? null;
 		
 		$labels = $values = $merge_token_labels = $merge_token_values = [];
 		
@@ -74,7 +74,7 @@ class WorkspaceWidget_BehaviorTree extends Extension_WorkspaceWidget {
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget, ?string &$error=null) : bool {
-		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
+		$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
 		
 		DAO_WorkspaceWidget::update($widget->id, array(
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),

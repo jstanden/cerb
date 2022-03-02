@@ -53,7 +53,7 @@ class PageSection_SetupCache extends Extension_PageSection {
 		if(DEVBLOCKS_CACHE_ENGINE_PREVENT_CHANGE)
 			return;
 		
-		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
+		$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'] ?? null,'string','');
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$cache = DevblocksPlatform::services()->cache();
@@ -88,8 +88,8 @@ class PageSection_SetupCache extends Extension_PageSection {
 			if('POST' != DevblocksPlatform::getHttpMethod())
 				throw new Exception_DevblocksAjaxError(DevblocksPlatform::translate('common.access_denied'));
 			
-			@$engine_extension_id = DevblocksPlatform::importGPC($_POST['engine_extension_id'],'string','');
-			@$params = DevblocksPlatform::importGPC($_POST['params'],'array',array());
+			$engine_extension_id = DevblocksPlatform::importGPC($_POST['engine_extension_id'] ?? null,'string','');
+			$params = DevblocksPlatform::importGPC($_POST['params'] ?? null,'array',array());
 	
 			if(false == ($engine = Extension_DevblocksCacheEngine::get($engine_extension_id)))
 				throw new Exception_DevblocksAjaxError("Failed to load the cache engine.");

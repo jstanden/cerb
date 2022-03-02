@@ -61,10 +61,10 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 	private function _profileAction_savePeekJson() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
 		
-		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
+		$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'string', '');
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 403);
@@ -103,11 +103,11 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
-				@$description = DevblocksPlatform::importGPC($_POST['description'], 'string', '');
-				@$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'], 'string', '');
-				@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
-				@$script = DevblocksPlatform::importGPC($_POST['automation_script'], 'string', '');
+				$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');
+				$description = DevblocksPlatform::importGPC($_POST['description'] ?? null, 'string', '');
+				$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'] ?? null, 'string', '');
+				$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
+				$script = DevblocksPlatform::importGPC($_POST['automation_script'] ?? null, 'string', '');
 				
 				$error = null;
 				
@@ -131,7 +131,7 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 
 					// Validate policy KATA
 					
-					@$policy_kata = DevblocksPlatform::importGPC($_POST['automation_policy_kata'], 'string', '');
+					$policy_kata = DevblocksPlatform::importGPC($_POST['automation_policy_kata'] ?? null, 'string', '');
 					
 					$fields[DAO_Automation::POLICY_KATA] = $policy_kata;
 				}
@@ -187,7 +187,7 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 				
 				if($id) {
 					// Custom field saves
-					@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+					$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 					if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_AUTOMATION, $id, $field_ids, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 				}
@@ -313,7 +313,7 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 	private function _profileAction_editorVisualize() {
 		$tpl = DevblocksPlatform::services()->template();
 		
-		@$script = DevblocksPlatform::importGPC($_POST['script'], 'string');
+		$script = DevblocksPlatform::importGPC($_POST['script'] ?? null, 'string');
 		
 		$automation = new Model_Automation();
 		$automation->script = $script;
@@ -398,9 +398,9 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$continuation_token = DevblocksPlatform::importGPC($_POST['continuation_token'], 'string', '');
-		@$prompt_key = DevblocksPlatform::importGPC($_POST['prompt_key'], 'string', '');
-		@$prompt_action = DevblocksPlatform::importGPC($_POST['prompt_action'], 'string', '');
+		$continuation_token = DevblocksPlatform::importGPC($_POST['continuation_token'] ?? null, 'string', '');
+		$prompt_key = DevblocksPlatform::importGPC($_POST['prompt_key'] ?? null, 'string', '');
+		$prompt_action = DevblocksPlatform::importGPC($_POST['prompt_action'] ?? null, 'string', '');
 		
 		if(DevblocksPlatform::strEndsWith($prompt_key,'/'))
 			$prompt_key = rtrim($prompt_key,'/');
@@ -444,7 +444,7 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 	private function _profileAction_renderEditorToolbar() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$trigger = DevblocksPlatform::importGPC($_POST['trigger'], 'string', null);
+		$trigger = DevblocksPlatform::importGPC($_POST['trigger'] ?? null, 'string', null);
 		
 		$toolbar_dict = DevblocksDictionaryDelegate::instance([
 			'caller_name' => 'cerb.toolbar.editor.automation.script',
@@ -466,7 +466,7 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 	}
 	
 	private function _profileAction_stepAutomationEditor() {
-		@$output_yaml = DevblocksPlatform::importGPC($_POST['output'], 'string');
+		$output_yaml = DevblocksPlatform::importGPC($_POST['output'] ?? null, 'string');
 		
 		header('Content-Type: text/plain; charset=utf-8');
 		
@@ -538,12 +538,12 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		$automator = DevblocksPlatform::services()->automation();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$automation_id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
-		@$is_simulator = DevblocksPlatform::importGPC($_POST['is_simulator'], 'integer', 0);
-		@$automation_name = DevblocksPlatform::importGPC($_POST['name'], 'string');
-		@$automation_script = DevblocksPlatform::importGPC($_POST['automation_script'], 'string');
-		@$start_state = DevblocksPlatform::importGPC($_POST['start_state_yaml'], 'string');
-		@$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'], 'string');
+		$automation_id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
+		$is_simulator = DevblocksPlatform::importGPC($_POST['is_simulator'] ?? null, 'integer', 0);
+		$automation_name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string');
+		$automation_script = DevblocksPlatform::importGPC($_POST['automation_script'] ?? null, 'string');
+		$start_state = DevblocksPlatform::importGPC($_POST['start_state_yaml'] ?? null, 'string');
+		$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'] ?? null, 'string');
 		
 		$error = null;
 		
@@ -574,7 +574,7 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		
 		// Override policies on testing
 		if($active_worker->is_superuser) {
-			@$automation->policy_kata = DevblocksPlatform::importGPC($_POST['automation_policy_kata'], 'string', null);
+			$automation->policy_kata = DevblocksPlatform::importGPC($_POST['automation_policy_kata'] ?? null, 'string', null);
 		}
 		
 		if(false === ($initial_state = DevblocksPlatform::services()->string()->yamlParse($start_state, 0, $error))) {
@@ -635,7 +635,7 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 	}
 	
 	private function _profileAction_viewExplore() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
@@ -651,7 +651,7 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		$view->setAutoPersist(false);
 
 		// Page start
-		@$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'],'integer',0);
+		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'integer',0);
 		if(empty($explore_from)) {
 			$orig_pos = 1+($view->renderPage * $view->renderLimit);
 		} else {
@@ -719,7 +719,7 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		if(!$active_worker->is_superuser)
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		@$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'], 'string', null);
+		$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'] ?? null, 'string', null);
 		
 		if(!$extension_id)
 			return;
@@ -739,7 +739,7 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'], 'string', null);
+		$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'] ?? null, 'string', null);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		

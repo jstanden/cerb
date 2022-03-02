@@ -30,7 +30,7 @@ class ChRest_Parser extends Extension_RestController { //implements IExtensionRe
 		if(!$worker->hasPriv('contexts.cerberusweb.contexts.ticket.create'))
 			$this->error(self::ERRNO_ACL);
 		
-		@$content = DevblocksPlatform::importGPC($_POST['message'],'string','');
+		$content = DevblocksPlatform::importGPC($_POST['message'] ?? null, 'string','');
 		
 		if(empty($content))
 			$this->error(self::ERRNO_CUSTOM, 'The MIME content of your message cannot be blank.');

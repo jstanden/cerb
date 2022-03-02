@@ -11,7 +11,7 @@ class EditorAwait extends AbstractAwait {
 	}
 	
 	function validate(_DevblocksValidationService $validation) {
-		@$prompt_label = $this->_data['label'];
+		$prompt_label = $this->_data['label'] ?? null;
 		$is_required = array_key_exists('required', $this->_data) && $this->_data['required'];
 		
 		$validation->addField($this->_key, $prompt_label)

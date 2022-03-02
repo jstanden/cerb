@@ -16,7 +16,7 @@ class ProfileWidget_CustomHtml extends Extension_ProfileWidget {
 	}
 	
 	function render(Model_ProfileWidget $model, $context, $context_id) {
-		@$template = $model->extension_params['template'];
+		$template = $model->extension_params['template'] ?? null;
 		
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder()->newInstance('html');
 		$active_worker = CerberusApplication::getActiveWorker();

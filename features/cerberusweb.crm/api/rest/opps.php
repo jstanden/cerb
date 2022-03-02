@@ -360,7 +360,7 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 	private function postNote($id) {
 		$worker = CerberusApplication::getActiveWorker();
 
-		@$note = DevblocksPlatform::importGPC($_POST['note'],'string','');
+		$note = DevblocksPlatform::importGPC($_POST['note'] ?? null, 'string','');
 		
 		if(null == ($opp = DAO_CrmOpportunity::get($id)))
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid opp ID %d", $id));

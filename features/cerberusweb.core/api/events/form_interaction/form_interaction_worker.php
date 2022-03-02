@@ -78,7 +78,7 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 		 * Worker
 		 */
 		
-		@$worker_id = $event_model->params['worker_id'];
+		$worker_id = $event_model->params['worker_id'] ?? null;
 		$merge_labels = $merge_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker_id, $merge_labels, $merge_values, null, true);
 
@@ -101,10 +101,10 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 			}
 			
 			// Client
-			@$client_browser = $event_model->params['client_browser'];
-			@$client_browser_version = $event_model->params['client_browser_version'];
-			@$client_ip = $event_model->params['client_ip'];
-			@$client_platform = $event_model->params['client_platform'];
+			$client_browser = $event_model->params['client_browser'] ?? null;
+			$client_browser_version = $event_model->params['client_browser_version'] ?? null;
+			$client_ip = $event_model->params['client_ip'] ?? null;
+			$client_platform = $event_model->params['client_platform'] ?? null;
 			
 			$values['client_browser'] = $client_browser;
 			$values['client_browser_version'] = $client_browser_version;
@@ -686,7 +686,7 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 			case 'prompt_captcha':
 				$actions =& $dict->_actions;
 				
-				@$var = $params['var'];
+				$var = $params['var'] ?? null;
 				
 				$label = 'Please prove you are not a robot:';
 				
@@ -714,11 +714,11 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
-				@$label = $tpl_builder->build($params['label'], $dict);
-				@$options = DevblocksPlatform::parseCrlfString($tpl_builder->build($params['options'], $dict));
-				@$default = DevblocksPlatform::parseCrlfString($tpl_builder->build($params['default'], $dict));
-				@$var = $params['var'];
-				@$var_validate = $params['var_validate'];
+				$label = $tpl_builder->build($params['label'] ?? '', $dict);
+				$options = DevblocksPlatform::parseCrlfString($tpl_builder->build($params['options'] ?? '', $dict));
+				$default = DevblocksPlatform::parseCrlfString($tpl_builder->build($params['default'] ?? '', $dict));
+				$var = $params['var'] ?? null;
+				$var_validate = $params['var_validate'] ?? null;
 				
 				$actions[] = [
 					'_action' => 'prompt.checkboxes',
@@ -738,15 +738,15 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
-				@$label = $tpl_builder->build($params['label'], $dict);
-				@$selection = $params['selection'];
-				@$autocomplete = !empty($params['autocomplete']);
-				@$record_type = $tpl_builder->build($params['record_type'], $dict);
-				@$record_query = $tpl_builder->build($params['record_query'], $dict);
-				@$record_query_required = $tpl_builder->build($params['record_query_required'], $dict);
-				@$default = DevblocksPlatform::parseCrlfString($tpl_builder->build($params['default'], $dict));
-				@$var = $params['var'];
-				@$var_validate = $params['var_validate'];
+				$label = $tpl_builder->build($params['label'] ?? '', $dict);
+				$selection = $params['selection'] ?? null;
+				$autocomplete = (bool)($params['autocomplete'] ?? null);
+				$record_type = $tpl_builder->build($params['record_type'] ?? '', $dict);
+				$record_query = $tpl_builder->build($params['record_query'] ?? '', $dict);
+				$record_query_required = $tpl_builder->build($params['record_query_required'] ?? '', $dict);
+				$default = DevblocksPlatform::parseCrlfString($tpl_builder->build($params['default'] ?? '', $dict));
+				$var = $params['var'] ?? null;
+				$var_validate = $params['var_validate'] ?? null;
 				
 				$actions[] = [
 					'_action' => 'prompt.chooser',
@@ -770,8 +770,8 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
-				@$draft_id = $tpl_builder->build($params['draft_id'], $dict);
-				@$var = $params['var'];
+				$draft_id = $tpl_builder->build($params['draft_id'] ?? '', $dict);
+				$var = $params['var'] ?? null;
 				
 				$actions[] = [
 					'_action' => 'prompt.compose',
@@ -788,10 +788,10 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
-				@$label = $tpl_builder->build($params['label'], $dict);
-				@$selection = $params['selection'];
-				@$var = $params['var'];
-				@$var_validate = $params['var_validate'];
+				$label = $tpl_builder->build($params['label'] ?? '', $dict);
+				$selection = $params['selection'] ?? null;
+				$var = $params['var'] ?? null;
+				$var_validate = $params['var_validate'] ?? null;
 				
 				$actions[] = [
 					'_action' => 'prompt.files',
@@ -810,14 +810,14 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
-				@$label = $tpl_builder->build($params['label'], $dict);
-				@$style = $params['style'];
-				@$orientation = $params['orientation'];
-				@$options = DevblocksPlatform::parseCrlfString($tpl_builder->build($params['options'], $dict));
-				@$default = $tpl_builder->build($params['default'], $dict);
-				@$var = $params['var'];
-				@$var_format = $params['var_format'];
-				@$var_validate = $params['var_validate'];
+				$label = $tpl_builder->build($params['label'] ?? '', $dict);
+				$style = $params['style'] ?? null;
+				$orientation = $params['orientation'] ?? null;
+				$options = DevblocksPlatform::parseCrlfString($tpl_builder->build($params['options'] ?? '', $dict));
+				$default = $tpl_builder->build($params['default'] ?? '', $dict);
+				$var = $params['var'] ?? null;
+				$var_format = $params['var_format'] ?? null;
+				$var_validate = $params['var_validate'] ?? null;
 				
 				$actions[] = [
 					'_action' => 'prompt.radios',
@@ -840,8 +840,8 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
-				@$draft_id = $tpl_builder->build($params['draft_id'], $dict);
-				@$var = $params['var'];
+				$draft_id = $tpl_builder->build($params['draft_id'] ?? '', $dict);
+				$var = $params['var'] ?? null;
 				
 				$actions[] = [
 					'_action' => 'prompt.reply',
@@ -858,12 +858,12 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
-				@$label = $tpl_builder->build($params['label'], $dict);
-				@$data = $tpl_builder->build($params['data'], $dict);
-				@$schema = $tpl_builder->build($params['schema'], $dict);
-				@$var = $params['var'];
-				@$var_format = $params['var_format'];
-				@$var_validate = $params['var_validate'];
+				$label = $tpl_builder->build($params['label'] ?? '', $dict);
+				$data = $tpl_builder->build($params['data'] ?? '', $dict);
+				$schema = $tpl_builder->build($params['schema'] ?? '', $dict);
+				$var = $params['var'] ?? null;
+				$var_format = $params['var_format'] ?? null;
+				$var_validate = $params['var_validate'] ?? null;
 				
 				$actions[] = [
 					'_action' => 'prompt.sheet',
@@ -884,13 +884,13 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
-				@$label = $tpl_builder->build($params['label'], $dict);
-				@$placeholder = $tpl_builder->build($params['placeholder'], $dict);
-				@$default = $tpl_builder->build($params['default'], $dict);
-				@$mode = $params['mode'];
-				@$var = $params['var'];
-				@$var_format = $params['var_format'];
-				@$var_validate = $params['var_validate'];
+				$label = $tpl_builder->build($params['label'] ?? '', $dict);
+				$placeholder = $tpl_builder->build($params['placeholder'] ?? '', $dict);
+				$default = $tpl_builder->build($params['default'] ?? '', $dict);
+				$mode = $params['mode'] ?? null;
+				$var = $params['var'] ?? null;
+				$var_format = $params['var_format'] ?? null;
+				$var_validate = $params['var_validate'] ?? null;
 				
 				$actions[] = [
 					'_action' => 'prompt.text',
@@ -921,7 +921,7 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 			case 'respond_text':
 				$actions =& $dict->_actions;
 				
-				@$format = $params['format'];
+				$format = $params['format'] ?? null;
 				
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				$content = $tpl_builder->build($params['message'], $dict);

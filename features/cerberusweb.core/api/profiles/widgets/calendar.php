@@ -23,7 +23,7 @@ class ProfileWidget_Calendar extends Extension_ProfileWidget {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
-		@$target_context_id = $model->extension_params['context_id'];
+		$target_context_id = $model->extension_params['context_id'] ?? null;
 		
 		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
 			return;
@@ -71,8 +71,8 @@ class ProfileWidget_Calendar extends Extension_ProfileWidget {
 			}
 		}
 		
-		@$month = DevblocksPlatform::importGPC($_POST['month'],'integer', 0);
-		@$year = DevblocksPlatform::importGPC($_POST['year'],'integer', 0);
+		$month = DevblocksPlatform::importGPC($_POST['month'] ?? null, 'integer', 0);
+		$year = DevblocksPlatform::importGPC($_POST['year'] ?? null, 'integer', 0);
 		
 		$start_on_mon = (bool)($calendar->params['start_on_mon'] ?? false);
 		$calendar_properties = DevblocksCalendarHelper::getCalendar($month, $year, $start_on_mon);
@@ -106,9 +106,9 @@ class ProfileWidget_Calendar extends Extension_ProfileWidget {
 	private function _profileWidgetAction_showCalendarTab(Model_ProfileWidget $model) {
 		$tpl = DevblocksPlatform::services()->template();
 		
-		@$calendar_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
-		@$month = DevblocksPlatform::importGPC($_REQUEST['month'],'integer', 0);
-		@$year = DevblocksPlatform::importGPC($_REQUEST['year'],'integer', 0);
+		$calendar_id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null, 'integer');
+		$month = DevblocksPlatform::importGPC($_REQUEST['month'] ?? null, 'integer', 0);
+		$year = DevblocksPlatform::importGPC($_REQUEST['year'] ?? null, 'integer', 0);
 
 		if(null == ($calendar = DAO_Calendar::get($calendar_id))) /* @var Model_Calendar $calendar */
 			return;

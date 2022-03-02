@@ -104,9 +104,9 @@ class HttpRequestAction extends AbstractAction {
 			}
 			
 			$headers = [];
-			@$url = $inputs['url'];
-			@$method = $inputs['method'];
-			@$body = $inputs['body'];
+			$url = $inputs['url'] ?? null;
+			$method = $inputs['method'] ?? null;
+			$body = $inputs['body'] ?? null;
 			
 			if(array_key_exists('headers', $inputs)) {
 				if(is_string($inputs['headers'])) {

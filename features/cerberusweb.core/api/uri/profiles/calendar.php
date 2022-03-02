@@ -41,7 +41,7 @@ class PageSection_ProfilesCalendar extends Extension_PageSection {
 	}
 	
 	private function _profileAction_savePeekJson() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
 		
 		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
 		$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');
@@ -80,7 +80,7 @@ class PageSection_ProfilesCalendar extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$package_uri = DevblocksPlatform::importGPC($_POST['package'], 'string', '');
+				$package_uri = DevblocksPlatform::importGPC($_POST['package'] ?? null, 'string', '');
 				
 				$mode = 'build';
 				
@@ -89,7 +89,7 @@ class PageSection_ProfilesCalendar extends Extension_PageSection {
 				
 				// Owner
 				
-				@list($owner_context, $owner_context_id) = explode(':', $owner);
+				list($owner_context, $owner_context_id) = array_pad(explode(':', $owner), 2, null);
 			
 				switch($owner_context) {
 					case CerberusContexts::CONTEXT_APPLICATION:
@@ -110,7 +110,7 @@ class PageSection_ProfilesCalendar extends Extension_PageSection {
 				
 				switch($mode) {
 					case 'library':
-						@$prompts = DevblocksPlatform::importGPC($_POST['prompts'], 'array', []);
+						$prompts = DevblocksPlatform::importGPC($_POST['prompts'] ?? null, 'array', []);
 						
 						if(empty($package_uri))
 							throw new Exception_DevblocksAjaxValidationError("You must select a package from the library.");
@@ -221,7 +221,7 @@ class PageSection_ProfilesCalendar extends Extension_PageSection {
 						}
 						
 						// Custom field saves
-						@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+						$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 						if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_CALENDAR, $id, $field_ids, $error))
 							throw new Exception_DevblocksAjaxValidationError($error);
 						
@@ -258,7 +258,7 @@ class PageSection_ProfilesCalendar extends Extension_PageSection {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
 		
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
@@ -271,7 +271,7 @@ class PageSection_ProfilesCalendar extends Extension_PageSection {
 		$view->setAutoPersist(false);
 		
 		// Page start
-		@$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'],'integer',0);
+		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'integer',0);
 		if(empty($explore_from)) {
 			$orig_pos = 1+($view->renderPage * $view->renderLimit);
 		} else {

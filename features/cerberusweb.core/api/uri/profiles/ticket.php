@@ -101,9 +101,9 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', '');
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'], 'integer', 0);
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
+		$context = DevblocksPlatform::importGPC($_REQUEST['context'] ?? null, 'string', '');
+		$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'] ?? null, 'integer', 0);
+		$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'] ?? null, 'string', '');
 		
 		$tpl->assign('view_id', $view_id);
 		
@@ -156,8 +156,8 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 	private function _profileAction_savePeekJson() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
-		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer',0);
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
@@ -785,7 +785,7 @@ EOD;
 	private function _profileAction_validateReplyJson() {
 		header('Content-Type: application/json; charset=utf-8');
 		
-		@$reply_mode = DevblocksPlatform::strLower(DevblocksPlatform::importGPC($_POST['reply_mode'],'string'));
+		$reply_mode = DevblocksPlatform::strLower(DevblocksPlatform::importGPC($_POST['reply_mode'] ?? null,'string'));
 		$reply_modes = ['send','save','draft'];
 		
 		try {
@@ -948,11 +948,11 @@ EOD;
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$group_id = DevblocksPlatform::importGPC($_POST['group_id'],'integer',0);
-		@$bucket_id = DevblocksPlatform::importGPC($_POST['bucket_id'],'integer',0);
-		@$content = DevblocksPlatform::importGPC($_POST['content'],'string','');
-		@$format = DevblocksPlatform::importGPC($_POST['format'],'string','');
-		@$html_template_id = DevblocksPlatform::importGPC($_POST['html_template_id'],'integer',0);
+		$group_id = DevblocksPlatform::importGPC($_POST['group_id'] ?? null, 'integer',0);
+		$bucket_id = DevblocksPlatform::importGPC($_POST['bucket_id'] ?? null, 'integer',0);
+		$content = DevblocksPlatform::importGPC($_POST['content'] ?? null, 'string','');
+		$format = DevblocksPlatform::importGPC($_POST['format'] ?? null, 'string','');
+		$html_template_id = DevblocksPlatform::importGPC($_POST['html_template_id'] ?? null, 'integer',0);
 		
 		if(false == ($group = DAO_Group::get($group_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -960,7 +960,7 @@ EOD;
 		if(!$html_template_id || false == ($html_template = DAO_MailHtmlTemplate::get($html_template_id)))
 			$html_template = $group->getReplyHtmlTemplate($bucket_id);
 		
-		@$in_reply_message_id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
+		$in_reply_message_id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer',0);
 		
 		// Parse #commands
 		
@@ -1102,8 +1102,8 @@ EOD;
 		if(!$active_worker->hasPriv(sprintf('contexts.%s.update.bulk', Context_Ticket::ID)))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
+		$ids = DevblocksPlatform::importGPC($_REQUEST['ids'] ?? null);
+		$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'] ?? null);
 
 		$tpl->assign('view_id', $view_id);
 
@@ -1161,22 +1161,22 @@ EOD;
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$ticket_id_str = DevblocksPlatform::importGPC($_POST['ids'],'string');
-		@$filter = DevblocksPlatform::importGPC($_POST['filter'],'string','');
+		$ticket_id_str = DevblocksPlatform::importGPC($_POST['ids'] ?? null, 'string');
+		$filter = DevblocksPlatform::importGPC($_POST['filter'] ?? null, 'string','');
 
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
 		$view->setAutoPersist(false);
 		
 		// Actions
-		@$actions = DevblocksPlatform::importGPC($_POST['actions'],'array',[]);
-		@$params = DevblocksPlatform::importGPC($_POST['params'],'array',[]);
-		@$options = DevblocksPlatform::importGPC($_POST['options'],'array',[]);
+		$actions = DevblocksPlatform::importGPC($_POST['actions'] ?? null, 'array',[]);
+		$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array',[]);
+		$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array',[]);
 
 		// Scheduled behavior
-		@$behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'],'string','');
-		@$behavior_when = DevblocksPlatform::importGPC($_POST['behavior_when'],'string','');
-		@$behavior_params = DevblocksPlatform::importGPC($_POST['behavior_params'],'array',[]);
+		$behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'] ?? null, 'string','');
+		$behavior_when = DevblocksPlatform::importGPC($_POST['behavior_when'] ?? null, 'string','');
+		$behavior_params = DevblocksPlatform::importGPC($_POST['behavior_params'] ?? null, 'array',[]);
 		
 		$do = [];
 		
@@ -1221,12 +1221,12 @@ EOD;
 		
 		// Broadcast: Mass Reply
 		if($active_worker->hasPriv('contexts.cerberusweb.contexts.ticket.broadcast')) {
-			@$do_broadcast = DevblocksPlatform::importGPC($_POST['do_broadcast'],'string',null);
-			@$broadcast_message = DevblocksPlatform::importGPC($_POST['broadcast_message'],'string',null);
-			@$broadcast_format = DevblocksPlatform::importGPC($_POST['broadcast_format'],'string',null);
-			@$broadcast_html_template_id = DevblocksPlatform::importGPC($_POST['broadcast_html_template_id'],'integer',0);
-			@$broadcast_file_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['broadcast_file_ids'],'array',array()), 'integer', array('nonzero','unique'));
-			@$broadcast_is_queued = DevblocksPlatform::importGPC($_POST['broadcast_is_queued'],'integer',0);
+			$do_broadcast = DevblocksPlatform::importGPC($_POST['do_broadcast'] ?? null, 'string',null);
+			$broadcast_message = DevblocksPlatform::importGPC($_POST['broadcast_message'] ?? null, 'string',null);
+			$broadcast_format = DevblocksPlatform::importGPC($_POST['broadcast_format'] ?? null, 'string',null);
+			$broadcast_html_template_id = DevblocksPlatform::importGPC($_POST['broadcast_html_template_id'] ?? null, 'integer',0);
+			$broadcast_file_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['broadcast_file_ids'] ?? null,'array',array()), 'integer', array('nonzero','unique'));
+			$broadcast_is_queued = DevblocksPlatform::importGPC($_POST['broadcast_is_queued'] ?? null, 'integer',0);
 			
 			if(0 != strlen($do_broadcast) && !empty($broadcast_message)) {
 				$do['broadcast'] = [
@@ -1248,7 +1248,7 @@ EOD;
 				break;
 				
 			case 'sample':
-				@$sample_size = min(DevblocksPlatform::importGPC($_POST['filter_sample_size'],'integer',0),9999);
+				$sample_size = min(DevblocksPlatform::importGPC($_POST['filter_sample_size'] ?? null,'integer',0),9999);
 				$ids = $view->getDataSample($sample_size);
 				break;
 				
@@ -1290,8 +1290,8 @@ EOD;
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
-		@$ticket_ids = DevblocksPlatform::importGPC($_POST['ticket_id'],'array:integer');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
+		$ticket_ids = DevblocksPlatform::importGPC($_POST['ticket_id'] ?? null, 'array:integer');
 		
 		$fields = [
 			DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_CLOSED,
@@ -1343,8 +1343,8 @@ EOD;
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
-		@$ticket_ids = DevblocksPlatform::importGPC($_POST['ticket_id'],'array:integer');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
+		$ticket_ids = DevblocksPlatform::importGPC($_POST['ticket_id'] ?? null, 'array:integer');
 		
 		$fields = [
 			DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_DELETED,
@@ -1403,8 +1403,8 @@ EOD;
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
-		@$ticket_ids = DevblocksPlatform::importGPC($_POST['ticket_id'],'array:integer');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
+		$ticket_ids = DevblocksPlatform::importGPC($_POST['ticket_id'] ?? null, 'array:integer');
 		
 		$fields = [
 			DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_DELETED,
@@ -1465,8 +1465,8 @@ EOD;
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
-		@$ticket_ids = DevblocksPlatform::importGPC($_POST['ticket_id'],'array:integer');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
+		$ticket_ids = DevblocksPlatform::importGPC($_POST['ticket_id'] ?? null, 'array:integer');
 		
 		$fields = [
 			DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_OPEN,
@@ -1527,8 +1527,8 @@ EOD;
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
-		@$ticket_ids = DevblocksPlatform::importGPC($_POST['ticket_id'],'array:integer');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
+		$ticket_ids = DevblocksPlatform::importGPC($_POST['ticket_id'] ?? null, 'array:integer');
 		
 		$fields = [
 			DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_WAITING,
@@ -1581,8 +1581,8 @@ EOD;
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
-		@$ticket_ids = DevblocksPlatform::importGPC($_POST['ticket_id'],'array:integer');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
+		$ticket_ids = DevblocksPlatform::importGPC($_POST['ticket_id'] ?? null, 'array:integer');
 		
 		$fields = [
 			DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_OPEN,
@@ -1634,10 +1634,10 @@ EOD;
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
-		@$ticket_ids = DevblocksPlatform::importGPC($_POST['ticket_id'],'array');
-		@$group_id = DevblocksPlatform::importGPC($_POST['group_id'],'integer',0);
-		@$bucket_id = DevblocksPlatform::importGPC($_POST['bucket_id'],'integer',0);
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
+		$ticket_ids = DevblocksPlatform::importGPC($_POST['ticket_id'] ?? null, 'array');
+		$group_id = DevblocksPlatform::importGPC($_POST['group_id'] ?? null, 'integer',0);
+		$bucket_id = DevblocksPlatform::importGPC($_POST['bucket_id'] ?? null, 'integer',0);
 		
 		if(empty($ticket_ids)) {
 			return;
@@ -1694,8 +1694,8 @@ EOD;
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
-		@$clear = DevblocksPlatform::importGPC($_POST['clear'],'integer',0);
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
+		$clear = DevblocksPlatform::importGPC($_POST['clear'] ?? null, 'integer',0);
 		$last_action = View_Ticket::getLastAction($view_id);
 		
 		if($clear || empty($last_action)) {
@@ -1717,7 +1717,7 @@ EOD;
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
@@ -1733,7 +1733,7 @@ EOD;
 		$view->setAutoPersist(false);
 		
 		// Page start
-		@$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'],'integer',0);
+		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'integer',0);
 		if(empty($explore_from)) {
 			$orig_pos = 1+($view->renderPage * $view->renderLimit);
 		} else {
@@ -1796,8 +1796,8 @@ EOD;
 	private function _profileAction_requesterAdd() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$ticket_id = DevblocksPlatform::importGPC($_POST['ticket_id'],'integer');
-		@$email = DevblocksPlatform::importGPC($_POST['email'],'string');
+		$ticket_id = DevblocksPlatform::importGPC($_POST['ticket_id'] ?? null, 'integer');
+		$email = DevblocksPlatform::importGPC($_POST['email'] ?? null, 'string');
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
@@ -1814,7 +1814,7 @@ EOD;
 	private function _profileAction_splitMessage() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$message_id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
+		$message_id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer',0);
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
@@ -1834,8 +1834,8 @@ EOD;
 	}
 	
 	private function _profileAction_quickMove() {
-		@$ticket_id = DevblocksPlatform::importGPC($_POST['ticket_id'],'integer');
-		@$bucket_id = DevblocksPlatform::importGPC($_POST['bucket_id'],'integer');
+		$ticket_id = DevblocksPlatform::importGPC($_POST['ticket_id'] ?? null, 'integer');
+		$bucket_id = DevblocksPlatform::importGPC($_POST['bucket_id'] ?? null, 'integer');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -1860,8 +1860,8 @@ EOD;
 	}
 	
 	private function _profileAction_quickStatus() {
-		@$ticket_id = DevblocksPlatform::importGPC($_POST['ticket_id'],'integer');
-		@$status = DevblocksPlatform::importGPC($_POST['status'],'string','');
+		$ticket_id = DevblocksPlatform::importGPC($_POST['ticket_id'] ?? null, 'integer');
+		$status = DevblocksPlatform::importGPC($_POST['status'] ?? null, 'string','');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -1920,8 +1920,8 @@ EOD;
 	}
 	
 	private function _profileAction_quickAssign() {
-		@$ticket_id = DevblocksPlatform::importGPC($_POST['ticket_id'],'integer');
-		@$owner_id = DevblocksPlatform::importGPC($_POST['owner_id'],'integer');
+		$ticket_id = DevblocksPlatform::importGPC($_POST['ticket_id'] ?? null, 'integer');
+		$owner_id = DevblocksPlatform::importGPC($_POST['owner_id'] ?? null, 'integer');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -1956,7 +1956,7 @@ EOD;
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$ticket_id = DevblocksPlatform::importGPC($_POST['ticket_id'],'integer');
+		$ticket_id = DevblocksPlatform::importGPC($_POST['ticket_id'] ?? null, 'integer');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -1982,8 +1982,8 @@ EOD;
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$ticket_id = DevblocksPlatform::importGPC($_POST['ticket_id'],'integer');
-		@$is_spam = DevblocksPlatform::importGPC($_POST['is_spam'],'integer', 0);
+		$ticket_id = DevblocksPlatform::importGPC($_POST['ticket_id'] ?? null, 'integer');
+		$is_spam = DevblocksPlatform::importGPC($_POST['is_spam'] ?? null, 'integer', 0);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		

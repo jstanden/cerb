@@ -47,10 +47,10 @@ class PageSection_SetupSecurity extends Extension_PageSection {
 		header('Content-Type: application/json; charset=utf-8');
 		
 		try {
-			@$authorized_ips = DevblocksPlatform::importGPC($_POST['authorized_ips'],'string','');
+			$authorized_ips = DevblocksPlatform::importGPC($_POST['authorized_ips'] ?? null,'string','');
 			DevblocksPlatform::setPluginSetting('cerberusweb.core',CerberusSettings::AUTHORIZED_IPS, $authorized_ips);
 			
-			@$session_lifespan = DevblocksPlatform::importGPC($_POST['session_lifespan'],'integer',0);
+			$session_lifespan = DevblocksPlatform::importGPC($_POST['session_lifespan'] ?? null,'integer',0);
 			DevblocksPlatform::setPluginSetting('cerberusweb.core',CerberusSettings::SESSION_LIFESPAN, $session_lifespan);
 			
 			echo json_encode([

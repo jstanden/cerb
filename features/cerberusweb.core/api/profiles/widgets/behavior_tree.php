@@ -19,7 +19,7 @@ class ProfileWidget_BehaviorTree extends Extension_ProfileWidget {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
-		@$target_context_id = $model->extension_params['behavior_id'];
+		$target_context_id = $model->extension_params['behavior_id'] ?? null;
 		
 		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
 			return;

@@ -76,8 +76,8 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 		if(!$active_worker || !$active_worker->is_superuser)
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		@$plugin_id = DevblocksPlatform::importGPC($_REQUEST['plugin_id'],'string','');
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		$plugin_id = DevblocksPlatform::importGPC($_REQUEST['plugin_id'] ?? null, 'string','');
+		$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'] ?? null,'string','');
 		
 		if(empty($plugin_id))
 			return;
@@ -112,9 +112,9 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$plugin_id = DevblocksPlatform::importGPC($_POST['plugin_id'],'string','');
-		@$enabled = DevblocksPlatform::importGPC($_POST['enabled'],'integer',0);
-		@$uninstall = DevblocksPlatform::importGPC($_POST['uninstall'],'integer',0);
+		$plugin_id = DevblocksPlatform::importGPC($_POST['plugin_id'] ?? null, 'string','');
+		$enabled = DevblocksPlatform::importGPC($_POST['enabled'] ?? null, 'integer',0);
+		$uninstall = DevblocksPlatform::importGPC($_POST['uninstall'] ?? null, 'integer',0);
 
 		header("Content-Type: application/json");
 		

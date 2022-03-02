@@ -49,10 +49,10 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 	}
 	
 	private function _profileAction_savePeekJson() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
 		
-		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
+		$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -84,7 +84,7 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$package_uri = DevblocksPlatform::importGPC($_POST['package'], 'string', '');
+				$package_uri = DevblocksPlatform::importGPC($_POST['package'] ?? null, 'string', '');
 				
 				$mode = 'build';
 				
@@ -93,8 +93,8 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 				
 				switch($mode) {
 					case 'library':
-						@$package_context = DevblocksPlatform::importGPC($_POST['package_context'], 'string', '');
-						@$prompts = DevblocksPlatform::importGPC($_POST['prompts'], 'array', []);
+						$package_context = DevblocksPlatform::importGPC($_POST['package_context'] ?? null, 'string', '');
+						$prompts = DevblocksPlatform::importGPC($_POST['prompts'] ?? null, 'array', []);
 						
 						if(empty($package_uri))
 							throw new Exception_DevblocksAjaxValidationError("You must select a package from the library.");
@@ -147,10 +147,10 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 						break;
 						
 					case 'build':
-						@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
-						@$context = DevblocksPlatform::importGPC($_POST['context'], 'string', '');
-						@$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'], 'string', '');
-						@$extension_params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
+						$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');
+						$context = DevblocksPlatform::importGPC($_POST['context'] ?? null, 'string', '');
+						$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'] ?? null, 'string', '');
+						$extension_params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
 						
 						$error = null;
 						
@@ -194,7 +194,7 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 						}
 			
 						// Custom field saves
-						@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+						$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 						if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_PROFILE_TAB, $id, $field_ids, $error))
 							throw new Exception_DevblocksAjaxValidationError($error);
 						
@@ -234,7 +234,7 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 		if(!$active_worker->is_superuser)
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', null);
+		$context = DevblocksPlatform::importGPC($_REQUEST['context'] ?? null, 'string', null);
 		
 		header('Content-Type: application/json');
 		
@@ -294,7 +294,7 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 		if(!$active_worker->is_superuser)
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'],'string','');
+		$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'] ?? null, 'string','');
 		
 		if(false == ($extension = Extension_ProfileTab::get($extension_id)))
 			return;
@@ -311,7 +311,7 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 		if(!$active_worker->is_superuser)
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		$context = DevblocksPlatform::importGPC($_REQUEST['context'] ?? null,'string','');
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -328,7 +328,7 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 	private function _profileAction_getPlaceholderToolbar() {
 		$tpl = DevblocksPlatform::services()->template();
 		
-		@$tab_id = DevblocksPlatform::importGPC($_REQUEST['tab_id'], 'integer', 0);
+		$tab_id = DevblocksPlatform::importGPC($_REQUEST['tab_id'] ?? null, 'integer', 0);
 		
 		if(false == ($tab = DAO_ProfileTab::get($tab_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -352,7 +352,7 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 	}
 	
 	private function _profileAction_viewExplore() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
@@ -368,7 +368,7 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 		$view->setAutoPersist(false);
 
 		// Page start
-		@$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'],'integer',0);
+		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'integer',0);
 		if(empty($explore_from)) {
 			$orig_pos = 1+($view->renderPage * $view->renderLimit);
 		} else {

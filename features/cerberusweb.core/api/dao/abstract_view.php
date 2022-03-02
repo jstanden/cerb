@@ -697,7 +697,7 @@ abstract class C4_AbstractView {
 			if(!is_array($search_field) || empty($search_field))
 				continue;
 			
-			@$param_key = $search_field['options']['param_key'];
+			$param_key = $search_field['options']['param_key'] ?? null;
 			
 			if(empty($param_key))
 				continue;
@@ -740,7 +740,7 @@ abstract class C4_AbstractView {
 			if(!is_array($search_field) || empty($search_field))
 				continue;
 			
-			@$param_key = $search_field['options']['param_key'];
+			$param_key = $search_field['options']['param_key'] ?? null;
 			
 			if(empty($param_key))
 				continue;
@@ -769,7 +769,7 @@ abstract class C4_AbstractView {
 			if(!is_array($search_field) || empty($search_field))
 				continue;
 			
-			@$param_key = $search_field['options']['param_key'];
+			$param_key = $search_field['options']['param_key'] ?? null;
 			
 			if(empty($param_key))
 				continue;
@@ -1163,7 +1163,7 @@ abstract class C4_AbstractView {
 			$label_null = $label_plural;
 		
 		if($param->operator == DevblocksSearchCriteria::OPER_CUSTOM) {
-			@list($alias, $query) = explode(':', $param->value, 2);
+			list($alias, $query) = array_pad(explode(':', $param->value, 2), 2, null);
 			
 			if(empty($alias) || (false == ($mft = Extension_DevblocksContext::getByAlias($alias, false))))
 				return;
@@ -1177,7 +1177,7 @@ abstract class C4_AbstractView {
 		
 		if(is_array($param->value))
 		foreach($param->value as $context_data) {
-			@list($context, $context_id) = explode(':',$context_data);
+			list($context, $context_id) = array_pad(explode(':',$context_data), 2, null);
 			
 			if(empty($context))
 				continue;
@@ -1387,8 +1387,8 @@ abstract class C4_AbstractView {
 			default:
 			case DevblocksSearchCriteria::OPER_BETWEEN:
 			case DevblocksSearchCriteria::OPER_NOT_BETWEEN:
-				@$from = DevblocksPlatform::importGPC($_POST['from'],'string','big bang');
-				@$to = DevblocksPlatform::importGPC($_POST['to'],'string','now');
+				$from = DevblocksPlatform::importGPC($_POST['from'] ?? null, 'string','big bang');
+				$to = DevblocksPlatform::importGPC($_POST['to'] ?? null, 'string','now');
 		
 				if(is_null($from) || (!is_numeric($from) && @false === strtotime(str_replace('.','-',$from))))
 					$from = 'big bang';
@@ -1407,7 +1407,7 @@ abstract class C4_AbstractView {
 	}
 	
 	protected function _doSetCriteriaWorker($field, $oper) {
-		@$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'],'array',[]);
+		$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'] ?? null, 'array',[]);
 		
 		switch($oper) {
 			case DevblocksSearchCriteria::OPER_IN:
@@ -1432,7 +1432,7 @@ abstract class C4_AbstractView {
 				break;
 			case DevblocksSearchCriteria::OPER_EQ:
 			case DevblocksSearchCriteria::OPER_NEQ:
-				@$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'],'integer',0);
+				$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'] ?? null, 'integer',0);
 				break;
 		}
 		
@@ -1441,15 +1441,15 @@ abstract class C4_AbstractView {
 	
 	protected function _doSetCriteriaCustomField($token, $field_id) {
 		$field = DAO_CustomField::get($field_id);
-		@$oper = DevblocksPlatform::importGPC($_POST['oper'],'string','');
-		@$value = DevblocksPlatform::importGPC($_POST['value'],'string','');
+		$oper = DevblocksPlatform::importGPC($_POST['oper'] ?? null, 'string','');
+		$value = DevblocksPlatform::importGPC($_POST['value'] ?? null, 'string','');
 		
 		$criteria = null;
 		
 		switch($field->type) {
 			case Model_CustomField::TYPE_DROPDOWN:
 			case Model_CustomField::TYPE_MULTI_CHECKBOX:
-				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',[]);
+				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array',[]);
 				if(!empty($options)) {
 					$criteria = new DevblocksSearchCriteria($token,$oper,$options);
 				} else {
@@ -1466,8 +1466,8 @@ abstract class C4_AbstractView {
 				break;
 				
 			case Model_CustomField::TYPE_DATE:
-				@$from = DevblocksPlatform::importGPC($_POST['from'],'string','');
-				@$to = DevblocksPlatform::importGPC($_POST['to'],'string','');
+				$from = DevblocksPlatform::importGPC($_POST['from'] ?? null, 'string','');
+				$to = DevblocksPlatform::importGPC($_POST['to'] ?? null, 'string','');
 	
 				if(empty($from)) $from = 0;
 				if(empty($to)) $to = 'today';
@@ -1485,8 +1485,8 @@ abstract class C4_AbstractView {
 				break;
 				
 			case Model_CustomField::TYPE_WORKER:
-				@$oper = DevblocksPlatform::importGPC($_POST['oper'],'string','eq');
-				@$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'],'array',[]);
+				$oper = DevblocksPlatform::importGPC($_POST['oper'] ?? null, 'string','eq');
+				$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'] ?? null, 'array',[]);
 				
 				if(empty($worker_ids)) {
 					switch($oper) {
@@ -1505,7 +1505,7 @@ abstract class C4_AbstractView {
 				break;
 				
 			case Model_CustomField::TYPE_LINK:
-				@$context_id = DevblocksPlatform::importGPC($_POST['context_id'],'integer','');
+				$context_id = DevblocksPlatform::importGPC($_POST['context_id'] ?? null, 'integer','');
 				$criteria = new DevblocksSearchCriteria($token,$oper,$context_id);
 				break;
 				
@@ -1573,7 +1573,7 @@ abstract class C4_AbstractView {
 				),
 			);
 			
-			@$custom_fieldset = $custom_fieldsets[$cfield->custom_fieldset_id];
+			$custom_fieldset = $custom_fieldsets[$cfield->custom_fieldset_id] ?? null;
 			
 			// Prefix the custom fieldset namespace
 			$field_key = sprintf("%s%s%s",
@@ -1744,7 +1744,7 @@ abstract class C4_AbstractView {
 	
 	protected function _setSortableQuickSearchFields($fields, $search_fields) {
 		foreach($fields as &$field) {
-			@$param_key = $field['options']['param_key'];
+			$param_key = $field['options']['param_key'] ?? null;
 			$field['is_sortable'] = ($param_key && isset($search_fields[$param_key]) && $search_fields[$param_key]->is_sortable);
 		}
 		
@@ -1870,7 +1870,7 @@ abstract class C4_AbstractView {
 					break;
 					
 				case Model_CustomField::TYPE_CURRENCY:
-					@$currency_id = $custom_fields[$field_id]->params['currency_id'];
+					$currency_id = $custom_fields[$field_id]->params['currency_id'] ?? null;
 					
 					if(false == ($currency = DAO_Currency::get($currency_id)))
 						break;
@@ -1882,7 +1882,7 @@ abstract class C4_AbstractView {
 					break;
 					
 				case Model_CustomField::TYPE_DECIMAL:
-					@$decimal_at = $custom_fields[$field_id]->params['decimal_at'];
+					$decimal_at = $custom_fields[$field_id]->params['decimal_at'] ?? null;
 					
 					foreach($vals as $idx => $val) {
 						$vals[$idx] = DevblocksPlatform::strFormatDecimal($val, $decimal_at);
@@ -1895,7 +1895,7 @@ abstract class C4_AbstractView {
 						return;
 						
 					} else {
-						@$context = $custom_fields[$field_id]->params['context'];
+						$context = $custom_fields[$field_id]->params['context'] ?? null;
 						
 						if(empty($context) || empty($vals))
 							break;
@@ -2122,8 +2122,8 @@ abstract class C4_AbstractView {
 							'_type' => 'autocomplete',
 							'query' => $query_field['suggester']['query'],
 							'key' => $query_field['suggester']['key'],
-							'limit' => @$query_field['suggester']['limit'] ?: 0,
-							'min_length' => @$query_field['suggester']['min_length'] ?: 0,
+							'limit' => ($query_field['suggester']['limit'] ?? null) ?: 0,
+							'min_length' => ($query_field['suggester']['min_length'] ?? null) ?: 0,
 						];
 						
 					} else if(array_key_exists('examples', $query_field)) {
@@ -2292,7 +2292,7 @@ abstract class C4_AbstractView {
 			$search_params = $this->getParamsAvailable();
 			
 			foreach($query_fields as $field_key => $field) {
-				if(false == (@$search_params[$field['options']['param_key']]))
+				if(false == ($search_params[$field['options']['param_key'] ?? null] ?? null))
 					continue;
 				
 				// Filter types
@@ -3588,7 +3588,7 @@ abstract class C4_AbstractView {
 		if(!isset($params) || !is_array($params))
 			return false;
 			
-		@$behavior_id = $params['id'];
+		$behavior_id = $params['id'] ?? null;
 		@$behavior_when = strtotime($params['when']) or time();
 		@$behavior_params = isset($params['params']) ? $params['params'] : [];
 		
@@ -3654,14 +3654,14 @@ abstract class C4_AbstractView {
 				return;
 			
 			$message_properties = [
-				'worker_id' => @$params['worker_id'] ?: 0,
+				'worker_id' => ($params['worker_id'] ?? null) ?: 0,
 				'subject' => $params['subject'],
 				'content' => $params['message'],
-				'content_format' => @$params['format'] ?: '',
-				'group_id' => @$params['group_id'] ?: 0,
-				'bucket_id' => @$params['bucket_id'] ?: 0,
-				'html_template_id' => @$params['html_template_id'] ?: 0,
-				'file_ids' => @$params['file_ids'] ?: [],
+				'content_format' => ($params['format'] ?? null) ?: '',
+				'group_id' => ($params['group_id'] ?? null) ?: 0,
+				'bucket_id' => ($params['bucket_id'] ?? null) ?: 0,
+				'html_template_id' => ($params['html_template_id'] ?? null) ?: 0,
+				'file_ids' => ($params['file_ids'] ?? null) ?: [],
 			];
 			
 			if(is_array($dicts))
@@ -4134,8 +4134,8 @@ class CerbQuickSearchLexer {
 			// [TODO] Operator precedence AND -> OR
 			// [TODO] Handle 'a OR b AND c'
 			
-			$all = (@$token->params['subtype'] == 'all') ? true : false;
-			$not = (@$token->params['subtype'] == '!') ? true : false;
+			$all = ($token->params['subtype'] ?? '') == 'all';
+			$not = ($token->params['subtype'] ?? '') == '!';
 			$token->value = null;
 			
 			foreach($token->children as $k => $child) {
@@ -4605,7 +4605,7 @@ class C4_AbstractViewLoader {
 		$exit_model = self::serializeAbstractView($view);
 		
 		// Is the view dirty? (do we need to persist it?)
-		if(false != ($_init_checksum = @$view->_init_checksum)) {
+		if(false != ($_init_checksum = ($view->_init_checksum ?? null))) {
 			unset($view->_init_checksum);
 			$_exit_checksum = sha1(serialize($exit_model));
 			
@@ -4798,7 +4798,7 @@ class C4_AbstractViewLoader {
 	}
 	
 	static function unserializeViewFromAbstractJson($view_model, $view_id) {
-		@$view_context = $view_model['context'];
+		$view_context = $view_model['context'] ?? null;
 		
 		if(empty($view_context))
 			return false;
@@ -5088,9 +5088,7 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 		if(empty($results) || !is_array($results))
 			return false;
 
-		@$model = array_shift($results);
-		
-		return $model;
+		return array_shift($results);
 	}
 
 	static public function decodeParamsJson($json) {

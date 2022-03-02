@@ -45,7 +45,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		array_shift($stack); // config
 		
 		// Remember the last tab/URL
-		if(null == ($section_uri = @$response->path[1])) {
+		if(null == ($section_uri = ($response->path[1] ?? null))) {
 			if(null == ($section_uri = $visit->get(ChConfigurationPage::ID, '')))
 				$section_uri = 'branding';
 		}
@@ -72,8 +72,8 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		// GET has precedence over POST
-		@$page_uri = DevblocksPlatform::importGPC($_GET['module'] ?? $_REQUEST['module'],'string','');
-		@$action = DevblocksPlatform::importGPC($_GET['action'] ?? $_REQUEST['action'],'string','');
+		$page_uri = DevblocksPlatform::importGPC($_GET['module'] ?? $_REQUEST['module'] ?? null,'string','');
+		$action = DevblocksPlatform::importGPC($_GET['action'] ?? $_REQUEST['action'] ?? null,'string','');
 		
 		$inst = Extension_PageSection::getExtensionByPageUri($this->manifest->id, $page_uri, true);
 		

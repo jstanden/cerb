@@ -11,7 +11,7 @@ class WorkspaceWidget_PieChart extends Extension_WorkspaceWidget implements ICer
 
 	private function _loadData(Model_WorkspaceWidget &$widget) {
 		// Per series datasources
-		@$datasource_extid = $widget->params['datasource'];
+		$datasource_extid = $widget->params['datasource'] ?? null;
 
 		if(empty($datasource_extid)) {
 			return false;
@@ -117,7 +117,7 @@ class WorkspaceWidget_PieChart extends Extension_WorkspaceWidget implements ICer
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget, ?string &$error=null) : bool {
-		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', array());
+		$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', array());
 		
 		DAO_WorkspaceWidget::update($widget->id, array(
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),

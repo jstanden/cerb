@@ -254,7 +254,7 @@ class _DevblocksSheetServiceTypes {
 			$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
 			
 			$column_key = $column['key'] ?? null;
-			$column_params = $column['params'] ?? [];
+			$column_params = ($column['params'] ?? null) ?: [];
 			
 			@$is_underlined = !array_key_exists('underline', $column_params) || $column_params['underline'];
 			
@@ -357,7 +357,7 @@ class _DevblocksSheetServiceTypes {
 			if($filter_html)
 				$filters[] = new Cerb_HTMLPurifier_URIFilter_Email(true);
 			
-			@$column_params = $column['params'] ?: [];
+			$column_params = ($column['params'] ?? null) ?: [];
 			
 			if(array_key_exists('value', $column_params)) {
 				$ts = $column_params['value'];
@@ -531,7 +531,7 @@ class _DevblocksSheetServiceTypes {
 			$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
 			
 			$column_key = $column['key'] ?? null;
-			$column_params = $column['params'] ?? [];
+			$column_params = ($column['params'] ?? null) ?: [];
 			
 			@$is_underlined = !array_key_exists('underline', $column_params) || $column_params['underline'];
 			$value = '';
@@ -701,10 +701,10 @@ class _DevblocksSheetServiceTypes {
 			if($filter_html)
 				$filters[] = new Cerb_HTMLPurifier_URIFilter_Email(true);
 			
-			@$column_params = $column['params'] ?: [];
+			$column_params = ($column['params'] ?? null) ?: [];
 			
-			$value_min = @$column_params['min'] ?: 0;
-			$value_max = @$column_params['max'] ?: 100;
+			$value_min = ($column_params['min'] ?? null) ?: 0;
+			$value_max = ($column_params['max'] ?? null) ?: 100;
 			$value_mid = ($value_max + $value_min)/2;
 			
 			if(array_key_exists('value', $column_params)) {
@@ -747,7 +747,7 @@ class _DevblocksSheetServiceTypes {
 			if($filter_html)
 				$filters[] = new Cerb_HTMLPurifier_URIFilter_Email(true);
 			
-			@$column_params = $column['params'] ?: [];
+			$column_params = ($column['params'] ?? null) ?: [];
 			$is_escaped = false;
 			
 			$value = '';
@@ -793,9 +793,8 @@ class _DevblocksSheetServiceTypes {
 			if($filter_html)
 				$filters[] = new Cerb_HTMLPurifier_URIFilter_Email(true);
 			
-			@$column_params = $column['params'] ?: [];
-			
-			@$precision = $column_params['precision'] ?: 2;
+			$column_params = ($column['params'] ?? null) ?: [];
+			$precision = ($column_params['precision'] ?? null) ?: 2;
 			
 			if(array_key_exists('value', $column_params)) {
 				$value = $column_params['value'];

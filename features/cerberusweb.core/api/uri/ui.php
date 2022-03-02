@@ -366,7 +366,7 @@ class Controller_UI extends DevblocksControllerExtension {
 	}
 	
 	private function _uiAction_getContextFieldsJson() {
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', null);
+		$context = DevblocksPlatform::importGPC($_REQUEST['context'] ?? null, 'string', null);
 		
 		header('Content-Type: application/json');
 		
@@ -408,7 +408,7 @@ class Controller_UI extends DevblocksControllerExtension {
 	}
 	
 	private function _uiAction_getContextPlaceholdersJson() {
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', null);
+		$context = DevblocksPlatform::importGPC($_REQUEST['context'] ?? null, 'string', null);
 		
 		header('Content-Type: application/json');
 		
@@ -584,8 +584,8 @@ class Controller_UI extends DevblocksControllerExtension {
 	private function _uiAction_dataQuerySuggestions() {
 		$data = DevblocksPlatform::services()->data();
 		
-		@$type = DevblocksPlatform::importGPC($_REQUEST['type'], 'string', '');
-		@$of = DevblocksPlatform::importGPC($_REQUEST['of'], 'string', '');
+		$type = DevblocksPlatform::importGPC($_REQUEST['type'] ?? null, 'string', '');
+		$of = DevblocksPlatform::importGPC($_REQUEST['of'] ?? null, 'string', '');
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -598,7 +598,7 @@ class Controller_UI extends DevblocksControllerExtension {
 	}
 	
 	private function _uiAction_queryFieldSuggestions() {
-		@$of = DevblocksPlatform::importGPC($_REQUEST['of'], 'string', '');
+		$of = DevblocksPlatform::importGPC($_REQUEST['of'] ?? null, 'string', '');
 		@$types = DevblocksPlatform::parseCsvString(DevblocksPlatform::importGPC($_REQUEST['types'], 'string', ''));
 		
 		header('Content-Type: application/json; charset=utf-8');
@@ -615,8 +615,8 @@ class Controller_UI extends DevblocksControllerExtension {
 	}
 	
 	private function _uiAction_querySuggestions() {
-		@$context_alias = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', '');
-		@$expand = DevblocksPlatform::importGPC($_REQUEST['expand'], 'string', '');
+		$context_alias = DevblocksPlatform::importGPC($_REQUEST['context'] ?? null, 'string', '');
+		$expand = DevblocksPlatform::importGPC($_REQUEST['expand'] ?? null, 'string', '');
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -647,7 +647,7 @@ class Controller_UI extends DevblocksControllerExtension {
 					
 					$expand_suggestions = $expand_view->getQueryAutocompleteSuggestions();
 					
-					@$expand_contexts = $expand_suggestions['_contexts'];
+					$expand_contexts = $expand_suggestions['_contexts'] ?? null;
 					unset($expand_suggestions['_contexts']);
 					
 					if($expand_contexts) {
@@ -685,7 +685,7 @@ class Controller_UI extends DevblocksControllerExtension {
 		$data = DevblocksPlatform::services()->data();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
-		@$data_query = DevblocksPlatform::importGPC($_REQUEST['q'], 'string', '');
+		$data_query = DevblocksPlatform::importGPC($_REQUEST['q'] ?? null, 'string', '');
 		
 		$error = null;
 		
@@ -757,9 +757,9 @@ class Controller_UI extends DevblocksControllerExtension {
 			DevblocksPlatform::dieWithHttpError(null, 405);
 
 		$sheets = DevblocksPlatform::services()->sheet()->newInstance();
-		@$data_query = DevblocksPlatform::importGPC($_POST['data_query'], 'string', '');
-		@$sheet_kata = DevblocksPlatform::importGPC($_POST['sheet_kata'], 'string', '');
-		@$types = DevblocksPlatform::importGPC($_POST['types'], 'array', []);
+		$data_query = DevblocksPlatform::importGPC($_POST['data_query'] ?? null, 'string', '');
+		$sheet_kata = DevblocksPlatform::importGPC($_POST['sheet_kata'] ?? null, 'string', '');
+		$types = DevblocksPlatform::importGPC($_POST['types'] ?? null, 'array', []);
 		
 		$error = null;
 		

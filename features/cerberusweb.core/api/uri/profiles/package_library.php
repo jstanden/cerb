@@ -43,10 +43,10 @@ class PageSection_ProfilesPackageLibrary extends Extension_PageSection {
 	}
 	
 	private function _profileAction_savePeekJson() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
 		
-		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
+		$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -81,7 +81,7 @@ class PageSection_ProfilesPackageLibrary extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$package_json = DevblocksPlatform::importGPC($_POST['package_json'], 'string', '');
+				$package_json = DevblocksPlatform::importGPC($_POST['package_json'] ?? null, 'string', '');
 				
 				$error = null;
 				
@@ -99,22 +99,22 @@ class PageSection_ProfilesPackageLibrary extends Extension_PageSection {
 				$avatar_image = '';
 				
 				if(!$name && array_key_exists('name', $package_library_meta))
-					@$name = $package_library_meta['name'];
+					$name = $package_library_meta['name'] ?? null;
 				
 				if(!$description && array_key_exists('description', $package_library_meta))
-					@$description = $package_library_meta['description'];
+					$description = $package_library_meta['description'] ?? null;
 				
 				if(!$instructions && array_key_exists('instructions', $package_library_meta))
-					@$instructions = $package_library_meta['instructions'];
+					$instructions = $package_library_meta['instructions'] ?? null;
 				
 				if(!$point && array_key_exists('point', $package_library_meta))
-					@$point = $package_library_meta['point'];
+					$point = $package_library_meta['point'] ?? null;
 				
 				if(!$uri && array_key_exists('uri', $package_library_meta))
-					@$uri = $package_library_meta['uri'];
+					$uri = $package_library_meta['uri'] ?? null;
 				
 				if(!$avatar_image && array_key_exists('image', $package_library_meta))
-					@$avatar_image = $package_library_meta['image'];
+					$avatar_image = $package_library_meta['image'] ?? null;
 				
 				if(empty($id)) { // New
 					$fields = array(
@@ -162,7 +162,7 @@ class PageSection_ProfilesPackageLibrary extends Extension_PageSection {
 				}
 				
 				// Custom field saves
-				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+				$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 				if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_PACKAGE, $id, $field_ids, $error))
 					throw new Exception_DevblocksAjaxValidationError($error);
 				
@@ -200,7 +200,7 @@ class PageSection_ProfilesPackageLibrary extends Extension_PageSection {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$package_uri = DevblocksPlatform::importGPC($_REQUEST['package'],'string',null);
+		$package_uri = DevblocksPlatform::importGPC($_REQUEST['package'] ?? null, 'string',null);
 		
 		if(false == ($package = DAO_PackageLibrary::getByUri($package_uri)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -222,7 +222,7 @@ class PageSection_ProfilesPackageLibrary extends Extension_PageSection {
 	}
 	
 	private function _profileAction_viewExplore() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
@@ -238,7 +238,7 @@ class PageSection_ProfilesPackageLibrary extends Extension_PageSection {
 		$view->setAutoPersist(false);
 
 		// Page start
-		@$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'],'integer',0);
+		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'integer',0);
 		if(empty($explore_from)) {
 			$orig_pos = 1+($view->renderPage * $view->renderLimit);
 		} else {

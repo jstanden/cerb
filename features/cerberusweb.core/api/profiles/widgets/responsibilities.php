@@ -81,8 +81,8 @@ class ProfileWidget_Responsibilities extends Extension_ProfileWidget {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', '');
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'], 'string', '');
+		$context = DevblocksPlatform::importGPC($_REQUEST['context'] ?? null, 'string', '');
+		$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'] ?? null, 'string', '');
 		
 		$tpl->assign('widget', $model);
 		
@@ -137,9 +137,9 @@ class ProfileWidget_Responsibilities extends Extension_ProfileWidget {
 	private function _profileWidgetAction_savePopupJson(Model_ProfileWidget $model) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$worker_id = DevblocksPlatform::importGPC($_POST['worker_id'], 'integer', '');
-		@$bucket_id = DevblocksPlatform::importGPC($_POST['bucket_id'], 'integer', '');
-		@$responsibility = DevblocksPlatform::importGPC($_POST['responsibility'], 'integer', '');
+		$worker_id = DevblocksPlatform::importGPC($_POST['worker_id'] ?? null, 'integer', '');
+		$bucket_id = DevblocksPlatform::importGPC($_POST['bucket_id'] ?? null, 'integer', '');
+		$responsibility = DevblocksPlatform::importGPC($_POST['responsibility'] ?? null, 'integer', '');
 		
 		header('Content-Type: application/json; charset=utf-8');
 		

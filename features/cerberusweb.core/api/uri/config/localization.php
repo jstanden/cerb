@@ -55,8 +55,8 @@ class PageSection_SetupLocalization extends Extension_PageSection {
 			if(!$active_worker || !$active_worker->is_superuser)
 				throw new Exception(DevblocksPlatform::translate('error.core.no_acl.admin'));
 			
-			@$timezone = DevblocksPlatform::importGPC($_POST['timezone'],'string','');
-			@$time_format = DevblocksPlatform::importGPC($_POST['time_format'],'string',CerberusSettingsDefaults::TIME_FORMAT);
+			$timezone = DevblocksPlatform::importGPC($_POST['timezone'] ?? null, 'string','');
+			$time_format = DevblocksPlatform::importGPC($_POST['time_format'] ?? null, 'string',CerberusSettingsDefaults::TIME_FORMAT);
 	
 			$settings = DevblocksPlatform::services()->pluginSettings();
 			$settings->set('cerberusweb.core',CerberusSettings::TIMEZONE, $timezone);

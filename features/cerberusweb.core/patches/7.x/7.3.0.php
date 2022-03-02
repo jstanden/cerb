@@ -492,7 +492,7 @@ while($row = mysqli_fetch_assoc($rs)) {
 	
 	if(is_array($internal_urls)) {
 		foreach($internal_urls as $replace_url => $replace_data) {
-			@list($attachment_hash, $attachment_name) = explode('/', $replace_data['path'], 2);
+			list($attachment_hash, $attachment_name) = array_pad(explode('/', $replace_data['path'], 2), 2, null);
 			$attachment_id = 0;
 			
 			if(strlen($attachment_hash) == 40) {
@@ -526,7 +526,7 @@ while($row = mysqli_fetch_assoc($rs)) {
 	
 	if(is_array($internal_urls)) {
 		foreach($internal_urls as $replace_url => $replace_data) {
-			@list($attachment_hash, $attachment_name) = explode('/', $replace_data['path'], 2);
+			list($attachment_hash, $attachment_name) = array_pad(explode('/', $replace_data['path'], 2), 2, null);
 			$attachment_id = 0;
 			
 			if(strlen($attachment_hash) == 40) {

@@ -271,7 +271,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 						'workspace' => '',
 					];
 					
-					if (is_array(@$custom_record->params['options'])) {
+					if (array_key_exists('options', $custom_record->params) && is_array(@$custom_record->params['options'])) {
 						if (in_array('hide_search', $custom_record->params['options']))
 							unset($options['search']);
 						
@@ -386,7 +386,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		foreach($contexts as $ctx_id => $ctx) { /* @var $ctx DevblocksExtensionManifest */
 			$ctx_aliases = self::getAliasesForContext($ctx);
 			
-			@$uri = $ctx_aliases['uri'];
+			$uri = $ctx_aliases['uri'] ?? null;
 			$results[$uri] = $ctx_id;
 			
 			if(isset($ctx_aliases['aliases']) && is_array($ctx_aliases['aliases']))
@@ -407,8 +407,8 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	 * @internal
 	 */
 	public static function getAliasesForContext(DevblocksExtensionManifest $ctx_manifest) {
-		@$names = $ctx_manifest->params['names'][0];
-		@$uri = $ctx_manifest->params['alias'];
+		$names = $ctx_manifest->params['names'][0] ?? null;
+		$uri = $ctx_manifest->params['alias'] ?? null;
 		
 		$results = array(
 			'singular' => '',
@@ -465,7 +465,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		}
 		
 		// Otherwise, try it as an alias
-		@$ctx_id = $aliases[$alias];
+		$ctx_id = $aliases[$alias] ?? null;
 		
 		// If this is a valid context, return it
 		if($ctx_id && false != ($ctx = Extension_DevblocksContext::get($ctx_id, $as_instance))) {
@@ -1425,7 +1425,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		if(!array_key_exists('fieldsets', $data))
 			return true;
 		
-		@$value = $data['fieldsets'];
+		$value = $data['fieldsets'] ?? null;
 		
 		if($this->hasOption('custom_fields')) {
 			if(false == ($this->_getDaoFieldsets($value, $out_fields, $error)))
@@ -1444,7 +1444,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		if(!array_key_exists('links', $data))
 			return true;
 		
-		@$value = $data['links'];
+		$value = $data['links'] ?? null;
 		
 		if($this->hasOption('links')) {
 			if(false == ($this->_getDaoFieldsLinks($value, $out_fields, $error)))
@@ -1545,7 +1545,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 				$tuple = ltrim($tuple,'-');
 			}
 			
-			@list($context, $id) = explode(':', $tuple, 2);
+			list($context, $id) = array_pad(explode(':', $tuple, 2), 2, null);
 			
 			if(false == ($context_ext = Extension_DevblocksContext::getByAlias($context, false))) {
 				$error = sprintf("has a link with an invalid context (%s)", $tuple);
@@ -1578,7 +1578,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	 * @internal
 	 */
 	protected function _importModelCustomFieldsAsValues($model, $token_values) {
-		@$custom_fields = $model->custom_fields;
+		$custom_fields = $model->custom_fields ?? null;
 		
 		if($custom_fields) {
 			$custom_values = $this->_lazyLoadCustomFields(
@@ -1681,8 +1681,8 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		];
 		
 		@$original_token = $token;
-		@list($token, $record_expands) = explode(':', $token);
-		@list(, $limit) = explode('~', $token);
+		list($token, $record_expands) = array_pad(explode(':', $token), 2, null);
+		list(, $limit) = array_pad(explode('~', $token), 2, null);
 		
 		$limit = DevblocksPlatform::intClamp($limit ?: 10, 1, 25);
 		
@@ -1731,8 +1731,8 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 			'comments' => [],
 		];
 		
-		@list($token, $record_expands) = explode(':', $token);
-		@list($token, $limit) = explode('~', $token);
+		list($token, $record_expands) = array_pad(explode(':', $token), 2, null);
+		list(, $limit) = array_pad(explode('~', $token), 2, null);
 		
 		$limit = DevblocksPlatform::intClamp($limit ?: 10, 1, 25);
 		
@@ -1766,8 +1766,8 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		];
 		
 		$original_token = $token;
-		@list($token, $record_expands) = explode(':', $token);
-		@list($token, $limit) = explode('~', $token);
+		list($token, $record_expands) = array_pad(explode(':', $token), 2, null);
+		list($token, $limit) = array_pad(explode('~', $token), 2, null);
 		
 		$limit = DevblocksPlatform::intClamp($limit ?: 10, 1, 25);
 		
@@ -1888,9 +1888,10 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 
 			switch($fields[$cf_id]->type) {
 				case Model_CustomField::TYPE_CURRENCY:
-					@$currency_id = intval($fields[$cf_id]->params['currency_id']);
-					@$token_values[$key_prefix . '_currency__context'] = CerberusContexts::CONTEXT_CURRENCY;
-					@$token_values[$key_prefix . '_currency_id'] = $currency_id;
+					$currency_id = intval($fields[$cf_id]->params['currency_id'] ?? null);
+					$token_values[$key_prefix . '_currency__context'] = CerberusContexts::CONTEXT_CURRENCY;
+					$token_values[$key_prefix . '_currency_id'] = $currency_id ?? null;
+					
 					if(false != ($currency = DAO_Currency::get($currency_id))) {
 						@$token_values[$key_prefix . '_label'] = $currency->format($field_values[$cf_id], true);
 						@$token_values[$key_prefix . '_decimal'] = $currency->format($field_values[$cf_id], false);
@@ -1898,12 +1899,12 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 					break;
 					
 				case Model_CustomField::TYPE_DECIMAL:
-					@$token_values[$key_prefix . '_decimal_at'] = intval(@$fields[$cf_id]->params['decimal_at']);
+					@$token_values[$key_prefix . '_decimal_at'] = intval($fields[$cf_id]->params['decimal_at'] ?? null);
 					break;
 					
 				case Model_CustomField::TYPE_LINK:
-					@$token_values[$key_prefix . '_id'] = $field_values[$cf_id];
-					@$token_values[$key_prefix . '__context'] = $fields[$cf_id]->params['context'];
+					$token_values[$key_prefix . '_id'] = $field_values[$cf_id] ?? null;
+					$token_values[$key_prefix . '__context'] = $fields[$cf_id]->params['context'] ?? null;
 
 					if(!isset($token_values[$token])) {
 						$dict = new DevblocksDictionaryDelegate($token_values);
@@ -1913,8 +1914,8 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 					break;
 					
 				case Model_CustomField::TYPE_WORKER:
-					@$token_values[$key_prefix . '_id'] = $field_values[$cf_id];
-					@$token_values[$key_prefix . '__context'] = CerberusContexts::CONTEXT_WORKER;
+					$token_values[$key_prefix . '_id'] = $field_values[$cf_id] ?? null;
+					$token_values[$key_prefix . '__context'] = CerberusContexts::CONTEXT_WORKER;
 
 					if(!isset($token_values[$token])) {
 						$dict = new DevblocksDictionaryDelegate($token_values);
@@ -2364,7 +2365,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 
 				switch($custom_fields[$cfield_id]->type) {
 					case Model_CustomField::TYPE_LINK:
-						@$link_context = $custom_fields[$cfield_id]->params['context'];
+						$link_context = $custom_fields[$cfield_id]->params['context'] ?? null;
 
 						if(empty($link_context))
 							break;
@@ -2618,9 +2619,9 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 				if(false == (@$calendar_id = $params['calendar_id']))
 					return false;
 
-				@$is_available = $params['is_available'];
-				@$from = $params['from'];
-				@$to = $params['to'];
+				$is_available = $params['is_available'] ?? null;
+				$from = $params['from'] ?? null;
+				$to = $params['to'] ?? null;
 
 				if(false == ($calendar = DAO_Calendar::get($calendar_id)))
 					return false;
@@ -2651,7 +2652,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 
 				@$not = (substr($params['oper'],0,1) == '!');
 				@$oper = ltrim($params['oper'],'!');
-				@$param_value = $params['value'];
+				$param_value = $params['value'] ?? null;
 
 				$logger->info(sprintf("Script: `%s` %s%s `%s`",
 					$value,
@@ -2788,7 +2789,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 						case Model_CustomField::TYPE_URL:
 							$not = (substr($params['oper'],0,1) == '!');
 							$oper = ltrim($params['oper'],'!');
-							@$param_value = $params['value'];
+							$param_value = $params['value'] ?? null;
 
 							$logger->info(sprintf("Text: `%s` %s%s `%s`",
 								$value,
@@ -2819,7 +2820,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 							$oper = ltrim($params['oper'],'!');
 							
 							$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-							@$param_value = $tpl_builder->build($params['value'], $dict);
+							$param_value = $tpl_builder->build($params['value'] ?? '', $dict);
 
 							$logger->info(sprintf("Text: `%s` %s%s `%s`",
 								$value,
@@ -2948,7 +2949,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 							break;
 
 						case Model_CustomField::TYPE_WORKER:
-							@$worker_ids = $params['worker_id'];
+							$worker_ids = $params['worker_id'] ?? null;
 							$not = (substr($params['oper'],0,1) == '!');
 							$oper = ltrim($params['oper'],'!');
 
@@ -3473,7 +3474,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			$tpl->assign('namePrefix','action'.$seq);
 
 		// Is this an event-provided action?
-		if(null != (@$actions[$token])) {
+		if(null != ($actions[$token] ?? null)) {
 			$this->renderActionExtension($token, $trigger, $params, $seq);
 
 		// Nope, it's a global action
@@ -3570,7 +3571,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					// Variables
 					if(DevblocksPlatform::strStartsWith($token, 'var_')) {
 						@$var = $trigger->variables[$token];
-						@$var_type = $var['type'];
+						$var_type = $var['type'] ?? null;
 
 						switch($var_type) {
 							case Model_CustomField::TYPE_CHECKBOX:
@@ -3669,8 +3670,8 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					break;
 
 				case '_set_custom_var':
-					@$var = $params['var'];
-					@$format = $params['format'];
+					$var = $params['var'] ?? null;
+					$format = $params['format'] ?? null;
 
 					$value = ($format == 'json') ? @DevblocksPlatform::strFormatJson(json_encode($dict->$var, true)) : $dict->$var;
 					
@@ -3681,7 +3682,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					break;
 
 				case '_set_custom_var_snippet':
-					@$var = $params['var'];
+					$var = $params['var'] ?? null;
 
 					$value = $dict->$var;
 
@@ -3783,7 +3784,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 
 		$out = '';
 		
-		if(null != (@$actions[$token])) {
+		if(null != ($actions[$token] ?? null)) {
 			// Is this a dry run?  If so, don't actually change anything
 			if($dry_run) {
 				$out = $this->simulateAction($token, $trigger, $params, $dict);
@@ -3833,10 +3834,10 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 				case '_set_custom_var':
 					$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
-					@$var = $params['var'];
-					@$value = $params['value'];
-					@$format = $params['format'];
-					@$is_simulator_only = $params['is_simulator_only'] ? true : false;
+					$var = $params['var'] ?? null;
+					$value = $params['value'] ?? null;
+					$format = $params['format'] ?? null;
+					$is_simulator_only = (bool)($params['is_simulator_only'] ?? null);
 
 					// If this variable is only set in the simulator, and we're not simulating, abort
 					if($is_simulator_only && !$dry_run)
@@ -3858,10 +3859,10 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 					$cache = DevblocksPlatform::services()->cache();
 
-					@$on = $params['on'];
-					@$snippet_id = $params['snippet_id'];
-					@$var = $params['var'];
-					@$placeholder_values = $params['placeholders'];
+					$on = $params['on'] ?? null;
+					$snippet_id = $params['snippet_id'] ?? null;
+					$var = $params['var'] ?? null;
+					$placeholder_values = $params['placeholders'] ?? null;
 
 					if(empty($on) || empty($var) || empty($snippet_id))
 						return;

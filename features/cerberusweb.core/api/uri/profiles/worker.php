@@ -66,9 +66,9 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 	}
 	
 	private function _profileAction_savePeekJson() {
-		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer');
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
-		@$delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
+		$delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'integer',0);
 
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -107,28 +107,28 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				return true;
 				
 			} else {
-				@$first_name = DevblocksPlatform::importGPC($_POST['first_name'],'string');
-				@$last_name = DevblocksPlatform::importGPC($_POST['last_name'],'string');
-				@$aliases = DevblocksPlatform::importGPC($_POST['aliases'],'string','');
-				@$title = DevblocksPlatform::importGPC($_POST['title'],'string');
-				@$email_id = DevblocksPlatform::importGPC($_POST['email_id'],'integer', 0);
-				@$email_ids = DevblocksPlatform::importGPC($_POST['email_ids'],'array:int', []);
-				@$dob = DevblocksPlatform::importGPC($_POST['dob'],'string', '');
-				@$location = DevblocksPlatform::importGPC($_POST['location'],'string', '');
-				@$mobile = DevblocksPlatform::importGPC($_POST['mobile'],'string', '');
-				@$phone = DevblocksPlatform::importGPC($_POST['phone'],'string', '');
-				@$gender = DevblocksPlatform::importGPC($_POST['gender'],'string', '');
-				@$at_mention_name = DevblocksPlatform::importGPC($_POST['at_mention_name'],'string');
-				@$language = DevblocksPlatform::importGPC($_POST['lang_code'],'string');
-				@$timezone = DevblocksPlatform::importGPC($_POST['timezone'],'string');
-				@$time_format = DevblocksPlatform::importGPC($_POST['time_format'],'string');
-				@$timeout_idle_secs = DevblocksPlatform::importGPC($_POST['timeout_idle_secs'],'int', 0);
-				@$calendar_id = DevblocksPlatform::importGPC($_POST['calendar_id'],'string');
-				@$is_superuser = DevblocksPlatform::importGPC($_POST['is_superuser'],'bit', 0);
-				@$disabled = DevblocksPlatform::importGPC($_POST['is_disabled'],'bit',0);
-				@$is_password_disabled = DevblocksPlatform::importGPC($_POST['is_password_disabled'],'bit',0);
-				@$is_mfa_required = DevblocksPlatform::importGPC($_POST['is_mfa_required'],'bit',0);
-				@$group_memberships = DevblocksPlatform::importGPC($_POST['group_memberships'],'array');
+				$first_name = DevblocksPlatform::importGPC($_POST['first_name'] ?? null, 'string');
+				$last_name = DevblocksPlatform::importGPC($_POST['last_name'] ?? null, 'string');
+				$aliases = DevblocksPlatform::importGPC($_POST['aliases'] ?? null, 'string','');
+				$title = DevblocksPlatform::importGPC($_POST['title'] ?? null, 'string');
+				$email_id = DevblocksPlatform::importGPC($_POST['email_id'] ?? null, 'integer', 0);
+				$email_ids = DevblocksPlatform::importGPC($_POST['email_ids'] ?? null, 'array:int', []);
+				$dob = DevblocksPlatform::importGPC($_POST['dob'] ?? null, 'string', '');
+				$location = DevblocksPlatform::importGPC($_POST['location'] ?? null, 'string', '');
+				$mobile = DevblocksPlatform::importGPC($_POST['mobile'] ?? null, 'string', '');
+				$phone = DevblocksPlatform::importGPC($_POST['phone'] ?? null, 'string', '');
+				$gender = DevblocksPlatform::importGPC($_POST['gender'] ?? null, 'string', '');
+				$at_mention_name = DevblocksPlatform::importGPC($_POST['at_mention_name'] ?? null, 'string');
+				$language = DevblocksPlatform::importGPC($_POST['lang_code'] ?? null, 'string');
+				$timezone = DevblocksPlatform::importGPC($_POST['timezone'] ?? null, 'string');
+				$time_format = DevblocksPlatform::importGPC($_POST['time_format'] ?? null, 'string');
+				$timeout_idle_secs = DevblocksPlatform::importGPC($_POST['timeout_idle_secs'] ?? null, 'int', 0);
+				$calendar_id = DevblocksPlatform::importGPC($_POST['calendar_id'] ?? null, 'string');
+				$is_superuser = DevblocksPlatform::importGPC($_POST['is_superuser'] ?? null, 'bit', 0);
+				$disabled = DevblocksPlatform::importGPC($_POST['is_disabled'] ?? null, 'bit',0);
+				$is_password_disabled = DevblocksPlatform::importGPC($_POST['is_password_disabled'] ?? null, 'bit',0);
+				$is_mfa_required = DevblocksPlatform::importGPC($_POST['is_mfa_required'] ?? null, 'bit',0);
+				$group_memberships = DevblocksPlatform::importGPC($_POST['group_memberships'] ?? null, 'array');
 				
 				$existing_worker = DAO_Worker::get($id);
 				$error = null;
@@ -320,7 +320,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 					}
 					
 					// Custom field saves
-					@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+					$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 					if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_WORKER, $updated_worker->id, $field_ids, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
@@ -328,7 +328,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 					DAO_ContextAlias::set(CerberusContexts::CONTEXT_WORKER, $updated_worker->id, DevblocksPlatform::parseCrlfString(sprintf("%s%s", $first_name, $last_name ? (' '.$last_name) : '') . "\n" . $aliases));
 					
 					// Avatar image
-					@$avatar_image = DevblocksPlatform::importGPC($_POST['avatar_image'], 'string', '');
+					$avatar_image = DevblocksPlatform::importGPC($_POST['avatar_image'] ?? null, 'string', '');
 					DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_WORKER, $updated_worker->id, $avatar_image);
 					
 					// Flush caches
@@ -384,7 +384,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$worker_id = DevblocksPlatform::importGPC($_POST['worker_id'],'string');
+		$worker_id = DevblocksPlatform::importGPC($_POST['worker_id'] ?? null, 'string');
 		
 		if(!$active_worker->is_superuser)
 			DevblocksPlatform::dieWithHttpError(null, 403);
@@ -453,8 +453,8 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 	private function _profileAction_showBulkPopup() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$id_csv = DevblocksPlatform::importGPC($_REQUEST['ids']);
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
+		$id_csv = DevblocksPlatform::importGPC($_REQUEST['ids'] ?? null);
+		$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'] ?? null);
 		
 		// Permissions
 		if(!$active_worker || !$active_worker->is_superuser)
@@ -529,23 +529,23 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		// Filter: whole list or check
-		@$filter = DevblocksPlatform::importGPC($_POST['filter'],'string','');
+		$filter = DevblocksPlatform::importGPC($_POST['filter'] ?? null, 'string','');
 		$ids = [];
 		
 		// View
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
 		$view->setAutoPersist(false);
 		
 		// Worker fields
-		@$is_disabled = trim(DevblocksPlatform::importGPC($_POST['is_disabled'],'string',''));
-		@$is_password_disabled = trim(DevblocksPlatform::importGPC($_POST['is_password_disabled'],'string',''));
-		@$is_mfa_required = trim(DevblocksPlatform::importGPC($_POST['is_mfa_required'],'string',''));
-		@$title = trim(DevblocksPlatform::importGPC($_POST['title'],'string',''));
-		@$location = trim(DevblocksPlatform::importGPC($_POST['location'],'string',''));
-		@$gender = trim(DevblocksPlatform::importGPC($_POST['gender'],'string',''));
-		@$language = trim(DevblocksPlatform::importGPC($_POST['language'],'string',''));
-		@$timezone = trim(DevblocksPlatform::importGPC($_POST['timezone'],'string',''));
+		$is_disabled = trim(DevblocksPlatform::importGPC($_POST['is_disabled'] ?? null,'string',''));
+		$is_password_disabled = trim(DevblocksPlatform::importGPC($_POST['is_password_disabled'] ?? null,'string',''));
+		$is_mfa_required = trim(DevblocksPlatform::importGPC($_POST['is_mfa_required'] ?? null,'string',''));
+		$title = trim(DevblocksPlatform::importGPC($_POST['title'] ?? null,'string',''));
+		$location = trim(DevblocksPlatform::importGPC($_POST['location'] ?? null,'string',''));
+		$gender = trim(DevblocksPlatform::importGPC($_POST['gender'] ?? null,'string',''));
+		$language = trim(DevblocksPlatform::importGPC($_POST['language'] ?? null,'string',''));
+		$timezone = trim(DevblocksPlatform::importGPC($_POST['timezone'] ?? null,'string',''));
 
 		$do = array();
 		
@@ -584,17 +584,17 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		
 		// Broadcast: Compose
 		if($active_worker->hasPriv('contexts.cerberusweb.contexts.worker.broadcast')) {
-			@$do_broadcast = DevblocksPlatform::importGPC($_POST['do_broadcast'],'string',null);
-			@$broadcast_group_id = DevblocksPlatform::importGPC($_POST['broadcast_group_id'],'integer',0);
-			@$broadcast_bucket_id = DevblocksPlatform::importGPC($_POST['broadcast_bucket_id'],'integer',0);
-			@$broadcast_to = DevblocksPlatform::importGPC($_POST['broadcast_to'],'array',[]);
-			@$broadcast_subject = DevblocksPlatform::importGPC($_POST['broadcast_subject'],'string',null);
-			@$broadcast_message = DevblocksPlatform::importGPC($_POST['broadcast_message'],'string',null);
-			@$broadcast_format = DevblocksPlatform::importGPC($_POST['broadcast_format'],'string',null);
-			@$broadcast_html_template_id = DevblocksPlatform::importGPC($_POST['broadcast_html_template_id'],'integer',0);
-			@$broadcast_is_queued = DevblocksPlatform::importGPC($_POST['broadcast_is_queued'],'integer',0);
-			@$broadcast_status_id = DevblocksPlatform::importGPC($_POST['broadcast_status_id'],'integer',0);
-			@$broadcast_file_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['broadcast_file_ids'],'array',array()), 'integer', array('nonzero','unique'));
+			$do_broadcast = DevblocksPlatform::importGPC($_POST['do_broadcast'] ?? null, 'string',null);
+			$broadcast_group_id = DevblocksPlatform::importGPC($_POST['broadcast_group_id'] ?? null, 'integer',0);
+			$broadcast_bucket_id = DevblocksPlatform::importGPC($_POST['broadcast_bucket_id'] ?? null, 'integer',0);
+			$broadcast_to = DevblocksPlatform::importGPC($_POST['broadcast_to'] ?? null, 'array',[]);
+			$broadcast_subject = DevblocksPlatform::importGPC($_POST['broadcast_subject'] ?? null, 'string',null);
+			$broadcast_message = DevblocksPlatform::importGPC($_POST['broadcast_message'] ?? null, 'string',null);
+			$broadcast_format = DevblocksPlatform::importGPC($_POST['broadcast_format'] ?? null, 'string',null);
+			$broadcast_html_template_id = DevblocksPlatform::importGPC($_POST['broadcast_html_template_id'] ?? null, 'integer',0);
+			$broadcast_is_queued = DevblocksPlatform::importGPC($_POST['broadcast_is_queued'] ?? null, 'integer',0);
+			$broadcast_status_id = DevblocksPlatform::importGPC($_POST['broadcast_status_id'] ?? null, 'integer',0);
+			$broadcast_file_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['broadcast_file_ids'] ?? null,'array',array()), 'integer', array('nonzero','unique'));
 			
 			if(0 != strlen($do_broadcast) && !empty($broadcast_subject) && !empty($broadcast_message)) {
 				$do['broadcast'] = [
@@ -616,7 +616,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		switch($filter) {
 			// Checked rows
 			case 'checks':
-				@$ids_str = DevblocksPlatform::importGPC($_POST['ids'],'string');
+				$ids_str = DevblocksPlatform::importGPC($_POST['ids'] ?? null, 'string');
 				$ids = DevblocksPlatform::parseCsvString($ids_str);
 				break;
 				
@@ -644,7 +644,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 	}
 	
 	private function _profileAction_viewExplore() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
@@ -660,7 +660,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		$view->setAutoPersist(false);
 
 		// Page start
-		@$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'],'integer',0);
+		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'integer',0);
 		if(empty($explore_from)) {
 			$orig_pos = 1+($view->renderPage * $view->renderLimit);
 		} else {

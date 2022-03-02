@@ -218,7 +218,8 @@ class _DevblocksDataProviderUsageSnippets extends _DevblocksDataProvider {
 		$snippets = DAO_Snippet::getIds(array_keys($series));
 		
 		foreach($series as $snippet_id => $y_values) {
-			$snippet_name = @$snippets[$snippet_id]->title ?: '(no name)';
+			
+			$snippet_name = $snippets[$snippet_id]->title ?? '(no name)';
 			$output['data'][$snippet_name] = array_values($y_values);
 		}
 		

@@ -50,12 +50,10 @@ class BotAction_CalculateTimeElapsed extends Extension_DevblocksEventAction {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$date = DevblocksPlatform::services()->date();
 
-		$out = null;
-		
-		@$date_from = $tpl_builder->build($params['date_from'], $dict);
-		@$date_to = $tpl_builder->build($params['date_to'], $dict);
-		@$calendar_id = $params['calendar_id'];
-		@$placeholder = $tpl_builder->build($params['placeholder'], $dict);
+		$date_from = $tpl_builder->build($params['date_from'] ?? '', $dict);
+		$date_to = $tpl_builder->build($params['date_to'] ?? '', $dict);
+		$calendar_id = $params['calendar_id'] ?? null;
+		$placeholder = $tpl_builder->build($params['placeholder'] ?? '', $dict);
 		
 		if(empty($date_from) || (!is_numeric($date_from) && false == (@$date_from = strtotime($date_from))))
 			$date_from = 0;
@@ -89,10 +87,10 @@ class BotAction_CalculateTimeElapsed extends Extension_DevblocksEventAction {
 	function run($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
-		@$date_from = $tpl_builder->build($params['date_from'], $dict);
-		@$date_to = $tpl_builder->build($params['date_to'], $dict);
-		@$calendar_id = $params['calendar_id'];
-		@$placeholder = $tpl_builder->build($params['placeholder'], $dict);
+		$date_from = $tpl_builder->build($params['date_from'] ?? '', $dict);
+		$date_to = $tpl_builder->build($params['date_to'] ?? '', $dict);
+		$calendar_id = $params['calendar_id'] ?? null;
+		$placeholder = $tpl_builder->build($params['placeholder'] ?? '', $dict);
 		
 		if(empty($date_from) || (!is_numeric($date_from) && false == (@$date_from = strtotime($date_from))))
 			$date_from = 0;

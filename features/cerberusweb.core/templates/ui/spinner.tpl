@@ -1,1 +1,1 @@
-<svg class="cerb-spinner" viewBox="0 0 100 100" style="{if $hidden}display:none;{/if}" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="45"/></svg>
+<svg class="cerb-spinner" viewBox="0 0 100 100" style="{if isset($hidden) && $hidden}display:none;{/if}" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="45"/></svg>

@@ -173,7 +173,7 @@ class CerberusParserModel {
 				if(!$addy['email'])
 					continue;
 			
-				@$fromAddress = $addy['email'];
+				$fromAddress = $addy['email'] ?? null;
 				
 				if(null != ($fromInst = DAO_Address::lookupAddress($fromAddress, true))) {
 					$this->setSenderAddressModel($fromInst);
@@ -892,8 +892,8 @@ class CerberusParser {
 			return false;
 		
 		$message = new CerberusParserMessage();
-		@$message->encoding = $mm->data['charset'];
-		@$message->body_encoding = $message->encoding; // default
+		$message->encoding = $mm->data['charset'] ?? null;
+		$message->body_encoding = $message->encoding ?? null; // default
 		
 		$message->raw_headers = $mm->extract_headers(MAILPARSE_EXTRACT_RETURN);
 		$message->headers = CerberusParser::fixQuotePrintableArray($mm->data['headers']);

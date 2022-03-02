@@ -111,12 +111,12 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 	}
 	
 	private function _getAuthorizedWorkerByLegacySignature(DevblocksHttpRequest $request, &$error=null) {
-		@$verb = $_SERVER['REQUEST_METHOD'];
-		@$header_date = $_SERVER['HTTP_X_DATE'];
+		$verb = $_SERVER['REQUEST_METHOD'] ?? null;
+		$header_date = $_SERVER['HTTP_X_DATE'] ?? null;
 		
 		// If the custom X-Date: header isn't provided, fall back to Date:
 		if(empty($header_date))
-			@$header_date = $_SERVER['HTTP_DATE'];
+			$header_date = $_SERVER['HTTP_DATE'] ?? null;
 
 		@$header_signature = null;
 
@@ -128,7 +128,7 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 			$header_signature = $_SERVER['HTTP_CERB5_AUTH'];
 		}
 
-		@list($auth_access_key, $auth_signature) = explode(":", $header_signature, 2);
+		list($auth_access_key, $auth_signature) = array_pad(explode(":", $header_signature, 2), 2, null);
 		$url_parts = parse_url(DevblocksPlatform::getWebPath());
 		$url_path = $url_parts['path'];
 		$url_query = $this->_sortQueryString(@$_SERVER['QUERY_STRING']);
@@ -170,7 +170,7 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 
 		// Check this API key's path restrictions
 		$requested_path = implode('/', $stack);
-		@$allowed_paths = $credential->params['allowed_paths'];
+		$allowed_paths = $credential->params['allowed_paths'] ?? null;
 
 		if(empty($allowed_paths)) {
 			http_response_code(401);
@@ -290,8 +290,8 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 	}
 	
 	private function _getAuthorizedWorker(DevblocksHttpRequest $request, &$error=null) {
-		@$header_auth = $_SERVER['HTTP_AUTHORIZATION'];
-		@$header_signature = $_SERVER['HTTP_CERB_AUTH'] ?: $_SERVER['HTTP_CERB5_AUTH'];
+		$header_auth = $_SERVER['HTTP_AUTHORIZATION'] ?? null;
+		@$header_signature = $_SERVER['HTTP_CERB_AUTH'] ?? $_SERVER['HTTP_CERB5_AUTH'] ?? null;
 		
 		// Check for OAuth2
 		if($header_auth)
@@ -305,7 +305,7 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 	}
 
 	function handleRequest(DevblocksHttpRequest $request) {
-		@$verb = $_SERVER['REQUEST_METHOD'];
+		$verb = $_SERVER['REQUEST_METHOD'] ?? null;
 		$error = null;
 		
 		@$this->_payload = DevblocksPlatform::getHttpBody();
@@ -515,7 +515,7 @@ abstract class Extension_RestController extends DevblocksExtension {
 			return false;
 
 		@$expand = DevblocksPlatform::parseCsvString(DevblocksPlatform::importGPC($_REQUEST['expand'],'string',null));
-		@$show_meta = DevblocksPlatform::importGPC($_REQUEST['show_meta'],'bit',0);
+		$show_meta = DevblocksPlatform::importGPC($_REQUEST['show_meta'] ?? null, 'bit',0);
 
 		// [TODO] Bulk load expands (e.g. ticket->org, ticket->sender->org)
 
@@ -758,22 +758,22 @@ abstract class Extension_RestController extends DevblocksExtension {
 	 * @internal
 	 */
 	protected function _handlePostSearch($context=null) {
-		@$query = DevblocksPlatform::importGPC($_REQUEST['q'],'string',null);
+		$query = DevblocksPlatform::importGPC($_REQUEST['q'] ?? null, 'string',null);
 
-		@$criteria = DevblocksPlatform::importGPC($_REQUEST['criteria'],'array',array());
-		@$opers = DevblocksPlatform::importGPC($_REQUEST['oper'],'array',array());
-		@$values = DevblocksPlatform::importGPC($_REQUEST['value'],'array',array());
+		$criteria = DevblocksPlatform::importGPC($_REQUEST['criteria'] ?? null, 'array', []);
+		$opers = DevblocksPlatform::importGPC($_REQUEST['oper'] ?? null, 'array', []);
+		$values = DevblocksPlatform::importGPC($_REQUEST['value'] ?? null, 'array', []);
 
-		@$page = DevblocksPlatform::importGPC($_REQUEST['page'],'integer',1);
-		@$limit = DevblocksPlatform::importGPC($_REQUEST['limit'],'integer',10);
+		$page = DevblocksPlatform::importGPC($_REQUEST['page'] ?? null, 'integer',1);
+		$limit = DevblocksPlatform::importGPC($_REQUEST['limit'] ?? null, 'integer',10);
 
-		@$show_results = DevblocksPlatform::importGPC($_REQUEST['show_results'],'string','');
+		$show_results = DevblocksPlatform::importGPC($_REQUEST['show_results'] ?? null, 'string','');
 		$show_results = (0 == strlen($show_results) || !empty($show_results)) ? true: false;
 
-		@$subtotals = DevblocksPlatform::importGPC($_REQUEST['subtotals'],'array',array());
+		$subtotals = DevblocksPlatform::importGPC($_REQUEST['subtotals'] ?? null, 'array', []);
 
-		@$sortToken = DevblocksPlatform::importGPC($_REQUEST['sortBy'],'string',null);
-		@$sortAsc = DevblocksPlatform::importGPC($_REQUEST['sortAsc'],'integer',1);
+		$sortToken = DevblocksPlatform::importGPC($_REQUEST['sortBy'] ?? null, 'string',null);
+		$sortAsc = DevblocksPlatform::importGPC($_REQUEST['sortAsc'] ?? null, 'integer',1);
 
 		if(count($criteria) != count($opers) || count($criteria) != count($values))
 			$this->error(self::ERRNO_SEARCH_FILTERS_INVALID);

@@ -42,7 +42,7 @@ class DevblocksStorageEngineDisk extends Extension_DevblocksStorageEngine {
 	}
 	
 	function testConfig(Model_DevblocksStorageProfile $profile) {
-		@$path = DevblocksPlatform::importGPC($_POST['path'],'string','');
+		$path = DevblocksPlatform::importGPC($_POST['path'] ?? null, 'string','');
 		
 		if(empty($path))
 			$path = APP_STORAGE_PATH . '/';
@@ -62,7 +62,7 @@ class DevblocksStorageEngineDisk extends Extension_DevblocksStorageEngine {
 	}
 	
 	function saveConfig(Model_DevblocksStorageProfile $profile) {
-		@$path = DevblocksPlatform::importGPC($_POST['path'],'string','');
+		$path = DevblocksPlatform::importGPC($_POST['path'] ?? null, 'string','');
 		
 		if(!is_dir($path) || !is_writeable($path))
 			return;
@@ -255,10 +255,10 @@ class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
 	}
 
 	function testConfig(Model_DevblocksStorageProfile $profile) {
-		@$host = DevblocksPlatform::importGPC($_POST['host'],'string','');
-		@$user = DevblocksPlatform::importGPC($_POST['user'],'string','');
-		@$password = DevblocksPlatform::importGPC($_POST['password'],'string','');
-		@$database = DevblocksPlatform::importGPC($_POST['database'],'string','');
+		$host = DevblocksPlatform::importGPC($_POST['host'] ?? null, 'string','');
+		$user = DevblocksPlatform::importGPC($_POST['user'] ?? null, 'string','');
+		$password = DevblocksPlatform::importGPC($_POST['password'] ?? null, 'string','');
+		$database = DevblocksPlatform::importGPC($_POST['database'] ?? null, 'string','');
 		
 		if(empty($host)) {
 			$host = APP_DB_HOST;
@@ -286,10 +286,10 @@ class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
 	}
 	
 	function saveConfig(Model_DevblocksStorageProfile $profile) {
-		@$host = DevblocksPlatform::importGPC($_POST['host'],'string','');
-		@$user = DevblocksPlatform::importGPC($_POST['user'],'string','');
-		@$password = DevblocksPlatform::importGPC($_POST['password'],'string','');
-		@$database = DevblocksPlatform::importGPC($_POST['database'],'string','');
+		$host = DevblocksPlatform::importGPC($_POST['host'] ?? null, 'string','');
+		$user = DevblocksPlatform::importGPC($_POST['user'] ?? null, 'string','');
+		$password = DevblocksPlatform::importGPC($_POST['password'] ?? null, 'string','');
+		$database = DevblocksPlatform::importGPC($_POST['database'] ?? null, 'string','');
 		
 		$fields = array(
 			DAO_DevblocksStorageProfile::PARAMS_JSON => json_encode(array(
@@ -505,11 +505,11 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 	
 	function testConfig(Model_DevblocksStorageProfile $profile) {
 		// Test S3 connection info
-		@$access_key = DevblocksPlatform::importGPC($_POST['access_key'],'string', null);
-		@$secret_key = DevblocksPlatform::importGPC($_POST['secret_key'],'string', null);
-		@$bucket = DevblocksPlatform::importGPC($_POST['bucket'],'string','');
-		@$path_prefix = DevblocksPlatform::importGPC($_POST['path_prefix'],'string','');
-		@$host = DevblocksPlatform::importGPC($_POST['host'], 'string', 's3.amazonaws.com');
+		$access_key = DevblocksPlatform::importGPC($_POST['access_key'] ?? null, 'string', null);
+		$secret_key = DevblocksPlatform::importGPC($_POST['secret_key'] ?? null, 'string', null);
+		$bucket = DevblocksPlatform::importGPC($_POST['bucket'] ?? null, 'string','');
+		$path_prefix = DevblocksPlatform::importGPC($_POST['path_prefix'] ?? null, 'string','');
+		$host = DevblocksPlatform::importGPC($_POST['host'] ?? null, 'string', 's3.amazonaws.com');
 		
 		// If blank, try using a previously saved copy.
 		if(empty($secret_key) && isset($profile->params['secret_key']))
@@ -560,11 +560,11 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 	}
 	
 	function saveConfig(Model_DevblocksStorageProfile $profile) {
-		@$access_key = DevblocksPlatform::importGPC($_POST['access_key'],'string', null);
-		@$secret_key = DevblocksPlatform::importGPC($_POST['secret_key'],'string', null);
-		@$bucket = DevblocksPlatform::importGPC($_POST['bucket'],'string', '');
-		@$path_prefix = DevblocksPlatform::importGPC($_POST['path_prefix'],'string', '');
-		@$host = DevblocksPlatform::importGPC($_POST['host'], 'string', '');
+		$access_key = DevblocksPlatform::importGPC($_POST['access_key'] ?? null, 'string', null);
+		$secret_key = DevblocksPlatform::importGPC($_POST['secret_key'] ?? null, 'string', null);
+		$bucket = DevblocksPlatform::importGPC($_POST['bucket'] ?? null, 'string', '');
+		$path_prefix = DevblocksPlatform::importGPC($_POST['path_prefix'] ?? null, 'string', '');
+		$host = DevblocksPlatform::importGPC($_POST['host'] ?? null, 'string', '');
 		
 		// If blank, try using a previously saved copy.
 		if(empty($secret_key) && isset($profile->params['secret_key']))
@@ -590,14 +590,14 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 	}
 	
 	public function exists($namespace, $key) {
-		@$bucket = $this->_options['bucket'];
+		$bucket = $this->_options['bucket'] ?? null;
 		$path = $this->_options['path_prefix'] . $this->escapeNamespace($namespace) . '/' . $key;
 		
 		return false !== (@$this->_s3->getObjectInfo($bucket, $path));
 	}
 	
 	public function put($namespace, $id, $data) {
-		@$bucket = $this->_options['bucket'];
+		$bucket = $this->_options['bucket'] ?? null;
 		
 		// Get a unique hash path for this namespace+id
 		$hash = base_convert(sha1($this->escapeNamespace($namespace).$id), 16, 32);
@@ -631,7 +631,7 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 	}
 
 	public function get($namespace, $key, &$fp=null) {
-		@$bucket = $this->_options['bucket'];
+		$bucket = $this->_options['bucket'] ?? null;
 		$path = $this->_options['path_prefix'] . $this->escapeNamespace($namespace) . '/' . $key;
 		
 		if($fp && is_resource($fp)) {
@@ -658,7 +658,7 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 	}
 	
 	public function batchDelete($namespace, $keys) {
-		@$bucket = $this->_options['bucket'];
+		$bucket = $this->_options['bucket'] ?? null;
 		$errors = array();
 		
 		$ns = $this->escapeNamespace($namespace);

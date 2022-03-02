@@ -71,7 +71,8 @@ class WorkspaceWidget_RecordFields extends Extension_WorkspaceWidget {
 		
 		$properties_available = $context_ext->profileGetFields($record);
 		
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $record->id)) or [];
+		$values = DAO_CustomFieldValue::getValuesByContextIds($context, $record->id);
+		@$values = is_array($values) ? array_shift($values) : [];
 		$tpl->assign('custom_field_values', $values);
 		
 		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, $values);
@@ -89,7 +90,7 @@ class WorkspaceWidget_RecordFields extends Extension_WorkspaceWidget {
 		
 		// Empty fields
 		
-		$show_empty_fields = @$widget->params['options']['show_empty_properties'] ?: false;
+		$show_empty_fields = ($widget->params['options']['show_empty_properties'] ?? null) ?: false;
 		
 		// Custom Fieldsets
 		
@@ -143,7 +144,7 @@ class WorkspaceWidget_RecordFields extends Extension_WorkspaceWidget {
 		
 		// Link counts
 		
-		@$show_links = $widget->params['links']['show'];
+		$show_links = $widget->params['links']['show'] ?? null;
 		
 		if($show_links) {
 			$properties_links = [
@@ -186,7 +187,7 @@ class WorkspaceWidget_RecordFields extends Extension_WorkspaceWidget {
 		$context_mfts = Extension_DevblocksContext::getAll(false);
 		$tpl->assign('context_mfts', $context_mfts);
 		
-		@$context = $widget->params['context'];
+		$context = $widget->params['context'] ?? null;
 		
 		if($context) {
 			$context_ext = Extension_DevblocksContext::get($context);
@@ -244,7 +245,7 @@ class WorkspaceWidget_RecordFields extends Extension_WorkspaceWidget {
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget, ?string &$error=null) : bool {
-		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
+		$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
 		
 		DAO_WorkspaceWidget::update($widget->id, array(
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
@@ -254,7 +255,7 @@ class WorkspaceWidget_RecordFields extends Extension_WorkspaceWidget {
 	}
 	
 	private function _getSearchButtons(Model_WorkspaceWidget $model, DevblocksDictionaryDelegate $dict=null) {
-		@$search = $model->params['search'] ?: [];
+		$search = ($model->params['search'] ?? null) ?: [];
 		
 		$search_buttons = [];
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();

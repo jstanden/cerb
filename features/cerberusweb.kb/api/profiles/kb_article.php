@@ -51,10 +51,10 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 	}
 	
 	private function _profileAction_savePeekJson() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
 		
-		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
+		$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -86,11 +86,11 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$title = DevblocksPlatform::importGPC($_POST['title'], 'string', '');
-				@$category_ids = DevblocksPlatform::importGPC($_POST['category_ids'],'array',array());
-				@$content = DevblocksPlatform::importGPC($_POST['content'],'string');
-				@$format = DevblocksPlatform::importGPC($_POST['format'],'integer',0);
-				@$file_ids = DevblocksPlatform::importGPC($_POST['file_ids'], 'array', array());
+				$title = DevblocksPlatform::importGPC($_POST['title'] ?? null, 'string', '');
+				$category_ids = DevblocksPlatform::importGPC($_POST['category_ids'] ?? null, 'array', []);
+				$content = DevblocksPlatform::importGPC($_POST['content'] ?? null, 'string');
+				$format = DevblocksPlatform::importGPC($_POST['format'] ?? null, 'integer',0);
+				$file_ids = DevblocksPlatform::importGPC($_POST['file_ids'] ?? null, 'array', array());
 				
 				if(empty($id)) { // New
 					$fields = array(
@@ -138,7 +138,7 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 					DAO_Attachment::setLinks(CerberusContexts::CONTEXT_KB_ARTICLE, $id, $file_ids);
 				
 				// Custom field saves
-				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+				$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 				if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_KB_ARTICLE, $id, $field_ids, $error))
 					throw new Exception_DevblocksAjaxValidationError($error);
 				
@@ -173,7 +173,7 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
-		@$content = DevblocksPlatform::importGPC($_POST['content'],'string');
+		$content = DevblocksPlatform::importGPC($_POST['content'] ?? null, 'string');
 		
 		$output = $tpl_builder->build($content, []);
 		$output = DevblocksPlatform::parseMarkdown($output);
@@ -189,7 +189,7 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 	}
 	
 	private function _profileAction_viewExplore() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
@@ -205,7 +205,7 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 		$view->setAutoPersist(false);
 
 		// Page start
-		@$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'],'integer',0);
+		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'integer',0);
 		if(empty($explore_from)) {
 			$orig_pos = 1+($view->renderPage * $view->renderLimit);
 		} else {
@@ -270,8 +270,8 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 		if(!$active_worker->hasPriv(sprintf('contexts.%s.update.bulk', Context_KbArticle::ID)))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		@$id_csv = DevblocksPlatform::importGPC($_REQUEST['ids']);
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
+		$id_csv = DevblocksPlatform::importGPC($_REQUEST['ids'] ?? null);
+		$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'] ?? null);
 
 		$tpl->assign('view_id', $view_id);
 
@@ -304,23 +304,23 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		// Filter: whole list or check
-		@$filter = DevblocksPlatform::importGPC($_POST['filter'],'string','');
+		$filter = DevblocksPlatform::importGPC($_POST['filter'] ?? null, 'string','');
 		$ids = array();
 		
 		// View
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
 		$view->setAutoPersist(false);
 		
 		// Scheduled behavior
-		@$behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'],'string','');
-		@$behavior_when = DevblocksPlatform::importGPC($_POST['behavior_when'],'string','');
-		@$behavior_params = DevblocksPlatform::importGPC($_POST['behavior_params'],'array',array());
+		$behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'] ?? null, 'string','');
+		$behavior_when = DevblocksPlatform::importGPC($_POST['behavior_when'] ?? null, 'string','');
+		$behavior_params = DevblocksPlatform::importGPC($_POST['behavior_params'] ?? null, 'array', []);
 		
 		$do = [];
 
 		// Categories
-		@$category_ids = DevblocksPlatform::importGPC($_POST['category_ids'],'array',array());
+		$category_ids = DevblocksPlatform::importGPC($_POST['category_ids'] ?? null, 'array', []);
 		
 		if(is_array($category_ids)) {
 			$do['category_delta'] = array();
@@ -347,7 +347,7 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 		switch($filter) {
 			// Checked rows
 			case 'checks':
-				@$ids_str = DevblocksPlatform::importGPC($_POST['ids'],'string');
+				$ids_str = DevblocksPlatform::importGPC($_POST['ids'] ?? null, 'string');
 				$ids = DevblocksPlatform::parseCsvString($ids_str);
 				break;
 				
@@ -379,7 +379,7 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 	}
 	
 	private function _profileAction_getEditorHtmlPreview() {
-		@$data = DevblocksPlatform::importGPC($_REQUEST['data'], 'string', '');
+		$data = DevblocksPlatform::importGPC($_REQUEST['data'] ?? null, 'string', '');
 
 		$model = new Model_KbArticle();
 		$model->setContent($data);
@@ -389,7 +389,7 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 	}
 	
 	private function _profileAction_getEditorParsedownPreview() {
-		@$data = DevblocksPlatform::importGPC($_REQUEST['data'], 'string', '');
+		$data = DevblocksPlatform::importGPC($_REQUEST['data'] ?? null, 'string', '');
 		
 		$model = new Model_KbArticle();
 		$model->setContent($data);

@@ -793,17 +793,17 @@ class View_EmailSignature extends C4_AbstractView implements IAbstractView_Subto
 				break;
 				
 			case SearchFields_EmailSignature::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_POST['context_link'],'array',[]);
+				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
 			case SearchFields_EmailSignature::VIRTUAL_HAS_FIELDSET:
-				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',[]);
+				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
 			case SearchFields_EmailSignature::VIRTUAL_OWNER:
-				@$owner_contexts = DevblocksPlatform::importGPC($_POST['owner_context'],'array',[]);
+				$owner_contexts = DevblocksPlatform::importGPC($_POST['owner_context'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$owner_contexts);
 				break;
 				

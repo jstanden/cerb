@@ -45,10 +45,10 @@ class PageSection_ProfilesConnectedService extends Extension_PageSection {
 	}
 	
 	private function _profileAction_savePeekJson() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
 		
-		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
+		$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -82,7 +82,7 @@ class PageSection_ProfilesConnectedService extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$package_uri = DevblocksPlatform::importGPC($_POST['package'], 'string', '');
+				$package_uri = DevblocksPlatform::importGPC($_POST['package'] ?? null, 'string', '');
 				
 				$mode = 'build';
 				
@@ -91,7 +91,7 @@ class PageSection_ProfilesConnectedService extends Extension_PageSection {
 				
 				switch($mode) {
 					case 'library':
-						@$prompts = DevblocksPlatform::importGPC($_POST['prompts'], 'array', []);
+						$prompts = DevblocksPlatform::importGPC($_POST['prompts'] ?? null, 'array', []);
 						
 						if(empty($package_uri))
 							throw new Exception_DevblocksAjaxValidationError("You must select a package from the library.");
@@ -133,10 +133,10 @@ class PageSection_ProfilesConnectedService extends Extension_PageSection {
 						break;
 						
 					case 'build':
-						@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
-						@$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'], 'string', '');
-						@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
-						@$uri = DevblocksPlatform::importGPC($_POST['uri'], 'string', '');
+						$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');
+						$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'] ?? null, 'string', '');
+						$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
+						$uri = DevblocksPlatform::importGPC($_POST['uri'] ?? null, 'string', '');
 						
 						$service = new Model_ConnectedService();
 						$service->id = 0;
@@ -200,7 +200,7 @@ class PageSection_ProfilesConnectedService extends Extension_PageSection {
 							DAO_ConnectedService::setAndEncryptParams($id, $params);
 							
 							// Custom field saves
-							@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+							$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 							if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_CONNECTED_SERVICE, $id, $field_ids, $error))
 								throw new Exception_DevblocksAjaxValidationError($error);
 							
@@ -236,7 +236,7 @@ class PageSection_ProfilesConnectedService extends Extension_PageSection {
 	}
 	
 	private function _profileAction_getExtensionParams() {
-		@$extension_id = DevblocksPlatform::importGPC($_REQUEST['id'],'string','');
+		$extension_id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null, 'string','');
 		
 		if(!$extension_id || false == ($ext = Extension_ConnectedServiceProvider::get($extension_id)))
 			return;
@@ -249,8 +249,8 @@ class PageSection_ProfilesConnectedService extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$extension_id = DevblocksPlatform::importGPC($_POST['id'],'string','');
-		@$service_action = DevblocksPlatform::importGPC($_POST['service_action'],'string','');
+		$extension_id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'string','');
+		$service_action = DevblocksPlatform::importGPC($_POST['service_action'] ?? null, 'string','');
 		
 		if(!$extension_id || false == ($ext = Extension_ConnectedServiceProvider::get($extension_id)))
 			return;
@@ -270,7 +270,7 @@ class PageSection_ProfilesConnectedService extends Extension_PageSection {
 	}
 	
 	private function _profileAction_viewExplore() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
@@ -286,7 +286,7 @@ class PageSection_ProfilesConnectedService extends Extension_PageSection {
 		$view->setAutoPersist(false);
 
 		// Page start
-		@$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'],'integer',0);
+		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'integer',0);
 		if(empty($explore_from)) {
 			$orig_pos = 1+($view->renderPage * $view->renderLimit);
 		} else {

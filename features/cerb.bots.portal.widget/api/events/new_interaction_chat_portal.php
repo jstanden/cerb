@@ -61,27 +61,27 @@ class Event_NewInteractionChatPortal extends Extension_DevblocksEvent {
 			);
 		
 		// Portal
-		@$portal_code = $event_model->params['portal_code'];
+		$portal_code = $event_model->params['portal_code'] ?? null;
 		$labels['portal_code'] = 'Portal Code';
 		$values['portal_code'] = $portal_code;
 		
 		// Interaction
-		@$interaction = $event_model->params['interaction'];
+		$interaction = $event_model->params['interaction'] ?? null;
 		$labels['interaction'] = 'Interaction';
 		$values['interaction'] = $interaction;
 		
 		// Interaction Parameters
-		@$interaction_params = $event_model->params['interaction_params'];
+		$interaction_params = $event_model->params['interaction_params'] ?? null;
 		$labels['interaction_params'] = 'Interaction Params';
 		$values['interaction_params'] = $interaction_params;
 		
 		// Client
-		@$client_browser = $event_model->params['client_browser'];
-		@$client_browser_version = $event_model->params['client_browser_version'];
-		@$client_ip = $event_model->params['client_ip'];
-		@$client_platform = $event_model->params['client_platform'];
-		@$client_time = $event_model->params['client_time'];
-		@$client_url = $event_model->params['client_url'];
+		$client_browser = $event_model->params['client_browser'] ?? null;
+		$client_browser_version = $event_model->params['client_browser_version'] ?? null;
+		$client_ip = $event_model->params['client_ip'] ?? null;
+		$client_platform = $event_model->params['client_platform'] ?? null;
+		$client_time = $event_model->params['client_time'] ?? null;
+		$client_url = $event_model->params['client_url'] ?? null;
 		
 		$labels['client_browser'] = 'Client Browser';
 		$labels['client_browser_version'] = 'Client Browser Version';
@@ -256,7 +256,7 @@ class Event_NewInteractionChatPortal extends Extension_DevblocksEvent {
 					$actions = [];
 				
 				@$behavior_id = intval($params['behavior_id']);
-				@$var_key = $params['var'] ?? '_behavior';
+				$var_key = ($params['var'] ?? null) ?: '_behavior';
 				
 				if(false == ($behavior = DAO_TriggerEvent::get($behavior_id)))
 					break;

@@ -13,7 +13,7 @@
 			{if $layout.title_column == $column.key}
 			{elseif $column._type == 'selection'}
 				{$is_selection_enabled = true}
-				{if $column.params.mode == 'single'}
+				{if $column.params.mode|default:null == 'single'}
 					<input type="radio" name="{$sheet_selection_key|default:'_selection'}" value="{$row[$column.key]}" {if $row[$column.key] == $default}checked="checked"{/if}>
 				{else}
 					<input type="checkbox" name="{$sheet_selection_key|default:'_selection'}[]" value="{$row[$column.key]}" {if is_array($default) && in_array($row[$column.key], $default)}checked="checked"{/if}>

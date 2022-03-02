@@ -68,7 +68,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 	}
 	
 	private function _internalAction_refresh() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
+		$id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null);
 		
 		if(null != ($view = C4_AbstractViewLoader::getView($id))) {
 			$view->render();
@@ -76,8 +76,8 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 	}
 	
 	private function _internalAction_sort() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
-		@$sortBy = DevblocksPlatform::importGPC($_REQUEST['sortBy']);
+		$id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null);
+		$sortBy = DevblocksPlatform::importGPC($_REQUEST['sortBy'] ?? null);
 		
 		if(null != ($view = C4_AbstractViewLoader::getView($id))) {
 			$view->doSortBy($sortBy);
@@ -86,8 +86,8 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 	}
 	
 	private function _internalAction_page() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
-		@$page = DevblocksPlatform::importGPC(DevblocksPlatform::importGPC($_REQUEST['page']));
+		$id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null);
+		$page = DevblocksPlatform::importGPC(DevblocksPlatform::importGPC($_REQUEST['page'] ?? null));
 		
 		if(null != ($view = C4_AbstractViewLoader::getView($id))) {
 			$view->doPage($page);
@@ -110,17 +110,17 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$id = DevblocksPlatform::importGPC($_POST['id']);
-		@$is_custom = DevblocksPlatform::importGPC($_POST['is_custom'],'integer',0);
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null);
+		$is_custom = DevblocksPlatform::importGPC($_POST['is_custom'] ?? null, 'integer',0);
 		
-		@$add_mode = DevblocksPlatform::importGPC($_POST['add_mode'], 'string', null);
-		@$query = DevblocksPlatform::importGPC($_POST['query'], 'string', null);
+		$add_mode = DevblocksPlatform::importGPC($_POST['add_mode'] ?? null, 'string', null);
+		$query = DevblocksPlatform::importGPC($_POST['query'] ?? null, 'string', null);
 		
-		@$field = DevblocksPlatform::importGPC($_POST['field'], 'string', null);
-		@$oper = DevblocksPlatform::importGPC($_POST['oper'], 'string', null);
-		@$value = DevblocksPlatform::importGPC($_POST['value']);
-		@$replace = DevblocksPlatform::importGPC($_POST['replace'], 'string', '');
-		@$field_deletes = DevblocksPlatform::importGPC($_POST['field_deletes'],'array',[]);
+		$field = DevblocksPlatform::importGPC($_POST['field'] ?? null, 'string', null);
+		$oper = DevblocksPlatform::importGPC($_POST['oper'] ?? null, 'string', null);
+		$value = DevblocksPlatform::importGPC($_POST['value'] ?? null);
+		$replace = DevblocksPlatform::importGPC($_POST['replace'] ?? null, 'string', '');
+		$field_deletes = DevblocksPlatform::importGPC($_POST['field_deletes'] ?? null, 'array',[]);
 		
 		if(null == ($view = C4_AbstractViewLoader::getView($id)))
 			return;
@@ -175,7 +175,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::services()->template();
 		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
+		$id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null);
 		
 		$tpl->assign('id', $id);
 		
@@ -250,7 +250,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 	private function _internalAction_renderCopy() {
 		$tpl = DevblocksPlatform::services()->template();
 		
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'] ?? null, 'string');
 		
 		if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
 			return;
@@ -267,14 +267,14 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		
 		if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
-		@$list_title = DevblocksPlatform::importGPC($_POST['list_title'],'string', '');
-		@$workspace_page_id = DevblocksPlatform::importGPC($_POST['workspace_page_id'],'integer', 0);
-		@$workspace_tab_id = DevblocksPlatform::importGPC($_POST['workspace_tab_id'],'integer', 0);
+		$list_title = DevblocksPlatform::importGPC($_POST['list_title'] ?? null, 'string', '');
+		$workspace_page_id = DevblocksPlatform::importGPC($_POST['workspace_page_id'] ?? null, 'integer', 0);
+		$workspace_tab_id = DevblocksPlatform::importGPC($_POST['workspace_tab_id'] ?? null, 'integer', 0);
 		
 		if(null == ($workspace_page = DAO_WorkspacePage::get($workspace_page_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -324,8 +324,8 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$cursor = DevblocksPlatform::importGPC($_POST['cursor'], 'string', '');
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
+		$cursor = DevblocksPlatform::importGPC($_POST['cursor'] ?? null, 'string', '');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
 		
 		if(empty($cursor))
 			return;
@@ -345,7 +345,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$cursor = DevblocksPlatform::importGPC($_POST['cursor'], 'string', '');
+		$cursor = DevblocksPlatform::importGPC($_POST['cursor'] ?? null, 'string', '');
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -404,7 +404,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		
 		if(false == ($view = C4_AbstractViewLoader::getView($view_id)))
 			return;
@@ -424,16 +424,16 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		
 		$search_class = $context_ext->getSearchClass();
 		
-		@$broadcast_to = DevblocksPlatform::importGPC($_POST['broadcast_to'],'array',[]);
-		@$broadcast_subject = DevblocksPlatform::importGPC($_POST['broadcast_subject'],'string',null);
-		@$broadcast_message = DevblocksPlatform::importGPC($_POST['broadcast_message'],'string',null);
-		@$broadcast_format = DevblocksPlatform::importGPC($_POST['broadcast_format'],'string',null);
-		@$broadcast_html_template_id = DevblocksPlatform::importGPC($_POST['broadcast_html_template_id'],'integer',0);
-		@$broadcast_group_id = DevblocksPlatform::importGPC($_POST['broadcast_group_id'],'integer',0);
-		@$broadcast_bucket_id = DevblocksPlatform::importGPC($_POST['broadcast_bucket_id'],'integer',0);
+		$broadcast_to = DevblocksPlatform::importGPC($_POST['broadcast_to'] ?? null, 'array',[]);
+		$broadcast_subject = DevblocksPlatform::importGPC($_POST['broadcast_subject'] ?? null, 'string',null);
+		$broadcast_message = DevblocksPlatform::importGPC($_POST['broadcast_message'] ?? null, 'string',null);
+		$broadcast_format = DevblocksPlatform::importGPC($_POST['broadcast_format'] ?? null, 'string',null);
+		$broadcast_html_template_id = DevblocksPlatform::importGPC($_POST['broadcast_html_template_id'] ?? null, 'integer',0);
+		$broadcast_group_id = DevblocksPlatform::importGPC($_POST['broadcast_group_id'] ?? null, 'integer',0);
+		$broadcast_bucket_id = DevblocksPlatform::importGPC($_POST['broadcast_bucket_id'] ?? null, 'integer',0);
 		
-		@$filter = DevblocksPlatform::importGPC($_POST['filter'],'string','');
-		@$ids = DevblocksPlatform::importGPC($_POST['ids'],'string','');
+		$filter = DevblocksPlatform::importGPC($_POST['filter'] ?? null, 'string','');
+		$ids = DevblocksPlatform::importGPC($_POST['ids'] ?? null, 'string','');
 		
 		// Filter to checked
 		if('checks' == $filter && !empty($ids)) {
@@ -558,7 +558,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['id']);
+		$view_id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null);
 		
 		$tpl->assign('view_id', $view_id);
 		
@@ -607,7 +607,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 	private function _internalAction_saveExport() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$cursor_key = DevblocksPlatform::importGPC($_POST['cursor_key'], 'string', '');
+		$cursor_key = DevblocksPlatform::importGPC($_POST['cursor_key'] ?? null, 'string', '');
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
@@ -616,10 +616,10 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		
 		try {
 			if(empty($cursor_key)) {
-				@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
-				@$tokens = DevblocksPlatform::importGPC($_POST['tokens'], 'array', []);
-				@$export_as = DevblocksPlatform::importGPC($_POST['export_as'], 'string', 'csv');
-				@$format_timestamps = DevblocksPlatform::importGPC($_POST['format_timestamps'], 'integer', 0);
+				$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
+				$tokens = DevblocksPlatform::importGPC($_POST['tokens'] ?? null, 'array', []);
+				$export_as = DevblocksPlatform::importGPC($_POST['export_as'] ?? null, 'string', 'csv');
+				$format_timestamps = DevblocksPlatform::importGPC($_POST['format_timestamps'] ?? null, 'integer', 0);
 				
 				if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
 					return;
@@ -1075,11 +1075,11 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$id = DevblocksPlatform::importGPC($_POST['id'], 'string');
-		@$columns = DevblocksPlatform::importGPC($_POST['columns'],'array', []);
-		@$num_rows = DevblocksPlatform::importGPC($_POST['num_rows'],'integer',10);
-		@$options = DevblocksPlatform::importGPC($_POST['view_options'],'array', []);
-		@$field_deletes = DevblocksPlatform::importGPC($_POST['field_deletes'],'array',[]);
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'string');
+		$columns = DevblocksPlatform::importGPC($_POST['columns'] ?? null, 'array', []);
+		$num_rows = DevblocksPlatform::importGPC($_POST['num_rows'] ?? null, 'integer',10);
+		$options = DevblocksPlatform::importGPC($_POST['view_options'] ?? null, 'array', []);
+		$field_deletes = DevblocksPlatform::importGPC($_POST['field_deletes'] ?? null, 'array',[]);
 		
 		// Sanitize
 		$num_rows = DevblocksPlatform::intClamp($num_rows, 1, 500);
@@ -1116,12 +1116,12 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		$is_trigger = DevblocksPlatform::strStartsWith($id, '_trigger_');
 		
 		if($is_custom || $is_trigger) {
-			@$title = DevblocksPlatform::importGPC($_POST['title'],'string', $translate->_('views.new_list'));
+			$title = DevblocksPlatform::importGPC($_POST['title'] ?? null, 'string', $translate->_('views.new_list'));
 			$view->name = $title;
 		}
 		
 		if($is_custom) {
-			@$params_required_query = DevblocksPlatform::importGPC($_POST['params_required_query'],'string', '');
+			$params_required_query = DevblocksPlatform::importGPC($_POST['params_required_query'] ?? null, 'string', '');
 			$view->setParamsRequiredQuery($params_required_query);
 		}
 		
@@ -1186,7 +1186,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 	}
 	
 	private function _internalAction_showQuickSearchPopup() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'] ?? null,'string','');
 		
 		if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
 			return;
@@ -1199,9 +1199,9 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 	}
 	
 	private function _internalAction_subtotal() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-		@$toggle = DevblocksPlatform::importGPC($_REQUEST['toggle'],'integer',0);
-		@$category = DevblocksPlatform::importGPC($_REQUEST['category'],'string','');
+		$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'] ?? null,'string','');
+		$toggle = DevblocksPlatform::importGPC($_REQUEST['toggle'] ?? null,'integer',0);
+		$category = DevblocksPlatform::importGPC($_REQUEST['category'] ?? null,'string','');
 		
 		if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
 			return;
@@ -1252,8 +1252,8 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 	private function _internalAction_serializeView() {
 		header("Content-type: application/json");
 		
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
-		@$context = DevblocksPlatform::importGPC($_POST['context'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
+		$context = DevblocksPlatform::importGPC($_POST['context'] ?? null, 'string');
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
@@ -1271,9 +1271,9 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 	private function _internalAction_renderImportPopup() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$layer = DevblocksPlatform::importGPC($_REQUEST['layer'],'string');
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		$layer = DevblocksPlatform::importGPC($_REQUEST['layer'] ?? null,'string');
+		$context = DevblocksPlatform::importGPC($_REQUEST['context'] ?? null,'string','');
+		$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'] ?? null,'string','');
 		
 		if(null == ($context_ext = Extension_DevblocksContext::get($context)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -1299,7 +1299,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 	}
 	
 	private function _internalAction_parseImportFile() {
-		@$csv_file = $_FILES['csv_file'];
+		$csv_file = $_FILES['csv_file'] ?? null;
 		
 		if(!is_array($csv_file) || !isset($csv_file['tmp_name']) || empty($csv_file['tmp_name']))
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -1321,9 +1321,9 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		$visit = CerberusApplication::getVisit();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$layer = DevblocksPlatform::importGPC($_REQUEST['layer'],'string');
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		$layer = DevblocksPlatform::importGPC($_REQUEST['layer'] ?? null,'string');
+		$context = DevblocksPlatform::importGPC($_REQUEST['context'] ?? null,'string','');
+		$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'] ?? null,'string','');
 		
 		if(null == ($context_ext = Extension_DevblocksContext::get($context)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -1401,14 +1401,14 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$context = DevblocksPlatform::importGPC($_POST['context'],'string','');
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
-		@$is_preview = DevblocksPlatform::importGPC($_POST['is_preview'],'integer',0);
+		$context = DevblocksPlatform::importGPC($_POST['context'] ?? null, 'string','');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string','');
+		$is_preview = DevblocksPlatform::importGPC($_POST['is_preview'] ?? null, 'integer',0);
 		
-		@$field = DevblocksPlatform::importGPC($_POST['field'],'array',array());
-		@$column = DevblocksPlatform::importGPC($_POST['column'],'array',array());
-		@$column_custom = DevblocksPlatform::importGPC($_POST['column_custom'],'array',array());
-		@$sync_dupes = DevblocksPlatform::importGPC($_POST['sync_dupes'],'array',array());
+		$field = DevblocksPlatform::importGPC($_POST['field'] ?? null, 'array', []);
+		$column = DevblocksPlatform::importGPC($_POST['column'] ?? null, 'array', []);
+		$column_custom = DevblocksPlatform::importGPC($_POST['column_custom'] ?? null, 'array', []);
+		$sync_dupes = DevblocksPlatform::importGPC($_POST['sync_dupes'] ?? null, 'array', []);
 		
 		$visit = CerberusApplication::getVisit();
 		

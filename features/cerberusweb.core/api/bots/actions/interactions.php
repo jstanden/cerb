@@ -56,19 +56,17 @@ class BotAction_ScheduleInteractionProactive extends Extension_DevblocksEventAct
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$date = DevblocksPlatform::services()->date();
 
-		$out = null;
-		
-		@$on = $params['on'];
-		@$behavior_id = $params['behavior_id'];
-		@$interaction = $tpl_builder->build($params['interaction'], $dict);
-		@$interaction_params_json = $tpl_builder->build($params['interaction_params_json'], $dict);
-		@$run = $tpl_builder->build($params['run'], $dict);
-		@$expires = $tpl_builder->build($params['expires'], $dict);
+		$on = $params['on'] ?? null;
+		$behavior_id = $params['behavior_id'] ?? null;
+		$interaction = $tpl_builder->build($params['interaction'] ?? '', $dict);
+		$interaction_params_json = $tpl_builder->build($params['interaction_params_json'] ?? '', $dict);
+		$run = $tpl_builder->build($params['run'] ?? '', $dict);
+		$expires = $tpl_builder->build($params['expires'] ?? '', $dict);
 		
 		$event = $trigger->getEvent();
 		
 		$on_result = DevblocksEventHelper::onContexts($on, $event->getValuesContexts($trigger), $dict);
-		@$on_objects = $on_result['objects'];
+		$on_objects = $on_result['objects'] ?? null;
 		
 		if(empty($on) || empty($on_objects))
 			return "[ERROR] At least one target worker is required.";
@@ -112,12 +110,12 @@ class BotAction_ScheduleInteractionProactive extends Extension_DevblocksEventAct
 	function run($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
-		@$on = $params['on'];
-		@$behavior_id = $params['behavior_id'];
-		@$interaction = $tpl_builder->build($params['interaction'], $dict);
-		@$interaction_params_json = $tpl_builder->build($params['interaction_params_json'], $dict);
-		@$run = $tpl_builder->build($params['run'], $dict);
-		@$expires = $tpl_builder->build($params['expires'], $dict);
+		$on = $params['on'] ?? null;
+		$behavior_id = $params['behavior_id'] ?? null;
+		$interaction = $tpl_builder->build($params['interaction'] ?? '', $dict);
+		$interaction_params_json = $tpl_builder->build($params['interaction_params_json'] ?? '', $dict);
+		$run = $tpl_builder->build($params['run'] ?? '', $dict);
+		$expires = $tpl_builder->build($params['expires'] ?? '', $dict);
 
 		$event = $trigger->getEvent();
 		
@@ -133,7 +131,7 @@ class BotAction_ScheduleInteractionProactive extends Extension_DevblocksEventAct
 		// On workers
 		
 		$on_result = DevblocksEventHelper::onContexts($on, $event->getValuesContexts($trigger), $dict);
-		@$on_objects = $on_result['objects'];
+		$on_objects = $on_result['objects'] ?? null;
 		
 		if(is_array($on_objects))
 		foreach($on_objects as $on_object) {

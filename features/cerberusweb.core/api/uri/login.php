@@ -120,14 +120,14 @@ class Page_Login extends CerberusPageExtension {
 	}
 	
 	function render() {
-		@$error = DevblocksPlatform::importGPC($_REQUEST['error'], 'string', '');
+		$error = DevblocksPlatform::importGPC($_REQUEST['error'] ?? null, 'string', '');
 		
 		$response = DevblocksPlatform::getHttpResponse();
 		$tpl = DevblocksPlatform::services()->template();
 		
 		$tpl->clearAllAssign();
 		
-		@$csrf_token = $_SESSION['csrf_token'];
+		$csrf_token = $_SESSION['csrf_token'] ?? null;
 		$tpl->assign('csrf_token', $csrf_token);
 		
 		if(!empty($error))
@@ -173,7 +173,7 @@ class Page_Login extends CerberusPageExtension {
 	}
 	
 	private function _routeLogin() {
-		@$url = DevblocksPlatform::importGPC($_REQUEST['url'], 'string', '');
+		$url = DevblocksPlatform::importGPC($_REQUEST['url'] ?? null, 'string', '');
 		
 		$login_state = CerbLoginWorkerAuthState::getInstance();
 		
@@ -209,8 +209,8 @@ class Page_Login extends CerberusPageExtension {
 	}
 	
 	private function _routeAuthenticate() {
-		@$email = DevblocksPlatform::importGPC($_POST['email'], 'string', '');
-		@$password = DevblocksPlatform::importGPC($_POST['password'], 'string', '');
+		$email = DevblocksPlatform::importGPC($_POST['email'] ?? null, 'string', '');
+		$password = DevblocksPlatform::importGPC($_POST['password'] ?? null, 'string', '');
 		
 		$login_state = CerbLoginWorkerAuthState::getInstance()
 			->setEmail($email)
@@ -361,7 +361,7 @@ class Page_Login extends CerberusPageExtension {
 			DevblocksPlatform::redirect(new DevblocksHttpResponse(['login']), 0);
 		
 		if(array_key_exists('accept', $_REQUEST)) {
-			@$accept = DevblocksPlatform::importGPC($_REQUEST['accept'], 'integer', 0);
+			$accept = DevblocksPlatform::importGPC($_REQUEST['accept'] ?? null, 'integer', 0);
 			
 			$login_state
 				->setWasConsentAsked(true)
@@ -405,7 +405,7 @@ class Page_Login extends CerberusPageExtension {
 	}
 	
 	private function _routeMultiFactorAuth() {
-		@$action = DevblocksPlatform::importGPC($_REQUEST['action'], 'string', null);
+		$action = DevblocksPlatform::importGPC($_REQUEST['action'] ?? null, 'string', null);
 		
 		$login_state = CerbLoginWorkerAuthState::getInstance();
 		
@@ -431,7 +431,7 @@ class Page_Login extends CerberusPageExtension {
 					DevblocksPlatform::redirect(new DevblocksHttpRequest(['login','mfa'], $query));
 				}
 				
-				@$otp = DevblocksPlatform::importGPC($_REQUEST['otp'], 'string', null);
+				$otp = DevblocksPlatform::importGPC($_REQUEST['otp'] ?? null, 'string', null);
 				$otp_seed = $login_state->getParam('mfa.totp.seed');
 				
 				// If verified
@@ -447,8 +447,8 @@ class Page_Login extends CerberusPageExtension {
 				break;
 				
 			default:
-				@$otp = DevblocksPlatform::importGPC($_REQUEST['otp'], 'string', null);
-				@$remember_device = DevblocksPlatform::importGPC($_REQUEST['remember_device'], 'integer', 0);
+				$otp = DevblocksPlatform::importGPC($_REQUEST['otp'] ?? null, 'string', null);
+				$remember_device = DevblocksPlatform::importGPC($_REQUEST['remember_device'] ?? null, 'integer', 0);
 				
 				if($otp) {
 					// If verified
@@ -493,8 +493,8 @@ class Page_Login extends CerberusPageExtension {
 					if($setting_can_remember && array_key_exists('mfa:'.$worker->id, $_COOKIE)) {
 						$encrypt = DevblocksPlatform::services()->encryption();
 						if(false != ($remember_params = @unpack('Nworker_id/Ncreated_at', $encrypt->decrypt($_COOKIE['mfa:' . $worker->id])))) {
-							@$remember_worker_id = $remember_params['worker_id'];
-							@$remember_created_at = $remember_params['created_at'];
+							$remember_worker_id = $remember_params['worker_id'] ?? null;
+							$remember_created_at = $remember_params['created_at'] ?? null;
 							$remember_expires_at = $remember_created_at + (86400 * $setting_remember_days);
 							
 							if(
@@ -541,7 +541,7 @@ class Page_Login extends CerberusPageExtension {
 		
 		switch($uri) {
 			default:
-				@$email = DevblocksPlatform::importGPC($_REQUEST['email'], 'string', '');
+				$email = DevblocksPlatform::importGPC($_REQUEST['email'] ?? null, 'string', '');
 				
 				$login_state
 					->setEmail('')
@@ -617,7 +617,7 @@ class Page_Login extends CerberusPageExtension {
 				break;
 				
 			case 'code':
-				@$code = DevblocksPlatform::importGPC($_REQUEST['code'], 'string', '');
+				$code = DevblocksPlatform::importGPC($_REQUEST['code'] ?? null, 'string', '');
 				
 				$login_state
 					->unsetParam('recover.code.given')
@@ -687,7 +687,7 @@ class Page_Login extends CerberusPageExtension {
 				
 				// MFA?
 				if(null !== ($mfa_totp_seed = DAO_WorkerPref::get($unauthenticated_worker->id, 'mfa.totp.seed', null))) {
-					@$otp = DevblocksPlatform::importGPC($_REQUEST['otp'], 'string', '');
+					$otp = DevblocksPlatform::importGPC($_REQUEST['otp'] ?? null, 'string', '');
 					
 					if(!$otp) {
 						$tpl->display('devblocks:cerberusweb.core::login/recover/recover_verify_otp.tpl');
@@ -710,7 +710,7 @@ class Page_Login extends CerberusPageExtension {
 				// Secret questions?
 				} else {
 					@$secret_questions = @json_decode(DAO_WorkerPref::get($unauthenticated_worker->id, 'login.recover.secret_questions', '[]'), true);
-					@$secret_answers = DevblocksPlatform::importGPC($_REQUEST['secrets'], 'array', []);
+					$secret_answers = DevblocksPlatform::importGPC($_REQUEST['secrets'] ?? null, 'array', []);
 					
 					// No MFA and no secret questions
 					if(0 === count(array_filter($secret_questions, function($arr) {
@@ -776,13 +776,13 @@ class Page_Login extends CerberusPageExtension {
 					DevblocksPlatform::redirect(new DevblocksHttpRequest(['login','recover']), 0);
 				}
 				
-				@$password = DevblocksPlatform::importGPC($_POST['password'], 'string', '');
+				$password = DevblocksPlatform::importGPC($_POST['password'] ?? null, 'string', '');
 				
 				if(!$password) {
 					$tpl->display('devblocks:cerberusweb.core::login/recover/recover_reset.tpl');
 					
 				} else {
-					@$password_verify = DevblocksPlatform::importGPC($_POST['password_verify'], 'string', '');
+					$password_verify = DevblocksPlatform::importGPC($_POST['password_verify'] ?? null, 'string', '');
 					
 					$validation = DevblocksPlatform::services()->validation();
 					
@@ -990,7 +990,7 @@ class Page_Login extends CerberusPageExtension {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError('', 403);
 		
-		@$scope = DevblocksPlatform::importGPC($_POST['scope'], 'string', '');
+		$scope = DevblocksPlatform::importGPC($_POST['scope'] ?? null, 'string', '');
 		
 		/*
 		 * Log activity (worker.logged_out)

@@ -45,8 +45,8 @@ class PageSection_ProfilesAutomationEvent extends Extension_PageSection {
 	private function _profileAction_tester() {
 		$event_handler = DevblocksPlatform::services()->ui()->eventHandler();
 		
-		@$automations_kata = DevblocksPlatform::importGPC($_POST['automations_kata'], 'string');
-		@$placeholders_kata = DevblocksPlatform::importGPC($_POST['placeholders_kata'], 'string');
+		$automations_kata = DevblocksPlatform::importGPC($_POST['automations_kata'] ?? null, 'string');
+		$placeholders_kata = DevblocksPlatform::importGPC($_POST['placeholders_kata'] ?? null, 'string');
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
@@ -82,10 +82,10 @@ class PageSection_ProfilesAutomationEvent extends Extension_PageSection {
 	}
 	
 	private function _profileAction_savePeekJson() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
 		
-		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
+		$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -100,7 +100,7 @@ class PageSection_ProfilesAutomationEvent extends Extension_PageSection {
 				
 			} else {
 				$name = DevblocksPlatform::importGPC($_POST['name'] ?? 'Automation Event', 'string');
-				@$automations_kata = DevblocksPlatform::importGPC($_POST['automations_kata'], 'string', '');
+				$automations_kata = DevblocksPlatform::importGPC($_POST['automations_kata'] ?? null, 'string', '');
 				
 				$error = null;
 				
@@ -125,7 +125,7 @@ class PageSection_ProfilesAutomationEvent extends Extension_PageSection {
 				
 				if($id) {
 					// Custom field saves
-					@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+					$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 					if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_AUTOMATION_EVENT, $id, $field_ids, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 				}
@@ -159,7 +159,7 @@ class PageSection_ProfilesAutomationEvent extends Extension_PageSection {
 	}
 	
 	private function _profileAction_viewExplore() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
@@ -175,7 +175,7 @@ class PageSection_ProfilesAutomationEvent extends Extension_PageSection {
 		$view->setAutoPersist(false);
 		
 		// Page start
-		@$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'],'integer',0);
+		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'integer',0);
 		if(empty($explore_from)) {
 			$orig_pos = 1+($view->renderPage * $view->renderLimit);
 		} else {

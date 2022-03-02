@@ -31,8 +31,8 @@ class ChRest_Packages extends Extension_RestController { //implements IExtension
 		if(!$worker->is_superuser)
 			$this->error(self::ERRNO_ACL);
 		
-		@$json_string = DevblocksPlatform::importGPC($_POST['package_json'],'string','');
-		@$prompts = DevblocksPlatform::importGPC($_POST['prompts'],'array',[]);
+		$json_string = DevblocksPlatform::importGPC($_POST['package_json'] ?? null, 'string','');
+		$prompts = DevblocksPlatform::importGPC($_POST['prompts'] ?? null, 'array',[]);
 		
 		$records_created = [];
 		

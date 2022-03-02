@@ -73,7 +73,7 @@ class PageSection_SetupMailOutgoing extends Extension_PageSection {
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		try {
-			@$mail_default_from_id = DevblocksPlatform::importGPC($_POST['mail_default_from_id'],'integer',0);
+			$mail_default_from_id = DevblocksPlatform::importGPC($_POST['mail_default_from_id'] ?? null,'integer',0);
 			
 			if(!$mail_default_from_id)
 				throw new Exception_DevblocksAjaxValidationError("A default sender address is required.");
@@ -174,7 +174,7 @@ class PageSection_SetupMailOutgoing extends Extension_PageSection {
 		try {
 			$settings = DevblocksPlatform::services()->pluginSettings();
 			
-			@$templates = DevblocksPlatform::importGPC($_POST['templates'],'array',[]);
+			$templates = DevblocksPlatform::importGPC($_POST['templates'] ?? null,'array',[]);
 			
 			$settings->set('cerberusweb.core',CerberusSettings::MAIL_AUTOMATED_TEMPLATES, $templates, true);
 			

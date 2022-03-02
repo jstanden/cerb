@@ -175,7 +175,7 @@ class View_MailParseFail extends C4_AbstractView implements IAbstractView_QuickS
 							$objects = array_filter($objects, function($object) use ($param) {
 								$not = ($param->operator == DevblocksSearchCriteria::OPER_NOT_BETWEEN) ? true : false;
 								
-								@list($from, $to) = $param->value;
+								list($from, $to) = array_pad($param->value, 2, null);
 								
 								if(false == (@$from = strtotime($from)))
 									$from = 0;
@@ -336,7 +336,7 @@ class View_MailParseFail extends C4_AbstractView implements IAbstractView_QuickS
 				break;
 				
 			case SearchFields_MailParseFail::SIZE:
-				@$bool = DevblocksPlatform::importGPC($_POST['value'],'integer',0);
+				$bool = DevblocksPlatform::importGPC($_POST['value'] ?? null, 'integer',0);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 			
@@ -346,7 +346,7 @@ class View_MailParseFail extends C4_AbstractView implements IAbstractView_QuickS
 				break;
 				
 			case 'placeholder_fulltext':
-				@$scope = DevblocksPlatform::importGPC($_POST['scope'],'string','expert');
+				$scope = DevblocksPlatform::importGPC($_POST['scope'] ?? null, 'string','expert');
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
 		}

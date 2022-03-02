@@ -483,10 +483,10 @@ class DAO_Comment extends Cerb_ORMHelper {
 	}
 	
 	public static function handleFormPost($context, $context_id) {
-		@$comment = DevblocksPlatform::importGPC(@$_POST['comment'],'string','');
-		@$comment_enabled = DevblocksPlatform::importGPC(@$_POST['comment_enabled'],'bit',0);
-		@$comment_is_markdown = DevblocksPlatform::importGPC(@$_POST['comment_is_markdown'],'bit',0);
-		@$comment_file_ids = DevblocksPlatform::importGPC(@$_POST['comment_file_ids'],'array',[]);
+		$comment = DevblocksPlatform::importGPC($_POST['comment'] ?? null,'string','');
+		$comment_enabled = DevblocksPlatform::importGPC($_POST['comment_enabled'] ?? null,'bit',0);
+		$comment_is_markdown = DevblocksPlatform::importGPC($_POST['comment_is_markdown'] ?? null,'bit',0);
+		$comment_file_ids = DevblocksPlatform::importGPC($_POST['comment_file_ids'] ?? null,'array',[]);
 		
 		if(!$comment_enabled)
 			return null;
@@ -1283,22 +1283,22 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 				break;
 				
 			case SearchFields_Comment::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_POST['context_link'],'array',array());
+				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array', []);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
 			case SearchFields_Comment::VIRTUAL_HAS_FIELDSET:
-				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',array());
+				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array', []);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
 			case SearchFields_Comment::VIRTUAL_OWNER:
-				@$options = DevblocksPlatform::importGPC($_POST['owner_context'],'array',array());
+				$options = DevblocksPlatform::importGPC($_POST['owner_context'] ?? null, 'array', []);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
 			case SearchFields_Comment::VIRTUAL_TARGET:
-				@$options = DevblocksPlatform::importGPC($_POST['target_context'],'array',array());
+				$options = DevblocksPlatform::importGPC($_POST['target_context'] ?? null, 'array', []);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
@@ -1672,7 +1672,7 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 				$tokens = explode(' ', trim($edit));
 				
 				foreach($tokens as $token) {
-					@list($k,$v) = explode(':', $token, 2);
+					list($k, $v) = array_pad(explode(':', $token, 2), 2, null);
 					
 					if($v)
 					switch($k) {

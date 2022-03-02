@@ -9,7 +9,7 @@
 	</div>
 {else}
 
-{if 'menu' == $page->extension_params.tab_style}
+{if array_key_exists('tab_style', $page->extension_params) && 'menu' == $page->extension_params.tab_style}
 <h2 class="cerb-page-tab--title" style="display:inline-block;color:black;margin:-5px 0 0 0;padding:0;"><a href="javascript:;" style="text-decoration:none;"></a> <span class="glyphicons glyphicons-chevron-down" style="font-size:12px;vertical-align:middle;"></span></h2>
 
 <ul class="cerb-tab-switcher-menu cerb-popupmenu cerb-float">
@@ -22,7 +22,7 @@
 {/if}
 
 <div id="pageTabs{$page->id}">
-	{if 'menu' == $page->extension_params.tab_style}
+	{if array_key_exists('tab_style', $page->extension_params) && 'menu' == $page->extension_params.tab_style}
 	<ul style="display:none;">
 	{else}
 	<ul>
@@ -51,8 +51,8 @@ $(function() {
 	document.title = "{$page->name|escape:'javascript' nofilter} - {$settings->get('cerberusweb.core','helpdesk_title')|escape:'javascript' nofilter}";
 	
 	var $tabs = $("#pageTabs{$page->id}");
-	
-	{if 'menu' == $page->extension_params.tab_style}
+
+	{if array_key_exists('tab_style', $page->extension_params) && 'menu' == $page->extension_params.tab_style}
 	var $tab_switcher = $tabs.prevAll('h2.cerb-page-tab--title');
 	var $tab_switcher_menu = $tab_switcher.next('.cerb-tab-switcher-menu').menu({
 		select: function(event, ui) {
@@ -73,7 +73,7 @@ $(function() {
 	
 	var tabActiveIndex = 0;
 	
-	{if $tab_selected && in_array($tab_selected, $tabs)}
+	{if isset($tab_selected) && in_array($tab_selected, $tabs)}
 	{$tab_idx = array_search($tab_selected, $tabs)}
 	tabActiveIndex = {$tab_idx};
 	Devblocks.setjQueryUiTabSelected('pageTabs{$page->id}', {$tab_idx});
@@ -118,7 +118,7 @@ $(function() {
 		}
 		
 		// Update the label
-		{if 'menu' == $page->extension_params.tab_style}
+		{if array_key_exists('tab_style', $page->extension_params) && 'menu' == $page->extension_params.tab_style}
 		$tab_switcher.find('> a').text($.trim($new_tab.text()));
 		{/if}
 	};

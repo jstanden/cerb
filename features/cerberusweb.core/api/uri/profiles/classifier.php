@@ -47,9 +47,9 @@ class PageSection_ProfilesClassifier extends Extension_PageSection {
 	}
 	
 	private function _profileAction_savePeekJson() {
-		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
-		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
+		$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -81,9 +81,9 @@ class PageSection_ProfilesClassifier extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
-				@list($owner_context, $owner_context_id) = explode(':', DevblocksPlatform::importGPC($_POST['owner'], 'string', ''));
-				@$do_retrain = DevblocksPlatform::importGPC($_POST['do_retrain'], 'integer', 0);
+				$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');
+				list($owner_context, $owner_context_id) = array_pad(explode(':', DevblocksPlatform::importGPC($_POST['owner'], 'string', '')), 2, null);
+				$do_retrain = DevblocksPlatform::importGPC($_POST['do_retrain'] ?? null, 'integer', 0);
 				
 				if(empty($owner_context) || false == Extension_DevblocksContext::get($owner_context))
 					throw new Exception_DevblocksAjaxValidationError("The 'Owner' field is required.");
@@ -131,7 +131,7 @@ class PageSection_ProfilesClassifier extends Extension_PageSection {
 				}
 				
 				// Custom field saves
-				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+				$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 				if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_CLASSIFIER, $id, $field_ids, $error))
 					throw new Exception_DevblocksAjaxValidationError($error);
 				
@@ -172,7 +172,7 @@ class PageSection_ProfilesClassifier extends Extension_PageSection {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::services()->template();
 		
-		@$classifier_id = DevblocksPlatform::importGPC($_REQUEST['classifier_id'], 'integer', 0);
+		$classifier_id = DevblocksPlatform::importGPC($_REQUEST['classifier_id'] ?? null, 'integer', 0);
 		
 		if(!$classifier_id || false == ($classifier = DAO_Classifier::get($classifier_id))) {
 			$tpl->assign('error_message', DevblocksPlatform::translate('error.core.record.not_found'));
@@ -198,8 +198,8 @@ class PageSection_ProfilesClassifier extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$classifier_id = DevblocksPlatform::importGPC($_POST['classifier_id'], 'integer', 0);
-		@$examples_csv = DevblocksPlatform::importGPC($_POST['examples_csv'], 'string', null);
+		$classifier_id = DevblocksPlatform::importGPC($_POST['classifier_id'] ?? null, 'integer', 0);
+		$examples_csv = DevblocksPlatform::importGPC($_POST['examples_csv'] ?? null, 'string', null);
 		
 		header('Content-Type: application/json');
 		
@@ -292,7 +292,7 @@ class PageSection_ProfilesClassifier extends Extension_PageSection {
 	}
 	
 	private function _profileAction_viewExplore() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
@@ -308,7 +308,7 @@ class PageSection_ProfilesClassifier extends Extension_PageSection {
 		$view->setAutoPersist(false);
 
 		// Page start
-		@$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'],'integer',0);
+		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'integer',0);
 		if(empty($explore_from)) {
 			$orig_pos = 1+($view->renderPage * $view->renderLimit);
 		} else {
@@ -374,8 +374,8 @@ class PageSection_ProfilesClassifier extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$classifier_id = DevblocksPlatform::importGPC($_POST['classifier_id'], 'integer', 0);
-		@$text = DevblocksPlatform::importGPC($_POST['text'], 'string', '');
+		$classifier_id = DevblocksPlatform::importGPC($_POST['classifier_id'] ?? null, 'integer', 0);
+		$text = DevblocksPlatform::importGPC($_POST['text'] ?? null, 'string', '');
 		
 		$environment = [
 			'me' => [

@@ -36,7 +36,7 @@ class ChRest_Data extends Extension_RestController { //implements IExtensionRest
 		$worker = CerberusApplication::getActiveWorker();
 		$data = DevblocksPlatform::services()->data();
 		
-		@$query = DevblocksPlatform::importGPC($_REQUEST['q'],'string','');
+		$query = DevblocksPlatform::importGPC($_REQUEST['q'] ?? null, 'string','');
 		$error = null;
 		
 		if(empty($query))

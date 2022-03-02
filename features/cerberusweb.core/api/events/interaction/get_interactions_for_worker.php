@@ -192,11 +192,11 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 			);
 		
 		// Interaction
-		@$point = $event_model->params['point'];
+		$point = $event_model->params['point'] ?? null;
 		$labels['point'] = 'Interaction Point';
 		$values['point'] = $point;
 		
-		@$point_params = $event_model->params['point_params'];
+		$point_params = $event_model->params['point_params'] ?? null;
 		$labels['point_params'] = 'Interaction Point Parameters';
 		$values['point_params'] = ($point_params instanceof DevblocksDictionaryDelegate) ? $point_params : new DevblocksDictionaryDelegate([]);
 		
@@ -211,7 +211,7 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 		 * Worker
 		 */
 		
-		@$worker_id = $event_model->params['worker_id'];
+		$worker_id = $event_model->params['worker_id'] ?? null;
 		
 		$merge_labels = [];
 		$merge_values = [];
@@ -385,13 +385,13 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 				if(false == ($behavior = DAO_TriggerEvent::get($behavior_id)))
 					break;
 				
-				@$name = $tpl_builder->build($params['name'], $dict);
-				@$interaction = $tpl_builder->build($params['interaction'], $dict);
+				$name = $tpl_builder->build($params['name'] ?? '', $dict);
+				$interaction = $tpl_builder->build($params['interaction'] ?? '', $dict);
 				
 				if(empty($name) || empty($interaction))
 					break;
 				
-				@$interaction_params_json = $tpl_builder->build($params['interaction_params_json'], $dict);
+				$interaction_params_json = $tpl_builder->build($params['interaction_params_json'] ?? '', $dict);
 				
 				if(false == ($interaction_params = json_decode($interaction_params_json, true)))
 					$interaction_params = [];
@@ -428,13 +428,13 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 				if(false == ($behavior = DAO_TriggerEvent::get($behavior_id)))
 					break;
 				
-				@$name = $tpl_builder->build($params['name'], $dict);
-				@$interaction = $tpl_builder->build($params['interaction'], $dict);
+				$name = $tpl_builder->build($params['name'] ?? '', $dict);
+				$interaction = $tpl_builder->build($params['interaction'] ?? '', $dict);
 				
 				if(empty($name) || empty($interaction))
 					break;
 				
-				@$interaction_params_json = $tpl_builder->build($params['interaction_params_json'], $dict);
+				$interaction_params_json = $tpl_builder->build($params['interaction_params_json'] ?? '', $dict);
 				if(false == ($interaction_params = json_decode($interaction_params_json, true)))
 					$interaction_params = [];
 				

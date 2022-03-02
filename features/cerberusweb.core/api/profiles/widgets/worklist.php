@@ -16,9 +16,9 @@ class ProfileWidget_Worklist extends Extension_ProfileWidget {
 	}
 	
 	function render(Model_ProfileWidget $model, $context, $context_id) {
-		@$view_context = $model->extension_params['context'];
-		@$query = $model->extension_params['query'];
-		@$query_required = $model->extension_params['query_required'];
+		$view_context = $model->extension_params['context'] ?? null;
+		$query = $model->extension_params['query'] ?? null;
+		$query_required = $model->extension_params['query_required'] ?? null;
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -84,8 +84,8 @@ class ProfileWidget_Worklist extends Extension_ProfileWidget {
 		$context_mfts = Extension_DevblocksContext::getAll(false, ['workspace']);
 		$tpl->assign('context_mfts', $context_mfts);
 		
-		@$context = $model->extension_params['context'];
-		@$columns = @$model->extension_params['columns'] ?: [];
+		$context = $model->extension_params['context'] ?? null;
+		$columns = $model->extension_params['columns'] ?? [];
 		
 		if($context)
 			$columns = $this->_getContextColumns($context, $columns);

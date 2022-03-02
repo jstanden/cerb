@@ -43,10 +43,10 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 	}
 	
 	private function _profileAction_savePeekJson() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
 		
-		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
+		$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -78,9 +78,9 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
-				@$owner = DevblocksPlatform::importGPC($_POST['owner'], 'string', null);
-				@$uri = DevblocksPlatform::importGPC($_POST['uri'], 'string', '');
+				$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');
+				$owner = DevblocksPlatform::importGPC($_POST['owner'] ?? null, 'string', null);
+				$uri = DevblocksPlatform::importGPC($_POST['uri'] ?? null, 'string', '');
 				
 				$account = new Model_ConnectedAccount();
 				$account->id = 0;
@@ -103,8 +103,7 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 					
 					// Owner (only admins)
 					if(!empty($owner) && $active_worker->is_superuser) {
-						$owner_ctx = '';
-						@list($owner_ctx, $owner_ctx_id) = explode(':', $owner, 2);
+						list($owner_ctx, $owner_ctx_id) = array_pad(explode(':', $owner, 2), 2, null);
 						
 						// Make sure we're given a valid ctx
 						
@@ -128,7 +127,7 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 				
 				// Create
 				} else {
-					@$service_id = DevblocksPlatform::importGPC($_POST['service_id'], 'integer', 0);
+					$service_id = DevblocksPlatform::importGPC($_POST['service_id'] ?? null, 'integer', 0);
 					
 					$account->service_id = $service_id;
 					
@@ -144,8 +143,7 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 					
 					// Owner (only admins)
 					if(!empty($owner) && $active_worker->is_superuser) {
-						$owner_ctx = '';
-						@list($owner_ctx, $owner_ctx_id) = explode(':', $owner, 2);
+						list($owner_ctx, $owner_ctx_id) = array_pad(explode(':', $owner, 2), 2, null);
 						
 						// Make sure we're given a valid ctx
 						
@@ -206,7 +204,7 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 					DAO_ConnectedAccount::setAndEncryptParams($id, $params);
 					
 					// Custom field saves
-					@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+					$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 					if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_CONNECTED_ACCOUNT, $id, $field_ids, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
@@ -238,7 +236,7 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 	}
 	
 	private function _profileAction_viewExplore() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
@@ -254,7 +252,7 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 		$view->setAutoPersist(false);
 
 		// Page start
-		@$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'],'integer',0);
+		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'integer',0);
 		if(empty($explore_from)) {
 			$orig_pos = 1+($view->renderPage * $view->renderLimit);
 		} else {
@@ -316,8 +314,8 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 		$validation = DevblocksPlatform::services()->validation();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$account_id = DevblocksPlatform::importGPC(@$_REQUEST['id'], 'integer', 0);
-		@$service_id = DevblocksPlatform::importGPC(@$_REQUEST['service_id'], 'integer', 0);
+		$account_id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null, 'integer', 0);
+		$service_id = DevblocksPlatform::importGPC($_REQUEST['service_id'] ?? null, 'integer', 0);
 		
 		if(false == ($service = DAO_ConnectedService::get($service_id)))
 			DevblocksPlatform::dieWithHttpError("Invalid service provider.");

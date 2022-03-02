@@ -43,10 +43,10 @@ class PageSection_ProfilesGpgPrivateKey extends Extension_PageSection {
 	}
 	
 	private function _profileAction_savePeekJson() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
 		
-		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
+		$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'string', '');
 		
 		$gpg = DevblocksPlatform::services()->gpg();
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -83,9 +83,9 @@ class PageSection_ProfilesGpgPrivateKey extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
-				@$key_text = DevblocksPlatform::importGPC($_POST['key_text'], 'string', '');
-				@$passphrase = DevblocksPlatform::importGPC($_POST['passphrase'], 'string', '');
+				$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');
+				$key_text = DevblocksPlatform::importGPC($_POST['key_text'] ?? null, 'string', '');
+				$passphrase = DevblocksPlatform::importGPC($_POST['passphrase'] ?? null, 'string', '');
 				
 				$keyinfo = [];
 				$expires_at = 0;
@@ -111,7 +111,7 @@ class PageSection_ProfilesGpgPrivateKey extends Extension_PageSection {
 						throw new Exception_DevblocksAjaxValidationError("This private key is expired, revoked, or disabled.", "key_text");
 					
 					if(!$name)
-						@$name = $keyinfo['uids'][0]['uid'] ?? $keyinfo['uids'][0]['email'];
+						$name = $keyinfo['uids'][0]['uid'] ?? $keyinfo['uids'][0]['email'] ?? null;
 					
 					$expires_at = $key['expires'];
 					
@@ -186,7 +186,7 @@ class PageSection_ProfilesGpgPrivateKey extends Extension_PageSection {
 				
 				if($id) {
 					// Custom field saves
-					@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+					$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 					if(!DAO_CustomFieldValue::handleFormPost(Context_GpgPrivateKey::ID, $id, $field_ids, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 				}
@@ -232,10 +232,10 @@ class PageSection_ProfilesGpgPrivateKey extends Extension_PageSection {
 			
 			header('Content-Type: application/json; charset=utf-8');
 			
-			@$key_length = DevblocksPlatform::importGPC($_POST['key_length'], 'int', 2048);
-			@$uid_names = DevblocksPlatform::importGPC($_POST['uid_names'], 'array', []);
-			@$uid_emails = DevblocksPlatform::importGPC($_POST['uid_emails'], 'array', []);
-			@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
+			$key_length = DevblocksPlatform::importGPC($_POST['key_length'] ?? null, 'int', 2048);
+			$uid_names = DevblocksPlatform::importGPC($_POST['uid_names'] ?? null, 'array', []);
+			$uid_emails = DevblocksPlatform::importGPC($_POST['uid_emails'] ?? null, 'array', []);
+			$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
 			
 			// [TODO] Validate key length
 			
@@ -340,7 +340,7 @@ class PageSection_ProfilesGpgPrivateKey extends Extension_PageSection {
 	}
 	
 	private function _profileAction_viewExplore() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
@@ -356,7 +356,7 @@ class PageSection_ProfilesGpgPrivateKey extends Extension_PageSection {
 		$view->setAutoPersist(false);
 		
 		// Page start
-		@$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'],'integer',0);
+		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'integer',0);
 		if(empty($explore_from)) {
 			$orig_pos = 1+($view->renderPage * $view->renderLimit);
 		} else {

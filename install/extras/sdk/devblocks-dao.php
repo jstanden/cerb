@@ -791,22 +791,22 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 				break;
 				
 			case 'placeholder_bool':
-				@$bool = DevblocksPlatform::importGPC($_POST['bool'],'integer',1);
+				$bool = DevblocksPlatform::importGPC($_POST['bool'] ?? null, 'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 				
 			case SearchFields_<?php echo $class_name; ?>::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_POST['context_link'],'array',[]);
+				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
 			case SearchFields_<?php echo $class_name; ?>::VIRTUAL_HAS_FIELDSET:
-				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',[]);
+				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
 			case SearchFields_<?php echo $class_name; ?>::VIRTUAL_WATCHERS:
-				@$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'],'array',[]);
+				$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
 				break;
 				
@@ -1322,7 +1322,7 @@ $(function() {
 
 {include file="devblocks:cerberusweb.core::internal/views/view_marquee.tpl" view=$view}
 
-<table cellpadding="0" cellspacing="0" border="0" class="worklist" width="100%" {if $view->options.header_color}style="background-color:{$view->options.header_color};"{/if}>
+<table cellpadding="0" cellspacing="0" border="0" class="worklist" width="100%" {if array_key_exists('header_color', $view->options) && $view->options.header_color}style="background-color:{$view->options.header_color};"{/if}>
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
 		<td nowrap="nowrap" align="right" class="title-toolbar">
@@ -1356,7 +1356,7 @@ $(function() {
 	{* Column Headers *}
 	<thead>
 	<tr>
-		{if !$view->options.disable_watchers}
+		{if !array_key_exists('disable_watchers', $view->options) || !$view->options.disable_watchers}
 		<th class="no-sort" style="text-align:center;width:40px;padding-left:0;padding-right:0;" title="{'common.watchers'|devblocks_translate|capitalize}">
 			<span class="glyphicons glyphicons-eye-open"></span>
 		</th>
@@ -1364,8 +1364,8 @@ $(function() {
 
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
-			<th class="{if $view->options.disable_sorting}no-sort{/if}">
-			{if !$view->options.disable_sorting && !empty($view_fields.$header->db_column)}
+			<th class="{if array_key_exists('disable_sorting', $view->options) && $view->options.disable_sorting}no-sort{/if}">
+			{if (!array_key_exists('disable_sorting', $view->options) || !$view->options.disable_sorting) && !empty($view_fields.$header->db_column)}
 				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=invoke&module=worklists&action=sort&id={$view->id}&sortBy={$header}');">{$view_fields.$header->db_label|capitalize}</a>
 			{else}
 				<a href="javascript:;" style="text-decoration:none;">{$view_fields.$header->db_label|capitalize}</a>
@@ -1373,7 +1373,7 @@ $(function() {
 			
 			{* add arrow if sorting by this column, finish table header tag *}
 			{if $header==$view->renderSortBy}
-				<span class="glyphicons {if $view->renderSortAsc}glyphicons-sort-by-attributes{else}glyphicons-sort-by-attributes-alt{/if}" style="font-size:14px;{if $view->options.disable_sorting}color:rgb(80,80,80);{else}color:rgb(39,123,213);{/if}"></span>
+				<span class="glyphicons {if $view->renderSortAsc}glyphicons-sort-by-attributes{else}glyphicons-sort-by-attributes-alt{/if}" style="font-size:14px;{if array_key_exists('disable_sorting', $view->options) && $view->options.disable_sorting}color:rgb(80,80,80);{else}color:rgb(39,123,213);{/if}"></span>
 			{/if}
 			</th>
 		{/foreach}
@@ -1395,7 +1395,7 @@ $(function() {
 				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$view_context context_id=$result.<?php echo $field_prefix; ?>_id}
 			</td>
 		{foreach from=$view->view_columns item=column name=columns}
-			{if substr($column,0,3)=="cf_"}
+			{if DevblocksPlatform::strStartsWith($column, "cf_")}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column == "<?php echo $field_prefix; ?>_name"}
 			<td>
@@ -1551,10 +1551,10 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 	}
 	
 	private function _profileAction_savePeekJson() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
 		
-		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
+		$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
   
@@ -1586,7 +1586,7 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 				return;
 				
 			} else {
-				@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
+				$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');
 				
 				$error = null;
 				
@@ -1627,7 +1627,7 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 				
 				if($id) {
 					// Custom field saves
-					@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+					$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 					if(!DAO_CustomFieldValue::handleFormPost('<?php echo $ctx_ext_id; ?>', $id, $field_ids, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 				}
@@ -1661,7 +1661,7 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 	}
 	
 	private function _profileAction_viewExplore() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
@@ -1677,7 +1677,7 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 		$view->setAutoPersist(false);
 
 		// Page start
-		@$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'],'integer',0);
+		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'integer',0);
 		if(empty($explore_from)) {
 			$orig_pos = 1+($view->renderPage * $view->renderLimit);
 		} else {

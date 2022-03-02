@@ -300,8 +300,8 @@ class WgmJira_Cron extends CerberusCronPageExtension {
 	}
 
 	function _synchronize() {
-		@$max_projects = DevblocksPlatform::importGPC($_REQUEST['max_projects'],'integer', 20);
-		@$max_issues = DevblocksPlatform::importGPC($_REQUEST['max_issues'],'integer', 20);
+		$max_projects = DevblocksPlatform::importGPC($_REQUEST['max_projects'] ?? null,'integer', 20);
+		$max_issues = DevblocksPlatform::importGPC($_REQUEST['max_issues'] ?? null,'integer', 20);
 		
 		$jira_projects = DAO_JiraProject::getWhere(
 			sprintf("%s > 0",
@@ -413,7 +413,7 @@ class WgmJira_Cron extends CerberusCronPageExtension {
 
 	public function saveConfiguration() {
 		/*
-		@$clients_updated_from = DevblocksPlatform::importGPC($_POST['clients_updated_from'], 'string', '');
+		$clients_updated_from = DevblocksPlatform::importGPC($_POST['clients_updated_from'] ?? null, 'string', '');
 
 		// Save settings
 		$clients_timestamp = intval(@strtotime($clients_updated_from));

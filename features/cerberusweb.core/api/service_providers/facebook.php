@@ -39,7 +39,7 @@ class ServiceProvider_FacebookPages extends Extension_ConnectedServiceProvider {
 	}
 
 	public function saveAccountConfigForm(Model_ConnectedService $service, Model_ConnectedAccount $account, array &$params, &$error = null) {
-		@$edit_params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
+		$edit_params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
 		
 		$validation = DevblocksPlatform::services()->validation();
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -132,7 +132,7 @@ class ServiceProvider_FacebookPages extends Extension_ConnectedServiceProvider {
 	private function _connectedServiceAction_getPagesFromAccount() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$connected_account_id = DevblocksPlatform::importGPC($_POST['connected_account_id'], 'int', 0);
+		$connected_account_id = DevblocksPlatform::importGPC($_POST['connected_account_id'] ?? null, 'int', 0);
 		
 		$connected_account = null;
 		
@@ -153,7 +153,7 @@ class ServiceProvider_FacebookPages extends Extension_ConnectedServiceProvider {
 	function authenticateHttpRequest(Model_ConnectedAccount $account, Psr\Http\Message\RequestInterface &$request, array &$options=[]) : bool {
 		$account_params = $account->decryptParams();
 		
-		@$access_token = $account_params['page']['access_token'];
+		$access_token = $account_params['page']['access_token'] ?? null;
 		
 		if(!$access_token)
 			return false;

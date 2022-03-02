@@ -338,10 +338,10 @@ if(array_key_exists('extension_id', $columns)) {
 				$service_params_json = $db->GetOneMaster(sprintf("SELECT params_json FROM connected_service WHERE id = %d", $connected_service_id));
 				
 				if(false != ($service_params = json_decode($encrypt->decrypt($service_params_json), true))) {
-					@$service_params['context_search'] = $prefs['context_search'];
-					@$service_params['field_email'] = $prefs['field_email'];
-					@$service_params['field_firstname'] = $prefs['field_firstname'];
-					@$service_params['field_lastname'] = $prefs['field_lastname'];
+					$service_params['context_search'] = $prefs['context_search'] ?? null;
+					$service_params['field_email'] = $prefs['field_email'] ?? null;
+					$service_params['field_firstname'] = $prefs['field_firstname'] ?? null;
+					$service_params['field_lastname'] = $prefs['field_lastname'] ?? null;
 					
 					$sql = sprintf("UPDATE connected_service SET params_json = %s WHERE id = %d",
 						$db->qstr($encrypt->encrypt(json_encode($service_params))),
@@ -373,10 +373,10 @@ if(array_key_exists('extension_id', $columns)) {
 					$service_params_json = $db->GetOneMaster(sprintf("SELECT params_json FROM connected_service WHERE id = %d", $connected_service_id));
 					
 					if(false != ($service_params = json_decode($encrypt->decrypt($service_params_json), true))) {
-						@$service_params['context_search'] = $prefs['context_search'];
-						@$service_params['field_email'] = $prefs['field_email'];
-						@$service_params['field_firstname'] = $prefs['field_firstname'];
-						@$service_params['field_lastname'] = $prefs['field_lastname'];
+						$service_params['context_search'] = $prefs['context_search'] ?? null;
+						$service_params['field_email'] = $prefs['field_email'] ?? null;
+						$service_params['field_firstname'] = $prefs['field_firstname'] ?? null;
+						$service_params['field_lastname'] = $prefs['field_lastname'] ?? null;
 						
 						ksort($service_params);
 						

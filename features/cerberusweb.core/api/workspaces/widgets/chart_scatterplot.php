@@ -14,8 +14,8 @@ class WorkspaceWidget_ChartScatterplot extends Extension_WorkspaceWidget impleme
 		$data = DevblocksPlatform::services()->data();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$data_query = DevblocksPlatform::importGPC($widget->params['data_query'], 'string', null);
-		@$cache_secs = DevblocksPlatform::importGPC($widget->params['cache_secs'], 'integer', 0);
+		$data_query = DevblocksPlatform::importGPC($widget->params['data_query'] ?? null, 'string', null);
+		$cache_secs = DevblocksPlatform::importGPC($widget->params['cache_secs'] ?? null, 'integer', 0);
 		
 		$dict = DevblocksDictionaryDelegate::instance([
 			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
@@ -40,11 +40,11 @@ class WorkspaceWidget_ChartScatterplot extends Extension_WorkspaceWidget impleme
 	}
 	
 	function render(Model_WorkspaceWidget $widget) {
-		@$xaxis_format = DevblocksPlatform::importGPC($widget->params['xaxis_format'], 'string', '');
-		@$xaxis_label = DevblocksPlatform::importGPC($widget->params['xaxis_label'], 'string', '');
-		@$yaxis_format = DevblocksPlatform::importGPC($widget->params['yaxis_format'], 'string', '');
-		@$yaxis_label = DevblocksPlatform::importGPC($widget->params['yaxis_label'], 'string', '');
-		@$height = DevblocksPlatform::importGPC($widget->params['height'], 'integer', 0);
+		$xaxis_format = DevblocksPlatform::importGPC($widget->params['xaxis_format'] ?? null, 'string', '');
+		$xaxis_label = DevblocksPlatform::importGPC($widget->params['xaxis_label'] ?? null, 'string', '');
+		$yaxis_format = DevblocksPlatform::importGPC($widget->params['yaxis_format'] ?? null, 'string', '');
+		$yaxis_label = DevblocksPlatform::importGPC($widget->params['yaxis_label'] ?? null, 'string', '');
+		$height = DevblocksPlatform::importGPC($widget->params['height'] ?? null, 'integer', 0);
 		
 		$tpl = DevblocksPlatform::services()->template();
 		
@@ -115,7 +115,7 @@ class WorkspaceWidget_ChartScatterplot extends Extension_WorkspaceWidget impleme
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget, ?string &$error=null) : bool {
-		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
+		$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
 		
 		DAO_WorkspaceWidget::update($widget->id, array(
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),

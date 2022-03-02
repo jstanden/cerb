@@ -2,6 +2,10 @@
 {$uniqid = uniqid()}
 <div id="{$uniqid}" class="cerb-links-container">
 {$link_ctxs = Extension_DevblocksContext::getAll(false)}
+	
+{if !isset($links_label)}{$links_label = null}{/if}
+{if !isset($links_label_compact)}{$links_label_compact = null}{/if}
+{if !isset($peek)}{$peek = null}{/if}
 
 {* Loop through the link contexts *}
 {foreach from=$properties_links key=from_ctx_extid item=from_ctx_ids}
@@ -33,7 +37,7 @@
 				{* Loop through each possible context so they remain alphabetized *}
 				{$has_links = false}
 				{foreach from=$link_ctxs item=link_ctx key=link_ctx_extid name=links}
-				{if $link_counts.$link_ctx_extid}
+				{if array_key_exists($link_ctx_extid, $link_counts)}
 					{$link_ctx_aliases = Extension_DevblocksContext::getAliasesForContext($link_ctx)}
 					{$link_ctx_alias = $link_ctx_aliases.plural|default:$link_ctx->name}
 					<button type="button" data-context="{$link_ctx_extid}"><div class="badge-count">{$link_counts.$link_ctx_extid|number_format}</div> {$link_ctx_alias|capitalize}</button>

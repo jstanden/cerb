@@ -104,8 +104,8 @@ EOD;
 		if($key_meta['is_immutable'] ?? null)
 			continue;
 		
-		@$type = $key_meta['type'];
-		@$notes = $key_meta['notes'];
+		$type = $key_meta['type'] ?? null;
+		$notes = $key_meta['notes'] ?? null;
 		
 		if(empty($type))
 			continue;
@@ -567,7 +567,7 @@ EOD;
 		if(DevblocksPlatform::strStartsWith($k, 'links.'))
 			continue;
 		
-		@$param_key = $v['options']['param_key'];
+		$param_key = $v['options']['param_key'] ?? null;
 		
 		if($param_key && DevblocksPlatform::strStartsWith($param_key, 'cf_'))
 			continue;

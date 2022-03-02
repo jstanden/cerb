@@ -50,7 +50,7 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 			$display_options['expand_all'] = DevblocksPlatform::importGPC($_POST['expand_all'], 'bit', 0);
 		}
 		
-		$display_options['comments_mode'] = DevblocksPlatform::importVar(@$model->extension_params['comments_mode'], 'int', 0);
+		$display_options['comments_mode'] = DevblocksPlatform::importVar($model->extension_params['comments_mode'] ?? null, 'int', 0);
 		
 		// Assignments
 		

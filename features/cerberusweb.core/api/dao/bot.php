@@ -663,8 +663,8 @@ class Model_Bot {
 	}
 	
 	function canUseEvent($event_point) {
-		@$events_mode = $this->params['events']['mode'];
-		@$events_items = $this->params['events']['items'];
+		$events_mode = $this->params['events']['mode'] ?? null;
+		$events_items = $this->params['events']['items'] ?? null;
 		
 		switch($events_mode) {
 			case 'allow':
@@ -680,8 +680,8 @@ class Model_Bot {
 	}
 	
 	function filterEventsByAllowed($events) {
-		@$events_mode = $this->params['events']['mode'];
-		@$events_items = $this->params['events']['items'];
+		$events_mode = $this->params['events']['mode'] ?? null;
+		$events_items = $this->params['events']['items'] ?? null;
 		
 		switch($events_mode) {
 			case 'allow':
@@ -697,8 +697,8 @@ class Model_Bot {
 	}
 	
 	function filterActionManifestsByAllowed($manifests) {
-		@$actions_mode = $this->params['actions']['mode'];
-		@$actions_items = $this->params['actions']['items'];
+		$actions_mode = $this->params['actions']['mode'] ?? null;
+		$actions_items = $this->params['actions']['items'] ?? null;
 		
 		switch($actions_mode) {
 			case 'allow':
@@ -1072,27 +1072,27 @@ class View_Bot extends C4_AbstractView implements IAbstractView_Subtotals, IAbst
 				break;
 				
 			case SearchFields_Bot::IS_DISABLED:
-				@$bool = DevblocksPlatform::importGPC($_POST['bool'],'integer',1);
+				$bool = DevblocksPlatform::importGPC($_POST['bool'] ?? null, 'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 				
 			case SearchFields_Bot::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_POST['context_link'],'array',array());
+				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array', []);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
 			case SearchFields_Bot::VIRTUAL_HAS_FIELDSET:
-				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',array());
+				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array', []);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
 			case SearchFields_Bot::VIRTUAL_OWNER:
-				@$owner_contexts = DevblocksPlatform::importGPC($_POST['owner_context'],'array',array());
+				$owner_contexts = DevblocksPlatform::importGPC($_POST['owner_context'] ?? null, 'array', []);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$owner_contexts);
 				break;
 				
 			case SearchFields_Bot::VIRTUAL_WATCHERS:
-				@$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'],'array',array());
+				$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'] ?? null, 'array', []);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
 				break;
 				
@@ -1368,7 +1368,7 @@ class Context_Bot extends Extension_DevblocksContext implements IDevblocksContex
 			$token_values['owner_id'] = $model->owner_context_id;
 			
 			// Configuration JSON
-			$token_values['config'] = is_array(@$model->params['config']) ? $model->params['config'] : [];
+			$token_values['config'] = is_array($model->params['config'] ?? null) ? $model->params['config'] : [];
 		}
 		
 		return true;
@@ -1526,8 +1526,8 @@ class Context_Bot extends Extension_DevblocksContext implements IDevblocksContex
 				DevblocksPlatform::dieWithHttpError(null, 404);
 			
 		} else {
-			@$owner_context = DevblocksPlatform::importGPC($_REQUEST['owner_context'],'string','');
-			@$owner_context_id = DevblocksPlatform::importGPC($_REQUEST['owner_context_id'],'integer',0);
+			$owner_context = DevblocksPlatform::importGPC($_REQUEST['owner_context'] ?? null, 'string','');
+			$owner_context_id = DevblocksPlatform::importGPC($_REQUEST['owner_context_id'] ?? null, 'integer',0);
 			
 			$model = new Model_Bot();
 			$model->owner_context = $owner_context;

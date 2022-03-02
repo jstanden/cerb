@@ -29,7 +29,7 @@ class Page_Search extends CerberusPageExtension {
 		$response = DevblocksPlatform::getHttpResponse();
 		
 		// Allow quick search queries to be sent in the URL
-		@$query = DevblocksPlatform::importGPC($_REQUEST['q'], 'string', '');
+		$query = DevblocksPlatform::importGPC($_REQUEST['q'] ?? null, 'string', '');
 		
 		$stack = $response->path;
 		@array_shift($stack); // search
@@ -134,8 +134,8 @@ class Page_Search extends CerberusPageExtension {
 	}
 	
 	private function _pageAction_ajaxQuickSearch() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
-		@$query = DevblocksPlatform::importGPC($_POST['query'], 'string', '');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
+		$query = DevblocksPlatform::importGPC($_POST['query'] ?? null, 'string', '');
 		
 		header("Content-type: application/json");
 		

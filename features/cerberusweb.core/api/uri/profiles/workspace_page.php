@@ -46,9 +46,9 @@ class PageSection_ProfilesWorkspacePage extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer', 0);
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string', '');
-		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer', '0');
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
+		$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'integer', '0');
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -78,8 +78,8 @@ class PageSection_ProfilesWorkspacePage extends Extension_PageSection {
 				return;
 				
 			} else { // Create/Edit
-				@$package_uri = DevblocksPlatform::importGPC($_POST['package'], 'string', '');
-				@$import_json = DevblocksPlatform::importGPC($_POST['import_json'],'string', '');
+				$package_uri = DevblocksPlatform::importGPC($_POST['package'] ?? null, 'string', '');
+				$import_json = DevblocksPlatform::importGPC($_POST['import_json'] ?? null, 'string', '');
 				
 				$mode = 'build';
 				
@@ -91,7 +91,7 @@ class PageSection_ProfilesWorkspacePage extends Extension_PageSection {
 				
 				switch($mode) {
 					case 'library':
-						@$prompts = DevblocksPlatform::importGPC($_POST['prompts'], 'array', []);
+						$prompts = DevblocksPlatform::importGPC($_POST['prompts'] ?? null, 'array', []);
 						
 						if(empty($package_uri))
 							throw new Exception_DevblocksAjaxValidationError("You must select a package from the library.");
@@ -103,7 +103,7 @@ class PageSection_ProfilesWorkspacePage extends Extension_PageSection {
 							throw new Exception_DevblocksAjaxValidationError("The selected package is not for this extension point.");
 						
 						// Owner
-						@list($owner_context, $owner_context_id) = explode(':', DevblocksPlatform::importGPC($_POST['owner'],'string',''));
+						list($owner_context, $owner_context_id) = array_pad(explode(':', DevblocksPlatform::importGPC($_POST['owner'] ?? null,'string','')), 2, null);
 						
 						switch($owner_context) {
 							case CerberusContexts::CONTEXT_APPLICATION:
@@ -161,14 +161,14 @@ class PageSection_ProfilesWorkspacePage extends Extension_PageSection {
 						if(empty($json) || !isset($json['page']))
 							throw new Exception_DevblocksAjaxValidationError("Invalid JSON.");
 						
-						@$name = $json['page']['name'] ?: 'New Page';
-						@$extension_id = $json['page']['extension_id'];
+						$name = ($json['page']['name'] ?? null) ?: 'New Page';
+						$extension_id = $json['page']['extension_id'] ?? null;
 						
 						if(empty($extension_id) || null == ($page_extension = Extension_WorkspacePage::get($extension_id)))
 							throw new Exception_DevblocksAjaxValidationError("Invalid workspace page extension.");
 						
 						// Owner
-						@list($owner_context, $owner_context_id) = explode(':', DevblocksPlatform::importGPC($_POST['owner'],'string',''));
+						list($owner_context, $owner_context_id) = array_pad(explode(':', DevblocksPlatform::importGPC($_POST['owner'] ?? null,'string','')), 2, null);
 						
 						switch($owner_context) {
 							case CerberusContexts::CONTEXT_APPLICATION:
@@ -224,8 +224,8 @@ class PageSection_ProfilesWorkspacePage extends Extension_PageSection {
 						break;
 					
 					case 'build':
-						@$name = DevblocksPlatform::importGPC($_POST['name'],'string', '');
-						@$params = DevblocksPlatform::importGPC($_POST['params'],'array', []);
+						$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');
+						$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
 						
 						$fields = [
 							DAO_WorkspacePage::NAME => trim($name),
@@ -233,7 +233,7 @@ class PageSection_ProfilesWorkspacePage extends Extension_PageSection {
 						];
 						
 						// Owner
-						@list($owner_context, $owner_context_id) = explode(':', DevblocksPlatform::importGPC($_POST['owner'],'string',''));
+						list($owner_context, $owner_context_id) = array_pad(explode(':', DevblocksPlatform::importGPC($_POST['owner'] ?? null,'string','')), 2, null);
 						
 						switch($owner_context) {
 							case CerberusContexts::CONTEXT_APPLICATION:
@@ -257,7 +257,7 @@ class PageSection_ProfilesWorkspacePage extends Extension_PageSection {
 						}
 						
 						if(empty($id)) {
-							@$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'],'string', '');
+							$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'] ?? null, 'string', '');
 							
 							// Extension
 							$fields[DAO_WorkspacePage::EXTENSION_ID] = $extension_id;
@@ -289,7 +289,7 @@ class PageSection_ProfilesWorkspacePage extends Extension_PageSection {
 						
 						if($id) {
 							// Custom field saves
-							@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+							$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 							if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_WORKSPACE_PAGE, $id, $field_ids, $error))
 								throw new Exception_DevblocksAjaxValidationError($error);
 						}
@@ -325,7 +325,7 @@ class PageSection_ProfilesWorkspacePage extends Extension_PageSection {
 	}
 	
 	private function _profileAction_viewExplore() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
@@ -341,7 +341,7 @@ class PageSection_ProfilesWorkspacePage extends Extension_PageSection {
 		$view->setAutoPersist(false);
 
 		// Page start
-		@$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'],'integer',0);
+		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'integer',0);
 		if(empty($explore_from)) {
 			$orig_pos = 1+($view->renderPage * $view->renderLimit);
 		} else {

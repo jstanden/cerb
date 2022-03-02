@@ -94,13 +94,13 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 			if(!$active_worker || !$active_worker->is_superuser)
 				throw new Exception(DevblocksPlatform::translate('error.core.no_acl.admin'));
 			
-			@$default_group_id = DevblocksPlatform::importGPC($_POST['default_group_id'],'integer',0);
-			@$parser_autoreq = DevblocksPlatform::importGPC($_POST['parser_autoreq'],'integer',0);
-			@$parser_autoreq_exclude = DevblocksPlatform::importGPC($_POST['parser_autoreq_exclude'],'string','');
-			@$attachments_enabled = DevblocksPlatform::importGPC($_POST['attachments_enabled'],'integer',0);
-			@$attachments_max_size = DevblocksPlatform::importGPC($_POST['attachments_max_size'],'integer',10);
-			@$ticket_mask_format = DevblocksPlatform::importGPC($_POST['ticket_mask_format'],'string','');
-			@$html_no_strip_microsoft = DevblocksPlatform::importGPC($_POST['html_no_strip_microsoft'],'integer',0);
+			$default_group_id = DevblocksPlatform::importGPC($_POST['default_group_id'] ?? null,'integer',0);
+			$parser_autoreq = DevblocksPlatform::importGPC($_POST['parser_autoreq'] ?? null,'integer',0);
+			$parser_autoreq_exclude = DevblocksPlatform::importGPC($_POST['parser_autoreq_exclude'] ?? null,'string','');
+			$attachments_enabled = DevblocksPlatform::importGPC($_POST['attachments_enabled'] ?? null,'integer',0);
+			$attachments_max_size = DevblocksPlatform::importGPC($_POST['attachments_max_size'] ?? null,'integer',10);
+			$ticket_mask_format = DevblocksPlatform::importGPC($_POST['ticket_mask_format'] ?? null,'string','');
+			$html_no_strip_microsoft = DevblocksPlatform::importGPC($_POST['html_no_strip_microsoft'] ?? null,'integer',0);
 			
 			if(empty($ticket_mask_format))
 				$ticket_mask_format = 'LLL-NNNNN-NNN';
@@ -142,7 +142,7 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 	}
 	
 	private function _configAction_testMask() {
-		@$ticket_mask_format = DevblocksPlatform::importGPC($_POST['ticket_mask_format'],'string','');
+		$ticket_mask_format = DevblocksPlatform::importGPC($_POST['ticket_mask_format'] ?? null,'string','');
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -229,9 +229,9 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$deletes = DevblocksPlatform::importGPC($_POST['deletes'],'array',array());
-		@$sticky_ids = DevblocksPlatform::importGPC($_POST['sticky_ids'],'array',array());
-		@$sticky_order = DevblocksPlatform::importGPC($_POST['sticky_order'],'array',array());
+		$deletes = DevblocksPlatform::importGPC($_POST['deletes'] ?? null,'array',array());
+		$sticky_ids = DevblocksPlatform::importGPC($_POST['sticky_ids'] ?? null,'array',array());
+		$sticky_order = DevblocksPlatform::importGPC($_POST['sticky_order'] ?? null,'array',array());
 		
 		// Deletes
 		if(!empty($deletes)) {
@@ -256,8 +256,8 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		if(!$active_worker || !$active_worker->is_superuser)
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
+		$id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null,'integer',0);
+		$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'] ?? null,'integer',0);
 
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('group_id', $group_id);
@@ -302,13 +302,13 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null,'integer',0);
 
 		/*****************************/
-		@$name = DevblocksPlatform::importGPC($_POST['name'],'string','');
-		@$is_sticky = DevblocksPlatform::importGPC($_POST['is_sticky'],'integer',0);
-		@$rules = DevblocksPlatform::importGPC($_POST['rules'],'array',array());
-		@$do = DevblocksPlatform::importGPC($_POST['do'],'array',array());
+		$name = DevblocksPlatform::importGPC($_POST['name'] ?? null,'string','');
+		$is_sticky = DevblocksPlatform::importGPC($_POST['is_sticky'] ?? null,'integer',0);
+		$rules = DevblocksPlatform::importGPC($_POST['rules'] ?? null,'array',array());
+		$do = DevblocksPlatform::importGPC($_POST['do'] ?? null,'array',array());
 		
 		if(empty($name))
 			$name = $translate->_('Mail Routing Rule');
@@ -443,7 +443,7 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 			switch($act) {
 				// Move group/bucket
 				case 'move':
-					@$group_id = DevblocksPlatform::importGPC($_POST['do_move'],'string',null);
+					$group_id = DevblocksPlatform::importGPC($_POST['do_move'] ?? null,'string',null);
 					if(0 != strlen($group_id) && false != ($group = DAO_Group::get($group_id))) {
 						$action = array(
 							'group_id' => $group->id,
@@ -695,7 +695,7 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		$log = null;
 		
 		try {
-			@$message_source = DevblocksPlatform::importGPC($_POST['message_source'],'string','');
+			$message_source = DevblocksPlatform::importGPC($_POST['message_source'] ?? null,'string','');
 	
 			$dict = CerberusParser::parseMessageSource($message_source, true, true);
 			$json = null;
@@ -848,8 +848,8 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		$log = null;
 		
 		try {
-			@$file = DevblocksPlatform::importGPC($_POST['file'],'string','');
-			@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
+			$file = DevblocksPlatform::importGPC($_POST['file'] ?? null,'string','');
+			$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null,'string','');
 			
 			// Resolve any symbolic links
 			
@@ -985,9 +985,9 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		header('Content-Type: application/json; charset=utf-8');
 		
 		try {
-			@$relay_disable = DevblocksPlatform::importGPC($_POST['relay_disable'],'integer',0);
-			@$relay_disable_auth = DevblocksPlatform::importGPC($_POST['relay_disable_auth'],'integer',0);
-			@$relay_spoof_from = DevblocksPlatform::importGPC($_POST['relay_spoof_from'],'integer',0);
+			$relay_disable = DevblocksPlatform::importGPC($_POST['relay_disable'] ?? null,'integer',0);
+			$relay_disable_auth = DevblocksPlatform::importGPC($_POST['relay_disable_auth'] ?? null,'integer',0);
+			$relay_spoof_from = DevblocksPlatform::importGPC($_POST['relay_spoof_from'] ?? null,'integer',0);
 			
 			// Save
 			

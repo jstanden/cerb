@@ -37,7 +37,7 @@ class WorkspaceWidget_FormInteraction extends Extension_WorkspaceWidget {
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget, ?string &$error=null) : bool {
-		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
+		$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
 		
 		DAO_WorkspaceWidget::update($widget->id, array(
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
@@ -50,7 +50,7 @@ class WorkspaceWidget_FormInteraction extends Extension_WorkspaceWidget {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$interactions_kata = DevblocksPlatform::importGPC($_POST['interactions_kata'], 'string', '');
+		$interactions_kata = DevblocksPlatform::importGPC($_POST['interactions_kata'] ?? null, 'string', '');
 		
 		$model->params['interactions_kata'] = $interactions_kata;
 		

@@ -702,7 +702,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 			
 			switch($field->type) {
 				case Model_CustomField::TYPE_CURRENCY:
-					@$currency_id = $field->params['currency_id'];
+					$currency_id = $field->params['currency_id'] ?? null;
 					
 					if($currency_id && false !=  ($currency = DAO_Currency::get($currency_id))) {
 						$values[$field_id] = DevblocksPlatform::strParseDecimal($value, $currency->decimal_at, '.');
@@ -710,7 +710,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					break;
 				
 				case Model_CustomField::TYPE_DECIMAL:
-					@$decimal_at = $field->params['decimal_at'];
+					$decimal_at = $field->params['decimal_at'] ?? null;
 					$values[$field_id] = DevblocksPlatform::strParseDecimal($value, $decimal_at, '.');
 					break;
 			}
@@ -817,7 +817,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 		// Remove custom fieldsets upon request
 		
 		// If we have a request variable hint about removing fieldsets, do that now
-		@$param = DevblocksPlatform::importGPC($_REQUEST['custom_fieldset_deletes'], 'array', []);
+		$param = DevblocksPlatform::importGPC($_REQUEST['custom_fieldset_deletes'] ?? null, 'array', []);
 		
 		// Which fieldsets are we deleting?
 		$remove_fieldset_ids = array_flip(array_filter($param, function($d) {
@@ -1046,7 +1046,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					break;
 
 				case Model_CustomField::TYPE_CURRENCY:
-					@$currency_id = $field->params['currency_id'];
+					$currency_id = $field->params['currency_id'] ?? null;
 					
 					if($currency_id && false !=  ($currency = DAO_Currency::get($currency_id))) {
 						$value = DevblocksPlatform::strParseDecimal($value, $currency->decimal_at, '.');
@@ -1055,7 +1055,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					break;
 					
 				case Model_CustomField::TYPE_DECIMAL:
-					@$decimal_at = $field->params['decimal_at'];
+					$decimal_at = $field->params['decimal_at'] ?? null;
 					$value = DevblocksPlatform::strParseDecimal($value, $decimal_at, '.');
 					self::setFieldValue($context, $context_id, $field_id, $value);
 					break;
@@ -1243,7 +1243,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 	}
 	
 	public static function handleBulkPost($do) {
-		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'],'array',[]);
+		$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array',[]);
 
 		$fields = DAO_CustomField::getAll();
 		
@@ -1353,7 +1353,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 				case Model_CustomField::TYPE_SINGLE_LINE:
 				case Model_CustomField::TYPE_URL:
 				case Model_CustomField::TYPE_WORKER:
-					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
+					$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id] ?? null,'string','');
 					break;
 					
 				default:
@@ -2161,7 +2161,7 @@ class View_CustomField extends C4_AbstractView implements IAbstractView_Subtotal
 				break;
 				
 			case SearchFields_CustomField::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_POST['context_link'],'array',[]);
+				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				

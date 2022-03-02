@@ -98,9 +98,9 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 		@list($key, $bin) = explode('@', $key, 2);
 		
 		if(isset($query_fields[$key])) {
-			@$query_field = $query_fields[$key];
-			@$search_key = $query_field['options']['param_key'];
-			@$search_field = $search_fields[$search_key]; /* @var $search_field DevblocksSearchField */
+			$query_field = $query_fields[$key] ?? null;
+			$search_key = $query_field['options']['param_key'] ?? null;
+			$search_field = $search_fields[$search_key] ?? null; /* @var $search_field DevblocksSearchField */
 			
 			if(!is_object($search_field))
 				return false;
@@ -541,7 +541,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 		$label_map = [];
 		
 		foreach($values as $v) {
-			@list($context, $context_id) = explode(':', $v, 2);
+			list($context, $context_id) = array_pad(explode(':', $v, 2), 2, null);
 			if(!array_key_exists($context, $context_map))
 				$context_map[$context] = [];
 			
@@ -832,7 +832,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 	static function _getWhereSQLFromContextAndID(DevblocksSearchCriteria $param, $context_field, $context_id_field) {
 		// Handle nested quick search filters first
 		if($param->operator == DevblocksSearchCriteria::OPER_CUSTOM) {
-			@list($alias, $query) = explode(':', $param->value, 2);
+			list($alias, $query) = array_pad(explode(':', $param->value, 2), 2, null);
 			
 			if(empty($alias) || (false == ($ext = Extension_DevblocksContext::getByAlias(str_replace('.', ' ', $alias), true))))
 				return;
@@ -891,7 +891,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 		$contexts = [];
 			
 		foreach($param->value as $owner_context) {
-			@list($context, $context_id) = explode(':', $owner_context);
+			list($context, $context_id) = array_pad(explode(':', $owner_context), 2, null);
 			
 			if(empty($context))
 				continue;
@@ -925,7 +925,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 	static function _getWhereSQLFromContextLinksField(DevblocksSearchCriteria $param, $from_context, $pkey) {
 		// Handle nested quick search filters first
 		if($param->operator == DevblocksSearchCriteria::OPER_CUSTOM) {
-			@list($alias, $query) = explode(':', $param->value, 2);
+			list($alias, $query) = array_pad(explode(':', $param->value, 2), 2, null);
 			
 			if(empty($alias) || (false == ($ext = Extension_DevblocksContext::getByAlias(str_replace('.', ' ', $alias), true))))
 				return;
@@ -1002,7 +1002,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 		
 		if(is_array($param->value))
 		foreach($param->value as $context_data) {
-			@list($context, $context_id) = explode(':', $context_data, 2);
+			list($context, $context_id) = array_pad(explode(':', $context_data, 2), 2, null);
 	
 			if(empty($context))
 				return;
@@ -1465,7 +1465,7 @@ class DevblocksSearchCriteria {
 		if(!$search_field || !isset($search_field['type']))
 			return false;
 
-		@$param_key = $search_fields[$field]['options']['param_key'];
+		$param_key = $search_fields[$field]['options']['param_key'] ?? null;
 		
 		// Handle searches for NULL/!NULL
 		if(
@@ -1518,14 +1518,14 @@ class DevblocksSearchCriteria {
 				return DevblocksSearchCriteria::getNumberParamFromTokens($param_key, $tokens);
 				
 			case DevblocksSearchCriteria::TYPE_TEXT:
-				@$match_type = $search_field['options']['match'];
+				$match_type = $search_field['options']['match'] ?? null;
 				
 				if($param_key && false != ($param = DevblocksSearchCriteria::getTextParamFromTokens($param_key, $tokens, $match_type)))
 					return $param;
 				break;
 			
 			case DevblocksSearchCriteria::TYPE_VIRTUAL:
-				@$cf_id = $search_fields[$field]['options']['cf_id'];
+				$cf_id = $search_fields[$field]['options']['cf_id'] ?? null;
 				
 				if(!$cf_id || false == ($custom_field = DAO_CustomField::get($cf_id)))
 					break;
@@ -1639,8 +1639,8 @@ class DevblocksSearchCriteria {
 					$sql_parts = [];
 				
 					if(array_key_exists('since', $params) || array_key_exists('until', $params)) {
-						@$range_since = $params['since'] ?: 'big bang';
-						@$range_until = $params['until'] ?: 'now';
+						$range_since = ($params['since'] ?? null) ?: 'big bang';
+						$range_until = ($params['until'] ?? null) ?: 'now';
 						$range = DevblocksPlatform::services()->date()->parseDateRange($range_since . ' to ' . $range_until);
 						$sql_parts[] = sprintf("%%1\$s BETWEEN %d AND %d", $range['from_ts'], $range['to_ts']);
 					}
@@ -1994,7 +1994,7 @@ class DevblocksSearchCriteria {
 		}
 		
 		if(1 == count($terms) && in_array(DevblocksPlatform::strLower($terms[0]), ['any','anyone','anybody'])) {
-			@$is_cfield = $search_field['options']['cf_id'];
+			$is_cfield = $search_field['options']['cf_id'] ?? null;
 			if($is_cfield) {
 				$oper = self::OPER_IS_NOT_NULL;
 				$value = null;
@@ -2004,7 +2004,7 @@ class DevblocksSearchCriteria {
 			}
 			
 		} else if(1 == count($terms) && in_array(DevblocksPlatform::strLower($terms[0]), ['blank','empty','no','none','noone','nobody'])) {
-			@$is_cfield = $search_field['options']['cf_id'];
+			$is_cfield = $search_field['options']['cf_id'] ?? null;
 			if($is_cfield) {
 				$oper = self::OPER_IS_NULL;
 				$value = null;
@@ -2065,7 +2065,7 @@ class DevblocksSearchCriteria {
 	public static function getVirtualContextParamFromTokens($field_key, $tokens, $prefix, $search_field_key) {
 		// Is this a nested subquery?
 		if(DevblocksPlatform::strStartsWith($field_key, $prefix.'.')) {
-			@list(, $alias) = explode('.', $field_key);
+			list(, $alias) = array_pad(explode('.', $field_key), 2, null);
 			
 			$query = CerbQuickSearchLexer::getTokensAsQuery($tokens);
 			
@@ -2126,7 +2126,7 @@ class DevblocksSearchCriteria {
 	public static function getContextLinksParamFromTokens($field_key, $tokens) {
 		// Is this a nested subquery?
 		if(DevblocksPlatform::strStartsWith($field_key,'links.')) {
-			@list(, $alias) = explode('.', $field_key);
+			list(, $alias) = array_pad(explode('.', $field_key), 2, null);
 			
 			$query = CerbQuickSearchLexer::getTokensAsQuery($tokens);
 			
@@ -3125,7 +3125,7 @@ abstract class DevblocksVisit {
 	}
 	
 	public function get($key, $default=null) {
-		@$value = $this->registry[$key];
+		$value = $this->registry[$key] ?? null;
 		
 		if(is_null($value) && !is_null($default))
 			$value = $default;

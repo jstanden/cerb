@@ -103,7 +103,7 @@ class PageSection_SetupAuth extends Extension_PageSection {
 		header('Content-Type: application/json; charset=utf-8');
 		
 		try {
-			@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
+			$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
 			
 			$validation = DevblocksPlatform::services()->validation();
 			$error = null;
@@ -138,7 +138,7 @@ class PageSection_SetupAuth extends Extension_PageSection {
 			// ============================================
 			// SSO
 			
-			@$auth_sso_service_ids = DevblocksPlatform::importGPC($params['auth_sso_service_ids'],'array:int',[]);
+			$auth_sso_service_ids = DevblocksPlatform::importGPC($params['auth_sso_service_ids'] ?? null,'array:int',[]);
 			
 			if($auth_sso_service_ids && false != ($sso_services = DAO_ConnectedService::getIds($auth_sso_service_ids))) {
 				// Validate as service IDs with 'sso' enabled
@@ -158,10 +158,10 @@ class PageSection_SetupAuth extends Extension_PageSection {
 			// ============================================
 			// MFA
 			
-			@$auth_mfa_allow_remember = DevblocksPlatform::importGPC($params['auth_mfa_allow_remember'], 'int', 0);
-			@$auth_mfa_remember_days = DevblocksPlatform::importGPC($params['auth_mfa_remember_days'], 'int', 0);
-			@$auth_new_worker_disable_password = DevblocksPlatform::importGPC($params['auth_new_worker_disable_password'], 'int', 0);
-			@$auth_new_worker_require_mfa = DevblocksPlatform::importGPC($params['auth_new_worker_require_mfa'], 'int', 0);
+			$auth_mfa_allow_remember = DevblocksPlatform::importGPC($params['auth_mfa_allow_remember'] ?? null, 'int', 0);
+			$auth_mfa_remember_days = DevblocksPlatform::importGPC($params['auth_mfa_remember_days'] ?? null, 'int', 0);
+			$auth_new_worker_disable_password = DevblocksPlatform::importGPC($params['auth_new_worker_disable_password'] ?? null, 'int', 0);
+			$auth_new_worker_require_mfa = DevblocksPlatform::importGPC($params['auth_new_worker_require_mfa'] ?? null, 'int', 0);
 			
 			DevblocksPlatform::setPluginSetting('cerberusweb.core', CerberusSettings::AUTH_MFA_ALLOW_REMEMBER, $auth_mfa_allow_remember);
 			DevblocksPlatform::setPluginSetting('cerberusweb.core', CerberusSettings::AUTH_MFA_REMEMBER_DAYS, $auth_mfa_remember_days);

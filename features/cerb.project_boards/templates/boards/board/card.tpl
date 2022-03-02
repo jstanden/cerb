@@ -5,7 +5,7 @@
 	{$board->renderCard($card, $column)}
 </div>
 
-{if $card_is_removed}
+{if isset($card_is_removed) && $card_is_removed}
 <script type="text/javascript">
 $(function() {
 	var $div = $('#{$uniqid}');

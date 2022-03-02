@@ -16,13 +16,13 @@ class ProfileWidget_ChartTimeSeries extends Extension_ProfileWidget {
 	}
 	
 	function render(Model_ProfileWidget $model, $context, $context_id) {
-		@$data_query = DevblocksPlatform::importGPC($model->extension_params['data_query'], 'string', null);
-		@$chart_as = DevblocksPlatform::importGPC($model->extension_params['chart_as'], 'string', 'line');
-		@$options = DevblocksPlatform::importGPC($model->extension_params['options'], 'array', []);
-		@$xaxis_label = DevblocksPlatform::importGPC($model->extension_params['xaxis_label'], 'string', '');
-		@$yaxis_label = DevblocksPlatform::importGPC($model->extension_params['yaxis_label'], 'string', '');
-		@$yaxis_format = DevblocksPlatform::importGPC($model->extension_params['yaxis_format'], 'string', '');
-		@$height = DevblocksPlatform::importGPC($model->extension_params['height'], 'integer', 0);
+		$data_query = DevblocksPlatform::importGPC($model->extension_params['data_query'] ?? null, 'string', null);
+		$chart_as = DevblocksPlatform::importGPC($model->extension_params['chart_as'] ?? null, 'string', 'line');
+		$options = DevblocksPlatform::importGPC($model->extension_params['options'] ?? null, 'array', []);
+		$xaxis_label = DevblocksPlatform::importGPC($model->extension_params['xaxis_label'] ?? null, 'string', '');
+		$yaxis_label = DevblocksPlatform::importGPC($model->extension_params['yaxis_label'] ?? null, 'string', '');
+		$yaxis_format = DevblocksPlatform::importGPC($model->extension_params['yaxis_format'] ?? null, 'string', '');
+		$height = DevblocksPlatform::importGPC($model->extension_params['height'] ?? null, 'integer', 0);
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
@@ -111,9 +111,9 @@ class ProfileWidget_ChartTimeSeries extends Extension_ProfileWidget {
 		if($xaxis_format)
 			$config_json['axis']['x']['tick']['format']  = $xaxis_format;
 		
-		$config_json['subchart']['show']  = @$options['subchart'] ? true : false;
-		$config_json['legend']['show']  = @$options['show_legend'] ? true : false;
-		$config_json['point']['show']  = @$options['show_points'] ? true : false;
+		$config_json['subchart']['show']  = (bool)($options['subchart'] ?? null);
+		$config_json['legend']['show']  = (bool)($options['show_legend'] ?? null);
+		$config_json['point']['show']  = (bool)($options['show_points'] ?? null);
 		
 		switch($chart_as) {
 			case 'line':

@@ -57,9 +57,9 @@ class BotAction_PackageImport extends Extension_DevblocksEventAction {
 			return $error;
 		}
 		
-		@$package_json = DevblocksPlatform::importVar($params['package_json'],'string','');
-		@$prompts_json = $tpl_builder->build(DevblocksPlatform::importVar($params['prompts_json'],'string',''), $dict);
-		@$object_placeholder = DevblocksPlatform::importVar($params['object_placeholder'],'string','');
+		$package_json = DevblocksPlatform::importVar($params['package_json'] ?? null,'string','');
+		$prompts_json = $tpl_builder->build(DevblocksPlatform::importVar($params['prompts_json'] ?? null,'string',''), $dict);
+		$object_placeholder = DevblocksPlatform::importVar($params['object_placeholder'] ?? null,'string','');
 		
 		if(!$package_json || false == @json_decode($package_json, true))
 			return "Invalid package JSON: " . json_last_error_msg();

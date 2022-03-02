@@ -41,7 +41,7 @@ class Event_RecurrentBehavior extends Extension_DevblocksEvent {
 	function prepareEventParams(Model_TriggerEvent $behavior=null, &$event_params, &$error) {
 		$error = null;
 		
-		@$history = $behavior->event_params['repeat_history'];
+		$history = $behavior->event_params['repeat_history'] ?? null;
 		$event_params['repeat_history'] = $history ?: [];
 		
 		@$patterns = DevblocksPlatform::parseCrlfString($event_params['repeat_patterns']);
@@ -74,7 +74,7 @@ class Event_RecurrentBehavior extends Extension_DevblocksEvent {
 		$behaviors = DAO_TriggerEvent::getByEvent(Event_RecurrentBehavior::ID);
 		
 		$behaviors = array_filter($behaviors, function($behavior) {
-			@$run_at = $behavior->event_params['repeat_run_at'];
+			$run_at = $behavior->event_params['repeat_run_at'] ?? null;
 			
 			if($run_at && $run_at < time())
 				return true;

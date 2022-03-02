@@ -695,7 +695,7 @@ class View_WebApiCredentials extends C4_AbstractView implements IAbstractView_Qu
 				break;
 				
 			case SearchFields_WebApiCredentials::VIRTUAL_HAS_FIELDSET:
-				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',[]);
+				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 		}

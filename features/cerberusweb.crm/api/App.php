@@ -65,10 +65,10 @@ class VaAction_CreateOpportunity extends Extension_DevblocksEventAction {
 
 		$out = null;
 		
-		@$name = $tpl_builder->build($params['name'], $dict);
-		@$status = $params['status'];
-		@$currency_id = $params['currency_id'];
-		@$amount = $tpl_builder->build($params['amount'], $dict);
+		$name = $tpl_builder->build($params['name'] ?? '', $dict);
+		$status = $params['status'] ?? null;
+		$currency_id = $params['currency_id'] ?? null;
+		$amount = $tpl_builder->build($params['amount'] ?? '', $dict);
 		
 		@$notify_worker_ids = DevblocksPlatform::importVar($params['notify_worker_id'],'array',array());
 		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $dict);
@@ -134,10 +134,10 @@ class VaAction_CreateOpportunity extends Extension_DevblocksEventAction {
 	function run($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
-		@$name = $tpl_builder->build($params['name'], $dict);
-		@$status = $params['status'];
-		@$currency_id = $params['currency_id'];
-		@$amount = $tpl_builder->build($params['amount'], $dict);
+		$name = $tpl_builder->build($params['name'] ?? '', $dict);
+		$status = $params['status'] ?? null;
+		$currency_id = $params['currency_id'] ?? null;
+		$amount = $tpl_builder->build($params['amount'] ?? '', $dict);
 		
 		@$notify_worker_ids = DevblocksPlatform::importVar($params['notify_worker_id'],'array',array());
 		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $dict);

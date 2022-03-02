@@ -23,7 +23,7 @@ class Event_MailBeforeUiComposeByWorker extends Extension_DevblocksEvent {
 		$this->_event_id = self::ID;
 	}
 	
-	static function trigger($trigger_id, $scope=[], $worker_id, &$actions) {
+	static function trigger($trigger_id, $scope, $worker_id, &$actions) {
 		$events = DevblocksPlatform::services()->event();
 		return $events->trigger(
 			new Model_DevblocksEvent(
@@ -97,7 +97,7 @@ class Event_MailBeforeUiComposeByWorker extends Extension_DevblocksEvent {
 			);
 		
 		// Add the worker_id
-		@$worker_id = $event_model->params['worker_id'];
+		$worker_id = $event_model->params['worker_id'] ?? null;
 		
 		/**
 		 * Current worker

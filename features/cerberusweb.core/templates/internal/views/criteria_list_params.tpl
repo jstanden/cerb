@@ -1,4 +1,5 @@
 {$view_filters = $view->getFields()}
+{if !isset($nested)}{$nested = null}{/if}
 {if $readonly}<ul class="bubbles">{/if}
 {if !empty($params)}
 {foreach from=$params item=param key=param_key name=params}

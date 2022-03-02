@@ -3,6 +3,7 @@
 {if !isset($always_bright)}{$always_bright = !boolval($pref_dark_mode)}{/if}
 {$is_outgoing = $message->is_outgoing}
 {$is_not_sent = $message->is_not_sent}
+{if !isset($display_format)}{$display_format = null}{/if}
 
 <div class="block" style="margin-bottom:10px;padding-top:8px;padding-left:10px;position:relative;">
 	{$sender_id = $message->address_id}

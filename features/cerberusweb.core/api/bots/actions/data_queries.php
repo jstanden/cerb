@@ -32,8 +32,8 @@ class BotAction_DataQuery extends Extension_DevblocksEventAction {
 	function simulate($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
-		@$query = $tpl_builder->build($params['query'], $dict);
-		@$object_placeholder = $params['object_placeholder'] ?: '_results';
+		$query = $tpl_builder->build($params['query'] ?? '', $dict);
+		$object_placeholder = ($params['object_placeholder'] ?? null) ?: '_results';
 
 		if(empty($query))
 			return "[ERROR] Query is required.";
@@ -59,8 +59,8 @@ class BotAction_DataQuery extends Extension_DevblocksEventAction {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$data = DevblocksPlatform::services()->data();
 		
-		@$query = $tpl_builder->build($params['query'], $dict);
-		@$object_placeholder = $params['object_placeholder'] ?: '_results';
+		$query = $tpl_builder->build($params['query'] ?? '', $dict);
+		$object_placeholder = ($params['object_placeholder'] ?? null) ?: '_results';
 		
 		if(!$query)
 			return;

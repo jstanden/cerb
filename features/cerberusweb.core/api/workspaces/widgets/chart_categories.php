@@ -14,8 +14,8 @@ class WorkspaceWidget_ChartCategories extends Extension_WorkspaceWidget implemen
 		$data = DevblocksPlatform::services()->data();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$data_query = DevblocksPlatform::importGPC($widget->params['data_query'], 'string', null);
-		@$cache_secs = DevblocksPlatform::importGPC($widget->params['cache_secs'], 'integer', 0);
+		$data_query = DevblocksPlatform::importGPC($widget->params['data_query'] ?? null, 'string', null);
+		$cache_secs = DevblocksPlatform::importGPC($widget->params['cache_secs'] ?? null, 'integer', 0);
 		
 		$dict = DevblocksDictionaryDelegate::instance([
 			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
@@ -42,9 +42,9 @@ class WorkspaceWidget_ChartCategories extends Extension_WorkspaceWidget implemen
 	function render(Model_WorkspaceWidget $widget) {
 		$tpl = DevblocksPlatform::services()->template();
 		
-		@$xaxis_format = DevblocksPlatform::importGPC($widget->params['xaxis_format'], 'string', '');
-		@$yaxis_format = DevblocksPlatform::importGPC($widget->params['yaxis_format'], 'string', '');
-		@$height = DevblocksPlatform::importGPC($widget->params['height'], 'integer', 0);
+		$xaxis_format = DevblocksPlatform::importGPC($widget->params['xaxis_format'] ?? null, 'string', '');
+		$yaxis_format = DevblocksPlatform::importGPC($widget->params['yaxis_format'] ?? null, 'string', '');
+		$height = DevblocksPlatform::importGPC($widget->params['height'] ?? null, 'integer', 0);
 		
 		$error = null;
 		
@@ -137,7 +137,7 @@ class WorkspaceWidget_ChartCategories extends Extension_WorkspaceWidget implemen
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget, ?string &$error=null) : bool {
-		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
+		$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
 		
 		DAO_WorkspaceWidget::update($widget->id, array(
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),

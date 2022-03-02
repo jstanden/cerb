@@ -23,7 +23,7 @@ class ProfileWidget_CalendarAvailability extends Extension_ProfileWidget {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
-		@$target_context_id = $model->extension_params['calendar_id'];
+		$target_context_id = $model->extension_params['calendar_id'] ?? null;
 		$calendar = null;
 		
 		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
@@ -74,8 +74,8 @@ class ProfileWidget_CalendarAvailability extends Extension_ProfileWidget {
 			}
 		}
 		
-		@$month = DevblocksPlatform::importGPC($_POST['month'],'integer', 0);
-		@$year = DevblocksPlatform::importGPC($_POST['year'],'integer', 0);
+		$month = DevblocksPlatform::importGPC($_POST['month'] ?? null, 'integer', 0);
+		$year = DevblocksPlatform::importGPC($_POST['year'] ?? null, 'integer', 0);
 		
 		$tpl->assign('context', $context);
 		$tpl->assign('context_id', $context_id);
@@ -122,11 +122,11 @@ class ProfileWidget_CalendarAvailability extends Extension_ProfileWidget {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::services()->template();
 
-		@$calendar_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer', 0);
-		@$month = DevblocksPlatform::importGPC($_REQUEST['month'],'integer', 0);
-		@$year = DevblocksPlatform::importGPC($_REQUEST['year'],'integer', 0);
+		$calendar_id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null, 'integer');
+		$context = DevblocksPlatform::importGPC($_REQUEST['context'] ?? null,'string','');
+		$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'] ?? null, 'integer', 0);
+		$month = DevblocksPlatform::importGPC($_REQUEST['month'] ?? null, 'integer', 0);
+		$year = DevblocksPlatform::importGPC($_REQUEST['year'] ?? null, 'integer', 0);
 		
 		$calendar = DAO_Calendar::get($calendar_id);
 		

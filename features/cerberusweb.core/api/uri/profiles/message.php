@@ -59,9 +59,9 @@ class PageSection_ProfilesMessage extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
+		$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'string', '');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -91,7 +91,7 @@ class PageSection_ProfilesMessage extends Extension_PageSection {
 				$error = null;
 				
 				// Custom field saves
-				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+				$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 				if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_MESSAGE, $id, $field_ids, $error))
 					throw new Exception_DevblocksAjaxValidationError($error);
 			}
@@ -201,7 +201,7 @@ class PageSection_ProfilesMessage extends Extension_PageSection {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
 		
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
@@ -214,7 +214,7 @@ class PageSection_ProfilesMessage extends Extension_PageSection {
 		$view->setAutoPersist(false);
 		
 		// Page start
-		@$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'],'integer',0);
+		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'integer',0);
 		if(empty($explore_from)) {
 			$orig_pos = 1+($view->renderPage * $view->renderLimit);
 		} else {
@@ -275,7 +275,7 @@ class PageSection_ProfilesMessage extends Extension_PageSection {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::services()->template();
 		
-		@$message_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		$message_id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null, 'integer',0);
 		
 		if(false == ($message = DAO_Message::get($message_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -304,10 +304,10 @@ class PageSection_ProfilesMessage extends Extension_PageSection {
 	private function _profileAction_saveRelayMessagePopup() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$message_id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
-		@$emails = DevblocksPlatform::importGPC($_POST['emails'],'array',[]);
-		@$content = DevblocksPlatform::importGPC($_POST['content'], 'string', '');
-		@$include_attachments = DevblocksPlatform::importGPC($_POST['include_attachments'], 'integer', 0);
+		$message_id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer',0);
+		$emails = DevblocksPlatform::importGPC($_POST['emails'] ?? null, 'array',[]);
+		$content = DevblocksPlatform::importGPC($_POST['content'] ?? null, 'string', '');
+		$include_attachments = DevblocksPlatform::importGPC($_POST['include_attachments'] ?? null, 'integer', 0);
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
@@ -325,7 +325,7 @@ class PageSection_ProfilesMessage extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$message_id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
+		$message_id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer',0);
 		
 		if(!$message_id)
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -351,9 +351,9 @@ class PageSection_ProfilesMessage extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$message_id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
-		@$sender_id = DevblocksPlatform::importGPC($_POST['sender_id'],'integer',0);
-		@$is_trusted = DevblocksPlatform::importGPC($_POST['is_trusted'],'integer',0);
+		$message_id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer',0);
+		$sender_id = DevblocksPlatform::importGPC($_POST['sender_id'] ?? null, 'integer',0);
+		$is_trusted = DevblocksPlatform::importGPC($_POST['is_trusted'] ?? null, 'integer',0);
 		
 		if(false == ($address = DAO_Address::get($sender_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -373,7 +373,7 @@ class PageSection_ProfilesMessage extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$message_id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
+		$message_id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer',0);
 		
 		if(!$message_id)
 			DevblocksPlatform::dieWithHttpError(null, 404);

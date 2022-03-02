@@ -48,8 +48,8 @@ class UmScAnnouncementsController extends Extension_UmScController {
 	}
 	
 	function saveConfiguration(Model_CommunityTool $portal) {
-		@$aNewsRssTitles = DevblocksPlatform::importGPC($_POST['news_rss_title'],'array',array());
-		@$aNewsRssUrls = DevblocksPlatform::importGPC($_POST['news_rss_url'],'array',array());
+		$aNewsRssTitles = DevblocksPlatform::importGPC($_POST['news_rss_title'] ?? null, 'array', []);
+		$aNewsRssUrls = DevblocksPlatform::importGPC($_POST['news_rss_url'] ?? null, 'array', []);
 		
 		$aNewsRss = array();
 		

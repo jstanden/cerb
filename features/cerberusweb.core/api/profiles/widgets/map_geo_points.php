@@ -78,8 +78,8 @@ class ProfileWidget_MapGeoPoints extends Extension_ProfileWidget {
 	}
 	
 	private function _profileWidgetAction_mapClicked(Model_ProfileWidget $widget) {
-		@$feature_type = DevblocksPlatform::importGPC($_POST['feature_type'], 'string', []);
-		@$feature_properties = DevblocksPlatform::importGPC($_POST['feature_properties'], 'array', []);
+		$feature_type = DevblocksPlatform::importGPC($_POST['feature_type'] ?? null, 'string', []);
+		$feature_properties = DevblocksPlatform::importGPC($_POST['feature_properties'] ?? null, 'array', []);
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$event_handler = DevblocksPlatform::services()->ui()->eventHandler();

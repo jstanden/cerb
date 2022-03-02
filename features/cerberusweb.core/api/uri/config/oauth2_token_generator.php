@@ -55,11 +55,11 @@ class PageSection_SetupDevelopersOAuth2TokenGenerator extends Extension_PageSect
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$oauth_app_id = DevblocksPlatform::importGPC($_POST['oauth_app_id'], 'integer', 0);
-		@$worker_id = DevblocksPlatform::importGPC($_POST['worker_id'], 'integer', 0);
-		@$scopes = DevblocksPlatform::importGPC($_POST['scopes'], 'string', '');
-		@$expires_duration = DevblocksPlatform::importGPC($_POST['expires_duration'], 'integer', 0);
-		@$expires_term = DevblocksPlatform::importGPC($_POST['expires_term'], 'string', '');
+		$oauth_app_id = DevblocksPlatform::importGPC($_POST['oauth_app_id'] ?? null, 'integer', 0);
+		$worker_id = DevblocksPlatform::importGPC($_POST['worker_id'] ?? null, 'integer', 0);
+		$scopes = DevblocksPlatform::importGPC($_POST['scopes'] ?? null, 'string', '');
+		$expires_duration = DevblocksPlatform::importGPC($_POST['expires_duration'] ?? null, 'integer', 0);
+		$expires_term = DevblocksPlatform::importGPC($_POST['expires_term'] ?? null, 'string', '');
 		
 		header('Content-Type: application/json; charset=utf-8');
 		

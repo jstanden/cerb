@@ -601,7 +601,7 @@ class View_CerbPlugin extends C4_AbstractView implements IAbstractView_Subtotals
 				break;
 				
 			case SearchFields_CerbPlugin::ENABLED:
-				@$bool = DevblocksPlatform::importGPC($_POST['bool'],'integer',1);
+				$bool = DevblocksPlatform::importGPC($_POST['bool'] ?? null, 'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 				

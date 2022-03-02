@@ -81,7 +81,7 @@ class _DevblocksDataProviderRecordTypes extends _DevblocksDataProvider {
 			$aliases = Extension_DevblocksContext::getAliasesForContext($record_type_ext->manifest);
 			
 			if ($chart_model['filter']) {
-				@$match = sprintf("%s %s %s", $aliases['uri'], $aliases['label_singular'], $aliases['label_plural']);
+				$match = sprintf("%s %s %s", $aliases['uri'] ?? null, $aliases['label_singular'] ?? null, $aliases['label_plural'] ?? null);
 				
 				if (false === stristr($match, $chart_model['filter']))
 					continue;
@@ -115,7 +115,7 @@ class _DevblocksDataProviderRecordTypes extends _DevblocksDataProvider {
 		
 		// Respond
 		
-		@$format = $chart_model['format'] ?: 'dictionaries';
+		$format = ($chart_model['format'] ?? null) ?: 'dictionaries';
 		
 		switch($format) {
 			case 'dictionaries':

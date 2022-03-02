@@ -18,11 +18,11 @@ class DevblocksStorageEngineGatekeeper extends Extension_DevblocksStorageEngine 
 
 	function testConfig(Model_DevblocksStorageProfile $profile) {
 		// Test S3 connection info
-		@$username = DevblocksPlatform::importGPC($_POST['username'],'string','');
-		@$password = DevblocksPlatform::importGPC($_POST['password'],'string','');
-		@$url = DevblocksPlatform::importGPC($_POST['url'],'string','');
-		@$bucket = DevblocksPlatform::importGPC($_POST['bucket'],'string','');
-		@$path_prefix = DevblocksPlatform::importGPC($_POST['path_prefix'],'string','');
+		$username = DevblocksPlatform::importGPC($_POST['username'] ?? null, 'string','');
+		$password = DevblocksPlatform::importGPC($_POST['password'] ?? null, 'string','');
+		$url = DevblocksPlatform::importGPC($_POST['url'] ?? null, 'string','');
+		$bucket = DevblocksPlatform::importGPC($_POST['bucket'] ?? null, 'string','');
+		$path_prefix = DevblocksPlatform::importGPC($_POST['path_prefix'] ?? null, 'string','');
 		
 		if(empty($url) || empty($username) || empty($password))
 			return false;
@@ -75,11 +75,11 @@ class DevblocksStorageEngineGatekeeper extends Extension_DevblocksStorageEngine 
 	}
 
 	function saveConfig(Model_DevblocksStorageProfile $profile) {
-		@$username = DevblocksPlatform::importGPC($_POST['username'],'string','');
-		@$password = DevblocksPlatform::importGPC($_POST['password'],'string','');
-		@$url = DevblocksPlatform::importGPC($_POST['url'], 'string', '');
-		@$bucket = DevblocksPlatform::importGPC($_POST['bucket'], 'string', '');
-		@$path_prefix = DevblocksPlatform::importGPC($_POST['path_prefix'], 'string', '');
+		$username = DevblocksPlatform::importGPC($_POST['username'] ?? null, 'string','');
+		$password = DevblocksPlatform::importGPC($_POST['password'] ?? null, 'string','');
+		$url = DevblocksPlatform::importGPC($_POST['url'] ?? null, 'string', '');
+		$bucket = DevblocksPlatform::importGPC($_POST['bucket'] ?? null, 'string', '');
+		$path_prefix = DevblocksPlatform::importGPC($_POST['path_prefix'] ?? null, 'string', '');
 
 		$path_prefix =
 			0 == strlen(trim($path_prefix, '/'))
@@ -101,7 +101,7 @@ class DevblocksStorageEngineGatekeeper extends Extension_DevblocksStorageEngine 
 	}
 
 	public function exists($namespace, $key) {
-		//@$bucket = $this->_options['bucket'];
+		//$bucket = $this->_options['bucket'] ?? null;
 		$path = $this->_options['path_prefix'] . $this->escapeNamespace($namespace) . '/' . $key;
 		
 		if(false == ($url = $this->_getSignedURL($this->_options['username'], $this->_options['password'], $this->_options['url'], 'GET', $path)))
@@ -111,7 +111,7 @@ class DevblocksStorageEngineGatekeeper extends Extension_DevblocksStorageEngine 
 	}
 	
 	public function put($namespace, $id, $data, $length = null) {
-		//@$bucket = $this->_options['bucket'];
+		//$bucket = $this->_options['bucket'] ?? null;
 		
 		// Get a unique hash path for this namespace+id
 		$hash = base_convert(sha1($this->escapeNamespace($namespace).$id), 16, 32);
@@ -139,7 +139,7 @@ class DevblocksStorageEngineGatekeeper extends Extension_DevblocksStorageEngine 
 	}
 	
 	public function get($namespace, $key, &$fp=null) {
-		//@$bucket = $this->_options['bucket'];
+		//$bucket = $this->_options['bucket'] ?? null;
 		$path = $this->_options['path_prefix'] . $this->escapeNamespace($namespace) . '/' . $key;
 		
 		if(false == ($url = $this->_getSignedURL($this->_options['username'], $this->_options['password'], $this->_options['url'], 'GET', $path)))
@@ -167,7 +167,7 @@ class DevblocksStorageEngineGatekeeper extends Extension_DevblocksStorageEngine 
 	}
 	
 	public function delete($namespace, $key) {
-		//@$bucket = $this->_options['bucket'];
+		//$bucket = $this->_options['bucket'] ?? null;
 		//$path = $this->_options['path_prefix'] . $this->escapeNamespace($namespace) . '/' . $key;
 	
 		/*
@@ -187,7 +187,7 @@ class DevblocksStorageEngineGatekeeper extends Extension_DevblocksStorageEngine 
 	}
 	
 	public function batchDelete($namespace, $keys) {
-		@$bucket = $this->_options['bucket'];
+		$bucket = $this->_options['bucket'] ?? null;
 		$ns = $this->escapeNamespace($namespace);
 		$path_prefix = $this->_options['path_prefix'];
 		

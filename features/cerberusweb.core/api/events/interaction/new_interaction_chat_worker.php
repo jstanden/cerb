@@ -71,7 +71,7 @@ class Event_NewInteractionChatWorker extends Extension_DevblocksEvent {
 			);
 		
 		// Worker
-		@$worker = $event_model->params['worker'];
+		$worker = $event_model->params['worker'] ?? null;
 		$merge_labels = array();
 		$merge_values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker, $merge_labels, $merge_values, null, true);
@@ -87,22 +87,22 @@ class Event_NewInteractionChatWorker extends Extension_DevblocksEvent {
 			);
 		
 		// Interaction
-		@$interaction = $event_model->params['interaction'];
+		$interaction = $event_model->params['interaction'] ?? null;
 		$labels['interaction'] = 'Interaction';
 		$values['interaction'] = $interaction;
 		
 		// Interaction Parameters
-		@$interaction_params = $event_model->params['interaction_params'];
+		$interaction_params = $event_model->params['interaction_params'] ?? null;
 		$labels['interaction_params'] = 'Interaction Params';
 		$values['interaction_params'] = $interaction_params;
 		
 		// Client
-		@$client_browser = $event_model->params['client_browser'];
-		@$client_browser_version = $event_model->params['client_browser_version'];
-		@$client_ip = $event_model->params['client_ip'];
-		@$client_platform = $event_model->params['client_platform'];
-		@$client_time = $event_model->params['client_time'];
-		@$client_url = $event_model->params['client_url'];
+		$client_browser = $event_model->params['client_browser'] ?? null;
+		$client_browser_version = $event_model->params['client_browser_version'] ?? null;
+		$client_ip = $event_model->params['client_ip'] ?? null;
+		$client_platform = $event_model->params['client_platform'] ?? null;
+		$client_time = $event_model->params['client_time'] ?? null;
+		$client_url = $event_model->params['client_url'] ?? null;
 		
 		$labels['client_browser'] = 'Client Browser';
 		$labels['client_browser_version'] = 'Client Browser Version';
@@ -281,7 +281,7 @@ class Event_NewInteractionChatWorker extends Extension_DevblocksEvent {
 	function simulateActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		switch($token) {
 			case 'set_bot_name':
-				@$bot_name = $params['name'];
+				$bot_name = $params['name'] ?? null;
 				
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				$bot_name = $tpl_builder->build($bot_name, $dict);
@@ -307,7 +307,7 @@ class Event_NewInteractionChatWorker extends Extension_DevblocksEvent {
 	function runActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		switch($token) {
 			case 'set_bot_name':
-				@$bot_name = $params['name'];
+				$bot_name = $params['name'] ?? null;
 				
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				$actions =& $dict->_actions;
@@ -333,7 +333,7 @@ class Event_NewInteractionChatWorker extends Extension_DevblocksEvent {
 					$actions = [];
 				
 				@$behavior_id = intval($params['behavior_id']);
-				@$var_key = $params['var'] ?? '_behavior';
+				$var_key = ($params['var'] ?? null) ?: '_behavior';
 				
 				if(false == ($behavior = DAO_TriggerEvent::get($behavior_id)))
 					break;

@@ -1,8 +1,12 @@
 {if empty($watchers_btn_domid)}{$watchers_btn_domid = uniqid()}{/if}
-{$num_watchers = $object_watchers.{$context_id}|default:[]|count}
-{$is_current_worker = isset($object_watchers.{$context_id}.{$active_worker->id})}
+{$num_watchers = 0}
+{if is_array($object_watchers) && array_key_exists($context_id, $object_watchers)}{$num_watchers = $object_watchers.$context_id|count}{/if}
+{$is_current_worker = is_array($object_watchers) && array_key_exists($context_id, $object_watchers) && array_key_exists($active_worker->id, $object_watchers.$context_id)}
+{if !isset($watchers_group_id)}{$watchers_group_id = null}{/if}
+{if !isset($watchers_bucket_id)}{$watchers_bucket_id = null}{/if}
+
 <button type="button" id="{$watchers_btn_domid}" class="{if $is_current_worker}green{/if}" data-group-id="{$watchers_group_id}" data-bucket-id="{$watchers_bucket_id}">
-	{if $full_label}
+	{if isset($full_label) && $full_label}
 		<div class="badge-count">{$num_watchers}</div>
 		{'common.watching'|devblocks_translate|capitalize}
 	{else}

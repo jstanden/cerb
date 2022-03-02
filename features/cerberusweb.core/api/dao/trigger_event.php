@@ -451,7 +451,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		$contexts_list = Extension_DevblocksContext::getAll(false, 'va_variable');
 		foreach($contexts_list as $list_context_id => $list_context) {
 			$context_aliases = Extension_DevblocksContext::getAliasesForContext($list_context);
-			@$plural = $context_aliases['plural'];
+			$plural = $context_aliases['plural'] ?? null;
 			$variable_types['ctx_' . $list_context_id] = 'List:' . DevblocksPlatform::strUpperFirst($plural ?: $list_context->name);
 		}
 		
@@ -1170,8 +1170,8 @@ class Model_TriggerEvent {
 					break;
 					
 				case 'loop':
-					@$foreach_json = $nodes[$node_id]->params['foreach_json'];
-					@$as_placeholder = $nodes[$node_id]->params['as_placeholder'];
+					$foreach_json = $nodes[$node_id]->params['foreach_json'] ?? null;
+					$as_placeholder = $nodes[$node_id]->params['as_placeholder'] ?? null;
 					
 					$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 					
@@ -1199,12 +1199,12 @@ class Model_TriggerEvent {
 					if($replay_id)
 						break;
 					
-					@$cond_groups = $nodes[$node_id]->params['groups'];
+					$cond_groups = $nodes[$node_id]->params['groups'] ?? null;
 					
 					if(is_array($cond_groups))
 					foreach($cond_groups as $cond_group) {
 						@$any = intval($cond_group['any']);
-						@$conditions = $cond_group['conditions'];
+						$conditions = $cond_group['conditions'] ?? null;
 						$group_pass = true;
 						$logger->info(sprintf("Conditions are in `%s` group.", ($any ? 'any' : 'all')));
 						
@@ -1300,7 +1300,7 @@ class Model_TriggerEvent {
 		
 		do {
 			if($node_id && 'loop' == $nodes[$node_id]->node_type) {
-				@$as_placeholder = $nodes[$node_id]->params['as_placeholder'];
+				$as_placeholder = $nodes[$node_id]->params['as_placeholder'] ?? null;
 				@$as_placeholder_key = $as_placeholder . '__key';
 				@$as_placeholder_stack = $as_placeholder . '__stack';
 				@$as_placeholder_counter = $as_placeholder . '__counter';
@@ -1402,7 +1402,7 @@ class Model_TriggerEvent {
 		
 		// Do we have special prompt handling instructions?
 		if(isset($interaction->session_data['_prompt'])) {
-			@$prompt = $interaction->session_data['_prompt'];
+			$prompt = $interaction->session_data['_prompt'] ?? null;
 			
 			// Are we saving a copy of the latest message into a placeholder?
 			if(false != (@$var = $prompt['var'])) {
@@ -1984,17 +1984,17 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 
 			case SearchFields_TriggerEvent::IS_DISABLED:
 			case SearchFields_TriggerEvent::IS_PRIVATE:
-				@$bool = DevblocksPlatform::importGPC($_POST['bool'],'integer',1);
+				$bool = DevblocksPlatform::importGPC($_POST['bool'] ?? null, 'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 			
 			case SearchFields_TriggerEvent::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_POST['context_link'],'array',[]);
+				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 
 			case SearchFields_TriggerEvent::VIRTUAL_WATCHERS:
-				@$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'],'array',[]);
+				$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
 				break;
 				

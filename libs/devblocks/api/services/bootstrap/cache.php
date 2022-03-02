@@ -117,7 +117,7 @@ class _DevblocksCacheManager {
 	 */
 	public function save($data, $key, $tags=array(), $ttl=0, $local_only=false) {
 		// Monitor short-term cache memory usage
-		@$this->_statistics[$key] = intval($this->_statistics[$key]);
+		$this->_statistics[$key] = intval($this->_statistics[$key] ?? 0);
 		$this->_io_writes++;
 		$this->_registry[$key] = $data;
 		
@@ -182,7 +182,7 @@ class _DevblocksCacheManager {
 				}
 			}
 			
-			@$this->_statistics[$key] = intval($this->_statistics[$key]) + 1;
+			$this->_statistics[$key] = intval($this->_statistics[$key] ?? 0) + 1;
 			$this->_io_reads_long++;
 			return $this->_registry[$key];
 		}
@@ -194,7 +194,7 @@ class _DevblocksCacheManager {
 	private function _loadFromLocalRegistry($key) {
 		// Retrieving the short-term cache
 		if(isset($this->_registry[$key])) {
-			@$this->_statistics[$key] = intval($this->_statistics[$key]) + 1;
+			$this->_statistics[$key] = intval($this->_statistics[$key] ?? 0) + 1;
 			$this->_io_reads_short++;
 			return $this->_registry[$key];
 		}
@@ -327,15 +327,15 @@ class DevblocksCacheEngine_Disk extends Extension_DevblocksCacheEngine {
 	}
 	
 	private function _getFilename($key) {
-		@$key_prefix = $this->_config['key_prefix'];
-		@$salt_suffix = '--' . substr(sha1(APP_DB_PASS),-8);
+		$key_prefix = $this->_config['key_prefix'] ?? null;
+		$salt_suffix = '--' . substr(sha1(APP_DB_PASS ?? null),-8);
 		
 		$safe_key = preg_replace("/[^A-Za-z0-9_\-]/",'_', $key);
 		return $key_prefix . $safe_key . $salt_suffix;
 	}
 	
 	function load($key, &$tags=[]) {
-		@$cache_dir = $this->_config['cache_dir'];
+		$cache_dir = $this->_config['cache_dir'] ?? null;
 		
 		if(empty($cache_dir))
 			return NULL;
@@ -377,7 +377,7 @@ class DevblocksCacheEngine_Disk extends Extension_DevblocksCacheEngine {
 	}
 	
 	function save($data, $key, $tags=[], $ttl=0) {
-		@$cache_dir = $this->_config['cache_dir'];
+		$cache_dir = $this->_config['cache_dir'] ?? null;
 		
 		if(empty($cache_dir))
 			return false;
@@ -414,7 +414,7 @@ class DevblocksCacheEngine_Disk extends Extension_DevblocksCacheEngine {
 	}
 	
 	function remove($key) {
-		@$cache_dir = $this->_config['cache_dir'];
+		$cache_dir = $this->_config['cache_dir'] ?? null;
 		
 		if(empty($cache_dir))
 			return false;
@@ -427,7 +427,7 @@ class DevblocksCacheEngine_Disk extends Extension_DevblocksCacheEngine {
 	}
 	
 	function clean() {
-		@$cache_dir = $this->_config['cache_dir'];
+		$cache_dir = $this->_config['cache_dir'] ?? null;
 		
 		$files = scandir($cache_dir);
 		unset($files['.']);
@@ -459,7 +459,7 @@ class DevblocksCacheEngine_Memcache extends Extension_DevblocksCacheEngine {
 		if(!$new && !is_null($this->_iteration))
 			return $this->_iteration;
 		
-		@$key_prefix = $this->_config['key_prefix'];
+		$key_prefix = $this->_config['key_prefix'] ?? null;
 		$cache_key = $key_prefix . 'cacher:iteration';
 		
 		// Then check the Memcache
@@ -478,7 +478,7 @@ class DevblocksCacheEngine_Memcache extends Extension_DevblocksCacheEngine {
 	}
 	
 	private function _getCacheKey($key) {
-		@$key_prefix = $this->_config['key_prefix'];
+		$key_prefix = $this->_config['key_prefix'] ?? null;
 		
 		return sprintf("%s%s:%s",
 			$key_prefix,
@@ -610,7 +610,7 @@ class DevblocksCacheEngine_Redis extends Extension_DevblocksCacheEngine {
 		if(!$new && !is_null($this->_iteration))
 			return $this->_iteration;
 		
-		@$key_prefix = $this->_config['key_prefix'];
+		$key_prefix = $this->_config['key_prefix'] ?? null;
 		$cache_key = $key_prefix . 'cacher:iteration';
 		
 		// Then check the Redis cache
@@ -635,7 +635,7 @@ class DevblocksCacheEngine_Redis extends Extension_DevblocksCacheEngine {
 	}
 	
 	private function _getCacheKey($key) {
-		@$key_prefix = $this->_config['key_prefix'];
+		$key_prefix = $this->_config['key_prefix'] ?? null;
 		
 		return sprintf("%s%s:%s",
 			$key_prefix,

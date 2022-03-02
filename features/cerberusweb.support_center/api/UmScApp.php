@@ -96,7 +96,7 @@ class UmScApp extends Extension_CommunityPortal {
 				if(empty($module) || !$module instanceof Extension_UmScController)
 					continue;
 				
-				@$module_uri = $module->manifest->params['uri'];
+				$module_uri = $module->manifest->params['uri'] ?? null;
 
 				$_all_modules[$module_uri] = $module;
 				
@@ -191,7 +191,7 @@ class UmScApp extends Extension_CommunityPortal {
 			
 				// ...and the CSRF token is invalid for this session, freak out
 				if(!$umsession->csrf_token || $umsession->csrf_token != $request->csrf_token) {
-					//@$referer = $_SERVER['HTTP_REFERER'];
+					//$referer = $_SERVER['HTTP_REFERER'] ?? null;
 					//@$remote_addr = DevblocksPlatform::getClientIp();
 					
 					//error_log(sprintf("[Cerb/Security] Possible CSRF attack from IP %s using referrer %s", $remote_addr, $referer), E_USER_WARNING);
@@ -344,7 +344,7 @@ class UmScApp extends Extension_CommunityPortal {
 	public function configure(Model_CommunityTool $portal) {
 		$tpl = DevblocksPlatform::services()->template();
 		
-		@$config_tab = DevblocksPlatform::importGPC($_REQUEST['config_tab'], 'string', '');
+		$config_tab = DevblocksPlatform::importGPC($_REQUEST['config_tab'] ?? null, 'string', '');
 		
 		$tpl->assign('portal', $portal);
 		
@@ -385,8 +385,8 @@ class UmScApp extends Extension_CommunityPortal {
 	}
 	
 	function saveConfiguration(Model_CommunityTool $portal) {
-		@$portal_id = DevblocksPlatform::importGPC($_POST['portal_id'], 'integer', 0);
-		@$config_tab = DevblocksPlatform::importGPC($_POST['config_tab'], 'string', '');
+		$portal_id = DevblocksPlatform::importGPC($_POST['portal_id'] ?? null, 'integer', 0);
+		$config_tab = DevblocksPlatform::importGPC($_POST['config_tab'] ?? null, 'string', '');
 		
 		if(false == ($active_worker = CerberusApplication::getActiveWorker()))
 			DevblocksPlatform::dieWithHttpError('', 403);
@@ -400,7 +400,7 @@ class UmScApp extends Extension_CommunityPortal {
 				break;
 				
 			case 'templates':
-				@$tab_action = DevblocksPlatform::importGPC($_REQUEST['tab_action'], 'string', '');
+				$tab_action = DevblocksPlatform::importGPC($_REQUEST['tab_action'] ?? null, 'string', '');
 				
 				switch($tab_action) {
 					case 'saveAddTemplatePeek':
@@ -471,11 +471,11 @@ class UmScApp extends Extension_CommunityPortal {
 	}
 	
 	private function _profileSaveConfigTabWebsite(Model_CommunityTool $portal) {
-		@$aVisibleModules = DevblocksPlatform::importGPC($_POST['visible_modules'],'array',array());
-		@$aIdxModules = DevblocksPlatform::importGPC($_POST['idx_modules'],'array',array());
-		@$sPageTitle = DevblocksPlatform::importGPC($_POST['page_title'],'string','Contact Us');
-		@$logo_url = DevblocksPlatform::importGPC($_POST['logo_url'],'string',null);
-		@$favicon_url = DevblocksPlatform::importGPC($_POST['favicon_url'],'string',null);
+		$aVisibleModules = DevblocksPlatform::importGPC($_POST['visible_modules'] ?? null, 'array', []);
+		$aIdxModules = DevblocksPlatform::importGPC($_POST['idx_modules'] ?? null, 'array', []);
+		$sPageTitle = DevblocksPlatform::importGPC($_POST['page_title'] ?? null, 'string','Contact Us');
+		$logo_url = DevblocksPlatform::importGPC($_POST['logo_url'] ?? null, 'string',null);
+		$favicon_url = DevblocksPlatform::importGPC($_POST['favicon_url'] ?? null, 'string',null);
 		
 		// Modules (toggle + sort)
 		$aEnabledModules = array();
@@ -493,13 +493,13 @@ class UmScApp extends Extension_CommunityPortal {
 		DAO_CommunityToolProperty::set($portal->code, self::PARAM_FAVICON_URL, $favicon_url);
 
 		// Default Locale
-		@$sDefaultLocale = DevblocksPlatform::importGPC($_POST['default_locale'],'string','en_US');
+		$sDefaultLocale = DevblocksPlatform::importGPC($_POST['default_locale'] ?? null, 'string','en_US');
 		DAO_CommunityToolProperty::set($portal->code, self::PARAM_DEFAULT_LOCALE, $sDefaultLocale);
 	}
 	
 	private function _profileRenderConfigTabTemplates(Model_CommunityTool $portal) {
-		@$config_tab = DevblocksPlatform::importGPC($_REQUEST['config_tab'], 'string', '');
-		@$tab_action = DevblocksPlatform::importGPC($_REQUEST['tab_action'], 'string', '');
+		$config_tab = DevblocksPlatform::importGPC($_REQUEST['config_tab'] ?? null, 'string', '');
+		$tab_action = DevblocksPlatform::importGPC($_REQUEST['tab_action'] ?? null, 'string', '');
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('portal', $portal);
@@ -530,8 +530,8 @@ class UmScApp extends Extension_CommunityPortal {
 	}
 	
 	private function _showAddTemplatePeek() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-		@$portal_id = DevblocksPlatform::importGPC($_REQUEST['portal_id'],'integer',0);
+		$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'] ?? null,'string','');
+		$portal_id = DevblocksPlatform::importGPC($_REQUEST['portal_id'] ?? null, 'integer',0);
 		
 		$tpl = DevblocksPlatform::services()->template();
 
@@ -573,9 +573,9 @@ class UmScApp extends Extension_CommunityPortal {
 	}
 	
 	private function _saveAddTemplatePeek() {
-		@$portal_id = DevblocksPlatform::importGPC($_POST['portal_id'],'integer',0);
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
-		@$template = DevblocksPlatform::importGPC($_POST['template'],'string','');
+		$portal_id = DevblocksPlatform::importGPC($_POST['portal_id'] ?? null, 'integer',0);
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string','');
+		$template = DevblocksPlatform::importGPC($_POST['template'] ?? null, 'string','');
 		
 		list($plugin_id, $template_path) = explode(':', $template, 2);
 		
@@ -667,7 +667,7 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$email = DevblocksPlatform::importGPC($_POST['email'],'string','');
+		$email = DevblocksPlatform::importGPC($_POST['email'] ?? null, 'string','');
 		
 		try {
 			// Validate
@@ -720,11 +720,11 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$confirm = DevblocksPlatform::importGPC($_POST['confirm'],'string','');
-		@$first_name = DevblocksPlatform::importGPC($_POST['first_name'],'string','');
-		@$last_name = DevblocksPlatform::importGPC($_POST['last_name'],'string','');
-		@$password = DevblocksPlatform::importGPC($_POST['password'],'string','');
-		@$password2 = DevblocksPlatform::importGPC($_POST['password2'],'string','');
+		$confirm = DevblocksPlatform::importGPC($_POST['confirm'] ?? null, 'string','');
+		$first_name = DevblocksPlatform::importGPC($_POST['first_name'] ?? null, 'string','');
+		$last_name = DevblocksPlatform::importGPC($_POST['last_name'] ?? null, 'string','');
+		$password = DevblocksPlatform::importGPC($_POST['password'] ?? null, 'string','');
+		$password2 = DevblocksPlatform::importGPC($_POST['password2'] ?? null, 'string','');
 		
 		try {
 			// Load the session (email)
@@ -810,7 +810,7 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$email = DevblocksPlatform::importGPC($_POST['email'],'string','');
+		$email = DevblocksPlatform::importGPC($_POST['email'] ?? null, 'string','');
 		
 		try {
 			// Verify email is a contact
@@ -863,10 +863,10 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$email = DevblocksPlatform::importGPC($_POST['email'],'string','');
-		@$confirm = DevblocksPlatform::importGPC($_POST['confirm'],'string','');
-		@$password_new = DevblocksPlatform::importGPC($_POST['password_new'],'string','');
-		@$password_new_confirm = DevblocksPlatform::importGPC($_POST['password_new_confirm'],'string','');
+		$email = DevblocksPlatform::importGPC($_POST['email'] ?? null, 'string','');
+		$confirm = DevblocksPlatform::importGPC($_POST['confirm'] ?? null, 'string','');
+		$password_new = DevblocksPlatform::importGPC($_POST['password_new'] ?? null, 'string','');
+		$password_new_confirm = DevblocksPlatform::importGPC($_POST['password_new_confirm'] ?? null, 'string','');
 		
 		try {
 			// Verify email is a contact
@@ -936,8 +936,8 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$email = DevblocksPlatform::importGPC($_POST['email']);
-		@$pass = DevblocksPlatform::importGPC($_POST['password']);
+		$email = DevblocksPlatform::importGPC($_POST['email'] ?? null);
+		$pass = DevblocksPlatform::importGPC($_POST['password'] ?? null);
 		
 		// Clear the past session
 		$umsession->logout();

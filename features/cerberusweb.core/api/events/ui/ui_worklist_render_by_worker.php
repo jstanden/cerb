@@ -94,9 +94,9 @@ class Event_UiWorklistRenderByWorker extends Extension_DevblocksEvent {
 	}
 	
 	function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger=null) {
-		@$context = $event_model->params['context'];
-		@$view_id = $event_model->params['view_id'];
-		@$worker = $event_model->params['worker'];
+		$context = $event_model->params['context'] ?? null;
+		$view_id = $event_model->params['view_id'] ?? null;
+		$worker = $event_model->params['worker'] ?? null;
 		
 		$labels = array();
 		$values = array();

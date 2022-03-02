@@ -37,7 +37,7 @@
 			</ul>
 		</div>
 		<div id="workspaceWidget{$widget->id}" class="cerb-workspace-widget--content">
-			{if $full}
+			{if isset($full) && $full}
 				{$widget_extension->render($widget, $context, $context_id, [])}
 			{/if}
 		</div>

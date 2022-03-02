@@ -175,7 +175,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 		 * Ticket
 		 */
 
-		@$ticket_id = $event_model->params['ticket_id'];
+		$ticket_id = $event_model->params['ticket_id'] ?? null;
 		
 		$ticket_labels = $ticket_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $ticket_id, $ticket_labels, $ticket_values, null, true);
@@ -204,7 +204,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 		/**
 		 * Group
 		 */
-		@$group_id = $properties['group_id'] ?: $event_model->params['group_id'];
+		$group_id = ($properties['group_id'] ?? null) ?: ($event_model->params['group_id'] ?? null);
 		$group_labels = $group_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_GROUP, $group_id, $group_labels, $group_values, null, true);
 				
@@ -221,7 +221,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 		/**
 		 * Worker
 		 */
-		@$worker_id = $properties['worker_id'];
+		$worker_id = $properties['worker_id'] ?? null;
 		$worker_labels = $worker_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker_id, $worker_labels, $worker_values, '', true);
 				
@@ -652,7 +652,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 		switch($token) {
 			case 'append_to_content':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-				@$mode = $params['mode'];
+				$mode = $params['mode'] ?? null;
 				$content = $tpl_builder->build($params['content'], $dict);
 				
 				$out = sprintf(">>> Appending text on %s message\n".
@@ -668,8 +668,8 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 				
 			case 'prepend_to_content':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-				@$mode = $params['mode'];
-				@$content = $tpl_builder->build($params['content'], $dict);
+				$mode = $params['mode'] ?? null;
+				$content = $tpl_builder->build($params['content'] ?? '', $dict);
 				
 				$out = sprintf(">>> Prepending text on %s message\n".
 					"%s\n",
@@ -685,10 +685,10 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 			case 'replace_content':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
-				@$replace = $tpl_builder->build($params['replace'], $dict);
-				@$with = $tpl_builder->build($params['with'], $dict);
-				@$replace_on = $params['replace_on'];
-				@$replace_is_regexp = $params['is_regexp'];
+				$replace = $tpl_builder->build($params['replace'] ?? '', $dict);
+				$with = $tpl_builder->build($params['with'] ?? '', $dict);
+				$replace_on = $params['replace_on'] ?? null;
+				$replace_is_regexp = $params['is_regexp'] ?? null;
 				
 				if($replace_is_regexp) {
 					@$after = preg_replace($replace, $with, $dict->content);
@@ -744,14 +744,14 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 			case 'set_send_at':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
-				@$mode = $params['mode'];
+				$mode = $params['mode'] ?? null;
 				
 				$this->runActionExtension($token, $trigger, $params, $dict);
 				
 				switch($mode) {
 					case 'calendar':
-						@$calendar_reldate = $params['calendar_reldate'];
-						@$calendar_id = $params['calendar_id'];
+						$calendar_reldate = $params['calendar_reldate'] ?? null;
+						$calendar_id = $params['calendar_id'] ?? null;
 						
 						$calendar = DAO_Calendar::get($calendar_id);
 						
@@ -763,7 +763,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 						break;
 						
 					default:
-						@$value = $tpl_builder->build($params['value'], $dict);
+						$value = $tpl_builder->build($params['value'] ?? '', $dict);
 						
 						$out = sprintf(">>> Setting `send at`\n%s (%s)\n",
 							$value,
@@ -798,8 +798,8 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 		switch($token) {
 			case 'append_to_content':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-				@$mode = $params['mode'];
-				@$content = $tpl_builder->build($params['content'], $dict);
+				$mode = $params['mode'] ?? null;
+				$content = $tpl_builder->build($params['content'] ?? '', $dict);
 				
 				if(!array_key_exists('content_modifications', $dict->_properties))
 					$dict->_properties['content_modifications'] = [];
@@ -817,8 +817,8 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 				
 			case 'prepend_to_content':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-				@$mode = $params['mode'];
-				@$content = $tpl_builder->build($params['content'], $dict);
+				$mode = $params['mode'] ?? null;
+				$content = $tpl_builder->build($params['content'] ?? '', $dict);
 				
 				if(!array_key_exists('content_modifications', $dict->_properties))
 					$dict->_properties['content_modifications'] = [];
@@ -837,8 +837,8 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 			case 'replace_content':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
-				@$replace = $tpl_builder->build($params['replace'], $dict);
-				@$with = $tpl_builder->build($params['with'], $dict);
+				$replace = $tpl_builder->build($params['replace'] ?? '', $dict);
+				$with = $tpl_builder->build($params['with'] ?? '', $dict);
 				
 				if(!array_key_exists('content_modifications', $dict->_properties))
 					$dict->_properties['content_modifications'] = [];
@@ -848,7 +848,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 					'params' => [
 						'replace' => $replace,
 						'replace_is_regexp' => @$params['is_regexp'] ? true : false,
-						'replace_on' => @$params['replace_on'],
+						'replace_on' => $params['replace_on'] ?? null,
 						'with' => $with
 					],
 				];
@@ -880,12 +880,12 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 			case 'set_send_at':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
-				@$mode = $params['mode'];
+				$mode = $params['mode'] ?? null;
 				
 				switch($mode) {
 					case 'calendar':
-						@$rel_date = $params['calendar_reldate'];
-						@$calendar_id = $params['calendar_id'];
+						$rel_date = $params['calendar_reldate'] ?? null;
+						$calendar_id = $params['calendar_id'] ?? null;
 						
 						$rel_now = $dict->get('_current_time', time());
 						$value = DevblocksEventHelper::getRelativeDateUsingCalendar($calendar_id, $rel_date, $rel_now);
@@ -894,7 +894,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 						break;
 					
 					default:
-						@$value = $tpl_builder->build($params['value'], $dict);
+						$value = $tpl_builder->build($params['value'] ?? '', $dict);
 						
 						if(!is_numeric($value))
 							$value = time();

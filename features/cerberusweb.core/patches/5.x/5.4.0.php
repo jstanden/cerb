@@ -283,7 +283,7 @@ if(!empty($todo)) {
 		// Migrate open auto-reply
 		if(isset($settings['auto_reply_enabled'])
 			&& !empty($settings['auto_reply_enabled'])) {
-				@$content = $settings['auto_reply'];
+				$content = $settings['auto_reply'] ?? null;
 				
 				if(empty($content))
 					continue;
@@ -368,7 +368,7 @@ if(!empty($todo)) {
 		// Migrate close auto-reply
 		if(isset($settings['close_reply_enabled'])
 			&& !empty($settings['close_reply_enabled'])) {
-				@$content = $settings['close_reply'];
+				$content = $settings['close_reply'] ?? null;
 				
 				if(empty($content))
 					continue;
@@ -723,7 +723,7 @@ if(isset($tables['group_inbox_filter'])) {
 						break;
 						
 					case 'subject':
-						@$val = $data['value'];
+						$val = $data['value'] ?? null;
 						
 						if(empty($val))
 							break;
@@ -738,7 +738,7 @@ if(isset($tables['group_inbox_filter'])) {
 						break;
 						
 					case 'from':
-						@$val = $data['value'];
+						$val = $data['value'] ?? null;
 						
 						if(empty($val))
 							break;
@@ -753,7 +753,7 @@ if(isset($tables['group_inbox_filter'])) {
 						break;
 						
 					case 'body':
-						@$val = $data['value'];
+						$val = $data['value'] ?? null;
 						
 						if(empty($val))
 							break;
@@ -770,8 +770,8 @@ if(isset($tables['group_inbox_filter'])) {
 					default:
 						// Headers
 						if('header' == substr($key,0,6)) {
-							@$header = $data['header'];
-							@$val = $data['value'];
+							$header = $data['header'] ?? null;
+							$val = $data['value'] ?? null;
 							
 							if(empty($val))
 								break;
@@ -864,8 +864,8 @@ if(isset($tables['group_inbox_filter'])) {
 								);
 								break;
 							case 'E': // Date
-								@$from = $data['from'];
-								@$to = $data['to'];
+								$from = $data['from'] ?? null;
+								$to = $data['to'] ?? null;
 								
 								$condition = array(
 									'condition' => $condition_key,
@@ -907,7 +907,7 @@ if(isset($tables['group_inbox_filter'])) {
 			// Check for To/Cc and nest decision if multiple addresses
 			if(isset($criterion['tocc'])) {
 				$data = $criterion['tocc'];
-				@$val = $data['value'];
+				$val = $data['value'] ?? null;
 				
 				if(!empty($val)) {
 					$vals = DevblocksPlatform::parseCsvString($val);
@@ -973,8 +973,8 @@ if(isset($tables['group_inbox_filter'])) {
 					
 					switch($key) {
 						case 'move':
-							@$move_group_id = $data['group_id'];
-							@$move_bucket_id = $data['bucket_id'];
+							$move_group_id = $data['group_id'] ?? null;
+							$move_bucket_id = $data['bucket_id'] ?? null;
 							
 							// Intra-group move
 							if($move_group_id == $group_id) {
@@ -1011,9 +1011,9 @@ if(isset($tables['group_inbox_filter'])) {
 							break;
 							
 						case 'status':
-							@$is_waiting = $data['is_waiting'];
-							@$is_closed = $data['is_closed'];
-							@$is_deleted = $data['is_deleted'];
+							$is_waiting = $data['is_waiting'] ?? null;
+							$is_closed = $data['is_closed'] ?? null;
+							$is_deleted = $data['is_deleted'] ?? null;
 							
 							$status = 'open';
 							
@@ -1039,7 +1039,7 @@ if(isset($tables['group_inbox_filter'])) {
 							break;
 							
 						case 'spam':
-							@$is_spam = $data['is_spam'];
+							$is_spam = $data['is_spam'] ?? null;
 							
 							$training = 'N';
 							
@@ -1060,7 +1060,7 @@ if(isset($tables['group_inbox_filter'])) {
 							break;
 							
 						case 'owner':
-							@$add_workers = $data['add'];
+							$add_workers = $data['add'] ?? null;
 							
 							if(empty($add_workers) || !is_array($data['add']))
 								break;
@@ -1096,7 +1096,7 @@ if(isset($tables['group_inbox_filter'])) {
 								case 'S':
 								case 'T':
 								case 'U':
-									@$value = $data['value'];
+									$value = $data['value'] ?? null;
 									if(empty($value))
 										break;
 									
@@ -1106,7 +1106,7 @@ if(isset($tables['group_inbox_filter'])) {
 									);
 									break;
 								case 'W':
-									@$value = $data['value'];
+									$value = $data['value'] ?? null;
 									if(empty($value))
 										break;
 									
@@ -1116,7 +1116,7 @@ if(isset($tables['group_inbox_filter'])) {
 									);
 									break;
 								case 'X':
-									@$value = $data['value'];
+									$value = $data['value'] ?? null;
 									
 									if(empty($value) || !is_array($value))
 										break;

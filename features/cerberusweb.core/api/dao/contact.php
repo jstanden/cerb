@@ -1679,22 +1679,22 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 				
 			case SearchFields_Contact::FULLTEXT_COMMENT_CONTENT:
 			case SearchFields_Contact::FULLTEXT_CONTACT:
-				@$scope = DevblocksPlatform::importGPC($_POST['scope'],'string','expert');
+				$scope = DevblocksPlatform::importGPC($_POST['scope'] ?? null, 'string','expert');
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
 				
 			case SearchFields_Contact::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_POST['context_link'],'array',array());
+				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array', []);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
 			case SearchFields_Contact::VIRTUAL_HAS_FIELDSET:
-				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',array());
+				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array', []);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
 			case SearchFields_Contact::VIRTUAL_WATCHERS:
-				@$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'],'array',array());
+				$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'] ?? null, 'array', []);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
 				break;
 				
@@ -2312,7 +2312,7 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 				$model = new Model_Contact();
 				
 				foreach($tokens as $token) {
-					@list($k,$v) = explode(':', $token);
+					list($k,$v) = array_pad(explode(':', $token, 2), 2, null);
 					
 					if($v)
 					switch($k) {

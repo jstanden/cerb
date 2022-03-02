@@ -23,7 +23,7 @@ class ServiceProvider_CerbApiLegacy extends Extension_ConnectedServiceProvider {
 	}
 
 	public function saveAccountConfigForm(Model_ConnectedService $service, Model_ConnectedAccount $account, array &$params, &$error = null) {
-		@$edit_params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
+		$edit_params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
 	
 		// [TODO] Validation
 		
@@ -230,7 +230,7 @@ class WgmCerb_API {
 		$info = curl_getinfo($ch);
 		
 		// Content-type handling
-		@list($content_type,) = explode(';', DevblocksPlatform::strLower($info['content_type']));
+		list($content_type,) = array_pad(explode(';', DevblocksPlatform::strLower($info['content_type'])), 2, null);
 		
 		curl_close($ch);
 		

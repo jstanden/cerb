@@ -344,7 +344,7 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 	private function postNote($id) {
 		$worker = CerberusApplication::getActiveWorker();
 
-		@$note = DevblocksPlatform::importGPC($_POST['note'],'string','');
+		$note = DevblocksPlatform::importGPC($_POST['note'] ?? null, 'string','');
 		
 		if(null == ($task = DAO_Task::get($id)))
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid task ID %d", $id));

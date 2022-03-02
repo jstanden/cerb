@@ -53,11 +53,11 @@ class Cerb_Packages {
 		$package = $json['package'];
 		
 		// Requirements
-		@$requires = $package['requires'];
+		$requires = $package['requires'] ?? null;
 		
 		if(is_array($requires)) {
-			@$target_version = $requires['cerb_version'];
-			@$target_plugins = $requires['plugins'];
+			$target_version = $requires['cerb_version'] ?? null;
+			$target_plugins = $requires['plugins'] ?? null;
 			
 			if(!empty($target_version) && is_string($target_version)) {
 				if(!version_compare(APP_VERSION, $target_version, '>='))
@@ -78,8 +78,8 @@ class Cerb_Packages {
 		if(!is_array($json))
 			throw new Exception_DevblocksValidationError("Invalid package JSON");
 		
-		@$configure = $json['package']['configure'];
-		@$config_prompts = $configure['prompts'];
+		$configure = $json['package']['configure'] ?? null;
+		$config_prompts = $configure['prompts'] ?? null;
 		
 		if(is_array($config_prompts) && $config_prompts)
 			return $config_prompts;
@@ -104,19 +104,19 @@ class Cerb_Packages {
 		$placeholders = [];
 		
 		// Pre-import configuration
-		@$configure = $json['package']['configure'];
-		@$config_prompts = $configure['prompts'];
-		@$config_placeholders = $configure['placeholders'];
+		$configure = $json['package']['configure'] ?? null;
+		$config_prompts = $configure['prompts'] ?? null;
+		$config_placeholders = $configure['placeholders'] ?? null;
 		$config_options = array_merge(
 			[
 				'disable_events' => false,
 			],
-			@$configure['options'] ?: []
+			($configure['options'] ?? null) ?: []
 		);
 		
 		if(is_array($config_prompts) && $config_prompts) {
 			foreach($config_prompts as $config_prompt) {
-				@$key = $config_prompt['key'];
+				$key = $config_prompt['key'] ?? null;
 				
 				if(!$key)
 					throw new Exception_DevblocksValidationError(sprintf("Prompt key is missing."));
@@ -147,7 +147,7 @@ class Cerb_Packages {
 						break;
 						
 					case 'picklist':
-						@$options = $config_prompt['params']['options'];
+						$options = $config_prompt['params']['options'] ?? null;
 						
 						if(!is_array($options) || !in_array($value, $options))
 							throw new Exception_DevblocksValidationError(sprintf("'%s' (%s) is required.", $config_prompt['label'], $key));
@@ -170,7 +170,7 @@ class Cerb_Packages {
 		
 		if(is_array($config_placeholders) && $config_placeholders)
 		foreach($config_placeholders as $config_placeholder) {
-			@$key = $config_placeholder['key'];
+			$key = $config_placeholder['key'] ?? null;
 			
 			if(!$key)
 				throw new Exception_DevblocksValidationError(sprintf("Placeholder key is missing."));
@@ -180,10 +180,10 @@ class Cerb_Packages {
 					$data = DevblocksPlatform::services()->data();
 					$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 					
-					@$data_query = $config_placeholder['params']['query'];
-					@$selector = $config_placeholder['params']['selector'];
-					@$validate = $config_placeholder['params']['validate'];
-					@$format = $config_placeholder['params']['format'];
+					$data_query = $config_placeholder['params']['query'] ?? null;
+					$selector = $config_placeholder['params']['selector'] ?? null;
+					$validate = $config_placeholder['params']['validate'] ?? null;
+					$format = $config_placeholder['params']['format'] ?? null;
 					
 					$error = null;
 					
@@ -295,7 +295,7 @@ class Cerb_Packages {
 			
 			if(is_array($objects))
 			foreach($objects as $record_idx => $record) {
-				@$uid_record = $record['uid'];
+				$uid_record = $record['uid'] ?? null;
 				
 				if(!array_key_exists('_exclude', $record))
 					continue;
@@ -379,8 +379,8 @@ class Cerb_Packages {
 				throw new Exception_DevblocksValidationError(sprintf("Error validating record (%s): %s", $record['uid'], $error));
 		}
 		
-		//@$settings = $json['settings'];
-		//@$worker_prefs = $json['worker_prefs'];
+		//$settings = $json['settings'] ?? null;
+		//$worker_prefs = $json['worker_prefs'] ?? null;
 		
 		$custom_fieldsets = $json['custom_fieldsets'] ?? null;
 		
@@ -391,7 +391,7 @@ class Cerb_Packages {
 			if(count($diff))
 				throw new Exception_DevblocksValidationError(sprintf("Invalid JSON: custom fieldset is missing properties (%s)", implode(', ', array_keys($diff))));
 			
-			@$fields = $custom_fieldset['fields'];
+			$fields = $custom_fieldset['fields'] ?? null;
 			$keys_to_require = ['uid','name','type','params'];
 			
 			// Check fields
@@ -412,7 +412,7 @@ class Cerb_Packages {
 			if(count($diff))
 				throw new Exception_DevblocksValidationError(sprintf("Invalid JSON: bot is missing properties (%s)", implode(', ', array_keys($diff))));
 			
-			@$behaviors = $bot['behaviors'];
+			$behaviors = $bot['behaviors'] ?? null;
 			$keys_to_require = ['uid','title','is_disabled','is_private','priority','event','nodes'];
 			
 			// Check behaviors
@@ -453,7 +453,7 @@ class Cerb_Packages {
 			if(count($diff))
 				throw new Exception_DevblocksValidationError(sprintf("Invalid JSON: workspace is missing properties (%s)", implode(', ', array_keys($diff))));
 			
-			@$tabs = $bot['tabs'];
+			$tabs = $bot['tabs'] ?? null;
 			$keys_to_require = ['uid','name','extension_id','params'];
 			
 			// Check tabs
@@ -494,7 +494,7 @@ class Cerb_Packages {
 			if(count($diff))
 				throw new Exception_DevblocksValidationError(sprintf("Invalid JSON: calendar is missing properties (%s)", implode(', ', array_keys($diff))));
 			
-			@$events = $calendar['events'];
+			$events = $calendar['events'] ?? null;
 			$keys_to_require = ['uid','name','is_available','tz','event_start','event_end','recur_start','recur_end','patterns'];
 			
 			// Check events
@@ -516,7 +516,7 @@ class Cerb_Packages {
 			if(count($diff))
 				throw new Exception_DevblocksValidationError(sprintf("Invalid JSON: classifier is missing properties (%s)", implode(', ', array_keys($diff))));
 			
-			@$classes = $classifier['classes'];
+			$classes = $classifier['classes'] ?? null;
 			$keys_to_require = ['uid','name','expressions'];
 			
 			// Check classifications
@@ -526,7 +526,7 @@ class Cerb_Packages {
 				if(count($diff))
 					throw new Exception_DevblocksValidationError(sprintf("Invalid JSON: classification is missing properties (%s)", implode(', ', array_keys($diff))));
 				
-				@$expressions = $class['expressions'];
+				$expressions = $class['expressions'] ?? null;
 				
 				if(!is_array($expressions))
 					continue;
@@ -547,7 +547,7 @@ class Cerb_Packages {
 			if(count($diff))
 				throw new Exception_DevblocksValidationError(sprintf("Invalid JSON: project board is missing properties (%s)", implode(', ', array_keys($diff))));
 			
-			@$columns = $project_board['columns'];
+			$columns = $project_board['columns'] ?? null;
 			
 			// Validate columns
 			if(is_array($columns))
@@ -557,7 +557,7 @@ class Cerb_Packages {
 				if(count($diff))
 					throw new Exception_DevblocksValidationError(sprintf("Invalid JSON: project board column is missing properties (%s)", implode(', ', array_keys($diff))));
 				
-				@$cards = $column['cards'];
+				$cards = $column['cards'] ?? null;
 				
 				// Validate column cards
 				if(is_array($cards))
@@ -679,8 +679,8 @@ class Cerb_Packages {
 			$uids[$uid_record] = $record_id;
 		}
 		
-		//@$settings = $json['settings'];
-		//@$worker_prefs = $json['worker_preferences'];
+		//$settings = $json['settings'] ?? null;
+		//$worker_prefs = $json['worker_preferences'] ?? null;
 		
 		$custom_fieldsets = $json['custom_fieldsets'] ?? [];
 		
@@ -728,7 +728,7 @@ class Cerb_Packages {
 			
 			$uids[$uid] = $bot_id;
 			
-			@$behaviors = $bot['behaviors'];
+			$behaviors = $bot['behaviors'] ?? null;
 			
 			if(is_array($behaviors))
 			foreach($behaviors as $behavior) {
@@ -768,8 +768,8 @@ class Cerb_Packages {
 		foreach($workspaces as $workspace) {
 			$uid = $workspace['uid'];
 			
-			@$owner_context = $workspace['owner__context'];
-			@$owner_context_id = $workspace['owner_id'];
+			$owner_context = $workspace['owner__context'] ?? null;
+			$owner_context_id = $workspace['owner_id'] ?? null;
 			
 			if(!$owner_context) {
 				$owner_context = CerberusContexts::CONTEXT_APPLICATION;
@@ -784,7 +784,7 @@ class Cerb_Packages {
 			
 			$uids[$uid] = $workspace_id;
 			
-			@$tabs = $workspace['tabs'];
+			$tabs = $workspace['tabs'] ?? null;
 			
 			if(is_array($tabs))
 			foreach($tabs as $tab) {
@@ -847,7 +847,7 @@ class Cerb_Packages {
 			
 			$uids[$uid] = $calendar_id;
 			
-			@$events = $calendar['events'];
+			$events = $calendar['events'] ?? null;
 			
 			if(is_array($events))
 			foreach($events as $event) {
@@ -878,7 +878,7 @@ class Cerb_Packages {
 			
 			$uids[$uid] = $classifier_id;
 			
-			@$classes = $classifier['classes'];
+			$classes = $classifier['classes'] ?? null;
 			
 			if(is_array($classes))
 			foreach($classes as $class) {
@@ -910,7 +910,7 @@ class Cerb_Packages {
 			
 			$uids[$uid] = $project_board_id;
 			
-			@$columns = $project_board['columns'];
+			$columns = $project_board['columns'] ?? null;
 			
 			if(is_array($columns))
 			foreach($columns as $column) {
@@ -924,7 +924,7 @@ class Cerb_Packages {
 				
 				$uids[$uid_column] = $column_id;
 				
-				@$cards = $column['cards'];
+				$cards = $column['cards'] ?? null;
 				
 				if(is_array($cards))
 				foreach($cards as $card) {
@@ -1039,7 +1039,7 @@ class Cerb_Packages {
 			
 			$records_created[$context_ext->id][$uid_record] = [
 				'id' => $record_id,
-				'label' => @$record['_label'] ?: @$record['name'] ?: $record['uid'],
+				'label' => $record['_label'] ?? $record['name'] ?? $record['uid'] ?? null,
 			];
 		}
 		
@@ -1445,7 +1445,7 @@ class Cerb_Packages {
 			];
 			
 			$calendar_id = $id;
-			@$events = $calendar['events'];
+			$events = $calendar['events'] ?? null;
 			
 			if(is_array($events))
 			foreach($events as $event) {
@@ -1494,7 +1494,7 @@ class Cerb_Packages {
 				'label' => $classifier['name'],
 			];
 			
-			@$classes = $classifier['classes'];
+			$classes = $classifier['classes'] ?? null;
 			
 			if(is_array($classes))
 			foreach($classes as $class) {
@@ -1508,7 +1508,7 @@ class Cerb_Packages {
 					DAO_ClassifierClass::UPDATED_AT => time(),
 				]);
 				
-				@$expressions = $class['expressions'];
+				$expressions = $class['expressions'] ?? null;
 				
 				if(!is_array($expressions))
 					continue;
@@ -1535,7 +1535,7 @@ class Cerb_Packages {
 			$uid = $project_board['uid'];
 			$project_board_id = $uids[$uid];
 			
-			@$columns = $project_board['columns'];
+			$columns = $project_board['columns'] ?? null;
 			$column_ids = [];
 			
 			if(is_array($columns))
@@ -1545,7 +1545,7 @@ class Cerb_Packages {
 				$column_ids[] = $column_id;
 				
 				// Cards
-				@$cards = $column['cards'];
+				$cards = $column['cards'] ?? null;
 				$card_ids = [];
 				
 				if(is_array($cards))

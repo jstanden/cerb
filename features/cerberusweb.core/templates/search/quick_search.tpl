@@ -1,5 +1,6 @@
 {$uniqid = uniqid()}
-{if $view instanceof IAbstractView_QuickSearch}
+{if !isset($focus)}{$focus = null}{/if}
+{if isset($view) && is_a($view, 'IAbstractView_QuickSearch')}
 
 <form action="javascript:;" method="post" id="{$uniqid}" class="quick-search" style="background-color:var(--cerb-editor-background);">
 	<input type="hidden" name="c" value="search">

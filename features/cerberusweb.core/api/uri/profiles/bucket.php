@@ -41,9 +41,9 @@ class PageSection_ProfilesBucket extends Extension_PageSection {
 	}
 	
 	private function _profileAction_savePeekJson() {
-		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
-		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
+		$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -57,7 +57,7 @@ class PageSection_ProfilesBucket extends Extension_PageSection {
 				throw new Exception_DevblocksAjaxValidationError("The specified bucket record doesn't exist.");
 			
 			if($id && $do_delete) { // Delete
-				@$delete_moveto = DevblocksPlatform::importGPC($_POST['delete_moveto'],'integer',0);
+				$delete_moveto = DevblocksPlatform::importGPC($_POST['delete_moveto'] ?? null, 'integer',0);
 				
 				if(false == ($model = DAO_Bucket::get($id)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
@@ -85,17 +85,17 @@ class PageSection_ProfilesBucket extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$name = DevblocksPlatform::importGPC($_POST['name'],'string','');
-				@$enable_mail = DevblocksPlatform::importGPC($_POST['enable_mail'],'integer',0);
+				$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string','');
+				$enable_mail = DevblocksPlatform::importGPC($_POST['enable_mail'] ?? null, 'integer',0);
 				
 				$fields = [];
 				
 				if($enable_mail) {
-					@$reply_address_id = DevblocksPlatform::importGPC($_POST['reply_address_id'],'integer',0);
-					@$reply_personal = DevblocksPlatform::importGPC($_POST['reply_personal'],'string','');
-					@$reply_signature_id = DevblocksPlatform::importGPC($_POST['reply_signature_id'],'integer',0);
-					@$reply_html_template_id = DevblocksPlatform::importGPC($_POST['reply_html_template_id'],'integer',0);
-					@$reply_signing_key_id = DevblocksPlatform::importGPC($_POST['reply_signing_key_id'],'integer',0);
+					$reply_address_id = DevblocksPlatform::importGPC($_POST['reply_address_id'] ?? null, 'integer',0);
+					$reply_personal = DevblocksPlatform::importGPC($_POST['reply_personal'] ?? null, 'string','');
+					$reply_signature_id = DevblocksPlatform::importGPC($_POST['reply_signature_id'] ?? null, 'integer',0);
+					$reply_html_template_id = DevblocksPlatform::importGPC($_POST['reply_html_template_id'] ?? null, 'integer',0);
+					$reply_signing_key_id = DevblocksPlatform::importGPC($_POST['reply_signing_key_id'] ?? null, 'integer',0);
 				} else {
 					$reply_address_id = 0;
 					$reply_personal = '';
@@ -111,7 +111,7 @@ class PageSection_ProfilesBucket extends Extension_PageSection {
 				$fields[DAO_Bucket::REPLY_SIGNING_KEY_ID] = $reply_signing_key_id;
 				
 				if(empty($id)) { // New
-					@$group_id = DevblocksPlatform::importGPC($_POST['group_id'],'integer',0);
+					$group_id = DevblocksPlatform::importGPC($_POST['group_id'] ?? null, 'integer',0);
 					
 					$fields[DAO_Bucket::NAME] = $name;
 					$fields[DAO_Bucket::GROUP_ID] = $group_id;
@@ -147,7 +147,7 @@ class PageSection_ProfilesBucket extends Extension_PageSection {
 				}
 				
 				// Custom field saves
-				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+				$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 				if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_BUCKET, $id, $field_ids, $error))
 					throw new Exception_DevblocksAjaxValidationError($error);
 			}
@@ -180,7 +180,7 @@ class PageSection_ProfilesBucket extends Extension_PageSection {
 	}
 	
 	private function _profileAction_viewExplore() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
@@ -196,7 +196,7 @@ class PageSection_ProfilesBucket extends Extension_PageSection {
 		$view->setAutoPersist(false);
 
 		// Page start
-		@$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'],'integer',0);
+		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'integer',0);
 		if(empty($explore_from)) {
 			$orig_pos = 1+($view->renderPage * $view->renderLimit);
 		} else {

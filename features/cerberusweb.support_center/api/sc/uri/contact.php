@@ -125,7 +125,7 @@ class UmScContactController extends Extension_UmScController {
 	}
 
 	function configure(Model_CommunityTool $portal) {
-		@$tab_action = DevblocksPlatform::importGPC($_POST['tab_action'], 'string', '');
+		$tab_action = DevblocksPlatform::importGPC($_POST['tab_action'] ?? null, 'string', '');
 		
 		switch($tab_action) {
 			case 'addContactSituation':
@@ -190,27 +190,27 @@ class UmScContactController extends Extension_UmScController {
 	}
 	
 	function saveConfiguration(Model_CommunityTool $instance) {
-		@$iCaptcha = DevblocksPlatform::importGPC($_POST['captcha_enabled'],'integer',1);
+		$iCaptcha = DevblocksPlatform::importGPC($_POST['captcha_enabled'] ?? null, 'integer',1);
 		DAO_CommunityToolProperty::set($instance->code, self::PARAM_CAPTCHA_ENABLED, $iCaptcha);
 
-		@$iAllowCc = DevblocksPlatform::importGPC($_POST['allow_cc'],'integer',0);
+		$iAllowCc = DevblocksPlatform::importGPC($_POST['allow_cc'] ?? null, 'integer',0);
 		DAO_CommunityToolProperty::set($instance->code, self::PARAM_ALLOW_CC, $iAllowCc);
 		
-		@$iAllowSubjects = DevblocksPlatform::importGPC($_POST['allow_subjects'],'integer',0);
+		$iAllowSubjects = DevblocksPlatform::importGPC($_POST['allow_subjects'] ?? null, 'integer',0);
 		DAO_CommunityToolProperty::set($instance->code, self::PARAM_ALLOW_SUBJECTS, $iAllowSubjects);
 
-		@$iAttachmentsMode = DevblocksPlatform::importGPC($_POST['attachments_mode'],'integer',0);
+		$iAttachmentsMode = DevblocksPlatform::importGPC($_POST['attachments_mode'] ?? null, 'integer',0);
 		DAO_CommunityToolProperty::set($instance->code, self::PARAM_ATTACHMENTS_MODE, $iAttachmentsMode);
 
 		// Contact Form
 		$replyto_default = DAO_Address::getDefaultLocalAddress();
 		
 		// Situations
-		@$aReason = DevblocksPlatform::importGPC($_POST['contact_reason'],'array',array());
-		@$aTo = DevblocksPlatform::importGPC($_POST['contact_to'],'array',array());
-		@$aStatus = DevblocksPlatform::importGPC($_POST['status'],'array',array());
-		@$aFollowup = DevblocksPlatform::importGPC($_POST['contact_followup'],'array',array());
-		@$aFollowupField = DevblocksPlatform::importGPC($_POST['contact_followup_fields'],'array',array());
+		$aReason = DevblocksPlatform::importGPC($_POST['contact_reason'] ?? null, 'array', []);
+		$aTo = DevblocksPlatform::importGPC($_POST['contact_to'] ?? null, 'array', []);
+		$aStatus = DevblocksPlatform::importGPC($_POST['status'] ?? null, 'array', []);
+		$aFollowup = DevblocksPlatform::importGPC($_POST['contact_followup'] ?? null, 'array', []);
+		$aFollowupField = DevblocksPlatform::importGPC($_POST['contact_followup_fields'] ?? null, 'array', []);
 		
 		$dispatch = array();
 			
@@ -257,7 +257,7 @@ class UmScContactController extends Extension_UmScController {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$sNature = DevblocksPlatform::importGPC($_POST['nature'],'string','');
+		$sNature = DevblocksPlatform::importGPC($_POST['nature'] ?? null, 'string','');
 
 		$umsession->setProperty('support.write.last_nature', $sNature);
 		$umsession->setProperty('support.write.last_subject', null);
@@ -273,7 +273,7 @@ class UmScContactController extends Extension_UmScController {
 		foreach($dispatch as $k => $v) {
 			if(md5($k)==$sNature) {
 				$umsession->setProperty('support.write.last_nature_string', $k);
-				@$followups = $v['followups'];
+				$followups = $v['followups'] ?? null;
 				break;
 			}
 		}
@@ -287,14 +287,14 @@ class UmScContactController extends Extension_UmScController {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$sFrom = DevblocksPlatform::importGPC($_POST['from'],'string','');
-		@$sCc = DevblocksPlatform::importGPC($_POST['cc'],'string','');
-		@$sSubject = DevblocksPlatform::importGPC($_POST['subject'],'string','');
-		@$sContent = DevblocksPlatform::importGPC($_POST['content'],'string','');
-		@$sCaptcha = DevblocksPlatform::importGPC($_POST['captcha'],'string','');
+		$sFrom = DevblocksPlatform::importGPC($_POST['from'] ?? null, 'string','');
+		$sCc = DevblocksPlatform::importGPC($_POST['cc'] ?? null, 'string','');
+		$sSubject = DevblocksPlatform::importGPC($_POST['subject'] ?? null, 'string','');
+		$sContent = DevblocksPlatform::importGPC($_POST['content'] ?? null, 'string','');
+		$sCaptcha = DevblocksPlatform::importGPC($_POST['captcha'] ?? null, 'string','');
 		
-		@$aFieldIds = DevblocksPlatform::importGPC($_POST['field_ids'],'array',array());
-		@$aFollowUpQ = DevblocksPlatform::importGPC($_POST['followup_q'],'array',array());
+		$aFieldIds = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
+		$aFollowUpQ = DevblocksPlatform::importGPC($_POST['followup_q'] ?? null, 'array', []);
 		
 		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET);
 		

@@ -21,7 +21,7 @@ class ProfileWidget_ChartTable extends Extension_ProfileWidget {
 		$data = DevblocksPlatform::services()->data();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$data_query = DevblocksPlatform::importGPC($model->extension_params['data_query'], 'string', null);
+		$data_query = DevblocksPlatform::importGPC($model->extension_params['data_query'] ?? null, 'string', null);
 		
 		$dict = DevblocksDictionaryDelegate::instance([
 			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,

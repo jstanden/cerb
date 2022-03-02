@@ -52,8 +52,8 @@ class PageSection_SetupPackageImport extends Extension_PageSection {
 		header('Content-Type: application/json; charset=utf-8');
 		
 		try {
-			@$json_string = DevblocksPlatform::importGPC($_POST['json'],'string','');
-			@$prompts = DevblocksPlatform::importGPC($_POST['prompts'],'array',[]);
+			$json_string = DevblocksPlatform::importGPC($_POST['json'] ?? null,'string','');
+			$prompts = DevblocksPlatform::importGPC($_POST['prompts'] ?? null,'array',[]);
 			
 			// If prompts weren't passed, check if we should have any
 			if(!isset($_POST['prompts'])) {

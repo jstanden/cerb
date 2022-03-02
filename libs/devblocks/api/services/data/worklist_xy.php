@@ -192,8 +192,8 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 			if(!isset($series['context']))
 				continue;
 			
-			@$query = $series['query'];
-			@$query_required = $series['query_required'];
+			$query = $series['query'] ?? null;
+			$query_required = $series['query_required'] ?? null;
 			
 			$context_ext = Extension_DevblocksContext::get($series['context'], true);
 			$dao_class = $context_ext->getDaoClass();
@@ -425,21 +425,21 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 			
 			$columns['x_label'] = [
 				'label' => DevblocksPlatform::strTitleCase(@$series['x']['label'] ?: $x_field_id),
-				'type' => @$series['x']['type'] ?: DevblocksSearchCriteria::TYPE_TEXT,
-				'type_options' => @$series['x']['type_options'] ?: [],
+				'type' => ($series['x']['type'] ?? null) ?: DevblocksSearchCriteria::TYPE_TEXT,
+				'type_options' => ($series['x']['type_options'] ?? null) ?: [],
 			];
 			
 			$columns['y_label'] = [
 				'label' => DevblocksPlatform::strTitleCase(@$series['y']['label'] ?: $y_field_id),
-				'type' => @$series['y']['type'] ?: DevblocksSearchCriteria::TYPE_TEXT,
-				'type_options' => @$series['y']['type_options'] ?: [],
+				'type' => ($series['y']['type'] ?? null) ?: DevblocksSearchCriteria::TYPE_TEXT,
+				'type_options' => ($series['y']['type_options'] ?? null) ?: [],
 			];
 			
 			foreach($series['data'] as $data) {
 				$x = $data['x'];
 				$y = $data['y'];
-				@$x_label = $series['labels']['x'][$x] ?: $x;
-				@$y_label = $series['labels']['y'][$y] ?: $y;
+				$x_label = ($series['labels']['x'][$x] ?? null) ?: $x;
+				$y_label = ($series['labels']['y'][$y] ?? null) ?: $y;
 				
 				$row = [
 					'x_label' => $x_label,

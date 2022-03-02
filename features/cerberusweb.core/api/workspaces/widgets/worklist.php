@@ -12,9 +12,9 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget implements ICer
 	}
 
 	function getView(Model_WorkspaceWidget $widget) {
-		@$view_context = $widget->params['context'];
-		@$query = $widget->params['query'];
-		@$query_required = $widget->params['query_required'];
+		$view_context = $widget->params['context'] ?? null;
+		$query = $widget->params['query'] ?? null;
+		$query_required = $widget->params['query_required'] ?? null;
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
@@ -84,7 +84,7 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget implements ICer
 		$context_mfts = Extension_DevblocksContext::getAll(false, ['workspace']);
 		$tpl->assign('context_mfts', $context_mfts);
 		
-		@$context = $widget->params['context'];
+		$context = $widget->params['context'] ?? null;
 		@$columns = @$widget->params['columns'] ?: [];
 		
 		if($context)
@@ -100,7 +100,7 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget implements ICer
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget, ?string &$error=null) : bool {
-		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', array());
+		$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', array());
 		
 		// Remove worker view models
 		$view_id = sprintf('widget_%d_worklist', $widget->id);

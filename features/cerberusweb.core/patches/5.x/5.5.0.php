@@ -124,7 +124,7 @@ if(isset($tables['preparse_rule'])) {
 					break;
 					
 				case 'type':
-					@$val = $data['value'];
+					$val = $data['value'] ?? null;
 					
 					if(empty($val))
 						break;
@@ -138,7 +138,7 @@ if(isset($tables['preparse_rule'])) {
 					break;
 					
 				case 'attachment':
-					@$val = $data['value'];
+					$val = $data['value'] ?? null;
 					
 					if(empty($val))
 						break;
@@ -153,7 +153,7 @@ if(isset($tables['preparse_rule'])) {
 					break;
 					
 				case 'body_encoding':
-					@$val = $data['value'];
+					$val = $data['value'] ?? null;
 					
 					if(empty($val))
 						break;
@@ -168,7 +168,7 @@ if(isset($tables['preparse_rule'])) {
 					break;
 					
 				case 'body':
-					@$val = $data['value'];
+					$val = $data['value'] ?? null;
 					
 					if(empty($val))
 						break;
@@ -185,8 +185,8 @@ if(isset($tables['preparse_rule'])) {
 				default:
 					// Headers
 					if('header' == substr($key,0,6)) {
-						@$header = $data['header'];
-						@$val = $data['value'];
+						$header = $data['header'] ?? null;
+						$val = $data['value'] ?? null;
 						
 						$condition = array(
 							'condition' => 'header',
@@ -273,8 +273,8 @@ if(isset($tables['preparse_rule'])) {
 							);
 							break;
 						case 'E': // Date
-							@$from = $data['from'];
-							@$to = $data['to'];
+							$from = $data['from'] ?? null;
+							$to = $data['to'] ?? null;
 							
 							$condition = array(
 								'condition' => $condition_key,
@@ -310,7 +310,7 @@ if(isset($tables['preparse_rule'])) {
 		// Nest decision if multiple recipients
 		if(isset($criterion['tocc'])) {
 			$data = $criterion['tocc'];
-			@$val = $data['value'];
+			$val = $data['value'] ?? null;
 			
 			if(!empty($val)) {
 				$vals = DevblocksPlatform::parseCsvString($val);
@@ -338,7 +338,7 @@ if(isset($tables['preparse_rule'])) {
 		// Nest decision if multiple senders
 		if(isset($criterion['from'])) {
 			$data = $criterion['from'];
-			@$val = $data['value'];
+			$val = $data['value'] ?? null;
 			
 			if(!empty($val)) {
 				$vals = DevblocksPlatform::parseCsvString($val);
@@ -403,7 +403,7 @@ if(isset($tables['preparse_rule'])) {
 						break;
 						
 					case 'redirect':
-						@$to = $data['to'];
+						$to = $data['to'] ?? null;
 
 						if(empty($to))
 							break;
@@ -421,7 +421,7 @@ if(isset($tables['preparse_rule'])) {
 						break;
 						
 					case 'bounce':
-						@$body = $data['message'];
+						$body = $data['message'] ?? null;
 						
 						if(empty($body))
 							break;

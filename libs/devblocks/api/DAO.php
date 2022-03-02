@@ -192,7 +192,7 @@ abstract class DevblocksORMHelper {
 					;
 					break;
 				case Model_CustomField::TYPE_LINK:
-					@$link_context = $custom_field->params['context'];
+					$link_context = $custom_field->params['context'] ?? null;
 					
 					$validation
 						->addField($field_id, $custom_field_label)
@@ -712,7 +712,7 @@ abstract class DevblocksORMHelper {
 					$link = ltrim($link, '-');
 				}
 				
-				@list($link_context, $link_id) = explode(':', $link, 2);
+				list($link_context, $link_id) = array_pad(explode(':', $link, 2), 2, null);
 				
 				if(false == ($link_context_ext = Extension_DevblocksContext::getByAlias($link_context, false)))
 					continue;
@@ -1071,8 +1071,8 @@ class DAO_Platform extends DevblocksORMHelper {
 
 		foreach($results as $row) {
 			$plugin = new DevblocksPluginManifest();
-			@$plugin->id = $row['id'];
-			@$plugin->dir = $row['dir'];
+			$plugin->id = $row['id'] ?? null;
+			$plugin->dir = $row['dir'] ?? null;
 			
 			if(!file_exists($plugin->getStoragePath())) {
 				$plugin->purge();
@@ -1184,9 +1184,9 @@ class DAO_Platform extends DevblocksORMHelper {
 		$results = $db->GetArrayMaster($sql);
 		
 		foreach($results as $row) {
-			@$class = $row['class'];
-			@$plugin_id = $row['plugin_id'];
-			@$rel_path = $row['rel_path'];
+			$class = $row['class'] ?? null;
+			$plugin_id = $row['plugin_id'] ?? null;
+			$rel_path = $row['rel_path'] ?? null;
 			
 			// Make sure the plugin is valid
 			if(isset($plugins[$plugin_id])) {

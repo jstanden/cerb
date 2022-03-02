@@ -288,7 +288,7 @@ EOD;
 		$actual = DevblocksPlatform::services()->kata()->formatTree($tree);
 		
 		$this->assertTrue(is_array($actual));
-		$this->assertArrayHasKey('success', @$actual['event/start']['decision']['outcome/yes']['then']['return']);
+		$this->assertArrayHasKey('success', $actual['event/start']['decision']['outcome/yes']['then']['return'] ?? []);
 	}
 	
 	function testKataReferencesWithMergedAnnotations() {
@@ -308,7 +308,7 @@ EOD;
 		$actual = DevblocksPlatform::services()->kata()->formatTree($tree);
 		
 		$this->assertTrue(is_array($actual));
-		$this->assertContains('green', @$actual['picklist']['options']);
+		$this->assertContains('green', $actual['picklist']['options'] ?? []);
 	}
 	
 	function testKataDeepReferences() {
@@ -329,7 +329,7 @@ EOD;
 		$actual = DevblocksPlatform::services()->kata()->formatTree($tree);
 		
 		$this->assertTrue(is_array($actual));
-		$this->assertContains('green', @$actual['picklist']['options']);
+		$this->assertContains('green', $actual['picklist']['options'] ?? []);
 	}
 	
 	function testKataNestedDeepReferences() {
@@ -352,7 +352,7 @@ EOD;
 		$actual = DevblocksPlatform::services()->kata()->formatTree($tree);
 		
 		$this->assertTrue(is_array($actual));
-		$this->assertContains('green', @$actual['picklist']['options']);
+		$this->assertContains('green', $actual['picklist']['options'] ?? []);
 	}
 	
 	function testKataEmit() {

@@ -290,7 +290,7 @@ class ChRest_Contacts extends Extension_RestController implements IExtensionRest
 		
 		// 'password' set hash w/ salt
 		if(isset($_POST['password'])) {
-			@$password = DevblocksPlatform::importGPC($_POST['password'], 'string', '');
+			$password = DevblocksPlatform::importGPC($_POST['password'] ?? null, 'string', '');
 			unset($_POST['password']);
 			
 			if(!empty($password)) {
@@ -374,7 +374,7 @@ class ChRest_Contacts extends Extension_RestController implements IExtensionRest
 		
 		// 'password' set hash w/ salt
 		if(isset($_POST['password'])) {
-			@$password = DevblocksPlatform::importGPC($_POST['password'], 'string', '');
+			$password = DevblocksPlatform::importGPC($_POST['password'] ?? null, 'string', '');
 			unset($_POST['password']);
 			
 			if(!empty($password)) {
@@ -437,7 +437,7 @@ class ChRest_Contacts extends Extension_RestController implements IExtensionRest
 	private function postNote($id) {
 		$worker = CerberusApplication::getActiveWorker();
 
-		@$note = DevblocksPlatform::importGPC($_POST['note'],'string','');
+		$note = DevblocksPlatform::importGPC($_POST['note'] ?? null, 'string','');
 		
 		if(null == ($contact = DAO_Contact::get($id)))
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid contact ID %d", $id));

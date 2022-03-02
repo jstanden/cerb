@@ -14,8 +14,8 @@ class WorkspaceWidget_ChartTable extends Extension_WorkspaceWidget implements IC
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$active_worker= CerberusApplication::getActiveWorker();
 		
-		@$data_query = DevblocksPlatform::importGPC($widget->params['data_query'], 'string', null);
-		@$cache_secs = DevblocksPlatform::importGPC($widget->params['cache_secs'], 'integer', 0);
+		$data_query = DevblocksPlatform::importGPC($widget->params['data_query'] ?? null, 'string', null);
+		$cache_secs = DevblocksPlatform::importGPC($widget->params['cache_secs'] ?? null, 'integer', 0);
 		
 		$dict = DevblocksDictionaryDelegate::instance([
 			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
@@ -75,7 +75,7 @@ class WorkspaceWidget_ChartTable extends Extension_WorkspaceWidget implements IC
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget, ?string &$error=null) : bool {
-		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
+		$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
 		
 		DAO_WorkspaceWidget::update($widget->id, array(
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),

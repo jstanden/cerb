@@ -12,7 +12,7 @@ class CardWidget_BehaviorTree extends Extension_CardWidget {
 	}
 	
 	function render(Model_CardWidget $model, $context, $context_id) {
-		@$target_behavior_id = $model->extension_params['behavior_id'];
+		$target_behavior_id = $model->extension_params['behavior_id'] ?? null;
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();

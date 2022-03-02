@@ -73,14 +73,14 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 	 */
 	function send(Swift_Message $message, Model_MailTransport $model) {
 		$options = [
-			'host' => @$model->params['host'],
-			'port' => @$model->params['port'],
-			'auth_user' => @$model->params['auth_user'],
-			'auth_pass' => @$model->params['auth_pass'],
-			'enc' => @$model->params['encryption'],
-			'max_sends' => @$model->params['max_sends'],
-			'timeout' => @$model->params['timeout'],
-			'connected_account_id' => @$model->params['connected_account_id'],
+			'host' => $model->params['host'] ?? null,
+			'port' => $model->params['port'] ?? null,
+			'auth_user' => $model->params['auth_user'] ?? null,
+			'auth_pass' => $model->params['auth_pass'] ?? null,
+			'enc' => $model->params['encryption'] ?? null,
+			'max_sends' => $model->params['max_sends'] ?? null,
+			'timeout' => $model->params['timeout'] ?? null,
+			'connected_account_id' => $model->params['connected_account_id'] ?? null,
 		];
 		
 		if(false == ($mailer = $this->_getMailer($options)))

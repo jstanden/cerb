@@ -145,8 +145,8 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 		
 		// Verify the behavior_id and context are in agreement
 		
-		@$behavior_id = $fields['behavior_id'];
-		@$context = $fields['context'];
+		$behavior_id = $fields['behavior_id'] ?? null;
+		$context = $fields['context'] ?? null;
 		
 		if($behavior_id && $context) {
 			if(false == ($behavior = DAO_TriggerEvent::get($behavior_id))) { /* @var $behavior Model_TriggerEvent */
@@ -158,7 +158,7 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 			
 			$event = $behavior->getEvent();
 			
-			@$macro_context = $event->manifest->params['macro_context'];
+			$macro_context = $event->manifest->params['macro_context'] ?? null;
 			
 			if(!$macro_context || 0 != strcasecmp($macro_context, $context)) {
 				$error = sprintf("The given `behavior_id` is not a macro for `%s`.", $context);
@@ -1127,7 +1127,7 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 				break;
 
 			case SearchFields_ContextScheduledBehavior::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_POST['context_link'],'array',[]);
+				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
@@ -1136,7 +1136,7 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 				break;
 				
 			case SearchFields_ContextScheduledBehavior::VIRTUAL_TARGET:
-				@$context_links = DevblocksPlatform::importGPC($_POST['context_link'],'array',[]);
+				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				

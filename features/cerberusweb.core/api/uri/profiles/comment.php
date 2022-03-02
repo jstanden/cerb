@@ -46,10 +46,10 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 	}
 	
 	private function _profileAction_savePeekJson() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
 		
-		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
+		$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::services()->template();
@@ -80,12 +80,12 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 				return;
 			}
 				
-			@$context = DevblocksPlatform::importGPC($_POST['context'],'string');
-			@$context_id = DevblocksPlatform::importGPC($_POST['context_id'],'integer',0);
-			@$comment = DevblocksPlatform::importGPC($_POST['comment'],'string','');
-			@$file_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['file_ids'],'array',array()), 'int');
-			@$options = DevblocksPlatform::importGPC($_POST['options'],'array',[]);
-			@$is_markdown = DevblocksPlatform::importGPC($_POST['is_markdown'],'integer',0);
+			$context = DevblocksPlatform::importGPC($_POST['context'] ?? null, 'string');
+			$context_id = DevblocksPlatform::importGPC($_POST['context_id'] ?? null, 'integer',0);
+			$comment = DevblocksPlatform::importGPC($_POST['comment'] ?? null, 'string','');
+			$file_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['file_ids'] ?? null,'array',[]), 'int');
+			$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array',[]);
+			$is_markdown = DevblocksPlatform::importGPC($_POST['is_markdown'] ?? null, 'integer',0);
 			
 			$error = null;
 			
@@ -144,7 +144,7 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 				DAO_Attachment::setLinks(CerberusContexts::CONTEXT_COMMENT, $id, $file_ids);
 				
 				// Custom field saves
-				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+				$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 				if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_COMMENT, $id, $field_ids, $error))
 					throw new Exception_DevblocksAjaxValidationError($error);
 				
@@ -246,9 +246,9 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$comment = DevblocksPlatform::importGPC($_POST['comment'],'string');
-		@$is_markdown = DevblocksPlatform::importGPC($_POST['is_markdown'],'integer', 0);
-		@$context = DevblocksPlatform::importGPC($_POST['context'],'string');
+		$comment = DevblocksPlatform::importGPC($_POST['comment'] ?? null, 'string');
+		$is_markdown = DevblocksPlatform::importGPC($_POST['is_markdown'] ?? null, 'integer', 0);
+		$context = DevblocksPlatform::importGPC($_POST['context'] ?? null, 'string');
 		
 		$model = new Model_Comment();
 		$model->created = time();
@@ -264,7 +264,7 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 	}
 	
 	private function _profileAction_viewExplore() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
@@ -280,7 +280,7 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 		$view->setAutoPersist(false);
 
 		// Page start
-		@$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'],'integer',0);
+		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'integer',0);
 		if(empty($explore_from)) {
 			$orig_pos = 1+($view->renderPage * $view->renderLimit);
 		} else {

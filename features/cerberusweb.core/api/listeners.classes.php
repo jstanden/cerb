@@ -770,7 +770,7 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 						
 						switch($trigger->variables[$var_key]['type']) {
 							case Model_CustomField::TYPE_LINK:
-								@$link_context = $trigger->variables[$var_key]['params']['context'];
+								$link_context = $trigger->variables[$var_key]['params']['context'] ?? null;
 								if($link_context && DevblocksPlatform::strEndsWith($var_key, '_id')) {
 									$ctx_key = mb_substr($var_key, 0, -3) . '__context';
 									$dict->set($ctx_key, $link_context);
@@ -846,10 +846,10 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 	}
 	
 	private function _handleContextLinkSet($event) {
-		@$from_context = $event->params['from_context'];
-		@$from_context_id = $event->params['from_context_id'];
-		@$to_context = $event->params['to_context'];
-		@$to_context_id = $event->params['to_context_id'];
+		$from_context = $event->params['from_context'] ?? null;
+		$from_context_id = $event->params['from_context_id'] ?? null;
+		$to_context = $event->params['to_context'] ?? null;
+		$to_context_id = $event->params['to_context_id'] ?? null;
 		
 		if($to_context == Context_ProjectBoardColumn::ID) {
 			if(false == ($to_column = DAO_ProjectBoardColumn::get($to_context_id)))
@@ -860,15 +860,15 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 	}
 	
 	private function _handleContextUpdate($event) {
-		@$context = $event->params['context'];
-		@$context_ids = $event->params['context_ids'];
+		$context = $event->params['context'] ?? null;
+		$context_ids = $event->params['context_ids'] ?? null;
 		
 		DAO_ContextScheduledBehavior::updateRelativeSchedules($context, $context_ids);
 	}
 	
 	private function _handleContextDelete($event) {
-		@$context = $event->params['context'];
-		@$context_ids = $event->params['context_ids'];
+		$context = $event->params['context'] ?? null;
+		$context_ids = $event->params['context_ids'] ?? null;
 		
 		if(empty($context))
 			return;
@@ -897,9 +897,9 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		$db = DevblocksPlatform::services()->database();
 		$logger = DevblocksPlatform::services()->log('Maint');
 		
-		@$context = $event->params['context'];
-		@$context_table = $event->params['context_table'];
-		@$context_key = $event->params['context_key'];
+		$context = $event->params['context'] ?? null;
+		$context_table = $event->params['context_table'] ?? null;
+		$context_key = $event->params['context_key'] ?? null;
 
 		$context_index = $context_table . '.' . $context_key;
 		
@@ -1181,7 +1181,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 	}
 	
 	private function _handleCommentCreate($event) { /* @var $event Model_DevblocksEvent */
-		@$fields = $event->params['fields'];
+		$fields = $event->params['fields'] ?? null;
 		
 		if(!isset($fields[DAO_Comment::CONTEXT]) || !isset($fields[DAO_Comment::CONTEXT_ID]))
 			return;

@@ -59,7 +59,7 @@ abstract class AbstractEvent_ApiRequest extends Extension_DevblocksEvent {
 		 * Bot
 		 */
 		
-		@$bot_id = $event_model->params['bot_id'];
+		$bot_id = $event_model->params['bot_id'] ?? null;
 		$merge_labels = array();
 		$merge_values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_BOT, $bot_id, $merge_labels, $merge_values, null, true);
@@ -181,7 +181,7 @@ abstract class AbstractEvent_ApiRequest extends Extension_DevblocksEvent {
 				// Get links by context+id
 				
 				if(!empty($from_context) && !empty($from_context_id)) {
-					@$context_strings = $params['context_objects'];
+					$context_strings = $params['context_objects'] ?? null;
 					$links = DAO_ContextLink::intersect($from_context, $from_context_id, $context_strings);
 					
 					// OPER: any, !any, all
@@ -302,7 +302,7 @@ abstract class AbstractEvent_ApiRequest extends Extension_DevblocksEvent {
 			case 'add_api_response':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
-				@$value = $params['value'];
+				$value = $params['value'] ?? null;
 
 				@$out = $tpl_builder->build($value, $dict);
 				
@@ -329,7 +329,7 @@ abstract class AbstractEvent_ApiRequest extends Extension_DevblocksEvent {
 			case 'add_api_response':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
-				@$value = $params['value'];
+				$value = $params['value'] ?? null;
 
 				@$out = $tpl_builder->build($value, $dict);
 				

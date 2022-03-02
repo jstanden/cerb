@@ -41,10 +41,10 @@ class PageSection_ProfilesAutomationTimer extends Extension_PageSection {
 	}
 	
 	private function _profileAction_savePeekJson() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
 		
-		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
+		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
+		$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -79,13 +79,13 @@ class PageSection_ProfilesAutomationTimer extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
-				@$next_run_at = DevblocksPlatform::importGPC($_POST['next_run_at'], 'string', '');
-				@$is_disabled = DevblocksPlatform::importGPC($_POST['is_disabled'], 'bit', 0);
-				@$is_recurring = DevblocksPlatform::importGPC($_POST['is_recurring'], 'bit', 0);
-				@$recurring_patterns = DevblocksPlatform::importGPC($_POST['recurring_patterns'], 'string', '');
-				@$recurring_timezone = DevblocksPlatform::importGPC($_POST['recurring_timezone'], 'string', '');
-				@$automations_kata = DevblocksPlatform::importGPC($_POST['automations_kata'], 'string', '');
+				$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');
+				$next_run_at = DevblocksPlatform::importGPC($_POST['next_run_at'] ?? null, 'string', '');
+				$is_disabled = DevblocksPlatform::importGPC($_POST['is_disabled'] ?? null, 'bit', 0);
+				$is_recurring = DevblocksPlatform::importGPC($_POST['is_recurring'] ?? null, 'bit', 0);
+				$recurring_patterns = DevblocksPlatform::importGPC($_POST['recurring_patterns'] ?? null, 'string', '');
+				$recurring_timezone = DevblocksPlatform::importGPC($_POST['recurring_timezone'] ?? null, 'string', '');
+				$automations_kata = DevblocksPlatform::importGPC($_POST['automations_kata'] ?? null, 'string', '');
 				
 				if(!$active_worker->is_superuser)
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.modify'));
@@ -155,7 +155,7 @@ class PageSection_ProfilesAutomationTimer extends Extension_PageSection {
 				
 				if($id) {
 					// Custom field saves
-					@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+					$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 					if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_AUTOMATION_TIMER, $id, $field_ids, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 				}
@@ -189,7 +189,7 @@ class PageSection_ProfilesAutomationTimer extends Extension_PageSection {
 	}
 	
 	private function _profileAction_viewExplore() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
@@ -205,7 +205,7 @@ class PageSection_ProfilesAutomationTimer extends Extension_PageSection {
 		$view->setAutoPersist(false);
 		
 		// Page start
-		@$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'],'integer',0);
+		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'integer',0);
 		if(empty($explore_from)) {
 			$orig_pos = 1+($view->renderPage * $view->renderLimit);
 		} else {

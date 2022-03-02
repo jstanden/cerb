@@ -350,7 +350,7 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 	private function postNote($id) {
 		$worker = CerberusApplication::getActiveWorker();
 
-		@$note = DevblocksPlatform::importGPC($_POST['note'],'string','');
+		$note = DevblocksPlatform::importGPC($_POST['note'] ?? null, 'string','');
 		
 		if(null == ($org = DAO_ContactOrg::get($id)))
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid org ID %d", $id));

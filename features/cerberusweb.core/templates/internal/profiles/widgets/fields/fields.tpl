@@ -19,7 +19,7 @@
 				</div>
 			{/if}
 	
-			{if $toolbar_fields}
+			{if isset($toolbar_fields) && $toolbar_fields}
 				<div data-cerb-toolbar style="display:inline-block;">
 					{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar_fields)}
 				</div>

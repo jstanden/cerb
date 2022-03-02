@@ -25,7 +25,7 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 	 * @return Model_DevblocksEvent
 	 */
 	function generateSampleEventModel(Model_TriggerEvent $trigger, $context_id=null) {
-		@$context = $trigger->event_params['context'];
+		$context = $trigger->event_params['context'] ?? null;
 
 		$old_model = null;
 		$new_model = null;
@@ -75,7 +75,7 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 		$macros = Extension_DevblocksEvent::getAll();
 		
 		$macros = array_filter($macros, function($event) use ($context) {
-			@$event_context = $event->params['macro_context'];
+			$event_context = $event->params['macro_context'] ?? null;
 			return ($event_context == $context);
 		});
 		
@@ -122,10 +122,10 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 				$values
 			);
 		
-		@$context = $trigger->event_params['context'];
-		@$new_model = $event_model->params['new_model'];
-		@$old_model = $event_model->params['old_model'];
-		@$actor = $event_model->params['actor'];
+		$context = $trigger->event_params['context'] ?? null;
+		$new_model = $event_model->params['new_model'] ?? null;
+		$old_model = $event_model->params['old_model'] ?? null;
+		$actor = $event_model->params['actor'] ?? null;
 		
 		if(is_null($this->_model) && !empty($new_model))
 			$this->_model = $new_model;
@@ -275,7 +275,7 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 		$macro_contexts = [];
 		
 		foreach($events as $event) {
-			@$event_context = $event->params['macro_context'];
+			$event_context = $event->params['macro_context'] ?? null;
 			
 			if(!empty($event_context) && isset($contexts[$event_context]))
 				$macro_contexts[] = $contexts[$event_context];

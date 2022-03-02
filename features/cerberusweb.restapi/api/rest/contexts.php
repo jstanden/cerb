@@ -57,7 +57,7 @@ class ChRest_Contexts extends Extension_RestController {
 	}
 	
 	private function _verifyContextString($string) {
-		@list($context, $context_id) = explode(':', $string, 2);
+		list($context, $context_id) = array_pad(explode(':', $string, 2), 2, null);
 		return $this->_verifyContext($context, $context_id);
 	}
 	
@@ -229,8 +229,8 @@ class ChRest_Contexts extends Extension_RestController {
 	}
 	
 	private function postLink() {
-		@$on = DevblocksPlatform::importGPC($_POST['on'], 'string', '');
-		@$targets = DevblocksPlatform::importGPC($_POST['targets'], 'string', '');
+		$on = DevblocksPlatform::importGPC($_POST['on'] ?? null, 'string', '');
+		$targets = DevblocksPlatform::importGPC($_POST['targets'] ?? null, 'string', '');
 		
 		// Verify the 'on' context and accessibility by active worker
 		if(false == ($result_on = $this->_verifyContextString($on)))
@@ -263,8 +263,8 @@ class ChRest_Contexts extends Extension_RestController {
 	}
 	
 	private function postUnlink() {
-		@$on = DevblocksPlatform::importGPC($_POST['on'], 'string', '');
-		@$targets = DevblocksPlatform::importGPC($_POST['targets'], 'string', '');
+		$on = DevblocksPlatform::importGPC($_POST['on'] ?? null, 'string', '');
+		$targets = DevblocksPlatform::importGPC($_POST['targets'] ?? null, 'string', '');
 		
 		// Verify the 'on' context and accessibility by active worker
 		if(false == ($result_on = $this->_verifyContextString($on)))
@@ -297,10 +297,10 @@ class ChRest_Contexts extends Extension_RestController {
 	}
 	
 	private function postActivityCreate() {
-		@$on = DevblocksPlatform::importGPC($_POST['on'], 'string', '');
-		@$activity_point = DevblocksPlatform::strLower(DevblocksPlatform::importGPC($_POST['activity_point'], 'string', ''));
-		@$variables_json = DevblocksPlatform::importGPC($_POST['variables'], 'string', '');
-		@$urls_json = DevblocksPlatform::importGPC($_POST['urls'], 'string', '');
+		$on = DevblocksPlatform::importGPC($_POST['on'] ?? null, 'string', '');
+		$activity_point = DevblocksPlatform::strLower(DevblocksPlatform::importGPC($_POST['activity_point'] ?? null, 'string', ''));
+		$variables_json = DevblocksPlatform::importGPC($_POST['variables'] ?? null, 'string', '');
+		$urls_json = DevblocksPlatform::importGPC($_POST['urls'] ?? null, 'string', '');
 
 		// [TODO] Actor impersonation
 		
@@ -316,11 +316,11 @@ class ChRest_Contexts extends Extension_RestController {
 		if(!isset($activities[$activity_point]))
 			$this->error(self::ERRNO_CUSTOM, sprintf("'%s' is not a valid activity point.", $activity_point));
 
-		@$activity = $activities[$activity_point];
-		@$activity_params = $activity['params'];
-		@$activity_options = DevblocksPlatform::parseCsvString($activity_params['options']);
-		$variables = array();
-		$urls = array();
+		$activity = $activities[$activity_point] ?? null;
+		$activity_params = $activity['params'] ?? null;
+		$activity_options = DevblocksPlatform::parseCsvString($activity_params['options'] ?? null);
+		$variables = [];
+		$urls = [];
 		
 		// Verify that we have a translation for this activity point
 		if(!is_array($activity_params) || !isset($activity_params['string_key']))

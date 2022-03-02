@@ -1167,34 +1167,34 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 			case SearchFields_TimeTrackingEntry::IS_CLOSED:
-				@$bool = DevblocksPlatform::importGPC($_POST['bool'],'integer',0);
+				$bool = DevblocksPlatform::importGPC($_POST['bool'] ?? null, 'integer',0);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 			case SearchFields_TimeTrackingEntry::LOG_DATE:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 			case SearchFields_TimeTrackingEntry::WORKER_ID:
-				@$worker_id = DevblocksPlatform::importGPC($_POST['worker_id'],'array',[]);
+				$worker_id = DevblocksPlatform::importGPC($_POST['worker_id'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_id);
 				break;
 			case SearchFields_TimeTrackingEntry::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_POST['context_link'],'array',[]);
+				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 			case SearchFields_TimeTrackingEntry::VIRTUAL_HAS_FIELDSET:
-				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',[]);
+				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 			case SearchFields_TimeTrackingEntry::VIRTUAL_WATCHERS:
-				@$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'],'array',[]);
+				$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
 				break;
 			case SearchFields_TimeTrackingEntry::ACTIVITY_ID:
-				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',[]);
+				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$options);
 				break;
 			case SearchFields_TimeTrackingEntry::FULLTEXT_COMMENT_CONTENT:
-				@$scope = DevblocksPlatform::importGPC($_POST['scope'],'string','expert');
+				$scope = DevblocksPlatform::importGPC($_POST['scope'] ?? null, 'string','expert');
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
 			default:
@@ -1632,7 +1632,7 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 	
 				// Initial time
 				
-				@$total_secs = DevblocksPlatform::importGPC($_REQUEST['secs'],'integer',0);
+				$total_secs = DevblocksPlatform::importGPC($_REQUEST['secs'] ?? null, 'integer',0);
 				$model->time_actual_mins = ceil($total_secs / 60);
 				$model->time_actual_secs = $total_secs;
 				
