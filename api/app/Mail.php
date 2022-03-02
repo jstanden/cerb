@@ -2611,6 +2611,7 @@ class CerberusMail {
 							DAO_Comment::OWNER_CONTEXT_ID => $worker->id,
 							DAO_Comment::CREATED => time(),
 							DAO_Comment::COMMENT => $comment,
+							DAO_Comment::IS_MARKDOWN => 1,
 						);
 						DAO_Comment::create($fields, $also_notify_worker_ids);
 					}
