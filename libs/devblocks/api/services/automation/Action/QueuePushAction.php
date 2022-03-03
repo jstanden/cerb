@@ -48,11 +48,16 @@ class QueuePushAction extends AbstractAction {
 				->setRequired(true)
 				;
 			
+			$validation->addField('available_at', 'inputs:available_at:')
+				->timestamp()
+				;
+			
 			if(false === ($validation->validateAll($inputs, $error)))
 				throw new Exception_DevblocksAutomationError($error);
 				
 			$queue_name = $inputs['queue_name'];
 			$messages = $inputs['messages'];
+			$available_at = $inputs['available_at'] ?? 0;
 			
 			$action_dict = DevblocksDictionaryDelegate::instance([
 				'node' => [
@@ -71,7 +76,7 @@ class QueuePushAction extends AbstractAction {
 				throw new Exception_DevblocksAutomationError($error);
 			}
 			
-			if(false == ($results = $queue->enqueue($queue_name, $messages, $error))) {
+			if(false == ($results = $queue->enqueue($queue_name, $messages, $error, $available_at))) {
 				throw new Exception_DevblocksAutomationError($error);
 			}
 			
