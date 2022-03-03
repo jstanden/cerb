@@ -1286,10 +1286,17 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					[
 						'caption' => 'messages@list:',
 						'snippet' => "# [TODO] Build a collection with one message per line\nmessages@list:\n\tMessage 1\n\tMessage 2",
+						'score' => 1999,
 					],
 					[
 						'caption' => 'messages@key:',
 						'snippet' => "# [TODO] Refer to a key with a collection of messages\nmessages@key: \${1:key}",
+						'score' => 1999,
+					],
+					[
+						'caption' => 'available_at@date:',
+						'snippet' => "available_at@date: now",
+						'score' => 1998,
 					],
 				],
 				'(.*):queue.push:inputs:queue_name:' => [

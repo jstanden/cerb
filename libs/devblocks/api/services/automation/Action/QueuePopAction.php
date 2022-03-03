@@ -81,6 +81,7 @@ class QueuePopAction extends AbstractAction {
 						return [
 							'queue' => $queue_name,
 							'data' => $result['message'] ?? [],
+							'available_at' => $result['available_at'] ?? 0,
 						];
 					}, 
 					$results

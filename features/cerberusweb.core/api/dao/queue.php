@@ -375,13 +375,14 @@ class DAO_QueueMessage {
 	/**
 	 * @param Model_Queue $queue
 	 * @param array $messages
+	 * @param int $available_at
 	 * @return array|false
 	 */
-	static function enqueue(Model_Queue $queue, array $messages) {
+	static function enqueue(Model_Queue $queue, array $messages, int $available_at=0) {
 		$db = DevblocksPlatform::services()->database();
 		$nodeProvider = new RandomNodeProvider();
 		
-		if(!is_array($messages) || empty($messages))
+		if(empty($messages))
 			return false;
 		
 		$results = [];
@@ -391,20 +392,21 @@ class DAO_QueueMessage {
 			$uuid = Uuid::uuid6($nodeProvider->getNode());
 			$message_uuid = $uuid->getHex();
 			
-			$insert_values[] = sprintf("(%s, %d, %d, %d, %s, %s)",
+			$insert_values[] = sprintf("(%s, %d, %d, %d, %s, %s, %d)",
 				'0x' . $db->escape($message_uuid),
 				$queue->id,
 				self::STATUS_AVAILABLE,
 				time(),
 				$db->escape('NULL'),
-				$db->qstr(json_encode($message))
+				$db->qstr(json_encode($message)),
+				$available_at
 			);
 			
 			$results[] = $message_uuid->toString();
 		}
 		
 		$db->ExecuteWriter(
-			sprintf("INSERT INTO queue_message (uuid, queue_id, status_id, status_at, consumer_id, message) VALUES %s",
+			sprintf("INSERT INTO queue_message (uuid, queue_id, status_id, status_at, consumer_id, message, available_at) VALUES %s",
 			implode(',', $insert_values)
 		));
 		
@@ -422,17 +424,18 @@ class DAO_QueueMessage {
 		$consumer_id = '0x' . $uuid->getHex();
 		
 		$db->ExecuteWriter(
-			sprintf("UPDATE queue_message SET status_id=%d, status_at=%d, consumer_id=%s WHERE queue_id=%d AND status_id=%d LIMIT %d",
+			sprintf("UPDATE queue_message SET status_id=%d, status_at=%d, consumer_id=%s WHERE queue_id=%d AND status_id=%d AND available_at <= %d LIMIT %d",
 				self::STATUS_IN_FLIGHT,
 				time(),
 				$db->escape($consumer_id),
 				$queue->id,
 				self::STATUS_AVAILABLE,
+				time(),
 				$limit
 			)
 		);
 		
-		$results = $db->GetArrayMaster(sprintf("SELECT uuid, message FROM queue_message WHERE status_id=%d AND consumer_id=%s",
+		$results = $db->GetArrayMaster(sprintf("SELECT uuid, message, available_at FROM queue_message WHERE status_id=%d AND consumer_id=%s",
 			self::STATUS_IN_FLIGHT,
 			$db->escape($consumer_id)
 		));
@@ -447,6 +450,7 @@ class DAO_QueueMessage {
 			$message->uuid = Uuid::fromBytes($result['uuid'])->getHex()->toString();
 			$message->queue_id = intval($queue->id);
 			$message->message = json_decode($result['message'], true);
+			$message->available_at = intval($result['available_at']);
 			$messages[] = $message;
 		}
 		
@@ -601,6 +605,7 @@ class Model_QueueMessage {
 	public string $uuid = '';
 	public int $queue_id = 0;
 	public $message = null;
+	public int $available_at = 0;
 }
 
 class View_Queue extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
