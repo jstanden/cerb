@@ -905,6 +905,7 @@ UL.navmenu > LI.selected > A {
   word-break: break-word;
   page-break-inside: avoid;
   break-inside: avoid-column;
+  overflow: hidden;
 }
 .cerb-sheet-columns .cerb-sheet--row .cerb-sheet--row-item {
   padding: 5px;
