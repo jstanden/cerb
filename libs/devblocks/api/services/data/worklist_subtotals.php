@@ -308,8 +308,10 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				// Handle limits and orders
 				list($by, $limit) = array_pad(explode('~', $by, 2), 2, null);
 				
-				if(false == ($subtotal_field = $search_class::getFieldForSubtotalKey($by, $subtotals_context->id, $query_fields, $search_fields, $search_class::getPrimaryKey())))
-					continue;
+				if(false == ($subtotal_field = $search_class::getFieldForSubtotalKey($by, $subtotals_context->id, $query_fields, $search_fields, $search_class::getPrimaryKey()))) {
+					$error = sprintf("Unknown `by:` field: %s", $by);
+					return false;
+				}
 				
 				// If it's a date time-step, allow the full range
 				if(is_null($limit) && array_key_exists('timestamp_step', $subtotal_field)) {
