@@ -2451,8 +2451,23 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 	private function _handleAutomationAwaitInteraction(Model_AutomationContinuation $continuation) {
 		$delegate_token = $continuation->state_data['dict']['__return']['interaction']['token'] ?? null;
 		
-		if(null == $delegate_token)
-			DevblocksPlatform::dieWithHttpError("Null delegate", 404);
+		// If we don't have a delegate token yet, generate one and continue
+		if(null == $delegate_token) {
+			$automation_results = DevblocksDictionaryDelegate::instance($continuation->state_data['dict']);
+			list($delegate_continuation, $delegate_results) = $this->_respondAutomationAwaitInteraction($automation_results, $continuation, true);
+			
+			if('await' != $delegate_continuation->state) {
+				if($delegate_results->getKeyPath('__return.interaction')) {
+					$this->_respondAutomationAwaitInteraction($delegate_results, $delegate_continuation);
+				} else {
+					$this->_respondAutomationAwaitForm($delegate_results, $delegate_continuation);
+				}
+				return;
+			}
+			
+			$this->_handleAutomationAwait($delegate_continuation);
+			return;
+		}
 		
 		if(false == ($delegate_continuation = DAO_AutomationContinuation::getByToken($delegate_token)))
 			DevblocksPlatform::dieWithHttpError("Null delegate continuation", 404);
@@ -2488,7 +2503,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		$this->_handleAutomationAwait($delegate_continuation);
 	}
 	
-	private function _respondAutomationAwaitInteraction(DevblocksDictionaryDelegate $automation_results, Model_AutomationContinuation $continuation) {
+	private function _respondAutomationAwaitInteraction(DevblocksDictionaryDelegate $automation_results, Model_AutomationContinuation $continuation, $return=false) {
 		$event_handler = DevblocksPlatform::services()->ui()->eventHandler();
 		
 		// Must have a URI
@@ -2534,6 +2549,8 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		// Create a new continuation to track the delegate
 		
 		$delegate_continuation = new Model_AutomationContinuation();
+		$delegate_continuation->parent_token = $continuation->token;
+		$delegate_continuation->root_token = $continuation->root_token ?: $continuation->token;
 		$delegate_continuation->updated_at = time();
 		$delegate_continuation->expires_at = time() + 1200;
 		$delegate_continuation->state = $delegate_results->getKeyPath('__exit');
@@ -2541,8 +2558,8 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		$delegate_continuation->uri = $handler->name;
 		
 		$delegate_continuation->token = DAO_AutomationContinuation::create([
-			DAO_AutomationContinuation::PARENT_TOKEN => $continuation->token,
-			DAO_AutomationContinuation::ROOT_TOKEN => $continuation->root_token ?: $continuation->token,
+			DAO_AutomationContinuation::PARENT_TOKEN => $delegate_continuation->parent_token,
+			DAO_AutomationContinuation::ROOT_TOKEN => $delegate_continuation->root_token,
 			DAO_AutomationContinuation::UPDATED_AT => $delegate_continuation->updated_at,
 			DAO_AutomationContinuation::EXPIRES_AT => $delegate_continuation->expires_at,
 			DAO_AutomationContinuation::STATE => $delegate_continuation->state,
@@ -2559,6 +2576,14 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			DAO_AutomationContinuation::STATE_DATA => json_encode($continuation->state_data),
 		]);
 		
-		$this->_respondAutomationAwait($delegate_continuation, $delegate_results);
+		if($return) {
+			return [
+				$delegate_continuation,
+				$delegate_results,
+			];
+			
+		} else {
+			$this->_respondAutomationAwait($delegate_continuation, $delegate_results);
+		}
 	}
 };
