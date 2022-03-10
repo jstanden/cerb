@@ -2646,6 +2646,12 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 		return '0';
 	}
 	
+	static function getVirtualSubtotalKeys() : array {
+		return [
+			'group_bucket',
+		];
+	}
+	
 	static function getFieldForSubtotalKey($key, $context, array $query_fields, array $search_fields, $primary_key) {
 		switch($key) {
 			case 'bucket':
@@ -2655,6 +2661,35 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 			case 'group':
 				$key = 'group.id';
 				break;
+			
+			case 'group_bucket':
+				$key = 'bucket.id';
+				$meta = parent::getFieldForSubtotalKey($key, $context, $query_fields, $search_fields, $primary_key);
+				
+				$meta['get_labels_callback'] = function($values) {
+					$buckets = DAO_Bucket::getAll();
+					
+					return array_combine(
+						$values,
+						array_map(
+							function($value) use ($buckets) {
+								if(false == ($bucket = $buckets[$value] ?? null))
+									return $value;
+								
+								if(false == ($group = $bucket->getGroup()))
+									return $bucket->name;
+								
+								return sprintf('%s: %s',
+									$group->name,
+									$bucket->name
+								);
+							},
+							$values
+						)
+					);
+				};
+				
+				return $meta;
 				
 			case 'org':
 				$key = 'org.id';

@@ -110,6 +110,13 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				$suggestions['query.required:' . $of_path] = $of_suggestions;
 				
 				if('subtotal:' == $of_path) {
+					// Merge virtual grouping suggestions
+					if(isset($context_ext)) {
+						if($context_ext->id == CerberusContexts::CONTEXT_TICKET) {
+							$of_suggestions = array_merge($of_suggestions, SearchFields_Ticket::getVirtualSubtotalKeys());
+						}
+					}
+					
 					$suggestions['by:'] = $of_suggestions;
 					$suggestions['by.count:'] = $of_suggestions;
 					$suggestions['by.avg:'] = $of_suggestions;
