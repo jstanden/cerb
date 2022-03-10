@@ -705,8 +705,10 @@ class _DevblocksValidationType {
 	}
 	
 	function isEmpty($value) {
+		$value = strval($value);
+		
 		if('id' == $this->_type_name) {
-			return (0 == strlen($value) || 0 === $value);
+			return (0 == strlen($value) || '0' == $value);
 		} else {
 			return 0 == strlen($value);	
 		}
@@ -1110,11 +1112,11 @@ class _DevblocksValidationService {
 				}
 				
 				if($data) {
-					if(isset($data['length_min']) && strlen($value) < $data['length_min']) {
+					if(isset($data['length_min']) && strlen(strval($value)) < $data['length_min']) {
 						throw new Exception_DevblocksValidationError(sprintf("'%s' must be %d or more characters.", $field_label, $data['length_min']));
 					}
 					
-					if(isset($data['length_max']) && strlen($value) > $data['length_max']) {
+					if(isset($data['length_max']) && strlen(strval($value)) > $data['length_max']) {
 						// Truncation
 						if(array_key_exists('truncation', $data) && $data['truncation']) {
 							$value = substr($value, 0, $data['length_max'] - 3) . '...';

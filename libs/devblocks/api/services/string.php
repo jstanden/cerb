@@ -60,7 +60,7 @@ class _DevblocksStringService {
 	 * Credit: https://stackoverflow.com/a/16496730
 	 */
 	function has4ByteChars($string) {
-		return max(array_map('ord', str_split($string))) >= 240;
+		return max(array_map('ord', str_split(strval($string)))) >= 240;
 	}
 	
 	/*

@@ -89,7 +89,7 @@ class DAO_CustomField extends Cerb_ORMHelper {
 				}
 				
 				$id = $scope['id'] ?? null;
-				@$context = $scope['fields'][DAO_CustomField::CONTEXT];
+				$context = $scope['fields'][DAO_CustomField::CONTEXT] ?? null;
 				
 				if(!$context && $id) {
 					if(false == ($field = DAO_CustomField::get($id)))

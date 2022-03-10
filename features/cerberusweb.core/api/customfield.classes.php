@@ -468,7 +468,7 @@ class CustomField_RecordLinks extends Extension_CustomField {
 	}
 	
 	function parseFormPost(Model_CustomField $field) {
-		@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field->id],'array',[]);
+		$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field->id] ?? null,'array',[]);
 		return DevblocksPlatform::sanitizeArray($field_value, 'int', ['nonzero', 'unique']);
 	}
 	

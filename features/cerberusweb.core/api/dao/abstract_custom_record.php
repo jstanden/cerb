@@ -157,7 +157,7 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 			return false;
 		}
 		
-		@$owner_contexts = $custom_record->params['owners']['contexts'] ?: [];
+		$owner_contexts = ($custom_record->params['owners']['contexts'] ?? null) ?: [];
 		
 		$owner_context = $fields[self::OWNER_CONTEXT] ?? null;
 		$owner_context_id = $fields[self::OWNER_CONTEXT_ID] ?? null;

@@ -2010,7 +2010,8 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 			if($contact) {
 				if(!Context_Org::isWriteableByActor($contact, $active_worker))
 					DevblocksPlatform::dieWithHttpError(null, 403);
-				
+			} else {
+				$contact = new Model_ContactOrg();
 			}
 			
 			$tpl->assign('org', $contact);

@@ -81,7 +81,8 @@
 		</div>
 		{/if}
 
-		{$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_DRAFT, $draft->id))|default:[]}
+		{$values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_DRAFT, $draft->id)}
+		{$values = array_shift($values)|default:[]}
 		{if $values}
 		{$draft_custom_fields = Page_Profiles::getProfilePropertiesCustomFields(CerberusContexts::CONTEXT_DRAFT, $values)}
 		{$draft_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(CerberusContexts::CONTEXT_DRAFT, $draft->id, $values)}

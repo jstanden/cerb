@@ -791,7 +791,7 @@ class PageSection_InternalRecords extends Extension_PageSection {
 				}
 				
 				foreach($dicts as $dict) {
-					@$v = $dict->$k;
+					$v = $dict->get($k) ?: '';
 					$handled = false;
 					
 					// Skip null custom fields
