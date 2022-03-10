@@ -911,11 +911,15 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 				],
 				
 				'(.*):await:interaction:' => [
+					'inputs:',
 					[
 						'caption' => 'output:',
 						'snippet' => "output: \${1:results}",
 					],
 					'uri:',
+				],
+				'(.*):await:interaction:inputs:' => [
+					'type' => 'automation-inputs',
 				],
 				'(.*):await:interaction:uri:' => [
 					'type' => 'cerb-uri',
