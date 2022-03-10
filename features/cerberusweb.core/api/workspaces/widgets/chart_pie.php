@@ -33,7 +33,9 @@ class WorkspaceWidget_ChartPie extends Extension_WorkspaceWidget implements ICer
 			return false;
 		}
 		
-		if(false == ($results = $data->executeQuery($query, [], $error, $cache_secs)))
+		$bindings = $dict->getDictionary();
+		
+		if(false == ($results = $data->executeQuery($query, $bindings, $error, $cache_secs)))
 			return false;
 		
 		return $results;
