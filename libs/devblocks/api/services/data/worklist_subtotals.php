@@ -527,8 +527,13 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 					break;
 			}
 			
-			if(false !== ($by_labels = $search_class::getLabelsForKeyValues($key_select, $values)))
-				$labels[$key_select] = $by_labels;
+			// Labels
+			if(array_key_exists('get_labels_callback', $by) && is_callable($by['get_labels_callback'])) {
+				$labels[$key_select] = $by['get_labels_callback']($values);
+			} else {
+				if(false !== ($by_labels = $search_class::getLabelsForKeyValues($key_select, $values)))
+					$labels[$key_select] = $by_labels;
+			}
 			
 			// Queries
 			foreach($values as $value) {
