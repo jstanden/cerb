@@ -117,6 +117,8 @@ class PageSection_ProfilesCustomField extends Extension_PageSection {
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_CUSTOM_FIELD, $id);
 					
 				} else { // Edit
+					$before_model = DAO_CustomField::get($id);
+					
 					$fields = array(
 						DAO_CustomField::CUSTOM_FIELDSET_ID => $custom_fieldset_id,
 						DAO_CustomField::NAME => $name,
@@ -136,7 +138,7 @@ class PageSection_ProfilesCustomField extends Extension_PageSection {
 					DAO_CustomField::onUpdateByActor($active_worker, $fields, $id);
 					
 					// If we're moving the field to a new fieldset, make sure we add it to all those records
-					if($custom_fieldset_id)
+					if($before_model && $before_model->custom_fieldset_id != $custom_fieldset_id)
 						DAO_CustomFieldset::addByField($id);
 				}
 				
