@@ -5351,7 +5351,7 @@ For example: *receipt*</seg>
 		</tu>
 		<tu tuid="preferences.account.dark_mode">
 			<tuv xml:lang="en_US">
-				<seg>Dark Mode: (Experimental)</seg>
+				<seg>Dark Mode:</seg>
 			</tuv>
 		</tu>
 		<tu tuid="preferences.account.keyboard.shortcuts">

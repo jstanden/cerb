@@ -2943,7 +2943,7 @@
 			"sender_id": "{{{default.replyto_id}}}",
 			"worker_id": "{{{uid.worker_kina}}}",
 			"headers": "To: n.lisko@heroy.example\r\nFrom: {{{default.replyto_email}}}\r\nSubject: Re: Close waiting tickets older than 30 days\r\nDate: {{{'-238624 seconds'|date('r')}}}\r\nContent-Type: text/plain; charset=utf-8\r\nMessage-Id: <demo34.msg2@cerb.example>\r\n",
-			"content": "> I need to automatically close tickets that are waiting for 30 days\n\nHi Nadiaa,\n\nHere's a guide for creating a bot that automatically closes long-waiting tickets:\nhttps://cerb.ai/guides/bots/close-idle-tickets/\n"
+			"content": "> I need to automatically close tickets that are waiting for 30 days\n\nHi Nadiia,\n\nHere's a guide for creating a bot that automatically closes long-waiting tickets:\nhttps://cerb.ai/guides/bots/close-idle-tickets/\n"
 		},
 		{
 			"uid": "ticket_demo_035",

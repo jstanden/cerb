@@ -102,12 +102,14 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 			@$search_key = $query_field['options']['param_key'];
 			@$search_field = $search_fields[$search_key]; /* @var $search_field DevblocksSearchField */
 			
+			if(!is_object($search_field))
+				return false;
+			
 			// Default the bin on date-based fields
 			// Make sure the field is a date if we're binning
 			
 			if(in_array($search_field->type, [Model_CustomField::TYPE_DATE, DevblocksSearchCriteria::TYPE_DATE])) {
 				$bin = DevblocksPlatform::strLower($bin ?: 'month');
-				
 			} else {
 				$bin = null;
 			}
@@ -133,7 +135,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 						Cerb_ORMHelper::qstr($context), // .from_context
 						Cerb_ORMHelper::escape($key_select),
 						$primary_key, // .from_context_id
-						$link_context 
+						$link_context
 							? sprintf(" AND `%s`.to_context = %s",
 								Cerb_ORMHelper::escape($key_select),
 								Cerb_ORMHelper::qstr($link_context->id) // .to_context

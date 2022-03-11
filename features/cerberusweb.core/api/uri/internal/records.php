@@ -790,13 +790,15 @@ class PageSection_InternalRecords extends Extension_PageSection {
 						continue;
 				}
 				
-				foreach($dicts as $dict) {
-					$v = $dict->get($k) ?: '';
+				foreach($dicts as $dict) { /* @var $dict DevblocksDictionaryDelegate */
+					$v = $dict->get($k);
 					$handled = false;
 					
 					// Skip null custom fields
-					if(DevblocksPlatform::strStartsWith($k, 'custom_') && 0 == strlen($v))
-						continue;
+					if(DevblocksPlatform::strStartsWith($k, 'custom_')) {
+						if(is_string($v) && 0 == strlen($v))
+							continue;
+					}
 					
 					// Label translation
 					switch($field_types[$k]) {
@@ -899,7 +901,7 @@ class PageSection_InternalRecords extends Extension_PageSection {
 					}
 					
 					if(!$handled) {
-						if(0 != strlen($v)) {
+						if(is_string($v) && 0 != strlen($v)) {
 							if(false === array_search($v, $field_values[$k]['values']))
 								$field_values[$k]['values'][$dict->id] = $v;
 						}

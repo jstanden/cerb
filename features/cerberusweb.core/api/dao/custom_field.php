@@ -797,6 +797,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					break;
 
 				case Model_CustomField::TYPE_FILE:
+				case Model_CustomField::TYPE_LINK:
 				case Model_CustomField::TYPE_NUMBER:
 				case Model_CustomField::TYPE_WORKER:
 					$value = intval($value);
