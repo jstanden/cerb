@@ -1725,7 +1725,7 @@
 			"sender_id": "{{{default.replyto_id}}}",
 			"worker_id": "{{{uid.worker_milo}}}",
 			"headers": "To: a.boiko@heroy.example\r\nFrom: {{{default.replyto_email}}}\r\nSubject: Re: Does Cerb support single sign on (SSO)?\r\nDate: {{{'-460527 seconds'|date('r')}}}\r\nContent-Type: text/plain; charset=utf-8\r\nMessage-Id: <demo5.msg2@cerb.example>\r\n",
-			"content": "> Does Cerb support SSO?\n\nHi Dmitry,\n\nYes! You can authenticate worker logins using any identity provider (IdP) that supports SAML 2.0 or OpenID Connect.\n\nSee:\n  * https://cerb.ai/guides/integrations/google/sso-saml/\n  * https://cerb.ai/guides/integrations/salesforce/sso-openid/\n"
+			"content": "> Does Cerb support SSO?\n\nHi Alisa,\n\nYes! You can authenticate worker logins using any identity provider (IdP) that supports SAML 2.0 or OpenID Connect.\n\nSee:\n  * https://cerb.ai/guides/integrations/google/sso-saml/\n  * https://cerb.ai/guides/integrations/salesforce/sso-openid/\n"
 		},
 		{
 			"uid": "ticket_demo_006",
@@ -2523,7 +2523,7 @@
 			"sender_id": "{{{default.replyto_id}}}",
 			"worker_id": "{{{uid.worker_janey}}}",
 			"headers": "To: m.valentyn@heroy.example\r\nFrom: {{{default.replyto_email}}}\r\nSubject: Re: What are snippets?\r\nDate: {{{'-292631 seconds'|date('r')}}}\r\nContent-Type: text/plain; charset=utf-8\r\nMessage-Id: <demo24.msg2@cerb.example>\r\n",
-			"content": "> What are snippets?\n\nHi Karina,\n\nWorkers and bots can use snippets to quickly insert predefined text into messages. You can think of snippets as copying and pasting from a giant shared clipboard.\n\nSee: https://cerb.ai/docs/snippets/\n"
+			"content": "> What are snippets?\n\nHi Mila,\n\nWorkers and bots can use snippets to quickly insert predefined text into messages. You can think of snippets as copying and pasting from a giant shared clipboard.\n\nSee: https://cerb.ai/docs/snippets/\n"
 		},
 		{
 			"uid": "ticket_demo_025",
@@ -2691,7 +2691,7 @@
 			"sender_id": "{{{default.replyto_id}}}",
 			"worker_id": "{{{uid.worker_kina}}}",
 			"headers": "To: v.zelinski@heroy.example\r\nFrom: {{{default.replyto_email}}}\r\nSubject: Re: What is a deep search?\r\nDate: {{{'-270403 seconds'|date('r')}}}\r\nContent-Type: text/plain; charset=utf-8\r\nMessage-Id: <demo28.msg2@cerb.example>\r\n",
-			"content": "> What does [deep search] mean?\n\nHi Sveta,\n\nSome filters represent links between related records. The expression for these filters is another search query based on the linked record type.\n\nWe refer to this as deep searching because you can chain these searches to any depth.\n\nSee: https://cerb.ai/docs/search/deep-search/\n"
+			"content": "> What does [deep search] mean?\n\nHi Vitali,\n\nSome filters represent links between related records. The expression for these filters is another search query based on the linked record type.\n\nWe refer to this as deep searching because you can chain these searches to any depth.\n\nSee: https://cerb.ai/docs/search/deep-search/\n"
 		},
 		{
 			"uid": "ticket_demo_029",
@@ -2943,7 +2943,7 @@
 			"sender_id": "{{{default.replyto_id}}}",
 			"worker_id": "{{{uid.worker_kina}}}",
 			"headers": "To: n.lisko@heroy.example\r\nFrom: {{{default.replyto_email}}}\r\nSubject: Re: Close waiting tickets older than 30 days\r\nDate: {{{'-238624 seconds'|date('r')}}}\r\nContent-Type: text/plain; charset=utf-8\r\nMessage-Id: <demo34.msg2@cerb.example>\r\n",
-			"content": "> I need to automatically close tickets that are waiting for 30 days\n\nHi Tatiana,\n\nHere's a guide for creating a bot that automatically closes long-waiting tickets:\nhttps://cerb.ai/guides/bots/close-idle-tickets/\n"
+			"content": "> I need to automatically close tickets that are waiting for 30 days\n\nHi Nadiaa,\n\nHere's a guide for creating a bot that automatically closes long-waiting tickets:\nhttps://cerb.ai/guides/bots/close-idle-tickets/\n"
 		},
 		{
 			"uid": "ticket_demo_035",
@@ -3321,7 +3321,7 @@
 			"sender_id": "{{{default.replyto_id}}}",
 			"worker_id": "{{{uid.worker_milo}}}",
 			"headers": "To: k.gogol@heroy.example\r\nFrom: {{{default.replyto_email}}}\r\nSubject: Re: Triggering a webhook\r\nDate: {{{'-172852 seconds'|date('r')}}}\r\nContent-Type: text/plain; charset=utf-8\r\nMessage-Id: <demo43.msg2@cerb.example>\r\n",
-			"content": "> I need to trigger a webhook in our CRM when a new ticket is opened\n\nHi Sergey,\n\nEvery bot behavior can use the \"Execute HTTP request\" action.\n\nEnter your webhook URL and include any parameters you need to send for the event.\n"
+			"content": "> I need to trigger a webhook in our CRM when a new ticket is opened\n\nHi Klym,\n\nEvery bot behavior can use the \"Execute HTTP request\" action.\n\nEnter your webhook URL and include any parameters you need to send for the event.\n"
 		},
 		{
 			"uid": "ticket_demo_044",

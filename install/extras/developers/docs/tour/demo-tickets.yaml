@@ -107,7 +107,7 @@ messages:
     content: |
       > Does Cerb support SSO?
       
-      Hi Dmitry,
+      Hi Alisa,
       
       Yes! You can authenticate worker logins using any identity provider (IdP) that supports SAML 2.0 or OpenID Connect.
       
@@ -470,7 +470,7 @@ messages:
     content: |
       > What are snippets?
       
-      Hi Karina,
+      Hi Mila,
       
       Workers and bots can use snippets to quickly insert predefined text into messages. You can think of snippets as copying and pasting from a giant shared clipboard.
       
@@ -549,7 +549,7 @@ messages:
     content: |
       > What does [deep search] mean?
       
-      Hi Sveta,
+      Hi Vitali,
       
       Some filters represent links between related records. The expression for these filters is another search query based on the linked record type.
       
@@ -664,7 +664,7 @@ messages:
     content: |
       > I need to automatically close tickets that are waiting for 30 days
       
-      Hi Tatiana,
+      Hi Nadiia,
       
       Here's a guide for creating a bot that automatically closes long-waiting tickets:
       https://cerb.ai/guides/bots/close-idle-tickets/
@@ -847,7 +847,7 @@ messages:
     content: |
       > I need to trigger a webhook in our CRM when a new ticket is opened
       
-      Hi Sergey,
+      Hi Klym,
       
       Every bot behavior can use the "Execute HTTP request" action.
       
