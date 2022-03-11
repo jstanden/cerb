@@ -82,7 +82,7 @@ if(DevblocksPlatform::isStateless()) {
 
 // Do we need an update first?
 if(!DevblocksPlatform::versionConsistencyCheck()) {
-	if(0 != strcasecmp(@$request->path[0],"update")) {
+	if(0 != strcasecmp($request->path[0] ?? '',"update")) {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('update','locked')));
 		exit;
 	}
