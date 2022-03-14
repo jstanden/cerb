@@ -3232,7 +3232,7 @@ abstract class C4_AbstractView {
 				);
 				
 			} else {
-				$cfield_select_sql .= sprintf("(SELECT field_value FROM %s WHERE context=%s AND context_id=%s AND field_id=%d ORDER BY field_value%s)",
+				$cfield_select_sql .= sprintf("(SELECT field_value FROM %s WHERE context=%s AND context_id=%s AND field_id=%d%s)",
 					DAO_CustomFieldValue::getValueTableName($field_id),
 					Cerb_ORMHelper::qstr($cfield->context),
 					$cfield_key,
