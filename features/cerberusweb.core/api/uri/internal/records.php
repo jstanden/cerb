@@ -795,11 +795,9 @@ class PageSection_InternalRecords extends Extension_PageSection {
 					$handled = false;
 					
 					// Skip null custom fields
-					if(DevblocksPlatform::strStartsWith($k, 'custom_')) {
-						if(is_string($v) && 0 == strlen($v))
-							continue;
-					}
-					
+					if(DevblocksPlatform::strStartsWith($k, 'custom_') && 0 == strlen(strval($v)))
+						continue;
+
 					// Label translation
 					switch($field_types[$k]) {
 						case 'context_url':
@@ -901,7 +899,7 @@ class PageSection_InternalRecords extends Extension_PageSection {
 					}
 					
 					if(!$handled) {
-						if(is_string($v) && 0 != strlen($v)) {
+						if(0 != strlen(strval($v))) {
 							if(false === array_search($v, $field_values[$k]['values']))
 								$field_values[$k]['values'][$dict->id] = $v;
 						}
