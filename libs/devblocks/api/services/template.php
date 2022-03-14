@@ -108,6 +108,7 @@ class _DevblocksTemplateManager {
 				'explode',
 				'implode',
 				'in_array',
+				'is_a',
 				'is_array',
 				'isset',
 				'method_exists',
