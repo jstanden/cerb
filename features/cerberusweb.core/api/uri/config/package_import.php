@@ -77,6 +77,9 @@ class PageSection_SetupPackageImport extends Extension_PageSection {
 			
 			CerberusApplication::packages()->import($json_string, $prompts, $records_created, $records_modified);
 			
+			if(empty($records_created) && empty($records_modified))
+				throw new Exception_DevblocksAjaxValidationError("No records were created or modified by the package.");
+			
 			$tpl->assign('records_created', $records_created);
 			$tpl->assign('records_modified', $records_modified);
 			
