@@ -4,7 +4,7 @@
 	<input name="prompts[{$var}]" type="text" placeholder="{$placeholder}" value="{$value|default:$default}" autocomplete="off">
 </div>
 
-<script type="text/javascript">
+<script type="text/javascript" nonce="{$session->nonce}">
 {
 	var $prompt = document.querySelector('#{$element_id}');
 	var $input = $prompt.querySelector('input[type=text]');

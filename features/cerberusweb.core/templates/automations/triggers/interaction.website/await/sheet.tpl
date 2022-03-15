@@ -37,7 +37,7 @@
 	</div>
 </div>
 
-<script type="text/javascript">
+<script type="text/javascript" nonce="{$session->nonce}">
 {
 	var $prompt = document.querySelector('#{$element_id}');
 	var $popup = $prompt.closest('.cerb-interaction-popup');

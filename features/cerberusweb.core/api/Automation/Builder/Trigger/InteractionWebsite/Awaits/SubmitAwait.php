@@ -19,9 +19,12 @@ class SubmitAwait extends AbstractAwait {
 	
 	function render(Model_AutomationContinuation $continuation) {
 		$tpl = DevblocksPlatform::services()->templateSandbox();
+		$session = \ChPortalHelper::getSession();
 		
 		$show_continue = $this->_data['continue'] ?? false;
 		$show_reset = $this->_data['reset'] ?? false;
+		
+		$tpl->assign('session', $session);
 		
 		$tpl->assign('continue_options', [
 			'continue' => $show_continue,

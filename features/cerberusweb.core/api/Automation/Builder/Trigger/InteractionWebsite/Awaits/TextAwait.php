@@ -142,6 +142,7 @@ class TextAwait extends AbstractAwait {
 	
 	function render(Model_AutomationContinuation $continuation) {
 		$tpl = DevblocksPlatform::services()->templateSandbox();
+		$session = \ChPortalHelper::getSession();
 		
 		$label = $this->_data['label'] ?? null;
 		$placeholder = $this->_data['placeholder'] ?? null;
@@ -189,6 +190,7 @@ class TextAwait extends AbstractAwait {
 				break;
 		}
 		
+		$tpl->assign('session', $session);
 		$tpl->assign('label', $label);
 		$tpl->assign('placeholder', $placeholder);
 		$tpl->assign('default', $default);

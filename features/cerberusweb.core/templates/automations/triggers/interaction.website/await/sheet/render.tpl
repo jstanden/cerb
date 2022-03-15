@@ -73,7 +73,7 @@
 </div>
 
 {$script_uid = uniqid('script')}
-<script type="text/javascript" id="{$script_uid}">
+<script type="text/javascript" id="{$script_uid}" nonce="{$session->nonce}">
 {
 	var $script = document.querySelector('#{$script_uid}');
 	var $sheet = $script.parentElement.querySelector('.cerb-sheet');

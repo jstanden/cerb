@@ -595,6 +595,7 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 	}
 	
 	private function _respondAwaitForm(DevblocksDictionaryDelegate $automation_results, Model_AutomationContinuation $continuation) {
+		$session = \ChPortalHelper::getSession();
 		$form_components = AutomationTrigger_InteractionWebsite::getFormComponentMeta();
 		
 		$exit_code = $automation_results->get('__exit');
@@ -603,6 +604,7 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 		
 		if($form_title) {
 			$tpl = DevblocksPlatform::services()->templateSandbox();
+			$tpl->assign('session', $session);
 			$tpl->assign('popup_title', $form_title);
 			$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.website/await/_set_popup_title.tpl');
 		}

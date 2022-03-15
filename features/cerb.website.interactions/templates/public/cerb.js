@@ -15,6 +15,10 @@ function CerbInteractions() {
     this.init();
 }
 
+CerbInteractions.prototype.getNonce = function() {
+    return this.$script['nonce'] || this.$script.getAttribute('nonce');
+}
+
 CerbInteractions.prototype.init = function() {
     // Stylesheet
     var $css = document.createElement('link');
@@ -143,11 +147,16 @@ CerbInteractions.prototype.html = function (el, html) {
 
     for (var i = 0; i < $scripts.length; i++) {
         var $oldScript = $scripts[i];
+        var $oldNonce = $oldScript['nonce'] || $oldScript.getAttribute('nonce');
+        
+        if($oldNonce !== this.getNonce())
+            continue;
+        
         var $parent = $oldScript.parentNode;
         var $newScript = document.createElement('script');
         var scriptData = ($oldScript.text || $oldScript.textContent || $oldScript.innerHTML || "");
         $newScript.setAttribute('type', 'text/javascript');
-        $newScript.setAttribute('nonce', this.$script.getAttribute('nonce'));
+        $newScript.setAttribute('nonce', this.getNonce());
         $newScript.appendChild(document.createTextNode(scriptData));
         $parent.insertBefore($newScript, $oldScript)
         $parent.removeChild($oldScript);
@@ -168,6 +177,9 @@ CerbInteractions.prototype.disableSelection = function ($el) {
 }
 
 CerbInteractions.prototype.forEach = function (array, callback, scope) {
+    if(typeof array != 'object')
+        return;
+    
     for (var i = 0; i < array.length; i++) {
         callback.call(scope, i, array[i]);
     }
@@ -205,6 +217,15 @@ CerbInteractions.prototype.interactionStart = function(interaction, interaction_
 
                     inst.$body.append(inst.$popup);
                     inst.html(inst.$popup, this.responseText);
+                    
+                    inst.forEach(
+                        inst.$popup.querySelectorAll('form'),
+                        function(index, el) {
+                            el.addEventListener('submit', function (e) {
+                               return false; 
+                            });
+                        }
+                    )
 
                     var $close = inst.$popup.querySelector('.cerb-interaction-popup--close');
                     
@@ -249,6 +270,10 @@ CerbInteractions.prototype.interactionStart = function(interaction, interaction_
 
 CerbInteractions.prototype.interactionContinue = function(is_submit) {
     var $form = this.$popup.querySelector('form');
+    
+    if(null == $form)
+        return;
+    
     var $elements = $form.querySelector('.cerb-interaction-popup--form-elements');
     var xhttp = new XMLHttpRequest()
     var inst = this;

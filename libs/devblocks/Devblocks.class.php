@@ -3598,13 +3598,11 @@ class DevblocksPlatform extends DevblocksEngine {
 				break;
 				
 			case 'deny':
-				header("Content-Security-Policy: frame-ancestors 'none'");
 				header("X-Frame-Options: DENY");
 				break;
 				
 			default:
 			case 'self':
-				header("Content-Security-Policy: frame-ancestors 'self'");
 				header("X-Frame-Options: SAMEORIGIN");
 				break;
 		}

@@ -34,6 +34,7 @@ class SheetAwait extends AbstractAwait {
 	private function _render(string $prompt_key, Model_AutomationContinuation $continuation) {
 		$sheets = DevblocksPlatform::services()->sheet();
 		$tpl = DevblocksPlatform::services()->template();
+		$session = \ChPortalHelper::getSession();
 		
 		$error = null;
 		
@@ -134,6 +135,8 @@ class SheetAwait extends AbstractAwait {
 		$sheets->addType('text', $sheets->types()->text(false));
 		$sheets->addType('time_elapsed', $sheets->types()->timeElapsed(false));
 		$sheets->setDefaultType('text');
+		
+		$tpl->assign('session', $session);
 		
 		$layout = $sheets->getLayout($sheet_schema);
 		$tpl->assign('layout', $layout);

@@ -11,7 +11,7 @@
 	{/if}
 </div>
 
-<script type="text/javascript">
+<script type="text/javascript" nonce="{$session->nonce}">
 {
 	var $element = document.querySelector('#{$element_uid}');
 	var $popup = $element.closest('.cerb-interaction-popup');

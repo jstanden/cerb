@@ -19,12 +19,14 @@ class EndAwait extends AbstractAwait {
 	
 	function render(Model_AutomationContinuation $continuation) {
 		$tpl = DevblocksPlatform::services()->templateSandbox();
+		$session = \ChPortalHelper::getSession();
 		
 		$event_data = [
 			'exit' => 'return',
 			'return' => $this->_data,
 		];
 		
+		$tpl->assign('session', $session);
 		$tpl->assign('event_data_json', json_encode($event_data));
 		$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.website/await/end.tpl');
 	}

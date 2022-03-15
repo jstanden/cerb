@@ -5,7 +5,7 @@
 {$logo_text = $portal_schema->getLogoText()}
 {$navbar = $portal_schema->getNavbar()}
 {$title = $portal_schema->getTitle()}
-{$version = $portal->updated_at}
+{$version = $portal->updated_at|cat:"000"}
 
 <html lang="en" class="cerb-portal">
     <head>
