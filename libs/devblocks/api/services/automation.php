@@ -393,7 +393,13 @@ class _DevblocksAutomationService {
 			return false;
 		
 		$started_at = microtime(true) * 1000;
-		$time_limit_ms = $automation->getPolicy()->getTimeoutMs();
+		
+		if(null == ($policy = $automation->getPolicy())) {
+			$error = 'Invalid automation policy';
+			return false;
+		}
+		
+		$time_limit_ms = $policy->getTimeoutMs();
 		$elapsed_ms = 0;
 		$is_timed_out = false;
 		
