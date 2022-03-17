@@ -536,12 +536,14 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 	
 	private function _profileAction_runAutomationEditor() {
 		$automator = DevblocksPlatform::services()->automation();
+		$kata = DevblocksPlatform::services()->kata();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$automation_id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
 		$is_simulator = DevblocksPlatform::importGPC($_POST['is_simulator'] ?? null, 'integer', 0);
 		$automation_name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string');
 		$automation_script = DevblocksPlatform::importGPC($_POST['automation_script'] ?? null, 'string');
+		$automation_policy = DevblocksPlatform::importGPC($_POST['automation_policy_kata'] ?? null, 'string');
 		$start_state = DevblocksPlatform::importGPC($_POST['start_state_yaml'] ?? null, 'string');
 		$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'] ?? null, 'string');
 		
@@ -571,11 +573,7 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		
 		$automation->name = $automation_name;
 		$automation->script = $automation_script;
-		
-		// Override policies on testing
-		if($active_worker->is_superuser) {
-			$automation->policy_kata = DevblocksPlatform::importGPC($_POST['automation_policy_kata'] ?? null, 'string', null);
-		}
+		$automation->policy_kata = $automation_policy;
 		
 		if(false === ($initial_state = DevblocksPlatform::services()->string()->yamlParse($start_state, 0, $error))) {
 			echo json_encode([
@@ -590,6 +588,31 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		}
 		
 		$initial_state['__simulate'] = $is_simulator;
+		
+		// Schema validation on script + policy before running
+		if(false === $kata->validate($automation->script, CerberusApplication::kataSchemas()->automation(), $error)) {
+			echo json_encode([
+				'exit' => 'error',
+				'exit_state' => null,
+				'dict' => DevblocksPlatform::services()->string()->yamlEmit([
+					'__exit' => 'error',
+					'error' => 'Automation: ' . $error,
+				], false),
+			]);
+			return;
+		}
+		
+		if(false === $kata->validate($automation->policy_kata, CerberusApplication::kataSchemas()->automationPolicy(), $error)) {
+			echo json_encode([
+				'exit' => 'error',
+				'exit_state' => null,
+				'dict' => DevblocksPlatform::services()->string()->yamlEmit([
+					'__exit' => 'error',
+					'error' => 'Automation policy: ' . $error,
+				], false),
+			]);
+			return;
+		}
 		
 		if(false === ($automation_result = $automator->executeScript($automation, $initial_state, $error))) {
 			echo json_encode([
