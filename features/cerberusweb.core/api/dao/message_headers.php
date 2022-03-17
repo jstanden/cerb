@@ -64,6 +64,9 @@ class DAO_MessageHeaders extends Cerb_ORMHelper {
 
 	static function getRaw($message_id) {
 		$db = DevblocksPlatform::services()->database();
+		
+		if(empty($message_id))
+			return [];
 
 		$sql = sprintf("SELECT headers ".
 			"FROM message_headers ".
@@ -80,7 +83,10 @@ class DAO_MessageHeaders extends Cerb_ORMHelper {
 	static function getRaws(array $message_ids) : array {
 		$db = DevblocksPlatform::services()->database();
 		
-		$message_ids = DevblocksPlatform::sanitizeArray($message_ids, 'int');
+		$message_ids = DevblocksPlatform::sanitizeArray($message_ids, 'int', ['nonzero']);
+		
+		if(empty($message_ids))
+			return [];
 		
 		$sql = sprintf("SELECT message_id, headers ".
 			"FROM message_headers ".

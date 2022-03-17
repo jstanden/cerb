@@ -384,9 +384,7 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 		$subject = DevblocksPlatform::importGPC($_POST['subject'] ?? null, 'string','');
 		
 		// Validate
-		if(empty($msg_id)
-			|| empty($ticket_id)
-			|| null == ($ticket = DAO_Ticket::get($ticket_id)))
+		if(empty($ticket_id) || null == ($ticket = DAO_Ticket::get($ticket_id)))
 			return false;
 		
 		// Params

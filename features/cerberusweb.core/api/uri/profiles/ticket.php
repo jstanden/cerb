@@ -575,6 +575,11 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 				$draft->setMessage($message);
 		}
 		
+		if(!is_a($message, 'Model_Message')) {
+			$message = new Model_Message();
+			$message->ticket_id = $ticket->id;
+		}
+		
 		if(false == ($bucket = $ticket->getBucket()))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
@@ -763,9 +768,12 @@ EOD;
 			$tpl->assign('toolbar_formatting', $toolbar_reply_formatting);
 		}
 		
-		$message_dict = DevblocksDictionaryDelegate::getDictionaryFromModel($message, CerberusContexts::CONTEXT_MESSAGE);
+		if(null != ($message_dict = DevblocksDictionaryDelegate::getDictionaryFromModel($message, CerberusContexts::CONTEXT_MESSAGE))) {
+			$toolbar_dict = DevblocksDictionaryDelegate::instance($message_dict->getDictionary(null, false, 'message_'));
+		} else {
+			$toolbar_dict = DevblocksDictionaryDelegate::instance([]);
+		}
 		
-		$toolbar_dict = DevblocksDictionaryDelegate::instance($message_dict->getDictionary(null, false, 'message_'));
 		$toolbar_dict->set('caller_name', 'cerb.toolbar.mail.reply');
 		$toolbar_dict->set('worker__context', CerberusContexts::CONTEXT_WORKER);
 		$toolbar_dict->set('worker_id', $active_worker->id);

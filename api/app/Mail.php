@@ -1491,13 +1491,18 @@ class CerberusMail {
 				if(false == ($ticket = DAO_Ticket::get($properties['ticket_id'] ?? 0)))
 					return false;
 				
-				$message = $ticket->getLastMessage();
-				$reply_message_id = $message->id;
+				if(null != ($message = $ticket->getLastMessage()))
+					$reply_message_id = $message->id;
 				
 			} else {
 				// Ticket
 				if(null == ($ticket = $message->getTicket()))
 					return false;
+			}
+			
+			if(!is_a($message, 'Model_Message')) {
+				$message = new Model_Message();
+				$message->ticket_id = $ticket->id;
 			}
 			
 			// Group
@@ -1631,7 +1636,7 @@ class CerberusMail {
 			}
 			
 			// References
-			if(!empty($message) && false !== (@$in_reply_to = $message_headers['message-id'])) {
+			if(!empty($message) && false !== ($in_reply_to = ($message_headers['message-id'] ?? null))) {
 				$headers->addTextHeader('References', $in_reply_to);
 				$headers->addTextHeader('In-Reply-To', $in_reply_to);
 			}

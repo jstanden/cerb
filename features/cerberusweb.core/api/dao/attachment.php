@@ -391,9 +391,9 @@ class DAO_Attachment extends Cerb_ORMHelper {
 		if(!is_array($context_ids))
 			$context_ids = [$context_ids];
 
-		$context_ids = DevblocksPlatform::sanitizeArray($context_ids, 'int');
+		$context_ids = DevblocksPlatform::sanitizeArray($context_ids, 'int', ['nonzero']);
 		
-		if(empty($context) && empty($context_ids))
+		if(empty($context) || empty($context_ids))
 			return [];
 		
 		$db = DevblocksPlatform::services()->database();
