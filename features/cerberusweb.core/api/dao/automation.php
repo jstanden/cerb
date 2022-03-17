@@ -351,7 +351,7 @@ class DAO_Automation extends Cerb_ORMHelper {
 			$object->script = $row['script'];
 			$object->updated_at = intval($row['updated_at']);
 			
-			@$params = json_decode($row['extension_params_json'], true);
+			$params = json_decode($row['extension_params_json'] ?? '', true);
 			$object->extension_params = $params ?? [];
 			
 			$objects[$object->id] = $object;

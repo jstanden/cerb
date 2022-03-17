@@ -463,7 +463,7 @@ class Page_Login extends CerberusPageExtension {
 							$remember_bin = pack('N2', $worker->id, time());
 							$remember_value = $encrypt->encrypt($remember_bin);
 							
-							setcookie('mfa:' . $worker->id, $remember_value, $remember_expires_at, '/', NULL, $url_writer->isSSL(), true);
+							setcookie('mfa:' . $worker->id, $remember_value, $remember_expires_at, '/', '', $url_writer->isSSL(), true);
 						}
 						
 						DevblocksPlatform::redirect(new DevblocksHttpRequest(['login','authenticated']));

@@ -2858,7 +2858,7 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 				// If the cookie is going to expire at a future date, extend it
 				if($maxlifetime) {
 					$url_writer = DevblocksPlatform::services()->url();
-					setcookie('Devblocks', $id, time()+$maxlifetime, '/', NULL, $url_writer->isSSL(), true);
+					setcookie('Devblocks', $id, time()+$maxlifetime, '/', '', $url_writer->isSSL(), true);
 				}
 
 				$db->ExecuteMaster(sprintf("UPDATE devblocks_session SET updated=%d, refreshed_at=%d WHERE session_token = %s",
@@ -3255,7 +3255,7 @@ class CerbLoginWorkerAuthState {
 			$email,
 			time()+30*86400,
 			$url_writer->write('c=login',false,false),
-			null,
+			'',
 			$url_writer->isSSL(),
 			true
 		);
