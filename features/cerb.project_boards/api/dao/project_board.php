@@ -508,14 +508,17 @@ class Model_ProjectBoard {
 		
 		// [TODO] Set this earlier (and expanded)
 		$dict->set('column__context', Context_ProjectBoardColumn::ID);
-		$dict->set('column_id', $this->id);
+		$dict->set('column_id', $column ? $column->id : 0);
 		
 		// Try the column first
-		$sheet_schema = $column->getCardSheet($dict);
+		$sheet_schema = null;
+		
+		if($column)
+			$sheet_schema = $column->getCardSheet($dict);
 		
 		// Then try the board
 		if(!$sheet_schema) {
-			if(false == ($board = $column->getProjectBoard()))
+			if(!$column || false == ($board = $column->getProjectBoard()))
 				return null;
 			
 			$sheet_schema = $board->getCardSheet($dict);
@@ -570,7 +573,7 @@ class Model_ProjectBoard {
 		$rows = $sheets->getRows($sheet_schema, [$dict]);
 		$tpl->assign('rows', $rows);
 		
-		$html = $tpl->fetch('devblocks:cerberusweb.core::events/form_interaction/worker/responses/respond_sheet_fieldsets.tpl');
+		$html = $tpl->fetch('devblocks:cerb.project_boards::boards/board/card_sheet.tpl');
 		
 		echo $html;
 	}

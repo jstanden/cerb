@@ -5053,6 +5053,16 @@ var ajax = new cAjaxCalls();
 					e.stopPropagation();
 				});
 				
+				$peek.on('cerb-links-changed', function(e) {
+					var links_event = $.Event(e.type, e);
+					links_event.type = 'cerb-peek-links-changed';
+					links_event.context = context;
+					links_event.is_rebroadcast = e.type === 'cerb-links-changed';
+					$trigger.trigger(links_event);
+
+					e.stopPropagation();
+				});
+				
 				$peek.closest('.ui-dialog').find('.ui-dialog-titlebar-close').on('click', function(e) {
 					$trigger.trigger('cerb-peek-aborted');
 				});

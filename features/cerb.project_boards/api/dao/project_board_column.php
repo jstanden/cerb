@@ -554,6 +554,9 @@ class Model_ProjectBoardColumn {
 		
 		$links = DAO_ContextLink::getAllContextLinks(Context_ProjectBoardColumn::ID, $this->id, true);
 		
+		// Remove cards not in the links
+		$this->cards = array_intersect($this->cards, array_keys($links));
+		
 		// Append links that aren't in the sorted cards
 		$this->cards = array_merge(
 			$this->cards,
