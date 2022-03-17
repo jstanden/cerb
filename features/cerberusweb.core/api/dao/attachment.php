@@ -171,23 +171,62 @@ class DAO_Attachment extends Cerb_ORMHelper {
 	
 	private static function _updateContent($ids, &$fields) {
 		if(!isset($fields['_content']))
-			return;
+			return false;
 			
 		$content = $fields['_content'] ?? null;
 		unset($fields['_content']);
 		
-		// If base64 encoded
-		if(DevblocksPlatform::strStartsWith($content, 'data:')) {
-			if(false !== ($idx = strpos($content, ';base64,'))) {
-				$content = base64_decode(substr($content, $idx + strlen(';base64,')));
+		$mime_type = DevblocksPlatform::strLower($fields[DAO_Attachment::MIME_TYPE] ?? null);
+		
+		// If an automation resource
+		if('application/vnd.cerb.uri' == $mime_type) {
+			if(DevblocksPlatform::strStartsWith($content, 'cerb:')) {
+				$fields[DAO_Attachment::MIME_TYPE] = '';
+				
+				if(false == ($uri_parts = DevblocksPlatform::services()->ui()->parseURI($content)))
+					return false;
+				
+				if(!CerberusContexts::isSameContext($uri_parts['context'], CerberusContexts::CONTEXT_AUTOMATION_RESOURCE))
+					return false;
+				
+				if(false == ($resource = DAO_AutomationResource::getByToken($uri_parts['context_id'])))
+					return false;
+				
+				// Stream the automation resource to attachment storage
+				
+				$fp_read = DevblocksPlatform::getTempFile();
+				$fp_read_file = DevblocksPlatform::getTempFileInfo($fp_read);
+				
+				if(false == ($resource->getFileContents($fp_read)))
+					return false;
+				
+				$fields[DAO_Attachment::MIME_TYPE] = $resource->mime_type;
+				$fields[DAO_Attachment::STORAGE_SHA1HASH] = sha1_file($fp_read_file);
+				
+				foreach($ids as $id) {
+					fseek($fp_read, 0);
+					Storage_Attachments::put($id, $fp_read);
+				}
+				
+				fclose($fp_read);
+			}
+			
+		} else { 
+			// If base64 encoded
+			if(DevblocksPlatform::strStartsWith($content, 'data:')) {
+				if(false !== ($idx = strpos($content, ';base64,'))) {
+					$content = base64_decode(substr($content, $idx + strlen(';base64,')));
+				}
+			}
+			
+			$fields[self::STORAGE_SHA1HASH] = sha1($content);
+			
+			foreach($ids as $id) {
+				Storage_Attachments::put($id, $content);
 			}
 		}
 		
-		$fields[self::STORAGE_SHA1HASH] = sha1($content);
-		
-		foreach($ids as $id) {
-			Storage_Attachments::put($id, $content);
-		}
+		return true;
 	}
 	
 	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
@@ -1995,8 +2034,8 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		
 		$keys['attach']['type'] = 'links';
 		$keys['attach']['notes'] = 'An array of `type:id` tuples to attach this file to';
-		$keys['content']['notes'] = 'The content of this file. For binary, base64-encode in [data URI format](https://en.wikipedia.org/wiki/Data_URI_scheme)';
-		$keys['mime_type']['notes'] = 'The MIME type of this file (e.g. `image/png`); defaults to `application/octet-stream`';
+		$keys['content']['notes'] = 'The optional content of this file. For binary, base64-encode in [data URI format](https://en.wikipedia.org/wiki/Data_URI_scheme). For `application/vnd.cerb.uri` this should be a URI like `cerb:automation_resource:3ed620aa-a4b5-11ec-89ea-6b1bb00ef554`';
+		$keys['mime_type']['notes'] = 'The MIME type of this file (e.g. `image/png`); defaults to `application/octet-stream`. Can be `application/vnd.cerb.uri` for an [automation resource](/docs/records/types/automation_resource/) URI in `content`.';
 		$keys['name']['notes'] = 'The filename';
 		
 		$keys['url_download'] = [
