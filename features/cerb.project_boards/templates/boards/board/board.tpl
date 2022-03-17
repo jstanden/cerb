@@ -124,36 +124,6 @@ $(function() {
 		}
 	};
 
-	$(document).on('cerb-project-column-changed cerb-project-column-deleted', function(e) {
-		// Event for the same board
-		if(e.board_id != {$board->id|default:0})
-			return;
-		
-		// Find the column and refresh it
-		var $column = $board.find('div.cerb-board-column[data-column-id=' + e.column_id + ']');
-		
-		if(e.type == 'cerb-project-column-deleted') {
-			$column.remove();
-		} else {
-			$column.trigger('cerb-refresh');
-		}
-	});
-	
-	$(document).on('cerb-peek-saved', function(e) {
-		var $card = $board.find('div.cerb-board-card[data-context="' + e.context + '"][data-context-id=' + e.id + ']')
-			.closest('div.cerb-board-card')
-			;
-		
-		$card.trigger('cerb-refresh');
-	});
-	
-	$(document).on('cerb-peek-deleted', function(e) {
-		var $card = $board.find('div.cerb-board-card[data-context="' + e.context + '"][data-context-id=' + e.id + ']')
-			.closest('div.cerb-board-card')
-			;
-		$card.remove();
-	});
-
 	$board.find('.cerb-button-edit-board')
 		.cerbPeekTrigger()
 		.on('cerb-peek-saved', function() {

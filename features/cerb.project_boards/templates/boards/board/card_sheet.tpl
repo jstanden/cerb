@@ -44,12 +44,26 @@
 $(function() {
 	var $response = $('#cardSheet_{$element_id}');
 	var $column = $response.closest('.cerb-board-column');
+	var $board = $column.closest('.cerb-board');
 	
 	$response.find('.cerb-peek-trigger')
 		.cerbPeekTrigger()
 		.on('cerb-peek-links-changed', function(e) {
 			$column.trigger('cerb-refresh');
 		})
+		.on('cerb-peek-saved', function(e) {
+			var $card = $board.find('div.cerb-board-card[data-context="' + e.context + '"][data-context-id=' + e.id + ']')
+				.closest('div.cerb-board-card')
+			;
+
+			$card.trigger('cerb-refresh');
+		})
+		.on('cerb-peek-deleted', function(e) {
+			var $card = $board.find('div.cerb-board-card[data-context="' + e.context + '"][data-context-id=' + e.id + ']')
+				.closest('div.cerb-board-card')
+			;
+			$card.remove();
+		})	
 		;
 
 	$response.find('.cerb-search-trigger')
