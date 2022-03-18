@@ -121,7 +121,6 @@
 		<file path="api/services/search.php">
 			<class name="DevblocksSearchEngineElasticSearch" />
 			<class name="DevblocksSearchEngineMysqlFulltext" />
-			<class name="DevblocksSearchEngineSphinx" />
 		</file>
 		<file path="api/services/storage.php">
 			<class name="DevblocksStorageEngineDatabase" />
@@ -194,17 +193,6 @@
 			</params>
 		</extension>
 
-		<extension point="devblocks.search.engine">
-			<id>devblocks.search.engine.sphinx</id>
-			<name>Sphinx (Deprecated)</name>
-			<class>
-				<file>api/services/search.php</file>
-				<name>DevblocksSearchEngineSphinx</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-		
 		<!-- Storage Engines -->
 
 		<extension point="devblocks.storage.engine">

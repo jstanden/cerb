@@ -242,7 +242,6 @@ class _DevblocksClassLoadManager {
 		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/search.php', array(
 			'_DevblocksSearchEngineMysqlFulltext',
-			'_DevblocksSearchEngineSphinx',
 		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/session.php', array(
 			'_DevblocksSessionManager',
