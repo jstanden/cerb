@@ -21,7 +21,7 @@ $(function() {
 	$popup.one('popup_open', function(event,ui) {
 		var $this = $(this);
 		
-		$this.dialog('option','title',"{'Export Behavior'}");
+		$this.dialog('option','title','Export Behavior');
 		
 		var $frm = $(this).find('form');
 		

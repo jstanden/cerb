@@ -1123,6 +1123,12 @@ class Context_CustomRecord extends Extension_DevblocksContext implements IDevblo
 			'is_required' => false,
 			'notes' => 'JSON-encoded key/value object',
 			'type' => 'object',
+			'_reference' => [
+				'params' => [
+					'owners[contexts]' => 'An optional array with one or more of: `cerberusweb.contexts.app`, `cerberusweb.contexts.group`, `cerberusweb.contexts.role`, `cerberusweb.contexts.worker`',
+					'options' => 'An optional array with one or more of: `hide_search`, `avatars`, `attachments`, `comments`',
+				]
+			]
 		];
 		
 		return $keys;

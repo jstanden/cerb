@@ -1135,6 +1135,10 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		);
 		
 		// Only update records with fields that changed
+		
+		if(!is_array($results))
+			return;
+		
 		$models = DAO_Ticket::getIds(array_keys($results));
 		
 		foreach($models as $model_id => $model) {

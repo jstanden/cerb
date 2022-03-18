@@ -5541,7 +5541,7 @@ class _CerbApplication_Packages {
 		if(false === (@$package_data = json_decode($package_json, true)))
 			return;
 		
-		if(false == (@$library_meta = $package_data['package']['library']))
+		if(false == ($library_meta = ($package_data['package']['library'] ?? null)))
 			return;
 		
 		$db->ExecuteMaster(sprintf("INSERT INTO package_library (uri, name, description, instructions, point, updated_at, package_json) ".

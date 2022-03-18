@@ -56,6 +56,7 @@ class ProfileWidget_Comments extends Extension_ProfileWidget {
 		$tpl->assign('context', $target_context);
 		$tpl->assign('context_id', $target_context_id);
 		$tpl->assign('comments', $comments);
+		$tpl->assign('widget', $model);
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/comments/comments.tpl');
 	}
 	

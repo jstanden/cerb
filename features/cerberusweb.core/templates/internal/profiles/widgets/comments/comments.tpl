@@ -1,4 +1,4 @@
-{$height = $widget->extension_params.height|round}
+{$height = $widget->extension_params.height|default:0|round}
 <div id="widget{$widget->id}Comments" style="{if $height}max-height:{$height}px;overflow:auto;{/if}">
 	<div style="margin-bottom:10px;">
 		{if $active_worker->hasPriv("contexts.{$context}.comment")}

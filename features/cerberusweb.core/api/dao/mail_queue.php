@@ -334,11 +334,11 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 		
 		if(is_array($results))
 		foreach($results as $draft) {
-			if(!isset($out[$draft->ticket_id]))
-				$out[$draft->ticket_id] = [];
-			
 			// Only use the newest draft per ticket
-			if(isset($out[$draft->ticket_id]) && $out[$draft->ticket_id]->updated > $draft->updated)
+			if(
+				array_key_exists($draft->ticket_id, $out)
+				&& $out[$draft->ticket_id]->updated > $draft->updated
+			)
 				continue;
 			
 			unset($draft->params);

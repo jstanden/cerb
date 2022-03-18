@@ -1045,7 +1045,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 	
 	private function _parseQuery($query) {
 		// Extract quotes
-		$phrases = array();
+		$phrases = [];
 		$start = 0;
 		
 		while(false !== ($from = strpos($query, '"', $start))) {
@@ -1133,10 +1133,8 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 			$text = mb_ereg_replace($regexp, ' ', mb_convert_case($text, MB_CASE_LOWER));
 			
 			$words = explode(' ', $text);
+			$words = array_map(fn($word) => ltrim($word, '+-'), $words);
 			
-			foreach($words as $word)
-				$word = ltrim($word, '+-');
-				
 			unset($text);
 			
 			// Remove stop words from queries

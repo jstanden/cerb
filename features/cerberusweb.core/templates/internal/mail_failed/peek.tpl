@@ -36,10 +36,10 @@
 $(function() {
 	var $popup = genericAjaxPopupFetch('peek');
 	
-	$popup.one('popup_open', function(event,ui) {
+	$popup.one('popup_open', function() {
 		var $this = $(this);
 		
-		$this.dialog('option','title',"{'Failed Message'}");
+		$this.dialog('option','title','Failed Message');
 		
 		$this.find('iframe').load(function() {
 			$(this).contents().find('pre').css('white-space','').css('word-wrap','');

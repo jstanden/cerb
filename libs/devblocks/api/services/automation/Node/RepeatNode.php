@@ -9,8 +9,8 @@ class RepeatNode extends AbstractNode {
 	public function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error = null) {
 		$params = $this->node->getParams($dict);
 		
-		$each = @$params['each'];
-		$as = @$params['as'];
+		$each = $params['each'] ?? null;
+		$as = $params['as'] ?? null;
 		
 		if(is_null($as)) {
 			$error = '`as:` is required.';

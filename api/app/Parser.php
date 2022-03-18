@@ -1653,7 +1653,6 @@ class CerberusParser {
 		}
 		
 		// Save the HTML part as an 'original_message.html' attachment
-		// [TODO] Make attaching the HTML part an optional config option (off by default)
 		if(!empty($message->htmlbody)) {
 			$sha1_hash = sha1($message->htmlbody, false);
 			

@@ -27,7 +27,7 @@ class HttpRequestAction extends AbstractAction {
 		$policy = $automation->getPolicy();
 		
 		$inputs = $params['inputs'] ?? [];
-		$output = @$params['output'];
+		$output = $params['output'] ?? null;
 		
 		try {
 			// Params validation

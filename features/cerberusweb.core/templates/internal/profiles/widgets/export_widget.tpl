@@ -13,10 +13,11 @@
 
 <script type="text/javascript">
 var $popup = genericAjaxPopupFind('#frmProfileWidgetExport');
-$popup.one('popup_open', function(event,ui) {
+$popup.one('popup_open', function() {
 	var $this = $(this);
-	
-	$this.dialog('option','title',"{"Export Widget: {$widget->name|escape:'javascript' nofilter}"}");
+
+	var title = "Export Widget: " + {$widget->name|json_encode nofilter};
+	$this.dialog('option','title', title);
 	
 	var $frm = $(this).find('form');
 	

@@ -1575,6 +1575,10 @@ class SearchFields_Worker extends DevblocksSearchFields {
 	
 	static function getFieldForSubtotalKey($key, $context, array $query_fields, array $search_fields, $primary_key) {
 		switch($key) {
+			case 'email':
+				$key = 'email.id';
+				break;
+			
 			case 'group':
 				$key_select = 'wtg_' . uniqid();
 				

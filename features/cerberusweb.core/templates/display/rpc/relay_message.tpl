@@ -65,7 +65,7 @@
 $(function() {
 	var $popup = genericAjaxPopupFetch('relay');
 	
-	$popup.one('popup_open',function(event,ui) {
+	$popup.one('popup_open',function() {
 		var $this = $(this);
 		
 		$this.dialog('option','title','Relay message to external worker email');

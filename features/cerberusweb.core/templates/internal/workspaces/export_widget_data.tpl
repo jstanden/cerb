@@ -32,16 +32,16 @@
 
 <script type="text/javascript">
 var $popup = genericAjaxPopupFind('#frmWidgetExportData');
-$popup.one('popup_open', function(event,ui) {
+$popup.one('popup_open', function() {
 	var $this = $(this);
 	
-	$this.dialog('option','title',"{'Export Widget Data'}");
+	$this.dialog('option','title','Export Widget Data');
 	
 	$this.find('#widgetExportTabs').tabs();
 	
 	var $frm = $(this).find('form');
 	
-	$frm.find('button.submit').click(function(e) {
+	$frm.find('button.submit').click(function() {
 		var $popup = genericAjaxPopupFind($(this));
 		$popup.dialog('close');
 	});
