@@ -8,7 +8,7 @@
 </div>
 
 <div style="padding:5px 10px;">
-	Unlike Sphinx or MySQL Fulltext, Elasticsearch doesn't require indexes or a schema to be defined ahead of time. 
+	Unlike MySQL Fulltext, Elasticsearch doesn't require indexes or a schema to be defined ahead of time. 
 	Cerb will automatically create a new type for each record under the parent index you define here.
 </div>
 

@@ -2,7 +2,7 @@
 	(Default) Records are fulltext indexed in tables in Cerb's existing MySQL database. 
 	Tables are prefixed with <tt>fulltext_*</tt>. No special configuration is required.  This option 
 	provides reasonable performance in most situations, but high volume environments should 
-	consider using a specialized search engine like Elastic Search or Sphinx instead.
+	consider using a specialized search engine like Elasticsearch instead.
 </div>
 
 <div style="padding:5px 10px;">
