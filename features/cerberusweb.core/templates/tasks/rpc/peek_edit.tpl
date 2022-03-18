@@ -175,7 +175,7 @@ $(function() {
 					$library_container.triggerHandler('cerb-package-library-form-submit--done');
 				});
 				
-				$popup.find('button.submit').click();
+				$popup.find('button.create').click();
 			});
 		{/if}
 		
