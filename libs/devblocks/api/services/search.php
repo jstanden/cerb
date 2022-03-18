@@ -1074,14 +1074,12 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 	}
 	
 	public function removeStopWords($words) {
-		$stop_words = $this->_getStopWords();
+		$stop_words = $this->_getStopWords() ?: [];
 		return array_diff($words, $stop_words);
 	}
 	
 	private function _getStopWords() {
-		// InnoDB stop words
-		// [TODO] Make this configurable
-		return [
+		$innodb_stop_words = [
 			'a',
 			'about',
 			'an',
@@ -1119,6 +1117,11 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 			'the',
 			'www',
 		];
+		
+		// Custom stop words
+		$stop_words = DevblocksPlatform::parseCrlfString($this->_config['stop_words'] ?: '');
+		
+		return array_values(array_unique(array_merge($innodb_stop_words, $stop_words)));
 	}
 	
 	public function prepareText($text, $is_query=false) {
