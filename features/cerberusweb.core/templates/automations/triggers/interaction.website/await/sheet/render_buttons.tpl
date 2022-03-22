@@ -39,8 +39,8 @@
 {$script_uid = uniqid('script')}
 <script type="text/javascript" id="{$script_uid}" nonce="{$session->nonce}">
 {
-	var $script = document.querySelector('#{$script_uid}');
-	var $sheet = $script.parentElement.querySelector('.cerb-sheet-buttons');
+	let $script = document.querySelector('#{$script_uid}');
+	let $sheet = $script.closest('[data-cerb-sheet-container]');
 
 	{if $is_selection_enabled}
 	$$.forEach($sheet.querySelectorAll('.cerb-sheet-buttons--button'), function(index, $button) {
@@ -52,9 +52,9 @@
 			if('a' === e.target.nodeName.toLowerCase())
 				return;
 
-			var $checkbox = $button.querySelector('input[type=radio], input[type=checkbox]');
+			let $checkbox = $button.querySelector('input[type=radio], input[type=checkbox]');
 
-			var is_multiple = 'checkbox' === $checkbox.attributes.type.value.toLowerCase();
+			let is_multiple = 'checkbox' === $checkbox.attributes.type.value.toLowerCase();
 
 			// If our target was something other than the input toggle
 			if($checkbox !== e.target) {
@@ -74,9 +74,9 @@
 				)
 			);
 
-			var row_selections = [];
+			let row_selections = [];
 
-			var $checkboxes = $sheet.querySelectorAll('input[type=radio]:checked, input[type=checkbox]:checked');
+			let $checkboxes = $sheet.querySelectorAll('input[type=radio]:checked, input[type=checkbox]:checked');
 
 			$$.forEach($checkboxes, function(index, $e) {
 				row_selections.push($e.value);

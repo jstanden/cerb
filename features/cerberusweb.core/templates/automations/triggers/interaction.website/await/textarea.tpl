@@ -6,8 +6,8 @@
 
 <script type="text/javascript" nonce="{$session->nonce}">
 {
-	var $prompt = document.querySelector('#{$element_id}');
-	var $input = $prompt.querySelector('textarea');
+	let $prompt = document.querySelector('#{$element_id}');
+	let $input = $prompt.querySelector('textarea');
 
 	// Move the cursor to the end of the text
 	$input.focus();

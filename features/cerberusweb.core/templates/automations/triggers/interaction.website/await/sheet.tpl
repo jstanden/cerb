@@ -39,19 +39,19 @@
 
 <script type="text/javascript" nonce="{$session->nonce}">
 {
-	var $prompt = document.querySelector('#{$element_id}');
-	var $popup = $prompt.closest('.cerb-interaction-popup');
-	var $sheet = $prompt.querySelector('[data-cerb-sheet-container]');
-	var $sheet_selections = $prompt.querySelector('[data-cerb-sheet-selections]').querySelector('ul');
+	let $prompt = document.querySelector('#{$element_id}');
+	let $popup = $prompt.closest('.cerb-interaction-popup');
+	let $sheet = $prompt.querySelector('[data-cerb-sheet-container]');
+	let $sheet_selections = $prompt.querySelector('[data-cerb-sheet-selections]').querySelector('ul');
 
-	var $remove = document.createElement('span');
+	let $remove = document.createElement('span');
 	$remove.classList.add(['glyphicons','glyphicons-circle-remove']);
 	$remove.style.position = 'absolute';
 	$remove.style.top = '-5px';
 	$remove.style.right = '-5px';
 	$remove.addEventListener('click', function(e) {
 		e.stopPropagation();
-		var $parent = $remove.closest('li');
+		let $parent = $remove.closest('li');
 		$parent.removeChild($remove);
 		$parent.remove();
 		
@@ -71,15 +71,15 @@
 	$prompt.addEventListener('cerb-sheet--update-selections', function(e) {
 		e.stopPropagation();
 		
-		var $checkboxes = $sheet.querySelectorAll('input[type=checkbox],input[type=radio]');
-		var $selections = $sheet_selections.querySelectorAll('input[type=hidden]');
+		let $checkboxes = $sheet.querySelectorAll('input[type=checkbox],input[type=radio]');
+		let $selections = $sheet_selections.querySelectorAll('input[type=hidden]');
 
 		$$.forEach($checkboxes, function(index, $el) {
 			$el.checked = false;
 		});
 		
 		$$.forEach($selections, function(index, $hidden) {
-			var $el = $sheet.querySelector('input[value="' + $hidden.value + '"]');
+			let $el = $sheet.querySelector('input[value="' + $hidden.value + '"]');
 			if($el) $el.checked = true;
 		});
 	});
@@ -100,13 +100,13 @@
 			return;
 		
 		// Update the sheet
-		var formData = new FormData();
+		let formData = new FormData();
 		formData.set('continuation_token', '{$continuation_token}');
 		formData.set('prompt_key', 'sheet/{$var}');
 		formData.set('prompt_action', 'refresh');
 		formData.set('page', e.detail.page);
 		
-		var $spinner = $$.getSpinner();
+		let $spinner = $$.getSpinner();
 		$spinner.style.position = 'absolute';
 		$spinner.style.marginTop = '-16px';
 		$spinner.style.marginLeft = '-16px';
@@ -134,16 +134,16 @@
 	$sheet.addEventListener('cerb-sheet--selection', function(e) {
 		e.stopPropagation();
 		
-		var $li = null;
-		var $clone = null;
-		var is_multiple = e.detail.hasOwnProperty('is_multiple') ? e.detail.is_multiple : false;
-		var is_selected = e.detail.hasOwnProperty('selected') ? e.detail.selected : false;
-		var item = e.detail.hasOwnProperty('ui') ? e.detail.ui.item : null;
+		let $li = null;
+		let $clone = null;
+		let is_multiple = e.detail.hasOwnProperty('is_multiple') ? e.detail.is_multiple : false;
+		let is_selected = e.detail.hasOwnProperty('selected') ? e.detail.selected : false;
+		let item = e.detail.hasOwnProperty('ui') ? e.detail.ui.item : null;
 		
 		if(!item || !item.value || 0 === item.value.length)
 			return;
 
-		var $checkbox = $sheet_selections.querySelector('input[value="' + item.value + '"]');
+		let $checkbox = $sheet_selections.querySelector('input[value="' + item.value + '"]');
 
 		if(is_multiple) {
 			if($checkbox) {

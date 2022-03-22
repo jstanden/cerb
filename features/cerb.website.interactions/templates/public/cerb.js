@@ -21,7 +21,7 @@ CerbInteractions.prototype.getNonce = function() {
 
 CerbInteractions.prototype.init = function() {
     // Stylesheet
-    var $css = document.createElement('link');
+    let $css = document.createElement('link');
     $css.setAttribute('rel', 'stylesheet');
     $css.setAttribute('type', 'text/css');
     $css.setAttribute('async', 'true');
@@ -30,7 +30,7 @@ CerbInteractions.prototype.init = function() {
     
     // Spinner
     
-    var $circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    let $circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
     $circle.setAttribute('cx', '50');
     $circle.setAttribute('cy', '50');
     $circle.setAttribute('r', '45');
@@ -42,8 +42,8 @@ CerbInteractions.prototype.init = function() {
     
     // Badge
     
-    var badge_interaction = this.$script.getAttribute('data-cerb-badge-interaction');
-    var badge_interaction_style = this.$script.getAttribute('data-cerb-badge-interaction-style');
+    let badge_interaction = this.$script.getAttribute('data-cerb-badge-interaction');
+    let badge_interaction_style = this.$script.getAttribute('data-cerb-badge-interaction-style');
     
     if(badge_interaction) {
         this.$badge = document.createElement('div');
@@ -53,7 +53,7 @@ CerbInteractions.prototype.init = function() {
         if(badge_interaction_style)
             this.$badge.setAttribute('data-cerb-interaction-style', badge_interaction_style);
         
-        var $icon = document.createElement('div');
+        let $icon = document.createElement('div');
         $icon.classList.add('cerb-interaction-badge--icon');
         this.$badge.appendChild($icon);
         
@@ -79,22 +79,22 @@ CerbInteractions.prototype.init = function() {
 
     // Hash change
     
-    var hashChangeFunc = function(e) {
+    let hashChangeFunc = function(e) {
         e.stopPropagation();
         
         if(!window.location.hash)
             return;
 
-        var hash = window.location.hash;
+        let hash = window.location.hash;
 
         // If we had a hash in the URL, open the interaction
         if(hash.substring(0, 2) === '#/') {
             hash = hash.substring(2);
 
-            var params_pos = hash.indexOf('&');
-            var interaction = hash.substring(0, (-1 === params_pos) ? hash.length : params_pos);
-            var interaction_query = (-1 === params_pos) ? '' : hash.substring(params_pos+1);
-            var interaction_style = null;
+            let params_pos = hash.indexOf('&');
+            let interaction = hash.substring(0, (-1 === params_pos) ? hash.length : params_pos);
+            let interaction_query = (-1 === params_pos) ? '' : hash.substring(params_pos+1);
+            let interaction_style = null;
             
             inst.interactionStart(interaction, interaction_query, interaction_style);
         }
@@ -104,19 +104,19 @@ CerbInteractions.prototype.init = function() {
     
     // Listeners
     
-    var inst = this;
-    var autoStarted = false;
-    var $elements = document.querySelectorAll('[data-cerb-interaction]');
+    let inst = this;
+    let autoStarted = false;
+    let $elements = document.querySelectorAll('[data-cerb-interaction]');
 
-    var interactionClicked = function(e) {
+    let interactionClicked = function(e) {
         e.stopPropagation();
 
         if(!this.hasAttribute('data-cerb-interaction'))
             return;
 
-        var interaction = this.getAttribute('data-cerb-interaction');
-        var interaction_params = this.getAttribute('data-cerb-interaction-params');
-        var interaction_style = this.getAttribute('data-cerb-interaction-style');
+        let interaction = this.getAttribute('data-cerb-interaction');
+        let interaction_params = this.getAttribute('data-cerb-interaction-params');
+        let interaction_style = this.getAttribute('data-cerb-interaction-style');
 
         inst.interactionStart(interaction, interaction_params, interaction_style);
     };
@@ -143,18 +143,18 @@ CerbInteractions.prototype.createEvent = function (name, data) {
 CerbInteractions.prototype.html = function (el, html) {
     el.innerHTML = html;
 
-    var $scripts = el.querySelectorAll('script');
+    let $scripts = el.querySelectorAll('script');
 
-    for (var i = 0; i < $scripts.length; i++) {
-        var $oldScript = $scripts[i];
-        var $oldNonce = $oldScript['nonce'] || $oldScript.getAttribute('nonce');
+    for (let i = 0; i < $scripts.length; i++) {
+        let $oldScript = $scripts[i];
+        let $oldNonce = $oldScript['nonce'] || $oldScript.getAttribute('nonce');
         
         if($oldNonce !== this.getNonce())
             continue;
         
-        var $parent = $oldScript.parentNode;
-        var $newScript = document.createElement('script');
-        var scriptData = ($oldScript.text || $oldScript.textContent || $oldScript.innerHTML || "");
+        let $parent = $oldScript.parentNode;
+        let $newScript = document.createElement('script');
+        let scriptData = ($oldScript.text || $oldScript.textContent || $oldScript.innerHTML || "");
         $newScript.setAttribute('type', 'text/javascript');
         $newScript.setAttribute('nonce', this.getNonce());
         $newScript.appendChild(document.createTextNode(scriptData));
@@ -180,7 +180,7 @@ CerbInteractions.prototype.forEach = function (array, callback, scope) {
     if(typeof array != 'object')
         return;
     
-    for (var i = 0; i < array.length; i++) {
+    for (let i = 0; i < array.length; i++) {
         callback.call(scope, i, array[i]);
     }
 }
@@ -195,10 +195,10 @@ CerbInteractions.prototype.interactionStart = function(interaction, interaction_
     
     if(this.$badge) this.$badge.style.display = 'none';
 
-    var inst = this;
-    var xhttp = new XMLHttpRequest()
+    let inst = this;
+    let xhttp = new XMLHttpRequest()
     
-    var formData = new FormData();
+    let formData = new FormData();
     formData.append('interaction', interaction);
     
     if(interaction_params)
@@ -221,13 +221,13 @@ CerbInteractions.prototype.interactionStart = function(interaction, interaction_
                     inst.forEach(
                         inst.$popup.querySelectorAll('form'),
                         function(index, el) {
-                            el.addEventListener('submit', function (e) {
+                            el.addEventListener('submit', function () {
                                return false; 
                             });
                         }
                     )
 
-                    var $close = inst.$popup.querySelector('.cerb-interaction-popup--close');
+                    let $close = inst.$popup.querySelector('.cerb-interaction-popup--close');
                     
                     if($close) {
                         if(inst.$badge) {
@@ -247,7 +247,7 @@ CerbInteractions.prototype.interactionStart = function(interaction, interaction_
 
                     inst.$popup.addEventListener('cerb-interaction-event--end', function (e) {
                         e.stopPropagation();
-                        var eventData = {};
+                        let eventData = {};
                         
                         if(e.detail && e.detail.eventData)
                             eventData = e.detail.eventData;
@@ -269,19 +269,19 @@ CerbInteractions.prototype.interactionStart = function(interaction, interaction_
 }
 
 CerbInteractions.prototype.interactionContinue = function(is_submit) {
-    var $form = this.$popup.querySelector('form');
+    let $form = this.$popup.querySelector('form');
     
     if(null == $form)
         return;
     
-    var $elements = $form.querySelector('.cerb-interaction-popup--form-elements');
-    var xhttp = new XMLHttpRequest()
-    var inst = this;
-    var $spinner = this.getSpinner();
+    let $elements = $form.querySelector('.cerb-interaction-popup--form-elements');
+    let xhttp = new XMLHttpRequest()
+    let inst = this;
+    let $spinner = this.getSpinner();
     
     $elements.appendChild($spinner);
     
-    var formData = new FormData($form);
+    let formData = new FormData($form);
     
     if(is_submit)
         formData.append('__submit', 'continue');
@@ -293,7 +293,7 @@ CerbInteractions.prototype.interactionContinue = function(is_submit) {
                 inst.html($elements, this.responseText);
 
                 setTimeout(function () {
-                    var $el = $elements.querySelector(inst.focusableSelector);
+                    let $el = $elements.querySelector(inst.focusableSelector);
                     if ($el) $el.focus();
                 }, 0);
                 
@@ -313,7 +313,7 @@ CerbInteractions.prototype.interactionContinue = function(is_submit) {
 }
 
 CerbInteractions.prototype.interactionInvoke = function(formData, callback) {
-    var xhttp = new XMLHttpRequest()
+    let xhttp = new XMLHttpRequest()
 
     xhttp.onreadystatechange = function () {
         if (4 === this.readyState) {
@@ -354,4 +354,4 @@ CerbInteractions.prototype.interactionEnd = function(eventData) {
     }
 }
 
-var $$ = new CerbInteractions();
+let $$ = new CerbInteractions();

@@ -13,10 +13,10 @@
 
 <script type="text/javascript" nonce="{$session->nonce}">
 {
-	var $element = document.querySelector('#{$element_uid}');
-	var $popup = $element.closest('.cerb-interaction-popup');
-	var $button_continue = $element.querySelector('.cerb-interaction-popup--form-elements-continue');
-	var $button_reset = $element.querySelector('.cerb-interaction-popup--form-elements-reset');
+	let $element = document.querySelector('#{$element_uid}');
+	let $popup = $element.closest('.cerb-interaction-popup');
+	let $button_continue = $element.querySelector('.cerb-interaction-popup--form-elements-continue');
+	let $button_reset = $element.querySelector('.cerb-interaction-popup--form-elements-reset');
 
 	if($button_continue) {
 		$button_continue.addEventListener('click', function (e) {

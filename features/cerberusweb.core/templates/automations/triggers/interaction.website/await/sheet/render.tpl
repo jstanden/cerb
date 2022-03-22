@@ -75,26 +75,26 @@
 {$script_uid = uniqid('script')}
 <script type="text/javascript" id="{$script_uid}" nonce="{$session->nonce}">
 {
-	var $script = document.querySelector('#{$script_uid}');
-	var $sheet = $script.parentElement.querySelector('.cerb-sheet');
-	var $prompt = $sheet.closest('.cerb-interaction-popup--form-elements-sheet');
+	let $script = document.querySelector('#{$script_uid}');
+	let $sheet = $script.closest('[data-cerb-sheet-container]');
+	let $prompt = $sheet.closest('.cerb-interaction-popup--form-elements-sheet');
 	
 	$$.disableSelection($prompt);
 	
 	$prompt.addEventListener('click', function(e) {
 		e.stopPropagation();
 		
-		var $target = e.target;
+		let $target = e.target;
 		
 		if($target.hasAttribute('data-page')) {
-			var page = $target.getAttribute('data-page');
+			let page = $target.getAttribute('data-page');
 
-			var evt = $$.createEvent('cerb-sheet--page-changed', { "page": page });
+			let evt = $$.createEvent('cerb-sheet--page-changed', { "page": page });
 			$prompt.dispatchEvent(evt);
 			
 		} else {
 			{if $is_selection_enabled}
-			var $tbody = $target.closest('tbody');
+			let $tbody = $target.closest('tbody');
 			
 			if(!$tbody)
 				return;
@@ -104,14 +104,14 @@
 
 			// If removing selected, add back hover
 
-			var $checkbox = $tbody.querySelector('input[type=radio], input[type=checkbox]');
+			let $checkbox = $tbody.querySelector('input[type=radio], input[type=checkbox]');
 
 			// If our target was something other than the input toggle
 			if($checkbox !== e.target) {
 				$checkbox.checked = !$checkbox.checked;
 			}
 
-			var is_multiple = 'checkbox' === $checkbox.attributes.type.value.toLowerCase();
+			let is_multiple = 'checkbox' === $checkbox.attributes.type.value.toLowerCase();
 
 			$sheet.dispatchEvent(
 				$$.createEvent(
@@ -126,9 +126,9 @@
 				)
 			);
 
-			var row_selections = [];
+			let row_selections = [];
 
-			var $checkboxes = $tbody.closest('table.cerb-sheet').querySelectorAll('input[type=radio]:checked ,input[type=checkbox]:checked');
+			let $checkboxes = $tbody.closest('table.cerb-sheet').querySelectorAll('input[type=radio]:checked ,input[type=checkbox]:checked');
 
 			$$.forEach($checkboxes, function(index, $e) {
 				row_selections.push($e.value);
