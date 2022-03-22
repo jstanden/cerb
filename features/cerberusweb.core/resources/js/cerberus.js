@@ -5614,7 +5614,7 @@ var ajax = new cAjaxCalls();
 					
 					$trigger.on('cerb-chooser-saved', function() {
 						// If we have zero bubbles, show autocomplete
-						if(0 === $ul.find('>li')) {
+						if(0 === $ul.find('>li').length) {
 							$button.show();
 						} else { // otherwise, hide it.
 							$button.hide();
