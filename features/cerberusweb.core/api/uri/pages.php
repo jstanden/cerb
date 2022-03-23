@@ -324,8 +324,7 @@ class Page_Custom extends CerberusPageExtension {
 		$active_worker = CerberusApplication::getActiveWorker();
 
 		$tab_id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null, 'integer', 0);
-		$request = DevblocksPlatform::importGPC($_REQUEST['request'] ?? null, 'string', '');
-
+		
 		if(null == ($tab = DAO_WorkspaceTab::get($tab_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
@@ -337,7 +336,6 @@ class Page_Custom extends CerberusPageExtension {
 		
 		$tpl->assign('page', $page);
 		$tpl->assign('tab', $tab);
-		$tpl->assign('request', $request);
 
 		if(null != ($tab_extension = $tab->getExtension())) {
 			$tab_extension->renderTab($page, $tab);

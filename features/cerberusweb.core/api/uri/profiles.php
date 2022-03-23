@@ -409,6 +409,9 @@ class Page_Profiles extends CerberusPageExtension {
 		$context = DevblocksPlatform::importGPC($_REQUEST['context'] ?? null,'string','');
 		$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'] ?? null, 'integer',0);
 		
+		if(null == Extension_DevblocksContext::get($context))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
 		if(false == ($profile_tab = DAO_ProfileTab::get($tab_id)))
 			return;
 		

@@ -102,12 +102,12 @@ XML;
 
 			$eItem = $channel->addChild('item');
 			
-			$escapedSubject = htmlspecialchars($article->title,null,LANG_CHARSET_CODE);
+			$escapedSubject = DevblocksPlatform::strEscapeHtml($article->title);
 			//filter out a couple non-UTF-8 characters (0xC and ESC)
 			$escapedSubject = mb_convert_encoding($escapedSubject, 'utf-8', LANG_CHARSET_CODE);
 			$eItem->addChild('title', $escapedSubject);
 
-			$escapedDesc = htmlspecialchars($article->getPublicContent(),null,LANG_CHARSET_CODE);
+			$escapedDesc = DevblocksPlatform::strEscapeHtml($article->getPublicContent());
 			$escapedDesc = mb_convert_encoding($escapedDesc, 'utf-8', LANG_CHARSET_CODE);
 			$eItem->addChild('description', $escapedDesc);
 
@@ -184,12 +184,12 @@ XML;
 
 			$eItem = $channel->addChild('item');
 			
-			$escapedSubject = htmlspecialchars($article->title,null,LANG_CHARSET_CODE);
+			$escapedSubject = DevblocksPlatform::strEscapeHtml($article->title);
 			//filter out a couple non-UTF-8 characters (0xC and ESC)
 			$escapedSubject = mb_convert_encoding($escapedSubject, 'utf-8', LANG_CHARSET_CODE);
 			$eItem->addChild('title', $escapedSubject);
 
-			$escapedDesc = htmlspecialchars($article->getPublicContent(),null,LANG_CHARSET_CODE);
+			$escapedDesc = DevblocksPlatform::strEscapeHtml($article->getPublicContent());
 			$escapedDesc = mb_convert_encoding($escapedDesc, 'utf-8', LANG_CHARSET_CODE);
 			$eItem->addChild('description', $escapedDesc);
 
@@ -266,12 +266,12 @@ XML;
 
 			$eItem = $channel->addChild('item');
 			
-			$escapedSubject = htmlspecialchars($article->title,null,LANG_CHARSET_CODE);
+			$escapedSubject = DevblocksPlatform::strEscapeHtml($article->title);
 			//filter out a couple non-UTF-8 characters (0xC and ESC)
 			$escapedSubject = mb_convert_encoding($escapedSubject, 'utf-8', LANG_CHARSET_CODE);
 			$eItem->addChild('title', $escapedSubject);
 
-			$escapedDesc = htmlspecialchars($article->getPublicContent(),null,LANG_CHARSET_CODE);
+			$escapedDesc = DevblocksPlatform::strEscapeHtml($article->getPublicContent());
 			$escapedDesc = mb_convert_encoding($escapedDesc, 'utf-8', LANG_CHARSET_CODE);
 			$eItem->addChild('description', $escapedDesc);
 

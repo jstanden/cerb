@@ -41,7 +41,7 @@ $(function() {
 	
 	{$user_agent = DevblocksPlatform::getClientUserAgent()}
 	
-	{if is_array($user_agent) && 0 != strcasecmp($user_agent.platform, 'Android')}
+	{if is_array($user_agent) && 0 != strcasecmp($user_agent.platform|default:'', 'Android')}
 	$menu.find('> li.drag .cerb-popupmenu')
 		.menu()
 		;

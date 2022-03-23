@@ -122,6 +122,9 @@ class CustomField_GeoPoint extends Extension_CustomField {
 	}
 	
 	function getValueTableSql($context, array $context_ids) {
+		if(empty($context_ids))
+			return false;
+		
 		return sprintf("SELECT context_id, field_id, ST_ASTEXT(field_value) AS field_value ".
 			"FROM custom_field_geovalue ".
 			"WHERE context = '%s' AND context_id IN (%s)",
@@ -351,6 +354,9 @@ class CustomField_Slider extends Extension_CustomField {
 	}
 	
 	function getValueTableSql($context, array $context_ids) {
+		if(empty($context_ids))
+			return false;
+		
 		return sprintf("SELECT context_id, field_id, field_value ".
 			"FROM custom_field_numbervalue ".
 			"WHERE context = '%s' AND context_id IN (%s)",
@@ -666,6 +672,9 @@ class CustomField_RecordLinks extends Extension_CustomField {
 	}
 	
 	function getValueTableSql($context, array $context_ids) {
+		if(empty($context_ids))
+			return false;
+		
 		return sprintf("SELECT context_id, field_id, field_value ".
 			"FROM custom_field_numbervalue ".
 			"WHERE context = '%s' AND context_id IN (%s)",

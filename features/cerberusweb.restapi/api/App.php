@@ -87,7 +87,7 @@ class Plugin_RestAPI {
 				self::xml_encode($v, $e);
 
 			} else {
-				$e = $xml->addChild("string", htmlspecialchars($v, ENT_QUOTES, LANG_CHARSET_CODE));
+				$e = $xml->addChild("string", DevblocksPlatform::strEscapeHtml($v));
 				$e->addAttribute("key", (string)$k);
 			}
 		}

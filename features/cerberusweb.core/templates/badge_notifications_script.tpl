@@ -1,4 +1,4 @@
-{if $active_worker_notify_count}
+{if $active_worker && $active_worker_notify_count}
 <script type="text/javascript">
 $().ready(function() {
 	var $badge = $('#badgeNotifications');

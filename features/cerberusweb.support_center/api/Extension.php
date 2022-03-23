@@ -69,7 +69,7 @@ abstract class Extension_UmScController extends DevblocksExtension implements De
 				$with_options = array($with_options);
 
 			foreach($controllers as $k => $controller) {
-				@$options = $controller->params['options'][0];
+				$options = $controller->params['options'][0] ?? [];
 
 				if(!is_array($options) || empty($options)) {
 					unset($controllers[$k]);

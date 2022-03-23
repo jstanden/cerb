@@ -1,5 +1,5 @@
 {$peek_context = CerberusContexts::CONTEXT_WORKSPACE_WIDGET}
-{$peek_context_id = $model->id}
+{$peek_context_id = $model->id|default:0}
 {$form_id = uniqid()}
 {$widget_extension = $widget_extensions[$model->extension_id]}
 {$tab = $model->getWorkspaceTab()}
@@ -10,11 +10,11 @@
 <input type="hidden" name="module" value="workspace_widget">
 <input type="hidden" name="action" value="savePeekJson">
 <input type="hidden" name="view_id" value="{$view_id}">
-{if !empty($model) && !empty($model->id)}<input type="hidden" name="id" value="{$model->id}">{/if}
+{if $peek_context_id}<input type="hidden" name="id" value="{$peek_context_id}">{/if}
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-{if !$model->id}
+{if !$peek_context_id}
 	{if $tab}
 	<input type="hidden" name="workspace_tab_id" value="{$tab->id}">
 	{else}
@@ -38,7 +38,7 @@
 {/if}
 
 <div class="cerb-tabs">
-	{if !$model->id}
+	{if !$peek_context_id}
 	<ul>
 		{if $packages}<li><a href="#widget-library">{'common.library'|devblocks_translate|capitalize}</a></li>{/if}
 		<li><a href="#widget-builder">{'common.build'|devblocks_translate|capitalize}</a></li>
@@ -46,13 +46,13 @@
 	</ul>
 	{/if}
 	
-	{if !$model->id && $packages}
+	{if !$peek_context_id && $packages}
 	<div id="widget-library" class="package-library">
 		{include file="devblocks:cerberusweb.core::internal/package_library/editor_chooser.tpl"}
 	</div>
 	{/if}
 	
-	{if !$model->id}
+	{if !$peek_context_id}
 	<div id="widget-import">
 		<textarea name="import_json" style="width:100%;height:250px;white-space:pre;word-wrap:normal;" rows="10" cols="45" spellcheck="false" placeholder="Paste a dashboard widget in JSON format"></textarea>
 		
@@ -77,16 +77,15 @@
 						<b>{'common.type'|devblocks_translate|capitalize}:</b>
 					</td>
 					<td width="99%" valign="top">
-						{if $model->id}
-							{$widget_extension = $model->getExtension()}
-							{$widget_extension->manifest->name}
+						{if $peek_context_id}
+							{$widget_extension->name}
 						{else}
 							<select name="extension_id">
 								<option value="">-- {'common.choose'|devblocks_translate|lower} --</option>
-								{foreach from=$widget_extensions item=widget_extension}
-								{if DevblocksPlatform::strStartsWith($widget_extension->name, '(Deprecated)')}
+								{foreach from=$widget_extensions item=widget_ext}
+								{if DevblocksPlatform::strStartsWith($widget_ext->name, '(Deprecated)')}
 								{else}
-								<option value="{$widget_extension->id}">{$widget_extension->name}</option>
+								<option value="{$widget_ext->id}">{$widget_ext->name}</option>
 								{/if}
 								{/foreach}
 							</select>
@@ -94,7 +93,7 @@
 					</td>
 				</tr>
 				
-				{if $model->id}
+				{if $peek_context_id}
 				<tr>
 					<td width="1%" nowrap="nowrap" valign="top">
 						<b>{'dashboard'|devblocks_translate|capitalize}:</b>
@@ -134,9 +133,11 @@
 		
 		{* The rest of config comes from the widget *}
 		<div class="cerb-widget-params">
-		{$widget_extension = Extension_WorkspaceWidget::get($widget_extension->id, true)}
-		{if $widget_extension && method_exists($widget_extension,'renderConfig')}
-		{$widget_extension->renderConfig($model)}
+		{if $widget_extension}
+			{$widget_ext = Extension_WorkspaceWidget::get($widget_extension->id, true)}
+			{if $widget_ext && method_exists($widget_ext,'renderConfig')}
+			{$widget_ext->renderConfig($model)}
+			{/if}
 		{/if}
 		</div>
 		
@@ -144,9 +145,9 @@
 		{include file="devblocks:cerberusweb.core::internal/workspaces/tabs/dashboard/toolbar.tpl"}
 		</div>
 		
-		{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
+		{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$peek_context_id}
 		
-		{if !empty($model->id)}
+		{if !empty($peek_context_id)}
 		<fieldset style="display:none;" class="delete">
 			<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
 			
@@ -161,8 +162,8 @@
 		
 		<div class="buttons" style="margin-top:10px;">
 			<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-			{if $model->id}<button type="button" class="save-continue"><span class="glyphicons glyphicons-circle-arrow-right"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>{/if}
-			{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+			{if $peek_context_id}<button type="button" class="save-continue"><span class="glyphicons glyphicons-circle-arrow-right"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>{/if}
+			{if !empty($peek_context_id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 		</div>
 	</div>
 </div>
@@ -198,7 +199,7 @@ $(function() {
 		
 		// Package Library
 		
-		{if !$model->id}
+		{if !$peek_context_id}
 			var $tabs = $popup.find('.cerb-tabs').tabs();
 			
 			{if $packages}
@@ -235,7 +236,7 @@ $(function() {
 			}
 			
 			// Fetch via Ajax
-			genericAjaxGet($params, 'c=profiles&a=invoke&module=workspace_widget&action=getWidgetParams&id={$model->id}&extension=' + encodeURIComponent(extension_id), function(html) {
+			genericAjaxGet($params, 'c=profiles&a=invoke&module=workspace_widget&action=getWidgetParams&id={$peek_context_id}&extension=' + encodeURIComponent(extension_id), function() {
 				$params.find('button.chooser-abstract').cerbChooserTrigger();
 				$params.find('.cerb-peek-trigger').cerbPeekTrigger();
 			});

@@ -6,10 +6,10 @@
 		{$point = 'setup.fields.tab'}
 		
 		<li>
-			<a href="{devblocks_url}ajax.php?c=config&a=invoke&module=fields&action=showFieldsTab&point={$point}&request={$response_uri|escape:'url'}{/devblocks_url}">{'common.records'|devblocks_translate|capitalize}</a>
+			<a href="{devblocks_url}ajax.php?c=config&a=invoke&module=fields&action=showFieldsTab&point={$point}{/devblocks_url}">{'common.records'|devblocks_translate|capitalize}</a>
 		</li>
 		<li>
-			<a href="{devblocks_url}ajax.php?c=config&a=invoke&module=fields&action=showFieldsetsTab&point={$point}&request={$response_uri|escape:'url'}{/devblocks_url}">{'common.fieldsets'|devblocks_translate|capitalize}</a>
+			<a href="{devblocks_url}ajax.php?c=config&a=invoke&module=fields&action=showFieldsetsTab&point={$point}{/devblocks_url}">{'common.fieldsets'|devblocks_translate|capitalize}</a>
 		</li>
 	</ul>
 </div> 

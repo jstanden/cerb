@@ -142,7 +142,7 @@ class ChPortalHelper {
 	}
 	
 	/**
-	 * @return Model_CommunitySession
+	 * @return Model_CommunitySession|false
 	 */
 	public static function getSession() {
 		$session_id = self::$_session_id;

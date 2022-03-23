@@ -1983,7 +1983,7 @@ abstract class C4_AbstractView {
 	}
 
 	function doPage($page) {
-		$this->renderPage = $page;
+		$this->renderPage = intval($page);
 	}
 
 	function doRemoveCriteria($key) {
@@ -4005,7 +4005,7 @@ class CerbQuickSearchLexer {
 					break;
 					
 				case 'T_PARENTHETICAL_CLOSE':
-					$start = array_pop($opens);
+					$start = intval(array_pop($opens));
 					$len = key($tokens)-$start+1;
 					$cut = array_splice($tokens, $start, $len, array([]));
 					

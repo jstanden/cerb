@@ -33,7 +33,7 @@ class _DevblocksUrlManager {
 	function parseURL($url) {
 		// [JAS]: Use the index.php page as a reference to deconstruct the URI
 		$pos = stripos($_SERVER['SCRIPT_NAME'],'index.php',0);
-		if($pos === FALSE) return array();
+		if($pos === FALSE) return [];
 
 		// Decode proxy requests
 		if(isset($_SERVER['HTTP_DEVBLOCKSPROXYHOST'])) {
@@ -54,7 +54,7 @@ class _DevblocksUrlManager {
 		
 		$request = substr($url, $len);
 		
-		if(empty($request)) return array();
+		if(empty($request)) return [];
 		
 		$parts = explode('/', $request);
 

@@ -195,7 +195,7 @@ class CerberusParserModel {
 	}
 	
 	/**
-	 * @return string $subject
+	 * @return void
 	 */
 	private function _parseHeadersSubject() {
 		$subject = '';
@@ -218,10 +218,10 @@ class CerberusParserModel {
 	}
 	
 	/**
-	 * @return int $timestamp
+	 * @return void
 	 */
 	private function _parseHeadersDate() {
-		$timestamp = strtotime($this->_message->headers['date'] ?? null);
+		$timestamp = strtotime($this->_message->headers['date'] ?? 'now');
 		
 		// If blank, or in the future, set to the current date
 		if(empty($timestamp) || $timestamp > time())
@@ -232,7 +232,7 @@ class CerberusParserModel {
 	
 	public function updateThreadHeaders() {
 		$this->_parseHeadersSubject();
-		return $this->_parseHeadersIsNew();
+		$this->_parseHeadersIsNew();
 	}
 	
 	public function updateSender() {

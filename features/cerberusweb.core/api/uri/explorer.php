@@ -43,13 +43,17 @@ class ChExplorerController extends DevblocksControllerExtension {
 		$stack = $response->path;
 		array_shift($stack); // explorer
 		$hashset = array_shift($stack); // set
-		$p = intval(array_shift($stack)); // item
+		$p = array_shift($stack) ?? 1; // item
 
-		if(empty($p))
-			$p = 1;
+		if($p != abs(intval($p)) || $p < 1)
+			CerberusApplication::respondNotFound();
 		
-		$items = DAO_ExplorerSet::get($hashset, [0, $p]);
+		$p = DevblocksPlatform::intClamp($p, 1, PHP_INT_MAX);
 		$total = 0;
+		
+		if(false == ($items = DAO_ExplorerSet::get($hashset, $p))) {
+			CerberusApplication::respondNotFound();
+		}
 		
 		$tpl->assign('hashset', $hashset);
 		

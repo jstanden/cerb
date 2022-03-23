@@ -197,6 +197,11 @@ class DAO_ProfileTab extends Cerb_ORMHelper {
 	static function getByContext($context) {
 		// [TODO] Cache by context?
 		
+		// Ensure the context is legitimate
+		if(false == Extension_DevblocksContext::get($context))
+			return [];
+		
+		
 		$objects = self::getWhere(
 			sprintf("%s = %s",
 				Cerb_ORMHelper::escape(self::CONTEXT),
@@ -209,7 +214,7 @@ class DAO_ProfileTab extends Cerb_ORMHelper {
 		);
 		
 		if(!is_array($objects))
-			return false;
+			return [];
 			
 		return $objects;
 	}

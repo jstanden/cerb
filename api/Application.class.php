@@ -2008,6 +2008,10 @@ class CerberusContexts {
 	}
 
 	static public function logActivity($activity_point, $target_context, $target_context_id, &$entry_array, $actor_context=null, $actor_context_id=null, $also_notify_worker_ids=[], $also_notify_ignore_self=false) {
+		$activity_point = strval($activity_point);
+		$target_context = strval($target_context);
+		$target_context_id = intval($target_context_id);
+		
 		if(null != ($target_ctx = Extension_DevblocksContext::get($target_context))
 			&& $target_ctx instanceof Extension_DevblocksContext) {
 				$target_meta = $target_ctx->getMeta($target_context_id);
@@ -2238,7 +2242,7 @@ class CerberusContexts {
 				$model->_actor = $actor;
 
 				self::$_context_checkpoints[$context][$model_id] =
-					json_decode(json_encode($model), true);
+					DevblocksPlatform::objectToArray($model);
 			}
 		}
 	}

@@ -356,7 +356,7 @@ $(function() {
 			.cerbChooserTrigger()
 			.on('cerb-chooser-saved', function(e) {
 				// When the email changes on a new record, default the avatar chooser context
-				if($(e.target).attr('data-field-name') == 'email_id') {
+				if('email_id' === $(e.target).attr('data-field-name')) {
 					var $chooser_email = $(e.target);
 					var $bubble = $chooser_email.siblings('ul.chooser-container').find('> li:first input:hidden');
 					

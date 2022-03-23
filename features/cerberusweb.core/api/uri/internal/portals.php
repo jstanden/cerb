@@ -217,8 +217,8 @@ class PageSection_InternalPortals extends Extension_PageSection {
 		
 		// Author
 		$eAuthor = $xml->templates->addChild('author'); /* @var $eAuthor SimpleXMLElement */
-		$eAuthor->addChild('name', htmlspecialchars($author));
-		$eAuthor->addChild('email', htmlspecialchars($email));
+		$eAuthor->addChild('name', DevblocksPlatform::strEscapeHtml($author));
+		$eAuthor->addChild('email', DevblocksPlatform::strEscapeHtml($email));
 		
 		// Load view
 		if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
@@ -237,9 +237,9 @@ class PageSection_InternalPortals extends Extension_PageSection {
 				if(null == ($template = DAO_DevblocksTemplate::get($result[SearchFields_DevblocksTemplate::ID])))
 					continue;
 				
-				$eTemplate = $xml->templates->addChild('template', htmlspecialchars($template->content)); /* @var $eTemplate SimpleXMLElement */
-				$eTemplate->addAttribute('plugin_id', htmlspecialchars($template->plugin_id));
-				$eTemplate->addAttribute('path', htmlspecialchars($template->path));
+				$eTemplate = $xml->templates->addChild('template', DevblocksPlatform::strEscapeHtml($template->content)); /* @var $eTemplate SimpleXMLElement */
+				$eTemplate->addAttribute('plugin_id', DevblocksPlatform::strEscapeHtml($template->plugin_id));
+				$eTemplate->addAttribute('path', DevblocksPlatform::strEscapeHtml($template->path));
 			}
 		
 		// Format download file

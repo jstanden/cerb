@@ -600,12 +600,10 @@ abstract class DevblocksEngine {
 		}
 
 		// Resource / Proxy
-		switch(current($parts)) {
-			case 'resource':
-				$resource_request = new DevblocksHttpRequest($parts);
-				$controller = new Controller_Resource();
-				$controller->handleRequest($resource_request);
-				break;
+		if('resource' == current($parts)) {
+			$resource_request = new DevblocksHttpRequest($parts);
+			$controller = new Controller_Resource();
+			$controller->handleRequest($resource_request);
 		}
 
 		$method = DevblocksPlatform::strUpper(@$_SERVER['REQUEST_METHOD']);
@@ -635,7 +633,7 @@ abstract class DevblocksEngine {
 		
 		// Security: IP Whitelist
 		
-		if(!in_array($controller_uri, array('sso', 'oauth', 'portal')) && defined('APP_SECURITY_FIREWALL_ALLOWLIST') && !empty(APP_SECURITY_FIREWALL_ALLOWLIST)) {
+		if(!in_array($controller_uri, ['sso', 'oauth', 'portal']) && defined('APP_SECURITY_FIREWALL_ALLOWLIST') && !empty(APP_SECURITY_FIREWALL_ALLOWLIST)) {
 			@$remote_addr = DevblocksPlatform::getClientIp();
 			$valid_ips = DevblocksPlatform::parseCsvString(APP_SECURITY_FIREWALL_ALLOWLIST);
 			
@@ -647,7 +645,7 @@ abstract class DevblocksEngine {
 		// Security: CSRF
 		
 		// Exclude public controllers
-		if(!in_array($controller_uri, array('cron', 'oauth', 'portal', 'rest', 'sso', 'webhooks'))) {
+		if(!in_array($controller_uri, ['cron', 'oauth', 'portal', 'rest', 'sso', 'webhooks'])) {
 			
 			// ...and we're not in DEVELOPMENT_MODE
 			if(!DEVELOPMENT_MODE_ALLOW_CSRF) {
@@ -748,8 +746,6 @@ abstract class DevblocksEngine {
 
 				break;
 		}
-
-		return;
 	}
 
 	static function update() {

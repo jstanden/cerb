@@ -645,7 +645,11 @@ class Model_CalendarRecurringProfile {
 				}
 				
 				if($passed) {
-					$datetime = new DateTime(date('Y-m-d', $day), $tz);
+					try {
+						$datetime = new DateTime(date('Y-m-d', $day), $tz);
+					} catch (Exception $e) {
+						continue;
+					}
 					
 					$datetime->modify($this->event_start ?: 'midnight');
 					$event_start_local = $datetime->getTimestamp();

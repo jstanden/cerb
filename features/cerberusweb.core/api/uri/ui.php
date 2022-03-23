@@ -713,7 +713,7 @@ class Controller_UI extends DevblocksControllerExtension {
 		$request = DevblocksPlatform::getHttpRequest();
 		$stack = $request->path;
 		array_shift($stack); // ui
-		@$action = array_shift($stack); // resource
+		@array_shift($stack); // resource
 		@$resource_key = array_shift($stack); // e.g. map.world
 
 		if(false == ($resource = DAO_Resource::getByName($resource_key)))

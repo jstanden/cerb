@@ -221,7 +221,7 @@ class UmScKbController extends Extension_UmScController {
 				}
 				$tpl->assign('breadcrumb',array_reverse($breadcrumb));
 				
-				$tpl->assign('mid', @intval(ceil(count($tree_map[$root])/2)));
+				$tpl->assign('mid', intval(ceil(count($tree_map[$root] ?? [])/2)));
 				
 				// Articles
 				

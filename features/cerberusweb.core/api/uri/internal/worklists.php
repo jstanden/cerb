@@ -1048,7 +1048,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 					if(!is_string($value) && !is_numeric($value))
 						$value = '';
 					
-					$field = $xml_result->addChild("field", htmlspecialchars($value, ENT_QUOTES, LANG_CHARSET_CODE));
+					$field = $xml_result->addChild("field", DevblocksPlatform::strEscapeHtml($value));
 					$field->addAttribute("key", $token);
 				}
 			

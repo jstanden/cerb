@@ -69,7 +69,7 @@ class Controller_Default extends DevblocksControllerExtension {
 		if(empty($controller)) {
 			if(is_a($active_worker, 'Model_Worker')) {
 				$controller = 'pages';
-				$path = array('pages');
+				$path = ['pages'];
 				
 				// Find the worker's first page
 				

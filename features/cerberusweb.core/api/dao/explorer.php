@@ -54,7 +54,7 @@ class DAO_ExplorerSet extends Cerb_ORMHelper {
 			
 		$db = DevblocksPlatform::services()->database();
 
-		$values = array();
+		$values = [];
 		
 		foreach($models as $model) { /* @var $model Model_ExplorerSet */
 			$values[] = sprintf("(%s, %d, %s)",
@@ -65,32 +65,33 @@ class DAO_ExplorerSet extends Cerb_ORMHelper {
 		}
 
 		if(empty($values))
-			return;
+			return false;
 		
 		$db->ExecuteMaster(sprintf("INSERT INTO explorer_set (hash, pos, params_json) ".
 			"VALUES %s",
 			implode(',', $values)
 		));
+		
+		return true;
 	}
 	
 	/**
 	 *
 	 * @param string $hash
-	 * @param array $pos
-	 * @return Model_ExplorerSet
+	 * @param int $pos
+	 * @return Model_ExplorerSet|false
 	 */
-	static function get($hash, $pos) {
-		if(!is_array($pos))
-			$pos = array($pos);
-		
+	static function get(string $hash, int $pos) {
 		$db = DevblocksPlatform::services()->database();
+		
+		$pos = DevblocksPlatform::intClamp($pos, 1, PHP_INT_MAX);
 		
 		$rs = $db->QueryReader(sprintf("SELECT hash, pos, params_json ".
 			"FROM explorer_set ".
 			"WHERE hash = %s ".
-			"AND pos IN (%s) ",
+			"AND pos IN (0,%d) ",
 			$db->qstr($hash),
-			implode(',', $pos)
+			$pos
 		));
 		
 		return self::_createObjectsFromResultSet($rs);
@@ -107,7 +108,7 @@ class DAO_ExplorerSet extends Cerb_ORMHelper {
 	}
 	
 	private static function _createObjectsFromResultSet($rs) {
-		$objects = array();
+		$objects = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;

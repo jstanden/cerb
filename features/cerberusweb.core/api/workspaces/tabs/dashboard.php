@@ -32,7 +32,7 @@ class WorkspaceTab_Dashboards extends Extension_WorkspaceTab {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$widgets = DAO_WorkspaceWidget::getByTab($tab->id);
 		
-		@$layout = $tab->params['layout'] ?: '';
+		$layout = ($tab->params['layout'] ?? null) ?: '';
 		
 		$zones = [
 			'content' => [],

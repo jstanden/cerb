@@ -479,7 +479,7 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		
 		$tokens = explode(' ', trim($defaults_string));
 		foreach($tokens as $token) {
-			list($k,$v) = array_pad(explode(':', $token, 2), 2, null);
+			list($k,$v) = array_pad(explode(':', $token, 2), 2, '');
 			$defaults[trim($k)] = trim($v);
 		}
 		

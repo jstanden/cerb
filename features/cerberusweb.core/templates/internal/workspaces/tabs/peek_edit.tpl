@@ -1,5 +1,5 @@
 {$peek_context = CerberusContexts::CONTEXT_WORKSPACE_TAB}
-{$peek_context_id = $model->id}
+{$peek_context_id = $model->id|default:0}
 {$form_id = uniqid()}
 {$page = $model->getWorkspacePage()}
 {$tab_extension = $tab_extensions[$model->extension_id]}
@@ -10,11 +10,11 @@
 <input type="hidden" name="module" value="workspace_tab">
 <input type="hidden" name="action" value="savePeekJson">
 <input type="hidden" name="view_id" value="{$view_id}">
-{if !empty($model->id)}<input type="hidden" name="id" value="{$model->id}">{/if}
+{if !empty($peek_context_id)}<input type="hidden" name="id" value="{$peek_context_id}">{/if}
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-{if !$model->id}
+{if !$peek_context_id}
 	{if $page}
 	<input type="hidden" name="workspace_page_id" value="{$page->id}">
 	{else}
@@ -61,13 +61,13 @@
 						<b>{'common.type'|devblocks_translate|capitalize}:</b>
 					</td>
 					<td width="99%">
-						{if $model->id && $tab_extension}
+						{if $peek_context_id && $tab_extension}
 							{$tab_extension->params.label|devblocks_translate|capitalize}
 						{else}
 							<select name="extension_id">
 								<option value="">-- {'common.choose'|devblocks_translate|lower} --</option>
-								{foreach from=$tab_extensions item=tab_extension}
-									<option value="{$tab_extension->id}">{$tab_extension->params.label|devblocks_translate|capitalize}</option>
+								{foreach from=$tab_extensions item=tab_ext}
+									<option value="{$tab_ext->id}">{$tab_ext->params.label|devblocks_translate|capitalize}</option>
 								{/foreach}
 							</select>
 						{/if}
@@ -81,15 +81,17 @@
 		</table>
 		
 		<div class="cerb-tab-params" style="padding-top:10px;">
-		{$tab_extension = Extension_WorkspaceTab::get($tab_extension->id, true)}
-		{if $tab_extension && method_exists($tab_extension,'renderTabConfig')}
-			{$tab_extension->renderTabConfig($page, $model)}
+		{if $tab_extension}
+			{$tab_ext = Extension_WorkspaceTab::get($tab_extension->id, true)}
+			{if $tab_ext && method_exists($tab_ext,'renderTabConfig')}
+				{$tab_ext->renderTabConfig($page, $model)}
+			{/if}
 		{/if}
 		</div>
 			
-		{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
+		{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$peek_context_id}
 		
-		{if !empty($model->id)}
+		{if !empty($peek_context_id)}
 		<fieldset style="display:none;" class="delete">
 			<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
 			
@@ -104,7 +106,7 @@
 		
 		<div class="buttons">
 			<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-			{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+			{if !empty($peek_context_id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 		</div>
 	</div>
 	
@@ -178,11 +180,11 @@ $(function() {
 			{/if}
 		{/if}
 		
-		$select.on('change', function(e) {
+		$select.on('change', function() {
 			var extension_id = $select.val();
 			
 			// Fetch via Ajax
-			genericAjaxGet($params, 'c=profiles&a=invoke&module=workspace_tab&action=getTabParams&page_id={$page->id}&tab_id={$model->id}&extension=' + encodeURIComponent(extension_id), function(html) {
+			genericAjaxGet($params, 'c=profiles&a=invoke&module=workspace_tab&action=getTabParams&page_id={$page->id}&tab_id={$peek_context_id}&extension=' + encodeURIComponent(extension_id), function() {
 				$params.find('button.chooser-abstract').cerbChooserTrigger();
 				$params.find('.cerb-peek-trigger').cerbPeekTrigger();
 			});

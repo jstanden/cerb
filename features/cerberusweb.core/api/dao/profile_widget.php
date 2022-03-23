@@ -217,7 +217,7 @@ class DAO_ProfileWidget extends Cerb_ORMHelper {
 	 */
 	static function getByContext($context) {
 		$cache = DevblocksPlatform::services()->cache();
-		$cache_key = sprintf('profile_widgets:' . $context);
+		$cache_key = sprintf('profile_widgets:%s', $context);
 		
 		if(false == ($widgets = $cache->load($cache_key))) {
 			$widgets = self::getWhere(

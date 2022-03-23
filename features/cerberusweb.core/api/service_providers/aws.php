@@ -189,7 +189,7 @@ class ServiceProvider_Aws extends Extension_ConnectedServiceProvider {
 		$query_params['X-Amz-Expires'] = $expires_secs;
 		$query_params['X-Amz-SignedHeaders'] = $this->_createSignedHeaders($request->getHeaders());
 		
-		$query = http_build_query($query_params, null, '&', PHP_QUERY_RFC3986);
+		$query = http_build_query($query_params, '', '&', PHP_QUERY_RFC3986);
 		$uri = $uri->withQuery($query);
 		$request = $request->withUri($uri);
 		
@@ -217,14 +217,11 @@ class ServiceProvider_Aws extends Extension_ConnectedServiceProvider {
 	
 	private function _createCanonicalQueryString($query=null) {
 		$query = $query ?: '';
-		$canonical_query = '';
 		$query_parts = DevblocksPlatform::strParseQueryString($query);
 		
 		ksort($query_parts, SORT_STRING);
 		
-		$canonical_query = http_build_query($query_parts, null, '&', PHP_QUERY_RFC3986);
-		
-		return $canonical_query;
+		return http_build_query($query_parts, '', '&', PHP_QUERY_RFC3986);
 	}
 	
 	private function _createCanonicalHeaders($headers) {

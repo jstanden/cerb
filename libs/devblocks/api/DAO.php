@@ -957,6 +957,8 @@ abstract class DevblocksORMHelper {
 		// Params
 		if(is_array($params))
 		foreach($params as $param_key => $param) {
+			$where = '';
+			
 			if(false === $param) {
 				$where = "0";
 				
@@ -975,7 +977,7 @@ abstract class DevblocksORMHelper {
 				$where = $search_class::getWhereSQL($param);
 			}
 			
-			if(0 != strlen($where)) {
+			if(isset($where) && is_scalar($where) && 0 != strlen(strval($where))) {
 				$wheres[$param_key] = $where;
 			}
 		}
@@ -1241,6 +1243,8 @@ class DAO_DevblocksSetting extends DevblocksORMHelper {
 	static function set($plugin_id, $key, $value) {
 		if(false == ($db = DevblocksPlatform::services()->database()))
 			return;
+		
+		$key = DevblocksPlatform::strTruncate($key, 128);
 		
 		$db->ExecuteMaster(sprintf(
 			"REPLACE INTO devblocks_setting (plugin_id, setting, value) ".

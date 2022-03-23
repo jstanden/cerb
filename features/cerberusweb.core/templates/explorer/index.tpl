@@ -46,7 +46,7 @@
 										<a href="{if !empty($return_url)}{$return_url}{else}{devblocks_url}{/devblocks_url}{/if}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/wgm/cerby.png{/devblocks_url}?v={$smarty.const.APP_BUILD}" border="0" height="40"></span></a>
 									</div>
 									<div style="flex:1 1 auto;">
-										<b style="font-size:1.5em;margin-right:5px;">{$title|trim|default:"Results"}</b>
+										<b style="font-size:1.5em;margin-right:5px;">{$title|default:"Results"|trim}</b>
 										
 										<div style="max-width:75vw;text-overflow:ellipsis;word-wrap:break-word;word-break:break-all;">
 											{if !empty($content)}
@@ -61,9 +61,9 @@
 							<div style="flex:1 1 auto;text-align:right;">
 								{if !empty($count)}
 								<form action="#" method="get">
-								{if $prev}<button id="btnExplorerPrev" type="button" onclick="this.form.action='{devblocks_url}c=explore&hash={$hashset}&p={$prev}{/devblocks_url}';this.form.submit();"><span class="glyphicons glyphicons-chevron-left"></span></button>{/if}
+								{if $prev}<button id="btnExplorerPrev" type="button" onclick="this.form.action='{devblocks_url}c=explore&hash={$hashset}&p={$prev|round}{/devblocks_url}';this.form.submit();"><span class="glyphicons glyphicons-chevron-left"></span></button>{/if}
 								<b>{$p}</b> of <b>{$count}</b> 
-								{if $next}<button id="btnExplorerNext" type="button" onclick="this.form.action='{devblocks_url}c=explore&hash={$hashset}&p={$next}{/devblocks_url}';this.form.submit();"><span class="glyphicons glyphicons-chevron-right"></span></button>{/if}
+								{if $next}<button id="btnExplorerNext" type="button" onclick="this.form.action='{devblocks_url}c=explore&hash={$hashset}&p={$next|round}{/devblocks_url}';this.form.submit();"><span class="glyphicons glyphicons-chevron-right"></span></button>{/if}
 								<button type="button" onclick="window.document.location.href='{if !empty($url)}{$url}{else}{$return_url}{/if}';"><span class="glyphicons glyphicons-circle-remove"></span></button>
 								</form>
 								{/if}

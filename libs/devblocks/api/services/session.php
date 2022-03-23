@@ -88,7 +88,7 @@ class _DevblocksSessionManager {
 	function clear($id=null) {
 		if(is_null($id)) {
 			$this->visit = null;
-			setcookie('Devblocks', null, 0, '/', '');
+			setcookie('Devblocks', '', 0, '/', '');
 			session_unset();
 			session_destroy();
 		} else {

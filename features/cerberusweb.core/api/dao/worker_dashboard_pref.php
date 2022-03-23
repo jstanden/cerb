@@ -51,7 +51,7 @@ class DAO_WorkerDashboardPref {
 			if(0 == strlen($pref_value))
 				continue;
 			
-			$sql = sprintf("INSERT INTO worker_dashboard_pref (tab_context, tab_context_id, worker_id, widget_id, pref_key, pref_value) ".
+			$sql = sprintf("INSERT IGNORE INTO worker_dashboard_pref (tab_context, tab_context_id, worker_id, widget_id, pref_key, pref_value) ".
 				"VALUES (%s, %d, %d, %d, %s, %s)",
 				$db->qstr(CerberusContexts::CONTEXT_WORKSPACE_TAB),
 				$tab_id,

@@ -534,9 +534,9 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	 * @internal
 	 * 
 	 * @param string $context
-	 * @return Extension_DevblocksContext
+	 * @return Extension_DevblocksContext|false
 	 */
-	public static function get($context, $as_instance=true) {
+	public static function get(string $context, $as_instance=true) {
 		static $_cache = [];
 		
 		if($as_instance && isset($_cache[$context]))
@@ -1149,6 +1149,11 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 				str_replace('.','_',DevblocksPlatform::strToPermalink($this->id,'_'))
 			);
 		}
+		
+		$view_id = DevblocksPlatform::strTruncate(
+			DevblocksPlatform::strAlphaNum($view_id, '_', '_'),
+			255
+		);
 		
 		if(null == ($view = C4_AbstractViewLoader::getView($view_id))) {
 			if(null == ($view = $this->getChooserView($view_id))) /* @var $view C4_AbstractViewModel */
@@ -1908,7 +1913,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 
 					if(!isset($token_values[$token])) {
 						$dict = new DevblocksDictionaryDelegate($token_values);
-						$dict->$token;
+						$dict->get($token);
 						$token_values = $dict->getDictionary();
 					}
 					break;
@@ -1919,7 +1924,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 
 					if(!isset($token_values[$token])) {
 						$dict = new DevblocksDictionaryDelegate($token_values);
-						$dict->$token;
+						$dict->get($token);
 						$token_values = $dict->getDictionary();
 					}
 					break;

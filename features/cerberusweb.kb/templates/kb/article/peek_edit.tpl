@@ -1,5 +1,5 @@
 {$peek_context = CerberusContexts::CONTEXT_KB_ARTICLE}
-{$peek_context_id = $model->id}
+{$peek_context_id = $model->id|default:0}
 {$form_id = uniqid()}
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}" onsubmit="return false;">
 <input type="hidden" name="c" value="profiles">
@@ -7,13 +7,13 @@
 <input type="hidden" name="module" value="kb">
 <input type="hidden" name="action" value="savePeekJson">
 <input type="hidden" name="view_id" value="{$view_id}">
-{if !empty($model) && !empty($model->id)}<input type="hidden" name="id" value="{$model->id}">{/if}
+{if $peek_context_id}<input type="hidden" name="id" value="{$peek_context_id}">{/if}
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="format" value="2">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <b>{'common.title'|devblocks_translate|capitalize}:</b><br>
-<input type="text" name="title" value="{$model->title}" style="width:99%;border:solid 1px rgb(180,180,180);" autofocus="autofocus"><br>
+<input type="text" name="title" value="{$model->title|default:''}" style="width:99%;border:solid 1px rgb(180,180,180);" autofocus="autofocus"><br>
 
 <div>
 	<div class="cerb-code-editor-toolbar cerb-code-editor-toolbar--article">
@@ -32,10 +32,10 @@
 		<button type="button" title="Preview" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--preview"><span class="glyphicons glyphicons-eye-open"></span></button>
 	</div>
 
-	<textarea id="content" name="content" rows="10" cols="60">{$model->content}</textarea>
+	<textarea id="content" name="content" rows="10" cols="60">{$model->content|default:''}</textarea>
 </div>
 
-{$attachments = DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_KB_ARTICLE, $model->id)}
+{$attachments = DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_KB_ARTICLE, $peek_context_id)}
 
 <fieldset class="peek black cerb-attachments" style="margin-top:10px;">
 	<legend>{'common.attachments'|devblocks_translate|capitalize}:</legend>
@@ -79,10 +79,10 @@
 	</fieldset>
 {/if}
 
-{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$peek_context_id}
 
 
-	{if !empty($model->id)}
+{if !empty($peek_context_id)}
 <fieldset style="display:none;margin-top:10px;" class="delete">
 	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
 	
@@ -99,7 +99,7 @@
 
 <div class="buttons" style="margin-top:10px;">
 	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	{if !empty($peek_context_id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 </form>
@@ -188,8 +188,8 @@ $(function() {
 				formData.set('module', 'snippet');
 				formData.set('action', 'paste');
 				formData.set('id', snippet_id);
-				formData.set('context_ids[cerberusweb.contexts.kb_article]', '{$article->id}');
-				formData.set('context_ids[cerberusweb.contexts.worker]', '{$active_worker->id}');
+				formData.set('context_ids[cerberusweb.contexts.kb_article]', '{$article->id|default:0}');
+				formData.set('context_ids[cerberusweb.contexts.worker]', '{$active_worker->id|default:0}');
 
 				genericAjaxPost(formData, null, null, function(json) {
 					// If the content has placeholders, use that popup instead

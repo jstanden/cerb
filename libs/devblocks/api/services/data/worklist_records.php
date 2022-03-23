@@ -168,7 +168,7 @@ class _DevblocksDataProviderWorklistRecords extends _DevblocksDataProvider {
 			return false;
 		
 		if(array_key_exists('page', $chart_model))
-			$view->renderPage = $chart_model['page'];
+			$view->renderPage = intval($chart_model['page']);
 		
 		if(!method_exists($dao_class, 'getSearchQueryComponents')) {
 			$error = sprintf('%s::getSearchQueryComponents() not implemented', $dao_class);

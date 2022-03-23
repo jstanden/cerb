@@ -108,7 +108,7 @@ class WgmTwitter_MessageProfileSection extends Extension_PageSection {
 				[
 					'Content-Type' => 'application/x-www-form-urlencoded'
 				],
-				http_build_query($post_data, null, '&', PHP_QUERY_RFC3986)
+				http_build_query($post_data, '', '&', PHP_QUERY_RFC3986)
 			);
 			$request_options = [];
 			$error = null;

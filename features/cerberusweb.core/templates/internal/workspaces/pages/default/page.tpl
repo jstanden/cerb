@@ -32,7 +32,7 @@
 		{foreach from=$page_tabs item=tab}
 			{$tabs[] = "{$tab->name|lower|devblocks_permalink}"}
 			<li class="drag" tab_id="{$tab->id}">
-				<a href="{devblocks_url}ajax.php?c=pages&a=renderTab&point={$point}&id={$tab->id}&request={$response_uri|escape:'url'}{/devblocks_url}">
+				<a href="{devblocks_url}ajax.php?c=pages&a=renderTab&point={$point}&id={$tab->id}{/devblocks_url}">
 					{$tab->name}
 				</a>
 			</li>
@@ -129,7 +129,7 @@ $(function() {
 	
 	{$user_agent = DevblocksPlatform::getClientUserAgent()}
 	
-	{if is_array($user_agent) && 0 != strcasecmp($user_agent.platform, 'Android')}
+	{if is_array($user_agent) && 0 != strcasecmp($user_agent.platform|default:'', 'Android')}
 	$tabs.find('ul')
 		.find('> li.drag')
 		.hoverIntent({

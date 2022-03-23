@@ -33,7 +33,7 @@
 				
 				<ul class="bubbles chooser-container">
 					{if $default_group}
-						<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=group&context_id={$default_group->id}{/devblocks_url}?v={$default_group->updated_at}"><input type="hidden" name="default_group_id" value="{$default_group->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$default_group->id}">{$default_group->name}</a></li>
+						<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=group&context_id={$default_group->id}{/devblocks_url}?v={$default_group->updated}"><input type="hidden" name="default_group_id" value="{$default_group->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$default_group->id}">{$default_group->name}</a></li>
 					{/if}
 				</ul>
 			</div>

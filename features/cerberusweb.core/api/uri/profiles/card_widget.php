@@ -648,7 +648,7 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 		
 		DAO_CardWidget::reorder($new_zones);
 		
-		$cache_key = sprintf('card_widgets:' . $record_type);
+		$cache_key = sprintf('card_widgets:%s', $record_type);
 		$cache->remove($cache_key);
 	}
 	

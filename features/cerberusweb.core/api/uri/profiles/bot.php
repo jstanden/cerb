@@ -1123,7 +1123,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 					continue;
 				
 				$prompt_var = $form_element['_prompt']['var'];
-				$prompt_value = @$prompts[$prompt_var] ?: null;
+				$prompt_value = ($prompts[$prompt_var] ?? null) ?: null;
 				
 				// If we lazy loaded a sub dictionary on the last attempt, clear it
 				if(DevblocksPlatform::strEndsWith($prompt_var, '_id'))

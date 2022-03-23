@@ -386,7 +386,7 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 			foreach($langs as $lang_code => $string) {
 				$eTuv = $eTu->addChild('tuv'); /* @var $eTuv SimpleXMLElement */
 				$eTuv->addAttribute('xml:lang', $lang_code, 'http://www.w3.org/XML/1998/namespace');
-				$eSeg = $eTuv->addChild('seg', htmlspecialchars($string)); /* @var $eSeg SimpleXMLElement */
+				$eSeg = $eTuv->addChild('seg', DevblocksPlatform::strEscapeHtml($string)); /* @var $eSeg SimpleXMLElement */
 			}
 		}
 		

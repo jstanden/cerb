@@ -3120,7 +3120,7 @@ class DAO_WorkerPref extends Cerb_ORMHelper {
 	}
 	
 	static function getAsJson($worker_id, $key, $default=null) {
-		$value = self::get($worker_id, $key, $default);
+		$value = self::get($worker_id, $key, $default) ?? '';
 		return json_decode($value, true);
 	}
 

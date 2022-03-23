@@ -137,7 +137,7 @@ $(function() {
 	var $frm = $('#formTaskPeek');
 	var $popup = genericAjaxPopupFind($frm);
 	
-	$popup.one('popup_open',function(event,ui) {
+	$popup.one('popup_open',function() {
 		$popup.dialog('option','title','Tasks');
 		
 		// Buttons
@@ -170,8 +170,8 @@ $(function() {
 			var $library_container = $tabs;
 			{include file="devblocks:cerberusweb.core::internal/package_library/editor_chooser.js.tpl"}
 			
-			$library_container.on('cerb-package-library-form-submit', function(e) {
-				$popup.one('peek_saved peek_error', function(e) {
+			$library_container.on('cerb-package-library-form-submit', function() {
+				$popup.one('peek_saved peek_error', function() {
 					$library_container.triggerHandler('cerb-package-library-form-submit--done');
 				});
 				
