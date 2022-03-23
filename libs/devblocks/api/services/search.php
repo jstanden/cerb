@@ -1119,7 +1119,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		];
 		
 		// Custom stop words
-		$stop_words = DevblocksPlatform::parseCrlfString($this->_config['stop_words'] ?: '');
+		$stop_words = DevblocksPlatform::parseCrlfString(($this->_config['stop_words'] ?? null) ?: '');
 		
 		return array_values(array_unique(array_merge($innodb_stop_words, $stop_words)));
 	}
