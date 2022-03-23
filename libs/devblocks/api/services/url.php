@@ -50,7 +50,13 @@ class _DevblocksUrlManager {
 		}
 		
 		$len = strlen($basedir);
-		if(!DEVBLOCKS_REWRITE) $len += strlen("index.php/");
+		
+		if(!DEVBLOCKS_REWRITE) {
+			if('/' != $url && 'index.php/' != substr($url, $len, 10))
+				CerberusApplication::respondNotFound();
+			
+			$len += 10; // Strip `index.php/`
+		}
 		
 		$request = substr($url, $len);
 		
