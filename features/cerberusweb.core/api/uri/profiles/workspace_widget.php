@@ -412,7 +412,7 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(403);
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$tab_id = DevblocksPlatform::importGPC($_POST['tab_id'] ?? null, 'integer', 0);
 		$zones = DevblocksPlatform::importGPC($_POST['zones'] ?? null, 'array', []);

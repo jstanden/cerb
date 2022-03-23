@@ -122,7 +122,7 @@ class Controller_Default extends DevblocksControllerExtension {
 				
 			$message = $tpl->fetch('devblocks:cerberusweb.core::404_page.tpl');
 			
-			DevblocksPlatform::dieWithHttpError($message, 404);
+			DevblocksPlatform::dieWithHttpErrorHtml($message, 404);
 			return;
 		}
 		

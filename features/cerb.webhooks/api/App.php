@@ -51,7 +51,7 @@ class Controller_Webhooks implements DevblocksHttpRequestHandler {
 					return false;
 				
 				if($behavior->is_disabled || $bot->is_disabled) {
-					DevblocksPlatform::dieWithHttpError('<h1>503: Temporarily unavailable</h1>', 503);
+					DevblocksPlatform::dieWithHttpError('503: Temporarily unavailable', 503);
 					return false;
 				}
 				

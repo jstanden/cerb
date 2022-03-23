@@ -630,7 +630,7 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 		$cache = DevblocksPlatform::services()->cache();
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(405);
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		if(!$active_worker->is_superuser)
 			DevblocksPlatform::dieWithHttpError(null, 403);

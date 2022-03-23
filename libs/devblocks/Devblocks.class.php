@@ -3722,19 +3722,29 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	static function dieWithHttpError($message, $status_code=500) {
-		if(php_sapi_name() != 'cli')
-		switch($status_code) {
-			case 403: // Forbidden
-			case 404: // Not found
-			case 500: // Internal server error
-			case 501: // Not implemented
-			case 503: // Service unavailable
-				http_response_code($status_code);
-				break;
+		$message = DevblocksPlatform::strEscapeHtml($message);
+		self::dieWithHttpErrorRaw($message, $status_code);
+	}
+	
+	static function dieWithHttpErrorHtml($message, $status_code=500) {
+		self::dieWithHttpErrorRaw($message, $status_code);
+	}
+	
+	static function dieWithHttpErrorRaw($message, $status_code=500) {
+		if(php_sapi_name() != 'cli') {
+			switch ($status_code) {
+				case 403: // Forbidden
+				case 404: // Not found
+				case 500: // Internal server error
+				case 501: // Not implemented
+				case 503: // Service unavailable
+					http_response_code($status_code);
+					break;
 				
-			default:
-				http_response_code($status_code);
-				break;
+				default:
+					http_response_code($status_code);
+					break;
+			}
 		}
 		
 		die($message);

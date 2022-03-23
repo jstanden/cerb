@@ -290,7 +290,7 @@ class _DevblocksDatabaseManager {
 	
 	function ExecuteWriterOrFail($sql, $fail_message = 'A required database query failed. Check the log for more details.', $option_bits = 0) {
 		if(false === ($result = $this->ExecuteWriter($sql, $option_bits)))
-			DevblocksPlatform::dieWithHttpError(DevblocksPlatform::strEscapeHtml($fail_message));
+			DevblocksPlatform::dieWithHttpError($fail_message);
 		
 		return $result;
 	}

@@ -640,7 +640,7 @@ abstract class DevblocksEngine {
 			$valid_ips = DevblocksPlatform::parseCsvString(APP_SECURITY_FIREWALL_ALLOWLIST);
 			
 			if(!DevblocksPlatform::isIpAuthorized($remote_addr, $valid_ips)) {
-				DevblocksPlatform::dieWithHttpError(sprintf("<h1>403 Forbidden for %s</h1>", $remote_addr), 403);
+				DevblocksPlatform::dieWithHttpError(sprintf("Forbidden for %s", $remote_addr), 403);
 			}
 		}
 		

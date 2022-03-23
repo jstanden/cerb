@@ -724,7 +724,7 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 		$zones = DevblocksPlatform::importGPC($_POST['zones'] ?? null, 'array', []);
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(403);
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		if(!$active_worker->is_superuser)
 			DevblocksPlatform::dieWithHttpError(null, 403);
