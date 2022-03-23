@@ -56,8 +56,8 @@ $(function() {
 
 	var anchor = window.location.hash.substr(1);
 
-	if('comment' == anchor.substr(0,7)) {
-		var $anchor = $('#' + anchor);
+	if('comment' === anchor.substr(0,7)) {
+		var $anchor = $('#comment' + parseInt(anchor.substr(7)));
 
 		if($anchor.length > 0) {
 			var offset = $anchor.offset();

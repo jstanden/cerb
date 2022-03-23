@@ -317,19 +317,24 @@ $(function() {
 	});
 
 	var anchor = window.location.hash.substr(1);
+	var $anchor = null;
 	
-	if('message' === anchor.substr(0,7) || 'comment' === anchor.substr(0,7) || 'draft' === anchor.substr(0,5)) {
-		var $anchor = $('#' + anchor);
+	if('message' === anchor.substr(0,7)) {
+		$anchor = $('#message' + parseInt(anchor.substr(7)));
+	} else if ('comment' === anchor.substr(0,7)) {
+		$anchor = $('#comment' + parseInt(anchor.substr(7)));
+	} else if ('draft' === anchor.substr(0,5)) {
+		$anchor = $('#draft' + parseInt(anchor.substr(5)));
+	}
 
-		if($anchor.length > 0) {
-			var offset = $anchor.offset();
-			window.scrollTo(offset.left, offset.top);
-			
-			// If it's not expanded yet, expand it
-			$anchor.find('button[id^="btnMsgMax"]').click();
-			
-			$anchor.find('> div.block').effect('highlight', { }, 1000);
-		}
+	if(null != $anchor && $anchor.length > 0) {
+		var offset = $anchor.offset();
+		window.scrollTo(offset.left, offset.top);
+		
+		// If it's not expanded yet, expand it
+		$anchor.find('button[id^="btnMsgMax"]').click();
+		
+		$anchor.find('> div.block').effect('highlight', { }, 1000);
 	}
 });
 </script>
