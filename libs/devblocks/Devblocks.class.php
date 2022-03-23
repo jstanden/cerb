@@ -1774,6 +1774,10 @@ class DevblocksPlatform extends DevblocksEngine {
 		return $feed;
 	}
 	
+	public static function strTruncate($string, int $length) {
+		return DevblocksPlatform::services()->string()->truncate($string, $length);
+	}
+	
 	static function strEscapeHtml($string) {
 		$string = strval($string);
 		

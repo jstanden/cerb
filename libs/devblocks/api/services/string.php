@@ -382,4 +382,13 @@ class _DevblocksStringService {
 		$nodeProvider = new RandomNodeProvider();
 		return Uuid::uuid1($nodeProvider->getNode());
 	}
+	
+	public function truncate(?string $string, int $length) {
+		$string = strval($string);
+		
+		if(strlen($string) > $length)
+			$string = substr($string, 0, 128);
+		
+		return $string;
+	}
 }
