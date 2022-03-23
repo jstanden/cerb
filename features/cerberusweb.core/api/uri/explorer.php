@@ -43,7 +43,7 @@ class ChExplorerController extends DevblocksControllerExtension {
 		$stack = $response->path;
 		array_shift($stack); // explorer
 		$hashset = array_shift($stack); // set
-		@$p = array_shift($stack); // item
+		$p = intval(array_shift($stack)); // item
 
 		if(empty($p))
 			$p = 1;
