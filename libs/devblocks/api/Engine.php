@@ -604,8 +604,14 @@ abstract class DevblocksEngine {
 		}
 
 		// Controller XSS security (alphanum+under only)
-		if(isset($parts[0])) {
-			$parts[0] = DevblocksPlatform::strAlphaNum($parts[0], '\_\-\.');
+		if(is_array($parts) && count($parts)) {
+			$uri_escaped = DevblocksPlatform::strAlphaNum($parts[0], '\_\-\.');
+			
+			if($parts[0] != $uri_escaped) {
+				CerberusApplication::respondNotFound();
+			}
+			
+			$parts[0] = $uri_escaped;
 		}
 
 		// Resource / Proxy
