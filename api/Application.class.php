@@ -426,6 +426,24 @@ class CerberusApplication extends DevblocksApplication {
 		return $errors;
 	}
 	
+	public static function respondNotFound() {
+		$tpl = DevblocksPlatform::services()->template();
+		$settings = DevblocksPlatform::services()->pluginSettings();
+		$translate = DevblocksPlatform::getTranslationService();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$tpl->assign('settings', $settings);
+		$tpl->assign('session', $_SESSION ?? []);
+		$tpl->assign('translate', $translate);
+		
+		if($active_worker) {
+			$tpl->assign('pref_dark_mode', DAO_WorkerPref::get($active_worker->id, 'dark_mode', 0));
+		}
+		
+		$message = $tpl->fetch('devblocks:cerberusweb.core::404_page.tpl');
+		DevblocksPlatform::dieWithHttpErrorHtml($message, 404);
+	}
+	
 	static function kataSchemas() : _CerbApplication_KataSchemas {
 		return new _CerbApplication_KataSchemas();
 	}
