@@ -34,13 +34,16 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		// Default action, call arg as a method suffixed with Action
 		if(false === ($this->invoke($action))) {
-			trigger_error(
-				sprintf('Call to undefined internal action `%s::%s`',
-					get_class($this),
-					$action
-				),
-				E_USER_NOTICE
-			);
+			if(!DEVELOPMENT_MODE_SECURITY_SCAN) {
+				trigger_error(
+					sprintf('Call to undefined internal action `%s::%s`',
+						get_class($this),
+						$action
+					),
+					E_USER_NOTICE
+				);
+			}
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		}
 	}
 	
@@ -64,13 +67,15 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		if($page instanceof Extension_PageSection) {
 			if(false === ($page->handleActionForPage($action, 'internalAction'))) {
-				trigger_error(
-					sprintf('Call to undefined internal action `%s::%s`',
-						get_class($page),
-						$action
-					),
-					E_USER_NOTICE
-				);
+				if(!DEVELOPMENT_MODE_SECURITY_SCAN) {
+					trigger_error(
+						sprintf('Call to undefined internal action `%s::%s`',
+							get_class($page),
+							$action
+						),
+						E_USER_NOTICE
+					);
+				}
 				DevblocksPlatform::dieWithHttpError(null, 404);
 			}
 		}

@@ -665,20 +665,23 @@ abstract class DevblocksEngine {
 					if ($origin) {
 						// If origin doesn't match, freak out
 						if ($base_url != (rtrim($origin, '/') . '/')) {
-							error_log(sprintf("[Cerb] CSRF Block: Origin (%s) doesn't match (%s)", $origin, $base_url), E_USER_WARNING);
+							if(!DEVELOPMENT_MODE_SECURITY_SCAN)
+								error_log(sprintf("[Cerb] CSRF Block: Origin (%s) doesn't match (%s)", $origin, $base_url), E_USER_WARNING);
 							DevblocksPlatform::dieWithHttpError("Access denied", 403);
 						}
 						
 					} elseif ($referer) {
 						// Referer of a POST doesn't match, freak out
 						if (!DevblocksPlatform::strStartsWith($referer, $base_url)) {
-							error_log(sprintf("[Cerb] CSRF Block: Referer (%s) doesn't match (%s)", $referer, $base_url), E_USER_WARNING);
+							if(!DEVELOPMENT_MODE_SECURITY_SCAN)
+								error_log(sprintf("[Cerb] CSRF Block: Referer (%s) doesn't match (%s)", $referer, $base_url), E_USER_WARNING);
 							DevblocksPlatform::dieWithHttpError("Access denied", 403);
 						}
 						
 					} else {
 						// No origin or referer, reject
-						error_log(sprintf("[Cerb] CSRF Block: No origin or referrer."), E_USER_WARNING);
+						if(!DEVELOPMENT_MODE_SECURITY_SCAN)
+							error_log(sprintf("[Cerb] CSRF Block: No origin or referrer."), E_USER_WARNING);
 						DevblocksPlatform::dieWithHttpError("Access denied", 403);
 					}
 				}

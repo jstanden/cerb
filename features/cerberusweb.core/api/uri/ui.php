@@ -35,13 +35,16 @@ class Controller_UI extends DevblocksControllerExtension {
 
 		// Default action, call arg as a method suffixed with Action
 		if(false === ($this->_invoke($action))) {
-			trigger_error(
-				sprintf('Call to undefined profile tab action `%s::%s`',
-					get_class($this),
-					$action
-				),
-				E_USER_NOTICE
-			);
+			if(!DEVELOPMENT_MODE_SECURITY_SCAN) {
+				trigger_error(
+					sprintf('Call to undefined profile tab action `%s::%s`',
+						get_class($this),
+						$action
+					),
+					E_USER_NOTICE
+				);
+			}
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		}
 	}
 	

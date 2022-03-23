@@ -257,13 +257,15 @@ class PageSection_ProfilesConnectedService extends Extension_PageSection {
 		
 		if($ext instanceof Extension_ConnectedServiceProvider) {
 			if (false === ($ext->handleActionForService($service_action))) {
-				trigger_error(
-					sprintf('Call to undefined connected service action `%s::%s`',
-						get_class($ext),
-						$service_action
-					),
-					E_USER_NOTICE
-				);
+				if(!DEVELOPMENT_MODE_SECURITY_SCAN) {
+					trigger_error(
+						sprintf('Call to undefined connected service action `%s::%s`',
+							get_class($ext),
+							$service_action
+						),
+						E_USER_NOTICE
+					);
+				}
 				DevblocksPlatform::dieWithHttpError(null, 404);
 			}
 		}

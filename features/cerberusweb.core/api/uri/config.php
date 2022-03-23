@@ -85,13 +85,15 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		
 		if($inst instanceof Extension_PageSection) {
 			if(false === ($inst->handleActionForPage($action, 'configAction'))) {
-				trigger_error(
-					sprintf('Call to undefined config action `%s::%s`',
-						get_class($inst),
-						$action
-					),
-					E_USER_NOTICE
-				);
+				if(!DEVELOPMENT_MODE_SECURITY_SCAN) {
+					trigger_error(
+						sprintf('Call to undefined config action `%s::%s`',
+							get_class($inst),
+							$action
+						),
+						E_USER_NOTICE
+					);
+				}
 				DevblocksPlatform::dieWithHttpError(null, 404);
 			}
 		}

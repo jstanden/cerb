@@ -521,13 +521,15 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 		
 		if($extension instanceof Extension_CardWidget) {
 			if(false === ($extension->invoke($invoke_action, $card_widget))) {
-				trigger_error(
-					sprintf('Call to undefined card widget action `%s::%s`',
-						get_class($extension),
-						$invoke_action
-					),
-					E_USER_NOTICE
-				);
+				if(!DEVELOPMENT_MODE_SECURITY_SCAN) {
+					trigger_error(
+						sprintf('Call to undefined card widget action `%s::%s`',
+							get_class($extension),
+							$invoke_action
+						),
+						E_USER_NOTICE
+					);
+				}
 			}
 		}
 	}

@@ -297,13 +297,15 @@ class Page_Profiles extends CerberusPageExtension {
 		
 		if($inst instanceof Extension_PageSection) {
 			if(false === ($inst->handleActionForPage($action, 'profileAction'))) {
-				trigger_error(
-					sprintf('Call to undefined profile action `%s::%s`',
-						get_class($inst),
-						$action
-					),
-					E_USER_NOTICE
-				);
+				if(!DEVELOPMENT_MODE_SECURITY_SCAN) {
+					trigger_error(
+						sprintf('Call to undefined profile action `%s::%s`',
+							get_class($inst),
+							$action
+						),
+						E_USER_NOTICE
+					);
+				}
 				DevblocksPlatform::dieWithHttpError(null, 404);
 			}
 		}
@@ -436,13 +438,15 @@ class Page_Profiles extends CerberusPageExtension {
 		
 		if($extension instanceof Extension_ProfileTab) {
 			if(false === ($extension->invoke($action, $profile_tab))) {
-				trigger_error(
-					sprintf('Call to undefined profile tab action `%s::%s`',
-						get_class($extension),
-						$action
-					),
-					E_USER_NOTICE
-				);
+				if(!DEVELOPMENT_MODE_SECURITY_SCAN) {
+					trigger_error(
+						sprintf('Call to undefined profile tab action `%s::%s`',
+							get_class($extension),
+							$action
+						),
+						E_USER_NOTICE
+					);
+				}
 			}
 		}
 	}
@@ -464,13 +468,15 @@ class Page_Profiles extends CerberusPageExtension {
 		
 		if($extension instanceof Extension_ProfileWidget) {
 			if(false === ($extension->invoke($action, $profile_widget))) {
-				trigger_error(
-					sprintf('Call to undefined profile widget action `%s::%s`',
-						get_class($extension),
-						$action
-					),
-					E_USER_NOTICE
-				);
+				if(!DEVELOPMENT_MODE_SECURITY_SCAN) {
+					trigger_error(
+						sprintf('Call to undefined profile widget action `%s::%s`',
+							get_class($extension),
+							$action
+						),
+						E_USER_NOTICE
+					);
+				}
 			}
 		}
 	}
