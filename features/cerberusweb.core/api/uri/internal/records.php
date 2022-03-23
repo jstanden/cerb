@@ -795,7 +795,10 @@ class PageSection_InternalRecords extends Extension_PageSection {
 					$handled = false;
 					
 					// Skip null custom fields
-					if(DevblocksPlatform::strStartsWith($k, 'custom_') && 0 == strlen(strval($v)))
+					if(
+						DevblocksPlatform::strStartsWith($k, 'custom_') 
+						&& (!is_scalar($v) || 0 == strlen(strval($v)))
+					)
 						continue;
 
 					// Label translation
