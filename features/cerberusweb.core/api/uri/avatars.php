@@ -87,12 +87,25 @@ class Controller_Avatars extends DevblocksControllerExtension {
 	}
 	
 	private function _fetchImageFromUrl($url) {
+		$validation = DevblocksPlatform::services()->validation();
 		$response = array('status'=>true, 'imageData'=>null);
 		
 		try {
 			if(empty($url))
 				throw new DevblocksException("No URL provided");
 		
+			$error = null;
+			$values = ['url' => $url];
+			
+			$validation
+				->addField('url', 'URL')
+				->url()
+				->setRequired(true)
+			;
+			
+			if(!$validation->validateAll($values, $error))
+				throw new DevblocksException($error);
+			
 			$ch = DevblocksPlatform::curlInit($url);
 			$output = DevblocksPlatform::curlExec($ch);
 			$info = curl_getinfo($ch);
