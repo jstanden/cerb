@@ -51,7 +51,11 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		}
 
 		// Subpage
-		$subpage = Extension_PageSection::getExtensionByPageUri($this->manifest->id, $section_uri, true);
+		if(null == ($subpage = Extension_PageSection::getExtensionByPageUri($this->manifest->id, $section_uri, true))) {
+			$tpl->display('devblocks:cerberusweb.core::404.tpl');
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		}
+		
 		$tpl->assign('subpage', $subpage);
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/index.tpl');
