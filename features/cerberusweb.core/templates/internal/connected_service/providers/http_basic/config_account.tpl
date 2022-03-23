@@ -4,6 +4,6 @@
 	<br>
 	
 	<b>Password:</b><br>
-	<input type="password" name="params[password]" value="{$params.password}" size="45" spellcheck="false"><br>
+	<input type="password" name="params[password]" value="{$params.password}" size="45" autocomplete="off" spellcheck="false"><br>
 	<br>
 </fieldset>

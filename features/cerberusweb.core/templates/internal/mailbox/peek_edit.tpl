@@ -67,7 +67,7 @@
 	<tr>
 		<td width="0%" nowrap="nowrap"><b>{'common.password'|devblocks_translate|capitalize}:</b></td>
 		<td width="100%">
-			<input type="password" name="password" value="{$model->password}">
+			<input type="password" name="password" value="{$model->password}" autocomplete="off" spellcheck="false">
 		</td>
 	</tr>
 	<tr>

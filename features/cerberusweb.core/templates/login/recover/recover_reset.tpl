@@ -13,7 +13,7 @@
 		<h3 style="margin-bottom:0;">Choose a new password:</h3>
 		
 		<div>
-			<input type="password" name="password" size="45" value="" placeholder="Something very hard to guess" style="width:100%;line-height:1.5em;height:24px;margin-top:10px;padding:0px 5px 0px 25px;border-radius:5px;box-sizing:border-box;">
+			<input type="password" name="password" size="45" value="" placeholder="Something very hard to guess" autocomplete="off" spellcheck="false" style="width:100%;line-height:1.5em;height:24px;margin-top:10px;padding:0 5px 0 25px;border-radius:5px;box-sizing:border-box;">
 			<div>
 				(must be at least 8 characters)
 			</div>
@@ -22,7 +22,7 @@
 		<h3 style="margin-bottom:0;">Verify the new password:</h3>
 		
 		<div>
-			<input type="password" name="password_verify" size="45" value="" placeholder="Type it again" style="width:100%;line-height:1.5em;height:24px;margin-top:10px;padding:0px 5px 0px 25px;border-radius:5px;box-sizing:border-box;">
+			<input type="password" name="password_verify" size="45" value="" placeholder="Type it again" autocomplete="off" spellcheck="false" style="width:100%;line-height:1.5em;height:24px;margin-top:10px;padding:0 5px 0 25px;border-radius:5px;box-sizing:border-box;">
 		</div>
 		
 		<div style="margin-top:10px;">

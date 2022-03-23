@@ -39,7 +39,7 @@
                 <tr>
                     <td width="1%" nowrap="nowrap"><b>{'common.passphrase'|devblocks_translate|capitalize}:</b></td>
                     <td width="99%">
-                        <input type="password" name="passphrase" value="" style="width:98%;" placeholder="({'common.optional'|devblocks_translate|lower})">
+                        <input type="password" name="passphrase" value="" autocomplete="off" spellcheck="false" style="width:98%;" placeholder="({'common.optional'|devblocks_translate|lower})">
                     </td>
                 </tr>
 

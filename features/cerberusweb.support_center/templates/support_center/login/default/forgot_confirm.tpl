@@ -18,12 +18,12 @@
 	<br>
 
 	<b>Choose a new password:</b><br>
-	<input type="password" name="password_new" size="24"><br>
+	<input type="password" name="password_new" size="24" autocomplete="off" spellcheck="false"><br>
 	<small>(at least 8 characters)</small><br>
 	<br>
 
 	<b>Confirm your new password:</b><br>
-	<input type="password" name="password_new_confirm" size="24"><br>
+	<input type="password" name="password_new_confirm" size="24" autocomplete="off" spellcheck="false"><br>
 	<br>
 
 	<button type="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button><br>

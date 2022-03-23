@@ -4,6 +4,6 @@
 	<br>
 	
 	<b>Secret Access Key:</b><br>
-	<input type="password" name="params[secret_key]" value="{$params.secret_key}" size="45" spellcheck="false"><br>
+	<input type="password" name="params[secret_key]" value="{$params.secret_key}" size="45" autocomplete="off" spellcheck="false"><br>
 	<br>
 </fieldset>

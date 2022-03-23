@@ -26,11 +26,11 @@ Next, we'll create your administrator account.<br>
 <br>
 
 <b>Choose a password:</b> (must be at least 8 characters)<br>
-<input type="password" name="worker_pass" value="{$worker_pass}" size="16" autocomplete="off"><br>
+<input type="password" name="worker_pass" value="{$worker_pass}" size="16" autocomplete="off" spellcheck="false"><br>
 <br>
 
 <b>Confirm your password:</b><br>
-<input type="password" name="worker_pass2" value="" size="16" autocomplete="off"><br>
+<input type="password" name="worker_pass2" value="" size="16" autocomplete="off" spellcheck="false"><br>
 <br>
 
 <b>Timezone:</b><br>

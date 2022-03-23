@@ -28,7 +28,7 @@
 		
 		<div>
 			<input type="text" name="email" size="45" value="{$email}" placeholder="you@example.com" style="width:100%;line-height:1.5em;height:24px;padding:0px 5px;border-radius:5px;box-sizing:border-box;">
-			<input type="password" name="password" size="45" value="" placeholder="Password" style="width:100%;line-height:1.5em;height:24px;margin-top:10px;padding:0px 5px 0px 25px;border-radius:5px;box-sizing:border-box;">
+			<input type="password" name="password" size="45" value="" placeholder="Password" autocomplete="off" spellcheck="false" style="width:100%;line-height:1.5em;height:24px;margin-top:10px;padding:0 5px 0 25px;border-radius:5px;box-sizing:border-box;">
 		</div>
 		
 		<div style="margin-top:10px;">

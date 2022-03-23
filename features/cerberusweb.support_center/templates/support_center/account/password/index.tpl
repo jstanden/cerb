@@ -12,13 +12,13 @@
 	<legend>Change Password</legend>
 	
 	<b>Enter your current password:</b><br>
-	<input type="password" name="current_password" size="35" value=""><br>
+	<input type="password" name="current_password" size="35" value="" autocomplete="off" spellcheck="false"><br>
 	
 	<b>Choose a password:</b><br>
-	<input type="password" name="change_password" size="35" value=""><br>
+	<input type="password" name="change_password" size="35" value="" autocomplete="off" spellcheck="false"><br>
 
 	<b>Confirm your desired password:</b><br>
-	<input type="password" name="verify_password" size="35" value=""><br>
+	<input type="password" name="verify_password" size="35" value="" autocomplete="off" spellcheck="false"><br>
 
 	<br>
 	<button type="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button><br>

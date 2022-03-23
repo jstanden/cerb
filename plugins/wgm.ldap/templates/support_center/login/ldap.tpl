@@ -12,7 +12,7 @@
 	<input type="text" name="email" size="45"><br>
 	
 	<b>Password:</b><br>
-	<input type="password" name="password" size="45" autocomplete="off"><br>
+	<input type="password" name="password" size="45" autocomplete="off" spellcheck="false"><br>
 	
 	<br>
 	<button type="submit">{'header.signon'|devblocks_translate|capitalize}</button>

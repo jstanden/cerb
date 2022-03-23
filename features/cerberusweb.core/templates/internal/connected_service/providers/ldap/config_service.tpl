@@ -12,7 +12,7 @@
 	<br>
 	
 	<b>Bind Password:</b><br>
-	<input type="password" name="params[bind_password]" value="{$params.bind_password}" size="45" spellcheck="false"><br>
+	<input type="password" name="params[bind_password]" value="{$params.bind_password}" size="45" autocomplete="off" spellcheck="false"><br>
 </fieldset>
 
 <fieldset class="peek black">

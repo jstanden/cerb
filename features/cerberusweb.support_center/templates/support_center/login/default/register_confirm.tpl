@@ -28,11 +28,11 @@
 	<br>
 	
 	<b>Choose a password:</b><br>
-	<input type="password" name="password" size="35" value=""><br>
+	<input type="password" name="password" size="35" value="" autocomplete="off" spellcheck="false"><br>
 	<br>
 	
 	<b>Confirm your desired password:</b><br>
-	<input type="password" name="password2" size="35" value=""><br>
+	<input type="password" name="password2" size="35" value="" autocomplete="off" spellcheck="false"><br>
 	<br>
 
 	<button type="submit"><span class="glyphicons glyphicons-circle-ok"></span> Register</button><br>

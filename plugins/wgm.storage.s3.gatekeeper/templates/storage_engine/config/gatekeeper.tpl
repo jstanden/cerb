@@ -8,7 +8,7 @@ This engine stores content in Amazon S3 but protects credentials by signing requ
 <input type="text" name="username" size="32" value="{$profile->params.username}"><br>
 
 <b>Password:</b><br>
-<input type="password" name="password" size="32" value="{$profile->params.password}"><br>
+<input type="password" name="password" size="32" value="{$profile->params.password}" autocomplete="off" spellcheck="false"><br>
 
 <b>Bucket:</b><br>
 <input type="text" name="bucket" size="32" value="{$profile->params.bucket}"><br>
