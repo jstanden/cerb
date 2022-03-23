@@ -651,6 +651,21 @@ abstract class DevblocksEngine {
 			}
 		}
 		
+		$http_method = DevblocksPlatform::getHttpMethod();
+		
+		// Return HTTP 501 (Not Implemented) on verbs we don't use
+		if('rest' == $controller_uri) {
+			// In the API we allow REST verbs
+			if(!in_array($http_method, ['GET','PUT','POST','PATCH','DELETE'])) {
+				DevblocksPlatform::dieWithHttpError('Not implemented', 501);
+			}
+		} else {
+			// In the rest of Cerb we only use GET and POST
+			if(!in_array($http_method, ['GET','POST'])) {
+				DevblocksPlatform::dieWithHttpError('Not implemented', 501);
+			}
+		}
+		
 		// Security: CSRF
 		
 		// Exclude public controllers
@@ -660,7 +675,6 @@ abstract class DevblocksEngine {
 			if(!DEVELOPMENT_MODE_ALLOW_CSRF) {
 				$origin = DevblocksPlatform::strLower($_SERVER['HTTP_ORIGIN'] ?? '');
 				$referer = DevblocksPlatform::strLower($_SERVER['HTTP_REFERER'] ?? '');
-				$http_method = DevblocksPlatform::getHttpMethod();
 				
 				// Normalize the scheme and host (e.g. ignore /index.php/)
 				$base_url_parts = parse_url($url_writer->write('', true));
