@@ -2271,6 +2271,9 @@ abstract class C4_AbstractView {
 			$suggestions['subtotal:'] = $this->getQueryAutocompleteFieldSuggestions(null, true);
 		}
 		
+		// Timezone
+		$suggestions['set.timezone:'] = DevblocksPlatform::services()->date()->getTimezones();
+		
 		// Saved searches
 		
 		if(false != ($view_context = $this->getContext()) 
