@@ -593,6 +593,12 @@ abstract class C4_AbstractView {
 						if(false == (CerbQuickSearchLexer::getOperStringFromTokens($p->tokens, $oper, $value)))
 							break;
 						
+						// Fail on invalid timezones
+						if(!DevblocksPlatform::services()->date()->isValidTimezoneLocation($value)) {
+							$error = sprintf("`%s` is an invalid timezone.", $value);
+							return false;
+						}
+						
 						$params_timezone = $value;
 						
 						unset($fields[$k]);
