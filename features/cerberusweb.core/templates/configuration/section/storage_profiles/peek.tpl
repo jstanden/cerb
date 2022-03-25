@@ -10,7 +10,7 @@
 </div>
 {/if}
 
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="formStorageProfilePeek" name="formStorageProfilePeek" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="POST" id="formStorageProfilePeek" name="formStorageProfilePeek">
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="storage_profiles">
@@ -73,12 +73,15 @@ Used by:<br>
 
 <script type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFetch('peek');
+	var $frm = $('#formStorageProfilePeek');
+	var $popup = genericAjaxPopupFind($frm);
+
+	Devblocks.formDisableSubmit($frm);
 	
 	$popup.one('popup_open', function(event,ui) {
 		$(this).dialog('option','title',"Storage Profile");
 
-		$('#formStorageProfilePeek BUTTON.tester')
+		$frm.find('BUTTON.tester')
 		.click(function() {
 			var $btn = $(this);
 			var $frm = $btn.closest('form');

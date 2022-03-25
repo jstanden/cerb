@@ -2,7 +2,7 @@
 {$peek_context_id = $model->id}
 {$form_id = uniqid()}
 {$board = $model->getProjectBoard()}
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}" data-cerb-popup-title="{'projects.common.board.column'|devblocks_translate|capitalize}">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="project_board_column">
@@ -198,6 +198,8 @@
 $(function() {
 	var $frm = $('#{$form_id}');
 	var $popup = genericAjaxPopupFind($frm);
+
+	Devblocks.formDisableSubmit($frm);
 	
 	$popup.one('popup_open', function() {
 		$popup.dialog('option','title',"{'projects.common.board.column'|devblocks_translate|capitalize|escape:'javascript' nofilter}");

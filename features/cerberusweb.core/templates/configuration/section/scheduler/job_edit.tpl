@@ -8,7 +8,7 @@
 	{assign var=term value=$job->getParam('term','m')}
 	
 	{$extid = $job->manifest->id|replace:'.':'_'}
-	<form id="frmJob{$extid}" action="{devblocks_url}{/devblocks_url}" method="post" onsubmit="return false;">
+	<form id="frmJob{$extid}" action="{devblocks_url}{/devblocks_url}" method="post">
 	<input type="hidden" name="c" value="config">
 	<input type="hidden" name="a" value="invoke">
 	<input type="hidden" name="module" value="scheduler">
@@ -51,7 +51,12 @@
 </fieldset>
 
 <script type="text/javascript">
-	$('#frmJob{$extid} BUTTON.submit')
+$(function() {
+	let $frm = $('#frmJob{$extid}');
+
+	Devblocks.formDisableSubmit($frm);
+	 
+	$frm.find('BUTTON.submit')
 		.click(function(e) {
 			genericAjaxPost('frmJob{$extid}','',null,function(json) {
 				let $o = $.parseJSON(json);
@@ -63,4 +68,5 @@
 			});
 		})
 	;
+});
 </script>

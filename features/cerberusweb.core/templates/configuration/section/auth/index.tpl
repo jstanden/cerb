@@ -1,6 +1,6 @@
 <h2>{'common.authentication'|devblocks_translate|capitalize}</h2>
 
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmSetupAuth" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmSetupAuth">
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="auth">
@@ -65,6 +65,8 @@
 <script type="text/javascript">
 $(function() {
 	var $frm = $('#frmSetupAuth');
+
+	Devblocks.formDisableSubmit($frm);
 	
 	$frm.find('.cerb-peek-trigger')
 		.cerbPeekTrigger()

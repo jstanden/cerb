@@ -1,7 +1,7 @@
 {$peek_context = CerberusContexts::CONTEXT_FEED_ITEM}
 {$peek_context_id = $model->id}
 {$form_id = uniqid()}
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="feed_item">
@@ -65,6 +65,8 @@
 $(function() {
 	var $frm = $('#{$form_id}');
 	var $popup = genericAjaxPopupFind($frm);
+
+	Devblocks.formDisableSubmit($frm);
 	
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{'feeds.item'|devblocks_translate|capitalize|escape:'javascript' nofilter}");

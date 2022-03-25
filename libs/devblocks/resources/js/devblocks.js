@@ -52,7 +52,18 @@ function DevblocksClass() {
 		
 		return selectedString;
 	};
-	
+
+	this.formDisableSubmit = function($frm) {
+		if(!($frm instanceof jQuery))
+			return;
+		
+		$frm
+			.off('submit')
+			.on('submit', function() {
+			return false;
+		});
+	}
+
 	this.getFormEnabledCheckboxValues = function(form_id,element_name) {
 		return $("#" + form_id + " INPUT[name='" + element_name + "']:checked")
 		.map(function() {

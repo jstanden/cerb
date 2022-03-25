@@ -1,6 +1,6 @@
 <h2>OAuth2 Token Generator</h2>
 
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmSetupOAuth2TokenGenerator" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmSetupOAuth2TokenGenerator">
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="oauth2_token_generator">
@@ -85,6 +85,8 @@ $(function() {
 	var $status = $frm.find('div.status');
 	var $button = $frm.find('BUTTON.submit');
 	var $spinner = Devblocks.getSpinner();
+
+	Devblocks.formDisableSubmit($frm);
 	
 	$frm.find('.chooser-abstract')
 		.cerbChooserTrigger()

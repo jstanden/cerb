@@ -22,7 +22,7 @@
 	{/if}
 </fieldset>
 
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmLicense" style="{if $we_trust_you->key && empty($error)}display:none;{/if}" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmLicense" style="{if $we_trust_you->key && empty($error)}display:none;{/if}">
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="license">
@@ -60,6 +60,8 @@
 <script type="text/javascript">
 $(function() {
 	var $frm = $('#frmLicense');
+
+	Devblocks.formDisableSubmit($frm);
 	
 	$frm.find('BUTTON.submit')
 		.click(function(e) {

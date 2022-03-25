@@ -1,6 +1,6 @@
 <h2>Avatars</h2>
 
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmSetupAvatars" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmSetupAvatars">
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="avatars">
@@ -31,6 +31,8 @@
 <script type="text/javascript">
 $(function() {
 	var $frm = $('#frmSetupAvatars');
+
+	Devblocks.formDisableSubmit($frm);
 	
 	$frm.find('BUTTON.submit')
 		.click(function(e) {
