@@ -4,14 +4,18 @@
 <ul class="navmenu cerb-no-print">
 	{foreach from=$pages_menu item=menu_page}
 		{$is_selected = $page->id == 'core.page.pages' && isset($response_path[1]) && intval($response_path[1])==$menu_page.id}
-		<li class="{if $is_selected}selected{/if} drag" page_id="{$menu_page.id}" style="position:relative;">
-			<a href="{devblocks_url}c=pages&page={$menu_page.id}-{$menu_page.name|devblocks_permalink}{/devblocks_url}">{$menu_page.name|lower}</a>
-			
+		<li class="{if $is_selected}selected{/if} drag" data-page="{$menu_page.id}">
+			<div>
+				<a href="{devblocks_url}c=pages&page={$menu_page.id}-{$menu_page.name|devblocks_permalink}{/devblocks_url}">{$menu_page.name|lower}</a>
+			</div>
+				
 			{if $menu_page.tabs}
-			<ul class="cerb-popupmenu cerb-float">
+			<ul class="cerb-float cerb-hidden" data-cerb-navmenu-submenu>
 				{foreach from=$menu_page.tabs item=menu_tab}
-				<li>
-					<a href="{devblocks_url}c=pages&page={$menu_page.id}-{$menu_page.name|devblocks_permalink}&tab={$menu_tab->name|devblocks_permalink|lower}{/devblocks_url}">{$menu_tab->name}</a>
+				<li data-href="{devblocks_url}c=pages&page={$menu_page.id}-{$menu_page.name|devblocks_permalink}&tab={$menu_tab->name|devblocks_permalink|lower}{/devblocks_url}">
+					<div>
+						<b>{$menu_tab->name}</b>
+					</div>
 				</li>
 				{/foreach}
 			</ul>
@@ -20,7 +24,7 @@
 	{/foreach}
 	
 	<li style="border-right:0;" class="add {if $page->id=='core.page.pages' && count($response_path)==1}selected{/if}">
-		<a href="{devblocks_url}c=pages{/devblocks_url}" style="font-weight:normal;text-decoration:none;">{if $page->id=='core.page.pages' && count($response_path)==1}<span class="glyphicons glyphicons-chevron-down" style="font-size:12px;"></span>{else}<span class="glyphicons glyphicons-chevron-down" style="font-size:12px;"></span>{/if}</a>
+		<a href="{devblocks_url}c=pages{/devblocks_url}">{if $page->id=='core.page.pages' && count($response_path)==1}<span class="glyphicons glyphicons-chevron-down" style="font-size:12px;"></span>{else}<span class="glyphicons glyphicons-chevron-down" style="font-size:12px;"></span>{/if}</a>
 	</li>
 	
 	{if $active_worker->is_superuser}
@@ -42,19 +46,35 @@ $(function() {
 	{$user_agent = DevblocksPlatform::getClientUserAgent()}
 	
 	{if is_array($user_agent) && 0 != strcasecmp($user_agent.platform|default:'', 'Android')}
-	$menu.find('> li.drag .cerb-popupmenu')
-		.menu()
-		;
+	$menu.find('[data-cerb-navmenu-submenu]')
+		.menu({
+			select: function(event, ui) {
+				event.stopPropagation();
+
+				if(!ui.item.is('li'))
+					return;
+				
+				let href = ui.item.attr('data-href');
+				
+				if(null == href)
+					return;
+
+				window.location.href = href;
+			}
+		})
+		.css('position', 'absolute')
+		.css('margin-top', '6px')
+	;
 	
 	$menu.sortable({
-		items:'> li.drag',
+		items: '> li.drag',
 		distance: 20,
 		stop:function(e) {
 			e.stopPropagation();
 			
-			var $pages = $(this).find('li.drag[page_id]');
+			var $pages = $(this).find('li.drag[data-page]');
 			var page_ids = $pages.map(function(e) {
-				return $(this).attr('page_id');
+				return $(this).attr('data-page');
 			}).get().join(',');
 
 			var formData = new FormData();
@@ -71,11 +91,11 @@ $(function() {
 		.hover(
 			function(e) {
 				var $this = $(this);
-				$this.find('.cerb-popupmenu').show();
+				$this.find('[data-cerb-navmenu-submenu]').show();
 			},
 			function(e) {
 				var $this = $(this);
-				$this.find('.cerb-popupmenu').hide();
+				$this.find('[data-cerb-navmenu-submenu]').hide();
 			}
 		)
 		;
@@ -109,7 +129,7 @@ $(function() {
 		if(!$target.is('li'))
 			return;
 		
-		var $link = $target.find('> a');
+		var $link = $target.find('a').first();
 		
 		if($link.length > 0)
 			window.location.href = $link.attr('href');

@@ -467,6 +467,7 @@ BUTTON.split-right {
 
 UL {
 	&.navmenu {
+		overflow: hidden;
 		clear: both;
 		width: 100%;
 		margin: 0;
@@ -497,10 +498,8 @@ UL {
 			&.selected {
 				background-color: var(--cerb-color-ui-navmenu-selected);
 
-				> A {
+				A {
 					color: var(--cerb-color-ui-navmenu-selected-text);
-					text-decoration: none;
-					font-weight: normal;
 				}
 			}
 		}
@@ -1531,6 +1530,10 @@ UL.cerb-popupmenu {
 	z-index: 2500;
 	float: left;
 	border: 0;
+}
+
+.cerb-hidden {
+	display: none;
 }
 
 // Subpage
