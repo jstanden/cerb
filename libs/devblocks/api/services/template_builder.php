@@ -722,12 +722,10 @@ class DevblocksDictionaryDelegate implements JsonSerializable, IteratorAggregate
 	
 			$local = $this->getDictionary($context_data['prefix'], false);
 			
-			$loaded_values = $context->lazyLoadContextValues($token, $local);
-			
 			// Push the context into the stack so we can track ancestry
 			CerberusContexts::pushStack($context_data['context']);
 			
-			if(!is_array($loaded_values))
+			if(false == ($loaded_values = $context->lazyLoadContextValues($token, $local)) || !is_array($loaded_values))
 				continue;
 			
 			foreach($loaded_values as $k => $v) {

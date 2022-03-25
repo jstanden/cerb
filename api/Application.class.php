@@ -2223,7 +2223,6 @@ class CerberusContexts {
 
 		if(!empty($load_ids)) {
 			$models = CerberusContexts::getModels($context, $load_ids);
-			$custom_fields = DAO_CustomField::getByContext($context);
 			$values = DAO_CustomFieldValue::getValuesByContextIds($context, $load_ids);
 
 			foreach($models as $model_id => $model) {
@@ -2231,12 +2230,6 @@ class CerberusContexts {
 				
 				// `custom_` keys
 				$model->custom_fields = $custom_field_values;
-				
-				// Custom field URI keys
-				$model->customfields = array_combine(
-					array_map(fn($k) => $custom_fields[$k]->uri ?? $k, array_keys($custom_field_values)),
-					$custom_field_values
-				);
 				
 				// Actor
 				$model->_actor = $actor;
@@ -2303,16 +2296,15 @@ class CerberusContexts {
 						$dict_new = DevblocksDictionaryDelegate::getDictionaryFromModel($new_model, $context);
 						$dict_old = DevblocksDictionaryDelegate::getDictionaryFromModel($old_model, $context);
 						
-						$initial_state = array_merge(
-							$dict_new->getDictionary(null, false, 'record_'),
-							$dict_old->getDictionary(null, false, 'was_record_')
-						);
+						$dict = DevblocksDictionaryDelegate::instance([
+							'is_new' => self::_wasJustCreated($context, $context_id),
+							'actor__context' => $actor['context'],
+							'actor_id' => $actor['context_id'],
+						]);
+						$dict->mergeKeys('record_', $dict_new->getDictionary('', false));
+						$dict->mergeKeys('was_record_', $dict_old->getDictionary('', false));
 						
-						$initial_state['is_new'] = self::_wasJustCreated($context, $context_id);
-						$initial_state['actor__context'] = $actor['context'];
-						$initial_state['actor_id'] = $actor['context_id'];
-						
-						$dict = DevblocksDictionaryDelegate::instance($initial_state);
+						$initial_state = $dict->getDictionary();
 						
 						$error = null;
 						

@@ -1591,7 +1591,8 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 				$token_values['_context'],
 				$token_values['id'],
 				false,
-				$custom_fields
+				$custom_fields,
+				$token_values
 			);
 			
 			// Also write URIs
@@ -1600,7 +1601,8 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 				$token_values['_context'],
 				$token_values['id'],
 				true,
-				$custom_fields
+				$custom_fields,
+				$token_values
 			);
 			
 			$token_values = array_merge($token_values, $custom_values);
@@ -1838,7 +1840,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	/**
 	 * @internal
 	 */
-	protected function _lazyLoadCustomFields($token, $context, $context_id, $as_keys=true, $field_values=null) {
+	protected function _lazyLoadCustomFields($token, $context, $context_id, $as_keys=true, $field_values=null, array $dictionary=[]) {
 		$fields = DAO_CustomField::getByContext($context);
 		$token_values = [];
 		
@@ -1874,6 +1876,10 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 			if(!$as_keys) {
 				$token_values['custom'][$cf_id] = '';
 			}
+			
+			// If we already had a value for this key, keep it
+			if(array_key_exists($key_prefix, $dictionary))
+				$field_values[$cf_id] = $dictionary[$key_prefix];
 			
 			$token_values[$key_prefix] = '';
 			
