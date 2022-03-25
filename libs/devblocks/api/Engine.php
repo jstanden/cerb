@@ -545,8 +545,17 @@ abstract class DevblocksEngine {
 		$location = "";
 
 		// Read the relative URL into an array
-		if(isset($_SERVER['HTTP_X_REWRITE_URL'])) { // IIS Rewrite
-			$location = $_SERVER['HTTP_X_REWRITE_URL'];
+		if( // Legacy IIS Rewrite
+			APP_OPT_IIS_LEGACY_REWRITE
+			&& isset($_SERVER['HTTP_X_REWRITE_URL'])
+		) {
+			$location = $_SERVER['HTTP_X_REWRITE_URL'];		
+		} elseif( // IIS Rewrite
+			array_key_exists('IIS_WasUrlRewritten', $_SERVER)
+			&& '1' == $_SERVER['IIS_WasUrlRewritten']
+			&& array_key_exists('UNENCODED_URL', $_SERVER)
+		) {
+			$location = $_SERVER['UNENCODED_URL'];
 		} elseif(isset($_SERVER['REQUEST_URI'])) { // Apache + Nginx
 			$location = $_SERVER['REQUEST_URI'];
 		} elseif(isset($_SERVER['REDIRECT_URL'])) { // Apache mod_rewrite (breaks on CGI)

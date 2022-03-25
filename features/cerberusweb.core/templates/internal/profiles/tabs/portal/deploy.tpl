@@ -66,6 +66,7 @@ define('REMOTE_BASE', '{$base}{if !$smarty.const.DEVBLOCKS_REWRITE}/index.php{/i
 define('REMOTE_URI', '{$path}'); // NO trailing slash!
 define('REMOTE_SSL_VALIDATION', true);
 define('URL_REWRITE', file_exists('.htaccess'));
+define('OPT_IIS_LEGACY_URL_REWRITE', false);
 {literal}
 /*
  * =============================================================
@@ -402,8 +403,17 @@ class DevblocksProxy_Curl extends DevblocksProxy {
 class DevblocksRouter {
 	function connect() {
 		// Read the relative URL into an array
-		if(@isset($_SERVER['HTTP_X_REWRITE_URL'])) { // IIS Rewrite
+		if( // Legacy IIS Rewrite
+			OPT_IIS_LEGACY_URL_REWRITE
+			&& isset($_SERVER['HTTP_X_REWRITE_URL'])
+		) {
 			$location = $_SERVER['HTTP_X_REWRITE_URL'];
+		} else if( // IIS Rewrite
+			array_key_exists('IIS_WasUrlRewritten', $_SERVER)
+			&& '1' == $_SERVER['IIS_WasUrlRewritten']
+			&& array_key_exists('UNENCODED_URL', $_SERVER)
+		) {
+			$location = $_SERVER['UNENCODED_URL'];
 		} elseif(@isset($_SERVER['REQUEST_URI'])) { // Apache
 			$location = $_SERVER['REQUEST_URI'];
 		} elseif(@isset($_SERVER['REDIRECT_URL'])) { // Apache mod_rewrite (breaks on CGI)

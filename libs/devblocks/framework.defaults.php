@@ -148,6 +148,9 @@ if(!defined('APP_OPT_FULLTEXT_THRESHOLD_IDS'))
 if(!defined('APP_OPT_FULLTEXT_THRESHOLD_EXISTS'))
 	define('APP_OPT_FULLTEXT_THRESHOLD_EXISTS', 10000);
 
+if(!defined('APP_OPT_IIS_LEGACY_REWRITE'))
+	define('APP_OPT_IIS_LEGACY_REWRITE', false);
+
 // ----
 
 @date_default_timezone_set(date_default_timezone_get());

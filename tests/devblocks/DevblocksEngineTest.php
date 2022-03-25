@@ -7,18 +7,19 @@ class DevblocksEngineTest extends TestCase {
 	}
 	
 	function testGetWebPath() {
-		// HTTP_X_REWRITE_URL should have top precedence
+		// IIS_WasUrlRewritten should have top precedence
 		
-		$_SERVER = array(
-			'HTTP_X_REWRITE_URL' => 'http://rewrite.example.com/',
+		$_SERVER = [
+			'IIS_WasUrlRewritten' => '1',
+			'UNENCODED_URL' => 'http://rewrite.example.com/',
 			'REQUEST_URI' => 'http://request_uri.example.com/',
 			'REDIRECT_URL' => 'http://redirect_url.example.com/',
 			'ORIG_PATH_INFO' => 'http://orig_path_info.example.com/',
-		);
+		];
 
 		$actual = DevblocksEngine::getWebPath();
 		
-		$this->assertEquals($_SERVER['HTTP_X_REWRITE_URL'], $actual);
+		$this->assertEquals($_SERVER['UNENCODED_URL'], $actual);
 		
 		// REQUEST_URI should have secondary precedence
 		
