@@ -4,10 +4,12 @@
         {if !$item.hidden}
             {if 'menu' == $item_key_parts[0]}
                 <li>
-                    {if $item.icon}
-                        <span class="glyphicons glyphicons-{$item.icon}"></span>
-                    {/if}
-                    {$item.label}
+                    <div>
+                        {if $item.icon}
+                            <span class="glyphicons glyphicons-{$item.icon}"></span>
+                        {/if}
+                        {$item.label}
+                    </div>
                     {if $item.items}
                     <ul>
                         {toolbar_menu items=$item.items}
@@ -16,7 +18,9 @@
                 </li>
             {elseif 'divider' == $item_key_parts[0]}
                 <li>
-                    <hr/>
+                    <div>
+                        <hr/>
+                    </div>
                 </li>
             {elseif 'interaction' == $item_key_parts[0]}
                 <li class="cerb-bot-trigger"
@@ -26,11 +30,13 @@
                     {if $item.tooltip}title="{$item.tooltip}"{/if}
                     {if $item.keyboard}data-interaction-keyboard="{$item.keyboard}"{/if}
                     >
-                    {if $item.icon}
-                        <span class="glyphicons glyphicons-{$item.icon}"></span>
-                    {/if}
-                    <b>{$item.label}</b>
-                    {if $item.keyboard}<small>({$item.keyboard})</small>{/if}
+                    <div>
+                        {if $item.icon}
+                            <span class="glyphicons glyphicons-{$item.icon}"></span>
+                        {/if}
+                        <b>{$item.label}</b>
+                        {if $item.keyboard}<small>({$item.keyboard})</small>{/if}
+                    </div>
                 </li>
             {elseif 'behavior' == $item_key_parts[0]}
                 <li class="cerb-bot-trigger"
@@ -39,10 +45,12 @@
                     data-interaction-params="{if is_array($item.params)}{DevblocksPlatform::services()->url()->arrayToQueryString($item.params)}{/if}"
                     data-interaction-done="{if is_array($item.after)}{DevblocksPlatform::services()->url()->arrayToQueryString($item.after)}{/if}"
                     >
-                    {if $item.image}
-                        <img class="cerb-avatar" src="{$item.image}">
-                    {/if}
-                    <b>{$item.label}</b>
+                    <div>
+                        {if $item.image}
+                            <img class="cerb-avatar" src="{$item.image}">
+                        {/if}
+                        <b>{$item.label}</b>
+                    </div>
                 </li>
             {/if}
         {/if}

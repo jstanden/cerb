@@ -18,21 +18,29 @@
 			<ul class="cerb-workspace-widget--menu cerb-popupmenu cerb-float" style="display:none;margin-top:-12px;">
 				{if $is_widget_writeable}
 				<li class="cerb-workspace-widget-menu--edit" data-context="{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}" data-context-id="{$widget->id}" data-edit="true" data-width="75%">
-					<a href="javascript:;">{'common.edit'|devblocks_translate|capitalize}</a>
+					<div>
+						<b>{'common.edit'|devblocks_translate|capitalize}</b>
+					</div>
 				</li>
 				<li class="cerb-workspace-widget-menu--export-widget">
-					<a href="javascript:;">{'common.export.widget'|devblocks_translate|capitalize}</a>
+					<div>
+						<b>{'common.export.widget'|devblocks_translate|capitalize}</b>
+					</div>
 				</li>
 				{/if}
 				
 				{if $widget_extension && $widget_extension instanceof ICerbWorkspaceWidget_ExportData}
 				<li class="cerb-workspace-widget-menu--export-data">
-					<a href="javascript:;">{'common.export.data'|devblocks_translate|capitalize}</a>
+					<div>
+						<b>{'common.export.data'|devblocks_translate|capitalize}</b>
+					</div>
 				</li>
 				{/if}
 				
 				<li class="cerb-workspace-widget-menu--refresh">
-					<a href="javascript:;">{'common.refresh'|devblocks_translate|capitalize}</a>
+					<div>
+						<b>{'common.refresh'|devblocks_translate|capitalize}</b>
+					</div>
 				</li>
 			</ul>
 		</div>
