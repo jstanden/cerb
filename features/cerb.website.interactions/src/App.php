@@ -213,7 +213,7 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 				
 				$csp = $portal_schema->getContentSecurityPolicy();
 				
-				$csp_header = sprintf("Content-Security-Policy: default-src 'self'; img-src 'self' data: %s; script-src 'nonce-%s'; object-src 'none';",
+				$csp_header = sprintf("Content-Security-Policy: default-src 'self'; img-src 'self' %s; script-src 'nonce-%s'; object-src 'none';",
 					implode(' ', $csp['imageHosts'] ?? []),
 					$session->nonce
 				);
