@@ -1,4 +1,4 @@
-<form action="{devblocks_url}{/devblocks_url}" method="POST" enctype="multipart/form-data" id="chooserFileUploadForm" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="POST" enctype="multipart/form-data" id="chooserFileUploadForm">
 
 <fieldset class="peek">
 	<legend>{if $single}{'common.upload.file'|devblocks_translate|capitalize}{else}{'common.upload.files'|devblocks_translate|capitalize}{/if}</legend>
@@ -26,6 +26,8 @@ $(function() {
 	var $file_input = $frm.find('input[type=file]');
 	var $uploads = $frm.find('div.cerb-uploads');
 	var $submit = $frm.find('button.submit');
+
+	Devblocks.formDisableSubmit($frm);
 	
 	$popup.find('UL.buffer').sortable({ placeholder: 'ui-state-highlight' });
 	

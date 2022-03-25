@@ -1,4 +1,4 @@
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmCachePeek" name="frmCachePeek" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmCachePeek" name="frmCachePeek">
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="cache">
@@ -29,12 +29,14 @@
 
 <script type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFetch('peek');
+	var $frm = $('#frmCachePeek');
+	var $popup = genericAjaxPopupFind($frm);
+
+	Devblocks.formDisableSubmit($frm);
 	
 	$popup.one('popup_open', function(event,ui) {
 		$(this).dialog('option','title',"Cache Configuration");
 		
-		var $frm = $('#frmCachePeek');
 		var $fieldsets = $frm.find('> fieldset');
 		
 		$frm.find('fieldset legend input:radio').on('click', function() {

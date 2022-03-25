@@ -1,4 +1,4 @@
-<form action="{devblocks_url}{/devblocks_url}" method="POST" class="cerb-form-builder" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="POST" class="cerb-form-builder">
 	<input type="hidden" name="continuation_token" value="{$continuation_token}">
 	<div class="cerb-form-data"></div>
 </form>

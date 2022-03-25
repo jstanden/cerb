@@ -139,6 +139,8 @@
 <script type="text/javascript">
 $(function() {
 	var $popup = genericAjaxPopupFind('#formBatchUpdate');
+	Devblocks.formDisableSubmit($popup);
+	
 	$popup.css('overflow', 'inherit');
 	
 	$popup.one('popup_open', function(event,ui) {

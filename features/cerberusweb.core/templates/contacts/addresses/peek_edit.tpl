@@ -1,7 +1,7 @@
 {$peek_context = CerberusContexts::CONTEXT_ADDRESS}
 {$peek_context_id = $address->id}
 {$form_id = "formAddressPeek{uniqid()}"}
-<form action="#" method="POST" id="{$form_id}" onsubmit="return false;">
+<form action="#" method="POST" id="{$form_id}">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="address">
@@ -164,6 +164,8 @@ $(function() {
 	var $popup = genericAjaxPopupFind('#{$form_id}');
 	var $chooser_org = $popup.find('button.chooser-abstract[data-field-name="org_id"]');
 	var $chooser_contact = $popup.find('button.chooser-abstract[data-field-name="contact_id"]');
+
+	Devblocks.formDisableSubmit($popup);
 	
 	$popup.one('popup_open',function(event,ui) {
 		// Title

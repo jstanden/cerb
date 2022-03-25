@@ -1,4 +1,4 @@
-<form id="frmSetupMailImport" action="javascript:;" method="POST" onsubmit="return false;" enctype="multipart/form-data">
+<form id="frmSetupMailImport" action="javascript:;" method="POST" enctype="multipart/form-data">
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="mail_incoming">
@@ -17,6 +17,8 @@
 <script type="text/javascript">
 $(function() {
 	var $frm = $('#frmSetupMailImport');
+
+	Devblocks.formDisableSubmit($frm);
 	
 	$frm.find('button.submit').click(function() {
 		var $frm = $('#frmSetupMailImport');

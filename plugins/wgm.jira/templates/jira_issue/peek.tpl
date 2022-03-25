@@ -1,5 +1,5 @@
 {$peek_context = Context_JiraIssue::ID}
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmJiraIssuePeek" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmJiraIssuePeek">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="jira_issue">
@@ -119,7 +119,10 @@
 </form>
 
 <script type="text/javascript">
-	var $popup = genericAjaxPopupFetch('peek');
+	var $frm = $('#frmJiraIssuePeek');
+	var $popup = genericAjaxPopupFind($frm);
+
+	Devblocks.formDisableSubmit($frm);
 	
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{'Jira Issue'|escape:'javascript' nofilter}");

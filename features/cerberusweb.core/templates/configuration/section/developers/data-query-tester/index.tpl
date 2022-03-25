@@ -1,6 +1,6 @@
 <h2>Data Query Tester</h2>
 
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmSetupDataQueryTester" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmSetupDataQueryTester">
 <fieldset>
 	<legend>
 		Run this data query:
@@ -24,6 +24,8 @@ $(function() {
 	var $status = $frm.find('div.status');
 	var $button = $frm.find('BUTTON.submit');
 	var $spinner = Devblocks.getSpinner();
+
+	Devblocks.formDisableSubmit($frm);
 	
 	var $editor_results = 
 		$frm.find('.cerb-data-query-results')

@@ -4,7 +4,7 @@
 
 <div class="reply_frame {if "inline" == $reply_format}block{/if}" style="width:98%;margin:10px;">
 
-<form id="reply{$message->id}_form" onsubmit="return false;" method="post">
+<form id="reply{$message->id}_form" method="post">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="ticket">
@@ -311,6 +311,8 @@ $(function() {
 
 	var $frm = $('#reply{$message->id}_form');
 	var $reply = $frm.closest('div.reply_frame');
+
+	Devblocks.formDisableSubmit($frm);
 	
 	function enableAutoSaveDraft() {
 		if(null == draftAutoSaveInterval) {

@@ -1,6 +1,6 @@
 {$peek_context = CerberusContexts::CONTEXT_BEHAVIOR}
 {$peek_context_id = $model->id}
-<form id="frmDecisionBehavior{$model->id}" onsubmit="return false;">
+<form id="frmDecisionBehavior{$model->id}">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="behavior">
@@ -212,6 +212,8 @@
 $(function() {
 	var $frm = $('#frmDecisionBehavior{$model->id}');
 	var $popup = genericAjaxPopupFind($frm);
+
+	Devblocks.formDisableSubmit($frm);
 	
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{'common.behavior'|devblocks_translate|capitalize|escape:'javascript'}");

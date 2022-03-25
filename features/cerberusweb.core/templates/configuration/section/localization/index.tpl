@@ -1,6 +1,6 @@
 <h2>Localization</h2>
 
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmSetupLocalization" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmSetupLocalization">
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="localization">
@@ -40,6 +40,8 @@
 <script type="text/javascript">
 $(function() {
 	var $frm = $('#frmSetupLocalization');
+
+	Devblocks.formDisableSubmit($frm);
 	
 	$frm.find('BUTTON.submit')
 		.click(function(e) {

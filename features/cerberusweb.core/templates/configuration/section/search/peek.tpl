@@ -1,4 +1,4 @@
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmSearchSchemaPeek" name="frmSearchSchemaPeek" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmSearchSchemaPeek" name="frmSearchSchemaPeek">
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="search">
@@ -33,6 +33,8 @@ $(function() {
 		
 		var $frm = $('#frmSearchSchemaPeek');
 		var $fieldsets = $frm.find('> fieldset');
+
+		Devblocks.formDisableSubmit($frm);
 		
 		$frm.find('fieldset legend input:radio').on('click', function() {
 			$fieldsets.find('> div').hide();

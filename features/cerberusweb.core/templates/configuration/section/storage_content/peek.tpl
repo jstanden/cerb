@@ -1,4 +1,4 @@
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmStorageSchemaPeek" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmStorageSchemaPeek">
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="storage_content">
@@ -14,7 +14,10 @@
 
 <script type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFind('#frmStorageSchemaPeek');
+    let $frm = $('#frmStorageSchemaPeek');
+	var $popup = genericAjaxPopupFind($frm);
+
+    Devblocks.formDisableSubmit($frm);
 	
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{$schema->manifest->name|escape:'javascript' nofilter}");

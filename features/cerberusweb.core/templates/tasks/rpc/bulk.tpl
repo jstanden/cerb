@@ -143,6 +143,7 @@
 <script type="text/javascript">
 $(function() {
 	var $popup = genericAjaxPopupFind('#formBatchUpdate');
+	Devblocks.formDisableSubmit($popup);
 	
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{'common.bulk_update'|devblocks_translate|capitalize|escape:'javascript' nofilter}");

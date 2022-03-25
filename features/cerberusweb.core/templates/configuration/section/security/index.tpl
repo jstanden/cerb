@@ -1,6 +1,6 @@
 <h2>Security</h2>
 
-<form id="frmSetupSecurity" action="{devblocks_url}{/devblocks_url}" method="post" onsubmit="return false;">
+<form id="frmSetupSecurity" action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="security">
@@ -48,6 +48,8 @@
 <script type="text/javascript">
 $(function() {
 	var $frm = $('#frmSetupSecurity');
+
+	Devblocks.formDisableSubmit($frm);
 	
 	$frm.find('BUTTON.submit')
 		.click(function(e) {

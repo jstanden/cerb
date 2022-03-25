@@ -1,7 +1,7 @@
 {$peek_context = CerberusContexts::CONTEXT_ORG}
 {$peek_context_id = $org->id}
 {$form_id = "peek{uniqid()}"}
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="{$form_id}" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="POST" id="{$form_id}">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="org">
@@ -120,6 +120,8 @@
 $(function() {
 	var $frm = $('#{$form_id}');
 	var $popup = genericAjaxPopupFind($frm);
+
+	Devblocks.formDisableSubmit($frm);
 
 	$popup.one('popup_open',function(event,ui) {
 		$(this).find('textarea[name=aliases]').autosize();

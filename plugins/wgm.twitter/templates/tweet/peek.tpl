@@ -1,6 +1,6 @@
 {$peek_context = Context_TwitterMessage::ID}
 {$is_writeable = Context_ConnectedAccount::isReadableByActor($message->connected_account_id, $active_worker)}
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmTwitterMessage" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmTwitterMessage">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="twitter_message">
@@ -68,7 +68,10 @@
 
 <script type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFetch('peek');
+	var $frm = $('#frmTwitterMessage');
+	var $popup = genericAjaxPopupFind($frm);
+
+	Devblocks.formDisableSubmit($frm);
 	
 	$popup.one('popup_open', function(event,ui) {
 		{$account = $accounts.{$message->account_id}}

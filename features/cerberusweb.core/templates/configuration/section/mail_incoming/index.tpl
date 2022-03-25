@@ -13,7 +13,7 @@
 	</ul>
 	
 	<div id="tabsSetupMailIncomingSettings">
-		<form id="frmSetupMailIncoming" action="{devblocks_url}{/devblocks_url}" method="post" onsubmit="return false;">
+		<form id="frmSetupMailIncoming" action="{devblocks_url}{/devblocks_url}" method="post">
 		<input type="hidden" name="c" value="config">
 		<input type="hidden" name="a" value="invoke">
 		<input type="hidden" name="module" value="mail_incoming">
@@ -102,6 +102,8 @@
 <script type="text/javascript">
 $(function() {
 	var $frm = $('#frmSetupMailIncoming');
+
+	Devblocks.formDisableSubmit($frm);
 	
 	var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
 	tabOptions.active = Devblocks.getjQueryUiTabSelected('tabsSetupMailIncoming', '{$tab}');

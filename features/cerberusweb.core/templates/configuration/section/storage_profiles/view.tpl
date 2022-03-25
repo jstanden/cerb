@@ -17,7 +17,7 @@
 </table>
 
 <div id="{$view->id}_tips" class="block" style="display:none;margin:10px;padding:5px;">Analyzing...</div>
-<form id="customize{$view->id}" name="customize{$view->id}" action="#" onsubmit="return false;" style="display:none;"></form>
+<form id="customize{$view->id}" name="customize{$view->id}" action="#"></form>
 <form id="viewForm{$view->id}" name="viewForm{$view->id}" action="#">
 <input type="hidden" name="view_id" value="{$view->id}">
 <input type="hidden" name="c" value="config">

@@ -1228,7 +1228,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 {$peek_context = '<?php echo $ctx_ext_id; ?>'}
 {$peek_context_id = $model->id}
 {$form_id = uniqid()}
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="<?php echo $table_name; ?>">
@@ -1284,6 +1284,8 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 $(function() {
 	var $frm = $('#{$form_id}');
 	var $popup = genericAjaxPopupFind($frm);
+    
+    Devblocks.formDisableSubmit($frm);
 	
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{'<?php echo $object_name; ?>'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
@@ -1340,7 +1342,7 @@ $(function() {
 </table>
 
 <div id="{$view->id}_tips" class="block" style="display:none;margin:10px;padding:5px;">Loading...</div>
-<form id="customize{$view->id}" name="customize{$view->id}" action="#" onsubmit="return false;" style="display:none;"></form>
+<form id="customize{$view->id}" name="customize{$view->id}" action="#"></form>
 <form id="viewForm{$view->id}" name="viewForm{$view->id}" action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="view_id" value="{$view->id}">
 <input type="hidden" name="context_id" value="{$view_context}">

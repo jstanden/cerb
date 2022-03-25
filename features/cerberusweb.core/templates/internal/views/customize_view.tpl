@@ -96,6 +96,7 @@
 <script type="text/javascript">
 $(function() {
 	var $container = $('#customize{$view->id}');
+	Devblocks.formDisableSubmit($container);
 	
 	$container.sortable({ items: 'DIV.column', placeholder:'ui-state-highlight' });
 	

@@ -1,4 +1,4 @@
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="formBatchUpdate" name="formBatchUpdate" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="POST" id="formBatchUpdate" name="formBatchUpdate">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="attachment">
@@ -58,6 +58,7 @@
 <script type="text/javascript">
 $(function() {
 	var $popup = genericAjaxPopupFind('#formBatchUpdate');
+	Devblocks.formDisableSubmit($popup);
 	
 	$popup.one('popup_open',function() {
 		$popup.dialog('option','title',"{'common.bulk_update'|devblocks_translate|capitalize}: {'common.attachment'|devblocks_translate|capitalize}");
