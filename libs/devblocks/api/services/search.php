@@ -1129,11 +1129,13 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 
 		if($is_query) {
 			// Allow wildcards in queries
-			$regexp = '[^[:alnum:]_\*]';
-			$text = mb_ereg_replace($regexp, ' ', mb_convert_case($text, MB_CASE_LOWER));
+			$text = DevblocksPlatform::strAlphaNum(DevblocksPlatform::strLower($text), '_*', ' ');
 			
 			$words = explode(' ', $text);
 			$words = array_map(fn($word) => ltrim($word, '+-'), $words);
+			
+			// Remove purely asterisk words
+			$words = array_filter($words, fn($word) => ltrim($word, '*') != '');
 			
 			unset($text);
 			
