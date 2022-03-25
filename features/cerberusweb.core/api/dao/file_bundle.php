@@ -1266,7 +1266,7 @@ class Context_FileBundle extends Extension_DevblocksContext implements IDevblock
 		
 		switch($token) {
 			default:
-				$defaults = $this->_lazyLoadDefaults($token, $context, $context_id);
+				$defaults = $this->_lazyLoadDefaults($token, $dictionary);
 				$values = array_merge($values, $defaults);
 				break;
 		}

@@ -1226,7 +1226,7 @@ class Context_Metric extends Extension_DevblocksContext implements IDevblocksCon
 				break;
 				
 			default:
-				$defaults = $this->_lazyLoadDefaults($token, $context, $context_id);
+				$defaults = $this->_lazyLoadDefaults($token, $dictionary);
 				$values = array_merge($values, $defaults);
 				break;
 		}

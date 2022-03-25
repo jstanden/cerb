@@ -1109,7 +1109,7 @@ class Context_ClassifierClass extends Extension_DevblocksContext implements IDev
 		
 		switch($token) {
 			default:
-				$defaults = $this->_lazyLoadDefaults($token, $context, $context_id);
+				$defaults = $this->_lazyLoadDefaults($token, $dictionary);
 				$values = array_merge($values, $defaults);
 				break;
 		}

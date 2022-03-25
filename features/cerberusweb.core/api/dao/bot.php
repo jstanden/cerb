@@ -1459,7 +1459,7 @@ class Context_Bot extends Extension_DevblocksContext implements IDevblocksContex
 				break;
 				
 			default:
-				$defaults = $this->_lazyLoadDefaults($token, $context, $context_id);
+				$defaults = $this->_lazyLoadDefaults($token, $dictionary);
 				$values = array_merge($values, $defaults);
 				break;
 		}

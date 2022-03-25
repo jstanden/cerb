@@ -1322,7 +1322,7 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 				break;
 				
 			default:
-				$defaults = $this->_lazyLoadDefaults($token, $context, $context_id);
+				$defaults = $this->_lazyLoadDefaults($token, $dictionary);
 				$values = array_merge($values, $defaults);
 				break;
 		}

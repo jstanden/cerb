@@ -1938,7 +1938,7 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 		
 		switch($token) {
 			default:
-				$defaults = $this->_lazyLoadDefaults($token, $context, $context_id);
+				$defaults = $this->_lazyLoadDefaults($token, $dictionary);
 				$values = array_merge($values, $defaults);
 				break;
 		}

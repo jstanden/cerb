@@ -1610,18 +1610,27 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		return $token_values;
 	}
 	
-	protected function _lazyLoadDefaults($token, $context, $context_id) {
+	protected function _lazyLoadDefaults($token, array $dictionary=[]) {
 		if(!$token)
 			return [];
 		
-		$context_ext = Extension_DevblocksContext::get($context, true);
+		$context = $dictionary['_context'] ?? null;
+		$context_id = $dictionary['id'] ?? null;
+		
+		if(!$context || !$context_id)
+			return [];
+		
+		if(false == ($context_ext = Extension_DevblocksContext::getByAlias($context, true)))
+			return [];
+		
+		$context = $context_ext->id;
 		
 		if('customfields' == $token && $context_ext->hasOption('custom_fields')) {
-			return $this->_lazyLoadCustomFields($token, $context, $context_id, true);
+			return $this->_lazyLoadCustomFields($token, $context, $context_id, true, null, $dictionary);
 			
 		// @deprecated
 		} else if(('custom' == $token || DevblocksPlatform::strStartsWith($token, 'custom_')) && $context_ext->hasOption('custom_fields')) {
-			return $this->_lazyLoadCustomFields($token, $context, $context_id, false);
+			return $this->_lazyLoadCustomFields($token, $context, $context_id, false, null, $dictionary);
 		
 		} else if(($token === 'links' || DevblocksPlatform::strStartsWith($token, ['links.','links:','links~'])) && $context_ext->hasOption('links')) {
 			return $this->_lazyLoadLinks($token, $context, $context_id);
@@ -1638,36 +1647,29 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 			return $this->_lazyLoadAttachments($token, $context, $context_id);
 		}
 		
-		// Is the key a custom field URI for this record type
-		$custom_field_uris = array_column(DAO_CustomField::getByContext($context), 'id', 'uri');
-		
-		// If we directly matched a custom field URI, load custom fields
-		if(array_key_exists($token, $custom_field_uris)) {
-			return $this->_lazyLoadCustomFields($token, $context, $context_id, true);
+		if(!array_key_exists('customfields', $dictionary)) {
+			// Is the key a custom field URI for this record type
+			$custom_field_uris = array_column(DAO_CustomField::getByContext($context), 'id', 'uri');
 			
-		} else {
-			// Is the 
-			$prefixes = array_keys($custom_field_uris);
-			
-			// Longest prefixes first
-			usort($prefixes, function($a, $b) {
-				$len_a = strlen($a);
-				$len_b = strlen($b);
+			// If we directly matched a custom field URI, load custom fields
+			if(array_key_exists($token, $custom_field_uris)) {
+				return $this->_lazyLoadCustomFields($token, $context, $context_id, true, null, $dictionary);
 				
-				if($len_a == $len_b)
-					return 0;
+			} else {
+				$prefixes = array_keys($custom_field_uris);
 				
-				return ($len_a > $len_b) ? -1 : 1;
-			});
-			
-			$prefix = DevblocksPlatform::strStartsWith(
-				$token,
-				array_map(fn($k) => $k . '_', $prefixes)
-			);
-			
-			// If we matched a custom field prefix, load custom fields
-			if($prefix)
-				return $this->_lazyLoadCustomFields($token, $context, $context_id, true);
+				// Longest prefixes first
+				usort($prefixes, fn($a, $b) => strlen($a) <=> strlen($b));
+				
+				$prefix = DevblocksPlatform::strStartsWith(
+					$token,
+					array_map(fn($k) => $k . '_', $prefixes)
+				);
+				
+				// If we matched a custom field prefix, load custom fields
+				if($prefix)
+					return $this->_lazyLoadCustomFields($token, $context, $context_id, true, null, $dictionary);
+			}
 		}
 		
 		return [];

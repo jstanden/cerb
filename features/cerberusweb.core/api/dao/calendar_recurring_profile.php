@@ -1459,7 +1459,7 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 		
 		switch($token) {
 			default:
-				$defaults = $this->_lazyLoadDefaults($token, $context, $context_id);
+				$defaults = $this->_lazyLoadDefaults($token, $dictionary);
 				$values = array_merge($values, $defaults);
 				break;
 		}

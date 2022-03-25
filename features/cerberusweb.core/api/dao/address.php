@@ -2602,7 +2602,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 					$values['last_sender_message_id'] = intval(DAO_Message::getLatestIdBySenderId($dictionary['id']));
 					
 				} else {
-					$defaults = $this->_lazyLoadDefaults($token, $context, $context_id);
+					$defaults = $this->_lazyLoadDefaults($token, $dictionary);
 					$values = array_merge($values, $defaults);
 				}
 				break;

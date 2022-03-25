@@ -2398,7 +2398,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 					}
 					
 				} else {
-					$defaults = $this->_lazyLoadDefaults($token, $context, $context_id);
+					$defaults = $this->_lazyLoadDefaults($token, $dictionary);
 					$values = array_merge($values, $defaults);
 				}
 				break;

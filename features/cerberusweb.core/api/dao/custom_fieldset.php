@@ -1206,7 +1206,7 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 				break;
 				
 			default:
-				$defaults = $this->_lazyLoadDefaults($token, $context, $context_id);
+				$defaults = $this->_lazyLoadDefaults($token, $dictionary);
 				$values = array_merge($values, $defaults);
 				break;
 		}

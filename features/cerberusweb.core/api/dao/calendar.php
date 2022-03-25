@@ -1838,7 +1838,7 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 				break;
 				
 			default:
-				$defaults = $this->_lazyLoadDefaults($token, $context, $context_id);
+				$defaults = $this->_lazyLoadDefaults($token, $dictionary);
 				$values = array_merge($values, $defaults);
 				break;
 		}
