@@ -192,7 +192,7 @@ $(function() {
 	$workspace.find('button.add').click(function(e) {
 		var $this = $(this);
 		var $menu = $('BODY UL.navmenu:first');
-		var $item = $menu.find('li.drag[page_id="'+$this.attr('page_id')+'"]');
+		var $item = $menu.find('li.drag[data-page="'+$this.attr('page_id')+'"]');
 		
 		// Remove
 		if(1 == $item.length) {
@@ -215,7 +215,7 @@ $(function() {
 		// Add
 		} else {
 			// Add the menu item if it doesn't exist (e.g. removed on this page cycle)
-			var $li = $('<li class="drag"/>').attr('page_id',$this.attr('page_id'));
+			var $li = $('<li class="drag"/>').attr('data-page',$this.attr('page_id'));
 			$li.append($('<a/>').attr('href',$this.attr('page_url')).text($this.attr('page_label')));
 			
 			$li
