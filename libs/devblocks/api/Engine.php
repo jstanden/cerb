@@ -731,15 +731,19 @@ abstract class DevblocksEngine {
 					: $controllers[APP_DEFAULT_CONTROLLER];
 
 				// Instance our manifest
-				if(!empty($controller_mft)) {
+				if($controller_mft instanceof DevblocksExtensionManifest) {
 					$controller = $controller_mft->createInstance();
+				} else { 
+					$controller = null;
 				}
 				
 				if($controller instanceof DevblocksHttpRequestHandler) {
 					$controller->handleRequest($request);
+					
+					$response = DevblocksPlatform::getHttpResponse();
 
 					// [JAS]: If we didn't write a new response, repeat the request
-					if(null == ($response = DevblocksPlatform::getHttpResponse())) {
+					if(null == $response) {
 						$response = new DevblocksHttpResponse($request->path);
 						DevblocksPlatform::setHttpResponse($response);
 					}

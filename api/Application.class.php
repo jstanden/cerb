@@ -293,8 +293,7 @@ class CerberusApplication extends DevblocksApplication {
 		// Requirements
 
 		// PHP Version
-		if(version_compare(PHP_VERSION,"7.4") >=0) {
-		} else {
+		if(version_compare(PHP_VERSION,"7.4") < 0) {
 			$errors[] = sprintf("Cerb %s requires PHP 7.4 or later. Your server PHP version is %s",
 				APP_VERSION,
 				PHP_VERSION
@@ -302,9 +301,8 @@ class CerberusApplication extends DevblocksApplication {
 		}
 
 		// Mailparse version
-		if(version_compare(phpversion('mailparse'),"3.0.2") >=0) {
-		} else {
-			$errors[] = sprintf("Cerb %s requires mailparse 3.0.2 or later. Your mailparse extension version is %s",
+		if(version_compare(phpversion('mailparse'),"3.1.3") < 0) {
+			$errors[] = sprintf("Cerb %s requires mailparse 3.1.3 or later. Your mailparse extension version is %s",
 				APP_VERSION,
 				phpversion('mailparse')
 			);
@@ -312,15 +310,13 @@ class CerberusApplication extends DevblocksApplication {
 
 		// File Uploads
 		$ini_file_uploads = ini_get("file_uploads");
-		if($ini_file_uploads == 1 || strcasecmp($ini_file_uploads,"on")==0) {
-		} else {
+		if(!($ini_file_uploads == 1 || strcasecmp($ini_file_uploads,"on")==0)) {
 			$errors[] = 'file_uploads is disabled in your php.ini file. Please enable it.';
 		}
 
 		// Memory Limit
 		$memory_limit = ini_get("memory_limit");
-		if ($memory_limit == '' || $memory_limit == -1) { // empty string means failure or not defined, assume no compiled memory limits
-		} else {
+		if(!($memory_limit == '' || $memory_limit == -1)) { // empty string means failure or not defined, assume no compiled memory limits
 			$ini_memory_limit = DevblocksPlatform::parseBytesString($memory_limit);
 			if($ini_memory_limit < 16777216) {
 				$errors[] = 'memory_limit must be 16M or larger (32M recommended) in your php.ini file.  Please increase it.';
@@ -328,98 +324,82 @@ class CerberusApplication extends DevblocksApplication {
 		}
 
 		// Extension: MySQLi
-		if(extension_loaded("mysqli")) {
-		} else {
+		if(!extension_loaded("mysqli")) {
 			$errors[] = "The 'mysqli' PHP extension is required.  Please enable it.";
 		}
 
 		// Extension: MySQLnd
-		if(extension_loaded("mysqlnd")) {
-		} else {
+		if(!extension_loaded("mysqlnd")) {
 			$errors[] = "The 'mysqlnd' PHP extension is required.  Please enable it.";
 		}
 
 		// Extension: Sessions
-		if(extension_loaded("session")) {
-		} else {
+		if(!extension_loaded("session")) {
 			$errors[] = "The 'Session' PHP extension is required.  Please enable it.";
 		}
 
 		// Extension: cURL
-		if(extension_loaded("curl")) {
-		} else {
+		if(!extension_loaded("curl")) {
 			$errors[] = "The 'cURL' PHP extension is required.  Please enable it.";
 		}
 
 		// Extension: PCRE
-		if(extension_loaded("pcre")) {
-		} else {
+		if(!extension_loaded("pcre")) {
 			$errors[] = "The 'PCRE' PHP extension is required.  Please enable it.";
 		}
 
 		// Extension: GD
-		if(extension_loaded("gd") && function_exists('imagettfbbox')) {
-		} else {
+		if(!extension_loaded("gd") && function_exists('imagettfbbox')) {
 			$errors[] = "The 'GD' PHP extension (with FreeType library support) is required.  Please enable them.";
 		}
 
 		// Extension: MailParse
-		if(extension_loaded("mailparse")) {
-		} else {
+		if(!extension_loaded("mailparse")) {
 			$errors[] = "The 'MailParse' PHP extension is required.  Please enable it.";
 		}
 
 		// Extension: mbstring
-		if(extension_loaded("mbstring")) {
-		} else {
+		if(!extension_loaded("mbstring")) {
 			$errors[] = "The 'mbstring' PHP extension is required.  Please enable it.";
 		}
 
 		// Extension: XML
-		if(extension_loaded("xml")) {
-		} else {
+		if(!extension_loaded("xml")) {
 			$errors[] = "The 'XML' PHP extension is required.  Please enable it.";
 		}
 
 		// Extension: SimpleXML
-		if(extension_loaded("simplexml")) {
-		} else {
+		if(!extension_loaded("simplexml")) {
 			$errors[] = "The 'SimpleXML' PHP extension is required.  Please enable it.";
 		}
 
 		// Extension: DOM
-		if(extension_loaded("dom")) {
-		} else {
+		if(!extension_loaded("dom")) {
 			$errors[] = "The 'DOM' PHP extension is required.  Please enable it.";
 		}
 
 		// Extension: SPL
-		if(extension_loaded("spl")) {
-		} else {
+		if(!extension_loaded("spl")) {
 			$errors[] = "The 'SPL' PHP extension is required.  Please enable it.";
 		}
 
 		// Extension: ctype
-		if(extension_loaded("ctype")) {
-		} else {
+		if(!extension_loaded("ctype")) {
 			$errors[] = "The 'ctype' PHP extension is required.  Please enable it.";
 		}
 
 		// Extension: JSON
-		if(extension_loaded("json")) {
-		} else {
+		if(!extension_loaded("json")) {
 			$errors[] = "The 'JSON' PHP extension is required.  Please enable it.";
 		}
 
 		// Extension: OpenSSL
-		if(extension_loaded("openssl")) {
-		} else {
+		if(!extension_loaded("openssl")) {
 			$errors[] = "The 'openssl' PHP extension is required.  Please enable it.";
 		}
 		
 		// Extension: YAML
-		if(extension_loaded("yaml")) {
-		} else {
+		if(!extension_loaded("yaml")) {
 			$errors[] = "The 'yaml' PHP extension is required.  Please enable it.";
 		}
 

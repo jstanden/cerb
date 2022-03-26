@@ -152,7 +152,7 @@ class Cerb_Packages {
 						if(!is_array($options) || !in_array($value, $options))
 							throw new Exception_DevblocksValidationError(sprintf("'%s' (%s) is required.", $config_prompt['label'], $key));
 						
-						if(@$config_prompt['params']['multiple']) {
+						if($config_prompt['params']['multiple'] ?? null) {
 						} else {
 							$placeholders[$key] = $value;
 						}

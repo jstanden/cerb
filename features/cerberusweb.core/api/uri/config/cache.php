@@ -94,7 +94,7 @@ class PageSection_SetupCache extends Extension_PageSection {
 			if(false == ($engine = Extension_DevblocksCacheEngine::get($engine_extension_id)))
 				throw new Exception_DevblocksAjaxError("Failed to load the cache engine.");
 			
-			$config = @$params[$engine_extension_id] ?: array();
+			$config = ($params[$engine_extension_id] ?? null) ?: [];
 			
 			if(true !== ($test_output = $engine->testConfig($config)))
 				throw new Exception_DevblocksAjaxError($test_output);

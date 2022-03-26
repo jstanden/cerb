@@ -38,16 +38,12 @@ class Controller_Default extends DevblocksControllerExtension {
 			}
 		}
 		
-		@$action = array_shift($path);
+		$action = array_shift($path);
 		
-		if(!is_null($action))
-		switch($action) {
-			default:
-				if($page->isVisible()) {
-					if(false == ($page->invoke($action))) {
-					}
-				}
-				break;
+		if(!is_null($action)) {
+			if($page->isVisible()) {
+				$page->invoke($action);
+			}
 		}
 	}
 	

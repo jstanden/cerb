@@ -36,7 +36,6 @@ $(function() {
 		
 		var $frm = $('#frmCachePeek');
 		var $fieldsets = $frm.find('> fieldset');
-		var $status = $frm.find('div.status');
 		
 		$frm.find('fieldset legend input:radio').on('click', function() {
 			$fieldsets.find('> div').hide();

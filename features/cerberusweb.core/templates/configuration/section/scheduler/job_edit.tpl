@@ -54,7 +54,7 @@
 	$('#frmJob{$extid} BUTTON.submit')
 		.click(function(e) {
 			genericAjaxPost('frmJob{$extid}','',null,function(json) {
-				$o = $.parseJSON(json);
+				let $o = $.parseJSON(json);
 				if(false == $o || false == $o.status) {
 					Devblocks.showError('#frmJob{$extid} div.status',$o.error);
 				} else {

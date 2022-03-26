@@ -11,9 +11,3 @@
 </ul>
 
 </fieldset>
-
-<script type="text/javascript">
-$(function() {
-	var $fieldset = $('#tabConfig{$workspace_tab->id}');
-});
-</script>

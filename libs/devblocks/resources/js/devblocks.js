@@ -62,29 +62,6 @@ function DevblocksClass() {
 		.join(',')
 		;
 	};
-
-	this.resetSelectElements = function(form_id,element_name) {
-		// Make sure the view form exists
-		var viewForm = document.getElementById(form_id);
-		if(null == viewForm) return;
-
-		// Make sure the element is present in the form
-
-		var elements = viewForm.elements[element_name];
-		if(null == elements) return;
-
-		var len = elements.length;
-		var ids = new Array();
-		
-		if(null == len && null != elements.selectedIndex) {
-			elements.selectedIndex = 0;
-
-		} else {
-			for(var x=len-1;x>=0;x--) {
-				elements[x].selectedIndex = 0;
-			}
-		}
-	};
 	
 	this.saveAjaxTabForm = function($frm) {
 		genericAjaxPost($frm, '', null, function(json) {
@@ -1312,8 +1289,12 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 	$popup = $("#popup"+$layer);
 
 	if(0 === $popup.length) {
-		$("body").append("<div id='popup"+$layer+"' class='devblocks-popup' style='display:none;'></div>");
-		$popup = $('#popup'+$layer);
+		$popup = $('<div/>')
+			.attr('id', 'popup' + $layer)
+			.addClass('devblocks-popup')
+			.hide()
+			.appendTo($('body'))
+			;
 	}
 
 	// Persist
@@ -1359,7 +1340,8 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 		.find('.ui-dialog-titlebar')
 	;
 
-	var $button_minmax = $("<button class='ui-dialog-titlebar-minmax'></button>")
+	var $button_minmax = $("<button/>")
+		.addClass('ui-dialog-titlebar-minmax')
 		.button({
 			text: false,
 			icons: { primary: 'ui-icon-caret-1-n' }

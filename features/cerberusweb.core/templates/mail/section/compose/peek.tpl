@@ -666,7 +666,7 @@ $(function() {
 			$('#compose_suggested{$popup_uniqid}').appendTo($(this).closest('td'));
 		});
 		
-		$frm.find('input:text[name=org_name]').bind('autocompletechange',function(event, ui) {
+		$frm.find('input:text[name=org_name]').bind('autocompletechange',function() {
 			genericAjaxGet('', 'c=profiles&a=invoke&module=org&action=getTopContactsByOrgJson&org_name=' + encodeURIComponent($(this).val()), function(json) {
 				var $sug = $('#compose_suggested{$popup_uniqid}');
 				
@@ -677,16 +677,25 @@ $(function() {
 					return;
 				}
 				
-				for(i in json) {
-					var label = '';
+				for(let i in json) {
+					let label = '';
 					if(null != json[i].name && json[i].name.length > 0) {
 						label += json[i].name + " ";
-						label += "&lt;" + json[i].email + '&gt;';
+						label += '<' + json[i].email + '>';
 					} else {
 						label += json[i].email;
 					}
-					
-					$sug.find('ul.bubbles').append($("<li><a href=\"javascript:;\" class=\"suggested\">" + label + "</a></li>"));
+
+					$('<li/>')
+						.appendTo($sug.find('ul.bubbles'))
+						.append(
+							$('<a/>')
+								.attr('href', "javascript:;")
+								.addClass('suggested')
+								.text(label)
+								.appendTo($sug)
+						)
+					;
 				}
 				
 				// Insert suggested on click
@@ -704,7 +713,7 @@ $(function() {
 					
 					if(0===$len || $last===' ')
 						$to.val($val+$sug);
-					else if($last==',')
+					else if($last===',')
 						$to.val($val + ' '+$sug);
 					else $to.val($val + ', '+$sug);
 						$to.focus();

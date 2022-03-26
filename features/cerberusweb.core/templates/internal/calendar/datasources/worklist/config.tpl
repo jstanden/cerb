@@ -1,4 +1,4 @@
-{$uniqid = "{uniqid()}"}
+{$uniqid = uniqid()}
 {$is_blank = empty($params.worklist_model.context)}
 
 <div id="div{$uniqid}" class="datasource-params">
@@ -95,35 +95,36 @@ $div.find('input:text.color-picker').minicolors({
 $div.find('select.context').change(function(e) {
 	var ctx = $(this).val();
 	
-	// Hide options until we know the context
-	var $select = $(this);
-	
-	if(0 == ctx.length)
+	if(0 === ctx.length)
 		return;
 	
 	genericAjaxGet('','c=ui&a=getContextFieldsJson&context=' + ctx, function(json) {
-			if('object' == typeof(json) && json.length > 0) {
-				var $div = $('#div{$uniqid}');
+		if('object' == typeof(json) && json.length > 0) {
+			var $div = $('#div{$uniqid}');
+			
+			var $select_field_start_date = $div.find('select.field_start_date').html('');
+			var $select_field_end_date = $div.find('select.field_end_date').html('');
+			
+			for(let idx in json) {
+				var field = json[idx];
+				var field_type = (field.type==='E') ? 'date' : ((field.type==='N') ? 'number' : '');
 				
-				var $select_field_start_date = $div.find('select.field_start_date').html('');
-				var $select_field_end_date = $div.find('select.field_end_date').html('');
-				
-				for(idx in json) {
-					var field = json[idx];
-					var field_type = (field.type=='E') ? 'date' : ((field.type=='N') ? 'number' : '');
-					
-					var $option = $('<option/>').attr('value', field.key).addClass(field_type).text(field.label);
-	
-					// Field: Start Date
-					if(field_type == 'date') {
-						$select_field_start_date.append($option.clone());
-						$select_field_end_date.append($option.clone());
-					}
-					
-					delete $option;
+				var $option = $('<option/>')
+					.attr('value', field.key)
+					.addClass(field_type)
+					.text(field.label)
+				;
+
+				// Field: Start Date
+				if(field_type === 'date') {
+					$select_field_start_date.append($option.clone());
+					$select_field_end_date.append($option.clone());
 				}
+				
+				delete $option;
 			}
-		});
+		}
+	});
 	
 	genericAjaxGet('','c=ui&a=getContextPlaceholdersJson&context=' + ctx, function(json) {
 		if('object' == typeof(json) && json.length > 0) {
@@ -132,17 +133,23 @@ $div.find('select.context').change(function(e) {
 			
 			$placeholders.html('');
 			
-			var $option = $("<option value=''>- insert at cursor -</option>");
-			$placeholders.append($option);
+			$('<option/>')
+				.val('')
+				.text('- insert at cursor -')
+				.appendTo($placeholders)
+			;
 			
-			for(i in json) {
+			for(let i in json) {
 				var field = json[i];
 				
-				if(field.label.length == 0 || field.key.length == 0)
+				if(field.label.length === 0 || field.key.length === 0)
 					continue;
 				
-				var $option = $("<option value='{literal}{{{/literal}" + field.key + "{literal}}}{/literal}'>" + field.label + "</option>");
-				$placeholders.append($option);
+				$('<option/>')
+					.val("{literal}{{{/literal}" + field.key + "{literal}}}{/literal}")
+					.text(field.label)
+					.appendTo($placeholders)
+				;
 			}
 			
 			$placeholders.val('');
@@ -162,7 +169,7 @@ $div.find('input.placeholders-input')
 	})
 	;
 
-$div.find('select.placeholders').change(function(e) {
+$div.find('select.placeholders').change(function() {
 	var $select = $(this);
 	var $input = $select.parent().prev('input:text');
 	var txt = $select.val();
@@ -170,16 +177,16 @@ $div.find('select.placeholders').change(function(e) {
 	$select.val('');
 });
 
-$('#popup{$uniqid}').click(function(e) {
+$('#popup{$uniqid}').click(function() {
 	var $select = $(this).siblings('select.context');
 	var context = $select.val();
 	
-	if(context.length == 0) {
+	if(context.length === 0) {
 		$select.effect('highlight','slow');
 		return;
 	}
 	
-	$chooser=genericAjaxPopup("chooser{uniqid()}",'c=internal&a=invoke&module=records&action=chooserOpenParams&context='+context+'&view_id={"calendar{$calendar->id}_worklist{$series_idx}"}',null,true,'750');
+	let $chooser = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=invoke&module=records&action=chooserOpenParams&context='+context+'&view_id={"calendar{$calendar->id}_worklist{$series_idx}"}',null,true,'750');
 	$chooser.bind('chooser_save',function(event) {
 		if(null != event.worklist_model) {
 			$('#popup{$uniqid}').parent().find('input:hidden.model').val(event.worklist_model);

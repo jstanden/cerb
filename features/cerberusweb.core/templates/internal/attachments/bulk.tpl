@@ -59,7 +59,7 @@
 $(function() {
 	var $popup = genericAjaxPopupFind('#formBatchUpdate');
 	
-	$popup.one('popup_open',function(event,ui) {
+	$popup.one('popup_open',function() {
 		$popup.dialog('option','title',"{'common.bulk_update'|devblocks_translate|capitalize}: {'common.attachment'|devblocks_translate|capitalize}");
 		$popup.css('overflow', 'inherit');
 		

@@ -1,4 +1,4 @@
-{$uniqid = "{uniqid()}"}
+{$uniqid = uniqid()}
 {$is_blank = empty($params.worklist_model.context)}
 
 <div id="div{$uniqid}" class="datasource-params">

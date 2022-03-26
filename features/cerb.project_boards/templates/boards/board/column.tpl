@@ -72,7 +72,7 @@ $(function() {
 		
 		var $last_card = $column.find('.cerb-board-card').last();
 		var last_card_id = $last_card.find('[name="cards[]"]').val();
-		var limit = {$column->getLimit()};
+		var limit = {$column->getLimit()|round};
 
 		var formData = new FormData();
 		formData.set('c', 'profiles');

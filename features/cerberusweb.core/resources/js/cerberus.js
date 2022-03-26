@@ -5532,7 +5532,7 @@ var ajax = new cAjaxCalls();
 			// Add remove icons with events
 			$ul.find('li').each(function() {
 				var $li = $(this);
-				var $close = $('<span class="glyphicons glyphicons-circle-remove"></span>').appendTo($li);
+				$('<span class="glyphicons glyphicons-circle-remove"></span>').appendTo($li);
 			});
 			
 			// Abstractly create new bubbles
@@ -5559,11 +5559,11 @@ var ajax = new cAjaxCalls();
 							;
 						
 						if(icon_url && icon_url.length > 0) {
-							var $img = $('<img class="cerb-avatar">').attr('src',icon_url).prependTo($li);
+							$('<img class="cerb-avatar">').attr('src',icon_url).prependTo($li);
 						}
 						
 						$('<input type="hidden">').attr('name', field_name).attr('title', $label).attr('value', $value).appendTo($li);
-						var $a = $('<span class="glyphicons glyphicons-circle-remove"></span>').appendTo($li);
+						$('<span class="glyphicons glyphicons-circle-remove"></span>').appendTo($li);
 						$ul.append($li);
 					}
 				}

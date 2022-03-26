@@ -406,7 +406,7 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 			$list[] = array(
 				'id' => $result->id,
 				'email' => $result->email,
-				'name' => DevblocksPlatform::strEscapeHtml($result->getName()),
+				'name' => $result->getName(),
 			);
 		}
 		

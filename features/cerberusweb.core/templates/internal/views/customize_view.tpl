@@ -103,11 +103,12 @@ $(function() {
 		swatches: ['#6A87DB','#CF2C1D','#FEAF03','#57970A','#9669DB','#ADADAD','#34434E']
 	});
 
+	{if $is_custom}
 	$container.find('textarea[name=params_required_query]')
 		.cerbCodeEditor()
-		.cerbCodeEditorAutocompleteSearchQueries({ context: "{$workspace_list->context}" })
-		;
+		.cerbCodeEditorAutocompleteSearchQueries({ context: "{$workspace_list->context|default:''}" })
 	;
+	{/if}
 	
 	$container.find('button.save').on('click', function(e) {
 		var formData = new FormData($container[0]);
