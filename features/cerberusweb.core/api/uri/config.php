@@ -70,6 +70,8 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	}
 	
 	private function _pageAction_invoke() {
+		DevblocksPlatform::getHttpRequest()->is_ajax = true;
+		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(!$active_worker || !$active_worker->is_superuser)

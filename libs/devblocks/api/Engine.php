@@ -624,6 +624,7 @@ abstract class DevblocksEngine {
 		$method = DevblocksPlatform::strUpper(@$_SERVER['REQUEST_METHOD']);
 		
 		$request = new DevblocksHttpRequest($parts,$queryArgs,$method);
+		$request->is_ajax = false;
 		$request->csrf_token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? $_POST['_csrf_token'] ?? null;
 		
 		DevblocksPlatform::setHttpRequest($request);
@@ -635,9 +636,8 @@ abstract class DevblocksEngine {
 	 * Processes the HTTP request.
 	 *
 	 * @param DevblocksHttpRequest $request
-	 * @param boolean $is_ajax
 	 */
-	static function processRequest(DevblocksHttpRequest $request, $is_ajax=false) {
+	static function processRequest(DevblocksHttpRequest $request) {
 		$url_writer = DevblocksPlatform::services()->url();
 		
 		$path = $request->path;
@@ -688,7 +688,7 @@ abstract class DevblocksEngine {
 				$base_url = DevblocksPlatform::strLower(sprintf("%s://%s%s/", $base_url_parts['scheme'], $base_url_parts['host'], $base_url_port));
 				
 				// Always compare the origin on non-GET, Ajax, or when adding controller/action to the URL
-				if('GET' != $http_method || $is_ajax || array_key_exists('c', $_REQUEST) || array_key_exists('a', $_REQUEST)) {
+				if('GET' != $http_method || $request->is_ajax || array_key_exists('c', $_REQUEST) || array_key_exists('a', $_REQUEST)) {
 					if ($origin) {
 						// If origin doesn't match, freak out
 						if ($base_url != (rtrim($origin, '/') . '/')) {
@@ -769,7 +769,7 @@ abstract class DevblocksEngine {
 					}
 					
 					// [JAS]: An Ajax request doesn't need the full Http cycle
-					if(!$is_ajax) {
+					if(!$request->is_ajax) {
 						$controller->writeResponse($response);
 					}
 

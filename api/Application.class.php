@@ -233,18 +233,18 @@ class CerberusApplication extends DevblocksApplication {
 		return NULL;
 	}
 
-	static function processRequest(DevblocksHttpRequest $request, $is_ajax=false) {
+	static function processRequest(DevblocksHttpRequest $request) {
 		/**
 		 * Override the 'update' URI since we can't count on the database
 		 * being populated from XML beforehand when /update loads it.
 		 */
-		if(!$is_ajax && isset($request->path[0]) && 0 == strcasecmp($request->path[0],'update')) {
+		if(!$request->is_ajax && isset($request->path[0]) && 0 == strcasecmp($request->path[0],'update')) {
 			if(null != ($update_controller = new ChUpdateController(null)))
 				$update_controller->handleRequest($request);
 
 		} else {
 			// Hand it off to the platform
-			DevblocksPlatform::processRequest($request, $is_ajax);
+			DevblocksPlatform::processRequest($request);
 		}
 	}
 
@@ -2907,10 +2907,9 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 
 		if(null != (@$session = $db->GetRowReader(sprintf("SELECT session_id, refreshed_at, session_data FROM devblocks_session WHERE session_token = %s", $db->qstr($id))))) {
 			$maxlifetime = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::SESSION_LIFESPAN, CerberusSettingsDefaults::SESSION_LIFESPAN);
-			//$is_ajax = (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest');
 
 			// Refresh the session cookie (move expiration forward) after 2.5 minutes have elapsed
-			if(array_key_exists('refreshed_at', $session) && (time() - $session['refreshed_at'] >= 150)) { // !$is_ajax
+			if(array_key_exists('refreshed_at', $session) && (time() - $session['refreshed_at'] >= 150)) {
 				// If the cookie is going to expire at a future date, extend it
 				if($maxlifetime) {
 					$url_writer = DevblocksPlatform::services()->url();

@@ -4696,6 +4696,7 @@ interface DevblocksHttpRequestHandler {
 
 class DevblocksHttpRequest extends DevblocksHttpIO {
 	public $method = null;
+	public bool $is_ajax = false;
 	public $csrf_token = null;
 	
 	/**

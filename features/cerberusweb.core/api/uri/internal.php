@@ -60,6 +60,8 @@ class ChInternalController extends DevblocksControllerExtension {
 	}
 
 	function _internalAction_invoke() {
+		DevblocksPlatform::getHttpRequest()->is_ajax = true;
+		
 		$page_uri = DevblocksPlatform::importGPC($_GET['module'] ?? $_REQUEST['module'] ?? null,'string','');
 		$action = DevblocksPlatform::importGPC($_GET['action'] ?? $_REQUEST['action'] ?? null,'string','');
 
