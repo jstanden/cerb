@@ -878,7 +878,8 @@ $.fn.cerbDateInputHelper = function(options) {
 		
 		$this.datepicker({
 			showOn: 'button',
-			buttonText: '<span class="glyphicons glyphicons-calendar"></span>',
+			buttonText: '📅',
+			icon: 'calendar',
 			dateFormat: 'D, d M yy',
 			defaultDate: 'D, d M yy',
 			onSelect: function(dateText, inst) {
