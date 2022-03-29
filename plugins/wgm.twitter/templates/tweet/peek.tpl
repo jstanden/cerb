@@ -36,7 +36,7 @@
 		<tr>
 			<td width="1%" nowrap="nowrap" valign="top"><label><b>Reply:</b> <input type="checkbox" name="do_reply" value="1" checked="checked"></label></td>
 			<td width="99%" valign="top">
-				<textarea name="reply" rows="5" cols="80" style="width:98%;height:50px;"></textarea>
+				<textarea name="reply" rows="5" cols="80" style="width:98%;height:5.5em;"></textarea>
 				<div class="tweet-counter"></div>
 			</td>
 		</tr>
@@ -78,7 +78,7 @@ $(function() {
 		$popup.dialog('option','title',"{'wgm.twitter.common.message'|devblocks_translate|capitalize|escape:'javascript' nofilter}{if !empty($account)} @{$account->screen_name|escape:'javascript' nofilter}{/if}");
 		
 		{if $is_writeable && $active_worker->hasPriv("contexts.{$peek_context}.update")}
-		var $txt = $popup.find('textarea:first').autosize().insertAtCursor('@{$message->user_screen_name|escape:'javascript'} ');
+		var $txt = $popup.find('textarea:first').insertAtCursor('@{$message->user_screen_name|escape:'javascript'} ');
 		var $counter = $popup.find('div.tweet-counter').css('margin-top','5px');
 		
 		$txt.on('keyup', function() {

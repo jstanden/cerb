@@ -333,10 +333,6 @@ $(function() {
 		
 		$('#{$form_id}Tabs').tabs();
 		
-		// Aliases
-		
-		var $aliases = $(this).find('textarea[name=aliases]').autosize();
-		
 		// Buttons
 		
 		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);

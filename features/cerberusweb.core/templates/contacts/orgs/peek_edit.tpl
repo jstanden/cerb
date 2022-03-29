@@ -124,8 +124,6 @@ $(function() {
 	Devblocks.formDisableSubmit($frm);
 
 	$popup.one('popup_open',function(event,ui) {
-		$(this).find('textarea[name=aliases]').autosize();
-
 		// Buttons
 		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);

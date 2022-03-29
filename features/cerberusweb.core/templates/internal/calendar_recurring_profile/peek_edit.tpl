@@ -38,7 +38,7 @@
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top">On: </td>
 		<td width="100%">
-			<textarea name="patterns" style="width:100%;" placeholder="Enter any number of patterns to match">{$model->patterns}</textarea>
+			<textarea name="patterns" style="width:100%;height:5.5em;" placeholder="Enter any number of patterns to match">{$model->patterns}</textarea>
 			<select class="placeholders" onchange="var $select=$(this); $select.siblings('textarea').insertAtCursor($select.val() + '\n').trigger('change'); $select.val('');">
 				<option value="">-- {'common.examples'|devblocks_translate|lower} --</option>
 				<optgroup label="Days of the week">
@@ -162,9 +162,6 @@ $(function() {
 				$(this).siblings('i').fadeOut();
 			})
 			;
-		
-		$popup.find('textarea[name=patterns]')
-			.autosize();
 		
 		// Buttons
 		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);

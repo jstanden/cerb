@@ -43,7 +43,7 @@
 				<option value="custom">custom value:</option>
 			</select>
 			<div class="custom" style="display:none;">
-				<textarea cols="45" rows="2" style="width:100%;" name="column_custom[]"></textarea>
+				<textarea cols="45" rows="2" style="width:100%;height:3.5em;" name="column_custom[]"></textarea>
 			</div>
 			<label for="columns[]" style="display:none;"></label>
 		</td>
@@ -129,9 +129,7 @@ $(function() {
 		genericAjaxPopupDestroy('{$layer}');
  	});
  	
- 	$frm.find('textarea').autosize();
- 	
-	$popup.one('popup_open',function(event,ui) {
+	$popup.one('popup_open',function(event) {
 		event.stopPropagation();
 		$(this).dialog('option','title',"{'common.import'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 	});
