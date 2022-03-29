@@ -66,29 +66,38 @@ $(function() {
 	var $popup = genericAjaxPopupFind('#frmImport');
 	var $frm = $popup.find('FORM#frmImport');
 	
- 	$frm.find('button.submit').click(function(event) {
- 		var $frm = $(this).closest('form');
- 		if(!$frm.validate().form())
- 			return;
-
- 		$('#divImportPreview').text('Importing... please wait');
-
+ 	$frm.find('button.submit').click(function() {
+		Devblocks.clearAlerts();
+		
+ 		$('#divImportPreview').show().text('Importing... please wait');
+		
  		var $div = $(this).closest('div');
  		$div.fadeOut();
  		
  		// [TODO] This should allow error reporting via JSON
- 		genericAjaxPost('frmImport', '', null, function(o) {
+ 		genericAjaxPost('frmImport', '', null, function(json) {
+			$('#divImportPreview').hide().text('');
+			$div.fadeIn();
+			
+			 if('object' != typeof json)
+				 return;
+			 
+			 if(json.error) {
+				 Devblocks.createAlertError(json.error);
+				 return;
+			 }
+			 
  			genericAjaxGet('view{$view_id}','c=internal&a=invoke&module=worklists&action=refresh&id={$view_id}');
  			genericAjaxPopupDestroy('{$layer}');
  		});
  	});
  	
  	$frm.find('button.preview').click(function() {
+		Devblocks.clearAlerts();
+		
  		var $frm = $(this).closest('form');
- 		if(!$frm.validate().form())
-			return;
  		
- 		$('#divImportPreview').text('Loading...');
+ 		$('#divImportPreview').show().text('Loading...');
 
  		var formData = new FormData($frm[0]);
  		formData.set('c', 'internal');
@@ -98,17 +107,27 @@ $(function() {
  		formData.set('context', '{$context}');
  		formData.set('is_preview', '1');
 
- 		genericAjaxPost(formData, '', '', function(o) {
- 			$('#divImportPreview').html(o).fadeIn();
+ 		genericAjaxPost(formData, '', '', function(json) {
+			$('#divImportPreview').hide().text('');
+			
+			if('object' != typeof json)
+				return;
+			
+			if(json.hasOwnProperty('error')) {
+				Devblocks.createAlertError(json.error);
+				return;
+			}
+			 
+			if(json.hasOwnProperty('preview_output')) {
+				$('#divImportPreview').html(json.preview_output).fadeIn();
+			}
  		});
  	});
  	
- 	$frm.find('button.cancel').click(function() {
+ 	$frm.find('button.cancel').click(function(event) {
 		event.stopPropagation();
 		genericAjaxPopupDestroy('{$layer}');
  	});
- 	
- 	$frm.validate();
  	
  	$frm.find('textarea').autosize();
  	
