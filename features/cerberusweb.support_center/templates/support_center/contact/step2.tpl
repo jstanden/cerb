@@ -48,26 +48,21 @@
 			<legend>{'portal.public.open_ticket.additional_info'|devblocks_translate}</legend>
 			
 			{foreach from=$situation_params.followups key=question item=field_id name=situations}
-				{math assign=idx equation="x-1" x=$smarty.foreach.situations.iteration}
-	
-				{if '*'==substr($question,0,1)}
-					{assign var=required value=true}
-				{else}
-					{assign var=required value=false}
-				{/if}
-				
+				{$idx = $smarty.foreach.situations.iteration-1}
+				{$required = '*'==substr($question,0,1)}
+				{$field = $ticket_fields.$field_id}
+
 				<h2>{$question}</h2>
 				<input type="hidden" name="followup_q[]" value="{$question}">
 				{if !empty($field_id)}
-					{assign var=field value=$ticket_fields.$field_id}
 					<input type="hidden" name="field_ids[]" value="{$field_id}">
 					
 					{if $field->type==Model_CustomField::TYPE_SINGLE_LINE}
-						<input type="text" name="followup_a_{$idx}" value="{$last_followup_a.$idx}" autocomplete="off" style="width:100%;" class="{if $required}required{/if}">
+						<input type="text" name="followup_a_{$idx}" value="{$last_followup_a[$idx]|default:''}" autocomplete="off" style="width:100%;" class="{if $required}required{/if}">
 					{elseif $field->type==Model_CustomField::TYPE_URL}
-						<input type="text" name="followup_a_{$idx}" value="{$last_followup_a.$idx}" autocomplete="off" style="width:100%;" class="url {if $required}required{/if}">
+						<input type="text" name="followup_a_{$idx}" value="{$last_followup_a[$idx]|default:''}" autocomplete="off" style="width:100%;" class="url {if $required}required{/if}">
 					{elseif $field->type==Model_CustomField::TYPE_NUMBER}
-						<input type="text" name="followup_a_{$idx}" size="12" maxlength="20" value="{$last_followup_a.$idx}" autocomplete="off" class="number {if $required}required{/if}">
+						<input type="text" name="followup_a_{$idx}" size="12" maxlength="20" value="{$last_followup_a[$idx]|default:''}" autocomplete="off" class="number {if $required}required{/if}">
 					{elseif $field->type==Model_CustomField::TYPE_MULTI_LINE}
 						<textarea name="followup_a_{$idx}" rows="5" cols="60" style="width:100%;" class="{if $required}required{/if}">{$last_followup_a.$idx}</textarea>
 					{elseif $field->type==Model_CustomField::TYPE_DROPDOWN}
@@ -85,7 +80,7 @@
 							{/foreach}
 						</select>
 					{elseif $field->type==Model_CustomField::TYPE_DATE}
-						<input type="text" name="followup_a_{$idx}" value="{$last_followup_a.$idx}" autocomplete="off" class="date {if $required}required{/if}">
+						<input type="text" name="followup_a_{$idx}" value="{$last_followup_a[$idx]|default:''}" autocomplete="off" class="date {if $required}required{/if}">
 					{elseif $field->type==Model_CustomField::TYPE_MULTI_CHECKBOX}
 						{foreach from=$field->params.options item=opt}
 						<label><input type="checkbox" name="followup_a_{$idx}[]" value="{$opt}"> {$opt}</label><br>
@@ -99,21 +94,21 @@
 					{elseif $field->type==Model_CustomField::TYPE_LINK}
 						{* N/A *}
 					{elseif $field->type==Model_CustomField::TYPE_DECIMAL}
-						<input type="text" name="followup_a_{$idx}" size="24" maxlength="64" value="" class="decimal">
+						<input type="text" name="followup_a_{$idx}" size="24" maxlength="64" value="{$last_followup_a[$idx]|default:''}" class="decimal">
 					{elseif $field->type==Model_CustomField::TYPE_CURRENCY}
 						{$currency = $currencies[$field->params.currency_id]}
 						{if $currency}
 							{$currency->symbol}
-							<input type="text" name="followup_a_{$idx}" size="24" maxlength="64" value="" class="currency">
+							<input type="text" name="followup_a_{$idx}" size="24" maxlength="64" value="{$last_followup_a[$idx]|default:''}" class="currency">
 							{$currency->code}
 						{else}
-							<input type="text" name="followup_a_{$idx}" size="24" maxlength="64" value="" class="currency">
+							<input type="text" name="followup_a_{$idx}" size="24" maxlength="64" value="{$last_followup_a[$idx]|default:''}" class="currency">
 						{/if}
 					{/if}
 					
 				{else}
 					<input type="hidden" name="field_ids[]" value="0">
-					<input type="text" name="followup_a_{$idx}" value="{$last_followup_a.$idx}" autocomplete="off" style="width:100%;" class="{if $required}required{/if}">
+					<input type="text" name="followup_a_{$idx}" value="{$last_followup_a[$idx]|default:''}" autocomplete="off" style="width:100%;" class="{if $required}required{/if}">
 				{/if}
 				<br>
 				<br>

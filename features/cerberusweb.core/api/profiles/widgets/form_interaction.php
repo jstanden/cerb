@@ -123,6 +123,7 @@ class ProfileWidget_FormInteraction extends Extension_ProfileWidget {
 				return [];
 			
 			// Transpile YAML->KATA
+			if(is_array($interactions) && array_key_exists('behaviors', $interactions))
 			foreach($interactions['behaviors'] as $interaction) {
 				if(!is_array($interaction))
 					continue;

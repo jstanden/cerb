@@ -233,9 +233,9 @@ $(function() {
                 items: '.cerb-card-widget',
                 helper: function(event, element) {
                     return element.clone()
-                        .css('outline','2px dashed gray')
+                        .css('outline','2px dashed var(--cerb-color-background-contrast-150)')
                         .css('outline-offset','-2px')
-                        .css('background-color', 'white')
+                        .css('background-color', 'var(--cerb-background-color)')
                         ;
                 },
                 placeholder: 'cerb-widget-drag-placeholder',
@@ -249,7 +249,7 @@ $(function() {
                     $popup.find('.cerb-card-layout-zone--widgets')
                         .css('outline', '2px dashed orange')
                         .css('outline-offset', '-3px')
-                        .css('background-color', 'rgb(250,250,250)')
+                        .css('background-color', 'var(--cerb-color-background-contrast-250)')
                         .css('min-height', '100px')
                     ;
                 },

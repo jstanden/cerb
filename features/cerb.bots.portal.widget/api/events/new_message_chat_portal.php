@@ -830,8 +830,8 @@ class Event_NewMessageChatPortal extends Extension_DevblocksEvent {
 				
 				$actions =& $dict->_actions;
 				
-				@$behavior_id = intval($params['behavior_id']);
-				@$behavior_return = intval($params['return']) ? true : false;
+				$behavior_id = intval($params['behavior_id'] ?? null);
+				$behavior_return = intval($params['return'] ?? null) ? true : false;
 				$var_key = ($params['var'] ?? null) ?: '_behavior';
 				
 				if(false == ($behavior = DAO_TriggerEvent::get($behavior_id)))

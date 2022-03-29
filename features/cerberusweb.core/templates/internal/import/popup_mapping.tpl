@@ -1,4 +1,4 @@
-{assign var=type value=$visit->get('import.last.type')}
+{$type = $visit->get('import.last.type')}
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmImport">
 <input type="hidden" name="c" value="internal">
 <input type="hidden" name="a" value="invoke">

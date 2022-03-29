@@ -524,8 +524,11 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::services()->database();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		$ext_src_context = Extension_DevblocksContext::get($src_context);
-		$ext_dst_context = Extension_DevblocksContext::get($dst_context);
+		if(false == ($ext_src_context = Extension_DevblocksContext::get($src_context)))
+			return false;
+		
+		if(false == ($ext_dst_context = Extension_DevblocksContext::get($dst_context)))
+			return false;
 		
 		if(false == $src_context_meta)
 			@$src_context_meta = $ext_src_context->getMeta($src_context_id);

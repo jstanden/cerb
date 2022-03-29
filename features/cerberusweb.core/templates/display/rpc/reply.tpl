@@ -313,8 +313,11 @@ $(function() {
 	var $reply = $frm.closest('div.reply_frame');
 	
 	function enableAutoSaveDraft() {
-		if(null == draftAutoSaveInterval)
-			draftAutoSaveInterval = setInterval("$('#reply{$message->id}_form .cerb-reply-editor-toolbar-button--save').click();", 30000);
+		if(null == draftAutoSaveInterval) {
+			draftAutoSaveInterval = setInterval(function() {
+				$('#reply{$message->id|round}_form .cerb-reply-editor-toolbar-button--save').click();	
+			}, 30000);
+		}
 	}
 	
 	function disableAutoSaveDraft() {

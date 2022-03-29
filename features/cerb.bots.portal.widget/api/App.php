@@ -209,19 +209,19 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 							'actions' => &$actions,
 								
 							'bot_name' => $bot_name,
-							'bot_image' => @$interaction->session_data['bot_image'],
+							'bot_image' => $interaction->session_data['bot_image'] ?? null,
 							'behavior_id' => $behavior_id,
-							'behavior_has_parent' => @$interaction->session_data['behavior_has_parent'],
-							'cookie' => @$interaction->session_data['cookie'],
-							'portal_code' => @$interaction->session_data['portal_code'],
-							'interaction' => @$interaction->session_data['interaction'],
-							'interaction_params' => @$interaction->session_data['interaction_params'],
-							'client_browser' => @$interaction->session_data['client_browser'],
-							'client_browser_version' => @$interaction->session_data['client_browser_version'],
-							'client_ip' => @$interaction->session_data['client_ip'],
-							'client_platform' => @$interaction->session_data['client_platform'],
-							'client_time' => @$interaction->session_data['client_time'],
-							'client_url' => @$interaction->session_data['client_url'],
+							'behavior_has_parent' => $interaction->session_data['behavior_has_parent'] ?? null,
+							'cookie' => $interaction->session_data['cookie'] ?? null,
+							'portal_code' => $interaction->session_data['portal_code'] ?? null,
+							'interaction' => $interaction->session_data['interaction'] ?? null,
+							'interaction_params' => $interaction->session_data['interaction_params'] ?? null,
+							'client_browser' => $interaction->session_data['client_browser'] ?? null,
+							'client_browser_version' => $interaction->session_data['client_browser_version'] ?? null,
+							'client_ip' => $interaction->session_data['client_ip'] ?? null,
+							'client_platform' => $interaction->session_data['client_platform'] ?? null,
+							'client_time' => $interaction->session_data['client_time'] ?? null,
+							'client_url' => $interaction->session_data['client_url'] ?? null,
 						];
 						
 						$event_model = new Model_DevblocksEvent(
@@ -247,7 +247,7 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 						
 						$dict = new DevblocksDictionaryDelegate($values);
 							
-						$resume_path = @$interaction->session_data['behaviors'][$behavior->id]['path'];
+						$resume_path = $interaction->session_data['behaviors'][$behavior->id]['path'] ?? null;
 						
 						if($resume_path) {
 							$behavior->prepareResumeDecisionTree($message, $interaction, $actions, $dict, $resume_path);

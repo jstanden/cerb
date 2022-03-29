@@ -1411,7 +1411,7 @@ class _DevblocksBayesClassifierService {
 				$class_data[$row['class_id']]['entity_counts'][$row['token']] = intval($row['training_count']);
 			*/
 			
-			$corpus_freqs[$row['token']] = intval(@$corpus_freqs[$row['token']]) + intval($row['training_count']);
+			$corpus_freqs[$row['token']] = intval($corpus_freqs[$row['token']] ?? null) + intval($row['training_count']);
 		}
 		
 		// Test each class
@@ -1460,7 +1460,7 @@ class _DevblocksBayesClassifierService {
 			// Laplace smoothing
 			// [TODO] How many examples had the term vs how many examples exist for this intent
 			foreach($data['token_freqs'] as $token => $count) {
-				$probs[$token] = ($count + 0.4) / (@$corpus_freqs[$token] + $classifiers[$classifier_id]['dictionary_size']);
+				$probs[$token] = ($count + 0.4) / (($corpus_freqs[$token] ?? 0) + $classifiers[$classifier_id]['dictionary_size']);
 			}
 			
 			$class_data[$class_id]['p'] = array_product($probs) * $class_prob;

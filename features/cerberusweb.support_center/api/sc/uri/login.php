@@ -56,7 +56,7 @@ class UmScLoginController extends Extension_UmScController {
 		
 		$a = DevblocksPlatform::importGPC($_REQUEST['a'] ?? null, 'string','');
 
-		@$action = $a ?: $stack[0] ?: '';
+		$action = $a ?: ($stack[0] ?? null) ?: '';
 		
 		$is_handled = false;
 		

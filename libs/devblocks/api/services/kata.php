@@ -530,7 +530,7 @@ class _DevblocksKataService {
 					if(is_string($v))
 						$v = trim($v);
 				} else {
-					$error = sprintf("Unknown attribute: @%s", $annotation);
+					$error = sprintf("Unknown annotation: @%s", $annotation);
 					return false;
 				}
 			}

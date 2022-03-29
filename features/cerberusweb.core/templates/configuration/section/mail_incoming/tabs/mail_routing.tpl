@@ -36,12 +36,12 @@
 						<input type="hidden" name="sticky_ids[]" value="{$rule_id}">
 						<input type="text" name="sticky_order[]" value="{counter name=order}" size="2" maxlength="2">
 					{else}
-						<i><span style="color:rgb(180,180,180);font-size:80%;">(auto)</span></i>
+						<i><span style="color:var(--cerb-color-background-contrast-180);font-size:80%;">(auto)</span></i>
 					{/if}
 				</td>
-				<td style="{if $rule->is_sticky}background-color:rgb(255,255,221);border:2px solid rgb(255,215,0);{else}{/if}padding:5px;">
-					<a href="javascript:;" onclick="genericAjaxPopup('peek','c=config&a=invoke&module=mail_incoming&action=showMailRoutingRulePanel&id={$rule_id}',null,false,'50%');" style="color:rgb(0,120,0);font-weight:bold;">{$rule->name}</a>
-					{if $rule->is_stackable}<span style="font-size:90%;padding-left:5px;color:rgb(0,120,0);">(Stackable)</span>{/if}
+				<td style="{if $rule->is_sticky}border:1px solid rgb(255,215,0);{else}{/if}padding:5px;">
+					<a href="javascript:;" onclick="genericAjaxPopup('peek','c=config&a=invoke&module=mail_incoming&action=showMailRoutingRulePanel&id={$rule_id}',null,false,'50%');"><b>{$rule->name}</b></a>
+					{if $rule->is_stackable}<span style="font-size:90%;padding-left:5px;">(Stackable)</span>{/if}
 					<br>
 					
 					{foreach from=$rule->criteria item=crit key=crit_key}

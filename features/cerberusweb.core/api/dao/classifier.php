@@ -263,7 +263,7 @@ class DAO_Classifier extends Cerb_ORMHelper {
 			$object->updated_at = $row['updated_at'];
 			$object->dictionary_size = $row['dictionary_size'];
 			
-			if(false != ($params_json = json_decode($row['params_json'], true)))
+			if(false != ($params_json = json_decode($row['params_json'] ?? '', true)))
 				$object->params = $params_json;
 			
 			$objects[$object->id] = $object;

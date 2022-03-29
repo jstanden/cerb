@@ -1129,10 +1129,11 @@ class Context_AutomationEvent extends Extension_DevblocksContext implements IDev
 			$types = Model_CustomField::getTypes();
 			$tpl->assign('types', $types);
 			
+			if(false == ($trigger_ext = $model->getExtension())) 
+				DevblocksPlatform::dieWithHttpError(null, 404);
 			
-			if(false != ($trigger_ext = $model->getExtension())) { /* @var $trigger_ext Extension_AutomationTrigger */
-				$tpl->assign('trigger_ext', $trigger_ext);
-			}
+			/* @var $trigger_ext Extension_AutomationTrigger */
+			$tpl->assign('trigger_ext', $trigger_ext);
 			
 			// Editor toolbar
 			

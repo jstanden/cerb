@@ -287,7 +287,6 @@ class UmScApp extends Extension_CommunityPortal {
 				imagejpeg($im,null,85);
 				imagedestroy($im);
 				exit;
-				break;
 			
 			case 'captcha.check':
 				$entered = DevblocksPlatform::importGPC($_REQUEST['captcha'],'string','');
@@ -300,8 +299,6 @@ class UmScApp extends Extension_CommunityPortal {
 				
 				echo 'false';
 				exit;
-				
-				break;
 			
 			default:
 				// Build the menu
@@ -336,7 +333,11 @@ class UmScApp extends Extension_CommunityPortal {
 				$tpl->assign('module', $controller);
 				$tpl->assign('module_response', new DevblocksHttpResponse($stack));
 				
-				$tpl->display('devblocks:cerberusweb.support_center:portal_' . ChPortalHelper::getCode() . ':support_center/index.tpl');
+				try {
+					$tpl->display('devblocks:cerberusweb.support_center:portal_' . ChPortalHelper::getCode() . ':support_center/index.tpl');
+				} catch (Exception $e) {
+					DevblocksPlatform::logError($e->getMessage());
+				}
 				break;
 		}
 	}

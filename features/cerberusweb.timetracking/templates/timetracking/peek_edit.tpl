@@ -68,7 +68,7 @@
 
 {include file="devblocks:cerberusweb.core::internal/cards/editors/comment.tpl"}
 
-{if $model->context && $model->context_id}
+{if is_a($model,'Model_TimeTrackingEntry') && isset($model->context) && isset($model->context_id)}
 <input type="hidden" name="context" value="{$model->context}">
 <input type="hidden" name="context_id" value="{$model->context_id}">
 {/if}

@@ -622,7 +622,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 				$format_timestamps = DevblocksPlatform::importGPC($_POST['format_timestamps'] ?? null, 'integer', 0);
 				
 				if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
-					return;
+					return false;
 				
 				if(null == ($context_ext = Extension_DevblocksContext::getByViewClass(get_class($view), true)))
 					return false;
@@ -661,11 +661,16 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 			
 		} catch (Exception_DevblocksAjaxError $e) {
 			echo json_encode(false);
-			return;
+			return false;
 		}
 		
 	}
 	
+	/**
+	 * @param string $cursor_key
+	 * @return array|false
+	 * @throws Exception_DevblocksAjaxError
+	 */
 	private function _viewIncrementalExport($cursor_key) {
 		if(!isset($_SESSION['view_export_cursors'][$cursor_key]))
 			throw new Exception_DevblocksAjaxError("Cursor not found.");

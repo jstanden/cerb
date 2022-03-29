@@ -257,8 +257,11 @@ $(function() {
 	var $popup = genericAjaxPopupFind($frm);
 
 	function enableAutoSaveDraft() {
-		if(null == draftComposeAutoSaveInterval)
-			draftComposeAutoSaveInterval = setInterval("$('#frmComposePeek{$popup_uniqid} .cerb-reply-editor-toolbar-button--save').click();", 30000);
+		if(null == draftComposeAutoSaveInterval) {
+			draftComposeAutoSaveInterval = setInterval(function () {
+				$('#frmComposePeek{$popup_uniqid} .cerb-reply-editor-toolbar-button--save').click();
+			}, 30000);
+		}
 	}
 
 	function disableAutoSaveDraft() {

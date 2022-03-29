@@ -110,6 +110,7 @@ class CardWidget_FormInteraction extends Extension_CardWidget {
 				return [];
 			
 			// Transpile YAML->KATA
+			if(is_array($interactions) && array_key_exists('behaviors', $interactions))
 			foreach($interactions['behaviors'] as $interaction) {
 				if(!is_array($interaction))
 					continue;

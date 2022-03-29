@@ -705,39 +705,28 @@ class DevblocksPlatform extends DevblocksEngine {
 				default:
 				case 'b':
 					return $value;
-					break;
 				case 'k':
 				case 'kb':
 					return $value * 1000;
-					break;
 				case 'kib':
 					return $value * 1024;
-					break;
 				case 'm':
 				case 'mb':
 					return $value * pow(1000,2);
-					break;
 				case 'mib':
 					return $value * pow(1024,2);
-					break;
 				case 'g':
 				case 'gb':
 					return $value * pow(1000,3);
-					break;
 				case 'gib':
 					return $value * pow(1024,3);
-					break;
 				case 't':
 				case 'tb':
 					return $value * pow(1000,4);
-					break;
 				case 'tib':
 					return $value * pow(1024,4);
-					break;
 			}
 		}
-		
-		return FALSE;
 	}
 	
 	/**
@@ -749,6 +738,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @test DevblocksPlatformTest
 	 */
 	static function parseCrlfString($string, $keep_blanks=false, $trim_lines=true) {
+		$string = strval($string);
 		$string = str_replace("\r\n","\n",$string);
 		$parts = preg_split("/[\r\n]/", $string);
 		
@@ -1614,9 +1604,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		$purifier = new HTMLPurifier($config);
 		
-		$dirty_html = @$purifier->purify($dirty_html);
-		
-		return $dirty_html;
+		return $purifier->purify($dirty_html);
 	}
 	
 	/**

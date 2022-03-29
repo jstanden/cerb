@@ -9,7 +9,7 @@
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <b>{$template->path}:</b><br>
-<textarea name="content" data-editor-mode="ace/mode/smarty">{$template->content}</textarea><br>
+<textarea name="content">{$template->content}</textarea><br>
 <br>
 
 {if $active_worker->is_superuser}
