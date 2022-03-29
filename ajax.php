@@ -46,6 +46,7 @@ require(APP_PATH . '/api/Application.class.php');
 header("Content-type: text/html; charset=".LANG_CHARSET_CODE);
 
 $request = DevblocksPlatform::readRequest();
+$request->is_ajax = true;
 
 DevblocksPlatform::init();
 DevblocksPlatform::setHandlerSession('Cerb_DevblocksSessionHandler');
@@ -92,6 +93,6 @@ if(!empty($worker)) {
 	$tpl->assign('pref_keyboard_shortcuts', $keyboard_shortcuts);
 }
 
-CerberusApplication::processRequest($request,true);
+CerberusApplication::processRequest($request);
 
 exit;

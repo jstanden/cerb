@@ -79,6 +79,8 @@ class Page_Custom extends CerberusPageExtension {
 	}
 	
 	private function _pageAction_invoke() {
+		DevblocksPlatform::getHttpRequest()->is_ajax = true;
+		
 		$page_uri = DevblocksPlatform::importGPC($_GET['module'] ?? $_POST['module'] ?? null, 'string','');
 		$action = DevblocksPlatform::importGPC($_GET['action'] ?? $_POST['action'] ?? null, 'string','');
 		
