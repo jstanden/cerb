@@ -29,46 +29,36 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 								'#tourHeaderMenu',
 								'Navigation Bar',
 								'The navigation bar is located at the top of your browser window. It displays a list of shortcuts to pages. You can add and remove shortcuts here, and drag them to rearrange their order.',
-								'bottomLeft',
-								'topLeft',
-								10,
-								5
+								'middle bottom',
+								'middle top'
 							),
 							new DevblocksTourCallout(
 								'#cerb-logo',
 								'Logo',
 								'Click the logo as a shortcut to your default page.',
-								'topLeft',
-								'bottomLeft',
-								50,
-								-10
+								'middle top',
+								'middle bottom'
 							),
 							new DevblocksTourCallout(
-								'body > table:first td:nth(1) b',
+								'#lnkSignedIn',
 								'Worker Menu',
 								'Clicking your name provides a menu with useful shortcuts.',
-								'bottomRight',
-								'topLeft',
-								10,
-								5
+								'right bottom',
+								'middle top-10'
 							),
 							new DevblocksTourCallout(
 								'UL.navmenu:first LI.tour-navmenu-search',
 								'Search page',
 								'Use this page to search for any kind of record from anywhere.',
-								'bottomRight',
-								'topLeft',
-								5,
-								5
+								'right bottom',
+								'middle-10 top-5'
 								),
 							new DevblocksTourCallout(
 								'body fieldset:nth(1)',
 								'Social',
 								'These resources will help you get the most out of Cerb.',
-								'bottomLeft',
-								'topLeft',
-								20,
-								0
+								'left bottom',
+								'left+20 top'
 							),
 						),
 					);
@@ -85,37 +75,29 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 									'#tourHeaderMenu',
 									'Navigation Bar',
 									'The navigation bar is located at the top of your browser window. It displays a list of shortcuts to pages.',
-									'bottomLeft',
-									'topLeft',
-									10,
-									5
+									'middle bottom',
+									'middle top'
 									),
 								new DevblocksTourCallout(
-									'#viewworkspace_page TABLE.worklist A > SPAN.glyphicons-circle-plus',
+									'#viewpages TABLE.worklist TD.title-toolbar SPAN.glyphicons-circle-plus',
 									'Add Pages',
 									'You can add a page by clicking on the (+) icon in the pages worklist.',
-									'bottomRight',
-									'topLeft',
-									10,
-									5
+									'right bottom',
+									'middle top'
 									),
 								new DevblocksTourCallout(
-									'#viewworkspace_page TABLE.worklistBody > THEAD TH:nth(0) A',
+									'#viewpages TABLE.worklistBody > THEAD TH:nth(0) A',
 									'Add to Menu',
 									'You can add or remove a page from your navigation bar by clicking the icon in this column.',
-									'bottomLeft',
-									'topMiddle',
-									0,
-									5
+									'left bottom',
+									'middle top'
 									),
 								new DevblocksTourCallout(
-									'#viewworkspace_page TABLE.worklistBody > THEAD TH:nth(1) A',
+									'#viewpages TABLE.worklistBody > THEAD TH:nth(1) A',
 									'View Page',
 									'You can view a page by clicking the link in this column.',
-									'bottomLeft',
-									'topMiddle',
-									0,
-									5
+									'left bottom',
+									'middle top'
 									),
 							)
 						);
@@ -130,37 +112,29 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 									'DIV[id^=pageTabs]:first LI[role=tab]:last',
 									'Add a workspace tab',
 									'Click this tab to add new tabs to this workspace.',
-									'bottomLeft',
-									'topMiddle',
-									0,
-									5
+									'left bottom',
+									'middle top+5'
 									),
 								new DevblocksTourCallout(
 									'FORM BUTTON.add:first',
 									'Add a page shortcut',
 									'Click this button to add or remove the page from your shortcuts.',
-									'bottomRight',
-									'topMiddle',
-									0,
-									5
+									'right bottom',
+									'middle top'
 									),
 								new DevblocksTourCallout(
 									'FORM BUTTON.config-page:first',
 									'Edit pages and tabs',
 									'Click this button to edit pages and tabs.',
-									'bottomRight',
-									'topMiddle',
-									0,
-									5
+									'right bottom',
+									'middle top+5'
 									),
 								new DevblocksTourCallout(
 									'FORM BUTTON.config-page:first',
 									'Export pages and tabs',
 									'Click this button to export pages and tabs so you can import them elsewhere.',
-									'bottomRight',
-									'topMiddle',
-									0,
-									5
+									'right bottom',
+									'middle top+5'
 									),
 							)
 						);
@@ -178,49 +152,27 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 								'UL.navmenu:first LI.tour-navmenu-search',
 								'Search page',
 								'Use this page to search for any kind of record from anywhere.',
-								'bottomRight',
-								'topLeft',
-								5,
-								5
+								'right bottom',
+								'middle top'
 								),
 							new DevblocksTourCallout(
 								'FORM.quick-search:first',
 								'Quick search',
 								'Use this widget to quickly add search filters to the worklist.',
-								'bottomRight',
-								'topLeft',
-								5,
-								5
-								),
-							new DevblocksTourCallout(
-								'#pageSearch FORM:nth(1)',
-								'Add filters',
-								'Use this menu to add advanced filters to the worklist.',
-								'bottomLeft',
-								'topLeft',
-								25,
-								10
+								'right bottom',
+								'middle top'
 								),
 							new DevblocksTourCallout(
 								'TABLE.worklist:first',
 								'Worklist',
 								'This worklist displays your current search results.',
-								'bottomLeft',
-								'topLeft',
-								5,
-								5
+								'left bottom',
+								'left+5 top+5'
 								),
 					)
 					);
 					break;
 				
-			case 'groups':
-				$tour = array(
-						'title' => 'Group Setup',
-						'body' => 'This page enables you to configure groups for which you are a manager.  This includes members, buckets, mail routing rules, and other group-specific preferences.',
-				);
-				break;
-
 			case 'config':
 				switch(array_shift($path)) {
 					default:
@@ -232,19 +184,15 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 									'DIV.cerb-menu',
 									'Menu',
 									'Use the menu to access different configuration sections.',
-									'bottomLeft',
-									'topLeft',
-									20,
-									5
+									'middle bottom',
+									'middle top'
 									),
 								new DevblocksTourCallout(
-									'DIV.cerb-menu > UL > LI:nth(6)',
+									'DIV.cerb-menu > UL > LI:nth(8)',
 									'Plugins',
 									'Use this menu to install and configure optional plugins that enhance Cerb functionality. You can also download third-party plugins from the community.',
-									'bottomLeft',
-									'topLeft',
-									20,
-									5
+									'left bottom',
+									'left+20 top+5'
 									),
 							),
 						);
@@ -303,31 +251,6 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 						$tour = array(
 							'title' => 'Sessions',
 							'body' => 'This setup page provides a place to globally manage worker sessions.',
-						);
-						break;
-
-					case 'bots':
-						$tour = array(
-							'title' => DevblocksPlatform::translateCapitalized('common.bots'),
-							'body' => 'This setup page provides a place to globally manage bots.',
-							'callouts' => array(
-								new DevblocksTourCallout(
-									'#viewsetup_bots TABLE.worklist A > SPAN.glyphicons-circle-plus',
-									'Add Bot',
-									'You can add a bot by clicking on the (+) icon in this worklist.',
-									'bottomRight',
-									'topLeft',
-									10,
-									5
-									),
-							),
-						);
-						break;
-
-					case 'scheduled_behavior':
-						$tour = array(
-							'title' => 'Scheduled Behavior',
-							'body' => 'This setup page provides a place to globally manage bot scheduled behavior.',
 						);
 						break;
 
@@ -400,22 +323,11 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 							'body' => "This is where you can add new functionality to Cerb through plugins.",
 							'callouts' => array(
 								new DevblocksTourCallout(
-									'#pluginTabs > UL > LI:nth(0)',
+									'#viewplugins_installed',
 									'Installed plugins',
-									'This tab displays the plugins that have been installed.',
-									'bottomLeft',
-									'topLeft',
-									10,
-									5
-									),
-								new DevblocksTourCallout(
-									'#pluginTabs > UL > LI:nth(1)',
-									'Plugin Library',
-									'This tab provides access to the Plugin Library, where you can discover and install new plugins through your web browser.',
-									'bottomLeft',
-									'topLeft',
-									10,
-									5
+									'This worklist displays the plugins that have been installed.',
+									'left bottom',
+									'left+10 top+5'
 									),
 							)
 						);
@@ -432,6 +344,13 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 							'body' => "A profile displays all the information related to a particular record.",
 							'callouts' => array(
 							),
+						);
+						break;
+					
+					case 'group':
+						$tour = array(
+							'title' => 'Group Profile',
+							'body' => 'This page enables you to configure groups for which you are a manager.  This includes members, buckets, mail routing rules, and other group-specific preferences.',
 						);
 						break;
 					
@@ -453,91 +372,50 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 									'#btnProfileCard',
 									'Peek',
 									'Click this button to open the ticket card.',
-									'bottomLeft',
-									'topRight',
-									-10,
-									5
+									'left bottom',
+									'middle top'
 									),
 								new DevblocksTourCallout(
-									'#btnDisplayTicketEdit',
+									'#btnProfileCardEdit',
 									'Edit',
 									'Click this button to edit the ticket properties.',
-									'bottomLeft',
-									'topRight',
-									-10,
-									5
+									'left bottom',
+									'middle top'
 									),
 								new DevblocksTourCallout(
-									'SPAN#spanWatcherToolbar BUTTON:first',
+									'#spanProfileWatchers',
 									'Watchers',
 									'A watcher will automatically receive notifications about new activity on this record.  Click this button to add or remove yourself as a watcher.',
-									'bottomLeft',
-									'topMiddle',
-									-10,
-									5
+									'left bottom',
+									'middle top'
 									),
 								new DevblocksTourCallout(
-									'FIELDSET.properties #tour-profile-ticket-mask',
+									'#profileToolbar',
 									'Mask',
-									'Each conversation is identified by a "mask" that may be used as a reference number in future conversations, or over the phone.',
-									'bottomRight',
-									'topLeft',
-									5,
-									0
+									"Each conversation is identified by a mask that may be used as a reference number in future conversations, or over the phone.",
+									'left bottom',
+									'left top'
 									),
 								new DevblocksTourCallout(
-									'FIELDSET.properties SPAN#displayTicketRequesterBubbles',
-									'Participants',
-									'Your replies to this conversation will automatically be sent to all these participants.',
-									'bottomLeft',
-									'topLeft',
-									10,
-									0
-									),
-								new DevblocksTourCallout(
-									'div.cerb-subpage div.cerb-links-container',
-									'Links',
-									'You can connect this conversation to any other record in the system: tasks, organizations, opportunities, time tracking, servers, domains, etc.',
-									'bottomLeft',
-									'topLeft',
-									25,
-									0
-									),
-								new DevblocksTourCallout(
-									'#profileTicketTabs',
+									'#profile-tabs-cerberusweb_contexts_ticket',
 									'Conversation Timeline',
 									'This is where all email replies will be displayed for this ticket. Your responses will be sent to all participants.',
-									'bottomLeft',
-									'topLeft',
-									30,
-									5
+									'left bottom',
+									'left top'
 									),
 								new DevblocksTourCallout(
-									'BUTTON#btnComment:first',
+									'#btnProfileComment',
 									'Comments',
 									'Comments are a private way to leave messages for other workers regarding this conversation.  They are not visible to participants.',
-									'topLeft',
-									'bottomMiddle',
-									0,
-									0
+									'left top',
+									'middle bottom'
 									),
 								new DevblocksTourCallout(
-									'#profileTicketTabs > UL > li:nth(1)',
+									'#profile-tabs-cerberusweb_contexts_ticket',
 									'Activity Log',
-									'This tab displays everything that has happened to this conversation: worker replies, customer replies, status changes, merges, and more.',
-									'topLeft',
-									'bottomRight',
-									-20,
-									-10
-									),
-								new DevblocksTourCallout(
-									'#profileTicketTabs > UL > li:nth(2)',
-									'Participant History',
-									'This tab displays prior conversations involving any of these participants.',
-									'bottomLeft',
-									'topMiddle',
-									0,
-									10
+									'The Log tab displays everything that has happened to this conversation: worker replies, customer replies, status changes, merges, and more.',
+									'left bottom',
+									'left top'
 									),
 							)
 						);

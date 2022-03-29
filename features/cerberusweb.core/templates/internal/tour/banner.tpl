@@ -24,7 +24,7 @@
 				<b>Points of Interest:</b>
 				<div style="margin:5px;">
 				{foreach from=$tour.callouts item=callout key=callout_id name=callouts}
-					<span class="glyphicons glyphicons-pushpin"></span> <a href="javascript:;" id="callout{$callout_id}">{$callout->title}</a>
+					<span class="glyphicons glyphicons-pushpin"></span> <a href="#" id="callout{$callout_id}">{$callout->title}</a>
 					&nbsp; 
 				{/foreach}
 				</div>
@@ -35,49 +35,44 @@
 </div>
 
 <script type="text/javascript">
+$(function() {
+	let $tour = $('#tourDiv');
+	let $tooltip = $('<span/>')
+		.tooltip({
+		})
+		.appendTo($tour)
+		.hide()
+	;
 {foreach from=$tour.callouts item=callout key=callout_id name=callouts}
 $('#tourDiv A#callout{$callout_id}')
-	.click(function() {
-		var $sel = $('{$callout->selector nofilter}');
+	.on('click', function(e) {
+		e.preventDefault();
+		e.stopPropagation();
 		
-		try {
-			$sel.qtip("destroy");
-		} catch(e){}
+		$tooltip.tooltip('close');
+
+		let $sel = $('{$callout->selector nofilter}');
 		
-		$sel
-			.qtip({
-				content: {
-					text: "{$callout->body}"
-				},
-				position:{
-					my:'{$callout->tipCorner}',
-					at:'{$callout->targetCorner}',
-					adjust: {
-						x:{$callout->xOffset},
-						y:{$callout->yOffset}
-					}
-				},
-				show: {
-					ready: true
-				},
-				hide: {
-					event: "unfocus"
-				},
-				style: {
-					classes: 'qtip-dark qtip-shadow qtip-rounded',
-					tip: {
-						corner: true
-					}
-				},
-				events: {
-					hide: function(event, api) {
-						api.destroy();
-					}
-				}
-			})
-			;
+		$tooltip.attr('title', "{$callout->body}");
+		$tooltip.tooltip('option', 'position', {
+			my: "{$callout->tipCorner}",
+			at: "{$callout->targetCorner}",
+			of: $sel,
+			using: function(position, feedback) {
+				$(this).css(position);
+				$("<div>")
+					.addClass("arrow")
+					.addClass(feedback.vertical)
+					.addClass(feedback.horizontal)
+					.appendTo(this)
+				;
+			},
+			collision: "flipfit"
+		});
 		
+		$tooltip.tooltip('open');
 	});
 {/foreach}
+});
 </script>
 {/if}

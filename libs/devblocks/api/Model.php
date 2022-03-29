@@ -5,17 +5,13 @@ class DevblocksTourCallout {
 	public $body = '';
 	public $tipCorner = '';
 	public $targetCorner = '';
-	public $xOffset = 0;
-	public $yOffset = 0;
 	
-	function __construct($selector='',$title='Callout',$body='...',$tipCorner='topLeft',$targetCorner='topLeft',$xOffset=0,$yOffset=0) {
+	function __construct($selector='',$title='Callout',$body='...',$tipCorner='left top',$targetCorner='left top') {
 		$this->selector = $selector;
 		$this->title = $title;
 		$this->body = $body;
 		$this->tipCorner = $tipCorner;
 		$this->targetCorner = $targetCorner;
-		$this->xOffset = $xOffset;
-		$this->yOffset = $yOffset;
 	}
 };
 
