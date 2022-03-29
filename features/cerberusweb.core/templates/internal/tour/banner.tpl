@@ -1,7 +1,4 @@
 {if !empty($tour)}
-<script type="text/javascript" src="{devblocks_url}c=resource&plugin=devblocks.core&f=js/jquery/jquery.qtip.min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
-<link rel="stylesheet" type="text/css" href="{devblocks_url}c=resource&plugin=devblocks.core&f=css/jquery.qtip.min.css{/devblocks_url}?v={$smarty.const.APP_BUILD}" />
-
 <div id="tourDiv" class="help-box">
 <table width="100%">
 	<tr>
