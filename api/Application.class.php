@@ -5647,6 +5647,25 @@ class _CerbApplication_KataSchemas {
                             bool:
     EOD;		
 	}
+	
+	function worklistExport() : string {
+		return <<< EOD
+    schema:
+      attributes:
+        column:
+          required@bool: yes
+          multiple@bool: yes
+          types:
+            object:
+              attributes:
+                label:
+                  types:
+                    string:
+                value:
+                  types:
+                    string:
+    EOD;		
+	}
 }
 
 class _CerbApplication_Packages {

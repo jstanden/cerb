@@ -848,6 +848,25 @@ var cerbAutocompleteSuggestions = {
 			'yes',
 			'no'
 		]
+	},
+	kataSchemaWorklistExport: {
+		'': [
+			{
+				'caption': 'column:',
+				'snippet': 'column/${1:_label}:\n'
+			},
+		],
+		'column:': [
+			{
+				'caption': 'label:',
+				'snippet': 'label: ${1:Label}',
+				'score': 2000,
+			},
+			{
+				'caption': 'value:',
+				'snippet': 'value@raw: {{${1:_label}}}'
+			}
+		]
 	}
 };
 

@@ -563,7 +563,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		$tpl->assign('view_id', $view_id);
 		
 		if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
-			return;
+			return false;
 		
 		$tpl->assign('view', $view);
 		
@@ -594,6 +594,17 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		
 		$tpl->assign('tokens', $tokens);
 		
+		$export_kata = <<< EOD
+		# Enter worklist export KATA (use Ctrl+Space for autocompletion)
+		column/id:
+		
+		column/_label:
+		  label: Label
+		  value@raw: {{_label|trim}}
+		EOD;
+		
+		$tpl->assign('export_kata', $export_kata);
+		
 		$labels = $values = [];
 		CerberusContexts::getContext($context_ext->id, null, $labels, $values, '', true, false);
 		$tpl->assign('labels', $labels);
@@ -609,31 +620,44 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		
 		$cursor_key = DevblocksPlatform::importGPC($_POST['cursor_key'] ?? null, 'string', '');
 		
+		header('Content-Type: application/json; charset=utf-8');
+		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		header("Content-Type: application/json; charset=" . LANG_CHARSET_CODE);
-		
 		try {
+			if(!$active_worker)
+				throw new Exception_DevblocksAjaxError("Access denied.");
+			
 			if(empty($cursor_key)) {
 				$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
-				$tokens = DevblocksPlatform::importGPC($_POST['tokens'] ?? null, 'array', []);
 				$export_as = DevblocksPlatform::importGPC($_POST['export_as'] ?? null, 'string', 'csv');
+				$export_mode = DevblocksPlatform::importGPC($_POST['export_mode'] ?? null, 'string', '');
+				
+				$tokens = DevblocksPlatform::importGPC($_POST['tokens'] ?? null, 'array', []);
 				$format_timestamps = DevblocksPlatform::importGPC($_POST['format_timestamps'] ?? null, 'integer', 0);
 				
+				$export_kata = DevblocksPlatform::importGPC($_POST['export_kata'] ?? null, 'string', '');
+				
 				if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
-					return false;
+					throw new Exception_DevblocksAjaxError("Invalid worklist.");
 				
 				if(null == ($context_ext = Extension_DevblocksContext::getByViewClass(get_class($view), true)))
-					return false;
+					throw new Exception_DevblocksAjaxError("Invalid worklist record type.");
 				
-				if($active_worker) {
-					// Check prefs
+				// Check prefs
+				if(!$export_mode) {
 					$pref_key = sprintf("worklist.%s.export_tokens",
 						$context_ext->manifest->getParam('uri', $context_ext->id)
 					);
 					
 					DAO_WorkerPref::setAsJson($active_worker->id, $pref_key, $tokens);
+					
+				} else if('kata' == $export_mode) {
+					$kata = DevblocksPlatform::services()->kata();
+					
+					if(!$kata->validate($export_kata, CerberusApplication::kataSchemas()->worklistExport(), $error))
+						throw new Exception_DevblocksAjaxError("Export KATA Error: " . $error);
 				}
 				
 				if(!isset($_SESSION['view_export_cursors']))
@@ -641,12 +665,14 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 				
 				$cursor_key = sha1(serialize([$view_id, $tokens, $export_as, time()]));
 				
-				$_SESSION['view_export_cursors'][$cursor_key] = [
+				$cursor = [
 					'key' => $cursor_key,
 					'view_id' => $view_id,
 					'tokens' => $tokens,
 					'export_as' => $export_as,
+					'export_mode' => $export_mode,
 					'format_timestamps' => $format_timestamps,
+					'export_kata' => $export_kata,
 					'page' => 0,
 					'rows_exported' => 0,
 					'completed' => false,
@@ -654,16 +680,25 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 					'attachment_name' => null,
 					'attachment_url' => null,
 				];
+				
+				$_SESSION['view_export_cursors'][$cursor_key] = $cursor;
 			}
 			
 			$cursor = $this->_viewIncrementalExport($cursor_key);
 			echo json_encode($cursor);
 			
 		} catch (Exception_DevblocksAjaxError $e) {
-			echo json_encode(false);
-			return false;
+			echo json_encode([
+				'error' => $e->getMessage(),
+			]);
+			return;
+			
+		} catch (Exception $e) {
+			echo json_encode([
+				'error' => 'An unknown error occurred.',
+			]);
+			return;
 		}
-		
 	}
 	
 	/**
@@ -734,53 +769,29 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		return $cursor;
 	}
 	
-	private function _viewIncrementExportAsCsv(array &$cursor) {
+	private function _getViewFromCursor(array $cursor) {
 		$view_id = $cursor['view_id'];
-		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
-			return;
-		
-		if(null == ($context_ext = Extension_DevblocksContext::getByViewClass(get_class($view), true)))
-			return;
+			return false;
 		
 		$view->setAutoPersist(false);
-		
-		$global_labels = $global_values = [];
-		CerberusContexts::getContext($context_ext->id, null, $global_labels, $global_values, null, true);
-		$global_types = $global_values['_types'];
 		
 		// Override display
 		$view->view_columns = [];
 		$view->renderPage = $cursor['page'];
 		$view->renderLimit = 200;
 		
-		// Append mode to the temp file
-		$fp = fopen($cursor['temp_file'], "a");
-		
-		// If the first page
-		if(0 == $cursor['page']) {
-			// Headings
-			$csv_labels = [];
-			
-			if(is_array($cursor['tokens']))
-				foreach($cursor['tokens'] as $token) {
-					$csv_labels[] = trim(@$global_labels[$token]);
-				}
-			
-			fputcsv($fp, $csv_labels);
-			
-			unset($csv_labels);
-		}
-		
-		$global_labels = null;
-		unset($global_labels);
+		return $view;
+	}
+	
+	private function _getDictionariesFromView(C4_AbstractView $view, Extension_DevblocksContext $context_ext, array $cursor, &$count=0) {
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		// Rows
 		$results = $view->getDataAsObjects();
 		
 		$count = count($results);
-		$dicts = [];
 		
 		$models = CerberusContexts::getModels($context_ext->id, array_keys($results));
 		
@@ -791,40 +802,144 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		
 		// Models->Dictionaries
 		$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $context_ext->id);
-		unset($models);
-		
-		foreach($dicts as $dict)
-			$dict->scrubKeys('_types');
 		
 		// Bulk lazy load the tokens across all the dictionaries with a temporary cache
 		foreach($cursor['tokens'] as $token) {
-			DevblocksDictionaryDelegate::bulkLazyLoad($dicts, $token, true);
+			DevblocksDictionaryDelegate::bulkLazyLoad($dicts, $token);
 		}
 		
-		foreach($dicts as $dict) {
-			$fields = [];
+		foreach($dicts as $dict)
+			$dict->scrubKeys('_types');
+
+		return $dicts;
+	}
+	
+	private function _getExportColumnsKataFromCursor(array $cursor) {
+		$export_columns = [];
+		$error = null;
+		
+		if(false === ($export_kata = DevblocksPlatform::services()->kata()->parse($cursor['export_kata'] ?? '', $error)))
+			return [];
+		
+		if(false === ($export_kata = DevblocksPlatform::services()->kata()->formatTree($export_kata, null, $error)))
+			return [];
+		
+		if(!is_array($export_kata))
+			return [];
+		
+		foreach($export_kata as $column_key => $column_data) {
+			list($column_type, $column_name) = array_pad(explode('/', $column_key, 2), 2, null);
 			
-			foreach($cursor['tokens'] as $token) {
-				$value = $dict->get($token);
+			if('column' != $column_type || !$column_name)
+				continue;
+			
+			$export_columns[$column_name] = [
+				'label' => $column_data['label'] ?? DevblocksPlatform::strTitleCase($column_name),
+				'value' => $column_data['value'] ?? sprintf('{{%s}}', $column_name),
+			];
+		}
+		
+		return $export_columns;
+	}
+	
+	private function _viewIncrementExportAsCsv(array &$cursor) {
+		if(false == ($view = $this->_getViewFromCursor($cursor)))
+			return;
+		
+		if(null == ($context_ext = Extension_DevblocksContext::getByViewClass(get_class($view), true)))
+			return;
+		
+		$global_labels = $global_values = [];
+		CerberusContexts::getContext($context_ext->id, null, $global_labels, $global_values, null, true);
+		$global_types = $global_values['_types'];
+		
+		// Append mode to the temp file
+		$fp = fopen($cursor['temp_file'], "a");
+		
+		$count = 0;
+		
+		if(false == ($dicts = $this->_getDictionariesFromView($view, $context_ext, $cursor, $count)))
+			$dicts = [];
+		
+		if('kata' == $cursor['export_mode']) {
+			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+			
+			$export_columns = $this->_getExportColumnsKataFromCursor($cursor);
+			
+			// If the first page, add headings
+			if(0 == $cursor['page']) {
+				$csv_labels = [];
 				
-				if(@$global_types[$token] == Model_CustomField::TYPE_DATE && $cursor['format_timestamps']) {
-					if(empty($value)) {
-						$value = '';
-					} else if(is_numeric($value)) {
-						$value = date('r', $value);
+				foreach($export_columns as $column_name => $column) {
+					$csv_labels[] = ($column['label'] ?? null) ?: DevblocksPlatform::strTitleCase($column_name);
+				}
+				
+				fputcsv($fp, $csv_labels);
+				unset($csv_labels);
+			}
+				
+			foreach($dicts as $dict) {
+				$fields = [];
+				
+				foreach($export_columns as $column_name => $column) {
+					if($column_name) {
+						$value = $tpl_builder->build($column['value'] ?? '', $dict);
+						$fields[] = $value;
+						
+					} else {
+						$fields[] = '';
 					}
 				}
 				
-				if(is_array($value))
-					$value = json_encode($value);
-				
-				if(!is_string($value) && !is_numeric($value))
-					$value = '';
-				
-				$fields[] = $value;
+				fputcsv($fp, $fields);
 			}
 			
-			fputcsv($fp, $fields);
+		} else {
+			// If the first page
+			if(0 == $cursor['page']) {
+				// Headings
+				$csv_labels = [];
+				
+				if(is_array($cursor['tokens']))
+					foreach($cursor['tokens'] as $token) {
+						$csv_labels[] = trim($global_labels[$token] ?? $token);
+					}
+				
+				fputcsv($fp, $csv_labels);
+				
+				unset($csv_labels);
+			}
+			
+			// Bulk lazy load the tokens across all the dictionaries with a temporary cache
+			foreach($cursor['tokens'] as $token) {
+				DevblocksDictionaryDelegate::bulkLazyLoad($dicts, $token, true);
+			}
+			
+			foreach($dicts as $dict) {
+				$fields = [];
+				
+				foreach($cursor['tokens'] as $token) {
+					$value = $dict->get($token);
+					
+					if(($global_types[$token] ?? null) == Model_CustomField::TYPE_DATE && $cursor['format_timestamps']) {
+						if(empty($value)) {
+							$value = '';
+						} else if(is_numeric($value)) {
+							$value = date('r', $value);
+						}
+					}
+					
+					if(is_array($value))
+						$value = json_encode($value);
+					
+					if(!is_string($value) && !is_numeric($value))
+						$value = '';
+					
+					$fields[] = $value;
+				}
+				
+				fputcsv($fp, $fields);
+			}
 		}
 		
 		$cursor['page']++;
@@ -839,110 +954,107 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 	}
 	
 	private function _viewIncrementExportAsJson(array &$cursor) {
-		$view_id = $cursor['view_id'];
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
+		if(false == ($view = $this->_getViewFromCursor($cursor)))
 			return;
 		
-		if(null == ($context_mft = Extension_DevblocksContext::getByViewClass(get_class($view))))
+		if(null == ($context_ext = Extension_DevblocksContext::getByViewClass(get_class($view), true)))
 			return;
 		
-		$view->setAutoPersist(false);
-		
-		$global_labels = array();
-		$global_values = array();
-		CerberusContexts::getContext($context_mft->id, null, $global_labels, $global_values, null, true);
+		$global_labels = $global_values = [];
+		CerberusContexts::getContext($context_ext->id, null, $global_labels, $global_values, null, true);
 		$global_types = $global_values['_types'];
-		
-		// Override display
-		$view->view_columns = array();
-		$view->renderPage = $cursor['page'];
-		$view->renderLimit = 200;
 		
 		// Append mode to the temp file
 		$fp = fopen($cursor['temp_file'], "a");
 		
-		// If the first page
-		if(0 == $cursor['page']) {
-			fputs($fp, "{\n\"fields\":");
+		$count = 0;
+		
+		if(false == ($dicts = $this->_getDictionariesFromView($view, $context_ext, $cursor, $count)))
+			$dicts = [];
+		
+		if('kata' == $cursor['export_mode']) {
+			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 			
-			$fields = array();
+			$export_columns = $this->_getExportColumnsKataFromCursor($cursor);
 			
-			// Fields
+			fputs($fp, "{\"results\": [\n");
 			
-			if(is_array($global_labels))
-				foreach($cursor['tokens'] as $token) {
-					$fields[$token] = array(
-						'label' => @$global_labels[$token],
-						'type' => @$global_types[$token],
-					);
-				}
-			
-			fputs($fp, json_encode($fields));
-			
-			fputs($fp, ",\n\"results\": [\n");
-		}
-		
-		// Results
-		
-		// Rows
-		$results = $view->getDataAsObjects();
-		
-		$count = count($results);
-		$dicts = array();
-		
-		if($cursor['page'] > 0)
-			fputs($fp, ",\n");
-		
-		foreach($results as $row_id => $result) {
-			// Secure the exported rows
-			if(!CerberusContexts::isReadableByActor($context_mft->id, $result, $active_worker))
-				continue;
-			
-			$labels = array(); // ignore
-			$values = array();
-			CerberusContexts::getContext($context_mft->id, $result, $labels, $values, null, true, true);
-			
-			$dicts[$row_id] = DevblocksDictionaryDelegate::instance($values);
-			unset($labels);
-			unset($values);
-		}
-		
-		unset($results);
-		
-		// Bulk lazy load the tokens across all the dictionaries with a temporary cache
-		foreach($cursor['tokens'] as $token) {
-			DevblocksDictionaryDelegate::bulkLazyLoad($dicts, $token);
-		}
-		
-		$objects = [];
-		
-		foreach($dicts as $dict) {
-			$object = [];
-			
-			if(is_array($cursor['tokens']))
-				foreach($cursor['tokens'] as $token) {
-					$value = $dict->$token;
-					
-					if($global_types[$token] == Model_CustomField::TYPE_DATE && $cursor['format_timestamps']) {
-						if(empty($value)) {
-							$value = '';
-						} else if (is_numeric($value)) {
-							$value = date('r', $value);
-						}
+			$objects = [];
+				
+			foreach($dicts as $dict) {
+				$object = [];
+				
+				foreach($export_columns as $column_name => $column) {
+					if($column_name) {
+						$value = $tpl_builder->build($column['value'] ?? '', $dict);
+					} else {
+						$value = '';
 					}
 					
-					$object[$token] = $value;
+					$object[$column_name] = $value;
 				}
 			
-			$objects[] = $object;
+				$objects[] = $object;
+			}
 			
-		}
-		
-		$json = trim(json_encode($objects),'[]');
-		fputs($fp, $json);
-		
+			$json = trim(json_encode($objects),'[]');
+			fputs($fp, $json);
+			
+		} else {
+			// If the first page
+			if(0 == $cursor['page']) {
+				fputs($fp, "{\n\"fields\":");
+				
+				$fields = [];
+				
+				// Fields
+				
+				if(is_array($global_labels))
+					foreach($cursor['tokens'] as $token) {
+						$fields[$token] = [
+							'label' => @$global_labels[$token],
+							'type' => @$global_types[$token],
+						];
+					}
+				
+				fputs($fp, json_encode($fields));
+				
+				fputs($fp, ",\n\"results\": [\n");
+			}
+			
+			// Rows
+			
+			if($cursor['page'] > 0)
+				fputs($fp, ",\n");
+			
+			$objects = [];
+			
+			foreach($dicts as $dict) {
+				$object = [];
+				
+				if(is_array($cursor['tokens']))
+					foreach($cursor['tokens'] as $token) {
+						$value = $dict->$token;
+						
+						if($global_types[$token] == Model_CustomField::TYPE_DATE && $cursor['format_timestamps']) {
+							if(empty($value)) {
+								$value = '';
+							} else if (is_numeric($value)) {
+								$value = date('r', $value);
+							}
+						}
+						
+						$object[$token] = $value;
+					}
+				
+				$objects[] = $object;
+				
+			}
+			
+			$json = trim(json_encode($objects),'[]');
+			fputs($fp, $json);			
+		}			
+			
 		$cursor['page']++;
 		$cursor['rows_exported'] += $count;
 		
@@ -956,113 +1068,112 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 	}
 	
 	private function _viewIncrementExportAsXml(array &$cursor) {
-		$view_id = $cursor['view_id'];
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
+		if(false == ($view = $this->_getViewFromCursor($cursor)))
 			return;
 		
-		if(null == ($context_mft = Extension_DevblocksContext::getByViewClass(get_class($view))))
+		if(null == ($context_ext = Extension_DevblocksContext::getByViewClass(get_class($view), true)))
 			return;
-		
-		$view->setAutoPersist(false);
-		
-		$global_labels = array();
-		$global_values = array();
-		CerberusContexts::getContext($context_mft->id, null, $global_labels, $global_values, null, true);
-		$global_types = $global_values['_types'];
-		
-		// Override display
-		$view->view_columns = array();
-		$view->renderPage = $cursor['page'];
-		$view->renderLimit = 200;
 		
 		// Append mode to the temp file
 		$fp = fopen($cursor['temp_file'], "a");
 		
-		// If the first page
-		if(0 == $cursor['page']) {
-			fputs($fp, "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
-			fputs($fp, "<export>\n");
-			
-			// Meta
-			
-			$xml_fields = simplexml_load_string("<fields/>"); /* @var $xml SimpleXMLElement */
-			
-			foreach($cursor['tokens'] as $token) {
-				$field = $xml_fields->addChild("field");
-				$field->addAttribute('key', $token);
-				$field->addChild('label', @$global_labels[$token]);
-				$field->addChild('type', @$global_types[$token]);
-			}
-			
-			$dom = dom_import_simplexml($xml_fields);
-			fputs($fp, $dom->ownerDocument->saveXML($dom->ownerDocument->documentElement));
-			unset($dom);
-			
-			fputs($fp, "\n<results>\n");
-		}
+		$count = 0;
 		
-		// Content
+		if(false == ($dicts = $this->_getDictionariesFromView($view, $context_ext, $cursor, $count)))
+			$dicts = [];
 		
-		$results = $view->getDataAsObjects();
-		
-		$count = count($results);
-		$dicts = array();
-		
-		if(is_array($results))
-			foreach($results as $row_id => $result) {
-				// Secure the exported rows
-				if(!CerberusContexts::isReadableByActor($context_mft->id, $result, $active_worker))
-					continue;
+		if('kata' == $cursor['export_mode']) {
+			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+			
+			$export_columns = $this->_getExportColumnsKataFromCursor($cursor);
+			
+			if(0 == $cursor['page']) {
+				fputs($fp, "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
+				fputs($fp, "<export>\n");
+				fputs($fp, "<results>\n");
+			}			
+			
+			foreach($dicts as $dict) {
+				$xml_result = simplexml_load_string("<result/>"); /* @var $xml SimpleXMLElement */
 				
-				$labels = array(); // ignore
-				$values = array();
-				CerberusContexts::getContext($context_mft->id, $result, $labels, $values, null, true, true);
-				
-				$dicts[$row_id] = DevblocksDictionaryDelegate::instance($values);
-				unset($labels);
-				unset($values);
-			}
-		
-		unset($results);
-		
-		// Bulk lazy load the tokens across all the dictionaries with a temporary cache
-		foreach($cursor['tokens'] as $token) {
-			DevblocksDictionaryDelegate::bulkLazyLoad($dicts, $token);
-		}
-		
-		foreach($dicts as $dict) {
-			$xml_result = simplexml_load_string("<result/>"); /* @var $xml SimpleXMLElement */
-			
-			if(is_array($cursor['tokens']))
-				foreach($cursor['tokens'] as $token) {
-					$value = $dict->$token;
-					
-					if($global_types[$token] == Model_CustomField::TYPE_DATE && $cursor['format_timestamps']) {
-						if(empty($value)) {
-							$value = '';
-						} else if(is_numeric($value)) {
-							$value = date('r', $value);
-						}
+				foreach($export_columns as $column_name => $column) {
+					if($column_name) {
+						$value = $tpl_builder->build($column['value'] ?? '', $dict);
+					} else {
+						$value = '';
 					}
 					
-					if(is_array($value))
-						$value = json_encode($value);
-					
-					if(!is_string($value) && !is_numeric($value))
-						$value = '';
-					
 					$field = $xml_result->addChild("field", DevblocksPlatform::strEscapeHtml($value));
-					$field->addAttribute("key", $token);
+					$field->addAttribute("key", $column_name);
 				}
+				
+				$dom = dom_import_simplexml($xml_result);
+				fputs($fp, $dom->ownerDocument->saveXML($dom->ownerDocument->documentElement));
+			}
 			
-			$dom = dom_import_simplexml($xml_result);
-			fputs($fp, $dom->ownerDocument->saveXML($dom->ownerDocument->documentElement));
-		}
+		} else {
+			$global_labels = $global_values = [];
+			CerberusContexts::getContext($context_ext->id, null, $global_labels, $global_values, null, true);
+			$global_types = $global_values['_types'];
+			
+			// If the first page
+			if(0 == $cursor['page']) {
+				fputs($fp, "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
+				fputs($fp, "<export>\n");
+				
+				// Meta
+				
+				$xml_fields = simplexml_load_string("<fields/>"); /* @var $xml SimpleXMLElement */
+				
+				foreach($cursor['tokens'] as $token) {
+					$field = $xml_fields->addChild("field");
+					$field->addAttribute('key', $token);
+					$field->addChild('label', $global_labels[$token] ?? '');
+					$field->addChild('type', $global_types[$token] ?? '');
+				}
+				
+				$dom = dom_import_simplexml($xml_fields);
+				fputs($fp, $dom->ownerDocument->saveXML($dom->ownerDocument->documentElement));
+				unset($dom);
+				
+				fputs($fp, "\n<results>\n");
+			}
+			
+			// Content
+			
+			foreach($dicts as $dict) {
+				$xml_result = simplexml_load_string("<result/>"); /* @var $xml SimpleXMLElement */
+				
+				if(is_array($cursor['tokens']))
+					foreach($cursor['tokens'] as $token) {
+						$value = $dict->$token;
+						
+						if($global_types[$token] == Model_CustomField::TYPE_DATE && $cursor['format_timestamps']) {
+							if(empty($value)) {
+								$value = '';
+							} else if(is_numeric($value)) {
+								$value = date('r', $value);
+							}
+						}
+						
+						if(is_array($value))
+							$value = json_encode($value);
+						
+						if(!is_string($value) && !is_numeric($value))
+							$value = '';
+						
+						$field = $xml_result->addChild("field", DevblocksPlatform::strEscapeHtml($value));
+						$field->addAttribute("key", $token);
+					}
+				
+				$dom = dom_import_simplexml($xml_result);
+				fputs($fp, $dom->ownerDocument->saveXML($dom->ownerDocument->documentElement));
+			}			
+		}			
 		
 		$cursor['page']++;
 		$cursor['rows_exported'] += $count;
+		
 		// If our page isn't full, we're done
 		if($count < $view->renderLimit) {
 			$cursor['completed'] = true;
