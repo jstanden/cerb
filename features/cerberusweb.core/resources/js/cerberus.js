@@ -1696,7 +1696,8 @@ var ajax = new cAjaxCalls();
 				useSoftTabs: false,
 				minLines: 2,
 				maxLines: maxLines,
-				readOnly: 'true' == isReadOnly ? true : false
+				readOnly: 'true' == isReadOnly ? true : false,
+				useWorker: false
 			};
 			
 			if(null == mode)
