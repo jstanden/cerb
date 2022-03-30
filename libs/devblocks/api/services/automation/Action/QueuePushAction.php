@@ -13,7 +13,7 @@ class QueuePushAction extends AbstractAction {
 		$validation = DevblocksPlatform::services()->validation();
 		$queue = DevblocksPlatform::services()->queue();
 		
-		$params = $this->node->getParams($dict);
+		$params = $automation->getParams($this->node, $dict);
 		$policy = $automation->getPolicy();
 		
 		$inputs = $params['inputs'] ?? [];

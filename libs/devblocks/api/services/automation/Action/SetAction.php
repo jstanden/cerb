@@ -11,9 +11,20 @@ class SetAction extends AbstractAction {
 		$params = $this->node->getParams();
 		
 		foreach($params as $k => $v) {
-			if(false !== ($this->node->formatKeyValue($k, $v, $dict)))
+			$script_error = null;
+			
+			if(false !== ($this->node->formatKeyValue($k, $v, $dict, $script_error))) {
 				if(!is_null($k))
 					$dict->set($k, $v);
+				
+				if($script_error) {
+					$automation->logError(
+						'Scripting error: ' . $script_error,
+						$this->node->getId(),
+						3 // error
+					);
+				}
+			}
 		}
 		
 		return $this->node->getParent()->getId();

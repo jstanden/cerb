@@ -14,7 +14,7 @@ class EncryptPgpAction extends AbstractAction {
 		$validation = DevblocksPlatform::services()->validation();
 		$gpg = DevblocksPlatform::services()->gpg();
 		
-		$params = $this->node->getParams($dict);
+		$params = $automation->getParams($this->node, $dict);
 		$policy = $automation->getPolicy();
 		
 		$inputs = $params['inputs'] ?? [];

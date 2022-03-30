@@ -8,7 +8,7 @@ class ReturnAction extends AbstractAction {
 	const ID = 'return';
 	
 	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) {
-		$return_values = $this->node->getParams($dict);
+		$return_values = $automation->getParams($this->node, $dict);
 		
 		$dict->set('__exit', 'return');
 		$dict->set('__return', $return_values);

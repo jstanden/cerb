@@ -23,7 +23,7 @@ class HttpRequestAction extends AbstractAction {
 		// [TODO] SSL certs
 		// [TODO] User-level option to follow redirects
 		
-		$params = $this->node->getParams($dict);
+		$params = $automation->getParams($this->node, $dict);
 		$policy = $automation->getPolicy();
 		
 		$inputs = $params['inputs'] ?? [];
