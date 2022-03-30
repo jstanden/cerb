@@ -4876,8 +4876,10 @@ var ajax = new cAjaxCalls();
 								;
 
 							$popup.html(json.html);
-							
-							$popup.trigger('popup_open');
+
+							setTimeout(function() {
+								$popup.trigger('popup_open');
+							},0);
 						}
 					});
 				}

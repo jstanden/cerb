@@ -1417,7 +1417,9 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 			$popup.html(html);
 
 			// Trigger event
-			$popup.trigger('popup_open');
+			setTimeout(function() {
+				$popup.trigger('popup_open');
+			},0);
 
 			// Callback
 			try { cb(html); } catch(e) { }
