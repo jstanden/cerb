@@ -996,7 +996,7 @@ class CerbAutomationAstNode implements JsonSerializable {
 		return $this;
 	}
 	
-	public function getParams(DevblocksDictionaryDelegate $dict=null) {
+	public function getParams(DevblocksDictionaryDelegate $dict=null, &$error=null) {
 		$params = $this->_params;
 		
 		if(is_null($dict))
@@ -1006,7 +1006,7 @@ class CerbAutomationAstNode implements JsonSerializable {
 		
 		if(is_array($params))
 		foreach($params as $k => $v) {
-			if(false !== ($this->formatKeyValue($k, $v, $dict)))
+			if(false !== ($this->formatKeyValue($k, $v, $dict, $error)))
 				if(!is_null($k))
 					$return_values[$k] = $v;
 		}
@@ -1199,7 +1199,7 @@ class CerbAutomationAstNode implements JsonSerializable {
 	}
 	
 	// [TODO] Make reusable with prompt text
-	function formatKeyValue(&$k, &$v, DevblocksDictionaryDelegate $dict) {
+	function formatKeyValue(&$k, &$v, DevblocksDictionaryDelegate $dict, &$error=null) {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
 		$annotations = [];
@@ -1219,7 +1219,8 @@ class CerbAutomationAstNode implements JsonSerializable {
 				return true;
 				
 			} else {
-				$value = $tpl_builder->build($v, $dict);
+				if(false === ($value = $tpl_builder->build($v, $dict)))
+					$error = $tpl_builder->getLastError();
 			}
 			
 			foreach($annotations as $annotation) {
@@ -1318,7 +1319,7 @@ class CerbAutomationAstNode implements JsonSerializable {
 			
 			$new_v = [];
 			foreach($v as $kk => $vv) {
-				if(false !== ($this->formatKeyValue($kk, $vv, $dict))) {
+				if(false !== ($this->formatKeyValue($kk, $vv, $dict, $error))) {
 					if(!is_null($kk))
 						$new_v[$kk] = $vv;
 				}

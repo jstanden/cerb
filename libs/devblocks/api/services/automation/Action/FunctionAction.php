@@ -22,7 +22,7 @@ class FunctionAction extends AbstractAction {
 		$validation = DevblocksPlatform::services()->validation();
 		$automator = DevblocksPlatform::services()->automation();
 		
-		$params = $this->node->getParams($dict);
+		$params = $automation->getParams($this->node, $dict);
 		$policy = $automation->getPolicy();
 		
 		$inputs = $params['inputs'] ?? [];

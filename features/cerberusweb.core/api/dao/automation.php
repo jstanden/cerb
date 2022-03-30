@@ -754,6 +754,22 @@ class Model_Automation {
 		return $dict;
 	}
 	
+	public function getParams(CerbAutomationAstNode $node, DevblocksDictionaryDelegate $dict) {
+		$script_error = null;
+		
+		$params = $node->getParams($dict, $script_error);
+		
+		if($script_error) {
+			$this->logError(
+				'Scripting error: ' . $script_error,
+				$node->getId(),
+				3 // error
+			);
+		}
+		
+		return $params;
+	}
+	
 	public function logError($log_message, $node_path, $log_level=3) {
 		$fields = [
 			DAO_AutomationLog::LOG_MESSAGE => $log_message,

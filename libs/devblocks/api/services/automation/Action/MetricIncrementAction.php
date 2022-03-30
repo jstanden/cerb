@@ -13,7 +13,7 @@ class MetricIncrementAction extends AbstractAction {
 		$metrics = DevblocksPlatform::services()->metrics();
 		$validation = DevblocksPlatform::services()->validation();
 		
-		$params = $this->node->getParams($dict);
+		$params = $automation->getParams($this->node, $dict);
 		$policy = $automation->getPolicy();
 		
 		$inputs = $params['inputs'] ?? [];

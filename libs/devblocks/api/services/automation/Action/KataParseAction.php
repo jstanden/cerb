@@ -13,7 +13,7 @@ class KataParseAction extends AbstractAction {
 		$kata = DevblocksPlatform::services()->kata();
 		$validation = DevblocksPlatform::services()->validation();
 		
-		$params = $this->node->getParams($dict);
+		$params = $automation->getParams($this->node, $dict);
 		
 		$inputs = $params['inputs'] ?? [];
 		$output = $params['output'] ?? null;

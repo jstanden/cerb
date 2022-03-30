@@ -7,7 +7,7 @@ use Model_Automation;
 
 class RepeatNode extends AbstractNode {
 	public function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error = null) {
-		$params = $this->node->getParams($dict);
+		$params = $automation->getParams($this->node, $dict);
 		
 		$each = $params['each'] ?? null;
 		$as = $params['as'] ?? null;

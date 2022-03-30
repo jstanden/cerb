@@ -13,7 +13,7 @@ class QueuePopAction extends AbstractAction {
 		$queue = DevblocksPlatform::services()->queue();
 		$validation = DevblocksPlatform::services()->validation();
 		
-		$params = $this->node->getParams($dict);
+		$params = $automation->getParams($this->node, $dict);
 		$policy = $automation->getPolicy();
 		
 		$inputs = $params['inputs'] ?? [];

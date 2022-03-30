@@ -10,7 +10,7 @@ class DecisionNode extends AbstractNode {
 			$node_memory['stack'] = [];
 			
 			foreach ($this->node->getChildren() as $outcome) {
-				$outcome_params = $outcome->getParams($dict);
+				$outcome_params = $automation->getParams($outcome, $dict);
 				
 				if(!array_key_exists('if', $outcome_params)) {
 					return $outcome->getId();

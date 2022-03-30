@@ -15,7 +15,7 @@ class SimulateErrorAction extends AbstractAction {
 	 * @return string|false
 	 */
 	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) {
-		$return_values = $this->node->getParams($dict);
+		$return_values = $automation->getParams($this->node, $dict);
 		
 		$simulate_node = $this->node->getAncestorByType('on_simulate');
 		
