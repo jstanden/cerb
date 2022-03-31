@@ -157,6 +157,8 @@
 
 <script type="text/javascript">
 $('#viewForm{$view->id}').find('button.add').click(function(e) {
+	e.stopPropagation();
+	
 	var $this = $(this);
 
 	var $menu = $('BODY UL.navmenu:first');

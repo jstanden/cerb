@@ -655,9 +655,17 @@ function DevblocksClass() {
 			var current_indent = null;
 			
 			if(null != token) {
-				var token_column = iter.getCurrentTokenColumn();
-				var token_row = iter.getCurrentTokenRow();
-				var currentTokenLine = editor.session.getLine(token_row);
+				let token_column = null;
+				let token_row = null;
+				let currentTokenLine = null;
+				
+				try {
+					token_column = iter.getCurrentTokenColumn();
+					token_row = iter.getCurrentTokenRow();
+					currentTokenLine = editor.session.getLine(token_row);
+				} catch (e) {
+					return [];
+				}
 				
 				// If our previous token is a tag, and we're on the same line, autocomplete inline
 				if(token.type === 'text') {
@@ -695,9 +703,13 @@ function DevblocksClass() {
 				}
 
 				do {
-					token = iter.getCurrentToken();
-					token_column = iter.getCurrentTokenColumn();
-					token_row = iter.getCurrentTokenRow();
+					try {
+						token = iter.getCurrentToken();
+						token_column = iter.getCurrentTokenColumn();
+						token_row = iter.getCurrentTokenRow();
+					} catch(e) {
+						continue;
+					}
 
 					if(token.type === 'meta.tag' && 0 === token_column) {
 						var token_value = token.value;
