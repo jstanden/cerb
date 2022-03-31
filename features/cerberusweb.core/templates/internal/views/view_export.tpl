@@ -16,6 +16,7 @@
 	<b>Export rows as:</b>
 	<div style="margin-left:10px;">
 		<label><input type="radio" name="export_as" value="csv" checked="checked"> Comma-separated values (.csv)</label>
+		<label><input type="radio" name="export_as" value="jsonl"> JSON Lines (.jsonl)</label>
 		<label><input type="radio" name="export_as" value="json"> JSON (.json)</label>
 		<label><input type="radio" name="export_as" value="xml"> XML (.xml)</label>
 	</div>
