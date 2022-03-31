@@ -729,6 +729,11 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 				$mime_type = 'application/json';
 				break;
 			
+			case 'jsonl':
+				$this->_viewIncrementExportAsJsonl($cursor);
+				$mime_type = 'text/plain';
+				break;
+			
 			case 'xml':
 				$this->_viewIncrementExportAsXml($cursor);
 				$mime_type = 'text/xml';
@@ -1062,6 +1067,85 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		if($count < $view->renderLimit) {
 			$cursor['completed'] = true;
 			fputs($fp, "]\n}");
+		}
+		
+		fclose($fp);
+	}
+	
+	private function _viewIncrementExportAsJsonl(array &$cursor) {
+		if(false == ($view = $this->_getViewFromCursor($cursor)))
+			return;
+		
+		if(null == ($context_ext = Extension_DevblocksContext::getByViewClass(get_class($view), true)))
+			return;
+		
+		$global_labels = $global_values = [];
+		CerberusContexts::getContext($context_ext->id, null, $global_labels, $global_values, null, true);
+		$global_types = $global_values['_types'];
+		
+		// Append mode to the temp file
+		$fp = fopen($cursor['temp_file'], "a");
+		
+		$count = 0;
+		
+		if(false == ($dicts = $this->_getDictionariesFromView($view, $context_ext, $cursor, $count)))
+			$dicts = [];
+		
+		if('kata' == $cursor['export_mode']) {
+			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+			
+			$export_columns = $this->_getExportColumnsKataFromCursor($cursor);
+			
+			foreach($dicts as $dict) {
+				$object = [];
+				
+				foreach($export_columns as $column_name => $column) {
+					if($column_name) {
+						$value = $tpl_builder->build($column['value'] ?? '', $dict);
+					} else {
+						$value = '';
+					}
+					
+					$object[$column_name] = $value;
+				}
+				
+				$json = json_encode($object);
+				fputs($fp, $json . "\n");
+			}
+			
+		} else {
+			// Rows
+			
+			foreach($dicts as $dict) {
+				$object = [];
+				
+				if(is_array($cursor['tokens']))
+					foreach($cursor['tokens'] as $token) {
+						$value = $dict->$token;
+						
+						if($global_types[$token] == Model_CustomField::TYPE_DATE && $cursor['format_timestamps']) {
+							if(empty($value)) {
+								$value = '';
+							} else if (is_numeric($value)) {
+								$value = date('r', $value);
+							}
+						}
+						
+						$object[$token] = $value;
+					}
+				
+				$json = json_encode($object);
+				fputs($fp, $json . "\n");
+			}
+			
+		}
+		
+		$cursor['page']++;
+		$cursor['rows_exported'] += $count;
+		
+		// If our page isn't full, we're done
+		if($count < $view->renderLimit) {
+			$cursor['completed'] = true;
 		}
 		
 		fclose($fp);
