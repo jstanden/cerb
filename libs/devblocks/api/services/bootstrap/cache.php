@@ -276,10 +276,11 @@ class _DevblocksCacheManager {
 class DevblocksCacheEngine_Disk extends Extension_DevblocksCacheEngine {
 	const ID = 'devblocks.cache.engine.disk';
 	
+	private function _getCacheDir() {
+		return APP_TEMP_PATH . DIRECTORY_SEPARATOR;
+	}
+	
 	function setConfig(array $config) {
-		if(!isset($config['cache_dir']))
-			$config['cache_dir'] = APP_TEMP_PATH . DIRECTORY_SEPARATOR;
-		
 		if(!isset($config['key_prefix']))
 			$config['key_prefix'] = 'cache--';
 		
@@ -293,17 +294,10 @@ class DevblocksCacheEngine_Disk extends Extension_DevblocksCacheEngine {
 	}
 	
 	function testConfig(array $config) {
-		if(!isset($config['cache_dir']))
-			$config['cache_dir'] = APP_TEMP_PATH . DIRECTORY_SEPARATOR;
+		$cache_dir = $this->_getCacheDir();
 		
-		if(!isset($config['key_prefix']))
-			$config['key_prefix'] = 'cache--';
-		
-		if(!isset($config['cache_dir']) || empty($config['cache_dir']))
-			return "DevblocksCacheEngine_Disk requires the 'cache_dir' option.";
-
-		if(!is_writeable($config['cache_dir']))
-			return sprintf("Devblocks requires write access to %s", $config['cache_dir']);
+		if(!is_writeable($cache_dir))
+			return sprintf("Cerb requires write access to %s", $cache_dir);
 		
 		return true;
 	}
@@ -335,7 +329,7 @@ class DevblocksCacheEngine_Disk extends Extension_DevblocksCacheEngine {
 	}
 	
 	function load($key, &$tags=[]) {
-		$cache_dir = $this->_config['cache_dir'] ?? null;
+		$cache_dir = $this->_getCacheDir();
 		
 		if(empty($cache_dir))
 			return NULL;
@@ -377,7 +371,7 @@ class DevblocksCacheEngine_Disk extends Extension_DevblocksCacheEngine {
 	}
 	
 	function save($data, $key, $tags=[], $ttl=0) {
-		$cache_dir = $this->_config['cache_dir'] ?? null;
+		$cache_dir = $this->_getCacheDir();
 		
 		if(empty($cache_dir))
 			return false;
@@ -414,7 +408,7 @@ class DevblocksCacheEngine_Disk extends Extension_DevblocksCacheEngine {
 	}
 	
 	function remove($key) {
-		$cache_dir = $this->_config['cache_dir'] ?? null;
+		$cache_dir = $this->_getCacheDir();
 		
 		if(empty($cache_dir))
 			return false;
@@ -427,7 +421,7 @@ class DevblocksCacheEngine_Disk extends Extension_DevblocksCacheEngine {
 	}
 	
 	function clean() {
-		$cache_dir = $this->_config['cache_dir'] ?? null;
+		$cache_dir = $this->_getCacheDir();
 		
 		$files = scandir($cache_dir);
 		unset($files['.']);
