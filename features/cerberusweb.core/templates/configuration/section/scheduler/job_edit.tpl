@@ -59,9 +59,8 @@ $(function() {
 	$frm.find('BUTTON.submit')
 		.click(function(e) {
 			genericAjaxPost('frmJob{$extid}','',null,function(json) {
-				let $o = $.parseJSON(json);
-				if(false == $o || false == $o.status) {
-					Devblocks.showError('#frmJob{$extid} div.status',$o.error);
+				if('object' != typeof json || false == json.status) {
+					Devblocks.showError('#frmJob{$extid} div.status',json.error);
 				} else {
 					genericAjaxGet('job_{$extid}','c=config&a=invoke&module=scheduler&action=getJob&id={$job->manifest->id}');
 				}

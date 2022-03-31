@@ -493,17 +493,15 @@ $(function() {
 				function(json) {
 					$this.removeAttr('disabled');
 
-					var obj = $.parseJSON(json);
-
-					if(!obj)
+					if('object' != typeof json)
 						return;
 
-					if(obj.error) {
-						$('#divDraftStatus{$popup_uniqid}').html(obj.error);
+					if(json.error) {
+						$('#divDraftStatus{$popup_uniqid}').html(json.error);
 
-					} else if(obj.html && obj.draft_id) {
-						$('#divDraftStatus{$popup_uniqid}').html(obj.html);
-						$frm.find('input[name=draft_id]').val(obj.draft_id);
+					} else if(json.html && json.draft_id) {
+						$('#divDraftStatus{$popup_uniqid}').html(json.html);
+						$frm.find('input[name=draft_id]').val(json.draft_id);
 					}
 				}
 			);

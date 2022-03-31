@@ -518,6 +518,8 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 	private function _profileAction_saveDraftCompose() {
 		$tpl = DevblocksPlatform::services()->template();
 		
+		header('Content-Type: application/json; charset=utf-8');
+		
 		$error = null;
 		
 		if(false == ($draft_id = $this->saveDraftCompose($error))) {

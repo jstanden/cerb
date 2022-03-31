@@ -65,6 +65,8 @@ class PageSection_SetupScheduler extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
+		header('Content-Type: application/json; charset=utf-8');
+		
 		try {
 			// Save the job changes
 			$id = DevblocksPlatform::importGPC($_POST['id'] ?? null,'string','');

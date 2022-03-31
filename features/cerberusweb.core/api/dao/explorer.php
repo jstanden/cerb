@@ -44,7 +44,7 @@ class DAO_ExplorerSet extends Cerb_ORMHelper {
 		return $validation->getFields();
 	}
 	
-	static function createFromModels($models) {
+	static function createFromModels($models) : bool {
 		// Polymorph
 		if(!is_array($models) && $models instanceof Model_ExplorerSet)
 			$models = array($models);
