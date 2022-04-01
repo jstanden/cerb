@@ -181,6 +181,7 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 						header(sprintf('Expires: %s GMT', gmdate('D, d M Y H:i:s', time() + $ttl_secs)));
 						
 						$tpl = DevblocksPlatform::services()->templateSandbox();
+						$tpl->assign('cerb_app_build', APP_BUILD);
 						$tpl->display('devblocks:cerb.website.interactions::public/cerb.js');
 						break;
 						

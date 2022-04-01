@@ -1,7 +1,7 @@
 'use strict';
 
 function CerbInteractions() {
-    this.version = '{$smarty.const.APP_BUILD}';
+    this.version = '{$cerb_app_build}';
     this.base_url = '{devblocks_url full=true}{/devblocks_url}';
     
     this.$script = document.getElementById('cerb-interactions');
