@@ -4,7 +4,7 @@
 	var loaded = false;
 	if(!(j = window.jQuery) || version > j.fn.jquery || callback(j, loaded)) {
 		$jquery.type = 'text/javascript';
-		$jquery.src = 'https://code.jquery.com/jquery-3.2.1.min.js';
+		$jquery.src = '{devblocks_url}{/devblocks_url}resource/cerb.bots.portal.widget/js/jquery.js?v=2022033101';
 		$jquery.onload = $jquery.onreadystatechange = function() {
 			if(!(d = this.readyState) || d == 'loaded' || d == 'complete') {
 				callback((j = window.jQuery).noConflict(1), loaded = true);
