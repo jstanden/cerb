@@ -185,7 +185,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 			
 			$fields = array(
 				DAO_Ticket::SUBJECT => $subject,
-				DAO_Ticket::UPDATED_DATE = time(),
+				DAO_Ticket::UPDATED_DATE => time(),
 			);
 			
 			// Group
