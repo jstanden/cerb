@@ -1,6 +1,6 @@
 <html>
 <head>
-	<meta content="text/html; charset={$smarty.const.LANG_CHARSET_CODE}" http-equiv="content-type">
+	<meta content="text/html; charset=utf-8" http-equiv="content-type">
 	<meta name="_csrf_token" content="{$session->csrf_token}">
 	<title>{$page_title}</title>
 	

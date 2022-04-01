@@ -493,7 +493,13 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 					}
 				}
 				
-				$tpl->display('devblocks:cerb.bots.portal.widget::portal/index.tpl');
+				$tpl->assign('cerb_app_build', APP_BUILD);
+				
+				try {
+					$tpl->display('devblocks:cerb.bots.portal.widget::portal/index.tpl');
+				} catch (Exception $e) {
+					error_log($e->getMessage());
+				}
 				break;
 		}
 	}

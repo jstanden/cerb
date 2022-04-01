@@ -96,11 +96,11 @@
 <table cellpadding="2" cellspacing="0" border="0" width="100%" id="{$view->id}_actions">
 	<tr>
 		<td align="right" valign="top" nowrap="nowrap">
-			{math assign=fromRow equation="(x*y)+1" x=$view->renderPage y=$view->renderLimit}
-			{math assign=toRow equation="(x-1)+y" x=$fromRow y=$view->renderLimit}
-			{math assign=nextPage equation="x+1" x=$view->renderPage}
-			{math assign=prevPage equation="x-1" x=$view->renderPage}
-			{math assign=lastPage equation="ceil(x/y)-1" x=$total y=$view->renderLimit}
+			{$fromRow = ($view->renderPage * $view->renderLimit) + 1}
+			{$toRow = ($fromRow-1) + $view->renderLimit}
+			{$nextPage = $view->renderPage + 1}
+			{$prevPage = $view->renderPage - 1}
+			{$lastPage = ceil($total/$view->renderLimit)-1}
 			
 			{* Sanity checks *}
 			{if $toRow > $total}{assign var=toRow value=$total}{/if}

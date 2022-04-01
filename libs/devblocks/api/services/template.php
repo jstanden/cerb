@@ -97,13 +97,29 @@ class _DevblocksTemplateManager {
 			
 			// Security policy
 			$security = new Smarty_Security($instance);
-			$security->secure_dir = array();
-			$security->trusted_uri = array(
-				'#devblocks:.*$#i',
-			);
+			$security->secure_dir = [];
+			$security->trusted_uri = [];
+			$security->allow_constants = false;
 			$security->allow_super_globals = false;
-			$security->php_functions = array(
+			$security->allowed_tags = [
+				'assign',
+				'capture',
+				'captureclose',
+				'else',
+				'elseif',
+				'foreach',
+				'foreachclose',
+				'if',
+				'ifclose',
+				'include',
+			];
+			$security->disabled_tags = [
+				'assign',
+				'fetch',
+			];
+			$security->php_functions = [
 				'array_keys',
+				'ceil',
 				'empty',
 				'explode',
 				'implode',
@@ -115,8 +131,8 @@ class _DevblocksTemplateManager {
 				'strcasecmp',
 				'substr',
 				'uniqid',
-			);
-			$security->php_modifiers = array(
+			];
+			$security->php_modifiers = [
 				'array_keys',
 				'count',
 				'explode',
@@ -126,14 +142,14 @@ class _DevblocksTemplateManager {
 				'nl2br',
 				'sort',
 				'trim',
-			);
-			$security->static_classes = array(
+			];
+			$security->static_classes = [
 				'Model_CustomField',
 				'Model_Ticket',
-			);
-			$security->streams = array(
+			];
+			$security->streams = [
 				'none'
-			);
+			];
 			$security->disabled_special_smarty_vars = ["template_object"];			
 			$instance->enableSecurity($security);
 			

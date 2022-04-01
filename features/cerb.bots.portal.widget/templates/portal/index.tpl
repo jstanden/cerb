@@ -14,7 +14,7 @@
 </head>
 <body>
 	
-	<script async type="text/javascript" src="{devblocks_url full=true}c=assets&f=embed.js{/devblocks_url}?v={$smarty.const.APP_BUILD}" id="cerb-portal" data-bubble="{if $config.page_hide_icon}false{else}true{/if}"></script>
+	<script async type="text/javascript" src="{devblocks_url full=true}c=assets&f=embed.js{/devblocks_url}?v={$cerb_app_build}" id="cerb-portal" data-bubble="{if $config.page_hide_icon}false{else}true{/if}"></script>
 	
 	{if !empty($interaction)}
 	<script type="text/javascript">
