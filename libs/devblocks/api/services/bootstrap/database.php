@@ -64,6 +64,15 @@ class _DevblocksDatabaseManager {
 		return $db;
 	}
 	
+	private function _resetReader() {
+		if($this->_connections['master'] == $this->_connections['reader'])
+			unset($this->_connections['master']);
+		
+		unset($this->_connections['reader']);
+		unset($this->_master_db);
+		unset($this->_reader_db);
+	}
+	
 	private function _connectReader() {
 		// Reuse an existing connection for this request
 		if(isset($this->_connections['reader']))
@@ -350,7 +359,6 @@ class _DevblocksDatabaseManager {
 		
 		$results = [];
 		$connections = [];
-		$monitor_db = null;
 		
 		foreach($sqls as $idx => $sql) {
 			if(0 == $idx) {
@@ -368,11 +376,6 @@ class _DevblocksDatabaseManager {
 		}
 		
 		do {
-			$links = $errors = $rejects = [];
-			
-			foreach($connections as $db)
-				$links[] = $errors[] = $rejects[] = $db;
-			
 			$elapsed_ms = (microtime(true) * 1000) - $started_at;
 			
 			// Close any incomplete connections
@@ -380,17 +383,16 @@ class _DevblocksDatabaseManager {
 				// If we timed out on this query
 				if(false === $results[$db->thread_id] && $elapsed_ms >= $time_limits[$idx]) {
 					// Open a new connection to control the other threads
-					if(is_null($monitor_db))
-						$monitor_db = $this->getNewReaderConnection();
+					$monitor_db = $this->getNewReaderConnection();
 					
 					// Mark the thread as timed out
 					$results[$db->thread_id] = new Exception_DevblocksDatabaseQueryTimeout();
 					
 					DevblocksPlatform::logError(
-						sprintf('Timed out ::SQL:: (%s pid:%d time:%dms) %s ',
+						sprintf("Timed out ::SQL:: (%s pid:%d time:%dms) %s\n",
 							APP_DB_DATABASE,
 							$db->thread_id,
-							$time_limit_ms,
+							$time_limits[$idx],
 							$sqls[$idx]
 						),
 						false
@@ -398,13 +400,26 @@ class _DevblocksDatabaseManager {
 					
 					// Kill the timed out thread using the new connection
 					mysqli_kill($monitor_db, $db->thread_id);
+					mysqli_close($db);
+					
+					unset($connections[$idx]);
+					
+					mysqli_close($monitor_db);
+					
+					// If it was the main reader, reconnect
+					if(0 === $idx) {
+						$this->_resetReader();
+					}
 				}
 			}
 			
-			if(!is_null($monitor_db))
-				@mysqli_close($monitor_db);
+			$links = $errors = $rejects = [];
 			
-			mysqli_poll($links, $errors, $rejects, 1);
+			foreach($connections as $db)
+				$links[] = $errors[] = $rejects[] = $db;
+			
+			if($connections)
+				mysqli_poll($links, $errors, $rejects, 0, 500_000);
 			
 			foreach ($links as $idx => $link) {
 				$rs = mysqli_reap_async_query($link);
@@ -425,7 +440,7 @@ class _DevblocksDatabaseManager {
 					
 					$results[$link->thread_id] = new Exception_DevblocksDatabaseQueryError();
 					
-					$error_msg = sprintf("[%d] %s ::SQL:: %s",
+					$error_msg = sprintf("[%d] %s ::SQL:: %s\n",
 						$mysql_errno,
 						$mysql_error,
 						$sqls[$idx]
