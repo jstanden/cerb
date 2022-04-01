@@ -266,14 +266,17 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 						// Hibernate
 						if($result['exit_state'] == 'SUSPEND') {
 							// Keep everything as it is
+							DevblocksPlatform::noop();
+							
 						} else {
 							// Start the tree over
 							$result['path'] = [];
 							
 							// Return to the caller if we have one
-							@$caller = array_pop($interaction->session_data['callers']);
-							$interaction->session_data['behavior_has_parent'] = !empty($interaction->session_data['callers']) ? 1 : 0;
-							@$caller_result_key = $caller['result'] ?? '_behavior';
+							$callers = $interaction->session_data['callers'] ?? [];
+							$caller = array_pop($callers);
+							$interaction->session_data['behavior_has_parent'] = !empty($callers) ? 1 : 0;
+							$caller_result_key = $caller['result'] ?? '_behavior';
 							
 							if(is_array($caller)) {
 								$caller_behavior_id = $caller['behavior_id'];

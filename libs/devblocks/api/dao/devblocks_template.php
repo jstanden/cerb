@@ -397,18 +397,6 @@ class Model_DevblocksTemplate {
 	public $tag;
 	public $last_updated;
 	public $content;
-	
-	function getDefaultContent() {
-		// Pull from filesystem for editing
-		$content = '';
-		if(null != ($plugin = DevblocksPlatform::getPlugin($this->plugin_id))) {
-			$path = $plugin->getStoragePath() . '/templates/' . $this->path;
-			if(file_exists($path)) {
-				$content = file_get_contents($path);
-			}
-		}
-		return $content;
-	}
 };
 
 class SearchFields_DevblocksTemplate extends DevblocksSearchFields {

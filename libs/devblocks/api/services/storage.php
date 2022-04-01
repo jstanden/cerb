@@ -80,21 +80,39 @@ class DevblocksStorageEngineDisk extends Extension_DevblocksStorageEngine {
 	}
 	
 	public function exists($namespace, $key) {
-		return file_exists($this->_options['storage_path'] . $this->escapeNamespace($namespace) . '/' . $key);
+		$basepath = $this->_options['storage_path'];
+		$filepath = $this->_options['storage_path'] . $this->escapeNamespace($namespace) . '/' . $key;
+		
+		if(false == ($filepath = realpath($filepath)))
+			return false;
+		
+		if(!DevblocksPlatform::strStartsWith($filepath, $basepath))
+			return false;
+		
+		return file_exists($filepath);
 	}
 	
 	public function put($namespace, $id, $data) {
+		$basepath = $this->_options['storage_path'];
+		
 		// Get a unique hash path for this namespace+id
 		$hash = base_convert(sha1($this->escapeNamespace($namespace).$id),16,32);
 		$key_prefix = sprintf("%s/%s",
 			substr($hash,0,1),
 			substr($hash,1,1)
 		);
+		
 		$path = sprintf("%s%s/%s",
 			$this->_options['storage_path'],
 			$this->escapeNamespace($namespace),
 			$key_prefix
 		);
+		
+		if(false == ($path = realpath($path)))
+			return false;
+		
+		if(!DevblocksPlatform::strStartsWith($path, $basepath))
+			return false;
 		
 		// Create the hash path if it doesn't exist
 		if(!is_dir($path)) {
@@ -125,17 +143,23 @@ class DevblocksStorageEngineDisk extends Extension_DevblocksStorageEngine {
 				return false;
 		}
 
-		$key = $key_prefix.'/'.$id;
-			
-		return $key;
+		return $key_prefix.'/'.$id;
 	}
 
 	public function get($namespace, $key, &$fp=null) {
+		$basepath = $this->_options['storage_path'];
+		
 		$path = sprintf("%s%s/%s",
 			$this->_options['storage_path'],
 			$this->escapeNamespace($namespace),
 			$key
 		);
+		
+		if(false == ($path = realpath($path)))
+			return false;
+		
+		if(!DevblocksPlatform::strStartsWith($path, $basepath))
+			return false;
 		
 		if(!file_exists($path))
 			return false;
@@ -164,8 +188,6 @@ class DevblocksStorageEngineDisk extends Extension_DevblocksStorageEngine {
 				return false;
 			return $contents;
 		}
-			
-		return false;
 	}
 	
 	public function delete($namespace, $key) {

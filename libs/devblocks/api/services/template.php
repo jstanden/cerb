@@ -456,13 +456,20 @@ class _DevblocksSmartyTemplateResource extends Smarty_Resource_Custom {
 			
 		if(null == ($plugin = @$plugins[$plugin_id])) /* @var $plugin DevblocksPluginManifest */
 			return false;
+		
+		// If not in DB, check plugin's relative path on disk
+		$basepath = $plugin->getStoragePath() . '/templates/';
+		
+		if(false == ($path = realpath($plugin->getStoragePath() . '/templates/' . $tpl_path)))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if(!DevblocksPlatform::strStartsWith($path, $basepath))
+			DevblocksPlatform::dieWithHttpError(null, 403);
 
 		// Only check the DB if the template may be overridden
-		// [TODO] Alternatively, keep a cache of override paths
 		if(isset($plugin->manifest_cache['templates'])) {
 			foreach($plugin->manifest_cache['templates'] as $v) {
 				if(0 == strcasecmp($v['path'], $tpl_path)) {
-					// [TODO] Use cache
 					// Check if template is overloaded in DB/cache
 					$matches = DAO_DevblocksTemplate::getWhere(sprintf("plugin_id = %s AND path = %s %s",
 						Cerb_ORMHelper::qstr($plugin_id),
@@ -480,9 +487,6 @@ class _DevblocksSmartyTemplateResource extends Smarty_Resource_Custom {
 			}
 		}
 			
-		// If not in DB, check plugin's relative path on disk
-		$path = $plugin->getStoragePath() . '/templates/' . $tpl_path;
-		
 		if(false == ($source = @file_get_contents($path)))
 			return false;
 		

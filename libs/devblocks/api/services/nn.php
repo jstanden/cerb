@@ -154,6 +154,8 @@ class DevblocksNeuralNetwork {
 		return $values;
 	}
 	
+	/*
+ 	// Not secure for the web
 	public function export($filename) {
 		$object = array(
 			'inputs' => array(
@@ -184,6 +186,7 @@ class DevblocksNeuralNetwork {
 		file_put_contents($filename, json_encode($object));
 	}
 	
+	// Not secure for the web
 	public function import($filename) {
 		$json = json_decode(file_get_contents($filename), true);
 		
@@ -200,6 +203,7 @@ class DevblocksNeuralNetwork {
 			$output->threshold = $json['outputs']['thresholds'][$idx];
 		}
 	}
+	*/
 }
 
 class _DevblocksNeuralNetworkService {

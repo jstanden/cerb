@@ -286,7 +286,13 @@ class Controller_Avatars extends DevblocksControllerExtension {
 	}
 	
 	private function _renderFilePng($file) {
-		$contents = file_get_contents($file);
+		$base_path = APP_PATH . '/features/cerberusweb.core/resources/images/avatars/';
+		$file_path = realpath($file);
+		
+		if(!DevblocksPlatform::strStartsWith($file_path, $base_path))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		$contents = file_get_contents($file_path);
 		
 		// Set headers
 		header('Pragma: cache');
