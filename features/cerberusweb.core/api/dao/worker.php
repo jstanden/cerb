@@ -1423,6 +1423,7 @@ class SearchFields_Worker extends DevblocksSearchFields {
 	const FULLTEXT_WORKER = 'ft_worker';
 	
 	const VIRTUAL_ALIAS = '*_alias';
+	const VIRTUAL_CALENDAR_SEARCH = '*_calendar_search';
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_EMAIL_SEARCH = '*_email_search';
 	const VIRTUAL_GROUPS = '*_groups';
@@ -1456,6 +1457,9 @@ class SearchFields_Worker extends DevblocksSearchFields {
 				
 			case self::VIRTUAL_ALIAS:
 				return self::_getWhereSQLFromAliasesField($param, CerberusContexts::CONTEXT_WORKER, self::getPrimaryKey());
+				
+			case self::VIRTUAL_CALENDAR_SEARCH:
+				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_CALENDAR, 'w.calendar_id');
 				
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_WORKER, self::getPrimaryKey());
@@ -1682,6 +1686,7 @@ class SearchFields_Worker extends DevblocksSearchFields {
 			self::FULLTEXT_WORKER => new DevblocksSearchField(self::FULLTEXT_WORKER, 'ft', 'content', $translate->_('common.content'), 'FT'),
 			
 			self::VIRTUAL_ALIAS => new DevblocksSearchField(self::VIRTUAL_ALIAS, '*', 'alias', $translate->_('common.aliases'), null, false),
+			self::VIRTUAL_CALENDAR_SEARCH => new DevblocksSearchField(self::VIRTUAL_CALENDAR_SEARCH, '*', 'calendar_search', null, null),
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_EMAIL_SEARCH => new DevblocksSearchField(self::VIRTUAL_EMAIL_SEARCH, '*', 'email_search', null, null),
 			self::VIRTUAL_GROUP_SEARCH => new DevblocksSearchField(self::VIRTUAL_GROUP_SEARCH, '*', 'group_search', DevblocksPlatform::translateCapitalized('common.groups'), null, false),
@@ -2221,6 +2226,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		$this->addColumnsHidden(array(
 			SearchFields_Worker::EMAIL_ID,
 			SearchFields_Worker::VIRTUAL_ALIAS,
+			SearchFields_Worker::VIRTUAL_CALENDAR_SEARCH,
 			SearchFields_Worker::VIRTUAL_CONTEXT_LINK,
 			SearchFields_Worker::VIRTUAL_EMAIL_SEARCH,
 			SearchFields_Worker::VIRTUAL_HAS_FIELDSET,
@@ -2450,6 +2456,28 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Worker::VIRTUAL_ALIAS),
+				),
+			'calendar.id' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => [
+						'param_key' => SearchFields_Worker::CALENDAR_ID,
+					],
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_CALENDAR, 'q' => ''],
+					]
+				),
+			'calendar' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'score' => 1500,
+					'options' => [
+						'param_key' => SearchFields_Worker::VIRTUAL_CALENDAR_SEARCH,
+						'select_key' => 'w.calendar_id',
+					],
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CALENDAR, 'q' => ''],
+					]
 				),
 			'email.id' => 
 				array(
@@ -2738,7 +2766,10 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case 'alias':
 				return DevblocksSearchCriteria::getContextAliasParamFromTokens(SearchFields_Worker::VIRTUAL_ALIAS, $tokens);
 				break;
-				
+			
+			case 'calendar':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Worker::VIRTUAL_CALENDAR_SEARCH);
+
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
 				break;
@@ -2855,6 +2886,13 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				);
 				break;
 			
+			case SearchFields_Worker::VIRTUAL_CALENDAR_SEARCH:
+				echo sprintf("%s matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.calendar')),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
+				break;
+
 			case SearchFields_Worker::VIRTUAL_CONTEXT_LINK:
 				$this->_renderVirtualContextLinks($param);
 				break;
