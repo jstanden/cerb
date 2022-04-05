@@ -44,6 +44,9 @@ class ChExplorerController extends DevblocksControllerExtension {
 		array_shift($stack); // explorer
 		$hashset = array_shift($stack); // set
 		$p = array_shift($stack) ?? 1; // item
+		
+		if(!$hashset)
+			CerberusApplication::respondNotFound();
 
 		if($p != abs(intval($p)) || $p < 1)
 			CerberusApplication::respondNotFound();

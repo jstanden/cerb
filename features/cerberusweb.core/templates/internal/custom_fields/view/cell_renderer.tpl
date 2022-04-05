@@ -67,7 +67,9 @@
 	<td data-column="{$column}">
 		{$file_id = $result.$column}
 		{$file = DAO_Attachment::get($file_id)}
+		{if $file}
 		<a href="{devblocks_url}c=files&id={$file->id}&file={$file->name|escape:'url'}{/devblocks_url}" title="{$file->name} ({$file->storage_size|devblocks_prettybytes})" target="_blank" rel="noopener">{$file->name}</a>
+		{/if}
 	</td>
 {elseif $col->type==Model_CustomField::TYPE_FILES}
 	<td data-column="{$column}">
@@ -75,7 +77,9 @@
 
 		{foreach from=$file_ids item=file_id name=files}
 			{$file = DAO_Attachment::get($file_id)}
+			{if $file}
 			<a href="{devblocks_url}c=files&id={$file->id}&file={$file->name|escape:'url'}{/devblocks_url}" title="{$file->name} ({$file->storage_size|devblocks_prettybytes})" target="_blank" rel="noopener">{$file->name}</a>{if !$smarty.foreach.files.last}, {/if}
+			{/if}
 		{/foreach}
 	</td>
 {elseif $col->type==Model_CustomField::TYPE_WORKER}
