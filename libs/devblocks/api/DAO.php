@@ -375,16 +375,26 @@ abstract class DevblocksORMHelper {
 		$sort_sql = null;
 		
 		if(!is_array($sortBy))
-			$sortBy = array($sortBy);
+			$sortBy = [$sortBy];
 		
 		if(!is_array($sortAsc))
-			$sortAsc = array($sortAsc);
+			$sortAsc = [$sortAsc];
 		
 		// Append custom fields to the SELECT if (and only if) we're sorting on it
 		
 		foreach($sortBy as $sort_field) {
-			if(!DevblocksPlatform::strStartsWith($sort_field, 'cf_'))
+			if(!DevblocksPlatform::strStartsWith($sort_field, 'cf_')) {
+				if(array_key_exists($sort_field, $fields)) {
+					// Only append if this field isn't in the SELECT yet
+					if(
+						false === stripos($select_sql, sprintf('AS %s ', $sort_field))
+						&& '*' != $fields[$sort_field]->db_table
+					) {
+						$select_sql .= sprintf(", %s.%s AS %s ", $fields[$sort_field]->db_table, $fields[$sort_field]->db_column, $sort_field);
+					}
+				}
 				continue;
+			}
 			
 			if(false == ($field_id = intval(substr($sort_field, 3))))
 				continue;
@@ -426,7 +436,7 @@ abstract class DevblocksORMHelper {
 				// We can't sort on virtual fields, the field must exist, and must be flagged sortable
 				if(
 					!is_string($field)
-					|| '*'==substr($field,0,1)
+					|| DevblocksPlatform::strStartsWith($field, '*')
 					|| !isset($fields[$field])
 					|| !$fields[$field]->is_sortable
 				) {
