@@ -1896,99 +1896,46 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		if(is_string($sortBy))
 		switch($sortBy) {
 			case SearchFields_Ticket::TICKET_IMPORTANCE:
-				$sortBy = array(
+				$sortBy = [
 					SearchFields_Ticket::TICKET_IMPORTANCE,
 					SearchFields_Ticket::TICKET_UPDATED_DATE,
-				);
+				];
 				
-				$sortAsc = array(
+				$sortAsc = [
 					$sortAsc,
 					!$sortAsc,
-				);
+				];
 				break;
 				
 			case SearchFields_Ticket::BUCKET_RESPONSIBILITY:
-				$sortBy = array(
+				$sortBy = [
 					SearchFields_Ticket::BUCKET_RESPONSIBILITY,
 					SearchFields_Ticket::TICKET_IMPORTANCE,
 					SearchFields_Ticket::TICKET_UPDATED_DATE,
-				);
+				];
 				
-				$sortAsc = array(
+				$sortAsc = [
 					$sortAsc,
 					$sortAsc,
 					!$sortAsc,
-				);
+				];
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_STATUS:
-				$sortBy = array(
+				$sortBy = [
 					SearchFields_Ticket::TICKET_STATUS_ID,
-				);
+				];
 				
-				$sortAsc = array(
+				$sortAsc = [
 					$sortAsc,
-				);
+				];
 				break;
 		}
 		
 		list($tables, $wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_Ticket', $sortBy);
 		
-		$select_sql = sprintf("SELECT ".
-			"t.id as %s, ".
-			"t.mask as %s, ".
-			"t.subject as %s, ".
-			"t.status_id as %s, ".
-			"t.first_wrote_address_id as %s, ".
-			"t.last_wrote_address_id as %s, ".
-			"t.first_message_id as %s, ".
-			"t.first_outgoing_message_id as %s, ".
-			"t.last_message_id as %s, ".
-			"t.last_opened_at as %s, ".
-			"t.created_date as %s, ".
-			"t.updated_date as %s, ".
-			"t.closed_at as %s, ".
-			"t.reopen_at as %s, ".
-			"t.spam_training as %s, ".
-			"t.spam_score as %s, ".
-			"t.num_messages as %s, ".
-			"t.num_messages_in as %s, ".
-			"t.num_messages_out as %s, ".
-			"t.elapsed_response_first as %s, ".
-			"t.elapsed_resolution_first as %s, ".
-			"t.elapsed_status_open as %s, ".
-			"t.owner_id as %s, ".
-			"t.importance as %s, ".
-			"t.group_id as %s, ".
-			"t.bucket_id as %s, ".
-			"t.org_id as %s ",
-				SearchFields_Ticket::TICKET_ID,
-				SearchFields_Ticket::TICKET_MASK,
-				SearchFields_Ticket::TICKET_SUBJECT,
-				SearchFields_Ticket::TICKET_STATUS_ID,
-				SearchFields_Ticket::TICKET_FIRST_WROTE_ID,
-				SearchFields_Ticket::TICKET_LAST_WROTE_ID,
-				SearchFields_Ticket::TICKET_FIRST_MESSAGE_ID,
-				SearchFields_Ticket::TICKET_FIRST_OUTGOING_MESSAGE_ID,
-				SearchFields_Ticket::TICKET_LAST_MESSAGE_ID,
-				SearchFields_Ticket::TICKET_LAST_OPENED_AT,
-				SearchFields_Ticket::TICKET_CREATED_DATE,
-				SearchFields_Ticket::TICKET_UPDATED_DATE,
-				SearchFields_Ticket::TICKET_CLOSED_AT,
-				SearchFields_Ticket::TICKET_REOPEN_AT,
-				SearchFields_Ticket::TICKET_SPAM_TRAINING,
-				SearchFields_Ticket::TICKET_SPAM_SCORE,
-				SearchFields_Ticket::TICKET_NUM_MESSAGES,
-				SearchFields_Ticket::TICKET_NUM_MESSAGES_IN,
-				SearchFields_Ticket::TICKET_NUM_MESSAGES_OUT,
-				SearchFields_Ticket::TICKET_ELAPSED_RESPONSE_FIRST,
-				SearchFields_Ticket::TICKET_ELAPSED_RESOLUTION_FIRST,
-				SearchFields_Ticket::TICKET_ELAPSED_STATUS_OPEN,
-				SearchFields_Ticket::TICKET_OWNER_ID,
-				SearchFields_Ticket::TICKET_IMPORTANCE,
-				SearchFields_Ticket::TICKET_GROUP_ID,
-				SearchFields_Ticket::TICKET_BUCKET_ID,
-				SearchFields_Ticket::TICKET_ORG_ID
+		$select_sql = sprintf('SELECT t.id AS %s ', 
+			SearchFields_Ticket::TICKET_ID
 		);
 
 		$join_sql =
@@ -2004,20 +1951,18 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			}
 		}
 		
-		$where_sql = "".
+		$where_sql = 
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 		
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_Ticket');
 
-		$result = array(
+		return [
 			'primary_table' => 't',
 			'select' => $select_sql,
 			'join' => $join_sql,
 			'where' => $where_sql,
 			'sort' => $sort_sql,
-		);
-		
-		return $result;
+		];
 	}
 	
 	static function autocomplete($term, $as='models') {
@@ -2309,7 +2254,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			}
 		}
 		
-		return self::_searchWithTimeout(
+		$results = self::_searchWithTimeout(
 			SearchFields_Ticket::TICKET_ID,
 			$select_sql,
 			$join_sql,
@@ -2319,6 +2264,53 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			$limit,
 			$withCounts
 		);
+		
+		if(!is_array($results))
+			return false;
+		
+		$models = CerberusContexts::getModels(
+			CerberusContexts::CONTEXT_TICKET, 
+			array_column(
+				$results[0], 
+				SearchFields_Ticket::TICKET_ID
+			)
+		);
+		
+		foreach($results[0] as $id => $result) {
+			if(null != ($model = $models[$id] ?? null)) { /* @var Model_Ticket $model */
+				$result[SearchFields_Ticket::TICKET_ID] = $model->id;
+				$result[SearchFields_Ticket::TICKET_MASK] = $model->mask;
+				$result[SearchFields_Ticket::TICKET_SUBJECT] = $model->subject;
+				$result[SearchFields_Ticket::TICKET_STATUS_ID] = $model->status_id;
+				$result[SearchFields_Ticket::TICKET_FIRST_WROTE_ID] = $model->first_wrote_address_id;
+				$result[SearchFields_Ticket::TICKET_LAST_WROTE_ID] = $model->last_wrote_address_id;
+				$result[SearchFields_Ticket::TICKET_FIRST_MESSAGE_ID] = $model->first_message_id;
+				$result[SearchFields_Ticket::TICKET_FIRST_OUTGOING_MESSAGE_ID] = $model->first_outgoing_message_id;
+				$result[SearchFields_Ticket::TICKET_LAST_MESSAGE_ID] = $model->last_message_id;
+				$result[SearchFields_Ticket::TICKET_LAST_OPENED_AT] = $model->last_opened_at;
+				$result[SearchFields_Ticket::TICKET_CREATED_DATE] = $model->created_date;
+				$result[SearchFields_Ticket::TICKET_UPDATED_DATE] = $model->updated_date;
+				$result[SearchFields_Ticket::TICKET_CLOSED_AT] = $model->closed_at;
+				$result[SearchFields_Ticket::TICKET_REOPEN_AT] = $model->reopen_at;
+				$result[SearchFields_Ticket::TICKET_SPAM_TRAINING] = $model->spam_training;
+				$result[SearchFields_Ticket::TICKET_SPAM_SCORE] = $model->spam_score;
+				$result[SearchFields_Ticket::TICKET_NUM_MESSAGES] = $model->num_messages;
+				$result[SearchFields_Ticket::TICKET_NUM_MESSAGES_IN] = $model->num_messages_in;
+				$result[SearchFields_Ticket::TICKET_NUM_MESSAGES_OUT] = $model->num_messages_out;
+				$result[SearchFields_Ticket::TICKET_ELAPSED_RESPONSE_FIRST] = $model->elapsed_response_first;
+				$result[SearchFields_Ticket::TICKET_ELAPSED_RESOLUTION_FIRST] = $model->elapsed_resolution_first;
+				$result[SearchFields_Ticket::TICKET_ELAPSED_STATUS_OPEN] = $model->elapsed_status_open;
+				$result[SearchFields_Ticket::TICKET_OWNER_ID] = $model->owner_id;
+				$result[SearchFields_Ticket::TICKET_IMPORTANCE] = $model->importance;
+				$result[SearchFields_Ticket::TICKET_GROUP_ID] = $model->group_id;
+				$result[SearchFields_Ticket::TICKET_BUCKET_ID] = $model->bucket_id;
+				$result[SearchFields_Ticket::TICKET_ORG_ID] = $model->org_id;
+				
+				$results[0][$id] = array_merge($result, $results[0][$id]);
+			}
+		}
+		
+		return $results;
 	}
 };
 
