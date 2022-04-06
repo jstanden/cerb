@@ -22,7 +22,6 @@
 	var bubble_disable = $embedder.attr('data-bubble') == 'false';
 	var bubble_icon_class = $embedder.attr('data-icon-class');
 	
-	// [TODO] CSS from embed!
 	var $css = $('<link rel="stylesheet" type="text/css"/>')
 		.attr('href', base_url + 'resource/cerb.bots.portal.widget/css/style.css?v=2018041104')
 		.attr('async', 'true')
