@@ -247,7 +247,7 @@ if($fails) {
 		echo "<li>The 'GD' PHP extension (with FreeType library support) is required.  Please enable them.</li>";
 		
 	if(!$results['ext_mailparse'])
-		echo "<li>The 'MailParse' PHP extension is required.  Please enable it.</li>";
+		echo "<li>The 'MailParse' PHP extension is required. Version 3.0.3+ (PHP 7.4) or 3.1.3+ (PHP 8.x).</li>";
 		
 	if(!$results['ext_mbstring'])
 		echo "<li>The 'MbString' PHP extension is required.  Please enable it.</li>";

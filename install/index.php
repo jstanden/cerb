@@ -138,7 +138,14 @@ switch($step) {
 		}
 		
 		// Mailparse version
-		if(version_compare(phpversion('mailparse'),"3.0.2") >= 0) {
+		if(
+			version_compare(PHP_VERSION, '8.0.0') >= 0
+			&& version_compare(phpversion('mailparse'),"3.1.3") >= 0
+		) {
+			$results['mailparse_version'] = phpversion('mailparse');
+		} else if (
+			version_compare(phpversion('mailparse'), '3.0.3') >= 0
+		) {
 			$results['mailparse_version'] = phpversion('mailparse');
 		} else {
 			$results['mailparse_version'] = false;
