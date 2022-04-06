@@ -4,7 +4,7 @@
 	var loaded = false;
 	if(!(j = window.jQuery) || version > j.fn.jquery || callback(j, loaded)) {
 		$jquery.type = 'text/javascript';
-		$jquery.src = '{devblocks_url}{/devblocks_url}resource/cerb.bots.portal.widget/js/jquery.js?v=2022033101';
+		$jquery.src = '{devblocks_url full=true}{/devblocks_url}resource/cerb.bots.portal.widget/js/jquery.js?v=2022033101';
 		$jquery.onload = $jquery.onreadystatechange = function() {
 			if(!(d = this.readyState) || d == 'loaded' || d == 'complete') {
 				callback((j = window.jQuery).noConflict(1), loaded = true);
@@ -13,7 +13,7 @@
 		};
 		(document.getElementsByTagName("head")[0] || document.documentElement).appendChild($jquery);
 	}
-})(window, document, '3.2.1', function($, jquery_loaded) {
+})(window, document, '3.6.0', function($, jquery_loaded) {
 	var base_url = '{devblocks_url full=true}{/devblocks_url}';
 	var $embedder = $('#cerb-portal');
 	var $head = $('head');
