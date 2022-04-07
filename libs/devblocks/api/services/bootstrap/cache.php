@@ -277,7 +277,7 @@ class DevblocksCacheEngine_Disk extends Extension_DevblocksCacheEngine {
 	const ID = 'devblocks.cache.engine.disk';
 	
 	private function _getCacheDir() {
-		return APP_TEMP_PATH . DIRECTORY_SEPARATOR;
+		return realpath(APP_TEMP_PATH) . DIRECTORY_SEPARATOR;
 	}
 	
 	private function _getCacheFileByKey($key) {
