@@ -240,8 +240,7 @@ class ChFilesController extends DevblocksControllerExtension {
 		if(!$attachments)
 			return true;
 		
-		$zip_fp = DevblocksPlatform::getTempFile();
-		$zip_filename = DevblocksPlatform::getTempFileInfo($zip_fp);
+		$zip_filename = tempnam(APP_TEMP_PATH, 'tmp');
 		
 		$download_filename = sprintf("ticket-%s--%d-attachments.zip",
 			DevblocksPlatform::strAlphaNum($ticket->mask, '-_'),
@@ -265,8 +264,11 @@ class ChFilesController extends DevblocksControllerExtension {
 			fclose($fp);
 		}
 		
-		$zip->close();
-		fclose($zip_fp);
+		if(false === $zip->close()) {
+			DevblocksPlatform::logError('Error creating ZIP: ' . $zip->getStatusString());
+			@unlink($zip_filename);
+			DevblocksPlatform::dieWithHttpError(null, 500);
+		}
 		
 		$zip_fp = fopen($zip_filename, 'rb');
 		$file_stats = fstat($zip_fp);
@@ -280,6 +282,8 @@ class ChFilesController extends DevblocksControllerExtension {
 		header("Content-Length: " . $file_stats['size']);
 		fpassthru($zip_fp);
 		fclose($zip_fp);
+		
+		@unlink($zip_filename);
 		
 		return true;		
 	}
