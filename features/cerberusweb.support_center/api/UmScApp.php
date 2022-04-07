@@ -594,7 +594,7 @@ class UmScApp extends Extension_CommunityPortal {
 		// Pull from filesystem for editing
 		$content = '';
 		if(null != ($plugin = DevblocksPlatform::getPlugin($plugin_id))) {
-			$basepath = $plugin->getStoragePath() . '/templates/';
+			$basepath = realpath($plugin->getStoragePath() . '/templates/') . DIRECTORY_SEPARATOR;
 		
 			if(false == ($path = realpath($plugin->getStoragePath() . '/templates/' . $template_path)))
 				DevblocksPlatform::dieWithHttpError(null, 403);

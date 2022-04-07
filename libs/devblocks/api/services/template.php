@@ -474,7 +474,7 @@ class _DevblocksSmartyTemplateResource extends Smarty_Resource_Custom {
 			return false;
 		
 		// If not in DB, check plugin's relative path on disk
-		$basepath = $plugin->getStoragePath() . '/templates/';
+		$basepath = realpath($plugin->getStoragePath() . '/templates/') . DIRECTORY_SEPARATOR;
 		
 		if(false == ($path = realpath($plugin->getStoragePath() . '/templates/' . $tpl_path)))
 			return false;

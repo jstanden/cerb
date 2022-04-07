@@ -80,7 +80,7 @@ class DevblocksStorageEngineDisk extends Extension_DevblocksStorageEngine {
 	}
 	
 	public function exists($namespace, $key) {
-		$basepath = $this->_options['storage_path'];
+		$basepath = realpath($this->_options['storage_path']) . DIRECTORY_SEPARATOR;
 		$filepath = $this->_options['storage_path'] . $this->escapeNamespace($namespace) . '/' . $key;
 		
 		if(false == ($filepath = realpath($filepath)))
@@ -93,7 +93,7 @@ class DevblocksStorageEngineDisk extends Extension_DevblocksStorageEngine {
 	}
 	
 	public function put($namespace, $id, $data) {
-		$basepath = $this->_options['storage_path'];
+		$basepath = realpath($this->_options['storage_path']) . DIRECTORY_SEPARATOR;
 		
 		// Get a unique hash path for this namespace+id
 		$hash = base_convert(sha1($this->escapeNamespace($namespace).$id),16,32);
@@ -147,7 +147,7 @@ class DevblocksStorageEngineDisk extends Extension_DevblocksStorageEngine {
 	}
 
 	public function get($namespace, $key, &$fp=null) {
-		$basepath = $this->_options['storage_path'];
+		$basepath = realpath($this->_options['storage_path']) . DIRECTORY_SEPARATOR;
 		
 		$path = sprintf("%s%s/%s",
 			$this->_options['storage_path'],

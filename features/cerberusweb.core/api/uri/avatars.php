@@ -286,7 +286,7 @@ class Controller_Avatars extends DevblocksControllerExtension {
 	}
 	
 	private function _renderFilePng($file) {
-		$base_path = APP_PATH . '/features/cerberusweb.core/resources/images/avatars/';
+		$base_path = realpath(APP_PATH . '/features/cerberusweb.core/resources/images/avatars/') . DIRECTORY_SEPARATOR;
 		$file_path = realpath($file);
 		
 		if(!DevblocksPlatform::strStartsWith($file_path, $base_path))
