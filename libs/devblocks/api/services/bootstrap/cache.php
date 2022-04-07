@@ -286,9 +286,7 @@ class DevblocksCacheEngine_Disk extends Extension_DevblocksCacheEngine {
 		if(empty($cache_dir))
 			return NULL;
 		
-		$cache_file_path = $cache_dir . $this->_getFilename($key);
-		
-		return $cache_file_path;
+		return $cache_dir . $this->_getFilename($key);
 	}
 	
 	function setConfig(array $config) {
@@ -344,12 +342,6 @@ class DevblocksCacheEngine_Disk extends Extension_DevblocksCacheEngine {
 			return null;
 		
 		if(!file_exists($cache_file_path))
-			return NULL;
-		
-		$cache_basedir = $this->_getCacheDir();
-		$cache_file_path = realpath($cache_file_path);
-		
-		if(!DevblocksPlatform::strStartsWith($cache_file_path, $cache_basedir))
 			return null;
 		
 		if(false === ($fp = fopen($cache_file_path, 'r')))
@@ -384,7 +376,7 @@ class DevblocksCacheEngine_Disk extends Extension_DevblocksCacheEngine {
 	}
 	
 	function save($data, $key, $tags=[], $ttl=0) {
-		if(false == ($cache_file = $this->_getCacheFileByKey($key)))
+		if(false == ($cache_file_path = $this->_getCacheFileByKey($key)))
 			return false;
 		
 		$wrapper = [
@@ -399,7 +391,7 @@ class DevblocksCacheEngine_Disk extends Extension_DevblocksCacheEngine {
 			$wrapper['__cache_until'] = time() + $ttl;
 		}
 		
-		if(false === ($fp = fopen($cache_file, 'w')))
+		if(false === ($fp = fopen($cache_file_path, 'w')))
 			return false;
 		
 		// Lock for writing
@@ -409,7 +401,7 @@ class DevblocksCacheEngine_Disk extends Extension_DevblocksCacheEngine {
 			return false;
 		
 		// Set the permissions more securely
-		@chmod($cache_file, 0660);
+		@chmod($cache_file_path, 0660);
 		
 		fclose($fp);
 		
@@ -421,7 +413,9 @@ class DevblocksCacheEngine_Disk extends Extension_DevblocksCacheEngine {
 			return false;
 		
 		$cache_basedir = $this->_getCacheDir();
-		$file = realpath($file);
+		
+		if(false == ($file = realpath($file)))
+			return null;
 		
 		if(!DevblocksPlatform::strStartsWith($file, $cache_basedir))
 			return null;

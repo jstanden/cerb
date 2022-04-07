@@ -477,10 +477,10 @@ class _DevblocksSmartyTemplateResource extends Smarty_Resource_Custom {
 		$basepath = $plugin->getStoragePath() . '/templates/';
 		
 		if(false == ($path = realpath($plugin->getStoragePath() . '/templates/' . $tpl_path)))
-			DevblocksPlatform::dieWithHttpError(null, 403);
+			return false;
 		
 		if(!DevblocksPlatform::strStartsWith($path, $basepath))
-			DevblocksPlatform::dieWithHttpError(null, 403);
+			return false;
 
 		// Only check the DB if the template may be overridden
 		if(isset($plugin->manifest_cache['templates'])) {

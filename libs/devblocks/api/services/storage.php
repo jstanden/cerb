@@ -108,18 +108,18 @@ class DevblocksStorageEngineDisk extends Extension_DevblocksStorageEngine {
 			$key_prefix
 		);
 		
-		if(false == ($path = realpath($path)))
-			return false;
-		
-		if(!DevblocksPlatform::strStartsWith($path, $basepath))
-			return false;
-		
 		// Create the hash path if it doesn't exist
 		if(!is_dir($path)) {
 			if(false === mkdir($path, 0755, true)) {
 				return false;
 			}
 		}
+		
+		if(false == ($path = realpath($path)))
+			return false;
+		
+		if(!DevblocksPlatform::strStartsWith($path, $basepath))
+			return false;
 		
 		// If we're writing from a file resource
 		if(is_resource($data)) {
