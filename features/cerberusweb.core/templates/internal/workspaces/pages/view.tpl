@@ -98,10 +98,10 @@
 			{elseif $column=="*_owner"}
 				{$owner_context = $result.w_owner_context}
 				{$owner_context_id = $result.w_owner_context_id}
-				{$owner_context_ext = Extension_DevblocksContext::get($owner_context)}
+				{$owner_context_ext = Extension_DevblocksContext::get($owner_context|default:'')}
 				
 				<td data-column="{$column}">
-					{if $owner_context_ext instanceof Extension_DevblocksContext}
+					{if is_a($owner_context_ext, 'Extension_DevblocksContext')}
 						{$meta = $owner_context_ext->getMeta($owner_context_id)}
 						{if !empty($meta)}
 							<img src="{devblocks_url}c=avatars&context={$owner_context_ext->id}&context_id={$owner_context_id}{/devblocks_url}?v={$meta.updated_at}" style="height:1.2em;width:1.2em;border-radius:0.75em;vertical-align:middle;">

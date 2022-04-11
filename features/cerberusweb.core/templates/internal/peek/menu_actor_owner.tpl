@@ -25,7 +25,7 @@
 
 <ul class="chooser-container bubbles">
 {$owner_context_ext = Extension_DevblocksContext::get($model->owner_context|default:'')}
-{if $owner_context_ext}
+{if is_a($owner_context_ext, 'Extension_DevblocksContext')}
 	{$meta = $owner_context_ext->getMeta($model->owner_context_id)}
 	{if $meta}
 		<li>
