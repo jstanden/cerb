@@ -19,12 +19,12 @@
 				{if $is_widget_writeable}
 				<li class="cerb-workspace-widget-menu--edit" data-context="{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}" data-context-id="{$widget->id}" data-edit="true" data-width="75%">
 					<div>
-						<b>{'common.edit'|devblocks_translate|capitalize}</b>
+						<a href="javascript:;">{'common.edit'|devblocks_translate|capitalize}</a>
 					</div>
 				</li>
 				<li class="cerb-workspace-widget-menu--export-widget">
 					<div>
-						<b>{'common.export.widget'|devblocks_translate|capitalize}</b>
+						<a href="javascript:;">{'common.export.widget'|devblocks_translate|capitalize}</a>
 					</div>
 				</li>
 				{/if}
@@ -32,14 +32,14 @@
 				{if $widget_extension && $widget_extension instanceof ICerbWorkspaceWidget_ExportData}
 				<li class="cerb-workspace-widget-menu--export-data">
 					<div>
-						<b>{'common.export.data'|devblocks_translate|capitalize}</b>
+						<a href="javascript:;">{'common.export.data'|devblocks_translate|capitalize}</a>
 					</div>
 				</li>
 				{/if}
 				
 				<li class="cerb-workspace-widget-menu--refresh">
 					<div>
-						<b>{'common.refresh'|devblocks_translate|capitalize}</b>
+						<a href="javascript:;">{'common.refresh'|devblocks_translate|capitalize}</a>
 					</div>
 				</li>
 			</ul>

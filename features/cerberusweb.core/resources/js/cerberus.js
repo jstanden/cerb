@@ -3457,25 +3457,27 @@ var ajax = new cAjaxCalls();
 			})
 			.autocomplete( "instance" )._renderItem = function( ul, item ) {
 				var $li = $('<li/>');
+				let $wrapper = $('<div/>').appendTo($li);
 
 				if(item.image_url) {
 					$('<img/>')
 						.addClass('cerb-avatar')
 						.attr('src', item.image_url)
-						.appendTo($li)
+						.appendTo($wrapper)
 					;
 				}
 
 				$('<span/>')
 					.text(item.label)
-					.appendTo($li)
+					.css('font-weight', 'bold')
+					.appendTo($wrapper)
 					;
 
 				if(item.mention) {
 					$('<span/>')
 						.text(item.mention)
 						.css('margin-left', '10px')
-						.appendTo($li)
+						.appendTo($wrapper)
 					;
 				}
 
@@ -3484,7 +3486,7 @@ var ajax = new cAjaxCalls();
 						.text(item.title)
 						.css('margin-left', '10px')
 						.css('font-weight', 'normal')
-						.appendTo($li);
+						.appendTo($wrapper)
 					;
 				}
 
@@ -3826,8 +3828,8 @@ var ajax = new cAjaxCalls();
 
 				// #commands
 				if(item.label.startsWith('#')) {
-					$('<span/>')
-						.text(item.label)
+					let $wrapper = $('<div/>')
+						.append($('<b/>').text(item.label))
 						.appendTo($li)
 					;
 
@@ -3837,30 +3839,33 @@ var ajax = new cAjaxCalls();
 							.css('display', 'block')
 							.css('margin-left', '10px')
 							.css('font-weight', 'normal')
-							.appendTo($li)
+							.appendTo($wrapper)
 						;
 					}
 
 				// @mentions
 				} else {
+					let $wrapper = $('<div/>').appendTo($li);
+					
 					if(item.image_url) {
 						$('<img/>')
 							.addClass('cerb-avatar')
 							.attr('src', item.image_url)
-							.appendTo($li)
+							.appendTo($wrapper)
 						;
 					}
 
 					$('<span/>')
 						.text(item.label)
-						.appendTo($li)
+						.css('font-weight', 'bold')
+						.appendTo($wrapper)
 					;
 
 					if(item.mention) {
 						$('<span/>')
 							.text(item.mention)
 							.css('margin-left', '10px')
-							.appendTo($li)
+							.appendTo($wrapper)
 						;
 					}
 
@@ -3869,7 +3874,7 @@ var ajax = new cAjaxCalls();
 							.text(item.title)
 							.css('margin-left', '10px')
 							.css('font-weight', 'normal')
-							.appendTo($li);
+							.appendTo($wrapper)
 						;
 					}
 				}

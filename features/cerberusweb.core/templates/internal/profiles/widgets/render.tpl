@@ -17,14 +17,20 @@
 			<ul class="cerb-profile-widget--menu cerb-popupmenu cerb-float" style="display:none;margin-top:-12px;">
 				{if $active_worker->is_superuser}
 				<li class="cerb-profile-widget-menu--edit" data-context="{CerberusContexts::CONTEXT_PROFILE_WIDGET}" data-context-id="{$widget->id}" data-edit="true" data-width="75%">
-					<a href="javascript:;">{'common.edit'|devblocks_translate|capitalize}</a>
+					<div>
+						<a href="javascript:;">{'common.edit'|devblocks_translate|capitalize}</a>
+					</div>
 				</li>
 				<li class="cerb-profile-widget-menu--export-widget">
-					<a href="javascript:;">{'common.export.widget'|devblocks_translate|capitalize}</a>
+					<div>
+						<a href="javascript:;">{'common.export.widget'|devblocks_translate|capitalize}</a>
+					</div>
 				</li>
 				{/if}
 				<li class="cerb-profile-widget-menu--refresh">
-					<a href="javascript:;">{'common.refresh'|devblocks_translate|capitalize}</a>
+					<div>
+						<a href="javascript:;">{'common.refresh'|devblocks_translate|capitalize}</a>
+					</div>
 				</li>
 			</ul>
 		</div>
