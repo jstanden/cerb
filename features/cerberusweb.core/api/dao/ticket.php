@@ -5388,6 +5388,15 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		$dict_key = DevblocksPlatform::strLower($key);
 		switch($dict_key) {
+			case 'bucket_id':
+				if(false == ($bucket = DAO_Bucket::get($value))) {
+					$error = sprintf("Failed to look up bucket_id: %d", $value);
+					return false;
+				}
+				
+				$out_fields[DAO_Ticket::GROUP_ID] = $bucket->group_id;
+				break;
+			
 			case 'group':
 				if(false == ($group_id = DAO_Group::getByName($value))) {
 					$error = sprintf("Failed to lookup group: %s", $value);
