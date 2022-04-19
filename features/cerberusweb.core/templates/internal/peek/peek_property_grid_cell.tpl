@@ -85,8 +85,8 @@
 		{/if}
 	{/if}
 {elseif $types.$k == 'context'}
-	{$display_ctx = Extension_DevblocksContext::get($dict->$k)}
-	{if $display_ctx}
+	{$display_ctx = Extension_DevblocksContext::get($dict->$k|default:'')}
+	{if is_a($display_ctx, 'Extension_DevblocksContext')}
 		{$display_ctx->manifest->name}
 	{else}
 		{$dict->$k}

@@ -62,7 +62,7 @@
 				</ul>
 				
 				<div class="cerb-behavior-params" style="margin:5px 0px 0px 0px;">
-					{include file="devblocks:cerberusweb.core::internal/decisions/assistant/behavior_variables_entry.tpl" field_name="behavior_params" variables=$behavior->variables variable_values=$model->variables}
+					{include file="devblocks:cerberusweb.core::internal/decisions/assistant/behavior_variables_entry.tpl" field_name="behavior_params" variables=$behavior->variables|default:[] variable_values=$model->variables}
 				</div>
 			</td>
 		</tr>

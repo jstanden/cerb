@@ -9,8 +9,10 @@
 
 {if !empty($ctx_id)}
 	{$ctx = Extension_DevblocksContext::get($ctx_id)}
-	{$ctx_view = $ctx->getChooserView()} 
-	{$ctx_fields = $ctx_view->getParamsAvailable()}
+	{if is_a($ctx, 'Extension_DevblocksContext')}
+		{$ctx_view = $ctx->getChooserView()} 
+		{$ctx_fields = $ctx_view->getParamsAvailable()}
+	{/if}
 {/if}
 
 <div id="{$div_id}">

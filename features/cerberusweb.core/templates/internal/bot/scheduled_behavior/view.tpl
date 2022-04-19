@@ -90,8 +90,8 @@
 			</td>
 			{elseif $column=="*_target"}
 			<td data-column="{$column}">
-				{$ctx = Extension_DevblocksContext::get($result.c_context)}
-				{if is_object($ctx)}
+				{$ctx = Extension_DevblocksContext::get($result.c_context|default:'')}
+				{if is_a($ctx, 'Extension_DevblocksContext')}
 				{$meta = $ctx->getMeta($result.c_context_id)}
 				<span title="{$ctx->manifest->name}">
 					{if $ctx->hasOption('cards')}

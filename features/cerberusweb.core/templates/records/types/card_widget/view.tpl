@@ -97,8 +97,8 @@
                         </td>
                     {elseif $column == "c_record_type"}
                         <td>
-                            {$display_ext = Extension_DevblocksContext::get($result.$column)}
-                            {if $display_ext}
+                            {$display_ext = Extension_DevblocksContext::get($result.$column|default:'')}
+                            {if is_a($display_ext, 'Extension_DevblocksContext')}
                                 {$display_ext->manifest->name}
                             {else}
                                 {$result.$column}

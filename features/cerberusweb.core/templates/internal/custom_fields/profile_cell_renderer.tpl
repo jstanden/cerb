@@ -22,7 +22,9 @@
 	{$v.value}
 	{/if}
 {elseif $v.type == Model_CustomField::TYPE_SINGLE_LINE}
+	{if $v.value}
 	{$v.value|escape|devblocks_hyperlinks nofilter}
+	{/if}
 {elseif $v.type == Model_CustomField::TYPE_MULTI_LINE}
 	{if $v.value}
 		{if strlen($v.value) > 128 || false != strpos($v.value,"\n")}
@@ -58,8 +60,8 @@
 		{implode(', ', $v.value)}
 	{/if}
 {elseif $v.type == Model_CustomField::TYPE_LINK}
-	{$link_context_ext = Extension_DevblocksContext::get($v.params.context)}
-	{if $link_context_ext}
+	{$link_context_ext = Extension_DevblocksContext::get($v.params.context|default:'')}
+	{if is_a($link_context_ext, 'Extension_DevblocksContext')}
 		{$link_meta = $link_context_ext->getMeta($v.value)}
 		{if $link_meta && ($link_context_ext->id == CerberusContexts::CONTEXT_APPLICATION || $v.value)}
 			<ul class="bubbles">
@@ -98,15 +100,15 @@
 		{/if}
 	{/foreach}
 {elseif $v.type == 'context'}
-	{$display_ctx = Extension_DevblocksContext::get($v.value)}
-	{if $display_ctx}
+	{$display_ctx = Extension_DevblocksContext::get($v.value|default:'')}
+	{if is_a($display_ext, 'Extension_DevblocksContext')}
 		{$display_ctx->manifest->name}
 	{else}
 		{$v.value}
 	{/if}
 {elseif $v.type == 'extension'}
-	{$display_ext = DevblocksPlatform::getExtension($v.value, false)}
-	{if $display_ext}
+	{$display_ext = DevblocksPlatform::getExtension($v.value|default:'', false)}
+	{if is_a($display_ext, 'Extension_DevblocksContext')}
 		{$display_ext->name}
 	{else}
 		{$v.value}

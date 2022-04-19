@@ -1,10 +1,10 @@
 {$scheduled_behavior = DAO_ContextScheduledBehavior::getByContext($context, $context_id)}
 {$fieldset_id = uniqid()}
 {$trigger_events = DAO_TriggerEvent::getAll()}
+{$target_ext = Extension_DevblocksContext::get($context|default:'', false)}
 
-{if !empty($scheduled_behavior)}
+{if !empty($scheduled_behavior) && $target_ext}
 <fieldset class="properties" style="color:var(--cerb-color-background-contrast-100);" id="{$fieldset_id}">
-	{$target_ext = Extension_DevblocksContext::get($context, false)}
 	<legend>Upcoming scheduled behavior on this {$target_ext->name|lower}</legend>
 
 	<table cellpadding="3" cellspacing="2" border="0" width="100%">

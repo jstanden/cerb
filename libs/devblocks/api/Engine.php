@@ -476,7 +476,7 @@ abstract class DevblocksEngine {
 	}
 
 	static function getClientIp() {
-		if(null == ($ip = @$_SERVER['REMOTE_ADDR']))
+		if(null == ($ip = $_SERVER['REMOTE_ADDR'] ?? null))
 			return null;
 		
 		/*

@@ -94,7 +94,7 @@ class CustomField_GeoPoint extends Extension_CustomField {
 	
 	function renderValue(Model_CustomField $field, $value) {
 		$value = $this->getValue($field, $value);
-		echo htmlentities($value);
+		echo DevblocksPlatform::strEscapeHtml($value);
 	}
 	
 	function getLabelsForValues(Model_CustomField $field, $values) {

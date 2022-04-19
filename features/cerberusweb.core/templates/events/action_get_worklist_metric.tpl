@@ -1,9 +1,11 @@
 {$ctx_fields = []}
 {if $params.context}
-	{$ctx = Extension_DevblocksContext::get($params.context)}
-	{$ctx_view = $ctx->getChooserView()}
-	{if $ctx_view}
-		{$ctx_fields = $ctx_view->getParamsAvailable()}
+	{$ctx = Extension_DevblocksContext::get($params.context|default:'')}
+	{if is_a($ctx, 'Extension_DevblocksContext')}
+		{$ctx_view = $ctx->getChooserView()}
+		{if $ctx_view}
+			{$ctx_fields = $ctx_view->getParamsAvailable()}
+		{/if}
 	{/if}
 {/if}
 

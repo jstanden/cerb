@@ -48,8 +48,8 @@
 {elseif $col->type==Model_CustomField::TYPE_LINK}
 	<td data-column="{$column}">
 		{if $col->params.context && $result.$column}
-			{$link_ctx = Extension_DevblocksContext::get($col->params.context)}
-			{if $link_ctx}
+			{$link_ctx = Extension_DevblocksContext::get($col->params.context|default:'')}
+			{if is_a($link_ctx, 'Extension_DevblocksContext')}
 				{$link_ctx_meta = $link_ctx->getMeta($result.$column)}
 				{if $link_ctx_meta}
 					{if $link_ctx->hasOption('cards')}

@@ -456,7 +456,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	 * @return Extension_DevblocksContext|DevblocksExtensionManifest
 	 */
 	public static function getByAlias($alias, $as_instance=false) {
-		$alias = trim($alias);
+		$alias = trim(strval($alias));
 		$aliases = self::getAliasesForAllContexts();
 		
 		// First, try the fully-qualified ID
@@ -479,7 +479,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		$results = [];
 		
 		foreach($aliases as $alias) {
-			if(false != ($context_ext = self::getByAlias($alias, $as_instances)))
+			if(false != ($context_ext = self::getByAlias(strval($alias), $as_instances)))
 				if(!array_key_exists($context_ext->id, $results))
 					$results[$context_ext->id] = $context_ext;
 		}

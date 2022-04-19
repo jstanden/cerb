@@ -560,7 +560,7 @@ class Model_CardWidget {
 	 * @return Extension_DevblocksContext|DevblocksExtensionManifest|null
 	 */
 	function getRecordExtension($as_instance=true) {
-		return Extension_DevblocksContext::get($this->record_type, $as_instance);
+		return Extension_DevblocksContext::get($this->record_type ?? '', $as_instance);
 	}
 	
 	function getUniqueId($context_id) {

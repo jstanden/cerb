@@ -114,27 +114,6 @@
 					{$result.$column}
 				{/if}
 			</td>
-			{elseif $column=="*_on"}
-			<td data-column="{$column}">
-				{$ctx = Extension_DevblocksContext::get($result.a_context)}
-				{if is_object($ctx)}
-				{$meta = $ctx->getMeta($result.a_context_id)}
-				<span title="{$ctx->manifest->name}">
-					{if $ctx->hasOption('cards')}
-						<a href="javascript:;" class="cerb-peek-trigger" data-context="{$ctx->id}" data-context-id="{$meta.id}">{$meta.name|truncate:64}</a>
-					{else}
-						{$meta.name|truncate:64}
-					{/if}
-				</span>
-				{/if}
-			</td>
-			{elseif $column == 'a_context'}
-				<td>
-					{$context_ext = $contexts.{$result.$column}}
-					{if $context_ext}
-						{$context_ext->name}
-					{/if}
-				</td>
 			{elseif in_array($column, ["a_updated_at"])}
 				<td>
 					{if !empty($result.$column)}

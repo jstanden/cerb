@@ -6,8 +6,10 @@
 
 {if $smarty.const.APP_OPT_DEPRECATED_PROFILE_QUICK_SEARCH}
 <div style="margin-bottom:5px;">
-	{$ctx = Extension_DevblocksContext::get($page_context)}
-	{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$ctx->getSearchView() return_url="{devblocks_url}c=search&context={$page_record_uri}{/devblocks_url}"}
+	{$ctx = Extension_DevblocksContext::get($page_context|default:'')}
+	{if is_a($ctx, 'Extension_DevblocksContext')}
+		{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$ctx->getSearchView() return_url="{devblocks_url}c=search&context={$page_record_uri}{/devblocks_url}"}
+	{/if}
 </div>
 {/if}
 

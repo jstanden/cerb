@@ -97,11 +97,10 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 			} else {
 				$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');
 				$owner = DevblocksPlatform::importGPC($_POST['owner'] ?? null, 'string', '');
-				@$file_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['file_ids'],'array',array()), 'int');
+				$file_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['file_ids'] ?? null,'array', []), 'int');
 				
 				// Owner
 			
-				$owner_ctx = '';
 				list($owner_ctx, $owner_ctx_id) = array_pad(explode(':', $owner, 2), 2, null);
 				
 				// Make sure we're given a valid ctx

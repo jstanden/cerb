@@ -31,7 +31,7 @@
 			<input type="text" size="32" class="input_search filter">
 		</li>
 		{foreach from=$custom_fieldsets_available item=cf_group}
-		{$owner_ctx = Extension_DevblocksContext::get($cf_group->owner_context)}
+		{$owner_ctx = Extension_DevblocksContext::get($cf_group->owner_context|default:'')}
 		<li class="item" cf_group_id="{$cf_group->id}">
 			<div>
 				<a href="javascript:;">
@@ -39,8 +39,10 @@
 				</a>
 			</div>
 			<div style="margin-left:10px;">
-				{$meta = $owner_ctx->getMeta($cf_group->owner_context_id)}
-				{$meta.name} ({$owner_ctx->manifest->name})
+				{if is_a($owner_ctx, 'Extension_DevblocksContext')}
+					{$meta = $owner_ctx->getMeta($cf_group->owner_context_id)}
+					{$meta.name} ({$owner_ctx->manifest->name})
+				{/if}
 			</div>
 		</li>
 		{/foreach}

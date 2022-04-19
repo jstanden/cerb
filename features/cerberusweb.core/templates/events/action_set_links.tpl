@@ -36,9 +36,11 @@
 			<li>
 				{$context = $context_pair.0}
 				{$context_id = $context_pair.1}
-				{$context_ext = Extension_DevblocksContext::get($context,true)}
-				{$meta = $context_ext->getMeta($context_id)}
-				{$meta.name} ({$context_ext->manifest->name})<!--
+				{$context_ext = Extension_DevblocksContext::get($context|default:'',true)}
+				{if is_a($context_ext, 'Extension_DevblocksContext')}
+					{$meta = $context_ext->getMeta($context_id)}
+					{$meta.name} ({$context_ext->manifest->name})
+				{/if}<!--
 				--><input type="hidden" name="{$namePrefix}[context_objects][]" value="{$context}:{$context_id}"><!--
 				--><span class="glyphicons glyphicons-circle-remove" onclick="$(this).closest('li').remove();"></span>
 			</li>
