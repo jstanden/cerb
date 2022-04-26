@@ -3,7 +3,7 @@
 		"name": "Demo Package",
 		"revision": 1,
 		"requires": {
-			"cerb_version": "9.2.0",
+			"cerb_version": "10.2.4",
 			"plugins": [
 				"cerb.project_boards"
 			]

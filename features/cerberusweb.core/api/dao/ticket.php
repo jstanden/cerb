@@ -5389,6 +5389,9 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		$dict_key = DevblocksPlatform::strLower($key);
 		switch($dict_key) {
 			case 'bucket_id':
+				if(false !== strstr($value,'{{{'))
+					break;
+				
 				if(false == ($bucket = DAO_Bucket::get($value))) {
 					$error = sprintf("Failed to look up bucket_id: %d", $value);
 					return false;
