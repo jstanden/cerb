@@ -3531,6 +3531,38 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 };
 
 class _CerbApplication_KataAutocompletions {
+	function fromSchema(array $schema) {
+		$autocompletions = [];
+		
+		// Crawl schema to create automation suggestions
+		
+		$recurse = function($object, $stack=[]) use (&$recurse, &$autocompletions) {
+			$parent_key = $stack ? (implode(':', $stack) . ':') : '';
+			
+			foreach($object['attributes'] ?? [] as $attribute_key => $attribute) {
+				$stack[] = $attribute_key;
+				$attribute_types = $attribute['types'] ?? []; 
+				
+				if(array_key_exists('object', $attribute_types)) {
+					$autocompletions[$parent_key][] = $attribute_key . ':';
+					$recurse($attribute['types']['object'], $stack);
+					
+				} else if(array_key_exists('bool', $attribute_types)) {
+					$autocompletions[$parent_key][] = $attribute_key . '@bool:';
+					
+				} else {
+					$autocompletions[$parent_key][] = $attribute_key . ':';
+				}
+				
+				array_pop($stack);
+			}
+		};
+		
+		$recurse($schema['schema']);
+		
+		return $autocompletions;
+	}
+	
 	function automationEvent() {
 		return [
 			'' => [
