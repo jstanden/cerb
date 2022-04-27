@@ -521,6 +521,7 @@ class _DevblocksAutomationService {
 			'file.read',
 			'function',
 			'http.request',
+			'kata.parse',
 			'log',
 			'log.alert',
 			'log.error',

@@ -855,6 +855,11 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'interaction' => 'ai.cerb.automationBuilder.action.httpRequest',
 			],
 			[
+				'caption' => 'kata.parse:',
+				'snippet' => "kata.parse:\n\tinputs:\n\t\t\${1:}\n\toutput: results\n\t#on_simulate:\n\t#on_success:\n\t#on_error:\n",
+				'description' => "Parse a KATA tree and substitute placeholders",
+			],
+			[
 				'caption' => 'log:',
 				'snippet' => "log: \${1:This is a debug message}",
 				'description' => "Log a message with debug severity",
@@ -1201,6 +1206,25 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'PATCH',
 					'HEAD',
 					'OPTIONS'
+				],
+				
+				'(.*):kata.parse:' => $action_base,
+				'(.*):kata.parse:inputs:' => [
+					[
+						'caption' => 'kata:',
+						'snippet' => 'kata:',
+						'score' => 2000,
+					],
+					[
+						'caption' => 'dict:',
+						'snippet' => 'dict:',
+						'score' => 1999,
+					],
+					[
+						'caption' => 'schema:',
+						'snippet' => 'schema:',
+						'score' => 1998,
+					],
 				],
 				
 				'(.*):log:' => $action_base,

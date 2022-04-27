@@ -4021,6 +4021,35 @@ class _CerbApplication_KataSchemas {
                         types:
                           string:
               
+              kata.parse:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+                      inputs:
+                        types:
+                          object:
+                            attributes:
+                              kata:
+                                types:
+                                  list:
+                                  string:
+                              dict:
+                                types:
+                                  list:
+                              schema:
+                                types:
+                                  list:
+                      on_error:
+                        ref: commands
+                      on_simulate:
+                        ref: commands
+                      on_success:
+                        ref: commands
+                      output:
+                        types:
+                          string:
+              
               log:
                 multiple@bool: yes
                 types:

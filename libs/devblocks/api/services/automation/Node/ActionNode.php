@@ -18,6 +18,7 @@ class ActionNode extends AbstractNode {
 			'file.read' => '\Cerb\AutomationBuilder\Action\FileReadAction',
 			'function' => '\Cerb\AutomationBuilder\Action\FunctionAction',
 			'http.request' => '\Cerb\AutomationBuilder\Action\HttpRequestAction',
+			'kata.parse' => '\Cerb\AutomationBuilder\Action\KataParseAction',
 			'log' => '\Cerb\AutomationBuilder\Action\LogAction',
 			'log.alert' => '\Cerb\AutomationBuilder\Action\LogAction',
 			'log.error' => '\Cerb\AutomationBuilder\Action\LogAction',

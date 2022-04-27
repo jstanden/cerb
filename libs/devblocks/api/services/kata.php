@@ -579,10 +579,7 @@ class _DevblocksKataService {
 		if(false === ($doc_tree = $kata->parse($doc_kata, $error)))
 			return false;
 		
-		if(empty($doc_tree))
-			return true;
-		
-		if(false == ($doc_tree = $kata->formatTree($doc_tree, $dict, $error)))
+		if(false === ($doc_tree = $kata->formatTree($doc_tree, $dict, $error)))
 			return false;
 
 		if(false === ($schema = $this->parse($schema_kata, $error))) {
