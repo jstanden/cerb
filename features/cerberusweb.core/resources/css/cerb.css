@@ -2485,6 +2485,11 @@ UL.ui-menu li.ui-state-focus {
   width: 99%;
   box-sizing: border-box;
 }
+.cerb-form-builder .cerb-form-builder-prompt-query .ace_editor {
+  border: 1px solid var(--cerb-color-background-contrast-220);
+  width: 99%;
+  box-sizing: border-box;
+}
 .cerb-form-builder .cerb-form-builder-prompt-captcha INPUT[type=text] {
   border: 1px solid var(--cerb-color-background-contrast-220);
   box-sizing: border-box;
