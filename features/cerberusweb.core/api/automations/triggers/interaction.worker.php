@@ -8,6 +8,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 			'end' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\EndAwait',
 			'fileUpload' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\FileUploadAwait',
 			'map' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\MapAwait',
+			'query' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\QueryAwait',
 			'say' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\SayAwait',
 			'sheet' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\SheetAwait',
 			'submit' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\SubmitAwait',
@@ -213,6 +214,11 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 						'snippet' => "map/\${1:prompt_map}:\n\t\${2:}",
 						'description' => "Display an interactive map",
 						'interaction' => 'ai.cerb.automationBuilder.interaction.worker.await.map',
+					],
+					[
+						'caption' => 'query:',
+						'snippet' => "query/\${1:prompt_query}:\n\t\${2:}",
+						'description' => "Prompt for a search query with autocompletion",
 					],
 					[
 						'caption' => 'say:',
@@ -586,6 +592,13 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 						'snippet' => "color_map:\n\tproperty: \${1:key}\n\tcolors: \n\t\t1: red\n\t\t2: blue\n\t\t3: green",
 						'score' => 1999,
 					],
+				],
+				
+				'(.*):await:form:elements:query:' => [
+					'record_type:',
+				],
+				'(.*):await:form:elements:query:record_type:' => [
+					'type' => 'record-type',
 				],
 				
 				'(.*):await:form:elements:say:' => [

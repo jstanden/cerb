@@ -104,6 +104,12 @@
 		width: 99%;
 		box-sizing: border-box;
 	}
+	
+	.cerb-form-builder-prompt-query .ace_editor {
+		border: 1px solid var(--cerb-color-background-contrast-220);
+		width: 99%;
+		box-sizing: border-box;
+	}
 
 	.cerb-form-builder-prompt-captcha INPUT[type=text] {
 		border: 1px solid var(--cerb-color-background-contrast-220);
