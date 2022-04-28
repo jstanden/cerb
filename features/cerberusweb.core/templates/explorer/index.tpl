@@ -105,13 +105,13 @@
 		
 		// Frame keyboard shortcuts
 		
-		$explorerFrame.load(function() {
+		$explorerFrame.on('load', function() {
 			try {
 				var $explorerBody = $explorerFrame.contents().find('body').parent();
 				$explorerBody.bind('keypress', keyPrev, funcPrev);
 				$explorerBody.bind('keypress', keyNext, funcNext);
 				$explorerFrame.focus();
-			} catch(e) {}
+			} catch(e) { }
 		});
 	});
 	</script>

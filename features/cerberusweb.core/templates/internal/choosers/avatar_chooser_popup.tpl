@@ -222,7 +222,7 @@ $(function() {
 		{foreach from=$suggested_photos item=photo}
 		$('<img style="cursor:pointer;margin-right:5px;" width="50" height="50">')
 			.attr('title',"{$photo.title}")
-			.load(function() {
+			.on('load', function() {
 				var $this = $(this);
 				// When successful, add to suggestions
 				$this
