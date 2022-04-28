@@ -151,9 +151,7 @@ $(function() {
 	var $frm = $('#frmTicketPeek');
 	var $popup = genericAjaxPopupFind($frm);
 	
-	$popup.one('popup_open',function(event,ui) {
-		var $btn_recommend = $('#{$recommend_btn_domid}');
-		var $btn_watchers = $('#{$watchers_btn_domid}');
+	$popup.one('popup_open',function() {
 		var $chooser_owner = $popup.find('button[data-field-name="owner_id"]');
 		
 		// Buttons
@@ -249,14 +247,6 @@ $(function() {
 		
 		// Linked form elements
 		$frm.on('cerb-form-update', function() {
-			$btn_recommend.attr('group_id', $frm.find('select[name=group_id]').val());
-			$btn_recommend.attr('bucket_id', $frm.find('select[name=bucket_id]').val());
-			$btn_recommend.trigger('refresh');
-			
-			$btn_watchers.attr('group_id', $frm.find('select[name=group_id]').val());
-			$btn_watchers.attr('bucket_id', $frm.find('select[name=bucket_id]').val());
-			$btn_watchers.trigger('refresh');
-			
 			// When the group changes, change the owner chooser defaults
 			var group_id = $frm.find('select[name=group_id]').val();
 			$chooser_owner.attr('data-query', 'group:(id:' + group_id + ')');

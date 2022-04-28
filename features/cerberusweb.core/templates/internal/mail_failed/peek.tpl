@@ -41,7 +41,7 @@ $(function() {
 		
 		$this.dialog('option','title','Failed Message');
 		
-		$this.find('iframe').load(function() {
+		$this.find('iframe').on('load', function() {
 			$(this).contents().find('pre').css('white-space','').css('word-wrap','');
 		});
 		
