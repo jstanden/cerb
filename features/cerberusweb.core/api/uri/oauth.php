@@ -19,6 +19,7 @@ use GuzzleHttp\Psr7\ServerRequest;
 use League\OAuth2\Server\Grant\AuthCodeGrant;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Grant\RefreshTokenGrant;
+use OpenIDConnectServer\ClaimExtractor;
 use Psr\Http\Message\ServerRequestInterface;
 
 class CerbAuthCodeGrant extends AuthCodeGrant {
@@ -46,12 +47,15 @@ class Controller_OAuth extends DevblocksControllerExtension {
 		$encryptionKey = $encrypt->getSystemKey();
 		$encryptionKey = \Defuse\Crypto\Key::loadFromAsciiSafeString($encryptionKey);
 		
+		$responseType = new Cerb_OAuthIdTokenResponse(new Cerb_OAuth2IdentityRepository(), new ClaimExtractor());
+		
 		$server = new \League\OAuth2\Server\AuthorizationServer(
 			$clientRepository,
 			$accessTokenRepository,
 			$scopeRepository,
 			$privateKey,
-			$encryptionKey
+			$encryptionKey,
+			$responseType
 		);
 		
 		$ttl_refresh_token = new \DateInterval('P1M');  // 1 month TTL for refresh token

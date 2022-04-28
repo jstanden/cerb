@@ -17,7 +17,7 @@ class InvalidTokenException extends \Exception {
 }
 
 class AccessToken extends \League\OAuth2\Client\Token\AccessToken {
-	protected Token $idToken;
+	protected ?Token $idToken = null;
 
 	public function __construct($options = []) {
 		parent::__construct($options);
@@ -30,7 +30,7 @@ class AccessToken extends \League\OAuth2\Client\Token\AccessToken {
 		}
 	}
 	
-	public function getIdToken() : Token {
+	public function getIdToken() : ?Token {
 		return $this->idToken;
 	}
 	
