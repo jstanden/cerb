@@ -45,6 +45,12 @@ class EditorAwait extends AbstractAwait {
 				$editor_mode = 'ace/mode/cerb_query';
 				$editor_autocompletion = 'search_query';
 				break;
+			
+			case 'kata':
+				$editor_mode = 'ace/mode/cerb_kata';
+				$schema = $this->_data['schema'] ?? [];
+				$editor_autocompletion = \CerberusApplication::kataAutocompletions()->fromSchema(['schema' => $schema]);
+				break;
 		}
 		
 		$tpl->assign('var', $this->_key);

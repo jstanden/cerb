@@ -23,6 +23,10 @@ $(function() {
         .cerbCodeEditorAutocompleteSearchQueries({
             "context": ""
         })
+        {elseif $editor_mode == 'ace/mode/cerb_kata' && is_array($editor_autocompletion)}
+        .cerbCodeEditorAutocompleteKata({
+            autocomplete_suggestions: {$editor_autocompletion|json_encode nofilter}
+        })
         {/if}
         
         .nextAll('pre.ace_editor')
