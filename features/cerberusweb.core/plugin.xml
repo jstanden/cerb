@@ -8766,6 +8766,30 @@
 			</params>
 		</extension>
 		
+		<!-- Portal Layout Widgets -->
+
+		<extension point="cerb.portal.layout.widget">
+			<id>cerb.portal.layout.widget.menu</id>
+			<name>Menu</name>
+			<class>
+				<file>api/portals/layout/widgets/menu.php</file>
+				<name>PortalLayoutWidget_Menu</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<extension point="cerb.portal.layout.widget">
+			<id>cerb.portal.layout.widget.text</id>
+			<name>Text</name>
+			<class>
+				<file>api/portals/layout/widgets/text.php</file>
+				<name>PortalLayoutWidget_Text</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
 		<!-- Portal Widgets -->
 		
 		<extension point="cerb.portal.widget">
