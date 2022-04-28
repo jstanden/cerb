@@ -5384,6 +5384,25 @@
 		</extension>
 
 		<extension point="cerb.automation.trigger">
+			<id>cerb.trigger.interaction.portal</id>
+			<name>interaction.portal</name>
+			<class>
+				<file>api/automations/triggers/interaction.portal.php</file>
+				<name>AutomationTrigger_InteractionPortal</name>
+			</class>
+			<params>
+				<param key="description" value="Interactions with identities in portals" />
+				<param key="features">
+					<value>
+						<data key="await" />
+						<data key="callers" />
+						<data key="inputs" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<extension point="cerb.automation.trigger">
 			<id>cerb.trigger.mail.draft</id>
 			<name>mail.draft</name>
 			<class>
