@@ -2318,6 +2318,7 @@ abstract class C4_AbstractView {
 				if($as_subtotals) {
 					if('date' == $field['type']) {
 						$suggestions[] = $field_key . '@hourofday';
+						$suggestions[] = $field_key . '@hourofdayofweek';
 						$suggestions[] = $field_key . '@hour';
 						$suggestions[] = $field_key . '@day';
 						$suggestions[] = $field_key . '@dayofmonth';

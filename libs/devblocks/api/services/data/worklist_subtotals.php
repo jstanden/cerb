@@ -580,6 +580,10 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 								case 'hourofday':
 									$query_value = sprintf('(times:"%s-%s")', $from_date, str_replace(':00',':59:59',$from_date));
 									break;
+								case 'hourofdayofweek':
+									list($days, $hours) = explode(' ', $from_date);
+									$query_value = sprintf('(days:%s times:"%s-%s")', $days, $hours, str_replace(':00',':59:59',$hours));
+									break;
 								case 'day':
 									$to_date .= ' 23:59:59';
 									$query_value = '"' . $from_date . ' to ' . $to_date . '"';

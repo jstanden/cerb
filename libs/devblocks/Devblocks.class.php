@@ -494,7 +494,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		if($unit == 'dayofmonth' || $unit == 'dayofweek') {
 			$unit = 'day';
-		} else if($unit == 'hourofday') {
+		} else if($unit == 'hourofday' || $unit == 'hourofdayofweek') {
 			$unit = 'hour';
 		} else if($unit == 'monthofyear') {
 			$unit = 'month';
