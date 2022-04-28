@@ -8769,6 +8769,17 @@
 		<!-- Portal Widgets -->
 		
 		<extension point="cerb.portal.widget">
+			<id>cerb.portal.widget.interaction</id>
+			<name>Interaction</name>
+			<class>
+				<file>api/portals/widgets/interaction.php</file>
+				<name>PortalWidget_Interaction</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<extension point="cerb.portal.widget">
 			<id>cerb.portal.widget.text</id>
 			<name>Text</name>
 			<class>
