@@ -261,6 +261,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 							];
 							
 						case 'hourofday':
+						case 'hourofdayofweek':
 						case 'hour':
 						case 'day':
 						case 'dayofmonth':
@@ -270,6 +271,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 						case 'weekofyear':
 						case 'year':
 							$date_format = [
+								'hourofdayofweek' => '%W %H:00',
 								'hourofday' => '%H:00',
 								'hour' => '%Y-%m-%d %H:00',
 								'day' => '%Y-%m-%d',
@@ -416,6 +418,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 						break;
 						
 					case 'hourofday':
+					case 'hourofdayofweek':
 					case 'hour':
 					case 'day':
 					case 'dayofmonth':
@@ -426,6 +429,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 					case 'year':
 						$date_format = [
 							'hourofday' => '%H:00',
+							'hourofdayofweek' => '%W %H:00',
 							'hour' => '%Y-%m-%d %H:00',
 							'day' => '%Y-%m-%d',
 							'dayofmonth' => '%d',

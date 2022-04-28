@@ -559,6 +559,8 @@ class _DevblocksDateManager {
 			$unit = 'day';
 		} else if($unit == 'hourofday') {
 			$unit = 'hour';
+		} else if($unit == 'hourofdayofweek') {
+			$unit = 'hour';
 		} else if($unit == 'monthofyear') {
 			$unit = 'month';
 		} else if($unit == 'weekofyear') {
@@ -568,6 +570,7 @@ class _DevblocksDateManager {
 		$formats = [
 			'minute' => 'Y-m-d H:i',
 			'hourofday' => 'H:00',
+			'hourofdayofweek' => 'l H:00',
 			'hour' => 'Y-m-d H:00',
 			'day' => 'Y-m-d',
 			'dayofmonth' => 'd',
