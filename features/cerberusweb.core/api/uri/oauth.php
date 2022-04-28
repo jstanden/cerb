@@ -235,6 +235,110 @@ class Controller_OAuth extends DevblocksControllerExtension {
 				$ext->oauthCallback();
 				break;
 				
+			// [TODO] JWKS
+			case 'keys':
+				// [TODO] Load keys from OAuth app
+				// [TODO] Support key rotation
+				// [TODO] Cache this output
+				
+				$privateKeyPath = DevblocksPlatform::services()->oauth()->getServerPrivateKeyPath();
+				$privateKey = file_get_contents($privateKeyPath);
+				
+				$data = openssl_pkey_get_private($privateKey);
+				$data = openssl_pkey_get_details($data);
+				
+				$n = DevblocksPlatform::services()->string()->base64UrlEncode($data['rsa']['n']);
+				$e = base64_encode($data['rsa']['e']);
+				
+				$response = [
+					'keys' => [
+						[
+							'kty' => 'RSA',
+							'n' => $n,
+							'e' => $e,
+							'alg' => 'RS256',
+							'use' => 'sig',
+							'kid' => sha1($e.$n),
+						],
+					]
+				];
+				
+				header('Content-Type: application/json; charset=utf-8');
+				
+				echo DevblocksPlatform::strFormatJson(json_encode($response));
+				break;
+			
+			// [TODO] Discovery
+			case 'well-known':
+				$url_writer = DevblocksPlatform::services()->url();
+				
+				// [TODO] See: https://wgm-dev-ed.my.salesforce.com/.well-known/openid-configuration
+				$response = [
+					'issuer' => $url_writer->write('', true),
+					'authorization_endpoint' => $url_writer->write('c=oauth&a=authorize', true),
+					'token_endpoint' => $url_writer->write('c=oauth&a=access_token', true),
+					'userinfo_endpoint' => $url_writer->write('c=oauth&a=userinfo', true),
+					'jwks_uri' => $url_writer->write('c=oauth&a=keys', true),
+					//'revocation_endpoint' => $url_writer->write('c=services&a=oauth2&m=revoke', true),
+					//'registration_endpoint' => $url_writer->write('c=services&a=oauth2&m=register', true),
+					//'introspection_endpoint' => $url_writer->write('c=services&a=oauth2&m=introspect', true),
+					'scopes_supported' => [
+						'id',
+						'email',
+//						'profile',
+//						'address',
+//						'phone',
+					],
+					'response_types_supported' => [
+						'code',
+						'token',
+						'token id_token',
+					],
+					'subject_types_supported' => [
+						'public',
+					],
+					'id_token_signing_alg_supported' => [
+						'RS256'
+					],
+					'display_values_supported' => [
+						'page',
+						//'popup',
+						//'touch',
+					],
+					'token_endpoint_auth_methods_supported' => [
+						'client_secret_post',
+						//'client_secret_basic',
+						//'private_key_jwt',
+					],
+					'claims_supported' => [
+						'email',
+						'email_verified',
+						'name',
+						'sub',
+//						'address',
+//						'birthdate',
+//						'family_name',
+//						'gender',
+//						'given_name',
+//						'locale',
+//						'middle_name',
+//						'nickname',
+//						'phone_number',
+//						'phone_number_verified',
+//						'picture',
+//						'preferred_username',
+//						'profile',
+//						'updated_at',
+//						'website',
+//						'zoneinfo',
+					],
+				];
+				
+				header('Content-Type: application/json; charset=utf-8');
+				
+				echo DevblocksPlatform::strFormatJson(json_encode($response));
+				return;
+		
 			default:
 				DevblocksPlatform::dieWithHttpError($translate->_('common.access_denied'), 403);
 				break;
