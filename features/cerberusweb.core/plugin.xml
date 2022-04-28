@@ -5575,6 +5575,23 @@
 		</extension>
 
 		<extension point="cerb.automation.trigger">
+			<id>cerb.trigger.portal.page</id>
+			<name>portal.page</name>
+			<class>
+				<file>api/automations/triggers/portal.page.php</file>
+				<name>AutomationTrigger_PortalPage</name>
+			</class>
+			<params>
+				<param key="description" value="A dynamic page in the portal builder" />
+				<param key="features">
+					<value>
+						<data key="inputs" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="cerb.automation.trigger">
 			<id>cerb.trigger.record.changed</id>
 			<name>record.changed</name>
 			<class>
@@ -8672,13 +8689,15 @@
 			<params>
 			</params>
 		</extension>
+
+		<!-- Portal Pages -->
 		
-		<extension point="cerb.portal">
-			<id>cerb.portal.idp</id>
-			<name>Identity Provider (IdP) Portal</name>
+		<extension point="cerb.portal.page">
+			<id>cerb.portal.page.automation</id>
+			<name>Automation</name>
 			<class>
-				<file>api/portals/idp.php</file>
-				<name>Portal_IdentityProvider</name>
+				<file>api/portals/pages/automation.php</file>
+				<name>PortalPage_Automation</name>
 			</class>
 			<params>
 			</params>

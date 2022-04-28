@@ -2,64 +2,59 @@
 class PortalPage_Login extends Extension_PortalPage {
 	const ID = 'cerb.portal.page.login';
 	
-	public function renderConfig(Model_PortalPage $model) {
-		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('model', $model);
-		$tpl->display('devblocks:cerberusweb.core::portals/builder/pages/login/config.tpl');
-	}
-	
-	public function saveConfig(array $fields, $id, &$error=null) {
-		if(!array_key_exists(DAO_PortalPage::PARAMS_JSON, $fields)) {
-			$error = 'Portal page parameters are required.';
-			return false;
-		}
-		
-		if(false === ($params = json_decode($fields[DAO_PortalPage::PARAMS_JSON], true))) {
-			$error = 'Unable to read portal parameters.';
-			return false;
-		}
-		
-		/*
-		if(false == ($tab_ids = @$params['tab_ids'])) {
-			$error = 'A form builder behavior is required.';
-			return false;
-		}
-		*/
-		
-		return true;
-	}
-	
-	function invoke(Model_PortalPage $page, Model_CommunityTool $portal, DevblocksHttpResponse $response) {
-		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 405);
-		
-		//@$invoke = DevblocksPlatform::importGPC($_POST['invoke'], 'string', null);
-		
-		return false;
-	}
-	
-	function render(Model_PortalPage $page, Model_CommunityTool $portal, DevblocksHttpResponse $response) {
+	function render(array $page_meta, array $route_meta, Model_CommunityTool $portal) {
 		// [TODO] Redirect to an OpenID Connect provider with a callback URL
 		
-		$renderer = new Extension_PortalPageRenderer(function() use ($page, $portal, $response) {
-			$stack = $response->path;
+		$renderer = new Extension_PortalPageRenderer(function() use ($page_meta, $route_meta, $portal) {
+			$stack = [];
 			
-			@$uri = array_shift($stack);
+			$request_headers = DevblocksPlatform::getHttpHeaders() ?: [];
+			unset($request_headers['cookie']);
+			
+			$request = DevblocksPlatform::readRequest();
+			$request_path = $request->path;
+			array_shift($request_path); // portal
+			array_shift($request_path); // uri
+			
+			/*
+			$initial_state = [
+				//'identity__context' => CerberusContexts::CONTEXT_IDENTITY,
+				//'identity_id' => $identity->id ?? 0,
+				
+				'portal__context' => CerberusContexts::CONTEXT_PORTAL,
+				'portal_id' => $portal->id ?? 0,
+				
+				'request_method' => DevblocksPlatform::strUpper($_SERVER['REQUEST_METHOD']),
+				'request_body' => DevblocksPlatform::getHttpBody(),
+				'request_client_ip' => DevblocksPlatform::getClientIp(),
+				'request_client_browser_name' => $user_agent['browser'] ?? null,
+				'request_client_browser_platform' => $user_agent['platform'] ?? null,
+				'request_client_browser_version' => $user_agent['version'] ?? null,
+				'request_headers' => $request_headers,
+				'request_params' => DevblocksPlatform::getHttpParams(),
+				'request_path' => implode('/', $request_path),
+			];
+			*/
+			
+			$stack = $request_path;
+			array_shift($stack); // login
+			
+			@$uri = current($stack);
 			
 			switch($uri) {
 				case 'logout':
-					$this->_routeLogout($page, $portal, $stack);
+					$this->_routeLogout($page_meta, $portal);
 					break;
 
 				default:
 				case 'sso':
-					$this->_routeLoginSSO($page, $portal, $stack);
+					$this->_routeLoginSSO($page_meta, $portal);
 					break;
 			}
 			
 		});
 		
-		parent::renderBareLayout($page, $portal, $renderer);
+		parent::renderBareLayout($page_meta, $portal, $renderer);
 	}
 	
 	private function _getProvider(Model_CommunityTool $portal) {
@@ -67,6 +62,8 @@ class PortalPage_Login extends Extension_PortalPage {
 		//	return null;
 		
 		$url_writer = DevblocksPlatform::services()->url();
+		
+		// [TODO] Allow multiple OIDC providers
 		
 		// [TODO]
 		$service_uri = 'cerb';
@@ -84,36 +81,66 @@ class PortalPage_Login extends Extension_PortalPage {
 		]);
 		*/
 		
+		/*
+		// [TODO] Implement
 		$provider = new GenericOpenIDConnectProvider([
-			'clientId' => 'mag87br1pffawzvpmep5u7stjb4qufs1',
-			'clientSecret' => 'ufafvcqgz5anct3l6rmcxwtfkx5cq5y2x8rtktzujblfp5s5lz1yzxehn37lzmv5',
-			// [TODO]
-			'idTokenIssuer' => 'http://localhost/index.php/portal/idp/',
+			// [TODO] Support Center
+			'clientId' => '4u6jgcrycgdzdde9n4457z79tvuvqe3m',
+			'clientSecret' => '1w3m2kyehpwv3hbj38gclj4ff3mz5bd717yywusml2slgmdpfrsar74lchqavs7g',
 			'redirectUri' => $url_writer->write(sprintf('c=login&a=sso&provider=%s', $service_uri), true),
+			// [TODO] Community
+			//'clientId' => 'mag87br1pffawzvpmep5u7stjb4qufs1',
+			//'clientSecret' => 'ufafvcqgz5anct3l6rmcxwtfkx5cq5y2x8rtktzujblfp5s5lz1yzxehn37lzmv5',
+			// [TODO]
+			'idTokenIssuer' => 'http://localhost:9090/index.php/portal/idp/',
 			'urlAuthorize' => 'http://localhost:9090/index.php/portal/idp/services/oauth2/authorize',
 			'urlAccessToken' => 'http://localhost:9090/index.php/portal/idp/services/oauth2/token',
 			'urlResourceOwnerDetails' => 'http://localhost:9090/index.php/portal/idp/services/oauth2/userinfo',
 			'urlJwks' => 'http://localhost:9090/index.php/portal/idp/services/id/keys',
+			'scopes' => [
+				'openid',
+				'email',
+				'profile',
+			],
+		]);
+		*/
+		
+		// [TODO] Implement
+		$provider = new GenericOpenIDConnectProvider([
+			'clientId' => '4u6jgcrycgdzdde9n4457z79tvuvqe3m',
+			'clientSecret' => '1w3m2kyehpwv3hbj38gclj4ff3mz5bd717yywusml2slgmdpfrsar74lchqavs7g',
+			'redirectUri' => $url_writer->write(sprintf('c=login&a=sso&provider=%s', $service_uri), true),
+			// [TODO]
+			'idTokenIssuer' => 'http://localhost:8080/index.php/',
+			'urlAuthorize' => 'http://localhost:8080/index.php/oauth/authorize',
+			'urlAccessToken' => 'http://localhost:8080/index.php/oauth/access_token',
+			'urlResourceOwnerDetails' => 'http://localhost:8080/index.php/oauth/userinfo',
+			'urlJwks' => 'http://localhost:8080/index.php/oauth/keys',
+			'scopes' => [
+				'openid',
+				'email',
+				'profile',
+			],
 		]);
 		
 		return $provider;
 	}
 	
-	private function _routeLogout(Model_PortalPage $page, Model_CommunityTool $portal, array $path = []) {
+	private function _routeLogout(array $page_meta, Model_CommunityTool $portal) {
 		$session = ChPortalHelper::getSession();
 		$session->destroy();
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(), 0);
 	}
 	
-	private function _routeLoginSSO(Model_PortalPage $page, Model_CommunityTool $portal, array $path = []) {
+	private function _routeLoginSSO(array $page_meta, Model_CommunityTool $portal) {
 		// [TODO] Look up connected service from config
 		
 		// [TODO]
-		//if(false == ($pool_id = $portal->getParam('identity_pool_id', 0)))
-		//	return;
+//		if(false == ($pool_id = $portal->getParam('identity_pool_id', 0)))
+//			return;
 		
-		$pool_id = 2;
+		$pool_id = 4;
 		
 		$session = ChPortalHelper::getSession();
 		
@@ -122,10 +149,16 @@ class PortalPage_Login extends Extension_PortalPage {
 		
 		$provider = $this->_getProvider($portal);
 		
+		if(array_key_exists('error', $_GET)) {
+			// [TODO] Error messages
+			DevblocksPlatform::dieWithHttpError('Login error');
+			return;
+		}
+		
 		if(!array_key_exists('code', $_GET)) {
 			// Send to the authentication URL
 			$redirectUrl = $provider->getAuthorizationUrl();
-			header(sprintf("Location: %s", $redirectUrl, true, 302));
+			header(sprintf("Location: %s", $redirectUrl), true, 302);
 			return;
 		}
 		
@@ -142,15 +175,26 @@ class PortalPage_Login extends Extension_PortalPage {
 		
 		$id_token = $token->getIdToken();
 		
+		//error_log(yaml_emit($id_token->claims()->all()));
+		
 		// [TODO] Verify ID token
 		
+		// [TODO] Match identities on other claim properties? (e.g. username)
+		// [TODO] Create accounts for new identities?
+		// [TODO] Update accounts for matches
+		// [TODO] Multiple IdPs route to the same identity?
+		// [TODO] This is a job for automations
+		
 		if(
-			false == ($email = $id_token->getClaim('email'))
+			false == ($email = $id_token->claims()->get('email'))
 			|| false == ($identity = DAO_Identity::getByEmailAndPool($email, $pool_id))
 		) {
+			// [TODO] Give a better error
 			$query = ['error' => 'auth.failed'];
 			DevblocksPlatform::redirect(new DevblocksHttpResponse(['login'], $query), 0);
 		}
+		
+		var_dump($identity);
 		
 		$session->setIdentity($identity);
 		
