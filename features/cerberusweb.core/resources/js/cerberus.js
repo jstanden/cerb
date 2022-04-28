@@ -599,6 +599,127 @@ var cerbAutocompleteSuggestions = {
 			],
 		}
 	},
+	kataSchemaPortal: {
+		'': [
+			'layouts:',
+			'pages:',
+			'routes:'
+		],
+		'layouts:': [
+			'layout:'
+		],
+		'layouts:layout:': [
+			'menu:'
+		],
+		'pages:': [
+			{
+				'caption': 'automation:',
+				'snippet': 'automation/${1:name}:'
+			},
+			{
+				'caption': 'dashboard:',
+				'snippet': 'dashboard/${1:name}:'
+			},
+			{
+				'caption': 'interaction:',
+				'snippet': 'interaction/${1:name}:'
+			},
+			{
+				'caption': 'login:',
+				'snippet': 'login/${1:name}:'
+			},
+			{
+				'caption': 'text:',
+				'snippet': 'text/${1:name}:'
+			}
+		],
+		'pages:automation:': [
+			'disabled@bool: no',
+			{
+				'caption': 'uri:',
+				'snippet': 'uri: cerb:automation:${1:automation.name}'
+			},
+			'inputs:'
+		],
+		'pages:dashboard:': [
+			'disabled@bool: no',
+			'layout:'
+		],
+		'pages:dashboard:layout:': [
+			{
+				'caption': 'content',
+				'snippet': 'content:\n'
+			},
+			{
+				'caption': 'content|sidebar',
+				'snippet': 'content:\nsidebar:\n'
+			},
+			{
+				'caption': 'left|center|right',
+				'snippet': 'left:\ncenter:\nright:\n'
+			},
+			{
+				'caption': 'left|right',
+				'snippet': 'left:\nright:\n'
+			},
+			{
+				'caption': 'sidebar|content',
+				'snippet': 'sidebar:\ncontent:\n'
+			},
+		],
+		'pages:interaction:': [
+			'disabled@bool: no',
+			'label:',
+			'uri: cerb:automation:${1:automation.name}'
+		],
+		'pages:login:': [
+			'disabled@bool: no'
+		],
+		'pages:text:': [
+			'content@text:',
+			'disabled@bool: no'
+		],
+		'routes:': [
+			{
+				'caption': 'page:',
+				'snippet': 'page/${1:name}:'
+			}
+		],
+		'routes:page:': [
+			{
+				'caption': 'disabled:',
+				'snippet': 'disabled@bool: {{request_path != \'${2:example/path}\'}}'
+			}
+		],
+		'*': {
+			'(.*):?pages:dashboard:layout:(center|content|left|right|sidebar):': [
+				{
+					'caption': 'interaction:',
+					'snippet': 'interaction/${1:name}:'
+				},
+				{
+					'caption': 'text:',
+					'snippet': 'text/${1:name}:'
+				}
+			],
+			'(.*):?pages:dashboard:layout:(center|content|left|right|sidebar):interaction:': [
+				'disabled@bool: no',
+				'disabled@bool: yes',
+				'label:',
+				{
+					'caption': 'uri:',
+					'snippet': 'uri: cerb:automation:${1:automation.name}'
+				},
+				'inputs:'
+			],
+			'(.*):?pages:dashboard:layout:(center|content|left|right|sidebar):text:': [
+				'content@text:',
+				'disabled@bool: no',
+				'disabled@bool: yes',
+				'label:'
+			]
+		}
+	},
 	kataSchemaSheet: {
 		'': [
 			{
