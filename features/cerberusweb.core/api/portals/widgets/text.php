@@ -2,30 +2,40 @@
 class PortalWidget_Text extends Extension_PortalWidget {
 	const ID = 'cerb.portal.widget.text';
 	
-	public function renderConfig(Model_PortalWidget $model) {
-		$tpl = DevblocksPlatform::services()->template();
-		
-		$tpl->assign('model', $model);
-		$tpl->display('devblocks:cerberusweb.core::portals/builder/widgets/text/config.tpl');
+	public function init(array $widget_meta, array $page_meta) {
+		return $this->fetch($widget_meta);
 	}
 	
-	public function saveConfig(array $fields, $id, &$error=null) { 
-		return true;
-	}
-
-	public function render(Model_PortalWidget $widget, DevblocksDictionaryDelegate $dict) {
+	// [TODO] safe mode option
+	public function fetch(array $widget_meta) {
 		$tpl = DevblocksPlatform::services()->template();
-		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-
-		$template = $widget->params['content'];
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder()::newInstance('html');
 		
-		if(false != ($markdown = $tpl_builder->build($template, $dict))) {
-			if(false != ($content = DevblocksPlatform::parseMarkdown($markdown))) {
-				$tpl->assign('content_html', $content);
-			}
-		}
+		// [TODO] Handle URLs
 		
-		$tpl->assign('widget', $widget);
-		$tpl->display('devblocks:cerberusweb.core::portals/builder/widgets/text.tpl');
+		$content = Portal_Builder::parseMarkdown($widget_meta['content'] ?? '');
+		$content_params = $widget_meta['content_params'] ?? [];
+		
+		if(!is_array($content_params))
+			$content_params = [];
+		
+		$lexer = [
+			'tag_comment'   => ['${#', '#}'],
+			'tag_block'     => ['${%', '%}'],
+			'tag_variable'  => ['${', '}'],
+			'interpolation' => ['$#{', '}'],
+		];
+		
+		if(false === ($content = $tpl_builder->build($content, $content_params, $lexer)))
+			$content = '';
+		
+		$tpl->assign('content_html', $content);
+		
+		return $tpl->fetch('devblocks:cerberusweb.core::portals/builder/widgets/text.tpl');
+	}
+	
+	// [TODO] Used?
+	public function render(array $widget_meta, array $page_meta) {
+		echo $this->fetch($widget_meta);
 	}
 }

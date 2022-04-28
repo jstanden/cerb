@@ -8702,8 +8702,6 @@
 			<params>
 			</params>
 		</extension>
-
-		<!-- Portal Pages -->
 		
 		<extension point="cerb.portal.page">
 			<id>cerb.portal.page.dashboard</id>

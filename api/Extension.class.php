@@ -2348,6 +2348,105 @@ abstract class Extension_CommunityPortal extends DevblocksExtension implements D
 	}
 };
 
+class Extension_PortalPageRenderer {
+	private $_callback_renderer = null;
+	
+	function __construct(callable $func) {
+		$this->setRendererCallback($func);
+	}
+	
+	function setRendererCallback(callable $func) {
+		$this->_callback_renderer = $func;
+	}
+	
+	function render() {
+		if(is_callable($this->_callback_renderer))
+			call_user_func($this->_callback_renderer);
+	}
+}
+
+abstract class Extension_PortalPage extends DevblocksExtension {
+	use DevblocksExtensionGetterTrait;
+	
+	const POINT = 'cerb.portal.page';
+	
+	static function getByType($page_type) : ?Extension_PortalPage {
+		$page = null;
+		
+		$page_types = [
+			'automation' => PortalPage_Automation::ID,
+			'dashboard' => PortalPage_Dashboard::ID,
+			'interaction' => PortalPage_Interaction::ID,
+			'login' => PortalPage_Login::ID,
+			'text' => PortalPage_Text::ID,
+		];
+		
+		/* @var Extension_PortalPage $page */
+		if(array_key_exists($page_type, $page_types))
+			$page = Extension_PortalPage::get($page_types[$page_type]);
+		
+		return $page;
+	}
+	
+	abstract function render(array $page_meta, array $route_meta, Model_CommunityTool $portal);
+	
+	static function renderBareLayout($page_meta, $portal, $renderer) {
+		$portal->getExtension()->renderBareLayout($page_meta, $portal, $renderer);
+	}
+	
+	static function renderDefaultLayout($page_meta, $portal, $renderer) {
+		$portal->getExtension()->renderDefaultLayout($page_meta, $portal, $renderer);
+	}
+}
+
+abstract class Extension_PortalWidget extends DevblocksExtension {
+	use DevblocksExtensionGetterTrait;
+	
+	const POINT = 'cerb.portal.widget';
+	
+	abstract function init(array $widget_meta, array $page_meta);
+	abstract function render(array $widget_meta, array $page_meta);
+	
+	static function getByType($widget_type) {
+		$widget = null;
+		
+		$widget_types = [
+			'interaction' => PortalWidget_Interaction::ID,
+			'text' => PortalWidget_Text::ID,
+		];
+		
+		/* @var Extension_PortalWidget $widget */
+		if(array_key_exists($widget_type, $widget_types))
+			$widget = Extension_PortalWidget::get($widget_types[$widget_type]);
+		
+		return $widget;
+	}
+}
+
+abstract class Extension_PortalLayoutWidget extends DevblocksExtension {
+	use DevblocksExtensionGetterTrait;
+	
+	const POINT = 'cerb.portal.layout.widget';
+	
+	abstract function init(array $widget_meta, array $layout_meta);
+	abstract function render(array $widget_meta, array $layout_meta);
+	
+	static function getByType($widget_type) {
+		$widget = null;
+		
+		$widget_types = [
+			'menu' => PortalLayoutWidget_Menu::ID,
+			'text' => PortalLayoutWidget_Text::ID,
+		];
+		
+		/* @var Extension_PortalLayoutWidget $widget */
+		if(array_key_exists($widget_type, $widget_types))
+			$widget = Extension_PortalLayoutWidget::get($widget_types[$widget_type]);
+		
+		return $widget;
+	}
+}
+
 abstract class Extension_ConnectedServiceProvider extends DevblocksExtension {
 	use DevblocksExtensionGetterTrait;
 	

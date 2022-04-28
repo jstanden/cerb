@@ -2,43 +2,30 @@
 class PortalPage_Text extends Extension_PortalPage {
 	const ID = 'cerb.portal.page.text';
 	
-	public function renderConfig(Model_PortalPage $model) {
-		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('model', $model);
-		$tpl->display('devblocks:cerberusweb.core::portals/builder/pages/text/config.tpl');
-	}
+//	function invoke(array $page_meta, Model_CommunityTool $portal) {
+//		return false;
+//	}
 	
-	public function saveConfig(array $fields, $id, &$error=null) {
-		if(!array_key_exists(DAO_PortalPage::PARAMS_JSON, $fields)) {
-			$error = 'Portal page parameters are required.';
-			return false;
-		}
-		
-		if(false === (json_decode($fields[DAO_PortalPage::PARAMS_JSON], true))) {
-			$error = 'Unable to read portal parameters.';
-			return false;
-		}
-		
-		return true;
-	}
-	
-	function invoke(Model_PortalPage $page, Model_CommunityTool $portal, DevblocksHttpResponse $response) {
-		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 405);
-		
-		//@$invoke = DevblocksPlatform::importGPC($_POST['invoke'], 'string', null);
-		
-		return false;
-	}
-	
-	function render(Model_PortalPage $page, Model_CommunityTool $portal, DevblocksHttpResponse $response) {
-		$renderer = new Extension_PortalPageRenderer(function() use ($page, $portal, $response) {
+	function render(array $page_meta, array $route_meta, Model_CommunityTool $portal) {
+		$renderer = new Extension_PortalPageRenderer(function() use ($page_meta, $portal) {
 			$tpl = DevblocksPlatform::services()->template();
-			$content_html = DevblocksPlatform::parseMarkdown($page->params['content']);
+			
+			$content_html = Portal_Builder::parseMarkdown($page_meta['content'] ?? '');
+			$content_params = $widget_meta['content_params'] ?? [];
+			
+			// [TODO] Placeholders
+			// [TODO] content_params
+			
 			$tpl->assign('content_html', $content_html);
 			$tpl->display('devblocks:cerberusweb.core::portals/builder/pages/text.tpl');
 		});
 		
-		parent::renderDefaultLayout($page, $portal, $renderer);
+		$layout = $route_meta['layout'] ?? null;
+		
+		if('bare' == $layout) {
+			parent::renderBareLayout($page_meta, $portal, $renderer);
+		} else {
+			parent::renderDefaultLayout($page_meta, $portal, $renderer);
+		}
 	}
 }
