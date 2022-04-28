@@ -48,7 +48,7 @@ function DevblocksClass() {
 			var selectedString = document.selection.createRange().text;
 		} else if (document.getSelection) { //older Mozilla
 			var selectedString = document.getSelection();
-		};
+		}
 		
 		return selectedString;
 	};

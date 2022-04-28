@@ -1710,7 +1710,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 		);
 	}
 	
-	function filter_alphanum($string, $also=null, $replace='') {
+	function filter_alphanum($string, $also='', $replace='') {
 		if($string instanceof Twig\Markup)
 			$string = strval($string);
 		

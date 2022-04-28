@@ -1342,7 +1342,17 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @return string
 	 * @test DevblocksPlatformTest
 	 */
-	static function strAlphaNum($arg, $also='', $replace="") {
+	static function strAlphaNum($arg, $also='', $replace='') {
+		$arg = $arg ?? '';
+		$also = $also ?? '';
+		$replace = $replace ?? '';
+		
+		if(!is_scalar($arg))
+			return '';
+		
+		if(is_null($also))
+			$also = '';
+		
 		return preg_replace("/[^A-Z0-9" . preg_quote($also, '/') . "]/i", $replace, $arg);
 	}
 	
