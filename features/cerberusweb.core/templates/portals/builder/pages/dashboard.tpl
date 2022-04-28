@@ -1,12 +1,31 @@
 {$uniqid = uniqid()}
-<article id="dashboard{$uniqid}" class="cerb-portal-dashboard">
+{function renderWidget widget=[]}
+	<div data-cerb-widget-name="{$widget.key}" class="cerb-portal-widget cerb-portal-widget--width-{$widget.width}">
+		{if $widget.label}
+		<div class="cerb-portal-widget--title">
+			{if $widget.label_link}
+				<a href="{$widget.label_link}">{$widget.label}</a>
+			{else}
+				{$widget.label}
+			{/if}
+		</div>
+		{/if}
+		<div class="cerb-portal-widget--content">
+			{$widget._init nofilter}
+		</div>
+	</div>
+{/function}
+<article id="dashboard{$uniqid}" class="cerb-portal-dashboard" data-cerb-page-name="{$page.key}">
 	<div class="cerb-portal-wrapper">
+		{if $page.label}
+			<h1>{$page.label}</h1>
+		{/if}
 		{if $layout == ['sidebar','content']}
 			<div class="cerb-portal-dashboard-layout cerb-portal-dashboard-layout--sidebar-left" style="vertical-align:top;display:flex;flex-flow:row wrap;">
 				<div data-layout-zone="sidebar" class="cerb-portal-dashboard-layout-zone" style="flex:1 1 33%;min-width:340px;overflow-x:hidden;">
 					<div class="cerb-portal-dashboard-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
 					{foreach from=$zones.sidebar item=widget name=widgets}
-						{include file="devblocks:cerberusweb.core::portals/builder/pages/dashboard/widget_container.tpl" widget=$widget}
+						{renderWidget widget=$widget}
 					{/foreach}
 					</div>
 				</div>
@@ -14,7 +33,7 @@
 				<div data-layout-zone="content" class="cerb-portal-dashboard-layout-zone" style="flex:2 2 66%;min-width:340px;overflow-x:hidden;">
 					<div class="cerb-portal-dashboard-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
 					{foreach from=$zones.content item=widget name=widgets}
-						{include file="devblocks:cerberusweb.core::portals/builder/pages/dashboard/widget_container.tpl" widget=$widget}
+						{renderWidget widget=$widget}
 					{/foreach}
 					</div>
 				</div>
@@ -24,7 +43,7 @@
 				<div data-layout-zone="content" class="cerb-portal-dashboard-layout-zone cerb-portal-dashboard-layout-zone--content" style="flex:2 2 66%;min-width:340px;overflow-x:hidden;">
 					<div class="cerb-portal-dashboard-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
 					{foreach from=$zones.content item=widget name=widgets}
-						{include file="devblocks:cerberusweb.core::portals/builder/pages/dashboard/widget_container.tpl" widget=$widget}
+						{renderWidget widget=$widget}
 					{/foreach}
 					</div>
 				</div>
@@ -32,7 +51,7 @@
 				<div data-layout-zone="sidebar" class="cerb-portal-dashboard-layout-zone cerb-portal-dashboard-layout-zone--sidebar" style="flex:1 1 33%;min-width:340px;overflow-x:hidden;">
 					<div class="cerb-portal-dashboard-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
 					{foreach from=$zones.sidebar item=widget name=widgets}
-						{include file="devblocks:cerberusweb.core::portals/builder/pages/dashboard/widget_container.tpl" widget=$widget}
+						{renderWidget widget=$widget}
 					{/foreach}
 					</div>
 				</div>
@@ -42,7 +61,7 @@
 				<div data-layout-zone="left" class="cerb-portal-dashboard-layout-zone cerb-portal-dashboard-layout-zone--left" style="flex:1 1 33%;min-width:340px;overflow-x:hidden;">
 					<div class="cerb-portal-dashboard-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
 					{foreach from=$zones.left item=widget name=widgets}
-						{include file="devblocks:cerberusweb.core::portals/builder/pages/dashboard/widget_container.tpl" widget=$widget}
+						{renderWidget widget=$widget}
 					{/foreach}
 					</div>
 				</div>
@@ -50,7 +69,7 @@
 				<div data-layout-zone="center" class="cerb-portal-dashboard-layout-zone cerb-portal-dashboard-layout-zone--center" style="flex:1 1 33%;min-width:340px;overflow-x:hidden;">
 					<div class="cerb-portal-dashboard-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
 					{foreach from=$zones.center item=widget name=widgets}
-						{include file="devblocks:cerberusweb.core::portals/builder/pages/dashboard/widget_container.tpl" widget=$widget}
+						{renderWidget widget=$widget}
 					{/foreach}
 					</div>
 				</div>
@@ -58,7 +77,7 @@
 				<div data-layout-zone="right" class="cerb-portal-dashboard-layout-zone cerb-portal-dashboard-layout-zone--right" style="flex:1 1 33%;min-width:340px;overflow-x:hidden;">
 					<div class="cerb-portal-dashboard-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
 					{foreach from=$zones.right item=widget name=widgets}
-						{include file="devblocks:cerberusweb.core::portals/builder/pages/dashboard/widget_container.tpl" widget=$widget}
+						{renderWidget widget=$widget}
 					{/foreach}
 					</div>
 				</div>
@@ -68,14 +87,14 @@
 				<div data-layout-zone="left" class="cerb-portal-dashboard-layout-zone cerb-portal-dashboard-layout-zone--left" style="flex:1 1 50%;min-width:340px;overflow-x:hidden;">
 					<div class="cerb-portal-dashboard-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
 					{foreach from=$zones.left item=widget name=widgets}
-						{include file="devblocks:cerberusweb.core::portals/builder/pages/dashboard/widget_container.tpl" widget=$widget}
+						{renderWidget widget=$widget}
 					{/foreach}
 					</div>
 				</div>
 				<div data-layout-zone="right" class="cerb-portal-dashboard-layout-zone cerb-portal-dashboard-layout-zone--right" style="flex:1 1 50%;min-width:340px;overflow-x:hidden;">
 					<div class="cerb-portal-dashboard-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
 					{foreach from=$zones.right item=widget name=widgets}
-						{include file="devblocks:cerberusweb.core::portals/builder/pages/dashboard/widget_container.tpl" widget=$widget}
+						{renderWidget widget=$widget}
 					{/foreach}
 					</div>
 				</div>
@@ -85,7 +104,7 @@
 				<div data-layout-zone="content" class="cerb-portal-dashboard-layout-zone" style="flex:1 1 100%;overflow-x:hidden;">
 					<div class="cerb-portal-dashboard-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
 					{foreach from=$zones.content item=widget name=widgets}
-						{include file="devblocks:cerberusweb.core::portals/builder/pages/dashboard/widget_container.tpl" widget=$widget}
+						{renderWidget widget=$widget}
 					{/foreach}
 					</div>
 				</div>
@@ -93,80 +112,3 @@
 		{/if}
 	</div>
 </article>
-
-<script type="text/javascript">
-$$.ready(function() {
-	var $dashboard = document.querySelector('#dashboard{$uniqid}');
-
-	if(!$dashboard)
-		return;
-
-	$dashboard.addEventListener('cerb-portal-widgets--refresh', function(e) {
-		var $widgets = $dashboard.querySelectorAll('.cerb-portal-widget');
-
-		if(!$widgets)
-			return;
-
-		$$.forEach($widgets, function(index, $widget) {
-			var widget_uri = $widget.getAttribute('data-cerb-widget-name');
-
-			var formData = new FormData();
-			formData.set('invoke', 'widgetRefresh');
-			formData.set('widget', widget_uri);
-
-			// [TODO] Spinner
-
-			var xhr = new XMLHttpRequest();
-
-			xhr.open('POST', '{devblocks_url}{$page_query}{/devblocks_url}');
-
-			xhr.onreadystatechange = function() {
-				if(xhr.readyState === 4 && xhr.status === 200) {
-					// [TODO] Check content type
-					var $widget_content = $widget.querySelector('.cerb-portal-widget--content');
-					$$.html($widget_content, xhr.responseText);
-					$widget.style.opacity = 1.0;
-				}
-			}
-
-			xhr.send(formData);
-		});
-	});
-
-	/*
-	$dashboard.addEventListener('cerb-portal-widget-refresh', function(e) {
-		var widget_id = e.widget_id;
-		var $widget = $dashboard.querySelector('#portalWidget' + widget_id);
-
-		// [TODO] Spinner
-		
-		$widget.style.opacity = 0.2;
-		
-		var formData = (e.form_data && "object" == typeof e.form_data ? e.form_data : new FormData());
-		formData.set('widget', widget_id);
-		
-		if(!$widget)
-			return;
-		
-		var xhr = new XMLHttpRequest();
-		
-		xhr.open('POST', '{devblocks_url}{$page_query}&action=updateWidget{/devblocks_url}');
-		
-		xhr.onreadystatechange = function() {
-			if(xhr.readyState === 4 && xhr.status === 200) {
-				var $widget_content = $widget.querySelector('.cerb-portal-widget--content');
-				$$.html($widget_content, xhr.responseText);
-				
-				$widget.style.opacity = 1.0;
-			}
-		}
-		
-		xhr.send(formData);
-	});
-	*/
-
-	// [TODO] Trigger refreshes on load
-	var event = $$.createEvent('cerb-portal-widgets--refresh');
-	$dashboard.dispatchEvent(event);
-});
-</script>
