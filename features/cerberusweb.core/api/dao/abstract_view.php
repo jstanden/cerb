@@ -1170,14 +1170,20 @@ abstract class C4_AbstractView {
 		
 		if($param->operator == DevblocksSearchCriteria::OPER_CUSTOM) {
 			list($alias, $query) = array_pad(explode(':', $param->value, 2), 2, null);
+			list($alias, $field) = array_pad(explode('.', $alias, 2),2, null);
 			
 			if(empty($alias) || (false == ($mft = Extension_DevblocksContext::getByAlias($alias, false))))
 				return;
 			
 			$aliases = Extension_DevblocksContext::getAliasesForContext($mft);
-			$alias = !empty($aliases['plural_short']) ? $aliases['plural_short'] : $aliases['plural'];
+			$alias = $aliases['plural'] ?: $aliases['singular'];
 			
-			echo sprintf("%s %s <b>%s</b>", DevblocksPlatform::strEscapeHtml($label_verb), DevblocksPlatform::strEscapeHtml($alias), DevblocksPlatform::strEscapeHtml($query));
+			echo sprintf("%s %s%s <b>%s</b>",
+				DevblocksPlatform::strEscapeHtml($label_verb),
+				DevblocksPlatform::strEscapeHtml($alias),
+				DevblocksPlatform::strEscapeHtml($field ? (' ' . $field) : ''),
+				DevblocksPlatform::strEscapeHtml($query)
+			);
 			return;
 		}
 		
@@ -1566,6 +1572,73 @@ abstract class C4_AbstractView {
 		return $fields;
 	}
 	
+	protected function _appendFieldLinksFromQuickSearchContext($context, $fields=[], $prefix=null) {
+		if(false == Extension_DevblocksContext::get($context, false))
+			return $fields;
+		
+		if(false == ($context_mfts = Extension_DevblocksContext::getAll(false)))
+			return $fields;
+		
+		// All custom field record link + links
+		$custom_field_links = array_filter(
+			DAO_CustomField::getAll(),
+			function(Model_CustomField $field) use ($context) {
+				if(
+					$field->type == Model_CustomField::TYPE_WORKER 
+					&& $context == CerberusContexts::CONTEXT_WORKER
+					)
+					return true;
+				
+				return
+					in_array($field->type, [
+						Model_CustomField::TYPE_LINK,
+						CustomField_RecordLinks::ID,
+					])
+					&& CerberusContexts::isSameContext($context, $field->params['context'] ?? '')
+				;
+			}
+		);
+		
+		if(!is_array($custom_field_links) || !$custom_field_links)
+			return $fields;
+		
+		foreach($custom_field_links as $field_id => $field) { /* @var Model_CustomField $field */
+			if(null == ($link_context_mft = ($context_mfts[$field->context] ?? null)))
+				continue;
+			
+			if(null == ($link_alias = ($link_context_mft->params['alias'] ?? null)))
+				continue;
+			
+			// Prefix the custom fieldset namespace
+			$field_key = sprintf("%slinks.%s.%s",
+				!empty($prefix) ? ($prefix . '.') : '',
+				$link_alias,
+				$field->uri
+			);
+			
+			$search_field_meta = [
+				'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+				'is_sortable' => false,
+				'options' => [
+					'param_key' => sprintf("cf_%d", $field_id),
+					'cf_ctx' => $link_context_mft->id,
+					'cf_id' => $field->id,
+				],
+				'examples' => [
+					[
+						'type' => 'search',
+						'context' => $link_context_mft->id,
+						'q' => '',
+					]
+				]
+			];
+			
+			$fields[$field_key] = $search_field_meta;
+		}
+		
+		return $fields;
+	}
+	
 	protected function _appendFieldsFromQuickSearchContext($context, $fields=[], $prefix=null) {
 		$custom_fields = DAO_CustomField::getByContext($context, true, false);
 		$custom_fieldsets = DAO_CustomFieldset::getAll();
@@ -1747,7 +1820,12 @@ abstract class C4_AbstractView {
 			$fields[$field_key] = $search_field_meta;
 		}
 		
-		return $fields;
+		// Add reverse links for custom fields
+		if($prefix) { // Skip nested links for now (ticket->org)
+			return $fields;
+		} else {
+			return self::_appendFieldLinksFromQuickSearchContext($context, $fields, $prefix);
+		}
 	}
 	
 	protected function _setSortableQuickSearchFields($fields, $search_fields) {

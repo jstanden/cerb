@@ -365,6 +365,18 @@ class DAO_CustomField extends Cerb_ORMHelper {
 		return $results;
 	}
 	
+	public static function getByUri($context, $uri) {
+		$fields = self::getByContext($context);
+		
+		$field_uris_to_id = array_column($fields, 'id', 'uri');
+		
+		if(array_key_exists($uri, $field_uris_to_id)) {
+			return $fields[$field_uris_to_id[$uri]];
+		}
+		
+		return null;
+	}
+	
 	public static function getMetaByContext($context) {
 		$custom_fields = DAO_CustomField::getByContext($context, true, true);
 		

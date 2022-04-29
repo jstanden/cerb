@@ -926,8 +926,9 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 		// Handle nested quick search filters first
 		if($param->operator == DevblocksSearchCriteria::OPER_CUSTOM) {
 			list($alias, $query) = array_pad(explode(':', $param->value, 2), 2, null);
+			list($alias, $field) = array_pad(explode('.', $alias, 2),2, null);
 			
-			if(empty($alias) || (false == ($ext = Extension_DevblocksContext::getByAlias(str_replace('.', ' ', $alias), true))))
+			if(empty($alias) || (false == ($ext = Extension_DevblocksContext::getByAlias($alias, true))))
 				return;
 			
 			$not = false;
@@ -967,29 +968,67 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 				. $query_parts['sort']
 				;
 			
-			// All
-			if($all) {
-				return sprintf("%s %sIN (SELECT from_context_id FROM context_link cl WHERE from_context = %s AND to_context = %s AND to_context_id IN (%s) ".
-					"GROUP BY (from_context_id) ".
-					"HAVING COUNT(*) = (SELECT COUNT(*) FROM context_link WHERE from_context = %s AND to_context = %s AND from_context_id = cl.from_context_id)) ",
-					$pkey,
-					$not ? 'NOT ' : '',
-					Cerb_ORMHelper::qstr($from_context),
-					Cerb_ORMHelper::qstr($ext->id),
-					$sql,
-					Cerb_ORMHelper::qstr($from_context),
-					Cerb_ORMHelper::qstr($ext->id)
-				);
+			// If there's a $field URI, it's a custom field URI
+			if($field) {
+				if(false == ($custom_field = DAO_CustomField::getByUri($ext->id, $field)))
+					return;
 				
-			// Any
+				if(null == ($table_name = DAO_CustomFieldValue::getValueTableName($custom_field->id)))
+					return;
+				
+				// All
+				if($all) {
+					return sprintf("%s %sIN (SELECT field_value FROM %s cl WHERE field_id = %d AND context = %s AND context_id IN (%s) ".
+						"GROUP BY (field_value) ".
+						"HAVING COUNT(*) = (SELECT COUNT(*) FROM %s WHERE field_id = %d AND context = %s AND field_value = cl.field_value)) ",
+						$pkey,
+						$not ? 'NOT ' : '',
+						Cerb_ORMHelper::escape($table_name),
+						$custom_field->id,
+						Cerb_ORMHelper::qstr($custom_field->context),
+						$sql,
+						Cerb_ORMHelper::escape($table_name),
+						$custom_field->id,
+						Cerb_ORMHelper::qstr($custom_field->context),
+					);
+					
+					// Any
+				} else {
+					return sprintf("%s %sIN (SELECT field_value FROM %s WHERE field_id = %d AND context = %s AND context_id IN (%s)) ",
+						$pkey,
+						$not ? 'NOT ' : '',
+						Cerb_ORMHelper::escape($table_name),
+						$custom_field->id,
+						Cerb_ORMHelper::qstr($custom_field->context),
+						$sql
+					);
+				}
+				
 			} else {
-				return sprintf("%s %sIN (SELECT from_context_id FROM context_link cl WHERE from_context = %s AND to_context = %s AND to_context_id IN (%s)) ",
-					$pkey,
-					$not ? 'NOT ' : '',
-					Cerb_ORMHelper::qstr($from_context),
-					Cerb_ORMHelper::qstr($ext->id),
-					$sql
-				);
+				// All
+				if($all) {
+					return sprintf("%s %sIN (SELECT from_context_id FROM context_link cl WHERE from_context = %s AND to_context = %s AND to_context_id IN (%s) ".
+						"GROUP BY (from_context_id) ".
+						"HAVING COUNT(*) = (SELECT COUNT(*) FROM context_link WHERE from_context = %s AND to_context = %s AND from_context_id = cl.from_context_id)) ",
+						$pkey,
+						$not ? 'NOT ' : '',
+						Cerb_ORMHelper::qstr($from_context),
+						Cerb_ORMHelper::qstr($ext->id),
+						$sql,
+						Cerb_ORMHelper::qstr($from_context),
+						Cerb_ORMHelper::qstr($ext->id)
+					);
+					
+				// Any
+				} else {
+					return sprintf("%s %sIN (SELECT from_context_id FROM context_link cl WHERE from_context = %s AND to_context = %s AND to_context_id IN (%s)) ",
+						$pkey,
+						$not ? 'NOT ' : '',
+						Cerb_ORMHelper::qstr($from_context),
+						Cerb_ORMHelper::qstr($ext->id),
+						$sql
+					);
+				}
 			}
 		}
 		
@@ -2122,15 +2161,24 @@ class DevblocksSearchCriteria {
 	public static function getContextLinksParamFromTokens($field_key, $tokens) {
 		// Is this a nested subquery?
 		if(DevblocksPlatform::strStartsWith($field_key,'links.')) {
-			list(, $alias) = array_pad(explode('.', $field_key), 2, null);
+			list(, $alias, $field) = array_pad(explode('.', $field_key), 3, null);
 			
 			$query = CerbQuickSearchLexer::getTokensAsQuery($tokens);
 			
-			return new DevblocksSearchCriteria(
-				'*_context_link',
-				DevblocksSearchCriteria::OPER_CUSTOM,
-				sprintf('%s:%s', $alias, $query)
-			);
+			if($field) {
+				return new DevblocksSearchCriteria(
+					'*_context_link',
+					DevblocksSearchCriteria::OPER_CUSTOM,
+					sprintf('%s.%s:%s', $alias, $field, $query)
+				);
+				
+			} else {
+				return new DevblocksSearchCriteria(
+					'*_context_link',
+					DevblocksSearchCriteria::OPER_CUSTOM,
+					sprintf('%s:%s', $alias, $query)
+				);
+			}
 			
 		} else {
 			$aliases = Extension_DevblocksContext::getAliasesForAllContexts();
