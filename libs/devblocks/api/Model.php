@@ -91,7 +91,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 	}
 	
 	static function getFieldForSubtotalKey($key, $context, array $query_fields, array $search_fields, $primary_key) {
-		@list($key, $bin) = explode('@', $key, 2);
+		list($key, $bin) = array_pad(explode('@', $key, 2), 2, null);
 		
 		if(isset($query_fields[$key])) {
 			$query_field = $query_fields[$key] ?? null;
@@ -956,7 +956,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 			if(false == ($primary_key = $search_class::getPrimaryKey()))
 				return;
 			
-			$query_parts = $dao_class::getSearchQueryComponents(array(), $params);
+			$query_parts = $dao_class::getSearchQueryComponents([], $params);
 			
 			$query_parts['select'] = sprintf("SELECT %s ", $primary_key);
 			
@@ -1021,17 +1021,15 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 					Cerb_ORMHelper::qstr($from_context),
 					$pkey
 				);
-				break;
 			
 			case DevblocksSearchCriteria::OPER_IS_NULL:
 				return sprintf("NOT EXISTS (SELECT 1 FROM context_link WHERE context_link.to_context=%s AND context_link.to_context_id=%s) ",
 					Cerb_ORMHelper::qstr($from_context),
 					$pkey
 				);
-				break;
 	
 			case DevblocksSearchCriteria::OPER_IN:
-				$where_sqls = array();
+				$where_sqls = [];
 				
 				foreach($where_contexts as $context => $ids) {
 					$ids = DevblocksPlatform::sanitizeArray($ids, 'integer');
@@ -1066,7 +1064,6 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 					Cerb_ORMHelper::qstr($context),
 					implode(',', Cerb_ORMHelper::qstrArray($terms))
 				);
-				break;
 				
 			case DevblocksSearchCriteria::OPER_IN:
 			case DevblocksSearchCriteria::OPER_NIN:
@@ -1076,7 +1073,6 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 					Cerb_ORMHelper::qstr($context),
 					implode(',', Cerb_ORMHelper::qstrArray($terms))
 				);
-				break;
 		}
 		
 		return null;
