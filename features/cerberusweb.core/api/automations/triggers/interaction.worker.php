@@ -287,6 +287,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 						'snippet' => "label: \${1:Label:}",
 						'score' => 2000,
 					],
+					'required@bool: yes',
 					'validation@raw:',
 				],
 			

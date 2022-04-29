@@ -20,11 +20,19 @@
 
 	<ul class="cerb-float" style="display:none;">
 		{if !$readonly}
-			<li data-cerb-action="edit"><span class="glyphicons glyphicons-cogwheel"></span> <b>{'common.edit'|devblocks_translate|capitalize}</b></li>
+			<li data-cerb-action="edit">
+				<div>
+					<span class="glyphicons glyphicons-cogwheel"></span> <b>{'common.edit'|devblocks_translate|capitalize}</b>
+				</div>
+			</li>
 		{/if}
 
 		{if in_array($note->context, [CerberusContexts::CONTEXT_COMMENT, CerberusContexts::CONTEXT_DRAFT, CerberusContexts::CONTEXT_MESSAGE])}
-			<li data-cerb-action="permalink" data-cerb-permalink="{devblocks_url full=true}c=profiles&type=ticket&mask={$ticket->mask}{/devblocks_url}/#comment{$note->id}"><span class="glyphicons glyphicons-link"></span> <b>{'common.permalink'|devblocks_translate|capitalize}</b></li>
+			<li data-cerb-action="permalink" data-cerb-permalink="{devblocks_url full=true}c=profiles&type=ticket&mask={$ticket->mask}{/devblocks_url}/#comment{$note->id}">
+				<div>
+					<span class="glyphicons glyphicons-link"></span> <b>{'common.permalink'|devblocks_translate|capitalize}</b>
+				</div>
+			</li>
 		{/if}
 	</ul>
 

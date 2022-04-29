@@ -2765,18 +2765,15 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				}
 				
 				return DevblocksSearchCriteria::getFulltextParamFromTokens(SearchFields_Worker::FULLTEXT_WORKER, $tokens);
-				break;
 				
 			case 'alias':
 				return DevblocksSearchCriteria::getContextAliasParamFromTokens(SearchFields_Worker::VIRTUAL_ALIAS, $tokens);
-				break;
 			
 			case 'calendar':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Worker::VIRTUAL_CALENDAR_SEARCH);
 
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
-				break;
 			
 			case 'gender':
 				$field_key = SearchFields_Worker::GENDER;
@@ -2801,51 +2798,40 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					$oper,
 					$value
 				);
-				break;
 				
 			case 'email':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Worker::VIRTUAL_EMAIL_SEARCH);
-				break;
 				
 			case 'group':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Worker::VIRTUAL_GROUP_SEARCH);
-				break;
 				
 			case 'group.manager':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Worker::VIRTUAL_GROUP_MANAGER_SEARCH);
-				break;
 				
 			case 'isAvailable':
 				$param = DevblocksSearchCriteria::getDateParamFromTokens(SearchFields_Worker::VIRTUAL_CALENDAR_AVAILABILITY, $tokens);
 				$param->value[] = '1';
 				return $param;
-				break;
 				
 			case 'isBusy':
 				$param = DevblocksSearchCriteria::getDateParamFromTokens(SearchFields_Worker::VIRTUAL_CALENDAR_AVAILABILITY, $tokens);
 				$param->value[] = '0';
 				return $param;
-				break;
 				
 			case 'lastActivity':
 				return DevblocksSearchCriteria::getDateParamFromTokens(SearchFields_Worker::VIRTUAL_SESSION_ACTIVITY, $tokens);
-				break;
 				
 			case 'role':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Worker::VIRTUAL_ROLE_SEARCH);
-				break;
 				
 			case 'role.editor':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Worker::VIRTUAL_ROLE_EDITOR_SEARCH);
-				break;
 			
 			case 'role.reader':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Worker::VIRTUAL_ROLE_READER_SEARCH);
-				break;
 			
 			case 'using.workspace':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Worker::VIRTUAL_USING_WORKSPACE_PAGE);
-				break;
 			
 			default:
 				if($field == 'links' || substr($field, 0, 6) == 'links.')

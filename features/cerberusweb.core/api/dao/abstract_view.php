@@ -1574,11 +1574,11 @@ abstract class C4_AbstractView {
 			$search_field_meta = array(
 				'type' => null,
 				'is_sortable' => true,
-				'options' => array(
+				'options' => [
 					'param_key' => sprintf("cf_%d", $cf_id),
 					'cf_ctx' => $cfield->context,
 					'cf_id' => $cf_id,
-				),
+				]
 			);
 			
 			$custom_fieldset = $custom_fieldsets[$cfield->custom_fieldset_id] ?? null;
