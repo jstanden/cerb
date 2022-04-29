@@ -182,6 +182,7 @@ class _DevblocksTemplateBuilder {
 				'kata_encode',
 				'markdown_to_html',
 				'md5',
+				'parse_csv',
 				'parse_emails',
 				'parse_url',
 				'permalink',
@@ -1689,6 +1690,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			new \Twig\TwigFilter('kata_encode', [$this, 'filter_kata_encode']),
 			new \Twig\TwigFilter('markdown_to_html', [$this, 'filter_markdown_to_html']),
 			new \Twig\TwigFilter('md5', [$this, 'filter_md5']),
+			new \Twig\TwigFilter('parse_csv', [$this, 'filter_parse_csv']),
 			new \Twig\TwigFilter('parse_emails', [$this, 'filter_parse_emails']),
 			new \Twig\TwigFilter('parse_url', [$this, 'filter_parse_url']),
 			new \Twig\TwigFilter('permalink', [$this, 'filter_permalink']),
@@ -1977,6 +1979,32 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			return '';
 		
 		return md5($string);
+	}
+	
+	function filter_parse_csv($string, $separator=',', $enclosure='"', $escape='\\') {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
+		if(!is_string($string))
+			return [];
+		
+		$lines = [];
+		
+		$fp = fopen('php://temp/maxmemory:5242880', 'rw');
+		
+		fwrite($fp, $string);
+		
+		unset($string);
+		
+		fseek($fp, 0);
+		
+		while(!feof($fp)) {
+			$lines[] = fgetcsv($fp, 0, $separator, $enclosure, $escape);
+		}
+		
+		fclose($fp);
+		
+		return $lines;
 	}
 	
 	function filter_parse_emails($string) {
