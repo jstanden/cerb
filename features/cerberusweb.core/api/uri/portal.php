@@ -157,7 +157,18 @@ class ChPortalHelper {
 			
 			if(empty($session_id)) {
 				$session_id = sha1(DevblocksPlatform::getClientIp() . $portal->code . random_bytes(32));
-				setcookie($cookie_name, $session_id, 0, '/', null, $url_writer->isSSL(), true);
+				setcookie(
+					$cookie_name,
+					$session_id,
+					[
+						'expires' => 0,
+						'path' => $url_writer->write('',false,true),
+						'domain' => '',
+						'secure' => $url_writer->isSSL(),
+						'httponly' => true,
+						'samesite' => 'Lax',
+					]
+				);
 			}
 			
 			if(empty($session_id))
