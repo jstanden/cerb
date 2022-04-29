@@ -311,6 +311,8 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			if(!is_array($group_by))
 				$group_by = [$group_by];
 			
+			$by_keys = [];
+			
 			foreach($subtotal_by as $by) {
 				// Handle limits and orders
 				list($by, $limit) = array_pad(explode('~', $by, 2), 2, null);
@@ -330,6 +332,13 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				
 				$subtotal_field['limit'] = $limit;
 				$subtotal_field['limit_desc'] = $limit_desc;
+				
+				// If we reference the same field multiple times, make it unique
+				if(array_key_exists($subtotal_field['key_select'], $by_keys)) {
+					$subtotal_field['key_select'] = $subtotal_field['key_select'] . '_' . uniqid();
+				} else {
+					$by_keys[$subtotal_field['key_select']] = true;
+				}
 				
 				$chart_model['by'][] = $subtotal_field;
 				
