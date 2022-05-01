@@ -5398,6 +5398,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 				}
 				
 				$out_fields[DAO_Ticket::GROUP_ID] = $bucket->group_id;
+				$out_fields[DAO_Ticket::BUCKET_ID] = $bucket->id;
 				break;
 			
 			case 'group':
