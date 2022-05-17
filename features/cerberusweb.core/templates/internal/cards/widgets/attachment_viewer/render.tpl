@@ -59,7 +59,13 @@ $(function() {
     {if $is_downloadable}
     $widget.find('button.cerb-peek-download')
         .on('click', function(e) {
-            window.open('{devblocks_url}c=files&id={$dict->id}&name={$dict->_label|devblocks_permalink}{/devblocks_url}?download=');
+            e.stopPropagation();
+            var a = document.createElement('a');
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.href = '{devblocks_url}c=files&id={$dict->id}&name={$dict->_label|devblocks_permalink}{/devblocks_url}?download=';
+            a.click();
+            a.remove();
         });
     {/if}
 
