@@ -398,14 +398,24 @@ abstract class DevblocksORMHelper {
 				$cfield_key = $search_class::getCustomFieldContextWhereKey($field->context);
 			
 			if($cfield_key) {
-				$select_sql .= sprintf(", (SELECT field_value FROM %s WHERE context=%s AND context_id=%s AND field_id=%d%s) AS %s ",
-					DAO_CustomFieldValue::getValueTableName($field->id),
-					Cerb_ORMHelper::qstr($field->context),
-					$cfield_key,
-					$field_id,
-					' LIMIT 1',
-					$sort_field
-				);
+				if($field->type == CustomField_RecordLinks::ID) {
+					$select_sql .= sprintf(", (SELECT COUNT(context_id) FROM %s WHERE context=%s AND context_id=%s AND field_id=%d GROUP BY context_id) AS %s ",
+						DAO_CustomFieldValue::getValueTableName($field->id),
+						Cerb_ORMHelper::qstr($field->context),
+						$cfield_key,
+						$field_id,
+						$sort_field
+					);
+				} else {
+					$select_sql .= sprintf(", (SELECT field_value FROM %s WHERE context=%s AND context_id=%s AND field_id=%d%s) AS %s ",
+						DAO_CustomFieldValue::getValueTableName($field->id),
+						Cerb_ORMHelper::qstr($field->context),
+						$cfield_key,
+						$field_id,
+						' LIMIT 1',
+						$sort_field
+					);
+				}
 			}
 		}
 		
