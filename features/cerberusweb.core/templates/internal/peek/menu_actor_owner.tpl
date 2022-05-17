@@ -15,7 +15,6 @@
 			{$item_context = explode(':', $data->key)}
 			<li data-token="{$data->key}" data-label="{$data->label}">
 				<div style="font-weight:bold;">
-					<img class="cerb-avatar" src="{devblocks_url}c=avatars&context={$item_context.0}&context_id={$item_context.1}{/devblocks_url}?v={$smarty.const.APP_BUILD}">
 					{$data->l|capitalize|truncate:30}
 				</div>
 			</li>
