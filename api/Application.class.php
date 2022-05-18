@@ -1966,7 +1966,7 @@ class CerberusContexts {
 					if(null != ($ctx = Extension_DevblocksContext::get($actor_context))
 						&& $ctx instanceof Extension_DevblocksContext) {
 						$meta = $ctx->getMeta($actor_context_id);
-						$actor_name = $meta['name'];
+						$actor_name = $meta['name'] ?? 'Cerb';
 						$actor_url = sprintf("ctx://%s:%d", $actor_context, $actor_context_id);
 					}
 				}
@@ -1992,8 +1992,8 @@ class CerberusContexts {
 		return array(
 			'context' => $actor_context,
 			'context_id' => $actor_context_id,
-			'name' => $actor_name,
-			'url' => $actor_url,
+			'name' => $actor_name ?? 'Cerb',
+			'url' => $actor_url ?? null,
 		);
 	}
 

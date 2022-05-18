@@ -1377,10 +1377,8 @@ class CerberusMail {
 				$email->attachSigner($signer);
 			}
 			
-			if(!empty($toList)) {
-				if(!$mail_service->send($email)) {
-					throw new Exception('Mail failed to send: unknown reason');
-				}
+			if(!$mail_service->send($email)) {
+				throw new DevblocksException('Mail failed to send: unknown reason');
 			}
 			
 		} catch (Exception $e) {

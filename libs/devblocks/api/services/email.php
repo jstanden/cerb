@@ -38,8 +38,14 @@ class _DevblocksEmailManager {
 	function send(Swift_Message $message) {
 		$metrics = DevblocksPlatform::services()->metrics();
 		
+		$to = $message->getTo();
 		$from = array_keys($message->getFrom());
 		$sender = reset($from);
+		
+		if(empty($to)) {
+			$this->_lastErrorMessage = "At least one 'To:' recipient address is required.";
+			return false;
+		}
 		
 		if(empty($sender)) {
 			$this->_lastErrorMessage = "A 'From:' sender address is required.";
