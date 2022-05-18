@@ -1,6 +1,6 @@
 {
 	"exporter": {
-		"source": "Cerb9",
+		"source": "Cerb10",
 		"options": {
 			"db_host": "localhost",
 			"db_name": "cerb",
