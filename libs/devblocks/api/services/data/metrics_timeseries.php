@@ -169,7 +169,7 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 							'avg' => 'average',
 							'count' => 'count',
 							'max' => 'max',
-							'min' => 'max',
+							'min' => 'min',
 							'samples' => 'count',
 							'sum' => 'sum',
 						];
