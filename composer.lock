@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9a113ee44c492b94074208ebe9d6d04b",
+    "content-hash": "bcce1c914d84dea26e66dbd3c5a5c0a6",
     "packages": [
         {
             "name": "brick/math",
@@ -914,28 +914,27 @@
         },
         {
             "name": "horde/imap-client",
-            "version": "dev-main",
+            "version": "dev-2.30.4-cerb",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jstanden/horde-imap.git",
-                "reference": "b2cc6543a69d6fc8c3628d0a3d9a1f18f2f7aa8e"
+                "reference": "a06dc42f439e10912c181916220b5298249ac8d7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jstanden/horde-imap/zipball/b2cc6543a69d6fc8c3628d0a3d9a1f18f2f7aa8e",
-                "reference": "b2cc6543a69d6fc8c3628d0a3d9a1f18f2f7aa8e",
+                "url": "https://api.github.com/repos/jstanden/horde-imap/zipball/a06dc42f439e10912c181916220b5298249ac8d7",
+                "reference": "a06dc42f439e10912c181916220b5298249ac8d7",
                 "shasum": ""
             },
             "require": {
                 "ext-hash": "*",
                 "ext-json": "*",
-                "php": "^5.3 || ^7 || ^8"
+                "php": "^7.4 || ^8"
             },
             "suggest": {
                 "ext-intl": "*",
                 "ext-mbstring": "*"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "classmap": [
@@ -961,7 +960,7 @@
             "description": "IMAP client library",
             "homepage": "https://www.horde.org/libraries/Horde_Imap_Client",
             "support": {
-                "source": "https://github.com/jstanden/horde-imap/tree/main",
+                "source": "https://github.com/jstanden/horde-imap/tree/2.30.4-cerb",
                 "issues": "https://github.com/jstanden/horde-imap/issues"
             },
             "funding": [
@@ -974,7 +973,7 @@
                     "url": "https://tidelift.com/funding/github/packagist/twig/twig"
                 }
             ],
-            "time": "2019-09-29T00:00:00+00:00"
+            "time": "2021-12-18T00:00:00+00:00"
         },
         {
             "name": "lcobucci/clock",
