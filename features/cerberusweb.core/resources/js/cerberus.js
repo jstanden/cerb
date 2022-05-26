@@ -242,6 +242,7 @@ var cerbAutocompleteSuggestions = {
 		],
 		'chooser:params:': [
 			'context:',
+			'query@text:',
 			'single@bool: no'
 		],
 		'date_range:': [

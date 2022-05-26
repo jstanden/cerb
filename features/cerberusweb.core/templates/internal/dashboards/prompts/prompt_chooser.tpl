@@ -9,7 +9,7 @@
 			<b>{$prompt.label}</b>
 		</div>
 		<div>
-			<button type="button" class="cerb-chooser-prompt" data-field-name="prompts[{$prompt.placeholder}][]" data-context="{$context_mft->id}" {if $prompt.params.single}data-single="true"{/if}><span class="glyphicons glyphicons-search"></span></button>
+			<button type="button" class="cerb-chooser-prompt" data-field-name="prompts[{$prompt.placeholder}][]" data-context="{$context_mft->id}" {if $prompt.params.query}data-query="{$prompt.params.query}"{/if} {if $prompt.params.single}data-single="true"{/if}><span class="glyphicons glyphicons-search"></span></button>
 			
 			<ul class="bubbles chooser-container">
 				{if $prompt_value}

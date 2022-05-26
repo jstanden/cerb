@@ -4740,6 +4740,9 @@ class _CerbApplication_KataSchemas {
                         context:
                           types:
                             string:
+                        query:
+                          types:
+                            string:
                         single:
                           types:
                             bit:
