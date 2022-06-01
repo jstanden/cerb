@@ -1255,7 +1255,13 @@ class CerbAutomationAstNode implements JsonSerializable {
 					case 'date':
 						$value = DevblocksPlatform::services()->string()->toDate($value);
 						break;
-
+					
+					case 'float':
+						if(!strstr($v,'E+')) {
+							$value = floatval($value);
+						}
+						break;
+					
 					case 'int':
 						if(!strstr($v,'E+')) {
 							$value = intval($value);

@@ -126,7 +126,7 @@ class _DevblocksKataService {
 							return false;
 						}
 						
-						if(array_intersect($field_attributes, ['base64', 'bit', 'bool', 'csv', 'date', 'int', 'json', 'list', 'raw', 'text', 'trim'])) {
+						if(array_intersect($field_attributes, ['base64', 'bit', 'bool', 'csv', 'date', 'float', 'int', 'json', 'list', 'raw', 'text', 'trim'])) {
 							$state = 'text_block';
 							
 							$text_block = '';
@@ -504,6 +504,8 @@ class _DevblocksKataService {
 					$v = DevblocksPlatform::parseCsvString($v);
 				} else if(in_array($annotation, ['date'])) {
 					$v = DevblocksPlatform::services()->string()->toDate($v);
+				} else if($annotation == 'float') {
+					$v = floatval(trim($v));
 				} else if($annotation == 'int') {
 					$v = intval(trim($v));
 				} else if($annotation == 'json') {
