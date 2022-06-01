@@ -287,7 +287,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 					APP_VERSION,
 					APP_BUILD,
 					PLATFORM_BUILD,
-					(file_exists(APP_PATH . '/.htaccess') ? 'YES' : 'NO'),
+					(DEVBLOCKS_REWRITE ? 'YES' : 'NO'),
 					substr(sprintf('%o', @fileperms(APP_STORAGE_PATH.'/attachments')), -4),
 					substr(sprintf('%o', fileperms(APP_STORAGE_PATH.'/mail/new')), -4),
 					substr(sprintf('%o', fileperms(APP_STORAGE_PATH.'/mail/fail')), -4),
