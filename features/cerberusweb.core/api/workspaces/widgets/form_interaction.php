@@ -66,6 +66,8 @@ class WorkspaceWidget_FormInteraction extends Extension_WorkspaceWidget {
 		
 		$dict = DevblocksDictionaryDelegate::instance($values);
 		
+		$model->_loadDashboardPrefsForWorker($active_worker, $dict);
+		
 		$toolbar = $this->getInteractions($model, $dict);
 		
 		$tpl->assign('toolbar', $toolbar);
@@ -84,6 +86,8 @@ class WorkspaceWidget_FormInteraction extends Extension_WorkspaceWidget {
 			'worker__context' => CerberusContexts::CONTEXT_WORKER,
 			'worker_id' => $active_worker->id,
 		]);
+		
+		$widget->_loadDashboardPrefsForWorker($active_worker, $dict);
 		
 		$this->renderInteractionChooser($widget, $dict);
 	}
