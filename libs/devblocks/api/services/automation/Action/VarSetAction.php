@@ -42,6 +42,11 @@ class VarSetAction extends AbstractAction {
 				->setRequired(true)
 			;
 			
+			$validation->addField('delimiter', 'inputs:delimiter:')
+				->string()
+				->setMaxLength(128)
+			;
+			
 			$validation->addField('value', 'inputs:value:')
 				->stringOrArray()
 				->setMaxLength(16_777_216)
@@ -52,7 +57,7 @@ class VarSetAction extends AbstractAction {
 			if(false === ($validation->validateAll($inputs, $error)))
 				throw new Exception_DevblocksAutomationError($error);
 			
-			$result = $dict->setKeyPath($inputs['key'], $inputs['value'], ':');
+			$result = $dict->setKeyPath($inputs['key'], $inputs['value'], $inputs['delimiter'] ?? ':');
 			
 			if($output) {
 				$dict->set($output, $result);

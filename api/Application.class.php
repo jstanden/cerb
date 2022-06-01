@@ -4556,9 +4556,14 @@ class _CerbApplication_KataSchemas {
                           object:
                             attributes:
                               key:
+                                required@bool: yes
+                                types:
+                                  string:
+                              delimiter:
                                 types:
                                   string:
                               value:
+                                required@bool: yes
                                 types:
                                   list:
                                   string:
