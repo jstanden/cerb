@@ -685,6 +685,21 @@ class Model_WorkspaceTab {
 					break;
 					
 				case 'chooser':
+					$is_single = $prompt['params']['single'] ?? false;
+					
+					if(DevblocksPlatform::strEndsWith($pref_key, '_id') && $is_single) {
+						$prefs_ctx_key = substr($pref_key,0,-3) . '__context';
+						$prefs[$prefs_ctx_key] = $prompt['params']['context'] ?? '';
+					}
+					
+					if(is_array($pref_value))
+						$pref_value = implode(',', $pref_value);
+					
+					$pref_value = strval($pref_value);
+					
+					$prefs[$pref_key] = $pref_value;
+					break;
+					
 				case 'text':
 				default:
 					if(is_array($pref_value))
