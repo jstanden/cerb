@@ -636,7 +636,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 					case 'worker':
 					default:
 						if(array_key_exists('get_value_as_filter_callback',$by) && is_callable($by['get_value_as_filter_callback'])) {
-							$query_value = $by['get_value_as_filter_callback']($value);
+							$query_value = $by['get_value_as_filter_callback']($value, $filter);
 						} else {
 							$query_value = $value;
 						}
