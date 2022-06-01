@@ -56,6 +56,7 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 			],
 			'timezone:' => DevblocksPlatform::services()->date()->getTimezones(),
 			'format:' => [
+				'pie',
 				'table',
 				'timeseries',
 			]
@@ -357,6 +358,9 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 		@$format = $chart_model['format'] ?: 'timeseries';
 		
 		switch($format) {
+			case 'pie':
+				return $this->_formatDataAsPie($chart_model);
+				
 			case 'table':
 				return $this->_formatDataAsTable($chart_model);
 				
@@ -370,6 +374,46 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 				);
 				return false;
 		}
+	}
+	
+	private function _formatDataAsPie(array $chart_model) : array {
+		// Domain
+		
+		$x_domain = [];
+		
+		if(array_key_exists('series', $chart_model) && is_array($chart_model['series']))
+			foreach($chart_model['series'] as $series) {
+				if(!isset($series['data']))
+					continue;
+				
+				// Add the unique x values
+				$x_domain = array_unique(array_merge($x_domain, array_keys($series['data'])));
+			}
+		
+		// Make sure timestamps are strings (for c3.js)
+		$x_domain = array_map(function($v) { return strval($v); }, $x_domain);
+		
+		sort($x_domain);
+		
+		// Table
+		
+		$wedges = array_fill_keys(array_column($chart_model['series'], 'id'), 0);
+		
+		foreach($x_domain as $k) {
+			foreach($chart_model['series'] as $series) {
+				$wedges[$series['id']] += @$series['data'][$k] ?: 0;
+			}
+		}
+		
+		$wedges = array_map(fn($k) => [$k,$wedges[$k]], array_keys($wedges));
+		
+		return [
+			'data' => $wedges,
+			'_' => [
+				'type' => 'worklist.series',
+				'format' => 'pie',
+			]
+		];
 	}
 	
 	private function _formatDataAsTable(array $chart_model) : array {
