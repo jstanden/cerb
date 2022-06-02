@@ -2343,6 +2343,7 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
 			'pos' => $prefix.$translate->_('common.order'),
+			'search_filter' => $prefix.'Search Filter Name',
 			'type' => $prefix.$translate->_('common.type'),
 			'type_label' => $prefix.'Type Label',
 			'uri' => $prefix.$translate->_('common.uri'),
@@ -2356,6 +2357,7 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'pos' => Model_CustomField::TYPE_NUMBER,
+			'search_filter' => Model_CustomField::TYPE_SINGLE_LINE,
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
 			'type_label' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
@@ -2484,6 +2486,27 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 		}
 		
 		switch($token) {
+			// Legacy search filters
+			case 'search_filter':
+				if(!$is_loaded)
+					$dictionary = $values;
+				
+				$field_key = '';
+				
+				if(($dictionary['custom_fieldset_id'] ?? null) && ($custom_fieldset = DAO_CustomFieldset::get($dictionary['custom_fieldset_id']))) {
+					$field_key .= 
+						DevblocksPlatform::strAlphaNum(lcfirst(mb_convert_case($custom_fieldset->name, MB_CASE_TITLE)))
+						. '.'
+					;
+				}
+				
+				$field_key .=
+					DevblocksPlatform::strAlphaNum(lcfirst(mb_convert_case($dictionary['name'] ?? '', MB_CASE_TITLE)))	
+				;
+				
+				$values[$token] = $field_key;
+				break;
+				
 			default:
 				$defaults = $this->_lazyLoadDefaults($token, $dictionary);
 				$values = array_merge($values, $defaults);
