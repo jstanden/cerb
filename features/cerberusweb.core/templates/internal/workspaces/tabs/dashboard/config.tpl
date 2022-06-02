@@ -70,13 +70,39 @@
 		<div class="cerb-code-editor-toolbar">
 			<button type="button" class="cerb-code-editor-toolbar-button cerb-editor-button-run"><span class="glyphicons glyphicons-play"></span></button>
 			<div class="cerb-code-editor-toolbar-divider"></div>
+			
 			<button type="button" class="cerb-code-editor-toolbar-button cerb-editor-button-add"><span class="glyphicons glyphicons-circle-plus"></span></button>
 			<ul class="cerb-float" style="display:none;">
-				<li data-type="chooser">Chooser</li>
-				<li data-type="date_range">Date Range</li>
-				<li data-type="picklist">Picklist</li>
-				<li data-type="text">Text</li>
+				<li data-type="chooser"><div>Chooser</div></li>
+				<li data-type="date_range"><div>Date Range</div></li>
+				<li data-type="picklist"><div>Picklist</div></li>
+				<li data-type="text"><div>Text</div></li>
 			</ul>
+			
+			<button type="button" title="Insert placeholder" class="cerb-code-editor-toolbar-button cerb-editor-button-placeholders"><span class="glyphicons glyphicons-sampler"></span></button>
+			{function tree level=0}
+				{foreach from=$keys item=data key=idx}
+					{if is_array($data->children) && !empty($data->children)}
+						<li {if $data->key}data-token="{$data->key}" data-label="{$data->label}"{/if}>
+							{if $data->key}
+								<div style="font-weight:bold;">{$data->l|capitalize}</div>
+							{else}
+								<div>{$idx|capitalize}</div>
+							{/if}
+							<ul>
+								{tree keys=$data->children level=$level+1}
+							</ul>
+						</li>
+					{elseif $data->key}
+						<li data-token="{$data->key}" data-label="{$data->label}"><div style="font-weight:bold;">{$data->l|capitalize}</div></li>
+					{/if}
+				{/foreach}
+			{/function}
+			
+			<ul class="cerb-float" style="display:none;">
+			{tree keys=$placeholders}
+			</ul>
+			
 			<button type="button" style="float:right;" class="cerb-code-editor-toolbar-button cerb-editor-button-help"><a href="https://cerb.ai/docs/dashboards/#prompts" target="_blank"><span class="glyphicons glyphicons-circle-question-mark"></span></a></button>
 		</div>
 		<textarea name="params[prompts_kata]" class="cerb-code-editor" data-editor-mode="ace/mode/cerb_kata" style="width:95%;height:50px;">{$tab->params.prompts_kata}</textarea>
@@ -183,6 +209,23 @@ $(function() {
 			{/literal}
 
 			$editor.triggerHandler($.Event('cerb.appendText', { content: snippet } ));
+		}
+	});
+	
+	var $button_placeholders = $frm.find('.cerb-editor-button-placeholders');
+	var $button_placeholders_menu = $frm.find('.cerb-editor-button-placeholders').next('ul');
+	
+	$button_placeholders.on('click', function(e) {
+		$button_placeholders_menu
+			.toggle()
+			.position({ my:'left top', at:'left bottom', of:$button_placeholders, collision: 'fit' })
+		;
+	});
+
+	$button_placeholders_menu.menu({
+		'select': function(e, ui) {
+			$editor.triggerHandler($.Event('cerb.insertAtCursor', { content: {literal}'{{'{/literal} + ui.item.attr('data-token') + {literal}'}}'{/literal} } ));
+			$button_placeholders_menu.hide();
 		}
 	});
 });

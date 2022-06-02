@@ -600,14 +600,14 @@ class Model_WorkspaceTab {
 		return DevblocksPlatform::translateCapitalized($extension->manifest->params['label']);
 	}
 	
-	function getPlaceholderPrompts() {
+	function getPlaceholderPrompts(?DevblocksDictionaryDelegate $dict=null) {
 		if(false == ($prompts_kata = $this->params['prompts_kata'] ?? null))
 			return [];
 		
 		if(false == (@$placeholder_tree = DevblocksPlatform::services()->kata()->parse($prompts_kata)))
 			return [];
 		
-		$placeholder_prompts = DevblocksPlatform::services()->kata()->formatTree($placeholder_tree);
+		$placeholder_prompts = DevblocksPlatform::services()->kata()->formatTree($placeholder_tree, $dict);
 		
 		$prompts = [];
 

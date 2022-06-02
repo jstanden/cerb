@@ -5,6 +5,20 @@ class WorkspaceTab_Dashboards extends Extension_WorkspaceTab {
 	public function renderTabConfig(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('tab', $tab);
+		
+		// Merge in the current worker dictionary
+		$labels = $values = [];
+		
+		$merge_labels = $merge_values = [];
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKSPACE_TAB, null, $merge_labels, $merge_values, '', true);
+		CerberusContexts::merge('tab_', 'Tab ', $merge_labels, $merge_values, $labels, $values);
+		
+		$merge_labels = $merge_values = [];
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, null, $merge_labels, $merge_values, '', true);
+		CerberusContexts::merge('worker_', 'Worker ', $merge_labels, $merge_values, $labels, $values);
+		
+		$placeholders = Extension_DevblocksContext::getPlaceholderTree($labels);
+		$tpl->assign('placeholders', $placeholders);
 
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/tabs/dashboard/config.tpl');
 	}
@@ -78,7 +92,10 @@ class WorkspaceTab_Dashboards extends Extension_WorkspaceTab {
 		$tpl->assign('model', $tab);
 		
 		// Prompted placeholders
-		$prompts = $tab->getPlaceholderPrompts();
+		$prompts_dict = new DevblocksDictionaryDelegate([]);
+		$prompts_dict->mergeKeys('tab_', DevblocksDictionaryDelegate::getDictionaryFromModel($tab, CerberusContexts::CONTEXT_WORKSPACE_TAB));
+		$prompts_dict->mergeKeys('worker_', DevblocksDictionaryDelegate::getDictionaryFromModel($active_worker, CerberusContexts::CONTEXT_WORKER));
+		$prompts = $tab->getPlaceholderPrompts($prompts_dict);
 		$tpl->assign('prompts', $prompts);
 		
 		$tab_prefs = $tab->getDashboardPrefsAsWorker($active_worker);
