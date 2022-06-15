@@ -400,7 +400,10 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				return false;
 			}
 			
-			// [TODO] Check if $results is not an array
+			if(!is_array($results)) {
+				$error = sprintf("The `%s` field does not support subtotals.", $by['key_query']);
+				return false;
+			}
 			
 			$values = array_column($results, $by['key_select']);
 			
@@ -625,7 +628,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 							} else {
 								$query_value = intval($query_value);
 							}
-						} else if(false !== strpos($query_value, ' ')) {
+						} else if(false !== strpos(strval($query_value), ' ')) {
 							// [TODO] This needs to be more type aware
 							$query_value = '"' . $query_value . '"';
 						}
