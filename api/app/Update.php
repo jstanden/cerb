@@ -181,6 +181,9 @@ class ChUpdateController extends DevblocksControllerExtension {
 							$tpl->clearAllCache();
 						}
 						
+						// Synchronize bundled resources
+						CerberusApplication::initBundledResources();
+						
 						// Reload plugin translations
 						DAO_Translation::reloadPluginStrings();
 

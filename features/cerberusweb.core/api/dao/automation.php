@@ -184,6 +184,11 @@ class DAO_Automation extends Cerb_ORMHelper {
 		return true;
 	}
 	
+	static function count() {
+		$db = DevblocksPlatform::services()->database();
+		return $db->GetOneMaster('SELECT COUNT(id) FROM automation');
+	}
+	
 	/**
 	 * @param string $where
 	 * @param mixed $sortBy

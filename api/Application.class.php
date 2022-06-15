@@ -519,6 +519,57 @@ class CerberusApplication extends DevblocksApplication {
 		return TRUE;
 	}
 	
+	static function initBundledResources() {
+		// Load packages
+		if(0 == DAO_PackageLibrary::count()) {
+			$dir = new RecursiveDirectoryIterator(realpath(APP_PATH . '/features/cerberusweb.core/packages/library/'));
+			$iter = new RecursiveIteratorIterator($dir);
+			$regex = new RegexIterator($iter, '/^.+\.json/i', RecursiveRegexIterator::GET_MATCH);
+			
+			foreach($regex as $class_file => $o) {
+				if(is_null($o))
+					continue;
+				
+				if(false == ($package_json = file_get_contents($class_file)))
+					continue;
+				
+				CerberusApplication::packages()->importToLibraryFromString($package_json);
+			}
+		}
+		
+		// Load automations
+		if(0 == DAO_Automation::count()) {
+			$dir = new DirectoryIterator(realpath(APP_PATH . '/features/cerberusweb.core/assets/automations/'));
+			$iter = new IteratorIterator($dir);
+			$regex = new RegexIterator($iter, '/^.+\.json/i', RegexIterator::MATCH);
+			
+			foreach($regex as $o) {
+				if(is_null($o) || false === ($automation_data = json_decode(file_get_contents($o->getPathname()), true)))
+					continue;
+				
+				DAO_Automation::importFromJson($automation_data);
+				
+				unset($automation_data);
+			}
+		}
+		
+		// Load resources
+		if(0 == DAO_Resource::count()) {
+			$dir = new DirectoryIterator(realpath(APP_PATH . '/features/cerberusweb.core/assets/resources/'));
+			$iter = new IteratorIterator($dir);
+			$regex = new RegexIterator($iter, '/^.+\.json/i', RegexIterator::MATCH);
+			
+			foreach($regex as $o) {
+				if(is_null($o) || false === ($resource_data = json_decode(file_get_contents($o->getPathname()), true)))
+					continue;
+				
+				DAO_Resource::importFromJson($resource_data);
+				
+				unset($resource_data);
+			}
+		}
+	}
+	
 	static function sendEmailTemplate($email, $template_id, $values) {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$sender_addresses = DAO_Address::getLocalAddresses();

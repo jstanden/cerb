@@ -156,6 +156,11 @@ class DAO_Resource extends Cerb_ORMHelper {
 		return true;
 	}
 	
+	static function count() {
+		$db = DevblocksPlatform::services()->database();
+		return $db->GetOneMaster('SELECT COUNT(id) FROM resource');
+	}
+	
 	/**
 	 * @param string $where
 	 * @param mixed $sortBy
