@@ -2649,6 +2649,7 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 	static function getVirtualSubtotalKeys() : array {
 		return [
 			'group_bucket',
+			'participant',
 		];
 	}
 	
@@ -2698,6 +2699,33 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 			case 'owner':
 				$key = 'owner.id';
 				break;
+			
+			case 'participant':
+			case 'participant.id':
+				$key = 'participant.id';
+				$key_select = 'req_' . uniqid();
+				$search_key = SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID;
+				
+				return [
+					'label' => DevblocksPlatform::translateCapitalized('common.participant'),
+					'key_query' => $key,
+					'key_select' => $search_key,
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'sql_select' => sprintf("%s.address_id",
+						Cerb_ORMHelper::escape($key_select)
+					),
+					'sql_join' => sprintf("INNER JOIN requester AS `%s` ON (`%s`.ticket_id = %s)",
+						Cerb_ORMHelper::escape($key_select),
+						Cerb_ORMHelper::escape($key_select),
+						$primary_key
+					),
+					'get_labels_callback' => function($values) {
+						if(false == ($models = DAO_Address::getIds($values)))
+							return [];
+						
+						return array_column($models, 'email', 'id');
+					},
+				];
 				
 			case 'status':
 			case 'status.id':
