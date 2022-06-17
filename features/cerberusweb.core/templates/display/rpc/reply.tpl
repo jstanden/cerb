@@ -587,6 +587,7 @@ $(function() {
 				},
 				start: function(formData) {
 					formData.set('caller[params][selected_text]', $editor.cerbTextEditor('getSelection'));
+					formData.set('caller[params][text]', $editor.val());
 				},
 				done: function(e) {
 					if(e.type !== 'cerb-interaction-done')
