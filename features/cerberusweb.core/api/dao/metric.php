@@ -31,8 +31,8 @@ class DAO_Metric extends Cerb_ORMHelper {
 					return false;
 				}
 				
-				if(strlen($string) > 255) {
-					$error = "must be shorter than 255 characters.";
+				if(strlen($string) > 128) {
+					$error = "must be shorter than 128 characters.";
 					return false;
 				}
 				
@@ -46,6 +46,7 @@ class DAO_Metric extends Cerb_ORMHelper {
 		$validation
 			->addField(self::DESCRIPTION)
 			->string()
+			->setMaxLength(128)
 		;
 		$validation
 			->addField(self::DIMENSIONS_KATA)
@@ -55,6 +56,7 @@ class DAO_Metric extends Cerb_ORMHelper {
 		$validation
 			->addField(self::TYPE)
 			->string()
+			->setMaxLength(128)
 			->setPossibleValues([
 				'counter',
 				'gauge'
@@ -84,7 +86,7 @@ class DAO_Metric extends Cerb_ORMHelper {
 		if(!array_key_exists(DAO_Metric::CREATED_AT, $fields))
 			$fields[DAO_Metric::CREATED_AT] = time();
 		
-		$sql = "INSERT INTO metric () VALUES ()";
+		$sql = "INSERT INTO metric (name, dimensions_kata) VALUES ('','')";
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
@@ -283,10 +285,10 @@ class DAO_Metric extends Cerb_ORMHelper {
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_Metric();
-			$object->id = intval($row['id']);
-			$object->name = $row['name'];
-			$object->description = $row['description'];
-			$object->dimensions_kata = $row['dimensions_kata'];
+			$object->id = intval($row['id'] ?? null);
+			$object->name = $row['name'] ?? '';
+			$object->description = $row['description'] ?? '';
+			$object->dimensions_kata = $row['dimensions_kata'] ?? '';
 			$object->type = $row['type'];
 			$object->created_at = intval($row['created_at']);
 			$object->updated_at = intval($row['updated_at']);
