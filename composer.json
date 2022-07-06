@@ -56,7 +56,7 @@
 		"defuse/php-encryption" : "^2.1",
 		"league/oauth2-server": "^8.0",
 		"league/oauth2-client": "^2.3",
-		"guzzlehttp/guzzle": "~6.5.7",
+		"guzzlehttp/guzzle": "~6.5.8",
 		"phpseclib/phpseclib": "~2.0",
 		"tijsverkoyen/css-to-inline-styles": "^2.2",
 		"ezyang/htmlpurifier": "^4.11",
