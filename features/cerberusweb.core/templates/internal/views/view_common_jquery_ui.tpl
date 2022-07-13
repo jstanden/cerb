@@ -15,7 +15,7 @@ $(function() {
 				$target = $parents[$parents.length-1]; // 0-based
 			}
 			
-			if (false == $target instanceof jQuery) {
+			if (!($target instanceof jQuery)) {
 				// Not a jQuery object
 			} else if($target.is(':input,:button,a,img,div.badge-count,span.glyphicons,span.cerb-label')) {
 				// Ignore form elements and links
@@ -29,7 +29,7 @@ $(function() {
 				
 				var $chk = $this.find('input:checkbox:first');
 				
-				if(0 == $chk.length)
+				if(0 === $chk.length)
 					return;
 				
 				var is_checked = !($chk.prop('checked') ? true : false);
@@ -48,10 +48,10 @@ $(function() {
 				var $selected_rows = $frm.find('TR.selected').closest('tbody');
 				var $view_actions = $frm.find('#{$view->id}_actions');
 				
-				if(0 == $selected_rows.length) {
+				if(0 === $selected_rows.length) {
 					$view_actions.find('button,.action-on-select').not('.action-always-show').fadeOut('fast');
 					
-				} else if(1 == $selected_rows.length) {
+				} else if(1 === $selected_rows.length) {
 					$view_actions.find('button,.action-on-select').not('.action-always-show').fadeIn('fast');
 				}
 				
