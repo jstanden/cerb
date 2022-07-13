@@ -595,7 +595,7 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 			
 			$json = $this->_getSearch($type, $filtered_query, $max_results);
 			
-			@$results_hits = count($json['hits']['hits'] ?? 0);
+			$results_hits = count($json['hits']['hits'] ?? []);
 			
 			if($results_hits) {
 				$ids = array_column($json['hits']['hits'], '_id');
