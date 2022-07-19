@@ -1992,6 +1992,31 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 						}
 					}
 					break;
+				
+				case Model_CustomField::TYPE_WORKER:
+					$field_prefix = $prefix . ($fieldset ? ($fieldset->name . ' ') : '') . $field->name . ' ';
+					
+					if(count($context_stack) > 1) {
+						$labels['custom_' . $cf_id] = $field_prefix;
+						
+					} else {
+						$merge_labels = $merge_values = [];
+						CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, null, $merge_labels, $merge_values, $field_prefix, true);
+						
+						// Unset redundant id
+						unset($merge_labels['id']);
+						
+						$labels['custom_'.$cf_id] = sprintf("%s%s",
+							$field_prefix,
+							'ID'
+						);
+						
+						if(is_array($merge_labels))
+							foreach($merge_labels as $label_key => $label) {
+								$labels['custom_'.$cf_id.'_'.$label_key] = $label;
+							}
+					}
+					break;
 					
 				default:
 					$labels['custom_'.$cf_id] = sprintf("%s%s%s%s",
@@ -2030,6 +2055,24 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 					} else {
 						$merge_labels = $merge_values = [];
 						CerberusContexts::getContext($field->params['context'], null, $merge_labels, $merge_values, null, true, true);
+						
+						if(isset($merge_values['_types']) && is_array($merge_values['_types']))
+						foreach($merge_values['_types'] as $type_key => $type) {
+							$types['custom_'.$cf_id.'_'.$type_key] = $type;
+						}
+						
+						$types['custom_'.$cf_id.'__label'] = 'context_url';
+					}
+					break;
+					
+				case Model_CustomField::TYPE_WORKER:
+					// Control infinite recursion
+					if(count($context_stack) > 1) {
+						DevblocksPlatform::noop();
+						
+					} else {
+						$merge_labels = $merge_values = [];
+						CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, null, $merge_labels, $merge_values, null, true, true);
 						
 						if(isset($merge_values['_types']) && is_array($merge_values['_types']))
 						foreach($merge_values['_types'] as $type_key => $type) {

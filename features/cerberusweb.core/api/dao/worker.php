@@ -2036,9 +2036,13 @@ class Model_Worker {
 		$types = $values['_types'] ?? null;
 		
 		foreach(array_keys($labels) as $k) {
-			@$label = $labels[$k];
-			@$type = $types[$k];
-			$placeholder_labels[$k] = array('label' => $label, 'type' => $type);
+			$label = $labels[$k] ?? '';
+			$type = $types[$k] ?? '';
+			
+			if(!$label || !$type)
+				continue;
+			
+			$placeholder_labels[$k] = ['label' => $label, 'type' => $type];
 		}
 		
 		$labels = $placeholder_labels;
