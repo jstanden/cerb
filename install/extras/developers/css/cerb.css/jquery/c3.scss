@@ -32,6 +32,21 @@
     path {
       stroke: var(--cerb-color-background);
     }
+
+    rect {
+      stroke: var(--cerb-color-background-contrast-220);
+    }
+  }
+
+  .c3-chart-arcs {
+    .c3-chart-arcs-background {
+      fill: var(--cerb-color-background);
+      stroke: var(--cerb-color-background-contrast-150);
+    }
+    
+    .c3-gauge-value {
+      fill: var(--cerb-color-text);
+    }
   }
 }
 
