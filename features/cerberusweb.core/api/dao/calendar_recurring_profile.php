@@ -700,6 +700,8 @@ class Model_CalendarRecurringProfile {
 							'label' => $this->event_name,
 							'ts' => $event_start,
 							'ts_end' => $event_end,
+							'ts_range_start' => $event_start_local,
+							'ts_range_end' => $event_end_local,
 							'is_available' => $this->is_available,
 							'link' => sprintf("ctx://%s:%d",
 								CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING,

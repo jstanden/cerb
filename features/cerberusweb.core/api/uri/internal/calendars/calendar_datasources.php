@@ -233,6 +233,8 @@ class CalendarDatasource_Worklist extends Extension_CalendarDatasource {
 								'color' => $params['color'],
 								'ts' => $event_start,
 								'ts_end' => $event_end,
+								'ts_range_start' => $ts,
+								'ts_range_end' => $ts_end,
 								'is_available' => ($params['is_available'] ?? null) ?: 0,
 								'link' => sprintf("ctx://%s:%d",
 									$context_ext->id,
