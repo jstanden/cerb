@@ -167,14 +167,6 @@ $(function() {
 			.cerbPeekTrigger()
 			;
 
-		// Close confirmation
-
-		$popup.on('dialogbeforeclose', function(e, ui) {
-			var keycode = e.keyCode || e.which;
-			if(keycode == 27)
-				return confirm('{'warning.core.editor.close'|devblocks_translate}');
-		});
-
 		// Drag/drop attachments
 
 		var $attachments = $frm.find('.cerb-comment-attachments');

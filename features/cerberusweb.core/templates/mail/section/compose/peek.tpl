@@ -275,14 +275,6 @@ $(function() {
 		var $frm = $('#frmComposePeek{$popup_uniqid}');
 		$popup.dialog('option','title','{'mail.send_mail'|devblocks_translate|capitalize|escape:'javascript' nofilter}');
 		
-		// Close confirmation
-		
-		$popup.on('dialogbeforeclose', function(e) {
-			var keycode = e.keyCode || e.which;
-			if(27 === keycode)
-				return confirm('{'warning.core.editor.close'|devblocks_translate}');
-		});
-
 		$popup.find('.cerb-editor-tabs').tabs({
 			activate: function(event, ui) {
 			},

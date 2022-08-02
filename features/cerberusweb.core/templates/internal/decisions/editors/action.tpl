@@ -249,14 +249,6 @@ $(function() {
 			$target.remove();
 		});
 
-		// Close confirmation
-
-		$popup.on('dialogbeforeclose', function(e) {
-			var keycode = e.keyCode || e.which;
-			if(keycode === 27)
-				return confirm('{'warning.core.editor.close'|devblocks_translate}');
-		});
-
 		// Package Library
 
 		{if !$id && $packages}

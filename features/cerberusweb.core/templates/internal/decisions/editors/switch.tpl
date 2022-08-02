@@ -108,14 +108,6 @@ $(function() {
 			$(this).closest('fieldset').hide().next('.toolbar').show();
 		});
 
-		// Close confirmation
-		
-		$popup.on('dialogbeforeclose', function(e, ui) {
-			var keycode = e.keyCode || e.which;
-			if(keycode === 27)
-				return confirm('{'warning.core.editor.close'|devblocks_translate}');
-		});
-		
 		// Package Library
 		
 		{if !$id && $packages}

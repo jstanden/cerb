@@ -219,14 +219,6 @@ $(function() {
 		$popup.dialog('option','title',"{'common.behavior'|devblocks_translate|capitalize|escape:'javascript'}");
 		$popup.css('overflow', 'inherit');
 		
-		// Close confirmation
-		
-		$popup.on('dialogbeforeclose', function(e, ui) {
-			var keycode = e.keyCode || e.which;
-			if(keycode == 27)
-				return confirm('{'warning.core.editor.close'|devblocks_translate}');
-		});
-		
 		$popup.find('.chooser-abstract')
 			.cerbChooserTrigger()
 			.on('cerb-chooser-saved', function(e) {

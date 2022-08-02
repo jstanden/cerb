@@ -177,14 +177,6 @@ $(function() {
 			genericAjaxPopup('export_bot', 'c=profiles&a=invoke&module=bot&action=showExportBotPopup&id={$model->id}',null,false,'50%');
 		});
 
-		// Close confirmation
-
-		$popup.on('dialogbeforeclose', function(e, ui) {
-			var keycode = e.keyCode || e.which;
-			if(keycode === 27)
-				return confirm('{'warning.core.editor.close'|devblocks_translate}');
-		});
-
 		// Abstract choosers
 		$popup.find('button.chooser-abstract').cerbChooserTrigger();
 		
