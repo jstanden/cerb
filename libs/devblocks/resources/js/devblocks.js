@@ -1089,6 +1089,88 @@ function appendTextboxAsCsv(formName, field, oLink) {
 	txt.value = txt.value + sAppend;
 }
 
+$(document).keydown(function(e) {
+	var keycode = e.which || e.keyCode;
+	
+	if(27 === keycode) {
+		e.stopPropagation();
+		e.preventDefault();
+		
+		let $devblocksPopups = $('#devblocksPopups');
+		let $data = $devblocksPopups.data();
+
+		if(0 === $data)
+			return;
+		
+		let $highestZ = null;
+		
+		for(let key in $data) {
+			let $dialog = $data[key].closest('.ui-dialog');
+			
+			if(null == $highestZ || $dialog.css('z-index') > $highestZ.css('z-index')) {
+				$highestZ = $dialog;
+			}
+		}
+		
+		if($highestZ) {
+			// If the top popup has inputs
+			if($highestZ.find('input:text,textarea').length > 0 
+				// But isn't a search popup
+				&& 0 === $highestZ.find('> div[id^=popupsearch], > div[id^=popuplinks_]').length) {
+				confirmPopup(
+					'Discard changes',
+					'Are you sure you want to close this popup without saving?',
+					function () {
+						genericAjaxPopupClose($highestZ.find('.devblocks-popup'), 'peek_aborted');
+					}
+				);
+			} else {
+				genericAjaxPopupClose($highestZ.find('.devblocks-popup'), 'peek_aborted');
+			}
+		}
+	}
+});
+
+function confirmPopup(title, content, callbackOk, callbackCancel) {
+	if(null == title)
+		title = 'Confirm';
+	
+	if(null == content)
+		content = 'Are you sure?';
+	
+	if('function' !== typeof callbackOk)
+		callbackOk = function() {};
+	
+	if('function' !== typeof callbackCancel)
+		callbackCancel = function() {};
+	
+	$('<div/>')
+		.dialog({
+			open: function() {
+				let $dialog = $(this).closest('.ui-dialog');
+				$dialog.find('.ui-dialog-titlebar-close').hide();
+				$dialog.find('.ui-dialog-buttonpane').css('border', '0');
+			},
+			buttons: {
+				"Ok": function() {
+					callbackOk();
+					$(this).dialog('close');
+				},
+				"Cancel": function() {
+					callbackCancel();
+					$(this).dialog('close');
+				}
+			},
+			close: function(e, ui) {
+				$(this).remove();
+			},
+			resizable: false,
+			title: title,
+			modal: true
+		}).text(content)
+	;
+}
+
 var loadingPanel;
 function showLoadingPanel() {
 	if(null != loadingPanel) {
@@ -1210,7 +1292,7 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 	var options = {
 		title: "Loading...",
 		autoOpen : false,
-		closeOnEscape : true,
+		closeOnEscape : false,
 		draggable : true,
 		modal : false,
 		resizable : true,

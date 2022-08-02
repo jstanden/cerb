@@ -1357,14 +1357,6 @@ $(function() {
 		$popup.one('popup_open',function() {
 			$popup.dialog('option','title','{if $is_forward}{'display.ui.forward'|devblocks_translate|capitalize}{else}{'common.reply'|devblocks_translate|capitalize}{/if}');
 			$popup.css('overflow', 'inherit');
-			
-			// Close confirmation
-			
-			$popup.on('dialogbeforeclose', function(e) {
-				var keycode = e.keyCode || e.which;
-				if(keycode === 27)
-					return confirm('{'warning.core.editor.close'|devblocks_translate}');
-			});
 		});
 	{/if}
 	

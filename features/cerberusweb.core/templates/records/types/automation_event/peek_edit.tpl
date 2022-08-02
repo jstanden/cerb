@@ -70,14 +70,6 @@
             $popup.find('button.save').click(Devblocks.callbackPeekEditSave);
             $popup.find('button.save-continue').click({ mode: 'continue' }, Devblocks.callbackPeekEditSave);
 
-            // Close confirmation
-
-            $popup.on('dialogbeforeclose', function(e, ui) {
-                var keycode = e.keyCode || e.which;
-                if(27 === keycode)
-                    return confirm('{'warning.core.editor.close'|devblocks_translate}');
-            });
-
             // Editor
 
             var $editor = $popup.find('[name=automations_kata]')
