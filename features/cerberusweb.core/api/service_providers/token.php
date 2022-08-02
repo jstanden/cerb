@@ -54,6 +54,7 @@ class ServiceProvider_TokenBearer extends Extension_ConnectedServiceProvider {
 		$validation
 			->addField('token','Token')
 			->string()
+			->setMaxLength(4096)
 			->setRequired(true)
 			;
 		
