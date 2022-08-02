@@ -713,7 +713,7 @@ class DevblocksStorageEngine_CerbCloudS3 extends Extension_DevblocksStorageEngin
 		if(
 			!defined('CERB_CLOUD_SUBDOMAIN')
 			|| !defined('CERB_CLOUD_TOKEN')
-			|| !defined('CERB_CLOUD_REGION')
+			|| !defined('CERB_CLOUD_STORAGE_ENDPOINT')
 		) {
 			return false;
 		}
@@ -736,8 +736,8 @@ class DevblocksStorageEngine_CerbCloudS3 extends Extension_DevblocksStorageEngin
 	}
 	
 	public function exists($namespace, $key) {
-		$token_url = sprintf("http://app.%s.internal.cerb.cloud/_services/storage/%s/%s/%s",
-			CERB_CLOUD_REGION,
+		$token_url = sprintf("%s/%s/%s/%s",
+			rtrim(CERB_CLOUD_STORAGE_ENDPOINT,'/'),
 			CERB_CLOUD_SUBDOMAIN,
 			$this->escapeNamespace($namespace),
 			$key
@@ -768,8 +768,8 @@ class DevblocksStorageEngine_CerbCloudS3 extends Extension_DevblocksStorageEngin
 			$id
 		);
 		
-		$token_url = sprintf("http://app.%s.internal.cerb.cloud/_services/storage/%s/%s/%s",
-			CERB_CLOUD_REGION,
+		$token_url = sprintf("%s/%s/%s/%s",
+			rtrim(CERB_CLOUD_STORAGE_ENDPOINT,'/'),
 			CERB_CLOUD_SUBDOMAIN,
 			$this->escapeNamespace($namespace),
 			$key
@@ -810,8 +810,8 @@ class DevblocksStorageEngine_CerbCloudS3 extends Extension_DevblocksStorageEngin
 	}
 
 	public function get($namespace, $key, &$fp=null) {
-		$token_url = sprintf("http://app.%s.internal.cerb.cloud/_services/storage/%s/%s/%s",
-			CERB_CLOUD_REGION,
+		$token_url = sprintf("%s/%s/%s/%s",
+			rtrim(CERB_CLOUD_STORAGE_ENDPOINT,'/'),
 			CERB_CLOUD_SUBDOMAIN,
 			$this->escapeNamespace($namespace),
 			$key
@@ -861,8 +861,8 @@ class DevblocksStorageEngine_CerbCloudS3 extends Extension_DevblocksStorageEngin
 	}
 	
 	public function delete($namespace, $key) {
-		$token_url = sprintf("http://app.%s.internal.cerb.cloud/_services/storage/%s/%s/%s",
-			CERB_CLOUD_REGION,
+		$token_url = sprintf("%s/%s/%s/%s",
+			rtrim(CERB_CLOUD_STORAGE_ENDPOINT,'/'),
 			CERB_CLOUD_SUBDOMAIN,
 			$this->escapeNamespace($namespace),
 			$key
