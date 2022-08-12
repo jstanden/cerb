@@ -4639,6 +4639,7 @@ class _CerbApplication_KataSchemas {
                             attributes:
                               key:
                                 types:
+                                  list:
                                   string:
                       output:
                         types:

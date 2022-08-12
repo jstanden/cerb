@@ -37,7 +37,7 @@ class VarUnsetAction extends AbstractAction {
 			$validation->reset();
 			
 			$validation->addField('key', 'inputs:key:')
-				->string()
+				->stringOrArray()
 				->setMaxLength(2048)
 				->setRequired(true)
 			;
@@ -45,7 +45,14 @@ class VarUnsetAction extends AbstractAction {
 			if(false === ($validation->validateAll($inputs, $error)))
 				throw new Exception_DevblocksAutomationError($error);
 			
-			$result = $dict->unsetKeyPath($inputs['key'], ':');
+			if(is_array($inputs['key'])) {
+				$result = [];
+				foreach($inputs['key'] as $key)
+					$result[$key] = $dict->unsetKeyPath($key, ':');
+				
+			} else {
+				$result = $dict->unsetKeyPath($inputs['key'], ':');
+			}
 			
 			if($output) {
 				$dict->set($output, $result);
