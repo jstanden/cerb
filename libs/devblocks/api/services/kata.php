@@ -75,7 +75,7 @@ class _DevblocksKataService {
 			$trimmed_line = ltrim($line, ' ');
 			
 			if($trimmed_line != ltrim($line)) {
-				$error = 'Indents may not use tabs';
+				$error = sprintf('Indents may not use tabs (line %d)', $line_number+1);
 				return false;
 			}
 			
