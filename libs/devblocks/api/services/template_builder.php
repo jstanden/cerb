@@ -2105,14 +2105,14 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 		return sha1($string);
 	}
 	
-	function filter_split_crlf($string) {
+	function filter_split_crlf($string, $keep_blanks=false, $trim_lines=true) {
 		if($string instanceof Twig\Markup)
 			$string = strval($string);
 		
 		if(!is_string($string))
 			return '';
 		
-		return DevblocksPlatform::parseCrlfString($string);
+		return DevblocksPlatform::parseCrlfString($string, $keep_blanks, $trim_lines);
 	}
 	
 	function filter_split_csv($string) {
