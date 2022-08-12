@@ -3874,6 +3874,8 @@ class _CerbApplication_KataSchemas {
                           list:
                           string:
                       type_options:
+                        types:
+                          list:
                       type:
                         types:
                           string:      
