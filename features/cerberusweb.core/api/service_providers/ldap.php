@@ -24,10 +24,16 @@ class ServiceProvider_Ldap extends Extension_ConnectedServiceProvider {
 		
 		// Test the credentials
 		
-		if(636 == $params['port'] && !DevblocksPlatform::strStartsWith($params['host'], 'ldaps://'))
-			$params['host'] = 'ldaps://' . $params['host'];
+		$ldap_encryption = $params['encryption'] ?? '';
 		
-		@$ldap = ldap_connect($params['host'], $params['port']);
+		if(
+			(636 == $params['port'] || 'ssl' == $ldap_encryption)
+			&& !DevblocksPlatform::strStartsWith($params['host'], 'ldaps://')
+		) {
+			$params['host'] = 'ldaps://' . $params['host'];
+		}
+		
+		@$ldap = ldap_connect($params['host'] ?? null, $params['port']);
 		
 		if(!$ldap)
 			return ldap_error($ldap);
@@ -35,8 +41,15 @@ class ServiceProvider_Ldap extends Extension_ConnectedServiceProvider {
 		ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
 		ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
 		
-		if(389 == $params['port'] && !ldap_start_tls($ldap))
+		if(
+			(
+				(389 == $params['port'] && '' == $ldap_encryption)
+				|| 'tls' == $ldap_encryption
+			)
+			&& !ldap_start_tls($ldap)
+		) {
 			return 'Failed to Start TLS';
+		}
 		
 		@$login = ldap_bind($ldap, $params['bind_dn'], $params['bind_password']);
 		
@@ -68,6 +81,7 @@ class ServiceProvider_Ldap extends Extension_ConnectedServiceProvider {
 			switch($k) {
 				case 'host':
 				case 'port':
+				case 'encryption':
 				case 'bind_dn':
 				case 'bind_password':
 				case 'context_search':
@@ -121,6 +135,7 @@ class ServiceProvider_Ldap extends Extension_ConnectedServiceProvider {
 		$ldap_settings = [
 			'host' => @$service_params['host'],
 			'port' => @$service_params['port'] ?: 389,
+			'encryption' => @$service_params['encryption'] ?? '',
 			'username' => @$service_params['bind_dn'],
 			'password' => @$service_params['bind_password'],
 			
@@ -130,10 +145,16 @@ class ServiceProvider_Ldap extends Extension_ConnectedServiceProvider {
 			'field_lastname' => @$service_params['field_lastname'],
 		];
 		
-		if(636 == $ldap_settings['port'] && !DevblocksPlatform::strStartsWith($ldap_settings['host'], 'ldaps://'))
-			$ldap_settings['host'] = 'ldaps://' . $ldap_settings['host'];
+		$ldap_encryption = $ldap_settings['encryption'] ?? '';
 		
-		@$ldap = ldap_connect($ldap_settings['host'], $ldap_settings['port']);
+		if(
+			(636 == $ldap_settings['port'] || 'ssl' == $ldap_encryption)
+			&& !DevblocksPlatform::strStartsWith($ldap_settings['host'], 'ldaps://')
+		) {
+			$ldap_settings['host'] = 'ldaps://' . $ldap_settings['host'];
+		}
+		
+		@$ldap = ldap_connect($ldap_settings['host'] ?? '', $ldap_settings['port'] ?? 389);
 		
 		if(!$ldap)
 			return false;
@@ -141,8 +162,15 @@ class ServiceProvider_Ldap extends Extension_ConnectedServiceProvider {
 		ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
 		ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
 		
-		if(389 == $ldap_settings['port'] && !ldap_start_tls($ldap))
+		if(
+			(
+				(389 == $ldap_settings['port'] && '' == $ldap_encryption)
+				|| 'tls' == $ldap_encryption
+			)
+			&& !ldap_start_tls($ldap)
+		) {
 			return false;
+		}
 		
 		@$login = ldap_bind($ldap, $ldap_settings['username'], $ldap_settings['password']);
 		

@@ -7,6 +7,16 @@
 	<input type="text" name="params[port]" value="{$params.port}" size="6" spellcheck="false" placeholder="389"><br>
 	<br>
 	
+	<b>Encryption:</b><br>
+	<select name="params[encryption]">
+		<option value="" {if !$params.encryption}selected="selected"{/if}>({'common.automatic'|devblocks_translate|lower})</option>
+		<option value="tls" {if 'tls' == $params.encryption}selected="selected"{/if}>TLS</option>
+		<option value="ssl" {if 'ssl' == $params.encryption}selected="selected"{/if}>SSL</option>
+		<option value="disabled" {if 'disabled' == $params.encryption}selected="selected"{/if}>{'common.disabled'|devblocks_translate|capitalize}</option>
+	</select>
+	<br>
+	<br>
+	
 	<b>Bind DN:</b><br>
 	<input type="text" name="params[bind_dn]" value="{$params.bind_dn}" size="45" spellcheck="false" placeholder="cn=read-only-admin,dc=example,dc=com"><br>
 	<br>
