@@ -268,6 +268,7 @@ class _DevblocksTemplateBuilder {
 				'clamp_int',
 				'dict_set',
 				'dict_unset',
+				'dns_host_by_ip',
 				'json_decode',
 				'jsonpath_set',
 				'kata_parse',
@@ -1177,6 +1178,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			new \Twig\TwigFunction('clamp_int', [$this, 'function_clamp_int']),
 			new \Twig\TwigFunction('dict_set', [$this, 'function_dict_set']),
 			new \Twig\TwigFunction('dict_unset', [$this, 'function_dict_unset']),
+			new \Twig\TwigFunction('dns_host_by_ip', [$this, 'function_dns_host_by_ip']),
 			new \Twig\TwigFunction('json_decode', [$this, 'function_json_decode']),
 			new \Twig\TwigFunction('jsonpath_set', [$this, 'function_jsonpath_set']),
 			new \Twig\TwigFunction('kata_parse', [$this, 'function_kata_parse']),
@@ -1445,6 +1447,10 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 	function function_cerb_url($url, $full=true, $proxy=true) {
 		$url_writer = DevblocksPlatform::services()->url();
 		return $url_writer->write($url, $full, $proxy);
+	}
+	
+	function function_dns_host_by_ip($ip) {
+		return gethostbyaddr($ip) ?: '';
 	}
 	
 	function function_json_decode($str) {
