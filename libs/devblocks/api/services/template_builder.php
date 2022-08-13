@@ -268,6 +268,7 @@ class _DevblocksTemplateBuilder {
 				'clamp_int',
 				'dict_set',
 				'dict_unset',
+				'dns_get_record',
 				'dns_host_by_ip',
 				'json_decode',
 				'jsonpath_set',
@@ -1178,6 +1179,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			new \Twig\TwigFunction('clamp_int', [$this, 'function_clamp_int']),
 			new \Twig\TwigFunction('dict_set', [$this, 'function_dict_set']),
 			new \Twig\TwigFunction('dict_unset', [$this, 'function_dict_unset']),
+			new \Twig\TwigFunction('dns_get_record', [$this, 'function_dns_get_record']),
 			new \Twig\TwigFunction('dns_host_by_ip', [$this, 'function_dns_host_by_ip']),
 			new \Twig\TwigFunction('json_decode', [$this, 'function_json_decode']),
 			new \Twig\TwigFunction('jsonpath_set', [$this, 'function_jsonpath_set']),
@@ -1449,6 +1451,32 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 		return $url_writer->write($url, $full, $proxy);
 	}
 	
+	// See: https://www.php.net/manual/en/function.dns-get-record.php
+	function function_dns_get_record($hostname, $type='any') {
+		$type = DevblocksPlatform::strLower(strval($type));
+		
+		$type_map = [
+			'a' => DNS_A,
+			'aaaa' => DNS_AAAA,
+			'caa' => DNS_CAA,
+			'cname' => DNS_CNAME,
+			'mx' => DNS_MX,
+			'ns' => DNS_NS,
+			'ptr' => DNS_PTR,
+			'soa' => DNS_SOA,
+			'srv' => DNS_SRV,
+			'txt' => DNS_TXT,
+		];
+		
+		if(!array_key_exists($type, $type_map))
+			return [];
+		
+		$type = $type_map[$type];
+		
+		return dns_get_record($hostname, $type) ?: [];
+	}
+
+	// See: https://www.php.net/manual/en/function.gethostbyaddr.php
 	function function_dns_host_by_ip($ip) {
 		return gethostbyaddr($ip) ?: '';
 	}
