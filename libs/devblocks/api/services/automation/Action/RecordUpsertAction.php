@@ -18,6 +18,8 @@ class RecordUpsertAction extends AbstractAction {
 		
 		$inputs = $params['inputs'] ?? [];
 		$output = $params['output'] ?? null;
+		
+		$was_events_enabled = DevblocksPlatform::services()->event()->isEnabled();
 	
 		try {
 			// Validate params
@@ -37,6 +39,10 @@ class RecordUpsertAction extends AbstractAction {
 			
 			$validation->reset();
 			
+			$validation->addField('disable_events', 'inputs:disable_events:')
+				->boolean()
+			;
+
 			$validation->addField('record_type', 'inputs:record_type:')
 				->context()
 				->setRequired(true)
@@ -80,6 +86,10 @@ class RecordUpsertAction extends AbstractAction {
 			$record_type = $inputs['record_type'] ?? null;
 			$query = $inputs['record_query'] ?? null;
 			$query_params = $inputs['record_query_params'] ?? [];
+			$disable_events = true == $inputs['disable_events'];
+			
+			if($disable_events)
+				DevblocksPlatform::services()->event()->disable();
 			
 			if(false == ($context_ext = Extension_DevblocksContext::getByAlias($record_type, true))) {
 				throw new Exception_DevblocksAutomationError(sprintf(
@@ -157,6 +167,10 @@ class RecordUpsertAction extends AbstractAction {
 			}
 			
 			return false;
+			
+		} finally {
+			// Reset the event listener status
+			DevblocksPlatform::services()->event()->setEnabled($was_events_enabled);
 		}
 	}
 }
