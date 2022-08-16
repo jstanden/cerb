@@ -21,6 +21,8 @@ class RecordUpdateAction extends AbstractAction {
 		$inputs = $params['inputs'] ?? [];
 		$output = $params['output'] ?? null;
 		
+		$was_events_enabled = DevblocksPlatform::services()->event()->isEnabled();
+		
 		try {
 			// Validate params
 			
@@ -39,6 +41,9 @@ class RecordUpdateAction extends AbstractAction {
 			
 			$validation->reset();
 			
+			$validation->addField('disable_events', 'inputs:disable_events:')
+				->boolean()
+			;
 			
 			$validation->addField('expand', 'inputs:expand:')
 				->string()
@@ -86,6 +91,10 @@ class RecordUpdateAction extends AbstractAction {
 			$record_id = $inputs['record_id'];
 			$expand = $inputs['expand'] ?? null;
 			$fields = $inputs['fields'] ?? [];
+			$disable_events = true == $inputs['disable_events'];
+			
+			if($disable_events)
+				DevblocksPlatform::services()->event()->disable();
 			
 			if(false == ($context_ext = Extension_DevblocksContext::getByAlias($record_type, true))) {
 				throw new Exception_DevblocksAutomationError(sprintf(
@@ -154,6 +163,10 @@ class RecordUpdateAction extends AbstractAction {
 			}
 			
 			return false;
+			
+		} finally {
+			// Reset the event listener status
+			DevblocksPlatform::services()->event()->setEnabled($was_events_enabled);
 		}
 		
 		if(null != ($event_success = $this->node->getChild($this->node->getId() . ':on_success'))) {
