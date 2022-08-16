@@ -1320,6 +1320,12 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 						'score' => 1999,
 						'description' => "The record fields to set",
 					],
+					[
+						'caption' => 'disable_events:',
+						'snippet' => "disable_events@bool: \${1:yes}",
+						'score' => 900,
+						'description' => "Don't trigger automations or behaviors after creating this record",
+					],
 					'expand:',
 				],
 				'(.*):record.create:inputs:fields:' => [

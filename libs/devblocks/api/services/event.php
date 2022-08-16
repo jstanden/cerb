@@ -27,6 +27,10 @@ class _DevblocksEventManager {
 		return $this->_enabled;
 	}
 	
+	function setEnabled(bool $enabled) {
+		$this->_enabled = $enabled;
+	}
+	
 	function trigger(Model_DevblocksEvent $event) {
 		if(!$this->_enabled)
 			return;

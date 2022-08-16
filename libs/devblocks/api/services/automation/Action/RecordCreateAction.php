@@ -22,6 +22,8 @@ class RecordCreateAction extends AbstractAction {
 		$inputs = $params['inputs'] ?? [];
 		$output = $params['output'] ?? null;
 		
+		$was_events_enabled = DevblocksPlatform::services()->event()->isEnabled();
+		
 		try {
 			// Validate params
 			
@@ -39,6 +41,10 @@ class RecordCreateAction extends AbstractAction {
 			// Validate input
 			
 			$validation->reset();
+			
+			$validation->addField('disable_events', 'inputs:disable_events:')
+				->boolean()
+			;
 			
 			$validation->addField('record_type', 'inputs:record_type:')
 				->context()
@@ -61,13 +67,17 @@ class RecordCreateAction extends AbstractAction {
 			$record_type = $inputs['record_type'];
 			$fields = $inputs['fields'] ?? [];
 			$expand = $inputs['expand'] ?? [];
+			$disable_events = true == $inputs['disable_events'];
+			
+			if($disable_events)
+				DevblocksPlatform::services()->event()->disable();
 			
 			if(is_string($expand))
 				$expand = [$expand];
 			
 			if(!is_array($expand)) {
 				$error = '`expand:` must be a list of keys.';
-				return false;
+				throw new Exception_DevblocksAutomationError($error);
 			}
 			
 			if(false == ($context_ext = Extension_DevblocksContext::getByAlias($record_type, true)))
@@ -159,6 +169,10 @@ class RecordCreateAction extends AbstractAction {
 			}
 			
 			return false;
+			
+		} finally {
+			// Reset the event listener status
+			DevblocksPlatform::services()->event()->setEnabled($was_events_enabled);
 		}
 		
 		if(null != ($event_success = $this->node->getChild($this->node->getId() . ':on_success'))) {

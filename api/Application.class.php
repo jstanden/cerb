@@ -4270,6 +4270,9 @@ class _CerbApplication_KataSchemas {
                         types:
                           object:
                             attributes:
+                              disable_events:
+                                types:
+                                  bool:
                               expand:
                                 types:
                                   string:
