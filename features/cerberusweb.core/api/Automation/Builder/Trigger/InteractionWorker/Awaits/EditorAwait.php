@@ -30,6 +30,7 @@ class EditorAwait extends AbstractAwait {
 		$label = $this->_data['label'] ?? null;
 		$default = $this->_data['default'] ?? null;
 		$syntax = $this->_data['syntax'] ?? null;
+		$editor_readonly = boolval($this->_data['readonly'] ?? null);
 		
 		$editor_mode = '';
 		$editor_autocompletion = '';
@@ -58,6 +59,7 @@ class EditorAwait extends AbstractAwait {
 		$tpl->assign('default', $default);
 		$tpl->assign('editor_mode', $editor_mode);
 		$tpl->assign('editor_autocompletion', $editor_autocompletion);
+		$tpl->assign('editor_readonly', $editor_readonly);
 		
 		$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.worker/await/editor.tpl');
 	}
