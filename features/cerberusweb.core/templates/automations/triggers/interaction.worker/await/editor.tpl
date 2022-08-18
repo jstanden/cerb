@@ -7,7 +7,7 @@
 
     </div>
 
-    <textarea name="prompts[{$var}]" data-editor-mode="{$editor_mode}" data-editor-lines="15" {if $editor_readonly}data-editor-readonly="true"{/if}>{$default}</textarea>
+    <textarea name="prompts[{$var}]" data-editor-mode="{$editor_mode}" data-editor-lines="15" {if $editor_readonly}data-editor-readonly="true"{/if} {if !$editor_show_line_numbers}data-editor-line-numbers="false"{/if}>{$default}</textarea>
 </div>
 
 <script type="text/javascript">

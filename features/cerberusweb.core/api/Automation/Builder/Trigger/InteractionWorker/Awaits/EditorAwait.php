@@ -32,6 +32,12 @@ class EditorAwait extends AbstractAwait {
 		$syntax = $this->_data['syntax'] ?? null;
 		$editor_readonly = boolval($this->_data['readonly'] ?? null);
 		
+		if(array_key_exists('line_numbers', $this->_data)) {
+			$editor_show_line_numbers = boolval($this->_data['line_numbers'] ?? false);
+		} else {
+			$editor_show_line_numbers = true;
+		}
+		
 		$editor_mode = '';
 		$editor_autocompletion = '';
 		
@@ -60,6 +66,7 @@ class EditorAwait extends AbstractAwait {
 		$tpl->assign('editor_mode', $editor_mode);
 		$tpl->assign('editor_autocompletion', $editor_autocompletion);
 		$tpl->assign('editor_readonly', $editor_readonly);
+		$tpl->assign('editor_show_line_numbers', $editor_show_line_numbers);
 		
 		$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.worker/await/editor.tpl');
 	}
