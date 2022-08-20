@@ -91,7 +91,7 @@ class RecordUpdateAction extends AbstractAction {
 			$record_id = $inputs['record_id'];
 			$expand = $inputs['expand'] ?? null;
 			$fields = $inputs['fields'] ?? [];
-			$disable_events = true == $inputs['disable_events'];
+			$disable_events = boolval($inputs['disable_events'] ?? null);
 			
 			if($disable_events)
 				DevblocksPlatform::services()->event()->disable();

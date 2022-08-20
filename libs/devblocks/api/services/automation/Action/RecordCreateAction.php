@@ -67,7 +67,7 @@ class RecordCreateAction extends AbstractAction {
 			$record_type = $inputs['record_type'];
 			$fields = $inputs['fields'] ?? [];
 			$expand = $inputs['expand'] ?? [];
-			$disable_events = true == $inputs['disable_events'];
+			$disable_events = boolval($inputs['disable_events'] ?? null);
 			
 			if($disable_events)
 				DevblocksPlatform::services()->event()->disable();

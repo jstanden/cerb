@@ -86,7 +86,7 @@ class RecordUpsertAction extends AbstractAction {
 			$record_type = $inputs['record_type'] ?? null;
 			$query = $inputs['record_query'] ?? null;
 			$query_params = $inputs['record_query_params'] ?? [];
-			$disable_events = true == $inputs['disable_events'];
+			$disable_events = boolval($inputs['disable_events'] ?? null);
 			
 			if($disable_events)
 				DevblocksPlatform::services()->event()->disable();
