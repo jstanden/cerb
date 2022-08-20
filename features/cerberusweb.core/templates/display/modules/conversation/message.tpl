@@ -5,10 +5,10 @@
 {$is_not_sent = $message->is_not_sent}
 {if !isset($display_format)}{$display_format = null}{/if}
 
-<div class="block" style="margin-bottom:10px;padding-top:8px;padding-left:10px;position:relative;">
-	{$sender_id = $message->address_id}
-	{$sender = $message->getSender()}
-	
+{$sender_id = $message->address_id}
+{$sender = $message->getSender()}
+
+<div {if $sender}data-cerb-message-sender="{$sender->email}"{/if} class="block" style="margin-bottom:10px;padding-top:8px;padding-left:10px;position:relative;">
 	{if $sender}
 		{$sender_contact = $sender->getContact()}
 		{$sender_worker = $message->getWorker()}
