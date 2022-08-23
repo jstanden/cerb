@@ -4103,6 +4103,17 @@ class _CerbApplication_KataSchemas {
                               method:
                                 types:
                                   string:
+                              response:
+                                types:
+                                  object:
+                                    attributes:
+                                      resource:
+                                        types:
+                                          object:
+                                            attributes:
+                                              expires:
+                                                types:
+                                                  string:
                               timeout:
                                 types:
                                   number:

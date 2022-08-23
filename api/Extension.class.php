@@ -1189,6 +1189,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 						'snippet' => "body:\n\t",
 						'score' => 1997,
 					],
+					'response:',
 					'timeout:',
 					'authentication:',
 				],
@@ -1206,6 +1207,12 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'PATCH',
 					'HEAD',
 					'OPTIONS'
+				],
+				'(.*):http.request:inputs:response:' => [
+					'resource:',
+				],
+				'(.*):http.request:inputs:response:resource:' => [
+					'expires@date:',
 				],
 				
 				'(.*):kata.parse:' => $action_base,
