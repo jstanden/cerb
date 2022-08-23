@@ -57,6 +57,8 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 	}
 	
 	public function getAutocompleteSuggestions() : array {
+		$toolbar_keyprefix = '(.*):await:form:elements:(.*):(.*):?toolbar:';
+		
 		return [
 			'*' => [
 				'(.*):await:' => [
@@ -111,6 +113,75 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 				'(.*):await:duration:' => [
 					'message: Waiting...',
 					'until: 5 seconds',
+				],
+				
+				$toolbar_keyprefix => [
+					[
+						'caption' => 'interaction:',
+						'snippet' => 'interaction/${1:name}:'
+					],
+					[
+						'caption' => 'menu:',
+						'snippet' => 'menu/${1:name}:'
+					]
+				],
+				$toolbar_keyprefix . '(.*):?interaction:' => [
+					[
+						'caption' => 'uri:',
+						'snippet' => 'uri: cerb:automation:${1:}'
+					],
+					'label:',
+					'icon:',
+					'tooltip:',
+					[
+						'caption' => 'hidden:',
+						'snippet' => 'hidden@bool: ${1:yes}'
+					],
+					[
+						'caption' => 'badge:',
+						'snippet' => 'badge: 123'
+					],
+					'inputs:'
+				],
+				$toolbar_keyprefix . '(.*):?interaction:hidden:' => [
+					'yes',
+					'no',
+				],
+				$toolbar_keyprefix . '(.*):?interaction:icon:' => [
+					'type' => 'icon'
+				],
+				$toolbar_keyprefix . '(.*):?interaction:inputs:' => [
+					'type' => 'automation-inputs'
+				],
+				$toolbar_keyprefix . '(.*):?interaction:uri:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'automation' => [
+							'triggers' => [
+								'cerb.trigger.interaction.worker'
+							]
+						]
+					]
+				],
+				$toolbar_keyprefix . '(.*):?menu:' => [
+					'label:',
+					[
+						'caption' => 'hidden:',
+						'snippet' => 'hidden@bool: ${1:yes}'
+					],
+					'icon:',
+					'tooltip:',
+					'items:'
+				],
+				$toolbar_keyprefix . '(.*):?menu:items:' => [
+					[
+						'caption' => 'interaction:',
+						'snippet' => 'interaction/${1:name}:'
+					],
+					[
+						'caption' => 'menu:',
+						'snippet' => 'menu/${1:name}:'
+					]
 				],
 				
 				'(.*):await:form:' => [
@@ -552,6 +623,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'limit:',
 					'page:',
 					'required@bool: yes',
+					'toolbar:',
 					'validation@raw:',
 				],
 				'(.*):await:form:elements:sheet:data:' => [
@@ -809,6 +881,8 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 						'snippet' => 'grid',
 						'description' => "Display the rows as a grid",
 					],
+				],
+				'(.*):await:form:elements:sheet:toolbar:' => [
 				],
 				
 				'(.*):await:form:elements:submit:' => [
