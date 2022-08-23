@@ -83,6 +83,10 @@ class HttpRequestAction extends AbstractAction {
 				->setMax(60)
 			;
 			
+			$validation->addField('response', 'inputs:response:')
+				->array()
+			;
+			
 			if(false === ($validation->validateAll($inputs, $error)))
 				throw new Exception_DevblocksAutomationError($error);
 			
@@ -233,7 +237,7 @@ class HttpRequestAction extends AbstractAction {
 					$error_dict = [];
 					
 					if($error_response instanceof \Psr\Http\Message\ResponseInterface) {
-						if(false === ($error_dict = $this->_buildResults($error_response, $error)))
+						if(false === ($error_dict = $this->_buildResults($error_response, $inputs, $error)))
 							return false;
 					}
 					
@@ -252,7 +256,7 @@ class HttpRequestAction extends AbstractAction {
 				
 			} else {
 				if ($output) {
-					if(false === ($results = $this->_buildResults($response, $error)))
+					if(false === ($results = $this->_buildResults($response, $inputs, $error)))
 						return false;
 					
 					$results['url'] = $url;
@@ -284,7 +288,7 @@ class HttpRequestAction extends AbstractAction {
 		return $this->node->getParent()->getId();
 	}
 	
-	private function _buildResults(\Psr\Http\Message\ResponseInterface $response, &$error=null) {
+	private function _buildResults(\Psr\Http\Message\ResponseInterface $response, array $inputs, &$error=null) {
 		$results = [
 			'status_code' => $response->getStatusCode(),
 		];
@@ -302,12 +306,13 @@ class HttpRequestAction extends AbstractAction {
 		
 		$response_size = $response->getBody()->getSize() ?? 0;
 		
-		// If larger than 1MB, stream to an automation resource
-		if($response_size > 1_024_000) {
+		// If larger than 1MB, or requested, stream to an automation resource
+		if($response_size > 1_024_000 || (array_key_exists('resource', $inputs['response'] ?? []))) {
 			$resource_token = DevblocksPlatform::services()->string()->uuid();
+			$resource_expires = $inputs['response']['resource']['expires'] ?? (time() + 900); // +15 mins default
 			
 			$resource_id = DAO_AutomationResource::create([
-				DAO_AutomationResource::EXPIRES_AT => time() + 900, // +15 mins
+				DAO_AutomationResource::EXPIRES_AT => $resource_expires,
 				DAO_AutomationResource::TOKEN => $resource_token,
 				DAO_AutomationResource::MIME_TYPE => $content_type,
 			]);
@@ -330,6 +335,7 @@ class HttpRequestAction extends AbstractAction {
 			
 			$results['is_cerb_uri'] = true;
 			$results['content_type_original'] = $content_type;
+			$results['resource_expires'] = $resource_expires;
 			$content_type = 'application/vnd.cerb.uri';
 			$response_body = sprintf("cerb:automation_resource:%s", $resource_token);
 			
