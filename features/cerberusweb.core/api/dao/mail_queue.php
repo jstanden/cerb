@@ -924,7 +924,7 @@ class Model_MailQueue {
 				$properties['org_id'] = $this->getParam('org_id');
 			
 			if($this->hasParam('org_name'))
-				$properties['org_id'] = DAO_ContactOrg::lookup($this->getParam('org_name'));
+				$properties['org_id'] = DAO_ContactOrg::lookup($this->getParam('org_name'), true);
 			
 			if($this->hasParam('status_id'))
 				$properties['status_id'] = $this->getParam('status_id');
