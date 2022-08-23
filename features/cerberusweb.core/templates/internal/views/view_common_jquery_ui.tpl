@@ -3,9 +3,11 @@ $(function() {
 	var $view = $('div#view{$view->id}');
 	var $view_form = $('form#viewForm{$view->id}');
 	var $view_actions = $view_form.find('#{$view->id}_actions');
+	var $last_row_clicked = null;
 	
 	// Row selection and hover effect
 	$view_form.find('TABLE.worklistBody TBODY')
+		.disableSelection()
 		.click(function(e) {
 			var $target = $(e.target);
 		
@@ -33,15 +35,35 @@ $(function() {
 					return;
 				
 				var is_checked = !($chk.prop('checked') ? true : false);
+
+				var $rows = $chk.closest('tbody');
 				
-				if(is_checked) {
-					$chk.prop('checked', is_checked);
-					$this.find('tr').addClass('selected').removeClass('hover');
+				// If we have a previously clicked row and are holding shift, interpolate
+				if(e.shiftKey && $last_row_clicked instanceof jQuery) {
 					
-				} else {
-					$chk.prop('checked', is_checked);
-					$this.find('tr').removeClass('selected');
+					if($chk.closest('tbody').index() < $last_row_clicked.index()) {
+						$rows = $rows.add($last_row_clicked.prevUntil($chk.closest('tbody'),'tbody'));
+						
+					} else if($chk.closest('tbody').index() > $last_row_clicked.index()) {
+						$rows = $rows.add($last_row_clicked.nextUntil($chk.closest('tbody'),'tbody'));
+					}
 				}
+				
+				$rows.each(function() {
+					var $chk = $(this).find('input:checkbox');
+					var $row = $(this);
+					
+					if(is_checked) {
+						$chk.prop('checked', is_checked);
+						$row.find('tr').addClass('selected').removeClass('hover');
+						
+					} else {
+						$chk.prop('checked', is_checked);
+						$row.find('tr').removeClass('selected');
+					}
+				});
+				
+				$last_row_clicked = $chk.closest('tbody');
 		
 				// Count how many selected rows we have left and adjust the toolbar actions
 				var $frm = $this.closest('form');
