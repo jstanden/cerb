@@ -293,6 +293,10 @@ class _DevblocksServices {
 	function validation() {
 		return new _DevblocksValidationService();
 	}
+	
+	function vobject() : _DevblocksVObjectService {
+		return _DevblocksVObjectService::getInstance();
+	}
 }
 
 /**

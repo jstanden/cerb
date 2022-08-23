@@ -290,6 +290,9 @@ class _DevblocksClassLoadManager {
 			'DevblocksValidationField',
 			'Exception_DevblocksValidationError',
 		));
+		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/vobject.php', array(
+			'_DevblocksVObjectService',
+		));
 		
 		return true;
 	}

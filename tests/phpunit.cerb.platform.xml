@@ -11,6 +11,7 @@
 			<file>devblocks/services/DevblocksDictionaryTest.php</file>
 			<file>devblocks/services/DevblocksQueryTest.php</file>
 			<file>devblocks/services/DevblocksKataTest.php</file>
+			<file>devblocks/services/DevblocksVObjectTest.php</file>
 			<file>devblocks/services/DevblocksAutomationTest.php</file>
 		</testsuite>
 		<testsuite name="Cerb">
