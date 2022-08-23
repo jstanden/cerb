@@ -76,9 +76,19 @@
        
         // Window close
 
+        // (x) close button
         $popup_draft.closest('.ui-dialog').find('.ui-dialog-titlebar-close').on('click', function(e) {
             e.stopPropagation();
-            $hidden.val('compose.draft');
+            $hidden.val('compose.discard');
+
+            var evt = $.Event('cerb-form-builder-submit');
+            $form.triggerHandler(evt);
+        });
+
+        // ESC key
+        $popup_draft.on('cerb-peek-aborted peek_aborted', function(e) {
+            e.stopPropagation();
+            $hidden.val('compose.discard');
 
             var evt = $.Event('cerb-form-builder-submit');
             $form.triggerHandler(evt);
