@@ -279,6 +279,7 @@ class _DevblocksTemplateBuilder {
 				'shuffle',
 				'validate_email',
 				'validate_number',
+				'vobject_parse',
 				'xml_attr',
 				'xml_attrs',
 				'xml_decode',
@@ -1190,6 +1191,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			new \Twig\TwigFunction('shuffle', [$this, 'function_shuffle']),
 			new \Twig\TwigFunction('validate_email', [$this, 'function_validate_email']),
 			new \Twig\TwigFunction('validate_number', [$this, 'function_validate_number']),
+			new \Twig\TwigFunction('vobject_parse', [$this, 'function_vobject_parse']),
 			new \Twig\TwigFunction('xml_attr', [$this, 'function_xml_attr']),
 			new \Twig\TwigFunction('xml_attrs', [$this, 'function_xml_attrs']),
 			new \Twig\TwigFunction('xml_decode', [$this, 'function_xml_decode']),
@@ -1587,6 +1589,12 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 		}
 		
 		return [];
+	}
+	
+	function function_vobject_parse($text) {
+		$vobjects = DevblocksPlatform::services()->vobject();
+		$error = null;
+		return $vobjects->parse($text, $error);
 	}
 	
 	function function_xml_encode($xml) {
