@@ -435,4 +435,95 @@ EOD;
 		$this->assertFalse($tree);
 		$this->assertNotEmpty($error);
 	}
+	
+	function testKataPreserveComments() {
+		$expected_kata = <<< EOD
+      # Branch A
+      branch/a:
+        name: Branch A
+      # Branch B
+      branch/b:
+        name: Branch B
+      # Branch C
+      branch/c:
+        name: Branch C
+      EOD;
+		
+		$error = null;
+		$symbol_meta = [];
+		
+		$kata = DevblocksPlatform::services()->kata()->parse($expected_kata, $error, true, $symbol_meta, true);
+		
+		$actual_kata = DevblocksPlatform::services()->kata()->emit($kata);
+		
+		$this->assertEquals($expected_kata, $actual_kata);
+	}
+	
+	function _testKataPreserveWhitespace() {
+		$expected_kata = <<< EOD
+      # Branch A
+      branch/a:
+        name: Branch A
+      
+      # Branch B
+      branch/b:
+        name: Branch B
+      
+      # Branch C
+      branch/c:
+        name: Branch C
+      EOD;
+		
+		$error = null;
+		$symbol_meta = [];
+		
+		$kata = DevblocksPlatform::services()->kata()->parse($expected_kata, $error, true, $symbol_meta, true);
+		
+		$actual_kata = DevblocksPlatform::services()->kata()->emit($kata);
+		
+		$this->assertEquals($expected_kata, $actual_kata);
+	}
+	
+	function testKataInsertBranch() {
+		$existing_kata_string = <<< EOD
+      branch/a:
+        name: Branch A
+      branch/b:
+        name@text: Branch B
+      branch/c:
+        name: Branch C
+      EOD;
+		
+		$replace_kata_string = <<< EOD
+      branch/b:
+        name@text: New Branch B
+      EOD;
+		
+		$expected_kata = [
+      'branch/a' => [
+        'name' => 'Branch A',
+      ],
+			'branch/b' => [
+        'name@text' => 'New Branch B',
+			],
+      'branch/c' => [
+        'name' => 'Branch C',
+			],
+		];
+		
+		$error = null;
+		$symbol_meta = [];
+		
+		$existing_kata = DevblocksPlatform::services()->kata()->parse($existing_kata_string, $error, true, $symbol_meta, true);
+		$replace_kata = DevblocksPlatform::services()->kata()->parse($replace_kata_string, $error, true, $symbol_meta, true);
+		
+		$this->assertIsArray($existing_kata);
+		$this->assertIsArray($replace_kata);
+		
+		foreach($replace_kata as $k => $v) {
+			$existing_kata[$k] = $v;
+		}
+		
+		$this->assertEquals($expected_kata, $existing_kata);
+	}
 }
