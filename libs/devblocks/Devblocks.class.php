@@ -958,11 +958,11 @@ class DevblocksPlatform extends DevblocksEngine {
 		return array_keys($array) === range(0, $len-1);
 	}
 	
-	static function arrayDictSet($var, $path, $val) {
+	static function arrayDictSet($var, $path, $val, $delim=null) {
 		if(empty($var))
 			$var = is_array($var) ? [] : new stdClass();
 		
-		$parts = explode('.', $path);
+		$parts = explode($delim ?? '.', $path);
 		$ptr =& $var;
 		
 		if(is_array($parts))

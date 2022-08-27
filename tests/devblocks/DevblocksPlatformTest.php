@@ -1340,6 +1340,22 @@ class DevblocksPlatformTest extends TestCase {
 		
 		$actual = DevblocksPlatform::arrayDictSet($actual, $key, $val);
 		$this->assertEquals($expected, $actual);
+		
+		// Custom delimiters
+		
+		$expected = [
+			'person' => [
+				'name' => [
+					'first' => 'Bob',
+				]
+			]
+		];
+		$actual = [];
+		$key = "person||name||first";
+		$val = "Bob";
+		
+		$actual = DevblocksPlatform::arrayDictSet($actual, $key, $val, '||');
+		$this->assertEquals($expected, $actual);
 	}
 	
 	public function testArrayDictUnset() {

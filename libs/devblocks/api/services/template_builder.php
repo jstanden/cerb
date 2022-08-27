@@ -1566,6 +1566,10 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 		return DevblocksPlatform::arrayDictSet($var, $path, $val);
 	}
 	
+	function function_dict_set($var, $path, $val, $delimiter=null) {
+		return DevblocksPlatform::arrayDictSet($var, $path, $val, $delimiter);
+	}
+	
 	function function_dict_unset($var, $path) {
 		return DevblocksPlatform::arrayDictUnset($var, $path);
 	}
