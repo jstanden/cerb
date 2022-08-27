@@ -59,6 +59,12 @@ $(function() {
 
 			var $target = e.trigger;
 
+			if (e.eventData.exit === 'error') {
+
+			} else if(e.eventData.exit === 'return') {
+				Devblocks.interactionWorkerPostActions(e.eventData);
+			}
+
 			var $column = $target.closest('.cerb-board-column');
 
 			$column.trigger('cerb-refresh');

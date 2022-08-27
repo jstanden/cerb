@@ -292,6 +292,12 @@ $(function() {
 			var done_params;
 
 			if($target.is('.cerb-bot-trigger')) {
+				if(e.eventData.exit === 'error') {
+
+				} else if(e.eventData.exit === 'return') {
+					Devblocks.interactionWorkerPostActions(e.eventData);
+				}
+				
 				done_params = new URLSearchParams($target.attr('data-interaction-done'));
 
 				if (done_params.has('clear_selections')) {

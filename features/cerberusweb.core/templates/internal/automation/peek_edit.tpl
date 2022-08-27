@@ -269,7 +269,21 @@ $(function() {
 			start: function(formData) {
 			},
 			done: function(e) {
-				if('object' !== typeof e || !e.hasOwnProperty('eventData') || !e.eventData.return.trigger)
+				if('object' !== typeof e || !e.hasOwnProperty('eventData'))
+					return;
+
+				var $target = e.trigger;
+				
+				if(!$target.is('[data-cerb-trigger-chooser]'))
+					return;
+				
+				if (e.eventData.exit === 'error') {
+
+				} else if(e.eventData.exit === 'return') {
+					Devblocks.interactionWorkerPostActions(e.eventData);
+				}
+
+				if(!e.eventData.return || !e.eventData.return.trigger)
 					return;
 
 				var $container = $trigger_chooser.siblings('ul.chooser-container');
@@ -517,19 +531,13 @@ $(function() {
 
 			var $target = e.trigger;
 
-			if(!$target.is('.cerb-bot-trigger'))
-				return;
-
-			//var done_params = new URLSearchParams($target.attr('data-interaction-done'));
-
-			if(!e.eventData || !e.eventData.exit)
+			if(!$target.is('.cerb-bot-trigger') || !e.eventData)
 				return;
 
 			if (e.eventData.exit === 'error') {
-				// [TODO] Show error
 
-			} else if(e.eventData.exit === 'return' && e.eventData.return.snippet) {
-				editor_automation.insertSnippet(e.eventData.return.snippet);
+			} else if (e.eventData.exit === 'return') {
+				Devblocks.interactionWorkerPostActions(e.eventData, editor_automation);
 			}
 		};
 
