@@ -119,7 +119,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 				return [
 					'key_query' => $key,
 					'key_select' => $key_select,
-					'label' => @$link_context->name, // [TODO] Context name
+					'label' => $link_context->name ?? $link_context->id ?? '(link)',
 					'type' => 'context',
 					'sql_select' => sprintf("CONCAT_WS(':',`%s`.to_context,`%s`.to_context_id)",
 						Cerb_ORMHelper::escape($key_select),

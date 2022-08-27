@@ -82,7 +82,7 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 			
 			if ($field->key == 'type') {
 				// Do nothing
-				true;
+				DevblocksPlatform::noop();
 				
 			} else if ($field->key == 'format') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);

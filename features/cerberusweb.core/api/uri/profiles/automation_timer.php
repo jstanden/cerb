@@ -88,7 +88,7 @@ class PageSection_ProfilesAutomationTimer extends Extension_PageSection {
 				$automations_kata = DevblocksPlatform::importGPC($_POST['automations_kata'] ?? null, 'string', '');
 				
 				if(!$active_worker->is_superuser)
-					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.modify'));
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
 				
 				if(!$recurring_timezone)
 					$recurring_timezone = DevblocksPlatform::getTimezone();

@@ -434,7 +434,7 @@ class DevblocksPlatform extends DevblocksEngine {
 				break;
 				
 			default:
-				@settype($value,$type);
+				settype($value, $type);
 				break;
 		}
 		
@@ -3258,7 +3258,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	
 	/**
 	 * @param $profile_id | $extension_id, $options
-	 * @return Extension_DevblocksStorageEngine
+	 * @return Extension_DevblocksStorageEngine|false
 	 */
 	static function getStorageService() {
 		$args = func_get_args();
@@ -3291,6 +3291,9 @@ class DevblocksPlatform extends DevblocksEngine {
 			
 			if(isset($args[1]) && is_array($args[1]))
 				$params = array_merge($params, $args[1]);
+			
+		} else {
+			return false;
 		}
 		
 		return _DevblocksStorageManager::getEngine($extension, $params);

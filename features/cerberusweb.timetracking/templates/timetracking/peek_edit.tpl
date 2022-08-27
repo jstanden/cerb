@@ -90,7 +90,7 @@
 
 <div class="buttons">
 	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	<button type="button" class="resume"><span class="glyphicons glyphicons-play" style="color:rgb(0,180,0);"></span> {'timetracking.ui.entry_panel.resume'|devblocks_translate}</button>
+	<button type="button" class="resume"><span class="glyphicons glyphicons-play"></span> {'timetracking.ui.entry_panel.resume'|devblocks_translate}</button>
 	{if $model->id && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 

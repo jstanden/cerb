@@ -569,7 +569,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		if(!empty($bcc))
 			$properties['bcc'] = $bcc;
 		
-		if(!empty($status) && in_array($status, array(0,1,2,3)))
+		if(!empty($status) && in_array($status, [0,1,2,3]))
 			$properties['status_id'] = $status;
 		
 		if(!empty($reopen_at))
@@ -583,14 +583,14 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			$properties['forward_files'] = $file_ids;
 		}
 		
-		if(!empty($content_format) && in_array($content_format, array('markdown','parsedown','html')))
+		if(!empty($content_format) && in_array($content_format, ['markdown','parsedown','html']))
 			$properties['content_format'] = 'parsedown';
 		
 		if(isset($html_template))
 			$properties['html_template_id'] = $html_template->id;
 		
 		if(!empty($dont_send))
-			$properties['dont_send'] = $dont_send ? 1 : 0;
+			$properties['dont_send'] = 1;
 		
 		// Handle custom fields
 		$custom_fields = $this->_handleCustomFields($_POST);

@@ -328,7 +328,7 @@ class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
 	private function _createTable($namespace) {
 		$rs = mysqli_query($this->_master_db, "SHOW TABLES");
 
-		$tables = array();
+		$tables = [];
 		while($row = mysqli_fetch_row($rs)) {
 			$tables[$row[0]] = true;
 		}

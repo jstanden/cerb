@@ -117,27 +117,28 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 				$fields = [];
 				
 				// Only admins
-				if($active_worker->is_superuser) {
-					if(false == ($trigger_ext = Extension_AutomationTrigger::get($extension_id))) {
-						throw new Exception_DevblocksAjaxValidationError('Invalid trigger extension.');
-					}
-					
-					/* @var $trigger_ext Extension_AutomationTrigger */
-					
-					$fields[DAO_Automation::EXTENSION_ID] = $trigger_ext->id;
-					
-					if(false === ($trigger_ext->validateConfig($params, $error))) {
-						throw new Exception_DevblocksAjaxValidationError($error);
-					}
-					
-					$fields[DAO_Automation::EXTENSION_PARAMS_JSON] = json_encode($params);
-
-					// Validate policy KATA
-					
-					$policy_kata = DevblocksPlatform::importGPC($_POST['automation_policy_kata'] ?? null, 'string', '');
-					
-					$fields[DAO_Automation::POLICY_KATA] = $policy_kata;
+				if(!$active_worker->is_superuser)
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
+				
+				if(false == ($trigger_ext = Extension_AutomationTrigger::get($extension_id))) {
+					throw new Exception_DevblocksAjaxValidationError('Invalid trigger extension.');
 				}
+				
+				/* @var $trigger_ext Extension_AutomationTrigger */
+				
+				$fields[DAO_Automation::EXTENSION_ID] = $trigger_ext->id;
+				
+				if(false === ($trigger_ext->validateConfig($params, $error))) {
+					throw new Exception_DevblocksAjaxValidationError($error);
+				}
+				
+				$fields[DAO_Automation::EXTENSION_PARAMS_JSON] = json_encode($params);
+
+				// Validate policy KATA
+				
+				$policy_kata = DevblocksPlatform::importGPC($_POST['automation_policy_kata'] ?? null, 'string', '');
+				
+				$fields[DAO_Automation::POLICY_KATA] = $policy_kata;
 				
 				if(empty($id)) { // New
 					// The `cerb.` namespace is reserved

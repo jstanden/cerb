@@ -130,7 +130,6 @@ class PageSection_ProfilesConnectedService extends Extension_PageSection {
 							'view_id' => $view_id,
 						]);
 						return;
-						break;
 						
 					case 'build':
 						$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');

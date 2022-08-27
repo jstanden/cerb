@@ -211,7 +211,6 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 							'view_id' => $view_id,
 						]);
 						return;
-						break;
 					
 					case 'import':
 						$bot_id = DevblocksPlatform::importGPC($_POST['bot_id'] ?? null, 'integer', 0);

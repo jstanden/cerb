@@ -562,13 +562,11 @@ abstract class DevblocksORMHelper {
 		// Limit
 		$limit_sql = !empty($limit) ? sprintf("LIMIT 0,%d ", $limit) : '';
 		
-		$return = array(
+		return [
 			$where_sql,
 			$sort_sql,
 			$limit_sql
-		);
-		
-		return $return;
+		];
 	}
 	
 	/**
