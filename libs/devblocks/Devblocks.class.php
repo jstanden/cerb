@@ -3568,6 +3568,14 @@ class DevblocksPlatform extends DevblocksEngine {
 			return true;
 		}
 		
+		if(
+			!DEVELOPMENT_MODE
+			&& E_WARNING == $errno
+			&& $errstr == 'yaml_emit(): Invalid UTF-8 sequence in argument'
+		) {
+			return true;
+		}
+		
 		self::$_error_last = [
 			'type' => $errno,
 			'message' => $errstr,
