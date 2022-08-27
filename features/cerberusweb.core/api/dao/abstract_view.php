@@ -1529,10 +1529,12 @@ abstract class C4_AbstractView {
 	
 	protected function _appendVirtualFiltersFromQuickSearchContexts($prefix, $fields=[], $option='search', $param_key=null) {
 		$context_mfts = Extension_DevblocksContext::getAll(false, [$option]);
+		$context_uris = Extension_DevblocksContext::getUris();
 		
 		$fields[$prefix] = array(
 			'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 			'options' => ['param_key' => $param_key],
+			'examples' => $context_uris,
 		);
 		
 		if($param_key)
