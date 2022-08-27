@@ -4702,195 +4702,238 @@ var ajax = new cAjaxCalls();
 			
 			$trigger.on('click', function(e) {
 				e.stopPropagation();
-
-				var interaction_uri = $trigger.attr('data-interaction-uri');
-				var interaction = $trigger.attr('data-interaction');
-				var interaction_params = $trigger.attr('data-interaction-params');
-				var behavior_id = $trigger.attr('data-behavior-id');
-
-				var layer = Devblocks.uniqueId();
-
-				var formData = new FormData();
-				formData.set('c', 'profiles');
-				formData.set('a', 'invoke');
-				formData.set('module', 'bot');
-				formData.set('action', 'startInteraction');
-
-				formData.set('interaction', interaction);
-				formData.set('browser[url]', window.location.href);
-
-				if(null != interaction_uri)
-					formData.set('interaction_uri', interaction_uri);
-
-				if(null != behavior_id)
-					formData.set('behavior_id', behavior_id);
-
-				if(interaction_params && interaction_params.length > 0) {
-					var parts = new URLSearchParams(interaction_params);
-
-					for(var pair of parts.entries()) {
-						if('[]' === pair[0].substr(-2)) {
-							formData.append('params[' + pair[0].slice(0,-2) + '][]', pair[1]);
-						} else {
-							formData.set('params[' + pair[0] + ']', pair[1]);
-						}
-					}
-				}
-
-				// @deprecated
-				$.each(this.attributes, function() {
-					if('data-interaction-param-' === this.name.substring(0,23)) {
-						formData.append('params[' + this.name.substring(23) + ']', this.value);
-					}
-				});
 				
-				// Caller
-				if(options && options.caller && 'object' == typeof options.caller) {
-					if(options.caller.name)
-						formData.set('caller[name]', options.caller.name);
-					
-					if(options.caller.params && 'object' == typeof options.caller.params) {
-						for(var k in options.caller.params) {
-							formData.set('caller[params][' + k + ']', options.caller.params[k]);
-						}
-					}
-				}
+				var startInteraction = async function() {
+					let promise = new Promise((resolve, reject) => {
+						var interaction_uri = $trigger.attr('data-interaction-uri');
+						var interaction = $trigger.attr('data-interaction');
+						var interaction_params = $trigger.attr('data-interaction-params');
+						var behavior_id = $trigger.attr('data-behavior-id');
 
-				// Give the callback an opportunity to append
-				if(options && options.start && 'function' == typeof options.start) {
-					options.start(formData);
-				}
+						var layer = Devblocks.uniqueId();
 
-				// Is the interaction inline or a popup?
+						var formData = new FormData();
+						formData.set('c', 'profiles');
+						formData.set('a', 'invoke');
+						formData.set('module', 'bot');
+						formData.set('action', 'startInteraction');
 
-				if(options && options.target) {
-					formData.set('interaction_style', 'inline');
-					
-					genericAjaxPost(formData, null, null, function(json) {
-						// Polymorph old HTML responses
-						if('string' == typeof json) {
-							var html = json;
+						formData.set('interaction', interaction);
+						formData.set('browser[url]', window.location.href);
 
-							json = {
-								'exit': 'await',
-								'html': html
-							};
-						}
+						if(null != interaction_uri)
+							formData.set('interaction_uri', interaction_uri);
 
-						if('object' != typeof json)
-							return;
+						if(null != behavior_id)
+							formData.set('behavior_id', behavior_id);
 
-						if(!json.hasOwnProperty('exit'))
-							return;
+						if(interaction_params && interaction_params.length > 0) {
+							var parts = new URLSearchParams(interaction_params);
 
-						if('return' === json.exit || 'exit' === json.exit) {
-							if(options && options.done && 'function' == typeof options.done) {
-								options.done($.Event('cerb-interaction-done', { trigger: $trigger, eventData: json }));
+							for(var pair of parts.entries()) {
+								if('[]' === pair[0].substr(-2)) {
+									formData.append('params[' + pair[0].slice(0,-2) + '][]', pair[1]);
+								} else {
+									formData.set('params[' + pair[0] + ']', pair[1]);
+								}
 							}
+						}
 
-						} else if('await' === json.exit) {
-							var $html = $('<div/>')
-								.on('cerb-interaction-reset', function(e) {
-									e.stopPropagation();
-									if(options && options.reset && 'function' == typeof options.reset) {
-										options.reset($.Event(e));
-									}
-								})
-								.on('cerb-interaction-done', function(e) {
-									e.stopPropagation();
+						// @deprecated
+						$.each(this.attributes, function() {
+							if('data-interaction-param-' === this.name.substring(0,23)) {
+								formData.append('params[' + this.name.substring(23) + ']', this.value);
+							}
+						});
+
+						// Caller
+						if(options && options.caller && 'object' == typeof options.caller) {
+							if(options.caller.name)
+								formData.set('caller[name]', options.caller.name);
+
+							if(options.caller.params && 'object' == typeof options.caller.params) {
+								for(var k in options.caller.params) {
+									formData.set('caller[params][' + k + ']', options.caller.params[k]);
+								}
+							}
+						}
+
+						// Give the callback an opportunity to append
+						if(options && options.start && 'function' == typeof options.start) {
+							options.start(formData);
+						}
+
+						// Is the interaction inline or a popup?
+
+						if(options && options.target) {
+							formData.set('interaction_style', 'inline');
+
+							genericAjaxPost(formData, null, null, function(json) {
+								// Polymorph old HTML responses
+								if('string' == typeof json) {
+									var html = json;
+
+									json = {
+										'exit': 'await',
+										'html': html
+									};
+								}
+
+								if('object' != typeof json)
+									return reject();
+
+								if(!json.hasOwnProperty('exit'))
+									return reject();
+
+								if('return' === json.exit || 'exit' === json.exit) {
 									if(options && options.done && 'function' == typeof options.done) {
-										options.done($.Event('cerb-interaction-done', { trigger: $trigger, eventData: e.eventData }));
+										options.done($.Event('cerb-interaction-done', { trigger: $trigger, eventData: json }));
 									}
-								})
-								.html(json.html)
-							;
-
-							if(options.target.html) {
-								options.target.html($html);
-							}
-						}						
-					});
-
-				} else {
-					formData.set('layer', layer);
-					
-					// This returns JSON now to control the popup before it opens
-					genericAjaxPost(formData, null, null, function(json) {
-						// Polymorph old HTML responses
-						if('string' == typeof json) {
-							var html = json;
-							
-							json = {
-								'exit': 'await',
-								'html': html
-							};
-						}
-						
-						if('object' != typeof json)
-							return;
-						
-						if(!json.hasOwnProperty('exit'))
-							return;
-						
-						// Return right away without the popup
-						if('return' === json.exit || 'exit' === json.exit) {
-							if(options && options.done && 'function' == typeof options.done) {
-								options.done($.Event('cerb-interaction-done', { trigger: $trigger, eventData: json }));
-							}
-							
-						// Open a blank popup and assign content
-						} else if('await' === json.exit) {
-							var popup_width = options.width || '50%';
-							
-							var $popup = genericAjaxPopup(layer, null, null, options && options.modal, popup_width);
-							
-							$popup
-								.on('cerb-interaction-reset', function(e) {
-									e.stopPropagation();
-
-									if(options && options.reset && 'function' == typeof options.reset) {
-										options.reset($.Event(e));
-									}
-								})
-								.on('cerb-interaction-done', function(e) {
-									e.stopPropagation();
-
-									if(options && options.done && 'function' == typeof options.done) {
-										options.done($.Event('cerb-interaction-done', { trigger: $trigger, eventData: e.eventData }));
-									}
-
-									genericAjaxPopupClose($popup);
-								})
-								.on('dialogbeforeclose', function(e) {
-									e.stopPropagation();
-									var keycode = e.keyCode || e.which;
 									
-									if(27 === keycode)
-										if(confirm('Are you sure you want to abort this interaction?')) {
-											if(options && options.abort && 'function' == typeof options.abort) {
-												options.abort($.Event('cerb-interaction-abort', { trigger: $trigger }));
-											}
-											return true;
-										} else {
-											return false;
-										}
-								})
-								.closest('.ui-dialog').find('.ui-dialog-titlebar-close').on('click', function(e) {
-									e.stopPropagation();
-	
-									if(options && options.abort && 'function' == typeof options.abort) {
-										options.abort($.Event('cerb-interaction-abort', { trigger: $trigger }));
+									if(json.return && json.return.clipboard) {
+										resolve(json);
+									} else {
+										reject();
 									}
-								})
-								;
 
-							$popup.html(json.html);
+								} else if('await' === json.exit) {
+									var $html = $('<div/>')
+										.on('cerb-interaction-reset', function(e) {
+											e.stopPropagation();
+											if(options && options.reset && 'function' == typeof options.reset) {
+												options.reset($.Event(e));
+											}
+										})
+										.on('cerb-interaction-done', function(e) {
+											e.stopPropagation();
+											if(options && options.done && 'function' == typeof options.done) {
+												options.done($.Event('cerb-interaction-done', { trigger: $trigger, eventData: e.eventData }));
+											}
+										})
+										.html(json.html)
+									;
 
-							setTimeout(function() {
-								$popup.trigger('popup_open');
-							},0);
+									if(options.target.html) {
+										options.target.html($html);
+									}
+								}
+							});
+
+						} else {
+							formData.set('layer', layer);
+
+							// This returns JSON now to control the popup before it opens
+							genericAjaxPost(formData, null, null, function(json) {
+								// Polymorph old HTML responses
+								if('string' == typeof json) {
+									var html = json;
+
+									json = {
+										'exit': 'await',
+										'html': html
+									};
+								}
+
+								if('object' != typeof json)
+									return reject();
+
+								if(!json.hasOwnProperty('exit'))
+									return reject();
+
+								// Return right away without the popup
+								if('return' === json.exit || 'exit' === json.exit) {
+									if(options && options.done && 'function' == typeof options.done) {
+										options.done($.Event('cerb-interaction-done', { trigger: $trigger, eventData: json }));
+									}
+									
+									if(json.return && json.return.clipboard) {
+										resolve(json);
+									} else {
+										reject('No clipboard data');
+									}
+
+								// Open a blank popup and assign content
+								} else if('await' === json.exit) {
+									var popup_width = options.width || '50%';
+
+									var $popup = genericAjaxPopup(layer, null, null, options && options.modal, popup_width);
+
+									$popup
+										.on('cerb-interaction-reset', function(e) {
+											e.stopPropagation();
+
+											if(options && options.reset && 'function' == typeof options.reset) {
+												options.reset($.Event(e));
+											}
+										})
+										.on('cerb-interaction-done', function(e) {
+											e.stopPropagation();
+
+											if(options && options.done && 'function' == typeof options.done) {
+												options.done($.Event('cerb-interaction-done', { trigger: $trigger, eventData: e.eventData }));
+											}
+
+											genericAjaxPopupClose($popup);
+										})
+									;
+
+									$popup.html(json.html);
+
+									setTimeout(function() {
+										$popup.trigger('popup_open');
+									},0);
+								}
+							});
 						}
 					});
+					
+					return await promise;
+				}
+
+				// √: Safari, Chrome, Opera, Edge
+				if('function' == typeof navigator?.clipboard?.write) {
+					navigator.clipboard.write([new ClipboardItem({
+						'text/plain': startInteraction().then((result) => {
+							return new Promise(async (resolve, reject) => {
+								if(result?.return?.clipboard) {
+									resolve(new Blob([result.return.clipboard], { type: 'text/plain'}));
+								} else {
+									reject();
+								}
+							});
+						}).catch(function() {
+						})
+					})]).then(
+						function() {
+							// Wrote to clipboard
+						},
+						function(err) {
+							// Failed
+						}
+					).catch(function(reason) { });
+				
+				// √: Firefox
+				} else {
+					// Otherwise we need to call our promise async manually
+					startInteraction().then(
+						function(result) {
+							if(result?.return?.clipboard) {
+								if('function' == typeof navigator?.clipboard?.writeText) {
+									navigator.clipboard.writeText(result.return.clipboard).then(
+										function() {
+										},
+										function() {
+										}
+									);
+								}
+							} else {
+								// document.execCommand('copy')
+							}
+						},
+						function(err) {
+							// Failed the interaction
+						}
+					).catch(function(reason) {});
 				}
 			});
 		});
