@@ -641,6 +641,12 @@
 			<class name="View_Queue" />
 		</file>
 		
+		<file path="api/dao/record_changeset.php">
+			<class name="DAO_RecordChangeset" />
+			<class name="Model_RecordChangeset" />
+			<class name="Storage_RecordChangeset" />
+		</file>
+
 		<file path="api/dao/reminder.php">
 			<class name="Context_Reminder" />
 			<class name="DAO_Reminder" />
@@ -6399,6 +6405,20 @@
 				<param key="active_storage_profile" value="devblocks.storage.engine.database" />
 				<param key="archive_storage_profile" value="devblocks.storage.engine.database" />
 				<param key="archive_after_days" value="7" />
+			</params>
+		</extension>
+
+		<extension point="devblocks.storage.schema">
+			<id>cerberusweb.storage.schema.record.changeset</id>
+			<name>Record Changeset</name>
+			<class>
+				<file>api/dao/record_changeset.php</file>
+				<name>Storage_RecordChangeset</name>
+			</class>
+			<params>
+				<param key="active_storage_profile" value="devblocks.storage.engine.disk" />
+				<param key="archive_storage_profile" value="devblocks.storage.engine.disk" />
+				<param key="archive_after_days" value="3" />
 			</params>
 		</extension>
 
