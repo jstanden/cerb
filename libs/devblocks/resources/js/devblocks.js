@@ -213,6 +213,34 @@ function DevblocksClass() {
 		return $status;
 	};
 	
+	this.interactionWorkerPostActions = function(eventData, editor) {
+		if('object' != typeof eventData.return)
+			return;
+		
+		if(eventData.return.hasOwnProperty('snippet') 
+			&& 'object' == typeof editor
+			&& 'function' == typeof editor.insertSnippet
+		) {
+			editor.insertSnippet(eventData.return['snippet']);
+			editor.focus();
+		}
+		
+		if(eventData.return.hasOwnProperty('alert')) {
+			Devblocks.createAlert(eventData.return['alert']);
+		}
+
+		// Open URLs in new tabs
+		if(eventData.return.hasOwnProperty('open_link')) {
+			var a = document.createElement('a');
+			a.style.display = 'none';
+			document.body.appendChild(a);
+			a.href = eventData.return['open_link'];
+			a.target = '_blank';
+			a.click();
+			a.remove();
+		}
+	}
+	
 	this.getDefaultjQueryUiTabOptions = function() {
 		var $this = this;
 		

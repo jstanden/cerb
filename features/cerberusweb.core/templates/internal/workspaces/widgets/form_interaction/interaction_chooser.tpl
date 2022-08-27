@@ -33,6 +33,9 @@ $(function() {
 
 		if(!$target.is('.cerb-bot-trigger'))
 			return;
+		
+		if(e.eventData)
+			Devblocks.interactionWorkerPostActions(e.eventData);
 
 		var done_params = new URLSearchParams($target.attr('data-interaction-done'));
 

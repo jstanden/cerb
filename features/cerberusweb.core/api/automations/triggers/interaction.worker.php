@@ -49,8 +49,27 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 		];
 	}
 	
-	function getOutputsMeta() {
-		return [];
+	function getOutputsMeta() : array {
+		return [
+			'return' => [
+				[
+					'key' => 'alert',
+					'notes' => 'Display the given message at the top of the browser',
+				],
+				[
+					'key' => 'clipboard',
+					'notes' => 'Copy the given text to the browser clipboard',
+				],
+				[
+					'key' => 'open_link',
+					'notes' => 'Open a new browser tab with the given URL',
+				],
+				[
+					'key' => 'snippet',
+					'notes' => 'Insert the given text at the cursor in the current editor (if applicable)',
+				]
+			]
+		];
 	}
 	
 	public function getEditorToolbarItems(array $toolbar): array {

@@ -102,14 +102,10 @@ $(function() {
 				if(!$target.is('.cerb-bot-trigger'))
 					return;
 
-				if(!e.eventData || !e.eventData.exit)
-					return;
-
 				if (e.eventData.exit === 'error') {
-					// [TODO] Show error
 
-				} else if(e.eventData.exit === 'return' && e.eventData.return.snippet) {
-					map_editor.insertSnippet(e.eventData.return.snippet);
+				} else if(e.eventData.exit === 'return') {
+					Devblocks.interactionWorkerPostActions(e.eventData, map_editor);
 				}
 			}
 		})
@@ -143,14 +139,10 @@ $(function() {
 				if(!$target.is('.cerb-bot-trigger'))
 					return;
 
-				if(!e.eventData || !e.eventData.exit)
-					return;
-
 				if (e.eventData.exit === 'error') {
-					// [TODO] Show error
 
-				} else if(e.eventData.exit === 'return' && e.eventData.return.snippet) {
-					automation_editor.insertSnippet(e.eventData.return.snippet);
+				} else if(e.eventData.exit === 'return') {
+					Devblocks.interactionWorkerPostActions(e.eventData, automation_editor);
 				}
 			}
 		})

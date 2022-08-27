@@ -595,15 +595,15 @@ $(function() {
 					if(e.type !== 'cerb-interaction-done')
 						return;
 
-					if(!e.eventData || !e.eventData.exit)
-						return;
-
 					if (e.eventData.exit === 'error') {
-						// [TODO] Show error
 
-					} else if(e.eventData.exit === 'return' && e.eventData.return.snippet) {
-						$editor.cerbTextEditor('replaceSelection', e.eventData.return.snippet);
-						setTimeout(function() { $editor.focus(); }, 25);
+					} else if(e.eventData.exit === 'return') {
+						Devblocks.interactionWorkerPostActions(e.eventData);
+
+						if(e.eventData.return && e.eventData.return.snippet) {
+							$editor.cerbTextEditor('replaceSelection', e.eventData.return.snippet);
+							setTimeout(function() { $editor.focus(); }, 25);
+						}
 					}
 				}
 			})
