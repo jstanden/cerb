@@ -26,7 +26,7 @@
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'timetracking.ui.entry_panel.time_spent'|devblocks_translate}</b>:</td>
 		<td width="100%">
-			<input type="text" name="time_actual" size="64" value="{$model->time_actual_secs|devblocks_prettysecs}" placeholder="e.g. 2 hours, 5 mins" autofocus="autofocus">
+			<input type="text" name="time_actual" size="64" value="{if $model->time_actual_secs}{$model->time_actual_secs|devblocks_prettysecs}{/if}" placeholder="e.g. 2 hours, 5 mins" autofocus="autofocus">
 		</td>
 	</tr>
 	
@@ -147,6 +147,8 @@ $(function() {
 		$popup.find('button.chooser_worker').each(function() {
 			ajax.chooser(this,'cerberusweb.contexts.worker','worker_id', { autocomplete:true });
 		});
+		
+		$popup.find('input[name=time_actual]').focus();
 	});
 });
 </script>
