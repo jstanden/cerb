@@ -266,6 +266,7 @@ class _DevblocksTemplateBuilder {
 				'cerb_url',
 				'clamp_float',
 				'clamp_int',
+				'date_lerp',
 				'dict_set',
 				'dict_unset',
 				'dns_get_record',
@@ -1178,6 +1179,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			new \Twig\TwigFunction('cerb_url', [$this, 'function_cerb_url']),
 			new \Twig\TwigFunction('clamp_float', [$this, 'function_clamp_float']),
 			new \Twig\TwigFunction('clamp_int', [$this, 'function_clamp_int']),
+			new \Twig\TwigFunction('date_lerp', [$this, 'function_date_lerp']),
 			new \Twig\TwigFunction('dict_set', [$this, 'function_dict_set']),
 			new \Twig\TwigFunction('dict_unset', [$this, 'function_dict_unset']),
 			new \Twig\TwigFunction('dns_get_record', [$this, 'function_dns_get_record']),
@@ -1562,6 +1564,19 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			return false;
 		
 		return DevblocksPlatform::intClamp($string, $min, $max);
+	}
+	
+	function function_date_lerp($date_string, $unit, $step=1, $limit=10000) {
+		if($date_string instanceof Twig\Markup)
+			$date_string = strval($date_string);
+		
+		if(!is_string($date_string))
+			return false;
+		
+		if(false == ($dates = DevblocksPlatform::services()->date()->parseDateRange($date_string)))
+			return false;
+		
+		return DevblocksPlatform::dateLerpArray([$dates['from_string'], $dates['to_string']], $unit, $step, $limit);
 	}
 	
 	function function_dict_set($var, $path, $val, $delimiter=null) {
