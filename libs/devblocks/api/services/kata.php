@@ -27,7 +27,7 @@ class _DevblocksKataService {
 	
 	private function __construct() {}
 	
-	function parse($kata_string, &$error=null, $dereference=true, &$symbol_meta=[]) {
+	function parse($kata_string, &$error=null, $dereference=true, &$symbol_meta=[], $keep_comments=false) {
 		$error = null;
 		
 		$lines = explode(
@@ -65,14 +65,20 @@ class _DevblocksKataService {
 			$line = current($lines);
 			$line_number = key($lines);
 			
-			// Ignore completely blank lines
-			if(0 == strlen(trim($line))) {
-				continue;
-			}
-			
 			$matches = [];
 			
 			$trimmed_line = ltrim($line, ' ');
+			
+			// Ignore completely blank lines
+			if(0 == strlen(trim($line))) {
+				if($keep_comments) {
+					$ptr['#comment_' . uniqid()] = [
+						'_line' => $line_number,
+						'_data' => $trimmed_line,
+					];
+				}
+				continue;
+			}
 			
 			if($trimmed_line != ltrim($line)) {
 				$error = sprintf('Indents may not use tabs (line %d)', $line_number+1);
@@ -201,6 +207,13 @@ class _DevblocksKataService {
 
 					// Comments
 					} else if(DevblocksPlatform::strStartsWith($trimmed_line, '#')) {
+						if($keep_comments) {
+							$ptr['#comment_' . uniqid()] = [
+								'_line' => $line_number,
+								'_data' => $trimmed_line,
+							];
+						}
+						
 						if($indent_transition > 0) {
 							$indent_stack[] = [$indent_len, &$ptr];
 						}
@@ -286,6 +299,9 @@ class _DevblocksKataService {
 							
 							$recurse($v, $indent+1);
 						}
+						
+					} else if (is_string($k) && DevblocksPlatform::strStartsWith($k, '#comment_')) {
+						$output .= str_repeat('  ', $indent) . strval($v) . "\n";
 						
 					} else {
 						$lines = DevblocksPlatform::parseCrlfString($v);
