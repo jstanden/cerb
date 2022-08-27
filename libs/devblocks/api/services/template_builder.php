@@ -254,6 +254,7 @@ class _DevblocksTemplateBuilder {
 				'array_sum',
 				'array_unique',
 				'array_values',
+				'cerb_automation',
 				'cerb_avatar_image',
 				'cerb_avatar_url',
 				'cerb_calendar_time_elapsed',
@@ -1167,6 +1168,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			new \Twig\TwigFunction('array_sum', [$this, 'function_array_sum']),
 			new \Twig\TwigFunction('array_unique', [$this, 'function_array_unique']),
 			new \Twig\TwigFunction('array_values', [$this, 'function_array_values']),
+			new \Twig\TwigFunction('cerb_automation', [$this, 'function_cerb_automation']),
 			new \Twig\TwigFunction('cerb_avatar_image', [$this, 'function_cerb_avatar_image']),
 			new \Twig\TwigFunction('cerb_avatar_url', [$this, 'function_cerb_avatar_url']),
 			new \Twig\TwigFunction('cerb_calendar_time_elapsed', [$this, 'function_cerb_calendar_time_elapsed']),
@@ -1399,6 +1401,29 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 		}
 		
 		return CerberusContexts::isWriteableByActor($record_context, $record_id, $actor);
+	}
+	
+	function function_cerb_automation($uri, $inputs) {
+		$automator = DevblocksPlatform::services()->automation();
+		
+		if(false == ($automation = DAO_Automation::getByUri($uri, [AutomationTrigger_ScriptingFunction::ID])))
+			return false;
+		
+		$initial_state = [
+			'inputs' => $inputs,
+		];
+		
+		if(false == ($automation_results = $automator->executeScript($automation, $initial_state, $error))) {
+			return [
+				'exit_state' => 'error',
+				'error' => $error,
+			];
+		}
+		
+		return [
+			'exit_state' => $automation_results->get('__exit'),
+			'return' => $automation_results->get('__return', []),
+		];
 	}
 	
 	function function_cerb_avatar_image($context, $id, $updated=0) {
