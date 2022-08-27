@@ -3,6 +3,8 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset={$smarty.const.LANG_CHARSET_CODE}">
 	<meta http-equiv="Cache-Control" content="no-cache">
+	<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; object-src 'none';">
+	
 	<meta name="robots" content="noindex">
 	<meta name="googlebot" content="noindex">
 	<meta name="_csrf_token" content="{$session.csrf_token}">
