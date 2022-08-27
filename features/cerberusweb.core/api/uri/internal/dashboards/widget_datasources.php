@@ -314,6 +314,12 @@ class WorkspaceWidgetDatasource_WorklistSeries extends Extension_WorkspaceWidget
 							$date_label = $date_format_php;
 							break;
 								
+						case 'minute':
+							$date_format_mysql = '%Y-%m-%d %H:%I';
+							$date_format_php = 'Y-m-d H\:i';
+							$date_label = $date_format_php;
+							break;
+								
 						default:
 						case 'day':
 							$date_format_mysql = '%Y-%m-%d';

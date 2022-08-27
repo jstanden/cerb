@@ -266,6 +266,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 						case 'day':
 						case 'dayofmonth':
 						case 'dayofweek':
+						case 'minute':
 						case 'month':
 						case 'monthofyear':
 						case 'weekofyear':
@@ -277,6 +278,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 								'day' => '%Y-%m-%d',
 								'dayofmonth' => '%d',
 								'dayofweek' => '%W',
+								'minute' => '%Y-%m-%d %H:%i',
 								'month' => '%Y-%m',
 								'monthofyear' => '%M',
 								'weekofyear' => '%U',
@@ -423,6 +425,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 					case 'day':
 					case 'dayofmonth':
 					case 'dayofweek':
+					case 'minute':
 					case 'month':
 					case 'monthofyear':
 					case 'weekofyear':
@@ -434,6 +437,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 							'day' => '%Y-%m-%d',
 							'dayofmonth' => '%d',
 							'dayofweek' => '%W',
+							'minute' => '%Y-%m-%d %H:%i',
 							'month' => '%Y-%m',
 							'monthofyear' => '%M',
 							'weekofyear' => '%U',

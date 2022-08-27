@@ -69,8 +69,12 @@ class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget implemen
 		}
 		
 		// Error
-		$xaxis_key = @$results['_']['format_params']['xaxis_key'];
-		$xaxis_format = @$results['_']['format_params']['xaxis_format'];
+		$xaxis_key = $results['_']['format_params']['xaxis_key'] ?? null;
+		$xaxis_format = $results['_']['format_params']['xaxis_format'] ?? null;
+		
+		// Convert PHP format to Javascript
+		if($xaxis_format == '%Y-%m-%d %H:%i')
+			$xaxis_format = '%Y-%m-%d %H:%M';
 		
 		$config_json = [
 			'bindto' => sprintf("#widget%d", $widget->id),
