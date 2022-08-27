@@ -31,6 +31,35 @@ if(!array_key_exists('available_at', $columns)) {
 	$db->ExecuteMaster("ALTER TABLE queue_message ADD COLUMN available_at int unsigned not null default 0");
 }
 
+
+// ===========================================================================
+// Add `record_changeset` table
+
+if(!isset($tables['record_changeset'])) {
+	$sql = sprintf("
+		CREATE TABLE `record_changeset` (
+		`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+		`created_at` int(10) unsigned NOT NULL DEFAULT 0,
+		`record_type` varchar(64) NOT NULL DEFAULT '',
+		`record_id` int(10) unsigned NOT NULL DEFAULT 0,
+		`worker_id` int(10) unsigned NOT NULL DEFAULT 0,
+		`storage_sha1hash` varchar(40) NOT NULL DEFAULT '',
+		`storage_size` int(10) unsigned NOT NULL DEFAULT '0',
+		`storage_key` varchar(64) NOT NULL DEFAULT '',
+		`storage_extension` varchar(128) NOT NULL DEFAULT '',
+		`storage_profile_id` int(10) unsigned NOT NULL DEFAULT '0',
+		PRIMARY KEY (id),
+		INDEX (record_type, record_id),
+		INDEX (storage_extension, storage_profile_id, created_at),
+		INDEX (created_at),
+		INDEX (worker_id)
+		) ENGINE=%s
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+	
+	$tables['record_changeset'] = 'record_changeset';
+}
+
 // ===========================================================================
 // Finish up
 
