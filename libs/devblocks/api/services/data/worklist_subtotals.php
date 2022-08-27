@@ -617,6 +617,11 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 								case 'weekofyear':
 									$query_value = sprintf('(weeks:%s)', $from_date);
 									break;
+								case 'minute':
+									$from_date .= ':00';
+									$to_date .= ':59';
+									$query_value = '"' . $from_date . ' to ' . $to_date . '"';
+									break;
 								case 'month':
 									$from_date .= '-01';
 									$to_date = date('Y-m-d', strtotime('last day of this month', strtotime($to_date))) . ' 23:59:59';

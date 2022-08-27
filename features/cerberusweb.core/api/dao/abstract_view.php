@@ -2401,6 +2401,7 @@ abstract class C4_AbstractView {
 						$suggestions[] = $field_key . '@day';
 						$suggestions[] = $field_key . '@dayofmonth';
 						$suggestions[] = $field_key . '@dayofweek';
+						$suggestions[] = $field_key . '@minute';
 						$suggestions[] = $field_key . '@week';
 						$suggestions[] = $field_key . '@week-sun';
 						$suggestions[] = $field_key . '@weekofyear';

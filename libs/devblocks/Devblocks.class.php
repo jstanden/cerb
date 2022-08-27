@@ -500,6 +500,8 @@ class DevblocksPlatform extends DevblocksEngine {
 			$unit = 'day';
 		} else if($unit == 'hourofday' || $unit == 'hourofdayofweek') {
 			$unit = 'hour';
+		} else if($unit == 'minute') {
+			$unit = 'minute';
 		} else if($unit == 'monthofyear') {
 			$unit = 'month';
 		} else if($unit == 'weekofyear') {
