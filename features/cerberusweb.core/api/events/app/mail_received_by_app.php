@@ -31,9 +31,9 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				self::ID,
 				array(
 					'parser_model' => &$parser_model,
-					'_whisper' => array(
-					'cerberusweb.contexts.app' => array(0),
-					),
+					'_whisper' => [
+						CerberusContexts::CONTEXT_APPLICATION => [0],
+					],
 				)
 			)
 		);

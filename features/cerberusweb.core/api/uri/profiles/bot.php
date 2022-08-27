@@ -122,7 +122,6 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 						
 						// Owner
 					
-						$owner_ctx = '';
 						list($owner_ctx, $owner_ctx_id) = array_pad(explode(':', $owner, 2), 2, null);
 						
 						// Make sure we're given a valid ctx
@@ -179,7 +178,6 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 							'view_id' => $view_id,
 						]);
 						return;
-						break;
 						
 					case 'build':
 						$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');

@@ -1326,8 +1326,8 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		if(!isset($response['children']))
 			return [];
 		
-		@$xaxis_format = @$chart_model['by'][0]['timestamp_format'];
-		@$xaxis_step = @$chart_model['by'][0]['timestamp_step'];
+		$xaxis_format = $chart_model['by'][0]['timestamp_format'] ?? null;
+		$xaxis_step = $chart_model['by'][0]['timestamp_step'] ?? null;
 		
 		$x_series = array_column($response['children'], 'name');
 		

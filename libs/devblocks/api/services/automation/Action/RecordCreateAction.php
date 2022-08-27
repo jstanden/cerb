@@ -151,8 +151,10 @@ class RecordCreateAction extends AbstractAction {
 			]);
 			
 			if($expand) {
-				foreach($expand as $expand_key)
-				$record_dict->get($expand_key);
+				foreach($expand as $expand_key) {
+					/** @noinspection PhpExpressionResultUnusedInspection */
+					$record_dict->get($expand_key);
+				}
 			}
 			
 			$dict->set($output, $record_dict);

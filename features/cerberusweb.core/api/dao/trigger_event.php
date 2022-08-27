@@ -2474,7 +2474,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 							if($event->params['deprecated'] ?? null)
 								continue;
 							
-							if(false == ($label = @$event->params['menu_key']))
+							if(false == ($label = ($event->params['menu_key'] ?? null)))
 								$label = $event->name;
 							
 							$labels[$event->id] = $label;

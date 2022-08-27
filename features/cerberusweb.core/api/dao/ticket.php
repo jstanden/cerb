@@ -2939,17 +2939,13 @@ class Model_Ticket {
 		switch($this->status_id) {
 			case Model_Ticket::STATUS_WAITING:
 				return $translate->_('status.waiting.abbr');
-				break;
 			case Model_Ticket::STATUS_CLOSED:
 				return $translate->_('status.closed');
-				break;
 			case Model_Ticket::STATUS_DELETED:
 				return $translate->_('status.deleted');
-				break;
 			default:
 			case Model_Ticket::STATUS_OPEN:
 				return $translate->_('status.open');
-				break;
 		}
 	}
 	

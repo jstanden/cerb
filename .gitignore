@@ -1,5 +1,6 @@
 .idea/*
 .tmp*
+.wip/*
 .htaccess
 /phpunit.phar
 /vendor/

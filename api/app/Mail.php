@@ -1372,7 +1372,7 @@ class CerberusMail {
 			}
 			
 			// Encryption and signing
-			if(@$properties['gpg_sign'] || @$properties['gpg_encrypt']) {
+			if(($properties['gpg_sign'] ?? null) || ($properties['gpg_encrypt'] ?? null)) {
 				$signer = new Cerb_SwiftPlugin_GPGSigner($properties);
 				$email->attachSigner($signer);
 			}
