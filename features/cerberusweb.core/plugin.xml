@@ -5075,6 +5075,23 @@
 		</extension>
 
 		<extension point="cerb.automation.trigger">
+			<id>cerb.trigger.scripting.function</id>
+			<name>scripting.function</name>
+			<class>
+				<file>api/automations/triggers/scripting.function.php</file>
+				<name>AutomationTrigger_ScriptingFunction</name>
+			</class>
+			<params>
+				<param key="description" value="A custom function invoked from scripting syntax with cerb_automation()" />
+				<param key="features">
+					<value>
+						<data key="inputs" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="cerb.automation.trigger">
 			<id>cerb.trigger.mail.send</id>
 			<name>mail.send</name>
 			<class>
