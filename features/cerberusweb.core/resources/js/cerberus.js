@@ -870,6 +870,165 @@ var cerbAutocompleteSuggestions = {
 	}
 };
 
+let twigAutocompleteSuggestions = {
+	snippets: [
+		{ value: "{%", meta: "tag" },
+		{ value: "{{", meta: "variable" },
+		{ value: "do", snippet: "{% do ${1:1 + 2} %}", meta: "snippet" },
+		{ value: "for loop", snippet: "{% for ${1:var} in ${2:array} %}\n${3}\n{% endfor %}", meta: "snippet" },
+		{ value: "if...else", snippet: "{% if ${1:placeholder} %}${2}{% else %}${3}{% endif %}", meta: "snippet" },
+		{ value: "set object value", snippet: "{% set ${1:obj} = dict_set(${1:obj},\"${2:key.path}\",\"${3:value}\") %}", meta: "snippet" },
+		{ value: "set variable", snippet: "{% set var = \"${1}\" %}", meta: "snippet" },
+		{ value: "spaceless block", snippet: "{% apply spaceless %}\n${1}\n{% endapply %}\n", meta: "snippet" },
+		{ value: "verbatim block", snippet: "{% verbatim %}\n${1}\n{% endverbatim %}\n", meta: "snippet" },
+		{ value: "with block", snippet: "{% with %}\n${1}\n{% endwith %}\n", meta: "snippet" },
+	],
+
+	tags: [
+		{ value: "apply", meta: "command" },
+		{ value: "do", meta: "command" },
+		{ value: "endapply", meta: "command" },
+		{ value: "endif", meta: "command" },
+		{ value: "endfor", meta: "command" },
+		{ value: "endverbatim", meta: "command" },
+		{ value: "endwith", meta: "command" },
+		{ value: "filter", meta: "command" },
+		{ value: "for", meta: "command" },
+		{ value: "if", meta: "command" },
+		{ value: "set", meta: "command" },
+		{ value: "verbatim", meta: "command" },
+		{ value: "with", meta: "command" },
+	],
+
+	filters: [
+		{ value: "abs", meta: "filter" },
+		{ value: "alphanum", meta: "filter" },
+		{ value: "append", snippet: "append('${1:suffix}', delimiter=', ')", meta: "filter" },
+		{ value: "base_convert", snippet: "base_convert(${1:16},${2:10})", meta: "filter" },
+		{ value: "base64_decode", meta: "filter" },
+		{ value: "base64_encode", meta: "filter" },
+		{ value: "base64url_decode", meta: "filter" },
+		{ value: "base64url_encode", meta: "filter" },
+		{ value: "batch(n,fill)", meta: "filter" },
+		{ value: "bytes_pretty()", snippet: "bytes_pretty(${1:2})", meta: "filter" },
+		{ value: "capitalize", meta: "filter" },
+		{ value: "cerb_translate", meta: "filter" },
+		{ value: "column(key)", snippet: "column(\"${1:key}\")", meta: "filter" },
+		{ value: "context_alias", snippet: "context_alias", meta: "filter" },
+		{ value: "context_name()", snippet: "context_name(\"${1:plural}\")", meta: "filter" },
+		{ value: "convert_encoding()", snippet: "convert_encoding(${1:to_charset},${2:from_charset})", meta: "filter" },
+		{ value: "csv", snippet: "csv()", meta: "filter" },
+		{ value: "date('F d, Y')", meta: "filter" },
+		{ value: "date_modify('+1 day')", meta: "filter" },
+		{ value: "date_pretty", meta: "filter" },
+		{ value: "default('text')", meta: "filter" },
+		{ value: "escape", meta: "filter" },
+		{ value: "filter(func)", snippet: "filter((v,k) => false)", meta: "filter" },
+		{ value: "first", meta: "filter" },
+		{ value: "format", meta: "filter" },
+		{ value: "hash_hmac()", snippet: "hash_hmac(\"${1:secret key}\",\"${2:sha256}\")", meta: "filter" },
+		{ value: "indent(marker, fromLine)", meta: "filter" },
+		{ value: "join(',')", meta: "filter" },
+		{ value: "json_encode", meta: "filter" },
+		{ value: "json_pretty", meta: "filter" },
+		{ value: "kata_encode", meta: "filter" },
+		{ value: "keys", meta: "filter" },
+		{ value: "last", meta: "filter" },
+		{ value: "length", meta: "filter" },
+		{ value: "lower", meta: "filter" },
+		{ value: "map(func)", snippet: "map((v,k) => v)", meta: "filter" },
+		{ value: "markdown_to_html(is_untrusted=true)", meta: "filter" },
+		{ value: "md5", meta: "filter" },
+		{ value: "merge", meta: "filter" },
+		{ value: "nl2br", meta: "filter" },
+		{ value: "number_format(2, '.', ',')", meta: "filter" },
+		{ value: "parse_csv", meta: "filter" },
+		{ value: "parse_emails", meta: "filter" },
+		{ value: "parse_url", meta: "filter" },
+		{ value: "permalink", meta: "filter" },
+		{ value: "quote", meta: "filter" },
+		{ value: "raw", meta: "filter" },
+		{ value: "reduce(func,initial)", snippet: "reduce((carry,v) => carry + v)", meta: "filter" },
+		{ value: "regexp", meta: "filter" },
+		{ value: "repeat", meta: "filter" },
+		{ value: "replace('this', 'that')", meta: "filter" },
+		{ value: "reverse", meta: "filter" },
+		{ value: "round(0, 'common')", meta: "filter" },
+		{ value: "secs_pretty", meta: "filter" },
+		{ value: "sha1", meta: "filter" },
+		{ value: "slice", meta: "filter" },
+		{ value: "sort", meta: "filter" },
+		{ value: "spaceless", meta: "filter" },
+		{ value: "split(',')", meta: "filter" },
+		{ value: "split_crlf", meta: "filter" },
+		{ value: "split_csv", meta: "filter" },
+		{ value: "strip_lines(prefixes='>')", meta: "filter" },
+		{ value: "striptags", meta: "filter" },
+		{ value: "title", meta: "filter" },
+		{ value: "tokenize", meta: "filter" },
+		{ value: "trim", meta: "filter" },
+		{ value: "truncate(10)", meta: "filter" },
+		{ value: "unescape", meta: "filter" },
+		{ value: "upper", meta: "filter" },
+		{ value: "url_decode", meta: "filter" },
+		{ value: "url_decode('json')", meta: "filter" },
+		{ value: "url_encode", meta: "filter" },
+		{ value: "values", meta: "filter" },
+	],
+
+	functions: [
+		{ value: "array_column(array,column_key,index_key)", meta: "function" },
+		{ value: "array_combine(keys,values)", meta: "function" },
+		{ value: "array_count_values(array)", meta: "function" },
+		{ value: "array_diff(array1,array2)", meta: "function" },
+		{ value: "array_extract_keys(array,keys)", meta: "function" },
+		{ value: "array_fill_keys(keys,value)", meta: "function" },
+		{ value: "array_intersect(array1,array2)", meta: "function" },
+		{ value: "array_matches(values, patterns)", meta: "function" },
+		{ value: "array_sort_keys(array)", meta: "function" },
+		{ value: "array_unique(array)", meta: "function" },
+		{ value: "array_values(array)", meta: "function" },
+		{ value: "attribute(object,attr)", meta: "function" },
+		{ value: "cerb_automation(uri,inputs)", meta: "function" },
+		{ value: "cerb_avatar_image(context,id,updated)", meta: "function" },
+		{ value: "cerb_avatar_url(context,id,updated)", meta: "function" },
+		{ value: "cerb_calendar_time_elapsed(calendar,date_from,date_to)", meta: "function" },
+		{ value: "cerb_extract_uris(html)", meta: "function" },
+		{ value: "cerb_file_url(file_id,full,proxy)", meta: "function" },
+		{ value: "cerb_has_priv(priv,actor_context,actor_id)", meta: "function" },
+		{ value: "cerb_placeholders_list()", meta: "function" },
+		{ value: "cerb_record_readable(record_context,record_id,actor_context,actor_id)", meta: "function" },
+		{ value: "cerb_record_writeable(record_context,record_id,actor_context,actor_id)", meta: "function" },
+		{ value: "cerb_url('c=controller&a=action&p=param')", meta: "function" },
+		{ value: "cycle(position)", meta: "function" },
+		{ value: "date(date,timezone)", meta: "function" },
+		{ value: "dict_set(obj,keypath,value,delimiter='.')", meta: "function" },
+		{ value: "date_lerp(date_range,unit,step,limit)", meta: "function" },
+		{ value: "dict_unset(obj,keypaths)", meta: "function" },
+		{ value: "dns_get_record(host,type)", meta: "function" },
+		{ value: "dns_host_by_ip(ip)", meta: "function" },
+		{ value: "json_decode(string)", meta: "function" },
+		{ value: "jsonpath_set(json,keypath,value)", meta: "function" },
+		{ value: "max(array)", meta: "function" },
+		{ value: "min(array)", meta: "function" },
+		{ value: "random(values)", meta: "function" },
+		{ value: "random_string(length)", meta: "function" },
+		{ value: "range(low,high,step)", snippet: "range(${1:low},${2:high},${3:step})", meta: "function" },
+		{ value: "regexp_match_all(pattern,text,group)", meta: "function" },
+		{ value: "shuffle(array)", meta: "function" },
+		{ value: "validate_email(string)", meta: "function" },
+		{ value: "validate_number(string)", meta: "function" },
+		{ value: "vobject_parse(string)", meta: "function" },
+		{ value: "xml_attr(xml,name,default)", meta: "function" },
+		{ value: "xml_attrs(xml)", meta: "function" },
+		{ value: "xml_decode(string,namespaces)", meta: "function" },
+		{ value: "xml_encode(xml)", meta: "function" },
+		{ value: "xml_xpath(xml,path,element)", meta: "function" },
+		{ value: "xml_xpath_ns(xml,prefix,ns)", meta: "function" },
+		{ value: "xml_tag(xml)", meta: "function" },
+	]
+};
+
 $.fn.cerbDateInputHelper = function(options) {
 	options = (typeof options == 'object') ? options : {};
 	
@@ -1776,163 +1935,6 @@ var ajax = new cAjaxCalls();
 			
 			
 			if(withTwigAutocompletion) {
-				var twig_snippets = [
-					{ value: "{%", meta: "tag" },
-					{ value: "{{", meta: "variable" },
-					{ value: "do", snippet: "{% do ${1:1 + 2} %}", meta: "snippet" },
-					{ value: "for loop", snippet: "{% for ${1:var} in ${2:array} %}\n${3}\n{% endfor %}", meta: "snippet" },
-					{ value: "if...else", snippet: "{% if ${1:placeholder} %}${2}{% else %}${3}{% endif %}", meta: "snippet" },
-					{ value: "set object value", snippet: "{% set ${1:obj} = dict_set(${1:obj},\"${2:key.path}\",\"${3:value}\") %}", meta: "snippet" },
-					{ value: "set variable", snippet: "{% set var = \"${1}\" %}", meta: "snippet" },
-					{ value: "spaceless block", snippet: "{% apply spaceless %}\n${1}\n{% endapply %}\n", meta: "snippet" },
-					{ value: "verbatim block", snippet: "{% verbatim %}\n${1}\n{% endverbatim %}\n", meta: "snippet" },
-					{ value: "with block", snippet: "{% with %}\n${1}\n{% endwith %}\n", meta: "snippet" },
-				];
-				
-				var twig_tags = [
-					{ value: "apply", meta: "command" },
-					{ value: "do", meta: "command" },
-					{ value: "endapply", meta: "command" },
-					{ value: "endif", meta: "command" },
-					{ value: "endfor", meta: "command" },
-					{ value: "endverbatim", meta: "command" },
-					{ value: "endwith", meta: "command" },
-					{ value: "filter", meta: "command" },
-					{ value: "for", meta: "command" },
-					{ value: "if", meta: "command" },
-					{ value: "set", meta: "command" },
-					{ value: "verbatim", meta: "command" },
-					{ value: "with", meta: "command" },
-				];
-				
-				var twig_filters = [
-					{ value: "abs", meta: "filter" },
-					{ value: "alphanum", meta: "filter" },
-					{ value: "append", snippet: "append('${1:suffix}', delimiter=', ')", meta: "filter" },
-					{ value: "base_convert", snippet: "base_convert(${1:16},${2:10})", meta: "filter" },
-					{ value: "base64_decode", meta: "filter" },
-					{ value: "base64_encode", meta: "filter" },
-					{ value: "base64url_decode", meta: "filter" },
-					{ value: "base64url_encode", meta: "filter" },
-					{ value: "batch(n,fill)", meta: "filter" },
-					{ value: "bytes_pretty()", snippet: "bytes_pretty(${1:2})", meta: "filter" },
-					{ value: "capitalize", meta: "filter" },
-					{ value: "cerb_translate", meta: "filter" },
-					{ value: "column(key)", snippet: "column(\"${1:key}\")", meta: "filter" },
-					{ value: "context_alias", snippet: "context_alias", meta: "filter" },
-					{ value: "context_name()", snippet: "context_name(\"${1:plural}\")", meta: "filter" },
-					{ value: "convert_encoding()", snippet: "convert_encoding(${1:to_charset},${2:from_charset})", meta: "filter" },
-					{ value: "csv", snippet: "csv()", meta: "filter" },
-					{ value: "date('F d, Y')", meta: "filter" },
-					{ value: "date_modify('+1 day')", meta: "filter" },
-					{ value: "date_pretty", meta: "filter" },
-					{ value: "default('text')", meta: "filter" },
-					{ value: "escape", meta: "filter" },
-					{ value: "filter(func)", snippet: "filter((v,k) => false)", meta: "filter" },
-					{ value: "first", meta: "filter" },
-					{ value: "format", meta: "filter" },
-					{ value: "hash_hmac()", snippet: "hash_hmac(\"${1:secret key}\",\"${2:sha256}\")", meta: "filter" },
-					{ value: "indent(marker, fromLine)", meta: "filter" },
-					{ value: "join(',')", meta: "filter" },
-					{ value: "json_encode", meta: "filter" },
-					{ value: "json_pretty", meta: "filter" },
-					{ value: "kata_encode", meta: "filter" },
-					{ value: "keys", meta: "filter" },
-					{ value: "last", meta: "filter" },
-					{ value: "length", meta: "filter" },
-					{ value: "lower", meta: "filter" },
-					{ value: "map(func)", snippet: "map((v,k) => v)", meta: "filter" },
-					{ value: "markdown_to_html(is_untrusted=true)", meta: "filter" },
-					{ value: "md5", meta: "filter" },
-					{ value: "merge", meta: "filter" },
-					{ value: "nl2br", meta: "filter" },
-					{ value: "number_format(2, '.', ',')", meta: "filter" },
-					{ value: "parse_csv", meta: "filter" },
-					{ value: "parse_emails", meta: "filter" },
-					{ value: "parse_url", meta: "filter" },
-					{ value: "permalink", meta: "filter" },
-					{ value: "quote", meta: "filter" },
-					{ value: "raw", meta: "filter" },
-					{ value: "reduce(func,initial)", snippet: "reduce((carry,v) => carry + v)", meta: "filter" },
-					{ value: "regexp", meta: "filter" },
-					{ value: "repeat", meta: "filter" },
-					{ value: "replace('this', 'that')", meta: "filter" },
-					{ value: "reverse", meta: "filter" },
-					{ value: "round(0, 'common')", meta: "filter" },
-					{ value: "secs_pretty", meta: "filter" },
-					{ value: "sha1", meta: "filter" },
-					{ value: "slice", meta: "filter" },
-					{ value: "sort", meta: "filter" },
-					{ value: "spaceless", meta: "filter" },
-					{ value: "split(',')", meta: "filter" },
-					{ value: "split_crlf", meta: "filter" },
-					{ value: "split_csv", meta: "filter" },
-					{ value: "strip_lines(prefixes='>')", meta: "filter" },
-					{ value: "striptags", meta: "filter" },
-					{ value: "title", meta: "filter" },
-					{ value: "tokenize", meta: "filter" },
-					{ value: "trim", meta: "filter" },
-					{ value: "truncate(10)", meta: "filter" },
-					{ value: "unescape", meta: "filter" },
-					{ value: "upper", meta: "filter" },
-					{ value: "url_decode", meta: "filter" },
-					{ value: "url_decode('json')", meta: "filter" },
-					{ value: "url_encode", meta: "filter" },
-					{ value: "values", meta: "filter" },
-				];
-				
-				var twig_functions = [
-					{ value: "array_column(array,column_key,index_key)", meta: "function" },
-					{ value: "array_combine(keys,values)", meta: "function" },
-					{ value: "array_count_values(array)", meta: "function" },
-					{ value: "array_diff(array1,array2)", meta: "function" },
-					{ value: "array_extract_keys(array,keys)", meta: "function" },
-					{ value: "array_fill_keys(keys,value)", meta: "function" },
-					{ value: "array_intersect(array1,array2)", meta: "function" },
-					{ value: "array_matches(values, patterns)", meta: "function" },
-					{ value: "array_sort_keys(array)", meta: "function" },
-					{ value: "array_unique(array)", meta: "function" },
-					{ value: "array_values(array)", meta: "function" },
-					{ value: "attribute(object,attr)", meta: "function" },
-					{ value: "cerb_automation(uri,inputs)", meta: "function" },
-					{ value: "cerb_avatar_image(context,id,updated)", meta: "function" },
-					{ value: "cerb_avatar_url(context,id,updated)", meta: "function" },
-					{ value: "cerb_calendar_time_elapsed(calendar,date_from,date_to)", meta: "function" },
-					{ value: "cerb_extract_uris(html)", meta: "function" },
-					{ value: "cerb_file_url(file_id,full,proxy)", meta: "function" },
-					{ value: "cerb_has_priv(priv,actor_context,actor_id)", meta: "function" },
-					{ value: "cerb_placeholders_list()", meta: "function" },
-					{ value: "cerb_record_readable(record_context,record_id,actor_context,actor_id)", meta: "function" },
-					{ value: "cerb_record_writeable(record_context,record_id,actor_context,actor_id)", meta: "function" },
-					{ value: "cerb_url('c=controller&a=action&p=param')", meta: "function" },
-					{ value: "cycle(position)", meta: "function" },
-					{ value: "date(date,timezone)", meta: "function" },
-					{ value: "dict_set(obj,keypath,value,delimiter='.')", meta: "function" },
-					{ value: "date_lerp(date_range,unit,step,limit)", meta: "function" },
-					{ value: "dict_unset(obj,keypaths)", meta: "function" },
-					{ value: "dns_get_record(host,type)", meta: "function" },
-					{ value: "dns_host_by_ip(ip)", meta: "function" },
-					{ value: "json_decode(string)", meta: "function" },
-					{ value: "jsonpath_set(json,keypath,value)", meta: "function" },
-					{ value: "max(array)", meta: "function" },
-					{ value: "min(array)", meta: "function" },
-					{ value: "random(values)", meta: "function" },
-					{ value: "random_string(length)", meta: "function" },
-					{ value: "range(low,high,step)", snippet: "range(${1:low},${2:high},${3:step})", meta: "function" },
-					{ value: "regexp_match_all(pattern,text,group)", meta: "function" },
-					{ value: "shuffle(array)", meta: "function" },
-					{ value: "validate_email(string)", meta: "function" },
-					{ value: "validate_number(string)", meta: "function" },
-					{ value: "vobject_parse(string)", meta: "function" },
-					{ value: "xml_attr(xml,name,default)", meta: "function" },
-					{ value: "xml_attrs(xml)", meta: "function" },
-					{ value: "xml_decode(string,namespaces)", meta: "function" },
-					{ value: "xml_encode(xml)", meta: "function" },
-					{ value: "xml_xpath(xml,path,element)", meta: "function" },
-					{ value: "xml_xpath_ns(xml,prefix,ns)", meta: "function" },
-					{ value: "xml_tag(xml)", meta: "function" },
-				];
-				
 				var autocompleterTwig = {
 					insertMatch: function(editor, data) {
 						data.completer = null;
@@ -1949,7 +1951,7 @@ var ajax = new cAjaxCalls();
 						// This should only happen for the Twig editor (not embeds)
 						if('ace/mode/twig' == session.getMode().$id) {
 							if(token == null) {
-								callback(null, twig_snippets.map(function(c) {
+								callback(null, twigAutocompleteSuggestions.snippets.map(function(c) {
 									c.score = 5000;
 									c.completer = autocompleterTwig;
 									return c;
@@ -1962,7 +1964,7 @@ var ajax = new cAjaxCalls();
 							var prevToken = session.getTokenAt(pos.row, token.start);
 							
 							if(prevToken && prevToken.type == 'meta.tag.twig') {
-								callback(null, twig_tags.map(function(c) {
+								callback(null, twigAutocompleteSuggestions.tags.map(function(c) {
 									c.score = 5000;
 									c.completer = autocompleterTwig;
 									return c;
@@ -1971,7 +1973,7 @@ var ajax = new cAjaxCalls();
 							}
 							
 							if(prevToken && prevToken.type == 'keyword.operator.twig') {
-								callback(null, twig_functions.map(function(c) {
+								callback(null, twigAutocompleteSuggestions.functions.map(function(c) {
 									c.score = 5000;
 									c.completer = autocompleterTwig;
 									return c;
@@ -1980,7 +1982,7 @@ var ajax = new cAjaxCalls();
 							}
 							
 							if(prevToken && prevToken.type == 'keyword.operator.other' && prevToken.value == '|') {
-								callback(null, twig_filters.map(function(c) {
+								callback(null, twigAutocompleteSuggestions.filters.map(function(c) {
 									c.score = 5000;
 									c.completer = autocompleterTwig;
 									return c;
@@ -1990,7 +1992,7 @@ var ajax = new cAjaxCalls();
 						}
 						
 						if(token.type == 'meta.tag.twig') {
-							var results = [].concat(twig_tags).concat(twig_functions);
+							var results = [].concat(twigAutocompleteSuggestions.tags).concat(twigAutocompleteSuggestions.functions);
 							callback(null, results.map(function(c) {
 								c.score = 5000;
 								c.completer = autocompleterTwig;
@@ -2000,7 +2002,7 @@ var ajax = new cAjaxCalls();
 						}
 						
 						if(token.type == 'keyword.operator.other' && token.value == '|') {
-							callback(null, twig_filters.map(function(c) {
+							callback(null, twigAutocompleteSuggestions.filters.map(function(c) {
 								c.score = 5000;
 								c.completer = autocompleterTwig;
 								return c;
@@ -2009,7 +2011,7 @@ var ajax = new cAjaxCalls();
 						}
 						
 						if(token.type == 'variable.other.readwrite.local.twig' && token.value == '{{') {
-							callback(null, twig_functions.map(function(c) {
+							callback(null, twigAutocompleteSuggestions.functions.map(function(c) {
 								c.score = 5000;
 								c.completer = autocompleterTwig;
 								return c;
@@ -2931,146 +2933,6 @@ var ajax = new cAjaxCalls();
 				identifierRegexps: [
 					/[a-zA-Z_0-9\*\#\@\.\$\:\-\u00A2-\uFFFF]/
 				],
-				twigTags: [
-					{ value: "apply", meta: "command" },
-					{ value: "do", meta: "command" },
-					{ value: "endapply", meta: "command" },
-					{ value: "endif", meta: "command" },
-					{ value: "endfor", meta: "command" },
-					{ value: "endverbatim", meta: "command" },
-					{ value: "endwith", meta: "command" },
-					{ value: "filter", meta: "command" },
-					{ value: "for", meta: "command" },
-					{ value: "if", meta: "command" },
-					{ value: "set", meta: "command" },
-					{ value: "verbatim", meta: "command" },
-					{ value: "with", meta: "command" },
-				],
-				twigFilters: [
-					{ value: "abs", meta: "filter" },
-					{ value: "alphanum", meta: "filter" },
-					{ value: "base_convert", snippet: "base_convert(${1:16},${2:10})", meta: "filter" },
-					{ value: "base64_decode", meta: "filter" },
-					{ value: "base64_encode", meta: "filter" },
-					{ value: "base64url_decode", meta: "filter" },
-					{ value: "base64url_encode", meta: "filter" },
-					{ value: "batch(n,fill)", meta: "filter" },
-					{ value: "bytes_pretty()", snippet: "bytes_pretty(${1:2})", meta: "filter" },
-					{ value: "capitalize", meta: "filter" },
-					{ value: "cerb_translate", meta: "filter" },
-					{ value: "column(key)", snippet: "column(\"${1:key}\")", meta: "filter" },
-					{ value: "context_alias", snippet: "context_alias", meta: "filter" },
-					{ value: "context_name()", snippet: "context_name(\"${1:plural}\")", meta: "filter" },
-					{ value: "convert_encoding()", snippet: "convert_encoding(${1:to_charset},${2:from_charset})", meta: "filter" },
-					{ value: "csv", snippet: "csv()", meta: "filter" },
-					{ value: "date('F d, Y')", meta: "filter" },
-					{ value: "date_modify('+1 day')", meta: "filter" },
-					{ value: "date_pretty", meta: "filter" },
-					{ value: "default('text')", meta: "filter" },
-					{ value: "escape", meta: "filter" },
-					{ value: "filter(func)", snippet: "filter((v,k) => false)", meta: "filter" },
-					{ value: "first", meta: "filter" },
-					{ value: "format", meta: "filter" },
-					{ value: "hash_hmac()", snippet: "hash_hmac(\"${1:secret key}\",\"${2:sha256}\")", meta: "filter" },
-					{ value: "indent(marker, fromLine)", meta: "filter" },
-					{ value: "join(',')", meta: "filter" },
-					{ value: "json_encode", meta: "filter" },
-					{ value: "json_pretty", meta: "filter" },
-					{ value: "kata_encode", meta: "filter" },
-					{ value: "keys", meta: "filter" },
-					{ value: "last", meta: "filter" },
-					{ value: "length", meta: "filter" },
-					{ value: "lower", meta: "filter" },
-					{ value: "map(func)", snippet: "map((v,k) => v)", meta: "filter" },
-					{ value: "markdown_to_html(is_untrusted=true)", meta: "filter" },
-					{ value: "md5", meta: "filter" },
-					{ value: "merge", meta: "filter" },
-					{ value: "nl2br", meta: "filter" },
-					{ value: "number_format(2, '.', ',')", meta: "filter" },
-					{ value: "parse_csv", meta: "filter" },
-					{ value: "parse_emails", meta: "filter" },
-					{ value: "parse_url", meta: "filter" },
-					{ value: "permalink", meta: "filter" },
-					{ value: "quote", meta: "filter" },
-					{ value: "raw", meta: "filter" },
-					{ value: "reduce(func,initial)", snippet: "reduce((carry,v) => carry + v)", meta: "filter" },
-					{ value: "regexp", meta: "filter" },
-					{ value: "repeat", meta: "filter" },
-					{ value: "replace('this', 'that')", meta: "filter" },
-					{ value: "reverse", meta: "filter" },
-					{ value: "round(0, 'common')", meta: "filter" },
-					{ value: "secs_pretty", meta: "filter" },
-					{ value: "sha1", meta: "filter" },
-					{ value: "slice", meta: "filter" },
-					{ value: "sort", meta: "filter" },
-					{ value: "spaceless", meta: "filter" },
-					{ value: "split(',')", meta: "filter" },
-					{ value: "split_crlf", meta: "filter" },
-					{ value: "split_csv", meta: "filter" },
-					{ value: "strip_lines(prefixes='>')", meta: "filter" },
-					{ value: "striptags", meta: "filter" },
-					{ value: "title", meta: "filter" },
-					{ value: "tokenize", meta: "filter" },
-					{ value: "trim", meta: "filter" },
-					{ value: "truncate(10)", meta: "filter" },
-					{ value: "unescape", meta: "filter" },
-					{ value: "upper", meta: "filter" },
-					{ value: "url_decode", meta: "filter" },
-					{ value: "url_decode('json')", meta: "filter" },
-					{ value: "url_encode", meta: "filter" },
-					{ value: "values", meta: "filter" },
-				],
-				twigFunctions: [
-					{ value: "array_column(array,column_key,index_key)", meta: "function" },
-					{ value: "array_combine(keys,values)", meta: "function" },
-					{ value: "array_count_values(array)", meta: "function" },
-					{ value: "array_diff(array1,array2)", meta: "function" },
-					{ value: "array_extract_keys(array,keys)", meta: "function" },
-					{ value: "array_fill_keys(keys,value)", meta: "function" },
-					{ value: "array_intersect(array1,array2)", meta: "function" },
-					{ value: "array_matches(values, patterns)", meta: "function" },
-					{ value: "array_sort_keys(array)", meta: "function" },
-					{ value: "array_unique(array)", meta: "function" },
-					{ value: "array_values(array)", meta: "function" },
-					{ value: "attribute(object,attr)", meta: "function" },
-					{ value: "cerb_automation(uri,inputs)", meta: "function" },					
-					{ value: "cerb_avatar_image(context,id,updated)", meta: "function" },
-					{ value: "cerb_avatar_url(context,id,updated)", meta: "function" },
-					{ value: "cerb_calendar_time_elapsed(calendar,date_from,date_to)", meta: "function" },
-					{ value: "cerb_extract_uris(html)", meta: "function" },
-					{ value: "cerb_file_url(file_id,full,proxy)", meta: "function" },
-					{ value: "cerb_has_priv(priv,actor_context,actor_id)", meta: "function" },
-					{ value: "cerb_placeholders_list()", meta: "function" },
-					{ value: "cerb_record_readable(record_context,record_id,actor_context,actor_id)", meta: "function" },
-					{ value: "cerb_record_writeable(record_context,record_id,actor_context,actor_id)", meta: "function" },
-					{ value: "cerb_url('c=controller&a=action&p=param')", meta: "function" },
-					{ value: "cycle(position)", meta: "function" },
-					{ value: "date(date,timezone)", meta: "function" },
-					{ value: "dict_set(obj,keypath,value,delimiter='.')", meta: "function" },
-					{ value: "date_lerp(date_range,unit,step,limit)", meta: "function" },
-					{ value: "dict_unset(obj,keypaths)", meta: "function" },
-					{ value: "dns_get_record(host,type)", meta: "function" },
-					{ value: "dns_host_by_ip(ip)", meta: "function" },
-					{ value: "json_decode(string)", meta: "function" },
-					{ value: "jsonpath_set(json,keypath,value)", meta: "function" },
-					{ value: "max(array)", meta: "function" },
-					{ value: "min(array)", meta: "function" },
-					{ value: "random(values)", meta: "function" },
-					{ value: "random_string(length)", meta: "function" },
-					{ value: "range(low,high,step)", snippet: "range(${1:low},${2:high},${3:step})", meta: "function" },
-					{ value: "regexp_match_all(pattern,text,group)", meta: "function" },
-					{ value: "shuffle(array)", meta: "function" },
-					{ value: "validate_email(string)", meta: "function" },
-					{ value: "validate_number(string)", meta: "function" },
-					{ value: "vobject_parse(string)", meta: "function" },
-					{ value: "xml_attr(xml,name,default)", meta: "function" },
-					{ value: "xml_attrs(xml)", meta: "function" },
-					{ value: "xml_decode(string,namespaces)", meta: "function" },
-					{ value: "xml_encode(xml)", meta: "function" },
-					{ value: "xml_xpath(xml,path,element)", meta: "function" },
-					{ value: "xml_xpath_ns(xml,prefix,ns)", meta: "function" },
-					{ value: "xml_tag(xml)", meta: "function" }					
-				],
 				formatSuggestions: function(suggestions) {
 					return suggestions.map(function(data) {
 						if('object' == typeof data) {
@@ -3312,7 +3174,7 @@ var ajax = new cAjaxCalls();
 								break;
 								
 							} else if ('meta.tag.twig' === token.type && '{%' === token.value) {
-								return callback(null, autocompleterKata.formatSuggestions(this.twigTags));
+								return callback(null, autocompleterKata.formatSuggestions(twigAutocompleteSuggestions.tags));
 								
 							} else if ('variable.other.readwrite.local.twig' === token.type && '{{' === token.value) {
 								break;
@@ -3321,7 +3183,7 @@ var ajax = new cAjaxCalls();
 								break;
 								
 							} else if ('keyword.operator.other.pipe' === token.type) {
-								return callback(null, autocompleterKata.formatSuggestions(this.twigFilters));
+								return callback(null, autocompleterKata.formatSuggestions(twigAutocompleteSuggestions.filters));
 							}
 						}
 						
