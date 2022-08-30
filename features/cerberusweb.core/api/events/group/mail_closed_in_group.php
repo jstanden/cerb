@@ -15,6 +15,7 @@
 |	http://cerb.ai	    http://webgroup.media
 ***********************************************************************/
 
+/** @deprecated */
 class Event_MailClosedInGroup extends AbstractEvent_Ticket {
 	const ID = 'event.mail.closed.group';
 	
