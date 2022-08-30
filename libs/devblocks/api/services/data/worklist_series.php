@@ -486,7 +486,12 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 		// Domain
 		
 		$xaxis_format = @$chart_model['series'][0]['x']['timestamp_format'] ?: '';
-		$xaxis_step = @$chart_model['series'][0]['x']['timestamp_step'] ?: '';
+		$xaxis_unit = @$chart_model['series'][0]['x']['timestamp_step'] ?: '';
+		
+		if(false !== strpos($xaxis_unit, '/'))
+			list($xaxis_unit, $xaxis_step) = array_pad(explode('/', $xaxis_unit), 2, null);
+		
+		$xaxis_step = intval($xaxis_step ?? null);
 		
 		$x_domain = [];
 		
@@ -504,8 +509,8 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 		sort($x_domain);
 		
 		$x_domain = DevblocksPlatform::services()->date()->formatTimestamps(
-			DevblocksPlatform::dateLerpArray($x_domain, $xaxis_step),
-			DevblocksPlatform::services()->date()->formatByUnit($xaxis_step)
+			DevblocksPlatform::dateLerpArray($x_domain, $xaxis_unit, $xaxis_step, 2500),
+			DevblocksPlatform::services()->date()->formatByUnit($xaxis_unit)
 		);
 		
 		$response = [
@@ -530,7 +535,7 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 				'format' => 'timeseries',
 				'format_params' => [
 					'xaxis_key' => 'ts',
-					'xaxis_step' => $xaxis_step,
+					'xaxis_step' => $xaxis_unit,
 					'xaxis_format' => $xaxis_format, // [TODO] Multi-series?
 				],
 			]

@@ -223,6 +223,54 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 									$sql_select_field
 								),
 							];
+						
+						case 'minute/5':
+							return [
+								'key_query' => $key,
+								'key_select' => $search_key,
+								'label' => $search_field->db_label,
+								'type' => DevblocksSearchCriteria::TYPE_TEXT,
+								'timestamp_step' => 'minute/5',
+								'timestamp_format' => '%Y-%m-%d %H:%i',
+								'sql_select' => sprintf("DATE_FORMAT(FROM_UNIXTIME(%s-(%s %s 300)), %s)",
+									$sql_select_field,
+									$sql_select_field,
+									'%',
+									Cerb_ORMHelper::qstr('%Y-%m-%d %H:%i')
+								),
+							];
+							
+						case 'minute/15':
+							return [
+								'key_query' => $key,
+								'key_select' => $search_key,
+								'label' => $search_field->db_label,
+								'type' => DevblocksSearchCriteria::TYPE_TEXT,
+								'timestamp_step' => 'minute/15',
+								'timestamp_format' => '%Y-%m-%d %H:%i',
+								'sql_select' => sprintf("DATE_FORMAT(FROM_UNIXTIME(%s-(%s %s 900)), %s)",
+									$sql_select_field,
+									$sql_select_field,
+									'%',
+									Cerb_ORMHelper::qstr('%Y-%m-%d %H:%i')
+								),
+							];
+							
+						case 'minute/30':
+							return [
+								'key_query' => $key,
+								'key_select' => $search_key,
+								'label' => $search_field->db_label,
+								'type' => DevblocksSearchCriteria::TYPE_TEXT,
+								'timestamp_step' => 'minute/30',
+								'timestamp_format' => '%Y-%m-%d %H:%i',
+								'sql_select' => sprintf("DATE_FORMAT(FROM_UNIXTIME(%s-(%s %s 1800)), %s)",
+									$sql_select_field,
+									$sql_select_field,
+									'%',
+									Cerb_ORMHelper::qstr('%Y-%m-%d %H:%i')
+								),
+							];
 							
 						case 'week':
 						case 'week-mon':
@@ -405,6 +453,60 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 							'sql_select' => sprintf("%s.%s",
 								Cerb_ORMHelper::escape($search_field->db_table),
 								Cerb_ORMHelper::escape($search_field->db_column)
+							),
+						];
+					
+					case 'minute/5':
+						return [
+							'key_query' => $key,
+							'key_select' => $search_key,
+							'label' => $search_field->db_label,
+							'type' => DevblocksSearchCriteria::TYPE_TEXT,
+							'timestamp_step' => 'minute/5',
+							'timestamp_format' => '%Y-%m-%d %H:%i',
+							'sql_select' => sprintf("DATE_FORMAT(FROM_UNIXTIME(%s.%s-(%s.%s %s 300)), %s)",
+								Cerb_ORMHelper::escape($search_field->db_table),
+								Cerb_ORMHelper::escape($search_field->db_column),
+								Cerb_ORMHelper::escape($search_field->db_table),
+								Cerb_ORMHelper::escape($search_field->db_column),
+								'%',
+								Cerb_ORMHelper::qstr('%Y-%m-%d %H:%i')
+							),
+						];
+						
+					case 'minute/15':
+						return [
+							'key_query' => $key,
+							'key_select' => $search_key,
+							'label' => $search_field->db_label,
+							'type' => DevblocksSearchCriteria::TYPE_TEXT,
+							'timestamp_step' => 'minute/15',
+							'timestamp_format' => '%Y-%m-%d %H:%i',
+							'sql_select' => sprintf("DATE_FORMAT(FROM_UNIXTIME(%s.%s-(%s.%s %s 900)), %s)",
+								Cerb_ORMHelper::escape($search_field->db_table),
+								Cerb_ORMHelper::escape($search_field->db_column),
+								Cerb_ORMHelper::escape($search_field->db_table),
+								Cerb_ORMHelper::escape($search_field->db_column),
+								'%',
+								Cerb_ORMHelper::qstr('%Y-%m-%d %H:%i')
+							),
+						];
+						
+					case 'minute/30':
+						return [
+							'key_query' => $key,
+							'key_select' => $search_key,
+							'label' => $search_field->db_label,
+							'type' => DevblocksSearchCriteria::TYPE_TEXT,
+							'timestamp_step' => 'minute/30',
+							'timestamp_format' => '%Y-%m-%d %H:%i',
+							'sql_select' => sprintf("DATE_FORMAT(FROM_UNIXTIME(%s.%s-(%s.%s %s 1800)), %s)",
+								Cerb_ORMHelper::escape($search_field->db_table),
+								Cerb_ORMHelper::escape($search_field->db_column),
+								Cerb_ORMHelper::escape($search_field->db_table),
+								Cerb_ORMHelper::escape($search_field->db_column),
+								'%',
+								Cerb_ORMHelper::qstr('%Y-%m-%d %H:%i')
 							),
 						];
 						

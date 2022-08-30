@@ -582,6 +582,21 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 							$from_date = $to_date = $query_value;
 							
 							switch($by['timestamp_step']) {
+								case 'minute/5':
+									$from_date .= ':00';
+									$to_date = date('Y-m-d H:i:s', strtotime('+299 seconds', strtotime($from_date)));
+									$query_value = '"' . $from_date . ' to ' . $to_date . '"';
+									break;
+								case 'minute/15':
+									$from_date .= ':00';
+									$to_date = date('Y-m-d H:i:s', strtotime('+899 seconds', strtotime($from_date)));
+									$query_value = '"' . $from_date . ' to ' . $to_date . '"';
+									break;
+								case 'minute/30':
+									$from_date .= ':00';
+									$to_date = date('Y-m-d H:i:s', strtotime('+1799 seconds', strtotime($from_date)));
+									$query_value = '"' . $from_date . ' to ' . $to_date . '"';
+									break;
 								case 'hour':
 									$to_date = str_replace(':00',':59:59',$from_date);
 									$query_value = '"' . $from_date . ' to ' . $to_date . '"';
@@ -1356,13 +1371,18 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			return [];
 		
 		$xaxis_format = $chart_model['by'][0]['timestamp_format'] ?? null;
-		$xaxis_step = $chart_model['by'][0]['timestamp_step'] ?? null;
+		$xaxis_unit = $chart_model['by'][0]['timestamp_step'] ?? null;
+		
+		if(false !== strpos($xaxis_unit, '/'))
+			list($xaxis_unit, $xaxis_step) = array_pad(explode('/', $xaxis_unit), 2, null);
+		
+		$xaxis_step = intval($xaxis_step ?? null);
 		
 		$x_series = array_column($response['children'], 'name');
 		
 		$x_series = DevblocksPlatform::services()->date()->formatTimestamps(
-			DevblocksPlatform::dateLerpArray($x_series, $xaxis_step),
-			DevblocksPlatform::services()->date()->formatByUnit($xaxis_step)
+			DevblocksPlatform::dateLerpArray($x_series, $xaxis_unit, $xaxis_step, 1000),
+			DevblocksPlatform::services()->date()->formatByUnit($xaxis_unit)
 		);
 		$x_series = array_fill_keys($x_series, 0);
 		
@@ -1371,7 +1391,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		$series_meta = [];
 		
 		foreach($response['children'] as $date) {
-			if('quarter' == $xaxis_step) {
+			if('quarter' == $xaxis_unit) {
 				$date['name'] = DevblocksPlatform::services()->date()->getDateFromYearQuarter($date['name']);
 				$date['value'] = $date['name'];
 			}
@@ -1421,7 +1441,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			'format' => 'timeseries',
 			'format_params' => [
 				'xaxis_key' => 'ts',
-				'xaxis_step' => $xaxis_step,
+				'xaxis_step' => $xaxis_unit,
 				'xaxis_format' => $xaxis_format,
 			],
 			'series' => $series_meta,
