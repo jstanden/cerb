@@ -131,8 +131,11 @@ $(function() {
 		
 		var img = new Image();
 		{if $imagedata}
+			$(img).one('load', function() {
+				$canvas.trigger('avatar-redraw');
+			});
+		
 			img.src = "{$imagedata}";
-			$canvas.trigger('avatar-redraw');
 		{/if}
 		
 		$canvas.mousedown(function (event) {
