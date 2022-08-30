@@ -496,6 +496,8 @@ class DevblocksPlatform extends DevblocksEngine {
 		if(empty($array))
 			return [];
 		
+		$unit_original = $unit;
+		
 		if($unit == 'dayofmonth' || $unit == 'dayofweek') {
 			$unit = 'day';
 		} else if($unit == 'hourofday' || $unit == 'hourofdayofweek') {
@@ -504,20 +506,27 @@ class DevblocksPlatform extends DevblocksEngine {
 			$unit = 'minute';
 		} else if($unit == 'monthofyear') {
 			$unit = 'month';
+		} else if($unit == 'quarter') {
+			$unit = 'day';
+			$step = 90;
 		} else if($unit == 'weekofyear') {
 			$unit = 'week';
 		}
 		
 		$timestamps = array_map(
-			function($date_string) use ($unit) {
+			function($date_string) use ($unit, $unit_original) {
 				try {
 					if($unit == 'year' && is_numeric($date_string)) {
 						$date_string .= '-01-01';
+					} elseif ($unit_original == 'quarter') {
+						$date_string = DevblocksPlatform::services()->date()->getDateFromYearQuarter($date_string);
 					}
 					
 					$ts = new DateTime($date_string);
 					
-					if($unit == 'month') {
+					if($unit_original == 'quarter') {
+						DevblocksPlatform::noop();
+					} else if($unit == 'month') {
 						$ts->modify('first day of this month 00:00:00');
 					}
 					
@@ -556,6 +565,9 @@ class DevblocksPlatform extends DevblocksEngine {
 				break;
 			
 			$tick->add($interval);
+			
+			if('quarter' == $unit_original)
+				$tick->modify('last day of this month');
 			
 			if(end($values) == $tick->getTimestamp())
 				$tick->add(DateInterval::createFromDateString(sprintf('+%d %s', $step+1, $unit)));

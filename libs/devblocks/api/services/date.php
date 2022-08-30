@@ -579,7 +579,7 @@ class _DevblocksDateManager {
 			'weekofyear' => 'W',
 			'month' => 'Y-m',
 			'monthofyear' => 'F',
-			//'quarter' => '',
+			'quarter' => 'Y-m-d',
 			//'quarterofyear' => '',
 			'year' => 'Y',
 		];
@@ -610,6 +610,36 @@ class _DevblocksDateManager {
 			],
 			$date_format
 		);
+	}
+
+	public function getDateFromYearQuarter($date_string) {
+		$date_string = strval($date_string);
+		
+		if(false !== strpos($date_string, '-Q')) {
+			return str_replace(
+				[
+					'-Q1',
+					'-Q2',
+					'-Q3',
+					'-Q4',
+				],
+				[
+					'-03-31',
+					'-06-30',
+					'-09-30',
+					'-12-31',
+				],
+				$date_string
+			);
+	
+		} else {
+			// Convert the date to a quarter
+			$ts = strtotime($date_string);
+			$year = date('Y', $ts);
+			$month = ceil(date('m', $ts)/3)*3;
+			$ts = mktime(23, 59, 59, $month, 1, $year);
+			return date('Y-m-d', strtotime('last day of this month', $ts));
+		}
 	}
 };
 

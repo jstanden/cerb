@@ -750,6 +750,41 @@ class DevblocksDateTest extends TestCase {
 		$actual = DevblocksPlatform::services()->date()->formatTimestamps($actual, 'Y-m-d');
 		$this->assertEquals($expected, $actual);
 		
+		// Quarters
+		
+		$expected = [
+			'2020-03-31',
+			'2020-06-30',
+			'2020-09-30',
+			'2020-12-31',
+			'2021-03-31',
+			'2021-06-30',
+			'2021-09-30',
+			'2021-12-31',
+		];
+		
+		$actual = DevblocksPlatform::dateLerpArray(['2020-01-01 00:00:00','2021-12-31 23:59:59'], 'quarter');
+		$actual = DevblocksPlatform::services()->date()->formatTimestamps($actual, 'Y-m-d');
+		$this->assertEquals($expected, $actual);
+		
+		// Quarters (offset from months)
+		
+		/** @noinspection PhpConditionAlreadyCheckedInspection */
+		$expected = [
+			'2020-03-31',
+			'2020-06-30',
+			'2020-09-30',
+			'2020-12-31',
+			'2021-03-31',
+			'2021-06-30',
+			'2021-09-30',
+			'2021-12-31',
+		];
+		
+		$actual = DevblocksPlatform::dateLerpArray(['2020-02-01 00:00:00','2021-10-15 23:59:59'], 'quarter');
+		$actual = DevblocksPlatform::services()->date()->formatTimestamps($actual, 'Y-m-d');
+		$this->assertEquals($expected, $actual);
+		
 		// 5 min steps
 		
 		$expected = [
