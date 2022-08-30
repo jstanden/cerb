@@ -1543,8 +1543,13 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		$tpl->assign('keys', $keys);
 		
 		// Read the first line from the file
-		$csv_file = $visit->get('import.last.csv','');
-		$fp = fopen($csv_file, 'rt');
+		
+		if(!($csv_file = $visit->get('import.last.csv', '')))
+			DevblocksPlatform::dieWithHttpError(null, 500);
+			
+		if(!($fp = fopen($csv_file, 'rt')))
+			DevblocksPlatform::dieWithHttpError(null, 500);
+		
 		$columns = fgetcsv($fp);
 		fclose($fp);
 		
@@ -1660,11 +1665,11 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 			$line_number = 0;
 			
 			// CSV
-			$csv_file = $visit->get('import.last.csv','');
+			if(!($csv_file = $visit->get('import.last.csv', '')))
+				DevblocksPlatform::dieWithHttpError(null, 500);
 			
-			$fp = fopen($csv_file, "rt");
-			if(!$fp)
-				return;
+			if(!($fp = fopen($csv_file, 'rt')))
+				DevblocksPlatform::dieWithHttpError(null, 500);
 			
 			// Do we need to consume a first row of headings?
 			@fgetcsv($fp, 8192, ',', '"');
@@ -1890,7 +1895,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 			}
 			
 			if(!$is_preview) {
-				@unlink($csv_file); // nuke the imported file}
+				@unlink($csv_file); // nuke the imported file
 				$visit->set('import.last.csv',null);
 				
 				if(!empty($view_id) && !empty($context)) {
