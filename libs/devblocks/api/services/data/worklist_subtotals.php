@@ -630,6 +630,30 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 								case 'monthofyear':
 									$query_value = sprintf('(months:%s)', $from_date);
 									break;
+								case 'quarter':
+									$to_date = DevblocksPlatform::services()->date()->getDateFromYearQuarter($from_date);
+									try {
+										$ts = new DateTime($to_date);
+									} catch (Exception $e) {
+										$ts = 0;
+									}
+									$ts->modify('23:59:59');
+									$to_date = $ts->format('Y-m-d H:i:s');
+									$ts->modify('first day of this month');
+									$ts->modify('-2 months 00:00:00');
+									$from_date = $ts->format('Y-m-d H:i:s');
+									
+									$query_value = '"' . $from_date . ' to ' . $to_date . '"';
+									break;
+								case 'quarterofyear':
+									$quarters = [
+										'Q1' => 'Jan,Feb,Mar',
+										'Q2' => 'Apr,May,Jun',
+										'Q3' => 'Jul,Aug,Sep',
+										'Q4' => 'Oct,Nov,Dec',
+									];
+									$query_value = sprintf('(months:%s)', $quarters[$from_date] ?? '');
+									break;
 								case 'year':
 									$from_date .= '-01-01';
 									$to_date .= '-12-31 23:59:59';
@@ -1347,6 +1371,11 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		$series_meta = [];
 		
 		foreach($response['children'] as $date) {
+			if('quarter' == $xaxis_step) {
+				$date['name'] = DevblocksPlatform::services()->date()->getDateFromYearQuarter($date['name']);
+				$date['value'] = $date['name'];
+			}
+			
 			// If we have multiple series, use them
 			if(array_key_exists('children', $date)) {
 				$children = $date['children'];

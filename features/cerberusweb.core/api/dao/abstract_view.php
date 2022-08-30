@@ -2407,6 +2407,8 @@ abstract class C4_AbstractView {
 						$suggestions[] = $field_key . '@weekofyear';
 						$suggestions[] = $field_key . '@month';
 						$suggestions[] = $field_key . '@monthofyear';
+						$suggestions[] = $field_key . '@quarter';
+						$suggestions[] = $field_key . '@quarterofyear';
 						$suggestions[] = $field_key . '@year';
 					}
 				}

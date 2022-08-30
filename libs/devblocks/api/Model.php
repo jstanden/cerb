@@ -260,6 +260,35 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 								),
 							];
 							
+						case 'quarter':
+							$ts_format = null;
+							return [
+								'key_query' => $key,
+								'key_select' => $search_key,
+								'label' => $search_field->db_label,
+								'type' => DevblocksSearchCriteria::TYPE_TEXT,
+								'timestamp_step' => 'quarterofyear',
+								'timestamp_format' => $ts_format,
+								'sql_select' => sprintf("CONCAT_WS('-Q',YEAR(FROM_UNIXTIME(%s)),QUARTER(FROM_UNIXTIME(%s))",
+									$sql_select_field,
+									$sql_select_field
+								),
+							];
+							
+						case 'quarterofyear':
+							$ts_format = null;
+							return [
+								'key_query' => $key,
+								'key_select' => $search_key,
+								'label' => $search_field->db_label,
+								'type' => DevblocksSearchCriteria::TYPE_TEXT,
+								'timestamp_step' => 'quarter',
+								'timestamp_format' => $ts_format,
+								'sql_select' => sprintf("CONCAT('Q',QUARTER(FROM_UNIXTIME(%s)))",
+									$sql_select_field
+								),
+							];
+							
 						case 'hourofday':
 						case 'hourofdayofweek':
 						case 'hour':
@@ -417,7 +446,38 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 								Cerb_ORMHelper::qstr($ts_format)
 							),
 						];
-						break;
+						
+					case 'quarter':
+						$ts_format = null;
+						return [
+							'key_query' => $key,
+							'key_select' => $search_key,
+							'label' => $search_field->db_label,
+							'type' => DevblocksSearchCriteria::TYPE_TEXT,
+							'timestamp_step' => 'quarter',
+							'timestamp_format' => $ts_format,
+							'sql_select' => sprintf("CONCAT_WS('-Q',YEAR(FROM_UNIXTIME(%s.%s)),QUARTER(FROM_UNIXTIME(%s.%s)))",
+								Cerb_ORMHelper::escape($search_field->db_table),
+								Cerb_ORMHelper::escape($search_field->db_column),
+								Cerb_ORMHelper::escape($search_field->db_table),
+								Cerb_ORMHelper::escape($search_field->db_column)
+							),
+						];
+						
+					case 'quarterofyear':
+						$ts_format = null;
+						return [
+							'key_query' => $key,
+							'key_select' => $search_key,
+							'label' => $search_field->db_label,
+							'type' => DevblocksSearchCriteria::TYPE_TEXT,
+							'timestamp_step' => 'quarterofyear',
+							'timestamp_format' => $ts_format,
+							'sql_select' => sprintf("CONCAT('Q', QUARTER(FROM_UNIXTIME(%s.%s)))",
+								Cerb_ORMHelper::escape($search_field->db_table),
+								Cerb_ORMHelper::escape($search_field->db_column)
+							),
+						];
 						
 					case 'hourofday':
 					case 'hourofdayofweek':
