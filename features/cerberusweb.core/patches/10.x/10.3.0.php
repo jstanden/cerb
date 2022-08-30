@@ -2,6 +2,66 @@
 $db = DevblocksPlatform::services()->database();
 $logger = DevblocksPlatform::services()->log();
 $tables = $db->metaTables();
+$revision = $db->GetOneMaster("SELECT revision FROM cerb_patch_history WHERE plugin_id = 'cerberusweb.core'");
+
+// ===========================================================================
+// Move more behaviors to automation event bindings
+
+if($revision < 1432) { // 10.3.0
+	$automations_kata = $db->GetOneMaster("SELECT automations_kata FROM automation_event WHERE name = 'record.changed'");
+	
+	$behaviors = $db->GetArrayMaster("SELECT id, title, is_disabled, event_params_json, uri FROM trigger_event WHERE event_point = 'event.mail.closed.group' ORDER BY priority DESC, id");
+	
+	if(is_iterable($behaviors)) {
+		foreach($behaviors as $behavior) {
+			$behavior_params = json_decode($behavior['event_params_json'], true);
+			
+			$automations_kata = sprintf("# %s\n# [TODO] Migrate to automations\nbehavior/%s:\n  uri: cerb:behavior:%s\n  disabled@bool: %s%s\n\n",
+				$behavior['title'],
+				uniqid(),
+				$behavior['uri'] ?: $behavior['id'],
+				$behavior['is_disabled'] ? "yes\n    #" : "\n    ",
+				"{{record__type is not record type ('ticket') or record_status != 'closed' or was_record_status == record_status}}"
+			) . $automations_kata;
+		}
+	}
+	
+	$behaviors = $db->GetArrayMaster("SELECT id, title, is_disabled, event_params_json, uri FROM trigger_event WHERE event_point = 'event.mail.moved.group' ORDER BY priority DESC, id");
+	
+	if(is_iterable($behaviors)) {
+		foreach($behaviors as $behavior) {
+			$behavior_params = json_decode($behavior['event_params_json'], true);
+			
+			$automations_kata = sprintf("# %s\n# [TODO] Migrate to automations\nbehavior/%s:\n  uri: cerb:behavior:%s\n  disabled@bool: %s%s\n\n",
+				$behavior['title'],
+				uniqid(),
+				$behavior['uri'] ?: $behavior['id'],
+				$behavior['is_disabled'] ? "yes\n    #" : "\n    ",
+				"{{record__type is not record type ('ticket') or (was_record_group_id == record_group_id and was_record_bucket_id == record_bucket_id)}}"
+			) . $automations_kata;
+		}
+	}
+	
+	$behaviors = $db->GetArrayMaster("SELECT id, title, is_disabled, event_params_json, uri FROM trigger_event WHERE event_point = 'event.mail.assigned.group' ORDER BY priority DESC, id");
+	
+	if(is_iterable($behaviors)) {
+		foreach($behaviors as $behavior) {
+			$behavior_params = json_decode($behavior['event_params_json'], true);
+			
+			$automations_kata = sprintf("# %s\n# [TODO] Migrate to automations\nbehavior/%s:\n  uri: cerb:behavior:%s\n  disabled@bool: %s%s\n\n",
+				$behavior['title'],
+				uniqid(),
+				$behavior['uri'] ?: $behavior['id'],
+				$behavior['is_disabled'] ? "yes\n    #" : "\n    ",
+				"{{record__type is not record type ('ticket') or was_record_owner_id == record_owner_id}}"
+			) . $automations_kata;
+		}
+	}
+	
+	$db->ExecuteMaster(sprintf("UPDATE automation_event SET automations_kata = %s WHERE name = 'record.changed'",
+		$db->qstr($automations_kata)
+	));
+}
 
 // ===========================================================================
 // Index attachment storage profiles for cron.storage

@@ -1405,10 +1405,6 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			
 			if(isset($change_fields[DAO_Ticket::OWNER_ID])) {
 				
-				// Mail assigned in group
-				
-				Event_MailAssignedInGroup::trigger($model->id, $model->group_id);
-				
 				// Log activity (ticket.unassigned)
 				
 				if(empty($model->owner_id)) {
@@ -1464,10 +1460,6 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				unset($change_fields[DAO_Ticket::BUCKET_ID]);
 			
 			if(isset($change_fields[DAO_Ticket::GROUP_ID]) || isset($change_fields[DAO_Ticket::BUCKET_ID])) {
-				// Bots
-
-				Event_MailMovedToGroup::trigger($model->id, $model->group_id);
-
 				// Activity log
 				
 				$to_group = DAO_Group::get($model->group_id);
@@ -1562,8 +1554,6 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				} else if($model->status_id == Model_Ticket::STATUS_CLOSED) {
 					$status_to = 'closed';
 					$activity_point = 'ticket.status.closed';
-					
-					Event_MailClosedInGroup::trigger($model->id, $model->group_id);
 					
 				} else if($model->status_id == Model_Ticket::STATUS_WAITING) {
 					$status_to = 'waiting';

@@ -2391,6 +2391,24 @@ class CerberusContexts {
 										]
 									);
 									
+								} else if($behavior->event_point == Event_MailAssignedInGroup::ID && $new_model instanceof Model_Ticket) {
+									// If the owner changed
+									if($old_model['owner_id'] != $new_model->owner_id) {
+										return Event_MailAssignedInGroup::trigger($new_model->id, $new_model->group_id);
+									}
+									
+								} else if($behavior->event_point == Event_MailMovedToGroup::ID && $new_model instanceof Model_Ticket) {
+									// If the ticket moved group/bucket
+									if($old_model['group_id'] != $new_model->group_id || $old_model['bucket_id'] != $new_model->bucket_id) {
+										return Event_MailMovedToGroup::trigger($new_model->id, $new_model->group_id);
+									}
+									
+								} else if($behavior->event_point == Event_MailClosedInGroup::ID && $new_model instanceof Model_Ticket) {
+									// If the status went closed
+									if($new_model->status_id == Model_Ticket::STATUS_CLOSED && $old_model['status_id'] != $new_model->status_id) {
+										return Event_MailClosedInGroup::trigger($new_model->id, $new_model->group_id);
+									}
+									
 								} else if($behavior->event_point == Event_CommentOnTicketInGroup::ID && $new_model instanceof Model_Comment) {
 									$behavior_bot = $behavior->getBot();
 									
