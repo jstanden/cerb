@@ -20,7 +20,7 @@ class SetAction extends AbstractAction {
 				if($script_error) {
 					$automation->logError(
 						'Scripting error: ' . $script_error,
-						$this->node->getId(),
+						$this->node->getId() . ':' . $k,
 						3 // error
 					);
 				}
