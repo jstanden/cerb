@@ -227,7 +227,11 @@ $(function() {
 				// When successful, add to suggestions
 				$this
 					.click(function() {
-						context.drawImage($this[0], 0, 0);
+						x = 0;
+						y = 0;
+						scale = 1.0;
+						$(img).attr('src', $(this).attr('src'));
+						$canvas.trigger('avatar-redraw');
 					})
 					.appendTo($suggested)
 					;
