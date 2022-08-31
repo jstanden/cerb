@@ -1112,14 +1112,14 @@ class _DevblocksValidationService {
 				}
 				
 				if($data) {
-					if(isset($data['length_min']) && strlen(strval($value)) < $data['length_min']) {
+					if(isset($data['length_min']) && mb_strwidth(strval($value)) < $data['length_min']) {
 						throw new Exception_DevblocksValidationError(sprintf("'%s' must be %d or more characters.", $field_label, $data['length_min']));
 					}
 					
-					if(isset($data['length_max']) && strlen(strval($value)) > $data['length_max']) {
+					if(isset($data['length_max']) && mb_strwidth(strval($value)) > $data['length_max']) {
 						// Truncation
 						if(array_key_exists('truncation', $data) && $data['truncation']) {
-							$value = substr($value, 0, $data['length_max'] - 3) . '...';
+							$value = mb_strimwidth($value, 0, $data['length_max'] - 3, '...');
 						} else {
 							throw new Exception_DevblocksValidationError(sprintf("'%s' must be no longer than %d characters.", $field_label, $data['length_max']));
 						}
@@ -1141,14 +1141,14 @@ class _DevblocksValidationService {
 				}
 				
 				if(is_string($value)) {
-					if(isset($data['length_min']) && strlen($value) < $data['length_min']) {
+					if(isset($data['length_min']) && mb_strwidth($value) < $data['length_min']) {
 						throw new Exception_DevblocksValidationError(sprintf("'%s' must be longer than %d characters.", $field_label, $data['length_min']));
 					}
 					
-					if(isset($data['length_max']) && strlen($value) > $data['length_max']) {
+					if(isset($data['length_max']) && mb_strwidth($value) > $data['length_max']) {
 						// Truncation
 						if(array_key_exists('truncation', $data) && $data['truncation']) {
-							$value = substr($value, 0, $data['length_max'] - 3) . '...';
+							$value = mb_strimwidth($value, 0, $data['length_max'] - 3,  '...');
 						} else {
 							throw new Exception_DevblocksValidationError(sprintf("'%s' must be no longer than %d characters.", $field_label, $data['length_max']));
 						}

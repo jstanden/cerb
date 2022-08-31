@@ -383,11 +383,11 @@ class _DevblocksStringService {
 		return Uuid::uuid1($nodeProvider->getNode());
 	}
 	
-	public function truncate(?string $string, int $length) {
+	public function truncate(?string $string, int $length, string $separator='...') : string {
 		$string = strval($string);
 		
-		if(strlen($string) > $length)
-			$string = substr($string, 0, 128);
+		if(mb_strwidth($string) > $length)
+			$string = mb_strimwidth($string, 0, $length, $separator);
 		
 		return $string;
 	}

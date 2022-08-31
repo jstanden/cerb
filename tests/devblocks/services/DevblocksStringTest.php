@@ -226,4 +226,23 @@ class DevblocksStringTest extends TestCase {
 		$actual = $string->capitalizeDashed('x-EXAMPLE');
 		$this->assertEquals($expected, $actual);
 	}
+	
+	function testTruncate() {
+		$string = DevblocksPlatform::services()->string();
+		
+		// Normal truncation
+		$expected = 'This is...';
+		$actual = $string->truncate('This is truncated to 10 characters', 10);
+		$this->assertEquals($expected, $actual);
+		
+		// Truncation with a custom separator
+		$expected = 'This is tr';
+		$actual = $string->truncate('This is truncated to 10 characters', 10, '');
+		$this->assertEquals($expected, $actual);
+		
+		// Japanese
+		$expected = 'これは...';
+		$actual = $string->truncate('これはテストです', 10);
+		$this->assertEquals($expected, $actual);
+	}
 }
