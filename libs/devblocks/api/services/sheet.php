@@ -471,6 +471,68 @@ class _DevblocksSheetServiceTypes {
 		};
 	}
 	
+	function interaction(bool $filter_html=true) : callable {
+		return function($column, DevblocksDictionaryDelegate $sheet_dict) use ($filter_html) {
+			$tpl_builder = DevblocksPlatform::services()->templateBuilder()::newInstance('html');
+			$kata = DevblocksPlatform::services()->kata();
+			$filters = [];
+			
+			if($filter_html)
+				$filters[] = new Cerb_HTMLPurifier_URIFilter_Email(true);
+			
+			@$column_params = $column['params'] ?: [];
+			
+			if(array_key_exists('uri', $column_params)) {
+				$uri = $column_params['uri'];
+			} else if(array_key_exists('uri_key', $column_params)) {
+				$uri = $sheet_dict->get($column_params['uri_key']);
+			} else if(array_key_exists('uri_template', $column_params)) {
+				$uri = $tpl_builder->build($column_params['uri_template'], $sheet_dict);
+				$uri = DevblocksPlatform::purifyHTML($uri, false, true, $filters);
+			} else {
+				$uri = '';
+			}
+			
+			if(DevblocksPlatform::strStartsWith($uri, 'cerb:')) {
+				if(false == ($uri_parts = DevblocksPlatform::services()->ui()->parseURI($uri)))
+					return '';
+				
+				if(Context_Automation::ID != ($uri_parts['context'] ?? null))
+					return '';
+				
+				$uri = $uri_parts['context_id'] ?? '';
+			}
+			
+			if(array_key_exists('inputs', $column_params)) {
+				$inputs = $column_params['inputs'] ?? [];
+				$error = null;
+				$inputs = $kata->formatTree($inputs, $sheet_dict, $error);
+			} else {
+				$inputs = [];
+			}
+			
+			if(array_key_exists('text', $column_params)) {
+				$text = $column_params['text'];
+			} else if(array_key_exists('text_key', $column_params)) {
+				$text = $sheet_dict->get($column_params['text_key']);
+			} else if(array_key_exists('text_template', $column_params)) {
+				$text = $tpl_builder->build($column_params['text_template'], $sheet_dict);
+				$text = DevblocksPlatform::purifyHTML($text, false, true, $filters);
+			} else {
+				$text = '';
+			}
+			
+			if(!$uri)
+				return $text;
+			
+			return sprintf('<a href="javascript:;" class="cerb-interaction-trigger" data-interaction-uri="%s" data-interaction-params="%s">%s</a>',
+				DevblocksPlatform::strEscapeHtml($uri),
+				DevblocksPlatform::services()->url()->arrayToQueryString($inputs),
+				DevblocksPlatform::strEscapeHtml($text)
+			);
+		};
+	}
+	
 	function link(bool $filter_html=true) : callable {
 		return function($column, DevblocksDictionaryDelegate $sheet_dict) use ($filter_html) {
 			$tpl_builder = DevblocksPlatform::services()->templateBuilder()::newInstance('html');
