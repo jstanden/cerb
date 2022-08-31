@@ -1338,8 +1338,15 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 			$popup.css('height', 'auto');
 			$dialog.css('height', 'auto');
 		},
-		close: function(event, ui) {
+		close: function(event) {
 			var $popup = $(this);
+			
+			if('object' == typeof event && event.currentTarget) {
+				if($(event.currentTarget).is('.ui-dialog-titlebar-close')) {
+					$popup.triggerHandler($.Event('peek_aborted'));
+				}
+			}
+			
 			$popup.triggerHandler($.Event('popup_close'));
 			$('#devblocksPopups').removeData($layer);
 			$popup.unbind().find(':focus').blur();
