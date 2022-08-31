@@ -195,10 +195,10 @@ $(function() {
 										resolve(e);
 									},
 									'error': function(e) {
-										reject(e);
+										resolve(e);
 									},
 									'abort': function(e) {
-										reject(e);
+										resolve(e);
 									}
 								})
 								.click()
