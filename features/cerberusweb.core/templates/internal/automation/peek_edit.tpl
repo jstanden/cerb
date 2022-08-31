@@ -87,7 +87,7 @@
 		<li data-cerb-tab="run"><a href="#{$tabs_uid}Run">{'common.run'|devblocks_translate|capitalize}</a></li>
 		<li data-cerb-tab="policy"><a href="#{$tabs_uid}Policy">{'common.policy'|devblocks_translate|capitalize}</a></li>
 		<li data-cerb-tab="log"><a href="#{$tabs_uid}Log">{'common.log'|devblocks_translate|capitalize}</a></li>
-		{*<li data-cerb-tab="versions"><a href="#{$tabs_uid}Versions">{'common.versions'|devblocks_translate|capitalize}</a></li>*}
+		{if !empty($model) && !empty($model->id)}<li data-cerb-tab="history"><a href="#{$tabs_uid}History">{'common.change_history'|devblocks_translate|capitalize}</a></li>{/if}
 		<li data-cerb-tab="visualization"><a href="#{$tabs_uid}Visualization">Visualization</a></li>
 	</ul>
 
@@ -131,12 +131,8 @@
 		<textarea name="automation_policy_kata" data-editor-mode="ace/mode/cerb_kata" data-editor-lines="25">{$model->policy_kata}</textarea>
 	</div>
 
-	{*
-	<div id="{$tabs_uid}Versions">
-	</div>
-	*}
-
 	<div id="{$tabs_uid}Log"></div>
+	{if !empty($model) && !empty($model->id)}<div id="{$tabs_uid}History"></div>{/if}
 	<div id="{$tabs_uid}Visualization"></div>
 </div>
 
@@ -193,6 +189,20 @@ $(function() {
 					formData.set('module', 'automation');
 					formData.set('action', 'editorLog');
 					formData.set('automation_name', $frm.find('input[name="name"]').val());
+
+					genericAjaxPost(formData, null, null, function (html) {
+						ui.newPanel.html(html);
+					});
+					
+				} else if(ui.newTab.attr('data-cerb-tab') === 'history') {
+					Devblocks.getSpinner().appendTo(ui.newPanel.html(''));
+
+					formData = new FormData();
+					formData.set('c', 'profiles');
+					formData.set('a', 'invoke');
+					formData.set('module', 'automation');
+					formData.set('action', 'editorHistory');
+					formData.set('automation_id', $frm.find('input[name="id"]').val());
 
 					genericAjaxPost(formData, null, null, function (html) {
 						ui.newPanel.html(html);

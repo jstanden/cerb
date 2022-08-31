@@ -640,6 +640,11 @@
 				<seg>category</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.change_history">
+			<tuv xml:lang="en_US">
+				<seg>change history</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.changeset">
 			<tuv xml:lang="en_US">
 				<seg>changeset</seg>
