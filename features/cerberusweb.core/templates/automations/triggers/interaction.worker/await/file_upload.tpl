@@ -1,5 +1,5 @@
 {$element_id = uniqid()}
-<div class="cerb-form-builder-prompt cerb-form-builder-prompt-text" id="{$element_id}">
+<div class="cerb-form-builder-prompt cerb-form-builder-prompt-file-upload" id="{$element_id}">
 	<h6>{$label}</h6>
 
 	<div style="margin-left:10px;">

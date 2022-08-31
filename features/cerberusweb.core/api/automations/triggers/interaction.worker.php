@@ -6,6 +6,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 		return [
 			'editor' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\EditorAwait',
 			'end' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\EndAwait',
+			'fileDownload' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\FileDownloadAwait',
 			'fileUpload' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\FileUploadAwait',
 			'map' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\MapAwait',
 			'query' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\QueryAwait',
@@ -224,6 +225,11 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 						'interaction' => 'ai.cerb.automationBuilder.interaction.worker.await.promptEditor',
 					],
 					[
+						'caption' => 'fileDownload:',
+						'snippet' => "fileDownload/\${1:prompt_file}:\n\t\${2:}",
+						'description' => "Prompt for a file download",
+					],
+					[
 						'caption' => 'fileUpload:',
 						'snippet' => "fileUpload/\${1:prompt_file}:\n\t\${2:}",
 						'description' => "Prompt for a file upload",
@@ -299,6 +305,31 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'markdown',
 					'text',
 					'yaml',
+				],
+				
+				'(.*):await:form:elements:fileDownload:' => [
+					[
+						'caption' => 'label:',
+						'snippet' => "label: \${1:Label:}",
+						'score' => 2000,
+					],
+					[
+						'caption' => 'uri:',
+						'snippet' => "uri: cerb:automation:\${1:idOrName}",
+						'score' => 1999,
+					],
+					[
+						'caption' => 'filename:',
+						'snippet' => "filename: \${1:example.zip}",
+						'score' => 1998,
+					],
+				],
+				'(.*):await:form:elements:fileDownload:uri:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'attachment' => null,
+						'automation_resource' => null,
+					],
 				],
 				
 				'(.*):await:form:elements:fileUpload:' => [
