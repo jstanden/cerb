@@ -492,19 +492,6 @@ class PageSection_InternalRecords extends Extension_PageSection {
 					$context_id = intval($defaults['email']);
 				}
 				
-				// Suggest from all of the contact's alternate email addys
-				if($context_id && false != ($contact = DAO_Contact::get($context_id))) {
-					$addys = $contact->getEmails();
-					
-					if(is_array($addys))
-						foreach($addys as $addy) {
-							$suggested_photos[] = array(
-								'url' => 'https://gravatar.com/avatar/' . md5($addy->email) . '?s=100&d=404',
-								'title' => 'Gravatar: ' . $addy->email,
-							);
-						}
-				}
-				
 				$suggested_photos[] = array(
 					'url' => $url_writer->write('c=resource&p=cerberusweb.core&f=images/avatars/person1.png', true),
 					'title' => 'Silhouette: Male #1',
@@ -534,19 +521,6 @@ class PageSection_InternalRecords extends Extension_PageSection {
 				break;
 			
 			case CerberusContexts::CONTEXT_ORG:
-				if(false != ($org = DAO_ContactOrg::get($context_id))) {
-					// Suggest from all of the org's top email addys w/o contacts
-					$addys = $org->getEmailsWithoutContacts(10);
-					
-					if(is_array($addys))
-						foreach($addys as $addy) {
-							$suggested_photos[] = array(
-								'url' => 'https://gravatar.com/avatar/' . md5($addy->email) . '?s=100&d=404',
-								'title' => 'Gravatar: ' . $addy->email,
-							);
-						}
-				}
-				
 				$suggested_photos[] = array(
 					'url' => $url_writer->write('c=resource&p=cerberusweb.core&f=images/avatars/building1.png', true),
 					'title' => 'Building #1',
@@ -562,24 +536,6 @@ class PageSection_InternalRecords extends Extension_PageSection {
 				break;
 			
 			case CerberusContexts::CONTEXT_WORKER:
-				// Suggest from the address we're adding to the new worker
-				if(empty($context_id)) {
-					if(isset($defaults['email']) && false != ($addy = DAO_Address::get($defaults['email']))) {
-						$suggested_photos[] = array(
-							'url' => 'https://gravatar.com/avatar/' . md5($addy->email) . '?s=100&d=404',
-							'title' => 'Gravatar: ' . $addy->email,
-						);
-					}
-					
-				} else if($context_id && false != ($worker = DAO_Worker::get($context_id))) {
-					if(false != ($email = $worker->getEmailString())) {
-						$suggested_photos[] = array(
-							'url' => 'https://gravatar.com/avatar/' . md5($email) . '?s=100&d=404',
-							'title' => 'Gravatar: ' . $email,
-						);
-					}
-				}
-				
 				$suggested_photos[] = array(
 					'url' => $url_writer->write('c=resource&p=cerberusweb.core&f=images/avatars/person1.png', true),
 					'title' => 'Silhouette: Male #1',
