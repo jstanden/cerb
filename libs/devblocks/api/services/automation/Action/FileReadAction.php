@@ -74,7 +74,7 @@ class FileReadAction extends AbstractAction {
 				throw new Exception_DevblocksAutomationError($error);
 			}
 			
-			if(false == ($uri_parts = DevblocksPlatform::services()->ui()->parseURI($inputs['uri']))) {
+			if(!($uri_parts = DevblocksPlatform::services()->ui()->parseURI($inputs['uri']))) {
 				$error = sprintf("Failed to parse the URI (`%s`)", $inputs['uri']);
 				throw new Exception_DevblocksAutomationError($error);
 			}
@@ -83,7 +83,7 @@ class FileReadAction extends AbstractAction {
 			$fp_max_size = intval($inputs['length'] ?? 1024000);
 			
 			if($uri_parts['context'] == \CerberusContexts::CONTEXT_AUTOMATION_RESOURCE) {
-				if(false == ($resource = \DAO_AutomationResource::getByToken($uri_parts['context_id']))) {
+				if(!($resource = \DAO_AutomationResource::getByToken($uri_parts['context_id']))) {
 					$error = sprintf("Failed to load the automation resource (`%s`)", $inputs['uri']);
 					throw new Exception_DevblocksAutomationError($error);
 				}
@@ -126,7 +126,7 @@ class FileReadAction extends AbstractAction {
 					$dict->set($output, $results);
 				
 			} else if($uri_parts['context'] == \CerberusContexts::CONTEXT_ATTACHMENT) {
-				if(false == ($file = \DAO_Attachment::get($uri_parts['context_id']))) {
+				if(!($file = \DAO_Attachment::get($uri_parts['context_id']))) {
 					$error = sprintf("Failed to load the attachment (`%s`)", $inputs['uri']);
 					throw new Exception_DevblocksAutomationError($error);
 				}
