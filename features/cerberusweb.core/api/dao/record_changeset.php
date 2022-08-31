@@ -71,7 +71,7 @@ class DAO_RecordChangeset {
 		return null;
 	}
 	
-	public static function getChangesets(string $record_type, int $record_id, bool $is_descending=true, int $since_id=0) : array {
+	public static function getChangesets(string $record_type, int $record_id, int $limit=10, bool $is_descending=true, int $since_id=0) : array {
 		$db = DevblocksPlatform::services()->database();
 		
 		$sort = sprintf('ORDER BY id %s', $is_descending ? 'DESC' : 'ASC');
@@ -88,10 +88,12 @@ class DAO_RecordChangeset {
 			'FROM record_changeset '.
 			'WHERE record_type = %s '.
 			'AND record_id = %d '.
-			'%s',
+			'%s '.
+			'LIMIT %d',
 			$db->qstr($record_type),
 			$record_id,
-			$sort
+			$sort,
+			$limit
 		));
 		
 		if(!$records)
@@ -116,6 +118,42 @@ class DAO_RecordChangeset {
 		
 		if(!$result)
 			return false;
+		
+		return true;
+	}
+	
+	/**
+	 * @param string $record_type
+	 * @param int|array $ids
+	 * @return bool
+	 */
+	public static function delete(string $record_type, $ids) : bool {
+		$db = DevblocksPlatform::services()->database();
+		
+		if(is_int($ids))
+			$ids = [$ids];
+		
+		if(!is_array($ids))
+			return false;
+		
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
+		
+		if(empty($record_type) || empty($ids))
+			return false;
+		
+		$results = $db->GetArrayMaster(sprintf('SELECT id FROM record_changeset WHERE record_type = %s AND record_id IN (%s)',
+			$db->qstr($record_type),
+			implode(',', $ids)
+		));
+		
+		if($results) {
+			Storage_RecordChangeset::delete(array_column($results, 'id'));
+		}
+		
+		$db->ExecuteWriter(sprintf('DELETE FROM record_changeset WHERE record_type = %s AND record_id IN (%s)',
+			$db->qstr($record_type),
+			implode(',', $ids)
+		));
 		
 		return true;
 	}
