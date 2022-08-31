@@ -2262,31 +2262,11 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 		return array_values(array_diff($words, ['']));
 	}
 	
-	/**
-	 * https://github.com/fabpot/Twig-extensions/blob/master/lib/Twig/Extensions/Extension/Text.php
-	 *
-	 * @param string $value
-	 * @param integer $length
-	 * @param boolean $preserve
-	 * @param string $separator
-	 *
-	 */
-	function filter_truncate($value, $length = 30, $preserve = false, $separator = '...') {
+	function filter_truncate($value, $length = 30, $separator = '...') {
 		if($value instanceof Twig\Markup)
 			$value = strval($value);
 		
-		if(!is_string($value))
-			return '';
-		
-		if (mb_strlen($value, LANG_CHARSET_CODE) > $length) {
-			if ($preserve) {
-				if (false !== ($breakpoint = mb_strpos($value, ' ', $length, LANG_CHARSET_CODE))) {
-					$length = $breakpoint;
-				}
-			}
-			return mb_substr($value, 0, $length, LANG_CHARSET_CODE) . $separator;
-		}
-		return $value;
+		return DevblocksPlatform::services()->string()->truncate($value, $length, $separator);
 	}
 	
 	function filter_unescape($string, $mode='html', $flags=null) {
