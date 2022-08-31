@@ -3,7 +3,7 @@
 <div>
 	<div style="float:left;">
 		<div style="margin:0;padding:0;border:1px solid rgb(230,230,230);display:inline-block;">
-			<canvas class="canvas-avatar" width="{$image_width}" height="{$image_height}" style="width:{$image_width}px;height:{$image_height}px;cursor:move;"></canvas>
+			<canvas class="canvas-avatar" width="{$image_width}" height="{$image_height}" style="max-width:100px;height:auto;cursor:move;"></canvas>
 		</div>
 		<div style="margin-top:5px;">
 			<input type="text" name="bgcolor" value="#ffffff" size="8" class="color-picker">
