@@ -453,10 +453,10 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		$image_height = DevblocksPlatform::importGPC($_REQUEST['image_height'] ?? null, 'integer',0);
 		
 		if(empty($image_width))
-			$image_width = 100;
+			$image_width = 256;
 		
 		if(empty($image_height))
-			$image_height = 100;
+			$image_height = 256;
 		
 		$url_writer = DevblocksPlatform::services()->url();
 		$tpl = DevblocksPlatform::services()->template();
