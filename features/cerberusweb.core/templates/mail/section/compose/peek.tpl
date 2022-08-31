@@ -979,10 +979,14 @@ $(function() {
 										resolve(e);
 									},
 									'error': function(e) {
-										reject(e);
+										e.stopPropagation();
+										$interaction.remove();
+										resolve(e);
 										setTimeout(function() { $editor.focus(); }, 25);
 									},
 									'abort': function(e) {
+										e.stopPropagation();
+										$interaction.remove();
 										reject(e);
 										setTimeout(function() { $editor.focus(); }, 25);
 									}

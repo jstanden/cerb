@@ -4660,6 +4660,13 @@ var ajax = new cAjaxCalls();
 										reject();
 									}
 
+								} else if('error' === json.exit) {
+									if(options && options.error && 'function' == typeof options.error) {
+										options.error($.Event('cerb-interaction-done', { trigger: $trigger, eventData: json }));
+									}
+									
+									reject('Interaction error');
+									
 								} else if('await' === json.exit) {
 									var $html = $('<div/>')
 										.on('cerb-interaction-reset', function(e) {
@@ -4715,6 +4722,13 @@ var ajax = new cAjaxCalls();
 									} else {
 										reject('No clipboard data');
 									}
+									
+								} else if('error' === json.exit) {
+									if(options && options.error && 'function' == typeof options.error) {
+										options.error($.Event('cerb-interaction-done', { trigger: $trigger, eventData: json }));
+									}
+
+									reject('Interaction error');
 
 								// Open a blank popup and assign content
 								} else if('await' === json.exit) {
@@ -4738,6 +4752,13 @@ var ajax = new cAjaxCalls();
 											}
 
 											genericAjaxPopupClose($popup);
+										})
+										.on('peek_aborted', function(e) {
+											e.stopPropagation();
+
+											if(options && options.abort && 'function' == typeof options.abort) {
+												options.abort($.Event('cerb-interaction-done', { trigger: $trigger, eventData: { } }));
+											}
 										})
 									;
 
