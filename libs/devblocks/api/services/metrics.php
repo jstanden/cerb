@@ -198,10 +198,10 @@ class _DevblocksMetricsService {
 			}
 			
 			$values = new Model_MetricValueSampleSet(
-				$message_data['samples'] ?? 0,
-				$message_data['sum'] ?? 0,
-				$message_data['min'] ?? 0,
-				$message_data['max'] ?? 0,
+				intval($message_data['samples'] ?? 0),
+				floatval($message_data['sum'] ?? 0),
+				floatval($message_data['min'] ?? 0),
+				floatval($message_data['max'] ?? 0),
 			);
 			
 			$ts = $message_data['ts'] ?? null;
