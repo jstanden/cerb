@@ -60,6 +60,24 @@ class EditorAwait extends AbstractAwait {
 				break;
 		}
 		
+		$toolbar_schema = $this->_data['toolbar'] ?? [];
+		
+		if($toolbar_schema) {
+			$toolbar_dict = \DevblocksDictionaryDelegate::instance([
+				'caller_name' => 'cerb.toolbar.interaction.worker.await.editor',
+				
+				'worker__context' => \CerberusContexts::CONTEXT_WORKER,
+				'worker_id' => \CerberusApplication::getActiveWorker()->id ?? 0,
+			]);
+			
+			if(is_array($toolbar_schema))
+				$toolbar_schema = DevblocksPlatform::services()->kata()->emit($toolbar_schema);
+			
+			$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_schema, $toolbar_dict);
+			$tpl->assign('editor_toolbar', $toolbar);
+			$tpl->assign('editor_has_toolbar', true);
+		}
+		
 		$tpl->assign('var', $this->_key);
 		$tpl->assign('label', $label);
 		$tpl->assign('default', $default);

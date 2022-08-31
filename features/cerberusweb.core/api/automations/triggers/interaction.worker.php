@@ -280,6 +280,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'validation@raw:',
 					'readonly@bool: yes',
 					'line_numbers@bool: no',
+					'toolbar:',
 				],
 				'(.*):await:form:elements:editor:line_numbers:' => [
 					'yes',
