@@ -92,6 +92,11 @@ $(function() {
 		.cerbSearchTrigger()
 	;
 	
+	$sheet.find('.cerb-interaction-trigger')
+		.cerbBotTrigger({
+		})
+	;
+	
 	$sheet.find('[data-cerb-select-all]').on('change', function(e) {
 		e.preventDefault();
 		

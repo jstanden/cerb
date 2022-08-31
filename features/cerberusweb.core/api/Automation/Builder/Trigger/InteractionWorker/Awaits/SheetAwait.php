@@ -135,6 +135,7 @@ class SheetAwait extends AbstractAwait {
 		$sheets->addType('card', $sheets->types()->card());
 		$sheets->addType('date', $sheets->types()->date());
 		$sheets->addType('icon', $sheets->types()->icon());
+		$sheets->addType('interaction', $sheets->types()->interaction());
 		$sheets->addType('link', $sheets->types()->link());
 		$sheets->addType('selection', $sheets->types()->selection());
 		$sheets->addType('slider', $sheets->types()->slider());

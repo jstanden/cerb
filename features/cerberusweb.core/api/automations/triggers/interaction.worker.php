@@ -705,6 +705,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					],
 					'date/key:',
 					'icon/key:',
+					'interaction/key:',
 					'link/key:',
 					'selection/key:',
 					'slider/key:',
@@ -769,6 +770,31 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 				],
 				'(.*):await:form:elements:sheet:schema:columns:icon:params:record_uri:' => [
 					'type' => 'cerb-uri',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:interaction:' => [
+					'params:',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:interaction:params:' => [
+					'inputs:',
+					'text: Link title',
+					'text_key: _label',
+					'text_template@raw:',
+					'uri:',
+					'uri_key:',
+					'uri_template@raw:',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:interaction:params:inputs:' => [
+					'type' => 'automation-inputs',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:interaction:params:uri:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'automation' => [
+							'triggers' => [
+								'cerb.trigger.interaction.worker',
+							]
+						]
+					]
 				],
 				'(.*):await:form:elements:sheet:schema:columns:link:' => [
 					'params:',
