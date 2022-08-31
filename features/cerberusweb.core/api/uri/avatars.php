@@ -347,6 +347,5 @@ class Controller_Avatars extends DevblocksControllerExtension {
 		imagettftext($im, $font_size, 0, $x, $y, $text_color, $font, $text);
 		imagepng($im, null, 1);
 		imagedestroy($im);
-		return;
 	}
 };

@@ -61,7 +61,7 @@
 $(function() {
 	var $popup = genericAjaxPopupFind($('#frmAvatarEditor'));
 	
-	$popup.one('popup_open', function(event,ui) {
+	$popup.one('popup_open', function() {
 		$popup.dialog('option','title',"Profile Picture Editor");
 		$popup.css('overflow', 'inherit');
 		
@@ -69,7 +69,6 @@ $(function() {
 		var canvas = $canvas.get(0);
 		var context = canvas.getContext('2d');
 		var $export = $popup.find('button.canvas-avatar-export');
-		var $imagedata = $popup.find('input.canvas-avatar-imagedata');
 		var $error = $popup.find('div.cerb-avatar-error');
 		var $spinner = $popup.find('svg.cerb-spinner');
 		var $suggested = $popup.find('div.cerb-avatar-suggested-photos');
@@ -87,14 +86,14 @@ $(function() {
 		$monogram.find('button').click(function() {
 			var bgcolor = $bgcolor_well.val();
 			
-			if(bgcolor == '#ffffff') {
+			if('#ffffff' === bgcolor) {
 				bgcolor = '#1e5271';
 				$bgcolor_well.minicolors('value', { color: bgcolor, opacity:0 });
 			}
 			
 			var txt = $monogram.find('input:text').val(); //.substring(0,3);
 			
-			var scale = 1.0;
+			scale = 1.0;
 			x = 0;
 			y = 0;
 			
@@ -106,7 +105,7 @@ $(function() {
 			var height = 70;
 			var bounds = { width: {$image_width} };
 			while(bounds.width > 95) {
-				var height = height - 5;
+				height = height - 5;
 				new_context.font = "Bold " + height + "pt Arial";
 				bounds = new_context.measureText(txt);
 			}
@@ -144,11 +143,11 @@ $(function() {
 			lastY = event.offsetY;
 		});
 		
-		$canvas.mouseup(function(event) {
+		$canvas.mouseup(function() {
 			isMouseDown = false;
 		});
 		
-		$canvas.mouseout(function(event) {
+		$canvas.mouseout(function() {
 			isMouseDown = false;
 		});
 		
@@ -250,7 +249,7 @@ $(function() {
 				'imagedata': canvas.toDataURL()
 			};
 			
-			if(0 == $(img).attr('src').length) {
+			if(0 === $(img).attr('src').length) {
 				evt.avatar.empty = true;
 			}
 			
