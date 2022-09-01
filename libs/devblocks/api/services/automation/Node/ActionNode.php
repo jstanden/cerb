@@ -16,6 +16,7 @@ class ActionNode extends AbstractNode {
 			'encrypt.pgp' => '\Cerb\AutomationBuilder\Action\EncryptPgpAction',
 			'error' => '\Cerb\AutomationBuilder\Action\ErrorAction',
 			'file.read' => '\Cerb\AutomationBuilder\Action\FileReadAction',
+			'file.write' => '\Cerb\AutomationBuilder\Action\FileWriteAction',
 			'function' => '\Cerb\AutomationBuilder\Action\FunctionAction',
 			'http.request' => '\Cerb\AutomationBuilder\Action\HttpRequestAction',
 			'kata.parse' => '\Cerb\AutomationBuilder\Action\KataParseAction',

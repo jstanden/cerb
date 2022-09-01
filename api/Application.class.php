@@ -4078,7 +4078,66 @@ class _CerbApplication_KataSchemas {
                       output:
                         types:
                           string:
-                
+              
+              file.write:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+                      inputs:
+                        types:
+                          object:
+                            attributes:
+                              content:
+                                types:
+                                  string:
+                                  object:
+                                    attributes:
+                                      bytes:
+                                        types:
+                                          string:
+                                      text:
+                                        types:
+                                          string:
+                                      zip:
+                                        types:
+                                          object:
+                                            attributes:
+                                              files:
+                                                types:
+                                                  object:
+                                                    attributes:
+                                                      file:
+                                                        multiple@bool: yes
+                                                        types:
+                                                          object:
+                                                            attributes:
+                                                              bytes:
+                                                                types:
+                                                                  string:
+                                                              path:
+                                                                types:
+                                                                  string:
+                                                              uri:
+                                                                types:
+                                                                  string:
+                                              password:
+                              expires:
+                                types:
+                                  string:
+                              mime_type:
+                                types:
+                                  string:
+                      on_error:
+                        ref: commands
+                      on_simulate:
+                        ref: commands
+                      on_success:
+                        ref: commands
+                      output:
+                        types:
+                          string:
+              
               function:
                 multiple@bool: yes
                 types:
@@ -4803,6 +4862,7 @@ class _CerbApplication_KataSchemas {
                 email.parse@ref: policyRule
                 encrypt.pgp@ref: policyRule
                 file.read@ref: policyRule
+                file.write@ref: policyRule
                 function@ref: policyRule
                 http.request@ref: policyRule
                 metric.increment@ref: policyRule
