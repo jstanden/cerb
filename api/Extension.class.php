@@ -1124,6 +1124,11 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 						'description' => "Extract a file by path from an archive",
 					],
 					[
+						'caption' => 'filters:',
+						'snippet' => "filters:",
+						'description' => "Apply filters to the bytes being read (e.g. gzip)",
+					],
+					[
 						'caption' => 'length:',
 						'snippet' => "length: 4096",
 						'description' => "Read this many bytes from the content (omit to read the full content)",
@@ -1133,6 +1138,9 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 						'snippet' => "offset: 4096",
 						'description' => "Start reading content after this many bytes",
 					],
+				],
+				'(.*):file.read:inputs:filters:' => [
+					'gzip.decompress:',
 				],
 				'(.*):file.read:inputs:uri:' => [
 					'type' => 'cerb-uri',

@@ -4057,6 +4057,9 @@ class _CerbApplication_KataSchemas {
                               extract:
                                 types:
                                   string:
+                              filters:
+                                types:
+                                  list:
                               length:
                                 types:
                                   number:
