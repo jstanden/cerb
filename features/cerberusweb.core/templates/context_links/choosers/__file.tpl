@@ -85,7 +85,7 @@ $(function() {
 	
 	var loadBundleFunc = function(bundle_id, labels, values, callback) {
 		genericAjaxGet('', 'c=internal&a=invoke&module=records&action=chooserOpenFileLoadBundle&bundle_id=' + encodeURIComponent(bundle_id), function(json) {
-			if(!$.isArray(json)) {
+			if(!Array.isArray(json)) {
 				callback();
 				return;
 			}

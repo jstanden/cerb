@@ -2155,7 +2155,7 @@ var ajax = new cAjaxCalls();
 						return;
 					}
 
-					if($.isArray(json)) {
+					if(Array.isArray(json)) {
 						var $container = $('<div/>')
 							.addClass('bubbles')
 						;
@@ -3008,7 +3008,7 @@ var ajax = new cAjaxCalls();
 
 					editor.completer.isDynamic = false;
 					
-					if($.isArray(completions)) {
+					if(Array.isArray(completions)) {
 						return callback(null, autocompleterKata.formatSuggestions(completions));
 						
 					} else if(typeof completions == 'object') {
@@ -3072,7 +3072,7 @@ var ajax = new cAjaxCalls();
 								var key_line = editor.session.getLine(key_row);
 								var matches = key_line.match(/[^:]*:\s*(.*)/i);
 
-								if($.isArray(matches) && 2 == matches.length) {
+								if(Array.isArray(matches) && 2 == matches.length) {
 									formData = new FormData();
 									formData.set('c', 'ui');
 									formData.set('a', 'kataSuggestionsRecordFieldsJson');
@@ -3112,7 +3112,7 @@ var ajax = new cAjaxCalls();
 								var key_line = editor.session.getLine(key_row);
 								var matches = key_line.match(/[^:]*:\s*(.*)/i);
 								
-								if($.isArray(matches) && 2 === matches.length) {
+								if(Array.isArray(matches) && 2 === matches.length) {
 									formData = new FormData();
 									formData.set('c', 'ui');
 									formData.set('a', 'kataSuggestionsAutomationInputsJson');
@@ -3135,7 +3135,7 @@ var ajax = new cAjaxCalls();
 								var key_line = editor.session.getLine(key_row);
 								var matches = key_line.match(/[^:]*:\s*(.*)/i);
 								
-								if($.isArray(matches) && 2 === matches.length) {
+								if(Array.isArray(matches) && 2 === matches.length) {
 									formData = new FormData();
 									formData.set('c', 'ui');
 									formData.set('a', 'kataSuggestionsMetricDimensionJson');
@@ -3149,7 +3149,7 @@ var ajax = new cAjaxCalls();
 								
 							} else {
 								genericAjaxPost(formData, '', '', function (json) {
-									if ($.isArray(json)) {
+									if (Array.isArray(json)) {
 										return callback(null, autocompleterKata.formatSuggestions(json));
 									}
 
@@ -3265,7 +3265,7 @@ var ajax = new cAjaxCalls();
 
 					steps.push(function(callback) {
 						// Check local cache
-						if(mentions_cache && $.isArray(mentions_cache)) {
+						if(mentions_cache && Array.isArray(mentions_cache)) {
 							return callback(null, mentions_cache);
 						}
 
@@ -3466,7 +3466,7 @@ var ajax = new cAjaxCalls();
 
 					steps.push(function(callback) {
 						// Check local cache
-						if(mentions_cache && $.isArray(mentions_cache)) {
+						if(mentions_cache && Array.isArray(mentions_cache)) {
 							return callback(null, mentions_cache);
 						}
 
@@ -3879,7 +3879,7 @@ var ajax = new cAjaxCalls();
 
 					// Do we need to lazy load?
 					if(autocomplete_suggestions.hasOwnProperty(scope_key)) {
-						if($.isArray(autocomplete_suggestions[scope_key])) {
+						if(Array.isArray(autocomplete_suggestions[scope_key])) {
 							var results = completer.formatData(scope_key);
 							callback(null, results);
 							
@@ -4240,7 +4240,7 @@ var ajax = new cAjaxCalls();
 					}
 					
 					if(autocomplete_suggestions[scope_key]) {
-						if($.isArray(autocomplete_suggestions[scope_key])) {
+						if(Array.isArray(autocomplete_suggestions[scope_key])) {
 							var results = completer.formatData(scope_key);
 							callback(null, results);
 							
@@ -4345,7 +4345,7 @@ var ajax = new cAjaxCalls();
 								var of_types = autocomplete_suggestions[scope_key].of_types || '';
 								
 								genericAjaxGet('', 'c=ui&a=queryFieldSuggestions&of=' + encodeURIComponent(of) + '&types=' + encodeURIComponent(of_types), function(json) {
-									if(!$.isArray(json)) {
+									if(!Array.isArray(json)) {
 										callback(null, []);
 										return;
 									}
@@ -4361,7 +4361,7 @@ var ajax = new cAjaxCalls();
 						
 					} else {
 						if(
-							('object' == typeof token_path && $.isArray(token_path.scope)) // && 'object' == typeof token_path.scope[0]
+							('object' == typeof token_path && Array.isArray(token_path.scope)) // && 'object' == typeof token_path.scope[0]
  							&& (
 								('series.' == token_path.scope[0].substr(0,7) && !autocomplete_suggestions[token_path.scope[0]] && autocomplete_suggestions['series.*:'])
 								||

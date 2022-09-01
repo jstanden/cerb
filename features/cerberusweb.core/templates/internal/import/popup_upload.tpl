@@ -24,10 +24,10 @@ $(function() {
 	var $popup = genericAjaxPopupFind('#frmImportPopup');
 	var $frm = $popup.find('FORM#frmImportPopup');
 	
-	$frm.submit(function(event) {
+	$frm.on('submit', function() {
 		var $frm = $(this);
 		var $iframe = $frm.siblings('IFRAME[name=iframe_file_post]');
-		$iframe.one('load', function(event) {
+		$iframe.one('load', function() {
 			genericAjaxPopup('{$layer}', 'c=internal&a=invoke&module=worklists&action=renderImportMappingPopup&context={$context}&view_id={$view_id}', 'reuse', false, '550');
 		});
 	});
