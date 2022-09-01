@@ -843,6 +843,11 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'description' => "Read attachment content",
 			],
 			[
+				'caption' => 'file.write:',
+				'snippet' => "file.write:\n\tinputs:\n\t\t\${1:}\n\toutput: results\n\t#on_simulate:\n\t#on_success:\n\t#on_error:\n",
+				'description' => "Write attachment content",
+			],
+			[
 				'caption' => 'function:',
 				'snippet' => "function:\n\turi: \${1:}\n\tinputs:\n\t\t\${2:}\n\toutput: results\n\t#on_simulate:\n\t#on_success:\n\t#on_error:\n",
 				'description' => "Run an automation function",
@@ -1143,6 +1148,40 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'gzip.decompress:',
 				],
 				'(.*):file.read:inputs:uri:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'attachment' => null,
+						'automation_resource' => null,
+					],
+				],
+				
+				'(.*):file.write:' => $action_base,
+				'(.*):file.write:inputs:' => [
+					'content:',
+					'expires@date: +15 mins',
+					'mime_type:',
+				],
+				'(.*):file.write:inputs:content:' => [
+					'bytes:',
+					'text:',
+					'zip:',
+				],
+				'(.*):file.write:inputs:content:zip:' => [
+					'files:',
+					'password:',
+				],
+				'(.*):file.write:inputs:content:zip:files:' => [
+					[
+						'caption' => 'file:',
+						'snippet' => "file/\${0:key}:\n\t\${1:}",
+					]
+				],
+				'(.*):file.write:inputs:content:zip:files:file:' => [
+					'bytes:',
+					'path:',
+					'uri:',
+				],
+				'(.*):file.write:inputs:content:zip:files:file:uri:' => [
 					'type' => 'cerb-uri',
 					'params' => [
 						'attachment' => null,

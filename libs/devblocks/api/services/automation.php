@@ -519,6 +519,7 @@ class _DevblocksAutomationService {
 			'encrypt.pgp',
 			'error',
 			'file.read',
+			'file.write',
 			'function',
 			'http.request',
 			'kata.parse',

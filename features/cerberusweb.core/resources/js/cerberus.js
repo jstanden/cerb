@@ -35,6 +35,7 @@ var cerbAutocompleteSuggestions = {
 			'email.parse:',
 			'encrypt.pgp:',
 			'file.read:',
+			'file.write:',
 			'function:',
 			'http.request:',
 			'metric.increment:',
@@ -78,6 +79,10 @@ var cerbAutocompleteSuggestions = {
 				'snippet': "deny/uri@bool: {{inputs.uri != 'cerb:attachment:1'}}",
 				'docHTML': 'Validate file URI'
 			},
+			'allow@bool: yes'
+		],
+		'commands:file.write:': [
+			'deny@bool: yes',
 			'allow@bool: yes'
 		],
 		'commands:function:': [
