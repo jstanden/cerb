@@ -49,6 +49,10 @@ class FileReadAction extends AbstractAction {
 				->number()
 			;
 			
+			$validation->addField('filters', 'inputs:filters:')
+				->array()
+			;
+			
 			$validation->addField('uri', 'inputs:uri:')
 				->string()
 				->setRequired(true)
@@ -90,6 +94,7 @@ class FileReadAction extends AbstractAction {
 				
 				// Do we have a manifest key?
 				$extract = $inputs['extract'] ?? null;
+				$filters = $inputs['filters'] ?? [];
 				
 				if($extract) {
 					$error = null;
@@ -98,18 +103,21 @@ class FileReadAction extends AbstractAction {
 					
 				} else {
 					$fp = DevblocksPlatform::getTempFile();
+					$stream_mime_type = $resource->mime_type;
 					
 					$resource->getFileContents($fp);
 					
-					fseek($fp, $fp_offset);
+					$fp_filters = $this->_registerStreamFilters($fp, $filters, $stream_mime_type);
 					
-					$bytes = fread($fp, $fp_max_size);
+					$bytes = stream_get_contents($fp, $fp_max_size, $fp_offset);
 					$length = strlen($bytes);
+					
+					$this->_deregisterStreamFilters($fp_filters);
 					
 					$is_printable = DevblocksPlatform::services()->string()->isPrintable($bytes);
 					
 					if(!$is_printable)
-						$bytes = sprintf('data:%s;base64,%s', $resource->mime_type, base64_encode($bytes));
+						$bytes = sprintf('data:%s;base64,%s', $stream_mime_type, base64_encode($bytes));
 					
 					$results = [
 						'bytes' => $bytes,
@@ -133,6 +141,7 @@ class FileReadAction extends AbstractAction {
 				
 				// Do we have a manifest key?
 				$extract = $inputs['extract'] ?? null;
+				$filters = $inputs['filters'] ?? [];
 				
 				if($extract) {
 					$error = null;
@@ -141,18 +150,21 @@ class FileReadAction extends AbstractAction {
 					
 				} else {
 					$fp = DevblocksPlatform::getTempFile();
+					$stream_mime_type = $file->mime_type;
 					
 					$file->getFileContents($fp);
 					
-					fseek($fp, $fp_offset);
+					$fp_filters = $this->_registerStreamFilters($fp, $filters, $stream_mime_type);
 					
-					$bytes = fread($fp, $fp_max_size);
+					$bytes = stream_get_contents($fp, $fp_max_size, $fp_offset);
 					$length = strlen($bytes);
+					
+					$this->_deregisterStreamFilters($fp_filters);
 					
 					$is_printable = DevblocksPlatform::services()->string()->isPrintable($bytes);
 					
 					if (!$is_printable)
-						$bytes = sprintf('data:%s;base64,%s', $file->mime_type, base64_encode($bytes));
+						$bytes = sprintf('data:%s;base64,%s', $stream_mime_type, base64_encode($bytes));
 					
 					$results = [
 						'bytes' => $bytes,
@@ -251,5 +263,40 @@ class FileReadAction extends AbstractAction {
 			'size' => $stat['size'],
 			'mime_type' => $mime_type,
 		];
+	}
+	
+	/**
+	 * @throws Exception_DevblocksAutomationError
+	 */
+	private function _registerStreamFilters($fp, $filters, &$stream_mime_type=null) {
+		$fp_filters = [];
+		
+		foreach($filters as $filter_key => $filter_data) {
+			list($filter_type,) = array_pad(explode('/', $filter_key), 2, null);
+			
+			if('gzip.decompress' == $filter_type) {
+				if(!extension_loaded('zlib')) {
+					$error = "The `zlib` PHP extension is not enabled";
+					throw new Exception_DevblocksAutomationError($error);
+				}
+				
+				if(!($fp_filter = stream_filter_append($fp, 'zlib.inflate', STREAM_FILTER_READ, [
+					'window' => 30,
+				]))) {
+					$error = 'Failed to add the zlib.inflate filter to file.read';
+					throw new Exception_DevblocksAutomationError($error);
+				}
+				
+				$fp_filters[] = $fp_filter;
+				$stream_mime_type = 'application/octet-stream';
+			}
+		}
+		
+		return $fp_filters;
+	}
+	
+	private function _deregisterStreamFilters(array $fp_filters) {
+		foreach($fp_filters as $fp_filter)
+			stream_filter_remove($fp_filter);
 	}
 }
