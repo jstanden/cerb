@@ -157,7 +157,7 @@ $(function() {
 			});
 		});
 		
-		$chat_window_input_form.submit(function() {
+		$chat_window_input_form.on('submit', function() {
 			var txt = $chat_message.val();
 			
 			if(txt.length > 0) {

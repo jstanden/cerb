@@ -128,7 +128,7 @@
 		});
 	});
 	
-	$form.submit(function(e) {
+	$form.on('submit', function(e) {
 		e.stopPropagation();
 		
 		var txt = $msg.val();

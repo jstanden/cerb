@@ -54,7 +54,7 @@ $(function() {
 		editor.commands.byName.startAutocomplete.exec(editor);
 	});
 	
-	$frm.submit(function() {
+	$frm.on('submit', function() {
 	    var $view = $('#view{$view->id}');
 	    
 	    // If a search is already in progress, abort

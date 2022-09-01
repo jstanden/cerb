@@ -257,7 +257,7 @@ function DevblocksClass() {
 			beforeLoad: function(event, ui) {
 				var tab_title = ui.tab.find('> a').first().clone();
 				var $div = $('<div style="font-size:18px;font-weight:bold;text-align:center;padding:10px;margin:10px;"/>')
-					.text('Loading: ' + $.trim(tab_title.text()))
+					.text('Loading: ' + tab_title.text().trim())
 					.append($('<br>'))
 					.append(Devblocks.getSpinner())
 					;
@@ -546,7 +546,7 @@ function DevblocksClass() {
 	};
 	
 	this.loadScripts = function(urls, finished) {
-		if(!$.isArray(urls))
+		if(!Array.isArray(urls))
 			return callback(false);
 		
 		var $instance = this;
@@ -575,7 +575,7 @@ function DevblocksClass() {
 		var jobs = [];
 		
 		if(resources.hasOwnProperty('css')) {
-			if(!$.isArray(resources.css))
+			if(!Array.isArray(resources.css))
 				return callback(false);
 			
 			resources.css.forEach(function(url) {
@@ -587,7 +587,7 @@ function DevblocksClass() {
 		}
 		
 		if(resources.hasOwnProperty('js')) {
-			if(!$.isArray(resources.js))
+			if(!Array.isArray(resources.js))
 				return callback(false);
 			
 			resources.js.forEach(function(url) {
