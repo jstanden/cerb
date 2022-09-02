@@ -77,6 +77,11 @@
 			{$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar, $toolbar_dict)}
 			{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
 		{/if}
+
+		{if $model->id}
+			<div class="cerb-code-editor-toolbar-divider"></div>
+			<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-changesets-code title="{'common.change_history'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-history"></span></button>
+		{/if}
 	</div>
 	<textarea name="automation_script" data-editor-mode="ace/mode/cerb_kata" data-editor-lines="25">{$model->script}</textarea>
 </div>
@@ -87,7 +92,6 @@
 		<li data-cerb-tab="run"><a href="#{$tabs_uid}Run">{'common.run'|devblocks_translate|capitalize}</a></li>
 		<li data-cerb-tab="policy"><a href="#{$tabs_uid}Policy">{'common.policy'|devblocks_translate|capitalize}</a></li>
 		<li data-cerb-tab="log"><a href="#{$tabs_uid}Log">{'common.log'|devblocks_translate|capitalize}</a></li>
-		{if !empty($model) && !empty($model->id)}<li data-cerb-tab="history"><a href="#{$tabs_uid}History">{'common.change_history'|devblocks_translate|capitalize}</a></li>{/if}
 		<li data-cerb-tab="visualization"><a href="#{$tabs_uid}Visualization">Visualization</a></li>
 	</ul>
 
@@ -132,7 +136,6 @@
 	</div>
 
 	<div id="{$tabs_uid}Log"></div>
-	{if !empty($model) && !empty($model->id)}<div id="{$tabs_uid}History"></div>{/if}
 	<div id="{$tabs_uid}Visualization"></div>
 </div>
 
@@ -189,20 +192,6 @@ $(function() {
 					formData.set('module', 'automation');
 					formData.set('action', 'editorLog');
 					formData.set('automation_name', $frm.find('input[name="name"]').val());
-
-					genericAjaxPost(formData, null, null, function (html) {
-						ui.newPanel.html(html);
-					});
-					
-				} else if(ui.newTab.attr('data-cerb-tab') === 'history') {
-					Devblocks.getSpinner().appendTo(ui.newPanel.html(''));
-
-					formData = new FormData();
-					formData.set('c', 'profiles');
-					formData.set('a', 'invoke');
-					formData.set('module', 'automation');
-					formData.set('action', 'editorHistory');
-					formData.set('automation_id', $frm.find('input[name="id"]').val());
 
 					genericAjaxPost(formData, null, null, function (html) {
 						ui.newPanel.html(html);
@@ -395,6 +384,39 @@ $(function() {
 			;
 
 		var editor_automation = ace.edit($automation_yaml.nextAll('pre.ace_editor').attr('id'));
+
+		{if $model->id}
+		$popup.find('[data-cerb-editor-button-changesets-code]').on('click', function(e) {
+			e.stopPropagation();
+
+			var formData = new FormData();
+			formData.set('c', 'internal');
+			formData.set('a', 'invoke');
+			formData.set('module', 'records');
+			formData.set('action', 'showChangesetsPopup');
+			formData.set('record_type', 'automation');
+			formData.set('record_id', '{$model->id}');
+			formData.set('record_key', 'script');
+
+			var $editor_code_differ_popup = genericAjaxPopup('editorDiff{$form_id}', formData, null, null, '80%');
+
+			$editor_code_differ_popup.one('cerb-diff-editor-ready', function(e) {
+				e.stopPropagation();
+
+				if(!e.hasOwnProperty('differ'))
+					return;
+
+				e.differ.editors.right.ace.setValue(editor_automation.getValue());
+				e.differ.editors.right.ace.clearSelection();
+
+				e.differ.editors.right.ace.on('change', function() {
+					editor_automation.setValue(e.differ.editors.right.ace.getValue());
+					editor_automation.clearSelection();
+				});
+			});
+		});
+		{/if}
+		
 		var editor_state_start = ace.edit($state_yaml.nextAll('pre.ace_editor').attr('id'));
 		var editor_state_end = ace.edit($end_state_yaml.nextAll('pre.ace_editor').attr('id'));
 		//var editor_policy = ace.edit($editor_policy.nextAll('pre.ace_editor').attr('id'));

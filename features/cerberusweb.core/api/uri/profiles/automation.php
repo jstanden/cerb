@@ -31,8 +31,6 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 	function handleActionForPage(string $action, string $scope=null) {
 		if('profileAction' == $scope) {
 			switch ($action) {
-				case 'editorHistory':
-					return $this->_profileAction_editorHistory();
 				case 'editorLog':
 					return $this->_profileAction_editorLog();
 				case 'editorLogRefresh':
@@ -41,14 +39,10 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 					return $this->_profileAction_editorVisualize();
 				case 'getAutocompleteJson':
 					return $this->_profileAction_getAutocompleteJson();
-				case 'getChangesetJson':
-					return $this->_profileAction_getChangesetJson();
 				case 'getExtensionConfig':
 					return $this->_profileAction_getExtensionConfig();
 				case 'invokePrompt':
 					return $this->_profileAction_invokePrompt();
-				case 'refreshChangesets':
-					return $this->_profileAction_refreshChangesets();
 				case 'renderEditorToolbar':
 					return $this->_profileAction_renderEditorToolbar();
 				case 'runAutomationEditor':
@@ -338,89 +332,6 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::ui/sheets/render.tpl');
 	}
 
-	private function _profileAction_editorHistory() {
-		$tpl = DevblocksPlatform::services()->template();
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 403);
-		
-		if(!$active_worker->is_superuser)
-			DevblocksPlatform::dieWithHttpError(null, 403);
-		
-		$automation_id = DevblocksPlatform::importGPC($_POST['automation_id'] ?? null, 'integer', 0);
-		$tpl->assign('automation_id', $automation_id);
-		
-		$changesets = DAO_RecordChangeset::getChangesets('automation', $automation_id);
-		
-		$from_data = json_decode(Storage_RecordChangeset::get(array_key_first($changesets)), true);
-		
-		$tpl->assign('left_content', json_encode($from_data['script'] ?? ''));
-		$tpl->assign('automation_id', $automation_id);
-		
-		$tpl->assign('changesets', $changesets);
-		
-		$dark_mode = intval(DAO_WorkerPref::get($active_worker->id,'dark_mode',0));
-		$tpl->assign('pref_dark_mode', $dark_mode);
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/automation/editor/tab_history.tpl');
-	}
-	
-	private function _profileAction_refreshChangesets() {
-		$tpl = DevblocksPlatform::services()->template();
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		header('Content-Type: application/json; charset=utf-8');
-		
-		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 403);
-		
-		if(!$active_worker->is_superuser)
-			DevblocksPlatform::dieWithHttpError(null, 403);
-		
-		$automation_id = DevblocksPlatform::importGPC($_POST['automation_id'] ?? null, 'int', 0);
-		
-		$changesets = DAO_RecordChangeset::getChangesets('automation', $automation_id);
-		$tpl->assign('changesets', $changesets);
-		
-		$from_data = json_decode(Storage_RecordChangeset::get(array_key_first($changesets)), true);
-		
-		$html = $tpl->fetch('devblocks:cerberusweb.core::internal/automation/editor/history/changesets.tpl');
-		
-		echo json_encode([
-			'html' => $html,
-			'script' => $from_data['script'] ?? '',
-		]);
-	}
-	
-	private function _profileAction_getChangesetJson() {
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		header('Content-Type: application/json; charset=utf-8');
-		
-		$changeset_id = DevblocksPlatform::importGPC($_POST['changeset_id'] ?? null, 'int', 0);
-		
-		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 403);
-		
-		if(!$active_worker->is_superuser) {
-			echo '{}';
-			return;
-		}
-		
-		if(!$changeset_id || false == ($changeset = DAO_RecordChangeset::get($changeset_id))) {
-			echo '{}';
-			return;
-		}
-		
-		if('automation' != $changeset->record_type) {
-			echo '{}';
-			return;
-		}
-		
-		echo json_encode($changeset->getContent());
-	}
-	
 	private function _profileAction_editorVisualize() {
 		$tpl = DevblocksPlatform::services()->template();
 		
