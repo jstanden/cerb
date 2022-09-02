@@ -42,18 +42,24 @@ class PageSection_InternalRecords extends Extension_PageSection {
 					return $this->_internalAction_contextDeleteLinksJson();
 				case 'editorOpenTemplate':
 					return $this->_internalAction_editorOpenTemplate();
+				case 'getChangesetJson':
+					return $this->_internalAction_getChangesetJson();
 				case 'getCustomFieldSet':
 					return $this->_internalAction_getCustomFieldSet();
 				case 'getLinkCountsJson':
 					return $this->_internalAction_getLinkCountsJson();
 				case 'linksOpen':
 					return $this->_internalAction_linksOpen();
+				case 'refreshChangesets':
+					return $this->_internalAction_refreshChangesets();
 				case 'renderMergePopup':
 					return $this->_internalAction_renderMergePopup();
 				case 'renderMergeMappingPopup':
 					return $this->_internalAction_renderMergeMappingPopup();
 				case 'saveMerge':
 					return $this->_internalAction_saveMerge();
+				case 'showChangesetsPopup':
+					return $this->_internalAction_showChangesetsPopup();
 				case 'showPeekPopup':
 					return $this->_internalAction_showPeekPopup();
 				case 'showPermalinkPopup':
@@ -569,6 +575,91 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/choosers/avatar_chooser_popup.tpl');
 	}
+	
+	private function _internalAction_showChangesetsPopup() {
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		$record_type = DevblocksPlatform::importGPC($_POST['record_type'] ?? null, 'string','');
+		$record_id = DevblocksPlatform::importGPC($_POST['record_id'] ?? null, 'integer',0);
+		$record_key = DevblocksPlatform::importGPC($_POST['record_key'] ?? null, 'string','');
+		
+		$record_type = DevblocksPlatform::strAlphaNum($record_type, '_');
+		$record_key = DevblocksPlatform::strAlphaNum($record_key, '_');
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		if(!$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		$changesets = DAO_RecordChangeset::getChangesets($record_type, $record_id);
+		$tpl->assign('changesets', $changesets);
+		
+		$from_data = json_decode(Storage_RecordChangeset::get(array_key_first($changesets)), true);
+		
+		if($from_data) {
+			$tpl->assign('left_content', $from_data[$record_key] ?? '');
+		} else {
+			$tpl->assign('left_content', '');
+		}
+		
+		$tpl->assign('record_type', $record_type);
+		$tpl->assign('record_id', $record_id);
+		$tpl->assign('record_key', $record_key);
+		$tpl->display('devblocks:cerberusweb.core::internal/record_changesets/diff_popup.tpl');
+	}
+	
+	private function _internalAction_refreshChangesets() {
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		header('Content-Type: application/json; charset=utf-8');
+		
+		$record_type = DevblocksPlatform::importGPC($_POST['record_type'] ?? null, 'string','');
+		$record_id = DevblocksPlatform::importGPC($_POST['record_id'] ?? null, 'integer',0);
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if(!$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		$changesets = DAO_RecordChangeset::getChangesets($record_type, $record_id);
+		$tpl->assign('changesets', $changesets);
+		
+		$from_data = json_decode(Storage_RecordChangeset::get(array_key_first($changesets)), true);
+		
+		$html = $tpl->fetch('devblocks:cerberusweb.core::internal/record_changesets/changesets.tpl');
+		
+		echo json_encode([
+			'html' => $html,
+			'data' => $from_data ?? [],
+		]);
+	}
+	
+	private function _internalAction_getChangesetJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		header('Content-Type: application/json; charset=utf-8');
+		
+		$changeset_id = DevblocksPlatform::importGPC($_POST['changeset_id'] ?? null, 'int', 0);
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if(!$active_worker->is_superuser) {
+			echo '{}';
+			return;
+		}
+		
+		if(!$changeset_id || !($changeset = DAO_RecordChangeset::get($changeset_id))) {
+			echo '{}';
+			return;
+		}
+		
+		echo json_encode($changeset->getContent());
+	}	
 	
 	private function _internalAction_contextAddLinksJson() {
 		header('Content-type: application/json');

@@ -137,6 +137,9 @@
   --cerb-editor-syntax-twig-var: rgb(127,0,85);
   --cerb-editor-syntax-type: rgb(127,0,127);
   --cerb-editor-syntax-var: rgb(127,0,85);
+  --cerb-editor-gutter-border: rgb(188,188,188);
+  --cerb-editor-diff-line: rgb(216,242,255);
+  --cerb-editor-diff-border: rgb(162,215,242);
   --cerb-library-background-selected: rgba(255,230,110,0.2);
   --cerb-library-border: orange;
 }
@@ -241,6 +244,9 @@
   --cerb-editor-syntax-twig-var: rgb(229,188,105);
   --cerb-editor-syntax-type: rgb(180,180,180);
   --cerb-editor-syntax-var: rgb(186,186,186);
+  --cerb-editor-gutter-border: rgb(0,0,0);
+  --cerb-editor-diff-line: rgb(0,77,122);
+  --cerb-editor-diff-border: rgb(0,53,84);
 }
 
 HTML, BODY {
