@@ -1143,6 +1143,11 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 						'snippet' => "offset: 4096",
 						'description' => "Start reading content after this many bytes",
 					],
+					[
+						'caption' => 'password:',
+						'snippet' => "password:",
+						'description' => "Set an optional password for encrypted files",
+					],
 				],
 				'(.*):file.read:inputs:filters:' => [
 					'gzip.decompress:',
