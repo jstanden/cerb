@@ -97,7 +97,6 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 				CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_AUTOMATION, $model->id, $model->name);
 				
 				DAO_Automation::delete($id);
-				DAO_RecordChangeset::delete('automation', $id);
 				
 				echo json_encode(array(
 					'status' => true,
@@ -197,15 +196,28 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 							'automation',
 							$id,
 							[
-								'description' => $fields[DAO_Automation::DESCRIPTION] ?? '',
-								'policy' => $fields[DAO_Automation::POLICY_KATA] ?? '',
 								'script' => $fields[DAO_Automation::SCRIPT] ?? '',
 							],
 							$active_worker->id ?? 0
 						);
 						
 					} catch (Exception $e) {
-						DevblocksPlatform::logError('Error saving changeset: ' . $e->getMessage());
+						DevblocksPlatform::logError('Error saving automation changeset: ' . $e->getMessage());
+					}
+					
+					// Versioning
+					try {
+						DAO_RecordChangeset::create(
+							'automation_policy',
+							$id,
+							[
+								'policy' => $fields[DAO_Automation::POLICY_KATA] ?? '',
+							],
+							$active_worker->id ?? 0
+						);
+						
+					} catch (Exception $e) {
+						DevblocksPlatform::logError('Error saving policy changeset: ' . $e->getMessage());
 					}
 					
 					// Custom field saves
