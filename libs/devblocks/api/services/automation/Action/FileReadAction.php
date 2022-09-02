@@ -93,7 +93,8 @@ class FileReadAction extends AbstractAction {
 				
 				if($extract) {
 					$error = null;
-					$results = $this->_getFileFromManifestKey($resource, $extract, $error);
+					if(!($results = $this->_getFileFromManifestKey($resource, $extract, $error)))
+						throw new Exception_DevblocksAutomationError($error);
 					
 				} else {
 					$fp = DevblocksPlatform::getTempFile();
@@ -135,7 +136,8 @@ class FileReadAction extends AbstractAction {
 				
 				if($extract) {
 					$error = null;
-					$results = $this->_getFileFromManifestKey($file, $extract, $error);
+					if(!($results = $this->_getFileFromManifestKey($file, $extract, $error)))
+						throw new Exception_DevblocksAutomationError($error);
 					
 				} else {
 					$fp = DevblocksPlatform::getTempFile();
@@ -226,7 +228,7 @@ class FileReadAction extends AbstractAction {
 		}
 		
 		if(false === ($bytes = $zip->getFromIndex($index))) {
-			$error = sprintf('Failed to read bytes from path (%s) in archive manifest.', $extract);
+			$error = sprintf('Failed to read bytes from path (%s) in archive manifest. Encrypted?', $extract);
 			return false;
 		}
 		
