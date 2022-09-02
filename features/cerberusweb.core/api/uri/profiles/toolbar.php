@@ -129,12 +129,25 @@ class PageSection_ProfilesToolbar extends Extension_PageSection {
 					DAO_Toolbar::onUpdateByActor($active_worker, $fields, $id);
 				}
 				
-				if($id) {
-					// Custom field saves
-					$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
-					if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_TOOLBAR, $id, $field_ids, $error))
-						throw new Exception_DevblocksAjaxValidationError($error);
+				// Versioning
+				try {
+					DAO_RecordChangeset::create(
+						'toolbar',
+						$id,
+						[
+							'toolbar_kata' => $fields[DAO_Toolbar::TOOLBAR_KATA] ?? '',
+						],
+						$active_worker->id ?? 0
+					);
+					
+				} catch (Exception $e) {
+					DevblocksPlatform::logError('Error saving changeset: ' . $e->getMessage());
 				}
+				
+				// Custom field saves
+				$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
+				if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_TOOLBAR, $id, $field_ids, $error))
+					throw new Exception_DevblocksAjaxValidationError($error);
 				
 				echo json_encode(array(
 					'status' => true,
