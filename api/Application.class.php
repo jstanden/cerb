@@ -4066,6 +4066,9 @@ class _CerbApplication_KataSchemas {
                               offset:
                                 types:
                                   number:
+                              password:
+                                types:
+                                  string:
                               uri:
                                 types:
                                   string:

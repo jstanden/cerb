@@ -49,6 +49,10 @@ class FileReadAction extends AbstractAction {
 				->number()
 			;
 			
+			$validation->addField('password', 'inputs:password:')
+				->string()
+			;
+			
 			$validation->addField('filters', 'inputs:filters:')
 				->array()
 			;
@@ -93,12 +97,11 @@ class FileReadAction extends AbstractAction {
 				}
 				
 				// Do we have a manifest key?
-				$extract = $inputs['extract'] ?? null;
 				$filters = $inputs['filters'] ?? [];
 				
-				if($extract) {
+				if(array_key_exists('extract', $inputs) && $inputs['extract']) {
 					$error = null;
-					if(!($results = $this->_getFileFromManifestKey($resource, $extract, $error)))
+					if(!($results = $this->_getFileFromManifestKey($resource, $inputs, $error)))
 						throw new Exception_DevblocksAutomationError($error);
 					
 				} else {
@@ -140,12 +143,11 @@ class FileReadAction extends AbstractAction {
 				}
 				
 				// Do we have a manifest key?
-				$extract = $inputs['extract'] ?? null;
 				$filters = $inputs['filters'] ?? [];
 				
-				if($extract) {
+				if(array_key_exists('extract', $inputs) && $inputs['extract']) {
 					$error = null;
-					if(!($results = $this->_getFileFromManifestKey($file, $extract, $error)))
+					if(!($results = $this->_getFileFromManifestKey($file, $inputs, $error)))
 						throw new Exception_DevblocksAutomationError($error);
 					
 				} else {
@@ -208,7 +210,7 @@ class FileReadAction extends AbstractAction {
 		return $this->node->getParent()->getId();
 	}
 	
-	private function _getFileFromManifestKey($file, $extract, &$error=null) {
+	private function _getFileFromManifestKey($file, array $inputs, &$error=null) {
 		if(!extension_loaded('zip')) {
 			$error = 'The `zip` extension is not loaded';
 			return false;
@@ -219,6 +221,9 @@ class FileReadAction extends AbstractAction {
 		$fp = DevblocksPlatform::getTempFile();
 		$fp_name = DevblocksPlatform::getTempFileInfo($fp);
 		
+		$extract = $inputs['extract'] ?? null;
+		$password = $inputs['password'] ?? null;
+		
 		if(false === ($file->getFileContents($fp))) {
 			$error = 'Failed to read file data';
 			return false;
@@ -227,6 +232,13 @@ class FileReadAction extends AbstractAction {
 		if(false === ($zip->open($fp_name))) {
 			$error = 'The file is not a valid ZIP archive.';
 			return false;	
+		}
+		
+		if($password) {
+			if(false === $zip->setPassword($password)) {
+				$error = 'Failed to decode the ZIP archive.';
+				return false;
+			}
 		}
 		
 		if(false === ($index = $zip->locateName($extract))) {
