@@ -1530,6 +1530,8 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 			}
 
 		} else {
+			$popup.dialog('option', 'title', '');
+			
 			// Set the content
 			$popup.html(html);
 
