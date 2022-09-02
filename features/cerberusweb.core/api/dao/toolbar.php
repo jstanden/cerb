@@ -313,6 +313,8 @@ class DAO_Toolbar extends Cerb_ORMHelper {
 		if(!$ids)
 			return true;
 		
+		DAO_RecordChangeset::delete('toolbar', $ids);
+		
 		$ids_list = implode(',', $ids);
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM toolbar WHERE id IN (%s)", $ids_list));

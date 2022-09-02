@@ -1,6 +1,6 @@
 {$peek_context = CerberusContexts::CONTEXT_TOOLBAR}
 {$peek_context_id = $model->id}
-{$form_id = uniqid()}
+{$form_id = uniqid('form')}
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}" onsubmit="return false;">
     <input type="hidden" name="c" value="profiles">
     <input type="hidden" name="a" value="invoke">
@@ -56,6 +56,10 @@
 
             <div class="cerb-code-editor-toolbar-divider"></div>
 
+            {if $model->id}
+                <button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-changesets title="{'common.change_history'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-history"></span></button>
+            {/if}
+            
             {include file="devblocks:cerberusweb.core::toolbars/editor_toolbar_buttons.tpl"}
         </div>
 
@@ -105,6 +109,38 @@
             ;
 
             var editor = ace.edit($editor.attr('id'));
+            
+            {if $model->id}
+            $popup.find('[data-cerb-editor-button-changesets]').on('click', function(e) {
+                e.stopPropagation();
+
+                var formData = new FormData();
+                formData.set('c', 'internal');
+                formData.set('a', 'invoke');
+                formData.set('module', 'records');
+                formData.set('action', 'showChangesetsPopup');
+                formData.set('record_type', 'toolbar');
+                formData.set('record_id', '{$model->id}');
+                formData.set('record_key', 'toolbar_kata');
+
+                var $editor_policy_differ_popup = genericAjaxPopup('editorDiff{$form_id}', formData, null, null, '80%');
+
+                $editor_policy_differ_popup.one('cerb-diff-editor-ready', function(e) {
+                    e.stopPropagation();
+
+                    if(!e.hasOwnProperty('differ'))
+                        return;
+
+                    e.differ.editors.right.ace.setValue(editor.getValue());
+                    e.differ.editors.right.ace.clearSelection();
+                    
+                    e.differ.editors.right.ace.on('change', function() {
+                        editor.setValue(e.differ.editors.right.ace.getValue());
+                        editor.clearSelection();
+                    });
+                });
+            });
+            {/if}
             
             // Toolbar
             
