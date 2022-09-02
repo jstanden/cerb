@@ -129,6 +129,10 @@
 
 	<div id="{$tabs_uid}Policy">
 		<div class="cerb-code-editor-toolbar">
+			{if $model->id}
+				<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-changesets-policy title="{'common.change_history'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-history"></span></button>
+				<div class="cerb-code-editor-toolbar-divider"></div>
+			{/if}
 			<button type="button" class="cerb-code-editor-toolbar-button cerb-code-editor-toolbar-button--interaction" data-interaction-uri="ai.cerb.automationBuilder.help" data-interaction-params="topic=policy" title="{'common.help'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-circle-question-mark"></span></button>
 		</div>
 
@@ -375,10 +379,6 @@ $(function() {
 			{/if}
 			;
 
-		var $editor_policy = $popup.find('textarea[name=automation_policy_kata]')
-			.cerbCodeEditor()
-			;
-
 		$popup.find('textarea[name=start_state_yaml], textarea[name=end_state_yaml]')
 			.cerbCodeEditor()
 			;
@@ -419,13 +419,47 @@ $(function() {
 		
 		var editor_state_start = ace.edit($state_yaml.nextAll('pre.ace_editor').attr('id'));
 		var editor_state_end = ace.edit($end_state_yaml.nextAll('pre.ace_editor').attr('id'));
-		//var editor_policy = ace.edit($editor_policy.nextAll('pre.ace_editor').attr('id'));
 
-		$editor_policy
+		var $editor_policy = $popup.find('textarea[name=automation_policy_kata]')
+			.cerbCodeEditor()
 			.cerbCodeEditorAutocompleteKata({
 				autocomplete_suggestions: cerbAutocompleteSuggestions.kataAutomationPolicy
 			})
 		;
+
+		{if $model->id}
+		var editor_policy = ace.edit($editor_policy.nextAll('pre.ace_editor').attr('id'));
+
+		$popup.find('[data-cerb-editor-button-changesets-policy]').on('click', function(e) {
+			e.stopPropagation();
+
+			var formData = new FormData();
+			formData.set('c', 'internal');
+			formData.set('a', 'invoke');
+			formData.set('module', 'records');
+			formData.set('action', 'showChangesetsPopup');
+			formData.set('record_type', 'automation_policy');
+			formData.set('record_id', '{$model->id}');
+			formData.set('record_key', 'policy');
+
+			var $editor_policy_differ_popup = genericAjaxPopup('editorDiff{$form_id}', formData, null, null, '80%');
+
+			$editor_policy_differ_popup.one('cerb-diff-editor-ready', function(e) {
+				e.stopPropagation();
+
+				if(!e.hasOwnProperty('differ'))
+					return;
+
+				e.differ.editors.right.ace.setValue(editor_policy.getValue());
+				e.differ.editors.right.ace.clearSelection();
+				
+				e.differ.editors.right.ace.on('change', function() {
+					editor_policy.setValue(e.differ.editors.right.ace.getValue());
+					editor_policy.clearSelection();
+				});
+			});
+		});
+		{/if}
 		
 		{if $cursor}
 		editor_automation.gotoLine({$cursor.row}, {$cursor.column});
