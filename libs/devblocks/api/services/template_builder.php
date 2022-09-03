@@ -1562,10 +1562,6 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 		return DevblocksPlatform::intClamp($string, $min, $max);
 	}
 	
-	function function_dict_set($var, $path, $val) {
-		return DevblocksPlatform::arrayDictSet($var, $path, $val);
-	}
-	
 	function function_dict_set($var, $path, $val, $delimiter=null) {
 		return DevblocksPlatform::arrayDictSet($var, $path, $val, $delimiter);
 	}
