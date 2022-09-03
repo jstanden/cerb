@@ -138,6 +138,15 @@ if($changes) {
 }
 
 // ===========================================================================
+// Add `exit_state` to `cerb.automation.invocations` metric
+
+if($revision < 1433) {
+	$db->ExecuteWriter(sprintf("UPDATE metric SET dimensions_kata = %s WHERE name = 'cerb.automation.invocations'",
+		$db->qstr("record/automation_id:\n  record_type: automation\nextension/trigger:\ntext/exit_state:")
+	));
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

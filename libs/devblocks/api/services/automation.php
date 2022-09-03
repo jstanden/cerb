@@ -402,6 +402,7 @@ class _DevblocksAutomationService {
 		$time_limit_ms = $policy->getTimeoutMs();
 		$elapsed_ms = 0;
 		$is_timed_out = false;
+		$exit_code = '';
 		
 		// [TODO] Check if we're given an exit/return/error/await status
 		$dict->unset('__exit');
@@ -464,10 +465,9 @@ class _DevblocksAutomationService {
 			}
 		}
 		
-		$metrics = DevblocksPlatform::services()->metrics();
-		
 		if($automation->id) {
-			$metrics->increment('cerb.automation.invocations', 1, ['automation_id'=>$automation->id, 'trigger'=>$automation->extension_id]);
+			$metrics = DevblocksPlatform::services()->metrics();
+			$metrics->increment('cerb.automation.invocations', 1, ['automation_id'=>$automation->id, 'trigger'=>$automation->extension_id, 'exit_state'=>$exit_code]);
 			$metrics->increment('cerb.automation.duration', $elapsed_ms, ['automation_id'=>$automation->id, 'trigger'=>$automation->extension_id]);
 		}
 		
