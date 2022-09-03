@@ -121,6 +121,23 @@ if(!isset($tables['record_changeset'])) {
 }
 
 // ===========================================================================
+// Update `metric` schema
+
+if(!isset($tables['metric']))
+	return FALSE;
+
+list($columns,) = $db->metaTable('metric');
+
+$changes = [];
+
+if('varchar(255)' != ($columns['description']['type']))
+	$changes[] = "MODIFY COLUMN description VARCHAR(255) NOT NULL DEFAULT ''";
+
+if($changes) {
+	$db->ExecuteMaster("ALTER TABLE metric " . implode(', ', $changes));
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

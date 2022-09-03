@@ -46,7 +46,7 @@ class DAO_Metric extends Cerb_ORMHelper {
 		$validation
 			->addField(self::DESCRIPTION)
 			->string()
-			->setMaxLength(128)
+			->setMaxLength(255)
 		;
 		$validation
 			->addField(self::DIMENSIONS_KATA)
