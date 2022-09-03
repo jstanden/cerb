@@ -235,14 +235,22 @@ class FileReadAction extends AbstractAction {
 		}
 		
 		if($password) {
-			if(false === $zip->setPassword($password)) {
+			try {
+				if (false === $zip->setPassword($password))
+					throw new Exception_DevblocksAutomationError("Invalid ZIP archive");
+			} catch (\Throwable $e) {
 				$error = 'Failed to decode the ZIP archive.';
 				return false;
 			}
 		}
 		
-		if(false === ($index = $zip->locateName($extract))) {
-			$error = sprintf('Path (%s) not found in archive manifest.', $extract);
+		try {
+			if(false === ($index = $zip->locateName($extract))) {
+				$error = sprintf('Path (%s) not found in archive manifest.', $extract);
+				return false;
+			}
+		} catch (\Throwable $e) {
+			$error = 'Invalid ZIP file.';
 			return false;
 		}
 		
