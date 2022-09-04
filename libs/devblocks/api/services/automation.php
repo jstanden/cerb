@@ -22,217 +22,258 @@ class _DevblocksAutomationService {
 	private function __construct() {}
 	
 	function _validateInputs(array &$automation_script, DevblocksDictionaryDelegate $dict, &$error=null) {
-		if(array_key_exists('inputs', $automation_script)) {
-			$inputs_meta = $automation_script['inputs'];
+		$inputs_meta = $automation_script['inputs'] ?? [];
+		
+		// Enhance
+		$inputs_meta = DevblocksPlatform::services()->kata()->formatTree($inputs_meta, $dict);
+		
+		foreach ($inputs_meta as $input_idx => $input_data) {
+			list($input_type, $input_key) = explode('/', $input_idx);
 			
-			// Enhance
-			$inputs_meta = DevblocksPlatform::services()->kata()->formatTree($inputs_meta, $dict);
+			$input_value = $dict->getKeyPath('inputs.' . $input_key, null);
+			$is_required = array_key_exists('required', $input_data) && $input_data['required'];
 			
-			foreach ($inputs_meta as $input_idx => $input_data) {
-				list($input_type, $input_key) = explode('/', $input_idx);
+			if ('text' == $input_type) {
+				$inputs_validation = DevblocksPlatform::services()->validation();
+				$input_field = $inputs_validation->addField($input_key, 'inputs:' . $input_key);
 				
-				$input_value = $dict->getKeyPath('inputs.' . $input_key, null);
-				$is_required = array_key_exists('required', $input_data) && $input_data['required'];
+				if(!array_key_exists('type', $input_data)) {
+					$input_field_type = $input_field->string();
+					
+				} else {
+					$input_field_type = null;
+					
+					if(is_bool($input_value))
+						$input_value = $input_value ? 'yes' : 'no';
+					
+					if(is_string($input_value) && 0 == strlen($input_value))
+						$input_value = null;
+					
+					switch(@$input_data['type']) {
+						case 'bool':
+							if(is_null($input_value) && array_key_exists('default', $input_data))
+								$input_value = $input_data['default'];
+							
+							if(!is_null($input_value)) {
+								$input_value = DevblocksPlatform::services()->string()->toBool($input_value);
+								$dict->setKeyPath('inputs.' . $input_key, $input_value);
+							}
+							
+							$input_field_type = $input_field->boolean();
+							break;
+						
+						case 'date':
+							$dict->setKeyPath('inputs.' . $input_key, strtotime($input_value));
+							
+							$input_field_type = $input_field->string()
+								->addValidator($inputs_validation->validators()->date())
+							;
+							break;
+						
+						case 'decimal':
+							$dict->setKeyPath('inputs.' . $input_key, floatval($input_value));
+							
+							$input_field_type = $input_field->float()
+								//->setMin(0)
+								//->setMax(255)
+							;
+							break;
+						
+						case 'email':
+							// [TODO] Return email with mailbox/host/full
+							$input_field_type = $input_field->string()
+								->addValidator($inputs_validation->validators()->email())
+							;
+							break;
+							
+						case 'freeform':
+							$max_length = intval($input_data['type_options']['max_length'] ?? 1024);
+							$is_truncated = DevblocksPlatform::services()->string()->toBool($input_data['type_options']['truncate'] ?? 'yes');
+							$input_field_type = $input_field->string()->setMaxLength($max_length)->setTruncation($is_truncated);
+							break;
+						
+						case 'geopoint':
+							$dict->setKeyPath('inputs.' . $input_key, DevblocksPlatform::parseGeoPointString($input_value));
+							
+							$input_field_type = $input_field->geopoint();
+							break;
+						
+						case 'ip':
+							$input_field_type = $input_field->string()
+								->addValidator($inputs_validation->validators()->ip())
+							;
+							break;
+						
+						case 'ipv4':
+							$input_field_type = $input_field->string()
+								->addValidator($inputs_validation->validators()->ipv4())
+							;
+							break;
+						
+						case 'ipv6':
+							$input_field_type = $input_field->string()
+								->addValidator($inputs_validation->validators()->ipv6())
+							;
+							break;
+						
+						case 'record_type':
+							$input_field_type = $input_field->string()
+								->addValidator($inputs_validation->validators()->context(true))
+							;
+							break;
+						
+						case 'number':
+							$dict->setKeyPath('inputs.' . $input_key, intval($input_value));
+							
+							$input_field_type = $input_field->number()
+								//->setMin(0)
+								//->setMax(255)
+							;
+							break;
+						
+						case 'timestamp':
+							$input_field_type = $input_field->timestamp();
+							break;
+						
+						case 'uri':
+							$input_field_type = $input_field->string()
+								->addValidator($inputs_validation->validators()->uri())
+							;
+							break;
+						
+						case 'url':
+							$input_field_type = $input_field->url()
+								->setMaxLength(2048)
+							;
+							break;
+						
+						default:
+							$error = sprintf('Unknown text type `%s` for input `%s`',
+								$input_data['type'],
+								$input_key
+							);
+							return false;
+					}
+				}
 				
-				if ('text' == $input_type) {
-					$inputs_validation = DevblocksPlatform::services()->validation();
-					$input_field = $inputs_validation->addField($input_key, 'inputs:' . $input_key);
-					
-					if(!array_key_exists('type', $input_data)) {
-						$input_field_type = $input_field->string();
-						
-					} else {
-						$input_field_type = null;
-						
-						if(is_bool($input_value))
-							$input_value = $input_value ? 'yes' : 'no';
-						
-						if(is_string($input_value) && 0 == strlen($input_value))
-							$input_value = null;
-						
-						switch(@$input_data['type']) {
-							case 'bool':
-								if(is_null($input_value) && array_key_exists('default', $input_data))
-									$input_value = $input_data['default'];
-								
-								if(!is_null($input_value)) {
-									$input_value = DevblocksPlatform::services()->string()->toBool($input_value);
-									$dict->setKeyPath('inputs.' . $input_key, $input_value);
-								}
-								
-								$input_field_type = $input_field->boolean();
-								break;
-							
-							case 'date':
-								$dict->setKeyPath('inputs.' . $input_key, strtotime($input_value));
-								
-								$input_field_type = $input_field->string()
-									->addValidator($inputs_validation->validators()->date())
-								;
-								break;
-							
-							case 'decimal':
-								$dict->setKeyPath('inputs.' . $input_key, floatval($input_value));
-								
-								$input_field_type = $input_field->float()
-									//->setMin(0)
-									//->setMax(255)
-								;
-								break;
-							
-							case 'email':
-								// [TODO] Return email with mailbox/host/full
-								$input_field_type = $input_field->string()
-									->addValidator($inputs_validation->validators()->email())
-								;
-								break;
-								
-							case 'freeform':
-								$max_length = intval($input_data['type_options']['max_length'] ?? 1024);
-								$is_truncated = DevblocksPlatform::services()->string()->toBool($input_data['type_options']['truncate'] ?? 'yes');
-								$input_field_type = $input_field->string()->setMaxLength($max_length)->setTruncation($is_truncated);
-								break;
-							
-							case 'geopoint':
-								$dict->setKeyPath('inputs.' . $input_key, DevblocksPlatform::parseGeoPointString($input_value));
-								
-								$input_field_type = $input_field->geopoint();
-								break;
-							
-							case 'ip':
-								$input_field_type = $input_field->string()
-									->addValidator($inputs_validation->validators()->ip())
-								;
-								break;
-							
-							case 'ipv4':
-								$input_field_type = $input_field->string()
-									->addValidator($inputs_validation->validators()->ipv4())
-								;
-								break;
-							
-							case 'ipv6':
-								$input_field_type = $input_field->string()
-									->addValidator($inputs_validation->validators()->ipv6())
-								;
-								break;
-							
-							case 'record_type':
-								$input_field_type = $input_field->string()
-									->addValidator($inputs_validation->validators()->context(true))
-								;
-								break;
-							
-							case 'number':
-								$dict->setKeyPath('inputs.' . $input_key, intval($input_value));
-								
-								$input_field_type = $input_field->number()
-									//->setMin(0)
-									//->setMax(255)
-								;
-								break;
-							
-							case 'timestamp':
-								$input_field_type = $input_field->timestamp();
-								break;
-							
-							case 'uri':
-								$input_field_type = $input_field->string()
-									->addValidator($inputs_validation->validators()->uri())
-								;
-								break;
-							
-							case 'url':
-								$input_field_type = $input_field->url()
-									->setMaxLength(2048)
-								;
-								break;
-							
-							default:
-								$error = sprintf('Unknown text type `%s` for input `%s`',
-									$input_data['type'],
-									$input_key
-								);
-								return false;
-						}
-					}
-					
-					if($is_required)
-						$input_field_type->setRequired(true);
-					
-					$error = null;
-					$input_values = [];
-					
-					// Defaults
-					if(is_null($input_value) && array_key_exists('default', $input_data)) {
-						$input_value = $input_data['default'];
-						$dict->setKeyPath('inputs.' . $input_key, $input_value);
-					}
-					
-					// If not required, don't add a value
-					if($is_required || !is_null($input_value))
-						$input_values[$input_key] = $input_value;
-					
-					if(false == ($inputs_validation->validateAll($input_values, $error))) {
-						return false;
-					}
-					
-					if(array_key_exists($input_key, $input_values))
-						$dict->setKeyPath('inputs.' . $input_key, $input_values[$input_key]);
-					
-				} else if ('array' == $input_type) {
-					$inputs_validation = DevblocksPlatform::services()->validation();
-					$input_values = [];
-					
-					$input_field = $inputs_validation->addField($input_key, sprintf('inputs:' . $input_key))
-						->array()
-						;
-					
-					if($is_required)
-						$input_field->setRequired(true);
-					
-					// Defaults
-					if(is_null($input_value) && array_key_exists('default', $input_data)) {
-						$input_value = $input_data['default'];
-						$dict->setKeyPath('inputs.' . $input_key, $input_value);
-					}
-					
-					if($is_required || !is_null($input_value))
-						$input_values[$input_key] = $input_value;
-					
-					if(false == ($inputs_validation->validateAll($input_values, $error))) {
-						return false;
-					}
+				if($is_required)
+					$input_field_type->setRequired(true);
 				
-				} else if ('record' == $input_type) {
-					$inputs_validation = DevblocksPlatform::services()->validation();
-					$input_values = [];
-					
-					$input_field = $inputs_validation->addField($input_key, sprintf('inputs:' . $input_key))
-						->id()
-						->addValidator($inputs_validation->validators()->contextId($input_data['record_type'], !$is_required))
+				$error = null;
+				$input_values = [];
+				
+				// Defaults
+				if(is_null($input_value) && array_key_exists('default', $input_data)) {
+					$input_value = $input_data['default'];
+					$dict->setKeyPath('inputs.' . $input_key, $input_value);
+				}
+				
+				// If not required, don't add a value
+				if($is_required || !is_null($input_value))
+					$input_values[$input_key] = $input_value;
+				
+				if(false == ($inputs_validation->validateAll($input_values, $error))) {
+					return false;
+				}
+				
+				if(array_key_exists($input_key, $input_values))
+					$dict->setKeyPath('inputs.' . $input_key, $input_values[$input_key]);
+				
+			} else if ('array' == $input_type) {
+				$inputs_validation = DevblocksPlatform::services()->validation();
+				$input_values = [];
+				
+				$input_field = $inputs_validation->addField($input_key, sprintf('inputs:' . $input_key))
+					->array()
 					;
-					
-					if($is_required)
-						$input_field->setRequired(true);
-					
-					// Defaults
-					if(is_null($input_value) && array_key_exists('default', $input_data)) {
-						$input_value = $input_data['default'];
-						$dict->setKeyPath('inputs.' . $input_key, $input_value);
+				
+				if($is_required)
+					$input_field->setRequired(true);
+				
+				// Defaults
+				if(is_null($input_value) && array_key_exists('default', $input_data)) {
+					$input_value = $input_data['default'];
+					$dict->setKeyPath('inputs.' . $input_key, $input_value);
+				}
+				
+				if($is_required || !is_null($input_value))
+					$input_values[$input_key] = $input_value;
+				
+				if(false == ($inputs_validation->validateAll($input_values, $error))) {
+					return false;
+				}
+			
+			} else if ('record' == $input_type) {
+				$inputs_validation = DevblocksPlatform::services()->validation();
+				$input_values = [];
+				
+				$input_field = $inputs_validation->addField($input_key, sprintf('inputs:' . $input_key))
+					->id()
+					->addValidator($inputs_validation->validators()->contextId($input_data['record_type'], !$is_required))
+				;
+				
+				if($is_required)
+					$input_field->setRequired(true);
+				
+				// Defaults
+				if(is_null($input_value) && array_key_exists('default', $input_data)) {
+					$input_value = $input_data['default'];
+					$dict->setKeyPath('inputs.' . $input_key, $input_value);
+				}
+				
+				if($is_required || !is_null($input_value))
+					$input_values[$input_key] = $input_value;
+				
+				if(false == ($inputs_validation->validateAll($input_values, $error))) {
+					return false;
+				}
+				
+				$record_dict = DevblocksDictionaryDelegate::instance([
+					'id' => $input_values[$input_key] ?? null,
+					'_context' => $input_data['record_type'],
+				]);
+				
+				if(array_key_exists('expand', $input_data)) {
+					if(is_string($input_data['expand'])) {
+						$input_data['expand'] = DevblocksPlatform::parseCsvString($input_data['expand']);
 					}
 					
-					if($is_required || !is_null($input_value))
-						$input_values[$input_key] = $input_value;
-					
-					if(false == ($inputs_validation->validateAll($input_values, $error))) {
-						return false;
+					if(is_array($input_data['expand'])) {
+						foreach ($input_data['expand'] as $key)
+							$record_dict->get($key);
 					}
-					
-					$record_dict = DevblocksDictionaryDelegate::instance([
-						'id' => $input_values[$input_key] ?? null,
-						'_context' => $input_data['record_type'],
-					]);
+				}
+				
+				$dict->setKeyPath('inputs.' . $input_key, $record_dict);
+				
+			} else if ('records' == $input_type) {
+				$inputs_validation = DevblocksPlatform::services()->validation();
+				
+				$records = [];
+				$input_values = [];
+				
+				$input_field = $inputs_validation->addField($input_key, sprintf('inputs:' . $input_key))
+					->idArray()
+					->addValidator($inputs_validation->validators()->contextIds($input_data['record_type'], !$is_required))
+				;
+				
+				if($is_required)
+					$input_field->setRequired(true);
+				
+				if($is_required || !is_null($input_value))
+					$input_values[$input_key] = $input_value;
+				
+				if(false == ($inputs_validation->validateAll($input_values, $error))) {
+					return false;
+				}
+				
+				if(is_array($input_value)) {
+					foreach ($input_value as $v) {
+						$records[] = DevblocksDictionaryDelegate::instance([
+							'id' => $v,
+							'_context' => $input_data['record_type'],
+						]);
+					}
 					
 					if(array_key_exists('expand', $input_data)) {
 						if(is_string($input_data['expand'])) {
@@ -240,60 +281,17 @@ class _DevblocksAutomationService {
 						}
 						
 						if(is_array($input_data['expand'])) {
-							foreach ($input_data['expand'] as $key)
-								$record_dict->get($key);
+							foreach($input_data['expand'] as $key)
+								DevblocksDictionaryDelegate::bulkLazyLoad($records, $key);
 						}
 					}
-					
-					$dict->setKeyPath('inputs.' . $input_key, $record_dict);
-					
-				} else if ('records' == $input_type) {
-					$inputs_validation = DevblocksPlatform::services()->validation();
-					
-					$records = [];
-					$input_values = [];
-					
-					$input_field = $inputs_validation->addField($input_key, sprintf('inputs:' . $input_key))
-						->idArray()
-						->addValidator($inputs_validation->validators()->contextIds($input_data['record_type'], !$is_required))
-					;
-					
-					if($is_required)
-						$input_field->setRequired(true);
-					
-					if($is_required || !is_null($input_value))
-						$input_values[$input_key] = $input_value;
-					
-					if(false == ($inputs_validation->validateAll($input_values, $error))) {
-						return false;
-					}
-					
-					if(is_array($input_value)) {
-						foreach ($input_value as $v) {
-							$records[] = DevblocksDictionaryDelegate::instance([
-								'id' => $v,
-								'_context' => $input_data['record_type'],
-							]);
-						}
-						
-						if(array_key_exists('expand', $input_data)) {
-							if(is_string($input_data['expand'])) {
-								$input_data['expand'] = DevblocksPlatform::parseCsvString($input_data['expand']);
-							}
-							
-							if(is_array($input_data['expand'])) {
-								foreach($input_data['expand'] as $key)
-									DevblocksDictionaryDelegate::bulkLazyLoad($records, $key);
-							}
-						}
-					}
-					
-					$dict->setKeyPath('inputs.' . $input_key, $records);
-					
-				} else {
-					$error = sprintf("`inputs:%s` has an unknown type `%s`", $input_key, $input_type);
-					return false;
 				}
+				
+				$dict->setKeyPath('inputs.' . $input_key, $records);
+				
+			} else {
+				$error = sprintf("`inputs:%s` has an unknown type `%s`", $input_key, $input_type);
+				return false;
 			}
 		}
 	}
