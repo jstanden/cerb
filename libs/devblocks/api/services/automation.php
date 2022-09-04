@@ -21,11 +21,38 @@ class _DevblocksAutomationService {
 	
 	private function __construct() {}
 	
+	function _checkUnknownInputs(array $inputs_meta, DevblocksDictionaryDelegate $dict, &$error=null) : bool {
+		$inputs_meta = array_combine(
+			array_map(
+				function($key) {
+					return DevblocksPlatform::services()->string()->strAfter($key, '/');
+				},
+				array_keys($inputs_meta)
+			),
+			$inputs_meta
+		);
+		
+		$unknown_inputs = array_diff(
+			array_keys($dict->get('inputs', [])),
+			array_keys($inputs_meta)
+		);
+		
+		if($unknown_inputs) {
+			$error = sprintf("Unknown inputs: %s", implode(', ', $unknown_inputs));
+			return false;
+		}
+		
+		return true;
+	}
+	
 	function _validateInputs(array &$automation_script, DevblocksDictionaryDelegate $dict, &$error=null) {
 		$inputs_meta = $automation_script['inputs'] ?? [];
 		
 		// Enhance
 		$inputs_meta = DevblocksPlatform::services()->kata()->formatTree($inputs_meta, $dict);
+		
+		if(!$this->_checkUnknownInputs($inputs_meta, $dict, $error))
+			return false;
 		
 		foreach ($inputs_meta as $input_idx => $input_data) {
 			list($input_type, $input_key) = explode('/', $input_idx);
