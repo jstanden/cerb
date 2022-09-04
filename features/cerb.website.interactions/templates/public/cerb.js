@@ -144,19 +144,23 @@ CerbInteractions.prototype.html = function (el, html) {
     el.innerHTML = html;
 
     let $scripts = el.querySelectorAll('script');
+    let scriptNonce = this.getNonce();
 
     for (let i = 0; i < $scripts.length; i++) {
         let $oldScript = $scripts[i];
         let $oldNonce = $oldScript['nonce'] || $oldScript.getAttribute('nonce');
         
-        if($oldNonce !== this.getNonce())
+        if(scriptNonce && $oldNonce !== scriptNonce)
             continue;
         
         let $parent = $oldScript.parentNode;
         let $newScript = document.createElement('script');
         let scriptData = ($oldScript.text || $oldScript.textContent || $oldScript.innerHTML || "");
         $newScript.setAttribute('type', 'text/javascript');
-        $newScript.setAttribute('nonce', this.getNonce());
+        
+        if(scriptNonce)
+            $newScript.setAttribute('nonce', scriptNonce);
+        
         $newScript.appendChild(document.createTextNode(scriptData));
         $parent.insertBefore($newScript, $oldScript)
         $parent.removeChild($oldScript);
