@@ -2904,7 +2904,7 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 		return true;
 	}
 
-	static function isReady() {
+	static function isReady() : bool {
 		$tables = DevblocksPlatform::getDatabaseTables();
 
 		if(!isset($tables['devblocks_session']))

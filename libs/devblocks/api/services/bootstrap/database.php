@@ -145,10 +145,8 @@ class _DevblocksDatabaseManager {
 		$charset = DB_CHARSET_CODE;
 		
 		// Upgrade utf8 to utf8mb4
-		switch(DevblocksPlatform::strLower($charset)) {
-			case 'utf8':
-				$charset = 'utf8mb4';
-				break;
+		if(DevblocksPlatform::strLower($charset) == 'utf8') {
+			$charset = 'utf8mb4';
 		}
 		
 		mysqli_set_charset($db, $charset);

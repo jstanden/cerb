@@ -223,7 +223,7 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 		if(!$id)
 			DevblocksPlatform::dieWithHttpError(null, 404);
 			
-		if(false == ($snippet = DAO_Snippet:: get($id)))
+		if(!($snippet = DAO_Snippet:: get($id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(!Context_Snippet::isReadableByActor($snippet, $active_worker))

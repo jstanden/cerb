@@ -5765,7 +5765,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			$is_new_draft = true;
 		}
 		
-		if(false == ($draft = DAO_MailQueue::get($draft_id)))
+		if(!($draft = DAO_MailQueue::get($draft_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(!Context_Draft::isWriteableByActor($draft, $active_worker))
@@ -5825,7 +5825,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 							}
 						}
 						
-					} else if (false != ($filter_group = $view->findParam(SearchFields_Ticket::TICKET_GROUP_ID, $params, false))) {
+					} else if (($filter_group = $view->findParam(SearchFields_Ticket::TICKET_GROUP_ID, $params, false))) {
 						$filter_group = array_shift($filter_group);
 						
 						if (!is_array($filter_group->value) || 1 == count($filter_group->value)) {

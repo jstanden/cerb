@@ -183,13 +183,13 @@ class DAO_Attachment extends Cerb_ORMHelper {
 			if(DevblocksPlatform::strStartsWith($content, 'cerb:')) {
 				$fields[DAO_Attachment::MIME_TYPE] = '';
 				
-				if(false == ($uri_parts = DevblocksPlatform::services()->ui()->parseURI($content)))
+				if(!($uri_parts = DevblocksPlatform::services()->ui()->parseURI($content)))
 					return false;
 				
 				if(!CerberusContexts::isSameContext($uri_parts['context'], CerberusContexts::CONTEXT_AUTOMATION_RESOURCE))
 					return false;
 				
-				if(false == ($resource = DAO_AutomationResource::getByToken($uri_parts['context_id'])))
+				if(!($resource = DAO_AutomationResource::getByToken($uri_parts['context_id'])))
 					return false;
 				
 				// Stream the automation resource to attachment storage
@@ -197,7 +197,7 @@ class DAO_Attachment extends Cerb_ORMHelper {
 				$fp_read = DevblocksPlatform::getTempFile();
 				$fp_read_file = DevblocksPlatform::getTempFileInfo($fp_read);
 				
-				if(false == ($resource->getFileContents($fp_read)))
+				if(!($resource->getFileContents($fp_read)))
 					return false;
 				
 				$fields[DAO_Attachment::MIME_TYPE] = $resource->mime_type;

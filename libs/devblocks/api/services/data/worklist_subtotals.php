@@ -495,7 +495,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		}
 		
 		try {
-			if(false == ($rows = $db->GetArrayReader($sql, $chart_model['timeout'])))
+			if(!($rows = $db->GetArrayReader($sql, $chart_model['timeout'])))
 				$rows = [];
 			
 		} catch (Exception_DevblocksDatabaseQueryTimeout $e) {

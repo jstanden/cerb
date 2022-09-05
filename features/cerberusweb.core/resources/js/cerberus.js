@@ -2146,7 +2146,6 @@ var ajax = new cAjaxCalls();
 				$editor.trigger('cerb.update');
 			});
 			
-			
 			if(withTwigAutocompletion) {
 				var autocompleterTwig = {
 					insertMatch: function(editor, data) {

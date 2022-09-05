@@ -91,7 +91,6 @@ if(!array_key_exists('available_at', $columns)) {
 	$db->ExecuteMaster("ALTER TABLE queue_message ADD COLUMN available_at int unsigned not null default 0");
 }
 
-
 // ===========================================================================
 // Add `name` to `automation_resource`
 

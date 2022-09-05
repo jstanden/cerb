@@ -2392,7 +2392,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @return boolean
 	 */
 	static function isDatabaseEmpty() {
-		if(false == (DevblocksPlatform::services()->database()))
+		if(!(DevblocksPlatform::services()->database()))
 			return true;
 		
 		$tables = self::getDatabaseTables();
@@ -2404,8 +2404,8 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		if($nocache || null === ($tables = $cache->load(self::CACHE_TABLES))) {
 			// Make sure the database connection is valid or error out.
-			if(false == ($db = DevblocksPlatform::services()->database()))
-				return array();
+			if(!($db = DevblocksPlatform::services()->database()))
+				return [];
 			
 			$tables = $db->metaTables();
 			

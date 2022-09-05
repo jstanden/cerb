@@ -190,7 +190,7 @@ if(isset($columns['list_view'])) {
 		if(null == ($ext = Extension_DevblocksContext::get($result['context'])))
 			continue;
 		
-		$view = $ext->getChooserView($view_id);  /* @var $view C4_AbstractView */
+		$view = $ext->getChooserView($view_id);
 		
 		if(empty($view))
 			continue;
