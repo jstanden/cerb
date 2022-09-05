@@ -381,7 +381,6 @@ class DAO_Automation extends Cerb_ORMHelper {
 		$ids_list = implode(',', $ids);
 		
 		DAO_RecordChangeset::delete('automation', $ids);
-		DAO_RecordChangeset::delete('automation_policy', $ids);
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM automation WHERE id IN (%s)", $ids_list));
 		

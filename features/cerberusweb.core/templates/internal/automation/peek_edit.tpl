@@ -438,7 +438,7 @@ $(function() {
 			formData.set('a', 'invoke');
 			formData.set('module', 'records');
 			formData.set('action', 'showChangesetsPopup');
-			formData.set('record_type', 'automation_policy');
+			formData.set('record_type', 'automation');
 			formData.set('record_id', '{$model->id}');
 			formData.set('record_key', 'policy');
 

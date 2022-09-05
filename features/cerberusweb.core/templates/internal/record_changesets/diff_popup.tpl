@@ -75,6 +75,7 @@
                 formData.set('action', 'refreshChangesets');
                 formData.set('record_type', '{$record_type}');
                 formData.set('record_id', '{$record_id}');
+                formData.set('record_key', '{$record_key}');
 
                 $table.html(Devblocks.getSpinner());
 

@@ -593,7 +593,7 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		if(!$active_worker->is_superuser)
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		$changesets = DAO_RecordChangeset::getChangesets($record_type, $record_id);
+		$changesets = DAO_RecordChangeset::getChangesets($record_type, $record_id, $record_key);
 		$tpl->assign('changesets', $changesets);
 		
 		$from_data = json_decode(Storage_RecordChangeset::get(array_key_first($changesets)), true);
@@ -618,6 +618,7 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		
 		$record_type = DevblocksPlatform::importGPC($_POST['record_type'] ?? null, 'string','');
 		$record_id = DevblocksPlatform::importGPC($_POST['record_id'] ?? null, 'integer',0);
+		$record_key = DevblocksPlatform::importGPC($_POST['record_key'] ?? null, 'string','');
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 403);
@@ -625,7 +626,7 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		if(!$active_worker->is_superuser)
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		$changesets = DAO_RecordChangeset::getChangesets($record_type, $record_id);
+		$changesets = DAO_RecordChangeset::getChangesets($record_type, $record_id, $record_key);
 		$tpl->assign('changesets', $changesets);
 		
 		$from_data = json_decode(Storage_RecordChangeset::get(array_key_first($changesets)), true);

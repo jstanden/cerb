@@ -1,46 +1,62 @@
 <?php
 
 class DAO_RecordChangeset {
-	public static function create(string $record_type, int $record_id, array $changeset_data, int $worker_id) {
+	public static function create(string $record_type, int $record_id, array $changeset_data, int $worker_id) : array {
 		$db = DevblocksPlatform::services()->database();
+		$ids = [];
 		
-		$changeset_data = json_encode($changeset_data);
-		$changeset_data_hash = sha1($changeset_data);
+		$last_changesets = self::getLastChangesets($record_type, $record_id, array_keys($changeset_data));
 		
-		$last_changeset = self::getLastChangeset($record_type, $record_id);
-		
-		// If the last changeset was identical, return early
-		if(
-			$last_changeset
-			&& $last_changeset->storage_sha1hash == $changeset_data_hash
+		foreach($changeset_data as $record_key => $changeset_datum) {
+			$changeset_data_json = json_encode([$record_key => $changeset_datum]);
+			$changeset_data_hash = sha1($changeset_data_json);
+			
+			$last_changeset = $last_changesets[$record_key] ?? null;
+			
+			// If the last changeset was identical, return early
+			if (
+				$last_changeset
+				&& $last_changeset->storage_sha1hash == $changeset_data_hash
 			) {
-			return $last_changeset->id;
+				$ids[$record_key] = $last_changeset->id;
+				continue;
+			}
+			
+			$result = $db->ExecuteMaster(sprintf("INSERT INTO `record_changeset` (record_type, record_id, record_key, worker_id, created_at, storage_sha1hash) " .
+				"VALUES (%s, %d, %s, %d, %d, %s)",
+				$db->qstr($record_type),
+				$record_id,
+				$db->qstr($record_key),
+				$worker_id,
+				time(),
+				$db->qstr($changeset_data_hash),
+			));
+			
+			if (!$result) {
+				$ids[$record_key] = false;
+				continue;
+			}
+			
+			if (0 == ($id = $db->LastInsertId())) {
+				$ids[$record_key] = false;
+				continue;
+			}
+			
+			if(!Storage_RecordChangeset::put($id, $changeset_data_json)) {
+				$ids[$record_key] = false;
+				continue;
+			}
+			
+			$ids[$record_key] = $id;
 		}
 		
-		$result = $db->ExecuteMaster(sprintf("INSERT INTO `record_changeset` (record_type, record_id, worker_id, created_at, storage_sha1hash) ".
-			"VALUES (%s, %s, %d, %d, %s)",
-			$db->qstr($record_type),
-			$db->qstr($record_id),
-			$worker_id,
-			time(),
-			$db->qstr($changeset_data_hash),
-		));
-		
-		if(!$result)
-			return false;
-		
-		if(0 == ($id = $db->LastInsertId()))
-			return false;
-		
-		Storage_RecordChangeset::put($id, $changeset_data);
-		
-		return $id;
+		return $ids;
 	}
 	
 	public static function get(int $id) : ?Model_RecordChangeset {
 		$db = DevblocksPlatform::services()->database();
 		
-		$record = $db->GetRowMaster(sprintf('SELECT id, created_at, record_type, record_id, worker_id, storage_size, storage_key, storage_extension, storage_profile_id, storage_sha1hash '.
+		$record = $db->GetRowMaster(sprintf('SELECT id, created_at, record_type, record_id, record_key, worker_id, storage_size, storage_key, storage_extension, storage_profile_id, storage_sha1hash '.
 			'FROM record_changeset '.
 			'WHERE id = %d',
 			$id
@@ -52,26 +68,41 @@ class DAO_RecordChangeset {
 		return null;
 	}
 	
-	public static function getLastChangeset(string $record_type, int $record_id) : ?Model_RecordChangeset {
+	public static function getLastChangesets(string $record_type, int $record_id, array $record_keys) : array {
 		$db = DevblocksPlatform::services()->database();
 		
-		$record = $db->GetRowMaster(sprintf('SELECT id, created_at, record_type, record_id, worker_id, storage_size, storage_key, storage_extension, storage_profile_id, storage_sha1hash '.
-			'FROM record_changeset '.
-			'WHERE record_type = %s '.
-			'AND record_id = %d '.
-			'ORDER BY id DESC '.
-			'LIMIT 1',
-			$db->qstr($record_type),
-			$record_id
-		));
+		$sql = '';
+		$records = [];
 		
-		if($record)
-			return new Model_RecordChangeset($record);
+		foreach($record_keys as $index => $record_key) {
+			if($index)
+				$sql .= ' UNION ALL ';
+			
+			$sql .= sprintf('(SELECT id, created_at, record_type, record_id, record_key, worker_id, storage_size, storage_key, storage_extension, storage_profile_id, storage_sha1hash ' .
+				'FROM record_changeset ' .
+				'WHERE record_type = %s ' .
+				'AND record_id = %d ' .
+				'AND record_key = %s ' .
+				'ORDER BY id DESC ' .
+				'LIMIT 1)',
+				$db->qstr($record_type),
+				$record_id,
+				$db->qstr($record_key)
+			);
+		}
 		
-		return null;
+		$results = $db->GetArrayMaster($sql);
+		
+		if(is_array($results)) {
+			foreach($results as $result) {
+				$records[$result['record_key']] = new Model_RecordChangeset($result);
+			}
+		}
+		
+		return $records;
 	}
-	
-	public static function getChangesets(string $record_type, int $record_id, int $limit=10, bool $is_descending=true, int $since_id=0) : array {
+
+	public static function getChangesets(string $record_type, int $record_id, string $record_key, int $limit=10, bool $is_descending=true, int $since_id=0) : array {
 		$db = DevblocksPlatform::services()->database();
 		
 		$sort = sprintf('ORDER BY id %s', $is_descending ? 'DESC' : 'ASC');
@@ -84,14 +115,16 @@ class DAO_RecordChangeset {
 		
 		$results = [];
 		
-		$records = $db->GetArrayMaster(sprintf('SELECT id, created_at, record_type, record_id, worker_id, storage_size, storage_key, storage_extension, storage_profile_id, storage_sha1hash '.
+		$records = $db->GetArrayMaster(sprintf('SELECT id, created_at, record_type, record_id, record_key, worker_id, storage_size, storage_key, storage_extension, storage_profile_id, storage_sha1hash '.
 			'FROM record_changeset '.
 			'WHERE record_type = %s '.
 			'AND record_id = %d '.
+			'AND record_key = %s '.
 			'%s '.
 			'LIMIT %d',
 			$db->qstr($record_type),
 			$record_id,
+			$db->qstr($record_key),
 			$sort,
 			$limit
 		));
@@ -163,6 +196,7 @@ class Model_RecordChangeset {
 	public int $created_at = 0;
 	public int $id = 0;
 	public int $record_id = 0;
+	public string $record_key = '';
 	public string $record_type = '';
 	public int $storage_profile_id = 0;
 	public string $storage_extension = '';
@@ -176,6 +210,7 @@ class Model_RecordChangeset {
 			$this->created_at = intval($record['created_at'] ?? 0);	
 			$this->id = intval($record['id'] ?? 0);	
 			$this->record_id = intval($record['record_id'] ?? 0);	
+			$this->record_key = strval($record['record_key'] ?? '');	
 			$this->record_type = strval($record['record_type'] ?? '');	
 			$this->storage_profile_id = intval($record['storage_profile_id'] ?? 0);	
 			$this->storage_extension = strval($record['storage_extension'] ?? '');	
@@ -191,10 +226,10 @@ class Model_RecordChangeset {
 	}
 	
 	public function getContent() : array {
-		if(false == ($content = Storage_RecordChangeset::get($this->id)))
+		if(!($content = Storage_RecordChangeset::get($this->id)))
 			return [];
 		
-		if(false == ($content = json_decode($content, true)))
+		if(!($content = json_decode($content, true)))
 			return [];
 		
 		return $content;
