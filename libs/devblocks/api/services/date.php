@@ -586,6 +586,28 @@ class _DevblocksDateManager {
 		
 		return '';
 	}
+	
+	public function convertStrftimeToDateFormat($date_format) {
+		return str_replace(
+			[
+				'%Y',
+				'%m',
+				'%d',
+				'%H',
+				'%M',
+				'%S',
+			],
+			[
+				'Y',
+				'm',
+				'd',
+				'H',
+				'i',
+				's',
+			],
+			$date_format
+		);
+	}
 };
 
 class DevblocksCalendarHelper {
