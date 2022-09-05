@@ -221,6 +221,154 @@ var cerbAutocompleteSuggestions = {
 			'time_limit_ms: 25000'
 		]
 	},
+	kataSchemaChart: {
+		'': [
+			'axis:',
+			'data:',
+			'grid:'
+		],
+
+		'axis:': [
+			'x:',
+			'y:',
+			'y2:'
+		],
+		'axis:x:': [
+			'label:',
+			'tick:',
+			'type:'
+		],
+		'axis:x:tick:': [
+			'format:'
+		],
+		'axis:x:tick:format:': [
+			'%Y',
+			'%Y-%m',
+			'%Y-%m-%d',
+			'%Y-%m-%d %H:%M:%S'
+		],
+		'axis:x:type:': [
+			'category',
+			'linear',
+			'timeseries'
+		],
+		'axis:y:': [
+			'label:',
+			'tick:',
+			'type:'
+		],
+		'axis:y:tick:': [
+			'format:'
+		],
+		'axis:y:tick:format:': [
+			'%Y',
+			'%Y-%m',
+			'%Y-%m-%d',
+			'%Y-%m-%d %H:%M:%S',
+		],
+		'axis:y:type:': [
+			'category',
+			'linear',
+			'timeseries'
+		],
+		'axis:y2:': [
+			'label:',
+			'tick:',
+			'type:'
+		],
+		'axis:y2:tick:': [
+			'format:'
+		],
+		'axis:y2:tick:format:': [
+			'%Y',
+			'%Y-%m',
+			'%Y-%m-%d',
+			'%Y-%m-%d %H:%M:%S',
+		],
+		'axis:y2:type:': [
+			'category',
+			'linear',
+			'timeseries'
+		],
+		
+		'data:': [
+			'series:',
+			'stacks:',
+			'type:'
+		],
+		'data:series:': [
+			'dataset_name:'
+		],
+		'data:stacks:': [
+			'0@csv: series0, series1'
+		],
+		'data:type:': [
+			'area',
+			'area-spline',
+			'area-step',
+			'bar',
+			'donut',
+			'gauge',
+			'line',
+			'pie',
+			'scatter',
+			'spline',
+			'step',
+		],
+		
+		'grid:': [
+			'x:',	
+			'y:',	
+		],
+		'grid:x:': [
+			'lines:',	
+		],
+		'grid:x:lines:': [
+			'0:',
+		],
+		'grid:y:': [
+			'lines:',
+		],
+		'grid:y:lines:': [
+			'0:',
+		],
+		
+		'*': {
+			'data:series:(.*?):y_axis:': [
+				'y',
+				'y2',
+			],
+			'data:series:(.*?):y_type:': [
+				'area',
+				'area-spline',
+				'area-step',
+				'bar',
+				'donut',
+				'gauge',
+				'line',
+				'pie',
+				'scatter',
+				'spline',
+				'step',
+			],
+			'data:series:(.*?):': [
+				'name:',
+				'x_key:',
+				'y_axis:',
+				'y_type:'
+			],
+			
+			'grid:(x|y):lines:(.*?):position:': [
+				'start',
+				'end',
+			],
+			'grid:(x|y):lines:(.*?):': [
+				'position:',
+				'text:',
+				'value:',
+			],
+		}
+	},
 	kataSchemaDashboardFilters: {
 		'': [
 			{
@@ -273,6 +421,68 @@ var cerbAutocompleteSuggestions = {
 		'text:': [
 			'label:',
 			'default:',
+		]
+	},
+	kataSchemaDataset: {
+		'': [
+			{
+				'caption': 'automation:',
+				'snippet': 'automation/${1:series0}:'
+			},
+			{
+				'caption': 'dataQuery:',
+				'snippet': 'dataQuery/${1:series0}:'
+			},
+			{
+				'caption': 'manual:',
+				'snippet': 'manual/${1:series0}:'
+			}
+		],
+		
+		'automation:': [
+			{
+				'caption': 'uri:',
+				'snippet': 'uri: cerb:automation:${1:name}'
+			},
+			{
+				'caption': 'disabled:',
+				'snippet': 'disabled@bool: ${1:yes}'
+			},
+			'inputs:'
+		],
+		'automation:uri:': {
+			'type': 'cerb-uri',
+			'params': {
+				'automation': {
+					'triggers': [
+						'cerb.trigger.ui.chart.data'
+					]
+				}
+			}
+		},
+		'automation:inputs:': {
+			'type': 'automation-inputs'
+		},
+
+		'dataQuery:': [
+			{
+				'caption': 'query:',
+				'snippet': "query@text:\n  "
+			},
+			{
+				'caption': 'query_params:',
+				'snippet': "query_params:\n  ${1:key}: ${2:value}"
+			},
+		],
+		
+		'manual:': [
+			{
+				'caption': 'data:',
+				'snippet': "data:\n  ",
+			}
+		],
+		'manual:data:': [
+			'series_name@csv: 1,2,3'
 		]
 	},
 	kataSchemaMap: {
