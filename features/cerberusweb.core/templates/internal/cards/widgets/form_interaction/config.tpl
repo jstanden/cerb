@@ -82,7 +82,7 @@ $(function() {
 				return;
 
 			formData.set('id', $select.val());
-			formData.set('record_type', $form.find('input[name=record_type]'));
+			formData.set('record_type', $form.find('input[name=record_type]').val());
 
 		} else {
 			formData.set('id', $hidden.val());

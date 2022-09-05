@@ -560,7 +560,7 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 			
 			$model = new Model_CardWidget();
 			$model->id = 0;
-			$model->record_type = 'ticket';
+			$model->record_type = $record_type;
 			$model->extension_id = $id;
 		}
 		
