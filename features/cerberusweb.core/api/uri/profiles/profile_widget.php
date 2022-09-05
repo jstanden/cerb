@@ -383,16 +383,23 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'string', '');
+		$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'] ?? null, 'string', '');
 		$config_action = DevblocksPlatform::importGPC($_POST['config_action'] ?? null, 'string', '');
 		
+		if(!$id && $extension_id)
+			$id = $extension_id;
+		
+		$extension = null;
+		$model = null;
+		
 		if(is_numeric($id)) {
-			if(false == ($model = DAO_ProfileWidget::get($id)))
+			if(!($model = DAO_ProfileWidget::get($id)))
 				DevblocksPlatform::dieWithHttpError(null, 404);
 			
 			$extension = $model->getExtension();
 			
-		} else {
-			if(false == ($extension = Extension_ProfileWidget::get($id)))
+		} else if (is_scalar($id)) {
+			if(!($extension = Extension_ProfileWidget::get($id)))
 				DevblocksPlatform::dieWithHttpError(null, 404);
 			
 			$profile_tab_id = DevblocksPlatform::importGPC($_POST['profile_tab_id'] ?? null, 'integer', 0);
@@ -401,6 +408,9 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 			$model->id = 0;
 			$model->extension_id = $id;
 			$model->profile_tab_id = $profile_tab_id;
+			
+		} else {
+			DevblocksPlatform::dieWithHttpError(null, 500);
 		}
 		
 		if(!Context_ProfileWidget::isWriteableByActor($model, $active_worker))
