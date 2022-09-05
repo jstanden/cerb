@@ -62,25 +62,63 @@ class ChUpdateController extends DevblocksControllerExtension {
 				
 			case 'locked':
 				if(!DevblocksPlatform::versionConsistencyCheck()) {
-					echo "<html><head>";
-					echo '<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">';
-					echo "</head>";
-					echo "<body>";
-					echo sprintf("<h1>Cerb %s</h1>", APP_VERSION);
-					echo "The application is currently waiting for an administrator to finish upgrading. ".
-						"Please wait a few minutes and then ".
-						sprintf("<a href='%s'>try again</a>.<br><br>",
-							$url->write('c=update&a=locked')
-						);
-					echo sprintf("If you're an admin you may <a href='%s'>finish the upgrade</a>.",
-						$url->write('c=update')
+					http_response_code(503);
+					
+					echo sprintf(
+					<<< EOD
+					<html lang="en">
+					<head>
+						<title>Cerb update in progress</title>
+						<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+						<style>
+							HTML {
+								font-family: "Helvetica Neue", "Helvetica", "Roboto", sans-serif;
+							}
+							A {
+								color: royalblue;
+								font-weight: bold;
+							}
+							.cell {
+								margin: auto;
+								width: 90vw;
+								padding: 1em;
+								text-align: center;
+							}
+							.logo {
+								width: 500px;
+								max-width: 80vw;
+								height: auto;
+							}
+						</style>
+					</head>
+					<body>
+						<div class="cell">
+							<img class="logo" src="%s">
+							<p>
+							The <b>Cerb %s</b> update is currently waiting for an administrator to finish.
+							Please wait a few minutes and then <a href='%s'>try again</a>.
+							</p>
+							<p>
+								If you're an admin you may <a href='%s'>finish the upgrade</a>.
+							</p>
+						</div>
+					</body>
+					</html>
+					EOD,
+					$url->write('c=update&a=logo'),
+					APP_VERSION,
+					$url->write('c=update&a=locked'),
+					$url->write('c=update')
 					);
-					echo "</body>";
-					echo "</html>";
 				} else {
 					DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login')));
 				}
 				break;
+			
+			case 'logo':
+				header('Content-Type: image/svg+xml');
+				echo file_get_contents(APP_PATH . '/features/cerberusweb.core/resources/images/wgm/cerb_logo.svg');
+				return;
 				
 			default:
 				$path = APP_TEMP_PATH . DIRECTORY_SEPARATOR;
