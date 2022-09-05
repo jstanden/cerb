@@ -8203,6 +8203,17 @@
 			<params>
 			</params>
 		</extension>
+
+		<extension point="cerberusweb.ui.workspace.widget">
+			<id>cerb.workspace.widget.chart.kata</id>
+			<name>Chart KATA</name>
+			<class>
+				<file>api/workspaces/widgets/chart_kata.php</file>
+				<name>WorkspaceWidget_ChartKata</name>
+			</class>
+			<params>
+			</params>
+		</extension>
 		
 		<extension point="cerberusweb.ui.workspace.widget">
 			<id>cerb.workspace.widget.chart.pie</id>
