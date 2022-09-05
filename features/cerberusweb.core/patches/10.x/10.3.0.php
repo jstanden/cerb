@@ -102,6 +102,7 @@ if(!isset($tables['record_changeset'])) {
 		`created_at` int(10) unsigned NOT NULL DEFAULT 0,
 		`record_type` varchar(64) NOT NULL DEFAULT '',
 		`record_id` int(10) unsigned NOT NULL DEFAULT 0,
+		`record_key` varchar(64) NOT NULL DEFAULT '',
 		`worker_id` int(10) unsigned NOT NULL DEFAULT 0,
 		`storage_sha1hash` varchar(40) NOT NULL DEFAULT '',
 		`storage_size` int(10) unsigned NOT NULL DEFAULT '0',
@@ -109,7 +110,7 @@ if(!isset($tables['record_changeset'])) {
 		`storage_extension` varchar(128) NOT NULL DEFAULT '',
 		`storage_profile_id` int(10) unsigned NOT NULL DEFAULT '0',
 		PRIMARY KEY (id),
-		INDEX (record_type, record_id),
+		INDEX record (record_type, record_id, record_key),
 		INDEX (storage_extension, storage_profile_id, created_at),
 		INDEX (created_at),
 		INDEX (worker_id)

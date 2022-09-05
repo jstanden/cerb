@@ -197,27 +197,13 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 							$id,
 							[
 								'script' => $fields[DAO_Automation::SCRIPT] ?? '',
-							],
-							$active_worker->id ?? 0
-						);
-						
-					} catch (Exception $e) {
-						DevblocksPlatform::logError('Error saving automation changeset: ' . $e->getMessage());
-					}
-					
-					// Versioning
-					try {
-						DAO_RecordChangeset::create(
-							'automation_policy',
-							$id,
-							[
 								'policy' => $fields[DAO_Automation::POLICY_KATA] ?? '',
 							],
 							$active_worker->id ?? 0
 						);
 						
 					} catch (Exception $e) {
-						DevblocksPlatform::logError('Error saving policy changeset: ' . $e->getMessage());
+						DevblocksPlatform::logError('Error saving automation changeset: ' . $e->getMessage());
 					}
 					
 					// Custom field saves
