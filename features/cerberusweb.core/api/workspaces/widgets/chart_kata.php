@@ -19,11 +19,23 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget, ?string &$error=null) : bool {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
 		
 		DAO_WorkspaceWidget::update($widget->id, array(
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
 		));
+		
+		DAO_RecordChangeset::create(
+			'workspace_widget',
+			$widget->id,
+			[
+				'datasets_kata' => $params['datasets_kata'] ?? '',
+				'chart_kata' => $params['chart_kata'] ?? '',
+			],
+			$active_worker->id ?? 0
+		);
 		
 		return true;
 	}

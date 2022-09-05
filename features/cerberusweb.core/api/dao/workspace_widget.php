@@ -350,6 +350,8 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 		
 		$ids_list = implode(',', $ids);
 		
+		DAO_RecordChangeset::delete('workspace_widget', $ids);
+		
 		$db->ExecuteMaster(sprintf("DELETE FROM workspace_widget WHERE id IN (%s)", $ids_list));
 		
 		// Fire event

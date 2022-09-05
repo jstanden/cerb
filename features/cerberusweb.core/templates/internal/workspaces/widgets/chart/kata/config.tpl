@@ -4,6 +4,12 @@
 
 		<div class="cerb-code-editor-toolbar">
 			<button type="button" class="cerb-code-editor-toolbar-button cerb-button-sample-datasets" title="Test datasets"><span class="glyphicons glyphicons-play"></span></button>
+			
+			<div class="cerb-code-editor-toolbar-divider"></div>
+			
+			{if $widget->id}
+				<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-changesets-datasets title="{'common.change_history'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-history"></span></button>
+			{/if}
 		</div>
 
 		<textarea name="params[datasets_kata]" data-editor-mode="ace/mode/cerb_kata" class="placeholders" style="width:95%;height:50px;">{$widget->params.datasets_kata}</textarea>
@@ -17,7 +23,7 @@
 			</div>
 
 			<fieldset style="display:none;position:relative;">
-				<span class="glyphicons glyphicons-circle-remove" style="position:absolute;right:-5px;top:-10px;cursor:pointer;color:rgb(80,80,80);zoom:1.5;background-color:var(--cerb-color-background);" onclick="$(this).closest('fieldset').hide();"></span>
+				<span class="glyphicons glyphicons-circle-remove" style="position:absolute;right:-5px;top:-10px;cursor:pointer;color:var(--cerb-color-background-contrast-75);zoom:1.5;background-color:var(--cerb-color-background);" onclick="$(this).closest('fieldset').hide();"></span>
 				<legend>{'common.results'|devblocks_translate|capitalize}</legend>
 				<textarea class="cerb-json-results-editor" data-editor-mode="ace/mode/json"></textarea>
 			</fieldset>
@@ -29,13 +35,19 @@
 
 		<div class="cerb-code-editor-toolbar">
 			<button type="button" class="cerb-code-editor-toolbar-button cerb-button-sample-chart" title="Test chart"><span class="glyphicons glyphicons-play"></span></button>
+			
+			<div class="cerb-code-editor-toolbar-divider"></div>
+			
+			{if $widget->id}
+				<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-changesets-chart title="{'common.change_history'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-history"></span></button>
+			{/if}
 		</div>
 
 		<textarea name="params[chart_kata]" data-editor-mode="ace/mode/cerb_kata" class="placeholders" style="width:95%;height:50px;">{$widget->params.chart_kata}</textarea>
 
 		<div style="margin:5px 0 0 20px;">
 			<fieldset style="display:none;position:relative;">
-				<span class="glyphicons glyphicons-circle-remove" style="position:absolute;right:-5px;top:-10px;cursor:pointer;color:rgb(80,80,80);zoom:1.5;background-color:var(--cerb-color-background);" onclick="$(this).closest('fieldset').hide();"></span>
+				<span class="glyphicons glyphicons-circle-remove" style="position:absolute;right:-5px;top:-10px;cursor:pointer;color:var(--cerb-color-background-contrast-75);zoom:1.5;background-color:var(--cerb-color-background);" onclick="$(this).closest('fieldset').hide();"></span>
 				<legend>{'common.preview'|devblocks_translate|capitalize}</legend>
 				<div data-cerb-results-chart></div>
 			</fieldset>
@@ -58,8 +70,39 @@ $(function() {
 		.nextAll('pre.ace_editor')
 	;
 
-	var editor_datasets = ace.edit($editor_datasets.attr('id'));	
+	var editor_datasets = ace.edit($editor_datasets.attr('id'));
 
+	{if $widget->id}
+	$config.find('[data-cerb-editor-button-changesets-datasets]').on('click', function(e) {
+		e.stopPropagation();
+		var formData = new FormData();
+		formData.set('c', 'internal');
+		formData.set('a', 'invoke');
+		formData.set('module', 'records');
+		formData.set('action', 'showChangesetsPopup');
+		formData.set('record_type', 'workspace_widget');
+		formData.set('record_id', '{$widget->id}');
+		formData.set('record_key', 'datasets_kata');
+
+		var $editor_policy_differ_popup = genericAjaxPopup('editorDiffDataset{$form_id}', formData, null, null, '80%');
+
+		$editor_policy_differ_popup.one('cerb-diff-editor-ready', function(e) {
+			e.stopPropagation();
+
+			if(!e.hasOwnProperty('differ'))
+				return;
+
+			e.differ.editors.right.ace.setValue(editor_datasets.getValue());
+			e.differ.editors.right.ace.clearSelection();
+
+			e.differ.editors.right.ace.on('change', function() {
+				editor_datasets.setValue(e.differ.editors.right.ace.getValue());
+				editor_datasets.clearSelection();
+			});
+		});
+	});
+	{/if}
+	
 	// Chart
 	
 	var $editor_chart = $config.find('textarea[name="params[chart_kata]"]')
@@ -71,6 +114,37 @@ $(function() {
 	;
 
 	var editor_chart = ace.edit($editor_chart.attr('id'));
+
+	{if $widget->id}
+	$config.find('[data-cerb-editor-button-changesets-chart]').on('click', function(e) {
+		e.stopPropagation();
+		var formData = new FormData();
+		formData.set('c', 'internal');
+		formData.set('a', 'invoke');
+		formData.set('module', 'records');
+		formData.set('action', 'showChangesetsPopup');
+		formData.set('record_type', 'workspace_widget');
+		formData.set('record_id', '{$widget->id}');
+		formData.set('record_key', 'chart_kata');
+
+		var $editor_policy_differ_popup = genericAjaxPopup('editorDiffChart{$form_id}', formData, null, null, '80%');
+
+		$editor_policy_differ_popup.one('cerb-diff-editor-ready', function(e) {
+			e.stopPropagation();
+
+			if(!e.hasOwnProperty('differ'))
+				return;
+
+			e.differ.editors.right.ace.setValue(editor_chart.getValue());
+			e.differ.editors.right.ace.clearSelection();
+
+			e.differ.editors.right.ace.on('change', function() {
+				editor_chart.setValue(e.differ.editors.right.ace.getValue());
+				editor_chart.clearSelection();
+			});
+		});
+	});
+	{/if}
 	
 	// Sample datasets
 	
