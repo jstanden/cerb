@@ -2095,7 +2095,9 @@ var ajax = new cAjaxCalls();
 			if(withTwigAutocompletion)
 				$editor.addClass('placeholders');
 			
-			var editor = ace.edit(editor_id);
+			var editor = ace.edit(editor_id, {
+				useWorker: false
+			});
 			editor.$blockScrolling = Infinity;
 			editor.setTheme("ace/theme/cerb-2022011201");
 			editor.session.setMode(mode);
