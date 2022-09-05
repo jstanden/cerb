@@ -351,21 +351,31 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'string', '');
+		$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'] ?? null, 'string', '');
 		$config_action = DevblocksPlatform::importGPC($_POST['config_action'] ?? null, 'string', '');
 		
+		if(!$id && $extension_id)
+			$id = $extension_id;
+		
+		$model = null;
+		$extension = null;
+		
 		if(is_numeric($id)) {
-			if(false == ($model = DAO_WorkspaceWidget::get($id)))
+			if(!($model = DAO_WorkspaceWidget::get($id)))
 				DevblocksPlatform::dieWithHttpError(null, 404);
 			
 			$extension = $model->getExtension();
 			
-		} else {
-			if(false == ($extension = Extension_WorkspaceWidget::get($id)))
+		} else if (is_scalar($id)) {
+			if(!($extension = Extension_WorkspaceWidget::get($id)))
 				DevblocksPlatform::dieWithHttpError(null, 404);
 			
 			$model = new Model_WorkspaceWidget();
 			$model->id = 0;
 			$model->extension_id = $id;
+			
+		} else {
+			DevblocksPlatform::dieWithHttpError(null, 500);
 		}
 		
 		if(!Context_ProfileWidget::isWriteableByActor($model, $active_worker))
