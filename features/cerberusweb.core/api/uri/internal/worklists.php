@@ -915,16 +915,14 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 				unset($csv_labels);
 			}
 			
-			// Bulk lazy load the tokens across all the dictionaries with a temporary cache
-			foreach($cursor['tokens'] as $token) {
-				DevblocksDictionaryDelegate::bulkLazyLoad($dicts, $token, true);
-			}
-			
 			foreach($dicts as $dict) {
 				$fields = [];
 				
 				foreach($cursor['tokens'] as $token) {
-					$value = $dict->get($token);
+					$value = '';
+					
+					if($dict->exists($token))
+						$value = $dict->get($token);
 					
 					if(($global_types[$token] ?? null) == Model_CustomField::TYPE_DATE && $cursor['format_timestamps']) {
 						if(empty($value)) {
