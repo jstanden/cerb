@@ -47,6 +47,8 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 					return $this->_profileAction_renderEditorToolbar();
 				case 'runAutomationEditor':
 					return $this->_profileAction_runAutomationEditor();
+				case 'showExportPopup':
+					return $this->_profileAction_showExportPopup();
 				case 'stepAutomationEditor':
 					return $this->_profileAction_stepAutomationEditor();
 				case 'savePeekJson':
@@ -483,6 +485,39 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar, $toolbar_dict);
 		
 		DevblocksPlatform::services()->ui()->toolbar()->render($toolbar);
+	}
+	
+	private function _profileAction_showExportPopup() {
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if(!$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		$fields = DevblocksPlatform::importGPC($_POST['fields'] ?? null, 'array', []);
+		
+		$package_data = [
+			'package' => [],
+			'records' => [
+				[
+					'uid' => uniqid('automation_'),
+					'_context' => 'automation',
+					'name' => $fields['name'] ?? '',
+					'extension_id' => $fields['extension_id'] ?? '',
+					'description' => $fields['description'] ?? '',
+					'script' => $fields['script'] ?? '',
+					'policy_kata' => $fields['policy_kata'] ?? '',
+					'created_at' => time(),
+					'updated_at' => time(),
+				]
+			]
+		];
+		
+		$tpl->assign('export_json', DevblocksPlatform::strFormatJson($package_data));
+		$tpl->display('devblocks:cerberusweb.core::internal/automation/editor/popup_export.tpl');
 	}
 	
 	private function _profileAction_stepAutomationEditor() {
