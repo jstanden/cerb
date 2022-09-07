@@ -82,6 +82,7 @@
 			<div class="cerb-code-editor-toolbar-divider"></div>
 			<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-changesets-code title="{'common.change_history'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-history"></span></button>
 		{/if}
+		<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-export title="{'common.export'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-disk-export"></span></button>
 	</div>
 	<textarea name="automation_script" data-editor-mode="ace/mode/cerb_kata" data-editor-lines="25">{$model->script}</textarea>
 </div>
@@ -460,6 +461,23 @@ $(function() {
 			});
 		});
 		{/if}
+
+		$popup.find('[data-cerb-editor-button-export]').on('click', function(e) {
+			e.stopPropagation();
+
+			var formData = new FormData();
+			formData.set('c', 'profiles');
+			formData.set('a', 'invoke');
+			formData.set('module', 'automation');
+			formData.set('action', 'showExportPopup');
+			formData.set('fields[name]', $frm.find('input[name=name]').val());
+			formData.set('fields[description]', $frm.find('input[name=description]').val());
+			formData.set('fields[extension_id]', $frm.find('input[name=extension_id]').val());
+			formData.set('fields[script]', editor_automation.getValue());
+			formData.set('fields[policy_kata]', editor_policy.getValue());
+
+			genericAjaxPopup('editorExport{$form_id}', formData, null, null, '60%');
+		});
 		
 		{if $cursor}
 		editor_automation.gotoLine({$cursor.row}, {$cursor.column});
