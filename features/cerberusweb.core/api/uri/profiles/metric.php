@@ -145,6 +145,21 @@ class PageSection_ProfilesMetric extends Extension_PageSection {
 				}
 				
 				if($id) {
+					// Versioning
+					try {
+						DAO_RecordChangeset::create(
+							'metric',
+							$id,
+							[
+								'dimensions_kata' => $fields[DAO_Metric::DIMENSIONS_KATA] ?? '',
+							],
+							$active_worker->id ?? 0
+						);
+						
+					} catch (Exception $e) {
+						DevblocksPlatform::logError('Error saving changeset: ' . $e->getMessage());
+					}
+					
 					// Custom field saves
 					$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 					if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_METRIC, $id, $field_ids, $error))
