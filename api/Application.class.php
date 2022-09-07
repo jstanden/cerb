@@ -4353,6 +4353,9 @@ class _CerbApplication_KataSchemas {
                         types:
                           object:
                             attributes:
+                              available_at:
+                                types:
+                                  string:
                               queue_name:
                                 types:
                                   string:
