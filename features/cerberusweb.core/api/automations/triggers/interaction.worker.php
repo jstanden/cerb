@@ -1127,6 +1127,13 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 				'(.*):await:record:uri:' => [
 					'type' => 'cerb-uri',
 				],
+				
+				'(.*):return:' => [
+					'alert:',
+					'clipboard:',
+					'open_link:',
+					'snippet:',
+				],
 			]
 		];
 	}
