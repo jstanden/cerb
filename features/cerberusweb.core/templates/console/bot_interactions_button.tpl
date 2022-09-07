@@ -80,6 +80,21 @@ $(function() {
 						'caller': {
 							'name': 'cerb.toolbar.global.menu',
 							'params': { }
+						},
+						'done': function(e) {
+							if('object' !== typeof e || !e.hasOwnProperty('eventData'))
+								return;
+							
+							var $target = e.trigger;
+
+							if(!$target.is('.cerb-bot-trigger'))
+								return;
+
+							if (e.eventData.exit === 'error') {
+
+							} else if(e.eventData.exit === 'return') {
+								Devblocks.interactionWorkerPostActions(e.eventData);
+							}
 						}
 					})
 					.on('click', function(e) {
