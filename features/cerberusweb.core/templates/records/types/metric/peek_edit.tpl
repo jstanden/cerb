@@ -69,6 +69,11 @@ interaction/help:
             {if $toolbar}
                 {DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
             {/if}
+
+            {if $model->id}
+                <div class="cerb-code-editor-toolbar-divider"></div>
+                <button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-changesets title="{'common.change_history'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-history"></span></button>
+            {/if}
         </div>
 
         <textarea name="dimensions_kata" data-editor-mode="ace/mode/cerb_kata">{$model->dimensions_kata}</textarea>
@@ -128,6 +133,38 @@ interaction/help:
 
             var editor = ace.edit($editor.attr('id'));
 
+            {if $model->id}
+            $popup.find('[data-cerb-editor-button-changesets]').on('click', function(e) {
+                e.stopPropagation();
+
+                var formData = new FormData();
+                formData.set('c', 'internal');
+                formData.set('a', 'invoke');
+                formData.set('module', 'records');
+                formData.set('action', 'showChangesetsPopup');
+                formData.set('record_type', 'metric');
+                formData.set('record_id', '{$model->id}');
+                formData.set('record_key', 'dimensions_kata');
+
+                var $editor_policy_differ_popup = genericAjaxPopup('editorDiff{$form_id}', formData, null, null, '80%');
+
+                $editor_policy_differ_popup.one('cerb-diff-editor-ready', function(e) {
+                    e.stopPropagation();
+
+                    if(!e.hasOwnProperty('differ'))
+                        return;
+
+                    e.differ.editors.right.ace.setValue(editor.getValue());
+                    e.differ.editors.right.ace.clearSelection();
+
+                    e.differ.editors.right.ace.on('change', function() {
+                        editor.setValue(e.differ.editors.right.ace.getValue());
+                        editor.clearSelection();
+                    });
+                });
+            });
+            {/if}
+            
             // Toolbar
 
             var $toolbar = $popup.find('.cerb-code-editor-toolbar');
