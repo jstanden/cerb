@@ -647,7 +647,17 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 				],
 				
 				'(.*):await:form:elements:query:' => [
-					'record_type:',
+					[
+						'caption' => 'label:',
+						'snippet' => "label: \${1:Label:}",
+						'score' => 2000,
+					],
+					[
+						'caption' => 'record_type:',
+						'snippet' => "record_type: \${1::}",
+						'score' => 1999,
+					],
+					'default:',
 				],
 				'(.*):await:form:elements:query:record_type:' => [
 					'type' => 'record-type',
