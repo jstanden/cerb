@@ -3390,7 +3390,7 @@ var ajax = new cAjaxCalls();
 								return callback(null, autocompleterKata.formatSuggestions(twigAutocompleteSuggestions.tags));
 								
 							} else if ('variable.other.readwrite.local.twig' === token.type && '{{' === token.value) {
-								break;
+								return callback(null, autocompleterKata.formatSuggestions(twigAutocompleteSuggestions.functions));
 								
 							} else if ('variable.other.readwrite.local.twig' === token.type && '}}' === token.value) {
 								break;
