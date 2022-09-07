@@ -91,3 +91,79 @@
 		background-color: var(--cerb-editor-line-hover);
 	}
 }
+
+.acediff__wrap {
+	display: flex;
+	flex-direction: row;
+	position: absolute;
+	bottom: 0;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
+	overflow: auto
+}
+
+.acediff__gutter {
+	flex: 0 0 60px;
+	border-left: 1px solid var(--cerb-editor-gutter-border);
+	border-right: 1px solid var(--cerb-editor-gutter-border);
+	overflow: hidden;
+
+	.acediff__gutter svg {
+		background-color: var(--cerb-color-background-contrast-240);
+	}
+}
+
+.acediff__left, .acediff__right {
+	height: 100%;
+	flex: 1
+}
+
+.acediff__diffLine {
+	background-color: var(--cerb-editor-diff-line);
+	border-top: 1px solid var(--cerb-editor-diff-border);
+	border-bottom: 1px solid var(--cerb-editor-diff-border);
+	position: absolute;
+	z-index: 4;
+
+	&.targetOnly {
+		height: 0 !important;
+		border-top: 1px solid var(--cerb-editor-diff-border);
+		border-bottom: 0;
+		position: absolute
+	}
+}
+
+.acediff__connector {
+	fill: var(--cerb-editor-diff-line);
+	stroke: var(--cerb-editor-diff-border);
+}
+
+.acediff__copy--left, .acediff__copy--right {
+	position: relative
+}
+
+.acediff__copy--left div, .acediff__copy--right div {
+	color: var(--cerb-color-text);
+	text-shadow: 1px 1px var(--cerb-color-background-contrast-200);
+	position: absolute;
+	margin: 2px 3px;
+	cursor: pointer
+}
+
+.acediff__copy--right div:hover {
+	color: var(--cerb-color-background-contrast-50);
+}
+
+.acediff__copy--left {
+	float: right
+}
+
+.acediff__copy--left div {
+	right: 0
+}
+
+.acediff__copy--left div:hover {
+	color: var(--cerb-color-background-contrast-100);
+}
