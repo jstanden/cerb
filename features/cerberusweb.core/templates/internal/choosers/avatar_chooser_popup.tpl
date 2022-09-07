@@ -235,9 +235,6 @@ $(function() {
 					.appendTo($suggested)
 					;
 			})
-			.error(function(e) {
-				// On a 404, ignore this suggestion
-			})
 			.attr('src',"{$photo.url nofilter}")
 			;
 		{/foreach}
