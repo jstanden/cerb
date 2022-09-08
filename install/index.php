@@ -333,7 +333,6 @@ switch($step) {
 	// Configure and test the database connection
 	case STEP_DATABASE:
 		// Import scope (if post)
-		$db_driver = DevblocksPlatform::importGPC($_POST['db_driver'] ?? null, 'string');
 		$db_engine = DevblocksPlatform::importGPC($_POST['db_engine'] ?? null, 'string');
 		$db_server = DevblocksPlatform::importGPC($_POST['db_server'] ?? null, 'string');
 		$db_port = DevblocksPlatform::importGPC($_POST['db_port'] ?? null, 'string');
@@ -348,15 +347,6 @@ switch($step) {
 			exit;
 		}
 		
-		// [JAS]: Detect available database drivers
-		
-		$drivers = array();
-		
-		if(extension_loaded('mysqli'))
-			$drivers['mysqli'] = 'MySQLi';
-		
-		$tpl->assign('drivers', $drivers);
-		
 		$engines = array(
 			'innodb' => 'InnoDB (Recommended)',
 			'myisam' => 'MyISAM (Legacy)',
@@ -369,7 +359,7 @@ switch($step) {
 		if($db_port && 'localhost' == $db_server)
 			$db_server = '127.0.0.1';
 		
-		if(!empty($db_driver) && !empty($db_engine) && !empty($db_server) && !empty($db_name) && !empty($db_user)) {
+		if(!empty($db_engine) && !empty($db_server) && !empty($db_name) && !empty($db_user)) {
 			$db_passed = false;
 			$errors = array();
 			
@@ -483,7 +473,6 @@ switch($step) {
 				$errors[] = "Database connection failed!  Please check your settings and try again.";
 			}
 			
-			$tpl->assign('db_driver', $db_driver);
 			$tpl->assign('db_engine', $db_engine);
 			$tpl->assign('db_server', $db_server);
 			$tpl->assign('db_port', $db_port);
@@ -496,7 +485,7 @@ switch($step) {
 				$encoding = 'utf8';
 				
 				// Write database settings to framework.config.php
-				$result = CerberusInstaller::saveFrameworkConfig($db_driver, $db_engine, $encoding, $db_server, $db_port, $db_name, $db_user, $db_pass);
+				$result = CerberusInstaller::saveFrameworkConfig($db_engine, $encoding, $db_server, $db_port, $db_name, $db_user, $db_pass);
 				
 				// [JAS]: If we didn't save directly to the config file, user action required
 				if(0 != strcasecmp($result,'config')) {
@@ -525,7 +514,6 @@ switch($step) {
 		
 	// [JAS]: If we didn't save directly to the config file, user action required
 	case STEP_SAVE_CONFIG_FILE:
-		$db_driver = DevblocksPlatform::importGPC($_POST['db_driver'] ?? null, 'string');
 		$db_engine = DevblocksPlatform::importGPC($_POST['db_engine'] ?? null, 'string');
 		$db_server = DevblocksPlatform::importGPC($_POST['db_server'] ?? null, 'string');
 		$db_port = DevblocksPlatform::importGPC($_POST['db_port'] ?? null, 'string');
@@ -548,7 +536,6 @@ switch($step) {
 			exit;
 			
 		} else { // oops!
-			$tpl->assign('db_driver', $db_driver);
 			$tpl->assign('db_engine', $db_engine);
 			$tpl->assign('db_server', $db_server);
 			$tpl->assign('db_port', $db_port);

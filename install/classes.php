@@ -52,7 +52,7 @@ class CerberusInstaller {
 	 * @param ... [TODO]
 	 * @return string 'config', 'tmp' or FALSE
 	 */
-	public static function saveFrameworkConfig($db_driver, $db_engine, $encoding, $db_server, $db_port, $db_name, $db_user, $db_pass) {
+	public static function saveFrameworkConfig($db_engine, $encoding, $db_server, $db_port, $db_name, $db_user, $db_pass) {
 		$buffer = array();
 		@$fp_in = fopen(APP_PATH . "/framework.config.php","r");
 		
