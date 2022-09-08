@@ -253,11 +253,13 @@ class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
 		// Use the provided connection details
 		} else {
 			if($is_master) {
-				if(false == ($conn = mysqli_connect($this->_options['host'], $this->_options['user'], $this->_options['password']))) {
+				$db_port = !empty($this->_options['port'] ?? null) ? intval($this->_options['port']) : null;
+				
+				if(!($conn = mysqli_connect($this->_options['host'], $this->_options['user'], $this->_options['password'], null, $db_port))) {
 					return false;
 				}
 					
-				if(false == mysqli_select_db($conn, $this->_options['database'])) {
+				if(!mysqli_select_db($conn, $this->_options['database'])) {
 					return false;
 				}
 				
@@ -278,23 +280,27 @@ class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
 
 	function testConfig(Model_DevblocksStorageProfile $profile) {
 		$host = DevblocksPlatform::importGPC($_POST['host'] ?? null, 'string','');
+		$port = DevblocksPlatform::importGPC($_POST['port'] ?? null, 'string','');
 		$user = DevblocksPlatform::importGPC($_POST['user'] ?? null, 'string','');
 		$password = DevblocksPlatform::importGPC($_POST['password'] ?? null, 'string','');
 		$database = DevblocksPlatform::importGPC($_POST['database'] ?? null, 'string','');
 		
 		if(empty($host)) {
 			$host = APP_DB_HOST;
+			$port = APP_DB_PORT;
 			$user = APP_DB_USER;
 			$password = APP_DB_PASS;
 			$database = APP_DB_DATABASE;
 		}
 		
+		$port = $port ? intval($port) : null;
+		
 		// Test connection
-		if(false == (@$this->_master_db = mysqli_connect($host, $user, $password)))
+		if(!(@$this->_master_db = mysqli_connect($host, $user, $password, null, $port)))
 			return false;
 			
 		// Test switching DB
-		if(false == @mysqli_select_db($this->_master_db, $database))
+		if(!@mysqli_select_db($this->_master_db, $database))
 			return false;
 		
 		return true;

@@ -336,6 +336,7 @@ switch($step) {
 		$db_driver = DevblocksPlatform::importGPC($_POST['db_driver'] ?? null, 'string');
 		$db_engine = DevblocksPlatform::importGPC($_POST['db_engine'] ?? null, 'string');
 		$db_server = DevblocksPlatform::importGPC($_POST['db_server'] ?? null, 'string');
+		$db_port = DevblocksPlatform::importGPC($_POST['db_port'] ?? null, 'string');
 		$db_name = DevblocksPlatform::importGPC($_POST['db_name'] ?? null, 'string');
 		$db_user = DevblocksPlatform::importGPC($_POST['db_user'] ?? null, 'string');
 		$db_pass = DevblocksPlatform::importGPC($_POST['db_pass'] ?? null, 'string');
@@ -363,11 +364,16 @@ switch($step) {
 		
 		$tpl->assign('engines', $engines);
 		
+		$db_port = !empty($db_port) ? intval($db_port) : null;
+		
+		if($db_port && 'localhost' == $db_server)
+			$db_server = '127.0.0.1';
+		
 		if(!empty($db_driver) && !empty($db_engine) && !empty($db_server) && !empty($db_name) && !empty($db_user)) {
 			$db_passed = false;
 			$errors = array();
 			
-			if(false !== (@$_db = mysqli_connect($db_server, $db_user, $db_pass))) {
+			if(false !== (@$_db = mysqli_connect($db_server, $db_user, $db_pass, null, $db_port))) {
 				if(false !== mysqli_select_db($_db, $db_name)) {
 					$db_passed = true;
 				} else {
@@ -480,6 +486,7 @@ switch($step) {
 			$tpl->assign('db_driver', $db_driver);
 			$tpl->assign('db_engine', $db_engine);
 			$tpl->assign('db_server', $db_server);
+			$tpl->assign('db_port', $db_port);
 			$tpl->assign('db_name', $db_name);
 			$tpl->assign('db_user', $db_user);
 			$tpl->assign('db_pass', $db_pass);
@@ -489,7 +496,7 @@ switch($step) {
 				$encoding = 'utf8';
 				
 				// Write database settings to framework.config.php
-				$result = CerberusInstaller::saveFrameworkConfig($db_driver, $db_engine, $encoding, $db_server, $db_name, $db_user, $db_pass);
+				$result = CerberusInstaller::saveFrameworkConfig($db_driver, $db_engine, $encoding, $db_server, $db_port, $db_name, $db_user, $db_pass);
 				
 				// [JAS]: If we didn't save directly to the config file, user action required
 				if(0 != strcasecmp($result,'config')) {
@@ -521,6 +528,7 @@ switch($step) {
 		$db_driver = DevblocksPlatform::importGPC($_POST['db_driver'] ?? null, 'string');
 		$db_engine = DevblocksPlatform::importGPC($_POST['db_engine'] ?? null, 'string');
 		$db_server = DevblocksPlatform::importGPC($_POST['db_server'] ?? null, 'string');
+		$db_port = DevblocksPlatform::importGPC($_POST['db_port'] ?? null, 'string');
 		$db_name = DevblocksPlatform::importGPC($_POST['db_name'] ?? null, 'string');
 		$db_user = DevblocksPlatform::importGPC($_POST['db_user'] ?? null, 'string');
 		$db_pass = DevblocksPlatform::importGPC($_POST['db_pass'] ?? null, 'string');
@@ -530,6 +538,7 @@ switch($step) {
 		if(
 			0 == strcasecmp($db_engine,APP_DB_ENGINE) &&
 			0 == strcasecmp($db_server,APP_DB_HOST) &&
+			0 == strcasecmp($db_port,APP_DB_PORT) &&
 			0 == strcasecmp($db_name,APP_DB_DATABASE) &&
 			0 == strcasecmp($db_user,APP_DB_USER) &&
 			0 == strcasecmp($db_pass,APP_DB_PASS)
@@ -542,6 +551,7 @@ switch($step) {
 			$tpl->assign('db_driver', $db_driver);
 			$tpl->assign('db_engine', $db_engine);
 			$tpl->assign('db_server', $db_server);
+			$tpl->assign('db_port', $db_port);
 			$tpl->assign('db_name', $db_name);
 			$tpl->assign('db_user', $db_user);
 			$tpl->assign('db_pass', $db_pass);

@@ -1,5 +1,6 @@
 <?php
 define('DB_HOST', '');
+define('DB_PORT', null);
 define('DB_NAME', '');
 define('DB_USER', '');
 define('DB_PASS', '');
@@ -13,7 +14,7 @@ $length = 0;
 $buffer = '';
 $count = 0;
 
-$db = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+$db = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT);
 
 if(!$db)
 	die("Failed to connect to DB.");

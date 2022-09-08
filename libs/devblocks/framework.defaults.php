@@ -16,6 +16,9 @@ if(!defined('APP_DB_DATABASE'))
 if(!defined('APP_DB_HOST'))
 	define('APP_DB_HOST','');
 
+if(!defined('APP_DB_PORT'))
+	define('APP_DB_PORT', '');
+
 if(!defined('APP_DB_USER'))
 	define('APP_DB_USER','');
 
@@ -24,6 +27,9 @@ if(!defined('APP_DB_PASS'))
 
 if(!defined('APP_DB_READER_HOST'))
 	define('APP_DB_READER_HOST', defined('APP_DB_SLAVE_HOST') ? APP_DB_SLAVE_HOST : '');
+
+if(!defined('APP_DB_READER_PORT'))
+	define('APP_DB_READER_PORT', '');
 
 if(!defined('APP_DB_READER_USER'))
 	define('APP_DB_READER_USER', defined('APP_DB_SLAVE_USER') ? APP_DB_SLAVE_USER : '');
