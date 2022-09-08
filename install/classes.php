@@ -52,7 +52,7 @@ class CerberusInstaller {
 	 * @param ... [TODO]
 	 * @return string 'config', 'tmp' or FALSE
 	 */
-	public static function saveFrameworkConfig($db_driver, $db_engine, $encoding, $db_server, $db_name, $db_user, $db_pass) {
+	public static function saveFrameworkConfig($db_driver, $db_engine, $encoding, $db_server, $db_port, $db_name, $db_user, $db_pass) {
 		$buffer = array();
 		@$fp_in = fopen(APP_PATH . "/framework.config.php","r");
 		
@@ -85,6 +85,9 @@ class CerberusInstaller {
 					case "APP_DB_PASS":
 						$value = $db_pass;
 						break;
+					case "APP_DB_PORT":
+						$value = $db_port;
+						break;
 					case "LANG_CHARSET_CODE":
 						$value = (0==strcasecmp($encoding,'latin1')) ? 'iso-8859-1' : 'utf-8';
 						break;
@@ -99,9 +102,17 @@ class CerberusInstaller {
 				if(!empty($token) && !empty($value)) {
 					$line = sprintf("define('%s','%s');",$token, self::escape($value));
 				}
+				
+				$buffer[] = str_replace(array("\r","\n"),'',$line); // strip CRLF
+				
+				if('APP_DB_HOST' == $token && !empty($db_port)) {
+					$line = sprintf("define('%s','%s');", 'APP_DB_PORT', self::escape($db_port));
+					$buffer[] = str_replace(array("\r","\n"),'',$line);
+				}
+				
+			} else {
+				$buffer[] = str_replace(array("\r","\n"),'',$line); // strip CRLF
 			}
-			
-			$buffer[] = str_replace(array("\r","\n"),'',$line); // strip CRLF
 		}
 		
 		if(is_resource($fp_in))
@@ -141,4 +152,3 @@ class CerberusInstaller {
 		return str_replace($from, $to, $string);
 	}
 }
-?>

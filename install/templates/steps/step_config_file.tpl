@@ -6,6 +6,7 @@
 <input type="hidden" name="db_driver" value="{$db_driver}">
 <input type="hidden" name="db_engine" value="{$db_engine}">
 <input type="hidden" name="db_server" value="{$db_server}">
+<input type="hidden" name="db_port" value="{$db_port}">
 <input type="hidden" name="db_name" value="{$db_name}">
 <input type="hidden" name="db_user" value="{$db_user}">
 <input type="hidden" name="db_pass" value="{$db_pass}">

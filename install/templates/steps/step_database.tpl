@@ -31,6 +31,10 @@
 <input type="text" name="db_server" value="{$db_server}"><br>
 <br>
 
+<b>Port:</b> (optional)<br>
+<input type="text" name="db_port" value="{$db_port}"><br>
+<br>
+
 <b>Database Name:</b><br>
 <input type="text" name="db_name" value="{$db_name}"><br>
 <br>
