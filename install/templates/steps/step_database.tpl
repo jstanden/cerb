@@ -11,14 +11,6 @@
 </ul>
 {/if}
 
-<b>Driver:</b><br>
-<select name="db_driver">
-	{foreach from=$drivers item=driver key=k}
-	<option value="{$k}" {if $k==$db_driver}selected{/if}>{$driver}
-	{/foreach}
-</select><br>
-<br>
-
 <b>Engine:</b><br>
 <select name="db_engine">
 	{foreach from=$engines item=engine key=k}
