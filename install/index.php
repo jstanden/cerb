@@ -339,6 +339,8 @@ switch($step) {
 		$db_name = DevblocksPlatform::importGPC($_POST['db_name'] ?? null, 'string');
 		$db_user = DevblocksPlatform::importGPC($_POST['db_user'] ?? null, 'string');
 		$db_pass = DevblocksPlatform::importGPC($_POST['db_pass'] ?? null, 'string');
+		
+		mysqli_report(MYSQLI_REPORT_ERROR);
 
 		if(defined('APP_DB_HOST') && defined('APP_DB_DATABASE') && APP_DB_HOST && APP_DB_DATABASE) {
 			// If we've been to this step, skip past framework.config.php
