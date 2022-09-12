@@ -9,20 +9,28 @@ class _DevblocksClassLoadManager {
 		$cache = _DevblocksCacheManager::getInstance();
 		
 		if(null !== ($map = $cache->load(self::CACHE_CLASS_MAP))) {
-			$this->classMap = $map;
+			$sanity_a = $map['_DevblocksEventManager'];
+			$sanity_b = implode(DIRECTORY_SEPARATOR, [APP_PATH,'libs','devblocks','api','services','event.php']);
 			
-		} else {
-			if(false == ($this->_initLibs()))
-				return false;
-					
-			if(false == ($this->_initServices()))
-				return false;
-			
-			if(false == ($this->_initPlugins()))
-				return false;
-			
-			$cache->save($this->classMap, self::CACHE_CLASS_MAP);
+			// If the root path has changed, don't use the cache and regenerate
+			if($sanity_a == $sanity_b) {
+				$this->classMap = $map;
+				return;
+			} else {
+				DevblocksPlatform::logError('[Platform] Filesystem path change detected, reloading classloader cache.');
+			}
 		}
+			
+		if(!($this->_initLibs()))
+			return;
+				
+		if(!($this->_initServices()))
+			return;
+		
+		if(!($this->_initPlugins()))
+			return;
+		
+		$cache->save($this->classMap, self::CACHE_CLASS_MAP);
 	}
 	
 	/**
