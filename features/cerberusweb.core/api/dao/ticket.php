@@ -5797,6 +5797,12 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			'status' => DAO_WorkerPref::get($active_worker->id, 'compose.status', 'waiting'),
 		];
 		
+		if(($view = C4_AbstractViewLoader::getView($view_id))) {
+			$params = $view->getParams();
+		} else {
+			$params = [];
+		}
+		
 		// Preferences
 		if($is_new_draft) {
 			if ($bucket_id && false != ($bucket = DAO_Bucket::get($bucket_id))) {
@@ -5805,10 +5811,8 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 				
 			} else {
 				// Default group/bucket based on worklist
-				if (false != ($view = C4_AbstractViewLoader::getView($view_id)) && $view instanceof View_Ticket) {
-					$params = $view->getParams();
-					
-					if (false != ($filter_bucket = $view->findParam(SearchFields_Ticket::TICKET_BUCKET_ID, $params, false))) {
+				if ($view instanceof View_Ticket) {
+					if (($filter_bucket = $view->findParam(SearchFields_Ticket::TICKET_BUCKET_ID, $params, false))) {
 						$filter_bucket = array_shift($filter_bucket);
 						
 						if (!is_array($filter_bucket->value) || 1 == count($filter_bucket->value)) {
@@ -5833,6 +5837,19 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 							}
 						}
 					}
+				}
+			}
+			
+			if($view instanceof View_Ticket) {
+				if(($filter_org = $view->findParam(SearchFields_Ticket::TICKET_ORG_ID, $params, false))) {
+					$filter_org = array_shift($filter_org);
+					
+					if (!is_array($filter_org->value) || 1 == count($filter_org->value)) {
+						$org_id = is_array($filter_org->value) ? current($filter_org->value) : $filter_org->value;
+						
+						if($org_id)
+							$edit = sprintf('org.id:%d %s', $org_id, $edit);
+					}						
 				}
 			}
 			
