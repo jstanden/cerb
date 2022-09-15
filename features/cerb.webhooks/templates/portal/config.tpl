@@ -24,8 +24,6 @@
   uri: ai.cerb.eventHandler.automation
   icon: circle-plus
   tooltip: Automation
-  inputs:
-    trigger: cerb.trigger.webhook.respond
 "}
 
 		{$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)}
