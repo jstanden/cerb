@@ -923,7 +923,16 @@ $(function() {
 			});
 		{/if}
 
-		$frm.find(':input:text:first').focus().select();
+		// Focus the first empty text input
+		$frm
+			.find(':input:text')
+			.filter(function() {
+				return !$(this).val();
+			})
+			.first()
+			.focus()
+			.select()
+		;
 		
 		$popup.on('popup_saved', function() {
 			hideLoadingPanel();
