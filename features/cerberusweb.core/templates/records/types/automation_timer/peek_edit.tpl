@@ -102,8 +102,6 @@
   uri: ai.cerb.eventHandler.automation
   icon: circle-plus
   tooltip: Automation
-  inputs:
-    trigger: cerb.trigger.automation.timer
 "}
 
             {$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)}

@@ -62,8 +62,6 @@
   uri: ai.cerb.eventHandler.automation
   icon: circle-plus
   tooltip: Automation
-  inputs:
-    trigger: cerb.trigger.projectBoard.renderCard
 "}
 
 		{$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)}
@@ -105,8 +103,6 @@
   uri: ai.cerb.eventHandler.automation
   icon: circle-plus
   tooltip: Automation
-  inputs:
-    trigger: cerb.trigger.projectBoard.cardAction
 "}
 
 		{$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)}

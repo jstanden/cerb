@@ -756,9 +756,6 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'icon' => 'search',
 				'tooltip' => 'Find or create an automation',
 				'uri' => 'ai.cerb.eventHandler.automation',
-				'inputs' => [
-					'trigger' => $this->id,
-				],
 			],
 		];
 		

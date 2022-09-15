@@ -50,9 +50,6 @@ class AutomationTrigger_MailReceived extends Extension_AutomationTrigger {
 			'icon' => 'magic',
 			'tooltip' => 'Library',
 			'uri' => 'ai.cerb.eventHandler.automation.mail.received',
-			'inputs' => [
-				'trigger' => $this->id,
-			],
 		];
 		
 		return $toolbar;
