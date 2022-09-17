@@ -77,6 +77,12 @@ class _DevblocksTemplateManager {
 		if(is_null($source))
 			return '';
 		
+		if(is_scalar($source)) {
+			$source = strval($source);	
+		} else {
+			return '';
+		}
+		
 		return htmlspecialchars($source, ENT_QUOTES, Smarty::$_CHARSET);
 	}
 	
