@@ -876,6 +876,11 @@ class Model_Snippet {
 			list($prompt_type, $prompt_name) = array_pad(explode('/', $prompt_key, 2), 2, null);
 			$prompt['type'] = $prompt_type;
 			$prompt['name'] = $prompt_name;
+			
+			// Sanitize
+			if(array_key_exists('default', $prompt) && !is_scalar($prompt['default'])) {
+				$prompt['default'] = '';
+			}
 		}
 		
 		return $prompts;
