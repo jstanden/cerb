@@ -57,9 +57,9 @@
 		<div class="cerb-code-editor-toolbar-divider"></div>
 		<button type="button" class="cerb-code-editor-toolbar-button cerb-editor-button-add"><span class="glyphicons glyphicons-circle-plus"></span></button>
 		<ul class="cerb-float" style="display:none;">
-			<li data-type="checkbox">Checkbox</li>
-			<li data-type="picklist">Picklist</li>
-			<li data-type="text">Text</li>
+			<li data-type="checkbox"><div>Checkbox</div></li>
+			<li data-type="picklist"><div>Picklist</div></li>
+			<li data-type="text"><div>Text</div></li>
 		</ul>
 		<button type="button" style="float:right;" class="cerb-code-editor-toolbar-button cerb-editor-button-help"><a href="https://cerb.ai/docs/snippets/" target="_blank"><span class="glyphicons glyphicons-circle-question-mark"></span></a></button>
 	</div>

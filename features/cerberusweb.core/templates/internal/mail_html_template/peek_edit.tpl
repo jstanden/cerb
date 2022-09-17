@@ -23,13 +23,13 @@
 <div class="cerb-code-editor-toolbar cerb-code-editor-toolbar--html">
 	<button type="button" class="cerb-code-editor-toolbar-button cerb-html-editor-toolbar-button--insert" title="Insert placeholder"><span class="glyphicons glyphicons-tags"></span></button>
 	<ul class="cerb-float" style="display:none;">
-		<li data-token="{literal}{{message_body}}{/literal}"><b>Message Body</b></li>
-		<li data-token="{literal}{{message_id_header}}{/literal}"><b>Message-Id Header</b></li>
-		<li data-token="{literal}{{message_token}}{/literal}"><b>Message Token</b></li>
-		<li data-token="{literal}{{group_id}}{/literal}"><b>Group ID</b></li>
-		<li data-token="{literal}{{group__label}}{/literal}"><b>Group Name</b></li>
-		<li data-token="{literal}{{bucket_id}}{/literal}"><b>Bucket ID</b></li>
-		<li data-token="{literal}{{bucket__label}}{/literal}"><b>Bucket Name</b></li>
+		<li data-token="{literal}{{message_body}}{/literal}"><div><b>Message Body</b></div></li>
+		<li data-token="{literal}{{message_id_header}}{/literal}"><div><b>Message-Id Header</b></div></li>
+		<li data-token="{literal}{{message_token}}{/literal}"><div><b>Message Token</b></div></li>
+		<li data-token="{literal}{{group_id}}{/literal}"><div><b>Group ID</b></div></li>
+		<li data-token="{literal}{{group__label}}{/literal}"><div><b>Group Name</b></div></li>
+		<li data-token="{literal}{{bucket_id}}{/literal}"><div><b>Bucket ID</b></div></li>
+		<li data-token="{literal}{{bucket__label}}{/literal}"><div><b>Bucket Name</b></div></li>
 	</ul>
 	<div class="cerb-code-editor-toolbar-divider"></div>
 	<button type="button" title="Bold" class="cerb-code-editor-toolbar-button cerb-html-editor-toolbar-button--bold"><span class="glyphicons glyphicons-bold"></span></button>

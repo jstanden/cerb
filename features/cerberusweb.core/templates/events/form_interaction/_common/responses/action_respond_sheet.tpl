@@ -31,16 +31,16 @@
 		<button type="button" class="cerb-code-editor-toolbar-button cerb-button-sheet-column-add" title="Add column"><span class="glyphicons glyphicons-circle-plus"></span></button>
 		<ul class="cerb-float" style="display:none;">
 			<li>
-				<b>Column</b>
+				<div><b>Column</b></div>
 				<ul>
-					<li data-type="card">Card</li>
-					<li data-type="date">Date</li>
-					<li data-type="link">Link</li>
-					<li data-type="search">Search</li>
-					<li data-type="search_button">Search Button</li>
-					<li data-type="slider">Slider</li>
-					<li data-type="text">Text</li>
-					<li data-type="time_elapsed">Time Elapsed</li>
+					<li data-type="card"><div>Card</div></li>
+					<li data-type="date"><div>Date</div></li>
+					<li data-type="link"><div>Link</div></li>
+					<li data-type="search"><div>Search</div></li>
+					<li data-type="search_button"><div>Search Button</div></li>
+					<li data-type="slider"><div>Slider</div></li>
+					<li data-type="text"><div>Text</div></li>
+					<li data-type="time_elapsed"><div>Time Elapsed</div></li>
 				</ul>
 			</li>
 		</ul>
