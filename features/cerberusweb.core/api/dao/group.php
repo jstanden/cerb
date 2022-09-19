@@ -221,10 +221,12 @@ class DAO_Group extends Cerb_ORMHelper {
 		if(!is_array($worker_ids))
 			$worker_ids = [$worker_ids];
 		
-		$rosters = DAO_Group::getRosters();
 		$worker_ids = array_flip($worker_ids);
 		
-		array_filter($rosters, function($roster) use ($worker_ids) {
+		if(!($rosters = DAO_Group::getRosters()))
+			return [];
+		
+		$rosters = array_filter($rosters, function($roster) use ($worker_ids) {
 			$res = array_intersect_key($roster, $worker_ids);
 			return !empty($res);
 		});
