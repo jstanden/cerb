@@ -182,6 +182,9 @@ if(isset($columns['list_view'])) {
 	while($result = mysqli_fetch_assoc($rs)) {
 		$list_view = unserialize($result['list_view']); /* @var $list_view Model_WorkspaceListView */
 		
+		if(!$list_view)
+			continue;
+		
 		$view_id = 'cust_' . $result['id'];
 		
 		if(null == ($ext = Extension_DevblocksContext::get($result['context'])))

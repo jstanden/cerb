@@ -2,6 +2,7 @@
 $db = DevblocksPlatform::services()->database();
 $logger = DevblocksPlatform::services()->log();
 $settings = DevblocksPlatform::services()->pluginSettings();
+$encrypt = DevblocksPlatform::services()->encryption();
 $tables = $db->metaTables();
 
 // ===========================================================================
@@ -50,14 +51,16 @@ if(isset($tables['twitter_account'])) {
 			'x_auth_expires' => 0,
 		];
 		
-		$id = DAO_ConnectedAccount::create([
-			DAO_ConnectedAccount::NAME => 'Twitter @' . $row['screen_name'],
-			DAO_ConnectedAccount::EXTENSION_ID => 'wgm.twitter.service.provider',
-			DAO_ConnectedAccount::OWNER_CONTEXT => 'cerberusweb.contexts.app',
-			DAO_ConnectedAccount::OWNER_CONTEXT_ID => 0,
-		]);
+		$db->ExecuteMaster(sprintf("INSERT INTO connected_account (name, extension_id, owner_context, owner_context_id, params_json) ".
+			"VALUES (%s, %s, %s, %d, %s)",
+			$db->qstr('Twitter @' . $row['screen_name']),
+			$db->qstr('wgm.twitter.service.provider'),
+			$db->qstr('cerberusweb.contexts.app'),
+			0,
+			$db->qstr($encrypt->encrypt(json_encode($params))),
+		));
 		
-		DAO_ConnectedAccount::setAndEncryptParams($id, $params);
+		$id = $db->LastInsertId();
 		
 		$db->ExecuteMaster(sprintf("UPDATE twitter_message SET connected_account_id = %d WHERE account_id = %d",
 			$id,
