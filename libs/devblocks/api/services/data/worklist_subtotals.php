@@ -505,9 +505,12 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			
 		$labels = [];
 		$queries = [];
+		$last_by_idx = array_key_last($chart_model['by'] ?? []);
 		
-		foreach($chart_model['by'] as $by) {
-			$key_select = $by['key_select'];
+		foreach($chart_model['by'] as $idx => $by) {
+			// If the last field is an aggregate function, field is `hits`
+			$is_agg_func = !in_array($chart_model['function'], ['','count']);
+			$key_select = $idx == $last_by_idx ? 'hits' : $by['key_select'];
 			$values = array_column($rows, $key_select);
 			
 			// Re-label
@@ -515,7 +518,10 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				case Model_CustomField::TYPE_CURRENCY:
 					$currency_id = $by['type_options']['currency_id'] ?? null;
 					
-					if(!$currency_id || false == ($currency = DAO_Currency::get($currency_id)))
+					if(!$is_agg_func)
+						break;
+					
+					if(!$currency_id || !($currency = DAO_Currency::get($currency_id)))
 						break;
 					
 					foreach($values as $row_idx => $value) {
@@ -528,6 +534,9 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				case Model_CustomField::TYPE_DECIMAL:
 					$decimal_at = $by['type_options']['decimal_at'] ?? null;
 					
+					if(!$is_agg_func)
+						break;
+					
 					foreach($values as $row_idx => $value) {
 						$value = DevblocksPlatform::strFormatDecimal($value, $decimal_at, '.', '');
 						$values[$row_idx] = $value;
@@ -538,6 +547,9 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				case Model_CustomField::TYPE_WORKER:
 					if(!DevblocksPlatform::strEndsWith($by['key_query'], '.id')) {
 						$worker_names = DAO_Worker::getNames(false);
+						
+						if(!$is_agg_func)
+							break;
 						
 						foreach ($values as $row_idx => $value) {
 							$rows[$row_idx][$key_select] = $worker_names[$value] ?? $value;
