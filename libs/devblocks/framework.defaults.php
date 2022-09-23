@@ -1,5 +1,6 @@
 <?php
 @ini_set('yaml.decode_php', 'off');
+@putenv('GDFONTPATH=' . realpath(APP_TEMP_PATH));
 
 if(!defined('APP_DB_PCONNECT'))
 	define('APP_DB_PCONNECT',false);

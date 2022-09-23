@@ -4865,6 +4865,16 @@
 		<!-- Resource Types -->
 
 		<extension point="cerb.resource.type">
+			<id>cerb.resource.font</id>
+			<name>Font</name>
+			<class>
+				<file>api/resources/types/cerb.resource.font.php</file>
+				<name>ResourceType_Font</name>
+			</class>
+			<params/>
+		</extension>
+
+		<extension point="cerb.resource.type">
 			<id>cerb.resource.image</id>
 			<name>Image</name>
 			<class>
