@@ -97,10 +97,14 @@ if(!array_key_exists('available_at', $columns)) {
 if(!isset($tables['automation_resource']))
 	return FALSE;
 
-list($columns,) = $db->metaTable('automation_resource');
+list($columns, $indexes) = $db->metaTable('automation_resource');
 
 if(!array_key_exists('name', $columns)) {
 	$db->ExecuteMaster("ALTER TABLE automation_resource ADD COLUMN name varchar(255) not null default '', add index name_prefix (name(8))");
+}
+
+if(array_key_exists('token', $indexes) && 6 == $indexes['token']['columns']['token']['subpart']) {
+	$db->ExecuteWriter("ALTER TABLE automation_resource DROP INDEX token, ADD UNIQUE (token)");
 }
 
 // ===========================================================================

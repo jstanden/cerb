@@ -73,8 +73,9 @@ class DAO_AutomationResource extends Cerb_ORMHelper {
 		if(!array_key_exists(self::TOKEN, $fields))
 			$fields[self::TOKEN] = DevblocksPlatform::services()->string()->uuid();
 		
-		$sql = "INSERT INTO automation_resource () VALUES ()";
-		$db->ExecuteMaster($sql);
+		$db->ExecuteMaster(sprintf("INSERT INTO automation_resource (token) VALUES (%s)",
+			$db->qstr($fields[self::TOKEN])
+		));
 		$id = $db->LastInsertId();
 		
 		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_AUTOMATION_RESOURCE, $id);
