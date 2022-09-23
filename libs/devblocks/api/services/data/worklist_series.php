@@ -56,6 +56,7 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 			],
 			'timezone:' => DevblocksPlatform::services()->date()->getTimezones(),
 			'format:' => [
+				'dictionaries',
 				'pie',
 				'table',
 				'timeseries',
@@ -358,6 +359,9 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 		@$format = $chart_model['format'] ?: 'timeseries';
 		
 		switch($format) {
+			case 'dictionaries':
+				return $this->_formatDataAsDictionaries($chart_model);
+				
 			case 'pie':
 				return $this->_formatDataAsPie($chart_model);
 				
@@ -368,12 +372,56 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 				return $this->_formatDataAsTimeSeries($chart_model);
 				
 			default:
-				$error = sprintf("`format:%s` is not valid for `type:%s`. Must be one of: table, tree",
+				$error = sprintf("`format:%s` is not valid for `type:%s`. Must be one of: dictionaries, pie, table, tree",
 					$format,
 					$chart_model['type']
 				);
 				return false;
 		}
+	}
+	
+	private function _formatDataAsDictionaries(array $chart_model) : array {
+		// Domain
+		
+		$x_domain = [];
+		
+		if(array_key_exists('series', $chart_model) && is_array($chart_model['series']))
+			foreach($chart_model['series'] as $series) {
+				if(!isset($series['data']))
+					continue;
+				
+				// Add the unique x values
+				$x_domain = array_unique(array_merge($x_domain, array_keys($series['data'])));
+			}
+		
+		// Make sure timestamps are strings (for c3.js)
+		$x_domain = array_map(function($v) { return strval($v); }, $x_domain);
+		
+		sort($x_domain);
+		
+		// Dictionary
+		
+		$rows = [];
+		
+		foreach($x_domain as $k) {
+			$row = [
+				'x' => $k,
+			];
+			
+			foreach($chart_model['series'] as $series) {
+				$row[$series['id']] = ($series['data'][$k] ?? null) ?: 0;
+			}
+			
+			$rows[] = $row;
+		}
+		
+		return [
+			'data' => $rows,
+			'_' => [
+				'type' => 'worklist.series',
+				'format' => 'dictionaries',
+			]
+		];
 	}
 	
 	private function _formatDataAsPie(array $chart_model) : array {
