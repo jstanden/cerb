@@ -465,18 +465,40 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 						if(array_key_exists('validation', $last_prompt)) {
 							$validation_set_key = $prompt_set_key . '__custom';
 							$validation_dict = DevblocksDictionaryDelegate::instance($initial_state);
-							$validation_dict->set($prompt_set_key, $prompt_value);
-							$validation_error = trim($tpl_builder->build($last_prompt['validation'], $validation_dict));
+							$component->setValue($prompt_set_key, $prompt_value, $validation_dict);
 							
-							if($validation_error) {
-								$validation_values[$validation_set_key] = $prompt_value;
+							// The validation template must be a string
+							if(is_string($last_prompt['validation'])) {
+								$validation_error = trim($tpl_builder->build($last_prompt['validation'], $validation_dict));
+								
+								if($validation_error) {
+									$validation_values[$validation_set_key] = $prompt_value;
+									
+									$validation
+										->addField($validation_set_key, $last_prompt['label'] ?? $prompt_set_key)
+										->error()
+										->setError($validation_error)
+									;
+								}
+								
+							} else {
+								$validation_values[$validation_set_key] = false;
+								
+								$error_message = sprintf("`%s:validation:` must be a string.", $last_prompt_key);
 								
 								$validation
 									->addField($validation_set_key, $last_prompt['label'] ?? $prompt_set_key)
 									->error()
-									->setError($validation_error)
+									->setError($error_message)
 								;
+								
+								$automation->logError(
+									$error_message,
+									''
+								);
 							}
+							
+							$validation_dict->unset($validation_set_key);
 						}
 					}
 					
