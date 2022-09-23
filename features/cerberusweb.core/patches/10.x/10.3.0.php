@@ -93,6 +93,18 @@ if(!array_key_exists('available_at', $columns)) {
 
 
 // ===========================================================================
+// Add `name` to `automation_resource`
+
+if(!isset($tables['automation_resource']))
+	return FALSE;
+
+list($columns,) = $db->metaTable('automation_resource');
+
+if(!array_key_exists('name', $columns)) {
+	$db->ExecuteMaster("ALTER TABLE automation_resource ADD COLUMN name varchar(255) not null default '', add index name_prefix (name(8))");
+}
+
+// ===========================================================================
 // Add `record_changeset` table
 
 if(!isset($tables['record_changeset'])) {

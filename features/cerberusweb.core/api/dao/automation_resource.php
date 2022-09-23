@@ -3,6 +3,7 @@ class DAO_AutomationResource extends Cerb_ORMHelper {
 	const ID = 'id';
 	const EXPIRES_AT = 'expires_at';
 	const MIME_TYPE = 'mime_type';
+	const NAME = 'name';
 	const STORAGE_EXTENSION = 'storage_extension';
 	const STORAGE_KEY = 'storage_key';
 	const STORAGE_PROFILE_ID = 'storage_profile_id';
@@ -22,6 +23,10 @@ class DAO_AutomationResource extends Cerb_ORMHelper {
 		;
 		$validation
 			->addField(self::MIME_TYPE)
+			->string()
+		;
+		$validation
+			->addField(self::NAME)
 			->string()
 		;
 		$validation
@@ -149,7 +154,7 @@ class DAO_AutomationResource extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, token, mime_type, expires_at, storage_size, storage_key, storage_extension, storage_profile_id, updated_at ".
+		$sql = "SELECT id, name, token, mime_type, expires_at, storage_size, storage_key, storage_extension, storage_profile_id, updated_at ".
 			"FROM automation_resource ".
 			$where_sql.
 			$sort_sql.
@@ -237,6 +242,7 @@ class DAO_AutomationResource extends Cerb_ORMHelper {
 			$object->expires_at = intval($row['expires_at']);
 			$object->id = intval($row['id']);
 			$object->mime_type = $row['mime_type'];
+			$object->name = $row['name'];
 			$object->storage_extension = $row['storage_extension'];
 			$object->storage_key = $row['storage_key'];
 			$object->storage_profile_id = intval($row['storage_profile_id']);
@@ -309,6 +315,7 @@ class DAO_AutomationResource extends Cerb_ORMHelper {
 			"automation_resource.id as %s, ".
 			"automation_resource.expires_at as %s, ".
 			"automation_resource.mime_type as %s, ".
+			"automation_resource.name as %s, ".
 			"automation_resource.storage_size as %s, ".
 			"automation_resource.storage_key as %s, ".
 			"automation_resource.storage_extension as %s, ".
@@ -318,6 +325,7 @@ class DAO_AutomationResource extends Cerb_ORMHelper {
 			SearchFields_AutomationResource::ID,
 			SearchFields_AutomationResource::EXPIRES_AT,
 			SearchFields_AutomationResource::MIME_TYPE,
+			SearchFields_AutomationResource::NAME,
 			SearchFields_AutomationResource::STORAGE_SIZE,
 			SearchFields_AutomationResource::STORAGE_KEY,
 			SearchFields_AutomationResource::STORAGE_EXTENSION,
@@ -380,6 +388,7 @@ class SearchFields_AutomationResource extends DevblocksSearchFields {
 	const ID = 'r_id';
 	const EXPIRES_AT = 'r_expires_at';
 	const MIME_TYPE = 'r_mime_type';
+	const NAME = 'r_name';
 	const STORAGE_SIZE = 'r_storage_size';
 	const STORAGE_KEY = 'r_storage_key';
 	const STORAGE_EXTENSION = 'r_storage_extension';
@@ -452,6 +461,7 @@ class SearchFields_AutomationResource extends DevblocksSearchFields {
 		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'automation_resource', 'id', $translate->_('common.id'), null, true),
 			self::MIME_TYPE => new DevblocksSearchField(self::MIME_TYPE, 'automation_resource', 'mime_type', $translate->_('attachment.mime_type'), null, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'automation_resource', 'name', $translate->_('common.name'), null, true),
 			self::STORAGE_EXTENSION => new DevblocksSearchField(self::STORAGE_EXTENSION, 'automation_resource', 'storage_extension', $translate->_('common.storage_extension'), null, true),
 			self::STORAGE_KEY => new DevblocksSearchField(self::STORAGE_KEY, 'automation_resource', 'storage_key', $translate->_('common.storage_key'), null, true),
 			self::STORAGE_PROFILE_ID => new DevblocksSearchField(self::STORAGE_PROFILE_ID, 'automation_resource', 'storage_profile_id', $translate->_('common.storage_profile_id'), null, true),
@@ -480,6 +490,7 @@ class Model_AutomationResource {
 	public $expires_at;
 	public $id;
 	public $mime_type;
+	public $name;
 	public $storage_extension;
 	public $storage_key;
 	public $storage_profile_id;
@@ -528,6 +539,7 @@ class View_AutomationResource extends C4_AbstractView implements IAbstractView_S
 		
 		$this->view_columns = [
 			SearchFields_AutomationResource::TOKEN,
+			SearchFields_AutomationResource::NAME,
 			SearchFields_AutomationResource::MIME_TYPE,
 			SearchFields_AutomationResource::STORAGE_SIZE,
 			SearchFields_AutomationResource::UPDATED_AT,
@@ -613,6 +625,7 @@ class View_AutomationResource extends C4_AbstractView implements IAbstractView_S
 		
 		switch($column) {
 			case SearchFields_AutomationResource::MIME_TYPE:
+			case SearchFields_AutomationResource::NAME:
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
 				break;
 			
@@ -665,6 +678,11 @@ class View_AutomationResource extends C4_AbstractView implements IAbstractView_S
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_AutomationResource::MIME_TYPE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
+				),
+			'name' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_AutomationResource::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
 				),
 			'size' =>
 				array(
@@ -751,6 +769,7 @@ class View_AutomationResource extends C4_AbstractView implements IAbstractView_S
 		
 		switch($field) {
 			case SearchFields_AutomationResource::MIME_TYPE:
+			case SearchFields_AutomationResource::NAME:
 			case SearchFields_AutomationResource::STORAGE_EXTENSION:
 			case SearchFields_AutomationResource::STORAGE_KEY:
 			case SearchFields_AutomationResource::TOKEN:
@@ -1145,6 +1164,7 @@ class Context_AutomationResource extends Extension_DevblocksContext {
 	function getDefaultProperties() {
 		return array(
 			'token',
+			'name',
 			'mime_type',
 			'storage_size',
 			'updated_at',
@@ -1182,6 +1202,7 @@ class Context_AutomationResource extends Extension_DevblocksContext {
 			'_label' => $prefix,
 			'id' => $prefix.$translate->_('common.id'),
 			'mime_type' => $prefix.$translate->_('attachment.mime_type'),
+			'name' => $prefix.$translate->_('common.name'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 			'size' => $prefix.$translate->_('common.size'),
 			'token' => $prefix.$translate->_('common.token'),
@@ -1193,6 +1214,7 @@ class Context_AutomationResource extends Extension_DevblocksContext {
 			'_label' => 'context_url',
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'mime_type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'record_url' => Model_CustomField::TYPE_URL,
 			'size' => Model_CustomField::TYPE_NUMBER,
 			'token' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -1220,6 +1242,7 @@ class Context_AutomationResource extends Extension_DevblocksContext {
 			$token_values['_label'] = $resource->token;
 			$token_values['id'] = $resource->id;
 			$token_values['mime_type'] = $resource->mime_type;
+			$token_values['name'] = $resource->name;
 			$token_values['size'] = intval($resource->storage_size);
 			$token_values['token'] = $resource->token;
 			$token_values['updated_at'] = $resource->updated_at;
@@ -1237,6 +1260,7 @@ class Context_AutomationResource extends Extension_DevblocksContext {
 			'id' => DAO_AutomationResource::ID,
 			'links' => '_links',
 			'mime_type' => DAO_AutomationResource::MIME_TYPE,
+			'name' => DAO_AutomationResource::NAME,
 			'size' => DAO_AutomationResource::STORAGE_SIZE,
 			'storage_extension' => DAO_AutomationResource::STORAGE_EXTENSION,
 			'storage_key' => DAO_AutomationResource::STORAGE_KEY,
