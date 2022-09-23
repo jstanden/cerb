@@ -516,7 +516,7 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 							continue;
 						
 						$component = new $form_components[$last_prompt_type]($prompt_set_key, $prompt_value, $last_prompt, $portal_schema);
-						$initial_state[$prompt_set_key] = $component->formatValue();
+						$initial_state = $component->setValue($prompt_set_key, $component->formatValue(), $initial_state);
 					}
 				}
 				
