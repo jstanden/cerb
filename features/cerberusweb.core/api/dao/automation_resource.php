@@ -288,10 +288,14 @@ class DAO_AutomationResource extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::services()->database();
 		
 		// Delete any expired keys (0=forever)
-		$sql = sprintf("DELETE FROM automation_resource WHERE expires_at < %d",
+		$ids = $db->GetArrayMaster(sprintf("SELECT id FROM automation_resource WHERE expires_at <= %d LIMIT 100",
 			time()
-		);
-		$db->ExecuteMaster($sql);
+		));
+		
+		if(is_array($ids) && $ids) {
+			$ids = array_column($ids, 'id');
+			DAO_AutomationResource::delete($ids);
+		}
 		
 		return true;
 	}
