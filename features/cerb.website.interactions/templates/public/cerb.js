@@ -316,8 +316,11 @@ CerbInteractions.prototype.interactionContinue = function(is_submit) {
     xhttp.send(formData);
 }
 
-CerbInteractions.prototype.interactionInvoke = function(formData, callback) {
+CerbInteractions.prototype.interactionInvoke = function(formData, callback, progress) {
     let xhttp = new XMLHttpRequest()
+    
+    if(typeof progress == 'function')
+        xhttp.addEventListener('progress', progress);
 
     xhttp.onreadystatechange = function () {
         if (4 === this.readyState) {
