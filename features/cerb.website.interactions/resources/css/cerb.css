@@ -168,6 +168,27 @@
     font-size: 1.1em;
 }
 
+.cerb-interaction-popup--form-elements-fileUpload .cerb-button-remove {
+    width: 12px;
+    height: 12px;
+    display: inline-block;
+    margin: 0 8px;
+    cursor: pointer;
+    border: 2px solid var(--cerb-interaction-window-close-bg-color);
+    background-color: var(--cerb-interaction-window-close-bg-color);
+    color: var(--cerb-interaction-window-close-text-color);
+    text-align: center;
+    vertical-align: middle;
+    border-radius: 16px;
+    background-image: url(close.svg);
+    background-position: center center;
+}
+
+.cerb-interaction-popup--form-elements-fileUpload .cerb-button-remove:hover {
+    border: 2px solid var(--cerb-interaction-window-close-hover-bg-color);
+    background-color: var(--cerb-interaction-window-close-hover-bg-color);
+}
+
 .cerb-interaction-popup--form-elements-say {
     
 }

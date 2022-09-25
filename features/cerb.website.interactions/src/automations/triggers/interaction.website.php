@@ -5,6 +5,7 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 	public static function getFormComponentMeta(): array {
 		return [
 			'end' => 'Cerb\Automation\Builder\Trigger\InteractionWebsite\Awaits\EndAwait',
+			'fileUpload' => 'Cerb\Automation\Builder\Trigger\InteractionWebsite\Awaits\FileUploadAwait',
 			'say' => 'Cerb\Automation\Builder\Trigger\InteractionWebsite\Awaits\SayAwait',
 			'sheet' => 'Cerb\Automation\Builder\Trigger\InteractionWebsite\Awaits\SheetAwait',
 			'submit' => 'Cerb\Automation\Builder\Trigger\InteractionWebsite\Awaits\SubmitAwait',
@@ -109,6 +110,11 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 				
 				'(.*):await:form:elements:' => [
 					[
+						'caption' => 'fileUpload:',
+						'snippet' => "fileUpload/\${1:prompt_file}:\n\t\${2:}",
+						'description' => "Prompt for one or more file uploads",
+					],
+					[
 						'caption' => 'say:',
 						'snippet' => "say/\${1:prompt_say}:\n\t\${2:}",
 						'description' => "Display arbitrary plaintext or Markdown",
@@ -132,6 +138,22 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 						'caption' => 'textarea:',
 						'snippet' => "textarea/\${1:prompt_textarea}:\n\t\${2:}",
 						'description' => "Prompt for multiple lines of text",
+					]
+				],
+				
+				'(.*):await:form:elements:fileUpload:' => [
+					[
+						'caption' => 'label:',
+						'snippet' => "label: \${1:Label:}",
+						'score' => 2000,
+					],
+					'accept: .png,image/png,.jpg,image/jpeg',
+					'multiple@bool: yes',
+					'required@bool: yes',
+					'validation@raw:',
+					[
+						'caption' => 'validation: (image/png)',
+						'snippet' => "validation@raw:\n\t{% if prompt_file_mime_type != 'image/png' %}\n\tThe file must be a PNG image ({{prompt_file_mime_type}})\n\t{% elseif prompt_file_size > 1024000 %}\n\tThe file ({{prompt_file_size|bytes_pretty}}) must be smaller than 1MB.\n\t{% endif %}",
 					]
 				],
 				
