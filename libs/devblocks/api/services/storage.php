@@ -1,4 +1,8 @@
 <?php
+
+use GuzzleHttp\Exception\ConnectException;
+use Psr\Http\Message\ResponseInterface;
+
 class _DevblocksStorageManager {
 	static $_connections = array();
 	
@@ -741,7 +745,49 @@ class DevblocksStorageEngine_CerbCloudS3 extends Extension_DevblocksStorageEngin
 		// No public configuration
 	}
 	
-	public function exists($namespace, $key) {
+	private function _httpRequestWithRetries(string $method, string $uri,  int $num_retries=1, array $options=[]) {
+		$http_client = new GuzzleHttp\Client();
+		
+		// Include an attempt for the first request
+		$num_retries++;
+		
+		do {
+			try {
+				$response = $http_client->request($method, $uri, $options);
+				
+				if($response instanceof ResponseInterface)
+					return $response;
+				
+			} catch (ConnectException $e) {
+				DevblocksPlatform::logException($e);
+				
+				// Special handling for errors
+				if(
+					($handler_context = $e->getHandlerContext())
+					&& is_array($handler_context)
+					&& array_key_exists('errno', $handler_context)
+				) {
+					switch($handler_context['errno']) {
+						case CURLE_COULDNT_CONNECT:
+							usleep(250_000);
+							break;
+							
+						case CURLE_OPERATION_TIMEDOUT:
+							$num_retries = 0;
+							break;
+					}
+				}
+				
+			} catch (Throwable $e) {
+				DevblocksPlatform::logException($e);
+			}
+			
+		} while(--$num_retries > 0);
+		
+		return false;
+	}
+	
+	public function exists($namespace, $key) : bool {
 		$token_url = sprintf("%s/%s/%s/%s",
 			rtrim(CERB_CLOUD_STORAGE_ENDPOINT,'/'),
 			CERB_CLOUD_SUBDOMAIN,
@@ -749,16 +795,15 @@ class DevblocksStorageEngine_CerbCloudS3 extends Extension_DevblocksStorageEngin
 			$key
 		);
 		
-		$http_client = new GuzzleHttp\Client();
-		
-		$response = $http_client->head($token_url, [
+		$response = $this->_httpRequestWithRetries('HEAD', $token_url, 1, [
 			'http_errors' => false,
+			'timeout' => '8',
 			'headers' => [
 				'Authorization' => CERB_CLOUD_TOKEN,
 			]
 		]);
 		
-		if(200 == $response->getStatusCode())
+		if($response instanceof ResponseInterface && 200 == $response->getStatusCode())
 			return true;
 	
 		return false;
@@ -781,19 +826,17 @@ class DevblocksStorageEngine_CerbCloudS3 extends Extension_DevblocksStorageEngin
 			$key
 		);
 		
-		$http_client = new GuzzleHttp\Client();
-		
-		$response = $http_client->request('PUT', $token_url, [
+		$response = $this->_httpRequestWithRetries('PUT', $token_url, 1, [
 			'http_errors' => false,
+			'timeout' => '8',
 			'headers' => [
 				'Authorization' => CERB_CLOUD_TOKEN,
 			],
 		]);
 		
-		$response_body = $response->getBody()->getContents();
-		
 		if(
-			false == ($response_json = @json_decode($response_body, true))
+			!($response instanceof ResponseInterface)
+			|| !($response_json = @json_decode($response->getBody()->getContents(), true))
 			|| !is_array($response_json)
 			|| !array_key_exists('url', $response_json)
 		) {
@@ -803,11 +846,15 @@ class DevblocksStorageEngine_CerbCloudS3 extends Extension_DevblocksStorageEngin
 		// The pre-signed URL
 		$put_url = $response_json['url'];
 		
-		$response = $http_client->put($put_url, [
+		$response = $this->_httpRequestWithRetries('PUT', $put_url, 1, [
 			'http_errors' => false,
 			'headers' => [],
+			'timeout' => '30',
 			'body' => $data,
 		]);
+		
+		if(!($response instanceof ResponseInterface))
+			return false;
 		
 		if(200 ==  $response->getStatusCode())
 			return $key;
@@ -823,17 +870,17 @@ class DevblocksStorageEngine_CerbCloudS3 extends Extension_DevblocksStorageEngin
 			$key
 		);
 		
-		$http_client = new GuzzleHttp\Client();
-		
-		$response = $http_client->get($token_url, [
+		$response = $this->_httpRequestWithRetries('GET', $token_url, 1, [
 			'http_errors' => false,
+			'timeout' => '8',
 			'headers' => [
 				'Authorization' => CERB_CLOUD_TOKEN,
 			]
 		]);
 		
 		if(
-			false == ($response_json = @json_decode($response->getBody()->getContents(), true))
+			!($response instanceof ResponseInterface)
+			|| !($response_json = @json_decode($response->getBody()->getContents(), true))
 			|| !is_array($response_json)
 			|| !array_key_exists('url', $response_json)
 		) {
@@ -843,11 +890,12 @@ class DevblocksStorageEngine_CerbCloudS3 extends Extension_DevblocksStorageEngin
 		// The pre-signed URL
 		$get_url = $response_json['url'];
 		
-		$response = $http_client->get($get_url, [
+		$response = $this->_httpRequestWithRetries('GET', $get_url, 1, [
 			'http_errors' => false,
+			'timeout' => '30',
 		]);
 		
-		if(200 != $response->getStatusCode())
+		if(!($response instanceof ResponseInterface) || 200 != $response->getStatusCode())
 			return false;
 	
 		if($fp && is_resource($fp)) {
@@ -862,8 +910,6 @@ class DevblocksStorageEngine_CerbCloudS3 extends Extension_DevblocksStorageEngin
 		} else {
 			return $response->getBody()->getContents();
 		}
-		
-		return false;
 	}
 	
 	public function delete($namespace, $key) {
@@ -874,18 +920,15 @@ class DevblocksStorageEngine_CerbCloudS3 extends Extension_DevblocksStorageEngin
 			$key
 		);
 		
-		$http_client = new GuzzleHttp\Client();
-		
-		$response = $http_client->delete($token_url, [
+		$response = $this->_httpRequestWithRetries('DELETE', $token_url, 1, [
 			'http_errors' => false,
+			'timeout' => '8',
 			'headers' => [
 				'Authorization' => CERB_CLOUD_TOKEN,
 			]
 		]);
 		
-		// [TODO] A 200-OK response may contain an embedded error message
-		
-		if(200 ==  $response->getStatusCode())
+		if($response instanceof ResponseInterface && 200 == $response->getStatusCode())
 			return $key;
 		
 		return true;
