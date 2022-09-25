@@ -2437,6 +2437,20 @@ class DevblocksPlatform extends DevblocksEngine {
 		return false;
 	}
 	
+	public static function logException(Throwable $e) {
+		$orig_log_errors_max_len = ini_set('log_errors_max_len', 8192);
+	
+		error_log(sprintf("%s: %s [%s:%d]\n",
+			get_class($e),
+			$e->getMessage(),
+			substr($e->getFile(), strlen(APP_PATH . DIRECTORY_SEPARATOR)),
+			$e->getLine()
+		));
+		
+		if($orig_log_errors_max_len)
+			ini_set('log_errors_max_len', $orig_log_errors_max_len);
+	}
+	
 	public static function logError($error_msg, $allow_display=false) {
 		if(!is_string($error_msg) || !is_numeric($error_msg))
 			$error_msg = yaml_emit($error_msg);
