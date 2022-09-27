@@ -135,9 +135,9 @@ abstract class Extension_UmScController extends DevblocksExtension implements De
 		
 		$a = DevblocksPlatform::importGPC($_REQUEST['a'] ?? null, 'string');
 
-		$action = $a ?: array_shift($path);
+		$action = strval($a ?: array_shift($path));
 
-		if(empty($action))
+		if(!$action)
 			return;
 		
 		// Default action, call arg as a method suffixed with Action

@@ -491,7 +491,6 @@ class SearchFields_WorkspaceWidget extends DevblocksSearchFields {
 		switch($param->field) {
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_WORKSPACE_WIDGET, self::getPrimaryKey());
-				break;
 				
 			case self::VIRTUAL_HAS_FIELDSET:
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_WORKSPACE_WIDGET), '%s'), self::getPrimaryKey());
@@ -505,7 +504,6 @@ class SearchFields_WorkspaceWidget extends DevblocksSearchFields {
 				} else {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
-				break;
 		}
 	}
 	
@@ -523,17 +521,14 @@ class SearchFields_WorkspaceWidget extends DevblocksSearchFields {
 		switch($key) {
 			case SearchFields_WorkspaceWidget::EXTENSION_ID:
 				return parent::_getLabelsForKeyExtensionValues(Extension_WorkspaceWidget::POINT);
-				break;
 				
 			case SearchFields_WorkspaceWidget::ID:
 				$models = DAO_WorkspaceWidget::getIds($values);
 				return array_column(DevblocksPlatform::objectsToArrays($models), 'label', 'id');
-				break;
 				
 			case SearchFields_WorkspaceWidget::WORKSPACE_TAB_ID:
 				$models = DAO_WorkspaceTab::getIds($values);
 				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
-				break;
 		}
 		
 		return parent::getLabelsForKeyValues($key, $values);
@@ -884,10 +879,7 @@ class View_WorkspaceWidget extends C4_AbstractView implements IAbstractView_Subt
 				
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
-				break;
 		}
-		
-		return false;
 	}
 	
 	function render() {

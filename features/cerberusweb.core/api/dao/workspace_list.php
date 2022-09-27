@@ -514,7 +514,6 @@ class SearchFields_WorkspaceList extends DevblocksSearchFields {
 				} else {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
-				break;
 		}
 	}
 	
@@ -532,17 +531,14 @@ class SearchFields_WorkspaceList extends DevblocksSearchFields {
 		switch($key) {
 			case SearchFields_WorkspaceList::CONTEXT:
 				return parent::_getLabelsForKeyContextValues();
-				break;
 				
 			case SearchFields_WorkspaceList::ID:
 				$models = DAO_WorkspaceList::getIds($values);
 				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
-				break;
 				
 			case SearchFields_WorkspaceList::WORKSPACE_TAB_ID:
 				$models = DAO_WorkspaceTab::getIds($values);
 				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
-				break;
 		}
 		
 		return parent::getLabelsForKeyValues($key, $values);
@@ -861,10 +857,7 @@ class View_WorkspaceList extends C4_AbstractView implements IAbstractView_Subtot
 				
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
-				break;
 		}
-		
-		return false;
 	}
 	
 	function render() {

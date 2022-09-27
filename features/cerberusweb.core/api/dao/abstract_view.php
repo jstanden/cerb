@@ -539,11 +539,11 @@ abstract class C4_AbstractView {
 						$oper = null;
 						$value = null;
 						
-						if(false == (CerbQuickSearchLexer::getOperStringFromTokens($p->tokens, $oper, $value)))
+						if(!(CerbQuickSearchLexer::getOperStringFromTokens($p->tokens, $oper, $value)))
 							break;
 						
 						// Convert from 1-based to 0-based
-						$page = DevblocksPlatform::intClamp($value - 1, 0, 2000);
+						$page = DevblocksPlatform::intClamp(intval($value) - 1, 0, 2000);
 						$this->renderPage = $page;
 						
 						unset($fields[$k]);

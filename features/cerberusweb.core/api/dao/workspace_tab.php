@@ -475,7 +475,6 @@ class SearchFields_WorkspaceTab extends DevblocksSearchFields {
 		switch($param->field) {
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_WORKSPACE_TAB, self::getPrimaryKey());
-				break;
 				
 			case self::VIRTUAL_HAS_FIELDSET:
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_WORKSPACE_TAB), '%s'), self::getPrimaryKey());
@@ -489,7 +488,6 @@ class SearchFields_WorkspaceTab extends DevblocksSearchFields {
 				} else {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
-				break;
 		}
 	}
 	
@@ -509,17 +507,14 @@ class SearchFields_WorkspaceTab extends DevblocksSearchFields {
 		switch($key) {
 			case SearchFields_WorkspaceTab::EXTENSION_ID:
 				return parent::_getLabelsForKeyExtensionValues(Extension_WorkspaceTab::POINT);
-				break;
 				
 			case SearchFields_WorkspaceTab::ID:
 				$models = DAO_WorkspaceTab::getIds($values);
 				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
-				break;
 				
 			case SearchFields_WorkspaceTab::WORKSPACE_PAGE_ID:
 				$models = DAO_WorkspacePage::getIds($values);
 				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
-				break;
 		}
 		
 		return parent::getLabelsForKeyValues($key, $values);
@@ -994,10 +989,7 @@ class View_WorkspaceTab extends C4_AbstractView implements IAbstractView_Subtota
 				
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
-				break;
 		}
-		
-		return false;
 	}
 	
 	function render() {
@@ -1519,8 +1511,6 @@ class Context_WorkspaceTab extends Extension_DevblocksContext implements IDevblo
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		$context = CerberusContexts::CONTEXT_WORKSPACE_TAB;
-		
-		$model = null;
 		
 		$tpl->assign('view_id', $view_id);
 		

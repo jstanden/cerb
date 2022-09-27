@@ -19,7 +19,9 @@
 	<li>
 		<label>
 		<input type="checkbox" name="{$namePrefix}[to][]" value="{$address->email}" {if is_array($params.to) && in_array($address->email, $params.to)}checked="checked"{/if}>
-		<b>{$address->email}</b> ({$workers.{$address->worker_id}->getName()})
+		{if array_key_exists($address->worker_id, $workers)}
+		<b>{$address->email}</b> ({$workers[$address->worker_id]->getName()})
+		{/if}
 		</label>
 	</li>
 	{/foreach}
