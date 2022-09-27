@@ -482,6 +482,7 @@ class SearchFields_WorkspaceList extends DevblocksSearchFields {
 
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
+	const VIRTUAL_TAB_SEARCH = '*_tab_search';
 	
 	static private $_fields = null;
 	
@@ -500,11 +501,12 @@ class SearchFields_WorkspaceList extends DevblocksSearchFields {
 		switch($param->field) {
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_WORKSPACE_WORKLIST, self::getPrimaryKey());
-				break;
 				
 			case self::VIRTUAL_HAS_FIELDSET:
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_WORKSPACE_WORKLIST), '%s'), self::getPrimaryKey());
-				break;
+			
+			case self::VIRTUAL_TAB_SEARCH:
+				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_WORKSPACE_TAB, 'workspace_list.workspace_tab_id');
 				
 			default:
 				if('cf_' == substr($param->field, 0, 3)) {
@@ -580,6 +582,7 @@ class SearchFields_WorkspaceList extends DevblocksSearchFields {
 
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
+			self::VIRTUAL_TAB_SEARCH => new DevblocksSearchField(self::VIRTUAL_TAB_SEARCH, '*', 'tab_search', null, null, false),
 		);
 		
 		// Custom Fields
@@ -651,6 +654,7 @@ class View_WorkspaceList extends C4_AbstractView implements IAbstractView_Subtot
 		$this->addColumnsHidden(array(
 			SearchFields_WorkspaceList::VIRTUAL_CONTEXT_LINK,
 			SearchFields_WorkspaceList::VIRTUAL_HAS_FIELDSET,
+			SearchFields_WorkspaceList::VIRTUAL_TAB_SEARCH,
 		));
 		
 		$this->doResetCriteria();
@@ -791,6 +795,14 @@ class View_WorkspaceList extends C4_AbstractView implements IAbstractView_Subtot
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_WorkspaceList::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
+			'tab' =>
+				[
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => ['param_key' => SearchFields_WorkspaceList::VIRTUAL_TAB_SEARCH],
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_WORKSPACE_TAB, 'q' => ''],
+					]
+				],
 			'tab.pos' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
@@ -839,8 +851,10 @@ class View_WorkspaceList extends C4_AbstractView implements IAbstractView_Subtot
 		switch($field) {
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
-				break;
 			
+			case 'tab':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_WorkspaceList::VIRTUAL_TAB_SEARCH);
+				
 			default:
 				if($field == 'links' || substr($field, 0, 6) == 'links.')
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
@@ -895,6 +909,13 @@ class View_WorkspaceList extends C4_AbstractView implements IAbstractView_Subtot
 				
 			case SearchFields_WorkspaceList::VIRTUAL_HAS_FIELDSET:
 				$this->_renderVirtualHasFieldset($param);
+				break;
+			
+			case SearchFields_WorkspaceList::VIRTUAL_TAB_SEARCH:
+				echo sprintf("%s matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.tab')),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
 				break;
 		}
 	}
