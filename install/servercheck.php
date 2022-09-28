@@ -39,7 +39,7 @@ $results = array();
 $fails = 0;
 
 // PHP Version
-if(version_compare(PHP_VERSION,"7.4") >=0) {
+if(version_compare(PHP_VERSION,"8.0") >=0) {
 	$results['php_version'] = PHP_VERSION;
 } else {
 	$results['php_version'] = false;
@@ -211,7 +211,7 @@ if($fails) {
 	echo "The following problems prevent you from running Cerb:<span class='fail'><ul>";
 	
 	if(!$results['php_version'])
-		echo '<li>Cerb requires PHP 7.4 or later. Your server PHP version is '.PHP_VERSION.'.</li>';
+		echo '<li>Cerb requires PHP 8.0 or later. Your server PHP version is '.PHP_VERSION.'.</li>';
 
 	if(!$results['file_uploads'])
 		echo '<li>file_uploads is disabled in your php.ini file. Please enable it.</li>';
@@ -247,7 +247,7 @@ if($fails) {
 		echo "<li>The 'GD' PHP extension (with FreeType library support) is required.  Please enable them.</li>";
 		
 	if(!$results['ext_mailparse'])
-		echo "<li>The 'MailParse' PHP extension is required. Version 3.0.3+ (PHP 7.4) or 3.1.3+ (PHP 8.x).</li>";
+		echo "<li>The 'MailParse' PHP extension is required. Version 3.1.3 or later.</li>";
 		
 	if(!$results['ext_mbstring'])
 		echo "<li>The 'MbString' PHP extension is required.  Please enable it.</li>";

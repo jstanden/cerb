@@ -293,26 +293,16 @@ class CerberusApplication extends DevblocksApplication {
 		// Requirements
 
 		// PHP Version
-		if(version_compare(PHP_VERSION,"7.4") < 0) {
-			$errors[] = sprintf("Cerb %s requires PHP 7.4 or later. Your server PHP version is %s",
+		if(version_compare(PHP_VERSION,"8.0") < 0) {
+			$errors[] = sprintf("Cerb %s requires PHP 8.0 or later. Your server PHP version is %s",
 				APP_VERSION,
 				PHP_VERSION
 			);
 		}
 
 		// Mailparse version
-		if(
-			version_compare(PHP_VERSION, '8.0.0') >= 0 
-			&& version_compare(phpversion('mailparse'),"3.1.3") < 0
-		) {
-			$errors[] = sprintf("Cerb %s requires mailparse 3.1.3 or later with PHP 8.x. Your mailparse extension version is %s",
-				APP_VERSION,
-				phpversion('mailparse')
-			);
-		} else if (
-			version_compare(phpversion('mailparse'), '3.0.3') < 0
-		) {
-			$errors[] = sprintf("Cerb %s requires mailparse 3.0.3 or later with PHP 7.4. Your mailparse extension version is %s",
+		if(version_compare(phpversion('mailparse'),"3.1.3") < 0) {
+			$errors[] = sprintf("Cerb %s requires mailparse 3.1.3 or later. Your mailparse extension version is %s",
 				APP_VERSION,
 				phpversion('mailparse')
 			);

@@ -22,8 +22,8 @@ class DevblocksPlatformTest extends TestCase {
 	
 	public function testRequirements() {
 		// Version
-		$actual = version_compare(PHP_VERSION, "7.0", ">=");
-		$this->assertEquals(true, $actual, sprintf('Cerb requires a PHP version of 7.0+, currently %s', PHP_VERSION));
+		$actual = version_compare(PHP_VERSION, "8.0", ">=");
+		$this->assertEquals(true, $actual, sprintf('Cerb requires a PHP version of 8.0+, currently %s', PHP_VERSION));
 
 		// File Uploads
 		$ini_file_uploads = ini_get("file_uploads");

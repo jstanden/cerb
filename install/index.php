@@ -15,9 +15,9 @@
 |	http://cerb.ai	    http://webgroup.media
 ***********************************************************************/
 
-if(version_compare(PHP_VERSION, "7.4", "<")) {
+if(version_compare(PHP_VERSION, "8.0", "<")) {
 	http_response_code(500);
-	die("Cerb requires PHP 7.4 or later.");
+	die("Cerb requires PHP 8.0 or later.");
 }
 
 if(!extension_loaded('mysqli')) {
@@ -130,7 +130,7 @@ switch($step) {
 		$fails = 0;
 		
 		// PHP Version
-		if(version_compare(PHP_VERSION,"7.4") >=0) {
+		if(version_compare(PHP_VERSION,"8.0") >=0) {
 			$results['php_version'] = PHP_VERSION;
 		} else {
 			$results['php_version'] = false;
@@ -138,14 +138,7 @@ switch($step) {
 		}
 		
 		// Mailparse version
-		if(
-			version_compare(PHP_VERSION, '8.0.0') >= 0
-			&& version_compare(phpversion('mailparse'),"3.1.3") >= 0
-		) {
-			$results['mailparse_version'] = phpversion('mailparse');
-		} else if (
-			version_compare(phpversion('mailparse'), '3.0.3') >= 0
-		) {
+		if(version_compare(phpversion('mailparse'),"3.1.3") >= 0) {
 			$results['mailparse_version'] = phpversion('mailparse');
 		} else {
 			$results['mailparse_version'] = false;

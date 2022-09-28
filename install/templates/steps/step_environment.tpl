@@ -3,7 +3,7 @@
 <form action="index.php" method="POST">
 <b>PHP Version... </b> 
 {if !$results.php_version}
-	<span class="bad">Failed!  PHP 7.4 or later is required.</span>
+	<span class="bad">Failed!  PHP 8.0 or later is required.</span>
 {else}
 	<span class="good">Passed! (PHP {$results.php_version})</span>
 {/if}
@@ -68,7 +68,7 @@
 {if !$results.ext_mailparse}
 	<span class="bad">Error! PHP must have the 'mailparse' extension enabled.</span>
 {elseif !$results.mailparse_version}
-	<span class="bad">Error! Cerb requires the 'mailparse' extension version 3.0.3+ (PHP 7.4) or 3.1.3+ (PHP 8.x).</span>
+	<span class="bad">Error! Cerb requires the 'mailparse' extension version 3.1.3 or later.</span>
 {else}
 	<span class="good">Passed!</span>
 {/if}

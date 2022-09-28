@@ -40,9 +40,9 @@
  *	 Founders at Webgroup Media LLC; Developers of Cerb
  */
 
-if(version_compare(PHP_VERSION, "7.4", "<")) {
+if(version_compare(PHP_VERSION, "8.0", "<")) {
 	http_response_code(500);
-	die("Cerb requires PHP 7.4 or later.");
+	die("Cerb requires PHP 8.0 or later.");
 }
 
 if(!extension_loaded('mysqli')) {
