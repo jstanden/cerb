@@ -232,7 +232,52 @@ class ChUpdateController extends DevblocksControllerExtension {
 						DevblocksPlatform::redirect(new DevblocksHttpResponse([]));
 	
 					} else {
-						echo $translate->_('update.locked_another');
+						http_response_code(503);
+						
+						echo sprintf(
+						<<< EOD
+						<html lang="en">
+						<head>
+							<title>Cerb update in progress</title>
+							<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+							<style>
+								HTML {
+									font-family: "Helvetica Neue", "Helvetica", "Roboto", sans-serif;
+								}
+								A {
+									color: royalblue;
+									font-weight: bold;
+								}
+								.cell {
+									margin: auto;
+									width: 90vw;
+									padding: 1em;
+									text-align: center;
+								}
+								.logo {
+									width: 500px;
+									max-width: 80vw;
+									height: auto;
+								}
+							</style>
+						</head>
+						<body>
+							<div class="cell">
+								<img class="logo" src="%s">
+								<p>
+								%s
+								</p>
+								<p>
+									<a href='%s'>Try again</a>
+								</p>
+							</div>
+						</body>
+						</html>
+						EOD,
+						$url->write('c=update&a=logo'),
+						$translate->_('update.locked_another'),
+						$url->write('c=update')
+						);
 					}
 					
 			} catch(Exception $e) {
