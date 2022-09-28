@@ -56,7 +56,7 @@
 		"guzzlehttp/guzzle": "~6.5.8",
 		"phpseclib/phpseclib": "~2.0",
 		"tijsverkoyen/css-to-inline-styles": "^2.2",
-		"ezyang/htmlpurifier": "^4.11",
+		"ezyang/htmlpurifier": "^4.16",
 		"erusev/parsedown": "^1.7",
 		"erusev/parsedown-extra": "^0.7.1",
 		"donatj/phpuseragentparser": "^1.0",
