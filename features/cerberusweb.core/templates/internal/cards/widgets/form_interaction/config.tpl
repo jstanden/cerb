@@ -38,6 +38,12 @@
 		<textarea name="params[interactions_kata]" class="cerb-code-editor placeholders" data-editor-mode="ace/mode/cerb_kata">{$widget->extension_params.interactions_kata}</textarea>
 		<div class="cerb-code-editor-preview-output"></div>
 	</fieldset>
+	
+	<fieldset class="peek">
+		<legend>Start interactions:</legend>
+		<label><input type="radio" name="params[is_popup]" value="0" {if !$widget->extension_params.is_popup}checked="checked"{/if}> In the widget</label>
+		<label><input type="radio" name="params[is_popup]" value="1" {if $widget->extension_params.is_popup}checked="checked"{/if}> As a popup</label>
+	</fieldset>
 </div>
 
 {$script_uid = uniqid('script')}

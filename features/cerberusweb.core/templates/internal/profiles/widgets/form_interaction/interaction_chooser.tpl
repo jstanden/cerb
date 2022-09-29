@@ -83,7 +83,7 @@ $(function() {
 		e.stopPropagation();
 	};
 
-	$div.cerbToolbar({
+	const toolbarOptions = {
 		caller: {
 			name: 'cerb.toolbar.profileWidget.interactions',
 			params: {
@@ -94,10 +94,12 @@ $(function() {
 		},
 		start: function(formData) {
 		},
-		target: $widget_content,
+		{if !$widget->extension_params.is_popup}target: $widget_content,{/if}
 		done: doneFunc,
 		reset: resetFunc,
 		error: errorFunc
-	});
+	};
+
+	$div.cerbToolbar(toolbarOptions);
 });
 </script>
