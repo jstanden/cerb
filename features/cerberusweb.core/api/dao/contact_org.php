@@ -450,6 +450,9 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 	 * @return Model_ContactOrg
 	 */
 	static function lookup($name, $create_if_null=false) {
+		if(!$name)
+			return NULL;
+		
 		$db = DevblocksPlatform::services()->database();
 		
 		@$orgs = self::getWhere(
