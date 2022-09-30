@@ -1235,7 +1235,14 @@ class CerberusParser {
 				if(null != ($headers = $result->getKeyPath('__return.set.headers'))) {
 					if(is_array($headers)) {
 						foreach($headers as $k => $v) {
-							$model->getMessage()->headers[$k] = $v;
+							$k = DevblocksPlatform::strLower($k);
+							
+							if('' === $v) {
+								unset($model->getMessage()->headers[$k]);
+							} else {
+								$model->getMessage()->headers[$k] = $v;
+							}
+							
 						}
 						
 						$model->getMessage()->raw_headers = '';
