@@ -2247,7 +2247,12 @@ var ajax = new cAjaxCalls();
 			} else if(mode === 'ace/mode/cerb_kata') {
 				aceOptions.useSoftTabs = true;
 				aceOptions.enableLinking = true;
-				aceOptions.wrap = false;
+				
+				if(navigator.userAgent.toLowerCase().indexOf('iphone') >= 0) {
+					aceOptions.wrap = true;
+				} else {
+					aceOptions.wrap = false;
+				}
 
 				// editor.on('linkHover', function(data) {
 				// });
