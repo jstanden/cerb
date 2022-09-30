@@ -18,8 +18,8 @@
 		{/foreach}
 	</ul>
 	<ul class="cerb-menu" style="display:none;position:absolute;">
-		<li data-option="download"><b>Download</b></li>
-		<li data-option="browser"><b>Open in browser</b></li>
+		<li data-option="download"><div><b>Download</b></div></li>
+		<li data-option="browser"><div><b>Open in browser</b></div></li>
 	</ul>
 </fieldset>
 {/if}
@@ -74,7 +74,7 @@ $(function() {
 			$target = $(this).closest('li');
 			
 			$menu.css('width', $target.width() + 'px');
-			$menu.zIndex($target.zIndex()+1);
+			$menu.addClass('ui-front');
 			$menu.show().position( { my: 'left top', at: 'left bottom', of: $target } );
 		})
 	;
