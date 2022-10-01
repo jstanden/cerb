@@ -529,7 +529,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 						break;
 					
 					foreach($values as $row_idx => $value) {
-						$value = $currency->format($value, false, '.', '');
+						$value = $currency->format(intval($value), false, '.', '');
 						$values[$row_idx] = $value;
 						$rows[$row_idx][$key_label] = $value;
 					}
@@ -546,7 +546,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 						$values = array_column($rows, $key_label);
 					
 					foreach($values as $row_idx => $value) {
-						$value = DevblocksPlatform::strFormatDecimal($value, $decimal_at, '.', '');
+						$value = DevblocksPlatform::strFormatDecimal(intval($value), $decimal_at, '.', '');
 						$values[$row_idx] = $value;
 						$rows[$row_idx][$key_label] = $value;
 					}
