@@ -327,6 +327,13 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 		if(false == ($db->ExecuteMaster($sql)))
 			return false;
 		
+		// Clear any associated tickets
+		$sql = sprintf("UPDATE ticket SET org_id = 0 WHERE org_id IN (%s)",
+			$id_list
+		);
+		if(false == ($db->ExecuteMaster($sql)))
+			return false;
+		
 		// Clear search records
 		$search = Extension_DevblocksSearchSchema::get(Search_Org::ID);
 		$search->delete($ids);
