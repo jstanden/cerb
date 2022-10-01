@@ -510,16 +510,20 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		foreach($chart_model['by'] as $idx => $by) {
 			// If the last field is an aggregate function, field is `hits`
 			$is_agg_func = !in_array($chart_model['function'], ['','count']);
-			$key_select = $idx == $last_by_idx ? 'hits' : $by['key_select'];
+			$key_select = $by['key_select'];
 			$values = array_column($rows, $key_select);
 			
 			// Re-label
 			switch($by['type']) {
 				case Model_CustomField::TYPE_CURRENCY:
+					$key_label = $idx == $last_by_idx ? 'hits' : $key_select;
 					$currency_id = $by['type_options']['currency_id'] ?? null;
 					
 					if(!$is_agg_func)
 						break;
+					
+					if('hits' == $key_label)
+						$values = array_column($rows, $key_label);
 					
 					if(!$currency_id || !($currency = DAO_Currency::get($currency_id)))
 						break;
@@ -527,32 +531,40 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 					foreach($values as $row_idx => $value) {
 						$value = $currency->format($value, false, '.', '');
 						$values[$row_idx] = $value;
-						$rows[$row_idx][$key_select] = $value;
+						$rows[$row_idx][$key_label] = $value;
 					}
 					break;
 					
 				case Model_CustomField::TYPE_DECIMAL:
+					$key_label = $idx == $last_by_idx ? 'hits' : $key_select;
 					$decimal_at = $by['type_options']['decimal_at'] ?? null;
 					
 					if(!$is_agg_func)
 						break;
 					
+					if('hits' == $key_label)
+						$values = array_column($rows, $key_label);
+					
 					foreach($values as $row_idx => $value) {
 						$value = DevblocksPlatform::strFormatDecimal($value, $decimal_at, '.', '');
 						$values[$row_idx] = $value;
-						$rows[$row_idx][$key_select] = $value;
+						$rows[$row_idx][$key_label] = $value;
 					}
 					break;
 					
 				case Model_CustomField::TYPE_WORKER:
 					if(!DevblocksPlatform::strEndsWith($by['key_query'], '.id')) {
+						$key_label = $idx == $last_by_idx ? 'hits' : $key_select;
 						$worker_names = DAO_Worker::getNames(false);
 						
 						if(!$is_agg_func)
 							break;
 						
+						if('hits' == $key_label)
+							$values = array_column($rows, $key_label);
+						
 						foreach ($values as $row_idx => $value) {
-							$rows[$row_idx][$key_select] = $worker_names[$value] ?? $value;
+							$rows[$row_idx][$key_label] = $worker_names[$value] ?? $value;
 						}
 					}
 					break;
