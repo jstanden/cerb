@@ -1065,6 +1065,11 @@ class DAO_Worker extends Cerb_ORMHelper {
 		if(false == ($db->ExecuteMaster($sql)))
 			return false;
 		
+		// Clear their message history
+		$sql = sprintf("UPDATE message SET worker_id = 0 WHERE worker_id = %d", $id);
+		if(false == ($db->ExecuteMaster($sql)))
+			return false;
+		
 		$sql = sprintf("DELETE FROM worker WHERE id = %d", $id);
 		if(false == ($db->ExecuteMaster($sql)))
 			return false;
