@@ -140,18 +140,21 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 				
 				// Do we need to normalize timeseries tick values?
 				if($xkey && 'timeseries' == ($chart['axis']['x']['type'] ?? null)) {
-					$xtick_format = $chart['axis']['x']['tick']['format'] ?? 'Y-m-d H:i:s';
-					
 					if(!array_key_exists($xkey, $datasets[$dataset_key]))
 						continue;
 					
-					$xtick_format = DevblocksPlatform::services()->date()->convertStrftimeToDateFormat($xtick_format);
-					
 					$datasets[$dataset_key][$xkey] = array_map(
-						function($xtick) use ($xtick_format) {
-							// [TODO] Handle YYYY ticks properly
-							$dt = new DateTime($xtick);
-							return $dt->format($xtick_format);
+						function($xtick) {
+							// Handle YYYY format
+							if(is_numeric($xtick) && $xtick < 10000) {
+								$dt = new DateTime();
+								$dt->setDate($xtick, 1, 1);
+								$dt->setTime(0, 0);
+								
+							} else {
+								$dt = new DateTime($xtick);
+							}
+							return $dt->format('Y-m-d\TH:i:s');
 						},
 						$datasets[$dataset_key][$xkey]
 					);
@@ -177,8 +180,9 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 			}
 			
 			if('timeseries' == ($chart['axis']['x']['type'] ?? null)) {
-				$xtick_format = $chart['axis']['x']['tick']['format'] ?? 'Y-m-d H:i:s';
-				$chart_json['data']['xFormat'] = $xtick_format;
+				$chart_json['data']['xFormat'] = '%Y-%m-%dT%H:%M:%S';
+				$xtick_format = $chart['axis']['x']['tick']['format'] ?? '%Y-%m-%d %H:%M';
+				$chart_json['axis']['x']['tick']['format'] = $xtick_format;
 			}
 			
 			$x_labels = array_fill_keys($x_labels, 0);

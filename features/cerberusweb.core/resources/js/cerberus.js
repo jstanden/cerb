@@ -244,7 +244,9 @@ var cerbAutocompleteSuggestions = {
 		'axis:x:tick:format:': [
 			'%Y',
 			'%Y-%m',
+			'%B \'%y',
 			'%Y-%m-%d',
+			'%Y-%m-%d %H:%M',
 			'%Y-%m-%d %H:%M:%S'
 		],
 		'axis:x:type:': [
@@ -263,7 +265,9 @@ var cerbAutocompleteSuggestions = {
 		'axis:y:tick:format:': [
 			'%Y',
 			'%Y-%m',
+			'%B \'%y',
 			'%Y-%m-%d',
+			'%Y-%m-%d %H:%M',
 			'%Y-%m-%d %H:%M:%S',
 		],
 		'axis:y:type:': [
@@ -282,7 +286,9 @@ var cerbAutocompleteSuggestions = {
 		'axis:y2:tick:format:': [
 			'%Y',
 			'%Y-%m',
+			'%B \'%y',
 			'%Y-%m-%d',
+			'%Y-%m-%d %H:%M',
 			'%Y-%m-%d %H:%M:%S',
 		],
 		'axis:y2:type:': [
