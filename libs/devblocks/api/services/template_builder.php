@@ -451,7 +451,7 @@ class _DevblocksTemplateBuilder {
 				$e->getTemplateLine()
 			);
 			
-		} catch(Exception $e) {
+		} catch(Throwable $e) {
 			$this->_errors[] = $e->getMessage();
 		}
 		$this->_tearDown();
