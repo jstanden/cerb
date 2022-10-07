@@ -263,7 +263,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			
 			return $data;
 			
-		} catch(Exception $e) {
+		} catch(Throwable $e) {
 			DevblocksPlatform::logError($e->getMessage());
 			$error = "An unexpected error occurred";
 			return false;
@@ -323,12 +323,26 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				}
 				
 				// If it's a date time-step, allow the full range
-				if(is_null($limit) && array_key_exists('timestamp_step', $subtotal_field)) {
-					$limit = '250';
+				if(is_null($limit)) {
+					if(array_key_exists('timestamp_step', $subtotal_field)) {
+						$limit = '250';
+					} else {
+						$limit = '0';
+					}
 				}
 				
-				$limit_desc = DevblocksPlatform::strStartsWith($limit, '-') ? false : true;
-				$limit = DevblocksPlatform::intClamp(abs($limit ?? 0), 0, 2000) ?: 25;
+				$limit_desc = !DevblocksPlatform::strStartsWith($limit, '-');
+				$limit = ltrim(strval($limit), '-');
+				
+				if(!is_numeric($limit)) {
+					$error = sprintf("On `by:` field (%s) the limit (%s) must be numeric.",
+						$by,
+						$limit
+					);
+					return false;
+				}
+				
+				$limit = DevblocksPlatform::intClamp($limit, 0, 2000) ?: 25;
 				
 				$subtotal_field['limit'] = $limit;
 				$subtotal_field['limit_desc'] = $limit_desc;
@@ -673,7 +687,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 									$to_date = DevblocksPlatform::services()->date()->getDateFromYearQuarter($from_date);
 									try {
 										$ts = new DateTime($to_date);
-									} catch (Exception $e) {
+									} catch (Throwable $e) {
 										$ts = 0;
 									}
 									$ts->modify('23:59:59');

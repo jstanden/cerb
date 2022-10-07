@@ -365,7 +365,7 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 			
 			return $this->_getData($chart_model, $error);
 			
-		} catch (Exception $e) {
+		} catch (Throwable $e) {
 			$error = "An unexpected error occurred.";
 			return false;
 			
@@ -401,7 +401,7 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 				$range['to_ts'] = $ts->getTimestamp();
 				$range['to_string'] = $ts->format('Y-m-d H:i:s');
 				
-			} catch(Exception $e) {
+			} catch(Throwable $e) {
 				$error = 'Invalid date range';
 				return false;
 			}
