@@ -217,6 +217,13 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 						if($key == $xkey)
 							continue;
 						
+						if(!array_key_exists($xkey, $datasets[$dataset_key]))
+							throw new Exception_DevblocksValidationError(sprintf('`data:series:%s:x_key:` (%s) must be one of: %s',
+								$dataset_key,
+								$xkey,
+							implode(', ', array_keys($datasets[$dataset_key]))
+							));
+						
 						$series = array_values(array_merge($x_labels, array_combine($datasets[$dataset_key][$xkey], $values)));
 					} else {
 						if(is_array($values)) {
