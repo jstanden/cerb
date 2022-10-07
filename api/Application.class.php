@@ -4132,6 +4132,9 @@ class _CerbApplication_KataSchemas {
                               mime_type:
                                 types:
                                   string:
+                              name:
+                                types:
+                                  string:
                       on_error:
                         ref: commands
                       on_simulate:

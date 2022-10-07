@@ -1162,6 +1162,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'content:',
 					'expires@date: +15 mins',
 					'mime_type:',
+					'name:',
 				],
 				'(.*):file.write:inputs:content:' => [
 					'bytes:',
@@ -1189,6 +1190,11 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 						'attachment' => null,
 						'automation_resource' => null,
 					],
+				],
+				'(.*):file.write:inputs:name:' => [
+					'example.txt',
+					'example.json',
+					'example.png',
 				],
 				
 				'(.*):function:' => array_merge(

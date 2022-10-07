@@ -49,6 +49,10 @@ class FileWriteAction extends AbstractAction {
 				->string()
 			;
 			
+			$validation->addField('name', 'inputs:name:')
+				->string()
+			;
+
 			$validation->addField('expires', 'inputs:expires:')
 				->timestamp()
 			;
@@ -78,6 +82,7 @@ class FileWriteAction extends AbstractAction {
 				throw new Exception_DevblocksAutomationError($error);
 			}
 			
+			$file_name = DevblocksPlatform::strLower($inputs['name'] ?? null);
 			$mime_type = DevblocksPlatform::strLower($inputs['mime_type'] ?? 'application/octet-stream');
 			$content = $inputs['content'] ?? null;
 			$expires_at = $inputs['expires'] ?? (time() + 900);
@@ -124,11 +129,16 @@ class FileWriteAction extends AbstractAction {
 					$zip_name = $this->_createZip($content['zip']);
 					$mime_type = 'application/zip';
 					
-					$resource_id = \DAO_AutomationResource::create([
+					$fields = [
 						\DAO_AutomationResource::MIME_TYPE => $mime_type,
 						\DAO_AutomationResource::TOKEN => $resource_token,
 						\DAO_AutomationResource::EXPIRES_AT => $expires_at,
-					]);
+					];
+					
+					if($file_name)
+						$fields[\DAO_AutomationResource::NAME] = $file_name;
+					
+					$resource_id = \DAO_AutomationResource::create($fields);
 					
 					if(!($fp = fopen($zip_name, 'r+b')))
 						throw new Exception_DevblocksAutomationError('Failed to read ZIP archive.');
@@ -143,6 +153,9 @@ class FileWriteAction extends AbstractAction {
 						'id' => $resource_id,
 					];
 					
+					if($file_name)
+						$results['name'] = $file_name;
+					
 					\Storage_AutomationResource::put($resource_id, $fp);
 					
 					fclose($fp);
@@ -156,11 +169,16 @@ class FileWriteAction extends AbstractAction {
 				if(!is_scalar($content['text']))
 					throw new Exception_DevblocksAutomationError('`file.write:inputs:content:text:` must be a string.');
 				
-				$resource_id = \DAO_AutomationResource::create([
+				$fields = [
 					\DAO_AutomationResource::MIME_TYPE => $mime_type,
 					\DAO_AutomationResource::TOKEN => $resource_token,
 					\DAO_AutomationResource::EXPIRES_AT => $expires_at,
-				]);
+				];
+				
+				if($file_name)
+					$fields[\DAO_AutomationResource::NAME] = $file_name;
+				
+				$resource_id = \DAO_AutomationResource::create($fields);
 				
 				$results = [
 					'uri' => 'cerb:automation_resource:' . $resource_token,
@@ -169,6 +187,9 @@ class FileWriteAction extends AbstractAction {
 					'size' => strlen($content['text']),
 					'id' => $resource_id,
 				];
+				
+				if($file_name)
+					$results['name'] = $file_name;
 				
 				\Storage_AutomationResource::put($resource_id, $content['text']);
 			}
