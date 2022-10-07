@@ -173,6 +173,17 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 				// [TODO] Lerp
 				if('timeseries' == ($chart['axis']['x']['type'] ?? null)) {
 					sort($x_labels);
+					
+				} else if(
+					'category' == ($chart['axis']['x']['type'] ?? null)
+					&& array_key_exists('categories', $chart['axis']['x'])
+					&& is_array($chart['axis']['x']['categories'])
+				) {
+					$order = array_flip(array_values($chart['axis']['x']['categories']));
+					
+					usort($x_labels, function($a, $b) use ($order) {
+						return ($order[$a] ?? PHP_INT_MAX) <=> ($order[$b] ?? PHP_INT_MAX);
+					});
 				}
 				
 				if('scatter' == ($chart['data']['type'] ?? null)) {

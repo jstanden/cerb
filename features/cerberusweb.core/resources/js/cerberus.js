@@ -235,6 +235,7 @@ var cerbAutocompleteSuggestions = {
 			'y2:'
 		],
 		'axis:x:': [
+			'categories@list:',
 			'label:',
 			'tick:',
 			'type:'
