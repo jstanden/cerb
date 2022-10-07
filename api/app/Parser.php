@@ -187,7 +187,7 @@ class CerberusParserModel {
 				}
 			}
 			
-		} catch (Exception $e) {
+		} catch (Throwable $e) {
 			$this->_sender_address_model = null;
 			$this->_sender_worker_model = null;
 			return;
@@ -733,7 +733,7 @@ class CerberusParser {
 				return $ticket_id;
 			}
 			
-		} catch (Exception $e) {
+		} catch (Throwable $e) {
 			if($file && $delete_on_failure)
 				@unlink($file);
 			throw $e;
@@ -845,7 +845,7 @@ class CerberusParser {
 							$results[$k] = $v;
 						}
 						
-					} catch (Exception $e) {
+					} catch (Throwable $e) {
 						// If we failed, keep the whole part
 						$results[spl_object_hash($part)] = $part;
 					}
@@ -1867,14 +1867,18 @@ class CerberusParser {
 			return $out;
 		}
 		
-		// Otherwise, try mbstring
-		if(@mb_check_encoding($text, $charset)) {
-			if(false !== ($out = mb_convert_encoding($text, LANG_CHARSET_CODE, $charset)))
-				return $out;
-			
-			// Try with the internal charset
-			if(false !== ($out = mb_convert_encoding($text, LANG_CHARSET_CODE)))
-				return $out;
+		try {
+			// Otherwise, try mbstring
+			if(mb_check_encoding($text, $charset)) {
+				if(false !== ($out = mb_convert_encoding($text, LANG_CHARSET_CODE, $charset)))
+					return $out;
+				
+				// Try with the internal charset
+				if(false !== ($out = mb_convert_encoding($text, LANG_CHARSET_CODE)))
+					return $out;
+			}
+		} catch (Throwable $e) {
+			DevblocksPlatform::noop();
 		}
 		
 		return $text;

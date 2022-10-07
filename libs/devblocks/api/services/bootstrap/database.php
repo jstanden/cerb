@@ -401,12 +401,16 @@ class _DevblocksDatabaseManager {
 					);
 					
 					// Kill the timed out thread using the new connection
-					mysqli_kill($monitor_db, $db->thread_id);
-					mysqli_close($db);
+					if(
+						$monitor_db instanceof mysqli
+						&& $db instanceof mysqli
+					) {
+						mysqli_kill($monitor_db, $db->thread_id);
+						mysqli_close($db);
+						mysqli_close($monitor_db);
+					}
 					
 					unset($connections[$idx]);
-					
-					mysqli_close($monitor_db);
 					
 					// If it was the main reader, reconnect
 					if(0 === $idx) {
