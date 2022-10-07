@@ -445,6 +445,16 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 				case 'dataQuery':
 					$data = DevblocksPlatform::services()->data();
 					
+					if(!array_key_exists('query', $data_params)) {
+						$error = 'A dataset `dataQuery:query:` is required.';
+						return null;
+					}
+					
+					if(!is_string($data_params['query'])) {
+						$error = 'A dataset `dataQuery:query:` must be text.';
+						return null;
+					}
+					
 					if(!($query_results = $data->executeQuery($data_params['query'], $data_params['query_params'] ?? [], $error)))
 						return null;
 					

@@ -250,6 +250,11 @@ class _DevblocksDataService {
 	}
 	
 	function executeQuery($query, array $bindings=[], &$error=null, $cache_secs=0) {
+		if(!is_string($query)) {
+			$error = "The data query must be a string.";
+			return false;
+		}
+		
 		$cache = DevblocksPlatform::services()->cache();
 		$cache_key = 'data_query_' . sha1($query);
 		
