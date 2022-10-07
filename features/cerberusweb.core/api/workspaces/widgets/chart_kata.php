@@ -106,6 +106,10 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 					'axes' => [],
 					'groups' => [],
 				],
+				'tooltip' => [
+					'show' => true,
+					'grouped' => true,
+				]
 			];
 			
 			if($chart['data']['type'] ?? null)
@@ -287,6 +291,14 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 				}
 				
 				$chart_json['data']['groups'][] = $group;
+			}
+			
+			if(array_key_exists('tooltip', $chart)) {
+				if(array_key_exists('show', $chart['tooltip']))
+					$chart_json['tooltip']['show'] = boolval($chart['tooltip']['show']);
+					
+				if(array_key_exists('grouped', $chart['tooltip']))
+					$chart_json['tooltip']['grouped'] = boolval($chart['tooltip']['grouped']);
 			}
 			
 			$tpl->assign('chart_json', json_encode($chart_json));
