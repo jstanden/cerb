@@ -173,6 +173,15 @@ $(function() {
 			return;
 		}
 
+		var $spinner = Devblocks.getSpinner()
+			.css('max-width', '16px')
+			.css('margin-right', '5px')
+			.insertAfter($query_button)
+		;
+		
+		$query_button.hide();
+		$json_results.closest('fieldset').hide();
+		
 		var formData = new FormData($frm.get(0));
 		formData.set('c', 'profiles');
 		formData.set('a', 'invoke');
@@ -181,6 +190,9 @@ $(function() {
 		formData.set('config_action', 'previewDataset');
 		
 		genericAjaxPost(formData, '', '', function(json) {
+			$spinner.remove();
+			$query_button.fadeIn();
+			
 			if(null == json || 'object' != typeof json) {
 				Devblocks.createAlertError('An unexpected error occurred.');
 			
@@ -216,7 +228,14 @@ $(function() {
 		if(e.altKey) {
 			return;
 		}
-		
+
+		var $spinner = Devblocks.getSpinner()
+			.css('max-width', '16px')
+			.css('margin-right', '5px')
+			.insertAfter($chart_button)
+		;
+		$chart_button.hide();
+
 		var formData = new FormData($frm.get(0));
 		formData.set('c', 'profiles');
 		formData.set('a', 'invoke');
@@ -225,6 +244,9 @@ $(function() {
 		formData.set('config_action', 'previewChart');
 
 		genericAjaxPost(formData, '', '', function(html) {
+			$spinner.remove();
+			$chart_button.fadeIn();
+
 			if('string' == typeof html) {
 				$chart_preview.html(html);
 				$chart_preview.closest('fieldset').show();
