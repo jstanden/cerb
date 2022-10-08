@@ -462,7 +462,7 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 						return null;
 					}
 					
-					if(!($query_results = $data->executeQuery($data_params['query'], $data_params['query_params'] ?? [], $error)))
+					if(!($query_results = $data->executeQuery($data_params['query'], $data_params['query_params'] ?? [], $error, intval($data_params['cache_secs'] ?? 0))))
 						return null;
 					
 					if(in_array($query_results['_']['format'], ['categories','scatterplot'])) {

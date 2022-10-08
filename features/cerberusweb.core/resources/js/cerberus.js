@@ -490,6 +490,7 @@ var cerbAutocompleteSuggestions = {
 				'caption': 'query_params:',
 				'snippet': "query_params:\n  ${1:key}: ${2:value}"
 			},
+			'cache_secs: 300'
 		],
 		
 		'manual:': [
