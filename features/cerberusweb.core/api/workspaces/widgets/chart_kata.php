@@ -248,6 +248,8 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 						}
 					}
 					
+					$series_key = $dataset_key . '__' . $key;
+					
 					if(1 == $series_count) {
 						$series_name = $dataset_name ?: $key;
 					} else if ($dataset_name) {
@@ -278,7 +280,7 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 							continue;
 						
 						// [TODO] Right now this forces the suffix
-						$chart_json['data']['xs'][$dataset_key . '_' . $k] = $dataset_key . '_' . $k . '_x';
+						$chart_json['data']['xs'][$dataset_key . '__' . $k] = $dataset_key . '__' . $k . '_x';
 					}
 					
 				} else {
@@ -297,7 +299,7 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 						continue;
 					
 					foreach(array_keys($datasets[$dataset_key]) as $k) {
-						$group[] = $dataset_key . '_' . $k;
+						$group[] = $dataset_key . '__' . $k;
 					}
 				}
 				
