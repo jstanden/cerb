@@ -412,6 +412,13 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 		
 		$datasets = [];
 		
+		$allowed_data_query_formats = [
+			'categories',
+			'pie',
+			'scatterplot',
+			'timeseries',
+		];
+		
 		foreach($datasets_kata ?? [] as $key => $data_params) {
 			list($dataset_type, $dataset_name) = array_pad(explode('/', $key, 2), 2, null);
 			
@@ -465,20 +472,35 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 					if(!($query_results = $data->executeQuery($data_params['query'], $data_params['query_params'] ?? [], $error, intval($data_params['cache_secs'] ?? 0))))
 						return null;
 					
-					if(in_array($query_results['_']['format'], ['categories','scatterplot'])) {
-						$datasets[$dataset_name] = array_combine(
-							array_map(
-								fn($arr) => current($arr),
-								$query_results['data']
-							),
-							array_map(
-								fn($arr) => array_slice($arr, 1),
-								$query_results['data']
-							)
+					$query_format = DevblocksPlatform::strLower($query_results['_']['format'] ?? '');
+					
+					if(!in_array($query_format, $allowed_data_query_formats)) {
+						$error = sprintf('A dataset `dataQuery:query:format:` (%s) must be one of: %s',
+							$query_format,
+							implode(', ', $allowed_data_query_formats)
 						);
+						return null;
+					}
+					
+					switch($query_format) {
+						case 'categories':
+						case 'pie':
+						case 'scatterplot':
+							$datasets[$dataset_name] = array_combine(
+								array_map(
+									fn($arr) => current($arr),
+									$query_results['data']
+								),
+								array_map(
+									fn($arr) => array_slice($arr, 1),
+									$query_results['data']
+								)
+							);
+							break;
 						
-					} else {
-						$datasets[$dataset_name] = $query_results['data'];
+						case 'timeseries':
+							$datasets[$dataset_name] = $query_results['data'];
+							break;
 					}
 					break;
 				
