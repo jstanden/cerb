@@ -106,6 +106,9 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 					'axes' => [],
 					'groups' => [],
 				],
+				'legend' => [
+					'show' => true,
+				],
 				'tooltip' => [
 					'show' => true,
 					'grouped' => true,
@@ -309,6 +312,11 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 				}
 				
 				$chart_json['data']['groups'][] = $group;
+			}
+			
+			if(array_key_exists('legend', $chart)) {
+				if(array_key_exists('show', $chart['legend']))
+					$chart_json['legend']['show'] = boolval($chart['legend']['show']);
 			}
 			
 			if(array_key_exists('tooltip', $chart)) {

@@ -226,6 +226,7 @@ var cerbAutocompleteSuggestions = {
 			'axis:',
 			'data:',
 			'grid:',
+			'legend:',
 			'tooltip:'
 		],
 
@@ -339,6 +340,14 @@ var cerbAutocompleteSuggestions = {
 		],
 		'grid:y:lines:': [
 			'0:',
+		],
+		
+		'legend:': [
+			'show@bool: yes',
+		],
+		'legend:show:': [
+			'yes',
+			'no',
 		],
 		
 		'tooltip:': [
