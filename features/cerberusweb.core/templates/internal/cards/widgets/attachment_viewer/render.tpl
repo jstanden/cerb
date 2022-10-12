@@ -43,7 +43,7 @@
             {if $dict->size < 1000000}
                 <iframe sandbox="allow-same-origin" src="{devblocks_url}c=files&id={$dict->id}&name={$dict->_label|devblocks_permalink}{/devblocks_url}" style="width:100%; height:300px; background-color:white; border:1px solid var(--cerb-color-background-contrast-200);"></iframe>
             {/if}
-        {elseif in_array($dict->mime_type, [ 'application/pdf' ])}
+        {elseif in_array($dict->mime_type, [ 'application/pdf' ]) && $smarty.const.APP_SECURITY_CSP_OBJECT_SRC}
             {if $dict->size < 5000000}
                 <object data="{devblocks_url}c=files&id={$dict->id}&name={$dict->_label|devblocks_permalink}{/devblocks_url}" width="100%" height="350"></object>
             {/if}
