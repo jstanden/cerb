@@ -5897,17 +5897,20 @@ var ajax = new cAjaxCalls();
 				});
 				
 				$autocomplete.autocomplete("instance")._renderItem = function(ul, item) {
-					var $div = $("<div/>").text(item.label);
+					var $div = $("<div/>").css('display', 'flex');
 					var $li = $("<li/>").append($div);
 					
+					var $label = $('<div/>').css('flex','1 1 100%').prependTo($div);
+					$('<div/>').text(item.label).css('font-weight','bold').appendTo($label);
+					
 					if(item.icon) {
-						var $img = $('<img class="cerb-avatar" style="height:28px;width:28px;border-radius:28px;float:left;margin-right:5px;">').attr('src',item.icon).prependTo($div);
-						$li.css('min-height','32px');
+						var $icon = $('<div/>').css('flex','1 1 32px').prependTo($div);
+						$('<img class="cerb-avatar" style="height:28px;width:28px;border-radius:28px;float:left;margin-right:5px;">').attr('src',item.icon).prependTo($icon);
 					}
 					
 					if(typeof item.meta == 'object') {
 						for(var k in item.meta) {
-							$('<div/>').append($('<small/>').text(item.meta[k])).appendTo($li);
+							$('<div/>').append($('<small/>').text(item.meta[k])).appendTo($label);
 						}
 					}
 					
