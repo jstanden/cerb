@@ -261,17 +261,23 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 						$series_name = $key;
 					}
 					
-					if(!array_key_exists($series_key, $chart_json['data']['names'] ?? []))
-						$chart_json['data']['names'][$series_key] = $series_name;
-					
-					$chart_json['data']['columns'][] = [$series_key, ...$series];
-					
-					if($ytype)
-						$chart_json['data']['types'][$series_key] = $ytype;
-					
-					if($yaxis == 'y2') {
-						$chart_json['data']['axes'][$series_key] = $yaxis;
-						$chart_json['axis']['y2']['show'] = true;
+					if(!DevblocksPlatform::strEndsWith($key, '__click')) {
+						if(!array_key_exists($series_key, $chart_json['data']['names'] ?? []))
+							$chart_json['data']['names'][$series_key] = $series_name;
+						
+						$chart_json['data']['columns'][] = [$series_key, ...$series];
+						
+						if($ytype)
+							$chart_json['data']['types'][$series_key] = $ytype;
+						
+						if($yaxis == 'y2') {
+							$chart_json['data']['axes'][$series_key] = $yaxis;
+							$chart_json['axis']['y2']['show'] = true;
+						}
+						
+					} else {
+						$chart_json['data']['click_search'][$series_key] = [...$series];
+						
 					}
 				}
 				
@@ -307,7 +313,8 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 						continue;
 					
 					foreach(array_keys($datasets[$dataset_key]) as $k) {
-						$group[] = $dataset_key . '__' . $k;
+						if(!DevblocksPlatform::strEndsWith($k, '__click'))
+							$group[] = $dataset_key . '__' . $k;
 					}
 				}
 				
@@ -376,7 +383,15 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 			echo DevblocksPlatform::strFormatJson([
 				'error' => 'ERROR: ' . $error,
 			]);
+			
 		} else {
+			// We don't need to show click series meta in the results
+			foreach($datasets as $dataset_key => $dataset_series) {
+				$datasets[$dataset_key] = array_filter($dataset_series, function ($k) {
+					return !DevblocksPlatform::strEndsWith($k, '__click');
+				}, ARRAY_FILTER_USE_KEY);
+			}
+			
 			echo DevblocksPlatform::strFormatJson($datasets);
 		}
 	}
@@ -510,6 +525,23 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 							$datasets[$dataset_name] = $query_results['data'];
 							break;
 					}
+					
+					if('categories' == $query_format) {
+						if($results = $this->_dataQueryQueriesFromCategories($query_results, $datasets[$dataset_name])) {
+							foreach($results as $k => $v)
+								$datasets[$dataset_name][$k] = $v;
+						}
+					} else if('pie' == $query_format) {
+						if($results = $this->_dataQueryQueriesFromPie($query_results, $datasets[$dataset_name])) {
+							foreach($results as $k => $v)
+								$datasets[$dataset_name][$k] = $v;
+						}
+					} else if('timeseries' == $query_format) {
+						if($results = $this->_dataQueryQueriesFromTimeseries($query_results, $datasets[$dataset_name])) {
+							foreach($results as $k => $v)
+								$datasets[$dataset_name][$k] = $v;
+						}
+					}
 					break;
 				
 				case 'manual':
@@ -526,5 +558,85 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 		}
 		
 		return $datasets;
+	}
+	
+	private function _dataQueryQueriesFromCategories(array $query_results, array $series=[]) : array {
+		$results = [];
+		
+		$x_labels = [];
+		
+		if($query_results['_']['format_params']['xaxis_key'] ?? null)
+			$x_labels = array_flip(array_slice($query_results['data'][0], 1));
+		
+		$series_keys = array_column(array_slice($query_results['data'], 1), '0');
+		
+		foreach($series_keys as $series_key) {
+			$results[$series_key . '__click'] = array_fill_keys($x_labels, '');
+		}
+		
+		foreach($query_results['_']['series'] ?? [] as $x_label => $y_series) {
+			foreach($y_series as $y_series_k => $y_series_v) {
+				if (!DevblocksPlatform::strStartsWith($y_series_k, '_')) {
+					if(
+						array_key_exists($x_label, $x_labels)
+						&& array_key_exists('query', $y_series_v)
+					) {
+						$results[$y_series_k . '__click'][$x_labels[$x_label]] = $query_results['_']['context'] . ' ' . $y_series_v['query'];
+					}
+				}
+			}
+		}
+		
+		return $results;
+	}
+	
+	private function _dataQueryQueriesFromPie(array $query_results, array $series=[]) : array {
+		$results = [];
+		
+		if(
+			!array_key_exists('series', $query_results['_'])
+			|| !array_key_exists('context', $query_results['_'])
+		)
+			return [];
+		
+		foreach(array_keys($series) as $series_key) {
+			if(
+				array_key_exists($series_key, $query_results['_']['series'])
+				&& array_key_exists('query', $query_results['_']['series'][$series_key])
+			) {
+				$results[$series_key . '__click'] = $query_results['_']['context'] . ' ' . $query_results['_']['series'][$series_key]['query'];
+			}
+		}
+		
+		return $results;
+	}
+	
+	private function _dataQueryQueriesFromTimeseries(array $query_results, array $series=[]) : array {
+		$results = [];
+
+		$x_labels = [];
+		
+		if($query_results['_']['format_params']['xaxis_key'] ?? null) {
+			$xaxis_key = array_key_first($query_results['data']);
+			$x_labels = array_flip($query_results['data'][$xaxis_key]);
+		}
+
+		$series_keys = array_keys(array_slice($query_results['data'], 1, null, true));
+		
+		foreach($series_keys as $series_key) {
+			$results[$series_key . '__click'] = array_fill_keys($x_labels, '');
+		}
+		
+		foreach($query_results['_']['series'] ?? [] as $x_label => $y_series) {
+			foreach($y_series as $y_series_k => $y_series_v) {
+				if(array_key_exists('query', $y_series_v)) {
+					if(array_key_exists($y_series_k, $x_labels)) {
+						$results[$x_label . '__click'][$x_labels[$y_series_k]] = $query_results['_']['context'] . ' ' . $y_series_v['query'];
+					}
+				}
+			}
+		}
+		
+		return $results;
 	}
 };

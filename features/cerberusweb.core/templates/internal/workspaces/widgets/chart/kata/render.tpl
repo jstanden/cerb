@@ -31,6 +31,40 @@ $(function() {
 				}
 			}
 			
+			// Click events
+			chart_json.data.onclick = function(d, el) {
+				if(!chart_json.data.hasOwnProperty('click_search') || 'object' != typeof chart_json.data['click_search'])
+					return;
+				
+				if(!chart_json.data['click_search'].hasOwnProperty(d.id + '__click'))
+					return;
+				
+				let queries = chart_json.data['click_search'][d.id + '__click'];
+				let query = null;
+				
+				if(!queries)
+					return;
+				
+				if(1 === queries.length) {
+					query = queries[0];
+				} else {
+					query = queries[d.index];
+				}
+				
+				if(!query)
+					return;
+				
+				$('<div/>')
+					.attr('data-context', query.substring(0, query.indexOf(' ')))
+					.attr('data-query', query.substring(query.indexOf(' ')+1))
+					.cerbSearchTrigger()
+					.on('cerb-search-opened', function(e) {
+						$(this).remove();
+					})
+					.click()
+				;
+			};
+			
             c3.generate(chart_json);
             
 		} catch(e) {
