@@ -90,8 +90,6 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 			
 			$datasets = $this->_loadDatasets($datasets_kata, $chart_dict, $error);
 			
-			$chart_dict->set('datasets', $datasets);
-			
 			$chart = $kata->formatTree($chart_kata, $chart_dict, $error);
 			
 			$chart_json = [
@@ -242,7 +240,9 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 							implode(', ', array_keys($datasets[$dataset_key]))
 							));
 						
-						$series = array_values(array_merge($x_labels, array_combine($datasets[$dataset_key][$xkey], $values)));
+						if(count($datasets[$dataset_key][$xkey]) == count($values))
+							$series = array_values(array_merge($x_labels, array_combine($datasets[$dataset_key][$xkey], $values)));
+						
 					} else {
 						if(is_array($values)) {
 							$series = $values;
@@ -260,8 +260,6 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 					} else {
 						$series_name = $key;
 					}
-					
-					$series_key = $dataset_key . '_' . $key;
 					
 					if(!array_key_exists($series_key, $chart_json['data']['names'] ?? []))
 						$chart_json['data']['names'][$series_key] = $series_name;
