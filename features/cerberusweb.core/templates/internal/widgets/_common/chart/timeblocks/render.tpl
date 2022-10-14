@@ -8,19 +8,19 @@
             width = 675,
             cellSize = 22
         } = { }) {
-            var X = d3.map(data, x);
-            var Y = d3.map(data, y);
-            var I = d3.range(X.length);
+            var X = d3v7.map(data, x);
+            var Y = d3v7.map(data, y);
+            var I = d3v7.range(X.length);
 
-            var x_extents = d3.extent(X);
+            var x_extents = d3v7.extent(X);
 
             var firstDay = new Date(x_extents[0]);
             firstDay.setHours(0,0,0,0);
 
-            var formatYearMonthDay = d3.timeFormat("%Y-%m-%d");
-            var formatYAxis = d3.timeFormat("%a, %b %d");
-            var formatYAxisWithYear = d3.timeFormat("%Y %a, %b %d");
-            var formatTitle = d3.timeFormat("%a, %b %d %Y %H:00");
+            var formatYearMonthDay = d3v7.timeFormat("%Y-%m-%d");
+            var formatYAxis = d3v7.timeFormat("%a, %b %d");
+            var formatYAxisWithYear = d3v7.timeFormat("%Y %a, %b %d");
+            var formatTitle = d3v7.timeFormat("%a, %b %d %Y %H:00");
 
             var timeHour = function(i) {
                 return i.getHours();
@@ -32,7 +32,7 @@
                 return Math.floor((d.getTime() - firstDay.getTime())/86400000);
             }
 
-            var fill_extents = d3.extent(Y);
+            var fill_extents = d3v7.extent(Y);
 
             // If we have no data, we need a scale where 0 isn't filled
             if('0,0' === fill_extents.join())
@@ -46,24 +46,24 @@
                 fill_color_from = getComputedStyle(document.documentElement).getPropertyValue('--cerb-color-background');
             }
 
-            var colorFill = d3.scaleQuantize()
+            var colorFill = d3v7.scaleQuantize()
                 .domain(fill_extents)
-                .range(d3.quantize(d3.interpolateRgb(fill_color_from,fill_color_to), fill_classes))
+                .range(d3v7.quantize(d3v7.interpolateRgb(fill_color_from,fill_color_to), fill_classes))
             ;
 
             var title = function(i) {
                 return formatTitle(X[i]) + "\n" + Y[i] + " minutes available";
             }
 
-            var days = d3.groups(I, function(i) { return formatYearMonthDay(X[i]); });
-            var hours = d3.groups(I, function(i) { return X[i].getHours(); });
+            var days = d3v7.groups(I, function(i) { return formatYearMonthDay(X[i]); });
+            var hours = d3v7.groups(I, function(i) { return X[i].getHours(); });
 
             // Sort the hours
             hours.sort(function(a,b) { return a[0]-b[0]; });
 
             var height = 60 + days.length * cellSize;
 
-            var svg = d3.create("svg")
+            var svg = d3v7.create("svg")
                 .attr("width", width)
                 .attr("height", height)
                 .attr("viewBox", [0, 0, width, height])
@@ -128,7 +128,7 @@
                 .attr("y", function(i) { return daySequence(X[i]) * cellSize; })
                 .attr("fill", function(i) { return colorFill(Y[i]); })
                 .attr("stroke", function(i) {
-                    return d3.rgb(colorFill(Y[i])).darker(0.5);
+                    return d3v7.rgb(colorFill(Y[i])).darker(0.5);
                 })
                 .attr("stroke-width", 0.5)
             ;
@@ -142,7 +142,7 @@
 
         Devblocks.loadResources({
             'js': [
-                '/resource/devblocks.core/js/d3/d3.v7.min.js'
+                '/resource/devblocks.core/js/d3/d3.v7.min.js?v={$smarty.const.APP_BUILD}'
             ]
         }, function () {
             try {
