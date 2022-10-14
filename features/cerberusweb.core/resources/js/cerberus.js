@@ -344,6 +344,7 @@ var cerbAutocompleteSuggestions = {
 		
 		'legend:': [
 			'show@bool: yes',
+			'sorted@bool: yes',
 		],
 		'legend:show:': [
 			'yes',

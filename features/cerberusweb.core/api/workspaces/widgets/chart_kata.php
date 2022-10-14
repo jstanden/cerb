@@ -290,9 +290,11 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 			}
 			
 			// Sort legend by dataset names
-			usort($chart_json['data']['columns'], function($a, $b) use ($chart_json) {
-				return ($chart_json['data']['names'][$a[0]] ?? '') <=> ($chart_json['data']['names'][$b[0]] ?? '');
-			});			
+			if($chart['legend']['sorted'] ?? false) {
+				usort($chart_json['data']['columns'], function($a, $b) use ($chart_json) {
+					return ($chart_json['data']['names'][$a[0]] ?? '') <=> ($chart_json['data']['names'][$b[0]] ?? '');
+				});			
+			}
 			
 			foreach($chart['data']['stacks'] ?? [] as $dataset_keys) {
 				if(!is_array($dataset_keys))
