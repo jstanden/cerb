@@ -250,6 +250,46 @@ class _DevblocksFormatters {
 }
 
 class _DevblocksValidators {
+	function colorHex() : callable {
+		return function($value, &$error=null) : bool {
+			$error = null;
+			
+			if(!is_string($value)) {
+				$error = sprintf("must be a HEX color code, e.g. #ff8800 (%s)", json_encode($value));
+				return false;
+			}
+			
+			if(!preg_match('/^#([0-9a-f]){6}$/i', $value)) {
+				$error = sprintf("must be a HEX color code, e.g. #ff8800 (invalid: %s)", $value);
+				return false;
+			}
+			
+			return true;
+		};
+	}
+	
+	function colorsHex() : callable {
+		return function($value, &$error=null) : bool {
+			$error = null;
+			
+			if(!is_array($value)) {
+				$error = sprintf("must be an array of HEX color codes, e.g. #ff8800 (%s)", $value);
+				return false;
+			}
+			
+			$validateColorHex = self::colorHex();
+			
+			foreach($value as $hex) {
+				if(!$validateColorHex($hex, $error)) {
+					$error = sprintf("must be an array of HEX color codes, e.g. #ff8800 (invalid: %s)", $hex);
+					return false;
+				}
+			}
+			
+			return true;
+		};
+	}
+	
 	function context($allow_empty=false) {
 		return function($value, &$error=null) use ($allow_empty) {
 			if(empty($value) & $allow_empty)
