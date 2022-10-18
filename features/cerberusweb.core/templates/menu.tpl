@@ -58,8 +58,19 @@ $(function() {
 				
 				if(null == href)
 					return;
-
-				window.location.href = href;
+				
+				if(event.metaKey) {
+					var a = document.createElement('a');
+					a.style.display = 'none';
+					document.body.appendChild(a);
+					a.href = href;
+					a.target = '_blank';
+					a.click();
+					a.remove();
+					
+				} else {
+					window.location.href = href;
+				}
 			}
 		})
 		.css('position', 'absolute')
