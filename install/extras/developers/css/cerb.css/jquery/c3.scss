@@ -30,7 +30,8 @@
   
   .c3-chart-arc {
     path {
-      stroke: var(--cerb-color-background);
+      //stroke: var(--cerb-color-background);
+      stroke-width: 0;
     }
 
     rect {

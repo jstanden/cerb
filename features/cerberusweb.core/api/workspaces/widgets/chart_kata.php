@@ -53,6 +53,7 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 		$tpl = DevblocksPlatform::services()->template();
 		$kata = DevblocksPlatform::services()->kata();
 		$active_worker = CerberusApplication::getActiveWorker();
+		$validation = DevblocksPlatform::services()->validation();
 		
 		$datasets_kata = DevblocksPlatform::importGPC($widget->params['datasets_kata'] ?? '', 'string');
 		$chart_kata = DevblocksPlatform::importGPC($widget->params['chart_kata'] ?? '', 'string');
@@ -70,7 +71,9 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 			'spline',
 			'step',
 		];
-
+		
+		$is_dark_mode = DAO_WorkerPref::get($active_worker->id,'dark_mode',0);
+		
 		try {
 			$error = null;
 			
@@ -92,6 +95,25 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 			
 			$chart = $kata->formatTree($chart_kata, $chart_dict, $error);
 			
+			// Dark and light defaults
+			
+			if($is_dark_mode) {
+				$default_color_pattern =
+					$chart['color']['patterns']['default_dark']
+					?? $chart['color']['patterns']['default']
+					?? [
+						'#6e40aa', '#b83cb0', '#f6478d', '#ff6956', '#f59f30', '#c4d93e', '#83f557', '#38f17a', '#19d3b5', '#29a0dd', '#5069d9', '#6e40aa'
+					]
+				;
+				
+			} else {
+				$default_color_pattern = $chart['color']['patterns']['default']
+					?? [
+						"#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"
+					]
+				;
+			}
+			
 			$chart_json = [
 				'size' => [
 					'height' => 500,
@@ -100,9 +122,13 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 					'type' => 'line',
 					'columns' => [],
 					'names' => [],
+					'colors' => [],
 					'types' => [],
 					'axes' => [],
 					'groups' => [],
+				],
+				'color' => [
+					'pattern' => $default_color_pattern,
 				],
 				'legend' => [
 					'show' => true,
@@ -203,6 +229,8 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 			
 			$x_labels = array_fill_keys($x_labels, 0);
 			
+			$color_groups = [];
+			
 			foreach($chart['data']['series'] ?? [] as $dataset_key => $dataset_params) {
 				if(!array_key_exists($dataset_key, $datasets)) {
 					throw new Exception_DevblocksValidationError(sprintf(
@@ -224,6 +252,28 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 					));
 				
 				$series_count = count(array_filter(array_keys($datasets[$dataset_key] ?? []), fn($k) => $k != $xkey));
+				
+				$color_group = $chart['data']['series'][$dataset_key]['color_pattern'] ?? null;
+				$color_pattern = null;
+				
+				// Try dark mode first
+				if($is_dark_mode) {
+					if($color_pattern = $chart['color']['patterns'][$color_group . '_dark'] ?? null)
+						$color_group .= '_dark';
+				}
+				
+				// Or use the color pattern name
+				if(!$color_pattern)
+					$color_pattern = $chart['color']['patterns'][$color_group] ?? null;
+				
+				if($color_group && !$color_pattern)
+					throw new Exception_DevblocksValidationError(sprintf("Unknown `color:patterns:%s:`", $color_group));
+				
+				if($color_pattern && !$validation->validators()->colorsHex()($color_pattern, $error))
+					throw new Exception_DevblocksValidationError(sprintf("`color:patterns:%s:` %s", $color_group, $error));
+					
+				if($color_group && !array_key_exists($color_group, $color_groups))
+					$color_groups[$color_group] = [];
 				
 				foreach($datasets[$dataset_key] as $key => $values) {
 					$series = [];
@@ -261,7 +311,15 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 						$series_name = $key;
 					}
 					
-					if(!DevblocksPlatform::strEndsWith($key, '__click')) {
+					if(!DevblocksPlatform::strEndsWith($key,'__click')) {
+						if($color_group && !DevblocksPlatform::strEndsWith($key, '_x')) {
+							if(!array_key_exists($key, $color_groups[$color_group]))
+								$color_groups[$color_group][$key] = $color_pattern[count($color_groups[$color_group]) % count($color_pattern)];
+							
+							if(!array_key_exists($series_key, $chart_json['data']['colors'] ?? []))
+								$chart_json['data']['colors'][$series_key] = $color_groups[$color_group][$key];
+						}
+						
 						if(!array_key_exists($series_key, $chart_json['data']['names'] ?? []))
 							$chart_json['data']['names'][$series_key] = $series_name;
 						
