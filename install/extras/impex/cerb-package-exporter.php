@@ -52,8 +52,8 @@ namespace Cerb\Impex\Exporters {
 			*/
 		}
 		
-		function mapEmailSigIds($sig_id) {
-			return $sig_id;
+		function mapEmailSigIds($id) {
+			return $id;
 			
 			/*
 			$map = [
@@ -67,8 +67,8 @@ namespace Cerb\Impex\Exporters {
 			*/
 		}
 		
-		function mapEmailTemplateIds($tpl_id) {
-			return $tpl_id;
+		function mapEmailTemplateIds($id) {
+			return $id;
 			
 			/*
 			$map = [
@@ -741,7 +741,7 @@ SQL;
 			$db = $this->_getDatabase();
 			
 			$sql =  <<< SQL
-SELECT id, name, signature, signature_html, is_default, updated_at
+SELECT id, name, signature, signature_html, updated_at
 FROM email_signature
 WHERE 1
 ORDER BY id
@@ -754,7 +754,7 @@ SQL;
 			$bins = 0;
 			
 			if($stmt->execute()) {
-				$stmt->bind_result($sig_id, $sig_name, $sig_text, $sig_html, $sig_is_default, $sig_updated_at);
+				$stmt->bind_result($sig_id, $sig_name, $sig_text, $sig_html, $sig_updated_at);
 				
 				while($stmt->fetch()) {
 					if(0 == $count++ % 2000) {
@@ -773,7 +773,6 @@ SQL;
 						'name' => $sig_name,
 						'signature' => $sig_text,
 						'signature_html' => $sig_html,
-						'is_default' => $sig_is_default,
 						'updated_at' => $sig_updated_at,
 						'owner__context' => 'app',
 						'owner_id' => 0,
