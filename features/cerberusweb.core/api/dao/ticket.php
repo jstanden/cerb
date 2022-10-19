@@ -1797,7 +1797,8 @@ class DAO_Ticket extends Cerb_ORMHelper {
 
 		$values = [];
 		
-		if(is_array($requesters_add))
+		// Don't log if `disable_events` is enabled (bulk imports)
+		if($requesters_add && DevblocksPlatform::services()->event()->isEnabled())
 		foreach($requesters_add as $requester_id) {
 			$values[] = sprintf("(%d, %d)", $requester_id, $ticket_id);
 			
