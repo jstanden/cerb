@@ -12,7 +12,7 @@
 <table width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-bottom:10px;">
 	<tr>
 		<td width="1%" nowrap="nowrap" valign="top">
-			<img src="{$message->user_profile_image_url}" style="margin-right:5px;border-radius:5px;" width="48" height="48">
+			<img src="{$message->getProfileImageProxyUrl()}" style="margin-right:5px;border-radius:5px;" width="48" height="48">
 		</td>
 		<td width="99%" valign="top">
 			<div>

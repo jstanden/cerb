@@ -54,6 +54,8 @@
 
 	{* Column Data *}
 	
+	{$url_writer = DevblocksPlatform::services()->url()}
+	
 	{foreach from=$data item=result key=idx name=results}
 
 	{if $smarty.foreach.results.iteration % 2}
@@ -65,7 +67,7 @@
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
 			<td data-column="t_user_profile_image_url" rowspan="2" nowrap="nowrap" align="center" style="padding:5px 0px;">
-				<img src="{$result.t_user_profile_image_url}" style="margin-right:5px;border-radius:5px;" width="48" height="48">
+				<img src="{$url_writer->writeImageProxyUrl($result.t_user_profile_image_url)}" style="margin-right:5px;border-radius:5px;" width="48" height="48">
 				<input type="checkbox" name="row_id[]" value="{$result.t_id}" style="display:none;">
 			</td>
 			<td data-column="label" colspan="{$smarty.foreach.headers.total}" style="font-size:100%;padding:5px 0px;">
