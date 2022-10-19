@@ -1,5 +1,6 @@
 <?php
 
+use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\RequestOptions;
 
@@ -116,6 +117,13 @@ class Controller_Security extends DevblocksControllerExtension {
 			
 		} catch (ConnectException $e) {
 			DevblocksPlatform::dieWithHttpError(null, 408);
+			
+		} catch (ClientException $e) {
+			if($e->getResponse())
+				DevblocksPlatform::dieWithHttpError(null, $e->getResponse()->getStatusCode());
+			
+			error_log($e->getMessage());
+			DevblocksPlatform::dieWithHttpError(null, 500);
 			
 		} catch (Exception $e) {
 			error_log($e->getMessage());
