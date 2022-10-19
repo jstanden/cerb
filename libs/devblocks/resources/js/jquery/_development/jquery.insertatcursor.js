@@ -22,9 +22,6 @@ $.fn.extend({
 			newTxt += txt.substring(pos);
 			$this.val(newTxt);
 
-			// Trigger a resize (if used)
-			$this.trigger('autosize.resize');
-
 			$this.caret('pos', cursorPos);
 
 			$this.focus();

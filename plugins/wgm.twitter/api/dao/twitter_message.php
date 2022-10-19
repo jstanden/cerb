@@ -523,6 +523,13 @@ class Model_TwitterMessage {
 	public $created_date;
 	public $is_closed;
 	public $content;
+	
+	public function getAccount() {
+		if(!$this->connected_account_id)
+			return null;
+		
+		return DAO_ConnectedAccount::get($this->connected_account_id);
+	}
 };
 
 class View_TwitterMessage extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
