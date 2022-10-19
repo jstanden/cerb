@@ -102,7 +102,8 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 					$chart['color']['patterns']['default_dark']
 					?? $chart['color']['patterns']['default']
 					?? [
-						'#6e40aa', '#b83cb0', '#f6478d', '#ff6956', '#f59f30', '#c4d93e', '#83f557', '#38f17a', '#19d3b5', '#29a0dd', '#5069d9', '#6e40aa'
+						//'#6e40aa', '#b83cb0', '#f6478d', '#ff6956', '#f59f30', '#c4d93e', '#83f557', '#38f17a', '#19d3b5', '#29a0dd', '#5069d9', '#6e40aa'
+						"#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"
 					]
 				;
 				
