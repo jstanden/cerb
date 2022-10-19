@@ -1,8 +1,10 @@
 <?php
 class _DevblocksUrlManager {
 	private static $instance = null;
+	
+	private $_image_proxy_secret = null;
 		
-		private function __construct() {}
+	private function __construct() {}
 	
 	/**
 	 * @return _DevblocksUrlManager
@@ -253,6 +255,24 @@ class _DevblocksUrlManager {
 				$url .= '?' . $query;
 
 		return $url;
+	}
+	
+	public function writeImageProxyUrl($image_url) {
+		// Cache for reuse in the same request
+		if(null == $this->_image_proxy_secret)
+			$this->_image_proxy_secret = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::MAIL_HTML_IMAGE_SECRET, '');
+		
+		$new_url = $this->write('c=security&a=proxyImage');
+		
+		$new_url .= '?url=' . rawurlencode($image_url);
+		
+		if($this->_image_proxy_secret) {
+			$hash = hash_hmac('sha256', $image_url, $this->_image_proxy_secret, true);
+			$hash = DevblocksPlatform::services()->string()->base64UrlEncode($hash);
+			$new_url .= '&s=' . rawurlencode(substr($hash, 0, 10));
+		}
+		
+		return $new_url;
 	}
 };
 
