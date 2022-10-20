@@ -1240,6 +1240,7 @@ let twigAutocompleteSuggestions = {
 		{ value: "parse_csv", meta: "filter" },
 		{ value: "parse_emails", meta: "filter" },
 		{ value: "parse_url", meta: "filter" },
+		{ value: "parse_user_agent", meta: "filter" },
 		{ value: "permalink", meta: "filter" },
 		{ value: "quote", meta: "filter" },
 		{ value: "raw", meta: "filter" },

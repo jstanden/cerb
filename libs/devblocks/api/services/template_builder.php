@@ -184,6 +184,7 @@ class _DevblocksTemplateBuilder {
 				'md5',
 				'parse_csv',
 				'parse_emails',
+				'parse_user_agent',
 				'parse_url',
 				'permalink',
 				'quote',
@@ -1775,6 +1776,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			new \Twig\TwigFilter('parse_csv', [$this, 'filter_parse_csv']),
 			new \Twig\TwigFilter('parse_emails', [$this, 'filter_parse_emails']),
 			new \Twig\TwigFilter('parse_url', [$this, 'filter_parse_url']),
+			new \Twig\TwigFilter('parse_user_agent', [$this, 'filter_parse_user_agent']),
 			new \Twig\TwigFilter('permalink', [$this, 'filter_permalink']),
 			new \Twig\TwigFilter('quote', [$this, 'filter_quote']),
 			new \Twig\TwigFilter('regexp', [$this, 'filter_regexp']),
@@ -2110,6 +2112,22 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			return [];
 		
 		return $url_parts;
+	}
+	
+	function filter_parse_user_agent($string) {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
+		if(!is_string($string))
+			return [];
+		
+		try {
+			if(false != ($user_agent = \donatj\UserAgent\parse_user_agent($string))) {
+				return $user_agent;
+			}
+		} catch(Exception $e) {}
+		
+		return [];
 	}
 	
 	function filter_permalink($string, $spaces_as='-') {
