@@ -44,6 +44,11 @@
 			formData,
 			function(err, res) {
 				if(err) {
+					if(res && 413 === res.status) {
+						errorFile($item, file, 'The uploaded file is too large');
+						return;
+					}
+					
 					errorFile($item, file, 'An unexpected error occurred');
 					return;
 				}
