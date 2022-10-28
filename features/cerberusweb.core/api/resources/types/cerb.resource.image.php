@@ -17,6 +17,22 @@ class ResourceType_Image extends Extension_ResourceType {
 			
 			fseek($fp, 0);
 			
+			$boms = [
+				'UTF-8' => "\xef\xbb\xbf",
+				'UTF-16LE' => "\xff\xfe",
+				'UTF-16BE' => "\xfe\xff",
+				'UTF-32LE' => "\xff\xfe\x00\x00",
+				'UTF-32BE' => "\x00\x00\xfe\xff",
+			];
+			
+			// Handle BOM on XML files
+			if(DevblocksPlatform::strStartsWith($bytes, $boms)) {
+				$xml = new DOMDocument('1.0');
+				$xml->loadXML($bytes);
+				$xml->encoding = 'UTF-8';
+				$bytes = $xml->saveXML();
+			}
+			
 			if(DevblocksPlatform::strStartsWith($bytes, ['<svg ','<?xml'])) {
 				$sanitizer = new Sanitizer();
 				$sanitizer->removeRemoteReferences(true);
