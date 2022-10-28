@@ -531,7 +531,7 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget implements ICe
 						return null;
 					}
 					
-					if(!($automation = DAO_Automation::getByUri($uri))) {
+					if(!($automation = DAO_Automation::getByUri($uri, AutomationTrigger_UiChartData::ID))) {
 						$error = sprintf("Failed to load automation `%s`", $uri);
 						return null;
 					}
