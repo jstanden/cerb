@@ -1718,9 +1718,11 @@ class Context_Resource extends Extension_DevblocksContext implements IDevblocksC
 			if($model) {
 				if(!CerberusContexts::isWriteableByActor($context, $model, $active_worker))
 					DevblocksPlatform::dieWithHttpError(null, 403);
-				
-				$tpl->assign('model', $model);
+			} else {
+				$model = new Model_Resource();
 			}
+			
+			$tpl->assign('model', $model);
 			
 			// Custom fields
 			$custom_fields = DAO_CustomField::getByContext($context, false);

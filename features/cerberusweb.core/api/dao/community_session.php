@@ -87,7 +87,11 @@ class DAO_CommunitySession extends Cerb_ORMHelper {
 			$session->nonce = sha1($session->csrf_token);
 			
 			if(!empty($row['properties']))
-				@$session->setProperties(unserialize($row['properties']));
+				try {
+					$session->setProperties(unserialize($row['properties']));
+				} catch (Throwable) {
+					$session->setProperties([]);
+				}
 		}
 		
 		return $session;

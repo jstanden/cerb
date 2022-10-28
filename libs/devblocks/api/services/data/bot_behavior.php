@@ -35,8 +35,10 @@ class _DevblocksDataProviderBotBehavior extends _DevblocksDataProvider {
 	function getData($query, $chart_fields, &$error=null, array $options=[]) {
 		$behavior_alias = $options['behavior_alias'] ?? null;
 		
-		if(false == ($data_behavior = Event_DataQueryDatasource::getByAlias($behavior_alias)))
-			throw new Exception_DevblocksValidationError("A bot behavior isn't configured.");
+		if(false == ($data_behavior = Event_DataQueryDatasource::getByAlias($behavior_alias))) {
+			$error = "A bot behavior isn't configured.";
+			return false;
+		}
 		
 		$behavior_vars = [];
 		$query_format = null;

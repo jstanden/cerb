@@ -126,12 +126,10 @@ class WorkspaceWidget_ChartPie extends Extension_WorkspaceWidget implements ICer
 		switch(DevblocksPlatform::strLower($format)) {
 			case 'csv':
 				return $this->_exportDataAsCsv($widget);
-				break;
 				
 			default:
 			case 'json':
 				return $this->_exportDataAsJson($widget);
-				break;
 		}
 		
 		return false;
