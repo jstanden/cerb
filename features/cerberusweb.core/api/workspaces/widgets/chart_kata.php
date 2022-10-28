@@ -1,5 +1,5 @@
 <?php
-class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
+class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget implements ICerbWorkspaceWidget_ExportData {
 	const ID = 'cerb.workspace.widget.chart.kata';
 	
 	function renderConfig(Model_WorkspaceWidget $widget) {
@@ -51,6 +51,19 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 	
 	function render(Model_WorkspaceWidget $widget) {
 		$tpl = DevblocksPlatform::services()->template();
+		
+		if(!$chart_json = $this->_buildChartJson($widget, $error)) {
+			echo DevblocksPlatform::strEscapeHtml($error);
+			return;
+		}
+		
+		$tpl->assign('chart_json', json_encode($chart_json));
+		
+		$tpl->assign('widget', $widget);
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/chart/kata/render.tpl');
+	}
+	
+	private function _buildChartJson(Model_WorkspaceWidget $widget, &$error=null) {
 		$kata = DevblocksPlatform::services()->kata();
 		$active_worker = CerberusApplication::getActiveWorker();
 		$validation = DevblocksPlatform::services()->validation();
@@ -198,7 +211,6 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 			if($x_labels) {
 				$x_labels = array_unique($x_labels);
 				
-				// [TODO] Lerp
 				if('timeseries' == ($chart['axis']['x']['type'] ?? null)) {
 					sort($x_labels);
 					
@@ -272,7 +284,7 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 				
 				if($color_pattern && !$validation->validators()->colorsHex()($color_pattern, $error))
 					throw new Exception_DevblocksValidationError(sprintf("`color:patterns:%s:` %s", $color_group, $error));
-					
+				
 				if($color_group && !array_key_exists($color_group, $color_groups))
 					$color_groups[$color_group] = [];
 				
@@ -288,7 +300,7 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 							throw new Exception_DevblocksValidationError(sprintf('`data:series:%s:x_key:` (%s) must be one of: %s',
 								$dataset_key,
 								$xkey,
-							implode(', ', array_keys($datasets[$dataset_key]))
+								implode(', ', array_keys($datasets[$dataset_key]))
 							));
 						
 						if(count($datasets[$dataset_key][$xkey]) == count($values))
@@ -345,7 +357,6 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 						if(DevblocksPlatform::strEndsWith($k, '_x'))
 							continue;
 						
-						// [TODO] Right now this forces the suffix
 						$chart_json['data']['xs'][$dataset_key . '__' . $k] = $dataset_key . '__' . $k . '_x';
 					}
 					
@@ -358,7 +369,7 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 			if($chart['legend']['sorted'] ?? false) {
 				usort($chart_json['data']['columns'], function($a, $b) use ($chart_json) {
 					return ($chart_json['data']['names'][$a[0]] ?? '') <=> ($chart_json['data']['names'][$b[0]] ?? '');
-				});			
+				});
 			}
 			
 			foreach($chart['data']['stacks'] ?? [] as $dataset_keys) {
@@ -388,23 +399,23 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 			if(array_key_exists('tooltip', $chart)) {
 				if(array_key_exists('show', $chart['tooltip']))
 					$chart_json['tooltip']['show'] = boolval($chart['tooltip']['show']);
-					
+				
 				if(array_key_exists('grouped', $chart['tooltip']))
 					$chart_json['tooltip']['grouped'] = boolval($chart['tooltip']['grouped']);
 			}
 			
-			$tpl->assign('chart_json', json_encode($chart_json));
-			$tpl->assign('widget', $widget);
-			$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/chart/kata/render.tpl');
+			return $chart_json;
 			
 		} catch (Exception_DevblocksValidationError $e) {
-			echo sprintf("ERROR: %s",
-				DevblocksPlatform::strEscapeHtml($e->getMessage())
+			$error = sprintf("ERROR: %s",
+				$e->getMessage()
 			);
+			return false;
 			
 		} catch (Throwable $e) {
-			echo "An unexpected configuration error occurred.";
 			DevblocksPlatform::logError($e->getMessage());
+			$error = "An unexpected configuration error occurred.";
+			return false;
 		}
 	}
 	
@@ -731,5 +742,59 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 		}
 		
 		return $results;
+	}
+	
+	// Export
+	
+	function exportData(Model_WorkspaceWidget $widget, $format=null) {
+		switch(DevblocksPlatform::strLower($format)) {
+			case 'csv':
+				return $this->_exportDataAsCsv($widget);
+			
+			default:
+			case 'json':
+				return $this->_exportDataAsJson($widget);
+		}
+	}
+	
+	private function _exportDataAsCsv(Model_WorkspaceWidget $widget) {
+		if(!($chart_json = $this->_buildChartJson($widget, $error)))
+			return null;
+		
+		$fp = fopen("php://temp", 'r+');
+		
+		foreach(($chart_json['data']['columns'] ?? []) as $data) {
+			fputcsv($fp, $data);
+		}
+		
+		rewind($fp);
+		
+		$output = "";
+		
+		while(!feof($fp)) {
+			$output .= fgets($fp);
+		}
+		
+		fclose($fp);
+		
+		return $output;
+	}
+	
+	private function _exportDataAsJson(Model_WorkspaceWidget $widget) {
+		$error = null;
+		
+		if(!($chart_json = $this->_buildChartJson($widget, $error)))
+			return null;
+		
+		$results = array(
+			'widget' => array(
+				'label' => $widget->label,
+				'type' => $widget->extension_id,
+				'version' => 'Cerb ' . APP_VERSION,
+				'results' => $chart_json['data']['columns'] ?? [],
+			),
+		);
+		
+		return DevblocksPlatform::strFormatJson($results);
 	}
 };
