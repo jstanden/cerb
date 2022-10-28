@@ -552,7 +552,15 @@ var cerbAutocompleteSuggestions = {
 				'caption': 'query_params:',
 				'snippet': "query_params:\n  ${1:key}: ${2:value}"
 			},
-			'cache_secs: 300'
+			'cache_secs: 300',
+			{
+				'caption': 'key_map:',
+				'snippet': "key_map:\n  ${1:key}: ${2:newKey}"
+			},
+			{
+				'caption': 'key_map@csv:',
+				'snippet': "key_map@csv: ${1:oldKey1}, ${2:newKey1}, oldKey2, newKey2"
+			},
 		],
 		
 		'manual:': [

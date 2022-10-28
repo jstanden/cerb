@@ -585,18 +585,34 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 							break;
 					}
 					
+					$key_map = DevblocksPlatform::importVar($data_params['key_map'] ?? [], 'array', []);
+					
+					if(DevblocksPlatform::arrayIsIndexed($key_map) && 0 == count($key_map) % 2) {
+						$key_map = array_combine(
+							array_filter($key_map, fn($v,$k) => (0 == $k % 2), ARRAY_FILTER_USE_BOTH),
+							array_filter($key_map, fn($v,$k) => (0 != $k % 2), ARRAY_FILTER_USE_BOTH),
+						);
+					}
+					
+					if($key_map) {
+						$datasets[$dataset_name] = array_combine(
+							array_map(fn($k) => $key_map[$k] ?? $k, array_keys($datasets[$dataset_name])),
+							array_values($datasets[$dataset_name])
+						);
+					}
+					
 					if('categories' == $query_format) {
-						if($results = $this->_dataQueryQueriesFromCategories($query_results, $datasets[$dataset_name])) {
+						if($results = $this->_dataQueryQueriesFromCategories($query_results, $datasets[$dataset_name], $key_map)) {
 							foreach($results as $k => $v)
 								$datasets[$dataset_name][$k] = $v;
 						}
 					} else if('pie' == $query_format) {
-						if($results = $this->_dataQueryQueriesFromPie($query_results, $datasets[$dataset_name])) {
+						if($results = $this->_dataQueryQueriesFromPie($query_results, $datasets[$dataset_name], $key_map)) {
 							foreach($results as $k => $v)
 								$datasets[$dataset_name][$k] = $v;
 						}
 					} else if('timeseries' == $query_format) {
-						if($results = $this->_dataQueryQueriesFromTimeseries($query_results, $datasets[$dataset_name])) {
+						if($results = $this->_dataQueryQueriesFromTimeseries($query_results, $datasets[$dataset_name], $key_map)) {
 							foreach($results as $k => $v)
 								$datasets[$dataset_name][$k] = $v;
 						}
@@ -619,7 +635,7 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 		return $datasets;
 	}
 	
-	private function _dataQueryQueriesFromCategories(array $query_results, array $series=[]) : array {
+	private function _dataQueryQueriesFromCategories(array $query_results, array $series=[], array $key_map=[]) : array {
 		$results = [];
 		
 		$x_labels = [];
@@ -630,11 +646,17 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 		$series_keys = array_column(array_slice($query_results['data'], 1), '0');
 		
 		foreach($series_keys as $series_key) {
+			if($key_map && array_key_exists($series_key, $key_map))
+				$series_key = $key_map[$series_key];
+			
 			$results[$series_key . '__click'] = array_fill_keys($x_labels, '');
 		}
 		
 		foreach($query_results['_']['series'] ?? [] as $x_label => $y_series) {
 			foreach($y_series as $y_series_k => $y_series_v) {
+				if($key_map && array_key_exists($y_series_k, $key_map))
+					$y_series_k = $key_map[$y_series_k];
+				
 				if (!DevblocksPlatform::strStartsWith($y_series_k, '_')) {
 					if(
 						array_key_exists($x_label, $x_labels)
@@ -649,7 +671,7 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 		return $results;
 	}
 	
-	private function _dataQueryQueriesFromPie(array $query_results, array $series=[]) : array {
+	private function _dataQueryQueriesFromPie(array $query_results, array $series=[], array $key_map=[]) : array {
 		$results = [];
 		
 		if(
@@ -659,6 +681,9 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 			return [];
 		
 		foreach(array_keys($series) as $series_key) {
+			if($key_map && array_key_exists($series_key, $key_map))
+				$series_key = $key_map[$series_key];
+			
 			if(
 				array_key_exists($series_key, $query_results['_']['series'])
 				&& array_key_exists('query', $query_results['_']['series'][$series_key])
@@ -670,7 +695,7 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 		return $results;
 	}
 	
-	private function _dataQueryQueriesFromTimeseries(array $query_results, array $series=[]) : array {
+	private function _dataQueryQueriesFromTimeseries(array $query_results, array $series=[], array $key_map=[]) : array {
 		$results = [];
 
 		$x_labels = [];
@@ -683,11 +708,20 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget {
 		$series_keys = array_keys(array_slice($query_results['data'], 1, null, true));
 		
 		foreach($series_keys as $series_key) {
+			if($key_map && array_key_exists($series_key, $key_map))
+				$series_key = $key_map[$series_key];
+			
 			$results[$series_key . '__click'] = array_fill_keys($x_labels, '');
 		}
 		
 		foreach($query_results['_']['series'] ?? [] as $x_label => $y_series) {
+			if($key_map && array_key_exists($x_label, $key_map))
+				$x_label = $key_map[$x_label];
+			
 			foreach($y_series as $y_series_k => $y_series_v) {
+				if($key_map && array_key_exists($y_series_k, $key_map))
+					$y_series_k = $key_map[$y_series_k];
+				
 				if(array_key_exists('query', $y_series_v)) {
 					if(array_key_exists($y_series_k, $x_labels)) {
 						$results[$x_label . '__click'][$x_labels[$y_series_k]] = $query_results['_']['context'] . ' ' . $y_series_v['query'];
