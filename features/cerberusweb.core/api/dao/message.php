@@ -860,8 +860,12 @@ class SearchFields_Message extends DevblocksSearchFields {
 				
 			case 'group':
 			case 'ticket.group':
+			case 'ticket.group.id':
+			case 'ticket.group.name':
 				$search_key = $key;
 				$group_field = $search_fields[SearchFields_Message::TICKET_GROUP_ID];
+				
+				$join_as = uniqid('t_');
 				
 				return [
 					'key_query' => $key,
@@ -870,21 +874,28 @@ class SearchFields_Message extends DevblocksSearchFields {
 					'type_options' => [
 						'context' => CerberusContexts::CONTEXT_GROUP,
 					],
-					'sql_select' => sprintf("(SELECT group_id FROM ticket WHERE id = m.ticket_id)",
-						Cerb_ORMHelper::escape($group_field->db_table),
+					'sql_select' => sprintf("%s.%s",
+						Cerb_ORMHelper::escape($join_as),
 						Cerb_ORMHelper::escape($group_field->db_column)
+					),
+					'sql_join' => sprintf("INNER JOIN ticket AS %s ON (%s.id=m.ticket_id)",
+						Cerb_ORMHelper::escape($join_as),
+						Cerb_ORMHelper::escape($join_as)
 					),
 					'get_value_as_filter_callback' => function($value, &$filter) {
 						$filter = 'ticket:(group:(id:%s))';
 						return $value;
 					}
 				];
-				break;
 				
 			case 'bucket':
 			case 'ticket.bucket':
+			case 'ticket.bucket.id':
+			case 'ticket.bucket.name':
 				$search_key = $key;
 				$bucket_field = $search_fields[SearchFields_Message::TICKET_BUCKET_ID];
+				
+				$join_as = uniqid('t_');
 				
 				return [
 					'key_query' => $key,
@@ -893,9 +904,13 @@ class SearchFields_Message extends DevblocksSearchFields {
 					'type_options' => [
 						'context' => CerberusContexts::CONTEXT_BUCKET,
 					],
-					'sql_select' => sprintf("(SELECT bucket_id FROM ticket WHERE id = m.ticket_id)",
-						Cerb_ORMHelper::escape($bucket_field->db_table),
+					'sql_select' => sprintf("%s.%s",
+						Cerb_ORMHelper::escape($join_as),
 						Cerb_ORMHelper::escape($bucket_field->db_column)
+					),
+					'sql_join' => sprintf("INNER JOIN ticket AS %s ON (%s.id=m.ticket_id)",
+						Cerb_ORMHelper::escape($join_as),
+						Cerb_ORMHelper::escape($join_as)
 					),
 					'get_value_as_filter_callback' => function($value, &$filter) {
 						$filter = 'ticket:(bucket:(id:%s))';
@@ -941,13 +956,14 @@ class SearchFields_Message extends DevblocksSearchFields {
 				
 			case 'group':
 			case 'ticket.group':
+			case 'ticket.group.name':
 				$models = DAO_Group::getIds($values);
 				$label_map = array_column($models, 'name', 'id');
 				$label_map[0] = sprintf('(%s)', DevblocksPlatform::translate('common.none'));
 				return $label_map;
 	
 			case 'bucket':
-			case 'ticket.bucket':
+			case 'ticket.bucket.name':
 				$models = DAO_Bucket::getIds($values);
 				$label_map = array_column($models, 'name', 'id');
 				$label_map[0] = sprintf('(%s)', DevblocksPlatform::translate('common.none'));
@@ -2140,6 +2156,38 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 					'options' => array('param_key' => SearchFields_Message::VIRTUAL_TICKET_SEARCH),
 					'examples' => [
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_TICKET, 'q' => ''],
+					]
+				),
+			'ticket.bucket.id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_Message::TICKET_BUCKET_ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_BUCKET, 'q' => ''],
+					]
+				),
+			'ticket.bucket.name' => 
+				array(
+					'type' => 'hidden',
+					'options' => array('param_key' => SearchFields_Message::TICKET_BUCKET_ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_BUCKET, 'q' => ''],
+					]
+				),
+			'ticket.group.id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_Message::TICKET_GROUP_ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_GROUP, 'q' => ''],
+					]
+				),
+			'ticket.group.name' => 
+				array(
+					'type' => 'hidden',
+					'options' => array('param_key' => SearchFields_Message::TICKET_BUCKET_ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_GROUP, 'q' => ''],
 					]
 				),
 			'ticket.id' => 
