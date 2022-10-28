@@ -1055,6 +1055,10 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				
 				foreach($chart_model['by'] as $column_index => $column) {
 					$key_prefix = str_replace('.', '_', $column['key_query']);
+					
+					if($column['timestamp_step'] ?? null)
+						$key_prefix .= '_' . $column['timestamp_step'];
+					
 					@$type = $column['type'] ?: DevblocksSearchCriteria::TYPE_TEXT;
 					$value = null;
 					
@@ -1138,7 +1142,9 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 								$value = $parents[$column_index]['value'];
 								
 								$row[$key_prefix] = $value;
-								$row[$key_prefix . '_label'] = $name;
+								
+								if(!($column['timestamp_step'] ?? null))
+									$row[$key_prefix . '_label'] = $name;
 								
 							} else {
 								$row[$key_prefix] = $value;
