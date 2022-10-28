@@ -2096,6 +2096,9 @@ abstract class C4_AbstractView {
 			
 			// Type-specific suggestions
 			switch($query_field['type']) {
+				case 'hidden':
+					continue 2;
+					
 				case 'bool':
 					$suggestions[$suggestion_key] = [
 						'yes',
