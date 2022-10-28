@@ -5,9 +5,11 @@
         <div class="cerb-code-editor-toolbar">
             <button type="button" data-cerb-toolbar-button-refresh title="{'common.refresh'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-refresh"></span></button>
         </div>
-        <table class="worklistBody" style="width:100%;" cellpadding="0" cellspacing="0">
-            {include file="devblocks:cerberusweb.core::internal/record_changesets/changesets.tpl" changesets=$changesets}
-        </table>
+        <div style="max-height:35em;overflow-y:auto;">
+            <table class="worklistBody" style="width:100%;" cellpadding="0" cellspacing="0">
+                {include file="devblocks:cerberusweb.core::internal/record_changesets/changesets.tpl" changesets=$changesets}
+            </table>
+        </div>
     </div>
     <div style="flex:2 2 100%;">
         <div class="cerb-code-editor-toolbar">
