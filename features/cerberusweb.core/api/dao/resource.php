@@ -631,6 +631,10 @@ class Model_Resource {
 		
 		return $params;
 	}
+	
+	public function getFileContents(&$fp=null) {
+		return Storage_Resource::get($this, $fp);
+	}
 };
 
 class Model_Resource_ContentData {

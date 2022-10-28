@@ -136,6 +136,53 @@ class FileReadAction extends AbstractAction {
 				if($output)
 					$dict->set($output, $results);
 				
+			} else if($uri_parts['context'] == \CerberusContexts::CONTEXT_RESOURCE) {
+				if(!($resource = \DAO_Resource::getByName($uri_parts['context_id']))) {
+					$error = sprintf("Failed to load the resource (`%s`)", $inputs['uri']);
+					throw new Exception_DevblocksAutomationError($error);
+				}
+				
+				// Do we have a manifest key?
+				$filters = $inputs['filters'] ?? [];
+				
+				if(array_key_exists('extract', $inputs) && $inputs['extract']) {
+					$error = null;
+					if(!($results = $this->_getFileFromManifestKey($resource, $inputs, $error)))
+						throw new Exception_DevblocksAutomationError($error);
+					
+				} else {
+					$fp = DevblocksPlatform::getTempFile();
+					$stream_mime_type = $resource->mime_type ?? 'application/octet-stream';
+					
+					$resource->getFileContents($fp);
+					
+					$fp_filters = $this->_registerStreamFilters($fp, $filters, $stream_mime_type);
+					
+					$bytes = stream_get_contents($fp, $fp_max_size, $fp_offset);
+					$length = strlen($bytes);
+					
+					$this->_deregisterStreamFilters($fp_filters);
+					
+					$is_printable = DevblocksPlatform::services()->string()->isPrintable($bytes);
+					
+					if(!$is_printable)
+						$bytes = sprintf('data:%s;base64,%s', $stream_mime_type, base64_encode($bytes));
+					
+					$results = [
+						'bytes' => $bytes,
+						'uri' => $inputs['uri'],
+						'name' => $resource->name,
+						'offset_from' => $fp_offset,
+						'offset_to' => $fp_offset + $length,
+						//'mime_type' => $resource->mime_type,
+						'mime_type' => 'application/octet-stream',
+						'size' => $resource->storage_size,
+					];
+				}
+				
+				if($output)
+					$dict->set($output, $results);
+				
 			} else if($uri_parts['context'] == \CerberusContexts::CONTEXT_ATTACHMENT) {
 				if(!($file = \DAO_Attachment::get($uri_parts['context_id']))) {
 					$error = sprintf("Failed to load the attachment (`%s`)", $inputs['uri']);
@@ -183,7 +230,7 @@ class FileReadAction extends AbstractAction {
 					$dict->set($output, $results);
 				
 			} else {
-				$error = "Only these URIs are supported: attachment, automation_resource";
+				$error = "Only these URIs are supported: attachment, automation_resource, resource";
 				throw new Exception_DevblocksAutomationError($error);
 			}
 			
