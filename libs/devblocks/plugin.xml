@@ -43,6 +43,9 @@
 			<class name="DevblocksCacheEngine_Memcache" />
 			<class name="DevblocksCacheEngine_Redis" />
 		</file>
+		<file path="api/services/data/automation_invoke.php">
+			<class name="_DevblocksDataProviderAutomationInvoke" />
+		</file>
 		<file path="api/services/data/bot_behavior.php">
 			<class name="_DevblocksDataProviderBotBehavior" />
 		</file>

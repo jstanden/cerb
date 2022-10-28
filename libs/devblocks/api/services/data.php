@@ -21,6 +21,10 @@ class _DevblocksDataService {
 	
 	function getTypeMeta($type, $params) {
 		switch($type) {
+			case 'automation.invoke':
+				$provider = new _DevblocksDataProviderAutomationInvoke();
+				return $provider->getSuggestions($type, $params);
+			
 			case 'attachment.manifest':
 				$provider = new _DevblocksDataProviderAttachmentManifest();
 				return $provider->getSuggestions($type, $params);
@@ -130,6 +134,10 @@ class _DevblocksDataService {
 	
 	function getTypes() {
 		$types = [
+			[
+				'name' => 'automation.invoke',
+				'description' => 'Invoke an automation for custom data queries',
+			],
 			[
 				'name' => 'attachment.manifest',
 				'description' => 'Read and filter file contents from archives',
@@ -280,6 +288,14 @@ class _DevblocksDataService {
 		CerbQuickSearchLexer::getOperStringFromTokens($type_field->tokens, $oper, $chart_type);
 		
 		switch($chart_type) {
+			case 'automation.invoke':
+				$provider = new _DevblocksDataProviderAutomationInvoke();
+				
+				if(false === ($results = $provider->getData($query, $chart_fields, $error)))
+					return false;
+
+				break;
+				
 			case 'attachment.manifest':
 				$provider = new _DevblocksDataProviderAttachmentManifest();
 				

@@ -4987,8 +4987,25 @@
 					</value>
 				</param>
 			</params>
-		</extension>		
+		</extension>
 
+		<extension point="cerb.automation.trigger">
+			<id>cerb.trigger.data.query</id>
+			<name>data.query</name>
+			<class>
+				<file>api/automations/triggers/data.query.php</file>
+				<name>AutomationTrigger_DataQuery</name>
+			</class>
+			<params>
+				<param key="description" value="Fetch results for a custom data query" />
+				<param key="features">
+					<value>
+						<data key="inputs" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
 		<extension point="cerb.automation.trigger">
 			<id>cerb.trigger.interaction.worker</id>
 			<name>interaction.worker</name>
