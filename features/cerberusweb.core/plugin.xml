@@ -4866,6 +4866,16 @@
 		<!-- Resource Types -->
 
 		<extension point="cerb.resource.type">
+			<id>cerb.resource.dataset.csv</id>
+			<name>Dataset (.csv)</name>
+			<class>
+				<file>api/resources/types/cerb.resource.dataset.csv.php</file>
+				<name>ResourceType_DatasetCsv</name>
+			</class>
+			<params/>
+		</extension>
+
+		<extension point="cerb.resource.type">
 			<id>cerb.resource.font</id>
 			<name>Font</name>
 			<class>
