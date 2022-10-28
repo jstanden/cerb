@@ -72,6 +72,11 @@ class DAO_Resource extends Cerb_ORMHelper {
 			->timestamp()
 		;
 		$validation
+			->addField('_content')
+			->string($validation::STRING_UTF8MB4)
+			->setMaxLength('32 bits')
+		;
+		$validation
 			->addField('_fieldsets')
 			->string()
 			->setMaxLength(65535)
@@ -108,6 +113,7 @@ class DAO_Resource extends Cerb_ORMHelper {
 		
 		$context = CerberusContexts::CONTEXT_RESOURCE;
 		self::_updateAbstract($context, $ids, $fields);
+		self::_updateContent($ids, $fields);		
 		
 		// Make a diff for the requested objects in batches
 		
@@ -146,6 +152,27 @@ class DAO_Resource extends Cerb_ORMHelper {
 	static function updateWhere($fields, $where) {
 		parent::_updateWhere('resource', $fields, $where);
 	}
+	
+	private static function _updateContent($ids, &$fields) {
+		if(!isset($fields['_content']))
+			return false;
+		
+		$content = $fields['_content'] ?? null;
+		unset($fields['_content']);
+		
+		// If base64 encoded
+		if(DevblocksPlatform::strStartsWith($content, 'data:')) {
+			if(false !== ($idx = strpos($content, ';base64,'))) {
+				$content = base64_decode(substr($content, $idx + strlen(';base64,')));
+			}
+		}
+		
+		foreach($ids as $id) {
+			Storage_Resource::put($id, $content);
+		}
+		
+		return true;
+	}	
 	
 	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
 		$context = CerberusContexts::CONTEXT_RESOURCE;
@@ -1541,6 +1568,7 @@ class Context_Resource extends Extension_DevblocksContext implements IDevblocksC
 	
 	function getKeyToDaoFieldMap() {
 		return [
+			'content' => '_content',
 			'automation_kata' => DAO_Resource::AUTOMATION_KATA,
 			'description' => DAO_Resource::DESCRIPTION,
 			'extension_id' => DAO_Resource::EXTENSION_ID,
@@ -1553,11 +1581,18 @@ class Context_Resource extends Extension_DevblocksContext implements IDevblocksC
 	}
 	
 	function getKeyMeta($with_dao_fields=true) {
-		return parent::getKeyMeta($with_dao_fields);
+		$keys = parent::getKeyMeta($with_dao_fields);
+		
+		$keys['content']['notes'] = 'The optional content of this resource. For binary, base64-encode in [data URI format](https://en.wikipedia.org/wiki/Data_URI_scheme)';
+		
+		return $keys;
 	}
 	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
+			case 'content':
+				$out_fields['_content'] = $value;
+				break;
 		}
 		
 		return true;
