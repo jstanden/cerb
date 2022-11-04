@@ -43,12 +43,14 @@
 		{'dashboard.columns'|devblocks_translate|capitalize} (<a href="javascript:;" onclick="$(this).closest('fieldset').find('input:checkbox').removeAttr('checked');">{'common.clear'|devblocks_translate|lower}</a>)</b>
 	</legend>
 
-	{foreach from=$columns item=column}
-	<div class="column">
-	<span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;cursor:move;"></span>
-	<label><input type="checkbox" name="columns[]" value="{$column->token}" {if in_array($column->token, $view->view_columns)}checked="checked"{/if}> {$column->db_label|capitalize}</label>
+	<div style="{if count($columns) > 15}column-width:300px;column-count:3;{/if}">
+		{foreach from=$columns item=column}
+		<div class="column">
+		<span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;cursor:move;"></span>
+		<label><input type="checkbox" name="columns[]" value="{$column->token}" {if in_array($column->token, $view->view_columns)}checked="checked"{/if}> {$column->db_label|capitalize}</label>
+		</div>
+		{/foreach}
 	</div>
-	{/foreach}
 </fieldset>
 
 <fieldset class="peek peek-noborder black">
