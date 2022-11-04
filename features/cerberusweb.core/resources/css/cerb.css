@@ -2563,6 +2563,7 @@ UL.ui-menu li.ui-state-focus {
   margin-bottom: 15px;
 }
 .cerb-form-builder .cerb-form-builder-prompt-text INPUT[type=text],
+.cerb-form-builder .cerb-form-builder-prompt-text INPUT[type=password],
 .cerb-form-builder .cerb-form-builder-prompt-text TEXTAREA {
   border: 1px solid var(--cerb-color-background-contrast-220);
   width: 99%;

@@ -1080,6 +1080,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'ipv4',
 					'ipv6',
 					'number',
+					'password',
 					'uri',
 					'url',
 				],

@@ -80,6 +80,10 @@ class TextAwait extends AbstractAwait {
 				;
 				break;
 			
+			case 'password':
+				$input_field_type = $input_field->string();
+				break;
+			
 			case 'record_type':
 				$input_field_type = $input_field->string()
 					->addValidator($validation->validators()->context(true))
@@ -149,6 +153,7 @@ class TextAwait extends AbstractAwait {
 	function render(Model_AutomationContinuation $continuation) {
 		$tpl = DevblocksPlatform::services()->template();
 		
+		$type = $this->_data['type'] ?? null;
 		$label = $this->_data['label'] ?? null;
 		$placeholder = $this->_data['placeholder'] ?? null;
 		$default = $this->_data['default'] ?? null;
@@ -156,7 +161,7 @@ class TextAwait extends AbstractAwait {
 		$is_required = array_key_exists('required', $this->_data) && $this->_data['required'];
 	
 		// Defaults by type
-		switch($this->_data['type'] ?? null) {
+		switch($type) {
 			case 'date':
 				$placeholder = $placeholder ?? '(tomorrow 8am, next Friday, 31 Dec 2025 noon)';
 				break;
@@ -196,6 +201,7 @@ class TextAwait extends AbstractAwait {
 		}
 		
 		$tpl->assign('label', $label);
+		$tpl->assign('type', $type);
 		$tpl->assign('placeholder', $placeholder);
 		$tpl->assign('default', $default);
 		$tpl->assign('var', $this->_key);

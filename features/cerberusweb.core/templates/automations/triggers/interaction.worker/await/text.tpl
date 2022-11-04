@@ -3,7 +3,7 @@
 	<h6>{$label}</h6>
 
 	<div style="margin-left:10px;">
-		<input name="prompts[{$var}]" type="text" placeholder="{$placeholder}" value="{$value|default:$default}" autocomplete="off">
+		<input name="prompts[{$var}]" {if 'password' == $type}type="password"{else}type="text"{/if} placeholder="{$placeholder}" value="{$value|default:$default}" autocomplete="off">
 	</div>
 </div>
 
