@@ -3473,6 +3473,10 @@ var ajax = new cAjaxCalls();
 					var TokenIterator = require('ace/token_iterator').TokenIterator;
 					var iter = new TokenIterator(editor.session, pos.row, pos.column);
 
+					// Don't autocomplete comments
+					if(Devblocks.cerbCodeEditor.lineIsComment(pos.row, editor))
+						return;
+					
 					do {
 						var token = iter.getCurrentToken();
 						

@@ -1011,6 +1011,10 @@ function DevblocksClass() {
 			var token = editor.session.getTokenAt(row, 0);
 			return token && 'meta.tag' === token.type;
 		},
+		lineIsComment: function(row, editor) {
+			var currentLine = editor.session.getLine(row);
+			return null != currentLine.match(/\s*#(.*)/i);
+		},
 		iterToKataParent: function(iter, editor) {
 			var refLineRow = iter.getCurrentTokenRow();
 			var refLine = editor.session.getLine(refLineRow);
