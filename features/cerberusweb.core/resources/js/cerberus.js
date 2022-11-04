@@ -960,7 +960,7 @@ var cerbAutocompleteSuggestions = {
 		'columns:text:params:': [
 			'value:',
 			'value_key:',
-			'value_template:',
+			'value_template@raw:',
 			'value_map:',
 			'bold@bool:',
 			'icon:'
@@ -1030,7 +1030,7 @@ var cerbAutocompleteSuggestions = {
 			'value:',
 			'format:',
 			'value_key:',
-			'value_template:',
+			'value_template@raw:',
 			'bold@bool:'
 		],
 		'columns:date:params:bold:': [
@@ -1130,7 +1130,7 @@ var cerbAutocompleteSuggestions = {
 		'columns:slider:params:': [
 			'value:',
 			'value_key:',
-			'value_template:',
+			'value_template@raw:',
 			'min:',
 			'max:'
 		],
@@ -1143,7 +1143,7 @@ var cerbAutocompleteSuggestions = {
 		'columns:time_elapsed:params:': [
 			'value:',
 			'value_key:',
-			'value_template:',
+			'value_template@raw:',
 			'precision:',
 			'bold@bool:'
 		],
