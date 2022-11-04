@@ -1,5 +1,5 @@
 <?php
-class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget {
+class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget implements ICerbWorkspaceWidget_ExportData {
 	public function invoke(string $action, Model_WorkspaceWidget $model) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -48,77 +48,85 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget {
 		return $results;
 	}
 	
-	function render(Model_WorkspaceWidget $widget) {
-		$tpl = DevblocksPlatform::services()->template();
+	private function _getSheetFromWidget(Model_WorkspaceWidget $widget, int $page, string &$error=null) {
+		$sheets = DevblocksPlatform::services()->sheet();
 		
-		$page = DevblocksPlatform::importGPC($_POST['page'] ?? null, 'integer', 0);
-		
-		$error = null;
-		
-		if(false == ($results = $this->getData($widget, $page, $error))) {
-			echo DevblocksPlatform::strEscapeHtml($error);
-			return;
-		}
+		if(false == ($results = $this->getData($widget, $page, $error)))
+			return false;
 		
 		if(empty($results)) {
-			echo "(no data)";
-			return;
+			$error = "(no data)";
+			return false;
 		}
 		
 		$format = DevblocksPlatform::strLower(@$results['_']['format']);
 		
-		if(!in_array($format, ['dictionaries'])) {
-			echo DevblocksPlatform::strEscapeHtml("The data should be in one of the following formats: dictionaries.");
+		if($format != 'dictionaries') {
+			$error = "The data should be in one of the following formats: dictionaries.";
+			return false;
+		}
+		
+		if($format == 'dictionaries') {
+			$sheet_kata = DevblocksPlatform::importGPC($widget->params['sheet_kata'] ?? null, 'string', null);
+			
+			if (false == ($sheet = $sheets->parse($sheet_kata, $error)))
+				$sheet = [];
+			
+			$sheets->addType('card', $sheets->types()->card());
+			$sheets->addType('date', $sheets->types()->date());
+			$sheets->addType('icon', $sheets->types()->icon());
+			$sheets->addType('link', $sheets->types()->link());
+			$sheets->addType('search', $sheets->types()->search());
+			$sheets->addType('search_button', $sheets->types()->searchButton());
+			$sheets->addType('selection', $sheets->types()->selection());
+			$sheets->addType('slider', $sheets->types()->slider());
+			$sheets->addType('text', $sheets->types()->text());
+			$sheets->addType('time_elapsed', $sheets->types()->timeElapsed());
+			$sheets->setDefaultType('text');
+			
+			$sheet_dicts = $results['data'];
+			
+			return [
+				'layout' => $sheets->getLayout($sheet),
+				'columns' => $sheets->getColumns($sheet),
+				'rows' => $sheets->getRows($sheet, $sheet_dicts),
+				'paging' => $results['_']['paging'] ?? null,
+			];
+		}
+		
+		return false;
+	}
+	
+	function render(Model_WorkspaceWidget $widget) {
+		$tpl = DevblocksPlatform::services()->template();
+		
+		$page = DevblocksPlatform::importGPC($_POST['page'] ?? null, 'integer', 0);
+		$error = null;
+		
+		if(!($results = $this->_getSheetFromWidget($widget, $page, $error))) {
+			echo DevblocksPlatform::strEscapeHtml($error);
 			return;
 		}
 		
-		switch($format) {
-			case 'dictionaries':
-				$sheets = DevblocksPlatform::services()->sheet();
-				
-				$sheet_kata = DevblocksPlatform::importGPC($widget->params['sheet_kata'] ?? null, 'string', null);
-				
-				if(false == ($sheet = $sheets->parse($sheet_kata, $error)))
-					$sheet = [];
-				
-				$sheets->addType('card', $sheets->types()->card());
-				$sheets->addType('date', $sheets->types()->date());
-				$sheets->addType('icon', $sheets->types()->icon());
-				$sheets->addType('link', $sheets->types()->link());
-				$sheets->addType('search', $sheets->types()->search());
-				$sheets->addType('search_button', $sheets->types()->searchButton());
-				$sheets->addType('selection', $sheets->types()->selection());
-				$sheets->addType('slider', $sheets->types()->slider());
-				$sheets->addType('text', $sheets->types()->text());
-				$sheets->addType('time_elapsed', $sheets->types()->timeElapsed());
-				$sheets->setDefaultType('text');
-				
-				$sheet_dicts = $results['data'];
-				
-				$layout = $sheets->getLayout($sheet);
-				$tpl->assign('layout', $layout);
-				
-				$rows = $sheets->getRows($sheet, $sheet_dicts);
-				$tpl->assign('rows', $rows);
-				
-				$columns = $sheets->getColumns($sheet);
-				$tpl->assign('columns', $columns);
-				
-				$paging = $results['_']['paging'] ?? null;
-				
-				if($layout['paging'] && $paging) {
-					$tpl->assign('paging', $paging);
-				}
-				
-				$tpl->assign('widget_ext', $this);
-				$tpl->assign('widget', $widget);
-				
-				if($layout['style'] == 'fieldsets') {
-					$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/sheet/render_fieldsets.tpl');
-				} else {
-					$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/sheet/render.tpl');
-				}
-				break;
+		$layout = $results['layout'] ?? [];
+		
+		$tpl->assign('layout', $layout);
+		$tpl->assign('rows', $results['rows'] ?? []);
+		$tpl->assign('columns', $results['columns'] ?? []);
+		
+		$paging = $results['paging'] ?? null;
+		
+		if($layout['paging'] && $paging) {
+			$tpl->assign('paging', $paging);
+		}
+		
+		$tpl->assign('widget_ext', $this);
+		$tpl->assign('widget', $widget);
+		
+		if($layout['style'] == 'fieldsets') {
+			$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/sheet/render_fieldsets.tpl');
+		} else {
+			$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/sheet/render.tpl');
 		}
 	}
 	
@@ -222,4 +230,61 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget {
 		$row_selections = DevblocksPlatform::importGPC($_POST['row_selections'] ?? null, 'array', []);
 		$this->renderToolbar($widget, $row_selections);
 	}
+	
+	function exportData(Model_WorkspaceWidget $widget, $format=null) {
+		switch(DevblocksPlatform::strLower($format)) {
+			case 'csv':
+				return $this->_exportDataAsCsv($widget);
+			
+			default:
+			case 'json':
+				return $this->_exportDataAsJson($widget);
+		}
+	}
+	
+	private function _exportDataAsCsv(Model_WorkspaceWidget $widget) {
+		$error = null;
+		
+		if(!($results = $this->_getSheetFromWidget($widget, 0, $error)))
+			return null;
+		
+		if(!($fp = fopen("php://temp", 'r+')))
+			return null;
+		
+		$headings = array_map(fn($col) => $col['label'] ?? $col['key'], $results['columns']);
+		
+		fputcsv($fp, $headings);
+		
+		foreach($results['rows'] ?? [] as $row) {
+			fputcsv($fp, array_values($row));
+		}
+		
+		rewind($fp);
+		
+		$output = "";
+		
+		while(!feof($fp)) {
+			$output .= fgets($fp);
+		}
+		
+		fclose($fp);
+		
+		return $output;
+	}
+	
+	private function _exportDataAsJson(Model_WorkspaceWidget $widget) {
+		if(!($results = $this->_getSheetFromWidget($widget, 0, $error)))
+			return null;
+		
+		$results = array(
+			'widget' => array(
+				'label' => $widget->label,
+				'type' => $widget->extension_id,
+				'version' => 'Cerb ' . APP_VERSION,
+				'sheet' => $results,
+			),
+		);
+		
+		return DevblocksPlatform::strFormatJson($results);
+	}	
 };
