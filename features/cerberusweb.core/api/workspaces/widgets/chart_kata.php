@@ -51,41 +51,13 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget implements ICe
 	
 	function render(Model_WorkspaceWidget $widget) {
 		$tpl = DevblocksPlatform::services()->template();
-		
-		if(!$chart_json = $this->_buildChartJson($widget, $error)) {
-			echo DevblocksPlatform::strEscapeHtml($error);
-			return;
-		}
-		
-		$tpl->assign('chart_json', json_encode($chart_json));
-		
-		$tpl->assign('widget', $widget);
-		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/chart/kata/render.tpl');
-	}
-	
-	private function _buildChartJson(Model_WorkspaceWidget $widget, &$error=null) {
+		$chart = DevblocksPlatform::services()->chart();
 		$kata = DevblocksPlatform::services()->kata();
+		
 		$active_worker = CerberusApplication::getActiveWorker();
-		$validation = DevblocksPlatform::services()->validation();
 		
-		$datasets_kata = DevblocksPlatform::importGPC($widget->params['datasets_kata'] ?? '', 'string');
 		$chart_kata = DevblocksPlatform::importGPC($widget->params['chart_kata'] ?? '', 'string');
-		
-		$valid_chart_types = [
-			'area',
-			'area-spline',
-			'area-step',
-			'bar',
-			'donut',
-			'gauge',
-			'line',
-			'pie',
-			'scatter',
-			'spline',
-			'step',
-		];
-		
-		$is_dark_mode = DAO_WorkerPref::get($active_worker->id,'dark_mode',0);
+		$datasets_kata = DevblocksPlatform::importGPC($widget->params['datasets_kata'] ?? '', 'string');
 		
 		try {
 			$error = null;
@@ -102,321 +74,36 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget implements ICe
 			// Dashboard prefs
 			$widget->_loadDashboardPrefsForWorker($active_worker, $chart_dict);
 			
-			$chart_kata = $kata->parse($chart_kata, $error);
+			if(!($chart_kata = $kata->parse($chart_kata, $error)))
+				throw new Exception_DevblocksValidationError($error);
 			
-			$datasets = $this->_loadDatasets($datasets_kata, $chart_dict, $error);
+			if(!($chart_kata = $kata->formatTree($chart_kata, $chart_dict, $error)))
+				throw new Exception_DevblocksValidationError($error);
 			
-			$chart = $kata->formatTree($chart_kata, $chart_dict, $error);
+			if(!($datasets_kata = $this->_loadDatasets($datasets_kata, $chart_dict, $error)))
+				throw new Exception_DevblocksValidationError($error);
 			
-			// Dark and light defaults
-			
-			if($is_dark_mode) {
-				$default_color_pattern =
-					$chart['color']['patterns']['default_dark']
-					?? $chart['color']['patterns']['default']
-					?? [
-						//'#6e40aa', '#b83cb0', '#f6478d', '#ff6956', '#f59f30', '#c4d93e', '#83f557', '#38f17a', '#19d3b5', '#29a0dd', '#5069d9', '#6e40aa'
-						"#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"
-					]
-				;
-				
-			} else {
-				$default_color_pattern = $chart['color']['patterns']['default']
-					?? [
-						"#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"
-					]
-				;
-			}
-			
-			$chart_json = [
-				'size' => [
-					'height' => 500,
-				],
-				'data' => [
-					'type' => 'line',
-					'columns' => [],
-					'names' => [],
-					'colors' => [],
-					'types' => [],
-					'axes' => [],
-					'groups' => [],
-				],
-				'color' => [
-					'pattern' => $default_color_pattern,
-				],
-				'legend' => [
-					'show' => true,
-				],
-				'tooltip' => [
-					'show' => true,
-					'grouped' => true,
-				]
+			$chart_options = [
+				'dark_mode' => DAO_WorkerPref::get($active_worker->id,'dark_mode',0),
 			];
 			
-			if($chart['data']['type'] ?? null)
-				$chart_json['data']['type'] = $chart['data']['type'];
-			
-			// Sanitize types
-			if(!in_array($chart_json['data']['type'], $valid_chart_types)) {
-				throw new Exception_DevblocksValidationError(sprintf('Chart type (%s) must be one of: %s',
-					$chart_json['data']['type'],
-					implode(', ', $valid_chart_types)
-				));
-			}
-			
-			if($chart['data']['names'] ?? null)
-				$chart_json['data']['names'] = $chart['data']['names'];
-			
-			$chart_json['axis'] = $chart['axis'] ?? [];
-			$chart_json['grid'] = $chart['grid'] ?? [];
-			$chart_json['pie'] = $chart['pie'] ?? [];
-			
-			$x_labels = [];
-			
-			foreach($chart['data']['series'] ?? [] as $dataset_key => $dataset_params) {
-				if(!array_key_exists($dataset_key, $datasets)) {
-					throw new Exception_DevblocksValidationError(sprintf(
-						"Unknown dataset `%s`",
-						$dataset_key
-					));
-				}
-				
-				$xkey = $dataset_params['x_key'] ?? null;
-				
-				// Do we need to normalize timeseries tick values?
-				if($xkey && 'timeseries' == ($chart['axis']['x']['type'] ?? null)) {
-					if(!array_key_exists($xkey, $datasets[$dataset_key]))
-						continue;
-					
-					$datasets[$dataset_key][$xkey] = array_map(
-						function($xtick) {
-							// Handle YYYY format
-							if(is_numeric($xtick) && $xtick < 10000) {
-								$dt = new DateTime();
-								$dt->setDate($xtick, 1, 1);
-								$dt->setTime(0, 0);
-								
-							} else {
-								$dt = new DateTime($xtick);
-							}
-							return $dt->format('Y-m-d\TH:i:s');
-						},
-						$datasets[$dataset_key][$xkey]
-					);
-				}
-				
-				$x_labels = array_merge($x_labels, $datasets[$dataset_key][$xkey] ?? []);
-			}
-			
-			if($x_labels) {
-				$x_labels = array_unique($x_labels);
-				
-				if('timeseries' == ($chart['axis']['x']['type'] ?? null)) {
-					sort($x_labels);
-					
-				} else if(
-					'category' == ($chart['axis']['x']['type'] ?? null)
-					&& array_key_exists('categories', $chart['axis']['x'])
-					&& is_array($chart['axis']['x']['categories'])
-				) {
-					$order = array_flip(array_values($chart['axis']['x']['categories']));
-					
-					usort($x_labels, function($a, $b) use ($order) {
-						return ($order[$a] ?? PHP_INT_MAX) <=> ($order[$b] ?? PHP_INT_MAX);
-					});
-				}
-				
-				if('scatter' == ($chart['data']['type'] ?? null)) {
-					DevblocksPlatform::noop();
-				} else {
-					$chart_json['data']['x'] = 'x';
-					$chart_json['data']['columns'][] = ['x', ...$x_labels];
-				}
-			}
-			
-			if('timeseries' == ($chart['axis']['x']['type'] ?? null)) {
-				$chart_json['data']['xFormat'] = '%Y-%m-%dT%H:%M:%S';
-				$xtick_format = $chart['axis']['x']['tick']['format'] ?? '%Y-%m-%d %H:%M';
-				$chart_json['axis']['x']['tick']['format'] = $xtick_format;
-			}
-			
-			$x_labels = array_fill_keys($x_labels, 0);
-			
-			$color_groups = [];
-			
-			foreach($chart['data']['series'] ?? [] as $dataset_key => $dataset_params) {
-				if(!array_key_exists($dataset_key, $datasets)) {
-					throw new Exception_DevblocksValidationError(sprintf(
-						"Unknown dataset `%s` in `data:series:`",
-						$dataset_key,
-					));
-				}
-				
-				$dataset_name = $dataset_params['name'] ?? null;
-				$xkey = $dataset_params['x_key'] ?? null;
-				$ytype = $dataset_params['y_type'] ?? null;
-				$yaxis = $dataset_params['y_axis'] ?? null;
-				
-				if($ytype && !in_array($ytype, $valid_chart_types))
-					throw new Exception_DevblocksValidationError(sprintf('`data:series:%s:y_type:` (%s) must be one of: %s',
-						$dataset_key,
-						$ytype,
-						implode(', ', $valid_chart_types)
-					));
-				
-				$series_count = count(array_filter(array_keys($datasets[$dataset_key] ?? []), fn($k) => $k != $xkey));
-				
-				$color_group = $chart['data']['series'][$dataset_key]['color_pattern'] ?? null;
-				$color_pattern = null;
-				
-				// Try dark mode first
-				if($is_dark_mode) {
-					if($color_pattern = $chart['color']['patterns'][$color_group . '_dark'] ?? null)
-						$color_group .= '_dark';
-				}
-				
-				// Or use the color pattern name
-				if(!$color_pattern)
-					$color_pattern = $chart['color']['patterns'][$color_group] ?? null;
-				
-				if($color_group && !$color_pattern)
-					throw new Exception_DevblocksValidationError(sprintf("Unknown `color:patterns:%s:`", $color_group));
-				
-				if($color_pattern && !$validation->validators()->colorsHex()($color_pattern, $error))
-					throw new Exception_DevblocksValidationError(sprintf("`color:patterns:%s:` %s", $color_group, $error));
-				
-				if($color_group && !array_key_exists($color_group, $color_groups))
-					$color_groups[$color_group] = [];
-				
-				foreach($datasets[$dataset_key] as $key => $values) {
-					$series = [];
-					
-					if($xkey && 'scatter' != ($chart['data']['type'] ?? null)) {
-						// Skip the `x` series
-						if($key == $xkey)
-							continue;
-						
-						if(!array_key_exists($xkey, $datasets[$dataset_key]))
-							throw new Exception_DevblocksValidationError(sprintf('`data:series:%s:x_key:` (%s) must be one of: %s',
-								$dataset_key,
-								$xkey,
-								implode(', ', array_keys($datasets[$dataset_key]))
-							));
-						
-						if(count($datasets[$dataset_key][$xkey]) == count($values))
-							$series = array_values(array_merge($x_labels, array_combine($datasets[$dataset_key][$xkey], $values)));
-						
-					} else {
-						if(is_array($values)) {
-							$series = $values;
-						} else if(is_scalar($values)) {
-							$series = [$values];
-						}
-					}
-					
-					$series_key = $dataset_key . '__' . $key;
-					
-					if(1 == $series_count) {
-						$series_name = $dataset_name ?: $key;
-					} else if ($dataset_name) {
-						$series_name = sprintf("%s (%s)", $dataset_name, $key);
-					} else {
-						$series_name = $key;
-					}
-					
-					if(!DevblocksPlatform::strEndsWith($key,'__click')) {
-						if($color_group && !DevblocksPlatform::strEndsWith($key, '_x')) {
-							if(!array_key_exists($key, $color_groups[$color_group]))
-								$color_groups[$color_group][$key] = $color_pattern[count($color_groups[$color_group]) % count($color_pattern)];
-							
-							if(!array_key_exists($series_key, $chart_json['data']['colors'] ?? []))
-								$chart_json['data']['colors'][$series_key] = $color_groups[$color_group][$key];
-						}
-						
-						if(!array_key_exists($series_key, $chart_json['data']['names'] ?? []))
-							$chart_json['data']['names'][$series_key] = $series_name;
-						
-						$chart_json['data']['columns'][] = [$series_key, ...$series];
-						
-						if($ytype)
-							$chart_json['data']['types'][$series_key] = $ytype;
-						
-						if($yaxis == 'y2') {
-							$chart_json['data']['axes'][$series_key] = $yaxis;
-							$chart_json['axis']['y2']['show'] = true;
-						}
-						
-					} else {
-						$chart_json['data']['click_search'][$series_key] = [...$series];
-						
-					}
-				}
-				
-				if('scatter' == ($chart['data']['type'] ?? null)) {
-					foreach(array_keys($datasets[$dataset_key]) as $k) {
-						if(DevblocksPlatform::strEndsWith($k, '_x'))
-							continue;
-						
-						$chart_json['data']['xs'][$dataset_key . '__' . $k] = $dataset_key . '__' . $k . '_x';
-					}
-					
-				} else {
-					unset($datasets[$dataset_key][$xkey]);
-				}
-			}
-			
-			// Sort legend by dataset names
-			if($chart['legend']['sorted'] ?? false) {
-				usort($chart_json['data']['columns'], function($a, $b) use ($chart_json) {
-					return ($chart_json['data']['names'][$a[0]] ?? '') <=> ($chart_json['data']['names'][$b[0]] ?? '');
-				});
-			}
-			
-			foreach($chart['data']['stacks'] ?? [] as $dataset_keys) {
-				if(!is_array($dataset_keys))
-					continue;
-				
-				$group = [];
-				
-				foreach($dataset_keys as $dataset_key) {
-					if(!array_key_exists($dataset_key, $datasets))
-						continue;
-					
-					foreach(array_keys($datasets[$dataset_key]) as $k) {
-						if(!DevblocksPlatform::strEndsWith($k, '__click'))
-							$group[] = $dataset_key . '__' . $k;
-					}
-				}
-				
-				$chart_json['data']['groups'][] = $group;
-			}
-			
-			if(array_key_exists('legend', $chart)) {
-				if(array_key_exists('show', $chart['legend']))
-					$chart_json['legend']['show'] = boolval($chart['legend']['show']);
-			}
-			
-			if(array_key_exists('tooltip', $chart)) {
-				if(array_key_exists('show', $chart['tooltip']))
-					$chart_json['tooltip']['show'] = boolval($chart['tooltip']['show']);
-				
-				if(array_key_exists('grouped', $chart['tooltip']))
-					$chart_json['tooltip']['grouped'] = boolval($chart['tooltip']['grouped']);
-			}
-			
-			return $chart_json;
+			if(!$chart_json = $chart->parse($chart_kata, $datasets_kata, $chart_options, $error))
+				throw new Exception_DevblocksValidationError($error);
 			
 		} catch (Exception_DevblocksValidationError $e) {
-			$error = sprintf("ERROR: %s",
-				$e->getMessage()
-			);
-			return false;
-			
+				echo DevblocksPlatform::strEscapeHtml($e->getMessage());
+				return;
+				
 		} catch (Throwable $e) {
-			DevblocksPlatform::logError($e->getMessage());
-			$error = "An unexpected configuration error occurred.";
-			return false;
+				echo DevblocksPlatform::strEscapeHtml('An unexpected error occurred.');
+				DevblocksPlatform::logException($e);
+				return;
 		}
+		
+		$tpl->assign('chart_json', json_encode($chart_json));
+		
+		$tpl->assign('widget', $widget);
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/chart/kata/render.tpl');
 	}
 	
 	private function _widgetConfig_previewDataset(Model_WorkspaceWidget $model) {

@@ -55,6 +55,14 @@ class _DevblocksServices {
 	}
 	
 	/**
+	 *
+	 * @return _DevblocksChartService
+	 */
+	function chart() {
+		return _DevblocksChartService::getInstance();
+	}
+	
+	/**
 	 * 
 	 * @return _DevblocksClassLoadManager
 	 */

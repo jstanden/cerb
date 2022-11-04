@@ -179,6 +179,9 @@ class _DevblocksClassLoadManager {
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/captcha.php', [
 			'_DevblocksCaptchaService',
 		]);
+		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/chart.php', [
+			'_DevblocksChartService',
+		]);
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/data.php', array(
 			'_DevblocksDataService',
 		));
