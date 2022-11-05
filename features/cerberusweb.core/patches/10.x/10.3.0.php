@@ -163,6 +163,15 @@ if($revision < 1433) {
 }
 
 // ===========================================================================
+// Update package library
+
+$packages = [
+	'cerb_project_board_kanban.json',
+];
+
+CerberusApplication::packages()->importToLibraryFromFiles($packages, APP_PATH . '/features/cerberusweb.core/packages/library/');
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

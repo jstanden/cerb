@@ -479,7 +479,7 @@
 
 			],
 			"cards_kata": "automation/done:\n  uri: cerb:automation:cerb.projectBoard.card.sheet\n  disabled@bool:\n    {{card__context is not record type ('task')}}\n  inputs:\n    sheet:\n      layout:\n        headings@bool: no\n      columns:\n        text/notes:\n          label: Notes\n          params:\n            value_template@text:\n              <h2 style=\"margin:0 0 5px 0;\">\n              <span class=\"glyphicons glyphicons-circle-ok\"></span>\n              {{card__label}}\n              </h2>\n",
-			"functions_kata": "automation/close:\n  uri: cerb:automation:cerb.projectBoard.action.task.close\n  inputs:\n    status: closed\n"
+			"functions_kata": "automation/close:\n  uri: cerb:automation:cerb.projectBoard.action.task.close\n"
 		},
 		{
 			"uid": "workspace_getting_started",

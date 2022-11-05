@@ -76,7 +76,7 @@
       "cards": [
       ],
       "cards_kata": "automation/completed:\n  uri: cerb:automation:cerb.projectBoard.card.done\n",
-      "functions_kata": "automation/close:\n  uri: cerb:automation:cerb.projectBoard.action.task.close\n  inputs:\n    status: closed\n",
+      "functions_kata": "automation/close:\n  uri: cerb:automation:cerb.projectBoard.action.task.close\n",
       "toolbar_kata": ""
     }
   ]

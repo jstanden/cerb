@@ -107,7 +107,7 @@ if(array_key_exists('params_json', $columns)) {
 					@$status = $status_map[$action_params['status_id']];
 					
 					if(null !== $status) {
-						$functions_kata .= sprintf("automation/%s:\n  uri: cerb:automation:cerb.projectBoard.action.task.close\n  disabled@bool:\n    {{card__context is not record type ('task')}}\n  inputs:\n    status: %s\n\n",
+						$functions_kata .= sprintf("automation/%s:\n  uri: cerb:automation:cerb.projectBoard.action.task.close\n  disabled@bool:\n    {{card__context is not record type ('task')}}\n",
 							uniqid(),
 							$status
 						);
