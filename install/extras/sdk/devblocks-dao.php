@@ -26,19 +26,19 @@ foreach($tables as $table_name => $field_strs) {
 	$table_name = strtolower ( $table_name );
 	
 	// Fields
-	$fields = array ();
+	$fields = [];
 	
 	$schema = trim ( $field_strs );
-	$schema = str_replace ( array (
+	$schema = str_replace ([
 		"\r" 
-	), array (
+	], [
 		"\n" 
-	), $schema );
-	$schema = str_replace ( array (
+	], $schema );
+	$schema = str_replace ([
 		"\n\n" 
-	), array (
+	], [
 		"\n" 
-	), $schema );
+	], $schema );
 	
 	foreach ( explode ( "\n", $schema ) as $field_str ) {
 		$field_props = explode ( ' ', rtrim ( $field_str, ",\n\r " ) );
@@ -118,7 +118,7 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 	
 	static function update($ids, $fields, $check_deltas=true) {
 		if(!is_array($ids))
-			$ids = array($ids);
+			$ids = [$ids];
 			
 		if(!isset($fields[self::UPDATED_AT]))
 			$fields[self::UPDATED_AT] = time();
@@ -148,9 +148,9 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 				$eventMgr->trigger(
 					new Model_DevblocksEvent(
 						'dao.<?php echo $table_name; ?>.update',
-						array(
+						[
 							'fields' => $fields,
-						)
+						]
 					)
 				);
 				
@@ -296,10 +296,10 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.delete',
-				array(
+				[
 					'context' => '<?php echo $ctx_ext_id; ?>',
 					'context_ids' => $ids
-				)
+				]
 			)
 		);
 		
@@ -638,52 +638,52 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 		// [TODO] Implement quick search fields
 		$search_fields = SearchFields_<?php echo $class_name; ?>::getFields();
 	
-		$fields = array(
+		$fields = [
 			'text' => 
-				array(
+				[
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_<?php echo $class_name; ?>::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
-				),
+					'options' => ['param_key' => SearchFields_<?php echo $class_name; ?>::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL],
+				],
 			'created' => 
-				array(
+				[
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
-					'options' => array('param_key' => SearchFields_<?php echo $class_name; ?>::CREATED_AT),
-				),
+					'options' => ['param_key' => SearchFields_<?php echo $class_name; ?>::CREATED_AT],
+				],
 			'fieldset' =>
-				array(
+				[
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array('param_key' => SearchFields_<?php echo $class_name; ?>::VIRTUAL_HAS_FIELDSET),
+					'options' => ['param_key' => SearchFields_<?php echo $class_name; ?>::VIRTUAL_HAS_FIELDSET],
 					'examples' => [
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'qr' => 'context:' . '<?php echo $ctx_ext_id; ?>'],
 					]
-				),
+				],
 			'id' => 
-				array(
+				[
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
-					'options' => array('param_key' => SearchFields_<?php echo $class_name; ?>::ID),
+					'options' => ['param_key' => SearchFields_<?php echo $class_name; ?>::ID],
 					'examples' => [
 						['type' => 'chooser', 'context' => '<?php echo $ctx_ext_id; ?>', 'q' => ''],
 					]
-				),
+				],
 			'name' => 
-				array(
+				[
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_<?php echo $class_name; ?>::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
-				),
+					'options' => ['param_key' => SearchFields_<?php echo $class_name; ?>::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL],
+				],
 			'updated' => 
-				array(
+				[
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
-					'options' => array('param_key' => SearchFields_<?php echo $class_name; ?>::UPDATED_AT),
-				),
+					'options' => ['param_key' => SearchFields_<?php echo $class_name; ?>::UPDATED_AT],
+				],
 			'watchers' => 
-				array(
+				[
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array('param_key' => SearchFields_<?php echo $class_name; ?>::VIRTUAL_WATCHERS),
+					'options' => ['param_key' => SearchFields_<?php echo $class_name; ?>::VIRTUAL_WATCHERS],
 					'examples' => [
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => ''],
 					],
-				),
-		);
+				],
+		];
 		
 		// Add quick search links
 		
@@ -906,18 +906,18 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		if(!empty($friendly))
 			$url .= '-' . $friendly;
 		
-		return array(
+		return [
 			'id' => $<?php echo $ctx_var_model; ?>->id,
 			'name' => $<?php echo $ctx_var_model; ?>->name,
 			'permalink' => $url,
 			'updated' => $<?php echo $ctx_var_model; ?>->updated_at,
-		);
+		];
 	}
 	
 	function getDefaultProperties() {
-		return array(
+		return [
 			'updated_at',
-		);
+		];
 	}
 	
     /*
@@ -942,7 +942,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 			$<?php echo $ctx_var_model; ?> = DAO_<?php echo $class_name; ?>::get($<?php echo $ctx_var_model; ?>);
 		} elseif($<?php echo $ctx_var_model; ?> instanceof Model_<?php echo $class_name; ?>) {
 			// It's what we want already.
-            true;
+            DevblocksPlatform::noop();
 		} elseif(is_array($<?php echo $ctx_var_model; ?>)) {
 			$<?php echo $ctx_var_model; ?> = Cerb_ORMHelper::recastArrayToModel($<?php echo $ctx_var_model; ?>, 'Model_<?php echo $class_name; ?>');
 		} else {
@@ -950,22 +950,22 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		}
 		
 		// Token labels
-		$token_labels = array(
+		$token_labels = [
 			'_label' => $prefix,
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
-		);
+		];
 		
 		// Token types
-		$token_types = array(
+		$token_types = [
 			'_label' => 'context_url',
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
 			'record_url' => Model_CustomField::TYPE_URL,
-		);
+		];
 		
 		// Custom field/fieldset token labels
 		if(false !== ($custom_field_labels = $this->_getTokenLabelsFromCustomFields($fields, $prefix)) && is_array($custom_field_labels))
@@ -1065,9 +1065,9 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = '<?php echo $object_name ?>';
 		/*
-		$view->addParams(array(
+		$view->addParams([
 			SearchFields_<?php echo $class_name; ?>::UPDATED_AT => new DevblocksSearchCriteria(SearchFields_<?php echo $class_name; ?>::UPDATED_AT,'=',0),
-		), true);
+		], true);
 		*/
 		$view->renderSortBy = SearchFields_<?php echo $class_name; ?>::UPDATED_AT;
 		$view->renderSortAsc = false;
@@ -1089,9 +1089,9 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		$params_req = [];
 		
 		if(!empty($context) && !empty($context_id)) {
-			$params_req = array(
-				new DevblocksSearchCriteria(SearchFields_<?php echo $class_name; ?>::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
-			);
+			$params_req = [
+				new DevblocksSearchCriteria(SearchFields_<?php echo $class_name; ?>::VIRTUAL_CONTEXT_LINK,'in',[$context.':'.$context_id]),
+			];
 		}
 		
 		$view->addParamsRequired($params_req, true);
@@ -1289,6 +1289,7 @@ $(function() {
 	
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{'<?php echo $object_name; ?>'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
+        $popup.find('[autofocus]:first').focus();
 		$popup.css('overflow', 'inherit');
 
 		// Buttons
@@ -1571,11 +1572,11 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
     
 				DAO_<?php echo $class_name; ?>::delete($id);
 				
-				echo json_encode(array(
+				echo json_encode([
 					'status' => true,
 					'id' => $id,
 					'view_id' => $view_id,
-				));
+				]);
 				return;
 				
 			} else {
@@ -1584,10 +1585,10 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 				$error = null;
 				
 				if(empty($id)) { // New
-					$fields = array(
+					$fields = [
 						DAO_<?php echo $class_name; ?>::UPDATED_AT => time(),
 						DAO_<?php echo $class_name; ?>::NAME => $name,
-					);
+					];
 					
 					if(!DAO_<?php echo $class_name; ?>::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
@@ -1602,10 +1603,10 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 						C4_AbstractView::setMarqueeContextCreated($view_id, '<?php echo $ctx_ext_id; ?>', $id);
 					
 				} else { // Edit
-					$fields = array(
+					$fields = [
 						DAO_<?php echo $class_name; ?>::UPDATED_AT => time(),
 						DAO_<?php echo $class_name; ?>::NAME => $name,
-					);
+					];
 					
 					if(!DAO_<?php echo $class_name; ?>::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
@@ -1625,29 +1626,29 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 						throw new Exception_DevblocksAjaxValidationError($error);
 				}
 				
-				echo json_encode(array(
+				echo json_encode([
 					'status' => true,
 					'context' => '<?php echo $ctx_ext_id; ?>',
 					'id' => $id,
 					'label' => $name,
 					'view_id' => $view_id,
-				));
+				]);
 				return;
 			}
 			
 		} catch (Exception_DevblocksAjaxValidationError $e) {
-			echo json_encode(array(
+			echo json_encode([
 				'status' => false,
 				'error' => $e->getMessage(),
 				'field' => $e->getFieldName(),
-			));
+			]);
 			return;
 			
 		} catch (Exception $e) {
-			echo json_encode(array(
+			echo json_encode([
 				'status' => false,
 				'error' => 'An error occurred.',
-			));
+			]);
 			return;
 			
 		}
@@ -1690,13 +1691,13 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 				$model = new Model_ExplorerSet();
 				$model->hash = $hash;
 				$model->pos = $pos++;
-				$model->params = array(
+				$model->params = [
 					'title' => $view->name,
 					'created' => time(),
 //					'worker_id' => $active_worker->id,
 					'total' => $total,
 					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&type=<?php echo $table_name; ?>', true),
-				);
+				];
 				$models[] = $model;
 				
 				$view->renderTotal = false; // speed up subsequent pages
@@ -1712,10 +1713,10 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 				$model = new Model_ExplorerSet();
 				$model->hash = $hash;
 				$model->pos = $pos++;
-				$model->params = array(
+				$model->params = [
 					'id' => $row[SearchFields_<?php echo $class_name; ?>::ID],
 					'url' => $url,
-				);
+				];
 				$models[] = $model;
 			}
 			
@@ -1725,7 +1726,7 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 			
 		} while(!empty($results));
 		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(['explore',$hash,$orig_pos]));
 	}
 };
 </textarea>
