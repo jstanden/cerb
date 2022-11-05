@@ -51,44 +51,9 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget implements ICe
 	
 	function render(Model_WorkspaceWidget $widget) {
 		$tpl = DevblocksPlatform::services()->template();
-		$chart = DevblocksPlatform::services()->chart();
-		$kata = DevblocksPlatform::services()->kata();
-		
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		$chart_kata = DevblocksPlatform::importGPC($widget->params['chart_kata'] ?? '', 'string');
-		$datasets_kata = DevblocksPlatform::importGPC($widget->params['datasets_kata'] ?? '', 'string');
 		
 		try {
-			$error = null;
-			
-			$initial_state = [
-				'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
-				'current_worker_id' => $active_worker->id,
-				'widget__context' => CerberusContexts::CONTEXT_WORKSPACE_WIDGET,
-				'widget_id' => $widget->id,
-			];
-			
-			$chart_dict = DevblocksDictionaryDelegate::instance($initial_state);
-			
-			// Dashboard prefs
-			$widget->_loadDashboardPrefsForWorker($active_worker, $chart_dict);
-			
-			if(!($chart_kata = $kata->parse($chart_kata, $error)))
-				throw new Exception_DevblocksValidationError($error);
-			
-			if(!($chart_kata = $kata->formatTree($chart_kata, $chart_dict, $error)))
-				throw new Exception_DevblocksValidationError($error);
-			
-			if(!($datasets_kata = $this->_loadDatasets($datasets_kata, $chart_dict, $error)))
-				throw new Exception_DevblocksValidationError($error);
-			
-			$chart_options = [
-				'dark_mode' => DAO_WorkerPref::get($active_worker->id,'dark_mode',0),
-			];
-			
-			if(!$chart_json = $chart->parse($chart_kata, $datasets_kata, $chart_options, $error))
-				throw new Exception_DevblocksValidationError($error);
+			$chart_json = $this->_getChartJsonFromWidget($widget);
 			
 		} catch (Exception_DevblocksValidationError $e) {
 				echo DevblocksPlatform::strEscapeHtml($e->getMessage());
@@ -104,6 +69,51 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget implements ICe
 		
 		$tpl->assign('widget', $widget);
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/chart/kata/render.tpl');
+	}
+	
+	/**
+	 * @param Model_WorkspaceWidget $widget
+	 * @return array
+	 * @throws Exception_DevblocksValidationError
+	 */
+	private function _getChartJsonFromWidget(Model_WorkspaceWidget $widget) : array {
+		$chart = DevblocksPlatform::services()->chart();
+		$kata = DevblocksPlatform::services()->kata();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$chart_kata = DevblocksPlatform::importGPC($widget->params['chart_kata'] ?? '', 'string');
+		$datasets_kata = DevblocksPlatform::importGPC($widget->params['datasets_kata'] ?? '', 'string');
+		$error = null;
+		
+		$initial_state = [
+			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'current_worker_id' => $active_worker->id,
+			'widget__context' => CerberusContexts::CONTEXT_WORKSPACE_WIDGET,
+			'widget_id' => $widget->id,
+		];
+		
+		$chart_dict = DevblocksDictionaryDelegate::instance($initial_state);
+		
+		// Dashboard prefs
+		$widget->_loadDashboardPrefsForWorker($active_worker, $chart_dict);
+		
+		if(!($chart_kata = $kata->parse($chart_kata, $error)))
+			throw new Exception_DevblocksValidationError($error);
+		
+		if(!($chart_kata = $kata->formatTree($chart_kata, $chart_dict, $error)))
+			throw new Exception_DevblocksValidationError($error);
+		
+		if(!($datasets_kata = $this->_loadDatasets($datasets_kata, $chart_dict, $error)))
+			throw new Exception_DevblocksValidationError($error);
+		
+		$chart_options = [
+			'dark_mode' => DAO_WorkerPref::get($active_worker->id,'dark_mode',0),
+		];
+		
+		if(!$chart_json = $chart->parse($chart_kata, $datasets_kata, $chart_options, $error))
+			throw new Exception_DevblocksValidationError($error);
+		
+		return $chart_json;
 	}
 	
 	private function _widgetConfig_previewDataset(Model_WorkspaceWidget $model) {
@@ -447,8 +457,11 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget implements ICe
 	}
 	
 	private function _exportDataAsCsv(Model_WorkspaceWidget $widget) {
-		if(!($chart_json = $this->_buildChartJson($widget, $error)))
+		try {
+			$chart_json = $this->_getChartJsonFromWidget($widget);	
+		} catch(Exception_DevblocksValidationError $e) {
 			return null;
+		}
 		
 		$fp = fopen("php://temp", 'r+');
 		
@@ -470,19 +483,20 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget implements ICe
 	}
 	
 	private function _exportDataAsJson(Model_WorkspaceWidget $widget) {
-		$error = null;
-		
-		if(!($chart_json = $this->_buildChartJson($widget, $error)))
+		try {
+			$chart_json = $this->_getChartJsonFromWidget($widget);
+		} catch(Exception_DevblocksValidationError $e) {
 			return null;
+		}
 		
-		$results = array(
-			'widget' => array(
+		$results = [
+			'widget' => [
 				'label' => $widget->label,
 				'type' => $widget->extension_id,
 				'version' => 'Cerb ' . APP_VERSION,
 				'results' => $chart_json['data']['columns'] ?? [],
-			),
-		);
+			],
+		];
 		
 		return DevblocksPlatform::strFormatJson($results);
 	}
