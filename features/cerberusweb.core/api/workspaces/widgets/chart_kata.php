@@ -186,9 +186,11 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget implements ICe
 	private function _loadDatasets($datasets_kata, $chart_dict, &$error=null) {
 		$kata = DevblocksPlatform::services()->kata();
 		
-		$datasets_kata = $kata->parse($datasets_kata, $error);
+		if(false === ($datasets_kata = $kata->parse($datasets_kata, $error)))
+			return null;
 		
-		$datasets_kata = $kata->formatTree($datasets_kata, $chart_dict, $error);
+		if(false === ($datasets_kata = $kata->formatTree($datasets_kata, $chart_dict, $error)))
+			return null;
 		
 		$datasets = [];
 		
