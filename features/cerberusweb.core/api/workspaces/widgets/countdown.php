@@ -64,12 +64,10 @@ class WorkspaceWidget_Countdown extends Extension_WorkspaceWidget implements ICe
 		switch(DevblocksPlatform::strLower($format)) {
 			case 'csv':
 				return $this->_exportDataAsCsv($widget);
-				break;
 				
 			default:
 			case 'json':
 				return $this->_exportDataAsJson($widget);
-				break;
 		}
 		
 		return false;

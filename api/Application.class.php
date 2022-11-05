@@ -3503,13 +3503,6 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 	 * @return object[]
 	 */
 	static function getIds(array $ids) : array {
-		if(!is_array($ids)) {
-			if(is_null($ids) || !is_numeric($ids))
-				return [];
-			
-			$ids = [$ids];
-		}
-
 		if(empty($ids))
 			return [];
 		
@@ -3520,12 +3513,15 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 			if(!method_exists(get_called_class(), 'getWhere'))
 				return [];
 			
-			$ids = DevblocksPlatform::importVar($ids, 'array:integer');
+			$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 			
 			$results = static::getWhere(sprintf("id IN (%s)",
 				implode(',', $ids)
 			));
 		}
+		
+		if(!is_array($results))
+			return [];
 		
 		$models = [];
 		

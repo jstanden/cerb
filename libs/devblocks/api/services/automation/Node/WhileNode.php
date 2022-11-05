@@ -9,7 +9,7 @@ class WhileNode extends AbstractNode {
 	public function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error = null) {
 		$params = $automation->getParams($this->node, $dict);
 		
-		$if = @$params['if'];
+		$if = $params['if'] ?? null;
 		
 		if(is_null($if)) {
 			$error = '`if:` is required.';

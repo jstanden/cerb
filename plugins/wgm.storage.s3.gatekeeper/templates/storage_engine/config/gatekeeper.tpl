@@ -2,7 +2,7 @@ This engine stores content in Amazon S3 but protects credentials by signing requ
 <br>
 
 <b>URL to Gatekeeper script:</b><br>
-<input type="url" name="url" size="64" value="{$profile->params.url}"><br>
+<input type="text" name="url" size="64" value="{$profile->params.url}"><br>
 
 <b>Login:</b><br>
 <input type="text" name="username" size="32" value="{$profile->params.username}"><br>

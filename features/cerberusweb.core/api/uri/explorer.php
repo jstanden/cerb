@@ -35,7 +35,7 @@ class ChExplorerController extends DevblocksControllerExtension {
 	function writeResponse(DevblocksHttpResponse $response) {
 		$tpl = DevblocksPlatform::services()->template();
 
-		if(false == ($active_worker = CerberusApplication::getActiveWorker())) {
+		if(!($active_worker = CerberusApplication::getActiveWorker())) {
 			DevblocksPlatform::redirect(new DevblocksHttpResponse(['login']));
 			exit;
 		}
@@ -54,7 +54,7 @@ class ChExplorerController extends DevblocksControllerExtension {
 		$p = DevblocksPlatform::intClamp($p, 1, PHP_INT_MAX);
 		$total = 0;
 		
-		if(false == ($items = DAO_ExplorerSet::get($hashset, $p))) {
+		if(!($items = DAO_ExplorerSet::get($hashset, $p)))
 			CerberusApplication::respondNotFound();
 		}
 		
@@ -63,8 +63,8 @@ class ChExplorerController extends DevblocksControllerExtension {
 		if(isset($items['0'])) {
 			$meta = $items['0'];
 			$total = $meta->params['total'];
-			$title = isset($meta->params['title']) ? $meta->params['title'] : '';
-			$return_url = isset($meta->params['return_url']) ? $meta->params['return_url'] : '';
+			$title = $meta->params['title'] ?? '';
+			$return_url = $meta->params['return_url'] ?? '';
 			
 			$tpl->assign('title', $title);
 			$tpl->assign('count', $total);
