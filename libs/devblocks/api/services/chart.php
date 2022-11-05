@@ -205,7 +205,7 @@ class _DevblocksChartService {
 				);
 			}
 			
-			$x_labels = array_merge($x_labels, $datasets_kata[$dataset_key][$x_key] ?? []);
+			$x_labels = array_replace($x_labels, $datasets_kata[$dataset_key][$x_key] ?? []);
 		}
 		
 		if($x_labels) {
@@ -303,8 +303,9 @@ class _DevblocksChartService {
 							implode(', ', array_keys($datasets_kata[$dataset_key]))
 						));
 					
-					if(count($datasets_kata[$dataset_key][$x_key]) == count($values))
-						$series = array_values(array_merge($x_labels, array_combine($datasets_kata[$dataset_key][$x_key], $values)));
+					if(count($datasets_kata[$dataset_key][$x_key]) == count($values)) {
+						$series = array_values(array_replace($x_labels, array_combine($datasets_kata[$dataset_key][$x_key], $values)));
+					}
 					
 				} else {
 					if(is_array($values)) {
