@@ -243,15 +243,47 @@ var cerbAutocompleteSuggestions = {
 			'type:'
 		],
 		'axis:x:tick:': [
-			'format:'
+			'format:',
+			'fit@bool: no',
+			'multiline@bool: no',
+			'rotate: -90'
 		],
 		'axis:x:tick:format:': [
+			'date:',
+			'duration:',
+			'number:'
+		],
+		'axis:x:tick:format:date:': [
+			'pattern:'
+		],
+		'axis:x:tick:format:date:pattern:': [
 			'%Y',
 			'%Y-%m',
 			'%B \'%y',
 			'%Y-%m-%d',
 			'%Y-%m-%d %H:%M',
 			'%Y-%m-%d %H:%M:%S'
+		],
+		'axis:x:tick:format:duration:': [
+			'precision@int: 2',
+			'unit:'
+		],
+		'axis:x:tick:format:duration:precision:': [
+			'2'
+		],
+		'axis:x:tick:format:duration:unit:': [
+			'milliseconds',
+			'seconds',
+			'minutes',
+		],
+		'axis:x:tick:format:number:': [
+			'pattern:'
+		],
+		'axis:x:tick:format:number:pattern:': [
+			',',
+			',d',
+			'.4f',
+			'.2s',
 		],
 		'axis:x:type:': [
 			'category',
@@ -264,15 +296,47 @@ var cerbAutocompleteSuggestions = {
 			'type:'
 		],
 		'axis:y:tick:': [
-			'format:'
+			'format:',
+			'fit@bool: no',
+			'multiline@bool: no',
+			'rotate: -90'
 		],
 		'axis:y:tick:format:': [
+			'date:',
+			'duration:',
+			'number:'
+		],
+		'axis:y:tick:format:date:': [
+			'pattern:'
+		],
+		'axis:y:tick:format:date:pattern:': [
 			'%Y',
 			'%Y-%m',
 			'%B \'%y',
 			'%Y-%m-%d',
 			'%Y-%m-%d %H:%M',
-			'%Y-%m-%d %H:%M:%S',
+			'%Y-%m-%d %H:%M:%S'
+		],
+		'axis:y:tick:format:duration:': [
+			'precision@int: 2',
+			'unit:'
+		],
+		'axis:y:tick:format:duration:precision:': [
+			'2'
+		],
+		'axis:y:tick:format:duration:unit:': [
+			'milliseconds',
+			'seconds',
+			'minutes',
+		],
+		'axis:y:tick:format:number:': [
+			'pattern:'
+		],
+		'axis:y:tick:format:number:pattern:': [
+			',',
+			',d',
+			'.4f',
+			'.2s',
 		],
 		'axis:y:type:': [
 			'category',
@@ -285,15 +349,47 @@ var cerbAutocompleteSuggestions = {
 			'type:'
 		],
 		'axis:y2:tick:': [
-			'format:'
+			'format:',
+			'fit@bool: no',
+			'multiline@bool: no',
+			'rotate: -90'
 		],
 		'axis:y2:tick:format:': [
+			'date:',
+			'duration:',
+			'number:'
+		],
+		'axis:y2:tick:format:date:': [
+			'pattern:'
+		],
+		'axis:y2:tick:format:date:pattern:': [
 			'%Y',
 			'%Y-%m',
 			'%B \'%y',
 			'%Y-%m-%d',
 			'%Y-%m-%d %H:%M',
-			'%Y-%m-%d %H:%M:%S',
+			'%Y-%m-%d %H:%M:%S'
+		],
+		'axis:y2:tick:format:duration:': [
+			'precision@int: 2',
+			'unit:'
+		],
+		'axis:y2:tick:format:duration:precision:': [
+			'2'
+		],
+		'axis:y2:tick:format:duration:unit:': [
+			'milliseconds',
+			'seconds',
+			'minutes',
+		],
+		'axis:y2:tick:format:number:': [
+			'pattern:'
+		],
+		'axis:y2:tick:format:number:pattern:': [
+			',',
+			',d',
+			'.4f',
+			'.2s',
 		],
 		'axis:y2:type:': [
 			'category',

@@ -392,6 +392,13 @@ class _DevblocksChartService {
 		}
 	}
 	
+	/**
+	 * @param string $axis
+	 * @param array $chart_kata
+	 * @param array $chart_json
+	 * @return void
+	 * @throws Exception_DevblocksValidationError
+	 */
 	private function _parseChartAxis(string $axis, array $chart_kata, array &$chart_json) : void {
 		if(!($chart_kata['axis'][$axis] ?? []))
 			return;
@@ -416,6 +423,67 @@ class _DevblocksChartService {
 		if($chart_kata['axis'][$axis]['tick'] ?? false) {
 			$chart_json['axis'][$axis]['tick'] = [];
 			
+			if(array_key_exists('format', $chart_kata['axis'][$axis]['tick'])) {
+				$format = $chart_kata['axis'][$axis]['tick']['format'];
+				
+				if('linear' == $chart_kata['axis'][$axis]['type']) {
+					if(is_string($format))
+						$format = ['number' => ['pattern' => $format]];
+					
+					if('duration' == array_key_first($format)) {
+						$unit = $format['duration']['unit'] ?? null;
+						
+						if(!is_string($unit))
+							throw new Exception_DevblocksValidationError(sprintf('`axis:%s:tick:format:duration:unit:` must be one of: milliseconds, seconds, minutes, hours.', $axis));
+						
+						if(!in_array($unit, ['milliseconds', 'seconds', 'minutes', 'hours']))
+							$unit = 'seconds';
+						
+						$chart_json['axis'][$axis]['tick']['format_options'] = [
+							'as' => 'duration',
+							'params' => [
+								'unit' => $unit,
+								'precision' => intval($format['duration']['precision'] ?? 2),
+							],
+						];
+						
+					} else {
+						$format = $format['number']['pattern'] ?? '';
+						
+						if(!is_string($format))
+							throw new Exception_DevblocksValidationError(sprintf('`axis:%s:tick:format:duration:pattern:` must be a string.', $axis));
+						
+						// https://github.com/d3/d3-format#locale_format
+						// [[fill]align][sign][symbol][0][width][,][.precision][~][type]
+						
+						$chart_json['axis'][$axis]['tick']['format_options'] = [
+							'as' => 'number',
+							'params' => [
+								'pattern' => $format,
+							],
+						];
+					}
+					
+				} else if('timeseries' == $chart_kata['axis'][$axis]['type']) {
+					if(is_string($format))
+						$format = ['date' => ['pattern' => $format]];
+					
+					if('date' == array_key_first($format)) {
+						$pattern = $format['date']['pattern'] ?? '';
+						
+						if(!is_string($pattern))
+							throw new Exception_DevblocksValidationError(sprintf('`axis:%s:tick:format:date:pattern:` must be a string.', $axis));
+						
+						$chart_json['axis'][$axis]['tick']['format_options'] = [
+							'as' => 'date',
+							'params' => [
+								'pattern' => $pattern,
+							],
+						];
+					}
+				}
+			}
+			
 			if(array_key_exists('fit', $chart_kata['axis'][$axis]['tick'])) {
 				$chart_json['axis'][$axis]['tick']['fit'] = boolval($chart_kata['axis'][$axis]['tick']['fit']);
 			}
@@ -427,6 +495,9 @@ class _DevblocksChartService {
 			if(array_key_exists('rotate', $chart_kata['axis'][$axis]['tick'])) {
 				$chart_json['axis'][$axis]['tick']['rotate'] = DevblocksPlatform::intClamp($chart_kata['axis'][$axis]['tick']['rotate'], -360, 360);
 			}
+			
+			if(empty($chart_json['axis'][$axis]['tick']))
+				unset($chart_json['axis'][$axis]['tick']);
 		}
 	}
 	
