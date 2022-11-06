@@ -381,8 +381,14 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget implements ICe
 		
 		foreach($query_results['_']['series'] ?? [] as $x_label => $y_series) {
 			foreach($y_series as $y_series_k => $y_series_v) {
-				if($key_map && array_key_exists($y_series_k, $key_map))
-					$y_series_k = $key_map[$y_series_k];
+				
+				if($is_stacked) {
+					if($key_map && array_key_exists($y_series_k, $key_map))
+						$y_series_k = $key_map[$y_series_k];
+				} else {
+					if($key_map && array_key_exists($x_label, $key_map))
+						$x_label = $key_map[$x_label];
+				}
 				
 				if (!DevblocksPlatform::strStartsWith($y_series_k, '_')) {
 					if (
