@@ -350,16 +350,33 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget implements ICe
 		
 		$x_labels = [];
 		
+		$is_stacked = $query_results['_']['stacked'] ?? false;
+		
+		// If we specified an `x_key:`
 		if($query_results['_']['format_params']['xaxis_key'] ?? null)
 			$x_labels = array_flip(array_slice($query_results['data'][0], 1));
 		
-		$series_keys = array_column(array_slice($query_results['data'], 1), '0');
-		
-		foreach($series_keys as $series_key) {
-			if($key_map && array_key_exists($series_key, $key_map))
-				$series_key = $key_map[$series_key];
+		if($is_stacked) {
+			foreach($query_results['_']['series'] ?? [] as $x_label => $y_series) {
+				foreach($y_series as $y_series_k => $y_series_v) {
+					if($key_map && array_key_exists($y_series_k, $key_map))
+						$y_series_k = $key_map[$y_series_k];
+					
+					if(!DevblocksPlatform::strStartsWith($y_series_k, '_')) {
+						if(array_key_exists($x_label, $x_labels)) {
+							$results[$y_series_k . '__click'] = array_fill_keys($x_labels, '');
+						}
+					}
+				}
+			}
 			
-			$results[$series_key . '__click'] = array_fill_keys($x_labels, '');
+		} else { // Not stacked
+			foreach($query_results['_']['series'] ?? [] as $x_label => $y_series) {
+				if($key_map && array_key_exists($x_label, $key_map))
+					$x_label = $key_map[$x_label];
+				
+				$results[$x_label . '__click'] = array_fill_keys($x_labels, '');
+			}
 		}
 		
 		foreach($query_results['_']['series'] ?? [] as $x_label => $y_series) {
@@ -368,11 +385,11 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget implements ICe
 					$y_series_k = $key_map[$y_series_k];
 				
 				if (!DevblocksPlatform::strStartsWith($y_series_k, '_')) {
-					if(
-						array_key_exists($x_label, $x_labels)
+					if (
+						array_key_exists($is_stacked ? $x_label : $y_series_k, $x_labels)
 						&& array_key_exists('query', $y_series_v)
 					) {
-						$results[$y_series_k . '__click'][$x_labels[$x_label]] = $query_results['_']['context'] . ' ' . $y_series_v['query'];
+						$results[($is_stacked ? $y_series_k : $x_label) . '__click'][$x_labels[$is_stacked ? $x_label : $y_series_k]] = $query_results['_']['context'] . ' ' . $y_series_v['query'];
 					}
 				}
 			}
