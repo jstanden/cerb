@@ -54,7 +54,7 @@ class ChExplorerController extends DevblocksControllerExtension {
 		$p = DevblocksPlatform::intClamp($p, 1, PHP_INT_MAX);
 		$total = 0;
 		
-		if(!($items = DAO_ExplorerSet::get($hashset, $p)))
+		if(!($items = DAO_ExplorerSet::get($hashset, $p))) {
 			CerberusApplication::respondNotFound();
 		}
 		
