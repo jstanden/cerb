@@ -24,9 +24,9 @@ class CardWidget_KbArticle extends Extension_CardWidget {
 			'widget_id' => $model->id,
 		]);
 		
-		$target_context_id = $tpl_builder->build($target_context_id, $dict);
+		$target_context_id = intval($tpl_builder->build($target_context_id, $dict));
 		
-		if(false == ($article = DAO_KbArticle::get($target_context_id)))
+		if(!($article = DAO_KbArticle::get($target_context_id)))
 			return;
 		
 		$tpl->assign('content', $article->getContentProtected());

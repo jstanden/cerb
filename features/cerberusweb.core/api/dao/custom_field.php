@@ -2274,7 +2274,7 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 		$properties['type'] = array(
 			'label' => mb_ucfirst($translate->_('common.type')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => @$model->getTypes()[$model->type] ?: null,
+			'value' => $model->getTypes()[$model->type] ?? null,
 		);
 		
 		$properties['uri'] = array(

@@ -26,19 +26,19 @@ class CardWidget_Conversation extends Extension_CardWidget {
 			'widget_id' => $model->id,
 		]);
 		
-		if(empty($target_context))
+		if(!$target_context)
 			$target_context = $context;
 		
-		$target_context_id = $tpl_builder->build($target_context_id, $dict);
+		$target_context_id = intval($tpl_builder->build($target_context_id, $dict));
 		$timeline_json = '[]';
 		$start_at = 0;
 		
 		if (in_array($target_context, [CerberusContexts::CONTEXT_MESSAGE, CerberusContexts::CONTEXT_TICKET])) {
 			if($target_context == CerberusContexts::CONTEXT_MESSAGE) {
-				if(false == ($ticket = DAO_Ticket::getTicketByMessageId($target_context_id)))
+				if(!($ticket = DAO_Ticket::getTicketByMessageId($target_context_id)))
 					return;
 			} else {
-				if(false == ($ticket = DAO_Ticket::get($target_context_id)))
+				if(!($ticket = DAO_Ticket::get($target_context_id)))
 					return;
 			}
 			
@@ -56,13 +56,13 @@ class CardWidget_Conversation extends Extension_CardWidget {
 			$timeline_json = Page_Profiles::getTimelineJson($ticket_timeline, true, $start_at);
 			
 		} else if($target_context == CerberusContexts::CONTEXT_COMMENT) {
-			if(false != ($comment = DAO_Comment::get($target_context_id))) {
+			if(($comment = DAO_Comment::get($target_context_id))) {
 				$comment_timeline = $comment->getTimeline(true, $target_context_id, $start_at);
 				$timeline_json = Page_Profiles::getTimelineJson($comment_timeline, true, $start_at);
 			}
 			
 		} else if ($target_context == CerberusContexts::CONTEXT_DRAFT) {
-			if(false != ($draft = DAO_MailQueue::get($target_context_id))) {
+			if(($draft = DAO_MailQueue::get($target_context_id))) {
 				$draft_timeline = $draft->getTimeline();
 				$timeline_json = Page_Profiles::getTimelineJson($draft_timeline, true);
 			}

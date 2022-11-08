@@ -495,6 +495,9 @@ class Model_ProfileTab {
 	public $updated_at = 0;
 	
 	function getContextExtension($as_instance=true) {
+		if(!$this->context)
+			return false;
+		
 		return Extension_DevblocksContext::get($this->context, $as_instance);
 	}
 	
@@ -873,13 +876,13 @@ class Context_ProfileTab extends Extension_DevblocksContext implements IDevblock
 		$properties['context'] = array(
 			'label' => DevblocksPlatform::translateCapitalized('common.record'),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => @$model->getContextExtension(false)->name,
+			'value' => $model->getContextExtension(false)->name ?? '',
 		);
 		
 		$properties['extension_id'] = array(
 			'label' => DevblocksPlatform::translateCapitalized('common.type'),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => @$model->getExtension()->manifest->name,
+			'value' => $model->getExtension()->manifest->name ?? '',
 		);
 		
 		$properties['updated'] = array(

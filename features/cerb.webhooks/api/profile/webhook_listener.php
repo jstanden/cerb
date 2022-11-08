@@ -59,7 +59,7 @@ class PageSection_ProfilesWebhookListener extends Extension_PageSection {
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_WEBHOOK_LISTENER)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
-				if(false == ($model = DAO_WebhookListener::get($id)))
+				if(!($model = DAO_WebhookListener::get($id)))
 					DevblocksPlatform::dieWithHttpError(null, 404);
 				
 				if(!Context_WebhookListener::isDeletableByActor($model, $active_worker))

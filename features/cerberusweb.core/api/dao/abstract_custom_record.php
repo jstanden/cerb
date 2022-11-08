@@ -523,11 +523,9 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 		switch($as) {
 			case 'ids':
 				return array_keys($objects);
-				break;
 				
 			default:
 				return self::getIds(array_keys($objects));
-				break;
 		}
 	}
 	

@@ -118,12 +118,12 @@ class DAO_AutomationLog extends Cerb_ORMHelper {
 		if(!method_exists(get_called_class(), 'getWhere'))
 			return [];
 
-		$db = DevblocksPlatform::services()->database();
-
 		$models = [];
+		
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 
 		$results = static::getWhere(sprintf("id IN (%s)",
-			implode(',', $db->qstrArray($ids))
+			implode(',', $ids)
 		));
 
 		// Sort $models in the same order as $ids

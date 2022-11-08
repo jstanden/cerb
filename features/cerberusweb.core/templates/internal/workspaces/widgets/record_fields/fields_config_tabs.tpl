@@ -37,12 +37,12 @@
 	<div id="widget{$widget->id}TabOptions">
 		<div>
 			<label>
-				<input type="checkbox" name="params[links][show]" value="1" {if $widget->params.links.show}checked="checked"{/if}> Show record links
+				<input type="checkbox" name="params[links][show]" value="1" {if $widget && $widget->params.links.show}checked="checked"{/if}> Show record links
 			</label>
 		</div>
 		<div>
 			<label>
-				<input type="checkbox" name="params[options][show_empty_properties]" value="1" {if $widget->params.options.show_empty_properties}checked="checked"{/if}> Show empty fields
+				<input type="checkbox" name="params[options][show_empty_properties]" value="1" {if $widget && $widget->params.options.show_empty_properties}checked="checked"{/if}> Show empty fields
 			</label>
 		</div>
 	</div>
@@ -83,7 +83,7 @@
 				<button type="button" style="float:right;" class="cerb-code-editor-toolbar-button cerb-editor-button-help"><a href="#" target="_blank"><span class="glyphicons glyphicons-circle-question-mark"></span></a></button>
 			</div>
 
-			<textarea name="params[toolbar_kata]" data-editor-mode="ace/mode/cerb_kata">{$widget->params.toolbar_kata}</textarea>
+			<textarea name="params[toolbar_kata]" data-editor-mode="ace/mode/cerb_kata">{$widget && $widget->params.toolbar_kata}</textarea>
 		</fieldset>
 	</div>
 	

@@ -1131,7 +1131,7 @@ class CerberusMail {
 		$properties['group_id'] = $group->id;
 		$properties['bucket_id'] = $bucket->id;
 		
-		if(false !== ($ticket = DAO_Ticket::get($ticket_id)))
+		if(($ticket = DAO_Ticket::get($ticket_id)))
 			DAO_Ticket::updateWithMessageProperties($properties, $ticket, $ticket_fields, false);
 		
 		// Train as not spam

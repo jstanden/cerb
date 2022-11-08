@@ -2115,10 +2115,13 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	/**
 	 * @internal
 	 */
-	static function getTimelineComments($context, $context_id, $is_ascending=true) {
+	static function getTimelineComments(string $context, int $context_id, bool $is_ascending=true) : array {
 		$timeline = [];
 		
-		if(false != ($comments = DAO_Comment::getByContext($context, $context_id)))
+		if(!$context_id)
+			return [];
+		
+		if(($comments = DAO_Comment::getByContext($context, $context_id)))
 			$timeline = array_merge($timeline, $comments);
 		
 		usort($timeline, function($a, $b) use ($is_ascending) {
@@ -4781,14 +4784,15 @@ class _DevblocksSortHelper {
 			if(!is_string($a_test) || !is_string($b_test))
 				return 0;
 			
-			$result = strcasecmp($a_test, $b_test);
-
-			return $result;
+			return strcasecmp($a_test, $b_test);
 		}
 	}
 
 	static function sortObjects(&$array, $on, $ascending=true) {
 		self::$_sortOn = $on;
+		
+		if(!is_array($array))
+			return [];
 
 		uasort($array, array('_DevblocksSortHelper', 'sortByNestedMember'));
 

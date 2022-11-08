@@ -64,10 +64,10 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 		$widget_id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null, 'integer',0);
 		$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension'] ?? null, 'string','');
 		
-		if(false == ($widget_extension = Extension_WorkspaceWidget::get($extension_id)))
+		if(!($widget_extension = Extension_WorkspaceWidget::get($extension_id)))
 			return;
 		
-		if(false == ($widget = DAO_WorkspaceWidget::get($widget_id))) {
+		if(!($widget = DAO_WorkspaceWidget::get($widget_id))) {
 			$widget = new Model_WorkspaceWidget();
 			$widget->extension_id = $widget_extension->id;
 		}
@@ -135,7 +135,7 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 						if(empty($package_uri))
 							throw new Exception_DevblocksAjaxValidationError("You must select a package from the library.");
 						
-						if(false == ($package = DAO_PackageLibrary::getByUri($package_uri)))
+						if(!($package = DAO_PackageLibrary::getByUri($package_uri)))
 							throw new Exception_DevblocksAjaxValidationError("You selected an invalid package.");
 						
 						if($package->point != 'workspace_widget')
@@ -393,13 +393,13 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
 		$full = DevblocksPlatform::importGPC($_POST['full'] ?? null, 'bool', false);
 		
-		if(false == ($widget = DAO_WorkspaceWidget::get($id)))
+		if(!($widget = DAO_WorkspaceWidget::get($id)))
 			return;
 		
 		if(!Context_WorkspaceWidget::isReadableByActor($widget, $active_worker))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		if(false == ($extension = $widget->getExtension()))
+		if(!($extension = $widget->getExtension()))
 			return;
 		
 		// If full, we also want to replace the container
@@ -407,7 +407,7 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 			$tpl = DevblocksPlatform::services()->template();
 			$tpl->assign('widget', $widget);
 			
-			if(false == ($widget->getWorkspaceTab()))
+			if(!($widget->getWorkspaceTab()))
 				return;
 			
 			$tpl->assign('full', true);
@@ -449,7 +449,7 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 		
 		$context = DevblocksPlatform::importGPC($_REQUEST['context'] ?? null,'string','');
 		
-		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+		if(!($context_ext = Extension_DevblocksContext::get($context)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(!($context_ext instanceof IDevblocksContextProfile))
@@ -564,13 +564,13 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 		
 		$id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null, 'int', 0);
 		
-		if(false == ($widget = DAO_WorkspaceWidget::get($id)))
+		if(!($widget = DAO_WorkspaceWidget::get($id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
-		if(false == ($extension = $widget->getExtension()))
+		if(!($extension = $widget->getExtension()))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
-		if(false == ($page = $widget->getWorkspacePage()))
+		if(!($page = $widget->getWorkspacePage()))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(!Context_WorkspacePage::isWriteableByActor($page, $active_worker))
@@ -590,10 +590,10 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 		
 		$id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null, 'int', 0);
 		
-		if(false == ($widget = DAO_WorkspaceWidget::get($id)))
+		if(!($widget = DAO_WorkspaceWidget::get($id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
-		if(false == ($extension = $widget->getExtension()))
+		if(!($extension = $widget->getExtension()))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(!($extension instanceof ICerbWorkspaceWidget_ExportData))

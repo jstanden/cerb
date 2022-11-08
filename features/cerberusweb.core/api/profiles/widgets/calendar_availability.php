@@ -26,14 +26,14 @@ class ProfileWidget_CalendarAvailability extends Extension_ProfileWidget {
 		$target_context_id = $model->extension_params['calendar_id'] ?? null;
 		$calendar = null;
 		
-		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+		if(!($context_ext = Extension_DevblocksContext::get($context)))
 			return;
 		
 		$tpl->assign('widget', $model);
 		
 		$dao_class = $context_ext->getDaoClass();
 		
-		if(false == ($record = $dao_class::get($context_id)))
+		if(!($record = $dao_class::get($context_id)))
 			return;
 		
 		// Are we showing fields for a different record?
@@ -67,9 +67,9 @@ class ProfileWidget_CalendarAvailability extends Extension_ProfileWidget {
 			$values['widget_id'] = $model->id;
 			$dict = DevblocksDictionaryDelegate::instance($values);
 			
-			$context_id = $tpl_builder->build($target_context_id, $dict);
+			$context_id = intval($tpl_builder->build($target_context_id, $dict));
 			
-			if(false == ($calendar = DAO_Calendar::get($context_id))) {
+			if(!($calendar = DAO_Calendar::get($context_id))) {
 				return;
 			}
 		}

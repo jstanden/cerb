@@ -573,7 +573,6 @@ class CustomField_RecordLinks extends Extension_CustomField {
 			'label' => '(variable) ' . $var['label'],
 			'context' => $var['params']['context'],
 		];
-		return;
 	}
 	
 	// [TODO] This should be more efficient on worklists (once per page, lots of dupes in cols)

@@ -1284,7 +1284,7 @@ class Model_Message {
 			$this,
 		];
 		
-		if(false != ($comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_MESSAGE, $this->id)))
+		if(($comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_MESSAGE, $this->id)))
 			$timeline = array_merge($timeline, $comments);
 		
 		usort($timeline, function($a, $b) use ($is_ascending) {

@@ -432,10 +432,10 @@ class Page_Profiles extends CerberusPageExtension {
 		$tab_id = DevblocksPlatform::importGPC($_REQUEST['tab_id'] ?? null, 'integer',0);
 		@$action = DevblocksPlatform::importGPC(isset($_GET['action']) ? $_GET['action'] : $_REQUEST['action'],'string','');
 		
-		if(false == ($profile_tab = DAO_ProfileTab::get($tab_id)))
+		if(!($profile_tab = DAO_ProfileTab::get($tab_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
-		if(false == ($extension = $profile_tab->getExtension()))
+		if(!($extension = $profile_tab->getExtension()))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(!Context_ProfileTab::isReadableByActor($profile_tab, $active_worker))
@@ -462,10 +462,10 @@ class Page_Profiles extends CerberusPageExtension {
 		$widget_id = DevblocksPlatform::importGPC($_REQUEST['widget_id'] ?? null, 'integer',0);
 		@$action = DevblocksPlatform::importGPC(isset($_GET['action']) ? $_GET['action'] : $_REQUEST['action'],'string','');
 		
-		if(false == ($profile_widget = DAO_ProfileWidget::get($widget_id)))
+		if(!($profile_widget = DAO_ProfileWidget::get($widget_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
-		if(false == ($extension = $profile_widget->getExtension()))
+		if(!($extension = $profile_widget->getExtension()))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(!Context_ProfileWidget::isReadableByActor($profile_widget, $active_worker))
@@ -501,8 +501,8 @@ class Page_Profiles extends CerberusPageExtension {
 				'id' => $cf_id,
 				'label' => $cfield->name,
 				'type' => $cfield->type,
-				'value' => @$values[$cf_id],
-				'params' => @$cfield->params ?: [],
+				'value' => $values[$cf_id] ?? null,
+				'params' => $cfield->params ?? [],
 			];
 		}
 		

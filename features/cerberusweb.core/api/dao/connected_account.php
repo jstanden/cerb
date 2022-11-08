@@ -1193,7 +1193,7 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 		$properties['service'] = array(
 			'label' => mb_ucfirst($translate->_('common.service.provider')),
 			'type' => Model_CustomField::TYPE_LINK,
-			'value' => @$model->getService()->id,
+			'value' => $model->getService()->id ?? 0,
 			'params' => [
 				'context' => CerberusContexts::CONTEXT_CONNECTED_SERVICE,
 			],

@@ -2204,17 +2204,17 @@ class CerberusContexts {
 
 	static function getModels($context, array $ids) {
 		$context = trim($context);
-		$ids = DevblocksPlatform::importVar($ids, 'array:integer', []);
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 
 		$models = [];
 
 		if(empty($ids))
 			return $models;
 
-		if(false == ($context_ext = Extension_DevblocksContext::getByAlias($context, true)))
+		if(!($context_ext = Extension_DevblocksContext::getByAlias($context, true)))
 			return $models;
 
-		if(false == ($dao_class = $context_ext->getDaoClass()))
+		if(!($dao_class = $context_ext->getDaoClass()))
 			return $models;
 
 		if(method_exists($dao_class, 'getIds')) {
@@ -3071,13 +3071,18 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 			return false;
 
 		$db->ExecuteMaster("DELETE FROM devblocks_session");
+		
+		return true;
 	}
 
 	static function destroyByWorkerIds($ids) {
 		if(!self::isReady())
 			return false;
 
-		if(!is_array($ids)) $ids = array($ids);
+		if(!is_array($ids))
+			$ids = [$ids];
+		
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 
 		$ids_list = implode(',', $ids);
 
@@ -3086,6 +3091,8 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 
 		$db = DevblocksPlatform::services()->database();
 		$db->ExecuteMaster(sprintf("DELETE FROM devblocks_session WHERE user_id IN (%s)", $ids_list));
+		
+		return true;
 	}
 };
 

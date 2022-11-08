@@ -13,7 +13,7 @@
 			<div style="display:flex;flex-flow:row wrap;">
 				{foreach from=$properties item=property key=property_key}
 				<div class="cerb-sort-item" style="flex:0 0 200px;">
-					<label><input type="checkbox" name="params[properties][0][]" value="{$property_key}" {if is_array($widget->extension_params.properties.0) && in_array($property_key, $widget->extension_params.properties.0)}checked="checked"{/if}> {$property.label}</label>
+					<label><input type="checkbox" name="params[properties][0][]" value="{$property_key}" {if $widget && is_array($widget->extension_params.properties.0) && in_array($property_key, $widget->extension_params.properties.0)}checked="checked"{/if}> {$property.label}</label>
 				</div>
 				{/foreach}
 			</div>
@@ -26,7 +26,7 @@
 			<div style="display:flex;flex-flow:row wrap;">
 				{foreach from=$custom_fieldset.properties item=property key=property_key}
 				<div style="flex:0 0 200px;">
-					<label><input type="checkbox" name="params[properties][{$custom_fieldset_id}][]" value="{$property_key}" {if is_array($widget->extension_params.properties.$custom_fieldset_id) && in_array($property_key, $widget->extension_params.properties.$custom_fieldset_id)}checked="checked"{/if}> {$property.label}</label>
+					<label><input type="checkbox" name="params[properties][{$custom_fieldset_id}][]" value="{$property_key}" {if $widget && is_array($widget->extension_params.properties.$custom_fieldset_id) && in_array($property_key, $widget->extension_params.properties.$custom_fieldset_id)}checked="checked"{/if}> {$property.label}</label>
 				</div>
 				{/foreach}
 			</div>
@@ -37,12 +37,12 @@
 	<div id="widget{$widget->id}TabOptions">
 		<div>
 			<label>
-				<input type="checkbox" name="params[links][show]" value="1" {if $widget->extension_params.links.show}checked="checked"{/if}> Show record links
+				<input type="checkbox" name="params[links][show]" value="1" {if $widget && $widget->extension_params.links.show}checked="checked"{/if}> Show record links
 			</label>
 		</div>
 		<div>
 			<label>
-				<input type="checkbox" name="params[options][show_empty_properties]" value="1" {if $widget->extension_params.options.show_empty_properties}checked="checked"{/if}> Show empty fields
+				<input type="checkbox" name="params[options][show_empty_properties]" value="1" {if $widget && $widget->extension_params.options.show_empty_properties}checked="checked"{/if}> Show empty fields
 			</label>
 		</div>
 	</div>
@@ -83,7 +83,7 @@
 				<button type="button" style="float:right;" class="cerb-code-editor-toolbar-button cerb-editor-button-help"><a href="#" target="_blank"><span class="glyphicons glyphicons-circle-question-mark"></span></a></button>
 			</div>
 
-			<textarea name="params[toolbar_kata]" data-editor-mode="ace/mode/cerb_kata">{$widget->extension_params.toolbar_kata}</textarea>
+			<textarea name="params[toolbar_kata]" data-editor-mode="ace/mode/cerb_kata">{$widget && $widget->extension_params.toolbar_kata}</textarea>
 		</fieldset>
 	</div>	
 	

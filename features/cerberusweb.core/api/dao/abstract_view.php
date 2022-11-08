@@ -179,8 +179,8 @@ abstract class C4_AbstractView {
 				return [];
 			
 			$data = call_user_func_array(
-				array($dao_class, 'search'),
-				array(
+				[$dao_class, 'search'],
+				[
 					$this->view_columns,
 					$this->getParams(),
 					$this->renderLimit,
@@ -188,10 +188,16 @@ abstract class C4_AbstractView {
 					$this->renderSortBy,
 					$this->renderSortAsc,
 					true
-				)
+				]
 			);
 			
+			if(!is_array($data))
+				return [];
+			
 			list($results, $total) = $data;
+			
+			if(!is_array($results))
+				return [];
 			
 			$ids = array_keys($results);
 			
@@ -212,11 +218,11 @@ abstract class C4_AbstractView {
 		$results = [];
 		
 		$models = call_user_func_array(
-			array($dao_class, 'getWhere'),
-			array(
+			[$dao_class, 'getWhere'],
+			[
 				$sql,
 				null,
-			)
+			]
 		);
 		
 		foreach($ids as $id) {

@@ -25,9 +25,9 @@ class CardWidget_ClassifierTrainer extends Extension_CardWidget {
 			'widget_id' => $model->id,
 		]);
 		
-		$target_context_id = $tpl_builder->build($target_context_id, $dict);
+		$target_context_id = intval($tpl_builder->build($target_context_id, $dict));
 		
-		if(false == ($classifier = DAO_Classifier::get($target_context_id)))
+		if(!($classifier = DAO_Classifier::get($target_context_id)))
 			return;
 		
 		$tpl->assign('classifier', $classifier);

@@ -11,7 +11,7 @@
 $(function() {
 	var $prompt = $('#{$element_id}');
 
-	var $input = $prompt.find('input[type=text]');
+	var $input = $prompt.find('input[type=text],input[type=password]');
 	var input = $input.get(0);
 
 	// Move the cursor to the end of the text

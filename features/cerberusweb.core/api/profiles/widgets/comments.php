@@ -35,8 +35,8 @@ class ProfileWidget_Comments extends Extension_ProfileWidget {
 				'widget_id' => $model->id,
 			]);
 			
-			@$target_context = $tpl_builder->build($model->extension_params['context'], $dict);
-			@$target_context_id = $tpl_builder->build($model->extension_params['context_id'], $dict);
+			$target_context = $tpl_builder->build($model->extension_params['context'] ?? '', $dict);
+			$target_context_id = intval($tpl_builder->build($model->extension_params['context_id'] ?? '', $dict));
 		}
 		
 		$comments = DAO_Comment::getByContext($target_context, $target_context_id);

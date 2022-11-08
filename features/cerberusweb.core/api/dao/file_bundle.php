@@ -1327,7 +1327,7 @@ class Context_FileBundle extends Extension_DevblocksContext implements IDevblock
 		$tpl->assign('view_id', $view_id);
 		
 		if($context_id) {
-			if(false == ($model = DAO_FileBundle::get($context_id)))
+			if(!($model = DAO_FileBundle::get($context_id)))
 				DevblocksPlatform::dieWithHttpError(null, 404);
 			
 			$tpl->assign('model', $model);

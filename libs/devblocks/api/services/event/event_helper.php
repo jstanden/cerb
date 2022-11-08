@@ -866,7 +866,7 @@ class DevblocksEventHelper {
 				
 				DAO_CustomFieldValue::formatAndSetFieldValues($context, $context_id, [$custom_field->id => $opts], true, true);
 				
-				if(!empty($value_key)) {
+				if(!empty($value_key) && is_array($opts)) {
 					// Set the string variant of the custom field
 					$key_to_set = $value_key.'_'.$custom_field->id;
 					$dict->set($key_to_set, implode(', ', $opts));
@@ -879,7 +879,7 @@ class DevblocksEventHelper {
 				break;
 			
 			default:
-				if(false != ($custom_field_ext = $custom_field->getTypeExtension())) {
+				if(($custom_field_ext = $custom_field->getTypeExtension())) {
 					$custom_field_ext->botActionRun($custom_field, $params, $dict, $context, $context_id, $value_key);
 				}
 				break;
@@ -4538,7 +4538,7 @@ class DevblocksEventHelper {
 				continue;
 			
 			// Security check
-			if(substr($var,0,4) != 'var_')
+			if(!DevblocksPlatform::strStartsWith($var, 'var_'))
 				continue;
 			
 			$ids = [];
@@ -4548,6 +4548,8 @@ class DevblocksEventHelper {
 
 			if(empty($ids))
 				continue;
+			
+			$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 			
 			$addresses = DAO_Address::getWhere(sprintf("%s IN (%s)",
 				DAO_Address::ID,

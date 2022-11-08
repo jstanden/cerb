@@ -578,6 +578,9 @@ class Model_ContextSavedSearch {
 	}
 	
 	public function getContextExtension($as_instance=true) {
+		if(!$this->context)
+			return false;
+		
 		if($as_instance) {
 			return Extension_DevblocksContext::get($this->context);
 		} else {
@@ -957,7 +960,7 @@ class Context_ContextSavedSearch extends Extension_DevblocksContext implements I
 		$properties['context'] = array(
 			'label' => DevblocksPlatform::translateCapitalized('common.record.type'),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => @$search_context_ext->name ?: null,
+			'value' => $search_context_ext->name ?? null,
 		);
 		
 		$properties['updated'] = array(

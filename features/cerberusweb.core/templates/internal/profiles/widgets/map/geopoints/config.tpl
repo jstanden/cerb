@@ -20,7 +20,7 @@
 
 			<div class="cerb-code-editor-toolbar-divider"></div>
 		</div>
-		<textarea name="params[map_kata]" data-editor-mode="ace/mode/cerb_kata">{$model->extension_params.map_kata}</textarea>
+		<textarea name="params[map_kata]" data-editor-mode="ace/mode/cerb_kata">{$model && $model->extension_params.map_kata}</textarea>
 	</fieldset>
 
 	<fieldset data-cerb-event-map-clicked>
@@ -45,7 +45,7 @@
 			{include file="devblocks:cerberusweb.core::automations/triggers/editor_event_handler_buttons.tpl"}
 		</div>
 		
-		<textarea name="params[automation][map_clicked]" data-editor-mode="ace/mode/cerb_kata">{$model->extension_params.automation.map_clicked}</textarea>
+		<textarea name="params[automation][map_clicked]" data-editor-mode="ace/mode/cerb_kata">{$model && $model->extension_params.automation.map_clicked}</textarea>
 
 		{$trigger_ext = Extension_AutomationTrigger::get(AutomationTrigger_MapClicked::ID, true)}
 		{if $trigger_ext}

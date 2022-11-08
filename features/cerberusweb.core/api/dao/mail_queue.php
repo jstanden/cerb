@@ -819,7 +819,7 @@ class Model_MailQueue {
 			$this,
 		];
 		
-		if(false != ($comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_DRAFT, $this->id)))
+		if(($comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_DRAFT, $this->id)))
 			$timeline = array_merge($timeline, $comments);
 		
 		usort($timeline, function($a, $b) use ($is_ascending) {

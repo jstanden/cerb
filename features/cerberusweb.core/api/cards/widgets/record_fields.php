@@ -20,12 +20,12 @@ class CardWidget_Fields extends Extension_CardWidget {
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+		if(!($context_ext = Extension_DevblocksContext::get($context)))
 			return;
 		
 		$dao_class = $context_ext->getDaoClass();
 		
-		if(false == ($record = $dao_class::get($context_id)))
+		if(!($record = $dao_class::get($context_id)))
 			return;
 		
 		// Are we showing fields for a different record?
@@ -41,9 +41,9 @@ class CardWidget_Fields extends Extension_CardWidget {
 		
 		if($target_context && !is_null($target_context_id)) {
 			$context = $target_context;
-			$context_id = $tpl_builder->build($target_context_id, $record_dict);
+			$context_id = intval($tpl_builder->build($target_context_id, $record_dict));
 			
-			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+			if(!($context_ext = Extension_DevblocksContext::get($context)))
 				return;
 			
 			$dao_class = $context_ext->getDaoClass();
@@ -54,6 +54,9 @@ class CardWidget_Fields extends Extension_CardWidget {
 				return;
 			}
 		}
+		
+		if(!$context_id)
+			return;
 		
 		// Dictionary
 		

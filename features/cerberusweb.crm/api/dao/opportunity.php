@@ -742,7 +742,7 @@ class Model_CrmOpportunity {
 			2 => DevblocksPlatform::translateCapitalized('crm.opp.status.closed.lost'),
 		];
 		
-		return @$statuses[$this->status_id];
+		return $statuses[$this->status_id] ?? '';
 	}
 	
 	/**

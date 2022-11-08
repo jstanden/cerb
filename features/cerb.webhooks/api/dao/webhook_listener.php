@@ -252,12 +252,15 @@ class DAO_WebhookListener extends Cerb_ORMHelper {
 	}
 	
 	static function delete($ids) {
-		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::services()->database();
+		
+		if(!is_array($ids))
+			$ids = [$ids];
 		
 		if(empty($ids))
 			return;
 		
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 		$ids_list = implode(',', $ids);
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM webhook_listener WHERE id IN (%s)", $ids_list));

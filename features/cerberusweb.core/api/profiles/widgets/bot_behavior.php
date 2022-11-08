@@ -33,13 +33,10 @@ class ProfileWidget_BotBehavior extends Extension_ProfileWidget {
 			'widget_id' => $model->id,
 		]);
 		
-		$behavior_id = $model->extension_params['behavior_id'] ?? null;
-		
-		if(false == ($behavior = DAO_TriggerEvent::get($behavior_id)))
-			return;
+		$behavior_id = DevblocksPlatform::importVar($model->extension_params['behavior_id'] ?? 0, 'int', 0);
 		
 		if(!$behavior_id 
-			|| false == ($behavior = DAO_TriggerEvent::get($behavior_id))
+			|| !($behavior = DAO_TriggerEvent::get($behavior_id))
 			|| $behavior->event_point != Event_DashboardWidgetRender::ID
 			) {
 			echo "A bot behavior isn't configured.";

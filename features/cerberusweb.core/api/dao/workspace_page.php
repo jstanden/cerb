@@ -1032,7 +1032,7 @@ class Context_WorkspacePage extends Extension_DevblocksContext implements IDevbl
 		$properties['extension_id'] = array(
 			'label' => mb_ucfirst($translate->_('common.type')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => @$model->getExtension()->manifest->name,
+			'value' => $model->getExtension()->manifest->name ?? null,
 		);
 		
 		$properties['updated'] = array(

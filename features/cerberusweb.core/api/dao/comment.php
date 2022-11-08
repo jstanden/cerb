@@ -237,7 +237,7 @@ class DAO_Comment extends Cerb_ORMHelper {
 		return $ids;
 	}
 	
-	static function getByContext($context, $context_ids, $limit=0) {
+	static function getByContext(string $context, mixed $context_ids, $limit=0) {
 		if(!is_array($context_ids)) {
 			if(0 == strlen($context_ids)) {
 				$context_ids = [];
@@ -248,7 +248,9 @@ class DAO_Comment extends Cerb_ORMHelper {
 		
 		if(empty($context_ids))
 			return [];
-
+		
+		$context_ids = DevblocksPlatform::sanitizeArray($context_ids, 'int');
+		
 		return self::getWhere(
 			sprintf("%s = %s AND %s IN (%s)",
 				self::CONTEXT,
@@ -258,7 +260,7 @@ class DAO_Comment extends Cerb_ORMHelper {
 			),
 			DAO_Comment::CREATED,
 			false,
-			$limit ? $limit : null
+			$limit ?: null
 		);
 	}
 

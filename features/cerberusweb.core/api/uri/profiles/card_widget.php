@@ -667,7 +667,7 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 		
 		$context = DevblocksPlatform::importGPC($_REQUEST['context'] ?? null,'string','');
 		
-		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+		if(!($context_ext = Extension_DevblocksContext::get($context)))
 			return;
 		
 		if(!($context_ext instanceof IDevblocksContextProfile))

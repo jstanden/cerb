@@ -825,7 +825,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		if(empty($id))
 			return null;
 		
-		$tickets = self::getIds(array($id));
+		$tickets = self::getIds(array($id)); /* @var Model_Ticket[] $tickets */
 		
 		if(isset($tickets[$id]))
 			return $tickets[$id];
@@ -2944,10 +2944,10 @@ class Model_Ticket {
 		return DAO_Message::getMessagesByTicket($this->id);
 	}
 	
-	function getTimeline($is_ascending=true, $target_context=null, $target_context_id=null, &$start_at=0) {
+	function getTimeline(bool $is_ascending=true, ?string $target_context=null, int $target_context_id=0, int &$start_at=0) : array {
 		$timeline = $this->getMessages();
 		
-		if(false != ($comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_TICKET, $this->id)))
+		if(($comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_TICKET, $this->id)))
 			$timeline = array_merge($timeline, $comments);
 		
 		$drafts = DAO_MailQueue::getWhere(sprintf("%s = %d",
@@ -2996,7 +2996,7 @@ class Model_Ticket {
 				CerberusContexts::CONTEXT_MESSAGE => 'Model_Message',
 			];
 			
-			if(false != ($target_class = ($target_classes[$target_context] ?? null))) {
+			if(($target_class = ($target_classes[$target_context] ?? null))) {
 				foreach($timeline as $object_idx => $object) {
 					if($object instanceof $target_class && $object->id == $target_context_id) {
 						$start_at = $object_idx;

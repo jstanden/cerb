@@ -378,7 +378,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 							];
 					}
 					
-				} else if (in_array($custom_field->type, [Model_CustomField::TYPE_MULTI_CHECKBOX])) {
+				} else if ($custom_field->type == Model_CustomField::TYPE_MULTI_CHECKBOX) {
 					return [
 						'key_query' => $key,
 						'key_select' => $search_key,
@@ -2701,7 +2701,7 @@ class DevblocksSearchCriteria {
 					
 				}
 				
-				$vals = array();
+				$vals = [];
 				
 				// Escape quotes
 				foreach($values as $idx=>$val) {
@@ -2740,7 +2740,7 @@ class DevblocksSearchCriteria {
 					
 				}
 				
-				$vals = array();
+				$vals = [];
 				
 				// Escape quotes
 				foreach($values as $idx=>$val) {
@@ -2795,7 +2795,7 @@ class DevblocksSearchCriteria {
 					
 				}
 				
-				$vals = array();
+				$vals = [];
 				
 				// Escape quotes
 				foreach($values as $idx=>$val) {

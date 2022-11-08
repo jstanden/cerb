@@ -315,7 +315,7 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 		
 		$convo_timeline = [];
 		
-		if(false == ($ticket = DAO_Ticket::get($context_id)))
+		if(!($ticket = DAO_Ticket::get($context_id)))
 			return;
 		
 		$tpl->assign('ticket', $ticket);
@@ -347,7 +347,7 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 		
 		// Messages
 		
-		if(false == ($messages = $ticket->getMessages()))
+		if(!($messages = $ticket->getMessages()))
 			$messages = [];
 		
 		$this->_threadMessages($messages, $convo_timeline, $display_options);

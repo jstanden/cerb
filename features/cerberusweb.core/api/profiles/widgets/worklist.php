@@ -28,7 +28,7 @@ class ProfileWidget_Worklist extends Extension_ProfileWidget {
 		// Unique instance per widget/record combo
 		$view_id = sprintf('profile_widget_%d_%d', $model->id, $context_id);
 		
-		if(false == $view_context || false == ($view_context_ext = Extension_DevblocksContext::get($view_context)))
+		if(!$view_context || !($view_context_ext = Extension_DevblocksContext::get($view_context)))
 			return;
 		
 		if(null == ($view = C4_AbstractViewLoader::getView($view_id))) {
@@ -43,7 +43,7 @@ class ProfileWidget_Worklist extends Extension_ProfileWidget {
 			$defaults->options['header_color'] = @$model->extension_params['header_color'] ?: '#626c70';
 			$defaults->renderLimit = DevblocksPlatform::intClamp(@$model->extension_params['render_limit'], 1, 50);
 			
-			if(false == ($view = C4_AbstractViewLoader::unserializeAbstractView($defaults, false)))
+			if(!($view = C4_AbstractViewLoader::unserializeAbstractView($defaults, false)))
 				return;
 		}
 		

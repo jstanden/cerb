@@ -25,12 +25,12 @@ class ProfileWidget_Calendar extends Extension_ProfileWidget {
 		
 		$target_context_id = $model->extension_params['context_id'] ?? null;
 		
-		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+		if(!($context_ext = Extension_DevblocksContext::get($context)))
 			return;
 		
 		$dao_class = $context_ext->getDaoClass();
 		
-		if(false == ($record = $dao_class::get($context_id)))
+		if(!($record = $dao_class::get($context_id)))
 			return;
 		
 		// Are we showing fields for a different record?
@@ -64,9 +64,9 @@ class ProfileWidget_Calendar extends Extension_ProfileWidget {
 			$values['widget_id'] = $model->id;
 			$dict = DevblocksDictionaryDelegate::instance($values);
 			
-			$context_id = $tpl_builder->build($target_context_id, $dict);
+			$context_id = intval($tpl_builder->build($target_context_id, $dict));
 			
-			if(false == ($calendar = DAO_Calendar::get($context_id))) {
+			if(!($calendar = DAO_Calendar::get($context_id))) {
 				return;
 			}
 		}
@@ -74,7 +74,7 @@ class ProfileWidget_Calendar extends Extension_ProfileWidget {
 		$month = DevblocksPlatform::importGPC($_POST['month'] ?? null, 'integer', 0);
 		$year = DevblocksPlatform::importGPC($_POST['year'] ?? null, 'integer', 0);
 		
-		$start_on_mon = (bool)($calendar->params['start_on_mon'] ?? false);
+		$start_on_mon = boolval($calendar->params['start_on_mon'] ?? false);
 		$calendar_properties = DevblocksCalendarHelper::getCalendar($month, $year, $start_on_mon);
 		
 		$calendar_events = $calendar->getEvents($calendar_properties['date_range_from'], $calendar_properties['date_range_to']);

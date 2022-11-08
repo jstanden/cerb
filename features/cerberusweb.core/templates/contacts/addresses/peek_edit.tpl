@@ -10,16 +10,16 @@
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-{if $address}
+{if $address->id}
 	{$contact = DAO_Contact::get($address->contact_id)}
 	{$org = DAO_ContactOrg::get($address->contact_org_id)}
 {/if}
 
 <table cellpadding="0" cellspacing="2" border="0" width="98%">
 
-	{if !$address}
+	{if !$address->id}
 	<tr>
-		<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'common.email'|devblocks_translate|capitalize}:</b> </td>
+		<td width="0%" nowrap="nowrap" valign="top"><b>{'common.email'|devblocks_translate|capitalize}:</b> </td>
 		<td width="100%">
 			{if !empty($email)}
 				<input type="hidden" name="email" value="{$email}">
@@ -31,7 +31,7 @@
 	</tr>
 	{else}
 	<tr>
-		<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'common.email'|devblocks_translate|capitalize}:</b> </td>
+		<td width="0%" nowrap="nowrap" valign="top"><b>{'common.email'|devblocks_translate|capitalize}:</b> </td>
 		<td width="100%">
 			{$address->email}
 		</td>
@@ -39,7 +39,7 @@
 	{/if}
 	
 	<tr>
-		<td width="1%" nowrap="nowrap" valign="middle" align="right"><b>{'common.organization'|devblocks_translate|capitalize}:</b> </td>
+		<td width="1%" nowrap="nowrap" valign="middle"><b>{'common.organization'|devblocks_translate|capitalize}:</b> </td>
 		<td width="99%" valign="top">
 				<button type="button" class="chooser-abstract" data-field-name="org_id" data-context="{CerberusContexts::CONTEXT_ORG}" data-single="true" data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="glyphicons glyphicons-search"></span></button>
 				
@@ -52,9 +52,9 @@
 	</tr>
 	
 	<tr>
-		<td width="1%" nowrap="nowrap" valign="middle" align="right"><b>{'common.contact'|devblocks_translate|capitalize}:</b> </td>
+		<td width="1%" nowrap="nowrap" valign="middle"><b>{'common.contact'|devblocks_translate|capitalize}:</b> </td>
 		<td width="99%" valign="top">
-				<button type="button" class="chooser-abstract" data-field-name="contact_id" data-context="{CerberusContexts::CONTEXT_CONTACT}" data-single="true" {if $org}data-query="org.id:{$org->id}"{/if} data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null" data-create-defaults="email:{if $address}{$address->id}{elseif $email}{$email}{/if} {if $org}org:{$org->id}{/if}"><span class="glyphicons glyphicons-search"></span></button>
+				<button type="button" class="chooser-abstract" data-field-name="contact_id" data-context="{CerberusContexts::CONTEXT_CONTACT}" data-single="true" {if $org}data-query="org.id:{$org->id}"{/if} data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null" data-create-defaults="email:{if $address->id}{$address->id}{elseif $email}{$email}{/if} {if $org}org:{$org->id}{/if}"><span class="glyphicons glyphicons-search"></span></button>
 				
 				<ul class="bubbles chooser-container">
 					{if $contact}
@@ -97,7 +97,7 @@
 	<div style="margin-left:20px;{if !$address->mail_transport_id}display:none;{/if}">
 		<table cellpadding="0" cellspacing="2" border="0" width="98%">
 			<tr>
-				<td align="right" valign="middle" width="0%" nowrap="nowrap">
+				<td valign="middle" width="0%" nowrap="nowrap">
 					<b>{'common.email_transport'|devblocks_translate|capitalize}: </b>
 				</td>
 				<td valign="middle" width="100%">
@@ -122,7 +122,7 @@
 	<div style="margin-left:20px;{if !$address->worker_id}display:none;{/if}">
 		<table cellpadding="0" cellspacing="2" border="0" width="98%">
 			<tr>
-				<td align="right" valign="middle" width="0%" nowrap="nowrap">
+				<td valign="middle" width="0%" nowrap="nowrap">
 					<b>{'common.worker'|devblocks_translate|capitalize}: </b>
 				</td>
 				<td valign="middle" width="100%">
@@ -150,8 +150,8 @@
 
 <div class="status"></div>
 
-{if (!$address && $active_worker->hasPriv("contexts.{$peek_context}.create")) 
-	|| ($address && $active_worker->hasPriv("contexts.{$peek_context}.update"))}
+{if (!$address->id && $active_worker->hasPriv("contexts.{$peek_context}.create")) 
+	|| ($address->id && $active_worker->hasPriv("contexts.{$peek_context}.update"))}
 	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button>
 {else}
 	<div class="error">{'error.core.no_acl.edit'|devblocks_translate}</div>
@@ -199,7 +199,7 @@ $(function() {
 						$chooser_contact.attr('data-query', 'org.id:' + org_id);
 						
 						// If there's a contact create button, change its defaults to the form contents
-						$button_create_contact.attr('data-edit', '{if $address}email:{$address->id}{/if} org:' + org_id);
+						$button_create_contact.attr('data-edit', '{if $address->id}email:{$address->id}{/if} org:' + org_id);
 					}
 					
 				}

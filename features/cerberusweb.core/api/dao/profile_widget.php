@@ -1037,7 +1037,7 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 		$properties['type'] = array(
 			'label' => DevblocksPlatform::translateCapitalized('common.type'),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => @$model->getExtension()->manifest->name,
+			'value' => $model->getExtension()->manifest->name ?? '',
 		);
 		
 		$properties['updated'] = array(

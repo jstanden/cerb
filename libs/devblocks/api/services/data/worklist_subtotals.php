@@ -7,8 +7,8 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		// Sanitize `of:`
 		if($of) {
 			if(
-				false != ($context_ext = Extension_DevblocksContext::getByAlias($of, true))
-				&& false != ($view = $context_ext->getTempView()))
+				($context_ext = Extension_DevblocksContext::getByAlias($of, true))
+				&& ($view = $context_ext->getTempView()))
 			{
 				$of_schema = $view->getQueryAutocompleteSuggestions();
 			}

@@ -132,7 +132,7 @@ class PageSection_ProfilesMessage extends Extension_PageSection {
 		$always_bright = DevblocksPlatform::importGPC($_REQUEST['light'] ?? null, 'integer',0);
 		$images = DevblocksPlatform::importGPC($_REQUEST['images'] ?? null, 'integer',0);
 		
-		if(false == ($message = DAO_Message::get($id)))
+		if(!($message = DAO_Message::get($id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(!Context_Message::isReadableByActor($message, $active_worker))

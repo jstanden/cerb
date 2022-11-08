@@ -24,9 +24,9 @@ class CardWidget_AttachmentViewer extends Extension_CardWidget {
 			'widget_id' => $model->id,
 		]);
 		
-		$target_context_id = $tpl_builder->build($target_context_id, $dict);
+		$target_context_id = intval($tpl_builder->build($target_context_id, $dict));
 		
-		if(false == ($attachment = DAO_Attachment::get($target_context_id)))
+		if(!($attachment = DAO_Attachment::get($target_context_id)))
 			return;
 		
 		$dict = DevblocksDictionaryDelegate::getDictionaryFromModel($attachment, CerberusContexts::CONTEXT_ATTACHMENT);

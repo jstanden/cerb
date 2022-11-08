@@ -85,7 +85,7 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget implements ICer
 		$tpl->assign('context_mfts', $context_mfts);
 		
 		$context = $widget->params['context'] ?? null;
-		@$columns = @$widget->params['columns'] ?: [];
+		$columns = $widget->params['columns'] ?? [];
 		
 		if($context)
 			$columns = $this->_getContextColumns($context, $columns);

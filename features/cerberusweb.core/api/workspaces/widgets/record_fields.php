@@ -33,14 +33,14 @@ class WorkspaceWidget_RecordFields extends Extension_WorkspaceWidget {
 			return;
 		
 		$context = $target_context;
-		$context_id = $tpl_builder->build($target_context_id, $record_dict);
+		$context_id = intval($tpl_builder->build($target_context_id, $record_dict));
 		
-		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+		if(!($context_ext = Extension_DevblocksContext::get($context)))
 			return;
 		
 		$dao_class = $context_ext->getDaoClass();
 		
-		if(!method_exists($dao_class, 'get') || false == ($record = $dao_class::get($context_id))) {
+		if(!method_exists($dao_class, 'get') || !($record = $dao_class::get($context_id))) {
 			$tpl->assign('context_ext', $context_ext);
 			$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/record_fields/empty.tpl');
 			return;
@@ -111,12 +111,10 @@ class WorkspaceWidget_RecordFields extends Extension_WorkspaceWidget {
 						// Checkboxes can be empty
 						case Model_CustomField::TYPE_CHECKBOX:
 							continue 2;
-							break;
 							
 						// Sliders can have empty values
 						case 'slider':
 							continue 2;
-							break;
 						
 						case Model_CustomField::TYPE_LINK:
 							// App-owned context links can be blank

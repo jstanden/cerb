@@ -209,52 +209,49 @@ class ProfileWidget_KbArticle extends Extension_ProfileWidget {
 		
 		$target_context_id = $model->extension_params['context_id'] ?? null;
 		
-		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+		if(!($context_ext = Extension_DevblocksContext::get($context)))
 			return;
 		
 		$dao_class = $context_ext->getDaoClass();
 		
-		if(false == ($record = $dao_class::get($context_id)))
+		if(!($record = $dao_class::get($context_id)))
 			return;
 		
-		// Are we showing fields for a different record?
+		if(!$target_context_id)
+			return;
 		
-		if($target_context_id) {
-			$labels = $values = $merge_token_labels = $merge_token_values = [];
-			
-			CerberusContexts::getContext($context, $record, $merge_token_labels, $merge_token_values, null, true, true);
-			
-			CerberusContexts::merge(
-				'record_',
-				'Record:',
-				$merge_token_labels,
-				$merge_token_values,
-				$labels,
-				$values
-			);
-			
-			CerberusContexts::getContext(CerberusContexts::CONTEXT_PROFILE_WIDGET, $model, $merge_token_labels, $merge_token_values, null, true, true);
-			
-			CerberusContexts::merge(
-				'widget_',
-				'Widget:',
-				$merge_token_labels,
-				$merge_token_values,
-				$labels,
-				$values
-			);
-			
-			$values['widget__context'] = CerberusContexts::CONTEXT_PROFILE_WIDGET;
-			$values['widget_id'] = $model->id;
-			$dict = DevblocksDictionaryDelegate::instance($values);
-			
-			$context = CerberusContexts::CONTEXT_KB_ARTICLE;
-			$context_id = $tpl_builder->build($target_context_id, $dict);
-			
-			if(false == ($record = DAO_KbArticle::get($context_id))) {
-				return;
-			}
-		}
+		$labels = $values = $merge_token_labels = $merge_token_values = [];
+		
+		CerberusContexts::getContext($context, $record, $merge_token_labels, $merge_token_values, null, true, true);
+		
+		CerberusContexts::merge(
+			'record_',
+			'Record:',
+			$merge_token_labels,
+			$merge_token_values,
+			$labels,
+			$values
+		);
+		
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_PROFILE_WIDGET, $model, $merge_token_labels, $merge_token_values, null, true, true);
+		
+		CerberusContexts::merge(
+			'widget_',
+			'Widget:',
+			$merge_token_labels,
+			$merge_token_values,
+			$labels,
+			$values
+		);
+		
+		$values['widget__context'] = CerberusContexts::CONTEXT_PROFILE_WIDGET;
+		$values['widget_id'] = $model->id;
+		$dict = DevblocksDictionaryDelegate::instance($values);
+		
+		$target_context_id = intval($tpl_builder->build($target_context_id, $dict));
+		
+		if(!($record = DAO_KbArticle::get($target_context_id)))
+			return;
 		
 		$tpl->assign('article', $record);
 		$tpl->assign('widget', $model);

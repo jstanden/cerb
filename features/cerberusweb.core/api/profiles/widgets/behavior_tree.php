@@ -21,12 +21,12 @@ class ProfileWidget_BehaviorTree extends Extension_ProfileWidget {
 		
 		$target_context_id = $model->extension_params['behavior_id'] ?? null;
 		
-		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+		if(!($context_ext = Extension_DevblocksContext::get($context)))
 			return;
 		
 		$dao_class = $context_ext->getDaoClass();
 		
-		if(false == ($record = $dao_class::get($context_id)))
+		if(!($record = $dao_class::get($context_id)))
 			return;
 		
 		// Are we showing fields for a different record?
@@ -60,16 +60,16 @@ class ProfileWidget_BehaviorTree extends Extension_ProfileWidget {
 			$values['widget_id'] = $model->id;
 			$dict = DevblocksDictionaryDelegate::instance($values);
 			
-			$context_id = $tpl_builder->build($target_context_id, $dict);
+			$context_id = intval($tpl_builder->build($target_context_id, $dict));
 		}
 		
-		if(false == ($behavior = DAO_TriggerEvent::get($context_id)))
+		if(!($behavior = DAO_TriggerEvent::get($context_id)))
 			return;
 		
-		if(false == ($event = $behavior->getEvent()))
+		if(!($event = $behavior->getEvent()))
 			return;
 		
-		if(false == ($behavior->getBot()))
+		if(!($behavior->getBot()))
 			return;
 		
 		$tpl->assign('behavior', $behavior);

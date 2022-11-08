@@ -17,11 +17,11 @@
 
 <table cellpadding="0" cellspacing="2" border="0" width="98%" style="margin-bottom:10px;">
 	<tr>
-		<td width="0%" nowrap="nowrap" align="right">{'common.name'|devblocks_translate|capitalize}: </td>
+		<td width="0%" nowrap="nowrap">{'common.name'|devblocks_translate|capitalize}: </td>
 		<td width="100%"><input type="text" name="org_name" value="{$org->name}" style="width:98%;"></td>
 	</tr>
 	<tr>
-		<td width="1%" nowrap="nowrap" valign="top" align="right" title="(one per line)">
+		<td width="1%" nowrap="nowrap" valign="top" title="(one per line)">
 			{'common.aliases'|devblocks_translate|capitalize}:
 		</td>
 		<td width="99%" valign="top">
@@ -29,29 +29,29 @@
 		</td>
 	</tr>
 	<tr>
-		<td align="right" valign="top">{'contact_org.street'|devblocks_translate|capitalize}: </td>
+		<td valign="top">{'contact_org.street'|devblocks_translate|capitalize}: </td>
 		<td><textarea name="street" style="width:98%;height:50px;">{$org->street}</textarea></td>
 	</tr>
 	<tr>
-		<td align="right">{'contact_org.city'|devblocks_translate|capitalize}: </td>
+		<td>{'contact_org.city'|devblocks_translate|capitalize}: </td>
 		<td><input type="text" name="city" value="{$org->city}" style="width:98%;"></td>
 	</tr>
 	<tr>
-		<td align="right">{'contact_org.province'|devblocks_translate|capitalize}.: </td>
+		<td>{'contact_org.province'|devblocks_translate|capitalize}.: </td>
 		<td><input type="text" name="province" value="{$org->province}" style="width:98%;"></td>
 	</tr>
 	<tr>
-		<td align="right">{'contact_org.postal'|devblocks_translate|capitalize}: </td>
+		<td>{'contact_org.postal'|devblocks_translate|capitalize}: </td>
 		<td><input type="text" name="postal" value="{$org->postal}" style="width:98%;"></td>
 	</tr>
 	<tr>
-		<td align="right">{'contact_org.country'|devblocks_translate|capitalize}: </td>
+		<td>{'contact_org.country'|devblocks_translate|capitalize}: </td>
 		<td>
 			<input type="text" name="country" value="{$org->country}" style="width:98%;">
 		</td>
 	</tr>
 	<tr>
-		<td width="1%" nowrap="nowrap" align="right" valign="middle">{'common.email'|devblocks_translate|capitalize}:</td>
+		<td width="1%" nowrap="nowrap" valign="middle">{'common.email'|devblocks_translate|capitalize}:</td>
 		<td width="99%" valign="top">
 				<button type="button" class="chooser-abstract" data-field-name="email_id" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-single="true" data-query="org.id:{$org->id}" data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="glyphicons glyphicons-search"></span></button>
 				
@@ -63,16 +63,16 @@
 		</td>
 	</tr>
 	<tr>
-		<td align="right">{'common.phone'|devblocks_translate|capitalize}: </td>
+		<td>{'common.phone'|devblocks_translate|capitalize}: </td>
 		<td><input type="text" name="phone" value="{$org->phone}" style="width:98%;"></td>
 	</tr>
 	<tr>
-		<td align="right">{'common.website'|devblocks_translate|capitalize}: </td>
+		<td>{'common.website'|devblocks_translate|capitalize}: </td>
 		<td><input type="text" name="website" value="{$org->website}" style="width:98%;" class="url"></td>
 	</tr>
 	
 	<tr>
-		<td width="1%" nowrap="nowrap" valign="top" align="right">{'common.image'|devblocks_translate|capitalize}:</td>
+		<td width="1%" nowrap="nowrap" valign="top">{'common.image'|devblocks_translate|capitalize}:</td>
 		<td width="99%" valign="top">
 			<div style="float:left;margin-right:5px;">
 				<img class="cerb-avatar" src="{devblocks_url}c=avatars&context=org&context_id={$org->id}{/devblocks_url}?v={$org->updated}" style="height:50px;width:50px;">

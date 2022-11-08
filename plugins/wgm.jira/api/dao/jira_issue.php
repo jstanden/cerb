@@ -1258,7 +1258,7 @@ class Context_JiraIssue extends Extension_DevblocksContext implements IDevblocks
 		$translate = DevblocksPlatform::getTranslationService();
 		$properties = [];
 		
-		if(is_null($model))
+		if(!$model)
 			$model = new Model_JiraIssue();
 		
 		$properties['name'] = array(
@@ -1279,7 +1279,7 @@ class Context_JiraIssue extends Extension_DevblocksContext implements IDevblocks
 		$properties['project_id'] = array(
 			'label' => mb_ucfirst($translate->_('dao.jira_issue.project_id')),
 			'type' => Model_CustomField::TYPE_LINK,
-			'value' => $model->getProject()->id,
+			'value' => $model->getProject()->id ?? 0,
 			'params' => [
 				'context' => Context_JiraProject::ID,
 			],

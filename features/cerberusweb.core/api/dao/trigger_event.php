@@ -2097,7 +2097,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 		$properties['event_point'] = array(
 			'label' => mb_ucfirst($translate->_('common.event')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => @$model->getEvent()->manifest->name ?: '',
+			'value' => $model->getEvent()->manifest->name ?? '',
 		);
 		
 		$properties['updated'] = array(

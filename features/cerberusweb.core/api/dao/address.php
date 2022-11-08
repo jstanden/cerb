@@ -1287,11 +1287,13 @@ class Search_Address extends Extension_DevblocksSearchSchema {
 		$done = false;
 
 		while(!$done && time() < $stop_time) {
-			$where = sprintf('(%1$s = %2$d AND %3$s > %4$d) OR (%1$s > %2$d)',
+			$where = sprintf('(%s = %d AND %s > %d) OR (%s > %d)',
 				DAO_Address::UPDATED,
 				$ptr_time,
 				DAO_Address::ID,
-				$id
+				$id,
+				DAO_Address::UPDATED,
+				$ptr_time
 			);
 			$models = DAO_Address::getWhere($where, array(DAO_Address::UPDATED, DAO_Address::ID), array(true, true), 100);
 
@@ -2675,11 +2677,11 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		
 		if($context_id) {
 			if(is_numeric($context_id)) {
-				if(false == ($address = DAO_Address::get($context_id)))
+				if(!($address = DAO_Address::get($context_id)))
 					DevblocksPlatform::dieWithHttpError(null, 404);
 				
 			} elseif (is_string($context_id)) {
-				if(false == ($address = DAO_Address::getByEmail($context_id)))
+				if(!($address = DAO_Address::getByEmail($context_id)))
 					DevblocksPlatform::dieWithHttpError(null, 404);
 				
 			} else {
@@ -2700,6 +2702,9 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			}
 		}
 		
+		if(!($address instanceof Model_Address))
+			$address = new Model_Address();
+		
 		$tpl->assign('address', $address);
 		
 		// Display
@@ -2712,7 +2717,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			}
 			
 			if($org_id) {
-				if(false != ($org = DAO_ContactOrg::get($org_id))) {
+				if(($org = DAO_ContactOrg::get($org_id))) {
 					$tpl->assign('org_name', $org->name);
 					$tpl->assign('org_id', $org->id);
 				}
