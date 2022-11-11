@@ -68,7 +68,7 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget implements ICe
 		$tpl->assign('chart_json', json_encode($chart_json));
 		
 		$tpl->assign('widget', $widget);
-		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/chart/kata/render.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/chart_kata/render.tpl');
 	}
 	
 	/**
