@@ -1139,37 +1139,37 @@ $(document).keydown(function(e) {
 		e.stopPropagation();
 		e.preventDefault();
 		
-		let $devblocksPopups = $('#devblocksPopups');
-		let $data = $devblocksPopups.data();
-
-		if(0 === $data)
+		let dialogs = $(document).data('uiDialogInstances');
+		
+		if(!Array.isArray(dialogs))
 			return;
 		
-		let $highestZ = null;
-		
-		for(let key in $data) {
-			let $dialog = $data[key].closest('.ui-dialog');
-			
-			if(null == $highestZ || $dialog.css('z-index') > $highestZ.css('z-index')) {
-				$highestZ = $dialog;
-			}
+		if(0 === dialogs.length)
+			return;
+
+		if(dialogs[0].element.is('[cerb-ui-popup-confirm]')) {
+			dialogs[0].element.dialog('close');
+			return;
 		}
 		
-		if($highestZ) {
-			// If the top popup has inputs
-			if($highestZ.find('input:text,textarea').length > 0 
-				// But isn't a search popup
-				&& 0 === $highestZ.find('> div[id^=popupsearch], > div[id^=popuplinks_]').length) {
-				confirmPopup(
-					'Discard changes',
-					'Are you sure you want to close this popup without saving?',
-					function () {
-						genericAjaxPopupClose($highestZ.find('.devblocks-popup'), 'peek_aborted');
+		// If the top popup has inputs
+		if(dialogs[0].element.find('input:text,input:password,input:checkbox,input:radio,textarea').length > 0 
+			// But isn't a search popup
+			&& !dialogs[0].element.is('[id^=popupsearch],[id^=popuplinks_]')) {
+			confirmPopup(
+				'Discard changes',
+				'Are you sure you want to close this popup without saving?',
+				function () {
+					let popup = genericAjaxPopupFind(this.element);
+					
+					if(popup) {
+						genericAjaxPopupClose(popup, 'peek_aborted');
 					}
-				);
-			} else {
-				genericAjaxPopupClose($highestZ.find('.devblocks-popup'), 'peek_aborted');
-			}
+				}.bind(dialogs[0])
+			);
+		} else {
+			let popup = genericAjaxPopupFind(dialogs[0].element);
+			genericAjaxPopupClose(popup, 'peek_aborted');
 		}
 	}
 });
@@ -1188,6 +1188,7 @@ function confirmPopup(title, content, callbackOk, callbackCancel) {
 		callbackCancel = function() {};
 	
 	$('<div/>')
+		.attr('cerb-ui-popup-confirm', true)
 		.dialog({
 			open: function() {
 				let $dialog = $(this).closest('.ui-dialog');
@@ -1207,6 +1208,7 @@ function confirmPopup(title, content, callbackOk, callbackCancel) {
 			close: function(e, ui) {
 				$(this).remove();
 			},
+			closeOnEscape: false,
 			resizable: false,
 			title: title,
 			modal: true
