@@ -153,7 +153,10 @@ $(function() {
 	
 	$draft.find('.cerb-peek-trigger').cerbPeekTrigger();
 	
-	$draft.find('button.cerb-button-resume').on('click', function() {
+	$draft.find('button.cerb-button-resume').on('click', function(e) {
+		if(e.originalEvent && e.originalEvent.detail && e.originalEvent.detail > 1)
+			return;
+		
 		var evt = jQuery.Event('cerb_reply');
 		evt.message_id = '{$draft->params.in_reply_message_id}';
 		evt.is_forward = {if $draft->type=='ticket.forward'}1{else}0{/if};

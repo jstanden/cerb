@@ -30,6 +30,9 @@ $(function() {
 
 	{if $message && is_a($message, 'Model_Message') && $is_writeable}
 	$preview.find('.cerb-button-reply').on('click', function(e) {
+		if(e.originalEvent && e.originalEvent.detail && e.originalEvent.detail > 1)
+			return;
+		
 		var $popup = genericAjaxPopupFind($preview);
 		var $layer = $popup.attr('data-layer');
 		
@@ -67,6 +70,9 @@ $(function() {
 	});
 	{elseif $draft && is_a($draft, 'Model_MailQueue') && $is_writeable}
 	$preview.find('.cerb-button-resume').on('click', function(e) {
+		if(e.originalEvent && e.originalEvent.detail && e.originalEvent.detail > 1)
+			return;
+
 		var $popup = genericAjaxPopupFind($preview);
 		var $layer = $popup.attr('data-layer');
 
