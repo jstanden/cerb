@@ -47,6 +47,7 @@ abstract class Extension_CustomField extends DevblocksExtension {
 	
 	abstract function renderConfig(Model_CustomField $field);
 	abstract function getDictionaryValues(Model_CustomField $field, $value, $as_keys=true, &$token_values=[]);
+	abstract function getFieldForSubtotalKey(array &$meta, Model_CustomField $custom_field, string $field_key, string $table, string $primary_key);
 	abstract function getLabelsForValues(Model_CustomField $field, $values);
 	abstract function getValueTableName();
 	abstract function getValueTableSql($context, array $context_ids);

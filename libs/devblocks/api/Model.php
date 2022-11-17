@@ -399,7 +399,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 					];
 					
 				} else {
-					return [
+					$field_meta = [
 						'key_query' => $key,
 						'key_select' => $search_key,
 						'label' => $custom_field->name,
@@ -413,6 +413,17 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 							$custom_field->id
 						)
 					];
+					
+					if(null != ($custom_field_ext = $custom_field->getTypeExtension()))
+						$custom_field_ext->getFieldForSubtotalKey(
+							$field_meta,
+							$custom_field,
+							$field_key,
+							$table,
+							$primary_key
+						);
+					
+					return $field_meta;
 				}
 			}
 			

@@ -84,6 +84,10 @@ class CustomField_GeoPoint extends Extension_CustomField {
 		}
 	}
 	
+	function getFieldForSubtotalKey(array &$meta, Model_CustomField $custom_field, string $field_key, string $table, string $primary_key) {
+		return;
+	}
+	
 	function getValuesContexts(Model_CustomField $field, $token, &$values) {
 		return;
 	}
@@ -289,6 +293,10 @@ class CustomField_Slider extends Extension_CustomField {
 			$token_values['custom'][$field->id] = $value;
 			$token_values['custom_' . $field->id] = $value;
 		}
+	}
+	
+	function getFieldForSubtotalKey(array &$meta, Model_CustomField $custom_field, string $field_key, string $table, string $primary_key) {
+		return;
 	}
 	
 	function getValuesContexts(Model_CustomField $field, $token, &$values) {
@@ -559,6 +567,50 @@ class CustomField_RecordLinks extends Extension_CustomField {
 				}
 			}
 		}
+	}
+	
+	function getFieldForSubtotalKey(array &$meta, Model_CustomField $custom_field, string $field_key, string $table, string $primary_key) {
+		$meta['sql_select'] = sprintf("%s.field_value", $field_key);
+		
+		$meta['sql_join'] = sprintf("INNER JOIN %s AS %s ON (%s.context=%s AND %s.context_id = %s AND %s.field_id = %d)",
+			Cerb_ORMHelper::escape($table),
+			$field_key,
+			$field_key,
+			Cerb_ORMHelper::qstr($custom_field->context),
+			$field_key,
+			$primary_key,
+			$field_key,
+			$custom_field->id
+		);
+		
+		$cfield_context = $meta['type_options']['context'] ?? null;
+
+		if(!$cfield_context || !($context_ext = Extension_DevblocksContext::get($cfield_context)))
+			return;
+		
+		if(!($dao_class = $context_ext->getDaoClass()))
+			return;
+		
+		if(!(method_exists($dao_class, 'getIds')))
+			return;
+		
+		$meta['get_labels_callback'] = function($values) use ($dao_class) {
+			$values = array_combine($values, $values);
+			
+			if(($records = $dao_class::getIds($values))) {
+				$values = array_combine(
+					$values,
+					array_map(
+						function($v) use ($records) {
+							return $records[$v]->name ?? $v;
+						},
+						$values
+					)
+				);
+			}
+			
+			return $values;
+		};
 	}
 	
 	function getValuesContexts(Model_CustomField $field, $token, &$values) {
