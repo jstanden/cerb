@@ -3731,6 +3731,11 @@ var ajax = new cAjaxCalls();
 						.css('top', (editor.offsetTop - editor.scrollTop + pos.top + 15) + 'px')
 						.css('left', (editor.offsetLeft - editor.scrollLeft + pos.left + 5) + 'px')
 					;
+				},
+				
+				close: function(event) {
+					if('autocompleteclose' === event.type)
+						event.originalEvent.stopPropagation();
 				}
 			})
 			.autocomplete( "instance" )._renderItem = function( ul, item ) {
