@@ -102,10 +102,10 @@ $(function() {
 			var new_context = new_canvas.getContext('2d');
 			new_context.clearRect(0, 0, new_canvas.width, new_canvas.height);
 			
-			var height = 70;
+			var height = 180;
 			var bounds = { width: {$image_width} };
-			while(bounds.width > 95) {
-				height = height - 5;
+			while(bounds.width > 244) {
+				height = height - 12;
 				new_context.font = "Bold " + height + "pt Arial";
 				bounds = new_context.measureText(txt);
 			}
