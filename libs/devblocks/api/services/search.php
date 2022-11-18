@@ -593,7 +593,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 					$escaped_query,
 					$where_annotation_sql ? ('AND ' . implode(' AND ', $where_annotation_sql)) : ''
 				);
-				$hits = $db->GetOneReader($sql_hits, 3500);
+				$hits = $db->GetOneReader($sql_hits, 5000);
 				
 			} else {
 				$hits = false;
