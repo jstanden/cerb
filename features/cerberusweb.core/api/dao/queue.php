@@ -435,7 +435,8 @@ class DAO_QueueMessage {
 			)
 		);
 		
-		$results = $db->GetArrayMaster(sprintf("SELECT uuid, message, available_at FROM queue_message WHERE status_id=%d AND consumer_id=%s",
+		$results = $db->GetArrayMaster(sprintf("SELECT uuid, message, available_at FROM queue_message WHERE queue_id=%d AND status_id=%d AND consumer_id=%s",
+			$queue->id,
 			self::STATUS_IN_FLIGHT,
 			$db->escape($consumer_id)
 		));
