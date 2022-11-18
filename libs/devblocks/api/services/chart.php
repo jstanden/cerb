@@ -525,6 +525,9 @@ class _DevblocksChartService {
 			
 			if(array_key_exists('grouped', $chart_kata['tooltip']))
 				$chart_json['tooltip']['grouped'] = boolval($chart_kata['tooltip']['grouped']);
+			
+			if(array_key_exists('ratios', $chart_kata['tooltip']))
+				$chart_json['tooltip']['ratios'] = boolval($chart_kata['tooltip']['ratios']);
 		}
 	}	
 }

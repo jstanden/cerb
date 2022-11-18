@@ -119,6 +119,61 @@ $(function() {
                     })
                     .click()
                 ;
+            }
+
+            let tooltip_ratios = chart_json.tooltip['ratios'] || false;
+            
+            // Sort by values
+            chart_json.tooltip.order = function (a, b) {
+                return b.value - a.value;
+            };
+
+            chart_json.tooltip.contents = function(d, defaultTitleFormat, defaultValueFormat, color) {
+                // Exclude zero values
+                d = d.filter(function(series) {
+                    return series.value > 0;
+                });
+                
+                if(0 === d.length)
+                    return;
+                
+                let content = this.getTooltipContent(d, defaultTitleFormat, defaultValueFormat, color);
+
+                // If only one series
+                if(1 === d.length)
+                    return content;
+                
+                let $tooltip = $('<div/>').html(content);
+                let subtotal = 0;
+                let format_pct = d3.format('.1%');
+                
+                $tooltip.find('td.value').map(function(i,el) {
+                    let value = parseFloat(el.innerText);
+                    subtotal += value;
+                });
+
+                if(tooltip_ratios && subtotal > 0) {
+                    $tooltip.find('th').attr('colspan', 3);
+                    
+                    $tooltip.find('td.value').map(function (i, el) {
+                        let td = document.createElement('td');
+                        td.style['text-align'] = 'right';
+                        td.innerText = format_pct(parseFloat(el.innerText) / subtotal);
+                        el.parentElement.append(td);
+                    });
+                }
+                
+                let $tr = $('<tr/>');
+                $tr.append($('<td/>').css('font-weight','bold').css('text-align','right').text('Sum'));
+                $tr.append($('<td/>').addClass('total').css('font-weight','bold').text(subtotal));
+
+                if(tooltip_ratios) {
+                    $tr.append($('<td/>'));
+                }
+                
+                $tooltip.find('tbody').append($tr);
+                
+                return $tooltip.html();
             };
             
             c3.generate(chart_json);

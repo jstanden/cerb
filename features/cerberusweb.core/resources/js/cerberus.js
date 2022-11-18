@@ -501,6 +501,7 @@ var cerbAutocompleteSuggestions = {
 		'tooltip:': [
 			'grouped@bool: yes',
 			'show@bool: yes',
+			'ratios@bool: yes',
 		],
 		'tooltip:grouped:': [
 			'yes',
