@@ -170,7 +170,7 @@ $(function() {
 			$menu.hide();
 			var $target = $(e.target);
 			
-			if($target.is('b'))
+			if($target.is('b,div'))
 				$target = $target.closest('li');
 			
 			if(!$target.is('li'))
