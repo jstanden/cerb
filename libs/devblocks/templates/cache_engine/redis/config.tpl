@@ -8,8 +8,7 @@
 
 <div style="padding:5px 10px;">
 	This option requires Redis to be installed and configured separately, but you can expect excellent 
-	cache performance even with thousands of objects.  Redis is used by Twitter, Github, Pinterest, Snapchat, StackOverflow, and many other 
-	respected web companies.
+	cache performance even with thousands of objects.  Redis is used by Mastodon, GitHub, Pinterest, Snapchat, StackOverflow, and many others.
 </div>
 
 <div style="padding:5px 10px;">

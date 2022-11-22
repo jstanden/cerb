@@ -30,7 +30,7 @@
 
 * __Devblocks, a plugin-driven web development framework__ for rapidly implementing new functionality.
 
-* A library of __browser-installable plugins__ for extending functionality and integrating with other applications and services (Facebook, Twitter, Twilio, Slack, Freshbooks, Amazon S3, JIRA, HipChat, etc).
+* A library of __browser-installable plugins__ for extending functionality and integrating with other applications and services (Mastodon, Twilio, Slack, Freshbooks, Amazon S3, JIRA, Facebook, etc).
 
 * A __REST-based API__ for automation and integration with third-party applications and services.
 

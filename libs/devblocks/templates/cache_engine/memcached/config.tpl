@@ -7,7 +7,7 @@
 
 <div style="padding:5px 10px;">
 	This option requires Memcached to be installed and configured separately, but you can expect excellent cache performance even with thousands of objects.
-	Memcached is used by Wikipedia, Flickr, Twitter, Youtube, Wordpress, Craigslist, and many other respected web companies.
+	Memcached is used by Wikipedia, Flickr, Youtube, Wordpress, Craigslist, and many others.
 </div>
 
 <div style="padding:5px 10px;">
