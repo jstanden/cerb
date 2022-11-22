@@ -147,9 +147,10 @@ $(function() {
                 let $tooltip = $('<div/>').html(content);
                 let subtotal = 0;
                 let format_pct = d3.format('.1%');
-                
-                $tooltip.find('td.value').map(function(i,el) {
-                    let value = parseFloat(el.innerText);
+
+                // Use the raw data so formatters work
+                d.map(function(el) {
+                    let value = parseFloat(el.value);
                     subtotal += value;
                 });
 
@@ -159,14 +160,14 @@ $(function() {
                     $tooltip.find('td.value').map(function (i, el) {
                         let td = document.createElement('td');
                         td.style['text-align'] = 'right';
-                        td.innerText = format_pct(parseFloat(el.innerText) / subtotal);
+                        td.innerText = format_pct(parseFloat(d[i].value) / subtotal);
                         el.parentElement.append(td);
                     });
                 }
                 
                 let $tr = $('<tr/>');
                 $tr.append($('<td/>').css('font-weight','bold').css('text-align','right').text('Sum'));
-                $tr.append($('<td/>').addClass('total').css('font-weight','bold').text(subtotal));
+                $tr.append($('<td/>').addClass('total').css('font-weight','bold').text(defaultValueFormat(subtotal)));
 
                 if(tooltip_ratios) {
                     $tr.append($('<td/>'));
