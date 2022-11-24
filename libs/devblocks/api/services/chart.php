@@ -205,8 +205,10 @@ class _DevblocksChartService {
 				);
 			}
 			
-			$x_labels = array_replace($x_labels, $datasets_kata[$dataset_key][$x_key] ?? []);
+			$x_labels = array_replace($x_labels, array_flip($datasets_kata[$dataset_key][$x_key] ?? []));
 		}
+		
+		$x_labels = array_keys($x_labels);
 		
 		if($x_labels) {
 			$x_labels = array_unique($x_labels);
