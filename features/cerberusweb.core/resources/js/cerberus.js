@@ -491,11 +491,19 @@ var cerbAutocompleteSuggestions = {
 		
 		'legend:': [
 			'show@bool: yes',
-			'sorted@bool: yes',
+			'style:',
 		],
 		'legend:show:': [
 			'yes',
 			'no',
+		],
+		'legend:style:': [
+			'compact:',
+			'table:',
+		],
+		'legend:style:table:': [
+			'data@bool: yes',
+			'stats@csv: sum, avg, max, min',
 		],
 		
 		'tooltip:': [
