@@ -242,7 +242,8 @@ class _DevblocksStringService {
 				$alt = $node->getAttribute('alt');
 				$src = $node->getAttribute('src');
 				
-				$url_parts = parse_url($src);
+				if(!($url_parts = parse_url($src)) || !is_array($url_parts))
+					break;
 				
 				if(array_key_exists('host', $url_parts) && array_key_exists('scheme', $url_parts)) {
 					$text .= sprintf("[Image %s]", $alt ?: $src);
