@@ -191,11 +191,18 @@ $(function() {
                 
                 let on_legend_series_click = function(d) {
                     chart.toggle(d.id);
+                    let parent;
 
-                    if(chart.data.shown(d.id).length > 0) {
-                        d3.select(this.closest('tr')).style('opacity', '1.0');
+                    if('table' === legend_style_key) {
+                        parent = this.closest('tr');
                     } else {
-                        d3.select(this.closest('tr')).style('opacity', '0.15');
+                        parent = this.closest('div');
+                    }
+                    
+                    if(chart.data.shown(d.id).length > 0) {
+                        d3.select(parent).style('opacity', '1.0');
+                    } else {
+                        d3.select(parent).style('opacity', '0.15');
                     }
                 };
 
