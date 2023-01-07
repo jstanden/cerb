@@ -61,11 +61,12 @@ class _DevblocksUiManager {
 }
 
 class DevblocksUiEventHandler {
-	function parse(?string $handlers_kata, DevblocksDictionaryDelegate $dict, &$error=null) {
+	function parse(?string $handlers_kata, DevblocksDictionaryDelegate $dict, &$error=null, $is_strict=true) {
 		if(is_null($handlers_kata))
 			return [];
 		
 		$kata = DevblocksPlatform::services()->kata();
+		$kata->setStrictMode($is_strict);
 		
 		$results = [];
 		$symbols_meta= [];
