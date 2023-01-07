@@ -2473,7 +2473,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		if(DEVELOPMENT_MODE && $allow_display && php_sapi_name() != 'cli') {
 			trigger_error($error_msg, E_USER_WARNING);
 		} else {
-			error_log($error_msg);
+			error_log(rtrim($error_msg) . PHP_EOL);
 		}
 		
 		if($orig_log_errors_max_len)
@@ -3627,7 +3627,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			'line' => $errline
 		];
 		
-		error_log(sprintf("[%d] %s %s %d (%d)", $errno, $errstr, $errfile, $errline, error_reporting()));
+		error_log(sprintf("[%d] %s %s %d (%d)\n", $errno, $errstr, $errfile, $errline, error_reporting()));
 		
 		return true;
 	}
