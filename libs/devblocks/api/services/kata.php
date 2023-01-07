@@ -18,6 +18,8 @@ class _DevblocksKataService {
 		'trim',
 	];
 	
+	private bool $_strict_mode = true;
+	
 	static function getInstance() : _DevblocksKataService {
 		if(is_null(self::$_instance))
 			self::$_instance = new _DevblocksKataService();
@@ -26,6 +28,14 @@ class _DevblocksKataService {
 	}
 	
 	private function __construct() {}
+	
+	function setStrictMode(bool $is_strict_mode) : void {
+		$this->_strict_mode = $is_strict_mode;
+	}
+	
+	function isStrictMode() : bool {
+		return $this->_strict_mode;
+	}
 	
 	function parse($kata_string, &$error=null, $dereference=true, &$symbol_meta=[], $keep_comments=false) {
 		$error = null;
@@ -504,8 +514,17 @@ class _DevblocksKataService {
 				}
 				
 				if(false === ($v = $tpl_builder->build($v, $dict))) {
-					$error = $tpl_builder->getLastError();
-					return false;
+						$error = $tpl_builder->getLastError();
+						
+					// If strict mode, end immediately
+					if($this->isStrictMode()) {
+						return false;
+						
+					// Otherwise, log the error and continue
+					} else {
+						$v = null;
+						DevblocksPlatform::logError($error);
+					}
 				}
 			}
 			
