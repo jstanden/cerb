@@ -2353,7 +2353,7 @@ class CerberusContexts {
 						$handlers = $record_changed_events->getKata($dict, $error);
 						
 						if(false === $handlers && $error) {
-							error_log('[KATA] Invalid record.changed KATA: ' . $error);
+							DevblocksPlatform::logError('[KATA] Invalid record.changed KATA: ' . $error);
 							$handlers = [];
 						}
 						

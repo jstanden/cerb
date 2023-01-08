@@ -645,15 +645,13 @@ class DAO_Message extends Cerb_ORMHelper {
 			
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_Message');
 		
-		$result = array(
+		return [
 			'primary_table' => 'm',
 			'select' => $select_sql,
 			'join' => $join_sql,
 			'where' => $where_sql,
 			'sort' => $sort_sql,
-		);
-		
-		return $result;
+		];
 	}
 
 	/**
@@ -681,7 +679,7 @@ class DAO_Message extends Cerb_ORMHelper {
 		}
 		
 		// Build search queries
-		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);
+		$query_parts = self::getSearchQueryComponents($columns, $params, $sortBy, $sortAsc);
 
 		$select_sql = $query_parts['select'];
 		$join_sql = $query_parts['join'];

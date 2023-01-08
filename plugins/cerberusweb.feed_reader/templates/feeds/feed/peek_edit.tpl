@@ -61,6 +61,7 @@ $(function() {
 	
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{'dao.feed_item.feed_id'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
+		$popup.find('[autofocus]:first').focus();
 		$popup.css('overflow', 'inherit');
 
 		// Buttons

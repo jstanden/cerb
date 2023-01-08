@@ -754,7 +754,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 				DAO_Attachment::UPDATED => time(),
 			);
 			
-			if(false == ($id = DAO_Attachment::create($fields)))
+			if(!($id = DAO_Attachment::create($fields)))
 				return false;
 			
 			// [TODO] This is a temporary workaround to allow workers to view exports they create

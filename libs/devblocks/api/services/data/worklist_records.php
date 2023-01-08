@@ -103,7 +103,7 @@ class _DevblocksDataProviderWorklistRecords extends _DevblocksDataProvider {
 				
 			} else if($field->key == 'of') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
-				if(false == ($context = Extension_DevblocksContext::getByAlias($value, true)))
+				if(!($context = Extension_DevblocksContext::getByAlias($value, true)))
 					continue;
 				
 				$chart_model['context'] = $context->id;
@@ -200,7 +200,7 @@ class _DevblocksDataProviderWorklistRecords extends _DevblocksDataProvider {
 		);
 		
 		try {
-			if(false == ($results = $db->GetArrayReader($sql, $chart_model['timeout'])))
+			if(!($results = $db->GetArrayReader($sql, $chart_model['timeout'])))
 				$results = [];
 			
 		} catch (Exception_DevblocksDatabaseQueryTimeout $e) {

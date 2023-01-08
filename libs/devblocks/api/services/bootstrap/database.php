@@ -53,7 +53,7 @@ class _DevblocksDatabaseManager {
 				DevblocksPlatform::dieWithHttpError("[Cerb] Error connecting to the master database.", 500);
 			}
 			
-			error_log('Master connection failed, retrying...');
+			DevblocksPlatform::logError('Master connection failed, retrying...');
 			
 			// Wait between retries
 			usleep($retries_interval_ms * 1000);
@@ -481,25 +481,33 @@ class _DevblocksDatabaseManager {
 			
 			// If the DB is down, try to reconnect
 			if(!mysqli_ping($db)) {
-				error_log("The MySQL connection closed prematurely.");
-
+				DevblocksPlatform::logError("The MySQL connection closed prematurely.");
+				
 				// Reconnect
 				if(spl_object_hash($db) == spl_object_hash($this->_connections['master'])) {
-					error_log("Attempting to reconnect to writer database...");
 					unset($this->_connections['master']);
 					$master_db = $this->_connectMaster(APP_DB_OPT_CONNECTION_RECONNECTS, APP_DB_OPT_CONNECTION_RECONNECTS_WAIT_MS);
 					$db = $master_db;
 					
 				} else {
-					error_log("Attempting to reconnect to reader database...");
 					unset($this->_connections['reader']);
 					$reader_db = $this->_connectReader();
 					$db = $reader_db;
 				}
 				
 				// Try again after the reconnection
-				if(false === ($rs = mysqli_query($db, $sql)))
+				if(false === ($rs = mysqli_query($db, $sql))) {
+					DevblocksPlatform::logError('Failed to reconnect to the database.');
+					
+					$error_msg = sprintf("[%d] %s ::SQL:: %s",
+						$mysql_errno,
+						$mysql_error,
+						$sql
+					);
+					
+					DevblocksPlatform::logError($error_msg, true);
 					return false;
+				}
 				
 			} else {
 				$error_msg = sprintf("[%d] %s ::SQL:: %s",
@@ -509,7 +517,6 @@ class _DevblocksDatabaseManager {
 				);
 				
 				DevblocksPlatform::logError($error_msg, true);
-				
 				return false;
 			}
 		}

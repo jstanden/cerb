@@ -727,7 +727,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'worker_id' => $active_worker->id
 			]);
 			
-			if(false != ($editor_toolbar_items = $editor_toolbar->getKata($editor_toolbar_dict))) {
+			if(($editor_toolbar_items = $editor_toolbar->getKata($editor_toolbar_dict))) {
 				foreach($editor_toolbar_items as $item) {
 					$item_k = sprintf('%s/%s', $item['type'], $item['key']);
 					$toolbar[$item_k] = $item;

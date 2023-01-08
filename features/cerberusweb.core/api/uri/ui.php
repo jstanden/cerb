@@ -766,12 +766,12 @@ class Controller_UI extends DevblocksControllerExtension {
 		
 		$error = null;
 		
-		if(false == ($results = $data->executeQuery($data_query, [], $error))) {
+		if(!($results = $data->executeQuery($data_query, [], $error))) {
 			echo $error;
 			return;
 		}
 		
-		if (false == ($sheet = $sheets->parse($sheet_kata, $error))) {
+		if (!($sheet = $sheets->parse($sheet_kata, $error, $results['data']))) {
 			$tpl->assign('success', false);
 			$tpl->assign('output', $error);
 			$tpl->display('devblocks:cerberusweb.core::internal/renderers/test_results.tpl');

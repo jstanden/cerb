@@ -121,7 +121,7 @@
 				<td data-column="{$column}" valign="top">{$result.tl_id}&nbsp;</td>
 			{elseif $column=="tl_string_override"}
 				<td data-column="{$column}">
-					{math assign=height equation="25+(25*floor(x/65))" x=$english_string->string_default|count_characters format="%d"}
+					{math assign=height equation="25+(25*floor(x/65))" x=$english_string->string_default|default:''|count_characters format="%d"}
 					<textarea name="translations[]" style="width:98%;height:{$height}px;" rows="3" cols="45">{if !empty($result.$column)}{$result.$column}{/if}</textarea>
 				</td>
 			{elseif $column=="tl_string_id"}

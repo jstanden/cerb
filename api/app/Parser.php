@@ -1444,7 +1444,7 @@ class CerberusParser {
 			);
 			
 			if(false === $handlers && $error) {
-				error_log('[KATA] Invalid mail.route KATA: ' . $error);
+				DevblocksPlatform::logError('[KATA] Invalid mail.route KATA: ' . $error);
 				$handlers = [];
 			}
 			

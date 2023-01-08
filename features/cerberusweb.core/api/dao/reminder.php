@@ -495,10 +495,10 @@ class Model_Reminder {
 		
 		$initial_state = $event_dict->getDictionary(null, false, 'reminder_');
 		
-		if(false == ($automation_event = DAO_AutomationEvent::getByName('reminder.remind')))
+		if(!($automation_event = DAO_AutomationEvent::getByName('reminder.remind')))
 			return false;
 		
-		if(false == ($handlers = $automation_event->getKata($event_dict, $error)))
+		if(!($handlers = $automation_event->getKata($event_dict, $error)))
 			return false;
 		
 		$results = $event_handler->handleEach(

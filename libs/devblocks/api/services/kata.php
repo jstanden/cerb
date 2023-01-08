@@ -531,20 +531,21 @@ class _DevblocksKataService {
 			foreach($annotations as $annotation) {
 				if($annotation == 'base64') {
 					$v = base64_decode($v);
-				} else if(in_array($annotation, ['bit'])) {
+				} else if($annotation == 'bit') {
 					$v = DevblocksPlatform::services()->string()->toBool($v) ? 1 : 0;
-				} else if(in_array($annotation, ['bool'])) {
+				} else if($annotation == 'bool') {
 					$v = DevblocksPlatform::services()->string()->toBool($v);
 				} else if($annotation == 'csv') {
 					$v = DevblocksPlatform::parseCsvString($v);
-				} else if(in_array($annotation, ['date'])) {
+				} else if($annotation == 'date') {
 					$v = DevblocksPlatform::services()->string()->toDate($v);
 				} else if($annotation == 'float') {
 					$v = floatval(trim($v));
 				} else if($annotation == 'int') {
 					$v = intval(trim($v));
 				} else if($annotation == 'json') {
-					$v = @json_decode($v, true);
+					if(!is_string($v)) $v = '';
+					$v = json_decode($v, true);
 				} else if($annotation == 'kata') {
 					$v = DevblocksPlatform::services()->kata()->parse($v);
 				} else if($annotation == 'key') {
@@ -562,7 +563,7 @@ class _DevblocksKataService {
 				} else if($annotation == 'list') {
 					$v = DevblocksPlatform::parseCrlfString($v);
 				} else if(in_array($annotation, ['optional','raw','text'])) {
-					// Do nothing
+					DevblocksPlatform::noop();
 				} else if($annotation == 'trim') {
 					if(is_string($v))
 						$v = trim($v);

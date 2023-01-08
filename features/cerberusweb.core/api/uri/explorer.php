@@ -20,7 +20,7 @@ class ChExplorerController extends DevblocksControllerExtension {
 	 * Request Overload
 	 */
 	function handleRequest(DevblocksHttpRequest $request) {
-		if(false == ($worker = CerberusApplication::getActiveWorker())) {
+		if(!CerberusApplication::getActiveWorker()) {
 			$query = [];
 			// Must be a valid page controller
 			if(!empty($request->path)) {

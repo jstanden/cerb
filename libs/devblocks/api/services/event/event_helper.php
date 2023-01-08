@@ -5053,7 +5053,7 @@ class DevblocksEventHelper {
 	
 				$headers->removeAll('message-id');
 				
-				// Sign the message so we can verify a future relay response
+				// Sign the message so that we can verify a future relay response
 				$auth_header = CerberusMail::relaySign($message_id, $worker->id);
 				$headers->addTextHeader('Message-Id', $auth_header);
 				
@@ -5102,9 +5102,7 @@ class DevblocksEventHelper {
 				if(!$result)
 					return false;
 				
-			} catch (Exception $e) {
-				
-			}
+			} catch (Exception) {}
 		}
 	}
 	

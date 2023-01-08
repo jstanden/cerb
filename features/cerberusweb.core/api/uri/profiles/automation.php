@@ -122,7 +122,7 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 				if(!$active_worker->is_superuser)
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
 				
-				if(false == ($trigger_ext = Extension_AutomationTrigger::get($extension_id))) {
+				if(!($trigger_ext = Extension_AutomationTrigger::get($extension_id))) {
 					throw new Exception_DevblocksAjaxValidationError('Invalid trigger extension.');
 				}
 				
@@ -308,7 +308,8 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		    label: Message
 		EOD;
 		
-		$sheet = $sheets->parse($sheet_kata, $error);
+		if(!($sheet = $sheets->parse($sheet_kata, $error)))
+			$sheet = [];
 		
 		$layout = $sheets->getLayout($sheet);
 		$rows = $sheets->getRows($sheet, $sheet_dicts);

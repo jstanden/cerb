@@ -140,7 +140,7 @@ class DAO_AutomationEvent extends Cerb_ORMHelper {
 	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
 		$context = CerberusContexts::CONTEXT_AUTOMATION_EVENT;
 		
-		// These records can't be created outside of the patcher
+		// These records can't be created outside the patcher
 		if(!$id) {
 			$error = DevblocksPlatform::translate('error.core.no_acl.create');
 			return false;

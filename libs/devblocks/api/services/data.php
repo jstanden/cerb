@@ -268,7 +268,7 @@ class _DevblocksDataService {
 		
 		if($cache_secs) {
 			if(
-				false != ($results = $cache->load($cache_key))
+				($results = $cache->load($cache_key))
 				&& is_array($results)
 				&& array_key_exists('results', $results)
 			) {
@@ -278,7 +278,7 @@ class _DevblocksDataService {
 		
 		$chart_fields = CerbQuickSearchLexer::getFieldsFromQuery($query, $bindings);
 		
-		if(false == ($type_field = CerbQuickSearchLexer::getFieldByKey('type', $chart_fields))) {
+		if(!($type_field = CerbQuickSearchLexer::getFieldByKey('type', $chart_fields))) {
 			$error = "A data query 'type:' is required.";
 			return false;
 		}

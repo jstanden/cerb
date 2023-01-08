@@ -810,12 +810,12 @@ EOD;
 			$drafts_ext = DevblocksPlatform::getExtension('core.page.profiles.draft', true);
 			
 			/* @var $drafts_ext PageSection_ProfilesDraft */
-			if(false == ($result = $drafts_ext->saveDraftReply()))
+			if(!($result = $drafts_ext->saveDraftReply()))
 				throw new Exception_DevblocksAjaxValidationError("Failed to save draft.");
 			
 			$draft_id = $result['draft_id'];
 			
-			if(false == ($draft = DAO_MailQueue::get($draft_id)))
+			if(!($draft = DAO_MailQueue::get($draft_id)))
 				DevblocksPlatform::dieWithHttpError(null, 404);
 			
 			if(!Context_Draft::isWriteableByActor($draft, $active_worker))
@@ -866,7 +866,7 @@ EOD;
 					$emails_to_check = array_fill_keys(array_column(DevblocksPlatform::objectsToArrays($email_models), 'email'), true);
 					
 					foreach($email_models as $email_model) {
-						if(false == ($info = $gpg->keyinfoPublic(sprintf("<%s>", $email_model->email))) || !is_array($info))
+						if(!($info = $gpg->keyinfoPublic(sprintf("<%s>", $email_model->email))) || !is_array($info))
 							continue;
 						
 						foreach($info as $key) {
@@ -931,13 +931,13 @@ EOD;
 		$drafts_ext = DevblocksPlatform::getExtension('core.page.profiles.draft', true);
 		
 		/* @var $drafts_ext PageSection_ProfilesDraft */
-		if(false == ($result = $drafts_ext->saveDraftReply())) {
+		if(!($result = $drafts_ext->saveDraftReply())) {
 			return false;
 		}
 		
 		$draft_id = $result['draft_id'];
 		
-		if(false == ($draft = DAO_MailQueue::get($draft_id)))
+		if(!($draft = DAO_MailQueue::get($draft_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(!Context_Draft::isWriteableByActor($draft, $active_worker))
@@ -963,10 +963,10 @@ EOD;
 		$format = DevblocksPlatform::importGPC($_POST['format'] ?? null, 'string','');
 		$html_template_id = DevblocksPlatform::importGPC($_POST['html_template_id'] ?? null, 'integer',0);
 		
-		if(false == ($group = DAO_Group::get($group_id)))
+		if(!($group = DAO_Group::get($group_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
-		if(!$html_template_id || false == ($html_template = DAO_MailHtmlTemplate::get($html_template_id)))
+		if(!$html_template_id || !($html_template = DAO_MailHtmlTemplate::get($html_template_id)))
 			$html_template = $group->getReplyHtmlTemplate($bucket_id);
 		
 		$in_reply_message_id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer',0);

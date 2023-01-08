@@ -143,7 +143,8 @@ class PageSection_SetupDevelopersAutomationLogs extends Extension_PageSection {
       date/created_at:
     EOD;
 		
-		$sheet = $sheets->parse($sheet_kata, $error);
+		if(!($sheet = $sheets->parse($sheet_kata, $error)))
+			$sheet = [];
 		
 		$layout = $sheets->getLayout($sheet);
 		

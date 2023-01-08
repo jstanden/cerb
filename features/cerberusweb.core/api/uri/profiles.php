@@ -366,6 +366,9 @@ class Page_Profiles extends CerberusPageExtension {
 		if(!$active_worker->is_superuser)
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
+		if(!Extension_DevblocksContext::getByAlias($context))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		DevblocksPlatform::setPluginSetting('cerberusweb.core', 'profile:tabs:' . $context, $profile_tabs, true);
 		
 		return json_encode(true);

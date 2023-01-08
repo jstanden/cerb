@@ -76,7 +76,7 @@ class DataQueryAction extends AbstractAction {
 				throw new Exception_DevblocksAutomationError($error);
 			}
 			
-			if(false == ($results = $data->executeQuery($query, $query_params, $error))) {
+			if(!($results = $data->executeQuery($query, $query_params, $error))) {
 				throw new Exception_DevblocksAutomationError($error);
 				
 			} else {
