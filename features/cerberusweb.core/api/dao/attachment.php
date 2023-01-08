@@ -570,7 +570,7 @@ class DAO_Attachment extends Cerb_ORMHelper {
 		// This also cleans up temporary attachment uploads from the file chooser.
 		// If any of these queries fail, we need to stop immediately
 		
-		if(false == ($rs = $db->ExecuteMaster("SELECT id FROM attachment WHERE id NOT IN (SELECT DISTINCT attachment_id FROM attachment_link) AND id NOT IN (SELECT to_context_id FROM context_link WHERE to_context = 'cerberusweb.contexts.attachment') AND updated < UNIX_TIMESTAMP() - 86400 LIMIT 500"))) {
+		if(!($rs = $db->ExecuteMaster("SELECT id FROM attachment WHERE id NOT IN (SELECT attachment_id FROM attachment_link) AND id NOT IN (SELECT to_context_id FROM context_link WHERE to_context = 'cerberusweb.contexts.attachment') AND updated < UNIX_TIMESTAMP() - 86400 LIMIT 500"))) {
 			$logger->error('[Maint] Failed to select unlinked attachments to purge.');
 			return false;
 		}
