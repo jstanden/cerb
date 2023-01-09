@@ -992,6 +992,29 @@ class DevblocksPlatform extends DevblocksEngine {
 		return array_keys($array) === range(0, $len-1);
 	}
 	
+	static function arrayPermutations(array $set) : array {
+		// Empty set
+		if(0 == count($set))
+			return [];
+		
+		// Single item set
+		if(1 == count($set))
+			return [$set];
+		
+		$results = [];
+		
+		// Remove the first item and generate permutations for the rest
+		foreach(array_keys($set) as $i) {
+			$first = $set[$i];
+			$rest = array_merge(array_slice($set,0, $i), array_slice($set, $i+1));
+			
+			foreach(self::arrayPermutations($rest) as $p)
+				$results[] = array_merge([$first], $p);
+		}
+		
+		return $results;
+	}
+	
 	static function arrayDictSet($var, $path, $val, $delim=null) {
 		if(empty($var))
 			$var = is_array($var) ? [] : new stdClass();
