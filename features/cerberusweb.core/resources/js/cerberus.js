@@ -3593,11 +3593,48 @@ var ajax = new cAjaxCalls();
 					if(Devblocks.cerbCodeEditor.lineIsComment(pos.row, editor))
 						return;
 					
+					let kataAnnotations = [
+						'base64',
+						'bit',
+						'bool',
+						'csv',
+						'date',
+						'float',
+						'int',
+						'json',
+						'kata',
+						'key',
+						'list',
+						'optional',
+						'ref',
+						'text',
+						'trim',
+					];
+					
 					do {
 						var token = iter.getCurrentToken();
 						
 						if(null != token) {
 							if ('meta.tag' === token.type) {
+								// Autocomplete @annotations
+								if(-1 !== token.value.indexOf('@')) {
+									if('@:' === token.value.substring(token.value.length-2)) {
+										let value_prefix = token.value.substring(0, token.value.length-2).trimStart();
+										
+										let completions = kataAnnotations.map(function(completion) {
+											return value_prefix + '@' + completion;
+										});
+										
+										return callback(null, autocompleterKata.formatSuggestions(completions)); 
+									
+									} else if(',:' === token.value.substring(token.value.length-2)) {
+										let completions = kataAnnotations.map(function(completion) {
+											return completion;
+										});
+										
+										return callback(null, autocompleterKata.formatSuggestions(completions)); 
+									}
+								}
 								break;
 								
 							} else if ('meta.tag.twig' === token.type && '%}' === token.value) {
