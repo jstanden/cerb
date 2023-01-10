@@ -65,6 +65,12 @@ class _DevblocksTemplateManager {
 			$instance->registerPlugin('modifier','devblocks_prettyjson', array('_DevblocksTemplateManager', 'modifier_devblocks_prettyjson'));
 			$instance->registerPlugin('modifier','devblocks_rangy_deserialize', array('_DevblocksTemplateManager', 'modifier_devblocks_rangy_deserialize'));
 			$instance->registerPlugin('modifier','devblocks_translate', array('_DevblocksTemplateManager', 'modifier_devblocks_translate'));
+			$instance->registerPlugin('modifier','array_keys', array('_DevblocksTemplateManager', 'modifier_php_array_keys'));
+			$instance->registerPlugin('modifier','array_shift', array('_DevblocksTemplateManager', 'modifier_php_array_shift'));
+			$instance->registerPlugin('modifier','floatval', array('_DevblocksTemplateManager', 'modifier_php_floatval'));
+			$instance->registerPlugin('modifier','json_encode', array('_DevblocksTemplateManager', 'modifier_php_json_encode'));
+			$instance->registerPlugin('modifier','substr', array('_DevblocksTemplateManager', 'modifier_php_substr'));
+			$instance->registerPlugin('modifier','trim', array('_DevblocksTemplateManager', 'modifier_php_trim'));
 			
 			$instance->registerResource('devblocks', new _DevblocksSmartyTemplateResource());
 			
@@ -461,6 +467,32 @@ class _DevblocksTemplateManager {
 		
 		return implode("\n", $lines);
 	}
+	
+	static function modifier_php_array_keys($array) : array {
+		if(!is_array($array)) return [];
+		return array_keys($array);
+	}
+	
+	static function modifier_php_array_shift($array) : void {
+		array_shift($array);
+	}
+	
+	static function modifier_php_floatval($value) : float {
+		return floatval($value);
+	}
+	
+	static function modifier_php_json_encode($string) : string {
+		return json_encode($string);
+	}
+	
+	static function modifier_php_substr($string, $offset, $length=null) : string {
+		return substr($string, $offset, $length);
+	}
+	
+	static function modifier_php_trim($string) : string {
+		return trim($string);
+	}
+	
 };
 
 class _DevblocksSmartyTemplateResource extends Smarty_Resource_Custom {

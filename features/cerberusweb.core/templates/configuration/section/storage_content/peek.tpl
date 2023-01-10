@@ -23,7 +23,8 @@ $(function() {
 		$popup.dialog('option','title',"{$schema->manifest->name|escape:'javascript' nofilter}");
 		
 		$popup.find('button.submit').click(function() {
-			genericAjaxPost('frmStorageSchemaPeek','schema_{$schema->manifest->id|md5}',null,function() {
+            let $output = $('[data-cerb-storage-schema="{$schema->manifest->id}"]');
+			genericAjaxPost('frmStorageSchemaPeek',$output,null,function() {
 				genericAjaxPopupClose($popup);
 			});
 		})

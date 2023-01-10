@@ -14,7 +14,7 @@
 </fieldset>
 
 {foreach from=$storage_schemas item=schema key=schema_id}
-	<div id="schema_{$schema_id|md5}">
+	<div data-cerb-storage-schema="{$schema_id}">
 	{include file="devblocks:cerberusweb.core::configuration/section/storage_content/rule.tpl"}
 	</div>
 {/foreach}

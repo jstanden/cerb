@@ -13,8 +13,6 @@
 	{foreach from=$feed.items item=item name=items}
 		{if $smarty.foreach.items.iteration > 5}
 		{else}
-			{$item_guid = ''|cat:$item.title|cat:'_'|cat:$item.link|md5}
-			
 			<span class="glyphicons glyphicons-file" style="color:rgb(100,100,100);"></span>
 			<a href="{$item.link}" target="_blank" rel="noopener noreferrer" style="font-weight:bold;text-decoration:none;">{$item.title}</a> 
 			<br>
