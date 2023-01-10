@@ -579,7 +579,7 @@ class SearchFields_WorkspaceWidget extends DevblocksSearchFields {
 	}
 };
 
-class Model_WorkspaceWidget {
+class Model_WorkspaceWidget extends DevblocksRecordModel {
 	public $extension_id = '';
 	public $id = 0;
 	public $label = '';

@@ -566,7 +566,7 @@ class DAO_MetricDimension {
 	}
 };
 
-class Model_Metric {
+class Model_Metric extends DevblocksRecordModel {
 	public int $created_at = 0;
 	public string $description = '';
 	public string $dimensions_kata = '';

@@ -474,7 +474,7 @@ class SearchFields_MailTransport extends DevblocksSearchFields {
 	}
 };
 
-class Model_MailTransport {
+class Model_MailTransport extends DevblocksRecordModel {
 	public $created_at;
 	public $extension_id;
 	public $id;

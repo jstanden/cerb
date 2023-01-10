@@ -1079,7 +1079,7 @@ class SearchFields_Message extends DevblocksSearchFields {
 	}
 };
 
-class Model_Message {
+class Model_Message extends DevblocksRecordModel {
 	public $id;
 	public $ticket_id;
 	public $created_date;

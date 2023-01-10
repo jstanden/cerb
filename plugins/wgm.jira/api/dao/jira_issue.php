@@ -759,7 +759,7 @@ class Search_JiraIssue extends Extension_DevblocksSearchSchema {
 	}
 };
 
-class Model_JiraIssue {
+class Model_JiraIssue extends DevblocksRecordModel {
 	public $id;
 	public $project_id;
 	public $jira_id;

@@ -729,7 +729,7 @@ class SearchFields_ContextActivityLog extends DevblocksSearchFields {
 	}
 };
 
-class Model_ContextActivityLog {
+class Model_ContextActivityLog extends DevblocksRecordModel {
 	public $id;
 	public $activity_point;
 	public $actor_context;

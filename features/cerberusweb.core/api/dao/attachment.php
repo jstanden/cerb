@@ -971,7 +971,7 @@ class SearchFields_Attachment extends DevblocksSearchFields {
 	}
 };
 
-class Model_Attachment {
+class Model_Attachment extends DevblocksRecordModel {
 	public $id;
 	public $name;
 	public $mime_type = '';

@@ -605,7 +605,7 @@ class SearchFields_FileBundle extends DevblocksSearchFields {
 	}
 };
 
-class Model_FileBundle {
+class Model_FileBundle extends DevblocksRecordModel {
 	public $id;
 	public $name;
 	public $tag;

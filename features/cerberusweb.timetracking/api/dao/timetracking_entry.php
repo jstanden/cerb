@@ -534,7 +534,7 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 	}
 };
 
-class Model_TimeTrackingEntry {
+class Model_TimeTrackingEntry extends DevblocksRecordModel {
 	public $id;
 	public $time_actual_mins;
 	public $time_actual_secs;

@@ -526,7 +526,7 @@ class SearchFields_FeedItem extends DevblocksSearchFields {
 	}
 };
 
-class Model_FeedItem {
+class Model_FeedItem extends DevblocksRecordModel {
 	public $id;
 	public $feed_id;
 	public $guid;

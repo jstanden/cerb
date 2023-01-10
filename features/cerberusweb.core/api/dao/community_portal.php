@@ -683,7 +683,7 @@ class DAO_CommunityToolProperty extends Cerb_ORMHelper {
 	}
 };
 
-class Model_CommunityTool {
+class Model_CommunityTool extends DevblocksRecordModel {
 	public $id = 0;
 	public $name = '';
 	public $code = '';

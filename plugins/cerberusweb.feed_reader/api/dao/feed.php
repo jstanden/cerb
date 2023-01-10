@@ -339,7 +339,7 @@ class SearchFields_Feed extends DevblocksSearchFields {
 	}
 };
 
-class Model_Feed {
+class Model_Feed extends DevblocksRecordModel {
 	public $id;
 	public $name;
 	public $url;

@@ -41,6 +41,9 @@ abstract class C4_AbstractView {
 	
 	public $renderTemplate = null;
 
+	public $__auto_persist = null;
+	public $_init_checksum = null;
+
 	function getContext() {
 		if(false == ($context_ext = Extension_DevblocksContext::getByViewClass(get_class($this))))
 			return null;
@@ -4622,6 +4625,7 @@ class C4_AbstractViewModel {
 	public $name = "";
 	public $options = [];
 	public $is_ephemeral = 0;
+	public $worker_id = 0;
 	
 	public $view_columns = [];
 	public $columnsHidden = [];

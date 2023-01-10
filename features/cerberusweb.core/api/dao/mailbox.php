@@ -440,7 +440,7 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 
 };
 
-class Model_Mailbox {
+class Model_Mailbox extends DevblocksRecordModel {
 	public $checked_at = 0;
 	public $connected_account_id = 0;
 	public $delay_until = 0;

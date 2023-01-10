@@ -474,7 +474,7 @@ class SearchFields_Reminder extends DevblocksSearchFields {
 	}
 };
 
-class Model_Reminder {
+class Model_Reminder extends DevblocksRecordModel {
 	public $id = 0;
 	public $name = null;
 	public $worker_id = 0;

@@ -537,7 +537,7 @@ class SearchFields_CardWidget extends DevblocksSearchFields {
 	}
 };
 
-class Model_CardWidget {
+class Model_CardWidget extends DevblocksRecordModel {
 	public $id;
 	public $name;
 	public $record_type;

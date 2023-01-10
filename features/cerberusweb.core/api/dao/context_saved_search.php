@@ -562,7 +562,7 @@ class SearchFields_ContextSavedSearch extends DevblocksSearchFields {
 	}
 };
 
-class Model_ContextSavedSearch {
+class Model_ContextSavedSearch extends DevblocksRecordModel {
 	public $id = 0;
 	public $name = null;
 	public $context = null;

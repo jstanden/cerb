@@ -476,7 +476,7 @@ class SearchFields_WebApiCredentials extends DevblocksSearchFields {
 	}
 };
 
-class Model_WebApiCredentials {
+class Model_WebApiCredentials extends DevblocksRecordModel {
 	public $id;
 	public $name;
 	public $worker_id;

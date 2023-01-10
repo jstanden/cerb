@@ -416,7 +416,7 @@ class DAO_CallEntry extends Cerb_ORMHelper {
 	}
 };
 
-class Model_CallEntry {
+class Model_CallEntry extends DevblocksRecordModel {
 	public $id;
 	public $subject;
 	public $phone;

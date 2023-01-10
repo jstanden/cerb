@@ -486,7 +486,7 @@ class SearchFields_ProfileTab extends DevblocksSearchFields {
 	}
 };
 
-class Model_ProfileTab {
+class Model_ProfileTab extends DevblocksRecordModel {
 	public $id = 0;
 	public $name = null;
 	public $context = null;

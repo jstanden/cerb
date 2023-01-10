@@ -488,7 +488,7 @@ class SearchFields_EmailSignature extends DevblocksSearchFields {
 	}
 };
 
-class Model_EmailSignature {
+class Model_EmailSignature extends DevblocksRecordModel {
 	public $id;
 	public $name;
 	public $owner_context;

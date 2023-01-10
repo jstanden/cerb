@@ -725,7 +725,7 @@ class SearchFields_CrmOpportunity extends DevblocksSearchFields {
 	}
 };
 
-class Model_CrmOpportunity {
+class Model_CrmOpportunity extends DevblocksRecordModel {
 	public $id;
 	public $name;
 	public $currency_amount;

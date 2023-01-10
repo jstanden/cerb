@@ -192,7 +192,7 @@ class DAO_RecordChangeset {
 	}
 }
 
-class Model_RecordChangeset {
+class Model_RecordChangeset extends DevblocksRecordModel {
 	public int $created_at = 0;
 	public int $id = 0;
 	public int $record_id = 0;

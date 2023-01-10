@@ -959,7 +959,7 @@ class Context_KbCategory extends Extension_DevblocksContext implements IDevblock
 	}
 };
 
-class Model_KbCategory {
+class Model_KbCategory extends DevblocksRecordModel {
 	public $id = 0;
 	public $parent_id = 0;
 	public $name;

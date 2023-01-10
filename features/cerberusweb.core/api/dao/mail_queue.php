@@ -373,9 +373,6 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 			$object->queue_delivery_date = $row['queue_delivery_date'];
 			$object->queue_fails = $row['queue_fails'];
 			
-			// Deprecated
-			$object->subject = $row['name'];
-			
 			// Unserialize params
 			$params_json = $row['params_json'];
 			if(!empty($params_json))
@@ -725,7 +722,7 @@ class SearchFields_MailQueue extends DevblocksSearchFields {
 	}
 };
 
-class Model_MailQueue {
+class Model_MailQueue extends DevblocksRecordModel {
 	const TYPE_COMPOSE = 'mail.compose';
 	const TYPE_TRANSACTIONAL = 'mail.transactional';
 	const TYPE_TICKET_FORWARD = 'ticket.forward';

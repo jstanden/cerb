@@ -903,7 +903,7 @@ class Search_Org extends Extension_DevblocksSearchSchema {
 	}
 };
 
-class Model_ContactOrg {
+class Model_ContactOrg extends DevblocksRecordModel {
 	public $id;
 	public $name;
 	public $street;

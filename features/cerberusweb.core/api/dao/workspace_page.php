@@ -607,7 +607,7 @@ class SearchFields_WorkspacePage extends DevblocksSearchFields {
 	}
 };
 
-class Model_WorkspacePage {
+class Model_WorkspacePage extends DevblocksRecordModel {
 	public $id;
 	public $name;
 	public $owner_context;

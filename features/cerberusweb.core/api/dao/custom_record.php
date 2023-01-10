@@ -541,7 +541,7 @@ class SearchFields_CustomRecord extends DevblocksSearchFields {
 	}
 };
 
-class Model_CustomRecord {
+class Model_CustomRecord extends DevblocksRecordModel {
 	public $id;
 	public $name;
 	public $name_plural;

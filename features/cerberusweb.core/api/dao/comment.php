@@ -822,7 +822,7 @@ class Search_CommentContent extends Extension_DevblocksSearchSchema {
 	}
 };
 
-class Model_Comment {
+class Model_Comment extends DevblocksRecordModel {
 	public $id;
 	public $context;
 	public $context_id;

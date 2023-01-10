@@ -542,7 +542,7 @@ class SearchFields_PackageLibrary extends DevblocksSearchFields {
 	}
 };
 
-class Model_PackageLibrary {
+class Model_PackageLibrary extends DevblocksRecordModel {
 	public $id;
 	public $uri;
 	public $name;

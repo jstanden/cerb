@@ -591,7 +591,7 @@ class SearchFields_ProfileWidget extends DevblocksSearchFields {
 	}
 };
 
-class Model_ProfileWidget {
+class Model_ProfileWidget extends DevblocksRecordModel {
 	public $extension_id = 0;
 	public $extension_params = [];
 	public $id = 0;

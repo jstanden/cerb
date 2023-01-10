@@ -437,7 +437,7 @@ class SearchFields_TimeTrackingActivity extends DevblocksSearchFields {
 	}
 };
 
-class Model_TimeTrackingActivity {
+class Model_TimeTrackingActivity extends DevblocksRecordModel {
 	public $id;
 	public $name;
 	public $updated_at;

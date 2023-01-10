@@ -647,7 +647,7 @@ class SearchFields_Resource extends DevblocksSearchFields {
 	}
 };
 
-class Model_Resource {
+class Model_Resource extends DevblocksRecordModel {
 	public $automation_kata;
 	public $description;
 	public $id;

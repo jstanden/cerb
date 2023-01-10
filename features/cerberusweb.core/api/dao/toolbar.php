@@ -520,7 +520,7 @@ class SearchFields_Toolbar extends DevblocksSearchFields {
 	}
 };
 
-class Model_Toolbar {
+class Model_Toolbar extends DevblocksRecordModel {
 	public $id;
 	public $name;
 	public $description;

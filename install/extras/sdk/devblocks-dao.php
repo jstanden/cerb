@@ -485,7 +485,7 @@ class SearchFields_<?php echo $class_name; ?> extends DevblocksSearchFields {
 </textarea>
 
 <textarea style="width: 98%; height: 200px;">
-class Model_<?php echo $class_name; ?> {
+class Model_<?php echo $class_name; ?> extends DevblocksRecordModel {
 <?php
 	foreach ( array_keys($fields) as $field_name ) {
 		printf ( "\tpublic \$%s;\n", $field_name );

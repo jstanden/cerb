@@ -578,7 +578,7 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 	}
 };
 
-class Model_WorkerRole {
+class Model_WorkerRole extends DevblocksRecordModel {
 	public $id;
 	public $member_query_worker = null;
 	public $name;

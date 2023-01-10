@@ -1879,7 +1879,7 @@ class Search_Worker extends Extension_DevblocksSearchSchema {
 	}
 };
 
-class Model_Worker {
+class Model_Worker extends DevblocksRecordModel {
 	public $at_mention_name;
 	public $calendar_id = 0;
 	public $dob;

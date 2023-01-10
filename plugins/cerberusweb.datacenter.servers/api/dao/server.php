@@ -975,7 +975,7 @@ class SearchFields_Server extends DevblocksSearchFields {
 	}
 };
 
-class Model_Server {
+class Model_Server extends DevblocksRecordModel {
 	public $created;
 	public $id;
 	public $name;

@@ -2582,7 +2582,7 @@ class DAO_Application extends Cerb_ORMHelper {
 	}
 }
 
-class Model_Application {
+class Model_Application extends DevblocksRecordModel {
 	public $id = 0;
 	public $name = 'Cerb';
 }

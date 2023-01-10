@@ -512,7 +512,7 @@ class SearchFields_ClassifierExample extends DevblocksSearchFields {
 	}
 };
 
-class Model_ClassifierExample {
+class Model_ClassifierExample extends DevblocksRecordModel {
 	public $id = 0;
 	public $classifier_id = 0;
 	public $class_id = 0;

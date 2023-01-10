@@ -467,7 +467,7 @@ class SearchFields_DecisionNode extends DevblocksSearchFields {
 	}
 };
 
-class Model_DecisionNode {
+class Model_DecisionNode extends DevblocksRecordModel {
 	public $id;
 	public $parent_id;
 	public $trigger_id;

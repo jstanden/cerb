@@ -511,7 +511,7 @@ class SearchFields_TwitterMessage extends DevblocksSearchFields {
 	}
 };
 
-class Model_TwitterMessage {
+class Model_TwitterMessage extends DevblocksRecordModel {
 	public $id;
 	public $connected_account_id;
 	public $twitter_id;

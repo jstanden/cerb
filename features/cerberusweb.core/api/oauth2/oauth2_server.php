@@ -276,7 +276,7 @@ class Cerb_OAuth2ScopeEntity implements ScopeEntityInterface {
 	/**
 	 * @return mixed
 	 */
-	public function jsonSerialize() {
+	public function jsonSerialize(): mixed {
 		return $this->getIdentifier();
 	}
 }

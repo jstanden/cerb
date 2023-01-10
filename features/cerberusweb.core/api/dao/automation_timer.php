@@ -493,7 +493,7 @@ class SearchFields_AutomationTimer extends DevblocksSearchFields {
 	}
 };
 
-class Model_AutomationTimer {
+class Model_AutomationTimer extends DevblocksRecordModel {
 	public $automations_kata;
 	public $continuation_id;
 	public $created_at;

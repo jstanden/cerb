@@ -774,7 +774,7 @@ class SearchFields_Notification extends DevblocksSearchFields {
 	}
 };
 
-class Model_Notification {
+class Model_Notification extends DevblocksRecordModel {
 	public $id;
 	public $context;
 	public $context_id;

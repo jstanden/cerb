@@ -666,7 +666,7 @@ class SearchFields_ConnectedAccount extends DevblocksSearchFields {
 	}
 };
 
-class Model_ConnectedAccount {
+class Model_ConnectedAccount extends DevblocksRecordModel {
 	public $created_at;
 	public $id;
 	public $name;

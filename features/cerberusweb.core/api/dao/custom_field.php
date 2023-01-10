@@ -1576,7 +1576,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 	}
 };
 
-class Model_CustomField {
+class Model_CustomField extends DevblocksRecordModel {
 	const TYPE_CHECKBOX = 'C';
 	const TYPE_CURRENCY = 'Y';
 	const TYPE_DATE = 'E';

@@ -492,7 +492,7 @@ class SearchFields_Currency extends DevblocksSearchFields {
 	}
 };
 
-class Model_Currency {
+class Model_Currency extends DevblocksRecordModel {
 	public $id;
 	public $name;
 	public $name_plural;

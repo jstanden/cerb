@@ -638,7 +638,7 @@ class SearchFields_Bot extends DevblocksSearchFields {
 	}
 };
 
-class Model_Bot {
+class Model_Bot extends DevblocksRecordModel {
 	public $id;
 	public $name;
 	public $at_mention_name;

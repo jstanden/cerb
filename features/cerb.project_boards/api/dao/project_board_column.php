@@ -518,7 +518,7 @@ class SearchFields_ProjectBoardColumn extends DevblocksSearchFields {
 	}
 };
 
-class Model_ProjectBoardColumn {
+class Model_ProjectBoardColumn extends DevblocksRecordModel {
 	public $id;
 	public $name;
 	public $board_id;

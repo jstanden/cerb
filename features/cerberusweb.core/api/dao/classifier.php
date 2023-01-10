@@ -528,7 +528,7 @@ class SearchFields_Classifier extends DevblocksSearchFields {
 	}
 };
 
-class Model_Classifier {
+class Model_Classifier extends DevblocksRecordModel {
 	public $id = 0;
 	public $name = null;
 	public $owner_context = null;

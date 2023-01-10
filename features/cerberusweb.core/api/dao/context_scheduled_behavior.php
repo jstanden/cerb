@@ -666,7 +666,7 @@ class SearchFields_ContextScheduledBehavior extends DevblocksSearchFields {
 	}
 };
 
-class Model_ContextScheduledBehavior {
+class Model_ContextScheduledBehavior extends DevblocksRecordModel {
 	public $behavior_id;
 	public $context;
 	public $context_id;

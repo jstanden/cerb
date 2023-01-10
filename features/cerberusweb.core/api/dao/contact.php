@@ -1038,7 +1038,7 @@ class Search_Contact extends Extension_DevblocksSearchSchema {
 	}
 };
 
-class Model_Contact {
+class Model_Contact extends DevblocksRecordModel {
 	public $id;
 	public $primary_email_id;
 	public $first_name;

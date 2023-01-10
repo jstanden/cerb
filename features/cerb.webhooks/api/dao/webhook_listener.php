@@ -446,7 +446,7 @@ class SearchFields_WebhookListener extends DevblocksSearchFields {
 	}
 };
 
-class Model_WebhookListener {
+class Model_WebhookListener extends DevblocksRecordModel {
 	public $id = 0;
 	public $name = null;
 	public $guid = null;

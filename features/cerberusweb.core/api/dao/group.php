@@ -1133,7 +1133,7 @@ class SearchFields_Group extends DevblocksSearchFields {
 	}
 };
 
-class Model_Group {
+class Model_Group extends DevblocksRecordModel {
 	public $id;
 	public $name;
 	public $count;

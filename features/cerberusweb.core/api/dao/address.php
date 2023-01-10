@@ -1336,7 +1336,7 @@ class Search_Address extends Extension_DevblocksSearchSchema {
 	}
 };
 
-class Model_Address {
+class Model_Address extends DevblocksRecordModel {
 	public $id;
 	public $contact_id = 0;
 	public $contact_org_id = 0;

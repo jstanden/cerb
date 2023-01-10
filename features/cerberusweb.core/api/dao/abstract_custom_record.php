@@ -717,7 +717,7 @@ class SearchFields_AbstractCustomRecord extends DevblocksSearchFields {
 	}
 };
 
-class Model_AbstractCustomRecord {
+class Model_AbstractCustomRecord extends DevblocksRecordModel {
 	public $created_at;
 	public $id;
 	public $name;

@@ -1112,7 +1112,7 @@ class SearchFields_Domain extends DevblocksSearchFields {
 	}
 };
 
-class Model_Domain {
+class Model_Domain extends DevblocksRecordModel {
 	public $id;
 	public $name;
 	public $server_id;

@@ -825,7 +825,7 @@ class SearchFields_TriggerEvent extends DevblocksSearchFields {
 	}
 };
 
-class Model_TriggerEvent {
+class Model_TriggerEvent extends DevblocksRecordModel {
 	public $bot_id;
 	public $event_params = [];
 	public $event_point;

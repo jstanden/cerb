@@ -435,7 +435,7 @@ class SearchFields_ProjectBoard extends DevblocksSearchFields {
 	}
 };
 
-class Model_ProjectBoard {
+class Model_ProjectBoard extends DevblocksRecordModel {
 	public $id = 0;
 	public $cards_kata = null;
 	public $name = null;

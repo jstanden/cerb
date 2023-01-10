@@ -769,7 +769,7 @@ class SearchFields_Bucket extends DevblocksSearchFields {
 	}
 };
 
-class Model_Bucket {
+class Model_Bucket extends DevblocksRecordModel {
 	public $id;
 	public $name = '';
 	public $group_id = 0;

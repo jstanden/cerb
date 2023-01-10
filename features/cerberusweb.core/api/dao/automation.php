@@ -636,7 +636,7 @@ class SearchFields_Automation extends DevblocksSearchFields {
 	}
 };
 
-class Model_Automation {
+class Model_Automation extends DevblocksRecordModel {
 	public $created_at;
 	public $description;
 	public $extension_id = null;

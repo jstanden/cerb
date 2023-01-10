@@ -562,7 +562,7 @@ class SearchFields_WorkspaceTab extends DevblocksSearchFields {
 	}
 };
 
-class Model_WorkspaceTab {
+class Model_WorkspaceTab extends DevblocksRecordModel {
 	public $id;
 	public $name;
 	public $workspace_page_id;

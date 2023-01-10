@@ -481,7 +481,7 @@ class SearchFields_ClassifierEntity extends DevblocksSearchFields {
 	}
 };
 
-class Model_ClassifierEntity {
+class Model_ClassifierEntity extends DevblocksRecordModel {
 	public $id = 0;
 	public $name = null;
 	public $type = null;

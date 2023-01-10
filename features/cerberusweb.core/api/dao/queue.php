@@ -595,7 +595,7 @@ class SearchFields_Queue extends DevblocksSearchFields {
 	}
 };
 
-class Model_Queue {
+class Model_Queue extends DevblocksRecordModel {
 	public $id;
 	public $name;
 	public $created_at;

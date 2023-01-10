@@ -773,7 +773,7 @@ class SearchFields_Task extends DevblocksSearchFields {
 	}
 };
 
-class Model_Task {
+class Model_Task extends DevblocksRecordModel {
 	public $id;
 	public $title;
 	public $created_at;

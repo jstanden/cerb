@@ -472,7 +472,7 @@ class SearchFields_GpgPrivateKey extends DevblocksSearchFields {
 	}
 };
 
-class Model_GpgPrivateKey {
+class Model_GpgPrivateKey extends DevblocksRecordModel {
 	public $id;
 	public $name;
 	public $fingerprint;

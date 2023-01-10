@@ -310,13 +310,13 @@ abstract class DevblocksEngine {
 				$point->id = $sId;
 				$point->plugin_id = $plugin->id;
 				$point->name = $sName;
-				$point->params = array();
+				$point->params = [];
 
 				if(isset($eEvent->param)) {
 					foreach($eEvent->param as $eParam) {
 						$key = (string) $eParam['key'];
 						$val = (string) $eParam['value'];
-						$point->param[$key] = $val;
+						$point->params[$key] = $val;
 					}
 				}
 

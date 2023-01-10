@@ -849,7 +849,7 @@ class Search_Snippet extends Extension_DevblocksSearchSchema {
 	}
 };
 
-class Model_Snippet {
+class Model_Snippet extends DevblocksRecordModel {
 	public $content;
 	public $context;
 	public $id;

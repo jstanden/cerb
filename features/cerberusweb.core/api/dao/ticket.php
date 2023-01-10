@@ -2920,7 +2920,7 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 	}
 };
 
-class Model_Ticket {
+class Model_Ticket extends DevblocksRecordModel {
 	const STATUS_OPEN = 0;
 	const STATUS_WAITING = 1;
 	const STATUS_CLOSED = 2;

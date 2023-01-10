@@ -607,7 +607,7 @@ class SearchFields_Calendar extends DevblocksSearchFields {
 	}
 };
 
-class Model_Calendar {
+class Model_Calendar extends DevblocksRecordModel {
 	public $id;
 	public $name;
 	public $owner_context;

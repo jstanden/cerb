@@ -594,7 +594,7 @@ class SearchFields_WorkspaceList extends DevblocksSearchFields {
 	}
 };
 
-class Model_WorkspaceList {
+class Model_WorkspaceList extends DevblocksRecordModel {
 	public $columns = [];
 	public $context = '';
 	public $id = 0;

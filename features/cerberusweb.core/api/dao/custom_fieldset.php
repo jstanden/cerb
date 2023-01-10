@@ -629,7 +629,7 @@ class SearchFields_CustomFieldset extends DevblocksSearchFields {
 	}
 };
 
-class Model_CustomFieldset {
+class Model_CustomFieldset extends DevblocksRecordModel {
 	public $id;
 	public $name;
 	public $context;

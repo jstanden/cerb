@@ -67,6 +67,11 @@ class _DevblocksSearchGetValueAsFilterCallbackFactory {
 	}
 };
 
+abstract class DevblocksRecordModel {
+	public $_actor = null;
+	public $custom_fields = null;
+} 
+
 interface IDevblocksSearchFields {
 	static function getFields();
 	static function getPrimaryKey();
@@ -3064,6 +3069,7 @@ class DevblocksSearchField {
 	public $db_label;
 	public $type;
 	public $is_sortable = false;
+	public $ft_schema = null;
 	
 	function __construct($token, $db_table, $db_column, $label=null, $type=null, $is_sortable=false) {
 		$this->token = $token;

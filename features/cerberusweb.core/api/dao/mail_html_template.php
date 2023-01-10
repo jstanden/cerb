@@ -518,7 +518,7 @@ class SearchFields_MailHtmlTemplate extends DevblocksSearchFields {
 	}
 };
 
-class Model_MailHtmlTemplate {
+class Model_MailHtmlTemplate extends DevblocksRecordModel {
 	public $content;
 	public $id;
 	public $name;

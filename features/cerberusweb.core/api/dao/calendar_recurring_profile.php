@@ -560,7 +560,7 @@ class SearchFields_CalendarRecurringProfile extends DevblocksSearchFields {
 	}
 };
 
-class Model_CalendarRecurringProfile {
+class Model_CalendarRecurringProfile extends DevblocksRecordModel {
 	public $id;
 	public $event_name;
 	public $calendar_id;

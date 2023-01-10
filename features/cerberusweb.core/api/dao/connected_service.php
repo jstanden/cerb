@@ -524,7 +524,7 @@ class SearchFields_ConnectedService extends DevblocksSearchFields {
 	}
 };
 
-class Model_ConnectedService {
+class Model_ConnectedService extends DevblocksRecordModel {
 	public $id;
 	public $name;
 	public $uri;

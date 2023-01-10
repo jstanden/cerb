@@ -497,7 +497,7 @@ class SearchFields_AutomationResource extends DevblocksSearchFields {
 	}
 };
 
-class Model_AutomationResource {
+class Model_AutomationResource extends DevblocksRecordModel {
 	public $expires_at;
 	public $id;
 	public $mime_type;

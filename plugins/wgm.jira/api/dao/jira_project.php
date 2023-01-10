@@ -538,7 +538,7 @@ class SearchFields_JiraProject extends DevblocksSearchFields {
 	}
 };
 
-class Model_JiraProject {
+class Model_JiraProject extends DevblocksRecordModel {
 	public $connected_account_id = 0;
 	public $id = 0;
 	public $jira_id = null;

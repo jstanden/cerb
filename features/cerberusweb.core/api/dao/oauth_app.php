@@ -482,7 +482,7 @@ class SearchFields_OAuthApp extends DevblocksSearchFields {
 	}
 };
 
-class Model_OAuthApp {
+class Model_OAuthApp extends DevblocksRecordModel {
 	public $id;
 	public $name;
 	public $url;

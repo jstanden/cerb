@@ -504,7 +504,7 @@ class SearchFields_AutomationEvent extends DevblocksSearchFields {
 	}
 };
 
-class Model_AutomationEvent {
+class Model_AutomationEvent extends DevblocksRecordModel {
 	public ?string $automations_kata = null;
 	public ?string $description = null;
 	public ?string $extension_id = null;

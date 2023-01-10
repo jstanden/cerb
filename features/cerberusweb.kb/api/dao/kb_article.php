@@ -863,7 +863,7 @@ class Search_KbArticle extends Extension_DevblocksSearchSchema {
 	}
 };
 
-class Model_KbArticle {
+class Model_KbArticle extends DevblocksRecordModel {
 	const FORMAT_PLAINTEXT = 0;
 	const FORMAT_HTML = 1;
 	const FORMAT_MARKDOWN = 2;
