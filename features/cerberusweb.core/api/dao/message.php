@@ -596,43 +596,8 @@ class DAO_Message extends Cerb_ORMHelper {
 		
 		list($tables,$wheres,) = parent::_parseSearchParams($params, [], 'SearchFields_Message', $sortBy);
 
-		$select_sql = sprintf("SELECT ".
-			"m.id as %s, ".
-			"m.address_id as %s, ".
-			"m.created_date as %s, ".
-			"m.is_outgoing as %s, ".
-			"m.ticket_id as %s, ".
-			"m.worker_id as %s, ".
-			"m.html_attachment_id as %s, ".
-			"m.storage_extension as %s, ".
-			"m.storage_key as %s, ".
-			"m.storage_profile_id as %s, ".
-			"m.storage_size as %s, ".
-			"m.response_time as %s, ".
-			"m.is_broadcast as %s, ".
-			"m.is_not_sent as %s, ".
-			"m.signed_key_fingerprint as %s, ".
-			"m.signed_at as %s, ".
-			"m.token as %s, ".
-			"m.was_encrypted as %s ",
-			SearchFields_Message::ID,
-			SearchFields_Message::ADDRESS_ID,
-			SearchFields_Message::CREATED_DATE,
-			SearchFields_Message::IS_OUTGOING,
-			SearchFields_Message::TICKET_ID,
-			SearchFields_Message::WORKER_ID,
-			SearchFields_Message::HTML_ATTACHMENT_ID,
-			SearchFields_Message::STORAGE_EXTENSION,
-			SearchFields_Message::STORAGE_KEY,
-			SearchFields_Message::STORAGE_PROFILE_ID,
-			SearchFields_Message::STORAGE_SIZE,
-			SearchFields_Message::RESPONSE_TIME,
-			SearchFields_Message::IS_BROADCAST,
-			SearchFields_Message::IS_NOT_SENT,
-			SearchFields_Message::SIGNED_KEY_FINGERPRINT,
-			SearchFields_Message::SIGNED_AT,
-			SearchFields_Message::TOKEN,
-			SearchFields_Message::WAS_ENCRYPTED
+		$select_sql = sprintf('SELECT m.id AS %s ',
+			SearchFields_Message::ID
 		);
 		
 		$join_sql = "FROM message m ".
@@ -692,7 +657,7 @@ class DAO_Message extends Cerb_ORMHelper {
 			}
 		}
 		
-		return self::_searchWithTimeout(
+		$results = self::_searchWithTimeout(
 			SearchFields_Message::ID,
 			$select_sql,
 			$join_sql,
@@ -702,6 +667,40 @@ class DAO_Message extends Cerb_ORMHelper {
 			$limit,
 			$withCounts
 		);
+		
+		$models = CerberusContexts::getModels(
+			CerberusContexts::CONTEXT_MESSAGE,
+			array_column(
+				$results[0],
+				SearchFields_Message::ID
+			)
+		);
+		
+		foreach($results[0] as $id => $result) {
+			if(null != ($model = $models[$id] ?? null)) { /* @var Model_Message $model */
+				$result[SearchFields_Message::ADDRESS_ID] = $model->address_id;
+				$result[SearchFields_Message::CREATED_DATE] = $model->created_date;
+				$result[SearchFields_Message::ID] = $model->id;
+				$result[SearchFields_Message::IS_BROADCAST] = $model->is_broadcast;
+				$result[SearchFields_Message::IS_NOT_SENT] = $model->is_not_sent;
+				$result[SearchFields_Message::IS_OUTGOING] = $model->is_outgoing;
+				$result[SearchFields_Message::RESPONSE_TIME] = $model->response_time;
+				$result[SearchFields_Message::SIGNED_AT] = $model->signed_at;
+				$result[SearchFields_Message::SIGNED_KEY_FINGERPRINT] = $model->signed_key_fingerprint;
+				$result[SearchFields_Message::STORAGE_EXTENSION] = $model->storage_extension;
+				$result[SearchFields_Message::STORAGE_KEY] = $model->storage_key;
+				$result[SearchFields_Message::STORAGE_PROFILE_ID] = $model->storage_profile_id;
+				$result[SearchFields_Message::STORAGE_SIZE] = $model->storage_size;
+				$result[SearchFields_Message::TICKET_ID] = $model->ticket_id;
+				$result[SearchFields_Message::TOKEN] = $model->token;
+				$result[SearchFields_Message::WAS_ENCRYPTED] = $model->was_encrypted;
+				$result[SearchFields_Message::WORKER_ID] = $model->worker_id;
+				
+				$results[0][$id] = array_merge($result, $results[0][$id]);
+			}
+		}
+		
+		return $results;
 	}
 };
 
