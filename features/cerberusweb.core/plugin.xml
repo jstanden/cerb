@@ -79,8 +79,8 @@
 		<patch version="10.0.0" revision="1392" file="patches/10.x/10.0.0.php" />
 		<patch version="10.1.0" revision="1404" file="patches/10.x/10.1.0.php" />
 		<patch version="10.2.0" revision="1423" file="patches/10.x/10.2.0.php" />
-		<patch version="10.3.0" revision="1433" file="patches/10.x/10.3.0.php" />
 		<patch version="10.3.0" revision="1434" file="patches/10.x/10.3.0.php" />
+		<patch version="10.4.0" revision="1440" file="patches/10.x/10.4.0.php" />
 	</patches>
 
 	<!-- Exported Classes -->
