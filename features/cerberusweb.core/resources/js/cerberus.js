@@ -257,12 +257,11 @@ var cerbAutocompleteSuggestions = {
 			'pattern:'
 		],
 		'axis:x:tick:format:date:pattern:': [
-			'%Y',
-			'%Y-%m',
-			'%B \'%y',
-			'%Y-%m-%d',
-			'%Y-%m-%d %H:%M',
-			'%Y-%m-%d %H:%M:%S'
+			{
+				'caption': '(choose date format)',
+				'interaction': 'ai.cerb.automationBuilder.autocomplete.d3TimeFormat',
+				'interaction_params': ''
+			}
 		],
 		'axis:x:tick:format:duration:': [
 			'precision@int: 2',
@@ -280,10 +279,11 @@ var cerbAutocompleteSuggestions = {
 			'pattern:'
 		],
 		'axis:x:tick:format:number:pattern:': [
-			',',
-			',d',
-			'.4f',
-			'.2s',
+			{
+				'caption': '(choose number format)',
+				'interaction': 'ai.cerb.automationBuilder.autocomplete.d3Format',
+				'interaction_params': ''
+			}
 		],
 		'axis:x:type:': [
 			'category',
@@ -310,12 +310,11 @@ var cerbAutocompleteSuggestions = {
 			'pattern:'
 		],
 		'axis:y:tick:format:date:pattern:': [
-			'%Y',
-			'%Y-%m',
-			'%B \'%y',
-			'%Y-%m-%d',
-			'%Y-%m-%d %H:%M',
-			'%Y-%m-%d %H:%M:%S'
+			{
+				'caption': '(choose date format)',
+				'interaction': 'ai.cerb.automationBuilder.autocomplete.d3TimeFormat',
+				'interaction_params': ''
+			}
 		],
 		'axis:y:tick:format:duration:': [
 			'precision@int: 2',
@@ -333,10 +332,11 @@ var cerbAutocompleteSuggestions = {
 			'pattern:'
 		],
 		'axis:y:tick:format:number:pattern:': [
-			',',
-			',d',
-			'.4f',
-			'.2s',
+			{
+				'caption': '(choose number format)',
+				'interaction': 'ai.cerb.automationBuilder.autocomplete.d3Format',
+				'interaction_params': ''
+			}
 		],
 		'axis:y:type:': [
 			'category',
@@ -363,12 +363,11 @@ var cerbAutocompleteSuggestions = {
 			'pattern:'
 		],
 		'axis:y2:tick:format:date:pattern:': [
-			'%Y',
-			'%Y-%m',
-			'%B \'%y',
-			'%Y-%m-%d',
-			'%Y-%m-%d %H:%M',
-			'%Y-%m-%d %H:%M:%S'
+			{
+				'caption': '(choose date format)',
+				'interaction': 'ai.cerb.automationBuilder.autocomplete.d3TimeFormat',
+				'interaction_params': ''
+			}
 		],
 		'axis:y2:tick:format:duration:': [
 			'precision@int: 2',
@@ -386,10 +385,11 @@ var cerbAutocompleteSuggestions = {
 			'pattern:'
 		],
 		'axis:y2:tick:format:number:pattern:': [
-			',',
-			',d',
-			'.4f',
-			'.2s',
+			{
+				'caption': '(choose number format)',
+				'interaction': 'ai.cerb.automationBuilder.autocomplete.d3Format',
+				'interaction_params': ''
+			}
 		],
 		'axis:y2:type:': [
 			'category',
@@ -3416,6 +3416,45 @@ var ajax = new cAjaxCalls();
 						};
 						
 						autocomplete_options.onSelect(data, editor, callback);
+
+					} else if(data.hasOwnProperty('interaction')) {
+						let completions = editor.completer.completions;
+
+						// Remove the filter text when starting the interaction
+						if(completions.filterText) {
+							var ranges = editor.selection.getAllRanges();
+							for (var i = 0, range; range = ranges[i]; i++) {
+								range.start.column -= completions.filterText.length;
+								editor.session.remove(range);
+							}
+						}
+
+						editor.endOperation();
+
+						var $interaction =
+							$('<div/>')
+								.attr('data-interaction-uri', data['interaction'])
+								.attr('data-interaction-params', data['interaction_params'] || '')
+								.cerbBotTrigger({
+									'caller': 'automation.editor.kata.autocomplete',
+									'start': function(formData) {
+										//formData.set('caller[params][draft_id]', draft_id);
+									},
+									'done': function(e) {
+										e.stopPropagation();
+										$interaction.remove();
+										Devblocks.interactionWorkerPostActions(e.eventData, editor);
+									},
+									'error': function(e) {
+										e.stopPropagation();
+										$interaction.remove();
+									},
+									'abort': function(e) {
+										e.stopPropagation();
+										$interaction.remove();
+									}
+								})
+								.click()
 						
 					} else {
 						editor.completer.insertMatch(data);

@@ -1,0 +1,9 @@
+{
+    "name": "ai.cerb.automationBuilder.autocomplete.d3Format",
+    "description": "Build a d3.format string",
+    "extension_id": "cerb.trigger.interaction.internal",
+    "script": "start:\r\n  await:\r\n    form:\r\n      title: Number Format\r\n      elements:\r\n        sheet/prompt_number_format:\r\n          label: Choose:\r\n          required@bool: yes\r\n          data:\r\n            0:\r\n              format: ,\r\n              output: 1,234,567\r\n            1:\r\n              format: $,\r\n              output: $1,234,567\r\n            2:\r\n              format: .2f\r\n              output: 12345.67\r\n            3:\r\n              format: ,.2f\r\n              output: 12,345.67\r\n            4:\r\n              format: .2s\r\n              output: 1.2M\r\n            5:\r\n              format: .1%\r\n              output: 12.3%\r\n          limit: 30\r\n          default: ,.2f\r\n          schema:\r\n            layout:\r\n              headings@bool: no\r\n              paging@bool: no\r\n              style: grid\r\n            columns:\r\n              selection/format:\r\n                params:\r\n                  mode: single\r\n              text/output:\r\n        submit:\r\n          continue@bool: no\r\n          reset@bool: no\r\n\r\n  return:\r\n    snippet@key: prompt_number_format",
+    "policy_kata": "commands:\r\n  # [TODO] Specify a command policy here (use Ctrl+Space for autocompletion)\r\n  ",
+    "created_at": 1667873392,
+    "updated_at": 1667874329
+}

@@ -1,0 +1,9 @@
+{
+    "name": "ai.cerb.automationBuilder.autocomplete.d3TimeFormat",
+    "description": "Build a d3.timeFormat string",
+    "extension_id": "cerb.trigger.interaction.internal",
+    "script": "start:\r\n  \r\n  await:\r\n    form:\r\n      title: Date Format\r\n      elements:\r\n        sheet/prompt_date_format:\r\n          label: Choose:\r\n          required@bool: yes\r\n          data:\r\n            0:\r\n              format: %Y\r\n              output: {{'now'|date('Y')}}\r\n            1:\r\n              format: %Y-%m\r\n              output: {{'now'|date('Y-m')}}\r\n            2:\r\n              format: %Y-%m-%d\r\n              output: {{'now'|date('Y-m-d')}}\r\n            3:\r\n              format: %Y-%m-%d %H:%M\r\n              output: {{'now'|date('Y-m-d H:i')}}\r\n            4:\r\n              format: %Y-%m-%d %H:%M:%S\r\n              output: {{'now'|date('Y-m-d H:i:s')}}\r\n            5:\r\n              format: %B '%y\r\n              output: {{'now'|date(\"F 'y\")}}\r\n            6:\r\n              format: %b '%y\r\n              output: {{'now'|date(\"M 'y\")}}\r\n          limit: 30\r\n          default: %Y-%m-%d\r\n          schema:\r\n            layout:\r\n              headings@bool: no\r\n              paging@bool: no\r\n              style: grid\r\n            columns:\r\n              selection/format:\r\n                params:\r\n                  mode: single\r\n              text/output:\r\n        submit:\r\n          continue@bool: no\r\n          reset@bool: no\r\n\r\n  return:\r\n    snippet@key: prompt_date_format",
+    "policy_kata": "commands:\r\n  # [TODO] Specify a command policy here (use Ctrl+Space for autocompletion)\r\n  ",
+    "created_at": 1667868484,
+    "updated_at": 1667870846
+}
