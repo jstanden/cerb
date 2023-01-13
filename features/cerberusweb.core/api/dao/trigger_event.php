@@ -2413,16 +2413,19 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 		
 		if($context_id) {
 			if(is_numeric($context_id)) {
-				if(false == ($model = DAO_TriggerEvent::get($context_id)))
+				if(!($model = DAO_TriggerEvent::get($context_id)))
 					DevblocksPlatform::dieWithHttpError(null, 404);
 				
-			} elseif (!is_numeric($context_id)) {
-				if(false == ($model = DAO_TriggerEvent::getByUri($context_id)))
+			} else {
+				if(!($model = DAO_TriggerEvent::getByUri($context_id)))
 					DevblocksPlatform::dieWithHttpError(null, 404);
 			}
-			
-			$tpl->assign('model', $model);
 		}
+		
+		if(!($model instanceof Model_TriggerEvent))
+			$model = new Model_TriggerEvent();
+		
+		$tpl->assign('model', $model);
 		
 		if(!$context_id || $edit) {
 			if($model) {
@@ -2453,10 +2456,10 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 			}
 			
 			// Check view for defaults by filter
-			if(false != ($view = C4_AbstractViewLoader::getView($view_id))) {
+			if(($view = C4_AbstractViewLoader::getView($view_id))) {
 				$filters = $view->findParam(SearchFields_TriggerEvent::BOT_ID, $view->getParams());
 				
-				if(false != ($filter = array_shift($filters))) {
+				if(($filter = array_shift($filters))) {
 					$bot_id = is_array($filter->value) ? array_shift($filter->value) : $filter->value;
 					
 					if(array_key_exists($bot_id, $bots)) {
@@ -2474,7 +2477,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 							if($event->params['deprecated'] ?? null)
 								continue;
 							
-							if(false == ($label = ($event->params['menu_key'] ?? null)))
+							if(!($label = ($event->params['menu_key'] ?? null)))
 								$label = $event->name;
 							
 							$labels[$event->id] = $label;

@@ -2,7 +2,7 @@
 class _DevblocksSheetService {
 	private static $_instance = null;
 	
-	private $_types = [];
+	private array $_types = [];
 	private $_default_type = null;
 	private $_type_funcs = null;
 	
@@ -175,10 +175,10 @@ class _DevblocksSheetService {
 			$sheet_dict->setKeyPath('__row.index', $index++);
 			
 			foreach($columns as $column) {
-				if(false == ($column_key = $column['key'] ?? null))
+				if(!($column_key = $column['key'] ?? null))
 					continue;
 				
-				if(false == ($column_type = $column['_type'] ?? null))
+				if(!($column_type = $column['_type'] ?? null))
 					$column_type = $this->_default_type;
 				
 				if(!array_key_exists($column_type, $this->_types))
@@ -507,7 +507,7 @@ class _DevblocksSheetServiceTypes {
 			}
 			
 			if(DevblocksPlatform::strStartsWith($uri, 'cerb:')) {
-				if(false == ($uri_parts = DevblocksPlatform::services()->ui()->parseURI($uri)))
+				if(!($uri_parts = DevblocksPlatform::services()->ui()->parseURI($uri)))
 					return '';
 				
 				if(Context_Automation::ID != ($uri_parts['context'] ?? null))
@@ -670,10 +670,10 @@ class _DevblocksSheetServiceTypes {
 				return trim(strip_tags($search_label));
 			
 			if($search_context && $search_label) {
-				if(false == ($context_ext = Extension_DevblocksContext::getByAlias($search_context, true)))
+				if(!($context_ext = Extension_DevblocksContext::getByAlias($search_context, true)))
 					return;
 				
-				if(false == ($search_query = $tpl_builder->build($search_query, $sheet_dict)))
+				if(!($search_query = $tpl_builder->build($search_query, $sheet_dict)))
 					return;
 				
 				// Search link
@@ -721,10 +721,10 @@ class _DevblocksSheetServiceTypes {
 				$search_query = '';
 			}
 			
-			if(false == ($query = $tpl_builder->build($search_query, $sheet_dict)))
+			if(!($query = $tpl_builder->build($search_query, $sheet_dict)))
 				return;
 			
-			if(!$search_context || false == ($context_ext = Extension_DevblocksContext::getByAlias($search_context, true)))
+			if(!$search_context || !($context_ext = Extension_DevblocksContext::getByAlias($search_context, true)))
 				return;
 			
 			if('text' == ($environment['format'] ?? null))

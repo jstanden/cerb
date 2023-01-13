@@ -51,7 +51,7 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget implements ICerbWo
 	private function _getSheetFromWidget(Model_WorkspaceWidget $widget, int $page, string &$error=null, array $environment=[]) {
 		$sheets = DevblocksPlatform::services()->sheet();
 		
-		if(false == ($results = $this->getData($widget, $page, $error)))
+		if(!($results = $this->getData($widget, $page, $error)))
 			return false;
 		
 		if(empty($results)) {
@@ -66,35 +66,31 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget implements ICerbWo
 			return false;
 		}
 		
-		if($format == 'dictionaries') {
-			$sheet_kata = DevblocksPlatform::importGPC($widget->params['sheet_kata'] ?? null, 'string', null);
-			
-			if (false == ($sheet = $sheets->parse($sheet_kata, $error)))
-				$sheet = [];
-			
-			$sheets->addType('card', $sheets->types()->card());
-			$sheets->addType('date', $sheets->types()->date());
-			$sheets->addType('icon', $sheets->types()->icon());
-			$sheets->addType('link', $sheets->types()->link());
-			$sheets->addType('search', $sheets->types()->search());
-			$sheets->addType('search_button', $sheets->types()->searchButton());
-			$sheets->addType('selection', $sheets->types()->selection());
-			$sheets->addType('slider', $sheets->types()->slider());
-			$sheets->addType('text', $sheets->types()->text());
-			$sheets->addType('time_elapsed', $sheets->types()->timeElapsed());
-			$sheets->setDefaultType('text');
-			
-			$sheet_dicts = $results['data'];
-			
-			return [
-				'layout' => $sheets->getLayout($sheet),
-				'columns' => $sheets->getColumns($sheet),
-				'rows' => $sheets->getRows($sheet, $sheet_dicts, $environment),
-				'paging' => $results['_']['paging'] ?? null,
-			];
-		}
+		$sheet_kata = DevblocksPlatform::importGPC($widget->params['sheet_kata'] ?? null, 'string', null);
 		
-		return false;
+		if (!($sheet = $sheets->parse($sheet_kata, $error)))
+			$sheet = [];
+		
+		$sheets->addType('card', $sheets->types()->card());
+		$sheets->addType('date', $sheets->types()->date());
+		$sheets->addType('icon', $sheets->types()->icon());
+		$sheets->addType('link', $sheets->types()->link());
+		$sheets->addType('search', $sheets->types()->search());
+		$sheets->addType('search_button', $sheets->types()->searchButton());
+		$sheets->addType('selection', $sheets->types()->selection());
+		$sheets->addType('slider', $sheets->types()->slider());
+		$sheets->addType('text', $sheets->types()->text());
+		$sheets->addType('time_elapsed', $sheets->types()->timeElapsed());
+		$sheets->setDefaultType('text');
+		
+		$sheet_dicts = $results['data'];
+		
+		return [
+			'layout' => $sheets->getLayout($sheet),
+			'columns' => $sheets->getColumns($sheet),
+			'rows' => $sheets->getRows($sheet, $sheet_dicts, $environment),
+			'paging' => $results['_']['paging'] ?? null,
+		];
 	}
 	
 	function render(Model_WorkspaceWidget $widget) {
@@ -196,7 +192,7 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget implements ICerbWo
 			'row_selections' => [],
 		]);
 		
-		if(false == ($toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)))
+		if(!($toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)))
 			return;
 		
 		$tpl->assign('toolbar', $toolbar);
@@ -219,7 +215,7 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget implements ICerbWo
 			'row_selections' => $row_selections
 		]);
 		
-		if(false != ($toolbar_kata = @$widget->params['toolbar_kata'])) {
+		if(($toolbar_kata = @$widget->params['toolbar_kata'])) {
 			$toolbar = $ui->toolbar()->parse($toolbar_kata, $toolbar_dict);
 			
 			$ui->toolbar()->render($toolbar);

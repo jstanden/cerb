@@ -47,7 +47,7 @@ class Controller_Webhooks implements DevblocksHttpRequestHandler {
 				if($behavior->event_point != Event_WebhookReceived::ID)
 					return false;
 				
-				if(false == ($bot = $behavior->getBot()))
+				if(!($bot = $behavior->getBot()))
 					return false;
 				
 				if($behavior->is_disabled || $bot->is_disabled) {

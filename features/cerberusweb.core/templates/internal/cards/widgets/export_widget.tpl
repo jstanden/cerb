@@ -6,7 +6,7 @@
 </div>
 
 <div style="padding:5px;">
-	<button class="submit" type="button"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.close'|devblocks_translate|capitalize}</button>
+	<button class="submit" type="button"><span class="glyphicons glyphicons-circle-ok"></span> {'common.close'|devblocks_translate|capitalize}</button>
 </div>
 
 </form>

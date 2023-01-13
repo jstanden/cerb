@@ -2479,7 +2479,10 @@ class CerberusContexts {
 									return false;
 								}
 								
-								if($behavior->is_disabled || false == ($event = $behavior->getEvent()))
+								if(!$event_model)
+									return false;
+									
+								if($behavior->is_disabled || !($event = $behavior->getEvent()))
 									return false;
 								
 								$event_model->params['_whisper']['_trigger_id'] = [$behavior->id];

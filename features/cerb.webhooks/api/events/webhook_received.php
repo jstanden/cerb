@@ -27,34 +27,34 @@ class Event_WebhookReceived extends AbstractEvent_Webhook {
 		$this->_event_id = self::ID;
 	}
 	
-	static function trigger($trigger_id, $http_request, $variables=[]) {
-		if(false == ($behavior = DAO_TriggerEvent::get($trigger_id)))
-			return;
+	static function trigger($trigger_id, $http_request, $variables=[]) : ?Model_DevblocksEvent {
+		if(!($behavior = DAO_TriggerEvent::get($trigger_id)))
+			return null;
 		
 		// If the behavior is disabled, ignore it
 		if($behavior->is_disabled)
-			return;
+			return null;
 		
 		// Look up the trigger's owning bot
-		if(false == ($bot = $behavior->getBot()))
-			return;
+		if(!($bot = $behavior->getBot()))
+			return null;
 		
 		// If the behavior is disabled, ignore it
 		if($bot->is_disabled)
-			return;
+			return null;
 		
 		$events = DevblocksPlatform::services()->event();
 		return $events->trigger(
 			new Model_DevblocksEvent(
 				self::ID,
-				array(
+				[
 					'bot_id' => $bot->id,
 					'http_request' => $http_request,
 					'_variables' => $variables,
-					'_whisper' => array(
-						'_trigger_id' => array($trigger_id),
-					),
-				)
+					'_whisper' => [
+						'_trigger_id' => [$trigger_id],
+					],
+				]
 			)
 		);
 	}

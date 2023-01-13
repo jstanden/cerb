@@ -25,7 +25,7 @@ class _DevblocksDateManager {
 			$datetime->setDate($date[0],$date[1],$date[2]);
 			$datetime->setTime($time[0],$time[1],$time[2]);
 			
-		} catch (Exception $e) {
+		} catch (Exception) {
 			$datetime = new DateTime();
 		}
 		

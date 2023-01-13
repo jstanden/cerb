@@ -20,14 +20,14 @@
 	
 		<b>{'common.title'|devblocks_translate|capitalize}:</b>
 		<div style="margin:0px 0px 10px 10px;">
-			<input type="text" name="title" value="{$model->title}" style="width:100%;" autofocus="autofocus" autocomplete="off" spellcheck="false">
+			<input type="text" name="title" value="{$model->title|default:''}" style="width:100%;" autofocus="autofocus" autocomplete="off" spellcheck="false">
 		</div>
 		
 		<b>{'common.status'|devblocks_translate|capitalize}:</b>
 		<div style="margin:0px 0px 10px 10px;">
-			<label><input type="radio" name="status_id" value="0" {if !$model->status_id}checked="checked"{/if}> Live</label>
-			<label><input type="radio" name="status_id" value="2" {if 2 == $model->status_id}checked="checked"{/if}> Simulator only</label>
-			<label><input type="radio" name="status_id" value="1" {if 1 == $model->status_id}checked="checked"{/if}> Disabled</label>
+			<label><input type="radio" name="status_id" value="0" {if !$model || !$model->status_id}checked="checked"{/if}> Live</label>
+			<label><input type="radio" name="status_id" value="2" {if 2 == $model->status_id|default:0}checked="checked"{/if}> Simulator only</label>
+			<label><input type="radio" name="status_id" value="1" {if 1 == $model->status_id|default:0}checked="checked"{/if}> Disabled</label>
 		</div>
 		
 		<div class="actions">

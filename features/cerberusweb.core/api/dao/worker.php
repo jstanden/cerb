@@ -3641,7 +3641,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		$keys['last_name']['notes'] = "Surname";
 		$keys['location']['notes'] = "Location description; `Los Angeles, CA, USA`";
 		$keys['mobile']['notes'] = "Mobile number";
-		$keys['time_format']['notes'] = "Preference for displaying timestamps, `strftime()` syntax";
+		$keys['time_format']['notes'] = "Preference for displaying timestamps, `DateTime()` syntax";
 		$keys['timezone']['notes'] = "IANA tz/zoneinfo timezone; `America/Los_Angeles`";
 		$keys['timeout_idle_secs']['notes'] = "Consider a session idle after this many seconds of inactivity";
 		$keys['title']['notes'] = "Job title / Position";
