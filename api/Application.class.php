@@ -3002,7 +3002,7 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 				if($maxlifetime) {
 					$url_writer = DevblocksPlatform::services()->url();
 					setcookie(
-						'Devblocks',
+						'Cerb',
 						$id,
 						[
 							'expires' => time()+$maxlifetime,

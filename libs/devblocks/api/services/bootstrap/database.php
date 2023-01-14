@@ -287,7 +287,7 @@ class _DevblocksDatabaseManager {
 			// Otherwise, if we've written to master then start redirecting reads to master
 			} else if(!$this->_has_written) {
 				$cache = DevblocksPlatform::services()->cache();
-				$local_only = !$cache->isVolatile() || !isset($_COOKIE['Devblocks']);
+				$local_only = !$cache->isVolatile() || !isset($_COOKIE['Cerb']);
 		
 				$cache_key = 'session:db:last_write:' . session_id();
 				//error_log(sprintf("Write to master (%s): %s", $cache_key, $sql));
@@ -316,7 +316,7 @@ class _DevblocksDatabaseManager {
 			 * Only perform READ_MASTER_AFTER_WRITE across HTTP requests if we have a high performing 
 			 * cache and an active worker session. Otherwise only cache for this request.
 			 */
-			$local_only = !$cache->isVolatile() || !isset($_COOKIE['Devblocks']);
+			$local_only = !$cache->isVolatile() || !isset($_COOKIE['Cerb']);
 			$cache_key = 'session:db:last_write:' . session_id();
 			
 			// If we've already executed DML this request, or another request has recently, redirect reads to master

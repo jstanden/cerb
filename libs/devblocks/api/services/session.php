@@ -43,7 +43,7 @@ class _DevblocksSessionManager {
 			$session_lifespan = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::SESSION_LIFESPAN, CerberusSettingsDefaults::SESSION_LIFESPAN);
 
 			session_name(APP_SESSION_NAME);
-			session_set_cookie_params($session_lifespan, '/', NULL, $url_writer->isSSL(), true);
+			session_set_cookie_params($session_lifespan, $url_writer->write(), NULL, $url_writer->isSSL(), true);
 			
 			if(php_sapi_name() != 'cli')
 				session_start();
@@ -87,8 +87,9 @@ class _DevblocksSessionManager {
 	 */
 	function clear($id=null) {
 		if(is_null($id)) {
+			$url_writer = DevblocksPlatform::services()->url();
 			$this->visit = null;
-			setcookie('Devblocks', '', 0, '/', '');
+			setcookie('Cerb', '', 1, $url_writer->write(''), '');
 			session_unset();
 			session_destroy();
 		} else {

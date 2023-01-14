@@ -117,7 +117,7 @@ if(!defined('DB_CHARSET_CODE'))
 	define('DB_CHARSET_CODE','utf8');
 
 if(!defined('APP_SESSION_NAME'))
-	define('APP_SESSION_NAME', 'Devblocks');
+	define('APP_SESSION_NAME', 'Cerb');
 
 if(!defined('AUTHORIZED_IPS_DEFAULTS'))
 	define('AUTHORIZED_IPS_DEFAULTS', '');
