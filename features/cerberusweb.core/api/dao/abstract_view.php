@@ -518,6 +518,12 @@ abstract class C4_AbstractView {
 		$dict = new DevblocksDictionaryDelegate($this->getPlaceholderValues());
 		$query = $tpl_builder->build($query, $dict);
 		
+		// Show syntax errors
+		if(false === $query) {
+			$error = 'Syntax error: ' . $tpl_builder->getLastError();
+			return false;
+		}
+		
 		// Get fields
 		
 		$fields = CerbQuickSearchLexer::getFieldsFromQuery($query, $bindings);
