@@ -48,7 +48,7 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget implements ICerbWo
 		return $results;
 	}
 	
-	private function _getSheetFromWidget(Model_WorkspaceWidget $widget, int $page, string &$error=null) {
+	private function _getSheetFromWidget(Model_WorkspaceWidget $widget, int $page, string &$error=null, array $environment=[]) {
 		$sheets = DevblocksPlatform::services()->sheet();
 		
 		if(false == ($results = $this->getData($widget, $page, $error)))
@@ -89,7 +89,7 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget implements ICerbWo
 			return [
 				'layout' => $sheets->getLayout($sheet),
 				'columns' => $sheets->getColumns($sheet),
-				'rows' => $sheets->getRows($sheet, $sheet_dicts),
+				'rows' => $sheets->getRows($sheet, $sheet_dicts, $environment),
 				'paging' => $results['_']['paging'] ?? null,
 			];
 		}
@@ -242,10 +242,10 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget implements ICerbWo
 		}
 	}
 	
-	private function _exportDataAsCsv(Model_WorkspaceWidget $widget) {
+	private function _exportDataAsCsv(Model_WorkspaceWidget $widget) : ?string {
 		$error = null;
 		
-		if(!($results = $this->_getSheetFromWidget($widget, 0, $error)))
+		if(!($results = $this->_getSheetFromWidget($widget, 0, $error, ['format' => 'text'])))
 			return null;
 		
 		if(!($fp = fopen("php://temp", 'r+')))
@@ -272,8 +272,8 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget implements ICerbWo
 		return $output;
 	}
 	
-	private function _exportDataAsJson(Model_WorkspaceWidget $widget) {
-		if(!($results = $this->_getSheetFromWidget($widget, 0, $error)))
+	private function _exportDataAsJson(Model_WorkspaceWidget $widget) : ?string {
+		if(!($results = $this->_getSheetFromWidget($widget, 0, $error, ['format' => 'text'])))
 			return null;
 		
 		$results = array(

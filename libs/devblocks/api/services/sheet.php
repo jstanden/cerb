@@ -159,13 +159,11 @@ class _DevblocksSheetService {
 		return array_combine($column_keys, $columns);
 	}
 	
-	function getRows(array $sheet, array $sheet_dicts) {
+	function getRows(array $sheet, array $sheet_dicts, array $environment=[]) : array {
 		// Sanitize
 		$columns = $this->getColumns($sheet);
 		
 		$rows = [];
-		
-		$layout = $this->getLayout($sheet);
 		$index = 0;
 		
 		foreach($sheet_dicts as $sheet_dict_id => $sheet_dict) {
@@ -186,7 +184,7 @@ class _DevblocksSheetService {
 				if(!array_key_exists($column_type, $this->_types))
 					continue;
 				
-				$row[$column_key] = $this->_types[$column_type]($column, $sheet_dict);
+				$row[$column_key] = $this->_types[$column_type]($column, $sheet_dict, $environment);
 			}
 			
 			$rows[$sheet_dict_id] = $row;
@@ -248,7 +246,7 @@ class _DevblocksSheetService {
 
 class _DevblocksSheetServiceTypes {
 	function card() : callable {
-		return function($column, DevblocksDictionaryDelegate $sheet_dict) {
+		return function($column, DevblocksDictionaryDelegate $sheet_dict, array $environment=[]) {
 			$url_writer = DevblocksPlatform::services()->url();
 			$tpl_builder = DevblocksPlatform::services()->templateBuilder()::newInstance('html');
 			$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
@@ -307,42 +305,47 @@ class _DevblocksSheetServiceTypes {
 				$card_id = $sheet_dict->get($default_card_id_key);
 			}
 			
-			if(array_key_exists('icon', $column_params) && $column_params['icon']) {
-				$icon_column = $column;
-				$icon_column['params'] = $column_params['icon'];
-				$value .= $this->icon()($icon_column, $sheet_dict);
-			}
-			
-			if($card_context && $card_id && $card_label) {
-				$avatar_value = '';
+			if('text' == ($environment['format'] ?? null)) {
+				$value = $card_label;
 				
-				// Avatar image?
-				if(array_key_exists('image', $column_params) && $column_params['image']) {
-					$avatar_size = '1.5em';
-					if(false != ($card_context_ext = Extension_DevblocksContext::getByAlias($card_context))) {
-						$avatar_value .= sprintf('<img src="%s?v=%s" style="width:%s;border-radius:%s;margin-right:0.25em;vertical-align:middle;">',
-							$url_writer->write(sprintf("c=avatars&ctx=%s&id=%d",
-								DevblocksPlatform::strEscapeHtml($card_context_ext->params['alias']),
-								$card_id
-							)),
-							DevblocksPlatform::strEscapeHtml($sheet_dict->get('updated_at', $sheet_dict->get('updated'))),
-							DevblocksPlatform::strEscapeHtml($avatar_size),
-							DevblocksPlatform::strEscapeHtml($avatar_size)
-						);
-					}
+			} else { // HTML
+				if(array_key_exists('icon', $column_params) && $column_params['icon']) {
+					$icon_column = $column;
+					$icon_column['params'] = $column_params['icon'];
+					$value .= $this->icon()($icon_column, $sheet_dict);
 				}
 				
-				// Card link
-				$value .= sprintf('<div class="cerb-peek-trigger" data-context="%s" data-context-id="%d" style="text-decoration:%s;display:inline-block;cursor:pointer;">%s%s</div>',
-					DevblocksPlatform::strEscapeHtml($card_context),
-					$card_id,
-					$is_underlined ? 'underline' : 'normal',
-					$avatar_value,
-					$card_label_is_escaped ? $card_label : DevblocksPlatform::strEscapeHtml($card_label)
-				);
-				
-			} else {
-				$value .= DevblocksPlatform::strEscapeHtml($card_label);
+				if($card_context && $card_id && $card_label) {
+					$avatar_value = '';
+					
+					// Avatar image?
+					if(array_key_exists('image', $column_params) && $column_params['image']) {
+						$avatar_size = '1.5em';
+						if(false != ($card_context_ext = Extension_DevblocksContext::getByAlias($card_context))) {
+							$avatar_value .= sprintf('<img src="%s?v=%s" style="width:%s;border-radius:%s;margin-right:0.25em;vertical-align:middle;">',
+								$url_writer->write(sprintf("c=avatars&ctx=%s&id=%d",
+									DevblocksPlatform::strEscapeHtml($card_context_ext->params['alias']),
+									$card_id
+								)),
+								DevblocksPlatform::strEscapeHtml($sheet_dict->get('updated_at', $sheet_dict->get('updated'))),
+								DevblocksPlatform::strEscapeHtml($avatar_size),
+								DevblocksPlatform::strEscapeHtml($avatar_size)
+							);
+						}
+					}
+					
+					// Card link
+					$value .= sprintf('<div class="cerb-peek-trigger" data-context="%s" data-context-id="%d" style="text-decoration:%s;display:inline-block;cursor:pointer;">%s%s</div>',
+						DevblocksPlatform::strEscapeHtml($card_context),
+						$card_id,
+						$is_underlined ? 'underline' : 'normal',
+						$avatar_value,
+						$card_label_is_escaped ? $card_label : DevblocksPlatform::strEscapeHtml($card_label)
+					);
+					
+				} else {
+					$value .= DevblocksPlatform::strEscapeHtml($card_label);
+				}
 			}
 			
 			return $value;
@@ -350,7 +353,7 @@ class _DevblocksSheetServiceTypes {
 	}
 	
 	function date(bool $filter_html=true) : callable {
-		return function($column, DevblocksDictionaryDelegate $sheet_dict) use ($filter_html) {
+		return function($column, DevblocksDictionaryDelegate $sheet_dict, array $environment=[]) use ($filter_html) {
 			$tpl_builder = DevblocksPlatform::services()->templateBuilder()::newInstance('html');
 			$filters = [];
 			
@@ -375,15 +378,20 @@ class _DevblocksSheetServiceTypes {
 			
 			$value = '';
 			
-			if(array_key_exists('format', $column_params)) {
-				if($ts && false != ($date_str = @date($column_params['format'], $ts)))
-					$value = DevblocksPlatform::strEscapeHtml($date_str);
+			if('text' == ($environment['format'] ?? null)) {
+				$value = date('r', $ts);
 				
 			} else {
-				$value = sprintf('<abbr title="%s">%s</abbr>',
-					DevblocksPlatform::strEscapeHtml(date('r', $ts)),
-					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::strPrettyTime($ts))
-				);
+				if(array_key_exists('format', $column_params)) {
+					if($ts && ($date_str = date($column_params['format'], $ts)))
+						$value = DevblocksPlatform::strEscapeHtml($date_str);
+					
+				} else {
+					$value = sprintf('<abbr title="%s">%s</abbr>',
+						DevblocksPlatform::strEscapeHtml(date('r', $ts)),
+						DevblocksPlatform::strEscapeHtml(DevblocksPlatform::strPrettyTime($ts))
+					);
+				}
 			}
 			
 			return $value;
@@ -391,7 +399,7 @@ class _DevblocksSheetServiceTypes {
 	}
 	
 	function icon() {
-		return function($column, $sheet_dict) {
+		return function($column, DevblocksDictionaryDelegate $sheet_dict, array $environment=[]) {
 			$tpl_builder = DevblocksPlatform::services()->templateBuilder()::newInstance('html');
 			$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
 			
@@ -457,14 +465,19 @@ class _DevblocksSheetServiceTypes {
 			
 			// [TODO] Sanitize color
 			
-			if($image) {
-				$span = sprintf('<span class="glyphicons glyphicons-%s" style="margin-right:0.25em;"></span>',
-					DevblocksPlatform::strEscapeHtml($image)
-				);
+			if('text' == ($environment['format'] ?? null)) {
+				$value = $image;
 				
-				DevblocksPlatform::purifyHTML($span, false, true, [$filter]);
-				
-				$value .= $span;
+			} else {
+				if($image) {
+					$span = sprintf('<span class="glyphicons glyphicons-%s" style="margin-right:0.25em;"></span>',
+						DevblocksPlatform::strEscapeHtml($image)
+					);
+					
+					DevblocksPlatform::purifyHTML($span, false, true, [$filter]);
+					
+					$value .= $span;
+				}
 			}
 			
 			return $value;
@@ -472,7 +485,7 @@ class _DevblocksSheetServiceTypes {
 	}
 	
 	function interaction(bool $filter_html=true) : callable {
-		return function($column, DevblocksDictionaryDelegate $sheet_dict) use ($filter_html) {
+		return function($column, DevblocksDictionaryDelegate $sheet_dict, array $environment=[]) use ($filter_html) {
 			$tpl_builder = DevblocksPlatform::services()->templateBuilder()::newInstance('html');
 			$kata = DevblocksPlatform::services()->kata();
 			$filters = [];
@@ -522,19 +535,24 @@ class _DevblocksSheetServiceTypes {
 				$text = '';
 			}
 			
-			if(!$uri)
-				return $text;
-			
-			return sprintf('<a href="javascript:;" class="cerb-interaction-trigger" data-interaction-uri="%s" data-interaction-params="%s">%s</a>',
-				DevblocksPlatform::strEscapeHtml($uri),
-				DevblocksPlatform::services()->url()->arrayToQueryString($inputs),
-				DevblocksPlatform::strEscapeHtml($text)
-			);
+			if('text' == ($environment['format'] ?? null)) {
+				return '';
+				
+			} else {
+				if(!$uri)
+					return $text;
+				
+				return sprintf('<a href="javascript:;" class="cerb-interaction-trigger" data-interaction-uri="%s" data-interaction-params="%s">%s</a>',
+					DevblocksPlatform::strEscapeHtml($uri),
+					DevblocksPlatform::services()->url()->arrayToQueryString($inputs),
+					DevblocksPlatform::strEscapeHtml($text)
+				);
+			}
 		};
 	}
 	
 	function link(bool $filter_html=true) : callable {
-		return function($column, DevblocksDictionaryDelegate $sheet_dict) use ($filter_html) {
+		return function($column, DevblocksDictionaryDelegate $sheet_dict, array $environment=[]) use ($filter_html) {
 			$tpl_builder = DevblocksPlatform::services()->templateBuilder()::newInstance('html');
 			$filters = [];
 			
@@ -577,10 +595,14 @@ class _DevblocksSheetServiceTypes {
 			}
 			
 			if($url) {
-				$value = sprintf('<a href="%s">%s</a>',
-					$url,
-					DevblocksPlatform::strEscapeHtml($text)
-				);
+				if('text' == ($environment['format'] ?? null)) {
+					$value = $url;
+				} else {
+					$value = sprintf('<a href="%s">%s</a>',
+						$url,
+						DevblocksPlatform::strEscapeHtml($text)
+					);
+				}
 			}
 			
 			return $value;
@@ -588,7 +610,7 @@ class _DevblocksSheetServiceTypes {
 	}
 	
 	function search() {
-		return function($column, DevblocksDictionaryDelegate $sheet_dict) {
+		return function($column, DevblocksDictionaryDelegate $sheet_dict, array $environment=[]) {
 			$tpl_builder = DevblocksPlatform::services()->templateBuilder()::newInstance('html');
 			$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
 			
@@ -644,6 +666,9 @@ class _DevblocksSheetServiceTypes {
 				$search_query = '';
 			}
 			
+			if('text' == ($environment['format'] ?? null))
+				return trim(strip_tags($search_label));
+			
 			if($search_context && $search_label) {
 				if(false == ($context_ext = Extension_DevblocksContext::getByAlias($search_context, true)))
 					return;
@@ -668,7 +693,7 @@ class _DevblocksSheetServiceTypes {
 	}
 	
 	function searchButton() {
-		return function($column, DevblocksDictionaryDelegate $sheet_dict) {
+		return function($column, DevblocksDictionaryDelegate $sheet_dict, array $environment=[]) {
 			$tpl_builder = DevblocksPlatform::services()->templateBuilder()::newInstance('html');
 			$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
 			
@@ -702,6 +727,9 @@ class _DevblocksSheetServiceTypes {
 			if(!$search_context || false == ($context_ext = Extension_DevblocksContext::getByAlias($search_context, true)))
 				return;
 			
+			if('text' == ($environment['format'] ?? null))
+				return $query;
+			
 			return sprintf('<button type="button" class="cerb-search-trigger" data-context="%s" data-query="%s"><span class="glyphicons glyphicons-search"></span></button>',
 				DevblocksPlatform::strEscapeHtml($context_ext->id),
 				DevblocksPlatform::strEscapeHtml($query)
@@ -710,7 +738,7 @@ class _DevblocksSheetServiceTypes {
 	}
 	
 	function selection() : callable {
-		return function($column, DevblocksDictionaryDelegate $sheet_dict) {
+		return function($column, DevblocksDictionaryDelegate $sheet_dict, array $environment=[]) {
 			$tpl_builder = DevblocksPlatform::services()->templateBuilder()::newInstance('html');
 			
 			$column_params = ($column['params'] ?? null) ?: [];
@@ -739,24 +767,29 @@ class _DevblocksSheetServiceTypes {
 				$text_value = $sheet_dict->get($column['key'], null);
 			}
 			
-			if($is_single) {
-				return sprintf('<label class="cerb-sheet-row--selection-label"><input type="radio" name="%s" value="%s">%s</label>',
-					DevblocksPlatform::strEscapeHtml('${SHEET_SELECTION_KEY}'),
-					DevblocksPlatform::strEscapeHtml(is_array($text_value) ? json_encode($text_value) : $text_value),
-					DevblocksPlatform::strEscapeHtml($text_label)
-				);
+			if('text' == ($environment['format'] ?? null)) {
+				return is_array($text_value) ? json_encode($text_value) : $text_value;
+				
 			} else {
-				return sprintf('<label class="cerb-sheet-row--selection-label"><input type="checkbox" name="%s" value="%s">%s</label>',
-					DevblocksPlatform::strEscapeHtml('${SHEET_SELECTION_KEY}'),
-					DevblocksPlatform::strEscapeHtml(is_array($text_value) ? json_encode($text_value) : $text_value),
-					DevblocksPlatform::strEscapeHtml($text_label)
-				);
+				if($is_single) {
+					return sprintf('<label class="cerb-sheet-row--selection-label"><input type="radio" name="%s" value="%s">%s</label>',
+						DevblocksPlatform::strEscapeHtml('${SHEET_SELECTION_KEY}'),
+						DevblocksPlatform::strEscapeHtml(is_array($text_value) ? json_encode($text_value) : $text_value),
+						DevblocksPlatform::strEscapeHtml($text_label)
+					);
+				} else {
+					return sprintf('<label class="cerb-sheet-row--selection-label"><input type="checkbox" name="%s" value="%s">%s</label>',
+						DevblocksPlatform::strEscapeHtml('${SHEET_SELECTION_KEY}'),
+						DevblocksPlatform::strEscapeHtml(is_array($text_value) ? json_encode($text_value) : $text_value),
+						DevblocksPlatform::strEscapeHtml($text_label)
+					);
+				}
 			}
 		};
 	}
 	
 	function slider(bool $filter_html=true) : callable {
-		return function($column, DevblocksDictionaryDelegate $sheet_dict) use ($filter_html) {
+		return function($column, DevblocksDictionaryDelegate $sheet_dict, array $environment=[]) use ($filter_html) {
 			$tpl_builder = DevblocksPlatform::services()->templateBuilder()::newInstance('html');
 			$filters = [];
 			
@@ -788,21 +821,26 @@ class _DevblocksSheetServiceTypes {
 				$color = 'rgb(175,175,175)';
 			}
 			
-			return sprintf(
-				'<div title="%d" style="width:60px;height:8px;background-color:var(--cerb-color-background-contrast-220);border-radius:8px;text-align:center;">'.
+			if('text' == ($environment['format'] ?? null)) {
+				return intval($value);
+				
+			} else {
+				return sprintf(
+					'<div title="%d" style="width:60px;height:8px;background-color:var(--cerb-color-background-contrast-220);border-radius:8px;text-align:center;">'.
 					'<div style="position:relative;margin-left:5px;width:50px;height:8px;">'.
-						'<div style="position:absolute;margin-left:-5px;top:-1px;left:%d%%;width:10px;height:10px;border-radius:10px;background-color:%s;"></div>'.
+					'<div style="position:absolute;margin-left:-5px;top:-1px;left:%d%%;width:10px;height:10px;border-radius:10px;background-color:%s;"></div>'.
 					'</div>'.
-				'</div>',
-				$value,
-				($value/$value_max)*100,
-				DevblocksPlatform::strEscapeHtml($color)
-			);
+					'</div>',
+					$value,
+					($value/$value_max)*100,
+					DevblocksPlatform::strEscapeHtml($color)
+				);
+			}
 		};
 	}
 	
 	function text(bool $filter_html=true) : callable {
-		return function($column, DevblocksDictionaryDelegate $sheet_dict) use ($filter_html) {
+		return function($column, DevblocksDictionaryDelegate $sheet_dict, array $environment=[]) use ($filter_html) {
 			$tpl_builder = DevblocksPlatform::services()->templateBuilder()::newInstance('html');
 			$filters = [];
 			
@@ -835,6 +873,9 @@ class _DevblocksSheetServiceTypes {
 					$text_value = $column_params['value_map'][$text_value];
 			}
 			
+			if('text' == ($environment['format'] ?? null))
+				return $is_escaped ? trim(strip_tags($text_value)) : $text_value;
+			
 			if(array_key_exists('icon', $column_params) && $column_params['icon'] && $text_value) {
 				$icon_column = $column;
 				$icon_column['params'] = $column_params['icon'];
@@ -848,7 +889,7 @@ class _DevblocksSheetServiceTypes {
 	}
 	
 	function timeElapsed(bool $filter_html=true) : callable {
-		return function($column, DevblocksDictionaryDelegate $sheet_dict) use ($filter_html) {
+		return function($column, DevblocksDictionaryDelegate $sheet_dict, array $environment=[]) use ($filter_html) {
 			$tpl_builder = DevblocksPlatform::services()->templateBuilder()::newInstance('html');
 			$filters = [];
 			
@@ -871,6 +912,9 @@ class _DevblocksSheetServiceTypes {
 			
 			if(empty($value))
 				return '';
+			
+			if('text' == ($environment['format'] ?? null))
+				return DevblocksPlatform::strSecsToString($value, $precision);
 			
 			return DevblocksPlatform::strEscapeHtml(DevblocksPlatform::strSecsToString($value, $precision));
 		};
