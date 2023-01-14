@@ -17,10 +17,6 @@ $(function() {
 	var $input = $prompt.find('textarea');
 	var input = $input.get(0);
 
-	// Move the cursor to the end of the text
-	input.focus();
-	input.setSelectionRange(input.value.length, input.value.length);
-	
 	var $counter = $prompt.find('[data-cerb-character-count]');
 	var counter_max = {$max_length|json_encode};
 	
