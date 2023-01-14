@@ -4,6 +4,14 @@ $logger = DevblocksPlatform::services()->log();
 $tables = $db->metaTables();
 
 // ===========================================================================
+// Add index to `context_to_custom_fieldset`
+
+list($columns, $indexes) = $db->metaTable('context_to_custom_fieldset');
+
+if(!isset($indexes['context_and_id']))
+	$db->ExecuteMaster('ALTER TABLE context_to_custom_fieldset ADD INDEX context_and_id (context, context_id)');
+
+// ===========================================================================
 // Update built-in automations
 
 $automation_files = [
