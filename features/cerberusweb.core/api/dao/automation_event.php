@@ -159,7 +159,7 @@ class DAO_AutomationEvent extends Cerb_ORMHelper {
 			
 			$dict = DevblocksDictionaryDelegate::instance([]);
 			
-			if(false === $kata->validate($fields[self::AUTOMATIONS_KATA], CerberusApplication::kataSchemas()->automationEvent(), $error, $dict))
+			if(false === $kata->validate($fields[self::AUTOMATIONS_KATA], CerberusApplication::kataSchemas()->automationEvent(), $error))
 				return false;
 		}
 		

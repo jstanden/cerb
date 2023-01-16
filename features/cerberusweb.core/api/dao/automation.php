@@ -169,7 +169,7 @@ class DAO_Automation extends Cerb_ORMHelper {
 		
 		if(array_key_exists(DAO_Automation::SCRIPT, $fields)) {
 			$kata = DevblocksPlatform::services()->kata();
-			if(false === $kata->validate($fields[DAO_Automation::SCRIPT], CerberusApplication::kataSchemas()->automation(), $error, $dict)) {
+			if(false === $kata->validate($fields[DAO_Automation::SCRIPT], CerberusApplication::kataSchemas()->automation(), $error)) {
 				$error = 'Automation: ' . $error;
 				return false;
 			}
@@ -177,7 +177,7 @@ class DAO_Automation extends Cerb_ORMHelper {
 
 		if(array_key_exists(DAO_Automation::POLICY_KATA, $fields)) {
 			$kata = DevblocksPlatform::services()->kata();
-			if(false === $kata->validate($fields[DAO_Automation::POLICY_KATA], CerberusApplication::kataSchemas()->automationPolicy(), $error, $dict)) {
+			if(false === $kata->validate($fields[DAO_Automation::POLICY_KATA], CerberusApplication::kataSchemas()->automationPolicy(), $error)) {
 				$error = 'Automation policy: ' . $error;
 				return false;
 			}
