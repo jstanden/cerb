@@ -1,4 +1,7 @@
 <?php
+
+use Twig\Error\SyntaxError;
+
 class _DevblocksKataService {
 	private static ?_DevblocksKataService $_instance = null;
 
@@ -613,9 +616,51 @@ class _DevblocksKataService {
 	
 	public function validate(string $doc_kata, string $schema_kata, ?string &$error=null, ?DevblocksDictionaryDelegate $dict=null) : bool {
 		$kata = DevblocksPlatform::services()->kata();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$symbol_meta = [];
 		
-		if(false === ($doc_tree = $kata->parse($doc_kata, $error)))
+		if(false === ($doc_tree = $kata->parse($doc_kata, $error, true, $symbol_meta)))
 			return false;
+		
+		// Scripting syntax validation
+		if(!$dict) {
+			$twig = $tpl_builder->getEngine();
+			
+			$queue = new SplQueue();
+			$queue->push(['', $doc_tree]);
+			
+			while(!$queue->isEmpty()) {
+				$current = $queue->pop();
+				
+				if(is_array($current[1])) {
+					foreach($current[1] as $k => $v) {
+						$k = DevblocksPlatform::services()->string()->strBefore($k, '@');
+						$queue->push([$current[0] . $k . ':', $v]);
+					}
+					
+				} elseif(is_string($current[1]) && (str_contains($current[1], '{{') || str_contains($current[1], '{%'))) {
+					try {
+						$template = $twig->createTemplate($current[1]);
+						$twig->tokenize($template->getSourceContext());
+						
+					} catch (SyntaxError $e) {
+						$line =  1 + ($symbol_meta[rtrim($current[0],':')] ?? -1);
+						$error = sprintf("Scripting error [%s]: %s (line %d)",
+							$current[0],
+							$e->getRawMessage(),
+							$line
+						);
+						return false;
+						
+					} catch (Throwable $e) {
+						$line =  1 + ($symbol_meta[rtrim($current[0],':')] ?? -1);
+						$error = sprintf('An unexpected error occurred [%s] (line %d).', $current[0], $line);
+						DevblocksPlatform::logException($e);
+						return false;
+					}
+				}
+			}
+		}
 		
 		if(false === ($doc_tree = $kata->formatTree($doc_tree, $dict, $error)))
 			return false;
