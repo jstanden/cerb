@@ -160,15 +160,42 @@ class DAO_Resource extends Cerb_ORMHelper {
 		$content = $fields['_content'] ?? null;
 		unset($fields['_content']);
 		
-		// If base64 encoded
-		if(DevblocksPlatform::strStartsWith($content, 'data:')) {
-			if(false !== ($idx = strpos($content, ';base64,'))) {
-				$content = base64_decode(substr($content, $idx + strlen(';base64,')));
+		// If an automation resource
+		if(str_starts_with($content, 'cerb:automation_resource:')) {
+			if (!($uri_parts = DevblocksPlatform::services()->ui()->parseURI($content)))
+				return false;
+			
+			if (!CerberusContexts::isSameContext($uri_parts['context'], CerberusContexts::CONTEXT_AUTOMATION_RESOURCE))
+				return false;
+			
+			if (!($resource = DAO_AutomationResource::getByToken($uri_parts['context_id'])))
+				return false;
+			
+			// Stream the automation resource to resource storage
+			
+			$fp_read = DevblocksPlatform::getTempFile();
+			
+			if (!($resource->getFileContents($fp_read)))
+				return false;
+			
+			foreach ($ids as $id) {
+				fseek($fp_read, 0);
+				Storage_Resource::put($id, $fp_read);
 			}
-		}
-		
-		foreach($ids as $id) {
-			Storage_Resource::put($id, $content);
+			
+			fclose($fp_read);
+			
+		} else {
+			// If base64 encoded
+			if(DevblocksPlatform::strStartsWith($content, 'data:')) {
+				if(false !== ($idx = strpos($content, ';base64,'))) {
+					$content = base64_decode(substr($content, $idx + strlen(';base64,')));
+				}
+			}
+			
+			foreach($ids as $id) {
+				Storage_Resource::put($id, $content);
+			}
 		}
 		
 		return true;
