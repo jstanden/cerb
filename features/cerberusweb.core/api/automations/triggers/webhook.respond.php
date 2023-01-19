@@ -102,6 +102,13 @@ class AutomationTrigger_WebhookRespond extends Extension_AutomationTrigger {
 						'docHTML' => "An example header/value pair",
 					],
 				],
+				'(.*):return:body:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'automation_resource' => null,
+						'resource' => null,
+					]
+				]
 			]
 		];
 	}

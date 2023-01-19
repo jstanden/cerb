@@ -113,8 +113,35 @@ class Controller_Webhooks implements DevblocksHttpRequestHandler {
 		
 		if(array_key_exists('body@base64', $results)) {
 			echo base64_decode($results['body@base64']);
+			
 		} else if(array_key_exists('body', $results)) {
-			echo $results['body'];
+			// If the body is a Cerb URI, stream it
+			if(is_string($results['body']) && str_starts_with($results['body'], 'cerb:')) {
+				$uri_parts = DevblocksPlatform::services()->ui()->parseURI($results['body']);
+				
+				$resource = match($uri_parts['context'] ?? null) {
+					CerberusContexts::CONTEXT_AUTOMATION_RESOURCE => DAO_AutomationResource::getByToken($uri_parts['context_id']), 
+					CerberusContexts::CONTEXT_RESOURCE => DAO_Resource::getByName($uri_parts['context_id']),
+					default => null,
+				};
+				
+				if($resource) {
+					// If larger than 1MB, use streams
+					if($resource->storage_size > 1_000_000) {
+						$fp = DevblocksPlatform::getTempFile();
+						
+						if(($resource->getFileContents($fp)))
+							fpassthru($fp);
+						
+						fclose($fp);
+					} else { // Otherwise output as a string
+						echo $resource->getFileContents();
+					}
+				}
+				
+			} else {
+				echo $results['body'];
+			}
 		}
 	}
 	
