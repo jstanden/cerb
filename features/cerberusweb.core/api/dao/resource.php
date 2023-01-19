@@ -1356,7 +1356,7 @@ class Context_Resource extends Extension_DevblocksContext implements IDevblocksC
 	function autocompleteUri($term, $uri_params = null) : array {
 		$where_sql = sprintf("%s LIKE %s", DAO_Resource::NAME, Cerb_ORMHelper::qstr('%' . $term . '%'));
 		
-		if(array_key_exists('types', $uri_params) && is_iterable($uri_params['types'])) {
+		if(is_array($uri_params) && array_key_exists('types', $uri_params) && is_iterable($uri_params['types'])) {
 			$where_sql .= sprintf(" AND %s IN (%s)",
 				Cerb_ORMHelper::escape(DAO_Resource::EXTENSION_ID),
 				implode(',', Cerb_ORMHelper::qstrArray($uri_params['types']))
