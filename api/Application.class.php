@@ -4177,6 +4177,9 @@ class _CerbApplication_KataSchemas {
                               name:
                                 types:
                                   string:
+                              uri:
+                                types:
+                                  string:
                       on_error:
                         ref: commands
                       on_simulate:

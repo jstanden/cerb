@@ -219,6 +219,16 @@ class DAO_AutomationResource extends Cerb_ORMHelper {
 		));
 	}
 	
+	public static function getByCerbUri(string $uri) : ?Model_AutomationResource {
+		if(!($uri_parts = DevblocksPlatform::services()->ui()->parseURI($uri)))
+			return null;
+		
+		if(!(CerberusContexts::CONTEXT_AUTOMATION_RESOURCE == $uri_parts['context']))
+			return null;
+		
+		return DAO_AutomationResource::getByToken($uri_parts['context_id'] ?? '');
+	}
+	
 	/**
 	 *
 	 * @param array $ids

@@ -87,6 +87,7 @@ class FileWriteAction extends AbstractAction {
 			$content = $inputs['content'] ?? null;
 			$expires_at = $inputs['expires'] ?? (time() + 900);
 			$resource_token = DevblocksPlatform::services()->string()->uuid();
+			$resource_uri = $inputs['uri'] ?? null;
 			
 			$possible_content_keys = [
 				'bytes',
@@ -126,6 +127,12 @@ class FileWriteAction extends AbstractAction {
 			
 			if('zip' == $content_key) {
 				try {
+					// Throw an error on appending to a ZIP
+					if($resource_uri) {
+						$error = "Appending to a ZIP file is not supported.";
+						throw new Exception_DevblocksAutomationError($error);
+					}
+					
 					$zip_name = $this->_createZip($content['zip']);
 					$mime_type = 'application/zip';
 					
@@ -169,29 +176,61 @@ class FileWriteAction extends AbstractAction {
 				if(!is_scalar($content['text']))
 					throw new Exception_DevblocksAutomationError('`file.write:inputs:content:text:` must be a string.');
 				
-				$fields = [
-					\DAO_AutomationResource::MIME_TYPE => $mime_type,
-					\DAO_AutomationResource::TOKEN => $resource_token,
-					\DAO_AutomationResource::EXPIRES_AT => $expires_at,
-				];
-				
-				if($file_name)
-					$fields[\DAO_AutomationResource::NAME] = $file_name;
-				
-				$resource_id = \DAO_AutomationResource::create($fields);
-				
-				$results = [
-					'uri' => 'cerb:automation_resource:' . $resource_token,
-					'mime_type' => $mime_type,
-					'expires_at' => $expires_at,
-					'size' => strlen($content['text']),
-					'id' => $resource_id,
-				];
-				
-				if($file_name)
-					$results['name'] = $file_name;
-				
-				\Storage_AutomationResource::put($resource_id, $content['text']);
+				// Are we appending?
+				if($resource_uri) {
+					if(!($resource = \DAO_AutomationResource::getByCerbUri($resource_uri)))
+						throw new Exception_DevblocksAutomationError('`file.write:inputs:uri:` is not a valid automation resource.');
+					
+					$results = [
+						'uri' => 'cerb:automation_resource:' . $resource->token,
+						'mime_type' => array_key_exists('mime_type', $inputs) ? $mime_type : $resource->mime_type,
+						'expires_at' => array_key_exists('expires_at', $inputs) ? $expires_at : $resource->expires_at,
+						'size' => $resource->storage_size + strlen($content['text']),
+						'id' => $resource->id,
+					];
+					
+					// Read and append
+					
+					$fp = DevblocksPlatform::getTempFile();
+					
+					if(!$resource->getFileContents($fp))
+						throw new Exception_DevblocksAutomationError('`file.write:inputs:uri:` is not a valid automation resource.');
+					
+					$fstat = fstat($fp);
+					
+					fseek($fp, $fstat['size']);
+					fwrite($fp, $content['text']);
+					fseek($fp, 0);
+					
+					\Storage_AutomationResource::put($resource->id, $fp);
+					
+					fclose($fp);
+					
+				} else {
+					$fields = [
+						\DAO_AutomationResource::MIME_TYPE => $mime_type,
+						\DAO_AutomationResource::TOKEN => $resource_token,
+						\DAO_AutomationResource::EXPIRES_AT => $expires_at,
+					];
+					
+					if($file_name)
+						$fields[\DAO_AutomationResource::NAME] = $file_name;
+					
+					$resource_id = \DAO_AutomationResource::create($fields);
+					
+					$results = [
+						'uri' => 'cerb:automation_resource:' . $resource_token,
+						'mime_type' => $mime_type,
+						'expires_at' => $expires_at,
+						'size' => strlen($content['text']),
+						'id' => $resource_id,
+					];
+					
+					if($file_name)
+						$results['name'] = $file_name;
+					
+					\Storage_AutomationResource::put($resource_id, $content['text']);
+				}
 			}
 			
 			if($output)

@@ -1164,6 +1164,11 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'expires@date: +15 mins',
 					'mime_type:',
 					'name:',
+					[
+						'caption' => 'uri:',
+						'snippet' => 'uri:',
+						'docHTML' => '<b>uri:</b> (optional)<br>Append content to an existing automation resource',
+					]
 				],
 				'(.*):file.write:inputs:content:' => [
 					'bytes:',
@@ -1196,6 +1201,12 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'example.txt',
 					'example.json',
 					'example.png',
+				],
+				'(.*):file.write:inputs:uri:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'automation_resource' => null,
+					]
 				],
 				
 				'(.*):function:' => array_merge(
