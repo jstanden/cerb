@@ -241,6 +241,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 					"[Cerb] App Build: %s\n".
 					"[Cerb] Devblocks Build: %s\n".
 					"[Cerb] URL-Rewrite: %s\n".
+					"[Cerb] APP_HOSTNAME: %s\n".
 					"\n".
 					"[Privs] storage/attachments: %s\n".
 					"[Privs] storage/mail/new: %s\n".
@@ -288,6 +289,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 					APP_BUILD,
 					PLATFORM_BUILD,
 					(DEVBLOCKS_REWRITE ? 'YES' : 'NO'),
+					(APP_HOSTNAME ?: '(not set)'),
 					substr(sprintf('%o', @fileperms(APP_STORAGE_PATH.'/attachments')), -4),
 					substr(sprintf('%o', fileperms(APP_STORAGE_PATH.'/mail/new')), -4),
 					substr(sprintf('%o', fileperms(APP_STORAGE_PATH.'/mail/fail')), -4),
