@@ -219,7 +219,7 @@ class MailboxCron extends CerberusCronPageExtension {
 					
 					// If this message took a really long time to download, skip it and retry later
 					// [TODO] We may want to keep track if the same message does this repeatedly
-					if(($time*1000) > (0.95 * $account->timeout_secs*1000)) {
+					if($account->timeout_secs && ($time * 1000 > (0.95 * $account->timeout_secs*1000))) {
 						$logger->warn("[Mailboxes] This message took more than 95% of the read timeout to download. We probably timed out. Aborting to retry later...");
 						unlink($filename);
 						break;
