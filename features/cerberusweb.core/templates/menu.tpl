@@ -73,8 +73,6 @@ $(function() {
 				}
 			}
 		})
-		.css('position', 'absolute')
-		.css('margin-top', '6px')
 	;
 	
 	$menu.sortable({
@@ -102,7 +100,11 @@ $(function() {
 		.hover(
 			function(e) {
 				var $this = $(this);
-				$this.find('[data-cerb-navmenu-submenu]').show();
+				$this
+					.find('[data-cerb-navmenu-submenu]')
+					.show()
+					.position({ my: "left top", at: "left bottom-2", of: $this, collision: "fit" })
+				;
 			},
 			function(e) {
 				var $this = $(this);
