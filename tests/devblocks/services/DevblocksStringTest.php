@@ -50,6 +50,45 @@ class DevblocksStringTest extends TestCase {
 		$this->assertEquals($expected, $actual);
 	}
 	
+	function testSplitQuotedPhrases() {
+		$strings = DevblocksPlatform::services()->string();
+		
+		// No quotes
+		$text = 'example terms';
+		$expected = [
+			'example',
+			'terms',
+		];
+		$actual = $strings->splitQuotedPhrases($text);
+		$this->assertEquals($expected, $actual);
+		
+		// Mixed phrases and terms
+		$text = 'example terms "quoted phrase" words customer@cerb.example 1.2.3.4 "f*trade"';
+		$expected = [
+			'example',
+			'terms',
+			'"quoted phrase"',
+			'words',
+			'customer@cerb.example',
+			'1.2.3.4',
+			'"f*trade"',
+		];
+		$actual = $strings->splitQuotedPhrases($text);
+		$this->assertEquals($expected, $actual);
+		
+		// Non-terminated quote
+		$text = 'example terms "quoted phrase words';
+		$expected = [
+			'example',
+			'terms',
+			'quoted',
+			'phrase',
+			'words',
+		];
+		$actual = $strings->splitQuotedPhrases($text);
+		$this->assertEquals($expected, $actual);
+	}
+	
 	function testHtmlToText() {
 		$strings = DevblocksPlatform::services()->string();
 		

@@ -56,6 +56,43 @@ class _DevblocksStringService {
 		return $before;
 	}
 	
+	public function splitQuotedPhrases(string $text) : array {
+		$terms = [];
+		
+		// While we have text left to process
+		while($text) {
+			$text = trim($text);
+			$start_pos = strpos($text, '"');
+			
+			// If we don't have any quoted phrases, return space-delimited terms
+			if(false === $start_pos) {
+				$terms = array_merge($terms, explode(' ', $text));
+				$text = '';
+				
+			} else {
+				// If our quote is not at the start, space-delimit up to that point
+				if($start_pos > 0)
+					$terms = array_merge($terms, explode(' ', trim(substr($text, 0, $start_pos))));
+				
+				// Look for an ending quote
+				$end_pos = strpos($text, '"', $start_pos+1);
+				
+				// If non-terminated quote, treat as terms
+				if(false === $end_pos) {
+					$terms = array_merge($terms, explode(' ', substr($text, $start_pos+1)));
+					$text = '';
+					
+				// Otherwise return the entire quoted phrase with quotes
+				} else {
+					$terms[] = substr($text, $start_pos, 1+$end_pos-$start_pos);
+					$text = substr($text, $end_pos+1);
+				}
+			}
+		}
+		
+		return $terms;
+	}
+	
 	/*
 	 * Credit: https://stackoverflow.com/a/16496730
 	 */
