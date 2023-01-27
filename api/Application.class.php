@@ -2364,6 +2364,9 @@ class CerberusContexts {
 							$error,
 							null,
 							function(Model_TriggerEvent $behavior, array $handler) use ($context, $new_model, $old_model, $actor) {
+								$events = DevblocksPlatform::services()->event();
+								$event_model = null;
+								
 								if($behavior->event_point == Event_RecordChanged::ID) {
 									$event_model = new Model_DevblocksEvent(
 										Event_RecordChanged::ID,
@@ -2473,6 +2476,8 @@ class CerberusContexts {
 								if($behavior->is_disabled || false == ($event = $behavior->getEvent()))
 									return false;
 								
+								$event_model->params['_whisper']['_trigger_id'] = [$behavior->id];
+								
 								$event->setEvent($event_model, $behavior);
 								
 								$values = $event->getValues();
@@ -2486,11 +2491,10 @@ class CerberusContexts {
 									}
 								}
 								
+								$event->setValues($values);
+								
 								// Run behavior
-								
-								$dict = DevblocksDictionaryDelegate::instance($values);
-								
-								return $behavior->runDecisionTree($dict, false, $event);
+								return $events->trigger($event_model);
 							}
 						);
 					}
