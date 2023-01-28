@@ -301,7 +301,14 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 						$series_filter_fields = CerbQuickSearchLexer::getFieldsFromQuery($series_filter_query);
 						
 						foreach($series_filter_fields as $series_filter_field) {
-							CerbQuickSearchLexer::getOperArrayFromTokens($series_filter_field->tokens, $oper, $value);
+							// Parameterized filters
+							if('T_GROUP' == $series_filter_field->tokens[0]->type ?? null) {
+								$oper = DevblocksSearchCriteria::OPER_CUSTOM;
+								$value = CerbQuickSearchLexer::getTokensAsQuery($series_filter_field->tokens);
+								
+							} else {
+								CerbQuickSearchLexer::getOperArrayFromTokens($series_filter_field->tokens, $oper, $value);
+							}
 							
 							$series_model['query'][] = [
 								'key' => $series_filter_field->key,
@@ -533,21 +540,78 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 					case 'number':
 					case 'record':
 						if($filter['oper'] == DevblocksSearchCriteria::OPER_IN && is_array($filter['value']) && $filter['value']) {
-							if($metric_dimension)
-								$sql_wheres[] = sprintf('%s IN (%s)',
-									$db->escape($dim_key),
-									implode(',', $db->qstrArray($filter['value']))
+							// Verify all values are numeric
+							if(array_filter($filter['value'], fn($n) => !is_numeric($n))) {
+								$error = sprintf("Query filter `%s:` is must be a number or a list of numbers.",
+									$filter['key']
 								);
+								return false;
+							}
+							
+							$sql_wheres[] = sprintf('%s IN (%s)',
+								$db->escape($dim_key),
+								implode(',', $db->qstrArray(DevblocksPlatform::sanitizeArray($filter['value'], 'int')))
+							);
+							
+						// Deep search on records
+						} elseif ('record' == $metric_dimension['type'] && $filter['oper'] == DevblocksSearchCriteria::OPER_CUSTOM) {
+							if(!($context_ext = Extension_DevblocksContext::getByAlias($metric_dimension['params']['record_type'] ?? null, true))) {
+								$error = sprintf('Query filter `%s:` is an unknown record type (`%s`).',
+									$filter['key'],
+									$metric_dimension['params']['record_type'] ?? null
+								);
+								return false;
+							}
+							
+							$dao_class = $context_ext->getDaoClass();
+							$search_class = $context_ext->getSearchClass();
+							
+							if(!($view = $context_ext->getTempView())) {
+								$error = sprintf('Query filter `%s:` failed to initialize a worklist.',
+									$filter['key']
+								);
+								return false;
+							}
+							
+							$view->addParamsWithQuickSearch($filter['value'] ?? '', true);
+							$view->renderPage = 0;
+							$view->renderTotal = false;
+							
+							$query_parts = $dao_class::getSearchQueryComponents($view->view_columns, $view->getParams());
+							
+							$sql_subquery = sprintf("SELECT %s AS id %s%s",
+								$search_class::getPrimaryKey(),
+								$query_parts['join'],
+								$query_parts['where']
+							);
+							
+							$sql_wheres[] = sprintf('%s IN (%s)',
+								$db->escape($dim_key),
+								str_replace('%', '%%', $sql_subquery)
+							);
+							
+						// Error on unknown filter operators
+						} else {
+							$error = sprintf("Query filter `%s:` is must be a number or a list of numbers.",
+								$filter['key']
+							);
+							return false;
 						}
 						break;
 						
 					default:
 						if($filter['oper'] == DevblocksSearchCriteria::OPER_IN && is_array($filter['value']) && $filter['value']) {
-							if($metric_dimension)
-								$sql_wheres[] = sprintf('%s IN (SELECT id FROM metric_dimension WHERE name IN (%s))',
-									$db->escape($dim_key),
-									implode(',', $db->qstrArray($filter['value']))
-								);
+							$sql_wheres[] = sprintf('%s IN (SELECT id FROM metric_dimension WHERE name IN (%s))',
+								$db->escape($dim_key),
+								implode(',', $db->qstrArray($filter['value']))
+							);
+							
+						// Error on unknown filter operators
+						} else {
+							$error = sprintf("Query filter `%s:` is must be a string or a list of strings.",
+								$filter['key']
+							);
+							return false;
 						}
 						break;
 				}
