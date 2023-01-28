@@ -731,24 +731,51 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		return $ids;
 	}
 	
-	private function _parseQuery($query) {
-		// Extract quotes
-		$phrases = [];
-		$start = 0;
+	private function _parseQuery($query, $allow_wildcards=true) {
+		$query_terms = array_map(
+			function($term) use ($allow_wildcards) {
+				$also = '_' . ($allow_wildcards ? '*' : '');
+				
+				// If a term isn't quoted and has special characters, quote it
+				if(
+					!str_starts_with($term, '"')
+					&& DevblocksPlatform::strAlphaNum($term, $also) != $term
+				) {
+					return '"' . $term . '"';
+				}
+				return $term;
+			},
+			DevblocksPlatform::services()->string()->splitQuotedPhrases(DevblocksPlatform::strLower($query))
+		);
 		
-		while(false !== ($from = strpos($query, '"', $start))) {
-			if(false === ($to = strpos($query, '"', $from+1)))
-				break;
-			
-			$cut = substr($query, $from, $to-$from+1);
-			$phrase = trim($cut,'"');
-			
-			// Ignore single word phrases with no symbols
-			if($phrase != mb_ereg_replace('[^[:alnum:]]', '', $phrase))
-				$phrases[] = $phrase;
-			
-			$start = $to+1;
-		}
+		$query = implode(' ', $query_terms);
+		
+		// Parse phrases
+		$phrases = array_filter(
+			array_map(
+				function($term) {
+					// Ignore non-quoted phrases
+					if(!str_starts_with($term, '"'))
+						return '';
+					
+					$term = trim($term, '"');
+					
+					// Ignore single word phrases with no symbols
+					if(DevblocksPlatform::strAlphaNum($term) == $term)
+						return '';
+					
+					// Ignore entirely wildcard phrases
+					if(empty(trim($term,'*')))
+						return '';
+					
+					return $term;
+				},
+				$query_terms
+			)
+		);
+		
+		if(!$allow_wildcards)
+			$query = str_replace('*', ' ', $query);
 		
 		// Required terms
 		$terms = $this->prepareText($query, true);
@@ -846,7 +873,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 			});
 			
 			// Reassemble
-			$text = implode(' ', $words);
+			$text = implode(' ', array_unique($words));
 			unset($words);
 		}
 		
