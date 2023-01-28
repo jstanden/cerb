@@ -5009,7 +5009,9 @@ class DevblocksEventHelper {
 			return;
 		}
 		
-		$replyto = $group->getReplyTo($bucket_id);
+		if(!($replyto = $group->getReplyTo($bucket_id))) {
+			$replyto = DAO_Address::getDefaultLocalAddress();
+		}
 		
 		// Attachments
 		$attachments = [];

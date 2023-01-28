@@ -1190,10 +1190,11 @@ class Model_Group extends DevblocksRecordModel {
 			return $bucket->getReplyTo();
 			
 		} else {
+			if(!$this->reply_address_id)
+				return DAO_Address::getDefaultLocalAddress();
+			
 			return DAO_Address::get($this->reply_address_id);
 		}
-		
-		return null;
 	}
 	
 	public function getReplyFrom($bucket_id=0) {
@@ -1201,10 +1202,11 @@ class Model_Group extends DevblocksRecordModel {
 			return $bucket->getReplyFrom();
 			
 		} else {
+			if(!$this->reply_address_id)
+				return DAO_Address::getDefaultLocalAddress()->id ?? 0;
+			
 			return $this->reply_address_id;
 		}
-		
-		return null;
 	}
 	
 	public function getReplyPersonal($bucket_id=0, $worker_model=null) {
@@ -1214,8 +1216,6 @@ class Model_Group extends DevblocksRecordModel {
 		} else {
 			return $this->reply_personal;
 		}
-		
-		return null;
 	}
 	
 	public function getReplySignature($bucket_id=0, $worker_model=null, $as_html=false) {
