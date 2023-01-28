@@ -621,20 +621,20 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 		}
 		
 		$func = DevblocksPlatform::strLower($series_model['function'] ?? 'count');
-		$sql_select_keys = 'bin';
-		$sql_group_by = 'bin';
+		$sql_select_keys = 'bin AS ts_bin';
+		$sql_group_by = 'ts_bin';
 		$granularity = $chart_model['period_unit']; // 300, 3600, 86400
 		
 		// [TODO] Limit TOP(n) and BOTTOM(n)
 		
 		if('year' == $chart_model['period']) {
-			$sql_select_keys = "UNIX_TIMESTAMP(DATE_FORMAT(FROM_UNIXTIME(bin), '%Y-01-01 00:00:00')) AS bin";
+			$sql_select_keys = "UNIX_TIMESTAMP(DATE_FORMAT(FROM_UNIXTIME(bin), '%Y-01-01 00:00:00')) AS ts_bin";
 			
 		} else if('month' == $chart_model['period']) {
-			$sql_select_keys = "UNIX_TIMESTAMP(DATE_FORMAT(FROM_UNIXTIME(bin), '%Y-%m-01 00:00:00')) AS bin";
+			$sql_select_keys = "UNIX_TIMESTAMP(DATE_FORMAT(FROM_UNIXTIME(bin), '%Y-%m-01 00:00:00')) AS ts_bin";
 			
 		} else if('week' == $chart_model['period']) {
-			$sql_select_keys = "UNIX_TIMESTAMP(STR_TO_DATE(CONCAT(YEARWEEK(FROM_UNIXTIME(bin),1),' Monday'),'%x%v %W')) AS bin";	
+			$sql_select_keys = "UNIX_TIMESTAMP(STR_TO_DATE(CONCAT(YEARWEEK(FROM_UNIXTIME(bin),1),' Monday'),'%x%v %W')) AS ts_bin";	
 		}
 		
 		$sql = sprintf("SELECT %s, %s AS value FROM metric_value WHERE metric_value.metric_id = %d AND metric_value.granularity = %d AND metric_value.bin BETWEEN %d AND %d %s GROUP BY %s",
@@ -810,7 +810,7 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 					$results[$series_label] = array_fill_keys($chart_model['xaxis'], null);
 				
 				$dt = new DateTime();
-				$dt->setTimestamp($row['bin']);
+				$dt->setTimestamp($row['ts_bin']);
 				
 				$bin = $dt->format($unit_format);
 				
