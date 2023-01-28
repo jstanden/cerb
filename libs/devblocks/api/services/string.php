@@ -347,7 +347,7 @@ class _DevblocksStringService {
 		
 		libxml_use_internal_errors(true);
 		
-		$str = mb_convert_encoding($str, 'HTML-ENTITIES');
+		$str = mb_encode_numericentity($str, [0x80, 0x10FFFF, 0, 0x1FFFFF], 'UTF-8');
 		
 		$replacements = [
 			'&nbsp;' => '',
