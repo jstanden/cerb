@@ -58,6 +58,7 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 					'average',
 					'avg',
 					'count',
+					'distinct',
 					'max',
 					'min',
 					'samples',
@@ -170,6 +171,7 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 							'average' => 'average',
 							'avg' => 'average',
 							'count' => 'count',
+							'distinct' => 'distinct',
 							'max' => 'max',
 							'min' => 'min',
 							'samples' => 'count',
@@ -663,6 +665,9 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 			} else if($func == 'count') {
 				$sql_select_func = 'SUM(samples)';
 				
+			} else if($func == 'distinct') {
+				$sql_select_func = 'SUM(1)';
+				
 			} else {
 				return [];
 			}
@@ -682,6 +687,9 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 				
 			} else if($func == 'count') {
 				$sql_select_func = 'SUM(samples)';
+				
+			} else if($func == 'distinct') {
+				$sql_select_func = 'SUM(1)';
 				
 			} else {
 				return [];
