@@ -24,6 +24,6 @@
 
 <ul class="chooser-container bubbles"></ul>
 
-<ul class="events-menu" style="width:150px;{if $model->event_point}display:none;{/if}">
+<ul class="events-menu" style="width:150px;{if $model && $model->event_point}display:none;{/if}">
 {menu keys=$events_menu}
 </ul>

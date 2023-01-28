@@ -181,7 +181,7 @@
 				
 				<ul class="chooser-container bubbles"></ul>
 				
-				<ul class="add-variable-menu" style="width:150px;{if $model->event_point}display:none;{/if}">
+				<ul class="add-variable-menu" style="width:150px;{if $model && $model->event_point}display:none;{/if}">
 				{menu keys=$variables_menu}
 				</ul>
 			</div>

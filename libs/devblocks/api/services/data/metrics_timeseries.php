@@ -29,8 +29,10 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 				'yesterday',
 				'"this week"',
 				'"this month"',
+				'"this year"',
 				'"last week"',
 				'"last month"',
+				'"last year"',
 				'"Jan 1 to Dec 31"',
 			],
 			'timeout:' => [
@@ -583,7 +585,7 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 		// Metric types
 		if('gauge' == $metric->type) {
 			if($func == 'average') {
-			$sql_select_func = 'SUM(sum/samples)';				
+				$sql_select_func = 'SUM(sum/samples)';				
 				
 			} else if($func == 'sum') {
 				$sql_select_func = 'SUM(sum)';

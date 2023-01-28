@@ -45,7 +45,7 @@ class DAO_Message extends Cerb_ORMHelper {
 		
 		// int(10) unsigned
 		$validation
-			->addField(self::ADDRESS_ID)
+			->addField(self::ADDRESS_ID, 'sender_id')
 			->id()
 			->setRequired(true)
 			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_ADDRESS))
@@ -2882,7 +2882,7 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 		$keys['content'] = [
 			'key' => 'content',
 			'is_immutable' => false,
-			'is_required' => false,
+			'is_required' => true,
 			'notes' => 'Message content',
 			'type' => 'string',
 		];
