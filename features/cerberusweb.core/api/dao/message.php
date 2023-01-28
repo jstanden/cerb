@@ -1338,6 +1338,10 @@ class Search_MessageContent extends Extension_DevblocksSearchSchema {
 		return 'id';
 	}
 	
+	public function areWildcardsAllowed() : bool {
+		return false;
+	}
+	
 	public function reindex() {
 		$engine = $this->getEngine();
 		$meta = $engine->getIndexMeta($this);

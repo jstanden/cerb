@@ -4534,6 +4534,10 @@ abstract class Extension_DevblocksSearchSchema extends DevblocksExtension {
 		return $engine->query($this, $query, $attributes, $limit);
 	}
 	
+	public function areWildcardsAllowed() : bool {
+		return true;
+	}
+	
 	public function generateSql(string $query, array $attributes, callable $join_callback, callable $where_callback, callable $ids_callback) : ?string {
 		$engine = $this->getEngine();
 		
