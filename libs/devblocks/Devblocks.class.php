@@ -3270,21 +3270,17 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @return mixed
 	 * @test DevblocksPlatformTest
 	 */
-	static function sanitizeArray($array, $type, $options=array()) {
+	static function sanitizeArray($array, string $type, array $options=[]) {
 		if(!is_array($array))
 			return [];
 		
 		switch($type) {
 			case 'bit':
-				$array = _DevblocksSanitizationManager::arrayAs($array, 'bit');
-				return $array;
-				break;
+				return _DevblocksSanitizationManager::arrayAs($array, 'bit');
 				
 			case 'bool':
 			case 'boolean':
-				$array = _DevblocksSanitizationManager::arrayAs($array, 'boolean');
-				return $array;
-				break;
+				return _DevblocksSanitizationManager::arrayAs($array, 'boolean');
 				
 			case 'decimal':
 			case 'float':
@@ -3306,13 +3302,10 @@ class DevblocksPlatform extends DevblocksEngine {
 				}
 				
 				return $array;
-				break;
 				
 			case 'str':
 			case 'string':
-				$array = _DevblocksSanitizationManager::arrayAs($array, 'string');
-				return $array;
-				break;
+				return _DevblocksSanitizationManager::arrayAs($array, 'string');
 				
 			default:
 				break;

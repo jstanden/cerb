@@ -9,7 +9,7 @@ class Cron_Metrics extends CerberusCronPageExtension {
 		$logger->info("Starting...");
 		
 		do {
-			if(false == $this->checkQueueAndProcess())
+			if(!$this->checkQueueAndProcess())
 				break;
 			
 		} while($stop_time > time());

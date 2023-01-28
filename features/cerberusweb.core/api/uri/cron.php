@@ -73,7 +73,7 @@ class ChCronController extends DevblocksControllerExtension {
 		}
 
 		$cron_manifests = DevblocksPlatform::getExtensions('cerberusweb.cron', true);
-		$jobs = array();
+		$jobs = [];
 		
 		if(empty($job_ids)) { // do everything
 			if($is_ignoring_internal) {
@@ -89,7 +89,6 @@ class ChCronController extends DevblocksControllerExtension {
 						case 'cron.search':
 						case 'cron.storage':
 							return false;
-							break;
 					}
 					
 					return true;

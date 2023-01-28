@@ -1997,7 +1997,7 @@ class CerberusContexts {
 			$actor_context_id = 0;
 			$actor_url = null;
 
-			// See if we're inside of a bot's running decision tree
+			// See if we're running inside a bot decision tree
 
 			$stack = EventListener_Triggers::getTriggerStack();
 

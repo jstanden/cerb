@@ -400,7 +400,7 @@ class Cerb_HTMLPurifier_URIFilter_Email extends HTMLPurifier_URIFilter {
 			return true;
 		
 		// Block empty schemes
-		if(false == ($scheme = DevblocksPlatform::strLower($uri->scheme))) {
+		if(!($scheme = DevblocksPlatform::strLower($uri->scheme))) {
 			if($is_embedded) {
 				$this->_logBlockedImage($uri);
 			} else {

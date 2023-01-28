@@ -540,13 +540,13 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		if(empty($group_id))
 			$this->error(self::ERRNO_CUSTOM, "The 'group_id' parameter is required");
 		
-		if(false == ($group = DAO_Group::get($group_id)))
+		if(!(DAO_Group::get($group_id)))
 			$this->error(self::ERRNO_CUSTOM, "The given 'group_id' parameter is invalid");
 		
-		if(!empty($bucket_id) && false == ($bucket = DAO_Bucket::get($bucket_id)))
+		if(!empty($bucket_id) && !($bucket = DAO_Bucket::get($bucket_id)))
 			$this->error(self::ERRNO_CUSTOM, "The given 'bucket_id' parameter is invalid");
 
-		if(!empty($html_template_id) && false == ($html_template = DAO_MailHtmlTemplate::get($html_template_id)))
+		if(!empty($html_template_id) && !($html_template = DAO_MailHtmlTemplate::get($html_template_id)))
 			$this->error(self::ERRNO_CUSTOM, "The given 'html_template_id' parameter is invalid");
 		
 		if(isset($bucket) && $bucket->group_id != $group_id)
@@ -598,7 +598,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		if($custom_fields)
 			$properties['custom_fields'] = $custom_fields;
 		
-		if(false == ($result = CerberusMail::compose($properties)))
+		if(!($result = CerberusMail::compose($properties)))
 			$this->error(self::ERRNO_CUSTOM, "Failed to create a new message.");
 		
 		return $result;

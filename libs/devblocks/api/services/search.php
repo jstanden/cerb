@@ -555,7 +555,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		if(!isset($tables['fulltext_' . $ns]))
 			return false;
 		
-		if(false == ($query_parts = $this->_parseQuery($query)))
+		if(!($query_parts = $this->_parseQuery($query, $schema->areWildcardsAllowed())))
 			return false;
 		
 		if(!isset($query_parts['terms']) || empty($query_parts['terms']))
@@ -576,7 +576,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		}
 		
 		if(is_callable($where_callback)) {
-			if(false != ($and_where = $where_callback($id_key, $content_key))) {
+			if(($and_where = $where_callback($id_key, $content_key))) {
 				$where_sql = array_merge($where_sql, $and_where);
 			}
 		}
@@ -673,7 +673,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		if(!isset($tables['fulltext_' . $ns]))
 			return null;
 		
-		if(false == ($query_parts = $this->_parseQuery($query)))
+		if(!($query_parts = $this->_parseQuery($query, $schema->areWildcardsAllowed())))
 			return null;
 		
 		if(!isset($query_parts['terms']) || empty($query_parts['terms']))
@@ -815,7 +815,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		return array_values(array_unique(array_merge($innodb_stop_words, $stop_words)));
 	}
 	
-	public function prepareText($text, $is_query=false) {
+	public function prepareText($text, $is_query=false) : string {
 		$text = DevblocksPlatform::strUnidecode($text);
 
 		if($is_query) {

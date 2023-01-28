@@ -523,7 +523,7 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 		if(!$series_model)
 			return [];
 		
-		if(false == ($metric = DAO_Metric::getByName($series_model['metric'] ?? null)))
+		if(!($metric = DAO_Metric::getByName($series_model['metric'] ?? null)))
 			return [];
 		
 		$metric_dimensions = $metric->getDimensions();
@@ -784,7 +784,7 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 					$extensions = DevblocksPlatform::getExtensionRegistry();
 					
 					foreach ($rows as $row_idx => $row) {
-						if (false == ($ext_mft = $extensions[$row[$dim_key]]))
+						if (!($ext_mft = $extensions[$row[$dim_key]]))
 							continue;
 						
 						$rows[$row_idx][$dim_key] = $ext_mft->name;

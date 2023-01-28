@@ -4464,11 +4464,11 @@ abstract class Extension_DevblocksSearchSchema extends DevblocksExtension {
 	 * @internal
 	 */
 	public function getEngineParams() {
-		if(false == ($engine_json = $this->getParam('engine_params_json', false))) {
+		if(!($engine_json = $this->getParam('engine_params_json', false))) {
 			$engine_json = '{"engine_extension_id":"devblocks.search.engine.mysql_fulltext", "config":{}}';
 		}
 
-		if(false == ($engine_properties = json_decode($engine_json, true))) {
+		if(!($engine_properties = json_decode($engine_json, true))) {
 			return false;
 		}
 
@@ -4481,7 +4481,7 @@ abstract class Extension_DevblocksSearchSchema extends DevblocksExtension {
 	public function getEngine() : ?Extension_DevblocksSearchEngine {
 		$engine_params = $this->getEngineParams();
 		
-		if(false == ($_engine = Extension_DevblocksSearchEngine::get($engine_params['engine_extension_id'])))
+		if(!($_engine = Extension_DevblocksSearchEngine::get($engine_params['engine_extension_id'])))
 			return null;
 
 		if(isset($engine_params['config']))
@@ -4501,7 +4501,7 @@ abstract class Extension_DevblocksSearchSchema extends DevblocksExtension {
 		$previous_engine_params = $this->getEngineParams();
 		$reindex = (@$previous_engine_params['engine_extension_id'] != @$params['engine_extension_id']);
 
-		// Save new new engine params
+		// Save new engine params
 		$this->setParam('engine_params_json', json_encode($params));
 
 		// If our engine changed
@@ -4528,7 +4528,7 @@ abstract class Extension_DevblocksSearchSchema extends DevblocksExtension {
 	}
 	
 	public function query($query, $attributes=array(), $limit=null) {
-		if(false == ($engine = $this->getEngine()))
+		if(!($engine = $this->getEngine()))
 			return false;
 		
 		return $engine->query($this, $query, $attributes, $limit);

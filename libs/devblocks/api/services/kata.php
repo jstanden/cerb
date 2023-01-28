@@ -504,7 +504,7 @@ class _DevblocksKataService {
 		if(is_string($v)) {
 			$annotations = [];
 			
-			if(false !== strpos($k,'@')) {
+			if(str_contains($k, '@')) {
 				list($k, $ann) = array_pad(explode('@', $k, 2), 2, null);
 				$annotations = DevblocksPlatform::parseCsvString($ann);
 			}
@@ -558,7 +558,7 @@ class _DevblocksKataService {
 					$key_path = trim($v);
 					
 					if($dict) {
-						if (false !== strpos($key_path, '.')) {
+						if (str_contains($key_path, '.')) {
 							$v = $dict->getKeyPath($key_path);
 						} else {
 							$v = $dict->get($key_path);
@@ -585,7 +585,7 @@ class _DevblocksKataService {
 			$values = [];
 			$annotations = [];
 			
-			if(false !== strpos($k,'@')) {
+			if(str_contains($k, '@')) {
 				list($k, $ann) = array_pad(explode('@', $k, 2), 2, null);
 				$annotations = DevblocksPlatform::parseCsvString($ann);
 			}

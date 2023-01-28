@@ -2407,7 +2407,7 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 				);
 			
 			case self::FULLTEXT_MESSAGE_CONTENT:
-				if(false == ($search = Extension_DevblocksSearchSchema::get(Search_MessageContent::ID)))
+				if(!($search = Extension_DevblocksSearchSchema::get(Search_MessageContent::ID)))
 					return null;
 				
 				$query = $search->getQueryFromParam($param);

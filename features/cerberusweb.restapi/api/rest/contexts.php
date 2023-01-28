@@ -279,7 +279,7 @@ class ChRest_Contexts extends Extension_RestController {
 		$result_targets = array();
 		
 		foreach($targets as $target) {
-			if(false == ($result_target = $this->_verifyContextString($target)))
+			if(!($result_target = $this->_verifyContextString($target)))
 				$this->error(self::ERRNO_CUSTOM, sprintf("The 'targets' value of '%s' is not valid.", $target));
 			
 			$result_targets[] = $result_target;
@@ -309,7 +309,7 @@ class ChRest_Contexts extends Extension_RestController {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
 		// Verify the 'on' context and accessibility by active worker
-		if(false == ($result_on = $this->_verifyContextString($on)))
+		if(!($result_on = $this->_verifyContextString($on)))
 			$this->error(self::ERRNO_CUSTOM, sprintf("The 'on' value of '%s' is not valid.", $on));
 		
 		// Verify the activity point
@@ -331,11 +331,11 @@ class ChRest_Contexts extends Extension_RestController {
 			$this->error(self::ERRNO_CUSTOM, sprintf("Creation of '%s' events are not permitted through the API.", $activity_point));
 		
 		// Verify variables
-		if(!empty($variables_json) && (false == ($variables = json_decode($variables_json, true)) || !is_array($variables)))
+		if(!empty($variables_json) && (!($variables = json_decode($variables_json, true)) || !is_array($variables)))
 			$this->error(self::ERRNO_CUSTOM, "The 'variables' parameter should be a JSON formatted array.");
 		
 		// Verify URLs
-		if(!empty($urls_json) && (false == ($urls = json_decode($urls_json, true)) || !is_array($urls)))
+		if(!empty($urls_json) && (!($urls = json_decode($urls_json, true)) || !is_array($urls)))
 			$this->error(self::ERRNO_CUSTOM, "The 'urls' parameter should be a JSON formatted array.");
 		
 		// Check for missing variables in the activity log text

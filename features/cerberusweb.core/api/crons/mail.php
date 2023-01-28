@@ -170,7 +170,7 @@ class MailboxCron extends CerberusCronPageExtension {
 						$model = new Model_Message();
 						$model->setHeadersRaw($message->getHeaderText());
 						
-						if(false == ($model_headers = $model->getHeaders()))
+						if(!($model_headers = $model->getHeaders()))
 							$model_headers = [];
 						
 						$truncated_message = sprintf(
@@ -263,6 +263,7 @@ class MailboxCron extends CerberusCronPageExtension {
 				$client->close();
 				
 			} catch (Horde_Imap_Client_Exception $e) {
+				DevblocksPlatform::logException($e);
 			
 			} catch (Exception $e) {
 				trigger_error($e->getMessage());

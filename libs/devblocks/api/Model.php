@@ -773,15 +773,15 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 	static function getCustomFieldContextFieldKey($context) {
 		$field_key = null;
 		
-		if(false != ($cfield_ctx = self::getCustomFieldContextData($context))) { /* @var $cfield_ctx DevblocksSearchFieldContextKeys */
+		if(($cfield_ctx = self::getCustomFieldContextData($context))) { /* @var $cfield_ctx DevblocksSearchFieldContextKeys */
 			$field_key = $cfield_ctx->field_key;
 		}
 		
 		return $field_key;
 	}
 	
-	static function _getWhereSQLFromFulltextField(DevblocksSearchCriteria $param, $schema, $join_key, $attributes=[]) {
-		if(false == ($search = Extension_DevblocksSearchSchema::get($schema)))
+	static function _getWhereSQLFromFulltextField(DevblocksSearchCriteria $param, $schema, $join_key, $attributes=[], $allow_wildcards=true) {
+		if(!($search = Extension_DevblocksSearchSchema::get($schema)))
 			return null;
 		
 		$query = $search->getQueryFromParam($param);

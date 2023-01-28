@@ -441,7 +441,7 @@ class _DevblocksStringService {
 		return $string;
 	}
 	
-	public function arraySortLength(array $strings, $is_ascending=true) {
+	public function arraySortLength(array $strings, $is_ascending=true) : array {
 		usort($strings, fn($a, $b) => strlen($a) <=> strlen($b));
 		return $is_ascending ? $strings : array_reverse($strings);
 	}
