@@ -36,6 +36,8 @@ if(!extension_loaded('mbstring')) {
 }
 
 @set_time_limit(3600); // 1hr
+ini_set('error_reporting', E_ALL & ~E_DEPRECATED);
+
 require_once('../framework.config.php');
 require_once(DEVBLOCKS_PATH . 'Devblocks.class.php');
 require_once(APP_PATH . '/api/Application.class.php');

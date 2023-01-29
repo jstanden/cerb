@@ -3594,6 +3594,14 @@ class DevblocksPlatform extends DevblocksEngine {
 			return true;
 		}
 		
+		// Suppress deprecation warnings in production
+		if(
+			!DEVELOPMENT_MODE
+			&& (0 == ((E_ALL & ~E_DEPRECATED) & $errno)) 
+		) {
+			return true;
+		}
+		
 		// Temporarily ignore Smarty errors in production
 		if(
 			!DEVELOPMENT_MODE
