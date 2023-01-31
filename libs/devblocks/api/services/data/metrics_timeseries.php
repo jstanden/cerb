@@ -541,7 +541,10 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 				switch($metric_dimension['type']) {
 					case 'number':
 					case 'record':
-						if($filter['oper'] == DevblocksSearchCriteria::OPER_IN && is_array($filter['value']) && $filter['value']) {
+						if(
+							in_array($filter['oper'], [DevblocksSearchCriteria::OPER_IN, DevblocksSearchCriteria::OPER_NIN]) 
+							&& is_array($filter['value']) && $filter['value']
+						) {
 							// Verify all values are numeric
 							if(array_filter($filter['value'], fn($n) => !is_numeric($n))) {
 								$error = sprintf("Query filter `%s:` is must be a number or a list of numbers.",
@@ -550,8 +553,9 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 								return false;
 							}
 							
-							$sql_wheres[] = sprintf('%s IN (%s)',
+							$sql_wheres[] = sprintf('%s %sIN (%s)',
 								$db->escape($dim_key),
+								$filter['oper'] == DevblocksSearchCriteria::OPER_NIN ? 'NOT ' : '',
 								implode(',', $db->qstrArray(DevblocksPlatform::sanitizeArray($filter['value'], 'int')))
 							);
 							
