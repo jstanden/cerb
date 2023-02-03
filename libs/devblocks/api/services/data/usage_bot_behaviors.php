@@ -67,28 +67,58 @@ class _DevblocksDataProviderUsageBotBehaviors extends _DevblocksDataProvider {
 		// Scope
 		
 		$event_mfts = Extension_DevblocksEvent::getAll(false);
+		$behaviors = DAO_TriggerEvent::getAll();
+		$bots = DAO_Bot::getAll();
 
 		// Data
 		
-		$sql = sprintf("SELECT trigger_event.id AS behavior_id, trigger_event.title AS behavior_name, trigger_event.bot_id, trigger_event.event_point, ".
-			"SUM(metric_invocations.sum) AS uses, SUM(metric_duration.sum) AS elapsed_ms ".
-			"FROM trigger_event ".
-			"INNER JOIN metric_value AS metric_invocations ON (metric_invocations.metric_id = (SELECT id FROM metric WHERE name = 'cerb.behavior.invocations') AND metric_invocations.dim0_value_id=trigger_event.id) ".
-			"INNER JOIN metric_value AS metric_duration ON (metric_duration.metric_id = (SELECT id FROM metric WHERE name = 'cerb.behavior.duration') AND metric_duration.dim0_value_id=trigger_event.id)  ".
-			"WHERE metric_invocations.granularity = 86400 ".
-			"AND metric_duration.granularity = 86400 ".
-			"AND metric_invocations.bin BETWEEN %d AND %d ".
-			"AND metric_duration.bin BETWEEN %d AND %d ".
-			"GROUP BY trigger_event.id, trigger_event.title, trigger_event.bot_id, trigger_event.event_point ",
+		$sql = sprintf("SELECT 'invocations' AS type, dim0_value_id AS trigger_id, sum(sum) AS stat ".
+			"from metric_value ".
+			"where metric_id = (SELECT id FROM metric WHERE name = 'cerb.behavior.invocations') ".
+			"AND metric_value.granularity = 86400 ".
+			"AND (metric_value.bin BETWEEN %d AND %d) ".
+			"group by dim0_value_id ".
+			"UNION ALL ".
+			"SELECT 'duration' AS type, dim0_value_id AS trigger_id, sum(sum) AS stat ".
+			"from metric_value ".
+			"where metric_id = (SELECT id FROM metric WHERE name = 'cerb.behavior.duration') ".
+			"AND metric_value.granularity = 86400 ".
+			"AND (metric_value.bin BETWEEN %d AND %d) ".
+			"group by dim0_value_id",
 			$start_time,
 			$end_time,
 			$start_time,
 			$end_time
 		);
 		
-		$stats = $db->GetArrayReader($sql);
+		$results = $db->GetArrayReader($sql);
 		
-		$bots = DAO_Bot::getAll();
+		$stats = [];
+		
+		foreach($results as $result) {
+			if(!array_key_exists($result['trigger_id'], $stats)) {
+				// Ignore invalid or previously deleted behaviors
+				if(!array_key_exists($result['trigger_id'], $behaviors))
+					continue;
+				
+				$behavior = $behaviors[$result['trigger_id']]; /* @var $behavior Model_TriggerEvent */
+				
+				$stats[$result['trigger_id']] = [
+					'behavior_id' => $result['trigger_id'],
+					'behavior_name' => $behavior->title,
+					'bot_id' => $behavior->bot_id,
+					'event_point' => $behavior->event_point,
+					'uses' => 0,
+					'elapsed_ms' => 0,
+				];
+			}
+			
+			if($result['type'] == 'invocations') {
+				$stats[$result['trigger_id']]['uses'] = $result['stat'];
+			} else {
+				$stats[$result['trigger_id']]['elapsed_ms'] = $result['stat'];
+			}
+		}
 		
 		foreach($stats as &$stat) {
 			$stat['uses'] = intval($stat['uses']);
@@ -105,7 +135,7 @@ class _DevblocksDataProviderUsageBotBehaviors extends _DevblocksDataProvider {
 			
 			// Bot
 			
-			if(false == (@$bot = $bots[$stat['bot_id']]))
+			if(!(@$bot = $bots[$stat['bot_id']]))
 				continue;
 			
 			// Owner
