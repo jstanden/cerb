@@ -948,7 +948,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			if(is_array($participant_ids))
 			foreach($participant_ids as $id) {
 				if($id < 0) {
-					$remove_participant_ids[abs($id)] = true;
+					$remove_participant_ids[abs(intval($id))] = true;
 				} else {
 					$add_participant_ids[$id] = true;
 				}

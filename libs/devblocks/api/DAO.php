@@ -691,7 +691,7 @@ abstract class DevblocksORMHelper {
 			
 			foreach($fieldset_ids as $fieldset_id) {
 				if($fieldset_id < 0) {
-					$fieldsets_to_remove[] = abs($fieldset_id);
+					$fieldsets_to_remove[] = abs(intval($fieldset_id));
 				} else {
 					$fieldsets_to_add[] = intval($fieldset_id);
 				}
