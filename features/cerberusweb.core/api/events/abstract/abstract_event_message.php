@@ -490,9 +490,8 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 
 			case 'group_id':
 				$not = (substr($params['oper'],0,1) == '!');
-				$oper = ltrim($params['oper'],'!');
 				
-				$in_group_ids = $params['group_id'] ?? null;
+				$in_group_ids = $params['group_id'] ?? [];
 				$group_id = intval($dict->group_id);
 				
 				$pass = in_array($group_id, $in_group_ids);
@@ -501,10 +500,9 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				
 			case 'group_and_bucket':
 				$not = (substr($params['oper'],0,1) == '!');
-				$oper = ltrim($params['oper'],'!');
 				
 				$in_group_id = $params['group_id'] ?? null;
-				$in_bucket_ids = $params['bucket_id'] ?? null;
+				$in_bucket_ids = $params['bucket_id'] ?? [];
 				
 				@$group_id = intval($dict->group_id);
 				@$bucket_id = intval($dict->ticket_bucket_id);
