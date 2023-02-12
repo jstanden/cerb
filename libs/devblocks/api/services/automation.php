@@ -1186,6 +1186,22 @@ class CerbAutomationAstNode implements JsonSerializable {
 		return $this;
 	}
 	
+	public function prependChild(CerbAutomationAstNode $node) {
+		$node->setParent($this);
+		array_unshift($this->_children, $node);
+		return $this;
+	}
+	
+	public function removeChild(string $id) : bool {
+		foreach($this->_children as $i => $child) {
+			if($id == $child->getId()) {
+				unset($this->_children[$i]);
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	/**
 	 * 
 	 * @return CerbAutomationAstNode[]
