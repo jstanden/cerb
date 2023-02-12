@@ -401,10 +401,10 @@ class _DevblocksDateManager {
 			return false;
 		
 		try {
-			if(false == ($tz = new DateTimeZone($timezone)))
+			if(!($tz = new DateTimeZone($timezone)))
 				return false;
 			
-			if(false == ($now = new DateTime('now', $tz)))
+			if(!($now = new DateTime('now', $tz)))
 				return false;
 			
 			$offset = $tz->getOffset($now);
@@ -417,13 +417,8 @@ class _DevblocksDateManager {
 	}
 	
 	public function parseTimezoneOffset(string $timezone, ?string &$error=null) {
-		if(!is_string($timezone)) {
-			$error = 'timezone must be a string';
-			return false;
-		}
-		
-		if(!strstr($timezone,':')) {
-			if(false == ($offset = self::getTimezoneOffsetFromLocation($timezone))) {
+		if(!str_contains($timezone, ':')) {
+			if(!($offset = self::getTimezoneOffsetFromLocation($timezone))) {
 				$error = sprintf("Timezone `%s` is unknown.", $timezone);
 				return false;
 			}

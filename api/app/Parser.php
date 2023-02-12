@@ -1676,7 +1676,7 @@ class CerberusParser {
 					DAO_Attachment::STORAGE_SHA1HASH => $sha1_hash,
 				);
 				
-				if(false != ($file_id = DAO_Attachment::create($fields))) {
+				if(($file_id = DAO_Attachment::create($fields))) {
 					Storage_Attachments::put($file_id, $message->htmlbody);
 				}
 			}

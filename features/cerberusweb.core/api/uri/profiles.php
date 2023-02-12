@@ -165,7 +165,7 @@ class Page_Profiles extends CerberusPageExtension {
 
 		// Context
 		
-		if(false == ($context_ext = Extension_DevblocksContext::get($context, true)))
+		if(!($context_ext = Extension_DevblocksContext::get($context, true)))
 			return;
 		
 		$tpl->assign('context_ext', $context_ext);
@@ -175,7 +175,7 @@ class Page_Profiles extends CerberusPageExtension {
 		$dao_class = $context_ext->getDaoClass();
 		
 		// Load the record
-		if(false == ($record = $dao_class::get($context_id)))
+		if(!($record = $dao_class::get($context_id)))
 			DevblocksPlatform::redirect(new DevblocksHttpRequest());
 		
 		$tpl->assign('record', $record);
@@ -195,7 +195,7 @@ class Page_Profiles extends CerberusPageExtension {
 		// Events
 		
 		if(
-			false != ($record_viewed_event = DAO_AutomationEvent::getByName('record.profile.viewed'))
+			($record_viewed_event = DAO_AutomationEvent::getByName('record.profile.viewed'))
 			&& $record_viewed_event->automations_kata
 		) {
 			$event_dict = DevblocksDictionaryDelegate::instance([]);

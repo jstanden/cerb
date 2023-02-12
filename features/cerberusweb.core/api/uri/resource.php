@@ -41,7 +41,7 @@ class Controller_Resource extends DevblocksControllerExtension {
 			if(!is_dir($dir))
 				DevblocksPlatform::dieWithHttpError(null, 403); // basedir security
 			
-			if(false == ($resource = realpath($dir . $file)))
+			if(!($resource = realpath($dir . $file)))
 				DevblocksPlatform::dieWithHttpError(null, 403);
 			
 			if(!DevblocksPlatform::strStartsWith($resource, $dir))

@@ -290,8 +290,8 @@ abstract class DevblocksORMHelper {
 	 * @param string $id_key
 	 * @param string $select_sql
 	 * @param string $join_sql
-	 * @param string $where_sql
-	 * @param string $sort_sql
+	 * @param ?string $where_sql
+	 * @param ?string $sort_sql
 	 * @param int $page
 	 * @param int $limit
 	 * @param bool $withCounts
@@ -324,7 +324,7 @@ abstract class DevblocksORMHelper {
 		}
 		
 		try {
-			if(false == ($responses = $db->QueryReaderAsync($sqls, $timeouts)))
+			if(!($responses = $db->QueryReaderAsync($sqls, $timeouts)))
 				return false;
 			
 			if($responses[0] instanceof Exception_DevblocksDatabaseQueryTimeout)
@@ -684,7 +684,7 @@ abstract class DevblocksORMHelper {
 			$fieldsets_json = $fields['_fieldsets'];
 			unset($fields['_fieldsets']);
 			
-			if(false == ($fieldset_ids = json_decode($fieldsets_json ?? '')))
+			if(!($fieldset_ids = json_decode($fieldsets_json ?? '')))
 				$fieldset_ids = [];
 			
 			$fieldsets_to_add = $fieldsets_to_remove = [];

@@ -525,7 +525,7 @@ class DAO_Message extends Cerb_ORMHelper {
 		
 		$sql = "SELECT id FROM _tmp_maint_message";
 		
-		if(false == ($rs = $db->ExecuteMaster($sql)))
+		if(!($rs = $db->ExecuteMaster($sql)))
 			return false;
 
 		$ids_buffer = [];
@@ -605,8 +605,9 @@ class DAO_Message extends Cerb_ORMHelper {
 			(isset($tables['a']) ? "INNER JOIN address a ON (m.address_id = a.id) " : " ")
 			;
 		
-		$where_sql = "".
-			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
+		$where_sql = 
+			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ")
+		;
 			
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_Message');
 		

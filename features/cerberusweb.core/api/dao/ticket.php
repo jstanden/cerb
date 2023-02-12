@@ -970,7 +970,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		// If we were given a group but not a bucket, use the default bucket
 		if(isset($fields[self::GROUP_ID]) && (!isset($fields[self::BUCKET_ID]) || !$fields[self::BUCKET_ID])) {
 			if(false !== ($dest_group = DAO_Group::get($fields[self::GROUP_ID]))) {
-				if(false != ($dest_bucket = $dest_group->getDefaultBucket()))
+				if(($dest_bucket = $dest_group->getDefaultBucket()))
 					$fields[self::BUCKET_ID] = $dest_bucket->id;
 			}
 		}
@@ -1937,11 +1937,11 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		$join_sql =
 			"FROM ticket t ".
 			// Dynamic table joins
-			(isset($tables['msg']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
-			'';
+			(isset($tables['msg']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ")
+		;
 		
 		if(isset($tables['wtb'])) {
-			if(false != ($active_worker = CerberusApplication::getActiveWorker())) {
+			if(($active_worker = CerberusApplication::getActiveWorker())) {
 				$select_sql .= ", wtb.responsibility_level as wtb_responsibility ";
 				$join_sql .= sprintf("INNER JOIN worker_to_bucket wtb ON (wtb.bucket_id=t.bucket_id AND wtb.worker_id=%d AND wtb.responsibility_level > 0) ", $active_worker->id);
 			}
@@ -5790,7 +5790,8 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'] ?? null, 'integer',0);
 		$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'] ?? null, 'integer',0);
 		
-		$active_worker = CerberusApplication::getActiveWorker();
+		if(!($active_worker = CerberusApplication::getActiveWorker()))
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.ticket.create'))
 			DevblocksPlatform::dieWithHttpError(null, 403);
@@ -5847,7 +5848,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		
 		// Preferences
 		if($is_new_draft) {
-			if ($bucket_id && false != ($bucket = DAO_Bucket::get($bucket_id))) {
+			if ($bucket_id && ($bucket = DAO_Bucket::get($bucket_id))) {
 				$defaults['group_id'] = $bucket->group_id;
 				$defaults['bucket_id'] = $bucket->id;
 				
@@ -5908,7 +5909,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 								break;
 							
 							case 'org.id':
-								if (false != ($org = DAO_ContactOrg::get($v)))
+								if (($org = DAO_ContactOrg::get($v)))
 									$draft->params['org_name'] = $org->name;
 								break;
 						}
@@ -5983,7 +5984,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		
 		 // UI bot behaviors
 
-		 if(null != $active_worker && class_exists('Event_MailBeforeUiComposeByWorker')) {
+		 if(class_exists('Event_MailBeforeUiComposeByWorker')) {
 			 $actions = [];
 			
 			 $macros = DAO_TriggerEvent::getReadableByActor(

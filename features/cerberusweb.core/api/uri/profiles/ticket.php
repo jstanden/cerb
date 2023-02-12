@@ -513,7 +513,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 			if(null != ($automation_event = DAO_AutomationEvent::getByName('mail.reply.validate'))) {
 				$automation_event_dict = DevblocksDictionaryDelegate::instance([]);
 				
-				if(false == ($message = DAO_Message::get($id)))
+				if(!($message = DAO_Message::get($id)))
 					DevblocksPlatform::dieWithHttpError(null, 404);
 				
 				$automation_event_dict->mergeKeys('message_', DevblocksDictionaryDelegate::getDictionaryFromModel($message, CerberusContexts::CONTEXT_MESSAGE));

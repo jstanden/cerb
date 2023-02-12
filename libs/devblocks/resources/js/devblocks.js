@@ -474,7 +474,7 @@ function DevblocksClass() {
 			
 			return jQuery.ajax(options)
 				.done(function(data) {
-					$('<style type="text/css">\n' + data + '</style>').appendTo('head');
+					$('<style>\n' + data + '</style>').appendTo('head');
 					$instance.setResourceState(url, 'loaded');
 					callback();
 				})

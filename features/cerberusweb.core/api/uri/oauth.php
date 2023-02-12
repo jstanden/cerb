@@ -92,7 +92,7 @@ class Controller_OAuth extends DevblocksControllerExtension {
 					
 					$auth_request = $server->validateAuthorizationRequest($http_request);
 					
-					if(false == (DAO_OAuthApp::getByClientId($auth_request->getClient()->getIdentifier())))
+					if(!(DAO_OAuthApp::getByClientId($auth_request->getClient()->getIdentifier())))
 						throw OAuthServerException::invalidClient();
 					
 					$login_state = CerbLoginWorkerAuthState::getInstance()
@@ -105,7 +105,7 @@ class Controller_OAuth extends DevblocksControllerExtension {
 					//$auth_request->getGrantTypeId() == 'authorization_code'
 					
 					if(
-						false == ($auth_worker = $login_state->getWorker())
+						!($auth_worker = $login_state->getWorker())
 						|| !$login_state->isAuthenticated()
 						|| !$login_state->wasConsentAsked()
 					) {
@@ -191,7 +191,7 @@ class Controller_OAuth extends DevblocksControllerExtension {
 				} catch(Exception $e) {
 					http_response_code(500);
 					echo "An unexpected error occurred. Please try again later.";
-					error_log($e->getMessage());
+					DevblocksPlatform::logException($e);
 					return;
 				}
 				
@@ -207,7 +207,7 @@ class Controller_OAuth extends DevblocksControllerExtension {
 					$ext_id = ServiceProvider_OAuth2::ID;
 				
 				// The given extension must be valid
-				if(false == ($ext = Extension_ConnectedServiceProvider::get($ext_id)))
+				if(!($ext = Extension_ConnectedServiceProvider::get($ext_id)))
 					DevblocksPlatform::dieWithHttpError($translate->_('common.access_denied'), 403);
 				
 				// The given extension must implement OAuth callbacks

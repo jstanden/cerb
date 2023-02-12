@@ -381,7 +381,7 @@ class Cerb_OAuth2ClientRespository implements ClientRepositoryInterface {
 		if(!in_array($grantType, ['authorization_code', 'refresh_token']))
 			return false;
 		
-		if(false == ($oauth_client = DAO_OAuthApp::getByClientId($clientIdentifier)))
+		if(!($oauth_client = DAO_OAuthApp::getByClientId($clientIdentifier)))
 			return false;
 		
 		if($oauth_client->client_secret != $clientSecret)
