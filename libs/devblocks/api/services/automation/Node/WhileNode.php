@@ -6,7 +6,7 @@ use DevblocksPlatform;
 use Model_Automation;
 
 class WhileNode extends AbstractNode {
-	public function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error = null) {
+	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) : string|false {
 		$params = $automation->getParams($this->node, $dict);
 		
 		$if = $params['if'] ?? null;

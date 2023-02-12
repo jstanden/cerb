@@ -9,7 +9,7 @@ use Model_Automation;
 class LogAction extends AbstractAction {
 	const ID = 'log';
 	
-	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) {
+	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) : string|false {
 		$params = $automation->getParams($this->node, $dict);
 		
 		/*

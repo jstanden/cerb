@@ -9,7 +9,7 @@ use Model_Automation;
 class DataQueryAction extends AbstractAction {
 	const ID = 'data.query';
 	
-	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) {
+	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) : string|false {
 		$validation = DevblocksPlatform::services()->validation();
 		$data = DevblocksPlatform::services()->data();
 		

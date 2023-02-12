@@ -5,7 +5,7 @@ use DevblocksDictionaryDelegate;
 use Model_Automation;
 
 class OutcomeNode extends AbstractNode {
-	public function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error = null) {
+	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) : string|false {
 		// If this outcome is outside of a decision, check the if logic
 		if('decision' != $this->node->getParent()->getNameType()) {
 			$outcome_params = $automation->getParams($this->node, $dict);

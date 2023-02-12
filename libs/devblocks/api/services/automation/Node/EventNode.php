@@ -6,7 +6,7 @@ use DevblocksPlatform;
 use Model_Automation;
 
 class EventNode extends AbstractNode {
-	public function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error = null) {
+	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) : string|false {
 		$environment = $automation->getEnvironment();
 		
 		$state_from = $environment['state_last'] ?? null;

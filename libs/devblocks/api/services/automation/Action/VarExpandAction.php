@@ -9,7 +9,7 @@ use Model_Automation;
 class VarExpandAction extends AbstractAction {
 	const ID = 'var.expand';
 	
-	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) {
+	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) : string|false {
 		$validation = DevblocksPlatform::services()->validation();
 		
 		$params = $automation->getParams($this->node, $dict);

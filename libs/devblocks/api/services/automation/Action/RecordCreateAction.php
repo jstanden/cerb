@@ -13,7 +13,7 @@ use Model_Automation;
 class RecordCreateAction extends AbstractAction {
 	const ID = 'record.create';
 	
-	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) {
+	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) : string|false {
 		$validation = DevblocksPlatform::services()->validation();
 		
 		$params = $automation->getParams($this->node, $dict);

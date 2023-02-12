@@ -7,7 +7,7 @@ use Model_Automation;
 class ErrorAction extends AbstractAction {
 	const ID = 'error';
 	
-	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) {
+	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) : string|false {
 		$return_values = $automation->getParams($this->node, $dict);
 		
 		if(array_key_exists('', $return_values)) {

@@ -2,7 +2,6 @@
 namespace Cerb\AutomationBuilder\Node;
 
 use Cerb\AutomationBuilder\Action\AbstractAction;
-use CerbAutomationPolicy;
 use DevblocksDictionaryDelegate;
 use Model_Automation;
 
@@ -47,7 +46,7 @@ class ActionNode extends AbstractNode {
 		];
 	}
 	
-	public function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error = null) {
+	public function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error = null) : string|false{
 		$error = null;
 		
 		$action_type = $this->node->getNameType();

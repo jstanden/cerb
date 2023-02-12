@@ -691,7 +691,7 @@ class Model_Automation extends DevblocksRecordModel {
 		return $this->_policy;
 	}
 	
-	public function getSyntaxTree(&$error=null, &$symbol_meta=[]) {
+	public function getSyntaxTree(&$error=null, &$symbol_meta=[]) : CerbAutomationAstNode|false {
 		// If cached
 		if(!is_null($this->_ast)) {
 			$symbol_meta = $this->_ast_symbols;
@@ -702,7 +702,8 @@ class Model_Automation extends DevblocksRecordModel {
 		
 		$error = null;
 		
-		$tree = DevblocksPlatform::services()->kata()->parse($this->script, $error, true, $this->_ast_symbols);
+		if(!($tree = DevblocksPlatform::services()->kata()->parse($this->script, $error, true, $this->_ast_symbols)))
+			return false;
 		
 		if(!is_array($tree))
 			return false;
@@ -724,7 +725,7 @@ class Model_Automation extends DevblocksRecordModel {
 	public function execute(DevblocksDictionaryDelegate $dict, &$error=null) {
 		$automator = DevblocksPlatform::services()->automation();
 		
-		if(false == $automator->runAST($this, $dict, $error))
+		if(!$automator->runAST($this, $dict, $error))
 			return false;
 		
 		// Convert any nested dictionaries to arrays

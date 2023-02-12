@@ -16,7 +16,7 @@ use function GuzzleHttp\headers_from_lines;
 class HttpRequestAction extends AbstractAction {
 	const ID = 'http.request';
 	
-	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) {
+	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) : string|false {
 		$http = DevblocksPlatform::services()->http();
 		$validation = DevblocksPlatform::services()->validation();
 		

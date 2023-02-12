@@ -9,7 +9,7 @@ use Model_Automation;
 class MetricIncrementAction extends AbstractAction {
 	const ID = 'metric.increment';
 	
-	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) {
+	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) : string|false {
 		$metrics = DevblocksPlatform::services()->metrics();
 		$validation = DevblocksPlatform::services()->validation();
 		

@@ -7,7 +7,7 @@ use Model_Automation;
 class SetAction extends AbstractAction {
 	const ID = 'set';
 	
-	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) {
+	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) : string|false {
 		$params = $this->node->getParams();
 		
 		foreach($params as $k => $v) {

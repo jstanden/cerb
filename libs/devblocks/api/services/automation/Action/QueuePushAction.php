@@ -9,7 +9,7 @@ use Model_Automation;
 class QueuePushAction extends AbstractAction {
 	const ID = 'queue.push';
 	
-	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) {
+	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) : string|false {
 		$validation = DevblocksPlatform::services()->validation();
 		$queue = DevblocksPlatform::services()->queue();
 		

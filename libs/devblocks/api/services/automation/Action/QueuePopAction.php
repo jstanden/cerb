@@ -9,7 +9,7 @@ use Model_Automation;
 class QueuePopAction extends AbstractAction {
 	const ID = 'queue.pop';
 	
-	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) {
+	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) : string|false {
 		$queue = DevblocksPlatform::services()->queue();
 		$validation = DevblocksPlatform::services()->validation();
 		

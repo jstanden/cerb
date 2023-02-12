@@ -9,7 +9,7 @@ use Model_Automation;
 class KataParseAction extends AbstractAction {
 	const ID = 'kata.parse';
 	
-	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) {
+	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) : string|false {
 		$kata = DevblocksPlatform::services()->kata();
 		$validation = DevblocksPlatform::services()->validation();
 		

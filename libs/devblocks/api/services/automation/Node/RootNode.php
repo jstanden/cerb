@@ -5,7 +5,7 @@ use DevblocksDictionaryDelegate;
 use Model_Automation;
 
 class RootNode extends AbstractNode {
-	public function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error = null) {
+	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) : string|false {
 		if (!array_key_exists('stack', $node_memory)) {
 			$node_memory['stack'] = [];
 			

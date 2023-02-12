@@ -405,7 +405,7 @@ class _DevblocksAutomationService {
 		}
 	}
 	
-	public function buildAstFromKata(array $yaml, &$error=null) {
+	public function buildAstFromKata(array $yaml, &$error=null) : CerbAutomationAstNode|false {
 		$environment = [];
 		
 		$root = new CerbAutomationAstNode('automation', 'root');
@@ -422,7 +422,7 @@ class _DevblocksAutomationService {
 	}
 	
 	public function runAST(Model_Automation $automation, DevblocksDictionaryDelegate &$dict, &$error=null) {
-		if(false == ($tree = $automation->getSyntaxTree($error)))
+		if(!($tree = $automation->getSyntaxTree($error)))
 			return false;
 		
 		$started_at = microtime(true) * 1000;
@@ -636,7 +636,6 @@ class _DevblocksAutomationService {
 		$node_type = $node->getType();
 		
 		if($node_type == 'root') {
-			if(is_array($yaml))
 			foreach($yaml as $type => $child) {
 				$node_name = $this->_getNodeFromType($type);
 				
@@ -652,7 +651,6 @@ class _DevblocksAutomationService {
 			}
 		
 		} elseif ($node_type == 'decision') {
-			if(is_array($yaml))
 			foreach($yaml as $type => $child) {
 				$node_name = $this->_getNodeFromType($type);
 				
@@ -683,7 +681,7 @@ class _DevblocksAutomationService {
 				$node_name = $this->_getNodeFromType($type);
 				
 				if('if' == $node_name) {
-					true;
+					DevblocksPlatform::noop();
 					
 				} else if('then' == $node_name) {
 					$states[] = 'then';
@@ -712,9 +710,9 @@ class _DevblocksAutomationService {
 				$node_name = $this->_getNodeFromType($type);
 				
 				if('each' == $node_name) {
-					true;
+					DevblocksPlatform::noop();
 				} else if('as' == $node_name) {
-					true;
+					DevblocksPlatform::noop();
 				} else if('do' == $node_name) {
 					$states[] = 'do';
 					
@@ -747,7 +745,7 @@ class _DevblocksAutomationService {
 				$node_name = $this->_getNodeFromType($type);
 				
 				if('if' == $node_name) {
-					true;
+					DevblocksPlatform::noop();
 				} else if('do' == $node_name) {
 					$states[] = 'do';
 					
@@ -1139,7 +1137,7 @@ class CerbAutomationAstNode implements JsonSerializable {
 	
 	/**
 	 * 
-	 * @param integer $id
+	 * @param string $id
 	 * @return CerbAutomationAstNode|NULL
 	 */
 	public function getChild($id) {
@@ -1365,7 +1363,7 @@ class CerbAutomationAstNode implements JsonSerializable {
 	}
 	
 	public function getName() {
-		if(false == ($id = $this->getId()))
+		if(!($id = $this->getId()))
 			return null;
 		
 		$parts = explode(':', $id);

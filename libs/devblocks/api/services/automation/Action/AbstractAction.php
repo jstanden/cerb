@@ -6,10 +6,7 @@ use DevblocksDictionaryDelegate;
 use Model_Automation;
 
 abstract class AbstractAction {
-	/**
-	 * @var CerbAutomationAstNode
-	 */
-	protected $node;
+	protected CerbAutomationAstNode $node;
 	
 	function __construct(CerbAutomationAstNode $node) {
 		$this->node = $node;
@@ -20,7 +17,6 @@ abstract class AbstractAction {
 	 * @param DevblocksDictionaryDelegate $dict
 	 * @param array $node_memory
 	 * @param string|null $error
-	 * @return string|false
 	 */
-	abstract function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null);
+	abstract function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) : string|false;
 }
