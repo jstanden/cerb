@@ -1127,6 +1127,23 @@ class CerbAutomationAstNode implements JsonSerializable {
 		return null;
 	}
 	
+	public function findDescendentId(string $id) : ?CerbAutomationAstNode {
+		$queue = new SplQueue();
+		$queue->enqueue($this);
+		
+		while(!$queue->isEmpty()) {
+			$current = $queue->dequeue();
+			
+			if($current->getId() == $id)
+				return $current;
+			
+			foreach($current->getChildren() as $child)
+				$queue->enqueue($child);
+		}
+		
+		return null;
+	}
+	
 	public function hasChildren() {
 		return !empty($this->_children);
 	}
