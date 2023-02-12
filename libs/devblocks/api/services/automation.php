@@ -1,4 +1,7 @@
 <?php
+
+use Cerb\AutomationBuilder\Node\AbstractNode;
+
 class Exception_DevblocksAutomationError extends Exception_Devblocks {};
 
 class _DevblocksAutomationService {
@@ -1222,14 +1225,7 @@ class CerbAutomationAstNode implements JsonSerializable {
 		$dict->set('__error', $error_values);
 	}
 	
-	public function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, &$error=null) {
-		$node_memory_key = '__state|memory|' . $this->getId();
-		
-		if(null === ($node_memory = $dict->getKeyPath($node_memory_key, [], '|')))
-			$node_memory = [];
-		
-		$error = null;
-		
+	public function instantiate() : AbstractNode|false {
 		$node_classes = [
 			'action' => '\Cerb\AutomationBuilder\Node\ActionNode',
 			'decision' => '\Cerb\AutomationBuilder\Node\DecisionNode',
@@ -1243,12 +1239,24 @@ class CerbAutomationAstNode implements JsonSerializable {
 		
 		$node_type = $this->getType();
 		
-		if(!array_key_exists($node_type, $node_classes)) {
-			$this->_triggerError(sprintf("Unknown node `%s`", $node_type), $dict);
+		if(!array_key_exists($node_type, $node_classes))
+			return false;
+		
+		return new $node_classes[$node_type]($this);
+	}
+	
+	public function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, &$error=null) {
+		$node_memory_key = '__state|memory|' . $this->getId();
+		
+		if(null === ($node_memory = $dict->getKeyPath($node_memory_key, [], '|')))
+			$node_memory = [];
+		
+		$error = null;
+		
+		if(!($node = $this->instantiate())) {
+			$this->_triggerError(sprintf("Unknown node `%s`", $this->getType()), $dict);
 			return false;
 		}
-		
-		$node = new $node_classes[$node_type]($this);
 		
 		if(false === ($next_state = $node->activate($automation, $dict, $node_memory, $error))) {
 			$this->_triggerError($error, $dict);
