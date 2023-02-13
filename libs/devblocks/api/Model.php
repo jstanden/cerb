@@ -3052,13 +3052,13 @@ class DevblocksEventPoint {
 	public $id = '';
 	public $plugin_id = '';
 	public $name = '';
-	public $param = array();
+	public $params = [];
 };
 
 class DevblocksExtensionPoint {
 	public $id = '';
 	public $plugin_id = '';
-	public $extensions = array();
+	public $extensions = [];
 };
 
 class DevblocksTemplate {
