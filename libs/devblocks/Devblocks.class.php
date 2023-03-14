@@ -517,7 +517,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		} else if($unit == 'quarter') {
 			$unit = 'day';
 			$step = 90;
-		} else if($unit == 'weekofyear') {
+		} else if($unit == 'weekofyear' || $unit == 'week-sun') {
 			$unit = 'week';
 		}
 		

@@ -22,6 +22,7 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 				'day',
 				'month',
 				'week',
+				'week-sun',
 				'year',
 			],
 			'range:' => [
@@ -90,6 +91,7 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 			'hour' => 3600,
 			'day' => 86400,
 			'week' => 86400,
+			'week-sun' => 86400,
 			'month' => 86400,
 			'year' => 86400,
 		];
@@ -356,7 +358,7 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 			// If aggregating by day, use UTC time by default
 			if(
 				array_key_exists('period', $chart_model)
-				&& in_array($chart_model['period'], ['day','week','month','year'])
+				&& in_array($chart_model['period'], ['day','week','week-sun','month','year'])
 			) {
 				$chart_model['timezone'] = 'UTC';
 			} else { // Otherwise, aggregate in the local timezone for mins + hours
@@ -401,6 +403,8 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 				// Weeks need to start on Monday
 				if ('week' == $chart_model['period']) {
 					$ts->modify('Monday this week');
+				}else if ('week-sun' == $chart_model['period']) {
+					$ts->modify('Sunday this week');
 				}
 				
 				$range['from_ts'] = $ts->getTimestamp();
@@ -447,6 +451,7 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 				break;
 				
 			case 'week':
+			case 'week-sun':
 				$unit = 'week';
 				$unit_format_js = '%Y-%m-%d';
 				$unit_format_php = 'Y-m-d';
@@ -638,7 +643,10 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 			$sql_select_keys = "UNIX_TIMESTAMP(DATE_FORMAT(FROM_UNIXTIME(bin), '%Y-%m-01 00:00:00')) AS ts_bin";
 			
 		} else if('week' == $chart_model['period']) {
-			$sql_select_keys = "UNIX_TIMESTAMP(STR_TO_DATE(CONCAT(YEARWEEK(FROM_UNIXTIME(bin),1),' Monday'),'%x%v %W')) AS ts_bin";	
+			$sql_select_keys = "UNIX_TIMESTAMP(STR_TO_DATE(CONCAT(YEARWEEK(FROM_UNIXTIME(bin),1),' Monday'),'%x%v %W')) AS ts_bin";
+			
+		} else if('week-sun' == $chart_model['period']) {
+			$sql_select_keys = "UNIX_TIMESTAMP(STR_TO_DATE(CONCAT(YEARWEEK(FROM_UNIXTIME(bin),0),' Sunday'),'%X%V %W')) AS ts_bin";	
 		}
 		
 		$sql = sprintf("SELECT %s, %s AS value FROM metric_value WHERE metric_value.metric_id = %d AND metric_value.granularity = %d AND metric_value.bin BETWEEN %d AND %d %s GROUP BY %s",
