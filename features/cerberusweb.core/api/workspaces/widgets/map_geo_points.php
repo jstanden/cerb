@@ -96,7 +96,7 @@ class WorkspaceWidget_MapGeoPoints extends Extension_WorkspaceWidget {
 		
 		$initial_state = $dict->getDictionary();
 		
-		if(false == ($automation_results = $event_handler->handleOnce(AutomationTrigger_MapClicked::ID, $handlers, $initial_state, $error))) {
+		if(!($automation_results = $event_handler->handleOnce(AutomationTrigger_MapClicked::ID, $handlers, $initial_state, $error))) {
 			echo json_encode([]);
 			return;
 		}

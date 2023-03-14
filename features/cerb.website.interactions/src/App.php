@@ -336,7 +336,7 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 			$handler
 		);
 		
-		if(false == $automation_results) {
+		if(!$automation_results) {
 			error_log('Interaction error:' . $error);
 			DevblocksPlatform::dieWithHttpError("null automation results", 404);
 		}
@@ -365,7 +365,7 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 		// [TODO] Reassemble the call hierarchy
 		// $continuations = DAO_AutomationContinuation::getByRootToken($continuation_token);
 		
-		if(false == ($continuation = DAO_AutomationContinuation::getByToken($continuation_token)))
+		if(!($continuation = DAO_AutomationContinuation::getByToken($continuation_token)))
 			DevblocksPlatform::dieWithHttpError("null continuation token", 404);
 		
 		$initial_state = $continuation->state_data['dict'] ?? [];
@@ -380,7 +380,7 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 	}
 	
 	private function _handleInteractionInvoke(string $continuation_token) : void {
-		if(false == ($continuation = DAO_AutomationContinuation::getByToken($continuation_token)))
+		if(!($continuation = DAO_AutomationContinuation::getByToken($continuation_token)))
 			DevblocksPlatform::dieWithHttpError("null continuation token", 404);
 		
 		$form_components = AutomationTrigger_InteractionWebsite::getFormComponentMeta();
@@ -421,7 +421,7 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 		
 		$initial_state = $continuation->state_data['dict'] ?? [];
 		
-		if(false == ($automation = $continuation->getAutomation()))
+		if(!($automation = $continuation->getAutomation()))
 			DevblocksPlatform::dieWithHttpError("No automation", 404);
 		
 		if($automation->extension_id != AutomationTrigger_InteractionWebsite::ID)

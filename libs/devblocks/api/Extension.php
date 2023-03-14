@@ -460,7 +460,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		$aliases = self::getAliasesForAllContexts();
 		
 		// First, try the fully-qualified ID
-		if($alias && false != ($ctx = Extension_DevblocksContext::get($alias, $as_instance))) {
+		if($alias && ($ctx = Extension_DevblocksContext::get($alias, $as_instance))) {
 			return $ctx;
 		}
 		
@@ -468,7 +468,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		$ctx_id = $aliases[$alias] ?? null;
 		
 		// If this is a valid context, return it
-		if($ctx_id && false != ($ctx = Extension_DevblocksContext::get($ctx_id, $as_instance))) {
+		if($ctx_id && ($ctx = Extension_DevblocksContext::get($ctx_id, $as_instance))) {
 			return $ctx;
 		}
 		

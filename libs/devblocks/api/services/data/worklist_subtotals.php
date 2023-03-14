@@ -162,7 +162,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				
 			} else if($field->key == 'of') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
-				if(false == ($subtotals_context = Extension_DevblocksContext::getByAlias($value, true)))
+				if(!($subtotals_context = Extension_DevblocksContext::getByAlias($value, true)))
 					continue;
 				
 				$chart_model['context'] = $subtotals_context->id;
@@ -317,7 +317,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				// Handle limits and orders
 				list($by, $limit) = array_pad(explode('~', $by, 2), 2, null);
 				
-				if(false == ($subtotal_field = $search_class::getFieldForSubtotalKey($by, $subtotals_context->id, $query_fields, $search_fields, $search_class::getPrimaryKey()))) {
+				if(!($subtotal_field = $search_class::getFieldForSubtotalKey($by, $subtotals_context->id, $query_fields, $search_fields, $search_class::getPrimaryKey()))) {
 					$error = sprintf("Unknown `by:` field: %s", $by);
 					return false;
 				}

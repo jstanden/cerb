@@ -1085,6 +1085,7 @@ class Context_CustomRecord extends Extension_DevblocksContext implements IDevblo
 			$token_values['id'] = $custom_record->id;
 			$token_values['name'] = $custom_record->name;
 			$token_values['name_plural'] = $custom_record->name_plural;
+			$token_values['params'] = $custom_record->params;
 			$token_values['updated_at'] = $custom_record->updated_at;
 			$token_values['uri'] = $custom_record->uri;
 			

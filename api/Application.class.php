@@ -1193,20 +1193,20 @@ class CerberusContexts {
 	}
 
 	public static function isSameActor($a, $b) {
-		if(false == ($a = CerberusContexts::polymorphActorToDictionary($a)))
+		if(!($a = CerberusContexts::polymorphActorToDictionary($a)))
 			return false;
 
-		if(false == ($b = CerberusContexts::polymorphActorToDictionary($b)))
+		if(!($b = CerberusContexts::polymorphActorToDictionary($b)))
 			return false;
 
 		return ($a->_context == $b->_context && $a->id == $b->id);
 	}
 	
 	public static function isSameContext($a, $b) {
-		if(false == ($a = Extension_DevblocksContext::getByAlias($a, false)))
+		if(!($a = Extension_DevblocksContext::getByAlias($a, false)))
 			return false;
 
-		if(false == ($b = Extension_DevblocksContext::getByAlias($b, false)))
+		if(!($b = Extension_DevblocksContext::getByAlias($b, false)))
 			return false;
 
 		return ($a->id == $b->id);

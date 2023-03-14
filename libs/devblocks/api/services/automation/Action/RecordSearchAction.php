@@ -90,7 +90,7 @@ class RecordSearchAction extends AbstractAction {
 			$record_validation = trim($inputs['validation'] ?? '');
 			
 			if ($record_type && $record_query) {
-				if (false == ($context_ext = Extension_DevblocksContext::getByAlias($record_type, true)))
+				if (!($context_ext = Extension_DevblocksContext::getByAlias($record_type, true)))
 					throw new Exception_DevblocksAutomationError(sprintf(
 						"Unknown record type `%s`",
 						$record_type

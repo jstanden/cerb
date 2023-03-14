@@ -620,7 +620,7 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 			return;
 		}
 		
-		if(false == ($automation = DAO_Automation::get($automation_id))) {
+		if(!($automation = DAO_Automation::get($automation_id))) {
 			$automation = new Model_Automation();
 		}
 		

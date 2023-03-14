@@ -38,7 +38,7 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 			->setMaxLength(255)
 			->setRequired(true)
 			->addValidator(function($value, &$error=null) {
-				if(false == Extension_WorkspacePage::get($value)) {
+				if(!Extension_WorkspacePage::get($value)) {
 					$error = sprintf("is not a valid workspace page extension (%s).", $value);
 					return false;
 				}
@@ -617,8 +617,7 @@ class Model_WorkspacePage extends DevblocksRecordModel {
 	public $updated_at;
 	
 	function getExtension() {
-		$extension = Extension_WorkspacePage::get($this->extension_id);
-		return $extension;
+		return Extension_WorkspacePage::get($this->extension_id);
 	}
 	
 	/**
@@ -1204,7 +1203,7 @@ class Context_WorkspacePage extends Extension_DevblocksContext implements IDevbl
 					return false;
 				}
 				
-				if(false == ($json = json_encode($value))) {
+				if(!($json = json_encode($value))) {
 					$error = 'could not be JSON encoded.';
 					return false;
 				}

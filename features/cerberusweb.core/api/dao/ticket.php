@@ -1382,10 +1382,10 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		
 		// Load records only if they're needed
 		
-		if(false == ($before_models = CerberusContexts::getCheckpoints(CerberusContexts::CONTEXT_TICKET, $ids)))
+		if(!($before_models = CerberusContexts::getCheckpoints(CerberusContexts::CONTEXT_TICKET, $ids)))
 			return;
 		
-		if(false == ($models = DAO_Ticket::getIds($ids)))
+		if(!($models = DAO_Ticket::getIds($ids)))
 			return;
 		
 		foreach($models as $id => $model) { /* @var $model Model_Ticket */

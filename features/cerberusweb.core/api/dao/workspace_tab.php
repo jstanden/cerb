@@ -1205,6 +1205,7 @@ class Context_WorkspaceTab extends Extension_DevblocksContext implements IDevblo
 			$tab = DAO_WorkspaceTab::get($tab);
 		} elseif($tab instanceof Model_WorkspaceTab) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($tab)) {
 			$tab = Cerb_ORMHelper::recastArrayToModel($tab, 'Model_WorkspaceTab');
 		} else {
@@ -1258,6 +1259,8 @@ class Context_WorkspaceTab extends Extension_DevblocksContext implements IDevblo
 			$token_values['name'] = $tab->name;
 			$token_values['order'] = $tab->pos;
 			$token_values['page_id'] = $tab->workspace_page_id;
+			$token_values['params'] = $tab->params;
+			$token_values['pos'] = $tab->pos;
 			$token_values['updated_at'] = $tab->updated_at;
 			
 			if(false != ($tab_extension = $tab->getExtension())) {
