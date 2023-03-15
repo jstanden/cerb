@@ -1295,6 +1295,7 @@ class Context_WorkspaceTab extends Extension_DevblocksContext implements IDevblo
 			'links' => '_links',
 			'name' => DAO_WorkspaceTab::NAME,
 			'page_id' => DAO_WorkspaceTab::WORKSPACE_PAGE_ID,
+			'params' => DAO_WorkspaceTab::PARAMS_JSON,
 			'pos' => DAO_WorkspaceTab::POS,
 			'updated_at' => DAO_WorkspaceTab::UPDATED_AT,
 		];
