@@ -317,7 +317,7 @@ class _DevblocksKataService {
 						$output .= str_repeat('  ', $indent) . strval($v) . "\n";
 						
 					} else {
-						$lines = DevblocksPlatform::parseCrlfString($v);
+						$lines = DevblocksPlatform::parseCrlfString($v, true, false);
 						
 						if(count($lines) > 1) {
 							$output .= str_repeat('  ', $indent) . strval($k) . "@text:\n";

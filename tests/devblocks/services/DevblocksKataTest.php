@@ -422,6 +422,34 @@ EOD;
 		$this->assertEquals($expected, $actual);
 	}
 	
+	function testKataEmitTextBlockLeadingWhitespace() {
+		$data = [
+    	'record.update' => [
+				'inputs' => [
+					'fields' => [
+						'name' => 'automation.example.script',
+						'script' => "start:\n  return:\n    output: Testing!",
+					],
+				],
+			],
+    ];
+		
+		$actual = DevblocksPlatform::services()->kata()->emit($data);
+		
+		$expected = <<< EOD
+    record.update:
+      inputs:
+        fields:
+          name: automation.example.script
+          script@text:
+            start:
+              return:
+                output: Testing!
+    EOD;
+		
+		$this->assertEquals($expected, $actual);
+	}
+	
 	function testKataDuplicateSiblingWithDiffAnnotations() {
 		$kata = <<< EOD
 allow/rule@text: ok
