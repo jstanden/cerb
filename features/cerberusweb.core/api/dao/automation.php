@@ -717,6 +717,256 @@ class Model_Automation extends DevblocksRecordModel {
 		return $this->_ast;
 	}
 	
+	public function getSyntaxGraph(&$error=null) : ?array {
+		$error = null;
+		$symbol_meta = [];
+		
+		if(false === ($tree = $this->getSyntaxTree($error, $symbol_meta))) {
+			return null;
+		}
+		
+		$nodes = [];
+		$edges = [];
+		
+		$recurseAst = function(CerbAutomationAstNodeVisitor $visitor) use (&$recurseAst, &$nodes, &$edges) {
+			// Record the node meta on the first visit
+			if(!array_key_exists($visitor->node->getId(), $nodes)) {
+				$nodes[$visitor->node->getId()] = [
+					'label' => $visitor->node->getName(),
+					'type' => $visitor->node->getType(),
+					'name_type' => $visitor->node->getNameType(),
+				];
+			}
+			
+			if (
+				$visitor->node->getType() == 'root'
+				|| ($visitor->node->getType() == 'action' && in_array($visitor->node->getName(), ['return','error']))
+			) {
+				if($visitor->node->getType() == 'root') {
+					array_pop($visitor->path);
+					$visitor->depth++;
+				}
+				
+				// Populate nodes + edges for this path distinct path
+				$path = array_values(array_unique($visitor->path));
+				
+				while(count($path) > 1) {
+					$current = array_shift($path);
+					$next = current($path);
+					$label = '';
+					
+					// Collapse success/error nodes into edge labels
+					if(str_ends_with($next, ':on_success')) {
+						array_shift($path);
+						$next = current($path);
+						$label = 'success';
+					} else if(str_ends_with($next, ':on_error')) {
+						array_shift($path);
+						$next = current($path);
+						$label = 'error';
+						// Label independent outcome edges 
+					} elseif(preg_match('#.*?:outcome[^:]*$#', $current, $matches)) {
+						$parts = explode(':', $matches[0]);
+						array_pop($parts);
+						$parent = array_pop($parts);
+						if(!str_starts_with($parent, 'decision')) {
+							if(str_starts_with($next, $current . ':then:')) {
+								$label = 'true';
+							} else {
+								$label = 'false';
+							}
+						}
+					}
+					
+					if(!$next) {
+						$nodes['exit'] = [
+							'label' => 'exit',
+							'type' => 'action',
+							'name_type' => 'exit',
+						];
+						$next = 'exit';
+					}
+					
+					$edge = [
+						'from' => $current,
+						'to' => $next,
+						'label' => $label,
+					];
+					
+					$edges[sha1(json_encode($edge))] = $edge;
+				}
+				
+				return;
+			}
+			
+			// Node activation (first visit only)
+			if(!array_key_exists($visitor->node->getId(), $visitor->state)) {
+				// If an action w/ events, synthesize the `on_error:` if it doesn't exist
+				if(
+					$visitor->node->getType() == 'action'
+					&& !in_array($visitor->node->getNameType(), ['await','error','log','log.error','log.warn','return','set'])
+				) {
+					if(!$visitor->node->getChildBySuffix(':on_success')) {
+						$on_success = new CerbAutomationAstNode($visitor->node->getId() . ':on_success', 'event', []);
+						$visitor->node->addChild($on_success);
+					}
+					if(!$visitor->node->getChildBySuffix(':on_error')) {
+						$on_error = new CerbAutomationAstNode($visitor->node->getId() . ':on_error', 'event', []);
+						$on_error->addChild(new CerbAutomationAstNode($visitor->node->getId() . ':on_error:error', 'action', []));
+						$visitor->node->addChild($on_error);
+					}
+				}
+				
+				$visitor->state[$visitor->node->getId()] = $visitor->node->getChildren();
+			}
+
+			if($visitor->state[$visitor->node->getId()]) {
+				// Fork on decision outcomes + action events
+				if(in_array($visitor->node->getType(), ['decision','action'])) {
+					$children = $visitor->state[$visitor->node->getId()];
+					$visitor->state[$visitor->node->getId()] = [];
+					
+					foreach ($children as $child) {
+						$next = clone $visitor;
+						$next->setNode($child);
+						$next->depth++;
+						$recurseAst($next);
+					}
+					
+					// Also recurse no matching decision
+					if($visitor->node->getType() == 'decision') {
+						$hasCatchallOutcome = false;
+						$decision_dict = DevblocksDictionaryDelegate::instance([]);
+						
+						foreach ($children as $child) {
+							$params = $child->getParams($decision_dict);
+							if(
+								$child->getType() == 'outcome' 
+								&& !array_key_exists('if', $params)
+							) {
+								$hasCatchallOutcome = true;
+								break;
+							}
+						}
+						
+						// Link back to the parent if we don't have a catchall outcome (no `if:`)
+						if(!$hasCatchallOutcome) {
+							$next = clone $visitor;
+							$next->setNode($visitor->node->getParent());
+							$next->depth--;
+							$recurseAst($next);
+						}
+					}
+					
+				} elseif($visitor->node->getType() == 'outcome' && $visitor->node->getParent()->getType() != 'decision') {
+					// outcome true
+					$next = clone $visitor;
+					$next->setNode(array_shift($next->state[$visitor->node->getId()]));
+					$next->depth++;
+					$recurseAst($next);
+					
+					// outcome false
+					$next = clone $visitor;
+					$next->setNode($visitor->node->getParent());
+					$next->depth--;
+					$recurseAst($next);
+					
+				} else {
+					$next = clone $visitor;
+					$next->setNode(array_shift($next->state[$visitor->node->getId()]));
+					$next->depth++;
+					$recurseAst($next);
+				}
+				
+			} else {
+				$next = clone $visitor;
+				$next->setNode($visitor->node->getParent());
+				$next->depth--;
+				$recurseAst($next);
+			}
+		};
+		
+		$visitor = new CerbAutomationAstNodeVisitor($tree->getChild('start'));
+		
+		$recurseAst($visitor);
+		
+		unset($nodes['automation']);
+		
+		$nodes = array_filter(
+			$nodes,
+			fn($node_id) => !DevblocksPlatform::strEndsWith($node_id,[':on_success',':on_error']),
+			ARRAY_FILTER_USE_KEY
+		);
+		
+		foreach($nodes as $node_id => $node) {
+			$shape = null;
+			
+			if($node['type'] == 'start') {
+				$shape = 'circle';
+			} elseif($node['name_type'] == 'return') {
+				$shape = 'ellipse';
+			} elseif(in_array($node['name_type'], ['error','exit'])) {
+				$shape = 'ellipse';
+			} elseif(in_array($node['name_type'], ['repeat', 'while'])) {
+				$shape = 'parallelogram';
+			} elseif($node['type'] == 'decision') {
+				$shape = 'diamond';
+				if (str_contains($node['label'], '/'))
+					$node['label'] = DevblocksPlatform::services()->string()->strAfter($node['label'], '/');
+			} elseif($node['type'] == 'outcome') {
+				$shape = 'cds';
+				if (str_contains($node['label'], '/'))
+					$node['label'] = DevblocksPlatform::services()->string()->strAfter($node['label'], '/');
+			}
+			
+			$nodes[$node_id]['id'] = $node_id;
+			$nodes[$node_id]['label'] = $node['label'];
+			
+			if(in_array($shape, ['circle', 'rect', 'ellipse', 'diamond']))
+				$nodes[$node_id]['shape'] = $shape;
+		}
+		
+		$edges = array_values($edges);
+		
+		return [
+			'nodes' => $nodes,
+			'edges' => $edges,
+			'symbol_meta' => $symbol_meta,
+		];
+	}
+	
+	public function getSyntaxGraphAsDot(&$error=null) : ?string {
+		if(!($graph = $this->getSyntaxGraph($error)))
+			return null;
+		
+		$dot = <<< EOD
+    digraph automation {
+      rankdir=TB;
+      node [shape=box];
+    
+    EOD;
+		
+		foreach($graph['nodes'] as $node_id => $node) {
+			$dot .= sprintf('  "%s" [label="%s"%s]' . "\n",
+				$node_id,
+				$node['label'] ?? $node_id,
+				($node['shape'] ?? null) ? (' shape=' . $node['shape']) : '',
+			);
+		}
+		
+		foreach($graph['edges'] as $edge) {
+			$dot .= '  ' . sprintf('"%s" -> "%s"%s',
+					$edge['from'],
+					$edge['to'],
+					$edge['label'] ? sprintf(' [label=" %s "]', $edge['label']) : '',
+				) . "\n";
+		}
+		
+		$dot .= '}';
+		
+		return $dot;
+	}
+	
 	/**
 	 * @param DevblocksDictionaryDelegate $dict
 	 * @param string $error

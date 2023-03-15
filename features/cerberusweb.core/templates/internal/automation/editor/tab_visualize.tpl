@@ -1,17 +1,33 @@
+{$div_uid = uniqid('graph')}
+
+<style>
+    .cerb-graph-dag svg { width: 100%; }
+    .cerb-graph-dag .node { cursor: pointer; }
+    .cerb-graph-dag.node .label-container { stroke: var(--cerb-color-text); fill: var(--cerb-color-background); }
+    .cerb-graph-dag .node circle { fill: var(--cerb-color-background); stroke: var(--cerb-color-text); }
+    .cerb-graph-dag .node ellipse { fill: var(--cerb-color-background); stroke: var(--cerb-color-text); }
+    .cerb-graph-dag .node polygon { fill: var(--cerb-color-background); stroke: var(--cerb-color-text); }
+    .cerb-graph-dag .node polyline { fill: var(--cerb-color-background); stroke: var(--cerb-color-text); }
+    .cerb-graph-dag .node rect { fill: var(--cerb-color-background); stroke: var(--cerb-color-text); }
+    .cerb-graph-dag .node text { fill: var(--cerb-color-text); }
+    .cerb-graph-dag marker { stroke: var(--cerb-color-background-contrast-200); fill: var(--cerb-color-background-contrast-200); }
+    .cerb-graph-dag .edgePath { stroke: var(--cerb-color-background-contrast-200); }
+    .cerb-graph-dag .edgeLabel { fill: var(--cerb-color-background-contrast-170); stroke: var(--cerb-color-background); paint-order: stroke; stroke-width: 3; }
+</style>
+
 <div>
     <div class="cerb-code-editor-toolbar">
         <button type="button"><span class="glyphicons glyphicons-refresh"></span></button>
     </div>
 
-    {$div_uid = uniqid('graph')}
-
-    <div id="{$div_uid}" style="overflow:auto;"></div>
+    <div id="{$div_uid}" class="cerb-graph-dag"></div>
 </div>
 
 <script type="text/javascript">
 Devblocks.loadResources({
     'js': [
-        '/resource/devblocks.core/js/d3/d3.v5.min.js'
+        '/resource/devblocks.core/js/d3/d3.v5.min.js',
+        '/resource/devblocks.core/js/dagre/dagre-d3.min.js',
     ]
 }, function() {
     var $graph = $('#{$div_uid}');
@@ -21,240 +37,89 @@ Devblocks.loadResources({
     var $tabs = $panel.closest('.ui-tabs');
     var $toolbar = $panel.find('.cerb-code-editor-toolbar');
     
-    var color_text = 'black';
-
-    if('function' == typeof getComputedStyle) {
-        color_text = getComputedStyle(document.documentElement).getPropertyValue('--cerb-color-text');
-    }
-
     $toolbar.find('button').on('click', function() {
         var tab_id = $tabs.tabs('option','active');
         $tabs.tabs('option', 'active', null)
         $tabs.tabs('option', 'active', tab_id);
     });
 
-    var data = {$ast_json nofilter};
+    let symbolMeta = {$graph.symbol_meta|json_encode nofilter};
 
-    var node_width = 30;
-    var node_height = 100;
-
-    var root = d3.hierarchy(data);
-    root.dx = node_width;
-    root.dy = node_height;
-
-    var layout = d3.tree()
-        .nodeSize([root.dx,root.dy])
-    ;
-
-    layout(root);
-
-    var x0 = Infinity;
-    var x1 = -x0;
-
-    root.each(function(d) {
-        if(d.x > x1) x1 = d.x;
-        if(d.x < x0) x0 = d.x;
-    });
-
-    var maxHeight = -Infinity;
-    var minHeight = Infinity;
-    var maxWidth = -Infinity;
-    var minWidth = Infinity;
-
-    var visitor = function(n) {
-        maxWidth = Math.max(maxWidth, n.x);
-        minWidth = Math.min(minWidth, n.x);
-        maxHeight = Math.max(maxHeight, n.y);
-        minHeight = Math.min(minHeight, n.y);
-
-        if(n.children && n.children.length > 0) {
-            n.children.forEach(function(c) {
-                visitor(c);
-            });
+    $graph.on('click', function(e) {
+        let $target = $(e.target);
+        
+        if($target.closest('g.node')) {
+            let node_id = $target.closest('g.node').attr('data-id');
+            
+            if(!node_id)
+                return;
+            
+            if(symbolMeta.hasOwnProperty(node_id)) {
+                $popup.trigger($.Event('cerb-automation-editor--goto', {
+                    editor_line: symbolMeta[node_id]
+                }));
+            }
         }
-    };
-
-    visitor(root);
-
-    var height = Math.abs(maxWidth) + Math.abs(minWidth) + node_width;
-    var width = Math.abs(minHeight) + Math.abs(maxHeight) + node_height;
-
-    var svg = d3.select('#{$div_uid}').append('svg')
-        // .attr('viewBox', [0, 0, width, height])
-        .attr('width', width + 20)
-        .attr('height', height + 20)
+    });
+    
+    var g = new dagreD3.graphlib.Graph({ compound:true })
+        .setGraph({
+            //ranker: 'network-simplex',
+            //ranker: 'tight-tree',
+            //rankdir: 'LR',
+            //align: 'DR',
+            nodesep: 25,
+            edgesep: 25,
+            ranksep: 25,
+        })
+        .setDefaultEdgeLabel(function() { return { } })
     ;
-
-    var defs = svg.append('defs');
-
-    defs.append('marker')
-        .attr('id', 'arrow')
-        .attr('markerWidth', '10')
-        .attr('markerHeight', '10')
-        .attr('refX', '0')
-        .attr('refY', '3')
-        .attr('orient', 'auto')
-        .attr('markerUnits', 'strokeWidth')
-        .append('path')
-            .attr('d', 'M0,0 L0,6 L5,3 z')
-            .attr('fill', 'gray')
-    ;
-
-    var canvas = svg.append('g')
-        .attr('transform', 'translate(50,' + (Math.abs(minWidth) + node_width/2 + 5) + ')')
-    ;
-
-    // [TODO] Arc
-    canvas.append('g')
-        .selectAll('line')
-        .data(root.links())
-        .enter()
-        .append('line')
-        .attr('stroke', 'lightgray')
-        .attr('x1', function(d) { return d.source.y; })
-        .attr('y1', function(d) { return d.source.x; })
-        .attr('x2', function(d) { return d.target.y; })
-        .attr('y2', function(d) { return d.target.x; })
-        //.attr('marker-end', function(d) {
-            //if(-1 !== $.inArray(d.target.data.type, ['return','error','await'])) {
-            //    return 'url(#arrow)';
-            //}
-        //})
-    ;
-
-    var nodes = canvas.append('g')
-        .selectAll('circle')
-        .data(root.descendants())
-        .enter();
-
-    var clicked = function(d) {
-        $popup.trigger($.Event('cerb-automation-editor--goto', {
-            editor_line: d.data.line
-        }));
-    };
-
-    nodes
-        // .filter(function(d) {
-        //     return d.data.type !== 'await' && d.data.type !== 'decision'
-        // })
-        .append('circle')
-        //.classed('node', true)
-        .attr('fill', function(d) {
-            if(d.data.type === 'await') {
-                return 'lightblue';
-            } else if(d.data.type === 'return') {
-                return 'green';
-            } else if (d.data.type === 'error') {
-                return 'red';
+    
+    let dagNodes = {$graph.nodes|json_encode nofilter};
+    let dagEdges = {$graph.edges|json_encode nofilter};
+    
+    for(var prop in dagNodes) {
+        if(dagNodes.hasOwnProperty(prop)) {
+            let attrs = { label: dagNodes[prop].label, shape: dagNodes[prop].shape || 'rect' };
+            
+            g.setNode(prop, attrs);
+            
+            if(dagNodes[prop].hasOwnProperty('parent')) {
+                g.setParent(prop, dagNodes[prop].parent);
             }
-
-            return 'lightgray';
-        })
-        .attr('stroke', 'white')
-        .attr('r', function(d) {
-            return 3.5;
-        })
-        .attr('cx', function(d) { return d.y; })
-        .attr('cy', function(d) { return d.x; })
-        .style('cursor', 'pointer')
-        .on('click', clicked)
-    ;
-
-    /*
-    nodes
-        .filter(function(d) {
-            return d.data.type !== 'await' && d.data.type !== 'decision'
-        })
-        .append('circle')
-        //.classed('node', true)
-        .attr('fill', function(d) {
-            if(d.data.type === 'await') {
-                return 'lightblue';
-            } else if(d.data.type === 'return') {
-                return 'green';
-            } else if (d.data.type === 'error') {
-                return 'red';
-            }
-
-            return 'lightgray';
-        })
-        .attr('stroke', 'white')
-        .attr('r', function(d) {
-            return 5;
-        })
-        .attr('cx', function(d) { return d.y; })
-        .attr('cy', function(d) { return d.x; })
-        .style('cursor', 'pointer')
-        .on('click', clicked)
-    ;
-
-    nodes
-        .filter(function(d) {
-            return d.data.type === 'await'
-        })
-        .append('rect')
-        //.classed('node', true)
-        .attr('fill', function(d) {
-            if(d.data.type === 'await') {
-                return 'lightblue';
-            } else if(d.data.type === 'return') {
-                return 'green';
-            } else if (d.data.type === 'error') {
-                return 'red';
-            }
-
-            return 'gray';
-        })
-        .attr('width', 10)
-        .attr('height', 10)
-        .attr('x', function(d) { return d.y-5; })
-        .attr('y', function(d) { return d.x-5; })
-        .style('cursor', 'pointer')
-        .on('click', clicked)
-    ;
-
-    nodes
-        .filter(function(d) {
-            return d.data.type === 'decision'
-        })
-        .append('polyline')
-        .attr('points', function(d) {
-            return '' + ' ' + (d.y-8) + ',' + (d.x+6) + ' ' + (d.y) + ',' + (d.x-6) + ' ' + (d.y+8) + ',' + (d.x+6);
-        })
-        //.classed('node', true)
-        //.attr('stroke', 'black')
-        .attr('fill', 'black')
-        // .attr('width', 10)
-        // .attr('height', 10)
-        // .attr('x', function(d) { return d.y-5; })
-        // .attr('y', function(d) { return d.x-5; })
-        .style('cursor', 'pointer')
-        .on('click', clicked)
-    ;
-    */
-
-    nodes.append('text')
-        .attr('x', function(d) { return d.y; })
-        .attr('y', function(d) { return d.x-10; })
-        .attr('fill', color_text)
-        .attr('dominant-baseline', 'middle')
-        .attr('text-anchor', 'middle')
-        .style('font-weight', 'bold')
-        .style('cursor', 'pointer')
-        .text(function(d) {
-            if(d.data.name) {
-                if (d.data.name.length > 15) {
-                    return d.data.name.substr(0, 15) + '...';
-                } else {
-                    return d.data.name;
-                }
-            }
-        })
-        .on('click', clicked)
-        .append('title')
-        .text(function(d) {
-            return d.data.path;
+        }
+    }
+    
+    for(prop in dagEdges) {
+        if(dagEdges.hasOwnProperty(prop)) {
+            var $edge = dagEdges[prop];
+            g.setEdge($edge.from, $edge.to, { label: $edge.label || '', labelpos: 'c', curve: d3.curveBasis });
+        }
+    }
+    
+    $('<svg height=500><g/></svg>').attr('width', $graph.width()).appendTo($graph);
+    
+    var svg = d3.select('#{$div_uid} svg'),
+        inner = svg.select('g');
+    
+    var zoom = d3.zoom()
+        .clickDistance(4)
+        .on('zoom', function() {
+            inner.attr('transform', d3.event.transform);
         })
     ;
+    svg.call(zoom);
+    
+    var render = new dagreD3.render();
+
+    render(inner, g);
+    
+    inner.selectAll('g.node')
+        .attr('data-id', function(v) { return v; } )
+    ;
+    
+    var initialScale = 0.75;
+    svg.call(zoom.transform, d3.zoomIdentity.translate((svg.attr("width") - g.graph().width * initialScale) / 2, 20).scale(initialScale));
+    svg.attr('height', g.graph().height * initialScale + 40);
 });
 </script>

@@ -570,19 +570,14 @@ $(function() {
 		;
 
 		$popup.on('cerb-automation-editor--goto', function(e) {
-			if(null != highlight_marker) {
-				editor_automation.session.removeMarker(highlight_marker.id);
-				highlight_marker = null;
-			}
-
 			if(!e.hasOwnProperty('editor_line'))
 				return;
 
 			var row = e.editor_line;
 
 			if(false !== row) {
-				highlight_marker = editor_automation.session.highlightLines(row,row);
 				editor_automation.scrollToLine(row);
+				editor_automation.gotoLine(row+1);
 			}
 		});
 

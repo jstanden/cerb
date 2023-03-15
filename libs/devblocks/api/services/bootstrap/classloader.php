@@ -170,6 +170,7 @@ class _DevblocksClassLoadManager {
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/automation.php', [
 			'_DevblocksAutomationService',
 			'CerbAutomationAstNode',
+			'CerbAutomationAstNodeVisitor',
 			'CerbAutomationPolicy',
 			'Exception_DevblocksAutomationError',
 		]);

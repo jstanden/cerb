@@ -341,79 +341,12 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		$automation = new Model_Automation();
 		$automation->script = $script;
 		
-		$error = null;
-		
-		if(false == ($ast = $automation->getSyntaxTree($error, $symbol_meta))) {
-			echo $error;
+		if(!($graph = $automation->getSyntaxGraph($error))) {
+			echo DevblocksPlatform::strEscapeHtml($error);
 			return;
 		}
 
-		$ast2json = function(CerbAutomationAstNode $node, $depth=0) use (&$ast2json, $symbol_meta) {
-			$node_type = $node->getNameType();
-			$node_key = $node->getNameId();
-			
-			$node_name = $node_key ?: $node_type;
-			
-			if(in_array($node_type, ['decision']) && !$node_key)
-				$node_name = '';
-			
-			$e = [
-				'name' => $node_name,
-				'path' => $node->getId(),
-				'line' => $symbol_meta[$node->getId()] ?? false,
-				'type' => $node_type,
-				'children' => [],
-			];
-			
-			if ($node->hasChildren()) {
-				$siblings = $node->getChildren();
-				
-				while($child = current($siblings)) {
-					$child_node_type = $child->getNameType();
-					$child_node_key = $child->getNameId();
-					
-					if('await' == $child_node_type) {
-						$child_node_name = $child_node_key ?: ''; //$child_node_type
-						
-						// Reassign siblings as my children
-						$await = [
-							'name' => $child_node_name,
-							'path' => $child->getId(),
-							'line' => $symbol_meta[$child->getId()] ?? false,
-							'type' => $child_node_type,
-							'children' => [],
-						];
-						
-						next($siblings);
-						
-						// Drain remaining siblings
-						while($new_child = current($siblings)) {
-							// [TODO] if multiple awaits in a row (add to last child)
-							$await['children'][] = $ast2json($new_child, $depth + 1);
-							next($siblings);
-						}
-						
-						$e['children'][] = $await;
-						
-					} else {
-						$e['children'][] = $ast2json($child, $depth + 1);
-					}
-					
-					next($siblings);
-				}
-			}
-			
-			return $e;
-		};
-		
-		if($ast instanceof CerbAutomationAstNode && $ast->hasChildren()) {
-			$tpl->assign('ast_json', json_encode($ast2json($ast->getChildren()[0])));
-			
-		} else {
-			echo $error;
-			return;
-		}
-		
+		$tpl->assign('graph', $graph);
 		$tpl->display('devblocks:cerberusweb.core::internal/automation/editor/tab_visualize.tpl');
 	}
 	

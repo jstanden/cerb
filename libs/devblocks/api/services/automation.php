@@ -1420,3 +1420,21 @@ class CerbAutomationAstNode implements JsonSerializable {
 		return DevblocksPlatform::services()->string()->strAfter($this->getName(), '/');		
 	}
 }
+
+class CerbAutomationAstNodeVisitor {
+	public CerbAutomationAstNode $node;
+	public array $path = [];
+	public array $state = [];
+	
+	public function __construct(
+		CerbAutomationAstNode $node,
+		public int $depth = 0,
+	) {
+		$this->setNode($node);
+	}
+	
+	public function setNode(CerbAutomationAstNode $node) : void {
+		$this->node = $node;
+		$this->path[] = $node->getId();
+	}
+}
