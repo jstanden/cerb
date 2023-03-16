@@ -1462,6 +1462,17 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 						['type' => 'list', 'values' => array_combine($timezones, $timezones), 'label_delimiter' => '/', 'key_delimiter' => '/'],
 					)
 				),
+			'title' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_Contact::TITLE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'suggester' => [
+						'type' => 'autocomplete',
+						'query' => 'type:worklist.subtotals of:contact by:title~25 query:(title:{{term}}*) format:dictionaries',
+						'key' => 'title',
+						'limit' => 25,
+					]
+				),
 			'updated' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
