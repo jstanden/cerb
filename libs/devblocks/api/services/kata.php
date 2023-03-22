@@ -325,6 +325,9 @@ class _DevblocksKataService {
 							foreach($lines as $line)
 								$output .= str_repeat('  ', $indent+1) . strval($line) . "\n";
 							
+						} else if(is_string($v) && 0 == strlen($v)) {
+							$output .= str_repeat('  ', $indent) . $k . "@text:" . "\n";
+							
 						} else if(is_integer($v)) {
 							$output .= str_repeat('  ', $indent) . strval($k) . "@int: " . intval($v) . "\n";
 							

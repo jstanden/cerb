@@ -450,6 +450,20 @@ EOD;
 		$this->assertEquals($expected, $actual);
 	}
 	
+	function testKataEmitEmptyKey() {
+		$data = [
+			'blank' => '',
+		];
+		
+		$actual = DevblocksPlatform::services()->kata()->emit($data);
+		
+		$expected = <<< EOD
+    blank@text:
+    EOD;
+		
+		$this->assertEquals($expected, $actual);
+	}
+	
 	function testKataDuplicateSiblingWithDiffAnnotations() {
 		$kata = <<< EOD
 allow/rule@text: ok
