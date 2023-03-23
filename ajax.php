@@ -91,6 +91,8 @@ if(!empty($worker)) {
 	
 	$keyboard_shortcuts = intval(DAO_WorkerPref::get($worker->id,'keyboard_shortcuts', 1));
 	$tpl->assign('pref_keyboard_shortcuts', $keyboard_shortcuts);
+	
+	$tpl->assign('pref_dark_mode', intval(DAO_WorkerPref::get($worker->id, 'dark_mode', 0)));
 }
 
 CerberusApplication::processRequest($request);
