@@ -133,7 +133,7 @@ class _DevblocksStringService {
 			return yaml_emit($object);
 			
 		} else {
-			$yaml_out = DevblocksPlatform::parseCrlfString(yaml_emit($object), false, false);
+			$yaml_out = DevblocksPlatform::parseCrlfString(yaml_emit($object), true, false);
 			return implode("\n", array_slice($yaml_out, 1, -1));
 		}
 	}
