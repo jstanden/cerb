@@ -58,6 +58,11 @@ class RecordSearchAction extends AbstractAction {
 				->setMaxLength(2048)
 			;
 			
+			$validation->addField('validation', 'inputs:validation:')
+				->string()
+				->setMaxLength(65_536)
+			;
+			
 			if(false === ($validation->validateAll($inputs, $error)))
 				throw new Exception_DevblocksAutomationError($error);
 			
@@ -82,6 +87,7 @@ class RecordSearchAction extends AbstractAction {
 			$record_query = $inputs['record_query'] ?? null;
 			$record_query_params = $inputs['record_query_params'] ?? [];
 			$record_expand_keys = DevblocksPlatform::parseCsvString($inputs['record_expand'] ?? null);
+			$record_validation = trim($inputs['validation'] ?? '');
 			
 			if ($record_type && $record_query) {
 				if (false == ($context_ext = Extension_DevblocksContext::getByAlias($record_type, true)))
@@ -102,6 +108,14 @@ class RecordSearchAction extends AbstractAction {
 					$dict->set($output, current($record_dicts));
 				} else {
 					$dict->set($output, $record_dicts);
+				}
+				
+				// Inline validation?
+				if($record_validation) {
+					$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+					
+					if(($validation_error = trim($tpl_builder->build($record_validation, $dict))))
+						throw new Exception_DevblocksAutomationError($validation_error);
 				}
 			}
 			

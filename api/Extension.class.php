@@ -1465,6 +1465,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 						'description' => "The key/value pairs to substitute in the query",
 					],
 					'record_expand:',
+					'validation@raw:',
 				],
 				'(.*):record.search:inputs:record_type:' => [
 					'type' => 'record-type',

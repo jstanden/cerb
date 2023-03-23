@@ -4528,6 +4528,9 @@ class _CerbApplication_KataSchemas {
                               record_type:
                                 types:
                                   string:
+                              validation:
+                                types:
+                                  string:
                       output:
                         types:
                           string:
