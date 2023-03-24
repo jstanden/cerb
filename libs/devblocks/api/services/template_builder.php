@@ -195,6 +195,7 @@ class _DevblocksTemplateBuilder {
 				'spaceless',
 				'split_crlf',
 				'split_csv',
+				'stat',
 				'str_pos',
 				'str_sub',
 				'strip_lines',
@@ -1785,6 +1786,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			new \Twig\TwigFilter('sha1', [$this, 'filter_sha1']),
 			new \Twig\TwigFilter('split_crlf', [$this, 'filter_split_crlf']),
 			new \Twig\TwigFilter('split_csv', [$this, 'filter_split_csv']),
+			new \Twig\TwigFilter('stat', [$this, 'filter_stat']),
 			new \Twig\TwigFilter('str_pos', [$this, 'filter_str_pos']),
 			new \Twig\TwigFilter('str_sub', [$this, 'filter_str_sub']),
 			new \Twig\TwigFilter('strip_lines', [$this, 'filter_strip_lines']),
@@ -2223,6 +2225,35 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			return '';
 		
 		return DevblocksPlatform::parseCsvString($string);
+	}
+	
+	function filter_stat($array, ?string $measure=null, $decimals=2) {
+		$stats = DevblocksPlatform::services()->stats();
+		
+		if (!is_array($array))
+			return null;
+		
+		$measure = DevblocksPlatform::strLower($measure);
+		
+		$n = match($measure) {
+			'count' => $stats->count($array),
+			'max' => $stats->max($array),
+			'mean' => $stats->mean($array),
+			'median' => $stats->median($array),
+			'min' => $stats->min($array),
+			'mode' => $stats->mode($array),
+			'stdevp' => $stats->stdevp($array),
+			'stdevs' => $stats->stdevs($array),
+			'sum' => $stats->sum($array),
+			'varp' => $stats->varp($array),
+			'vars' => $stats->vars($array),
+			default => null,
+		};
+		
+		if(is_numeric($n))
+			$n = round($n, $decimals);
+		
+		return $n;
 	}
 	
 	function filter_str_pos($haystack, $needle, $offset=0, $ignoreCase=false) {
