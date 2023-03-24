@@ -7,6 +7,7 @@
 			<file>devblocks/services/DevblocksCacheTest.php</file>
 			<file>devblocks/services/DevblocksDateTest.php</file>
 			<file>devblocks/services/DevblocksStringTest.php</file>
+			<file>devblocks/services/DevblocksStatsTest.php</file>
 			<file>devblocks/services/DevblocksMfaTest.php</file>
 			<file>devblocks/services/DevblocksDictionaryTest.php</file>
 			<file>devblocks/services/DevblocksQueryTest.php</file>

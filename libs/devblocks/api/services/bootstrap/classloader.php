@@ -264,6 +264,9 @@ class _DevblocksClassLoadManager {
 			'_DevblocksSheetService',
 			'_DevblocksSheetServiceTypes',
 		]);
+		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/stats.php', [
+			'_DevblocksStatsService',
+		]);
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/storage.php', array(
 			'_DevblocksStorageManager',
 			'DevblocksStorageEngineDatabase',

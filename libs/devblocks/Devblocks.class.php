@@ -248,6 +248,14 @@ class _DevblocksServices {
 	}
 	
 	/**
+	 *
+	 * @return _DevblocksStatsService
+	 */
+	function stats() {
+		return _DevblocksStatsService::getInstance();
+	}
+	
+	/**
 	 * 
 	 * @return _DevblocksStringService
 	 */
