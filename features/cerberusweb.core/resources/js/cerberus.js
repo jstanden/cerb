@@ -1,3 +1,50 @@
+var cerbAutocompleteColorSuggestions = [
+	{
+		'caption': 'category10:',
+		'snippet': '\${1:category10}@csv: #1f77b4, #ff7f0e, #2ca02c, #d62728, #9467bd, #8c564b, #e377c2, #7f7f7f, #bcbd22, #17becf',
+	},
+	{
+		'caption': 'rainbow6:',
+		'snippet': '\${1:rainbow6}@csv: #6e40aa, #ee4395, #ff8c38, #aff05b, #28ea8d, #2f96e0',
+	},
+	{
+		'caption': 'rainbow12:',
+		'snippet': '\${1:rainbow12}@csv: #6e40aa, #b83cb0, #f6478d, #ff6956, #f59f30, #c4d93e, #83f557, #38f17a, #19d3b5, #29a0dd, #5069d9, #6e40aa',
+	},
+	{
+		'caption': 'blues5:',
+		'snippet': '\${1:blues5}@csv: #08519c, #3182bd, #6baed6, #bdd7e7, #eff3ff',
+	},
+	{
+		'caption': 'blues9:',
+		'snippet': '\${1:blues9}@csv: #08306b, #08519c, #2171b5, #4292c6, #6baed6, #9ecae1, #c6dbef, #deebf7, #f7fbff',
+	},
+	{
+		'caption': 'reds5:',
+		'snippet': '\${1:reds5}@csv: #a50f15, #de2d26, #fb6a4a, #fcae91, #fee5d9',
+	},
+	{
+		'caption': 'reds9:',
+		'snippet': '\${1:reds9}@csv: #67000d, #a50f15, #cb181d, #ef3b2c, #fb6a4a, #fc9272, #fcbba1, #fee0d2, #fff5f0',
+	},
+	{
+		'caption': 'greens5:',
+		'snippet': '\${1:greens5}@csv: #006d2c, #31a354, #74c476, #bae4b3, #edf8e9',
+	},
+	{
+		'caption': 'greens9:',
+		'snippet': '\${1:greens9}@csv: #00441b, #006d2c, #238b45, #41ab5d, #74c476, #a1d99b, #c7e9c0, #e5f5e0, #f7fcf5',
+	},
+	{
+		'caption': 'grays5:',
+		'snippet': '\${1:grays5}@csv: #252525, #636363, #969696, #cccccc, #f7f7f7',
+	},
+	{
+		'caption': 'grays9:',
+		'snippet': '\${1:grays9}@csv: #ffffff, #f0f0f0, #d9d9d9, #bdbdbd, #969696, #737373, #525252, #252525, #000000',
+	},
+];
+
 var cerbAutocompleteSuggestions = {
 	kataAutomationEvent: {
 		'': [
@@ -400,52 +447,7 @@ var cerbAutocompleteSuggestions = {
 		'color:': [
 			'patterns:',	
 		],
-		'color:patterns:': [
-			{
-				'caption': 'category10:',
-				'snippet': '\${1:category10}@csv: #1f77b4, #ff7f0e, #2ca02c, #d62728, #9467bd, #8c564b, #e377c2, #7f7f7f, #bcbd22, #17becf',
-			},
-			{
-				'caption': 'rainbow6:',
-				'snippet': '\${1:rainbow6}@csv: #6e40aa, #ee4395, #ff8c38, #aff05b, #28ea8d, #2f96e0',
-			},
-			{
-				'caption': 'rainbow12:',
-				'snippet': '\${1:rainbow12}@csv: #6e40aa, #b83cb0, #f6478d, #ff6956, #f59f30, #c4d93e, #83f557, #38f17a, #19d3b5, #29a0dd, #5069d9, #6e40aa',
-			},
-			{
-				'caption': 'blues5:',
-				'snippet': '\${1:blues5}@csv: #08519c, #3182bd, #6baed6, #bdd7e7, #eff3ff',
-			},
-			{
-				'caption': 'blues9:',
-				'snippet': '\${1:blues9}@csv: #08306b, #08519c, #2171b5, #4292c6, #6baed6, #9ecae1, #c6dbef, #deebf7, #f7fbff',
-			},
-			{
-				'caption': 'reds5:',
-				'snippet': '\${1:reds5}@csv: #a50f15, #de2d26, #fb6a4a, #fcae91, #fee5d9',
-			},
-			{
-				'caption': 'reds9:',
-				'snippet': '\${1:reds9}@csv: #67000d, #a50f15, #cb181d, #ef3b2c, #fb6a4a, #fc9272, #fcbba1, #fee0d2, #fff5f0',
-			},
-			{
-				'caption': 'greens5:',
-				'snippet': '\${1:greens5}@csv: #006d2c, #31a354, #74c476, #bae4b3, #edf8e9',
-			},
-			{
-				'caption': 'greens9:',
-				'snippet': '\${1:greens9}@csv: #00441b, #006d2c, #238b45, #41ab5d, #74c476, #a1d99b, #c7e9c0, #e5f5e0, #f7fcf5',
-			},
-			{
-				'caption': 'grays5:',
-				'snippet': '\${1:grays5}@csv: #252525, #636363, #969696, #cccccc, #f7f7f7',
-			},
-			{
-				'caption': 'grays9:',
-				'snippet': '\${1:grays9}@csv: #ffffff, #f0f0f0, #d9d9d9, #bdbdbd, #969696, #737373, #525252, #252525, #000000',
-			},
-		],
+		'color:patterns:': cerbAutocompleteColorSuggestions,
 		
 		'data:': [
 			'series:',
@@ -999,7 +1001,12 @@ var cerbAutocompleteSuggestions = {
 				caption: 'title_column:',
 				snippet: 'title_column: ${1:key}'
 			},
+			{
+				caption: 'colors:',
+				snippet: 'colors:'
+			},
 		],
+		'layout:colors:': cerbAutocompleteColorSuggestions,
 		'layout:style:': [
 			'table',
 			'fieldsets'
@@ -1011,7 +1018,7 @@ var cerbAutocompleteSuggestions = {
 		'layout:paging:': [
 			'true',
 			'false'
-			],
+		],
 		
 		// Column types
 		'columns:': [
@@ -1068,7 +1075,9 @@ var cerbAutocompleteSuggestions = {
 			'value_template@raw:',
 			'value_map:',
 			'bold@bool:',
-			'icon:'
+			'icon:',
+			'color@raw:',
+			'text_color@raw:'
 		],
 		'columns:text:params:bold:': [
 			'true',
@@ -1102,7 +1111,9 @@ var cerbAutocompleteSuggestions = {
 			'id_template:',
 			'label:',
 			'label_key:',
-			'label_template:'
+			'label_template:',
+			'color@raw:',
+			'text_color@raw:'
 		],
 		'columns:card:params:icon:': [
 			'image:',
@@ -1136,7 +1147,9 @@ var cerbAutocompleteSuggestions = {
 			'format:',
 			'value_key:',
 			'value_template@raw:',
-			'bold@bool:'
+			'bold@bool:',
+			'color@raw:',
+			'text_color@raw:'
 		],
 		'columns:date:params:bold:': [
 			'yes',
@@ -1159,7 +1172,9 @@ var cerbAutocompleteSuggestions = {
 			{
 				'caption': 'record_uri:',
 				'snippet': 'record_uri@raw: cerb:${1:record_type}:${2:record_id}'
-			}
+			},
+			'color@raw:',
+			'text_color@raw:'
 		],
 
 		// Links
@@ -1196,7 +1211,9 @@ var cerbAutocompleteSuggestions = {
 			'label:',
 			'label_key:',
 			'label_template:',
-			'bold@bool:'
+			'bold@bool:',
+			'color@raw:',
+			'text_color@raw:'
 		],
 		'columns:search:params:bold:': [
 			'yes',
@@ -1214,7 +1231,9 @@ var cerbAutocompleteSuggestions = {
 			'context_template:',
 			'query:',
 			'query_key:',
-			'query_template:'
+			'query_template:',
+			'color@raw:',
+			'text_color@raw:'
 		],
 		
 		// Selection
@@ -1225,6 +1244,8 @@ var cerbAutocompleteSuggestions = {
 			'value:',
 			'value_key:',
 			'value_template@raw: {{id}}',
+			'color@raw:',
+			'text_color@raw:'
 		],
 		
 		// Slider
@@ -1237,7 +1258,9 @@ var cerbAutocompleteSuggestions = {
 			'value_key:',
 			'value_template@raw:',
 			'min:',
-			'max:'
+			'max:',
+			'color@raw:',
+			'text_color@raw:'
 		],
 		
 		// Time elapsed
@@ -1250,7 +1273,9 @@ var cerbAutocompleteSuggestions = {
 			'value_key:',
 			'value_template@raw:',
 			'precision:',
-			'bold@bool:'
+			'bold@bool:',
+			'color@raw:',
+			'text_color@raw:'
 		],
 		'columns:time_elapsed:params:bold:': [
 			'yes',

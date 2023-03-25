@@ -47,7 +47,10 @@
 					{if $layout.title_column == $column.key}
 					{elseif $column._type == 'selection'}
 					{else}
-					<td style="{if $column.params.bold}font-weight:bold;{/if}">{$row[$column.key] nofilter}</td>
+						{$cell = $row[$column.key]}
+						{$color = $cell->getAttr('color')}
+						{$text_color = $cell->getAttr('text_color')}
+						<td style="{if $column.params.bold}font-weight:bold;{/if}{if $color}background-color:{$color};{/if}{if $text_color}color:{$text_color};{/if}">{$row[$column.key] nofilter}</td>
 					{/if}
 				{/foreach}
 				</tr>

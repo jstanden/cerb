@@ -99,7 +99,9 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget implements ICerbWo
 		$page = DevblocksPlatform::importGPC($_POST['page'] ?? null, 'integer', 0);
 		$error = null;
 		
-		if(!($results = $this->_getSheetFromWidget($widget, $page, $error))) {
+		$environment = DevblocksPlatform::services()->sheet()->getDefaultEnvironment();
+		
+		if(!($results = $this->_getSheetFromWidget($widget, $page, $error, $environment))) {
 			echo DevblocksPlatform::strEscapeHtml($error);
 			return;
 		}
@@ -272,14 +274,14 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget implements ICerbWo
 		if(!($results = $this->_getSheetFromWidget($widget, 0, $error, ['format' => 'text'])))
 			return null;
 		
-		$results = array(
-			'widget' => array(
+		$results = [
+			'widget' => [
 				'label' => $widget->label,
 				'type' => $widget->extension_id,
 				'version' => 'Cerb ' . APP_VERSION,
 				'sheet' => $results,
-			),
-		);
+			],
+		];
 		
 		return DevblocksPlatform::strFormatJson($results);
 	}	

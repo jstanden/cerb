@@ -5409,6 +5409,9 @@ class _CerbApplication_KataSchemas {
           types:
             object:
               attributes:
+                colors:
+                  types:
+                    list:
                 filtering:
                   types:
                     bool:
@@ -5443,6 +5446,9 @@ class _CerbApplication_KataSchemas {
                                 bold:
                                   types:
                                     bool:
+                                color:
+                                  types:
+                                    string:
                                 context_key:
                                   types:
                                     string:
@@ -5490,6 +5496,9 @@ class _CerbApplication_KataSchemas {
                                 label:
                                   types:
                                     string:
+                                text_color:
+                                  types:
+                                    string:
                                 underline:
                                   types:
                                     bool:
@@ -5507,7 +5516,13 @@ class _CerbApplication_KataSchemas {
                                 bold:
                                   types:
                                     bool:
+                                color:
+                                  types:
+                                    string:
                                 format:
+                                  types:
+                                    string:
+                                text_color:
                                   types:
                                     string:
                                 value_key:
@@ -5530,6 +5545,9 @@ class _CerbApplication_KataSchemas {
                           types:
                             object:
                               attributes:
+                                color:
+                                  types:
+                                    string:
                                 image_key:
                                   types:
                                     string:
@@ -5540,6 +5558,9 @@ class _CerbApplication_KataSchemas {
                                   types:
                                     string:
                                 record_uri:
+                                  types:
+                                    string:
+                                text_color:
                                   types:
                                     string:
                 
@@ -5556,6 +5577,9 @@ class _CerbApplication_KataSchemas {
                                 bold:
                                   types:
                                     bool:
+                                color:
+                                  types:
+                                    string:
                                 href_key:
                                   types:
                                     string:
@@ -5566,6 +5590,9 @@ class _CerbApplication_KataSchemas {
                                   types:
                                     string:
                                 text_key:
+                                  types:
+                                    string:
+                                text_color:
                                   types:
                                     string:
                                 text_template:
@@ -5585,6 +5612,9 @@ class _CerbApplication_KataSchemas {
                           types:
                             object:
                               attributes:
+                                color:
+                                  types:
+                                    string:
                                 context_key:
                                   types:
                                     string:
@@ -5603,6 +5633,9 @@ class _CerbApplication_KataSchemas {
                                 query:
                                   types:
                                     string:
+                                text_color:
+                                  types:
+                                    string:
                 
                 search:
                   multiple@bool: yes
@@ -5617,6 +5650,9 @@ class _CerbApplication_KataSchemas {
                                 bold:
                                   types:
                                     bool:
+                                color:
+                                  types:
+                                    string:
                                 context_key:
                                   types:
                                     string:
@@ -5644,6 +5680,9 @@ class _CerbApplication_KataSchemas {
                                 query:
                                   types:
                                     string:
+                                text_color:
+                                  types:
+                                    string:
                 
                 selection:
                   multiple@bool: yes
@@ -5654,6 +5693,12 @@ class _CerbApplication_KataSchemas {
                           types:
                             object:
                               attributes:
+                                color:
+                                  types:
+                                    string:
+                                text_color:
+                                  types:
+                                    string:
                                 value_key:
                                   types:
                                     string:
@@ -5703,6 +5748,9 @@ class _CerbApplication_KataSchemas {
                                 bold:
                                   types:
                                     bool:
+                                color:
+                                  types:
+                                    string:
                                 icon:
                                   types:
                                     string:
@@ -5720,6 +5768,9 @@ class _CerbApplication_KataSchemas {
                                         record_uri:
                                           types:
                                             string:
+                                text_color:
+                                  types:
+                                    string:
                                 value_key:
                                   types:
                                     string:
@@ -5747,9 +5798,15 @@ class _CerbApplication_KataSchemas {
                                 bold:
                                   types:
                                     bool:
+                                color:
+                                  types:
+                                    string:
                                 precision:
                                   types:
                                     number:
+                                text_color:
+                                  types:
+                                    string:
                                 value_key:
                                   types:
                                     string:

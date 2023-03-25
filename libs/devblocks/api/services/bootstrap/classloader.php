@@ -264,6 +264,7 @@ class _DevblocksClassLoadManager {
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/sheet.php', [
 			'_DevblocksSheetService',
 			'_DevblocksSheetServiceTypes',
+			'DevblocksSheetCell',
 		]);
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/stats.php', [
 			'_DevblocksStatsService',

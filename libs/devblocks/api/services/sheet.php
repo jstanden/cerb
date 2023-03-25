@@ -66,6 +66,12 @@ class _DevblocksSheetService {
 		return $this->_type_funcs;
 	}
 	
+	function getDefaultEnvironment() : array {
+		return [
+			'dark_mode' => DAO_WorkerPref::get(CerberusApplication::getActiveWorker()->id ?? 0, 'dark_mode', 0),
+		];
+	}
+	
 	function getLayout(array $sheet) {
 		$layout = [
 			'style' => 'table',
@@ -74,6 +80,7 @@ class _DevblocksSheetService {
 			'paging' => true,
 			'filtering' => false,
 			'title_column' => '',
+			'colors' => [],
 		];
 		
 		if(array_key_exists('layout', $sheet) && is_array($sheet['layout'])) {
@@ -109,6 +116,15 @@ class _DevblocksSheetService {
 				
 				if(array_key_exists($sheet['layout']['title_column'], $columns))
 					$layout['title_column'] = $sheet['layout']['title_column'];
+			}
+			
+			if(array_key_exists('colors', $sheet['layout'])) {
+				$validator = DevblocksPlatform::services()->validation()->validators()->colorsHex();
+				
+				// Validate as color HEX codes
+				$colors = array_filter($sheet['layout']['colors'], fn($color_set) => $validator($color_set));
+				
+				$layout['colors'] = $colors;
 			}
 		}
 		
@@ -159,9 +175,53 @@ class _DevblocksSheetService {
 		return array_combine($column_keys, $columns);
 	}
 	
-	function getRows(array $sheet, array $sheet_dicts, array $environment=[]) : array {
+	private function _cellParamColor(string $param_key, array $column, DevblocksDictionaryDelegate $sheet_dict, array $layout, ?array $environment=null) : ?string {
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$column_params = $column['params'] ?? [];
+		
+		$color = null;
+		
+		if(is_null($environment)) {
+			$environment = $this->getDefaultEnvironment();
+		}
+		
+		if(array_key_exists($param_key, $column_params)) {
+			$color = $tpl_builder->build($column_params[$param_key], $sheet_dict);
+		}
+		
+		if($color) {
+			list($color, $color_index) = array_pad(explode(':', $color, 2), 2, 0);
+			
+			// Check for a dark mode version when enabled
+			if(
+				($environment['dark_mode'] ?? false)
+				&& !DevblocksPlatform::strEndsWith($color, '_dark')
+				&& array_key_exists($color . '_dark', $layout['colors'] ?? [])
+			) {
+				$color .= '_dark';
+			}
+			
+			if(
+				array_key_exists($color, $layout['colors'] ?? [])
+				&& is_array($layout['colors'][$color])
+				&& array_key_exists($color_index, $layout['colors'][$color])
+			) {
+				$color = $layout['colors'][$color][$color_index];
+			} else {
+				$color = null;
+			}
+		}
+		
+		return $color;
+	}
+	
+	function getRows(array $sheet, array $sheet_dicts, ?array $environment=null) : array {
 		// Sanitize
 		$columns = $this->getColumns($sheet);
+		$layout = $this->getLayout($sheet);
+		
+		if(!is_array($environment))
+			$environment = $this->getDefaultEnvironment();
 		
 		$rows = [];
 		$index = 0;
@@ -184,7 +244,16 @@ class _DevblocksSheetService {
 				if(!array_key_exists($column_type, $this->_types))
 					continue;
 				
-				$row[$column_key] = $this->_types[$column_type]($column, $sheet_dict, $environment);
+				$color = $this->_cellParamColor('color', $column, $sheet_dict, $layout, $environment);
+				$text_color = $this->_cellParamColor('text_color', $column, $sheet_dict, $layout, $environment);
+				
+				$row[$column_key] = new DevblocksSheetCell(
+					$this->_types[$column_type]($column, $sheet_dict, $environment),
+					[
+						'color' => $color,
+						'text_color' => $text_color,
+					]
+				);
 			}
 			
 			$rows[$sheet_dict_id] = $row;
@@ -241,6 +310,29 @@ class _DevblocksSheetService {
 		$this->addType('time_elapsed', $this->types()->timeElapsed());
 		$this->setDefaultType('text');
 		return $this;
+	}
+}
+
+class DevblocksSheetCell implements JsonSerializable {
+	private array $_attrs = [];
+	private string $_value = '';
+	
+	public function __construct(string $value, array $attrs=[]) {
+		$this->_attrs = $attrs;
+		$this->_value = $value;
+	}
+	
+	/** @noinspection PhpUnused */
+	public function getAttr(string $name, mixed $default=null) : mixed {
+		return $this->_attrs[$name] ?? $default;
+	}
+	
+	public function __toString(): string {
+		return $this->_value;
+	}
+	
+	public function jsonSerialize(): string {
+		return $this->_value;
 	}
 }
 
