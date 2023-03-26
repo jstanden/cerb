@@ -133,8 +133,15 @@ class _DevblocksStringService {
 			return yaml_emit($object);
 			
 		} else {
-			$yaml_out = DevblocksPlatform::parseCrlfString(yaml_emit($object), true, false);
-			return implode("\n", array_slice($yaml_out, 1, -1));
+			$yaml_out = yaml_emit($object, YAML_ANY_ENCODING, YAML_LN_BREAK);
+			
+			if(DevblocksPlatform::strStartsWith($yaml_out, "---\n"))
+				$yaml_out = substr($yaml_out, 4);
+			
+			if(DevblocksPlatform::strEndsWith($yaml_out, "\n...\n"))
+				$yaml_out = substr($yaml_out, 0, -5);
+			
+			return $yaml_out;
 		}
 	}
 	
