@@ -88,7 +88,7 @@ class _DevblocksChartService {
 					'y' => [],
 				],
 				'color' => [
-					'pattern' => $default_color_pattern,
+					'patterns' => $default_color_pattern,
 				],
 				'legend' => [
 					'show' => false,

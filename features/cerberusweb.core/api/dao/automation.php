@@ -704,6 +704,9 @@ class Model_Automation {
 		
 		$tree = DevblocksPlatform::services()->kata()->parse($this->script, $error, true, $this->_ast_symbols);
 		
+		if(!is_array($tree))
+			return false;
+		
 		unset($tree['inputs']);
 		
 		$this->_ast = $automator->buildAstFromKata($tree, $error);

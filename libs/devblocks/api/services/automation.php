@@ -55,7 +55,15 @@ class _DevblocksAutomationService {
 			return false;
 		
 		foreach ($inputs_meta as $input_idx => $input_data) {
-			list($input_type, $input_key) = explode('/', $input_idx);
+			if(!is_array($input_data))
+				$input_data = [];
+			
+			list($input_type, $input_key) = array_pad(explode('/', $input_idx), 2, null);
+			
+			if(!$input_key) {
+				$error = sprintf("Missing input name `%s:`", $input_type);
+				return false;
+			}
 			
 			$input_value = $dict->getKeyPath('inputs.' . $input_key, null);
 			$is_required = array_key_exists('required', $input_data) && $input_data['required'];

@@ -193,7 +193,8 @@ class _DevblocksStringService {
 					$text .= sprintf('%s', $href);
 					
 				} else {
-					$url_parts = parse_url($href);
+					if(false === ($url_parts = parse_url($href)))
+						break;
 					
 					if(array_key_exists('host', $url_parts) && array_key_exists('scheme', $url_parts)) {
 						$text .= sprintf('%s <%s>', $label, $href);
