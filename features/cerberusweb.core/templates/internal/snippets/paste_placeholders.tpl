@@ -21,7 +21,7 @@
 $(function() {
 	var $popup = genericAjaxPopupFetch('snippet_paste');
 	
-	$popup.one('popup_open',function(event,ui) {
+	$popup.one('popup_open',function() {
 		var $preview = $popup.find('div.preview');
 		
 		$popup.dialog('option','title', 'Insert Snippet');
@@ -38,10 +38,9 @@ $(function() {
 			var $elements = $popup
 				.find('input:text.placeholder,textarea.placeholder')
 				.filter(function() {
-					if($(this).val().length == 0)
-						return true;
-					
-					return false;
+					let $this = $(this);
+					let $prompt = $this.closest('[data-cerb-snippet-prompt]');
+					return $prompt.is('[data-required]') && 0 === $this.val().length;
 				})
 				;
 			
@@ -58,7 +57,7 @@ $(function() {
 				var text = $preview.text();
 				
 				// Fire event
-				var event = jQuery.Event('snippet_paste');
+				var event = $.Event('snippet_paste');
 				event.text=text;
 				
 				$popup.trigger(event);

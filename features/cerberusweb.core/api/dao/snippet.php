@@ -881,6 +881,12 @@ class Model_Snippet {
 			if(array_key_exists('default', $prompt) && !is_scalar($prompt['default'])) {
 				$prompt['default'] = '';
 			}
+			
+			if(array_key_exists('required', $prompt)) {
+				$prompt['required'] = DevblocksPlatform::services()->string()->toBool($prompt['required']);
+			} else {
+				$prompt['required'] = true;
+			}
 		}
 		
 		return $prompts;
