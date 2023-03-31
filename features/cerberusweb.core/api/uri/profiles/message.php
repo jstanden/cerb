@@ -266,7 +266,7 @@ class PageSection_ProfilesMessage extends Extension_PageSection {
 			
 			$view->renderPage++;
 			
-		} while(!empty($results) && $view->renderPage <= $max_pages);
+		} while(!empty($results) && $view->renderPage < $max_pages);
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
 	}
