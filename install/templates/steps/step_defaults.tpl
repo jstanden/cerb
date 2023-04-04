@@ -53,12 +53,10 @@ Next, we'll create your administrator account.<br>
 </form>
 
 <script type="text/javascript">
-$(function() {
-	var $select_tz = $('FORM SELECT[name=timezone]');
-	
-	if($select_tz.val() == '') {
-		var tz = jstz.determine();
-		$select_tz.val(tz.name());
-	}
-});
+let $select_tz = document.querySelector('FORM SELECT[name=timezone]');
+
+if($select_tz.value === '') {
+	let tz = jstz.determine();
+	$select_tz.value = tz.name();
+}
 </script>

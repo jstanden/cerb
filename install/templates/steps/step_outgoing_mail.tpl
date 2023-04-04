@@ -85,16 +85,14 @@ received.<br>
 <br>
 
 <script type="text/javascript">
-$(function() {
-	var $frm = $('#frm-cerb-installer-mail-transport');
-	var $div_smtp_details = $('#cerb-installer-smtp-details');
-	
-	$frm.find('input[name=extension_id]').change(function() {
-		if($(this).val() == "core.mail.transport.smtp") {
-			$div_smtp_details.fadeIn();
-		} else {
-			$div_smtp_details.fadeOut();
-		}
-	});
+let $frm = document.querySelector('#frm-cerb-installer-mail-transport');
+let $div_smtp_details = document.querySelector('#cerb-installer-smtp-details');
+
+$frm.querySelector('input[value="core.mail.transport.smtp"]').addEventListener('click', function() {
+	$div_smtp_details.style.display = 'block';
+});
+
+$frm.querySelector('input[value="core.mail.transport.null"]').addEventListener('click', function() {
+	$div_smtp_details.style.display = 'none';
 });
 </script>
