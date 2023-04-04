@@ -1,13 +1,26 @@
-function ajaxHtmlGet(div,url) {
-	$(div).fadeTo('fast', 0.2);
-	$.get(url, {}, function(out) {
-		$(div).html(out).fadeTo('fast', 1.0);
-	},'html');
+function ajaxHtmlGet(sel, url) {
+	let xhttp = new XMLHttpRequest();
+	let div = document.querySelector(sel);
+	
+	if(!div) return;
+
+	div.style.opacity = 0.5;
+
+	xhttp.onreadystatechange = function () {
+		if (4 === this.readyState) {
+			if (200 === this.status) {
+				div.innerHTML = this.responseText;
+				div.style.opacity = 1.0;
+			}
+		}
+	};
+
+	xhttp.open('GET', url);
+	xhttp.send();
 }
 
-function ajaxHtmlPost(frm,div,url) {
-	$(div).fadeTo('fast', 0.2);
-	$.post(url, $(frm).serialize(), function(out) {
-		$(div).html(out).fadeTo('fast', 1.0);
-	},'html');
+function createEvent(name, data) {
+	return new CustomEvent(name, {
+		detail: data
+	});
 }

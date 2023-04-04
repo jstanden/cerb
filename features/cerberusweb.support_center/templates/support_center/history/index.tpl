@@ -5,7 +5,7 @@
 <input type="hidden" name="a" value="">
 <input type="hidden" name="_csrf_token" value="{$session->csrf_token}">
 
-<div style="display:inline-block;vertical-align:top;">
+<div data-cerb-sc-filter-created style="display:inline-block;vertical-align:top;">
 	<div id="{$uniqid}" class="cerb-filter-created" style="padding:5px;display:block;">
 		<div>
 			<b>{'common.created'|devblocks_translate|capitalize}:</b>
@@ -72,17 +72,14 @@
 </div><!--#history-->
 
 <script type="text/javascript">
-$(function() {
-	var $history = $('#history');
-	
-	// Date presets
-	$history.find('.cerb-filter-created a')
-		.on('click', function(e) {
-			var $this = $(this);
-			var $input = $history.find('input[name="prompts[created]"]');
-			var preset = $this.attr('data-preset');
-			$input.val(preset);
-		})
-		;
-});
+let $history = document.querySelector('#history');
+let $input = $history.querySelector('input[name="prompts[created]"]');
+
+// Date presets
+$history.querySelector('[data-cerb-sc-filter-created]')
+	.addEventListener('click', function(e) {
+		let $this = e.target;
+		if(!$this) return;
+		$input.value = $this.getAttribute('data-preset');
+	});
 </script>

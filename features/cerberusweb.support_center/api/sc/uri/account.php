@@ -405,8 +405,10 @@ class UmScAccountController extends Extension_UmScController {
 						continue;
 					}
 					
-					@$share_emails = DevblocksPlatform::importGPC($_POST['share_with_'.$share_id],'array',array());
-					$share_with_ids = array();
+					$share_emails = DevblocksPlatform::parseCrlfString(
+						DevblocksPlatform::importGPC($_POST['share_with_'.$share_id] ?? null, 'string','')
+					);
+					$share_with_ids = [];
 					
 					if(is_array($share_emails) && !empty($share_emails)) {
 						$share_emails = array_unique($share_emails);

@@ -207,16 +207,13 @@
 </form>
 
 <script type="text/javascript">
-$(function() {
-	var $form = $('#profileForm');
+	let $form = document.querySelector('#profileForm');
 	
 	{if 2 == $show_fields.contact_photo}
-	var $canvas = $form.find('canvas.canvas-avatar');
-	
-	var canvas = $canvas.get(0);
-	var context = canvas.getContext('2d');
-	var $imagedata = $form.find('input.canvas-avatar-imagedata');
-	var $error = $form.find('div.cerb-avatar-error');
+	let canvas = $form.querySelector('canvas.canvas-avatar');
+	let context = canvas.getContext('2d');
+	let image_data = $form.querySelector('input.canvas-avatar-imagedata');
+	let $error = $form.querySelector('div.cerb-avatar-error');
 	
 	var isMouseDown = false;
 	var x = 0, lastX = 0;
@@ -225,33 +222,33 @@ $(function() {
 	var scale = 1.0;
 	context.scale(scale,scale);
 	
-	$canvas.mousedown(function (event) {
+	canvas.addEventListener('mousedown', function (event) {
 		isMouseDown = true;
 		lastX = event.offsetX;
 		lastY = event.offsetY;
 	});
 	
-	$canvas.mouseup(function(event) {
+	canvas.addEventListener('mouseup', function() {
 		isMouseDown = false;
 	});
 	
-	$canvas.mouseout(function(event) {
+	canvas.addEventListener('mouseout', function() {
 		isMouseDown = false;
 	});
 	
-	$canvas.mousemove(function(event) {
+	canvas.addEventListener('mousemove', function(event) {
 		if(isMouseDown) {
 			x = x - (lastX - event.offsetX);
 			y = y - (lastY - event.offsetY);
 			
-			$canvas.trigger('avatar-redraw');
+			canvas.dispatchEvent(createEvent('avatar-redraw'));
 			
 			lastX = event.offsetX;
 			lastY = event.offsetY;
 		}
 	});
 	
-	$canvas.on('avatar-redraw', function() {
+	canvas.addEventListener('avatar-redraw', function() {
 		context.save();
 		context.clearRect(0, 0, canvas.width, canvas.height);
 		context.scale(scale, scale);
@@ -260,34 +257,34 @@ $(function() {
 		context.restore();
 	});
 
-	$form.find('button.canvas-avatar-zoomout').click(function() {
+	$form.querySelector('button.canvas-avatar-zoomout').addEventListener('click', function() {
 		scale = Math.max(scale-0.25, 1.0);
-		$canvas.trigger('avatar-redraw');
+		canvas.dispatchEvent(createEvent('avatar-redraw'));
 	});
 	
-	$form.find('button.canvas-avatar-zoomin').click(function() {
+	$form.querySelector('button.canvas-avatar-zoomin').addEventListener('click', function() {
 		scale = Math.min(scale+0.25, 10.0);
-		$canvas.trigger('avatar-redraw');
+		canvas.dispatchEvent(createEvent('avatar-redraw'));
 	});
 	
-	$form.find('button.canvas-avatar-remove').click(function() {
+	$form.querySelector('button.canvas-avatar-remove').addEventListener('click', function() {
 		scale = 1.0;
 		x = 0;
 		y = 0;
-		$(img).attr('src', '');
-		$canvas.trigger('avatar-redraw');
+		img.setAttribute('src', '');
+		canvas.dispatchEvent(createEvent('avatar-redraw'));
 	});
 	
-	$form.find('input.cerb-avatar-img-upload').change(function(event) {
-		$error.html('').hide();
+	$form.querySelector('input.cerb-avatar-img-upload').addEventListener('change', function(event) {
+		$error.html = '';
+		$error.style.display = 'none';
 		
-		if(undefined == event.target || undefined == event.target.files)
+		if(!event.target || !event.target.files)
 			return;
 		
 		var f = event.target.files[0];
 		
-		if(undefined == f)
-			return;
+		if(!f) return;
 		
 		if(!f.type.match('image.*')) {
 			//Devblocks.showError($error, "You may only upload images.");
@@ -296,57 +293,55 @@ $(function() {
 		
 		var reader = new FileReader();
 		
-		reader.onload = (function(file) {
+		reader.onload = (function() {
 			return function(e) {
 				scale = 1.0;
 				x = 0;
 				y = 0;
-				$(img).one('load', function() {
-					$canvas.trigger('avatar-redraw');
-				});
-				$(img).attr('src', e.target.result);
+				img.setAttribute('src', e.target.result);
 			};
 		})(f);
 		
 		reader.readAsDataURL(f);
 	});
 	
-	$form.on('cerb-avatar-set-defaults', function(e) {
-		if(undefined == e.avatar)
-			return;
+	$form.addEventListener('cerb-avatar-set-defaults', function(e) {
+		if(!e.avatar) return;
 		
 		if(e.avatar.imagedata) {
 			scale = 1.0;
 			x = 0;
 			y = 0;
-			$(img).one('load', function() {
-				$canvas.trigger('avatar-redraw');
+			img.addEventListener('load', function() {
+				canvas.dispatchEvent(createEvent('avatar-redraw'));
 			});
-			$(img).attr('src', e.avatar.imagedata);
+			img.setAttribute('src', e.avatar.imagedata);
 		}
 	});
 	
 	var img = new Image();
+
+	img.addEventListener('load', function() {
+		canvas.dispatchEvent(createEvent('avatar-redraw'));
+	});
+	
 	{if $imagedata}
 		img.src = "{$imagedata}";
-		$canvas.trigger('avatar-redraw');
+		canvas.dispatchEvent(createEvent('avatar-redraw'));
 	{else}
 		img.src = "";
 	{/if}
 	{/if}
 	
-	$form.find('button.submit').click(function() {
+	$form.querySelector('button.submit').addEventListener('click', function() {
 		{if 2 == $show_fields.contact_photo}
-		if(!img || !$(img).attr('src') || 0 == $(img).attr('src').length) {
-			$imagedata.val('data:null');
+		if(!img || !img.getAttribute('src') || 0 === img.getAttribute('src').length) {
+			image_data.value = 'data:null';
 		} else {
-			$imagedata.val(canvas.toDataURL());
+			image_data.value = canvas.toDataURL();
 		}
 		{/if}
 		
-		// [TODO] JSON validation
 		$form.submit();
 	});
-	
-});
 </script>

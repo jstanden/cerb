@@ -22,7 +22,5 @@
 {include file="devblocks:cerberusweb.support_center::support_center/login/switcher.tpl"}
 
 <script type="text/javascript">
-$(function() {
-	$('#loginLDAP input:text').first().focus().select();
-});
+	document.querySelector('#loginLDAP input[type=text]').focus();
 </script>

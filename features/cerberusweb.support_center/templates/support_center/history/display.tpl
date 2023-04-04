@@ -45,7 +45,7 @@
 	{/if}
 
 	<div style="padding:5px;">
-		<button type="button" onclick="$('#history div.properties-view').hide();$('#history form.properties-edit').fadeIn();"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
+		<button type="button" onclick="document.querySelector('#history div.properties-view').style.display='none';document.querySelector('#history form.properties-edit').style.display='block';"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
 	</div>
 </div>
 
@@ -94,7 +94,7 @@
 	
 		<div style="padding:5px;">
 			<button type="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-			<button type="button" onclick="$('#history form.properties-edit').hide();$('#history div.properties-view').fadeIn();"><span class="glyphicons glyphicons-circle-remove"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+			<button type="button" onclick="document.querySelector('#history form.properties-edit').style.display='none';document.querySelector('#history div.properties-view').style.display='block';"><span class="glyphicons glyphicons-circle-remove"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 		</div>
 	</fieldset>
 </form>
@@ -155,7 +155,7 @@
 	<br>
 	
 	<div style="clear:both;">
-		<div class="email">{$message->getContent()|trim|escape|devblocks_hyperlinks|devblocks_hideemailquotes nofilter}</div>
+		<div class="email">{$message->getContent()|trim|escape|devblocks_hyperlinks nofilter}</div>
 	</div>
 	
 	{if isset($attachments.$message_id)}
@@ -174,7 +174,7 @@
 		</div>
 	{/if}
 	
-	<button type="button" onclick="var $div = $(this).next('div.reply').toggle(); $div.find('textarea').focus();"><span class="glyphicons glyphicons-share"></span> Reply</button>
+	<button type="button" onclick="let $div=this.nextElementSibling;$div.style.display='block';document.querySelector('textarea').focus();"><span class="glyphicons glyphicons-share"></span> Reply</button>
 	
 	<div class="reply" style="display:none;margin-left:15px;">
 		<div class="header"><h2>{'portal.sc.public.history.reply'|devblocks_translate}</h2></div>
@@ -194,13 +194,13 @@
 		
 		<textarea name="content" rows="15" cols="80" style="width:98%;">{$message->getContent()|trim|indent:1:'> '|devblocks_email_quote}</textarea><br>
 		
-		<fieldset style="margin:10px 0px 0px 0px;border:0;">
+		<fieldset style="margin:10px 0 0 0;border:0;">
 			<legend>Attachments:</legend>
 			<input type="file" name="attachments[]" multiple="multiple"><br>
 		</fieldset>
 		
 		<button type="submit"><span class="glyphicons glyphicons-send"></span> {'portal.public.send_message'|devblocks_translate}</button>
-		<button type="button" onclick="$(this).closest('div.reply').fadeOut();"><span class="glyphicons glyphicons-circle-remove"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+		<button type="button" onclick="this.closest('div.reply').style.display='none';"><span class="glyphicons glyphicons-circle-remove"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 		</form>
 	</div>
 	
@@ -208,12 +208,3 @@
 {/foreach}
 
 </div><!--#history-->
-
-<script type="text/javascript">
-$(function() {
-	$('#history-edit-recipients-add').click(function() {
-		var $new = $('<div><input type="text" name="participant[]" placeholder="contact@example.com" value="" size="64" spellcheck="false"><button type="button" onclick="$(this).closest(\'div\').remove();"><span class="glyphicons glyphicons-circle-remove"></span></button></div>');
-		$('#history-edit-recipients').append($new);
-	});
-});
-</script>

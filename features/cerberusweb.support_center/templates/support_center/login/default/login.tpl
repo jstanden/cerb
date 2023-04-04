@@ -24,7 +24,5 @@
 {include file="devblocks:cerberusweb.support_center::support_center/login/switcher.tpl"}
 
 <script type="text/javascript">
-	$(function() {
-		$('#loginForm input:text[name=email]').focus().select();
-	});
+	document.querySelector('#loginForm input[name=email]').focus();
 </script>

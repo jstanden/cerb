@@ -9,26 +9,10 @@
 	<legend>Shared by me...</legend>
 	
 	{foreach from=$contact_addresses item=contact_address key=contact_address_id}
-		Share tickets and history from <b>{$contact_address->email}</b> with these email addresses:<br>
+		Share tickets and history from <b>{$contact_address->email}</b> with these email addresses: (one per line)<br>
 		<input type="hidden" name="share_email[]" value="{$contact_address->id}">
-		
-	 	<ul style="list-style:none;padding:0px 0px 0px 15px;margin:0px;">
-			{foreach from=$shared_by_me item=share}
-				{if $share->share_address_id == $contact_address_id}
-				<li style="padding-top:5px;">
-					<input type="text" name="share_with_{$contact_address->id}[]" class="input_email" size="45" value="{$share->with_address}">
-					<button type="button" class="add" style="display:none;" onclick="$ul=$(this).closest('ul');$li=$(this).closest('li').clone();$li.appendTo($ul).find('input:text').val('').focus();$ul.find('button.del').show().last().hide();$(this).hide();">+</button>
-					<button type="button" class="del" onclick="$ul=$(this).closest('ul');$(this).closest('li').remove();$ul.find('button.add:last').show();">-</button>
-				</li>
-				{/if}
-			{/foreach}
-			<li style="padding-top:5px;">
-				<input type="text" name="share_with_{$contact_address->id}[]" class="input_email" size="45" value="">
-				<button type="button" class="add" onclick="$ul=$(this).closest('ul');$li=$(this).closest('li').clone();$li.appendTo($ul).find('input:text').val('').focus();$ul.find('button.del').show().last().hide();$(this).hide();"><span class="glyphicons glyphicons-circle-plus"></span></button>
-				<button type="button" class="del" onclick="$ul=$(this).closest('ul');$(this).closest('li').remove();$ul.find('button.add:last').show();" style="display:none;"><span class="glyphicons glyphicons-circle-minus"></span></button>
-			</li>
-		</ul>
-		<br>
+		<textarea name="share_with_{$contact_address->id}" style="width:100%;height:6.5em;">{foreach from=$shared_by_me item=share}{if $share->share_address_id == $contact_address_id}{$share->with_address}
+{/if}{/foreach}</textarea>
 	{/foreach}
 </fieldset>
 
