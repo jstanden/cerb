@@ -433,12 +433,12 @@ function DevblocksClass() {
 				if(e.error)
 					Devblocks.createAlertError(e.error);
 				
-				event = new jQuery.Event('peek_error');
+				event = new $.Event('peek_error');
 				event.error = e.error;
 				$popup.triggerHandler(event);
 				
 				// Highlight the failing field
-				if(e.field)
+				if(e.hasOwnProperty('field'))
 					$frm.find('[name=' + e.field + ']').focus();
 			}
 		});

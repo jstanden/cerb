@@ -508,7 +508,7 @@ class _DevblocksSheetServiceTypes {
 			if(array_key_exists('record_uri', $column_params)) {
 				$record_uri = $tpl_builder->build($column_params['record_uri'], $sheet_dict);
 				
-				if(false == ($uri_parts = DevblocksPlatform::services()->ui()->parseURI($record_uri)))
+				if(!($uri_parts = DevblocksPlatform::services()->ui()->parseURI($record_uri)))
 					return '';
 				
 				$img = sprintf('<img class="cerb-avatar" style="margin-right:0.25em;" src="%s?v=%d"/>',

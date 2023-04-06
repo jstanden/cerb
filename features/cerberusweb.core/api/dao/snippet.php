@@ -842,7 +842,7 @@ class Search_Snippet extends Extension_DevblocksSearchSchema {
 	}
 	
 	public function delete($ids) {
-		if(false == ($engine = $this->getEngine()))
+		if(!($engine = $this->getEngine()))
 			return false;
 		
 		return $engine->delete($this, $ids);
@@ -860,7 +860,7 @@ class Model_Snippet extends DevblocksRecordModel {
 	public $total_uses;
 	public $updated_at;
 	
-	public function getPrompts() {
+	public function getPrompts() : array {
 		$kata = DevblocksPlatform::services()->kata();
 		
 		if(!$this->prompts_kata)
@@ -896,7 +896,7 @@ class Model_Snippet extends DevblocksRecordModel {
 		if(empty($this->context))
 			return DevblocksPlatform::translateCapitalized('common.text.plain');
 		
-		if(false == ($context_mft = Extension_DevblocksContext::get($this->context, false)))
+		if(!($context_mft = Extension_DevblocksContext::get($this->context, false)))
 			return null;
 		
 		return $context_mft->name;
@@ -1133,8 +1133,8 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 		
 		$ft_examples = [];
 		
-		if(false != ($schema = Extension_DevblocksSearchSchema::get(Search_Snippet::ID))) {
-			if(false != ($engine = $schema->getEngine())) {
+		if(($schema = Extension_DevblocksSearchSchema::get(Search_Snippet::ID))) {
+			if(($engine = $schema->getEngine())) {
 				$ft_examples = $engine->getQuickSearchExamples($schema);
 			}
 		}
@@ -1157,11 +1157,9 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 		switch($field) {
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
-				break;
 				
 			case 'myUses':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Snippet::USE_HISTORY_MINE);
-				break;
 			
 			case 'type':
 				$field_key = SearchFields_Snippet::CONTEXT;
@@ -1191,7 +1189,6 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 					$oper,
 					array_keys($values)
 				);
-				break;
 			
 			case 'usableBy.worker':
 				$oper = $value = null;
@@ -1199,7 +1196,7 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 				$worker_id = intval($value);
 				
 				if(in_array(DevblocksPlatform::strLower($value),['me','self'])) {
-					if(false != ($active_worker = CerberusApplication::getActiveWorker())) {
+					if(($active_worker = CerberusApplication::getActiveWorker())) {
 						$worker_id = $active_worker->id;
 					}
 				}
@@ -1209,21 +1206,17 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 					DevblocksSearchCriteria::OPER_CUSTOM,
 					['context' => CerberusContexts::CONTEXT_WORKER, 'id' => $worker_id]
 				);
-				break;
 			
 			default:
-				if($field == 'owner' || substr($field, 0, strlen('owner.')) == 'owner.')
+				if($field == 'owner' || DevblocksPlatform::strStartsWith($field, 'owner.'))
 					return DevblocksSearchCriteria::getVirtualContextParamFromTokens($field, $tokens, 'owner', SearchFields_Snippet::VIRTUAL_OWNER);
 				
-				if($field == 'links' || substr($field, 0, 6) == 'links.')
+				if($field == 'links' || DevblocksPlatform::strStartsWith($field, 'links.'))
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
 				
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
-				break;
 		}
-		
-		return false;
 	}
 	
 	function render() {
@@ -1276,19 +1269,17 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 				if(!is_array($param->value) || !isset($param->value['context']))
 					return;
 				
-				switch($param->value['context']) {
-					case CerberusContexts::CONTEXT_WORKER:
-						if(false == ($worker = DAO_Worker::get($param->value['id']))) {
-							$worker_name = '(invalid worker)';
-						} else {
-							$worker_name = $worker->getName();
-						}
-						
-						echo sprintf("Usable by %s <b>%s</b>",
-							DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translate('common.worker', DevblocksPlatform::TRANSLATE_LOWER)),
-							DevblocksPlatform::strEscapeHtml($worker_name)
-						);
-						break;
+				if($param->value['context'] == CerberusContexts::CONTEXT_WORKER) {
+					if(!($worker = DAO_Worker::get($param->value['id']))) {
+						$worker_name = '(invalid worker)';
+					} else {
+						$worker_name = $worker->getName();
+					}
+					
+					echo sprintf("Usable by %s <b>%s</b>",
+						DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translate('common.worker', DevblocksPlatform::TRANSLATE_LOWER)),
+						DevblocksPlatform::strEscapeHtml($worker_name)
+					);
 				}
 		}
 	}

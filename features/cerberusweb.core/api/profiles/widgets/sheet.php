@@ -62,7 +62,7 @@ class ProfileWidget_Sheet extends Extension_ProfileWidget {
 		
 		$error = null;
 		
-		if(false == ($results = $this->getData($model, $page, $context, $context_id, $error))) {
+		if(!($results = $this->getData($model, $page, $context, $context_id, $error))) {
 			echo DevblocksPlatform::strEscapeHtml($error);
 			return;
 		}
@@ -198,7 +198,7 @@ class ProfileWidget_Sheet extends Extension_ProfileWidget {
 			'row_selections' => [],
 		]);
 		
-		if(false == ($toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)))
+		if(!($toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)))
 			return;
 		
 		$tpl->assign('toolbar', $toolbar);

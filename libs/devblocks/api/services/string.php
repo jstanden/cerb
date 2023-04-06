@@ -183,10 +183,10 @@ class _DevblocksStringService {
 		
 		switch(DevblocksPlatform::strLower($node->tagName)) {
 			case 'a':
-				if(false == ($label = trim($node->textContent)))
+				if(!($label = trim($node->textContent)))
 					break;
 				
-				if(false == ($href = $node->getAttribute('href')))
+				if(!($href = $node->getAttribute('href')))
 					break;
 				
 				if($label == $href) {

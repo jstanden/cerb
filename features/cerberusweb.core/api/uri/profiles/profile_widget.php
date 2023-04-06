@@ -459,18 +459,18 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 			}
 		}
 		
-		if(false == $template)
+		if(!$template)
 			return;
 		
 		if(!$profile_tab_id && $id) {
-			if(false != ($profile_widget = DAO_ProfileWidget::get($id))) 
+			if(($profile_widget = DAO_ProfileWidget::get($id))) 
 				$profile_tab_id = $profile_widget->profile_tab_id;
 		}
 		
-		if(false == ($profile_tab = DAO_ProfileTab::get($profile_tab_id)))
+		if(!($profile_tab = DAO_ProfileTab::get($profile_tab_id)))
 			return;
 		
-		if(false == ($context_ext = $profile_tab->getContextExtension(true)))
+		if(!($context_ext = $profile_tab->getContextExtension(true)))
 			return;
 		
 		$dict = DevblocksDictionaryDelegate::instance([
@@ -484,9 +484,6 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 		foreach($placeholders as $placeholder_key => $placeholder_value) {
 			$dict->set($placeholder_key, $placeholder_value);
 		}
-		
-		$success = false;
-		$output = '';
 		
 		if(!is_string($template) || false === (@$out = $tpl_builder->build($template, $dict))) {
 			// If we failed, show the compile errors
@@ -523,10 +520,10 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 		if(!$active_worker->is_superuser)
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		if(false == ($widget = DAO_ProfileWidget::get($id)))
+		if(!($widget = DAO_ProfileWidget::get($id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
-		if(false == ($extension = $widget->getExtension()))
+		if(!($extension = $widget->getExtension()))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		$json = $extension->export($widget);
