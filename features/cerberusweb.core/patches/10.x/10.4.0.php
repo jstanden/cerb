@@ -17,6 +17,7 @@ if(!isset($indexes['context_and_id']))
 $automation_files = [
 	'ai.cerb.automationBuilder.autocomplete.d3Format.json',
 	'ai.cerb.automationBuilder.autocomplete.d3TimeFormat.json',
+	'cerb.ticket.move.json',
 ];
 
 foreach($automation_files as $automation_file) {
