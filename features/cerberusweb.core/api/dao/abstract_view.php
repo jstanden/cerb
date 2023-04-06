@@ -50,6 +50,12 @@ abstract class C4_AbstractView {
 		
 		return $context_ext->id;
 	}
+	function getRecordType() : ?string {
+		if(!($context_mft = Extension_DevblocksContext::getByViewClass(get_class($this))))
+			return null;
+		
+		return $context_mft->params['alias'] ?? $context_mft->id;
+	}
 	abstract function getData();
 	function getDataAsObjects($ids=null) { return []; }
 	
@@ -86,6 +92,34 @@ abstract class C4_AbstractView {
 		}
 		
 		return $paging;
+	}
+	
+	/** @noinspection PhpUnused */
+	function getToolbar() : array {
+		$context = $this->getContext();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!($toolbar = DAO_Toolbar::getByName('records.worklist')))
+			return [];
+		
+		$toolbar_dict = DevblocksDictionaryDelegate::instance([
+			'worklist_id' => $this->id,
+			'worklist_record_type' => $context,
+			'worklist_query' => $this->getParamsQuery(),
+			'worklist_query_required' => $this->getParamsRequiredQuery(),
+			'worklist_page' => $this->renderPage,
+			'worklist_limit' => $this->renderLimit,
+		]);
+		
+		if($active_worker) {
+			$toolbar_dict->mergeKeys('worker_', DevblocksDictionaryDelegate::getDictionaryFromModel($active_worker, CerberusContexts::CONTEXT_WORKER));
+		} else {
+			$toolbar_dict->set('worker__context', CerberusContexts::CONTEXT_WORKER);
+			$toolbar_dict->set('worker__type', 'worker');
+			$toolbar_dict->set('worker_id', 0);
+		}
+		
+		return DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar->toolbar_kata, $toolbar_dict);
 	}
 	
 	/**

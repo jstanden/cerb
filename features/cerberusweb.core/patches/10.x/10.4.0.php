@@ -32,6 +32,20 @@ foreach($automation_files as $automation_file) {
 }
 
 // ===========================================================================
+// Add new toolbars
+
+if(!$db->GetOneMaster("SELECT 1 FROM toolbar WHERE name = 'records.worklist'")) {
+	$db->ExecuteMaster(sprintf('INSERT IGNORE INTO toolbar (name, extension_id, description, toolbar_kata, created_at, updated_at) VALUES (%s,%s,%s,%s,%d,%d)',
+		$db->qstr('records.worklist'),
+		$db->qstr('cerb.toolbar.records.worklist'),
+		$db->qstr('Viewing a worklist of records'),
+		$db->qstr(''),
+		time(),
+		time()
+	));
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

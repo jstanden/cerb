@@ -5497,6 +5497,16 @@
 			<params/>
 		</extension>
 		
+		<extension point="cerb.toolbar">
+			<id>cerb.toolbar.records.worklist</id>
+			<name>records.worklist</name>
+			<class>
+				<file>api/toolbars/records.worklist.php</file>
+				<name>Toolbar_RecordsWorklist</name>
+			</class>
+			<params/>
+		</extension>
+		
 		<!-- Card Widgets -->
 		
 		<extension point="cerb.card.widget">

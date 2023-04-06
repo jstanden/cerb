@@ -204,7 +204,51 @@ $(function() {
 		var $a = $(this);
 		$a.text($a.attr('title'));
 	});
-		
+	
+	// View toolbar
+
+	$view.find('[data-cerb-worklist-toolbar]').cerbToolbar({
+		caller: {
+			name: 'cerb.toolbar.records.worklist',
+			params: {
+				worklist_id: '{$view->id}',
+				worklist_record_type: '{$view->getRecordType()}'
+			}
+		},
+		width: '75%',
+		start: function(formData) {
+			let $checked = $view_form.find('input:checkbox:checked');
+
+			for (let i = 0; i < $checked.length; i++) {
+				formData.append('caller[params][selected_record_ids][]', $checked[i].value)
+			}
+		},
+		done: function(e) {
+			e.stopPropagation();
+
+			var $target = e.trigger;
+
+			if (!$target.is('.cerb-bot-trigger'))
+				return;
+
+			if (e.eventData.exit === 'error') {
+
+			} else if(e.eventData.exit === 'return') {
+				Devblocks.interactionWorkerPostActions(e.eventData);
+
+				let done_params = new URLSearchParams($target.attr('data-interaction-done'));
+
+				// Refresh the worklist?
+				if(
+					!done_params.has('refresh_worklist')
+					|| '1' === done_params.get('refresh_worklist')
+				) {
+					genericAjaxGet('view{$view->id}', 'c=internal&a=invoke&module=worklists&action=refresh&id={$view->id}');
+				}
+			}
+		}
+	});
+	
 	// View actions
 	$view_actions.find('button,.action-on-select').not('.action-always-show').hide();
 	
