@@ -374,8 +374,15 @@ function DevblocksClass() {
 			$button.prop('disabled', false).fadeTo('fast', 1.0);
 			$spinner.remove();
 			
-			if(!(typeof e == 'object'))
+			if(!(typeof e == 'object')) {
+				Devblocks.createAlertError("An unexpected network error occurred.");
 				return;
+			}
+			
+			if(e.hasOwnProperty('status') && e.hasOwnProperty('statusText') && 403 === e.status) {
+				Devblocks.createAlertError("Access denied. Has your session expired?");
+				return;
+			}
 			
 			if(options && options.after && typeof options.after == 'function') {
 				options.after(e);
