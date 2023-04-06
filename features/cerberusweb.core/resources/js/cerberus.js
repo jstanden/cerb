@@ -915,6 +915,10 @@ var cerbAutocompleteSuggestions = {
 					'caption': 'badge:',
 					'snippet': 'badge: 123'
 				},
+				{
+					'caption': 'class:',
+					'snippet': 'class: some-css-class-name'
+				},
 				'inputs:'
 			],
 			'(.*):?interaction:hidden:': [

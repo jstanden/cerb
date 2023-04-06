@@ -61,7 +61,7 @@
     {if !array_key_exists('hidden', $toolbar_item) || !$toolbar_item.hidden}
         {if 'interaction' == $toolbar_item.type}
             {if $toolbar_item.uri}
-                <button type="button" class="cerb-bot-trigger"
+                <button type="button" class="cerb-bot-trigger {$toolbar_item.class}"
                         data-cerb-toolbar-button
                         data-interaction-uri="{$toolbar_item.uri}"
                         data-interaction-params="{if is_array($toolbar_item.inputs)}{DevblocksPlatform::services()->url()->arrayToQueryString($toolbar_item.inputs)}{/if}"
@@ -80,7 +80,7 @@
             {/if}
         {elseif 'behavior' == $toolbar_item.type}
             {if $toolbar_item.id}
-                <button type="button" class="cerb-bot-trigger"
+                <button type="button" class="cerb-bot-trigger {$toolbar_item.class}"
                         data-cerb-toolbar-button
                         data-behavior-id="{$toolbar_item.id}"
                         data-interaction="{$toolbar_item.interaction}"
@@ -104,7 +104,7 @@
 
             {* Split menu button *}
             {if $default}
-                <button type="button" class="split-left cerb-bot-trigger"
+                <button type="button" class="split-left cerb-bot-trigger {$toolbar_item.class}"
                         data-cerb-toolbar-button
                         data-interaction-uri="{$default.uri}"
                         data-interaction-params="{if is_array($default.inputs)}{DevblocksPlatform::services()->url()->arrayToQueryString($default.inputs)}{/if}"
@@ -118,11 +118,11 @@
                     <span class="glyphicons glyphicons-{$toolbar_item.icon}"></span>
                     {/if}
                     {$toolbar_item.label}
-                </button><button type="button" class="split-right" data-cerb-toolbar-menu {if $toolbar_item.hover}data-cerb-toolbar-menu-hover{/if}>
+                </button><button type="button" class="split-right {$toolbar_item.class}" data-cerb-toolbar-menu {if $toolbar_item.hover}data-cerb-toolbar-menu-hover{/if}>
                     <span class="glyphicons glyphicons-chevron-down"></span>
                 </button>
             {else}
-                <button type="button" 
+                <button type="button"  class="{$toolbar_item.class}"
                         data-cerb-toolbar-menu 
                         {if $toolbar_item.tooltip}title="{$toolbar_item.tooltip}"{/if} 
                         {if $toolbar_item.hover}data-cerb-toolbar-menu-hover{/if}
