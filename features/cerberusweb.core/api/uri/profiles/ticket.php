@@ -64,8 +64,6 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 					return $this->_profileAction_quickMove();
 				case 'quickSpam':
 					return $this->_profileAction_quickSpam();
-				case 'quickStatus':
-					return $this->_profileAction_quickStatus();
 				case 'quickSurrender':
 					return $this->_profileAction_quickSurrender();
 				case 'showMessageFullHeadersPopup':
@@ -1863,66 +1861,6 @@ EOD;
 		$fields = [
 			DAO_Ticket::GROUP_ID => $bucket->group_id,
 			DAO_Ticket::BUCKET_ID => $bucket->id,
-		];
-		
-		DAO_Ticket::update($ticket_id, $fields);
-	}
-	
-	private function _profileAction_quickStatus() {
-		$ticket_id = DevblocksPlatform::importGPC($_POST['ticket_id'] ?? null, 'integer');
-		$status = DevblocksPlatform::importGPC($_POST['status'] ?? null, 'string','');
-		
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		if(empty($ticket_id))
-			DevblocksPlatform::dieWithHttpError(null, 404);
-		
-		if(null == ($ticket = DAO_Ticket::get($ticket_id)))
-			DevblocksPlatform::dieWithHttpError(null, 404);
-		
-		if(!Context_Ticket::isWriteableByActor($ticket, $active_worker))
-			DevblocksPlatform::dieWithHttpError(null, 403);
-		
-		$status_id = null;
-		
-		// Sanitize
-		switch(DevblocksPlatform::strLower($status)) {
-			case 'o':
-			case 'open':
-			case '0':
-				$status_id = Model_Ticket::STATUS_OPEN;
-				break;
-			
-			case 'w':
-			case 'waiting':
-			case '1':
-				$status_id = Model_Ticket::STATUS_WAITING;
-				break;
-			
-			case 'c':
-			case 'closed':
-			case '2':
-				$status_id = Model_Ticket::STATUS_CLOSED;
-				break;
-			
-			case 'd':
-			case 'deleted':
-			case '3':
-				// Check role delete priv
-				if(!$active_worker->hasPriv(sprintf('contexts.%s.delete', CerberusContexts::CONTEXT_TICKET)))
-					DevblocksPlatform::dieWithHttpError(null, 403);
-				
-				$status_id = Model_Ticket::STATUS_DELETED;
-			
-				CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_TICKET, $ticket->id, sprintf("#%s: %s", $ticket->mask, $ticket->subject));
-				break;
-		}
-		
-		if(is_null($status_id))
-			return;
-		
-		$fields = [
-			DAO_Ticket::STATUS_ID => $status_id,
 		];
 		
 		DAO_Ticket::update($ticket_id, $fields);
