@@ -1710,6 +1710,22 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 			$attachments = DAO_Attachment::getByContextIds($context, $context_id);
 			$tpl->assign('attachments', $attachments);
 			
+			// Custom toolbar buttons
+			
+			$toolbar_dict = DevblocksDictionaryDelegate::instance([]);
+			if($model->context) {
+				$toolbar_dict->set('record__context', $model->context);
+				$toolbar_dict->set('record_id', $model->context_id ?? 0);
+			}
+			$toolbar_dict->mergeKeys('worker_', DevblocksDictionaryDelegate::getDictionaryFromModel($active_worker, CerberusContexts::CONTEXT_WORKER));
+			
+			$toolbar_keyboard_shortcuts = [];
+			
+			if(($toolbar_comment_custom = DAO_Toolbar::getKataByName('comment.editor', $toolbar_dict))) {
+				DevblocksPlatform::services()->ui()->toolbar()->extractKeyboardShortcuts($toolbar_comment_custom, $toolbar_keyboard_shortcuts);
+				$tpl->assign('toolbar_custom', $toolbar_comment_custom);
+			}
+			
 			// View
 			$tpl->assign('id', $context_id);
 			$tpl->assign('view_id', $view_id);

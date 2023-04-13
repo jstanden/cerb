@@ -34,6 +34,17 @@ foreach($automation_files as $automation_file) {
 // ===========================================================================
 // Add new toolbars
 
+if(!$db->GetOneMaster("SELECT 1 FROM toolbar WHERE name = 'comment.editor'")) {
+	$db->ExecuteMaster(sprintf('INSERT IGNORE INTO toolbar (name, extension_id, description, toolbar_kata, created_at, updated_at) VALUES (%s,%s,%s,%s,%d,%d)',
+		$db->qstr('comment.editor'),
+		$db->qstr('cerb.toolbar.comment.editor'),
+		$db->qstr('Editing a comment'),
+		$db->qstr(''),
+		time(),
+		time()
+	));
+}
+
 if(!$db->GetOneMaster("SELECT 1 FROM toolbar WHERE name = 'records.worklist'")) {
 	$db->ExecuteMaster(sprintf('INSERT IGNORE INTO toolbar (name, extension_id, description, toolbar_kata, created_at, updated_at) VALUES (%s,%s,%s,%s,%d,%d)',
 		$db->qstr('records.worklist'),

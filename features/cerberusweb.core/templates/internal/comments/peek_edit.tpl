@@ -1,6 +1,7 @@
 {$peek_context = CerberusContexts::CONTEXT_COMMENT}
 {$peek_context_id = $model->id}
 {$is_html = (!$model->id && !DAO_WorkerPref::get($active_worker->id,'comment_disable_formatting',0)) || $model->is_markdown}
+{$target = $model->getTargetDictionary()}
 
 {$form_id = uniqid('form')}
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}" onsubmit="return false;">
@@ -33,7 +34,6 @@
 	{/if}
 	
 	{if $model->context}
-		{$target = $model->getTargetDictionary()}
 		{if $target}
 		<div>
 			<label>{'common.on'|devblocks_translate|capitalize}:</label>
@@ -77,6 +77,14 @@
 			<div class="cerb-code-editor-toolbar-divider"></div>
 
 			<button type="button" title="Preview (Ctrl+Shift+P)" data-cerb-key-binding="ctrl+shift+p" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--preview"><span class="glyphicons glyphicons-eye-open"></span></button>
+
+			{if $toolbar_custom}
+				<div class="cerb-code-editor-toolbar-divider"></div>
+				
+				<div data-cerb-toolbar class="cerb-comment-editor-subtoolbar-custom" style="display:inline-block;">
+					{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar_custom)}
+				</div>
+			{/if}
 		</div>
 
 		<textarea name="comment" placeholder="{'comment.notify.at_mention'|devblocks_translate}">{$model->comment}</textarea>
@@ -237,6 +245,42 @@ $(function() {
 			}, 100);
 		});
 
+		// Custom editor toolbar
+		{if $toolbar_custom}
+		$popup.find('.cerb-comment-editor-subtoolbar-custom')
+			.cerbToolbar({
+				caller: {
+					name: 'cerb.toolbar.comment.editor',
+					params: {
+						{if $target}
+						record_type: '{$target->_type}',
+						record_id: '{$target->id}',
+						{/if}
+						selected_text: ''
+					}
+				},
+				start: function(formData) {
+					formData.set('caller[params][selected_text]', $editor.cerbTextEditor('getSelection'));
+				},
+				done: function(e) {
+					if(e.type !== 'cerb-interaction-done')
+						return;
+
+					if (e.eventData.exit === 'error') {
+
+					} else if(e.eventData.exit === 'return') {
+						Devblocks.interactionWorkerPostActions(e.eventData);
+
+						if(e.eventData.return && e.eventData.return.snippet) {
+							$editor.cerbTextEditor('replaceSelection', e.eventData.return.snippet);
+							setTimeout(function() { $editor.focus(); }, 25);
+						}
+					}
+				}
+			})
+		;
+		{/if}
+		
 		// Mention
 		$editor_toolbar.find('.cerb-markdown-editor-toolbar-button--mention').on('click', function () {
 			var token = $editor.cerbTextEditor('getCurrentWord');

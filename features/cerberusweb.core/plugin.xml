@@ -5416,6 +5416,16 @@
 			</class>
 			<params/>
 		</extension>
+
+		<extension point="cerb.toolbar">
+			<id>cerb.toolbar.comment.editor</id>
+			<name>comment.editor</name>
+			<class>
+				<file>api/toolbars/comment.editor.php</file>
+				<name>Toolbar_CommentEditor</name>
+			</class>
+			<params/>
+		</extension>
 		
 		<extension point="cerb.toolbar">
 			<id>cerb.toolbar.draft.read</id>
