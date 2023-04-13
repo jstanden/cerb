@@ -1,9 +1,9 @@
 {
   "package": {
     "name": "Profile: Ticket Status",
-    "revision": 1,
+    "revision": 2,
     "requires": {
-      "cerb_version": "9.5.0",
+      "cerb_version": "10.3.7",
       "plugins": [
 
       ]
@@ -36,17 +36,21 @@
   },
   "records": [
     {
-        "uid": "widget_ticket_status",
-        "_context": "profile_widget",
-        "name": "Status",
-        "profile_tab_id": "{{{profile_tab_id}}}",
-        "pos": 0,
-        "width_units": 2,
-        "zone": "sidebar",
-        "extension_id": "cerb.profile.tab.widget.html",
-        "extension_params": {
-          "template": "{% set is_writeable = cerb_record_writeable(record__context,record_id,current_worker__context,current_worker_id) %}\r\n<div id=\"widget{{widget_id}}\">\r\n\t<div style=\"float:left;padding:0 10px 5px 5px;\">\r\n\t\t<img src=\"{{cerb_avatar_url(record_group__context,record_group_id,record_group_updated)}}\" width=\"50\" style=\"border-radius:50px;\">\r\n\t</div>\r\n\t<div style=\"position:relative;\">\r\n\t\t<div>\r\n\t\t\t<a href=\"javascript:;\" class=\"cerb-peek-trigger no-underline\" style=\"font-size:1.3em;color:var(--cerb-color-background-contrast-150);font-weight:bold;\" data-context=\"cerberusweb.contexts.group\" data-context-id=\"{{record_group_id}}\">{{record_group__label}}</a>\r\n\t\t</div>\r\n\t\t<div>\r\n\t\t\t<a href=\"javascript:;\" class=\"cerb-peek-trigger no-underline\" style=\"font-size:2em;color:var(--cerb-color-background-contrast-100);font-weight:bold;\" data-context=\"cerberusweb.contexts.bucket\" data-context-id=\"{{record_bucket_id}}\">{{record_bucket__label}}</a>\r\n\t\t\t\r\n\t\t\t{% if is_writeable %}\r\n\t\t\t<div class=\"cerb-buttons-toolbar\" style=\"display:none;position:absolute;top:0;right:0;\">\r\n\t\t\t\t<button type=\"button\" title=\"{{'common.move'|cerb_translate|capitalize}}\" class=\"cerb-button-move cerb-chooser-trigger\" data-context=\"cerberusweb.contexts.bucket\" data-single=\"true\" data-query=\"subtotal:group.id\">\r\n\t\t\t\t\t<span class=\"glyphicons glyphicons-send\"></span>\r\n\t\t\t\t</button>\r\n\t\t\t</div>\r\n\t\t\t{% endif %}\r\n\t\t</div>\r\n\t</div>\r\n\t<div style=\"margin-top:5px;font-size:1.5em;font-weight:bold;\">\r\n\t\t{% if record_status == 'waiting' %}\r\n\t\t<div style=\"color:rgb(85,132,204);\">\r\n\t\t\t{{'status.waiting.abbr'|cerb_translate|capitalize}}\r\n\t\t\t{% if record_reopen_date %}\r\n\t\t\t<span style=\"font-size:0.8em;font-weight:normal;color:var(--cerb-color-text);\">\r\n\t\t\t\t(<abbr title=\"{{record_reopen_date|date('F d, Y g:ia')}}\">{{record_reopen_date|date_pretty}}</abbr>)\r\n\t\t\t</span>\r\n\t\t\t{% endif %}\r\n\t\t</div>\r\n\t\t{% elseif record_status == 'closed' %}\r\n\t\t<div style=\"color:var(--cerb-color-background-contrast-100);\">\r\n\t\t\t{{'status.closed'|cerb_translate|capitalize}}\r\n\t\t\t{% if record_reopen_date %}\r\n\t\t\t<span style=\"font-size:0.8em;font-weight:normal;color:var(--cerb-color-text);\">\r\n\t\t\t\t(<abbr title=\"{{record_reopen_date|date('F d, Y g:ia')}}\">{{record_reopen_date|date_pretty}}</abbr>)\r\n\t\t\t</span>\r\n\t\t\t{% endif %}\r\n\t\t</div>\r\n\t\t{% elseif record_status == 'deleted' %}\r\n\t\t<div style=\"color:rgb(211,53,43);\">\r\n\t\t\t{{'status.deleted'|cerb_translate|capitalize}}\r\n\t\t</div>\r\n\t\t{% else %}\r\n\t\t<div style=\"color:rgb(102,172,87);\">\r\n\t\t\t{{'status.open'|cerb_translate|capitalize}}\r\n\t\t</div>\r\n\t\t{% endif %}\r\n\t</div>\r\n</div>\r\n\r\n<script type=\"text/javascript\">\r\n$(function() {\r\n\tvar $widget = $('#widget{{widget_id}}');\r\n\tvar $parent = $widget.closest('.cerb-profile-widget')\r\n\t\t.off('.widget{{widget_id}}')\r\n\t\t;\r\n\tvar $toolbar = $widget.find('div.cerb-buttons-toolbar');\r\n\tvar $tab = $parent.closest('.cerb-profile-layout');\r\n\r\n\t$widget.find('.cerb-peek-trigger')\r\n\t\t.cerbPeekTrigger()\r\n\t\t;\r\n\t\t\r\n\t{% if is_writeable %}\r\n\t$widget\r\n\t\t.on('mouseover', function() {\r\n\t\t\t$toolbar.show();\r\n\t\t})\r\n\t\t.on('mouseout', function() {\r\n\t\t\t$toolbar.hide();\r\n\t\t})\r\n\t\t;\r\n\t{% endif %}\r\n\t\r\n\t{% if is_writeable %}\r\n\t$widget.find('.cerb-chooser-trigger')\r\n\t\t.cerbChooserTrigger()\r\n\t\t.on('cerb-chooser-selected', function(e) {\r\n\t\t\tif(!e.values || !Array.isArray(e.values))\r\n\t\t\t\treturn;\r\n\t\t\t\t\r\n\t\t\tif(e.values.length != 1)\r\n\t\t\t\treturn;\r\n\r\n\t\t\tvar bucket_id = e.values[0];\r\n\t\t\t\r\n\t\t\tvar formData = new FormData();\r\n\t\t\tformData.set('c', 'profiles');\r\n\t\t\tformData.set('a', 'invoke');\r\n\t\t\tformData.set('module', 'ticket');\r\n\t\t\tformData.set('action', 'quickMove');\r\n\t\t\tformData.set('ticket_id', '{{record_id}}');\r\n\t\t\tformData.set('bucket_id', bucket_id);\r\n\t\t\t\r\n\t\t\tgenericAjaxPost(formData, null, null, function(response) {\r\n\t\t\t\t// Refresh the entire page\r\n\t\t\t\tdocument.location.reload();\r\n\t\t\t});\r\n\t\t})\r\n\t\t;\r\n\t\t{% endif %}\r\n});\r\n</script>"
-        }
+      "uid": "widget_ticket_status",
+      "_context": "profile_widget",
+      "name": "Status",
+      "profile_tab_id": "{{{profile_tab_id}}}",
+      "pos": 0,
+      "width_units": 4,
+      "zone": "sidebar",
+      "extension_id": "cerb.profile.tab.widget.sheet",
+      "extension_params": {
+        "data_query": "type:worklist.records\r\nof:ticket\r\nquery:(\r\n  id:{{record_id}}\r\n  limit:1\r\n  sort:[id]\r\n)\r\nformat:dictionaries",
+        "cache_secs": "",
+        "placeholder_simulator_kata": "",
+        "sheet_kata": "layout:\r\n  style: fieldsets\r\n  headings@bool: no\r\n  paging@bool: no\r\n  title_column: image\r\n  colors:\r\n    labels@csv: #898989, #646464\r\n    labels_dark@csv: #898989, #cccccc\r\n    statuses@csv: #66aa57, #5585cc, #636363, #d3352a\r\n\r\ncolumns:\r\n  icon/image:\r\n    params:\r\n      record_uri@raw: cerb:group:{{group_id}}\r\n      text_size@raw: 400%\r\n  \r\n  card/group__label:\r\n    params:\r\n      bold@bool: yes\r\n      underline@bool: no\r\n      text_size: 135%\r\n      text_color@raw: labels:0\r\n  \r\n  card/bucket__label:\r\n    params:\r\n      bold@bool: yes\r\n      underline@bool: no\r\n      text_color@raw: labels:1\r\n      text_size: 200%\r\n  \r\n  text/status:\r\n    params:\r\n      bold@bool: yes\r\n      text_size: 145%\r\n      value_template@raw:\r\n        {{status|capitalize}}\r\n        {% if reopen_date and status in ['waiting','closed'] %}\r\n        (<abbr title=\"{{reopen_date|date('r')}}\">{{reopen_date|date_pretty}}</abbr>)\r\n        {% endif %}        \r\n      text_color@raw: statuses:{{status_id}}\r\n  \r\n  toolbar/actions:\r\n    label: Actions\r\n    params:\r\n      kata:\r\n        interaction/reopen:\r\n          uri: cerb:automation:cerb.ticket.status\r\n          hidden@raw,bool: {{not cerb_record_writeable('ticket', id) or 'open' == status}}\r\n          label: Re-open\r\n          icon: upload\r\n          inputs:\r\n            ticket@raw: {{id}}\r\n            #confirm@bool: yes\r\n            status: open\r\n        interaction/move:\r\n          uri: cerb:automation:cerb.ticket.move\r\n          hidden@raw,bool: {{not cerb_record_writeable('ticket', id)}}\r\n          label: Move\r\n          icon: send\r\n          keyboard: M\r\n          inputs:\r\n            ticket@raw: {{id}}\r\n        interaction/close:\r\n          uri: cerb:automation:cerb.ticket.status\r\n          hidden@raw,bool:\r\n            {{\r\n              not cerb_record_writeable('ticket', id) \r\n              or status in ['closed','deleted']\r\n            }}\r\n          label: Close\r\n          icon: circle-ok\r\n          keyboard: C\r\n          inputs:\r\n            ticket@raw: {{id}}\r\n            confirm@bool: yes\r\n            status: closed\r\n        interaction/delete:\r\n          uri: cerb:automation:cerb.ticket.status\r\n          hidden@raw,bool:\r\n            {{\r\n              not cerb_record_writeable('ticket', id) \r\n              or 'deleted' == status \r\n              or not cerb_has_priv('contexts.cerberusweb.contexts.ticket.delete')\r\n            }}\r\n          label: Delete\r\n          icon: circle-remove\r\n          keyboard: X\r\n          inputs:\r\n            ticket@raw: {{id}}\r\n            confirm@bool: yes\r\n            status: deleted",
+        "toolbar_kata": ""
+      }
     }
   ]
 }
