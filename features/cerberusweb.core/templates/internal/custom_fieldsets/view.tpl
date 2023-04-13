@@ -141,6 +141,7 @@
 	</div>
 	
 	<div style="float:left;" id="{$view->id}_actions">
+		{include file="devblocks:cerberusweb.core::internal/views/view_toolbar.tpl"}
 	</div>
 </div>
 {/if}

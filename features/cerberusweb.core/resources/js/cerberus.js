@@ -1629,60 +1629,6 @@ $.fn.cerbDateInputHelper = function(options) {
 };
 
 var cAjaxCalls = function() {
-	this.viewTicketsAction = function(view_id, action) {
-		var formName = 'viewForm'+view_id;
-		var $frm = $('#' + formName);
-
-		if(0 === $frm.length)
-			return;
-
-		var formData = new FormData($frm[0]);
-
-		switch(action) {
-			case 'not_spam':
-				formData.set('c', 'profiles');
-				formData.set('a', 'invoke');
-				formData.set('module', 'ticket');
-				formData.set('action', 'viewMarkNotSpam');
-				formData.set('view_id', view_id);
-
-				showLoadingPanel();
-				genericAjaxPost(formData, '', '', function(html) {
-					hideLoadingPanel();
-					genericAjaxGet('view' + view_id,'c=internal&a=invoke&module=worklists&action=refresh&id=' + encodeURIComponent(view_id));
-				});
-				break;
-			case 'waiting':
-				formData.set('c', 'profiles');
-				formData.set('a', 'invoke');
-				formData.set('module', 'ticket');
-				formData.set('action', 'viewMarkWaiting');
-				formData.set('view_id', view_id);
-
-				showLoadingPanel();
-				genericAjaxPost(formData, '', '', function(html) {
-					hideLoadingPanel();
-					genericAjaxGet('view' + view_id,'c=internal&a=invoke&module=worklists&action=refresh&id=' + encodeURIComponent(view_id));
-				});
-				break;
-			case 'not_waiting':
-				formData.set('c', 'profiles');
-				formData.set('a', 'invoke');
-				formData.set('module', 'ticket');
-				formData.set('action', 'viewMarkNotWaiting');
-				formData.set('view_id', view_id);
-
-				showLoadingPanel();
-				genericAjaxPost(formName, '', '', function(html) {
-					hideLoadingPanel();
-					genericAjaxGet('view' + view_id,'c=internal&a=invoke&module=worklists&action=refresh&id=' + encodeURIComponent(view_id));
-				});
-				break;
-			default:
-				break;
-		}
-	};
-	
 	this.viewCloseTickets = function(view_id,mode) {
 		var formName = 'viewForm'+view_id;
 		var $frm = $('#' + formName);

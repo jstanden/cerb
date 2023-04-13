@@ -125,6 +125,7 @@
 	</div>
 
 	<div style="float:left;" id="{$view->id}_actions">
+		{include file="devblocks:cerberusweb.core::internal/views/view_toolbar.tpl"}
 		{if $active_worker->is_superuser}
 		<button type="button" class="action-delete"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>
 		{/if}

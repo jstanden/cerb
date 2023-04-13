@@ -309,6 +309,8 @@
 	</div>
 
 	<div style="float:left;" id="{$view->id}_actions">
+		{include file="devblocks:cerberusweb.core::internal/views/view_toolbar.tpl"}
+		
 		<button type="button" class="action-always-show action-explore" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.submit();"><span class="glyphicons glyphicons-compass"></span> {'common.explore'|devblocks_translate|lower}</button>
 		{if $active_worker->hasPriv("contexts.{$view_context}.update.bulk")}<button type="button" class="action-always-show action-bulkupdate" onclick="genericAjaxPopup('peek','c=profiles&a=invoke&module=ticket&action=showBulkPopup&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','ticket_id[]'),null,false,'50%');"><span class="glyphicons glyphicons-folder-closed"></span> {'common.bulk_update'|devblocks_translate|lower}</button>{/if}
 		{if $active_worker->hasPriv('core.ticket.actions.close')}<button type="button" class="action-close" onclick="ajax.viewCloseTickets('{$view->id}',0);" style="display:none;"><span class="glyphicons glyphicons-ok"></span> {'common.close'|devblocks_translate|lower}</button>{/if}
@@ -333,9 +335,6 @@
 		</div>
 		
 		{if $active_worker->hasPriv("contexts.{$view_context}.merge")}<button type="button" onclick="genericAjaxPopup('peek','c=internal&a=invoke&module=records&action=renderMergePopup&view_id={$view->id}&context={$view_context}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','ticket_id[]'),null,false,'50%');" style="display:none;"><span class="glyphicons glyphicons-git-merge"></span> {'common.merge'|devblocks_translate|lower}</button>{/if}
-		<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','waiting');" style="display:none;">{'mail.waiting'|devblocks_translate|lower}</button>
-		<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','not_waiting');" style="display:none;">{'mail.not_waiting'|devblocks_translate|lower}</button>
-		<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','not_spam');" style="display:none;">{'common.notspam'|devblocks_translate|lower}</button>
 	
 		{if $pref_keyboard_shortcuts}
 		{if $view->isCustom() || substr($view->id,0,6)=='search'}

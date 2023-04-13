@@ -150,6 +150,7 @@
 	</div>
 	
 	<div style="float:left;" id="{$view->id}_actions">
+		{include file="devblocks:cerberusweb.core::internal/views/view_toolbar.tpl"}
 		<button type="button" class="action-always-show action-explore"><span class="glyphicons glyphicons-play-button"></span> {'common.explore'|devblocks_translate|lower}</button>
 	</div>
 </div>
