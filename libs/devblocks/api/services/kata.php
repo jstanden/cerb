@@ -586,8 +586,13 @@ class _DevblocksKataService {
 				} else if(in_array($annotation, ['optional','text'])) {
 					DevblocksPlatform::noop();
 				} else if($annotation == 'raw') {
+					$k_annotations = implode(',', array_diff($annotations, ['raw']));
+					$new_k = $k . ($k_annotations ? ('@' . $k_annotations) : '');
+					
 					if($wrap_raw) {
-						return [$k => new DevblocksKataRawString($v)];
+						return [$new_k => new DevblocksKataRawString($v)];
+					} else {
+						return [$new_k => $v];
 					}
 				} else if($annotation == 'trim') {
 					if(is_string($v))
