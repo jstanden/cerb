@@ -1610,7 +1610,7 @@ class Context_Resource extends Extension_DevblocksContext implements IDevblocksC
 	function getKeyMeta($with_dao_fields=true) {
 		$keys = parent::getKeyMeta($with_dao_fields);
 		
-		$keys['content']['notes'] = 'The optional content of this resource. For binary, base64-encode in [data URI format](https://en.wikipedia.org/wiki/Data_URI_scheme)';
+		$keys['content']['notes'] = 'The optional content of this resource. For text, use a string. For binary, base64-encode in [data URI format](https://en.wikipedia.org/wiki/Data_URI_scheme). This may also be an automation resource URI (e.g. `cerb:automation_resource:TOKEN`)';
 		
 		return $keys;
 	}
