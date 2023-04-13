@@ -2590,6 +2590,38 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 					$where_sql
 				);
 				
+			case self::TICKET_SPAM_SCORE:
+				if(is_numeric($param->value)) {
+					return sprintf('%s %s %0.4f',
+						't.spam_score',
+						$param->operator,
+						$param->value / 100
+					);
+					
+				} elseif(
+					DevblocksSearchCriteria::OPER_BETWEEN == $param->operator 
+					&& is_array($param->value) 
+					&& 2 == count($param->value)
+				) {
+					return sprintf('%s BETWEEN %0.4f AND %0.4f',
+						't.spam_score',
+						$param->value[0] / 100,
+						$param->value[1] / 100,
+					);
+					
+				} elseif(
+					DevblocksSearchCriteria::OPER_IN == $param->operator 
+					&& is_array($param->value) 
+				) {
+					return sprintf('%s IN (%s)',
+						't.spam_score',
+						implode(',', array_map(fn($v) => floatval($v) / 100, $param->value))
+					);
+					
+				} else {
+					return '0';
+				}
+			
 			case self::VIRTUAL_WATCHERS:
 				return self::_getWhereSQLFromWatchersField($param, CerberusContexts::CONTEXT_TICKET, self::getPrimaryKey());
 				
@@ -3812,7 +3844,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				),
 			'spam.score' =>
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'type' => DevblocksSearchCriteria::TYPE_DECIMAL,
 					'options' => array('param_key' => SearchFields_Ticket::TICKET_SPAM_SCORE),
 				),
 			'spam.training' =>
@@ -4018,6 +4050,10 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				
 				$field_key = SearchFields_Ticket::TICKET_ELAPSED_RESPONSE_FIRST;
 				return DevblocksSearchCriteria::getNumberParamFromTokens($field_key, $tokens);
+				
+			case 'spam.score':
+				$field_key = SearchFields_Ticket::TICKET_SPAM_SCORE;
+				return DevblocksSearchCriteria::getFloatParamFromTokens($field_key, $tokens);
 				
 			case 'spam.training':
 				$field_key = SearchFields_Ticket::TICKET_SPAM_TRAINING;

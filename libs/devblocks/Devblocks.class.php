@@ -3263,6 +3263,10 @@ class DevblocksPlatform extends DevblocksEngine {
 				return $array;
 				break;
 				
+			case 'decimal':
+			case 'float':
+				return _DevblocksSanitizationManager::arrayAs($array, 'float');
+				
 			case 'int':
 			case 'integer':
 				$array = _DevblocksSanitizationManager::arrayAs($array, 'integer');

@@ -2077,6 +2077,61 @@ class DevblocksSearchCriteria {
 		);
 	}
 	
+	public static function getFloatParamFromTokens($field_key, $tokens) : DevblocksSearchCriteria {
+		$oper = DevblocksSearchCriteria::OPER_EQ;
+		$value = null;
+		$not = false;
+		
+		if(is_array($tokens))
+			foreach($tokens as $token) {
+				switch($token->type) {
+					case 'T_NOT':
+						$not = true;
+						break;
+					
+					case 'T_ARRAY':
+						$oper = $not ? DevblocksSearchCriteria::OPER_NIN : DevblocksSearchCriteria::OPER_IN;
+						$value = DevblocksPlatform::sanitizeArray($token->value, 'float');
+						break;
+					
+					case 'T_TEXT':
+					case 'T_QUOTED_TEXT':
+						$oper = $not ? DevblocksSearchCriteria::OPER_NEQ : DevblocksSearchCriteria::OPER_EQ;
+						$value = $token->value;
+						$matches = [];
+						
+						if(preg_match('#([0-9.]+)\.{3}([0-9.]+)#', $value, $matches) || preg_match('#(\d+)\s+to\s+(\d+)#', $value, $matches)) {
+							$from = floatval($matches[1]);
+							$to = floatval($matches[2]);
+							
+							$oper = DevblocksSearchCriteria::OPER_BETWEEN;
+							$value = array($from, $to);
+							
+						} else if(preg_match('#^([\<\>\!\=]+)(.*)#', $value, $matches)) {
+							$value = trim($matches[2]);
+							
+							$oper = match(trim($matches[1])) {
+								'!', '!=' => self::OPER_NEQ,
+								'>' => self::OPER_GT,
+								'>=' => self::OPER_GTE,
+								'<' => self::OPER_LT,
+								'<=' => self::OPER_LTE,
+								default => $oper,
+							};
+							
+							$value = floatval($value);
+						}
+						break;
+				}
+			}
+		
+		return new DevblocksSearchCriteria(
+			$field_key,
+			$oper,
+			$value
+		);
+	}
+	
 	public static function getGeoPointParamFromTokens($field_key, $tokens) {
 		$oper = DevblocksSearchCriteria::OPER_GEO_POINT_EQ;
 		$value = null;
