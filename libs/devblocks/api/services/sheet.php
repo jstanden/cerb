@@ -215,6 +215,23 @@ class _DevblocksSheetService {
 		return $color;
 	}
 	
+	private function _cellParamTextSize(string $param_key, array $column, DevblocksDictionaryDelegate $sheet_dict, array $layout, ?array $environment=null) : ?string {
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$column_params = $column['params'] ?? [];
+		
+		$text_size = null;
+		
+		if(array_key_exists($param_key, $column_params)) {
+			$text_size = $tpl_builder->build($column_params[$param_key], $sheet_dict);
+		}
+		
+		if($text_size) {
+			$text_size = intval($text_size);
+		}
+		
+		return $text_size;
+	}
+	
 	function getRows(array $sheet, array $sheet_dicts, ?array $environment=null) : array {
 		// Sanitize
 		$columns = $this->getColumns($sheet);
@@ -246,12 +263,14 @@ class _DevblocksSheetService {
 				
 				$color = $this->_cellParamColor('color', $column, $sheet_dict, $layout, $environment);
 				$text_color = $this->_cellParamColor('text_color', $column, $sheet_dict, $layout, $environment);
+				$text_size = $this->_cellParamTextSize('text_size', $column, $sheet_dict, $layout, $environment);
 				
 				$row[$column_key] = new DevblocksSheetCell(
 					$this->_types[$column_type]($column, $sheet_dict, $environment),
 					[
 						'color' => $color,
 						'text_color' => $text_color,
+						'text_size' => $text_size,
 					]
 				);
 			}
@@ -511,7 +530,8 @@ class _DevblocksSheetServiceTypes {
 				if(!($uri_parts = DevblocksPlatform::services()->ui()->parseURI($record_uri)))
 					return '';
 				
-				$img = sprintf('<img class="cerb-avatar" style="margin-right:0.25em;" src="%s?v=%d"/>',
+				$img = sprintf('<img class="cerb-avatar" style="%s" src="%s?v=%d"/>',
+					array_key_exists('text_size', $column_params) ? 'width:1em;height:1em;border-radius:1em;' : 'margin-right:0.25em;',
 					DevblocksPlatform::services()->url()->writeNoProxy(sprintf('c=avatars&ctx=%s&id=%d', $uri_parts['context_ext']->params['alias'], $uri_parts['context_id']), true),
 					APP_BUILD
 				);

@@ -5502,6 +5502,9 @@ class _CerbApplication_KataSchemas {
                                 text_color:
                                   types:
                                     string:
+                                text_size:
+                                  types:
+                                    string:
                                 underline:
                                   types:
                                     bool:
@@ -5526,6 +5529,9 @@ class _CerbApplication_KataSchemas {
                                   types:
                                     string:
                                 text_color:
+                                  types:
+                                    string:
+                                text_size:
                                   types:
                                     string:
                                 value_key:
@@ -5566,6 +5572,9 @@ class _CerbApplication_KataSchemas {
                                 text_color:
                                   types:
                                     string:
+                                text_size:
+                                  types:
+                                    string:
                 
                 link:
                   multiple@bool: yes
@@ -5596,6 +5605,9 @@ class _CerbApplication_KataSchemas {
                                   types:
                                     string:
                                 text_color:
+                                  types:
+                                    string:
+                                text_size:
                                   types:
                                     string:
                                 text_template:
@@ -5637,6 +5649,9 @@ class _CerbApplication_KataSchemas {
                                   types:
                                     string:
                                 text_color:
+                                  types:
+                                    string:
+                                text_size:
                                   types:
                                     string:
                 
@@ -5686,6 +5701,9 @@ class _CerbApplication_KataSchemas {
                                 text_color:
                                   types:
                                     string:
+                                text_size:
+                                  types:
+                                    string:
                 
                 selection:
                   multiple@bool: yes
@@ -5700,6 +5718,9 @@ class _CerbApplication_KataSchemas {
                                   types:
                                     string:
                                 text_color:
+                                  types:
+                                    string:
+                                text_size:
                                   types:
                                     string:
                                 value_key:
@@ -5774,6 +5795,9 @@ class _CerbApplication_KataSchemas {
                                 text_color:
                                   types:
                                     string:
+                                text_size:
+                                  types:
+                                    string:
                                 value_key:
                                   types:
                                     string:
@@ -5808,6 +5832,9 @@ class _CerbApplication_KataSchemas {
                                   types:
                                     number:
                                 text_color:
+                                  types:
+                                    string:
+                                text_size:
                                   types:
                                     string:
                                 value_key:

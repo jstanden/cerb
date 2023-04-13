@@ -1081,7 +1081,8 @@ var cerbAutocompleteSuggestions = {
 			'bold@bool:',
 			'icon:',
 			'color@raw:',
-			'text_color@raw:'
+			'text_color@raw:',
+			'text_size@raw: 150%'
 		],
 		'columns:text:params:bold:': [
 			'true',
@@ -1117,7 +1118,8 @@ var cerbAutocompleteSuggestions = {
 			'label_key:',
 			'label_template:',
 			'color@raw:',
-			'text_color@raw:'
+			'text_color@raw:',
+			'text_size@raw: 150%'
 		],
 		'columns:card:params:icon:': [
 			'image:',
@@ -1153,7 +1155,8 @@ var cerbAutocompleteSuggestions = {
 			'value_template@raw:',
 			'bold@bool:',
 			'color@raw:',
-			'text_color@raw:'
+			'text_color@raw:',
+			'text_size@raw: 150%'
 		],
 		'columns:date:params:bold:': [
 			'yes',
@@ -1178,7 +1181,8 @@ var cerbAutocompleteSuggestions = {
 				'snippet': 'record_uri@raw: cerb:${1:record_type}:${2:record_id}'
 			},
 			'color@raw:',
-			'text_color@raw:'
+			'text_color@raw:',
+			'text_size@raw: 150%'
 		],
 
 		// Links
@@ -1217,7 +1221,8 @@ var cerbAutocompleteSuggestions = {
 			'label_template:',
 			'bold@bool:',
 			'color@raw:',
-			'text_color@raw:'
+			'text_color@raw:',
+			'text_size@raw: 150%'
 		],
 		'columns:search:params:bold:': [
 			'yes',
@@ -1237,7 +1242,8 @@ var cerbAutocompleteSuggestions = {
 			'query_key:',
 			'query_template:',
 			'color@raw:',
-			'text_color@raw:'
+			'text_color@raw:',
+			'text_size@raw: 150%'
 		],
 		
 		// Selection
@@ -1249,7 +1255,8 @@ var cerbAutocompleteSuggestions = {
 			'value_key:',
 			'value_template@raw: {{id}}',
 			'color@raw:',
-			'text_color@raw:'
+			'text_color@raw:',
+			'text_size@raw: 150%'
 		],
 		
 		// Slider
@@ -1264,7 +1271,8 @@ var cerbAutocompleteSuggestions = {
 			'min:',
 			'max:',
 			'color@raw:',
-			'text_color@raw:'
+			'text_color@raw:',
+			'text_size@raw: 150%'
 		],
 		
 		// Time elapsed
@@ -1279,7 +1287,8 @@ var cerbAutocompleteSuggestions = {
 			'precision:',
 			'bold@bool:',
 			'color@raw:',
-			'text_color@raw:'
+			'text_color@raw:',
+			'text_size@raw: 150%'
 		],
 		'columns:time_elapsed:params:bold:': [
 			'yes',
