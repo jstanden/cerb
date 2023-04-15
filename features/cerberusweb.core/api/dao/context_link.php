@@ -150,6 +150,9 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 		 * Log activity (connection.link)
 		 */
 		
+		if(!DevblocksPlatform::services()->event()->isEnabled())
+			return true;
+		
 		// Are we following something?
 		if($dst_context == CerberusContexts::CONTEXT_WORKER) {
 			// If worker is actor and target, and we're not inside a bot
