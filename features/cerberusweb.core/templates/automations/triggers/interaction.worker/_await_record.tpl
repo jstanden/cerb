@@ -18,7 +18,7 @@
         var $trigger = $('<div/>')
             .attr('data-context', '{$context_ext->id}')
             .attr('data-context-id', '{$record_id}')
-            .attr('data-edit', '')
+            .attr('data-edit', 'true')
             .cerbPeekTrigger()
             .on('cerb-peek-saved cerb-peek-deleted cerb-peek-aborted', function(e) {
                 e.stopPropagation();
