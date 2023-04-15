@@ -68,6 +68,10 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 				[
 					'key' => 'snippet',
 					'notes' => 'Insert the given text at the cursor in the current editor (if applicable)',
+				],
+				[
+					'key' => 'timer',
+					'notes' => 'Start time tracking with the given time entry record ID',
 				]
 			]
 		];

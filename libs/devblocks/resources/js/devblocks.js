@@ -239,6 +239,11 @@ function DevblocksClass() {
 			a.click();
 			a.remove();
 		}
+		
+		// Open time tracking timer
+		if(timeTrackingTimer && eventData.return.hasOwnProperty('timer')) {
+			timeTrackingTimer.play(eventData.return['timer']);
+		}
 	}
 	
 	this.getDefaultjQueryUiTabOptions = function() {
