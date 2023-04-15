@@ -84,7 +84,7 @@
 				<button type="button" style="float:right;" class="cerb-code-editor-toolbar-button cerb-editor-button-help"><a href="#" target="_blank"><span class="glyphicons glyphicons-circle-question-mark"></span></a></button>
 			</div>
 
-			<textarea name="params[toolbar_kata]" data-editor-mode="ace/mode/cerb_kata">{$widget && $widget->extension_params.toolbar_kata}</textarea>
+			<textarea name="params[toolbar_kata]" data-editor-mode="ace/mode/cerb_kata">{if $widget}{$widget->extension_params.toolbar_kata}{/if}</textarea>
 		</fieldset>
 	</div>
 	
