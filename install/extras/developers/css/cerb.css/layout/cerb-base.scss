@@ -54,6 +54,13 @@ FIELDSET {
 		A {
 			color: var(--cerb-color-fieldset-legend);
 		}
+		
+		LABEL {
+			-webkit-user-select: none;
+			-moz-user-select: none;
+			-ms-user-select: none;
+			user-select: none;
+		}
 
 		span.glyphicons {
 			vertical-align: baseline;

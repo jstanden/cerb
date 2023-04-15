@@ -302,6 +302,12 @@ FIELDSET LEGEND {
 FIELDSET LEGEND A {
   color: var(--cerb-color-fieldset-legend);
 }
+FIELDSET LEGEND LABEL {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
 FIELDSET LEGEND span.glyphicons {
   vertical-align: baseline;
   color: var(--cerb-color-fieldset-icon);
