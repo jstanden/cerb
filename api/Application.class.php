@@ -2414,7 +2414,7 @@ class CerberusContexts {
 										);
 									}
 									
-								} else if($behavior->event_point == Event_MailMovedToGroup::ID && $new_model instanceof Model_Ticket) {
+								} else if(!APP_OPT_GROUP_BEHAVIOR_TRIGGERS && $behavior->event_point == Event_MailMovedToGroup::ID && $new_model instanceof Model_Ticket) {
 									$behavior_bot = $behavior->getBot();
 									
 									if(

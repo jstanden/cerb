@@ -1460,6 +1460,9 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				unset($change_fields[DAO_Ticket::BUCKET_ID]);
 			
 			if(isset($change_fields[DAO_Ticket::GROUP_ID]) || isset($change_fields[DAO_Ticket::BUCKET_ID])) {
+				if(APP_OPT_GROUP_BEHAVIOR_TRIGGERS)
+					Event_MailMovedToGroup::trigger($model->id, $model->group_id);
+				
 				// Activity log
 				
 				$to_group = DAO_Group::get($model->group_id);
