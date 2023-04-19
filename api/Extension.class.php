@@ -1645,7 +1645,21 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 						'snippet' => "key:",
 						'score' => 2000,
 					],
-					'value:',
+					[
+						'caption' => 'value:',
+						'snippet' => "value: \${1:text}",
+						'score' => 1999,
+					],
+					[
+						'caption' => 'delimiter:',
+						'snippet' => "delimiter: \${1:\:}",
+						'score' => 1998,
+					],
+				],
+				'(.*):var.set:inputs:delimiter:' => [
+					':',
+					'.',
+					'::',
 				],
 				'(.*):var.unset:inputs:' => [
 					'key:',
