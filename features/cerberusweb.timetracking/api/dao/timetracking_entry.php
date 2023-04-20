@@ -285,10 +285,10 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 		
 		// Load records only if they're needed
 		
-		if(false == ($before_models = CerberusContexts::getCheckpoints(CerberusContexts::CONTEXT_TIMETRACKING, $ids)))
+		if(!($before_models = CerberusContexts::getCheckpoints(CerberusContexts::CONTEXT_TIMETRACKING, $ids)))
 			return;
 		
-		if(false == ($models = DAO_TimeTrackingEntry::getIds($ids)))
+		if(!($models = DAO_TimeTrackingEntry::getIds($ids)))
 			return;
 		
 		foreach($models as $id => $model) {
@@ -307,10 +307,6 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 				unset($change_fields[DAO_TimeTrackingEntry::IS_CLOSED]);
 			
 			if(isset($change_fields[DAO_TimeTrackingEntry::IS_CLOSED])) {
-				
-				$status_to = null;
-				$activity_point = null;
-				
 				if($model->is_closed) {
 					$status_to = 'closed';
 					$activity_point = 'timetracking.status.closed';

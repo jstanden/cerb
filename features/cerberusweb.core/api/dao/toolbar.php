@@ -1192,7 +1192,7 @@ class Context_Toolbar extends Extension_DevblocksContext implements IDevblocksCo
 				}
 			}
 			
-			if(!$model && false == ($model = DAO_Toolbar::get($context_id)))
+			if(!$model && !($model = DAO_Toolbar::get($context_id)))
 				DevblocksPlatform::dieWithHttpError(null, 403);
 		}
 		

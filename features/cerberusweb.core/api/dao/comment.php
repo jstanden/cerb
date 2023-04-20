@@ -1660,7 +1660,7 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 		$model = null;
 		
 		if($context_id) {
-			if(false == ($model = DAO_Comment::get($context_id)))
+			if(!($model = DAO_Comment::get($context_id)))
 				DevblocksPlatform::dieWithHttpError(null, 404);
 		}
 		
@@ -1683,7 +1683,7 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 					if($v)
 					switch($k) {
 						case 'context':
-							if(false != ($ext = Extension_DevblocksContext::get($v)))
+							if(($ext = Extension_DevblocksContext::get($v)))
 								$model->context = $ext->id;
 							break;
 							

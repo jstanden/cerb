@@ -85,10 +85,10 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 		$ext_src_context = Extension_DevblocksContext::get($src_context);
 		$ext_dst_context = Extension_DevblocksContext::get($dst_context);
 		
-		if(false == $src_context_meta)
+		if(!$src_context_meta)
 			@$src_context_meta = $ext_src_context->getMeta($src_context_id);
 		
-		if(false == $dst_context_meta)
+		if(!$dst_context_meta)
 			@$dst_context_meta = $ext_dst_context->getMeta($dst_context_id);
 		
 		if(!$src_context_meta || !$dst_context_meta)

@@ -98,7 +98,7 @@ class Controller_UI extends DevblocksControllerExtension {
 		
 		$record_type = $params['record_type'] ?? null;
 		
-		if(false == ($context_ext = Extension_DevblocksContext::getByAlias($record_type, true)))
+		if(!($context_ext = Extension_DevblocksContext::getByAlias($record_type, true)))
 			return;
 		
 		if(!($context_ext instanceof IDevblocksContextAutocomplete))
@@ -106,7 +106,7 @@ class Controller_UI extends DevblocksControllerExtension {
 		
 		/* @var $context_ext IDevblocksContextAutocomplete */
 		
-		if(false == ($results = $context_ext->autocomplete($prefix)))
+		if(!($results = $context_ext->autocomplete($prefix)))
 			return;
 		
 		echo json_encode(
@@ -122,13 +122,13 @@ class Controller_UI extends DevblocksControllerExtension {
 		
 		$params = DevblocksPlatform::importGPC($_POST['params'] ?? [], 'array', []);
 		
-		if(false == ($record_type = $params['record_type'] ?? null))
+		if(!($record_type = $params['record_type'] ?? null))
 			return;
 		
-		if(false == ($context_ext = Extension_DevblocksContext::getByAlias($record_type, true)))
+		if(!($context_ext = Extension_DevblocksContext::getByAlias($record_type, true)))
 			return;
 		
-		if(false == ($fields = $context_ext->getKeyMeta()))
+		if(!($fields = $context_ext->getKeyMeta()))
 			return;
 		
 		$custom_fields = DAO_CustomField::getMetaByContext($context_ext->id);
@@ -182,14 +182,14 @@ class Controller_UI extends DevblocksControllerExtension {
 		
 		$params = DevblocksPlatform::importGPC($_POST['params'] ?? [], 'array', []);
 		
-		if(false == ($metric_name = $params['metric'] ?? null))
+		if(!($metric_name = $params['metric'] ?? null))
 			return;
 		
-		if(false == ($metric = DAO_Metric::getByName($metric_name)))
+		if(!($metric = DAO_Metric::getByName($metric_name)))
 			return;
 		
 		if(
-			false == ($dimensions = $metric->getDimensions())
+			!($dimensions = $metric->getDimensions())
 			|| !is_iterable($dimensions)
 		)
 			return;
@@ -771,7 +771,7 @@ class Controller_UI extends DevblocksControllerExtension {
 			return;
 		}
 		
-		if (!($sheet = $sheets->parse($sheet_kata, $error, $results['data']))) {
+		if (!($sheet = $sheets->parse($sheet_kata, $error))) {
 			$tpl->assign('success', false);
 			$tpl->assign('output', $error);
 			$tpl->display('devblocks:cerberusweb.core::internal/renderers/test_results.tpl');

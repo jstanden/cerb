@@ -183,12 +183,10 @@ $(function() {
 
 			var is_multiple = $checkbox.is('[type=checkbox]');
 
-			// [TODO] Can we include a label/avatar with selections?
 			$sheet.trigger(
 				$.Event('cerb-sheet--selection', { ui: { item: $checkbox }, is_multiple: is_multiple, selected: $checkbox.prop('checked') })				
 			);
 
-			// [TODO] Is this second variation really needed?
 			var row_selections = [];
 
 			$tbody.closest('table.cerb-sheet')
@@ -198,7 +196,6 @@ $(function() {
 				})
 				;
 
-			// [TODO] Can we include a label/avatar with selections?
 			$sheet.trigger(
 				$.Event('cerb-sheet--selections-changed', { row_selections: row_selections, is_multiple: is_multiple })
 			);

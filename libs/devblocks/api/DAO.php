@@ -732,7 +732,7 @@ abstract class DevblocksORMHelper {
 				
 				list($link_context, $link_id) = array_pad(explode(':', $link, 2), 2, null);
 				
-				if(false == ($link_context_ext = Extension_DevblocksContext::getByAlias($link_context, false)))
+				if(!($link_context_ext = Extension_DevblocksContext::getByAlias($link_context, false)))
 					continue;
 				
 				if(is_array($ids)) {

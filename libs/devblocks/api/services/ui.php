@@ -49,7 +49,7 @@ class _DevblocksUiManager {
 		if(!in_array(count($uri_parts), [2,3]))
 			return false;
 		
-		if(false == ($context_ext = Extension_DevblocksContext::getByAlias($uri_parts[1])))
+		if(!($context_ext = Extension_DevblocksContext::getByAlias($uri_parts[1])))
 			return false;
 		
 		return [

@@ -3847,7 +3847,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		if(!is_array($context_ids))
 			$context_ids = array($context_ids);
 		
-		return Extension_DevblocksContext::markContextChanged($context, $context_ids);
+		Extension_DevblocksContext::markContextChanged($context, $context_ids);
 	}
 };
 

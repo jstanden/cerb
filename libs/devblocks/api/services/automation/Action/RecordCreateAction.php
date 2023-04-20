@@ -80,7 +80,7 @@ class RecordCreateAction extends AbstractAction {
 				throw new Exception_DevblocksAutomationError($error);
 			}
 			
-			if(false == ($context_ext = Extension_DevblocksContext::getByAlias($record_type, true)))
+			if(!($context_ext = Extension_DevblocksContext::getByAlias($record_type, true)))
 				throw new Exception_DevblocksAutomationError(sprintf(
 					"Unknown record type `%s`",
 					$record_type
@@ -137,7 +137,7 @@ class RecordCreateAction extends AbstractAction {
 			if(!$dao_class::onBeforeUpdateByActor($actor, $dao_fields, null, $error))
 				throw new Exception_DevblocksAutomationError($error);
 			
-			if(false == ($id = $dao_class::create($dao_fields)))
+			if(!($id = $dao_class::create($dao_fields)))
 				throw new Exception_DevblocksAutomationError("Failed to create the record.");
 			
 			$dao_class::onUpdateByActor($actor, $dao_fields, $id);

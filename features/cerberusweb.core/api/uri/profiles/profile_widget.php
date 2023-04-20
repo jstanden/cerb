@@ -146,7 +146,6 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 							'view_id' => $view_id,
 						]);
 						return;
-						break;
 					
 					case 'import':
 						$import_json = DevblocksPlatform::importGPC($_POST['import_json'] ?? null, 'string', '');
@@ -203,7 +202,6 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 							'view_id' => $view_id,
 						]);
 						return;
-						break;
 					
 					case 'build':
 						$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');
@@ -251,10 +249,10 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 								DAO_ProfileWidget::WIDTH_UNITS => $width_units,
 							);
 							
-							if(false == ($widget = DAO_ProfileWidget::get($id)))
+							if(!($widget = DAO_ProfileWidget::get($id)))
 								throw new Exception_DevblocksAjaxValidationError("This profile widget no longer exists.");
 							
-							if(false == ($extension = $widget->getExtension()))
+							if(!($extension = $widget->getExtension()))
 								throw new Exception_DevblocksAjaxValidationError("Invalid profile widget type.");
 							
 							if(!$extension->saveConfig($fields, $id, $error))
@@ -284,7 +282,6 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 							'view_id' => $view_id,
 						));
 						return;
-						break;
 				}
 			}
 			

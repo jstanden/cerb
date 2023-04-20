@@ -705,7 +705,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 
 			$label = implode($label_separator, $stack);
 			
-			if(false != ($key = array_search($label, $labels))) {
+			if(($key = array_search($label, $labels))) {
 				$node->label = $label;
 				$node->key = $key;
 				$node->l = $node_key;
@@ -1948,9 +1948,6 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		return $token_values;
 	}
 
-	/**
-	 * @internal
-	 */
 	protected function _getTokenLabelsFromCustomFields($fields, $prefix) {
 		$context_stack = CerberusContexts::getStack();
 
@@ -2820,7 +2817,6 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 
 						case Model_CustomField::TYPE_DATE:
 							$not = (substr($params['oper'],0,1) == '!');
-							$oper = ltrim($params['oper'],'!');
 							$oper = 'between';
 
 							$from = strtotime($params['from']);

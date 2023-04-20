@@ -1313,7 +1313,7 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 		$model = null;
 		
 		if($context_id) {
-			if(false == ($model = DAO_ProfileWidget::get($context_id)))
+			if(!($model = DAO_ProfileWidget::get($context_id)))
 				DevblocksPlatform::dieWithHttpError(null, 404);
 		}
 		
@@ -1354,7 +1354,7 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 			
 			// Widget extensions
 			
-			if(false != ($profile_tab = $model->getProfileTab())) {
+			if(($profile_tab = $model->getProfileTab())) {
 				$tpl->assign('profile_tab', $profile_tab);
 				
 				$widget_extensions = Extension_ProfileWidget::getByContext($profile_tab->context, false);

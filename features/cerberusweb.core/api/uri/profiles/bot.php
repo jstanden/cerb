@@ -2026,7 +2026,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		
 		unset($_POST);
 		
-		if(false == ($automation = $continuation->getAutomation()))
+		if(!($automation = $continuation->getAutomation()))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(!in_array($automation->extension_id, $this->_interaction_extensions))
@@ -2081,13 +2081,13 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 	private function _respondAutomationAwaitRecord(DevblocksDictionaryDelegate $automation_results, Model_AutomationContinuation $continuation) {
 		$record_state = $automation_results->getKeyPath('__return.record', []);
 		
-		if(false == ($record_uri = DevblocksPlatform::services()->ui()->parseURI($record_state['uri'] ?? null)))
+		if(!($record_uri = DevblocksPlatform::services()->ui()->parseURI($record_state['uri'] ?? null)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(!array_key_exists('context', $record_uri) || !$record_uri['context'])
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
-		if(false == ($context_ext = Extension_DevblocksContext::getByAlias($record_uri['context'], true)))
+		if(!($context_ext = Extension_DevblocksContext::getByAlias($record_uri['context'], true)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		$continuation->state_data['dict'] = $automation_results->getDictionary();

@@ -695,7 +695,7 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		if(false == ($widget = DAO_ProfileWidget::get($id, $context)))
+		if(!($widget = DAO_ProfileWidget::get($id, $context)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(!Context_ProfileWidget::isReadableByActor($widget, $active_worker))
@@ -704,7 +704,7 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 		if(!CerberusContexts::isReadableByActor($context, $context_id, $active_worker))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		if(false == ($extension = $widget->getExtension()))
+		if(!($extension = $widget->getExtension()))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		// If full, we also want to replace the container

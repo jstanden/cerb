@@ -31,7 +31,6 @@ $(function() {
 	var $select = $config.find("select[name='params[context]']");
 	var $label_context_id = $config.find('a.cerb-chooser');
 	var $input_context_id = $config.find('input[name="params[context_id]"]');
-	var $tab_fields = $config.find('#widget{$widget->id}TabFields');
 	var $context_tabs = $config.find('div.cerb-context-tabs');
 	
 	$context_tabs.find('div.cerb-tabs').tabs();
@@ -39,7 +38,7 @@ $(function() {
 	$select.on('change', function(e) {
 		var context = $(this).val();
 		
-		if(0 == context.length) {
+		if(0 === context.length) {
 			$tabs.hide();
 			return;
 		}

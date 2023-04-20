@@ -85,7 +85,7 @@ class ProfileWidget_Sheet extends Extension_ProfileWidget {
 				
 				$sheet_kata = DevblocksPlatform::importGPC($model->extension_params['sheet_kata'] ?? null, 'string', null);
 				
-				if(false == ($sheet = $sheets->parse($sheet_kata, $error)))
+				if(!($sheet = $sheets->parse($sheet_kata, $error)))
 					return;
 				
 				$sheets->addType('card', $sheets->types()->card());
@@ -131,18 +131,18 @@ class ProfileWidget_Sheet extends Extension_ProfileWidget {
 		}
 	}
 	
-	function renderConfig(Model_ProfileWidget $widget) {
+	function renderConfig(Model_ProfileWidget $model) {
 		$tpl = DevblocksPlatform::services()->template();
 		
-		if(!array_key_exists('data_query', $widget->extension_params)) {
-			$widget->extension_params['data_query'] = "type:worklist.records\nof:ticket\nexpand: [custom_,]\nquery:(\n  status:o\n  limit:10\n  sort:[id]\n)\nformat:dictionaries";
+		if(!array_key_exists('data_query', $model->extension_params)) {
+			$model->extension_params['data_query'] = "type:worklist.records\nof:ticket\nexpand: [custom_,]\nquery:(\n  status:o\n  limit:10\n  sort:[id]\n)\nformat:dictionaries";
 		}
 		
-		if(!array_key_exists('sheet_kata', $widget->extension_params)) {
-			$widget->extension_params['sheet_kata'] = "layout:\n  style: table\n  headings@bool: yes\n  paging@bool: yes\n  #title_column: _label\n\ncolumns:\n  text/id:\n    label: ID\n\n  card/_label:\n    label: Label\n    params:\n      #image@bool: yes\n      #bold@bool: yes\n\n  ";
+		if(!array_key_exists('sheet_kata', $model->extension_params)) {
+			$model->extension_params['sheet_kata'] = "layout:\n  style: table\n  headings@bool: yes\n  paging@bool: yes\n  #title_column: _label\n\ncolumns:\n  text/id:\n    label: ID\n\n  card/_label:\n    label: Label\n    params:\n      #image@bool: yes\n      #bold@bool: yes\n\n  ";
 		}
 		
-		$tpl->assign('widget', $widget);
+		$tpl->assign('widget', $model);
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/sheet/config.tpl');
 	}
 	
@@ -157,7 +157,7 @@ class ProfileWidget_Sheet extends Extension_ProfileWidget {
 	function saveConfig(array $fields, $id, &$error=null) {
 		$kata = DevblocksPlatform::services()->kata();
 		
-		if(false == (@$json = json_decode($fields[DAO_ProfileWidget::EXTENSION_PARAMS_JSON], true)))
+		if(!(@$json = json_decode($fields[DAO_ProfileWidget::EXTENSION_PARAMS_JSON], true)))
 			return true;
 		
 		if(array_key_exists('sheet_kata', $json)) {
@@ -224,7 +224,7 @@ class ProfileWidget_Sheet extends Extension_ProfileWidget {
 			'row_selections' => $row_selections,
 		]);
 		
-		if(false != ($toolbar_kata = @$widget->extension_params['toolbar_kata'])) {
+		if(($toolbar_kata = @$widget->extension_params['toolbar_kata'])) {
 			$toolbar = $ui->toolbar()->parse($toolbar_kata, $toolbar_dict);
 			
 			$ui->toolbar()->render($toolbar);
