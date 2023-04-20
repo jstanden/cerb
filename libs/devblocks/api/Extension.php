@@ -674,7 +674,30 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	 * @deprecated 
 	 */
 	static function getPlaceholderTree($labels, $label_separator=' ', $key_separator=' ', $condense=true) {
+		// [TODO] Cache until records are edited
 		natcasesort($labels);
+		$custom_fields = DAO_CustomField::getAll();
+		
+		// Convert custom placeholder keys from IDs to URIs
+		// We can do this globally when behaviors are removed
+		$labels = array_combine(
+			array_map(
+				function($label) use ($custom_fields) {
+					return preg_replace_callback(
+						'#custom_(\d*)#',
+						function($matches) use ($custom_fields, $label) {
+							if(array_key_exists($matches[1], $custom_fields)) {
+								return $custom_fields[$matches[1]]->uri ?: $matches[0];
+							}
+							return $matches[0];
+						},
+						$label
+					);
+				},
+				array_keys($labels)
+			),
+			$labels
+		);
 		
 		$keys = new DevblocksMenuItemPlaceholder();
 		
@@ -1955,8 +1978,10 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		$fieldsets = DAO_CustomFieldset::getAll();
 		
 		if(is_array($fields))
-		foreach($fields as $cf_id => $field) {
+		foreach($fields as $field) { /* @var $field Model_CustomField */
 			$fieldset = $field->custom_fieldset_id ? @$fieldsets[$field->custom_fieldset_id] : null;
+			//$cf_key = $field->uri ?: ('custom_' . $field->id); 
+			$cf_key = 'custom_' . $field->id; 
 
 			$suffix = '';
 
@@ -1968,8 +1993,8 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 					$field_prefix = $prefix . ($fieldset ? ($fieldset->name . ' ') : '') . $field->name . ' ';
 					
 					// Control infinite recursion
-					if(count($context_stack) > 2 && $field->type == Model_CustomField::TYPE_LINK) {
-						$labels['custom_'.$cf_id] = $field_prefix;
+					if(count($context_stack) > 2) {
+						$labels[$cf_key] = $field_prefix;
 						
 					} else {
 						$merge_labels = $merge_values = [];
@@ -1978,14 +2003,14 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 						// Unset redundant id
 						unset($merge_labels['id']);
 	
-						$labels['custom_'.$cf_id] = sprintf("%s%s",
+						$labels[$cf_key] = sprintf("%s%s",
 							$field_prefix,
 							'ID'
 						);
 						
 						if(is_array($merge_labels))
 						foreach($merge_labels as $label_key => $label) {
-							$labels['custom_'.$cf_id.'_'.$label_key] = $label;
+							$labels[$cf_key.'_'.$label_key] = $label;
 						}
 					}
 					break;
@@ -1994,7 +2019,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 					$field_prefix = $prefix . ($fieldset ? ($fieldset->name . ' ') : '') . $field->name . ' ';
 					
 					if(count($context_stack) > 1) {
-						$labels['custom_' . $cf_id] = $field_prefix;
+						$labels[$cf_key] = $field_prefix;
 						
 					} else {
 						$merge_labels = $merge_values = [];
@@ -2003,20 +2028,20 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 						// Unset redundant id
 						unset($merge_labels['id']);
 						
-						$labels['custom_'.$cf_id] = sprintf("%s%s",
+						$labels[$cf_key] = sprintf("%s%s",
 							$field_prefix,
 							'ID'
 						);
 						
 						if(is_array($merge_labels))
 							foreach($merge_labels as $label_key => $label) {
-								$labels['custom_'.$cf_id.'_'.$label_key] = $label;
+								$labels[$cf_key.'_'.$label_key] = $label;
 							}
 					}
 					break;
 					
 				default:
-					$labels['custom_'.$cf_id] = sprintf("%s%s%s%s",
+					$labels[$cf_key] = sprintf("%s%s%s%s",
 						$prefix,
 						($fieldset ? ($fieldset->name . ':') : ''),
 						$field->name,
