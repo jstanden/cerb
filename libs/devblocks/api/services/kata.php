@@ -2,6 +2,18 @@
 
 use Twig\Error\SyntaxError;
 
+class DevblocksKataRawString {
+	private string $_string = '';
+	
+	public function __construct(string $string='') {
+		$this->_string = $string;
+	}
+	
+	public function __toString(): string {
+		return $this->_string;
+	}
+}
+
 class _DevblocksKataService {
 	private static ?_DevblocksKataService $_instance = null;
 
@@ -296,7 +308,7 @@ class _DevblocksKataService {
 		$recurse = function($parent, $indent=0) use (&$output, &$recurse) {
 			if(is_array($parent))
 				foreach($parent as $k => $v) {
-					if(is_object($v))
+					if(is_object($v) && !($v instanceof DevblocksKataRawString))
 						$v = DevblocksPlatform::objectToArray($v);
 					
 					if(is_array($v)) {
@@ -317,10 +329,13 @@ class _DevblocksKataService {
 						$output .= str_repeat('  ', $indent) . strval($v) . "\n";
 						
 					} else {
+						if(($is_raw = $v instanceof DevblocksKataRawString))
+							$v = (string) $v;
+						
 						$lines = DevblocksPlatform::parseCrlfString($v, true, false);
 						
 						if(count($lines) > 1) {
-							$output .= str_repeat('  ', $indent) . strval($k) . "@text:\n";
+							$output .= str_repeat('  ', $indent) . strval($k) . ($is_raw ? "@raw:" : "@text:") . "\n";
 							
 							foreach($lines as $line)
 								$output .= str_repeat('  ', $indent+1) . strval($line) . "\n";
@@ -332,7 +347,7 @@ class _DevblocksKataService {
 							$output .= str_repeat('  ', $indent) . strval($k) . "@int: " . intval($v) . "\n";
 							
 						} else {
-							$output .= str_repeat('  ', $indent) . strval($k) . ": " . strval($v) . "\n";
+							$output .= str_repeat('  ', $indent) . strval($k) . ($is_raw ? "@raw" : "") . ": " . strval($v) . "\n";
 						}
 					}
 				}
@@ -470,7 +485,7 @@ class _DevblocksKataService {
 	
 	private array $_formatTreeStack;
 	
-	function formatTree($tree, DevblocksDictionaryDelegate $dict=null, &$error=null) {
+	function formatTree($tree, DevblocksDictionaryDelegate $dict=null, &$error=null, $wrap_raw=false) {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
 		if(!is_array($tree))
@@ -480,7 +495,7 @@ class _DevblocksKataService {
 		$this->_formatTreeStack = [];
 		
 		foreach(array_keys($tree) as $k) {
-			$merge_tree = $this->_formatTree($tree[$k], $k, $dict, $tpl_builder, $error);
+			$merge_tree = $this->_formatTree($tree[$k], $k, $dict, $tpl_builder, $error, $wrap_raw);
 			
 			if(!is_null($error)) {
 				$error = sprintf("[%s] %s",
@@ -498,7 +513,7 @@ class _DevblocksKataService {
 		return $parsed_tree;
 	}
 	
-	private function _formatTree($v, $k, DevblocksDictionaryDelegate $dict=null, _DevblocksTemplateBuilder $tpl_builder=null, &$error=null) {
+	private function _formatTree($v, $k, DevblocksDictionaryDelegate $dict=null, _DevblocksTemplateBuilder $tpl_builder=null, &$error=null, $wrap_raw=false) {
 		$this->_formatTreeStack[] = DevblocksPlatform::services()->string()->strBefore($k, '@');
 		
 		if(is_string($v)) {
@@ -568,8 +583,12 @@ class _DevblocksKataService {
 					}
 				} else if($annotation == 'list') {
 					$v = DevblocksPlatform::parseCrlfString($v);
-				} else if(in_array($annotation, ['optional','raw','text'])) {
+				} else if(in_array($annotation, ['optional','text'])) {
 					DevblocksPlatform::noop();
+				} else if($annotation == 'raw') {
+					if($wrap_raw) {
+						return [$k => new DevblocksKataRawString($v)];
+					}
 				} else if($annotation == 'trim') {
 					if(is_string($v))
 						$v = trim($v);
@@ -600,7 +619,7 @@ class _DevblocksKataService {
 			}
 				
 			foreach(array_keys($v) as $kk) {
-				$result = $this->_formatTree($v[$kk], $kk, $dict, $tpl_builder, $error);
+				$result = $this->_formatTree($v[$kk], $kk, $dict, $tpl_builder, $error, $wrap_raw);
 				
 				if(!is_null($error))
 					return false;

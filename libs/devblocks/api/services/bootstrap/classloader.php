@@ -218,6 +218,7 @@ class _DevblocksClassLoadManager {
 		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/kata.php', [
 			'_DevblocksKataService',
+			'DevblocksKataRawString',
 		]);
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/metrics.php', [
 			'_DevblocksMetricsService',
