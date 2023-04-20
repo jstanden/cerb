@@ -154,7 +154,7 @@
 			<class name="SearchFields_Address" />
 			<class name="View_Address" />
 		</file>
-		
+
 		<file path="api/dao/attachment.php">
 			<class name="Context_Attachment" />
 			<class name="DAO_Attachment" />
@@ -760,6 +760,14 @@
 			<class name="Model_Notification" />
 			<class name="SearchFields_Notification" />
 			<class name="View_Notification" />
+		</file>
+
+		<file path="api/dao/workflow.php">
+			<class name="Context_Workflow" />
+			<class name="DAO_Workflow" />
+			<class name="Model_Workflow" />
+			<class name="SearchFields_Workflow" />
+			<class name="View_Workflow" />
 		</file>
 		
 		<file path="api/dao/workspace_page.php">
@@ -1389,6 +1397,50 @@
 				</param>
 				<param key="acl">
 					<value/>
+				</param>
+			</params>
+		</extension>
+
+		<extension point="devblocks.context">
+			<id>cerb.contexts.workflow</id>
+			<name>Workflow</name>
+			<class>
+				<file>api/dao/workflow.php</file>
+				<name>Context_Workflow</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="workflow" value="singular" />
+						<data key="workflows" value="plural" />
+					</value>
+				</param>
+				<param key="alias" value="workflow" />
+				<param key="dao_class" value="DAO_Workflow" />
+				<param key="view_class" value="View_Workflow" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="comments" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="records" />
+						<data key="search" />
+						<data key="snippets" />
+						<data key="va_variable" />
+						<data key="watchers" />
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="update" />
+						<data key="update.bulk" />
+					</value>
 				</param>
 			</params>
 		</extension>
@@ -7365,6 +7417,19 @@
 				</params>
 			</extension>
 			
+			<extension point="cerberusweb.ui.page.section">
+				<id>cerb.page.profiles.workflow</id>
+				<name>Workflow Section</name>
+				<class>
+					<file>api/uri/profiles/workflow.php</file>
+					<name>PageSection_ProfilesWorkflow</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="workflow" />
+				</params>
+			</extension>
+	
 			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.profiles.attachment</id>
 				<name>Attachment Section</name>

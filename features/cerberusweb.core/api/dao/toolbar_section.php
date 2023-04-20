@@ -58,7 +58,7 @@ class DAO_ToolbarSection extends Cerb_ORMHelper {
 		$validation
 			->addField(self::WORKFLOW_ID)
 			->id()
-			->addValidator($validation->validators()->contextId('cerb.contexts.workflow', true))
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_WORKFLOW, true))
 		;
 		$validation
 			->addField('_fieldsets')
@@ -401,7 +401,7 @@ class SearchFields_ToolbarSection extends DevblocksSearchFields {
 	static function getCustomFieldContextKeys() {
 		return [
 			Context_ToolbarSection::ID => new DevblocksSearchFieldContextKeys('toolbar_section.id', self::ID),
-			'cerb.contexts.workflow' => new DevblocksSearchFieldContextKeys('toolbar_section.workflow_id', self::WORKFLOW_ID),
+			CerberusContexts::CONTEXT_WORKFLOW => new DevblocksSearchFieldContextKeys('toolbar_section.workflow_id', self::WORKFLOW_ID),
 		];
 	}
 	
@@ -705,7 +705,7 @@ class View_ToolbarSection extends C4_AbstractView implements IAbstractView_Subto
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => ['param_key' => SearchFields_ToolbarSection::WORKFLOW_ID],
 					'examples' => [
-						['type' => 'chooser', 'context' => 'cerb.contexts.workflow', 'q' => ''],
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_WORKFLOW, 'q' => ''],
 					]
 				],
 		];
@@ -929,7 +929,7 @@ class Context_ToolbarSection extends Extension_DevblocksContext implements IDevb
 			'type' => Model_CustomField::TYPE_LINK,
 			'value' => $model->workflow_id,
 			'params' => [
-				'context' => 'cerb.contexts.workflow',
+				'context' => CerberusContexts::CONTEXT_WORKFLOW,
 			],
 		];
 		

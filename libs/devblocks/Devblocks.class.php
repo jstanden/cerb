@@ -2907,6 +2907,42 @@ class DevblocksPlatform extends DevblocksEngine {
 				$activities[$point] = $data;
 			}
 		}
+
+		// Merge in custom activities from workflows
+		
+		if(class_exists('DAO_Workflow')) {
+			$workflows = DAO_Workflow::getWithExtensions(Model_Workflow::HAS_ACTIVITIES);
+		} else {
+			$workflows = [];
+		}
+		
+		foreach($workflows as $workflow) {
+			if(!$workflow_kata = $workflow->getParsedTemplate())
+				continue;
+			
+			if(!($workflow_kata['extensions'] ?? []))
+				continue;
+			
+			foreach($workflow_kata['extensions'] as $extension_key => $extension) {
+				$type = DevblocksPlatform::services()->string()->strBefore($extension_key, '/');
+				
+				if(
+					$type != 'activity'
+					|| !($extension['id'] ?? null)
+					|| !($extension['label'] ?? null)
+					|| !($extension['message'] ?? null)
+				) continue;
+				
+				$activities[$extension['id']] = [
+					'point' => $extension['id'],
+					'params' => [
+						'label_key' => $extension['label'],
+						'string_key' => $extension['message'],
+						'options' => null,
+					]
+				];
+			}
+		}
 		
 		DevblocksPlatform::sortObjects($activities, '[params]->[label_key]');
 		
@@ -2969,6 +3005,41 @@ class DevblocksPlatform extends DevblocksEngine {
 			$priv->label = $row['label'];
 			
 			$acl[$priv->id] = $priv;
+		}
+		
+		// Merge in custom permissions from workflows
+		
+		if(class_exists('DAO_Workflow')) {
+			$workflows = DAO_Workflow::getWithExtensions(Model_Workflow::HAS_PERMISSIONS);
+		} else {
+			$workflows = [];
+		}
+		
+		foreach($workflows as $workflow) {
+			if(!$workflow_kata = $workflow->getParsedTemplate())
+				continue;
+			
+			if(!($workflow_kata['extensions'] ?? []))
+				continue;
+			
+			foreach($workflow_kata['extensions'] as $extension_key => $extension) {
+				$type = DevblocksPlatform::services()->string()->strBefore($extension_key, '/');
+				
+				if(
+					$type != 'permission'
+					|| !($extension['id'] ?? null)
+					|| !($extension['label'] ?? null)
+				) continue;
+				
+				if(!str_starts_with($extension['label'], '['))
+					$extension['label'] = '[' . $workflow->name . '] ' . $extension['label'];
+				
+				$priv = new DevblocksAclPrivilege();
+				$priv->id = $extension['id'];
+				$priv->label = $extension['label'];
+				$priv->plugin_id = 'cerberusweb.core';
+				$acl[$extension['id']] = $priv;
+			}
 		}
 		
 		$cache->save($acl, self::CACHE_ACL);
@@ -3513,6 +3584,40 @@ class DevblocksPlatform extends DevblocksEngine {
 			$map_en = DAO_Translation::getMapByLang('en_US');
 			if(0 != strcasecmp('en_US', $locale))
 				$map_loc = DAO_Translation::getMapByLang($locale);
+			
+			// Merge in workflow translations
+			if(class_exists('DAO_Workflow')) {
+				$workflows = DAO_Workflow::getWithExtensions(Model_Workflow::HAS_TRANSLATIONS);
+			} else {
+				$workflows = [];
+			}
+			
+			foreach($workflows as $workflow) {
+				if(!($workflow_kata = $workflow->getParsedTemplate()))
+					continue;
+				
+				foreach(($workflow_kata['extensions'] ?? []) as $extension_key => $extension_data) {
+					$extension_data['langs'] = $extension_data['langs'] ?? [];
+					
+					if(str_starts_with($extension_key, 'translation')) {
+						if($extension_data['langs']['en_US'] ?? null) {
+							$string = new Model_Translation();
+							$string->id = 0;
+							$string->string_id = $extension_data['id'];
+							$string->lang_code = 'en_US';
+							$string->string_default = $extension_data['langs']['en_US'];
+							$map_en[$extension_data['id']] = $string;
+						} else if (array_key_exists($locale, $extension_data['langs'])) {
+							$string = new Model_Translation();
+							$string->id = 0;
+							$string->string_id = $extension_data['id'];
+							$string->lang_code = $locale;
+							$string->string_default = $extension_data['langs'][$locale];
+							$map_loc[$extension_data['id']] = $string;
+						}
+					}
+				}
+			}
 			
 			// Loop through the English string objects
 			if(is_array($map_en))

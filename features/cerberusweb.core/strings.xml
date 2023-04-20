@@ -465,6 +465,11 @@
 				<seg>Availability</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.back">
+			<tuv xml:lang="en_US">
+				<seg>back</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.banned">
 			<tuv xml:lang="en_US">
 				<seg>banned</seg>

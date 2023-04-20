@@ -978,6 +978,7 @@ class CerberusContexts {
 	const CONTEXT_WEBAPI_CREDENTIAL = 'cerberusweb.contexts.webapi.credential';
 	const CONTEXT_WEBHOOK_LISTENER = 'cerberusweb.contexts.webhook_listener';
 	const CONTEXT_WORKER = 'cerberusweb.contexts.worker';
+	const CONTEXT_WORKFLOW = 'cerb.contexts.workflow';
 	const CONTEXT_WORKSPACE_PAGE = 'cerberusweb.contexts.workspace.page';
 	const CONTEXT_WORKSPACE_TAB = 'cerberusweb.contexts.workspace.tab';
 	const CONTEXT_WORKSPACE_WIDGET = 'cerberusweb.contexts.workspace.widget';
@@ -2270,6 +2271,15 @@ class CerberusContexts {
 		} // end if($do_notifications)
 
 		return $activity_entry_id;
+	}
+	
+	static function getModel($context, int $id) : object|null {
+		$models = self::getModels($context, [$id]);
+		
+		if(array_key_exists($id, $models))
+			return $models[$id];
+		
+		return null;
 	}
 	
 	static function getModels($context, array $ids, bool $no_cache=false) {
@@ -6709,6 +6719,136 @@ class _CerbApplication_KataSchemas {
                 required:
                   types:
                     bool:
+    EOD;
+	}
+	
+	function workflow() : string {
+		return <<< EOD
+    schema:
+      attributes:
+        config:
+          multiple@bool: no
+          types:
+            object:
+              attributes:
+                chooser:
+                  multiple@bool: yes
+                  types:
+                    object:
+                      attributes:
+                        default:
+                          multiple@bool: no
+                          types:
+                            list:
+                            string:
+                        label:
+                          multiple@bool: no
+                          types:
+                            string:
+                        multiple:
+                          multiple@bool: no
+                          types:
+                            string:
+                        record_query:
+                          multiple@bool: no
+                          types:
+                            string:
+                        record_type:
+                          required@bool: yes
+                          multiple@bool: no
+                          types:
+                            string:
+                text:
+                  multiple@bool: yes
+                  types:
+                    object:
+                      attributes:
+                        default:
+                          multiple@bool: no
+                          types:
+                            string:
+                        label:
+                          multiple@bool: no
+                          types:
+                            string:
+        extensions:
+          multiple@bool: no
+          types:
+            object:
+              attributes:
+                activity:
+                  multiple@bool: yes
+                  types:
+                    object:
+                      attributes:
+                        id:
+                          required@bool: yes
+                          multiple@bool: no
+                          types:
+                            string:
+                        label:
+                          required@bool: yes
+                          multiple@bool: no
+                          types:
+                            string:
+                        message:
+                          multiple@bool: no
+                          types:
+                            string:
+                permission:
+                  multiple@bool: yes
+                  types:
+                    object:
+                      attributes:
+                        id:
+                          required@bool: yes
+                          multiple@bool: no
+                          types:
+                            string:
+                        label:
+                          required@bool: yes
+                          multiple@bool: no
+                          types:
+                            string:
+                translation:
+                  multiple@bool: yes
+                  types:
+                    object:
+                      attributes:
+                        id:
+                          required@bool: yes
+                          multiple@bool: no
+                          types:
+                            string:
+                        langs:
+                          required@bool: yes
+                          multiple@bool: no
+                          types:
+                            object:
+                              attributePatterns:
+                                pattern/lang:
+                                  match: *_*
+                                  attributes:
+                                    types:
+                                      string:
+        records:
+          multiple@bool: no
+          types:
+            object:
+              attributePatterns:
+                pattern/record_type:
+                  match: *
+                  attributes:
+                    multiple@bool: yes
+                    types:
+                      object:
+                        attributes:
+                          deletionPolicy:
+                            types:
+                              string:
+                          fields:
+                            types:
+                              list:
     EOD;
 	}
 	

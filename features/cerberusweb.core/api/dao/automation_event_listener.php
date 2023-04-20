@@ -62,7 +62,7 @@ class DAO_AutomationEventListener extends Cerb_ORMHelper {
 		$validation
 			->addField(self::WORKFLOW_ID)
 			->id()
-			->addValidator($validation->validators()->contextId('cerb.contexts.workflow', true))
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_WORKFLOW, true))
 		;
 		$validation
 			->addField('_fieldsets')
@@ -406,7 +406,7 @@ class SearchFields_AutomationEventListener extends DevblocksSearchFields {
 	static function getCustomFieldContextKeys() {
 		return [
 			CerberusContexts::CONTEXT_AUTOMATION_EVENT_LISTENER => new DevblocksSearchFieldContextKeys('automation_event_listener.id', self::ID),
-			'cerb.contexts.workflow' => new DevblocksSearchFieldContextKeys('automation_event_listener.workflow_id', self::WORKFLOW_ID),
+			CerberusContexts::CONTEXT_WORKFLOW => new DevblocksSearchFieldContextKeys('automation_event_listener.workflow_id', self::WORKFLOW_ID),
 		];
 	}
 	
@@ -699,7 +699,7 @@ class View_AutomationEventListener extends C4_AbstractView implements IAbstractV
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => ['param_key' => SearchFields_AutomationEventListener::WORKFLOW_ID],
 					'examples' => [
-						['type' => 'chooser', 'context' => 'cerb.contexts.workflow', 'q' => ''],
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_WORKFLOW, 'q' => ''],
 					]
 				],
 		];
@@ -923,7 +923,7 @@ class Context_AutomationEventListener extends Extension_DevblocksContext impleme
 			'type' => Model_CustomField::TYPE_LINK,
 			'value' => $model->workflow_id,
 			'params' => [
-				'context' => 'cerb.contexts.workflow',
+				'context' => CerberusContexts::CONTEXT_WORKFLOW,
 			],
 		];
 		

@@ -279,6 +279,20 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 				$results['automation_event_listener'] = array_column($linked_event_listeners, 'id');
 		}
 		
+		// Workflows
+		if(($linked_workflows = DAO_Workflow::getWhere(sprintf("%s LIKE %s",
+			Cerb_ORMHelper::escape(DAO_Workflow::WORKFLOW_KATA),
+			Cerb_ORMHelper::qstr('%' . $automation_name . '%')
+		)))) {
+			$linked_workflows = array_filter($linked_workflows, function($w) use ($automation_name) {
+				$tokens = DevblocksPlatform::services()->string()->tokenize($w->workflow_kata, false);
+				return in_array($automation_name, $tokens);
+			});
+			
+			if($linked_workflows)
+				$results['workflow'] = array_column($linked_workflows, 'id');
+		}
+		
 		$data = [];
 		
 		foreach($results as $record_type => $record_ids) {

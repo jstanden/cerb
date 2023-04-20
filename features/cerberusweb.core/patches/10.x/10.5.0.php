@@ -114,6 +114,31 @@ if(!array_key_exists('routing_kata', $columns)) {
 }
 
 // ===========================================================================
+// Workflows
+
+if(!isset($tables['workflow'])) {
+	$sql = sprintf("
+		CREATE TABLE `workflow` (
+		`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+		`name` varchar(255) NOT NULL DEFAULT '',
+		`description` varchar(255) NOT NULL DEFAULT '',
+		`created_at` int(10) unsigned NOT NULL DEFAULT 0,
+		`updated_at` int(10) unsigned NOT NULL DEFAULT 0,
+		`workflow_kata` mediumtext,
+		`config_kata` mediumtext,
+		`resources_kata` mediumtext,
+		`has_extensions` tinyint unsigned NOT NULL DEFAULT 0,
+		PRIMARY KEY (id),
+		UNIQUE (name),
+		INDEX (updated_at)
+		) ENGINE=%s
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+	
+	$tables['workflow'] = 'workflow';
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

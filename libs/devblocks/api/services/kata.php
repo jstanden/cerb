@@ -12,6 +12,10 @@ class DevblocksKataRawString {
 	public function __toString(): string {
 		return $this->_string;
 	}
+	
+	public function setString(string $string) : void {
+		$this->_string = $string;
+	}
 }
 
 class _DevblocksKataService {
@@ -889,4 +893,47 @@ class _DevblocksKataService {
 		
 		return true;
 	}
+	
+	public function treeDiff(mixed $tree1, mixed $tree2, string $parent_key='') : mixed {
+		$differences = [];
+		
+		// Compare the types of the trees
+		if(gettype($tree1) !== gettype($tree2)) {
+			return $tree2;
+		}
+		
+		// If both trees are arrays, compare their elements
+		if(is_array($tree1) && is_array($tree2)) {
+			// Compare each element recursively
+			foreach ($tree1 as $key => $value) {
+				if(isset($tree2[$key])) {
+					$nestedDifferences = $this->treeDiff($value, $tree2[$key], $parent_key . $key . ':');
+					if($nestedDifferences) {
+						$differences[$key] = $nestedDifferences;
+					}
+				}
+			}
+			
+			// Check for additional elements in tree2
+			foreach($tree2 as $key => $value) {
+				if(!isset($tree1[$key])) {
+					$differences[$key] = $value;
+				}
+			}
+			
+			return $differences;
+		}
+		
+		// If the trees are of different types and not arrays, they are different
+		if(
+			($tree1 instanceof DevblocksKataRawString ? (string) $tree1 : $tree1)
+			!==
+			($tree2 instanceof DevblocksKataRawString ? (string) $tree2 : $tree2)
+		) {
+			return $tree2;
+		}
+		
+		// If the trees are of the same type and equal, there are no differences
+		return $differences;
+	}	
 }
