@@ -1034,7 +1034,7 @@ class SearchFields_Message extends DevblocksSearchFields {
 			SearchFields_Message::STORAGE_EXTENSION => new DevblocksSearchField(SearchFields_Message::STORAGE_EXTENSION, 'm', 'storage_extension', null, true),
 			SearchFields_Message::STORAGE_KEY => new DevblocksSearchField(SearchFields_Message::STORAGE_KEY, 'm', 'storage_key', null, true),
 			SearchFields_Message::STORAGE_PROFILE_ID => new DevblocksSearchField(SearchFields_Message::STORAGE_PROFILE_ID, 'm', 'storage_profile_id', null, true),
-			SearchFields_Message::STORAGE_SIZE => new DevblocksSearchField(SearchFields_Message::STORAGE_SIZE, 'm', 'storage_size', null, true),
+			SearchFields_Message::STORAGE_SIZE => new DevblocksSearchField(SearchFields_Message::STORAGE_SIZE, 'm', 'storage_size', $translate->_('common.size'), true),
 			
 			SearchFields_Message::ADDRESS_EMAIL => new DevblocksSearchField(SearchFields_Message::ADDRESS_EMAIL, 'a', 'email', $translate->_('common.email'), Model_CustomField::TYPE_SINGLE_LINE, false),
 			
@@ -2109,6 +2109,15 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Message::SIGNED_KEY_FINGERPRINT),
 				),
+			'size' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_Message::STORAGE_SIZE),
+					'examples' => [
+						'>1MB',
+						'<=512KB',
+					]
+				),
 			'token' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
@@ -2297,6 +2306,9 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				}
 				break;
 			
+			case 'size':
+				return DevblocksSearchCriteria::getBytesParamFromTokens(SearchFields_Message::STORAGE_SIZE, $tokens);
+				
 			case 'ticket':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Message::VIRTUAL_TICKET_SEARCH);
 				break;
