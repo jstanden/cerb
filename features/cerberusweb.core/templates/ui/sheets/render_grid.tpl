@@ -1,21 +1,29 @@
 {$is_selection_enabled = false}
 
-<div class="cerb-sheet-layout {if $layout_style == 'columns'}cerb-sheet-columns{else}cerb-sheet-grid{/if}">
+<div class="cerb-sheet-layout {if $layout.style == 'columns'}cerb-sheet-columns{else}cerb-sheet-grid{/if}">
 	{if $rows}
 	{foreach from=$rows item=row name=rows}
-	<div class="cerb-sheet--row" {if $layout_style == 'grid' && $layout.params.width}style="flex:1 1 {$layout.params.width|round}px;"{/if}>
+	<div class="cerb-sheet--row" {if $layout.style == 'grid' && $layout.params.width}style="flex:1 1 {$layout.params.width|round}px;"{/if}>
 		<div class="cerb-sheet--row-item">
 		{foreach from=$columns item=column name=columns}
-			<div data-cerb-column-type="{$column._type}">
-			{if $column._type == 'selection'}
-				{$is_selection_enabled = true}
-				{$row[$column.key]|replace:'${SHEET_SELECTION_KEY}':{$sheet_selection_key|default:'_selection'} nofilter}
-			{else}
-				{if $column.params.bold}<span style="font-weight:bold;">{/if}
-				{$row[$column.key] nofilter}
-				{if $column.params.bold}</span>{/if}
+			{$cell = $row[$column.key]}
+			{if $cell}
+				{$color = $cell->getAttr('color')}
+				{$text_color = $cell->getAttr('text_color')}
+				{$text_size = $cell->getAttr('text_size')}
+				{$style_css = "{if $column.params.bold}font-weight:bold;{/if}{if $color}background-color:{$color};{/if}{if $text_color}color:{$text_color};{/if}{if $text_size}font-size:{$text_size}%;{/if}"}
+				
+				<div data-cerb-column-type="{$column._type}">
+				{if $column._type == 'selection'}
+					{$is_selection_enabled = true}
+					{$row[$column.key]|replace:'${SHEET_SELECTION_KEY}':{$sheet_selection_key|default:'_selection'} nofilter}
+				{else}
+					{if $style_css}<span style="{$style_css}">{/if}
+					{$cell nofilter}
+					{if $style_css}</span>{/if}
+				{/if}
+				</div>
 			{/if}
-			</div>
 		{/foreach}
 		</div>
 	</div>
@@ -84,9 +92,9 @@ $(function() {
 			if($target.hasClass('cerb-search-trigger'))
 				return;
 
-			var $tbody = $(this);
+			var $row = $(this);
 
-			var $checkbox = $tbody.find('input[type=radio], input[type=checkbox]');
+			var $checkbox = $row.find('input[type=radio], input[type=checkbox]');
 
 			// If our target was something other than the input toggle
 			if($checkbox.is($target))
@@ -99,8 +107,6 @@ $(function() {
 			}
 
 			var is_multiple = $checkbox.is('[type=checkbox]');
-			
-			var $row = $target.closest('.cerb-sheet--row');
 			
 			// Uncheck everything if single selection
 			if(!is_multiple) {
@@ -126,7 +132,7 @@ $(function() {
 
 			var row_selections = [];
 
-			$tbody.closest('table.cerb-sheet')
+			$row.closest('.cerb-sheet-layout')
 				.find('input[type=radio]:checked ,input[type=checkbox]:checked')
 				.each(function() {
 					row_selections.push($(this).val());

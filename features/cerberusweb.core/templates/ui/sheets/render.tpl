@@ -37,8 +37,12 @@
 
 				{if $layout.title_column}
 				{$column = $columns[$layout.title_column]}
+				{$cell = $row[$column.key]}
+				{$color = $cell->getAttr('color')}
+				{$text_color = $cell->getAttr('text_color')}
+				{$text_size = $cell->getAttr('text_size')}
 				<tr>
-					<td class="cerb-sheet--row-title" colspan="{$columns|count-1}">{$row[$column.key] nofilter}</td>
+					<td class="cerb-sheet--row-title" colspan="{$columns|count-1}" style="{if $column.params.bold}font-weight:bold;{/if}{if $color}background-color:{$color};{/if}{if $text_color}color:{$text_color};{/if}{if $text_size}font-size:{$text_size}%;{/if}">{$row[$column.key] nofilter}</td>
 				</tr>
 				{/if}
 

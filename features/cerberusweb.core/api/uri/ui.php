@@ -821,6 +821,12 @@ class Controller_UI extends DevblocksControllerExtension {
 		
 		if('fieldsets' == $layout['style']) {
 			$tpl->display('devblocks:cerberusweb.core::ui/sheets/render_fieldsets.tpl');
+		} else if('grid' == $layout['style']) {
+			$tpl->assign('layout_style', 'grid');
+			$tpl->display('devblocks:cerberusweb.core::ui/sheets/render_grid.tpl');
+		} else if('columns' == $layout['style']) {
+			$tpl->assign('layout_style', 'columns');
+			$tpl->display('devblocks:cerberusweb.core::ui/sheets/render_grid.tpl');
 		} else {
 			$tpl->display('devblocks:cerberusweb.core::ui/sheets/render.tpl');
 		}

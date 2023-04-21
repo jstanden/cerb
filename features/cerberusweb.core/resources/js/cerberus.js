@@ -1012,8 +1012,26 @@ var cerbAutocompleteSuggestions = {
 		],
 		'layout:colors:': cerbAutocompleteColorSuggestions,
 		'layout:style:': [
-			'table',
-			'fieldsets'
+			{
+				'caption': 'table',
+				'snippet': 'table',
+				'score': 2000,
+			},
+			{
+				'caption': 'fieldsets',
+				'snippet': 'fieldsets',
+				'score': 1999,
+			},
+			{
+				'caption': 'grid',
+				'snippet': 'grid',
+				'score': 1998,
+			},
+			{
+				'caption': 'columns',
+				'snippet': 'columns',
+				'score': 1997,
+			}
 		],
 		'layout:headings:': [
 			'true',
