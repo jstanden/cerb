@@ -241,7 +241,7 @@ function DevblocksClass() {
 		}
 		
 		// Open time tracking timer
-		if(timeTrackingTimer && eventData.return.hasOwnProperty('timer')) {
+		if(typeof timeTrackingTimer !== 'undefined' && eventData.return.hasOwnProperty('timer')) {
 			timeTrackingTimer.play(eventData.return['timer']);
 		}
 	}
