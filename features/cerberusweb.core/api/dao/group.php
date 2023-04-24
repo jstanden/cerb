@@ -2237,7 +2237,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			
 				
 			case 'members':
-				$out_fields[DAO_Group::_MEMBERS] = json_encode($value);
+				$out_fields[DAO_Group::_MEMBERS] = $value;
 				break;
 		}
 		
