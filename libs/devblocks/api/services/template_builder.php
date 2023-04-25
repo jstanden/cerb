@@ -1558,14 +1558,15 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 		return DevblocksPlatform::services()->kata()->parse($string);
 	}
 	
-	function function_cerb_placeholders_list(\Twig\Environment $env) {
-		if(false == (@$callback = $env->getUndefinedVariableCallbacks()[0]) || !is_array($callback))
+	function function_cerb_placeholders_list(\Twig\Environment $env, $extract=null, $prefix=null) {
+		if(!($callback = ($env->getUndefinedVariableCallbacks()[0] ?? null)) || !is_array($callback))
 			return [];
 		
-		if(false == (@$dict = $callback[0]))
+		if(!($dict = ($callback[0] ?? null)))
 			return [];
 		
-		return $dict->getDictionary('', false);
+		/* @var $dict DevblocksDictionaryDelegate */
+		return $dict->getDictionary($extract, false, $prefix);
 	}
 	
 	function function_random_string($length=8) {
