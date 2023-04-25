@@ -62,7 +62,7 @@
 			<button type="button" style="float:right;" class="cerb-code-editor-toolbar-button cerb-editor-button-help"><a href="https://cerb.ai/docs/sheets/" target="_blank"><span class="glyphicons glyphicons-circle-question-mark"></span></a></button>
 		</div>
 		
-		<textarea name="params[sheet_kata]" class="cerb-sheet-yaml-editor" data-editor-mode="ace/mode/cerb_kata" style="width:95%;height:50px;">{$widget->extension_params.sheet_kata}</textarea>
+		<textarea name="params[sheet_kata]" class="cerb-sheet-yaml-editor placeholders" data-editor-mode="ace/mode/cerb_kata" style="width:95%;height:50px;">{$widget->extension_params.sheet_kata}</textarea>
 
 		<div style="margin:5px 0 0 20px;">
 			<fieldset style="display:none;position:relative;">
