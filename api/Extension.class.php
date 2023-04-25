@@ -1440,6 +1440,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 						'description' => "The record type to load",
 					],
 					'record_id:',
+					'record_expand:',
 				],
 				'(.*):record.get:inputs:record_type:' => [
 					'type' => 'record-type',

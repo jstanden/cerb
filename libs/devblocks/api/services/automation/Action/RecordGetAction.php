@@ -48,6 +48,11 @@ class RecordGetAction extends AbstractAction {
 				->setRequired(true)
 			;
 			
+			$validation->addField('record_expand', 'inputs:record_expand:')
+				->string()
+				->setMaxLength(2048)
+			;
+			
 			if(false === ($validation->validateAll($inputs, $error)))
 				throw new Exception_DevblocksAutomationError($error);
 			
@@ -70,6 +75,7 @@ class RecordGetAction extends AbstractAction {
 			
 			$record_type = $inputs['record_type'] ?? null;
 			$record_id = $inputs['record_id'] ?? null;
+			$record_expand_keys = DevblocksPlatform::parseCsvString($inputs['record_expand'] ?? null);
 			
 			if ($record_type && $record_id) {
 				if (false == ($context_ext = Extension_DevblocksContext::getByAlias($record_type, true)))
@@ -86,7 +92,7 @@ class RecordGetAction extends AbstractAction {
 					));
 				}
 				
-				$record_dict = DevblocksDictionaryDelegate::getDictionariesFromModels([$record_id => $model], $context_ext->id);
+				$record_dict = DevblocksDictionaryDelegate::getDictionariesFromModels([$record_id => $model], $context_ext->id, $record_expand_keys);
 				
 				$dict->set($output, $record_dict[$record_id]);
 			}

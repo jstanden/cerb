@@ -4520,6 +4520,9 @@ class _CerbApplication_KataSchemas {
                         types:
                           object:
                             attributes:
+                              record_expand:
+                                types:
+                                  string:
                               record_id:
                                 types:
                                   number:
