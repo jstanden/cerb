@@ -10,7 +10,7 @@
 		<fieldset class="peek black">
 			<legend style="cursor:pointer;" onclick="$(this).closest('fieldset').find('input:checkbox').trigger('click');">{$context_ext->manifest->name}</legend>
 			
-			<div style="display:flex;flex-flow:row wrap;">
+			<div style="display:flex;flex-flow:row wrap;color:var(--cerb-color-background-contrast-100);">
 				{foreach from=$properties item=property key=property_key}
 				<div class="cerb-sort-item" style="flex:0 0 200px;">
 					<label><input type="checkbox" name="params[properties][0][]" value="{$property_key}" {if is_array($widget->params.properties.0) && in_array($property_key, $widget->params.properties.0)}checked="checked"{/if}> {$property.label}</label>
@@ -23,7 +23,7 @@
 		<fieldset class="peek black">
 			<legend style="cursor:pointer;" onclick="$(this).closest('fieldset').find('input:checkbox').trigger('click');">{$custom_fieldset.model->name}</legend>
 			
-			<div style="display:flex;flex-flow:row wrap;">
+			<div style="display:flex;flex-flow:row wrap;color:var(--cerb-color-background-contrast-100);">
 				{foreach from=$custom_fieldset.properties item=property key=property_key}
 				<div style="flex:0 0 200px;">
 					<label><input type="checkbox" name="params[properties][{$custom_fieldset_id}][]" value="{$property_key}" {if is_array($widget->params.properties.$custom_fieldset_id) && in_array($property_key, $widget->params.properties.$custom_fieldset_id)}checked="checked"{/if}> {$property.label}</label>
