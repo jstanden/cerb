@@ -115,11 +115,7 @@ class CardWidget_Sheet extends Extension_CardWidget {
 				$tpl->assign('card_context', $context);
 				$tpl->assign('card_context_id', $context_id);
 				
-				if($layout['style'] == 'fieldsets') {
-					$tpl->display('devblocks:cerberusweb.core::internal/cards/widgets/sheet/render_fieldsets.tpl');
-				} else {
-					$tpl->display('devblocks:cerberusweb.core::internal/cards/widgets/sheet/render.tpl');
-				}
+				$tpl->display('devblocks:cerberusweb.core::internal/cards/widgets/sheet/render.tpl');
 				break;
 		}
 	}
