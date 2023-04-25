@@ -105,6 +105,13 @@
 		{/if}
 		</div>
 		
+		<fieldset data-cerb-fieldset-advanced class="peek" style="margin-top:0.5em;">
+			<legend>Advanced options:</legend>
+			<div>
+				<textarea name="options_kata" data-editor-mode="ace/mode/cerb_kata" class="placeholders" style="display:none;">{$model->options_kata}</textarea>
+			</div>
+		</fieldset>
+		
 		<div class="cerb-placeholder-menu" style="display:none;">
 		{include file="devblocks:cerberusweb.core::internal/profiles/tabs/dashboard/toolbar.tpl"}
 		</div>
@@ -148,6 +155,7 @@
 $(function() {
 	var $frm = $('#{$form_id}');
 	var $popup = genericAjaxPopupFind($frm);
+	let $fieldset_advanced = $frm.find('fieldset[data-cerb-fieldset-advanced]');
 	
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{'common.profile.widget'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
@@ -158,6 +166,24 @@ $(function() {
 		$popup.find('button.save-continue').click({ mode: 'continue' }, Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
 		$popup.find('button.import').click(Devblocks.callbackPeekEditSave);
+		
+		// Options Editor
+		$fieldset_advanced
+			.find('textarea[name=options_kata]')
+			.cerbCodeEditor()
+			.cerbCodeEditorAutocompleteKata({
+				autocomplete_suggestions: {
+					'': [
+						'hidden@bool:'
+					],
+					'hidden:': [
+						'yes',
+						'no',
+						'{literal}{{record_id == 123}}{/literal}'
+					]
+				}
+			})
+		;
 		
 		// Package Library
 		

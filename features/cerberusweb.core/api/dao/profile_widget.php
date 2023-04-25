@@ -4,6 +4,7 @@ class DAO_ProfileWidget extends Cerb_ORMHelper {
 	const EXTENSION_PARAMS_JSON = 'extension_params_json';
 	const ID = 'id';
 	const NAME = 'name';
+	const OPTIONS_KATA = 'options_kata';
 	const POS = 'pos';
 	const PROFILE_TAB_ID = 'profile_tab_id';
 	const UPDATED_AT = 'updated_at';
@@ -37,6 +38,11 @@ class DAO_ProfileWidget extends Cerb_ORMHelper {
 			->string()
 			->setMaxLength(16777216)
 			;
+		$validation
+			->addField(self::OPTIONS_KATA)
+			->string()
+			->setMaxLength(65535)
+		;
 		$validation
 			->addField(self::POS)
 			->number()
@@ -195,7 +201,7 @@ class DAO_ProfileWidget extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, profile_tab_id, extension_id, extension_params_json, pos, width_units, updated_at, zone ".
+		$sql = "SELECT id, name, profile_tab_id, extension_id, extension_params_json, options_kata, pos, width_units, updated_at, zone ".
 			"FROM profile_widget ".
 			$where_sql.
 			$sort_sql.
@@ -332,6 +338,7 @@ class DAO_ProfileWidget extends Cerb_ORMHelper {
 			$object->extension_id = $row['extension_id'];
 			$object->id = $row['id'];
 			$object->name = $row['name'];
+			$object->options_kata = $row['options_kata'];
 			$object->pos = DevblocksPlatform::intClamp($row['width_units'], 0, 255);
 			$object->profile_tab_id = $row['profile_tab_id'];
 			$object->updated_at = $row['updated_at'];
@@ -596,11 +603,34 @@ class Model_ProfileWidget extends DevblocksRecordModel {
 	public $extension_params = [];
 	public $id = 0;
 	public $name = null;
+	public $options_kata = '';
 	public $pos = 0;
 	public $profile_tab_id = 0;
 	public $updated_at = 0;
 	public $width_units = 4;
 	public $zone = null;
+	
+	function isHidden(?DevblocksDictionaryDelegate $dict=null) : bool {
+		if(!$dict || !$this->options_kata)
+			return false;
+		
+		$dict->scrubKeys('widget_');
+		$dict->mergeKeys('widget_', DevblocksDictionaryDelegate::getDictionaryFromModel($this, Context_ProfileWidget::ID));
+		
+		$kata = DevblocksPlatform::services()->kata();
+		$error = null;
+		
+		if(!($options = $kata->parse($this->options_kata, $error)))
+			return false;
+		
+		if(!($options = $kata->formatTree($options, $dict, $error)))
+			return false;
+		
+		if(array_key_exists('hidden', $options) && $options['hidden'])
+			return true;
+		
+		return false;
+	}
 	
 	/**
 	 * @return Model_ProfileTab

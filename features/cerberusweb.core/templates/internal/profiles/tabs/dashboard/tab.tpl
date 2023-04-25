@@ -1,6 +1,8 @@
 {if $active_worker->is_superuser}
 <div style="margin-bottom:5px;" class="cerb-no-print">
-	<button id="btnProfileTabAddWidget{$model->id}" type="button" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_PROFILE_WIDGET}" data-context-id="0" data-edit="tab:{$model->id}" data-width="75%"><span class="glyphicons glyphicons-circle-plus"></span> {'common.add'|devblocks_translate|capitalize}</button>
+	<button id="btnProfileTabAddWidget{$model->id}" type="button" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_PROFILE_WIDGET}" data-context-id="0" data-edit="tab:{$model->id}" data-width="75%"><span class="glyphicons glyphicons-circle-plus"></span> {'common.add.widget'|devblocks_translate|capitalize}</button>
+	<button id="btnProfileTabEdit{$model->id}" type="button" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_PROFILE_TAB}" data-context-id="{$model->id}" data-edit="true" data-width="75%"><span class="glyphicons glyphicons-edit"></span> Edit Tab</button>
+	<button id="btnProfileTabToggleWidgets{$model->id}" type="button" style="display:none;"><span class="glyphicons glyphicons-eye-close"></span> Toggle Hidden</button>
 </div>
 {/if}
 
@@ -55,7 +57,10 @@
 <script type="text/javascript">
 $(function() {
 	var $container = $('#profileTab{$model->id}');
+	let $tabs = $container.closest('.ui-tabs');
 	var $add_button = $('#btnProfileTabAddWidget{$model->id}');
+	var $edit_button = $('#btnProfileTabEdit{$model->id}');
+	var $toggle_widgets_button = $('#btnProfileTabToggleWidgets{$model->id}');
 
 	// Drag
 	{if $active_worker->is_superuser}
@@ -227,17 +232,49 @@ $(function() {
 		.on('cerb-peek-saved', function(e) {
 			var $zone = $container.find('> .cerb-profile-layout-zone:first > .cerb-profile-layout-zone--widgets:first');
 			var $placeholder = $('<div class="cerb-profile-widget"/>').hide().prependTo($zone);
-			var $widget = $('<div/>').attr('id', 'profileWidget' + e.id).appendTo($placeholder);
+			$('<div/>').attr('id', 'profileWidget' + e.id).appendTo($placeholder);
 			
 			async.series([ async.apply(loadWidgetFunc, e.id, true, {}) ], function(err, json) {
 				$container.trigger('cerb-reorder');
 			});
 		})
-		;
+	;
+	
+	$edit_button
+		.cerbPeekTrigger()
+		.on('cerb-peek-saved', function(e) {
+			if(e.hasOwnProperty('label')) {
+				$tabs.tabs("instance").active.find('a').text(e.label);
+			}
+			
+			let tabId = $tabs.tabs("option", "active");
+			$tabs.tabs("load", tabId);
+		})
+		.on('cerb-peek-deleted', function(e) {
+			let tabId = $tabs.tabs("instance").active.remove();
+			$tabs.tabs("refresh", tabId);
+		})
+	;
+	
+	$toggle_widgets_button
+		.on('click', function(e) {
+			e.stopPropagation();
+			$container.find('.cerb-profile-widget--hidden').toggle();
+		})
+	;
+
+	if($container.find('.cerb-profile-widget--hidden').length > 0) {
+		$toggle_widgets_button.show();
+	}
 	{/if}
 	
 	var loadWidgetFunc = function(widget_id, is_full, refresh_options, callback) {
 		var $widget = $('#profileWidget' + widget_id).fadeTo('fast', 0.3);
+		
+		if(!is_full && !$widget.closest('.cerb-profile-widget').is(':visible')) {
+			callback();
+			return;
+		}
 
 		Devblocks.getSpinner(true).prependTo($widget);
 

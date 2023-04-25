@@ -644,6 +644,11 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 		
 		$widgets = $model->getWidgets();
 		
+		$profile_tab_dict = DevblocksDictionaryDelegate::instance([
+			'record__context' => $context,
+			'record_id' => $context_id,
+		]); 
+		
 		$layout = ($model->extension_params['layout'] ?? null) ?: '';
 		
 		$zones = [
@@ -680,6 +685,7 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 		$tpl->assign('layout', $layout);
 		$tpl->assign('zones', $zones);
 		$tpl->assign('model', $model);
+		$tpl->assign('profile_tab_dict', $profile_tab_dict);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/tabs/dashboard/tab.tpl');
 	}

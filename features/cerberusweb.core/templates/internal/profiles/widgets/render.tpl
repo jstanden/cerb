@@ -1,11 +1,12 @@
 {$width_units = $widget->width_units|default:1}
 {$widget_extension = $widget->getExtension()}
-<div class="cerb-profile-widget" data-widget-id="{$widget->id}" data-widget-name="{$widget->name}" style="flex:{$width_units} {$width_units} {$width_units * 0.25 * 100}%;">
+{$widget_is_hidden = $widget->isHidden($profile_tab_dict)}
+<div class="cerb-profile-widget {if $widget_is_hidden}cerb-profile-widget--hidden{/if}" data-widget-id="{$widget->id}" data-widget-name="{$widget->name}" style="flex:{$width_units} {$width_units} {$width_units * 0.25 * 100}%;">
 	<div>
 		<div class="cerb-profile-widget--header {if $active_worker->is_superuser}cerb-draggable{/if}">
 			<b>
 				<a href="javascript:;" class="cerb-profile-widget--link no-underline">
-                    {$widget->name}<!--
+                    {if $widget_is_hidden}<span class="glyphicons glyphicons-eye-close"></span> {/if}{$widget->name}<!--
                     --><span class="glyphicons glyphicons-chevron-down"></span>
                 </a>
 				{if $active_worker->is_superuser}

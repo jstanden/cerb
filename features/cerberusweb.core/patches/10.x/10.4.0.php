@@ -20,6 +20,15 @@ if(!isset($indexes['context_and_id']))
 	$db->ExecuteMaster('ALTER TABLE context_to_custom_fieldset ADD INDEX context_and_id (context, context_id)');
 
 // ===========================================================================
+// Modify profile_widget.options_kata for conditionality
+
+list($columns, ) = $db->metaTable('profile_widget');
+
+if(!array_key_exists('options_kata', $columns)) {
+	$db->ExecuteMaster('ALTER TABLE profile_widget ADD COLUMN options_kata TEXT');
+}
+
+// ===========================================================================
 // Update built-in automations
 
 $automation_files = [

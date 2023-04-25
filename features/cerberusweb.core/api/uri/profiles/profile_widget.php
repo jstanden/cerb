@@ -208,6 +208,7 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 						$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'] ?? null, 'string', '');
 						$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
 						$width_units = DevblocksPlatform::importGPC($_POST['width_units'] ?? null, 'integer', 1);
+						$options_kata = DevblocksPlatform::importGPC($_POST['options_kata'] ?? null, 'string', '');
 						
 						$error = null;
 						
@@ -221,6 +222,7 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 								DAO_ProfileWidget::PROFILE_TAB_ID => $profile_tab_id,
 								DAO_ProfileWidget::UPDATED_AT => time(),
 								DAO_ProfileWidget::WIDTH_UNITS => $width_units,
+								DAO_ProfileWidget::OPTIONS_KATA => $options_kata,
 							);
 							
 							if(false == ($extension = Extension_ProfileWidget::get($extension_id)))
@@ -247,6 +249,7 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 								DAO_ProfileWidget::NAME => $name,
 								DAO_ProfileWidget::UPDATED_AT => time(),
 								DAO_ProfileWidget::WIDTH_UNITS => $width_units,
+								DAO_ProfileWidget::OPTIONS_KATA => $options_kata,
 							);
 							
 							if(!($widget = DAO_ProfileWidget::get($id)))
