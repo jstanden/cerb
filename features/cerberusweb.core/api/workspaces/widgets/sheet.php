@@ -121,11 +121,7 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget implements ICerbWo
 		$tpl->assign('widget_ext', $this);
 		$tpl->assign('widget', $widget);
 		
-		if($layout['style'] == 'fieldsets') {
-			$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/sheet/render_fieldsets.tpl');
-		} else {
-			$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/sheet/render.tpl');
-		}
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/sheet/render.tpl');
 	}
 	
 	function renderConfig(Model_WorkspaceWidget $widget) {

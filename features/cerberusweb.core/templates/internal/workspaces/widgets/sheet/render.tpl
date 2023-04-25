@@ -1,5 +1,11 @@
 <div>
-	{include file="devblocks:cerberusweb.core::ui/sheets/render.tpl"}
+    {if 'fieldsets' == $layout.style}
+        {include file="devblocks:cerberusweb.core::ui/sheets/render_fieldsets.tpl"}
+    {elseif in_array($layout.style, ['columns','grid'])}
+        {include file="devblocks:cerberusweb.core::ui/sheets/render_grid.tpl"}
+    {else}
+		{include file="devblocks:cerberusweb.core::ui/sheets/render.tpl"}
+    {/if}
 
 	{if $widget->params.toolbar_kata}
 		<div data-cerb-toolbar style="margin-top:0.5em;">
@@ -11,7 +17,7 @@
 <script type="text/javascript">
 $(function() {
 	var $widget = $('#workspaceWidget{$widget->id}');
-	var $sheet = $widget.find('.cerb-sheet');
+	var $sheet = $widget.find('.cerb-sheet, .cerb-data-sheet, .cerb-sheet-grid, .cerb-sheet-columns');
 	var $tab = $widget.closest('.cerb-workspace-layout');
 	var $sheet_toolbar = $widget.find('[data-cerb-toolbar]');
 
