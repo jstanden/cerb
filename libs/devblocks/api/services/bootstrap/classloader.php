@@ -10,7 +10,7 @@ class _DevblocksClassLoadManager {
 		
 		if(null !== ($map = $cache->load(self::CACHE_CLASS_MAP))) {
 			$sanity_a = $map['_DevblocksEventManager'];
-			$sanity_b = implode(DIRECTORY_SEPARATOR, [APP_PATH,'libs','devblocks','api','services','event.php']);
+			$sanity_b = implode('/', [APP_PATH,'libs','devblocks','api','services','event.php']);
 			
 			// If the root path has changed, don't use the cache and regenerate
 			if($sanity_a == $sanity_b) {
