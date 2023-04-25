@@ -122,11 +122,7 @@ class ProfileWidget_Sheet extends Extension_ProfileWidget {
 				$tpl->assign('profile_context', $context);
 				$tpl->assign('profile_context_id', $context_id);
 				
-				if($layout['style'] == 'fieldsets') {
-					$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/sheet/render_fieldsets.tpl');
-				} else {
-					$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/sheet/render.tpl');
-				}
+				$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/sheet/render.tpl');
 				break;
 		}
 	}
