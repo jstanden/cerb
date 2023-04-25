@@ -775,6 +775,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'time_elapsed/key:',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:card:' => [
+					'label:',
 					'params:',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:card:params:' => [
@@ -790,6 +791,9 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'label:',
 					'label_key:',
 					'label_template@raw:',
+					'color@raw:',
+					'text_color@raw:',
+					'text_size@raw: 150%',
 					'underline@bool: yes',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:card:params:icon:' => [
@@ -816,6 +820,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'value_key: updated',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:icon:' => [
+					'label:',
 					'params:',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:icon:params:' => [
@@ -826,6 +831,9 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'image_key: icon_key',
 					'image_template@raw:',
 					'record_uri@raw:',
+					'color@raw:',
+					'text_color@raw:',
+					'text_size@raw: 150%',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:icon:params:image:' => [
 					'type' => 'icon',
@@ -834,6 +842,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'type' => 'cerb-uri',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:interaction:' => [
+					'label:',
 					'params:',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:interaction:params:' => [
@@ -841,6 +850,9 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'text: Link title',
 					'text_key: _label',
 					'text_template@raw:',
+					'color@raw:',
+					'text_color@raw:',
+					'text_size@raw: 150%',
 					'uri:',
 					'uri_key:',
 					'uri_template@raw:',
@@ -859,6 +871,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					]
 				],
 				'(.*):await:form:elements:sheet:schema:columns:link:' => [
+					'label:',
 					'params:',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:link:params:' => [
@@ -868,8 +881,12 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'text: Link title',
 					'text_key: _label',
 					'text_template@raw:',
+					'color@raw:',
+					'text_color@raw:',
+					'text_size@raw: 150%'
 				],
 				'(.*):await:form:elements:sheet:schema:columns:search:' => [
+					'label:',
 					'params:',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:search:params:' => [
@@ -879,11 +896,15 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					],
 					'query_key: query',
 					'query_template@raw:',
+					'color@raw:',
+					'text_color@raw:',
+					'text_size@raw: 150%'
 				],
 				'(.*):await:form:elements:sheet:schema:columns:search:params:context:' => [
 					'type' => 'record-type',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:search_button:' => [
+					'label:',
 					'params:',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:search_button:params:' => [
@@ -893,11 +914,15 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					],
 					'query_key: query',
 					'query_template@raw:',
+					'color@raw:',
+					'text_color@raw:',
+					'text_size@raw: 150%'
 				],
 				'(.*):await:form:elements:sheet:schema:columns:search_button:params:context:' => [
 					'type' => 'record-type',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:selection:' => [
+					'label:',
 					'params:',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:selection:params:' => [
@@ -912,12 +937,16 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'value: 123',
 					'value_key: key',
 					'value_template@raw: {{key}}',
+					'color@raw:',
+					'text_color@raw:',
+					'text_size@raw: 150%'
 				],
 				'(.*):await:form:elements:sheet:schema:columns:selection:params:mode:' => [
 					'single',
 					'multiple',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:slider:' => [
+					'label:',
 					'params:',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:slider:params:' => [
@@ -926,8 +955,12 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'value: 50',
 					'value_key: importance',
 					'value_template@raw: {{importance}}',
+					'color@raw:',
+					'text_color@raw:',
+					'text_size@raw: 150%',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:text:' => [
+					'label:',
 					'params:',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:text:params:' => [
@@ -937,6 +970,9 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'value_template@raw: {{key}}',
 					'value_map:',
 					'icon:',
+					'color@raw:',
+					'text_color@raw:',
+					'text_size@raw: 150%',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:text:params:icon:' => [
 					[
@@ -954,6 +990,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'type' => 'cerb-uri',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:time_elapsed:' => [
+					'label:',
 					'params:',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:time_elapsed:params:' => [
@@ -961,6 +998,9 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'value: 123',
 					'value_key: key',
 					'value_template@raw: {{key}}',
+					'color@raw:',
+					'text_color@raw:',
+					'text_size@raw: 150%',
 				],
 				'(.*):await:form:elements:sheet:schema:layout:' => [
 					'filtering@bool: yes',
