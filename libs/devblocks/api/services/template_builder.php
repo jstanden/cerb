@@ -2375,6 +2375,8 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			$value = [$value];
 		}
 		
+		$patterns = DevblocksPlatform::services()->string()->arrayExpand($patterns);
+		
 		foreach($patterns as $pattern) {
 			$pattern = DevblocksPlatform::strToRegExp($pattern);
 			
