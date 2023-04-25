@@ -50,6 +50,33 @@ class DevblocksStringTest extends TestCase {
 		$this->assertEquals($expected, $actual);
 	}
 	
+	function testArrayExpand() {
+		$strings = DevblocksPlatform::services()->string();
+		
+		$expected = [
+			'string1',
+			'string2',
+			'string3',
+			'string4',
+			'string5',
+		];
+		
+		$actual = $strings->arrayExpand([
+			'string1',
+			[
+				'string2',
+				'string3',
+			],
+			[
+				'string4'
+			],
+			[],
+			'string5',
+		]);
+		
+		$this->assertEquals($expected, $actual);
+	}
+	
 	function testSplitQuotedPhrases() {
 		$strings = DevblocksPlatform::services()->string();
 		

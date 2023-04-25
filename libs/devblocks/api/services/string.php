@@ -445,4 +445,18 @@ class _DevblocksStringService {
 		usort($strings, fn($a, $b) => strlen($a) <=> strlen($b));
 		return $is_ascending ? $strings : array_reverse($strings);
 	}
+	
+	public function arrayExpand(array $strings) : array {
+		$result = [];
+		
+		foreach($strings as $string) {
+			if(is_string($string)) {
+				$result[] = $string;
+			} elseif(is_array($string)) {
+				$result = array_merge($result, $this->arrayExpand($string));
+			}
+		}
+		
+		return $result;
+	}
 }
