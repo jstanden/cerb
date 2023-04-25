@@ -1801,26 +1801,28 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		$values = [];
 		
 		// Don't log if `disable_events` is enabled (bulk imports)
-		if($requesters_add && DevblocksPlatform::services()->event()->isEnabled())
+		if($requesters_add)
 		foreach($requesters_add as $requester_id) {
 			$values[] = sprintf("(%d, %d)", $requester_id, $ticket_id);
 			
-			/*
-			 * Log activity (ticket.participant.added)
-			 */
-			$entry = array(
-				//{{actor}} added {{participant}} to ticket {{target}}
-				'message' => 'activities.ticket.participant.added',
-				'variables' => array(
-					'participant' => sprintf("%s", $addresses[$requester_id]->email),
-					'target' => sprintf("[%s] %s", $ticket->mask, $ticket->subject),
+			if(DevblocksPlatform::services()->event()->isEnabled()) {
+				/*
+				 * Log activity (ticket.participant.added)
+				 */
+				$entry = array(
+					//{{actor}} added {{participant}} to ticket {{target}}
+					'message' => 'activities.ticket.participant.added',
+					'variables' => array(
+						'participant' => sprintf("%s", $addresses[$requester_id]->email),
+						'target' => sprintf("[%s] %s", $ticket->mask, $ticket->subject),
 					),
-				'urls' => array(
-					'participant' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_ADDRESS, $requester_id),
-					'target' => sprintf("ctx://%s:%s", CerberusContexts::CONTEXT_TICKET, $ticket->mask),
+					'urls' => array(
+						'participant' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_ADDRESS, $requester_id),
+						'target' => sprintf("ctx://%s:%s", CerberusContexts::CONTEXT_TICKET, $ticket->mask),
 					)
-			);
-			CerberusContexts::logActivity('ticket.participant.added', CerberusContexts::CONTEXT_TICKET, $ticket->id, $entry);
+				);
+				CerberusContexts::logActivity('ticket.participant.added', CerberusContexts::CONTEXT_TICKET, $ticket->id, $entry);
+			}
 		}
 		
 		if(!empty($values)) {
