@@ -1215,6 +1215,9 @@ class Context_Toolbar extends Extension_DevblocksContext implements IDevblocksCo
 			$types = Model_CustomField::getTypes();
 			$tpl->assign('types', $types);
 			
+			$autocomplete_suggestions = $model->getExtension()->getAutocompleteSuggestions();
+			$tpl->assign('autocomplete_json', json_encode($autocomplete_suggestions));
+			
 			// View
 			$tpl->assign('id', $context_id);
 			$tpl->assign('view_id', $view_id);

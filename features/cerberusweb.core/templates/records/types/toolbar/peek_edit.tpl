@@ -103,7 +103,7 @@
             var $editor = $popup.find('[name=toolbar_kata]')
                 .cerbCodeEditor()
                 .cerbCodeEditorAutocompleteKata({
-                    autocomplete_suggestions: cerbAutocompleteSuggestions.kataToolbar
+                    autocomplete_suggestions: {$autocomplete_json nofilter}
                 })
                 .next('pre.ace_editor')
             ;

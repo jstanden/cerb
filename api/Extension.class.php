@@ -1775,6 +1775,94 @@ abstract class Extension_Toolbar extends DevblocksExtension {
 	abstract function getInteractionInputsMeta() : array;
 	abstract function getInteractionOutputMeta() : array;
 	abstract function getInteractionAfterMeta() : array;
+	
+	public function getAutocompleteSuggestions() : array {
+		return [
+			'' => [
+				[
+					'caption' => 'interaction:',
+					'snippet' => 'interaction/\${1:name}:'
+				],
+				[
+					'caption' => 'menu:',
+					'snippet' => 'menu/\${1:name}:'
+				]
+			],
+			'*' => [
+				'(.*):?interaction:' => [
+					'after:',
+					[
+						'caption' => 'uri:',
+						'snippet' => 'uri: cerb:automation:\${1:}'
+					],
+					'label:',
+					'icon:',
+					'tooltip:',
+					[
+						'caption' => 'hidden:',
+						'snippet' => 'hidden@bool: $[1:yes]'
+					],
+					[
+						'caption' => 'badge:',
+						'snippet' => 'badge: 123'
+					],
+					[
+						'caption' => 'class:',
+						'snippet' => 'class: some-css-class-name'
+					],
+					'inputs:'
+				],
+				'(.*):?interaction:hidden:'=> [
+					'yes',
+					'no',
+					[
+						'caption' => '[[key]]',
+						'snippet' => '[[$[1:key]]]',
+					],
+					[
+						'caption' => '[[not key]]',
+						'snippet' => '[[not $[1:key]]]',
+					]
+				],
+				'(.*):?interaction:icon:' => [
+					'type' => 'icon'
+				],
+				'(.*):?interaction:inputs:' => [
+					'type' => 'automation-inputs'
+				],
+				'(.*):?interaction:uri:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'automation' => [
+							'triggers' => [
+								'cerb.trigger.interaction.worker'
+							]
+						]
+					]
+				],
+				'(.*):?menu:' => [
+					'label:',
+					[
+						'caption' => 'hidden:',
+						'snippet' => 'hidden@bool: $[1:yes]'
+					],
+					'icon:',
+					'tooltip:',
+					'items:'
+				],
+				'(.*):?menu:items:' => [
+					[
+						'caption' => 'interaction:',
+						'snippet' => 'interaction/$[1:name]:'
+					],
+					[
+						'caption' => 'menu:',
+						'snippet' => 'menu/$[1:name]:'
+					]
+				],
+			]
+		];
+	}
 }
 
 abstract class Extension_WorkspacePage extends DevblocksExtension {

@@ -900,6 +900,7 @@ var cerbAutocompleteSuggestions = {
 		],
 		'*': {
 			'(.*):?interaction:': [
+				'after:',
 				{
 					'caption': 'uri:',
 					'snippet': 'uri: cerb:automation:${1:}'

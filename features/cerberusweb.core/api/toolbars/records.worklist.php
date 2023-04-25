@@ -65,4 +65,16 @@ class Toolbar_RecordsWorklist extends Extension_Toolbar {
 			]
 		];
 	}
+	
+	public function getAutocompleteSuggestions() : array {
+		$suggestions = parent::getAutocompleteSuggestions();
+		
+		$suggestions['*']['(.*):?interaction:after:'] = [
+			'refresh_widgets@csv: all',
+			'refresh_widgets@csv:',
+			'refresh_widgets@list:',
+		];
+		
+		return $suggestions;
+	}
 }
