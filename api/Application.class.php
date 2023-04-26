@@ -5411,6 +5411,12 @@ class _CerbApplication_KataSchemas {
     
     schema:
       attributes:
+        data:
+          types:
+            object:
+              attributes:
+                list:
+        
         layout:
           types:
             object:

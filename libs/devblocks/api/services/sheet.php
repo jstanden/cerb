@@ -72,6 +72,27 @@ class _DevblocksSheetService {
 		];
 	}
 	
+	private function _prepareData(array $sheet, array $sheet_dicts) : array {
+		$data = [];
+		
+		if($sheet_dicts)
+			return $sheet_dicts;
+		
+		if(
+			array_key_exists('data', $sheet) 
+			&& is_array($sheet['data'])
+		) {
+			foreach($sheet['data'] as $values) {
+				if(!is_array($values))
+					continue;
+				
+				$data[] = DevblocksDictionaryDelegate::instance($values);
+			}
+		}
+		
+		return $data;
+	}
+	
 	function getLayout(array $sheet) {
 		$layout = [
 			'style' => 'table',
@@ -233,6 +254,8 @@ class _DevblocksSheetService {
 	}
 	
 	function getRows(array $sheet, array $sheet_dicts, ?array $environment=null) : array {
+		$sheet_dicts = $this->_prepareData($sheet, $sheet_dicts);
+		
 		// Sanitize
 		$columns = $this->getColumns($sheet);
 		$layout = $this->getLayout($sheet);

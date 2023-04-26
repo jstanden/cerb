@@ -981,6 +981,10 @@ var cerbAutocompleteSuggestions = {
 			{
 				caption: 'columns:',
 				snippet: 'columns:\n',
+			},
+			{
+				caption: 'data:',
+				snippet: 'data:\n',
 			}
 		],
 		
