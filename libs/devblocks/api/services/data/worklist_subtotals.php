@@ -1009,7 +1009,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 					}
 					
 					$output['columns'][$by['key_query'] . '_label'] = [
-						'label' => $label . DevblocksPlatform::strTitleCase(@$by['label'] ?: $by['key_query']),
+						'label' => $label . DevblocksPlatform::strTitleCase(($by['label'] ?? null) ?: $by['key_query']),
 						'type' => $type,
 						'type_options' => $type_options,
 					];
@@ -1017,7 +1017,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 					
 				case DevblocksSearchCriteria::TYPE_WORKER:
 					$output['columns'][$by['key_query'] . '_label'] = [
-						'label' => $label . DevblocksPlatform::strTitleCase(@$by['label'] ?: $by['key_query']),
+						'label' => $label . DevblocksPlatform::strTitleCase(($by['label'] ?? null) ?: $by['key_query']),
 						'type' => $type,
 						'type_options' => [
 							'context_id_key' => $by['key_query'],
@@ -1027,7 +1027,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				
 				default:
 					$output['columns'][$by['key_query']] = [
-						'label' => $label . DevblocksPlatform::strTitleCase(@$by['label'] ?: $by['key_query']),
+						'label' => $label . DevblocksPlatform::strTitleCase(($by['label'] ?? null) ?: $by['key_query']),
 						'type' => $type,
 					];
 					break;
