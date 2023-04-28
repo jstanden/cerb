@@ -651,6 +651,17 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 				if(array_key_exists('type_options', $query_field))
 					$meta['type_options'] = $query_field['type_options'];
 				
+				if(
+					DevblocksSearchCriteria::TYPE_NUMBER == ($meta['type'] ?? null)
+					&& 'chooser' == ($query_field['examples'][0]['type'] ?? null)
+					&& ($query_field['examples'][0]['context'] ?? null)
+				) {
+					$meta['type'] = DevblocksSearchCriteria::TYPE_CONTEXT;
+					$meta['type_options'] = [
+						'context' => $query_field['examples'][0]['context']
+					];
+				}
+				
 				return $meta;
 			}
 		}
