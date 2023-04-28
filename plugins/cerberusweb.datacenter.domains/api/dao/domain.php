@@ -274,7 +274,7 @@ class Context_Domain extends Extension_DevblocksContext implements IDevblocksCon
 		return $keys;
 	}
 	
-	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 		}
 		

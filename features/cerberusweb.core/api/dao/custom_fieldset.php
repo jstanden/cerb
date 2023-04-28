@@ -1157,7 +1157,7 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 		return $keys;
 	}
 	
-	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 		}
 		

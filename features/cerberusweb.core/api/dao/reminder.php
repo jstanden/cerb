@@ -1086,7 +1086,7 @@ class Context_Reminder extends Extension_DevblocksContext implements IDevblocksC
 		return $keys;
 	}
 	
-	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		return true;
 	}
 	

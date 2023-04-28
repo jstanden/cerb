@@ -1113,7 +1113,7 @@ class Context_TwitterMessage extends Extension_DevblocksContext {
 		return $keys;
 	}
 	
-	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 		}
 		

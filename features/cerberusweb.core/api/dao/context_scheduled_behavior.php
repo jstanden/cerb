@@ -1374,7 +1374,7 @@ class Context_ContextScheduledBehavior extends Extension_DevblocksContext implem
 		return $keys;
 	}
 	
-	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'variables':
 				if(!is_array($value)) {

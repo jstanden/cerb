@@ -921,7 +921,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		return $keys;
 	}
 	
-	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		return true;
 	}
 	
@@ -942,7 +942,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		foreach($data as $key => $value) {
 			$fields = [];
 			
-			if(!$this->getDaoFieldsFromKeyAndValue($key, $value, $fields, $error))
+			if(!$this->getDaoFieldsFromKeyAndValue($key, $value, $fields, $data, $error))
 				return false;
 			
 			if(!empty($fields)) {

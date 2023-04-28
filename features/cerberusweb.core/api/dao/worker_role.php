@@ -1289,7 +1289,7 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 		return $keys;
 	}
 	
-	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 		}
 		

@@ -1135,7 +1135,7 @@ class Context_CustomRecord extends Extension_DevblocksContext implements IDevblo
 		return $keys;
 	}
 	
-	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'params':
 				if(!is_array($value)) {

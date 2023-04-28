@@ -3675,7 +3675,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		return $keys;
 	}
 	
-	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		$dict_key = DevblocksPlatform::strLower($key);
 		switch($dict_key) {
 			case 'email':

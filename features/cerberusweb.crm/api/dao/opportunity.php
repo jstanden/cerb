@@ -1507,7 +1507,7 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		return $keys;
 	}
 	
-	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'status':
 				$statuses = ['open', 'closed_won', 'closed_lost'];

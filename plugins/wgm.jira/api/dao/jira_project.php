@@ -1168,7 +1168,7 @@ class Context_JiraProject extends Extension_DevblocksContext implements IDevbloc
 		return parent::getKeyMeta($with_dao_fields);
 	}
 	
-	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 		}
 		

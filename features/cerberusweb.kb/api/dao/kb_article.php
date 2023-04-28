@@ -1243,7 +1243,7 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 		return $keys;
 	}
 	
-	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'format':
 				$formats_to_ids = [
