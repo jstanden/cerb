@@ -460,6 +460,7 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$search_class = sprintf("SearchFields_AbstractCustomRecord_%d", static::_ID);
 		
+		/** @noinspection PhpUndefinedMethodInspection */
 		$fields = $search_class::getFields();
 		
 		list(,$wheres) = parent::_parseSearchParams($params, $columns, $search_class, $sortBy);
@@ -485,18 +486,19 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 			self::escape($table_name)
 		);
 		
-		$where_sql = "".
-			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
+		$where_sql = 
+			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ")
+		;
 			
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, $search_class);
 	
-		return array(
+		return [
 			'primary_table' => $table_name,
 			'select' => $select_sql,
 			'join' => $join_sql,
 			'where' => $where_sql,
 			'sort' => $sort_sql,
-		);
+		];
 	}
 	
 	static function autocomplete($term, $as='models') {
@@ -626,7 +628,7 @@ class SearchFields_AbstractCustomRecord extends DevblocksSearchFields {
 				return self::_getWhereSQLFromWatchersField($param, $context_name, self::getPrimaryKey());
 			
 			default:
-				if('cf_' == substr($param->field, 0, 3)) {
+				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
 				} else {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
@@ -1063,13 +1065,10 @@ class View_AbstractCustomRecord extends C4_AbstractView implements IAbstractView
 				break;
 				
 			case SearchFields_AbstractCustomRecord::CREATED_AT:
-				$criteria = $this->_doSetCriteriaDate($field, $oper);
-				break;
-				
 			case SearchFields_AbstractCustomRecord::UPDATED_AT:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
-				
+
 			case SearchFields_AbstractCustomRecord::VIRTUAL_CONTEXT_LINK:
 				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array', []);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);

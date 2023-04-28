@@ -4630,7 +4630,7 @@ class CerbQuickSearchLexer {
 	
 	public static function getFieldByKey(string $key, array $fields) {
 		foreach($fields as $field) {
-			if($field->key == $key)
+			if(is_object($field) && $field->key == $key)
 				return $field;
 		}
 		

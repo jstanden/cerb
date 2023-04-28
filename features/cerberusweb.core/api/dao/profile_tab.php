@@ -418,7 +418,7 @@ class SearchFields_ProfileTab extends DevblocksSearchFields {
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_PROFILE_TAB, self::getPrimaryKey());
 				
 			default:
-				if('cf_' == substr($param->field, 0, 3)) {
+				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
 				} else {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());

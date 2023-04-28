@@ -497,7 +497,7 @@ class SearchFields_CommunityTool extends DevblocksSearchFields {
 				break;
 				
 			default:
-				if('cf_' == substr($param->field, 0, 3)) {
+				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
 				} else {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());

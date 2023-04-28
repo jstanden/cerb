@@ -422,7 +422,7 @@ class SearchFields_AutomationTimer extends DevblocksSearchFields {
 				return self::_getWhereSQLFromWatchersField($param, CerberusContexts::CONTEXT_AUTOMATION_TIMER, self::getPrimaryKey());
 			
 			default:
-				if('cf_' == substr($param->field, 0, 3)) {
+				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
 				} else {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
@@ -431,9 +431,6 @@ class SearchFields_AutomationTimer extends DevblocksSearchFields {
 	}
 	
 	static function getFieldForSubtotalKey($key, $context, array $query_fields, array $search_fields, $primary_key) {
-		switch($key) {
-		}
-		
 		return parent::getFieldForSubtotalKey($key, $context, $query_fields, $search_fields, $primary_key);
 	}
 	

@@ -1139,13 +1139,11 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	}
 
 	/**
-	 * @internal
-	 * 
 	 * @param string $view_id
 	 * @return C4_AbstractView
 	 */
 	public function getTempView($view_id=null) {
-		if(false == ($defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass())))
+		if(!($defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass())))
 			return NULL;
 		
 		$defaults->id = $view_id ?: uniqid();
@@ -4458,8 +4456,6 @@ abstract class Extension_DevblocksSearchSchema extends DevblocksExtension {
 	}
 
 	/**
-	 * @internal
-	 * 
 	 * @param string $id
 	 * @return Extension_DevblocksSearchSchema
 	 */
@@ -4496,9 +4492,6 @@ abstract class Extension_DevblocksSearchSchema extends DevblocksExtension {
 		return $engine_properties;
 	}
 
-	/**
-	 * @internal
-	 */
 	public function getEngine() : ?Extension_DevblocksSearchEngine {
 		$engine_params = $this->getEngineParams();
 		

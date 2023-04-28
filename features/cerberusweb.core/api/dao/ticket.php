@@ -1777,7 +1777,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		$exclude_list = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::PARSER_AUTO_REQ_EXCLUDE, CerberusSettingsDefaults::PARSER_AUTO_REQ_EXCLUDE);
 		$addresses = DAO_Address::getIds($address_ids);
 		
-		if(false == ($ticket = DAO_Ticket::get($ticket_id)))
+		if(!($ticket = DAO_Ticket::get($ticket_id)))
 			return false;
 
 		// Filter out any excluded requesters
@@ -2656,7 +2656,7 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 				);
 				
 			default:
-				if('cf_' == substr($param->field, 0, 3)) {
+				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
 				} else {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());

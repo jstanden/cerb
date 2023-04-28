@@ -463,8 +463,6 @@ $(function() {
 			})
 			;
 
-		var editor = $editor[0];
-
 		var $editor_toolbar = $frm.find('.cerb-code-editor-toolbar')
 			.cerbTextEditorToolbarMarkdown()
 			;
@@ -474,10 +472,10 @@ $(function() {
 		$editor.cerbTextEditorInlineImagePaster({
 			attachmentsContainer: $attachments,
 			toolbar: $editor_toolbar
-		})
+		});
 
 		$editor_toolbar.find('.cerb-reply-editor-toolbar-button--encrypt')
-			.click(function(event) {
+			.click(function() {
 				var $button = $(this);
 				var $hidden = $frm.find('> input:hidden[name=options_gpg_encrypt]');
 				var $icon = $button.find('span.glyphicons');

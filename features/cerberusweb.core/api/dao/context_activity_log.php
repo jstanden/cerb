@@ -492,25 +492,25 @@ class SearchFields_ContextActivityLog extends DevblocksSearchFields {
 				if($param->operator == DevblocksSearchCriteria::OPER_CUSTOM) {
 					list($alias, $query) = array_pad(explode(':', $param->value, 2), 2, null);
 					
-					if(empty($alias) || (false == ($ext = Extension_DevblocksContext::getByAlias(str_replace('.', ' ', $alias), true))))
-						return;
+					if(empty($alias) || !($ext = Extension_DevblocksContext::getByAlias(str_replace('.', ' ', $alias), true)))
+						return '-1';
 					
-					if(false == ($view = $ext->getTempView()))
-						return;
+					if(!($view = $ext->getTempView()))
+						return '-1';
 					
 					$view->renderPage = 0;
 					$view->addParamsWithQuickSearch($query, true);
 					
 					$params = $view->getParams();
 					
-					if(false == ($dao_class = $ext->getDaoClass()) || !class_exists($dao_class))
-						return;
+					if(!($dao_class = $ext->getDaoClass()) || !class_exists($dao_class))
+						return '-1';
 					
-					if(false == ($search_class = $ext->getSearchClass()) || !class_exists($search_class))
-						return;
+					if(!($search_class = $ext->getSearchClass()) || !class_exists($search_class))
+						return '-1';
 					
-					if(false == ($primary_key = $search_class::getPrimaryKey()))
-						return;
+					if(!($primary_key = $search_class::getPrimaryKey()))
+						return '-1';
 					
 					$query_parts = $dao_class::getSearchQueryComponents(array(), $params);
 					
@@ -574,12 +574,11 @@ class SearchFields_ContextActivityLog extends DevblocksSearchFields {
 				break;
 				
 			default:
-				if('cf_' == substr($param->field, 0, 3)) {
+				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
 				} else {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
-				break;
 		}
 	}
 	

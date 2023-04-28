@@ -408,7 +408,7 @@ class SearchFields_DecisionNode extends DevblocksSearchFields {
 	}
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
-		if('cf_' == substr($param->field, 0, 3)) {
+		if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 			return self::_getWhereSQLFromCustomFields($param);
 		} else {
 			return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());

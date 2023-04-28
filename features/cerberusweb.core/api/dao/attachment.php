@@ -795,7 +795,7 @@ class SearchFields_Attachment extends DevblocksSearchFields {
 				return self::_getWhereSQLFromAttachmentLinks($param, self::getPrimaryKey());
 				
 			default:
-				if('cf_' == substr($param->field, 0, 3)) {
+				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
 				} else {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
@@ -1563,15 +1563,12 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 		switch($field) {
 			case 'bundle':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Attachment::VIRTUAL_BUNDLE_SEARCH);
-				break;
 				
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
-				break;
 				
 			case 'size':
 				return DevblocksSearchCriteria::getBytesParamFromTokens(SearchFields_Attachment::STORAGE_SIZE, $tokens);
-				break;
 				
 			default:
 				if($field == 'links' || substr($field, 0, 6) == 'links.')
@@ -1582,10 +1579,7 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 				
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
-				break;
 		}
-		
-		return false;
 	}
 	
 	function render() {

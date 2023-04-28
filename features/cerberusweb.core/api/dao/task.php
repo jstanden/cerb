@@ -672,7 +672,7 @@ class SearchFields_Task extends DevblocksSearchFields {
 				return self::_getWhereSQLFromWatchersField($param, CerberusContexts::CONTEXT_TASK, self::getPrimaryKey());
 			
 			default:
-				if('cf_' == substr($param->field, 0, 3)) {
+				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
 				} else {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
@@ -1073,8 +1073,8 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 		
 		$ft_examples = [];
 		
-		if(false != ($schema = Extension_DevblocksSearchSchema::get(Search_CommentContent::ID))) {
-			if(false != ($engine = $schema->getEngine())) {
+		if(($schema = Extension_DevblocksSearchSchema::get(Search_CommentContent::ID))) {
+			if(($engine = $schema->getEngine())) {
 				$ft_examples = $engine->getQuickSearchExamples($schema);
 			}
 		}

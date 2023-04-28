@@ -416,7 +416,7 @@ class SearchFields_<?php echo $class_name; ?> extends DevblocksSearchFields {
 				return self::_getWhereSQLFromWatchersField($param, '<?php echo $ctx_ext_id; ?>', self::getPrimaryKey());
 			
 			default:
-				if('cf_' == substr($param->field, 0, 3)) {
+				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
 				} else {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());

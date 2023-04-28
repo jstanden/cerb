@@ -511,7 +511,7 @@ class SearchFields_Calendar extends DevblocksSearchFields {
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_WORKER, sprintf('SELECT calendar_id FROM worker WHERE id IN (%s)', '%s'), self::getPrimaryKey());
 				
 			default:
-				if('cf_' == substr($param->field, 0, 3)) {
+				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
 				} else {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
