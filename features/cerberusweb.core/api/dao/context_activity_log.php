@@ -483,14 +483,10 @@ class SearchFields_ContextActivityLog extends DevblocksSearchFields {
 		switch($param->field) {
 			case self::VIRTUAL_ACTOR:
 			case self::VIRTUAL_TARGET:
-				switch($param->field) {
-					case self::VIRTUAL_ACTOR:
-						$context_field = 'actor_context';
-						break;
-					case self::VIRTUAL_TARGET:
-						$context_field = 'target_context';
-						break;
-				}
+				$context_field = match($param->field) {
+					self::VIRTUAL_ACTOR => 'actor_context',
+					self::VIRTUAL_TARGET => 'target_context',
+				};
 				
 				// Handle nested quick search filters first
 				if($param->operator == DevblocksSearchCriteria::OPER_CUSTOM) {
@@ -526,6 +522,20 @@ class SearchFields_ContextActivityLog extends DevblocksSearchFields {
 						. $query_parts['where']
 						. $query_parts['sort']
 						;
+					
+					// Performance: Resolve the worker subquery into a list of IDs
+					if(CerberusContexts::isSameContext($ext->id, CerberusContexts::CONTEXT_WORKER)) {
+						$db = DevblocksPlatform::services()->database();
+						$results = $db->GetArrayReader($sql);
+						$sql = '-1';
+						
+						if(is_array($results) && $results) {
+							$sql = implode(
+								',',
+								DevblocksPlatform::sanitizeArray(array_column($results, 'id'), 'int')
+							);
+						}
+					}
 					
 					return sprintf("%s = %s AND %s_id IN (%s) ",
 						$context_field,
