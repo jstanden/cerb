@@ -3739,7 +3739,10 @@ class _CerbApplication_KataAutocompletions {
 				'inputs:'
 			],
 			'automation:uri:' => [
-				'type' => 'cerb-uri'
+				'type' => 'cerb-uri',
+				'params' => [
+					'automation' => null,
+				]
 			],
 			'automation:inputs:' => [
 				'type' => 'automation-inputs'

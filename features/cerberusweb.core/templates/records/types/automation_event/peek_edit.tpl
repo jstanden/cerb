@@ -75,11 +75,19 @@
             $popup.find('button.save-continue').click({ mode: 'continue' }, Devblocks.callbackPeekEditSave);
 
             // Editor
+            
+            let autocomplete_suggestions = cerbAutocompleteSuggestions.kataAutomationEvent;
+            
+            {if $model->extension_id}
+            autocomplete_suggestions['automation:uri:']['params']['automation'] = {
+                'triggers': ['{$model->extension_id}']
+            };
+            {/if}
 
             var $editor = $popup.find('[name=automations_kata]')
                 .cerbCodeEditor()
                 .cerbCodeEditorAutocompleteKata({
-                    autocomplete_suggestions: cerbAutocompleteSuggestions.kataAutomationEvent
+                    autocomplete_suggestions: autocomplete_suggestions 
                 })
                 .next('pre.ace_editor')
             ;

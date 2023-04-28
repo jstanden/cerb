@@ -1491,7 +1491,7 @@ class Context_Automation extends Extension_DevblocksContext implements IDevblock
 	function autocompleteUri($term, $uri_params=null) : array {
 		$query = null;
 		
-		if(array_key_exists('triggers', $uri_params) && $uri_params['triggers']) {
+		if(is_array($uri_params) && array_key_exists('triggers', $uri_params) && $uri_params['triggers']) {
 			$query = sprintf('trigger:[%s]', implode(',', $uri_params['triggers']));
 		}
 		
