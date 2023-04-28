@@ -134,5 +134,23 @@ $(function() {
 		},
 		done: doneFunc
 	});
+
+	// Keyboard shortcuts
+
+	let $responders = $widget.find('[data-interaction-keyboard]');
+
+	$responders.each(function() {
+		let $this = $(this);
+		$parent.on(
+			'keydown.widget{$widget->id}',
+			null,
+			$this.attr('data-interaction-keyboard'),
+			function(e) {
+				e.preventDefault();
+				e.stopPropagation();
+				$this.click();
+			}
+		);
+	});
 });
 </script>
