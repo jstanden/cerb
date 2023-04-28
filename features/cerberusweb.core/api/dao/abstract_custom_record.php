@@ -574,6 +574,7 @@ class SearchFields_AbstractCustomRecord extends DevblocksSearchFields {
 	const OWNER_CONTEXT_ID = 'a_owner_context_id';
 	const UPDATED_AT = 'a_updated_at';
 
+	const VIRTUAL_COMMENTS_SEARCH = '*_comments_search';
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_OWNER = '*_owner';
@@ -609,6 +610,9 @@ class SearchFields_AbstractCustomRecord extends DevblocksSearchFields {
 		$context_name = self::_getContextName();
 		
 		switch($param->field) {
+			case self::VIRTUAL_COMMENTS_SEARCH:
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_COMMENT, sprintf('SELECT context_id FROM comment WHERE context = %s AND id IN (%s)', Cerb_ORMHelper::qstr($context_name), '%s'), self::getPrimaryKey());
+
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, $context_name, self::getPrimaryKey());
 				
@@ -693,6 +697,7 @@ class SearchFields_AbstractCustomRecord extends DevblocksSearchFields {
 			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, $table_name, 'owner_context_id', $translate->_('common.owner_context_id'), Model_CustomField::TYPE_NUMBER, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, $table_name, 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 			
+			self::VIRTUAL_COMMENTS_SEARCH => new DevblocksSearchField(self::VIRTUAL_COMMENTS_SEARCH, '*', 'comments_search', null, null, false),
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			self::VIRTUAL_OWNER => new DevblocksSearchField(self::VIRTUAL_OWNER, '*', 'owner', $translate->_('common.owner'), null, false),
@@ -752,6 +757,7 @@ class View_AbstractCustomRecord extends C4_AbstractView implements IAbstractView
 		$this->addColumnsHidden(array(
 			SearchFields_AbstractCustomRecord::OWNER_CONTEXT,
 			SearchFields_AbstractCustomRecord::OWNER_CONTEXT_ID,
+			SearchFields_AbstractCustomRecord::VIRTUAL_COMMENTS_SEARCH,
 			SearchFields_AbstractCustomRecord::VIRTUAL_CONTEXT_LINK,
 			SearchFields_AbstractCustomRecord::VIRTUAL_HAS_FIELDSET,
 			SearchFields_AbstractCustomRecord::VIRTUAL_WATCHERS,
@@ -874,6 +880,14 @@ class View_AbstractCustomRecord extends C4_AbstractView implements IAbstractView
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => $search_class::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
+			'comments' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => [],
+					'examples' => array(
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_COMMENT],
+					)
+				),
 			'created' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
@@ -949,6 +963,9 @@ class View_AbstractCustomRecord extends C4_AbstractView implements IAbstractView
 	
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
+			case 'comments':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_AbstractCustomRecord::VIRTUAL_COMMENTS_SEARCH);
+			
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
 			
@@ -1003,6 +1020,13 @@ class View_AbstractCustomRecord extends C4_AbstractView implements IAbstractView
 		$key = $param->field;
 		
 		switch($key) {
+			case SearchFields_AbstractCustomRecord::VIRTUAL_COMMENTS_SEARCH:
+				echo sprintf("%s matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.comments')),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
+				break;
+			
 			case SearchFields_AbstractCustomRecord::VIRTUAL_CONTEXT_LINK:
 				$this->_renderVirtualContextLinks($param);
 				break;
