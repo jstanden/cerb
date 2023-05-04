@@ -2250,9 +2250,10 @@ class CerberusContexts {
 		self::$_context_creations[$context][$id] = true;
 	}
 	
-	static private array $_context_checkpoints = [];
+	static private array $_context_initial_checkpoints = [];
+	static private array $_context_diff_checkpoints = [];
 
-	static function checkpointChanges($context, $ids) {
+	static function checkpointChanges($context, $ids, $fields=null) {
 		if(php_sapi_name() == 'cli')
 			return;
 		
@@ -2262,16 +2263,27 @@ class CerberusContexts {
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
 		$actor = CerberusContexts::getCurrentActor();
 
-		if(!isset(self::$_context_checkpoints[$context]))
-			self::$_context_checkpoints[$context] = [];
+		if(!array_key_exists($context, self::$_context_initial_checkpoints))
+			self::$_context_initial_checkpoints[$context] = [];
+		
+		if($fields) {
+			if(!array_key_exists($context, self::$_context_diff_checkpoints))
+				self::$_context_diff_checkpoints[$context] = [];
+			
+			self::$_context_diff_checkpoints[$context][] = [
+				'actor' => $actor,
+				'ids' => $ids,
+				'fields' => $fields,
+			];
+		}
 
 		// Cache full model objects the first time we encounter an ID (before persisting any changes)
 
-		$load_ids = array_diff($ids, array_keys(self::$_context_checkpoints[$context]));
+		$unseen_ids = array_diff($ids, array_keys(self::$_context_initial_checkpoints[$context]));
 
-		if(!empty($load_ids)) {
-			$models = CerberusContexts::getModels($context, $load_ids);
-			$values = DAO_CustomFieldValue::getValuesByContextIds($context, $load_ids);
+		if(is_array($unseen_ids) && !empty($unseen_ids)) {
+			$models = CerberusContexts::getModels($context, $unseen_ids);
+			$values = DAO_CustomFieldValue::getValuesByContextIds($context, $unseen_ids);
 
 			foreach($models as $model_id => $model) {
 				$custom_field_values = $values[$model_id] ?? [];
@@ -2282,7 +2294,7 @@ class CerberusContexts {
 				// Actor
 				$model->_actor = $actor;
 
-				self::$_context_checkpoints[$context][$model_id] =
+				self::$_context_initial_checkpoints[$context][$model_id] =
 					DevblocksPlatform::objectToArray($model);
 			}
 		}
@@ -2303,23 +2315,37 @@ class CerberusContexts {
 	static function getCheckpoints($context, $ids) {
 		$models = [];
 
-		if(isset(self::$_context_checkpoints[$context]))
+		if(isset(self::$_context_initial_checkpoints[$context]))
 		foreach($ids as $id) {
-			if(isset(self::$_context_checkpoints[$context][$id]))
-				$models[$id] = self::$_context_checkpoints[$context][$id];
+			if(isset(self::$_context_initial_checkpoints[$context][$id]))
+				$models[$id] = self::$_context_initial_checkpoints[$context][$id];
 		}
 
 		return $models;
 	}
+	
+	static function getCheckpointDiffs($context, $ids) {
+		$diffs = [];
+		
+		if(!array_key_exists($context, self::$_context_diff_checkpoints))
+			return [];
+		
+		foreach(self::$_context_diff_checkpoints[$context] as $diff) {
+			if(array_intersect($ids, $diff['ids']))
+				$diffs[] = $diff;
+		}
+		
+		return $diffs;
+	}
 
 	static function flush() {
-		if(empty(self::$_context_checkpoints))
+		if(empty(self::$_context_initial_checkpoints))
 			return;
 
 		$event_handler = DevblocksPlatform::services()->ui()->eventHandler();
 		$record_changed_events = DAO_AutomationEvent::getByName('record.changed');
 		
-		foreach(self::$_context_checkpoints as $context => &$old_models) {
+		foreach(self::$_context_initial_checkpoints as $context => &$old_models) {
 
 			// Do this in batches of 100 in order to save memory
 			$ids = array_keys($old_models);
@@ -2512,7 +2538,7 @@ class CerberusContexts {
 		}
 
 		self::$_context_creations = [];
-		self::$_context_checkpoints = [];
+		self::$_context_initial_checkpoints = [];
 	}
 	
 	public static function logActivityRecordDelete($context, $record_ids, $record_labels=null) {
@@ -2733,7 +2759,7 @@ class Context_Application extends Extension_DevblocksContext implements IDevbloc
 		return parent::getKeyMeta($with_dao_fields);
 	}
 	
-	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 		}
 		
