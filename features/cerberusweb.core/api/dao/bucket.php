@@ -142,6 +142,18 @@ class DAO_Bucket extends Cerb_ORMHelper {
 		return $group_buckets;
 	}
 	
+	static function getByGroupAndName($group_id, $name) : ?Model_Bucket {
+		$buckets = array_filter(
+			self::getAll(),
+			fn($bucket) => $bucket->group_id == $group_id && DevblocksPlatform::compareStrings($bucket->name, $name, '=')
+		);
+		
+		if(!is_array($buckets) || 1 != count($buckets))
+			return null;
+		
+		return current($buckets);
+	}
+	
 	static function getNames(Model_Worker $for_worker=null) {
 		$groups = DAO_Group::getAll();
 		$names = array();

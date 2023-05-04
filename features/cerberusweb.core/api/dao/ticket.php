@@ -5368,6 +5368,14 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 	function getKeyMeta($with_dao_fields=true) {
 		$keys = parent::getKeyMeta($with_dao_fields);
 		
+		$keys['bucket'] = [
+			'key' => 'bucket',
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => 'The [bucket](/docs/records/types/bucket/) name of the ticket; alternative to `bucket_id`. If used, a `group` or `group_id` must also be provided at the same time.',
+			'type' => 'string',
+		];
+		
 		$keys['group'] = [
 			'key' => 'group',
 			'is_immutable' => false,
@@ -5436,6 +5444,34 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		$dict_key = DevblocksPlatform::strLower($key);
 		switch($dict_key) {
+			case 'bucket':
+				if(array_key_exists('group_id', $data)) {
+					if(!($group = DAO_Group::get($data['group_id']))) {
+						$error = sprintf("Failed to lookup group ID: %s", $data['group_id']);
+						return false;
+					}
+					$group_id = $group->id;
+					
+				} else if(array_key_exists('group', $data)) {
+					if(!($group_id = DAO_Group::getByName($data['group']))) {
+						$error = sprintf("Failed to lookup group: %s", $data['group']);
+						return false;
+					}
+					
+				} else {
+					$error = "When setting `bucket`, a `group` or `group_id` is required.";
+					return false;
+				}
+				
+				if(!($bucket = DAO_Bucket::getByGroupAndName($group_id, $data['bucket']))) {
+					$error = sprintf("Failed to lookup the bucket: %s", $data['bucket']);
+					return false;
+				}
+				
+				$out_fields[DAO_Ticket::GROUP_ID] = $bucket->group_id;
+				$out_fields[DAO_Ticket::BUCKET_ID] = $bucket->id;
+				break;
+				
 			case 'bucket_id':
 				if(false !== strstr($value,'{{{'))
 					break;
