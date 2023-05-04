@@ -32,6 +32,10 @@ class Toolbar_RecordCard extends Extension_Toolbar {
 	function getInteractionAfterMeta() : array {
 		return [
 			[
+				'key' => 'refresh_toolbar@bool:',
+				'notes' => 'Refresh the current [toolbar](https://cerb.ai/docs/toolbars/)',
+			],
+			[
 				'key' => 'refresh_widgets@list:',
 				'notes' => 'One or more [card widget](https://cerb.ai/docs/records/types/card_widget/) names to refresh',
 			]
@@ -42,6 +46,7 @@ class Toolbar_RecordCard extends Extension_Toolbar {
 		$suggestions = parent::getAutocompleteSuggestions();
 		
 		$suggestions['*']['(.*):?interaction:after:'] = [
+			'refresh_toolbar@bool: yes',
 			'refresh_widgets@csv: all',
 			'refresh_widgets@csv:',
 			'refresh_widgets@list:',
