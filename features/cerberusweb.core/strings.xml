@@ -2183,6 +2183,11 @@
 				<seg>placeholders</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.platform">
+			<tuv xml:lang="en_US">
+				<seg>platform</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.plugin">
 			<tuv xml:lang="en_US">
 				<seg>plugin</seg>
@@ -2436,6 +2441,11 @@
 		<tu tuid="common.refresh">
 			<tuv xml:lang="en_US">
 				<seg>refresh</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.reload">
+			<tuv xml:lang="en_US">
+				<seg>reload</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.remind">
