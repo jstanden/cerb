@@ -347,6 +347,10 @@
 													widget_ids.push(widget_id);
 											})
 										;
+
+										// If nothing to do, abort
+										if(0 === widget_ids.length)
+											widget_ids = [-1];
 									}
 
 									var evt = $.Event('cerb-widgets-refresh', {
