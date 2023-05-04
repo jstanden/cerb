@@ -984,7 +984,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			
 			// Send events
 			if($check_deltas) {
-				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_TICKET, $batch_ids);
+				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_TICKET, $batch_ids, $fields);
 			}
 			
 			// Make changes
@@ -1500,6 +1500,8 @@ class DAO_Ticket extends Cerb_ORMHelper {
 							]
 						);
 					}
+					
+					AutomationTrigger_MailMoved::trigger($model);
 					
 					$entry = [
 						//{{actor}} moved ticket {{target}} to {{group}} {{bucket}}

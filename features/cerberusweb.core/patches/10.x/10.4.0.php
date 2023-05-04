@@ -52,6 +52,19 @@ foreach($automation_files as $automation_file) {
 }
 
 // ===========================================================================
+// Add new automation events
+
+if(!$db->GetOneMaster("SELECT 1 FROM automation_event WHERE name = 'mail.moved'")) {
+	$db->ExecuteMaster(sprintf('INSERT IGNORE INTO automation_event (name, extension_id, description, automations_kata, updated_at) VALUES (%s,%s,%s,%s,%d)',
+		$db->qstr('mail.moved'),
+		$db->qstr('cerb.trigger.mail.moved'),
+		$db->qstr('After a ticket is moved to a new group/bucket'),
+		$db->qstr(''),
+		time()
+	));
+}
+
+// ===========================================================================
 // Add new toolbars
 
 if(!$db->GetOneMaster("SELECT 1 FROM toolbar WHERE name = 'comment.editor'")) {

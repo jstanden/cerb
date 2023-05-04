@@ -5077,6 +5077,23 @@
 				</param>
 			</params>
 		</extension>
+
+		<extension point="cerb.automation.trigger">
+			<id>cerb.trigger.mail.moved</id>
+			<name>mail.moved</name>
+			<class>
+				<file>api/automations/triggers/mail.moved.php</file>
+				<name>AutomationTrigger_MailMoved</name>
+			</class>
+			<params>
+				<param key="description" value="After a ticket is moved to a new group/bucket" />
+				<param key="features">
+					<value>
+						<data key="inputs" />
+					</value>
+				</param>
+			</params>
+		</extension>
 		
 		<extension point="cerb.automation.trigger">
 			<id>cerb.trigger.mail.received</id>
