@@ -805,6 +805,9 @@ class Controller_UI extends DevblocksControllerExtension {
 		if(in_array('time_elapsed', $types))
 			$sheets->addType('time_elapsed', $sheets->types()->timeElapsed());
 		
+		if(in_array('toolbar', $types))
+			$sheets->addType('toolbar', $sheets->types()->toolbar());
+		
 		$sheets->addType('text', $sheets->types()->text());
 		$sheets->setDefaultType('text');
 		

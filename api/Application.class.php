@@ -5858,6 +5858,20 @@ class _CerbApplication_KataSchemas {
                                 value:
                                   types:
                                     string:
+                
+                toolbar:
+                  multiple@bool: yes
+                  types:
+                    object:
+                      attributes:
+                        label@ref: columnLabel
+                        params:
+                          types:
+                            object:
+                              attributes:
+                                kata:
+                                  types:
+                                    list:
     EOD;
 	}
 	

@@ -1091,6 +1091,10 @@ var cerbAutocompleteSuggestions = {
 			{
 				caption: 'time_elapsed:',
 				snippet: 'time_elapsed/${1:key}:\n  label: ${2:Label}\n  params:\n    precision@int: ${3:2}\n'
+			},
+			{
+				caption: 'toolbar:',
+				snippet: 'toolbar/${1:key}:\n  label: ${2:Label}\n  params:\n    ${3:}\n'
 			}
 		],
 		
@@ -1319,7 +1323,101 @@ var cerbAutocompleteSuggestions = {
 		'columns:time_elapsed:params:bold:': [
 			'yes',
 			'no'
-		]
+		],
+		
+		// Toolbar
+		'columns:toolbar:': [
+			'label:',
+			'params:'
+		],
+		'columns:toolbar:params:': [
+			'kata:'
+		],
+		'columns:toolbar:params:kata:': [
+			{
+				'caption': 'interaction:',
+				'snippet': 'interaction/${1:name}:'
+			},
+			{
+				'caption': 'menu:',
+				'snippet': 'menu/${1:name}:'
+			}
+		],
+		
+		// Wildcards
+		'*': {
+			'columns:toolbar:params:kata:(.*):?interaction:': [
+				'after:',
+				{
+					'caption': 'uri:',
+					'snippet': 'uri: cerb:automation:${1:}'
+				},
+				'label:',
+				'icon:',
+				'tooltip:',
+				{
+					'caption': 'hidden:',
+					'snippet': 'hidden@bool: ${1:yes}'
+				},
+				{
+					'caption': 'badge:',
+					'snippet': 'badge: 123'
+				},
+				{
+					'caption': 'class:',
+					'snippet': 'class: some-css-class-name'
+				},
+				'inputs:'
+			],
+			'columns:toolbar:params:kata:(.*):?interaction:hidden:': [
+				'yes',
+				'no',
+				{
+					'caption': '{{key}}',
+					'snippet': '{{${1:key}}}',
+				},
+				{
+					'caption': '{{not key}}',
+					'snippet': '{{not ${1:key}}}',
+				}
+			],
+			'columns:toolbar:params:kata:(.*):?interaction:icon:': {
+				'type': 'icon'
+			},
+			'columns:toolbar:params:kata:(.*):?interaction:inputs:': {
+				'type': 'automation-inputs'
+			},
+			'columns:toolbar:params:kata:(.*):?interaction:uri:': {
+				'type': 'cerb-uri',
+				'params': {
+					'automation': {
+						'triggers': [
+							'cerb.trigger.interaction.worker'
+						]
+					}
+				}
+			},
+			'columns:toolbar:params:kata:(.*):?menu:': [
+				'label:',
+				{
+					'caption': 'hidden:',
+					'snippet': 'hidden@bool: ${1:yes}'
+				},
+				'icon:',
+				'tooltip:',
+				'items:'
+			],
+			'columns:toolbar:params:kata:(.*):?menu:items:': [
+				{
+					'caption': 'interaction:',
+					'snippet': 'interaction/${1:name}:'
+				},
+				{
+					'caption': 'menu:',
+					'snippet': 'menu/${1:name}:'
+				}
+			],
+		}
 	},
 	kataSchemaWorklistExport: {
 		'': [

@@ -258,6 +258,7 @@ $(function() {
 			formData.append('types[]', 'slider');
 			formData.append('types[]', 'text');
 			formData.append('types[]', 'time_elapsed');
+			formData.append('types[]', 'toolbar');
 			
 			genericAjaxPost(formData, '', '', function(html) {
 				$sheet_preview.html(html).closest('fieldset').fadeIn();

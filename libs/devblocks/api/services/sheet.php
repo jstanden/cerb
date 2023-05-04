@@ -1054,4 +1054,22 @@ class _DevblocksSheetServiceTypes {
 			return DevblocksPlatform::strEscapeHtml(DevblocksPlatform::strSecsToString($value, $precision));
 		};
 	}
+	
+	function toolbar(bool $filter_html=true) : callable {
+		return function($column, DevblocksDictionaryDelegate $sheet_dict, array $environment=[]) use ($filter_html) {
+			$column_params = ($column['params'] ?? null) ?: [];
+			$error = null;
+			
+			if('text' == ($environment['format'] ?? null))
+				return '';
+			
+			$toolbar_kata = $column_params['kata'] ?? [];
+			
+			if(!($toolbar_kata = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $sheet_dict, $error))) {
+				return '';
+			}
+			
+			return DevblocksPlatform::services()->ui()->toolbar()->fetch($toolbar_kata);
+		};
+	}
 }
