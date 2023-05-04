@@ -1117,7 +1117,7 @@ var cerbAutocompleteSuggestions = {
 		'columns:text:params:icon:': [
 			'image:',
 			'image_key:',
-			'image_template:',
+			'image_template@raw:',
 			{
 				'caption': 'record_uri:',
 				'snippet': 'record_uri@raw: cerb:${1:record_type}:${2:record_id}'
@@ -1135,14 +1135,14 @@ var cerbAutocompleteSuggestions = {
 			'underline@bool:',
 			'context:',
 			'context_key:',
-			'context_template:',
+			'context_template@raw:',
 			'icon:',
 			'id:',
 			'id_key:',
-			'id_template:',
+			'id_template@raw:',
 			'label:',
 			'label_key:',
-			'label_template:',
+			'label_template@raw:',
 			'color@raw:',
 			'text_color@raw:',
 			'text_size@raw: 150%'
@@ -1150,7 +1150,7 @@ var cerbAutocompleteSuggestions = {
 		'columns:card:params:icon:': [
 			'image:',
 			'image_key:',
-			'image_template:',
+			'image_template@raw:',
 			{
 				'caption': 'record_uri:',
 				'snippet': 'record_uri@raw: cerb:${1:record_type}:${2:record_id}'
@@ -1201,7 +1201,7 @@ var cerbAutocompleteSuggestions = {
 		'columns:icon:params:': [
 			'image:',
 			'image_key:',
-			'image_template:',
+			'image_template@raw:',
 			{
 				'caption': 'record_uri:',
 				'snippet': 'record_uri@raw: cerb:${1:record_type}:${2:record_id}'
@@ -1219,10 +1219,10 @@ var cerbAutocompleteSuggestions = {
 		'columns:link:params:': [
 			'href:',
 			'href_key:',
-			'href_template:',
+			'href_template@raw:',
 			'text:',
 			'text_key:',
-			'text_template:',
+			'text_template@raw:',
 			'bold@bool:'
 		],
 		'columns:link:params:bold:': [
@@ -1238,13 +1238,13 @@ var cerbAutocompleteSuggestions = {
 		'columns:search:params:': [
 			'context:',
 			'context_key:',
-			'context_template:',
+			'context_template@raw:',
 			'query:',
 			'query_key:',
-			'query_template:',
+			'query_template@raw:',
 			'label:',
 			'label_key:',
-			'label_template:',
+			'label_template@raw:',
 			'bold@bool:',
 			'color@raw:',
 			'text_color@raw:',
@@ -1263,10 +1263,10 @@ var cerbAutocompleteSuggestions = {
 		'columns:search_button:params:': [
 			'context:',
 			'context_key:',
-			'context_template:',
+			'context_template@raw:',
 			'query:',
 			'query_key:',
-			'query_template:',
+			'query_template@raw:',
 			'color@raw:',
 			'text_color@raw:',
 			'text_size@raw: 150%'
