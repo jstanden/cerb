@@ -201,6 +201,20 @@ $(function() {
 
 			var done_params = new URLSearchParams($target.attr('data-interaction-done'));
 			
+            if(done_params.has('refresh_toolbar')) {
+                let refresh = done_params.get('refresh_toolbar');
+
+                if(!refresh || '0' === refresh)
+                    return;
+
+                genericAjaxGet('', 'c=profiles&a=renderToolbar&record_type={$dict->_context}&record_id={$dict->id}&toolbar=record.profile', function(html) {
+                    $toolbar
+                        .html(html)
+                        .trigger('cerb-toolbar--refreshed')
+                    ;
+                });
+            }
+            
 			// Refresh all widgets by default
 			if(!done_params.has('refresh_widgets[]')) {
 				done_params.set('refresh_widgets[]', 'all');
