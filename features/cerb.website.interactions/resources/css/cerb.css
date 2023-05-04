@@ -29,15 +29,24 @@
 
 .cerb-interaction-popup {
     font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background: var(--cerb-interaction-window-bg-color);
+    border-radius: 15px;
+    box-shadow: 0 0 10px 0 rgb(50, 50, 50);
+}
+
+.cerb-interaction-popup--style-embed {
+    position: relative;
+    max-width: 95vw;
+    margin: 1em auto;
+}
+
+.cerb-interaction-popup--style-float {
     width: 40vw;
     max-height: 95vh;
     bottom: 2.5vh;
     right: 2.5vw;
     position: fixed;
     z-index: 10000;
-    background: var(--cerb-interaction-window-bg-color);
-    border-radius: 15px;
-    box-shadow: 0 0 10px 0 rgb(50, 50, 50);
 }
 
 .cerb-interaction-popup--style-full {
@@ -90,12 +99,12 @@
     border-radius: 10px 10px 0 0;
 }
 
-.cerb-interaction-popup--container {
+.cerb-interaction-popup--style-float .cerb-interaction-popup--container {
     max-height: 95vh;
     overflow: auto;
 }
 
-.cerb-interaction-popup--style-full .cerb-interaction-popup--container {
+.cerb-interaction-popup--style-embed .cerb-interaction-popup--container {
     max-height: unset;
     overflow: unset;
 }
@@ -122,7 +131,7 @@
     cursor:pointer;
 }
 
-.cerb-interaction-popup--form {
+.cerb-interaction-popup--style-float .cerb-interaction-popup--form {
     overflow: auto;
 }
 
@@ -130,12 +139,12 @@
     padding: 10px 10px 10px 10px;
 }
 
-.cerb-interaction-popup--form-elements H1,
-.cerb-interaction-popup--form-elements H2,
-.cerb-interaction-popup--form-elements H3,
-.cerb-interaction-popup--form-elements H4,
-.cerb-interaction-popup--form-elements H5,
-.cerb-interaction-popup--form-elements H6 {
+.cerb-interaction-popup .cerb-interaction-popup--form-elements H1,
+.cerb-interaction-popup .cerb-interaction-popup--form-elements H2,
+.cerb-interaction-popup .cerb-interaction-popup--form-elements H3,
+.cerb-interaction-popup .cerb-interaction-popup--form-elements H4,
+.cerb-interaction-popup .cerb-interaction-popup--form-elements H5,
+.cerb-interaction-popup .cerb-interaction-popup--form-elements H6 {
     color: inherit;
     font-family: inherit;
     font-size: 1rem;
@@ -144,27 +153,27 @@
     padding: 0;
 }
 
-.cerb-interaction-popup--form-elements H1 {
+.cerb-interaction-popup .cerb-interaction-popup--form-elements H1 {
     font-size: 1.6em;
 }
 
-.cerb-interaction-popup--form-elements H2 {
+.cerb-interaction-popup .cerb-interaction-popup--form-elements H2 {
     font-size: 1.5em;
 }
 
-.cerb-interaction-popup--form-elements H3 {
+.cerb-interaction-popup .cerb-interaction-popup--form-elements H3 {
     font-size: 1.4em;
 }
 
-.cerb-interaction-popup--form-elements H4 {
+.cerb-interaction-popup .cerb-interaction-popup--form-elements H4 {
     font-size: 1.3em;
 }
 
-.cerb-interaction-popup--form-elements H5 {
+.cerb-interaction-popup .cerb-interaction-popup--form-elements H5 {
     font-size: 1.2em;
 }
 
-.cerb-interaction-popup--form-elements H6 {
+.cerb-interaction-popup .cerb-interaction-popup--form-elements H6 {
     font-size: 1.1em;
 }
 
@@ -475,14 +484,14 @@ svg.cerb-spinner circle {
 }
 
 @media screen and (min-width: 1500px) {
-    .cerb-interaction-popup {
+    .cerb-interaction-popup--style-float {
         width: 50vw;
         max-height: 90vh;
         bottom: 5vh;
         right: 2.5vw;
     }
-    
-    .cerb-interaction-popup--container {
+
+    .cerb-interaction-popup--style-float .cerb-interaction-popup--container {
         max-height: 90vh;
     }
 
@@ -496,14 +505,14 @@ svg.cerb-spinner circle {
 }
 
 @media screen and (max-width: 1050px) {
-    .cerb-interaction-popup {
+    .cerb-interaction-popup--style-float {
         width: 50vw;
         max-height: 90vh;
         bottom: 5vh;
         right: 2.5vw;
     }
 
-    .cerb-interaction-popup--container {
+    .cerb-interaction-popup--style-float .cerb-interaction-popup--container {
         max-height: 90vh;
     }
 
@@ -517,14 +526,14 @@ svg.cerb-spinner circle {
 }
 
 @media screen and (max-width: 800px) {
-    .cerb-interaction-popup {
+    .cerb-interaction-popup--style-float {
         width: 75vw;
         max-height: 90vh;
         bottom: 5vh;
         right: 2.5vw;
     }
 
-    .cerb-interaction-popup--container {
+    .cerb-interaction-popup--style-float .cerb-interaction-popup--container {
         max-height: 90vh;
     }
 
@@ -538,14 +547,14 @@ svg.cerb-spinner circle {
 }
 
 @media screen and (max-width: 500px) {
-    .cerb-interaction-popup {
+    .cerb-interaction-popup--style-float {
         width: 95vw;
         max-height: 95vh;
         bottom: 2.5vh;
         right: 2.5vw;
     }
 
-    .cerb-interaction-popup--container {
+    .cerb-interaction-popup--style-float .cerb-interaction-popup--container {
         max-height: 95vh;
     }
 

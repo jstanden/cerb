@@ -39,7 +39,7 @@
     top: 120px;
 }
 
-.cerb-portal .cerb-interaction-popup {
+.cerb-portal .cerb-interaction-popup--style-float {
     position: absolute;
 }
 

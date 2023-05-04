@@ -118,7 +118,7 @@ CerbInteractions.prototype.init = function() {
         let interaction_params = this.getAttribute('data-cerb-interaction-params');
         let interaction_style = this.getAttribute('data-cerb-interaction-style');
 
-        inst.interactionStart(interaction, interaction_params, interaction_style);
+        inst.interactionStart(interaction, interaction_params, interaction_style, this);
     };
     
     this.forEach(
@@ -189,7 +189,7 @@ CerbInteractions.prototype.forEach = function (array, callback, scope) {
     }
 }
 
-CerbInteractions.prototype.interactionStart = function(interaction, interaction_params, interaction_style) {
+CerbInteractions.prototype.interactionStart = function(interaction, interaction_params, interaction_style, element) {
     // Check if the popup window is already open
     if(this.$popup)
         return;
@@ -216,10 +216,21 @@ CerbInteractions.prototype.interactionStart = function(interaction, interaction_
                     inst.$popup = document.createElement('div');
                     inst.$popup.className = 'cerb-interaction-popup';
 
-                    if (interaction_style === 'full')
-                        inst.$popup.className += ' cerb-interaction-popup--style-full';
-
-                    inst.$body.append(inst.$popup);
+                    if (interaction_style === 'embed' && element instanceof Element) {
+                        inst.$popup.className += ' cerb-interaction-popup--style-embed';
+                        
+                        element.append(inst.$popup);
+                        
+                    } else {
+                        inst.$popup.className += ' cerb-interaction-popup--style-float';
+                        
+                        if (interaction_style === 'full') {
+                            inst.$popup.className += ' cerb-interaction-popup--style-full';
+                        }
+                        
+                        inst.$body.append(inst.$popup);
+                    }
+                    
                     inst.html(inst.$popup, this.responseText);
                     
                     inst.forEach(
@@ -234,13 +245,13 @@ CerbInteractions.prototype.interactionStart = function(interaction, interaction_
                     let $close = inst.$popup.querySelector('.cerb-interaction-popup--close');
                     
                     if($close) {
-                        if(inst.$badge) {
+                        if(interaction_style === 'embed') {
+                            $close.style.display = 'none';
+                        } else {
                             $close.addEventListener('click', function (e) {
                                 e.stopPropagation();
                                 inst.$popup.dispatchEvent($$.createEvent('cerb-interaction-event--end'));
                             });
-                        } else {
-                            $close.style.display = 'none';
                         }
                     }
 
@@ -344,7 +355,8 @@ CerbInteractions.prototype.interactionEnd = function(eventData) {
     if(null == eventData)
         eventData = { };
     
-    this.$body.removeChild(this.$popup);
+    this.$popup.parentNode.removeChild(this.$popup);
+    
     this.$popup = null;
     if(this.$badge) this.$badge.style.display = 'block';
     
