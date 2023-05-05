@@ -3032,7 +3032,7 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 						$id,
 						[
 							'expires' => time()+$maxlifetime,
-							'path' => $url_writer->write('',false,false),
+							'path' => DEVBLOCKS_WEBPATH,
 							'domain' => '',
 							'secure' => $url_writer->isSSL(),
 							'httponly' => true,

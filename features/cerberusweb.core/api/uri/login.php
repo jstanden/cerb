@@ -468,7 +468,7 @@ class Page_Login extends CerberusPageExtension {
 								$remember_value,
 								[
 									'expires' => $remember_expires_at,
-									'path' => $url_writer->write('',false,false),
+									'path' => DEVBLOCKS_WEBPATH,
 									'domain' => '',
 									'secure' => $url_writer->isSSL(),
 									'httponly' => true,
