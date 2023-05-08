@@ -637,11 +637,13 @@ class CerberusApplication extends DevblocksApplication {
 
 		$letters = "ABCDEFGHIJKLMNPQRSTUVWXYZ";
 		$numbers = "123456789";
+		$denylist_3ltr = 'ANL|ASS|BBW|BLO|BUT|CMN|CNT|COC|COK|COQ|CUM|DIC|DIK|DIQ|FAG|FAT|FME|FML|FUK|FUQ|GAG|GAY|GFY|JAP|JIZ|JUG|JZZ|KKK|KOK|MLF|MUF|NGR|NIG|NIP|PDO|PED|PEE|PEG|PMS|POO|PUS|RAG|RIM|SEX|SHT|SMN|SNM|SUC|SUK|SUX|SXY|TIT|VAG|WET|WTF|XXX';
 
 		do {
 			$mask = "";
 			$bytes = str_split($pattern, 1);
 			$literal = false;
+			$is_profane = false;
 
 			if(is_array($bytes))
 			foreach($bytes as $byte) {
@@ -654,7 +656,6 @@ class CerberusApplication extends DevblocksApplication {
 						break;
 					case '}':
 						$literal = false;
-						$append = '';
 						break;
 					case 'L':
 						$append .= substr($letters,mt_rand(0,strlen($letters)-1),1);
@@ -688,10 +689,15 @@ class CerberusApplication extends DevblocksApplication {
 				} else {
 					$mask .= $append;
 				}
-
-				$mask = DevblocksPlatform::strUpper(DevblocksPlatform::strAlphaNum($mask,'\-'));
 			}
-		} while(null != DAO_Ticket::getTicketIdByMask($mask));
+
+			$mask = DevblocksPlatform::strUpper(DevblocksPlatform::strAlphaNum($mask,'\-'));
+			
+			if(preg_match('#' . $denylist_3ltr . '#', $mask)) {
+				$is_profane = true;
+			}
+			
+		} while($is_profane || null != DAO_Ticket::getTicketIdByMask($mask));
 
 		if(empty($mask)) {
 			return self::generateTicketMask(CerberusSettingsDefaults::TICKET_MASK_FORMAT);
