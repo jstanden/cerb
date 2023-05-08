@@ -36,8 +36,8 @@ class Toolbar_RecordProfile extends Extension_Toolbar {
 				'notes' => 'Refresh the current [toolbar](https://cerb.ai/docs/toolbars/)',
 			],
 			[
-				'key' => 'refresh_widgets@list:',
-				'notes' => 'One or more [profile widget](https://cerb.ai/docs/records/types/profile_widget/) names to refresh',
+				'key' => 'refresh_widgets@csv:',
+				'notes' => 'One or more [profile widget](https://cerb.ai/docs/records/types/profile_widget/) names to refresh. Can also use `@bool:` to refresh all (yes) or none (no).',
 			],
 		];
 	}
@@ -47,9 +47,8 @@ class Toolbar_RecordProfile extends Extension_Toolbar {
 		
 		$suggestions['*']['(.*):?interaction:after:'] = [
 			'refresh_toolbar@bool: yes',
-			'refresh_widgets@csv: all',
-			'refresh_widgets@csv:',
-			'refresh_widgets@list:',
+			'refresh_widgets@bool: no',
+			'refresh_widgets@csv: Some Widget, Other Widget',
 		];
 		
 		return $suggestions;
