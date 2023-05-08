@@ -215,11 +215,20 @@ $(function() {
 			});
 		});
 	});
+
+    let autocomplete_suggestions = cerbAutocompleteSuggestions.kataSchemaSheet;
+
+    autocomplete_suggestions['*']['columns:toolbar:params:kata:(.*):?interaction:after:'] = [
+        'close@bool: yes',
+        'refresh_toolbar@bool: yes',
+        'refresh_widgets@bool: no',
+        'refresh_widgets@csv: Widget Name, Other Widget',
+    ];
 	
 	var $yaml_editor = $config.find('textarea.cerb-sheet-yaml-editor')
 		.cerbCodeEditor()
 		.cerbCodeEditorAutocompleteKata({
-			autocomplete_suggestions: cerbAutocompleteSuggestions.kataSchemaSheet
+			autocomplete_suggestions: autocomplete_suggestions
 		})
 		.nextAll('pre.ace_editor')
 		;
@@ -329,6 +338,15 @@ $(function() {
 	var $toolbar_button_insert = $config.find('.cerb-button-toolbar-insert');
 	var $toolbar_preview = $config.find('.cerb-toolbar-preview');
 
+    autocomplete_suggestions = cerbAutocompleteSuggestions.kataToolbar;
+
+    autocomplete_suggestions['*']['(.*):?interaction:after:'] = [
+        'close@bool: yes',
+        'refresh_toolbar@bool: yes',
+        'refresh_widgets@bool: no',
+        'refresh_widgets@csv: Widget Name, Other Widget',
+    ];
+    
 	var $toolbar_editor = $config.find('textarea.cerb-toolbar-yaml-editor')
 		.cerbCodeEditor()
 		.cerbCodeEditorAutocompleteKata({
@@ -349,9 +367,7 @@ $(function() {
 		if(!$target.is('.cerb-bot-trigger'))
 			return;
 
-		if (e.eventData.exit === 'error') {
-
-		} else if(e.eventData.exit === 'return') {
+		if(e.eventData.exit === 'return') {
 			Devblocks.interactionWorkerPostActions(e.eventData, toolbar_editor);
 		}
 	};

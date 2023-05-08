@@ -46,10 +46,10 @@ class Toolbar_RecordCard extends Extension_Toolbar {
 		$suggestions = parent::getAutocompleteSuggestions();
 		
 		$suggestions['*']['(.*):?interaction:after:'] = [
+			'close@bool: yes',
 			'refresh_toolbar@bool: yes',
-			'refresh_widgets@csv: all',
-			'refresh_widgets@csv:',
-			'refresh_widgets@list:',
+			'refresh_widgets@bool: no',
+			'refresh_widgets@csv: Widget Name, Other Widget',
 		];
 		
 		return $suggestions;
