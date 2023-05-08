@@ -153,6 +153,17 @@ $(function() {
 		.nextAll('pre.ace_editor')
 		;
 	
+    let doneFunc = function(e) {
+        e.stopPropagation();
+
+        if(!e.hasOwnProperty('trigger'))
+            return;
+
+        if(e.hasOwnProperty('eventData') && e.eventData.exit === 'return') {
+            Devblocks.interactionWorkerPostActions(e.eventData);
+        }
+    }
+
 	$query_button.on('click', function(e) {
 		e.stopPropagation();
 		
@@ -204,11 +215,18 @@ $(function() {
 			});
 		});
 	});
+
+    let autocomplete_suggestions = cerbAutocompleteSuggestions.kataSchemaSheet;
+
+    autocomplete_suggestions['*']['columns:toolbar:params:kata:(.*):?interaction:after:'] = [
+        'refresh_widgets@bool: no',
+        'refresh_widgets@csv: Widget Name, Other Widget',
+    ];
 	
 	var $yaml_editor = $config.find('textarea.cerb-sheet-yaml-editor')
 		.cerbCodeEditor()
 		.cerbCodeEditorAutocompleteKata({
-			autocomplete_suggestions: cerbAutocompleteSuggestions.kataSchemaSheet
+			autocomplete_suggestions: autocomplete_suggestions
 		})
 		.nextAll('pre.ace_editor')
 		;
@@ -325,30 +343,22 @@ $(function() {
 	var $toolbar_preview = $config.find('.cerb-toolbar-preview');
 	var $toolbar_custom = $toolbar.find('[data-cerb-toolbar]');
 
+	autocomplete_suggestions = cerbAutocompleteSuggestions.kataToolbar;
+
+    autocomplete_suggestions['*']['(.*):?interaction:after:'] = [
+        'refresh_widgets@bool: no',
+        'refresh_widgets@csv: Widget Name, Other Widget',
+    ];
+    
 	var $toolbar_editor = $config.find('textarea.cerb-toolbar-yaml-editor')
 		.cerbCodeEditor()
 		.cerbCodeEditorAutocompleteKata({
-			autocomplete_suggestions: cerbAutocompleteSuggestions.kataToolbar
+			autocomplete_suggestions: autocomplete_suggestions
 		})
 		.nextAll('pre.ace_editor')
 	;
 
 	var toolbar_editor = ace.edit($toolbar_editor.attr('id'));
-
-	var doneFunc = function(e) {
-		e.stopPropagation();
-
-		var $target = e.trigger;
-
-		if(!$target.is('.cerb-bot-trigger'))
-			return;
-
-		if (e.eventData.exit === 'error') {
-
-		} else if(e.eventData.exit === 'return') {
-			Devblocks.interactionWorkerPostActions(e.eventData, toolbar_editor);
-		}
-	};
 
 	var resetFunc = function(e) {
 		e.stopPropagation();
