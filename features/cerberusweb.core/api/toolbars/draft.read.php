@@ -42,7 +42,7 @@ class Toolbar_DraftRead extends Extension_Toolbar {
 		$suggestions = parent::getAutocompleteSuggestions();
 		
 		$suggestions['*']['(.*):?interaction:after:'] = [
-			'refresh_widgets@csv: all',
+			'refresh_widgets@bool: all',
 			'refresh_widgets@csv:',
 			'refresh_widgets@list:',
 		];

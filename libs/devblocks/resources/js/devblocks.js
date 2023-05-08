@@ -246,6 +246,64 @@ function DevblocksClass() {
 		}
 	}
 	
+	this.toolbarAfterActions = function(done_params, options) {
+		// Refresh widgets
+		let response = {};
+		
+		if('object' !== typeof options)
+			options = { };
+		
+		if(!options.hasOwnProperty('widgets'))
+			return response;
+
+		if(done_params.has('refresh_widgets')) {
+			// If false, refresh nothing; otherwise refresh everything
+			if('1' === done_params.get('refresh_widgets')) {
+				response['refresh_widget_ids'] = [];
+			} else if('0' === done_params.get('refresh_widgets')) {
+				response['refresh_widget_ids'] = [-1];
+			}
+
+		} else if(done_params.has('refresh_widgets[]')) {
+			if(-1 !== $.inArray('all', done_params.getAll('refresh_widgets[]'))) {
+				response['refresh_widget_ids'] = [];
+				
+			} else {
+				let widgets = options.widgets || $.find('');
+				response['refresh_widget_ids'] = [];
+				
+				// Find the named widgets (all by default)
+				widgets
+					.filter(function() {
+						var name = $(this).attr(options['widget_name_key'] || 'data-widget-name');
+
+						if(undefined === name)
+							return false;
+
+						return -1 !== $.inArray(name, done_params.getAll('refresh_widgets[]'));
+					})
+					.each(function() {
+						var widget_id = parseInt($(this).attr(options['widget_id_key'] || 'data-widget-id'));
+
+						if(widget_id)
+							response['refresh_widget_ids'].push(widget_id);
+					})
+				;
+				
+				// If no matches, refresh nothing
+				if(0 === response['refresh_widget_ids'].length) {
+					response['refresh_widget_ids'] = [-1];
+				}
+			}
+
+		// By default, refresh just this widget
+		} else {
+			response['refresh_widget_ids'] = options.hasOwnProperty('default_widget_ids') ? options.default_widget_ids : [];
+		}
+		
+		return response;
+	}
+	
 	this.getDefaultjQueryUiTabOptions = function() {
 		var $this = this;
 		
