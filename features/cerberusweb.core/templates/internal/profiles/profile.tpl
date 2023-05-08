@@ -119,6 +119,45 @@ $(function() {
 	// Set the browser tab label to the record label
 	document.title = "{$dict->_label|escape:'javascript' nofilter} - {$settings->get('cerberusweb.core','helpdesk_title')|escape:'javascript' nofilter}";
 	
+    let doneFunc = function(e) {
+        e.stopPropagation();
+
+        var $target = e.trigger;
+
+        if(!$target.is('.cerb-bot-trigger'))
+            return;
+
+        if(e.eventData.exit === 'return') {
+            Devblocks.interactionWorkerPostActions(e.eventData);
+        }
+
+        let done_params = new URLSearchParams($target.attr('data-interaction-done'));
+
+        if(done_params.has('refresh_toolbar')) {
+            let refresh = done_params.get('refresh_toolbar');
+
+            if(!refresh || '0' === refresh)
+                return;
+
+            $toolbar.trigger($.Event('cerb-toolbar--refresh'));
+        }
+        
+        let done_actions = Devblocks.toolbarAfterActions(done_params, {
+			'widgets': $profile_tab.find('.cerb-profile-widget'),
+			'default_widget_ids': []
+		});
+
+        // Refresh profile widgets
+        if(done_actions.hasOwnProperty('refresh_widget_ids')) {
+			$profile_tab.find('.cerb-profile-layout').triggerHandler(
+                $.Event('cerb-widgets-refresh', {
+                	widget_ids: done_actions['refresh_widget_ids'],
+                	refresh_options: { }
+            	})
+			);
+		}
+    };
+    
 	// Peeks
 	$('#btnProfileCard').cerbPeekTrigger();
 	
@@ -174,6 +213,17 @@ $(function() {
 	// Toolbar
 	
 	var $toolbar = $profile_toolbar.find('[data-cerb-toolbar]');
+    
+    $toolbar.on('cerb-toolbar--refresh', function(e) {
+		e.stopPropagation();
+
+        genericAjaxGet('', 'c=profiles&a=renderToolbar&record_type={$dict->_context}&record_id={$dict->id}&toolbar=record.profile', function(html) {
+            $toolbar
+                .html(html)
+                .trigger('cerb-toolbar--refreshed')
+            ;
+        });
+    });
 
 	$toolbar.cerbToolbar({
 		caller: {
@@ -185,78 +235,7 @@ $(function() {
 		},
 		start: function(formData) {
 		},
-		done: function(e) {
-			e.stopPropagation();
-			
-			var $target = e.trigger;
-			
-			if(!$target.is('.cerb-bot-trigger'))
-				return;
-
-			if (e.eventData.exit === 'error') {
-
-			} else if(e.eventData.exit === 'return') {
-				Devblocks.interactionWorkerPostActions(e.eventData);
-			}
-
-			var done_params = new URLSearchParams($target.attr('data-interaction-done'));
-			
-            if(done_params.has('refresh_toolbar')) {
-                let refresh = done_params.get('refresh_toolbar');
-
-                if(!refresh || '0' === refresh)
-                    return;
-
-                genericAjaxGet('', 'c=profiles&a=renderToolbar&record_type={$dict->_context}&record_id={$dict->id}&toolbar=record.profile', function(html) {
-                    $toolbar
-                        .html(html)
-                        .trigger('cerb-toolbar--refreshed')
-                    ;
-                });
-            }
-            
-			// Refresh all widgets by default
-			if(!done_params.has('refresh_widgets[]')) {
-				done_params.set('refresh_widgets[]', 'all');
-			}
-
-			var refresh = done_params.getAll('refresh_widgets[]');
-			var widget_ids = [];
-			
-			if(-1 !== $.inArray('all', refresh)) {
-				// Everything
-			} else {
-				$profile_tab.find('.cerb-profile-widget')
-					.filter(function() {
-						var $this = $(this);
-						var name = $this.attr('data-widget-name');
-
-						if(undefined === name)
-							return false;
-
-						return -1 !== $.inArray(name, refresh);
-					})
-					.each(function() {
-						var $this = $(this);
-						var widget_id = parseInt($this.attr('data-widget-id'));
-
-						if(widget_id)
-							widget_ids.push(widget_id);
-					})
-				;
-				
-				// If nothing to do, abort
-				if(0 === widget_ids.length)
-					widget_ids = [-1];
-			}
-
-			var evt = $.Event('cerb-widgets-refresh', {
-				widget_ids: widget_ids,
-				refresh_options: { }
-			});
-			
-			$profile_tab.find('.cerb-profile-layout').triggerHandler(evt);			
-		}
+		done: doneFunc
 	});
 	
 	var $toolbar_setup = $profile_toolbar.find('[data-cerb-toolbar-setup]');

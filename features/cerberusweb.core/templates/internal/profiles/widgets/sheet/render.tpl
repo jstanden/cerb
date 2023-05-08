@@ -17,6 +17,7 @@
 <script type="text/javascript">
 $(function() {
 	var $widget = $('#widget{$widget->id}');
+    var $profile_toolbar = $('#profileToolbar').find('[data-cerb-toolbar]');
 	var $sheet = $widget.find('.cerb-sheet, .cerb-data-sheet, .cerb-sheet-grid, .cerb-sheet-columns');
 	var $sheet_toolbar = $widget.find('[data-cerb-toolbar]');
 	var $tab = $widget.closest('.cerb-profile-layout');
@@ -26,6 +27,43 @@ $(function() {
 		e.stopPropagation();
 		$tab.triggerHandler($.Event('cerb-widget-refresh', { widget_id: {$widget->id} }));
 	});
+    
+    let doneFunc = function(e) {
+        e.stopPropagation();
+
+        if(!e.hasOwnProperty('trigger'))
+            return;
+
+        if(e.eventData.exit === 'return') {
+            Devblocks.interactionWorkerPostActions(e.eventData);
+        }
+
+        let $target = e.trigger;
+        let done_params = new URLSearchParams($target.attr('data-interaction-done'));
+
+        if(done_params.has('refresh_toolbar')) {
+            let refresh = done_params.get('refresh_toolbar');
+
+            if(!refresh || '0' === refresh)
+                return;
+            
+			$profile_toolbar.trigger($.Event('cerb-toolbar--refresh'));
+        }
+        
+        let done_actions = Devblocks.toolbarAfterActions(done_params, {
+            'widgets': $tab.find('.cerb-profile-widget'),
+            'default_widget_ids': [parseInt('{$widget->id}')],
+        });
+
+        if(done_actions.hasOwnProperty('refresh_widget_ids')) {
+            $tab.triggerHandler($.Event('cerb-widgets-refresh', {
+                widget_ids: done_actions['refresh_widget_ids'],
+                refresh_options: { }
+            }));
+        }
+    }
+
+	$sheet.on('cerb-sheet--interaction-done', doneFunc);
 
 	{if $widget->extension_params.toolbar_kata}
 	$sheet.on('cerb-sheet--selections-changed', function(e) {
@@ -69,61 +107,6 @@ $(function() {
 	});
 
 	// Toolbar
-
-	var doneFunc = function(e) {
-		e.stopPropagation();
-
-		var $target = e.trigger;
-
-		var done_params = [];
-
-		if($target.is('.cerb-bot-trigger')) {
-			done_params = new URLSearchParams($target.attr('data-interaction-done'));
-		} else {
-			return;
-		}
-
-		if(!done_params.has('refresh_widgets[]'))
-			return;
-
-		var refresh = done_params.getAll('refresh_widgets[]');
-
-		var widget_ids = [];
-
-		if(-1 !== $.inArray('all', refresh)) {
-			// Everything
-		} else {
-			$tab.find('.cerb-profile-widget')
-				.filter(function() {
-					var $this = $(this);
-					var name = $this.attr('data-widget-name');
-
-					if(undefined === name)
-						return false;
-
-					return -1 !== $.inArray(name, refresh);
-				})
-				.each(function() {
-					var $this = $(this);
-					var widget_id = parseInt($this.attr('data-widget-id'));
-
-					if(widget_id)
-						widget_ids.push(widget_id);
-				})
-			;
-
-			// If nothing to do, abort
-			if(0 === widget_ids.length)
-				widget_ids = [-1];
-		}
-
-		var evt = $.Event('cerb-widgets-refresh', {
-			widget_ids: widget_ids,
-			refresh_options: { }
-		});
-
-		$tab.triggerHandler(evt);
-	};
 
 	$sheet_toolbar.cerbToolbar({
 		caller: {
