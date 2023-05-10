@@ -105,6 +105,9 @@ class CardWidget_Sheet extends Extension_CardWidget {
 				$columns = $sheets->getColumns($sheet);
 				$tpl->assign('columns', $columns);
 				
+				$rows_visible = $sheets->getVisibleRowIds($sheet, $sheet_dicts);
+				$tpl->assign('rows_visible', $rows_visible);
+				
 				$paging = $results['_']['paging'] ?? null;
 				
 				if($paging) {
@@ -187,6 +190,7 @@ class CardWidget_Sheet extends Extension_CardWidget {
 			'worker_id' => $active_worker->id,
 			
 			'row_selections' => [],
+			'rows_visible' => [],
 		]);
 		
 		if(false == ($toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)))
@@ -196,7 +200,7 @@ class CardWidget_Sheet extends Extension_CardWidget {
 		$tpl->display('devblocks:devblocks.core::ui/toolbar/preview.tpl');
 	}
 	
-	function renderToolbar(Model_CardWidget $widget, $record_context_id, $row_selections=[]) {
+	function renderToolbar(Model_CardWidget $widget, $record_context_id, $row_selections=[], $rows_visible=[]) {
 		$ui = DevblocksPlatform::services()->ui();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -213,6 +217,7 @@ class CardWidget_Sheet extends Extension_CardWidget {
 			'worker_id' => $active_worker->id,
 			
 			'row_selections' => $row_selections,
+			'rows_visible' => $rows_visible,
 		]);
 		
 		if(false != ($toolbar_kata = @$widget->extension_params['toolbar_kata'])) {
@@ -223,9 +228,10 @@ class CardWidget_Sheet extends Extension_CardWidget {
 	}
 	
 	private function _cardWidgetAction_renderToolbar(Model_CardWidget $widget) {
-		$row_selections = DevblocksPlatform::importGPC($_POST['row_selections'] ?? null, 'array', []);
 		$card_context_id = DevblocksPlatform::importGPC($_POST['card_context_id'] ?? null, 'integer', null);
+		$row_selections = DevblocksPlatform::importGPC($_POST['row_selections'] ?? null, 'array', []);
+		$rows_visible = DevblocksPlatform::importGPC($_POST['rows_visible'] ?? null, 'array', []);
 		
-		$this->renderToolbar($widget, $card_context_id, $row_selections);
+		$this->renderToolbar($widget, $card_context_id, $row_selections, $rows_visible);
 	}
 }

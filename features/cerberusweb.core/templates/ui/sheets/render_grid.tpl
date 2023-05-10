@@ -130,16 +130,27 @@ $(function() {
 			);
 			$sheet.trigger(evt);
 
-			var row_selections = [];
+			let row_selections = [];
+            let rows_visible = [];
 
 			$row.closest('.cerb-sheet-layout')
-				.find('input[type=radio]:checked ,input[type=checkbox]:checked')
+				.find('input[type=radio], input[type=checkbox]')
 				.each(function() {
-					row_selections.push($(this).val());
+                    let $this = $(this);
+                    
+                    rows_visible.push($this.val());
+                    
+                    if($this.is(':checked')) {
+                        row_selections.push($this.val());
+                    }
 				})
 				;
 
-			evt = $.Event('cerb-sheet--selections-changed', { row_selections: row_selections, is_multiple: is_multiple });
+			evt = $.Event('cerb-sheet--selections-changed', {
+				row_selections: row_selections,
+				rows_visible: rows_visible,
+				is_multiple: is_multiple
+            });
 			$sheet.trigger(evt);
 		})
 		.hover(

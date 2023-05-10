@@ -253,6 +253,35 @@ class _DevblocksSheetService {
 		return $text_size;
 	}
 	
+	function getVisibleRowIds(array $sheet, array $sheet_dicts, array $columns=[]) : array {
+		$sheet_dicts = $this->_prepareData($sheet, $sheet_dicts);
+		
+		if(!$columns)
+			$columns = $this->getColumns($sheet);
+		
+		$row_ids = [];
+		
+		foreach($sheet_dicts as $sheet_dict) {
+			if(!($sheet_dict instanceof DevblocksDictionaryDelegate))
+				$sheet_dict = DevblocksDictionaryDelegate::instance($sheet_dict);
+			
+			foreach($columns as $column) {
+				if(!($column_type = $column['_type'] ?? null))
+					$column_type = $this->_default_type;
+				
+				if(!array_key_exists($column_type, $this->_types))
+					continue;
+				
+				if($column_type != 'selection')
+					continue;
+				
+				$row_ids[] = $this->_types[$column_type]($column, $sheet_dict, ['format'=>'text']);		
+			}
+		}
+		
+		return $row_ids;
+	}
+	
 	function getRows(array $sheet, array $sheet_dicts, ?array $environment=null) : array {
 		$sheet_dicts = $this->_prepareData($sheet, $sheet_dicts);
 		

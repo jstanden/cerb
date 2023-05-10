@@ -86,9 +86,12 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget implements ICerbWo
 		
 		$sheet_dicts = $results['data'];
 		
+		$columns = $sheets->getColumns($sheet);
+		
 		return [
 			'layout' => $sheets->getLayout($sheet),
-			'columns' => $sheets->getColumns($sheet),
+			'columns' => $columns,
+			'rows_visible' => $sheets->getVisibleRowIds($sheet, $sheet_dicts, $columns),
 			'rows' => $sheets->getRows($sheet, $sheet_dicts, $environment),
 			'paging' => $results['_']['paging'] ?? null,
 		];
@@ -112,6 +115,7 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget implements ICerbWo
 		$tpl->assign('layout', $layout);
 		$tpl->assign('rows', $results['rows'] ?? []);
 		$tpl->assign('columns', $results['columns'] ?? []);
+		$tpl->assign('rows_visible', $results['rows_visible'] ?? []);
 		
 		$paging = $results['paging'] ?? null;
 		
@@ -189,6 +193,7 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget implements ICerbWo
 			'worker_id' => $active_worker->id,
 			
 			'row_selections' => [],
+			'rows_visible' => [],
 		]);
 		
 		if(!($toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)))
@@ -198,7 +203,7 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget implements ICerbWo
 		$tpl->display('devblocks:devblocks.core::ui/toolbar/preview.tpl');
 	}
 	
-	function renderToolbar(Model_WorkspaceWidget $widget, $row_selections=[]) {
+	function renderToolbar(Model_WorkspaceWidget $widget, $row_selections=[], $rows_visible=[]) {
 		$ui = DevblocksPlatform::services()->ui();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -211,7 +216,8 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget implements ICerbWo
 			'worker__context' => CerberusContexts::CONTEXT_WORKER,
 			'worker_id' => $active_worker->id,
 			
-			'row_selections' => $row_selections
+			'row_selections' => $row_selections,
+			'rows_visible' => $rows_visible,
 		]);
 		
 		if(($toolbar_kata = @$widget->params['toolbar_kata'])) {
@@ -223,7 +229,9 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget implements ICerbWo
 	
 	private function _workspaceWidgetAction_renderToolbar(Model_WorkspaceWidget $widget) {
 		$row_selections = DevblocksPlatform::importGPC($_POST['row_selections'] ?? null, 'array', []);
-		$this->renderToolbar($widget, $row_selections);
+		$rows_visible = DevblocksPlatform::importGPC($_POST['rows_visible'] ?? null, 'array', []);
+		
+		$this->renderToolbar($widget, $row_selections, $rows_visible);
 	}
 	
 	function exportData(Model_WorkspaceWidget $widget, $format=null) {

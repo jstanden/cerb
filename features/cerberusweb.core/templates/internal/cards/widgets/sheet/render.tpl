@@ -9,7 +9,7 @@
 
 	{if $widget->extension_params.toolbar_kata}
 		<div data-cerb-toolbar style="margin-top:0.5em;">
-			{$widget_ext->renderToolbar($widget, $card_context_id)}
+			{$widget_ext->renderToolbar($widget, $card_context_id, [], $rows_visible)}
 		</div>
 	{/if}
 </div>
@@ -22,6 +22,9 @@ $(function() {
 	var $popup = genericAjaxPopupFind($widget);
     var $card_toolbar = $popup.find('[data-cerb-card-toolbar]').find('[data-cerb-toolbar]');
 
+    let rows_selected = [];
+    let rows_visible = {$rows_visible|default:[]|json_encode nofilter};
+    
     $sheet.find('.cerb-peek-trigger')
 		.cerbPeekTrigger()
 		.on('cerb-peek-saved cerb-peek-deleted', function(e) {
@@ -85,12 +88,23 @@ $(function() {
 		formData.set('widget_id', '{$widget->id}');
 		formData.set('invoke_action', 'renderToolbar');
 		formData.set('card_context_id', '{$card_context_id}');
+        
+        rows_selected = [];
+        rows_visible = [];
 
-		if(e.hasOwnProperty('row_selections')) {
-			for (var i in e.row_selections) {
-				formData.append('row_selections[]', e.row_selections[i]);
-			}
-		}
+        if(e.hasOwnProperty('rows_visible')) {
+            rows_visible = e.rows_visible;
+            for(let i in e.rows_visible) {
+                formData.append('rows_visible[]', e.rows_visible[i]);
+            }
+        }
+
+        if(e.hasOwnProperty('row_selections')) {
+            rows_selected = e.row_selections;
+            for(let i in e.row_selections) {
+                formData.append('row_selections[]', e.row_selections[i]);
+            }
+        }
 
 		$sheet_toolbar.html(Devblocks.getSpinner().css('max-width', '16px'));
 
@@ -124,7 +138,13 @@ $(function() {
 			}
 		},
 		start: function(formData) {
-		},
+            for (const i in rows_visible) {
+                formData.append('caller[params][rows_visible][]', rows_visible[i]);
+            }
+            for (const i in rows_selected) {
+                formData.append('caller[params][rows_selected][]', rows_selected[i]);
+            }
+        },
 		done: doneFunc
 	});
 });

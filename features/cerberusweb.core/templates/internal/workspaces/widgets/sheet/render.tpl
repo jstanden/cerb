@@ -9,7 +9,7 @@
 
 	{if $widget->params.toolbar_kata}
 		<div data-cerb-toolbar style="margin-top:0.5em;">
-			{$widget_ext->renderToolbar($widget)}
+			{$widget_ext->renderToolbar($widget, [], $rows_visible)}
 		</div>
 	{/if}
 </div>
@@ -20,6 +20,9 @@ $(function() {
 	var $sheet = $widget.find('.cerb-sheet, .cerb-data-sheet, .cerb-sheet-grid, .cerb-sheet-columns');
 	var $tab = $widget.closest('.cerb-workspace-layout');
 	var $sheet_toolbar = $widget.find('[data-cerb-toolbar]');
+    
+    let rows_selected = [];
+    let rows_visible = {$rows_visible|default:[]|json_encode nofilter};
 
 	$sheet.on('cerb-sheet--refresh', function(e) {
 		e.stopPropagation();
@@ -68,8 +71,21 @@ $(function() {
 		formData.set('widget_id', '{$widget->id}');
 		formData.set('action', 'renderToolbar');
 
-		for(var i in e.row_selections) {
-			formData.append('row_selections[]', e.row_selections[i]);
+        rows_selected = [];
+        rows_visible = [];
+        
+        if(e.hasOwnProperty('rows_visible')) {
+            rows_visible = e.rows_visible;
+			for(let i in e.rows_visible) {
+				formData.append('rows_visible[]', e.rows_visible[i]);
+			}
+		}
+
+        if(e.hasOwnProperty('row_selections')) {
+            rows_selected = e.row_selections;
+	        for(let i in e.row_selections) {
+    	        formData.append('row_selections[]', e.row_selections[i]);
+        	}
 		}
 
 		$sheet_toolbar.html(Devblocks.getSpinner().css('max-width', '16px'));
@@ -104,6 +120,12 @@ $(function() {
 			}
 		},
 		start: function(formData) {
+            for (const i in rows_visible) {
+                formData.append('caller[params][rows_visible][]', rows_visible[i]);
+            }
+            for (const i in rows_selected) {
+                formData.append('caller[params][rows_selected][]', rows_selected[i]);
+            }
 		},
 		done: doneFunc
 	});

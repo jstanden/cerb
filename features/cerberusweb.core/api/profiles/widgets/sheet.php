@@ -112,6 +112,9 @@ class ProfileWidget_Sheet extends Extension_ProfileWidget {
 				$columns = $sheets->getColumns($sheet);
 				$tpl->assign('columns', $columns);
 				
+				$rows_visible = $sheets->getVisibleRowIds($sheet, $sheet_dicts);
+				$tpl->assign('rows_visible', $rows_visible);
+				
 				$paging = $results['_']['paging'] ?? null;
 				
 				if($paging) {
@@ -193,6 +196,7 @@ class ProfileWidget_Sheet extends Extension_ProfileWidget {
 			'worker_id' => $active_worker->id,
 			
 			'row_selections' => [],
+			'rows_visible' => [],
 		]);
 		
 		if(!($toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)))
@@ -202,7 +206,7 @@ class ProfileWidget_Sheet extends Extension_ProfileWidget {
 		$tpl->display('devblocks:devblocks.core::ui/toolbar/preview.tpl');
 	}
 	
-	function renderToolbar(Model_ProfileWidget $widget, $record_context, $record_context_id, $row_selections=[]) {
+	function renderToolbar(Model_ProfileWidget $widget, $record_context, $record_context_id, $row_selections=[], $rows_visible=[]) {
 		$ui = DevblocksPlatform::services()->ui();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -219,6 +223,7 @@ class ProfileWidget_Sheet extends Extension_ProfileWidget {
 			'worker_id' => $active_worker->id,
 			
 			'row_selections' => $row_selections,
+			'rows_visible' => $rows_visible,
 		]);
 		
 		if(($toolbar_kata = @$widget->extension_params['toolbar_kata'])) {
@@ -229,10 +234,11 @@ class ProfileWidget_Sheet extends Extension_ProfileWidget {
 	}
 	
 	private function _profileWidgetAction_renderToolbar(Model_ProfileWidget $widget) {
-		$row_selections = DevblocksPlatform::importGPC($_POST['row_selections'] ?? null, 'array', []);
 		$profile_context = DevblocksPlatform::importGPC($_POST['profile_context'] ?? null, 'string', null);
 		$profile_context_id = DevblocksPlatform::importGPC($_POST['profile_context_id'] ?? null, 'integer', null);
+		$row_selections = DevblocksPlatform::importGPC($_POST['row_selections'] ?? null, 'array', []);
+		$rows_visible = DevblocksPlatform::importGPC($_POST['rows_visible'] ?? null, 'array', []);
 		
-		$this->renderToolbar($widget, $profile_context, $profile_context_id, $row_selections);
+		$this->renderToolbar($widget, $profile_context, $profile_context_id, $row_selections, $rows_visible);
 	}
 };

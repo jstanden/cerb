@@ -108,16 +108,26 @@ $(function() {
 			$sheet.trigger(evt);
 
 			var row_selections = [];
+            var rows_visible = [];
 
 			$tbody.closest('table.cerb-sheet')
-				.find('input[type=radio]:checked ,input[type=checkbox]:checked')
+				.find('input[type=radio], input[type=checkbox]')
 				.each(function() {
-					row_selections.push($(this).val());
-				})
-				;
+                    let $this = $(this);
 
-			evt = $.Event('cerb-sheet--selections-changed', { row_selections: row_selections, is_multiple: is_multiple });
-			$sheet.trigger(evt);
+                    rows_visible.push($this.val());
+                    
+                    if($this.is(':checked')) {
+                        row_selections.push($this.val());
+                    }
+				})
+			;
+
+			$sheet.trigger($.Event('cerb-sheet--selections-changed', {
+                row_selections: row_selections,
+                rows_visible: rows_visible,
+                is_multiple: is_multiple
+            }));
 		})
 		.hover(
 			function(e) {

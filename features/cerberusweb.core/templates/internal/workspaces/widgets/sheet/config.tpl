@@ -117,6 +117,7 @@
 							<div>{'common.sheet'|devblocks_translate|capitalize}</div>
 							<ul>
 								<li data-token="{literal}{{row_selections}}{/literal}"><div><b>Selected row keys</b></div></li>
+								<li data-token="{literal}{{rows_visible}}{/literal}"><div><b>Visible row keys</b></div></li>
 							</ul>
 						</li>
 					</ul>
