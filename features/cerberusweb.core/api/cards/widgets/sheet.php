@@ -112,6 +112,7 @@ class CardWidget_Sheet extends Extension_CardWidget {
 				
 				$tpl->assign('widget_ext', $this);
 				$tpl->assign('widget', $model);
+				$tpl->assign('card_context', $context);
 				$tpl->assign('card_context_id', $context_id);
 				
 				if($layout['style'] == 'fieldsets') {
