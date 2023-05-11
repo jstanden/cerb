@@ -3,7 +3,7 @@
     "name": "Profile: Ticket Status",
     "revision": 2,
     "requires": {
-      "cerb_version": "10.3.7",
+      "cerb_version": "10.4.0",
       "plugins": [
 
       ]
