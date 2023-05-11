@@ -52,6 +52,14 @@
 					</span>
 				{/if}
 			{/if}
+
+            {if !is_array($toolbar_profile) || !array_key_exists('merge', $toolbar_profile)}
+				{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.merge")}
+					<button type="button" id="btnProfileMerge">
+						<span class="glyphicons glyphicons-git-merge"></span> {'common.merge'|devblocks_translate|capitalize}
+					</button>
+				{/if}
+			{/if}
 			
 			<div data-cerb-toolbar style="display:inline-block;">
 				{if $toolbar_profile}
@@ -210,6 +218,21 @@ $(function() {
 		})
 		;
 
+    // Merge
+
+    {if $active_worker->hasPriv('contexts.{$page_context}.merge')}
+    $('#btnProfileMerge')
+        .on('click', function() {
+            var $merge_popup = genericAjaxPopup('peek','c=internal&a=invoke&module=records&action=renderMergePopup&context={$page_context}&ids={$page_context_id}',null,false,'50%');
+
+            $merge_popup.on('record_merged', function(e) {
+                e.stopPropagation();
+                document.location.reload();
+            });
+        })
+    ;
+    {/if}
+	
 	// Toolbar
 	
 	var $toolbar = $profile_toolbar.find('[data-cerb-toolbar]');
