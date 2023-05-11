@@ -44,13 +44,14 @@ foreach($all_contexts as $context_ext) {
 	$custom_field_types[Model_CustomField::TYPE_MULTI_LINE] = 'Text';
 	$custom_field_types[Model_CustomField::TYPE_URL] = 'Text';
 	$custom_field_types['bool'] = 'Boolean';
+	$custom_field_types['size_bytes'] = 'Bytes';
 	$custom_field_types['time_mins'] = 'Minutes';
 	$custom_field_types['time_secs'] = 'Seconds';
 	$custom_field_types['url'] = 'Text';
 	$custom_field_types['FT'] = 'Fulltext';
 	$custom_field_types['WS'] = 'Watchers';
 	
-	if(false == ($context_view = $context_ext->getTempView())) {
+	if(!($context_view = $context_ext->getTempView())) {
 		continue;
 	}
 	

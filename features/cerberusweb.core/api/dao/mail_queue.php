@@ -1832,9 +1832,9 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 					'group_id' => 'The [group](/docs/records/types/group/) ID to move the ticket to',
 					'headers' => 'An array of email headers to set, with header names as keys',
 					'html_template_id' => 'An optional [HTML template](/docs/records/types/html_template/) ID if `format` is `parsedown`',
+					'in_reply_message_id' => 'The [message](/docs/records/types/message/) ID being responded to',
 					'message_custom_fields' => 'An object with message custom field IDs as keys and their values',
 					'message_custom_fields_uri' => 'A read-only object with message custom field URIs as keys and their values',
-					'in_reply_message_id' => 'The [message](/docs/records/types/message/) ID being responded to',
 					'options_gpg_encrypt' => '`1` to enable PGP encryption, `0` (or omit) to disable',
 					'options_gpg_sign' => '`1` to enable PGP signatures, `0` (or omit) to disable',
 					'owner_id' => 'The [worker](/docs/records/types/worker/) ID to assign',
@@ -1849,6 +1849,7 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 		
 		$keys['is_queued']['notes'] = "`1` for true, `0` for false";
 		$keys['name']['notes'] = "The subject line of the draft message";
+		$keys['ticket_id']['notes'] = "The ID of the [ticket](/docs/records/types/ticket/) for `ticket.reply` or `ticket.forward`";
 		$keys['to']['notes'] = "The `To:` line of the draft message";
 		$keys['token']['notes'] = "A random unique token for this draft, copied to the eventual message for tracing";
 		$keys['type']['notes'] = "The type of draft: `mail.compose`, `mail.transactional`, `ticket.reply`, or `ticket.forward`";
