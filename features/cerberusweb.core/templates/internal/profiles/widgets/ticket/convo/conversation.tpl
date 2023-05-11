@@ -9,8 +9,20 @@
 	</div>
 	{/if}
 
+	<div id="tourDisplayConversation"></div>
+	
+	<div style="display:inline-block;margin-right:1em;">
+        {if $expand_all}
+			<b>{'display.convo.order_oldest'|devblocks_translate}</b>
+        {else}
+			{if count($convo_timeline) > 1}
+			<button data-cerb-shortcut="read-all" type="button"><span class="glyphicons glyphicons-book-open"></span> {'display.button.read_all'|devblocks_translate|capitalize}</button>
+			{/if}
+        {/if}
+	</div>
+
 	{if is_array($messages_highlighted) && $messages_highlighted}
-    <div class="cerb-conversation--new-messages-warning" style="color:var(--cerb-color-warning-text);">
+    <div class="cerb-conversation--new-messages-warning" style="display:inline-block;color:var(--cerb-color-warning-text);">
         <span class="glyphicons glyphicons-circle-exclamation-mark"></span>
         There are <strong>{$messages_highlighted|count nofilter}</strong> messages without a response:
         {foreach from=$messages_highlighted item=message name=messages}
@@ -19,14 +31,6 @@
 			{/if}
         {/foreach}
     </div>
-	{/if}
-
-	<div id="tourDisplayConversation"></div>
-	
-	{if $expand_all}
-	<div>
-		<b>{'display.convo.order_oldest'|devblocks_translate}</b>
-	</div>
 	{/if}
 	
 	<div id="conversation" style="margin-top:10px;">
@@ -82,6 +86,7 @@
 <script type="text/javascript">
 $(function() {
 	var $widget = $('#widget{$widget->id}');
+    var $tab = $widget.closest('.cerb-profile-layout');
 	
 	var $parent = $widget.closest('.cerb-profile-widget')
 		.off('.widget{$widget->id}')
@@ -110,6 +115,30 @@ $(function() {
 			{else}
 			$('#conversation').find('div[id^="message"]').first().find('button.reply').next('button').click();
 			{/if}
+		})
+		;
+	
+	// Read all
+	$widget.find('button[data-cerb-shortcut="read-all"]')
+		.on('click', function(e) {
+			e.stopPropagation();
+
+            var widget_id = $parent.attr('data-widget-id');
+
+            if(!widget_id)
+                return;
+
+            var evt = $.Event('cerb-widget-refresh');
+            evt.widget_id = '{$widget->id}';
+            evt.refresh_options = { 'expand_all': 1 };
+            $tab.triggerHandler(evt);
+        });
+	
+	$parent
+		.on('keydown.widget{$widget->id}', null, 'A', function(e) {
+			e.preventDefault();
+			e.stopPropagation();
+			$widget.find('button[data-cerb-shortcut="read-all"]').click();
 		})
 		;
 	
