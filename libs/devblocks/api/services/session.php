@@ -88,7 +88,7 @@ class _DevblocksSessionManager {
 	function clear($id=null) {
 		if(is_null($id)) {
 			$this->visit = null;
-			setcookie('Cerb', '', 1, DEVBLOCKS_WEBPATH, '');
+			setcookie(APP_SESSION_NAME, '', 1, DEVBLOCKS_WEBPATH, '');
 			session_unset();
 			session_destroy();
 		} else {

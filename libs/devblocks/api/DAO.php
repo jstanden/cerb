@@ -83,12 +83,12 @@ abstract class DevblocksORMHelper {
 		if(is_array($valid_fields) && !$id)
 		foreach($valid_fields as $field_key => $field) {
 			if($field->_type->isRequired()) {
-				if(!$field->_type->canBeEmpty() && 0 == strlen($fields[$field_key] ?? '')) {
+				if(!array_key_exists($field_key, $fields)) {
 					$error = sprintf("'%s' is required.", $field->_label);
 					return false;
 				}
 				
-				if(!isset($fields[$field_key])) {
+				if(!$field->_type->canBeEmpty() && 0 == strlen(strval($fields[$field_key]))) {
 					$error = sprintf("'%s' is required.", $field->_label);
 					return false;
 				}

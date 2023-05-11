@@ -2273,20 +2273,16 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 		switch($field) {
 			case 'attachments':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Message::VIRTUAL_ATTACHMENTS_SEARCH);
-				break;
 				
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
-				break;
 				
 			case 'notes':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Message::VIRTUAL_NOTES_SEARCH);
-				break;
 				
 			case 'from':
 			case 'sender':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Message::VIRTUAL_SENDER_SEARCH);
-				break;
 				
 			case 'header.cc':
 			case 'header.deliveredTo':
@@ -2315,18 +2311,15 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				
 			case 'ticket':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Message::VIRTUAL_TICKET_SEARCH);
-				break;
 				
 			case 'worker':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Message::VIRTUAL_WORKER_SEARCH);
-				break;
 			
 			default:
 				if($field == 'links' || substr($field, 0, 6) == 'links.')
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
 					
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
-				break;
 		}
 		
 		return false;

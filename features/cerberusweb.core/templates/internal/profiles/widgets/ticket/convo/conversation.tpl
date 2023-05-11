@@ -147,7 +147,7 @@ $(function() {
 	$parent
 		.on('cerb_profile_comment_created.widget{$widget->id}', function(e) {
 			if(e.comment_id && e.comment_html) {
-				var $new_comment = $('<div id="comment' + e.comment_id + '"/>')
+				$('<div id="comment' + e.comment_id + '"/>')
 					.addClass('cerb-comment')
 					.html(e.comment_html)
 					.prependTo($('#conversation'))
