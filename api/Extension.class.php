@@ -1782,11 +1782,11 @@ abstract class Extension_Toolbar extends DevblocksExtension {
 			'' => [
 				[
 					'caption' => 'interaction:',
-					'snippet' => 'interaction/\${1:name}:'
+					'snippet' => 'interaction/${1:name}:'
 				],
 				[
 					'caption' => 'menu:',
-					'snippet' => 'menu/\${1:name}:'
+					'snippet' => 'menu/${1:name}:'
 				]
 			],
 			'*' => [
@@ -1794,14 +1794,14 @@ abstract class Extension_Toolbar extends DevblocksExtension {
 					'after:',
 					[
 						'caption' => 'uri:',
-						'snippet' => 'uri: cerb:automation:\${1:}'
+						'snippet' => 'uri: cerb:automation:${1:}'
 					],
 					'label:',
 					'icon:',
 					'tooltip:',
 					[
 						'caption' => 'hidden:',
-						'snippet' => 'hidden@bool: $[1:yes]'
+						'snippet' => 'hidden@bool: ${1:yes}'
 					],
 					[
 						'caption' => 'badge:',
@@ -1817,12 +1817,12 @@ abstract class Extension_Toolbar extends DevblocksExtension {
 					'yes',
 					'no',
 					[
-						'caption' => '[[key]]',
-						'snippet' => '[[$[1:key]]]',
+						'caption' => '{{key}}',
+						'snippet' => '{{${1:key}}}',
 					],
 					[
-						'caption' => '[[not key]]',
-						'snippet' => '[[not $[1:key]]]',
+						'caption' => '{{not key}}',
+						'snippet' => '{{not ${1:key}}}',
 					]
 				],
 				'(.*):?interaction:icon:' => [
@@ -1845,7 +1845,7 @@ abstract class Extension_Toolbar extends DevblocksExtension {
 					'label:',
 					[
 						'caption' => 'hidden:',
-						'snippet' => 'hidden@bool: $[1:yes]'
+						'snippet' => 'hidden@bool: ${1:yes}'
 					],
 					'icon:',
 					'tooltip:',
@@ -1854,11 +1854,11 @@ abstract class Extension_Toolbar extends DevblocksExtension {
 				'(.*):?menu:items:' => [
 					[
 						'caption' => 'interaction:',
-						'snippet' => 'interaction/$[1:name]:'
+						'snippet' => 'interaction/${1:name}:'
 					],
 					[
 						'caption' => 'menu:',
-						'snippet' => 'menu/$[1:name]:'
+						'snippet' => 'menu/${1:name}:'
 					]
 				],
 			]
