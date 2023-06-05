@@ -177,7 +177,7 @@ class PageSection_ProfilesCustomField extends Extension_PageSection {
 		$model = new Model_CustomField();
 		$model->type = $type;
 		
-		if(false != ($custom_field_extension = Extension_CustomField::get($type, true))) {
+		if(($custom_field_extension = Extension_CustomField::get($type, true))) {
 			/** @var $custom_field_extension Extension_CustomField */
 			$custom_field_extension->renderConfig($model);
 			

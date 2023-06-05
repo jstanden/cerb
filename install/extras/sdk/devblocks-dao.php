@@ -1110,7 +1110,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
         $model = null;
     
 		if($context_id) {
-			if(false == ($model = DAO_<?php echo $class_name; ?>::get($context_id)))
+			if(!($model = DAO_<?php echo $class_name; ?>::get($context_id)))
                 DevblocksPlatform::dieWithHttpError(null, 403);
 		}
 		
@@ -1282,8 +1282,8 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 
 <script type="text/javascript">
 $(function() {
-	var $frm = $('#{$form_id}');
-	var $popup = genericAjaxPopupFind($frm);
+	let $frm = $('#{$form_id}');
+	let $popup = genericAjaxPopupFind($frm);
     
     Devblocks.formDisableSubmit($frm);
 	
@@ -1451,16 +1451,16 @@ $(function() {
 
 <script type="text/javascript">
 $(function() {
-	var $frm = $('#viewForm{$view->id}');
+	let $frm = $('#viewForm{$view->id}');
 	
 	{if $pref_keyboard_shortcuts}
 	$frm.bind('keyboard_shortcut',function(event) {
-		var $view_actions = $('#{$view->id}_actions');
-		var hotkey_activated = true;
+		let $view_actions = $('#{$view->id}_actions');
+		let hotkey_activated = true;
 	
 		switch(event.keypress_event.which) {
 			case 101: // (e) explore
-				var $btn = $view_actions.find('button.action-explore');
+				let $btn = $view_actions.find('button.action-explore');
 			
 				if(event.indirect) {
 					$btn.select().focus();
@@ -1563,7 +1563,7 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", '<?php echo $ctx_ext_id; ?>')))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
     
-				if(false == ($model = DAO_<?php echo $class_name; ?>::get($id)))
+				if(!($model = DAO_<?php echo $class_name; ?>::get($id)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
 				
 				if(!Context_<?php echo $class_name; ?>::isDeletableByActor($model, $active_worker))

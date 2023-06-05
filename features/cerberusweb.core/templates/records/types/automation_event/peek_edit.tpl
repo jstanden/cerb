@@ -21,7 +21,7 @@
     
     {if !empty($custom_fields)}
     <table cellspacing="0" cellpadding="2" border="0" width="98%">
-            {include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
+        {include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
     </table>
     {/if}
 
@@ -64,6 +64,8 @@
     $(function() {
         var $frm = $('#{$form_id}');
         var $popup = genericAjaxPopupFind($frm);
+
+        Devblocks.formDisableSubmit($frm);
 
         $popup.one('popup_open', function() {
             $popup.dialog('option','title',"{'Automation Event'|devblocks_translate|capitalize|escape:'javascript' nofilter}");

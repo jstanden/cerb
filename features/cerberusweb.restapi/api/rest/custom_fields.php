@@ -23,9 +23,6 @@ class ChRest_CustomFields extends Extension_RestController implements IExtension
 			case 'org':
 				$context = CerberusContexts::CONTEXT_ORG;
 				break;
-			case 'feedback':
-				$context = CerberusContexts::CONTEXT_FEEDBACK;
-				break;
 			case 'worker':
 				$context = CerberusContexts::CONTEXT_WORKER;
 				break;

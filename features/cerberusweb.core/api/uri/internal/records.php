@@ -711,7 +711,7 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'] ?? null,'string','');
 		
 		try {
-			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+			if(!($context_ext = Extension_DevblocksContext::get($context)))
 				throw new Exception_DevblocksValidationError("Invalid record type.");
 			
 			if(!$active_worker->hasPriv(sprintf('contexts.%s.merge', $context_ext->id)))
@@ -776,7 +776,7 @@ class PageSection_InternalRecords extends Extension_PageSection {
 			if($ids)
 				$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 			
-			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+			if(!($context_ext = Extension_DevblocksContext::get($context)))
 				throw new Exception_DevblocksValidationError("Invalid record type.");
 			
 			if(!$active_worker->hasPriv(sprintf('contexts.%s.merge', $context_ext->id)))
@@ -1017,7 +1017,7 @@ class PageSection_InternalRecords extends Extension_PageSection {
 			if($ids)
 				$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 			
-			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+			if(!($context_ext = Extension_DevblocksContext::get($context)))
 				throw new Exception_DevblocksValidationError("Invalid record type.");
 			
 			$aliases = $context_ext->getAliasesForContext($context_ext->manifest);
@@ -1100,7 +1100,6 @@ class PageSection_InternalRecords extends Extension_PageSection {
 							} else {
 								$value = $values[$value_key];
 							}
-							
 							break;
 						
 						default:
@@ -1135,7 +1134,7 @@ class PageSection_InternalRecords extends Extension_PageSection {
 				var_dump($changeset);
 			}
 			
-			if(false != ($merge_automation = DAO_AutomationEvent::getByName('record.merge'))) {
+			if(($merge_automation = DAO_AutomationEvent::getByName('record.merge'))) {
 				$event_handler = DevblocksPlatform::services()->ui()->eventHandler();
 				$error = null;
 				
@@ -1150,7 +1149,7 @@ class PageSection_InternalRecords extends Extension_PageSection {
 				
 				$event_dict = DevblocksDictionaryDelegate::instance($initial_state);
 				
-				if(false != ($handlers = $merge_automation->getKata($event_dict, $error))) {
+				if(($handlers = $merge_automation->getKata($event_dict, $error))) {
 					$automation_results = $event_handler->handleUntilReturn(
 						AutomationTrigger_RecordMerge::ID,
 						$handlers,

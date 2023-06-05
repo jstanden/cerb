@@ -410,7 +410,7 @@ class DAO_Toolbar extends Cerb_ORMHelper {
 	 * @return array|false
 	 */
 	public static function getKataByName(string $name, DevblocksDictionaryDelegate $toolbar_dict) {
-		if(false == ($toolbar = DAO_Toolbar::getByName($name)))
+		if(!($toolbar = DAO_Toolbar::getByName($name)))
 			return false;
 		
 		return $toolbar->getKata($toolbar_dict);	

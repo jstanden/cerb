@@ -3352,13 +3352,13 @@ abstract class C4_AbstractView {
 		// Load the custom field
 		$cfield = $custom_fields[$field_id];
 
-		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+		if(!($context_ext = Extension_DevblocksContext::get($context)))
 			return [];
 		
-		if(false == ($dao_class = $context_ext->getDaoClass()))
+		if(!($dao_class = $context_ext->getDaoClass()))
 			return [];
 		
-		if(false == ($search_class = $context_ext->getSearchClass()))
+		if(!($search_class = $context_ext->getSearchClass()))
 			return [];
 		
 		$cfield_select_sql = null;

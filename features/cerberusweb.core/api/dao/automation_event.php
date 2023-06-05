@@ -186,7 +186,7 @@ class DAO_AutomationEvent extends Cerb_ORMHelper {
 			$limit_sql
 		;
 		
-		if($options & Cerb_ORMHelper::OPT_GET_MASTER_ONLY) {
+		if($options & DevblocksORMHelper::OPT_GET_MASTER_ONLY) {
 			$rs = $db->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 		} else {
 			$rs = $db->QueryReader($sql);
@@ -1132,7 +1132,7 @@ class Context_AutomationEvent extends Extension_DevblocksContext implements IDev
 			$types = Model_CustomField::getTypes();
 			$tpl->assign('types', $types);
 			
-			if(false == ($trigger_ext = $model->getExtension())) 
+			if(!($trigger_ext = $model->getExtension())) 
 				DevblocksPlatform::dieWithHttpError(null, 404);
 			
 			/* @var $trigger_ext Extension_AutomationTrigger */

@@ -848,7 +848,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 	}
 	
 	private function _viewIncrementExportAsCsv(array &$cursor) {
-		if(false == ($view = $this->_getViewFromCursor($cursor)))
+		if(!($view = $this->_getViewFromCursor($cursor)))
 			return;
 		
 		if(null == ($context_ext = Extension_DevblocksContext::getByViewClass(get_class($view), true)))
@@ -863,7 +863,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		
 		$count = 0;
 		
-		if(false == ($dicts = $this->_getDictionariesFromView($view, $context_ext, $cursor, $count)))
+		if(!($dicts = $this->_getDictionariesFromView($view, $context_ext, $cursor, $count)))
 			$dicts = [];
 		
 		if('kata' == $cursor['export_mode']) {
@@ -957,7 +957,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 	}
 	
 	private function _viewIncrementExportAsJson(array &$cursor) {
-		if(false == ($view = $this->_getViewFromCursor($cursor)))
+		if(!($view = $this->_getViewFromCursor($cursor)))
 			return;
 		
 		if(null == ($context_ext = Extension_DevblocksContext::getByViewClass(get_class($view), true)))
@@ -972,7 +972,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		
 		$count = 0;
 		
-		if(false == ($dicts = $this->_getDictionariesFromView($view, $context_ext, $cursor, $count)))
+		if(!($dicts = $this->_getDictionariesFromView($view, $context_ext, $cursor, $count)))
 			$dicts = [];
 		
 		if('kata' == $cursor['export_mode']) {
@@ -1071,7 +1071,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 	}
 	
 	private function _viewIncrementExportAsJsonl(array &$cursor) {
-		if(false == ($view = $this->_getViewFromCursor($cursor)))
+		if(!($view = $this->_getViewFromCursor($cursor)))
 			return;
 		
 		if(null == ($context_ext = Extension_DevblocksContext::getByViewClass(get_class($view), true)))
@@ -1086,7 +1086,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		
 		$count = 0;
 		
-		if(false == ($dicts = $this->_getDictionariesFromView($view, $context_ext, $cursor, $count)))
+		if(!($dicts = $this->_getDictionariesFromView($view, $context_ext, $cursor, $count)))
 			$dicts = [];
 		
 		if('kata' == $cursor['export_mode']) {
@@ -1150,7 +1150,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 	}
 	
 	private function _viewIncrementExportAsXml(array &$cursor) {
-		if(false == ($view = $this->_getViewFromCursor($cursor)))
+		if(!($view = $this->_getViewFromCursor($cursor)))
 			return;
 		
 		if(null == ($context_ext = Extension_DevblocksContext::getByViewClass(get_class($view), true)))

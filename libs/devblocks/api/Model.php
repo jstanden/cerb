@@ -177,10 +177,10 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 					$field_key = 'ST_ASTEXT(field_value) AS field_value';
 				
 				if(false && in_array($custom_field->type, [Model_CustomField::TYPE_CURRENCY])) {
-					if(false == ($currency_id = @$custom_field->params['currency_id']))
+					if(!($currency_id = @$custom_field->params['currency_id']))
 						return [];
 					
-					if(false == ($currency = DAO_Currency::get($currency_id)))
+					if(!($currency = DAO_Currency::get($currency_id)))
 						return [];
 					
 					return [

@@ -6,9 +6,6 @@ abstract class DevblocksApplication {
 trait DevblocksExtensionGetterTrait {
 	static $_registry = [];
 	
-	/**
-	 * @internal
-	 */
 	public static function getAll($as_instances=true, $with_options=null) {
 		$extensions = DevblocksPlatform::getExtensions(self::POINT, $as_instances);
 		
@@ -38,7 +35,6 @@ trait DevblocksExtensionGetterTrait {
 	}
 
 	/**
-	 * @internal
 	 * @param string $extension_id
 	 * @return DevblocksExtensionManifest|null
 	 */
@@ -239,8 +235,6 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	}
 
 	/**
-	 * @internal
-	 * 
 	 * @param boolean $as_instances
 	 * @param array $with_options
 	 * @return Extension_DevblocksContext[]

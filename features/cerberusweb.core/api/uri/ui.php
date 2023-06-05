@@ -507,7 +507,7 @@ class Controller_UI extends DevblocksControllerExtension {
 	private function _runBehavior(Model_TriggerEvent $behavior) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		if(false == ($bot = $behavior->getBot())) {
+		if(!($bot = $behavior->getBot())) {
 			return DevblocksPlatform::dieWithHttpError('Temporarily unavailable', 503);
 		}
 		
@@ -606,10 +606,10 @@ class Controller_UI extends DevblocksControllerExtension {
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
-		if(false == ($context_ext = Extension_DevblocksContext::getByAlias($of, true)))
+		if(!($context_ext = Extension_DevblocksContext::getByAlias($of, true)))
 			return;
 		
-		if(false == ($view = $context_ext->getTempView()))
+		if(!($view = $context_ext->getTempView()))
 			return;
 		
 		$suggestions = $view->getQueryAutocompleteFieldSuggestions($types);
@@ -623,10 +623,10 @@ class Controller_UI extends DevblocksControllerExtension {
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
-		if(false == ($context_ext = Extension_DevblocksContext::getByAlias($context_alias, true)))
+		if(!($context_ext = Extension_DevblocksContext::getByAlias($context_alias, true)))
 			return;
 		
-		if(false == ($view = $context_ext->getTempView()))
+		if(!($view = $context_ext->getTempView()))
 			return;
 		
 		$suggestions = $view->getQueryAutocompleteSuggestions();

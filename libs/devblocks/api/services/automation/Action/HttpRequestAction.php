@@ -130,7 +130,7 @@ class HttpRequestAction extends AbstractAction {
 			}
 			
 			if(is_string($body) && array_key_exists('content-type', $headers) && 'application/vnd.cerb.uri' == $headers['content-type']) {
-				if(false == ($uri_parts = DevblocksPlatform::services()->ui()->parseURI($body)))
+				if(!($uri_parts = DevblocksPlatform::services()->ui()->parseURI($body)))
 					throw new Exception_DevblocksAutomationError('Failed to parse the `cerb:` URI body');
 			
 				if(CerberusContexts::isSameContext(CerberusContexts::CONTEXT_AUTOMATION_RESOURCE, $uri_parts['context'])) {

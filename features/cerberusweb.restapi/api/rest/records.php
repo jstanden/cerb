@@ -296,8 +296,8 @@ class ChRest_Records extends Extension_RestController {
 	}
 	
 	private function _getContextRecord(DevblocksExtensionManifest $context, array $stack) {
-		@$id = intval(array_shift($stack));
-		@$show_meta = DevblocksPlatform::importVar($_REQUEST['show_meta'], 'boolean', false);
+		$id = intval(array_shift($stack));
+		$show_meta = DevblocksPlatform::importVar($_REQUEST['show_meta'] ?? null, 'boolean', false);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -335,9 +335,9 @@ class ChRest_Records extends Extension_RestController {
 	}
 	
 	function search($filters=[], $sortToken='id', $sortAsc=1, $page=1, $limit=10, $options=[], DevblocksExtensionManifest $context=null) {
-		@$query = DevblocksPlatform::importVar($options['query'], 'string', null);
-		@$show_results = DevblocksPlatform::importVar($options['show_results'], 'boolean', true);
-		@$subtotals = DevblocksPlatform::importVar($options['subtotals'], 'array', []);
+		$query = DevblocksPlatform::importVar($options['query'] ?? null, 'string', null);
+		$show_results = DevblocksPlatform::importVar($options['show_results'] ?? null, 'boolean', true);
+		$subtotals = DevblocksPlatform::importVar($options['subtotals'] ?? null, 'array', []);
 		
 		$limit = DevblocksPlatform::intClamp($limit, 1, 500);
 		

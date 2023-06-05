@@ -621,7 +621,7 @@ abstract class DevblocksEngine {
 			$controller->handleRequest($resource_request);
 		}
 
-		$method = DevblocksPlatform::strUpper(@$_SERVER['REQUEST_METHOD']);
+		$method = DevblocksPlatform::strUpper($_SERVER['REQUEST_METHOD'] ?? '');
 		
 		$request = new DevblocksHttpRequest($parts,$queryArgs,$method);
 		$request->is_ajax = false;

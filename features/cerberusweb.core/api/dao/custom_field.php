@@ -689,7 +689,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 			default:
 				$table = null;
 				
-				if(false != ($field_ext = Extension_CustomField::get($field->type))) {
+				if(($field_ext = Extension_CustomField::get($field->type))) {
 					$table = $field_ext->getValueTableName();
 				}
 				break;
@@ -1081,7 +1081,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					break;
 					
 				default:
-					if(false != ($field_ext = Extension_CustomField::get($field->type))) {
+					if(($field_ext = Extension_CustomField::get($field->type))) {
 						$value = $field_ext->formatFieldValue($value);
 						$field_ext->setFieldValue($field, $context, $context_id, $value);
 					}
@@ -1369,7 +1369,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					break;
 					
 				default:
-					if(false != ($field_ext = Extension_CustomField::get($fields[$field_id]->type))) {
+					if(($field_ext = Extension_CustomField::get($fields[$field_id]->type))) {
 						$field_value = $field_ext->parseFormPost($fields[$field_id]);
 						
 					} else {

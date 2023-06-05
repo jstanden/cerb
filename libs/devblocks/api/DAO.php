@@ -396,10 +396,10 @@ abstract class DevblocksORMHelper {
 				continue;
 			}
 			
-			if(false == ($field_id = intval(substr($sort_field, 3))))
+			if(!($field_id = intval(substr($sort_field, 3))))
 				continue;
 	
-			if(false == ($field = DAO_CustomField::get($field_id)))
+			if(!($field = DAO_CustomField::get($field_id)))
 				continue;
 			
 			$cfield_key = null;
@@ -497,8 +497,8 @@ abstract class DevblocksORMHelper {
 				
 				// Custom fields
 				if(DevblocksPlatform::strStartsWith($field, 'cf_')) {
-					if(false != ($field_id = intval(substr($field, 3)))) {
-						if(false != ($custom_field = DAO_CustomField::get($field_id))) {
+					if(($field_id = intval(substr($field, 3)))) {
+						if(($custom_field = DAO_CustomField::get($field_id))) {
 							$cfield_key = null;
 							
 							if($search_class && class_exists($search_class))
