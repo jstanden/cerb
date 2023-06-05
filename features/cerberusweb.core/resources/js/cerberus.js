@@ -5557,8 +5557,11 @@ var ajax = new cAjaxCalls();
 				var context = $trigger.attr('data-context');
 				var context_id = $trigger.attr('data-context-id');
 				var layer = $trigger.attr('data-layer');
-				var width = $trigger.attr('data-width');
+				var width = $trigger.attr('data-width') || null;
 				var edit_mode = !!$trigger.attr('data-edit');
+				
+				if(null == width && 'object' == typeof options)
+					width = options.width || null;
 				
 				var profile_url = $trigger.attr('data-profile-url');
 				
