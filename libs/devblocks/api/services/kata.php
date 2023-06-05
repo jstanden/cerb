@@ -711,7 +711,7 @@ class _DevblocksKataService {
 			
 			if($key) { // If not the root
 				$key_path[] = $key;
-				
+				$key = DevblocksPlatform::services()->string()->strBefore($key, '@');
 				list($key_type,) = array_pad(explode('/', $key), 2, null);
 				
 				$node_types = $schema[$key_type]['types'] ?? [];
