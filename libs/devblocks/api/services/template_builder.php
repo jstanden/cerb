@@ -176,6 +176,7 @@ class _DevblocksTemplateBuilder {
 				'csv',
 				'date_pretty',
 				'hash_hmac',
+				'html_to_text',
 				'image_info',
 				'indent',
 				'json_pretty',
@@ -1769,6 +1770,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			new \Twig\TwigFilter('csv', [$this, 'filter_csv']),
 			new \Twig\TwigFilter('date_pretty', [$this, 'filter_date_pretty']),
 			new \Twig\TwigFilter('hash_hmac', [$this, 'filter_hash_hmac']),
+			new \Twig\TwigFilter('html_to_text', [$this, 'filter_html_to_text']),
 			new \Twig\TwigFilter('image_info', [$this, 'filter_image_info']),
 			new \Twig\TwigFilter('indent', [$this, 'filter_indent']),
 			new \Twig\TwigFilter('json_pretty', [$this, 'filter_json_pretty']),
@@ -1979,6 +1981,16 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			return '';
 		
 		return $hash;
+	}
+	
+	function filter_html_to_text($string, $truncate=50_000) {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+
+		if(!is_string($string))
+			return '';
+		
+		return DevblocksPlatform::services()->string()->htmlToText($string, $truncate);
 	}
 	
 	function filter_image_info($image_bytes) {
