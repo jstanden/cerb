@@ -188,7 +188,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 							'decimal_at' => $currency->decimal_at,
 							'symbol' => $currency->symbol,
 						],
-						'sql_select' => sprintf("(SELECT %s FROM %s WHERE context=%s AND context_id=%s AND field_id=%d LIMIT 1)",
+						'sql_select' => sprintf("IFNULL((SELECT %s FROM %s WHERE context=%s AND context_id=%s AND field_id=%d LIMIT 1),'')",
 							$field_key,
 							Cerb_ORMHelper::escape($table),
 							Cerb_ORMHelper::qstr($custom_field->context),
@@ -198,7 +198,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 					];
 					
 				} else if (in_array($custom_field->type, [Model_CustomField::TYPE_DATE])) {
-					$sql_select_field = sprintf("(SELECT %s FROM %s WHERE context=%s AND context_id=%s AND field_id=%d LIMIT 1)",
+					$sql_select_field = sprintf("IFNULL((SELECT %s FROM %s WHERE context=%s AND context_id=%s AND field_id=%d LIMIT 1),'')",
 						$field_key,
 						Cerb_ORMHelper::escape($table),
 						Cerb_ORMHelper::qstr($custom_field->context),
@@ -405,7 +405,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 						'label' => $custom_field->name,
 						'type' => $custom_field->type,
 						'type_options' => $custom_field->params,
-						'sql_select' => sprintf("(SELECT %s FROM %s WHERE context=%s AND context_id=%s AND field_id=%d LIMIT 1)",
+						'sql_select' => sprintf("IFNULL((SELECT %s FROM %s WHERE context=%s AND context_id=%s AND field_id=%d LIMIT 1),'')",
 							$field_key,
 							Cerb_ORMHelper::escape($table),
 							Cerb_ORMHelper::qstr($custom_field->context),
