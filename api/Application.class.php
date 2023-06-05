@@ -2975,9 +2975,14 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 
 		if(null != (@$session = $db->GetRowReader(sprintf("SELECT session_id, refreshed_at, session_data FROM devblocks_session WHERE session_token = %s", $db->qstr($id))))) {
 			$maxlifetime = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::SESSION_LIFESPAN, CerberusSettingsDefaults::SESSION_LIFESPAN);
+			$is_ajax = DevblocksPlatform::getHttpRequest()->is_ajax ?? false;
 
 			// Refresh the session cookie (move expiration forward) after 2.5 minutes have elapsed
-			if(array_key_exists('refreshed_at', $session) && (time() - $session['refreshed_at'] >= 150)) {
+			if(
+				!$is_ajax 
+				&& array_key_exists('refreshed_at', $session) 
+				&& (time() - $session['refreshed_at'] >= 150)
+			) {
 				// If the cookie is going to expire at a future date, extend it
 				if($maxlifetime) {
 					$url_writer = DevblocksPlatform::services()->url();
