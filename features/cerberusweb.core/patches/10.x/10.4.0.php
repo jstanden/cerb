@@ -34,6 +34,7 @@ if(!array_key_exists('options_kata', $columns)) {
 $automation_files = [
 	'ai.cerb.automationBuilder.autocomplete.d3Format.json',
 	'ai.cerb.automationBuilder.autocomplete.d3TimeFormat.json',
+	'ai.cerb.chooser.automationEvent.json',
 	'cerb.editor.toolbar.indentSelection.json',
 	'cerb.ticket.assign.json',
 	'cerb.ticket.move.json',
