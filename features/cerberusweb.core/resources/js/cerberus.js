@@ -1441,6 +1441,7 @@ let twigAutocompleteSuggestions = {
 		{ value: "xml_attr(xml,name,default)", meta: "function" },
 		{ value: "xml_attrs(xml)", meta: "function" },
 		{ value: "xml_decode(string,namespaces)", meta: "function" },
+		{ value: "xml_decode(string,namespaces,'html')", meta: "function" },
 		{ value: "xml_encode(xml)", meta: "function" },
 		{ value: "xml_xpath(xml,path,element)", meta: "function" },
 		{ value: "xml_xpath_ns(xml,prefix,ns)", meta: "function" },
