@@ -812,6 +812,7 @@ class View_AbstractCustomRecord extends C4_AbstractView implements IAbstractView
 			
 			switch($field_key) {
 				// Virtuals
+				case SearchFields_AbstractCustomRecord::NAME:
 				case SearchFields_AbstractCustomRecord::VIRTUAL_CONTEXT_LINK:
 				case SearchFields_AbstractCustomRecord::VIRTUAL_HAS_FIELDSET:
 				case SearchFields_AbstractCustomRecord::VIRTUAL_OWNER:
@@ -842,6 +843,10 @@ class View_AbstractCustomRecord extends C4_AbstractView implements IAbstractView
 			return array();
 		
 		switch($column) {
+			case SearchFields_AbstractCustomRecord::NAME:
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
+				break;
+
 			case SearchFields_AbstractCustomRecord::VIRTUAL_CONTEXT_LINK:
 				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
 				break;
