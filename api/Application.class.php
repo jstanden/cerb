@@ -6011,6 +6011,7 @@ class _CerbApplication_KataSchemas {
                     string:
                 value:
                   types:
+                    list:
                     string:
     EOD;		
 	}
