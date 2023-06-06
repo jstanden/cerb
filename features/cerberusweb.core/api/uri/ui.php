@@ -76,6 +76,8 @@ class Controller_UI extends DevblocksControllerExtension {
 				return $this->_uiAction_kataSuggestionsRecordFieldsJson();
 			case 'kataSuggestionsRecordTypeJson':
 				return $this->_uiAction_kataSuggestionsRecordTypeJson();
+			case 'markdownPreview':
+				return $this->_uiAction_markdownPreview();
 			case 'queryFieldSuggestions':
 				return $this->_uiAction_queryFieldSuggestions();
 			case 'querySuggestionMeta':
@@ -600,6 +602,28 @@ class Controller_UI extends DevblocksControllerExtension {
 		echo DevblocksPlatform::strFormatJson(json_encode($data->getTypeMeta($type, $params)));
 	}
 	
+	private function _uiAction_markdownPreview() {
+        if('POST' != DevblocksPlatform::getHttpMethod())
+            DevblocksPlatform::dieWithHttpError(null, 405);
+        
+        $tpl = DevblocksPlatform::services()->template();
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		$is_dark_mode = DAO_WorkerPref::get($active_worker->id, 'dark_mode', 0);
+
+        $content = DevblocksPlatform::importGPC($_POST['content'] ?? null, 'string','');
+        
+        $output = DevblocksPlatform::parseMarkdown($content);
+        
+        $filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
+        $output = DevblocksPlatform::purifyHTML($output, true, true, [$filter]);
+
+        $tpl->assign('is_inline', true);
+        $tpl->assign('css_class', $is_dark_mode ? 'emailBodyHtml' : 'emailBodyHtmlLight');
+        $tpl->assign('content', $output);
+        $tpl->display('devblocks:cerberusweb.core::internal/editors/preview_popup.tpl');
+    }
+    
 	private function _uiAction_queryFieldSuggestions() {
 		$of = DevblocksPlatform::importGPC($_REQUEST['of'] ?? null, 'string', '');
 		@$types = DevblocksPlatform::parseCsvString(DevblocksPlatform::importGPC($_REQUEST['types'], 'string', ''));
