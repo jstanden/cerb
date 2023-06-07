@@ -43,7 +43,15 @@ class _DevblocksSessionManager {
 			$session_lifespan = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::SESSION_LIFESPAN, CerberusSettingsDefaults::SESSION_LIFESPAN);
 
 			session_name(APP_SESSION_NAME);
-			session_set_cookie_params($session_lifespan, DEVBLOCKS_WEBPATH, NULL, $url_writer->isSSL(), true);
+			
+			session_set_cookie_params([
+				'lifetime' => $session_lifespan,
+				'path' => DEVBLOCKS_WEBPATH,
+				'domain' => '',
+				'secure' => $url_writer->isSSL(),
+				'httponly' => true,
+				'samesite' => 'Lax',
+			]);
 			
 			if(php_sapi_name() != 'cli')
 				session_start();
