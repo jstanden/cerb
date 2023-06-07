@@ -46,6 +46,16 @@
 		</select>
 		{/if}
 	</fieldset>
+{elseif $model->type == Model_CustomField::TYPE_MULTI_LINE}
+	<fieldset>
+		<legend>{'common.options'|devblocks_translate|capitalize}:</legend>
+
+		<b>{'common.format'|devblocks_translate|capitalize}:</b>
+		<select name="params[format]">
+			<option value="" {if $model->params.format==''}selected="selected"{/if}>{'common.text'|devblocks_translate|capitalize}</option>
+			<option value="markdown" {if $model->params.format=='markdown'}selected="selected"{/if}>{'common.format.markdown'|devblocks_translate|capitalize}</option>
+		</select>
+	</fieldset>
 {elseif $model->type == Model_CustomField::TYPE_WORKER}
 	<fieldset>
 		<legend>{'common.options'|devblocks_translate|capitalize}:</legend>

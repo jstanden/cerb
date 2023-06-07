@@ -47,7 +47,40 @@
 				{elseif $f->type==Model_CustomField::TYPE_NUMBER}
 					<input type="text" name="{$field_name}" size="45" style="width:98%;" maxlength="255" value="{$custom_field_values.$f_id}" class="number">
 				{elseif $f->type==Model_CustomField::TYPE_MULTI_LINE}
-					<textarea name="{$field_name}" rows="4" cols="50" style="width:98%;">{$custom_field_values.$f_id}</textarea>
+					{if $f->params.format == 'markdown'}
+						{$tabs_uniqid = uniqid('tabs')}
+						<div data-cerb-record-editor-markdown-tabs>
+							<ul>
+								<li data-cerb-tab="editor"><a href="#{$tabs_uniqid}Editor">{'common.editor'|devblocks_translate|capitalize}</a></li>
+								<li data-cerb-tab="preview"><a href="#{$tabs_uniqid}Preview">{'common.preview'|devblocks_translate|capitalize}</a></li>
+							</ul>
+							
+							<div id="{$tabs_uniqid}Editor">
+								<div class="cerb-code-editor-toolbar">
+									<button type="button">
+										Formatting on
+									</button>
+
+									<div class="cerb-code-editor-subtoolbar-format-html" style="display:inline-block;">
+										<button type="button" title="Bold (Ctrl+B)" data-cerb-key-binding="ctrl+b" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--bold"><span class="glyphicons glyphicons-bold"></span></button>
+										<button type="button" title="Italics (Ctrl+I)" data-cerb-key-binding="ctrl+i" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--italic"><span class="glyphicons glyphicons-italic"></span></button>
+										<button type="button" title="Link (Ctrl+K)" data-cerb-key-binding="ctrl+k" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--link"><span class="glyphicons glyphicons-link"></span></button>
+										<button type="button" title="List" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--list"><span class="glyphicons glyphicons-list"></span></button>
+										<button type="button" title="Quote (Ctrl+Q)" data-cerb-key-binding="ctrl+q" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--quote"><span class="glyphicons glyphicons-quote"></span></button>
+										<button type="button" title="Code (Ctrl+O)" data-cerb-key-binding="ctrl+o" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--code"><span class="glyphicons glyphicons-embed"></span></button>
+										<button type="button" title="Table" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--table"><span class="glyphicons glyphicons-table"></span></button>
+									</div>
+
+									<div class="cerb-code-editor-toolbar-divider"></div>
+								</div>
+								<textarea name="{$field_name}" class="multi-lines multi-lines-markdown">{$custom_field_values.$f_id}</textarea>
+							</div>
+							
+							<div id="{$tabs_uniqid}Preview" style="border:1px solid var(--cerb-color-background-contrast-200);background-color:var(--cerb-color-form-input-background);"></div>
+						</div>
+					{else}
+						<textarea name="{$field_name}" class="multi-lines" rows="4" cols="50" style="width:98%;">{$custom_field_values.$f_id}</textarea>
+					{/if}
 				{elseif $f->type==Model_CustomField::TYPE_CHECKBOX}
 					<label><input type="checkbox" name="{$field_name}" value="1" {if $custom_field_values.$f_id}checked="checked"{/if}> {'common.yes'|devblocks_translate|capitalize}</label>
 				{elseif $f->type==Model_CustomField::TYPE_MULTI_CHECKBOX}
@@ -181,6 +214,37 @@ $(function() {
 			;
 		var $div = $('<div/>').append($input);
 		$div.insertBefore($button);
+	});
+
+	$cfields.find('[data-cerb-record-editor-markdown-tabs]').each(function() {
+		let $tabs_container = $(this);
+		
+		$tabs_container.find('textarea')
+			.cerbTextEditor()
+		; 
+
+		// Comment editor toolbar
+		$tabs_container.find('.cerb-code-editor-toolbar')
+			.cerbTextEditorToolbarMarkdown()
+		;
+		
+		$tabs_container.tabs({
+			beforeActivate: function(event, ui) {
+				if(ui.newTab.attr('data-cerb-tab') !== 'preview')
+					return;
+
+				Devblocks.getSpinner().appendTo(ui.newPanel.html(''));
+
+				var formData = new FormData();
+				formData.set('c', 'ui');
+				formData.set('a', 'markdownPreview');
+				formData.set('content', $tabs_container.find('textarea.multi-lines-markdown').val());
+
+				genericAjaxPost(formData, null, null, function(html) {
+					ui.newPanel.html(html);
+				});
+			}
+		});
 	});
 });
 </script>
