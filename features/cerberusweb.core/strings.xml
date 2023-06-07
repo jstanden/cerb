@@ -415,6 +415,16 @@
 				<seg>automation event</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.automation.event.listener">
+			<tuv xml:lang="en_US">
+				<seg>automation event listener</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.automation.event.listeners">
+			<tuv xml:lang="en_US">
+				<seg>automation event listeners</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.automation.events">
 			<tuv xml:lang="en_US">
 				<seg>automation events</seg>

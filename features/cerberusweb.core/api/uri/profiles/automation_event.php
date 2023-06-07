@@ -31,6 +31,10 @@ class PageSection_ProfilesAutomationEvent extends Extension_PageSection {
 	function handleActionForPage(string $action, string $scope=null) {
 		if('profileAction' == $scope) {
 			switch($action) {
+				case 'editorChangeEventJson':
+					return $this->_profileAction_editorChangeEventJson();
+				case 'refreshListeners':
+					return $this->_profileAction_refreshListeners();
 				case 'savePeekJson':
 					return $this->_profileAction_savePeekJson();
 				case 'tester':
@@ -40,6 +44,76 @@ class PageSection_ProfilesAutomationEvent extends Extension_PageSection {
 			}
 		}
 		return false;
+	}
+	
+	private function _profileAction_editorChangeEventJson() : void {
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$event_id = DevblocksPlatform::importGPC($_POST['event_id'] ?? null, 'string');
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+		
+		try {
+			if(!($event = DAO_AutomationEvent::getByName($event_id)))
+				throw new Exception_DevblocksAjaxValidationError('Invalid event');
+			
+			if(!($event_ext = $event->getExtension()))
+				throw new Exception_DevblocksAjaxValidationError('Invalid event');
+			
+			/* @var $event_ext Extension_AutomationTrigger */
+			
+			$response = [];
+			
+			// Toolbar
+			$toolbar_dict = DevblocksDictionaryDelegate::instance([
+				'caller_name' => 'cerb.eventHandler.automation',
+				'worker__context' => CerberusContexts::CONTEXT_WORKER,
+				'worker_id' => $active_worker->id
+			]);
+			$toolbar = $event_ext->getEventToolbar();
+			
+			if(($toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar, $toolbar_dict)))
+				$response['toolbar_html'] = DevblocksPlatform::services()->ui()->toolbar()->fetch($toolbar);
+			
+			// Placeholders
+			$tpl->assign('trigger_inputs', $event_ext->getEventPlaceholders());
+			$response['placeholders_html'] = $tpl->fetch('devblocks:cerberusweb.core::automations/triggers/editor_event_handler_placeholders.tpl');
+			
+			echo json_encode($response);
+			
+		} catch (Throwable) {
+			DevblocksPlatform::dieWithHttpError(500);
+		}
+	}
+	
+	private function _profileAction_refreshListeners() {
+		$tpl = DevblocksPlatform::services()->template();
+		
+		$event_id = DevblocksPlatform::importGPC($_POST['event_id'] ?? null, 'string');
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'text/html; charset=utf-8');
+		
+		try {
+			if(!($event = Extension_AutomationTrigger::get($event_id, false)))
+				throw new Exception_DevblocksAjaxValidationError('Invalid event');
+			
+			$listeners = DAO_AutomationEventListener::getByEvent($event->name, true);
+			$tpl->assign('listeners', $listeners);
+			
+			$tpl->assign('event_id', $event->id);
+			$tpl->assign('event_name', $event->name);
+			$tpl->display('devblocks:cerberusweb.core::records/types/automation_event/listeners.tpl');
+			
+		} catch(Exception) {
+			DevblocksPlatform::dieWithHttpError(500);
+		}
 	}
 	
 	private function _profileAction_tester() {
@@ -100,7 +174,6 @@ class PageSection_ProfilesAutomationEvent extends Extension_PageSection {
 				
 			} else {
 				$name = DevblocksPlatform::importGPC($_POST['name'] ?? 'Automation Event', 'string');
-				$automations_kata = DevblocksPlatform::importGPC($_POST['automations_kata'] ?? null, 'string', '');
 				
 				$error = null;
 				
@@ -109,7 +182,6 @@ class PageSection_ProfilesAutomationEvent extends Extension_PageSection {
 					
 				} else { // Edit
 					$fields = array(
-						DAO_AutomationEvent::AUTOMATIONS_KATA => $automations_kata,
 						DAO_AutomationEvent::UPDATED_AT => time(),
 					);
 					
@@ -123,27 +195,10 @@ class PageSection_ProfilesAutomationEvent extends Extension_PageSection {
 					DAO_AutomationEvent::onUpdateByActor($active_worker, $fields, $id);
 				}
 				
-				if($id) {
-					// Versioning
-					try {
-						DAO_RecordChangeset::create(
-							'automation_event',
-							$id,
-							[
-								'automations_kata' => $fields[DAO_AutomationEvent::AUTOMATIONS_KATA] ?? '',
-							],
-							$active_worker->id ?? 0
-						);
-						
-					} catch (Exception $e) {
-						DevblocksPlatform::logError('Error saving changeset: ' . $e->getMessage());
-					}
-					
-					// Custom field saves
-					$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
-					if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_AUTOMATION_EVENT, $id, $field_ids, $error))
-						throw new Exception_DevblocksAjaxValidationError($error);
-				}
+				// Custom field saves
+				$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
+				if (!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_AUTOMATION_EVENT, $id, $field_ids, $error))
+					throw new Exception_DevblocksAjaxValidationError($error);
 				
 				echo json_encode(array(
 					'status' => true,

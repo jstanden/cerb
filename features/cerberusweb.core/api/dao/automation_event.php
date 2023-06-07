@@ -1,6 +1,5 @@
 <?php
 class DAO_AutomationEvent extends Cerb_ORMHelper {
-	const AUTOMATIONS_KATA = 'automations_kata';
 	const DESCRIPTION = 'description';
 	const EXTENSION_ID = 'extension_id';
 	const ID = 'id';
@@ -14,11 +13,6 @@ class DAO_AutomationEvent extends Cerb_ORMHelper {
 	static function getFields() {
 		$validation = DevblocksPlatform::services()->validation();
 		
-		$validation
-			->addField(self::AUTOMATIONS_KATA)
-			->string()
-			->setMaxLength('16 bits')
-		;
 		$validation
 			->addField(self::DESCRIPTION)
 			->string()
@@ -154,15 +148,6 @@ class DAO_AutomationEvent extends Cerb_ORMHelper {
 			return false;
 		}
 		
-		if(array_key_exists(self::AUTOMATIONS_KATA, $fields)) {
-			$kata = DevblocksPlatform::services()->kata();
-			
-			$dict = DevblocksDictionaryDelegate::instance([]);
-			
-			if(false === $kata->validate($fields[self::AUTOMATIONS_KATA], CerberusApplication::kataSchemas()->automationEvent(), $error))
-				return false;
-		}
-		
 		return true;
 	}
 	
@@ -179,7 +164,7 @@ class DAO_AutomationEvent extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, extension_id, description, automations_kata, updated_at ".
+		$sql = "SELECT id, name, extension_id, description, updated_at ".
 			"FROM automation_event ".
 			$where_sql.
 			$sort_sql.
@@ -262,12 +247,9 @@ class DAO_AutomationEvent extends Cerb_ORMHelper {
 	 * @param DevblocksDictionaryDelegate|null $event_dict
 	 * @return array|false
 	 */
-	public static function getKataByName(string $name, ?DevblocksDictionaryDelegate $event_dict=null) {
-		if(false == ($event = DAO_AutomationEvent::getByName($name)))
+	public static function getKataByName(string $name, ?DevblocksDictionaryDelegate $event_dict=null) : array|string|false{
+		if(!($event = DAO_AutomationEvent::getByName($name)))
 			return false;
-		
-		if(is_null($event_dict))
-			return $event->automations_kata;
 		
 		return $event->getKata($event_dict);
 	}
@@ -284,7 +266,6 @@ class DAO_AutomationEvent extends Cerb_ORMHelper {
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_AutomationEvent();
-			$object->automations_kata = $row['automations_kata'];
 			$object->description = $row['description'];
 			$object->extension_id = $row['extension_id'];
 			$object->id = intval($row['id']);
@@ -496,7 +477,6 @@ class SearchFields_AutomationEvent extends DevblocksSearchFields {
 };
 
 class Model_AutomationEvent extends DevblocksRecordModel {
-	public ?string $automations_kata = null;
 	public ?string $description = null;
 	public ?string $extension_id = null;
 	public ?int $id = null;
@@ -508,12 +488,52 @@ class Model_AutomationEvent extends DevblocksRecordModel {
 	}
 	
 	/**
-	 * @param DevblocksDictionaryDelegate $dict
-	 * @param string $error
-	 * @return array|false
+	 * @param ?DevblocksDictionaryDelegate $dict
+	 * @param string|null $error
+	 * @return array|string|false
 	 */
-	function getKata(DevblocksDictionaryDelegate $dict, &$error=null) {
-		return DevblocksPlatform::services()->ui()->eventHandler()->parse($this->automations_kata, $dict, $error, false);
+	function getKata(?DevblocksDictionaryDelegate $dict=null, string &$error=null): array|string|bool {
+		$event_listeners = DAO_AutomationEventListener::getByEvent($this->name);
+		$event_handler = DevblocksPlatform::services()->ui()->eventHandler();
+		
+		// Sort by priority
+		uasort($event_listeners, fn($a,$b) => $a->priority <=> $b->priority);
+		
+		$event_kata = '';
+		
+		// If we only have one listener we don't need to merge dupe key names
+		if(1 == count($event_listeners)) {
+			if(($listener = current($event_listeners)))
+				$event_kata = $listener->event_kata;
+			
+		} else {
+			// If we have more than one listener we need to check for dupe binding keys
+			$event_kata_keys = [];
+			
+			foreach($event_listeners as $listener) {
+				$lines = DevblocksPlatform::parseCrlfString($listener->event_kata, true, false);
+				
+				foreach($lines as $line) {
+					if(DevblocksPlatform::strStartsWith($line, ['automation/','behavior/'])) {
+						// Check for dupe bindings from the listeners
+						if(array_key_exists($line, $event_kata_keys)) {
+							$line = sprintf("%s_%s:",
+								rtrim($line,': '),
+								substr(sha1(random_bytes(128)), 0, 8)
+							);
+						}
+						$event_kata_keys[$line] = true;
+					}
+					
+					$event_kata .= $line . "\n";
+				}
+			}
+		}
+		
+		if(is_null($dict))
+			return $event_kata;
+		
+		return $event_handler->parse($event_kata, $dict, $error, false);
 	}
 };
 
@@ -995,7 +1015,6 @@ class Context_AutomationEvent extends Extension_DevblocksContext implements IDev
 	
 	function getKeyToDaoFieldMap() {
 		return [
-			'automations_kata' => DAO_AutomationEvent::AUTOMATIONS_KATA,
 			'description' => DAO_AutomationEvent::DESCRIPTION,
 			'extension_id' => DAO_AutomationEvent::EXTENSION_ID,
 			'id' => DAO_AutomationEvent::ID,
@@ -1130,18 +1149,10 @@ class Context_AutomationEvent extends Extension_DevblocksContext implements IDev
 			/* @var $trigger_ext Extension_AutomationTrigger */
 			$tpl->assign('trigger_ext', $trigger_ext);
 			
-			// Editor toolbar
+			// Listeners
 			
-			$toolbar_dict = DevblocksDictionaryDelegate::instance([
-				'caller_name' => 'cerb.eventHandler.automation',
-				
-				'worker__context' => CerberusContexts::CONTEXT_WORKER,
-				'worker_id' => $active_worker->id
-			]);
-			
-			$toolbar = $trigger_ext->getEventToolbar();
-			$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar, $toolbar_dict);
-			$tpl->assign('toolbar', $toolbar);
+			$listeners = DAO_AutomationEventListener::getByEvent($trigger_ext->manifest->name, true);
+			$tpl->assign('listeners', $listeners);
 			
 			// View
 			$tpl->assign('id', $context_id);

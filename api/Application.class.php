@@ -915,6 +915,7 @@ class CerberusContexts {
 	const CONTEXT_ATTACHMENT = 'cerberusweb.contexts.attachment';
 	const CONTEXT_AUTOMATION = 'cerb.contexts.automation';
 	const CONTEXT_AUTOMATION_EVENT = 'cerb.contexts.automation.event';
+	const CONTEXT_AUTOMATION_EVENT_LISTENER = 'cerb.contexts.automation.event.listener';
 	const CONTEXT_AUTOMATION_RESOURCE = 'cerb.contexts.automation.resource';
 	const CONTEXT_AUTOMATION_TIMER = 'cerb.contexts.automation.timer';
 	const CONTEXT_BEHAVIOR = 'cerberusweb.contexts.behavior';

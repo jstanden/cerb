@@ -190,6 +190,14 @@
 			<class name="View_AutomationEvent" />
 		</file>
 
+		<file path="api/dao/automation_event_listener.php">
+			<class name="Context_AutomationEventListener" />
+			<class name="DAO_AutomationEventListener" />
+			<class name="Model_AutomationEventListener" />
+			<class name="SearchFields_AutomationEventListener" />
+			<class name="View_AutomationEventListener" />
+		</file>
+
 		<file path="api/dao/automation_log.php">
 			<class name="DAO_AutomationLog" />
 			<class name="Model_AutomationLog" />
@@ -1504,6 +1512,46 @@
 			</params>
 		</extension>
 
+		<extension point="devblocks.context">
+			<id>cerb.contexts.automation.event.listener</id>
+			<name>Automation Event Listener</name>
+			<class>
+				<file>api/dao/automation_event_listener.php</file>
+				<name>Context_AutomationEventListener</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="automation event listener" value="singular" />
+						<data key="automation event listeners" value="plural" />
+					</value>
+				</param>
+				<param key="alias" value="automation_event_listener" />
+				<param key="dao_class" value="DAO_AutomationEventListener" />
+				<param key="view_class" value="View_AutomationEventListener" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="comments" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="records" />
+						<data key="search" />
+						<data key="va_variable" />
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="update" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
 		<extension point="devblocks.context">
 			<id>cerb.contexts.automation.resource</id>
 			<name>Automation Resource</name>
@@ -7305,6 +7353,19 @@
 				<params>
 					<param key="page_id" value="core.page.profiles" />
 					<param key="uri" value="automation_event" />
+				</params>
+			</extension>
+	
+			<extension point="cerberusweb.ui.page.section">
+				<id>cerb.page.profiles.automation_event_listener</id>
+				<name>Automation Event Listener Section</name>
+				<class>
+					<file>api/uri/profiles/automation_event_listener.php</file>
+					<name>PageSection_ProfilesAutomationEventListener</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="automation_event_listener" />
 				</params>
 			</extension>
 	

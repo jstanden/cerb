@@ -1604,13 +1604,15 @@ class Cerb_Packages {
 		
 		if(is_array($events)) {
 			foreach ($events as $event) {
-				if (false != ($event_model = DAO_AutomationEvent::getByName($event['event']))) {
-					DAO_AutomationEvent::update($event_model->id, [
-						DAO_AutomationEvent::AUTOMATIONS_KATA => rtrim($event_model->automations_kata) . "\n\n" . rtrim($event['kata']),
+				if (($event_model = DAO_AutomationEvent::getByName($event['event']))) {
+					$listener_id = DAO_AutomationEventListener::create([
+						DAO_AutomationEventListener::NAME => $json['package']['name'] ?? 'Package',
+						DAO_AutomationEventListener::EVENT_NAME => $event_model->name,
+						DAO_AutomationEventListener::EVENT_KATA => $event['kata'],
 					]);
 					
-					$records_modified['cerb.contexts.automation.event'][$event_model->id] = [
-						'id' => $event_model->id,
+					$records_modified['cerb.contexts.automation.event.listener'][$listener_id] = [
+						'id' => $listener_id,
 						'label' => $event_model->name,
 					];
 				}
