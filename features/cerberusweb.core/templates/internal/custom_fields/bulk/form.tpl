@@ -214,6 +214,7 @@ $(function() {
 			;
 		var $div = $('<div/>').append($input);
 		$div.insertBefore($button);
+		$input.focus();
 	});
 
 	$cfields.find('[data-cerb-record-editor-markdown-tabs]').each(function() {
