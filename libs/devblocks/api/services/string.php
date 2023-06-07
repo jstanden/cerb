@@ -440,6 +440,33 @@ class _DevblocksStringService {
 		
 		return $string;
 	}
+
+	public function truncateAfterFinal(string $content, int $length, array $afterAny) : string {
+		return $this->_truncateByFinal($content, $length, $afterAny, 'after');
+	}
+	
+	public function truncateBeforeFinal(string $content, int $length, array $afterAny) : string {
+		return $this->_truncateByFinal($content, $length, $afterAny, 'before');
+	}
+	
+	private function _truncateByFinal(string $content, int $length, array $anyOf, $before_after='before') : string {
+		if(strlen($content) < $length)
+			return $content;
+		
+		$content = substr($content, 0, $length);
+
+		try {
+			$position = max(array_filter(
+				array_map(fn($char) => strrpos($content, $char), $anyOf),
+				fn($pos) => false !== $pos
+			));
+			
+			return substr($content, 0, $position + ('after' == $before_after ? 1 : 0));
+			
+		} catch (ValueError) {
+			return $content;
+		}
+	}
 	
 	public function arraySortLength(array $strings, $is_ascending=true) : array {
 		usort($strings, fn($a, $b) => strlen($a) <=> strlen($b));

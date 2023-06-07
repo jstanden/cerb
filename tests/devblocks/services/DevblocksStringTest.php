@@ -311,4 +311,46 @@ class DevblocksStringTest extends TestCase {
 		$actual = $string->truncate('これはテストです', 10);
 		$this->assertEquals($expected, $actual);
 	}
+	
+	function testTruncateAfterFinal() {
+		$string = DevblocksPlatform::services()->string();
+		
+		// Truncate on the final space
+		$expected = 'This is ';
+		$actual = $string->truncateAfterFinal('This is truncated by words', 10, [' ']);
+		$this->assertEquals($expected, $actual);
+		
+		// Truncate on multiple chars
+		
+		$expected = "This\nis truncated\nby ";
+		$actual = $string->truncateAfterFinal("This\nis truncated\nby multiple\ntokens", 25, [' ',"\n"]);
+		$this->assertEquals($expected, $actual);
+
+		// Truncate on multiple chars with CRLF
+		
+		$expected = "This\r\nis truncated\r\n";
+		$actual = $string->truncateAfterFinal("This\r\nis truncated\r\nby multiple\r\ntokens", 21, [' ',"\n"]);
+		$this->assertEquals($expected, $actual);
+	}
+
+	function testTruncateBeforeFinal() {
+		$string = DevblocksPlatform::services()->string();
+
+		// Truncate on the final space
+		$expected = 'This is';
+		$actual = $string->truncateBeforeFinal('This is truncated by words', 10, [' ']);
+		$this->assertEquals($expected, $actual);
+
+		// Truncate on multiple chars
+
+		$expected = "This\nis truncated\nby";
+		$actual = $string->truncateBeforeFinal("This\nis truncated\nby multiple\ntokens", 25, [' ',"\n"]);
+		$this->assertEquals($expected, $actual);
+
+		// Truncate on multiple chars with CRLF
+
+		$expected = "This\r\nis truncated\r";
+		$actual = $string->truncateBeforeFinal("This\r\nis truncated\r\nby multiple\r\ntokens", 21, [' ',"\n"]);
+		$this->assertEquals($expected, $actual);
+	}	
 }
