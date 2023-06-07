@@ -28,7 +28,7 @@
 				{elseif $f->type==Model_CustomField::TYPE_URL}
 					<input type="text" name="{$field_name}" size="45" style="width:98%;" maxlength="255" value="{$custom_field_values.$f_id}" class="url">
 				{elseif $f->type==Model_CustomField::TYPE_LIST}
-					<div>
+					<div data-cerb-record-editor-list>
 						{foreach from=$custom_field_values.$f_id item=val}
 						<div>
 							<input type="text" name="{$field_name}[]" size="45" style="width:98%;" maxlength="255" value="{$val}">
@@ -205,7 +205,26 @@ $(function() {
 		ajax.chooserFile(this,$(this).attr('field_name'));
 	});
 	
-	// Multi-text
+	// List
+	$cfields.find('[data-cerb-record-editor-list]').on('keydown', function(e) {
+		e.stopPropagation();
+		
+		let $this = $(this);
+		let $target = $(e.target);
+		let key_code = (window.Event) ? e.which : e.keyCode;
+		
+		if(!$target.is('input:text') || $target.val().length > 0)
+			return true;
+		
+		if(8 === key_code) {
+			$target.parent().remove();
+			$this.find('input:text').last().focus();
+			return false;
+		}
+		
+		return true;
+	});
+	
 	$cfields.find('button.multi-text-add').click(function() {
 		var $button = $(this);
 		var field_name = $button.attr('data-field-name');
