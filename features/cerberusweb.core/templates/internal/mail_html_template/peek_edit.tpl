@@ -73,7 +73,7 @@ blockquote a {
 
 pre > code {
 	display: block;
-	overflow-x: scroll;
+	overflow-x: auto;
 	border: 1px solid #e8e8e8;
 	background-color: #f6f2f0;
 	padding: 10px;

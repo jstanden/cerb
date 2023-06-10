@@ -1706,7 +1706,7 @@ UL.cerb-popupmenu > LI:hover A {
   font-weight: bold;
 }
 .cerb-kb-article-content PRE > CODE {
-  overflow-x: scroll;
+  overflow-x: auto;
 }
 .cerb-kb-article-content BLOCKQUOTE {
   font-style: italic;
@@ -1791,7 +1791,7 @@ DIV.emailBodyHtml BLOCKQUOTE {
 }
 DIV.emailBodyHtml PRE > CODE {
   display: block;
-  overflow-x: scroll;
+  overflow-x: auto;
   border: 1px solid var(--cerb-color-background-contrast-230);
   background-color: var(--cerb-color-email-code);
   padding: 10px;
@@ -1840,7 +1840,7 @@ DIV.emailBodyHtmlLight BLOCKQUOTE {
 }
 DIV.emailBodyHtmlLight PRE > CODE {
   display: block;
-  overflow-x: scroll;
+  overflow-x: auto;
   border: 1px solid #e6e6e6;
   background-color: #f6f2f0;
   padding: 10px;
@@ -1882,7 +1882,7 @@ DIV.commentBodyHtml BLOCKQUOTE {
 DIV.commentBodyHtml PRE > CODE {
   clear: both;
   display: block;
-  overflow-x: scroll;
+  overflow-x: auto;
   border: 1px solid var(--cerb-color-background-contrast-230);
   background-color: var(--cerb-color-email-code);
   padding: 10px;
