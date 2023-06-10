@@ -2946,6 +2946,18 @@ class CerberusSettingsDefaults {
 class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 	static $_data = null;
 
+	static function getStatelessUris() : array {
+		// No cookie for resources or icons
+		return [
+			'apple-touch-icon.png',
+			'apple-touch-icon-precomposed.png',
+			'favicon.ico',
+			'cron',
+			'portal',
+			'resource',
+		];
+	}
+	
 	static function open($save_path, $session_name) {
 		return true;
 	}
