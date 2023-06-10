@@ -31,8 +31,21 @@ class Controller_Default extends DevblocksControllerExtension {
 		
 		if(!$page) {
 			switch($controller_uri) {
+				case 'apple-touch-icon-precomposed.png':
+				case 'apple-touch-icon.png':
+					$bytes = file_get_contents(APP_PATH . '/apple-touch-icon.png');
+					
+					header('Pragma: cache');
+					header('Cache-control: max-age=86400');
+					header('Expires: ' . gmdate('D, d M Y H:i:s',time()+86400) . ' GMT');
+					header('Content-Type: image/png');
+					header('Content-Length: ' . strlen($bytes));
+					
+					return DevblocksPlatform::dieWithHttpErrorHtml($bytes, 200);
+					
 				case 'portal':
 					return DevblocksPlatform::dieWithHttpError(null, 404);
+					
 				default:
 					return true;
 			}
