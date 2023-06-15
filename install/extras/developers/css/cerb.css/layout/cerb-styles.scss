@@ -1706,7 +1706,7 @@ DIV.cerb-markdown-content {
 
 // HTML email container (reset styles)
 
-DIV.emailBodyHtml {
+.emailBodyHtml {
 	overflow-x: auto;
 	color: var(--cerb-color-text);
 	padding: 5px;
@@ -1776,7 +1776,7 @@ DIV.emailBodyHtml {
 	}
 }
 
-DIV.emailBodyHtmlLight {
+.emailBodyHtmlLight {
 	overflow-x: auto;
 	background-color: white;
 	padding: 5px;
@@ -1849,7 +1849,7 @@ DIV.emailBodyHtmlLight {
 
 // Comment container (reset styles)
 
-DIV.commentBodyHtml {
+.commentBodyHtml {
 	A {
 		color: inherit;
 	}

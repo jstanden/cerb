@@ -1782,27 +1782,27 @@ DIV.cerb-markdown-content CODE {
   padding: 2px;
 }
 
-DIV.emailBodyHtml {
+.emailBodyHtml {
   overflow-x: auto;
   color: var(--cerb-color-text);
   padding: 5px;
 }
-DIV.emailBodyHtml A {
+.emailBodyHtml A {
   color: var(--cerb-color-email-link);
 }
-DIV.emailBodyHtml ABBR {
+.emailBodyHtml ABBR {
   border-bottom-color: var(--cerb-color-text);
 }
-DIV.emailBodyHtml BODY, DIV.emailBodyHtml FORM, DIV.emailBodyHtml TD {
+.emailBodyHtml BODY, .emailBodyHtml FORM, .emailBodyHtml TD {
   color: var(--cerb-color-table-row-text);
 }
-DIV.emailBodyHtml BLOCKQUOTE {
+.emailBodyHtml BLOCKQUOTE {
   color: var(--cerb-color-background-contrast-100);
   border-left: 5px solid;
   margin: 0 0 0 10px;
   padding: 0 0 0 10px;
 }
-DIV.emailBodyHtml PRE > CODE {
+.emailBodyHtml PRE > CODE {
   display: block;
   overflow-x: auto;
   border: 1px solid var(--cerb-color-background-contrast-230);
@@ -1812,49 +1812,49 @@ DIV.emailBodyHtml PRE > CODE {
   width: 0;
   min-width: 100%;
 }
-DIV.emailBodyHtml P > CODE {
+.emailBodyHtml P > CODE {
   border: 1px solid var(--cerb-color-background-contrast-230);
   background-color: var(--cerb-color-email-code);
   font-weight: bold;
   padding: 0.1em 0.2em;
   line-height: 1.75em;
 }
-DIV.commentBodyHtml DIV.block DIV.emailBodyHtml H1, DIV.commentBodyHtml DIV.block DIV.emailBodyHtml H2, DIV.commentBodyHtml DIV.block DIV.emailBodyHtml H3, DIV.commentBodyHtml DIV.block DIV.emailBodyHtml H4, DIV.commentBodyHtml DIV.block DIV.emailBodyHtml H5, DIV.commentBodyHtml DIV.block DIV.emailBodyHtml H6, DIV.emailBodyHtmlLight DIV.block DIV.emailBodyHtml H1, DIV.emailBodyHtmlLight DIV.block DIV.emailBodyHtml H2, DIV.emailBodyHtmlLight DIV.block DIV.emailBodyHtml H3, DIV.emailBodyHtmlLight DIV.block DIV.emailBodyHtml H4, DIV.emailBodyHtmlLight DIV.block DIV.emailBodyHtml H5, DIV.emailBodyHtmlLight DIV.block DIV.emailBodyHtml H6, DIV.emailBodyHtml DIV.block H1, DIV.emailBodyHtml DIV.block H2, DIV.emailBodyHtml DIV.block H3, DIV.emailBodyHtml DIV.block H4, DIV.emailBodyHtml DIV.block H5, DIV.emailBodyHtml DIV.block H6, DIV.emailBodyHtml H1, DIV.emailBodyHtml H2, DIV.emailBodyHtml H3, DIV.emailBodyHtml H4, DIV.emailBodyHtml H5, DIV.emailBodyHtml H6 {
+.commentBodyHtml DIV.block .emailBodyHtml H1, .commentBodyHtml DIV.block .emailBodyHtml H2, .commentBodyHtml DIV.block .emailBodyHtml H3, .commentBodyHtml DIV.block .emailBodyHtml H4, .commentBodyHtml DIV.block .emailBodyHtml H5, .commentBodyHtml DIV.block .emailBodyHtml H6, .emailBodyHtmlLight DIV.block .emailBodyHtml H1, .emailBodyHtmlLight DIV.block .emailBodyHtml H2, .emailBodyHtmlLight DIV.block .emailBodyHtml H3, .emailBodyHtmlLight DIV.block .emailBodyHtml H4, .emailBodyHtmlLight DIV.block .emailBodyHtml H5, .emailBodyHtmlLight DIV.block .emailBodyHtml H6, .emailBodyHtml DIV.block H1, .emailBodyHtml DIV.block H2, .emailBodyHtml DIV.block H3, .emailBodyHtml DIV.block H4, .emailBodyHtml DIV.block H5, .emailBodyHtml DIV.block H6, .emailBodyHtml H1, .emailBodyHtml H2, .emailBodyHtml H3, .emailBodyHtml H4, .emailBodyHtml H5, .emailBodyHtml H6 {
   font-size: initial;
   color: inherit;
   margin: initial;
   font-weight: bold;
 }
-DIV.emailBodyHtml IMG {
+.emailBodyHtml IMG {
   max-width: 100%;
   height: auto;
 }
-DIV.emailBodyHtml UL, DIV.emailBodyHtml OL {
+.emailBodyHtml UL, .emailBodyHtml OL {
   padding-left: 2em;
 }
 
-DIV.emailBodyHtmlLight {
+.emailBodyHtmlLight {
   overflow-x: auto;
   background-color: white;
   padding: 5px;
   color: black;
 }
-DIV.emailBodyHtmlLight A {
+.emailBodyHtmlLight A {
   color: rgb(43, 109, 173);
 }
-DIV.emailBodyHtmlLight ABBR {
+.emailBodyHtmlLight ABBR {
   border-bottom-color: black;
 }
-DIV.emailBodyHtmlLight BODY, DIV.emailBodyHtmlLight FORM, DIV.emailBodyHtmlLight TD {
+.emailBodyHtmlLight BODY, .emailBodyHtmlLight FORM, .emailBodyHtmlLight TD {
   color: black;
 }
-DIV.emailBodyHtmlLight BLOCKQUOTE {
+.emailBodyHtmlLight BLOCKQUOTE {
   color: rgb(100, 100, 100);
   border-left: 5px solid;
   margin: 0 0 0 10px;
   padding: 0 0 0 10px;
 }
-DIV.emailBodyHtmlLight PRE > CODE {
+.emailBodyHtmlLight PRE > CODE {
   display: block;
   overflow-x: auto;
   border: 1px solid rgb(230, 230, 230);
@@ -1864,41 +1864,41 @@ DIV.emailBodyHtmlLight PRE > CODE {
   width: 0;
   min-width: 100%;
 }
-DIV.emailBodyHtmlLight P > CODE {
+.emailBodyHtmlLight P > CODE {
   border: 1px solid rgb(230, 230, 230);
   background-color: rgb(246, 242, 240);
   font-weight: bold;
   padding: 0.1em 0.2em;
   line-height: 1.75em;
 }
-DIV.commentBodyHtml DIV.block DIV.emailBodyHtmlLight H1, DIV.commentBodyHtml DIV.block DIV.emailBodyHtmlLight H2, DIV.commentBodyHtml DIV.block DIV.emailBodyHtmlLight H3, DIV.commentBodyHtml DIV.block DIV.emailBodyHtmlLight H4, DIV.commentBodyHtml DIV.block DIV.emailBodyHtmlLight H5, DIV.commentBodyHtml DIV.block DIV.emailBodyHtmlLight H6, DIV.emailBodyHtmlLight DIV.block H1, DIV.emailBodyHtmlLight DIV.block H2, DIV.emailBodyHtmlLight DIV.block H3, DIV.emailBodyHtmlLight DIV.block H4, DIV.emailBodyHtmlLight DIV.block H5, DIV.emailBodyHtmlLight DIV.block H6, DIV.emailBodyHtmlLight H1, DIV.emailBodyHtmlLight H2, DIV.emailBodyHtmlLight H3, DIV.emailBodyHtmlLight H4, DIV.emailBodyHtmlLight H5, DIV.emailBodyHtmlLight H6 {
+.commentBodyHtml DIV.block .emailBodyHtmlLight H1, .commentBodyHtml DIV.block .emailBodyHtmlLight H2, .commentBodyHtml DIV.block .emailBodyHtmlLight H3, .commentBodyHtml DIV.block .emailBodyHtmlLight H4, .commentBodyHtml DIV.block .emailBodyHtmlLight H5, .commentBodyHtml DIV.block .emailBodyHtmlLight H6, .emailBodyHtmlLight DIV.block H1, .emailBodyHtmlLight DIV.block H2, .emailBodyHtmlLight DIV.block H3, .emailBodyHtmlLight DIV.block H4, .emailBodyHtmlLight DIV.block H5, .emailBodyHtmlLight DIV.block H6, .emailBodyHtmlLight H1, .emailBodyHtmlLight H2, .emailBodyHtmlLight H3, .emailBodyHtmlLight H4, .emailBodyHtmlLight H5, .emailBodyHtmlLight H6, .emailBodyHtml DIV.block .emailBodyHtmlLight H1, .emailBodyHtml DIV.block .emailBodyHtmlLight H2, .emailBodyHtml DIV.block .emailBodyHtmlLight H3, .emailBodyHtml DIV.block .emailBodyHtmlLight H4, .emailBodyHtml DIV.block .emailBodyHtmlLight H5, .emailBodyHtml DIV.block .emailBodyHtmlLight H6 {
   font-size: initial;
   color: inherit;
   margin: initial;
   font-weight: bold;
 }
-DIV.emailBodyHtmlLight IMG {
+.emailBodyHtmlLight IMG {
   max-width: 100%;
   height: auto;
 }
-DIV.emailBodyHtmlLight UL, DIV.emailBodyHtmlLight OL {
+.emailBodyHtmlLight UL, .emailBodyHtmlLight OL {
   padding-left: 2em;
 }
 
-DIV.commentBodyHtml A {
+.commentBodyHtml A {
   color: inherit;
 }
-DIV.commentBodyHtml ABBR {
+.commentBodyHtml ABBR {
   border-bottom: inherit;
 }
-DIV.commentBodyHtml BLOCKQUOTE {
+.commentBodyHtml BLOCKQUOTE {
   clear: both;
   color: var(--cerb-color-background-contrast-100);
   border-left: 5px solid;
   margin: 0 0 0 10px;
   padding: 0 0 0 10px;
 }
-DIV.commentBodyHtml PRE > CODE {
+.commentBodyHtml PRE > CODE {
   clear: both;
   display: block;
   overflow-x: auto;
@@ -1909,50 +1909,50 @@ DIV.commentBodyHtml PRE > CODE {
   width: 0;
   min-width: 100%;
 }
-DIV.commentBodyHtml P > CODE {
+.commentBodyHtml P > CODE {
   border: 1px solid var(--cerb-color-background-contrast-230);
   background-color: var(--cerb-color-email-code);
   font-weight: bold;
   padding: 0.1em 0.2em;
   line-height: 1.75em;
 }
-DIV.commentBodyHtml DIV.block H1, DIV.commentBodyHtml DIV.block H2, DIV.commentBodyHtml DIV.block H3, DIV.commentBodyHtml DIV.block H4, DIV.commentBodyHtml DIV.block H5, DIV.commentBodyHtml DIV.block H6, DIV.commentBodyHtml H6, DIV.commentBodyHtml H5, DIV.commentBodyHtml H4, DIV.commentBodyHtml H3, DIV.commentBodyHtml H2, DIV.commentBodyHtml H1 {
+.commentBodyHtml DIV.block H1, .commentBodyHtml DIV.block H2, .commentBodyHtml DIV.block H3, .commentBodyHtml DIV.block H4, .commentBodyHtml DIV.block H5, .commentBodyHtml DIV.block H6, .commentBodyHtml H6, .commentBodyHtml H5, .commentBodyHtml H4, .commentBodyHtml H3, .commentBodyHtml H2, .commentBodyHtml H1, .emailBodyHtml DIV.block .commentBodyHtml H1, .emailBodyHtml DIV.block .commentBodyHtml H2, .emailBodyHtml DIV.block .commentBodyHtml H3, .emailBodyHtml DIV.block .commentBodyHtml H4, .emailBodyHtml DIV.block .commentBodyHtml H5, .emailBodyHtml DIV.block .commentBodyHtml H6, .emailBodyHtmlLight DIV.block .commentBodyHtml H1, .emailBodyHtmlLight DIV.block .commentBodyHtml H2, .emailBodyHtmlLight DIV.block .commentBodyHtml H3, .emailBodyHtmlLight DIV.block .commentBodyHtml H4, .emailBodyHtmlLight DIV.block .commentBodyHtml H5, .emailBodyHtmlLight DIV.block .commentBodyHtml H6 {
   font-size: initial;
   color: inherit;
   margin: initial;
   font-weight: bold;
   clear: both;
 }
-DIV.commentBodyHtml H1 {
+.commentBodyHtml H1 {
   font-size: 250%;
 }
-DIV.commentBodyHtml H2 {
+.commentBodyHtml H2 {
   font-size: 200%;
 }
-DIV.commentBodyHtml H3 {
+.commentBodyHtml H3 {
   font-size: 175%;
 }
-DIV.commentBodyHtml H4 {
+.commentBodyHtml H4 {
   font-size: 150%;
 }
-DIV.commentBodyHtml H5 {
+.commentBodyHtml H5 {
   font-size: 130%;
 }
-DIV.commentBodyHtml H6 {
+.commentBodyHtml H6 {
   font-size: 115%;
 }
-DIV.commentBodyHtml IMG {
+.commentBodyHtml IMG {
   max-width: 100%;
   height: auto;
 }
-DIV.commentBodyHtml OL, DIV.commentBodyHtml UL {
+.commentBodyHtml OL, .commentBodyHtml UL {
   margin: 0 0 0.5em 1.5em;
   padding: 0;
 }
-DIV.commentBodyHtml PRE {
+.commentBodyHtml PRE {
   clear: both;
 }
-DIV.commentBodyHtml TABLE {
+.commentBodyHtml TABLE {
   clear: both;
 }
 .cerb-expression-editor UL.expression-toolbar {
