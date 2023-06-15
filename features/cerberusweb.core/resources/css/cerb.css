@@ -1,3 +1,4 @@
+@charset "UTF-8";
 /*
  * cerb.css
  *
@@ -1124,7 +1125,7 @@ TABLE.calendar TR.week TD DIV.day_contents DIV {
 }
 TABLE.calendar TR.week TD DIV.day_contents A {
   text-decoration: none;
-  color: #202020;
+  color: rgb(32, 32, 32);
   font-weight: 500;
 }
 TABLE.calendar TR.week TD DIV.day_contents A:hover {
@@ -1133,7 +1134,7 @@ TABLE.calendar TR.week TD DIV.day_contents A:hover {
 TABLE.calendar TR.week TD DIV.day_contents .time {
   font-size: 80%;
   font-weight: normal;
-  color: #202020;
+  color: rgb(32, 32, 32);
   opacity: 80%;
   float: right;
 }
@@ -1815,7 +1816,7 @@ DIV.emailBodyHtml P > CODE {
   padding: 0.1em 0.2em;
   line-height: 1.75em;
 }
-DIV.emailBodyHtml H1, DIV.emailBodyHtml H2, DIV.emailBodyHtml H3, DIV.emailBodyHtml H4, DIV.emailBodyHtml H5, DIV.emailBodyHtml H6, DIV.emailBodyHtml DIV.block H1, DIV.emailBodyHtml DIV.block H2, DIV.emailBodyHtml DIV.block H3, DIV.emailBodyHtml DIV.block H4, DIV.emailBodyHtml DIV.block H5, DIV.emailBodyHtml DIV.block H6, DIV.emailBodyHtmlLight DIV.block DIV.emailBodyHtml H1, DIV.emailBodyHtmlLight DIV.block DIV.emailBodyHtml H2, DIV.emailBodyHtmlLight DIV.block DIV.emailBodyHtml H3, DIV.emailBodyHtmlLight DIV.block DIV.emailBodyHtml H4, DIV.emailBodyHtmlLight DIV.block DIV.emailBodyHtml H5, DIV.emailBodyHtmlLight DIV.block DIV.emailBodyHtml H6, DIV.commentBodyHtml DIV.block DIV.emailBodyHtml H1, DIV.commentBodyHtml DIV.block DIV.emailBodyHtml H2, DIV.commentBodyHtml DIV.block DIV.emailBodyHtml H3, DIV.commentBodyHtml DIV.block DIV.emailBodyHtml H4, DIV.commentBodyHtml DIV.block DIV.emailBodyHtml H5, DIV.commentBodyHtml DIV.block DIV.emailBodyHtml H6 {
+DIV.commentBodyHtml DIV.block DIV.emailBodyHtml H1, DIV.commentBodyHtml DIV.block DIV.emailBodyHtml H2, DIV.commentBodyHtml DIV.block DIV.emailBodyHtml H3, DIV.commentBodyHtml DIV.block DIV.emailBodyHtml H4, DIV.commentBodyHtml DIV.block DIV.emailBodyHtml H5, DIV.commentBodyHtml DIV.block DIV.emailBodyHtml H6, DIV.emailBodyHtmlLight DIV.block DIV.emailBodyHtml H1, DIV.emailBodyHtmlLight DIV.block DIV.emailBodyHtml H2, DIV.emailBodyHtmlLight DIV.block DIV.emailBodyHtml H3, DIV.emailBodyHtmlLight DIV.block DIV.emailBodyHtml H4, DIV.emailBodyHtmlLight DIV.block DIV.emailBodyHtml H5, DIV.emailBodyHtmlLight DIV.block DIV.emailBodyHtml H6, DIV.emailBodyHtml DIV.block H1, DIV.emailBodyHtml DIV.block H2, DIV.emailBodyHtml DIV.block H3, DIV.emailBodyHtml DIV.block H4, DIV.emailBodyHtml DIV.block H5, DIV.emailBodyHtml DIV.block H6, DIV.emailBodyHtml H1, DIV.emailBodyHtml H2, DIV.emailBodyHtml H3, DIV.emailBodyHtml H4, DIV.emailBodyHtml H5, DIV.emailBodyHtml H6 {
   font-size: initial;
   color: inherit;
   margin: initial;
@@ -1836,7 +1837,7 @@ DIV.emailBodyHtmlLight {
   color: black;
 }
 DIV.emailBodyHtmlLight A {
-  color: #2b6dad;
+  color: rgb(43, 109, 173);
 }
 DIV.emailBodyHtmlLight ABBR {
   border-bottom-color: black;
@@ -1845,7 +1846,7 @@ DIV.emailBodyHtmlLight BODY, DIV.emailBodyHtmlLight FORM, DIV.emailBodyHtmlLight
   color: black;
 }
 DIV.emailBodyHtmlLight BLOCKQUOTE {
-  color: #646464;
+  color: rgb(100, 100, 100);
   border-left: 5px solid;
   margin: 0 0 0 10px;
   padding: 0 0 0 10px;
@@ -1853,18 +1854,18 @@ DIV.emailBodyHtmlLight BLOCKQUOTE {
 DIV.emailBodyHtmlLight PRE > CODE {
   display: block;
   overflow-x: auto;
-  border: 1px solid #e6e6e6;
-  background-color: #f6f2f0;
+  border: 1px solid rgb(230, 230, 230);
+  background-color: rgb(246, 242, 240);
   padding: 10px;
 }
 DIV.emailBodyHtmlLight P > CODE {
-  border: 1px solid #e6e6e6;
-  background-color: #f6f2f0;
+  border: 1px solid rgb(230, 230, 230);
+  background-color: rgb(246, 242, 240);
   font-weight: bold;
   padding: 0.1em 0.2em;
   line-height: 1.75em;
 }
-DIV.emailBodyHtml DIV.block DIV.emailBodyHtmlLight H1, DIV.emailBodyHtml DIV.block DIV.emailBodyHtmlLight H2, DIV.emailBodyHtml DIV.block DIV.emailBodyHtmlLight H3, DIV.emailBodyHtml DIV.block DIV.emailBodyHtmlLight H4, DIV.emailBodyHtml DIV.block DIV.emailBodyHtmlLight H5, DIV.emailBodyHtml DIV.block DIV.emailBodyHtmlLight H6, DIV.emailBodyHtmlLight H1, DIV.emailBodyHtmlLight H2, DIV.emailBodyHtmlLight H3, DIV.emailBodyHtmlLight H4, DIV.emailBodyHtmlLight H5, DIV.emailBodyHtmlLight H6, DIV.emailBodyHtmlLight DIV.block H1, DIV.emailBodyHtmlLight DIV.block H2, DIV.emailBodyHtmlLight DIV.block H3, DIV.emailBodyHtmlLight DIV.block H4, DIV.emailBodyHtmlLight DIV.block H5, DIV.emailBodyHtmlLight DIV.block H6, DIV.commentBodyHtml DIV.block DIV.emailBodyHtmlLight H1, DIV.commentBodyHtml DIV.block DIV.emailBodyHtmlLight H2, DIV.commentBodyHtml DIV.block DIV.emailBodyHtmlLight H3, DIV.commentBodyHtml DIV.block DIV.emailBodyHtmlLight H4, DIV.commentBodyHtml DIV.block DIV.emailBodyHtmlLight H5, DIV.commentBodyHtml DIV.block DIV.emailBodyHtmlLight H6 {
+DIV.commentBodyHtml DIV.block DIV.emailBodyHtmlLight H1, DIV.commentBodyHtml DIV.block DIV.emailBodyHtmlLight H2, DIV.commentBodyHtml DIV.block DIV.emailBodyHtmlLight H3, DIV.commentBodyHtml DIV.block DIV.emailBodyHtmlLight H4, DIV.commentBodyHtml DIV.block DIV.emailBodyHtmlLight H5, DIV.commentBodyHtml DIV.block DIV.emailBodyHtmlLight H6, DIV.emailBodyHtmlLight DIV.block H1, DIV.emailBodyHtmlLight DIV.block H2, DIV.emailBodyHtmlLight DIV.block H3, DIV.emailBodyHtmlLight DIV.block H4, DIV.emailBodyHtmlLight DIV.block H5, DIV.emailBodyHtmlLight DIV.block H6, DIV.emailBodyHtmlLight H1, DIV.emailBodyHtmlLight H2, DIV.emailBodyHtmlLight H3, DIV.emailBodyHtmlLight H4, DIV.emailBodyHtmlLight H5, DIV.emailBodyHtmlLight H6 {
   font-size: initial;
   color: inherit;
   margin: initial;
@@ -1906,7 +1907,7 @@ DIV.commentBodyHtml P > CODE {
   padding: 0.1em 0.2em;
   line-height: 1.75em;
 }
-DIV.emailBodyHtml DIV.block DIV.commentBodyHtml H1, DIV.emailBodyHtml DIV.block DIV.commentBodyHtml H2, DIV.emailBodyHtml DIV.block DIV.commentBodyHtml H3, DIV.emailBodyHtml DIV.block DIV.commentBodyHtml H4, DIV.emailBodyHtml DIV.block DIV.commentBodyHtml H5, DIV.emailBodyHtml DIV.block DIV.commentBodyHtml H6, DIV.emailBodyHtmlLight DIV.block DIV.commentBodyHtml H1, DIV.emailBodyHtmlLight DIV.block DIV.commentBodyHtml H2, DIV.emailBodyHtmlLight DIV.block DIV.commentBodyHtml H3, DIV.emailBodyHtmlLight DIV.block DIV.commentBodyHtml H4, DIV.emailBodyHtmlLight DIV.block DIV.commentBodyHtml H5, DIV.emailBodyHtmlLight DIV.block DIV.commentBodyHtml H6, DIV.commentBodyHtml H1, DIV.commentBodyHtml H2, DIV.commentBodyHtml H3, DIV.commentBodyHtml H4, DIV.commentBodyHtml H5, DIV.commentBodyHtml H6, DIV.commentBodyHtml DIV.block H1, DIV.commentBodyHtml DIV.block H2, DIV.commentBodyHtml DIV.block H3, DIV.commentBodyHtml DIV.block H4, DIV.commentBodyHtml DIV.block H5, DIV.commentBodyHtml DIV.block H6 {
+DIV.commentBodyHtml DIV.block H1, DIV.commentBodyHtml DIV.block H2, DIV.commentBodyHtml DIV.block H3, DIV.commentBodyHtml DIV.block H4, DIV.commentBodyHtml DIV.block H5, DIV.commentBodyHtml DIV.block H6, DIV.commentBodyHtml H6, DIV.commentBodyHtml H5, DIV.commentBodyHtml H4, DIV.commentBodyHtml H3, DIV.commentBodyHtml H2, DIV.commentBodyHtml H1 {
   font-size: initial;
   color: inherit;
   margin: initial;
@@ -1945,7 +1946,6 @@ DIV.commentBodyHtml PRE {
 DIV.commentBodyHtml TABLE {
   clear: both;
 }
-
 .cerb-expression-editor UL.expression-toolbar {
   width: 100%;
   border: 0;
@@ -1995,8 +1995,8 @@ DIV.commentBodyHtml TABLE {
   background-color: var(--cerb-color-background-contrast-200);
 }
 .cerb-expression-editor .expression SPAN.contact {
-  color: #007800;
-  background-color: #ebffcd;
+  color: rgb(0, 120, 0);
+  background-color: rgb(235, 255, 205);
 }
 .cerb-expression-editor .expression SPAN.contact_method {
   background-color: var(--cerb-color-background-contrast-200);
@@ -2005,12 +2005,12 @@ DIV.commentBodyHtml TABLE {
   background-color: var(--cerb-color-background-contrast-200);
 }
 .cerb-expression-editor .expression SPAN.date {
-  color: #4493e0;
-  background-color: #d9efff;
+  color: rgb(68, 147, 224);
+  background-color: rgb(217, 239, 255);
 }
 .cerb-expression-editor .expression SPAN.duration {
-  color: #bc7914;
-  background-color: #ffe410;
+  color: rgb(188, 121, 20);
+  background-color: rgb(255, 228, 16);
 }
 .cerb-expression-editor .expression SPAN.entity {
   background-color: var(--cerb-color-background-contrast-200);
@@ -2037,16 +2037,16 @@ DIV.commentBodyHtml TABLE {
   background-color: var(--cerb-color-background-contrast-200);
 }
 .cerb-expression-editor .expression SPAN.temperature {
-  color: #d4041e;
-  background-color: #f5c8c8;
+  color: rgb(212, 4, 30);
+  background-color: rgb(245, 200, 200);
 }
 .cerb-expression-editor .expression SPAN.time {
-  color: #ff8000;
-  background-color: #fdeec1;
+  color: rgb(255, 128, 0);
+  background-color: rgb(253, 238, 193);
 }
 .cerb-expression-editor .expression SPAN.worker {
-  color: #a93fff;
-  background-color: #e9d9ff;
+  color: rgb(169, 63, 255);
+  background-color: rgb(233, 217, 255);
 }
 
 div.cerb-uploads p {
@@ -2157,7 +2157,7 @@ div.cerb-uploads p.failure {
 
 .ui-dialog .ui-dialog-titlebar-minmax {
   position: absolute;
-  right: 2.0em;
+  right: 2em;
   top: 50%;
   width: 20px;
   margin: -10px 0 0 0;
@@ -2722,13 +2722,11 @@ svg.cerb-spinner circle {
   }
 }
 @keyframes cerb-spinner-circle-animation {
-  0%,
-  25% {
+  0%, 25% {
     stroke-dashoffset: 280;
     transform: rotate(0);
   }
-  50%,
-  75% {
+  50%, 75% {
     stroke-dashoffset: 75;
     transform: rotate(45deg);
   }
@@ -2772,10 +2770,8 @@ div.cerb-board div.cerb-board-columns {
 div.cerb-board .cerb-board-columns-set {
   width: 100%;
   overflow-x: auto;
-  -ms-overflow-style: -ms-autohiding-scrollbar;
-  /* IE and Edge */
-  scrollbar-width: none;
-  /* Firefox */
+  -ms-overflow-style: -ms-autohiding-scrollbar; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
 div.cerb-board .cerb-board-columns-set::-webkit-scrollbar {
   display: none;
@@ -2916,7 +2912,7 @@ TABLE.cerb-widget-data-table .cerb-sheet--row-title {
 }
 
 .ui-widget-header {
-  background: #5c9ccc none;
+  background: rgb(92, 156, 204) none;
 }
 
 .ui-widget.ui-widget-content {
@@ -2925,31 +2921,30 @@ TABLE.cerb-widget-data-table .cerb-sheet--row-title {
 
 .ui-widget-overlay {
   background: var(--cerb-color-background-overlay) none;
-  opacity: .3;
-  filter: Alpha(Opacity=30);
-  /* support: IE8 */
+  opacity: 0.3;
+  filter: Alpha(Opacity=30); /* support: IE8 */
 }
 
 .ui-state-default, .ui-widget-content .ui-state-default {
-  background: #e8f2fe none;
+  background: rgb(232, 242, 254) none;
   font-weight: normal;
 }
 
 .ui-state-hover, .ui-widget-content .ui-state-hover, .ui-state-focus, .ui-widget-content .ui-state-focus {
-  background: #d0e5f5 none;
+  background: rgb(208, 229, 245) none;
 }
 
 .ui-state-active, .ui-widget-content .ui-state-active {
-  background: #f5f8f9 none;
+  background: rgb(245, 248, 249) none;
   font-weight: bold;
 }
 
 .ui-state-highlight, .ui-widget-content .ui-state-highlight {
-  background: #fbec88 none;
+  background: rgb(251, 236, 136) none;
 }
 
 .ui-state-error, .ui-widget-content .ui-state-error {
-  background: #fef1ec none;
+  background: rgb(254, 241, 236) none;
 }
 
 .ui-helper-clearfix:before, .ui-helper-clearfix:after {
@@ -3074,7 +3069,7 @@ UL.ui-autocomplete.ui-menu li.ui-menu-item.ui-state-focus {
 }
 
 .ui-dialog .ui-dialog-titlebar {
-  background-color: #557de6;
+  background-color: rgb(85, 125, 230);
   border: 0;
   font-size: 16px;
   font-weight: bold;
@@ -3551,7 +3546,7 @@ UL.ui-autocomplete.ui-menu li.ui-menu-item.ui-state-focus {
 }
 
 @font-face {
-  font-family: 'Glyphicons Regular';
+  font-family: "Glyphicons Regular";
   src: url("../fonts/glyphicons-regular.eot");
   src: url("../fonts/glyphicons-regular.eot?#iefix") format("embedded-opentype"), url("../fonts/glyphicons-regular.woff2") format("woff2"), url("../fonts/glyphicons-regular.woff") format("woff"), url("../fonts/glyphicons-regular.ttf") format("truetype"), url("../fonts/glyphicons-regular.svg#glyphiconsregular") format("svg");
 }
@@ -3559,7 +3554,7 @@ UL.ui-autocomplete.ui-menu li.ui-menu-item.ui-state-focus {
   position: relative;
   top: 1px;
   display: inline-block;
-  font-family: 'Glyphicons Regular';
+  font-family: "Glyphicons Regular";
   font-style: normal;
   font-weight: normal;
   line-height: 1;
@@ -3636,2443 +3631,2443 @@ UL.ui-autocomplete.ui-menu li.ui-menu-item.ui-state-focus {
 }
 
 .glyphicons-glass:before {
-  content: "\E001";
+  content: "\e001";
 }
 
 .glyphicons-leaf:before {
-  content: "\E002";
+  content: "\e002";
 }
 
 .glyphicons-dog:before {
-  content: "\E003";
+  content: "\e003";
 }
 
 .glyphicons-user:before {
-  content: "\E004";
+  content: "\e004";
 }
 
 .glyphicons-girl:before {
-  content: "\E005";
+  content: "\e005";
 }
 
 .glyphicons-car:before {
-  content: "\E006";
+  content: "\e006";
 }
 
 .glyphicons-user-add:before {
-  content: "\E007";
+  content: "\e007";
 }
 
 .glyphicons-user-remove:before {
-  content: "\E008";
+  content: "\e008";
 }
 
 .glyphicons-film:before {
-  content: "\E009";
+  content: "\e009";
 }
 
 .glyphicons-magic:before {
-  content: "\E010";
+  content: "\e010";
 }
 
 .glyphicons-envelope:before {
-  content: "\2709";
+  content: "✉";
 }
 
 .glyphicons-camera:before {
-  content: "\E011";
+  content: "\e011";
 }
 
 .glyphicons-heart:before {
-  content: "\E013";
+  content: "\e013";
 }
 
 .glyphicons-beach-umbrella:before {
-  content: "\E014";
+  content: "\e014";
 }
 
 .glyphicons-train:before {
-  content: "\E015";
+  content: "\e015";
 }
 
 .glyphicons-print:before {
-  content: "\E016";
+  content: "\e016";
 }
 
 .glyphicons-bin:before {
-  content: "\E017";
+  content: "\e017";
 }
 
 .glyphicons-music:before {
-  content: "\E018";
+  content: "\e018";
 }
 
 .glyphicons-note:before {
-  content: "\E019";
+  content: "\e019";
 }
 
 .glyphicons-heart-empty:before {
-  content: "\E020";
+  content: "\e020";
 }
 
 .glyphicons-home:before {
-  content: "\E021";
+  content: "\e021";
 }
 
 .glyphicons-snowflake:before {
-  content: "\2744";
+  content: "❄";
 }
 
 .glyphicons-fire:before {
-  content: "\E023";
+  content: "\e023";
 }
 
 .glyphicons-magnet:before {
-  content: "\E024";
+  content: "\e024";
 }
 
 .glyphicons-parents:before {
-  content: "\E025";
+  content: "\e025";
 }
 
 .glyphicons-binoculars:before {
-  content: "\E026";
+  content: "\e026";
 }
 
 .glyphicons-road:before {
-  content: "\E027";
+  content: "\e027";
 }
 
 .glyphicons-search:before {
-  content: "\E028";
+  content: "\e028";
 }
 
 .glyphicons-cars:before {
-  content: "\E029";
+  content: "\e029";
 }
 
 .glyphicons-notes-2:before {
-  content: "\E030";
+  content: "\e030";
 }
 
 .glyphicons-pencil:before {
-  content: "\270F";
+  content: "✏";
 }
 
 .glyphicons-bus:before {
-  content: "\E032";
+  content: "\e032";
 }
 
 .glyphicons-wifi-alt:before {
-  content: "\E033";
+  content: "\e033";
 }
 
 .glyphicons-luggage:before {
-  content: "\E034";
+  content: "\e034";
 }
 
 .glyphicons-old-man:before {
-  content: "\E035";
+  content: "\e035";
 }
 
 .glyphicons-woman:before {
-  content: "\E036";
+  content: "\e036";
 }
 
 .glyphicons-file:before {
-  content: "\E037";
+  content: "\e037";
 }
 
 .glyphicons-coins:before {
-  content: "\E038";
+  content: "\e038";
 }
 
 .glyphicons-airplane:before {
-  content: "\2708";
+  content: "✈";
 }
 
 .glyphicons-notes:before {
-  content: "\E040";
+  content: "\e040";
 }
 
 .glyphicons-stats:before {
-  content: "\E041";
+  content: "\e041";
 }
 
 .glyphicons-charts:before {
-  content: "\E042";
+  content: "\e042";
 }
 
 .glyphicons-pie-chart:before {
-  content: "\E043";
+  content: "\e043";
 }
 
 .glyphicons-group:before {
-  content: "\E044";
+  content: "\e044";
 }
 
 .glyphicons-keys:before {
-  content: "\E045";
+  content: "\e045";
 }
 
 .glyphicons-calendar:before {
-  content: "\E046";
+  content: "\e046";
 }
 
 .glyphicons-router:before {
-  content: "\E047";
+  content: "\e047";
 }
 
 .glyphicons-camera-small:before {
-  content: "\E048";
+  content: "\e048";
 }
 
 .glyphicons-star-empty:before {
-  content: "\E049";
+  content: "\e049";
 }
 
 .glyphicons-star:before {
-  content: "\E050";
+  content: "\e050";
 }
 
 .glyphicons-link:before {
-  content: "\E051";
+  content: "\e051";
 }
 
 .glyphicons-eye-open:before {
-  content: "\E052";
+  content: "\e052";
 }
 
 .glyphicons-eye-close:before {
-  content: "\E053";
+  content: "\e053";
 }
 
 .glyphicons-alarm:before {
-  content: "\E054";
+  content: "\e054";
 }
 
 .glyphicons-clock:before {
-  content: "\E055";
+  content: "\e055";
 }
 
 .glyphicons-stopwatch:before {
-  content: "\E056";
+  content: "\e056";
 }
 
 .glyphicons-projector:before {
-  content: "\E057";
+  content: "\e057";
 }
 
 .glyphicons-history:before {
-  content: "\E058";
+  content: "\e058";
 }
 
 .glyphicons-truck:before {
-  content: "\E059";
+  content: "\e059";
 }
 
 .glyphicons-cargo:before {
-  content: "\E060";
+  content: "\e060";
 }
 
 .glyphicons-compass:before {
-  content: "\E061";
+  content: "\e061";
 }
 
 .glyphicons-keynote:before {
-  content: "\E062";
+  content: "\e062";
 }
 
 .glyphicons-paperclip:before {
-  content: "\E063";
+  content: "\e063";
 }
 
 .glyphicons-power:before {
-  content: "\E064";
+  content: "\e064";
 }
 
 .glyphicons-lightbulb:before {
-  content: "\E065";
+  content: "\e065";
 }
 
 .glyphicons-tag:before {
-  content: "\E066";
+  content: "\e066";
 }
 
 .glyphicons-tags:before {
-  content: "\E067";
+  content: "\e067";
 }
 
 .glyphicons-cleaning:before {
-  content: "\E068";
+  content: "\e068";
 }
 
 .glyphicons-ruler:before {
-  content: "\E069";
+  content: "\e069";
 }
 
 .glyphicons-gift:before {
-  content: "\E070";
+  content: "\e070";
 }
 
 .glyphicons-umbrella:before {
-  content: "\2602";
+  content: "☂";
 }
 
 .glyphicons-book:before {
-  content: "\E072";
+  content: "\e072";
 }
 
 .glyphicons-bookmark:before {
-  content: "\E073";
+  content: "\e073";
 }
 
 .glyphicons-wifi:before {
-  content: "\E074";
+  content: "\e074";
 }
 
 .glyphicons-cup:before {
-  content: "\E075";
+  content: "\e075";
 }
 
 .glyphicons-stroller:before {
-  content: "\E076";
+  content: "\e076";
 }
 
 .glyphicons-headphones:before {
-  content: "\E077";
+  content: "\e077";
 }
 
 .glyphicons-headset:before {
-  content: "\E078";
+  content: "\e078";
 }
 
 .glyphicons-warning-sign:before {
-  content: "\E079";
+  content: "\e079";
 }
 
 .glyphicons-signal:before {
-  content: "\E080";
+  content: "\e080";
 }
 
 .glyphicons-retweet:before {
-  content: "\E081";
+  content: "\e081";
 }
 
 .glyphicons-refresh:before {
-  content: "\E082";
+  content: "\e082";
 }
 
 .glyphicons-roundabout:before {
-  content: "\E083";
+  content: "\e083";
 }
 
 .glyphicons-random:before {
-  content: "\E084";
+  content: "\e084";
 }
 
 .glyphicons-heat:before {
-  content: "\E085";
+  content: "\e085";
 }
 
 .glyphicons-repeat:before {
-  content: "\E086";
+  content: "\e086";
 }
 
 .glyphicons-display:before {
-  content: "\E087";
+  content: "\e087";
 }
 
 .glyphicons-log-book:before {
-  content: "\E088";
+  content: "\e088";
 }
 
 .glyphicons-address-book:before {
-  content: "\E089";
+  content: "\e089";
 }
 
 .glyphicons-building:before {
-  content: "\E090";
+  content: "\e090";
 }
 
 .glyphicons-eyedropper:before {
-  content: "\E091";
+  content: "\e091";
 }
 
 .glyphicons-adjust:before {
-  content: "\E092";
+  content: "\e092";
 }
 
 .glyphicons-tint:before {
-  content: "\E093";
+  content: "\e093";
 }
 
 .glyphicons-crop:before {
-  content: "\E094";
+  content: "\e094";
 }
 
 .glyphicons-vector-path-square:before {
-  content: "\E095";
+  content: "\e095";
 }
 
 .glyphicons-vector-path-circle:before {
-  content: "\E096";
+  content: "\e096";
 }
 
 .glyphicons-vector-path-polygon:before {
-  content: "\E097";
+  content: "\e097";
 }
 
 .glyphicons-vector-path-line:before {
-  content: "\E098";
+  content: "\e098";
 }
 
 .glyphicons-vector-path-curve:before {
-  content: "\E099";
+  content: "\e099";
 }
 
 .glyphicons-vector-path-all:before {
-  content: "\E100";
+  content: "\e100";
 }
 
 .glyphicons-font:before {
-  content: "\E101";
+  content: "\e101";
 }
 
 .glyphicons-italic:before {
-  content: "\E102";
+  content: "\e102";
 }
 
 .glyphicons-bold:before {
-  content: "\E103";
+  content: "\e103";
 }
 
 .glyphicons-text-underline:before {
-  content: "\E104";
+  content: "\e104";
 }
 
 .glyphicons-text-strike:before {
-  content: "\E105";
+  content: "\e105";
 }
 
 .glyphicons-text-height:before {
-  content: "\E106";
+  content: "\e106";
 }
 
 .glyphicons-text-width:before {
-  content: "\E107";
+  content: "\e107";
 }
 
 .glyphicons-text-resize:before {
-  content: "\E108";
+  content: "\e108";
 }
 
 .glyphicons-left-indent:before {
-  content: "\E109";
+  content: "\e109";
 }
 
 .glyphicons-right-indent:before {
-  content: "\E110";
+  content: "\e110";
 }
 
 .glyphicons-align-left:before {
-  content: "\E111";
+  content: "\e111";
 }
 
 .glyphicons-align-center:before {
-  content: "\E112";
+  content: "\e112";
 }
 
 .glyphicons-align-right:before {
-  content: "\E113";
+  content: "\e113";
 }
 
 .glyphicons-justify:before {
-  content: "\E114";
+  content: "\e114";
 }
 
 .glyphicons-list:before {
-  content: "\E115";
+  content: "\e115";
 }
 
 .glyphicons-text-smaller:before {
-  content: "\E116";
+  content: "\e116";
 }
 
 .glyphicons-text-bigger:before {
-  content: "\E117";
+  content: "\e117";
 }
 
 .glyphicons-embed:before {
-  content: "\E118";
+  content: "\e118";
 }
 
 .glyphicons-embed-close:before {
-  content: "\E119";
+  content: "\e119";
 }
 
 .glyphicons-table:before {
-  content: "\E120";
+  content: "\e120";
 }
 
 .glyphicons-message-full:before {
-  content: "\E121";
+  content: "\e121";
 }
 
 .glyphicons-message-empty:before {
-  content: "\E122";
+  content: "\e122";
 }
 
 .glyphicons-message-in:before {
-  content: "\E123";
+  content: "\e123";
 }
 
 .glyphicons-message-out:before {
-  content: "\E124";
+  content: "\e124";
 }
 
 .glyphicons-message-plus:before {
-  content: "\E125";
+  content: "\e125";
 }
 
 .glyphicons-message-minus:before {
-  content: "\E126";
+  content: "\e126";
 }
 
 .glyphicons-message-ban:before {
-  content: "\E127";
+  content: "\e127";
 }
 
 .glyphicons-message-flag:before {
-  content: "\E128";
+  content: "\e128";
 }
 
 .glyphicons-message-lock:before {
-  content: "\E129";
+  content: "\e129";
 }
 
 .glyphicons-message-new:before {
-  content: "\E130";
+  content: "\e130";
 }
 
 .glyphicons-inbox:before {
-  content: "\E131";
+  content: "\e131";
 }
 
 .glyphicons-inbox-plus:before {
-  content: "\E132";
+  content: "\e132";
 }
 
 .glyphicons-inbox-minus:before {
-  content: "\E133";
+  content: "\e133";
 }
 
 .glyphicons-inbox-lock:before {
-  content: "\E134";
+  content: "\e134";
 }
 
 .glyphicons-inbox-in:before {
-  content: "\E135";
+  content: "\e135";
 }
 
 .glyphicons-inbox-out:before {
-  content: "\E136";
+  content: "\e136";
 }
 
 .glyphicons-cogwheel:before {
-  content: "\E137";
+  content: "\e137";
 }
 
 .glyphicons-cogwheels:before {
-  content: "\E138";
+  content: "\e138";
 }
 
 .glyphicons-picture:before {
-  content: "\E139";
+  content: "\e139";
 }
 
 .glyphicons-adjust-alt:before {
-  content: "\E140";
+  content: "\e140";
 }
 
 .glyphicons-database-lock:before {
-  content: "\E141";
+  content: "\e141";
 }
 
 .glyphicons-database-plus:before {
-  content: "\E142";
+  content: "\e142";
 }
 
 .glyphicons-database-minus:before {
-  content: "\E143";
+  content: "\e143";
 }
 
 .glyphicons-database-ban:before {
-  content: "\E144";
+  content: "\e144";
 }
 
 .glyphicons-folder-open:before {
-  content: "\E145";
+  content: "\e145";
 }
 
 .glyphicons-folder-plus:before {
-  content: "\E146";
+  content: "\e146";
 }
 
 .glyphicons-folder-minus:before {
-  content: "\E147";
+  content: "\e147";
 }
 
 .glyphicons-folder-lock:before {
-  content: "\E148";
+  content: "\e148";
 }
 
 .glyphicons-folder-flag:before {
-  content: "\E149";
+  content: "\e149";
 }
 
 .glyphicons-folder-new:before {
-  content: "\E150";
+  content: "\e150";
 }
 
 .glyphicons-edit:before {
-  content: "\E151";
+  content: "\e151";
 }
 
 .glyphicons-new-window:before {
-  content: "\E152";
+  content: "\e152";
 }
 
 .glyphicons-check:before {
-  content: "\E153";
+  content: "\e153";
 }
 
 .glyphicons-unchecked:before {
-  content: "\E154";
+  content: "\e154";
 }
 
 .glyphicons-more-windows:before {
-  content: "\E155";
+  content: "\e155";
 }
 
 .glyphicons-show-big-thumbnails:before {
-  content: "\E156";
+  content: "\e156";
 }
 
 .glyphicons-show-thumbnails:before {
-  content: "\E157";
+  content: "\e157";
 }
 
 .glyphicons-show-thumbnails-with-lines:before {
-  content: "\E158";
+  content: "\e158";
 }
 
 .glyphicons-show-lines:before {
-  content: "\E159";
+  content: "\e159";
 }
 
 .glyphicons-playlist:before {
-  content: "\E160";
+  content: "\e160";
 }
 
 .glyphicons-imac:before {
-  content: "\E161";
+  content: "\e161";
 }
 
 .glyphicons-macbook:before {
-  content: "\E162";
+  content: "\e162";
 }
 
 .glyphicons-ipad:before {
-  content: "\E163";
+  content: "\e163";
 }
 
 .glyphicons-iphone:before {
-  content: "\E164";
+  content: "\e164";
 }
 
 .glyphicons-iphone-transfer:before {
-  content: "\E165";
+  content: "\e165";
 }
 
 .glyphicons-iphone-exchange:before {
-  content: "\E166";
+  content: "\e166";
 }
 
 .glyphicons-ipod:before {
-  content: "\E167";
+  content: "\e167";
 }
 
 .glyphicons-ipod-shuffle:before {
-  content: "\E168";
+  content: "\e168";
 }
 
 .glyphicons-ear-plugs:before {
-  content: "\E169";
+  content: "\e169";
 }
 
 .glyphicons-record:before {
-  content: "\E170";
+  content: "\e170";
 }
 
 .glyphicons-step-backward:before {
-  content: "\E171";
+  content: "\e171";
 }
 
 .glyphicons-fast-backward:before {
-  content: "\E172";
+  content: "\e172";
 }
 
 .glyphicons-rewind:before {
-  content: "\E173";
+  content: "\e173";
 }
 
 .glyphicons-play:before {
-  content: "\E174";
+  content: "\e174";
 }
 
 .glyphicons-pause:before {
-  content: "\E175";
+  content: "\e175";
 }
 
 .glyphicons-stop:before {
-  content: "\E176";
+  content: "\e176";
 }
 
 .glyphicons-forward:before {
-  content: "\E177";
+  content: "\e177";
 }
 
 .glyphicons-fast-forward:before {
-  content: "\E178";
+  content: "\e178";
 }
 
 .glyphicons-step-forward:before {
-  content: "\E179";
+  content: "\e179";
 }
 
 .glyphicons-eject:before {
-  content: "\E180";
+  content: "\e180";
 }
 
 .glyphicons-facetime-video:before {
-  content: "\E181";
+  content: "\e181";
 }
 
 .glyphicons-download-alt:before {
-  content: "\E182";
+  content: "\e182";
 }
 
 .glyphicons-mute:before {
-  content: "\E183";
+  content: "\e183";
 }
 
 .glyphicons-volume-down:before {
-  content: "\E184";
+  content: "\e184";
 }
 
 .glyphicons-volume-up:before {
-  content: "\E185";
+  content: "\e185";
 }
 
 .glyphicons-screenshot:before {
-  content: "\E186";
+  content: "\e186";
 }
 
 .glyphicons-move:before {
-  content: "\E187";
+  content: "\e187";
 }
 
 .glyphicons-more:before {
-  content: "\E188";
+  content: "\e188";
 }
 
 .glyphicons-brightness-reduce:before {
-  content: "\E189";
+  content: "\e189";
 }
 
 .glyphicons-brightness-increase:before {
-  content: "\E190";
+  content: "\e190";
 }
 
 .glyphicons-circle-plus:before {
-  content: "\E191";
+  content: "\e191";
 }
 
 .glyphicons-circle-minus:before {
-  content: "\E192";
+  content: "\e192";
 }
 
 .glyphicons-circle-remove:before {
-  content: "\E193";
+  content: "\e193";
 }
 
 .glyphicons-circle-ok:before {
-  content: "\E194";
+  content: "\e194";
 }
 
 .glyphicons-circle-question-mark:before {
-  content: "\E195";
+  content: "\e195";
 }
 
 .glyphicons-circle-info:before {
-  content: "\E196";
+  content: "\e196";
 }
 
 .glyphicons-circle-exclamation-mark:before {
-  content: "\E197";
+  content: "\e197";
 }
 
 .glyphicons-remove:before {
-  content: "\E198";
+  content: "\e198";
 }
 
 .glyphicons-ok:before {
-  content: "\E199";
+  content: "\e199";
 }
 
 .glyphicons-ban:before {
-  content: "\E200";
+  content: "\e200";
 }
 
 .glyphicons-download:before {
-  content: "\E201";
+  content: "\e201";
 }
 
 .glyphicons-upload:before {
-  content: "\E202";
+  content: "\e202";
 }
 
 .glyphicons-shopping-cart:before {
-  content: "\E203";
+  content: "\e203";
 }
 
 .glyphicons-lock:before {
-  content: "\E204";
+  content: "\e204";
 }
 
 .glyphicons-unlock:before {
-  content: "\E205";
+  content: "\e205";
 }
 
 .glyphicons-electricity:before {
-  content: "\E206";
+  content: "\e206";
 }
 
 .glyphicons-ok-2:before {
-  content: "\E207";
+  content: "\e207";
 }
 
 .glyphicons-remove-2:before {
-  content: "\E208";
+  content: "\e208";
 }
 
 .glyphicons-cart-out:before {
-  content: "\E209";
+  content: "\e209";
 }
 
 .glyphicons-cart-in:before {
-  content: "\E210";
+  content: "\e210";
 }
 
 .glyphicons-left-arrow:before {
-  content: "\E211";
+  content: "\e211";
 }
 
 .glyphicons-right-arrow:before {
-  content: "\E212";
+  content: "\e212";
 }
 
 .glyphicons-down-arrow:before {
-  content: "\E213";
+  content: "\e213";
 }
 
 .glyphicons-up-arrow:before {
-  content: "\E214";
+  content: "\e214";
 }
 
 .glyphicons-resize-small:before {
-  content: "\E215";
+  content: "\e215";
 }
 
 .glyphicons-resize-full:before {
-  content: "\E216";
+  content: "\e216";
 }
 
 .glyphicons-circle-arrow-left:before {
-  content: "\E217";
+  content: "\e217";
 }
 
 .glyphicons-circle-arrow-right:before {
-  content: "\E218";
+  content: "\e218";
 }
 
 .glyphicons-circle-arrow-top:before {
-  content: "\E219";
+  content: "\e219";
 }
 
 .glyphicons-circle-arrow-down:before {
-  content: "\E220";
+  content: "\e220";
 }
 
 .glyphicons-play-button:before {
-  content: "\E221";
+  content: "\e221";
 }
 
 .glyphicons-unshare:before {
-  content: "\E222";
+  content: "\e222";
 }
 
 .glyphicons-share:before {
-  content: "\E223";
+  content: "\e223";
 }
 
 .glyphicons-chevron-right:before {
-  content: "\E224";
+  content: "\e224";
 }
 
 .glyphicons-chevron-left:before {
-  content: "\E225";
+  content: "\e225";
 }
 
 .glyphicons-bluetooth:before {
-  content: "\E226";
+  content: "\e226";
 }
 
 .glyphicons-euro:before {
-  content: "\20AC";
+  content: "€";
 }
 
 .glyphicons-usd:before {
-  content: "\E228";
+  content: "\e228";
 }
 
 .glyphicons-gbp:before {
-  content: "\E229";
+  content: "\e229";
 }
 
 .glyphicons-retweet-2:before {
-  content: "\E230";
+  content: "\e230";
 }
 
 .glyphicons-moon:before {
-  content: "\E231";
+  content: "\e231";
 }
 
 .glyphicons-sun:before {
-  content: "\2609";
+  content: "☉";
 }
 
 .glyphicons-cloud:before {
-  content: "\2601";
+  content: "☁";
 }
 
 .glyphicons-direction:before {
-  content: "\E234";
+  content: "\e234";
 }
 
 .glyphicons-brush:before {
-  content: "\E235";
+  content: "\e235";
 }
 
 .glyphicons-pen:before {
-  content: "\E236";
+  content: "\e236";
 }
 
 .glyphicons-zoom-in:before {
-  content: "\E237";
+  content: "\e237";
 }
 
 .glyphicons-zoom-out:before {
-  content: "\E238";
+  content: "\e238";
 }
 
 .glyphicons-pin:before {
-  content: "\E239";
+  content: "\e239";
 }
 
 .glyphicons-albums:before {
-  content: "\E240";
+  content: "\e240";
 }
 
 .glyphicons-rotation-lock:before {
-  content: "\E241";
+  content: "\e241";
 }
 
 .glyphicons-flash:before {
-  content: "\E242";
+  content: "\e242";
 }
 
 .glyphicons-google-maps:before {
-  content: "\E243";
+  content: "\e243";
 }
 
 .glyphicons-anchor:before {
-  content: "\2693";
+  content: "⚓";
 }
 
 .glyphicons-conversation:before {
-  content: "\E245";
+  content: "\e245";
 }
 
 .glyphicons-chat:before {
-  content: "\E246";
+  content: "\e246";
 }
 
 .glyphicons-male:before {
-  content: "\E247";
+  content: "\e247";
 }
 
 .glyphicons-female:before {
-  content: "\E248";
+  content: "\e248";
 }
 
 .glyphicons-asterisk:before {
-  content: "\002A";
+  content: "*";
 }
 
 .glyphicons-divide:before {
-  content: "\00F7";
+  content: "÷";
 }
 
 .glyphicons-snorkel-diving:before {
-  content: "\E251";
+  content: "\e251";
 }
 
 .glyphicons-scuba-diving:before {
-  content: "\E252";
+  content: "\e252";
 }
 
 .glyphicons-oxygen-bottle:before {
-  content: "\E253";
+  content: "\e253";
 }
 
 .glyphicons-fins:before {
-  content: "\E254";
+  content: "\e254";
 }
 
 .glyphicons-fishes:before {
-  content: "\E255";
+  content: "\e255";
 }
 
 .glyphicons-boat:before {
-  content: "\E256";
+  content: "\e256";
 }
 
 .glyphicons-delete:before {
-  content: "\E257";
+  content: "\e257";
 }
 
 .glyphicons-sheriffs-star:before {
-  content: "\E258";
+  content: "\e258";
 }
 
 .glyphicons-qrcode:before {
-  content: "\E259";
+  content: "\e259";
 }
 
 .glyphicons-barcode:before {
-  content: "\E260";
+  content: "\e260";
 }
 
 .glyphicons-pool:before {
-  content: "\E261";
+  content: "\e261";
 }
 
 .glyphicons-buoy:before {
-  content: "\E262";
+  content: "\e262";
 }
 
 .glyphicons-spade:before {
-  content: "\E263";
+  content: "\e263";
 }
 
 .glyphicons-bank:before {
-  content: "\E264";
+  content: "\e264";
 }
 
 .glyphicons-vcard:before {
-  content: "\E265";
+  content: "\e265";
 }
 
 .glyphicons-electrical-plug:before {
-  content: "\E266";
+  content: "\e266";
 }
 
 .glyphicons-flag:before {
-  content: "\E267";
+  content: "\e267";
 }
 
 .glyphicons-credit-card:before {
-  content: "\E268";
+  content: "\e268";
 }
 
 .glyphicons-keyboard-wireless:before {
-  content: "\E269";
+  content: "\e269";
 }
 
 .glyphicons-keyboard-wired:before {
-  content: "\E270";
+  content: "\e270";
 }
 
 .glyphicons-shield:before {
-  content: "\E271";
+  content: "\e271";
 }
 
 .glyphicons-ring:before {
-  content: "\02DA";
+  content: "˚";
 }
 
 .glyphicons-cake:before {
-  content: "\E273";
+  content: "\e273";
 }
 
 .glyphicons-drink:before {
-  content: "\E274";
+  content: "\e274";
 }
 
 .glyphicons-beer:before {
-  content: "\E275";
+  content: "\e275";
 }
 
 .glyphicons-fast-food:before {
-  content: "\E276";
+  content: "\e276";
 }
 
 .glyphicons-cutlery:before {
-  content: "\E277";
+  content: "\e277";
 }
 
 .glyphicons-pizza:before {
-  content: "\E278";
+  content: "\e278";
 }
 
 .glyphicons-birthday-cake:before {
-  content: "\E279";
+  content: "\e279";
 }
 
 .glyphicons-tablet:before {
-  content: "\E280";
+  content: "\e280";
 }
 
 .glyphicons-settings:before {
-  content: "\E281";
+  content: "\e281";
 }
 
 .glyphicons-bullets:before {
-  content: "\E282";
+  content: "\e282";
 }
 
 .glyphicons-cardio:before {
-  content: "\E283";
+  content: "\e283";
 }
 
 .glyphicons-t-shirt:before {
-  content: "\E284";
+  content: "\e284";
 }
 
 .glyphicons-pants:before {
-  content: "\E285";
+  content: "\e285";
 }
 
 .glyphicons-sweater:before {
-  content: "\E286";
+  content: "\e286";
 }
 
 .glyphicons-fabric:before {
-  content: "\E287";
+  content: "\e287";
 }
 
 .glyphicons-leather:before {
-  content: "\E288";
+  content: "\e288";
 }
 
 .glyphicons-scissors:before {
-  content: "\E289";
+  content: "\e289";
 }
 
 .glyphicons-bomb:before {
-  content: "\E290";
+  content: "\e290";
 }
 
 .glyphicons-skull:before {
-  content: "\E291";
+  content: "\e291";
 }
 
 .glyphicons-celebration:before {
-  content: "\E292";
+  content: "\e292";
 }
 
 .glyphicons-tea-kettle:before {
-  content: "\E293";
+  content: "\e293";
 }
 
 .glyphicons-french-press:before {
-  content: "\E294";
+  content: "\e294";
 }
 
 .glyphicons-coffee-cup:before {
-  content: "\E295";
+  content: "\e295";
 }
 
 .glyphicons-pot:before {
-  content: "\E296";
+  content: "\e296";
 }
 
 .glyphicons-grater:before {
-  content: "\E297";
+  content: "\e297";
 }
 
 .glyphicons-kettle:before {
-  content: "\E298";
+  content: "\e298";
 }
 
 .glyphicons-hospital:before {
-  content: "\E299";
+  content: "\e299";
 }
 
 .glyphicons-hospital-h:before {
-  content: "\E300";
+  content: "\e300";
 }
 
 .glyphicons-microphone:before {
-  content: "\E301";
+  content: "\e301";
 }
 
 .glyphicons-webcam:before {
-  content: "\E302";
+  content: "\e302";
 }
 
 .glyphicons-temple-christianity-church:before {
-  content: "\E303";
+  content: "\e303";
 }
 
 .glyphicons-temple-islam:before {
-  content: "\E304";
+  content: "\e304";
 }
 
 .glyphicons-temple-hindu:before {
-  content: "\E305";
+  content: "\e305";
 }
 
 .glyphicons-temple-buddhist:before {
-  content: "\E306";
+  content: "\e306";
 }
 
 .glyphicons-bicycle:before {
-  content: "\E307";
+  content: "\e307";
 }
 
 .glyphicons-life-preserver:before {
-  content: "\E308";
+  content: "\e308";
 }
 
 .glyphicons-share-alt:before {
-  content: "\E309";
+  content: "\e309";
 }
 
 .glyphicons-comments:before {
-  content: "\E310";
+  content: "\e310";
 }
 
 .glyphicons-flower:before {
-  content: "\2698";
+  content: "⚘";
 }
 
 .glyphicons-baseball:before {
-  content: "\26BE";
+  content: "⚾";
 }
 
 .glyphicons-rugby:before {
-  content: "\E313";
+  content: "\e313";
 }
 
 .glyphicons-ax:before {
-  content: "\E314";
+  content: "\e314";
 }
 
 .glyphicons-table-tennis:before {
-  content: "\E315";
+  content: "\e315";
 }
 
 .glyphicons-bowling:before {
-  content: "\E316";
+  content: "\e316";
 }
 
 .glyphicons-tree-conifer:before {
-  content: "\E317";
+  content: "\e317";
 }
 
 .glyphicons-tree-deciduous:before {
-  content: "\E318";
+  content: "\e318";
 }
 
 .glyphicons-more-items:before {
-  content: "\E319";
+  content: "\e319";
 }
 
 .glyphicons-sort:before {
-  content: "\E320";
+  content: "\e320";
 }
 
 .glyphicons-filter:before {
-  content: "\E321";
+  content: "\e321";
 }
 
 .glyphicons-gamepad:before {
-  content: "\E322";
+  content: "\e322";
 }
 
 .glyphicons-playing-dices:before {
-  content: "\E323";
+  content: "\e323";
 }
 
 .glyphicons-calculator:before {
-  content: "\E324";
+  content: "\e324";
 }
 
 .glyphicons-tie:before {
-  content: "\E325";
+  content: "\e325";
 }
 
 .glyphicons-wallet:before {
-  content: "\E326";
+  content: "\e326";
 }
 
 .glyphicons-piano:before {
-  content: "\E327";
+  content: "\e327";
 }
 
 .glyphicons-sampler:before {
-  content: "\E328";
+  content: "\e328";
 }
 
 .glyphicons-podium:before {
-  content: "\E329";
+  content: "\e329";
 }
 
 .glyphicons-soccer-ball:before {
-  content: "\E330";
+  content: "\e330";
 }
 
 .glyphicons-blog:before {
-  content: "\E331";
+  content: "\e331";
 }
 
 .glyphicons-dashboard:before {
-  content: "\E332";
+  content: "\e332";
 }
 
 .glyphicons-certificate:before {
-  content: "\E333";
+  content: "\e333";
 }
 
 .glyphicons-bell:before {
-  content: "\E334";
+  content: "\e334";
 }
 
 .glyphicons-candle:before {
-  content: "\E335";
+  content: "\e335";
 }
 
 .glyphicons-pushpin:before {
-  content: "\E336";
+  content: "\e336";
 }
 
 .glyphicons-iphone-shake:before {
-  content: "\E337";
+  content: "\e337";
 }
 
 .glyphicons-pin-flag:before {
-  content: "\E338";
+  content: "\e338";
 }
 
 .glyphicons-turtle:before {
-  content: "\E339";
+  content: "\e339";
 }
 
 .glyphicons-rabbit:before {
-  content: "\E340";
+  content: "\e340";
 }
 
 .glyphicons-globe:before {
-  content: "\E341";
+  content: "\e341";
 }
 
 .glyphicons-briefcase:before {
-  content: "\E342";
+  content: "\e342";
 }
 
 .glyphicons-hdd:before {
-  content: "\E343";
+  content: "\e343";
 }
 
 .glyphicons-thumbs-up:before {
-  content: "\E344";
+  content: "\e344";
 }
 
 .glyphicons-thumbs-down:before {
-  content: "\E345";
+  content: "\e345";
 }
 
 .glyphicons-hand-right:before {
-  content: "\E346";
+  content: "\e346";
 }
 
 .glyphicons-hand-left:before {
-  content: "\E347";
+  content: "\e347";
 }
 
 .glyphicons-hand-up:before {
-  content: "\E348";
+  content: "\e348";
 }
 
 .glyphicons-hand-down:before {
-  content: "\E349";
+  content: "\e349";
 }
 
 .glyphicons-fullscreen:before {
-  content: "\E350";
+  content: "\e350";
 }
 
 .glyphicons-shopping-bag:before {
-  content: "\E351";
+  content: "\e351";
 }
 
 .glyphicons-book-open:before {
-  content: "\E352";
+  content: "\e352";
 }
 
 .glyphicons-nameplate:before {
-  content: "\E353";
+  content: "\e353";
 }
 
 .glyphicons-nameplate-alt:before {
-  content: "\E354";
+  content: "\e354";
 }
 
 .glyphicons-vases:before {
-  content: "\E355";
+  content: "\e355";
 }
 
 .glyphicons-bullhorn:before {
-  content: "\E356";
+  content: "\e356";
 }
 
 .glyphicons-dumbbell:before {
-  content: "\E357";
+  content: "\e357";
 }
 
 .glyphicons-suitcase:before {
-  content: "\E358";
+  content: "\e358";
 }
 
 .glyphicons-file-import:before {
-  content: "\E359";
+  content: "\e359";
 }
 
 .glyphicons-file-export:before {
-  content: "\E360";
+  content: "\e360";
 }
 
 .glyphicons-bug:before {
-  content: "\E361";
+  content: "\e361";
 }
 
 .glyphicons-crown:before {
-  content: "\E362";
+  content: "\e362";
 }
 
 .glyphicons-smoking:before {
-  content: "\E363";
+  content: "\e363";
 }
 
 .glyphicons-cloud-download:before {
-  content: "\E364";
+  content: "\e364";
 }
 
 .glyphicons-cloud-upload:before {
-  content: "\E365";
+  content: "\e365";
 }
 
 .glyphicons-restart:before {
-  content: "\E366";
+  content: "\e366";
 }
 
 .glyphicons-security-camera:before {
-  content: "\E367";
+  content: "\e367";
 }
 
 .glyphicons-expand:before {
-  content: "\E368";
+  content: "\e368";
 }
 
 .glyphicons-collapse:before {
-  content: "\E369";
+  content: "\e369";
 }
 
 .glyphicons-collapse-top:before {
-  content: "\E370";
+  content: "\e370";
 }
 
 .glyphicons-globe-af:before {
-  content: "\E371";
+  content: "\e371";
 }
 
 .glyphicons-global:before {
-  content: "\E372";
+  content: "\e372";
 }
 
 .glyphicons-spray:before {
-  content: "\E373";
+  content: "\e373";
 }
 
 .glyphicons-nails:before {
-  content: "\E374";
+  content: "\e374";
 }
 
 .glyphicons-claw-hammer:before {
-  content: "\E375";
+  content: "\e375";
 }
 
 .glyphicons-classic-hammer:before {
-  content: "\E376";
+  content: "\e376";
 }
 
 .glyphicons-hand-saw:before {
-  content: "\E377";
+  content: "\e377";
 }
 
 .glyphicons-riflescope:before {
-  content: "\E378";
+  content: "\e378";
 }
 
 .glyphicons-electrical-socket-eu:before {
-  content: "\E379";
+  content: "\e379";
 }
 
 .glyphicons-electrical-socket-us:before {
-  content: "\E380";
+  content: "\e380";
 }
 
 .glyphicons-message-forward:before {
-  content: "\E381";
+  content: "\e381";
 }
 
 .glyphicons-coat-hanger:before {
-  content: "\E382";
+  content: "\e382";
 }
 
 .glyphicons-dress:before {
-  content: "\E383";
+  content: "\e383";
 }
 
 .glyphicons-bathrobe:before {
-  content: "\E384";
+  content: "\e384";
 }
 
 .glyphicons-shirt:before {
-  content: "\E385";
+  content: "\e385";
 }
 
 .glyphicons-underwear:before {
-  content: "\E386";
+  content: "\e386";
 }
 
 .glyphicons-log-in:before {
-  content: "\E387";
+  content: "\e387";
 }
 
 .glyphicons-log-out:before {
-  content: "\E388";
+  content: "\e388";
 }
 
 .glyphicons-exit:before {
-  content: "\E389";
+  content: "\e389";
 }
 
 .glyphicons-new-window-alt:before {
-  content: "\E390";
+  content: "\e390";
 }
 
 .glyphicons-video-sd:before {
-  content: "\E391";
+  content: "\e391";
 }
 
 .glyphicons-video-hd:before {
-  content: "\E392";
+  content: "\e392";
 }
 
 .glyphicons-subtitles:before {
-  content: "\E393";
+  content: "\e393";
 }
 
 .glyphicons-sound-stereo:before {
-  content: "\E394";
+  content: "\e394";
 }
 
 .glyphicons-sound-dolby:before {
-  content: "\E395";
+  content: "\e395";
 }
 
 .glyphicons-sound-5-1:before {
-  content: "\E396";
+  content: "\e396";
 }
 
 .glyphicons-sound-6-1:before {
-  content: "\E397";
+  content: "\e397";
 }
 
 .glyphicons-sound-7-1:before {
-  content: "\E398";
+  content: "\e398";
 }
 
 .glyphicons-copyright-mark:before {
-  content: "\E399";
+  content: "\e399";
 }
 
 .glyphicons-registration-mark:before {
-  content: "\E400";
+  content: "\e400";
 }
 
 .glyphicons-radar:before {
-  content: "\E401";
+  content: "\e401";
 }
 
 .glyphicons-skateboard:before {
-  content: "\E402";
+  content: "\e402";
 }
 
 .glyphicons-golf-course:before {
-  content: "\E403";
+  content: "\e403";
 }
 
 .glyphicons-sorting:before {
-  content: "\E404";
+  content: "\e404";
 }
 
 .glyphicons-sort-by-alphabet:before {
-  content: "\E405";
+  content: "\e405";
 }
 
 .glyphicons-sort-by-alphabet-alt:before {
-  content: "\E406";
+  content: "\e406";
 }
 
 .glyphicons-sort-by-order:before {
-  content: "\E407";
+  content: "\e407";
 }
 
 .glyphicons-sort-by-order-alt:before {
-  content: "\E408";
+  content: "\e408";
 }
 
 .glyphicons-sort-by-attributes:before {
-  content: "\E409";
+  content: "\e409";
 }
 
 .glyphicons-sort-by-attributes-alt:before {
-  content: "\E410";
+  content: "\e410";
 }
 
 .glyphicons-compressed:before {
-  content: "\E411";
+  content: "\e411";
 }
 
 .glyphicons-package:before {
-  content: "\E412";
+  content: "\e412";
 }
 
 .glyphicons-cloud-plus:before {
-  content: "\E413";
+  content: "\e413";
 }
 
 .glyphicons-cloud-minus:before {
-  content: "\E414";
+  content: "\e414";
 }
 
 .glyphicons-disk-save:before {
-  content: "\E415";
+  content: "\e415";
 }
 
 .glyphicons-disk-open:before {
-  content: "\E416";
+  content: "\e416";
 }
 
 .glyphicons-disk-saved:before {
-  content: "\E417";
+  content: "\e417";
 }
 
 .glyphicons-disk-remove:before {
-  content: "\E418";
+  content: "\e418";
 }
 
 .glyphicons-disk-import:before {
-  content: "\E419";
+  content: "\e419";
 }
 
 .glyphicons-disk-export:before {
-  content: "\E420";
+  content: "\e420";
 }
 
 .glyphicons-tower:before {
-  content: "\E421";
+  content: "\e421";
 }
 
 .glyphicons-send:before {
-  content: "\E422";
+  content: "\e422";
 }
 
 .glyphicons-git-branch:before {
-  content: "\E423";
+  content: "\e423";
 }
 
 .glyphicons-git-create:before {
-  content: "\E424";
+  content: "\e424";
 }
 
 .glyphicons-git-private:before {
-  content: "\E425";
+  content: "\e425";
 }
 
 .glyphicons-git-delete:before {
-  content: "\E426";
+  content: "\e426";
 }
 
 .glyphicons-git-merge:before {
-  content: "\E427";
+  content: "\e427";
 }
 
 .glyphicons-git-pull-request:before {
-  content: "\E428";
+  content: "\e428";
 }
 
 .glyphicons-git-compare:before {
-  content: "\E429";
+  content: "\e429";
 }
 
 .glyphicons-git-commit:before {
-  content: "\E430";
+  content: "\e430";
 }
 
 .glyphicons-construction-cone:before {
-  content: "\E431";
+  content: "\e431";
 }
 
 .glyphicons-shoe-steps:before {
-  content: "\E432";
+  content: "\e432";
 }
 
 .glyphicons-plus:before {
-  content: "\002B";
+  content: "+";
 }
 
 .glyphicons-minus:before {
-  content: "\2212";
+  content: "−";
 }
 
 .glyphicons-redo:before {
-  content: "\E435";
+  content: "\e435";
 }
 
 .glyphicons-undo:before {
-  content: "\E436";
+  content: "\e436";
 }
 
 .glyphicons-golf:before {
-  content: "\E437";
+  content: "\e437";
 }
 
 .glyphicons-hockey:before {
-  content: "\E438";
+  content: "\e438";
 }
 
 .glyphicons-pipe:before {
-  content: "\E439";
+  content: "\e439";
 }
 
 .glyphicons-wrench:before {
-  content: "\E440";
+  content: "\e440";
 }
 
 .glyphicons-folder-closed:before {
-  content: "\E441";
+  content: "\e441";
 }
 
 .glyphicons-phone-alt:before {
-  content: "\E442";
+  content: "\e442";
 }
 
 .glyphicons-earphone:before {
-  content: "\E443";
+  content: "\e443";
 }
 
 .glyphicons-floppy-disk:before {
-  content: "\E444";
+  content: "\e444";
 }
 
 .glyphicons-floppy-saved:before {
-  content: "\E445";
+  content: "\e445";
 }
 
 .glyphicons-floppy-remove:before {
-  content: "\E446";
+  content: "\e446";
 }
 
 .glyphicons-floppy-save:before {
-  content: "\E447";
+  content: "\e447";
 }
 
 .glyphicons-floppy-open:before {
-  content: "\E448";
+  content: "\e448";
 }
 
 .glyphicons-translate:before {
-  content: "\E449";
+  content: "\e449";
 }
 
 .glyphicons-fax:before {
-  content: "\E450";
+  content: "\e450";
 }
 
 .glyphicons-factory:before {
-  content: "\E451";
+  content: "\e451";
 }
 
 .glyphicons-shop-window:before {
-  content: "\E452";
+  content: "\e452";
 }
 
 .glyphicons-shop:before {
-  content: "\E453";
+  content: "\e453";
 }
 
 .glyphicons-kiosk:before {
-  content: "\E454";
+  content: "\e454";
 }
 
 .glyphicons-kiosk-wheels:before {
-  content: "\E455";
+  content: "\e455";
 }
 
 .glyphicons-kiosk-light:before {
-  content: "\E456";
+  content: "\e456";
 }
 
 .glyphicons-kiosk-food:before {
-  content: "\E457";
+  content: "\e457";
 }
 
 .glyphicons-transfer:before {
-  content: "\E458";
+  content: "\e458";
 }
 
 .glyphicons-money:before {
-  content: "\E459";
+  content: "\e459";
 }
 
 .glyphicons-header:before {
-  content: "\E460";
+  content: "\e460";
 }
 
 .glyphicons-blacksmith:before {
-  content: "\E461";
+  content: "\e461";
 }
 
 .glyphicons-saw-blade:before {
-  content: "\E462";
+  content: "\e462";
 }
 
 .glyphicons-basketball:before {
-  content: "\E463";
+  content: "\e463";
 }
 
 .glyphicons-server:before {
-  content: "\E464";
+  content: "\e464";
 }
 
 .glyphicons-server-plus:before {
-  content: "\E465";
+  content: "\e465";
 }
 
 .glyphicons-server-minus:before {
-  content: "\E466";
+  content: "\e466";
 }
 
 .glyphicons-server-ban:before {
-  content: "\E467";
+  content: "\e467";
 }
 
 .glyphicons-server-flag:before {
-  content: "\E468";
+  content: "\e468";
 }
 
 .glyphicons-server-lock:before {
-  content: "\E469";
+  content: "\e469";
 }
 
 .glyphicons-server-new:before {
-  content: "\E470";
+  content: "\e470";
 }
 
 .glyphicons-charging-station:before {
-  content: "\F471";
+  content: "\f471";
 }
 
 .glyphicons-gas-station:before {
-  content: "\E472";
+  content: "\e472";
 }
 
 .glyphicons-target:before {
-  content: "\E473";
+  content: "\e473";
 }
 
 .glyphicons-bed-alt:before {
-  content: "\E474";
+  content: "\e474";
 }
 
 .glyphicons-mosquito-net:before {
-  content: "\E475";
+  content: "\e475";
 }
 
 .glyphicons-dining-set:before {
-  content: "\E476";
+  content: "\e476";
 }
 
 .glyphicons-plate-of-food:before {
-  content: "\E477";
+  content: "\e477";
 }
 
 .glyphicons-hygiene-kit:before {
-  content: "\E478";
+  content: "\e478";
 }
 
 .glyphicons-blackboard:before {
-  content: "\E479";
+  content: "\e479";
 }
 
 .glyphicons-marriage:before {
-  content: "\E480";
+  content: "\e480";
 }
 
 .glyphicons-bucket:before {
-  content: "\E481";
+  content: "\e481";
 }
 
 .glyphicons-none-color-swatch:before {
-  content: "\E482";
+  content: "\e482";
 }
 
 .glyphicons-bring-forward:before {
-  content: "\E483";
+  content: "\e483";
 }
 
 .glyphicons-bring-to-front:before {
-  content: "\E484";
+  content: "\e484";
 }
 
 .glyphicons-send-backward:before {
-  content: "\E485";
+  content: "\e485";
 }
 
 .glyphicons-send-to-back:before {
-  content: "\E486";
+  content: "\e486";
 }
 
 .glyphicons-fit-frame-to-image:before {
-  content: "\E487";
+  content: "\e487";
 }
 
 .glyphicons-fit-image-to-frame:before {
-  content: "\E488";
+  content: "\e488";
 }
 
 .glyphicons-multiple-displays:before {
-  content: "\E489";
+  content: "\e489";
 }
 
 .glyphicons-handshake:before {
-  content: "\E490";
+  content: "\e490";
 }
 
 .glyphicons-child:before {
-  content: "\E491";
+  content: "\e491";
 }
 
 .glyphicons-baby-formula:before {
-  content: "\E492";
+  content: "\e492";
 }
 
 .glyphicons-medicine:before {
-  content: "\E493";
+  content: "\e493";
 }
 
 .glyphicons-atv-vehicle:before {
-  content: "\E494";
+  content: "\e494";
 }
 
 .glyphicons-motorcycle:before {
-  content: "\E495";
+  content: "\e495";
 }
 
 .glyphicons-bed:before {
-  content: "\E496";
+  content: "\e496";
 }
 
 .glyphicons-tent:before {
-  content: "\26FA";
+  content: "⛺";
 }
 
 .glyphicons-glasses:before {
-  content: "\E498";
+  content: "\e498";
 }
 
 .glyphicons-sunglasses:before {
-  content: "\E499";
+  content: "\e499";
 }
 
 .glyphicons-family:before {
-  content: "\E500";
+  content: "\e500";
 }
 
 .glyphicons-education:before {
-  content: "\E501";
+  content: "\e501";
 }
 
 .glyphicons-shoes:before {
-  content: "\E502";
+  content: "\e502";
 }
 
 .glyphicons-map:before {
-  content: "\E503";
+  content: "\e503";
 }
 
 .glyphicons-cd:before {
-  content: "\E504";
+  content: "\e504";
 }
 
 .glyphicons-alert:before {
-  content: "\E505";
+  content: "\e505";
 }
 
 .glyphicons-piggy-bank:before {
-  content: "\E506";
+  content: "\e506";
 }
 
 .glyphicons-star-half:before {
-  content: "\E507";
+  content: "\e507";
 }
 
 .glyphicons-cluster:before {
-  content: "\E508";
+  content: "\e508";
 }
 
 .glyphicons-flowchart:before {
-  content: "\E509";
+  content: "\e509";
 }
 
 .glyphicons-commodities:before {
-  content: "\E510";
+  content: "\e510";
 }
 
 .glyphicons-duplicate:before {
-  content: "\E511";
+  content: "\e511";
 }
 
 .glyphicons-copy:before {
-  content: "\E512";
+  content: "\e512";
 }
 
 .glyphicons-paste:before {
-  content: "\E513";
+  content: "\e513";
 }
 
 .glyphicons-bath-bathtub:before {
-  content: "\E514";
+  content: "\e514";
 }
 
 .glyphicons-bath-shower:before {
-  content: "\E515";
+  content: "\e515";
 }
 
 .glyphicons-shower:before {
-  content: "\1F6BF";
+  content: "🚿";
 }
 
 .glyphicons-menu-hamburger:before {
-  content: "\E517";
+  content: "\e517";
 }
 
 .glyphicons-option-vertical:before {
-  content: "\E518";
+  content: "\e518";
 }
 
 .glyphicons-option-horizontal:before {
-  content: "\E519";
+  content: "\e519";
 }
 
 .glyphicons-currency-conversion:before {
-  content: "\E520";
+  content: "\e520";
 }
 
 .glyphicons-user-ban:before {
-  content: "\E521";
+  content: "\e521";
 }
 
 .glyphicons-user-lock:before {
-  content: "\E522";
+  content: "\e522";
 }
 
 .glyphicons-user-flag:before {
-  content: "\E523";
+  content: "\e523";
 }
 
 .glyphicons-user-asterisk:before {
-  content: "\E524";
+  content: "\e524";
 }
 
 .glyphicons-user-alert:before {
-  content: "\E525";
+  content: "\e525";
 }
 
 .glyphicons-user-key:before {
-  content: "\E526";
+  content: "\e526";
 }
 
 .glyphicons-user-conversation:before {
-  content: "\E527";
+  content: "\e527";
 }
 
 .glyphicons-database:before {
-  content: "\E528";
+  content: "\e528";
 }
 
 .glyphicons-database-search:before {
-  content: "\E529";
+  content: "\e529";
 }
 
 .glyphicons-list-alt:before {
-  content: "\E530";
+  content: "\e530";
 }
 
 .glyphicons-hazard-sign:before {
-  content: "\E531";
+  content: "\e531";
 }
 
 .glyphicons-hazard:before {
-  content: "\E532";
+  content: "\e532";
 }
 
 .glyphicons-stop-sign:before {
-  content: "\E533";
+  content: "\e533";
 }
 
 .glyphicons-lab:before {
-  content: "\E534";
+  content: "\e534";
 }
 
 .glyphicons-lab-alt:before {
-  content: "\E535";
+  content: "\e535";
 }
 
 .glyphicons-ice-cream:before {
-  content: "\E536";
+  content: "\e536";
 }
 
 .glyphicons-ice-lolly:before {
-  content: "\E537";
+  content: "\e537";
 }
 
 .glyphicons-ice-lolly-tasted:before {
-  content: "\E538";
+  content: "\e538";
 }
 
 .glyphicons-invoice:before {
-  content: "\E539";
+  content: "\e539";
 }
 
 .glyphicons-cart-tick:before {
-  content: "\E540";
+  content: "\e540";
 }
 
 .glyphicons-hourglass:before {
-  content: "\231B";
+  content: "⌛";
 }
 
 .glyphicons-cat:before {
-  content: "\1F408";
+  content: "🐈";
 }
 
 .glyphicons-lamp:before {
-  content: "\E543";
+  content: "\e543";
 }
 
 .glyphicons-scale-classic:before {
-  content: "\E544";
+  content: "\e544";
 }
 
 .glyphicons-eye-plus:before {
-  content: "\E545";
+  content: "\e545";
 }
 
 .glyphicons-eye-minus:before {
-  content: "\E546";
+  content: "\e546";
 }
 
 .glyphicons-quote:before {
-  content: "\E547";
+  content: "\e547";
 }
 
 .glyphicons-bitcoin:before {
-  content: "\E548";
+  content: "\e548";
 }
 
 .glyphicons-yen:before {
-  content: "\00A5";
+  content: "¥";
 }
 
 .glyphicons-ruble:before {
-  content: "\20BD";
+  content: "₽";
 }
 
 .glyphicons-erase:before {
-  content: "\E551";
+  content: "\e551";
 }
 
 .glyphicons-podcast:before {
-  content: "\E552";
+  content: "\e552";
 }
 
 .glyphicons-firework:before {
-  content: "\E553";
+  content: "\e553";
 }
 
 .glyphicons-scale:before {
-  content: "\E554";
+  content: "\e554";
 }
 
 .glyphicons-king:before {
-  content: "\E555";
+  content: "\e555";
 }
 
 .glyphicons-queen:before {
-  content: "\E556";
+  content: "\e556";
 }
 
 .glyphicons-pawn:before {
-  content: "\E557";
+  content: "\e557";
 }
 
 .glyphicons-bishop:before {
-  content: "\E558";
+  content: "\e558";
 }
 
 .glyphicons-knight:before {
-  content: "\E559";
+  content: "\e559";
 }
 
 .glyphicons-mic-mute:before {
-  content: "\E560";
+  content: "\e560";
 }
 
 .glyphicons-voicemail:before {
-  content: "\E561";
+  content: "\e561";
 }
 
 .glyphicons-paragraph:before {
-  content: "\00B6";
+  content: "¶";
 }
 
 .glyphicons-person-walking:before {
-  content: "\E563";
+  content: "\e563";
 }
 
 .glyphicons-person-wheelchair:before {
-  content: "\E564";
+  content: "\e564";
 }
 
 .glyphicons-underground:before {
-  content: "\E565";
+  content: "\e565";
 }
 
 .glyphicons-car-hov:before {
-  content: "\E566";
+  content: "\e566";
 }
 
 .glyphicons-car-rental:before {
-  content: "\E567";
+  content: "\e567";
 }
 
 .glyphicons-transport:before {
-  content: "\E568";
+  content: "\e568";
 }
 
 .glyphicons-taxi:before {
-  content: "\1F695";
+  content: "🚕";
 }
 
 .glyphicons-ice-cream-no:before {
-  content: "\E570";
+  content: "\e570";
 }
 
 .glyphicons-uk-rat-u:before {
-  content: "\E571";
+  content: "\e571";
 }
 
 .glyphicons-uk-rat-pg:before {
-  content: "\E572";
+  content: "\e572";
 }
 
 .glyphicons-uk-rat-12a:before {
-  content: "\E573";
+  content: "\e573";
 }
 
 .glyphicons-uk-rat-12:before {
-  content: "\E574";
+  content: "\e574";
 }
 
 .glyphicons-uk-rat-15:before {
-  content: "\E575";
+  content: "\e575";
 }
 
 .glyphicons-uk-rat-18:before {
-  content: "\E576";
+  content: "\e576";
 }
 
 .glyphicons-uk-rat-r18:before {
-  content: "\E577";
+  content: "\e577";
 }
 
 .glyphicons-tv:before {
-  content: "\E578";
+  content: "\e578";
 }
 
 .glyphicons-sms:before {
-  content: "\E579";
+  content: "\e579";
 }
 
 .glyphicons-mms:before {
-  content: "\E580";
+  content: "\e580";
 }
 
 .glyphicons-us-rat-g:before {
-  content: "\E581";
+  content: "\e581";
 }
 
 .glyphicons-us-rat-pg:before {
-  content: "\E582";
+  content: "\e582";
 }
 
 .glyphicons-us-rat-pg-13:before {
-  content: "\E583";
+  content: "\e583";
 }
 
 .glyphicons-us-rat-restricted:before {
-  content: "\E584";
+  content: "\e584";
 }
 
 .glyphicons-us-rat-no-one-17:before {
-  content: "\E585";
+  content: "\e585";
 }
 
 .glyphicons-equalizer:before {
-  content: "\E586";
+  content: "\e586";
 }
 
 .glyphicons-speakers:before {
-  content: "\E587";
+  content: "\e587";
 }
 
 .glyphicons-remote-control:before {
-  content: "\E588";
+  content: "\e588";
 }
 
 .glyphicons-remote-control-tv:before {
-  content: "\E589";
+  content: "\e589";
 }
 
 .glyphicons-shredder:before {
-  content: "\E590";
+  content: "\e590";
 }
 
 .glyphicons-folder-heart:before {
-  content: "\E591";
+  content: "\e591";
 }
 
 .glyphicons-person-running:before {
-  content: "\E592";
+  content: "\e592";
 }
 
 .glyphicons-person:before {
-  content: "\E593";
+  content: "\e593";
 }
 
 .glyphicons-voice:before {
-  content: "\E594";
+  content: "\e594";
 }
 
 .glyphicons-stethoscope:before {
-  content: "\E595";
+  content: "\e595";
 }
 
 .glyphicons-hotspot:before {
-  content: "\E596";
+  content: "\e596";
 }
 
 .glyphicons-activity:before {
-  content: "\E597";
+  content: "\e597";
 }
 
 .glyphicons-watch:before {
-  content: "\231A";
+  content: "⌚";
 }
 
 .glyphicons-scissors-alt:before {
-  content: "\E599";
+  content: "\e599";
 }
 
 .glyphicons-car-wheel:before {
-  content: "\E600";
+  content: "\e600";
 }
 
 .glyphicons-chevron-up:before {
-  content: "\E601";
+  content: "\e601";
 }
 
 .glyphicons-chevron-down:before {
-  content: "\E602";
+  content: "\e602";
 }
 
 .glyphicons-superscript:before {
-  content: "\E603";
+  content: "\e603";
 }
 
 .glyphicons-subscript:before {
-  content: "\E604";
+  content: "\e604";
 }
 
 .glyphicons-text-size:before {
-  content: "\E605";
+  content: "\e605";
 }
 
 .glyphicons-text-color:before {
-  content: "\E606";
+  content: "\e606";
 }
 
 .glyphicons-text-background:before {
-  content: "\E607";
+  content: "\e607";
 }
 
 .glyphicons-modal-window:before {
-  content: "\E608";
+  content: "\e608";
 }
 
 .glyphicons-newspaper:before {
-  content: "\1F4F0";
+  content: "📰";
 }
 
 .glyphicons-tractor:before {
-  content: "\1F69C";
+  content: "🚜";
 }
 
 /* 
@@ -6265,7 +6260,6 @@ UL.ui-autocomplete.ui-menu li.ui-menu-item.ui-state-focus {
   .cerb-profile-layout--sidebar-right .cerb-profile-layout-zone--sidebar {
     order: 1;
   }
-
   .cerb-workspace-layout--sidebar-right .cerb-workspace-layout-zone--content {
     order: 2;
   }
@@ -6280,14 +6274,12 @@ UL.ui-autocomplete.ui-menu li.ui-menu-item.ui-state-focus {
   .cerb-comment .toolbar {
     top: -15px;
   }
-
   .cerb-draft .cerb-draft--content {
     margin-left: 0;
   }
   .cerb-draft .toolbar-minmax {
     top: -15px;
   }
-
   .cerb-message .cerb-message--content {
     margin-left: 0;
   }
@@ -6302,22 +6294,18 @@ UL.ui-autocomplete.ui-menu li.ui-menu-item.ui-state-focus {
   .cerb-profile-layout--sidebar-right .cerb-profile-layout-zone--sidebar {
     order: 1;
   }
-
   .cerb-workspace-layout--sidebar-right .cerb-workspace-layout-zone--content {
     order: 2;
   }
   .cerb-workspace-layout--sidebar-right .cerb-workspace-layout-zone--sidebar {
     order: 1;
   }
-
   .cerb-profile-widget {
     min-width: 300px !important;
   }
-
   .cerb-profile-widget--header .ui-sortable-handle {
     display: none;
   }
-
   .cerb-no-print {
     display: none !important;
   }

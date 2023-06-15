@@ -1,3 +1,3 @@
-sass --sourcemap=none -t expanded cerb.scss cerb.css \
+sass --no-source-map cerb.scss cerb.css \
 	&& mv cerb.css ../../../../../features/cerberusweb.core/resources/css/ \
 	&& echo Wrote cerb.css
