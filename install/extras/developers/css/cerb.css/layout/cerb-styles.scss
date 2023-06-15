@@ -1736,6 +1736,9 @@ DIV.emailBodyHtml {
 		border: 1px solid var(--cerb-color-background-contrast-230);
 		background-color: var(--cerb-color-email-code);
 		padding: 10px;
+		box-sizing: border-box;
+		width: 0;
+		min-width: 100%;
 	}
 
 	P > CODE {
@@ -1804,6 +1807,9 @@ DIV.emailBodyHtmlLight {
 		border: 1px solid rgb(230,230,230);
 		background-color: rgb(246,242,240);
 		padding: 10px;
+		box-sizing: border-box;
+		width: 0;
+		min-width: 100%;
 	}
 
 	P > CODE {
@@ -1867,6 +1873,9 @@ DIV.commentBodyHtml {
 		border: 1px solid var(--cerb-color-background-contrast-230);
 		background-color: var(--cerb-color-email-code);
 		padding: 10px;
+		box-sizing: border-box;
+		width: 0;
+		min-width: 100%;
 	}
 
 	P > CODE {
