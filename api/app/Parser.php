@@ -221,8 +221,14 @@ class CerberusParserModel {
 	 * @return void
 	 */
 	private function _parseHeadersDate() {
-		$timestamp = strtotime($this->_message->headers['date'] ?? 'now');
-		
+		$date = $this->_message->headers['date'] ?? 'now';
+
+		// Handle duplicate date headers
+		if(is_array($date))
+			$date = array_shift($date);
+
+		$timestamp = strtotime($date);
+
 		// If blank, or in the future, set to the current date
 		if(empty($timestamp) || $timestamp > time())
 			$timestamp = time();
