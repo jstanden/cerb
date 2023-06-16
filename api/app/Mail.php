@@ -446,7 +446,7 @@ class CerberusMail {
 								$mailbox = $strings->strBefore($email,'@');
 								$host = $strings->strAfter($email,'@');
 								
-								if($mailbox && $host) {
+								if(strlen($mailbox ?? '') && strlen($host ?? '')) {
 									// Validate
 									$validator = new EmailValidator();
 									if($validator->isValid($email, new RFCValidation())) {
