@@ -247,7 +247,7 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 			));
 		}
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','mail_incoming','routing')));
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(['config','mail_incoming','routing']));
 	}
 	
 	private function _configAction_showMailRoutingRulePanel() {
