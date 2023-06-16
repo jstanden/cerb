@@ -6,11 +6,10 @@
 	</button>
 </fieldset>
 
-{if !empty($rules)}
 <fieldset class="peek">
-	<legend>Legacy Rules (Needs Migration)</legend>
+	<legend>Legacy Rules (Deprecated)</legend>
 
-	<form action="{devblocks_url}{/devblocks_url}" style="margin-bottom:5px;">
+	<form action="{devblocks_url}{/devblocks_url}" style="margin-bottom:10px;">
 		<button type="button" onclick="genericAjaxPopup('peek','c=config&a=invoke&module=mail_incoming&action=showMailRoutingRulePanel&id=0',null,false,'50%');"><span class="glyphicons glyphicons-circle-plus"></span> {'common.add'|devblocks_translate|capitalize}</button>
 	</form>
 
@@ -22,7 +21,7 @@
 	<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 	
 	{if !empty($rules)}
-	<table cellspacing="2" cellpadding="2">
+	<table cellspacing="2" cellpadding="2" style="margin-bottom:10px;">
 		<tr>
 			<td align="center" style="padding-right:10px;"><b>{'common.order'|devblocks_translate|capitalize}</b></td>
 			<td><b>Routing Rule</b></td>
@@ -97,13 +96,11 @@
 			</tr>
 		{/foreach}
 	</table>
-	<br>	
-	{/if}
 
 	<button type="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{/if}
 	</form>
 </fieldset>
-{/if}
 
 <script type="text/javascript">
 $(function() {
