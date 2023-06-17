@@ -76,46 +76,34 @@ $step = DevblocksPlatform::importGPC($_REQUEST['step'] ?? null, 'integer',0) ?: 
 
 // [TODO] Could convert to CerberusApplication::checkRequirements()
 
-@chmod(APP_TEMP_PATH, 0770);
-@mkdir(APP_SMARTY_COMPILE_PATH);
-@chmod(APP_SMARTY_COMPILE_PATH, 0770);
-@mkdir(APP_TEMP_PATH . '/cache/');
-@chmod(APP_TEMP_PATH . '/cache/', 0770);
-
 if(!file_exists(APP_PATH . "/vendor/")) {
 	DevblocksPlatform::dieWithHttpError(APP_PATH . "/vendor/" ." doesn't exist. Did you run `composer install` first?", 500);
 }
 
-// Make sure the temporary directories of Devblocks are writeable.
-if(!is_writeable(APP_TEMP_PATH)) {
-	DevblocksPlatform::dieWithHttpError(APP_TEMP_PATH ." is not writeable by the webserver.  Please adjust permissions and reload this page.", 500);
+function cerbInstallerCheckWriteablePath($path) {
+	if(!is_dir($path)) {
+		if(!@mkdir($path, 0770, true))
+			DevblocksPlatform::dieWithHttpError(sprintf("Failed to create writeable path (%s)", $path), 500);
+	}
+	
+	@chmod($path, 0770);
+
+	if(!is_writeable($path)) {
+		DevblocksPlatform::dieWithHttpError(sprintf("Path (%s) is not writeable by the webserver.  Please adjust permissions and reload this page.", $path), 500);
+	}
 }
 
-if(!is_writeable(APP_SMARTY_COMPILE_PATH)) {
-	DevblocksPlatform::dieWithHttpError(APP_SMARTY_COMPILE_PATH . " is not writeable by the webserver.  Please adjust permissions and reload this page.", 500);
+foreach([
+		APP_TEMP_PATH,
+		APP_TEMP_PATH . '/cache/',
+		APP_SMARTY_COMPILE_PATH,
+		APP_STORAGE_PATH,
+		APP_STORAGE_PATH . '/mail/new/',
+		APP_STORAGE_PATH . '/mail/fail/'
+	] as $path) {
+	cerbInstallerCheckWriteablePath($path);
 }
 
-if(!is_writeable(APP_TEMP_PATH . "/cache/")) {
-	DevblocksPlatform::dieWithHttpError(APP_TEMP_PATH . "/cache/" . " is not writeable by the webserver.  Please adjust permissions and reload this page.", 500);
-}
-
-@chmod(APP_STORAGE_PATH, 0770);
-@chmod(APP_STORAGE_PATH . '/mail/new/', 0770);
-@chmod(APP_STORAGE_PATH . '/mail/fail/', 0770);
-
-if(!is_writeable(APP_STORAGE_PATH)) {
-	DevblocksPlatform::dieWithHttpError(APP_STORAGE_PATH . " is not writeable by the webserver.  Please adjust permissions and reload this page.", 500);
-}
-
-if(!is_writeable(APP_STORAGE_PATH . "/mail/new/")) {
-	DevblocksPlatform::dieWithHttpError(APP_STORAGE_PATH . "/mail/new/ is not writeable by the webserver.  Please adjust permissions and reload this page.", 500);
-}
-
-if(!is_writeable(APP_STORAGE_PATH . "/mail/fail/")) {
-	DevblocksPlatform::dieWithHttpError(APP_STORAGE_PATH . "/mail/fail/ is not writeable by the webserver.  Please adjust permissions and reload this page.", 500);
-}
-
-// [TODO] Move this to the framework init (installer blocks this at the moment)
 DevblocksPlatform::setLocale('en_US');
 
 // Get a reference to the template system and configure it

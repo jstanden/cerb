@@ -277,7 +277,16 @@ class DevblocksCacheEngine_Disk extends Extension_DevblocksCacheEngine {
 	const ID = 'devblocks.cache.engine.disk';
 	
 	private function _getCacheDir() {
-		return realpath(APP_TEMP_PATH) . DIRECTORY_SEPARATOR;
+		// Create the cache dir if it doesn't exist yet
+		if(!is_dir(APP_TEMP_PATH)) {
+			if(!@mkdir(APP_TEMP_PATH, 0770, true))
+				return false;
+		}
+		
+		if(false === ($realpath = realpath(APP_TEMP_PATH)))
+			return false;
+		
+		return $realpath . DIRECTORY_SEPARATOR;
 	}
 	
 	private function _getCacheFileByKey($key) {
@@ -305,7 +314,7 @@ class DevblocksCacheEngine_Disk extends Extension_DevblocksCacheEngine {
 	function testConfig(array $config) {
 		$cache_dir = $this->_getCacheDir();
 		
-		if(!is_writeable($cache_dir))
+		if(!$cache_dir || !is_writeable($cache_dir))
 			return sprintf("Cerb requires write access to %s", $cache_dir);
 		
 		return true;
