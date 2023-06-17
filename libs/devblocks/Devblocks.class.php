@@ -2496,8 +2496,10 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	public static function logError($error_msg, $allow_display=false) {
-		if(!is_string($error_msg) || !is_numeric($error_msg))
-			$error_msg = yaml_emit($error_msg);
+		if(extension_loaded('yaml')) {
+            if(!is_string($error_msg) || !is_numeric($error_msg))
+                $error_msg = yaml_emit($error_msg);
+        }
 		
 		$orig_log_errors_max_len = ini_set('log_errors_max_len', 8192);
 		

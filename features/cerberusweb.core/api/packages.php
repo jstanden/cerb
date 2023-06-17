@@ -1621,7 +1621,7 @@ class Cerb_Packages {
 		
 		if(is_array($toolbars)) {
 			foreach ($toolbars as $toolbar) {
-				if (false != ($toolbar_model = DAO_Toolbar::getByName($toolbar['toolbar']))) {
+				if (($toolbar_model = DAO_Toolbar::getByName($toolbar['toolbar']))) {
 					DAO_Toolbar::update($toolbar_model->id, [
 						DAO_Toolbar::TOOLBAR_KATA => rtrim($toolbar_model->toolbar_kata) . "\n\n" . rtrim($toolbar['kata']),
 					]);

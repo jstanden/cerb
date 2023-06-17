@@ -60,7 +60,7 @@ class _DevblocksSessionManager {
 			$instance->visit = array_key_exists('db_visit', $_SESSION ?? []) ? $_SESSION['db_visit'] : NULL;
 			$instance->_handler_class = $handler_class;
 			
-			if(!array_key_exists('csrf_token', $_SESSION)) {
+			if(!array_key_exists('csrf_token', $_SESSION ?? [])) {
 				$_SESSION['csrf_token'] = CerberusApplication::generatePassword(128);
 			}
 		}

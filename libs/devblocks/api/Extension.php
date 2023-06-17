@@ -2046,9 +2046,6 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		return $labels;
 	}
 
-	/**
-	 * @internal
-	 */
 	protected function _getTokenTypesFromCustomFields($fields, $prefix) {
 		$context_stack = CerberusContexts::getStack();
 		$types = [];

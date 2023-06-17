@@ -207,11 +207,11 @@ class _DevblocksFormatters {
 				return true;
 			
 			// If this is a valid fully qualified extension ID, accept
-			if(false != (Extension_DevblocksContext::get($value, false)))
+			if((Extension_DevblocksContext::get(strval($value), false)))
 				return true;
 			
 			// Otherwise, check aliases
-			if(false != ($context_mft = Extension_DevblocksContext::getByAlias($value, false))) {
+			if(($context_mft = Extension_DevblocksContext::getByAlias(strval($value), false))) {
 				$value = $context_mft->id;
 				return true;
 			}

@@ -223,7 +223,9 @@ class _DevblocksDatabaseManager {
 		$indexes = [];
 		
 		$sql = sprintf("SHOW FULL COLUMNS FROM %s", $table_name);
-		$rs = $this->GetArrayMaster($sql);
+
+        if(!($rs = $this->GetArrayMaster($sql)))
+            return [$columns, $indexes];
 		
 		foreach($rs as $row) {
 			$field = $row['Field'];
@@ -260,10 +262,7 @@ class _DevblocksDatabaseManager {
 			];
 		}
 		
-		return array(
-			$columns,
-			$indexes
-		);
+		return [$columns, $indexes];
 	}
 	
 	/**

@@ -122,7 +122,7 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 				if(!$active_worker->is_superuser)
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
 				
-				if(!($trigger_ext = Extension_AutomationTrigger::get($extension_id))) {
+				if(!$extension_id || !($trigger_ext = Extension_AutomationTrigger::get($extension_id))) {
 					throw new Exception_DevblocksAjaxValidationError('Invalid trigger extension.');
 				}
 				

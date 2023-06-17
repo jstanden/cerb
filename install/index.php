@@ -108,15 +108,15 @@ DevblocksPlatform::setLocale('en_US');
 
 // Get a reference to the template system and configure it
 $tpl = DevblocksPlatform::services()->template();
-$tpl->template_dir = APP_PATH . '/install/templates';
-$tpl->caching = 0;
+$tpl->setTemplateDir(APP_PATH . '/install/templates');
+$tpl->setCaching(0);
 
 $tpl->assign('step', $step);
 
 switch($step) {
 	default:
 	case STEP_ENVIRONMENT:
-		$results = array();
+		$results = [];
 		$fails = 0;
 		
 		// PHP Version
@@ -349,7 +349,7 @@ switch($step) {
 			$errors = array();
 			
 			if(false !== (@$_db = mysqli_connect($db_server, $db_user, $db_pass, null, $db_port))) {
-				if(false !== mysqli_select_db($_db, $db_name)) {
+				if(false !== @mysqli_select_db($_db, $db_name)) {
 					$db_passed = true;
 				} else {
 					$db_passed = false;
