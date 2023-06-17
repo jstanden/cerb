@@ -669,8 +669,12 @@ class DevblocksCacheEngine_Redis extends Extension_DevblocksCacheEngine {
 		
 		$this->_driver = new Redis();
 		
-		if(false == @$this->_driver->connect($config['host'], $config['port']))
+		try {
+			if (!@$this->_driver->connect($config['host'], $config['port']))
+				return sprintf("Failed to connect to the Redis server at %s:%d.", $config['host'], $config['port']);
+		} catch(RedisException) {
 			return sprintf("Failed to connect to the Redis server at %s:%d.", $config['host'], $config['port']);
+		}
 		
 		if(!empty($config['auth']))
 			if(false == $this->_driver->auth($config['auth']))
