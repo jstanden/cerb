@@ -189,7 +189,7 @@ if(!isset($tables['automation_event'])) {
 
 $db->ExecuteMaster(sprintf("UPDATE automation_event SET name = %s, description = %s, extension_id = %s WHERE name = %s",
 	$db->qstr('record.viewed'),
-	$db->qstr('After a record profile is viewed by a worker'),
+	$db->qstr('After a record profile or card is viewed by a worker'),
 	$db->qstr('cerb.trigger.record.viewed'),
 	$db->qstr('record.profile.viewed'),
 ));

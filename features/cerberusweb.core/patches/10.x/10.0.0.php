@@ -24,7 +24,7 @@ if(!isset($tables['message_html_cache'])) {
 		CREATE TABLE `message_html_cache` (
 		`message_id` int(10) unsigned NOT NULL,
 		`expires_at` int(10) unsigned NOT NULL DEFAULT 0,
-		`html_content` mediumtext character set utf8mb4,
+		`html_content` mediumtext character set utf8mb4 collate utf8mb4_unicode_ci,
 		PRIMARY KEY (message_id),
 		INDEX (expires_at)
 		) ENGINE=%s
@@ -375,10 +375,11 @@ if(!isset($tables['automation_event'])) {
 	
 	// cerb.trigger.mail.route
 	
-	$db->ExecuteMaster(sprintf('INSERT IGNORE INTO automation_event (name, extension_id, description, updated_at) VALUES (%s,%s,%s,%d)',
+	$db->ExecuteMaster(sprintf('INSERT IGNORE INTO automation_event (name, extension_id, description, automations_kata, updated_at) VALUES (%s,%s,%s,%s,%d)',
 		$db->qstr('mail.route'),
 		$db->qstr('cerb.trigger.mail.route'),
 		$db->qstr('Route accepted inbound mail to a group inbox'),
+		$db->qstr(''),
 		time()
 	));
 	

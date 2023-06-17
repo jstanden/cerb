@@ -88,7 +88,7 @@ if(!$db->GetOneMaster("SELECT 1 FROM automation_event WHERE name = 'mail.reply.v
 		$db->qstr('mail.reply.validate'),
 		$db->qstr('cerb.trigger.mail.reply.validate'),
 		$db->qstr('Validate before a worker starts a new reply'),
-		$db->qstr("automation/recentActivity:\n  uri: cerb:automation:cerb.reply.recentActivity\n  inputs:\n    message@key: message_id\n  disabled@bool: no\n\n"),
+		$db->qstr("automation/recentActivity:\n  uri: cerb:automation:cerb.reply.recentActivity\n  inputs:\n    message@key: message_id\n  disabled@bool: no"),
 		time()
 	));
 }
@@ -97,7 +97,7 @@ if(!$db->GetOneMaster("SELECT 1 FROM automation_event WHERE name = 'record.profi
 	$db->ExecuteMaster(sprintf('INSERT IGNORE INTO automation_event (name, extension_id, description, automations_kata, updated_at) VALUES (%s,%s,%s,%s,%d)',
 		$db->qstr('record.profile.viewed'),
 		$db->qstr('cerb.trigger.record.profile.viewed'),
-		$db->qstr('After a record profile is viewed by a worker'),
+		$db->qstr('After a record profile or card is viewed by a worker'),
 		$db->qstr(""),
 		time()
 	));
@@ -469,43 +469,19 @@ if(array_key_exists('trigger_event_history', $tables)) {
 // Add stats widget to metric cards
 
 if(!$db->GetOneMaster("select 1 from card_widget where record_type = 'cerb.contexts.metric' and extension_id = 'cerb.card.widget.chart.timeseries' and name = 'Statistics'")) {
-	$package_json = <<< 'EOD'
-	{
-		"package": {},
-		"records": [
-			{
-				"uid": "card_widget_metric_stats",
-				"_context": "cerb.contexts.card.widget",
-				"name": "Statistics",
-				"record_type": "cerb.contexts.metric",
-				"extension_id": "cerb.card.widget.chart.timeseries",
-				"pos": "1",
-				"width_units": "4",
-				"zone": "content",
-				"extension_params": {
-					"data_query": "type:metrics.timeseries\r\nrange:\"-24 hours to now\"\r\nperiod:hour\r\nseries.samples:(\r\n  label:Samples\r\n  metric:{{record_name}}\r\n  function:count\r\n)\r\nseries.sum:(\r\n  label:Sum\r\n  metric:{{record_name}}\r\n  function:sum\r\n)\r\nseries.avg:(\r\n  label:Average\r\n  metric:{{record_name}}\r\n  function:avg\r\n)\r\nseries.min:(\r\n  label:Min\r\n  metric:{{record_name}}\r\n  function:min\r\n)\r\nseries.avg:(\r\n  label:Max\r\n  metric:{{record_name}}\r\n  function:max\r\n)\r\nformat:timeseries",
-					"chart_as": "line",
-					"xaxis_label": "",
-					"yaxis_label": "",
-					"yaxis_format": "number",
-					"height": "",
-					"options": {
-						"show_legend": "1",
-						"show_points": "1"
-					}
-				}
-			}
-		]
-	}
-	EOD;
-	
-	try {
-		$records_created = [];
-		CerberusApplication::packages()->import($package_json, [], $records_created);
-	} catch (Exception_DevblocksValidationError $e) {
-		DevblocksPlatform::logError($e->getMessage());
-	}
-	
+	$db->ExecuteMaster(sprintf(
+		"INSERT INTO `card_widget` (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
+		"VALUES (%s,%s,%s,%s,%d,%d,%d,%d,%s)",
+		$db->qstr('Statistics'),
+		$db->qstr('cerb.contexts.metric'),
+		$db->qstr('cerb.card.widget.chart.timeseries'),
+		$db->qstr('{"data_query":"type:metrics.timeseries\r\nrange:\"-24 hours to now\"\r\nperiod:hour\r\nseries.samples:(\r\n  label:Samples\r\n  metric:{{record_name}}\r\n  function:count\r\n)\r\nseries.sum:(\r\n  label:Sum\r\n  metric:{{record_name}}\r\n  function:sum\r\n)\r\nseries.avg:(\r\n  label:Average\r\n  metric:{{record_name}}\r\n  function:avg\r\n)\r\nseries.min:(\r\n  label:Min\r\n  metric:{{record_name}}\r\n  function:min\r\n)\r\nseries.avg:(\r\n  label:Max\r\n  metric:{{record_name}}\r\n  function:max\r\n)\r\nformat:timeseries","chart_as":"line","xaxis_label":"","yaxis_label":"","yaxis_format":"number","height":"","options":{"show_legend":"1","show_points":"1"}}'),
+		time(),
+		time(),
+		1,
+		4,
+		$db->qstr('content')
+	));
 } else {
 	$db->ExecuteMaster("UPDATE card_widget SET extension_params_json=replace(extension_params_json,'period:3600','period:hour') WHERE name = 'Statistics' AND record_type = 'cerb.contexts.metric' AND extension_params_json LIKE '%period:3600%'");
 }
@@ -514,161 +490,53 @@ if(!$db->GetOneMaster("select 1 from card_widget where record_type = 'cerb.conte
 // Add stats widget to automation cards
 
 if(!$db->GetOneMaster("select 1 from card_widget where record_type = 'cerb.contexts.automation' and extension_id = 'cerb.card.widget.chart.timeseries' and name = 'Statistics'")) {
-	$package_json = <<< 'EOD'
-	{
-		"package": {},
-		"records": [
-			{
-				"uid": "card_widget_automation_stats",
-				"_context": "cerb.contexts.card.widget",
-				"name": "Statistics",
-				"record_type": "cerb.contexts.automation",
-				"extension_id": "cerb.card.widget.chart.timeseries",
-				"pos": "3",
-				"width_units": "4",
-				"zone": "content",
-				"extension_params": {
-					"data_query": "type:metrics.timeseries\r\nperiod:day\r\nrange:\"-7 days\"\r\nseries.invocations:(\r\n  label:Invocations\r\n  metric:cerb.automation.invocations\r\n  function:sum\r\n  missing:zero\r\n  query:(\r\n    automation_id:{{record_id}}\r\n  )\r\n)\r\nseries.duration:(\r\n  label:Duration\r\n  metric:cerb.automation.duration\r\n  function:sum\r\n  missing:zero\r\n  query:(\r\n    automation_id:{{record_id}}\r\n  )\r\n)\r\nformat:timeseries",
-					"chart_as": "line",
-					"xaxis_label": "",
-					"yaxis_label": "",
-					"yaxis_format": "number",
-					"height": "",
-					"options": {
-						"show_legend": "1",
-						"show_points": "1"
-					}
-				}
-			}
-		]
-	}
-	EOD;
-	
-	try {
-		$records_created = [];
-		CerberusApplication::packages()->import($package_json, [], $records_created);
-	} catch (Exception_DevblocksValidationError $e) {
-		DevblocksPlatform::logError($e->getMessage());
-	}
+	$db->ExecuteMaster(sprintf(
+		"INSERT INTO `card_widget` (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
+		"VALUES (%s,%s,%s,%s,%d,%d,%d,%d,%s)",
+		$db->qstr('Statistics'),
+		$db->qstr('cerb.contexts.automation'),
+		$db->qstr('cerb.card.widget.chart.timeseries'),
+		$db->qstr('{"data_query":"type:metrics.timeseries\r\nperiod:day\r\nrange:\"-7 days\"\r\nseries.invocations:(\r\n  label:Invocations\r\n  metric:cerb.automation.invocations\r\n  function:sum\r\n  missing:zero\r\n  query:(\r\n    automation_id:{{record_id}}\r\n  )\r\n)\r\nseries.duration:(\r\n  label:Duration\r\n  metric:cerb.automation.duration\r\n  function:sum\r\n  missing:zero\r\n  query:(\r\n    automation_id:{{record_id}}\r\n  )\r\n)\r\nformat:timeseries","chart_as":"line","xaxis_label":"","yaxis_label":"","yaxis_format":"number","height":"","options":{"show_legend":"1","show_points":"1"}}'),
+		time(),
+		time(),
+		3,
+		4,
+		$db->qstr('content')
+	));
 }
 
 // ===========================================================================
 // Add stats widget to mail transport cards
 
 if(!$db->GetOneMaster("select 1 from card_widget where record_type = 'cerberusweb.contexts.mail.transport' and extension_id = 'cerb.card.widget.chart.timeseries' and name = 'Outbound Email'")) {
-	$package_json = <<< 'EOD'
-	{
-		"package": {},
-		"records": [
-			{
-				"uid": "card_widget_transport",
-				"_context": "cerb.contexts.card.widget",
-				"name": "Outbound Email",
-				"record_type": "cerberusweb.contexts.mail.transport",
-				"extension_id": "cerb.card.widget.chart.timeseries",
-				"pos": "2",
-				"width_units": "4",
-				"zone": "content",
-				"extension_params": {
-					"data_query": "type:metrics.timeseries\r\nperiod:hour\r\nrange:\"-24 hours\"\r\nseries.deliveries:(\r\n  label:\"Deliveries\"\r\n  metric:cerb.mail.transport.deliveries\r\n  function:sum\r\n  query:(transport_id:{{record_id}})\r\n)\r\nseries.failures:(\r\n  label:\"Failures\"\r\n  metric:cerb.mail.transport.failures\r\n  function:sum\r\n  query:(transport_id:{{record_id}})\r\n)\r\nformat:timeseries",
-					"chart_as": "bar_stacked",
-					"xaxis_label": "",
-					"yaxis_label": "",
-					"yaxis_format": "number",
-					"height": "",
-					"options": {
-						"show_legend": "1",
-						"show_points": "1"
-					}
-				}
-			}
-		]
-	}
-	EOD;
-	
-	try {
-		$records_created = [];
-		CerberusApplication::packages()->import($package_json, [], $records_created);
-	} catch (Exception_DevblocksValidationError $e) {
-		DevblocksPlatform::logError($e->getMessage());
-	}
+	$db->ExecuteMaster(sprintf(
+		"INSERT INTO `card_widget` (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
+		"VALUES (%s,%s,%s,%s,%d,%d,%d,%d,%s)",
+		$db->qstr('Outbound Mail'),
+		$db->qstr('cerberusweb.contexts.mail.transport'),
+		$db->qstr('cerb.card.widget.chart.timeseries'),
+		$db->qstr('{"data_query":"type:metrics.timeseries\r\nperiod:hour\r\nrange:\"-24 hours\"\r\nseries.deliveries:(\r\n  label:\"Deliveries\"\r\n  metric:cerb.mail.transport.deliveries\r\n  function:sum\r\n  query:(transport_id:{{record_id}})\r\n)\r\nseries.failures:(\r\n  label:\"Failures\"\r\n  metric:cerb.mail.transport.failures\r\n  function:sum\r\n  query:(transport_id:{{record_id}})\r\n)\r\nformat:timeseries","chart_as":"bar_stacked","xaxis_label":"","yaxis_label":"","yaxis_format":"number","height":"","options":{"show_legend":"1","show_points":"1"}}'),
+		time(),
+		time(),
+		2,
+		4,
+		$db->qstr('content')
+	));
 }
 
 // ===========================================================================
 // Default tab/widgets for message profiles
 
 if(!$db->GetOneMaster("select 1 from profile_tab where context = 'cerberusweb.contexts.message' and name = 'Overview'")) {
-	$package_json = <<< EOD
-	{
-		"package": {
-		},
-		"records": [
-			{
-				"uid": "profile_tab_msg_overview",
-				"_context": "cerberusweb.contexts.profile.tab",
-				"name": "Overview",
-				"context": "message",
-				"extension_id": "cerb.profile.tab.dashboard",
-				"extension_params": {
-					"layout": "sidebar_right"
-				}
-			},
-			{
-				"uid": "profile_widget_msg_convo",
-				"_context": "cerberusweb.contexts.profile.widget",
-				"name": "Conversation",
-				"profile_tab_id": "{{{uid.profile_tab_msg_overview}}}",
-				"extension_id": "cerb.profile.tab.widget.ticket.convo",
-				"pos": 1,
-				"width_units": 4,
-				"zone": "content",
-				"extension_params": {
-					"comments_mode": "0"
-				}
-			},
-			{
-				"uid": "profile_widget_record_fields",
-				"_context": "cerberusweb.contexts.profile.widget",
-				"name": "Message",
-				"profile_tab_id": "{{{uid.profile_tab_msg_overview}}}",
-				"extension_id": "cerb.profile.tab.widget.fields",
-				"pos": 1,
-				"width_units": 4,
-				"zone": "sidebar",
-				"extension_params": {
-					"context": "cerberusweb.contexts.message",
-					"context_id": "{{record_id}}",
-					"properties": [
-						[
-							"sender",
-							"created",
-							"response_time",
-							"signed_key_fingerprint",
-							"signed_at",
-							"ticket",
-							"was_encrypted",
-							"worker"
-						]
-					],
-					"toolbar_kata": ""
-				}
-			}
-		]
-	}
-	EOD;
-	
-	try {
-		$records_created = [];
-		CerberusApplication::packages()->import($package_json, [], $records_created);
-		
-		// Insert profile tab ID in devblocks_settings
-		$db->ExecuteMaster(sprintf("INSERT IGNORE INTO devblocks_setting (plugin_id, setting, value) VALUES ('cerberusweb.core','profile:tabs:cerberusweb.contexts.message',%s)",
-			$db->qstr(sprintf('[%d]', $records_created[CerberusContexts::CONTEXT_PROFILE_TAB]['profile_tab_msg_overview']['id']))
-		));
-		
-	} catch (Exception_DevblocksValidationError $e) {
-		DevblocksPlatform::logError($e->getMessage());
-	}
+	$db->ExecuteMaster(sprintf(
+		"INSERT INTO `profile_tab` (name, context, extension_id, extension_params_json, updated_at) ".
+		"VALUES (%s,%s,%s,%s,%d)",
+		$db->qstr('Overview'),
+		$db->qstr('cerberusweb.contexts.message'),
+		$db->qstr('cerb.profile.tab.dashboard'),
+		$db->qstr('{"layout":"sidebar_right"}'),
+		time()
+	));
 }
 
 // ===========================================================================
