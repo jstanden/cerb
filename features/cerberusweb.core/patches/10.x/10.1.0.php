@@ -131,25 +131,27 @@ if($changes) {
 // ===========================================================================
 // Reindex `storage_resources`
 
-list(,$indexes) = $db->metaTable('storage_resources');
+if(array_key_exists('storage_resources', $tables)) {
+    list(,$indexes) = $db->metaTable('storage_resources');
 
-$changes = [];
+    $changes = [];
 
-if(array_key_exists('id', $indexes)) {
-	$changes[] = 'DROP INDEX id';
-}
+    if(array_key_exists('id', $indexes)) {
+        $changes[] = 'DROP INDEX id';
+    }
 
-if(array_key_exists('chunk', $indexes)) {
-	$changes[] = 'DROP INDEX chunk';
-}
+    if(array_key_exists('chunk', $indexes)) {
+        $changes[] = 'DROP INDEX chunk';
+    }
 
-if(!array_key_exists('id_and_chunk', $indexes)) {
-	$changes[] = 'ADD INDEX id_and_chunk (id, chunk)';
-}
+    if(!array_key_exists('id_and_chunk', $indexes)) {
+        $changes[] = 'ADD INDEX id_and_chunk (id, chunk)';
+    }
 
-if($changes) {
-	$sql = "ALTER TABLE storage_resources " . implode(', ', $changes);
-	$db->ExecuteMaster($sql);
+    if($changes) {
+        $sql = "ALTER TABLE storage_resources " . implode(', ', $changes);
+        $db->ExecuteMaster($sql);
+    }
 }
 
 // ===========================================================================

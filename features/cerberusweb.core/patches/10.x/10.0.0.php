@@ -768,28 +768,6 @@ if(!isset($tables['resource'])) {
 	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
 	
 	$tables['resource'] = 'resource';
-
-	// ===========================================================================
-	// Update resources
-	
-	$resource_files = [
-		'map.world.countries.json',
-		'map.country.usa.states.json',
-		'map.country.usa.counties.json',
-		'mapPoints.usaStateCapitals.json',
-		'mapPoints.worldCapitalCities.json',
-	];
-	
-	foreach($resource_files as $resource_file) {
-		$path = realpath(APP_PATH . '/features/cerberusweb.core/assets/resources/') . '/' . $resource_file;
-		
-		if(!file_exists($path) || false === ($resource_data = json_decode(file_get_contents($path), true)))
-			continue;
-		
-		DAO_Resource::importFromJson($resource_data);
-		
-		unset($resource_data);
-	}
 }
 
 // ===========================================================================
