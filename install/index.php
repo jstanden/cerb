@@ -876,6 +876,7 @@ switch($step) {
 			// Sanity/Error checking
 			if(!empty($worker_email) && !empty($worker_pass) && $worker_pass == $worker_pass2 && strlen($worker_pass) >= 8) {
 				$encrypt = DevblocksPlatform::services()->encryption();
+				$url_writer = DevblocksPlatform::services()->url();
 				
 				// Set the configuration details in the session
 				file_put_contents(APP_TEMP_PATH . '/setup.json', $encrypt->encrypt(json_encode([
@@ -886,6 +887,20 @@ switch($step) {
 					'admin_timezone' => $timezone ?: 'America/Los_Angeles',
 					'org_name' => $org_name ?: 'Example, Inc.',
 				])));
+				
+				// Set a cookie
+				setcookie(
+					'cerb_login_email',
+					$worker_email,
+					[
+						'expires' => time()+30*86400,
+						'path' => $url_writer->write('c=login',false,false),
+						'domain' => '',
+						'secure' => $url_writer->isSSL(),
+						'httponly' => true,
+						'samesite' => 'Lax',
+					]
+				);
 				
 				$tpl->assign('step', STEP_PACKAGES);
 				$tpl->display('steps/redirect.tpl');
