@@ -1687,10 +1687,15 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$error = null;
+		$user_agent = DevblocksPlatform::getClientUserAgent();
 		
 		$initial_state = [
 			'caller_name' => '',
 			'caller_params' => [],
+			'client_ip' => DevblocksPlatform::getClientIp(),
+			'client_browser_name' => $user_agent['browser'] ?? null,
+			'client_browser_platform' => $user_agent['platform'] ?? null,
+			'client_browser_version' => $user_agent['version'] ?? null,
 			'inputs' => $interaction_params,
 			'worker__context' => CerberusContexts::CONTEXT_WORKER,
 			'worker_id' => $active_worker->id,
@@ -1786,10 +1791,15 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 	
 	private function _startInteractionAutomationSession(Model_Automation $automation, array $caller=[], array $interaction_params=[], $continuation_token=null) : array {
 		$active_worker = CerberusApplication::getActiveWorker();
+		$user_agent = DevblocksPlatform::getClientUserAgent();
 		
 		$initial_state = [
 			'caller_name' => '',
 			'caller_params' => [],
+			'client_ip' => DevblocksPlatform::getClientIp(),
+			'client_browser_name' => $user_agent['browser'] ?? null,
+			'client_browser_platform' => $user_agent['platform'] ?? null,
+			'client_browser_version' => $user_agent['version'] ?? null,
 			'inputs' => $interaction_params,
 			'worker__context' => CerberusContexts::CONTEXT_WORKER,
 			'worker_id' => $active_worker->id,

@@ -40,6 +40,22 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 				'notes' => 'Built-in parameters based on the caller type.',
 			],
 			[
+				'key' => 'client_ip',
+				'notes' => 'The client IP address.',
+			],
+			[
+				'key' => 'client_browser_name',
+				'notes' => 'The client browser name (e.g. Safari).',
+			],
+			[
+				'key' => 'client_browser_platform',
+				'notes' => 'The client browser platform (e.g. Macintosh).',
+			],
+			[
+				'key' => 'client_browser_version',
+				'notes' => 'The client browser version.',
+			],
+			[
 				'key' => 'inputs',
 				'notes' => 'Custom inputs from the caller.',
 			],
