@@ -11,11 +11,7 @@
 	
 	<title>{$settings->get('cerberusweb.core','helpdesk_title')}</title>
 	{$favicon_url = $settings->get('cerberusweb.core','helpdesk_favicon_url','')}
-	{if empty($favicon_url)}
-	<link rel="icon" type="image/png" sizes="32x32" href="{devblocks_url}c=resource&p=cerberusweb.core&f=images/favicon-32x32.png{/devblocks_url}">
-	<link rel="icon" type="image/png" sizes="96x96" href="{devblocks_url}c=resource&p=cerberusweb.core&f=images/favicon-96x96.png{/devblocks_url}">
-	<link rel="icon" type="image/png" sizes="16x16" href="{devblocks_url}c=resource&p=cerberusweb.core&f=images/favicon-16x16.png{/devblocks_url}">
-	{else}
+	{if $favicon_url}
 	<link type="image/x-icon" rel="shortcut icon" href="{$favicon_url}">
 	{/if}
 	
