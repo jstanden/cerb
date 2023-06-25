@@ -90,7 +90,7 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 								'portal_code' => $portal_code,
 								'interaction' => $id,
 								'interaction_params' => $interaction_params,
-								'coookie' => $umsession->session_id,
+								'cookie' => $umsession->session_id,
 								'client_browser' => $client_browser,
 								'client_browser_version' => $client_browser_version,
 								'client_ip' => $client_ip,

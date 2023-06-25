@@ -315,8 +315,8 @@ class Model_MailToGroupRule {
 						$destinations = DevblocksPlatform::parseCsvString($value);
 
 						// Build a list of To/Cc addresses on this message
-						$to_list = CerberusMail::parseRfcAddresses(@$message_headers['to']);
-						$cc_list = CerberusMail::parseRfcAddresses(@$message_headers['cc']);
+						$to_list = CerberusMail::parseRfcAddresses($message_headers['to'] ?? '');
+						$cc_list = CerberusMail::parseRfcAddresses($message_headers['cc'] ?? '');
 						
 						if(is_array($to_list))
 						foreach($to_list as $addy) {
