@@ -2508,6 +2508,16 @@
 				<seg>reset</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.resource">
+			<tuv xml:lang="en_US">
+				<seg>resource</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.resources">
+			<tuv xml:lang="en_US">
+				<seg>resources</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.responsibility">
 			<tuv xml:lang="en_US">
 				<seg>responsibility</seg>
