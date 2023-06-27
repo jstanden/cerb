@@ -217,11 +217,14 @@ $(function() {
 		},
 		width: '75%',
 		start: function(formData) {
-			let $checked = $view_form.find('input:checkbox:checked');
-
-			for (let i = 0; i < $checked.length; i++) {
-				formData.append('caller[params][selected_record_ids][]', $checked[i].value)
-			}
+			let $rows = $view_form.find('input:checkbox');
+			$rows.toArray().forEach(function(checkbox) {
+				let $checkbox = $(checkbox);
+				formData.append('caller[params][visible_record_ids][]', $checkbox.val());
+				if($checkbox.is(':checked')) {
+					formData.append('caller[params][selected_record_ids][]', $checkbox.val());
+				}
+			});
 		},
 		done: function(e) {
 			e.stopPropagation();
