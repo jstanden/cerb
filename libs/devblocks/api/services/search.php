@@ -891,6 +891,9 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		$content_key = $schema->getDataField();
 		
 		$content = $this->_getTextFromDoc($doc);
+
+		// Limit the content to first space before 50KB
+		$content = $strings->truncateBeforeFinal($content, 50_000, [' ']);
 		
 		// If the table doesn't exist, create it at index time
 		if(!isset($tables['fulltext_' . $this->escapeNamespace($ns)]))
