@@ -157,7 +157,7 @@ $(function() {
 	var $popup = genericAjaxPopupFind($frm);
 	let $fieldset_advanced = $frm.find('fieldset[data-cerb-fieldset-advanced]');
 	
-	$popup.one('popup_open', function(event,ui) {
+	$popup.one('popup_open', function() {
 		$popup.dialog('option','title',"{'common.profile.widget'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		$popup.css('overflow', 'inherit');
 		
@@ -166,24 +166,6 @@ $(function() {
 		$popup.find('button.save-continue').click({ mode: 'continue' }, Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
 		$popup.find('button.import').click(Devblocks.callbackPeekEditSave);
-		
-		// Options Editor
-		$fieldset_advanced
-			.find('textarea[name=options_kata]')
-			.cerbCodeEditor()
-			.cerbCodeEditorAutocompleteKata({
-				autocomplete_suggestions: {
-					'': [
-						'hidden@bool:'
-					],
-					'hidden:': [
-						'yes',
-						'no',
-						'{literal}{{record_id == 123}}{/literal}'
-					]
-				}
-			})
-		;
 		
 		// Package Library
 		
@@ -297,7 +279,24 @@ $(function() {
 				}
 			}
 		});
-		
+
+		// Options Editor
+		$fieldset_advanced
+			.find('textarea[name=options_kata]')
+			.cerbCodeEditor()
+			.cerbCodeEditorAutocompleteKata({
+				autocomplete_suggestions: {
+					'': [
+						'hidden@bool:'
+					],
+					'hidden:': [
+						'yes',
+						'no',
+						'{literal}{{record_id == 123}}{/literal}'
+					]
+				}
+			})
+		;
 	});
 });
 </script>
