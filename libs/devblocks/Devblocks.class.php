@@ -1597,7 +1597,7 @@ class DevblocksPlatform extends DevblocksEngine {
 				'tel' => true,
 			));
 			
-			$dir_htmlpurifier_cache = APP_TEMP_PATH . '/cache/htmlpurifier/';
+			$dir_htmlpurifier_cache = APP_TEMP_PATH . '/htmlpurifier-cache/';
 			
 			if(!is_dir($dir_htmlpurifier_cache)) {
 				mkdir($dir_htmlpurifier_cache, 0755, true);

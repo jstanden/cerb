@@ -150,6 +150,27 @@ $packages = [
 CerberusApplication::packages()->importToLibraryFromFiles($packages, APP_PATH . '/features/cerberusweb.core/packages/library/');
 
 // ===========================================================================
+// Remove the old htmlpurifier cache
+
+if(file_exists(APP_TEMP_PATH . '/cache/htmlpurifier')) {
+	$files = new RecursiveIteratorIterator(
+		new RecursiveDirectoryIterator(APP_TEMP_PATH . '/cache/htmlpurifier', RecursiveDirectoryIterator::SKIP_DOTS),
+		RecursiveIteratorIterator::CHILD_FIRST
+	);
+	
+	foreach ($files as $file) {
+		/* @var $file SplFileInfo */
+		if ($file->isDir()) {
+			@rmdir($file->getPathname());
+		} elseif ($file->isFile()) {
+			@unlink($file->getPathname());
+		}
+	};
+	
+	rmdir(APP_TEMP_PATH . '/cache/htmlpurifier');
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
