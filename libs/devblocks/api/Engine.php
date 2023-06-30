@@ -717,11 +717,14 @@ abstract class DevblocksEngine {
 				if ('GET' != $http_method) {
 					// ...if the CSRF token is invalid for this session, freak out
 					if (!array_key_exists('csrf_token', $_SESSION) || $_SESSION['csrf_token'] != $request->csrf_token) {
-						//$referer = $_SERVER['HTTP_REFERER'] ?? null;
-						//$remote_addr = DevblocksPlatform::getClientIp();
-						
-						//error_log(sprintf("[Cerb] Possible CSRF attack from IP %s using referer %s", $remote_addr, $referer), E_USER_WARNING);
-						DevblocksPlatform::dieWithHttpError("Access denied", 403);
+						if(['login','authenticate'] == [$request->path[0],$request->path[1]]) {
+							CerberusApplication::respondWithErrorReason(CerbErrorReason::SessionExpired);
+						} else {
+							//$referer = $_SERVER['HTTP_REFERER'] ?? null;
+							//$remote_addr = DevblocksPlatform::getClientIp();
+							//error_log(sprintf("[Cerb] Possible CSRF attack from IP %s using referer %s", $remote_addr, $referer), E_USER_WARNING);
+							CerberusApplication::respondWithErrorReason(CerbErrorReason::AccessDenied);
+						}
 					}
 				}
 			}
