@@ -55,7 +55,7 @@ class _DevblocksUrlManager {
 		
 		if(!DEVBLOCKS_REWRITE) {
 			if($basedir != $url && 'index.php/' != substr($url, $len, 10))
-				CerberusApplication::respondNotFound();
+				CerberusApplication::respondWithErrorReason(CerbErrorReason::NotFound);
 			
 			$len += 10; // Strip `index.php/`
 		}

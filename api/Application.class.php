@@ -67,6 +67,34 @@ DevblocksPlatform::registerClasses($path . 'Update.php', array(
 	'ChUpdateController',
 ));
 
+enum CerbErrorReason {
+	case AccessDenied;
+	case NotFound;
+	case SessionExpired;
+	case UnknownError;
+	
+	public function getErrorMessage() : array {
+		return match ($this) {
+			self::AccessDenied => [
+				'code' => 403,
+				'template' => '403_access_denied',
+			],
+			self::NotFound => [
+				'code' => 404,
+				'template' => '404_not_found',
+			],
+			self::SessionExpired => [
+				'code' => 403,
+				'template' => '403_session_expired',
+			],
+			default => [
+				'code' => 500,
+				'html' => '500_unknown',
+			],
+		};
+	}
+}
+
 /**
  * Application-level Facade
  */
@@ -417,7 +445,7 @@ class CerberusApplication extends DevblocksApplication {
 		return $errors;
 	}
 	
-	public static function respondNotFound() {
+	public static function respondWithErrorReason(CerbErrorReason $reason) : void {
 		$tpl = DevblocksPlatform::services()->template();
 		$settings = DevblocksPlatform::services()->pluginSettings();
 		$translate = DevblocksPlatform::getTranslationService();
@@ -431,8 +459,12 @@ class CerberusApplication extends DevblocksApplication {
 			$tpl->assign('pref_dark_mode', DAO_WorkerPref::get($active_worker->id, 'dark_mode', 0));
 		}
 		
-		$message = $tpl->fetch('devblocks:cerberusweb.core::404_page.tpl');
-		DevblocksPlatform::dieWithHttpErrorHtml($message, 404);
+		$error_message = $reason->getErrorMessage();
+		$error_template = DevblocksPlatform::strAlphaNum($error_message['template'] ?? '', '_');
+		$tpl->assign('error_template', $error_template);
+		
+		$message = $tpl->fetch('devblocks:cerberusweb.core::error_page.tpl');
+		DevblocksPlatform::dieWithHttpErrorHtml($message, $error_message['code'] ?? 500);
 	}
 	
 	static function kataSchemas() : _CerbApplication_KataSchemas {

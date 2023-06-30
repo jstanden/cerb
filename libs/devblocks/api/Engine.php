@@ -608,7 +608,7 @@ abstract class DevblocksEngine {
 			$uri_escaped = DevblocksPlatform::strAlphaNum($parts[0], '\_\-\.');
 			
 			if($parts[0] != $uri_escaped) {
-				CerberusApplication::respondNotFound();
+				CerberusApplication::respondWithErrorReason(CerbErrorReason::NotFound);
 			}
 			
 			$parts[0] = $uri_escaped;

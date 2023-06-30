@@ -120,19 +120,7 @@ class Controller_Default extends DevblocksControllerExtension {
 		}
 		
 		if(empty($page)) {
-			$tpl->assign('settings', $settings);
-			$tpl->assign('session', $_SESSION ?? []);
-			$tpl->assign('translate', $translate);
-			$tpl->assign('visit', $visit);
-			
-			if($active_worker) {
-				$tpl->assign('pref_dark_mode', DAO_WorkerPref::get($active_worker->id, 'dark_mode', 0));
-			}
-				
-			$message = $tpl->fetch('devblocks:cerberusweb.core::404_page.tpl');
-			
-			DevblocksPlatform::dieWithHttpErrorHtml($message, 404);
-			return;
+			CerberusApplication::respondWithErrorReason(CerbErrorReason::NotFound);
 		}
 		
 		// [JAS]: Listeners (Step-by-step guided tour, etc.)

@@ -46,10 +46,10 @@ class ChExplorerController extends DevblocksControllerExtension {
 		$p = array_shift($stack) ?? 1; // item
 		
 		if(!$hashset)
-			CerberusApplication::respondNotFound();
+			CerberusApplication::respondWithErrorReason(CerbErrorReason::NotFound);
 
 		if($p != abs(intval($p)) || $p < 1)
-			CerberusApplication::respondNotFound();
+			CerberusApplication::respondWithErrorReason(CerbErrorReason::NotFound);
 		
 		$p = DevblocksPlatform::intClamp($p, 1, PHP_INT_MAX);
 		$total = 0;
