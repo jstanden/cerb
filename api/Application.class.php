@@ -3015,8 +3015,11 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 			'apple-touch-icon-precomposed.png',
 			'favicon.ico',
 			'cron',
+			'debug',
 			'portal',
 			'resource',
+			'update',
+			'webhooks',
 		];
 	}
 	
