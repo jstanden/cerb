@@ -4062,6 +4062,31 @@ class _CerbApplication_KataSchemas {
                 types:
                   list:
               
+              api.command:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+                      inputs:
+                        types:
+                          object:
+                            attributes:
+                              name:
+                                types:
+                                  string:
+                              params:
+                                types:
+                                  list:
+                      output:
+                        types:
+                          string:
+                      on_error:
+                        ref: commands
+                      on_success:
+                        ref: commands
+                      on_simulate:
+                        ref: commands
+              
               data.query:
                 multiple@bool: yes
                 types:
@@ -5016,6 +5041,7 @@ class _CerbApplication_KataSchemas {
           types:
             object:
               attributes:
+                api.command@ref: policyRule
                 data.query@ref: policyRule
                 decrypt.pgp@ref: policyRule
                 email.parse@ref: policyRule

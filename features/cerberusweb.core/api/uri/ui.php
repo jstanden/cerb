@@ -62,6 +62,8 @@ class Controller_UI extends DevblocksControllerExtension {
 				return $this->_uiAction_getContextPlaceholdersJson();
 			case 'getMentionsJson':
 				return $this->_uiAction_getMentionsJson();
+			case 'kataSuggestionsAutomationCommandParamsJson':
+				return $this->_uiAction_kataSuggestionsAutomationCommandParamsJson();
 			case 'kataSuggestionsAutomationInputsJson':
 				return $this->_uiAction_kataSuggestionsAutomationInputsJson();
 			case 'kataSuggestionsCerbUriJson':
@@ -228,7 +230,29 @@ class Controller_UI extends DevblocksControllerExtension {
 			)
 		);
 	}
+	
+	private function _uiAction_kataSuggestionsAutomationCommandParamsJson() {
+		header('Content-Type: application/json');
 		
+		$params = DevblocksPlatform::importGPC($_POST['params'] ?? [], 'array', []);
+		
+		$name = $params['name'] ?? null;
+		$key_path = $params['key_path'] ?? null;
+		$prefix = $params['prefix'] ?? null;
+		
+		if(!$name) {
+			echo json_encode([]);
+			return;
+		}
+		
+		if(!($command = Extension_AutomationApiCommand::getAsInstance($name))) {
+			echo json_encode([]);
+			return;
+		}
+		
+		echo json_encode($command->getAutocompleteSuggestions($key_path, $prefix));
+	}
+	
 	private function _uiAction_kataSuggestionsAutomationInputsJson() {
 		header('Content-Type: application/json');
 		

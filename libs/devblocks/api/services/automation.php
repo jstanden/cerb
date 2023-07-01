@@ -548,6 +548,7 @@ class _DevblocksAutomationService {
 		];
 		
 		$actions = [
+			'api.command',
 			'await',
 			'data.query',
 			'decrypt.pgp',

@@ -80,6 +80,7 @@ var cerbAutocompleteSuggestions = {
 			'settings:'
 		],
 		'commands:': [
+			'api.command:',
 			'data.query:',
 			'decrypt.pgp:',
 			'email.parse:',
@@ -100,6 +101,15 @@ var cerbAutocompleteSuggestions = {
 			'storage.delete:',
 			'storage.get:',
 			'storage.set:'
+		],
+		'commands:api.command:': [
+			'allow@bool: yes',
+			{
+				'caption': 'deny/name:',
+				'snippet': "deny/name@bool: {{inputs.name not in ['\${1:example.api.name}']}}",
+				'docHTML': 'Validate API function name'
+			},
+			'deny@bool: yes'
 		],
 		'commands:data.query:': [
 			'allow@bool: yes',
@@ -3688,7 +3698,42 @@ var ajax = new cAjaxCalls();
 									formData.set('prefix', prefix);
 									formData.set('params[uri]', matches[1]);
 								}
-								
+
+							} else if('automation-command-params' === completions['type']) {
+								editor.completer.getPopup().container.style.width = '400px';
+
+								let key_path = Devblocks.cerbCodeEditor.getKataTokenPath(
+									null,
+									editor
+								);
+
+								let inputs_path = key_path.slice();
+
+								// We can be nested, so find the closest parent
+								while(inputs_path.length && 'inputs:' !== inputs_path.at(-1)) {
+									inputs_path.pop();
+								}
+
+								if('inputs:' === inputs_path.at(-1)) {
+									let name_path = inputs_path.slice();
+									name_path.push('name:');
+
+									let key_row = Devblocks.cerbCodeEditor.getKataRowByPath(editor, name_path.join(''));
+									let key_line = editor.session.getLine(key_row);
+									let matches = key_line.match(/[^:]*:\s*(.*)/i);
+									let rel_path = key_path.slice(inputs_path.length + 1);
+
+									if(Array.isArray(matches) && 2 === matches.length) {
+										formData = new FormData();
+										formData.set('c', 'ui');
+										formData.set('a', 'kataSuggestionsAutomationCommandParamsJson');
+										formData.set('prefix', prefix);
+										formData.set('params[name]', matches[1]);
+										formData.set('params[key_path]', rel_path.join(''));
+										formData.set('params[prefix]', prefix);
+									}
+								}
+
 							} else if('metric-dimensions' === completions['type']) {
 								editor.completer.getPopup().container.style.width = '300px';
 								

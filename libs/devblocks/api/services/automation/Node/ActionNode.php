@@ -8,6 +8,7 @@ use Model_Automation;
 class ActionNode extends AbstractNode {
 	static function getActionClasses() {
 		return [
+			'api.command' => '\Cerb\AutomationBuilder\Action\ApiCommandAction',
 			'await' => '\Cerb\AutomationBuilder\Action\AwaitAction',
 			'data.query' => '\Cerb\AutomationBuilder\Action\DataQueryAction',
 			'decrypt.pgp' => '\Cerb\AutomationBuilder\Action\DecryptPgpAction',

@@ -40,6 +40,15 @@
  *	 Founders at Webgroup Media LLC; Developers of Cerb
  */
 
+abstract class Extension_AutomationApiCommand extends \DevblocksExtension {
+	use DevblocksExtensionGetterTrait;
+	
+	const POINT = 'cerb.automation.api_command';
+	
+	abstract function getAutocompleteSuggestions($key_path, $prefix) : array;
+	abstract function run(array $params=[], &$error=null) : array|false;
+}
+
 abstract class Extension_CustomField extends DevblocksExtension {
 	use DevblocksExtensionGetterTrait;
 	
@@ -773,6 +782,11 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 	public function getAutocompleteSuggestionsJson() {
 		$trigger_features = current($this->manifest->params['features'] ?? []);
 		
+		$api_commands = array_values(array_map(
+			fn($mft) => $mft->id,
+			Extension_AutomationApiCommand::getAll(false)
+		));
+		
 		$common_actions = [
 			[
 				'caption' => 'decision:',
@@ -810,6 +824,11 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'caption' => 'set:',
 				'snippet' => "set:\n\t\${1:key}: \${2:value}\n",
 				'description' => "Set one or more keys",
+			],
+			[
+				'caption' => 'api.command:',
+				'snippet' => "api.command:\n\tinputs:\n\t\t\${1:}\n\toutput: results\n\t#on_simulate:\n\t#on_success:\n\t#on_error:\n",
+				'description' => 'Invoke low-level API commands',
 			],
 			[
 				'caption' => 'data.query:',
@@ -1061,6 +1080,24 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					],
 				],
 				'(.*):outcome:then:' => $common_actions,
+				
+				'(.*):api.command:' => $action_base,
+				'(.*):api.command:inputs:' => [
+					[
+						'caption' => 'name:',
+						'snippet' => "name: \${1:}",
+						'score' => 2000,
+					],
+					[
+						'caption' => 'params:',
+						'snippet' => "params:\n\t\${1:}",
+						'score' => 1999,
+					],
+				],
+				'(.*):api.command:inputs:name:' => $api_commands,
+				'(.*):api.command:inputs:params:(.*):?' => [
+					'type' => 'automation-command-params',
+				],
 				
 				'(.*):data.query:' => $action_base,
 				'(.*):data.query:inputs:' => [
