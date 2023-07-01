@@ -3898,7 +3898,7 @@ var ajax = new cAjaxCalls();
 			
 			editor.setOption('enableBasicAutocompletion', []);
 			editor.completers.push(autocompleterKata);
-			editor.commands.on('afterExec', doCerbLiveAutocomplete);
+			editor.commands.on('afterExec', $.debounce(250, doCerbLiveAutocomplete));
 		});
 	}
 
@@ -4672,7 +4672,7 @@ var ajax = new cAjaxCalls();
 		
 			editor.setOption('enableBasicAutocompletion', []);
 			editor.completers.push(completer);
-			editor.commands.on('afterExec', doCerbLiveAutocomplete);
+			editor.commands.on('afterExec', $.debounce(250, doCerbLiveAutocomplete));
 		});
 	};
 
@@ -5168,7 +5168,7 @@ var ajax = new cAjaxCalls();
 					autocomplete_suggestions = autocomplete_suggestions_types;
 					
 					editor.setOption('enableBasicAutocompletion', []);
-					editor.commands.on('afterExec', doCerbLiveAutocomplete);
+					editor.commands.on('afterExec', $.debounce(250, doCerbLiveAutocomplete));
 					editor.completers.push(completer);
 					
 					editor.on('focus', function(e) {
