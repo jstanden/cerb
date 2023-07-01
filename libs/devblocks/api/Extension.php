@@ -33,10 +33,18 @@ trait DevblocksExtensionGetterTrait {
 		
 		return $extensions;
 	}
+	
+	public static function getAsManifest(string $extension_id) : DevblocksExtensionManifest|null {
+		return self::get($extension_id, false);
+	}
+	
+	public static function getAsInstance(string $extension_id) : DevblocksExtension|null {
+		return self::get($extension_id, true);
+	}
 
 	/**
 	 * @param string $extension_id
-	 * @return DevblocksExtensionManifest|null
+	 * @return DevblocksExtensionManifest|DevblocksExtension|null
 	 */
 	public static function get($extension_id, $as_instance=true) {
 		if($as_instance && isset(self::$_registry[$extension_id]))
