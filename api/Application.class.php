@@ -5717,6 +5717,35 @@ class _CerbApplication_KataSchemas {
                                 text:
                                   types:
                                     string:
+                  
+                markdown:
+                  multiple@bool: yes
+                  types:
+                    object:
+                      attributes:
+                        label@ref: columnLabel
+                        params:
+                          types:
+                            object:
+                              attributes:
+                                color:
+                                  types:
+                                    string:
+                                text_color:
+                                  types:
+                                    string:
+                                text_size:
+                                  types:
+                                    string:
+                                value_key:
+                                  types:
+                                    string:
+                                value_template:
+                                  types:
+                                    string:
+                                value:
+                                  types:
+                                    string:
                         
                 search_button:
                   multiple@bool: yes

@@ -537,6 +537,7 @@ class Model_ProjectBoard extends DevblocksRecordModel {
 		$sheets->addType('selection', $sheets->types()->selection());
 		$sheets->addType('icon', $sheets->types()->icon());
 		$sheets->addType('link', $sheets->types()->link());
+		$sheets->addType('markdown', $sheets->types()->markdown());
 		$sheets->addType('slider', $sheets->types()->slider());
 		$sheets->addType('text', $sheets->types()->text());
 		$sheets->addType('time_elapsed', $sheets->types()->timeElapsed());

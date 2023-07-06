@@ -373,6 +373,7 @@ class _DevblocksSheetService {
 		$this->addType('date', $this->types()->date());
 		$this->addType('icon', $this->types()->icon());
 		$this->addType('link', $this->types()->link());
+		$this->addType('markdown', $this->types()->markdown());
 		$this->addType('search', $this->types()->search());
 		$this->addType('search_button', $this->types()->searchButton());
 		$this->addType('selection', $this->types()->selection());
@@ -770,6 +771,37 @@ class _DevblocksSheetServiceTypes {
 			}
 			
 			return $value;
+		};
+	}
+	
+	function markdown(bool $filter_html=true) : callable {
+		return function($column, DevblocksDictionaryDelegate $sheet_dict, array $environment=[]) use ($filter_html) {
+			$tpl_builder = DevblocksPlatform::services()->templateBuilder()::newInstance('html');
+			$filters = [];
+
+			if($filter_html)
+				$filters[] = new Cerb_HTMLPurifier_URIFilter_Email(true);
+			
+			$column_params = ($column['params'] ?? null) ?: [];
+			
+			if(array_key_exists('value', $column_params)) {
+				$text_value = $column_params['value'];
+			} else if(array_key_exists('value_key', $column_params)) {
+				$text_value = $sheet_dict->get($column_params['value_key']);
+			} else if(array_key_exists('value_template', $column_params)) {
+				$text_value = $tpl_builder->build($column_params['value_template'], $sheet_dict);
+			} else {
+				$text_value = $sheet_dict->get($column['key'], null);
+			}
+			
+			$text_value = strval($text_value);
+			
+			if('text' == ($environment['format'] ?? null))
+				return $text_value;
+			
+			$value = DevblocksPlatform::parseMarkdown($text_value, true);
+			
+			return DevblocksPlatform::purifyHTML($value, false, true, $filters);
 		};
 	}
 	

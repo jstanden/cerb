@@ -838,6 +838,9 @@ class Controller_UI extends DevblocksControllerExtension {
 		if(in_array('link', $types))
 			$sheets->addType('link', $sheets->types()->link());
 		
+		if(in_array('markdown', $types))
+			$sheets->addType('markdown', $sheets->types()->markdown());
+		
 		if(in_array('search', $types))
 			$sheets->addType('search', $sheets->types()->search());
 		

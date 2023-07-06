@@ -853,6 +853,9 @@ UL.navmenu > LI.selected A {
 .cerb-data-sheet .cerb-data-sheet--field H1, .cerb-data-sheet .cerb-data-sheet--field H2, .cerb-data-sheet .cerb-data-sheet--field H3, .cerb-data-sheet .cerb-data-sheet--field H4, .cerb-data-sheet .cerb-data-sheet--field H5, .cerb-data-sheet .cerb-data-sheet--field H6 {
   color: var(--cerb-color-text);
 }
+.cerb-data-sheet .commentBodyHtml p:nth-child(1) {
+  margin-block-start: 0;
+}
 
 .cerb-sheet-buttons .cerb-sheet-buttons--button {
   background: var(--cerb-color-action-primary) none;

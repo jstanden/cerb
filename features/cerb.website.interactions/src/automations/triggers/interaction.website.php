@@ -272,6 +272,14 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 					'text_key: _label',
 					'text_template@raw:',
 				],
+				'(.*):await:form:elements:sheet:schema:columns:markdown:' => [
+					'params:',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:markdown:params:' => [
+					'value: **Markdown**',
+					'value_key: key',
+					'value_template@raw: {{key}}',
+				],
 				'(.*):await:form:elements:sheet:schema:columns:selection:' => [
 					'params:',
 				],

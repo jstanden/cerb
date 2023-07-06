@@ -130,6 +130,7 @@ class SheetAwait extends AbstractAwait {
 		
 		$sheets->addType('date', $sheets->types()->date(false));
 		$sheets->addType('link', $sheets->types()->link(false));
+		$sheets->addType('markdown', $sheets->types()->markdown(false));
 		$sheets->addType('selection', $sheets->types()->selection());
 		$sheets->addType('slider', $sheets->types()->slider(false));
 		$sheets->addType('text', $sheets->types()->text(false));

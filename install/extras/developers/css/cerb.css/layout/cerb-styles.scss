@@ -549,6 +549,10 @@ UL {
 			color: var(--cerb-color-text);
 		}
 	}
+
+	.commentBodyHtml p:nth-child(1) {
+		margin-block-start: 0;
+	}
 }
 
 .cerb-sheet-buttons {

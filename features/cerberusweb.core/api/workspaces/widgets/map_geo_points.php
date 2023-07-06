@@ -122,6 +122,7 @@ class WorkspaceWidget_MapGeoPoints extends Extension_WorkspaceWidget {
 			$sheets->addType('date', $sheets->types()->date());
 			$sheets->addType('icon', $sheets->types()->icon());
 			$sheets->addType('link', $sheets->types()->link());
+			$sheets->addType('markdown', $sheets->types()->markdown());
 			$sheets->addType('search', $sheets->types()->search());
 			$sheets->addType('slider', $sheets->types()->slider());
 			$sheets->addType('text', $sheets->types()->text());

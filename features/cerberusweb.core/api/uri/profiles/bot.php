@@ -981,6 +981,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 					$sheets->addType('date', $sheets->types()->date());
 					$sheets->addType('icon', $sheets->types()->icon());
 					$sheets->addType('link', $sheets->types()->link());
+					$sheets->addType('markdown', $sheets->types()->markdown());
 					$sheets->addType('search', $sheets->types()->search());
 					$sheets->addType('search_button', $sheets->types()->searchButton());
 					$sheets->addType('selection', $sheets->types()->selection());
@@ -1047,6 +1048,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 					$sheets->addType('date', $sheets->types()->date());
 					$sheets->addType('icon', $sheets->types()->icon());
 					$sheets->addType('link', $sheets->types()->link());
+					$sheets->addType('markdown', $sheets->types()->markdown());
 					$sheets->addType('search', $sheets->types()->search());
 					$sheets->addType('search_button', $sheets->types()->searchButton());
 					$sheets->addType('selection', $sheets->types()->selection());

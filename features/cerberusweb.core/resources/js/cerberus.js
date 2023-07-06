@@ -1079,6 +1079,10 @@ var cerbAutocompleteSuggestions = {
 				snippet: 'link/${1:key}:\n  label: ${2:Label}\n  params:\n    href: ${3:/some/path}\n    #href_key: some_key\n    #href_template: /some/path/{{placeholder}}\n    text: ${4:Link text}\n    #text_key: some_key\n'
 			},
 			{
+				caption: 'markdown:',
+				snippet: 'markdown/${1:key}:\n  label: ${2:Label}\n  params:\n    #value: literal text\n    #value_key: some_key\n    #value_template: "{{some_key}}"'
+			},
+			{
 				caption: 'search:',
 				snippet: 'search/${1:key}:\n  label: ${2:Label}\n  params:\n    context: ticket\n    #context_key: _context\n    query: status:o\n    #query_key: query\n    label: Label\n    #label: count\n'
 			},
@@ -1243,7 +1247,21 @@ var cerbAutocompleteSuggestions = {
 			'yes',
 			'no'
 		],
-		
+
+		// Markdown
+		'columns:markdown:': [
+			'label:',
+			'params:'
+		],
+		'columns:markdown:params:': [
+			'value:',
+			'value_key:',
+			'value_template@raw:',
+			'color@raw:',
+			'text_color@raw:',
+			'text_size@raw: 150%'
+		],
+
 		// Search
 		'columns:search:': [
 			'label:',

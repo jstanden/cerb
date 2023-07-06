@@ -885,6 +885,14 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'text_color@raw:',
 					'text_size@raw: 150%'
 				],
+				'(.*):await:form:elements:sheet:schema:columns:markdown:' => [
+					'params:',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:markdown:params:' => [
+					'value: **Markdown**',
+					'value_key: key',
+					'value_template@raw: {{key}}',
+				],
 				'(.*):await:form:elements:sheet:schema:columns:search:' => [
 					'label:',
 					'params:',

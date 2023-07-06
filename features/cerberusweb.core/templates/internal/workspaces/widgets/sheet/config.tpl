@@ -48,6 +48,7 @@
 						<li data-type="card"><div>Card</div></li>
 						<li data-type="date"><div>Date</div></li>
 						<li data-type="link"><div>Link</div></li>
+						<li data-type="markdown"><div>Markdown</div></li>
 						<li data-type="search"><div>Search</div></li>
 						<li data-type="search_button"><div>Search Button</div></li>
 						<li data-type="selection"><div>Selection</div></li>
@@ -271,6 +272,7 @@ $(function() {
 			formData.append('types[]', 'date');
 			formData.append('types[]', 'icon');
 			formData.append('types[]', 'link');
+			formData.append('types[]', 'markdown');
 			formData.append('types[]', 'search');
 			formData.append('types[]', 'search_button');
 			formData.append('types[]', 'selection');

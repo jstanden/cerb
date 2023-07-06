@@ -137,6 +137,7 @@ class SheetAwait extends AbstractAwait {
 		$sheets->addType('icon', $sheets->types()->icon());
 		$sheets->addType('interaction', $sheets->types()->interaction());
 		$sheets->addType('link', $sheets->types()->link());
+		$sheets->addType('markdown', $sheets->types()->markdown());
 		$sheets->addType('selection', $sheets->types()->selection());
 		$sheets->addType('slider', $sheets->types()->slider());
 		$sheets->addType('text', $sheets->types()->text());

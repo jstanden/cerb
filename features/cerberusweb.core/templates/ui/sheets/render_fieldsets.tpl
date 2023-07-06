@@ -11,6 +11,7 @@
 			{$text_color = $cell->getAttr('text_color')}
 			{$text_size = $cell->getAttr('text_size')}
 			{$style_css = "{if $column.params.bold}font-weight:bold;{/if}{if $color}background-color:{$color};{/if}{if $text_color}color:{$text_color};{/if}{if $text_size}font-size:{$text_size}%;{/if}"}
+			{$class_css = "{if $column._type == 'markdown'}commentBodyHtml{/if}"}
 			<tr class="cerb-data-sheet--field">
 				{if $column._type == 'selection'}
 					{$is_selection_enabled = true}
@@ -35,11 +36,11 @@
 					<td class="cerb-data-sheet--field-label">
 						{$column.label}:
 					</td>
-					<td style="{$style_css}">
+					<td class="{$class_css}" style="{$style_css}">
 						{$cell nofilter}
 					</td>
 					{else}
-					<td colspan="2" style="{$style_css}">
+					<td colspan="2" class="{$class_css}" style="{$style_css}">
 						{$cell nofilter}
 					</td>
 					{/if}
