@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "98f55bbc04a5145c86782e6815761783",
+    "content-hash": "95afb402065a28531cec1017eea8c3c5",
     "packages": [
         {
             "name": "brick/math",
@@ -958,16 +958,16 @@
         },
         {
             "name": "horde/imap-client",
-            "version": "dev-2.30.4-cerb",
+            "version": "dev-2.30.6-cerb",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jstanden/horde-imap.git",
-                "reference": "a06dc42f439e10912c181916220b5298249ac8d7"
+                "reference": "6cbdc45db2f4c0a47758096d516e85e1b80a5388"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jstanden/horde-imap/zipball/a06dc42f439e10912c181916220b5298249ac8d7",
-                "reference": "a06dc42f439e10912c181916220b5298249ac8d7",
+                "url": "https://api.github.com/repos/jstanden/horde-imap/zipball/6cbdc45db2f4c0a47758096d516e85e1b80a5388",
+                "reference": "6cbdc45db2f4c0a47758096d516e85e1b80a5388",
                 "shasum": ""
             },
             "require": {
@@ -979,6 +979,7 @@
                 "ext-intl": "*",
                 "ext-mbstring": "*"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "classmap": [
@@ -1004,7 +1005,7 @@
             "description": "IMAP client library",
             "homepage": "https://www.horde.org/libraries/Horde_Imap_Client",
             "support": {
-                "source": "https://github.com/jstanden/horde-imap/tree/2.30.4-cerb",
+                "source": "https://github.com/jstanden/horde-imap/tree/2.30.6-cerb",
                 "issues": "https://github.com/jstanden/horde-imap/issues"
             },
             "funding": [
