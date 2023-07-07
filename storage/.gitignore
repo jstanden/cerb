@@ -10,6 +10,7 @@ logo
 message_content
 resources
 tmp/cache
+tmp/htmlpurifier-cache
 tmp/mime*
 tmp/templates_c
 tmp/__Twig*
