@@ -392,10 +392,10 @@ class DAO_Group extends Cerb_ORMHelper {
 		
 		// Handle membership changes
 		if(isset($fields[self::_MEMBERS])) {
-			if(false != (@$roster_changes = json_decode($fields[self::_MEMBERS], true))) {
-				@$roster_managers = DevblocksPlatform::parseCsvString($roster_changes['manager']);
-				@$roster_members = DevblocksPlatform::parseCsvString($roster_changes['member']);
-				@$roster_remove = DevblocksPlatform::parseCsvString($roster_changes['remove']);
+			if(($roster_changes = json_decode($fields[self::_MEMBERS] ?? '', true))) {
+				$roster_managers = DevblocksPlatform::parseCsvString($roster_changes['manager'] ?? '');
+				$roster_members = DevblocksPlatform::parseCsvString($roster_changes['member'] ?? '');
+				$roster_remove = DevblocksPlatform::parseCsvString($roster_changes['remove'] ?? '');
 				
 				$changed_member_ids = [];
 				

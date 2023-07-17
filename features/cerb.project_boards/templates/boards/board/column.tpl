@@ -26,7 +26,7 @@
 	</div>
 </div>
 
-<form action="#" style="width:100%;padding-top:10px;min-height:500px;max-height:500px;overflow:scroll;">
+<form action="#" style="width:100%;padding-top:10px;min-height:500px;max-height:500px;overflow:auto;">
 {$cards = $column->getCards()}
 {include file="devblocks:cerb.project_boards::boards/board/cards.tpl"}
 {if $column->getLimit() == count($cards)}

@@ -5,7 +5,7 @@
         <div data-cerb-label--close style="position:absolute;top:-7px;right:-8px;cursor:pointer;">
             <span class="glyphicons glyphicons-remove-2" style="font-size:16px;"></span>
         </div>
-        <div data-cerb-label--contents style="max-height:25.5em;max-width:25.5em;overflow:scroll;"></div>
+        <div data-cerb-label--contents style="max-height:25.5em;max-width:25.5em;overflow:auto;"></div>
     </div>
 
     <div data-cerb-toolbar style="position:absolute;top:0;right:0;">

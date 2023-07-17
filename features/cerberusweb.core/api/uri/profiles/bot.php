@@ -2545,7 +2545,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			$handler
 		);
 		
-		if(false == $delegate_results)
+		if(!$delegate_results)
 			DevblocksPlatform::dieWithHttpError("null delegate results", 404);
 		
 		// Copy the parent state (actor, caller, params)
