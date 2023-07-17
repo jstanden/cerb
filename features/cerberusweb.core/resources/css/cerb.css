@@ -259,6 +259,18 @@ BODY, FORM, TD {
   color: var(--cerb-color-background-contrast-50);
 }
 
+::-webkit-scrollbar {
+  background-color: transparent;
+  width: 5px;
+  height: 5px;
+  scrollbar-width: thin;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+  background-color: var(--cerb-color-background-contrast-200);
+}
+
 A {
   color: var(--cerb-color-link);
 }
@@ -2769,7 +2781,7 @@ div.cerb-board div.cerb-board-column-add {
   vertical-align: top;
   position: relative;
   display: inline-block;
-  width: 300px;
+  width: 305px;
   background-color: var(--cerb-color-background);
   border: 1px dashed var(--cerb-color-background-contrast-220);
   border-radius: 5px;
@@ -2811,7 +2823,7 @@ div.cerb-board .cerb-board-column {
   text-align: center;
   vertical-align: top;
   display: inline-block;
-  width: 300px;
+  width: 305px;
   background-color: var(--cerb-color-background-contrast-250);
   border: 1px solid var(--cerb-color-background-contrast-230);
   border-radius: 5px;

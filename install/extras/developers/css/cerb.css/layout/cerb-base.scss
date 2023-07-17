@@ -10,6 +10,18 @@ BODY, FORM, TD {
 	color: var(--cerb-color-background-contrast-50);
 }
 
+::-webkit-scrollbar {
+	background-color: transparent;
+	width: 5px;
+	height: 5px;
+	scrollbar-width: thin;
+}
+
+::-webkit-scrollbar-thumb {
+	border-radius: 5px;
+	background-color: var(--cerb-color-background-contrast-200);
+}
+
 A {
 	color: var(--cerb-color-link);
 }
