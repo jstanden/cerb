@@ -73,7 +73,7 @@ class ChCronController extends DevblocksControllerExtension {
 		}
 
 		$cron_manifests = DevblocksPlatform::getExtensions('cerberusweb.cron', true);
-		$jobs = [];
+		$jobs = new CerbPriorityQueueDesc();
 		
 		if(empty($job_ids)) { // do everything
 			if($is_ignoring_internal) {
@@ -96,46 +96,46 @@ class ChCronController extends DevblocksControllerExtension {
 			}
 			
 			if(is_array($cron_manifests))
-			foreach($cron_manifests as $idx => $instance) { /* @var $instance CerberusCronPageExtension */
+			foreach($cron_manifests as $instance) { /* @var $instance CerberusCronPageExtension */
 				if($instance->isReadyToRun($is_ignoring_wait)) {
-					$jobs[] = $cron_manifests[$idx];
+					$last_ran_at = $instance->getParam(CerberusCronPageExtension::PARAM_LASTRUN, 0);
+					$jobs->insert($instance, $last_ran_at);
 				}
 			}
 			
 		} else { // do named jobs
 			foreach(DevblocksPlatform::parseCsvString($job_ids) as $job_id) {
-				if(isset($cron_manifests[$job_id])) {
-					$instance = $cron_manifests[$job_id];
+				if(array_key_exists($job_id, $cron_manifests)) {
+					$instance = $cron_manifests[$job_id]; /* @var $instance CerberusCronPageExtension */
 					
-					if($instance->isReadyToRun($is_ignoring_wait))
-						$jobs[] = $instance;
+					if($instance->isReadyToRun($is_ignoring_wait)) {
+						$last_ran_at = $instance->getParam(CerberusCronPageExtension::PARAM_LASTRUN, 0);
+						$jobs->insert($instance, $last_ran_at);
+					}
 				}
 			}
 		}
 
-		// Find out when each job ran last
-		if(is_array($jobs))
-		foreach($jobs as $idx => $job) {
-			$jobs[$idx]->last_ran_at = $job->getParam(CerberusCronPageExtension::PARAM_LASTRUN, 0);
-		}
+		$jobs->top();
 		
-		// Sort jobs by longest wait to run
-		DevblocksPlatform::sortObjects($jobs, 'last_ran_at');
-		
-		if(!empty($jobs)) {
-			foreach($jobs as $nextjob) {
+		if($jobs->count()) {
+			while($jobs->valid()) {
+				$job = $jobs->current();
+				
 				// Are we out of time?
 				if($time_left < 20)
 					continue;
 				
 				$started_at = time();
 				
-				$nextjob->_run();
+				$job->_run();
 				
 				// Subtract the time we've used
 				$time_left -= (time()-$started_at);
 				
 				$logger->info(sprintf("[Scheduler] Time Remaining: %d seconds", $time_left));
+				
+				$jobs->next();
 			}
 		} elseif($reload) {
 			$logger->info(sprintf($translate->_('cron.nothing_to_do'), intval($reload)));

@@ -67,6 +67,13 @@ DevblocksPlatform::registerClasses($path . 'Update.php', array(
 	'ChUpdateController',
 ));
 
+class CerbPriorityQueueDesc extends SplPriorityQueue {
+	function compare(mixed $priority1, mixed $priority2): int {
+		if($priority1 === $priority2) return 0;
+		return $priority1 < $priority2 ? 1 : -1;
+	}
+}
+
 enum CerbErrorReason {
 	case AccessDenied;
 	case NotFound;
