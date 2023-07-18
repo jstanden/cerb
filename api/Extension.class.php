@@ -2212,8 +2212,7 @@ abstract class CerberusCronPageExtension extends DevblocksExtension {
 	}
 	
 	/**
-	 * @internal
-	 * 
+	 *
 	 * @param boolean $is_ignoring_wait Ignore the wait time when deciding to run
 	 * @return boolean
 	 */

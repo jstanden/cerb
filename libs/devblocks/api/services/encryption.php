@@ -36,7 +36,7 @@ class _DevblocksEncryptionService {
 		
 		try {
 			$key = Defuse\Crypto\Key::loadFromAsciiSafeString($key_ascii);
-			$plaintext = Defuse\Crypto\Crypto::decrypt(base64_decode($ciphertext), $key, true);
+			$plaintext = Defuse\Crypto\Crypto::decrypt(base64_decode(strval($ciphertext)), $key, true);
 			
 		} catch (Exception $e) {
 			return false;

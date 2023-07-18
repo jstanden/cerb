@@ -4422,10 +4422,10 @@ class DevblocksEventHelper {
 		
 		$group_replyto = $group->getReplyTo();
 		
-		@$watcher_worker_ids = DevblocksPlatform::importVar($params['worker_id'],'array',[]);
+		$watcher_worker_ids = DevblocksPlatform::importVar($params['worker_id'] ?? null,'array',[]);
 		$watcher_worker_ids = DevblocksEventHelper::mergeWorkerVars($watcher_worker_ids, $dict);
 		
-		@$owner_ids = DevblocksPlatform::importVar($params['owner_id'],'string','');
+		$owner_ids = DevblocksPlatform::importVar($params['owner_id'] ?? null,'string','');
 		$owner_ids = DevblocksEventHelper::mergeWorkerVars($owner_ids, $dict);
 		$owner_id = array_shift($owner_ids) ?: 0;
 		
@@ -4442,7 +4442,7 @@ class DevblocksEventHelper {
 		$message->headers['x-cerb-bot'] = $dict->behavior_bot__label . ' :: ' . $dict->behavior__label;
 		
 		// Sender
-		if(false == ($from = CerberusMail::parseRfcAddress($requesters)))
+		if(!($from = CerberusMail::parseRfcAddress($requesters)))
 			return; // abort with message
 		
 		$from_address = $from['email'];

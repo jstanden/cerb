@@ -96,7 +96,7 @@ class VaAction_CreateServer extends Extension_DevblocksEventAction {
 			return;
 		
 		// Dupe check
-		if(false != ($server = DAO_Server::getByName($name))) {
+		if((DAO_Server::getByName($name))) {
 			return;
 		}
 		
@@ -104,7 +104,7 @@ class VaAction_CreateServer extends Extension_DevblocksEventAction {
 			DAO_Server::NAME => $name,
 		);
 			
-		if(false == ($server_id = DAO_Server::create($fields)))
+		if(!($server_id = DAO_Server::create($fields)))
 			return;
 		
 		// Custom fields

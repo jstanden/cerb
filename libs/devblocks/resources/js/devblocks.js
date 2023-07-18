@@ -477,13 +477,13 @@ function DevblocksClass() {
 					if(is_create) {
 						var layer = $popup.attr('data-layer');
 						var popup_url = 'c=internal&a=invoke&module=records&action=showPeekPopup' +
-							'&context=' + encodeURIComponent(e.context) + 
-							'&context_id=' + encodeURIComponent(e.id) + 
+							'&context=' + encodeURIComponent(e.context) +
+							'&context_id=' + encodeURIComponent(e.id) +
 							'&view_id=' + encodeURIComponent(e.view_id) +
 							'&edit=true'
-							;
+						;
 						
-						// Body snatch 
+						// Body snatch
 						
 						var $new_popup = genericAjaxPopup(layer, popup_url, 'reuse', false);
 						$new_popup.focus();

@@ -550,6 +550,7 @@ class Model_JiraProject extends DevblocksRecordModel {
 	public $versions = [];
 	public $last_checked_at = 0;
 	public $last_synced_at = 0;
+	public $last_synced_checkpoint = 0;
 	public $updated_at = 0;
 	
 	private $_base_url = null;

@@ -160,7 +160,7 @@ class ServiceProvider_Aws extends Extension_ConnectedServiceProvider {
 	}
 	
 	function generatePresignedUrl(RequestInterface $request, Model_ConnectedAccount $account, $expires_secs=300) {
-		if(false == ($credentials = $account->decryptParams()))
+		if(!($credentials = $account->decryptParams()))
 			return false;
 		
 		$uri = $request->getUri();

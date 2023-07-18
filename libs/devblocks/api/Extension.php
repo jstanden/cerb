@@ -533,8 +533,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	}
 
 	/**
-	 * @internal
-	 * 
+	 *
 	 * @param string $context
 	 * @return Extension_DevblocksContext|false
 	 */

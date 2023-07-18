@@ -147,8 +147,8 @@ class VaAction_CreateOpportunity extends Extension_DevblocksEventAction {
 		if(empty($name))
 			return;
 		
-		if(false == ($currency = DAO_Currency::get($currency_id)))
-			if(false == ($currency = DAO_Currency::getDefault()))
+		if(!($currency = DAO_Currency::get($currency_id)))
+			if(!($currency = DAO_Currency::getDefault()))
 				return;
 		
 		$amount = DevblocksPlatform::strParseDecimal($amount, $currency->decimal_at);
@@ -174,7 +174,7 @@ class VaAction_CreateOpportunity extends Extension_DevblocksEventAction {
 				break;
 		}
 			
-		if(false == ($opp_id = DAO_CrmOpportunity::create($fields)))
+		if(!($opp_id = DAO_CrmOpportunity::create($fields)))
 			return;
 		
 		// Custom fields

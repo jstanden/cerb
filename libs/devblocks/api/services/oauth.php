@@ -92,7 +92,7 @@ class _DevblocksOAuth1Client {
 		$oauth_headers = array(
 			'oauth_callback' => $redirect_url,
 			'oauth_consumer_key' => $this->_consumer_key,
-			'oauth_nonce' => sha1(uniqid(null, true)),
+			'oauth_nonce' => sha1(uniqid('', true)),
 			'oauth_signature_method' => $this->_signature_method,
 			'oauth_timestamp' => time(),
 			'oauth_version' => '1.0',
@@ -216,7 +216,7 @@ class _DevblocksOAuth1Client {
 		
 		$oauth_headers = array_merge($oauth_headers, array(
 			'oauth_consumer_key' => $this->_consumer_key,
-			'oauth_nonce' => sha1(uniqid(null, true)),
+			'oauth_nonce' => sha1(uniqid('', true)),
 			'oauth_signature_method' => $this->_signature_method,
 			'oauth_timestamp' => time(),
 			'oauth_token' => $this->_token,
@@ -421,7 +421,7 @@ class _DevblocksOAuth1Client {
 		
 		$oauth_headers = [
 			'oauth_consumer_key' => $this->_consumer_key,
-			'oauth_nonce' => sha1(uniqid(null, true)),
+			'oauth_nonce' => sha1(uniqid('', true)),
 			'oauth_signature_method' => $this->_signature_method,
 			'oauth_timestamp' => time(),
 			'oauth_token' => $this->_token,
@@ -494,7 +494,7 @@ class _DevblocksOAuth1Client {
 		
 		$oauth_headers = array(
 			'oauth_consumer_key' => $this->_consumer_key,
-			'oauth_nonce' => sha1(uniqid(null, true)),
+			'oauth_nonce' => sha1(uniqid('', true)),
 			'oauth_signature_method' => $this->_signature_method,
 			'oauth_timestamp' => time(),
 			'oauth_token' => $this->_token,

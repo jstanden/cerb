@@ -499,8 +499,8 @@ class DAO_Worker extends Cerb_ORMHelper {
 			}
 			
 			// Then check saved searches
-			if($with_searches && false != ($search = DAO_ContextSavedSearch::getByTag($at_mention))) {
-				if(false == ($results = $search->getResults()))
+			if($with_searches && ($search = DAO_ContextSavedSearch::getByTag($at_mention))) {
+				if(!($results = $search->getResults()))
 					continue;
 				
 				$worker_ids = array_keys($results);

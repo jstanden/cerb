@@ -150,7 +150,7 @@ class MailboxCron extends CerberusCronPageExtension {
 					
 					$time = microtime(true);
 					
-					$unique = uniqid(null, true);
+					$unique = uniqid('', true);
 					$filename = APP_MAIL_PATH . 'new' . DIRECTORY_SEPARATOR . $unique;
 					
 					$fp = fopen($filename,'w+');
