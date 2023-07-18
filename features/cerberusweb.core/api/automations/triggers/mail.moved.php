@@ -63,7 +63,7 @@ class AutomationTrigger_MailMoved extends Extension_AutomationTrigger {
 	}
 	
 	public function getEventToolbarItems(array $toolbar): array {
-		return [];
+		return $toolbar;
 	}
 	
 	public function getAutocompleteSuggestions() : array {
