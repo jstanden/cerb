@@ -3960,7 +3960,19 @@
 				</param>
 			</params>
 		</extension>
-		
+
+		<!-- Automation API commands -->
+
+		<extension point = "cerb.automation.api_command">
+			<id>cerb.commands.oauth2.token.validate</id>
+			<name>cerb.commands.oauth2.token.validate</name>
+			<class>
+				<file>api/automations/api_commands/cerb.oauth2.token.validate.php</file>
+				<name>ApiCommand_CerbOAuth2TokenValidate</name>
+			</class>
+			<params />
+		</extension>
+
 		<!-- Event Triggers -->
 		
 		<extension point="devblocks.event">
