@@ -88,7 +88,7 @@ class DAO_Comment extends Cerb_ORMHelper {
 		return $validation->getFields();
 	}
 
-	static function create($fields, $also_notify_worker_ids=[], $file_ids=[]) {
+	static function create($fields, $file_ids=[]) {
 		$db = DevblocksPlatform::services()->database();
 		
 		if(!isset($fields[self::CREATED]))
@@ -107,45 +107,6 @@ class DAO_Comment extends Cerb_ORMHelper {
 		
 		if(!empty($file_ids)) {
 			DAO_Attachment::addLinks(CerberusContexts::CONTEXT_COMMENT, $id, $file_ids);
-		}
-		
-		/*
-		 * Log the activity of a new comment being created
-		 */
-
-		if(isset($fields[self::CONTEXT]) && isset($fields[self::CONTEXT_ID])) {
-			$context = Extension_DevblocksContext::get($fields[self::CONTEXT]);
-			
-			$meta = $context->getMeta($fields[self::CONTEXT_ID]);
-			
-			$entry = [
-				//{{actor}} {{common.commented}} on {{object}} {{target}}
-				'message' => 'activities.comment.create',
-				'variables' => array(
-					'object' => mb_convert_case($context->manifest->name, MB_CASE_LOWER),
-					'target' => $meta['name'],
-					),
-				'urls' => array(
-					'common.commented' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_COMMENT, $id),
-					'target' => sprintf("ctx://%s:%d", $fields[self::CONTEXT], $fields[self::CONTEXT_ID]),
-					)
-			];
-			CerberusContexts::logActivity('comment.create', $fields[self::CONTEXT], $fields[self::CONTEXT_ID], $entry, null, null, $also_notify_worker_ids);
-			
-			/*
-			 * Send a new comment event
-			 */
-			
-			$eventMgr = DevblocksPlatform::services()->event();
-			$eventMgr->trigger(
-				new Model_DevblocksEvent(
-					'comment.create',
-					[
-						'comment_id' => $id,
-						'fields' => $fields,
-					]
-				)
-			);
 		}
 		
 		return $id;
@@ -186,6 +147,52 @@ class DAO_Comment extends Cerb_ORMHelper {
 		}
 		
 		return true;
+	}
+	
+	static function onUpdateByActor($actor, $fields, $id) {
+		if(!($comment = $fields[self::COMMENT] ?? null))
+			return;
+		
+		$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));
+		
+		/*
+		 * Log the activity of a new comment being created
+		 */
+		
+		if(array_key_exists(self::CONTEXT, $fields) && array_key_exists(self::CONTEXT_ID, $fields)) {
+			$context = Extension_DevblocksContext::get($fields[self::CONTEXT]);
+			
+			$meta = $context->getMeta($fields[self::CONTEXT_ID]);
+			
+			$entry = [
+				//{{actor}} {{common.commented}} on {{object}} {{target}}
+				'message' => 'activities.comment.create',
+				'variables' => array(
+					'object' => mb_convert_case($context->manifest->name, MB_CASE_LOWER),
+					'target' => $meta['name'],
+				),
+				'urls' => array(
+					'common.commented' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_COMMENT, $id),
+					'target' => sprintf("ctx://%s:%d", $fields[self::CONTEXT], $fields[self::CONTEXT_ID]),
+				)
+			];
+			CerberusContexts::logActivity('comment.create', $fields[self::CONTEXT], $fields[self::CONTEXT_ID], $entry, null, null, $also_notify_worker_ids);
+			
+			/*
+			 * Send a new comment event
+			 */
+			
+			$eventMgr = DevblocksPlatform::services()->event();
+			$eventMgr->trigger(
+				new Model_DevblocksEvent(
+					'comment.create',
+					[
+						'comment_id' => $id,
+						'fields' => $fields,
+					]
+				)
+			);
+		}
 	}
 	
 	/**
@@ -499,8 +506,6 @@ class DAO_Comment extends Cerb_ORMHelper {
 			throw new Exception_DevblocksAjaxValidationError("A comment is required when attaching files.", "comment");
 		
 		if($context_id && $comment && $active_worker->hasPriv(sprintf("contexts.%s.comment", $context))) {
-			$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));
-			
 			$fields = [
 				DAO_Comment::CREATED => time(),
 				DAO_Comment::CONTEXT => $context,
@@ -510,7 +515,7 @@ class DAO_Comment extends Cerb_ORMHelper {
 				DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
 				DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
 			];
-			$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
+			$comment_id = DAO_Comment::create($fields);
 			
 			if($comment_file_ids) {
 				DAO_Attachment::addLinks(CerberusContexts::CONTEXT_COMMENT, $comment_id, $comment_file_ids);

@@ -145,8 +145,6 @@ class PageSection_ProfilesFileBundle extends Extension_PageSection {
 				// If we're adding a comment
 				
 				if(!empty($comment)) {
-					$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));
-					
 					$fields = array(
 						DAO_Comment::CREATED => time(),
 						DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_FILE_BUNDLE,
@@ -155,7 +153,7 @@ class PageSection_ProfilesFileBundle extends Extension_PageSection {
 						DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
 						DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
 					);
-					$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
+					DAO_Comment::create($fields);
 				}
 				
 				// Custom field saves

@@ -90,8 +90,6 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 			$error = null;
 			
 			if(empty($id)) { // New
-				$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));
-				
 				// Validate the context
 				if(false == ($context_ext = Extension_DevblocksContext::get($context)) || false == ($context_ext->getMeta($context_id)))
 					throw new Exception_DevblocksAjaxValidationError("The 'Target' is invalid.", 'context');
@@ -112,7 +110,7 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 				if(!DAO_Comment::onBeforeUpdateByActor($active_worker, $fields, null, $error))
 					throw new Exception_DevblocksAjaxValidationError($error);
 				
-				$id = DAO_Comment::create($fields, $also_notify_worker_ids, $file_ids);
+				$id = DAO_Comment::create($fields, $file_ids);
 				DAO_Comment::onUpdateByActor($active_worker, $fields, $id);
 				
 				if(!empty($view_id) && !empty($id))

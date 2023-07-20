@@ -39,7 +39,7 @@
 	<textarea name="{$namePrefix}[comment]" cols="45" rows="5" style="width:100%;" class="placeholders">{$params.comment}</textarea>
 </div>
 
-<b>{'common.notify_workers'|devblocks_translate|capitalize}:</b>
+<b>{'common.notify_workers'|devblocks_translate|capitalize}: (deprecated)</b>
 <div style="margin-left:10px;margin-bottom:0.5em;">
 	{include file="devblocks:cerberusweb.core::internal/decisions/actions/_shared_var_worker_picker.tpl" param_name="notify_worker_id" values_to_contexts=$values_to_contexts}
 </div>

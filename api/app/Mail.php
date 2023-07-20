@@ -2367,8 +2367,6 @@ class CerberusMail {
 					$comment = $command_data['args'] ?? null;
 					
 					if(!empty($comment)) {
-						$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));
-						
 						$fields = array(
 							DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TICKET,
 							DAO_Comment::CONTEXT_ID => $ticket_id,
@@ -2377,7 +2375,7 @@ class CerberusMail {
 							DAO_Comment::CREATED => time()+2,
 							DAO_Comment::COMMENT => $comment,
 						);
-						DAO_Comment::create($fields, $also_notify_worker_ids);
+						DAO_Comment::create($fields);
 					}
 					break;
 				
@@ -2385,8 +2383,6 @@ class CerberusMail {
 					$comment = $command_data['args'] ?? null;
 					
 					if(!empty($comment)) {
-						$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));
-						
 						$fields = array(
 							DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_MESSAGE,
 							DAO_Comment::CONTEXT_ID => $message_id,
@@ -2395,7 +2391,7 @@ class CerberusMail {
 							DAO_Comment::CREATED => time(),
 							DAO_Comment::COMMENT => $comment,
 						);
-						DAO_Comment::create($fields, $also_notify_worker_ids);
+						DAO_Comment::create($fields);
 					}
 					break;
 				
@@ -2587,8 +2583,6 @@ class CerberusMail {
 					$comment = $command_data['args'] ?? null;
 					
 					if(!empty($comment)) {
-						$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));
-						
 						$fields = array(
 							DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TICKET,
 							DAO_Comment::CONTEXT_ID => $ticket->id,
@@ -2597,7 +2591,7 @@ class CerberusMail {
 							DAO_Comment::CREATED => time()+2,
 							DAO_Comment::COMMENT => $comment,
 						);
-						DAO_Comment::create($fields, $also_notify_worker_ids);
+						DAO_Comment::create($fields);
 					}
 					break;
 				
@@ -2605,8 +2599,6 @@ class CerberusMail {
 					$comment = $command_data['args'] ?? null;
 					
 					if(!empty($comment)) {
-						$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));
-						
 						$fields = array(
 							DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_MESSAGE,
 							DAO_Comment::CONTEXT_ID => $message_id,
@@ -2616,7 +2608,7 @@ class CerberusMail {
 							DAO_Comment::COMMENT => $comment,
 							DAO_Comment::IS_MARKDOWN => 1,
 						);
-						DAO_Comment::create($fields, $also_notify_worker_ids);
+						DAO_Comment::create($fields);
 					}
 					break;
 				

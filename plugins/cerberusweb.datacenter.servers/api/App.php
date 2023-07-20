@@ -87,9 +87,6 @@ class VaAction_CreateServer extends Extension_DevblocksEventAction {
 		
 		$name = $tpl_builder->build($params['name'] ?? '', $dict);
 
-		$notify_worker_ids = DevblocksPlatform::importVar($params['notify_worker_id'] ?? null,'array',[]);
-		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $dict);
-		
 		$comment = $tpl_builder->build($params['comment'], $dict);
 		
 		if(empty($name))
@@ -120,7 +117,7 @@ class VaAction_CreateServer extends Extension_DevblocksEventAction {
 				DAO_Comment::CONTEXT_ID => $server_id,
 				DAO_Comment::CREATED => time(),
 			);
-			DAO_Comment::create($fields, $notify_worker_ids);
+			DAO_Comment::create($fields);
 		}
 
 		// Set object variable

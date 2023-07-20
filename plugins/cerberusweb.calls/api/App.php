@@ -145,9 +145,6 @@ class WgmCalls_EventActionPost extends Extension_DevblocksEventAction {
 		@$watcher_worker_ids = DevblocksPlatform::importVar($params['worker_id'],'array',array());
 		$watcher_worker_ids = DevblocksEventHelper::mergeWorkerVars($watcher_worker_ids, $dict);
 		
-		@$notify_worker_ids = DevblocksPlatform::importVar($params['notify_worker_id'],'array',array());
-		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $dict);
-				
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$subject = $tpl_builder->build($params['subject'], $dict);
 		$phone = $tpl_builder->build($params['phone'], $dict);
@@ -191,7 +188,7 @@ class WgmCalls_EventActionPost extends Extension_DevblocksEventAction {
 				DAO_Comment::CONTEXT_ID => $call_id,
 				DAO_Comment::CREATED => time(),
 			);
-			DAO_Comment::create($fields, $notify_worker_ids);
+			DAO_Comment::create($fields);
 		}
 		
 		// Links

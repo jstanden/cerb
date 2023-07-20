@@ -3018,9 +3018,6 @@ class DevblocksEventHelper {
 		@$watcher_worker_ids = DevblocksPlatform::importVar($params['worker_id'],'array',[]);
 		$watcher_worker_ids = DevblocksEventHelper::mergeWorkerVars($watcher_worker_ids, $dict);
 		
-		@$notify_worker_ids = DevblocksPlatform::importVar($params['notify_worker_id'],'array',[]);
-		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $dict);
-		
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
 		$title = $tpl_builder->build($params['title'] ?? '', $dict);
@@ -3070,7 +3067,7 @@ class DevblocksEventHelper {
 					DAO_Comment::CONTEXT_ID => $calendar_event_id,
 					DAO_Comment::CREATED => time(),
 				);
-				DAO_Comment::create($fields, $notify_worker_ids);
+				DAO_Comment::create($fields);
 			}
 			
 			// Set object variable
@@ -3167,11 +3164,6 @@ class DevblocksEventHelper {
 		// Format
 		$is_markdown = ('markdown' == ($params['format'] ?? '')) ? 1 : 0;
 		
-		// Notify
-		$notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($content));
-		$notify_worker_ids = array_merge($notify_worker_ids, (isset($params['notify_worker_id']) ? $params['notify_worker_id'] : []));
-		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $dict);
-		
 		// Fields
 		
 		$fields = array(
@@ -3195,7 +3187,7 @@ class DevblocksEventHelper {
 			foreach($on_objects as $on_object) {
 				$fields[DAO_Comment::CONTEXT] = $on_object->_context;
 				$fields[DAO_Comment::CONTEXT_ID] = $on_object->id;
-				$comment_id = DAO_Comment::create($fields, $notify_worker_ids);
+				$comment_id = DAO_Comment::create($fields);
 				
 				// Connection
 				DevblocksEventHelper::runActionCreateRecordSetLinks(CerberusContexts::CONTEXT_COMMENT, $comment_id, $params, $dict);
@@ -4065,15 +4057,6 @@ class DevblocksEventHelper {
 		$trigger = $dict->__trigger;
 		$event = $trigger->getEvent();
 		
-		// Notifications
-		
-		$notify_worker_ids = isset($params['notify_worker_id']) ? $params['notify_worker_id'] : [];
-		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $dict);
-				
-		// Only notify an individual worker once
-		
-		$notify_worker_ids = array_unique($notify_worker_ids);
-		
 		// Template
 		
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
@@ -4108,7 +4091,7 @@ class DevblocksEventHelper {
 					DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_BOT,
 					DAO_Comment::OWNER_CONTEXT_ID => $trigger->bot_id,
 				);
-				$note_id = DAO_Comment::create($fields, $notify_worker_ids);
+				$note_id = DAO_Comment::create($fields);
 			}
 		}
 		
@@ -4233,9 +4216,6 @@ class DevblocksEventHelper {
 		@$watcher_worker_ids = DevblocksPlatform::importVar($params['worker_id'],'array',[]);
 		$watcher_worker_ids = DevblocksEventHelper::mergeWorkerVars($watcher_worker_ids, $dict);
 		
-		@$notify_worker_ids = DevblocksPlatform::importVar($params['notify_worker_id'],'array',[]);
-		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $dict);
-		
 		@$owner_ids = DevblocksPlatform::importVar($params['owner_id'],'string','');
 		$owner_ids = DevblocksEventHelper::mergeWorkerVars($owner_ids, $dict);
 		$owner_id = array_shift($owner_ids) ?: 0;
@@ -4278,7 +4258,7 @@ class DevblocksEventHelper {
 				DAO_Comment::CONTEXT_ID => $task_id,
 				DAO_Comment::CREATED => time(),
 			);
-			DAO_Comment::create($fields, $notify_worker_ids);
+			DAO_Comment::create($fields);
 		}
 		
 		// Connection
