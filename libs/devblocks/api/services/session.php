@@ -40,12 +40,10 @@ class _DevblocksSessionManager {
 				array($handler_class, 'gc')
 			);
 
-			$session_lifespan = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::SESSION_LIFESPAN, CerberusSettingsDefaults::SESSION_LIFESPAN);
-
 			session_name(APP_SESSION_NAME);
 			
 			session_set_cookie_params([
-				'lifetime' => $session_lifespan,
+				'lifetime' => 0,
 				'path' => DEVBLOCKS_WEBPATH,
 				'domain' => '',
 				'secure' => $url_writer->isSSL(),

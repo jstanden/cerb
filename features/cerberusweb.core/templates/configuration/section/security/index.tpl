@@ -18,27 +18,31 @@
 </fieldset>
 
 <fieldset>
-	<legend>Session Expiration</legend>
+	<legend>Session Cookies</legend>
 	
-	<b>Expire session cookies:</b>
-	<br>
+	<b>Expire sessions after </b>
 	{$opts = [
-		["When the browser is closed",0],
-		["After 15 minutes of inactivity",900],
-		["After 1 hour of inactivity",3600],
-		["After 2 hours of inactivity",7200],
-		["After 6 hours of inactivity",21600],
-		["After 12 hours of inactivity",43200],
-		["After 1 day of inactivity",86400],
-		["After 1 week of inactivity",604800],
-		["After 2 weeks of inactivity",1209600],
-		["After 1 month of inactivity",2592000]
+		["15 minutes",900],
+		["30 minutes",1800],
+		["1 hour",3600],
+		["2 hours",7200],
+		["4 hours",14400],
+		["6 hours",21600],
+		["8 hours",28800],
+		["12 hours",43200],
+		["1 day",86400],
+		["3 days",259200],
+		["1 week",604800],
+		["2 weeks",1209600],
+		["1 month",2592000]
 	]}
 	<select name="session_lifespan">
 		{foreach from=$opts item=opt}
-		<option value="{$opt[1]}" {if $opt[1]==$settings->get('cerberusweb.core','session_lifespan',CerberusSettingsDefaults::SESSION_LIFESPAN)}selected="selected"{/if}>{$opt[0]}</option>
+		<option value="{$opt[1]}" {if $opt[1]==$session_lifespan}selected="selected"{/if}>{$opt[0]}</option>
 		{/foreach}
 	</select>
+
+	<b>of inactivity</b>
 </fieldset>
 
 <button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>

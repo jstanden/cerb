@@ -1545,7 +1545,7 @@ class SearchFields_Worker extends DevblocksSearchFields {
 				@$from_ts = strtotime($param->value[0]);
 				@$to_ts = strtotime($param->value[1]);
 				
-				return sprintf('w.id IN (SELECT DISTINCT user_id FROM devblocks_session WHERE refreshed_at BETWEEN %d AND %d)', $from_ts, $to_ts);
+				return sprintf('w.id IN (SELECT DISTINCT user_id FROM devblocks_session WHERE updated BETWEEN %d AND %d)', $from_ts, $to_ts);
 			
 			case self::VIRTUAL_ROLE_SEARCH:
 				$sql = "SELECT worker_id FROM worker_to_role WHERE is_member = 1 AND role_id IN (%s)";

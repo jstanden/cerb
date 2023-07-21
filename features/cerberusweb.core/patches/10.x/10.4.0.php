@@ -139,6 +139,20 @@ if(($actions_widget_id = $db->GetOneMaster("SELECT id FROM profile_widget WHERE 
 $db->ExecuteMaster($sql);
 
 // ===========================================================================
+// Modify `devblocks_session` to drop `refreshed_at`
+
+if(!isset($tables['devblocks_session'])) {
+	$logger->error("The 'devblocks_session' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('devblocks_session');
+
+if(array_key_exists('refreshed_at', $columns)) {
+	$db->ExecuteMaster("ALTER TABLE devblocks_session DROP COLUMN refreshed_at");
+}
+
+// ===========================================================================
 // Update package library
 
 $packages = [
