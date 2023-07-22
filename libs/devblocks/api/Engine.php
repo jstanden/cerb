@@ -720,10 +720,11 @@ abstract class DevblocksEngine {
 						if(['login','authenticate'] == [$request->path[0],$request->path[1]]) {
 							CerberusApplication::respondWithErrorReason(CerbErrorReason::SessionExpired);
 						} else {
-							//$referer = $_SERVER['HTTP_REFERER'] ?? null;
-							//$remote_addr = DevblocksPlatform::getClientIp();
-							//error_log(sprintf("[Cerb] Possible CSRF attack from IP %s using referer %s", $remote_addr, $referer), E_USER_WARNING);
-							CerberusApplication::respondWithErrorReason(CerbErrorReason::AccessDenied);
+							if($request->is_ajax) {
+								DevblocksPlatform::dieWithHttpError(null, 401);
+							} else {
+								CerberusApplication::respondWithErrorReason(CerbErrorReason::AccessDenied);
+							}
 						}
 					}
 				}

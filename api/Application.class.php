@@ -91,8 +91,8 @@ enum CerbErrorReason {
 				'template' => '404_not_found',
 			],
 			self::SessionExpired => [
-				'code' => 403,
-				'template' => '403_session_expired',
+				'code' => 401,
+				'template' => '401_session_expired',
 			],
 			default => [
 				'code' => 500,
@@ -457,14 +457,15 @@ class CerberusApplication extends DevblocksApplication {
 		$tpl = DevblocksPlatform::services()->template();
 		$settings = DevblocksPlatform::services()->pluginSettings();
 		$translate = DevblocksPlatform::getTranslationService();
-		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$tpl->assign('settings', $settings);
-		$tpl->assign('session', $_SESSION ?? []);
 		$tpl->assign('translate', $translate);
-		
-		if($active_worker) {
-			$tpl->assign('pref_dark_mode', DAO_WorkerPref::get($active_worker->id, 'dark_mode', 0));
+
+		if(!CerbErrorReason::SessionExpired) {
+			$tpl->assign('session', $_SESSION ?? []);
+			if(($active_worker = CerberusApplication::getActiveWorker())) {
+				$tpl->assign('pref_dark_mode', DAO_WorkerPref::get($active_worker->id, 'dark_mode', 0));
+			}
 		}
 		
 		$error_message = $reason->getErrorMessage();

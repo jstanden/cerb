@@ -299,7 +299,7 @@ $(function() {
 			Devblocks.objectToFormData(refresh_options, formData);
 		}
 
-		genericAjaxPost(formData, '', '', function(html) {
+		let hookSuccess = function(html) {
 			if(0 === html.length) {
 				$widget.empty();
 				
@@ -322,6 +322,15 @@ $(function() {
 
 			$widget.fadeTo('fast', 1.0);
 			callback();
+		}
+
+		let hookError = function() {
+			$widget.empty();
+			callback();
+		}
+
+		genericAjaxPost(formData, '', '', hookSuccess, {
+			'error': hookError
 		});
 	};
 

@@ -21,14 +21,11 @@ class ChExplorerController extends DevblocksControllerExtension {
 	 */
 	function handleRequest(DevblocksHttpRequest $request) {
 		if(!CerberusApplication::getActiveWorker()) {
-			$query = [];
-			// Must be a valid page controller
-			if(!empty($request->path)) {
-				if(is_array($request->path) && !empty($request->path))
-					$query = ['url'=> implode('/',$request->path)];
+			if($request->is_ajax) {
+				DevblocksPlatform::dieWithHttpError(null, 401);
+			} else {
+				$this->redirectRequestToLogin($request);
 			}
-			DevblocksPlatform::redirect(new DevblocksHttpRequest(['login'],$query));
-			exit;
 		}
 	}
 	

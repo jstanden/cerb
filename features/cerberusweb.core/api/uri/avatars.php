@@ -29,8 +29,13 @@ class Controller_Avatars extends DevblocksControllerExtension {
 		@$avatar_context_id = intval(array_shift($stack)); // 1
 		
 		// Security
-		if(null == CerberusApplication::getActiveWorker())
-			DevblocksPlatform::dieWithHttpError($translate->_('common.access_denied'), 403);
+		if(null == CerberusApplication::getActiveWorker()) {
+			if($request->is_ajax) {
+				DevblocksPlatform::dieWithHttpError(null, 401);
+			} else {
+				DevblocksPlatform::dieWithHttpError($translate->_('common.access_denied'), 403);
+			}
+		}
 
 		switch($alias) {
 			case '_fetch':

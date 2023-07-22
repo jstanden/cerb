@@ -12,8 +12,13 @@ class Controller_Security extends DevblocksControllerExtension {
 	 */
 	function handleRequest(DevblocksHttpRequest $request) {
 		// Security
-		if(null == CerberusApplication::getActiveWorker())
-			DevblocksPlatform::dieWithHttpError(DevblocksPlatform::translate('common.access_denied'), 403);
+		if(null == CerberusApplication::getActiveWorker()) {
+			if($request->is_ajax) {
+				DevblocksPlatform::dieWithHttpError(null, 401);
+			} else {
+				DevblocksPlatform::dieWithHttpError(DevblocksPlatform::translate('common.access_denied'), 403);
+			}
+		}
 		
 		$path = $request->path;
 		array_shift($path); // security

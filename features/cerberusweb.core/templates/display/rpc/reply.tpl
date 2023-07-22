@@ -888,7 +888,10 @@ $(function() {
 				formData.set('action', 'deleteDraft');
 				formData.set('draft_id', draft_id);
 
-				genericAjaxPost(formData, '', '', function(o) {
+				genericAjaxPost(formData, '', '', function(res) {
+					if(typeof res == 'object' && res.status && 200 !== res.status)
+						return;
+
 					$reply.trigger('cerb-reply-discard');
 					
 					$('#draft'+encodeURIComponent(draft_id)).remove();
@@ -926,7 +929,9 @@ $(function() {
 			};
 			
 			var hookError = function(message) {
-				Devblocks.createAlertError(message);
+				if(typeof message === 'string' && message.length > 0)
+					Devblocks.createAlertError(message);
+
 				$button.closest('div').show();
 				enableAutoSaveDraft();
 			};
@@ -941,7 +946,10 @@ $(function() {
 			// Validate via Ajax before sending
 			genericAjaxPost(formData, '', '', function(json) {
 				hideLoadingPanel();
-				
+
+				if(typeof json == 'object' && json.statusText && json.status && 200 !== json.status)
+					return hookError();
+
 				if(null == json || 'object' != typeof json)
 					return hookError('An unexpected error occurred. Try again.');
 
@@ -1014,6 +1022,9 @@ $(function() {
 			// Validate via Ajax before saving
 			genericAjaxPost(formData, '', '', function(json) {
 				hideLoadingPanel();
+
+				if(typeof json == 'object' && json.statusText && json.status && 200 !== json.status)
+					return hookError();
 
 				if(null == json || 'object' != typeof json)
 					return hookError('An unexpected error occurred. Try again.');
@@ -1093,6 +1104,9 @@ $(function() {
 			// Validate via Ajax before saving
 			genericAjaxPost(formData, '', '', function(json) {
 				hideLoadingPanel();
+
+				if(typeof json == 'object' && json.statusText && json.status && 200 !== json.status)
+					return hookError();
 
 				if(null == json || 'object' != typeof json)
 					return hookError('An unexpected error occurred. Try again.');

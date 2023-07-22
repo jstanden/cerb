@@ -1054,6 +1054,9 @@ $(function() {
 			genericAjaxPost(formData, '', '', function(json) {
 				hideLoadingPanel();
 
+				if(typeof json == 'object' && json.statusText && json.status && 200 !== json.status)
+					return hookError();
+
 				if(null == json || 'object' != typeof json)
 					return hookError('An unexpected error occurred. Try again.');
 
@@ -1132,6 +1135,9 @@ $(function() {
 			genericAjaxPost(formData, '', '', function(json) {
 				hideLoadingPanel();
 
+				if(typeof json == 'object' && json.statusText && json.status && 200 !== json.status)
+					return hookError();
+
 				if(null == json || 'object' != typeof json)
 					return hookError('An unexpected error occurred. Try again.');
 
@@ -1177,7 +1183,10 @@ $(function() {
 				formData.set('action', 'deleteDraft');
 				formData.set('draft_id', draft_id);
 
-				genericAjaxPost(formData, '', '', function(o) {
+				genericAjaxPost(formData, '', '', function(res) {
+					if(typeof res == 'object' && res.status && 200 !== res.status)
+						return;
+
 					genericAjaxGet('view{$view_id}', 'c=internal&a=invoke&module=worklists&action=refresh&id={$view_id}');
 					genericAjaxPopupClose($popup, $.Event('cerb-compose-discard'));
 				});

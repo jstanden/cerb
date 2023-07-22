@@ -38,7 +38,7 @@ class ChCronController extends DevblocksControllerExtension {
 		
 		if(!DevblocksPlatform::isIpAuthorized(DevblocksPlatform::getClientIp(), $authorized_ips)) {
 			echo sprintf($translate->_('cron.ip_unauthorized'), DevblocksPlatform::strEscapeHtml(DevblocksPlatform::getClientIp()));
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		}
 		
 		$stack = $request->path;

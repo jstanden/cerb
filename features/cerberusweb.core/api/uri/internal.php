@@ -21,7 +21,11 @@ class ChInternalController extends DevblocksControllerExtension {
 	function handleRequest(DevblocksHttpRequest $request) {
 		// Security
 		if(null == (CerberusApplication::getActiveWorker())) {
-			$this->redirectRequestToLogin($request);
+			if($request->is_ajax) {
+				DevblocksPlatform::dieWithHttpError(null, 401);
+			} else {
+				$this->redirectRequestToLogin($request);
+			}
 			return;
 		}
 		

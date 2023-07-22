@@ -56,6 +56,9 @@ class Controller_Default extends DevblocksControllerExtension {
 		if(!is_null($action)) {
 			if($page->isVisible()) {
 				$page->invoke($action);
+			} elseif($request->is_ajax) {
+				// If we're unauthenticated and requesting an action, return an error code for the browser
+				DevblocksPlatform::dieWithHttpError(null, 401);
 			}
 		}
 	}

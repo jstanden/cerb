@@ -56,7 +56,12 @@ $(function() {
 		if(null == $menu) {
 			Devblocks.getSpinner().css('max-width', '16px').appendTo($interaction_menu);
 			
-			genericAjaxGet($interaction_menu, 'c=profiles&a=invoke&module=bot&action=getInteractionsMenu', function() {
+			genericAjaxGet($interaction_menu, 'c=profiles&a=invoke&module=bot&action=getInteractionsMenu', function(e) {
+				if(typeof e == 'object' && e.status && 200 !== e.status) {
+					$interaction_menu.html('');
+					return;
+				}
+
 				$menu = $interaction_menu.find('> ul');
 				
 				$menu

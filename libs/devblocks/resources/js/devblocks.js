@@ -325,6 +325,29 @@ function DevblocksClass() {
 					.append(Devblocks.getSpinner())
 					;
 				ui.panel.html($div);
+				
+				ui.ajaxSettings.error = function(err) {
+					ui.panel.html('');
+					
+					if(typeof err == 'object' && err.status) {
+						Devblocks.clearAlerts();
+						if(401 === err.status) {
+							let $alert = Devblocks.createAlert('', 'error', 0);
+							let $a = $('<b/>').css('margin-right', '0.5em').text('Your session has expired.');
+							let $b = $('<a/>').attr('href', window.location.href).text('Please log back in.');
+							$alert.append($a).append($b);
+						} else if(404 === err.status) {
+							let $alert = Devblocks.createAlert('', 'error', 0);
+							let $a = $('<b/>').css('margin-right','0.5em').text('The requested resource was not found.');
+							$alert.append($a);
+						} else {
+							let $alert = Devblocks.createAlert('', 'error', 0);
+							let $a = $('<b/>').css('margin-right','0.5em').text('An unexpected error occurred.');
+							let $b = $('<a/>').attr('href',window.location.href).text('Did your session expire?');
+							$alert.append($a).append($b);
+						}
+					}
+				}
 			}
 		};
 	};
@@ -428,7 +451,7 @@ function DevblocksClass() {
 		
 		$button.prop('disabled', true).fadeTo('fast', 0.5);
 		
-		genericAjaxPost($frm, '', '', function(e) {
+		let cb = function(e) {
 			$button.prop('disabled', false).fadeTo('fast', 1.0);
 			$spinner.remove();
 			
@@ -506,6 +529,15 @@ function DevblocksClass() {
 				if(e.hasOwnProperty('field'))
 					$frm.find('[name=' + e.field + ']').focus();
 			}
+		}
+		
+		let hookError = function() {
+			$button.prop('disabled', false).fadeTo('fast', 1.0);
+			$spinner.remove();
+		}
+		
+		genericAjaxPost($frm, '', '', cb, {
+			'error': hookError
 		});
 	};
 	
@@ -1600,24 +1632,13 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 		$popup.dialog('option', 'position', { my: 'center top', at: 'center top+20px', of: window } );
 
 	var callback = function(html) {
-		$popup.closest('.ui-dialog').focus();
-
 		// Handle response errors
 		if(typeof html === 'object' && html.status) {
-			$popup.html('');
-
-			if(404 === html.status) {
-				$popup.dialog('option', 'title', 'Error: Not found');
-			} else if (403 === html.status) {
-				$popup.dialog('option', 'title', 'Error: Forbidden');
-			} else if (401 === html.status) {
-				$popup.dialog('option', 'title', 'Error: Unauthenticated');
-			} else {
-				$popup.dialog('option', 'title', 'Error');
-			}
+			genericAjaxPopupClose($popup);
 
 		} else {
 			$popup.dialog('option', 'title', '');
+			$popup.closest('.ui-dialog').focus();
 			
 			// Set the content
 			$popup.html(html);
@@ -1631,6 +1652,10 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 			try { cb(html); } catch(e) { }
 		}
 	};
+	
+	let hookError = function() {
+		genericAjaxPopupClose($popup);
+	}
 
 	if(null == request) {
 		
@@ -1639,10 +1664,14 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 		
 	} else if(request instanceof FormData) {
 		request.set('layer', $layer);
-		genericAjaxPost(request, '', null, callback);
+		genericAjaxPost(request, '', null, callback, {
+			'error': hookError
+		});
 	} else {
 		request += '&layer=' + $layer;
-		genericAjaxGet('', request, callback);
+		genericAjaxGet('', request, callback, {
+			'error': hookError
+		});
 	}
 
 	return $popup;
@@ -1721,8 +1750,38 @@ function genericAjaxGet(divRef,args,cb,options) {
 		
 	var $ajax = $.ajax(options);
 	
+	$ajax.fail(function(err) {
+		Devblocks.clearAlerts();
+		
+		if(null != div) {
+			div.html('').fadeIn();
+		}
+		
+		if(401 === err.status) {
+			let $alert = Devblocks.createAlert('', 'error', 0);
+			let $a = $('<b/>').css('margin-right', '0.5em').text('Your session has expired.');
+			let $b = $('<a/>').attr('href', window.location.href).text('Please log back in.');
+			$alert.append($a).append($b);
+			
+		} else if(403 === err.status) {
+			let $alert = Devblocks.createAlert('', 'error', 0);
+			let $a = $('<b/>').css('margin-right','0.5em').text('Access denied.');
+			let $b = $('<a/>').attr('href',window.location.href).text('Did your session expire?');
+			$alert.append($a).append($b);
+			
+		} else if(404 === err.status) {
+			let $alert = Devblocks.createAlert('', 'error', 0);
+			let $a = $('<b/>').css('margin-right','0.5em').text('The requested resource was not found.');
+			$alert.append($a);
+		}
+		
+		if(typeof options.error == 'function') {
+			options.error(err);
+		}
+	});
+	
 	if(typeof cb == 'function') {
-		$ajax.always(cb);
+		$ajax.done(cb);
 	}
 }
 
@@ -1831,9 +1890,39 @@ function genericAjaxPost(formRef,divRef,args,cb,options) {
 	options.headers['X-CSRF-Token'] = $('meta[name="_csrf_token"]').attr('content');
 	
 	var $ajax = $.ajax(options);
+	
+	$ajax.fail(function(err) {
+		Devblocks.clearAlerts();
+		
+		if(null != div) {
+			div.html('').fadeIn();
+		}
+		
+		if(401 === err.status) {
+			let $alert = Devblocks.createAlert('', 'error', 0);
+			let $a = $('<b/>').css('margin-right', '0.5em').text('Your session has expired.');
+			let $b = $('<a/>').attr('href', window.location.href).text('Please log back in.');
+			$alert.append($a).append($b);
+			
+		} else if(403 === err.status) {
+			let $alert = Devblocks.createAlert('', 'error', 0);
+			let $a = $('<b/>').css('margin-right','0.5em').text('Access denied.');
+			let $b = $('<a/>').attr('href',window.location.href).text('Did your session expire?');
+			$alert.append($a).append($b);
+			
+		} else if(404 === err.status) {
+			let $alert = Devblocks.createAlert('', 'error', 0);
+			let $a = $('<b/>').css('margin-right','0.5em').text('The requested resource was not found.');
+			$alert.append($a);
+		}
+		
+		if(typeof options.error == 'function') {
+			options.error(err);
+		}
+	});
 
 	if(typeof cb == 'function') {
-		$ajax.always(cb);
+		$ajax.done(cb);
 	}
 }
 

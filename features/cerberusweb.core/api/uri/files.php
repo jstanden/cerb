@@ -23,6 +23,16 @@ class ChFilesController extends DevblocksControllerExtension {
 		$stack = $request->path; // URLS like: /files/10000/plaintext.txt
 		array_shift($stack); // files
 		
+		// Security
+		if(null == CerberusApplication::getActiveWorker()) {
+			if($request->is_ajax) {
+				DevblocksPlatform::dieWithHttpError(null, 401);
+			} else {
+				$this->redirectRequestToLogin($request);
+			}
+			return;
+		}
+		
 		if('message' == reset($stack)) {
 			$this->_downloadAllOnMessage($stack);
 		} else {

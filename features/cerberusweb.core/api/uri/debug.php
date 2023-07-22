@@ -35,7 +35,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 			echo sprintf('Your IP address (%s) is not authorized to debug this helpdesk.  Your administrator needs to authorize your IP in Helpdesk Setup or in the framework.config.php file under AUTHORIZED_IPS_DEFAULTS.',
 				DevblocksPlatform::strEscapeHtml(DevblocksPlatform::getClientIp())
 			);
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		}
 		
 		switch(array_shift($stack)) {
