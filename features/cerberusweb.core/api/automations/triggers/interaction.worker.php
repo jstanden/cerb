@@ -303,6 +303,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					],
 					'syntax:',
 					'default:',
+					'hidden@bool: no',
 					'validation@raw:',
 					'readonly@bool: yes',
 					'line_numbers@bool: no',
@@ -333,6 +334,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 						'snippet' => "label: \${1:Label:}",
 						'score' => 2000,
 					],
+					'hidden@bool: no',
 					[
 						'caption' => 'uri:',
 						'snippet' => "uri: cerb:automation:\${1:idOrName}",
@@ -368,6 +370,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 						'snippet' => "resource:\n\turi: cerb:resource:\${1:}",
 						'score' => 2000,
 					],
+					'hidden@bool: no',
 					'projection:',
 					[
 						'caption' => 'regions:',
@@ -677,6 +680,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 						'snippet' => "record_type: \${1::}",
 						'score' => 1999,
 					],
+					'hidden@bool: no',
 					'default:',
 				],
 				'(.*):await:form:elements:query:record_type:' => [
@@ -696,6 +700,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 						'score' => 1999,
 						'description' => "Display plaintext without formatting",
 					],
+					'hidden@bool: no',
 				],
 				
 				'(.*):await:form:elements:sheet:' => [
@@ -715,6 +720,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 						'score' => 1998,
 					],
 					'default:',
+					'hidden@bool: no',
 					'limit:',
 					'page:',
 					'required@bool: yes',
@@ -1057,6 +1063,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 				'(.*):await:form:elements:submit:' => [
 					'buttons:',
 					'continue@bool: yes',
+					'hidden@bool: no',
 					'reset@bool: no',
 				],
 				
@@ -1129,6 +1136,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 						'score' => 2000,
 					],
 					'default:',
+					'hidden@bool: no',
 					'max_length@int:',
 					'min_length@int:',
 					'placeholder:',
@@ -1155,6 +1163,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 				
 				'(.*):await:form:elements:textarea:' => [
 					'default:',
+					'hidden@bool: no',
 					'label:',
 					'max_length@int:',
 					'min_length@int:',
