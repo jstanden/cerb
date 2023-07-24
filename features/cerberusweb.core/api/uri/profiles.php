@@ -193,32 +193,7 @@ class Page_Profiles extends CerberusPageExtension {
 			DevblocksPlatform::dieWithHttpError(DevblocksPlatform::translateCapitalized('common.access_denied'), 403);
 
 		// Events
-		
-		if(
-			($record_viewed_event = DAO_AutomationEvent::getByName('record.profile.viewed'))
-			&& $record_viewed_event->automations_kata
-		) {
-			$event_dict = DevblocksDictionaryDelegate::instance([]);
-			$event_dict->mergeKeys('record_', $dict);
-			$event_dict->mergeKeys('worker_', DevblocksDictionaryDelegate::getDictionaryFromModel($active_worker, CerberusContexts::CONTEXT_WORKER));
-			
-			$initial_state = $event_dict->getDictionary();
-			$error = null;
-			
-			$handlers = $record_viewed_event->getKata($event_dict, $error);
-			
-			if(false === $handlers && $error) {
-				error_log('[KATA] Invalid record.profile.viewed KATA: ' . $error);
-				$handlers = [];
-			}
-			
-			$event_handler->handleEach(
-				AutomationTrigger_RecordProfileViewed::ID,
-				$handlers,
-				$initial_state,
-				$error
-			);
-		}
+		AutomationTrigger_RecordViewed::trigger($dict);
 		
 		if($context == CerberusContexts::CONTEXT_TICKET) {
 			// Trigger ticket view event (before we load it, in case we change it)

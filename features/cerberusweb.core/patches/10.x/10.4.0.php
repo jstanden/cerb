@@ -153,6 +153,21 @@ if(array_key_exists('refreshed_at', $columns)) {
 }
 
 // ===========================================================================
+// Rename `cerb.trigger.record.profile.viewed` to `cerb.trigger.record.viewed`
+
+if(!isset($tables['automation_event'])) {
+	$logger->error("The 'automation_event' table does not exist.");
+	return FALSE;
+}
+
+$db->ExecuteMaster(sprintf("UPDATE automation_event SET name = %s, description = %s, extension_id = %s WHERE name = %s",
+	$db->qstr('record.viewed'),
+	$db->qstr('After a record profile is viewed by a worker'),
+	$db->qstr('cerb.trigger.record.viewed'),
+	$db->qstr('record.profile.viewed'),
+));
+
+// ===========================================================================
 // Update package library
 
 $packages = [

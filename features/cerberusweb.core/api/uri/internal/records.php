@@ -83,6 +83,15 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		if(!($context_ext instanceof IDevblocksContextPeek))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
+		// Dictionary
+		
+		$dict = DevblocksDictionaryDelegate::instance([
+			'_context' => $context_ext->id,
+			'id' => intval($context_id),
+		]);
+		
+		AutomationTrigger_RecordViewed::trigger($dict, true);
+		
 		$context_ext->renderPeekPopup($context_id, $view_id, $edit);
 	}
 	

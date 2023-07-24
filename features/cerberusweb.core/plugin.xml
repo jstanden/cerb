@@ -5282,14 +5282,14 @@
 		</extension>
 
 		<extension point="cerb.automation.trigger">
-			<id>cerb.trigger.record.profile.viewed</id>
-			<name>record.profile.viewed</name>
+			<id>cerb.trigger.record.viewed</id>
+			<name>record.viewed</name>
 			<class>
-				<file>api/automations/triggers/record.profile.viewed.php</file>
-				<name>AutomationTrigger_RecordProfileViewed</name>
+				<file>api/automations/triggers/record.viewed.php</file>
+				<name>AutomationTrigger_RecordViewed</name>
 			</class>
 			<params>
-				<param key="description" value="After a record profile is viewed by a worker" />
+				<param key="description" value="After a record profile or card is viewed by a worker" />
 				<param key="features">
 					<value>
 						<data key="inputs" />
