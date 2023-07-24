@@ -116,9 +116,9 @@ class ChCronController extends DevblocksControllerExtension {
 			}
 		}
 
-		$jobs->top();
-		
 		if($jobs->count()) {
+			$jobs->top();
+			
 			while($jobs->valid()) {
 				$job = $jobs->current();
 				
