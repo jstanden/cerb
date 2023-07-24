@@ -5657,6 +5657,47 @@ class _CerbApplication_KataSchemas {
                                   types:
                                     string:
                 
+                interaction:
+                  multiple@bool: yes
+                  types:
+                    object:
+                      attributes:
+                        label@ref: columnLabel
+                        params:
+                          types:
+                            object:
+                              attributes:
+                                color:
+                                  types:
+                                    string:
+                                inputs:
+                                  types:
+                                    list:
+                                text:
+                                  types:
+                                    string:
+                                text_color:
+                                  types:
+                                    string:
+                                text_key:
+                                  types:
+                                    string:
+                                text_size:
+                                  types:
+                                    string:
+                                text_template:
+                                  types:
+                                    string:
+                                uri:
+                                  types:
+                                    string:
+                                uri_key:
+                                  types:
+                                    string:
+                                uri_template:
+                                  types:
+                                    string:
+                
                 link:
                   multiple@bool: yes
                   types:

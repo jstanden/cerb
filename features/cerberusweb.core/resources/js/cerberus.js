@@ -1075,6 +1075,10 @@ var cerbAutocompleteSuggestions = {
 				snippet: 'icon/${1:key}:\n  label: ${2:Icon}\n  params:\n    # See: Setup->Developers->Icon Reference\n    image: ${3:circle-ok}\n'
 			},
 			{
+				caption: 'interaction:',
+				snippet: 'interaction/${1:key}:\n  label: ${2:Interaction}\n  params:\n    text: ${3:Link text}\n    uri: cerb:automation:${4:example.interaction.name}\n    #inputs:\n'
+			},
+			{
 				caption: 'link:',
 				snippet: 'link/${1:key}:\n  label: ${2:Label}\n  params:\n    href: ${3:/some/path}\n    #href_key: some_key\n    #href_template: /some/path/{{placeholder}}\n    text: ${4:Link text}\n    #text_key: some_key\n'
 			},
@@ -1228,6 +1232,37 @@ var cerbAutocompleteSuggestions = {
 			'text_color@raw:',
 			'text_size@raw: 150%'
 		],
+
+		// Interaction
+		'columns:interaction:': [
+			'label:',
+			'params:'
+		],
+		'columns:interaction:params:': [
+			'inputs:',
+			'text:',
+			'text_key:',
+			'text_template@raw:',
+			'uri:',
+			'uri_key:',
+			'uri_template@raw:',
+			'color@raw:',
+			'text_color@raw:',
+			'text_size@raw: 150%'
+		],
+		'columns:interaction:params:uri:': {
+			'type': 'cerb-uri',
+			'params': {
+				'automation': {
+					'triggers': [
+						'cerb.trigger.interaction.worker'
+					]
+				}
+			}
+		},
+		'columns:interaction:params:inputs:': {
+			'type': 'automation-inputs'
+		},
 
 		// Links
 		'columns:link:': [

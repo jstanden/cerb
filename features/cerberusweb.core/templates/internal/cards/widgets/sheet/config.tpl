@@ -49,6 +49,7 @@
 					<ul>
 						<li data-type="card"><div>Card</div></li>
 						<li data-type="date"><div>Date</div></li>
+						<li data-type="interaction"><div>Interaction</div></li>
 						<li data-type="link"><div>Link</div></li>
 						<li data-type="markdown"><div>Markdown</div></li>
 						<li data-type="search"><div>Search</div></li>
@@ -273,6 +274,7 @@ $(function() {
 			formData.append('types[]', 'card');
 			formData.append('types[]', 'date');
 			formData.append('types[]', 'icon');
+			formData.append('types[]', 'interaction');
 			formData.append('types[]', 'link');
 			formData.append('types[]', 'markdown');
 			formData.append('types[]', 'search');
@@ -308,6 +310,8 @@ $(function() {
 				snippet = "date/${1:" + Devblocks.uniqueId() + "}:\n  label: ${2:Date}\n  params:\n    # See: https://php.net/date\n    format: d-M-Y H:i:s T\n    #value: 1577836800\n    #value_key: updated\n";
 			} else if('icon' === column_type) {
 				snippet = "icon/${1:" + Devblocks.uniqueId() + "}:\n  label: ${2:Sign}\n  params:\n    #image: circle-ok\n    #image_key: icon_key\n    image_template@raw:\n      {% if can_sign %}\n      circle-ok\n      {% endif %}";
+			} else if('interaction' === column_type) {
+				snippet = "interaction/${1:" + Devblocks.uniqueId() + "}:\n  label: ${2:Interaction}\n  params:\n    text: ${3:Link text}\n    uri: cerb:automation:${4:example.interaction.name}\n    #inputs:\n";
 			} else if('link' === column_type) {
 				snippet = "link/${1:" + Devblocks.uniqueId() + "}:\n  label: ${2:Link}\n  params:\n    #href: https://example.com/\n    href_key: record_url\n    #href_template@raw: /profiles/task/{{id}}-{{title|permalink}}\n    #text: Link title\n    text_key: _label\n    #text_template@raw: {{title}}\n";
 			} else if('search' === column_type) {

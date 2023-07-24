@@ -840,6 +840,9 @@ class Controller_UI extends DevblocksControllerExtension {
 		if(in_array('icon', $types))
 			$sheets->addType('icon', $sheets->types()->icon());
 		
+		if(in_array('interaction', $types))
+			$sheets->addType('interaction', $sheets->types()->interaction());
+		
 		if(in_array('link', $types))
 			$sheets->addType('link', $sheets->types()->link());
 		
