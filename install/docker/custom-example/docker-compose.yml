@@ -1,0 +1,61 @@
+# Copy this directory to create a new deployment
+# `cp -Rf custom-example your-deploy && cd your-deploy`
+# `docker compose up --build`
+
+# Give this a unique name
+name: cerb-example
+
+services:
+  web:
+    image: nginx:latest
+    ports:
+      # You can change this to another local port like "8080:80"
+      - "80:80"
+    depends_on:
+      - php-fpm
+    volumes:
+      - ../_conf/nginx.conf:/etc/nginx/templates/default.conf.template:ro
+      - ../../../apple-touch-icon.png:/usr/share/nginx/html/apple-touch-icon.png:ro
+      - ../../../favicon.ico:/usr/share/nginx/html/favicon.ico:ro
+      - ../../../robots.txt:/usr/share/nginx/html/robots.txt:ro
+      - ../../../install/cerb_logo.svg:/usr/share/nginx/html/install/cerb_logo.svg:ro
+      - ../../../install/install.css:/usr/share/nginx/html/install/install.css:ro
+      - ../../../install/jstz.min.js:/usr/share/nginx/html/install/jstz.min.js:ro
+  php-fpm:
+    build: ..
+    depends_on:
+      - mysql
+      #- memcached
+    volumes:
+      - ../../..:/var/www/html:ro
+      # A custom framework file may be used for each environment
+      - ../_conf/cerb.config.php:/var/www/html/framework.config.php:ro
+      # A custom storage volume must be used for each environment
+      - example-cerb-storage:/var/www/html/storage
+  mysql:
+    image: mysql:8
+    command: >
+      --default-authentication-plugin=mysql_native_password 
+      --character-set-server=utf8
+      --collation-server=utf8_unicode_ci
+    restart: always
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-cerb}
+      MYSQL_USER: ${MYSQL_USER:-cerb}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-s3cr3t}
+      MYSQL_RANDOM_ROOT_PASSWORD: yes
+    volumes:
+      # A custom database volume must be used for each environment
+      - example-cerb-db:/var/lib/mysql
+  # This demonstrates adding additional containers
+  #memcached:
+  #  image: memcached:latest
+
+# External containers must be created with:
+# `docker volume create example-cerb-db && docker volume create example-cerb-storage`
+# The `external` setting prevents Docker Compose erasing them
+volumes:
+  example-cerb-storage:
+    #external: true
+  example-cerb-db:
+    #external: true

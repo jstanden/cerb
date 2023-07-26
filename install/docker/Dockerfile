@@ -28,6 +28,6 @@ RUN docker-php-ext-install -j$(nproc) bcmath \
   && docker-php-ext-enable yaml \
   && rm -rf /var/lib/apt/lists/*
 
-COPY --chmod=0700 entry.sh /
+COPY --chmod=0700 _conf/entry.sh /
 
 ENTRYPOINT [ "/entry.sh" ]

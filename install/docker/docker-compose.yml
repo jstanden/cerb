@@ -7,8 +7,10 @@ services:
       - "80:80"
     depends_on:
       - php-fpm
+    networks:
+      - backend
     volumes:
-      - ./default/nginx.conf:/etc/nginx/templates/default.conf.template:ro
+      - ./_conf/nginx.conf:/etc/nginx/templates/default.conf.template:ro
       - ../../apple-touch-icon.png:/usr/share/nginx/html/apple-touch-icon.png:ro
       - ../../favicon.ico:/usr/share/nginx/html/favicon.ico:ro
       - ../../robots.txt:/usr/share/nginx/html/robots.txt:ro
@@ -19,9 +21,11 @@ services:
     build: .
     depends_on:
       - mysql
+    networks:
+      - backend
     volumes:
       - ../..:/var/www/html:ro
-      - ./default/cerb.config.php:/var/www/html/framework.config.php:ro
+      - ./_conf/cerb.config.php:/var/www/html/framework.config.php:ro
       - cerbstorage:/var/www/html/storage
   mysql:
     image: mysql:8
@@ -35,8 +39,16 @@ services:
       MYSQL_USER: ${MYSQL_USER:-cerb}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-s3cr3t}
       MYSQL_RANDOM_ROOT_PASSWORD: yes
+    networks:
+      - backend
     volumes:
       - mysqldata:/var/lib/mysql
+
+networks:
+  backend:
+    ipam:
+      config:
+        - subnet: 172.16.1.0/24
 
 volumes:
   mysqldata:
