@@ -3973,6 +3973,16 @@
 			<params />
 		</extension>
 
+		<extension point = "cerb.automation.api_command">
+			<id>cerb.commands.worklist.search</id>
+			<name>cerb.commands.worklist.search</name>
+			<class>
+				<file>api/automations/api_commands/cerb.worklist.search.php</file>
+				<name>ApiCommand_CerbWorklistSearch</name>
+			</class>
+			<params />
+		</extension>
+
 		<!-- Event Triggers -->
 		
 		<extension point="devblocks.event">
