@@ -584,6 +584,6 @@ class UmScContactController extends Extension_UmScController {
 		// Clear the CAPTCHA (no resubmissions)
 		$umsession->setProperty(UmScApp::SESSION_CAPTCHA,null);
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'contact','confirm')));
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(['contact','confirm']));
 	}
 }
