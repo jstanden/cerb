@@ -499,9 +499,10 @@ class _DevblocksSheetServiceTypes {
 					}
 					
 					// Card link
-					$value .= sprintf('<div class="cerb-peek-trigger" data-context="%s" data-context-id="%d" style="text-decoration:%s;display:inline-block;cursor:pointer;">%s%s</div>',
+					$value .= sprintf('<div class="cerb-peek-trigger" data-context="%s" data-context-id="%d" %s style="text-decoration:%s;display:inline-block;cursor:pointer;">%s%s</div>',
 						DevblocksPlatform::strEscapeHtml($card_context),
 						$card_id,
+						$sheet_dict->get('record_url') ? sprintf('data-profile-url="%s"', DevblocksPlatform::strEscapeHtml($sheet_dict->get('record_url'))) : '',
 						$is_underlined ? 'underline' : 'normal',
 						$avatar_value,
 						$card_label_is_escaped ? $card_label : DevblocksPlatform::strEscapeHtml($card_label)
