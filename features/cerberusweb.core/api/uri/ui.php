@@ -243,6 +243,8 @@ class Controller_UI extends DevblocksControllerExtension {
 		
 		$name = $params['name'] ?? null;
 		$key_path = $params['key_path'] ?? null;
+		$key_fullpath = $params['key_fullpath'] ?? null;
+		$script = $params['script'] ?? null;
 		$prefix = $params['prefix'] ?? null;
 		
 		if(!$name) {
@@ -255,7 +257,7 @@ class Controller_UI extends DevblocksControllerExtension {
 			return;
 		}
 		
-		echo json_encode($command->getAutocompleteSuggestions($key_path, $prefix));
+		echo json_encode($command->getAutocompleteSuggestions($key_path, $prefix, $key_fullpath, $script));
 	}
 	
 	private function _uiAction_kataSuggestionsAutomationInputsJson() {

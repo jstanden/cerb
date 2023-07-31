@@ -3782,8 +3782,10 @@ var ajax = new cAjaxCalls();
 										formData.set('a', 'kataSuggestionsAutomationCommandParamsJson');
 										formData.set('prefix', prefix);
 										formData.set('params[name]', matches[1]);
-										formData.set('params[key_path]', rel_path.join(''));
 										formData.set('params[prefix]', prefix);
+										formData.set('params[key_path]', rel_path.join(''));
+										formData.set('params[key_fullpath]', key_path.join(''));
+										formData.set('params[script]', editor.getValue());
 									}
 								}
 

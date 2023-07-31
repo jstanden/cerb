@@ -65,7 +65,7 @@ class ApiCommand_CerbOAuth2TokenValidate extends Extension_AutomationApiCommand 
 		return $dict->getDictionary();
 	}
 	
-	public function getAutocompleteSuggestions($key_path, $prefix) : array {
+	public function getAutocompleteSuggestions($key_path, $prefix, $key_fullpath, $script) : array {
 		return match ($key_path) {
 			'' => [
 				'token:',

@@ -41,7 +41,7 @@ class ApiCommand_CerbWorklistSearch extends Extension_AutomationApiCommand {
 		];
 	}
 	
-	public function getAutocompleteSuggestions($key_path, $prefix) : array {
+	public function getAutocompleteSuggestions($key_path, $prefix, $key_fullpath, $script) : array {
 		return match ($key_path) {
 			'' => [
 				'worklist_id:',

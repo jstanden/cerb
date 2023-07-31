@@ -45,7 +45,7 @@ abstract class Extension_AutomationApiCommand extends \DevblocksExtension {
 	
 	const POINT = 'cerb.automation.api_command';
 	
-	abstract function getAutocompleteSuggestions($key_path, $prefix) : array;
+	abstract function getAutocompleteSuggestions($key_path, $prefix, $key_fullpath, $script) : array;
 	abstract function run(array $params=[], &$error=null) : array|false;
 }
 
