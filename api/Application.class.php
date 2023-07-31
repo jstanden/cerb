@@ -3838,6 +3838,86 @@ class _CerbApplication_KataAutocompletions {
 		];
 	}
 	
+	function toolbar() {
+		return [
+			'' => [
+				[
+					'caption' => 'interaction:',
+					'snippet' => "interaction/\${1:name}:"
+				],
+				[
+					'caption' => 'menu:',
+					'snippet' => "menu/\${1:name}:"
+				]
+			],
+			'*' => [
+				'(.*):?interaction:' => [
+					'after:',
+					[
+						'caption' => 'uri:',
+						'snippet' => "uri: cerb:automation:\${1:}"
+					],
+					'label:',
+					'icon:',
+					'tooltip:',
+					[
+						'caption' => 'hidden:',
+						'snippet' => "hidden@bool: \${1:yes}"
+					],
+					[
+						'caption' => 'badge:',
+						'snippet' => 'badge: 123'
+					],
+					[
+						'caption' => 'class:',
+						'snippet' => 'class: some-css-class-name'
+					],
+					'inputs:'
+				],
+				'(.*):?interaction:hidden:' => [
+					'yes',
+					'no',
+				],
+				'(.*):?interaction:icon:' => [
+					'type' => 'icon'
+				],
+				'(.*):?interaction:inputs:' => [
+					'type' => 'automation-inputs'
+				],
+				'(.*):?interaction:uri:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'automation' => [
+							'triggers' => [
+								'cerb.trigger.interaction.worker'
+							]
+						]
+					]
+				],
+				'(.*):?menu:' => [
+					'label:',
+					[
+						'caption' => 'hidden:',
+						'snippet' => "hidden@bool: \${1:yes}"
+					],
+					'icon:',
+					'tooltip:',
+					'items:'
+				],
+				'(.*):?menu:items:' => [
+					[
+						'caption' => 'interaction:',
+						'snippet' => "interaction/\${1:name}:"
+					],
+					[
+						'caption' => 'menu:',
+						'snippet' => "menu/\${1:name}:"
+					]
+				],
+			]
+		];
+	}
+	
 	function portalInteractionWebsite() {
 		return [
 			'' => [
