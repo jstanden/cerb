@@ -3974,6 +3974,16 @@
 		</extension>
 
 		<extension point = "cerb.automation.api_command">
+			<id>cerb.commands.worklist.explorer.create</id>
+			<name>cerb.commands.worklist.explorer.create</name>
+			<class>
+				<file>api/automations/api_commands/cerb.worklist.explorer.create.php</file>
+				<name>ApiCommand_CerbWorklistExplorerCreate</name>
+			</class>
+			<params />
+		</extension>
+
+		<extension point = "cerb.automation.api_command">
 			<id>cerb.commands.worklist.search</id>
 			<name>cerb.commands.worklist.search</name>
 			<class>
