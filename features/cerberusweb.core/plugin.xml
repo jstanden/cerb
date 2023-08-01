@@ -5454,6 +5454,24 @@
 			</params>
 		</extension>
 
+		<extension point="cerb.automation.trigger">
+			<id>cerb.trigger.interaction.worker.explore</id>
+			<name>interaction.worker.explore</name>
+			<class>
+				<file>api/automations/triggers/interaction.worker.explore.php</file>
+				<name>AutomationTrigger_InteractionWorkerExplore</name>
+			</class>
+			<params>
+				<param key="description" value="Return the next record in explore mode" />
+				<param key="features">
+					<value>
+						<data key="await" />
+						<data key="inputs" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
 		<!-- Toolbars -->
 
 		<extension point="cerb.toolbar">

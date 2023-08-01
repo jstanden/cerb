@@ -328,6 +328,18 @@ class DAO_Automation extends Cerb_ORMHelper {
 		});
 	}
 	
+	public static function getByTrigger(string $extension_id) {
+		$objects = self::getWhere(sprintf("%s = %s",
+			self::EXTENSION_ID,
+			Cerb_ORMHelper::qstr($extension_id)
+		));
+		
+		if(!$objects)
+			return [];
+		
+		return $objects;
+	}
+	
 	/**
 	 * 
 	 * @param array $ids
