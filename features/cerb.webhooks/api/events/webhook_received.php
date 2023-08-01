@@ -27,7 +27,7 @@ class Event_WebhookReceived extends AbstractEvent_Webhook {
 		$this->_event_id = self::ID;
 	}
 	
-	static function trigger($trigger_id, $http_request, $variables=[]) : ?Model_DevblocksEvent {
+	static function trigger($trigger_id, $http_request, $variables=[]) {
 		if(!($behavior = DAO_TriggerEvent::get($trigger_id)))
 			return null;
 		

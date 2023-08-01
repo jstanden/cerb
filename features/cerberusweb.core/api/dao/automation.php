@@ -274,7 +274,7 @@ class DAO_Automation extends Cerb_ORMHelper {
 			$extension_ids = [$extension_ids];
 		
 		if(DevblocksPlatform::strStartsWith($interaction_uri, 'cerb:')) {
-			if(false == ($uri_parts = DevblocksPlatform::services()->ui()->parseURI($interaction_uri)))
+			if(!($uri_parts = DevblocksPlatform::services()->ui()->parseURI($interaction_uri)))
 				return null;
 			
 			if(CerberusContexts::CONTEXT_AUTOMATION != $uri_parts['context'])

@@ -546,7 +546,7 @@ class UmScContactController extends Extension_UmScController {
 				}
 				
 				if((is_array($value) && !empty($value))
-					|| (!is_array($value) && 0 != strlen($value)))
+					|| (!is_array($value) && 0 != strlen(strval($value))))
 						$message->custom_fields[] = array(
 							'field_id' => $iFieldId,
 							'context' => CerberusContexts::CONTEXT_TICKET,
