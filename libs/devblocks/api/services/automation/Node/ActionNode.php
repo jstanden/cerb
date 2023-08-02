@@ -51,6 +51,23 @@ class ActionNode extends AbstractNode {
 		$error = null;
 		
 		$action_type = $this->node->getNameType();
+		$action_annotations = $this->node->getNameAnnotations();
+		
+		if(
+			$action_type == 'return'
+			&& ['key'] == $action_annotations
+			&& ($key_path = $this->node->getParam(''))
+			&& is_string($key_path)
+		) {
+			$this->node->setParams($dict->getKeyPath($key_path, null, ':'));
+		
+		} elseif(!empty($action_annotations)) {
+			\DevblocksPlatform::logError($action_annotations);
+			$error = sprintf("Annotations other than `return@key` are not allowed on commands (`%s:`)",
+				$this->node->getName()
+			);
+			return false;
+		}
 		
 		// Deactivating node
 		if(array_key_exists('activated', $node_memory)) {

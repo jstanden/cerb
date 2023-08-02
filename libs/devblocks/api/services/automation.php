@@ -1404,21 +1404,38 @@ class CerbAutomationAstNode implements JsonSerializable {
 		return true;
 	}
 	
-	public function getName() {
+	public function getName($with_annotations=true) {
 		if(!($id = $this->getId()))
 			return null;
 		
 		$parts = explode(':', $id);
 		
-		return array_pop($parts);
+		$name = array_pop($parts);
+		
+		if(!$with_annotations)
+			$name = DevblocksPlatform::services()->string()->strBefore($name, '@');
+		
+		return $name;
 	}
 	
 	public function getNameType() {
-		return DevblocksPlatform::services()->string()->strBefore($this->getName(), '/');		
+		$node_name = $this->getName(false);
+		return DevblocksPlatform::services()->string()->strBefore($node_name, '/');
 	}
 	
 	public function getNameId() {
-		return DevblocksPlatform::services()->string()->strAfter($this->getName(), '/');		
+		$node_name = $this->getName(false);
+		return DevblocksPlatform::services()->string()->strAfter($node_name, '/');
+	}
+	
+	public function getNameAnnotations() {
+		$node_name = $this->getName();
+		$node_annotations = DevblocksPlatform::services()->string()->strAfter($node_name, '@') || '';
+		
+		if($node_annotations)
+			return explode(',', DevblocksPlatform::services()->string()->strAfter($node_name, '@') ?: '');
+		
+		return [];
 	}
 }
 
