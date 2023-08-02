@@ -101,7 +101,7 @@ enum CerbErrorReason {
 			],
 			default => [
 				'code' => 500,
-				'html' => '500_unknown',
+				'template' => '500_unknown',
 			],
 		};
 	}
@@ -458,7 +458,7 @@ class CerberusApplication extends DevblocksApplication {
 		return $errors;
 	}
 	
-	public static function respondWithErrorReason(CerbErrorReason $reason) : void {
+	public static function respondWithErrorReason(CerbErrorReason $reason, $skip_session=false) : void {
 		$tpl = DevblocksPlatform::services()->template();
 		$settings = DevblocksPlatform::services()->pluginSettings();
 		$translate = DevblocksPlatform::getTranslationService();
@@ -468,7 +468,10 @@ class CerberusApplication extends DevblocksApplication {
 		
 		$pref_dark_mode = 1;
 
-		if($reason != CerbErrorReason::SessionExpired) {
+		if($reason === CerbErrorReason::SessionExpired)
+			$skip_session = true;
+
+		if(!$skip_session) {
 			$tpl->assign('session', $_SESSION ?? []);
 			if(($active_worker = CerberusApplication::getActiveWorker())) {
 				$pref_dark_mode = DAO_WorkerPref::get($active_worker->id, 'dark_mode', 0);

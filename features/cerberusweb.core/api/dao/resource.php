@@ -698,6 +698,9 @@ class Model_Resource_ContentData {
 	public $error = null;
 	
 	public function writeHeaders() {
+		if(headers_sent())
+			return false;
+		
 		foreach($this->headers as $header)
 			header($header);
 		

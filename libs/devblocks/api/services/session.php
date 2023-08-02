@@ -29,6 +29,12 @@ class _DevblocksSessionManager {
 			if(PHP_SESSION_ACTIVE == session_status())
 				session_destroy();
 			
+			// We can't start a session if the headers were already sent
+			if(headers_sent()) {
+				DevblocksPlatform::logError('Headers sent before session started', true);
+				CerberusApplication::respondWithErrorReason(CerbErrorReason::UnknownError, true);
+			}
+			
 			$handler_class = DevblocksPlatform::getHandlerSession();
 			
 			session_set_save_handler(
