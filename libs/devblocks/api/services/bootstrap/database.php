@@ -395,8 +395,7 @@ class _DevblocksDatabaseManager {
 							$db->thread_id,
 							$time_limits[$idx],
 							$sqls[$idx]
-						),
-						false
+						)
 					);
 					
 					// Kill the timed out thread using the new connection
@@ -451,7 +450,7 @@ class _DevblocksDatabaseManager {
 						$sqls[$idx]
 					);
 					
-					DevblocksPlatform::logError($error_msg, true);
+					DevblocksPlatform::logError($error_msg);
 				}
 			}
 			
@@ -515,7 +514,7 @@ class _DevblocksDatabaseManager {
 					$sql
 				);
 				
-				DevblocksPlatform::logError($error_msg, true);
+				DevblocksPlatform::logError($error_msg);
 				return false;
 			}
 		}

@@ -2495,7 +2495,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			ini_set('log_errors_max_len', $orig_log_errors_max_len);
 	}
 	
-	public static function logError($error_msg, $allow_display=false) {
+	public static function logError($error_msg, $include_stacktrace=false, $allow_display=false) {
 		if(extension_loaded('yaml')) {
             if(!is_string($error_msg) || !is_numeric($error_msg))
                 $error_msg = yaml_emit($error_msg);
@@ -2503,10 +2503,20 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		$orig_log_errors_max_len = ini_set('log_errors_max_len', 8192);
 		
-		if(DEVELOPMENT_MODE && $allow_display && php_sapi_name() != 'cli') {
-			trigger_error($error_msg, E_USER_WARNING);
-		} else {
-			error_log(rtrim($error_msg) . PHP_EOL);
+		error_log(rtrim($error_msg) . PHP_EOL);
+		
+		if($include_stacktrace) {
+			error_log('Trace: ' . implode('; ', array_map(
+				function($trace) {
+					return sprintf("%s:%d (%s::%s)",
+						substr($trace['file'] ?? null, strlen(APP_PATH)),
+						$trace['line'] ?? -1,
+						$trace['class'] ?? '',
+						$trace['function'] ?? '',
+					);
+				},
+				debug_backtrace()
+			)) . PHP_EOL);
 		}
 		
 		if($orig_log_errors_max_len)
