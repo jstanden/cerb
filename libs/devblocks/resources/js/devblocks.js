@@ -229,7 +229,7 @@ function DevblocksClass() {
 			Devblocks.createAlert(eventData.return['alert']);
 		}
 
-		// Open URLs in new tabs
+		// Open links in a new tab
 		if(eventData.return.hasOwnProperty('open_link')) {
 			var a = document.createElement('a');
 			a.style.display = 'none';
@@ -238,6 +238,14 @@ function DevblocksClass() {
 			a.target = '_blank';
 			a.click();
 			a.remove();
+		}
+		
+		// Open URLs in the same tab
+		if(
+			eventData.return.hasOwnProperty('open_url')
+			&& eventData.return['open_url'].startsWith('http')
+		) {
+			window.document.location = eventData.return['open_url'];
 		}
 		
 		// Open time tracking timer

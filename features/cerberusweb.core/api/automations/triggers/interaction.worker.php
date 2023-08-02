@@ -82,6 +82,10 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'notes' => 'Open a new browser tab with the given URL',
 				],
 				[
+					'key' => 'open_url',
+					'notes' => 'Open the given URL in the current browser tab',
+				],
+				[
 					'key' => 'snippet',
 					'notes' => 'Insert the given text at the cursor in the current editor (if applicable)',
 				],
@@ -1210,6 +1214,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'alert:',
 					'clipboard:',
 					'open_link:',
+					'open_url:',
 					'snippet:',
 				],
 			]
