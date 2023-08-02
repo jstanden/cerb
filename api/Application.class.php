@@ -465,13 +465,17 @@ class CerberusApplication extends DevblocksApplication {
 		
 		$tpl->assign('settings', $settings);
 		$tpl->assign('translate', $translate);
+		
+		$pref_dark_mode = 1;
 
 		if($reason != CerbErrorReason::SessionExpired) {
 			$tpl->assign('session', $_SESSION ?? []);
 			if(($active_worker = CerberusApplication::getActiveWorker())) {
-				$tpl->assign('pref_dark_mode', DAO_WorkerPref::get($active_worker->id, 'dark_mode', 0));
+				$pref_dark_mode = DAO_WorkerPref::get($active_worker->id, 'dark_mode', 0);
 			}
 		}
+		
+		$tpl->assign('pref_dark_mode', $pref_dark_mode);
 		
 		$error_message = $reason->getErrorMessage();
 		$error_template = DevblocksPlatform::strAlphaNum($error_message['template'] ?? '', '_');
