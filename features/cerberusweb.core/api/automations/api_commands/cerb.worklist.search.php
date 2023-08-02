@@ -35,8 +35,13 @@ class ApiCommand_CerbWorklistSearch extends Extension_AutomationApiCommand {
 		$models = $view->getDataAsObjects();
 		$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $view->getRecordType());
 		
+		$worklist_model =
+			['name' => $view->name]
+			+ (json_decode(\C4_AbstractViewLoader::serializeViewToAbstractJson($view), true) ?: [])
+		;
+		
 		return [
-			'worklist' => json_decode(\C4_AbstractViewLoader::serializeViewToAbstractJson($view), true),
+			'worklist' => $worklist_model,
 			'data' => 1 == $view->renderLimit ? current($dicts) : $dicts,
 		];
 	}
