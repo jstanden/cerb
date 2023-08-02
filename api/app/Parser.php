@@ -901,7 +901,12 @@ class CerberusParser {
 		$message->encoding = $mm->data['charset'] ?? null;
 		$message->body_encoding = $message->encoding ?? null; // default
 		
-		$message->raw_headers = $mm->extract_headers(MAILPARSE_EXTRACT_RETURN);
+		try {
+			$message->raw_headers = $mm->extract_headers(MAILPARSE_EXTRACT_RETURN);
+		} catch (Throwable) {
+			return false;
+		}
+		
 		$message->headers = CerberusParser::fixQuotePrintableArray($mm->data['headers']);
 		
 		$mime_parts = [];
