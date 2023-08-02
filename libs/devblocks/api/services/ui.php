@@ -135,7 +135,7 @@ class DevblocksUiEventHandler {
 				
 				// Handle `uri:`
 				if(DevblocksPlatform::strStartsWith($automation_uri, 'cerb:')) {
-					if(false == ($uri_parts = DevblocksPlatform::services()->ui()->parseURI($automation_uri)))
+					if(!($uri_parts = DevblocksPlatform::services()->ui()->parseURI($automation_uri)))
 						continue;
 					
 					$automation_uri = $uri_parts['context_id'];
@@ -144,10 +144,10 @@ class DevblocksUiEventHandler {
 				if(false == ($automation = DAO_Automation::getByNameAndTrigger($automation_uri, $triggers)))
 					continue;
 				
-				if(array_key_exists('inputs', @$handler['data']))
+				if(array_key_exists('inputs', $handler['data'] ?? []))
 					$initial_state['inputs'] = $handler['data']['inputs'];
 				
-				if(false == ($automation_results = $automator->executeScript($automation, $initial_state, $error)))
+				if(!($automation_results = $automator->executeScript($automation, $initial_state, $error)))
 					return null;
 				
 				$handler = $automation;
@@ -486,7 +486,7 @@ class DevblocksUiToolbar {
 				}
 				
 				// If no automation
-				if(false == ($automation = ($automations[$node['uri']] ?? null))) {
+				if(!($automation = ($automations[$node['uri']] ?? null))) {
 					$node['hidden'] = true;
 					return;
 				}

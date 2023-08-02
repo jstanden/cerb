@@ -210,7 +210,7 @@ class _DevblocksAutomationService {
 				if($is_required || !is_null($input_value))
 					$input_values[$input_key] = $input_value;
 				
-				if(false == ($inputs_validation->validateAll($input_values, $error))) {
+				if(!($inputs_validation->validateAll($input_values, $error))) {
 					return false;
 				}
 				
