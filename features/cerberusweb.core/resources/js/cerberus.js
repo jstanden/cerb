@@ -5318,7 +5318,15 @@ var ajax = new cAjaxCalls();
 								if('[]' === pair[0].substr(-2)) {
 									formData.append('params[' + pair[0].slice(0,-2) + '][]', pair[1]);
 								} else {
-									formData.set('params[' + pair[0] + ']', pair[1]);
+									// Nested
+									if(!pair[0].startsWith('[') && -1 !== pair[0].indexOf(']')) {
+										let firstBracket = pair[0].indexOf('[');
+										pair[0] = 'params[' + pair[0].substring(0, firstBracket) + ']'
+											+ pair[0].substring(firstBracket)
+										formData.set(pair[0], pair[1]);
+									} else {
+										formData.set('params[' + pair[0] + ']', pair[1]);
+									}
 								}
 							}
 						}
