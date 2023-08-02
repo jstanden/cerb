@@ -920,6 +920,7 @@ var cerbAutocompleteSuggestions = {
 				},
 				'label:',
 				'icon:',
+				'icon_at:',
 				'tooltip:',
 				{
 					'caption': 'hidden:',
@@ -950,6 +951,10 @@ var cerbAutocompleteSuggestions = {
 			'(.*):?interaction:icon:': {
 				'type': 'icon'
 			},
+			'(.*):?interaction:icon_at:': [
+				'start',
+				'end',
+			],
 			'(.*):?interaction:inputs:': {
 				'type': 'automation-inputs'
 			},

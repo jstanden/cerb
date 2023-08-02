@@ -3886,6 +3886,10 @@ class _CerbApplication_KataAutocompletions {
 				'(.*):?interaction:icon:' => [
 					'type' => 'icon'
 				],
+				'(.*):?interaction:icon_at:' => [
+					'start',
+					'end',
+				],
 				'(.*):?interaction:inputs:' => [
 					'type' => 'automation-inputs'
 				],
@@ -3906,6 +3910,7 @@ class _CerbApplication_KataAutocompletions {
 						'snippet' => "hidden@bool: \${1:yes}"
 					],
 					'icon:',
+					'icon_at:',
 					'tooltip:',
 					'items:'
 				],
