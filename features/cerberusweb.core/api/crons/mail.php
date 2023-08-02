@@ -65,7 +65,14 @@ class MailboxCron extends CerberusCronPageExtension {
 			
 			$error = null;
 			
-			if(false === ($client = $account->getClient($error))) {
+			try {
+				$client = $account->getClient($error);
+			} catch (Throwable $e) {
+				$client = false;
+				if(!$error) $error = get_class($e);
+			}
+			
+			if(false === $client) {
 				$logger->error("[Mailboxes] Failed with error: " . $error);
 				
 				// Increment fails
@@ -265,7 +272,7 @@ class MailboxCron extends CerberusCronPageExtension {
 			} catch (Horde_Imap_Client_Exception $e) {
 				DevblocksPlatform::logException($e);
 			
-			} catch (Exception $e) {
+			} catch (Throwable $e) {
 				trigger_error($e->getMessage());
 			}
 			
