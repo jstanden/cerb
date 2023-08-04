@@ -1,9 +1,12 @@
-name: cerb
+# `docker compose up --build`
+
+name: cerb-demo
 
 services:
   web:
     image: nginx:latest
     ports:
+      # You can change this to another local port like "8080:80"
       - "80:80"
     depends_on:
       - php-fpm
@@ -26,14 +29,13 @@ services:
     volumes:
       - ../..:/var/www/html:ro
       - ./_conf/cerb.config.php:/var/www/html/framework.config.php:ro
-      - cerbstorage:/var/www/html/storage
+      - storage:/var/www/html/storage
   mysql:
     image: mysql:8
     command: >
       --default-authentication-plugin=mysql_native_password 
       --character-set-server=utf8
       --collation-server=utf8_unicode_ci
-    restart: always
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE:-cerb}
       MYSQL_USER: ${MYSQL_USER:-cerb}
@@ -42,7 +44,7 @@ services:
     networks:
       - backend
     volumes:
-      - mysqldata:/var/lib/mysql
+      - db:/var/lib/mysql
 
 networks:
   backend:
@@ -51,5 +53,5 @@ networks:
         - subnet: 172.16.1.0/24
 
 volumes:
-  mysqldata:
-  cerbstorage:
+  db:
+  storage:
