@@ -127,6 +127,7 @@ class ChExplorerController extends DevblocksControllerExtension {
 					
 					if($continuation_token) {
 						DAO_AutomationContinuation::update($continuation_token, [
+							DAO_AutomationContinuation::EXPIRES_AT => time() + 43_200, // 12 hrs
 							DAO_AutomationContinuation::STATE => $automation_results->getKeyPath('__exit'),
 							DAO_AutomationContinuation::STATE_DATA => json_encode($state_data),
 							DAO_AutomationContinuation::UPDATED_AT => time(),
@@ -135,7 +136,7 @@ class ChExplorerController extends DevblocksControllerExtension {
 					} else {
 						$continuation_token = DAO_AutomationContinuation::create([
 							DAO_AutomationContinuation::UPDATED_AT => time(),
-							DAO_AutomationContinuation::EXPIRES_AT => time() + 1800, // 30 mins
+							DAO_AutomationContinuation::EXPIRES_AT => time() + 43_200, // 12 hrs
 							DAO_AutomationContinuation::STATE => $automation_results->getKeyPath('__exit'),
 							DAO_AutomationContinuation::STATE_DATA => json_encode($state_data),
 							DAO_AutomationContinuation::URI => $interaction_uri,
