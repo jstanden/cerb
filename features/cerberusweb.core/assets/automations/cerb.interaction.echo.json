@@ -1,9 +1,9 @@
 {
     "name": "cerb.interaction.echo",
-    "description": "A default interaction that returns the inputs as output.",
+    "description": "A default interaction that returns the same inputs as output.",
     "extension_id": "cerb.trigger.interaction.worker",
     "script": "inputs:\r\n  array/outputs:\r\n    required@bool: yes\r\n\r\n# Simply return the inputs as outputs\r\nstart:\r\n  return@key: inputs:outputs",
-    "policy_kata": "commands:\r\n  # [TODO] Specify a command policy here (use Ctrl+Space for autocompletion)\r\n  ",
+    "policy_kata": "commands:\r\n  ",
     "created_at": 1690947503,
     "updated_at": 1690947503
 }

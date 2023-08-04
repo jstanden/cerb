@@ -1,0 +1,9 @@
+{
+    "name": "cerb.worklist.buttons.explore",
+    "extension_id": "cerb.trigger.interaction.worker",
+    "description": "Launch a custom explore mode that tracks real-time changes to a given worklist.",
+    "script": "inputs:\r\n  text/open_new_tab:\r\n    type: bool\r\n    default: 0\r\n\r\nstart:\r\n  api.command:\r\n    output: results\r\n    inputs:\r\n      name: cerb.commands.worklist.explorer.create\r\n      params:\r\n        title: Explore Mode\r\n        worker_id: {{worker_id}}\r\n        interaction: cerb:automation:cerb.explore.worklist\r\n        interaction_inputs:\r\n          worklist_id: {{caller_params.worklist_id}}\r\n          \r\n  outcome/failed:\r\n    if@bool: {{results.hash is empty}}\r\n    then:\r\n      return:\r\n  \r\n  decision/open:\r\n    outcome/newTab:\r\n      if@bool: {{inputs.open_new_tab}}\r\n      then:\r\n        return:\r\n          open_link: {{cerb_url('c=explore&id=' ~ results.hash)}}\r\n    outcome/sameTab:\r\n      then:\r\n        return:\r\n          open_url: {{cerb_url('c=explore&id=' ~ results.hash)}}",
+    "policy_kata": "commands:\r\n  api.command:\r\n    allow@bool: yes",
+    "created_at": 1691117773,
+    "updated_at": 1691117773
+}

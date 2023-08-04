@@ -36,10 +36,12 @@ $automation_files = [
 	'ai.cerb.automationBuilder.autocomplete.d3TimeFormat.json',
 	'ai.cerb.chooser.automationEvent.json',
 	'cerb.editor.toolbar.indentSelection.json',
+	'cerb.explore.worklist.json',
 	'cerb.interaction.echo.json',
 	'cerb.ticket.assign.json',
 	'cerb.ticket.move.json',
 	'cerb.ticket.status.json',
+	'cerb.worklist.buttons.explore.json',
 ];
 
 foreach($automation_files as $automation_file) {
