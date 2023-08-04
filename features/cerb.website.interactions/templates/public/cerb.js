@@ -236,7 +236,8 @@ CerbInteractions.prototype.interactionStart = function(interaction, interaction_
                     inst.forEach(
                         inst.$popup.querySelectorAll('form'),
                         function(index, el) {
-                            el.addEventListener('submit', function () {
+                            el.addEventListener('submit', function (e) {
+                               e.preventDefault()
                                return false; 
                             });
                         }
