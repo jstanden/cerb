@@ -254,6 +254,7 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 					'time_elapsed/key:',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:date:' => [
+					'label:',
 					'params:',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:date:params:' => [
@@ -262,6 +263,7 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 					'value_key: updated',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:link:' => [
+					'label:',
 					'params:',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:link:params:' => [
@@ -273,6 +275,7 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 					'text_template@raw:',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:markdown:' => [
+					'label:',
 					'params:',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:markdown:params:' => [
@@ -281,6 +284,7 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 					'value_template@raw: {{key}}',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:selection:' => [
+					'label:',
 					'params:',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:selection:params:' => [
@@ -294,6 +298,7 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 					'value_template@raw: {{key}}',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:slider:' => [
+					'label:',
 					'params:',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:slider:params:' => [
@@ -304,6 +309,7 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 					'value_template@raw: {{importance}}',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:text:' => [
+					'label:',
 					'params:',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:text:params:' => [
@@ -318,6 +324,7 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 					'image:',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:time_elapsed:' => [
+					'label:',
 					'params:',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:time_elapsed:params:' => [
