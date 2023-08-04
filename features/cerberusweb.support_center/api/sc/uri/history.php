@@ -326,7 +326,7 @@ class UmScHistoryController extends Extension_UmScController {
 		
 		CerberusParser::parseMessage($message, array('no_autoreply'=>true));
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal', ChPortalHelper::getCode(), 'history', $ticket->mask)));
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(['history', $ticket->mask]));
 	}
 };
 
