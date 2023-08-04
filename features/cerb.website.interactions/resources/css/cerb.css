@@ -236,10 +236,10 @@
     border-radius: 50px;
     padding: 10px;
     cursor: pointer;
-    outline: none;
 }
 
 .cerb-interaction-popup--form-elements-button:hover {
+    filter: brightness(1.2);
 }
 
 .cerb-interaction-popup--form-elements-submit {
@@ -286,6 +286,7 @@
 
 .cerb-interaction-popup--form-elements-sheet a {
     color: #333333;
+    text-decoration: underline;
 }
 
 .cerb-interaction-popup--form-elements-sheet .cerb-shadow {
