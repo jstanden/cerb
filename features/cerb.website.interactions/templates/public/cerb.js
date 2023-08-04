@@ -291,6 +291,7 @@ CerbInteractions.prototype.interactionContinue = function(is_submit) {
         return;
     
     let $elements = $form.querySelector('.cerb-interaction-popup--form-elements');
+    let $container = $elements.closest('.cerb-interaction-popup--container');
     let xhttp = new XMLHttpRequest()
     let inst = this;
     let $spinner = this.getSpinner();
@@ -309,8 +310,7 @@ CerbInteractions.prototype.interactionContinue = function(is_submit) {
                 inst.html($elements, this.responseText);
 
                 setTimeout(function () {
-                    let $el = $elements.querySelector(inst.focusableSelector);
-                    if ($el) $el.focus();
+                    $container.focus();
                 }, 0);
                 
             } else if (404 === this.status) {
