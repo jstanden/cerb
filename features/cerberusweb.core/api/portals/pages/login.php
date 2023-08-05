@@ -107,15 +107,15 @@ class PortalPage_Login extends Extension_PortalPage {
 		
 		// [TODO] Implement
 		$provider = new GenericOpenIDConnectProvider([
-			'clientId' => '4u6jgcrycgdzdde9n4457z79tvuvqe3m',
-			'clientSecret' => '1w3m2kyehpwv3hbj38gclj4ff3mz5bd717yywusml2slgmdpfrsar74lchqavs7g',
+			'clientId' => 'mag87br1pffawzvpmep5u7stjb4qufs1',
+			'clientSecret' => 'ufafvcqgz5anct3l6rmcxwtfkx5cq5y2x8rtktzujblfp5s5lz1yzxehn37lzmv5',
 			'redirectUri' => $url_writer->write(sprintf('c=login&a=sso&provider=%s', $service_uri), true),
-			// [TODO]
-			'idTokenIssuer' => 'http://localhost:8080/index.php/',
-			'urlAuthorize' => 'http://localhost:8080/index.php/oauth/authorize',
-			'urlAccessToken' => 'http://localhost:8080/index.php/oauth/access_token',
-			'urlResourceOwnerDetails' => 'http://localhost:8080/index.php/oauth/userinfo',
-			'urlJwks' => 'http://localhost:8080/index.php/oauth/keys',
+			// [TODO] Dynamic
+			'idTokenIssuer' => 'https://73a6-2600-1700-7250-4400-3055-91a7-f65d-3299.ngrok.io/portal/idp/',
+			'urlAuthorize' => 'https://73a6-2600-1700-7250-4400-3055-91a7-f65d-3299.ngrok.io/portal/idp/services/oauth2/authorize',
+			'urlAccessToken' => 'https://73a6-2600-1700-7250-4400-3055-91a7-f65d-3299.ngrok.io/portal/idp/services/oauth2/token',
+			'urlResourceOwnerDetails' => 'https://73a6-2600-1700-7250-4400-3055-91a7-f65d-3299.ngrok.io/portal/idp/services/oauth2/userinfo',
+			'urlJwks' => 'https://73a6-2600-1700-7250-4400-3055-91a7-f65d-3299.ngrok.io/portal/idp/services/id/keys',
 			'scopes' => [
 				'openid',
 				'email',
@@ -140,7 +140,8 @@ class PortalPage_Login extends Extension_PortalPage {
 //		if(false == ($pool_id = $portal->getParam('identity_pool_id', 0)))
 //			return;
 		
-		$pool_id = 4;
+		// [TODO]
+		$pool_id = 1;
 		
 		$session = ChPortalHelper::getSession();
 		
@@ -168,6 +169,11 @@ class PortalPage_Login extends Extension_PortalPage {
 			]);
 			
 		} catch (InvalidTokenException $e) {
+			error_log($e->getMessage());
+			$query = ['error' => 'auth.failed'];
+			DevblocksPlatform::redirect(new DevblocksHttpResponse(['login'], $query), 0);
+			
+		} catch (Throwable $e) {
 			error_log($e->getMessage());
 			$query = ['error' => 'auth.failed'];
 			DevblocksPlatform::redirect(new DevblocksHttpResponse(['login'], $query), 0);
