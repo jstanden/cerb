@@ -253,7 +253,7 @@ EOD;
 
 ### Dictionary Placeholders
 
-These [placeholders](/docs/bots/scripting/placeholders/) are available in [dictionaries](/docs/bots/behaviors/dictionaries/) for [bot behaviors](/docs/bots/behaviors/), [snippets](/docs/snippets/), and [API](/docs/api/) responses:
+These [placeholders](/docs/scripting/variables/#placeholders) are available in [dictionaries](/docs/guide/developers/dictionaries/) for [automations](/docs/automations/), [snippets](/docs/snippets/), and [API](/docs/api/) responses:
 
 |---
 | Field | Type | Description
@@ -412,7 +412,7 @@ EOD;
 	if($out_lazy) {
 		$out .= <<< EOD
 
-These optional placeholders are also available with **key expansion** in [dictionaries](/docs/bots/behaviors/dictionaries/key-expansion/) and the [API](/docs/api/responses/#expanding-keys-in-api-requests):
+These optional placeholders are also available with **key expansion** in [dictionaries](/docs/guide/developers/dictionaries/#key-expansion) and the [API](/docs/api/responses/#expanding-keys-in-api-requests):
 
 |---
 | Field | Type | Description
@@ -702,32 +702,32 @@ EOD;
 		
 		switch($type) {
 			case 'Boolean':
-				$type = sprintf("[%s](/docs/search/#booleans/)",
+				$type = sprintf("[%s](/docs/search/#booleans)",
 					$type
 				);
 				break;
 			case 'Date':
-				$type = sprintf("[%s](/docs/search/#dates/)",
+				$type = sprintf("[%s](/docs/search/#dates)",
 					$type
 				);
 				break;
 			case 'Chooser':
-				$type = sprintf("[%s](/docs/search/#choosers/)",
+				$type = sprintf("[%s](/docs/search/#choosers)",
 					$type
 				);
 				break;
 			case 'Fulltext':
-				$type = sprintf("[%s](/docs/search/#fulltext/)",
+				$type = sprintf("[%s](/docs/search/#fulltext)",
 					$type
 				);
 				break;
 			case 'Links':
-				$type = sprintf("[%s](/docs/search/#links/)",
+				$type = sprintf("[%s](/docs/search/#links)",
 					$type
 				);
 				break;
 			case 'Number':
-				$type = sprintf("[%s](/docs/search/#numbers/)",
+				$type = sprintf("[%s](/docs/search/#numbers)",
 					$type
 				);
 				break;
@@ -737,12 +737,12 @@ EOD;
 				);
 				break;
 			case 'Text':
-				$type = sprintf("[%s](/docs/search/#text/)",
+				$type = sprintf("[%s](/docs/search/#text)",
 					$type
 				);
 				break;
 			case 'Watchers':
-				$type = sprintf("[%s](/docs/search/#watchers/)",
+				$type = sprintf("[%s](/docs/search/#watchers)",
 					$type
 				);
 				break;

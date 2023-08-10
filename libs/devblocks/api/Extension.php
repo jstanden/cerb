@@ -1203,35 +1203,35 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		
 		if($context_ext->hasOption('attachments')) {
 			$lazy_keys['attachments'] = [
-				'label' => '[Attachments](/docs/bots/behaviors/dictionaries/key-expansion/#attachments)',
+				'label' => '[Attachments](/docs/guide/developers/dictionaries/#key-expansion)',
 				'type' => 'Attachments',
 			];
 		}
 		
 		if($context_ext->hasOption('comments')) {
 			$lazy_keys['comments'] = [
-				'label' => '[Comments](/docs/bots/behaviors/dictionaries/key-expansion/#comments)',
+				'label' => '[Comments](/docs/guide/developers/dictionaries/#key-expansion)',
 				'type' => 'Comments',
 			];
 		}
 		
 		if($context_ext->hasOption('custom_fields')) {
 			$lazy_keys['custom_<id>'] = [
-				'label' => '[Custom Fields](/docs/bots/behaviors/dictionaries/key-expansion/#custom-fields)',
+				'label' => '[Custom Fields](/docs/guide/developers/dictionaries/#key-expansion)',
 				'type' => 'Mixed',
 			];
 		}
 		
 		if($context_ext->hasOption('links')) {
 			$lazy_keys['links'] = [
-				'label' => '[Links](/docs/bots/behaviors/dictionaries/key-expansion/#links)',
+				'label' => '[Links](/docs/guide/developers/dictionaries/#key-expansion)',
 				'type' => 'Links',
 			];
 		}
 		
 		if($context_ext->hasOption('watchers')) {
 			$lazy_keys['watchers'] = [
-				'label' => '[Watchers](/docs/bots/behaviors/dictionaries/key-expansion/#watchers)',
+				'label' => '[Watchers](/docs/guide/developers/dictionaries/#key-expansion)',
 				'type' => 'Watchers',
 			];
 		}

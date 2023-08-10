@@ -1040,8 +1040,8 @@ class Context_EmailSignature extends Extension_DevblocksContext implements IDevb
 	function getKeyMeta($with_dao_fields=true) {
 		$keys = parent::getKeyMeta($with_dao_fields);
 		
-		$keys['signature']['notes'] = "The [template](/docs/bots/scripting/) of the signature";
-		$keys['signature_html']['notes'] = "The HTML [template](/docs/bots/scripting/) of the signature";
+		$keys['signature']['notes'] = "The [template](/docs/scripting/) of the signature";
+		$keys['signature_html']['notes'] = "The HTML [template](/docs/scripting/) of the signature";
 		
 		return $keys;
 	}

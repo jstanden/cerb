@@ -14,7 +14,7 @@ class BotAction_PgpEncrypt extends Extension_DevblocksEventAction {
 				'public_key_template' => [
 					'type' => 'text',
 					'required' => true,
-					'notes' => 'An option [bot scripting](/docs/bots/scripting/) template with comma-separated public key IDs',
+					'notes' => 'An option [bot scripting](/docs/scripting/) template with comma-separated public key IDs',
 				],
 				'message' => [
 					'type' => 'text',

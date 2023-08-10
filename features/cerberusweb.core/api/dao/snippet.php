@@ -1636,7 +1636,7 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 	function getKeyMeta($with_dao_fields=true) {
 		$keys = parent::getKeyMeta($with_dao_fields);
 		
-		$keys['content']['notes'] = "The [template](/docs/bots/scripting/) of the snippet";
+		$keys['content']['notes'] = "The [template](/docs/scripting/) of the snippet";
 		$keys['context']['notes'] = "The [record type](/docs/records/types/) to add the profile tab to";
 		$keys['prompts_kata']['notes'] = "Prompted placeholders in [KATA](/docs/snippets/#prompts) format";
 		$keys['title']['notes'] = "The name of the snippet";
