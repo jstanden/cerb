@@ -5,7 +5,7 @@ define('APP_DB_PASS','s3cr3t');
 define('APP_DB_DATABASE','cerb');
 
 define('DEVELOPMENT_MODE', true);
-define('AUTHORIZED_IPS_DEFAULTS', '172.16.1.');
+define('AUTHORIZED_IPS_DEFAULTS', '172.16.');
 
 /****************************************************************************
  * [JAS]: Don't change the following unless you know what you're doing!

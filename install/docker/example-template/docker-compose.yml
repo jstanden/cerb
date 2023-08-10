@@ -60,7 +60,7 @@ networks:
   backend:
     ipam:
       config:
-        - subnet: 172.16.1.0/24
+        - subnet: 172.16.25.0/24
 
 # External containers must be created with:
 # `docker volume create example-cerb-db && docker volume create example-cerb-storage`
