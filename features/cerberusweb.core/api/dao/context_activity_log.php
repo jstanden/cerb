@@ -751,11 +751,11 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 
 		$this->view_columns = array(
 			SearchFields_ContextActivityLog::CREATED,
+			SearchFields_ContextActivityLog::ID,
 		);
 		$this->addColumnsHidden(array(
 			SearchFields_ContextActivityLog::ACTOR_CONTEXT_ID,
 			SearchFields_ContextActivityLog::TARGET_CONTEXT_ID,
-			SearchFields_ContextActivityLog::ID,
 		));
 		
 		$this->doResetCriteria();
