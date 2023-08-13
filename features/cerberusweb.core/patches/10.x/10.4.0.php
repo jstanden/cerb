@@ -87,7 +87,7 @@ if(!$db->GetOneMaster("SELECT 1 FROM toolbar WHERE name = 'records.worklist'")) 
 		$db->qstr('records.worklist'),
 		$db->qstr('cerb.toolbar.records.worklist'),
 		$db->qstr('Viewing a worklist of records'),
-		$db->qstr(''),
+		$db->qstr("# interaction/customExplore:\n#   label: custom explore\n#   icon: play-button\n#   uri: cerb:automation:cerb.worklist.buttons.explore\n#   inputs:\n#     open_new_tab: yes\n#   class: action-always-show"),
 		time(),
 		time()
 	));
