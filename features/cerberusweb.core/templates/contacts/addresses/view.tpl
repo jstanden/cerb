@@ -81,6 +81,12 @@
 		{$object_orgs = DAO_ContactOrg::getIds($org_ids)}
 	{/if}
 	
+	{* Bulk lazy load workers *}
+	{$object_workers = []}
+	{if in_array(SearchFields_Address::WORKER_ID, $view->view_columns)}
+		{$object_workers = DAO_Worker::getAll()}
+	{/if}
+
 	{foreach from=$data item=result key=idx name=results}
 
 	{if $smarty.foreach.results.iteration % 2}
@@ -130,6 +136,13 @@
 				<td data-column="{$column}">
 					{if $mail_transport}
 					<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_MAIL_TRANSPORT}" data-context-id="{$result.$column}">{$mail_transport->name}</a>
+					{/if}
+				</td>
+			{elseif $column == "a_worker_id"}
+				<td data-column="{$column}">
+					{if array_key_exists($result.a_worker_id, $object_workers)}
+						{$worker = $object_workers.{$result.a_worker_id}}
+						<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$result.$column}">{$worker->getName()}</a>
 					{/if}
 				</td>
 			{elseif in_array($column, ["a_created_at","a_updated"])}
