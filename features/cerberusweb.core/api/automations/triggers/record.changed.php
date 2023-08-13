@@ -16,8 +16,8 @@ class AutomationTrigger_RecordChanged extends Extension_AutomationTrigger {
 	function getInputsMeta() {
 		return [
 			[
-				'key' => 'is_new',
-				'notes' => '`true` if the record was just created, `false` otherwise.',
+				'key' => 'change_type',
+				'notes' => 'The type of change: `created`, `updated`, `deleted`',
 			],
 			[
 				'key' => 'record_',

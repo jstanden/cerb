@@ -2295,19 +2295,44 @@ class CerberusContexts {
 
 	static private array $_context_creations = [];
 	
-	static function checkpointCreations($context, $id) {
+	static function checkpointCreations($context, $ids) {
 		if (php_sapi_name() == 'cli')
 			return;
 		
 		if (!DevblocksPlatform::services()->event()->isEnabled())
 			return;
 		
-		$id = DevblocksPlatform::importVar($id, 'integer');
+		if(!is_array($ids)) $ids = [$ids];
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
+		
+		if(empty($ids)) return;
 		
 		if(!array_key_exists($context, self::$_context_creations))
 			self::$_context_creations[$context] = [];
 		
-		self::$_context_creations[$context][$id] = true;
+		foreach($ids as $id)
+			self::$_context_creations[$context][$id] = true;
+	}
+	
+	static private array $_context_deletions = [];
+	
+	static function checkpointDeletions($context, $ids) {
+		if (php_sapi_name() == 'cli')
+			return;
+		
+		if (!DevblocksPlatform::services()->event()->isEnabled())
+			return;
+		
+		if(!is_array($ids))
+			$ids = [$ids];
+		
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
+		
+		if(!array_key_exists($context, self::$_context_deletions))
+			self::$_context_deletions[$context] = [];
+		
+		foreach($ids as $id)
+			self::$_context_deletions[$context][$id] = true;
 	}
 	
 	static private array $_context_initial_checkpoints = [];
@@ -2319,8 +2344,12 @@ class CerberusContexts {
 		
 		if(!DevblocksPlatform::services()->event()->isEnabled())
 			return;
+		
+		if(!is_array($ids)) $ids = [$ids];
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
+		
+		if(empty($ids)) return;
 
-		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
 		$actor = CerberusContexts::getCurrentActor();
 
 		if(!array_key_exists($context, self::$_context_initial_checkpoints))
@@ -2372,6 +2401,18 @@ class CerberusContexts {
 		return array_key_exists($id, self::$_context_creations[$context]);
 	}
 
+	/**
+	 * @param string $context
+	 * @param int $id
+	 * @return bool
+	 */
+	private static function _wasJustDeleted(string $context, int $id) : bool {
+		if(!array_key_exists($context, self::$_context_deletions))
+			return false;
+		
+		return array_key_exists($id, self::$_context_deletions[$context]);
+	}
+
 	static function getCheckpoints($context, $ids) {
 		$models = [];
 
@@ -2415,9 +2456,12 @@ class CerberusContexts {
 
 				$values = DAO_CustomFieldValue::getValuesByContextIds($context, $context_ids);
 
-				foreach($new_models as $context_id => $new_model) {
+				foreach($context_ids as $context_id) {
 					$old_model = $old_models[$context_id];
-					$new_model->custom_fields = ($values[$context_id] ?? null) ?: [];
+					
+					if(($new_model = $new_models[$context_id] ?? null))
+						$new_model->custom_fields = ($values[$context_id] ?? null) ?: [];
+					
 					$actor = null;
 
 					if(isset($old_model['_actor'])) {
@@ -2427,11 +2471,28 @@ class CerberusContexts {
 					
 					// Trigger automations
 					if($record_changed_events) {
-						$dict_new = DevblocksDictionaryDelegate::getDictionaryFromModel($new_model, $context);
+						$dict_new = !is_null($new_model)
+							? DevblocksDictionaryDelegate::getDictionaryFromModel($new_model, $context)
+							: DevblocksDictionaryDelegate::instance([
+								'_context' => $context,
+								'_type' => $context, // [TODO] uri
+								'id' => $context_id
+							])
+						;
 						$dict_old = DevblocksDictionaryDelegate::getDictionaryFromModel($old_model, $context);
 						
+						$is_deleted = self::_wasJustDeleted($context, $context_id);
+						$is_created = self::_wasJustCreated($context, $context_id);
+						
+						$change_type = match(true) {
+							$is_deleted => 'deleted',
+							$is_created => 'created',
+							default => 'updated',
+						};
+						
 						$dict = DevblocksDictionaryDelegate::instance([
-							'is_new' => self::_wasJustCreated($context, $context_id),
+							'change_type' => $change_type,
+							'is_new' => $is_created, // @deprecated
 							'actor__context' => $actor['context'],
 							'actor_id' => $actor['context_id'],
 						]);
@@ -2455,7 +2516,11 @@ class CerberusContexts {
 							$initial_state,
 							$error,
 							null,
-							function(Model_TriggerEvent $behavior, array $handler) use ($context, $new_model, $old_model, $actor) {
+							function(Model_TriggerEvent $behavior, array $handler) use ($context, $new_model, $old_model, $actor, $is_deleted) {
+								// Don't run behaviors on deleted records
+								if($is_deleted)
+									return false;
+								
 								$events = DevblocksPlatform::services()->event();
 								$event_model = null;
 								
@@ -2598,6 +2663,7 @@ class CerberusContexts {
 		}
 
 		self::$_context_creations = [];
+		self::$_context_deletions = [];
 		self::$_context_initial_checkpoints = [];
 	}
 	

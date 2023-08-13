@@ -281,27 +281,19 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 	static function delete($ids) {
 		$db = DevblocksPlatform::services()->database();
     
-		if(!is_array($ids))
-            $ids = [$ids];
+		if(!is_array($ids)) $ids = [$ids];
+        $ids = DevblocksPlatform::sanitizeArray($ids, 'int');
+
+		if(empty($ids)) return false;
 		
-		if(empty($ids))
-			return false;
+        $context = "<?php echo $ctx_ext_id; ?>";
+		$ids_list = implode(',', self::qstrArray($ids));
 		
-		$ids_list = implode(',', $ids);
-		
+        parent::_deleteAbstractBefore($context, $ids);
+        
 		$db->ExecuteMaster(sprintf("DELETE FROM <?php echo $table_name; ?> WHERE id IN (%s)", $ids_list));
 		
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.delete',
-				[
-					'context' => '<?php echo $ctx_ext_id; ?>',
-					'context_ids' => $ids
-				]
-			)
-		);
+        parent::_deleteAbstractAfter($context, $ids);
 		
 		return true;
 	}

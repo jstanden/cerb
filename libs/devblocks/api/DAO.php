@@ -748,6 +748,25 @@ abstract class DevblocksORMHelper {
 		}
 	}
 	
+	static protected function _deleteAbstractBefore($context, $ids) : void {
+		CerberusContexts::checkpointChanges($context, $ids);
+		CerberusContexts::checkpointDeletions($context, $ids);
+	}
+	
+	static protected function _deleteAbstractAfter($context, $ids) : void {
+		// Fire event
+		$eventMgr = DevblocksPlatform::services()->event();
+		$eventMgr->trigger(
+			new Model_DevblocksEvent(
+				'context.delete',
+				array(
+					'context' => $context,
+					'context_ids' => $ids
+				)
+			)
+		);
+	}
+	
 	static protected function _mergeIds($context, $from_ids, $to_id) {
 		if(empty($from_ids) || empty($to_id))
 			return false;
