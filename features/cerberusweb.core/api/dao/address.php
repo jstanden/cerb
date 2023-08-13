@@ -2183,6 +2183,15 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			'value' => $model->updated,
 		);
 		
+		$properties['worker'] = array(
+			'label' => mb_ucfirst($translate->_('common.worker')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->worker_id,
+			'params' => array(
+				'context' => CerberusContexts::CONTEXT_WORKER,
+			),
+		);
+		
 		return $properties;
 	}
 	
