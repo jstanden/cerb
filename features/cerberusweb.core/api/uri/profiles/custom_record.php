@@ -152,7 +152,7 @@ class PageSection_ProfilesCustomRecord extends Extension_PageSection {
 					DAO_CustomRecord::update($id, $fields);
 					DAO_CustomRecord::onUpdateByActor($active_worker, $fields, $id);
 					
-					@$owners = $params['owners']['contexts'] ?: [];
+					$owners = ($params['owners']['contexts'] ?? null) ?: [];
 					
 					$dao_class = 'DAO_AbstractCustomRecord_' . $id;
 					$dao_class::clearOtherOwners($owners);

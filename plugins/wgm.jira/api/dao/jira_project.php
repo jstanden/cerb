@@ -101,8 +101,8 @@ class DAO_JiraProject extends Cerb_ORMHelper {
 	}
 	
 	static function update($ids, $fields, $check_deltas=true) {
-		if(!is_array($ids))
-			$ids = array($ids);
+		if(!is_array($ids)) $ids = [$ids];
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 		
 		$context = Context_JiraProject::ID;
 		self::_updateAbstract($context, $ids, $fields);
@@ -319,13 +319,15 @@ class DAO_JiraProject extends Cerb_ORMHelper {
 	}
 	
 	static function delete($ids) {
-		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::services()->database();
 		
-		if(empty($ids))
-			return;
+		if(!is_array($ids)) $ids = [$ids];
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 		
-		$ids_list = implode(',', $ids);
+		if(empty($ids)) return false;
+		
+		$context = Context_JiraProject::ID;
+		$ids_list = implode(',', self::qstrArray($ids));
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM jira_project WHERE id IN (%s)", $ids_list));
 		
@@ -342,7 +344,6 @@ class DAO_JiraProject extends Cerb_ORMHelper {
 		);
 		
 		self::clearCache();
-		
 		return true;
 	}
 	

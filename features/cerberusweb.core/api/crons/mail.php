@@ -17,7 +17,7 @@ class MailboxCron extends CerberusCronPageExtension {
 		
 		@set_time_limit(600); // 10m
 
-		if(false == ($accounts = DAO_Mailbox::getAll())) {
+		if(!($accounts = DAO_Mailbox::getAll())) {
 			$logger->err("[Mailboxes] There are no mailboxes to check. Aborting!");
 			return false;
 		}
@@ -79,16 +79,16 @@ class MailboxCron extends CerberusCronPageExtension {
 				$num_fails = $account->num_fails + 1;
 				$delay_until = time() + (min($num_fails, 15) * 120);
 				
-				$fields = array(
+				$fields = [
 					DAO_Mailbox::CHECKED_AT => time(),
 					DAO_Mailbox::NUM_FAILS => $num_fails,
 					DAO_Mailbox::DELAY_UNTIL => $delay_until, // Delay 2 mins per consecutive failure
-				);
+				];
 				
 				$logger->error("[Mailboxes] Delaying next mailbox check until ".date('h:i a', $delay_until));
 				
 				// Notify admins about consecutive mailbox failures at an interval
-				if(in_array($num_fails, array(2,5,10,20))) {
+				if(in_array($num_fails, [2,5,10,20])) {
 					$logger->info(sprintf("[Mailboxes] Sending notification about %d consecutive failures on this mailbox", $num_fails));
 					
 					$admin_workers = DAO_Worker::getAllAdmins();

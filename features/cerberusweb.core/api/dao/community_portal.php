@@ -144,8 +144,8 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 	}
 	
 	static function update($ids, $fields, $check_deltas=true) {
-		if(!is_array($ids))
-			$ids = array($ids);
+		if(!is_array($ids)) $ids = [$ids];
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 		
 		$params_json = $fields[self::_PARAMS_JSON] ?? '';
 		unset($fields[self::_PARAMS_JSON]);
@@ -353,26 +353,25 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 	}
 	
 	public static function delete($ids) {
-		if(!is_array($ids))
-			$ids = array($ids);
-		
 		$db = DevblocksPlatform::services()->database();
 		
+		if(!is_array($ids)) $ids = [$ids];
 		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 		
 		if(empty($ids))
 			return false;
 		
+		$context = CerberusContexts::CONTEXT_PORTAL;
 		$ids_string = implode(',', $ids);
 		
 		// Nuke portals
 		$sql = sprintf("DELETE FROM community_tool WHERE id IN (%s)", $ids_string);
-		if(false == ($db->ExecuteMaster($sql)))
+		if(!($db->ExecuteMaster($sql)))
 			return false;
 		
 		// Nuke portal config
 		$sql = "DELETE FROM community_tool_property WHERE tool_code NOT IN (SELECT code FROM community_tool)";
-		if(false == ($db->ExecuteMaster($sql)))
+		if(!($db->ExecuteMaster($sql)))
 			return false;
 		
 		// Fire event

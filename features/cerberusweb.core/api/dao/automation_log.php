@@ -63,8 +63,8 @@ class DAO_AutomationLog extends Cerb_ORMHelper {
 	}
 	
 	static function update($ids, $fields, $check_deltas=true) {
-		if(!is_array($ids))
-			$ids = array($ids);
+		if(!is_array($ids)) $ids = [$ids];
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 		
 		// Make changes
 		parent::_update($ids, 'automation_log', $fields);

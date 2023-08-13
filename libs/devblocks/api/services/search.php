@@ -1065,8 +1065,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		
 		$ns = $schema->getNamespace();
 		
-		if(!is_array($ids))
-			$ids = array($ids);
+		if(!is_array($ids)) $ids = [$ids];
 			
 		if(empty($ns) || empty($ids))
 			return false;

@@ -239,21 +239,20 @@ class DAO_DevblocksTemplate extends DevblocksORMHelper {
 	}
 	
 	static function delete($ids) {
-		if(!is_array($ids))
-			$ids = array($ids);
-		
 		$db = DevblocksPlatform::services()->database();
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_sandbox = DevblocksPlatform::services()->templateSandbox();
 		
-		if(empty($ids))
-			return;
+		if(!is_array($ids)) $ids = [$ids];
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
+		
+		if(empty($ids)) return false;
 		
 		// Load the template models before deleting them
 		$templates = DAO_DevblocksTemplate::getIds($ids);
 
 		// Delete from database
-		$ids_list = implode(',', $ids);
+		$ids_list = implode(',', self::qstrArray($ids));
 		$db->ExecuteMaster(sprintf("DELETE FROM devblocks_template WHERE id IN (%s)", $ids_list));
 		
 		// Clear templates_c compile cache with the models

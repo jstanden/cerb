@@ -112,8 +112,8 @@ class DAO_Snippet extends Cerb_ORMHelper {
 	}
 	
 	static function update($ids, $fields, $check_deltas=true) {
-		if(!is_array($ids))
-			$ids = array($ids);
+		if(!is_array($ids)) $ids = [$ids];
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 		
 		if(!isset($fields[DAO_Snippet::UPDATED_AT]))
 			$fields[DAO_Snippet::UPDATED_AT] = time();
@@ -346,13 +346,13 @@ class DAO_Snippet extends Cerb_ORMHelper {
 	static function delete($ids) {
 		$db = DevblocksPlatform::services()->database();
 
-		if(!is_array($ids))
-			$ids = array($ids);
+		if(!is_array($ids)) $ids = [$ids];
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 		
-		$ids = DevblocksPlatform::sanitizeArray($ids, 'integer');
-			
-		if(empty($ids))
-			return;
+		if(empty($ids)) return false;
+		
+		$context = CerberusContexts::CONTEXT_SNIPPET;
+		$ids_list = implode(',', self::qstrArray($ids));
 		
 		$ids_list = implode(',', $ids);
 		

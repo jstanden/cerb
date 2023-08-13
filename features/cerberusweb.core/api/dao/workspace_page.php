@@ -376,13 +376,15 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 	}
 
 	static function delete($ids) {
-		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::services()->database();
+		
+		if(!is_array($ids)) $ids = [$ids];
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 
-		if(empty($ids))
-			return;
-
-		$ids_list = implode(',', $ids);
+		if(empty($ids)) return false;
+		
+		$context = CerberusContexts::CONTEXT_WORKSPACE_TAB;
+		$ids_list = implode(',', self::qstrArray($ids));
 
 		// Cascade delete tabs and lists
 		DAO_WorkspaceTab::deleteByPage($ids);
@@ -391,7 +393,6 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 		$db->ExecuteMaster(sprintf("DELETE FROM workspace_page WHERE id IN (%s)", $ids_list));
 
 		self::clearCache();
-		
 		return true;
 	}
 

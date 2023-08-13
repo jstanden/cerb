@@ -89,8 +89,8 @@ class DAO_FileBundle extends Cerb_ORMHelper {
 	}
 
 	static function update($ids, $fields, $check_deltas=true) {
-		if(!is_array($ids))
-			$ids = array($ids);
+		if(!is_array($ids)) $ids = [$ids];
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 		
 		$context = CerberusContexts::CONTEXT_FILE_BUNDLE;
 		self::_updateAbstract($context, $ids, $fields);
@@ -282,13 +282,15 @@ class DAO_FileBundle extends Cerb_ORMHelper {
 	}
 
 	static function delete($ids) {
-		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::services()->database();
 
-		if(empty($ids))
-			return;
+		if(!is_array($ids)) $ids = [$ids];
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
+		
+		if(empty($ids)) return false;
 
-		$ids_list = implode(',', $ids);
+		$context = CerberusContexts::CONTEXT_FILE_BUNDLE;
+		$ids_list = implode(',', self::qstrArray($ids));
 
 		$db->ExecuteMaster(sprintf("DELETE FROM file_bundle WHERE id IN (%s)", $ids_list));
 
@@ -305,7 +307,6 @@ class DAO_FileBundle extends Cerb_ORMHelper {
 		);
 		
 		self::clearCache();
-
 		return true;
 	}
 

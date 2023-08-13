@@ -100,9 +100,9 @@
 	<div>
 		Are you sure you want to permanently delete this organization?
 	</div>
-	
-	<button type="button" class="delete"><span class="glyphicons glyphicons-circle-ok"></span> {'common.yes'|devblocks_translate|capitalize}</button>
-	<button type="button" onclick="$(this).closest('form').find('div.buttons').fadeIn();$(this).closest('fieldset.delete').fadeOut();"><span class="glyphicons glyphicons-circle-minus"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+
+	<button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
+	<button type="button" onclick="$(this).closest('form').find('div.buttons').fadeIn();$(this).closest('fieldset.delete').fadeOut();">{'common.no'|devblocks_translate|capitalize}</button>
 </fieldset>
 {/if}
 

@@ -83,13 +83,13 @@ class DAO_ProjectBoard extends Cerb_ORMHelper {
 	}
 	
 	static function update($ids, $fields, $check_deltas=true) {
-		if(!is_array($ids))
-			$ids = array($ids);
+		if(!is_array($ids)) $ids = [$ids];
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 		
 		if(!isset($fields[self::UPDATED_AT]))
 			$fields[self::UPDATED_AT] = time();
 		
-		self::_updateAbstract(Context_ProjectBoard::ID, $ids, $fields);
+		$context = Context_ProjectBoard::ID;
 		
 		// Make a diff for the requested objects in batches
 		
@@ -100,7 +100,7 @@ class DAO_ProjectBoard extends Cerb_ORMHelper {
 				
 			// Send events
 			if($check_deltas) {
-				//CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_, $batch_ids);
+				CerberusContexts::checkpointChanges($context, $batch_ids);
 			}
 			
 			// Make changes
@@ -120,7 +120,7 @@ class DAO_ProjectBoard extends Cerb_ORMHelper {
 				);
 				
 				// Log the context update
-				//DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_, $batch_ids);
+				DevblocksPlatform::markContextChanged($context, $batch_ids);
 			}
 		}
 	}
@@ -249,21 +249,21 @@ class DAO_ProjectBoard extends Cerb_ORMHelper {
 	}
 	
 	static function delete($ids) {
-		if(!is_array($ids))
-			$ids = array($ids);
+		if(!is_array($ids)) $ids = [$ids];
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 		
 		$db = DevblocksPlatform::services()->database();
 		
+		$context = Context_ProjectBoard::ID;
 		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 		
-		if(empty($ids))
-			return;
+		if(empty($ids)) return false;
 		
 		// Delete project columns
 		DAO_ProjectBoardColumn::deleteByProjectIds($ids);
 
 		// Delete boards
-		$ids_list = implode(',', $ids);
+		$ids_list = implode(',', self::qstrArray($ids));
 		$db->ExecuteMaster(sprintf("DELETE FROM project_board WHERE id IN (%s)", $ids_list));
 		
 		// Fire event

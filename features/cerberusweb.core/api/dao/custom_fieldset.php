@@ -55,29 +55,44 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
+		$context = CerberusContexts::CONTEXT_CUSTOM_FIELDSET;
 		
 		$sql = "INSERT INTO custom_fieldset () VALUES ()";
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
-		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_CUSTOM_FIELDSET, $id);
+		CerberusContexts::checkpointCreations($context, $id);
 		
 		self::update($id, $fields);
 		
 		return $id;
 	}
 	
-	static function update($ids, $fields) {
+	static function update($ids, $fields, $check_deltas=true) {
+		if(!is_array($ids)) $ids = [$ids];
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
+		
 		$context = CerberusContexts::CONTEXT_CUSTOM_FIELDSET;
 		
 		if(!isset($fields[self::UPDATED_AT]))
 			$fields[self::UPDATED_AT] = time();
 		
+		// Send events
+		if($check_deltas) {
+			CerberusContexts::checkpointChanges($context, $ids);
+		}
+		
 		self::_updateAbstract($context, $ids, $fields);
 		
 		parent::_update($ids, 'custom_fieldset', $fields);
 		
+		// Log the context update
+		if($check_deltas) {
+			DevblocksPlatform::markContextChanged($context, $ids);
+		}
+		
 		self::clearCache();
+		return true;
 	}
 	
 	static function updateWhere($fields, $where) {
@@ -379,15 +394,15 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 	}
 	
 	static function delete($ids) {
-		if(!is_array($ids))
-			$ids = array($ids);
-		
 		$db = DevblocksPlatform::services()->database();
 		
-		if(empty($ids))
-			return;
+		if(!is_array($ids)) $ids = [$ids];
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 		
-		$ids_list = implode(',', $ids);
+		if(empty($ids)) return false;
+		
+		$context = CerberusContexts::CONTEXT_CUSTOM_FIELDSET;
+		$ids_list = implode(',', self::qstrArray($ids));
 
 		// Delete custom fields in these fieldsets
 
@@ -415,7 +430,6 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 		);
 		
 		self::clearCache();
-		
 		return true;
 	}
 	

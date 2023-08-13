@@ -96,8 +96,10 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 		$table_name = self::_getTableName();
 		$context_name = self::_getContextName();
 		
-		if(!is_array($ids))
-			$ids = array($ids);
+		if(!is_array($ids)) $ids = [$ids];
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
+		
+		if(empty($ids)) return false;
 		
 		if(!isset($fields[self::UPDATED_AT]))
 			$fields[self::UPDATED_AT] = time();
@@ -425,16 +427,17 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 	static function delete($ids) {
 		$db = DevblocksPlatform::services()->database();
 		
-		if(!is_array($ids))
-			$ids = array($ids);
+		if(!is_array($ids)) $ids = [$ids];
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
+		
+		if(empty($ids)) return false;
 		
 		$table_name = self::_getTableName();
 		$context_name = self::_getContextName();
 		
-		if(empty($ids))
-			return;
+		if(empty($ids)) return false;
 		
-		$ids_list = implode(',', $ids);
+		$ids_list = implode(',', self::qstrArray($ids));
 		
 		/** @noinspection SqlResolve */
 		$db->ExecuteMaster(sprintf("DELETE FROM %s WHERE id IN (%s)",

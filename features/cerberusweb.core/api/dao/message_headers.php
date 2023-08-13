@@ -136,13 +136,10 @@ class DAO_MessageHeaders extends Cerb_ORMHelper {
 	}
 
 	static function delete($ids) {
-		if(!is_array($ids))
-			$ids = array($ids);
-		
+		if(!is_array($ids)) $ids = [$ids];
 		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 
-		if(empty($ids))
-			return;
+		if(empty($ids)) return false;
 		
 		$db = DevblocksPlatform::services()->database();
 		 

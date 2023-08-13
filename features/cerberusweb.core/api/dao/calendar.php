@@ -81,8 +81,8 @@ class DAO_Calendar extends Cerb_ORMHelper {
 	}
 	
 	static function update($ids, $fields, $check_deltas=true) {
-		if(!is_array($ids))
-			$ids = array($ids);
+		if(!is_array($ids)) $ids = [$ids];
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 		
 		if(!isset($fields[self::UPDATED_AT]))
 			$fields[self::UPDATED_AT] = time();
@@ -322,18 +322,15 @@ class DAO_Calendar extends Cerb_ORMHelper {
 	}
 	
 	static function delete($ids) {
-		if(!is_array($ids))
-			$ids = array($ids);
-		
 		$db = DevblocksPlatform::services()->database();
 		
-		// Sanitize
+		if(!is_array($ids)) $ids = [$ids];
 		$ids = DevblocksPlatform::sanitizeArray($ids, 'int', array('unique','nonzero'));
 		
-		if(empty($ids))
-			return;
+		if(empty($ids)) return false;
 		
-		$ids_list = implode(',', $ids);
+		$context = CerberusContexts::CONTEXT_CALENDAR;
+		$ids_list = implode(',', self::qstrArray($ids));
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM calendar WHERE id IN (%s)", $ids_list));
 		

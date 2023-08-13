@@ -102,8 +102,8 @@ class DAO_DevblocksSession extends Cerb_ORMHelper {
 	}
 	
 	static function update($ids, $fields) {
-		if(!is_array($ids))
-			$ids = array($ids);
+		if(!is_array($ids)) $ids = [$ids];
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 		
 		// Make a diff for the requested objects in batches
 		
@@ -212,13 +212,12 @@ class DAO_DevblocksSession extends Cerb_ORMHelper {
 	}
 	
 	static function delete($ids) {
-		if(!is_array($ids))
-			$ids = array($ids);
-		
 		$db = DevblocksPlatform::services()->database();
 		
-		if(empty($ids))
-			return;
+		if(!is_array($ids)) $ids = [$ids];
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
+		
+		if(empty($ids)) return false;
 
 		DevblocksPlatform::sanitizeArray($ids, 'integer');
 		
@@ -226,7 +225,7 @@ class DAO_DevblocksSession extends Cerb_ORMHelper {
 			$id = $db->qstr($id);
 		});
 		
-		$ids_list = implode(',', $ids);
+		$ids_list = implode(',', self::qstrArray($ids));
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM devblocks_session WHERE session_id IN (%s)", $ids_list));
 		
@@ -234,17 +233,16 @@ class DAO_DevblocksSession extends Cerb_ORMHelper {
 	}
 	
 	static function deleteByUserIds($ids) {
-		if(!is_array($ids))
-			$ids = array($ids);
-		
 		$db = DevblocksPlatform::services()->database();
 		
-		if(empty($ids))
-			return;
+		if(!is_array($ids)) $ids = [$ids];
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
+		
+		if(empty($ids)) return false;
 		
 		DevblocksPlatform::sanitizeArray($ids, 'integer');
 		
-		$ids_list = implode(',', $ids);
+		$ids_list = implode(',', self::qstrArray($ids));
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM devblocks_session WHERE user_id IN (%s)", $ids_list));
 		

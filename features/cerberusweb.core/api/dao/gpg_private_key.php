@@ -74,8 +74,8 @@ class DAO_GpgPrivateKey extends Cerb_ORMHelper {
 	}
 	
 	static function update($ids, $fields, $check_deltas=true) {
-		if(!is_array($ids))
-			$ids = array($ids);
+		if(!is_array($ids)) $ids = [$ids];
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 		
 		if(!isset($fields[self::UPDATED_AT]))
 			$fields[self::UPDATED_AT] = time();
@@ -250,13 +250,13 @@ class DAO_GpgPrivateKey extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::services()->database();
 		$gpg = DevblocksPlatform::services()->gpg();
 		
-		if (!is_array($ids))
-			$ids = [$ids];
+		if(!is_array($ids)) $ids = [$ids];
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 		
-		if (empty($ids))
-			return;
+		if(empty($ids)) return false;
 		
-		$ids_list = implode(',', $ids);
+		$context = Context_GpgPrivateKey::ID;
+		$ids_list = implode(',', self::qstrArray($ids));
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM gpg_private_key WHERE id IN (%s)", $ids_list));
 		

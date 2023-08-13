@@ -2370,7 +2370,7 @@ class CerberusContexts {
 
 		$unseen_ids = array_diff($ids, array_keys(self::$_context_initial_checkpoints[$context]));
 
-		if(is_array($unseen_ids) && !empty($unseen_ids)) {
+		if(!empty($unseen_ids)) {
 			$models = CerberusContexts::getModels($context, $unseen_ids);
 			$values = DAO_CustomFieldValue::getValuesByContextIds($context, $unseen_ids);
 
@@ -2447,7 +2447,6 @@ class CerberusContexts {
 		$record_changed_events = DAO_AutomationEvent::getByName('record.changed');
 		
 		foreach(self::$_context_initial_checkpoints as $context => &$old_models) {
-
 			// Do this in batches of 100 in order to save memory
 			$ids = array_keys($old_models);
 

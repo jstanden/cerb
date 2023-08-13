@@ -71,8 +71,8 @@ class DAO_GpgPublicKey extends Cerb_ORMHelper {
 	}
 	
 	static function update($ids, $fields, $check_deltas=true) {
-		if(!is_array($ids))
-			$ids = array($ids);
+		if(!is_array($ids)) $ids = [$ids];
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 		
 		$context = CerberusContexts::CONTEXT_GPG_PUBLIC_KEY;
 		
@@ -234,16 +234,16 @@ class DAO_GpgPublicKey extends Cerb_ORMHelper {
 	}
 	
 	static function delete($ids) {
-		if(!is_array($ids))
-			$ids = [$ids];
-		
 		$db = DevblocksPlatform::services()->database();
 		$gpg = DevblocksPlatform::services()->gpg();
 		
-		if(empty($ids))
-			return;
+		if(!is_array($ids)) $ids = [$ids];
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 		
-		$ids_list = implode(',', $ids);
+		if(empty($ids)) return false;
+		
+		$context = CerberusContexts::CONTEXT_GPG_PUBLIC_KEY;
+		$ids_list = implode(',', self::qstrArray($ids));
 		
 		$results = $db->GetArrayReader(sprintf("SELECT id, fingerprint FROM gpg_public_key WHERE id IN (%s)", $ids_list));
 

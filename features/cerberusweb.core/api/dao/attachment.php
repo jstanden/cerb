@@ -646,13 +646,10 @@ class DAO_Attachment extends Cerb_ORMHelper {
 	static function delete($ids) {
 		$db = DevblocksPlatform::services()->database();
 		
-		if(!is_array($ids))
-			$ids = array($ids);
-		
+		if(!is_array($ids)) $ids = [$ids];
 		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 		
-		if(empty($ids))
-			return;
+		if(empty($ids)) return false;
 
 		if(false === Storage_Attachments::delete($ids))
 			return FALSE;

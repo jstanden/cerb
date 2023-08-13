@@ -1037,8 +1037,12 @@ class DAO_Worker extends Cerb_ORMHelper {
 	}
 	
 	static function delete($id) {
-		if(empty($id))
-			return;
+		$db = DevblocksPlatform::services()->database();
+		
+		$context = CerberusContexts::CONTEXT_WORKER;
+		$id = intval($id);
+		
+		if(empty($id)) return false;
 		
 		/* This event fires before the delete takes place in the db,
 		 * so we can denote what is actually changing against the db state
@@ -1047,55 +1051,53 @@ class DAO_Worker extends Cerb_ORMHelper {
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'worker.delete',
-				array(
-					'worker_ids' => array($id),
-				)
+				[
+					'worker_ids' => [$id],
+				]
 			)
 		);
 		
-		$db = DevblocksPlatform::services()->database();
-		
 		// Clear their task assignments
 		$sql = sprintf("UPDATE task SET owner_id = 0 WHERE owner_id = %d", $id);
-		if(false == ($db->ExecuteMaster($sql)))
+		if(!($db->ExecuteMaster($sql)))
 			return false;
 		
 		// Clear their ticket assignments
 		$sql = sprintf("UPDATE ticket SET owner_id = 0 WHERE owner_id = %d", $id);
-		if(false == ($db->ExecuteMaster($sql)))
+		if(!($db->ExecuteMaster($sql)))
 			return false;
 		
 		// Clear their message history
 		$sql = sprintf("UPDATE message SET worker_id = 0 WHERE worker_id = %d", $id);
-		if(false == ($db->ExecuteMaster($sql)))
+		if(!($db->ExecuteMaster($sql)))
 			return false;
 		
 		$sql = sprintf("DELETE FROM worker WHERE id = %d", $id);
-		if(false == ($db->ExecuteMaster($sql)))
+		if(!($db->ExecuteMaster($sql)))
 			return false;
 		
 		$sql = sprintf("DELETE FROM worker_auth_hash WHERE worker_id = %d", $id);
-		if(false == ($db->ExecuteMaster($sql)))
+		if(!($db->ExecuteMaster($sql)))
 			return false;
 		
 		// Clear worker addresses
 		$sql = sprintf("UPDATE address SET worker_id = 0 WHERE worker_id = %d", $id);
-		if(false == ($db->ExecuteMaster($sql)))
+		if(!($db->ExecuteMaster($sql)))
 			return false;
 		
 		$sql = sprintf("DELETE FROM webapi_credentials WHERE worker_id = %d", $id);
 		$db->ExecuteMaster($sql);
 		
 		$sql = sprintf("DELETE FROM worker_to_group WHERE worker_id = %d", $id);
-		if(false == ($db->ExecuteMaster($sql)))
+		if(!($db->ExecuteMaster($sql)))
 			return false;
 
 		$sql = sprintf("DELETE FROM worker_to_role WHERE worker_id = %d", $id);
-		if(false == ($db->ExecuteMaster($sql)))
+		if(!($db->ExecuteMaster($sql)))
 			return false;
 
 		$sql = sprintf("DELETE FROM worker_to_bucket WHERE worker_id = %d", $id);
-		if(false == ($db->ExecuteMaster($sql)))
+		if(!($db->ExecuteMaster($sql)))
 			return false;
 
 		// Sessions

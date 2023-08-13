@@ -212,7 +212,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 			return;
 		
 		if(!is_array($context_ids))
-			$context_ids = array($context_ids);
+			$context_ids = [$context_ids];
 
 		if(!isset(self::$_changed_contexts[$context]))
 			self::$_changed_contexts[$context] = [];

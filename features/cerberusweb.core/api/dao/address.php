@@ -443,18 +443,18 @@ class DAO_Address extends Cerb_ORMHelper {
 	}
 	
 	static function delete($ids) {
-		if(!is_array($ids)) $ids = array($ids);
-
-		if(empty($ids))
-			return;
-
 		$db = DevblocksPlatform::services()->database();
 		
-		$address_ids = implode(',', $ids);
+		if(!is_array($ids)) $ids = [$ids];
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
+
+		if(empty($ids)) return false;
+		
+		$context = CerberusContexts::CONTEXT_ADDRESS;
+		$ids_list = implode(',', self::qstrArray($ids));
 		
 		// Addresses
-		$sql = sprintf("DELETE FROM address WHERE id IN (%s)", $address_ids);
-		if(false == ($db->ExecuteMaster($sql)))
+		if(!($db->ExecuteMaster(sprintf("DELETE FROM address WHERE id IN (%s)", $ids_list))))
 			return false;
 	
 		// Clear search records

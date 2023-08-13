@@ -316,8 +316,8 @@ class DAO_Bucket extends Cerb_ORMHelper {
 	 * @param array $fields
 	 */
 	static function update($ids, $fields, $check_deltas=true) {
-		if(!is_array($ids))
-			$ids = array($ids);
+		if(!is_array($ids)) $ids = [$ids];
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 		
 		if(!isset($fields[self::UPDATED_AT]))
 			$fields[self::UPDATED_AT] = time();
@@ -432,13 +432,14 @@ class DAO_Bucket extends Cerb_ORMHelper {
 	}
 	
 	static function delete($ids) {
-		if(!is_array($ids))
-			$ids = array($ids);
-		
 		$db = DevblocksPlatform::services()->database();
 		
-		if(empty($ids))
-			return;
+		if(!is_array($ids)) $ids = [$ids];
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
+		
+		if(empty($ids)) return false;
+		
+		$context = CerberusContexts::CONTEXT_BUCKET;
 		
 		/*
 		 * Notify anything that wants to know when buckets delete.
@@ -447,22 +448,22 @@ class DAO_Bucket extends Cerb_ORMHelper {
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'bucket.delete',
-				array(
+				[
 					'bucket_ids' => $ids,
-				)
+				]
 			)
 		);
 		
 		$default_group = DAO_Group::getDefaultGroup();
 			
-		$buckets = DAO_Bucket::getIds($ids);
+		if(!($buckets = DAO_Bucket::getIds($ids)))
+			return false;
 		
-		if(is_array($buckets))
 		foreach($buckets as $bucket_id => $bucket) {
-			if(false == ($group = $bucket->getGroup()))
+			if(!($group = $bucket->getGroup()))
 				continue;
 			
-			if(false == ($new_bucket = $group->getDefaultBucket()))
+			if(!($new_bucket = $group->getDefaultBucket()))
 				continue;
 			
 			// Reset any tickets using this bucket
@@ -475,14 +476,13 @@ class DAO_Bucket extends Cerb_ORMHelper {
 			// If this was the default bucket for the group, use the global default
 			} else {
 				
-				if($default_group && false != ($default_bucket = $default_group->getDefaultBucket())) {
+				if($default_group && ($default_bucket = $default_group->getDefaultBucket())) {
 					$db->ExecuteMaster(sprintf("UPDATE ticket SET group_id = %d, bucket_id = %d WHERE bucket_id = %d",
 						$default_group->id,
 						$default_bucket->id,
 						$bucket_id
 					));
 				}
-				
 			}
 		}
 
@@ -493,6 +493,7 @@ class DAO_Bucket extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		
 		self::clearCache();
+		return true;
 	}
 	
 	static public function maint() {

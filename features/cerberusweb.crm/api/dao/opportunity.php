@@ -124,8 +124,8 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 	}
 	
 	static function update($ids, $fields, $check_deltas=true) {
-		if(!is_array($ids))
-			$ids = array($ids);
+		if(!is_array($ids)) $ids = [$ids];
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 		
 		if(!isset($fields[DAO_CrmOpportunity::UPDATED_DATE]))
 			$fields[DAO_CrmOpportunity::UPDATED_DATE] = time();
@@ -449,10 +449,15 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 	}
 	
 	static function delete($ids) {
-		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::services()->database();
 		
-		$ids_list = implode(',', $ids);
+		if(!is_array($ids)) $ids = [$ids];
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
+		
+		if(empty($ids)) return false;
+		
+		$context = CerberusContexts::CONTEXT_OPPORTUNITY;
+		$ids_list = implode(',', self::qstrArray($ids));
 		
 		// Opps
 		$db->ExecuteMaster(sprintf("DELETE FROM crm_opportunity WHERE id IN (%s)", $ids_list));

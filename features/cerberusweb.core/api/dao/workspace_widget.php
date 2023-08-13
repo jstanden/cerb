@@ -118,8 +118,8 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 	}
 	
 	static function update($ids, $fields, $option_bits = 0, $check_deltas=true) {
-		if(!is_array($ids))
-			$ids = array($ids);
+		if(!is_array($ids)) $ids = [$ids];
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 		
 		$context = CerberusContexts::CONTEXT_WORKSPACE_WIDGET;
 		self::_updateAbstract($context, $ids, $fields);
@@ -342,13 +342,15 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 	}
 	
 	static function delete($ids) {
-		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::services()->database();
 		
-		if(empty($ids))
-			return;
+		if(!is_array($ids)) $ids = [$ids];
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 		
-		$ids_list = implode(',', $ids);
+		if(empty($ids)) return false;
+		
+		$context = CerberusContexts::CONTEXT_WORKSPACE_WIDGET;
+		$ids_list = implode(',', self::qstrArray($ids));
 		
 		DAO_RecordChangeset::delete('workspace_widget', $ids);
 		
@@ -370,15 +372,17 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 	}
 	
 	static function deleteByTab($ids) {
-		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::services()->database();
 		
-		if(empty($ids))
-			return;
+		if(!is_array($ids)) $ids = [$ids];
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 		
-		$ids_list = implode(',', $ids);
+		if(empty($ids)) return false;
+		
+		$ids_list = implode(',', self::qstrArray($ids));
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM workspace_widget WHERE workspace_tab_id IN (%s)", $ids_list));
+		return true;
 	}
 	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {

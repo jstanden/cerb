@@ -30,9 +30,6 @@
 		<li>
 			<a href="https://cerb.ai/docs/" target="_blank" rel="noopener">Read the documentation</a>
 		</li>
-		<li>
-			Follow us on Twitter: <a href="https://twitter.com/cerb_ai" target="_blank" rel="noopener noreferrer">@cerb_ai</a>
-		</li>
 	</ul>
 </fieldset>
 

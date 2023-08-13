@@ -112,10 +112,8 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 	}
 	
 	static function update($ids, $fields, $check_deltas=true) {
-		$cache = DevblocksPlatform::services()->cache();
-		
-		if(!is_array($ids))
-			$ids = array($ids);
+		if(!is_array($ids)) $ids = [$ids];
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 		
 		if(!isset($fields[self::UPDATED_AT]))
 			$fields[self::UPDATED_AT] = time();
@@ -299,11 +297,10 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::services()->database();
 		$settings = DevblocksPlatform::services()->pluginSettings();
 
-		if(!is_array($ids))
-			$ids = [$ids];
+		if(!is_array($ids)) $ids = [$ids];
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 		
-		if(empty($ids))
-			return;
+		if(empty($ids)) return false;
 		
 		if(is_array($ids))
 		foreach($ids as $id) {
@@ -316,8 +313,7 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 			$count = $db->GetOneMaster($sql);
 			
 			// All records must be deleted first, or we refuse to delete the record type
-			if($count)
-				continue;
+			if($count) continue;
 			
 			// Drop the table
 			$sql = sprintf("DROP TABLE %s", $table_name);

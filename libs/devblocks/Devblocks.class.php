@@ -1144,7 +1144,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	static function strTitleCase($string) {
-		return mb_convert_case($string, MB_CASE_TITLE);
+		return mb_convert_case(strval($string), MB_CASE_TITLE);
 	}
 	
 	static function strUpperFirst($string, $lower_rest=false) {
@@ -3857,7 +3857,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			return;
 		
 		if(!is_array($context_ids))
-			$context_ids = array($context_ids);
+			$context_ids = [$context_ids];
 		
 		Extension_DevblocksContext::markContextChanged($context, $context_ids);
 	}

@@ -1928,8 +1928,8 @@ class _DevblocksBayesClassifierService {
 				'text' => $text,
 				//'words' => $words,
 				//'tags' => $tags,
-				'classifier' => @array_intersect_key($classifiers[$classifier_id],['id'=>true,'name'=>true]) ?: [],
-				'classification' => @array_intersect_key($classes[$predicted_class_id],['id'=>true,'name'=>true,'attribs'=>true]) ?: [],
+				'classifier' => array_intersect_key($classifiers[$classifier_id] ?? [], ['id'=>true,'name'=>true]) ?: [],
+				'classification' => array_intersect_key($classes[$predicted_class_id] ?? [], ['id'=>true,'name'=>true,'attribs'=>true]) ?: [],
 				'confidence' => $predicted_class_confidence,
 				'params' => $params
 			]

@@ -87,8 +87,8 @@ class DAO_AutomationEvent extends Cerb_ORMHelper {
 	}
 	
 	static function update($ids, $fields, $check_deltas=true) {
-		if(!is_array($ids))
-			$ids = array($ids);
+		if(!is_array($ids)) $ids = [$ids];
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 		
 		if(!isset($fields[self::UPDATED_AT]))
 			$fields[self::UPDATED_AT] = time();
@@ -310,15 +310,15 @@ class DAO_AutomationEvent extends Cerb_ORMHelper {
 	static function delete($ids) {
 		$db = DevblocksPlatform::services()->database();
 		
-		if(!is_array($ids))
-			$ids = [$ids];
+		if(!is_array($ids)) $ids = [$ids];
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 		
-		if(empty($ids))
-			return true;
+		if(empty($ids)) return true;
+		
+		$context = CerberusContexts::CONTEXT_AUTOMATION_EVENT;
+		$ids_list = implode(',', self::qstrArray($ids));
 		
 		DAO_RecordChangeset::delete('automation_event', $ids);
-		
-		$ids_list = implode(',', $ids);
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM automation_event WHERE id IN (%s)", $ids_list));
 		

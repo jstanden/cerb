@@ -153,18 +153,19 @@ class DAO_Feed extends Cerb_ORMHelper {
 	}
 	
 	static function delete($ids) {
-		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::services()->database();
 		
-		if(empty($ids))
-			return;
+		if(!is_array($ids)) $ids = [$ids];
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 		
-		$ids_list = implode(',', $ids);
+		if(empty($ids)) return false;
+		
+		$context = CerberusContexts::CONTEXT_FEED;
+		$ids_list = implode(',', self::qstrArray($ids));
 		
 		// [TODO] ...and all the items' associated content (comments/links/etc)
 		// [TODO] Use DAO_FeedItem::deleteByFeedId() to delete feed content
 		$db->ExecuteMaster(sprintf("DELETE FROM feed_item WHERE feed_id IN (%s)", $ids_list));
-		
 		$db->ExecuteMaster(sprintf("DELETE FROM feed WHERE id IN (%s)", $ids_list));
 		
 		return true;
