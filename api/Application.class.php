@@ -2275,6 +2275,13 @@ class CerberusContexts {
 
 		if(!($dao_class = $context_ext->getDaoClass()))
 			return $models;
+		
+		if(
+			method_exists($dao_class, 'clearCache')
+			&& is_callable($dao_class, 'clearCache')
+		) {
+			$dao_class::clearCache();
+		}
 
 		if(method_exists($dao_class, 'getIds')) {
 			$models = $dao_class::getIds($ids);
