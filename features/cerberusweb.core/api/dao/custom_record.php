@@ -329,7 +329,7 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 			]);
 			
 			// Remove the PHP class
-			@unlink(APP_STORAGE_PATH . sprintf('classes/abstract_record_%d', $id));
+			@unlink(APP_STORAGE_PATH . sprintf('/classes/abstract_record_%d.php', $id));
 			
 			// Delete custom record custom fields
 			
