@@ -320,19 +320,11 @@ class DAO_Metric extends Cerb_ORMHelper {
 		$context = CerberusContexts::CONTEXT_METRIC;
 		$ids_list = implode(',', self::qstrArray($ids));
 		
+		parent::_deleteAbstractBefore($context, $ids);
+		
 		$db->ExecuteMaster(sprintf("DELETE FROM metric WHERE id IN (%s)", $ids_list));
 		
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.delete',
-				array(
-					'context' => CerberusContexts::CONTEXT_METRIC,
-					'context_ids' => $ids
-				)
-			)
-		);
+		parent::_deleteAbstractAfter($context, $ids);
 		
 		self::clearCache();
 		return true;

@@ -530,6 +530,8 @@ class DAO_Group extends Cerb_ORMHelper {
 		
 		$context = CerberusContexts::CONTEXT_GROUP;
 		
+		parent::_deleteAbstractBefore($context, [$id]);
+		
 		/*
 		 * Notify anything that wants to know when groups delete.
 		 */
@@ -571,17 +573,7 @@ class DAO_Group extends Cerb_ORMHelper {
 			DAO_Bucket::delete($deleted_bucket->id);
 		}
 
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.delete',
-				array(
-					'context' => CerberusContexts::CONTEXT_GROUP,
-					'context_ids' => array($deleted_group->id)
-				)
-			)
-		);
+		parent::_deleteAbstractAfter($context, [$id]);
 		
 		self::clearCache();
 		DAO_Bucket::clearCache();

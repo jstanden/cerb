@@ -421,20 +421,12 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 		$context = CerberusContexts::CONTEXT_TIMETRACKING;
 		$ids_list = implode(',', self::qstrArray($ids));
 		
+		parent::_deleteAbstractBefore($context, $ids);
+		
 		// Entries
 		$db->ExecuteMaster(sprintf("DELETE FROM timetracking_entry WHERE id IN (%s)", $ids_list));
 		
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.delete',
-				array(
-					'context' => CerberusContexts::CONTEXT_TIMETRACKING,
-					'context_ids' => $ids
-				)
-			)
-		);
+		parent::_deleteAbstractAfter($context, $ids);
 
 		return true;
 	}

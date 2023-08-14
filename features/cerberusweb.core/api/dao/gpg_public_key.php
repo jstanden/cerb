@@ -245,6 +245,8 @@ class DAO_GpgPublicKey extends Cerb_ORMHelper {
 		$context = CerberusContexts::CONTEXT_GPG_PUBLIC_KEY;
 		$ids_list = implode(',', self::qstrArray($ids));
 		
+		parent::_deleteAbstractBefore($context, $ids);
+		
 		$results = $db->GetArrayReader(sprintf("SELECT id, fingerprint FROM gpg_public_key WHERE id IN (%s)", $ids_list));
 
 		// Delete from keyring
@@ -256,17 +258,7 @@ class DAO_GpgPublicKey extends Cerb_ORMHelper {
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM gpg_public_key WHERE id IN (%s)", $ids_list));
 		
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.delete',
-				array(
-					'context' => CerberusContexts::CONTEXT_GPG_PUBLIC_KEY,
-					'context_ids' => $ids
-				)
-			)
-		);
+		parent::_deleteAbstractAfter($context, $ids);
 		
 		return true;
 	}

@@ -307,6 +307,8 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 			$context = sprintf('contexts.custom_record.%d', $id);
 			$table_name = sprintf('custom_record_%d', $id);
 			
+			parent::_deleteAbstractBefore(CerberusContexts::CONTEXT_CUSTOM_RECORD, [$id]);
+			
 			$sql = sprintf("SELECT count(id) FROM %s",
 				$db->escape($table_name)
 			);
@@ -341,17 +343,7 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 			
 			$db->ExecuteMaster(sprintf("DELETE FROM custom_record WHERE id = %d", $id));
 			
-			// Fire event
-			$eventMgr = DevblocksPlatform::services()->event();
-			$eventMgr->trigger(
-				new Model_DevblocksEvent(
-					'context.delete',
-					array(
-						'context' => CerberusContexts::CONTEXT_CUSTOM_RECORD,
-						'context_ids' => [$id]
-					)
-				)
-			);
+			parent::_deleteAbstractAfter(CerberusContexts::CONTEXT_CUSTOM_RECORD, [$id]);
 		}
 		
 		self::clearCache();

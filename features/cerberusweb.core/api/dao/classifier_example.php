@@ -297,19 +297,11 @@ class DAO_ClassifierExample extends Cerb_ORMHelper {
 		$context = CerberusContexts::CONTEXT_CLASSIFIER_EXAMPLE;
 		$ids_list = implode(',', self::qstrArray($ids));
 		
+		parent::_deleteAbstractBefore($context, $ids);
+		
 		$db->ExecuteMaster(sprintf("DELETE FROM classifier_example WHERE id IN (%s)", $ids_list));
 		
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.delete',
-				array(
-					'context' => CerberusContexts::CONTEXT_CLASSIFIER_EXAMPLE,
-					'context_ids' => $ids
-				)
-			)
-		);
+		parent::_deleteAbstractAfter($context, $ids);
 		
 		return true;
 	}

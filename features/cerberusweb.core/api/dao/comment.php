@@ -355,6 +355,8 @@ class DAO_Comment extends Cerb_ORMHelper {
 		$context = CerberusContexts::CONTEXT_COMMENT;
 		$ids_list = implode(',', self::qstrArray($ids));
 		
+		parent::_deleteAbstractBefore($context, $ids);
+		
 		// Comments
 		$db->ExecuteMaster(sprintf("DELETE FROM comment WHERE id IN (%s)", $ids_list));
 		
@@ -362,17 +364,7 @@ class DAO_Comment extends Cerb_ORMHelper {
 		$search = Extension_DevblocksSearchSchema::get(Search_CommentContent::ID, true);
 		$search->delete($ids);
 		
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.delete',
-				array(
-					'context' => CerberusContexts::CONTEXT_COMMENT,
-					'context_ids' => $ids
-				)
-			)
-		);
+		parent::_deleteAbstractAfter($context, $ids);
 		
 		return true;
 	}

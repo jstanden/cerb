@@ -298,6 +298,8 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 		$context = CerberusContexts::CONTEXT_KB_ARTICLE;
 		$ids_list = implode(',', $ids);
 		
+		parent::_deleteAbstractBefore($context, $ids);
+		
 		// Articles
 		$db->ExecuteMaster(sprintf("DELETE FROM kb_article WHERE id IN (%s)", $ids_list));
 		
@@ -308,17 +310,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 		$search = Extension_DevblocksSearchSchema::get(Search_KbArticle::ID, true);
 		$search->delete($ids);
 		
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.delete',
-				array(
-					'context' => CerberusContexts::CONTEXT_KB_ARTICLE,
-					'context_ids' => $ids
-				)
-			)
-		);
+		parent::_deleteAbstractAfter($context, $ids);
 	}
 	
 	static function maint() {

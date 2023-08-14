@@ -315,21 +315,13 @@ class DAO_Toolbar extends Cerb_ORMHelper {
 		$context = CerberusContexts::CONTEXT_TOOLBAR;
 		$ids_list = implode(',', self::qstrArray($ids));
 		
+		parent::_deleteAbstractBefore($context, $ids);
+		
 		DAO_RecordChangeset::delete('toolbar', $ids);
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM toolbar WHERE id IN (%s)", $ids_list));
 		
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.delete',
-				array(
-					'context' => CerberusContexts::CONTEXT_TOOLBAR,
-					'context_ids' => $ids
-				)
-			)
-		);
+		parent::_deleteAbstractAfter($context, $ids);
 		
 		self::clearCache();
 		return true;

@@ -266,6 +266,8 @@ class DAO_MailTransport extends Cerb_ORMHelper {
 		$context = CerberusContexts::CONTEXT_MAIL_TRANSPORT;
 		$ids_list = implode(',', self::qstrArray($ids));
 		
+		parent::_deleteAbstractBefore($context, $ids);
+		
 		$db->ExecuteMaster(sprintf("DELETE FROM mail_transport WHERE id IN (%s)", $ids_list));
 		
 		// Clear the usage of this transport from addresses
@@ -274,17 +276,7 @@ class DAO_MailTransport extends Cerb_ORMHelper {
 		self::clearCache();
 		DAO_Address::clearCache();
 		
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.delete',
-				array(
-					'context' => CerberusContexts::CONTEXT_MAIL_TRANSPORT,
-					'context_ids' => $ids
-				)
-			)
-		);
+		parent::_deleteAbstractAfter($context, $ids);
 		
 		return true;
 	}

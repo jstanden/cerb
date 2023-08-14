@@ -354,21 +354,11 @@ class DAO_Snippet extends Cerb_ORMHelper {
 		$context = CerberusContexts::CONTEXT_SNIPPET;
 		$ids_list = implode(',', self::qstrArray($ids));
 		
-		$ids_list = implode(',', $ids);
+		parent::_deleteAbstractBefore($context, $ids);
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM snippet WHERE id IN (%s)", $ids_list));
 		
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.delete',
-				array(
-					'context' => CerberusContexts::CONTEXT_SNIPPET,
-					'context_ids' => $ids
-				)
-			)
-		);
+		parent::_deleteAbstractAfter($context, $ids);
 		
 		return true;
 	}

@@ -475,6 +475,8 @@ class DAO_Message extends Cerb_ORMHelper {
 		$context = CerberusContexts::CONTEXT_MESSAGE;
 		$ids_list = implode(',', self::qstrArray($ids));
 
+		parent::_deleteAbstractBefore($context, $ids);
+
 		$messages = DAO_Message::getWhere(sprintf("%s IN (%s)",
 			DAO_Message::ID,
 			$ids_list
@@ -501,17 +503,7 @@ class DAO_Message extends Cerb_ORMHelper {
 			DAO_Ticket::rebuild($message->ticket_id);
 		}
 		
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.delete',
-				array(
-					'context' => CerberusContexts::CONTEXT_MESSAGE,
-					'context_ids' => $ids
-				)
-			)
-		);
+		parent::_deleteAbstractAfter($context, $ids);
 	}
 	
 	/** @noinspection SqlResolve */

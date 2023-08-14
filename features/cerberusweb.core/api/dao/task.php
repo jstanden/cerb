@@ -499,20 +499,11 @@ class DAO_Task extends Cerb_ORMHelper {
 		$context = CerberusContexts::CONTEXT_TASK;
 		$ids_list = implode(',', self::qstrArray($ids));
 		
-		// Tasks
+		parent::_deleteAbstractBefore($context, $ids);
+
 		$db->ExecuteMaster(sprintf("DELETE FROM task WHERE id IN (%s)", $ids_list));
 
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.delete',
-				array(
-					'context' => CerberusContexts::CONTEXT_TASK,
-					'context_ids' => $ids
-				)
-			)
-		);
+		parent::_deleteAbstractAfter($context, $ids);
 
 		return true;
 	}

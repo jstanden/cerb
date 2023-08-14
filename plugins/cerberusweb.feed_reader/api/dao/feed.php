@@ -163,10 +163,14 @@ class DAO_Feed extends Cerb_ORMHelper {
 		$context = CerberusContexts::CONTEXT_FEED;
 		$ids_list = implode(',', self::qstrArray($ids));
 		
+		parent::_deleteAbstractBefore($context, $ids);
+		
 		// [TODO] ...and all the items' associated content (comments/links/etc)
 		// [TODO] Use DAO_FeedItem::deleteByFeedId() to delete feed content
 		$db->ExecuteMaster(sprintf("DELETE FROM feed_item WHERE feed_id IN (%s)", $ids_list));
 		$db->ExecuteMaster(sprintf("DELETE FROM feed WHERE id IN (%s)", $ids_list));
+		
+		parent::_deleteAbstractAfter($context, $ids);
 		
 		return true;
 	}

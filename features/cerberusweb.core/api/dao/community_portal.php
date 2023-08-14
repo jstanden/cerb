@@ -364,6 +364,8 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 		$context = CerberusContexts::CONTEXT_PORTAL;
 		$ids_string = implode(',', $ids);
 		
+		parent::_deleteAbstractBefore($context, $ids);
+		
 		// Nuke portals
 		$sql = sprintf("DELETE FROM community_tool WHERE id IN (%s)", $ids_string);
 		if(!($db->ExecuteMaster($sql)))
@@ -374,17 +376,7 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 		if(!($db->ExecuteMaster($sql)))
 			return false;
 		
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.delete',
-				array(
-					'context' => CerberusContexts::CONTEXT_PORTAL,
-					'context_ids' => $ids
-				)
-			)
-		);
+		parent::_deleteAbstractAfter($context, $ids);
 		
 		self::clearCache();
 		return true;

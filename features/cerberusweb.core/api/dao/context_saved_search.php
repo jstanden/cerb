@@ -361,7 +361,11 @@ class DAO_ContextSavedSearch extends Cerb_ORMHelper {
 		$context = CerberusContexts::CONTEXT_SAVED_SEARCH;
 		$ids_list = implode(',', self::qstrArray($ids));
 		
+		parent::_deleteAbstractBefore($context, $ids);
+		
 		$db->ExecuteMaster(sprintf("DELETE FROM context_saved_search WHERE id IN (%s)", $ids_list));
+		
+		parent::_deleteAbstractAfter($context, $ids);
 		
 		self::clearCache();
 		return true;

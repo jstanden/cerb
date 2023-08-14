@@ -334,21 +334,13 @@ class DAO_ConnectedService extends Cerb_ORMHelper {
 		$context = CerberusContexts::CONTEXT_CONNECTED_SERVICE;
 		$ids_list = implode(',', self::qstrArray($ids));
 		
+		parent::_deleteAbstractBefore($context, $ids);
+		
 		DAO_ConnectedAccount::deleteByServiceIds($ids);
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM connected_service WHERE id IN (%s)", $ids_list));
 		
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.delete',
-				array(
-					'context' => CerberusContexts::CONTEXT_CONNECTED_SERVICE,
-					'context_ids' => $ids
-				)
-			)
-		);
+		parent::_deleteAbstractAfter($context, $ids);
 		
 		return true;
 	}

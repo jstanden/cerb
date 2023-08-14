@@ -390,24 +390,14 @@ class DAO_JiraIssue extends Cerb_ORMHelper {
 		$context = Context_JiraIssue::ID;
 		$ids_list = implode(',', self::qstrArray($ids));
 		
+		parent::_deleteAbstractBefore($context, $ids);
+		
 		$db->ExecuteMaster(sprintf("DELETE FROM jira_issue WHERE id IN (%s)", $ids_list));
 		
 		// Cascade delete to linked tables
 		$db->ExecuteMaster("DELETE FROM jira_issue_comment WHERE issue_id NOT IN (SELECT id FROM jira_issue)");
 		
-		// [TODO] Maint
-		
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.delete',
-				array(
-					'context' => Context_JiraIssue::ID,
-					'context_ids' => $ids
-				)
-			)
-		);
+		parent::_deleteAbstractAfter($context, $ids);
 		
 		return true;
 	}

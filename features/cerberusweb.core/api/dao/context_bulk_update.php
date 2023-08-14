@@ -360,17 +360,7 @@ class DAO_ContextBulkUpdate extends Cerb_ORMHelper {
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM context_bulk_update WHERE id IN (%s)", $ids_list));
 		
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.delete',
-				array(
-					'context' => 'cerberusweb.contexts.context.bulk.update',
-					'context_ids' => $ids
-				)
-			)
-		);
+		parent::_deleteAbstractAfter($context, $ids);
 		
 		return true;
 	}

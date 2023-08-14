@@ -284,21 +284,13 @@ class DAO_AutomationResource extends Cerb_ORMHelper {
 		$context = CerberusContexts::CONTEXT_AUTOMATION_RESOURCE;
 		$ids_list = implode(',', self::qstrArray($ids));
 		
+		parent::_deleteAbstractBefore($context, $ids);
+		
 		Storage_AutomationResource::delete($ids);
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM automation_resource WHERE id IN (%s)", $ids_list));
 		
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.delete',
-				array(
-					'context' => CerberusContexts::CONTEXT_AUTOMATION_RESOURCE,
-					'context_ids' => $ids
-				)
-			)
-		);
+		parent::_deleteAbstractAfter($context, $ids);
 		
 		return true;
 	}

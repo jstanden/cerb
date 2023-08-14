@@ -315,6 +315,8 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 		$context = CerberusContexts::CONTEXT_ORG;
 		$id_list = implode(',', $ids);
 		
+		parent::_deleteAbstractBefore($context, $ids);
+		
 		// Orgs
 		$sql = sprintf("DELETE FROM contact_org WHERE id IN (%s)",
 			$id_list
@@ -340,17 +342,7 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 		$search = Extension_DevblocksSearchSchema::get(Search_Org::ID);
 		$search->delete($ids);
 		
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.delete',
-				array(
-					'context' => CerberusContexts::CONTEXT_ORG,
-					'context_ids' => $ids
-				)
-			)
-		);
+		parent::_deleteAbstractAfter($context, $ids);
 	}
 	
 	static function maint() {

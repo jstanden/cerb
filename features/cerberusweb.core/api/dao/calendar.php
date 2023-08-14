@@ -332,6 +332,8 @@ class DAO_Calendar extends Cerb_ORMHelper {
 		$context = CerberusContexts::CONTEXT_CALENDAR;
 		$ids_list = implode(',', self::qstrArray($ids));
 		
+		parent::_deleteAbstractBefore($context, $ids);
+		
 		$db->ExecuteMaster(sprintf("DELETE FROM calendar WHERE id IN (%s)", $ids_list));
 		
 		// Delete linked records
@@ -341,17 +343,7 @@ class DAO_Calendar extends Cerb_ORMHelper {
 		// Delete worker prefs
 		DAO_Worker::updateWhere(array(DAO_Worker::CALENDAR_ID => 0), sprintf("%s IN (%s)", DAO_Worker::CALENDAR_ID, $ids_list));
 		
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.delete',
-				array(
-					'context' => CerberusContexts::CONTEXT_CALENDAR,
-					'context_ids' => $ids
-				)
-			)
-		);
+		parent::_deleteAbstractAfter($context, $ids);
 		
 		self::clearCache();
 		

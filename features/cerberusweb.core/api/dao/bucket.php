@@ -441,6 +441,8 @@ class DAO_Bucket extends Cerb_ORMHelper {
 		
 		$context = CerberusContexts::CONTEXT_BUCKET;
 		
+		parent::_deleteAbstractBefore($context, $ids);
+		
 		/*
 		 * Notify anything that wants to know when buckets delete.
 		 */
@@ -491,6 +493,8 @@ class DAO_Bucket extends Cerb_ORMHelper {
 		
 		$sql = sprintf("DELETE FROM bucket WHERE id IN (%s)", implode(',',$ids));
 		$db->ExecuteMaster($sql);
+		
+		parent::_deleteAbstractAfter($context, $ids);
 		
 		self::clearCache();
 		return true;

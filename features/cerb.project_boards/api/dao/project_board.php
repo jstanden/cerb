@@ -91,6 +91,8 @@ class DAO_ProjectBoard extends Cerb_ORMHelper {
 		
 		$context = Context_ProjectBoard::ID;
 		
+		self::_updateAbstract($context, $ids, $fields);
+		
 		// Make a diff for the requested objects in batches
 		
 		$chunks = array_chunk($ids, 100, true);
@@ -259,6 +261,8 @@ class DAO_ProjectBoard extends Cerb_ORMHelper {
 		
 		if(empty($ids)) return false;
 		
+		parent::_deleteAbstractBefore($context, $ids);
+		
 		// Delete project columns
 		DAO_ProjectBoardColumn::deleteByProjectIds($ids);
 
@@ -266,17 +270,7 @@ class DAO_ProjectBoard extends Cerb_ORMHelper {
 		$ids_list = implode(',', self::qstrArray($ids));
 		$db->ExecuteMaster(sprintf("DELETE FROM project_board WHERE id IN (%s)", $ids_list));
 		
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.delete',
-				array(
-					'context' => Context_ProjectBoard::ID,
-					'context_ids' => $ids
-				)
-			)
-		);
+		parent::_deleteAbstractAfter($context, $ids);
 		
 		return true;
 	}

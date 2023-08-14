@@ -1044,6 +1044,8 @@ class DAO_Worker extends Cerb_ORMHelper {
 		
 		if(empty($id)) return false;
 		
+		parent::_deleteAbstractBefore($context, [$id]);
+		
 		/* This event fires before the delete takes place in the db,
 		 * so we can denote what is actually changing against the db state
 		 */
@@ -1110,17 +1112,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		$search = Extension_DevblocksSearchSchema::get(Search_Worker::ID);
 		$search->delete(array($id));
 		
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.delete',
-				array(
-					'context' => CerberusContexts::CONTEXT_WORKER,
-					'context_ids' => array($id)
-				)
-			)
-		);
+		parent::_deleteAbstractAfter($context, [$id]);
 		
 		// Invalidate caches
 		self::clearCache();

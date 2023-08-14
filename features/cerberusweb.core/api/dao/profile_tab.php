@@ -288,6 +288,8 @@ class DAO_ProfileTab extends Cerb_ORMHelper {
 		$context = CerberusContexts::CONTEXT_PROFILE_TAB;
 		$ids_list = implode(',', self::qstrArray($ids));
 		
+		parent::_deleteAbstractBefore($context, $ids);
+		
 		// Delete each tab's profile widgets
 		foreach($ids as $tab_id) {
 			$widgets = DAO_ProfileWidget::getByTab($tab_id);
@@ -298,17 +300,7 @@ class DAO_ProfileTab extends Cerb_ORMHelper {
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM profile_tab WHERE id IN (%s)", $ids_list));
 		
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.delete',
-				array(
-					'context' => CerberusContexts::CONTEXT_PROFILE_TAB,
-					'context_ids' => $ids
-				)
-			)
-		);
+		parent::_deleteAbstractAfter($context, $ids);
 		
 		self::clearCache();
 		return true;

@@ -509,6 +509,8 @@ class DAO_CustomField extends Cerb_ORMHelper {
 		$context = CerberusContexts::CONTEXT_CUSTOM_FIELD;
 		$ids_list = implode(',', $ids);
 		
+		parent::_deleteAbstractBefore($context, $ids);
+		
 		if(!($db->ExecuteMaster(sprintf("DELETE FROM custom_field WHERE id IN (%s)", $ids_list))))
 			return false;
 
@@ -517,17 +519,7 @@ class DAO_CustomField extends Cerb_ORMHelper {
 			DAO_CustomFieldValue::deleteByFieldId($id);
 		}
 
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.delete',
-				array(
-					'context' => CerberusContexts::CONTEXT_CUSTOM_FIELD,
-					'context_ids' => $ids
-				)
-			)
-		);
+		parent::_deleteAbstractAfter($context, $ids);
 		
 		self::clearCache();
 	}

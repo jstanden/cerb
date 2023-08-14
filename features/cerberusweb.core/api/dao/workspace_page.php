@@ -385,12 +385,16 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 		
 		$context = CerberusContexts::CONTEXT_WORKSPACE_TAB;
 		$ids_list = implode(',', self::qstrArray($ids));
+		
+		parent::_deleteAbstractBefore($context, $ids);
 
 		// Cascade delete tabs and lists
 		DAO_WorkspaceTab::deleteByPage($ids);
 		
 		// Delete pages
 		$db->ExecuteMaster(sprintf("DELETE FROM workspace_page WHERE id IN (%s)", $ids_list));
+		
+		parent::_deleteAbstractAfter($context, $ids);
 
 		self::clearCache();
 		return true;

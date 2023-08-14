@@ -403,6 +403,8 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 		
 		$context = CerberusContexts::CONTEXT_CUSTOM_FIELDSET;
 		$ids_list = implode(',', self::qstrArray($ids));
+		
+		parent::_deleteAbstractBefore($context, $ids);
 
 		// Delete custom fields in these fieldsets
 
@@ -417,17 +419,7 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 		$db->ExecuteMaster(sprintf("DELETE FROM context_to_custom_fieldset WHERE custom_fieldset_id IN (%s)", $ids_list));
 		$db->ExecuteMaster(sprintf("DELETE FROM custom_fieldset WHERE id IN (%s)", $ids_list));
 		
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.delete',
-				array(
-					'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET,
-					'context_ids' => $ids
-				)
-			)
-		);
+		parent::_deleteAbstractAfter($context, $ids);
 		
 		self::clearCache();
 		return true;

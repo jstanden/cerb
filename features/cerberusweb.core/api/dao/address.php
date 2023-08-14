@@ -453,6 +453,8 @@ class DAO_Address extends Cerb_ORMHelper {
 		$context = CerberusContexts::CONTEXT_ADDRESS;
 		$ids_list = implode(',', self::qstrArray($ids));
 		
+		parent::_deleteAbstractBefore($context, $ids);
+		
 		// Addresses
 		if(!($db->ExecuteMaster(sprintf("DELETE FROM address WHERE id IN (%s)", $ids_list))))
 			return false;
@@ -461,18 +463,7 @@ class DAO_Address extends Cerb_ORMHelper {
 		$search = Extension_DevblocksSearchSchema::get(Search_Address::ID);
 		$search->delete($ids);
 		
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.delete',
-				array(
-					'context' => CerberusContexts::CONTEXT_ADDRESS,
-					'context_ids' => $ids
-				)
-			)
-		);
-
+		parent::_deleteAbstractAfter($context, $ids);
 		self::clearCache();
 	}
 	

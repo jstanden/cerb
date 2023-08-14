@@ -293,7 +293,11 @@ class DAO_WebApiCredentials extends Cerb_ORMHelper {
 		$context = CerberusContexts::CONTEXT_WEBAPI_CREDENTIAL;
 		$ids_list = implode(',', self::qstrArray($ids));
 		
+		parent::_deleteAbstractBefore($context, $ids);
+		
 		$db->ExecuteMaster(sprintf("DELETE FROM webapi_credentials WHERE id IN (%s)", $ids_list));
+		
+		parent::_deleteAbstractAfter($context, $ids);
 		
 		self::clearCache();
 		return true;

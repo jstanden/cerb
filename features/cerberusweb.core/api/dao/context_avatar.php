@@ -332,21 +332,13 @@ class DAO_ContextAvatar extends Cerb_ORMHelper {
 		$context = CerberusContexts::CONTEXT_CONTEXT_AVATAR;
 		$ids_list = implode(',', self::qstrArray($ids));
 		
+		parent::_deleteAbstractBefore($context, $ids);
+		
 		Storage_ContextAvatar::delete($ids);
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM context_avatar WHERE id IN (%s)", $ids_list));
 		
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.delete',
-				array(
-					'context' => CerberusContexts::CONTEXT_CONTEXT_AVATAR,
-					'context_ids' => $ids
-				)
-			)
-		);
+		parent::_deleteAbstractAfter($context, $ids);
 		
 		return true;
 	}

@@ -459,20 +459,12 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 		$context = CerberusContexts::CONTEXT_OPPORTUNITY;
 		$ids_list = implode(',', self::qstrArray($ids));
 		
+		parent::_deleteAbstractBefore($context, $ids);
+		
 		// Opps
 		$db->ExecuteMaster(sprintf("DELETE FROM crm_opportunity WHERE id IN (%s)", $ids_list));
 
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.delete',
-				array(
-					'context' => CerberusContexts::CONTEXT_OPPORTUNITY,
-					'context_ids' => $ids
-				)
-			)
-		);
+		parent::_deleteAbstractAfter($context, $ids);
 		
 		return true;
 	}

@@ -439,23 +439,15 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 		
 		$ids_list = implode(',', self::qstrArray($ids));
 		
+		parent::_deleteAbstractBefore($context_name, $ids);
+		
 		/** @noinspection SqlResolve */
 		$db->ExecuteMaster(sprintf("DELETE FROM %s WHERE id IN (%s)",
 			$db->escape($table_name),
 			$ids_list
 		));
 		
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.delete',
-				array(
-					'context' => $context_name,
-					'context_ids' => $ids
-				)
-			)
-		);
+		parent::_deleteAbstractAfter($context_name, $ids);
 		
 		return true;
 	}

@@ -258,6 +258,8 @@ class DAO_GpgPrivateKey extends Cerb_ORMHelper {
 		$context = Context_GpgPrivateKey::ID;
 		$ids_list = implode(',', self::qstrArray($ids));
 		
+		parent::_deleteAbstractBefore($context, $ids);
+		
 		$db->ExecuteMaster(sprintf("DELETE FROM gpg_private_key WHERE id IN (%s)", $ids_list));
 		
 		$results = $db->GetArrayReader(sprintf("SELECT id, fingerprint FROM gpg_private_key WHERE id IN (%s)", $ids_list));
@@ -270,17 +272,7 @@ class DAO_GpgPrivateKey extends Cerb_ORMHelper {
 			}
 		}
 		
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.delete',
-				array(
-					'context' => Context_GpgPrivateKey::ID,
-					'context_ids' => $ids
-				)
-			)
-		);
+		parent::_deleteAbstractAfter($context, $ids);
 		
 		return true;
 	}

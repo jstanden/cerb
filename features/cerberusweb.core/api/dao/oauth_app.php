@@ -288,21 +288,13 @@ class DAO_OAuthApp extends Cerb_ORMHelper {
 		$context = Context_OAuthApp::ID;
 		$ids_list = implode(',', self::qstrArray($ids));
 		
+		parent::_deleteAbstractBefore($context, $ids);
+		
 		DAO_OAuthToken::deleteByAppIds($ids);
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM oauth_app WHERE id IN (%s)", $ids_list));
 
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.delete',
-				array(
-					'context' => Context_OAuthApp::ID,
-					'context_ids' => $ids
-				)
-			)
-		);
+		parent::_deleteAbstractAfter($context, $ids);
 		
 		self::clearCache();
 		return true;
