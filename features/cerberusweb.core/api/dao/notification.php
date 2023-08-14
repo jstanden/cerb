@@ -853,13 +853,13 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 
 		$this->view_columns = array(
 			SearchFields_Notification::CREATED_DATE,
+			SearchFields_Notification::ID,
 		);
 		
 		$this->addColumnsHidden(array(
 			SearchFields_Notification::CONTEXT,
 			SearchFields_Notification::CONTEXT_ID,
 			SearchFields_Notification::ENTRY_JSON,
-			SearchFields_Notification::ID,
 			SearchFields_Notification::VIRTUAL_WORKER_SEARCH,
 		));
 		
