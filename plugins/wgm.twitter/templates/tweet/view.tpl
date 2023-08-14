@@ -137,7 +137,8 @@
 	</div>
 	
 	<div style="float:left;" id="{$view->id}_actions">
-		{include file="devblocks:cerberusweb.core::internal/views/view_toolbar.tpl"}
+		{$view_toolbar = $view->getToolbar()}
+		{include file="devblocks:cerberusweb.core::internal/views/view_toolbar.tpl" view_toolbar=$view_toolbar}
 		<button type="button" class="action-close" onclick="$frm=$(this).closest('form');$frm.find('input:hidden[name=action]').val('viewMarkClosed');genericAjaxPost($frm,'view{$view->id}',null);"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.close'|devblocks_translate|lower}</button>
 	</div>
 </div>

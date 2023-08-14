@@ -135,7 +135,8 @@
 	</div>
 	
 	<div style="float:left;" id="{$view->id}_actions">
-		{include file="devblocks:cerberusweb.core::internal/views/view_toolbar.tpl"}
+		{$view_toolbar = $view->getToolbar()}
+		{include file="devblocks:cerberusweb.core::internal/views/view_toolbar.tpl" view_toolbar=$view_toolbar}
 		{if $active_worker->hasPriv("contexts.{$view_context}.update.bulk")}<button type="button" class="action-always-show action-bulkupdate" onclick="genericAjaxPopup('peek','c=profiles&a=invoke&module=draft&action=showDraftsBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'50%');"><span class="glyphicons glyphicons-folder-closed"></span></a> bulk update</button>{/if}
 	</div>
 </div>
