@@ -3207,10 +3207,6 @@ var ajax = new cAjaxCalls();
 			this.prefixSelection(prefixWith);
 		},
 
-		prefixSelectedLines: function(prefixWith) {
-			// [TODO]
-		},
-
 		prefixSelection: function(prefixWith) {
 			var selectedText = this.getSelection();
 			this.replaceSelection(prefixWith + selectedText);

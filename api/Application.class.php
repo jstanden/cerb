@@ -2678,7 +2678,7 @@ class CerberusContexts {
 			$context_mft = $context->manifest;
 			
 		} else if (is_string($context)) {
-			if(false == ($context_mft = Extension_DevblocksContext::get($context, false)))
+			if(!($context_mft = Extension_DevblocksContext::get($context, false)))
 				return false; /** @var $context_mft DevblocksExtensionManifest */
 			
 		} else {

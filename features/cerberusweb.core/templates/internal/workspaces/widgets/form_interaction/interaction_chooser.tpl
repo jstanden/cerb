@@ -9,7 +9,7 @@
 {$script_id = uniqid('script')}
 <script type="text/javascript" id="{$script_id}">
 $(function() {
-	var $this = $('#{$script_id}')
+	var $this = $('#{$script_id}');
 	var $div = $this.prev('div');
 	var $widget_content = $this.closest('.cerb-workspace-widget--content');
 	var $widget = $widget_content.closest('.cerb-workspace-widget');
