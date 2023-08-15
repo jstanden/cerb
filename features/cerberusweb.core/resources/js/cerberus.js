@@ -921,6 +921,7 @@ var cerbAutocompleteSuggestions = {
 				'label:',
 				'icon:',
 				'icon_at:',
+				'keyboard:',
 				'tooltip:',
 				{
 					'caption': 'hidden:',
@@ -958,6 +959,12 @@ var cerbAutocompleteSuggestions = {
 			'(.*):?interaction:inputs:': {
 				'type': 'automation-inputs'
 			},
+			'(.*):?interaction:keyboard:': [
+				'k',
+				'ctrl+k',
+				'meta+k',
+				'shift+k',
+			],
 			'(.*):?interaction:uri:': {
 				'type': 'cerb-uri',
 				'params': {

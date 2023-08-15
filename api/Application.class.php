@@ -3943,6 +3943,8 @@ class _CerbApplication_KataAutocompletions {
 					],
 					'label:',
 					'icon:',
+					'icon_at:',
+					'keyboard:',
 					'tooltip:',
 					[
 						'caption' => 'hidden:',
@@ -3971,6 +3973,12 @@ class _CerbApplication_KataAutocompletions {
 				],
 				'(.*):?interaction:inputs:' => [
 					'type' => 'automation-inputs'
+				],
+				'(.*):?interaction:toolbar:' => [
+					'k',
+					'ctrl+k',
+					'meta+k',
+					'shift+k',
 				],
 				'(.*):?interaction:uri:' => [
 					'type' => 'cerb-uri',
