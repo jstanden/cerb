@@ -4506,7 +4506,7 @@ var ajax = new cAjaxCalls();
 				e.editor.completer = new Autocomplete();
 			}
 
-			if('Return' === e.command.name) {
+			if('Submit' === e.command.name) {
 				e.editor.completer.getPopup().hide();
 				return;
 			}
