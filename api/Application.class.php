@@ -2470,16 +2470,6 @@ class CerberusContexts {
 					
 					// Trigger automations
 					if($record_changed_events) {
-						$dict_new = !is_null($new_model)
-							? DevblocksDictionaryDelegate::getDictionaryFromModel($new_model, $context)
-							: DevblocksDictionaryDelegate::instance([
-								'_context' => $context,
-								'_type' => $context, // [TODO] uri
-								'id' => $context_id
-							])
-						;
-						$dict_old = DevblocksDictionaryDelegate::getDictionaryFromModel($old_model, $context);
-						
 						$is_deleted = self::_wasJustDeleted($context, $context_id);
 						$is_created = self::_wasJustCreated($context, $context_id);
 						
@@ -2488,6 +2478,19 @@ class CerberusContexts {
 							$is_created => 'created',
 							default => 'updated',
 						};
+						
+						$dict_old = DevblocksDictionaryDelegate::getDictionaryFromModel($old_model, $context);
+					
+						// If the record was deleted, clone the was/is dictionaries
+						if(is_null($new_model)) {
+							$dict_new =
+								$is_deleted
+								? clone $dict_old
+								: DevblocksDictionaryDelegate::instance([])
+							;
+						} else {
+							$dict_new = DevblocksDictionaryDelegate::getDictionaryFromModel($new_model, $context);
+						}
 						
 						$dict = DevblocksDictionaryDelegate::instance([
 							'change_type' => $change_type,
