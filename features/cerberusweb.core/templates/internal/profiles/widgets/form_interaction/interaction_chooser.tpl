@@ -9,10 +9,10 @@
 {$script_id = uniqid('script')}
 <script type="text/javascript" id="{$script_id}">
 $(function() {
-	var $this = $('#{$script_id}')
+	var $this = $('#{$script_id}');
 	var $div = $this.prev('div');
 	var $widget_content = $this.closest('.cerb-profile-widget--content');
-	var $widget = $widget_content.closest('.cerb-profile-widget');
+	var $widget = $widget_content.closest('.cerb-profile-widget').off('.widget{$widget->id}');
 	var $profile_tab = $widget.closest('.cerb-profile-layout');
 
 	// Refresh when done
@@ -105,5 +105,23 @@ $(function() {
 	};
 
 	$div.cerbToolbar(toolbarOptions);
+
+	// Keyboard shortcuts
+
+	let $responders = $widget.find('[data-interaction-keyboard]');
+
+	$responders.each(function() {
+		let $this = $(this);
+		$widget.on(
+			'keydown.widget{$widget->id}',
+			null,
+			$this.attr('data-interaction-keyboard'),
+			function(e) {
+				e.preventDefault();
+				e.stopPropagation();
+				$this.click();
+			}
+		);
+	});
 });
 </script>
