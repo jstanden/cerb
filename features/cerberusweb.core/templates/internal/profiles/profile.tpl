@@ -220,7 +220,7 @@ $(function() {
 
     // Merge
 
-    {if $active_worker->hasPriv('contexts.{$page_context}.merge')}
+	{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.merge")}
     $('#btnProfileMerge')
         .on('click', function() {
             var $merge_popup = genericAjaxPopup('peek','c=internal&a=invoke&module=records&action=renderMergePopup&context={$page_context}&ids={$page_context_id}',null,false,'50%');
