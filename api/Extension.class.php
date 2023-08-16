@@ -1846,7 +1846,7 @@ abstract class Extension_Toolbar extends DevblocksExtension {
 					],
 					[
 						'caption' => 'class:',
-						'snippet' => 'class: some-css-class-name'
+						'snippet' => 'class: action-always-show'
 					],
 					'inputs:'
 				],

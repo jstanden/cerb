@@ -3959,7 +3959,7 @@ class _CerbApplication_KataAutocompletions {
 					],
 					[
 						'caption' => 'class:',
-						'snippet' => 'class: some-css-class-name'
+						'snippet' => 'class: action-always-show'
 					],
 					'inputs:'
 				],
