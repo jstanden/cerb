@@ -943,7 +943,7 @@ class Storage_AutomationResource extends Extension_DevblocksStorageSchema {
 		
 		$sql = sprintf("SELECT storage_extension, storage_key, storage_profile_id FROM automation_resource WHERE id IN (%s)", implode(',',$ids));
 		
-		if(false == ($rs = $db->QueryReader($sql)))
+		if(!($rs = $db->QueryReader($sql)))
 			return false;
 		
 		// Delete the physical files

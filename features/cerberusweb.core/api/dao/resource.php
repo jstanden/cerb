@@ -1158,14 +1158,16 @@ class Storage_Resource extends Extension_DevblocksStorageSchema {
 	 * @return bool
 	 */
 	public static function delete($ids) {
-		if(!is_array($ids))
-			$ids = [$ids];
-		
 		$db = DevblocksPlatform::services()->database();
+		
+		if(!is_array($ids)) $ids = [$ids];
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
+		
+		if(empty($ids)) return false;
 		
 		$sql = sprintf("SELECT storage_extension, storage_key, storage_profile_id FROM resource WHERE id IN (%s)", implode(',',$ids));
 		
-		if(false == ($rs = $db->QueryReader($sql)))
+		if(!($rs = $db->QueryReader($sql)))
 			return false;
 		
 		// Delete the physical files

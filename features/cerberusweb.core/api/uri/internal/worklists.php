@@ -1695,8 +1695,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 				$dict = new DevblocksDictionaryDelegate([]);
 				
 				foreach($parts as $idx => $part) {
-					$col = 'column_' . ($idx + 1); // 0-based to 1-based
-					$dict->$col = $part;
+					$dict->set('column_' . ($idx + 1), $part); // 0-based to 1-based
 				}
 				
 				// Meta
@@ -1721,11 +1720,11 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 					if($col == 'custom') {
 						@$val = $tpl_builder->build($column_custom[$idx], $dict);
 						
-						// Are we referencing a column number from the CSV file?
+					// Are we referencing a column number from the CSV file?
 					} elseif(is_numeric($col)) {
 						$val = $parts[$col];
 						
-						// Otherwise, use a literal value.
+					// Otherwise, use a literal value.
 					} else {
 						$val = $col;
 					}

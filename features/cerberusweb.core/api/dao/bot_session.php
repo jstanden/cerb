@@ -167,7 +167,7 @@ class DAO_BotSession extends Cerb_ORMHelper {
 			$object->session_id = $row['session_id'];
 			$object->updated_at = intval($row['updated_at']);
 			
-			@$session_data = json_decode($row['session_data'], true);
+			$session_data = json_decode($row['session_data'] ?? '', true);
 			$object->session_data = $session_data ?: [];
 			
 			$objects[$object->session_id] = $object;

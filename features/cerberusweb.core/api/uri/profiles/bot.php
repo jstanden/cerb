@@ -635,12 +635,12 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			$session_id = DevblocksPlatform::importGPC($_POST['session_id'] ?? null, 'string', '');
 			
 			// Load the session
-			if(false == ($bot_session = DAO_BotSession::get($session_id)))
+			if(!($bot_session = DAO_BotSession::get($session_id)))
 				DevblocksPlatform::dieWithHttpError(null, 404);
 			
 			// Legacy
 			if(array_key_exists('behavior_id', $bot_session->session_data)) {
-				if(false == ($behavior = DAO_TriggerEvent::get($bot_session->session_data['behavior_id'])))
+				if(!($behavior = DAO_TriggerEvent::get($bot_session->session_data['behavior_id'])))
 					DevblocksPlatform::dieWithHttpError(null, 404);
 				
 				if($behavior->event_point == Event_FormInteractionWorker::ID) {
