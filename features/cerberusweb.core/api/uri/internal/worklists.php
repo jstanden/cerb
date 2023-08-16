@@ -1782,7 +1782,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 							break;
 						
 						case Model_CustomField::TYPE_LIST:
-							$value = $val;
+							$value = DevblocksPlatform::parseCrlfString($val);
 							break;
 						
 						case Model_CustomField::TYPE_MULTI_CHECKBOX:
