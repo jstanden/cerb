@@ -103,7 +103,6 @@ class DAO_DevblocksSession extends Cerb_ORMHelper {
 	
 	static function update($ids, $fields) {
 		if(!is_array($ids)) $ids = [$ids];
-		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 		
 		// Make a diff for the requested objects in batches
 		
@@ -215,12 +214,9 @@ class DAO_DevblocksSession extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::services()->database();
 		
 		if(!is_array($ids)) $ids = [$ids];
-		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 		
 		if(empty($ids)) return false;
 
-		DevblocksPlatform::sanitizeArray($ids, 'integer');
-		
 		array_walk($ids, function(&$id) use ($db) {
 			$id = $db->qstr($id);
 		});
@@ -239,8 +235,6 @@ class DAO_DevblocksSession extends Cerb_ORMHelper {
 		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 		
 		if(empty($ids)) return false;
-		
-		DevblocksPlatform::sanitizeArray($ids, 'integer');
 		
 		$ids_list = implode(',', self::qstrArray($ids));
 		
