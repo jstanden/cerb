@@ -62,7 +62,6 @@ class DAO_BotSession extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::services()->database();
 		
 		if(!is_array($ids)) $ids = [$ids];
-		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 		
 		self::updateWhere($fields, sprintf("session_id IN (%s)",
 			implode(',', $db->qstrArray($ids))
@@ -130,7 +129,6 @@ class DAO_BotSession extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::services()->database();
 		
 		if(!is_array($ids)) $ids = [$ids];
-		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 
 		if(empty($ids)) return [];
 
@@ -188,7 +186,6 @@ class DAO_BotSession extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::services()->database();
 		
 		if(!is_array($ids)) $ids = [$ids];
-		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 		
 		if(empty($ids)) return false;
 		
