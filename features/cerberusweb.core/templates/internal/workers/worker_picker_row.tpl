@@ -5,7 +5,7 @@
 		{else}
 		<div style="display:inline-block;border-radius:10px;width:10px;height:10px;background-color:var(--cerb-color-background-contrast-230);margin-right:5px;line-height:10px;"></div>
 		{/if}
-		<img src="{devblocks_url}c=avatars&context=worker&context_id={$worker->id}{/devblocks_url}?v={$worker->updated}" style="height:25px;width:25px;border-radius:25px;" align="middle">
+		<img src="{devblocks_url}c=avatars&context=worker&context_id={$worker->id}{/devblocks_url}?v={$worker->updated}" style="height:25px;width:25px;border-radius:25px;" align="middle" loading="lazy">
 		<a href="javascript:;" class="item no-underline"><b>{$worker->getName()}</b></a>
 		<small>{$worker->title}</small>
 		{if $worker->__is_selected}
