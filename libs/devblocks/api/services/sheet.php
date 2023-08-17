@@ -189,8 +189,11 @@ class _DevblocksSheetService {
 			if(!array_key_exists('label', $column))
 				$column['label'] = DevblocksPlatform::strTitleCase(trim(str_replace('_', ' ', $column['key'])));
 			
-			$column_keys[] = $column['key'];
-			$columns[] = $column;
+			// Only return valid column types
+			if(array_key_exists($column['_type'], $this->_types)) {
+				$column_keys[] = $column['key'];
+				$columns[] = $column;
+			}
 		}
 		
 		return array_combine($column_keys, $columns);
