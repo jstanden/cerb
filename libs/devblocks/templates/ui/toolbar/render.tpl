@@ -26,7 +26,7 @@
                     </div>
                 </li>
             {elseif 'interaction' == $item_key_parts[0]}
-                <li class="cerb-bot-trigger"
+                <li class="{$interaction_class}"
                     data-interaction-uri="{$item.uri}"
                     data-interaction-params="{if is_array($item.inputs)}{DevblocksPlatform::services()->url()->arrayToQueryString($item.inputs)}{/if}"
                     data-interaction-done="{if is_array($item.after)}{DevblocksPlatform::services()->url()->arrayToQueryString($item.after)}{/if}"
@@ -45,7 +45,7 @@
                     </div>
                 </li>
             {elseif 'behavior' == $item_key_parts[0]}
-                <li class="cerb-bot-trigger"
+                <li class="{$interaction_class}"
                     data-behavior-id="{$item.id}"
                     data-interaction="{$item.interaction}"
                     data-interaction-params="{if is_array($item.params)}{DevblocksPlatform::services()->url()->arrayToQueryString($item.params)}{/if}"
@@ -67,7 +67,7 @@
     {if !array_key_exists('hidden', $toolbar_item) || !$toolbar_item.hidden}
         {if 'interaction' == $toolbar_item.type}
             {if $toolbar_item.uri}
-                <button type="button" class="cerb-bot-trigger {$toolbar_item.class}"
+                <button type="button" class="{$interaction_class} {$toolbar_item.class}"
                         data-cerb-toolbar-button
                         data-interaction-uri="{$toolbar_item.uri}"
                         data-interaction-params="{if is_array($toolbar_item.inputs)}{DevblocksPlatform::services()->url()->arrayToQueryString($toolbar_item.inputs)}{/if}"
@@ -89,7 +89,7 @@
             {/if}
         {elseif 'behavior' == $toolbar_item.type}
             {if $toolbar_item.id}
-                <button type="button" class="cerb-bot-trigger {$toolbar_item.class}"
+                <button type="button" class="{$interaction_class} {$toolbar_item.class}"
                         data-cerb-toolbar-button
                         data-behavior-id="{$toolbar_item.id}"
                         data-interaction="{$toolbar_item.interaction}"
@@ -116,7 +116,7 @@
 
             {* Split menu button *}
             {if $default}
-                <button type="button" class="split-left cerb-bot-trigger {$toolbar_item.class}"
+                <button type="button" class="split-left {$interaction_class} {$toolbar_item.class}"
                         data-cerb-toolbar-button
                         data-interaction-uri="{$default.uri}"
                         data-interaction-params="{if is_array($default.inputs)}{DevblocksPlatform::services()->url()->arrayToQueryString($default.inputs)}{/if}"

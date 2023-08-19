@@ -2342,13 +2342,17 @@ var ajax = new cAjaxCalls();
 			options.error = function() {};
 		}
 
+		if(!options.hasOwnProperty('interaction_class') || 'string' !== typeof options.interaction_class) {
+			options.interaction_class = 'cerb-bot-trigger';
+		}
+
 		return this.each(function() {
 			var $toolbar = $(this);
 
 			$toolbar.on('cerb-toolbar--refreshed', function() {
 				// Interactions
 				$toolbar
-					.find('.cerb-bot-trigger')
+					.find('.' + options.interaction_class)
 					.cerbBotTrigger({
 						'caller': options.caller,
 						'mode': options.mode,
@@ -2421,7 +2425,7 @@ var ajax = new cAjaxCalls();
 						select: function(event, ui) {
 							event.stopPropagation();
 							var $li = $(ui.item);
-							if($li.is('.cerb-bot-trigger'))
+							if($li.is('.' + options.interaction_class))
 								$li.click();
 						}
 					})

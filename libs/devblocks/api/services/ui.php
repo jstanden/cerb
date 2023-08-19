@@ -514,12 +514,14 @@ class DevblocksUiToolbar {
 		}
 	}
 	
-	function fetch($toolbar) {
+	function fetch($toolbar, $interaction_class='cerb-bot-trigger') {
 		if(!is_array($toolbar))
 			return null;
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('toolbar', $toolbar);
+		$tpl->assign('interaction_class', $interaction_class);
+		
 		return $tpl->fetch('devblocks:devblocks.core::ui/toolbar/render.tpl');
 	}
 	
