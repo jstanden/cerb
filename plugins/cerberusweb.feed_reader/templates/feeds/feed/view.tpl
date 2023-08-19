@@ -28,8 +28,10 @@
 <form id="viewForm{$view->id}" name="viewForm{$view->id}" action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="view_id" value="{$view->id}">
 <input type="hidden" name="context_id" value="{$view_context}">
-<input type="hidden" name="c" value="feeds">
-<input type="hidden" name="a" value="">
+<input type="hidden" name="c" value="profiles">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="feed">
+<input type="hidden" name="action" value="">
 <input type="hidden" name="explore_from" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
@@ -125,6 +127,7 @@
 	<div style="float:left;" id="{$view->id}_actions">
 		{$view_toolbar = $view->getToolbar()}
 		{include file="devblocks:cerberusweb.core::internal/views/view_toolbar.tpl" view_toolbar=$view_toolbar}
+		{if !$view_toolbar['explore']}<button type="button" class="action-always-show action-explore" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.action.value='viewExplore';this.form.submit();"><span class="glyphicons glyphicons-compass"></span> {'common.explore'|devblocks_translate|lower}</button>{/if}
 	</div>
 </div>
 {/if}

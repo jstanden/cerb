@@ -747,6 +747,10 @@ class Context_Feed extends Extension_DevblocksContext implements IDevblocksConte
 			
 			// Custom fields
 			$token_values = $this->_importModelCustomFieldsAsValues($feed, $token_values);
+			
+			// URL
+			$url_writer = DevblocksPlatform::services()->url();
+			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=feed&id=%d-%s",$feed->id, DevblocksPlatform::strToPermalink($feed->name)), true);
 		}
 		
 		return true;
