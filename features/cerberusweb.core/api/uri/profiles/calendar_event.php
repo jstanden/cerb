@@ -33,6 +33,8 @@ class PageSection_ProfilesCalendarEvent extends Extension_PageSection {
 			switch ($action) {
 				case 'savePeekJson':
 					return $this->_profileAction_savePeekJson();
+				case 'viewExplore':
+					return $this->_profileAction_viewExplore();
 			}
 		}
 		return false;
@@ -176,4 +178,11 @@ class PageSection_ProfilesCalendarEvent extends Extension_PageSection {
 		}
 	}
 	
+	private function _profileAction_viewExplore() {
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
+		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'int', 0);
+		
+		$http_response = Cerb_ORMHelper::generateRecordExploreSet($view_id, $explore_from);
+		DevblocksPlatform::redirect($http_response);
+	}
 };
