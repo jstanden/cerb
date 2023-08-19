@@ -21,7 +21,7 @@
       "prompts": [
         {
           "type": "text",
-          "label": "Access Tokn",
+          "label": "Access Token",
           "key": "prompt_access_token",
           "params": {
             "default": "",

@@ -211,12 +211,12 @@ class PageSection_ProfilesMessage extends Extension_PageSection {
 		
 		$message_id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null, 'integer',0);
 		
-		if(false == ($message = DAO_Message::get($message_id)))
+		if(!($message = DAO_Message::get($message_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		$tpl->assign('message', $message);
 		
-		if(false == ($ticket = DAO_Ticket::get($message->ticket_id)))
+		if(!($ticket = DAO_Ticket::get($message->ticket_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(!Context_Ticket::isReadableByActor($ticket, $active_worker))

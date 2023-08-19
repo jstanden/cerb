@@ -127,7 +127,7 @@ class PageSection_ProfilesCalendarEvent extends Extension_PageSection {
 				}
 				
 			} else {
-				if(false == ($calendar_event = DAO_CalendarEvent::get($id)))
+				if(!($calendar_event = DAO_CalendarEvent::get($id)))
 					return;
 				
 				$changed_fields = Cerb_ORMHelper::uniqueFields($fields, $calendar_event);

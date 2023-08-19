@@ -458,7 +458,7 @@ class CerberusApplication extends DevblocksApplication {
 		return $errors;
 	}
 	
-	public static function respondWithErrorReason(CerbErrorReason $reason, $skip_session=false) : void {
+	public static function respondWithErrorReason(CerbErrorReason $reason, $skip_session=false) : never {
 		$tpl = DevblocksPlatform::services()->template();
 		$settings = DevblocksPlatform::services()->pluginSettings();
 		$translate = DevblocksPlatform::getTranslationService();

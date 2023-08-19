@@ -1301,7 +1301,7 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		}
 		
 		if($view_id) {
-			if(false != ($view = C4_AbstractViewLoader::getView($view_id))) {
+			if(($view = C4_AbstractViewLoader::getView($view_id))) {
 				$view->render();
 			}
 		}

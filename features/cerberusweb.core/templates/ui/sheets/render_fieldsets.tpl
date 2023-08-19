@@ -6,7 +6,7 @@
 		<tbody class="cerb-sheet--row">
 		{foreach from=$columns item=column name=columns}
 		{$cell = $row[$column.key]}
-		{if $cell}
+		{if is_a($cell, 'DevblocksSheetCell')}
 			{$color = $cell->getAttr('color')}
 			{$text_color = $cell->getAttr('text_color')}
 			{$text_size = $cell->getAttr('text_size')}
