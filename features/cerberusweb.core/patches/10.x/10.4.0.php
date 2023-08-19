@@ -181,6 +181,8 @@ $packages = [
 
 CerberusApplication::packages()->importToLibraryFromFiles($packages, APP_PATH . '/features/cerberusweb.core/packages/library/');
 
+$db->ExecuteMaster("DELETE FROM package_library WHERE uri = 'cerb_connected_service_twitter'");
+
 // ===========================================================================
 // Remove the old htmlpurifier cache
 

@@ -63,7 +63,6 @@ if(!isset($tables['package_library'])) {
 		'cerb_connected_service_smartsheet.json',
 		'cerb_connected_service_stripe.json',
 		'cerb_connected_service_twilio.json',
-		'cerb_connected_service_twitter.json',
 		'cerb_profile_tab__log.json',
 		'cerb_profile_tab_package_overview.json',
 		'cerb_profile_tab_ticket_overview.json',
