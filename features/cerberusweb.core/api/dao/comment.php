@@ -1595,6 +1595,9 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 					
 				} else {
 					$values['record_url'] = $dict->get('target_record_url');
+					
+					if(!str_contains($values['record_url'], '#'))
+						$values['record_url'] .= '#comment' . $dict->get('id');
 				}
 				break;
 				
