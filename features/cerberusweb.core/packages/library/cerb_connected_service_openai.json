@@ -1,0 +1,65 @@
+{
+  "package": {
+    "name": "Connected Service: OpenAI",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "OpenAI",
+      "uri": "cerb_connected_service_openai",
+      "description": "Integration with OpenAI",
+      "instructions": "# Instructions\r\n\r\n* Enter your API key from <https://platform.openai.com/account/api-keys>",
+      "point": "connected_service",
+      "image": "data:image/png;base64,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"
+    },
+    "configure": {
+      "placeholders": [],
+      "prompts": [
+        {
+          "type": "text",
+          "label": "API Key",
+          "key": "prompt_api_key",
+          "params": {
+            "default": "",
+            "placeholder": "(paste your API Key)"
+          }
+        },
+        {
+          "type": "text",
+          "label": "Alias",
+          "key": "prompt_name",
+          "params": {
+            "default": "openai",
+            "placeholder": "(enter a URI, a-z,0-9,_)"
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "service_openai",
+      "_context": "connected_service",
+      "name": "OpenAI",
+      "extension_id": "cerb.service.provider.token.bearer",
+      "params": {
+        "token_name": "Bearer"
+      }
+    },
+    {
+      "uid": "account_openai",
+      "_context": "connected_account",
+      "name": "OpenAI",
+      "service_id": "{{{uid.service_openai}}}",
+      "owner__context": "cerberusweb.contexts.app",
+      "owner_id": "0",
+      "params": {
+        "token": "{{{prompt_api_key}}}"
+      }
+    }
+  ]
+}
