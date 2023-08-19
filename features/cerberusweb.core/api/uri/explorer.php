@@ -222,7 +222,7 @@ class ChExplorerController extends DevblocksControllerExtension {
 			}
 		}
 		
-		if(isset($items[$p])) {
+		if(array_key_exists($p, $items)) {
 			$item = $items[$p];
 			$tpl->assign('item', $item);
 			
@@ -239,6 +239,9 @@ class ChExplorerController extends DevblocksControllerExtension {
 			// Prev
 			if($p > 1)
 				$tpl->assign('prev', $p-1);
+			
+		} else {
+			CerberusApplication::respondWithErrorReason(CerbErrorReason::NotFound);
 		}
 		
 		// Common scope

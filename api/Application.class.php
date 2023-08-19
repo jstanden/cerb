@@ -3814,6 +3814,99 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 			}
 		}
 	}
+	
+	public static function generateRecordExploreSet(string $view_id, int $explore_from=0) : DevblocksHttpResponse {
+		$active_worker = CerberusApplication::getActiveWorker();
+		$url_writer = DevblocksPlatform::services()->url();
+		
+		if(!($view = C4_AbstractViewLoader::getView($view_id)))
+			CerberusApplication::respondWithErrorReason(CerbErrorReason::NotFound);
+		
+		$view->setAutoPersist(false);
+		
+		if(!($view_context = $view->getContext()))
+			CerberusApplication::respondWithErrorReason(CerbErrorReason::NotFound);
+		
+		if(!($record_type_mft = Extension_DevblocksContext::getByAlias($view_context)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		// Generate hash
+		$hash = md5($view_id.$active_worker->id.microtime(true).mt_rand(0,PHP_INT_MAX));
+		
+		// Page start
+		if(empty($explore_from)) {
+			$orig_pos = 1+($view->renderPage * $view->renderLimit);
+		} else {
+			$orig_pos = 1;
+		}
+		
+		$view->renderPage = 0;
+		$view->renderLimit = 250;
+		$pos = 0;
+		$max_pages = 4;
+		
+		// Smaller page limit for tickets and messages
+		if(in_array($record_type_mft->id, [CerberusContexts::CONTEXT_TICKET, CerberusContexts::CONTEXT_MESSAGE])) {
+			$max_pages = defined('APP_OPT_EXPLORE_MAX_PAGES') ? APP_OPT_EXPLORE_MAX_PAGES : 4;
+		}
+		
+		do {
+			$items = [];
+			$total = 0;
+			
+			$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels(
+				$view->getDataAsObjects(null, $total),
+				$record_type_mft->id,
+				[]
+			);
+			
+			if(!is_array($dicts))
+				$dicts = [];
+			
+			// Summary row
+			if(0 == $view->renderPage) {
+				$item = new Model_ExplorerSet();
+				$item->hash = $hash;
+				$item->pos = $pos++;
+				$item->params = [
+					'title' => $view->name,
+					'created' => time(),
+					'worker_id' => $active_worker->id,
+					'total' => min($total, $max_pages * $view->renderLimit),
+					'return_url' => $_SERVER['HTTP_REFERER'] ?? $url_writer->writeNoProxy('c=search&type=' . $record_type_mft->params['uri'], true),
+				];
+				$items[] = $item;
+				
+				$view->renderTotal = false; // speed up subsequent pages
+			}
+			
+			$record_url_key = 'record_url';
+			
+			foreach($dicts as $index => $dict) {
+				if($index == $explore_from)
+					$orig_pos = $pos;
+			
+				$item = new Model_ExplorerSet();
+				$item->hash = $hash;
+				$item->pos = $pos++;
+				$item->params = [
+					'id' => $dict->get('id'),
+					'url' => $dict->get($record_url_key),
+				];
+				$items[] = $item;
+			}
+			
+			DAO_ExplorerSet::createFromModels($items);
+			
+			$view->renderPage++;
+			
+		} while(!empty($dicts) && $view->renderPage < $max_pages);
+		
+		return new DevblocksHttpResponse(array('explore', $hash, $orig_pos));
+	}
 };
 
 class _CerbApplication_KataAutocompletions {
