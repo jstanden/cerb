@@ -560,8 +560,8 @@ class View_EmailSignature extends C4_AbstractView implements IAbstractView_Subto
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_EmailSignature', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_EmailSignature', $ids, $total);
 	}
 	
 	function getDataSample($size) {

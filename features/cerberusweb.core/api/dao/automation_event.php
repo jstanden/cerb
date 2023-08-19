@@ -565,8 +565,8 @@ class View_AutomationEvent extends C4_AbstractView implements IAbstractView_Subt
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_AutomationEvent', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_AutomationEvent', $ids, $total);
 	}
 	
 	function getDataSample($size) {

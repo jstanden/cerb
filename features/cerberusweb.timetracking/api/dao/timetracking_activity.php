@@ -483,8 +483,8 @@ class View_TimeTrackingActivity extends C4_AbstractView implements IAbstractView
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_TimeTrackingActivity', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_TimeTrackingActivity', $ids, $total);
 	}
 	
 	function getDataSample($size) {

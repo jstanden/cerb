@@ -1541,8 +1541,8 @@ class View_Bucket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_Bucket', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_Bucket', $ids, $total);
 	}
 	
 	function getDataSample($size) {

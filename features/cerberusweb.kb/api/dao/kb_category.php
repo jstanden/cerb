@@ -795,6 +795,10 @@ class Context_KbCategory extends Extension_DevblocksContext implements IDevblock
 			
 			// Custom fields
 			$token_values = $this->_importModelCustomFieldsAsValues($category, $token_values);
+			
+			// URL
+			$url_writer = DevblocksPlatform::services()->url();
+			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=kb_category&id=%d-%s",$category->id, DevblocksPlatform::strToPermalink($category->name)), true);
 		}
 		
 		return true;
@@ -1014,8 +1018,8 @@ class View_KbCategory extends C4_AbstractView implements IAbstractView_Subtotals
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_KbCategory', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_KbCategory', $ids, $total);
 	}
 	
 	function getDataSample($size) {

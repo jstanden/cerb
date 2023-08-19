@@ -857,8 +857,8 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_ContextScheduledBehavior', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_ContextScheduledBehavior', $ids, $total);
 	}
 	
 	function getDataSample($size) {

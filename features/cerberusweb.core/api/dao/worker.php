@@ -2270,8 +2270,8 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_Worker', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_Worker', $ids, $total);
 	}
 	
 	function getDataSample($size) {

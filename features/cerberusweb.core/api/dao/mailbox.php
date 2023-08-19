@@ -724,8 +724,8 @@ class View_Mailbox extends C4_AbstractView implements IAbstractView_Subtotals, I
 		return $objects;
 	}
 
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_Mailbox', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_Mailbox', $ids, $total);
 	}
 
 	function getDataSample($size) {

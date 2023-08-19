@@ -587,8 +587,8 @@ class View_MailHtmlTemplate extends C4_AbstractView implements IAbstractView_Sub
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_MailHtmlTemplate', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_MailHtmlTemplate', $ids, $total);
 	}
 	
 	function getDataSample($size) {

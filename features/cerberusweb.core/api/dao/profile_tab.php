@@ -550,8 +550,8 @@ class View_ProfileTab extends C4_AbstractView implements IAbstractView_Subtotals
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_ProfileTab', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_ProfileTab', $ids, $total);
 	}
 	
 	function getDataSample($size) {

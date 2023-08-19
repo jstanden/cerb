@@ -597,8 +597,8 @@ class View_ConnectedService extends C4_AbstractView implements IAbstractView_Sub
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_ConnectedService', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_ConnectedService', $ids, $total);
 	}
 	
 	function getDataSample($size) {

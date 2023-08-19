@@ -625,8 +625,8 @@ class View_CustomRecord extends C4_AbstractView implements IAbstractView_Subtota
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_CustomRecord', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_CustomRecord', $ids, $total);
 	}
 	
 	function getDataSample($size) {

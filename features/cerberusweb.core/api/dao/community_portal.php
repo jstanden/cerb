@@ -748,8 +748,8 @@ class View_CommunityPortal extends C4_AbstractView implements IAbstractView_Quic
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_CommunityTool', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_CommunityTool', $ids, $total);
 	}
 	
 	function getDataSample($size) {

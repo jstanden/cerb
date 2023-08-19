@@ -673,8 +673,8 @@ class View_WorkspaceList extends C4_AbstractView implements IAbstractView_Subtot
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_WorkspaceList', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_WorkspaceList', $ids, $total);
 	}
 	
 	function getDataSample($size) {

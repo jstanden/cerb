@@ -788,7 +788,7 @@ class View_AbstractCustomRecord extends C4_AbstractView implements IAbstractView
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
+	function getDataAsObjects($ids=null, &$total=null) {
 		return $this->_getDataAsObjects('DAO_AbstractCustomRecord_' . static::_ID, $ids);
 	}
 	

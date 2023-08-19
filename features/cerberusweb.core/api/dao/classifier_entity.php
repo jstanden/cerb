@@ -529,8 +529,8 @@ class View_ClassifierEntity extends C4_AbstractView implements IAbstractView_Sub
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_ClassifierEntity', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_ClassifierEntity', $ids, $total);
 	}
 	
 	function getDataSample($size) {

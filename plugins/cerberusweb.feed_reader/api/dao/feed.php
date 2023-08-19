@@ -399,8 +399,8 @@ class View_Feed extends C4_AbstractView implements IAbstractView_QuickSearch {
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_Feed', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_Feed', $ids, $total);
 	}
 	
 	function getDataSample($size) {

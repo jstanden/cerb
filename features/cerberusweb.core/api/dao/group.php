@@ -1413,8 +1413,8 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 	}
 	
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_Group', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_Group', $ids, $total);
 	}
 	
 	function getDataSample($size) {

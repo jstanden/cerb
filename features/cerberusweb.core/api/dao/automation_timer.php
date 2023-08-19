@@ -762,8 +762,8 @@ class View_AutomationTimer extends C4_AbstractView implements IAbstractView_Subt
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_AutomationTimer', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_AutomationTimer', $ids, $total);
 	}
 	
 	function getDataSample($size) {

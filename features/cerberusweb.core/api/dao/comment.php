@@ -974,8 +974,8 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_Comment', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_Comment', $ids, $total);
 	}
 	
 	function getDataSample($size) {

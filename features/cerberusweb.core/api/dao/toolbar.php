@@ -586,8 +586,8 @@ class View_Toolbar extends C4_AbstractView implements IAbstractView_Subtotals, I
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_Toolbar', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_Toolbar', $ids, $total);
 	}
 	
 	function getDataSample($size) {

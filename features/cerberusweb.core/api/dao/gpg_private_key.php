@@ -523,8 +523,8 @@ class View_GpgPrivateKey extends C4_AbstractView implements IAbstractView_Subtot
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_GpgPrivateKey', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_GpgPrivateKey', $ids, $total);
 	}
 	
 	function getDataSample($size) {

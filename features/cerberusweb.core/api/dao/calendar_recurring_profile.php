@@ -769,8 +769,8 @@ class View_CalendarRecurringProfile extends C4_AbstractView implements IAbstract
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_CalendarRecurringProfile', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_CalendarRecurringProfile', $ids, $total);
 	}
 	
 	function getDataSample($size) {

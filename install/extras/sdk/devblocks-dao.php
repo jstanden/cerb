@@ -541,8 +541,8 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_<?php echo $class_name; ?>', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_<?php echo $class_name; ?>', $ids, $total);
 	}
 	
 	function getDataSample($size) {

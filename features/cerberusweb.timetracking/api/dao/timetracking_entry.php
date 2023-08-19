@@ -778,8 +778,8 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_TimeTrackingEntry', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_TimeTrackingEntry', $ids, $total);
 	}
 	
 	function getDataSample($size) {

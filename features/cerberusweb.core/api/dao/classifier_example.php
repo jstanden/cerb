@@ -568,8 +568,8 @@ class View_ClassifierExample extends C4_AbstractView implements IAbstractView_Su
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_ClassifierExample', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_ClassifierExample', $ids, $total);
 	}
 	
 	function getDataSample($size) {

@@ -1177,8 +1177,8 @@ class View_Domain extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		return $objects;
 	}
 
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_Domain', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_Domain', $ids, $total);
 	}
 	
 	function getDataSample($size) {

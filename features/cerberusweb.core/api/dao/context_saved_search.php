@@ -653,8 +653,8 @@ class View_ContextSavedSearch extends C4_AbstractView implements IAbstractView_S
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_ContextSavedSearch', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_ContextSavedSearch', $ids, $total);
 	}
 	
 	function getDataSample($size) {

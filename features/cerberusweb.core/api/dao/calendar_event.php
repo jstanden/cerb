@@ -562,8 +562,8 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_CalendarEvent', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_CalendarEvent', $ids, $total);
 	}
 	
 	function getDataSample($size) {

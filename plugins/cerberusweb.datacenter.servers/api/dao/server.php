@@ -1026,8 +1026,8 @@ class View_Server extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		return $objects;
 	}
 
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_Server', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_Server', $ids, $total);
 	}
 	
 	function getDataSample($size) {

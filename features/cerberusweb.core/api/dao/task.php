@@ -854,8 +854,8 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_Task', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_Task', $ids, $total);
 	}
 	
 	function getDataSample($size) {

@@ -625,8 +625,8 @@ class View_ProjectBoard extends C4_AbstractView implements IAbstractView_Subtota
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_ProjectBoard', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_ProjectBoard', $ids, $total);
 	}
 	
 	function getDataSample($size) {

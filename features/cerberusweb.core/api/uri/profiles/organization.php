@@ -483,75 +483,10 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 	}
 	
 	private function _profileAction_viewExplore() {
-		$active_worker = CerberusApplication::getActiveWorker();
-		$url_writer = DevblocksPlatform::services()->url();
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
+		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'int', 0);
 		
-		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
-		
-		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 405);
-		
-		// Generate hash
-		$hash = md5($view_id.$active_worker->id.time());
-		
-		// Loop through view and get IDs
-		$view = C4_AbstractViewLoader::getView($view_id);
-		$view->setAutoPersist(false);
-		
-		// Page start
-		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'integer',0);
-		if(empty($explore_from)) {
-			$orig_pos = 1+($view->renderPage * $view->renderLimit);
-		} else {
-			$orig_pos = 1;
-		}
-		
-		$view->renderPage = 0;
-		$view->renderLimit = 250;
-		$pos = 0;
-		
-		do {
-			$models = array();
-			list($results, $total) = $view->getData();
-			
-			// Summary row
-			if(0==$view->renderPage) {
-				$model = new Model_ExplorerSet();
-				$model->hash = $hash;
-				$model->pos = $pos++;
-				$model->params = array(
-					'title' => $view->name,
-					'created' => time(),
-					'worker_id' => $active_worker->id,
-					'total' => $total,
-					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&tab=org', true),
-				);
-				$models[] = $model;
-				
-				$view->renderTotal = false; // speed up subsequent pages
-			}
-			
-			if(is_array($results))
-				foreach($results as $org_id => $row) {
-					if($org_id==$explore_from)
-						$orig_pos = $pos;
-					
-					$model = new Model_ExplorerSet();
-					$model->hash = $hash;
-					$model->pos = $pos++;
-					$model->params = array(
-						'id' => $row[SearchFields_ContactOrg::ID],
-						'url' => $url_writer->writeNoProxy(sprintf("c=profiles&type=org&id=%d", $row[SearchFields_ContactOrg::ID]), true),
-					);
-					$models[] = $model;
-				}
-			
-			DAO_ExplorerSet::createFromModels($models);
-			
-			$view->renderPage++;
-			
-		} while(!empty($results));
-		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
+		$http_response = Cerb_ORMHelper::generateRecordExploreSet($view_id, $explore_from);
+		DevblocksPlatform::redirect($http_response);
 	}
 }

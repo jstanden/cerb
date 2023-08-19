@@ -816,8 +816,8 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_CrmOpportunity', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_CrmOpportunity', $ids, $total);
 	}
 	
 	function getDataSample($size) {

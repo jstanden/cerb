@@ -726,8 +726,8 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 		return $objects;
 	}
 
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_WorkspacePage', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_WorkspacePage', $ids, $total);
 	}
 	
 	function getDataSample($size) {

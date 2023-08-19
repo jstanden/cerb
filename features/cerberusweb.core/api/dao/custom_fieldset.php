@@ -722,8 +722,8 @@ class View_CustomFieldset extends C4_AbstractView implements IAbstractView_Subto
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_CustomFieldset', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_CustomFieldset', $ids, $total);
 	}
 	
 	function getDataSample($size) {

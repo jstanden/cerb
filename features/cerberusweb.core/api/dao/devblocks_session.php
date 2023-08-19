@@ -473,8 +473,8 @@ class View_DevblocksSession extends C4_AbstractView implements IAbstractView_Qui
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_DevblocksSession', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_DevblocksSession', $ids, $total);
 	}
 	
 	function getDataSample($size) {

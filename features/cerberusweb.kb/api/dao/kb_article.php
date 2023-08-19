@@ -1462,8 +1462,8 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_KbArticle', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_KbArticle', $ids, $total);
 	}
 	
 	function getDataSample($size) {

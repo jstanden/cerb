@@ -357,81 +357,10 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 	}
 	
 	private function _profileAction_viewExplore() {
-		$active_worker = CerberusApplication::getActiveWorker();
-		$url_writer = DevblocksPlatform::services()->url();
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
+		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'int', 0);
 		
-		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 405);
-		
-		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
-		
-		// Abstraction
-		
-		if(false == ($custom_record = DAO_CustomRecord::get(static::_ID)))
-			return;
-		
-		// Generate hash
-		$hash = md5($view_id.$active_worker->id.time());
-		
-		// Loop through view and get IDs
-		$view = C4_AbstractViewLoader::getView($view_id);
-		$view->setAutoPersist(false);
-
-		// Page start
-		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'integer',0);
-		if(empty($explore_from)) {
-			$orig_pos = 1+($view->renderPage * $view->renderLimit);
-		} else {
-			$orig_pos = 1;
-		}
-
-		$view->renderPage = 0;
-		$view->renderLimit = 250;
-		$pos = 0;
-		
-		do {
-			$models = [];
-			list($results, $total) = $view->getData();
-			
-			// Summary row
-			if(0==$view->renderPage) {
-				$model = new Model_ExplorerSet();
-				$model->hash = $hash;
-				$model->pos = $pos++;
-				$model->params = [
-					'title' => $view->name,
-					'created' => time(),
-					'total' => $total,
-					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy(sprintf('c=search&type=%s', $custom_record->uri), true),
-				];
-				$models[] = $model;
-				
-				$view->renderTotal = false; // speed up subsequent pages
-			}
-			
-			if(is_array($results))
-			foreach($results as $opp_id => $row) {
-				if($opp_id==$explore_from)
-					$orig_pos = $pos;
-				
-				$url = $url_writer->writeNoProxy(sprintf("c=profiles&type=%s&id=%d-%s", $custom_record->uri, $row[SearchFields_AbstractCustomRecord::ID], DevblocksPlatform::strToPermalink($row[SearchFields_AbstractCustomRecord::NAME])), true);
-				
-				$model = new Model_ExplorerSet();
-				$model->hash = $hash;
-				$model->pos = $pos++;
-				$model->params = array(
-					'id' => $row[SearchFields_AbstractCustomRecord::ID],
-					'url' => $url,
-				);
-				$models[] = $model;
-			}
-			
-			DAO_ExplorerSet::createFromModels($models);
-			
-			$view->renderPage++;
-			
-		} while(!empty($results));
-		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(['explore', $hash, $orig_pos]));
+		$http_response = Cerb_ORMHelper::generateRecordExploreSet($view_id, $explore_from);
+		DevblocksPlatform::redirect($http_response);
 	}
 };

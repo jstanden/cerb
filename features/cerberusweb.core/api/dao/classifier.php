@@ -604,8 +604,8 @@ class View_Classifier extends C4_AbstractView implements IAbstractView_Subtotals
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_Classifier', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_Classifier', $ids, $total);
 	}
 	
 	function getDataSample($size) {

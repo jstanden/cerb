@@ -1483,8 +1483,8 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_Address', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_Address', $ids, $total);
 	}
 	
 	function getDataSample($size) {

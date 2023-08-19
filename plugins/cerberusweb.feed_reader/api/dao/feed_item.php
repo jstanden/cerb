@@ -584,8 +584,8 @@ class View_FeedItem extends C4_AbstractView implements IAbstractView_Subtotals, 
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_FeedItem', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_FeedItem', $ids, $total);
 	}
 	
 	function getDataSample($size) {

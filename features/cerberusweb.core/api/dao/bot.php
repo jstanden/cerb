@@ -795,8 +795,8 @@ class View_Bot extends C4_AbstractView implements IAbstractView_Subtotals, IAbst
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_Bot', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_Bot', $ids, $total);
 	}
 	
 	function getDataSample($size) {

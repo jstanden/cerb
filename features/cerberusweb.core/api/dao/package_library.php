@@ -621,8 +621,8 @@ class View_PackageLibrary extends C4_AbstractView implements IAbstractView_Subto
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_PackageLibrary', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_PackageLibrary', $ids, $total);
 	}
 	
 	function getDataSample($size) {

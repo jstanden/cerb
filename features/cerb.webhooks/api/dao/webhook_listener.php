@@ -495,8 +495,8 @@ class View_WebhookListener extends C4_AbstractView implements IAbstractView_Subt
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_WebhookListener', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_WebhookListener', $ids, $total);
 	}
 	
 	function getDataSample($size) {

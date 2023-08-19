@@ -216,9 +216,8 @@ class View_MailParseFail extends C4_AbstractView implements IAbstractView_QuickS
 		return array($objects, $total);
 	}
 
-	function getDataAsObjects($ids=null) {
-		return array();
-		//return $this->_getDataAsObjects('DAO_CallEntry', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return [];
 	}
 	
 	function getQuickSearchFields() {

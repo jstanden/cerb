@@ -762,8 +762,8 @@ class View_ConnectedAccount extends C4_AbstractView implements IAbstractView_Sub
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_ConnectedAccount', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_ConnectedAccount', $ids, $total);
 	}
 	
 	function getDataSample($size) {

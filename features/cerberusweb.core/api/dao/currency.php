@@ -557,8 +557,8 @@ class View_Currency extends C4_AbstractView implements IAbstractView_Subtotals, 
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_Currency', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_Currency', $ids, $total);
 	}
 	
 	function getDataSample($size) {

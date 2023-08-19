@@ -1108,8 +1108,8 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_MailQueue', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_MailQueue', $ids, $total);
 	}
 	
 	function getDataSample($size) {

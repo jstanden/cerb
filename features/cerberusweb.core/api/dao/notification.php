@@ -890,8 +890,8 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 		return $objects;
 	}
 
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_Notification', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_Notification', $ids, $total);
 	}
 	
 	function getDataSample($size) {

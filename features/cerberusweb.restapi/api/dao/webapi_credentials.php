@@ -549,6 +549,10 @@ class View_WebApiCredentials extends C4_AbstractView implements IAbstractView_Qu
 		return $objects;
 	}
 	
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_WebApiCredentials', $ids, $total);
+	}
+	
 	function getDataSample($size) {
 		return $this->_doGetDataSample('DAO_WebApiCredentials', $size);
 	}

@@ -733,8 +733,8 @@ class View_ProjectBoardColumn extends C4_AbstractView implements IAbstractView_S
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_ProjectBoardColumn', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_ProjectBoardColumn', $ids, $total);
 	}
 	
 	function getDataSample($size) {

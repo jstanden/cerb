@@ -3212,8 +3212,8 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_Ticket', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_Ticket', $ids, $total);
 	}
 	
 	function getDataSample($size) {

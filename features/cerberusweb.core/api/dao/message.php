@@ -1880,8 +1880,8 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 		return $objects;
 	}
 
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_Message', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_Message', $ids, $total);
 	}
 	
 	function getSubtotalFields() {

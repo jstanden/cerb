@@ -652,8 +652,8 @@ class View_Queue extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_Queue', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_Queue', $ids, $total);
 	}
 	
 	function getDataSample($size) {

@@ -537,8 +537,8 @@ class View_MailTransport extends C4_AbstractView implements IAbstractView_Subtot
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_MailTransport', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_MailTransport', $ids, $total);
 	}
 	
 	function getDataSample($size) {

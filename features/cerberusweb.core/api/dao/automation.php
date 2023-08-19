@@ -1098,8 +1098,8 @@ class View_Automation extends C4_AbstractView implements IAbstractView_Subtotals
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_Automation', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_Automation', $ids, $total);
 	}
 	
 	function getDataSample($size) {

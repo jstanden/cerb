@@ -643,8 +643,8 @@ class View_JiraProject extends C4_AbstractView implements IAbstractView_Subtotal
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_JiraProject', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_JiraProject', $ids, $total);
 	}
 	
 	function getDataSample($size) {

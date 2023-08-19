@@ -786,8 +786,8 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_ContextActivityLog', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_ContextActivityLog', $ids, $total);
 	}
 	
 	function getDataSample($size) {

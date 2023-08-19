@@ -676,8 +676,8 @@ class View_WorkspaceWidget extends C4_AbstractView implements IAbstractView_Subt
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_WorkspaceWidget', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_WorkspaceWidget', $ids, $total);
 	}
 	
 	function getDataSample($size) {
@@ -1160,6 +1160,10 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext implements IDev
 			
 			// Custom fields
 			$token_values = $this->_importModelCustomFieldsAsValues($widget, $token_values);
+			
+			// URL
+			$url_writer = DevblocksPlatform::services()->url();
+			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=workspace_widget&id=%d-%s",$widget->id, DevblocksPlatform::strToPermalink($widget->label)), true);
 		}
 		
 		// Tab

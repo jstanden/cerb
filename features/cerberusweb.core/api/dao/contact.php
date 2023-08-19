@@ -1229,8 +1229,8 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 		return $objects;
 	}
 	
-	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_Contact', $ids);
+	function getDataAsObjects($ids=null, &$total=null) {
+		return $this->_getDataAsObjects('DAO_Contact', $ids, $total);
 	}
 	
 	function getDataSample($size) {
