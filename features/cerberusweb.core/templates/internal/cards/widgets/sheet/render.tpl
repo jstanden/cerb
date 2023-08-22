@@ -128,6 +128,8 @@ $(function() {
 		$popup.triggerHandler(evt);
 	});
 
+	// Toolbars
+
 	$sheet_toolbar.cerbToolbar({
 		caller: {
 			name: 'cerb.toolbar.cardWidget.sheet',
@@ -146,6 +148,27 @@ $(function() {
             }
         },
 		done: doneFunc
+	});
+
+	$sheet.find('[data-cerb-sheet-column-toolbar]').cerbToolbar({
+		interaction_class: 'cerb-sheet-toolbar--interaction',
+		caller: {
+			name: 'cerb.toolbar.cardWidget.sheet.column',
+			params: {
+				record_type: '{$card_context}',
+				record_id: '{$card_context_id}',
+				widget_id: '{$widget->id}'
+			}
+		},
+		start: function(formData) {
+			for (const i in rows_visible) {
+				formData.append('caller[params][rows_visible][]', rows_visible[i]);
+			}
+			for (const i in rows_selected) {
+				formData.append('caller[params][rows_selected][]', rows_selected[i]);
+			}
+		},
+		done: doneFunc,
 	});
 });
 </script>
