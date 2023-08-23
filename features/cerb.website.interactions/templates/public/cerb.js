@@ -258,7 +258,12 @@ CerbInteractions.prototype.interactionStart = function(interaction, interaction_
 
                     inst.$popup.addEventListener('cerb-interaction-event--submit', function (e) {
                         e.stopPropagation();
-                        inst.interactionContinue(true);
+                        inst.interactionContinue('submit');
+                    });
+
+                    inst.$popup.addEventListener('cerb-interaction-event--reset', function (e) {
+                        e.stopPropagation();
+                        inst.interactionContinue('reset');
                     });
 
                     inst.$popup.addEventListener('cerb-interaction-event--end', function (e) {
@@ -271,7 +276,7 @@ CerbInteractions.prototype.interactionStart = function(interaction, interaction_
                         inst.interactionEnd(eventData);
                     });
 
-                    inst.interactionContinue(false);
+                    inst.interactionContinue();
                 }
                     
             } else { // Not a 200 OK
@@ -284,7 +289,7 @@ CerbInteractions.prototype.interactionStart = function(interaction, interaction_
     xhttp.send(formData);
 }
 
-CerbInteractions.prototype.interactionContinue = function(is_submit) {
+CerbInteractions.prototype.interactionContinue = function(mode) {
     let $form = this.$popup.querySelector('form');
     
     if(null == $form)
@@ -300,8 +305,11 @@ CerbInteractions.prototype.interactionContinue = function(is_submit) {
     
     let formData = new FormData($form);
     
-    if(is_submit)
+    if('submit' === mode) {
         formData.append('__submit', 'continue');
+    } else if('reset' === mode) {
+        formData.append('__reset', 'reset');
+    }
     
     xhttp.onreadystatechange = function () {
         if (4 === this.readyState) {
