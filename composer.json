@@ -80,7 +80,7 @@
 			"rm -f storage/tmp/cache--*"
 		],
 		"test": [
-			"vendor/bin/phpunit --bootstrap tests/bootstrap.platform.php -c tests/phpunit.cerb.platform.xml"
+			"vendor/bin/phpunit --do-not-cache-result --bootstrap tests/bootstrap.platform.php -c tests/phpunit.cerb.platform.xml"
 		]
 	}
 }
