@@ -378,8 +378,13 @@
 }
 
 .cerb-interaction-popup--form-elements-sheet .cerb-sheet-paging {
-    float: right;
-    margin-top: 5px;
+    text-align: right;
+    padding-bottom: 10px;
+}
+
+.cerb-interaction-popup--form-elements-sheet .cerb-sheet-paging .cerb-paging {
+    text-decoration: underline;
+    cursor: pointer;
 }
 
 .cerb-interaction-popup--form-elements-sheet .cerb-sheet-scale--cells {
