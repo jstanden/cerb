@@ -3964,6 +3964,16 @@
 		<!-- Automation API commands -->
 
 		<extension point = "cerb.automation.api_command">
+			<id>cerb.commands.dataset.vector_similarity</id>
+			<name>cerb.commands.dataset.vector_similarity</name>
+			<class>
+				<file>api/automations/api_commands/cerb.commands.dataset.vector_similarity.php</file>
+				<name>ApiCommand_CerbDatasetVectorSimilarity</name>
+			</class>
+			<params />
+		</extension>
+
+		<extension point = "cerb.automation.api_command">
 			<id>cerb.commands.oauth2.token.validate</id>
 			<name>cerb.commands.oauth2.token.validate</name>
 			<class>
