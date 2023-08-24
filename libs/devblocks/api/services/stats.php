@@ -11,6 +11,79 @@ class _DevblocksStatsService {
 	
 	private function __construct() {}
 	
+	public function cosineSimilarity($vectorA, $vectorB) : float {
+		if(extension_loaded('bcmath')) {
+			return $this->_cosineSimilarityBcMath($vectorA, $vectorB);
+		} else {
+			return $this->_cosineSimilarityPurePhp($vectorA, $vectorB);
+		}
+	}
+	
+	/** @noinspection PhpComposerExtensionStubsInspection */
+	private function _cosineSimilarityBcMath($vectorA, $vectorB) : float {
+		$dotProduct = '0';
+		$magnitudeA = '0';
+		$magnitudeB = '0';
+		$scale = 20;
+		
+		$funcConvSciNotation = function($n) {
+			return sprintf('%.20f', $n);
+		};
+		
+		$vectorA = array_map($funcConvSciNotation, $vectorA);
+		$vectorB = array_map($funcConvSciNotation, $vectorB);
+		
+		try {
+			foreach ($vectorA as $key => $value) {
+				if(array_key_exists($key, $vectorB)) {
+					$dotProduct = bcadd($dotProduct, bcmul($value, $vectorB[$key], $scale), $scale);
+				}
+				$magnitudeA = bcadd($magnitudeA, bcmul($value, $value, $scale), $scale);
+			}
+			
+			foreach($vectorB as $value) {
+				$magnitudeB = bcadd($magnitudeB, bcmul($value, $value, $scale), $scale);
+			}
+			
+			$magnitudeA = bcsqrt($magnitudeA, $scale);
+			$magnitudeB = bcsqrt($magnitudeB, $scale);
+			
+			if(0 == bccomp($magnitudeA, '0', $scale) || 0 == bccomp($magnitudeB, '0', $scale))
+				return 0; // Avoid division by zero
+			
+			return (float) bcdiv($dotProduct, bcmul($magnitudeA, $magnitudeB, $scale), $scale);
+			
+		} catch (Throwable) {
+			return 0;
+		}
+	}
+	
+	private function _cosineSimilarityPurePhp($vectorA, $vectorB) : float {
+		$dotProduct = 0;
+		$magnitudeA = 0;
+		$magnitudeB = 0;
+		
+		foreach($vectorA as $key => $value) {
+			if(array_key_exists($key, $vectorB)) {
+				$dotProduct += $value * $vectorB[$key];
+			}
+			$magnitudeA += $value * $value;
+		}
+		
+		foreach($vectorB as $value) {
+			$magnitudeB += $value * $value;
+		}
+		
+		$magnitudeA = sqrt($magnitudeA);
+		$magnitudeB = sqrt($magnitudeB);
+		
+		if($magnitudeA == 0 || $magnitudeB == 0) {
+			return 0; // Avoid division by zero
+		}
+		
+		return $dotProduct / ($magnitudeA * $magnitudeB);
+	}
+	
 	public function count(array $array) : int {
 		return count($array);
 	}

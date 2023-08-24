@@ -13,6 +13,18 @@ class DevblocksStatsTest extends TestCase {
 		$this->assertEquals($expected, $actual);
 	}
 	
+	function testCosineSimilarity() {
+		$stats = DevblocksPlatform::services()->stats();
+		
+		$vec_a = [1,2,3,4,5];
+		$vec_b = [5,4,3,2,1];
+		
+		$expected = 0.6364;
+		$actual = $stats->cosineSimilarity($vec_a, $vec_b);
+		
+		$this->assertEqualsWithDelta($expected, $actual, 0.001);
+	}
+	
 	function testMax() {
 		$stats = DevblocksPlatform::services()->stats();
 		
