@@ -578,11 +578,11 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		
 		// Check prefs
 		
-		$pref_key = sprintf("worklist.%s.export_tokens",
+		$pref_key_prefix = sprintf("worklist.%s.",
 			$context_ext->manifest->getParam('uri', $context_ext->id)
 		);
 		
-		if(null == ($tokens = DAO_WorkerPref::getAsJson($active_worker->id, $pref_key))) {
+		if(null == ($tokens = DAO_WorkerPref::getAsJson($active_worker->id, $pref_key_prefix . 'export_tokens'))) {
 			$tokens = $context_ext->getCardProperties();
 			
 			// Push _label into the front of $tokens if not set
@@ -594,7 +594,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		
 		$tpl->assign('tokens', $tokens);
 		
-		$export_kata = <<< EOD
+		$export_kata_default = <<< EOD
 		# Enter worklist export KATA (use Ctrl+Space for autocompletion)
 		column/id:
 		
@@ -602,6 +602,8 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		  label: Label
 		  value@raw: {{_label|trim}}
 		EOD;
+		
+		$export_kata = DAO_WorkerPref::get($active_worker->id, $pref_key_prefix . 'export_kata', $export_kata_default);
 		
 		$tpl->assign('export_kata', $export_kata);
 		
@@ -646,18 +648,21 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 					throw new Exception_DevblocksAjaxError("Invalid worklist record type.");
 				
 				// Check prefs
+				
+				$pref_key_prefix = sprintf("worklist.%s.",
+					$context_ext->manifest->getParam('uri', $context_ext->id)
+				);
+				
 				if(!$export_mode) {
-					$pref_key = sprintf("worklist.%s.export_tokens",
-						$context_ext->manifest->getParam('uri', $context_ext->id)
-					);
-					
-					DAO_WorkerPref::setAsJson($active_worker->id, $pref_key, $tokens);
+					DAO_WorkerPref::setAsJson($active_worker->id, $pref_key_prefix . 'export_tokens', $tokens);
 					
 				} else if('kata' == $export_mode) {
 					$kata = DevblocksPlatform::services()->kata();
 					
 					if(!$kata->validate($export_kata, CerberusApplication::kataSchemas()->worklistExport(), $error))
 						throw new Exception_DevblocksAjaxError("Export KATA Error: " . $error);
+					
+					DAO_WorkerPref::set($active_worker->id, $pref_key_prefix . 'export_kata', $export_kata);
 				}
 				
 				if(!isset($_SESSION['view_export_cursors']))
