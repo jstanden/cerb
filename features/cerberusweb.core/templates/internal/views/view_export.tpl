@@ -55,7 +55,7 @@
 
 					<ul class="bubbles sortable" style="display:block;padding:0;">
 						{foreach from=$tokens item=token}
-							<li style="display: block; cursor: move; margin: 5px;"><input type="hidden" name="tokens[]" value="{$token}">{$labels.$token}{if '_label' == substr($token, -6)} (Record){/if}<a href="javascript:;" style="position: absolute; visibility: hidden; top: -7px; right: -6px; display: block;"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
+							<li style="display: block; cursor: move; margin: 5px;"><input type="hidden" name="tokens[]" value="{$token}">{$token}<a href="javascript:;" style="position: absolute; visibility: hidden; top: -7px; right: -6px; display: block;"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
 						{/foreach}
 					</ul>
 				</td>
@@ -159,7 +159,7 @@ $(function() {
 			var $a = $('<a href="javascript:;" style="position: absolute; visibility: hidden; top: -7px; right: -6px; display: block;"><span class="glyphicons glyphicons-circle-remove"></span></a>');
 			
 			$bubble.append($hidden);
-			$bubble.append(label);
+			$bubble.append(token);
 			$bubble.append($a);
 			$bubbles.append($bubble);
 		}
