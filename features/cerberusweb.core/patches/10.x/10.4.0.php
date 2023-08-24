@@ -174,6 +174,7 @@ $db->ExecuteMaster(sprintf("UPDATE automation_event SET name = %s, description =
 // Update package library
 
 $packages = [
+	'cerb_connected_service_huggingface.json',
 	'cerb_connected_service_openai.json',
 	'cerb_connected_service_smartsheet.json',
 	'cerb_profile_tab_ticket_overview.json',
