@@ -79,45 +79,50 @@
 			</tr>
 			<tr>
 				<td>
-					<iframe id="explorerFrame" src="{$url}" frameborder="0"></iframe>
+					<iframe id="explorerFrame" src="about:blank" frameborder="0"></iframe>
 				</td>
 			</tr>
 		</table>
 	</body>
 
 	<script type="text/javascript">
-	$(function(e) {
-		var $explorerBody = $('body');
-		var $explorerFrame = $('#explorerFrame');
+	$(function() {
+		let $explorerBody = $('body');
+		let $explorerFrame = $('#explorerFrame');
+		let $explorerBtnPrev = $('#btnExplorerPrev');
+		let $explorerBtnNext = $('#btnExplorerNext');
+
+		let keyPrev = '[';
+		let keyNext = ']';
 		
-		var keyPrev = '[';
-		var keyNext = ']';
-		
-		var funcPrev = function(event) {
-			$('#btnExplorerPrev').click();
-			event.stopPropagation();
+		var funcPrev = function(e) {
+			e.stopPropagation();
+			$explorerBtnPrev.click();
 		};
 		
-		var funcNext = function(event) {
-			$('#btnExplorerNext').click();
-			event.stopPropagation();
+		var funcNext = function(e) {
+			e.stopPropagation();
+			$explorerBtnNext.click();
 		};
 		
 		// Toolbar keyboard shortcuts
-		
 		$explorerBody.bind('keypress', keyPrev, funcPrev);
 		$explorerBody.bind('keypress', keyNext, funcNext);
 		
-		// Frame keyboard shortcuts
-		
-		$explorerFrame.on('load', function() {
+		let funcOnLoad = function(e) {
+			e.stopPropagation();
 			try {
+				// Frame keyboard shortcuts
 				var $explorerBody = $explorerFrame.contents().find('body').parent();
 				$explorerBody.bind('keypress', keyPrev, funcPrev);
 				$explorerBody.bind('keypress', keyNext, funcNext);
 				$explorerFrame.focus();
 			} catch(e) { }
-		});
+		};
+
+		// Load the URL after we bind the `load` event
+		$explorerFrame.get(0).addEventListener('load', funcOnLoad);
+		$explorerFrame.attr('src', '{$url}');
 	});
 	</script>
 </html>

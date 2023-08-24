@@ -81,7 +81,7 @@
 			</tr>
 			<tr>
 				<td>
-					<iframe id="explorerFrame" src="{$url}" frameborder="0"></iframe>
+					<iframe id="explorerFrame" src="about:blank" style="border:0;"></iframe>
 				</td>
 			</tr>
 		</table>
@@ -94,9 +94,11 @@
 		let $explorerFrame = $('#explorerFrame');
 		let $explorerToolbar = $('#explorerToolbar');
 
-		// Frame keyboard shortcuts
-		$explorerFrame.on('load', function() {
+		let funcOnLoad = function(e) {
+			e.stopPropagation();
+
 			try {
+				// Frame keyboard shortcuts
 				$explorerToolbar.cerbToolbar({
 					caller: {
 						name: 'cerb.toolbar.interaction.worker.explore',
@@ -148,8 +150,12 @@
 				});
 
 				$explorerFrame.focus();
-			} catch(e) { }
-		});
+			} catch(e) { if(console && console.error) console.error(e); }
+		};
+
+		// Load the URL after we bind the `load` event
+		$explorerFrame.get(0).addEventListener('load', funcOnLoad);
+		$explorerFrame.attr('src', '{$url}');
 	});
 	</script>
 </html>

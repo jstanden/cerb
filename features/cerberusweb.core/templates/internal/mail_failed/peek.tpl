@@ -10,7 +10,7 @@
 <b>storage/mail/fail/{$filename}:</b>
 <div>
 	<input type="hidden" name="file" value="{$filename}">
-	<iframe sandbox src="{devblocks_url}ajax.php?c=config&a=invoke&module=mail_incoming&action=getRawMessageSource&file={$filename}{/devblocks_url}" style="width:100%;height:250px;margin:0;padding:0;border:1px solid var(--cerb-color-background-contrast-150);background-color:white;"></iframe>
+	<iframe sandbox="allow-same-origin" src="about:blank" style="width:100%;height:250px;margin:0;padding:0;border:1px solid var(--cerb-color-background-contrast-150);background-color:white;"></iframe>
 </div>
 
 <div class="output" style="display:none;"></div>
@@ -40,10 +40,8 @@ $(function() {
 		var $this = $(this);
 		
 		$this.dialog('option','title','Failed Message');
-		
-		$this.find('iframe').on('load', function() {
-			$(this).contents().find('pre').css('white-space','').css('word-wrap','');
-		});
+
+		$this.find('iframe').attr('src', '{devblocks_url}ajax.php?c=config&a=invoke&module=mail_incoming&action=getRawMessageSource&file={$filename}{/devblocks_url}');
 		
 		$this.find('textarea:first').focus();
 		
