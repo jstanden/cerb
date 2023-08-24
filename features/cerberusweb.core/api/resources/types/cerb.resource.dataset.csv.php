@@ -6,12 +6,17 @@ class ResourceType_DatasetCsv extends Extension_ResourceType {
 	
 	function validateContentData($fp, &$extension_params=[], &$error=null) : bool {
 		if($fp) {
-			$bytes = null;
-			while (!feof($fp)) {
-				$bytes .= fread($fp, 65536);
-			}
-			
+			$line = fgets($fp);
 			fseek($fp, 0);
+			
+			// Make sure the first line is valid CSV
+			if(
+				!json_encode($line, true)
+				|| !is_array(str_getcsv($line))
+			) {
+				$error = "The dataset must contain lines of comma-separated values.";
+				return false;
+			}
 			
 			$extension_params[self::PARAM_MIME_TYPE] = 'text/csv';
 		}
