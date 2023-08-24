@@ -838,13 +838,51 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 			if('column' != $column_type || !$column_name)
 				continue;
 			
+			foreach($column_data as $k => $v) {
+				list($k, $k_annotations) = array_pad(explode('@', $k, 2), 2, null);
+				
+				// Persist value annotations
+				if('value' == $k) {
+					$column_data['value'] = $v;
+					$column_data['annotations'] = $k_annotations;
+				}
+			}
+			
 			$export_columns[$column_name] = [
 				'label' => $column_data['label'] ?? DevblocksPlatform::strTitleCase($column_name),
 				'value' => $column_data['value'] ?? sprintf('{{%s}}', $column_name),
+				'annotations' => $column_data['annotations'] ?? '',
 			];
 		}
 		
 		return $export_columns;
+	}
+	
+	private function _getExportKataColumnValue($column_name, $column, DevblocksDictionaryDelegate $dict) : mixed {
+		$kata = DevblocksPlatform::services()->kata();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		
+		if($column_name && is_array($column)) {
+			$column_value = $column['value'] ?? '';
+			
+			if($column['annotations'] ?? false) {
+				$value = $kata->formatTree(
+					['value@' . $column['annotations'] => $column_value],
+					$dict
+				)['value'] ?? '';
+				
+			} else if(is_array($column_value)) {
+				$value = $kata->formatTree($column_value, $dict);
+				
+			} else {
+				$value = $tpl_builder->build($column_value, $dict);
+			}
+			
+		} else {
+			$value = '';
+		}
+		
+		return $value;
 	}
 	
 	private function _viewIncrementExportAsCsv(array &$cursor) {
@@ -867,8 +905,6 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 			$dicts = [];
 		
 		if('kata' == $cursor['export_mode']) {
-			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-			
 			$export_columns = $this->_getExportColumnsKataFromCursor($cursor);
 			
 			// If the first page, add headings
@@ -887,13 +923,8 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 				$fields = [];
 				
 				foreach($export_columns as $column_name => $column) {
-					if($column_name) {
-						$value = $tpl_builder->build($column['value'] ?? '', $dict);
-						$fields[] = $value;
-						
-					} else {
-						$fields[] = '';
-					}
+					$value = $this->_getExportKataColumnValue($column_name, $column, $dict);
+					$fields[] = is_scalar($value) ? $value : json_encode($value);
 				}
 				
 				fputcsv($fp, $fields);
@@ -976,9 +1007,6 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 			$dicts = [];
 		
 		if('kata' == $cursor['export_mode']) {
-			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-			$kata = DevblocksPlatform::services()->kata();
-			
 			$export_columns = $this->_getExportColumnsKataFromCursor($cursor);
 			
 			fputs($fp, "{\"results\": [\n");
@@ -989,12 +1017,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 				$object = [];
 				
 				foreach($export_columns as $column_name => $column) {
-					if(is_array($column['value'])) {
-						$value = $kata->formatTree($column['value'], $dict);
-					} else {
-						$value = $tpl_builder->build($column['value'] ?? '', $dict);
-					}
-					
+					$value = $this->_getExportKataColumnValue($column_name, $column, $dict);
 					$object[$column_name] = $value;
 				}
 			
@@ -1091,26 +1114,13 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 			$dicts = [];
 		
 		if('kata' == $cursor['export_mode']) {
-			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-			$kata = DevblocksPlatform::services()->kata();
-			
 			$export_columns = $this->_getExportColumnsKataFromCursor($cursor);
 			
 			foreach($dicts as $dict) {
 				$object = [];
 				
 				foreach($export_columns as $column_name => $column) {
-					if($column_name) {
-						if(is_array($column['value'])) {
-							$value = $kata->formatTree($column['value'], $dict);
-						} else {
-							$value = $tpl_builder->build($column['value'] ?? '', $dict);
-						}
-						
-					} else {
-						$value = '';
-					}
-					
+					$value = $this->_getExportKataColumnValue($column_name, $column, $dict);
 					$object[$column_name] = $value;
 				}
 				
@@ -1172,8 +1182,6 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 			$dicts = [];
 		
 		if('kata' == $cursor['export_mode']) {
-			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-			
 			$export_columns = $this->_getExportColumnsKataFromCursor($cursor);
 			
 			if(0 == $cursor['page']) {
@@ -1186,13 +1194,8 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 				$xml_result = simplexml_load_string("<result/>"); /* @var $xml SimpleXMLElement */
 				
 				foreach($export_columns as $column_name => $column) {
-					if($column_name) {
-						$value = $tpl_builder->build($column['value'] ?? '', $dict);
-					} else {
-						$value = '';
-					}
-					
-					$field = $xml_result->addChild("field", DevblocksPlatform::strEscapeHtml($value));
+					$value = $this->_getExportKataColumnValue($column_name, $column, $dict);
+					$field = $xml_result->addChild("field", DevblocksPlatform::strEscapeHtml(is_scalar($value) ? $value : json_encode($value)));
 					$field->addAttribute("key", $column_name);
 				}
 				
