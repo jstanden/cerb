@@ -148,7 +148,7 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 					case 'logo':
 						$portal_schema = $this->_getPortalSchema();
 						
-						if(false == ($logo = $portal_schema->getLogo()))
+						if(!($logo = $portal_schema->getLogo()))
 							break;
 				
 						$this->_renderPortalImage($logo);
@@ -157,7 +157,7 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 					case 'favicon':
 						$portal_schema = $this->_getPortalSchema();
 						
-						if(false == ($icon = $portal_schema->getFavicon()))
+						if(!($icon = $portal_schema->getFavicon()))
 							break;
 				
 						$this->_renderPortalImage($icon);
@@ -199,7 +199,7 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 						if(!($hash===$hash_calc))
 							DevblocksPlatform::dieWithHttpError(null, 403);
 						
-						if(false != ($resource = \DAO_Resource::getByNameAndType($file, \ResourceType_PortalImage::ID))) {
+						if(($resource = \DAO_Resource::getByNameAndType($file, \ResourceType_PortalImage::ID))) {
 							$this->_renderPortalImage($resource);
 						}
 						break;
@@ -246,7 +246,7 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 	}
 	
 	private function _renderPortalImage(Model_Resource $resource) {
-		if(false == ($resource_type = $resource->getExtension()))
+		if(!($resource_type = $resource->getExtension()))
 			DevblocksPlatform::dieWithHttpError('Not found', 404);
 		
 		// Only portal images
@@ -302,7 +302,7 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 		
 		$handler = null;
 		
-		if(false == ($handlers = $event_handler->parse($config[self::PARAM_AUTOMATIONS_KATA] ?? '', $toolbar_dict, $error))) {
+		if(!($handlers = $event_handler->parse($config[self::PARAM_AUTOMATIONS_KATA] ?? '', $toolbar_dict, $error))) {
 			error_log('Interaction error:' . $error);
 			DevblocksPlatform::dieWithHttpError("null automation results", 404);
 		}

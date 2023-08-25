@@ -824,7 +824,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		return $dicts;
 	}
 	
-	private function _getExportColumnsKataFromCursor(array $cursor) {
+	private function _getExportColumnsKataFromCursor(array $cursor) : array {
 		$export_columns = [];
 		$error = null;
 		

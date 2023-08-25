@@ -248,6 +248,7 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 				'(.*):await:form:elements:sheet:schema:columns:' => [
 					'date/key:',
 					'link/key:',
+					'markdown/key:',
 					'selection/key:',
 					'slider/key:',
 					'text/key:',

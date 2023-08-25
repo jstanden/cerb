@@ -433,7 +433,7 @@ class DevblocksUiToolbar {
 					continue;
 				
 				if(DevblocksPlatform::strStartsWith($toolbar_item['uri'], 'cerb:')) {
-					if(false != ($uri_parts = DevblocksPlatform::services()->ui()->parseURI($toolbar_item['uri']))) {
+					if(($uri_parts = DevblocksPlatform::services()->ui()->parseURI($toolbar_item['uri']))) {
 						$toolbar_item['uri'] = $uri_parts['context_id'];
 					}
 				}

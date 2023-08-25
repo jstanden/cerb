@@ -799,7 +799,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			}
 			
 		} else {
-			if(false == ($result = $behavior->runDecisionTree($behavior_dict, false, $event)))
+			if(!($result = $behavior->runDecisionTree($behavior_dict, false, $event)))
 				return false;
 		}
 		
@@ -1777,7 +1777,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 	
 	private function _consoleSendMessageAsAutomation(string $continuation_token) {
 		// Load the session
-		if(false == ($continuation = DAO_AutomationContinuation::getByToken($continuation_token)))
+		if(!($continuation = DAO_AutomationContinuation::getByToken($continuation_token)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		$exit_state = $continuation->state_data['dict']['__exit'] ?? null;
@@ -2056,7 +2056,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		
 		$is_submit = array_key_exists('__submit', $prompts);
 		
-		if(false == ($automation = $continuation->getAutomation()))
+		if(!($automation = $continuation->getAutomation()))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(!in_array($automation->extension_id, $this->_interaction_extensions))

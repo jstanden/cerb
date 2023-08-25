@@ -57,6 +57,7 @@
       "service_id": "{{{uid.service_openai}}}",
       "owner__context": "cerberusweb.contexts.app",
       "owner_id": "0",
+      "uri": "{{{prompt_name}}}",
       "params": {
         "token": "{{{prompt_api_key}}}"
       }

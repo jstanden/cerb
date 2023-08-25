@@ -31,7 +31,7 @@ class ResourceType_DatasetCsv extends Extension_ResourceType {
 	function getContentData(Model_Resource $resource) {
 		$content_data = new Model_Resource_ContentData();
 		
-		if(false == ($params = $resource->getExtensionParams()))
+		if(!($params = $resource->getExtensionParams()))
 			return null;
 		
 		if(array_key_exists(self::PARAM_MIME_TYPE, $params)) {

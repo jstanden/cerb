@@ -1690,7 +1690,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					],
 					[
 						'caption' => 'delimiter:',
-						'snippet' => "delimiter: \${1:\:}",
+						'snippet' => "delimiter:",
 						'score' => 1998,
 					],
 				],

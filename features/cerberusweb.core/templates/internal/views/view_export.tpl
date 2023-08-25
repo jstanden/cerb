@@ -143,7 +143,7 @@ $(function() {
 			var token = ui.item.attr('data-token');
 			var label = ui.item.attr('data-label');
 			
-			if(undefined == token || undefined == label)
+			if(undefined === token || undefined === label)
 				return;
 			
 			var $bubble = $('<li style="display:block;"></li>')
