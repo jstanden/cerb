@@ -78,9 +78,7 @@
 	let $script = document.querySelector('#{$script_uid}');
 	let $sheet = $script.closest('[data-cerb-sheet-container]');
 	let $prompt = $sheet.closest('.cerb-interaction-popup--form-elements-sheet');
-	
-	$$.disableSelection($prompt);
-	
+
 	$prompt.addEventListener('click', function(e) {
 		e.stopPropagation();
 		
