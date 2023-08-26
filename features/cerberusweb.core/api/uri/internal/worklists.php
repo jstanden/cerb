@@ -795,7 +795,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		return $view;
 	}
 	
-	private function _getDictionariesFromView(C4_AbstractView $view, Extension_DevblocksContext $context_ext, array $cursor, &$count=0) {
+	private function _getDictionariesFromView(C4_AbstractView $view, Extension_DevblocksContext $context_ext, &$count=0) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		// Rows
@@ -812,11 +812,6 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		
 		// Models->Dictionaries
 		$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $context_ext->id);
-		
-		// Bulk lazy load the tokens across all the dictionaries with a temporary cache
-		foreach($cursor['tokens'] as $token) {
-			DevblocksDictionaryDelegate::bulkLazyLoad($dicts, $token);
-		}
 		
 		foreach($dicts as $dict)
 			$dict->scrubKeys('_types');
@@ -906,7 +901,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		
 		$count = 0;
 		
-		if(!($dicts = $this->_getDictionariesFromView($view, $context_ext, $cursor, $count)))
+		if(!($dicts = $this->_getDictionariesFromView($view, $context_ext, $count)))
 			$dicts = [];
 		
 		if('kata' == $cursor['export_mode']) {
@@ -936,6 +931,11 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 			}
 			
 		} else {
+			// Bulk lazy load the tokens across all the dictionaries with a temporary cache
+			foreach($cursor['tokens'] as $token) {
+				DevblocksDictionaryDelegate::bulkLazyLoad($dicts, $token);
+			}
+			
 			// If the first page
 			if(0 == $cursor['page']) {
 				// Headings
@@ -1008,7 +1008,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		
 		$count = 0;
 		
-		if(!($dicts = $this->_getDictionariesFromView($view, $context_ext, $cursor, $count)))
+		if(!($dicts = $this->_getDictionariesFromView($view, $context_ext, $count)))
 			$dicts = [];
 		
 		if('kata' == $cursor['export_mode']) {
@@ -1033,6 +1033,11 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 			fputs($fp, $json);
 			
 		} else {
+			// Bulk lazy load the tokens across all the dictionaries with a temporary cache
+			foreach($cursor['tokens'] as $token) {
+				DevblocksDictionaryDelegate::bulkLazyLoad($dicts, $token);
+			}
+			
 			// If the first page
 			if(0 == $cursor['page']) {
 				fputs($fp, "{\n\"fields\":");
@@ -1115,7 +1120,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		
 		$count = 0;
 		
-		if(!($dicts = $this->_getDictionariesFromView($view, $context_ext, $cursor, $count)))
+		if(!($dicts = $this->_getDictionariesFromView($view, $context_ext, $count)))
 			$dicts = [];
 		
 		if('kata' == $cursor['export_mode']) {
@@ -1134,7 +1139,10 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 			}
 			
 		} else {
-			// Rows
+			// Bulk lazy load the tokens across all the dictionaries with a temporary cache
+			foreach($cursor['tokens'] as $token) {
+				DevblocksDictionaryDelegate::bulkLazyLoad($dicts, $token);
+			}
 			
 			foreach($dicts as $dict) {
 				$object = [];
@@ -1183,7 +1191,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		
 		$count = 0;
 		
-		if(false == ($dicts = $this->_getDictionariesFromView($view, $context_ext, $cursor, $count)))
+		if(!($dicts = $this->_getDictionariesFromView($view, $context_ext, $count)))
 			$dicts = [];
 		
 		if('kata' == $cursor['export_mode']) {
@@ -1209,6 +1217,11 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 			}
 			
 		} else {
+			// Bulk lazy load the tokens across all the dictionaries with a temporary cache
+			foreach($cursor['tokens'] as $token) {
+				DevblocksDictionaryDelegate::bulkLazyLoad($dicts, $token);
+			}
+			
 			$global_labels = $global_values = [];
 			CerberusContexts::getContext($context_ext->id, null, $global_labels, $global_values, null, true);
 			$global_types = $global_values['_types'];

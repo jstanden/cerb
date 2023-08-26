@@ -1092,7 +1092,7 @@ class DevblocksDictionaryDelegate implements JsonSerializable, IteratorAggregate
 			}
 			
 			// Preload the contexts before lazy loading
-			if(false != ($context_ext = Extension_DevblocksContext::get($context_data['context']))) {
+			if(($context_ext = Extension_DevblocksContext::get($context_data['context'] ?? ''))) {
 				
 				// Load model objects from the context
 				$models = $context_ext->getModelObjects(array_keys($id_counts));
