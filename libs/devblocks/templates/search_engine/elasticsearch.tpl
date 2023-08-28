@@ -21,7 +21,8 @@
 	<b>Version:</b>
 	<p style="margin-left:5px;">
 		<label><input type="radio" name="params[{$engine->id}][version]" value="5" {if $engine_params.version != '6'}checked="checked"{/if}> 5.x or earlier</label>
-		<label><input type="radio" name="params[{$engine->id}][version]" value="6" {if $engine_params.version == '6'}checked="checked"{/if}> 6.x or later</label>
+		<label><input type="radio" name="params[{$engine->id}][version]" value="6" {if $engine_params.version == '6'}checked="checked"{/if}> 6.x to 7.x</label>
+		<label><input type="radio" name="params[{$engine->id}][version]" value="8" {if $engine_params.version == '8'}checked="checked"{/if}> 8.x or later</label>
 	</p>
 	
 	<b>Search index:</b>
