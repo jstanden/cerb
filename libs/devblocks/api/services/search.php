@@ -91,7 +91,16 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 		
 		// [TODO] Paging
 		
-		if($version >= 6) {
+		if($version >= 8) {
+			$url = sprintf("%s/%s_%s/_search?q=%s&_source=false&size=%d&default_operator=OR&filter_path=%s",
+				$base_url,
+				rawurlencode($index),
+				rawurlencode($type),
+				rawurlencode($query),
+				$limit,
+				rawurlencode('took,hits.total,hits.hits._id')
+			);
+		} else if($version >= 6) {
 			// [TODO] Phase out filter_path?
 			$url = sprintf("%s/%s_%s/_doc/_search?q=%s&_source=false&size=%d&default_operator=OR&filter_path=%s",
 				$base_url,
@@ -127,7 +136,14 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 		if(empty($base_url) || empty($index) || empty($type))
 			return false;
 		
-		if($version >= 6) {
+		if($version >= 8) {
+			$url = sprintf("%s/%s_%s/_count",
+				$base_url,
+				urlencode($index),
+				urlencode($type)
+			);
+			
+		} else if($version >= 6) {
 			$url = sprintf("%s/%s_%s/_doc/_count",
 				$base_url,
 				urlencode($index),
