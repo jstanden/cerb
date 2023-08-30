@@ -17,6 +17,9 @@ class CardWidget_Automation extends Extension_CardWidget {
 		$automations_kata = $model->extension_params['automations_kata'] ?? '';
 		
 		$initial_state = [
+			'record__context' => $context,
+			'record_id' => $context_id,
+			
 			'widget__context' => CerberusContexts::CONTEXT_CARD_WIDGET,
 			'widget_id' => $model->id,
 			

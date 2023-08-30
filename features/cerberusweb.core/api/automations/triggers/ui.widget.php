@@ -16,6 +16,10 @@ class AutomationTrigger_UiWidget extends Extension_AutomationTrigger {
 	function getInputsMeta() {
 		return [
 			[
+				'key' => 'record_*',
+				'notes' => 'The current record dictionary when a card or profile widget (empty on workspace widgets).',
+			],
+			[
 				'key' => 'widget_*',
 				'notes' => 'The card, profile, or workspace widget record.',
 			],
