@@ -674,31 +674,33 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	 * @internal
 	 * @deprecated 
 	 */
-	static function getPlaceholderTree($labels, $label_separator=' ', $key_separator=' ', $condense=true) {
+	static function getPlaceholderTree($labels, $label_separator=' ', $key_separator=' ', $condense=true, $with_custom_uris=true) {
 		// [TODO] Cache until records are edited
 		natcasesort($labels);
 		$custom_fields = DAO_CustomField::getAll();
 		
 		// Convert custom placeholder keys from IDs to URIs
 		// We can do this globally when behaviors are removed
-		$labels = array_combine(
-			array_map(
-				function($label) use ($custom_fields) {
-					return preg_replace_callback(
-						'#custom_(\d*)#',
-						function($matches) use ($custom_fields, $label) {
-							if(array_key_exists($matches[1], $custom_fields)) {
-								return $custom_fields[$matches[1]]->uri ?: $matches[0];
-							}
-							return $matches[0];
-						},
-						$label
-					);
-				},
-				array_keys($labels)
-			),
-			$labels
-		);
+		if($with_custom_uris) {
+			$labels = array_combine(
+				array_map(
+					function($label) use ($custom_fields) {
+						return preg_replace_callback(
+							'#custom_(\d*)#',
+							function($matches) use ($custom_fields, $label) {
+								if(array_key_exists($matches[1], $custom_fields)) {
+									return $custom_fields[$matches[1]]->uri ?: $matches[0];
+								}
+								return $matches[0];
+							},
+							$label
+						);
+					},
+					array_keys($labels)
+				),
+				$labels
+			);
+		}
 		
 		$keys = new DevblocksMenuItemPlaceholder();
 		

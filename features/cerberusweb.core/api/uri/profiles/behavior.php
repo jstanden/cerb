@@ -946,7 +946,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 							$map[$k] = '(Common) ' . $map[$k];
 					});
 					
-					$actions_menu = Extension_DevblocksContext::getPlaceholderTree($map);
+					$actions_menu = Extension_DevblocksContext::getPlaceholderTree($map, ' ', ' ', true, false);
 					$tpl->assign('actions_menu', $actions_menu);
 					
 					// Action labels
