@@ -41,6 +41,10 @@ class FileReadAction extends AbstractAction {
 				->number()
 			;
 			
+			$validation->addField('length_split', 'inputs:length_split:')
+				->string()
+			;
+			
 			$validation->addField('extract', 'inputs:extract:')
 				->string()
 			;
@@ -89,6 +93,7 @@ class FileReadAction extends AbstractAction {
 			
 			$fp_offset = intval($inputs['offset'] ?? 0);
 			$fp_max_size = intval($inputs['length'] ?? 1024000);
+			$length_split = strval($inputs['length_split'] ?? '');
 			
 			if($uri_parts['context'] == \CerberusContexts::CONTEXT_AUTOMATION_RESOURCE) {
 				if(!($resource = \DAO_AutomationResource::getByToken($uri_parts['context_id']))) {
@@ -113,6 +118,7 @@ class FileReadAction extends AbstractAction {
 					$fp_filters = $this->_registerStreamFilters($fp, $filters, $stream_mime_type);
 					
 					$bytes = stream_get_contents($fp, $fp_max_size, $fp_offset);
+					$bytes = $this->_lengthSplit($bytes, $length_split);
 					$length = strlen($bytes);
 					
 					$this->_deregisterStreamFilters($fp_filters);
@@ -159,6 +165,7 @@ class FileReadAction extends AbstractAction {
 					$fp_filters = $this->_registerStreamFilters($fp, $filters, $stream_mime_type);
 					
 					$bytes = stream_get_contents($fp, $fp_max_size, $fp_offset);
+					$bytes = $this->_lengthSplit($bytes, $length_split);
 					$length = strlen($bytes);
 					
 					$this->_deregisterStreamFilters($fp_filters);
@@ -206,6 +213,7 @@ class FileReadAction extends AbstractAction {
 					$fp_filters = $this->_registerStreamFilters($fp, $filters, $stream_mime_type);
 					
 					$bytes = stream_get_contents($fp, $fp_max_size, $fp_offset);
+					$bytes = $this->_lengthSplit($bytes, $length_split);
 					$length = strlen($bytes);
 					
 					$this->_deregisterStreamFilters($fp_filters);
@@ -330,6 +338,13 @@ class FileReadAction extends AbstractAction {
 			'size' => $stat['size'],
 			'mime_type' => $mime_type,
 		];
+	}
+	
+	private function _lengthSplit($bytes, string $length_split) : string {
+		if($length_split && false !== ($pos = strrpos($bytes, $length_split))) {
+			$bytes = substr($bytes, 0, $pos+1);
+		}
+		return $bytes;
 	}
 	
 	/**

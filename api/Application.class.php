@@ -4483,6 +4483,9 @@ class _CerbApplication_KataSchemas {
                               length:
                                 types:
                                   number:
+                              length_split:
+                                types:
+                                  string:
                               offset:
                                 types:
                                   number:
