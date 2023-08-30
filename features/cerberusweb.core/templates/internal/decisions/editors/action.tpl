@@ -145,8 +145,8 @@
 			{if !isset($id)}
 				<button type="button" data-cerb-button="save-create"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 			{else}
-				<button type="button" data-cerb-button="save-close"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_and_close'|devblocks_translate|capitalize}</button>
-				<button type="button" data-cerb-button="save-continue"><span class="glyphicons glyphicons-circle-arrow-right" style="color:rgb(0,180,0);"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>
+				<button type="button" data-cerb-button="save-close"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_and_close'|devblocks_translate|capitalize}</button>
+				<button type="button" data-cerb-button="save-continue"><span class="glyphicons glyphicons-circle-arrow-right"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>
 				<button type="button" data-cerb-button="simulate"> <span class="glyphicons glyphicons-cogwheel"></span> Simulator</button>
 				<button type="button" data-cerb-button="delete"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>
 			{/if}

@@ -40,7 +40,7 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 		
 		curl_close($ch);
 		
-		if($status != 200 || false == (@$json = json_decode($out, true)))
+		if($status != 200 || !(@$json = json_decode($out, true)))
 			return false;
 		
 		return $json;
@@ -63,7 +63,7 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 				$id
 			);
 			
-			if(false == ($json = $this->_execute('POST', $url, $doc)))
+			if(!($json = $this->_execute('POST', $url, $doc)))
 				return false;
 			
 		} else {
@@ -74,7 +74,7 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 				$id
 			);
 			
-			if(false == ($json = $this->_execute('PUT', $url, $doc)))
+			if(!($json = $this->_execute('PUT', $url, $doc)))
 				return false;
 		}
 		
@@ -89,8 +89,6 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 		if(empty($base_url) || empty($index) || empty($type))
 			return false;
 		
-		// [TODO] Paging
-		
 		if($version >= 8) {
 			$url = sprintf("%s/%s_%s/_search?q=%s&_source=false&size=%d&default_operator=OR&filter_path=%s",
 				$base_url,
@@ -100,8 +98,8 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 				$limit,
 				rawurlencode('took,hits.total,hits.hits._id')
 			);
+			
 		} else if($version >= 6) {
-			// [TODO] Phase out filter_path?
 			$url = sprintf("%s/%s_%s/_doc/_search?q=%s&_source=false&size=%d&default_operator=OR&filter_path=%s",
 				$base_url,
 				rawurlencode($index),
@@ -122,7 +120,7 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 			);
 		}
 		
-		if(false == ($json = $this->_execute('GET', $url, array(), DevblocksSearchEngineElasticSearch::READ_TIMEOUT_MS)))
+		if(!($json = $this->_execute('GET', $url, array(), DevblocksSearchEngineElasticSearch::READ_TIMEOUT_MS)))
 			return false;
 		
 		return $json;
@@ -158,7 +156,7 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 			);
 		}
 		
-		if(false == ($json = $this->_execute('GET', $url, array(), DevblocksSearchEngineElasticSearch::READ_TIMEOUT_MS)))
+		if(!($json = $this->_execute('GET', $url, array(), DevblocksSearchEngineElasticSearch::READ_TIMEOUT_MS)))
 			return false;
 		
 		if(!is_array($json) || !isset($json['count']))
@@ -269,12 +267,6 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 				case 'int':
 				case 'int4':
 				case 'int8':
-					$query .= sprintf(' AND %s:%d',
-						$attr,
-						$attr_val
-					);
-					break;
-					
 				case 'uint4':
 				case 'uint8':
 					$query .= sprintf(' AND %s:%d',
@@ -338,9 +330,6 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 				case 'int':
 				case 'int4':
 				case 'int8':
-					$doc[$attr] = intval($attr_val);
-					break;
-					
 				case 'uint4':
 				case 'uint8':
 					$doc[$attr] = intval($attr_val);
