@@ -910,7 +910,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 							$map[$k] = $v['label'];
 					});
 					
-					$conditions_menu = Extension_DevblocksContext::getPlaceholderTree($map);
+					$conditions_menu = Extension_DevblocksContext::getPlaceholderTree($map, ' ', ' ', true, false);
 					$tpl->assign('conditions_menu', $conditions_menu);
 					
 					// Action labels
