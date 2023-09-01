@@ -177,6 +177,7 @@ $packages = [
 	'cerb_connected_service_huggingface.json',
 	'cerb_connected_service_openai.json',
 	'cerb_connected_service_smartsheet.json',
+	'cerb_connected_service_stabilityai.json',
 	'cerb_profile_tab_ticket_overview.json',
 	'cerb_profile_widget_ticket_owner.json',
 	'cerb_profile_widget_ticket_status.json',

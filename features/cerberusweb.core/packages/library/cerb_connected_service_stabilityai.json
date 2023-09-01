@@ -1,0 +1,66 @@
+{
+  "package": {
+    "name": "Connected Service: Stability.ai",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "10.4.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Stability.ai",
+      "uri": "cerb_connected_service_stabilityai",
+      "description": "Integration with Stability.ai",
+      "instructions": "# Instructions\r\n\r\n* Enter your API key from <https://platform.stability.ai/account/keys>",
+      "point": "connected_service",
+      "image": "data:image/png;base64,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"
+    },
+    "configure": {
+      "placeholders": [],
+      "prompts": [
+        {
+          "type": "text",
+          "label": "API Key",
+          "key": "prompt_api_key",
+          "params": {
+            "default": "",
+            "placeholder": "(paste your API Key)"
+          }
+        },
+        {
+          "type": "text",
+          "label": "Alias",
+          "key": "prompt_name",
+          "params": {
+            "default": "stabilityai",
+            "placeholder": "(enter a URI, a-z,0-9,_)"
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "service_stabilityai",
+      "_context": "connected_service",
+      "name": "Stability.ai",
+      "extension_id": "cerb.service.provider.token.bearer",
+      "params": {
+        "token_name": "Bearer"
+      }
+    },
+    {
+      "uid": "account_stabilityai",
+      "_context": "connected_account",
+      "name": "Stability.ai",
+      "service_id": "{{{uid.service_stabilityai}}}",
+      "owner__context": "cerberusweb.contexts.app",
+      "owner_id": "0",
+      "uri": "{{{prompt_name}}}",
+      "params": {
+        "token": "{{{prompt_api_key}}}"
+      }
+    }
+  ]
+}
