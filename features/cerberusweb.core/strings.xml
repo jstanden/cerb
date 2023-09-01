@@ -2838,6 +2838,21 @@
 				<seg>storage</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.storage_extension">
+			<tuv xml:lang="en_US">
+				<seg>Storage Extension</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.storage_key">
+			<tuv xml:lang="en_US">
+				<seg>Storage Key</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.storage_profile_id">
+			<tuv xml:lang="en_US">
+				<seg>Storage Profile</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.style">
 			<tuv xml:lang="en_US">
 				<seg>style</seg>
@@ -3823,21 +3838,6 @@
 		<tu tuid="attachment.mime_type">
 			<tuv xml:lang="en_US">
 				<seg>MIME Type</seg>
-			</tuv>
-		</tu>
-		<tu tuid="attachment.storage_extension">
-			<tuv xml:lang="en_US">
-				<seg>Storage Extension</seg>
-			</tuv>
-		</tu>
-		<tu tuid="attachment.storage_key">
-			<tuv xml:lang="en_US">
-				<seg>Storage Key</seg>
-			</tuv>
-		</tu>
-		<tu tuid="attachment.storage_profile_id">
-			<tuv xml:lang="en_US">
-				<seg>Storage Profile</seg>
 			</tuv>
 		</tu>
 		<tu tuid="attachment.storage_sha1hash">

@@ -288,21 +288,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="attachment.storage_extension">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="attachment.storage_key">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="attachment.storage_profile_id">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="attachment.storage_sha1hash">
 			<tuv xml:lang="it_IT">
 				<seg/>
@@ -1286,6 +1271,21 @@
 		<tu tuid="common.status">
 			<tuv xml:lang="it_IT">
 				<seg>Stato</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.storage_extension">
+			<tuv xml:lang="it_IT">
+				<seg/>
+			</tuv>
+		</tu>
+		<tu tuid="common.storage_key">
+			<tuv xml:lang="it_IT">
+				<seg/>
+			</tuv>
+		</tu>
+		<tu tuid="common.storage_profile_id">
+			<tuv xml:lang="it_IT">
+				<seg/>
 			</tuv>
 		</tu>
 		<tu tuid="common.subtotals">

@@ -942,9 +942,9 @@ class SearchFields_Attachment extends DevblocksSearchFields {
 			self::NAME => new DevblocksSearchField(self::NAME, 'a', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::MIME_TYPE => new DevblocksSearchField(self::MIME_TYPE, 'a', 'mime_type', $translate->_('attachment.mime_type'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::STORAGE_SIZE => new DevblocksSearchField(self::STORAGE_SIZE, 'a', 'storage_size', $translate->_('common.size'), Model_CustomField::TYPE_NUMBER, true),
-			self::STORAGE_EXTENSION => new DevblocksSearchField(self::STORAGE_EXTENSION, 'a', 'storage_extension', $translate->_('attachment.storage_extension'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::STORAGE_KEY => new DevblocksSearchField(self::STORAGE_KEY, 'a', 'storage_key', $translate->_('attachment.storage_key'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::STORAGE_PROFILE_ID => new DevblocksSearchField(self::STORAGE_PROFILE_ID, 'a', 'storage_profile_id', $translate->_('attachment.storage_profile_id'), Model_CustomField::TYPE_NUMBER, true),
+			self::STORAGE_EXTENSION => new DevblocksSearchField(self::STORAGE_EXTENSION, 'a', 'storage_extension', $translate->_('common.storage_extension'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::STORAGE_KEY => new DevblocksSearchField(self::STORAGE_KEY, 'a', 'storage_key', $translate->_('common.storage_key'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::STORAGE_PROFILE_ID => new DevblocksSearchField(self::STORAGE_PROFILE_ID, 'a', 'storage_profile_id', $translate->_('common.storage_profile_id'), Model_CustomField::TYPE_NUMBER, true),
 			self::STORAGE_SHA1HASH => new DevblocksSearchField(self::STORAGE_SHA1HASH, 'a', 'storage_sha1hash', $translate->_('attachment.storage_sha1hash'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'a', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 
@@ -1845,13 +1845,13 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		);
 		
 		$properties['storage_extension'] = array(
-			'label' => mb_ucfirst($translate->_('attachment.storage_extension')),
+			'label' => mb_ucfirst($translate->_('common.storage_extension')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
 			'value' => $model->storage_extension,
 		);
 		
 		$properties['storage_key'] = array(
-			'label' => mb_ucfirst($translate->_('attachment.storage_key')),
+			'label' => mb_ucfirst($translate->_('common.storage_key')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
 			'value' => $model->storage_key,
 		);
@@ -1941,8 +1941,8 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 			'mime_type' => $prefix.$translate->_('attachment.mime_type'),
 			'name' => $prefix.$translate->_('common.name'),
 			'size' => $prefix.$translate->_('common.size'),
-			'storage_extension' => $prefix.$translate->_('attachment.storage_extension'),
-			'storage_key' => $prefix.$translate->_('attachment.storage_key'),
+			'storage_extension' => $prefix.$translate->_('common.storage_extension'),
+			'storage_key' => $prefix.$translate->_('common.storage_key'),
 			'storage_sha1hash' => $prefix.$translate->_('attachment.storage_sha1hash'),
 			'updated' => $prefix.$translate->_('common.updated'),
 			'url_download' => $prefix.$translate->_('common.url'),

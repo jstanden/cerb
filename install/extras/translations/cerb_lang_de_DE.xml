@@ -293,21 +293,6 @@
 				<seg>MIME Typ</seg>
 			</tuv>
 		</tu>
-		<tu tuid="attachment.storage_extension">
-			<tuv xml:lang="de_DE">
-				<seg>Speicher-Erweiterung</seg>
-			</tuv>
-		</tu>
-		<tu tuid="attachment.storage_key">
-			<tuv xml:lang="de_DE">
-				<seg>Speicher-Schlüssel</seg>
-			</tuv>
-		</tu>
-		<tu tuid="attachment.storage_profile_id">
-			<tuv xml:lang="de_DE">
-				<seg>Speicher-Profil</seg>
-			</tuv>
-		</tu>
 		<tu tuid="attachment.storage_sha1hash">
 			<tuv xml:lang="de_DE">
 				<seg/>
@@ -1296,6 +1281,21 @@
 		<tu tuid="common.status">
 			<tuv xml:lang="de_DE">
 				<seg>Status</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.storage_extension">
+			<tuv xml:lang="de_DE">
+				<seg>Speicher-Erweiterung</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.storage_key">
+			<tuv xml:lang="de_DE">
+				<seg>Speicher-Schlüssel</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.storage_profile_id">
+			<tuv xml:lang="de_DE">
+				<seg>Speicher-Profil</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.subtotals">

@@ -720,29 +720,9 @@
                 <seg>Typ MIME</seg>
             </tuv>
         </tu>
-        <tu tuid="attachment.storage_extension">
-            <tuv xml:lang="pl_PL">
-                <seg>Rozszerzenia przechowywania</seg>
-            </tuv>
-        </tu>
-        <tu tuid="attachment.storage_key">
-            <tuv xml:lang="pl_PL">
-                <seg>Klucz przechowywania</seg>
-            </tuv>
-        </tu>
-        <tu tuid="attachment.storage_profile_id">
-            <tuv xml:lang="pl_PL">
-                <seg>Profil przechowywania</seg>
-            </tuv>
-        </tu>
         <tu tuid="attachment.storage_sha1hash">
             <tuv xml:lang="pl_PL">
                 <seg>Hash SHA-1</seg>
-            </tuv>
-        </tu>
-        <tu tuid="attachment.storage_size">
-            <tuv xml:lang="pl_PL">
-                <seg>Rozmiar (w bajtach)</seg>
             </tuv>
         </tu>
         <tu tuid="comment.filters.content">
@@ -2203,6 +2183,21 @@
         <tu tuid="common.storage">
             <tuv xml:lang="pl_PL">
                 <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.storage_extension">
+            <tuv xml:lang="pl_PL">
+                <seg>Rozszerzenia przechowywania</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.storage_key">
+            <tuv xml:lang="pl_PL">
+                <seg>Klucz przechowywania</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.storage_profile_id">
+            <tuv xml:lang="pl_PL">
+                <seg>Profil przechowywania</seg>
             </tuv>
         </tu>
         <tu tuid="common.subtotals">
