@@ -9,8 +9,8 @@ use Lcobucci\JWT\Validation\Validator;
 use League\OAuth2\Client\Grant\AbstractGrant;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Provider\GenericProvider;
-use phpseclib\Crypt\RSA;
-use phpseclib\Math\BigInteger;
+use phpseclib3\Crypt\PublicKeyLoader;
+use phpseclib3\Math\BigInteger;
 
 class InvalidTokenException extends \Exception {
 }
@@ -135,16 +135,10 @@ class GenericOpenIDConnectProvider extends GenericProvider {
 	}
 	
 	public function convertJwkToRsa($jwk) {
-		$rsa = new RSA();
-		
-		$rsa->loadKey(
-			[
-				'e' => new BigInteger(base64_decode($jwk['e']), 256),
-				'n' => new BigInteger(DevblocksPlatform::services()->string()->base64UrlDecode($jwk['n']), 256)
-			]
-		);
-		
-		return $rsa->getPublicKey();
+		return PublicKeyLoader::load([
+			'e' => new BigInteger(base64_decode($jwk['e']), 256),
+			'n' => new BigInteger(DevblocksPlatform::services()->string()->base64UrlDecode($jwk['n']), 256)
+		]);
 	}
 	
 	/**

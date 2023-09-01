@@ -93,7 +93,7 @@ class Controller_OAuth extends DevblocksControllerExtension {
 					$auth_request = $server->validateAuthorizationRequest($http_request);
 					
 					if(!(DAO_OAuthApp::getByClientId($auth_request->getClient()->getIdentifier())))
-						throw OAuthServerException::invalidClient();
+						throw OAuthServerException::invalidClient($http_request);
 					
 					$login_state = CerbLoginWorkerAuthState::getInstance()
 						->setIsConsentRequired([
