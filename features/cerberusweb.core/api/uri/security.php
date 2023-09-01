@@ -92,12 +92,11 @@ class Controller_Security extends DevblocksControllerExtension {
 			];
 			
 			$response = $http_client->get($url, $http_options);
-			$content_type = null;
 			
 			$body_reader = $response->getBody();
 			$body_data = $body_reader->getContents();
 			
-			if(false == (@$img = imagecreatefromstring($body_data)))
+			if(!($img = @imagecreatefromstring($body_data)))
 				DevblocksPlatform::dieWithHttpError(null, 500);
 			
 			/*

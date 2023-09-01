@@ -483,7 +483,7 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		$tpl->assign('image_width', $image_width);
 		$tpl->assign('image_height', $image_height);
 		
-		if(false != ($avatar = DAO_ContextAvatar::getByContext($context, $context_id))) {
+		if(($avatar = DAO_ContextAvatar::getByContext($context, $context_id))) {
 			$contents = 'data:' . $avatar->content_type . ';base64,' . base64_encode(Storage_ContextAvatar::get($avatar));
 			$tpl->assign('imagedata', $contents);
 		}

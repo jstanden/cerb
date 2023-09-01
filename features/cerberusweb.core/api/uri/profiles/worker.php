@@ -85,7 +85,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_WORKER)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
-				if(false == ($model = DAO_Worker::get($id)))
+				if(!($model = DAO_Worker::get($id)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
 				
 				if(!Context_Worker::isDeletableByActor($model, $active_worker))
@@ -183,7 +183,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 					if(!DAO_Worker::onBeforeUpdateByActor($active_worker, $fields, null, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
-					if(false == ($id = DAO_Worker::create($fields)))
+					if(!($id = DAO_Worker::create($fields)))
 						return false;
 					
 					DAO_Worker::onUpdateByActor($active_worker, $fields, $id);
@@ -254,7 +254,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 					$calendar_id = DAO_Calendar::create($fields);
 					
 				} else {
-					if(false != ($calendar = DAO_Calendar::get($calendar_id))) {
+					if(($calendar = DAO_Calendar::get($calendar_id))) {
 						$calendar_id = intval($calendar->id);
 					} else {
 						$calendar_id = 0;
@@ -281,7 +281,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				$label = null;
 				
 				if($id) {
-					if(false == ($updated_worker = DAO_Worker::get($id)))
+					if(!($updated_worker = DAO_Worker::get($id)))
 						throw new Exception_DevblocksAjaxValidationError("Failed to create the worker record.");
 					
 					// Passwords

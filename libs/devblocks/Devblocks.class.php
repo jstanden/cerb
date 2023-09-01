@@ -3759,7 +3759,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		register_shutdown_function(array('DevblocksPlatform','shutdown'));
 	}
 	
-	static function shutdown() {
+	static function shutdown() : void {
 		// Trigger changed context events
 		Extension_DevblocksContext::flushTriggerChangedContextsEvents();
 		
@@ -3781,7 +3781,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		$metrics->publish();
 	}
 
-	static function setHandlerSession($class) {
+	static function setHandlerSession($class) : void {
 		if(!empty($class) && class_exists($class, true))
 			self::$handlerSession = $class;
 	}
@@ -3790,7 +3790,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		return self::$handlerSession;
 	}
 	
-	static function redirect(DevblocksHttpIO $httpIO, $wait_secs=0) {
+	static function redirect(DevblocksHttpIO $httpIO, $wait_secs=0) : never {
 		$url_service = DevblocksPlatform::services()->url();
 		session_write_close();
 		$url = $url_service->writeDevblocksHttpIO($httpIO, true);
@@ -3802,7 +3802,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		DevblocksPlatform::exit(302);
 	}
 	
-	static function redirectURL($url, $wait_secs=0) {
+	static function redirectURL($url, $wait_secs=0) : never {
 		if(empty($url)) {
 			$url_service = DevblocksPlatform::services()->url();
 			$url = $url_service->writeNoProxy('', true);
@@ -3816,23 +3816,23 @@ class DevblocksPlatform extends DevblocksEngine {
 		DevblocksPlatform::exit(302);
 	}
 	
-	static function exit(int $status_code=200) {
+	static function exit(int $status_code=200) : never {
 		if($status_code && php_sapi_name() != 'cli')
 			http_response_code($status_code);
 		
 		exit;
 	}
 	
-	static function dieWithHttpError($message, $status_code=500) {
+	static function dieWithHttpError($message, $status_code=500) : never {
 		$message = DevblocksPlatform::strEscapeHtml($message);
 		self::dieWithHttpErrorRaw($message, $status_code);
 	}
 	
-	static function dieWithHttpErrorHtml($message, $status_code=500) {
+	static function dieWithHttpErrorHtml($message, $status_code=500) : never {
 		self::dieWithHttpErrorRaw($message, $status_code);
 	}
 	
-	static function dieWithHttpErrorRaw($message, $status_code=500) {
+	static function dieWithHttpErrorRaw($message, $status_code=500) : never {
 		if(php_sapi_name() != 'cli') {
 			switch ($status_code) {
 				case 403: // Forbidden
