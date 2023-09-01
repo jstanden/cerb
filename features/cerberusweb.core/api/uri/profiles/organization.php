@@ -97,6 +97,7 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 				$website = DevblocksPlatform::importGPC($_POST['website'] ?? null, 'string','');
 				$email_id = DevblocksPlatform::importGPC($_POST['email_id'] ?? null, 'integer',0);
 				
+				$profile_image_changed = false;
 				$error = null;
 				
 				// Privs
@@ -152,7 +153,7 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 					
 					// Avatar image
 					$avatar_image = DevblocksPlatform::importGPC($_POST['avatar_image'] ?? null, 'string', '');
-					DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_ORG, $id, $avatar_image);
+					$profile_image_changed = DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_ORG, $id, $avatar_image);
 					
 					// Comments
 					DAO_Comment::handleFormPost(CerberusContexts::CONTEXT_ORG, $id);
@@ -163,12 +164,23 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 				}
 			}
 			
-			echo json_encode(array(
+			$event_data = [
 				'status' => true,
 				'id' => $id,
 				'label' => $org_name,
 				'view_id' => $view_id,
-			));
+			];
+			
+			if($profile_image_changed) {
+				$url_writer = DevblocksPlatform::services()->url();
+				$type = 'org';
+				$event_data['record_image_url'] =
+					$url_writer->write(sprintf('c=avatars&type=%s&id=%d', rawurlencode($type), $id), true)
+					. '?v=' . time()
+				;
+			}
+			
+			echo json_encode($event_data);
 			return;
 			
 		} catch (Exception_DevblocksAjaxValidationError $e) {

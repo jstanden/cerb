@@ -192,6 +192,8 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 						
 						$is_disabled = DevblocksPlatform::intClamp($is_disabled, 0, 1);
 						
+						$profile_image_changed = false;
+						
 						// Owner
 					
 						$owner_ctx = '';
@@ -292,17 +294,27 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 							
 							// Avatar image
 							$avatar_image = DevblocksPlatform::importGPC($_POST['avatar_image'] ?? null, 'string', '');
-							DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_BOT, $id, $avatar_image);
+							$profile_image_changed = DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_BOT, $id, $avatar_image);
 						}
 						
-						echo json_encode(array(
+						$event_data = [
 							'status' => true,
 							'id' => $id,
 							'label' => $name,
 							'view_id' => $view_id,
-						));
+						];
+						
+						if($profile_image_changed) {
+							$url_writer = DevblocksPlatform::services()->url();
+							$type = 'bot';
+							$event_data['record_image_url'] =
+								$url_writer->write(sprintf('c=avatars&type=%s&id=%d', rawurlencode($type), $id), true)
+								. '?v=' . time()
+							;
+						}
+						
+						echo json_encode($event_data);
 						return;
-						break;
 				}
 			}
 			

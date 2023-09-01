@@ -131,6 +131,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				$group_memberships = DevblocksPlatform::importGPC($_POST['group_memberships'] ?? null, 'array');
 				
 				$existing_worker = DAO_Worker::get($id);
+				$profile_image_changed = false;
 				$error = null;
 				
 				// ============================================
@@ -329,7 +330,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 					
 					// Avatar image
 					$avatar_image = DevblocksPlatform::importGPC($_POST['avatar_image'] ?? null, 'string', '');
-					DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_WORKER, $updated_worker->id, $avatar_image);
+					$profile_image_changed = DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_WORKER, $updated_worker->id, $avatar_image);
 					
 					// Flush caches
 					DAO_WorkerRole::clearWorkerCache($updated_worker->id);
@@ -342,12 +343,23 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				}
 			}
 			
-			echo json_encode([
+			$event_data = [
 				'status' => true,
 				'id' => $id,
 				'label' => $label,
 				'view_id' => $view_id,
-			]);
+			];
+			
+			if($profile_image_changed) {
+				$url_writer = DevblocksPlatform::services()->url();
+				$type = 'worker';
+				$event_data['record_image_url'] =
+					$url_writer->write(sprintf('c=avatars&type=%s&id=%d', rawurlencode($type), $id), true)
+					. '?v=' . time()
+				;
+			}
+			
+			echo json_encode($event_data);
 			return true;
 			
 		} catch (Exception_DevblocksAjaxValidationError $e) {

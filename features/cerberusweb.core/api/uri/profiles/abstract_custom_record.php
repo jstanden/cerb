@@ -99,6 +99,8 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 				$owner = DevblocksPlatform::importGPC($_POST['owner'] ?? null, 'string', '');
 				$file_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['file_ids'] ?? null,'array', []), 'int');
 				
+				$profile_image_changed = false;
+				
 				// Owner
 			
 				list($owner_ctx, $owner_ctx_id) = array_pad(explode(':', $owner, 2), 2, null);
@@ -162,15 +164,26 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 					
 					// Avatar image
 					$avatar_image = DevblocksPlatform::importGPC($_POST['avatar_image'] ?? null, 'string', '');
-					DAO_ContextAvatar::upsertWithImage($context, $id, $avatar_image);
+					$profile_image_changed = DAO_ContextAvatar::upsertWithImage($context, $id, $avatar_image);
 				}
 				
-				echo json_encode(array(
+				$event_data = [
 					'status' => true,
 					'id' => $id,
 					'label' => $name,
 					'view_id' => $view_id,
-				));
+				];
+				
+				if($profile_image_changed) {
+					$url_writer = DevblocksPlatform::services()->url();
+					$type = $custom_record->uri;
+					$event_data['record_image_url'] =
+						$url_writer->write(sprintf('c=avatars&type=%s&id=%d', rawurlencode($type), $id), true)
+					. '?v=' . time()
+					;
+				}
+				
+				echo json_encode($event_data);
 				return;
 			}
 			

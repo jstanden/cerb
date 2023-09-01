@@ -5,7 +5,7 @@
 
 <div id="{$div_id}">
     {if $context_ext->hasOption('avatars')}
-        <div style="float:left;margin-right:10px;">
+        <div data-cerb-card-record-image style="float:left;margin-right:10px;">
             <img src="{devblocks_url}c=avatars&context={$peek_context}&context_id={$dict->id}{/devblocks_url}?v={$dict->updated_at|default:$dict->updated}" style="height:75px;width:75px;border-radius:5px;vertical-align:middle;">
         </div>
     {/if}
@@ -137,6 +137,13 @@ $(function() {
 
                 if(!e.is_rebroadcast) {
                     $popup.trigger($.Event('cerb-widgets-refresh'));
+
+                    {if $context_ext->hasOption('avatars')}
+                    if(e.hasOwnProperty('record_image_url')) {
+                        let $profile_image = $popup.find('[data-cerb-card-record-image] > img');
+                        $profile_image.attr('src', e.record_image_url);
+                    }
+                    {/if}
                 }
             })
             .on('cerb-peek-deleted', function(e) {

@@ -140,14 +140,25 @@ class PageSection_ProfilesWorkerRole extends Extension_PageSection {
 				
 				// Avatar image
 				$avatar_image = DevblocksPlatform::importGPC($_POST['avatar_image'] ?? null, 'string', '');
-				DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_ROLE, $id, $avatar_image);
+				$profile_image_changed = DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_ROLE, $id, $avatar_image);
 				
-				echo json_encode(array(
+				$event_data = [
 					'status' => true,
 					'id' => $id,
 					'label' => $name,
 					'view_id' => $view_id,
-				));
+				];
+				
+				if($profile_image_changed) {
+					$url_writer = DevblocksPlatform::services()->url();
+					$type = 'role';
+					$event_data['record_image_url'] =
+						$url_writer->write(sprintf('c=avatars&type=%s&id=%d', rawurlencode($type), $id), true)
+						. '?v=' . time()
+					;
+				}
+				
+				echo json_encode($event_data);
 				return;
 			}
 			
