@@ -172,9 +172,11 @@ class FileWriteAction extends AbstractAction {
 						@unlink($zip_name);
 				}
 				
-			} else if ('text' == $content_key) {
-				if(!is_scalar($content['text']))
-					throw new Exception_DevblocksAutomationError('`file.write:inputs:content:text:` must be a string.');
+			} else if (in_array($content_key, ['bytes', 'text'])) {
+				if(!is_scalar($content[$content_key]))
+					throw new Exception_DevblocksAutomationError(
+						sprintf('`file.write:inputs:content:%s:` must be a string.', $content_key)
+					);
 				
 				// Are we appending?
 				if($resource_uri) {
@@ -185,7 +187,7 @@ class FileWriteAction extends AbstractAction {
 						'uri' => 'cerb:automation_resource:' . $resource->token,
 						'mime_type' => array_key_exists('mime_type', $inputs) ? $mime_type : $resource->mime_type,
 						'expires_at' => array_key_exists('expires_at', $inputs) ? $expires_at : $resource->expires_at,
-						'size' => $resource->storage_size + strlen($content['text']),
+						'size' => $resource->storage_size + strlen($content[$content_key]),
 						'id' => $resource->id,
 					];
 					
@@ -199,7 +201,7 @@ class FileWriteAction extends AbstractAction {
 					$fstat = fstat($fp);
 					
 					fseek($fp, $fstat['size']);
-					fwrite($fp, $content['text']);
+					fwrite($fp, $content[$content_key]);
 					fseek($fp, 0);
 					
 					\Storage_AutomationResource::put($resource->id, $fp);
@@ -222,14 +224,14 @@ class FileWriteAction extends AbstractAction {
 						'uri' => 'cerb:automation_resource:' . $resource_token,
 						'mime_type' => $mime_type,
 						'expires_at' => $expires_at,
-						'size' => strlen($content['text']),
+						'size' => strlen($content[$content_key]),
 						'id' => $resource_id,
 					];
 					
 					if($file_name)
 						$results['name'] = $file_name;
 					
-					\Storage_AutomationResource::put($resource_id, $content['text']);
+					\Storage_AutomationResource::put($resource_id, $content[$content_key]);
 				}
 			}
 			
