@@ -1217,6 +1217,13 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 			];
 		}
 		
+		if($context_ext->hasOption('comments')) {
+			$lazy_keys['comment_count'] = [
+				'label' => 'The number of [comments](/docs/records/types/comments/) on the record',
+				'type' => 'Number',
+			];
+		}
+		
 		if($context_ext->hasOption('custom_fields')) {
 			$lazy_keys['custom_<id>'] = [
 				'label' => '[Custom Fields](/docs/guide/developers/dictionaries/#key-expansion)',
@@ -1669,6 +1676,9 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		} else if(($token === 'comments' || DevblocksPlatform::strStartsWith($token, ['comments:','comments~'])) && $context_ext->hasOption('comments')) {
 			return $this->_lazyLoadComments($token, $context, $context_id);
 			
+		} else if($token === 'comment_count') {
+			return $this->_lazyLoadCommentCount($token, $context, $context_id);
+			
 		} else if(($token === 'attachments' || DevblocksPlatform::strStartsWith($token, ['attachments:','attachments~'])) && $context_ext->hasOption('attachments')) {
 			return $this->_lazyLoadAttachments($token, $context, $context_id);
 		}
@@ -1750,6 +1760,12 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		$token_values['attachments'] = array_values($dicts);
 		
 		return $token_values;
+	}
+	
+	protected function _lazyLoadCommentCount($token, $context, $context_id) : array {
+		return [
+			$token => DAO_Comment::count($context, $context_id)
+		];
 	}
 	
 	/**
