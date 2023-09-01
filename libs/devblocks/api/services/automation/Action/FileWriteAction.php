@@ -185,6 +185,7 @@ class FileWriteAction extends AbstractAction {
 					
 					$results = [
 						'uri' => 'cerb:automation_resource:' . $resource->token,
+						'token' => $resource->token,
 						'mime_type' => array_key_exists('mime_type', $inputs) ? $mime_type : $resource->mime_type,
 						'expires_at' => array_key_exists('expires_at', $inputs) ? $expires_at : $resource->expires_at,
 						'size' => $resource->storage_size + strlen($content[$content_key]),
