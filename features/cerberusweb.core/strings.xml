@@ -5404,9 +5404,19 @@ For example: *receipt*</seg>
 				<seg>Always show plaintext messages (disable HTML)</seg>
 			</tuv>
 		</tu>
+		<tu tuid="preferences.account.mail.readall.default">
+			<tuv xml:lang="en_US">
+				<seg>Do not expand messages</seg>
+			</tuv>
+		</tu>
 		<tu tuid="preferences.account.mail.readall">
 			<tuv xml:lang="en_US">
 				<seg>Always use 'read all' mode (expand messages and sort chronologically)</seg>
+			</tuv>
+		</tu>
+		<tu tuid="preferences.account.mail.readall.reverse">
+			<tuv xml:lang="en_US">
+				<seg>Always use 'read all' mode (expand messages and sort newest first)</seg>
 			</tuv>
 		</tu>
 		<tu tuid="preferences.account.mail.reply_textbox_size">
