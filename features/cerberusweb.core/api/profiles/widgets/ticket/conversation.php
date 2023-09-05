@@ -45,7 +45,7 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 		$mail_reply_format = DAO_WorkerPref::get($active_worker->id, 'mail_reply_format', '');
 		
 		if($mail_always_read_all) {
-			$display_options['expand_all'] = 1;
+			$display_options['expand_all'] = (int) $mail_always_read_all;
 		} else if(array_key_exists('expand_all', $_POST)) {
 			$display_options['expand_all'] = DevblocksPlatform::importGPC($_POST['expand_all'], 'bit', 0);
 		}
@@ -299,7 +299,8 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 			[$this, '_sortTimeline']
 		);
 		
-		if($display_options['expand_all'] ?? 0) {
+		$expand_all = $display_options['expand_all'] ?? 0;
+		if($expand_all === 1) {
 			$convo_timeline = array_reverse($convo_timeline, true);
 		}
 		
