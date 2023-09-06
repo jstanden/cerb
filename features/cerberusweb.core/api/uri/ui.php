@@ -67,6 +67,8 @@ class Controller_UI extends DevblocksControllerExtension {
 				return $this->_uiAction_getContextPlaceholdersJson();
 			case 'getMentionsJson':
 				return $this->_uiAction_getMentionsJson();
+			case 'image':
+				return $this->_uiAction_image();
 			case 'kataSuggestionsAutomationCommandParamsJson':
 				return $this->_uiAction_kataSuggestionsAutomationCommandParamsJson();
 			case 'kataSuggestionsAutomationInputsJson':
@@ -518,6 +520,57 @@ class Controller_UI extends DevblocksControllerExtension {
 		}
 		
 		echo json_encode($results);
+	}
+	
+	private function _uiAction_image() {
+		$request = DevblocksPlatform::getHttpRequest();
+		$stack = $request->path;
+		
+		if('GET' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		array_shift($stack); // ui
+		array_shift($stack); // image
+		$token = strval(array_shift($stack) ?? null);
+		
+		$error = null;
+		
+		if(36 !== strlen($token))
+			DevblocksPlatform::dieWithHttpError('Not found', 404);
+		
+		if(!$token || !($resource = DAO_AutomationResource::getByToken($token)))
+			DevblocksPlatform::dieWithHttpError('Not found', 404);
+		
+		header('Content-Type: image/png');
+		
+		// If larger than 1MB, use streams
+		if($resource->storage_size > 1_000_000) {
+			$fp = DevblocksPlatform::getTempFile();
+			
+			if(!($resource->getFileContents($fp)))
+				DevblocksPlatform::dieWithHttpError('ERROR: Resource data not found.', 404);
+			
+			$magic_bytes = fread($fp, 8);
+			
+			// Verify the "magic bytes": 89 50 4E 47 0D 0A 1A 0A
+			if('89504e470d0a1a0a' != bin2hex(substr($magic_bytes,0,8))) {
+				$error = "is not a valid PNG image.";
+				DevblocksPlatform::dieWithHttpError('ERROR: Resource ' . $error, 500);
+			}
+			
+			fseek($fp, 0);
+			fpassthru($fp);
+			fclose($fp);
+			
+		} else { // Otherwise output as a string
+			$validator = DevblocksPlatform::services()->validation()->validators()->image();
+			$bytes = $resource->getFileContents();
+			
+			if(!($validator('data:image/png;base64,' . base64_encode($bytes), $error)))
+				DevblocksPlatform::dieWithHttpError('ERROR: Resource ' . $error, 500);
+			
+			echo $bytes;
+		}
 	}
 	
 	private function _uiAction_behavior() {
