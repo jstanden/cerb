@@ -587,11 +587,22 @@ class _DevblocksSheetServiceTypes {
 				if(!($uri_parts = DevblocksPlatform::services()->ui()->parseURI($record_uri)))
 					return '';
 				
-				$img = sprintf('<img class="cerb-avatar" style="%s" src="%s?v=%d"/>',
-					array_key_exists('text_size', $column_params) ? 'width:1em;height:1em;border-radius:1em;' : 'margin-right:0.25em;',
-					DevblocksPlatform::services()->url()->writeNoProxy(sprintf('c=avatars&ctx=%s&id=%d', $uri_parts['context_ext']->params['alias'], $uri_parts['context_id']), true),
-					APP_BUILD
-				);
+				if(!($img_context = $uri_parts['context'] ?? null))
+					return '';
+				
+				if(CerberusContexts::isSameContext($img_context, CerberusContexts::CONTEXT_AUTOMATION_RESOURCE)) {
+					$img = sprintf('<img style="%s" src="%s"/>',
+						array_key_exists('text_size', $column_params) ? 'width:1em;height:1em;' : '',
+						DevblocksPlatform::services()->url()->writeNoProxy(sprintf('c=ui&a=image&token=%s', $uri_parts['context_id'])),
+					);
+					
+				} else {
+					$img = sprintf('<img class="cerb-avatar" style="%s" src="%s?v=%d"/>',
+						array_key_exists('text_size', $column_params) ? 'width:1em;height:1em;border-radius:1em;' : 'margin-right:0.25em;',
+						DevblocksPlatform::services()->url()->writeNoProxy(sprintf('c=avatars&ctx=%s&id=%d', $uri_parts['context_ext']->params['alias'], $uri_parts['context_id']), true),
+						APP_BUILD
+					);
+				}
 				
 				DevblocksPlatform::purifyHTML($img, false, true, [$filter]);
 				
