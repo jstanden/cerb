@@ -1345,6 +1345,23 @@ class CerbAutomationAstNode implements JsonSerializable {
 						
 					case 'json':
 						$value = json_decode($value, true);
+						
+						if(is_array($value)) {
+							if(array_key_exists('id', $value) && array_key_exists('_context', $value)) {
+								$value = DevblocksDictionaryDelegate::instance($value);
+								
+							} else {
+								foreach($value as $kk => $vv) {
+									if(
+										is_array($vv)
+										&& array_key_exists('id', $vv)
+										&& array_key_exists('_context', $vv)
+									) {
+										$value[$kk] = DevblocksDictionaryDelegate::instance($vv);
+									}
+								}
+							}
+						}
 						break;
 						
 					case 'kata':
