@@ -584,6 +584,18 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		
 		$tpl->assign('suggested_photos', $suggested_photos);
 		
+		$toolbar_dict = DevblocksDictionaryDelegate::instance([
+			'record__context' => $context,
+			'record_id' => $context_id,
+			
+			'image_width' => $image_width,
+			'image_height' => $image_height,
+		]);
+		
+		if(($avatar_toolbar = DAO_Toolbar::getKataByName('record.profile.image.editor', $toolbar_dict))) {
+			$tpl->assign('avatar_toolbar', $avatar_toolbar);
+		}
+		
 		$tpl->display('devblocks:cerberusweb.core::internal/choosers/avatar_chooser_popup.tpl');
 	}
 	

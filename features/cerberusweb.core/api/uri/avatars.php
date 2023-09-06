@@ -93,6 +93,7 @@ class Controller_Avatars extends DevblocksControllerExtension {
 	
 	private function _fetchImageFromUrl($url) {
 		$validation = DevblocksPlatform::services()->validation();
+		$url_writer = DevblocksPlatform::services()->url();
 		$response = array('status'=>true, 'imageData'=>null);
 		
 		try {
@@ -111,10 +112,28 @@ class Controller_Avatars extends DevblocksControllerExtension {
 			if(!$validation->validateAll($values, $error))
 				throw new DevblocksException($error);
 			
-			$ch = DevblocksPlatform::curlInit($url);
-			$output = DevblocksPlatform::curlExec($ch);
-			$info = curl_getinfo($ch);
-			curl_close($ch);
+			$cerbUiImageUrl = $url_writer->write('c=ui&a=image', true);
+			
+			// Allow fetching images from the local ui/image endpoint
+			if(DevblocksPlatform::strStartsWith($url, [$cerbUiImageUrl])) {
+				$token = substr($url, strlen($cerbUiImageUrl) + 1);
+				
+				if (!($resource = DAO_AutomationResource::getByToken($token)))
+					throw new DevblocksException("Invalid URL.");
+				
+				$info['content_type'] = $resource->mime_type;
+				$output = $resource->getFileContents();
+				
+				// Verify the "magic bytes": 89 50 4E 47 0D 0A 1A 0A
+				if ('89504e470d0a1a0a' != bin2hex(substr($output, 0, 8)))
+					throw new DevblocksException("Invalid image.");
+				
+			} else {
+				$ch = DevblocksPlatform::curlInit($url);
+				$output = DevblocksPlatform::curlExec($ch);
+				$info = curl_getinfo($ch);
+				curl_close($ch);
+			}
 			
 			// Make sure this is only image content
 			if(substr(DevblocksPlatform::strLower($info['content_type']),0,6) != 'image/')

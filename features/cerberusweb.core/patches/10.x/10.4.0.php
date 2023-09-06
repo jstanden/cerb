@@ -35,6 +35,9 @@ $automation_files = [
 	'ai.cerb.automationBuilder.autocomplete.d3Format.json',
 	'ai.cerb.automationBuilder.autocomplete.d3TimeFormat.json',
 	'ai.cerb.chooser.automationEvent.json',
+	'ai.cerb.record.profileImageEditor.fetchUrl.json',
+	'ai.cerb.record.profileImageEditor.text.json',
+	'ai.cerb.record.profileImageEditor.upload.json',
 	'cerb.editor.toolbar.indentSelection.json',
 	'cerb.explore.worklist.json',
 	'cerb.interaction.echo.json',
@@ -88,6 +91,17 @@ if(!$db->GetOneMaster("SELECT 1 FROM toolbar WHERE name = 'records.worklist'")) 
 		$db->qstr('cerb.toolbar.records.worklist'),
 		$db->qstr('Viewing a worklist of records'),
 		$db->qstr("# interaction/customExplore:\n#   label: custom explore\n#   icon: play-button\n#   uri: cerb:automation:cerb.worklist.buttons.explore\n#   inputs:\n#     open_new_tab: yes\n#   class: action-always-show"),
+		time(),
+		time()
+	));
+}
+
+if(!$db->GetOneMaster("SELECT 1 FROM toolbar WHERE name = 'record.profile.image.editor'")) {
+	$db->ExecuteMaster(sprintf('INSERT IGNORE INTO toolbar (name, extension_id, description, toolbar_kata, created_at, updated_at) VALUES (%s,%s,%s,%s,%d,%d)',
+		$db->qstr('record.profile.image.editor'),
+		$db->qstr('cerb.toolbar.record.profile.image.editor'),
+		$db->qstr('Editing a record profile image'),
+		$db->qstr("interaction/text:\n  label: Text\n  icon: text-size\n  uri: cerb:automation:ai.cerb.record.profileImageEditor.text\n\ninteraction/upload:\n  label: Upload\n  icon: upload\n  uri: cerb:automation:ai.cerb.record.profileImageEditor.upload\n\ninteraction/url:\n  label: Fetch URL\n  icon: link\n  uri: cerb:automation:ai.cerb.record.profileImageEditor.fetchUrl"),
 		time(),
 		time()
 	));

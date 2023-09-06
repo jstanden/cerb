@@ -5595,6 +5595,16 @@
 		</extension>
 		
 		<extension point="cerb.toolbar">
+			<id>cerb.toolbar.record.profile.image.editor</id>
+			<name>record.profile.image.editor</name>
+			<class>
+				<file>api/toolbars/record.profile.image.editor.php</file>
+				<name>Toolbar_RecordProfileImageEditor</name>
+			</class>
+			<params/>
+		</extension>
+
+		<extension point="cerb.toolbar">
 			<id>cerb.toolbar.records.worklist</id>
 			<name>records.worklist</name>
 			<class>

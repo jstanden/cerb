@@ -1,0 +1,9 @@
+{
+  "name": "ai.cerb.record.profileImageEditor.upload",
+  "extension_id": "cerb.trigger.interaction.internal",
+  "description": "Create a profile image from an uploaded file",
+  "script": "start:\r\n  await:\r\n    form:\r\n      title: Upload Image\r\n      elements:\r\n        fileUpload/prompt_file:\r\n          label: Select an image file from your computer:\r\n          required@bool: yes\r\n          as: automation_resource\r\n  \r\n  return:\r\n    image:\r\n      url: {{cerb_url('c=ui&a=image&token=' ~ prompt_file)}}",
+  "policy_kata": "commands:\r\n  # [TODO] Specify a command policy here (use Ctrl+Space for autocompletion)\r\n  ",
+  "created_at": 1693960644,
+  "updated_at": 1693960644
+}

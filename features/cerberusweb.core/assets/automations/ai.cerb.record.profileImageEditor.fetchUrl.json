@@ -1,0 +1,9 @@
+{
+  "name": "ai.cerb.record.profileImageEditor.fetchUrl",
+  "extension_id": "cerb.trigger.interaction.internal",
+  "description": "Create a profile image from a URL",
+  "script": "start:\r\n  await:\r\n    form:\r\n      title: Fetch image by URL\r\n      elements:\r\n        text/prompt_url:\r\n          label: URL:\r\n          required@bool: yes\r\n          type: url\r\n          placeholder: https://example.com/image.png\r\n          max_length: 1024\r\n  \r\n  return:\r\n    image:\r\n      url@key: prompt_url",
+  "policy_kata": "commands:\r\n  # [TODO] Specify a command policy here (use Ctrl+Space for autocompletion)\r\n  ",
+  "created_at": 1693960681,
+  "updated_at": 1693960681
+}

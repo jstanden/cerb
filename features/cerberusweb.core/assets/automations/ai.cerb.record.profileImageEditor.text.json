@@ -1,0 +1,9 @@
+{
+  "name": "ai.cerb.record.profileImageEditor.text",
+  "extension_id": "cerb.trigger.interaction.internal",
+  "description": "Create a profile image from text",
+  "script": "start:\r\n  await:\r\n    form:\r\n      title: Create image with text\r\n      elements:\r\n        text/prompt_text:\r\n          label: Text:\r\n          required@bool: yes\r\n          type: freeform\r\n          placeholder: Text or emoji\r\n          max_length: 32\r\n  \r\n  return:\r\n    image:\r\n      text@key: prompt_text",
+  "policy_kata": "commands:\r\n  # [TODO] Specify a command policy here (use Ctrl+Space for autocompletion)\r\n  ",
+  "created_at": 1693960574,
+  "updated_at": 1693960574
+}
