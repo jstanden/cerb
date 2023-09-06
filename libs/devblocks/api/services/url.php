@@ -313,6 +313,7 @@ class Cerb_HTMLPurifier_URIFilter_Email extends HTMLPurifier_URIFilter {
 	protected $mail = null;
 	
 	protected $cerbFilesPath = null;
+	protected $cerbUiImagePath = null;
 	
 	protected $filterCounts = [
 		'blockedImage' => 0,
@@ -348,6 +349,7 @@ class Cerb_HTMLPurifier_URIFilter_Email extends HTMLPurifier_URIFilter {
 
 		$this->cerbUri = $this->parser->parse($this->urlWriter->write('', true));
 		$this->cerbFilesPath = $this->urlWriter->write('c=files', false);
+		$this->cerbUiImagePath = $this->urlWriter->write('c=ui&a=image', false);
 		return true;
 	}
 	
@@ -439,7 +441,7 @@ class Cerb_HTMLPurifier_URIFilter_Email extends HTMLPurifier_URIFilter {
 			// Allow Cerb inline images
 			if (0 == strcasecmp($uri->host, $this->cerbUri->host)) {
 				if (DevblocksPlatform::strStartsWith($uri->path, $this->cerbUri->path, false)) {
-					if (DevblocksPlatform::strStartsWith($uri->path, $this->cerbFilesPath, false)) {
+					if (DevblocksPlatform::strStartsWith($uri->path, [$this->cerbFilesPath, $this->cerbUiImagePath], false)) {
 						return true;
 					}
 				}
