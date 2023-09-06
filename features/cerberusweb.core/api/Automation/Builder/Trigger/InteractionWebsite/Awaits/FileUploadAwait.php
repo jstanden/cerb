@@ -143,6 +143,7 @@ class FileUploadAwait extends AbstractAwait {
 				throw new Exception_DevblocksValidationError('Failed to read uploaded file.');
 
 			$results = [
+				'uri' => 'cerb:automation_resource:' . $resource_token,
 				'token' => $resource_token,
 				'name' => $file_name,
 				'mime_type' => $file_type,

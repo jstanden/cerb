@@ -365,7 +365,7 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 			return;
 		
 		// Load the execution
-		if(false == ($continuation = DAO_AutomationContinuation::getByToken($continuation_token)))
+		if(!($continuation = DAO_AutomationContinuation::getByToken($continuation_token)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		// Check actor

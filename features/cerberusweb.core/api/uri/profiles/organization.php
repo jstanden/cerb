@@ -101,7 +101,7 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 				$error = null;
 				
 				// Privs
-				$fields = array(
+				$fields = [
 					DAO_ContactOrg::NAME => $org_name,
 					DAO_ContactOrg::STREET => $street,
 					DAO_ContactOrg::CITY => $city,
@@ -111,7 +111,7 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 					DAO_ContactOrg::PHONE => $phone,
 					DAO_ContactOrg::WEBSITE => $website,
 					DAO_ContactOrg::EMAIL_ID => $email_id,
-				);
+				];
 		
 				if(!$id) {
 					if(!DAO_ContactOrg::validate($fields, $error))
@@ -120,7 +120,7 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 					if(!DAO_ContactOrg::onBeforeUpdateByActor($active_worker, $fields, null, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
-					if(false == ($id = DAO_ContactOrg::create($fields)))
+					if(!($id = DAO_ContactOrg::create($fields)))
 						throw new Exception_DevblocksAjaxValidationError("Failed to create a new record.");
 					
 					DAO_ContactOrg::onUpdateByActor($active_worker, $fields, $id);

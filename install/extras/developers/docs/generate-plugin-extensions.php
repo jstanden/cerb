@@ -213,9 +213,8 @@ EOD;
 	foreach($point_meta['examples'] as $example_plugin_id => $examples) {
 		@$example_plugin = $plugins[$example_plugin_id];
 		
-		if($point == 'cerb.webhooks.listener.engine') {
-			//var_dump($examples);
-		}
+		if($point == 'cerb.webhooks.listener.engine')
+			continue;
 		
 		if(empty($example_plugin))
 			continue;
