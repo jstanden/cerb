@@ -1197,6 +1197,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'params' => [
 						'attachment' => null,
 						'automation_resource' => null,
+						'resource' => null,
 					],
 				],
 				
