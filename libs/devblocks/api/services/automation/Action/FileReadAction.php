@@ -157,10 +157,15 @@ class FileReadAction extends AbstractAction {
 						throw new Exception_DevblocksAutomationError($error);
 					
 				} else {
-					$fp = DevblocksPlatform::getTempFile();
 					$stream_mime_type = $resource->mime_type ?? 'application/octet-stream';
 					
-					$resource->getFileContents($fp);
+					if(!($resource_data = $resource->getExtension()->getContentData($resource))) {
+						$error = 'Failed to load resource data.';
+						throw new Exception_DevblocksAutomationError($error);
+					}
+					
+					$fp =& $resource_data->data;
+					$fp_stat = fstat($fp);
 					
 					$fp_filters = $this->_registerStreamFilters($fp, $filters, $stream_mime_type);
 					
@@ -175,6 +180,11 @@ class FileReadAction extends AbstractAction {
 					if(!$is_printable)
 						$bytes = sprintf('data:%s;base64,%s', $stream_mime_type, base64_encode($bytes));
 					
+					$size = $resource->is_dynamic
+						? ($fp_stat['size'] ?? -1)
+						: $resource->storage_size
+					;
+					
 					$results = [
 						'bytes' => $bytes,
 						'uri' => $inputs['uri'],
@@ -183,8 +193,11 @@ class FileReadAction extends AbstractAction {
 						'offset_to' => $fp_offset + $length,
 						//'mime_type' => $resource->mime_type,
 						'mime_type' => 'application/octet-stream',
-						'size' => $resource->storage_size,
+						'size' => intval($size),
 					];
+					
+					if(is_resource($fp))
+						fclose($fp);
 				}
 				
 				if($output)
