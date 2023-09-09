@@ -706,8 +706,12 @@ class Model_Resource_ContentData {
 			return false;
 		
 		fpassthru($this->data);
-		fclose($this->data);
+		$this->free();
 		return true;
+	}
+	
+	public function free() : void {
+		fclose($this->data);
 	}
 }
 

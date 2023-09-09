@@ -26,14 +26,12 @@ class ApiCommand_CerbDatasetVectorSimilarity extends Extension_AutomationApiComm
 			if(!($resource = DAO_Resource::getByNameAndType($uri_parts['context_id'] ?? 0, ResourceType_DatasetJsonl::ID)))
 				throw new Exception_DevblocksValidationError('The given `uri:` was not found.');
 			
-			// Below 10MB load the dataset into memory, otherwise stream to disk
-			if($resource->storage_size <= 10_000_000) {
-				$fp = fopen('php://memory', 'r+');
-			} else {
-				$fp = DevblocksPlatform::getTempFile();
-			}
+			if(!($resource_content = $resource->getExtension()->getContentData($resource)))
+				throw new Exception_DevblocksValidationError('Failed to load the dataset of the given `uri:`.');
 			
-			if(!is_resource($fp) || !($resource->getFileContents($fp)))
+			$fp =& $resource_content->data;
+			
+			if(!is_resource($fp))
 				throw new Exception_DevblocksValidationError('Failed to load the dataset of the given `uri:`.');
 			
 			while(!feof($fp)) {
