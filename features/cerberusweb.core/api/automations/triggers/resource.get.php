@@ -48,6 +48,16 @@ class AutomationTrigger_ResourceGet extends Extension_AutomationTrigger {
 	}
 	
 	public function getAutocompleteSuggestions() : array {
-		return [];
+		return [
+			'*' => [
+				'(.*):return:' => [
+					'file:',
+				],
+				'(.*):return:file:' => [
+					'content@text:',
+					'expires_at@date: 1 hour',
+				],
+			]
+		];
 	}
 }
