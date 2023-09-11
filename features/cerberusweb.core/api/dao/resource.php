@@ -1,6 +1,7 @@
 <?php
 class DAO_Resource extends Cerb_ORMHelper {
 	const AUTOMATION_KATA = 'automation_kata';
+	const CACHE_UNTIL = 'cache_until';
 	const DESCRIPTION = 'description';
 	const EXTENSION_ID = 'extension_id';
 	const EXTENSION_KATA = 'extension_kata';
@@ -27,6 +28,10 @@ class DAO_Resource extends Cerb_ORMHelper {
 			->addField(self::AUTOMATION_KATA)
 			->string()
 			->setMaxLength('16 bits')
+		;
+		$validation
+			->addField(self::CACHE_UNTIL)
+			->timestamp()
 		;
 		$validation
 			->addField(self::DESCRIPTION)
@@ -228,7 +233,7 @@ class DAO_Resource extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, automation_kata, description, is_dynamic, extension_id, extension_kata, storage_size, storage_key, storage_extension, storage_profile_id, updated_at ".
+		$sql = "SELECT id, name, automation_kata, cache_until, description, is_dynamic, extension_id, extension_kata, storage_size, storage_key, storage_extension, storage_profile_id, updated_at ".
 			"FROM resource ".
 			$where_sql.
 			$sort_sql.
@@ -329,6 +334,7 @@ class DAO_Resource extends Cerb_ORMHelper {
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_Resource();
 			$object->automation_kata = $row['automation_kata'];
+			$object->cache_until = $row['cache_until'];
 			$object->description = $row['description'];
 			$object->extension_id = $row['extension_id'];
 			$object->extension_kata = $row['extension_kata'];
@@ -385,6 +391,7 @@ class DAO_Resource extends Cerb_ORMHelper {
 			"resource.name as %s, ".
 			"resource.is_dynamic as %s, ".
 			"resource.extension_id as %s, ".
+			"resource.cache_until as %s, ".
 			"resource.description as %s, ".
 			"resource.storage_size as %s, ".
 			"resource.storage_key as %s, ".
@@ -395,6 +402,7 @@ class DAO_Resource extends Cerb_ORMHelper {
 			SearchFields_Resource::NAME,
 			SearchFields_Resource::IS_DYNAMIC,
 			SearchFields_Resource::EXTENSION_ID,
+			SearchFields_Resource::CACHE_UNTIL,
 			SearchFields_Resource::DESCRIPTION,
 			SearchFields_Resource::STORAGE_SIZE,
 			SearchFields_Resource::STORAGE_KEY,
@@ -464,6 +472,7 @@ class DAO_Resource extends Cerb_ORMHelper {
 		$resource_data = array_merge(
 			[
 				'data' => '',
+				'cache_until' => 0,
 				'description' => '',
 				'extension_id' => '',
 				'extension_kata' => '',
@@ -480,8 +489,9 @@ class DAO_Resource extends Cerb_ORMHelper {
 		));
 		
 		if($resource_id) {
-			$db->ExecuteMaster(sprintf("UPDATE resource SET name = %s, description = %s, extension_id = %s, extension_kata = %s, automation_kata = %s, is_dynamic = %d, expires_at = %d, updated_at = %d WHERE id = %d",
+			$db->ExecuteMaster(sprintf("UPDATE resource SET name = %s, cache_until = %d, description = %s, extension_id = %s, extension_kata = %s, automation_kata = %s, is_dynamic = %d, expires_at = %d, updated_at = %d WHERE id = %d",
 				$db->qstr($resource_data['name']),
+				$resource_data['cache_until'],
 				$db->qstr($resource_data['description']),
 				$db->qstr($resource_data['extension_id']),
 				$db->qstr($resource_data['extension_kata']),
@@ -493,9 +503,10 @@ class DAO_Resource extends Cerb_ORMHelper {
 			));
 			
 		} else {
-			$db->ExecuteMaster(sprintf("INSERT INTO resource (name, description, extension_id, extension_kata, automation_kata, is_dynamic, expires_at, updated_at) ".
-				"VALUES (%s, %s, %s, %s, %s, %d, %d, %d)",
+			$db->ExecuteMaster(sprintf("INSERT INTO resource (name, cache_until, description, extension_id, extension_kata, automation_kata, is_dynamic, expires_at, updated_at) ".
+				"VALUES (%s, %d, %s, %s, %s, %s, %d, %d, %d)",
 				$db->qstr($resource_data['name']),
+				$resource_data['cache_until'],
 				$db->qstr($resource_data['description']),
 				$db->qstr($resource_data['extension_id']),
 				$db->qstr($resource_data['extension_kata']),
@@ -537,6 +548,7 @@ class DAO_Resource extends Cerb_ORMHelper {
 class SearchFields_Resource extends DevblocksSearchFields {
 	const ID = 'r_id';
 	const NAME = 'r_name';
+	const CACHE_UNTIL = 'r_cache_until';
 	const DESCRIPTION = 'r_description';
 	const IS_DYNAMIC = 'r_is_dynamic';
 	const EXTENSION_ID = 'r_extension_id';
@@ -613,6 +625,7 @@ class SearchFields_Resource extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
+			self::CACHE_UNTIL => new DevblocksSearchField(self::CACHE_UNTIL, 'resource', 'cache_until', $translate->_('common.cache'), null, true),
 			self::DESCRIPTION => new DevblocksSearchField(self::DESCRIPTION, 'resource', 'description', $translate->_('common.description'), null, true),
 			self::ID => new DevblocksSearchField(self::ID, 'resource', 'id', $translate->_('common.id'), null, true),
 			self::IS_DYNAMIC => new DevblocksSearchField(self::IS_DYNAMIC, 'resource', 'is_dynamic', $translate->_('dao.resource.is_dynamic'), null, true),
@@ -643,6 +656,7 @@ class SearchFields_Resource extends DevblocksSearchFields {
 
 class Model_Resource extends DevblocksRecordModel {
 	public $automation_kata;
+	public $cache_until = 0;
 	public $description;
 	public $id;
 	public $is_dynamic;
@@ -857,6 +871,11 @@ class View_Resource extends C4_AbstractView implements IAbstractView_Subtotals, 
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Resource::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
+			'cacheUntil' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_DATE,
+					'options' => array('param_key' => SearchFields_Resource::CACHE_UNTIL),
+				),
 			'description' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
@@ -1009,6 +1028,7 @@ class View_Resource extends C4_AbstractView implements IAbstractView_Subtotals, 
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 			
+			case SearchFields_Resource::CACHE_UNTIL:
 			case SearchFields_Resource::UPDATED_AT:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
@@ -1439,6 +1459,12 @@ class Context_Resource extends Extension_DevblocksContext implements IDevblocksC
 			],
 		);
 		
+		$properties['cache_until'] = [
+			'label' => DevblocksPlatform::translateCapitalized('common.cache'),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->cache_until,
+		];
+		
 		$properties['description'] = array(
 			'label' => DevblocksPlatform::translateCapitalized('common.description'),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -1498,6 +1524,7 @@ class Context_Resource extends Extension_DevblocksContext implements IDevblocksC
 	
 	function getDefaultProperties() {
 		return array(
+			'cache_until',
 			'description',
 			'extension_id',
 			'storage_size',
@@ -1536,6 +1563,7 @@ class Context_Resource extends Extension_DevblocksContext implements IDevblocksC
 		$token_labels = array(
 			'_label' => $prefix,
 			'automation_kata' => $prefix.$translate->_('common.automation'),
+			'cache_until' => $prefix.$translate->_('common.cache_until'),
 			'description' => $prefix.$translate->_('common.description'),
 			'extension_id' => $prefix.$translate->_('common.type'),
 			'id' => $prefix.$translate->_('common.id'),
@@ -1549,6 +1577,7 @@ class Context_Resource extends Extension_DevblocksContext implements IDevblocksC
 		$token_types = array(
 			'_label' => 'context_url',
 			'automation_kata' => Model_CustomField::TYPE_MULTI_LINE,
+			'cache_until' => Model_CustomField::TYPE_DATE,
 			'description' => Model_CustomField::TYPE_SINGLE_LINE,
 			'extension_id' => Model_CustomField::TYPE_SINGLE_LINE,
 			'id' => Model_CustomField::TYPE_NUMBER,
@@ -1578,6 +1607,7 @@ class Context_Resource extends Extension_DevblocksContext implements IDevblocksC
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $resource->name;
 			$token_values['automation_kata'] = $resource->automation_kata;
+			$token_values['cache_until'] = $resource->cache_until;
 			$token_values['description'] = $resource->description;
 			$token_values['extension_id'] = $resource->extension_id;
 			$token_values['id'] = $resource->id;
@@ -1600,6 +1630,7 @@ class Context_Resource extends Extension_DevblocksContext implements IDevblocksC
 		return [
 			'content' => '_content',
 			'automation_kata' => DAO_Resource::AUTOMATION_KATA,
+			'cache_until' => DAO_Resource::CACHE_UNTIL,
 			'description' => DAO_Resource::DESCRIPTION,
 			'extension_id' => DAO_Resource::EXTENSION_ID,
 			'id' => DAO_Resource::ID,

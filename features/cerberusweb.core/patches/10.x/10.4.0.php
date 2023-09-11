@@ -185,6 +185,15 @@ $db->ExecuteMaster(sprintf("UPDATE automation_event SET name = %s, description =
 ));
 
 // ===========================================================================
+// Add resource.cache_until
+
+list($columns, ) = $db->metaTable('resource');
+
+if(!array_key_exists('cache_until', $columns)) {
+	$db->ExecuteMaster('ALTER TABLE resource ADD COLUMN cache_until INT UNSIGNED NOT NULL DEFAULT 0, ADD INDEX (cache_until)');
+}
+
+// ===========================================================================
 // Update package library
 
 $packages = [

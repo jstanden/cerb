@@ -97,7 +97,7 @@
                                 {$result.$column|devblocks_prettybytes}
                             {/if}
                         </td>
-                    {elseif in_array($column, ["r_updated_at"])}
+                    {elseif in_array($column, ["r_cache_until", "r_updated_at"])}
                         <td>
                             {if !empty($result.$column)}
                                 <abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>

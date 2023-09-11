@@ -621,68 +621,97 @@ abstract class Extension_ResourceType extends DevblocksExtension {
 	 */
 	function getContentResource(Model_Resource $resource, Model_Resource_ContentData &$content_data) {
 		if($resource->is_dynamic) {
-			$event_handler = DevblocksPlatform::services()->ui()->eventHandler();
-			$active_worker = CerberusApplication::getActiveWorker();
+			// Do we have cached data?
+			if(
+				$resource->cache_until > time()
+				&& $resource->storage_extension
+				&& $resource->storage_key
+			) {
+				return $this->_returnCachedData($resource, $content_data);
 			
-			$content_data->data = fopen('php://memory', 'w');
-			
-			$dict = DevblocksDictionaryDelegate::instance([]); 
-			$dict->mergeKeys('resource_', DevblocksDictionaryDelegate::getDictionaryFromModel($resource, CerberusContexts::CONTEXT_RESOURCE));
-			$dict->mergeKeys('actor_', DevblocksDictionaryDelegate::getDictionaryFromModel($active_worker, CerberusContexts::CONTEXT_WORKER));
-			
-			$handlers = $event_handler->parse($resource->automation_kata, $dict, $error);
-			
-			$initial_state = $dict->getDictionary();
-			
-			$automation_results = $event_handler->handleOnce(
-				AutomationTrigger_ResourceGet::ID,
-				$handlers,
-				$initial_state,
-				$error
-			);
-			
-			if(!($automation_results instanceof DevblocksDictionaryDelegate)) {
-				$content_data->error = 'No automations returned content.';
-				return false;
+			// If we don't have cached data, generate it
+			} else {
+				$event_handler = DevblocksPlatform::services()->ui()->eventHandler();
+				$active_worker = CerberusApplication::getActiveWorker();
+				
+				$content_data->data = fopen('php://memory', 'w');
+				
+				$dict = DevblocksDictionaryDelegate::instance([]);
+				$dict->mergeKeys('resource_', DevblocksDictionaryDelegate::getDictionaryFromModel($resource, CerberusContexts::CONTEXT_RESOURCE));
+				$dict->mergeKeys('actor_', DevblocksDictionaryDelegate::getDictionaryFromModel($active_worker, CerberusContexts::CONTEXT_WORKER));
+				
+				$handlers = $event_handler->parse($resource->automation_kata, $dict, $error);
+				
+				$initial_state = $dict->getDictionary();
+				
+				$automation_results = $event_handler->handleOnce(
+					AutomationTrigger_ResourceGet::ID,
+					$handlers,
+					$initial_state,
+					$error
+				);
+				
+				if(!($automation_results instanceof DevblocksDictionaryDelegate)) {
+					$content_data->error = 'No automations returned content.';
+					return false;
+				}
+				
+				$exit_code = $automation_results->get('__exit');
+				
+				if($exit_code != 'return') {
+					$content_data->error = sprintf('Automation exited in `%s` state.', $exit_code);
+					return false;
+				}
+				
+				if(null === ($file = $automation_results->getKeyPath('__return.file', null))) {
+					$content_data->error = '';
+					return false;
+				}
+				
+				if(!is_array($file) || !array_key_exists('content', $file)) {
+					$content_data->expires_at = 0;
+					return false;
+				}
+				
+				fwrite($content_data->data, $file['content']);
+				fseek($content_data->data, 0);
+				
+				$expires_at = $file['expires_at'] ?? null;
+				$content_data->expires_at = $expires_at;
+				
+				// If we have a future expiration, cache the data
+				if($expires_at) {
+					DAO_Resource::update($resource->id, [
+						DAO_Resource::CACHE_UNTIL => $expires_at,
+					]);
+					
+					Storage_Resource::put($resource->id, $content_data->data);
+					
+					fseek($content_data->data, 0);
+				}
 			}
-			
-			$exit_code = $automation_results->get('__exit');
-			
-			if($exit_code != 'return') {
-				$content_data->error = sprintf('Automation exited in `%s` state.', $exit_code);
-				return false;
-			}
-			
-			if(null === ($file = $automation_results->getKeyPath('__return.file', null))) {
-				$content_data->error = '';
-				return false;
-			}
-			
-			if(!is_array($file) || !array_key_exists('content', $file)) {
-				$content_data->expires_at = 0;
-				return false;
-			}
-			
-			fwrite($content_data->data, $file['content']);
-			fseek($content_data->data, 0);
-			
-			$content_data->expires_at = $file['expires_at'] ?? null;
 			
 		} else {
-			$content_data->data =
-				($resource->storage_size > 1024000)
-					? DevblocksPlatform::getTempFile()
-					: fopen('php://memory', 'w')
-			;
-			
-			$content_data->expires_at = time() + 604800;
-			
-			if(!is_resource($content_data->data))
-				return false;
-			
-			if(false == (Storage_Resource::get($resource->id, $content_data->data)))
-				return false;
+			return $this->_returnCachedData($resource, $content_data);
 		}
+		
+		return true;
+	}
+	
+	private function _returnCachedData(Model_Resource $resource, Model_Resource_ContentData $content_data) {
+		$content_data->data =
+			($resource->storage_size > 1024000)
+				? DevblocksPlatform::getTempFile()
+				: fopen('php://memory', 'w')
+		;
+		
+		$content_data->expires_at = time() + 604800;
+		
+		if(!is_resource($content_data->data))
+			return false;
+		
+		if(!(Storage_Resource::get($resource->id, $content_data->data)))
+			return false;
 		
 		return true;
 	}
