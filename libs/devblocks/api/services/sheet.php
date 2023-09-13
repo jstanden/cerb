@@ -581,9 +581,10 @@ class _DevblocksSheetServiceTypes {
 				];
 			}
 			
-			if(array_key_exists('record_uri', $column_params)) {
-				$record_uri = $tpl_builder->build($column_params['record_uri'], $sheet_dict);
-				
+			if(
+				array_key_exists('record_uri', $column_params)
+				&& ($record_uri = $tpl_builder->build($column_params['record_uri'], $sheet_dict))
+			) {
 				if(!($uri_parts = DevblocksPlatform::services()->ui()->parseURI($record_uri)))
 					return '';
 				
