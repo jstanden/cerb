@@ -1051,7 +1051,14 @@ class CerberusMail {
 			$fields[DAO_Message::TOKEN] = $properties['token'];
 		}
 		
-		$message_id = DAO_Message::create($fields);
+		// If we fail to create the record, keep the draft
+		if(!($message_id = DAO_Message::create($fields))) {
+			if($draft_id) {
+				return [CerberusContexts::CONTEXT_DRAFT, $draft_id];
+			} else {
+				return false;
+			}
+		}
 		
 		// Convert to a plaintext part
 		$plaintext_saved = CerberusMail::getMailTemplateFromContent($properties, 'saved', 'text');
@@ -2001,7 +2008,14 @@ class CerberusMail {
 				$fields[DAO_Message::TOKEN] = $properties['token'];
 			}
 			
-			$message_id = DAO_Message::create($fields);
+			// If we fail to create the record, keep the draft
+			if(!($message_id = DAO_Message::create($fields))) {
+				if($draft_id) {
+					return [CerberusContexts::CONTEXT_DRAFT, $draft_id];
+				} else {
+					return false;
+				}
+			}
 			
 			// Store ticket.last_message_id
 			$change_fields[DAO_Ticket::LAST_MESSAGE_ID] = $message_id;
