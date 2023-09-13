@@ -195,7 +195,7 @@ class DAO_Message extends Cerb_ORMHelper {
 		}
 		
 		$sql = "INSERT INTO message () VALUES ()";
-		if(false == ($db->ExecuteMaster($sql)))
+		if(!($db->ExecuteMaster($sql)))
 			return false;
 		$id = $db->LastInsertId();
 		

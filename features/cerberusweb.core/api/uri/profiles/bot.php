@@ -378,7 +378,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		$interaction_behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'] ?? null, 'integer', 0);
 		
 		if($interaction_uri && DevblocksPlatform::strStartsWith($interaction_uri, 'cerb:')) {
-			if(false != ($interaction_uri_parts = DevblocksPlatform::services()->ui()->parseURI($interaction_uri))) {
+			if(($interaction_uri_parts = DevblocksPlatform::services()->ui()->parseURI($interaction_uri))) {
 				$interaction_uri = $interaction_uri_parts['context_id'];
 			}
 		}

@@ -901,9 +901,9 @@ class CerberusMail {
 			// Forward Attachments
 			if(!empty($forward_files) && is_array($forward_files)) {
 				foreach($forward_files as $file_id) {
-					if(false != ($attachment = DAO_Attachment::get($file_id))) {
-						if(false !== ($fp = DevblocksPlatform::getTempFile())) {
-							if(false !== $attachment->getFileContents($fp)) {
+					if(($attachment = DAO_Attachment::get($file_id))) {
+						if(($fp = DevblocksPlatform::getTempFile()) !== false) {
+							if($attachment->getFileContents($fp) !== false) {
 								$attach = Swift_Attachment::fromPath(DevblocksPlatform::getTempFileInfo($fp), $attachment->mime_type);
 								$attach->setFilename($attachment->name);
 								
@@ -944,7 +944,7 @@ class CerberusMail {
 				$draft_id = DAO_MailQueue::create($fields);
 				
 			} else {
-				if(false != ($draft = DAO_MailQueue::get($draft_id))) {
+				if(($draft = DAO_MailQueue::get($draft_id))) {
 					if($draft->queue_fails < 10) {
 						$fields = [
 							DAO_MailQueue::IS_QUEUED => 1,
@@ -997,7 +997,7 @@ class CerberusMail {
 			}
 		}
 		
-		$fields = array(
+		$fields = [
 			DAO_Ticket::MASK => $mask,
 			DAO_Ticket::SUBJECT => $subject,
 			DAO_Ticket::STATUS_ID => 0,
@@ -1007,7 +1007,7 @@ class CerberusMail {
 			DAO_Ticket::FIRST_WROTE_ID => $fromAddressId,
 			DAO_Ticket::LAST_WROTE_ID => $fromAddressId,
 			DAO_Ticket::ORG_ID => intval($org_id),
-		);
+		];
 		
 		$ticket_id = DAO_Ticket::create($fields);
 		
@@ -1085,7 +1085,7 @@ class CerberusMail {
 				// Dupe detection
 				$sha1_hash = sha1_file($file) ?? null;
 				
-				if(false == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $files['size'][$idx], $files['type'][$idx]))) {
+				if(!($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $files['size'][$idx], $files['type'][$idx]))) {
 					$fields = array(
 						DAO_Attachment::NAME => $files['name'][$idx],
 						DAO_Attachment::MIME_TYPE => $files['type'][$idx],
@@ -1449,7 +1449,7 @@ class CerberusMail {
 	
 	/**
 	 * @param array $properties
-	 * @return array|false
+	 * @return array|bool
 	 */
 	static function sendTicketMessage($properties=[]) {
 		/*
@@ -1493,7 +1493,7 @@ class CerberusMail {
 			$draft_id = $properties['draft_id'] ?? null;
 			
 			if(null == ($message = DAO_Message::get($reply_message_id))) {
-				if(false == ($ticket = DAO_Ticket::get($properties['ticket_id'] ?? 0)))
+				if(!($ticket = DAO_Ticket::get($properties['ticket_id'] ?? 0)))
 					return false;
 				
 				if(null != ($message = $ticket->getLastMessage()))
@@ -1531,7 +1531,7 @@ class CerberusMail {
 			
 			if($send_at && $send_at >= time()) {
 				// If we're not resuming a draft from the UI, generate a draft
-				if(false == ($draft = DAO_MailQueue::get($draft_id))) {
+				if(!($draft = DAO_MailQueue::get($draft_id))) {
 					if (!array_key_exists('subject', $properties))
 						$properties['subject'] = $ticket->subject;
 					
@@ -1574,7 +1574,7 @@ class CerberusMail {
 			$hash_commands = [];
 			
 			if(array_key_exists('worker_id', $properties)) {
-				if(false != ($worker = DAO_Worker::get($properties['worker_id']))) {
+				if(($worker = DAO_Worker::get($properties['worker_id']))) {
 					CerberusMail::parseReplyHashCommands($worker, $properties, $hash_commands);
 				}
 			}
@@ -1740,26 +1740,26 @@ class CerberusMail {
 						// Overrides
 						switch (strtolower(trim($header_key))) {
 							case 'from':
-								if(false != ($address = CerberusMail::parseRfcAddress($header_val)))
+								if(($address = CerberusMail::parseRfcAddress($header_val)))
 									$mail->setFrom($address['email']);
 								break;
 								
 							case 'to':
-								if (false != ($addresses = CerberusMail::parseRfcAddresses($header_val)))
+								if (($addresses = CerberusMail::parseRfcAddresses($header_val)))
 									foreach (array_keys($addresses) as $address)
 										$mail->addTo($address);
 								unset($properties['headers'][$header_key]);
 								break;
 							
 							case 'cc':
-								if (false != ($addresses = CerberusMail::parseRfcAddresses($header_val)))
+								if (($addresses = CerberusMail::parseRfcAddresses($header_val)))
 									foreach (array_keys($addresses) as $address)
 										$mail->addCc($address);
 								unset($properties['headers'][$header_key]);
 								break;
 							
 							case 'bcc':
-								if (false != ($addresses = CerberusMail::parseRfcAddresses($header_val)))
+								if (($addresses = CerberusMail::parseRfcAddresses($header_val)))
 									foreach (array_keys($addresses) as $address)
 										$mail->addBcc($address);
 								unset($properties['headers'][$header_key]);
@@ -1817,9 +1817,9 @@ class CerberusMail {
 			if (!empty($forward_files) && is_array($forward_files)) {
 				foreach ($forward_files as $file_id) {
 					// Attach the file
-					if (false != ($attachment = DAO_Attachment::get($file_id))) {
-						if (false !== ($fp = DevblocksPlatform::getTempFile())) {
-							if (false !== $attachment->getFileContents($fp)) {
+					if (($attachment = DAO_Attachment::get($file_id))) {
+						if (($fp = DevblocksPlatform::getTempFile()) !== false) {
+							if ($attachment->getFileContents($fp) !== false) {
 								$attach = Swift_Attachment::fromPath(DevblocksPlatform::getTempFileInfo($fp), $attachment->mime_type);
 								$attach->setFilename($attachment->name);
 								
@@ -1879,7 +1879,7 @@ class CerberusMail {
 					$hint_to = implode(', ', array_keys($mail->getTo()));
 				}
 				
-				$fields = array(
+				$fields = [
 					DAO_MailQueue::TYPE => empty($is_forward) ? Model_MailQueue::TYPE_TICKET_REPLY : Model_MailQueue::TYPE_TICKET_FORWARD,
 					DAO_MailQueue::TICKET_ID => $properties['ticket_id'],
 					DAO_MailQueue::WORKER_ID => intval($worker_id),
@@ -1890,11 +1890,11 @@ class CerberusMail {
 					DAO_MailQueue::IS_QUEUED => 1,
 					DAO_MailQueue::QUEUE_FAILS => 1,
 					DAO_MailQueue::QUEUE_DELIVERY_DATE => time() + 300,
-				);
+				];
 				$draft_id = DAO_MailQueue::create($fields);
 				
 			} else {
-				if(false != ($draft = DAO_MailQueue::get($draft_id))) {
+				if(($draft = DAO_MailQueue::get($draft_id))) {
 					if($draft->queue_fails < 10) {
 						$fields = [
 							DAO_MailQueue::IS_QUEUED => 1,
@@ -1983,7 +1983,7 @@ class CerberusMail {
 			
 			// Fields
 			
-			$fields = array(
+			$fields = [
 				DAO_Message::TICKET_ID => $ticket->id,
 				DAO_Message::CREATED_DATE => time(),
 				DAO_Message::ADDRESS_ID => $fromAddressId,
@@ -1995,7 +1995,7 @@ class CerberusMail {
 				DAO_Message::HASH_HEADER_MESSAGE_ID => sha1($outgoing_message_id),
 				DAO_Message::WAS_ENCRYPTED => ($properties['gpg_encrypt'] ?? null) ? 1 : 0,
 				DAO_Message::HTML_ATTACHMENT_ID => $html_body_id,
-			);
+			];
 			
 			// Did we sign it?
 			// [TODO] We may need to sort out the signing key ahead of time to log this
@@ -2046,7 +2046,7 @@ class CerberusMail {
 					// Dupe detection
 					$sha1_hash = sha1_file($file, false) ?? null;
 					
-					if(false == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $files['size'][$idx], $files['type'][$idx]))) {
+					if(!($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $files['size'][$idx], $files['type'][$idx]))) {
 						// Create record
 						$fields = array(
 							DAO_Attachment::NAME => $files['name'][$idx],

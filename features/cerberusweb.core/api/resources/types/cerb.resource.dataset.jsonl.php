@@ -32,7 +32,7 @@ class ResourceType_DatasetJsonl extends Extension_ResourceType {
 	
 	/**
 	 * @param Model_Resource $resource
-	 * @return Model_Resource_ContentData
+	 * @return Model_Resource_ContentData|null
 	 */
 	function getContentData(Model_Resource $resource) {
 		$content_data = new Model_Resource_ContentData();

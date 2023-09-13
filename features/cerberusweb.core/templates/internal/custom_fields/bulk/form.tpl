@@ -58,7 +58,7 @@
 							<div id="{$tabs_uniqid}Editor">
 								<div class="cerb-code-editor-toolbar">
 									<button type="button">
-										Formatting on
+										{'common.format.markdown'|devblocks_translate|capitalize}
 									</button>
 
 									<div class="cerb-code-editor-subtoolbar-format-html" style="display:inline-block;">

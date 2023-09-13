@@ -72,8 +72,8 @@ class ResourceType_Image extends Extension_ResourceType {
 	function getContentData(Model_Resource $resource) {
 		$content_data = new Model_Resource_ContentData();
 		
-		if(false == ($params = $resource->getExtensionParams()))
-			return null;
+		if(!($params = $resource->getExtensionParams()))
+			$params = [];
 		
 		if(array_key_exists(self::PARAM_MIME_TYPE, $params)) {
 			$content_data->headers[] = sprintf('Content-Type: %s', $params[self::PARAM_MIME_TYPE]);

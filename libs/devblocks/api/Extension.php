@@ -1219,7 +1219,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		
 		if($context_ext->hasOption('comments')) {
 			$lazy_keys['comment_count'] = [
-				'label' => 'The number of [comments](/docs/records/types/comments/) on the record',
+				'label' => '[Comment](/docs/records/types/comments/) count on the record',
 				'type' => 'Number',
 			];
 		}

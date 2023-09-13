@@ -685,10 +685,10 @@ class Model_Resource extends DevblocksRecordModel {
 		if(!$this->extension_kata)
 			return [];
 		
-		if(false == ($params = $kata->parse($this->extension_kata, $error)))
+		if(!($params = $kata->parse($this->extension_kata, $error)))
 			return [];
 		
-		if(false == ($params = $kata->formatTree($params, null, $error)))
+		if(!($params = $kata->formatTree($params, null, $error)))
 			return [];
 		
 		return $params;

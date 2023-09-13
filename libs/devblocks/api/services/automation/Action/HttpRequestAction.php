@@ -134,27 +134,27 @@ class HttpRequestAction extends AbstractAction {
 					throw new Exception_DevblocksAutomationError('Failed to parse the `cerb:` URI body');
 			
 				if(CerberusContexts::isSameContext(CerberusContexts::CONTEXT_AUTOMATION_RESOURCE, $uri_parts['context'])) {
-					if(false == ($resource = DAO_AutomationResource::get($uri_parts['context_id'])))
+					if(!($resource = DAO_AutomationResource::get($uri_parts['context_id'])))
 						throw new Exception_DevblocksAutomationError("Failed to load automation resource id #" . $uri_parts['context_id']);
 					
 					$headers['content-type'] = $resource->mime_type;
 					
 					$fp = DevblocksPlatform::getTempFile();
 					
-					if(false == ($resource->getFileContents($fp)))
+					if(!($resource->getFileContents($fp)))
 						throw new Exception_DevblocksAutomationError("Failed to load content for automation resource id #" . $uri_parts['context_id']);
 					
 					$body = Utils::streamFor($fp);
 					
 				} else if(CerberusContexts::isSameContext(CerberusContexts::CONTEXT_ATTACHMENT, $uri_parts['context'])) {
-					if(false == ($attachment = DAO_Attachment::get($uri_parts['context_id'])))
+					if(!($attachment = DAO_Attachment::get($uri_parts['context_id'])))
 						throw new Exception_DevblocksAutomationError("Failed to load attachment id #" . $uri_parts['context_id']);
 					
 					$headers['content-type'] = $attachment->mime_type;
 					
 					$fp = DevblocksPlatform::getTempFile();
 					
-					if(false == ($attachment->getFileContents($fp)))
+					if(!($attachment->getFileContents($fp)))
 						throw new Exception_DevblocksAutomationError("Failed to load content for attachment id #" . $uri_parts['context_id']);
 					
 					$body = Utils::streamFor($fp);
