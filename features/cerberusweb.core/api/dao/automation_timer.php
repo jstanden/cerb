@@ -514,85 +514,84 @@ class Model_AutomationTimer extends DevblocksRecordModel {
 		
 		$error = null;
 		$handler = null;
-		$automation_results = [];
 		
 		$fields = [
 			DAO_AutomationTimer::LAST_RAN_AT => time(),
 			DAO_AutomationTimer::UPDATED_AT => time(),
 		];
 		
-		try {
-			$dict = DevblocksDictionaryDelegate::instance([]);
-			$dict->mergeKeys('timer_', DevblocksDictionaryDelegate::getDictionaryFromModel($this, CerberusContexts::CONTEXT_AUTOMATION_TIMER));
+		$dict = DevblocksDictionaryDelegate::instance([]);
+		$dict->mergeKeys('timer_', DevblocksDictionaryDelegate::getDictionaryFromModel($this, CerberusContexts::CONTEXT_AUTOMATION_TIMER));
+		
+		$handlers = $event_handler->parse($this->automations_kata, $dict, $error);
+		
+		$initial_state = $dict->getDictionary(null, false);
+		
+		$automation_results = $event_handler->handleOnce(
+			AutomationTrigger_AutomationTimer::ID,
+			$handlers,
+			$initial_state,
+			$error,
+			null,
+			$handler
+		);
+		
+		if(!$automation_results) {
+			$automation_results = DevblocksDictionaryDelegate::instance([
+				'__exit' => 'error',
+				'__error' => [
+					'message' => $error,
+				]
+			]);
+		}
+		
+		$exit_code = $automation_results->get('__exit');
+		$next_run_at = $automation_results->getKeyPath('__return.until');
+		$delete = $automation_results->getKeyPath('__return.delete') ?? false;
+		
+		// Delete?
+		if('return' == $exit_code && $delete) {
+			DAO_AutomationTimer::delete($this->id);
 			
-			$handlers = $event_handler->parse($this->automations_kata, $dict, $error);
+			if($this->continuation_id)
+				DAO_AutomationContinuation::delete($this->continuation_id);
 			
-			$initial_state = $dict->getDictionary(null, false);
+			return $automation_results;
+		
+		// Are we resuming later?
+		} else if ('await' == $exit_code && $handler instanceof Model_Automation) {
+			if(!$next_run_at)
+				$next_run_at = 900;
 			
-			$automation_results = $event_handler->handleOnce(
-				AutomationTrigger_AutomationTimer::ID,
-				$handlers,
-				$initial_state,
-				$error,
-				null,
-				$handler
-			);
+			$state_data = [
+				'trigger' => AutomationTrigger_AutomationTimer::ID,
+				'timer_id' => $this->id,
+				'dict' => $automation_results->getDictionary(),
+			];
 			
-			if(false == $automation_results)
-				throw new Exception_DevblocksAutomationError();
-				
-			$exit_code = $automation_results->get('__exit');
-			$next_run_at = $automation_results->getKeyPath('__return.until');
-			$delete = $automation_results->getKeyPath('__return.delete') ?? false;
+			// Create a continuation?
+			$continuation_id = DAO_AutomationContinuation::create([
+				DAO_AutomationContinuation::UPDATED_AT => time(),
+				DAO_AutomationContinuation::EXPIRES_AT => $next_run_at + 604800,
+				DAO_AutomationContinuation::STATE => $exit_code,
+				DAO_AutomationContinuation::STATE_DATA => json_encode($state_data),
+				DAO_AutomationContinuation::URI => $handler->name,
+			]);
 			
-			// Delete?
-			if('return' == $exit_code && $delete) {
-				DAO_AutomationTimer::delete($this->id);
-				
-				if($this->continuation_id)
-					DAO_AutomationContinuation::delete($this->continuation_id);
-				
-				return $automation_results;
+			// Update record
+			$fields[DAO_AutomationTimer::CONTINUATION_ID] = $continuation_id;
+			$fields[DAO_AutomationTimer::NEXT_RUN_AT] = intval($next_run_at);
 			
-			// Are we resuming later?
-			} else if ('await' == $exit_code && $handler instanceof Model_Automation) {
-				if(!$next_run_at)
-					$next_run_at = 900;
-				
-				$state_data = [
-					'trigger' => AutomationTrigger_AutomationTimer::ID,
-					'timer_id' => $this->id,
-					'dict' => $automation_results->getDictionary(),
-				];
-				
-				// Create a continuation?
-				$continuation_id = DAO_AutomationContinuation::create([
-					DAO_AutomationContinuation::UPDATED_AT => time(),
-					DAO_AutomationContinuation::EXPIRES_AT => $next_run_at + 604800,
-					DAO_AutomationContinuation::STATE => $exit_code,
-					DAO_AutomationContinuation::STATE_DATA => json_encode($state_data),
-					DAO_AutomationContinuation::URI => $handler->name,
-				]);
-				
-				// Update record
-				$fields[DAO_AutomationTimer::CONTINUATION_ID] = $continuation_id;
-				$fields[DAO_AutomationTimer::NEXT_RUN_AT] = intval($next_run_at);
-				
-			// Do we need to repeat the timer (if not a continuation)?
+		// Do we need to repeat the timer (if not a continuation)?
+		} else {
+			if($this->is_recurring
+				&& $this->recurring_patterns
+				&& false !== ($next_run_at = $this->_getNextOccurrence())) {
+				$fields[DAO_AutomationTimer::NEXT_RUN_AT] = $next_run_at;
 			} else {
-				if($this->is_recurring 
-					&& $this->recurring_patterns 
-					&& false !== ($next_run_at = $this->_getNextOccurrence())) {
-					$fields[DAO_AutomationTimer::NEXT_RUN_AT] = $next_run_at;		
-				} else {
-					$fields[DAO_AutomationTimer::NEXT_RUN_AT] = 0;		
-					$fields[DAO_AutomationTimer::IS_DISABLED] = 1;
-				}
+				$fields[DAO_AutomationTimer::NEXT_RUN_AT] = 0;
+				$fields[DAO_AutomationTimer::IS_DISABLED] = 1;
 			}
-				
-		} catch(Exception_DevblocksAutomationError $e) {
-			$fields[DAO_AutomationTimer::IS_DISABLED] = 1;
-			$fields[DAO_AutomationTimer::NEXT_RUN_AT] = 0;
 		}
 		
 		if($fields)
