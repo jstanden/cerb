@@ -35,7 +35,7 @@ $(function() {
 			$spinner.detach();
 			$data.html(html).fadeIn();
 
-			$data.find(':focusable').not('[tabindex=-1]').first().focus();
+			$data.find(':focusable').not('[tabindex=-1],input[type=checkbox],.cerb-paging').first().focus();
 		});
 	});
 
@@ -55,7 +55,7 @@ $(function() {
 			$spinner.detach();
 			$data.html(html).fadeIn();
 
-			$data.find(':focusable').not('[tabindex=-1]').first().focus();
+			$data.find(':focusable').not('[tabindex=-1],input[type=checkbox],.cerb-paging').first().focus();
 			$form.trigger($.Event('cerb-interaction-reset'));
 		});
 	});
