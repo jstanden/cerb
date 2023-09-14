@@ -5416,6 +5416,14 @@ class _CerbApplication_KataSchemas {
                 default:
                   types:
                     string:
+                params:
+                  types:
+                    object:
+                      attributes:
+                        hidden:
+                          types:
+                            bool:
+                    
     EOD;
 	}
 	

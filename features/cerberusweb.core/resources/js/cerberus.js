@@ -624,6 +624,10 @@ var cerbAutocompleteSuggestions = {
 		'text:': [
 			'label:',
 			'default:',
+			'params:'
+		],
+		'text:params:': [
+			'hidden@bool: yes',
 		]
 	},
 	kataSchemaDataset: {
