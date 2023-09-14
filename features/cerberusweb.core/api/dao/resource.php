@@ -98,8 +98,9 @@ class DAO_Resource extends Cerb_ORMHelper {
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
 		
-		$sql = "INSERT INTO resource () VALUES ()";
-		$db->ExecuteMaster($sql);
+		$db->ExecuteMaster(sprintf("INSERT INTO resource (name) VALUES (%s)",
+			$db->qstr($fields[self::NAME] ?? uniqid('resource_'))
+		));
 		$id = $db->LastInsertId();
 		
 		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_RESOURCE, $id);
