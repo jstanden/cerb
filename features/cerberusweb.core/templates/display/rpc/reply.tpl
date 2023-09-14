@@ -375,7 +375,16 @@ $(function() {
 					e.preventDefault();
 			})
 			;
-		
+			
+		$frm
+			.find('[name="to"], [name="cc"], [name="bcc"]')
+			.keydown(function(e) {
+				$value = e.target.value;
+				if(32 === e.which && !$value.endsWith(','))
+					e.target.value = $value.trimEnd() + ','
+			})
+			;
+
 		$frm.find('.cerb-peek-trigger').cerbPeekTrigger();
 		$frm.find('button.chooser-abstract').cerbChooserTrigger();
 		
