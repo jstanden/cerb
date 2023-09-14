@@ -25,8 +25,8 @@ class Controller_Avatars extends DevblocksControllerExtension {
 		$stack = $request->path; // URLS like: /avatars/worker/1
 		array_shift($stack); // avatars
 		
-		@$alias = array_shift($stack); // worker
-		@$avatar_context_id = intval(array_shift($stack)); // 1
+		$alias = array_shift($stack) ?? null; // worker
+		$avatar_context_id = array_shift($stack) ?? null; // 1
 		
 		// Security
 		if(null == CerberusApplication::getActiveWorker()) {
@@ -54,6 +54,12 @@ class Controller_Avatars extends DevblocksControllerExtension {
 		// Look up the context extension
 		if(empty($alias) || (empty($avatar_context_mft) && false == ($avatar_context_mft = Extension_DevblocksContext::getByAlias($alias, false))))
 			$this->_renderDefaultAvatar();
+		
+		// Is this a resource?
+		if(CerberusContexts::isSameContext($avatar_context_mft->id, CerberusContexts::CONTEXT_RESOURCE)) {
+			$this->_renderResource($avatar_context_id);
+			return;
+		}
 		
 		// Look up the avatar record
 		if(false != ($avatar = DAO_ContextAvatar::getByContext($avatar_context_mft->id, $avatar_context_id))) {
@@ -157,6 +163,19 @@ class Controller_Avatars extends DevblocksControllerExtension {
 		
 		echo json_encode($response);
 		exit;
+	}
+	
+	private function _renderResource($resource_name) : void {
+		if(
+			($resource = DAO_Resource::getByNameAndType($resource_name, ResourceType_Image::ID))
+			&& ($content_data = $resource->getExtension()->getContentData($resource))
+		) {
+			$content_data->writeHeaders();
+			$content_data->writeBody();
+			return;
+		}
+		
+		$this->_renderDefaultAvatar();
 	}
 	
 	private function _renderDefaultAvatar($context=null, $context_id=null) {

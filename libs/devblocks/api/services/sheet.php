@@ -598,10 +598,18 @@ class _DevblocksSheetServiceTypes {
 					);
 					
 				} else {
+					if(CerberusContexts::isSameContext($img_context, CerberusContexts::CONTEXT_RESOURCE)) {
+						$context_uri = DevblocksPlatform::strAlphaNum($uri_parts['context_id'],'\_\-\.');
+						$context_v = DAO_Resource::getByName($context_uri)?->updated_at ?? APP_BUILD;
+					} else {
+						$context_uri = intval($uri_parts['context_id']);
+						$context_v = APP_BUILD;
+					}
+					
 					$img = sprintf('<img class="cerb-avatar" style="%s" src="%s?v=%d"/>',
 						array_key_exists('text_size', $column_params) ? 'width:1em;height:1em;border-radius:1em;' : 'margin-right:0.25em;',
-						DevblocksPlatform::services()->url()->writeNoProxy(sprintf('c=avatars&ctx=%s&id=%d', $uri_parts['context_ext']->params['alias'], $uri_parts['context_id']), true),
-						APP_BUILD
+						DevblocksPlatform::services()->url()->writeNoProxy(sprintf('c=avatars&ctx=%s&id=%s', $uri_parts['context_ext']->params['alias'], $context_uri), true),
+						$context_v
 					);
 				}
 				
