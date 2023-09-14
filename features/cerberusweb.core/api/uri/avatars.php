@@ -37,11 +37,10 @@ class Controller_Avatars extends DevblocksControllerExtension {
 			}
 		}
 
-		switch($alias) {
-			case '_fetch':
-				$url = DevblocksPlatform::importGPC($_REQUEST['url'] ?? null, 'string', '');
-				$this->_fetchImageFromUrl($url);
-				return;
+		if ($alias == '_fetch') {
+			$url = DevblocksPlatform::importGPC($_REQUEST['url'] ?? null, 'string', '');
+			$this->_fetchImageFromUrl($url);
+			return;
 		}
 		
 		$contexts = Extension_DevblocksContext::getAll(false);
@@ -52,7 +51,7 @@ class Controller_Avatars extends DevblocksControllerExtension {
 			$avatar_context_mft = $contexts[$alias];
 		
 		// Look up the context extension
-		if(empty($alias) || (empty($avatar_context_mft) && false == ($avatar_context_mft = Extension_DevblocksContext::getByAlias($alias, false))))
+		if(empty($alias) || (empty($avatar_context_mft) && !($avatar_context_mft = Extension_DevblocksContext::getByAlias($alias, false))))
 			$this->_renderDefaultAvatar();
 		
 		// Is this a resource?
@@ -62,7 +61,7 @@ class Controller_Avatars extends DevblocksControllerExtension {
 		}
 		
 		// Look up the avatar record
-		if(false != ($avatar = DAO_ContextAvatar::getByContext($avatar_context_mft->id, $avatar_context_id))) {
+		if(($avatar = DAO_ContextAvatar::getByContext($avatar_context_mft->id, intval($avatar_context_id)))) {
 			$this->_renderAvatar($avatar);
 			return;
 		}
@@ -79,7 +78,7 @@ class Controller_Avatars extends DevblocksControllerExtension {
 		if(empty($avatar->content_type) 
 				|| empty($avatar->storage_size) 
 				|| empty($avatar->storage_key) 
-				|| false == ($contents = Storage_ContextAvatar::get($avatar))) {
+				|| !($contents = Storage_ContextAvatar::get($avatar))) {
 			$this->_renderDefaultAvatar($default_context, $default_context_id);
 			return;
 		}
@@ -227,7 +226,7 @@ class Controller_Avatars extends DevblocksControllerExtension {
 				break;
 				
 			case CerberusContexts::CONTEXT_CONTACT:
-				$all_keys = array(1,2,3,4,5,6);
+				$all_keys = [1,2,3,4,5,6];
 				$n = $all_keys[$context_id % 6];
 				
 				if($context_id && false != ($contact = DAO_Contact::get($context_id))) {
@@ -259,10 +258,10 @@ class Controller_Avatars extends DevblocksControllerExtension {
 				break;
 				
 			case CerberusContexts::CONTEXT_WORKER:
-				$all_keys = array(1,2,3,4,5,6);
+				$all_keys = [1,2,3,4,5,6];
 				$n = $all_keys[$context_id % 6];
 				
-				if($context_id && false != ($worker = DAO_Worker::get($context_id))) {
+				if($context_id && ($worker = DAO_Worker::get($context_id))) {
 					if($worker->gender && $avatar_default_style_worker == 'silhouettes') {
 						switch($worker->gender) {
 							case 'M':
@@ -287,8 +286,8 @@ class Controller_Avatars extends DevblocksControllerExtension {
 			case CerberusContexts::CONTEXT_BUCKET:
 				// Look up the avatar record
 				if(
-					false != ($bucket = DAO_Bucket::get($context_id))
-					&& false != ($avatar = DAO_ContextAvatar::getByContext(CerberusContexts::CONTEXT_GROUP, $bucket->group_id))
+					($bucket = DAO_Bucket::get($context_id))
+					&& ($avatar = DAO_ContextAvatar::getByContext(CerberusContexts::CONTEXT_GROUP, $bucket->group_id))
 				) {
 					$this->_renderAvatar($avatar);
 					return;
