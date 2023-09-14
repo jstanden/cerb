@@ -71,6 +71,16 @@ if(!$db->GetOneMaster("SELECT 1 FROM automation_event WHERE name = 'mail.moved'"
 	));
 }
 
+if(!$db->GetOneMaster("SELECT 1 FROM automation_event WHERE name = 'record.merged'")) {
+	$db->ExecuteMaster(sprintf('INSERT IGNORE INTO automation_event (name, extension_id, description, automations_kata, updated_at) VALUES (%s,%s,%s,%s,%d)',
+		$db->qstr('record.merged'),
+		$db->qstr('cerb.trigger.record.merged'),
+		$db->qstr('After a set of records has been merged'),
+		$db->qstr(''),
+		time()
+	));
+}
+
 // ===========================================================================
 // Add new toolbars
 

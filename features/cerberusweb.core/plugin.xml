@@ -5322,6 +5322,23 @@
 		</extension>
 
 		<extension point="cerb.automation.trigger">
+			<id>cerb.trigger.record.merged</id>
+			<name>record.merged</name>
+			<class>
+				<file>api/automations/triggers/record.merged.php</file>
+				<name>AutomationTrigger_RecordMerged</name>
+			</class>
+			<params>
+				<param key="description" value="After a set of records has been merged" />
+				<param key="features">
+					<value>
+						<data key="inputs" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<extension point="cerb.automation.trigger">
 			<id>cerb.trigger.record.viewed</id>
 			<name>record.viewed</name>
 			<class>

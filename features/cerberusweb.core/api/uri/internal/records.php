@@ -1191,6 +1191,8 @@ class PageSection_InternalRecords extends Extension_PageSection {
 				}
 			}
 			
+			unset($merge_automation);
+			
 			$dao_class = $context_ext->getDaoClass();
 			$dao_fields = $custom_fields = [];
 			$error = null;
@@ -1262,6 +1264,33 @@ class PageSection_InternalRecords extends Extension_PageSection {
 					)
 				)
 			);
+			
+			if(($merged_automation = DAO_AutomationEvent::getByName('record.merged'))) {
+				$event_handler = DevblocksPlatform::services()->ui()->eventHandler();
+				$error = null;
+				
+				$initial_state = [
+					'record_type' => $context_ext->manifest->getParam('uri', $context_ext->id),
+					'records' => $dicts,
+					'source_ids' => $source_ids,
+					'target_id' => $target_id,
+					'worker__context' => CerberusContexts::CONTEXT_WORKER,
+					'worker_id' => $active_worker->id,
+				];
+				
+				$event_dict = DevblocksDictionaryDelegate::instance($initial_state);
+				
+				if(($handlers = $merged_automation->getKata($event_dict, $error))) {
+					$event_handler->handleEach(
+						AutomationTrigger_RecordMerged::ID,
+						$handlers,
+						$initial_state,
+						$error
+					);
+				}
+			}
+			
+			unset($merged_automation);
 			
 			// Nuke the source records
 			$dao_class::delete($source_ids);
