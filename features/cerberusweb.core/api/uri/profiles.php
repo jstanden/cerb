@@ -617,12 +617,15 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 		$tpl->assign('context', $context);
 		$tpl->assign('context_id', $context_id);
 		
+		$active_worker = CerberusApplication::getActiveWorker();
 		$widgets = $model->getWidgets();
 		
 		$profile_tab_dict = DevblocksDictionaryDelegate::instance([
 			'record__context' => $context,
 			'record_id' => $context_id,
-		]); 
+			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'current_worker_id' => $active_worker->id ?? 0,
+		]);
 		
 		$layout = ($model->extension_params['layout'] ?? null) ?: '';
 		
