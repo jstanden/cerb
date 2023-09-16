@@ -2478,10 +2478,16 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			]
 		];
 		
-		// [TODO] Parent/caller
 		$initial_state = [
 			'inputs' => $automation_results->getKeyPath('__return.interaction.inputs', []),
 		];
+		
+		$initial_state = array_merge(
+			$initial_state,
+			$automation_results->getDictionary('caller_', false, 'caller_'),
+			$automation_results->getDictionary('client_', false, 'client_'),
+			$automation_results->getDictionary('worker_', false, 'worker_')
+		);
 		
 		$delegate_results = $event_handler->handleOnce(
 			$this->_interaction_extensions,
