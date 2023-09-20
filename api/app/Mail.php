@@ -2389,7 +2389,8 @@ class CerberusMail {
 							DAO_Comment::CREATED => time()+2,
 							DAO_Comment::COMMENT => $comment,
 						);
-						DAO_Comment::create($fields);
+						$comment_id = DAO_Comment::create($fields);
+						DAO_Comment::onUpdateByActor($worker, $fields, $comment_id);
 					}
 					break;
 				
@@ -2397,15 +2398,16 @@ class CerberusMail {
 					$comment = $command_data['args'] ?? null;
 					
 					if(!empty($comment)) {
-						$fields = array(
+						$fields = [
 							DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_MESSAGE,
 							DAO_Comment::CONTEXT_ID => $message_id,
 							DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
 							DAO_Comment::OWNER_CONTEXT_ID => $worker->id,
 							DAO_Comment::CREATED => time(),
 							DAO_Comment::COMMENT => $comment,
-						);
-						DAO_Comment::create($fields);
+						];
+						$comment_id = DAO_Comment::create($fields);
+						DAO_Comment::onUpdateByActor($worker, $fields, $comment_id);
 					}
 					break;
 				
@@ -2597,15 +2599,16 @@ class CerberusMail {
 					$comment = $command_data['args'] ?? null;
 					
 					if(!empty($comment)) {
-						$fields = array(
+						$fields = [
 							DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TICKET,
 							DAO_Comment::CONTEXT_ID => $ticket->id,
 							DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
 							DAO_Comment::OWNER_CONTEXT_ID => $worker->id,
 							DAO_Comment::CREATED => time()+2,
 							DAO_Comment::COMMENT => $comment,
-						);
-						DAO_Comment::create($fields);
+						];
+						$comment_id = DAO_Comment::create($fields);
+						DAO_Comment::onUpdateByActor($worker, $fields, $comment_id);
 					}
 					break;
 				
@@ -2613,7 +2616,7 @@ class CerberusMail {
 					$comment = $command_data['args'] ?? null;
 					
 					if(!empty($comment)) {
-						$fields = array(
+						$fields = [
 							DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_MESSAGE,
 							DAO_Comment::CONTEXT_ID => $message_id,
 							DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
@@ -2621,8 +2624,9 @@ class CerberusMail {
 							DAO_Comment::CREATED => time(),
 							DAO_Comment::COMMENT => $comment,
 							DAO_Comment::IS_MARKDOWN => 1,
-						);
-						DAO_Comment::create($fields);
+						];
+						$comment_id = DAO_Comment::create($fields);
+						DAO_Comment::onUpdateByActor($worker, $fields, $comment_id);
 					}
 					break;
 				

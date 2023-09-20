@@ -169,15 +169,16 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 								(!empty($comment) ? sprintf("%s: %s\n", DevblocksPlatform::translateCapitalized('common.comment'), $comment) : ''),
 								$url_writer->writeNoProxy(sprintf("c=profiles&type=time_tracking&id=%d", $id), true)
 							);
-							$fields = array(
+							$fields = [
 								DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
 								DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
 								DAO_Comment::COMMENT => $context_comment,
 								DAO_Comment::CREATED => time(),
 								DAO_Comment::CONTEXT => $link_context,
 								DAO_Comment::CONTEXT_ID => intval($link_context_id),
-							);
-							DAO_Comment::create($fields);
+							];
+							$comment_id = DAO_Comment::create($fields);
+							DAO_Comment::onUpdateByActor($active_worker, $fields, $comment_id);
 						}
 						break;
 						

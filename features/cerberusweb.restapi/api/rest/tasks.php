@@ -358,15 +358,16 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 			$this->error(self::ERRNO_CUSTOM, "The 'note' field is required.");
 			
 		// Post
-		$fields = array(
+		$fields = [
 			DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TASK,
 			DAO_Comment::CONTEXT_ID => $task->id,
 			DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
 			DAO_Comment::OWNER_CONTEXT_ID => $worker->id,
 			DAO_Comment::CREATED => time(),
 			DAO_Comment::COMMENT => $note,
-		);
+		];
 		$note_id = DAO_Comment::create($fields);
+		DAO_Comment::onUpdateByActor($worker, $fields, $note_id);
 			
 		$this->success(array(
 			'task_id' => $task->id,

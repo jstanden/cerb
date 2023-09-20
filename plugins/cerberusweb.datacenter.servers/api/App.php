@@ -109,15 +109,16 @@ class VaAction_CreateServer extends Extension_DevblocksEventAction {
 		
 		// Comment content
 		if(!empty($comment)) {
-			$fields = array(
+			$fields = [
 				DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_BOT,
 				DAO_Comment::OWNER_CONTEXT_ID => $trigger->bot_id,
 				DAO_Comment::COMMENT => $comment,
 				DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_SERVER,
 				DAO_Comment::CONTEXT_ID => $server_id,
 				DAO_Comment::CREATED => time(),
-			);
-			DAO_Comment::create($fields);
+			];
+			$comment_id = DAO_Comment::create($fields);
+			DAO_Comment::onUpdateByActor($trigger->getBot(), $fields, $comment_id);
 		}
 
 		// Set object variable

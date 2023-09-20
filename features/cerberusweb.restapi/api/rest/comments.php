@@ -276,6 +276,8 @@ class ChRest_Comments extends Extension_RestController implements IExtensionRest
 			if(is_array($file_ids) && !empty($file_ids))
 				DAO_Attachment::addLinks(CerberusContexts::CONTEXT_COMMENT, $id, $file_ids);
 			
+			DAO_Comment::onUpdateByActor($worker, $fields, $id);
+			
 			// Retrieve record
 			$this->getId($id);
 		}

@@ -42,14 +42,15 @@ class FeedsCron extends CerberusCronPageExtension {
 					$comment = DevblocksPlatform::services()->string()->htmlToText($item['content']);
 					
 					if(!empty($comment)) {
-						DAO_Comment::create([
+						$fields = [
 							DAO_Comment::COMMENT => $comment,
 							DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_FEED_ITEM,
 							DAO_Comment::CONTEXT_ID => $item_id,
 							DAO_Comment::CREATED => time(),
 							DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
 							DAO_Comment::OWNER_CONTEXT_ID => 0,
-						]);
+						];
+						DAO_Comment::create($fields);
 					}
 				}
 				

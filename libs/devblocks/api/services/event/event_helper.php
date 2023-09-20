@@ -3059,15 +3059,16 @@ class DevblocksEventHelper {
 				
 			// Comment content
 			if(!empty($comment)) {
-				$fields = array(
+				$fields = [
 					DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_BOT,
 					DAO_Comment::OWNER_CONTEXT_ID => $trigger->bot_id,
 					DAO_Comment::COMMENT => $comment,
 					DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_CALENDAR_EVENT,
 					DAO_Comment::CONTEXT_ID => $calendar_event_id,
 					DAO_Comment::CREATED => time(),
-				);
-				DAO_Comment::create($fields);
+				];
+				$comment_id = DAO_Comment::create($fields);
+				DAO_Comment::onUpdateByActor($trigger->getBot(), $fields, $comment_id);
 			}
 			
 			// Set object variable
@@ -3188,6 +3189,7 @@ class DevblocksEventHelper {
 				$fields[DAO_Comment::CONTEXT] = $on_object->_context;
 				$fields[DAO_Comment::CONTEXT_ID] = $on_object->id;
 				$comment_id = DAO_Comment::create($fields);
+				DAO_Comment::onUpdateByActor($trigger->getBot(), $fields, $comment_id);
 				
 				// Connection
 				DevblocksEventHelper::runActionCreateRecordSetLinks(CerberusContexts::CONTEXT_COMMENT, $comment_id, $params, $dict);
@@ -4092,6 +4094,7 @@ class DevblocksEventHelper {
 					DAO_Comment::OWNER_CONTEXT_ID => $trigger->bot_id,
 				);
 				$note_id = DAO_Comment::create($fields);
+				DAO_Comment::onUpdateByActor($trigger->getBot(), $fields, $note_id);
 			}
 		}
 		
@@ -4250,15 +4253,16 @@ class DevblocksEventHelper {
 		
 		// Comment content
 		if(!empty($comment)) {
-			$fields = array(
+			$fields = [
 				DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_BOT,
 				DAO_Comment::OWNER_CONTEXT_ID => $trigger->bot_id,
 				DAO_Comment::COMMENT => $comment,
 				DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TASK,
 				DAO_Comment::CONTEXT_ID => $task_id,
 				DAO_Comment::CREATED => time(),
-			);
-			DAO_Comment::create($fields);
+			];
+			$comment_id = DAO_Comment::create($fields);
+			DAO_Comment::onUpdateByActor($trigger->getBot(), $fields, $comment_id);
 		}
 		
 		// Connection

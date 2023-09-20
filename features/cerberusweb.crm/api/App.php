@@ -179,15 +179,16 @@ class VaAction_CreateOpportunity extends Extension_DevblocksEventAction {
 		
 		// Comment content
 		if(!empty($comment)) {
-			$fields = array(
+			$fields = [
 				DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_BOT,
 				DAO_Comment::OWNER_CONTEXT_ID => $trigger->bot_id,
 				DAO_Comment::COMMENT => $comment,
 				DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_OPPORTUNITY,
 				DAO_Comment::CONTEXT_ID => $opp_id,
 				DAO_Comment::CREATED => time(),
-			);
-			DAO_Comment::create($fields);
+			];
+			$comment_id = DAO_Comment::create($fields);
+			DAO_Comment::onUpdateByActor([CerberusContexts::CONTEXT_APPLICATION, 0], $fields, $comment_id);
 		}
 
 		// Connection

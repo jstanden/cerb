@@ -2162,14 +2162,16 @@ class CerberusParser {
 			// Comments
 			if (is_array($comments)) {
 				foreach ($comments as $comment) {
-					DAO_Comment::create([
+					$fields = [
 						DAO_Comment::CREATED => time(),
 						DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
 						DAO_Comment::OWNER_CONTEXT_ID => $proxy_worker->id,
 						DAO_Comment::COMMENT => $comment,
 						DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TICKET,
 						DAO_Comment::CONTEXT_ID => $proxy_ticket->id,
-					]);
+					];
+					$comment_id = DAO_Comment::create($fields);
+					DAO_Comment::onUpdateByActor($proxy_worker, $fields, $comment_id);
 				}
 			}
 			
@@ -2181,14 +2183,16 @@ class CerberusParser {
 				&& null !== ($response[1] ?? null)
 			) {
 				foreach ($notes as $note) {
-					DAO_Comment::create([
+					$fields = [
 						DAO_Comment::CREATED => time(),
 						DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
 						DAO_Comment::OWNER_CONTEXT_ID => $proxy_worker->id,
 						DAO_Comment::COMMENT => $note,
 						DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_MESSAGE,
 						DAO_Comment::CONTEXT_ID => $response[1],
-					]);
+					];
+					$comment_id = DAO_Comment::create($fields);
+					DAO_Comment::onUpdateByActor($proxy_worker, $fields, $comment_id);
 				}
 			}
 		}

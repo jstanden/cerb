@@ -515,6 +515,8 @@ class DAO_Comment extends Cerb_ORMHelper {
 				DAO_Attachment::addLinks(CerberusContexts::CONTEXT_COMMENT, $comment_id, $comment_file_ids);
 			}
 			
+			DAO_Comment::onUpdateByActor($active_worker, $fields, $comment_id);
+			
 			return $comment_id;
 		}
 		
