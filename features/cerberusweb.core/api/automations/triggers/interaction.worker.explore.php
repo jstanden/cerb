@@ -91,6 +91,12 @@ class AutomationTrigger_InteractionWorkerExplore extends AutomationTrigger_Inter
 			$autocompletion['*']['(.*):await:explore:toolbar:' . $key] = $item;
 		}
 		
+		$autocompletion['*']['(.*):await:explore:toolbar:(.*):?interaction:after:'] = [
+			'explore_page: next',
+			'refresh_widgets@csv: Widget Name, Other Widget',
+			'refresh_widgets@bool: yes',
+		];
+		
 		return $autocompletion;
 	}
 }

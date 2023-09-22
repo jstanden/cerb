@@ -111,15 +111,49 @@
 					},
 					done: function (e) {
 						e.stopPropagation();
+						let $target = e.trigger;
 
-						if (e.eventData.exit === 'error') {
+						if($target.is('.cerb-bot-trigger')) {
+							if (e.eventData.exit === 'error') {
 
-						} else if (e.eventData.exit === 'return') {
-							Devblocks.interactionWorkerPostActions(e.eventData);
+							} else if (e.eventData.exit === 'return') {
+								Devblocks.interactionWorkerPostActions(e.eventData);
 
-							if(e.eventData.hasOwnProperty('return') && e.eventData.return.hasOwnProperty('explore_page')) {
-								$explorerForm.find('input[name=page]').val(e.eventData.return.explore_page);
+								if(e.eventData.hasOwnProperty('return') && e.eventData.return.hasOwnProperty('explore_page')) {
+									$explorerForm.find('input[name=page]').val(e.eventData.return.explore_page);
+									$explorerForm.submit();
+								}
+							}
+
+							let done_params = new URLSearchParams($target.attr('data-interaction-done'));
+
+							// Default explore paging if the interaction doesn't return one
+							if (done_params.has('explore_page')) {
+								$explorerForm.find('input[name=page]').val(done_params.get('explore_page'));
 								$explorerForm.submit();
+								return;
+							}
+
+							let $profile_layout = $explorerFrame[0].contentWindow.$('.cerb-profile-layout');
+
+							if($profile_layout.length > 0) {
+								let done_actions = Devblocks.toolbarAfterActions(done_params, {
+									'widgets':  $profile_layout.find('.cerb-profile-widget'),
+									'default_widget_ids': false
+								});
+
+								// Refresh profile widgets
+								if(
+									done_actions.hasOwnProperty('refresh_widget_ids')
+									&& false !== done_actions['refresh_widget_ids']
+								) {
+									$profile_layout.trigger(
+										$.Event('cerb-widgets-refresh', {
+											widget_ids: done_actions['refresh_widget_ids'],
+											refresh_options: { }
+										})
+									);
+								}
 							}
 						}
 					}
