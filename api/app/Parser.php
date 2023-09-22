@@ -2151,10 +2151,10 @@ class CerberusParser {
 		$draft_fields[DAO_MailQueue::IS_QUEUED] = 1;
 		$draft_fields[DAO_MailQueue::QUEUE_DELIVERY_DATE] = time() + 300;
 		
-		if(false == ($draft_id = DAO_MailQueue::create($draft_fields)))
+		if(!($draft_id = DAO_MailQueue::create($draft_fields)))
 			return false;
 		
-		if(false == ($draft = DAO_MailQueue::get($draft_id)))
+		if(!($draft = DAO_MailQueue::get($draft_id)))
 			return false;
 		
 		// If successful, run post actions

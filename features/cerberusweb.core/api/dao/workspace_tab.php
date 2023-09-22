@@ -602,10 +602,10 @@ class Model_WorkspaceTab extends DevblocksRecordModel {
 	}
 	
 	function getPlaceholderPrompts(?DevblocksDictionaryDelegate $dict=null) {
-		if(false == ($prompts_kata = $this->params['prompts_kata'] ?? null))
+		if(!($prompts_kata = $this->params['prompts_kata'] ?? null))
 			return [];
 		
-		if(false == (@$placeholder_tree = DevblocksPlatform::services()->kata()->parse($prompts_kata)))
+		if(!($placeholder_tree = DevblocksPlatform::services()->kata()->parse($prompts_kata) ?? null))
 			return [];
 		
 		$placeholder_prompts = DevblocksPlatform::services()->kata()->formatTree($placeholder_tree, $dict);
@@ -720,7 +720,7 @@ class Model_WorkspaceTab extends DevblocksRecordModel {
 		$placeholder_prompts = $this->getPlaceholderPrompts();
 		
 		foreach($prefs as $pref_key => $pref_value) {
-			if(false == (@$prompt = ($placeholder_prompts[$pref_key] ?? null)))
+			if(!($prompt = ($placeholder_prompts[$pref_key] ?? null)))
 				continue;
 			
 			switch($prompt['type']) {

@@ -224,7 +224,7 @@ class PageSection_ProfilesMessage extends Extension_PageSection {
 		
 		$tpl->assign('ticket', $ticket);
 		
-		if(false == ($sender = $message->getSender()))
+		if(!($sender = $message->getSender()))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		$tpl->assign('sender', $sender);

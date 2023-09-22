@@ -156,7 +156,7 @@ class WgmCalls_EventActionPost extends Extension_DevblocksEventAction {
 		if(empty($created))
 			$created = time();
 		
-		$trigger = $dict->__trigger;
+		$trigger = $dict->__trigger; /* @var $trigger Model_TriggerEvent */
 		
 		$fields = array(
 			DAO_CallEntry::SUBJECT => $subject,
@@ -167,7 +167,7 @@ class WgmCalls_EventActionPost extends Extension_DevblocksEventAction {
 			DAO_CallEntry::IS_OUTGOING => $is_outgoing ? 1 : 0,
 		);
 		
-		if(false == ($call_id = DAO_CallEntry::create($fields)))
+		if(!($call_id = DAO_CallEntry::create($fields)))
 			return false;
 		
 		// Custom fields

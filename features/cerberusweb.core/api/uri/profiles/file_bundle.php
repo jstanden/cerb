@@ -66,7 +66,7 @@ class PageSection_ProfilesFileBundle extends Extension_PageSection {
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_FILE_BUNDLE)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
-				if(false == ($model = DAO_FileBundle::get($id)))
+				if(!($model = DAO_FileBundle::get($id)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
 				
 				if(!Context_FileBundle::isDeletableByActor($model, $active_worker))
@@ -116,7 +116,7 @@ class PageSection_ProfilesFileBundle extends Extension_PageSection {
 					if(!DAO_FileBundle::onBeforeUpdateByActor($active_worker, $fields, null, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 						
-					if(false == ($id = DAO_FileBundle::create($fields)))
+					if(!($id = DAO_FileBundle::create($fields)))
 						throw new Exception_DevblocksAjaxValidationError("An unexpected error occurred while creating the record.");
 					
 					DAO_FileBundle::onUpdateByActor($active_worker, $fields, $id);

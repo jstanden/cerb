@@ -1846,7 +1846,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		
 		unset($_POST);
 		
-		if(false == ($automation = $continuation->getAutomation()))
+		if(!($automation = $continuation->getAutomation()))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(!in_array($automation->extension_id, $this->_interaction_extensions))
@@ -2462,7 +2462,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		$event_handler = DevblocksPlatform::services()->ui()->eventHandler();
 		
 		// Must have a URI
-		if(false == ($interaction_uri = trim($automation_results->getKeyPath('__return.interaction.uri'))))
+		if(!($interaction_uri = trim($automation_results->getKeyPath('__return.interaction.uri'))))
 			DevblocksPlatform::dieWithHttpError("invalid return interaction uri", 404);
 		
 		$handler_name = uniqid();

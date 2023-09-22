@@ -91,7 +91,7 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 			
 			if(empty($id)) { // New
 				// Validate the context
-				if(false == ($context_ext = Extension_DevblocksContext::get($context)) || false == ($context_ext->getMeta($context_id)))
+				if(!($context_ext = Extension_DevblocksContext::get($context)) || !($context_ext->getMeta($context_id)))
 					throw new Exception_DevblocksAjaxValidationError("The 'Target' is invalid.", 'context');
 				
 				$fields = array(

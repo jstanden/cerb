@@ -145,7 +145,7 @@ class VaAction_CreateDomain extends Extension_DevblocksEventAction {
 			return;
 		
 		// Dupe check
-		if(false != (DAO_Domain::getByName($name))) {
+		if((DAO_Domain::getByName($name))) {
 			return;
 		}
 		
@@ -182,7 +182,7 @@ class VaAction_CreateDomain extends Extension_DevblocksEventAction {
 			DAO_Domain::SERVER_ID => $server_id,
 		);
 			
-		if(false == ($domain_id = DAO_Domain::create($fields)))
+		if(!($domain_id = DAO_Domain::create($fields)))
 			return;
 		
 		// Contact links

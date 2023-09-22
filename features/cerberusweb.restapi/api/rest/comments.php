@@ -271,7 +271,7 @@ class ChRest_Comments extends Extension_RestController implements IExtensionRest
 		$this->_handleRequiredFields($reqfields, $fields);
 		
 		// Create
-		if(false != ($id = DAO_Comment::create($fields))) {
+		if(($id = DAO_Comment::create($fields))) {
 			// Attachments
 			if(is_array($file_ids) && !empty($file_ids))
 				DAO_Attachment::addLinks(CerberusContexts::CONTEXT_COMMENT, $id, $file_ids);

@@ -1337,14 +1337,14 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 	public static function isWriteableByActor($models, $actor) {
 		$context = CerberusContexts::CONTEXT_COMMENT;
 		
-		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
+		if(!($actor = CerberusContexts::polymorphActorToDictionary($actor)))
 			return false;
 		
 		if(CerberusContexts::isActorAnAdmin($actor)) {
 			return CerberusContexts::allowEverything($models);
 		}
 		
-		if(false == ($dicts = CerberusContexts::polymorphModelsToDictionaries($models, $context)))
+		if(!($dicts = CerberusContexts::polymorphModelsToDictionaries($models, $context)))
 			return false;
 		
 		$results = array_fill_keys(array_keys($dicts), false);
@@ -1353,7 +1353,7 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 		foreach($dicts as $id => $dict) {
 			// If the actor is the author
 			if($dict->author__context == $actor->_context && $dict->author_id == $actor->id)
-				if(false != (@$worker = $workers[$actor->id]))
+				if(($worker = $workers[$actor->id] ?? null))
 					// And they have permission to edit their own comments
 					if($worker->hasPriv('contexts.cerberusweb.contexts.comment.update'))
 						$results[$id] = true;
