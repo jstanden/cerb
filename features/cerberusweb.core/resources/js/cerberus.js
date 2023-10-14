@@ -4771,7 +4771,7 @@ var ajax = new cAjaxCalls();
 			if (!(
 				'insertstring' === e.command.name
 				|| 'paste' === e.command.name
-				|| 'Return' === e.command.name
+				|| 'Submit' === e.command.name
 				|| 'backspace' === e.command.name)) {
 				return;
 			}
@@ -4896,7 +4896,7 @@ var ajax = new cAjaxCalls();
 				}
 			}
 
-			if ('Return' === e.command.name) {
+			if ('Submit' === e.command.name) {
 				e.editor.completer.getPopup().hide();
 
 			} else if((!e.editor.completer.activated || e.editor.completer.isDynamic)) {
