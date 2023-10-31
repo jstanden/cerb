@@ -330,17 +330,10 @@ class DAO_Address extends Cerb_ORMHelper {
 	static function maint() {
 		$db = DevblocksPlatform::services()->database();
 		$logger = DevblocksPlatform::services()->log();
-		$tables = DevblocksPlatform::getDatabaseTables();
 		
 		$sql = "UPDATE address SET worker_id = 0 WHERE worker_id != 0 AND worker_id NOT IN (SELECT id FROM worker)";
 		$db->ExecuteMaster($sql);
 		$logger->info('[Maint] Corrected ' . $db->Affected_Rows() . ' missing workers on address records.');
-
-		// Search indexes
-		if(isset($tables['fulltext_address'])) {
-			$db->ExecuteMaster("DELETE FROM fulltext_address WHERE id NOT IN (SELECT id FROM address)");
-			$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' fulltext_address records.');
-		}
 		
 		// Fire event
 		$eventMgr = DevblocksPlatform::services()->event();
