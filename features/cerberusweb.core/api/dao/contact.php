@@ -327,18 +327,6 @@ class DAO_Contact extends Cerb_ORMHelper {
 	}
 	
 	static function maint() {
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.maint',
-				array(
-					'context' => CerberusContexts::CONTEXT_CONTACT,
-					'context_table' => 'contact',
-					'context_key' => 'id',
-				)
-			)
-		);
 	}
 	
 	/**

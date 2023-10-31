@@ -718,19 +718,6 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		// Recover any tickets assigned to a NULL bucket
 		$db->ExecuteMaster("UPDATE ticket SET bucket_id = 0 WHERE bucket_id != 0 AND bucket_id NOT IN (SELECT id FROM bucket)");
 		$logger->info('[Maint] Fixed ' . $db->Affected_Rows() . ' tickets in missing buckets.');
-		
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.maint',
-				array(
-					'context' => CerberusContexts::CONTEXT_TICKET,
-					'context_table' => 'ticket',
-					'context_key' => 'id',
-				)
-			)
-		);
 	}
 	
 	static function rebuild($id) {

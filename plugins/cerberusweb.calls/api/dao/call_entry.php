@@ -287,18 +287,6 @@ class DAO_CallEntry extends Cerb_ORMHelper {
 	}
 
 	static function maint() {
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.maint',
-				array(
-					'context' => CerberusContexts::CONTEXT_CALL,
-					'context_table' => 'call_entry',
-					'context_key' => 'id',
-				)
-			)
-		);
 	}
 	
 	static function mergeIds($from_ids, $to_id) {

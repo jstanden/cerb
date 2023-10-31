@@ -432,18 +432,6 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 	}
 
 	static function maint() {
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.maint',
-				array(
-					'context' => CerberusContexts::CONTEXT_TIMETRACKING,
-					'context_table' => 'timetracking_entry',
-					'context_key' => 'id',
-				)
-			)
-		);
 	}
 	
 	public static function random() {

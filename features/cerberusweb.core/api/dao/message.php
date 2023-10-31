@@ -568,19 +568,6 @@ class DAO_Message extends Cerb_ORMHelper {
 		}
 		
 		$db->ExecuteMaster("DROP TABLE _tmp_maint_message");
-		
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.maint',
-				array(
-					'context' => CerberusContexts::CONTEXT_MESSAGE,
-					'context_table' => 'message',
-					'context_key' => 'id',
-				)
-			)
-		);
 	}
 
 	public static function random() {

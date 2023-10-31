@@ -736,18 +736,6 @@ class DAO_Server extends Cerb_ORMHelper {
 	}
 	
 	public static function maint() {
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.maint',
-				array(
-					'context' => CerberusContexts::CONTEXT_SERVER,
-					'context_table' => 'server',
-					'context_key' => 'id',
-				)
-			)
-		);
 	}
 	
 	public static function random() {

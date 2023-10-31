@@ -314,18 +314,6 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 	}
 	
 	static function maint() {
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.maint',
-				array(
-					'context' => CerberusContexts::CONTEXT_KB_ARTICLE,
-					'context_table' => 'kb_article',
-					'context_key' => 'id',
-				)
-			)
-		);
 	}
 
 	static function getCategoriesByArticleId($article_id) {

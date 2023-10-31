@@ -420,18 +420,6 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 	}
 	
 	static function maint() {
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.maint',
-				array(
-					'context' => CerberusContexts::CONTEXT_OPPORTUNITY,
-					'context_table' => 'crm_opportunity',
-					'context_key' => 'id',
-				)
-			)
-		);
 	}
 	
 	static function mergeIds($from_ids, $to_id) {

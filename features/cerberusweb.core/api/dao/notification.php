@@ -519,19 +519,6 @@ class DAO_Notification extends Cerb_ORMHelper {
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM notification WHERE is_read = 1 AND created_date < %d", $purge_before_ts));
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' read notification records.');
-		
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.maint',
-				array(
-					'context' => CerberusContexts::CONTEXT_NOTIFICATION,
-					'context_table' => 'notification',
-					'context_key' => 'id',
-				)
-			)
-		);
 	}
 	
 	static function clearCountCache($worker_id=null) {

@@ -281,18 +281,6 @@ class DAO_FeedItem extends Cerb_ORMHelper {
 	}
 	
 	static function maint() {
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.maint',
-				array(
-					'context' => CerberusContexts::CONTEXT_FEED_ITEM,
-					'context_table' => 'feed_item',
-					'context_key' => 'id',
-				)
-			)
-		);
 	}
 	
 	public static function random() {

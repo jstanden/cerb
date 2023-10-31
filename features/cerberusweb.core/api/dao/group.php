@@ -651,19 +651,6 @@ class DAO_Group extends Cerb_ORMHelper {
 		
 		$db->ExecuteMaster("DELETE FROM group_setting WHERE group_id NOT IN (SELECT id FROM worker_group)");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' group_setting records.');
-		
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.maint',
-				array(
-					'context' => CerberusContexts::CONTEXT_GROUP,
-					'context_table' => 'worker_group',
-					'context_key' => 'id',
-				)
-			)
-		);
 	}
 	
 	static function setGroupMember($group_id, $worker_id, $is_manager=false) {

@@ -465,18 +465,6 @@ class DAO_Comment extends Cerb_ORMHelper {
 	}
 
 	static function maint() {
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.maint',
-				array(
-					'context' => CerberusContexts::CONTEXT_COMMENT,
-					'context_table' => 'comment',
-					'context_key' => 'id',
-				)
-			)
-		);
 	}
 	
 	public static function handleFormPost($context, $context_id) {

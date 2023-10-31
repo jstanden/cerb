@@ -334,19 +334,6 @@ class DAO_Address extends Cerb_ORMHelper {
 		$sql = "UPDATE address SET worker_id = 0 WHERE worker_id != 0 AND worker_id NOT IN (SELECT id FROM worker)";
 		$db->ExecuteMaster($sql);
 		$logger->info('[Maint] Corrected ' . $db->Affected_Rows() . ' missing workers on address records.');
-		
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.maint',
-				array(
-					'context' => CerberusContexts::CONTEXT_ADDRESS,
-					'context_table' => 'address',
-					'context_key' => 'id',
-				)
-			)
-		);
 	}
 	
 	static function mergeIds($from_ids, $to_id) {

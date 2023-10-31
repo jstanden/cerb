@@ -1002,19 +1002,6 @@ class DAO_Worker extends Cerb_ORMHelper {
 		
 		$db->ExecuteMaster("DELETE FROM worker_to_role WHERE worker_id NOT IN (SELECT id FROM worker)");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' worker_to_role records.');
-		
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.maint',
-				array(
-					'context' => CerberusContexts::CONTEXT_WORKER,
-					'context_table' => 'worker',
-					'context_key' => 'id',
-				)
-			)
-		);
 	}
 	
 	static function countByGroupId($group_id) {

@@ -514,19 +514,6 @@ class DAO_Task extends Cerb_ORMHelper {
 		// Fix missing owners
 		$sql = "UPDATE task SET owner_id = 0 WHERE owner_id != 0 AND owner_id NOT IN (SELECT id FROM worker)";
 		$db->ExecuteMaster($sql);
-		
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.maint',
-				array(
-					'context' => CerberusContexts::CONTEXT_TASK,
-					'context_table' => 'task',
-					'context_key' => 'id',
-				)
-			)
-		);
 	}
 	
 	public static function random() {

@@ -499,18 +499,6 @@ class DAO_Bucket extends Cerb_ORMHelper {
 	}
 	
 	static public function maint() {
-		// Fire event
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.maint',
-				array(
-					'context' => CerberusContexts::CONTEXT_BUCKET,
-					'context_table' => 'bucket',
-					'context_key' => 'id',
-				)
-			)
-		);
 	}
 	
 	private static function _getObjectsFromResult($rs) {
