@@ -332,15 +332,6 @@ class DAO_Snippet extends Cerb_ORMHelper {
 	}
 	
 	static function maint() {
-		$db = DevblocksPlatform::services()->database();
-		$logger = DevblocksPlatform::services()->log();
-		$tables = DevblocksPlatform::getDatabaseTables();
-		
-		// Search indexes
-		if(isset($tables['fulltext_snippet'])) {
-			$db->ExecuteMaster("DELETE FROM fulltext_snippet WHERE id NOT IN (SELECT id FROM snippet)");
-			$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' fulltext_snippet records.');
-		}
 	}
 	
 	static function delete($ids) {
@@ -357,6 +348,9 @@ class DAO_Snippet extends Cerb_ORMHelper {
 		parent::_deleteAbstractBefore($context, $ids);
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM snippet WHERE id IN (%s)", $ids_list));
+		
+		$search = Extension_DevblocksSearchSchema::get(Search_Snippet::ID);
+		$search->delete($ids);
 		
 		parent::_deleteAbstractAfter($context, $ids);
 		
