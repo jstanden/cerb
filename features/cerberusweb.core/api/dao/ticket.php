@@ -715,9 +715,6 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		$sql = "UPDATE ticket SET owner_id = 0 WHERE owner_id != 0 AND owner_id NOT IN (SELECT id FROM worker)";
 		$db->ExecuteMaster($sql);
 		
-		$db->ExecuteMaster("DELETE FROM requester WHERE ticket_id NOT IN (SELECT id FROM ticket)");
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' requester records.');
-		
 		// Recover any tickets assigned to a NULL bucket
 		$db->ExecuteMaster("UPDATE ticket SET bucket_id = 0 WHERE bucket_id != 0 AND bucket_id NOT IN (SELECT id FROM bucket)");
 		$logger->info('[Maint] Fixed ' . $db->Affected_Rows() . ' tickets in missing buckets.');
