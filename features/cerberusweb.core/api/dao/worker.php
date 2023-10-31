@@ -993,7 +993,6 @@ class DAO_Worker extends Cerb_ORMHelper {
 	static function maint() {
 		$db = DevblocksPlatform::services()->database();
 		$logger = DevblocksPlatform::services()->log();
-		$tables = DevblocksPlatform::getDatabaseTables();
 		
 		$db->ExecuteMaster("DELETE FROM worker_pref WHERE worker_id NOT IN (SELECT id FROM worker)");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' worker_pref records.');
@@ -1006,12 +1005,6 @@ class DAO_Worker extends Cerb_ORMHelper {
 		
 		$db->ExecuteMaster("DELETE FROM worker_to_role WHERE worker_id NOT IN (SELECT id FROM worker)");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' worker_to_role records.');
-		
-		// Search indexes
-		if(isset($tables['fulltext_worker'])) {
-			$db->ExecuteMaster("DELETE FROM fulltext_worker WHERE id NOT IN (SELECT id FROM worker)");
-			$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' fulltext_worker records.');
-		}
 		
 		// Fire event
 		$eventMgr = DevblocksPlatform::services()->event();
