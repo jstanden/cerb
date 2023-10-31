@@ -327,16 +327,6 @@ class DAO_Contact extends Cerb_ORMHelper {
 	}
 	
 	static function maint() {
-		$db = DevblocksPlatform::services()->database();
-		$logger = DevblocksPlatform::services()->log();
-		$tables = DevblocksPlatform::getDatabaseTables();
-		
-		// Search indexes
-		if(isset($tables['fulltext_contact'])) {
-			$db->ExecuteMaster("DELETE FROM fulltext_contact WHERE id NOT IN (SELECT id FROM contact)");
-			$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' fulltext_contact records.');
-		}
-		
 		// Fire event
 		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
