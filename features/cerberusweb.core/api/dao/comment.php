@@ -458,12 +458,6 @@ class DAO_Comment extends Cerb_ORMHelper {
 	}
 
 	static function maint() {
-		$db = DevblocksPlatform::services()->database();
-		$logger = DevblocksPlatform::services()->log();
-		
-		$db->ExecuteMaster("DELETE FROM attachment_link WHERE context = 'cerberusweb.contexts.comment' AND context_id NOT IN (SELECT id FROM comment)");
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' comment attachment_link records.');
-		
 		// Fire event
 		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
