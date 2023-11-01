@@ -241,7 +241,11 @@ class MailboxCron extends CerberusCronPageExtension {
 					
 					$expunge_uids[] = $message->getUid();
 					
-					$logger->info("[Mailboxes] Downloaded message ".$message->getUid()." (".sprintf("%d",($time*1000))." ms)");
+					$logger->info(sprintf("[Mailboxes] Downloaded message %s as %s.msg (%d ms)",
+						$message->getUid(),
+						basename($filename),
+						$time * 1000
+					));
 				}
 				
 				if($sequence_ids instanceof Horde_Imap_Client_Ids_Pop3) {
