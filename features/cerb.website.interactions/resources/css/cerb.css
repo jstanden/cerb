@@ -342,7 +342,7 @@
 }
 
 .cerb-interaction-popup--form-elements-sheet .cerb-sheet tbody.cerb-sheet--row:hover td {
-    background-color: #ffffc8;
+    /*background-color: #ffffc8;*/
 }
 
 .cerb-interaction-popup--form-elements-sheet .cerb-sheet-buttons {
