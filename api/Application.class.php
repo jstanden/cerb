@@ -2100,12 +2100,12 @@ class CerberusContexts {
 			$actor_url = null;
 		}
 
-		return array(
+		return [
 			'context' => $actor_context,
 			'context_id' => $actor_context_id,
 			'name' => $actor_name ?? 'Cerb',
 			'url' => $actor_url ?? null,
-		);
+		];
 	}
 
 	static public function logActivity($activity_point, $target_context, $target_context_id, &$entry_array, $actor_context=null, $actor_context_id=null, $also_notify_worker_ids=[], $also_notify_ignore_self=false) {

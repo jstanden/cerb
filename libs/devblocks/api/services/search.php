@@ -1086,7 +1086,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 			implode(',', $ids)
 		));
 		
-		$return = (false !== $result) ? true : false;
+		$return = false !== $result;
 		
 		if($result instanceof mysqli_result)
 			mysqli_free_result($result);

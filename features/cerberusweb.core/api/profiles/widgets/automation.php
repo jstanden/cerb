@@ -33,7 +33,7 @@ class ProfileWidget_Automation extends Extension_ProfileWidget {
 		
 		$toolbar_dict = DevblocksDictionaryDelegate::instance($initial_state);
 		
-		if(false == ($handlers = DevblocksPlatform::services()->ui()->eventHandler()->parse($automations_kata, $toolbar_dict, $error)))
+		if(!($handlers = DevblocksPlatform::services()->ui()->eventHandler()->parse($automations_kata, $toolbar_dict, $error)))
 			return;
 		
 		$automation_results = DevblocksPlatform::services()->ui()->eventHandler()->handleOnce(
@@ -43,7 +43,7 @@ class ProfileWidget_Automation extends Extension_ProfileWidget {
 			$error
 		);
 		
-		if(false == $automation_results || !($automation_results instanceof DevblocksDictionaryDelegate))
+		if(!($automation_results instanceof DevblocksDictionaryDelegate))
 			return;
 		
 		$html = $automation_results->getKeyPath('__return.html');

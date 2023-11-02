@@ -34,7 +34,7 @@ class ProfileWidget_MapGeoPoints extends Extension_ProfileWidget {
 			'widget_id' => $model->id,
 		]);
 		
-		if(false == ($map = DevblocksPlatform::services()->ui()->map()->parse($model->extension_params['map_kata'], $dict, $error)))
+		if(!($map = DevblocksPlatform::services()->ui()->map()->parse($model->extension_params['map_kata'], $dict, $error)))
 			return;
 		
 		DevblocksPlatform::services()->ui()->map()->render($map, $model);

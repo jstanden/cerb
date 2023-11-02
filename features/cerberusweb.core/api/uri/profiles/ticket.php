@@ -1401,7 +1401,6 @@ EOD;
 			if(!empty($update_fields))
 				DAO_Ticket::update($model->id, $update_fields);
 		}
-		return;
 	}
 	
 	private function _profileAction_viewMarkSpam() {

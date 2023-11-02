@@ -1,9 +1,4 @@
 <?php
-/*
- * PARAMS (overloads):
- * maint_max_deletes=n (max tickets to purge)
- *
- */
 // [TODO] Clear idle temp files (fileatime())
 class MaintCron extends CerberusCronPageExtension {
 	function run() {
@@ -38,7 +33,7 @@ class MaintCron extends CerberusCronPageExtension {
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'cron.maint',
-				array()
+				[]
 			)
 		);
 		

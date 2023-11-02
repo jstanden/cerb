@@ -489,7 +489,7 @@ class DAO_Message extends Cerb_ORMHelper {
 		Storage_MessageContent::delete($ids);
 		
 		// Search indexes
-		$search = Extension_DevblocksSearchSchema::get(Search_MessageContent::ID, true);
+		$search = Extension_DevblocksSearchSchema::get(Search_MessageContent::ID);
 		$search->delete($ids);
 		
 		// Messages

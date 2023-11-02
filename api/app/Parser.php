@@ -1601,18 +1601,17 @@ class CerberusParser {
 						
 						$matches = [];
 						
-						if(preg_match('#Original-Recipient:\s*(.*)#i', $message_content, $matches)) {
-							// Use the original address if provided
-						} elseif (preg_match('#Final-Recipient:\s*(.*)#i', $message_content, $matches)) {
+						// Use the original address if provided
+						if(!preg_match('#Original-Recipient:\s*(.*)#i', $message_content, $matches))
 							// Otherwise, try to fall back to the final recipient
-						}
+							preg_match('#Final-Recipient:\s*(.*)#i', $message_content, $matches);
 						
 						if(is_array($matches) && isset($matches[1])) {
 							$entry = explode(';', trim($matches[1]));
 							
 							if(2 == count($entry)) {
 								// Set this sender to defunct
-								if(false != ($bouncer = DAO_Address::lookupAddress(trim($entry[1]), true))) {
+								if(($bouncer = DAO_Address::lookupAddress(trim($entry[1]), true))) {
 									DAO_Address::update($bouncer->id, array(
 										DAO_Address::IS_DEFUNCT => 1,
 									));

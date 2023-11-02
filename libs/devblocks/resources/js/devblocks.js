@@ -1645,7 +1645,6 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 			genericAjaxPopupClose($popup);
 
 		} else {
-			$popup.dialog('option', 'title', '');
 			$popup.closest('.ui-dialog').focus();
 			
 			// Set the content

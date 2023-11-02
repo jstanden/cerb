@@ -1,6 +1,6 @@
 <?php
 class WorkspaceWidget_RecordFields extends Extension_WorkspaceWidget {
-	const ID = 'cerb.workspace.widget.record.fields';
+	const ID = 'core.workspace.widget.record.fields';
 	
 	public function invoke(string $action, Model_WorkspaceWidget $model) {
 		$active_worker = CerberusApplication::getActiveWorker();

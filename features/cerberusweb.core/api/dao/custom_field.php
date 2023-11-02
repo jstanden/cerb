@@ -1543,7 +1543,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 				implode(',', $context_ids),
 				$sql_where
 			);
-			if(false == ($db->ExecuteMaster($sql)))
+			if(!($db->ExecuteMaster($sql)))
 				return false;
 		}
 	}

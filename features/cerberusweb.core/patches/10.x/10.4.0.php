@@ -194,6 +194,8 @@ $db->ExecuteMaster(sprintf("UPDATE automation_event SET name = %s, description =
 	$db->qstr('record.profile.viewed'),
 ));
 
+$db->ExecuteMaster("UPDATE automation SET extension_id = 'cerb.trigger.record.viewed' WHERE extension_id = 'cerb.trigger.record.profile.viewed'");
+
 // ===========================================================================
 // Add resource.cache_until
 
