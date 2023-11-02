@@ -99,7 +99,7 @@ class AutomationTrigger_MailMoved extends Extension_AutomationTrigger {
 		
 		$actor = CerberusContexts::getCurrentActor();
 		$dict->set('actor__context', $actor['context'] ?? CerberusContexts::CONTEXT_APPLICATION);
-		$dict->set('actor__id', $actor['context_id'] ?? 0);
+		$dict->set('actor_id', $actor['context_id'] ?? 0);
 		
 		$initial_state = $dict->getDictionary();
 		
