@@ -231,7 +231,7 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 	private function _profileAction_getContextColumnsJson() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		if(!$active_worker->is_superuser)
+		if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.profile.tab.create'))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$context = DevblocksPlatform::importGPC($_REQUEST['context'] ?? null, 'string', null);
