@@ -147,6 +147,9 @@ class DAO_MessageHeaders extends Cerb_ORMHelper {
 			implode(',', $ids)
 		);
 		$db->ExecuteMaster($sql);
+		
+		$search = Extension_DevblocksSearchSchema::get(Search_MessageHeaders::ID);
+		$search->delete($ids);
 	}
 };
 
@@ -289,28 +292,9 @@ class Search_MessageHeaders extends Extension_DevblocksSearchSchema {
 	}
 	
 	public function delete($ids) {
-		$db = DevblocksPlatform::services()->database();
-		
-		if(!is_array($ids)) {
-			if(is_string($ids) || is_numeric($ids)) {
-				$ids = [$ids];
-			} else {
-				return false;
-			}
-		}
-		
-		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
-		
-		if(empty($ids))
-			return true;
-		
-		$sql = sprintf("DELETE FROM fulltext_message_header WHERE message_id IN (%s)",
-			implode(',', $ids)
-		);
-		
-		if(false === $db->ExecuteMaster($sql))
+		if(!($engine = $this->getEngine()))
 			return false;
 		
-		return true;
+		return $engine->delete($this, $ids);
 	}
 };

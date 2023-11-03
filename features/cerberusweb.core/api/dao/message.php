@@ -562,6 +562,10 @@ class DAO_Message extends Cerb_ORMHelper {
 			$db->ExecuteMaster("DELETE fulltext_message_content FROM fulltext_message_content INNER JOIN _tmp_maint_message ON (_tmp_maint_message.id=fulltext_message_content.id)");
 			$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' fulltext_message_content records.');
 		}
+		if(isset($tables['fulltext_message_header'])) {
+			$db->ExecuteMaster("DELETE fulltext_message_header FROM fulltext_message_header INNER JOIN _tmp_maint_message ON (_tmp_maint_message.id=fulltext_message_header.message_id)");
+			$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' fulltext_message_header records.');
+		}
 		
 		$db->ExecuteMaster("DROP TABLE _tmp_maint_message");
 		
