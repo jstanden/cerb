@@ -509,11 +509,6 @@ class DAO_Task extends Cerb_ORMHelper {
 	}
 	
 	public static function maint() {
-		$db = DevblocksPlatform::services()->database();
-		
-		// Fix missing owners
-		$sql = "UPDATE task SET owner_id = 0 WHERE owner_id != 0 AND owner_id NOT IN (SELECT id FROM worker)";
-		$db->ExecuteMaster($sql);
 	}
 	
 	public static function random() {

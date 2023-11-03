@@ -771,30 +771,17 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 	private function _handleCronMaint($event) {
 		DevblocksPlatform::services()->queue()->maint();
 		
-		DAO_Address::maint();
 		DAO_AutomationLog::maint();
 		DAO_BotSession::maint();
-		DAO_Bucket::maint();
-		DAO_Comment::maint();
 		DAO_ConfirmationCode::maint();
-		DAO_CustomField::maint();
 		DAO_ExplorerSet::maint();
-		DAO_Group::maint();
 		DAO_OAuthToken::maint();
-		DAO_Task::maint();
 		DAO_Ticket::maint();
-		DAO_Message::maint();
 		DAO_Worker::maint();
 		DAO_Notification::maint();
-		DAO_Snippet::maint();
-		DAO_ContactOrg::maint();
-		DAO_Contact::maint();
 		DAO_Attachment::maint();
-		DAO_WorkspacePage::maint();
-		DAO_WorkspaceTab::maint();
 		DAO_WorkerViewModel::flush();
 		DAO_ContextBulkUpdate::maint();
-		DAO_MailQueue::maint();
 		
 		DevblocksPlatform::services()->metrics()->maint();
 	}

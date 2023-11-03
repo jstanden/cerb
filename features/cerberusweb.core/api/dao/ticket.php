@@ -711,10 +711,6 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::services()->database();
 		$logger = DevblocksPlatform::services()->log();
 		
-		// Fix missing owners
-		$sql = "UPDATE ticket SET owner_id = 0 WHERE owner_id != 0 AND owner_id NOT IN (SELECT id FROM worker)";
-		$db->ExecuteMaster($sql);
-		
 		// Recover any tickets assigned to a NULL bucket
 		$db->ExecuteMaster("UPDATE ticket SET bucket_id = 0 WHERE bucket_id != 0 AND bucket_id NOT IN (SELECT id FROM bucket)");
 		$logger->info('[Maint] Fixed ' . $db->Affected_Rows() . ' tickets in missing buckets.');
@@ -2291,6 +2287,61 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		}
 		
 		return $results;
+	}
+	
+	public static function deleteAfterUndoWait(int $purge_wait_before, int $limit=100) : void {
+		$db = DevblocksPlatform::services()->database();
+		$logger = DevblocksPlatform::services()->log();
+		
+		$deleted_count = 0;
+		$batch_size = 100;
+		
+		do {
+			$sql = sprintf("SELECT id FROM ticket ".
+				"WHERE status_id = %d ".
+				"AND updated_date < %d ".
+				"LIMIT %d",
+				Model_Ticket::STATUS_DELETED,
+				$purge_wait_before,
+				$batch_size
+			);
+			
+			if(!($delete_ids = $db->GetArrayMaster($sql)))
+				break;
+			
+			$ticket_ids = DevblocksPlatform::sanitizeArray(array_column($delete_ids, 'id'), 'int');
+			$ticket_ids_string = implode(',', $ticket_ids);
+			
+			if(!$ticket_ids)
+				break;
+			
+			parent::_deleteAbstractBefore(CerberusContexts::CONTEXT_TICKET, $ticket_ids);
+			
+			$db->ExecuteMaster(sprintf("DELETE FROM ticket WHERE id IN (%s)",
+				$ticket_ids_string
+			));
+			
+			// Fix invalid ticket forwards
+			$db->ExecuteMaster(sprintf("DELETE FROM ticket_mask_forward WHERE new_ticket_id IN (%s)",
+				$ticket_ids_string
+			));
+			
+			// Remove deleted requesters
+			$db->ExecuteMaster(sprintf("DELETE FROM requester WHERE ticket_id IN (%s)",
+				$ticket_ids_string
+			));
+			
+			// Delete messages
+			DAO_Message::deleteByTicketIds($ticket_ids, false);
+			
+			parent::_deleteAbstractAfter(CerberusContexts::CONTEXT_TICKET, $ticket_ids);
+			
+			// Increment the deleted counter
+			$deleted_count += count($delete_ids);
+			
+		} while ($deleted_count < $limit);
+		
+		$logger->info("[Maint] Purged " . $deleted_count . " deleted ticket records.");
 	}
 };
 

@@ -463,8 +463,32 @@ class DAO_Message extends Cerb_ORMHelper {
 		);
 		return intval($db->GetOneReader($sql));
 	}
+	
+	public static function deleteByTicketIds(array $ticket_ids, $rebuild=true) {
+		$db = DevblocksPlatform::services()->database();
+		
+		if(!($ticket_ids = DevblocksPlatform::sanitizeArray($ticket_ids, 'int')))
+			return;
+		
+		// Batch delete messages by groups of tickets
+		foreach(array_chunk($ticket_ids, 25) as $batch_ids) {
+			if(!($batch_ids = DevblocksPlatform::sanitizeArray($batch_ids, 'int')))
+				continue;
+			
+			$message_ids = $db->GetArrayReader(sprintf('SELECT id FROM message WHERE ticket_id IN (%s)',
+				implode(',', $batch_ids)
+			));
+			
+			if(!$message_ids)
+				continue;
+			
+			$message_ids = array_column($message_ids, 'id');
+			
+			self::delete($message_ids, $rebuild);
+		}
+	}
 
-	static function delete($ids) {
+	static function delete($ids, $rebuild=true) {
 		$db = DevblocksPlatform::services()->database();
 		
 		if(!is_array($ids)) $ids = [$ids];
@@ -476,11 +500,6 @@ class DAO_Message extends Cerb_ORMHelper {
 		$ids_list = implode(',', self::qstrArray($ids));
 
 		parent::_deleteAbstractBefore($context, $ids);
-
-		$messages = DAO_Message::getWhere(sprintf("%s IN (%s)",
-			DAO_Message::ID,
-			$ids_list
-		));
 
 		// Message Headers
 		DAO_MessageHeaders::delete($ids);
@@ -498,76 +517,20 @@ class DAO_Message extends Cerb_ORMHelper {
 		);
 		$db->ExecuteMaster($sql);
 		
-		// Remap first/last on ticket
-		foreach($messages as $message) {
-			DAO_Ticket::rebuild($message->ticket_id);
+		// Remap first/last on distinct ticket
+		if($rebuild) {
+			$messages = DAO_Message::getIds($ids);
+			$ticket_ids = array_unique(array_column($messages, 'ticket_id'));
+			
+			foreach($ticket_ids as $ticket_id) {
+				DAO_Ticket::rebuild($ticket_id);
+			}
 		}
 		
 		parent::_deleteAbstractAfter($context, $ids);
 	}
 	
-	/** @noinspection SqlResolve */
 	static function maint() {
-		$db = DevblocksPlatform::services()->database();
-		$logger = DevblocksPlatform::services()->log();
-		$tables = DevblocksPlatform::getDatabaseTables();
-		
-		// Purge message content (storage)
-		$db->ExecuteMaster("CREATE TEMPORARY TABLE _tmp_maint_message (PRIMARY KEY (id)) SELECT id FROM message WHERE ticket_id NOT IN (SELECT id FROM ticket)");
-		
-		$sql = "SELECT id FROM _tmp_maint_message";
-		
-		if(!($rs = $db->ExecuteMaster($sql)))
-			return false;
-
-		$ids_buffer = [];
-		$count = 0;
-		
-		if(!($rs instanceof mysqli_result))
-			return false;
-		
-		while($row = mysqli_fetch_assoc($rs)) {
-			$ids_buffer[$count++] = $row['id'];
-			
-			// Flush buffer every 50
-			if(0 == $count % 50) {
-				Storage_MessageContent::delete($ids_buffer);
-				$ids_buffer = [];
-				$count = 0;
-			}
-		}
-		mysqli_free_result($rs);
-
-		// Any remainder
-		if(!empty($ids_buffer)) {
-			Storage_MessageContent::delete($ids_buffer);
-			unset($ids_buffer);
-			unset($count);
-		}
-
-		// Purge messages without linked tickets
-		$db->ExecuteMaster("DELETE message FROM message INNER JOIN _tmp_maint_message ON (_tmp_maint_message.id=message.id)");
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' message records.');
-		
-		// Headers
-		$db->ExecuteMaster("DELETE message_headers FROM message_headers INNER JOIN _tmp_maint_message ON (_tmp_maint_message.id=message_headers.message_id)");
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' message_headers records.');
-		
-		// Attachments
-		$db->ExecuteMaster("DELETE FROM attachment_link WHERE context = 'cerberusweb.contexts.message' AND context_id NOT IN (SELECT id FROM message)");
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' message attachment_link records.');
-
-		// Search indexes
-		if(isset($tables['fulltext_message_content'])) {
-			$db->ExecuteMaster("DELETE fulltext_message_content FROM fulltext_message_content INNER JOIN _tmp_maint_message ON (_tmp_maint_message.id=fulltext_message_content.id)");
-			$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' fulltext_message_content records.');
-		}
-		if(isset($tables['fulltext_message_header'])) {
-			$db->ExecuteMaster("DELETE fulltext_message_header FROM fulltext_message_header INNER JOIN _tmp_maint_message ON (_tmp_maint_message.id=fulltext_message_header.message_id)");
-			$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' fulltext_message_header records.');
-		}
-		
-		$db->ExecuteMaster("DROP TABLE _tmp_maint_message");
 	}
 
 	public static function random() {

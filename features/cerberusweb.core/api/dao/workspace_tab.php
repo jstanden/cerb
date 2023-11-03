@@ -431,11 +431,6 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 	}
 	
 	public static function maint() {
-		$db = DevblocksPlatform::services()->database();
-		$logger = DevblocksPlatform::services()->log();
-		
-		$db->ExecuteMaster("DELETE FROM workspace_list WHERE workspace_tab_id NOT IN (SELECT id FROM workspace_tab)");
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' workspace_list records.');
 	}
 
 	static function clearCache() {

@@ -643,14 +643,6 @@ class DAO_Group extends Cerb_ORMHelper {
 	}
 	
 	static function maint() {
-		$db = DevblocksPlatform::services()->database();
-		$logger = DevblocksPlatform::services()->log();
-		
-		$db->ExecuteMaster("DELETE FROM bucket WHERE group_id NOT IN (SELECT id FROM worker_group)");
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' bucket records.');
-		
-		$db->ExecuteMaster("DELETE FROM group_setting WHERE group_id NOT IN (SELECT id FROM worker_group)");
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' group_setting records.');
 	}
 	
 	static function setGroupMember($group_id, $worker_id, $is_manager=false) {

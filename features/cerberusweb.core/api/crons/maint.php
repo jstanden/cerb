@@ -13,21 +13,12 @@ class MaintCron extends CerberusCronPageExtension {
 		
 		// Purge expired sessions
 		Cerb_DevblocksSessionHandler::gc(0);
-		
-		// Purge Deleted Content
-		$purge_waitdays = intval($this->getParam('purge_waitdays', 7));
-		$purge_waitsecs = time() - ($purge_waitdays * 86400);
 
-		$sql = sprintf("DELETE FROM ticket ".
-			"WHERE status_id = %d ".
-			"AND updated_date < %d ",
-			Model_Ticket::STATUS_DELETED,
-			$purge_waitsecs
-		);
-		$db->ExecuteMaster($sql);
+		// Purge deleted records past the undo window
+		$purge_wait_days = intval($this->getParam('purge_waitdays', 7));
+		$purge_wait_before = time() - ($purge_wait_days * 86400);
+		DAO_Ticket::deleteAfterUndoWait($purge_wait_before, 1_000);
 		
-		$logger->info("[Maint] Purged " . $db->Affected_Rows() . " ticket records.");
-
 		// Give plugins a chance to run maintenance (nuke NULL rows, etc.)
 		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
@@ -98,9 +89,9 @@ class MaintCron extends CerberusCronPageExtension {
 
 	function configure($instance) {
 		$tpl = DevblocksPlatform::services()->template();
-
+		
 		$tpl->assign('purge_waitdays', $this->getParam('purge_waitdays', 7));
-
+		
 		$tpl->display('devblocks:cerberusweb.core::cron/maint/config.tpl');
 	}
 

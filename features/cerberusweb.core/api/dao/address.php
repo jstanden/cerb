@@ -328,12 +328,6 @@ class DAO_Address extends Cerb_ORMHelper {
 	}
 	
 	static function maint() {
-		$db = DevblocksPlatform::services()->database();
-		$logger = DevblocksPlatform::services()->log();
-		
-		$sql = "UPDATE address SET worker_id = 0 WHERE worker_id != 0 AND worker_id NOT IN (SELECT id FROM worker)";
-		$db->ExecuteMaster($sql);
-		$logger->info('[Maint] Corrected ' . $db->Affected_Rows() . ' missing workers on address records.');
 	}
 	
 	static function mergeIds($from_ids, $to_id) {
