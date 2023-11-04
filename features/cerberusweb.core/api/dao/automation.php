@@ -567,6 +567,8 @@ class SearchFields_Automation extends DevblocksSearchFields {
 	const NAME = 'a_name';
 	const ID = 'a_id';
 	const UPDATED_AT = 'a_updated_at';
+	
+	const FULLTEXT_AUTOMATION = 'ft_script';
 
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
@@ -586,6 +588,9 @@ class SearchFields_Automation extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
+			case SearchFields_Automation::FULLTEXT_AUTOMATION:
+				return self::_getWhereSQLFromFulltextField($param, Search_Automation::ID, self::getPrimaryKey());
+			
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_AUTOMATION, self::getPrimaryKey());
 			
@@ -641,11 +646,17 @@ class SearchFields_Automation extends DevblocksSearchFields {
 			self::ID => new DevblocksSearchField(self::ID, 'automation', 'id', $translate->_('common.id'), null, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'automation', 'name', $translate->_('common.name'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'automation', 'updated_at', $translate->_('common.updated'), null, true),
+			
+			self::FULLTEXT_AUTOMATION => new DevblocksSearchField(self::FULLTEXT_AUTOMATION, 'ft', 'automation', $translate->_('common.search.fulltext'), 'FT', false),
 
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS', false),
 		);
+		
+		// Fulltext indexes
+		
+		$columns[self::FULLTEXT_AUTOMATION]->ft_schema = Search_Automation::ID;
 		
 		// Custom Fields
 		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
@@ -657,6 +668,126 @@ class SearchFields_Automation extends DevblocksSearchFields {
 		DevblocksPlatform::sortObjects($columns, 'db_label');
 
 		return $columns;
+	}
+};
+
+class Search_Automation extends Extension_DevblocksSearchSchema {
+	const ID = 'cerb.search.schema.automation';
+	
+	public function getNamespace() {
+		return 'automation';
+	}
+	
+	public function getAttributes() {
+		return [];
+	}
+	
+	public function getIdField() {
+		return 'id';
+	}
+	
+	public function getDataField() {
+		return 'content';
+	}
+	
+	public function getPrimaryKey() {
+		return 'id';
+	}
+	
+	public function reindex() {
+		$engine = $this->getEngine();
+		$meta = $engine->getIndexMeta($this);
+		
+		// If the index has a delta, start from the current record
+		if($meta['is_indexed_externally']) {
+			// Do nothing (let the remote tool update the DB)
+			
+			// Otherwise, start over
+		} else {
+			$this->setIndexPointer(self::INDEX_POINTER_RESET);
+		}
+	}
+	
+	public function setIndexPointer($pointer) {
+		switch($pointer) {
+			case self::INDEX_POINTER_RESET:
+				$this->setParam('last_indexed_id', 0);
+				$this->setParam('last_indexed_time', 0);
+				break;
+			
+			case self::INDEX_POINTER_CURRENT:
+				$this->setParam('last_indexed_id', 0);
+				$this->setParam('last_indexed_time', time());
+				break;
+		}
+	}
+	
+	public function index($stop_time=null) {
+		$logger = DevblocksPlatform::services()->log();
+		
+		if(!($engine = $this->getEngine()))
+			return false;
+		
+		$ns = self::getNamespace();
+		$id = $this->getParam('last_indexed_id', 0);
+		$ptr_time = $this->getParam('last_indexed_time', 0);
+		$ptr_id = $id;
+		$done = false;
+		
+		while(!$done && time() < $stop_time) {
+			$where = sprintf('(%1$s = %2$d AND %3$s > %4$d) OR (%1$s > %2$d)',
+				DAO_Automation::UPDATED_AT,
+				$ptr_time,
+				DAO_Automation::ID,
+				$id
+			);
+			$automations = DAO_Automation::getWhere($where, array(DAO_Automation::UPDATED_AT, DAO_Automation::ID), [true, true], 100);
+			
+			if(empty($automations)) {
+				$done = true;
+				continue;
+			}
+			
+			$last_time = $ptr_time;
+			
+			foreach($automations as $automation) { /* @var $automation Model_Automation */
+				$id = $automation->id;
+				$ptr_time = $automation->updated_at;
+				
+				$ptr_id = ($last_time == $ptr_time) ? $id : 0;
+				
+				$logger->info(sprintf("[Search] Indexing %s %d...",
+					$ns,
+					$id
+				));
+				
+				$doc = array(
+					'content' => implode("\n", [
+						$automation->name,
+						$automation->script,
+					])
+				);
+				
+				if(false === ($engine->index($this, $id, $doc)))
+					return false;
+			}
+		}
+		
+		// If we ran out of records, always reset the ID and use the current time
+		if($done) {
+			$ptr_id = 0;
+			$ptr_time = time();
+		}
+		
+		$this->setParam('last_indexed_id', $ptr_id);
+		$this->setParam('last_indexed_time', $ptr_time);
+	}
+	
+	public function delete($ids) {
+		if(!($engine = $this->getEngine()))
+			return false;
+		
+		return $engine->delete($this, $ids);
 	}
 };
 
@@ -1084,6 +1215,7 @@ class View_Automation extends C4_AbstractView implements IAbstractView_Subtotals
 		);
 		
 		$this->addColumnsHidden(array(
+			SearchFields_Automation::FULLTEXT_AUTOMATION,
 			SearchFields_Automation::VIRTUAL_CONTEXT_LINK,
 			SearchFields_Automation::VIRTUAL_HAS_FIELDSET,
 			SearchFields_Automation::VIRTUAL_WATCHERS,
@@ -1222,6 +1354,11 @@ class View_Automation extends C4_AbstractView implements IAbstractView_Subtotals
 						'limit' => 25,
 					]
 				),
+			'script' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
+					'options' => array('param_key' => SearchFields_Automation::FULLTEXT_AUTOMATION),
+				),
 			'trigger' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
@@ -1271,6 +1408,19 @@ class View_Automation extends C4_AbstractView implements IAbstractView_Subtotals
 		// Add searchable custom fields
 		
 		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_AUTOMATION, $fields, null);
+		
+		// Engine/schema examples: Fulltext
+		
+		$ft_examples = [];
+		
+		if(($schema = Extension_DevblocksSearchSchema::get(Search_Automation::ID))) {
+			if(($engine = $schema->getEngine())) {
+				$ft_examples = $engine->getQuickSearchExamples($schema);
+			}
+		}
+		
+		if(!empty($ft_examples))
+			$fields['script']['examples'] = $ft_examples;
 		
 		// Add is_sortable
 		
@@ -1366,6 +1516,11 @@ class View_Automation extends C4_AbstractView implements IAbstractView_Subtotals
 			case SearchFields_Automation::CREATED_AT:
 			case SearchFields_Automation::UPDATED_AT:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
+				break;
+			
+			case SearchFields_Automation::FULLTEXT_AUTOMATION:
+				$scope = DevblocksPlatform::importGPC($_POST['scope'] ?? null, 'string','expert');
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
 				
 			case SearchFields_Automation::VIRTUAL_CONTEXT_LINK:

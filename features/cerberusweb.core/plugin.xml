@@ -6680,7 +6680,18 @@
 			<params>
 			</params>
 		</extension>
-		
+
+		<extension point="devblocks.search.schema">
+			<id>cerb.search.schema.automation</id>
+			<name>Automations</name>
+			<class>
+				<file>api/dao/automation.php</file>
+				<name>Search_Automation</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
 		<extension point="devblocks.search.schema">
 			<id>cerberusweb.search.schema.comment_content</id>
 			<name>Comment Content</name>
