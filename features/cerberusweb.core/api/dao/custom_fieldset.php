@@ -312,6 +312,27 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 		DAO_CustomFieldValue::deleteByContextIds($context, $context_id, $ids);
 	}
 	
+	static function removeByContextIds($context, $context_ids, $also_values=true) {
+		CerberusContexts::checkpointChanges($context, $context_ids);
+		
+		$db = DevblocksPlatform::services()->database();
+		
+		$context_ids = DevblocksPlatform::sanitizeArray($context_ids, 'int');
+		
+		if(empty($context_ids))
+			return;
+		
+		$sql = sprintf("DELETE FROM context_to_custom_fieldset WHERE context = %s AND context_id IN (%s)",
+			$db->qstr($context),
+			implode(',', $db->qstrArray($context_ids))
+		);
+		$db->ExecuteMaster($sql);
+		
+		// Also remove values from these fieldsets
+		if($also_values)
+			DAO_CustomFieldValue::deleteByContextIds($context, $context_ids);
+	}
+	
 	static function getUsedByContext($context, $context_id) {
 		$db = DevblocksPlatform::services()->database();
 		
