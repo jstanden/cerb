@@ -486,4 +486,18 @@ class _DevblocksStringService {
 		
 		return $result;
 	}
+	
+	public function tokenize(string $string, $case_insensitive=true, $unique=true, $pattern="[^[:alnum:]\.\_\-]", $replacement=' ') : array {
+		if($case_insensitive)
+			$string = mb_convert_case($string, MB_CASE_LOWER);
+		
+		$text = mb_ereg_replace($pattern, $replacement, $string);
+		$words = explode(' ', mb_ereg_replace('\s+', ' ', $text));
+		$words = array_values(array_diff($words, ['']));
+		
+		if($unique)
+			$words = array_unique($words);
+		
+		return $words;
+	}
 }
