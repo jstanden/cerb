@@ -729,6 +729,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 	abstract function validateConfig(array &$params, &$error);
 	abstract function getInputsMeta();
 	abstract function getOutputsMeta();
+	abstract function getUsageMeta(string $automation_name) : array;
 	abstract function getAutocompleteSuggestions() : array;
 	abstract function getEditorToolbarItems(array $toolbar) : array;
 	

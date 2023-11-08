@@ -49,6 +49,10 @@ class AutomationTrigger_RecordMerge extends Extension_AutomationTrigger {
 		];
 	}
 	
+	function getUsageMeta(string $automation_name): array {
+		return [];
+	}
+	
 	public function getEditorToolbarItems(array $toolbar): array {
 		return $toolbar;
 	}

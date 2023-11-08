@@ -42,6 +42,10 @@ class AutomationTrigger_WorkerAuthenticateFailed extends Extension_AutomationTri
 		return [];
 	}
 	
+	function getUsageMeta(string $automation_name): array {
+		return [];
+	}
+	
 	public function getEditorToolbarItems(array $toolbar): array {
 		return $toolbar;
 	}

@@ -37,6 +37,36 @@ class AutomationTrigger_UiChartData extends Extension_AutomationTrigger {
 		];
 	}
 	
+	function getUsageMeta(string $automation_name): array {
+		$results = [];
+		
+		// Workspace widgets
+		if(($linked_workspace_widgets = DAO_WorkspaceWidget::getWhere(sprintf("%s IN (%s) AND %s LIKE %s",
+			Cerb_ORMHelper::escape(DAO_WorkspaceWidget::EXTENSION_ID),
+			implode(',', Cerb_ORMHelper::qstrArray([
+				'cerb.workspace.widget.chart.kata',
+			])),
+			Cerb_ORMHelper::escape(DAO_WorkspaceWidget::PARAMS_JSON),
+			Cerb_ORMHelper::qstr('%' . $automation_name . '%')
+		)))) {
+			$linked_workspace_widgets = array_filter($linked_workspace_widgets, function($w) use ($automation_name) {
+				$content = match($w->extension_id) {
+					'cerb.workspace.widget.chart.kata' => implode(' ', [$w->params['datasets_kata'] ?? '', $w->params['chart_kata'] ?? '']),
+					default => '',
+				};
+				
+				$tokens = DevblocksPlatform::services()->string()->tokenize($content, false);
+				
+				return in_array($automation_name, $tokens);
+			});
+			
+			if($linked_workspace_widgets)
+				$results['workspace_widget'] = array_column($linked_workspace_widgets, 'id');
+		}
+		
+		return $results;
+	}
+	
 	public function getEditorToolbarItems(array $toolbar): array {
 		return $toolbar;
 	}

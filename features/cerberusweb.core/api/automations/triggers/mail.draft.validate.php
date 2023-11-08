@@ -58,6 +58,10 @@ class AutomationTrigger_MailDraftValidate extends AutomationTrigger_InteractionW
 		];
 	}
 	
+	function getUsageMeta(string $automation_name): array {
+		return [];
+	}
+	
 	public function getEditorToolbarItems(array $toolbar): array {
 		return parent::getEditorToolbarItems($toolbar);
 	}

@@ -43,6 +43,25 @@ class AutomationTrigger_ResourceGet extends Extension_AutomationTrigger {
 		];
 	}
 	
+	function getUsageMeta(string $automation_name): array {
+		$results = [];
+		
+		if(($linked_resources = DAO_Resource::getWhere(sprintf("%s LIKE %s",
+			Cerb_ORMHelper::escape(DAO_Resource::AUTOMATION_KATA),
+			Cerb_ORMHelper::qstr('%' . $automation_name . '%')
+		)))) {
+			$linked_resources = array_filter($linked_resources, function($w) use ($automation_name) {
+				$tokens = DevblocksPlatform::services()->string()->tokenize($w->automation_kata, false);
+				return in_array($automation_name, $tokens);
+			});
+			
+			if($linked_resources)
+				$results['resource'] = array_column($linked_resources, 'id');
+		}
+		
+		return $results;
+	}
+	
 	public function getEditorToolbarItems(array $toolbar): array {
 		return $toolbar;
 	}

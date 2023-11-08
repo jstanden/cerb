@@ -26,6 +26,10 @@ class AutomationTrigger_InteractionInternal extends AutomationTrigger_Interactio
 		return parent::getOutputsMeta();
 	}
 	
+	function getUsageMeta(string $automation_name): array {
+		return parent::getUsageMeta($automation_name);
+	}
+	
 	public function getEditorToolbarItems(array $toolbar): array {
 		return parent::getEditorToolbarItems($toolbar);
 	}

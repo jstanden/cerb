@@ -39,6 +39,25 @@ class AutomationTrigger_AutomationTimer extends Extension_AutomationTrigger {
 		];
 	}
 	
+	function getUsageMeta(string $automation_name): array {
+		$results = [];
+		
+		if(($linked_timers = DAO_AutomationTimer::getWhere(sprintf("%s LIKE %s",
+			Cerb_ORMHelper::escape(DAO_AutomationTimer::AUTOMATIONS_KATA),
+			Cerb_ORMHelper::qstr('%' . $automation_name . '%')
+		)))) {
+			$linked_timers = array_filter($linked_timers, function($w) use ($automation_name) {
+				$tokens = DevblocksPlatform::services()->string()->tokenize($w->automations_kata, false);
+				return in_array($automation_name, $tokens);
+			});
+			
+			if($linked_timers)
+				$results['automation_timer'] = array_column($linked_timers, 'id');
+		}
+		
+		return $results;
+	}
+	
 	public function getEditorToolbarItems(array $toolbar): array {
 		return $toolbar;
 	}

@@ -35,6 +35,8 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 					return $this->_profileAction_editorLog();
 				case 'editorLogRefresh':
 					return $this->_profileAction_editorLogRefresh();
+				case 'editorUsage':
+					return $this->_profileAction_editorUsage();
 				case 'editorVisualize':
 					return $this->_profileAction_editorVisualize();
 				case 'getAutocompleteJson':
@@ -238,6 +240,94 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 			));
 			return;
 		}
+	}
+	
+	private function _profileAction_editorUsage() {
+		$tpl = DevblocksPlatform::services()->template();
+		$sheets = DevblocksPlatform::services()->sheet()->withDefaultTypes();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 403);
+
+		if(!$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		$automation_name = DevblocksPlatform::importGPC($_POST['automation_name'] ?? null, 'string');
+		$trigger = DevblocksPlatform::importGPC($_POST['trigger'] ?? null, 'string');
+		
+		if(!($trigger_ext = Extension_AutomationTrigger::get($trigger)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		// Ask the extension directly for usage details
+		/* @var $trigger_ext Extension_AutomationTrigger */
+		$results = $trigger_ext->getUsageMeta($automation_name);
+		
+		// Event listeners
+		if(($linked_event_listeners = DAO_AutomationEventListener::getWhere(sprintf("%s = %s AND %s LIKE %s",
+			Cerb_ORMHelper::escape(DAO_AutomationEventListener::EVENT_NAME),
+			Cerb_ORMHelper::qstr($trigger_ext->manifest->name),
+			Cerb_ORMHelper::escape(DAO_AutomationEventListener::EVENT_KATA),
+			Cerb_ORMHelper::qstr('%' . $automation_name . '%')
+		)))) {
+			$linked_event_listeners = array_filter($linked_event_listeners, function($w) use ($automation_name) {
+				$tokens = DevblocksPlatform::services()->string()->tokenize($w->event_kata, false);
+				return in_array($automation_name, $tokens);
+			});
+			
+			if($linked_event_listeners)
+				$results['automation_event_listener'] = array_column($linked_event_listeners, 'id');
+		}
+		
+		$data = [];
+		
+		foreach($results as $record_type => $record_ids) {
+			$record_ext = Extension_DevblocksContext::getByAlias($record_type);
+			
+			foreach($record_ids as $record_id) {
+				$data[] = DevblocksDictionaryDelegate::instance([
+					'_context' => $record_ext->id,
+					'_type' => $record_type,
+					'_type_label' => $record_ext->name,
+					'id' => $record_id
+				]);
+			}
+		}
+		
+		// Sort dictionaries by _type_label
+		DevblocksPlatform::sortObjects($data, '_type_label');
+		
+		$sheet_kata = <<< EOD
+        layout:
+          headings@bool: yes
+          filtering@bool: no
+          paging@bool: no
+          style: columns
+        columns:
+          text/_type_label:
+            label: Type
+          card/id:
+            label: Record
+            params:
+              bold@bool: yes
+              text_size: 120%
+        EOD;
+		
+		$sheet = $sheets->parse($sheet_kata);
+		$layout = $sheets->getLayout($sheet);
+		$columns = $sheets->getColumns($sheet);
+		$rows = $sheets->getRows($sheet, $data);
+		
+		if(empty($rows)) {
+			echo '(no usage found)';
+			return;
+		}
+		
+		$tpl->assign('layout', $layout);
+		$tpl->assign('columns', $columns);
+		$tpl->assign('rows', $rows);
+		
+		$tpl->display('devblocks:cerberusweb.core::ui/sheets/render_grid.tpl');
 	}
 	
 	private function _profileAction_editorLog() {

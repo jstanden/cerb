@@ -26,6 +26,10 @@ class AutomationTrigger_ReminderRemind extends Extension_AutomationTrigger {
 		return [];
 	}
 	
+	function getUsageMeta(string $automation_name): array {
+		return [];
+	}
+	
 	public function getEditorToolbarItems(array $toolbar): array {
 		return $toolbar;
 	}

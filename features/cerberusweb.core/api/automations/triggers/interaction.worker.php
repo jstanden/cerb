@@ -105,6 +105,156 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 		];
 	}
 	
+	function getUsageMeta(string $automation_name): array {
+		$results = [];
+		
+		// Automations
+		if(($linked_automations = DAO_Automation::getWhere(sprintf("%s LIKE %s",
+			Cerb_ORMHelper::escape(DAO_Automation::SCRIPT),
+			Cerb_ORMHelper::qstr('%' . $automation_name . '%')
+		)))) {
+			$linked_automations = array_filter($linked_automations, function($w) use ($automation_name) {
+				$tokens = DevblocksPlatform::services()->string()->tokenize($w->script, false);
+				return in_array($automation_name, $tokens);
+			});
+			
+			if($linked_automations)
+				$results['automation'] = array_column($linked_automations, 'id');
+		}
+		
+		// Toolbars
+		if(($linked_toolbar_sections = DAO_ToolbarSection::getWhere(sprintf("%s LIKE %s",
+			Cerb_ORMHelper::escape(DAO_ToolbarSection::TOOLBAR_KATA),
+			Cerb_ORMHelper::qstr('%' . $automation_name . '%')
+		)))) {
+			$linked_toolbar_sections = array_filter($linked_toolbar_sections, function($w) use ($automation_name) {
+				$tokens = DevblocksPlatform::services()->string()->tokenize($w->toolbar_kata, false);
+				return in_array($automation_name, $tokens);
+			});
+			
+			if($linked_toolbar_sections)
+				$results['toolbar_section'] = array_column($linked_toolbar_sections, 'id');
+		}
+		
+		// Card widgets
+		if(($linked_card_widgets = DAO_CardWidget::getWhere(sprintf("%s IN (%s) AND %s LIKE %s",
+			Cerb_ORMHelper::escape(DAO_CardWidget::EXTENSION_ID),
+			implode(',', Cerb_ORMHelper::qstrArray([
+				'cerb.card.widget.automation',
+				'cerb.card.widget.chart.timeblocks',
+				'cerb.card.widget.fields',
+				'cerb.card.widget.form_interaction',
+				'cerb.card.widget.sheet',
+			])),
+			Cerb_ORMHelper::escape(DAO_CardWidget::EXTENSION_PARAMS_JSON),
+			Cerb_ORMHelper::qstr('%' . $automation_name . '%')
+		)))) {
+			$linked_card_widgets = array_filter($linked_card_widgets, function($w) use ($automation_name) {
+				$content = match($w->extension_id) {
+					'cerb.card.widget.automation' => $w->extension_params['automation_kata'] ?? '',
+					'cerb.card.widget.chart.timeblocks' => implode(' ', [$w->extension_params['datasets_kata'] ?? '', $w->extension_params['timeblocks_kata'] ?? '']),
+					'cerb.card.widget.fields' => $w->extension_params['toolbar_kata'] ?? '',
+					'cerb.card.widget.form_interaction' => $w->extension_params['interactions_kata'] ?? '',
+					'cerb.card.widget.sheet' => implode(' ', [$w->extension_params['data_query'] ?? '', $w->extension_params['sheet_kata'] ?? '', $w->extension_params['toolbar_kata'] ?? '']),
+				};
+				
+				$tokens = DevblocksPlatform::services()->string()->tokenize($content, false);
+				
+				return in_array($automation_name, $tokens);
+			});
+			
+			if($linked_card_widgets)
+				$results['card_widget'] = array_column($linked_card_widgets, 'id');
+		}
+		
+		// Profile widgets
+		if(($linked_profile_widgets = DAO_ProfileWidget::getWhere(sprintf("%s IN (%s) AND %s LIKE %s",
+			Cerb_ORMHelper::escape(DAO_ProfileWidget::EXTENSION_ID),
+			implode(',', Cerb_ORMHelper::qstrArray([
+				'cerb.profile.tab.widget.automation',
+				'cerb.profile.tab.widget.chart.timeblocks',
+				'cerb.profile.tab.widget.fields',
+				'cerb.profile.tab.widget.form_interaction',
+				'cerb.profile.tab.widget.map.geopoints',
+				'cerb.profile.tab.widget.sheet',
+			])),
+			Cerb_ORMHelper::escape(DAO_ProfileWidget::EXTENSION_PARAMS_JSON),
+			Cerb_ORMHelper::qstr('%' . $automation_name . '%')
+		)))) {
+			$linked_profile_widgets = array_filter($linked_profile_widgets, function($w) use ($automation_name) {
+				$content = match($w->extension_id) {
+					'cerb.profile.tab.widget.automation' => $w->extension_params['automations_kata'] ?? '',
+					'cerb.profile.tab.widget.chart.timeblocks' => implode(' ', [$w->extension_params['datasets_kata'] ?? '', $w->extension_params['timeblocks_kata'] ?? '']),
+					'cerb.profile.tab.widget.fields' => $w->extension_params['toolbar_kata'] ?? '',
+					'cerb.profile.tab.widget.form_interaction' => $w->extension_params['interactions_kata'] ?? '',
+					'cerb.profile.tab.widget.geopoints' => $w->extension_params['map_kata'] ?? '',
+					'cerb.profile.tab.widget.sheet' => implode(' ', [$w->extension_params['data_query'] ?? '', $w->extension_params['sheet_kata'] ?? '', $w->extension_params['toolbar_kata'] ?? '']),
+					default => '',
+				};
+				
+				$tokens = DevblocksPlatform::services()->string()->tokenize($content, false);
+				
+				return in_array($automation_name, $tokens);
+			});
+			
+			if($linked_profile_widgets)
+				$results['profile_widget'] = array_column($linked_profile_widgets, 'id');
+		}
+		
+		// Project board column
+		if(($linked_project_board_columns = DAO_ProjectBoardColumn::getWhere(sprintf("%s LIKE %s",
+			Cerb_ORMHelper::escape(DAO_ProjectBoardColumn::TOOLBAR_KATA),
+			Cerb_ORMHelper::qstr('%' . $automation_name . '%')
+		)))) {
+			$linked_project_board_columns = array_filter($linked_project_board_columns, function($w) use ($automation_name) {
+				$content = implode(' ', [$w->toolbar_kata, $w->functions_kata]);
+				$tokens = DevblocksPlatform::services()->string()->tokenize($content, false);
+				return in_array($automation_name, $tokens);
+			});
+			
+			if($linked_project_board_columns)
+				$results['project_board_column'] = array_column($linked_project_board_columns, 'id');
+		}
+		
+		// Workspace widgets
+		if(($linked_workspace_widgets = DAO_WorkspaceWidget::getWhere(sprintf("%s IN (%s) AND %s LIKE %s",
+			Cerb_ORMHelper::escape(DAO_WorkspaceWidget::EXTENSION_ID),
+			implode(',', Cerb_ORMHelper::qstrArray([
+				'core.workspace.widget.automation',
+				'cerb.workspace.widget.chart.kata',
+				'cerb.workspace.widget.chart.timeblocks',
+				'core.workspace.widget.form_interaction',
+				'cerb.workspace.widget.map.geopoints',
+				'core.workspace.widget.record.fields',
+				'core.workspace.widget.sheet',
+			])),
+			Cerb_ORMHelper::escape(DAO_WorkspaceWidget::PARAMS_JSON),
+			Cerb_ORMHelper::qstr('%' . $automation_name . '%')
+		)))) {
+			$linked_workspace_widgets = array_filter($linked_workspace_widgets, function($w) use ($automation_name) {
+				$content = match($w->extension_id) {
+					'core.workspace.widget.automation' => $w->params['automations_kata'] ?? '',
+					'cerb.workspace.widget.chart.kata' => implode(' ', [$w->params['datasets_kata'] ?? '', $w->params['chart_kata'] ?? '']),
+					'cerb.workspace.widget.chart.timeblocks' => implode(' ', [$w->params['datasets_kata'] ?? '', $w->params['timeblocks_kata'] ?? '']),
+					'core.workspace.widget.form_interaction' => $w->params['interactions_kata'] ?? '',
+					'cerb.workspace.widget.map.geopoints' => implode(' ', [$w->params['map_kata'] ?? '', $w->params['automation']['map_clicked'] ?? '']),
+					'core.workspace.widget.record.fields' => $w->params['toolbar_kata'] ?? '',
+					'core.workspace.widget.sheet' => implode(' ', [$w->params['data_query'] ?? '', $w->params['sheet_kata'] ?? '', $w->params['toolbar_kata'] ?? '']),
+					default => '',
+				};
+				
+				$tokens = DevblocksPlatform::services()->string()->tokenize($content, false);
+				
+				return in_array($automation_name, $tokens);
+			});
+			
+			if($linked_workspace_widgets)
+				$results['workspace_widget'] = array_column($linked_workspace_widgets, 'id');
+		}
+		
+		return $results;
+	}
+	
 	public function getEditorToolbarItems(array $toolbar): array {
 		return $toolbar;
 	}

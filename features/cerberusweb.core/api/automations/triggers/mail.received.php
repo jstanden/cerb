@@ -45,6 +45,10 @@ class AutomationTrigger_MailReceived extends Extension_AutomationTrigger {
 		return $toolbar;
 	}
 	
+	function getUsageMeta(string $automation_name): array {
+		return [];
+	}
+	
 	public function getEventToolbarItems(array $toolbar): array {
 		$toolbar['interaction/library'] = [
 			'icon' => 'magic',

@@ -41,6 +41,10 @@ class AutomationTrigger_MapClicked extends Extension_AutomationTrigger {
 		];
 	}
 	
+	function getUsageMeta(string $automation_name): array {
+		return [];
+	}
+	
 	function validateConfig(array &$params, &$error=null) {
 		return true;
 	}

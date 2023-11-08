@@ -61,6 +61,41 @@ class AutomationTrigger_WebhookRespond extends Extension_AutomationTrigger {
 		];
 	}
 	
+	function getUsageMeta(string $automation_name): array {
+		$db = DevblocksPlatform::services()->database();
+		
+		$results = [];
+		
+		// Webhook listeners
+		if(($linked_webhooks = DAO_WebhookListener::getWhere(sprintf("%s LIKE %s",
+			Cerb_ORMHelper::escape(DAO_WebhookListener::AUTOMATIONS_KATA),
+			Cerb_ORMHelper::qstr('%' . $automation_name . '%')
+		)))) {
+			$linked_webhooks = array_filter($linked_webhooks, function($w) use ($automation_name) {
+				$tokens = DevblocksPlatform::services()->string()->tokenize($w->automations_kata, false);
+				return in_array($automation_name, $tokens);
+			});
+			
+			if($linked_webhooks)
+				$results['webhook'] = array_column($linked_webhooks, 'id');
+		}
+		
+		// Webhook portals
+		if(($portals = $db->GetArrayReader(sprintf("select id, property_value from community_tool inner join community_tool_property on (community_tool_property.tool_code=community_tool.code) where extension_id in ('webhooks.portal') and property_key in ('automations_kata') and property_value like %s",
+			Cerb_ORMHelper::qstr('%' . $automation_name . '%')
+		)))) {
+			$portals = array_filter($portals, function($w) use ($automation_name) {
+				$tokens = DevblocksPlatform::services()->string()->tokenize($w['property_value'], false);
+				return in_array($automation_name, $tokens);
+			});
+			
+			if($portals)
+				$results['portal'] = array_column($portals, 'id');
+		}
+		
+		return $results;
+	}
+	
 	public function getEditorToolbarItems(array $toolbar): array {
 		return $toolbar;
 	}

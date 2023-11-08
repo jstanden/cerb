@@ -49,6 +49,26 @@ class AutomationTrigger_UiSheetData extends Extension_AutomationTrigger {
 		];
 	}
 	
+	function getUsageMeta(string $automation_name): array {
+		$results = [];
+		
+		// Automations
+		if(($linked_automations = DAO_Automation::getWhere(sprintf("%s LIKE %s",
+			Cerb_ORMHelper::escape(DAO_Automation::SCRIPT),
+			Cerb_ORMHelper::qstr('%' . $automation_name . '%')
+		)))) {
+			$linked_automations = array_filter($linked_automations, function($w) use ($automation_name) {
+				$tokens = DevblocksPlatform::services()->string()->tokenize($w->script, false);
+				return in_array($automation_name, $tokens);
+			});
+			
+			if($linked_automations)
+				$results['automation'] = array_column($linked_automations, 'id');
+		}
+		
+		return $results;
+	}
+	
 	public function getEditorToolbarItems(array $toolbar): array {
 		return $toolbar;
 	}

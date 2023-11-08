@@ -96,6 +96,7 @@
 		<li data-cerb-tab="policy"><a href="#{$tabs_uid}Policy">{'common.policy'|devblocks_translate|capitalize}</a></li>
 		<li data-cerb-tab="log"><a href="#{$tabs_uid}Log">{'common.log'|devblocks_translate|capitalize}</a></li>
 		<li data-cerb-tab="visualization"><a href="#{$tabs_uid}Visualization">Visualization</a></li>
+		<li data-cerb-tab="usage"><a href="#{$tabs_uid}Usage">Usage</a></li>
 	</ul>
 
 	<div id="{$tabs_uid}Run">
@@ -147,6 +148,7 @@
 
 	<div id="{$tabs_uid}Log"></div>
 	<div id="{$tabs_uid}Visualization"></div>
+	<div id="{$tabs_uid}Usage"></div>
 </div>
 
 {if !empty($model->id)}
@@ -192,7 +194,29 @@ $(function() {
 					genericAjaxPost(formData, null, null, function (html) {
 						ui.newPanel.html(html);
 					});
-					
+
+				} else if(ui.newTab.attr('data-cerb-tab') === 'usage') {
+					Devblocks.getSpinner().appendTo(ui.newPanel.html(''));
+
+					let extension_id = $frm.find('input:hidden[name=extension_id]').val();
+
+					if(!extension_id) {
+						ui.newPanel.text('(no usage found)');
+						return;
+					}
+
+					formData = new FormData();
+					formData.set('c', 'profiles');
+					formData.set('a', 'invoke');
+					formData.set('module', 'automation');
+					formData.set('action', 'editorUsage');
+					formData.set('automation_name', $frm.find('input[name=name]').val());
+					formData.set('trigger', extension_id);
+
+					genericAjaxPost(formData, null, null, function (html) {
+						ui.newPanel.html(html);
+					});
+
 				} else if(ui.newTab.attr('data-cerb-tab') === 'log') {
 					Devblocks.getSpinner().appendTo(ui.newPanel.html(''));
 

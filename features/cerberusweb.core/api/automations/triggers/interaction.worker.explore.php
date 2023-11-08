@@ -61,6 +61,10 @@ class AutomationTrigger_InteractionWorkerExplore extends AutomationTrigger_Inter
 		];
 	}
 	
+	function getUsageMeta(string $automation_name): array {
+		return parent::getUsageMeta($automation_name);
+	}
+	
 	public function getEditorToolbarItems(array $toolbar): array {
 		return $toolbar;
 	}
