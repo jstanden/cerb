@@ -36,8 +36,8 @@
 $(function() {
 	var $widget = $('#workspaceWidget{$widget->id}Fields');
 	var $tab = $widget.closest('.cerb-workspace-layout');
-	var $properties = $widget.find('> div:first');
-	
+
+	let $properties = $widget.find('> div:first, > fieldset.properties');
 	$properties.find('.cerb-peek-trigger').cerbPeekTrigger();
 	$properties.find('.cerb-search-trigger').cerbSearchTrigger();
 

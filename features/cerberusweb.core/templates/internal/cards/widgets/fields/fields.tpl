@@ -9,22 +9,22 @@
 			{/foreach}
 			</div>
 		{/if}
-	</div>
-		
-	<div data-cerb-toolbar-container style="margin:5px 0 10px 5px;">
-		{if $search_buttons}
-			<div class="cerb-search-buttons" style="display:inline;">
-				{foreach from=$search_buttons item=search_button}
-				<button type="button" class="cerb-search-trigger" data-context="{$search_button.context}" data-query="{$search_button.query}"><div class="badge-count">{$search_button.count|default:0}</div> {$search_button.label|capitalize}</button>
-				{/foreach}
-			</div>
-		{/if}
-		
-		{if $toolbar_fields}
-			<div data-cerb-toolbar style="display:inline-block;">
-				{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar_fields)}
-			</div>
-		{/if}
+
+		<div data-cerb-toolbar-container style="margin:5px 0 10px 5px;">
+			{if $search_buttons}
+				<div class="cerb-search-buttons" style="display:inline;">
+					{foreach from=$search_buttons item=search_button}
+					<button type="button" class="cerb-search-trigger" data-context="{$search_button.context}" data-query="{$search_button.query}"><div class="badge-count">{$search_button.count|default:0}</div> {$search_button.label|capitalize}</button>
+					{/foreach}
+				</div>
+			{/if}
+
+			{if $toolbar_fields}
+				<div data-cerb-toolbar style="display:inline-block;">
+					{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar_fields)}
+				</div>
+			{/if}
+		</div>
 	</div>
 	
 	{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/profile_fieldsets.tpl" properties=$properties_custom_fieldsets}
@@ -37,10 +37,9 @@ $(function() {
 	var $widget = $('#cardWidget{$widget->getUniqueId($dict->id)}Fields');
 	var $popup = genericAjaxPopupFind($widget);
 	
-	var $properties = $widget.find('> div:first');
+	let $properties = $widget.find('> div:first, > fieldset.properties');
 	$properties.find('.cerb-peek-trigger').cerbPeekTrigger();
-	
-	$widget.find('.cerb-search-buttons').find('.cerb-search-trigger').cerbSearchTrigger();
+	$properties.find('.cerb-search-trigger').cerbSearchTrigger();
 	
 	var $toolbar_container = $widget.find('[data-cerb-toolbar-container]');
 	var $toolbar = $toolbar_container.find('[data-cerb-toolbar]');
