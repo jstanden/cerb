@@ -24,11 +24,6 @@ class WorkspaceWidget_FormInteraction extends Extension_WorkspaceWidget {
 	}
 	
 	function invokeConfig($action, Model_WorkspaceWidget $model) {
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		if (!Context_WorkspaceWidget::isWriteableByActor($model, $active_worker))
-			DevblocksPlatform::dieWithHttpError(null, 403);
-		
 		switch ($action) {
 			case 'previewInteractions':
 				return $this->_workspaceWidgetConfig_previewInteractions($model);

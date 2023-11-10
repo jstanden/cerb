@@ -344,9 +344,6 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 	private function _profileAction_invokeConfig() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		if(!$active_worker->is_superuser)
-			DevblocksPlatform::dieWithHttpError(null, 403);
-		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
@@ -378,8 +375,11 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 			DevblocksPlatform::dieWithHttpError(null, 500);
 		}
 		
-		if(!Context_ProfileWidget::isWriteableByActor($model, $active_worker))
+		if(!$model->id && !$active_worker->hasPriv('dao.workspace_widget.create')) {
 			DevblocksPlatform::dieWithHttpError(null, 403);
+		} elseif (!Context_ProfileWidget::isWriteableByActor($model, $active_worker)) {
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		}
 		
 		$extension->invokeConfig($config_action, $model);
 	}

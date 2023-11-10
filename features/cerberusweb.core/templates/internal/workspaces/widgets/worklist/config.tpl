@@ -90,9 +90,17 @@ $(function() {
 		
 		// Fetch columns by context
 		
-		var $spinner = Devblocks.getSpinner().appendTo($columns.empty());
-		
-		genericAjaxGet('','c=profiles&a=invoke&module=profile_tab&action=getContextColumnsJson&context=' + encodeURIComponent(ctx), function(json) {
+		Devblocks.getSpinner().appendTo($columns.empty());
+
+		var formData = new FormData($config.closest('form').get(0));
+		formData.set('c', 'profiles');
+		formData.set('a', 'invoke');
+		formData.set('module', 'workspace_widget');
+		formData.set('action', 'invokeConfig');
+		formData.set('config_action', 'getContextColumnsJson');
+		formData.set('context', ctx);
+
+		genericAjaxPost(formData, '', '', function(json) {
 			if('object' == typeof(json) && json.length > 0) {
 				$columns.empty();
 				

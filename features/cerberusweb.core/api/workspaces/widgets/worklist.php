@@ -96,7 +96,10 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget implements ICer
 	}
 	
 	function invokeConfig($action, Model_WorkspaceWidget $model) {
-		return false;
+		return match ($action) {
+			'getContextColumnsJson' => $this->_widgetConfigAction_getContextColumnsJson($model),
+			default => false,
+		};
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget, ?string &$error=null) : bool {
@@ -163,6 +166,20 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget implements ICer
 		});
 		
 		return $results;
+	}
+	
+	public function _widgetConfigAction_getContextColumnsJson(Model_WorkspaceWidget $widget) {
+		$context = $widget->params['context'] ?: DevblocksPlatform::importGPC($_POST['context'] ?? '', 'string', '') ?: null;
+		$columns = $widget->params['columns'] ?? [];
+		
+		if($context) {
+			$columns = $this->_getContextColumns($context, $columns);
+		} else {
+			$columns = [];
+		}
+		
+		header('Content-Type: application/json');
+		echo json_encode($columns);
 	}
 	
 	function exportData(Model_WorkspaceWidget $widget, $format=null) {
