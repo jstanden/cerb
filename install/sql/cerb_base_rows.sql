@@ -13,6 +13,7 @@ INSERT INTO `automation_event` VALUES (12,'worker.authenticate.failed','After a 
 INSERT INTO `automation_event` VALUES (13,'mail.reply.validate','Validate before a worker starts a new reply','cerb.trigger.mail.reply.validate','automation/recentActivity:\n  uri: cerb:automation:cerb.reply.recentActivity\n  inputs:\n    message@key: message_id\n  disabled@bool: no',UNIX_TIMESTAMP());
 INSERT INTO `automation_event` VALUES (14,'record.viewed','After a record profile or card is viewed by a worker','cerb.trigger.record.viewed','',UNIX_TIMESTAMP());
 INSERT INTO `automation_event` VALUES (15,'mail.moved','After a ticket is moved to a new group/bucket','cerb.trigger.mail.moved','',UNIX_TIMESTAMP());
+INSERT INTO `automation_event` VALUES (16,'record.merged','After a set of records has been merged','cerb.trigger.record.merged','',UNIX_TIMESTAMP());
 
 INSERT INTO `card_widget` VALUES (1,'Properties','cerberusweb.contexts.address','cerb.card.widget.fields','{\"context\":\"cerberusweb.contexts.address\",\"context_id\":\"{{record_id}}\",\"properties\":[[\"contact\",\"org\",\"is_banned\",\"is_defunct\",\"num_nonspam\",\"num_spam\",\"mail_transport_id\",\"updated_at\"]],\"links\":{\"show\":1},\"search\":{\"context\":[\"cerberusweb.contexts.group\",\"cerberusweb.contexts.bucket\"],\"query\":[\"send.from.id:{{record_id}}\",\"send.from.id:{{record_id}}\"],\"label_singular\":[\"\",\"\"],\"label_plural\":[\"\",\"\"]}}',UNIX_TIMESTAMP(),UNIX_TIMESTAMP(),0,4,'content');
 INSERT INTO `card_widget` VALUES (2,'Properties','cerberusweb.contexts.attachment','cerb.card.widget.fields','{\"context\":\"cerberusweb.contexts.attachment\",\"context_id\":\"{{record_id}}\",\"properties\":[[\"mime_type\",\"storage_size\",\"updated\"]],\"links\":{\"show\":1},\"search\":[]}',UNIX_TIMESTAMP(),UNIX_TIMESTAMP(),0,4,'content');
@@ -95,7 +96,7 @@ INSERT INTO `card_widget` VALUES (78,'Statistics','cerb.contexts.automation','ce
 
 INSERT INTO `cerb_patch_history` VALUES ('cerb.project_boards',8,UNIX_TIMESTAMP());
 INSERT INTO `cerb_patch_history` VALUES ('cerb.webhooks',6,UNIX_TIMESTAMP());
-INSERT INTO `cerb_patch_history` VALUES ('cerberusweb.core',1441,UNIX_TIMESTAMP());
+INSERT INTO `cerb_patch_history` VALUES ('cerberusweb.core',1451,UNIX_TIMESTAMP());
 INSERT INTO `cerb_patch_history` VALUES ('cerberusweb.crm',23,UNIX_TIMESTAMP());
 INSERT INTO `cerb_patch_history` VALUES ('cerberusweb.kb',13,UNIX_TIMESTAMP());
 INSERT INTO `cerb_patch_history` VALUES ('cerberusweb.restapi',3,UNIX_TIMESTAMP());
@@ -467,5 +468,6 @@ INSERT INTO `toolbar` VALUES (6,'record.profile','cerb.toolbar.record.profile','
 INSERT INTO `toolbar` VALUES (7,'automation.editor','cerb.toolbar.automation.editor','Editing an automation','',UNIX_TIMESTAMP(),UNIX_TIMESTAMP());
 INSERT INTO `toolbar` VALUES (8,'draft.read','cerb.toolbar.draft.read','Reading a draft','',UNIX_TIMESTAMP(),UNIX_TIMESTAMP());
 INSERT INTO `toolbar` VALUES (9,'global.search','cerb.toolbar.global.search','Searching from the top right of any page','',UNIX_TIMESTAMP(),UNIX_TIMESTAMP());
-INSERT INTO `toolbar` VALUES (10,'comment.editor','cerb.toolbar.comment.editor','Editing a comment','',1683776065,1683776065);
-INSERT INTO `toolbar` VALUES (11,'records.worklist','cerb.toolbar.records.worklist','Viewing a worklist of records','',1683776065,1683776065);
+INSERT INTO `toolbar` VALUES (10,'comment.editor','cerb.toolbar.comment.editor','Editing a comment','',UNIX_TIMESTAMP(),UNIX_TIMESTAMP());
+INSERT INTO `toolbar` VALUES (11,'records.worklist','cerb.toolbar.records.worklist','Viewing a worklist of records','# interaction/customExplore:\n#   label: custom explore\n#   icon: play-button\n#   uri: cerb:automation:cerb.worklist.buttons.explore\n#   inputs:\n#     open_new_tab: yes\n#   class: action-always-show',UNIX_TIMESTAMP(),UNIX_TIMESTAMP());
+INSERT INTO `toolbar` VALUES (12,'record.profile.image.editor','cerb.toolbar.record.profile.image.editor','Editing a record profile image','interaction/text:\n  label: Text\n  icon: text-size\n  uri: cerb:automation:ai.cerb.record.profileImageEditor.text\n\ninteraction/upload:\n  label: Upload\n  icon: upload\n  uri: cerb:automation:ai.cerb.record.profileImageEditor.upload\n\ninteraction/url:\n  label: Fetch URL\n  icon: link\n  uri: cerb:automation:ai.cerb.record.profileImageEditor.fetchUrl',UNIX_TIMESTAMP(),UNIX_TIMESTAMP());
