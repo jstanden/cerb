@@ -3038,6 +3038,16 @@
 				<seg>tokens</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.toolbar.section">
+			<tuv xml:lang="en_US">
+				<seg>toolbar section</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.toolbar.sections">
+			<tuv xml:lang="en_US">
+				<seg>toolbar sections</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.toolbar">
 			<tuv xml:lang="en_US">
 				<seg>toolbar</seg>

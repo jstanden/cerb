@@ -45,6 +45,65 @@ if(array_key_exists('automations_kata', $columns)) {
 }
 
 // ===========================================================================
+// Toolbar Section
+
+if(!isset($tables['toolbar_section'])) {
+	$sql = sprintf("
+		CREATE TABLE `toolbar_section` (
+		`id` int unsigned NOT NULL AUTO_INCREMENT,
+		`name` varchar(255) NOT NULL DEFAULT '',
+		`toolbar_name` varchar(255) NOT NULL DEFAULT '',
+		`is_disabled` tinyint unsigned NOT NULL DEFAULT 0,
+		`priority` tinyint unsigned NOT NULL DEFAULT 50,
+		`created_at` int unsigned NOT NULL DEFAULT 0,
+		`updated_at` int unsigned NOT NULL DEFAULT 0,
+		`toolbar_kata` mediumtext,
+		`workflow_id` int unsigned NOT NULL DEFAULT 0,
+		PRIMARY KEY (id),
+		INDEX (toolbar_name),
+		INDEX (updated_at)
+		) ENGINE=%s
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+	
+	$tables['toolbar_section'] = 'toolbar_section';
+}
+
+// ===========================================================================
+// Drop `toolbar.toolbar_kata`
+
+list($columns, ) = $db->metaTable('toolbar');
+
+if(array_key_exists('toolbar_kata', $columns)) {
+	// Migrate automation_event KATA to event listeners
+	$db->ExecuteMaster("INSERT IGNORE INTO toolbar_section (name, toolbar_name, priority, created_at, updated_at, toolbar_kata) SELECT 'Default', name, 25, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), toolbar_kata FROM toolbar");
+	
+	// Migrate event changeset history to the new 'Default' listener records
+	$db->ExecuteMaster("UPDATE IGNORE record_changeset SET record_type = 'toolbar_section', record_id = (select id from toolbar_section where name = 'Default' and toolbar_name = (select cast(name as binary) from toolbar where id = record_changeset.record_id)) where record_type = 'toolbar'");
+	
+	// Drop the old column
+	$db->ExecuteMaster('ALTER TABLE toolbar DROP COLUMN toolbar_kata');
+}
+
+// ===========================================================================
+// Update built-in automations
+
+$automation_files = [
+	'ai.cerb.chooser.toolbar.json',
+];
+
+foreach($automation_files as $automation_file) {
+	$path = realpath(APP_PATH . '/features/cerberusweb.core/assets/automations/') . '/' . $automation_file;
+	
+	if(!file_exists($path) || false === ($automation_data = json_decode(file_get_contents($path), true)))
+		continue;
+	
+	DAO_Automation::importFromJson($automation_data);
+	
+	unset($automation_data);
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

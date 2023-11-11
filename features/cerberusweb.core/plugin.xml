@@ -708,7 +708,15 @@
 			<class name="SearchFields_Toolbar" />
 			<class name="View_Toolbar" />
 		</file>
-		
+
+		<file path="api/dao/toolbar_section.php">
+			<class name="Context_ToolbarSection" />
+			<class name="DAO_ToolbarSection" />
+			<class name="Model_ToolbarSection" />
+			<class name="SearchFields_ToolbarSection" />
+			<class name="View_ToolbarSection" />
+		</file>
+
 		<file path="api/dao/trigger_event.php">
 			<class name="Context_TriggerEvent" />
 			<class name="DAO_TriggerEvent" />
@@ -3441,7 +3449,47 @@
 				</param>
 			</params>
 		</extension>
-		
+
+		<extension point="devblocks.context">
+			<id>cerb.contexts.toolbar.section</id>
+			<name>Toolbar Section</name>
+			<class>
+				<file>api/dao/toolbar_section.php</file>
+				<name>Context_ToolbarSection</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="toolbar section" value="singular" />
+						<data key="toolbar sections" value="plural" />
+					</value>
+				</param>
+				<param key="alias" value="toolbar_section" />
+				<param key="dao_class" value="DAO_ToolbarSection" />
+				<param key="view_class" value="View_ToolbarSection" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="comments" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="records" />
+						<data key="search" />
+						<data key="va_variable" />
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="update" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
 		<extension point="devblocks.context">
 			<id>cerberusweb.contexts.behavior</id>
 			<name>Behavior</name>
@@ -7954,6 +8002,19 @@
 				</params>
 			</extension>
 		
+			<extension point="cerberusweb.ui.page.section">
+				<id>cerb.page.profiles.toolbar_section</id>
+				<name>Toolbar Section Section</name>
+				<class>
+					<file>api/uri/profiles/toolbar_section.php</file>
+					<name>PageSection_ProfilesToolbarSection</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="toolbar_section" />
+				</params>
+			</extension>
+
 			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.profiles.behavior</id>
 				<name>Behavior Section</name>

@@ -38,7 +38,7 @@ class Toolbar_GlobalMenu extends Extension_Toolbar {
 		$toolbar_kata = '';
 		
 		if(null != ($toolbar = DAO_Toolbar::getByName('global.menu')))
-			$toolbar_kata = $toolbar->toolbar_kata;
+			$toolbar_kata = $toolbar->getKata();
 		
 		if($legacy_interactions) {
 			$legacy_kata = "\nmenu/legacy:\n  label: (Legacy Chat Bots)\n  items:\n";

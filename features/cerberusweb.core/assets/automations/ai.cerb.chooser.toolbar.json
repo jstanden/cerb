@@ -1,0 +1,9 @@
+{
+    "name": "ai.cerb.chooser.toolbar",
+    "description": "",
+    "extension_id": "cerb.trigger.interaction.internal",
+    "script": "#\r\nstart:\r\n  await:\r\n    form:\r\n      elements:\r\n        sheet/prompt_toolbar_id:\r\n          label: Toolbar:\r\n          required@bool: yes\r\n          data:\r\n            automation:\r\n              uri: cerb:automation:cerb.data.records\r\n              inputs:\r\n                record_type: toolbar\r\n                query: sort:name\r\n          limit: 50\r\n          schema:\r\n            layout:\r\n              headings@bool: no\r\n              paging@bool: no\r\n              filtering@bool: yes\r\n              title_column: name\r\n              style: columns\r\n            columns:\r\n              selection/id:\r\n                params:\r\n                  mode: single\r\n                  label_key: name\r\n              text/description:\r\n                #params:\r\n                #  value_template@raw: {{params.description}}\r\n        submit:\r\n          continue@bool: no\r\n          reset@bool: no\r\n  \r\n  set:\r\n    prompt_toolbar__context: toolbar\r\n    prompt_toolbar_id@key: prompt_toolbar_id\r\n  \r\n  return:\r\n    toolbar:\r\n      id: {{prompt_toolbar_id}}\r\n      name: {{prompt_toolbar_name}}",
+    "policy_kata": "commands:\r\n  # [TODO] Specify a command policy here (use Ctrl+Space for autocompletion)\r\n  ",
+    "created_at": 1684197306,
+    "updated_at": 1684198096
+}

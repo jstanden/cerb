@@ -38,7 +38,7 @@ class Toolbar_GlobalSearch extends Extension_Toolbar {
 		$results = [];
 		
 		if(null != ($toolbar = DAO_Toolbar::getByName('global.search')))
-			$toolbar_kata = $toolbar->toolbar_kata;
+			$toolbar_kata = $toolbar->getKata();
 		
 		// Start with the worker's search favorites
 		if(null != ($search_favorites = DAO_WorkerPref::getAsJson($active_worker->id, 'search_favorites_json'))) {

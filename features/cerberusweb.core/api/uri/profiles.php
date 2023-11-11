@@ -210,7 +210,7 @@ class Page_Profiles extends CerberusPageExtension {
 		$toolbar_kata = '';
 		
 		if(null != ($toolbar = DAO_Toolbar::getByName('record.profile')))
-			$toolbar_kata = $toolbar->toolbar_kata;
+			$toolbar_kata = $toolbar->getKata();
 		
 		//************* [TODO] LEGACY SUPPORT - Remove in 11.0
 		$point_params = DevblocksDictionaryDelegate::instance([

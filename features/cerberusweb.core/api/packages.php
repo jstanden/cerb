@@ -1624,12 +1624,14 @@ class Cerb_Packages {
 		if(is_array($toolbars)) {
 			foreach ($toolbars as $toolbar) {
 				if (($toolbar_model = DAO_Toolbar::getByName($toolbar['toolbar']))) {
-					DAO_Toolbar::update($toolbar_model->id, [
-						DAO_Toolbar::TOOLBAR_KATA => rtrim($toolbar_model->toolbar_kata) . "\n\n" . rtrim($toolbar['kata']),
+					$section_id = DAO_ToolbarSection::create([
+						DAO_ToolbarSection::NAME => $json['package']['name'] ?? 'Package',
+						DAO_ToolbarSection::TOOLBAR_NAME => $toolbar_model->name,
+						DAO_ToolbarSection::TOOLBAR_KATA => $toolbar['kata'],
 					]);
 					
-					$records_modified['cerb.contexts.toolbar'][$toolbar_model->id] = [
-						'id' => $toolbar_model->id,
+					$records_modified['cerb.contexts.toolbar.section'][$section_id] = [
+						'id' => $section_id,
 						'label' => $toolbar_model->name,
 					];
 				}

@@ -2895,15 +2895,56 @@ var ajax = new cAjaxCalls();
 			var $panel_help = $fieldset.find('[data-cerb-toolbar-help]'); 
 			var $panel_tester = $fieldset.find('[data-cerb-toolbar-tester]');
 			
-			$toolbar.find('.cerb-editor-button-toolbar-help').on('click', function() {
-			  var $button = $(this);
+			let $button_help = $toolbar.find('.cerb-editor-button-toolbar-help');
 			
+			$toolbar.on('cerb-toolbar--change-type', function(e) {
+				e.stopPropagation();
+				
+				$panel_help.html('');
+				
+				let toolbar_name = e.hasOwnProperty('toolbar_name') ? e.toolbar_name : '';
+				
+				if('string' != typeof toolbar_name || 0 === toolbar_name.length) {
+					$panel_help.html('')
+					return;
+				}
+				
+				let formData = new FormData();
+				formData.set('c', 'profiles');
+				formData.set('a', 'invoke');
+				formData.set('module', 'toolbar');
+				formData.set('action', 'editorChangeToolbar');
+				formData.set('toolbar_name', toolbar_name);
+				
+				genericAjaxPost(formData, '', '', function(json) {
+					if(!json || 'object' != typeof json)
+						return;
+					
+					if(json.hasOwnProperty('help'))
+						$panel_help.html(json.help);
+					
+					if(options.editor) {
+						let $editor = $(options.editor.container).prev('textarea');
+						
+						if(json.hasOwnProperty('autocompletions')) {
+							$editor.cerbCodeEditorAutocompleteKata({
+								autocomplete_suggestions: json.autocompletions
+							});
+						} else {
+							$editor.cerbCodeEditorAutocompleteKata({
+								autocomplete_suggestions: cerbAutocompleteSuggestions.kataToolbar
+							});
+						}
+					}
+				});
+			});
+			
+			$button_help.on('click', function() {
 			  if($panel_help.is(':visible')) {
-				  $button.removeClass('cerb-code-editor-toolbar-button--enabled');
+				  $button_help.removeClass('cerb-code-editor-toolbar-button--enabled');
 				  $panel_help.hide();
-			
 			  } else {
-				  $button.addClass('cerb-code-editor-toolbar-button--enabled');
+				  $button_help.addClass('cerb-code-editor-toolbar-button--enabled');
 				  $panel_help.fadeIn();
 			  }
 			});

@@ -4,7 +4,6 @@ class DAO_Toolbar extends Cerb_ORMHelper {
 	const NAME = 'name';
 	const DESCRIPTION = 'description';
 	const EXTENSION_ID = 'extension_id';
-	const TOOLBAR_KATA = 'toolbar_kata';
 	const CREATED_AT = 'created_at';
 	const UPDATED_AT = 'updated_at';
 	
@@ -53,11 +52,6 @@ class DAO_Toolbar extends Cerb_ORMHelper {
 				
 				return true;
 			})
-		;
-		$validation
-			->addField(self::TOOLBAR_KATA)
-			->string()
-			->setMaxLength('16 bits')
 		;
 		$validation
 			->addField(self::UPDATED_AT)
@@ -162,19 +156,6 @@ class DAO_Toolbar extends Cerb_ORMHelper {
 			return false;
 		}
 		
-		if(array_key_exists(self::TOOLBAR_KATA, $fields)) {
-			$kata = DevblocksPlatform::services()->kata();
-			
-			if(false === $kata->validate(
-				$fields[self::TOOLBAR_KATA],
-				CerberusApplication::kataSchemas()->interactionToolbar(), 
-				$error
-				)) {
-				$error = 'Toolbar: ' . $error;
-				return false;
-			}
-		}
-		
 		return true;
 	}
 	
@@ -191,7 +172,7 @@ class DAO_Toolbar extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, extension_id, description, toolbar_kata, created_at, updated_at ".
+		$sql = "SELECT id, name, extension_id, description, created_at, updated_at ".
 			"FROM toolbar ".
 			$where_sql.
 			$sort_sql.
@@ -284,7 +265,6 @@ class DAO_Toolbar extends Cerb_ORMHelper {
 			$object->name = $row['name'];
 			$object->description = $row['description'];
 			$object->extension_id = $row['extension_id'];
-			$object->toolbar_kata = $row['toolbar_kata'];
 			$object->created_at = intval($row['created_at']);
 			$object->updated_at = intval($row['updated_at']);
 			$objects[$object->id] = $object;
@@ -517,7 +497,6 @@ class Model_Toolbar extends DevblocksRecordModel {
 	public $name;
 	public $description;
 	public $extension_id;
-	public $toolbar_kata;
 	public $created_at;
 	public $updated_at;
 	
@@ -530,11 +509,51 @@ class Model_Toolbar extends DevblocksRecordModel {
 	}
 	
 	/**
-	 * @param DevblocksDictionaryDelegate $dict
-	 * @return array|false
+	 * @param ?DevblocksDictionaryDelegate $dict
+	 * @param string|null $error
+	 * @return array|string|false
 	 */
-	function getKata(DevblocksDictionaryDelegate $dict) {
-		return DevblocksPlatform::services()->ui()->toolbar()->parse($this->toolbar_kata, $dict);
+	function getKata(?DevblocksDictionaryDelegate $dict=null, string &$error=null): array|string|bool {
+		$toolbar_sections = DAO_ToolbarSection::getByToolbar($this->name);
+		
+		// Sort by priority
+		uasort($toolbar_sections, fn($a,$b) => $a->priority <=> $b->priority);
+		
+		$toolbar_kata = '';
+		
+		// If we only have one listener we don't need to merge dupe key names
+		if(1 == count($toolbar_sections)) {
+			if(($section = current($toolbar_sections)))
+				$toolbar_kata = $section->toolbar_kata;
+			
+		} else {
+			// If we have more than one listener we need to check for dupe binding keys
+			$toolbar_kata_keys = [];
+			
+			foreach($toolbar_sections as $section) {
+				$lines = DevblocksPlatform::parseCrlfString($section->toolbar_kata, true, false);
+				
+				foreach($lines as $line) {
+					if(DevblocksPlatform::strStartsWith($line, ['interaction/','menu/'])) {
+						// Check for dupe bindings from the sections
+						if(array_key_exists($line, $toolbar_kata_keys)) {
+							$line = sprintf("%s_%s:",
+								rtrim($line,': '),
+								substr(sha1(random_bytes(128)), 0, 8)
+							);
+						}
+						$toolbar_kata_keys[$line] = true;
+					}
+					
+					$toolbar_kata .= $line . "\n";
+				}
+			}
+		}
+		
+		if(is_null($dict))
+			return $toolbar_kata;
+		
+		return DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $dict);
 	}
 };
 
@@ -1014,7 +1033,6 @@ class Context_Toolbar extends Extension_DevblocksContext implements IDevblocksCo
 			'extension_id' => $prefix.$translate->_('common.extension'),
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
-			'toolbar_kata' => $prefix.$translate->_('common.toolbar'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		];
@@ -1027,7 +1045,6 @@ class Context_Toolbar extends Extension_DevblocksContext implements IDevblocksCo
 			'extension_id' => Model_CustomField::TYPE_SINGLE_LINE,
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'toolbar_kata' => Model_CustomField::TYPE_MULTI_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
 			'record_url' => Model_CustomField::TYPE_URL,
 		];
@@ -1056,7 +1073,6 @@ class Context_Toolbar extends Extension_DevblocksContext implements IDevblocksCo
 			$token_values['extension_id'] = $toolbar->extension_id;
 			$token_values['id'] = $toolbar->id;
 			$token_values['name'] = $toolbar->name;
-			$token_values['toolbar_kata'] = $toolbar->toolbar_kata;
 			$token_values['updated_at'] = $toolbar->updated_at;
 			
 			// Custom fields
@@ -1078,7 +1094,6 @@ class Context_Toolbar extends Extension_DevblocksContext implements IDevblocksCo
 			'id' => DAO_Toolbar::ID,
 			'links' => '_links',
 			'name' => DAO_Toolbar::NAME,
-			'toolbar_kata' => DAO_Toolbar::TOOLBAR_KATA,
 			'updated_at' => DAO_Toolbar::UPDATED_AT,
 		];
 	}
@@ -1207,8 +1222,15 @@ class Context_Toolbar extends Extension_DevblocksContext implements IDevblocksCo
 			$types = Model_CustomField::getTypes();
 			$tpl->assign('types', $types);
 			
-			$autocomplete_suggestions = $model?->getExtension()?->getAutocompleteSuggestions() ?? [];
-			$tpl->assign('autocomplete_json', json_encode($autocomplete_suggestions));
+			if(!($toolbar_ext = $model->getExtension()))
+				DevblocksPlatform::dieWithHttpError(null, 404);
+			
+			/* @var $toolbar_ext Extension_Toolbar */
+			$tpl->assign('toolbar_ext', $toolbar_ext);
+			
+			// Sections
+			$sections = DAO_ToolbarSection::getByToolbar($toolbar_ext->manifest->name, true);
+			$tpl->assign('sections', $sections);
 			
 			// View
 			$tpl->assign('id', $context_id);

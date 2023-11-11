@@ -119,7 +119,7 @@ abstract class C4_AbstractView {
 			$toolbar_dict->set('worker_id', 0);
 		}
 		
-		return DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar->toolbar_kata, $toolbar_dict);
+		return $toolbar->getKata($toolbar_dict);
 	}
 	
 	/**
