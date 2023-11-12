@@ -526,19 +526,34 @@ class DAO_Automation extends Cerb_ORMHelper {
 			$automation_data
 		);
 		
-		$db->ExecuteMaster(sprintf("INSERT INTO automation (name, description, extension_id, script, policy_kata, created_at, updated_at) ".
-			"VALUES (%s, %s, %s, %s, %s, %d, %d) ".
-			"ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id), name=VALUES(name), extension_id=VALUES(extension_id), script=VALUES(script), policy_kata=VALUES(policy_kata), created_at=VALUES(created_at), updated_at=VALUES(updated_at)",
-			$db->qstr($automation_data['name']),
-			$db->qstr($automation_data['description']),
-			$db->qstr($automation_data['extension_id']),
-			$db->qstr($automation_data['script']),
-			$db->qstr($automation_data['policy_kata']),
-			$automation_data['created_at'],
-			$automation_data['updated_at']
-		));
+		if(!($automation_id = $db->GetOneMaster(sprintf('SELECT id FROM automation WHERE name = %s',
+			$db->qstr($automation_data['name'])
+		)))) {
+			$db->ExecuteMaster(sprintf("INSERT INTO automation (name, description, extension_id, script, policy_kata, created_at, updated_at) ".
+				"VALUES (%s, %s, %s, %s, %s, %d, %d)",
+				$db->qstr($automation_data['name']),
+				$db->qstr($automation_data['description']),
+				$db->qstr($automation_data['extension_id']),
+				$db->qstr($automation_data['script']),
+				$db->qstr($automation_data['policy_kata']),
+				$automation_data['created_at'],
+				$automation_data['updated_at']
+			));
+			$automation_id = $db->LastInsertId();
+			
+		} else {
+			$db->ExecuteMaster(sprintf("UPDATE automation SET description=%s, extension_id=%s, script=%s, policy_kata=%s, created_at=%d, updated_at=%d WHERE id = %d",
+				$db->qstr($automation_data['description']),
+				$db->qstr($automation_data['extension_id']),
+				$db->qstr($automation_data['script']),
+				$db->qstr($automation_data['policy_kata']),
+				$automation_data['created_at'],
+				$automation_data['updated_at'],
+				$automation_id
+			));
+		}
 		
-		return $db->LastInsertId();
+		return $automation_id;
 	}
 };
 

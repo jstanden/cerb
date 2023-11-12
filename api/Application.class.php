@@ -6471,22 +6471,36 @@ class _CerbApplication_Packages {
 		if(false === (@$package_data = json_decode($package_json, true)))
 			return;
 		
-		if(false == ($library_meta = ($package_data['package']['library'] ?? null)))
+		if(!($library_meta = ($package_data['package']['library'] ?? null)))
 			return;
 		
-		$db->ExecuteMaster(sprintf("INSERT INTO package_library (uri, name, description, instructions, point, updated_at, package_json) ".
-			"VALUES (%s, %s, %s, %s, %s, %d, %s) ".
-			"ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id), name=VALUES(name), uri=VALUES(uri), description=VALUES(description), instructions=VALUES(instructions), point=VALUES(point), updated_at=VALUES(updated_at), package_json=VALUES(package_json)",
-			$db->qstr($library_meta['uri'] ?? ''),
-			$db->qstr($library_meta['name'] ?? ''),
-			$db->qstr($library_meta['description'] ?? ''),
-			$db->qstr($library_meta['instructions'] ?? ''),
-			$db->qstr($library_meta['point'] ?? ''),
-			time(),
-			$db->qstr($package_json)
-		));
+		if(!($package_uri = $library_meta['uri'] ?? ''))
+			return;
 		
-		$package_id = $db->LastInsertId();
+		if(!($package_id = $db->GetOneMaster(sprintf("SELECT id FROM package_library WHERE uri = %s", $db->qstr($library_meta['uri']))))) {
+			$db->ExecuteMaster(sprintf("INSERT INTO package_library (uri, name, description, instructions, point, updated_at, package_json) ".
+				"VALUES (%s, %s, %s, %s, %s, %d, %s)",
+				$db->qstr($package_uri),
+				$db->qstr($library_meta['name'] ?? ''),
+				$db->qstr($library_meta['description'] ?? ''),
+				$db->qstr($library_meta['instructions'] ?? ''),
+				$db->qstr($library_meta['point'] ?? ''),
+				time(),
+				$db->qstr($package_json)
+			));
+			$package_id = $db->LastInsertId();
+		
+		} else {
+			$db->ExecuteMaster(sprintf("UPDATE package_library SET name=%s, description=%s, instructions=%s, point=%s, updated_at=%d, package_json=%s WHERE uri = %s",
+				$db->qstr($library_meta['name'] ?? ''),
+				$db->qstr($library_meta['description'] ?? ''),
+				$db->qstr($library_meta['instructions'] ?? ''),
+				$db->qstr($library_meta['point'] ?? ''),
+				time(),
+				$db->qstr($package_json),
+				$db->qstr($package_uri)
+			));
+		}
 		
 		// Package images
 		if($package_id && array_key_exists('image', $library_meta) && $library_meta['image']) {
@@ -6497,18 +6511,28 @@ class _CerbApplication_Packages {
 				
 				// Decode it to binary
 				if(false !== ($imagedata = base64_decode(substr($imagedata, 22)))) {
-					$sql = sprintf("INSERT INTO context_avatar (context,context_id,content_type,is_approved,updated_at) ".
-						"VALUES (%s,%d,%s,%d,%d) ".
-						"ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id), context=VALUES(context), context_id=VALUES(context_id), is_approved=VALUES(is_approved), updated_at=VALUES(updated_at)",
-						$db->qstr('cerberusweb.contexts.package.library'),
-						$package_id,
-						$db->qstr($content_type),
-						1,
-						time()
-					);
-					$db->ExecuteMaster($sql);
-					
-					$storage_id = $db->LastInsertId();
+					if(!($storage_id = $db->GetOneMaster(sprintf("SELECT id FROM context_avatar WHERE context = %s AND context_id = %d", $db->qstr('cerberusweb.contexts.package.library'), $package_id)))) {
+						$sql = sprintf("INSERT INTO context_avatar (context,context_id,content_type,is_approved,updated_at) ".
+							"VALUES (%s,%d,%s,%d,%d)",
+							$db->qstr('cerberusweb.contexts.package.library'),
+							$package_id,
+							$db->qstr($content_type),
+							1,
+							time()
+						);
+						$db->ExecuteMaster($sql);
+						
+						$storage_id = $db->LastInsertId();
+					} else {
+						$sql = sprintf("UPDATE context_avatar SET content_type=%s, is_approved=%d, updated_at=%d WHERE context = %s AND context_id = %d",
+							$db->qstr($content_type),
+							1,
+							time(),
+							$db->qstr('cerberusweb.contexts.package.library'),
+							$package_id
+						);
+						$db->ExecuteMaster($sql);
+					}
 					
 					// Put in storage
 					$storage_key = $storage->put('context_avatar', $storage_id, $imagedata);
