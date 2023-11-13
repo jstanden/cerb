@@ -38,7 +38,7 @@ class DAO_AutomationEvent extends Cerb_ORMHelper {
 			->addField(self::NAME)
 			->string()
 			->setRequired(true)
-			->setUnique(get_class())
+			->setUnique(__CLASS__)
 			->setNotEmpty(false)
 			->addValidator(function($string, &$error=null) {
 				if(0 != strcmp($string, DevblocksPlatform::strAlphaNum($string, '.-_'))) {

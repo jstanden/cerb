@@ -54,7 +54,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			->addField(self::AT_MENTION_NAME, DevblocksPlatform::translateCapitalized('worker.at_mention_name'))
 			->string()
 			->setMaxLength(64)
-			->setUnique(get_class())
+			->setUnique(__CLASS__)
 			->setNotEmpty(false)
 			->addValidator(function($string, &$error=null) {
 				if(0 != strcasecmp($string, DevblocksPlatform::strAlphaNum($string, '-._'))) {
@@ -96,7 +96,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			->addField(self::EMAIL_ID, DevblocksPlatform::translateCapitalized('common.email'))
 			->id()
 			->setRequired(true)
-			->setUnique(get_class())
+			->setUnique(__CLASS__)
 			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_ADDRESS))
 			->addValidator(function($value, &$error=null) {
 				if(DAO_Address::isLocalAddressId($value)) {

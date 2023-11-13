@@ -68,7 +68,7 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 			->string()
 			->setMaxLength(32)
 			->setRequired(true)
-			->setUnique(get_class())
+			->setUnique(__CLASS__)
 			->addFormatter(function(&$value, &$error=null) {
 				$value = DevblocksPlatform::strLower($value);
 				return true;

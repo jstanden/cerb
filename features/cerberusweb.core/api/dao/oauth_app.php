@@ -25,7 +25,7 @@ class DAO_OAuthApp extends Cerb_ORMHelper {
 			->addField(self::CLIENT_ID, DevblocksPlatform::translateCapitalized('dao.oauth_app.client_id'))
 			->string()
 			->setRequired(true)
-			->setUnique(get_class())
+			->setUnique(__CLASS__)
 			;
 		$validation
 			->addField(self::CLIENT_SECRET, DevblocksPlatform::translateCapitalized('dao.oauth_app.client_secret'))

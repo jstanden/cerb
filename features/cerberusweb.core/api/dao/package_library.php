@@ -54,7 +54,7 @@ class DAO_PackageLibrary extends Cerb_ORMHelper {
 			->addField(self::URI)
 			->string()
 			->setRequired(true)
-			->setUnique(get_class())
+			->setUnique(__CLASS__)
 			->addFormatter(function(&$value, &$error=null) {
 				$value = DevblocksPlatform::strLower($value);
 				return true;

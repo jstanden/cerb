@@ -442,7 +442,7 @@ class DAO_Server extends Cerb_ORMHelper {
 			->string()
 			->setMaxLength(255)
 			->setRequired(true)
-			->setUnique(get_class())
+			->setUnique(__CLASS__)
 			;
 		// int(10) unsigned
 		$validation

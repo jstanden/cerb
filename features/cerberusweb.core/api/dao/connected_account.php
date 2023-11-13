@@ -56,7 +56,7 @@ class DAO_ConnectedAccount extends Cerb_ORMHelper {
 		$validation
 			->addField(self::URI, DevblocksPlatform::translate('common.uri'))
 			->string()
-			->setUnique(get_class())
+			->setUnique(__CLASS__)
 			->setNotEmpty(false)
 			->addFormatter(function(&$value, &$error=null) {
 				$value = DevblocksPlatform::strLower($value);

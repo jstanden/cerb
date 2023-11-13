@@ -51,7 +51,7 @@ class DAO_ContextSavedSearch extends Cerb_ORMHelper {
 			->addField(self::TAG)
 			->string()
 			->setMaxLength(64)
-			->setUnique(get_class())
+			->setUnique(__CLASS__)
 			->setNotEmpty(false)
 			->addValidator(function($string, &$error=null) {
 				if(0 != strcasecmp($string, DevblocksPlatform::strAlphaNum($string, '-'))) {

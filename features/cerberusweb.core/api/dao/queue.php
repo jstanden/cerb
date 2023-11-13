@@ -28,7 +28,7 @@ class DAO_Queue extends Cerb_ORMHelper {
 			->addField(self::NAME)
 			->string()
 			->setRequired(true)
-			->setUnique(get_class())
+			->setUnique(__CLASS__)
 			->addValidator(function($string, &$error=null) {
 				if(0 != strcmp($string, DevblocksPlatform::strAlphaNum($string, '._'))) {
 					$error = "may only contain letters, numbers, underscores, and dots";

@@ -563,7 +563,7 @@ class DAO_Domain extends Cerb_ORMHelper {
 			->addField(self::NAME)
 			->string()
 			->setMaxLength(255)
-			->setUnique(get_class())
+			->setUnique(__CLASS__)
 			->setRequired(true)
 			;
 		// int(10) unsigned
