@@ -428,9 +428,9 @@ $(function() {
 			})
 		;
 
-		{if $model->id}
-		var editor_policy = ace.edit($editor_policy.nextAll('pre.ace_editor').attr('id'));
+		let editor_policy = ace.edit($editor_policy.nextAll('pre.ace_editor').attr('id'));
 
+		{if $model->id}
 		$popup.find('[data-cerb-editor-button-changesets-policy]').on('click', function(e) {
 			e.stopPropagation();
 
