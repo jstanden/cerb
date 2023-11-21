@@ -1559,6 +1559,7 @@ class Context_Automation extends Extension_DevblocksContext implements IDevblock
 			'created_at' => $prefix.$translate->_('common.created'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
 			'policy_kata' => $prefix.$translate->_('common.policy'),
+			'script' => $prefix.$translate->_('common.script'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		];
 		
@@ -1643,6 +1644,12 @@ class Context_Automation extends Extension_DevblocksContext implements IDevblock
 	
 	function lazyLoadGetKeys() {
 		$lazy_keys = parent::lazyLoadGetKeys();
+		
+		$lazy_keys['script'] = [
+			'label' => DevblocksPlatform::translateCapitalized('common.script'),
+			'type' => Model_CustomField::TYPE_MULTI_LINE,
+		];
+		
 		return $lazy_keys;
 	}
 
@@ -1690,6 +1697,15 @@ class Context_Automation extends Extension_DevblocksContext implements IDevblock
 				
 			case 'outputs':
 				$values['outputs'] = [];
+				break;
+			
+			case 'script':
+				$values['script'] = '';
+				
+				if(!($automation = DAO_Automation::get($context_id)))
+					break;
+				
+				$values['script'] = $automation->script;
 				break;
 				
 			default:
