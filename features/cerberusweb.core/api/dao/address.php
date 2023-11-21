@@ -1401,6 +1401,7 @@ class Model_Address extends DevblocksRecordModel {
 	
 	function setOrg(Model_ContactOrg $org) {
 		$this->_org_model = $org;
+		$this->contact_org_id = $org->id ?? 0;
 	}
 	
 	function getMailTransport() {

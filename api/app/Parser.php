@@ -1262,6 +1262,20 @@ class CerberusParser {
 					}
 				}
 				
+				if(null != ($new_org_id = $result->getKeyPath('__return.set.email_sender_org_id'))) {
+					if(
+						($sender_model = $model->getSenderAddressModel())
+						&& ($new_org = DAO_ContactOrg::get($new_org_id))
+					) {
+						DAO_Address::update($model->getSenderAddressModel()->id, [
+							DAO_Address::CONTACT_ORG_ID => $new_org->id
+						]);
+						
+						/* @var $sender_model Model_Address */
+						$sender_model->setOrg($new_org);
+					}
+				}
+				
 				if(null != ($custom_fields = $result->getKeyPath('__return.set.custom_fields'))) {
 					if(is_array($custom_fields)) {
 						foreach($custom_fields as $cf_key => $cf_value) {

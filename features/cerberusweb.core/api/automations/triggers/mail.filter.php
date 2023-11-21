@@ -75,6 +75,11 @@ class AutomationTrigger_MailFilter extends Extension_AutomationTrigger {
 					'required' => false,
 				],
 				[
+					'key' => 'set:email_sender_org_id',
+					'notes' => 'Assign an organization to the email sender',
+					'required' => false,
+				],
+				[
 					'key' => 'set:custom_fields',
 					'notes' => 'An object of [ticket](https://cerb.ai/docs/records/types/ticket/) custom field keys (ID/URIs) and values',
 					'required' => false,
@@ -102,6 +107,7 @@ class AutomationTrigger_MailFilter extends Extension_AutomationTrigger {
 					'custom_fields:',
 					'email_body:',
 					'email_body_html:',
+					'email_sender_org_id@int:',
 					'email_subject:',
 					'headers:',
 				],
