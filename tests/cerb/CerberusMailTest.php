@@ -47,6 +47,24 @@ class CerberusMailTest extends TestCase {
 		$actual = CerberusMail::parseRfcAddresses('jeff');
 		$this->assertEquals($expected, $actual);
 		
+		$expected = [
+			'customer@example.com' => [
+				'full_email' => 'customer@example.com',
+				'email' => 'customer@example.com',
+				'mailbox' => 'customer',
+				'host' => 'example.com',
+				'personal' => '',
+			],
+		];
+		
+		// Trailing comma
+		$actual = CerberusMail::parseRfcAddresses('customer@example.com,');
+		$this->assertEquals($expected, $actual);
+		
+		// Leading comma
+		$actual = CerberusMail::parseRfcAddresses(',customer@example.com');
+		$this->assertEquals($expected, $actual);
+		
 		// Multiple with no personal names and mixed delimiters
 		$expected = [
 			'customer@example.com' => [
