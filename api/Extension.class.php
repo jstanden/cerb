@@ -757,7 +757,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 		
 		// Merge Options from `automation.editor`
 		
-		if(false != ($editor_toolbar = DAO_Toolbar::getByName('automation.editor'))) {
+		if(($editor_toolbar = DAO_Toolbar::getByName('automation.editor'))) {
 			$editor_toolbar_dict = DevblocksDictionaryDelegate::instance([
 				'trigger_id' => $this->manifest->id,
 				'trigger_name' => $this->manifest->name,

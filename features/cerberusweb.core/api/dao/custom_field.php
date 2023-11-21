@@ -233,12 +233,12 @@ class DAO_CustomField extends Cerb_ORMHelper {
 		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
 			return false;
 		
-		@$custom_fieldset_id = $fields[self::CUSTOM_FIELDSET_ID];
+		$custom_fieldset_id = $fields[self::CUSTOM_FIELDSET_ID] ?? 0;
 		
 		if(!$id || $custom_fieldset_id) {
 			// On a fieldset
 			if(!empty($custom_fieldset_id)) {
-				if(false == ($fieldset = DAO_CustomFieldset::get($custom_fieldset_id))) {
+				if(!($fieldset = DAO_CustomFieldset::get($custom_fieldset_id))) {
 					$error = "'custom_fieldset_id' is an invalid record.";
 					return false;
 				}
@@ -1626,7 +1626,7 @@ class Model_CustomField extends DevblocksRecordModel {
 	
 	function getTypeLabel() {
 		$types = self::getTypes();
-		return @$types[$this->type];
+		return $types[$this->type] ?? null;
 	}
 	
 	static function getTypeExtensions() {

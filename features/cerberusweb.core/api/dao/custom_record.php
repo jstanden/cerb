@@ -278,7 +278,7 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 			$object->updated_at = $row['updated_at'];
 			$object->uri = $row['uri'];
 			
-			@$params = json_decode($row['params_json'], true) ?: [];
+			$params = json_decode($row['params_json'] ?? '', true) ?: [];
 			$object->params = $params;
 			
 			$objects[$object->id] = $object;

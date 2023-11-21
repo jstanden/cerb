@@ -2130,7 +2130,7 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 				break;
 				
 			case 'org':
-				if(false == ($org_id = DAO_ContactOrg::lookup($value, true))) {
+				if(!($org_id = DAO_ContactOrg::lookup($value, true))) {
 					$error = sprintf("Failed to lookup org: %s", $value);
 					return false;
 				}

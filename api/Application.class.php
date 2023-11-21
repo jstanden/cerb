@@ -3713,7 +3713,10 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 			return [];
 		
 		if(method_exists(get_called_class(), 'getAll')) {
-			$results = array_intersect_key(static::getAll(), array_flip($ids));
+			if(!($results = static::getAll()) || !is_array($results))
+				$results = [];
+			
+			$results = array_intersect_key($results, array_flip($ids));
 			
 		} else {
 			if(!method_exists(get_called_class(), 'getWhere'))

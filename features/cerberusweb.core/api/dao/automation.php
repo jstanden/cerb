@@ -1672,7 +1672,7 @@ class Context_Automation extends Extension_DevblocksContext implements IDevblock
 			case 'inputs':
 				$values['inputs'] = [];
 				
-				if(false == ($automation = DAO_Automation::get($context_id)))
+				if(!($automation = DAO_Automation::get($context_id)))
 					break;
 				
 				$kata = DevblocksPlatform::services()->kata();

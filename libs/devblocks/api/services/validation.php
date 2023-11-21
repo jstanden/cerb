@@ -992,7 +992,7 @@ class _DevblocksValidationService {
 		
 		$error = null;
 		
-		if(!$field->_type || false == ($class_name = get_class($field->_type)))
+		if(!$field->_type || !($class_name = get_class($field->_type)))
 			throw new Exception_DevblocksValidationError(sprintf("'%s' has an invalid type.", $field_label));
 		
 		$data = $field->_type->_data;

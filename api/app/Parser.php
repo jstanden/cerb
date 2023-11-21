@@ -1142,7 +1142,7 @@ class CerberusParser {
 		
 		$initial_state = [
 			'email_sender__context' => CerberusContexts::CONTEXT_ADDRESS,
-			'email_sender_id' => @$model->getSenderAddressModel()->id ?: 0,
+			'email_sender_id' => ($model->getSenderAddressModel()->id ?? null) ?: 0,
 			'email_subject' => $model->getSubject(),
 			'email_headers' => $model->getHeaders(),
 			'email_body' => $model->getMessage()->body,
@@ -1174,7 +1174,7 @@ class CerberusParser {
 					]
 				);
 				
-				if (false == ($results = DevblocksPlatform::services()->event()->trigger($event)))
+				if (!($results = DevblocksPlatform::services()->event()->trigger($event)))
 					return $return;
 				
 				$result = array_shift($results);
