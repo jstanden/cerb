@@ -2503,6 +2503,14 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 	function getKeyMeta($with_dao_fields=true) {
 		$keys = parent::getKeyMeta($with_dao_fields);
 		
+		$keys['org'] = [
+			'key' => 'org',
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => 'The exact name of the [organization](/docs/records/types/org/) linked to this email address; alternative to `org_id`',
+			'type' => 'string',
+		];
+		
 		$keys['contact_id']['notes'] = "The [contact](/docs/records/types/contact/) linked to this email";
 		$keys['email']['notes'] = "An email address";
 		$keys['host']['notes'] = "The hostname of the email address";
@@ -2517,7 +2525,17 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 	}
 	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
-		switch(DevblocksPlatform::strLower($key)) {
+		$dict_key = DevblocksPlatform::strLower($key);
+		
+		switch(DevblocksPlatform::strLower($dict_key)) {
+			case 'org':
+				if(!($org_id = DAO_ContactOrg::lookup($value, true))) {
+					$error = sprintf("Failed to lookup org: %s", $value);
+					return false;
+				}
+				
+				$out_fields[DAO_Address::CONTACT_ORG_ID] = $org_id;
+				break;
 		}
 		
 		return true;
