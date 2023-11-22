@@ -61,6 +61,7 @@ class RecordUpsertAction extends AbstractAction {
 			$validation->addField('fields', 'inputs:fields:')
 				->array()
 				->setRequired(true)
+				->setNotEmpty(false)
 			;
 			
 			if(false === ($validation->validateAll($inputs, $error)))

@@ -53,6 +53,7 @@ class RecordUpdateAction extends AbstractAction {
 			$validation->addField('fields', 'inputs:fields:')
 				->array()
 				->setRequired(true)
+				->setNotEmpty(false)
 			;
 			
 			$validation->addField('record_id', 'inputs:record_id:')
@@ -121,19 +122,21 @@ class RecordUpdateAction extends AbstractAction {
 			if(!method_exists($context_ext, 'getDaoFieldsFromKeysAndValues'))
 				throw new Exception_DevblocksAutomationError("Not implemented.");
 			
-			if(!$context_ext->getDaoFieldsFromKeysAndValues($fields, $dao_fields, $custom_fields, $error))
-				throw new Exception_DevblocksAutomationError($error);
-			
-			if(is_array($dao_fields) && !$dao_class::validate($dao_fields, $error, $record_id))
-				throw new Exception_DevblocksAutomationError($error);
-			
-			if($custom_fields && !DAO_CustomField::validateCustomFields($custom_fields, $context_ext->id, $error, $record_id))
-				throw new Exception_DevblocksAutomationError($error);
-			
-			$dao_class::update($record_id, $dao_fields);
-			
-			if($custom_fields)
-				DAO_CustomFieldValue::formatAndSetFieldValues($context_ext->id, $record_id, $custom_fields);
+			if(is_array($fields) && !empty($fields)) {
+				if(!$context_ext->getDaoFieldsFromKeysAndValues($fields, $dao_fields, $custom_fields, $error))
+					throw new Exception_DevblocksAutomationError($error);
+				
+				if(is_array($dao_fields) && !$dao_class::validate($dao_fields, $error, $record_id))
+					throw new Exception_DevblocksAutomationError($error);
+				
+				if($custom_fields && !DAO_CustomField::validateCustomFields($custom_fields, $context_ext->id, $error, $record_id))
+					throw new Exception_DevblocksAutomationError($error);
+				
+				$dao_class::update($record_id, $dao_fields);
+				
+				if($custom_fields)
+					DAO_CustomFieldValue::formatAndSetFieldValues($context_ext->id, $record_id, $custom_fields);
+			}
 			
 			$record_dict = DevblocksDictionaryDelegate::instance([
 				'_context' => $context_ext->id,
