@@ -54,7 +54,9 @@ class VarSetAction extends AbstractAction {
 				->setNotEmpty(false)
 			;
 			
-			if(false === ($validation->validateAll($inputs, $error)))
+			$validation_values = json_decode(json_encode($inputs), true);
+			
+			if(false === ($validation->validateAll($validation_values, $error)))
 				throw new Exception_DevblocksAutomationError($error);
 			
 			$result = $dict->setKeyPath($inputs['key'], $inputs['value'], $inputs['delimiter'] ?? ':');
