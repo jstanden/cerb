@@ -1422,7 +1422,12 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 						'limit' => 25,
 					]
 				),
-			'org' => 
+			'mobile' =>
+				[
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => ['param_key' => SearchFields_Contact::MOBILE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX],
+				],
+			'org' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Contact::VIRTUAL_ORG_SEARCH),
