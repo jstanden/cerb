@@ -1443,6 +1443,11 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_ORG, 'q' => ''],
 					]
 				),
+			'phone' =>
+				[
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => ['param_key' => SearchFields_Contact::PHONE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX],
+				],
 			'timezone' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
