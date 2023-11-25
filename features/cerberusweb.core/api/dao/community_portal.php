@@ -172,12 +172,22 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 			parent::_update($batch_ids, 'community_tool', $fields);
 			
 			if(false !== (@$params = json_decode($params_json, true))) {
-				$portals = DAO_CommunityTool::getIds($ids);
+				if(array_key_exists(self::CODE, $fields)) {
+					$portal_codes = array_fill_keys($batch_ids, $fields[self::CODE]);
+				} else {
+					$portal_codes = array_column(
+						DAO_CommunityTool::getWhere(
+							sprintf('id IN (%s)', implode(',', Cerb_ORMHelper::qstrArray($batch_ids)))
+						),
+						self::CODE,
+						self::ID
+					);
+				}
 				
-				if(is_array($portals) && is_array($params))
-				foreach($portals as $portal) {
+				if(is_array($params))
+				foreach($portal_codes as $portal_code) {
 					foreach($params as $k => $v) {
-						DAO_CommunityToolProperty::set($portal->code, $k, $v);
+						DAO_CommunityToolProperty::set($portal_code, $k, $v);
 					}
 				}
 			}
