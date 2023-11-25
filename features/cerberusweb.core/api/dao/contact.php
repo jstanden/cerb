@@ -1472,7 +1472,12 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_Contact::UPDATED_AT),
 				),
-			'watchers' => 
+			'username' =>
+				[
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => ['param_key' => SearchFields_Contact::USERNAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX],
+				],
+			'watchers' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Contact::VIRTUAL_WATCHERS),
