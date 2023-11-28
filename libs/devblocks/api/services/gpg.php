@@ -22,6 +22,55 @@ class DevblocksGpgEngine_OpenPGP extends Extension_DevblocksGpgEngine {
 		return true;
 	}
 	
+	private function _createPrivateKeyCryptRsa(int $key_length=2048)
+	{
+		$k = phpseclib3\Crypt\RSA::createKey($key_length);
+		$rsa = (array)$k->toString('raw');
+		
+		return [
+			'modulus' => $rsa['n']->toBytes(),
+			'publicExponent' => $rsa['e']->toBytes(),
+			'privateExponent' => $rsa['d']->toBytes(),
+			'primes' => [
+				$rsa['primes'][2]->toBytes(),
+				$rsa['primes'][1]->toBytes(),
+			],
+			'coefficients' => $rsa['coefficients'][2]->toBytes()
+		];
+	}
+	
+	/*
+	private function _createPrivateKeyOpenSsl(int $key_length=2048) {
+		if(!extension_loaded('openssl'))
+			return false;
+		
+		$config = [
+			"digest_alg" => "sha256",
+			"private_key_bits" => $key_length,
+			"private_key_type" => OPENSSL_KEYTYPE_RSA,
+		];
+		
+		$privateKeyResource = openssl_pkey_new($config);
+
+		// Get the private key details
+		openssl_pkey_export($privateKeyResource, $privateKeyPEM);
+
+		// Parse the private key PEM to get the key components
+		$privateKeyDetails = openssl_pkey_get_details($privateKeyResource);
+		
+		return [
+			'modulus' => $privateKeyDetails['rsa']['n'],
+			'publicExponent' => $privateKeyDetails['rsa']['e'],
+			'privateExponent' => $privateKeyDetails['rsa']['d'],
+			'primes' => [
+				$privateKeyDetails['rsa']['p'],
+				$privateKeyDetails['rsa']['q']
+			],
+			'coefficients' => $privateKeyDetails['rsa']['iqmp']
+		];
+	}
+	*/
+	
 	/**
 	 * @param array $uids
 	 * @param int $key_length
@@ -35,17 +84,15 @@ class DevblocksGpgEngine_OpenPGP extends Extension_DevblocksGpgEngine {
 		if(!in_array($key_length,[512,1024,2048,3072,4096]))
 			return false;
 		
-		$rsa = new \phpseclib\Crypt\RSA();
-		$k = $rsa->createKey($key_length);
-		$rsa->loadKey($k['privatekey']);
+		$rsa = $this->_createPrivateKeyCryptRsa($key_length);
 		
 		$nkey = new OpenPGP_SecretKeyPacket([
-			'n' => $rsa->modulus->toBytes(),
-			'e' => $rsa->publicExponent->toBytes(),
-			'd' => $rsa->exponent->toBytes(),
-			'p' => $rsa->primes[2]->toBytes(),
-			'q' => $rsa->primes[1]->toBytes(),
-			'u' => $rsa->coefficients[2]->toBytes()
+			'n' => $rsa['modulus'],
+			'e' => $rsa['publicExponent'],
+			'd' => $rsa['privateExponent'],
+			'p' => $rsa['primes'][1],
+			'q' => $rsa['primes'][0],
+			'u' => $rsa['coefficients'],
 		]);
 		
 		$packets = [$nkey];
@@ -53,7 +100,6 @@ class DevblocksGpgEngine_OpenPGP extends Extension_DevblocksGpgEngine {
 		$wkey = new OpenPGP_Crypt_RSA($nkey);
 		$fingerprint = $wkey->key()->fingerprint;
 		$key = $wkey->private_key();
-		$key->setHash('sha256');
 		$keyid = substr($fingerprint, -16);
 		
 		foreach($uids as $uid_data) {
@@ -75,17 +121,15 @@ class DevblocksGpgEngine_OpenPGP extends Extension_DevblocksGpgEngine {
 			$packets[] = $m->packets[2];
 		}
 		
-		$rsa_subkey = new \phpseclib\Crypt\RSA();
-		$sub_k = $rsa_subkey->createKey($key_length);
-		$rsa_subkey->loadKey($sub_k['privatekey']);
+		$rsa_subkey = $this->_createPrivateKeyCryptRsa($key_length);
 		
 		$subkey = new OpenPGP_SecretSubkeyPacket([
-			'n' => $rsa_subkey->modulus->toBytes(),
-			'e' => $rsa_subkey->publicExponent->toBytes(),
-			'd' => $rsa_subkey->exponent->toBytes(),
-			'p' => $rsa_subkey->primes[2]->toBytes(),
-			'q' => $rsa_subkey->primes[1]->toBytes(),
-			'u' => $rsa_subkey->coefficients[2]->toBytes()
+			'n' => $rsa_subkey['modulus'],
+			'e' => $rsa_subkey['publicExponent'],
+			'd' => $rsa_subkey['privateExponent'],
+			'p' => $rsa_subkey['primes'][1],
+			'q' => $rsa_subkey['primes'][0],
+			'u' => $rsa_subkey['coefficients'],
 		]);
 		
 		$packets[] = $subkey;
