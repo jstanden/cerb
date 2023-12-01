@@ -1444,98 +1444,11 @@ class CerberusParser {
 			}
 			
 			// Trigger automations first, and if we don't have an explicit `return` match then run routing rules
-			
-			$did_rule_match = false;
-			$error = null;
-			
-			$initial_state = [
-				'email_sender__context' => CerberusContexts::CONTEXT_ADDRESS,
-				'email_sender_id' => @$model->getSenderAddressModel()->id ?: 0,
-				'email_subject' => $model->getSubject(),
-				'email_headers' => $model->getHeaders(),
-				'email_body' => $model->getMessage()->body,
-				'email_body_html' => $model->getMessage()->htmlbody,
-				'email_recipients' => $model->getRecipients(),
-				'parent_ticket__context' => CerberusContexts::CONTEXT_TICKET,
-				'parent_ticket_id' => $model->getTicketId(),
-			];
-			
-			$events_kata = DAO_AutomationEvent::getKataByName('mail.route');
-			
-			$handlers = DevblocksPlatform::services()->ui()->eventHandler()->parse(
-				$events_kata,
-				DevblocksDictionaryDelegate::instance($initial_state),
-				$error
-			);
-			
-			if(false === $handlers && $error) {
-				DevblocksPlatform::logError('[KATA] Invalid mail.route KATA: ' . $error);
-				$handlers = [];
-			}
-			
-			$automation_results = DevblocksPlatform::services()->ui()->eventHandler()->handleUntilReturn(
-				AutomationTrigger_MailRoute::ID,
-				$handlers,
-				$initial_state,
-				$error
-			);
-			
-			if($automation_results instanceof DevblocksDictionaryDelegate) {
-				if('return' == $automation_results->getKeyPath('__exit')) {
-					$group_id = $automation_results->getKeyPath('__return.group_id');
-					$group_name = $automation_results->getKeyPath('__return.group_name');
-					$bucket_id = $automation_results->getKeyPath('__return.bucket_id');
-					$bucket_name = $automation_results->getKeyPath('__return.bucket_name');
-					
-					if($bucket_id && null != ($model->setRouteBucket($bucket_id))) {
-						$did_rule_match = true;
-					
-					} elseif($bucket_name && ($group_id || $group_name)) {
-						if($group_name && !$group_id)
-							$group_id = DAO_Group::getByName($group_name);
-						
-						if(null != ($model->setRouteGroup($group_id))) {
-							$buckets = $model->getRouteGroup()->getBuckets();
-							$bucket_name = DevblocksPlatform::strLower($bucket_name);
-							
-							$bucket_names = array_change_key_case(
-								array_column($buckets, 'id', 'name'),
-								CASE_LOWER
-							);
-							
-							if(array_key_exists($bucket_name, $bucket_names)) {
-								if(null != ($model->setRouteBucket($buckets[$bucket_names[$bucket_name]])))
-									$did_rule_match = true;
-							}
-						}
-					
-					} elseif($group_id) {
-						if(null != ($model->setRouteGroup($group_id)))
-							$did_rule_match = true;
-						
-					} elseif($group_name) {
-						if(null != ($model->setRouteGroup(DAO_Group::getByName($group_name))))
-							$did_rule_match = true;
-					}
-				}
-			}
+			self::_parseMessageRoutingAutomations($model);
 			
 			// Only run legacy routing rules if no automations matched above
-			
-			if(!$did_rule_match) {
-				// Routing new tickets
-				if(null != ($routing_rules = Model_MailToGroupRule::getMatches(
-					$model->getSenderAddressModel(),
-					$message
-				))) {
-					
-					// Update our model with the results of the routing rules
-					if(is_array($routing_rules))
-					foreach($routing_rules as $rule) {
-						$rule->run($model);
-					}
-				}
-			}
+			if(null == $model->getRouteGroup())
+				self::_parseMessageRoutingLegacy($model, $message);
 			
 			// Last ditch effort to check for a default group to deliver to
 			if(null == $model->getRouteGroup()) {
@@ -1775,7 +1688,7 @@ class CerberusParser {
 			$deliver_to_group = $model->getRouteGroup();
 			$deliver_to_bucket = $model->getRouteBucket();
 			
-			$change_fields = array(
+			$change_fields = [
 				DAO_Ticket::MASK => CerberusApplication::generateTicketMask(),
 				DAO_Ticket::SUBJECT => $model->getSubject(),
 				DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_OPEN,
@@ -1790,7 +1703,7 @@ class CerberusParser {
 				DAO_Ticket::BUCKET_ID => $deliver_to_bucket->id ?? $deliver_to_group->getDefaultBucket()->id, // this triggers move rules
 				DAO_Ticket::LAST_OPENED_AT => time(),
 				DAO_Ticket::LAST_OPENED_DELTA => time(),
-			);
+			];
 			
 			// Spam probabilities
 			// [TODO] Check headers?
@@ -1820,13 +1733,12 @@ class CerberusParser {
 		} else { // Reply
 		
 			// Re-open and update our date on new replies
-			DAO_Ticket::update($model->getTicketId(),array(
+			DAO_Ticket::update($model->getTicketId(), [
 				DAO_Ticket::UPDATED_DATE => time(),
 				DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_OPEN,
 				DAO_Ticket::LAST_MESSAGE_ID => $model->getMessageId(),
 				DAO_Ticket::LAST_WROTE_ID => $model->getSenderAddressModel()->id,
-			));
-			// [TODO] The TICKET_CUSTOMER_REPLY should be sure of this message address not being a worker
+			]);
 		}
 		
 		/*
@@ -1868,6 +1780,97 @@ class CerberusParser {
 		}
 		
 		return $model->getTicketId();
+	}
+	
+	static private function _parseMessageRoutingAutomations(CerberusParserModel $model) : bool {
+		$error = null;
+		
+		$initial_state = [
+			'email_sender__context' => CerberusContexts::CONTEXT_ADDRESS,
+			'email_sender_id' => @$model->getSenderAddressModel()->id ?: 0,
+			'email_subject' => $model->getSubject(),
+			'email_headers' => $model->getHeaders(),
+			'email_body' => $model->getMessage()->body,
+			'email_body_html' => $model->getMessage()->htmlbody,
+			'email_recipients' => $model->getRecipients(),
+			'parent_ticket__context' => CerberusContexts::CONTEXT_TICKET,
+			'parent_ticket_id' => $model->getTicketId(),
+		];
+		
+		$events_kata = DAO_AutomationEvent::getKataByName('mail.route');
+		
+		$handlers = DevblocksPlatform::services()->ui()->eventHandler()->parse(
+			$events_kata,
+			DevblocksDictionaryDelegate::instance($initial_state),
+			$error
+		);
+		
+		if(false === $handlers && $error) {
+			DevblocksPlatform::logError('[KATA] Invalid mail.route KATA: ' . $error);
+			$handlers = [];
+		}
+		
+		$automation_results = DevblocksPlatform::services()->ui()->eventHandler()->handleUntilReturn(
+			AutomationTrigger_MailRoute::ID,
+			$handlers,
+			$initial_state,
+			$error
+		);
+		
+		if($automation_results instanceof DevblocksDictionaryDelegate) {
+			if('return' == $automation_results->getKeyPath('__exit')) {
+				$group_id = $automation_results->getKeyPath('__return.group_id');
+				$group_name = $automation_results->getKeyPath('__return.group_name');
+				$bucket_id = $automation_results->getKeyPath('__return.bucket_id');
+				$bucket_name = $automation_results->getKeyPath('__return.bucket_name');
+				
+				if($bucket_id && null != ($model->setRouteBucket($bucket_id))) {
+					return true;
+					
+				} elseif($bucket_name && ($group_id || $group_name)) {
+					if($group_name && !$group_id)
+						$group_id = DAO_Group::getByName($group_name);
+					
+					if(null != ($model->setRouteGroup($group_id))) {
+						$buckets = $model->getRouteGroup()->getBuckets();
+						$bucket_name = DevblocksPlatform::strLower($bucket_name);
+						
+						$bucket_names = array_change_key_case(
+							array_column($buckets, 'id', 'name'),
+							CASE_LOWER
+						);
+						
+						if(array_key_exists($bucket_name, $bucket_names)) {
+							if(null != ($model->setRouteBucket($buckets[$bucket_names[$bucket_name]])))
+								return true;
+						}
+					}
+					
+				} elseif($group_id) {
+					if(null != ($model->setRouteGroup($group_id)))
+						return true;
+					
+				} elseif($group_name) {
+					if(null != ($model->setRouteGroup(DAO_Group::getByName($group_name))))
+						return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	static private function _parseMessageRoutingLegacy(CerberusParserModel $model, CerberusParserMessage $message) {
+		if(null != ($routing_rules = Model_MailToGroupRule::getMatches(
+			$model->getSenderAddressModel(),
+			$message
+		))) {
+			// Update our model with the results of the routing rules
+			if(is_array($routing_rules))
+			foreach($routing_rules as $rule) {
+				$rule->run($model);
+			}
+		}
 	}
 	
 	static function convertEncoding($text, $charset=null) {
