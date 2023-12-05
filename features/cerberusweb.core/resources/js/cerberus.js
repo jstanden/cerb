@@ -1306,6 +1306,23 @@ var cerbAutocompleteSuggestions = {
 			'yes',
 			'no'
 		],
+		'columns:link:params:icon:': [
+			'at:',
+			'image:',
+			'image_key:',
+			'image_template@raw:',
+			{
+				'caption': 'record_uri:',
+				'snippet': 'record_uri@raw: cerb:${1:record_type}:${2:record_id}'
+			}
+		],
+		'columns:link:params:icon:image:': {
+			'type': 'icon'
+		},
+		'columns:link:params:icon:at:': [
+			'start',
+			'end'
+		],
 
 		// Markdown
 		'columns:markdown:': [

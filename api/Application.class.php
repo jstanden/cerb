@@ -6013,6 +6013,26 @@ class _CerbApplication_KataSchemas {
                                 href:
                                   types:
                                     string:
+                                icon:
+                                  types:
+                                    string:
+                                    object:
+                                      attributes:
+                                        at:
+                                          types:
+                                            string:
+                                        image_key:
+                                          types:
+                                            string:
+                                        image_template:
+                                          types:
+                                            string:
+                                        image:
+                                          types:
+                                            string:
+                                        record_uri:
+                                          types:
+                                            string:
                                 text_key:
                                   types:
                                     string:

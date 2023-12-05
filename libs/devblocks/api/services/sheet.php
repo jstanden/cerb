@@ -787,10 +787,29 @@ class _DevblocksSheetServiceTypes {
 				if('text' == ($environment['format'] ?? null)) {
 					$value = $url;
 				} else {
-					$value = sprintf('<a href="%s">%s</a>',
+					$icon = '';
+					$icon_at = 'start';
+					
+					if(array_key_exists('icon', $column_params) && $column_params['icon']) {
+						$icon_column = $column;
+						$icon_column['params'] = $column_params['icon'];
+						$icon = $this->icon()($icon_column, $sheet_dict);
+						
+						if(is_array($column_params['icon']) && array_key_exists('at', $column_params['icon']))
+							if('end' == $column_params['icon']['at'])
+								$icon_at = 'end';
+					}
+					
+					if($icon && $icon_at == 'start')
+						$value .= ' ' . $icon;
+					
+					$value .= sprintf('<a href="%s"%s>%s</a>',
 						$url,
 						DevblocksPlatform::strEscapeHtml($text)
 					);
+					
+					if($icon && $icon_at == 'end')
+						$value .= ' ' . $icon;
 				}
 			}
 			
