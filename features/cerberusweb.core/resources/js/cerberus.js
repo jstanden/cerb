@@ -3766,26 +3766,34 @@ var ajax = new cAjaxCalls();
 								
 							} else if('record-fields' === completions['type']) {
 								editor.completer.getPopup().container.style.width = '400px';
-
-								var record_type_path = Devblocks.cerbCodeEditor.getKataTokenPath(
-									null,
-									editor
-								);
-
-								record_type_path.pop();
-								record_type_path.push('record_type:');
+								let record_type = '';
 								
-								var key_row = Devblocks.cerbCodeEditor.getKataRowByPath(editor, record_type_path.join(''));
-								var key_line = editor.session.getLine(key_row);
-								var matches = key_line.match(/[^:]*:\s*(.*)/i);
-
-								if(Array.isArray(matches) && 2 == matches.length) {
-									formData = new FormData();
-									formData.set('c', 'ui');
-									formData.set('a', 'kataSuggestionsRecordFieldsJson');
-									formData.set('prefix', prefix);
-									formData.set('params[record_type]', matches[1]);
+								if(completions.hasOwnProperty('params') && completions.params.hasOwnProperty('record_type')) {
+									record_type = completions.params.record_type;
+									
+								} else {
+									var record_type_path = Devblocks.cerbCodeEditor.getKataTokenPath(
+										null,
+										editor
+									);
+	
+									record_type_path.pop();
+									record_type_path.push('record_type:');
+									
+									var key_row = Devblocks.cerbCodeEditor.getKataRowByPath(editor, record_type_path.join(''));
+									var key_line = editor.session.getLine(key_row);
+									var matches = key_line.match(/[^:]*:\s*(.*)/i);
+									
+									if(Array.isArray(matches) && 2 === matches.length) {
+										record_type = matches[1];
+									}
 								}
+								
+								formData = new FormData();
+								formData.set('c', 'ui');
+								formData.set('a', 'kataSuggestionsRecordFieldsJson');
+								formData.set('prefix', prefix);
+								formData.set('params[record_type]', record_type);
 								
 							} else if('record-type' === completions['type']) {
 								editor.completer.getPopup().container.style.width = '300px';
