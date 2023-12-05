@@ -22,7 +22,7 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget implements ICer
 		// Unique instance per widget/record combo
 		$view_id = sprintf('widget_%d_worklist', $widget->id);
 		
-		if(false == $view_context || false == ($view_context_ext = Extension_DevblocksContext::get($view_context)))
+		if(!$view_context || !($view_context_ext = Extension_DevblocksContext::get($view_context)))
 			return;
 		
 		if(null == ($view = C4_AbstractViewLoader::getView($view_id))) {
@@ -37,7 +37,7 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget implements ICer
 			$defaults->options['header_color'] = @$widget->params['header_color'] ?: '#626c70';
 			$defaults->renderLimit = DevblocksPlatform::intClamp(@$widget->params['render_limit'], 1, 50);
 			
-			if(false == ($view = C4_AbstractViewLoader::unserializeAbstractView($defaults, false)))
+			if(!($view = C4_AbstractViewLoader::unserializeAbstractView($defaults, false)))
 				return;
 		}
 		
@@ -183,18 +183,16 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget implements ICer
 	}
 	
 	function exportData(Model_WorkspaceWidget $widget, $format=null) {
-		if(false == ($view = $this->getView($widget)))
+		if(!($view = $this->getView($widget)))
 			return false;
 		
 		switch(DevblocksPlatform::strLower($format)) {
 			case 'csv':
 				return $this->_exportDataAsCSV($widget, $view);
-				break;
 				
 			case 'json':
 			default:
 				return $this->_exportDataAsJson($widget, $view);
-				break;
 		}
 	}
 	

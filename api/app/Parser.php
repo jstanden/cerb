@@ -1222,7 +1222,7 @@ class CerberusParser {
 			);
 			
 			foreach($results as $result) { /** @var DevblocksDictionaryDelegate $result */
-				if(null != ($reject = $result->getKeyPath('__return.reject'))) {
+				if(null != ($result->getKeyPath('__return.reject'))) {
 					$model->addPreAction('reject');
 					break;
 				}

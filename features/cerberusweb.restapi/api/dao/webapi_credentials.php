@@ -197,7 +197,7 @@ class DAO_WebApiCredentials extends Cerb_ORMHelper {
 		
 		$objects = self::getAll();
 		
-		if(isset($objects[$id]))
+		if(array_key_exists($id, $objects))
 			return $objects[$id];
 		
 		return null;

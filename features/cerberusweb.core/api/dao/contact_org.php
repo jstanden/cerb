@@ -416,7 +416,7 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 		);
 		$objects = self::getWhere($where);
 
-		if(isset($objects[$id]))
+		if(array_key_exists($id, $objects))
 			return $objects[$id];
 			
 		return null;

@@ -789,7 +789,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 		return $toolbar;
 	}	
 	
-	public function getEventToolbar() {
+	public function getEventToolbar() : array {
 		$toolbar = [
 			'interaction/automation' => [
 				'icon' => 'search',

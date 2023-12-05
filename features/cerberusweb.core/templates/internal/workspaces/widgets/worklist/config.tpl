@@ -104,7 +104,7 @@ $(function() {
 			if('object' == typeof(json) && json.length > 0) {
 				$columns.empty();
 				
-				for(idx in json) {
+				for(let idx in json) {
 					var field = json[idx];
 					
 					var $div = $('<div/>').appendTo($columns);
@@ -123,7 +123,7 @@ $(function() {
 						}
 					});
 					
-					if(true == field.is_selected) {
+					if(field.is_selected) {
 						$label.css('font-weight', 'bold');
 						$checkbox.attr('checked', 'checked');
 					}

@@ -114,7 +114,7 @@ class DAO_BotSession extends Cerb_ORMHelper {
 			Cerb_ORMHelper::qstr($id)
 		));
 		
-		if(isset($objects[$id]))
+		if(array_key_exists($id, $objects))
 			return $objects[$id];
 		
 		return null;

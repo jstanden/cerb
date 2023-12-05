@@ -239,7 +239,7 @@ class DAO_Toolbar extends Cerb_ORMHelper {
 			$id
 		));
 		
-		if(isset($objects[$id]))
+		if(array_key_exists($id, $objects))
 			return $objects[$id];
 		
 		return null;
@@ -1179,7 +1179,7 @@ class Context_Toolbar extends Extension_DevblocksContext implements IDevblocksCo
 		if($context_id) {
 			// Load by URI
 			if(!is_numeric($context_id) && is_string($context_id)) {
-				if (false != ($model = DAO_Toolbar::getByName($context_id))) {
+				if (($model = DAO_Toolbar::getByName($context_id))) {
 					$context_id = $model->id;
 				}
 			}

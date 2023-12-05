@@ -167,8 +167,6 @@ class DAO_Automation extends Cerb_ORMHelper {
 			return false;
 		}
 		
-		$dict = DevblocksDictionaryDelegate::instance([]);
-		
 		if(array_key_exists(DAO_Automation::SCRIPT, $fields)) {
 			$kata = DevblocksPlatform::services()->kata();
 			if(false === $kata->validate($fields[DAO_Automation::SCRIPT], CerberusApplication::kataSchemas()->automation(), $error)) {
@@ -265,7 +263,7 @@ class DAO_Automation extends Cerb_ORMHelper {
 			$id
 		));
 		
-		if(isset($objects[$id]))
+		if(array_key_exists($id, $objects))
 			return $objects[$id];
 		
 		return null;

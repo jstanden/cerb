@@ -216,7 +216,7 @@ class DAO_MailHtmlTemplate extends Cerb_ORMHelper {
 		
 		$objects = DAO_MailHtmlTemplate::getAll();
 		
-		if(isset($objects[$id]))
+		if(array_key_exists($id, $objects))
 			return $objects[$id];
 		
 		return null;

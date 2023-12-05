@@ -158,7 +158,7 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 		
 		$objects = DAO_CustomFieldset::getAll();
 		
-		if(isset($objects[$id]))
+		if(array_key_exists($id, $objects))
 			return $objects[$id];
 		
 		return null;

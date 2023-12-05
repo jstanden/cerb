@@ -594,7 +594,7 @@ class Cerb_Packages {
 					if(!$context_ext->getDaoFieldsFromKeysAndValues($dict, $fields, $custom_fields, $error))
 						throw new Exception_DevblocksValidationError(sprintf("Error on project card (%s): %s", $card['uid'], $error));
 					
-					if(false == ($dao_class = $context_ext->getDaoClass()))
+					if(!($dao_class = $context_ext->getDaoClass()))
 						throw new Exception_DevblocksValidationError(sprintf("Error on project card (%s): %s", $card['uid'], "Can't load DAO class."));
 					
 					if(!$dao_class::validate($fields, $error))
@@ -612,7 +612,7 @@ class Cerb_Packages {
 				if (count($diff))
 					throw new Exception_DevblocksValidationError(sprintf("Invalid JSON: event is missing properties (%s)", implode(', ', array_keys($diff))));
 				
-				if(false == DAO_AutomationEvent::getByName($event['event']))
+				if(!DAO_AutomationEvent::getByName($event['event']))
 					throw new Exception_DevblocksValidationError(sprintf("Invalid JSON: event (%s) doesn't exist", $event['event']));
 			}
 		}
@@ -626,7 +626,7 @@ class Cerb_Packages {
 				if (count($diff))
 					throw new Exception_DevblocksValidationError(sprintf("Invalid JSON: toolbar is missing properties (%s)", implode(', ', array_keys($diff))));
 				
-				if(false == DAO_Toolbar::getByName($toolbar['toolbar']))
+				if(!DAO_Toolbar::getByName($toolbar['toolbar']))
 					throw new Exception_DevblocksValidationError(sprintf("Invalid JSON: toolbar (%s) doesn't exist", $toolbar['toolbar']));
 			}
 		}
@@ -655,13 +655,13 @@ class Cerb_Packages {
 		
 		if(is_array($records))
 		foreach($records as $record) {
-			$uid_record = $record['uid'];
+			$uid_record = $record['uid'] ?? null;
 			
 			// If we already processed this, ignore it here
 			if(isset($uids[$uid_record]))
 				continue;
 			
-			if(false == ($context_ext = Extension_DevblocksContext::getByAlias($record['_context'], true)))
+			if(!($context_ext = Extension_DevblocksContext::getByAlias($record['_context'], true)))
 				throw new Exception_DevblocksValidationError(sprintf("Unknown context on record (%s)", $record['_context']));
 
 			$dict = [];
@@ -671,7 +671,7 @@ class Cerb_Packages {
 				$dict['uri'] = $record['uri'];
 			}
 			
-			if(false == ($dao_class = $context_ext->getDaoClass()))
+			if(!($dao_class = $context_ext->getDaoClass()))
 				throw new Exception_DevblocksValidationError(sprintf("Error generating record (%s): %s", $uid_record, "Can't load DAO class."));
 			
 			$record_id = $dao_class::create($dict);
@@ -686,7 +686,7 @@ class Cerb_Packages {
 		
 		if(is_array($custom_fieldsets))
 		foreach($custom_fieldsets as $custom_fieldset) {
-			$uid = $custom_fieldset['uid'];
+			$uid = $custom_fieldset['uid'] ?? null;
 			
 			$custom_fieldset_id = DAO_CustomFieldset::create([
 				DAO_CustomFieldset::NAME => $custom_fieldset['name'],
@@ -701,7 +701,7 @@ class Cerb_Packages {
 			
 			if(is_array($fields))
 			foreach($fields as $field) {
-				$uid = $field['uid'];
+				$uid = $field['uid'] ?? null;
 				
 				$custom_field_id = DAO_CustomField::create([
 					DAO_CustomField::NAME => $uid,
@@ -747,8 +747,8 @@ class Cerb_Packages {
 		
 		if(is_array($behaviors))
 		foreach($behaviors as $behavior) {
-			$uid = $behavior['uid'];
-			$bot_id = $behavior['bot_id'];
+			$uid = $behavior['uid'] ?? null;
+			$bot_id = $behavior['bot_id'] ?? 0;
 			
 			// If the bot_id is a placeholder
 			if(preg_match('#\{\{[\#\%\{]#', $bot_id))
@@ -766,7 +766,7 @@ class Cerb_Packages {
 		
 		if(is_array($workspaces))
 		foreach($workspaces as $workspace) {
-			$uid = $workspace['uid'];
+			$uid = $workspace['uid'] ?? null;
 			
 			$owner_context = $workspace['owner__context'] ?? null;
 			$owner_context_id = $workspace['owner_id'] ?? null;
@@ -803,7 +803,7 @@ class Cerb_Packages {
 		
 		if(is_array($portals))
 		foreach($portals as $portal) {
-			$uid = $portal['uid'];
+			$uid = $portal['uid'] ?? null;
 			
 			$portal_code = DAO_CommunityTool::generateUniqueCode(8);
 			
@@ -820,7 +820,7 @@ class Cerb_Packages {
 		
 		if(is_array($saved_searches))
 		foreach($saved_searches as $saved_search) {
-			$uid = $saved_search['uid'];
+			$uid = $saved_search['uid'] ?? null;
 			
 			$search_id = DAO_ContextSavedSearch::create([
 				DAO_ContextSavedSearch::NAME => $saved_search['name'],
@@ -836,7 +836,7 @@ class Cerb_Packages {
 		
 		if(is_array($calendars))
 		foreach($calendars as $calendar) {
-			$uid = $calendar['uid'];
+			$uid = $calendar['uid'] ?? null;
 			
 			$calendar_id = DAO_Calendar::create([
 				DAO_Calendar::NAME => $calendar['name'],
@@ -851,7 +851,7 @@ class Cerb_Packages {
 			
 			if(is_array($events))
 			foreach($events as $event) {
-				$uid = $event['uid'];
+				$uid = $event['uid'] ?? null;
 				
 				$event_id = DAO_CalendarRecurringProfile::create([
 					DAO_CalendarRecurringProfile::EVENT_NAME => $event['name'],
@@ -866,7 +866,7 @@ class Cerb_Packages {
 		
 		if(is_array($classifiers))
 		foreach($classifiers as $classifier) {
-			$uid = $classifier['uid'];
+			$uid = $classifier['uid'] ?? null;
 			
 			$classifier_id = DAO_Classifier::create([
 				DAO_Classifier::NAME => $classifier['name'],
@@ -882,7 +882,7 @@ class Cerb_Packages {
 			
 			if(is_array($classes))
 			foreach($classes as $class) {
-				$uid = $class['uid'];
+				$uid = $class['uid'] ?? null;
 				
 				$class_id = DAO_ClassifierClass::create([
 					DAO_ClassifierClass::NAME => $class['name'],
@@ -898,7 +898,7 @@ class Cerb_Packages {
 		
 		if(is_array($project_boards))
 		foreach($project_boards as $project_board) {
-			$uid = $project_board['uid'];
+			$uid = $project_board['uid'] ?? null;
 			
 			$project_board_id = DAO_ProjectBoard::create([
 				DAO_ProjectBoard::NAME => $project_board['name'],
@@ -914,7 +914,7 @@ class Cerb_Packages {
 			
 			if(is_array($columns))
 			foreach($columns as $column) {
-				$uid_column = $column['uid'];
+				$uid_column = $column['uid'] ?? null;
 				
 				$column_id = DAO_ProjectBoardColumn::create([
 					DAO_ProjectBoardColumn::NAME => $column['name'],
@@ -928,14 +928,14 @@ class Cerb_Packages {
 				
 				if(is_array($cards))
 				foreach($cards as $card) {
-					$uid_card = $card['uid'];
+					$uid_card = $card['uid'] ?? null;
 					
-					if(false == ($context_ext = Extension_DevblocksContext::getByAlias($card['_context'], true)))
+					if(!($context_ext = Extension_DevblocksContext::getByAlias($card['_context'], true)))
 						throw new Exception_DevblocksValidationError(sprintf("Unknown context on project card (%s)", $card['_context']));
 
 					$dict = [];
 					
-					if(false == ($dao_class = $context_ext->getDaoClass()))
+					if(!($dao_class = $context_ext->getDaoClass()))
 						throw new Exception_DevblocksValidationError(sprintf("Error on project card (%s): %s", $uid_card, "Can't load DAO class."));
 					
 					$card_id = $dao_class::create($dict);
@@ -1007,10 +1007,10 @@ class Cerb_Packages {
 		
 		if(is_array($records))
 		foreach($records as $record) {
-			$uid_record = $record['uid'];
+			$uid_record = $record['uid'] ?? null;
 			$record_id = $uids[$uid_record];
 			
-			if(false == ($context_ext = Extension_DevblocksContext::getByAlias($record['_context'], true)))
+			if(!($context_ext = Extension_DevblocksContext::getByAlias($record['_context'], true)))
 				throw new Exception_DevblocksValidationError(sprintf("Unknown extension on record (%s): %s", $uid_record, $record['_context']));
 			
 			$dict = array_diff_key($record, ['_context'=>true,'uid'=>true]);
@@ -1020,7 +1020,7 @@ class Cerb_Packages {
 			if(!$context_ext->getDaoFieldsFromKeysAndValues($dict, $fields, $custom_fields, $error))
 				throw new Exception_DevblocksValidationError(sprintf("Error importing record (%s): %s", $uid_record, $error));
 			
-			if(false == ($dao_class = $context_ext->getDaoClass()))
+			if(!($dao_class = $context_ext->getDaoClass()))
 				throw new Exception_DevblocksValidationError(sprintf("Error importing record (%s): %s", $uid_record, "Can't load DAO class."));
 			
 			if(!$dao_class::validate($fields, $error, $record_id))
@@ -1045,20 +1045,20 @@ class Cerb_Packages {
 		
 		// Fill in labels for abstractly created records
 		foreach($records_created as $context_ext_id => $records) {
-			if(false == ($context_ext = Extension_DevblocksContext::get($context_ext_id, true)))
+			if(!($context_ext = Extension_DevblocksContext::get($context_ext_id, true)))
 				continue;
 			
-			if(false == ($dao_class = $context_ext->getDaoClass()))
+			if(!($dao_class = $context_ext->getDaoClass()))
 				continue;
 			
-			if(false == ($models = $dao_class::getIds(array_column($records, 'id'))))
+			if(!($models = $dao_class::getIds(array_column($records, 'id'))))
 				continue;
 				
-			if(false == ($dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $context_ext_id)))
+			if(!($dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $context_ext_id)))
 				continue;
 			
 			foreach($records as $uid => &$record) {
-				if(false == (@$dict = $dicts[$record['id']])) {
+				if(!($dict = ($dicts[$record['id']] ?? null))) {
 					unset($records[$uid]);
 					continue;
 				}
@@ -1113,7 +1113,7 @@ class Cerb_Packages {
 		
 		if(is_array($custom_fieldsets))
 		foreach($custom_fieldsets as $custom_fieldset) {
-			$uid = $custom_fieldset['uid'];
+			$uid = $custom_fieldset['uid'] ?? null;
 			$id = $uids[$uid];
 			
 			DAO_CustomFieldset::update($id, [

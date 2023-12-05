@@ -193,7 +193,7 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 			$limit_sql
 		;
 		
-		if($options & Cerb_ORMHelper::OPT_GET_MASTER_ONLY) {
+		if($options & DevblocksORMHelper::OPT_GET_MASTER_ONLY) {
 			$rs = $db->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 		} else {
 			$rs = $db->QueryReader($sql);
@@ -210,7 +210,7 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 	static function getAll($nocache=false) {
 		//$cache = DevblocksPlatform::services()->cache();
 		//if($nocache || null === ($objects = $cache->load(self::_CACHE_ALL))) {
-			$objects = self::getWhere(null, DAO_<?php echo $class_name; ?>::NAME, true, null, Cerb_ORMHelper::OPT_GET_MASTER_ONLY);
+			$objects = self::getWhere(null, DAO_<?php echo $class_name; ?>::NAME, true, null, DevblocksORMHelper::OPT_GET_MASTER_ONLY);
 			
 			//if(!is_array($objects))
 			//	return false;
@@ -234,7 +234,7 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 			$id
 		));
 		
-		if(isset($objects[$id]))
+		if(array_key_exists($id, $objects))
 			return $objects[$id];
 		
 		return null;
@@ -286,7 +286,7 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 
 		if(empty($ids)) return false;
 		
-        $context = "<?php echo $ctx_ext_id; ?>";
+        $context = '<?php echo $ctx_ext_id; ?>';
 		$ids_list = implode(',', self::qstrArray($ids));
 		
         parent::_deleteAbstractBefore($context, $ids);

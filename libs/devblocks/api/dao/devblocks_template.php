@@ -187,7 +187,7 @@ class DAO_DevblocksTemplate extends DevblocksORMHelper {
 			$id
 		));
 		
-		if(isset($objects[$id]))
+		if(array_key_exists($id, $objects))
 			return $objects[$id];
 		
 		return null;

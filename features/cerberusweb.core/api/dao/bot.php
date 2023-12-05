@@ -260,7 +260,7 @@ class DAO_Bot extends Cerb_ORMHelper {
 		
 		$objects = DAO_Bot::getAll();
 		
-		if(isset($objects[$id]))
+		if(array_key_exists($id, $objects))
 			return $objects[$id];
 		
 		return null;

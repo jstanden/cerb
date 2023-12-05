@@ -379,7 +379,7 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 		if(empty($id))
 			return null;
 		
-		if(isset($objects[$id]))
+		if(array_key_exists($id, $objects))
 			return $objects[$id];
 		
 		return null;
