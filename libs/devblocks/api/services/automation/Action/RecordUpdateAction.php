@@ -97,7 +97,7 @@ class RecordUpdateAction extends AbstractAction {
 			if($disable_events)
 				DevblocksPlatform::services()->event()->disable();
 			
-			if(false == ($context_ext = Extension_DevblocksContext::getByAlias($record_type, true))) {
+			if(!($context_ext = Extension_DevblocksContext::getByAlias($record_type, true))) {
 				throw new Exception_DevblocksAutomationError(sprintf(
 					"Unknown record type `%s`",
 					$record_type

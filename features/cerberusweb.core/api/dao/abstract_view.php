@@ -4349,7 +4349,7 @@ class CerbQuickSearchLexer {
 			});
 			
 			self::_recurse($tokens, ['T_ARRAY'], function (CerbQuickSearchLexerToken $token) use ($tpl_builder, $token_dict, $lexer) {
-				if(1 == count($token->value) && false !== strpos($token->value[0] ?? '', '${')) {
+				if(1 == count($token->value) && str_contains($token->value[0] ?? '', '${')) {
 					$token->value = DevblocksPlatform::parseCsvString($tpl_builder->build($token->value[0], $token_dict, $lexer));
 				}
 			});

@@ -314,11 +314,11 @@ class CerberusMail {
 		$is_quoted = false;
 		
 		if($personal) {
-			if (false !== strpos($personal, '.')) {
+			if (str_contains($personal, '.')) {
 				$is_quoted = true;
 			}
 			
-			if (false !== strpos($personal, '"')) {
+			if (str_contains($personal, '"')) {
 				$is_quoted = true;
 				$personal = str_replace('"', '\"', $personal);
 			}

@@ -140,8 +140,8 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		
 		$sender = !empty($parser_model) ? $parser_model->getSenderAddressModel() : null;
 		
-		$sender_labels = array();
-		$sender_values = array();
+		$sender_labels = [];
+		$sender_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, $sender, $sender_labels, $sender_values, null, true);
 
 		// Merge
@@ -179,8 +179,8 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		
 		$ticket = !empty($parser_model) ? $parser_model->getTicketModel() : null;
 		
-		$ticket_labels = array();
-		$ticket_values = array();
+		$ticket_labels = [];
+		$ticket_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $ticket, $ticket_labels, $ticket_values, '', true);
 
 		// Merge

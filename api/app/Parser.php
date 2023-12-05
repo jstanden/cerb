@@ -1317,7 +1317,7 @@ class CerberusParser {
 		
 		// Log headers after bots run
 		
-		$log_headers = array(
+		$log_headers = [
 			'from' => 'From',
 			'to' => 'To',
 			'delivered-to' => 'Delivered-To',
@@ -1327,7 +1327,7 @@ class CerberusParser {
 			'message-id' => 'Message-Id',
 			'in-reply-to' => 'In-Reply-To',
 			'references' => 'References',
-		);
+		];
 		
 		foreach($log_headers as $log_header => $log_label) {
 			if(!isset($message->headers[$log_header]))
@@ -1402,7 +1402,7 @@ class CerberusParser {
 			}
 		}
 		
-		if(false == ($validated = $model->validate()))
+		if(!($validated = $model->validate()))
 			return $validated; // false or null
 		
 		// Is it a worker reply from an external client?  If so, proxy
@@ -1414,11 +1414,11 @@ class CerberusParser {
 		
 		// New Ticket
 		if($model->getIsNew()) {
-			// Insert a bare minimum record so we can get a ticket ID back
-			$fields = array(
+			// Insert a bare minimum record to get a ticket ID back
+			$fields = [
 				DAO_Ticket::CREATED_DATE => time(),
 				DAO_Ticket::UPDATED_DATE => time(),
-			);
+			];
 			$model->setTicketId(DAO_Ticket::create($fields));
 			
 			if(null == $model->getTicketId()) {
@@ -1832,16 +1832,16 @@ class CerberusParser {
 		/*
 		 * Log activity (ticket.message.inbound)
 		 */
-		$entry = array(
+		$entry = [
 			//{{actor}} replied to ticket {{target}}
 			'message' => 'activities.ticket.message.inbound',
-			'variables' => array(
+			'variables' => [
 				'target' => $model->getSubject(),
-				),
-			'urls' => array(
+			],
+			'urls' => [
 				'target' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_TICKET, $model->getTicketId()),
-				)
-		);
+			]
+		];
 		CerberusContexts::logActivity('ticket.message.inbound', CerberusContexts::CONTEXT_TICKET, $model->getTicketId(), $entry, CerberusContexts::CONTEXT_ADDRESS, $model->getSenderAddressModel()->id);
 
 		AutomationTrigger_MailReceived::trigger($model->getMessageId(), $model->getIsNew());

@@ -820,7 +820,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		$keys = [];
 		
 		foreach($field_map as $record_key => $dao_key) {
-			if(false == ($dao_field = ($dao_fields[$dao_key] ?? null)))
+			if(!($dao_field = ($dao_fields[$dao_key] ?? null)))
 				continue;
 			
 			// Only editable fields

@@ -736,13 +736,13 @@ class DAO_Group extends Cerb_ORMHelper {
 	static function setBucketDefaultResponsibilities($bucket_id) {
 		$responsibilities = [];
 		
-		if(false == ($bucket = DAO_Bucket::get($bucket_id)))
+		if(!($bucket = DAO_Bucket::get($bucket_id)))
 			return false;
 		
-		if(false == ($group = $bucket->getGroup()))
+		if(!($group = $bucket->getGroup()))
 			return false;
 		
-		if(false == ($members = $group->getMembers()))
+		if(!($members = $group->getMembers()))
 			return false;
 		
 		if(is_array($members))
@@ -823,7 +823,7 @@ class DAO_Group extends Cerb_ORMHelper {
 				"ORDER BY g.name ASC, w.first_name ASC "
 			);
 			
-			if(false == ($rs = $db->QueryReader($sql)))
+			if(!($rs = $db->QueryReader($sql)))
 				return false;
 			
 			$objects = [];

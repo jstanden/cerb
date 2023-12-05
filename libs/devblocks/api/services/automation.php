@@ -1278,7 +1278,7 @@ class CerbAutomationAstNode implements JsonSerializable {
 		
 		$annotations = [];
 		
-		if(false !== strpos($k, '@')) {
+		if(str_contains($k, '@')) {
 			list($k, $ann) = explode('@', $k, 2);
 			$annotations = DevblocksPlatform::parseCsvString($ann);
 		}

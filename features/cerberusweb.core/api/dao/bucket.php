@@ -168,9 +168,7 @@ class DAO_Bucket extends Cerb_ORMHelper {
 			}
 		}
 		
-		$names = array_unique($names);
-		
-		return $names;
+		return array_unique($names);
 	}
 	
 	/**
@@ -701,7 +699,6 @@ class SearchFields_Bucket extends DevblocksSearchFields {
 			case SearchFields_Bucket::ID:
 				$models = DAO_Bucket::getIds($values);
 				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
-				break;
 				
 			case SearchFields_Bucket::GROUP_ID:
 				$models = DAO_Group::getIds($values);
@@ -709,7 +706,6 @@ class SearchFields_Bucket extends DevblocksSearchFields {
 				if(in_array(0,$values))
 					$label_map[0] = sprintf('(%s)', DevblocksPlatform::translate('common.none'));
 				return $label_map;
-				break;
 				
 			case SearchFields_Bucket::REPLY_SIGNATURE_ID:
 				$models = DAO_EmailSignature::getIds($values);
@@ -717,7 +713,6 @@ class SearchFields_Bucket extends DevblocksSearchFields {
 				if(in_array(0,$values))
 					$label_map[0] = sprintf('(%s)', DevblocksPlatform::translate('common.none'));
 				return $label_map;
-				break;
 				
 			case SearchFields_Bucket::REPLY_SIGNING_KEY_ID:
 				$models = DAO_GpgPrivateKey::getIds($values);
@@ -725,7 +720,6 @@ class SearchFields_Bucket extends DevblocksSearchFields {
 				if(in_array(0,$values))
 					$label_map[0] = sprintf('(%s)', DevblocksPlatform::translate('common.none'));
 				return $label_map;
-				break;
 				
 			case SearchFields_Bucket::REPLY_HTML_TEMPLATE_ID:
 				$models = DAO_MailHtmlTemplate::getIds($values);
@@ -733,7 +727,6 @@ class SearchFields_Bucket extends DevblocksSearchFields {
 				if(in_array(0,$values))
 					$label_map[0] = sprintf('(%s)', DevblocksPlatform::translate('common.none'));
 				return $label_map;
-				break;
 		}
 		
 		return parent::getLabelsForKeyValues($key, $values);
@@ -1203,8 +1196,8 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 		}
 		
 		// Reply-To Address
-		$merge_token_labels = array();
-		$merge_token_values = array();
+		$merge_token_labels = [];
+		$merge_token_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, null, $merge_token_labels, $merge_token_values, '', true);
 
 		CerberusContexts::scrubTokensWithRegexp(
@@ -1337,10 +1330,10 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 		$context_id = $dictionary['id'];
 		
 		$is_loaded = $dictionary['_loaded'] ?? false;
-		$values = array();
+		$values = [];
 		
 		if(!$is_loaded) {
-			$labels = array();
+			$labels = [];
 			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
@@ -1403,13 +1396,13 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 		$active_worker = CerberusApplication::getActiveWorker();
 		$context = CerberusContexts::CONTEXT_BUCKET;
 		
-		@$context_id = DevblocksPlatform::importVar($context_id,'integer',0);
+		$context_id = DevblocksPlatform::importVar($context_id,'integer',0);
 		$bucket = null;
 		
 		$tpl->assign('view_id', $view_id);
 		
 		if($context_id) {
-			if(false == ($bucket = DAO_Bucket::get($context_id))) {
+			if(!($bucket = DAO_Bucket::get($context_id))) {
 				$tpl->assign('error_message', DevblocksPlatform::translate('error.core.record.not_found'));
 				$tpl->display('devblocks:cerberusweb.core::internal/peek/peek_error.tpl');
 				return;
@@ -1417,7 +1410,7 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 			
 			$tpl->assign('bucket', $bucket);
 			
-			if(false != ($group = $bucket->getGroup())) {
+			if(($group = $bucket->getGroup())) {
 				$tpl->assign('group', $group);
 				$tpl->assign('members', $group->getMembers());
 			}

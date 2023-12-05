@@ -1017,7 +1017,7 @@ class CerberusBayes {
 		}
 		$combined = self::_combineP($probabilities);
 		
-		return array('probability' => $combined, 'words' => $interesting_words);
+		return ['probability' => $combined, 'words' => $interesting_words];
 	}
 	
 	static function calculateContentSpamProbability($content) {
@@ -1029,7 +1029,7 @@ class CerberusBayes {
 		$spam_data = self::_calculateSpamProbability($words);
 		
 		// Make a word list
-		$raw_words = array();
+		$raw_words = [];
 		if(isset($spam_data['words']) && is_array($spam_data['words']))
 		foreach($spam_data['words'] as $v) { /* @var $v Model_BayesWord */
 			$raw_words[] = $v->word;
@@ -1051,8 +1051,6 @@ class CerberusBayes {
 		
 		$content = $ticket->subject . ' ' . $first_message->getContent();
 		
-		$spam_data = self::calculateContentSpamProbability($content);
-		
-		return $spam_data;
+		return self::calculateContentSpamProbability($content);
 	}
 };

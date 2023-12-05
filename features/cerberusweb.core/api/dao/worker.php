@@ -456,10 +456,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 	static function getMentions() {
 		$workers = DAO_Worker::getAllActive();
 		$mentions = array_column(DevblocksPlatform::objectsToArrays($workers), 'at_mention_name', 'id');
-		
-		foreach($mentions as &$mention)
-			$mention = DevblocksPlatform::strLower($mention);
-		
+		$mentions = array_map(fn($mention) => DevblocksPlatform::strLower($mention), $mentions);
 		return array_flip($mentions);
 	}
 	
