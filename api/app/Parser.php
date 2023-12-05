@@ -49,6 +49,7 @@ class CerberusParserMessage {
 	public $htmlbody = '';
 	public $files = [];
 	public $custom_fields = [];
+	public $watcher_ids = [];
 	public $was_encrypted = false;
 	public $signed_key_fingerprint = '';
 	public $signed_at = 0;
@@ -1309,7 +1310,7 @@ class CerberusParser {
 		$message->build();
 		
 		// Parse headers into $model
-		$model = new CerberusParserModel($message); /* @var $model CerberusParserModel */
+		$model = new CerberusParserModel($message);
 		
 		// Pre-parse mail filters
 		// Changing the incoming message through a VA
@@ -1443,8 +1444,18 @@ class CerberusParser {
 				}
 			}
 			
+			// Compute the spam score before routing rules
+			if(($spam_data = CerberusBayes::calculateContentSpamProbability($model->getSubject() . ' ' . $message->body))) {
+				$model->getTicketModel()->spam_score = $spam_data['probability'];
+				$model->getTicketModel()->interesting_words = $spam_data['interesting_words'];
+			}
+			
 			// Trigger automations first, and if we don't have an explicit `return` match then run routing rules
 			self::_parseMessageRoutingAutomations($model);
+			
+			// Check routing rules KATA
+			if(null == $model->getRouteGroup())
+				self::_parseMessageRoutingKata($model);
 			
 			// Only run legacy routing rules if no automations matched above
 			if(null == $model->getRouteGroup())
@@ -1689,27 +1700,37 @@ class CerberusParser {
 			$deliver_to_bucket = $model->getRouteBucket();
 			
 			$change_fields = [
-				DAO_Ticket::MASK => CerberusApplication::generateTicketMask(),
-				DAO_Ticket::SUBJECT => $model->getSubject(),
-				DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_OPEN,
-				DAO_Ticket::FIRST_WROTE_ID => intval($model->getSenderAddressModel()->id),
-				DAO_Ticket::LAST_WROTE_ID => intval($model->getSenderAddressModel()->id),
-				DAO_Ticket::CREATED_DATE => time(),
-				DAO_Ticket::UPDATED_DATE => time(),
-				DAO_Ticket::ORG_ID => intval($model->getSenderAddressModel()->contact_org_id),
-				DAO_Ticket::FIRST_MESSAGE_ID => $model->getMessageId(),
-				DAO_Ticket::LAST_MESSAGE_ID => $model->getMessageId(),
-				DAO_Ticket::GROUP_ID => $deliver_to_group->id, // this triggers move rules
 				DAO_Ticket::BUCKET_ID => $deliver_to_bucket->id ?? $deliver_to_group->getDefaultBucket()->id, // this triggers move rules
+				DAO_Ticket::CREATED_DATE => time(),
+				DAO_Ticket::FIRST_MESSAGE_ID => $model->getMessageId(),
+				DAO_Ticket::FIRST_WROTE_ID => intval($model->getSenderAddressModel()->id),
+				DAO_Ticket::GROUP_ID => $deliver_to_group->id, // this triggers move rules
+				DAO_Ticket::IMPORTANCE => intval($model->getTicketModel()->importance ?? 50),
+				DAO_Ticket::LAST_MESSAGE_ID => $model->getMessageId(),
 				DAO_Ticket::LAST_OPENED_AT => time(),
 				DAO_Ticket::LAST_OPENED_DELTA => time(),
+				DAO_Ticket::LAST_WROTE_ID => intval($model->getSenderAddressModel()->id),
+				DAO_Ticket::MASK => CerberusApplication::generateTicketMask(),
+				DAO_Ticket::ORG_ID => intval($model->getSenderAddressModel()->contact_org_id),
+				DAO_Ticket::OWNER_ID => intval($model->getTicketModel()->owner_id ?? 0),
+				DAO_Ticket::STATUS_ID => intval($model->getTicketModel()->status_id ?? Model_Ticket::STATUS_OPEN),
+				DAO_Ticket::SUBJECT => $model->getSubject(),
+				DAO_Ticket::UPDATED_DATE => time(),
 			];
 			
 			// Spam probabilities
-			// [TODO] Check headers?
-			if(false !== ($spam_data = CerberusBayes::calculateContentSpamProbability($model->getSubject() . ' ' . $message->body))) {
-				$change_fields[DAO_Ticket::SPAM_SCORE] = $spam_data['probability'];
-				$change_fields[DAO_Ticket::INTERESTING_WORDS] = $spam_data['interesting_words'];
+			if($model->getTicketModel()->spam_score)
+				$change_fields[DAO_Ticket::SPAM_SCORE] = $model->getTicketModel()->spam_score;
+			if($model->getTicketModel()->interesting_words)
+				$change_fields[DAO_Ticket::INTERESTING_WORDS] = $model->getTicketModel()->interesting_words;
+			
+			// Watchers
+			if($model->getMessage()->watcher_ids) {
+				CerberusContexts::addWatchers(
+					CerberusContexts::CONTEXT_TICKET,
+					$model->getTicketId(),
+					$model->getMessage()->watcher_ids
+				);
 			}
 		
 			// Save properties
@@ -1854,6 +1875,45 @@ class CerberusParser {
 					if(null != ($model->setRouteGroup(DAO_Group::getByName($group_name))))
 						return true;
 				}
+			}
+		}
+		
+		return false;
+	}
+	
+	static private function _parseMessageRoutingKata(CerberusParserModel $model) : bool {
+		$settings = DevblocksPlatform::services()->pluginSettings();
+		$kata = DevblocksPlatform::services()->kata();
+		$mail = DevblocksPlatform::services()->mail();
+		
+		$routing_kata = $settings->get('cerberusweb.core', CerberusSettings::ROUTING_KATA, CerberusSettingsDefaults::ROUTING_KATA);
+		
+		$routing_dict = DevblocksDictionaryDelegate::instance([
+			'subject' => $model->getSubject(),
+			'body' => $model->getMessage()->body,
+			'recipients' => $model->getRecipients(),
+			'spam_score' => $model->getTicketModel()->spam_score ?? 0,
+			'headers' => $model->getHeaders(),
+		]);
+		
+		$routing_dict->mergeKeys('sender_', DevblocksDictionaryDelegate::getDictionaryFromModel($model->getSenderAddressModel(), CerberusContexts::CONTEXT_ADDRESS));
+		
+		$routing = $kata->parse($routing_kata);
+		$routing = $kata->formatTree($routing, $routing_dict);
+		
+		if(($route_actions = $mail->runRoutingKata($routing, $routing_dict))) {
+			$mail->runRoutingKataActions($route_actions, $model);
+		}
+		
+		// If we sent something to a group inbox, also run its routing rules
+		if($model->getRouteGroup() && ($model->getRouteBucket()->is_default ?? false)) {
+			$bucket_routing_kata = $model->getRouteBucket()->routing_kata ?? '';
+			
+			$bucket_routing = $kata->parse($bucket_routing_kata);
+			$bucket_routing = $kata->formatTree($bucket_routing, $routing_dict);
+			
+			if(($bucket_route_actions = $mail->runRoutingKata($bucket_routing, $routing_dict))) {
+				$mail->runRoutingKataActions($bucket_route_actions, $model);
 			}
 		}
 		

@@ -1,9 +1,26 @@
+{$form_id = "frmSetupMailRoutingKata{uniqid()}"}
+
 <fieldset id="frmSetupMailRouting" class="peek" style="margin-bottom:20px;">
 	<legend>{'common.automations'|devblocks_translate|capitalize}</legend>
 	
 	<button type="button" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_AUTOMATION_EVENT}" data-context-id="mail.route" data-edit="true">
 		<span class="glyphicons glyphicons-cogwheel"></span> {'common.configure'|devblocks_translate|capitalize}
 	</button>
+</fieldset>
+
+<fieldset id="{$form_id}" class="peek" style="margin-bottom:20px;">
+	<legend>Routing Rules (KATA)</legend>
+
+	<div class="cerb-code-editor-toolbar">
+		<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-magic title="{'common.autocomplete'|devblocks_translate|capitalize} (Ctrl+Space)"><span class="glyphicons glyphicons-magic"></span></button>
+		<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-changesets title="{'common.change_history'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-history"></span></button>
+	</div>
+
+	<textarea name="routing_kata" data-editor-mode="ace/mode/cerb_kata">{$routing_kata}</textarea>
+
+	<br>
+
+	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 </fieldset>
 
 <fieldset class="peek">
@@ -104,7 +121,123 @@
 
 <script type="text/javascript">
 $(function() {
-	var $frm = $('#frmSetupMailRouting');
+	let $frm = $('#frmSetupMailRouting');
+	let $routing = $('#{$form_id}');
+
 	$frm.find('.cerb-peek-trigger').cerbPeekTrigger();
+
+	// Editor
+	let autocomplete_suggestions = {if $autocomplete_json}{$autocomplete_json nofilter}{else}[]{/if};
+
+	let $editor = $routing.find('[name=routing_kata]')
+		.cerbCodeEditor()
+		.cerbCodeEditorAutocompleteKata({
+			autocomplete_suggestions: autocomplete_suggestions
+		})
+		.next('pre.ace_editor')
+	;
+
+	let editor = ace.edit($editor.attr('id'));
+
+	$routing.find('button.submit').on('click', function() {
+		let formData = new FormData();
+		formData.set('c', 'config');
+		formData.set('a', 'invoke');
+		formData.set('module', 'mail_incoming');
+		formData.set('action', 'saveRoutingKataJson');
+		formData.set('routing_kata', editor.getValue());
+
+		Devblocks.clearAlerts();
+
+		genericAjaxPost(formData, null, null, function(json) {
+			if('object' != typeof json)
+				return;
+
+			if(json.hasOwnProperty('error')) {
+				Devblocks.createAlertError(json.error);
+			} else if(json.hasOwnProperty('status') && json.status) {
+				Devblocks.createAlert('Routing KATA saved!');
+			}
+		});
+	});
+
+	$routing.find('[data-cerb-editor-button-magic]').on('click', function(e) {
+		editor.commands.byName.startAutocomplete.exec(editor);
+	});
+
+	$routing.find('[data-cerb-editor-button-changesets]').on('click', function(e) {
+		e.stopPropagation();
+
+		let formData = new FormData();
+		formData.set('c', 'internal');
+		formData.set('a', 'invoke');
+		formData.set('module', 'records');
+		formData.set('action', 'showChangesetsPopup');
+		formData.set('record_type', 'global_routing');
+		formData.set('record_id', '0');
+		formData.set('record_key', 'routing_kata');
+
+		let $editor_kata_differ_popup = genericAjaxPopup('editorDiff{$form_id}', formData, null, null, '80%');
+
+		$editor_kata_differ_popup.one('cerb-diff-editor-ready', function(e) {
+			e.stopPropagation();
+
+			if(!e.hasOwnProperty('differ'))
+				return;
+
+			e.differ.editors.right.ace.setValue(editor.getValue());
+			e.differ.editors.right.ace.clearSelection();
+
+			e.differ.editors.right.ace.on('change', function() {
+				editor.setValue(e.differ.editors.right.ace.getValue());
+				editor.clearSelection();
+			});
+		});
+	});
+
+	// Toolbar
+
+	let $toolbar = $routing.find('.cerb-code-editor-toolbar');
+
+	$toolbar.cerbToolbar({
+		caller: {
+			name: 'cerb.toolbar.editor',
+			params: {
+				toolbar: 'cerb.toolbar.recordEditor.bucketRouting',
+				selected_text: ''
+			}
+		},
+		start: function(formData) {
+			let pos = editor.getCursorPosition();
+			let token_path = Devblocks.cerbCodeEditor.getKataTokenPath(pos, editor).join('');
+
+			formData.set('caller[params][selected_text]', editor.getSelectedText());
+			formData.set('caller[params][token_path]', token_path);
+			formData.set('caller[params][cursor_row]', pos.row);
+			formData.set('caller[params][cursor_column]', pos.column);
+			formData.set('caller[params][value]', editor.getValue());
+		},
+		done: function(e) {
+			e.stopPropagation();
+
+			let $target = e.trigger;
+
+			if(!$target.is('.cerb-bot-trigger'))
+				return;
+
+			if (e.eventData.exit === 'error') {
+
+			} else if(e.eventData.exit === 'return') {
+				Devblocks.interactionWorkerPostActions(e.eventData, editor);
+			}
+		},
+		reset: function(e) {
+			e.stopPropagation();
+		}
+	});
+
+	$toolbar.cerbCodeEditorToolbarEventHandler({
+		editor: editor
+	});
 });
 </script>

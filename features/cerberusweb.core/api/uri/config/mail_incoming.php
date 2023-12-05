@@ -71,6 +71,8 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 					return $this->_configAction_showMailRoutingRulePanel();
 				case 'saveRouting':
 					return $this->_configAction_saveRouting();
+				case 'saveRoutingKataJson':
+					return $this->_configAction_saveRoutingKataJson();
 				case 'saveSettingsJson':
 					return $this->_configAction_saveSettingsJson();
 				case 'showMailFailedPeekPopup':
@@ -200,6 +202,7 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 	private function _configAction_renderTabMailRouting() {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
+		$settings = DevblocksPlatform::services()->pluginSettings();
 		
 		if(!$active_worker || !$active_worker->is_superuser)
 			DevblocksPlatform::dieWithHttpError(null, 403);
@@ -217,7 +220,47 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		$custom_fields =  DAO_CustomField::getAll();
 		$tpl->assign('custom_fields', $custom_fields);
 		
+		// Routing KATA
+		$tpl->assign('routing_kata', $settings->get('cerberusweb.core', CerberusSettings::ROUTING_KATA, CerberusSettingsDefaults::ROUTING_KATA));
+		
+		$autocomplete_suggestions = CerberusApplication::kataAutocompletions()->bucketRouting();
+		$tpl->assign('autocomplete_json', json_encode($autocomplete_suggestions));
+		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/mail_incoming/tabs/mail_routing.tpl');
+	}
+	
+	private function _configAction_saveRoutingKataJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		$settings = DevblocksPlatform::services()->pluginSettings();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		$routing_kata = DevblocksPlatform::importGPC($_POST['routing_kata'] ?? null,'string', '');
+		
+		header('Content-Type: application/json; charset=utf-8');
+		
+		$settings->set('cerberusweb.core', CerberusSettings::ROUTING_KATA, $routing_kata);
+		
+		// Versioning
+		try {
+			DAO_RecordChangeset::create(
+				'global_routing',
+				0,
+				[
+					'routing_kata' => $routing_kata ?? '',
+				],
+				$active_worker->id ?? 0
+			);
+			
+		} catch (Exception $e) {
+			DevblocksPlatform::logError('Error saving changeset: ' . $e->getMessage());
+		}
+		
+		echo json_encode(['status' => true]);
 	}
 	
 	private function _configAction_saveRouting() {

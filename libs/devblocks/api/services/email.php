@@ -328,4 +328,191 @@ class _DevblocksEmailManager {
 		
 		return $whitelist_hash;
 	}
+	
+	public function runRoutingKata(array $routing, DevblocksDictionaryDelegate $routing_dict) : array|false {
+		foreach($routing as $rule_data) {
+			$num_ifs = 0;
+			
+			foreach($rule_data as $node_key => $node_data) {
+				$node_type = DevblocksPlatform::services()->string()->strBefore($node_key, '/');
+				
+				// Check conditions
+				if('if' == $node_type) {
+					$num_ifs++;
+					$cond_passed = 0;
+					$cond_count = 0;
+					
+					foreach($node_data as $cond_key => $cond_data) {
+						$cond_type = DevblocksPlatform::services()->string()->strBefore($cond_key, '/');
+						$cond_count++;
+						
+						if('recipients' == $cond_type) {
+							if(is_string($cond_data) && str_contains($cond_data, ','))
+								$cond_data = DevblocksPlatform::parseCsvString($cond_data);
+							
+							// Allow lazy mailbox@ wildcard patterns
+							$patterns = array_map(
+								fn($addy) => str_ends_with($addy, '@') ? ($addy . '*') : $addy,
+								is_string($cond_data) ? [$cond_data] : $cond_data,
+							);
+							
+							if(DevblocksPlatform::services()->string()->arrayMatches($routing_dict->get('recipients', []), $patterns, only_first_match: true))
+								$cond_passed++;
+							
+						} else if('subject' == $cond_type) {
+							if(DevblocksPlatform::services()->string()->arrayMatches($routing_dict->get('subject', ''), $cond_data, only_first_match: true))
+								$cond_passed++;
+							
+						} else if('body' == $cond_type) {
+							if(DevblocksPlatform::services()->string()->arrayMatches($routing_dict->get('body', ''), $cond_data, only_first_match: true))
+								$cond_passed++;
+							
+						} else if('sender_email' == $cond_type) {
+							if(is_string($cond_data) && str_contains($cond_data, ','))
+								$cond_data = DevblocksPlatform::parseCsvString($cond_data);
+							
+							// Allow lazy mailbox@ wildcard patterns
+							$patterns = array_map(
+								fn($addy) => str_ends_with($addy, '@') ? ($addy . '*') : $addy,
+								is_string($cond_data) ? [$cond_data] : $cond_data,
+							);
+							
+							if(DevblocksPlatform::services()->string()->arrayMatches($routing_dict->get('sender_email', ''), $patterns, only_first_match: true))
+								$cond_passed++;
+						} else if('spam_score' == $cond_type) {
+							if(is_string($cond_data)) {
+								$oper = DevblocksPlatform::strStartsWith($cond_data, ['>=','>','<=','<']);
+								$spam_score = $routing_dict->get('spam_score', 0);
+								$value = intval(DevblocksPlatform::strAlphaNum($cond_data))/100;
+								if(
+									($oper == '>=' && $spam_score >= $value)
+									|| ($oper == '>' && $spam_score > $value)
+									|| ($oper == '<=' && $spam_score <= $value)
+									|| ($oper == '<' && $spam_score < $value)
+								) $cond_passed++;
+							}
+							
+						} else if('header' == $cond_type) {
+							if(!is_array($cond_data))
+								continue;
+							
+							// If every defined header pattern matches
+							if(count($cond_data) == count(array_filter($cond_data, function($header_data, $header_key) use ($routing_dict) {
+								$header_key = trim(DevblocksPlatform::strLower($header_key), ': ');
+								return DevblocksPlatform::services()->string()->arrayMatches(
+									$routing_dict->getKeyPath('headers:' . $header_key, '', ':'),
+									$header_data,
+									only_first_match: true
+								);
+							}, ARRAY_FILTER_USE_BOTH))) $cond_passed++;
+							
+						} else if('script' == $cond_type) {
+							if(is_string($cond_data) && 1 == intval($cond_data))
+								$cond_passed++;
+							
+						} else {
+							DevblocksPlatform::noop();
+						}
+					}
+					
+					if($cond_passed == $cond_count) {
+						return $rule_data['then'] ?? [];
+					}
+				}
+			}
+			
+			// If the rule has no `if:` then always use it
+			if(0 == $num_ifs)
+				return $rule_data['then'] ?? [];
+		}
+		
+		return false;
+	}
+	
+	public function runRoutingKataActions(array $route_actions, CerberusParserModel $model) {
+		$group_name = $route_actions['group'] ?? null;
+		$bucket_name = $route_actions['bucket'] ?? null;
+		$importance = $route_actions['importance'] ?? null;
+		$owner = $route_actions['owner'] ?? null;
+		$watchers = $route_actions['watchers'] ?? null;
+		$comment = $route_actions['comment'] ?? null;
+		
+		// Comment
+		if(!is_null($comment)) {
+			DAO_Comment::create([
+				DAO_Comment::COMMENT => $comment,
+				DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TICKET,
+				DAO_Comment::CONTEXT_ID => $model->getTicketId(),
+				DAO_Comment::CREATED => time()+5,
+				DAO_Comment::IS_MARKDOWN => true,
+				DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_GROUP,
+				DAO_Comment::OWNER_CONTEXT_ID => $model->getRouteGroup()->id,
+			]);
+		}
+		
+		// Importance
+		if(!is_null($importance))
+			$model->getTicketModel()->importance = DevblocksPlatform::intClamp($importance, 0, 100);
+		
+		// Owner
+		if(is_string($owner)) {
+			// Look up the @mention
+			if(($owner_worker = DAO_Worker::getByAtMention(ltrim($owner, '@'))))
+				$model->getTicketModel()->owner_id = $owner_worker->id;
+		}
+		
+		// Watchers
+		if(!is_null($watchers)) {
+			// A string with commas is a list
+			if(is_string($watchers) && str_contains($watchers, ',')) {
+				$watchers = DevblocksPlatform::parseCsvString($watchers);
+			// A single string is a single element list
+			} elseif(is_string($watchers)) {
+				$watchers = [$watchers];
+			}
+			
+			if(is_array($watchers)) {
+				if(($watcher_workers = DAO_Worker::getByAtMentions($watchers)))
+					$model->getMessage()->watcher_ids = array_keys($watcher_workers);
+			}
+		}
+		
+		// If we just have a bucket name, see if we have a group yet
+		if($bucket_name && !$group_name && $model->getRouteGroup()) {
+			$buckets = $model->getRouteGroup()->getBuckets();
+			$bucket_name = DevblocksPlatform::strLower($bucket_name);
+			
+			$bucket_names = array_change_key_case(
+				array_column($buckets, 'id', 'name'),
+				CASE_LOWER
+			);
+			
+			if(array_key_exists($bucket_name, $bucket_names)) {
+				if(null != ($model->setRouteBucket($buckets[$bucket_names[$bucket_name]])))
+					DevblocksPlatform::noop();
+			}
+		
+		} else if($bucket_name && $group_name) {
+			$group_id = DAO_Group::getByName($group_name);
+			
+			if(null != ($model->setRouteGroup($group_id))) {
+				$buckets = $model->getRouteGroup()->getBuckets();
+				$bucket_name = DevblocksPlatform::strLower($bucket_name);
+				
+				$bucket_names = array_change_key_case(
+					array_column($buckets, 'id', 'name'),
+					CASE_LOWER
+				);
+				
+				if(array_key_exists($bucket_name, $bucket_names)) {
+					if(null != ($model->setRouteBucket($buckets[$bucket_names[$bucket_name]])))
+						DevblocksPlatform::noop();
+				}
+			}
+			
+		} elseif ($group_name) {
+			if(null != ($model->setRouteGroup(DAO_Group::getByName($group_name))))
+				DevblocksPlatform::noop();
+		}
+	}
 };

@@ -3116,6 +3116,7 @@ class CerberusSettings {
 	const RELAY_DISABLE = 'relay_disable';
 	const RELAY_DISABLE_AUTH = 'relay_disable_auth';
 	const RELAY_SPOOF_FROM = 'relay_spoof_from';
+	const ROUTING_KATA = 'routing_kata';
 	const SESSION_LIFESPAN = 'session_lifespan';
 	const TIMEZONE = 'timezone';
 	const TIME_FORMAT = 'time_format';
@@ -3150,6 +3151,7 @@ class CerberusSettingsDefaults {
 	const RELAY_DISABLE = 0;
 	const RELAY_DISABLE_AUTH = 0;
 	const RELAY_SPOOF_FROM = 0;
+	const ROUTING_KATA = '';
 	const SESSION_LIFESPAN = 0;
 	const TIME_FORMAT = 'D, d M Y h:i a';
 	const TIMEZONE = '';
@@ -4115,6 +4117,110 @@ class _CerbApplication_KataAutocompletions {
 			'text:params:' => [
 				'multiple@bool: no',
 			],
+		];
+	}
+	
+	function bucketRouting(?Model_Group $group=null) : array {
+		$group_names = DAO_Group::getNames();
+		$worker_names = array_flip(DAO_Worker::getMentions());
+		
+		if($group instanceof Model_Group) {
+			$bucket_names = array_column(DAO_Bucket::getByGroup($group->id), 'name');
+			$worker_names = array_filter(
+				array_map(fn($member) => $worker_names[$member->id] ?? null, $group->getMembers())
+			);
+		} else {
+			$bucket_names = DAO_Bucket::getNames();
+		}
+		
+		return [
+			'' => [
+				[
+					'caption' => 'rule:',
+					'snippet' => "rule/\${1:name}:\n  if:\n    \n  then:\n    "
+				]
+			],
+			'rule:' => [
+				[
+					'caption' => 'if:',
+					'snippet' => 'if:'
+				],
+				'then:'
+			],
+			'rule:if:' => [
+				[
+					'caption' => 'body:',
+					'snippet' => "body: \${1:*some text*}"
+				],
+				'header:',
+				[
+					'caption' => 'recipients:',
+					'snippet' => 'recipients: support@*, team@*'
+				],
+				[
+					'caption' => 'recipients@list:',
+					'snippet' => "recipients@list:\n  support@*\n  team@*\n"
+				],
+				[
+					'caption' => 'script:',
+					'snippet' => 'script:'
+				],
+				[
+					'caption' => 'sender_email:',
+					'snippet' => 'sender_email: customer@example.com, boss@cerb.example'
+				],
+				[
+					'caption' => 'sender_email@list:',
+					'snippet' => "sender_email@list:\n  customer@example.com\n  boss@example.com\n"
+				],
+				[
+					'caption' => 'spam_score:',
+					'snippet' => "spam_score: \${1:>=80%}"
+				],
+				[
+					'caption' => 'subject:',
+					'snippet' => "subject: \${1:*some text*}"
+				],
+			],
+			'rule:if:header:' => [
+				[
+					'caption' => 'x-example:',
+					'snippet' => "x-example: \${1:*some text*}"
+				],
+			],
+			'rule:then:' => [
+				[
+					'caption' => 'bucket:',
+					'snippet' => 'bucket:'
+				],
+				[
+					'caption' => 'comment:',
+					'snippet' => "comment@text:\n  This is a comment."
+				],
+				[
+					'caption' => 'group:',
+					'snippet' => 'group:'
+				],
+				[
+					'caption' => 'importance:',
+					'snippet' => 'importance: 50'
+				],
+				[
+					'caption' => 'owner:',
+					'snippet' => 'owner:'
+				],
+				[
+					'caption' => 'watchers:',
+					'snippet' => 'watchers@csv:'
+				],
+			],
+			'rule:then:bucket:' => array_values($bucket_names),
+			'rule:then:group:' => array_values($group_names),
+			'rule:then:importance:' => [
+				'50',
+			],
+			'rule:then:owner:' => array_values($worker_names),
+			'rule:then:watchers:' => array_values($worker_names),
 		];
 	}
 	
@@ -5434,6 +5540,87 @@ class _CerbApplication_KataSchemas {
                   types:
                     number:
     EOD;		
+	}
+	
+	function bucketRouting() : string {
+		return <<< EOD
+    schema:
+      attributes:
+        rule:
+          multiple@bool: yes
+          types:
+            object:
+              attributes:
+                if:
+                  multiple@bool: yes
+                  types:
+                    object:
+                      attributes:
+                        body:
+                          multiple@bool: yes
+                          types:
+                            list:
+                            string:
+                        header:
+                          multiple@bool: yes
+                          types:
+                            list:
+                        recipients:
+                          multiple@bool: yes
+                          types:
+                            list:
+                            string:
+                        script:
+                          multiple@bool: yes
+                          types:
+                            string:
+                        sender_email:
+                          multiple@bool: yes
+                          types:
+                            list:
+                            string:
+                        spam_score:
+                          multiple@bool: yes
+                          types:
+                            string:
+                        subject:
+                          multiple@bool: yes
+                          types:
+                            list:
+                            string:
+                then:
+                  required@bool: yes
+                  multiple@bool: no
+                  types:
+                    object:
+                      attributes:
+                        bucket:
+                          multiple@bool: no
+                          types:
+                            string:
+                        comment:
+                          multiple@bool: no
+                          types:
+                            string:
+                        group:
+                          multiple@bool: no
+                          types:
+                            string:
+                        importance:
+                          multiple@bool: no
+                          types:
+                            number:
+                        owner:
+                          multiple@bool: no
+                          types:
+                            list:
+                            string:
+                        watchers:
+                          multiple@bool: no
+                          types:
+                            list:
+                            string:
+    EOD;
 	}
 	
 	function dashboardPrompts() : string {
