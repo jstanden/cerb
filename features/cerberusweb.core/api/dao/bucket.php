@@ -27,6 +27,7 @@ class DAO_Bucket extends Cerb_ORMHelper {
 	const REPLY_PERSONAL = 'reply_personal';
 	const REPLY_SIGNATURE_ID = 'reply_signature_id';
 	const REPLY_SIGNING_KEY_ID = 'reply_signing_key_id';
+	const ROUTING_KATA = 'routing_kata';
 	const UPDATED_AT = 'updated_at';
 	
 	private function __construct() {}
@@ -92,6 +93,11 @@ class DAO_Bucket extends Cerb_ORMHelper {
 			->addField(self::REPLY_SIGNING_KEY_ID)
 			->id()
 			->addValidator($validation->validators()->contextId(Context_GpgPrivateKey::ID, true))
+			;
+		$validation
+			->addField(self::ROUTING_KATA)
+			->string()
+			->setMaxLength(16777216)
 			;
 		$validation
 			->addField(self::UPDATED_AT)
@@ -242,7 +248,7 @@ class DAO_Bucket extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, group_id, reply_address_id, reply_personal, reply_signature_id, reply_signing_key_id, reply_html_template_id, is_default, updated_at ".
+		$sql = "SELECT id, name, group_id, reply_address_id, reply_personal, reply_signature_id, reply_signing_key_id, reply_html_template_id, routing_kata, is_default, updated_at ".
 			"FROM bucket ".
 			$where_sql.
 			$sort_sql.
@@ -386,6 +392,14 @@ class DAO_Bucket extends Cerb_ORMHelper {
 			}
 		}
 		
+		if(array_key_exists(DAO_Bucket::ROUTING_KATA, $fields)) {
+			$kata = DevblocksPlatform::services()->kata();
+			if(false === $kata->validate($fields[DAO_Bucket::ROUTING_KATA], CerberusApplication::kataSchemas()->bucketRouting(), $error)) {
+				$error = 'Routing KATA: ' . $error;
+				return false;
+			}
+		}
+		
 		return true;
 	}
 	
@@ -519,6 +533,7 @@ class DAO_Bucket extends Cerb_ORMHelper {
 			$bucket->is_default = !empty($row['is_default']) ? 1 : 0;
 			$bucket->updated_at = intval($row['updated_at']);
 			$bucket->reply_signing_key_id = intval($row['reply_signing_key_id']);
+			$bucket->routing_kata = $row['routing_kata'] ?? '';
 			$buckets[$bucket->id] = $bucket;
 		}
 		
@@ -776,6 +791,7 @@ class Model_Bucket extends DevblocksRecordModel {
 	public $reply_signature_id = 0;
 	public $reply_signing_key_id = 0;
 	public $reply_html_template_id = 0;
+	public $routing_kata = '';
 	public $is_default = 0;
 	public $updated_at = 0;
 	
@@ -1125,6 +1141,7 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 			'name' => $prefix.$translate->_('common.name'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
+			'routing_kata' => $prefix.$translate->_('dao.bucket.routing_kata'),
 			'reply_personal' => $prefix.$translate->_('common.send.as'),
 		);
 		
@@ -1136,6 +1153,7 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
 			'record_url' => Model_CustomField::TYPE_URL,
+			'routing_kata' => Model_CustomField::TYPE_MULTI_LINE,
 			'reply_personal' => Model_CustomField::TYPE_SINGLE_LINE,
 		);
 		
@@ -1171,6 +1189,7 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 			$token_values['reply_personal'] = $bucket->reply_personal;
 			$token_values['reply_signature_id'] = $bucket->reply_signature_id;
 			$token_values['reply_signing_key_id'] = $bucket->reply_signing_key_id;
+			$token_values['routing_kata'] = $bucket->routing_kata;
 			$token_values['updated_at'] = $bucket->updated_at;
 			
 			$token_values['group_id'] = $bucket->group_id;
@@ -1278,6 +1297,7 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 			'reply_signature_id' => DAO_Bucket::REPLY_SIGNATURE_ID,
 			'reply_signing_key_id' => DAO_Bucket::REPLY_SIGNING_KEY_ID,
 			'replyto_id' => DAO_Bucket::REPLY_ADDRESS_ID,
+			'routing_kata' => DAO_Bucket::ROUTING_KATA,
 			'updated_at' => DAO_Bucket::UPDATED_AT,
 		];
 	}
@@ -1292,6 +1312,7 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 		$keys['reply_personal']['notes'] = "The default personal name in the `From:` of replies";
 		$keys['reply_signature_id']['notes'] = "The ID of the default [signature](/docs/records/types/email_signature/) used when sending replies from this bucket";
 		$keys['reply_signing_key_id']['notes'] = "The [private key](/docs/records/types/gpg_private_key/) used when signing outgoing mail from this bucket";
+		$keys['routing_kata']['notes'] = "Routing rules in KATA format";
 		
 		unset($keys['replyto_id']);
 		
@@ -1454,6 +1475,10 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 			
 			$html_templates = DAO_MailHtmlTemplate::getAll();
 			$tpl->assign('html_templates', $html_templates);
+			
+			// Routing KATA
+			$autocomplete_suggestions = CerberusApplication::kataAutocompletions()->bucketRouting($bucket?->getGroup());
+			$tpl->assign('autocomplete_json', json_encode($autocomplete_suggestions));
 			
 			$tpl->display('devblocks:cerberusweb.core::internal/bucket/peek_edit.tpl');
 			

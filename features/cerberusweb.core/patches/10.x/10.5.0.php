@@ -104,6 +104,16 @@ foreach($automation_files as $automation_file) {
 }
 
 // ===========================================================================
+// Add Routing KATA to buckets
+
+list($columns,) = $db->metaTable('bucket');
+
+if(!array_key_exists('routing_kata', $columns)) {
+	$sql = "ALTER TABLE bucket ADD COLUMN routing_kata mediumtext";
+	$db->ExecuteMaster($sql);
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

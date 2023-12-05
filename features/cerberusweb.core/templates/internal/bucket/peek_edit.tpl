@@ -42,6 +42,21 @@
 	</tr>
 </table>
 
+{if $bucket && $bucket->is_default}
+<fieldset data-cerb-bucket-routing-toolbar class="peek">
+	<legend>Routing Rules: (KATA)</legend>
+	<div class="cerb-code-editor-toolbar">
+		<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-magic title="{'common.autocomplete'|devblocks_translate|capitalize} (Ctrl+Space)"><span class="glyphicons glyphicons-magic"></span></button>
+
+		{if $bucket->id}
+			<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-changesets title="{'common.change_history'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-history"></span></button>
+		{/if}
+	</div>
+
+	<textarea name="routing_kata" data-editor-mode="ace/mode/cerb_kata">{$bucket->routing_kata}</textarea>
+</fieldset>
+{/if}
+
 <fieldset class="peek">
 	{$is_mail_configured = $bucket->reply_address_id || $bucket->reply_personal || $bucket->reply_signature_id || $bucket->reply_signing_key_id || $bucket->reply_html_template_id}
 	<legend><label><input type="checkbox" name="enable_mail" value="1" {if $is_mail_configured}checked="checked"{/if} onclick="$(this).closest('fieldset').find('table:first').toggle();"> Bucket-level mail settings: <small>({'common.optional'|devblocks_translate|lower})</small></label></legend>
@@ -197,7 +212,100 @@ $(function() {
 		$popup.find('.cerb-peek-trigger')
 			.cerbPeekTrigger()
 			;
-		
+
+		{if $bucket && $bucket->is_default}
+		// Editor
+		let autocomplete_suggestions = {if $autocomplete_json}{$autocomplete_json nofilter}{else}[]{/if};
+
+		let $editor = $popup.find('[name=routing_kata]')
+			.cerbCodeEditor()
+			.cerbCodeEditorAutocompleteKata({
+				autocomplete_suggestions: autocomplete_suggestions
+			})
+			.next('pre.ace_editor')
+		;
+
+		let editor = ace.edit($editor.attr('id'));
+
+		$popup.find('[data-cerb-editor-button-magic]').on('click', function(e) {
+			editor.commands.byName.startAutocomplete.exec(editor);
+		});
+
+		$popup.find('[data-cerb-editor-button-changesets]').on('click', function(e) {
+			e.stopPropagation();
+
+			let formData = new FormData();
+			formData.set('c', 'internal');
+			formData.set('a', 'invoke');
+			formData.set('module', 'records');
+			formData.set('action', 'showChangesetsPopup');
+			formData.set('record_type', 'bucket_routing');
+			formData.set('record_id', '{$bucket->id}');
+			formData.set('record_key', 'routing_kata');
+
+			let $editor_kata_differ_popup = genericAjaxPopup('editorDiff{$form_id}', formData, null, null, '80%');
+
+			$editor_kata_differ_popup.one('cerb-diff-editor-ready', function(e) {
+				e.stopPropagation();
+
+				if(!e.hasOwnProperty('differ'))
+					return;
+
+				e.differ.editors.right.ace.setValue(editor.getValue());
+				e.differ.editors.right.ace.clearSelection();
+
+				e.differ.editors.right.ace.on('change', function() {
+					editor.setValue(e.differ.editors.right.ace.getValue());
+					editor.clearSelection();
+				});
+			});
+		});
+
+		// Toolbar
+
+		let $toolbar = $popup.find('[data-cerb-bucket-routing-toolbar]').find('.cerb-code-editor-toolbar');
+
+		$toolbar.cerbToolbar({
+			caller: {
+				name: 'cerb.toolbar.editor',
+				params: {
+					toolbar: 'cerb.toolbar.recordEditor.bucketRouting',
+					selected_text: ''
+				}
+			},
+			start: function(formData) {
+				let pos = editor.getCursorPosition();
+				let token_path = Devblocks.cerbCodeEditor.getKataTokenPath(pos, editor).join('');
+
+				formData.set('caller[params][selected_text]', editor.getSelectedText());
+				formData.set('caller[params][token_path]', token_path);
+				formData.set('caller[params][cursor_row]', pos.row);
+				formData.set('caller[params][cursor_column]', pos.column);
+				formData.set('caller[params][value]', editor.getValue());
+			},
+			done: function(e) {
+				e.stopPropagation();
+
+				let $target = e.trigger;
+
+				if(!$target.is('.cerb-bot-trigger'))
+					return;
+
+				if (e.eventData.exit === 'error') {
+
+				} else if(e.eventData.exit === 'return') {
+					Devblocks.interactionWorkerPostActions(e.eventData, editor);
+				}
+			},
+			reset: function(e) {
+				e.stopPropagation();
+			}
+		});
+
+		$toolbar.cerbCodeEditorToolbarEventHandler({
+			editor: editor
+		});
+		{/if}{* if bucket->is_default *}
 	});
 });
 </script>

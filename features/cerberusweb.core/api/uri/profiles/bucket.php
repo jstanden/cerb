@@ -87,6 +87,7 @@ class PageSection_ProfilesBucket extends Extension_PageSection {
 			} else {
 				$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string','');
 				$enable_mail = DevblocksPlatform::importGPC($_POST['enable_mail'] ?? null, 'integer',0);
+				$routing_kata = DevblocksPlatform::importGPC($_POST['routing_kata'] ?? null, 'string','');
 				
 				$fields = [];
 				
@@ -109,6 +110,10 @@ class PageSection_ProfilesBucket extends Extension_PageSection {
 				$fields[DAO_Bucket::REPLY_SIGNATURE_ID] = $reply_signature_id;
 				$fields[DAO_Bucket::REPLY_HTML_TEMPLATE_ID] = $reply_html_template_id;
 				$fields[DAO_Bucket::REPLY_SIGNING_KEY_ID] = $reply_signing_key_id;
+				
+				// Only if it's the default bucket (for now)
+				if(array_key_exists('routing_kata', $_POST))
+					$fields[DAO_Bucket::ROUTING_KATA] = $routing_kata;
 				
 				if(empty($id)) { // New
 					$group_id = DevblocksPlatform::importGPC($_POST['group_id'] ?? null, 'integer',0);
@@ -146,10 +151,29 @@ class PageSection_ProfilesBucket extends Extension_PageSection {
 					DAO_Bucket::onUpdateByActor($active_worker, $fields, $id);
 				}
 				
-				// Custom field saves
-				$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
-				if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_BUCKET, $id, $field_ids, $error))
-					throw new Exception_DevblocksAjaxValidationError($error);
+				if($id) {
+					// Custom field saves
+					$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
+					if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_BUCKET, $id, $field_ids, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
+					// Versioning
+					if(array_key_exists(DAO_Bucket::ROUTING_KATA, $fields)) {
+						try {
+							DAO_RecordChangeset::create(
+								'bucket_routing',
+								$id,
+								[
+									'routing_kata' => $fields[DAO_Bucket::ROUTING_KATA] ?? '',
+								],
+								$active_worker->id ?? 0
+							);
+							
+						} catch (Exception $e) {
+							DevblocksPlatform::logError('Error saving changeset: ' . $e->getMessage());
+						}
+					}
+				}
 			}
 			
 			echo json_encode(array(
