@@ -774,6 +774,10 @@ class _DevblocksSheetServiceTypes {
 			
 			$value = '';
 			$url = '';
+			$is_new_tab = false;
+			
+			if(array_key_exists('href_new_tab', $column_params) && $column_params['href_new_tab'])
+				$is_new_tab = true;
 			
 			if(DevblocksPlatform::strStartsWith($href, ['http:','https:'])) {
 				$url = $href;
@@ -805,6 +809,7 @@ class _DevblocksSheetServiceTypes {
 					
 					$value .= sprintf('<a href="%s"%s>%s</a>',
 						$url,
+						$is_new_tab ? 'target="_blank"' : '',
 						DevblocksPlatform::strEscapeHtml($text)
 					);
 					

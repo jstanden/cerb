@@ -1297,6 +1297,8 @@ var cerbAutocompleteSuggestions = {
 			'href:',
 			'href_key:',
 			'href_template@raw:',
+			'href_new_tab@bool: yes',
+			'icon:',
 			'text:',
 			'text_key:',
 			'text_template@raw:',

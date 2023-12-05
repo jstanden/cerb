@@ -6007,6 +6007,9 @@ class _CerbApplication_KataSchemas {
                                 href_key:
                                   types:
                                     string:
+                                href_new_tab:
+                                  types:
+                                    bool:
                                 href_template:
                                   types:
                                     string:
