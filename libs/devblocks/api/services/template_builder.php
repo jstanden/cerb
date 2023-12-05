@@ -1231,31 +1231,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 	}
 	
 	function function_array_matches($array, $patterns) {
-		if(is_string($array))
-			$array = [$array];
-		
-		if(!is_array($array))
-			return [];
-		
-		if(is_string($patterns))
-			$patterns = [$patterns];
-		
-		if(!is_array($patterns))
-			return [];
-		
-		$matched = [];
-		
-		foreach($patterns as $pattern) {
-			$pattern = DevblocksPlatform::strToRegExp($pattern);
-			
-			foreach($array as $idx => $value) {
-				if(preg_match($pattern, $value)) {
-					$matched[] = $value;
-				}
-			}
-		}
-		
-		return $matched;
+		return DevblocksPlatform::services()->string()->arrayMatches($array, $patterns);
 	}
 	
 	function function_array_diff($arr1, $arr2) {

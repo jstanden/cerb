@@ -487,6 +487,35 @@ class _DevblocksStringService {
 		return $result;
 	}
 	
+	public function arrayMatches(mixed $array, mixed $patterns, bool $only_first_match=false) : array {
+		if(is_string($array))
+			$array = [$array];
+		
+		if(!is_array($array))
+			return [];
+		
+		if(is_string($patterns))
+			$patterns = [$patterns];
+		
+		if(!is_array($patterns))
+			return [];
+		
+		$matched = [];
+		
+		foreach($patterns as $pattern) {
+			$pattern = DevblocksPlatform::strToRegExp($pattern);
+			
+			foreach($array as $value) {
+				if(preg_match($pattern, $value)) {
+					$matched[] = $value;
+					if($only_first_match) return $matched;
+				}
+			}
+		}
+		
+		return $matched;
+	}
+	
 	public function tokenize(string $string, $case_insensitive=true, $unique=true, $pattern="[^[:alnum:]\.\_\-]", $replacement=' ') : array {
 		if($case_insensitive)
 			$string = mb_convert_case($string, MB_CASE_LOWER);

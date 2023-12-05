@@ -77,6 +77,24 @@ class DevblocksStringTest extends TestCase {
 		$this->assertEquals($expected, $actual);
 	}
 	
+	function testArrayMatches() {
+		$strings = DevblocksPlatform::services()->string();
+		
+		// String wildcard pattern
+		$expected = ['sales@cerb.example'];
+		$actual = $strings->arrayMatches(['sales@cerb.example','customer@cerb.example'], 'sales@*');
+		$this->assertEquals($expected, $actual);
+		
+		// Array pattern
+		$actual = $strings->arrayMatches(['customer@cerb.example','sales@cerb.example'], ['sales@*']);
+		$this->assertEquals($expected, $actual);
+		
+		// Multiple patterns and matches
+		$expected = ['team@cerb.example','sales@cerb.example'];
+		$actual = $strings->arrayMatches(['sales@cerb.example','team@cerb.example'], ['team@cerb.example', 'sales@*']);
+		$this->assertEquals($expected, $actual);
+	}
+	
 	function testSplitQuotedPhrases() {
 		$strings = DevblocksPlatform::services()->string();
 		
