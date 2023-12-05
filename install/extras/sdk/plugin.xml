@@ -11,7 +11,7 @@
 	<!-- Requirements -->
 
 	<requires>
-		<app_version min="10.4" max="10.4.99" />
+		<app_version min="10.5" max="10.5.99" />
 		<!--<php_extension name="curl" />-->
 	</requires>
 
