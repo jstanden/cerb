@@ -3253,6 +3253,16 @@
 				<seg>workers</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.workflow">
+			<tuv xml:lang="en_US">
+				<seg>workflow</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.workflows">
+			<tuv xml:lang="en_US">
+				<seg>workflows</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.worklist">
 			<tuv xml:lang="en_US">
 				<seg>worklist</seg>
