@@ -60,7 +60,7 @@ class Plugin_RestAPI {
 			}
 
 			header("Content-type: application/json; charset=utf-8");
-			echo json_encode($array, JSON_UNESCAPED_SLASHES);
+			echo json_encode($array, JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE);
 
 		} elseif ('xml' == $format) {
 			header("Content-type: text/xml; charset=utf-8");
