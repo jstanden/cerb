@@ -324,6 +324,8 @@ class DAO_Metric extends Cerb_ORMHelper {
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM metric WHERE id IN (%s)", $ids_list));
 		
+		$db->ExecuteMaster(sprintf("DELETE FROM metric_value WHERE metric_id IN (%s)", $ids_list));
+		
 		parent::_deleteAbstractAfter($context, $ids);
 		
 		self::clearCache();
