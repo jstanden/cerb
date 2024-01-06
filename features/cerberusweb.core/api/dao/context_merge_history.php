@@ -78,8 +78,16 @@ class DAO_ContextMergeHistory extends Cerb_ORMHelper {
 		));
 	}
 	
-	public static function findNewId($context, $from_id) {
+	public static function deleteByContextIds(mixed $context, array $context_ids) {
 		$db = DevblocksPlatform::services()->database();
-		// [TODO]
+		
+		if(!($context_ids = DevblocksPlatform::sanitizeArray($context_ids, 'int')))
+			return;
+		
+		// Delete context merge history
+		$db->ExecuteMaster(sprintf("DELETE FROM context_merge_history WHERE context = %s AND to_context_id IN (%s)",
+			$db->qstr($context),
+			implode(',', $context_ids)
+		));
 	}
 }
