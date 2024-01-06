@@ -160,10 +160,21 @@ $(function() {
 			if(null == $search_menu) {
 				// If not, show a spinner and fetch it via Ajax
 				genericAjaxGet('', 'c=search&a=getSearchMenu', function(html) {
+					if(typeof e == 'object' && e.status && 200 !== e.status)
+						return;
+
 					$search_menu = $(html)
 						.hide()
 						.insertAfter($search_button)
-						.menu()
+						.menu({
+							select: function(event, ui) {
+								event.stopPropagation();
+								var $li = $(ui.item);
+
+								if($li.is('.cerb-bot-trigger'))
+									$li.click();
+							}
+						})
 					;
 
 					$search_menu.find('li.cerb-bot-trigger')
