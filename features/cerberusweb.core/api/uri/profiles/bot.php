@@ -1629,6 +1629,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		
 		$interaction_style = DevblocksPlatform::importGPC($_POST['interaction_style'] ?? null, 'string');
 		$interaction_params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
+		$browser = DevblocksPlatform::importGPC($_POST['browser'] ?? null, 'array', []);
 		$layer = DevblocksPlatform::importGPC($_POST['layer'] ?? null, 'string', '');
 		$caller = DevblocksPlatform::importGPC($_POST['caller'] ?? null, 'array', []);
 		
@@ -1643,6 +1644,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			'client_browser_name' => $user_agent['browser'] ?? null,
 			'client_browser_platform' => $user_agent['platform'] ?? null,
 			'client_browser_version' => $user_agent['version'] ?? null,
+			'client_url' => $browser['url'] ?? null,
 			'inputs' => $interaction_params,
 			'worker__context' => CerberusContexts::CONTEXT_WORKER,
 			'worker_id' => $active_worker->id,

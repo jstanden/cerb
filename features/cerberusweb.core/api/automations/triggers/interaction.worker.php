@@ -44,6 +44,10 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 				'notes' => 'The client IP address.',
 			],
 			[
+				'key' => 'client_url',
+				'notes' => 'The client current URL.',
+			],
+			[
 				'key' => 'client_browser_name',
 				'notes' => 'The client browser name (e.g. Safari).',
 			],
