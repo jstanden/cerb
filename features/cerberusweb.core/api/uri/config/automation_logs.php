@@ -47,7 +47,7 @@ class PageSection_SetupDevelopersAutomationLogs extends Extension_PageSection {
 		return false;
 	}
 	
-	private function _configAction_delete() {
+	private function _configAction_delete() : void {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
@@ -59,8 +59,6 @@ class PageSection_SetupDevelopersAutomationLogs extends Extension_PageSection {
 		$ids = DevblocksPlatform::importGPC($_POST['ids'] ?? [], 'array:int', []);
 		
 		DAO_AutomationLog::delete($ids);
-		
-		$this->_configAction_refresh();
 	}
 	
 	private function _configAction_refresh() {
@@ -87,14 +85,30 @@ class PageSection_SetupDevelopersAutomationLogs extends Extension_PageSection {
 		$sheets = DevblocksPlatform::services()->sheet()->withDefaultTypes();
 		
 		$page = DevblocksPlatform::importGPC($_POST['page'] ?? 0, 'integer', 0);
-		$limit = 20;
+		$filters = DevblocksPlatform::importGPC($_POST['filters'] ?? null, 'array', []);
+		$limit = 25;
 		$sheet_dicts = [];
+		
+		$criterion = [
+			new DevblocksSearchCriteria(SearchFields_AutomationLog::AUTOMATION_NAME,'!=',''),
+		];
+		
+		if(array_key_exists('search', $filters) && !empty($filters['search'] ?? '')) {
+			$query = str_replace('*', '%', !str_contains($filters['search'], '*')
+				? ('*' . $filters['search'] . '*')
+				: $filters['search']
+			);
+			
+			$criterion[] = new DevblocksSearchCriteria(
+				SearchFields_AutomationLog::LOG_MESSAGE,
+				DevblocksSearchCriteria::OPER_LIKE,
+				$query
+			);
+		}
 		
 		list($results, $total) = DAO_AutomationLog::search(
 			[],
-			[
-				new DevblocksSearchCriteria(SearchFields_AutomationLog::AUTOMATION_NAME,'!=','')
-			],
+			$criterion,
 			$limit,
 			$page,
 			SearchFields_AutomationLog::ID,
