@@ -10,9 +10,8 @@ $(function() {
 		$popup.dialog('option','title',"{'common.search'|devblocks_translate|capitalize|escape:'javascript' nofilter}: {$view->name|escape:'javascript' nofilter}");
 		$popup.dialog('option', 'resizable', false);
 		$popup.dialog('option', 'minHeight', 50);
-		$popup.dialog('option', 'width', '50%');
 		$popup.dialog('option', 'closeOnEscape', false);
-		
+
 		$popup.css('overflow', 'inherit');
 	});
 });
