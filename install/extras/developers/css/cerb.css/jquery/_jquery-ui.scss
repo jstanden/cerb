@@ -255,3 +255,25 @@ UL.ui-autocomplete.ui-menu li.ui-menu-item.ui-state-focus {
 	bottom: -20px;
 	top: auto;
 }
+
+/* Datepicker */
+
+.ui-datepicker {
+	.ui-widget-header {
+		background: var(--cerb-color-table-header-background) none;
+	}
+
+	.ui-datepicker-calendar {
+		box-shadow:0 0 10px 0 var(--cerb-color-background-contrast-150);
+
+		.ui-state-default {
+			background: var(--cerb-color-background-contrast-230);
+			color: var(--cerb-color-text);
+			border: 0;
+		}
+
+		.ui-state-active {
+			background: var(--cerb-color-background-contrast-200);
+		}
+	}
+}
