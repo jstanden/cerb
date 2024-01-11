@@ -11,6 +11,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 			'map' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\MapAwait',
 			'query' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\QueryAwait',
 			'say' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\SayAwait',
+			'audio' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\AudioAwait',
 			'sheet' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\SheetAwait',
 			'submit' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\SubmitAwait',
 			'text' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\TextAwait',
@@ -404,6 +405,11 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 				],
 				'(.*):await:form:elements:' => [
 					[
+						'caption' => 'audio:',
+						'snippet' => "audio/\${1:prompt_audio}:\n\t\${2:}",
+						'description' => "Play an audio file",
+					],
+					[
 						'caption' => 'editor:',
 						'snippet' => "editor/\${1:prompt_editor}:\n\t\${2:}",
 						'description' => "Prompt with a code editor",
@@ -457,6 +463,30 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 						'caption' => 'textarea:',
 						'snippet' => "textarea/\${1:prompt_textarea}:\n\t\${2:}",
 						'description' => "Prompt for multiple lines of text",
+					],
+				],
+				
+				'(.*):await:form:elements:audio:' => [
+					[
+						'caption' => 'label:',
+						'snippet' => "label: \${1:Label:}",
+						'score' => 2000,
+					],
+					'autoplay@bool: yes',
+					'controls@bool: yes',
+					'hidden@bool: no',
+					'loop@bool: no',
+					'source:',
+				],
+				'(.*):await:form:elements:audio:source:' => [
+					'blob: data:audio/mpeg;base64,...',
+					'uri:'
+				],
+				'(.*):await:form:elements:audio:source:uri:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'resource' => null,
+						'automation_resource' => null,
 					],
 				],
 				
