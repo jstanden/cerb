@@ -608,24 +608,24 @@ $(function() {
 		;
 	
 	$actions.find('button.reply')
-		.on('click', function(e) {
-			if(e.originalEvent && e.originalEvent.detail && e.originalEvent.detail > 1)
-				return;
-			
-			var evt = $.Event('cerb_reply');
+ 		.on('click', $.throttle(500, function(e) {
+			e.preventDefault();
+			e.stopPropagation();
+
+			let evt = $.Event('cerb_reply');
 			evt.message_id = '{$message->id}';
 			evt.is_forward = 0;
 			evt.draft_id = 0;
 			evt.reply_mode = '{$mail_reply_button}';
 			
 			$msg.trigger(evt);
-		})
+		}))
 		;
 	
 	$actions.find('a.cerb-button-reply-quote')
-		.on('click', function(e) {
-			if(e.originalEvent && e.originalEvent.detail && e.originalEvent.detail > 1)
-				return;
+		.on('click', $.throttle(500, function(e) {
+			e.preventDefault();
+			e.stopPropagation();
 			
 			var evt = $.Event('cerb_reply');
 			evt.message_id = '{$message->id}';
@@ -634,13 +634,13 @@ $(function() {
 			evt.reply_mode = 0;
 			
 			$msg.trigger(evt);
-		})
+		}))
 		;
 	
 	$actions.find('a.cerb-button-reply-only-these')
-		.on('click', function(e) {
-			if(e.originalEvent && e.originalEvent.detail && e.originalEvent.detail > 1)
-				return;
+		.on('click', $.throttle(500, function(e) {
+			e.preventDefault();
+			e.stopPropagation();
 			
 			var evt = $.Event('cerb_reply');
 			evt.message_id = '{$message->id}';
@@ -649,13 +649,13 @@ $(function() {
 			evt.reply_mode = 2;
 			
 			$msg.trigger(evt);
-		})
+		}))
 		;
 	
 	$actions.find('a.cerb-button-reply-noquote')
-		.on('click', function(e) {
-			if(e.originalEvent && e.originalEvent.detail && e.originalEvent.detail > 1)
-				return;
+		.on('click', $.throttle(500, function(e) {
+			e.preventDefault();
+			e.stopPropagation();
 			
 			var evt = $.Event('cerb_reply');
 			evt.message_id = '{$message->id}';
@@ -664,13 +664,13 @@ $(function() {
 			evt.reply_mode = 1;
 			
 			$msg.trigger(evt);
-		})
+		}))
 		;
 	
 	$actions.find('a.cerb-button-reply-forward')
-		.on('click', function(e) {
-			if(e.originalEvent && e.originalEvent.detail && e.originalEvent.detail > 1)
-				return;
+		.on('click', $.throttle(500, function(e) {
+			e.preventDefault();
+			e.stopPropagation();
 			
 			var evt = $.Event('cerb_reply');
 			evt.message_id = '{$message->id}';
@@ -679,7 +679,7 @@ $(function() {
 			evt.reply_mode = 0;
 			
 			$msg.trigger(evt);
-		})
+		}))
 		;
 	
 	$actions.find('a.cerb-button-reply-relay')

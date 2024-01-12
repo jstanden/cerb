@@ -1009,11 +1009,9 @@ $(function() {
 			return validation_interactions;
 		};		
 		
-		$frm.find('button.submit').click(function(e) {
+		$frm.find('button.submit').on('click', $.throttle(500, function(e) {
+			e.preventDefault();
 			e.stopPropagation();
-			
-			if(e.originalEvent && e.originalEvent.detail && e.originalEvent.detail > 1)
-				return;
 
 			var $button = $(this);
 
@@ -1083,13 +1081,11 @@ $(function() {
 					hookError(json.message);
 				}
 			});
-		});
+		}));
 
-		$frm.find('.draft').click(function(e) {
+		$frm.find('.draft').on('click', $.throttle(500, function(e) {
+			e.preventDefault();
 			e.stopPropagation();
-			
-			if(e.originalEvent && e.originalEvent.detail && e.originalEvent.detail > 1)
-				return;
 
 			var $button = $(this);
 
@@ -1164,7 +1160,7 @@ $(function() {
 					hookError(json.message);
 				}
 			});
-		});
+		}));
 
 		$frm.find('button.discard').on('click', function(e) {
 			e.stopPropagation();

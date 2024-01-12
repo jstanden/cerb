@@ -863,13 +863,13 @@ $(function() {
 			
 			return validation_interactions;
 		};
-		
-		$buttons.find('button.send').on('click', function(e) {
-			if(e.originalEvent && e.originalEvent.detail && e.originalEvent.detail > 1)
-				return;
-			
+
+		$buttons.find('button.send').on('click', $.throttle(500, function(e) {
+			e.stopPropagation();
+			e.preventDefault();
+
 			$buttons.find('a.send').click();
-		});
+		}));
 		
 		$buttons.find('button.discard').on('click', function(e) {
 			e.stopPropagation();
@@ -900,9 +900,9 @@ $(function() {
 			}
 		});
 		
-		$buttons.find('a.send').click(function(e) {
-			if(e.originalEvent && e.originalEvent.detail && e.originalEvent.detail > 1)
-				return;
+		$buttons.find('a.send').on('click', $.throttle(500, function(e) {
+			e.preventDefault();
+			e.stopPropagation();
 			
 			var $button = $(this);
 
@@ -976,11 +976,11 @@ $(function() {
 					hookError(json.message);
 				}
 			});
-		});
+		}));
 		
-		$buttons.find('a.save').on('click', function(e) {
-			if(e.originalEvent && e.originalEvent.detail && e.originalEvent.detail > 1)
-				return;
+		$buttons.find('a.save').on('click', $.throttle(500, function(e) {
+			e.preventDefault();
+			e.stopPropagation();
 			
 			var $button = $(this);
 
@@ -1052,11 +1052,11 @@ $(function() {
 					hookError(json.message);
 				}
 			});
-		});
+		}));
 		
-		$buttons.find('.draft').click(function(e) {
-			if(e.originalEvent && e.originalEvent.detail && e.originalEvent.detail > 1)
-				return;
+		$buttons.find('.draft').on('click', $.throttle(500, function(e) {
+			e.preventDefault();
+			e.stopPropagation();
 
 			var $button = $(this);
 
@@ -1135,7 +1135,7 @@ $(function() {
 					hookError(json.message);
 				}
 			});
-		});
+		}));
 		
 		// Focus 
 		$editor_toolbar_button_save_draft.click(); // save now

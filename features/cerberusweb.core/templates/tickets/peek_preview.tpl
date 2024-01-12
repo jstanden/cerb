@@ -29,9 +29,9 @@ $(function() {
 	$preview.find('.cerb-search-trigger').cerbSearchTrigger();
 
 	{if $message && is_a($message, 'Model_Message') && $is_writeable}
-	$preview.find('.cerb-button-reply').on('click', function(e) {
-		if(e.originalEvent && e.originalEvent.detail && e.originalEvent.detail > 1)
-			return;
+	$preview.find('.cerb-button-reply').on('click', $.throttle(500, function(e) {
+		e.preventDefault();
+		e.stopPropagation();
 		
 		var $popup = genericAjaxPopupFind($preview);
 		var $layer = $popup.attr('data-layer');
@@ -67,11 +67,11 @@ $(function() {
 				{/if}
 			}, 0);
 		});
-	});
+	}));
 	{elseif $draft && is_a($draft, 'Model_MailQueue') && $is_writeable}
-	$preview.find('.cerb-button-resume').on('click', function(e) {
-		if(e.originalEvent && e.originalEvent.detail && e.originalEvent.detail > 1)
-			return;
+	$preview.find('.cerb-button-resume').on('click', $.throttle(500, function(e) {
+		e.preventDefault();
+		e.stopPropagation();
 
 		var $popup = genericAjaxPopupFind($preview);
 		var $layer = $popup.attr('data-layer');
@@ -105,7 +105,7 @@ $(function() {
 				{/if}
 			}, 0);
 		});
-	});
+	}));
 	{/if}
 });
 </script>

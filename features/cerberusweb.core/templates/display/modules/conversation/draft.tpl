@@ -153,9 +153,9 @@ $(function() {
 	
 	$draft.find('.cerb-peek-trigger').cerbPeekTrigger();
 	
-	$draft.find('button.cerb-button-resume').on('click', function(e) {
-		if(e.originalEvent && e.originalEvent.detail && e.originalEvent.detail > 1)
-			return;
+	$draft.find('button.cerb-button-resume').on('click', $.throttle(500, function(e) {
+		e.preventDefault();
+		e.stopPropagation();
 		
 		var evt = jQuery.Event('cerb_reply');
 		evt.message_id = '{$draft->params.in_reply_message_id}';
@@ -164,7 +164,7 @@ $(function() {
 		evt.reply_mode = 0;
 
 		$draft.trigger(evt);
-	});
+	}));
 
 	$draft.find('.cerb-sticky-trigger')
 		.cerbPeekTrigger()
