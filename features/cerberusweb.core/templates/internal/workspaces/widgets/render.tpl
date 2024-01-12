@@ -1,12 +1,13 @@
 {$is_widget_writeable = Context_WorkspaceWidget::isWriteableByActor($widget, $active_worker)}
 {$width_units = $widget->width_units|default:1}
 {$widget_extension = $widget->getExtension()}
-<div class="cerb-workspace-widget" data-widget-id="{$widget->id}" data-widget-name="{$widget->label}" style="flex:{$width_units} {$width_units} {$width_units * 0.25 * 100}%;">
+{$widget_is_hidden = $widget->isHidden($workspace_tab_dict)}
+<div class="cerb-workspace-widget {if $widget_is_hidden}cerb-workspace-widget--hidden{/if}" data-widget-id="{$widget->id}" data-widget-name="{$widget->label}" style="flex:{$width_units} {$width_units} {$width_units * 0.25 * 100}%;">
 	<div>
 		<div class="cerb-workspace-widget--header {if $is_widget_writeable}cerb-draggable{/if}">
 			<b>
 				<a href="javascript:;" class="cerb-workspace-widget--link no-underline">
-					{$widget->label}<!--
+					{if $widget_is_hidden}<span class="glyphicons glyphicons-eye-close"></span> {/if}{$widget->label}<!--
 					--><span class="glyphicons glyphicons-chevron-down"></span>
 				</a>
 				{if $is_widget_writeable}

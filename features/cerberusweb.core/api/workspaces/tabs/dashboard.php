@@ -46,6 +46,11 @@ class WorkspaceTab_Dashboards extends Extension_WorkspaceTab {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$widgets = DAO_WorkspaceWidget::getByTab($tab->id);
 		
+		$workspace_tab_dict = DevblocksDictionaryDelegate::instance([
+			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'current_worker_id' => $active_worker->id ?? 0,
+		]);
+		
 		$layout = ($tab->params['layout'] ?? null) ?: '';
 		
 		$zones = [
@@ -100,6 +105,8 @@ class WorkspaceTab_Dashboards extends Extension_WorkspaceTab {
 		
 		$tab_prefs = $tab->getDashboardPrefsAsWorker($active_worker);
 		$tpl->assign('tab_prefs', $tab_prefs);
+		
+		$tpl->assign('workspace_tab_dict', $workspace_tab_dict);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/tab.tpl');
 	}

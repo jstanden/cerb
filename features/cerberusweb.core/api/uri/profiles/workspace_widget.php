@@ -230,6 +230,7 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 						$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');
 						$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'] ?? null, 'string', '');
 						$width_units = DevblocksPlatform::importGPC($_POST['width_units'] ?? null, 'integer', 1);
+						$options_kata = DevblocksPlatform::importGPC($_POST['options_kata'] ?? null, 'string', '');
 						
 						$width_units = DevblocksPlatform::intClamp($width_units, 1, 4);
 						$error = null;
@@ -241,6 +242,7 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 								DAO_WorkspaceWidget::UPDATED_AT => time(),
 								DAO_WorkspaceWidget::WIDTH_UNITS => $width_units,
 								DAO_WorkspaceWidget::WORKSPACE_TAB_ID => $workspace_tab_id,
+								DAO_WorkspaceWidget::OPTIONS_KATA => $options_kata,
 							);
 							
 							if(!DAO_WorkspaceWidget::validate($fields, $error))
@@ -261,6 +263,7 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 								DAO_WorkspaceWidget::UPDATED_AT => time(),
 								DAO_WorkspaceWidget::WIDTH_UNITS => $width_units,
 								DAO_WorkspaceWidget::WORKSPACE_TAB_ID => $workspace_tab_id,
+								DAO_WorkspaceWidget::OPTIONS_KATA => $options_kata,
 							);
 							
 							if(!DAO_WorkspaceWidget::validate($fields, $error, $id))

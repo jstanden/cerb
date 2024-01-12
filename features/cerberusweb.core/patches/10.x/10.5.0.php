@@ -123,6 +123,15 @@ if(!array_key_exists('options_kata', $columns)) {
 }
 
 // ===========================================================================
+// Modify workspace_widget.options_kata for conditionality
+
+list($columns, ) = $db->metaTable('workspace_widget');
+
+if(!array_key_exists('options_kata', $columns)) {
+	$db->ExecuteMaster('ALTER TABLE workspace_widget ADD COLUMN options_kata TEXT');
+}
+
+// ===========================================================================
 // Workflows
 
 if(!isset($tables['workflow'])) {

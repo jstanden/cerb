@@ -19,6 +19,7 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 	const EXTENSION_ID = 'extension_id';
 	const ID = 'id';
 	const LABEL = 'label';
+	const OPTIONS_KATA = 'options_kata';
 	const PARAMS_JSON = 'params_json';
 	const POS = 'pos';
 	const UPDATED_AT = 'updated_at';
@@ -64,6 +65,11 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 			->setMin(0)
 			->setMax(255)
 			;
+		$validation
+			->addField(self::OPTIONS_KATA)
+			->string()
+			->setMaxLength(65535)
+		;
 		// int(10) unsigned
 		$validation
 			->addField(self::UPDATED_AT)
@@ -228,7 +234,7 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, extension_id, workspace_tab_id, label, updated_at, params_json, pos, width_units, zone ".
+		$sql = "SELECT id, extension_id, workspace_tab_id, label, updated_at, options_kata, params_json, pos, width_units, zone ".
 			"FROM workspace_widget ".
 			$where_sql.
 			$sort_sql.
@@ -311,6 +317,7 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 			$object->extension_id = $row['extension_id'];
 			$object->id = intval($row['id']);
 			$object->label = $row['label'];
+			$object->options_kata = $row['options_kata'];
 			$object->pos = intval($row['pos']);
 			$object->width_units = intval($row['width_units']);
 			$object->zone = $row['zone'];
@@ -579,6 +586,7 @@ class Model_WorkspaceWidget extends DevblocksRecordModel {
 	public $extension_id = '';
 	public $id = 0;
 	public $label = '';
+	public $options_kata = '';
 	public $params = [];
 	public $pos = 0;
 	public $updated_at = 0;
@@ -603,6 +611,28 @@ class Model_WorkspaceWidget extends DevblocksRecordModel {
 			return;
 		
 		return $tab->getWorkspacePage();
+	}
+	
+	function isHidden(?DevblocksDictionaryDelegate $dict=null) : bool {
+		if(!$dict || !$this->options_kata)
+			return false;
+		
+		$dict->scrubKeys('widget_');
+		$dict->mergeKeys('widget_', DevblocksDictionaryDelegate::getDictionaryFromModel($this, Context_WorkspaceWidget::ID));
+		
+		$kata = DevblocksPlatform::services()->kata();
+		$error = null;
+		
+		if(!($options = $kata->parse($this->options_kata, $error)))
+			return false;
+		
+		if(!($options = $kata->formatTree($options, $dict, $error)))
+			return false;
+		
+		if(array_key_exists('hidden', $options) && $options['hidden'])
+			return true;
+		
+		return false;
 	}
 	
 	function _loadDashboardPrefsForWorker(Model_Worker $worker, DevblocksDictionaryDelegate $dict) {

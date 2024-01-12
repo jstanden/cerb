@@ -8,6 +8,7 @@
 		{if $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}.create")}<button id="btnWorkspaceTabAddWidget{$model->id}" type="button" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}" data-context-id="0" data-edit="tab:{$model->id}" data-width="75%"><span class="glyphicons glyphicons-circle-plus"></span> {'common.widget.add'|devblocks_translate|capitalize}</button>{/if}
 		<button id="btnWorkspaceTabEditDashboard{$model->id}" type="button"><span class="glyphicons glyphicons-edit"></span> {'common.dashboard.edit'|devblocks_translate|capitalize}</button>
 	</div>
+	<button id="btnWorkspaceTabToggleWidgets{$model->id}" type="button" style="display:none;"><div class="badge-count">0</div> Hidden Widgets</button>
 	{/if}
 </div>
 
@@ -90,6 +91,7 @@ $(function() {
 	var $container = $('#workspaceTab{$model->id}');
 	var $add_button = $('#btnWorkspaceTabAddWidget{$model->id}');
 	var $edit_button = $('#btnWorkspaceTabEditDashboard{$model->id}');
+	let $toggle_widgets_button = $('#btnWorkspaceTabToggleWidgets{$model->id}');
 	
 	// Drag
 	{if $is_writeable}
@@ -180,7 +182,7 @@ $(function() {
 			// If we're refreshing this widget or all widgets
 			if(widget_id && (0 === widget_ids.length || -1 !== $.inArray(widget_id, widget_ids))) {
 				jobs.push(
-					async.apply(loadWidgetFunc, widget_id, true, refresh_options)
+					async.apply(loadWidgetFunc, widget_id, false, refresh_options)
 				);
 			}
 		});
@@ -257,6 +259,10 @@ $(function() {
 		return $target;
 	}
 
+	$container.find('.cerb-workspace-widget').each(function() {
+		addEvents($(this));
+	});
+
 	{if $is_writeable}
 	$add_button
 		.cerbPeekTrigger()
@@ -277,10 +283,29 @@ $(function() {
 			$workspace.find('a.edit-tab').click();
 		})
 		;
+
+	$toggle_widgets_button
+		.on('click', function(e) {
+			e.stopPropagation();
+			$container.find('.cerb-workspace-widget--hidden').toggle();
+		})
+	;
+
+	let hidden_widget_count = $container.find('.cerb-workspace-widget--hidden').length;
+
+	if(hidden_widget_count > 0) {
+		$toggle_widgets_button.find('.badge-count').text(hidden_widget_count);
+		$toggle_widgets_button.show();
+	}
 	{/if}
-	
+
 	var loadWidgetFunc = function(widget_id, is_full, refresh_options, callback) {
 		var $widget = $('#workspaceWidget' + widget_id).fadeTo('fast', 0.3);
+
+		if(!is_full && !$widget.closest('.cerb-workspace-widget').is(':visible')) {
+			callback();
+			return;
+		}
 
 		if(is_full) {
 			Devblocks.getSpinner().prependTo($widget);

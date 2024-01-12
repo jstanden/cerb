@@ -2759,6 +2759,10 @@ svg.cerb-spinner circle {
   padding: 0 5px 10px 5px;
 }
 
+.cerb-workspace-widget--hidden {
+  display: none;
+}
+
 .cerb-workspace-widget--header {
   border-bottom: 1px solid var(--cerb-color-background-contrast-240);
   margin: 0 0 10px 0;
