@@ -4097,6 +4097,7 @@ var ajax = new cAjaxCalls();
 					$('<img/>')
 						.addClass('cerb-avatar')
 						.attr('src', item.image_url)
+						.attr('loading', 'lazy')
 						.appendTo($wrapper)
 					;
 				}
@@ -4485,6 +4486,7 @@ var ajax = new cAjaxCalls();
 						$('<img/>')
 							.addClass('cerb-avatar')
 							.attr('src', item.image_url)
+							.attr('loading', 'lazy')
 							.appendTo($wrapper)
 						;
 					}
