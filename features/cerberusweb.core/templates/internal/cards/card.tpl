@@ -26,6 +26,10 @@
                 {/if}
             {/if}
 
+            {if $active_worker->is_superuser}
+                <button data-cerb-button-toggle-hidden type="button" style="display:none;"><div class="badge-count">0</div> Hidden Widgets</button>
+            {/if}
+
             {if !is_array($toolbar_card) || !array_key_exists('watchers', $toolbar_card)}
                 {if !empty($dict->id) && $context_ext->hasOption('watchers')}
                     {$object_watchers = DAO_ContextLink::getContextLinks($peek_context, array($dict->id), CerberusContexts::CONTEXT_WORKER)}
@@ -185,7 +189,24 @@ $(function() {
                 document.location='{$dict->record_url}';
             }
         });
-        
+
+        // Hidden widgets
+
+        let $toggle_widgets_button = $popup.find('[data-cerb-button-toggle-hidden]');
+        let count_widgets_hidden = $popup.find('.cerb-card-widget--hidden').length;
+
+        $toggle_widgets_button
+            .on('click', function(e) {
+                e.stopPropagation();
+                $popup.find('.cerb-card-widget--hidden').toggle();
+            })
+        ;
+
+        if(count_widgets_hidden > 0) {
+            $toggle_widgets_button.find('.badge-count').text(count_widgets_hidden);
+            $toggle_widgets_button.show();
+        }
+
         // Toolbar
         
         var $card_toolbar = $popup.find('[data-cerb-card-toolbar]');

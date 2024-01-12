@@ -7,6 +7,10 @@
 	}
 }
 
+.cerb-card-widget--hidden {
+	display: none;
+}
+
 .cerb-card-widget--header {
 	border-bottom: 1px solid var(--cerb-color-background-contrast-240);
 	margin: 0 0 5px 0;

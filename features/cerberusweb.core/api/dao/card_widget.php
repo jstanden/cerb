@@ -5,6 +5,7 @@ class DAO_CardWidget extends Cerb_ORMHelper {
 	const EXTENSION_ID = 'extension_id';
 	const EXTENSION_PARAMS_JSON = 'extension_params_json';
 	const NAME = 'name';
+	const OPTIONS_KATA = 'options_kata';
 	const POS = 'pos';
 	const RECORD_TYPE = 'record_type';
 	const UPDATED_AT = 'updated_at';
@@ -39,6 +40,11 @@ class DAO_CardWidget extends Cerb_ORMHelper {
 			->addField(self::NAME)
 			->string()
 			->setRequired(true)
+		;
+		$validation
+			->addField(self::OPTIONS_KATA)
+			->string()
+			->setMaxLength(65535)
 		;
 		$validation
 			->addField(self::POS)
@@ -194,7 +200,7 @@ class DAO_CardWidget extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone ".
+		$sql = "SELECT id, name, record_type, extension_id, extension_params_json, options_kata, created_at, updated_at, pos, width_units, zone ".
 			"FROM card_widget ".
 			$where_sql.
 			$sort_sql.
@@ -300,6 +306,7 @@ class DAO_CardWidget extends Cerb_ORMHelper {
 			$object->extension_id = $row['extension_id'];
 			$object->created_at = $row['created_at'];
 			$object->updated_at = $row['updated_at'];
+			$object->options_kata = $row['options_kata'];
 			$object->pos = $row['pos'];
 			$object->width_units = $row['width_units'];
 			$object->zone = $row['zone'];
@@ -531,6 +538,7 @@ class SearchFields_CardWidget extends DevblocksSearchFields {
 class Model_CardWidget extends DevblocksRecordModel {
 	public $id;
 	public $name;
+	public $options_kata = '';
 	public $record_type;
 	public $extension_id;
 	public $extension_params = [];
@@ -556,6 +564,28 @@ class Model_CardWidget extends DevblocksRecordModel {
 	
 	function getUniqueId($context_id) {
 		return sprintf("%d_%d", $this->id, $context_id);
+	}
+	
+	function isHidden(?DevblocksDictionaryDelegate $dict=null) : bool {
+		if(!$dict || !$this->options_kata)
+			return false;
+		
+		$dict->scrubKeys('widget_');
+		$dict->mergeKeys('widget_', DevblocksDictionaryDelegate::getDictionaryFromModel($this, Context_CardWidget::ID));
+		
+		$kata = DevblocksPlatform::services()->kata();
+		$error = null;
+		
+		if(!($options = $kata->parse($this->options_kata, $error)))
+			return false;
+		
+		if(!($options = $kata->formatTree($options, $dict, $error)))
+			return false;
+		
+		if(array_key_exists('hidden', $options) && $options['hidden'])
+			return true;
+		
+		return false;
 	}
 };
 

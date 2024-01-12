@@ -104,6 +104,16 @@
                 {/if}
             </div>
 
+            <fieldset data-cerb-fieldset-advanced class="peek" style="margin-top:0.5em;">
+                <legend>Advanced options:</legend>
+                <div>
+                    <div class="cerb-code-editor-toolbar">
+                        <button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-magic title="{'common.autocomplete'|devblocks_translate|capitalize} (Ctrl+Space)"><span class="glyphicons glyphicons-magic"></span></button>
+                    </div>
+                    <textarea name="options_kata" data-editor-mode="ace/mode/cerb_kata" class="placeholders" style="display:none;">{$model->options_kata}</textarea>
+                </div>
+            </fieldset>
+
             <div class="cerb-placeholder-menu" style="display:none;">
                 {include file="devblocks:cerberusweb.core::internal/cards/widgets/toolbar.tpl"}
             </div>
@@ -147,6 +157,7 @@
     $(function() {
         var $frm = $('#{$form_id}');
         var $popup = genericAjaxPopupFind($frm);
+        let $fieldset_advanced = $frm.find('fieldset[data-cerb-fieldset-advanced]');
 
         $popup.one('popup_open', function(event,ui) {
             $popup.dialog('option','title',"{'common.card.widget'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
@@ -269,6 +280,31 @@
                         $toolbar.find('button.tester').show();
                     }
                 }
+            });
+
+            // Options Editor
+            let $advanced_editor = $fieldset_advanced
+                .find('textarea[name=options_kata]')
+                .cerbCodeEditor()
+                .cerbCodeEditorAutocompleteKata({
+                    autocomplete_suggestions: {
+                        '': [
+                            'hidden@bool:'
+                        ],
+                        'hidden:': [
+                            'yes',
+                            'no',
+                            '{literal}{{record_id == 123}}{/literal}'
+                        ]
+                    }
+                })
+                .nextAll('pre.ace_editor')
+            ;
+
+            let advanced_editor = ace.edit($advanced_editor.attr('id'));
+
+            $fieldset_advanced.find('[data-cerb-editor-button-magic]').on('click', function(e) {
+                advanced_editor.commands.byName.startAutocomplete.exec(advanced_editor);
             });
 
         });

@@ -217,6 +217,7 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 						$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'] ?? null, 'string', '');
 						$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
 						$width_units = DevblocksPlatform::importGPC($_POST['width_units'] ?? null, 'integer', 1);
+						$options_kata = DevblocksPlatform::importGPC($_POST['options_kata'] ?? null, 'string', '');
 						
 						$error = null;
 						
@@ -228,6 +229,7 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 								DAO_CardWidget::RECORD_TYPE => $record_type,
 								DAO_CardWidget::UPDATED_AT => time(),
 								DAO_CardWidget::WIDTH_UNITS => $width_units,
+								DAO_CardWidget::OPTIONS_KATA => $options_kata,
 							);
 							
 							if(false == ($extension = Extension_CardWidget::get($extension_id)))
@@ -254,6 +256,7 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 								DAO_CardWidget::NAME => $name,
 								DAO_CardWidget::UPDATED_AT => time(),
 								DAO_CardWidget::WIDTH_UNITS => $width_units,
+								DAO_CardWidget::OPTIONS_KATA => $options_kata,
 							);
 							
 							if(false == ($widget = DAO_CardWidget::get($id)))

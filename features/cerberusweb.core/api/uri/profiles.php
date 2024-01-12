@@ -115,6 +115,13 @@ class Page_Profiles extends CerberusPageExtension {
 		// Widgets
 		$widgets = DAO_CardWidget::getByContext($context);
 		
+		$card_popup_dict = DevblocksDictionaryDelegate::instance([
+			'record__context' => $context,
+			'record_id' => $context_id,
+			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'current_worker_id' => $active_worker->id ?? 0,
+		]);
+		
 		$zones = [
 			'content' => [],
 		];
@@ -155,6 +162,7 @@ class Page_Profiles extends CerberusPageExtension {
 		$tpl->assign('peek_context', $context);
 		$tpl->assign('peek_context_id', $context_id);
 		$tpl->assign('context_ext', $context_ext);
+		$tpl->assign('card_popup_dict', $card_popup_dict);
 		$tpl->display('devblocks:cerberusweb.core::internal/cards/card.tpl');
 	}
 	
