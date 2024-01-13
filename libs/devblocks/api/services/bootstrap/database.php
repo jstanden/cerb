@@ -45,8 +45,7 @@ class _DevblocksDatabaseManager {
 		
 		$persistent = (defined('APP_DB_PCONNECT') && APP_DB_PCONNECT) ? true : false;
 		
-		// [TODO] Fail to read-only mode?
-		while(false === ($db = $this->_connect(APP_DB_HOST, APP_DB_USER, APP_DB_PASS, APP_DB_DATABASE, APP_DB_PORT, $persistent, APP_DB_OPT_MASTER_CONNECT_TIMEOUT_SECS))) {
+		while(false === ($db = $this->_connect(APP_DB_HOST, APP_DB_USER, APP_DB_PASS, APP_DB_DATABASE, APP_DB_PORT, $persistent, APP_DB_OPT_MASTER_CONNECT_TIMEOUT_SECS, APP_DB_OPT_MASTER_READ_TIMEOUT_SECS))) {
 			// Are we out of retries?
 			if(--$retries < 0) {
 				error_log(sprintf("[Cerb] Error connecting to the master database (%s). Please check MySQL and the framework.config.php settings.", APP_DB_HOST), E_USER_ERROR);
@@ -88,7 +87,7 @@ class _DevblocksDatabaseManager {
 		$user = (defined('APP_DB_READER_USER') && APP_DB_READER_USER) ? APP_DB_READER_USER : APP_DB_USER;
 		$pass = (defined('APP_DB_READER_PASS') && APP_DB_READER_PASS) ? APP_DB_READER_PASS : APP_DB_PASS;
 		
-		if(false == ($db = $this->_connect(APP_DB_READER_HOST, $user, $pass, APP_DB_DATABASE, APP_DB_PORT, $persistent, APP_DB_OPT_READER_CONNECT_TIMEOUT_SECS))) {
+		if(!($db = $this->_connect(APP_DB_READER_HOST, $user, $pass, APP_DB_DATABASE, APP_DB_PORT, $persistent, APP_DB_OPT_READER_CONNECT_TIMEOUT_SECS, APP_DB_OPT_READER_READ_TIMEOUT_SECS))) {
 			// [TODO] Cache reader failure for (n) seconds to retry, preventing spam hell on retry connections
 			error_log(sprintf("[Cerb] Error connecting to the reader database (%s).", APP_DB_READER_HOST), E_USER_ERROR);
 			return $this->_redirectReaderToMaster();
@@ -106,7 +105,7 @@ class _DevblocksDatabaseManager {
 		$user = APP_DB_READER_USER ?: APP_DB_USER;
 		$pass = APP_DB_READER_PASS ?: APP_DB_PASS;
 		
-		if(!($db = $this->_connect($host, $user, $pass, APP_DB_DATABASE, $port, APP_DB_PCONNECT, APP_DB_OPT_MASTER_CONNECT_TIMEOUT_SECS))) {
+		if(!($db = $this->_connect($host, $user, $pass, APP_DB_DATABASE, $port, APP_DB_PCONNECT, APP_DB_OPT_READER_CONNECT_TIMEOUT_SECS, APP_DB_OPT_READER_READ_TIMEOUT_SECS))) {
 			error_log(sprintf("[Cerb] Error connecting to a reader host (%s).", $host), E_USER_ERROR);
 			return false;
 		}
@@ -126,11 +125,11 @@ class _DevblocksDatabaseManager {
 		return $master;
 	}
 	
-	private function _connect($host, $user, $pass, $database, $port=null, $persistent=false, $timeout_secs=5) {
+	private function _connect($host, $user, $pass, $database, $port=null, $persistent=false, $connect_timeout=3, $read_timeout=30) {
 		$db = mysqli_init();
 		
-		mysqli_options($db, MYSQLI_OPT_CONNECT_TIMEOUT, $timeout_secs);
-		mysqli_options($db, MYSQLI_OPT_READ_TIMEOUT, $timeout_secs);
+		mysqli_options($db, MYSQLI_OPT_CONNECT_TIMEOUT, $connect_timeout);
+		mysqli_options($db, MYSQLI_OPT_READ_TIMEOUT, $read_timeout);
 		mysqli_report(MYSQLI_REPORT_ERROR);
 		
 		if($persistent)
