@@ -76,6 +76,7 @@ class CerbPriorityQueueDesc extends SplPriorityQueue {
 
 enum CerbErrorReason {
 	case AccessDenied;
+	case DatabaseConnectionError;
 	case NoContent;
 	case NotFound;
 	case SessionExpired;
@@ -86,6 +87,10 @@ enum CerbErrorReason {
 			self::AccessDenied => [
 				'code' => 403,
 				'template' => '403_access_denied',
+			],
+			self::DatabaseConnectionError => [
+				'code' => 503,
+				'template' => '503_database_connection_error',
 			],
 			self::NoContent => [
 				'code' => 200,
@@ -468,7 +473,7 @@ class CerberusApplication extends DevblocksApplication {
 		
 		$pref_dark_mode = 1;
 
-		if($reason === CerbErrorReason::SessionExpired)
+		if(in_array($reason, [CerbErrorReason::SessionExpired, CerbErrorReason::DatabaseConnectionError]))
 			$skip_session = true;
 
 		if(!$skip_session) {

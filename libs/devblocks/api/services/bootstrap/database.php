@@ -49,7 +49,7 @@ class _DevblocksDatabaseManager {
 			// Are we out of retries?
 			if(--$retries < 0) {
 				error_log(sprintf("[Cerb] Error connecting to the master database (%s). Please check MySQL and the framework.config.php settings.", APP_DB_HOST), E_USER_ERROR);
-				DevblocksPlatform::dieWithHttpError("[Cerb] Error connecting to the master database.", 500);
+				CerberusApplication::respondWithErrorReason(CerbErrorReason::DatabaseConnectionError);
 			}
 			
 			DevblocksPlatform::logError('Master connection failed, retrying...');
