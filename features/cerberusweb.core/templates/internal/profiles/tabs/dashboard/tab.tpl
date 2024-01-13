@@ -2,7 +2,7 @@
 <div style="margin-bottom:5px;" class="cerb-no-print">
 	<button id="btnProfileTabAddWidget{$model->id}" type="button" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_PROFILE_WIDGET}" data-context-id="0" data-edit="tab:{$model->id}" data-width="75%"><span class="glyphicons glyphicons-circle-plus"></span> {'common.add.widget'|devblocks_translate|capitalize}</button>
 	<button id="btnProfileTabEdit{$model->id}" type="button" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_PROFILE_TAB}" data-context-id="{$model->id}" data-edit="true" data-width="75%"><span class="glyphicons glyphicons-edit"></span> Edit Tab</button>
-	<button id="btnProfileTabToggleWidgets{$model->id}" type="button" style="display:none;"><span class="glyphicons glyphicons-eye-close"></span> Toggle Hidden</button>
+	<button id="btnProfileTabToggleWidgets{$model->id}" type="button" style="display:none;"><div class="badge-count">0</div> Hidden Widgets</button>
 </div>
 {/if}
 
@@ -263,7 +263,10 @@ $(function() {
 		})
 	;
 
-	if($container.find('.cerb-profile-widget--hidden').length > 0) {
+	let hidden_profile_widgets = $container.find('.cerb-profile-widget--hidden').length;
+
+	if(hidden_profile_widgets > 0) {
+		$toggle_widgets_button.find('.badge-count').text(hidden_profile_widgets);
 		$toggle_widgets_button.show();
 	}
 	{/if}
