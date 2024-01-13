@@ -464,6 +464,29 @@ class _DevblocksDatabaseManager {
 		}
 	}
 	
+	private function _IsWriter($db) : bool {
+		return spl_object_hash($db) == spl_object_hash($this->_connections['master']);
+	}
+	
+	private function _Reconnect($db) : bool {
+		// Reconnect
+		if($this->_IsWriter($db)) {
+			unset($this->_connections['master']);
+			$master_db = $this->_connectMaster(APP_DB_OPT_CONNECTION_RECONNECTS, APP_DB_OPT_CONNECTION_RECONNECTS_WAIT_MS);
+			$db = $master_db;
+			
+		} else {
+			unset($this->_connections['reader']);
+			$reader_db = $this->_connectReader();
+			$db = $reader_db;
+		}
+		
+		if(!($db instanceof mysqli) || !@mysqli_ping($db))
+			return false;
+		
+		return true;
+	}
+	
 	private function _Execute($sql, $db, $option_bits = 0) {
 		if(DEVELOPMENT_MODE_QUERIES) {
 			if($console = DevblocksPlatform::services()->log(null))
@@ -476,24 +499,25 @@ class _DevblocksDatabaseManager {
 			$mysql_errno = mysqli_errno($db);
 			$mysql_error = mysqli_error($db);
 			
+			// MySQL server has gone away (likely a read timeout)
+			if (2006 == $mysql_errno) {
+				DevblocksPlatform::logError(sprintf("[%d] Read Timeout ::SQL:: %s",
+					$mysql_errno,
+					$sql
+				));
+				
+				$this->_Reconnect($db);
+				
+				return false;
+				
 			// If the DB is down, try to reconnect
-			if(!mysqli_ping($db)) {
+			} else if(!@mysqli_ping($db)) {
 				DevblocksPlatform::logError("The MySQL connection closed prematurely.");
 				
-				// Reconnect
-				if(spl_object_hash($db) == spl_object_hash($this->_connections['master'])) {
-					unset($this->_connections['master']);
-					$master_db = $this->_connectMaster(APP_DB_OPT_CONNECTION_RECONNECTS, APP_DB_OPT_CONNECTION_RECONNECTS_WAIT_MS);
-					$db = $master_db;
-					
-				} else {
-					unset($this->_connections['reader']);
-					$reader_db = $this->_connectReader();
-					$db = $reader_db;
-				}
+				$this->_Reconnect($db);
 				
 				// Try again after the reconnection
-				if(false === ($rs = mysqli_query($db, $sql))) {
+				if(!@mysqli_ping($db) || false === ($rs = mysqli_query($db, $sql))) {
 					DevblocksPlatform::logError('Failed to reconnect to the database.');
 					
 					$error_msg = sprintf("[%d] %s ::SQL:: %s",
@@ -501,7 +525,7 @@ class _DevblocksDatabaseManager {
 						$mysql_error,
 						$sql
 					);
-					
+
 					DevblocksPlatform::logError($error_msg, true);
 					return false;
 				}
