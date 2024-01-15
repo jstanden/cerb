@@ -359,6 +359,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'params' => [
 						'attachment' => null,
 						'automation_resource' => null,
+						'resource' => null,
 					],
 				],
 				

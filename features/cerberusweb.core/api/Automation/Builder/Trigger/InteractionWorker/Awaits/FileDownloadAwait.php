@@ -68,6 +68,20 @@ class FileDownloadAwait extends AbstractAwait {
 			
 			fpassthru($fp);
 			fclose($fp);
+			
+		} else if(CerberusContexts::CONTEXT_RESOURCE == $uri_parts['context']) {
+			if(is_numeric($uri_parts['context_id'])) {
+				if(!($resource = \DAO_Resource::get($uri_parts['context_id'])))
+					return;
+			} else {
+				if(!($resource = \DAO_Resource::getByName($uri_parts['context_id'])))
+					return;
+			}
+			
+			$content_data = $resource->getExtension()->getContentData($resource);
+			
+			$content_data->writeHeaders();
+			$content_data->writeBody();
 		}
 	}
 	
