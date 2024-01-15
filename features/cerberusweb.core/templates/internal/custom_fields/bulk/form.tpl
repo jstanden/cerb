@@ -153,7 +153,7 @@
 					{/foreach}
 					</ul>
 				{elseif $f->type==Model_CustomField::TYPE_DATE}
-					<input type="text" id="{$field_name}" name="{$field_name}" class="input_date" size="45" maxlength="255" value="{if !empty($custom_field_values.$f_id)}{if is_numeric($custom_field_values.$f_id)}{$custom_field_values.$f_id|devblocks_date}{else}{$custom_field_values.$f_id}{/if}{/if}">
+					<input type="text" id="{$field_name}" name="{$field_name}" data-cerb-date-picker size="45" maxlength="255" value="{if !empty($custom_field_values.$f_id)}{if is_numeric($custom_field_values.$f_id)}{$custom_field_values.$f_id|devblocks_date}{else}{$custom_field_values.$f_id}{/if}{/if}">
 				{else}
 					{$extension = Extension_CustomField::get($f->type, true)}
 					{if $extension}
@@ -174,7 +174,7 @@
 $(function() {
 	var $cfields = $('#cfields{$uniqid}');
 	
-	$cfields.find('input.input_date').cerbDateInputHelper();
+	$cfields.find('input[data-cerb-date-picker]').cerbDateInputHelper();
 	
 	$cfields.find('input:checkbox[name="field_ids[]"]').change(function() {
 		var $div = $('#bulkOpts' + $(this).val());

@@ -274,10 +274,6 @@ INPUT[type=text] {
 		@include form-input-icon('input_icons/colors.png');
 	}
 
-	//&.input_date {
-	//	@include form-input-icon('input_icons/date.png');
-	//}
-
 	&.input_email {
 		@include form-input-icon('input_icons/mail.png');
 	}
