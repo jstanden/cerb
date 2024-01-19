@@ -252,7 +252,12 @@
 						{if $toolbar_mail_read}
 							{$toolbar = $toolbar_mail_read->getKata($message_dict)}
 						{/if}
-							
+
+						{* If not requester *}
+						{if !$message->is_outgoing && !isset($requesters.{$sender_id})}
+							<button data-cerb-button="requester-add"><span class="glyphicons glyphicons-circle-plus"></span> {'display.ui.add_to_recipients'|devblocks_translate}</button>
+						{/if}
+
 						{if !array_key_exists('reply', $toolbar) && Context_Ticket::isWriteableByActor($ticket, $active_worker) && $active_worker->hasPriv('core.display.actions.reply')}
 							<button type="button" class="reply split-left" title="{if 2 == $mail_reply_button}{'display.reply.only_these_recipients'|devblocks_translate}{elseif 1 == $mail_reply_button}{'display.reply.no_quote'|devblocks_translate}{else}{'display.reply.quote'|devblocks_translate}{/if}"><span class="glyphicons glyphicons-send"></span> {'common.reply'|devblocks_translate|capitalize}</button><!--
 						--><button type="button" class="split-right" onclick="$ul=$(this).next('ul');$ul.toggle();if($ul.is(':hidden')) { $ul.blur(); } else { $ul.find('a:first').focus(); }"><span class="glyphicons glyphicons-chevron-down"></span></button>
@@ -387,11 +392,6 @@
 						<input type="hidden" name="action" value="">
 						<input type="hidden" name="id" value="{$message->id}">
 						<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
-
-						{* If not requester *}
-						{if !$message->is_outgoing && !isset($requesters.{$sender_id})}
-							<button data-cerb-button="requester-add"><span class="glyphicons glyphicons-circle-plus"></span> {'display.ui.add_to_recipients'|devblocks_translate}</button>
-						{/if}
 
 						<button type="button" onclick="genericAjaxPopup('message_headers','c=profiles&a=invoke&module=ticket&action=showMessageFullHeadersPopup&id={$message->id}');"><span class="glyphicons glyphicons-envelope"></span> {'message.headers'|devblocks_translate|capitalize}</button>
 
