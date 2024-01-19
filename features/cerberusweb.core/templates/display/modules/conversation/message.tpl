@@ -75,8 +75,16 @@
 		{/if}
 
 		{if !$message->is_outgoing}
+			{if $sender->is_banned}
+				<div class="badge badge-lightgray"><span class="glyphicons glyphicons-warning-sign"></span> {'common.banned'|devblocks_translate|capitalize}</div>
+			{/if}
+
+			{if $sender->is_defunct}
+				<div class="badge badge-lightgray"><span class="glyphicons glyphicons-warning-sign"></span> {'common.defunct'|devblocks_translate|capitalize}</div>
+			{/if}
+
 			{if $message->signed_key_fingerprint}
-				<span style="margin-left:15px;">
+				<span style="margin-left:1em;">
 					<span class="glyphicons glyphicons-circle-ok" style="font-size:1.2em;color:rgb(66,131,73);" title="{'common.encrypted.verified'|devblocks_translate|capitalize}"></span>
 					Verified
 					(<a href="javascript:;" class="cerb-search-trigger" data-context="{Context_GpgPublicKey::ID}" data-query="fingerprint:{$message->signed_key_fingerprint}">{$message->signed_key_fingerprint|substr:-16}</a>)

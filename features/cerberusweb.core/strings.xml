@@ -450,6 +450,11 @@
 				<seg>Availability</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.banned">
+			<tuv xml:lang="en_US">
+				<seg>banned</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.behavior">
 			<tuv xml:lang="en_US">
 				<seg>Behavior</seg>
@@ -1003,6 +1008,11 @@
 		<tu tuid="common.defaults">
 			<tuv xml:lang="en_US">
 				<seg>Defaults</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.defunct">
+			<tuv xml:lang="en_US">
+				<seg>defunct</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.delay">
