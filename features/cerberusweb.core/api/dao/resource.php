@@ -1564,7 +1564,7 @@ class Context_Resource extends Extension_DevblocksContext implements IDevblocksC
 		$token_labels = array(
 			'_label' => $prefix,
 			'automation_kata' => $prefix.$translate->_('common.automation'),
-			'cache_until' => $prefix.$translate->_('common.cache_until'),
+			'cache_until' => $prefix.$translate->_('dao.resource.cache_until'),
 			'description' => $prefix.$translate->_('common.description'),
 			'extension_id' => $prefix.$translate->_('common.type'),
 			'id' => $prefix.$translate->_('common.id'),

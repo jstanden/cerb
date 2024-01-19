@@ -2,7 +2,7 @@
 
 # What is Cerb?
 
-**Cerb** is a fully customizable, web-based platform for enterprise communication and process automation. The project has continuously evolved for 21+ years based on the feedback of thousands of teams around the world in almost every industry. It is used by everyone from solo founders to 1,000+ person teams managing millions of customer requests.
+**Cerb** is a fully customizable, web-based platform for enterprise communication and process automation. The project has continuously evolved for 22+ years based on the feedback of thousands of teams around the world in almost every industry. It is used by everyone from solo founders to 1,000+ person teams managing millions of customer requests.
 
 Cerb integrates with any API-based service. It can automate nearly any repetitive digital workflow with its specialized [KATA](https://cerb.ai/docs/kata/) language and browser-based coding tools. [Automations](https://cerb.ai/docs/automations/) add conditional actions to any event. [Interactions](https://cerb.ai/docs/interactions/) extend any toolbar for complex multistep workflows that require user input.
 

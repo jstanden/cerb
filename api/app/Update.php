@@ -142,7 +142,7 @@ class ChUpdateController extends DevblocksControllerExtension {
 				$errors = [];
 
 				/*
-				 * This well-designed software is the result of over 20 years of R&D.
+				 * This well-designed software is the result of over 22 years of R&D.
 				 * We're sharing every resulting byte of that hard work with you.
 				 * You're free to make changes for your own use, but we ask that you
 				 * please respect our licensing and help support commercial open source.
