@@ -46,6 +46,19 @@ class DAO_AutomationLog extends Cerb_ORMHelper {
 		return $validation->getFields();
 	}
 
+	static function getLevels() : array {
+		return [
+			'emergency' => 0,	// Emergency: system is unusable
+			'alert' => 1,		// Alert: action must be taken immediately
+			'critical' => 2,	// Critical: critical conditions
+			'error' => 3,		// Error: error conditions
+			'warning' => 4,		// Warning: warning conditions
+			'notice' => 5,		// Notice: normal but significant condition
+			'info' => 6,		// Informational: informational messages
+			'debug' => 7,		// Debug: debug messages
+		];
+	}
+	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
 		
@@ -286,6 +299,22 @@ class SearchFields_AutomationLog extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
+			case SearchFields_AutomationLog::LOG_LEVEL:
+				$levels = DAO_AutomationLog::getLevels();
+				
+				if(is_string($param->value) && !is_numeric($param->value)) {
+					$param->value = $levels[$param->value];
+					
+				} elseif(is_array($param->value)) {
+					$param->value = array_map(
+						function($v) use (&$levels) {
+							return !is_numeric($v) ? $levels[$v] : $v;
+						},
+						$param->value
+					);
+				}
+				return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+				
 			default:
 				return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 		}
@@ -334,6 +363,74 @@ class SearchFields_AutomationLog extends DevblocksSearchFields {
 		DevblocksPlatform::sortObjects($columns, 'db_label');
 
 		return $columns;
+	}
+	
+	public static function getFieldsFromQuery(string $q) : array {
+		$query_fields = CerbQuickSearchLexer::getFieldsFromQuery($q);
+		$params = [];
+		
+		foreach($query_fields as $query_field) { /* @var DevblocksSearchCriteria $query_field */
+			switch($query_field->key) {
+				case 'automation':
+					if('T_GROUP' == $query_field->tokens[0]->type) {
+						$automation_q = substr(CerbQuickSearchLexer::getTokensAsQuery($query_field->tokens),1,-1);
+						$automation_fields = CerbQuickSearchLexer::getFieldsFromQuery($automation_q);
+						
+						foreach($automation_fields as $automation_field) { /* @var DevblocksSearchCriteria $automation_field */
+							switch($automation_field->key) {
+								case 'name':
+									$field_key = SearchFields_AutomationLog::AUTOMATION_NAME;
+									if(($param = DevblocksSearchCriteria::getTextParamFromTokens($field_key, $automation_field->tokens)))
+										$params[] = $param;
+									break;
+									
+								case 'node':
+									$field_key = SearchFields_AutomationLog::AUTOMATION_NODE;
+									if(($param = DevblocksSearchCriteria::getTextParamFromTokens($field_key, $automation_field->tokens)))
+										$params[] = $param;
+									break;
+							}
+						}
+						
+					} else {
+						$field_key = SearchFields_AutomationLog::AUTOMATION_NAME;
+						
+						if(($param = DevblocksSearchCriteria::getTextParamFromTokens($field_key, $query_field->tokens)))
+							$params[] = $param;
+					}
+					break;
+				
+				case 'created':
+					$field_key = SearchFields_AutomationLog::CREATED_AT;
+					
+					if(($param = DevblocksSearchCriteria::getDateParamFromTokens($field_key, $query_field->tokens)))
+						$params[] = $param;
+					break;
+					
+				case 'id':
+					$field_key = SearchFields_AutomationLog::ID;
+					
+					if(($param = DevblocksSearchCriteria::getNumberParamFromTokens($field_key, $query_field->tokens)))
+						$params[] = $param;
+					break;
+					
+				case 'level':
+					$field_key = SearchFields_AutomationLog::LOG_LEVEL;
+					
+					if(($param = DevblocksSearchCriteria::getTextParamFromTokens($field_key, $query_field->tokens)))
+						$params[] = $param;
+					break;
+					
+				case 'message':
+					$field_key = SearchFields_AutomationLog::LOG_MESSAGE;
+					
+					if(($param = DevblocksSearchCriteria::getTextParamFromTokens($field_key, $query_field->tokens)))
+						$params[] = $param;
+					break;
+			}
+		}
+		
+		return $params;
 	}
 };
 

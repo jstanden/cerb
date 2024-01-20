@@ -12,30 +12,6 @@ class LogAction extends AbstractAction {
 	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) : string|false {
 		$params = $automation->getParams($this->node, $dict);
 		
-		/*
-		$log_levels = [
-			'emergency' => 0,		// Emergency: system is unusable
-			'alert' => 1,		// Alert: action must be taken immediately
-			'critical' => 2,		// Critical: critical conditions
-			'error' => 3,			// Error: error conditions
-			'warning' => 4,		// Warning: warning conditions
-			'notice' => 5,		// Notice: normal but significant condition
-			'info' => 6,		// Informational: informational messages
-			'debug' => 7,		// Debug: debug messages
-		];
-		
-		$level_to_label = [
-			0 => 'emergency',
-			1 => 'alert',
-			2 => 'critical',
-			3 => 'error',
-			4 => 'warning',
-			5 => 'notice',
-			6 => 'info',
-			7 => 'debug',
-		];
-		*/
-		
 		try {
 			$log_message = $params[''] ?? '';
 			
