@@ -94,9 +94,7 @@
 		let $explorerFrame = $('#explorerFrame');
 		let $explorerToolbar = $('#explorerToolbar');
 
-		let funcOnLoad = function(e) {
-			e.stopPropagation();
-
+		let frameInit = function() {
 			try {
 				// Frame keyboard shortcuts
 				$explorerToolbar.cerbToolbar({
@@ -158,7 +156,13 @@
 						}
 					}
 				});
+			} catch(e) { if(console && console.error) console.error(e); }
+		}
 
+		let funcOnLoad = function(e) {
+			e.stopPropagation();
+
+			try {
 				let $explorerFrameBody = $explorerFrame.contents().find('body').parent();
 				let $responders = $explorerToolbar.find('[data-interaction-keyboard]');
 				let onKeyShortcut = function(e) {
@@ -186,6 +190,8 @@
 				$explorerFrame.focus();
 			} catch(e) { if(console && console.error) console.error(e); }
 		};
+
+		frameInit();
 
 		// Load the URL after we bind the `load` event
 		$explorerFrame.get(0).addEventListener('load', funcOnLoad);
