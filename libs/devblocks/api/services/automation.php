@@ -362,14 +362,14 @@ class _DevblocksAutomationService {
 			// On the first run
 			if(!$dict->exists('__state')) {
 				if(false === $this->_validateInputs($automation_script, $dict, $error))
-					throw new Exception_DevblocksAutomationError($error);
+					throw new Exception_DevblocksAutomationError(strval($error));
 			}
 			
 			// Remove inputs before running
 			unset($automation_script['inputs']);
 			
 			if(!$automation->execute($dict, $error))
-				throw new Exception_DevblocksAutomationError($error);
+				throw new Exception_DevblocksAutomationError(strval($error));
 			
 			// Log when we exit in an error state and are not simulating
 			if($dict->getKeyPath('__exit') == 'error') {

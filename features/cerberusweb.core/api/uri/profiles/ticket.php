@@ -163,16 +163,16 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		header('Content-Type: application/json; charset=utf-8');
 		
 		try {
-			@$subject = DevblocksPlatform::importGPC($_POST['subject'],'string','');
-			@$org_id = DevblocksPlatform::importGPC($_POST['org_id'],'integer',0);
-			@$status_id = DevblocksPlatform::importGPC($_POST['status_id'],'integer',0);
-			@$importance = DevblocksPlatform::importGPC($_POST['importance'],'integer',0);
-			@$owner_id = DevblocksPlatform::importGPC($_POST['owner_id'],'integer',0);
-			@$participants = DevblocksPlatform::importGPC($_POST['participants'],'array',[]);
-			@$group_id = DevblocksPlatform::importGPC($_POST['group_id'],'integer',0);
-			@$bucket_id = DevblocksPlatform::importGPC($_POST['bucket_id'],'integer',0);
-			@$spam_training = DevblocksPlatform::importGPC($_POST['spam_training'],'string','');
-			@$ticket_reopen = DevblocksPlatform::importGPC($_POST['ticket_reopen'],'string','');
+			$subject = DevblocksPlatform::importGPC($_POST['subject'] ?? null,'string','');
+			$org_id = DevblocksPlatform::importGPC($_POST['org_id'] ?? null,'integer',0);
+			$status_id = DevblocksPlatform::importGPC($_POST['status_id'] ?? null,'integer',0);
+			$importance = DevblocksPlatform::importGPC($_POST['importance'] ?? null,'integer',0);
+			$owner_id = DevblocksPlatform::importGPC($_POST['owner_id'] ?? null,'integer',0);
+			$participants = DevblocksPlatform::importGPC($_POST['participants'] ?? null,'array',[]);
+			$group_id = DevblocksPlatform::importGPC($_POST['group_id'] ?? null,'integer',0);
+			$bucket_id = DevblocksPlatform::importGPC($_POST['bucket_id'] ?? null,'integer',0);
+			$spam_training = DevblocksPlatform::importGPC($_POST['spam_training'] ?? null,'string','');
+			$ticket_reopen = DevblocksPlatform::importGPC($_POST['ticket_reopen'] ?? null,'string','');
 			
 			if(!$active_worker->hasPriv(sprintf('contexts.%s.update', CerberusContexts::CONTEXT_TICKET)))
 				throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
@@ -282,7 +282,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 			}
 			
 			// Custom field saves
-			@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+			$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 			if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_TICKET, $id, $field_ids, $error))
 				throw new Exception_DevblocksAjaxValidationError($error);
 			

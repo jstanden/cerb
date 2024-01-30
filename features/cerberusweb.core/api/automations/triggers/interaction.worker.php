@@ -82,6 +82,10 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'notes' => 'Copy the given text to the browser clipboard',
 				],
 				[
+					'key' => 'explore_page',
+					'notes' => 'The next page in an explore interaction (if applicable)',
+				],
+				[
 					'key' => 'open_link',
 					'notes' => 'Open a new browser tab with the given URL',
 				],
