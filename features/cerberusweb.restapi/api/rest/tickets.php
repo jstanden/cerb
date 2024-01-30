@@ -694,9 +694,8 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			'content' => $content,
 		);
 
-		// [TODO] Tell the activity log we're impersonating?
 		if($worker->is_superuser && !empty($worker_id)) {
-			if(false != ($sender_worker = DAO_Worker::get($worker_id)))
+			if(($sender_worker = DAO_Worker::get($worker_id)))
 				$properties['worker_id'] = $sender_worker->id;
 		}
 		
@@ -795,9 +794,17 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 
 		// Send the message
 		
-		if(false == ($response = CerberusMail::sendTicketMessage($properties)))
+		$has_worker_override = $worker->is_superuser && ($properties['worker_id'] ?? null);
+		
+		if($has_worker_override)
+			CerberusContexts::pushActivityDefaultActor(CerberusContexts::CONTEXT_WORKER, $properties['worker_id']);
+		
+		if(!(CerberusMail::sendTicketMessage($properties)))
 			$this->error(self::ERRNO_CUSTOM, "Failed to create a reply message.");
 		
+		if($has_worker_override)
+			CerberusContexts::popActivityDefaultActor();
+			
 		return $ticket->id;
 	}
 	
