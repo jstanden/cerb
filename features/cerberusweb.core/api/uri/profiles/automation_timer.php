@@ -143,6 +143,10 @@ class PageSection_ProfilesAutomationTimer extends Extension_PageSection {
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_AUTOMATION_TIMER, $id);
 					
 				} else { // Edit
+					// If we're disabling a timer, clear its continuation token
+					if($fields[DAO_AutomationTimer::IS_DISABLED] ?? 0)
+						$fields[DAO_AutomationTimer::CONTINUATION_ID] = '';
+					
 					if(!DAO_AutomationTimer::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
