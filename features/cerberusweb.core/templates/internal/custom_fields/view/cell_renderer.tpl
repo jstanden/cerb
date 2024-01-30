@@ -48,7 +48,7 @@
 {elseif $col->type==Model_CustomField::TYPE_LINK}
 	<td data-column="{$column}">
 		{if $col->params.context && $result.$column}
-			{$link_ctx = Extension_DevblocksContext::get($col->params.context|default:'')}
+			{$link_ctx = Extension_DevblocksContext::getByAlias($col->params.context|default:'', true)}
 			{if is_a($link_ctx, 'Extension_DevblocksContext')}
 				{$link_ctx_meta = $link_ctx->getMeta($result.$column)}
 				{if $link_ctx_meta}
