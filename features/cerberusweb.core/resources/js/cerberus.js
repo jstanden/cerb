@@ -2533,6 +2533,25 @@ var ajax = new cAjaxCalls();
 			editor.session.setOption('indentedSoftWrap', false);
 			editor.setOption('wrap', true);
 
+			editor.commands.addCommand({
+				name: 'ResizeMaxLinesIncrease',
+				bindKey: { win: "Ctrl-Shift-Down", mac: "Ctrl-Shift-Down" },
+				exec: function() {
+					let maxLines = editor.getOption('maxLines') || localStorage.cerbCodeEditorMaxLines || 20;
+					localStorage.cerbCodeEditorMaxLines = ++maxLines;
+					editor.setOption('maxLines', localStorage.cerbCodeEditorMaxLines);
+				}
+			});
+			editor.commands.addCommand({
+				name: 'ResizeMaxLinesDecrease',
+				bindKey: { win: "Ctrl-Shift-Up", mac: "Ctrl-Shift-Up" },
+				exec: function() {
+					let maxLines = editor.getOption('maxLines') || localStorage.cerbCodeEditorMaxLines || 20;
+					localStorage.cerbCodeEditorMaxLines = --maxLines;
+					editor.setOption('maxLines', localStorage.cerbCodeEditorMaxLines);
+				}
+			});
+			
 			$this
 				.data('$editor', $editor)
 				.data('editor', editor)
