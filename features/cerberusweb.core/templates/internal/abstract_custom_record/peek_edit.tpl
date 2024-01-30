@@ -20,7 +20,13 @@
 		</td>
 	</tr>
 	
-	{if $owners_menu}
+	{if $owners_menu && 1 == count($owners_menu) && $owners_menu['App']}
+	<tr>
+		<td colspan="2">
+			<input type="hidden" name="owner" value="{$owners_menu['App']->key}">
+		</td>
+	</tr>
+	{elseif $owners_menu}
 	<tr>
 		<td width="1%" nowrap="nowrap" valign="top">
 			<b>{'common.owner'|devblocks_translate|capitalize}:</b>
