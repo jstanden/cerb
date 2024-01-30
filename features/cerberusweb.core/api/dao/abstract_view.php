@@ -2035,7 +2035,7 @@ abstract class C4_AbstractView {
 						if(empty($context) || empty($vals))
 							break;
 						
-						if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+						if(!($context_ext = Extension_DevblocksContext::getByAlias($context, true)))
 							break;
 						
 						$dao_class = $context_ext->getDaoClass();
@@ -3067,7 +3067,7 @@ abstract class C4_AbstractView {
 				if(!isset($contexts[$from_context]))
 					continue;
 				
-				if(null == ($ext = Extension_DevblocksContext::get($from_context)))
+				if(null == ($ext = Extension_DevblocksContext::getByAlias($from_context, true)))
 					continue;
 				
 				if(false == ($meta = $ext->getMeta($from_context_id)) || empty($meta['name']))
@@ -3119,7 +3119,7 @@ abstract class C4_AbstractView {
 		$params = $this->getParams();
 		$param_results = C4_AbstractView::findParam($field_key, $params);
 		
-		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+		if(!($context_ext = Extension_DevblocksContext::getByAlias($context, true)))
 			return [];
 		
 		if(false == ($dao_class = $context_ext->getDaoClass()))
@@ -3352,7 +3352,7 @@ abstract class C4_AbstractView {
 		// Load the custom field
 		$cfield = $custom_fields[$field_id];
 
-		if(!($context_ext = Extension_DevblocksContext::get($context)))
+		if(!($context_ext = Extension_DevblocksContext::getByAlias($context, true)))
 			return [];
 		
 		if(!($dao_class = $context_ext->getDaoClass()))
@@ -3556,7 +3556,7 @@ abstract class C4_AbstractView {
 						if(false == ($context = $cfield->params['context']))
 							break;
 							
-						if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+						if(!($context_ext = Extension_DevblocksContext::getByAlias($context, true)))
 							break;
 						
 						$dao_class = $context_ext->getDaoClass();
