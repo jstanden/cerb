@@ -28,7 +28,7 @@
 		{/if}
 
 		{if in_array($note->context, [CerberusContexts::CONTEXT_COMMENT, CerberusContexts::CONTEXT_DRAFT, CerberusContexts::CONTEXT_MESSAGE])}
-			<li data-cerb-action="permalink" data-cerb-permalink="{devblocks_url full=true}c=profiles&type=ticket&mask={$ticket->mask}{/devblocks_url}/#comment{$note->id}">
+			<li data-cerb-action="permalink" data-cerb-permalink="{devblocks_url full=true}c=profiles&type=ticket&id={$comment->context_id}{/devblocks_url}/#comment{$note->id}">
 				<div>
 					<span class="glyphicons glyphicons-link"></span> <b>{'common.permalink'|devblocks_translate|capitalize}</b>
 				</div>
