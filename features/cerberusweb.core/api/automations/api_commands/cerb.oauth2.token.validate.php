@@ -45,11 +45,14 @@ class ApiCommand_CerbOAuth2TokenValidate extends Extension_AutomationApiCommand 
 		if(!($oauth_token = DAO_OAuthToken::getAccessToken($token_id)))
 			return [];
 		
+		$scopes = $token->claims()->get('scopes') ?? [];
+		
 		$dict = DevblocksDictionaryDelegate::instance([
 			'token_id' => $oauth_token->token,
 			'token_type' => $oauth_token->token_type,
 			'token_created_at' => $oauth_token->created_at,
 			'token_expires_at' => $oauth_token->expires_at,
+			'token_scopes' => $scopes,
 			'app__context' => Context_OAuthApp::ID,
 			'app_id' => 0,
 			'worker__context' => Context_Worker::ID,
