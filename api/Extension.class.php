@@ -1928,6 +1928,9 @@ abstract class Extension_Toolbar extends DevblocksExtension {
 					'tooltip:',
 					'items:'
 				],
+				'(.*):?menu:icon:' => [
+					'type' => 'icon',
+				],
 				'(.*):?menu:items:' => [
 					[
 						'caption' => 'interaction:',

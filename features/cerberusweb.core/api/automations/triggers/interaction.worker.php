@@ -226,6 +226,9 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'tooltip:',
 					'items:'
 				],
+				$toolbar_keyprefix . '(.*):?menu:icon:' => [
+					'type' => 'icon'
+				],
 				$toolbar_keyprefix . '(.*):?menu:items:' => [
 					[
 						'caption' => 'interaction:',

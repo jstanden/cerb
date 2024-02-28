@@ -989,6 +989,9 @@ var cerbAutocompleteSuggestions = {
 				'tooltip:',
 				'items:'
 			],
+			'(.*):?menu:icon:': {
+				'type': 'icon'
+			},
 			'(.*):?menu:items:': [
 				{
 					'caption': 'interaction:',
@@ -1513,6 +1516,9 @@ var cerbAutocompleteSuggestions = {
 				'tooltip:',
 				'items:'
 			],
+			'columns:toolbar:params:kata:(.*):?menu:icon:': {
+				'type': 'icon'
+			},
 			'columns:toolbar:params:kata:(.*):?menu:items:': [
 				{
 					'caption': 'interaction:',

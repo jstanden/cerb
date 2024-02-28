@@ -4105,6 +4105,9 @@ class _CerbApplication_KataAutocompletions {
 					'tooltip:',
 					'items:'
 				],
+				'(.*):?menu:icon:' => [
+					'type' => 'icon'
+				],
 				'(.*):?menu:items:' => [
 					[
 						'caption' => 'interaction:',
