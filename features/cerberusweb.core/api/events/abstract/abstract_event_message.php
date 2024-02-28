@@ -817,7 +817,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 						// Filter to group members
 						$group = DAO_Group::get($va->owner_context_id);
 						DevblocksEventHelper::renderActionRelayEmail(
-							array_keys($group->getMembers()),
+							array_keys($group->getMembers() ?? []),
 							array('owner','watchers','workers'),
 							'content'
 						);

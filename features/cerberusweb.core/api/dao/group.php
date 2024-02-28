@@ -843,7 +843,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		if(isset($rosters[$group_id]))
 			return $rosters[$group_id];
 		
-		return null;
+		return [];
 	}
 	
 	static public function clearCache() {
