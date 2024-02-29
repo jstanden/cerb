@@ -262,13 +262,9 @@ class DAO_OAuthApp extends Cerb_ORMHelper {
 	static function getByClientId($client_id) {
 		$apps = self::getAll();
 		
-		// [TODO] Binary search, hash
-		foreach($apps as $app) {
-			if($app->client_id == $client_id)
-				return $app;
-		}
+		$clients_to_ids = array_column($apps, 'id', 'client_id');
 		
-		return null;
+		return DAO_OAuthApp::get($clients_to_ids[$client_id] ?? 0);
 	}
 	
 	/**
