@@ -2289,7 +2289,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	static function jsonEncode(mixed $data) : string {
-		return json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE);
+		return json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE | JSON_UNESCAPED_UNICODE);
 	}
 	
 	/**
