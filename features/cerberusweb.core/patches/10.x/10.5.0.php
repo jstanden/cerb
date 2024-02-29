@@ -132,6 +132,21 @@ if(!array_key_exists('options_kata', $columns)) {
 }
 
 // ===========================================================================
+// OAuth App
+
+list($columns, ) = $db->metaTable('oauth_app');
+
+if(!array_key_exists('access_token_ttl', $columns)) {
+	$db->ExecuteMaster("ALTER TABLE oauth_app ADD COLUMN access_token_ttl varchar(32) not null default '1 hour'");
+	$db->ExecuteMaster("UPDATE oauth_app SET access_token_ttl = '1 hour' WHERE access_token_ttl = ''");
+}
+
+if(!array_key_exists('refresh_token_ttl', $columns)) {
+	$db->ExecuteMaster("ALTER TABLE oauth_app ADD COLUMN refresh_token_ttl varchar(32) not null default '1 month'");
+	$db->ExecuteMaster("UPDATE oauth_app SET refresh_token_ttl = '1 month' WHERE refresh_token_ttl = ''");
+}
+
+// ===========================================================================
 // Workflows
 
 if(!isset($tables['workflow'])) {
