@@ -76,24 +76,28 @@ class PageSection_ProfilesOAuthApp extends Extension_PageSection {
 				return;
 				
 			} else {
-				$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');
+				$access_token_ttl = DevblocksPlatform::importGPC($_POST['access_token_ttl'] ?? null, 'string', '');
+				$callback_url = DevblocksPlatform::importGPC($_POST['callback_url'] ?? null, 'string', '');
 				$client_id = DevblocksPlatform::importGPC($_POST['client_id'] ?? null, 'string', '');
 				$client_secret = DevblocksPlatform::importGPC($_POST['client_secret'] ?? null, 'string', '');
-				$url = DevblocksPlatform::importGPC($_POST['url'] ?? null, 'string', '');
-				$callback_url = DevblocksPlatform::importGPC($_POST['callback_url'] ?? null, 'string', '');
+				$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');
+				$refresh_token_ttl = DevblocksPlatform::importGPC($_POST['refresh_token_ttl'] ?? null, 'string', '');
 				$scopes_yaml = DevblocksPlatform::importGPC($_POST['scopes_yaml'] ?? null, 'string', '');
+				$url = DevblocksPlatform::importGPC($_POST['url'] ?? null, 'string', '');
 				
 				$error = null;
 				
 				if(empty($id)) { // New
 					$fields = [
+						DAO_OAuthApp::ACCESS_TOKEN_TTL => $access_token_ttl,
+						DAO_OAuthApp::CALLBACK_URL => $callback_url,
 						DAO_OAuthApp::CLIENT_ID => $client_id,
 						DAO_OAuthApp::CLIENT_SECRET => $client_secret,
-						DAO_OAuthApp::CALLBACK_URL => $callback_url,
 						DAO_OAuthApp::NAME => $name,
+						DAO_OAuthApp::REFRESH_TOKEN_TTL => $refresh_token_ttl,
+						DAO_OAuthApp::SCOPES => $scopes_yaml,
 						DAO_OAuthApp::UPDATED_AT => time(),
 						DAO_OAuthApp::URL => $url,
-						DAO_OAuthApp::SCOPES => $scopes_yaml,
 					];
 					
 					if(!DAO_OAuthApp::onBeforeUpdateByActor($active_worker, $fields, null, $error))
@@ -110,13 +114,15 @@ class PageSection_ProfilesOAuthApp extends Extension_PageSection {
 					
 				} else { // Edit
 					$fields = [
+						DAO_OAuthApp::ACCESS_TOKEN_TTL => $access_token_ttl,
+						DAO_OAuthApp::CALLBACK_URL => $callback_url,
 						DAO_OAuthApp::CLIENT_ID => $client_id,
 						DAO_OAuthApp::CLIENT_SECRET => $client_secret,
-						DAO_OAuthApp::CALLBACK_URL => $callback_url,
 						DAO_OAuthApp::NAME => $name,
+						DAO_OAuthApp::REFRESH_TOKEN_TTL => $refresh_token_ttl,
+						DAO_OAuthApp::SCOPES => $scopes_yaml,
 						DAO_OAuthApp::UPDATED_AT => time(),
 						DAO_OAuthApp::URL => $url,
-						DAO_OAuthApp::SCOPES => $scopes_yaml,
 					];
 					
 					if(!DAO_OAuthApp::validate($fields, $error, $id))

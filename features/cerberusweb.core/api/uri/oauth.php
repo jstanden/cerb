@@ -19,9 +19,20 @@ use GuzzleHttp\Psr7\ServerRequest;
 use League\OAuth2\Server\Grant\AuthCodeGrant;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Grant\RefreshTokenGrant;
+use Psr\Http\Message\ServerRequestInterface;
+
+class CerbAuthCodeGrant extends AuthCodeGrant {
+	public function getClientCredentials(ServerRequestInterface $request): array {
+		try {
+			return parent::getClientCredentials($request);
+		} catch (Throwable) {
+			return [null, null];
+		}
+	}
+}
 
 class Controller_OAuth extends DevblocksControllerExtension {
-	private function _getOAuth() {
+	private function _getOAuth(ServerRequest $http_request) {
 		$encrypt = DevblocksPlatform::services()->encryption();
 		
 		$clientRepository = new Cerb_OAuth2ClientRespository();
@@ -47,11 +58,19 @@ class Controller_OAuth extends DevblocksControllerExtension {
 		$ttl_access_token = new \DateInterval('PT1H'); // 1 hour TTL for access token
 		$ttl_auth_code = new \DateInterval('PT10M'); // 10 mins
 		
-		$grant_authcode = new AuthCodeGrant(
+		$grant_authcode = new CerbAuthCodeGrant(
 			$authCodeRepository,
 			$refreshTokenRepository,
 			$ttl_auth_code
 		);
+		
+		[$client_id,] = $grant_authcode->getClientCredentials($http_request);
+		
+		// Per OAuth app token expirations
+		if($client_id && ($oauth_app = DAO_OAuthApp::getByClientId($client_id))) {
+			$ttl_access_token = \DateInterval::createFromDateString($oauth_app->access_token_ttl ?? '1 hour');
+			$ttl_refresh_token = \DateInterval::createFromDateString($oauth_app->refresh_token_ttl ?? '1 month');
+		}
 		
 		$grant_authcode->setRefreshTokenTTL($ttl_refresh_token);
 		
@@ -85,11 +104,10 @@ class Controller_OAuth extends DevblocksControllerExtension {
 		switch($action) {
 			case 'authorize':
 				try {
-					$server = $this->_getOAuth();
-					
 					$http_request = ServerRequest::fromGlobals();
-					$http_response = new \GuzzleHttp\Psr7\Response();
+					$server = $this->_getOAuth($http_request);
 					
+					$http_response = new \GuzzleHttp\Psr7\Response();
 					$auth_request = $server->validateAuthorizationRequest($http_request);
 					
 					if(!(DAO_OAuthApp::getByClientId($auth_request->getClient()->getIdentifier())))
@@ -101,8 +119,6 @@ class Controller_OAuth extends DevblocksControllerExtension {
 								'scopes' => $auth_request->getScopes(),
 							])
 							;
-					
-					//$auth_request->getGrantTypeId() == 'authorization_code'
 					
 					if(
 						!($auth_worker = $login_state->getWorker())
@@ -151,7 +167,6 @@ class Controller_OAuth extends DevblocksControllerExtension {
 					$header_location = $http_response->getHeader('Location')[0];
 					
 					DevblocksPlatform::redirectURL($header_location);
-					return;
 					
 				} catch(OAuthServerException $e) {
 					http_response_code($e->getHttpStatusCode());
@@ -167,9 +182,9 @@ class Controller_OAuth extends DevblocksControllerExtension {
 				
 			case 'access_token':
 				try {
-					$server = $this->_getOAuth();
-					
 					$http_request = ServerRequest::fromGlobals();
+					$server = $this->_getOAuth($http_request);
+					
 					$http_response = new \GuzzleHttp\Psr7\Response();
 					
 					$http_response = $server->respondToAccessTokenRequest($http_request, $http_response);

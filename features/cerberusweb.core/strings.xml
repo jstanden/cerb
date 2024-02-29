@@ -3597,7 +3597,10 @@
 		</tu>
 
 		<!-- OAuthApp -->
-		
+		<tu tuid='dao.oauth_app.access_token_ttl'>
+			<tuv xml:lang="en_US">
+			<seg>Access Token Expires</seg></tuv>
+		</tu>
 		<tu tuid='dao.oauth_app.client_id'>
 			<tuv xml:lang="en_US">
 			<seg>Client ID</seg></tuv>
@@ -3609,6 +3612,10 @@
 		<tu tuid='dao.oauth_app.callback_url'>
 			<tuv xml:lang="en_US">
 			<seg>Callback URL</seg></tuv>
+		</tu>
+		<tu tuid='dao.oauth_app.refresh_token_ttl'>
+			<tuv xml:lang="en_US">
+			<seg>Refresh Token Expires</seg></tuv>
 		</tu>
 
 		<!-- Snippets -->

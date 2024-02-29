@@ -54,6 +54,30 @@
 		</td>
 	</tr>
 
+	<tr>
+		<td width="1%" valign="top" nowrap="nowrap"><b>{{'common.tokens'|devblocks_translate|capitalize}}:</b></td>
+		<td width="99%">
+			<table>
+				<tr>
+					<td>
+						{{'dao.oauth_app.access_token_ttl'|devblocks_translate|capitalize}}:
+					</td>
+					<td>
+						<input type="text" name="access_token_ttl" value="{$model->access_token_ttl}" size="32" placeholder="(1 hour)">
+					</td>
+				</tr>
+				<tr>
+					<td>
+						{{'dao.oauth_app.refresh_token_ttl'|devblocks_translate|capitalize}}:
+					</td>
+					<td>
+						<input type="text" name="refresh_token_ttl" value="{$model->refresh_token_ttl}" size="32" placeholder="(1 month)">
+					</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+
 	{if !empty($custom_fields)}
 	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
 	{/if}
