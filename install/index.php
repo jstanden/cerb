@@ -581,9 +581,6 @@ switch($step) {
 				switch ($plugin->id) {
 					case 'devblocks.core':
 					case 'cerberusweb.core':
-					case 'cerberusweb.crm':
-					case 'cerberusweb.feedback':
-					case 'cerberusweb.kb':
 					case 'cerberusweb.restapi':
 					case 'cerberusweb.support_center':
 					case 'cerberusweb.timetracking':

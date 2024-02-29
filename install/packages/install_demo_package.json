@@ -4161,25 +4161,6 @@
 			"functions_kata": "automation/close:\n  uri: cerb:automation:cerb.projectBoard.action.task.close\n"
 		},
 		{
-			"uid": "kb_cat_cerb",
-			"_context": "kb_category",
-			"name": "Cerb"
-		},
-		{
-			"uid": "kb_cat_installation",
-			"_context": "kb_category",
-			"name": "Installation",
-			"parent_id": "{{{uid.kb_cat_cerb}}}"
-		},
-		{
-			"uid": "kb_article_requirements",
-			"_context": "kb_article",
-			"title": "Cerb server requirements",
-			"format": "markdown",
-			"content": "**This** is article content\r\nWith two lines\r\n",
-			"categories": "{{{uid.kb_cat_installation}}}"
-		},
-		{
 			"uid": "notification_new_workspace",
 			"_context": "notification",
 			"created": "{{{'now'|date('U')}}}",
