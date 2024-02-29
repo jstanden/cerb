@@ -90,6 +90,7 @@ if(array_key_exists('toolbar_kata', $columns)) {
 
 $automation_files = [
 	'ai.cerb.chooser.toolbar.json',
+	'cerb.reply.isBannedDefunct.json',
 ];
 
 foreach($automation_files as $automation_file) {
@@ -101,6 +102,22 @@ foreach($automation_files as $automation_file) {
 	DAO_Automation::importFromJson($automation_data);
 	
 	unset($automation_data);
+}
+
+// ===========================================================================
+// Add event listener for cerb.reply.isBannedDefunct
+
+if(!$db->GetOneMaster("SELECT id FROM automation_event_listener WHERE event_name = 'mail.reply.validate' AND name = 'Banned'")) {
+	$db->ExecuteMaster(sprintf(
+		"INSERT IGNORE INTO automation_event_listener (name, event_name, priority, created_at, updated_at, event_kata) ".
+		"VALUES (%s, %s, %d, %d, %d, %s)",
+		$db->qstr('Banned'),
+		$db->qstr('mail.reply.validate'),
+		100,
+		time(),
+		time(),
+		$db->qstr("automation/isBannedDefunct:\n  uri: cerb:automation:cerb.reply.isBannedDefunct\n  inputs:\n    message: {{message_id}}\n  disabled@bool: {{not(message_sender_is_banned or message_sender_is_defunct)}}")
+	));
 }
 
 // ===========================================================================

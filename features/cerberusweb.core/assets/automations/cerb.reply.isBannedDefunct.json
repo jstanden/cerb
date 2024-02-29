@@ -1,0 +1,9 @@
+{
+    "name": "cerb.reply.isBannedDefunct",
+    "description": "Prompt for confirmation when replying to a banned or defunct recipient",
+    "extension_id": "cerb.trigger.mail.reply.validate",
+    "script": "inputs:\r\n  record/message:\r\n    required@bool: yes\r\n    record_type: message\r\n\r\nstart:\r\n  outcome/isBanned:\r\n    if@bool: {{inputs.message.sender_is_banned or inputs.message.sender_is_defunct}}\r\n    then:\r\n      await:\r\n        form:\r\n          title: Warning\r\n          elements:\r\n            say/respond:\r\n              content@text:\r\n                **{{inputs.message.sender__label}}** is {{inputs.message.sender_is_banned ? 'banned' : 'defunct'}}\r\n                ========\r\n                Are you sure you want to send this message?\r\n            submit/prompt_menu:\r\n              buttons:\r\n                continue/no:\r\n                  label: No\r\n                  value: no\r\n                continue/yes:\r\n                  label: Yes\r\n                  value: yes\r\n                  style: secondary\r\n      \r\n      outcome/reject:\r\n        if@bool: {{'no' == prompt_menu}}\r\n        then:\r\n          return:\r\n            reject@bool: yes",
+    "policy_kata": "commands:\r\n  ",
+    "created_at": 1705626679,
+    "updated_at": 1705626899
+}
