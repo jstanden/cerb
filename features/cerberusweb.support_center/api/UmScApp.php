@@ -606,6 +606,25 @@ class UmScApp extends Extension_CommunityPortal {
 };
 
 class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
+	public function renderConfigForm(Model_CommunityTool $instance) {
+		$tpl = DevblocksPlatform::services()->template();
+
+		$params = DAO_CommunityToolProperty::getAllByTool($instance->code);
+		$tpl->assign('params', $params);
+		
+		$tpl->display('devblocks:cerberusweb.support_center::portal/sc/profile/tabs/configuration/login/config.tpl');
+	}
+	
+	public function saveConfiguration(Model_CommunityTool $instance) {
+		$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array',[]);
+		
+		$value = intval($params['auth_register_disabled'] ?? null);
+		DAO_CommunityToolProperty::set($instance->code, 'auth.register.disabled', $value);
+		
+		$value = intval($params['auth_recover_disabled'] ?? null);
+		DAO_CommunityToolProperty::set($instance->code, 'auth.recover.disabled', $value);
+	}
+	
 	public function invoke(string $action) {
 		switch($action) {
 			case 'authenticate':
@@ -629,9 +648,13 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		$stack = $response->path;
 		@$module = array_shift($stack);
 		
+		$params = DAO_CommunityToolProperty::getAllByTool(ChPortalHelper::getCode());
+		$tpl->assign('params', $params);
+		
 		switch($module) {
 			case 'register':
-				$tpl->assign('email', $umsession->getProperty('register.email',''));
+				if($params['auth.register.disabled'] ?? 0)
+					DevblocksPlatform::dieWithHttpError(null, 404);
 				
 				if(isset($stack[0]) && 0==strcasecmp('confirm',$stack[0])) {
 					$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode().":support_center/login/default/register_confirm.tpl");
@@ -640,6 +663,9 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 				}
 				break;
 			case 'forgot':
+				if($params['auth.recover.disabled'] ?? 0)
+					DevblocksPlatform::dieWithHttpError(null, 404);
+				
 				if(isset($stack[0]) && 0==strcasecmp('confirm',$stack[0])) {
 					$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode().":support_center/login/default/forgot_confirm.tpl");
 				} else {
@@ -658,6 +684,9 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		if(DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), 'auth.register.disabled', 0))
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		$email = DevblocksPlatform::importGPC($_POST['email'] ?? null, 'string','');
 		$given_captcha = DevblocksPlatform::importGPC($_REQUEST['captcha'] ?? null,'string','');
@@ -731,6 +760,10 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
+		if(DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), 'auth.register.disabled', 0))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		$email = DevblocksPlatform::importGPC($_POST['email'] ?? null, 'string','');
 		$confirm = DevblocksPlatform::importGPC($_POST['confirm'] ?? null, 'string','');
 		$first_name = DevblocksPlatform::importGPC($_POST['first_name'] ?? null, 'string','');
 		$last_name = DevblocksPlatform::importGPC($_POST['last_name'] ?? null, 'string','');
@@ -738,9 +771,6 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		$password2 = DevblocksPlatform::importGPC($_POST['password2'] ?? null, 'string','');
 		
 		try {
-			// Load the session (email)
-			$email = $umsession->getProperty('register.email', '');
-
 			// We need the basics in place
 			if(empty($email)) {
 				header("Location: " . $url_writer->write('c=login', true));
@@ -825,6 +855,9 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
+		if(DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), 'auth.recover.disabled', 0))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
 		$email = DevblocksPlatform::importGPC($_POST['email'] ?? null, 'string','');
 		$given_captcha = DevblocksPlatform::importGPC($_REQUEST['captcha'] ?? null,'string','');
 		$stored_captcha = $umsession->getProperty(UmScApp::SESSION_CAPTCHA, '');
@@ -899,12 +932,17 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
+		if(DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), 'auth.recover.disabled', 0))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
 		$email = DevblocksPlatform::importGPC($_POST['email'] ?? null, 'string','');
 		$confirm = DevblocksPlatform::importGPC($_POST['confirm'] ?? null, 'string','');
 		$password_new = DevblocksPlatform::importGPC($_POST['password_new'] ?? null, 'string','');
 		$password_new_confirm = DevblocksPlatform::importGPC($_POST['password_new_confirm'] ?? null, 'string','');
 		
 		try {
+			$tpl->assign('email', $email);
+			
 			// Verify email is a contact
 			if(null == ($address = DAO_Address::lookupAddress($email, false))) {
 				throw new Exception("The email address you provided is not registered.");

@@ -18,8 +18,13 @@
 </fieldset>
 </form>
 
+{if !$params['auth.register.disabled']}
 <a href="{devblocks_url}c=login&a=register{/devblocks_url}">{'portal.sc.public.login.register'|devblocks_translate}</a><br>
+{/if}
+
+{if !$params['auth.recover.disabled']}
 <a href="{devblocks_url}c=login&a=forgot{/devblocks_url}">{'portal.sc.public.login.forgot'|devblocks_translate}</a><br>
+{/if}
 
 {include file="devblocks:cerberusweb.support_center::support_center/login/switcher.tpl"}
 
