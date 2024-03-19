@@ -682,9 +682,19 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			if(!$stored_captcha || !$given_captcha || 0 != strcasecmp($stored_captcha, $given_captcha))
 				throw new Exception_DevblocksValidationError("Your text did not match the image.");
 			
-			// Update the preferred email address
-			$umsession->setProperty('register.email', $email);
-				
+			// If there's already a confirmation code in the past (t) mins
+			$past_confirmation = DAO_ConfirmationCode::getWhere(sprintf("%s = %s AND %s = %s AND %s > %d",
+				Cerb_ORMHelper::escape(DAO_ConfirmationCode::NAMESPACE_KEY),
+				Cerb_ORMHelper::qstr('support_center.login.register.verify'),
+				Cerb_ORMHelper::escape(DAO_ConfirmationCode::META_JSON),
+				Cerb_ORMHelper::qstr(json_encode(['email' => $address_parsed['email']])),
+				Cerb_ORMHelper::escape(DAO_ConfirmationCode::CREATED),
+				time()-1800
+			));
+			
+			if($past_confirmation)
+				throw new Exception_DevblocksValidationError("This email address is already pending registration. Please try again later.");
+			
 			// Send a confirmation code
 			$fields = array(
 				DAO_ConfirmationCode::CONFIRMATION_CODE => CerberusApplication::generatePassword(8),
