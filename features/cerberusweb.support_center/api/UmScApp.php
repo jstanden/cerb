@@ -259,45 +259,29 @@ class UmScApp extends Extension_CommunityPortal {
 				break;
 				
 			case 'captcha':
-				@$color = DevblocksPlatform::parseCsvString(DevblocksPlatform::importGPC($_REQUEST['color'],'string','40,40,40'));
-				@$bgcolor = DevblocksPlatform::parseCsvString(DevblocksPlatform::importGPC($_REQUEST['bgcolor'],'string','240,240,240'));
+				$bgcolor = array_fill(0, 3, mt_rand(120,240));
 				
-				// Sanitize colors
-				// [TODO] Sanitize numeric range for elements 0-2
-				if(3 != count($color))
-					$color = array(40,40,40);
-				if(3 != count($bgcolor))
-					$bgcolor = array(240,240,240);
-				
-				header('Cache-control: max-age=0', true); // 1 wk // , must-revalidate
-				header('Expires: ' . gmdate('D, d M Y H:i:s',time()-604800) . ' GMT'); // 1 wk
+				header('Pragma: no-cache');
+				header('Cache-Control: no-cache, must-revalidate');
 				header('Content-type: image/jpeg');
 
 				// Get CAPTCHA secret passphrase
 				$phrase = CerberusApplication::generatePassword(4);
 				$umsession->setProperty(UmScApp::SESSION_CAPTCHA, $phrase);
 				
-				if(false == ($im = imagecreate(150, 70)))
+				if(!($im = imagecreate(mt_rand(140,160), mt_rand(75,85))))
 					DevblocksPlatform::dieWithHttpError(null, 500);
 				
-				$background_color = imagecolorallocate($im, $bgcolor[0], $bgcolor[1], $bgcolor[2]);
-				$text_color = imagecolorallocate($im, $color[0], $color[1], $color[2]);
+				imagecolorallocate($im, $bgcolor[0], $bgcolor[1], $bgcolor[2]);
 				$font = DEVBLOCKS_PATH . 'resources/font/Oswald-Bold.ttf';
-				imagettftext($im, 28, mt_rand(0,20), 25, 60, $text_color, $font, $phrase);
-				imagejpeg($im,null,85);
-				imagedestroy($im);
-				exit;
-			
-			case 'captcha.check':
-				$entered = DevblocksPlatform::importGPC($_REQUEST['captcha'],'string','');
-				$captcha = $umsession->getProperty(UmScApp::SESSION_CAPTCHA, '');
 				
-				if(!empty($entered) && !empty($captcha) && 0 == strcasecmp($entered, $captcha)) {
-					echo 'true';
-					exit;
+				foreach(str_split($phrase) as $i => $c) {
+					$text_color = imagecolorallocate($im, mt_rand(0,75),mt_rand(0,75),mt_rand(0,75));
+					imagettftext($im, mt_rand(25,30), mt_rand(-15,15), 25*($i+1), 55+mt_rand(-10,10), $text_color, $font, $c);
 				}
 				
-				echo 'false';
+				imagejpeg($im,null,85);
+				imagedestroy($im);
 				exit;
 			
 			default:

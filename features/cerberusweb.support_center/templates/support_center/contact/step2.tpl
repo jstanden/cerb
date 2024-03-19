@@ -127,7 +127,7 @@
 		<fieldset>
 			<legend>{'portal.public.captcha_instructions'|devblocks_translate}</legend>
 			{'portal.sc.public.contact.text'|devblocks_translate} <input type="text" id="captcha" name="captcha" class="question" value="" size="10" autocomplete="off"><br>
-			<div style="padding-top:10px;padding-left:10px;"><img src="{devblocks_url}c=captcha{/devblocks_url}?color=0,0,0&bgcolor=235,235,235"></div>
+			<div style="padding-top:10px;padding-left:10px;"><img src="{devblocks_url}c=captcha{/devblocks_url}"></div>
 		</fieldset>
 		{/if}
 		
