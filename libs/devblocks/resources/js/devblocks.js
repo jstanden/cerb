@@ -1867,6 +1867,8 @@ function genericAjaxPost(formRef,divRef,args,cb,options) {
 						if (formRef.has('id')) {
 							url += '.' + encodeURIComponent(formRef.get('id').toString());
 						}
+					} else if ('pages' === formRef.get('c') && 'renderWorklist' === formRef.get('a')) {
+						url += '.' + encodeURIComponent(formRef.get('list_id').toString());
 					}
 				}
 			}
