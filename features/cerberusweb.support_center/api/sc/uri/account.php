@@ -526,6 +526,10 @@ class UmScAccountController extends Extension_UmScController {
 			];
 			DAO_Contact::update($active_contact->id, $fields);
 			
+			// Update the new password
+			$active_contact->auth_password = md5($active_contact->auth_salt.md5($change_password));
+			$umsession->login($active_contact);
+			
 			$tpl->assign('success', true);
 			
 		} catch(Exception $e) {
