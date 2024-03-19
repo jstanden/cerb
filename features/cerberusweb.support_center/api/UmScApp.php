@@ -798,11 +798,17 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 	
 	private function _portalAction_doRecover() {
 		$tpl = DevblocksPlatform::services()->templateSandbox();
+		$umsession = ChPortalHelper::getSession();
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		$email = DevblocksPlatform::importGPC($_POST['email'] ?? null, 'string','');
+		$given_captcha = DevblocksPlatform::importGPC($_REQUEST['captcha'] ?? null,'string','');
+		$stored_captcha = $umsession->getProperty(UmScApp::SESSION_CAPTCHA, '');
+		
+		// Clear the CAPTCHA after comparison
+		$umsession->setProperty(UmScApp::SESSION_CAPTCHA, null);
 		
 		try {
 			// Verify email is a contact
@@ -816,6 +822,9 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			if(empty($address->contact_id) || null == ($contact = DAO_Contact::get($address->contact_id))) {
 				throw new Exception("The email address you provided is not registered.");
 			}
+ 			// Check CAPTCHA
+			if(!$stored_captcha || !$given_captcha || 0 != strcasecmp($stored_captcha, $given_captcha))
+				throw new Exception_DevblocksValidationError("Your text did not match the image.");
 			
 			// Generate + send confirmation
 			$fields = array(

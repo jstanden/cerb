@@ -12,7 +12,7 @@
 	<b>Enter your email address:</b><br>
 	<input type="text" name="email" size="64" value="{$email}"><br>
 	<br>
-	
+
 	<b>Enter the confirmation code sent to your email address:</b><br>
 	<input type="text" name="confirm" size="10" maxlength="8" autofocus="autofocus"><br>
 	<br>
@@ -28,7 +28,5 @@
 
 	<button type="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button><br>
 	<br>
-	
-	<a href="{devblocks_url}c=login{/devblocks_url}">{'common.cancel'|devblocks_translate|capitalize}</a><br>
 </fieldset>
 </form>
