@@ -845,13 +845,26 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			if(!$stored_captcha || !$given_captcha || 0 != strcasecmp($stored_captcha, $given_captcha))
 				throw new Exception_DevblocksValidationError("Your text did not match the image.");
 			
+			// If there's already a confirmation code in the past (t) mins
+			$past_resets = DAO_ConfirmationCode::getWhere(sprintf("%s = %s AND %s = %s AND %s > %d",
+				Cerb_ORMHelper::escape(DAO_ConfirmationCode::NAMESPACE_KEY),
+				Cerb_ORMHelper::qstr('support_center.login.recover'),
+				Cerb_ORMHelper::escape(DAO_ConfirmationCode::META_JSON),
+				Cerb_ORMHelper::qstr(json_encode(['contact_id' => intval($address->contact_id), 'address_id' => intval($address->id)])),
+				Cerb_ORMHelper::escape(DAO_ConfirmationCode::CREATED),
+				time()-3600
+			));
+			
+			if($past_resets)
+				throw new Exception_DevblocksValidationError("This email address is already pending recovery. Please try again later.");
+			
 			// Generate + send confirmation
 			$fields = array(
 				DAO_ConfirmationCode::CONFIRMATION_CODE => CerberusApplication::generatePassword(8),
 				DAO_ConfirmationCode::NAMESPACE_KEY => 'support_center.login.recover',
 				DAO_ConfirmationCode::META_JSON => json_encode(array(
-					'contact_id' => $contact->id,
-					'address_id' => $address->id,
+					'contact_id' => intval($contact->id),
+					'address_id' => intval($address->id),
 				)),
 				DAO_ConfirmationCode::CREATED => time(),
 			);
