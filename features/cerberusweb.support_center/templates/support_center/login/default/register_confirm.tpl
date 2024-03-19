@@ -9,11 +9,9 @@
 <fieldset>
 	<legend>Confirm Your Registration</legend>
 
-	{if !empty($email)}
-	<b>Email:</b><br>
-	{$email}<br>
+	<b>Enter your email address:</b><br>
+	<input type="text" name="email" size="64" value="{$email}"><br>
 	<br>
-	{/if}
 
 	<b>Enter the confirmation code sent to your email address:</b><br>
 	<input type="text" name="confirm" size="10" maxlength="8" value=""><br>

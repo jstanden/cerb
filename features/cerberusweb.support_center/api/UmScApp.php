@@ -660,6 +660,11 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		$email = DevblocksPlatform::importGPC($_POST['email'] ?? null, 'string','');
+		$given_captcha = DevblocksPlatform::importGPC($_REQUEST['captcha'] ?? null,'string','');
+		$stored_captcha = $umsession->getProperty(UmScApp::SESSION_CAPTCHA, '');
+		
+		// Clear the CAPTCHA after comparison
+		$umsession->setProperty(UmScApp::SESSION_CAPTCHA, null);
 		
 		try {
 			// Validate
@@ -672,6 +677,10 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 				
 			if($address instanceof Model_Address && $address->is_banned)
 				throw new Exception("The provided email address is not available.");
+			
+			// Check CAPTCHA
+			if(!$stored_captcha || !$given_captcha || 0 != strcasecmp($stored_captcha, $given_captcha))
+				throw new Exception_DevblocksValidationError("Your text did not match the image.");
 			
 			// Update the preferred email address
 			$umsession->setProperty('register.email', $email);
