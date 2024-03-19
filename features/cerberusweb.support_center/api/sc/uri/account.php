@@ -518,6 +518,9 @@ class UmScAccountController extends Extension_UmScController {
 			if(0 != strcmp($change_password, $verify_password))
 				throw new Exception("Your passwords do not match.");
 			
+			if(strlen($change_password) < 8)
+				throw new Exception_DevblocksValidationError("Your password must be at least 8 characters.");
+			
 			// Change password?
 			$salt = CerberusApplication::generatePassword(8);
 			$fields = [

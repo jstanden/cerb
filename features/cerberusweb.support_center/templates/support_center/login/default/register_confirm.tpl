@@ -27,6 +27,7 @@
 	
 	<b>Choose a password:</b><br>
 	<input type="password" name="password" size="35" value="" autocomplete="off" spellcheck="false"><br>
+	<small>(at least 8 characters)</small><br>
 	<br>
 	
 	<b>Confirm your desired password:</b><br>

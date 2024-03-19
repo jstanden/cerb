@@ -761,6 +761,9 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 
 			if(0 != strcmp($password, $password2))
 				throw new Exception("Your passwords do not match.");
+			
+			if(strlen($password) < 8)
+				throw new Exception_DevblocksValidationError("Your password must be at least 8 characters.");
 				
 			// Load the address
 			if(null == ($address = DAO_Address::lookupAddress($email, true)))
