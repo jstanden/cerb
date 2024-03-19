@@ -491,7 +491,7 @@ class UmScAccountController extends Extension_UmScController {
 	
 	private function _portalAction_doPasswordUpdate() {
 		$umsession = ChPortalHelper::getSession();
-		$active_contact = $umsession->getProperty('sc_login', null);
+		$active_contact = $umsession->getProperty('sc_login', null); /* @var $active_contact Model_Contact */
 		
 		$tpl = DevblocksPlatform::services()->templateSandbox();
 		
@@ -504,19 +504,20 @@ class UmScAccountController extends Extension_UmScController {
 
 		try {
 			if(empty($active_contact) || empty($active_contact->id))
-				throw new Exception("Your session has expired.");
+				throw new Exception_DevblocksValidationError("Your session has expired.");
 			
 			if(!$current_password)
-				throw new Exception("You must enter your current password.");
+				throw new Exception_DevblocksValidationError("You must enter your current password.");
 			
-			if(0 != strcmp(md5($active_contact->auth_salt.md5($current_password)),$active_contact->auth_password))
-				throw new Exception("Incorrect password.");
+			if(0 != strcmp(md5($active_contact->auth_salt.md5($current_password)), $active_contact->auth_password))
+				throw new Exception_DevblocksValidationError("Incorrect password.");
 			
 			if(!$change_password || !$verify_password)
-				throw new Exception("Your password cannot be blank.");
+				throw new Exception_DevblocksValidationError("Your password cannot be blank.");
 			
 			if(0 != strcmp($change_password, $verify_password))
 				throw new Exception("Your passwords do not match.");
+				throw new Exception_DevblocksValidationError("Your passwords do not match.");
 			
 			if(strlen($change_password) < 8)
 				throw new Exception_DevblocksValidationError("Your password must be at least 8 characters.");
@@ -535,9 +536,13 @@ class UmScAccountController extends Extension_UmScController {
 			
 			$tpl->assign('success', true);
 			
-		} catch(Exception $e) {
+		} catch(Exception_DevblocksValidationError $e) {
 			$tpl = DevblocksPlatform::services()->templateSandbox();
 			$tpl->assign('error', $e->getMessage());
+			
+		} catch(Throwable) {
+			$tpl = DevblocksPlatform::services()->templateSandbox();
+			$tpl->assign('error', 'An unexpected error occurred.');
 		}
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'account','password')));
