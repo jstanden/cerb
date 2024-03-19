@@ -1879,12 +1879,12 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 		$lazy_keys = parent::lazyLoadGetKeys();
 		
 		$lazy_keys['last_recipient_message'] = [
-			'label' => 'Latest message from us to them',
+			'label' => 'Latest Message Received To',
 			'type' => 'Record',
 		];
 		
 		$lazy_keys['last_sender_message'] = [
-			'label' => 'Latest message from them to us',
+			'label' => 'Latest Message Sent From',
 			'type' => 'Record',
 		];
 		

@@ -330,8 +330,8 @@ EOD;
 			case Context_Address::ID:
 			case Context_Contact::ID:
 			case Context_Org::ID:
-				$label_map['last_recipient_message'] = "Latest [Message](/docs/records/types/message/) Received";
-				$label_map['last_sender_message'] = "Latest [Message](/docs/records/types/message/) Sent";
+				$label_map['last_recipient_message'] = "Latest [Message](/docs/records/types/message/) Received To";
+				$label_map['last_sender_message'] = "Latest [Message](/docs/records/types/message/) Sent From";
 				break;
 			case Context_Attachment::ID:
 				$label_map['size'] = 'Size (Bytes)';

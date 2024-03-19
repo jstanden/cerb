@@ -2154,12 +2154,12 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 		];
 		
 		$lazy_keys['last_recipient_message'] = [
-			'label' => 'Latest Message Received',
+			'label' => 'Latest Message Received To',
 			'type' => 'Record',
 		];
 		
 		$lazy_keys['last_sender_message'] = [
-			'label' => 'Latest Message Sent',
+			'label' => 'Latest Message Sent From',
 			'type' => 'Record',
 		];
 		
