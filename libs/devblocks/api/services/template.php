@@ -69,6 +69,8 @@ class _DevblocksTemplateManager {
 			$instance->registerPlugin('modifier','array_shift', array('_DevblocksTemplateManager', 'modifier_php_array_shift'));
 			$instance->registerPlugin('modifier','floatval', array('_DevblocksTemplateManager', 'modifier_php_floatval'));
 			$instance->registerPlugin('modifier','json_encode', array('_DevblocksTemplateManager', 'modifier_php_json_encode'));
+			$instance->registerPlugin('modifier','md5', array('_DevblocksTemplateManager', 'modifier_php_md5'));
+			$instance->registerPlugin('modifier','sort', array('_DevblocksTemplateManager', 'modifier_php_sort'));
 			$instance->registerPlugin('modifier','substr', array('_DevblocksTemplateManager', 'modifier_php_substr'));
 			$instance->registerPlugin('modifier','trim', array('_DevblocksTemplateManager', 'modifier_php_trim'));
 			
@@ -483,6 +485,21 @@ class _DevblocksTemplateManager {
 	
 	static function modifier_php_json_encode($string) : string {
 		return json_encode($string);
+	}
+	
+	static function modifier_php_md5($string) : string {
+		if(!is_string($string))
+			return '';
+		
+		return md5($string);
+	}
+	
+	static function modifier_php_sort($array) : array {
+		if(!is_array($array))
+			return [];
+		
+		sort($array);
+		return $array;
 	}
 	
 	static function modifier_php_substr($string, $offset, $length=null) : string {

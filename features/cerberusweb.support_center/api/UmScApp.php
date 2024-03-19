@@ -1071,8 +1071,8 @@ class UmScAbstractViewLoader {
 
 		$model->renderPage = $view->renderPage;
 		$model->renderLimit = $view->renderLimit;
-		$model->renderSortBy = $view->renderSortBy;
-		$model->renderSortAsc = $view->renderSortAsc;
+		
+		$model->renderSort = $view->getSorts();
 
 		return $model;
 	}
@@ -1098,8 +1098,9 @@ class UmScAbstractViewLoader {
 
 		$inst->renderPage = $model->renderPage;
 		$inst->renderLimit = $model->renderLimit;
-		$inst->renderSortBy = $model->renderSortBy;
-		$inst->renderSortAsc = $model->renderSortAsc;
+		
+		$inst->renderSortBy = key($model->renderSort ?? []) ?? '';
+		$inst->renderSortAsc = current($model->renderSort) ?? true;
 
 		return $inst;
 	}
