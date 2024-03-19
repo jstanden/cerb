@@ -1373,7 +1373,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 	}
 	
 	public static function handleFormValues($context, $context_id, $field_values, &$error) : bool {
-		if(false == (Extension_DevblocksContext::get($context, true)))
+		if(!(Extension_DevblocksContext::get($context, true)))
 			return false;
 		
 		// This will have to change when we require fields
@@ -1436,8 +1436,8 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 
 		if(is_array($fields))
 		foreach($fields as $cfield_id => $cfield) { /* @var $cfield Model_CustomField */
-			if(false != ($field_ext = $cfield->getTypeExtension())) {
-				if(false != ($sql = $field_ext->getValueTableSql($context, $context_ids)))
+			if(($field_ext = $cfield->getTypeExtension())) {
+				if(($sql = $field_ext->getValueTableSql($context, $context_ids)))
 					$sqls[] = $sql;
 				
 			} else {
@@ -1464,7 +1464,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 		 */
 		
 		$sql = implode(' UNION ALL ', $sqls);
-		if(false == ($rs = $db->QueryReader($sql)))
+		if(!($rs = $db->QueryReader($sql)))
 			return false;
 		
 		if(!($rs instanceof mysqli_result))

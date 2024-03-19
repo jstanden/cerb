@@ -319,7 +319,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		;
 		$results = $db->GetArrayMaster($sql);
 		
-		if(false == $results)
+		if(!$results)
 			return [];
 		
 		return array_column($results, 'idle_after', 'user_id');
@@ -945,7 +945,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		
 		// Load records only if they're needed
 		
-		if(false == ($before_models = CerberusContexts::getCheckpoints(CerberusContexts::CONTEXT_WORKER, $ids)))
+		if(!($before_models = CerberusContexts::getCheckpoints(CerberusContexts::CONTEXT_WORKER, $ids)))
 			return;
 		
 		foreach($before_models as $id => $before_model) {
@@ -955,7 +955,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			 * Worker email address changed
 			 */
 			
-			@$email_id = $change_fields[DAO_Worker::EMAIL_ID];
+			$email_id = $change_fields[DAO_Worker::EMAIL_ID] ?? null;
 			
 			if($email_id == $before_model->email_id)
 				unset($change_fields[DAO_Worker::EMAIL_ID]);
@@ -971,7 +971,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			 * Worker deactivated
 			 */
 			
-			@$is_disabled = $change_fields[DAO_Worker::IS_DISABLED];
+			$is_disabled = $change_fields[DAO_Worker::IS_DISABLED] ?? null;
 			
 			if($is_disabled == $before_model->is_disabled)
 				unset($change_fields[DAO_Worker::IS_DISABLED]);
@@ -1316,15 +1316,10 @@ class DAO_Worker extends Cerb_ORMHelper {
 			$objects[$worker_id] = $workers[$worker_id];
 		}
 		
-		switch($as) {
-			case 'ids':
-				return array_keys($objects);
-				break;
-				
-			default:
-				return DAO_Worker::getIds(array_keys($objects));
-				break;
-		}
+		return match ($as) {
+			'ids' => array_keys($objects),
+			default => DAO_Worker::getIds(array_keys($objects)),
+		};
 	}
 	
 	/**
@@ -1545,10 +1540,10 @@ class SearchFields_Worker extends DevblocksSearchFields {
 				$db = DevblocksPlatform::services()->database();
 				$workspace_page_sql = self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_WORKSPACE_PAGE, '%s');
 				
-				if(false == ($rows = $db->GetArrayReader($workspace_page_sql)))
+				if(!($rows = $db->GetArrayReader($workspace_page_sql)))
 					return '0';
 				
-				if(false == ($worker_ids = DAO_WorkspacePage::getUsers(array_column($rows, 'id'))))
+				if(!($worker_ids = DAO_WorkspacePage::getUsers(array_column($rows, 'id'))))
 					return '0';
 				
 				return sprintf('w.id IN (%s)', implode(',', $worker_ids));
@@ -2399,7 +2394,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		
 		$counts = [];
 		
-		if(false == ($results = $db->GetArrayReader($sql)))
+		if(!($results = $db->GetArrayReader($sql)))
 			return $counts;
 		
 		if(is_callable($label_map)) {

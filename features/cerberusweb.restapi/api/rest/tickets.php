@@ -620,7 +620,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			} else if($result[0] == CerberusContexts::CONTEXT_DRAFT) {
 				$draft_id = $result[1];
 				
-				if(false == ($draft = DAO_MailQueue::get($draft_id)))
+				if(!($draft = DAO_MailQueue::get($draft_id)))
 					$this->error(self::ERRNO_CUSTOM, "Failed to load the draft.");
 				
 				$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels(
@@ -674,19 +674,19 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		if(empty($message_id))
 			$this->error(self::ERRNO_CUSTOM, "The 'message_id' parameter is required");
 		
-		if(false == ($message = DAO_Message::get($message_id)))
+		if(!($message = DAO_Message::get($message_id)))
 			$this->error(self::ERRNO_CUSTOM, "The given 'message_id' is invalid");
 		
-		if(false == ($ticket = $message->getTicket()))
+		if(!($ticket = $message->getTicket()))
 			$this->error(self::ERRNO_CUSTOM, "The given 'ticket_id' is invalid");
 		
 		if(false === Context_Ticket::isWriteableByActor($ticket, $worker))
 			$this->error(self::ERRNO_CUSTOM, "You do not have write access to this ticket");
 		
 		if(!empty($file_ids))
-			$file_ids = DevblocksPlatform::sanitizeArray($file_ids, 'integer', array('nonzero','unique'));
+			$file_ids = DevblocksPlatform::sanitizeArray($file_ids, 'integer', ['nonzero','unique']);
 		
-		if(!empty($html_template_id) && false == ($html_template = DAO_MailHtmlTemplate::get($html_template_id)))
+		if(!empty($html_template_id) && !($html_template = DAO_MailHtmlTemplate::get($html_template_id)))
 			$this->error(self::ERRNO_CUSTOM, "The given 'html_template_id' parameter is invalid");
 		
 		$properties = array(
@@ -707,7 +707,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		if(!$bucket_id && !$group_id)
 			$bucket_id = $ticket->bucket_id;
 			
-		if($bucket_id && false != ($bucket = DAO_Bucket::get($bucket_id))) {
+		if($bucket_id && ($bucket = DAO_Bucket::get($bucket_id))) {
 			$bucket_id = $bucket->id;
 			$properties['bucket_id'] = $bucket->id;
 			
@@ -717,13 +717,13 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		}
 		
 		// Group inbox
-		if(!isset($properties['group_id']) && $ticket->group_id && false != ($group = $ticket->getGroup())) {
+		if(!isset($properties['group_id']) && $ticket->group_id && ($group = $ticket->getGroup())) {
 			$properties['group_id'] = $group->id;
 			$properties['bucket_id'] = $group->getDefaultBucket()->id;
 		}
 		
 		// Owner
-		if(strlen($owner_id) > 0 && (empty($owner_id) || false != ($owner = DAO_Worker::get($owner_id)))) {
+		if(strlen($owner_id) > 0 && (empty($owner_id) || ($owner = DAO_Worker::get($owner_id)))) {
 			if(isset($owner))
 				$properties['owner_id'] = $owner->id;
 			else
@@ -736,7 +736,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		if(!empty($to)) {
 			$properties['to'] = $to;
 		} else {
-			if(false != ($recipients = $ticket->getRequesters()))
+			if(($recipients = $ticket->getRequesters()))
 				$properties['to'] = implode(',', array_column($recipients, 'email'));
 		}
 		
@@ -858,7 +858,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		$worker = CerberusApplication::getActiveWorker();
 		$eventMgr = DevblocksPlatform::services()->event();
 		
-		if(false == ($tickets = DAO_Ticket::getIds($ticket_ids)))
+		if(!($tickets = DAO_Ticket::getIds($ticket_ids)))
 			$this->error(self::ERRNO_PARAM_INVALID, "Failed to load the given ticket IDs.");
 		
 		if(count($tickets) < 2)
@@ -871,7 +871,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		sort($from_ids); // oldest first
 		$to_id = array_shift($from_ids); // merge into oldest
 		
-		if(false == DAO_Ticket::mergeIds($from_ids, $to_id))
+		if(!DAO_Ticket::mergeIds($from_ids, $to_id))
 			$this->error(self::ERRNO_PARAM_INVALID, "Failed to merge tickets.");
 		
 		foreach($from_ids as $from_id) {

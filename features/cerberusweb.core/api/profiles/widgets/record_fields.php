@@ -270,10 +270,10 @@ class ProfileWidget_Fields extends Extension_ProfileWidget {
 			
 			if(is_array($search_buttons))
 			foreach($search_buttons as $search_button) {
-				if(false == ($search_button_context = Extension_DevblocksContext::get($search_button['context'], true)))
+				if(!($search_button_context = Extension_DevblocksContext::get($search_button['context'], true)))
 					continue;
 				
-				if(false == ($view = $search_button_context->getTempView()))
+				if(!($view = $search_button_context->getTempView()))
 					continue;
 				
 				$label_aliases = Extension_DevblocksContext::getAliasesForContext($search_button_context->manifest);

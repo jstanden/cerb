@@ -81,8 +81,8 @@ class DAO_ContextActivityLog extends Cerb_ORMHelper {
 	}
 	
 	static function create($fields) {
-		@$target_context = $fields[DAO_ContextActivityLog::TARGET_CONTEXT];
-		@$target_context_id = $fields[DAO_ContextActivityLog::TARGET_CONTEXT_ID];
+		$target_context = $fields[DAO_ContextActivityLog::TARGET_CONTEXT] ?? null;
+		$target_context_id = $fields[DAO_ContextActivityLog::TARGET_CONTEXT_ID] ?? null;
 		
 		if(is_null($target_context))
 			$fields[DAO_ContextActivityLog::TARGET_CONTEXT] = '';
@@ -184,7 +184,8 @@ class DAO_ContextActivityLog extends Cerb_ORMHelper {
 
 	/**
 	 * @param integer $id
-	 * @return Model_ContextActivityLog	 */
+	 * @return Model_ContextActivityLog
+	 **/
 	static function get($id) {
 		if(empty($id))
 			return null;
@@ -669,7 +670,6 @@ class SearchFields_ContextActivityLog extends DevblocksSearchFields {
 					),
 					'get_value_as_filter_callback' => parent::getValueAsFilterCallback()->link('actor'),
 				];
-				break;
 				
 			case 'actor.type':
 				$search_field = $search_fields[SearchFields_ContextActivityLog::ACTOR_CONTEXT];
@@ -684,7 +684,6 @@ class SearchFields_ContextActivityLog extends DevblocksSearchFields {
 					),
 					'get_value_as_filter_callback' => parent::getValueAsFilterCallback()->linkType('actor'),
 				];
-				break;
 				
 			case 'target':
 				$field_target_context = $search_fields[SearchFields_ContextActivityLog::TARGET_CONTEXT];
@@ -702,7 +701,6 @@ class SearchFields_ContextActivityLog extends DevblocksSearchFields {
 					),
 					'get_value_as_filter_callback' => parent::getValueAsFilterCallback()->link('target'),
 				];
-				break;
 				
 			case 'target.type':
 				$search_field = $search_fields[SearchFields_ContextActivityLog::TARGET_CONTEXT];
@@ -717,7 +715,6 @@ class SearchFields_ContextActivityLog extends DevblocksSearchFields {
 					),
 					'get_value_as_filter_callback' => parent::getValueAsFilterCallback()->linkType('target'),
 				];
-				break;
 		}
 		
 		return parent::getFieldForSubtotalKey($key, $context, $query_fields, $search_fields, $primary_key);
@@ -744,17 +741,14 @@ class SearchFields_ContextActivityLog extends DevblocksSearchFields {
 				}
 				
 				return $strings;
-				break;
 			
 			case SearchFields_ContextActivityLog::ACTOR_CONTEXT:
 			case SearchFields_ContextActivityLog::TARGET_CONTEXT:
 				return self::_getLabelsForKeyContextValues($values);
-				break;
 				
 			case 'actor':
 			case 'target':
 				return self::_getLabelsForKeyContextAndIdValues($values);
-				break;
 		}
 		
 		return parent::getLabelsForKeyValues($key, $values);
@@ -1041,7 +1035,6 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 				
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
-				break;
 		}
 		
 		return false;
@@ -1315,7 +1308,7 @@ class Context_ContextActivityLog extends Extension_DevblocksContext implements I
 		);
 		
 		// Token values
-		$token_values = array();
+		$token_values = [];
 		
 		$token_values['_context'] = Context_ContextActivityLog::ID;
 		$token_values['_type'] = Context_ContextActivityLog::URI;

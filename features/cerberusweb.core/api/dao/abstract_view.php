@@ -486,7 +486,7 @@ abstract class C4_AbstractView {
 		// Required quick search
 		
 		if($this->_paramsRequiredQuery) {
-			if(false != ($params_required = $this->getParamsFromQuickSearch($this->_paramsRequiredQuery, [], $error))) {
+			if(($params_required = $this->getParamsFromQuickSearch($this->_paramsRequiredQuery, [], $error))) {
 				foreach($params_required as $key => $param) {
 					$params['req_'.$key] = $param;
 				}
@@ -574,7 +574,7 @@ abstract class C4_AbstractView {
 						$oper = null;
 						$value = null;
 						
-						if(false == (CerbQuickSearchLexer::getOperStringFromTokens($p->tokens, $oper, $value)))
+						if(!(CerbQuickSearchLexer::getOperStringFromTokens($p->tokens, $oper, $value)))
 							break;
 						
 						$limit = DevblocksPlatform::intClamp($value, 1, 250);
@@ -603,10 +603,10 @@ abstract class C4_AbstractView {
 						$oper = null;
 						$value = null;
 						
-						if(false == (CerbQuickSearchLexer::getOperStringFromTokens($p->tokens, $oper, $value)))
+						if(!(CerbQuickSearchLexer::getOperStringFromTokens($p->tokens, $oper, $value)))
 							break;
 						
-						if(false == ($sort_results = $this->_getSortFromQuickSearchQuery($value)))
+						if(!($sort_results = $this->_getSortFromQuickSearchQuery($value)))
 							break;
 						
 						if(isset($sort_results['sort_by']) && !empty($sort_results['sort_by']))
@@ -623,10 +623,10 @@ abstract class C4_AbstractView {
 						$oper = null;
 						$value = null;
 						
-						if(false == (CerbQuickSearchLexer::getOperStringFromTokens($p->tokens, $oper, $value)))
+						if(!(CerbQuickSearchLexer::getOperStringFromTokens($p->tokens, $oper, $value)))
 							break;
 						
-						if(false == ($subtotal_results = $this->_getSubtotalFromQuickSearchQuery($value))) {
+						if(!($subtotal_results = $this->_getSubtotalFromQuickSearchQuery($value))) {
 							$this->renderSubtotals = '';
 						} else {
 							$this->renderSubtotals = $subtotal_results[0];
@@ -639,7 +639,7 @@ abstract class C4_AbstractView {
 						$oper = null;
 						$value = null;
 						
-						if(false == (CerbQuickSearchLexer::getOperStringFromTokens($p->tokens, $oper, $value)))
+						if(!(CerbQuickSearchLexer::getOperStringFromTokens($p->tokens, $oper, $value)))
 							break;
 						
 						// Fail on invalid timezones
@@ -1610,7 +1610,7 @@ abstract class C4_AbstractView {
 			$fields[$prefix]['options']['param_key'] = $param_key;
 		
 		foreach($context_mfts as $context_mft) {
-			if(false == ($alias = $context_mft->params['alias']))
+			if(!($alias = $context_mft->params['alias']))
 				continue;
 			
 			$field = array(
@@ -1636,10 +1636,10 @@ abstract class C4_AbstractView {
 	}
 	
 	protected function _appendFieldLinksFromQuickSearchContext($context, $fields=[], $prefix=null) {
-		if(false == Extension_DevblocksContext::get($context, false))
+		if(!Extension_DevblocksContext::get($context, false))
 			return $fields;
 		
-		if(false == ($context_mfts = Extension_DevblocksContext::getAll(false)))
+		if(!($context_mfts = Extension_DevblocksContext::getAll(false)))
 			return $fields;
 		
 		// All custom field record link + links
@@ -1991,7 +1991,7 @@ abstract class C4_AbstractView {
 			unset($vals[1]);
 		
 		// Do we need to do anything special on custom fields?
-		if('cf_'==substr($field,0,3)) {
+		if(str_starts_with($field, 'cf_')) {
 			$field_id = intval(substr($field,3));
 			$custom_fields = DAO_CustomField::getAll();
 			
@@ -2021,7 +2021,7 @@ abstract class C4_AbstractView {
 				case Model_CustomField::TYPE_CURRENCY:
 					$currency_id = $custom_fields[$field_id]->params['currency_id'] ?? null;
 					
-					if(false == ($currency = DAO_Currency::get($currency_id)))
+					if(!($currency = DAO_Currency::get($currency_id)))
 						break;
 					
 					foreach($vals as $idx => $val) {
@@ -2548,10 +2548,10 @@ abstract class C4_AbstractView {
 		$columns = $this->view_columns;
 		$params = $this->getParams();
 		
-		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+		if(!($context_ext = Extension_DevblocksContext::get($context)))
 			return [];
 		
-		if(false == ($dao_class = $context_ext->getDaoClass()))
+		if(!($dao_class = $context_ext->getDaoClass()))
 			return [];
 		
 		if(!method_exists($dao_class,'getSearchQueryComponents'))
@@ -2608,10 +2608,10 @@ abstract class C4_AbstractView {
 		$param_key = substr(sha1(json_encode($param)), 0, 16);
 		$params[$param_key] = $param;
 		
-		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+		if(!($context_ext = Extension_DevblocksContext::get($context)))
 			return [];
 		
-		if(false == ($dao_class = $context_ext->getDaoClass()))
+		if(!($dao_class = $context_ext->getDaoClass()))
 			return [];
 		
 		if(!method_exists($dao_class,'getSearchQueryComponents'))
@@ -2871,13 +2871,13 @@ abstract class C4_AbstractView {
 		$columns = $this->view_columns;
 		$params = $this->getParams();
 
-		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+		if(!($context_ext = Extension_DevblocksContext::get($context)))
 			return [];
 		
-		if(false == ($dao_class = $context_ext->getDaoClass()))
+		if(!($dao_class = $context_ext->getDaoClass()))
 			return [];
 		
-		if(false == ($search_class = $context_ext->getSearchClass()))
+		if(!($search_class = $context_ext->getSearchClass()))
 			return [];
 		
 		if(!method_exists($dao_class, 'getSearchQueryComponents'))
@@ -2973,10 +2973,10 @@ abstract class C4_AbstractView {
 		$params = $this->getParams();
 		$param_results = C4_AbstractView::findParam($field_key, $params);
 		
-		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+		if(!($context_ext = Extension_DevblocksContext::get($context)))
 			return [];
 		
-		if(false == ($dao_class = $context_ext->getDaoClass()))
+		if(!($dao_class = $context_ext->getDaoClass()))
 			return [];
 		
 		$has_context_already = false;
@@ -3084,7 +3084,7 @@ abstract class C4_AbstractView {
 				if(null == ($ext = Extension_DevblocksContext::getByAlias($from_context, true)))
 					continue;
 				
-				if(false == ($meta = $ext->getMeta($from_context_id)) || empty($meta['name']))
+				if(!($meta = $ext->getMeta($from_context_id)) || empty($meta['name']))
 					continue;
 				
 				$label = $meta['name'];
@@ -3136,7 +3136,7 @@ abstract class C4_AbstractView {
 		if(!($context_ext = Extension_DevblocksContext::getByAlias($context, true)))
 			return [];
 		
-		if(false == ($dao_class = $context_ext->getDaoClass()))
+		if(!($dao_class = $context_ext->getDaoClass()))
 			return [];
 		
 		$has_context_already = false;
@@ -3567,7 +3567,7 @@ abstract class C4_AbstractView {
 				switch($cfield->type) {
 					// For custom record links, we need to change the labels and filters
 					case Model_CustomField::TYPE_LINK:
-						if(false == ($context = $cfield->params['context']))
+						if(!($context = $cfield->params['context']))
 							break;
 							
 						if(!($context_ext = Extension_DevblocksContext::getByAlias($context, true)))
@@ -3808,7 +3808,7 @@ abstract class C4_AbstractView {
 			$models = CerberusContexts::getModels($context, $ids);
 			$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $context, array('custom_'));
 			
-			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+			if(!($context_ext = Extension_DevblocksContext::get($context)))
 				return;
 			
 			/* @var $context_ext IDevblocksContextBroadcast */
@@ -3829,7 +3829,7 @@ abstract class C4_AbstractView {
 			if(is_array($dicts))
 			foreach($dicts as $id => $dict) {
 				try {
-					if(false == ($recipients = $context_ext->broadcastRecipientFieldsToEmails($params['to'], $dict)))
+					if(!($recipients = $context_ext->broadcastRecipientFieldsToEmails($params['to'], $dict)))
 						continue;
 					
 					$recipients = DAO_Address::lookupAddresses($recipients, true);
@@ -5168,7 +5168,7 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 		
 		$objects = [];
 		
-		$fields = array(
+		$fields = [
 			'worker_id',
 			'view_id',
 			'is_ephemeral',
@@ -5189,7 +5189,7 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 			'render_sort_json',
 			'render_subtotals',
 			'render_template',
-		);
+		];
 		
 		$sql = sprintf("SELECT %s FROM worker_view_model %s",
 			implode(',', $fields),

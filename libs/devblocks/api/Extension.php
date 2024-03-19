@@ -256,7 +256,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 			
 			if (
 				class_exists('DAO_CustomRecord', true)
-				&& false != ($custom_records = DAO_CustomRecord::getAll())
+				&& ($custom_records = DAO_CustomRecord::getAll())
 				&& is_array($custom_records)
 			) {
 				foreach ($custom_records as $custom_record) {
@@ -1829,8 +1829,8 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		$dicts = [];
 		
 		// All links
-		if(false == ($record_alias = DevblocksPlatform::services()->string()->strAfter($token, '.'))) {
-			if(false == ($results = DAO_ContextLink::getAllContextLinks($context, $context_id, $limit)))
+		if(!($record_alias = DevblocksPlatform::services()->string()->strAfter($token, '.'))) {
+			if(!($results = DAO_ContextLink::getAllContextLinks($context, $context_id, $limit)))
 				return $token_values;
 			
 			// Backwards compatibility
@@ -3742,7 +3742,6 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			switch($token) {
 				case '_create_calendar_event':
 					return DevblocksEventHelper::simulateActionCreateCalendarEvent($params, $dict);
-					break;
 
 				case '_exit':
 					@$mode = (isset($params['mode']) && $params['mode'] == 'suspend') ? 'suspend' : 'stop';
@@ -3750,19 +3749,15 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					return sprintf(">>> %s the behavior\n",
 						($mode == 'suspend' ? 'Suspending' : 'Exiting')
 					);
-					break;
 				
 				case '_get_key':
 					return DevblocksEventHelper::simulateActionGetKey($params, $dict);
-					break;
 					
 				case '_get_links':
 					return DevblocksEventHelper::simulateActionGetLinks($params, $dict);
-					break;
 					
 				case '_get_worklist_metric':
 					return DevblocksEventHelper::simulateActionGetWorklistMetric($params, $dict);
-					break;
 
 				case '_set_custom_var':
 					$var = $params['var'] ?? null;
@@ -3774,7 +3769,6 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 						$var,
 						$value
 					);
-					break;
 
 				case '_set_custom_var_snippet':
 					$var = $params['var'] ?? null;
@@ -3785,19 +3779,15 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 						$var,
 						$value
 					);
-					break;
 					
 				case '_set_key':
 					return DevblocksEventHelper::simulateActionSetKey($params, $dict);
-					break;
 
 				case '_run_behavior':
 					return DevblocksEventHelper::simulateActionRunBehavior($params, $dict);
-					break;
 
 				case '_schedule_behavior':
 					return DevblocksEventHelper::simulateActionScheduleBehavior($params, $dict);
-					break;
 
 				case '_run_subroutine':
 					$subroutine_node = null;
@@ -3809,54 +3799,45 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 						}
 					}
 					
-					if(false == $subroutine_node)
+					if(!$subroutine_node)
 						return;
 					
 					return sprintf(">>> Running subroutine: %s (#%d)\n",
 						$subroutine_node->title,
 						$subroutine_node->id
 					);
-					break;
 					
 				case '_unschedule_behavior':
 					return DevblocksEventHelper::simulateActionUnscheduleBehavior($params, $dict);
-					break;
 					
 				case 'add_watchers':
 					$on_default = method_exists($this, 'getActionDefaultOn') ? $this->getActionDefaultOn() : null;
 					return DevblocksEventHelper::simulateActionAddWatchers($params, $dict, $on_default);
-					break;
 					
 				case 'create_comment':
 					$on_default = method_exists($this, 'getActionDefaultOn') ? $this->getActionDefaultOn() : null;
 					return DevblocksEventHelper::simulateActionCreateComment($params, $dict, $on_default);
-					break;
 
 				case 'create_notification':
 					$on_default = method_exists($this, 'getActionDefaultOn') ? $this->getActionDefaultOn() : null;
 					return DevblocksEventHelper::simulateActionCreateNotification($params, $dict, $on_default);
-					break;
 
 				case 'create_task':
 					$on_default = method_exists($this, 'getActionDefaultOn') ? $this->getActionDefaultOn() : null;
 					return DevblocksEventHelper::simulateActionCreateTask($params, $dict, $on_default);
-					break;
 
 				case 'create_ticket':
 					return DevblocksEventHelper::simulateActionCreateTicket($params, $dict);
-					break;
 
 				case 'send_email':
 					return DevblocksEventHelper::simulateActionSendEmail($params, $dict);
-					break;
 
 				case 'set_links':
 					return DevblocksEventHelper::simulateActionSetLinks($trigger, $params, $dict);
-					break;
 
 				default:
 					// Variables
-					if(substr($token,0,4) == 'var_') {
+					if(str_starts_with($token, 'var_')) {
 						return DevblocksEventHelper::runActionSetVariable($token, $trigger, $params, $dict);
 
 					} else {

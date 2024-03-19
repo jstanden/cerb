@@ -1233,7 +1233,7 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 	function autocomplete($term, $query=null) {
 		$list = [];
 		
-		if(false == ($custom_record = DAO_CustomRecord::get(static::_ID)))
+		if(!($custom_record = DAO_CustomRecord::get(static::_ID)))
 			return;
 		
 		$dao_class = $custom_record->getDaoClass();

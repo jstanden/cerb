@@ -710,14 +710,16 @@ class _DevblocksValidationType {
 	}
 	
 	function isRequired() {
-		return @$this->_data['required'] ? true : false;
+		return boolval($this->_data['required'] ?? false);
 	}
 	
 	function setRequired($bool) {
-		// If required, it also must not be empty
-		$this->setNotEmpty(true);
+		$bool = boolval($bool);
 		
-		$this->_data['required'] = (bool) $bool;
+		// If required, it also must not be empty
+		$this->setNotEmpty($bool);
+		
+		$this->_data['required'] = $bool;
 		return $this;
 	}
 	

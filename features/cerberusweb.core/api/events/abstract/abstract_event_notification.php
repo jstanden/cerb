@@ -351,7 +351,7 @@ abstract class AbstractEvent_Notification extends Extension_DevblocksEvent {
 					$worker_id = $new_worker_id;
 		}
 		
-		if(false == ($notification = DAO_Notification::get($notification_id)))
+		if(!($notification = DAO_Notification::get($notification_id)))
 			return;
 		
 		$workers = DAO_Worker::getIds($worker_ids);
@@ -382,7 +382,7 @@ abstract class AbstractEvent_Notification extends Extension_DevblocksEvent {
 				break;
 				
 			case 'set_notification_is_read':
-				if(false != ($notification = DAO_Notification::get($notification_id))) {
+				if(($notification = DAO_Notification::get($notification_id))) {
 					$notification->markRead();
 				}
 				break;

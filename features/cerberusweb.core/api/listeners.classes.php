@@ -564,7 +564,7 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 		// We're restricting the scope of the event
 		if(isset($event->params['_whisper']) && is_array($event->params['_whisper']) && !empty($event->params['_whisper'])) {
 			foreach($triggers as $trigger_id => $trigger) { /* @var $trigger Model_TriggerEvent */
-				if(false == (@$trigger_va = $trigger_vas[$trigger->bot_id]))
+				if(!(@$trigger_va = $trigger_vas[$trigger->bot_id]))
 					continue;
 
 				if($trigger_va->is_disabled)
@@ -600,7 +600,7 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 		$dict = null;
 		
 		foreach($triggers as $trigger) { /* @var $trigger Model_TriggerEvent */
-			if(false == (@$trigger_va = $trigger_vas[$trigger->bot_id]))
+			if(!(@$trigger_va = $trigger_vas[$trigger->bot_id]))
 				continue;
 			
 			if(self::inception($trigger->id)) {
@@ -846,34 +846,35 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		$registry->set($registry_key, time(), DevblocksRegistryEntry::TYPE_NUMBER);
 	}
 	
-	private function _handleCronHeartbeatReopenTickets() {
+	private function _handleCronHeartbeatReopenTickets() : void {
 		// Re-open any conversations past their reopen date
-		list($results,) = DAO_Ticket::search(
-			array(),
-			array(
-				SearchFields_Ticket::TICKET_STATUS_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_STATUS_ID,'in',array(Model_Ticket::STATUS_WAITING, Model_Ticket::STATUS_CLOSED)),
-				array(
-					DevblocksSearchCriteria::GROUP_AND,
-					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_REOPEN_AT,DevblocksSearchCriteria::OPER_GT,0),
-					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_REOPEN_AT,DevblocksSearchCriteria::OPER_LT,time()),
-				),
-			),
-			200,
-			0,
-			DAO_Ticket::ID,
-			true,
-			false
-		);
-		
-		$fields = array(
-			DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_OPEN,
-			DAO_Ticket::REOPEN_AT => 0
-		);
+		try {
+			list($results,) = DAO_Ticket::search(
+				[],
+				[
+					SearchFields_Ticket::TICKET_STATUS_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_STATUS_ID, 'in', [Model_Ticket::STATUS_WAITING, Model_Ticket::STATUS_CLOSED]),
+					SearchFields_Ticket::TICKET_REOPEN_AT => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_REOPEN_AT, DevblocksSearchCriteria::OPER_BETWEEN, [1, time()]),
+				],
+				200,
+				0,
+				null,
+				true,
+				false
+			);
+			
+		} catch (Exception_DevblocksDatabaseQueryTimeout) {
+			$results = [];
+		}
 		
 		// Only update records with fields that changed
 		
 		if(!is_array($results))
 			return;
+		
+		$fields = [
+			DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_OPEN,
+			DAO_Ticket::REOPEN_AT => 0
+		];
 		
 		$models = DAO_Ticket::getIds(array_keys($results));
 		

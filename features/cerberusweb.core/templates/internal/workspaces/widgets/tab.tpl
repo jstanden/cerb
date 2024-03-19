@@ -269,7 +269,7 @@ $(function() {
 		.on('cerb-peek-saved', function(e) {
 			var $zone = $container.find('> .cerb-workspace-layout-zone:first > .cerb-workspace-layout-zone--widgets:first');
 			var $placeholder = $('<div class="cerb-workspace-widget"/>').hide().prependTo($zone);
-			var $widget = $('<div/>').attr('id', 'workspaceWidget' + e.id).appendTo($placeholder);
+			$('<div/>').attr('id', 'workspaceWidget' + e.id).appendTo($placeholder);
 			
 			async.series([ async.apply(loadWidgetFunc, e.id, true, {}) ], function(err, json) {
 				$container.trigger('cerb-reorder');
@@ -278,7 +278,8 @@ $(function() {
 		;
 	
 	$edit_button
-		.on('click', function() {
+		.on('click', function(e) {
+			e.stopPropagation();
 			var $workspace = $('#frmWorkspacePage{$model->workspace_page_id}');
 			$workspace.find('a.edit-tab').click();
 		})

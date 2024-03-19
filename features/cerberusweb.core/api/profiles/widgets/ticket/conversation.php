@@ -400,10 +400,10 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 		
 		$convo_timeline = [];
 		
-		if(false == ($message = DAO_Message::get($message_id)))
+		if(!($message = DAO_Message::get($message_id)))
 			return;
 		
-		if(false == ($ticket = $message->getTicket()))
+		if(!($ticket = $message->getTicket()))
 			return;
 		
 		$tpl->assign('ticket', $ticket);
@@ -419,7 +419,7 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 	private function _showDraftConversation($draft_id, $display_options=[]) {
 		$convo_timeline = [];
 		
-		if(false == ($draft = DAO_MailQueue::get($draft_id)))
+		if(!($draft = DAO_MailQueue::get($draft_id)))
 			return;
 		
 		// Drafts

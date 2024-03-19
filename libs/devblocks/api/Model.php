@@ -3167,9 +3167,9 @@ class DevblocksPluginManifest {
 		$this->enabled = ($bool) ? 1 : 0;
 		
 		// Persist to DB
-		$fields = array(
+		$fields = [
 			'enabled' => $this->enabled
-		);
+		];
 		DAO_Platform::updatePlugin($this->id, $fields);
 	}
 	
@@ -3194,9 +3194,9 @@ class DevblocksPluginManifest {
 	 *
 	 */
 	function getActivityPoints() {
-		$points = array();
+		$points = [];
 
-		if(isset($this->manifest_cache['activity_points']))
+		if(array_key_exists('activity_points', $this->manifest_cache))
 		foreach($this->manifest_cache['activity_points'] as $point=> $data) {
 			$points[$point] = $data;
 		}
@@ -3208,9 +3208,9 @@ class DevblocksPluginManifest {
 	 * return DevblocksPatch[]
 	 */
 	function getPatches() {
-		$patches = array();
+		$patches = [];
 		
-		if(isset($this->manifest_cache['patches']))
+		if(array_key_exists('patches', $this->manifest_cache))
 		foreach($this->manifest_cache['patches'] as $patch) {
 			$path = $this->getStoragePath() . '/' . $patch['file'];
 			$patches[] = new DevblocksPatch($this->id, $patch['version'], $patch['revision'], $path);
@@ -3220,13 +3220,12 @@ class DevblocksPluginManifest {
 	}
 	
 	function checkRequirements() {
-		$this->_requirements_errors = array();
+		$this->_requirements_errors = [];
 		
 		switch($this->id) {
 			case 'devblocks.core':
 			case 'cerberusweb.core':
 				return true;
-				break;
 		}
 		
 		// Check version information

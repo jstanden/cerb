@@ -232,14 +232,15 @@ class DAO_OAuthApp extends Cerb_ORMHelper {
 
 	/**
 	 * @param integer $id
-	 * @return Model_OAuthApp	 */
+	 * @return Model_OAuthApp
+	 */
 	static function get($id) {
 		if(empty($id))
 			return null;
 		
 		$objects = self::getAll();
 		
-		if(isset($objects[$id]))
+		if(array_key_exists($id, $objects))
 			return $objects[$id];
 		
 		return null;
@@ -526,7 +527,7 @@ class Model_OAuthApp extends DevblocksRecordModel {
 		if(!is_null($this->_scopes))
 			return $this->_scopes;
 		
-		if(false == ($scopes = @yaml_parse($this->scopes_yaml)))
+		if(!($scopes = @yaml_parse($this->scopes_yaml)))
 			return false;
 		
 		$this->_scopes = $scopes;
@@ -758,10 +759,7 @@ class View_OAuthApp extends C4_AbstractView implements IAbstractView_Subtotals, 
 				
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
-				break;
 		}
-		
-		return false;
 	}
 	
 	function render() {
@@ -866,7 +864,7 @@ class Context_OAuthApp extends Extension_DevblocksContext implements IDevblocksC
 	static function isWriteableByActor($models, $actor) {
 		// Only admins can modify
 		
-		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
+		if(!($actor = CerberusContexts::polymorphActorToDictionary($actor)))
 			return CerberusContexts::denyEverything($models);
 		
 		// Admins can do whatever they want
@@ -889,8 +887,7 @@ class Context_OAuthApp extends Extension_DevblocksContext implements IDevblocksC
 			return '';
 	
 		$url_writer = DevblocksPlatform::services()->url();
-		$url = $url_writer->writeNoProxy('c=profiles&type=oauth_app&id='.$context_id, true);
-		return $url;
+		return $url_writer->writeNoProxy('c=profiles&type=oauth_app&id='.$context_id, true);
 	}
 	
 	function profileGetFields($model=null) {
@@ -1151,11 +1148,6 @@ class Context_OAuthApp extends Extension_DevblocksContext implements IDevblocksC
 
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'OAuth App';
-		/*
-		$view->addParams(array(
-			SearchFields_OAuthApp::UPDATED_AT => new DevblocksSearchCriteria(SearchFields_OAuthApp::UPDATED_AT,'=',0),
-		), true);
-		*/
 		$view->renderSortBy = SearchFields_OAuthApp::UPDATED_AT;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
@@ -1197,7 +1189,7 @@ class Context_OAuthApp extends Extension_DevblocksContext implements IDevblocksC
 		$model = null;
 		
 		if($context_id) {
-			if(false == ($model = DAO_OAuthApp::get($context_id)))
+			if(!($model = DAO_OAuthApp::get($context_id)))
 				DevblocksPlatform::dieWithHttpError(null, 403);
 		}
 		

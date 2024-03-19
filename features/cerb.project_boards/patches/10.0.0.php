@@ -108,8 +108,7 @@ if(array_key_exists('params_json', $columns)) {
 					
 					if(null !== $status) {
 						$functions_kata .= sprintf("automation/%s:\n  uri: cerb:automation:cerb.projectBoard.action.task.close\n  disabled@bool:\n    {{card__context is not record type ('task')}}\n",
-							uniqid(),
-							$status
+							uniqid()
 						);
 					}
 				}

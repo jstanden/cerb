@@ -185,8 +185,7 @@ if(!isset($tables['context_alias'])) {
 		$n = 0;
 	};
 	
-	$sql = "SELECT id, name FROM contact_org";
-	$rs = $db->QueryReader($sql);
+	$rs = $db->QueryReader("SELECT id, name FROM contact_org");
 	
 	while($row = mysqli_fetch_assoc($rs)) {
 		$name = DevblocksPlatform::strAlphaNum($row['name'], ' ', '');

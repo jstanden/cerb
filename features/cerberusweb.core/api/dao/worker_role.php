@@ -588,7 +588,7 @@ class Model_WorkerRole extends DevblocksRecordModel {
 			
 			$privs_json = $db->GetOneReader(sprintf("SELECT privs_json FROM worker_role WHERE id = %d", $this->id));
 			
-			if(false == ($privs = json_decode($privs_json, true)))
+			if(!($privs = json_decode($privs_json, true)))
 				return [];
 			
 			// Cache
@@ -1454,7 +1454,7 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 		$model = null;
 		
 		if($context_id) {
-			if(false == ($model = DAO_WorkerRole::get($context_id)))
+			if(!($model = DAO_WorkerRole::get($context_id)))
 				DevblocksPlatform::dieWithHttpError(null, 404);
 		}
 		

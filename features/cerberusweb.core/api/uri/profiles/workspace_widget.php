@@ -98,7 +98,7 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_WORKSPACE_WIDGET)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
-				if(false == ($model = DAO_WorkspaceWidget::get($id)))
+				if(!($model = DAO_WorkspaceWidget::get($id)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
 				
 				if(!Context_WorkspaceWidget::isDeletableByActor($model, $active_worker))

@@ -348,7 +348,7 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 		if(empty($from_context_ids))
 			return [];
 		
-		if(false == ($to_context_mft = Extension_DevblocksContext::getByAlias($to_context, false)))
+		if(!($to_context_mft = Extension_DevblocksContext::getByAlias($to_context, false)))
 			return [];
 		
 		$sql = sprintf("SELECT from_context, from_context_id, to_context, to_context_id ".
@@ -399,10 +399,10 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 	
 	static public function intersect($from_context, $from_context_id, $context_strings) {
 		$db = DevblocksPlatform::services()->database();
-		$wheres = array();
+		$wheres = [];
 		
 		if(!is_array($context_strings) || empty($context_strings))
-			return array();
+			return [];
 		
 		/*
 		 * Performance optimization. Use one of two strategies: (1) source context
@@ -414,10 +414,8 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 		// Let the database figure it out since our $context_objects list is smaller
 		
 		if($link_count > 100) {
-			
-			$context_objects = array();
+			$context_objects = [];
 		
-			if(is_array($context_strings))
 			foreach($context_strings as $context_string) {
 				$context_data = explode(':', $context_string);
 				
@@ -446,7 +444,7 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 			
 			// If empty
 			if(empty($wheres))
-				return array();
+				return [];
 			
 			$sql = sprintf("SELECT to_context, to_context_id ".
 				"FROM context_link ".
@@ -459,7 +457,7 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 			
 			$results = $db->GetArrayReader($sql);
 			
-			$out = array();
+			$out = [];
 			
 			foreach($results as $row) {
 				$to_context = $row['to_context'];
@@ -485,8 +483,6 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 			
 			return $out;
 		}
-		
-		return false;
 	}
 	
 	static public function delete($context, $context_ids) {
@@ -513,16 +509,16 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::services()->database();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		if(false == ($ext_src_context = Extension_DevblocksContext::get($src_context)))
+		if(!($ext_src_context = Extension_DevblocksContext::get($src_context)))
 			return false;
 		
-		if(false == ($ext_dst_context = Extension_DevblocksContext::get($dst_context)))
+		if(!($ext_dst_context = Extension_DevblocksContext::get($dst_context)))
 			return false;
 		
-		if(false == $src_context_meta)
+		if(!$src_context_meta)
 			@$src_context_meta = $ext_src_context->getMeta($src_context_id);
 		
-		if(false == $dst_context_meta)
+		if(!$dst_context_meta)
 			@$dst_context_meta = $ext_dst_context->getMeta($dst_context_id);
 		
 		// If someone is unlinking a custom fieldset

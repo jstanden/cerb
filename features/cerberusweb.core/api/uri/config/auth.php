@@ -132,7 +132,7 @@ class PageSection_SetupAuth extends Extension_PageSection {
 				->bit()
 				;
 			
-			if(false == $validation->validateAll($params, $error))
+			if(!$validation->validateAll($params, $error))
 				throw new Exception_DevblocksValidationError($error);
 			
 			// ============================================

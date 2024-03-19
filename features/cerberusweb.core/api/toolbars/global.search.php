@@ -43,7 +43,7 @@ class Toolbar_GlobalSearch extends Extension_Toolbar {
 		// Start with the worker's search favorites
 		if(null != ($search_favorites = DAO_WorkerPref::getAsJson($active_worker->id, 'search_favorites_json'))) {
 			foreach($search_favorites as $favorite_ext_id) {
-				if(false != ($context_mft = Extension_DevblocksContext::get($favorite_ext_id, false))) {
+				if(($context_mft = Extension_DevblocksContext::get($favorite_ext_id, false))) {
 					$results[$context_mft->params['alias']] = 100;
 				}
 			}
@@ -57,7 +57,7 @@ class Toolbar_GlobalSearch extends Extension_Toolbar {
 			$search_history_limit
 		);
 		
-		if(false != ($metric_results = $db->GetArrayReader($sql))) {
+		if(($metric_results = $db->GetArrayReader($sql))) {
 			$metric_results = array_count_values(array_column($metric_results, 'record_type'));
 			
 			// Sort by the most used record types

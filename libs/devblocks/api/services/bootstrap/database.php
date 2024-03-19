@@ -43,7 +43,7 @@ class _DevblocksDatabaseManager {
 		if(isset($this->_connections['master']))
 			return $this->_connections['master'];
 		
-		$persistent = (defined('APP_DB_PCONNECT') && APP_DB_PCONNECT) ? true : false;
+		$persistent = defined('APP_DB_PCONNECT') && APP_DB_PCONNECT;
 		
 		while(false === ($db = $this->_connect(APP_DB_HOST, APP_DB_USER, APP_DB_PASS, APP_DB_DATABASE, APP_DB_PORT, $persistent, APP_DB_OPT_MASTER_CONNECT_TIMEOUT_SECS, APP_DB_OPT_MASTER_READ_TIMEOUT_SECS))) {
 			// Are we out of retries?

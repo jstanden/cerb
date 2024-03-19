@@ -47,7 +47,7 @@ class Page_Search extends CerberusPageExtension {
 		
 		$tpl->assign('context_ext', $context_ext);
 		
-		if(false == ($view = $context_ext->getSearchView())) /* @var $view C4_AbstractView */
+		if(!($view = $context_ext->getSearchView())) /* @var $view C4_AbstractView */
 			return;
 		
 		// Quick search initialization

@@ -90,7 +90,7 @@ class DAO_SupportCenterAddressShare extends Cerb_ORMHelper {
 	
 	static function getSharedBy($address_ids, $only_enabled=true) {
 		if(!is_array($address_ids))
-			$address_ids = array($address_ids);
+			$address_ids = [$address_ids];
 			
 		$address_ids = DevblocksPlatform::sanitizeArray($address_ids, 'int');
 		
@@ -102,7 +102,7 @@ class DAO_SupportCenterAddressShare extends Cerb_ORMHelper {
 			"FROM supportcenter_address_share AS sas ".
 			"INNER JOIN address AS share ON (share.id=sas.share_address_id) ".
 			"INNER JOIN address AS aw ON (aw.id=sas.with_address_id) ".
-			"WHERE share_address_id IN(%s) %s",
+			"WHERE share_address_id IN (%s) %s",
 			implode(',', $address_ids),
 			($only_enabled ? sprintf("AND sas.is_enabled=1 ") : "")
 		);

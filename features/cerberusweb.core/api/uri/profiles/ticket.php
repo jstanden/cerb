@@ -319,10 +319,10 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		if(false == ($message = DAO_Message::get($id)))
+		if(!($message = DAO_Message::get($id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
-		if(false == ($ticket = $message->getTicket()))
+		if(!($ticket = $message->getTicket()))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		$to = '';
@@ -385,7 +385,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 			// Only reply to these recipients
 			if(2 == $reply_mode) {
 				if (array_key_exists('to', $message_headers)) {
-					$from = isset($message_headers['reply-to']) ? $message_headers['reply-to'] : $message_headers['from'];
+					$from = $message_headers['reply-to'] ?? $message_headers['from'];
 					$addys = CerberusMail::parseRfcAddresses($from . ', ' . $message_headers['to'], true);
 					
 					if (is_array($addys))
@@ -478,7 +478,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		
 		$draft_id = DAO_MailQueue::create($draft_fields);
 		
-		if(false == ($draft = DAO_MailQueue::get($draft_id)))
+		if(!($draft = DAO_MailQueue::get($draft_id)))
 			DevblocksPlatform::dieWithHttpError(null, 500);
 		
 		$draft->setTicket($ticket);
@@ -488,7 +488,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 	}
 	
 	private function _loadReplyDraft($draft_id) {
-		if(false == ($draft = DAO_MailQueue::get($draft_id)))
+		if(!($draft = DAO_MailQueue::get($draft_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		return $draft;

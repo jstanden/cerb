@@ -85,12 +85,12 @@ class Cerb_SwiftPlugin_GPGSigner implements Swift_Signers_BodySigner {
 		
 		// Check for private keys that cover the 'From:' address
 		
-		if(false == ($from = $message->getFrom()) || !is_array($from))
+		if(!($from = $message->getFrom()) || !is_array($from))
 			return false;
 		
 		$email = key($from);
 		
-		if(false != ($keys = $gpg->keyinfoPrivate(sprintf("<%s>", $email))) && is_array($keys)) {
+		if(($keys = $gpg->keyinfoPrivate(sprintf("<%s>", $email))) && is_array($keys)) {
 			foreach($keys as $key) {
 				if($this->isValidKey($key, 'sign'))
 				foreach($key['subkeys'] as $subkey) {
@@ -120,7 +120,7 @@ class Cerb_SwiftPlugin_GPGSigner implements Swift_Signers_BodySigner {
 			$gpg = DevblocksPlatform::services()->gpg();
 			$found = false;
 
-			if(false != ($keys = $gpg->keyinfoPublic(sprintf("<%s>", $email))) && is_array($keys)) {
+			if(($keys = $gpg->keyinfoPublic(sprintf("<%s>", $email))) && is_array($keys)) {
 				foreach($keys as $key) {
 					if($this->isValidKey($key, 'encrypt'))
 					foreach($key['subkeys'] as $subkey) {
@@ -719,7 +719,7 @@ class CerberusMail {
 		}
 		
 		// Bucket
-		if(!$bucket_id || false == ($bucket = DAO_Bucket::get($bucket_id)) || $bucket->group_id != $group->id)
+		if(!$bucket_id || !($bucket = DAO_Bucket::get($bucket_id)) || $bucket->group_id != $group->id)
 			$bucket = $group->getDefaultBucket();
 		
 		$from_replyto = $group->getReplyTo($bucket->id);
@@ -740,7 +740,7 @@ class CerberusMail {
 		
 		if($send_at && $send_at >= time()) {
 			// If we're not resuming a draft from the UI, generate a draft
-			if (false == ($draft = DAO_MailQueue::get($draft_id))) {
+			if (!($draft = DAO_MailQueue::get($draft_id))) {
 				$change_fields = DAO_MailQueue::getFieldsFromMessageProperties($properties);
 				$change_fields[DAO_MailQueue::TYPE] = Model_MailQueue::TYPE_COMPOSE;
 				$change_fields[DAO_MailQueue::IS_QUEUED] = 1;
@@ -1290,7 +1290,7 @@ class CerberusMail {
 			// Forward Attachments
 			if(!empty($forward_files) && is_array($forward_files)) {
 				foreach($forward_files as $file_id) {
-					if(false != ($attachment = DAO_Attachment::get($file_id))) {
+					if(($attachment = DAO_Attachment::get($file_id))) {
 						if(false !== ($fp = DevblocksPlatform::getTempFile())) {
 							if(false !== $attachment->getFileContents($fp)) {
 								$attach = Swift_Attachment::fromPath(DevblocksPlatform::getTempFileInfo($fp), $attachment->mime_type);
@@ -2125,7 +2125,7 @@ class CerberusMail {
 						if(empty($bundle_tag))
 							break;
 						
-						if(false == ($bundle = DAO_FileBundle::getByTag($bundle_tag)))
+						if(!($bundle = DAO_FileBundle::getByTag($bundle_tag)))
 							break;
 						
 						$attachments = $bundle->getAttachments();

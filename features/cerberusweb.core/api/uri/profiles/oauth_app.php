@@ -58,7 +58,7 @@ class PageSection_ProfilesOAuthApp extends Extension_PageSection {
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", Context_OAuthApp::ID)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
-				if(false == ($model = DAO_OAuthApp::get($id)))
+				if(!($model = DAO_OAuthApp::get($id)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
 				
 				if(!Context_OAuthApp::isDeletableByActor($model, $active_worker))

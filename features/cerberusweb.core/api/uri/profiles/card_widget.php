@@ -446,10 +446,10 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 		$widget_id = DevblocksPlatform::importGPC($_POST['widget_id'] ?? null, 'integer',0);
 		$invoke_action = DevblocksPlatform::importGPC($_POST['invoke_action'] ?? null, 'string','');
 		
-		if(false == ($card_widget = DAO_CardWidget::get($widget_id)))
+		if(!($card_widget = DAO_CardWidget::get($widget_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
-		if(false == ($extension = $card_widget->getExtension()))
+		if(!($extension = $card_widget->getExtension()))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(!Context_CardWidget::isReadableByActor($card_widget, $active_worker))
@@ -544,7 +544,7 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		if(false == ($widget = DAO_CardWidget::get($id)))
+		if(!($widget = DAO_CardWidget::get($id)))
 			return;
 		
 		if(!Context_CardWidget::isReadableByActor($widget, $active_worker))
@@ -553,7 +553,7 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 		if(!CerberusContexts::isReadableByActor($context, $context_id, $active_worker))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		if(false == ($extension = $widget->getExtension()))
+		if(!($extension = $widget->getExtension()))
 			return;
 		
 		// If full, we also want to replace the container

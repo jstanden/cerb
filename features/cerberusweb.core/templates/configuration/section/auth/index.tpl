@@ -84,6 +84,7 @@ $(function() {
 	
 	$frm.find('BUTTON.submit')
 		.click(function(e) {
+			e.stopPropagation();
 			Devblocks.saveAjaxForm($frm);
 		})
 		;

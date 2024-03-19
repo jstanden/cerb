@@ -318,7 +318,7 @@ class DAO_Message extends Cerb_ORMHelper {
 			$id
 		));
 		
-		if(isset($objects[$id]))
+		if(array_key_exists($id, $objects))
 			return $objects[$id];
 		
 		return null;
@@ -1064,7 +1064,7 @@ class Model_Message extends DevblocksRecordModel {
 	function getContentAsHtml($allow_images=false, &$filtering_results=null, $unstyled=false) {
 		// If we don't have an HTML part, or the given ID fails to load, HTMLify the regular content
 		if(empty($this->html_attachment_id) 
-			|| false == ($attachment = DAO_Attachment::get($this->html_attachment_id))) {
+			|| !($attachment = DAO_Attachment::get($this->html_attachment_id))) {
 				return false;
 		}
 		
@@ -2266,8 +2266,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 					
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
 		}
-		
-		return false;
 	}
 	
 	function render() {
@@ -3004,8 +3002,8 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 				
 			case 'content_html':
 				if(
-					!@$dictionary['html_attachment_id'] 
-					|| false == ($html_part =DAO_Attachment::get($dictionary['html_attachment_id']))
+					!($dictionary['html_attachment_id'] ?? 0)
+					|| !($html_part = DAO_Attachment::get($dictionary['html_attachment_id']))
 					)
 					break;
 				

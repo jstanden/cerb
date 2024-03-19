@@ -646,7 +646,6 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 	
 	function writeResponse(DevblocksHttpResponse $response) {
 		$tpl = DevblocksPlatform::services()->templateSandbox();
-		$umsession = ChPortalHelper::getSession();
 		
 		$stack = $response->path;
 		@$module = array_shift($stack);

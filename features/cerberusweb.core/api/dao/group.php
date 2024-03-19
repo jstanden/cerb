@@ -795,12 +795,12 @@ class DAO_Group extends Cerb_ORMHelper {
 		
 		if(null === ($objects = $cache->load(self::CACHE_ROSTERS))) {
 			$db = DevblocksPlatform::services()->database();
-			$sql = sprintf("SELECT wt.worker_id, wt.group_id, wt.is_manager, w.is_disabled ".
+			$sql = "SELECT wt.worker_id, wt.group_id, wt.is_manager, w.is_disabled ".
 				"FROM worker_to_group wt ".
 				"INNER JOIN worker_group g ON (wt.group_id=g.id) ".
 				"INNER JOIN worker w ON (w.id=wt.worker_id) ".
 				"ORDER BY g.name ASC, w.first_name ASC "
-			);
+			;
 			
 			if(!($rs = $db->QueryReader($sql)))
 				return false;
@@ -1295,9 +1295,7 @@ class DAO_GroupSettings extends Cerb_ORMHelper {
 	
 			$groups = [];
 			
-			$sql = "SELECT group_id, setting, value FROM group_setting";
-			
-			if(false == ($rs = $db->QueryReader($sql)))
+			if(!($rs = $db->QueryReader("SELECT group_id, setting, value FROM group_setting")))
 				return false;
 			
 			if(!($rs instanceof mysqli_result))

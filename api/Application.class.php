@@ -3594,7 +3594,7 @@ class CerbLoginWorkerAuthState {
 		return $this->worker;
 	}
 	
-	function getWorkerId() {
+	function getWorkerId() : int {
 		return $this->worker_id;
 	}
 	

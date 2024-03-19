@@ -480,7 +480,7 @@ class Controller_UI extends DevblocksControllerExtension {
 		
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 		
-		if(false == ($results = $cache->load($cache_key))) {
+		if(!($results = $cache->load($cache_key))) {
 			$results = [];
 			
 			$workers = DAO_Worker::getAllActive();

@@ -513,7 +513,7 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 			'worker_id' => $active_worker->id
 		]);
 		
-		if(false == ($trigger_ext = Extension_AutomationTrigger::get($trigger, true)))
+		if(!($trigger_ext = Extension_AutomationTrigger::get($trigger, true)))
 			return;
 		
 		/** @var $trigger_ext Extension_AutomationTrigger */
@@ -797,7 +797,7 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 			return;
 		}
 		
-		if(false == ($trigger_ext = Extension_AutomationTrigger::get($extension_id, true)))
+		if(!($trigger_ext = Extension_AutomationTrigger::get($extension_id, true)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		/* @var $trigger_ext Extension_AutomationTrigger */

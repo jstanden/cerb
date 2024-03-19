@@ -18,7 +18,7 @@
 					{/foreach}
 				</div>
 			{/if}
-	
+
 			{if isset($toolbar_fields) && $toolbar_fields}
 				<div data-cerb-toolbar style="display:inline-block;">
 					{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar_fields)}
@@ -26,9 +26,9 @@
 			{/if}
 		</div>
 	</div>
-	
+
 	{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/profile_fieldsets.tpl" properties=$properties_custom_fieldsets}
-	
+
 	{include file="devblocks:cerberusweb.core::internal/profiles/profile_record_links.tpl" properties=$properties_links}
 </div>
 
@@ -120,6 +120,6 @@ $(function() {
 
 			$tab.triggerHandler(evt);
 		}
-	});	
+	});
 });
 </script>

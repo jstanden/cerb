@@ -225,7 +225,7 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 								DAO_ProfileWidget::OPTIONS_KATA => $options_kata,
 							);
 							
-							if(false == ($extension = Extension_ProfileWidget::get($extension_id)))
+							if(!($extension = Extension_ProfileWidget::get($extension_id)))
 								throw new Exception_DevblocksAjaxValidationError("Invalid profile widget type.");
 							
 							if(!$extension->saveConfig($fields, null, $error))

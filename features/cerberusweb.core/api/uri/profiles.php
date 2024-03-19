@@ -81,7 +81,7 @@ class Page_Profiles extends CerberusPageExtension {
 		}
 		
 		// Context
-		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+		if(!($context_ext = Extension_DevblocksContext::get($context)))
 			return;
 		
 		// Links
@@ -153,7 +153,7 @@ class Page_Profiles extends CerberusPageExtension {
 
 		$toolbar_dict = DevblocksDictionaryDelegate::instance($toolbar_placeholders);
 		
-		if(false != ($toolbar_kata = DAO_Toolbar::getKataByName('record.card', $toolbar_dict))) {
+		if(($toolbar_kata = DAO_Toolbar::getKataByName('record.card', $toolbar_dict))) {
 			$tpl->assign('toolbar_card', $toolbar_kata);
 		}
 		
@@ -704,7 +704,7 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 			$tpl = DevblocksPlatform::services()->template();
 			$tpl->assign('widget', $widget);
 			
-			if(false == ($widget->getProfileTab()))
+			if(!($widget->getProfileTab()))
 				DevblocksPlatform::dieWithHttpError(null, 404);
 			
 			$tpl->assign('context', $context);

@@ -61,7 +61,7 @@ class PageSection_ProfilesAutomationTimer extends Extension_PageSection {
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_AUTOMATION_TIMER)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
-				if(false == ($model = DAO_AutomationTimer::get($id)))
+				if(!($model = DAO_AutomationTimer::get($id)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
 				
 				if(!Context_AutomationTimer::isDeletableByActor($model, $active_worker))

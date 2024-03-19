@@ -276,7 +276,8 @@ class DAO_Comment extends Cerb_ORMHelper {
 
 	/**
 	 * @param integer $id
-	 * @return Model_Comment	 */
+	 * @return Model_Comment
+	 */
 	static function get($id) {
 		if(empty($id))
 			return null;
@@ -286,7 +287,7 @@ class DAO_Comment extends Cerb_ORMHelper {
 			$id
 		));
 		
-		if(isset($objects[$id]))
+		if(array_key_exists($id, $objects))
 			return $objects[$id];
 		
 		return null;

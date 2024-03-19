@@ -1488,7 +1488,7 @@ class DevblocksEventHelper {
 							continue;
 							
 						} else {
-							if(false == ($calendar = DAO_Calendar::get($availability_calendar_id))) {
+							if(!($calendar = DAO_Calendar::get($availability_calendar_id))) {
 								unset($possible_workers[$k]);
 								continue;
 							}
@@ -1847,19 +1847,19 @@ class DevblocksEventHelper {
 		
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
-		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+		if(!($context_ext = Extension_DevblocksContext::get($context)))
 			return false;
 		
-		if(false == ($view = $context_ext->getTempView()))
+		if(!($view = $context_ext->getTempView()))
 			return false;
 		
-		if(false == ($dao_class = $context_ext->getDaoClass()))
+		if(!($dao_class = $context_ext->getDaoClass()))
 			return false;
 		
-		if(false == ($search_class = $context_ext->getSearchClass()))
+		if(!($search_class = $context_ext->getSearchClass()))
 			return false;
 		
-		if(false == ($primary_key = $search_class::getPrimaryKey()))
+		if(!($primary_key = $search_class::getPrimaryKey()))
 			return false;
 		
 		$select_func = null;
@@ -5256,7 +5256,7 @@ class DevblocksEventHelper {
 		
 		// If the model is blank, initialize it
 		if(empty($worklist_model)) {
-			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+			if(!($context_ext = Extension_DevblocksContext::get($context)))
 				return;
 			
 			if(null == ($view = $context_ext->getChooserView($view_id)))

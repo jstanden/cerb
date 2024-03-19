@@ -176,7 +176,7 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		if(null == ($context_extension = Extension_DevblocksContext::getByAlias($context, true)))
 			return;
 		
-		if(false == ($view = $context_extension->getChooserView()))
+		if(!($view = $context_extension->getChooserView()))
 			return;
 		
 		if(array_key_exists('columns', $worklist)) {
@@ -185,7 +185,7 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		
 		// Required params
 		if(!empty($query_req)) {
-			if(false != ($params_req = $view->getParamsFromQuickSearch($query_req)))
+			if(($params_req = $view->getParamsFromQuickSearch($query_req)))
 				$view->addParamsRequired($params_req);
 		}
 		
@@ -293,7 +293,7 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		
 		// [TODO] Abstractly handle '(no record)' blank functionality?
 		
-		if(false != ($context_ext = Extension_DevblocksContext::get($context))) {
+		if(($context_ext = Extension_DevblocksContext::get($context))) {
 			if($context_ext instanceof IDevblocksContextAutocomplete)
 				$list = $context_ext->autocomplete($term, $query);
 		}
@@ -1052,7 +1052,7 @@ class PageSection_InternalRecords extends Extension_PageSection {
 			if(
 				empty($ids)
 				|| count($ids) < 2
-				|| false == ($desired_models = $context_ext->getModelObjects($ids))
+				|| !($desired_models = $context_ext->getModelObjects($ids))
 				|| count($desired_models) < 2
 			)
 				throw new Exception_DevblocksValidationError("You must provide at least two records to merge.");

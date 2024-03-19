@@ -189,7 +189,7 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 						$tpl = DevblocksPlatform::services()->template();
 						
 						// Load the session
-						if(false == ($interaction = DAO_BotSession::get($session_id)))
+						if(!($interaction = DAO_BotSession::get($session_id)))
 							return false;
 						
 						// [TODO] Verify session ownership
@@ -204,7 +204,7 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 						
 						$actions = [];
 						
-						if(false == ($behavior = DAO_TriggerEvent::get($behavior_id)))
+						if(!($behavior = DAO_TriggerEvent::get($behavior_id)))
 							return;
 						
 						$event_params = [

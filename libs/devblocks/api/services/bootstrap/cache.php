@@ -87,7 +87,7 @@ class _DevblocksCacheManager {
 		// Allow options override
 		if(defined('DEVBLOCKS_CACHE_ENGINE_OPTIONS')
 				&& DEVBLOCKS_CACHE_ENGINE_OPTIONS
-				&& false != ($options = json_decode(DEVBLOCKS_CACHE_ENGINE_OPTIONS, true)))
+				&& ($options = json_decode(DEVBLOCKS_CACHE_ENGINE_OPTIONS, true)))
 			$cache_config = $options;
 		
 		$class_name = $manifest->class;
@@ -96,7 +96,7 @@ class _DevblocksCacheManager {
 			return null;
 		}
 		
-		if(false == ($ext = new $class_name($manifest))
+		if(!($ext = new $class_name($manifest))
 			|| false === ($ext->setConfig($cache_config)))
 				DevblocksPlatform::dieWithHttpError("[ERROR] Can't initialize the Devblocks cache.", 500);
 			
@@ -116,6 +116,8 @@ class _DevblocksCacheManager {
 	 * @test DevblocksCacheTest
 	 */
 	public function save($data, $key, $tags=array(), $ttl=0, $local_only=false) {
+		if(!is_string($key)) return false;
+		
 		// Monitor short-term cache memory usage
 		$this->_statistics[$key] = intval($this->_statistics[$key] ?? 0);
 		$this->_io_writes++;
@@ -136,7 +138,7 @@ class _DevblocksCacheManager {
 	public function getTagVersion($tag) {
 		$cache_key = 'tag:' . $tag;
 		
-		if(false == ($ts = $this->load($cache_key))) {
+		if(!($ts = $this->load($cache_key))) {
 			$ts = time();
 			$this->save($ts, $cache_key);
 		}
@@ -153,6 +155,8 @@ class _DevblocksCacheManager {
 	 * @test DevblocksCacheTest
 	 */
 	public function load($key, $nocache=false, $local_only=false) {
+		if(!is_string($key)) return NULL;
+		
 		// If this is a local request, only try the registry, not cache
 		if($local_only) {
 			return $this->_loadFromLocalRegistry($key);
@@ -234,8 +238,8 @@ class _DevblocksCacheManager {
 	}
 	
 	public function clean() {
-		$this->_registry = array();
-		$this->_statistics = array();
+		$this->_registry = [];
+		$this->_statistics = [];
 
 		// If we have a non-bootstrap cacher, wipe the bootstrap keys too
 		if(self::$_bootstrap_cacher->id != self::$_cacher->id) {
@@ -263,7 +267,6 @@ class _DevblocksCacheManager {
 			case 'devblocks_plugins':
 			case 'devblocks_tables':
 				return false;
-				break;
 				
 			default:
 				break;

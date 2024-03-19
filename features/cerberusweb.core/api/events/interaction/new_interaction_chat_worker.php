@@ -72,8 +72,8 @@ class Event_NewInteractionChatWorker extends Extension_DevblocksEvent {
 		
 		// Worker
 		$worker = $event_model->params['worker'] ?? null;
-		$merge_labels = array();
-		$merge_values = array();
+		$merge_labels = [];
+		$merge_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker, $merge_labels, $merge_values, null, true);
 
 			// Merge

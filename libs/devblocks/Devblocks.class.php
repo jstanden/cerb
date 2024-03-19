@@ -2296,12 +2296,12 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * Returns a pointer to an arbitrary property in a deeply nested JSON tree.  The pointer
 	 * can be used to get or set the value at that location.
 	 *
-	 * @param array|string $json
+	 * @param array $array
 	 * @param string $path
 	 * @return mixed Pointer to the value at $path, or FALSE on error
 	 * @test DevblocksPlatformTest
 	 */
-	static function &jsonGetPointerFromPath(array &$array, $path) {
+	static function &jsonGetPointerFromPath(array &$array, string $path) : mixed {
 		$ptr = null;
 		$array_keys = [];
 		
@@ -2396,9 +2396,9 @@ class DevblocksPlatform extends DevblocksEngine {
 		}
 	}
 
-	public static function registerClasses($file,$classes=array()) {
+	public static function registerClasses($file, $classes=[]) {
 		$classloader = DevblocksPlatform::services()->classloader();
-		return $classloader->registerClasses($file,$classes);
+		$classloader->registerClasses($file, $classes);
 	}
 	
 	public static function getStartTime() {
@@ -2630,7 +2630,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			if(is_null($db))
 				return;
 			
-			$extensions = array();
+			$extensions = [];
 			
 			$sql = sprintf("SELECT e.id , e.plugin_id, e.point, e.pos, e.name , e.file , e.class, e.params ".
 				"FROM cerb_extension e ".
@@ -2641,7 +2641,7 @@ class DevblocksPlatform extends DevblocksEngine {
 					($with_disabled ? '' : 'AND p.enabled = 1')
 				);
 			
-			if(false == ($results = $db->GetArrayMaster($sql)))
+			if(!($results = $db->GetArrayMaster($sql)))
 				return false;
 				
 			foreach($results as $row) {
@@ -3089,7 +3089,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		if(null !== ($plugins = $cache->load(self::CACHE_PLUGINS)))
 			return $plugins;
 		
-		if(false == ($db = DevblocksPlatform::services()->database()) || DevblocksPlatform::isDatabaseEmpty())
+		if(!($db = DevblocksPlatform::services()->database()) || DevblocksPlatform::isDatabaseEmpty())
 			return;
 			
 		$plugins = [];
@@ -3569,18 +3569,17 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @return _DevblocksTranslationManager
 	 */
 	static function getTranslationService() {
-		static $languages = array();
+		static $languages = [];
 		$locale = DevblocksPlatform::getLocale();
 
 		// Registry
-		if(isset($languages[$locale])) {
+		if(array_key_exists($locale, $languages))
 			return $languages[$locale];
-		}
 
 		$cache = DevblocksPlatform::services()->cache();
 		
 		if(null === ($map = $cache->load(self::CACHE_TAG_TRANSLATIONS.'_'.$locale))) { /* @var $cache _DevblocksCacheManager */
-			$map = array();
+			$map = [];
 			$map_en = DAO_Translation::getMapByLang('en_US');
 			if(0 != strcasecmp('en_US', $locale))
 				$map_loc = DAO_Translation::getMapByLang($locale);

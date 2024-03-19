@@ -227,7 +227,7 @@ class PageSection_InternalNotifications extends Extension_PageSection {
 		$view->renderTotal = false;
 		
 		do {
-			$models = array();
+			$models = [];
 			list($results,) = $view->getData();
 			
 			if(is_array($results))

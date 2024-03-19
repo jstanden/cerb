@@ -461,9 +461,7 @@ class DAO_Address extends Cerb_ORMHelper {
 		;
 		$rs = $db->QueryReader($sql);
 
-		$objects = self::_getObjectsFromResult($rs);
-
-		return $objects;
+		return self::_getObjectsFromResult($rs);
 	}
 
 	/**
@@ -1350,7 +1348,7 @@ class Model_Address extends DevblocksRecordModel {
 	}
 	
 	function getName() {
-		if(false == ($contact = $this->getContact()))
+		if(!($contact = $this->getContact()))
 			return '';
 		
 		return $contact->getName();

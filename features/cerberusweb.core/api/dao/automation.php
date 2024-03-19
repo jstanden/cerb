@@ -245,7 +245,7 @@ class DAO_Automation extends Cerb_ORMHelper {
 			1
 		);
 		
-		if(false == $results || 1 != count($results))
+		if(!$results || 1 != count($results))
 			return null;
 		
 		return current($results);

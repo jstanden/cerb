@@ -1421,7 +1421,7 @@ class Context_Notification extends Extension_DevblocksContext {
 					return false;
 				}
 				
-				if(false == ($json = json_encode($value))) {
+				if(!($json = json_encode($value))) {
 					$error = 'could not be JSON encoded.';
 					return false;
 				}

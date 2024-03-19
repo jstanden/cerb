@@ -362,7 +362,7 @@ class UmSc_KbArticleView extends C4_AbstractView {
 	 * @throws Exception_DevblocksDatabaseQueryTimeout
 	 */
 	protected function _getData() {
-		$columns = array_merge($this->view_columns, array($this->renderSortBy));
+		$columns = array_merge($this->view_columns, [$this->renderSortBy]);
 		
 		return DAO_KbArticle::search(
 			$columns,

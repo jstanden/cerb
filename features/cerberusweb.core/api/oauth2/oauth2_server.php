@@ -375,7 +375,7 @@ class Cerb_OAuth2ClientEntity implements ClientEntityInterface {
 
 class Cerb_OAuth2ClientRespository implements ClientRepositoryInterface {
 	public function getClientEntity($clientIdentifier) {
-		if(false == ($oauth_client = DAO_OAuthApp::getByClientId($clientIdentifier)))
+		if(!($oauth_client = DAO_OAuthApp::getByClientId($clientIdentifier)))
 			return null;
 		
 		$client = new Cerb_OAuth2ClientEntity($clientIdentifier);

@@ -321,8 +321,9 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 			
 		$join_sql = "FROM <?php echo $table_name; ?> ";
 		
-		$where_sql = "".
-			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
+		$where_sql =
+			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ")
+        ;
 			
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_<?php echo $class_name; ?>');
 	
@@ -804,7 +805,7 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 				
 			default:
 				// Custom Fields
-				if(substr($field,0,3)=='cf_') {
+				if(str_starts_with($field, 'cf_')) {
 					$criteria = $this->_doSetCriteriaCustomField($field, substr($field,3));
 				}
 				break;

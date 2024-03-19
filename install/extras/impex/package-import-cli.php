@@ -50,7 +50,7 @@ if($iter->count()) {
 		$records_created = [];
 		
 		try {
-			if(false == ($import_json = file_get_contents($import_file_path))) {
+			if(!($import_json = file_get_contents($import_file_path))) {
 				throw new Exception(sprintf("Failed to open file: %s\n", $import_file_path));
 			}
 			

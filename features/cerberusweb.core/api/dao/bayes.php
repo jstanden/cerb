@@ -86,7 +86,7 @@ class DAO_Bayes {
 		
 		// [JAS]: [TODO] Change this into a 'replace' index?
 		$sql = "SELECT spam, nonspam FROM bayes_stats";
-		if(false == ($rs = $db->QueryReader($sql)))
+		if(!($rs = $db->QueryReader($sql)))
 			return false;
 		
 		if($row = mysqli_fetch_assoc($rs)) {
@@ -105,32 +105,32 @@ class DAO_Bayes {
 	static function addOneToSpamTotal() {
 		$db = DevblocksPlatform::services()->database();
 		$sql = "UPDATE bayes_stats SET spam = spam + 1";
-		if(false == ($db->ExecuteMaster($sql)))
+		if(!($db->ExecuteMaster($sql)))
 			return false;
 	}
 	
 	static function addOneToNonSpamTotal() {
 		$db = DevblocksPlatform::services()->database();
 		$sql = "UPDATE bayes_stats SET nonspam = nonspam + 1";
-		if(false == ($db->ExecuteMaster($sql)))
+		if(!($db->ExecuteMaster($sql)))
 			return false;
 	}
 	
-	static function addOneToSpamWord($word_ids=array()) {
+	static function addOneToSpamWord($word_ids=[]) {
 		if(!is_array($word_ids)) $word_ids = array($word_ids);
 		if(empty($word_ids)) return;
 		$db = DevblocksPlatform::services()->database();
 		$sql = sprintf("UPDATE bayes_words SET spam = spam + 1 WHERE id IN(%s)", implode(',',$word_ids));
-		if(false == ($db->ExecuteMaster($sql)))
+		if(!($db->ExecuteMaster($sql)))
 			return false;
 	}
 	
-	static function addOneToNonSpamWord($word_ids=array()) {
+	static function addOneToNonSpamWord($word_ids=[]) {
 		if(!is_array($word_ids)) $word_ids = array($word_ids);
 		if(empty($word_ids)) return;
 		$db = DevblocksPlatform::services()->database();
 		$sql = sprintf("UPDATE bayes_words SET nonspam = nonspam + 1 WHERE id IN(%s)", implode(',',$word_ids));
-		if(false == ($db->ExecuteMaster($sql)))
+		if(!($db->ExecuteMaster($sql)))
 			return false;
 	}
 };
@@ -888,17 +888,17 @@ class CerberusBayes {
 	 */
 	static private function _lookupWordIds($words) {
 		$pos = 0;
-		$batch_size = 100; //[TODO] Tune this
-		$outwords = array(); //
+		$batch_size = 100;
+		$out_words = [];
 				
-		while(array() != ($batch = array_slice($words,$pos,$batch_size,true))) {
+		while(($batch = array_slice($words,$pos,$batch_size,true))) {
 			$batch = array_keys($batch); // words are now values
 			$word_ids = DAO_Bayes::lookupWordIds($batch);
-			$outwords = array_merge($outwords, $word_ids);
+			$out_words = array_merge($out_words, $word_ids);
 			$pos += $batch_size;
 		}
 		
-		return $outwords;
+		return $out_words;
 	}
 	
 	static private function _analyze($words) {

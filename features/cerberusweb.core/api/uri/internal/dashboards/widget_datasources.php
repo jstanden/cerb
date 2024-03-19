@@ -42,7 +42,7 @@ class WorkspaceWidgetDatasource_WorklistMetric extends Extension_WorkspaceWidget
 		return $this->_getDataSingle($widget, $params, $params_prefix);
 	}
 	
-	private function _getDataSingle(Model_WorkspaceWidget $widget, array $params=array(), $params_prefix=null) {
+	private function _getDataSingle(Model_WorkspaceWidget $widget, array $params=[], $params_prefix=null) {
 		$series_idx = $this->_getSeriesIdxFromPrefix($params_prefix);
 		
 		$view_id = sprintf("widget%d_worklist%s",
@@ -53,16 +53,16 @@ class WorkspaceWidgetDatasource_WorklistMetric extends Extension_WorkspaceWidget
 		if(null == ($view = Extension_WorkspaceWidget::getViewFromParams($widget, $params, $view_id)))
 			return;
 		
-		if(false == ($context_ext = Extension_DevblocksContext::getByViewClass(get_class($view), true)))
+		if(!($context_ext = Extension_DevblocksContext::getByViewClass(get_class($view), true)))
 			return false;
 		
-		if(false == ($dao_class = $context_ext->getDaoClass()))
+		if(!($dao_class = $context_ext->getDaoClass()))
 			return false;
 		
-		if(false == ($search_class = $context_ext->getSearchClass()))
+		if(!($search_class = $context_ext->getSearchClass()))
 			return false;
 		
-		if(false == ($primary_key = $search_class::getPrimaryKey()))
+		if(!($primary_key = $search_class::getPrimaryKey()))
 			return false;
 		
 		$view->renderPage = 0;
@@ -85,8 +85,6 @@ class WorkspaceWidgetDatasource_WorklistMetric extends Extension_WorkspaceWidget
 		}
 		
 		$query_parts = $dao_class::getSearchQueryComponents([], $view->getParams());
-		
-		$select_func = null;
 		
 		if($metric_field && DevblocksPlatform::strStartsWith($metric_field->token, 'cf_')) {
 			$cfield = DAO_CustomField::get(substr($metric_field->token,3));
@@ -215,11 +213,11 @@ class WorkspaceWidgetDatasource_WorklistSeries extends Extension_WorkspaceWidget
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/datasources/config_worklist_series.tpl');
 	}
 	
-	function getData(Model_WorkspaceWidget $widget, array $params=array(), $params_prefix=null) {
+	function getData(Model_WorkspaceWidget $widget, array $params=[], $params_prefix=null) {
 		return $this->_getDataSeries($widget, $params, $params_prefix);
 	}
 	
-	private function _getDataSeries(Model_WorkspaceWidget $widget, array $params=array(), $params_prefix=null) {
+	private function _getDataSeries(Model_WorkspaceWidget $widget, array $params=[], $params_prefix=null) {
 		$date = DevblocksPlatform::services()->date();
 		$db = DevblocksPlatform::services()->database();
 		
@@ -253,7 +251,7 @@ class WorkspaceWidgetDatasource_WorklistSeries extends Extension_WorkspaceWidget
 		if(null == ($primary_key = $search_class::getPrimaryKey()))
 			return;
 		
-		$data = array();
+		$data = [];
 		
 		$view->renderPage = 0;
 		$view->renderLimit = 30;
@@ -584,7 +582,7 @@ class WorkspaceWidgetDatasource_WorklistSeries extends Extension_WorkspaceWidget
 					
 					// Scatterplots ignore histograms if not aggregate
 					if($widget->extension_id == 'core.workspace.widget.scatterplot') {
-						if(false === strpos($select_func, '(')) {
+						if(!str_contains($select_func, '(')) {
 							$group_by = null;
 						}
 					}

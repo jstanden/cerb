@@ -125,7 +125,6 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 				case 'devblocks.core':
 				case 'cerberusweb.core':
 					throw new Exception("This plugin is not editable.");
-					break;
 			}
 			
 			$plugin = DevblocksPlatform::getPlugin($plugin_id);
@@ -136,7 +135,7 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 				DAO_Platform::maint();
 				
 			} else {
-				// Save and test params params
+				// Save and test params
 				$pass = true;
 				
 				if($enabled) {
@@ -192,15 +191,15 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 			DevblocksPlatform::clearCache();
 			DevblocksPlatform::clearCache(sprintf('devblocks:plugin:%s:params', $plugin->id));
 			
-			echo json_encode(array(
+			echo json_encode([
 				'status' => true,
-			));
+			]);
 			
-		} catch(Exception $e) {
-			echo json_encode(array(
+		} catch(Exception) {
+			echo json_encode([
 				'status' => false,
 				'errors' => $errors,
-			));
+			]);
 		}
 	}
 }

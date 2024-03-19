@@ -1528,7 +1528,7 @@ SQL;
 						
 						if($res && $res instanceof \mysqli_result && $res->num_rows)
 							while($row = $res->fetch_assoc()) {
-								if(false == ($new_worker_id = $this->mapWorkerId($row['worker_id'])))
+								if(!($new_worker_id = $this->mapWorkerId($row['worker_id'])))
 									continue;
 								
 								// No empty comments
@@ -1556,7 +1556,7 @@ SQL;
 						
 						if($res && $res instanceof \mysqli_result && $res->num_rows)
 							while($row = $res->fetch_assoc()) {
-								if(false == ($new_worker_id = $this->mapWorkerId($row['worker_id'])))
+								if(!($new_worker_id = $this->mapWorkerId($row['worker_id'])))
 									continue;
 								
 								// No empty comments
@@ -1652,7 +1652,7 @@ SQL;
 							'name' => sprintf('Ticket #%d', $ticket_id),
 							'revision' => 1,
 							'requires' => [
-								'cerb_version' => '10.2.0',
+								'cerb_version' => '10.4.0',
 								'plugins' => [],
 							],
 							'configure' => [

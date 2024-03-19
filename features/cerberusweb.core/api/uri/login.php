@@ -167,7 +167,6 @@ class Page_Login extends CerberusPageExtension {
 			
 			default:
 				DevblocksPlatform::redirect(new DevblocksHttpRequest(['login']));
-				break;
 		}
 	}
 	
@@ -220,7 +219,7 @@ class Page_Login extends CerberusPageExtension {
 		if(
 			!$email 
 			|| !$password 
-			|| false == ($unauthenticated_worker = DAO_Worker::getByEmail($email))
+			|| !($unauthenticated_worker = DAO_Worker::getByEmail($email))
 		) {
 			$query = ['error' => 'auth.failed'];
 			DevblocksPlatform::redirect(new DevblocksHttpRequest(['login'], $query));
@@ -263,7 +262,7 @@ class Page_Login extends CerberusPageExtension {
 		$authenticated_worker = $login_state->getWorker();
 		
 		if(
-			false == ($authenticated_worker = $login_state->getWorker())
+			!($authenticated_worker instanceof Model_Worker)
 			|| !$login_state->isAuthenticated(['ignore_mfa' => true])
 		) {
 			DevblocksPlatform::redirect(new DevblocksHttpRequest(['login']), 1);
@@ -307,7 +306,7 @@ class Page_Login extends CerberusPageExtension {
 		@$code = array_shift($path);
 		
 		// Do we have a logged in session?
-		if(false != (CerberusApplication::getActiveWorker()))
+		if((CerberusApplication::getActiveWorker()))
 			return;
 		
 		$token = DAO_ConfirmationCode::getByCode('login.invite', $code);
@@ -324,7 +323,7 @@ class Page_Login extends CerberusPageExtension {
 		
 		if(
 			0 == (@$invite_worker_id = intval($token->meta['worker_id']))
-			|| false == ($worker = DAO_Worker::get($invite_worker_id))
+			|| !($worker = DAO_Worker::get($invite_worker_id))
 		) {
 			$query = ['error' => 'confirm.invalid'];
 			DevblocksPlatform::redirect(new DevblocksHttpRequest(['login'], $query));
@@ -376,7 +375,7 @@ class Page_Login extends CerberusPageExtension {
 				->setIsConsentGiven(boolval($accept))
 				;
 			
-			if(false != ($login_post_url = $login_state->popRedirectUri())) {
+			if(($login_post_url = $login_state->popRedirectUri())) {
 				DevblocksPlatform::redirectURL($login_post_url);
 			}
 			exit;
@@ -388,8 +387,8 @@ class Page_Login extends CerberusPageExtension {
 			if(
 				!is_array($consent_params) 
 				|| !array_key_exists('client_id', $consent_params)
-				|| false == ($oauth_app = DAO_OAuthApp::getByClientId($consent_params['client_id']))
-				|| false == (@$oauth_requested_scopes = $consent_params['scopes'])
+				|| !($oauth_app = DAO_OAuthApp::getByClientId($consent_params['client_id']))
+				|| !(@$oauth_requested_scopes = $consent_params['scopes'])
 			) {
 				DevblocksPlatform::dieWithHttpError("Invalid OAuth client.");
 			}
@@ -419,7 +418,7 @@ class Page_Login extends CerberusPageExtension {
 		
 		// Send back to the login form if they aren't authorized yet
 		if(
-			false == ($worker = $login_state->getWorker())
+			!($worker = $login_state->getWorker())
 			|| !$login_state->isAuthenticated(['ignore_mfa' => true]) 
 		) {
 			$login_state->clearAuthState();
@@ -452,7 +451,6 @@ class Page_Login extends CerberusPageExtension {
 				// Otherwise
 				$query = ['error' => 'mfa.failed'];
 				DevblocksPlatform::redirect(new DevblocksHttpRequest(['login','mfa'], $query));
-				break;
 				
 			default:
 				$otp = DevblocksPlatform::importGPC($_REQUEST['otp'] ?? null, 'string', null);
@@ -511,7 +509,7 @@ class Page_Login extends CerberusPageExtension {
 					// Is this device remembered?
 					if($setting_can_remember && array_key_exists('mfa:'.$worker->id, $_COOKIE)) {
 						$encrypt = DevblocksPlatform::services()->encryption();
-						if(false != ($remember_params = @unpack('Nworker_id/Ncreated_at', $encrypt->decrypt($_COOKIE['mfa:' . $worker->id])))) {
+						if(($remember_params = @unpack('Nworker_id/Ncreated_at', $encrypt->decrypt($_COOKIE['mfa:' . $worker->id])))) {
 							$remember_worker_id = $remember_params['worker_id'] ?? null;
 							$remember_created_at = $remember_params['created_at'] ?? null;
 							$remember_expires_at = $remember_created_at + (86400 * $setting_remember_days);
@@ -645,7 +643,7 @@ class Page_Login extends CerberusPageExtension {
 					
 					// Not a worker, or disabled worker, fake having sent the code
 					if(
-						false == ($unauthenticated_worker = DAO_Worker::getByEmail($email))
+						!($unauthenticated_worker = DAO_Worker::getByEmail($email))
 						|| $unauthenticated_worker->is_disabled
 						|| $unauthenticated_worker->is_password_disabled
 					) {
@@ -655,7 +653,7 @@ class Page_Login extends CerberusPageExtension {
 						// This is rate-limited
 						$cache_key = sprintf('recover:worker:%d', $unauthenticated_worker->id);
 						
-						if(false == $cache->load($cache_key)) {
+						if(!$cache->load($cache_key)) {
 							$labels = $values = $worker_labels = $worker_values = [];
 							CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $unauthenticated_worker, $worker_labels, $worker_values, '', true, true);
 							CerberusContexts::merge('worker_', null, $worker_labels, $worker_values, $labels, $values);
@@ -685,9 +683,7 @@ class Page_Login extends CerberusPageExtension {
 					->unsetParam('recover.code.given')
 					;
 				
-				if(
-					false == ($email = $login_state->getEmail())
-				) {
+				if(!($email = $login_state->getEmail())) {
 					DevblocksPlatform::redirect(new DevblocksHttpRequest(['login','recover']), 0);
 				}
 				
@@ -702,7 +698,6 @@ class Page_Login extends CerberusPageExtension {
 					
 					if(
 						null === ($saved_code = $login_state->getParam('recover.code', null))
-						|| !$code
 						|| 0 != strcmp(sprintf('%s:%s', $login_state->getEmail(), $code), $saved_code)
 					) {
 						$login_state
@@ -734,8 +729,8 @@ class Page_Login extends CerberusPageExtension {
 				
 			case 'verify':
 				if(
-					false == ($email = $login_state->getEmail())
-					|| false == ($unauthenticated_worker = DAO_Worker::getByEmail($email))
+					!($email = $login_state->getEmail())
+					|| !($unauthenticated_worker = DAO_Worker::getByEmail($email))
 					|| null === ($recover_code = $login_state->getParam('recover.code', null))
 					|| null === ($recover_code_given = $login_state->getParam('recover.code.given', null))
 					|| 0 != strcmp(sprintf('%s:%s', $login_state->getEmail(), $recover_code_given), $recover_code)
@@ -828,8 +823,8 @@ class Page_Login extends CerberusPageExtension {
 				
 			case 'reset':
 				if(
-					false == ($email = $login_state->getEmail())
-					|| false == ($unauthenticated_worker = DAO_Worker::getByEmail($email))
+					!($email = $login_state->getEmail())
+					|| !($unauthenticated_worker = DAO_Worker::getByEmail($email))
 					|| null === ($recover_code = $login_state->getParam('recover.code', null))
 					|| null === ($recover_code_given = $login_state->getParam('recover.code.given', null))
 					|| 0 != strcmp(sprintf('%s:%s', $login_state->getEmail(), $recover_code_given), $recover_code)

@@ -80,11 +80,9 @@ class _DevblocksKataService {
 				return true;
 			
 			// Validate field name
-			if($field_name) {
-				if($field_name != DevblocksPlatform::strAlphaNum($field_name, '_')) {
-					$error = sprintf("`%s:` name `%s` must only contain letters, numbers, and underscores (line %d)", $field_type, $field_name, $line_number+1);
-					return false;
-				}
+			if($field_name != DevblocksPlatform::strAlphaNum($field_name, '_')) {
+				$error = sprintf("`%s:` name `%s` must only contain letters, numbers, and underscores (line %d)", $field_type, $field_name, $line_number+1);
+				return false;
 			}
 			
 			return true;

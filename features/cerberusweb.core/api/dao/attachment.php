@@ -613,13 +613,12 @@ class DAO_Attachment extends Cerb_ORMHelper {
 					$context_id
 				);
 				return $db->GetOneReader($sql);
-				break;
 				
 			default:
-				if(false == ($manifest = Extension_DevblocksContext::get($context, false)))
+				if(!($manifest = Extension_DevblocksContext::get($context, false)))
 					break;
 				
-				if(false == ($aliases = Extension_DevblocksContext::getAliasesForContext($manifest)))
+				if(!($aliases = Extension_DevblocksContext::getAliasesForContext($manifest)))
 					break;
 				
 				$query = sprintf("on.comments:(on.%s:(id:%d))", $aliases['uri'], $context_id);
@@ -629,7 +628,7 @@ class DAO_Attachment extends Cerb_ORMHelper {
 		if(empty($query))
 			return 0;
 		
-		if(false == ($view = $context_ext->getTempView()))
+		if(!($view = $context_ext->getTempView()))
 			return 0;
 		
 		$view->addParamsWithQuickSearch($query, true);
@@ -1716,14 +1715,14 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 	}
 	
 	static function isDownloadableByActor($models, $actor) {
-		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
+		if(!($actor = CerberusContexts::polymorphActorToDictionary($actor)))
 			return CerberusContexts::denyEverything($models);
 		
 		if(CerberusContexts::isActorAnAdmin($actor)) {
 			return CerberusContexts::allowEverything($models);
 		}
 		
-		if(false == ($dicts = CerberusContexts::polymorphModelsToDictionaries($models, CerberusContexts::CONTEXT_ATTACHMENT)))
+		if(!($dicts = CerberusContexts::polymorphModelsToDictionaries($models, CerberusContexts::CONTEXT_ATTACHMENT)))
 			return CerberusContexts::denyEverything($models);
 		
 		$results = array_fill_keys(array_keys($dicts), false);
@@ -1739,7 +1738,7 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		
 		// Approve attachments by message links
 		
-		if(false == ($worker = DAO_Worker::get($actor->id)))
+		if(!($worker = DAO_Worker::get($actor->id)))
 			return CerberusContexts::denyEverything($models);
 		
 		$memberships = $worker->getMemberships();
@@ -2138,16 +2137,16 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		
 		switch($token) {
 			default:
-				if($token === 'on' || false != ($on_prefix = DevblocksPlatform::strStartsWith($token, ['on.','on:']))) {
+				if($token === 'on' || DevblocksPlatform::strStartsWith($token, ['on.', 'on:'])) {
 					list($record_identifier, $record_expands) = array_pad(explode(':', $token), 2, null);
 					
-					if(false == ($record_alias = DevblocksPlatform::services()->string()->strAfter($record_identifier, '.'))) {
-						if(false != ($links = $this->_lazyLoadAttach($context_id,$record_expands)) && is_array($links))
+					if(!($record_alias = DevblocksPlatform::services()->string()->strAfter($record_identifier, '.'))) {
+						if(($links = $this->_lazyLoadAttach($context_id, $record_expands)) && is_array($links))
 							$values = array_merge($values, $links);
 						
 					} else {
-						if(false != ($on_context = Extension_DevblocksContext::getByAlias($record_alias))) {
-							if(false != ($links = $this->_lazyLoadAttach($context_id, [$on_context->id=>$record_expands]))) {
+						if(($on_context = Extension_DevblocksContext::getByAlias($record_alias))) {
+							if(($links = $this->_lazyLoadAttach($context_id, [$on_context->id => $record_expands]))) {
 								if(!array_key_exists('on', $values))
 									$values['on'] = [];
 								

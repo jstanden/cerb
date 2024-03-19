@@ -771,7 +771,7 @@ class Storage_ContextAvatar extends Extension_DevblocksStorageSchema {
 				$src_profile->id
 		);
 
-		if(false == ($rs = $db->QueryReader($sql)))
+		if(!($rs = $db->QueryReader($sql)))
 			return false;
 		
 		if(!($rs instanceof mysqli_result))

@@ -1263,7 +1263,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		$layer = DevblocksPlatform::importGPC($_POST['layer'] ?? null, 'string', '');
 		$message = DevblocksPlatform::importGPC($_POST['message'] ?? null, 'string', '');
 		
-		if(false == (@$bot_name = $bot_session->session_data['bot_name']))
+		if(!($bot_name = $bot_session->session_data['bot_name'] ?? null))
 			$bot_name = 'Cerb';
 		
 		$actions = [];

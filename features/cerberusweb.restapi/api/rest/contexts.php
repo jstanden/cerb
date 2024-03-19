@@ -197,20 +197,19 @@ class ChRest_Contexts extends Extension_RestController {
 
 		foreach($activities as $activity) {
 			if(isset($activity['point'])
-				&& isset($activity['params'])
 				&& isset($activity['params'])) {
 					if(!isset($activity['params']['label_key']))
 						continue;
-				
-					$result = array(
+
+					$result = [
 						'id' => $activity['point'],
 						'name' => $translate->_($activity['params']['label_key']),
-						'options' => array(),
-						'text' => array(
+						'options' => [],
+						'text' => [
 							'key' => '',
 							'value' => '',
-						)
-					);
+						]
+					];
 					
 					if(isset($activity['params']['string_key'])) {
 						$result['text']['key'] = isset($activity['params']['string_key']) ? $activity['params']['string_key'] : '';
@@ -233,7 +232,7 @@ class ChRest_Contexts extends Extension_RestController {
 		$targets = DevblocksPlatform::importGPC($_POST['targets'] ?? null, 'string', '');
 		
 		// Verify the 'on' context and accessibility by active worker
-		if(false == ($result_on = $this->_verifyContextString($on)))
+		if(!($result_on = $this->_verifyContextString($on)))
 			$this->error(self::ERRNO_CUSTOM, sprintf("The 'on' value of '%s' is not valid.", $on));
 		
 		// Verify a well-formed JSON array for 'targets', and that each exists
@@ -245,7 +244,7 @@ class ChRest_Contexts extends Extension_RestController {
 		$result_targets = array();
 		
 		foreach($targets as $target) {
-			if(false == ($result_target = $this->_verifyContextString($target)))
+			if(!($result_target = $this->_verifyContextString($target)))
 				$this->error(self::ERRNO_CUSTOM, sprintf("The 'targets' value of '%s' is not valid.", $target));
 			
 			$result_targets[] = $result_target;
@@ -267,7 +266,7 @@ class ChRest_Contexts extends Extension_RestController {
 		$targets = DevblocksPlatform::importGPC($_POST['targets'] ?? null, 'string', '');
 		
 		// Verify the 'on' context and accessibility by active worker
-		if(false == ($result_on = $this->_verifyContextString($on)))
+		if(!($result_on = $this->_verifyContextString($on)))
 			$this->error(self::ERRNO_CUSTOM, sprintf("The 'on' value of '%s' is not valid.", $on));
 		
 		// Verify a well-formed JSON array for 'targets', and that each exists
@@ -344,7 +343,7 @@ class ChRest_Contexts extends Extension_RestController {
 		
 		if(is_array($tokens))
 		foreach($tokens as $token) {
-			if(in_array($token, array('actor')))
+			if($token == 'actor')
 				continue;
 			
 			if(!is_array($variables) || !isset($variables[$token]))
@@ -371,9 +370,9 @@ class ChRest_Contexts extends Extension_RestController {
 			'html' => CerberusContexts::formatActivityLogEntry($entry_model, 'html'),
 		];
 		
-		$result = array(
+		$result = [
 			'entry' => $entry,
-		);
+		];
 		
 		$this->success($result);
 	}

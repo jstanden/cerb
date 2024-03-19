@@ -6,14 +6,14 @@ class ChRest_Records extends Extension_RestController {
 		
 		switch($action) {
 			case 'search':
-				if(false == ($context = $this->_getContextByAliasOrId($alias)))
+				if(!($context = $this->_getContextByAliasOrId($alias)))
 					$this->error(self::ERRNO_NOT_FOUND);
 				
 				$this->_getContextSearch($context);
 				break;
 				
 			default:
-				if(!is_numeric($action) || false == ($context = $this->_getContextByAliasOrId($alias)))
+				if(!is_numeric($action) || !($context = $this->_getContextByAliasOrId($alias)))
 					$this->error(self::ERRNO_NOT_FOUND);
 				
 				array_unshift($stack, $action);
@@ -30,7 +30,7 @@ class ChRest_Records extends Extension_RestController {
 		
 		switch($action) {
 			case 'upsert':
-				if(false == ($context = $this->_getContextByAliasOrId($alias)))
+				if(!($context = $this->_getContextByAliasOrId($alias)))
 					$this->error(self::ERRNO_NOT_FOUND);
 				
 				$this->_upsertContextRecord($context, $stack);
@@ -46,7 +46,7 @@ class ChRest_Records extends Extension_RestController {
 		
 		switch($action) {
 			default:
-				if(!is_numeric($action) || false == ($context = $this->_getContextByAliasOrId($alias)))
+				if(!is_numeric($action) || !($context = $this->_getContextByAliasOrId($alias)))
 					$this->error(self::ERRNO_NOT_FOUND);
 				
 				array_unshift($stack, $action);
@@ -63,7 +63,7 @@ class ChRest_Records extends Extension_RestController {
 		
 		switch($action) {
 			case 'create':
-				if(false == ($context = $this->_getContextByAliasOrId($alias)))
+				if(!($context = $this->_getContextByAliasOrId($alias)))
 					$this->error(self::ERRNO_NOT_FOUND);
 				
 				$this->_createContextRecord($context, $stack);
@@ -79,7 +79,7 @@ class ChRest_Records extends Extension_RestController {
 		
 		switch($action) {
 			default:
-				if(!is_numeric($action) || false == ($context = $this->_getContextByAliasOrId($alias)))
+				if(!is_numeric($action) || !($context = $this->_getContextByAliasOrId($alias)))
 					$this->error(self::ERRNO_NOT_FOUND);
 				
 				array_unshift($stack, $action);
@@ -91,10 +91,10 @@ class ChRest_Records extends Extension_RestController {
 	}
 	
 	private function _getContextByAliasOrId($name) {
-		if(false != ($context = Extension_DevblocksContext::getByAlias($name, false))) {
+		if(($context = Extension_DevblocksContext::getByAlias($name, false))) {
 			return $context;
 			
-		} else if(false != ($context = Extension_DevblocksContext::get($name, false))) {
+		} else if(($context = Extension_DevblocksContext::get($name, false))) {
 			return $context;
 		}
 		
@@ -109,13 +109,13 @@ class ChRest_Records extends Extension_RestController {
 	private function _verifyContext($context, $context_id) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+		if(!($context_ext = Extension_DevblocksContext::get($context)))
 			return false;
 		
 		if(false === (CerberusContexts::isReadableByActor($context, $context_id, $active_worker)))
 			return false;
 		
-		if(false == (@$meta = $context_ext->getMeta($context_id)))
+		if(!($meta = $context_ext->getMeta($context_id ?? 0)))
 			return false;
 		
 		return array(
@@ -131,10 +131,10 @@ class ChRest_Records extends Extension_RestController {
 		if(empty($query))
 			$this->error(self::ERRNO_PARAM_REQUIRED, "The 'query' parameter is required.");
 		
-		if(false == ($context_ext = $context->createInstance())) /* @var $context_ext Extension_DevblocksContext */
+		if(!($context_ext = $context->createInstance())) /* @var $context_ext Extension_DevblocksContext */
 			$this->error(self::ERRNO_NOT_IMPLEMENTED);
 		
-		if(false == ($view = $context_ext->getChooserView()))
+		if(!($view = $context_ext->getChooserView()))
 			$this->error(self::ERRNO_NOT_IMPLEMENTED);
 		
 		$view->setAutoPersist(false);
@@ -194,7 +194,7 @@ class ChRest_Records extends Extension_RestController {
 		if(!$dao_class::onBeforeUpdateByActor($active_worker, $dao_fields, null, $error))
 			$this->error(self::ERRNO_PARAM_INVALID, $error);
 		
-		if(false == ($id = $dao_class::create($dao_fields)))
+		if(!($id = $dao_class::create($dao_fields)))
 			$this->error(self::ERRNO_PARAM_INVALID, "Failed to create the record.");
 		
 		$dao_class::onUpdateByActor($active_worker, $dao_fields, $id);
@@ -286,7 +286,7 @@ class ChRest_Records extends Extension_RestController {
 		
 		$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels([$model->id => $model], $context->id);
 		
-		if(false != (@$dict = $dicts[$model->id])) {
+		if(($dict = $dicts[$model->id] ?? null)) {
 			CerberusContexts::logActivityRecordDelete($context_ext, $model->id, $dict->_label);
 		}
 		
@@ -407,7 +407,7 @@ class ChRest_Records extends Extension_RestController {
 		if(!($view instanceof IAbstractView_QuickSearch))
 			return [];
 		
-		if(false == ($query_fields = $view->getQuickSearchFields()))
+		if(!($query_fields = $view->getQuickSearchFields()))
 			return [];
 		
 		if(is_array($subtotals) && !empty($subtotals)) {
@@ -415,7 +415,7 @@ class ChRest_Records extends Extension_RestController {
 				if(null == ($query_field = $query_fields[$subtotal]))
 					$this->error(self::ERRNO_SEARCH_FILTERS_INVALID, sprintf("'%s' is not a valid subtotal token.", $subtotal));
 				
-				if(false == ($field = $query_field['options']['param_key']))
+				if(!($field = $query_field['options']['param_key']))
 					$this->error(self::ERRNO_SEARCH_FILTERS_INVALID, sprintf("'%s' is not a valid subtotal token.", $subtotal));
 				
 				$counts = $view->getSubtotalCounts($field);
@@ -460,7 +460,7 @@ class ChRest_Records extends Extension_RestController {
 			$this->error(self::ERRNO_NOT_IMPLEMENTED);
 		}
 		
-		@$show_meta = DevblocksPlatform::importVar($_REQUEST['show_meta'], 'boolean', false);
+		$show_meta = DevblocksPlatform::importVar($_REQUEST['show_meta'] ?? null, 'boolean', false);
 		
 		$container = $this->_handlePostSearch($context);
 		

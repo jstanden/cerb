@@ -285,10 +285,10 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 		
 		// Load records only if they're needed
 		
-		if(false == ($before_models = CerberusContexts::getCheckpoints(CerberusContexts::CONTEXT_OPPORTUNITY, $ids)))
+		if(!($before_models = CerberusContexts::getCheckpoints(CerberusContexts::CONTEXT_OPPORTUNITY, $ids)))
 			return;
 		
-		if(false == ($models = DAO_CrmOpportunity::getIds($ids)))
+		if(!($models = DAO_CrmOpportunity::getIds($ids)))
 			return;
 		
 		// [TODO] These can be merged with 'Record changed' now

@@ -171,7 +171,7 @@ abstract class DevblocksEngine {
 		}
 
 		// Activity points
-		$manifest->manifest_cache['activity_points'] = array();
+		$manifest->manifest_cache['activity_points'] = [];
 		if(isset($plugin->activity_points->activity))
 		foreach($plugin->activity_points->activity as $eActivity) {
 			$activity_point = (string) $eActivity['point'];

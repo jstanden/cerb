@@ -481,7 +481,7 @@ class ParseCron extends CerberusCronPageExtension {
 
 		$time = microtime(true);
 
-		if(false == ($message = CerberusParser::parseMimeFile($full_filename))) {
+		if(!($message = CerberusParser::parseMimeFile($full_filename))) {
 			$logger->error(sprintf("%s failed to parse and it has been saved to the storage/mail/fail/ directory.", $fileparts['basename']));
 			return;
 		}

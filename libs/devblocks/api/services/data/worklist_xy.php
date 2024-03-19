@@ -230,7 +230,7 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 			);
 			
 			try {
-				if(false == ($results = $db->GetArrayReader($sql, $chart_model['timeout'])))
+				if(!($results = $db->GetArrayReader($sql, $chart_model['timeout'])))
 					$results = [];
 				
 			} catch (Exception_DevblocksDatabaseQueryTimeout $e) {

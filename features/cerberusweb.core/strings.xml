@@ -2598,6 +2598,11 @@
 				<seg>resume at</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.retention">
+			<tuv xml:lang="en_US">
+				<seg>retention</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.retry">
 			<tuv xml:lang="en_US">
 				<seg>retry</seg>

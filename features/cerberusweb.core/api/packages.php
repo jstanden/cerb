@@ -338,7 +338,7 @@ class Cerb_Packages {
 			if(isset($uids[$uid_record]))
 				continue;
 			
-			if(false == ($context_ext = Extension_DevblocksContext::getByAlias($record['_context'], true)))
+			if(!($context_ext = Extension_DevblocksContext::getByAlias($record['_context'], true)))
 				throw new Exception_DevblocksValidationError(sprintf("Unknown context '%s' on record (%s).", $record['_context'], $record['uid']));
 			
 			$fields = $custom_fields = $dict = [];
@@ -352,7 +352,7 @@ class Cerb_Packages {
 				}
 				
 				// Ignore keys or values with unfilled placeholders
-				if(false !== strstr($key,'{{{')) {
+				if(str_contains($key, '{{{')) {
 					continue;
 				}
 				
@@ -362,7 +362,7 @@ class Cerb_Packages {
 			if(!$context_ext->getDaoFieldsFromKeysAndValues($dict, $fields, $custom_fields, $error))
 				throw new Exception_DevblocksValidationError(sprintf("Error validating record (%s): %s", $record['uid'], $error));
 			
-			if(false == ($dao_class = $context_ext->getDaoClass()))
+			if(!($dao_class = $context_ext->getDaoClass()))
 				throw new Exception_DevblocksValidationError(sprintf("Error validating record (%s): %s", $record['uid'], "Can't load DAO class."));
 			
 			$excludes = [];
@@ -567,7 +567,7 @@ class Cerb_Packages {
 					if(count($diff))
 						throw new Exception_DevblocksValidationError(sprintf("Invalid JSON: project card is missing properties (%s)", implode(', ', array_keys($diff))));
 					
-					if(false == ($context_ext = Extension_DevblocksContext::getByAlias($card['_context'], true)))
+					if(!($context_ext = Extension_DevblocksContext::getByAlias($card['_context'], true)))
 						throw new Exception_DevblocksValidationError(sprintf("Unknown context '%s' on project card.", $card['_context']));
 					
 					// Ignore any keys with placeholders
@@ -578,8 +578,8 @@ class Cerb_Packages {
 						
 						// Ignore keys or values with unfilled placeholders
 						if(
-							false !== strstr($key,'{{{')
-							|| false !== strstr($value,'{{{')
+							str_contains($key, '{{{')
+							|| str_contains($value, '{{{')
 							) {
 							return false;
 						}
@@ -1211,7 +1211,7 @@ class Cerb_Packages {
 				// Create records for all child nodes and link them to the proper parents
 				
 				if(isset($behavior['nodes']) && !empty($behavior['nodes']))
-				if(false == DAO_TriggerEvent::recursiveImportDecisionNodes($behavior['nodes'], $id, 0))
+				if(!DAO_TriggerEvent::recursiveImportDecisionNodes($behavior['nodes'], $id, 0))
 					throw new Exception_DevblocksValidationError('Failed to import behavior nodes');
 				
 				// Enable the new behavior since we've succeeded
@@ -1237,10 +1237,10 @@ class Cerb_Packages {
 			$uid = $behavior['uid'];
 			$id = $uids[$uid];
 			
-			@$event_params = isset($behavior['event']['params']) ? $behavior['event']['params'] : '';
+			$event_params = $behavior['event']['params'] ?? '';
 			$error = null;
 
-			if(false != (@$event = Extension_DevblocksEvent::get($behavior['event']['key'], true)))
+			if(($event = Extension_DevblocksEvent::get($behavior['event']['key'] ?? null, true)))
 				$event->prepareEventParams(null, $event_params, $error);
 			
 			DAO_TriggerEvent::update($id, [
@@ -1257,7 +1257,7 @@ class Cerb_Packages {
 			// Create records for all child nodes and link them to the proper parents
 			
 			if(isset($behavior['nodes']) && !empty($behavior['nodes']))
-			if(false == DAO_TriggerEvent::recursiveImportDecisionNodes($behavior['nodes'], $id, 0))
+			if(!DAO_TriggerEvent::recursiveImportDecisionNodes($behavior['nodes'], $id, 0))
 				throw new Exception_DevblocksValidationError('Failed to import behavior nodes');
 			
 			// Enable the new behavior since we've succeeded
@@ -1300,7 +1300,7 @@ class Cerb_Packages {
 				$pos = count(DAO_DecisionNode::getByTriggerParent($behavior_id));
 			}
 			
-			if(false == ($node = DAO_TriggerEvent::recursiveImportDecisionNodes([$behavior_node], $behavior_id, $parent_id, $pos)))
+			if(!($node = DAO_TriggerEvent::recursiveImportDecisionNodes([$behavior_node], $behavior_id, $parent_id, $pos)))
 				throw new Exception_DevblocksValidationError('Failed to import behavior nodes');
 			
 			if(!isset($records_created[CerberusContexts::CONTEXT_BEHAVIOR_NODE]))
@@ -1348,10 +1348,10 @@ class Cerb_Packages {
 					DAO_WorkspaceTab::PARAMS_JSON => isset($tab['params']) ? json_encode($tab['params']) : '',
 				]);
 				
-				if(false == ($extension = Extension_WorkspaceTab::get($tab['extension_id']))) /* @var $extension Extension_WorkspaceTab */
+				if(!($extension = Extension_WorkspaceTab::get($tab['extension_id']))) /* @var $extension Extension_WorkspaceTab */
 					throw new Exception_DevblocksValidationError('Failed to instantiate workspace tab extension: ' . $tab['extension_id']);
 				
-				if(false == ($model = DAO_WorkspaceTab::get($id)))
+				if(!($model = DAO_WorkspaceTab::get($id)))
 					throw new Exception_DevblocksValidationError('Failed to load workspace tab model: ' . $tab['extension_id']);
 				
 				$import_json = ['tab' => $tab];
@@ -1554,7 +1554,7 @@ class Cerb_Packages {
 					$card_id = $uids[$uid];
 					$card_ids[] = $card_id;
 					
-					if(false == ($context_ext = Extension_DevblocksContext::getByAlias($card['_context'], true)))
+					if(!($context_ext = Extension_DevblocksContext::getByAlias($card['_context'], true)))
 						throw new Exception_DevblocksValidationError(sprintf("Unknown extension on project card (%s): %s", $card['uid'], $card['_context']));
 					
 					$dict = array_diff_key($card, ['_context'=>true,'uid'=>true]);
@@ -1564,7 +1564,7 @@ class Cerb_Packages {
 					if(!$context_ext->getDaoFieldsFromKeysAndValues($dict, $fields, $custom_fields, $error))
 						throw new Exception_DevblocksValidationError(sprintf("Error on project card (%s): %s", $card['uid'], $error));
 					
-					if(false == ($dao_class = $context_ext->getDaoClass()))
+					if(!($dao_class = $context_ext->getDaoClass()))
 						throw new Exception_DevblocksValidationError(sprintf("Error on project card (%s): %s", $card['uid'], "Can't load DAO class."));
 					
 					$dao_class::update($card_id, $fields);

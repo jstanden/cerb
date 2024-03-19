@@ -188,7 +188,7 @@ class DAO_GpgPublicKey extends Cerb_ORMHelper {
 			$id
 		));
 		
-		if(isset($objects[$id]))
+		if(array_key_exists($id, $objects))
 			return $objects[$id];
 		
 		return null;

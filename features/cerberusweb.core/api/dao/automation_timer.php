@@ -612,7 +612,7 @@ class Model_AutomationTimer extends DevblocksRecordModel {
 		];
 		
 		try {
-			if(false == ($continuation = DAO_AutomationContinuation::getByToken($this->continuation_id)))
+			if(!($continuation = DAO_AutomationContinuation::getByToken($this->continuation_id)))
 				throw new Exception_DevblocksAutomationError();
 			
 			if($continuation->state != 'await')
@@ -637,7 +637,7 @@ class Model_AutomationTimer extends DevblocksRecordModel {
 			}
 			
 			// Load the continuation automation
-			if(false == ($automation = DAO_Automation::getByUri($continuation->uri)))
+			if(!($automation = DAO_Automation::getByUri($continuation->uri)))
 				throw new Exception_DevblocksAutomationError();
 			
 			if($automation->extension_id != AutomationTrigger_AutomationTimer::ID)
@@ -649,7 +649,7 @@ class Model_AutomationTimer extends DevblocksRecordModel {
 				$error
 			);
 			
-			if(false == $automation_results)
+			if(!$automation_results)
 				throw new Exception_DevblocksAutomationError();
 			
 			$exit_code = $automation_results->get('__exit');

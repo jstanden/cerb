@@ -1563,7 +1563,7 @@ class DAO_Translation extends DevblocksORMHelper {
 			$hash[$s->lang_code.'_'.$s->string_id] = $s;
 		}
 		
-		if(false == (@$xml = simplexml_load_file($filename))) /* @var $xml SimpleXMLElement */
+		if(!(@$xml = simplexml_load_file($filename))) /* @var $xml SimpleXMLElement */
 			return;
 			
 		$namespaces = $xml->getNamespaces(true);
@@ -1630,8 +1630,7 @@ class DAO_Translation extends DevblocksORMHelper {
 		$lang_codes = [];
 		
 		// Look up distinct land codes from existing translations
-		$sql = sprintf("SELECT DISTINCT lang_code FROM translation ORDER BY lang_code ASC");
-		$results = $db->GetArrayReader($sql);
+		$results = $db->GetArrayReader("SELECT DISTINCT lang_code FROM translation ORDER BY lang_code ASC");
 		
 		// Languages
 		$langs = $translate->getLanguageCodes();
@@ -1763,20 +1762,19 @@ class DAO_Translation extends DevblocksORMHelper {
 		$join_sql =
 			"FROM translation tl ";
 
-		$where_sql = "".
-			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
+		$where_sql =
+			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ")
+		;
 
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_Translation');
 		
-		$result = array(
+		return [
 			'primary_table' => 'translation',
 			'select' => $select_sql,
 			'join' => $join_sql,
 			'where' => $where_sql,
 			'sort' => $sort_sql,
-		);
-		
-		return $result;
+		];
 	}
 	
 	/**

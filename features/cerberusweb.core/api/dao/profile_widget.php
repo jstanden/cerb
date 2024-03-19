@@ -345,7 +345,7 @@ class DAO_ProfileWidget extends Cerb_ORMHelper {
 			$object->width_units = DevblocksPlatform::intClamp($row['width_units'], 1, 255);
 			$object->zone = $row['zone'];
 			
-			if(false != ($params = json_decode($row['extension_params_json'] ?? '', true)))
+			if(($params = json_decode($row['extension_params_json'] ?? '', true)))
 				$object->extension_params = $params;
 			
 			$objects[$object->id] = $object;
