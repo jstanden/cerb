@@ -1938,9 +1938,16 @@ class CerberusContexts {
 	}
 
 	static function parseContextUrl($url) {
-		if(0 != strcasecmp('ctx://',substr($url,0,6))) {
-			return false;
+		// Handle the cerb:type:id format
+		if(
+			DevblocksPlatform::strStartsWith($url, 'cerb:')
+			&& ($uri_parts = DevblocksPlatform::services()->ui()->parseURI($url))
+		) {
+			$url = 'ctx://' . $uri_parts['context'] . ':' . $uri_parts['context_id'];
 		}
+		
+		if(!DevblocksPlatform::strStartsWith($url, 'ctx://'))
+			return false;
 
 		$context_parts = explode('/', substr($url,6));
 		$context_pair = explode(':', $context_parts[0], 2);
@@ -1956,13 +1963,8 @@ class CerberusContexts {
 
 		$context = $context_ext->id;
 		
-		switch($context) {
-			case CerberusContexts::CONTEXT_TICKET:
-				if(!is_numeric($context_id)) {
-					$context_id = DAO_Ticket::getTicketIdByMask($context_id);
-				}
-				break;
-		}
+		if($context == CerberusContexts::CONTEXT_TICKET && !is_numeric($context_id))
+			$context_id = DAO_Ticket::getTicketIdByMask($context_id);
 
 		$url = null;
 
@@ -1984,7 +1986,7 @@ class CerberusContexts {
 	}
 
 	static function getUrlFromContextUrl($url) {
-		if(0 != strcasecmp('ctx://',substr($url,0,6))) {
+		if (!($url_parts = self::parseContextUrl($url)))
 			return false;
 		}
 
@@ -1997,20 +1999,7 @@ class CerberusContexts {
 		$context = $context_pair[0];
 		$context_id = $context_pair[1];
 
-		if(null == ($context_ext = Extension_DevblocksContext::getByAlias($context, true)))
-			return null;
-
-		if($context_ext instanceof IDevblocksContextProfile) {
-			$url = $context_ext->profileGetUrl($context_id);
-
-		} else {
-			$meta = $context_ext->getMeta($context_id);
-
-			if(is_array($meta) && isset($meta['permalink']))
-				$url = $meta['permalink'];
-		}
-
-		return $url;
+		return $url_parts['url'] ?? false;
 	}
 
 	static public function pushActivityDefaultActor($context=null, $context_id=null) {
