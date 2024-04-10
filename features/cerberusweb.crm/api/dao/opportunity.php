@@ -302,15 +302,12 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 			 * Opp status changed
 			 */
 			
-			@$status_id = $change_fields[DAO_CrmOpportunity::STATUS_ID];
+			$status_id = $change_fields[DAO_CrmOpportunity::STATUS_ID] ?? null;
 			
 			if($status_id == $before_model->status_id)
 				unset($change_fields[DAO_CrmOpportunity::STATUS_ID]);
 			
-			if(
-				isset($change_fields[DAO_CrmOpportunity::STATUS_ID])
-			) {
-				
+			if(!is_null($status_id)) {
 				switch($model->status_id) {
 					default:
 					case 0:
@@ -329,18 +326,13 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 				
 				/*
 				 * Log activity (opp.status.*)
+				 * {{actor}} changed opportunity {{target}} to status {{status}}
 				 */
-				$entry = array(
-					//{{actor}} changed opportunity {{target}} to status {{status}}
-					'message' => 'activities.opp.status',
-					'variables' => array(
-						'target' => sprintf("%s", $model->name),
+				$entry = [
+					'variables' => [
 						'status' => $status_to,
-						),
-					'urls' => array(
-						'target' => sprintf("ctx://%s:%d/%s", CerberusContexts::CONTEXT_OPPORTUNITY, $model->id, $model->name),
-						)
-				);
+					],
+				];
 				CerberusContexts::logActivity($activity_point, CerberusContexts::CONTEXT_OPPORTUNITY, $model->id, $entry);
 			}
 		}

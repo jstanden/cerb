@@ -95,19 +95,14 @@ class MailboxCron extends CerberusCronPageExtension {
 					
 					/*
 					 * Log activity (mailbox.check.error)
+					 * Mailbox {{target}} has failed to download mail on {{count}} consecutive attempts: {{error}}
 					 */
-					$entry = array(
-						//Mailbox {{target}} has failed to download mail on {{count}} consecutive attempts: {{error}}
-						'message' => 'activities.mailbox.check.error',
-						'variables' => array(
-							'target' => $account->name,
+					$entry = [
+						'variables' => [
 							'count' => $num_fails,
 							'error' => $error,
-							),
-						'urls' => array(
-							'target' => sprintf("ctx://%s:%s/%s", CerberusContexts::CONTEXT_MAILBOX, $account->id, DevblocksPlatform::strToPermalink($account->name)),
-							)
-					);
+						],
+					];
 					CerberusContexts::logActivity('mailbox.check.error', CerberusContexts::CONTEXT_MAILBOX, $account->id, $entry, null, null, array_keys($admin_workers));
 				}
 				

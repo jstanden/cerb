@@ -325,8 +325,62 @@ class DAO_ContextActivityLog extends Cerb_ORMHelper {
 			$object->target_context = $row['target_context'];
 			$object->target_context_id = $row['target_context_id'];
 			$object->created = $row['created'];
-			$object->entry_json = $row['entry_json'];
+			$object->entry = [];
+			
+			if(($entry = json_decode($row['entry_json'] ?? '', true)) && is_array($entry))
+				$object->entry = $entry;
+			
 			$objects[$object->id] = $object;
+		}
+		
+		// Find distinct actors + targets to efficiently load dictionaries
+		
+		$distinct_lookups = [];
+		
+		foreach($objects as $object) { /* @var $object Model_ContextActivityLog */
+			if($object->actor_context)
+				$distinct_lookups[$object->actor_context][$object->actor_context_id] = true;
+			
+			if($object->target_context)
+				$distinct_lookups[$object->target_context][$object->target_context_id] = true;
+		}
+		
+		// Bulk load entry JSON on models
+		
+		foreach($distinct_lookups as $context => $ids) {
+			$distinct_models = CerberusContexts::getModels($context, array_keys($ids));
+			$distinct_lookups[$context] = DevblocksDictionaryDelegate::getDictionariesFromModels($distinct_models, $context);
+		}
+		
+		// Merge actor and target into entry JSON
+		foreach($objects as $object) {
+			if(!is_array($object->entry))
+				continue;
+			
+			if(($distinct_lookups[$object->actor_context][$object->actor_context_id] ?? null)) {
+				if(!($object->entry['variables']['actor'] ?? null))
+					$object->entry['variables']['actor'] = $distinct_lookups[$object->actor_context][$object->actor_context_id]->get('_label');
+				
+				if(!CerberusContexts::isSameContext($object->actor_context, Context_Application::ID))
+					$object->entry['urls']['actor'] = sprintf('cerb:%s:%d', $object->actor_context, $object->actor_context_id);
+			}
+			
+			if(($distinct_lookups[$object->target_context][$object->target_context_id] ?? null)) {
+				// Format override for threaded comments
+				if($object->activity_point == 'comment.create' && $object->target_context == CerberusContexts::CONTEXT_COMMENT) {
+					$object->entry['variables']['object'] = $distinct_lookups[$object->target_context][$object->target_context_id]->get('author__label') . "'s comment";
+					$object->entry['variables']['target'] = '';
+					$object->entry['urls']['object'] = 'cerb:comment:'.$object->target_context_id;
+					unset($object->entry['urls']['target']);
+					
+				} else {
+					if(!($object->entry['variables']['target'] ?? null))
+						$object->entry['variables']['target'] = $distinct_lookups[$object->target_context][$object->target_context_id]->get('_label');
+					
+					if(!CerberusContexts::isSameContext($object->target_context, Context_Application::ID))
+						$object->entry['urls']['target'] = sprintf('cerb:%s:%d', $object->target_context, $object->target_context_id);
+				}
+			}
 		}
 		
 		mysqli_free_result($rs);
@@ -386,24 +440,9 @@ class DAO_ContextActivityLog extends Cerb_ORMHelper {
 		
 		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_ContextActivityLog', $sortBy);
 		
-		$select_sql = sprintf("SELECT ".
-			"context_activity_log.id as %s, ".
-			"context_activity_log.activity_point as %s, ".
-			"context_activity_log.actor_context as %s, ".
-			"context_activity_log.actor_context_id as %s, ".
-			"context_activity_log.target_context as %s, ".
-			"context_activity_log.target_context_id as %s, ".
-			"context_activity_log.created as %s, ".
-			"context_activity_log.entry_json as %s ",
-				SearchFields_ContextActivityLog::ID,
-				SearchFields_ContextActivityLog::ACTIVITY_POINT,
-				SearchFields_ContextActivityLog::ACTOR_CONTEXT,
-				SearchFields_ContextActivityLog::ACTOR_CONTEXT_ID,
-				SearchFields_ContextActivityLog::TARGET_CONTEXT,
-				SearchFields_ContextActivityLog::TARGET_CONTEXT_ID,
-				SearchFields_ContextActivityLog::CREATED,
-				SearchFields_ContextActivityLog::ENTRY_JSON
-			);
+		$select_sql = sprintf("SELECT context_activity_log.id as %s ",
+			SearchFields_ContextActivityLog::ID,
+		);
 			
 		$join_sql = "FROM context_activity_log ";
 		
@@ -442,7 +481,7 @@ class DAO_ContextActivityLog extends Cerb_ORMHelper {
 		$where_sql = $query_parts['where'];
 		$sort_sql = $query_parts['sort'];
 		
-		return self::_searchWithTimeout(
+		$results = self::_searchWithTimeout(
 			SearchFields_ContextActivityLog::ID,
 			$select_sql,
 			$join_sql,
@@ -452,6 +491,34 @@ class DAO_ContextActivityLog extends Cerb_ORMHelper {
 			$limit,
 			$withCounts
 		);
+		
+		if(!is_array($results))
+			return false;
+		
+		$models = CerberusContexts::getModels(
+			CerberusContexts::CONTEXT_ACTIVITY_LOG,
+			array_column(
+				$results[0],
+				SearchFields_ContextActivityLog::ID
+			)
+		);
+		
+		foreach($results[0] as $id => $result) {
+			if(null != ($model = $models[$id] ?? null)) { /* @var Model_ContextActivityLog $model */
+				$result[SearchFields_ContextActivityLog::ID] = $model->id;
+				$result[SearchFields_ContextActivityLog::ACTIVITY_POINT] = $model->activity_point;
+				$result[SearchFields_ContextActivityLog::ACTOR_CONTEXT] = $model->actor_context;
+				$result[SearchFields_ContextActivityLog::ACTOR_CONTEXT_ID] = $model->actor_context_id;
+				$result[SearchFields_ContextActivityLog::TARGET_CONTEXT] = $model->target_context;
+				$result[SearchFields_ContextActivityLog::TARGET_CONTEXT_ID] = $model->target_context_id;
+				$result[SearchFields_ContextActivityLog::CREATED] = $model->created;
+				$result[SearchFields_ContextActivityLog::ENTRY_JSON] = $model->entry ? json_encode($model->entry) : '';
+				
+				$results[0][$id] = array_merge($result, $results[0][$id]);
+			}
+		}
+		
+		return $results;
 	}
 
 };
@@ -730,6 +797,29 @@ class SearchFields_ContextActivityLog extends DevblocksSearchFields {
 	}
 };
 
+class Model_ContextActivityLogEntry {
+	public string $activity_point = '';
+	public array $entry = [];
+	public string $actor_context = '';
+	public int $actor_context_id = 0;
+	public string $target_context = '';
+	public int $target_context_id = 0;
+	
+	static public function new(string $activity_point, mixed $entry, string $actor_context='', int $actor_context_id=0, string $target_context='', int $target_context_id=0) : Model_ContextActivityLogEntry {
+		if(!is_array($entry))
+			$entry = [];
+		
+		$log_entry = new Model_ContextActivityLogEntry();
+		$log_entry->activity_point = $activity_point;
+		$log_entry->entry = $entry;
+		$log_entry->actor_context = $actor_context;
+		$log_entry->actor_context_id = $actor_context_id;
+		$log_entry->target_context = $target_context;
+		$log_entry->target_context_id = $target_context_id;
+		return $log_entry;
+	}
+}
+
 class Model_ContextActivityLog extends DevblocksRecordModel {
 	public $id;
 	public $activity_point;
@@ -738,7 +828,18 @@ class Model_ContextActivityLog extends DevblocksRecordModel {
 	public $target_context;
 	public $target_context_id;
 	public $created;
-	public $entry_json;
+	public $entry = [];
+	
+	function getEntry() : Model_ContextActivityLogEntry {
+		return Model_ContextActivityLogEntry::new(
+			$this->activity_point,
+			$this->entry,
+			$this->actor_context,
+			$this->actor_context_id,
+			$this->target_context,
+			$this->target_context_id
+		);
+	}
 };
 
 class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
@@ -1137,7 +1238,7 @@ class Context_ContextActivityLog extends Extension_DevblocksContext implements I
 		
 		return array(
 			'id' => $entry->id,
-			'name' => CerberusContexts::formatActivityLogEntry(json_decode($entry->entry_json, true), 'text'),
+			'name' => CerberusContexts::formatActivityLogEntry($entry->getEntry(), 'text'),
 			'permalink' => null,
 			'updated' => $entry->created,
 		);
@@ -1224,7 +1325,7 @@ class Context_ContextActivityLog extends Extension_DevblocksContext implements I
 		// Address token values
 		if(null != $entry) {
 			$token_values['_loaded'] = true;
-			$token_values['_label'] = CerberusContexts::formatActivityLogEntry(json_decode($entry->entry_json,true),'text');
+			$token_values['_label'] = CerberusContexts::formatActivityLogEntry($entry->getEntry(),'text');
 			$token_values['id'] = $entry->id;
 			$token_values['activity_point'] = $entry->activity_point;
 			$token_values['created'] = $entry->created;
@@ -1240,7 +1341,7 @@ class Context_ContextActivityLog extends Extension_DevblocksContext implements I
 			$token_values['target__context'] = $entry->target_context;
 			$token_values['target_id'] = $entry->target_context_id;
 			
-			$token_values['params'] = json_decode($entry->entry_json, true);
+			$token_values['params'] = $entry->entry;
 		}
 		
 		return true;

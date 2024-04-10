@@ -400,17 +400,12 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 			 */
 			$ip_address = DevblocksPlatform::getClientIp() ?: 'an unknown IP';
 			
-			$entry = array(
+			$entry = [
 				//{{actor}} impersonated {{target}} from {{ip}}
-				'message' => 'activities.worker.impersonated',
-				'variables' => array(
-					'target' => $switch_worker->getName(),
+				'variables' => [
 					'ip' => $ip_address,
-				),
-				'urls' => array(
-					'target' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_WORKER, $switch_worker->id),
-				)
-			);
+				],
+			];
 			CerberusContexts::logActivity('worker.impersonated', CerberusContexts::CONTEXT_WORKER, $worker_id, $entry);
 			
 			// Imposter

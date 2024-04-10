@@ -1238,15 +1238,10 @@ class PageSection_InternalRecords extends Extension_PageSection {
 				 */
 				$entry = [
 					//{{actor}} merged {{context_label}} {{source}} into {{context_label}} {{target}}
-					'message' => 'activities.record.merge',
 					'variables' => [
 						'context' => $context_ext->id,
 						'context_label' => DevblocksPlatform::strLower($aliases['singular']),
 						'source' => sprintf("%s", $dicts[$source_id]->_label),
-						'target' => sprintf("%s", $dicts[$target_id]->_label),
-					],
-					'urls' => [
-						'target' => sprintf("ctx://%s:%d/%s", $context_ext->id, $target_id, DevblocksPlatform::strToPermalink($dicts[$target_id]->_label)),
 					],
 				];
 				CerberusContexts::logActivity('record.merge', $context_ext->id, $target_id, $entry);

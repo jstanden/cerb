@@ -159,6 +159,26 @@
 				<seg>{{actor}} changed ticket {{target}} to status {{status}}</seg>
 			</tuv>
 		</tu>
+		<tu tuid="activities.ticket.status.open">
+			<tuv xml:lang="en_US">
+				<seg>{{actor}} changed ticket {{target}} to status open</seg>
+			</tuv>
+		</tu>
+		<tu tuid="activities.ticket.status.waiting">
+			<tuv xml:lang="en_US">
+				<seg>{{actor}} changed ticket {{target}} to status waiting</seg>
+			</tuv>
+		</tu>
+		<tu tuid="activities.ticket.status.closed">
+			<tuv xml:lang="en_US">
+				<seg>{{actor}} changed ticket {{target}} to status closed</seg>
+			</tuv>
+		</tu>
+		<tu tuid="activities.ticket.status.deleted">
+			<tuv xml:lang="en_US">
+				<seg>{{actor}} changed ticket {{target}} to status deleted</seg>
+			</tuv>
+		</tu>
 		<tu tuid="activities.transport.delivery.error">
 			<tuv xml:lang="en_US">
 				<seg>{{actor}} failed to deliver message: {{error}}</seg>

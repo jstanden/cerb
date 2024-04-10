@@ -106,15 +106,10 @@ class Page_Login extends CerberusPageExtension {
 		
 		$entry = [
 			//{{ip}} failed to log in as {{target}} using {{user_agent}}
-			'message' => 'activities.worker.login.failed',
 			'variables' => [
 				'ip' => $ip_address ?? 'an unknown IP',
 				'user_agent' => $user_agent_string ?? '(unknown user agent)',
-				'target' => sprintf($unauthenticated_worker->getName()),
-				],
-			'urls' => [
-				'target' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_WORKER, $unauthenticated_worker->id),
-				]
+			],
 		];
 		CerberusContexts::logActivity('worker.login.failed', CerberusContexts::CONTEXT_WORKER, $unauthenticated_worker->id, $entry);
 	}
@@ -1018,12 +1013,10 @@ class Page_Login extends CerberusPageExtension {
 		 */
 		$entry = [
 			//{{actor}} logged in from {{ip}} using {{user_agent}}
-			'message' => 'activities.worker.logged_in',
 			'variables' => [
 				'ip' => $ip_address ?? 'an unknown IP',
 				'user_agent' => $user_agent_string ?? '(unknown user agent)',
 				],
-			'urls' => [],
 		];
 		CerberusContexts::logActivity('worker.logged_in', null, null, $entry);
 		
@@ -1081,15 +1074,12 @@ class Page_Login extends CerberusPageExtension {
 		 */
 		$ip_address = DevblocksPlatform::getClientIp() ?: 'an unknown IP';
 		
-		$entry = array(
+		$entry = [
 			//{{actor}} logged out from {{ip}}
-			'message' => 'activities.worker.logged_out',
-			'variables' => array(
+			'variables' => [
 				'ip' => $ip_address,
-				),
-			'urls' => array(
-				)
-		);
+			],
+		];
 		CerberusContexts::logActivity('worker.logged_out', null, null, $entry);
 		
 		$session = DevblocksPlatform::services()->session();

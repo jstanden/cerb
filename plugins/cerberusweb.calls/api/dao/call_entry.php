@@ -97,19 +97,11 @@ class DAO_CallEntry extends Cerb_ORMHelper {
 		
 		/*
 		 * Log the activity of a new call being created
+		 * {{actor}} created call {{target}}
 		 */
 		
 		if(isset($fields[DAO_CallEntry::SUBJECT])) {
-			$entry = array(
-				//{{actor}} created call {{target}}
-				'message' => 'activities.call_entry.created',
-				'variables' => array(
-					'target' => $fields[DAO_CallEntry::SUBJECT],
-					),
-				'urls' => array(
-					'target' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_CALL, $id),
-					)
-			);
+			$entry = [];
 			CerberusContexts::logActivity('call_entry.created', CerberusContexts::CONTEXT_CALL, $id, $entry, null, null);
 		}
 		

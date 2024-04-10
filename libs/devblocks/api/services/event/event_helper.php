@@ -5069,21 +5069,18 @@ class DevblocksEventHelper {
 				
 				/*
 				 * Log activity (ticket.message.relay)
+				 * {{actor}} relayed ticket {{target}} to {{worker}} ({{worker_email}})
 				 */
 				if($context == CerberusContexts::CONTEXT_TICKET) {
-					$entry = array(
-						//{{actor}} relayed ticket {{target}} to {{worker}} ({{worker_email}})
-						'message' => 'activities.ticket.message.relay',
-						'variables' => array(
-							'target' => sprintf("[%s] %s", $dict->ticket_mask, $dict->ticket_subject),
+					$entry = [
+						'variables' => [
 							'worker' => $worker->getName(),
 							'worker_email' => $to,
-							),
-						'urls' => array(
-							'target' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_TICKET, $context_id),
-							'worker' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_WORKER, $worker->id),
-							)
-					);
+						],
+						'urls' => [
+							'worker' => sprintf("cerb:worker:%d", $worker->id),
+						]
+					];
 					CerberusContexts::logActivity('ticket.message.relay', CerberusContexts::CONTEXT_TICKET, $context_id, $entry);
 				}
 				

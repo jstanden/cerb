@@ -1764,17 +1764,9 @@ class CerberusParser {
 		
 		/*
 		 * Log activity (ticket.message.inbound)
+		 * {{actor}} replied to ticket {{target}}
 		 */
-		$entry = [
-			//{{actor}} replied to ticket {{target}}
-			'message' => 'activities.ticket.message.inbound',
-			'variables' => [
-				'target' => $model->getSubject(),
-			],
-			'urls' => [
-				'target' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_TICKET, $model->getTicketId()),
-			]
-		];
+		$entry = [];
 		CerberusContexts::logActivity('ticket.message.inbound', CerberusContexts::CONTEXT_TICKET, $model->getTicketId(), $entry, CerberusContexts::CONTEXT_ADDRESS, $model->getSenderAddressModel()->id);
 
 		AutomationTrigger_MailReceived::trigger($model->getMessageId(), $model->getIsNew());

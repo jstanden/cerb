@@ -109,27 +109,22 @@ class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
 		self::update($id, $fields);
 		
 		if(
-			isset($fields[self::EVENT_NAME]) 
-			&& isset($fields[self::CALENDAR_ID])
-			&& false == ($calendar = DAO_Calendar::get($fields[DAO_CalendarRecurringProfile::CALENDAR_ID]))
-			) {
-		
+			($fields[self::EVENT_NAME] ?? null)
+			&& ($fields[self::CALENDAR_ID] ?? null)
+			&& ($calendar = DAO_Calendar::get($fields[DAO_CalendarRecurringProfile::CALENDAR_ID]))
+		) {
 			/*
 			 * Log the activity of a new recurring event being created
+			 * {{actor}} created recurring event {{event}} on calendar {{target}}
 			 */
-			
-			$entry = array(
-				//{{actor}} created recurring event {{event}} on calendar {{target}}
-				'message' => 'activities.calendar_event_recurring.created',
-				'variables' => array(
+			$entry = [
+				'variables' => [
 					'event' => $fields[DAO_CalendarRecurringProfile::EVENT_NAME],
-					'target' => $calendar->name,
-					),
-				'urls' => array(
-					'event' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING, $id),
-					'target' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_CALENDAR, $calendar->id),
-					)
-			);
+				],
+				'urls' => [
+					'event' => sprintf("cerb:calendar_recurring_event:%d", $id),
+				]
+			];
 			CerberusContexts::logActivity('calendar_event_recurring.created', CerberusContexts::CONTEXT_CALENDAR, $calendar->id, $entry, null, null);
 		}
 		

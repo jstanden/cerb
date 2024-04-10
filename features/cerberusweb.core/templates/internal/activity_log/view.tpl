@@ -71,7 +71,14 @@
 				<input type="checkbox" name="row_id[]" value="{$result.c_id}" style="display:none;">
 				<span class="subject">
 				{* If we're looking at the target context, hide the text in the entry *}
-				{$entry = json_decode($result.c_entry_json, true)}
+				{$entry = Model_ContextActivityLogEntry::new(
+					$result.c_activity_point,
+					json_decode($result.c_entry_json,true),
+					$result.c_actor_context,
+					$result.c_actor_context_id,
+					$result.c_target_context,
+					$result.c_target_context_id
+				)}
 				{if $has_target_req}
 					{$scrub = ['target']}
 					{CerberusContexts::formatActivityLogEntry($entry,'html-cards',$scrub,true) nofilter}

@@ -376,17 +376,12 @@ class DAO_Worker extends Cerb_ORMHelper {
 				$idle_worker = DAO_Worker::get($idle_worker_id);
 				
 				// Add the session kick to the worker's activity log
-				$entry = array(
-					//{{actor}} logged {{target}} out to free up a license seat.
-					'message' => 'activities.worker.seat_expired',
-					'variables' => array(
-							'target' => $idle_worker->getName(),
-							'idle_time' => time()-($idle_worker_after-$idle_worker->timeout_idle_secs),
-						),
-					'urls' => array(
-							'target' => sprintf("ctx://cerberusweb.contexts.worker:%d/%s", $idle_worker->id, DevblocksPlatform::strToPermalink($idle_worker->getName())),
-						)
-				);
+				// {{actor}} logged {{target}} out to free up a license seat.
+				$entry = [
+					'variables' => [
+						'idle_time' => time()-($idle_worker_after-$idle_worker->timeout_idle_secs),
+					],
+				];
 				CerberusContexts::logActivity('worker.seat_expired', CerberusContexts::CONTEXT_WORKER, $idle_worker->id, $entry, CerberusContexts::CONTEXT_APPLICATION, 0);
 			}
 		}

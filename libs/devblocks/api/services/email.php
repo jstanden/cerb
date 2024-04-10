@@ -76,16 +76,13 @@ class _DevblocksEmailManager {
 			if(!empty($this->_lastErrorMessage)) {
 				/*
 				 * Log activity (transport.delivery.error)
+				 * {{actor}} failed to deliver message: {{error}}
 				 */
-				$entry = array(
-					// {{actor}} failed to deliver message: {{error}}
-					'message' => 'activities.transport.delivery.error',
-					'variables' => array(
+				$entry = [
+					'variables' => [
 						'error' => sprintf("%s", $this->_lastErrorMessage),
-						),
-					'urls' => array(
-						)
-				);
+					],
+				];
 				CerberusContexts::logActivity('transport.delivery.error', CerberusContexts::CONTEXT_MAIL_TRANSPORT, $model->id, $entry, CerberusContexts::CONTEXT_MAIL_TRANSPORT, $model->id);
 			}
 			

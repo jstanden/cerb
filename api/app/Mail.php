@@ -2003,18 +2003,12 @@ class CerberusMail {
 		
 		/*
 		 * Log activity (ticket.message.outbound)
+		 * {{actor}} responded to ticket {{target}}
 		 */
-		$entry = array(
-			//{{actor}} responded to ticket {{target}}
-			'message' => 'activities.ticket.message.outbound',
-			'variables' => array(
-				'target' => sprintf("[%s] %s", $ticket->mask, $ticket->subject),
-				),
-			'urls' => array(
-				'target' => sprintf("ctx://%s:%s", CerberusContexts::CONTEXT_TICKET, $ticket->mask),
-				)
-		);
-		CerberusContexts::logActivity('ticket.message.outbound', CerberusContexts::CONTEXT_TICKET, $ticket->id, $entry);
+		$entry = [];
+		$log_actor_context = $worker_id ? CerberusContexts::CONTEXT_WORKER : null;
+		$log_actor_context_id = $worker_id ?: null;
+		CerberusContexts::logActivity('ticket.message.outbound', CerberusContexts::CONTEXT_TICKET, $ticket->id, $entry, $log_actor_context, $log_actor_context_id);
 		
 		// Remove the draft
 		if($draft_id)
@@ -2633,20 +2627,17 @@ class CerberusMail {
 				
 				/*
 				 * Log activity (ticket.message.relay)
+				 * {{actor}} relayed ticket {{target}} to {{worker}} ({{worker_email}})
 				 */
-				$entry = array(
-					//{{actor}} relayed ticket {{target}} to {{worker}} ({{worker_email}})
-					'message' => 'activities.ticket.message.relay',
-					'variables' => array(
-						'target' => sprintf("[%s] %s", $ticket->mask, $ticket->subject),
+				$entry = [
+					'variables' => [
 						'worker' => $worker->getName(),
 						'worker_email' => $to,
-						),
-					'urls' => array(
-						'target' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_TICKET, $ticket->id),
-						'worker' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_WORKER, $worker->id),
-						)
-				);
+					],
+					'urls' => [
+						'worker' => sprintf("cerb:worker:%d", $worker->id),
+					],
+				];
 				CerberusContexts::logActivity('ticket.message.relay', CerberusContexts::CONTEXT_TICKET, $ticket->id, $entry, $actor_context, $actor_context_id);
 				
 				if(!$result)

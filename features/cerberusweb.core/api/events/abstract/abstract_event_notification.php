@@ -362,7 +362,7 @@ abstract class AbstractEvent_Notification extends Extension_DevblocksEvent {
 				DAO_Notification::CONTEXT => $notification->context,
 				DAO_Notification::CONTEXT_ID => $notification->context_id,
 				DAO_Notification::CREATED_DATE => time(),
-				DAO_Notification::ENTRY_JSON => $notification->entry_json,
+				DAO_Notification::ENTRY_JSON => json_encode($notification->entry),
 				DAO_Notification::IS_READ => 0,
 				DAO_Notification::WORKER_ID => $worker->id,
 			];

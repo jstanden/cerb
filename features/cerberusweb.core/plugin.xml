@@ -370,6 +370,7 @@
 			<class name="Context_ContextActivityLog" />
 			<class name="DAO_ContextActivityLog" />
 			<class name="Model_ContextActivityLog" />
+			<class name="Model_ContextActivityLogEntry" />
 			<class name="SearchFields_ContextActivityLog" />
 			<class name="View_ContextActivityLog" />
 		</file>
@@ -1180,22 +1181,22 @@
 		</activity>
 		<activity point="ticket.status.closed">
 			<param key="label_key" value="Ticket Closed" />
-			<param key="string_key" value="activities.ticket.status" />
+			<param key="string_key" value="activities.ticket.status.closed" />
 			<param key="options" value="" />
 		</activity>
 		<activity point="ticket.status.deleted">
 			<param key="label_key" value="Ticket Deleted" />
-			<param key="string_key" value="activities.ticket.status" />
+			<param key="string_key" value="activities.ticket.status.deleted" />
 			<param key="options" value="" />
 		</activity>
 		<activity point="ticket.status.open">
 			<param key="label_key" value="Ticket Opened" />
-			<param key="string_key" value="activities.ticket.status" />
+			<param key="string_key" value="activities.ticket.status.open" />
 			<param key="options" value="" />
 		</activity>
 		<activity point="ticket.status.waiting">
 			<param key="label_key" value="Ticket Waiting" />
-			<param key="string_key" value="activities.ticket.status" />
+			<param key="string_key" value="activities.ticket.status.waiting" />
 			<param key="options" value="" />
 		</activity>
 		<activity point="transport.delivery.error">

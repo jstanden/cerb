@@ -170,19 +170,14 @@ class DAO_Comment extends Cerb_ORMHelper {
 		) {
 			$context = Extension_DevblocksContext::get($fields[self::CONTEXT]);
 			
-			$meta = $context->getMeta($fields[self::CONTEXT_ID]);
-			
 			$entry = [
 				//{{actor}} {{common.commented}} on {{object}} {{target}}
-				'message' => 'activities.comment.create',
-				'variables' => array(
+				'variables' => [
 					'object' => mb_convert_case($context->manifest->name, MB_CASE_LOWER),
-					'target' => $meta['name'],
-				),
-				'urls' => array(
-					'common.commented' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_COMMENT, $id),
-					'target' => sprintf("ctx://%s:%d", $fields[self::CONTEXT], $fields[self::CONTEXT_ID]),
-				)
+				],
+				'urls' => [
+					'common.commented' => sprintf("cerb:comment:%d", $id),
+				],
 			];
 			CerberusContexts::logActivity('comment.create', $fields[self::CONTEXT], $fields[self::CONTEXT_ID], $entry, $fields[self::OWNER_CONTEXT] ?? null, $fields[self::OWNER_CONTEXT_ID] ?? null, $also_notify_worker_ids);
 			

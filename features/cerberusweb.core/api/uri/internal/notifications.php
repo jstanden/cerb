@@ -235,7 +235,10 @@ class PageSection_InternalNotifications extends Extension_PageSection {
 					if($event_id==$explore_from)
 						$orig_pos = $pos;
 					
-					$entry = json_decode($row[SearchFields_Notification::ENTRY_JSON], true);
+					$entry = Model_ContextActivityLogEntry::new(
+						$row[SearchFields_Notification::ACTIVITY_POINT],
+						$row[SearchFields_Notification::ENTRY_JSON]
+					);
 					
 					$content = CerberusContexts::formatActivityLogEntry($entry, 'text');
 					$context = $row[SearchFields_Notification::CONTEXT];

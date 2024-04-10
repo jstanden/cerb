@@ -59,11 +59,9 @@ class WgmNotifEmailerCron extends CerberusCronPageExtension {
 			), DAO_Notification::CREATED_DATE, false);
 			
 			if(is_array($notifications))
-			foreach($notifications as $notification_id => $notification) { /* @var $notification Model_Notification */
-				$entry = json_decode($notification->entry_json, true);
-				
+			foreach($notifications as $notification) { /* @var $notification Model_Notification */
 				$body .= sprintf("%s (%s)\n%s\n\n",
-					CerberusContexts::formatActivityLogEntry($entry,'text'),
+					CerberusContexts::formatActivityLogEntry($notification->getEntry(),'text'),
 					DevblocksPlatform::strPrettyTime($notification->created_date),
 					$url_writer->writeNoProxy('c=internal&a=redirectRead&id='.$notification->id, true)
 				);

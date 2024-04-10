@@ -404,7 +404,11 @@ class DAO_Notification extends Cerb_ORMHelper {
 			$object->worker_id = intval($row['worker_id']);
 			$object->is_read = intval($row['is_read']);
 			$object->activity_point = $row['activity_point'];
-			$object->entry_json = $row['entry_json'];
+			$object->entry = [];
+			
+			if(($entry = json_decode($row['entry_json'] ?? '', true)) && is_array($entry))
+				$object->entry = $entry;
+			
 			$objects[$object->id] = $object;
 		}
 		
@@ -761,7 +765,11 @@ class Model_Notification extends DevblocksRecordModel {
 	public $worker_id;
 	public $is_read;
 	public $activity_point;
-	public $entry_json;
+	public $entry;
+	
+	function getEntry() : Model_ContextActivityLogEntry {
+		return Model_ContextActivityLogEntry::new($this->activity_point, $this->entry);
+	}
 	
 	public function getURL() {
 		$url_writer = DevblocksPlatform::services()->url();
@@ -771,10 +779,9 @@ class Model_Notification extends DevblocksRecordModel {
 		// Specific handling for comments on tickets
 		if('comment.create' == $this->activity_point) {
 			$ctx_ticket = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_TICKET, true);
-			$entry = json_decode($this->entry_json, true);
 			
-			if(array_key_exists('urls', $entry) && array_key_exists('common.commented', $entry['urls'])) {
-				$ctx_parts = CerberusContexts::parseContextUrl($entry['urls']['common.commented']);
+			if(array_key_exists('urls', $this->entry) && array_key_exists('common.commented', $this->entry['urls'])) {
+				$ctx_parts = CerberusContexts::parseContextUrl($this->entry['urls']['common.commented']);
 				
 				if(array_key_exists('id', $ctx_parts)) {
 					// Comment on a reply draft
@@ -1206,13 +1213,13 @@ class Context_Notification extends Extension_DevblocksContext {
 		if(null == ($notification = DAO_Notification::get($context_id)))
 			return [];
 		
-		if(false == ($url = $notification->getURL())) {
+		if(!($url = $notification->getURL())) {
 			$url = $url_writer->writeNoProxy('c=internal&action=redirectRead&id='.$context_id, true);
 		}
 		
 		return array(
 			'id' => $notification->id,
-			'name' => CerberusContexts::formatActivityLogEntry(json_decode($notification->entry_json, true),'html'),
+			'name' => CerberusContexts::formatActivityLogEntry($notification->getEntry(), 'html'),
 			'permalink' => $url,
 			'updated' => $notification->created_date,
 		);
@@ -1313,24 +1320,27 @@ class Context_Notification extends Extension_DevblocksContext {
 		$token_values['_types'] = $token_types;
 		
 		if($notification) {
-			$entry = json_decode($notification->entry_json ?? '', true);
+			$entry_model = $notification->getEntry();
+			
+			$message = CerberusContexts::formatActivityLogEntry($entry_model,'text');
+			$message_html = CerberusContexts::formatActivityLogEntry($entry_model,'html');
 			
 			$token_values['_loaded'] = true;
-			$token_values['_label'] = trim(strtr(CerberusContexts::formatActivityLogEntry($entry,'text'),"\r\n",' '));
+			$token_values['_label'] = trim(strtr($message,"\r\n",' '));
 			$token_values['activity_point'] = $notification->activity_point;
 			$token_values['created'] = $notification->created_date;
-			$token_values['event_json'] = $notification->entry_json;
+			$token_values['event_json'] = json_encode($notification->entry);
 			$token_values['id'] = $notification->id;
 			$token_values['is_read'] = $notification->is_read;
-			$token_values['message'] = CerberusContexts::formatActivityLogEntry($entry,'text');
-			$token_values['message_html'] = CerberusContexts::formatActivityLogEntry($entry,'html');
+			$token_values['message'] = $message;
+			$token_values['message_html'] = $message_html;
 			$token_values['url'] = $notification->getURL();
 			
 			$token_values['target__context'] = $notification->context;
 			$token_values['target_id'] = $notification->context_id;
 			
 			// Custom fields
-			$token_values = $this->_importModelCustomFieldsAsValues($notification, $token_values);
+			$token_values = $this->_importModelCustomFieldsAsValues($entry_model, $token_values);
 			
 			// Url
 			$redirect_url = $url_writer->writeNoProxy(sprintf("c=internal&a=redirectRead&id=%d", $notification->id), true);

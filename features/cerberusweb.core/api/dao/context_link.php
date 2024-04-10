@@ -157,69 +157,55 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 		if($dst_context == CerberusContexts::CONTEXT_WORKER) {
 			// If worker is actor and target, and we're not inside a bot
 			if($active_worker && $active_worker->id == $dst_context_id && 0 == EventListener_Triggers::getDepth()) {
-				$entry = array(
+				$entry = [
 					//{{actor}} started watching {{target_object}} {{target}}
-					'message' => 'activities.watcher.follow',
-					'variables' => array(
+					'variables' => [
 						'target_object' => mb_convert_case($ext_src_context->manifest->name, MB_CASE_LOWER),
-						'target' => $src_context_meta['name'],
-						),
-					'urls' => array(
-						'target' => sprintf("ctx://%s:%d/%s", $src_context, $src_context_id, DevblocksPlatform::strToPermalink($src_context_meta['name'])),
-						)
-				);
+					],
+				];
 				CerberusContexts::logActivity('watcher.follow', $src_context, $src_context_id, $entry);
 			} else {
 				$watcher_worker = DAO_Worker::get($dst_context_id);
 				
-				$entry = array(
+				$entry = [
 					//{{actor}} added {{watcher}} as a watcher to {{target_object}} {{target}}
-					'message' => 'activities.watcher.assigned',
-					'variables' => array(
+					'variables' => [
 						'watcher' => $watcher_worker->getName(),
 						'target_object' => mb_convert_case($ext_src_context->manifest->name, MB_CASE_LOWER),
-						'target' => $src_context_meta['name'],
-						),
-					'urls' => array(
-						'target' => sprintf("ctx://%s:%d/%s", $src_context, $src_context_id, DevblocksPlatform::strToPermalink($src_context_meta['name'])),
-						'watcher' => sprintf("ctx://%s:%d/%s", CerberusContexts::CONTEXT_WORKER, $watcher_worker->id, DevblocksPlatform::strToPermalink($watcher_worker->getName())),
-						)
-				);
+					],
+					'urls' => [
+						'watcher' => sprintf("cerb:worker:%d", $watcher_worker->id),
+					],
+				];
 				CerberusContexts::logActivity('watcher.assigned', $src_context, $src_context_id, $entry);
 			}
 			
 		// Otherwise, do the connection
 		} else {
-			$entry = array(
+			$entry = [
 				//{{actor}} connected {{target_object}} {{target}} to {{link_object}} {{link}}
-				'message' => 'activities.connection.link',
-				'variables' => array(
+				'variables' => [
 					'target_object' => mb_convert_case($ext_src_context->manifest->name, MB_CASE_LOWER),
-					'target' => $src_context_meta['name'],
 					'link_object' => mb_convert_case($ext_dst_context->manifest->name, MB_CASE_LOWER),
 					'link' => $dst_context_meta['name'],
-					),
-				'urls' => array(
-					'target' => sprintf("ctx://%s:%d/%s", $src_context, $src_context_id, DevblocksPlatform::strToPermalink($src_context_meta['name'])),
-					'link' => sprintf("ctx://%s:%d/%s", $dst_context, $dst_context_id, DevblocksPlatform::strToPermalink($dst_context_meta['name'])),
-					)
-			);
+				],
+				'urls' => [
+					'link' => sprintf("cerb:%s:%d", $dst_context, $dst_context_id),
+				],
+			];
 			CerberusContexts::logActivity('connection.link', $src_context, $src_context_id, $entry);
 			
-			$entry = array(
+			$entry = [
 				//{{actor}} connected {{target_object}} {{target}} to {{link_object}} {{link}}
-				'message' => 'activities.connection.link',
-				'variables' => array(
+				'variables' => [
 					'target_object' => mb_convert_case($ext_dst_context->manifest->name, MB_CASE_LOWER),
-					'target' => $dst_context_meta['name'],
 					'link_object' => mb_convert_case($ext_src_context->manifest->name, MB_CASE_LOWER),
 					'link' => $src_context_meta['name'],
-					),
-				'urls' => array(
-					'target' => sprintf("ctx://%s:%d/%s", $dst_context, $dst_context_id, DevblocksPlatform::strToPermalink($dst_context_meta['name'])),
-					'link' => sprintf("ctx://%s:%d/%s", $src_context, $src_context_id, DevblocksPlatform::strToPermalink($src_context_meta['name'])),
-					)
-			);
+				],
+				'urls' => [
+					'link' => sprintf("cerb:%s:%d", $src_context, $src_context_id),
+				],
+			];
 			CerberusContexts::logActivity('connection.link', $dst_context, $dst_context_id, $entry);
 			
 		}
@@ -577,72 +563,58 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 		 * Activities
 		 */
 
-		// Unfollow?
+		// Watcher unassigned
 		if($dst_context == CerberusContexts::CONTEXT_WORKER) {
 			if($active_worker && $active_worker->id == $dst_context_id) {
-				$entry = array(
+				$entry = [
 					//{{actor}} stopped watching {{target_object}} {{target}}
-					'message' => 'activities.watcher.unfollow',
-					'variables' => array(
+					'variables' => [
 						'target_object' => mb_convert_case($ext_src_context->manifest->name, MB_CASE_LOWER),
-						'target' => $src_context_meta['name'] ?? '',
-						),
-					'urls' => array(
-						'target' => sprintf("ctx://%s:%d", $src_context, $src_context_id),
-						)
-				);
+					],
+				];
 				CerberusContexts::logActivity('watcher.unfollow', $src_context, $src_context_id, $entry);
 			} else {
 				$watcher_worker = DAO_Worker::get($dst_context_id);
 				
-				$entry = array(
+				$entry = [
 					//{{actor}} removed {{watcher}} as a watcher from {{target_object}} {{target}}
-					'message' => 'activities.watcher.unassigned',
-					'variables' => array(
+					'variables' => [
 						'watcher' => $watcher_worker->getName(),
 						'target_object' => mb_convert_case($ext_src_context->manifest->name, MB_CASE_LOWER),
-						'target' => $src_context_meta['name'] ?? '',
-						),
-					'urls' => array(
-						'target' => sprintf("ctx://%s:%d", $src_context, $src_context_id),
-						'watcher' => sprintf("ctx://%s:%d/%s", CerberusContexts::CONTEXT_WORKER, $watcher_worker->id, DevblocksPlatform::strToPermalink($watcher_worker->getName())),
-						)
-				);
+					],
+					'urls' => [
+						'watcher' => sprintf("cerb:worker:%d", $watcher_worker->id),
+					]
+				];
 				CerberusContexts::logActivity('watcher.unassigned', $src_context, $src_context_id, $entry);
 			}
 		
 		// Disconnect
 		} else {
-			$entry = array(
+			$entry = [
 				//{{actor}} disconnected {{target_object}} {{target}} from {{link_object}} {{link}}
-				'message' => 'activities.connection.unlink',
-				'variables' => array(
+				'variables' => [
 					'target_object' => mb_convert_case($ext_src_context->manifest->name, MB_CASE_LOWER),
-					'target' => $src_context_meta['name'] ?? '',
 					'link_object' => mb_convert_case($ext_dst_context->manifest->name, MB_CASE_LOWER),
 					'link' => $dst_context_meta['name'] ?? '',
-					),
-				'urls' => array(
-					'target' => sprintf("ctx://%s:%d", $src_context, $src_context_id),
-					'link' => sprintf("ctx://%s:%d", $dst_context, $dst_context_id),
-					)
-			);
+				],
+				'urls' => [
+					'link' => sprintf("cerb:%s:%d", $dst_context, $dst_context_id),
+				],
+			];
 			CerberusContexts::logActivity('connection.unlink', $src_context, $src_context_id, $entry);
 			
-			$entry = array(
+			$entry = [
 				//{{actor}} disconnected {{target_object}} {{target}} from {{link_object}} {{link}}
-				'message' => 'activities.connection.unlink',
-				'variables' => array(
+				'variables' => [
 					'target_object' => mb_convert_case($ext_dst_context->manifest->name, MB_CASE_LOWER),
-					'target' => $dst_context_meta['name'] ?? '',
 					'link_object' => mb_convert_case($ext_src_context->manifest->name, MB_CASE_LOWER),
 					'link' => $src_context_meta['name'] ?? '',
-					),
-				'urls' => array(
-					'target' => sprintf("ctx://%s:%d", $dst_context, $dst_context_id),
-					'link' => sprintf("ctx://%s:%d", $src_context, $src_context_id),
-					)
-			);
+				],
+				'urls' => [
+					'link' => sprintf("cerb:%s:%d", $src_context, $src_context_id),
+				],
+			];
 			CerberusContexts::logActivity('connection.unlink', $dst_context, $dst_context_id, $entry);
 		}
 		

@@ -353,19 +353,23 @@ class ChRest_Contexts extends Extension_RestController {
 		
 		// Log it
 		
-		$entry = array(
-			'message' => $activity_params['string_key'],
+		$entry = [
 			'variables' => $variables,
 			'urls' => $urls
-		);
+		];
 		$entry_id = CerberusContexts::logActivity($activity_point, $result_on['context'], $result_on['context_id'], $entry, null, null);
 
+		$entry_model = Model_ContextActivityLogEntry::new(
+			$activity_point,
+			$entry
+		);
+		
 		$entry['id'] = $entry_id;
 		$entry['activity_point'] = $activity_point;
-		$entry['message'] = array(
-			'plaintext' => CerberusContexts::formatActivityLogEntry($entry, 'plaintext'),
-			'html' => CerberusContexts::formatActivityLogEntry($entry, 'html'),
-		);
+		$entry['message'] = [
+			'plaintext' => CerberusContexts::formatActivityLogEntry($entry_model, 'plaintext'),
+			'html' => CerberusContexts::formatActivityLogEntry($entry_model, 'html'),
+		];
 		
 		$result = array(
 			'entry' => $entry,

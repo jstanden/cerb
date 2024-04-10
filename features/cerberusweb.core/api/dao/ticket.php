@@ -1384,42 +1384,24 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			if(isset($change_fields[DAO_Ticket::OWNER_ID])) {
 				
 				// Log activity (ticket.unassigned)
-				
-				if(empty($model->owner_id)) {
-					$activity_point = 'ticket.owner.unassigned';
-					
-					$entry = array(
-						// {{actor}} unassigned ticket {{target}}
-						'message' => 'activities.ticket.unassigned',
-						'variables' => array(
-							'target' => sprintf("[%s] %s", $model->mask, $model->subject),
-							),
-						'urls' => array(
-							'target' => sprintf("ctx://%s:%d/%s", CerberusContexts::CONTEXT_TICKET, $model->id, $model->mask),
-							)
-					);
-					CerberusContexts::logActivity($activity_point, CerberusContexts::CONTEXT_TICKET, $model->id, $entry);
-				}
+				// {{actor}} unassigned ticket {{target}}
+				if (empty($model->owner_id)) {
+					$entry = [];
+					CerberusContexts::logActivity('ticket.owner.unassigned', CerberusContexts::CONTEXT_TICKET, $model->id, $entry);
 				
 				// Log activity (ticket.assigned)
-				
-				elseif($model->owner_id) {
-					$activity_point = 'ticket.owner.assigned';
-					
-					if(false != ($target_worker = DAO_Worker::get($model->owner_id)) && ($target_worker instanceof Model_Worker)) {
-						$entry = array(
-							//{{actor}} assigned ticket {{target}} to worker {{worker}}
-							'message' => 'activities.ticket.assigned',
-							'variables' => array(
-								'target' => sprintf("[%s] %s", $model->mask, $model->subject),
+				// {{actor}} assigned ticket {{target}} to worker {{worker}}
+				} else {
+					if (($target_worker = DAO_Worker::get($model->owner_id)) && ($target_worker instanceof Model_Worker)) {
+						$entry = [
+							'variables' => [
 								'worker' => $target_worker->getName(),
-								),
-							'urls' => array(
-								'target' => sprintf("ctx://%s:%d/%s", CerberusContexts::CONTEXT_TICKET, $model->id, $model->mask),
-								'worker' => sprintf("ctx://%s:%d/%s", CerberusContexts::CONTEXT_WORKER, $model->owner_id, DevblocksPlatform::strToPermalink($target_worker->getName())),
-								)
-						);
-						CerberusContexts::logActivity($activity_point, CerberusContexts::CONTEXT_TICKET, $model->id, $entry);
+							],
+							'urls' => [
+								'worker' => sprintf("cerb:worker:%d", $model->owner_id),
+							],
+						];
+						CerberusContexts::logActivity('ticket.owner.assigned', CerberusContexts::CONTEXT_TICKET, $model->id, $entry);
 					}
 				}
 			}
@@ -1483,16 +1465,13 @@ class DAO_Ticket extends Cerb_ORMHelper {
 					
 					$entry = [
 						//{{actor}} moved ticket {{target}} to {{group}} {{bucket}}
-						'message' => 'activities.ticket.moved',
 						'variables' => [
-							'target' => sprintf("[%s] %s", $model->mask, $model->subject),
 							'group' => $to_group->name,
 							'bucket' => $to_bucket->name,
-							],
+						],
 						'urls' => [
-							'target' => sprintf("ctx://%s:%d/%s", CerberusContexts::CONTEXT_TICKET, $model->id, $model->mask),
-							'group' => sprintf("ctx://%s:%d/%s", CerberusContexts::CONTEXT_GROUP, $to_group->id, $to_group->name),
-							]
+							'group' => sprintf("cerb:group:%d", $to_group->id),
+						]
 					];
 					CerberusContexts::logActivity('ticket.moved', CerberusContexts::CONTEXT_TICKET, $model->id, $entry);
 				}
@@ -1582,18 +1561,9 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				if(!empty($status_to) && !empty($activity_point)) {
 					/*
 					 * Log activity (ticket.status.*)
+					 * {{actor}} changed ticket {{target}} to status [open|waiting|closed|deleted]
 					 */
-					$entry = array(
-						//{{actor}} changed ticket {{target}} to status {{status}}
-						'message' => 'activities.ticket.status',
-						'variables' => array(
-							'target' => sprintf("[%s] %s", $model->mask, $model->subject),
-							'status' => $status_to,
-							),
-						'urls' => array(
-							'target' => sprintf("ctx://%s:%d/%s", CerberusContexts::CONTEXT_TICKET, $model->id, $model->mask),
-							)
-					);
+					$entry = [];
 					CerberusContexts::logActivity($activity_point, CerberusContexts::CONTEXT_TICKET, $model->id, $entry);
 				}
 			}
@@ -1789,18 +1759,15 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				/*
 				 * Log activity (ticket.participant.added)
 				 */
-				$entry = array(
+				$entry = [
 					//{{actor}} added {{participant}} to ticket {{target}}
-					'message' => 'activities.ticket.participant.added',
-					'variables' => array(
+					'variables' => [
 						'participant' => sprintf("%s", $addresses[$requester_id]->email),
-						'target' => sprintf("[%s] %s", $ticket->mask, $ticket->subject),
-					),
-					'urls' => array(
-						'participant' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_ADDRESS, $requester_id),
-						'target' => sprintf("ctx://%s:%s", CerberusContexts::CONTEXT_TICKET, $ticket->mask),
-					)
-				);
+					],
+					'urls' => [
+						'participant' => sprintf("cerb:address:%d", $requester_id),
+					],
+				];
 				CerberusContexts::logActivity('ticket.participant.added', CerberusContexts::CONTEXT_TICKET, $ticket->id, $entry);
 			}
 		}
@@ -1843,19 +1810,16 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		foreach($participants as $participant) {
 			/*
 			 * Log activity (ticket.participant.added)
+			 * {{actor}} removed {{participant}} from ticket {{target}}
 			 */
-			$entry = array(
-				//{{actor}} removed {{participant}} from ticket {{target}}
-				'message' => 'activities.ticket.participant.removed',
-				'variables' => array(
+			$entry = [
+				'variables' => [
 					'participant' => sprintf("%s", $participant->email),
-					'target' => sprintf("[%s] %s", $ticket->mask, $ticket->subject),
-					),
-				'urls' => array(
-					'participant' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_ADDRESS, $participant->id),
-					'target' => sprintf("ctx://%s:%s", CerberusContexts::CONTEXT_TICKET, $ticket->mask),
-					)
-			);
+				],
+				'urls' => [
+					'participant' => sprintf("cerb:address:%d", $participant->id),
+				],
+			];
 			CerberusContexts::logActivity('ticket.participant.removed', CerberusContexts::CONTEXT_TICKET, $ticket->id, $entry);
 		}
 		
@@ -2128,37 +2092,31 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		
 		/*
 		 * Log activity (Ticket Split)
+		 * {{actor}} split from ticket {{target}} into ticket {{source}}
 		 */
 		
 		$entry = [
-			//{{actor}} split from ticket {{target}} into ticket {{source}}
-			'message' => 'activities.ticket.split',
 			'variables' => [
-				'target' => sprintf("[%s] %s", $orig_ticket->mask, $orig_ticket->subject),
 				'source' => sprintf("[%s] %s", $new_ticket->mask, $new_ticket->subject),
-				],
+			],
 			'urls' => [
-				'target' => sprintf("ctx://%s:%s", CerberusContexts::CONTEXT_TICKET, $orig_ticket->mask),
-				'source' => sprintf("ctx://%s:%s", CerberusContexts::CONTEXT_TICKET, $new_ticket->mask),
-				]
+				'source' => sprintf("cerb:ticket:%d", $new_ticket->id),
+			]
 		];
 		CerberusContexts::logActivity('ticket.split', CerberusContexts::CONTEXT_TICKET, $orig_ticket->id, $entry);
 		
 		/*
 		 * Log activity (Ticket Split From)
+		 * {{actor}} split into ticket {{target}} from ticket {{source}}
 		 */
 		
 		$entry = [
-			//{{actor}} split into ticket {{target}} from ticket {{source}}
-			'message' => 'activities.ticket.split.from',
 			'variables' => [
-				'target' => sprintf("[%s] %s", $new_ticket->mask, $new_ticket->subject),
 				'source' => sprintf("[%s] %s", $orig_ticket->mask, $orig_ticket->subject),
-				],
+			],
 			'urls' => [
-				'target' => sprintf("ctx://%s:%s", CerberusContexts::CONTEXT_TICKET, $new_ticket->mask),
-				'source' => sprintf("ctx://%s:%s", CerberusContexts::CONTEXT_TICKET, $orig_ticket->mask),
-				]
+				'source' => sprintf("cerb:ticket:%d", $orig_ticket->id),
+			]
 		];
 		CerberusContexts::logActivity('ticket.split', CerberusContexts::CONTEXT_TICKET, $new_ticket->id, $entry);
 		

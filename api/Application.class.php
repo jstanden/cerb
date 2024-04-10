@@ -1742,58 +1742,42 @@ class CerberusContexts {
 			DAO_ContextLink::deleteLink($context, $context_id, CerberusContexts::CONTEXT_WORKER, $worker_id);
 	}
 
-	static public function formatActivityLogEntry($entry, $format=null, $scrub_tokens=[], $personalize=false) {
+	static public function formatActivityLogEntry(Model_ContextActivityLogEntry $log_entry, $format=null, $scrub_tokens=[], $personalize=false) : string {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$url_writer = DevblocksPlatform::services()->url();
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		if(!is_array($entry)) {
-			return '';
+		if(!array_key_exists('message', $log_entry->entry)) {
+			$activity_points = DevblocksPlatform::getActivityPointRegistry();
+			$log_entry->entry['message'] = $activity_points[$log_entry->activity_point]['params']['string_key'] ?? '';
 		}
 		
-		// Adjust things for certain messages
-		
-		if('activities.comment.create' == $entry['message']) {
-			if(@$entry['urls']['target']) {
-				if(false != ($target = CerberusContexts::parseContextUrl($entry['urls']['target']))) {
-					if(CerberusContexts::CONTEXT_COMMENT == $target['context']) {
-						if(@$entry['variables']['target']) {
-							$entry['variables']['object'] = $entry['variables']['target'];
-							$entry['variables']['target'] = null;
-						} else {
-							$parent_comment = DAO_Comment::get($target['id']);
-							$entry['variables']['object'] = $parent_comment->getActorDictionary()->get('_label') . "'s comment";
-							$entry['variables']['target'] = null;
-						}
-						
-						$entry['urls']['object'] = $entry['urls']['target'];
-					}
-				}
-			}
-		}
+		// Fix Cerb actor
+		if(($log_entry->entry['variables']['actor'] ?? '') == 'Cerb')
+			unset($log_entry->entry['urls']['actor']);
 		
 		// Load the translated version of the message
-		$entry['message'] = $translate->_($entry['message']);
+		$log_entry->entry['message'] = $translate->_($log_entry->entry['message']);
 
 		// Scrub desired tokens
 
 		if(is_array($scrub_tokens) && !empty($scrub_tokens)) {
 			foreach($scrub_tokens as $token) {
 				// Scrub tokens and only preserve trailing whitespace
-				$entry['message'] = preg_replace('#\s*\{\{'.$token.'\}\}(\s*)#', '\1', $entry['message']);
+				$log_entry->entry['message'] = preg_replace('#\s*\{\{'.$token.'\}\}(\s*)#', '\1', $log_entry->entry['message']);
 			}
 		}
 
 		// Variables
 
-		$vars = $entry['variables'] ?? null;
+		$vars = $log_entry->entry['variables'] ?? null;
 
 		// Do we need to translate any token variables/urls?
 		$matches = null;
-		if(preg_match_all('#\{\{\'(.*?)\'.*?\}\}#', $entry['message'], $matches)) {
+		if(preg_match_all('#\{\{\'(.*?)\'.*?\}\}#', $log_entry->entry['message'], $matches)) {
 			foreach(array_keys($matches[0]) as $idx) {
 				$new_key = uniqid('var_');
-				$entry['message'] = str_replace($matches[$idx], sprintf('{{%s}}', $new_key), $entry['message']);
+				$log_entry->entry['message'] = str_replace($matches[$idx], sprintf('{{%s}}', $new_key), $log_entry->entry['message']);
 
 				if(isset($vars[$matches[1][$idx]])) {
 					$vars[$new_key] = $vars[$matches[1][$idx]];
@@ -1802,9 +1786,9 @@ class CerberusContexts {
 					$vars[$new_key] = DevblocksPlatform::translate($matches[1][$idx]);
 				}
 
-				if(isset($entry['urls'][$matches[1][$idx]])) {
-					$entry['urls'][$new_key] = $entry['urls'][$matches[1][$idx]];
-					unset($entry['urls'][$matches[1][$idx]]);
+				if(isset($log_entry->entry['urls'][$matches[1][$idx]])) {
+					$log_entry->entry['urls'][$new_key] = $log_entry->entry['urls'][$matches[1][$idx]];
+					unset($log_entry->entry['urls'][$matches[1][$idx]]);
 				}
 			}
 		}
@@ -1847,20 +1831,20 @@ class CerberusContexts {
 					$vars[$k] = DevblocksPlatform::strEscapeHtml($v);
 				}
 
-				if(isset($entry['urls']))
-				foreach($entry['urls'] as $token => $url) {
-					if(0 == strcasecmp('ctx://',substr($url,0,6))) {
+				if(isset($log_entry->entry['urls']))
+				foreach($log_entry->entry['urls'] as $token => $url) {
+					if(DevblocksPlatform::strStartsWith(strtolower($url), ['cerb:','ctx://'])) {
 						$url = self::getUrlFromContextUrl($url);
-						if(isset($vars[$token])) {
+						if(array_key_exists($token, $vars)) {
 							$vars[$token] = '<a href="'.$url.'" class="subject">'.$vars[$token].'</a>';
 						}
-					} elseif(0 == strcasecmp('http',substr($url,0,4))) {
-						if(isset($vars[$token])) {
+					} else if(str_starts_with(strtolower($url), 'http')) {
+						if(array_key_exists($token, $vars)) {
 							$vars[$token] = '<a href="'.$url.'" target="_blank" rel="noopener" class="subject">'.$vars[$token].'</a>';
 						}
 					} else {
 						$url = $url_writer->writeNoProxy($url, true);
-						if(isset($vars[$token])) {
+						if(array_key_exists($token, $vars)) {
 							$vars[$token] = '<a href="'.$url.'" class="subject">'.$vars[$token].'</a>';
 						}
 					}
@@ -1874,10 +1858,13 @@ class CerberusContexts {
 					$vars[$k] = DevblocksPlatform::strEscapeHtml($v);
 				}
 
-				if(isset($entry['urls']))
-				foreach($entry['urls'] as $token => $url) {
-					if(0 == strcasecmp('ctx://',substr($url,0,6))) {
-						if(false != ($parts = self::parseContextUrl($url))) {
+				if(isset($log_entry->entry['urls']))
+				foreach($log_entry->entry['urls'] as $token => $url) {
+					if(($uri_proto = DevblocksPlatform::strStartsWith($url, ['cerb:','ctx://']))) {
+						if($uri_proto == 'cerb:' && ($uri_parts = DevblocksPlatform::services()->ui()->parseURI($url)))
+							$url = 'ctx://' . $uri_parts['context'] . ':' . $uri_parts['context_id'];
+						
+						if(($parts = self::parseContextUrl($url))) {
 							$vars[$token] = sprintf('<a href="javascript:;" class="cerb-peek-trigger subject" data-context="%s" data-context-id="%d" data-profile-url="%s">%s</a>',
 								$parts['context'],
 								$parts['id'],
@@ -1887,7 +1874,6 @@ class CerberusContexts {
 						}
 					} elseif(0 == strcasecmp('http',substr($url,0,4))) {
 						$vars[$token] = '<a href="'.$url.'" target="_blank" rel="noopener" class="subject">'.$vars[$token].'</a>';
-
 					} else {
 						$url = $url_writer->writeNoProxy($url, true);
 						$vars[$token] = '<a href="'.$url.'" class="subject">'.$vars[$token].'</a>';
@@ -1896,12 +1882,15 @@ class CerberusContexts {
 				break;
 
 			case 'markdown':
-				if(isset($entry['urls']))
-				foreach($entry['urls'] as $token => $url) {
-					if(0 == strcasecmp('ctx://',substr($url,0,6))) {
+				if(isset($log_entry->entry['urls']))
+				foreach($log_entry->entry['urls'] as $token => $url) {
+					if(($uri_proto = DevblocksPlatform::strStartsWith(strtolower($url), ['cerb:','ctx://']))) {
+						if($uri_proto == 'cerb:' && ($uri_parts = DevblocksPlatform::services()->ui()->parseURI($url)))
+							$url = 'ctx://' . $uri_parts['context'] . ':' . $uri_parts['context_id'];
+						
 						$url = self::getUrlFromContextUrl($url);
 						$vars[$token] = '['.$vars[$token].']('.$url.')';
-					} elseif(0 == strcasecmp('http',substr($url,0,4))) {
+					} elseif(str_starts_with(strtolower($url), 'http')) {
 						$vars[$token] = '['.$vars[$token].']('.$url.')';
 					} else {
 						$url = $url_writer->writeNoProxy($url, true);
@@ -1911,30 +1900,27 @@ class CerberusContexts {
 				break;
 
 			case 'email':
-				@$url = reset($entry['urls']);
+				$url = $log_entry->entry['urls']['target'] ?? current($log_entry->entry['urls'] ?? []) ?? null;
 
 				if(empty($url))
 					break;
 
-				if(0 == strcasecmp('ctx://',substr($url,0,6))) {
+				if(DevblocksPlatform::strStartsWith(strtolower($url), ['cerb:','ctx://'])) {
 					$url = self::getUrlFromContextUrl($url);
-					$entry['message'] .= ' <' . $url . '>';
+					$log_entry->entry['message'] .= ' <' . $url . '>';
 				} elseif(0 == strcasecmp('http',substr($url,0,4))) {
-					$entry['message'] .= ' <' . $url . '>';
+					$log_entry->entry['message'] .= ' <' . $url . '>';
 				} else {
 					$url = $url_writer->writeNoProxy($url, true);
-					$entry['message'] .= ' <' . $url . '>';
+					$log_entry->entry['message'] .= ' <' . $url . '>';
 				}
-				break;
-
-			default:
 				break;
 		}
 
 		if(!is_array($vars))
 			$vars = [];
 
-		return $tpl_builder->build($entry['message'], $vars);
+		return $tpl_builder->build($log_entry->entry['message'], $vars);
 	}
 
 	static function parseContextUrl($url) {
@@ -1988,16 +1974,6 @@ class CerberusContexts {
 	static function getUrlFromContextUrl($url) {
 		if (!($url_parts = self::parseContextUrl($url)))
 			return false;
-		}
-
-		$context_parts = explode('/', substr($url,6));
-		$context_pair = explode(':', $context_parts[0], 2);
-
-		if(count($context_pair) != 2)
-			return false;
-
-		$context = $context_pair[0];
-		$context_id = $context_pair[1];
 
 		return $url_parts['url'] ?? false;
 	}
@@ -2032,11 +2008,12 @@ class CerberusContexts {
 	static public function getCurrentActor($actor_context=null, $actor_context_id=null) {
 		// Forced actor
 		if(!empty($actor_context)) {
-			if(null != ($ctx = Extension_DevblocksContext::get($actor_context))
+			if(null != ($ctx = Extension_DevblocksContext::getByAlias($actor_context, true))
 				&& $ctx instanceof Extension_DevblocksContext) {
 				$meta = $ctx->getMeta($actor_context_id);
+				$actor_context = $ctx->id;
 				$actor_name = $meta['name'];
-				$actor_url = sprintf("ctx://%s:%d", $actor_context, $actor_context_id);
+				$actor_url = sprintf("cerb:%s:%d", $ctx->manifest->params['alias'] ?? $ctx->id, $actor_context_id);
 
 			} else {
 				$actor_context = null;
@@ -2059,14 +2036,14 @@ class CerberusContexts {
 				&& null != ($trigger_id = end($stack))
 				&& !empty($trigger_id)
 				&& null != ($trigger = DAO_TriggerEvent::get($trigger_id))
-				&& false != ($trigger_va = $trigger->getBot())
+				&& ($trigger_va = $trigger->getBot())
 			) {
 				/* @var $trigger Model_TriggerEvent */
 
 				$actor_name = sprintf("%s [%s]", $trigger_va->name, $trigger->title);
 				$actor_context = CerberusContexts::CONTEXT_BOT;
 				$actor_context_id = $trigger_va->id;
-				$actor_url = sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_BOT, $trigger_va->id);
+				$actor_url = sprintf("cerb:bot:%d", $trigger_va->id);
 
 			// Otherwise see if we have an active session
 			} else {
@@ -2075,11 +2052,12 @@ class CerberusContexts {
 					$actor_context = self::$_default_actor_context;
 					$actor_context_id = self::$_default_actor_context_id;
 
-					if(null != ($ctx = Extension_DevblocksContext::get($actor_context))
+					if(null != ($ctx = Extension_DevblocksContext::getByAlias($actor_context, true))
 						&& $ctx instanceof Extension_DevblocksContext) {
 						$meta = $ctx->getMeta($actor_context_id);
+						$actor_context = $ctx->id;
 						$actor_name = $meta['name'] ?? 'Cerb';
-						$actor_url = sprintf("ctx://%s:%d", $actor_context, $actor_context_id);
+						$actor_url = sprintf("cerb:%s:%d", $ctx->manifest->params['alias'] ?? $ctx->id, $actor_context_id);
 					}
 				}
 
@@ -2088,7 +2066,7 @@ class CerberusContexts {
 					$actor_name = $active_worker->getName();
 					$actor_context = CerberusContexts::CONTEXT_WORKER;
 					$actor_context_id = $active_worker->id;
-					$actor_url = sprintf("ctx://%s:%d", $actor_context, $actor_context_id);
+					$actor_url = sprintf("cerb:worker:%d", $actor_context_id);
 				}
 
 			}
@@ -2114,28 +2092,24 @@ class CerberusContexts {
 		$target_context = strval($target_context);
 		$target_context_id = intval($target_context_id);
 		
-		if(null != ($target_ctx = Extension_DevblocksContext::get($target_context))
+		if(null != ($target_ctx = Extension_DevblocksContext::getByAlias($target_context, true))
 			&& $target_ctx instanceof Extension_DevblocksContext) {
+				$target_context = $target_ctx->id;
 				$target_meta = $target_ctx->getMeta($target_context_id);
 		}
 		
 		$actor = self::getCurrentActor($actor_context, $actor_context_id);
 		
-		$entry_array['variables']['actor'] = $actor['name'];
-		
-		if(isset($actor['url']) && !empty($actor['url']))
-			$entry_array['urls']['actor'] = $actor['url'];
-		
 		// Activity Log
-		$activity_entry_id = DAO_ContextActivityLog::create(array(
+		$activity_entry_id = DAO_ContextActivityLog::create([
 			DAO_ContextActivityLog::ACTIVITY_POINT => $activity_point,
 			DAO_ContextActivityLog::CREATED => time(),
 			DAO_ContextActivityLog::ACTOR_CONTEXT => $actor['context'],
 			DAO_ContextActivityLog::ACTOR_CONTEXT_ID => $actor['context_id'],
 			DAO_ContextActivityLog::TARGET_CONTEXT => $target_context,
 			DAO_ContextActivityLog::TARGET_CONTEXT_ID => $target_context_id,
-			DAO_ContextActivityLog::ENTRY_JSON => json_encode($entry_array),
-		));
+			DAO_ContextActivityLog::ENTRY_JSON => $entry_array ? json_encode($entry_array) : '',
+		]);
 
 		// Tell target watchers about the activity
 
@@ -2158,13 +2132,24 @@ class CerberusContexts {
 		// Send notifications
 
 		if($do_notifications) {
+			// We need to generate `actor` and `target` for log events that use them (not stored in log events)
+			if($actor && !array_key_exists('actor', $entry_array['variables'] ?? [])) {
+				$entry_array['variables']['actor'] = $actor['name'];
+				$entry_array['urls']['actor'] = 'cerb:' . $actor['context'] . ':' . $actor['context_id'];
+			}
+			
+			if($target_context && is_array($target_meta ?? null) && !array_key_exists('target', $entry_array['variables'] ?? [])) {
+				$entry_array['variables']['target'] = $target_meta['name'] ?? $target_context;
+				$entry_array['urls']['target'] = 'cerb:' . $target_context . ':' . $target_context_id;
+			}
+			
 			$watchers = [];
 
 			// Merge in the record owner if defined
-			if(isset($target_meta) && isset($target_meta['owner_id']) && !empty($target_meta['owner_id'])) {
+			if(($target_meta['owner_id'] ?? null)) {
 				$watchers = array_merge(
 					$watchers,
-					array($target_meta['owner_id'])
+					[$target_meta['owner_id']]
 				);
 			}
 
@@ -2246,7 +2231,7 @@ class CerberusContexts {
 						continue;
 
 					// If yes, send it
-					DAO_Notification::create(array(
+					DAO_Notification::create([
 						DAO_Notification::CONTEXT => $target_context,
 						DAO_Notification::CONTEXT_ID => $target_context_id,
 						DAO_Notification::CREATED_DATE => time(),
@@ -2254,7 +2239,7 @@ class CerberusContexts {
 						DAO_Notification::WORKER_ID => $watcher_id,
 						DAO_Notification::ACTIVITY_POINT => $activity_point,
 						DAO_Notification::ENTRY_JSON => json_encode($entry_array),
-					));
+					]);
 				}
 			}
 		} // end if($do_notifications)
@@ -2714,14 +2699,10 @@ class CerberusContexts {
 		foreach(array_combine($record_ids, $record_labels) as $record_id => $record_label) {
 			$entry = [
 				// {{actor}} created {{record_type}} `{{target}}`
-				'message' => 'activities.record.create',
 				'variables' => [
 					'record_type' => DevblocksPlatform::strLower($context_mft->name),
-					'target' => $record_label
 				],
-				'urls' => [
-					'target' => sprintf('ctx://cerberusweb.contexts.worker:%d', $record_id)
-				],
+				'urls' => [],
 			];
 			CerberusContexts::logActivity('record.created', $context_mft->id, $record_id, $entry);
 		}
@@ -2765,7 +2746,6 @@ class CerberusContexts {
 		foreach(array_combine($record_ids, $record_labels) as $record_id => $record_label) {
 			$entry = [
 				// {{actor}} deleted {{record_type}} `{{record_label}}` (#{{record_id}})
-				'message' => 'activities.record.delete',
 				'variables' => [
 					'record_type' => DevblocksPlatform::strLower($context_mft->name),
 					'record_context' => $context_mft->id,

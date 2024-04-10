@@ -131,19 +131,11 @@ class DAO_Task extends Cerb_ORMHelper {
 		
 		/*
 		 * Log the activity of a new task being created
+		 * {{actor}} created task {{target}}
 		 */
 		
-		if(isset($fields[DAO_Task::TITLE])) {
-			$entry = array(
-				//{{actor}} created task {{target}}
-				'message' => 'activities.task.created',
-				'variables' => array(
-					'target' => $fields[DAO_Task::TITLE],
-					),
-				'urls' => array(
-					'target' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_TASK, $id),
-					)
-			);
+		if(($fields[DAO_Task::TITLE] ?? null)) {
+			$entry = [];
 			CerberusContexts::logActivity('task.created', CerberusContexts::CONTEXT_TASK, $id, $entry, null, null);
 		}
 		
@@ -354,17 +346,9 @@ class DAO_Task extends Cerb_ORMHelper {
 			if(isset($change_fields[DAO_Task::STATUS_ID]) && 1 ==  $model->status_id) {
 				/*
 				 * Log activity (task.status.*)
+				 * {{actor}} completed task {{target}}
 				 */
-				$entry = array(
-					//{{actor}} completed task {{target}}
-					'message' => 'activities.task.status.completed',
-					'variables' => array(
-						'target' => sprintf("%s", $model->title),
-						),
-					'urls' => array(
-						'target' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_TASK, $model->id)
-						)
-				);
+				$entry = [];
 				CerberusContexts::logActivity('task.status.completed', CerberusContexts::CONTEXT_TASK, $model->id, $entry);
 			}
 		}

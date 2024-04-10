@@ -63,7 +63,7 @@
 			<td data-column="label" colspan="{$smarty.foreach.headers.total}" style="font-size:12px;padding:2px 0 2px 5px;">
 				<input type="checkbox" name="row_id[]" value="{$result.we_id}" style="display:none;">
 				{* If we're looking at the target context, hide the text in the entry *}
-				{$entry = json_decode($result.we_entry_json, true)}
+				{$entry = Model_ContextActivityLogEntry::new($result.we_activity_point, json_decode($result.we_entry_json,true))}
 				{$params_req = $view->getParamsRequired()}
 				{if $result.we_is_read}<span class="glyphicons glyphicons-circle-ok" style="font-size:16px;"></span> {/if}
 				<span class="subject">{CerberusContexts::formatActivityLogEntry($entry,'html-cards',null,true) nofilter}</span>

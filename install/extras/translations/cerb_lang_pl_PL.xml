@@ -455,6 +455,26 @@
                 <seg>{{actor}} zmienił status zgłoszenia {{target}} na {{status}}</seg>
             </tuv>
         </tu>
+        <tu tuid="activities.ticket.status.open">
+            <tuv xml:lang="pl_PL">
+                <seg>{{actor}} zmienił status zgłoszenia {{target}} na otwórz</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activities.ticket.status.waiting">
+            <tuv xml:lang="pl_PL">
+                <seg>{{actor}} zmienił status zgłoszenia {{target}} na oczekujące</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activities.ticket.status.closed">
+            <tuv xml:lang="pl_PL">
+                <seg>{{actor}} zmienił status zgłoszenia {{target}} na zamknięte</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activities.ticket.status.deleted">
+            <tuv xml:lang="pl_PL">
+                <seg>{{actor}} zmienił status zgłoszenia {{target}} na usunięte</seg>
+            </tuv>
+        </tu>
         <tu tuid="activities.ticket.unassigned">
             <tuv xml:lang="pl_PL">
                 <seg>{{actor}} usunął przydział zgłoszenia {{target}}</seg>

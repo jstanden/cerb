@@ -880,16 +880,11 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			 */
 			$entry = [
 				//{{actor}} merged {{context_label}} {{source}} into {{context_label}} {{target}}
-				'message' => 'activities.record.merge',
 				'variables' => [
 					'context' => CerberusContexts::CONTEXT_TICKET,
 					'context_label' => 'ticket',
 					'source' => sprintf("[%s] %s", $tickets[$from_id]->mask, $tickets[$from_id]->subject),
-					'target' => sprintf("[%s] %s", $tickets[$to_id]->mask, $tickets[$to_id]->subject),
-					],
-				'urls' => [
-					'target' => sprintf("ctx://%s:%d/%s", CerberusContexts::CONTEXT_TICKET, $to_id, DevblocksPlatform::strToPermalink($tickets[$to_id]->subject)),
-					],
+				],
 			];
 			CerberusContexts::logActivity('record.merge', CerberusContexts::CONTEXT_TICKET, $to_id, $entry);
 		}

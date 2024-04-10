@@ -85,24 +85,20 @@ class DAO_CalendarEvent extends Cerb_ORMHelper {
 		
 		/*
 		 * Log the activity of a new event being created
+		 * {{actor}} created event {{event}} on calendar {{target}}
 		 */
-		
 		if(
-			isset($fields[DAO_CalendarEvent::CALENDAR_ID])
-			&& false != ($calendar = DAO_Calendar::get($fields[DAO_CalendarEvent::CALENDAR_ID]))
-			) {
-			$entry = array(
-				//{{actor}} created event {{event}} on calendar {{target}}
-				'message' => 'activities.calendar_event.created',
-				'variables' => array(
+			($fields[DAO_CalendarEvent::CALENDAR_ID] ?? null)
+			&& ($calendar = DAO_Calendar::get($fields[DAO_CalendarEvent::CALENDAR_ID]))
+		) {
+			$entry = [
+				'variables' => [
 					'event' => $fields[DAO_CalendarEvent::NAME],
-					'target' => $calendar->name,
-					),
-				'urls' => array(
-					'event' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_CALENDAR_EVENT, $id),
-					'target' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_CALENDAR, $calendar->id),
-					)
-			);
+				],
+				'urls' => [
+					'event' => sprintf("cerb:calendar_event:%d", $id),
+				]
+			];
 			CerberusContexts::logActivity('calendar_event.created', CerberusContexts::CONTEXT_CALENDAR, $calendar->id, $entry, null, null);
 		}
 		

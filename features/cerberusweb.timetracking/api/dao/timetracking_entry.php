@@ -314,24 +314,18 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 				} else {
 					$status_to = 'open';
 					$activity_point = 'timetracking.status.open';
-					
 				}
 				
 				if(!empty($status_to) && !empty($activity_point)) {
 					/*
 					 * Log activity (timetracking.status.*)
+					 * {{actor}} changed time tracking {{target}} to status {{status}}
 					 */
-					$entry = array(
-						//{{actor}} changed time tracking {{target}} to status {{status}}
-						'message' => 'activities.timetracking.status',
-						'variables' => array(
-							'target' => sprintf("%s", $model->getSummary()),
+					$entry = [
+						'variables' => [
 							'status' => $status_to,
-							),
-						'urls' => array(
-							'target' => sprintf("ctx://%s:%d/%s", CerberusContexts::CONTEXT_TIMETRACKING, $model->id, $model->getSummary()),
-							)
-					);
+						],
+					];
 					CerberusContexts::logActivity($activity_point, CerberusContexts::CONTEXT_TIMETRACKING, $model->id, $entry);
 				}
 				

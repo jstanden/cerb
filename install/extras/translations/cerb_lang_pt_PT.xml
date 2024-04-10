@@ -138,6 +138,26 @@
 				<seg>{{actor}} alterou o ticket {{target}} para o estado {{status}}</seg>
 			</tuv>
 		</tu>
+		<tu tuid="activities.ticket.status.open">
+			<tuv xml:lang="pt_PT">
+				<seg>{{actor}} alterou o ticket {{target}} para o estado aberto</seg>
+			</tuv>
+		</tu>
+		<tu tuid="activities.ticket.status.waiting">
+			<tuv xml:lang="pt_PT">
+				<seg>{{actor}} alterou o ticket {{target}} para o estado aguardar</seg>
+			</tuv>
+		</tu>
+		<tu tuid="activities.ticket.status.closed">
+			<tuv xml:lang="pt_PT">
+				<seg>{{actor}} alterou o ticket {{target}} para o estado fechado</seg>
+			</tuv>
+		</tu>
+		<tu tuid="activities.ticket.status.deleted">
+			<tuv xml:lang="pt_PT">
+				<seg>{{actor}} alterou o ticket {{target}} para o estado eliminado</seg>
+			</tuv>
+		</tu>
 		<tu tuid="activities.ticket.unassigned">
 			<tuv xml:lang="pt_PT">
 				<seg>{{actor}} retirou o ticket {{target}}</seg>
