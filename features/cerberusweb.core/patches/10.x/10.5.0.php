@@ -105,6 +105,15 @@ foreach($automation_files as $automation_file) {
 }
 
 // ===========================================================================
+// Update package library
+
+$packages = [
+	'cerb_profile_widget_ticket_participants.json',
+];
+
+CerberusApplication::packages()->importToLibraryFromFiles($packages, APP_PATH . '/features/cerberusweb.core/packages/library/');
+
+// ===========================================================================
 // Add event listener for cerb.reply.isBannedDefunct
 
 if(!$db->GetOneMaster("SELECT id FROM automation_event_listener WHERE event_name = 'mail.reply.validate' AND name = 'Banned'")) {
