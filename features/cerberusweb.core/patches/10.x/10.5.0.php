@@ -113,6 +113,8 @@ $packages = [
 
 CerberusApplication::packages()->importToLibraryFromFiles($packages, APP_PATH . '/features/cerberusweb.core/packages/library/');
 
+$db->ExecuteWriter("DELETE FROM package_library WHERE uri IN ('cerb_connected_service_nest')");
+
 // ===========================================================================
 // Add event listener for cerb.reply.isBannedDefunct
 
