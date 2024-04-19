@@ -1,0 +1,68 @@
+{
+  "package": {
+    "name": "Connected Service: Anthropic",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "10.4.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Anthropic",
+      "uri": "cerb_connected_service_anthropic",
+      "description": "Integration with Anthropic",
+      "instructions": "# Instructions\r\n\r\n* Enter your API key from <https://console.anthropic.com/settings/keys>",
+      "point": "connected_service",
+      "image": "data:image/png;base64,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"
+    },
+    "configure": {
+      "placeholders": [],
+      "prompts": [
+        {
+          "type": "text",
+          "label": "API Key",
+          "key": "prompt_api_key",
+          "params": {
+            "default": "",
+            "placeholder": "(paste your API Key)"
+          }
+        },
+        {
+          "type": "text",
+          "label": "Alias",
+          "key": "prompt_name",
+          "params": {
+            "default": "anthropic",
+            "placeholder": "(enter a URI, a-z,0-9,_)"
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "service_anthropic",
+      "_context": "connected_service",
+      "name": "Anthropic",
+      "extension_id": "cerb.service.provider.api_key",
+      "params": {
+        "api_base_url": "https://api.anthropic.com/",
+        "api_key_name": "x-api-key",
+        "api_key_location": "header"
+      }
+    },
+    {
+      "uid": "account_anthropic",
+      "_context": "connected_account",
+      "name": "Anthropic",
+      "service_id": "{{{uid.service_anthropic}}}",
+      "owner__context": "cerberusweb.contexts.app",
+      "owner_id": "0",
+      "uri": "{{{prompt_name}}}",
+      "params": {
+        "api_key": "{{{prompt_api_key}}}"
+      }
+    }
+  ]
+}

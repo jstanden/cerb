@@ -108,6 +108,7 @@ foreach($automation_files as $automation_file) {
 // Update package library
 
 $packages = [
+	'cerb_connected_service_anthropic.json',
 	'cerb_profile_widget_ticket_participants.json',
 ];
 
