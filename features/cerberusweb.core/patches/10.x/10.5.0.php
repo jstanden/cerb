@@ -89,6 +89,8 @@ if(array_key_exists('toolbar_kata', $columns)) {
 // Update built-in automations
 
 $automation_files = [
+	'ai.cerb.automationBuilder.action.recordGet.json',
+	'ai.cerb.automationBuilder.action.recordUpsert.json',
 	'ai.cerb.chooser.toolbar.json',
 	'cerb.reply.isBannedDefunct.json',
 ];
