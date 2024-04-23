@@ -269,11 +269,6 @@
                 <seg>[Baza wiedzy] Może zbiorczo aktualizować artykuły</seg>
             </tuv>
         </tu>
-        <tu tuid="acl.reports.group.bots">
-            <tuv xml:lang="pl_PL">
-                <seg/>
-            </tuv>
-        </tu>
         <tu tuid="acl.reports.group.custom_fields">
             <tuv xml:lang="pl_PL">
                 <seg>[Raporty] Może wyświetlać raporty w grupie 'Niestandardowe'</seg>
@@ -287,11 +282,6 @@
         <tu tuid="acl.reports.group.orgs">
             <tuv xml:lang="pl_PL">
                 <seg>[Raporty] Może wyświetlać raporty w grupie 'Organizacja'</seg>
-            </tuv>
-        </tu>
-        <tu tuid="acl.reports.group.snippets">
-            <tuv xml:lang="pl_PL">
-                <seg>[Raporty] Może wyświetlać raporty w grupie 'Snippety'</seg>
             </tuv>
         </tu>
         <tu tuid="acl.reports.group.spam">

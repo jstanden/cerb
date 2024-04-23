@@ -2978,33 +2978,23 @@ class DevblocksPlatform extends DevblocksEngine {
 	 */
 	static function getAclRegistry() {
 		$cache = DevblocksPlatform::services()->cache();
+		$plugins = DevblocksPlatform::getPluginRegistry();
+		
 		if(null !== ($acl = $cache->load(self::CACHE_ACL)))
 			return $acl;
-
-		$acl = array();
-
-		$db = DevblocksPlatform::services()->database();
-		if(is_null($db)) return;
-
-		//$plugins = self::getPluginRegistry();
-
-		$sql = "SELECT a.id, a.plugin_id, a.label ".
-			"FROM cerb_acl a ".
-			"INNER JOIN cerb_plugin p ON (a.plugin_id=p.id) ".
-			"WHERE p.enabled = 1 ".
-			"ORDER BY a.plugin_id, a.id ASC"
-			;
 		
-		if(false == ($results = $db->GetArrayMaster($sql)))
-			return false;
+		$acl = [];
 		
-		foreach($results as $row) {
-			$priv = new DevblocksAclPrivilege();
-			$priv->id = $row['id'];
-			$priv->plugin_id = $row['plugin_id'];
-			$priv->label = $row['label'];
-			
-			$acl[$priv->id] = $priv;
+		foreach($plugins as $plugin) { /* @var $plugin DevblocksPluginManifest */
+			if($plugin->enabled) {
+				foreach ($plugin->getPermissions() as $point => $data) {
+					$priv = new DevblocksAclPrivilege();
+					$priv->id = $point;
+					$priv->plugin_id = $plugin->id;
+					$priv->label = $data['label'] ?? $point;
+					$acl[$point] = $priv;
+				}
+			}
 		}
 		
 		// Merge in custom permissions from workflows

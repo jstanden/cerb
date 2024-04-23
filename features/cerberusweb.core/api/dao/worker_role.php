@@ -1386,7 +1386,7 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 		foreach($acls as $acl) {
 			$plugin_id = $acl->plugin_id;
 			
-			if(empty($plugin_id) || !isset($plugins_acl[$plugin_id]))
+			if(!$plugin_id || !array_key_exists($plugin_id, $plugins_acl))
 				continue;
 			
 			$plugins_acl[$plugin_id]['privs'][$acl->id] = DevblocksPlatform::translate($acl->label);

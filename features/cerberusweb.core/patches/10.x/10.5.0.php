@@ -107,6 +107,11 @@ foreach($automation_files as $automation_file) {
 }
 
 // ===========================================================================
+// Cleanup ACL and translations for old plugins
+
+$db->ExecuteWriter("DELETE FROM translation WHERE string_id IN ('acl.reports.group.bots','acl.reports.group.snippets')");
+
+// ===========================================================================
 // Update package library
 
 $packages = [

@@ -3219,6 +3219,13 @@ class DevblocksPluginManifest {
 		return $patches;
 	}
 	
+	function getPermissions() : array {
+		if(array_key_exists('permissions', $this->manifest_cache))
+			return $this->manifest_cache['permissions'];
+		
+		return [];
+	}
+	
 	function checkRequirements() {
 		$this->_requirements_errors = [];
 		

@@ -188,6 +188,17 @@ abstract class DevblocksEngine {
 			);
 		}
 		
+		// Permissions
+		$manifest->manifest_cache['permissions'] = [];
+		if(isset($plugin->acl->priv))
+		foreach($plugin->acl->priv as $ePriv) {
+			$priv_id = (string) $ePriv['id'];
+			$label = (string) $ePriv['label'];
+			$manifest->manifest_cache['permissions'][$priv_id] = [
+				'label' => $label,
+			];
+		}
+		
 		// If we're not persisting, return
 		if(!$persist)
 			return $manifest;
@@ -443,19 +454,6 @@ abstract class DevblocksEngine {
 				$db->qstr($class),
 				$db->qstr($manifest->id),
 				$db->qstr($file_path)
-			));
-		}
-
-		// ACL caching
-		$db->ExecuteMaster(sprintf("DELETE FROM cerb_acl WHERE plugin_id = %s",$db->qstr($plugin->id)));
-		if(is_array($manifest->acl_privs))
-		foreach($manifest->acl_privs as $priv) { /* @var $priv DevblocksAclPrivilege */
-			$db->ExecuteMaster(sprintf(
-				"REPLACE INTO cerb_acl (id,plugin_id,label) ".
-				"VALUES (%s,%s,%s)",
-				$db->qstr($priv->id),
-				$db->qstr($priv->plugin_id),
-				$db->qstr($priv->label)
 			));
 		}
 
