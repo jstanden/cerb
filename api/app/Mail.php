@@ -2051,7 +2051,7 @@ class CerberusMail {
 						@$content_format = $message_properties['content_format'] ?: '';
 						@$html_template_id = $message_properties['html_template_id'] ?: 0;
 						
-						if(false == ($group = DAO_Group::get($group_id))) {
+						if(!($group = DAO_Group::get($group_id))) {
 							$line = '';
 							break;
 						}
@@ -2063,14 +2063,14 @@ class CerberusMail {
 							case 'parsedown':
 								// Determine if we have an HTML template
 								
-								if(!$html_template_id || false == ($html_template = DAO_MailHtmlTemplate::get($html_template_id))) {
-									if(false == ($html_template = $group->getReplyHtmlTemplate($bucket->id)))
+								if(!$html_template_id || !($html_template = DAO_MailHtmlTemplate::get($html_template_id))) {
+									if(!($html_template = $group->getReplyHtmlTemplate($bucket->id)))
 										$html_template = null;
 								}
 								
 								// Determine signature
 								
-								if(!$html_template || false == ($signature = $html_template->getSignature($worker, 'html'))) {
+								if(!$html_template || !($signature = $html_template->getSignature($worker, 'html'))) {
 									$signature = $group->getReplySignature($bucket->id, $worker, true);
 								}
 								

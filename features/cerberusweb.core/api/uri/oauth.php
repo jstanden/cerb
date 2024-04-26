@@ -171,12 +171,13 @@ class Controller_OAuth extends DevblocksControllerExtension {
 				} catch(OAuthServerException $e) {
 					http_response_code($e->getHttpStatusCode());
 					echo $e->getMessage(); 
+					DevblocksPlatform::logException($e);
 					return;
 					
 				} catch (Exception $e) {
 					http_response_code(500);
 					echo "An unexpected error occurred. Please try again later.";
-					error_log($e->getMessage());
+					DevblocksPlatform::logException($e);
 					return;
 				}
 				
@@ -201,6 +202,7 @@ class Controller_OAuth extends DevblocksControllerExtension {
 				} catch(OAuthServerException $e) {
 					http_response_code($e->getHttpStatusCode());
 					echo $e->getMessage();
+					DevblocksPlatform::logException($e);
 					return;
 					
 				} catch(Exception $e) {

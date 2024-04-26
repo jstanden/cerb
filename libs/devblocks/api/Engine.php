@@ -408,7 +408,7 @@ abstract class DevblocksEngine {
 		}
 
 		// [JAS]: Extension caching
-		$new_extensions = array();
+		$new_extensions = [];
 		if(is_array($manifest->extensions))
 		foreach($manifest->extensions as $pos => $extension) { /* @var $extension DevblocksExtensionManifest */
 			$db->ExecuteMaster(sprintf(

@@ -60,7 +60,7 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_CONNECTED_ACCOUNT)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
-				if(false == ($model = DAO_ConnectedAccount::get($id)))
+				if(!($model = DAO_ConnectedAccount::get($id)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
 				
 				if(!Context_ConnectedAccount::isDeletableByActor($model, $active_worker))
@@ -70,11 +70,11 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 				
 				DAO_ConnectedAccount::delete($id);
 				
-				echo json_encode(array(
+				echo json_encode([
 					'status' => true,
 					'id' => $id,
 					'view_id' => $view_id,
-				));
+				]);
 				return;
 				
 			} else {
@@ -87,12 +87,12 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 				
 				// Edit
 				if($id) {
-					if(false == ($account = DAO_ConnectedAccount::get($id))
+					if(!($account = DAO_ConnectedAccount::get($id))
 						|| !Context_ConnectedAccount::isWriteableByActor($account, $active_worker)
 						)
 						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
 						
-					if(false == ($service_extension = $account->getServiceExtension()))
+					if(!($service_extension = $account->getServiceExtension()))
 						throw new Exception_DevblocksAjaxValidationError("Invalid service provider.");
 					
 					$fields = array(
@@ -131,7 +131,7 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 					
 					$account->service_id = $service_id;
 					
-					if(false == ($service_extension = $account->getServiceExtension()))
+					if(!($service_extension = $account->getServiceExtension()))
 						throw new Exception_DevblocksAjaxValidationError("Invalid service provider.");
 					
 					$fields = array(
@@ -208,29 +208,29 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 					if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_CONNECTED_ACCOUNT, $id, $field_ids, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
-					echo json_encode(array(
+					echo json_encode([
 						'status' => true,
 						'id' => $id,
 						'label' => $name,
 						'view_id' => $view_id,
-					));
+					]);
 				}
 				return;
 			}
 			
 		} catch (Exception_DevblocksAjaxValidationError $e) {
-			echo json_encode(array(
+			echo json_encode([
 				'status' => false,
 				'error' => $e->getMessage(),
 				'field' => $e->getFieldName(),
-			));
+			]);
 			return;
 			
 		} catch (Exception $e) {
-			echo json_encode(array(
+			echo json_encode([
 				'status' => false,
 				'error' => 'An error occurred.',
-			));
+			]);
 			return;
 		}
 	}
@@ -250,7 +250,7 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 		$account_id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null, 'integer', 0);
 		$service_id = DevblocksPlatform::importGPC($_REQUEST['service_id'] ?? null, 'integer', 0);
 		
-		if(false == ($service = DAO_ConnectedService::get($service_id)))
+		if(!($service = DAO_ConnectedService::get($service_id)))
 			DevblocksPlatform::dieWithHttpError("Invalid service provider.");
 		
 		if(!Context_ConnectedService::isReadableByActor($service, $active_worker))
@@ -258,7 +258,7 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 		
 		$account = null;
 		
-		if($account_id && false == ($account = DAO_ConnectedAccount::get($account_id)))
+		if($account_id && !($account = DAO_ConnectedAccount::get($account_id)))
 			DevblocksPlatform::dieWithHttpError("Invalid connected account.");
 		
 		if($account && !Context_ConnectedAccount::isWriteableByActor($account, $active_worker))
@@ -286,7 +286,7 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 		if(false === $validation->validateAll($edit_params, $error))
 			DevblocksPlatform::dieWithHttpError($error);
 		
-		if(false == ($ext = $service->getExtension()))
+		if(!($ext = $service->getExtension()))
 			DevblocksPlatform::dieWithHttpError("Invalid service provider extension.");
 		
 		$ext->oauthRender();

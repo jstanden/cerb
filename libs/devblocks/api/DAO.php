@@ -246,7 +246,7 @@ abstract class DevblocksORMHelper {
 					;
 					break;
 				default:
-					if(false != ($field_ext = Extension_CustomField::get($custom_field->type))) {
+					if(($field_ext = Extension_CustomField::get($custom_field->type))) {
 						$field_ext->validationRegister($custom_field, $validation);
 					}
 					break;
@@ -1672,23 +1672,6 @@ class DAO_Translation extends DevblocksORMHelper {
 		}
 		
 		return $map;
-	}
-	
-	// [TODO] Allow null 2nd arg for all instances of a given string?
-	static function getString($string_id, $lang='en_US') {
-		$db = DevblocksPlatform::services()->database();
-		
-		$objects = self::getWhere(sprintf("%s = %s AND %s = %s",
-			self::STRING_ID,
-			$db->qstr($string_id),
-			self::LANG_CODE,
-			$db->qstr($lang)
-		));
-
-		if(!empty($objects) && is_array($objects))
-			return array_shift($objects);
-		
-		return null;
 	}
 	
 	/**

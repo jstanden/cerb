@@ -1020,7 +1020,7 @@ class Model_MailQueue extends DevblocksRecordModel {
 			
 			switch($ticket_custom_fields[$field_id]->type) {
 				case Model_CustomField::TYPE_CURRENCY:
-					if(false == ($currency = DAO_Currency::get($ticket_custom_fields[$field_id]->params['currency_id'] ?? 0)))
+					if(!($currency = DAO_Currency::get($ticket_custom_fields[$field_id]->params['currency_id'] ?? 0)))
 						break;
 					
 					$field_value = DevblocksPlatform::strParseDecimal($field_value, $currency->decimal_at);

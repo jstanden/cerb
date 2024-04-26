@@ -43,7 +43,7 @@ class ServiceProvider_SAML extends Extension_ConnectedServiceProvider {
 			->setRequired(true)
 			;
 		
-		if(false == $validation->validateAll($edit_params, $error))
+		if(!$validation->validateAll($edit_params, $error))
 			return false;
 		
 		foreach($edit_params as $k => $v)
@@ -63,7 +63,7 @@ class ServiceProvider_SAML extends Extension_ConnectedServiceProvider {
 	private function _getSamlSettings(Model_ConnectedService $service=null) {
 		$url_service = DevblocksPlatform::services()->url();
 		
-		if(false == ($uri = $service->uri))
+		if(!($uri = $service->uri))
 			return false;
 		
 		$entity_id = $url_service->write(sprintf('c=sso&uri=%s&a=metadata', $uri), true);
@@ -182,7 +182,6 @@ class ServiceProvider_SAML extends Extension_ConnectedServiceProvider {
 					;
 				
 				DevblocksPlatform::redirect(new DevblocksHttpRequest(['login','authenticated']), 0);
-				break;
 			
 			case 'metadata':
 				try {

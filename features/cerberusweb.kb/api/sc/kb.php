@@ -109,7 +109,7 @@ class UmScKbController extends Extension_UmScController {
 				
 				$id = intval(array_shift($stack));
 
-				list($articles, $count) = DAO_KbArticle::search(
+				list($articles,) = DAO_KbArticle::search(
 					array(),
 					array(
 						new DevblocksSearchCriteria(SearchFields_KbArticle::ID,'=',$id),
@@ -135,13 +135,13 @@ class UmScKbController extends Extension_UmScController {
 				
 				// Article list
 
-				@$article_list = $umsession->getProperty(self::SESSION_ARTICLE_LIST, array());
-				if(!empty($article) && !isset($article_list[$id])) {
+				$article_list = $umsession->getProperty(self::SESSION_ARTICLE_LIST, []);
+				if(!empty($article) && !($article_list[$id] ?? null)) {
 					DAO_KbArticle::update($article->id, [
 						DAO_KbArticle::VIEWS => ++$article->views,
 						DAO_KbArticle::UPDATED => $article->updated,
 					]);
-					$article_list[$id] = $id;
+					$article_list[$id] = true;
 					$umsession->setProperty(self::SESSION_ARTICLE_LIST, $article_list);
 				}
 

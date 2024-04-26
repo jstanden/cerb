@@ -1422,7 +1422,7 @@ class Search_MessageContent extends Extension_DevblocksSearchSchema {
 	}
 	
 	public function delete($ids) {
-		if(false == ($engine = $this->getEngine()))
+		if(!($engine = $this->getEngine()))
 			return false;
 		
 		return $engine->delete($this, $ids);

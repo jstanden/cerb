@@ -1849,7 +1849,7 @@ $.fn.cerbDateInputHelper = function(options) {
 				$(this).addClass('changed', true);
 				
 				// If the worker hit enter and we're not showing an autocomplete menu
-				if(e.which == 13) {
+				if(e.which === 13) {
 					e.preventDefault();
 
 					if($(this).is('.autocomplete_select')) {

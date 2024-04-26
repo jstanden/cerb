@@ -34,8 +34,9 @@ class UmScHistoryController extends Extension_UmScController {
 		$mask = array_shift($stack);
 		
 		$shared_address_ids = DAO_SupportCenterAddressShare::getContactAddressesWithShared($active_contact->id, true);
+		
 		if(empty($shared_address_ids))
-			$shared_address_ids = array(-1);
+			$shared_address_ids = [-1];
 		
 		if(!$mask) {
 			// Ticket history
@@ -102,7 +103,7 @@ class UmScHistoryController extends Extension_UmScController {
 			
 		} else {
 			// If this is an invalid ticket mask, deny access
-			if(false == ($ticket = DAO_Ticket::getTicketByMask($mask)))
+			if(!($ticket = DAO_Ticket::getTicketByMask($mask)))
 				DevblocksPlatform::dieWithHttpError(null, 404);
 			
 			$participants = $ticket->getRequesters();

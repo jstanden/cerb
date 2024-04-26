@@ -704,7 +704,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 				case Model_CustomField::TYPE_CURRENCY:
 					$currency_id = $field->params['currency_id'] ?? null;
 					
-					if($currency_id && false !=  ($currency = DAO_Currency::get($currency_id))) {
+					if($currency_id && ($currency = DAO_Currency::get($currency_id))) {
 						$values[$field_id] = DevblocksPlatform::strParseDecimal($value, $currency->decimal_at, '.');
 					}
 					break;
@@ -1048,7 +1048,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 				case Model_CustomField::TYPE_CURRENCY:
 					$currency_id = $field->params['currency_id'] ?? null;
 					
-					if($currency_id && false !=  ($currency = DAO_Currency::get($currency_id))) {
+					if($currency_id && ($currency = DAO_Currency::get($currency_id))) {
 						$value = DevblocksPlatform::strParseDecimal($value, $currency->decimal_at, '.');
 						self::setFieldValue($context, $context_id, $field_id, $value);
 					}
@@ -1267,16 +1267,12 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					
 				case Model_CustomField::TYPE_CURRENCY:
 				case Model_CustomField::TYPE_DECIMAL:
+				case Model_CustomField::TYPE_DROPDOWN:
 				case Model_CustomField::TYPE_FILE:
 				case Model_CustomField::TYPE_LINK:
 				case Model_CustomField::TYPE_NUMBER:
-					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
+					$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id] ?? null,'string','');
 					$field_value = (0==strlen($field_value)) ? '' : intval($field_value);
-					$do['cf_'.$field_id] = array('value' => $field_value);
-					break;
-					
-				case Model_CustomField::TYPE_DROPDOWN:
-					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
 					$do['cf_'.$field_id] = array('value' => $field_value);
 					break;
 					
@@ -1670,7 +1666,7 @@ class Model_CustomField extends DevblocksRecordModel {
 		
 		if(array_key_exists($type, $type_extensions)) {
 			/** @var $field_ext Extension_CustomField */
-			if(false == ($field_ext = Extension_CustomField::get($type, true)))
+			if(!($field_ext = Extension_CustomField::get($type, true)))
 				return false;
 			
 			return $field_ext->hasMultipleValues();
@@ -1682,7 +1678,7 @@ class Model_CustomField extends DevblocksRecordModel {
 	function getName() {
 		$label = '';
 		
-		if(false != ($fieldset = self::getFieldset()))
+		if(($fieldset = self::getFieldset()))
 			$label = $fieldset->name . ' ';
 		
 		$label .= $this->name;
@@ -1698,7 +1694,7 @@ class Model_CustomField extends DevblocksRecordModel {
 	}
 	
 	function renderConfig() {
-		if(false != ($custom_field_extension = Extension_CustomField::get($this->type, true))) {
+		if(($custom_field_extension = Extension_CustomField::get($this->type, true))) {
 			/** @var $custom_field_extension Extension_CustomField */
 			$custom_field_extension->renderConfig($this);
 			

@@ -752,12 +752,12 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 			$url_writer = DevblocksPlatform::services()->url();
 			
 			// Move the temp file to attachments
-			$fields = array(
+			$fields = [
 				DAO_Attachment::NAME => $file_name,
 				DAO_Attachment::MIME_TYPE => $mime_type,
 				DAO_Attachment::STORAGE_SHA1HASH => $sha1_hash,
 				DAO_Attachment::UPDATED => time(),
-			);
+			];
 			
 			if(!($id = DAO_Attachment::create($fields)))
 				return false;

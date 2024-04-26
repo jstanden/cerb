@@ -1296,7 +1296,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			sprintf('AND (first_name LIKE %s OR last_name LIKE %s %s) ',
 				$db->qstr($term.'%'),
 				$db->qstr($term.'%'),
-				(false != strpos($term,' ')
+				(str_contains($term, ' ')
 					? sprintf("OR concat(first_name,' ',last_name) LIKE %s ", $db->qstr($term.'%'))
 					: '')
 			).

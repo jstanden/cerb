@@ -92,12 +92,12 @@ class ServiceProvider_OAuth1 extends Extension_ConnectedServiceProvider implemen
 		
 		// Decrypt OAuth params
 		if(isset($edit_params['params_json'])) {
-			if(false == ($outh_params_json = $encrypt->decrypt($edit_params['params_json']))) {
+			if(!($outh_params_json = $encrypt->decrypt($edit_params['params_json']))) {
 				$error = "The connected account authentication is invalid.";
 				return false;
 			}
 				
-			if(false == ($oauth_params = json_decode($outh_params_json, true))) {
+			if(!($oauth_params = json_decode($outh_params_json, true))) {
 				$error = "The connected account authentication is malformed.";
 				return false;
 			}
@@ -114,7 +114,7 @@ class ServiceProvider_OAuth1 extends Extension_ConnectedServiceProvider implemen
 		$form_id = DevblocksPlatform::importGPC($_REQUEST['form_id'] ?? null, 'string', '');
 		$service_id = DevblocksPlatform::importGPC($_REQUEST['service_id'] ?? null, 'integer', 0);
 		
-		if(false == ($service = DAO_ConnectedService::get($service_id)))
+		if(!($service = DAO_ConnectedService::get($service_id)))
 			DevblocksPlatform::dieWithHttpError();
 		
 		// Store the $form_id in the session
@@ -123,7 +123,7 @@ class ServiceProvider_OAuth1 extends Extension_ConnectedServiceProvider implemen
 		
 		$url_writer = DevblocksPlatform::services()->url();
 		
-		if(false == ($service_params = $service->decryptParams())) {
+		if(!($service_params = $service->decryptParams())) {
 			echo DevblocksPlatform::strEscapeHtml(sprintf("ERROR: The consumer key and secret aren't configured for %s.", $service->name));
 			return false;
 		}
@@ -159,10 +159,10 @@ class ServiceProvider_OAuth1 extends Extension_ConnectedServiceProvider implemen
 		
 		$encrypt = DevblocksPlatform::services()->encryption();
 		
-		if(false == ($service = DAO_ConnectedService::get($service_id)))
+		if(!($service = DAO_ConnectedService::get($service_id)))
 			DevblocksPlatform::dieWithHttpError('Invalid service', 403);
 		
-		if(false == ($service_params = $service->decryptParams()))
+		if(!($service_params = $service->decryptParams()))
 			DevblocksPlatform::dieWithHttpError('Invalid service parameters', 403);
 		
 		$oauth_token = $_REQUEST['oauth_token'];
@@ -185,10 +185,10 @@ class ServiceProvider_OAuth1 extends Extension_ConnectedServiceProvider implemen
 	function authenticateHttpRequest(Model_ConnectedAccount $account, Psr\Http\Message\RequestInterface &$request, array &$options = []) : bool {
 		$account_params = $account->decryptParams();
 		
-		if(false == ($service = $account->getService()))
+		if(!($service = $account->getService()))
 			return false;
 		
-		if(false == ($service_params = $service->decryptParams()))
+		if(!($service_params = $service->decryptParams()))
 			return false;
 		
 		$signature_method = $service_params['signature_method'] ?? $service_params['signature_method_'] ?? 'HMAC-SHA1';
@@ -233,10 +233,8 @@ class ServiceProvider_OAuth2 extends Extension_ConnectedServiceProvider implemen
 		
 		try {
 			$provider = new Cerb_OAuth2Provider($settings);
-		} catch (InvalidArgumentException $e) {
-			error_log($e->getMessage());
 		} catch (Exception $e) {
-			error_log($e->getMessage());
+			DevblocksPlatform::logException($e);
 		}
 		
 		return $provider;
@@ -329,12 +327,12 @@ class ServiceProvider_OAuth2 extends Extension_ConnectedServiceProvider implemen
 		
 		// Decrypt OAuth params
 		if(isset($edit_params['params_json'])) {
-			if(false == ($outh_params_json = $encrypt->decrypt($edit_params['params_json']))) {
+			if(!($outh_params_json = $encrypt->decrypt($edit_params['params_json']))) {
 				$error = "The connected account authentication is invalid.";
 				return false;
 			}
 				
-			if(false == ($oauth_params = json_decode($outh_params_json, true))) {
+			if(!($oauth_params = json_decode($outh_params_json, true))) {
 				$error = "The connected account authentication is malformed.";
 				return false;
 			}
@@ -360,7 +358,7 @@ class ServiceProvider_OAuth2 extends Extension_ConnectedServiceProvider implemen
 		$form_id = DevblocksPlatform::importGPC($_REQUEST['form_id'] ?? null, 'string', '');
 		$service_id = DevblocksPlatform::importGPC($_REQUEST['service_id'] ?? null, 'integer', 0);
 		
-		if(false == ($service = DAO_ConnectedService::get($service_id)))
+		if(!($service = DAO_ConnectedService::get($service_id)))
 			DevblocksPlatform::dieWithHttpError();
 		
 		$provider = $this->_getProvider($service);
@@ -395,10 +393,10 @@ class ServiceProvider_OAuth2 extends Extension_ConnectedServiceProvider implemen
 		
 		$encrypt = DevblocksPlatform::services()->encryption();
 		
-		if(false == ($service = DAO_ConnectedService::get($service_id)))
+		if(!($service = DAO_ConnectedService::get($service_id)))
 			DevblocksPlatform::dieWithHttpError('Invalid service', 403);
 		
-		if(false == ($provider = $this->_getProvider($service)))
+		if(!($provider = $this->_getProvider($service)))
 			DevblocksPlatform::dieWithHttpError('Failed to load provider details', 403);
 		
 		try {
@@ -421,11 +419,11 @@ class ServiceProvider_OAuth2 extends Extension_ConnectedServiceProvider implemen
 			$tpl->display('devblocks:cerberusweb.core::internal/connected_account/oauth_callback.tpl');
 			
 		} catch (IdentityProviderException $e) {
-			error_log($e->getMessage());
+			DevblocksPlatform::logException($e);
 			DevblocksPlatform::dieWithHttpError($e->getMessage(), 403);
 			
 		} catch (Exception $e) {
-			error_log($e->getMessage());
+			DevblocksPlatform::logException($e);
 			DevblocksPlatform::dieWithHttpError($e->getMessage(), 403);
 		}
 	}
@@ -448,14 +446,14 @@ class ServiceProvider_OAuth2 extends Extension_ConnectedServiceProvider implemen
 	 * @return AccessToken|false
 	 */
 	function getAccessToken(Model_ConnectedAccount $account) {
-		if(false == ($params = $account->decryptParams()))
+		if(!($params = $account->decryptParams()))
 			return false;
 		
 		$access_token = new AccessToken($params);
 		
 		// If expired, try the refresh token
 		if($access_token->getExpires() && $access_token->hasExpired()) {
-			if(false == ($access_token = $this->_refreshToken($access_token, $params, $account)))
+			if(!($access_token = $this->_refreshToken($access_token, $params, $account)))
 				return false;
 		}
 		
@@ -464,13 +462,13 @@ class ServiceProvider_OAuth2 extends Extension_ConnectedServiceProvider implemen
 	
 	private function _refreshToken(AccessToken $access_token, array $params, Model_ConnectedAccount $account) {
 		try {
-			if(false == ($service = $account->getService()))
+			if(!($service = $account->getService()))
 				return false;
 			
-			if(false == ($provider = $this->_getProvider($service)))
+			if(!($provider = $this->_getProvider($service)))
 				return false;
 			
-			if(false == ($refresh_token = $access_token->getRefreshToken()))
+			if(!($refresh_token = $access_token->getRefreshToken()))
 				return false;
 			
 			$access_token = $provider->getAccessToken('refresh_token', [
@@ -492,13 +490,13 @@ class ServiceProvider_OAuth2 extends Extension_ConnectedServiceProvider implemen
 	}
 	
 	function authenticateHttpRequest(Model_ConnectedAccount $account, Psr\Http\Message\RequestInterface &$request, array &$options = []) : bool {
-		if(false == ($access_token = $this->getAccessToken($account)))
+		if(!($access_token = $this->getAccessToken($account)))
 			return false;
 		
-		if(false == ($service = $account->getService()))
+		if(!($service = $account->getService()))
 			return false;
 		
-		if(false == ($provider = $this->_getProvider($service)))
+		if(!($provider = $this->_getProvider($service)))
 			return false;
 		
 		$authed_request = $provider->getAuthenticatedRequest(

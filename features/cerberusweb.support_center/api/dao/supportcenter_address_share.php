@@ -54,7 +54,7 @@ class DAO_SupportCenterAddressShare extends Cerb_ORMHelper {
 		}
 
 		if(empty($ids))
-			return array();
+			return [];
 			
 		if($only_ids)
 			return $ids;
@@ -67,7 +67,7 @@ class DAO_SupportCenterAddressShare extends Cerb_ORMHelper {
 	
 	static function setSharedWith($share_address_id, $with_address_ids) {
 		if(!is_array($with_address_ids))
-			$with_address_ids = array($with_address_ids);
+			$with_address_ids = [$with_address_ids];
 		
 		$db = DevblocksPlatform::services()->database();
 		

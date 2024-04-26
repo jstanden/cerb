@@ -169,10 +169,10 @@ class DAO_MailToGroupRule extends Cerb_ORMHelper {
 	 * @return Model_MailToGroupRule[]
 	 */
 	static private function _getObjectsFromResult($rs) {
-		$objects = array();
+		$objects = [];
 		
 		if(!($rs instanceof mysqli_result))
-			return false;
+			return [];
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_MailToGroupRule();
@@ -453,7 +453,7 @@ class Model_MailToGroupRule {
 									
 									$currency_id = $field->params['currency_id'] ?? null;
 									
-									if(false == ($currency = DAO_Currency::get($currency_id)))
+									if(!($currency = DAO_Currency::get($currency_id)))
 										break;
 									
 									$field_val = $currency->format($field_val, false);

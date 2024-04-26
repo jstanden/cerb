@@ -679,7 +679,7 @@ class CustomField_RecordLinks extends Extension_CustomField {
 	}
 
 	function getParamFromQueryFieldTokens($field, $tokens, $param_key) {
-		if($param_key && false != $param = DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, $param_key))
+		if($param_key && ($param = DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, $param_key)))
 			return $param;
 		
 		return null;
@@ -690,13 +690,13 @@ class CustomField_RecordLinks extends Extension_CustomField {
 			case DevblocksSearchCriteria::OPER_CUSTOM:
 				$links_context = $field->params['context'] ?? null;
 				
-				if(false == ($context_ext = Extension_DevblocksContext::get($field->context, true)))
+				if(!($context_ext = Extension_DevblocksContext::get($field->context, true)))
 					return null;
 				
-				if(false == ($search_class = $context_ext->getSearchClass()))
+				if(!($search_class = $context_ext->getSearchClass()))
 					return null;
 				
-				if(false == ($cfield_key = $search_class::getCustomFieldContextWhereKey($field->context)))
+				if(!($cfield_key = $search_class::getCustomFieldContextWhereKey($field->context)))
 					return null;
 				
 				/** @noinspection SqlResolve */
@@ -706,15 +706,12 @@ class CustomField_RecordLinks extends Extension_CustomField {
 					'%s'
 				);
 				
-				$where_sql = $search_class::_getWhereSQLFromVirtualSearchSqlField(
+				return $search_class::_getWhereSQLFromVirtualSearchSqlField(
 					$param,
 					$links_context,
 					$subquery_sql,
 					$cfield_key
 				);
-				
-				return $where_sql;
-				break;
 		}
 	}
 	

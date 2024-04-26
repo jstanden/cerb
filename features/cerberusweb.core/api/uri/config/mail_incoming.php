@@ -496,7 +496,7 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 					
 				default: // ignore invalids
 					// Custom fields
-					if("cf_" == substr($act,0,3)) {
+					if(str_starts_with($act, "cf_")) {
 						$field_id = intval(substr($act,3));
 						
 						@$custom_field = $custom_fields[$field_id];

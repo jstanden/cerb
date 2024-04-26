@@ -1739,7 +1739,7 @@ abstract class C4_AbstractView {
 				case Model_CustomField::TYPE_CURRENCY:
 					$currency_id = $cfield->params['currency_id'] ?? 0;
 					
-					if(!$currency_id || false == ($currency = DAO_Currency::get($currency_id)))
+					if(!$currency_id || !($currency = DAO_Currency::get($currency_id)))
 						break;
 					
 					$search_field_meta['type'] = DevblocksSearchCriteria::TYPE_DECIMAL;
@@ -4707,12 +4707,12 @@ class C4_AbstractViewModel {
 		if(empty($class_name))
 			return false;
 		
-		if(false == ($class = new $class_name))
+		if(!($class = new $class_name))
 			return false;
 		
 		$class->setAutoPersist(false);
 		
-		if(false == ($inst = C4_AbstractViewLoader::serializeAbstractView($class)))
+		if(!($inst = C4_AbstractViewLoader::serializeAbstractView($class)))
 			return false;
 		
 		return $inst;
@@ -4760,7 +4760,7 @@ class C4_AbstractViewLoader {
 	static function setView($view_id, C4_AbstractView $view) {
 		$worker_id = 0;
 
-		if(false == ($active_worker = CerberusApplication::getActiveWorker()))
+		if(!($active_worker = CerberusApplication::getActiveWorker()))
 			return;
 		
 		$worker_id = $active_worker->id;
@@ -4768,7 +4768,7 @@ class C4_AbstractViewLoader {
 		$exit_model = self::serializeAbstractView($view);
 		
 		// Is the view dirty? (do we need to persist it?)
-		if(false != ($_init_checksum = ($view->_init_checksum ?? null))) {
+		if(($_init_checksum = ($view->_init_checksum ?? null))) {
 			unset($view->_init_checksum);
 			$_exit_checksum = sha1(serialize($exit_model));
 			
@@ -4802,7 +4802,7 @@ class C4_AbstractViewLoader {
 		$parent->setAutoPersist(false);
 
 		$model->id = $view->id;
-		$model->is_ephemeral = $view->is_ephemeral ? true : false;
+		$model->is_ephemeral = (bool)$view->is_ephemeral;
 		$model->name = $view->name;
 		$model->options = $view->options;
 		
@@ -4835,6 +4835,9 @@ class C4_AbstractViewLoader {
 		if(!class_exists($model->class_name, true))
 			return null;
 		
+		if(!is_a($model->class_name, 'C4_AbstractView', true))
+			return null;
+		
 		if(null == ($inst = new $model->class_name))
 			return null;
 		
@@ -4843,7 +4846,7 @@ class C4_AbstractViewLoader {
 		if(!empty($model->id))
 			$inst->id = $model->id;
 		if(null !== $model->is_ephemeral)
-			$inst->is_ephemeral = $model->is_ephemeral ? true : false;
+			$inst->is_ephemeral = (bool)$model->is_ephemeral;
 		if(!empty($model->name))
 			$inst->name = $model->name;
 		
@@ -4890,7 +4893,7 @@ class C4_AbstractViewLoader {
 		
 		$inst->renderTemplate = $model->renderTemplate;
 		
-		if(false != ($active_worker = CerberusApplication::getActiveWorker())) {
+		if(($active_worker = CerberusApplication::getActiveWorker())) {
 			$labels = $values = [];
 			$active_worker->getPlaceholderLabelsValues($labels, $values);
 			$inst->setPlaceholderLabels($labels);
@@ -4999,7 +5002,7 @@ class C4_AbstractViewLoader {
 			$view->setParamsRequiredQuery($view_model['params_required_query']);
 		}
 		
-		if(false != ($active_worker = CerberusApplication::getActiveWorker())) {
+		if(($active_worker = CerberusApplication::getActiveWorker())) {
 			$labels = $values = [];
 			$active_worker->getPlaceholderLabelsValues($labels, $values);
 			$view->setPlaceholderLabels($labels);

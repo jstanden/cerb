@@ -67,7 +67,7 @@ class PageSection_ProfilesMessage extends Extension_PageSection {
 		
 		try {
 			if(!empty($id) && !empty($do_delete)) { // Delete
-				if(false == ($model = DAO_Message::get($id)))
+				if(!($model = DAO_Message::get($id)))
 					DevblocksPlatform::dieWithHttpError(null, 404);
 				
 				if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.message.delete'))
@@ -80,11 +80,11 @@ class PageSection_ProfilesMessage extends Extension_PageSection {
 				
 				DAO_Message::delete($id);
 				
-				echo json_encode(array(
+				echo json_encode([
 					'status' => true,
 					'id' => $id,
 					'view_id' => $view_id,
-				));
+				]);
 				return;
 				
 			} else {
@@ -96,27 +96,27 @@ class PageSection_ProfilesMessage extends Extension_PageSection {
 					throw new Exception_DevblocksAjaxValidationError($error);
 			}
 			
-			echo json_encode(array(
+			echo json_encode([
 				'status' => true,
 				'id' => $id,
 				'label' => '',
 				'view_id' => $view_id,
-			));
+			]);
 			return;
 			
 		} catch (Exception_DevblocksAjaxValidationError $e) {
-			echo json_encode(array(
+			echo json_encode([
 				'status' => false,
 				'error' => $e->getMessage(),
 				'field' => $e->getFieldName(),
-			));
+			]);
 			return;
 			
-		} catch (Exception $e) {
-			echo json_encode(array(
+		} catch (Exception) {
+			echo json_encode([
 				'status' => false,
 				'error' => 'An error occurred.',
-			));
+			]);
 			return;
 		}
 	}

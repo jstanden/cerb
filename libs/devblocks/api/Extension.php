@@ -1945,7 +1945,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 					$token_values[$key_prefix . '_currency__context'] = CerberusContexts::CONTEXT_CURRENCY;
 					$token_values[$key_prefix . '_currency_id'] = $currency_id ?? null;
 					
-					if(false != ($currency = DAO_Currency::get($currency_id))) {
+					if(($currency = DAO_Currency::get($currency_id))) {
 						@$token_values[$key_prefix . '_label'] = $currency->format($field_values[$cf_id], true);
 						@$token_values[$key_prefix . '_decimal'] = $currency->format($field_values[$cf_id], false);
 					}

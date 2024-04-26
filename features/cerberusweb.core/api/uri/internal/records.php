@@ -408,7 +408,7 @@ class PageSection_InternalRecords extends Extension_PageSection {
 			Storage_Attachments::put($file_id, $fp);
 			
 		} else {
-			if(false != ($file = DAO_Attachment::get($file_id))) {
+			if(($file = DAO_Attachment::get($file_id))) {
 				$file_name = $file->name; 
 				$file_type = $file->mime_type; 
 				$file_size = $file->storage_size; 
@@ -888,7 +888,7 @@ class PageSection_InternalRecords extends Extension_PageSection {
 						
 						case Model_CustomField::TYPE_CURRENCY:
 							@$currency_id = $dict->get($k . '_currency_id');
-							if($currency_id && false != ($currency = DAO_Currency::get($currency_id))) {
+							if($currency_id && ($currency = DAO_Currency::get($currency_id))) {
 								$v = $currency->format($dict->$k);
 							}
 							break;

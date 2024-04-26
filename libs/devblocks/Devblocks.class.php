@@ -2659,7 +2659,7 @@ class DevblocksPlatform extends DevblocksEngine {
 				$extension->params = @unserialize($row['params']);
 				
 				if(empty($extension->params))
-					$extension->params = array();
+					$extension->params = [];
 				$extensions[$extension->id] = $extension;
 			}
 

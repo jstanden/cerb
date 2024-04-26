@@ -89,17 +89,17 @@ class GenericOpenIDConnectProvider extends GenericProvider {
 		
 		$cache_key = sprintf('jwks:%s', $url);
 		
-		if(false == ($json = $cache->load($cache_key))) {
+		if(!($json = $cache->load($cache_key))) {
 			$request = new Request('GET', $url);
 			$request_options = [];
 			$error = null;
 			
-			if(false == ($response = $http->sendRequest($request, $request_options, $error))) {
+			if(!($response = $http->sendRequest($request, $request_options, $error))) {
 				error_log($error);
 				return null;
 			}
 			
-			if(false == ($json = $http->getResponseAsJson($response, $error))) {
+			if(!($json = $http->getResponseAsJson($response, $error))) {
 				error_log($error);
 				return null;
 			}
@@ -163,7 +163,7 @@ class GenericOpenIDConnectProvider extends GenericProvider {
 		if($token->headers()->has('kid')) {
 			$kid = $token->headers()->get('kid');
 			
-			if(false == ($public_key = $this->getPublicKeyByJwkId($kid)))
+			if(!($public_key = $this->getPublicKeyByJwkId($kid)))
 				throw new InvalidTokenException('Received an invalid key ID (kid) header from authorization server.');
 			
 		} else {
@@ -298,7 +298,7 @@ class ServiceProvider_OpenIdConnect extends Extension_ConnectedServiceProvider {
 			->setRequired(true)
 			;
 		
-		if(false == $validation->validateAll($edit_params, $error))
+		if(!$validation->validateAll($edit_params, $error))
 			return false;
 		
 		foreach($edit_params as $k => $v)
@@ -324,11 +324,11 @@ class ServiceProvider_OpenIdConnect extends Extension_ConnectedServiceProvider {
 			$request_options = [];
 			$error = null;
 			
-			if(false == ($response = DevblocksPlatform::services()->http()->sendRequest($request, $request_options, $error))) {
+			if(!($response = DevblocksPlatform::services()->http()->sendRequest($request, $request_options, $error))) {
 				throw new Exception_DevblocksAjaxValidationError($error);
 			}
 			
-			if(false == ($json = DevblocksPlatform::services()->http()->getResponseAsJson($response, $error))) {
+			if(!($json = DevblocksPlatform::services()->http()->getResponseAsJson($response, $error))) {
 				throw new Exception_DevblocksAjaxValidationError($error);
 			}
 			
@@ -356,7 +356,7 @@ class ServiceProvider_OpenIdConnect extends Extension_ConnectedServiceProvider {
 	 * @return GenericOpenIDConnectProvider|NULL
 	 */
 	private function _getProvider(Model_ConnectedService $service) {
-		if(false == ($service_params = $service->decryptParams()))
+		if(!($service_params = $service->decryptParams()))
 			return null;
 		
 		$url_writer = DevblocksPlatform::services()->url();
@@ -379,7 +379,7 @@ class ServiceProvider_OpenIdConnect extends Extension_ConnectedServiceProvider {
 			->clearAuthState()
 			;
 		
-		if(false == ($provider = $this->_getProvider($service)))
+		if(!($provider = $this->_getProvider($service)))
 			return;
 		
 		if(!array_key_exists('code', $_GET)) {
@@ -395,10 +395,10 @@ class ServiceProvider_OpenIdConnect extends Extension_ConnectedServiceProvider {
 			
 			$id_token = $token->getIdToken();
 			
-			if(false == ($email = $id_token->claims()->get('email')))
+			if(!($email = $id_token->claims()->get('email')))
 				throw new Exception_DevblocksValidationError("The ID token does not have an 'email' claim.");
 			
-			if(false == ($worker = DAO_Worker::getByEmail($email)))
+			if(!($worker = DAO_Worker::getByEmail($email)))
 				throw new Exception_DevblocksValidationError("The ID token 'email' claim does not match a worker account.");
 			
 			$login_state
@@ -409,7 +409,7 @@ class ServiceProvider_OpenIdConnect extends Extension_ConnectedServiceProvider {
 				->setIsMfaRequired(false)
 			;
 			
-			DevblocksPlatform::redirect(new DevblocksHttpRequest(array('login','authenticated')), 0);
+			DevblocksPlatform::redirect(new DevblocksHttpRequest(['login','authenticated']), 0);
 			
 		} catch(Exception $e) {
 			error_log($e->getMessage());

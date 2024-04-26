@@ -135,7 +135,7 @@ class ChPortalHelper {
 	}
 	
 	public static function getCode() {
-		if(false == ($portal = self::getPortal()))
+		if(!($portal = self::getPortal()))
 			return null;
 		
 		return $portal->code;
@@ -148,7 +148,7 @@ class ChPortalHelper {
 		$session_id = self::$_session_id;
 		$url_writer = DevblocksPlatform::services()->url();
 		
-		if(false == ($portal = self::$_portal))
+		if(!($portal = self::$_portal))
 			return false;
 		
 		if(empty($session_id)) {

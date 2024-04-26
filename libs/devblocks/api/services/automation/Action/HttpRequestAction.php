@@ -351,7 +351,7 @@ class HttpRequestAction extends AbstractAction {
 				DAO_AutomationResource::MIME_TYPE => $content_type,
 			]);
 			
-			if(false == $resource_id) {
+			if(!$resource_id) {
 				$error = 'Failed to create automation resource';
 				return false;
 			}

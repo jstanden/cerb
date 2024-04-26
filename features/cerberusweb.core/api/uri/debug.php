@@ -109,7 +109,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 
 				DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 
-				$tickets_by_status = array();
+				$tickets_by_status = [];
 				
 				foreach($db->GetArrayMaster('SELECT count(*) as hits, status_id from ticket group by status_id') as $row) {
 					switch($row['status_id']) {
@@ -130,7 +130,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 				
 				$results = $db->GetArrayMaster('SELECT COUNT(*) AS hits, event_point FROM trigger_event GROUP BY event_point ORDER BY hits DESC');
 				
-				if(false != ($bot_behavior_counts = array_column($results, 'hits', 'event_point')) && is_array($bot_behavior_counts)) {
+				if(($bot_behavior_counts = array_column($results, 'hits', 'event_point')) && is_array($bot_behavior_counts)) {
 					array_walk($bot_behavior_counts, function(&$count) {
 						$count = intval($count);
 					});

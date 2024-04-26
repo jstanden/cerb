@@ -541,14 +541,14 @@ class Model_MailHtmlTemplate extends DevblocksRecordModel {
 	public $updated_at;
 	
 	function getSignatureRecord() {
-		if(false == ($model = DAO_EmailSignature::get($this->signature_id)))
+		if(!($model = DAO_EmailSignature::get($this->signature_id)))
 			return null;
 		
 		return $model;
 	}
 	
 	function getSignature($worker=null, $format='html') {
-		if(false == ($model = $this->getSignatureRecord()))
+		if(!($model = $this->getSignatureRecord()))
 			return null;
 		
 		return $model->getSignature($worker, 'html' == $format);

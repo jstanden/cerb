@@ -119,7 +119,7 @@ class UmScAjaxController extends Extension_UmScController {
 			if(null == ($active_contact = $umsession->getProperty('sc_login',null))) /* @var $active_contact Model_Contact */
 				DevblocksPlatform::dieWithHttpError(null, 403);
 			
-			if(false == ($contact_emails = $active_contact->getEmails()))
+			if(!($contact_emails = $active_contact->getEmails()))
 				DevblocksPlatform::dieWithHttpError(null, 403);
 			
 			$pass = DAO_Ticket::authorizeByParticipantsAndMessages(array_keys($contact_emails), $links[CerberusContexts::CONTEXT_MESSAGE]);

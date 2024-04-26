@@ -542,19 +542,15 @@ class SearchFields_ConnectedAccount extends DevblocksSearchFields {
 		switch($param->field) {
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_CONNECTED_ACCOUNT, self::getPrimaryKey());
-				break;
 				
 			case self::VIRTUAL_HAS_FIELDSET:
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_CONNECTED_ACCOUNT), '%s'), self::getPrimaryKey());
-				break;
 				
 			case self::VIRTUAL_OWNER:
 				return self::_getWhereSQLFromContextAndID($param, 'connected_account.owner_context', 'connected_account.owner_context_id');
-				break;
 			
 			case self::VIRTUAL_SERVICE_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_CONNECTED_SERVICE, 'connected_account.service_id');
-				break;
 			
 			default:
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
@@ -562,7 +558,6 @@ class SearchFields_ConnectedAccount extends DevblocksSearchFields {
 				} else {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
-				break;
 		}
 	}
 	
@@ -600,16 +595,13 @@ class SearchFields_ConnectedAccount extends DevblocksSearchFields {
 			case SearchFields_ConnectedAccount::ID:
 				$models = DAO_ConnectedAccount::getIds($values);
 				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
-				break;
 				
 			case SearchFields_ConnectedAccount::SERVICE_ID:
 				$models = DAO_ConnectedService::getIds($values);
 				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
-				break;
 				
 			case 'owner':
 				return self::_getLabelsForKeyContextAndIdValues($values);
-				break;
 		}
 		
 		return parent::getLabelsForKeyValues($key, $values);
@@ -676,7 +668,7 @@ class Model_ConnectedAccount extends DevblocksRecordModel {
 	}
 	
 	public function getServiceExtension() {
-		if(false == ($service = $this->getService()))
+		if(!($service = $this->getService()))
 			return null;
 		
 		return $service->getExtension();
@@ -688,10 +680,10 @@ class Model_ConnectedAccount extends DevblocksRecordModel {
 		
 		$encrypt = DevblocksPlatform::services()->encryption();
 		
-		if(false == ($json = $encrypt->decrypt($this->params_json_encrypted)))
+		if(!($json = $encrypt->decrypt($this->params_json_encrypted)))
 			return false;
 		
-		if(!$json || false == ($params = json_decode($json, true)))
+		if(!$json || !($params = json_decode($json, true)))
 			return false;
 		
 		return $params;
@@ -699,7 +691,7 @@ class Model_ConnectedAccount extends DevblocksRecordModel {
 	
 	public function authenticateHttpRequest(Psr\Http\Message\RequestInterface &$request, array &$options, $actor) : bool {
 		// Load the extension for this connected account
-		if(false == ($ext = $this->getServiceExtension()))
+		if(!($ext = $this->getServiceExtension()))
 			return false;
 		
 		if(!Context_ConnectedAccount::isUsableByActor($this, $actor))

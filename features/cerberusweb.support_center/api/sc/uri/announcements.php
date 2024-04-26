@@ -17,7 +17,7 @@ class UmScAnnouncementsController extends Extension_UmScController {
 		$sNewsRss = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(),self::PARAM_NEWS_RSS, '');
 		$aNewsRss = !empty($sNewsRss) ? unserialize($sNewsRss) : [];
 		
-		$feeds = array();
+		$feeds = [];
 		
 		// [TODO] Implement a feed cache so we aren't bombing out
 		foreach($aNewsRss as $title => $url) {

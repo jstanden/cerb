@@ -41,15 +41,13 @@ class PageSection_SetupStorageContent extends Extension_PageSection {
 		
 		$db = DevblocksPlatform::services()->database();
 		
-		if(false == ($rs = $db->ExecuteMaster("SHOW TABLE STATUS")))
+		if(!($rs = $db->ExecuteMaster("SHOW TABLE STATUS")))
 			return;
 
 		$total_db_size = 0;
 		$total_db_data = 0;
 		$total_db_indexes = 0;
 		$total_db_slack = 0;
-		
-		// [TODO] This would likely be helpful to the /debug controller
 		
 		if(!($rs instanceof mysqli_result))
 			return;

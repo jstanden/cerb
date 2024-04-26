@@ -398,7 +398,7 @@ class DAO_Contact extends Cerb_ORMHelper {
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_Contact();
-			$object->id = $row['id'];
+			$object->id = intval($row['id']);
 			$object->primary_email_id = intval($row['primary_email_id']);
 			$object->first_name = $row['first_name'];
 			$object->last_name = $row['last_name'];
@@ -581,7 +581,7 @@ class DAO_Contact extends Cerb_ORMHelper {
 				"LIMIT %d",
 				$db->qstr($term.'%'),
 				$db->qstr($term.'%'),
-				(false != strpos($term,' ')
+				(str_contains($term, ' ')
 					? sprintf("OR concat(first_name,' ',last_name) LIKE %s ", $db->qstr($term.'%'))
 					: ''),
 				25
@@ -592,15 +592,10 @@ class DAO_Contact extends Cerb_ORMHelper {
 		if(is_array($results))
 			$ids = array_column($results, 'id');
 		
-		switch($as) {
-			case 'ids':
-				return $ids;
-				break;
-				
-			default:
-				return DAO_Contact::getIds($ids);
-				break;
-		}
+		return match ($as) {
+			'ids' => $ids,
+			default => DAO_Contact::getIds($ids),
+		};
 	}
 	
 	/**

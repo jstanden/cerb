@@ -47,7 +47,7 @@ while($row = mysqli_fetch_assoc($rs)) {
 	$extension_id = $row['extension_id'];
 	$params_json = $row['params_json'];
 	
-	if(false == ($json = json_decode($params_json, true)))
+	if(!($json = json_decode($params_json, true)))
 		continue;
 	
 	switch($extension_id) {
@@ -80,7 +80,7 @@ while($row = mysqli_fetch_assoc($rs)) {
 			if(false == ($old_model = unserialize(base64_decode($json['view_model']))))
 				break;
 			
-			$json['worklist_model'] = array(
+			$json['worklist_model'] = [
 				'context' => $view_context,
 				'columns' => $old_model->view_columns,
 				'params' => json_decode(json_encode($old_model->paramsEditable), true),
@@ -88,7 +88,7 @@ while($row = mysqli_fetch_assoc($rs)) {
 				'sort_by' => $old_model->renderSortBy,
 				'sort_asc' => !empty($old_model->renderSortAsc),
 				'subtotals' => $old_model->renderSubtotals,
-			);
+			];
 		
 			switch($extension_id) {
 				case 'core.workspace.widget.subtotals':
@@ -165,7 +165,7 @@ while($row = mysqli_fetch_assoc($rs)) {
 	$tab_id = $row['id'];
 	$params_json = $row['params_json'];
 	
-	if(false == ($json = json_decode($params_json, true)))
+	if(!($json = json_decode($params_json, true)))
 		continue;
 
 	if(!isset($json['context_extid']))
@@ -225,7 +225,7 @@ while($row = mysqli_fetch_assoc($rs)) {
 		if(!isset($action['action']))
 			continue;
 		
-		if('var_' == substr($action['action'], 0, 4)) {
+		if(str_starts_with($action['action'], 'var_')) {
 			if(!isset($variables[$action['action']]))
 				continue;
 			

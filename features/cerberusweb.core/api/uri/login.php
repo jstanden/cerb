@@ -76,7 +76,7 @@ class Page_Login extends CerberusPageExtension {
 		 * Trigger worker.authenticate.failed automations
 		 */
 		
-		if(false != ($automation_event = DAO_AutomationEvent::getByName('worker.authenticate.failed'))) {
+		if(($automation_event = DAO_AutomationEvent::getByName('worker.authenticate.failed'))) {
 			$event_handler = DevblocksPlatform::services()->ui()->eventHandler();
 			$error = null;
 		
@@ -90,7 +90,7 @@ class Page_Login extends CerberusPageExtension {
 		
 			$initial_state = $event_dict->getDictionary(null, false);
 			
-			if(false != ($handlers = $automation_event->getKata($event_dict, $error))) {
+			if(($handlers = $automation_event->getKata($event_dict, $error))) {
 				$event_handler->handleEach(
 					AutomationTrigger_WorkerAuthenticateFailed::ID,
 					$handlers,
@@ -178,7 +178,7 @@ class Page_Login extends CerberusPageExtension {
 		// Only allow relative paths
 		if($url) {
 			if(
-				false != ($url_parts = parse_url($url))
+				($url_parts = parse_url($url))
 				&& !array_diff(array_keys($url_parts), ['path','query'])
 				&& array_key_exists('path', $url_parts)
 			) {
@@ -189,7 +189,7 @@ class Page_Login extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('email', $login_state->getEmail());
 		
-		if(false != ($sso_service_ids = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::AUTH_SSO_SERVICE_IDS, CerberusSettingsDefaults::AUTH_SSO_SERVICE_IDS))) {
+		if(($sso_service_ids = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::AUTH_SSO_SERVICE_IDS, CerberusSettingsDefaults::AUTH_SSO_SERVICE_IDS))) {
 			$sso_services = DAO_ConnectedService::getIds(explode(',', $sso_service_ids));
 			$tpl->assign('sso_services', $sso_services);
 		}
