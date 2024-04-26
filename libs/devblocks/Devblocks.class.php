@@ -86,6 +86,10 @@ class _DevblocksServices {
 		return _DevblocksDatabaseManager::getInstance();
 	}
 	
+	function dataset() : _DevblocksDatasetService {
+		return _DevblocksDatasetService::getInstance();
+	}
+	
 	/**
 	 * 
 	 * @return _DevblocksDateManager

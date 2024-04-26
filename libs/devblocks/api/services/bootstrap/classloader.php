@@ -189,6 +189,9 @@ class _DevblocksClassLoadManager {
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/database.php', array(
 			'_DevblocksDatabaseManager',
 		));
+		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/dataset.php', [
+			'_DevblocksDatasetService',
+		]);
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/date.php', array(
 			'_DevblocksDateManager',
 			'DevblocksCalendarHelper',
