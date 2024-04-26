@@ -69,8 +69,7 @@ class UmScContactController extends Extension_UmScController {
 				$tpl->assign('last_followup_a', $aLastFollowupA);
 				$tpl->assign('last_error', $sError);
 				
-				$sDispatch = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(),self::PARAM_SITUATIONS, '');
-				$dispatch = !empty($sDispatch) ? unserialize($sDispatch) : array();
+				$dispatch = DAO_CommunityToolProperty::getJson(ChPortalHelper::getCode(),self::PARAM_SITUATIONS, []);
 				
 				// Remove hidden contact situations
 				if(is_array($dispatch))
@@ -165,8 +164,7 @@ class UmScContactController extends Extension_UmScController {
 				$attachments_mode = DAO_CommunityToolProperty::get($portal->code, self::PARAM_ATTACHMENTS_MODE, 0);
 				$tpl->assign('attachments_mode', $attachments_mode);
 		
-				$sDispatch = DAO_CommunityToolProperty::get($portal->code,self::PARAM_SITUATIONS, '');
-				$dispatch = !empty($sDispatch) ? unserialize($sDispatch) : array();
+				$dispatch = DAO_CommunityToolProperty::getJson($portal->code,self::PARAM_SITUATIONS, []);
 				$tpl->assign('dispatch', $dispatch);
 				
 				$groups = DAO_Group::getAll();
@@ -248,7 +246,7 @@ class UmScContactController extends Extension_UmScController {
 			$dispatch[$reason] = $part;
 		}
 
-		DAO_CommunityToolProperty::set($instance->code, self::PARAM_SITUATIONS, serialize($dispatch));
+		DAO_CommunityToolProperty::setJson($instance->code, self::PARAM_SITUATIONS, $dispatch);
 	}
 	
 	private function _portalAction_doContactStep2() {
@@ -265,8 +263,7 @@ class UmScContactController extends Extension_UmScController {
 		$umsession->setProperty('support.write.last_error', null);
 		$umsession->setProperty('support.write.last_followup_a', null);
 		
-		$sDispatch = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(),self::PARAM_SITUATIONS, '');
-		$dispatch = !empty($sDispatch) ? unserialize($sDispatch) : array();
+		$dispatch = DAO_CommunityToolProperty::getJson(ChPortalHelper::getCode(),self::PARAM_SITUATIONS, []);
 		
 		// Check if this nature has followups, if not skip to send
 		if(is_array($dispatch))
@@ -384,8 +381,7 @@ class UmScContactController extends Extension_UmScController {
 		$to = $replyto_default->email;
 		$subject = 'Contact me: Other';
 		
-		$sDispatch = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(),self::PARAM_SITUATIONS, '');
-		$dispatch = !empty($sDispatch) ? unserialize($sDispatch) : array();
+		$dispatch = DAO_CommunityToolProperty::getJson(ChPortalHelper::getCode(),self::PARAM_SITUATIONS, []);
 		
 		foreach($dispatch as $k => $v) {
 			if(md5($k)==$sNature) {

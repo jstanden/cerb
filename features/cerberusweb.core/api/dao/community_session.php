@@ -50,7 +50,7 @@ class DAO_CommunitySession extends Cerb_ORMHelper {
 		
 		$sql = sprintf("UPDATE community_session SET updated = %d, properties = %s WHERE session_id = %s AND portal_id = %d",
 			time(),
-			$db->qstr(serialize($session->getProperties())),
+			$db->qstr(json_encode($session->getProperties())),
 			$db->qstr($session->session_id),
 			$session->portal_id
 		);
@@ -88,7 +88,7 @@ class DAO_CommunitySession extends Cerb_ORMHelper {
 			
 			if(!empty($row['properties']))
 				try {
-					$session->setProperties(unserialize($row['properties']));
+					$session->setProperties(json_decode($row['properties'], true) ?: []);
 				} catch (Throwable) {
 					$session->setProperties([]);
 				}

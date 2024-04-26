@@ -180,7 +180,8 @@ if(isset($columns['list_view'])) {
 	$rs = $db->ExecuteMaster($sql);
 	
 	while($result = mysqli_fetch_assoc($rs)) {
-		$list_view = unserialize($result['list_view']); /* @var $list_view Model_WorkspaceListView */
+		$list_view = unserialize($result['list_view'], ['allowed_classes' => ['Model_WorkspaceListView']]);
+		/* @var $list_view Model_WorkspaceListView */
 		
 		if(!$list_view)
 			continue;

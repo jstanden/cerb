@@ -552,12 +552,12 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 			$actions[$act] = $action;
 		}
 
-		$fields = array(
+		$fields = [
 			DAO_MailToGroupRule::NAME => $name,
 			DAO_MailToGroupRule::IS_STICKY => $is_sticky,
-			DAO_MailToGroupRule::CRITERIA_SER => serialize($criterion),
-			DAO_MailToGroupRule::ACTIONS_SER => serialize($actions),
-		);
+			DAO_MailToGroupRule::CRITERIA_SER => json_encode($criterion),
+			DAO_MailToGroupRule::ACTIONS_SER => json_encode($actions),
+		];
 
 		// Only sticky filters can manual order and be stackable
 		if(!$is_sticky) {

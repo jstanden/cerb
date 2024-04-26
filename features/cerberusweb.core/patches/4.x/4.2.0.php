@@ -92,7 +92,7 @@ if(isset($columns['criteria_ser'])) {
 	
 	while($row = mysqli_fetch_assoc($rs)) {
 		$criteria_ser = $row['criteria_ser'];
-		if(!empty($criteria_ser) && false !== (@$criteria = unserialize($criteria_ser))) {
+		if(!empty($criteria_ser) && false !== (@$criteria = unserialize($criteria_ser, ['allowed_classes' => false]))) {
 			if(isset($criteria['to'])) {
 				unset($criteria['to']);
 				$db->ExecuteMaster(sprintf("UPDATE preparse_rule SET criteria_ser= %s WHERE id = %d",

@@ -62,7 +62,7 @@ if(isset($tables['preparse_rule'])) {
 	foreach($results as $result) {
 		$conditions = array();
 
-		if(false === (@$criterion = unserialize($result['criteria_ser'])))
+		if(false === (@$criterion = unserialize($result['criteria_ser'], ['allowed_classes' => false])))
 			continue;
 			
 		if(!is_array($criterion) || empty($criterion))
@@ -388,7 +388,7 @@ if(isset($tables['preparse_rule'])) {
 		$do = array();
 		$action_pos = 0;
 		
-		if(false !== ($actions = unserialize($result['actions_ser']))) {
+		if(false !== ($actions = unserialize($result['actions_ser'], ['allowed_classes' => false]))) {
 			$action_labels = array();
 			
 			if(is_array($actions))

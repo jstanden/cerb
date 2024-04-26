@@ -24,8 +24,7 @@ class UmScKbController extends Extension_UmScController {
 	
 	function isVisible() {
 		// Disable the KB if no categories were selected
-		$sKbRoots = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(),self::PARAM_KB_ROOTS, '');
-		$kb_roots = !empty($sKbRoots) ? unserialize($sKbRoots) : array();
+		$kb_roots = DAO_CommunityToolProperty::getJson(ChPortalHelper::getCode(),self::PARAM_KB_ROOTS, []);
 		return !empty($kb_roots);
 	}
 	
@@ -52,8 +51,7 @@ class UmScKbController extends Extension_UmScController {
 		
 		// KB Roots
 		
-		$sKbRoots = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(),self::PARAM_KB_ROOTS, '');
-		$kb_roots = !empty($sKbRoots) ? unserialize($sKbRoots) : array();
+		$kb_roots = DAO_CommunityToolProperty::getJson(ChPortalHelper::getCode(),self::PARAM_KB_ROOTS, []);
 		
 		// KB worklist
 		
@@ -276,8 +274,7 @@ class UmScKbController extends Extension_UmScController {
 		$categories = DAO_KbCategory::getAll();
 		$tpl->assign('categories', $categories);
 		
-		$sKbRoots = DAO_CommunityToolProperty::get($portal->code,self::PARAM_KB_ROOTS, '');
-		$kb_roots = !empty($sKbRoots) ? unserialize($sKbRoots) : array();
+		$kb_roots = DAO_CommunityToolProperty::getJson($portal->code,self::PARAM_KB_ROOTS, []);
 		$tpl->assign('kb_roots', $kb_roots);
 
 		$prop_kb_view_numrows = DAO_CommunityToolProperty::get($portal->code,self::PARAM_KB_VIEW_NUMROWS, 10);
@@ -320,7 +317,7 @@ class UmScKbController extends Extension_UmScController {
 		
 		$aKbRoots = DevblocksPlatform::importGPC($_POST['category_ids'] ?? null, 'array', []);
 		$aKbRoots = array_flip($aKbRoots);
-		DAO_CommunityToolProperty::set($instance->code, self::PARAM_KB_ROOTS, serialize($aKbRoots));
+		DAO_CommunityToolProperty::setJson($instance->code, self::PARAM_KB_ROOTS, $aKbRoots);
 		
 		// Worklist num rows
 		

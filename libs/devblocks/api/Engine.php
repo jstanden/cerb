@@ -421,7 +421,7 @@ abstract class DevblocksEngine {
 				$db->qstr($extension->name),
 				$db->qstr($extension->file),
 				$db->qstr($extension->class),
-				$db->qstr(serialize($extension->params))
+				$db->qstr(json_encode($extension->params))
 			));
 
 			$new_extensions[$extension->id] = true;
@@ -466,7 +466,7 @@ abstract class DevblocksEngine {
 				$db->qstr($event->id),
 				$db->qstr($event->plugin_id),
 				$db->qstr($event->name),
-				$db->qstr(serialize($event->params))
+				$db->qstr(json_encode($event->params))
 			));
 		}
 		

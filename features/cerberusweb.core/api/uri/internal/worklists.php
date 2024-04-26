@@ -668,7 +668,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 				if(!isset($_SESSION['view_export_cursors']))
 					$_SESSION['view_export_cursors']  = [];
 				
-				$cursor_key = sha1(serialize([$view_id, $tokens, $export_as, time()]));
+				$cursor_key = sha1(json_encode([$view_id, $tokens, $export_as, time()]));
 				
 				$cursor = [
 					'key' => $cursor_key,

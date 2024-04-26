@@ -2,6 +2,7 @@
 $db = DevblocksPlatform::services()->database();
 $logger = DevblocksPlatform::services()->log();
 $tables = $db->metaTables();
+$revision = $db->GetOneMaster("SELECT revision FROM cerb_patch_history WHERE plugin_id = 'cerberusweb.core'");
 
 // ===========================================================================
 // Automation Event Listener
@@ -205,6 +206,67 @@ if(!isset($tables['workflow'])) {
 	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
 	
 	$tables['workflow'] = 'workflow';
+}
+
+// ===========================================================================
+// Convert PHP serialization in the Support Center portal to JSON
+
+if (!array_key_exists('community_tool_property', $tables)) {
+	$logger->error("The 'community_tool_property' table does not exist.");
+	return FALSE;
+}
+
+$results = $db->GetArrayMaster(
+	"SELECT tool_code, property_key, property_value FROM community_tool_property " .
+	"WHERE property_key IN ('announcements.rss','common.visible_modules','contact.situations','kb.roots') " .
+	"AND property_value NOT LIKE '{%'"
+) ?? [];
+
+foreach ($results as $result) {
+	// Convert arrays from serialize/unserialize to JSON
+	$property_value = unserialize($result['property_value'], ['allowed_classes' => false]);
+	
+	if(!is_array($property_value))
+		$property_value = [];
+	
+	$db->ExecuteMaster(sprintf("UPDATE community_tool_property SET property_value = %s WHERE tool_code = %s AND property_key = %s",
+		$db->qstr(json_encode($property_value)),
+		$db->qstr($result['tool_code']),
+		$db->qstr($result['property_key']),
+	));
+}
+
+// ===========================================================================
+// Convert PHP serialization in mail_to_group_rule
+
+if (!array_key_exists('mail_to_group_rule', $tables)) {
+	$logger->error("The 'mail_to_group_rule' table does not exist.");
+	return FALSE;
+}
+
+$results = $db->GetArrayMaster(
+	"SELECT id, criteria_ser, actions_ser FROM mail_to_group_rule WHERE (criteria_ser LIKE 'a:%' OR actions_ser LIKE 'a:%')"
+) ?? [];
+
+foreach ($results as $result) {
+	// Convert arrays from serialize/unserialize to JSON
+	$criteria_ser = unserialize($result['criteria_ser'], ['allowed_classes' => false]);
+	$actions_ser = unserialize($result['actions_ser'], ['allowed_classes' => false]);
+	
+	if(!is_array($criteria_ser))
+		$criteria_ser = [];
+	if(!is_array($actions_ser))
+		$actions_ser = [];
+	
+	$db->ExecuteMaster(sprintf("UPDATE mail_to_group_rule SET criteria_ser = %s, actions_ser = %s WHERE id = %d",
+		$db->qstr(json_encode($criteria_ser)),
+		$db->qstr(json_encode($actions_ser)),
+		intval($result['id']),
+	));
+}
+
+if($revision < 1462) {
+	$db->ExecuteMaster("DELETE FROM community_session");
 }
 
 // ===========================================================================

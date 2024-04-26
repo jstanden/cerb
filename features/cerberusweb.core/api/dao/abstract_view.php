@@ -4770,7 +4770,7 @@ class C4_AbstractViewLoader {
 		// Is the view dirty? (do we need to persist it?)
 		if(($_init_checksum = ($view->_init_checksum ?? null))) {
 			unset($view->_init_checksum);
-			$_exit_checksum = sha1(serialize($exit_model));
+			$_exit_checksum = sha1(json_encode($exit_model));
 			
 			// If the view model is not dirty (we wouldn't end up changing anything in the database)
 			if($_init_checksum == $_exit_checksum)
@@ -4910,7 +4910,7 @@ class C4_AbstractViewLoader {
 		
 		if($checksum) {
 			$init_model = C4_AbstractViewLoader::serializeAbstractView($inst);
-			$inst->_init_checksum = sha1(serialize($init_model));
+			$inst->_init_checksum = sha1(json_encode($init_model));
 		}
 		
 		return $inst;
@@ -5010,7 +5010,7 @@ class C4_AbstractViewLoader {
 		}
 		
 		$init_model = C4_AbstractViewLoader::serializeAbstractView($view);
-		$view->_init_checksum = sha1(serialize($init_model));
+		$view->_init_checksum = sha1(json_encode($init_model));
 		
 		return $view;
 	}

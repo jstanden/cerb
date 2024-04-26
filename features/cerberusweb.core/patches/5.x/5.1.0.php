@@ -274,46 +274,6 @@ if(!isset($tables['worker_view_model'])) {
 
 	$tables['worker_view_model'] = 'worker_view_model';
 	
-	$rs = $db->ExecuteMaster("SELECT worker_id, SUBSTRING(setting,5) AS view_id, value AS model FROM worker_pref WHERE setting LIKE 'view%%'");
-	
-	if(false !== $rs)
-	while($row = mysqli_fetch_assoc($rs)) {
-		$worker_id = $row['worker_id'];
-		$view_id = $row['view_id'];
-		
-		if(false !== (@$model = unserialize($row['model']))) {
-			if(empty($model->class_name))
-				continue;
-			
-			$fields = array(
-				'worker_id' => $worker_id,
-				'view_id' => $db->qstr($view_id),
-				'class_name' => $db->qstr($model->class_name),
-				'title' => $db->qstr($model->name),
-				'columns_json' => $db->qstr(json_encode($model->view_columns)),
-				'columns_hidden_json' => $db->qstr(json_encode($model->columnsHidden)),
-				'params_editable_json' => $db->qstr(json_encode($model->paramsEditable)),
-				'params_required_json' => $db->qstr(json_encode($model->paramsRequired)),
-				'params_default_json' => $db->qstr(json_encode($model->paramsDefault)),
-				'params_hidden_json' => $db->qstr(json_encode($model->paramsHidden)),
-				'render_page' => abs(intval($model->renderPage)),
-				'render_total' => !empty($model->renderTotal) ? 1 : 0,
-				'render_limit' => intval($model->renderLimit),
-				'render_sort_by' => $db->qstr($model->renderSortBy),
-				'render_sort_asc' => !empty($model->renderSortAsc) ? 1 : 0,
-				'render_template' => $db->qstr($model->renderTemplate),
-			);
-			
-			$db->ExecuteMaster(sprintf("REPLACE INTO worker_view_model (%s)".
-				"VALUES (%s)",
-				implode(',', array_keys($fields)),
-				implode(',', $fields)
-			));			
-		}
-	}
-	
-	mysqli_free_result($rs);
-	
 	$db->ExecuteMaster("DELETE FROM worker_pref WHERE setting LIKE 'view%'");
 }
 
@@ -382,7 +342,7 @@ while($row = mysqli_fetch_assoc($rs)) {
 	
 	$filter_actions = array();
 	if(!empty($filter_actions_ser))
-		@$filter_actions = unserialize($filter_actions_ser);
+		@$filter_actions = unserialize($filter_actions_ser, ['allowed_classes' => false]);
 		
 	if(!empty($filter_actions)) {
 		if(isset($filter_actions['assign'])) {

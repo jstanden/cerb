@@ -77,7 +77,7 @@ while($row = mysqli_fetch_assoc($rs)) {
 			
 			$view_context = $json['view_context'];
 			
-			if(false == ($old_model = unserialize(base64_decode($json['view_model']))))
+			if(!($old_model = unserialize(base64_decode($json['view_model']))))
 				break;
 			
 			$json['worklist_model'] = [
@@ -122,7 +122,7 @@ while($row = mysqli_fetch_assoc($rs)) {
 				
 				$view_context = $series['view_context'];
 				
-				if(false == ($old_model = unserialize(base64_decode($series['view_model']))))
+				if(!($old_model = unserialize(base64_decode($series['view_model']))))
 					break;
 				
 				$series['worklist_model'] = array(
@@ -176,7 +176,7 @@ while($row = mysqli_fetch_assoc($rs)) {
 	if(!isset($json['view_model']))
 		continue;
 	
-	if(false == ($old_model = unserialize(base64_decode($json['view_model']))))
+	if(!($old_model = unserialize(base64_decode($json['view_model']))))
 		continue;
 	
 	$json['worklist_model'] = array(
@@ -232,7 +232,7 @@ while($row = mysqli_fetch_assoc($rs)) {
 			if(!isset($action['view_model']))
 				continue;
 			
-			if(false == ($old_model = unserialize(base64_decode($action['view_model']))))
+			if(!($old_model = unserialize(base64_decode($action['view_model']))))
 				continue;
 			
 			$action['worklist_model'] = array(

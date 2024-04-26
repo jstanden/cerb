@@ -635,15 +635,9 @@ if(!isset($indexes['has_priv'])) {
 
 // ===========================================================================
 // New style licenses
-$obj = unserialize($db->GetOneMaster("SELECT value FROM setting WHERE setting='license'"));
-if(!empty($obj) && isset($obj['features'])) {
-$l = array('name' => $obj['name'],'email' => '','serial' => '** Contact support@webgroupmedia.com for your new 4.1 serial number **');
-(isset($obj['users'])&&!empty($obj['users'])?(($l['users']=$obj['users'])&&($l['a']='XXX')):($l['e']='XXX'));
 $db->ExecuteMaster("DELETE FROM setting WHERE setting='license'");
-$db->ExecuteMaster(sprintf("INSERT INTO setting (setting,value) VALUES ('license',%s)",$db->qstr(serialize($l))));
 $db->ExecuteMaster("DELETE FROM setting WHERE setting='company'");
 $db->ExecuteMaster("DELETE FROM setting WHERE setting='patch'");
-}
 
 // ===========================================================================
 // Drop worker.can_delete and worker.can_export privilege (real ACL now)

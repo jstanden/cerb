@@ -184,10 +184,10 @@ class DAO_MailToGroupRule extends Cerb_ORMHelper {
 			$object->sticky_order = $row['sticky_order'];
 			
 			$criteria_ser = $row['criteria_ser'];
-			$object->criteria = (!empty($criteria_ser)) ? @unserialize($criteria_ser) : [];
+			$object->criteria = json_decode($criteria_ser ?: '[]', true) ?: [];
 			
 			$actions_ser = $row['actions_ser'];
-			$object->actions = (!empty($actions_ser)) ? @unserialize($actions_ser) : [];
+			$object->actions = json_decode($actions_ser ?: '[]', true) ?: [];
 			
 			$objects[$object->id] = $object;
 		}

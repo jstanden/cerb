@@ -458,7 +458,7 @@ if(!isset($columns['is_default'])) {
 	
 	foreach($lists as $list) {
 		$list_id = $list['id'];
-		@$list_view = unserialize($list['list_view']);
+		$list_view = unserialize($list['list_view'], ['allowed_classes' => ['Model_WorkspaceListView']]);
 		
 		if(
 			_700_migrate_inbox_buckets($list_view->params, $group_inboxes)
@@ -476,7 +476,7 @@ if(!isset($columns['is_default'])) {
 	$mail_to_group_rules = $db->GetArrayMaster("SELECT id, actions_ser FROM mail_to_group_rule");
 	
 	foreach($mail_to_group_rules as $rule) {
-		$actions = unserialize($rule['actions_ser']);
+		$actions = unserialize($rule['actions_ser'], ['allowed_classes' => false]);
 		
 		// If this mail routing rule moves tickets
 		if(isset($actions['move']) && isset($actions['move']['bucket_id'])) {

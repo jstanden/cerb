@@ -67,7 +67,7 @@ XML;
 		$channel->addChild('description', '');
 		
 		// Limit topics to portal config
-		@$topics = unserialize(DAO_CommunityToolProperty::get($portal, UmScKbController::PARAM_KB_ROOTS, ''));
+		$topics = DAO_CommunityToolProperty::getJson($portal, UmScKbController::PARAM_KB_ROOTS, []);
 		if(empty($topics))
 			return;
 		
@@ -144,7 +144,7 @@ XML;
 		$channel->addChild('description', '');
 		
 		// Limit topics to portal config
-		@$topics = unserialize(DAO_CommunityToolProperty::get($portal, UmScKbController::PARAM_KB_ROOTS, ''));
+		$topics = DAO_CommunityToolProperty::getJson($portal, UmScKbController::PARAM_KB_ROOTS, []);
 		if(empty($topics))
 			return;
 		
@@ -226,7 +226,7 @@ XML;
 		$channel->addChild('description', '');
 		
 		// Limit topics to portal config
-		@$topics = unserialize(DAO_CommunityToolProperty::get($portal, UmScKbController::PARAM_KB_ROOTS, ''));
+		$topics = DAO_CommunityToolProperty::getJson($portal, UmScKbController::PARAM_KB_ROOTS, []);
 		if(empty($topics))
 			return;
 		

@@ -73,7 +73,7 @@ class UmScApp extends Extension_CommunityPortal {
 			@$active_contact = $umsession->getProperty('sc_login',null);
 			
 			$modules = DevblocksPlatform::getExtensions('usermeet.sc.controller', true);
-			@$visible_modules = unserialize(DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_VISIBLE_MODULES, ''));
+			$visible_modules = DAO_CommunityToolProperty::getJson(ChPortalHelper::getCode(), self::PARAM_VISIBLE_MODULES, '');
 			
 			if(is_array($visible_modules))
 			uasort($modules, function($a, $b) use ($visible_modules) {
@@ -241,7 +241,7 @@ class UmScApp extends Extension_CommunityPortal {
 		$favicon_url = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_FAVICON_URL, null);
 		$tpl->assign('favicon_url', $favicon_url);
 
-		@$visible_modules = unserialize(DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_VISIBLE_MODULES, ''));
+		$visible_modules = DAO_CommunityToolProperty::getJson(ChPortalHelper::getCode(), self::PARAM_VISIBLE_MODULES, '');
 		$tpl->assign('visible_modules', $visible_modules);
 		
 		@$active_contact = $umsession->getProperty('sc_login',null);
@@ -429,7 +429,7 @@ class UmScApp extends Extension_CommunityPortal {
 
 		// Modules
 
-		@$visible_modules = unserialize(DAO_CommunityToolProperty::get($portal->code, self::PARAM_VISIBLE_MODULES, ''));
+		$visible_modules = DAO_CommunityToolProperty::getJson($portal->code, self::PARAM_VISIBLE_MODULES, '');
 		$tpl->assign('visible_modules', $visible_modules);
 		
 		$all_modules = DevblocksPlatform::getExtensions('usermeet.sc.controller', true);
@@ -472,7 +472,7 @@ class UmScApp extends Extension_CommunityPortal {
 				$aEnabledModules[$aIdxModules[$idx]] = $aVisibleModules[$idx];
 		}
 			
-		DAO_CommunityToolProperty::set($portal->code, self::PARAM_VISIBLE_MODULES, serialize($aEnabledModules));
+		DAO_CommunityToolProperty::setJson($portal->code, self::PARAM_VISIBLE_MODULES, $aEnabledModules);
 		DAO_CommunityToolProperty::set($portal->code, self::PARAM_PAGE_TITLE, $sPageTitle);
 		
 		// [TODO] Validate these URLs
@@ -1132,56 +1132,68 @@ class UmScAbstractViewLoader {
 	}
 
 	static function serializeAbstractView($view) {
-		if(!$view instanceof C4_AbstractView) {
+		if(!($view instanceof C4_AbstractView))
 			return null;
-		}
 		
-		$model = new C4_AbstractViewModel();
+		return [
+			'class_name' => get_class($view),
+			'id' => $view->id,
+			'name' => $view->name,
 			
-		$model->class_name = get_class($view);
-
-		$model->id = $view->id;
-		$model->name = $view->name;
-		
-		$model->view_columns = $view->view_columns;
-		$model->columnsHidden = $view->getColumnsHidden();
-		
-		$model->paramsEditable = $view->getEditableParams();
-		$model->paramsDefault = $view->getParamsDefault();
-		$model->paramsRequired = $view->getParamsRequired();
-
-		$model->renderPage = $view->renderPage;
-		$model->renderLimit = $view->renderLimit;
-		
-		$model->renderSort = $view->getSorts();
-
-		return $model;
+			'view_columns' => $view->view_columns,
+			'columnsHidden' => $view->getColumnsHidden(),
+			
+			'paramsEditable' => json_encode($view->getEditableParams()),
+			'paramsDefault' => json_encode($view->getParamsDefault()),
+			'paramsRequired' => json_encode($view->getParamsRequired()),
+			
+			'renderPage' => $view->renderPage,
+			'renderLimit' => $view->renderLimit,
+			
+			'renderSort' => $view->getSorts(),
+		];
 	}
 
-	static function unserializeAbstractView(C4_AbstractViewModel $model) {
-		if(!class_exists($model->class_name, true))
+	static function unserializeAbstractView(array $model) : ?C4_AbstractView {
+		if(!class_exists($model['class_name'] ?? ''))
 			return null;
 		
-		if(null == ($inst = new $model->class_name))
+		if(!in_array($model['class_name'], [
+			'UmSc_KbArticleView',
+			'UmSc_TicketHistoryView',
+		]));
+		
+		if(!is_a($model['class_name'], 'C4_AbstractView', true))
+			return null;
+		
+		if(null == ($inst = new $model['class_name']))
 			return null;
 
 		/* @var $inst C4_AbstractView */
 			
-		$inst->id = $model->id;
-		$inst->name = $model->name;
+		$inst->id = $model['id'] ?? '';
+		$inst->name = $model['name'] ?? '';
 		
-		$inst->view_columns = $model->view_columns;
-		$inst->addColumnsHidden($model->columnsHidden, true);
+		$inst->view_columns = $model['view_columns'] ?? [];
+		$inst->addColumnsHidden($model['columnsHidden'] ?? [], true);
 		
-		$inst->addParams($model->paramsEditable, true);
-		$inst->addParamsDefault($model->paramsDefault, true);
-		$inst->addParamsRequired($model->paramsRequired, true);
+		$inst->addParams(DAO_WorkerViewModel::decodeParamsJson($model['paramsEditable'] ?? ''));
+		$inst->addParamsDefault(DAO_WorkerViewModel::decodeParamsJson($model['paramsDefault'] ?? ''));
+		$inst->addParamsRequired(DAO_WorkerViewModel::decodeParamsJson($model['paramsRequired'] ?? ''));
 
-		$inst->renderPage = $model->renderPage;
-		$inst->renderLimit = $model->renderLimit;
+		$inst->renderPage = (int)$model['renderPage'];
+		$inst->renderLimit = (int)$model['renderLimit'];
 		
-		$inst->renderSortBy = key($model->renderSort ?? []) ?? '';
-		$inst->renderSortAsc = current($model->renderSort) ?? true;
+		if(is_array($model['renderSort'] ?? null)) {
+			if(1 == count($model['renderSort'])) {
+				$inst->renderSortBy = key($model['renderSort']);
+				$inst->renderSortAsc = current($model['renderSort']);
+				
+			} else {
+				$inst->renderSortBy = array_keys($model['renderSort']);
+				$inst->renderSortAsc = array_values($model['renderSort']);
+			}
+		}
 
 		return $inst;
 	}

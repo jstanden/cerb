@@ -14,8 +14,7 @@ class UmScAnnouncementsController extends Extension_UmScController {
 	function writeResponse(DevblocksHttpResponse $response) {
 		$tpl = DevblocksPlatform::services()->templateSandbox();
 		
-		$sNewsRss = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(),self::PARAM_NEWS_RSS, '');
-		$aNewsRss = !empty($sNewsRss) ? unserialize($sNewsRss) : [];
+		$aNewsRss = DAO_CommunityToolProperty::getJson(ChPortalHelper::getCode(),self::PARAM_NEWS_RSS, []);
 		
 		$feeds = [];
 		
@@ -40,8 +39,7 @@ class UmScAnnouncementsController extends Extension_UmScController {
 		$tpl = DevblocksPlatform::services()->templateSandbox();
 		$tpl->assign('portal', $portal);
 
-		$sNewsRss = DAO_CommunityToolProperty::get($portal->code,self::PARAM_NEWS_RSS, '');
-		$news_rss = !empty($sNewsRss) ? unserialize($sNewsRss) : array();
+		$news_rss = DAO_CommunityToolProperty::getJson($portal->code,self::PARAM_NEWS_RSS, []);
 		$tpl->assign('news_rss', $news_rss);
 		
 		$tpl->display("devblocks:cerberusweb.support_center::portal/sc/profile/tabs/configuration/announcements.tpl");
@@ -61,6 +59,6 @@ class UmScAnnouncementsController extends Extension_UmScController {
 			$aNewsRss[$aNewsRssTitles[$idx]] = $rss;
 		}
 		
-		DAO_CommunityToolProperty::set($portal->code, self::PARAM_NEWS_RSS, serialize($aNewsRss));
+		DAO_CommunityToolProperty::setJson($portal->code, self::PARAM_NEWS_RSS, $aNewsRss);
 	}
 }

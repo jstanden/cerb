@@ -2656,7 +2656,7 @@ class DevblocksPlatform extends DevblocksEngine {
 				$extension->name = $row['name'];
 				$extension->file = $row['file'];
 				$extension->class = $row['class'];
-				$extension->params = @unserialize($row['params']);
+				$extension->params = json_decode($row['params'] ?: '[]', true) ?: [];
 				
 				if(empty($extension->params))
 					$extension->params = [];
@@ -3127,7 +3127,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			$point->plugin_id = $row['plugin_id'];
 			
 			$params = $row['params'];
-			$point->params = !empty($params) ? unserialize($params) : array();
+			$point->params = json_decode($params ?: '[]', true) ?: [];
 
 			if(isset($plugins[$point->plugin_id])) {
 				$plugins[$point->plugin_id]->event_points[$point->id] = $point;
