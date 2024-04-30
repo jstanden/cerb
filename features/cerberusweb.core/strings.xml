@@ -3764,22 +3764,22 @@
 		
 		<tu tuid="acl.core.display.actions.attachments.download">
 			<tuv xml:lang="en_US">
-				<seg>[Tickets] Can download ticket attachments</seg>
+				<seg>[Tickets] Download attachments</seg>
 			</tuv>
 		</tu>
 		<tu tuid="acl.core.display.actions.forward">
 			<tuv xml:lang="en_US">
-				<seg>[Tickets] Can forward tickets to third-party email addresses</seg>
+				<seg>[Tickets] Forward to third-party email addresses</seg>
 			</tuv>
 		</tu>
 		<tu tuid="acl.core.display.actions.reply">
 			<tuv xml:lang="en_US">
-				<seg>[Tickets] Can reply to tickets</seg>
+				<seg>[Tickets] Reply</seg>
 			</tuv>
 		</tu>
 		<tu tuid="acl.core.display.actions.split">
 			<tuv xml:lang="en_US">
-				<seg>[Tickets] Can split tickets</seg>
+				<seg>[Tickets] Split</seg>
 			</tuv>
 		</tu>
 
@@ -3787,7 +3787,7 @@
 		
 		<tu tuid="acl.core.mail.save_without_sending">
 			<tuv xml:lang="en_US">
-				<seg>[Tickets] Can save replies to the ticket history without sending mail</seg>
+				<seg>[Tickets] Save replies without sending email</seg>
 			</tuv>
 		</tu>
 
@@ -3795,12 +3795,12 @@
 		
 		<tu tuid="acl.core.ticket.actions.close">
 			<tuv xml:lang="en_US">
-				<seg>[Tickets] Can close tickets</seg>
+				<seg>[Tickets] Close</seg>
 			</tuv>
 		</tu>
 		<tu tuid="acl.core.ticket.actions.spam">
 			<tuv xml:lang="en_US">
-				<seg>[Tickets] Can report tickets as spam</seg>
+				<seg>[Tickets] Report spam</seg>
 			</tuv>
 		</tu>
 

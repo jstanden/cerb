@@ -1495,6 +1495,27 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 			
 			// Contexts
 			$contexts = Extension_DevblocksContext::getAll(false);
+			
+			$record_types =
+				array_combine(
+					array_keys($contexts),
+					array_map(
+						function($record_type) {
+							$context_mft = Extension_DevblocksContext::getByAlias($record_type, false);
+							$context_aliases = Extension_DevblocksContext::getAliasesForContext($context_mft);
+							return [
+								'id' => $context_mft->id,
+								'label' => DevblocksPlatform::strTitleCase($context_aliases['plural'] ?? $context_aliases['singular'] ?? $record_type),
+							];
+						},
+						array_keys($contexts)
+					)
+				)
+			;
+			
+			DevblocksPlatform::sortObjects($record_types, '[label]');
+			
+			$tpl->assign('record_types', $record_types);
 			$tpl->assign('contexts', $contexts);
 			
 			// Custom fields

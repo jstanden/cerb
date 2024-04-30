@@ -62,9 +62,9 @@
 		<tr>
 			<td width="1%" nowrap="nowrap" valign="top"><b>{'common.privileges'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%">
-				<label><input type="radio" name="privs_mode" value="all" {if $model->privs_mode=='all'}checked="checked"{/if} onclick="$('#configAclItemized').hide();"> {'common.all'|devblocks_translate|capitalize}</label>
-				<label><input type="radio" name="privs_mode" value="" {if empty($model->id) || !$model->privs_mode}checked="checked"{/if} onclick="$('#configAclItemized').hide();"> {'common.none'|devblocks_translate|capitalize}</label>
-				<label><input type="radio" name="privs_mode" value="itemized" {if $model->privs_mode=='itemized'}checked="checked"{/if} onclick="$('#configAclItemized').show();"> Itemized:</label>
+				<label><input type="radio" name="privs_mode" value="all" {if $model->privs_mode=='all'}checked="checked"{/if}> {'common.all'|devblocks_translate|capitalize}</label>
+				<label><input type="radio" name="privs_mode" value="" {if empty($model->id) || !$model->privs_mode}checked="checked"{/if}"> {'common.none'|devblocks_translate|capitalize}</label>
+				<label><input type="radio" name="privs_mode" value="itemized" {if $model->privs_mode=='itemized'}checked="checked"{/if}"> Itemized:</label>
 			</td>
 		</tr>
 	</table>
@@ -80,12 +80,9 @@
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
 <div id="configAclItemized" style="display:block;{if $model->privs_mode != 'itemized'}display:none;{/if}">
-	<ul>
-		<li><a href="#roleEditorPrivsRecords">{'common.records'|devblocks_translate|capitalize}</a></li>
-		<li><a href="#roleEditorPrivsOther">{'common.other'|devblocks_translate|capitalize}</a></li>
-	</ul>
-	
 	<div id="roleEditorPrivsOther">
+		<h1>{{'common.actions'|devblocks_translate|capitalize}}</h1>
+
 		<div style="margin-bottom:10px;">
 			<a href="javascript:;" style="font-size:90%;" onclick="checkAll('roleEditorPrivsOther');">check all</a>
 		</div>
@@ -103,7 +100,7 @@
 				
 				<div id="privs{$container_id}" style="padding-left:10px;">
 					{foreach from=$section.privs item=priv key=priv_id}
-						<label style=""><input type="checkbox" name="acl_privs[]" value="{$priv_id}" {if isset($role_privs.$priv_id)}checked{/if}> {$priv}</label><br>
+						<label title="{$priv_id}"><input type="checkbox" name="acl_privs[]" value="{$priv_id}" {if isset($role_privs.$priv_id)}checked{/if}> {$priv}</label><br>
 					{/foreach}
 				</div>
 			</fieldset>
@@ -113,7 +110,7 @@
 		{if $core_acl.privs}
 		<div style="margin-top:5px;margin-left:5px;">
 			{foreach from=$core_acl.privs item=priv key=priv_id}
-				<label style=""><input type="checkbox" name="acl_privs[]" value="{$priv_id}" {if isset($role_privs.$priv_id)}checked{/if}> {$priv}</label><br>
+				<label title="{$priv_id}"><input type="checkbox" name="acl_privs[]" value="{$priv_id}" {if isset($role_privs.$priv_id)}checked{/if}> {$priv}</label><br>
 			{/foreach}
 		</div>
 		{/if}
@@ -130,7 +127,7 @@
 				
 				<div id="privs{$plugin_id}" style="padding-left:10px">
 					{foreach from=$plugin.privs item=priv key=priv_id}
-						<label style=""><input type="checkbox" name="acl_privs[]" value="{$priv_id}" {if isset($role_privs.$priv_id)}checked{/if}> {$priv}</label><br>
+						<label title="{$priv_id}"><input type="checkbox" name="acl_privs[]" value="{$priv_id}" {if isset($role_privs.$priv_id)}checked{/if}> {$priv}</label><br>
 					{/foreach}
 				</div>
 			</fieldset>
@@ -139,46 +136,48 @@
 	</div>
 	
 	<div id="roleEditorPrivsRecords">
-	<div style="margin-bottom:10px;">
-		<a href="javascript:;" style="font-size:90%;" onclick="checkAll('roleEditorPrivsRecords');">check all</a>
-	</div>
-	
-	{$priv_labels = []}
-	{$priv_labels['broadcast'] = 'common.broadcast'|devblocks_translate|capitalize}
-	{$priv_labels['comment'] = 'common.comment'|devblocks_translate|capitalize}
-	{$priv_labels['create'] = 'common.create'|devblocks_translate|capitalize}
-	{$priv_labels['delete'] = 'common.delete'|devblocks_translate|capitalize}
-	{$priv_labels['export'] = 'common.export'|devblocks_translate|capitalize}
-	{$priv_labels['import'] = 'common.import'|devblocks_translate|capitalize}
-	{$priv_labels['merge'] = 'common.merge'|devblocks_translate|capitalize}
-	{$priv_labels['update'] = 'common.update'|devblocks_translate|capitalize}
-	{$priv_labels['update.bulk'] = 'common.update.bulk'|devblocks_translate|capitalize}
-	{$priv_labels['watchers'] = 'common.watchers'|devblocks_translate|capitalize}
-	
-	<div style="column-count:2;column-width:50%;">
-	{foreach from=$contexts item=context key=context_id}
-		{$priv_prefix = "contexts.{$context_id}"}
-		{$available_privs = $context->params.acl[0]}
-		
-		{if $available_privs}
-		<fieldset class="peek black" style="break-inside:avoid-column;page-break-inside:avoid;">
-			<legend>
-				<label onclick="checkAll('contexts{$context_id}');">
-				{$aliases = Extension_DevblocksContext::getAliasesForContext($contexts[$context_id])}
-				{$aliases.plural|default:$context->name|capitalize}
-				</label>
-			</legend>
-			
-			<div id="contexts{$context_id}" style="padding-left:10px;">
-				{foreach from=$available_privs item=null key=priv}
-				{$priv_id = "{$priv_prefix}.{$priv}"}
-				<label><input type="checkbox" name="acl_privs[]" value="{$priv_prefix}.{$priv}" {if isset($role_privs.$priv_id)}checked{/if}> {$priv_labels.$priv}</label><br>
-				{/foreach}
-			</div>
-		</fieldset>
-		{/if}
-	{/foreach}
-	</div>
+		<h1>{{'common.records'|devblocks_translate|capitalize}}</h1>
+
+		<div style="margin-bottom:10px;">
+			<a href="javascript:;" style="font-size:90%;" onclick="checkAll('roleEditorPrivsRecords');">check all</a>
+		</div>
+
+		{$priv_labels = []}
+		{$priv_labels['broadcast'] = 'common.broadcast'|devblocks_translate|capitalize}
+		{$priv_labels['comment'] = 'common.comment'|devblocks_translate|capitalize}
+		{$priv_labels['create'] = 'common.create'|devblocks_translate|capitalize}
+		{$priv_labels['delete'] = 'common.delete'|devblocks_translate|capitalize}
+		{$priv_labels['export'] = 'common.export'|devblocks_translate|capitalize}
+		{$priv_labels['import'] = 'common.import'|devblocks_translate|capitalize}
+		{$priv_labels['merge'] = 'common.merge'|devblocks_translate|capitalize}
+		{$priv_labels['update'] = 'common.update'|devblocks_translate|capitalize}
+		{$priv_labels['update.bulk'] = 'common.update.bulk'|devblocks_translate|capitalize}
+		{$priv_labels['watchers'] = 'common.watchers'|devblocks_translate|capitalize}
+
+		<div style="column-count:3;column-width:300px;">
+		{foreach from=$record_types item=record_type key=context_id}
+			{$priv_prefix = "contexts.{$context_id}"}
+			{$context = $contexts[$context_id]}
+			{$available_privs = $context->params.acl[0]}
+
+			{if $available_privs}
+			<fieldset class="peek black" style="break-inside:avoid-column;page-break-inside:avoid;">
+				<legend>
+					<label onclick="checkAll('contexts{$context_id}');">
+					{$record_type.label|capitalize}
+					</label>
+				</legend>
+
+				<div id="contexts{$context_id}" style="padding-left:10px;column-width:140px;column-count:2;">
+					{foreach from=$available_privs item=null key=priv}
+					{$priv_id = "{$priv_prefix}.{$priv}"}
+					<label title="{$priv_id}"><input type="checkbox" name="acl_privs[]" value="{$priv_prefix}.{$priv}" {if isset($role_privs.$priv_id)}checked{/if}> {$priv_labels.$priv}</label><br>
+					{/foreach}
+				</div>
+			</fieldset>
+			{/if}
+		{/foreach}
+		</div>
 	</div>
 </div>
 
@@ -213,17 +212,15 @@ $(function() {
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{'common.role'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 
-		// Tabs
-		var $tabs = $('#configAclItemized').tabs();
-
-		$tabs.find('fieldset > legend').on('mousedown', function(e) {
+		$popup.find('fieldset > legend').on('mousedown', function(e) {
 			e.preventDefault();
 		});
 		
 		// This prevents the popup from being stranded downward by the height of the roles popup after submit
 		var hide_tabs_on_submit = function(e) {
-			if(!e.error)
-				$tabs.hide();
+			if(!e.error) {
+				$('#configAclItemized').hide();
+			}
 		};
 		
 		// Buttons
@@ -235,7 +232,26 @@ $(function() {
 		var $who = $frm.find('input:radio[name=who]');
 		var $who_groups = $('#configAclWhoGroups');
 		var $who_workers = $('#configAclWhoWorkers');
-		
+
+		// Privileges
+
+		let $privs_mode = $frm.find('input[name=privs_mode]');
+
+		$privs_mode.on('change', function(e) {
+			e.stopPropagation();
+
+			let $this = $(this);
+			let mode = $this.val();
+
+			if(mode === 'itemized') {
+				$('#configAclItemized').show();
+			} else if (mode === 'kata') {
+				$('#configAclItemized').hide();
+			} else {
+				$('#configAclItemized').hide();
+			}
+		});
+
 		// Avatar chooser
 		
 		var $avatar_chooser = $popup.find('button.cerb-avatar-chooser');
@@ -243,10 +259,10 @@ $(function() {
 		ajax.chooserAvatar($avatar_chooser, $avatar_image);
 		
 		// Editors
-		$popup.find('textarea[data-editor-mode]')
+
+		$popup.find('textarea[name=member_query_worker], textarea[name=editor_query_worker], textarea[name=reader_query_worker]')
 			.cerbCodeEditor()
 			.cerbCodeEditorAutocompleteSearchQueries({ context: 'worker' })
-			.nextAll('pre.ace_editor')
 			;
 		
 		$who.on('change', function(e) {
