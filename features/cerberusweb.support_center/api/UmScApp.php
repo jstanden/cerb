@@ -70,7 +70,7 @@ class UmScApp extends Extension_CommunityPortal {
 		// Lazy load
 		if(null == $_all_modules) {
 			$umsession = ChPortalHelper::getSession();
-			@$active_contact = $umsession->getProperty('sc_login',null);
+			$active_contact = $umsession->getActiveContact();
 			
 			$modules = DevblocksPlatform::getExtensions('usermeet.sc.controller', true);
 			$visible_modules = DAO_CommunityToolProperty::getJson(ChPortalHelper::getCode(), self::PARAM_VISIBLE_MODULES, '');
@@ -244,7 +244,7 @@ class UmScApp extends Extension_CommunityPortal {
 		$visible_modules = DAO_CommunityToolProperty::getJson(ChPortalHelper::getCode(), self::PARAM_VISIBLE_MODULES, '');
 		$tpl->assign('visible_modules', $visible_modules);
 		
-		@$active_contact = $umsession->getProperty('sc_login',null);
+		$active_contact = $umsession->getActiveContact();
 		$tpl->assign('active_contact', $active_contact);
 
 		$login_extensions_enabled = UmScApp::getLoginExtensionsEnabled(ChPortalHelper::getCode());

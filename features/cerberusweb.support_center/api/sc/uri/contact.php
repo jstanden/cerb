@@ -334,7 +334,7 @@ class UmScContactController extends Extension_UmScController {
 			
 		}
 		
-		$active_contact = $umsession->getProperty('sc_login', null);
+		$active_contact = $umsession->getActiveContact();
 
 		$umsession->setProperty('support.write.last_cc',$sCc);
 		$umsession->setProperty('support.write.last_from',$sFrom);

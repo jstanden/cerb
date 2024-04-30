@@ -4,7 +4,7 @@ class UmScHistoryController extends Extension_UmScController {
 	
 	function isVisible() {
 		$umsession = ChPortalHelper::getSession();
-		$active_contact = $umsession->getProperty('sc_login', null);
+		$active_contact = $umsession->getActiveContact();
 		return !empty($active_contact);
 	}
 	
@@ -24,9 +24,8 @@ class UmScHistoryController extends Extension_UmScController {
 	function writeResponse(DevblocksHttpResponse $response) {
 		$tpl = DevblocksPlatform::services()->templateSandbox();
 		$umsession = ChPortalHelper::getSession();
-		$active_contact = $umsession->getProperty('sc_login', null);
 		
-		if(false == $active_contact)
+		if(!($active_contact = $umsession->getActiveContact()))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$stack = $response->path;
@@ -187,7 +186,7 @@ class UmScHistoryController extends Extension_UmScController {
 		$participants = DevblocksPlatform::importGPC($_POST['participants'] ?? null, 'string','');
 		$is_closed = DevblocksPlatform::importGPC($_POST['is_closed'] ?? null, 'integer','0');
 		
-		if(false == ($active_contact = $umsession->getProperty('sc_login', null)))
+		if(!($active_contact = $umsession->getActiveContact()))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 
 		$shared_address_ids = DAO_SupportCenterAddressShare::getContactAddressesWithShared($active_contact->id, true);
@@ -251,7 +250,7 @@ class UmScHistoryController extends Extension_UmScController {
 		$mask = DevblocksPlatform::importGPC($_POST['mask'] ?? null, 'string','');
 		$content = DevblocksPlatform::importGPC($_POST['content'] ?? null, 'string','');
 		
-		if(false == ($active_contact = $umsession->getProperty('sc_login', null)))
+		if(!($active_contact = $umsession->getActiveContact()))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		// Load contact addresses
@@ -503,7 +502,7 @@ class UmSc_TicketHistoryView extends C4_AbstractView implements IAbstractView_Qu
 	
 	function doSetCriteria($field, $oper, $value) {
 		$umsession = ChPortalHelper::getSession();
-		$active_contact = $umsession->getProperty('sc_login', null);
+		$active_contact = $umsession->getActiveContact();
 		
 		$criteria = null;
 

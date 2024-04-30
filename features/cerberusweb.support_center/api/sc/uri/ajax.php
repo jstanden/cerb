@@ -32,7 +32,7 @@ class UmScAjaxController extends Extension_UmScController {
 		$tpl = DevblocksPlatform::services()->templateSandbox();
 		$umsession = ChPortalHelper::getSession();
 		
-		$active_contact = $umsession->getProperty('sc_login');
+		$active_contact = $umsession->getActiveContact();
 		$tpl->assign('active_contact', $active_contact);
 		
 		array_shift($path); // ajax
@@ -116,7 +116,7 @@ class UmScAjaxController extends Extension_UmScController {
 		}
 		
 		if(!$pass && isset($links[CerberusContexts::CONTEXT_MESSAGE])) {
-			if(null == ($active_contact = $umsession->getProperty('sc_login',null))) /* @var $active_contact Model_Contact */
+			if(!($active_contact = $umsession->getActiveContact()))
 				DevblocksPlatform::dieWithHttpError(null, 403);
 			
 			if(!($contact_emails = $active_contact->getEmails()))

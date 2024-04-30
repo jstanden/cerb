@@ -169,14 +169,29 @@ class Model_CommunitySession {
 	public $nonce = '';
 	
 	private $_properties = [];
+	private $_active_contact = null;
 
+	function getActiveContact() : ?Model_Contact {
+		if(is_null($this->_active_contact)) {
+			if (!($active_contact_id = $this->getProperty('sc_login_contact_id', null)))
+				return null;
+			
+			if (!($active_contact = DAO_Contact::get($active_contact_id)))
+				return null;
+			
+			$this->_active_contact = $active_contact;
+		}
+		
+		return $this->_active_contact;
+	}
+	
 	function login(Model_Contact $contact) {
 		if(empty($contact) || empty($contact->id)) {
 			$this->logout();
 			return;
 		}
 		
-		$this->setProperty('sc_login', $contact);
+		$this->setProperty('sc_login_contact_id', (int)$contact->id);
 		
 		DAO_Contact::update($contact->id, [
 			DAO_Contact::LAST_LOGIN_AT => time(),
@@ -184,7 +199,7 @@ class Model_CommunitySession {
 	}
 	
 	function logout() {
-		$this->setProperty('sc_login', null);
+		$this->setProperty('sc_login_contact_id', null);
 	}
 	
 	function setProperties($properties) {

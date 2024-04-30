@@ -2,7 +2,7 @@
 class UmScAccountController extends Extension_UmScController {
 	function isVisible() {
 		$umsession = ChPortalHelper::getSession();
-		$active_contact = $umsession->getProperty('sc_login', null);
+		$active_contact = $umsession->getActiveContact();
 		return !empty($active_contact);
 	}
 	
@@ -40,7 +40,7 @@ class UmScAccountController extends Extension_UmScController {
 		
 		// Scope
 		$umsession = ChPortalHelper::getSession();
-		$active_contact = $umsession->getProperty('sc_login', null); /* @var $active_contact Model_Contact */
+		$active_contact = $umsession->getActiveContact(); /* @var $active_contact Model_Contact */
 		
 		@$module = array_shift($path);
 		
@@ -144,7 +144,7 @@ class UmScAccountController extends Extension_UmScController {
 	
 	private function _portalAction_doProfileUpdate() {
 		$umsession = ChPortalHelper::getSession();
-		$active_contact = $umsession->getProperty('sc_login', null);
+		$active_contact = $umsession->getActiveContact();
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
@@ -246,7 +246,7 @@ class UmScAccountController extends Extension_UmScController {
 	private function _portalAction_doEmailUpdate() {
 		$tpl = DevblocksPlatform::services()->templateSandbox();
 		$umsession = ChPortalHelper::getSession();
-		$active_contact = $umsession->getProperty('sc_login', null);
+		$active_contact = $umsession->getActiveContact();
 		
 		if(null == $active_contact)
 			DevblocksPlatform::dieWithHttpError(null, 403);
@@ -387,7 +387,7 @@ class UmScAccountController extends Extension_UmScController {
 		$errors = [];
 
 		try {
-			$active_contact = $umsession->getProperty('sc_login', null);
+			$active_contact = $umsession->getActiveContact();
 			
 			if(!$active_contact)
 				throw new Exception("Your session has expired.");
@@ -491,7 +491,7 @@ class UmScAccountController extends Extension_UmScController {
 	
 	private function _portalAction_doPasswordUpdate() {
 		$umsession = ChPortalHelper::getSession();
-		$active_contact = $umsession->getProperty('sc_login', null); /* @var $active_contact Model_Contact */
+		$active_contact = $umsession->getActiveContact(); /* @var $active_contact Model_Contact */
 		
 		$tpl = DevblocksPlatform::services()->templateSandbox();
 		
@@ -549,7 +549,7 @@ class UmScAccountController extends Extension_UmScController {
 	
 	private function _portalAction_doEmailAdd() {
 		$umsession = ChPortalHelper::getSession();
-		$active_contact = $umsession->getProperty('sc_login', null);
+		$active_contact = $umsession->getActiveContact();
 		$tpl = DevblocksPlatform::services()->templateSandbox();
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
@@ -611,7 +611,7 @@ class UmScAccountController extends Extension_UmScController {
 	
 	private function _portalAction_doEmailConfirm() {
 		$umsession = ChPortalHelper::getSession();
-		$active_contact = $umsession->getProperty('sc_login', null);
+		$active_contact = $umsession->getActiveContact();
 		
 		$email = DevblocksPlatform::importGPC($_POST['email'] ?? null, 'string','');
 		$confirm = DevblocksPlatform::importGPC($_POST['confirm'] ?? null, 'string','');
@@ -658,7 +658,7 @@ class UmScAccountController extends Extension_UmScController {
 	
 	private function _portalAction_doDelete() {
 		$umsession = ChPortalHelper::getSession();
-		$active_contact = $umsession->getProperty('sc_login', null);
+		$active_contact = $umsession->getActiveContact();
 		$tpl = DevblocksPlatform::services()->templateSandbox();
 		$url_writer = DevblocksPlatform::services()->url();
 		
