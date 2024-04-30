@@ -18,7 +18,7 @@
 	],
 	"config": {
 		"platform": {
-			"php": "8.1"
+			"php": "8.2"
 		}
 	},
 	"repositories": [
@@ -32,7 +32,7 @@
 		}
 	],
 	"require" : {
-		"php": ">=8.1",
+		"php": ">=8.2",
 		"ext-curl": "*",
 		"ext-dom": "*",
 		"ext-gd": "*",
