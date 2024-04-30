@@ -4,6 +4,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 	
 	public static function getFormComponentMeta() {
 		return [
+			'chart' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\ChartAwait',
 			'editor' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\EditorAwait',
 			'end' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\EndAwait',
 			'fileDownload' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\FileDownloadAwait',
@@ -410,6 +411,11 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 						'description' => "Play an audio file",
 					],
 					[
+						'caption' => 'chart:',
+						'snippet' => "chart/\${1:prompt_chart}:\n\t\${2:}",
+						'description' => "Display a chart visualization",
+					],
+					[
 						'caption' => 'editor:',
 						'snippet' => "editor/\${1:prompt_editor}:\n\t\${2:}",
 						'description' => "Prompt with a code editor",
@@ -488,6 +494,17 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 						'resource' => null,
 						'automation_resource' => null,
 					],
+				],
+				
+				'(.*):await:form:elements:chart:' => [
+					[
+						'caption' => 'label:',
+						'snippet' => "label: \${1:Label:}",
+						'score' => 2000,
+					],
+					'hidden@bool: no',
+					'datasets:',
+					'schema:',
 				],
 				
 				'(.*):await:form:elements:editor:' => [
@@ -1403,6 +1420,17 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 				],
 			]
 		];
+		
+		// Chart schema
+		$suggestions['*'] += CerberusApplication::kataAutocompletions()->chart(
+			'(.*?):await:form:elements:chart:schema:',
+			true
+		);
+		
+		// Dataset
+		$suggestions['*'] += CerberusApplication::kataAutocompletions()->dataset(
+			'(.*?):await:form:elements:chart:datasets:',
+		);
 		
 		$suggestions['(.*):return:'] = [
 			'alert:',
