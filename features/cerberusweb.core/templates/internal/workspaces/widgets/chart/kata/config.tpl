@@ -65,7 +65,7 @@ $(function() {
 	var $editor_datasets = $config.find('textarea[name="params[datasets_kata]"]')
 		.cerbCodeEditor()
 		.cerbCodeEditorAutocompleteKata({
-			autocomplete_suggestions: cerbAutocompleteSuggestions.kataSchemaDataset
+			autocomplete_suggestions: {CerberusApplication::kataAutocompletions()->dataset()|json_encode nofilter}
 		})
 		.nextAll('pre.ace_editor')
 	;
@@ -108,7 +108,7 @@ $(function() {
 	var $editor_chart = $config.find('textarea[name="params[chart_kata]"]')
 		.cerbCodeEditor()
 		.cerbCodeEditorAutocompleteKata({
-			autocomplete_suggestions: cerbAutocompleteSuggestions.kataSchemaChart
+			autocomplete_suggestions: {CerberusApplication::kataAutocompletions()->chart()|json_encode nofilter}
 		})
 		.nextAll('pre.ace_editor')
 	;

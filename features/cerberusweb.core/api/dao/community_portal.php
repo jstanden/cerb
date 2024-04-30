@@ -648,12 +648,12 @@ class DAO_CommunityToolProperty extends Cerb_ORMHelper {
 	
 	static function get($tool_code, $key, $default=null, $json_decode=false) {
 		$props = self::getAllByTool($tool_code);
-		@$val = $props[$key];
+		$val = $props[$key] ?? null;
 		
 		$val = (is_null($val) || (!is_numeric($val) && empty($val))) ? $default : $val;
 		
 		if($json_decode)
-			$val = @json_decode($val, true);
+			$val = json_decode(strval($val), true);
 		
 		if(false === $val)
 			$val = $default;

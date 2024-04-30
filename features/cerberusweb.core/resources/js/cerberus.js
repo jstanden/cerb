@@ -1,50 +1,3 @@
-var cerbAutocompleteColorSuggestions = [
-	{
-		'caption': 'category10:',
-		'snippet': '\${1:category10}@csv: #1f77b4, #ff7f0e, #2ca02c, #d62728, #9467bd, #8c564b, #e377c2, #7f7f7f, #bcbd22, #17becf',
-	},
-	{
-		'caption': 'rainbow6:',
-		'snippet': '\${1:rainbow6}@csv: #6e40aa, #ee4395, #ff8c38, #aff05b, #28ea8d, #2f96e0',
-	},
-	{
-		'caption': 'rainbow12:',
-		'snippet': '\${1:rainbow12}@csv: #6e40aa, #b83cb0, #f6478d, #ff6956, #f59f30, #c4d93e, #83f557, #38f17a, #19d3b5, #29a0dd, #5069d9, #6e40aa',
-	},
-	{
-		'caption': 'blues5:',
-		'snippet': '\${1:blues5}@csv: #08519c, #3182bd, #6baed6, #bdd7e7, #eff3ff',
-	},
-	{
-		'caption': 'blues9:',
-		'snippet': '\${1:blues9}@csv: #08306b, #08519c, #2171b5, #4292c6, #6baed6, #9ecae1, #c6dbef, #deebf7, #f7fbff',
-	},
-	{
-		'caption': 'reds5:',
-		'snippet': '\${1:reds5}@csv: #a50f15, #de2d26, #fb6a4a, #fcae91, #fee5d9',
-	},
-	{
-		'caption': 'reds9:',
-		'snippet': '\${1:reds9}@csv: #67000d, #a50f15, #cb181d, #ef3b2c, #fb6a4a, #fc9272, #fcbba1, #fee0d2, #fff5f0',
-	},
-	{
-		'caption': 'greens5:',
-		'snippet': '\${1:greens5}@csv: #006d2c, #31a354, #74c476, #bae4b3, #edf8e9',
-	},
-	{
-		'caption': 'greens9:',
-		'snippet': '\${1:greens9}@csv: #00441b, #006d2c, #238b45, #41ab5d, #74c476, #a1d99b, #c7e9c0, #e5f5e0, #f7fcf5',
-	},
-	{
-		'caption': 'grays5:',
-		'snippet': '\${1:grays5}@csv: #252525, #636363, #969696, #cccccc, #f7f7f7',
-	},
-	{
-		'caption': 'grays9:',
-		'snippet': '\${1:grays9}@csv: #ffffff, #f0f0f0, #d9d9d9, #bdbdbd, #969696, #737373, #525252, #252525, #000000',
-	},
-];
-
 var cerbAutocompleteSuggestions = {
 	kataAutomationEvent: {
 		'': [
@@ -281,297 +234,6 @@ var cerbAutocompleteSuggestions = {
 			'time_limit_ms: 25000'
 		]
 	},
-	kataSchemaChart: {
-		'': [
-			'axis:',
-			'color:',
-			'data:',
-			'grid:',
-			'legend:',
-			'tooltip:'
-		],
-
-		'axis:': [
-			'x:',
-			'y:',
-			'y2:'
-		],
-		'axis:x:': [
-			'categories@list:',
-			'label:',
-			'tick:',
-			'type:'
-		],
-		'axis:x:tick:': [
-			'format:',
-			'fit@bool: no',
-			'multiline@bool: no',
-			'rotate: -90'
-		],
-		'axis:x:tick:format:': [
-			'date:',
-			'duration:',
-			'number:'
-		],
-		'axis:x:tick:format:date:': [
-			'pattern:'
-		],
-		'axis:x:tick:format:date:pattern:': [
-			{
-				'caption': '(choose date format)',
-				'interaction': 'ai.cerb.automationBuilder.autocomplete.d3TimeFormat',
-				'interaction_params': ''
-			}
-		],
-		'axis:x:tick:format:duration:': [
-			'precision@int: 2',
-			'unit:'
-		],
-		'axis:x:tick:format:duration:precision:': [
-			'2'
-		],
-		'axis:x:tick:format:duration:unit:': [
-			'milliseconds',
-			'seconds',
-			'minutes',
-		],
-		'axis:x:tick:format:number:': [
-			'pattern:'
-		],
-		'axis:x:tick:format:number:pattern:': [
-			{
-				'caption': '(choose number format)',
-				'interaction': 'ai.cerb.automationBuilder.autocomplete.d3Format',
-				'interaction_params': ''
-			}
-		],
-		'axis:x:type:': [
-			'category',
-			'linear',
-			'timeseries'
-		],
-		'axis:y:': [
-			'label:',
-			'tick:',
-			'type:'
-		],
-		'axis:y:tick:': [
-			'format:',
-			'fit@bool: no',
-			'multiline@bool: no',
-			'rotate: -90'
-		],
-		'axis:y:tick:format:': [
-			'date:',
-			'duration:',
-			'number:'
-		],
-		'axis:y:tick:format:date:': [
-			'pattern:'
-		],
-		'axis:y:tick:format:date:pattern:': [
-			{
-				'caption': '(choose date format)',
-				'interaction': 'ai.cerb.automationBuilder.autocomplete.d3TimeFormat',
-				'interaction_params': ''
-			}
-		],
-		'axis:y:tick:format:duration:': [
-			'precision@int: 2',
-			'unit:'
-		],
-		'axis:y:tick:format:duration:precision:': [
-			'2'
-		],
-		'axis:y:tick:format:duration:unit:': [
-			'milliseconds',
-			'seconds',
-			'minutes',
-		],
-		'axis:y:tick:format:number:': [
-			'pattern:'
-		],
-		'axis:y:tick:format:number:pattern:': [
-			{
-				'caption': '(choose number format)',
-				'interaction': 'ai.cerb.automationBuilder.autocomplete.d3Format',
-				'interaction_params': ''
-			}
-		],
-		'axis:y:type:': [
-			'category',
-			'linear',
-			'timeseries'
-		],
-		'axis:y2:': [
-			'label:',
-			'tick:',
-			'type:'
-		],
-		'axis:y2:tick:': [
-			'format:',
-			'fit@bool: no',
-			'multiline@bool: no',
-			'rotate: -90'
-		],
-		'axis:y2:tick:format:': [
-			'date:',
-			'duration:',
-			'number:'
-		],
-		'axis:y2:tick:format:date:': [
-			'pattern:'
-		],
-		'axis:y2:tick:format:date:pattern:': [
-			{
-				'caption': '(choose date format)',
-				'interaction': 'ai.cerb.automationBuilder.autocomplete.d3TimeFormat',
-				'interaction_params': ''
-			}
-		],
-		'axis:y2:tick:format:duration:': [
-			'precision@int: 2',
-			'unit:'
-		],
-		'axis:y2:tick:format:duration:precision:': [
-			'2'
-		],
-		'axis:y2:tick:format:duration:unit:': [
-			'milliseconds',
-			'seconds',
-			'minutes',
-		],
-		'axis:y2:tick:format:number:': [
-			'pattern:'
-		],
-		'axis:y2:tick:format:number:pattern:': [
-			{
-				'caption': '(choose number format)',
-				'interaction': 'ai.cerb.automationBuilder.autocomplete.d3Format',
-				'interaction_params': ''
-			}
-		],
-		'axis:y2:type:': [
-			'category',
-			'linear',
-			'timeseries'
-		],
-		
-		'color:': [
-			'patterns:',	
-		],
-		'color:patterns:': cerbAutocompleteColorSuggestions,
-		
-		'data:': [
-			'series:',
-			'stacks:',
-			'type:'
-		],
-		'data:series:': [
-			'dataset_name:'
-		],
-		'data:stacks:': [
-			'0@csv: series0, series1'
-		],
-		'data:type:': [
-			'area',
-			'area-spline',
-			'area-step',
-			'bar',
-			'donut',
-			'gauge',
-			'line',
-			'pie',
-			'scatter',
-			'spline',
-			'step',
-		],
-		
-		'grid:': [
-			'x:',	
-			'y:',	
-		],
-		'grid:x:': [
-			'lines:',	
-		],
-		'grid:x:lines:': [
-			'0:',
-		],
-		'grid:y:': [
-			'lines:',
-		],
-		'grid:y:lines:': [
-			'0:',
-		],
-		
-		'legend:': [
-			'show@bool: yes',
-			'style:',
-		],
-		'legend:show:': [
-			'yes',
-			'no',
-		],
-		'legend:style:': [
-			'compact:',
-			'table:',
-		],
-		'legend:style:table:': [
-			'data@bool: yes',
-			'stats@csv: sum, avg, max, min',
-		],
-		
-		'tooltip:': [
-			'grouped@bool: yes',
-			'show@bool: yes',
-			'ratios@bool: yes',
-		],
-		'tooltip:grouped:': [
-			'yes',
-			'no',
-		],
-		'tooltip:show:': [
-			'yes',
-			'no',
-		],
-		
-		'*': {
-			'data:series:(.*?):y_axis:': [
-				'y',
-				'y2',
-			],
-			'data:series:(.*?):y_type:': [
-				'area',
-				'area-spline',
-				'area-step',
-				'bar',
-				'donut',
-				'gauge',
-				'line',
-				'pie',
-				'scatter',
-				'spline',
-				'step',
-			],
-			'data:series:(.*?):': [
-				'name:',
-				'color_pattern:',
-				'x_key:',
-				'y_axis:',
-				'y_type:'
-			],
-			
-			'grid:(x|y):lines:(.*?):position:': [
-				'start',
-				'end',
-			],
-			'grid:(x|y):lines:(.*?):': [
-				'position:',
-				'text:',
-				'value:',
-			],
-		}
-	},
 	kataSchemaDashboardFilters: {
 		'': [
 			{
@@ -628,73 +290,6 @@ var cerbAutocompleteSuggestions = {
 		],
 		'text:params:': [
 			'hidden@bool: yes',
-		]
-	},
-	kataSchemaDataset: {
-		'': [
-			{
-				'caption': 'automation:',
-				'snippet': 'automation/${1:series0}:'
-			},
-			{
-				'caption': 'dataQuery:',
-				'snippet': 'dataQuery/${1:series0}:'
-			},
-			{
-				'caption': 'manual:',
-				'snippet': 'manual/${1:series0}:'
-			}
-		],
-		
-		'automation:': [
-			{
-				'caption': 'uri:',
-				'snippet': 'uri: cerb:automation:${1:name}'
-			},
-			'inputs:'
-		],
-		'automation:uri:': {
-			'type': 'cerb-uri',
-			'params': {
-				'automation': {
-					'triggers': [
-						'cerb.trigger.ui.chart.data'
-					]
-				}
-			}
-		},
-		'automation:inputs:': {
-			'type': 'automation-inputs'
-		},
-
-		'dataQuery:': [
-			{
-				'caption': 'query:',
-				'snippet': "query@text:\n  "
-			},
-			{
-				'caption': 'query_params:',
-				'snippet': "query_params:\n  ${1:key}: ${2:value}"
-			},
-			'cache_secs: 300',
-			{
-				'caption': 'key_map:',
-				'snippet': "key_map:\n  ${1:key}: ${2:newKey}"
-			},
-			{
-				'caption': 'key_map@csv:',
-				'snippet': "key_map@csv: ${1:oldKey1}, ${2:newKey1}, oldKey2, newKey2"
-			},
-		],
-		
-		'manual:': [
-			{
-				'caption': 'data:',
-				'snippet': "data:\n  ",
-			}
-		],
-		'manual:data:': [
-			'series_name@csv: 1,2,3'
 		]
 	},
 	kataSchemaMap: {
@@ -1047,7 +642,52 @@ var cerbAutocompleteSuggestions = {
 				snippet: 'colors:'
 			},
 		],
-		'layout:colors:': cerbAutocompleteColorSuggestions,
+		'layout:colors:': [
+			{
+				'caption': 'category10:',
+				'snippet': '\${1:category10}@csv: #1f77b4, #ff7f0e, #2ca02c, #d62728, #9467bd, #8c564b, #e377c2, #7f7f7f, #bcbd22, #17becf',
+			},
+			{
+				'caption': 'rainbow6:',
+				'snippet': '\${1:rainbow6}@csv: #6e40aa, #ee4395, #ff8c38, #aff05b, #28ea8d, #2f96e0',
+			},
+			{
+				'caption': 'rainbow12:',
+				'snippet': '\${1:rainbow12}@csv: #6e40aa, #b83cb0, #f6478d, #ff6956, #f59f30, #c4d93e, #83f557, #38f17a, #19d3b5, #29a0dd, #5069d9, #6e40aa',
+			},
+			{
+				'caption': 'blues5:',
+				'snippet': '\${1:blues5}@csv: #08519c, #3182bd, #6baed6, #bdd7e7, #eff3ff',
+			},
+			{
+				'caption': 'blues9:',
+				'snippet': '\${1:blues9}@csv: #08306b, #08519c, #2171b5, #4292c6, #6baed6, #9ecae1, #c6dbef, #deebf7, #f7fbff',
+			},
+			{
+				'caption': 'reds5:',
+				'snippet': '\${1:reds5}@csv: #a50f15, #de2d26, #fb6a4a, #fcae91, #fee5d9',
+			},
+			{
+				'caption': 'reds9:',
+				'snippet': '\${1:reds9}@csv: #67000d, #a50f15, #cb181d, #ef3b2c, #fb6a4a, #fc9272, #fcbba1, #fee0d2, #fff5f0',
+			},
+			{
+				'caption': 'greens5:',
+				'snippet': '\${1:greens5}@csv: #006d2c, #31a354, #74c476, #bae4b3, #edf8e9',
+			},
+			{
+				'caption': 'greens9:',
+				'snippet': '\${1:greens9}@csv: #00441b, #006d2c, #238b45, #41ab5d, #74c476, #a1d99b, #c7e9c0, #e5f5e0, #f7fcf5',
+			},
+			{
+				'caption': 'grays5:',
+				'snippet': '\${1:grays5}@csv: #252525, #636363, #969696, #cccccc, #f7f7f7',
+			},
+			{
+				'caption': 'grays9:',
+				'snippet': '\${1:grays9}@csv: #ffffff, #f0f0f0, #d9d9d9, #bdbdbd, #969696, #737373, #525252, #252525, #000000',
+			},
+		],
 		'layout:style:': [
 			{
 				'caption': 'table',
