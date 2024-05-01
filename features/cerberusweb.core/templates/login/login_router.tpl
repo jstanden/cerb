@@ -1,4 +1,4 @@
-<form action="{devblocks_url}c=login&a=authenticate{/devblocks_url}" method="post" id="loginForm">
+<form action="{devblocks_url}c=login&a=authenticate{/devblocks_url}" method="post" id="loginForm" onsubmit="return false;">
 <input type="hidden" name="_csrf_token" value="{$csrf_token}">
 
 <div style="vertical-align:middle;max-width:500px;margin:20px auto 20px auto;padding:5px 20px 20px 20px;border-radius:5px;box-shadow:darkgray 0px 0px 5px;">
@@ -32,9 +32,7 @@
 		</div>
 		
 		<div style="margin-top:10px;">
-			<button type="submit" style="width:100%;">
-				{'common.continue'|devblocks_translate|capitalize}
-			</button>
+			<button type="button" class="submit" disabled style="width:100%;">{'common.continue'|devblocks_translate|capitalize}</button>
 		</div>
 		
 		<div style="margin-top:5px;text-align:right;">
@@ -47,11 +45,31 @@
 
 <script type="text/javascript">
 $(function() {
+	let $frm = $('#loginForm');
+	let $submit = $frm.find('.submit').attr('disabled', null);
+	let $password = $frm.find('[name=password]');
+
 	// Auto-focus the email input field
 	{if $email}
-	$('#loginForm input[name=password]').focus();
+	$password.focus();
 	{else}
-	$('#loginForm input[name=email]').focus().select();
+	$frm.find('input[name=email]').focus().select();
 	{/if}
+
+	$password.on('keyup', function(e) {
+		e.stopPropagation();
+		var keycode = e.keyCode || e.which;
+
+		if(13 === keycode) {
+			$submit.click();
+		}
+	});
+
+	$submit.on('click', function(e) {
+		e.stopPropagation();
+		$frm.attr('onsubmit', null);
+		$submit.attr('disabled', 'disabled');
+		$frm.submit();
+	});
 });
 </script>

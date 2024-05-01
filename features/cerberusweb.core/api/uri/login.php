@@ -181,6 +181,7 @@ class Page_Login extends CerberusPageExtension {
 				($url_parts = parse_url($url))
 				&& !array_diff(array_keys($url_parts), ['path','query'])
 				&& array_key_exists('path', $url_parts)
+				&& !DevblocksPlatform::strStartsWith($url_parts['path'], 'login')
 			) {
 				$login_state->pushRedirectUri($url, true);
 			}
