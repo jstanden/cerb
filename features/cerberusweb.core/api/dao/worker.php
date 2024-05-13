@@ -81,7 +81,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			->addField(self::DOB)
 			->string()
 			->addValidator(function($value, &$error) {
-				if($value && false == (strtotime($value . ' 00:00 GMT'))) {
+				if($value && !(strtotime($value . ' 00:00 GMT'))) {
 					$error = sprintf("(%s) is not formatted properly (YYYY-MM-DD).",
 						$value
 					);
@@ -245,10 +245,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
 		
-		$sql = sprintf("INSERT INTO worker () ".
-			"VALUES ()"
-		);
-		if(false == ($db->ExecuteMaster($sql)))
+		if(!($db->ExecuteMaster("INSERT INTO worker () VALUES ()")))
 			return false;
 		
 		$id = $db->LastInsertId();
@@ -335,7 +332,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		;
 		$results = $db->GetArrayMaster($sql);
 		
-		if(false == $results)
+		if(!$results)
 			return [];
 		
 		return DAO_Worker::getIds(array_column($results, 'user_id'));
@@ -353,7 +350,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		;
 		$results = $db->GetArrayMaster($sql);
 		
-		if(false == $results)
+		if(!$results)
 			return [];
 		
 		return DAO_Worker::getIds(array_column($results, 'user_id'));
@@ -439,7 +436,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			$limit_sql
 			;
 			
-		if($options & Cerb_ORMHelper::OPT_GET_MASTER_ONLY) {
+		if($options & DevblocksORMHelper::OPT_GET_MASTER_ONLY) {
 			$rs = $db->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 		} else {
 			$rs = $db->QueryReader($sql);
@@ -649,10 +646,10 @@ class DAO_Worker extends Cerb_ORMHelper {
 		if(empty($email))
 			return null;
 		
-		if(false == ($model = DAO_Address::getByEmail($email)))
+		if(!($model = DAO_Address::getByEmail($email)))
 			return null;
 		
-		if(false != ($worker = $model->getWorker()))
+		if(($worker = $model->getWorker()))
 			return $worker;
 		
 		return null;

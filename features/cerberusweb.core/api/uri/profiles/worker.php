@@ -285,7 +285,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 						// Are they a new record?
 						!$existing_worker 
 						// Or are we re-enabling passwords on an existing worker?
-						|| ($existing_worker && !$is_password_disabled && $existing_worker->is_password_disabled && !DAO_Worker::hasAuth($updated_worker->id))
+						|| (!$is_password_disabled && $existing_worker->is_password_disabled && !DAO_Worker::hasAuth($updated_worker->id))
 					) {
 						$url = DevblocksPlatform::services()->url();
 						

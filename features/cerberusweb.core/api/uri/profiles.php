@@ -1004,7 +1004,7 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 			case 'security':
 				// Secret questions
 				
-				$secret_questions_json = DAO_WorkerPref::get($worker->id, 'login.recover.secret_questions', null);
+				$secret_questions_json = DAO_WorkerPref::get($worker->id, 'login.recover.secret_questions', '');
 				
 				if(false !== ($secret_questions = json_decode($secret_questions_json, true)) && is_array($secret_questions)) {
 					$tpl->assign('secret_questions', $secret_questions);

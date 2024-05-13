@@ -244,7 +244,7 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 		}
 		
 		if(is_numeric($roles)) {
-			if(false == ($role = DAO_WorkerRole::get($roles)))
+			if(!($role = DAO_WorkerRole::get($roles)))
 				return false;
 			$roles = [$role->id => $role];
 		}
@@ -257,10 +257,10 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 		
 		$role_arrays = DevblocksPlatform::objectsToArrays($roles);
 		
-		if(false == ($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_WORKER, true)))
+		if(!($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_WORKER, true)))
 			return false;
 		
-		if(false == ($view = $context_ext->getTempView()))
+		if(!($view = $context_ext->getTempView()))
 			return false;
 		
 		$query_cache = array_fill_keys(
@@ -640,25 +640,20 @@ class SearchFields_WorkerRole extends DevblocksSearchFields {
 			case self::VIRTUAL_MEMBER_SEARCH:
 				$sql = "SELECT role_id FROM worker_to_role WHERE is_member = 1 AND worker_id IN (%s)";
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_WORKER, $sql, 'worker_role.id');
-				break;
 				
 			case self::VIRTUAL_READER_SEARCH:
 				$sql = "SELECT role_id FROM worker_to_role WHERE is_readable = 1 AND worker_id IN (%s)";
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_WORKER, $sql, 'worker_role.id');
-				break;
 				
 			case self::VIRTUAL_EDITOR_SEARCH:
 				$sql = "SELECT role_id FROM worker_to_role WHERE is_editable = 1 AND worker_id IN (%s)";
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_WORKER, $sql, 'worker_role.id');
-				break;
 			
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_ROLE, self::getPrimaryKey());
-				break;
 				
 			case self::VIRTUAL_HAS_FIELDSET:
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_ROLE), '%s'), self::getPrimaryKey());
-				break;
 				
 			default:
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
@@ -666,7 +661,6 @@ class SearchFields_WorkerRole extends DevblocksSearchFields {
 				} else {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
-				break;
 		}
 	}
 	

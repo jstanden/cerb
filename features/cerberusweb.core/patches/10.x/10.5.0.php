@@ -94,6 +94,7 @@ $automation_files = [
 	'ai.cerb.automationBuilder.action.recordUpsert.json',
 	'ai.cerb.chooser.toolbar.json',
 	'cerb.reply.isBannedDefunct.json',
+	'cerb.ticket.assign.json',
 	'cerb.ticket.spam.json',
 ];
 

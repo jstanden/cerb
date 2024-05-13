@@ -452,6 +452,8 @@ $(function() {
 		var editor_state_start = ace.edit($state_yaml.nextAll('pre.ace_editor').attr('id'));
 		var editor_state_end = ace.edit($end_state_yaml.nextAll('pre.ace_editor').attr('id'));
 
+		// Policy
+
 		var $editor_policy = $popup.find('textarea[name=automation_policy_kata]')
 			.cerbCodeEditor()
 			.cerbCodeEditorAutocompleteKata({

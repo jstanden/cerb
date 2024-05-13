@@ -74,7 +74,7 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 			$context = $custom_record->getContext();
 			
 			if(!empty($id) && !empty($do_delete)) { // Delete
-				if(false == ($model = $dao_class::get($id)))
+				if(!($model = $dao_class::get($id)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
 				
 				if(
