@@ -249,6 +249,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 	
 	private function _internalAction_renderCopy() {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'] ?? null, 'string');
 		
@@ -257,6 +258,9 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		
 		$tpl->assign('view_id', $view_id);
 		$tpl->assign('view', $view);
+		
+		$tpl->assign('pages', DAO_WorkspacePage::getByWorker($active_worker));
+		$tpl->assign('tabs', DAO_WorkspaceTab::getAll());
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/views/copy.tpl');
 	}

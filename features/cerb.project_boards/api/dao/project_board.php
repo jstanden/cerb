@@ -1253,6 +1253,8 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 				$tpl->assign('packages', $packages);
 			}
 			
+			$tpl->assign('trigger_ext', Extension_AutomationTrigger::get(AutomationTrigger_ProjectBoardRenderCard::ID, true));
+			
 			// View
 			$tpl->assign('id', $context_id);
 			$tpl->assign('view_id', $view_id);

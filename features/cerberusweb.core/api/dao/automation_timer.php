@@ -1418,6 +1418,8 @@ class Context_AutomationTimer extends Extension_DevblocksContext implements IDev
 			$timezones = DevblocksPlatform::services()->date()->getTimezones();
 			$tpl->assign('timezones', $timezones);
 			
+			$tpl->assign('trigger_ext', Extension_AutomationTrigger::get(AutomationTrigger_AutomationTimer::ID, true));
+			
 			// View
 			$tpl->assign('id', $context_id);
 			$tpl->assign('view_id', $view_id);

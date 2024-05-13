@@ -1424,6 +1424,9 @@ class Context_ProjectBoardColumn extends Extension_DevblocksContext implements I
 				$tpl->assign('behaviors', $behaviors);
 			}
 			
+			$tpl->assign('trigger_card_action_ext', Extension_AutomationTrigger::get(AutomationTrigger_ProjectBoardCardAction::ID, true));
+			$tpl->assign('trigger_render_card_ext', Extension_AutomationTrigger::get(AutomationTrigger_ProjectBoardRenderCard::ID, true));
+			
 			// View
 			$tpl->assign('id', $context_id);
 			$tpl->assign('view_id', $view_id);
