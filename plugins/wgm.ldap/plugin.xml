@@ -27,12 +27,6 @@
 		<patch version="8.0.0" revision="1" file="patches/8.0.0.php" />
 	</patches>
 
-	<!-- Templates -->
-	
-	<templates set="cerberusweb.support_center">
-		<template path="support_center/login/ldap.tpl" />
-	</templates>
-
 	<!-- Extensions -->
  
 	<extensions>
