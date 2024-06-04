@@ -399,7 +399,7 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 		
 		$simplexml = dom_import_simplexml($xml); /* @var $dom DOMElement */
 		$simplexml = $doc->importNode($simplexml, true);
-		$simplexml = $doc->appendChild($simplexml);
+		$doc->appendChild($simplexml);
 
 		$filename = "cerb_lang_" . implode('_', array_keys($codes)) . ".tmx";
 		

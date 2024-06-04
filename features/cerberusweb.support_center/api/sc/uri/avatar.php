@@ -231,7 +231,7 @@ class UmScAvatarController extends Extension_UmScController {
 			->setHeader('Content-Type', 'image/png')
 		;
 		
-		if(false == ($im = @imagecreate(100, 100)))
+		if(!($im = @imagecreate(100, 100)))
 			DevblocksPlatform::dieWithHttpError(null, 500);
 		
 		imagecolorallocate($im, $r_rand, $g_rand, $b_rand);

@@ -105,13 +105,13 @@ class PageSection_ProfilesResource extends Extension_PageSection {
 				];
 				
 				/** @var $resource_ext Extension_ResourceType */
-				if(false == ($resource_ext = Extension_ResourceType::get($extension_id, true)))
+				if(!($resource_ext = Extension_ResourceType::get($extension_id, true)))
 						throw new Exception_DevblocksAjaxValidationError('Invalid resource extension.');
 				
 				if(is_array($file) && array_key_exists('tmp_name', $file) && $file['tmp_name']) {
 					$extension_params = [];
 					
-					if(false == ($fp = fopen($file['tmp_name'], 'r+b'))) {
+					if(!($fp = fopen($file['tmp_name'], 'r+b'))) {
 						throw new Exception_DevblocksAjaxValidationError('Failed to upload file.');
 					}
 					

@@ -14,9 +14,3 @@
 <div style="margin-left:10px;margin-bottom:0.5em;">
 	<input type="text" name="{$namePrefix}[delay_ms]" size="6" maxlength="5" value="{$params.delay_ms|default:1000}" placeholder="1000">
 </div>
-
-<script type="text/javascript">
-$(function() {
-	var $action = $('#{$namePrefix}_{$nonce}');
-});
-</script>

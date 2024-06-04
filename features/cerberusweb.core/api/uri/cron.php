@@ -71,7 +71,7 @@ class ChCronController extends DevblocksControllerExtension {
 			"<meta http-equiv='Refresh' content='".intval($reload).";".$reload_url."'>".
 			"<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>".
 			"</HEAD>".
-			"<BODY>"; // onload=\"setTimeout(\\\"window.location.replace('".$url->write('c=cron')."')\\\",30);\"
+			"<BODY>";
 		}
 
 		$cron_manifests = DevblocksPlatform::getExtensions('cerberusweb.cron', true);

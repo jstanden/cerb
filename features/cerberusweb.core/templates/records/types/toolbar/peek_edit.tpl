@@ -11,7 +11,6 @@
         <input type="hidden" name="id" value="{$model->id}">
         <input type="hidden" name="name" value="{$model->name}">
     {/if}
-    <input type="hidden" name="do_delete" value="0">
     <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
     <h1>{$model->name}</h1>
@@ -53,10 +52,8 @@
             $popup.css('overflow', 'inherit');
 
             // Buttons
-
             $popup.find('button.save').click(Devblocks.callbackPeekEditSave);
             $popup.find('button.save-continue').click({ mode: 'continue' }, Devblocks.callbackPeekEditSave);
-            $popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
         });
     });
 </script>

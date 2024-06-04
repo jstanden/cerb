@@ -107,7 +107,7 @@ class UmScAjaxController extends Extension_UmScController {
 		
 		$pass = false;
 		
-		if(false == ($links = DAO_Attachment::getLinks($file_id)))
+		if(!($links = DAO_Attachment::getLinks($file_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(!$pass && isset($links[CerberusContexts::CONTEXT_KB_ARTICLE])) {

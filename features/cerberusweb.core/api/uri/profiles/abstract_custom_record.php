@@ -67,7 +67,7 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 		
 		try {
-			if(!$record_id || false == ($custom_record = DAO_CustomRecord::get($record_id)))
+			if(!$record_id || !($custom_record = DAO_CustomRecord::get($record_id)))
 				throw new Exception_DevblocksAjaxValidationError("Invalid record type.", '_record_id');
 			
 			$dao_class = $custom_record->getDaoClass();
@@ -366,7 +366,6 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 		echo json_encode(array(
 			'cursor' => $batch_key,
 		));
-		return;
 	}
 	
 	private function _profileAction_viewExplore() {

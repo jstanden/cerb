@@ -15,9 +15,3 @@
 <div style="margin-left:10px;margin-bottom:0.5em;">
 	<textarea name="{$namePrefix}[var_validate]" class="placeholders">{$params.var_validate}</textarea>
 </div>
-
-<script type="text/javascript">
-$(function() {
-	var $action = $('#{$namePrefix}_{$nonce}');
-});
-</script>

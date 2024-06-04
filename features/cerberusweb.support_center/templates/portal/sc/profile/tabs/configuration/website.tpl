@@ -79,6 +79,7 @@ $(function() {
 	;
 	
 	$frm.find('button.submit').on('click', function(e) {
+		e.stopPropagation();
 		genericAjaxPost($frm, '', null, function(json) {
 			Devblocks.clearAlerts();
 			if(json && typeof json == 'object') {

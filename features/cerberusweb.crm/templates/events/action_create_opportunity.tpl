@@ -78,9 +78,3 @@
 	</select>
 </div>
 {/if}
-
-{*
-<script type="text/javascript">
-var $action = $('#{$namePrefix}_{$nonce}');
-</script>
-*}

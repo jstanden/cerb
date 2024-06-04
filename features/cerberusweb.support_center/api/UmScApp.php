@@ -397,7 +397,7 @@ class UmScApp extends Extension_CommunityPortal {
 				break;
 				
 			default:
-				if(false != ($controller = Extension_UmScController::getByUri($config_tab, true))) {
+				if(($controller = Extension_UmScController::getByUri($config_tab, true))) {
 					$controller->saveConfiguration($portal);
 				}
 				break;
@@ -501,7 +501,7 @@ class UmScApp extends Extension_CommunityPortal {
 				$defaults->id = 'portal_templates';
 				$defaults->renderLimit = 15;
 				
-				if(false != ($view = C4_AbstractViewLoader::getView($defaults->id, $defaults))) {
+				if(($view = C4_AbstractViewLoader::getView($defaults->id, $defaults))) {
 					$view->name = 'Custom Templates';
 					
 					$view->addParamsRequired(array(
@@ -583,7 +583,7 @@ class UmScApp extends Extension_CommunityPortal {
 		if(null != ($plugin = DevblocksPlatform::getPlugin($plugin_id))) {
 			$basepath = realpath($plugin->getStoragePath() . '/templates/') . DIRECTORY_SEPARATOR;
 		
-			if(false == ($path = realpath($plugin->getStoragePath() . '/templates/' . $template_path)))
+			if(!($path = realpath($plugin->getStoragePath() . '/templates/' . $template_path)))
 				DevblocksPlatform::dieWithHttpError(null, 403);
 			
 			if(!DevblocksPlatform::strStartsWith($path, $basepath))

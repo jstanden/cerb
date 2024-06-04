@@ -36,7 +36,7 @@ abstract class DevblocksEngine {
 	static protected $locale = 'en_US';
 	static protected $dateTimeFormat = 'D, d M Y h:i a';
 
-	static protected $_tmp_files = array();
+	static protected $_tmp_files = [];
 
 	protected static $request = null;
 	protected static $response = null;

@@ -2,10 +2,10 @@
 	{if !empty($templates)}
 		<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmPortalAddTemplatePeek" onsubmit="return false;">
 		<input type="hidden" name="c" value="profiles">
-<input type="hidden" name="a" value="invoke">
-<input type="hidden" name="module" value="community_portal">
-<input type="hidden" name="action" value="saveConfigTabJson">
-<input type="hidden" name="portal_id" value="{$portal->id}">
+		<input type="hidden" name="a" value="invoke">
+		<input type="hidden" name="module" value="community_portal">
+		<input type="hidden" name="action" value="saveConfigTabJson">
+		<input type="hidden" name="portal_id" value="{$portal->id}">
 		<input type="hidden" name="config_tab" value="templates">
 		<input type="hidden" name="tab_action" value="saveAddTemplatePeek">
 		<input type="hidden" name="view_id" value="{$view_id}">

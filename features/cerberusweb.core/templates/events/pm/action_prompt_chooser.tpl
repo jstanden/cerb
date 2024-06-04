@@ -31,9 +31,3 @@
 		<i><small>The placeholder name must be lowercase, without spaces, and may only contain a-z, 0-9, and underscores (_)</small></i>
 	</div>
 </div>
-
-<script type="text/javascript">
-$(function() {
-	var $action = $('#{$namePrefix}_{$nonce}');
-});
-</script>

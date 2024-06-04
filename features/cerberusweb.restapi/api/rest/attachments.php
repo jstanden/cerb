@@ -96,7 +96,7 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 		if(false === ($fp = DevblocksPlatform::getTempFile()))
 			$this->error(self::ERRNO_CUSTOM, "Could not open a temporary file.");
 		
-		if(false == (Context_Attachment::isDownloadableByActor($file, $active_worker)))
+		if(!(Context_Attachment::isDownloadableByActor($file, $active_worker)))
 			$this->error(self::ERRNO_ACL, "Permission denied.");
 		
 		if(false === $file->getFileContents($fp))
@@ -120,26 +120,22 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 	}
 	
 	function translateToken($token, $type='dao') {
-		if('custom_' == substr($token, 0, 7) && in_array($type, array('search', 'subtotal'))) {
+		if(str_starts_with($token, 'custom_') && in_array($type, array('search', 'subtotal'))) {
 			return 'cf_' . intval(substr($token, 7));
 		}
 		
-		$tokens = array();
-		
 		if('dao'==$type) {
-			$tokens = array(
-//				'example' => DAO_Example::PROPERTY,
-			);
+			$tokens = [];
 			
 		} elseif ('subtotal'==$type) {
-			$tokens = array(
+			$tokens = [
 				'name' => SearchFields_Attachment::NAME,
 				'mime_type' => SearchFields_Attachment::MIME_TYPE,
 				'storage_extension' => SearchFields_Attachment::STORAGE_EXTENSION,
-			);
+			];
 			
 		} else {
-			$tokens = array(
+			$tokens = [
 				'name' => SearchFields_Attachment::NAME,
 				'id' => SearchFields_Attachment::ID,
 				'mime_type' => SearchFields_Attachment::MIME_TYPE,
@@ -149,7 +145,7 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 				'storage_key' => SearchFields_Attachment::STORAGE_KEY,
 				'storage_profile_id' => SearchFields_Attachment::STORAGE_PROFILE_ID,
 				'updated' => SearchFields_Attachment::UPDATED,
-			);
+			];
 		}
 		
 		if(isset($tokens[$token]))
@@ -159,21 +155,20 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 	}
 	
 	function getContext($model) {
-		$labels = array();
-		$values = array();
-		$context = CerberusContexts::getContext(CerberusContexts::CONTEXT_ATTACHMENT, $model, $labels, $values, null, true);
-
+		$labels = [];
+		$values = [];
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_ATTACHMENT, $model, $labels, $values, null, true);
 		return $values;
 	}
 	
-	function search($filters=array(), $sortToken='email', $sortAsc=1, $page=1, $limit=10, $options=array()) {
-		@$query = DevblocksPlatform::importVar($options['query'], 'string', null);
-		@$show_results = DevblocksPlatform::importVar($options['show_results'], 'boolean', true);
-		@$subtotals = DevblocksPlatform::importVar($options['subtotals'], 'array', array());
+	function search($filters=[], $sortToken='email', $sortAsc=1, $page=1, $limit=10, $options=[]) {
+		$query = DevblocksPlatform::importVar($options['query'] ?? null, 'string', null);
+		$show_results = DevblocksPlatform::importVar($options['show_results'] ?? null, 'boolean', true);
+		$subtotals = DevblocksPlatform::importVar($options['subtotals'] ?? null, 'array', []);
 		
 		//$worker = CerberusApplication::getActiveWorker();
 
-		$params = array();
+		$params = [];
 		
 		// [TODO] Fix
 		

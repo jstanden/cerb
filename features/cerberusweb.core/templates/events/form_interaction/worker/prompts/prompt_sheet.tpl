@@ -4,12 +4,3 @@
 
 	{include file="devblocks:cerberusweb.core::ui/sheets/render.tpl" sheet_selection_key="prompts[{$var}]" default=$default}
 </div>
-
-{*
-<script type="text/javascript">
-$(function() {
-	var $prompt = $('#{$element_id}');
-	var $sheet = $prompt.find('.cerb-sheet');
-});
-</script>
-*}

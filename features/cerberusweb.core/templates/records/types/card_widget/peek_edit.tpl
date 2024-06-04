@@ -2,10 +2,10 @@
 {$form_id = uniqid()}
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}" onsubmit="return false;">
     <input type="hidden" name="c" value="profiles">
-<input type="hidden" name="a" value="invoke">
-<input type="hidden" name="module" value="card_widget">
-<input type="hidden" name="action" value="savePeekJson">
-<input type="hidden" name="view_id" value="{$view_id}">
+    <input type="hidden" name="a" value="invoke">
+    <input type="hidden" name="module" value="card_widget">
+    <input type="hidden" name="action" value="savePeekJson">
+    <input type="hidden" name="view_id" value="{$view_id}">
     {if !empty($model) && !empty($model->id)}<input type="hidden" name="id" value="{$model->id}">{/if}
     <input type="hidden" name="do_delete" value="0">
     <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">

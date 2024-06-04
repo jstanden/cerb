@@ -200,7 +200,7 @@
 				if(!$(e.target).is('li'))
 					return;
 
-				$link = $(this).find('a');
+				let $link = $(this).find('a');
 
 				if($link.length > 0)
 					window.location.href = $link.attr('href');

@@ -143,7 +143,7 @@ class DAO_Attachment extends Cerb_ORMHelper {
 		$links_json = $fields['_attach'];
 		unset($fields['_attach']);
 		
-		if(false == (@$links = json_decode($links_json)))
+		if(!(@$links = json_decode($links_json)))
 			return;
 		
 		if(is_array($links))
@@ -161,7 +161,7 @@ class DAO_Attachment extends Cerb_ORMHelper {
 			
 			list($link_context, $link_id) = array_pad(explode(':', $link, 2), 2, null);
 			
-			if(false == ($link_context_ext = Extension_DevblocksContext::getByAlias($link_context, false)))
+			if(!($link_context_ext = Extension_DevblocksContext::getByAlias($link_context, false)))
 				continue;
 			
 			if($is_unlink) {

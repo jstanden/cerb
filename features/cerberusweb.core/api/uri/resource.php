@@ -119,7 +119,6 @@ class Controller_Resource extends DevblocksControllerExtension {
 					break;
 				default:
 					DevblocksPlatform::dieWithHttpError(null, 403);
-					break;
 			}
 			
 			@$out = file_get_contents($resource, false);
@@ -130,11 +129,9 @@ class Controller_Resource extends DevblocksControllerExtension {
 				echo $out;
 			}
 			
-		} catch (Exception_Devblocks $e) {
-			error_log($e->getMessage());
-			
 		} catch (Exception $e) {
 			error_log($e->getMessage());
+			
 		}
 		
 		exit;

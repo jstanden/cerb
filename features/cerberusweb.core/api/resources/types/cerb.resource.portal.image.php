@@ -21,7 +21,7 @@ class ResourceType_PortalImage extends Extension_ResourceType {
 				$sanitizer = new Sanitizer();
 				$sanitizer->removeRemoteReferences(true);
 				
-				if(false == ($bytes = $sanitizer->sanitize($bytes))) {
+				if(!($bytes = $sanitizer->sanitize($bytes))) {
 					$error = 'The upload file is not a valid SVG image.';
 					return false;
 				}

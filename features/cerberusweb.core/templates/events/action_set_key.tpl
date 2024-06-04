@@ -15,11 +15,3 @@
 		<i>(e.g. &quot;1 day&quot;, &quot;next Friday 2pm&quot;; leave blank to never expire)</i>
 	</div>
 </div>
-
-{*
-<script type="text/javascript">
-$(function() {
-	var $action = $('#{$namePrefix}_{$nonce}');
-}
-</script>
-*}

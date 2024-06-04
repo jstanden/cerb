@@ -41,6 +41,7 @@ $(function() {
 		.find('input:checkbox')
 		.change(
 			function(e) {
+				e.stopPropagation();
 				if(false != $(this).prop('checked'))
 					$(this).closest('label').css('font-weight','bold');
 				else
@@ -50,6 +51,7 @@ $(function() {
 		;
 	
 	$frm.find('button.submit').on('click', function(e) {
+		e.stopPropagation();
 		Devblocks.saveAjaxTabForm($frm);
 	});
 });

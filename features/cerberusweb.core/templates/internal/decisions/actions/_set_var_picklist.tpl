@@ -5,7 +5,3 @@
 		{/foreach}
 	</select>
 </div>
-
-<script type="text/javascript">
-//$condition = $('fieldset#{$namePrefix}');
-</script>
