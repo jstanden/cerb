@@ -25,7 +25,7 @@
 	</div>
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	let $prompt = $('#{$element_id}');
 	let $input = $prompt.find('input[type=file]');

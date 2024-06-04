@@ -37,7 +37,7 @@
 </div>
 </fieldset>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $('FIELDSET#{$uniq_id} DIV.container')
 	.sortable({ items: 'DIV.drag', placeholder:'ui-state-highlight' })
 	;

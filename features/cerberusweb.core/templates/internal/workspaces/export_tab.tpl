@@ -11,7 +11,7 @@
 
 </form>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 var $popup = genericAjaxPopupFind('#frmWorkspaceTabExport');
 $popup.one('popup_open', function() {
 	var $this = $(this);

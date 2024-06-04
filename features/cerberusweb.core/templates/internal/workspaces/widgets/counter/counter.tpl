@@ -5,7 +5,7 @@
 	<span class="counter">{$widget->params.metric_prefix}{$metric_label}{$widget->params.metric_suffix}</span>
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 try {
 	// Scale the text to the width of the column

@@ -6,7 +6,7 @@
 	<button type="button" class="close"><span class="glyphicons glyphicons-circle-ok"></span> {'common.ok'|devblocks_translate}</button>
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $div = $('#{$div_id}');
 	var $popup = genericAjaxPopupFind($div);

@@ -5,7 +5,7 @@
 	{include file="devblocks:cerberusweb.core::ui/spinner.tpl"}
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $view = $('#view{$view_id}');
 	var $progress = $view.find('div.worklist-bulk-progress');

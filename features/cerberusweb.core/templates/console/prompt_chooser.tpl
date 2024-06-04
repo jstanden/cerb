@@ -7,7 +7,7 @@
 		</div>
 	</div>
 
-	<script type="text/javascript">
+	<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 	$(function() {
 		var $msg = $('#{$msg_id}');
 		var $ul = $msg.find('ul.chooser-container');

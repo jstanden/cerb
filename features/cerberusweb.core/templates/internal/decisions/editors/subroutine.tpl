@@ -42,7 +42,7 @@
 	{if isset($id)}<button type="button" data-cerb-button="delete"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $popup = genericAjaxPopupFetch('node_subroutine{$id}');
 	var $frm = $('#frmDecisionSubroutine{$id}');

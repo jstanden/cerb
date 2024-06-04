@@ -19,7 +19,7 @@
 <iframe id="iframe_file_post" name="iframe_file_post" sandbox="allow-same-origin allow-scripts" style="visibility:hidden;display:none;width:0px;height:0px;background-color:#ffffff;"></iframe>
 <br>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $popup = genericAjaxPopupFind('#frmImportPopup');
 	var $frm = $popup.find('FORM#frmImportPopup');

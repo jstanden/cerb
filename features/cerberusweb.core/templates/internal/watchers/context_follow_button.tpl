@@ -14,7 +14,7 @@
 	{/if}
 </button>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $btn = $('#{$watchers_btn_domid}');
 	

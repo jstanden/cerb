@@ -1,5 +1,5 @@
 <div class="bot-chat-object" data-delay-ms="{$delay_ms|default:0}">
-	<script type="text/javascript">
+	<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 	$(function() {
 		var $chat_window_convo = $('#{$layer} div.bot-chat-window-convo');
 		var $chat_window_input_form = $('#{$layer} form.bot-chat-window-input-form');

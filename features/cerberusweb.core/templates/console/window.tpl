@@ -15,7 +15,7 @@
 	</div>
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $popup = genericAjaxPopupFind('#{$layer}');
 	var $spinner = Devblocks.getSpinner().css('max-width', '24px');

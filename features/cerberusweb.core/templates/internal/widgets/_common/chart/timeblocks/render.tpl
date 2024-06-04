@@ -1,6 +1,6 @@
 <div id="widget{$widget->id}"></div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
     $(function() {
         function CerbCalendarHoursByDay(data, {
             x = function([x]) { return x; },

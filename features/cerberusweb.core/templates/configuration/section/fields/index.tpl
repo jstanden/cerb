@@ -15,7 +15,7 @@
 </div> 
 <br>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
 	tabOptions.active = Devblocks.getjQueryUiTabSelected('cfTabs');

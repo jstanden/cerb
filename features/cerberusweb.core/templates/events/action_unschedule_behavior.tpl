@@ -34,7 +34,7 @@
 	</select>
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 var $action = $('#{$namePrefix}_{$nonce}');
 $action.find('select.on').change(function(e) {
 	var $on = $(this).find('option:selected');

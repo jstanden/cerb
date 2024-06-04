@@ -40,7 +40,7 @@
     </div>
 </fieldset>
 
-<script type="application/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript"
 $(function() {
    let $config = $('#{$config_uniqid}');
    $config.find('.cerb-peek-trigger').cerbPeekTrigger();

@@ -2,7 +2,7 @@
 	<input type="text" name="{$namePrefix}[subroutine]" value="{$params.subroutine}" style="width:100%;">
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $action = $('#{$namePrefix}_{$nonce}');
 	var $input = $action.find('input');

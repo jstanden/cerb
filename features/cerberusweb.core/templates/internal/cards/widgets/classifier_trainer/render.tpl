@@ -8,7 +8,7 @@
 
 <div class="output" style="margin:5px;"></div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
     var $widget = $('#cardWidget{$widget->getUniqueId($classifier->id)}');
 

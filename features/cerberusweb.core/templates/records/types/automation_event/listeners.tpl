@@ -16,7 +16,7 @@
 
 {$script_uid = uniqid('script')}
 
-<script id="{$script_uid}" type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" id="{$script_uid}" type="text/javascript">
 $(function() {
     let $script = $('#{$script_uid}');
     let $listeners = $script.closest('fieldset');

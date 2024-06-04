@@ -1,8 +1,8 @@
 {$peek_context = CerberusContexts::CONTEXT_CLASSIFIER_EXAMPLE}
 {$peek_context_id = $model->id}
-<script type="text/javascript" src="{devblocks_url}c=resource&p=devblocks.core&f=js/rangy/rangy-core.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
-<script type="text/javascript" src="{devblocks_url}c=resource&p=devblocks.core&f=js/rangy/rangy-classapplier.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
-<script type="text/javascript" src="{devblocks_url}c=resource&p=devblocks.core&f=js/rangy/rangy-highlighter.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=devblocks.core&f=js/rangy/rangy-core.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=devblocks.core&f=js/rangy/rangy-classapplier.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=devblocks.core&f=js/rangy/rangy-highlighter.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
 
 {$frm_id = uniqid()}
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="{$frm_id}" onsubmit="return false;">
@@ -104,7 +104,7 @@
 
 </form>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $frm = $('#{$frm_id}');
 	var $popup = genericAjaxPopupFind($frm);

@@ -101,7 +101,7 @@
 {/foreach}
 </table>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $frm = $('#frm{$guid}');
 	var $tab = $frm.closest('div.cerb-workspace-widget--content');

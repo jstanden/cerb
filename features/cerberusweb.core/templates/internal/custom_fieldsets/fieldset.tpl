@@ -21,7 +21,7 @@
 	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=$bulk field_wrapper=$field_wrapper custom_fields=$custom_fieldset->getCustomFields() custom_fields_expanded=$custom_fields_expanded}
 </fieldset>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $('#{$fieldset_domid}')
 	.hover(
 		function() {

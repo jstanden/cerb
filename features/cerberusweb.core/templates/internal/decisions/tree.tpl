@@ -26,7 +26,7 @@ For more information, see <a href="https://cerb.ai/docs/bots/" target="_blank" r
 </div>
 
 {if $is_writeable}
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	
 $('#decisionTree{$trigger->id} DIV.node').draggable({

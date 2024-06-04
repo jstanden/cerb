@@ -99,7 +99,7 @@
 	</div>
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $container = $('#{$div_id}');
 	var $parent = $container.closest('div.output');

@@ -38,7 +38,7 @@
 	</ul>
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $('#{$btn_cfield_group_domid}')
 	.each(function() {
 		var $menu = $(this).siblings('ul.cerb-popupmenu');

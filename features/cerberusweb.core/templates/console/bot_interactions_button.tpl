@@ -4,7 +4,7 @@
 	<div class="bot-chat-menu"></div>
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $interaction_container = $('#bot-chat-button');
 	var $interaction_button = $interaction_container.find('> div.bot-chat-icon');

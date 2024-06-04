@@ -1,5 +1,5 @@
 {* begin time tracking *}
-<style type="text/css">
+<style nonce="{DevblocksPlatform::getRequestNonce()}" type="text/css">
 #divTimeTrackingBox {
 	position:fixed;
 	top:5px;
@@ -40,7 +40,7 @@
 		<span id="divTimeTrackingCounter">--</span>
 	</div>
 </div>
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 var timeTrackingTimerClass = function() {
 	this.counter = 0;
 	this.id = 0;

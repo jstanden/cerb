@@ -61,7 +61,7 @@
 <div id="divImportPreview" style="margin:10px 0 0 0;border:1px solid rgb(230,230,230);padding:5px;height:200px;overflow-y:auto;display:none;"></div>
 </form>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $popup = genericAjaxPopupFind('#frmImport');
 	var $frm = $popup.find('FORM#frmImport');

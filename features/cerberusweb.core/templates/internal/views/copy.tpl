@@ -39,7 +39,7 @@ You can copy this worklist to other pages in order to build your ideal workspace
 <button type="button" onclick="$('#{$view_id}_tips').hide().html('');" style=""><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> Do nothing</button><br>
 </form>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $frm = $('#frmCopy{$view->id}');
 	$frm.find('SELECT[name=workspace_page_id]').change(function() {

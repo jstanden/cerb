@@ -41,7 +41,7 @@
 	</div>
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $filter = $('#{$uniqid}');
 	var $filter_menu = $filter.find('div.cerb-popupmenu');

@@ -78,7 +78,7 @@
 
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	$('#container_{$random}').find('ul.cerb-popupmenu > li.chooser').click(function(e) {
 		var $this = $(this);

@@ -28,7 +28,7 @@
 	&#123;&#123;<input type="text" name="{$namePrefix}[placeholder]" value="{$params.placeholder|default:"_time_elapsed"}" required="required" spellcheck="false" size="32" placeholder="e.g. _time_elapsed">&#125;&#125;
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $action = $('#{$namePrefix}_{$nonce}');
 });

@@ -66,7 +66,7 @@
     </form>
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
     var $popup = genericAjaxPopupFind('#{$popup_id}');
     var $layer = $popup.attr('data-layer');

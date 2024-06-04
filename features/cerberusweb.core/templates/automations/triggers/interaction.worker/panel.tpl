@@ -4,7 +4,7 @@
 </form>
 
 {$script_uid = uniqid('script_')}
-<script id="{$script_uid}" type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" id="{$script_uid}" type="text/javascript">
 $(function() {
 	var $script = $('#{$script_uid}');
 	var $spinner = Devblocks.getSpinner();

@@ -364,7 +364,7 @@
 
 {include file="devblocks:cerberusweb.core::internal/views/view_common_jquery_ui.tpl"}
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $view = $('#view{$view->id}');
 	$view.data('total', {$total|default:0});

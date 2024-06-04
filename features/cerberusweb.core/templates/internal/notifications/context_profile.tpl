@@ -29,7 +29,7 @@
 </fieldset>
 
 {if !empty($view_id)}
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $view = $('#view{$view_id}');
 	

@@ -22,7 +22,7 @@
 	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button>
 </form>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $frm = $('#{$div_uniqid}');
 	var $popup = genericAjaxPopupFind('#{$div_uniqid}');

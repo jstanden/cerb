@@ -159,7 +159,7 @@
 
 </form>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $popup = genericAjaxPopupFind('#{$form_id}');
 	var $chooser_org = $popup.find('button.chooser-abstract[data-field-name="org_id"]');

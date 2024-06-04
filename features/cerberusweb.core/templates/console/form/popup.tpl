@@ -1,7 +1,7 @@
 {include file="devblocks:cerberusweb.core::console/form/panel.tpl"}
 
 {$script_uid = uniqid('script')}
-<script id="{$script_uid}" type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" id="{$script_uid}" type="text/javascript">
 $(function() {
     var $popup = genericAjaxPopupFind('#{$script_uid}');
 

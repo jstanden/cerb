@@ -144,7 +144,7 @@
 </div>
 
 {if !$embed}
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $draft = $('#draftContainer{$draft->id}');
 	var $toolbar = $draft.find('[data-cerb-toolbar]');

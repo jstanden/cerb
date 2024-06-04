@@ -1,6 +1,6 @@
 {$html nofilter}
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $widget = $('#workspaceWidget{$widget->id}');
 	$widget.find('.cerb-peek-trigger').cerbPeekTrigger();

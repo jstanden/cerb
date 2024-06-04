@@ -23,7 +23,7 @@
     <div id="{$div_uid}" class="cerb-graph-dag"></div>
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 Devblocks.loadResources({
     'js': [
         '/resource/devblocks.core/js/d3/d3.v5.min.js',

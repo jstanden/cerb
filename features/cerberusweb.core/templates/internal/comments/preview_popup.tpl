@@ -12,7 +12,7 @@
     </div>
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
     $(function() {
         var $div = $('#{$div_id}');
         var $popup = genericAjaxPopupFind($div);

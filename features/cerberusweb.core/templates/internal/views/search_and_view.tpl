@@ -12,7 +12,7 @@
 
 <div id="view{$view->id}" data-context="{$view->getContext()}">{$view->render()}</div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	$('#viewCustomFilters{$view->id}').bind('view_refresh', function(event) {
 		if(event.target === event.currentTarget) {

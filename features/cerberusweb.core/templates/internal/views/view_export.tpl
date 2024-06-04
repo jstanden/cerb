@@ -104,7 +104,7 @@
 
 </form>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $frm = $('#frm{$view_id}_export');
 	var $bubbles = $frm.find('ul.bubbles');

@@ -53,7 +53,7 @@
 	<label><input type="radio" name="{$namePrefix}[on_dupe]" value="last" {if 'last'==$params.on_dupe}checked="checked"{/if}> Only schedule latest occurrence</label><br>
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 var $action = $('#{$namePrefix}_{$nonce}');
 $action.find('select.behavior').change(function() {
 	var $behavior = $(this);

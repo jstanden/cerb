@@ -8,7 +8,7 @@
 	<button type="button"><span class="glyphicons glyphicons-circle-ok"></span> {'common.ok'|devblocks_translate}</button>
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $popup = genericAjaxPopupFind('#{$div_uniqid}');
 	var $layer = $popup.attr('id').substring(5);

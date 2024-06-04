@@ -4,7 +4,7 @@
     <textarea data-editor-mode="ace/mode/json" data-editor-readonly="true">{$export_json}</textarea>
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
     const $div = $('#{$uniqid}');
     const $popup = genericAjaxPopupFind($div);

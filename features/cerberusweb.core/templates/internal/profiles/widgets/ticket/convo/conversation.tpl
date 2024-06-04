@@ -83,7 +83,7 @@
 	</div>
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $widget = $('#widget{$widget->id}');
     var $tab = $widget.closest('.cerb-profile-layout');

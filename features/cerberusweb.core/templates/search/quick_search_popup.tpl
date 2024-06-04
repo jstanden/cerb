@@ -1,6 +1,6 @@
 {include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$view focus=true}
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $popup = genericAjaxPopupFetch('search');
 	

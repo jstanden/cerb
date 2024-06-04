@@ -47,7 +47,7 @@
 
 <br>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $menu = $('#{$menu_divid}');
 $input = $menu.prevAll('input.filter');
 $input.focus();

@@ -5,7 +5,7 @@
 	Click the <button type="button"><span class="glyphicons glyphicons-cogwheel"></span> </button> button in the top right and select <b>Edit Tab</b>.
 </p>
 </div>
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $div = $('#{$uniqid}');
 	var $frm = $('#frmWorkspacePage{$workspace_page->id}');

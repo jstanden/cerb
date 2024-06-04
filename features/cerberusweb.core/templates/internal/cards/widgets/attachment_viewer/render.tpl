@@ -51,7 +51,7 @@
     </div>
 {/if}
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
     var $widget = $('#cardWidget{$widget->getUniqueId($dict->id)}');
 

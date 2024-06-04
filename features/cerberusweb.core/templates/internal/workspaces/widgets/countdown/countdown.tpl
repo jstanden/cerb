@@ -4,7 +4,7 @@
 	<span class="counter">{$label}</span>
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 try {
 	var $widget = $('#widget{$widget->id}_countdown');

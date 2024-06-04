@@ -7,7 +7,7 @@
 
 {include file="devblocks:cerberusweb.core::internal/bot/behavior/tab.tpl"}
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
    var $widget = $('#cardWidget{$widget->getUniqueId($behavior->id)}');
 

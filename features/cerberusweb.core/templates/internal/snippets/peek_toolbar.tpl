@@ -28,7 +28,7 @@
 </ul>
 	
 {if !empty($placeholders)}
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $popup = genericAjaxPopupFind('#peekTemplateTest');
 	var $menu_trigger = $popup.find('button.cerb-popupmenu-trigger');

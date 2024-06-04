@@ -10,7 +10,7 @@
 
 {include file="devblocks:cerberusweb.core::internal/views/search_and_view.tpl" view=$view}
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	// Page title
 	document.title = "{'common.search'|devblocks_translate|capitalize|escape:'javascript' nofilter} {$context_ext->manifest->name|escape:'javascript' nofilter} - {$settings->get('cerberusweb.core','helpdesk_title')|escape:'javascript' nofilter}";

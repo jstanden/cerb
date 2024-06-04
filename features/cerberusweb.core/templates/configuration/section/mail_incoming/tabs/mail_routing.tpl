@@ -119,7 +119,7 @@
 	</form>
 </fieldset>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	let $frm = $('#frmSetupMailRouting');
 	let $routing = $('#{$form_id}');

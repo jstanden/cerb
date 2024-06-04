@@ -11,7 +11,7 @@
 		{/if}
 	</div>
 
-	<script type="text/javascript">
+	<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 		$(function() {
 			var $response = $('#{$response_uid}');
 			var $form = $response.closest('.cerb-form-builder');

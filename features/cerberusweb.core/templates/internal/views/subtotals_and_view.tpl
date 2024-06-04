@@ -7,7 +7,7 @@
 </div>
 
 {if $show_subtotals}
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	$('#view{$view->id}_sidebar').append(Devblocks.getSpinner());
 	

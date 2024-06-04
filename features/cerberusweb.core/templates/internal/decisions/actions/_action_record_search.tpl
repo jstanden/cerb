@@ -18,7 +18,7 @@
 	&#123;&#123;<input type="text" name="{$namePrefix}[object_placeholder]" value="{$params.object_placeholder|default:"_records"}" required="required" spellcheck="false" size="32" placeholder="e.g. _records">&#125;&#125;
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $action = $('#{$namePrefix}_{$nonce}');
 });

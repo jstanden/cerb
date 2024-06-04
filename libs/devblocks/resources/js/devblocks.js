@@ -621,6 +621,9 @@ function DevblocksClass() {
 		if(null == state) {
 			var options = {
 				dataType: "script",
+				scriptAttrs: {
+					nonce: DevblocksRequestNonce
+				},
 				cache: true,
 				url: url
 			};

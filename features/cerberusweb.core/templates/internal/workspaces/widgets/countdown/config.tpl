@@ -13,7 +13,7 @@
 	</fieldset>
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $fieldset = $('fieldset#widget{$widget->id}Datasource');
 	

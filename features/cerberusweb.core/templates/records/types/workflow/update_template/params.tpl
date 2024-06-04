@@ -40,7 +40,7 @@
 
 {$script_id = uniqid('script')}
 
-<script id="{$script_id}">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" id="{$script_id}">
 $(function() {
     let $script = $('#{$script_id}');
     let $div = $script.prev('div');

@@ -81,7 +81,7 @@ This process protects the privacy of personal worker email addresses, while stil
 </fieldset>
 </form>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $frm = $('#frmSetupMailRelay');
 

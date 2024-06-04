@@ -54,7 +54,7 @@
 </div>
 </form>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var options = { width:192, height:192, text:"otpauth://totp/Cerb:{$seed_name}?secret={$seed}" };
 	var hasCanvasSupport = !!window.CanvasRenderingContext2D;

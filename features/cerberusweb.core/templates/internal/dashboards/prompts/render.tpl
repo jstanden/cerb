@@ -17,7 +17,7 @@
 </form>
 {/if}
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $frm = $('#tabFilters{$tab->id}');
 	

@@ -5,7 +5,7 @@
 </div>
 
 {if isset($card_is_removed) && $card_is_removed}
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $div = $('#{$uniqid}');
 	var $card = $div.closest('.cerb-board-card');

@@ -23,7 +23,7 @@
     </div>
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 Devblocks.loadResources({
     'js': [
         '/resource/cerberusweb.core/js/ace-diff/ace-diff.js'

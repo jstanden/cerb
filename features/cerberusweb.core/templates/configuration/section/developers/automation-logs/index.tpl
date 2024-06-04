@@ -12,7 +12,7 @@
 </div>
 
 {$script_uid = uniqid('script')}
-<script type="text/javascript" id="{$script_uid}">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" id="{$script_uid}">
     $(function() {
         var $script = $('#{$script_uid}');
         var $panel = $script.prev('div');

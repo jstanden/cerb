@@ -1,5 +1,5 @@
 {if $active_worker && $active_worker_notify_count}
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $().ready(function() {
 	var $badge = $('#badgeNotifications');
 	var $a = $badge.find('> a');

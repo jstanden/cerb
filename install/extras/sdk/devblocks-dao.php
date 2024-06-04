@@ -1273,7 +1273,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 
 </form>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	let $frm = $('#{$form_id}');
 	let $popup = genericAjaxPopupFind($frm);
@@ -1443,7 +1443,7 @@ $(function() {
 
 {include file="devblocks:cerberusweb.core::internal/views/view_common_jquery_ui.tpl"}
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	let $frm = $('#viewForm{$view->id}');
 	

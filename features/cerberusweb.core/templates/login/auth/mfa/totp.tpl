@@ -34,7 +34,7 @@
 </div>
 </form>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	let $frm = $('#loginMfaForm');
 	let $otp = $frm.find('[name=otp]');

@@ -57,7 +57,7 @@
 	</div>
 </fieldset>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $config = $('#widget{$widget->id}Config');
 	

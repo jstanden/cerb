@@ -170,7 +170,7 @@
 </table>
 {/if}
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $cfields = $('#cfields{$uniqid}');
 	

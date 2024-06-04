@@ -6,7 +6,7 @@
 	<b>{$dict->_label}</b>
 </fieldset>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	$('#{$target_divid} button.chooser').click(function() {
 		var $this = $(this);

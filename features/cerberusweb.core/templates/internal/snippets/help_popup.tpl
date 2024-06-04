@@ -412,7 +412,7 @@ Invoice ID: {{invoice_id}}
 </fieldset>
 {/literal}
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $popup = genericAjaxPopupFetch('help');
 	

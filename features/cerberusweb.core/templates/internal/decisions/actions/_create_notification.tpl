@@ -25,7 +25,7 @@
 	</div>
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 var $action = $('#{$namePrefix}_{$nonce}');
 $action.find('select:first').change(function(e) {
 	$this = $(this);

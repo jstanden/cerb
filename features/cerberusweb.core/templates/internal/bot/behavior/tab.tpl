@@ -9,7 +9,7 @@
 
 <div id="nodeMenu{$tab_uniqid}" style="display:none;position:absolute;z-index:50000;"></div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 {if $is_writeable && $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_BEHAVIOR}.update")}
 $(function() {
 	// [TODO] This is not guaranteed unique (use tab_uniqid)

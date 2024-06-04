@@ -31,7 +31,7 @@
 	<textarea name="{$namePrefix}[var_validate]" class="placeholders">{$params.var_validate}</textarea>
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $action = $('#{$namePrefix}_{$nonce}');
 

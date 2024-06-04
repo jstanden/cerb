@@ -15,7 +15,7 @@
     <textarea name="prompts[{$var}]" data-editor-mode="{$editor_mode}" data-editor-lines="15" {if $editor_readonly}data-editor-readonly="true"{/if} {if !$editor_show_line_numbers}data-editor-line-numbers="false"{/if}>{$default}</textarea>
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $prompt = $('#{$element_id}');
     var $editor_toolbar = $prompt.find('[data-cerb-editor-toolbar]')

@@ -1,7 +1,7 @@
 <div id="widget{$widget->id}"></div>
 <div id="widget{$widget->id}Legend" style="text-align:center;line-height:1.5em;"></div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	Devblocks.loadResources({
 		'css': [

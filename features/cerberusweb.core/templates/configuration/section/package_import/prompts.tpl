@@ -30,7 +30,7 @@
 {$smarty.capture.package_prompts nofilter}
 </fieldset>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $fieldset = $('#{$fieldset_id}');
 	$fieldset.find('.cerb-chooser-trigger')

@@ -37,7 +37,7 @@
 
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	$('#container_{$random}').find('select.chooser').change(function(e) {
 		var $this = $(this);

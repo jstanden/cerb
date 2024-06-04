@@ -22,7 +22,7 @@
 {/if}
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $preview = $('#{$preview_id}');
 	$preview.find('.cerb-peek-trigger').cerbPeekTrigger();

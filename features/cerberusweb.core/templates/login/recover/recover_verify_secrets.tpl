@@ -36,7 +36,7 @@
 </div>
 </form>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	$('#recoverForm').find('input:first').focus().select();
 });

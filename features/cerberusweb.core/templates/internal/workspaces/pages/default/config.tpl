@@ -14,7 +14,7 @@
 	</fieldset>
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $config = $('#page{$page->id}Config');
 	var $frm = $config.closest('form');

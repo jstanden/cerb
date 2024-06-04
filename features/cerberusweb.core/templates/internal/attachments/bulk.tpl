@@ -55,7 +55,7 @@
 <br>
 </form>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $popup = genericAjaxPopupFind('#formBatchUpdate');
 	Devblocks.formDisableSubmit($popup);

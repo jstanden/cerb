@@ -6,7 +6,7 @@
 		<button type="button" class="bot-chat-button send">{'common.send'|devblocks_translate|capitalize}</button>
 	</div>
 
-	<script type="text/javascript">
+	<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 	$(function() {
 		var $msg = $('#{$msg_id}');
 		

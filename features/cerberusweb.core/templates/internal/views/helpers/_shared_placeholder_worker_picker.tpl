@@ -51,7 +51,7 @@
 	{/foreach}
 </ul>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	{if $show_chooser}
 	$('#{$chooser_button}').each(function(e) {

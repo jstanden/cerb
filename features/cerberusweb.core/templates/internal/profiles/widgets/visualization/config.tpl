@@ -32,7 +32,7 @@
 	</fieldset>
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $fieldset_query = $('fieldset#widget{$widget->id}QueryEditor');
 	var $textarea_query = $fieldset_query.find('textarea[name="params[data_query]"]');

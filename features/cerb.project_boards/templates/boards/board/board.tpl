@@ -26,7 +26,7 @@
 	</div>
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $board = $('#board{$board->id}_{$widget->id}');
 	

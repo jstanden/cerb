@@ -32,7 +32,7 @@
 </div>
 </form>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	//$('#loginConsentForm button[name=submit]').first().focus();
 });

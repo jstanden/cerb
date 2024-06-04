@@ -161,7 +161,7 @@
 
 </form>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $actions = $('#{$view->id}_actions');
 
@@ -235,7 +235,7 @@ $('#viewForm{$view->id}').find('button.add').click(function(e) {
 
 {include file="devblocks:cerberusweb.core::internal/views/view_common_jquery_ui.tpl"}
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $frm = $('#viewForm{$view->id}');
 
 {if $pref_keyboard_shortcuts}

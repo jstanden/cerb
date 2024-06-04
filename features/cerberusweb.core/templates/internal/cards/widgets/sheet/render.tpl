@@ -14,7 +14,7 @@
 	{/if}
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $widget = $('#cardWidget{$widget->getUniqueId($card_context_id)}');
 	var $sheet = $widget.find('.cerb-sheet, .cerb-data-sheet, .cerb-sheet-grid, .cerb-sheet-columns');

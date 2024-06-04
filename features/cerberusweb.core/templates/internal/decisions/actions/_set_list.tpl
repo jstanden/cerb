@@ -9,7 +9,7 @@
 	<textarea rows="3" cols="60" name="{$namePrefix}[values]" style="width:100%;" class="placeholders" data-editor-mode="ace/mode/plaintext">{$params.values}</textarea>
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $condition = $('#{$namePrefix}_{$nonce}');
 	$condition.find('textarea').cerbCodeEditor();

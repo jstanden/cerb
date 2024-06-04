@@ -2,7 +2,7 @@
 <div id="{$chart_id}"></div>
 <div id="{$chart_id}_Legend"></div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
     Devblocks.loadResources({
         'css': [

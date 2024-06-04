@@ -26,7 +26,7 @@
 	</div>
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $config = $('#{$config_uniqid}');
 	var $select = $config.find("select[name='params[context]']");

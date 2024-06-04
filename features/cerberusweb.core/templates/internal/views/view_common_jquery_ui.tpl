@@ -1,4 +1,4 @@
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $view = $('div#view{$view->id}');
 	var $view_form = $('form#viewForm{$view->id}');
@@ -269,7 +269,7 @@ $(function() {
 {Event_UiWorklistRenderByWorker::triggerForWorker($active_worker, $view_context, $view->id, $va_actions, $va_behaviors)}
 
 {if !empty($va_behaviors)}
-	<script type="text/javascript">
+	<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 	{if $va_actions.jquery_scripts}
 	{
 		{foreach from=$va_actions.jquery_scripts item=jquery_script}

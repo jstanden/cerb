@@ -55,7 +55,7 @@
 	</div>
 </fieldset>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 	$config = $('#widget{$widget->id}Config');
 	
 	$config.find('select.datasource-selector').change(function() {

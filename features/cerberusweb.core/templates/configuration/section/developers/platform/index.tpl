@@ -22,7 +22,7 @@
     </fieldset>
 </div>
 
-<script type="application/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
    let $assets = $('#cerbConfigPlatform');
    

@@ -21,7 +21,7 @@
 	{/foreach}
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $response = $('#{$response_uid}');
 	var $hidden = $response.find('input[data-cerb-submit-var]');

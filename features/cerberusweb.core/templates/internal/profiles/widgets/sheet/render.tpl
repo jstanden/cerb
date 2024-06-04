@@ -14,7 +14,7 @@
 	{/if}
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $widget = $('#widget{$widget->id}');
     var $profile_toolbar = $('#profileToolbar').find('[data-cerb-toolbar]');

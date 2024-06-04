@@ -74,7 +74,7 @@
 
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $container = $('#{$picker_table_domid}');
 	var $picker = $container.find('table.picker-available');

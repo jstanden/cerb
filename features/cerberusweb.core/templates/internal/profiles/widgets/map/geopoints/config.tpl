@@ -54,7 +54,7 @@
 	</fieldset>
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $config = $('#widget{$widget->id}Config');
 	var $fieldset_map_get_data = $config.find('[data-cerb-event-map-get-data]');

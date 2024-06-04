@@ -45,7 +45,7 @@
 	&#123;&#123;<input type="text" name="{$namePrefix}[response_placeholder]" value="{$params.response_placeholder|default:"_presigned_url"}" required="required" spellcheck="false" size="32" placeholder="e.g. _presigned_url">&#125;&#125;
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $action = $('#{$namePrefix}_{$nonce}');
 	

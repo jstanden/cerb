@@ -108,7 +108,7 @@
 </div> 
 <br>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
 	
@@ -277,7 +277,7 @@ $(function() {
 });
 </script>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 {if $pref_keyboard_shortcuts}
 $(function() {
 	var $document = $(document);

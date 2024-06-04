@@ -14,6 +14,6 @@
 	<ul class="bubbles"></ul>
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 ajax.orgAutoComplete('fieldset#{$namePrefix} input.input_org');
 </script>

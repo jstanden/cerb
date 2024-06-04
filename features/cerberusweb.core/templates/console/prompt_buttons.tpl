@@ -36,7 +36,7 @@
 	
 	<br clear="all">
 	
-	<script type="text/javascript">
+	<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 	$(function() {
 		var $msg = $('#{$msg_id}');
 		

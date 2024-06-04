@@ -114,7 +114,7 @@
 	<option value="minutes" {if 'minutes'==$params.yaxis_format}selected="selected"{/if}>mins elapsed</option>
 </select>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	// [TODO] Limit to the series we're adding now
 	var $fieldset = $('fieldset#widget{$widget->id}Datasource{$series_idx}');

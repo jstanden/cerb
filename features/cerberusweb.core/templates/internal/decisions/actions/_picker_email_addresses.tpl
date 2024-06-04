@@ -25,7 +25,7 @@
 </div>
 {/if}
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	ajax.emailAutoComplete('fieldset#{$namePrefix} textarea.email', { multiple: true });
 });

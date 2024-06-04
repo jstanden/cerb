@@ -55,7 +55,7 @@
 	
 </fieldset>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $legend = $('#view{$view_id}_sidebar fieldset:first legend');
 	

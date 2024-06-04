@@ -55,7 +55,7 @@
 </div>
 {/if}
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 // Show variables dependent on the context of the links
 var $action = $('#{$namePrefix}_{$nonce}');
 

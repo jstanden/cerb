@@ -15,13 +15,14 @@
 	<link type="image/x-icon" rel="shortcut icon" href="{$favicon_url}">
 	{/if}
 	
-	<script type="text/javascript">
+	<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 		var DevblocksAppPath = '{$smarty.const.DEVBLOCKS_WEBPATH}';
 		var DevblocksWebPath = '{devblocks_url}{/devblocks_url}';
+		let DevblocksRequestNonce = '{DevblocksPlatform::getRequestNonce()}';
 		var CerbSchemaRecordsVersion = {intval(DevblocksPlatform::services()->cache()->getTagVersion("schema_records"))};
 	</script>
 	
-	<style type="text/css">
+	<style nonce="{DevblocksPlatform::getRequestNonce()}" type="text/css">
 		#cerb-logo {
 			display: inline-block;
 			max-width: 100vw;
@@ -37,14 +38,14 @@
 	<meta name="apple-mobile-web-app-title" content="Cerb">
 	
 	<!-- Platform -->
-	<script type="text/javascript" src="{devblocks_url}c=resource&p=devblocks.core&f=js/async-min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
+	<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=devblocks.core&f=js/async-min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
 	<link type="text/css" rel="stylesheet" href="{devblocks_url}c=resource&p=devblocks.core&f=css/jquery-ui.css{/devblocks_url}?v={$smarty.const.APP_BUILD}">
-	<script type="text/javascript" src="{devblocks_url}c=resource&p=devblocks.core&f=js/jquery/jquery.combined.min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
-	<script type="text/javascript" src="{devblocks_url}c=resource&p=devblocks.core&f=js/devblocks.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
+	<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=devblocks.core&f=js/jquery/jquery.combined.min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
+	<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=devblocks.core&f=js/devblocks.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
 
 	<!-- Application -->
 	<link type="text/css" rel="stylesheet" href="{devblocks_url}c=resource&p=cerberusweb.core&f=css/cerb.css{/devblocks_url}?v={$smarty.const.APP_BUILD}&pl=0">
-	<script type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerberus.js{/devblocks_url}?v={$smarty.const.APP_BUILD}&pl=0"></script>
+	<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerberus.js{/devblocks_url}?v={$smarty.const.APP_BUILD}&pl=0"></script>
 	
 	<!-- User-defined styles -->
 	{$user_stylesheet_timestamp = $settings->get('cerberusweb.core',CerberusSettings::UI_USER_STYLESHEET_UPDATED_AT,0)}

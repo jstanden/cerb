@@ -54,7 +54,7 @@
 	</div>
 {/if}
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $container = $('#profileTab{$model->id}');
 	let $tabs = $container.closest('.ui-tabs');

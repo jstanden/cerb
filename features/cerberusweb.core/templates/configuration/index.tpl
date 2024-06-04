@@ -183,7 +183,7 @@
 </div>
 {/if}
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 	$('DIV.cerb-menu DIV A.menu')
 		.closest('li')
 		.hover(

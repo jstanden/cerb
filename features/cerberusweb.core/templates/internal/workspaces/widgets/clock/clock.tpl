@@ -3,7 +3,7 @@
 	<div class="time" style="font-size:32px;"></div>
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 try {
 	var $widget = $('#widget{$widget->id}_clock');

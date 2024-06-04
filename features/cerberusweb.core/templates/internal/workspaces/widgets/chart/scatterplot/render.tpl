@@ -1,7 +1,7 @@
 {$is_date_formatted = array_intersect([$xaxis_format,$yaxis_format],['number.minutes','number.seconds'])}
 <div id="widget{$widget->id}"></div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	Devblocks.loadResources({
 		'css': [

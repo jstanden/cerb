@@ -27,7 +27,7 @@
 	{/foreach}
 </ul>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 // Menu
 var $menu_trigger = $('#{$menu_button}');

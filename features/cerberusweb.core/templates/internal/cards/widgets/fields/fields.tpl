@@ -32,7 +32,7 @@
 	{include file="devblocks:cerberusweb.core::internal/profiles/profile_record_links.tpl" properties=$properties_links}
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $widget = $('#cardWidget{$widget->getUniqueId($dict->id)}Fields');
 	var $popup = genericAjaxPopupFind($widget);

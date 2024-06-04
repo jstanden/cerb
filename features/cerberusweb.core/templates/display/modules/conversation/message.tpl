@@ -280,7 +280,7 @@
 						{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
 						</div>
 
-						<script type="text/javascript">
+						<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 							$(function() {
 								var $toolbar = $('#{$message->id}act').find('[data-cerb-toolbar]');
 								var $profile_tab = $toolbar.closest('.cerb-profile-layout');
@@ -430,7 +430,7 @@
 {/if}
 
 {if !$embed}
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $msg = $('#message{$message->id}').unbind();
 	
@@ -458,7 +458,7 @@ $(function() {
 {/if}
 
 {if !$embed && $active_worker->hasPriv('core.display.actions.reply')}
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $msg = $('#message{$message->id}');
 	var $actions = $('#{$message->id}act');

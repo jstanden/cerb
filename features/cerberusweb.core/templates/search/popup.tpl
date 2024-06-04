@@ -9,7 +9,7 @@
 {include file="devblocks:cerberusweb.core::internal/views/search_and_view.tpl"}
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $popup = genericAjaxPopupFind('#{$search_popup_uniqid}');
 	

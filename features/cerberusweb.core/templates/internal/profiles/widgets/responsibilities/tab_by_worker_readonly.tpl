@@ -43,7 +43,7 @@
 </div>
 
 {if $tab_is_editable}
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $frm = $('#frm{$tab_uniqid}');
 	var $fieldsets = $('#fieldsets{$tab_uniqid}');

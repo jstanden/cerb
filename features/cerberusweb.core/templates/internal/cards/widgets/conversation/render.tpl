@@ -24,7 +24,7 @@
     </fieldset>
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
     var $timeline = {$timeline_json|default:'{}' nofilter};
 

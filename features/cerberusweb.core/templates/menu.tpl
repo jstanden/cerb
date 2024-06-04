@@ -39,7 +39,7 @@
 </ul>
 <div style="clear:both;" class="navmenu-submenu cerb-no-print"></div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $menu = $('UL.navmenu');
 	

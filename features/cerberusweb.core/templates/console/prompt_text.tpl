@@ -10,7 +10,7 @@
 	<input type="text" class="bot-chat-input" placeholder="{$placeholder}" value="{$default}" autocomplete="off" autofocus="autofocus">
 	{/if}
 
-	<script type="text/javascript">
+	<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 	$(function() {
 		var $msg = $('#{$msg_id}');
 		

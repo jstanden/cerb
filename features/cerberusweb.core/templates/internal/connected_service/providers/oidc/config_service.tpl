@@ -39,7 +39,7 @@
 	<br>
 </fieldset>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $fieldset = $('#{$fieldset_id}');
 	var $button_discovery = $fieldset.find('.cerb-oidc-discovery-button');

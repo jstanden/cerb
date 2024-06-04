@@ -45,7 +45,7 @@
 </div>
 {/if}
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function(e) {
 	{if !empty($visit) && $visit->isImposter()}
 	$('#aImposter').click(function(e) {

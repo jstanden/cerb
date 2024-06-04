@@ -11,7 +11,7 @@
     </fieldset>
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
     var $config = $('#cardWidgetConfig{$config_uniqid}');
     var $input_classifier_id = $config.find('input[name="params[classifier_id]"]');

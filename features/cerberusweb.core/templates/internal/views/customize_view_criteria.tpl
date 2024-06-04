@@ -24,7 +24,7 @@
 <tr>
 	<td>
 		{include file="devblocks:cerberusweb.core::internal/views/criteria_list_params.tpl" params=$view_params readonly=true}
-		<script type="text/javascript">
+		<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 		$('#{$parent_div} TBODY.summary TD:first').hover(
 			function() {
 				$(this).find('a.delete').show();
@@ -40,7 +40,7 @@
 </table>
 {/if}
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $parent = $('#{$parent_div}');
 	

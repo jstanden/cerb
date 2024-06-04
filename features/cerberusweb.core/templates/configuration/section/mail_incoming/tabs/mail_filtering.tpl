@@ -6,7 +6,7 @@
     </button>
 </fieldset>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
     var $frm = $('#frmSetupMailFiltering');
     $frm.find('.cerb-peek-trigger').cerbPeekTrigger();

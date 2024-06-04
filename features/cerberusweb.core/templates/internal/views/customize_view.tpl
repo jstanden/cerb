@@ -95,7 +95,7 @@
 
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $container = $('#customize{$view->id}');
 	Devblocks.formDisableSubmit($container);

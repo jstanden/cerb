@@ -17,7 +17,7 @@
     <div data-cerb-coordinates style="position:absolute;bottom:5px;right:5px;text-shadow:0 0 1.5px white;"></div>
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	Devblocks.loadScripts([
 		'/resource/devblocks.core/js/d3/d3.v5.min.js',

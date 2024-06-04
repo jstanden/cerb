@@ -81,7 +81,7 @@
 
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 var $div = $('#div{$uniqid}');
 
 $div.find('select.field_start_date').change(function(e) {

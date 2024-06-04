@@ -13,7 +13,7 @@
 	</div>
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $element = $('#{$element_id}');
 	var $form = $element.closest('form');

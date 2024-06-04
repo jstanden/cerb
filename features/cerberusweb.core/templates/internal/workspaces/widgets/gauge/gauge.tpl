@@ -15,7 +15,7 @@
 {/foreach}
 </span>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 try {
 	{$metric_value = $widget->params.metric_value}

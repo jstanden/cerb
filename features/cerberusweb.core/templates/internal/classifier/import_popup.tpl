@@ -28,7 +28,7 @@ reminder,Remind me about {{remind:meeting}} {{time:at 2pm}}
 </fieldset>
 </form>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $div = $('#{$popup_id}');
 	var $popup = genericAjaxPopupFind($div);

@@ -45,7 +45,7 @@
 </div>
 {/if}
 	
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	// Set the browser tab label to the record label
 	document.title = "{$page->name|escape:'javascript' nofilter} - {$settings->get('cerberusweb.core','helpdesk_title')|escape:'javascript' nofilter}";

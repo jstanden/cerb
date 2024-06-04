@@ -7,7 +7,7 @@
 	</div>
 </div>
 
-<script type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 	$(function() {
 		var $prompt = $('#{$element_id}');
 		var $form = $prompt.closest('form');
