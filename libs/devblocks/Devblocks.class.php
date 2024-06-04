@@ -2405,6 +2405,13 @@ class DevblocksPlatform extends DevblocksEngine {
 		$classloader->registerClasses($file, $classes);
 	}
 	
+	public static function getRequestNonce() {
+		if(is_array($_SESSION ?? null) && array_key_exists('nonce', $_SESSION))
+			return $_SESSION['nonce'];
+		
+		return '';
+	}
+	
 	public static function getStartTime() {
 		return self::$start_time;
 	}

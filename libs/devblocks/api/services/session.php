@@ -73,6 +73,10 @@ class _DevblocksSessionManager {
 			if(!array_key_exists('csrf_token', $_SESSION ?? [])) {
 				$_SESSION['csrf_token'] = CerberusApplication::generatePassword(128);
 			}
+			
+			if(!array_key_exists('nonce', $_SESSION ?? [])) {
+				$_SESSION['nonce'] = base64_encode(random_bytes(24));
+			}
 		}
 		
 		return $instance;
