@@ -10,7 +10,7 @@
 	</ul>
 	
 	<div id="tabsSetupMailOutgoingSettings">
-		<form id="frmSetupMailOutgoingSettings" action="{devblocks_url}{/devblocks_url}" method="post" onsubmit="return false;">
+		<form id="frmSetupMailOutgoingSettings" action="{devblocks_url}{/devblocks_url}" method="post">
 		<input type="hidden" name="c" value="config">
 		<input type="hidden" name="a" value="invoke">
 		<input type="hidden" name="module" value="mail_outgoing">
@@ -37,7 +37,7 @@
 	</div>
 	
 	<div id="tabsSetupMailOutgoingTemplates">
-		<form id="frmSetupMailOutgoingTemplates" action="{devblocks_url}{/devblocks_url}" method="post" onsubmit="return false;">
+		<form id="frmSetupMailOutgoingTemplates" action="{devblocks_url}{/devblocks_url}" method="post">
 		<input type="hidden" name="c" value="config">
 		<input type="hidden" name="a" value="invoke">
 		<input type="hidden" name="module" value="mail_outgoing">
@@ -155,11 +155,13 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
+	let tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
 	tabOptions.active = Devblocks.getjQueryUiTabSelected('tabsSetupMailOutgoing', '{$tab}');
-	
-	var $tabs = $('#tabsSetupMailOutgoing').tabs(tabOptions);
-	
+
+	let $tabs = $('#tabsSetupMailOutgoing').tabs(tabOptions);
+
+	Devblocks.formDisableSubmit($tabs);
+
 	$tabs.find('.cerb-peek-trigger')
 		.cerbPeekTrigger()
 		;

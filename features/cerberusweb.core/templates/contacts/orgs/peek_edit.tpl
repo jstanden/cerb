@@ -118,12 +118,12 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $frm = $('#{$form_id}');
-	var $popup = genericAjaxPopupFind($frm);
+	let $frm = $('#{$form_id}');
+	let $popup = genericAjaxPopupFind($frm);
 
 	Devblocks.formDisableSubmit($frm);
 
-	$popup.one('popup_open',function(event,ui) {
+	$popup.one('popup_open',function() {
 		// Buttons
 		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);

@@ -1,4 +1,4 @@
-<form id="frmDecisionOutcome{$id}" onsubmit="return false;" method="post">
+<form id="frmDecisionOutcome{$id}" method="post">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="behavior">
@@ -98,7 +98,7 @@
 
 </form>
 
-<form id="frmDecisionOutcomeAdd{$id}" action="javascript:;" onsubmit="return false;" method="post">
+<form id="frmDecisionOutcomeAdd{$id}" action="javascript:;" method="post">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="behavior">
@@ -163,7 +163,9 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFetch('node_outcome{$id}');
+	let $popup = genericAjaxPopupFetch('node_outcome{$id}');
+
+	Devblocks.formDisableSubmit($popup.find('form'));
 	
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{if empty($id)}New {/if}Outcome");

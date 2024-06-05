@@ -1,6 +1,6 @@
 {$popup_id = "popup{uniqid()}"}
 <div id="{$popup_id}">
-	<form onsubmit="return false;">
+	<form>
 		<textarea style="height:500px;width:100%;" readonly="readonly" wrap="off">{$raw_headers}</textarea>
 	</form>
 	
@@ -11,8 +11,10 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $div = $('#{$popup_id}');
-	var $popup = genericAjaxPopupFind($div);
+	let $div = $('#{$popup_id}');
+	let $popup = genericAjaxPopupFind($div);
+
+	Devblocks.formDisableSubmit($popup.find('form'));
 	
 	$popup.one('popup_open',function() {
 		// Title

@@ -75,8 +75,8 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $frm = $('#{$form_id}');
-	var $popup = genericAjaxPopupFind($frm);
+	let $frm = $('#{$form_id}');
+	let $popup = genericAjaxPopupFind($frm);
 	
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{'Community Portal'|devblocks_translate|capitalize|escape:'javascript' nofilter}");

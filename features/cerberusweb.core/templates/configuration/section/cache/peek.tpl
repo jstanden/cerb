@@ -30,11 +30,11 @@
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $frm = $('#frmCachePeek');
-	var $popup = genericAjaxPopupFind($frm);
+	let $popup = genericAjaxPopupFind($frm);
 
 	Devblocks.formDisableSubmit($frm);
 	
-	$popup.one('popup_open', function(event,ui) {
+	$popup.one('popup_open', function() {
 		$(this).dialog('option','title',"Cache Configuration");
 		
 		var $fieldsets = $frm.find('> fieldset');

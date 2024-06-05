@@ -1,5 +1,5 @@
 {$peek_context = CerberusContexts::CONTEXT_DRAFT}
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="formBatchUpdate" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="POST" id="formBatchUpdate">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="draft">
@@ -45,9 +45,9 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFind('#formBatchUpdate');
+	let $popup = genericAjaxPopupFind('#formBatchUpdate');
 	Devblocks.formDisableSubmit($popup);
-	
+
 	$popup.one('popup_open', function(event,ui) {
 		$(this).dialog('option','title',"{'common.bulk_update'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		

@@ -1,4 +1,4 @@
-<form id="frmDecisionNodeReorder" onsubmit="return false;" method="post">
+<form id="frmDecisionNodeReorder" method="post">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="behavior">
@@ -67,10 +67,12 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $frm = $('#frmDecisionNodeReorder');
-	var $popup = genericAjaxPopupFind($frm);
+	let $frm = $('#frmDecisionNodeReorder');
+	let $popup = genericAjaxPopupFind($frm);
+
+	Devblocks.formDisableSubmit($frm);
 	
-	$popup.one('popup_open', function(event,ui) {
+	$popup.one('popup_open', function() {
 		$popup.dialog('option','title',"Reorder");
 
 		$frm.find('DIV.container').sortable({ items:'DIV.item', placeholder:'ui-state-highlight' });

@@ -1,6 +1,6 @@
 {$peek_context = CerberusContexts::CONTEXT_CARD_WIDGET}
 {$form_id = uniqid()}
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}">
     <input type="hidden" name="c" value="profiles">
     <input type="hidden" name="a" value="invoke">
     <input type="hidden" name="module" value="card_widget">
@@ -155,9 +155,11 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
     $(function() {
-        var $frm = $('#{$form_id}');
-        var $popup = genericAjaxPopupFind($frm);
+        let $frm = $('#{$form_id}');
+        let $popup = genericAjaxPopupFind($frm);
         let $fieldset_advanced = $frm.find('fieldset[data-cerb-fieldset-advanced]');
+
+        Devblocks.formDisableSubmit($frm);
 
         $popup.one('popup_open', function(event,ui) {
             $popup.dialog('option','title',"{'common.card.widget'|devblocks_translate|capitalize|escape:'javascript' nofilter}");

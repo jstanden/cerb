@@ -74,11 +74,11 @@ Used by:<br>
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $frm = $('#formStorageProfilePeek');
-	var $popup = genericAjaxPopupFind($frm);
+	let $popup = genericAjaxPopupFind($frm);
 
 	Devblocks.formDisableSubmit($frm);
 	
-	$popup.one('popup_open', function(event,ui) {
+	$popup.one('popup_open', function() {
 		$(this).dialog('option','title',"Storage Profile");
 
 		$frm.find('BUTTON.tester')

@@ -1,7 +1,7 @@
 {$mail_reply_html = DAO_WorkerPref::get($active_worker->id, 'mail_reply_html', 0)}
 {$is_html = ($draft && $draft->params.format == 'parsedown') || $mail_reply_html}
 
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmComposePeek{$popup_uniqid}" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmComposePeek{$popup_uniqid}">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="draft">
@@ -251,10 +251,12 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var draftComposeAutoSaveInterval = null;
+	let draftComposeAutoSaveInterval = null;
 
-	var $frm = $('#frmComposePeek{$popup_uniqid}');
-	var $popup = genericAjaxPopupFind($frm);
+	let $frm = $('#frmComposePeek{$popup_uniqid}');
+	let $popup = genericAjaxPopupFind($frm);
+
+	Devblocks.formDisableSubmit($frm);
 
 	function enableAutoSaveDraft() {
 		if(null == draftComposeAutoSaveInterval) {

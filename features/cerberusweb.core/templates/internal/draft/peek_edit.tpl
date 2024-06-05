@@ -2,7 +2,7 @@
 {$peek_context_id = $draft->id}
 {$form_id = uniqid('frm')}
 
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="{$form_id}" name="frmDraftPeek" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="POST" id="{$form_id}" name="frmDraftPeek">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="draft">
@@ -114,10 +114,12 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $frm = $('#{$form_id}');
-	var $popup = genericAjaxPopupFind($frm);
+	let $frm = $('#{$form_id}');
+	let $popup = genericAjaxPopupFind($frm);
+
+	Devblocks.formDisableSubmit($frm);
 	
-	$popup.one('popup_open',function(event,ui) {
+	$popup.one('popup_open',function() {
 		$popup.dialog('option','title','{'common.draft'|devblocks_translate|capitalize}');
 
 		var $tbody_queued = $popup.find('.cerb-tbody-queued');

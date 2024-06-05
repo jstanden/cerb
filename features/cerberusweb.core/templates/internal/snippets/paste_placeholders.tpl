@@ -1,4 +1,4 @@
-<form action="#" method="POST" id="formSnippetsPaste" name="formSnippetsPaste" onsubmit="return false;">
+<form action="#" method="POST" id="formSnippetsPaste" name="formSnippetsPaste">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="snippet">
@@ -19,23 +19,26 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFetch('snippet_paste');
+	let $popup = genericAjaxPopupFetch('snippet_paste');
+	let $frm = $('#formSnippetsPaste');
+
+	Devblocks.formDisableSubmit($frm);
 	
 	$popup.one('popup_open',function() {
-		var $preview = $popup.find('div.preview');
+		let $preview = $popup.find('div.preview');
 		
 		$popup.dialog('option','title', 'Insert Snippet');
 		
 		$popup.find('input:text,textarea').first().focus();
 
 		$popup.find('div.buttons button.preview').click(function() {
-			genericAjaxPost('formSnippetsPaste', '', null, function(html) {
+			genericAjaxPost($frm, '', null, function(html) {
 				$preview.html(html);
 			})
 		});
 		
 		$popup.find('div.buttons button.paste').click(function() {
-			var $elements = $popup
+			let $elements = $popup
 				.find('input:text.placeholder,textarea.placeholder')
 				.filter(function() {
 					let $this = $(this);
@@ -54,10 +57,10 @@ $(function() {
 			genericAjaxPost('formSnippetsPaste', '', null, function(html) {
 				$preview.hide().html(html);
 				
-				var text = $preview.text();
+				let text = $preview.text();
 				
 				// Fire event
-				var event = $.Event('snippet_paste');
+				let event = $.Event('snippet_paste');
 				event.text=text;
 				
 				$popup.trigger(event);

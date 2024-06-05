@@ -1,4 +1,4 @@
-<form action="javascript:;" method="post" id="frmWorkspaceWidgetExport" onsubmit="return false;">
+<form action="javascript:;" method="post" id="frmWorkspaceWidgetExport">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <div>
@@ -12,18 +12,22 @@
 </form>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
-var $popup = genericAjaxPopupFind('#frmWorkspaceWidgetExport');
-$popup.one('popup_open', function() {
-	var $this = $(this);
-	
-	var title = "Export Widget: " + {$widget->label|json_encode nofilter};
-	$this.dialog('option','title', title);
-	
-	var $frm = $(this).find('form');
-	
-	$frm.find('button.submit').click(function(e) {
-		var $popup = genericAjaxPopupFind($(this));
-		$popup.dialog('close');
+$(function() {
+	let $frm = $('#frmWorkspaceWidgetExport');
+	let $popup = genericAjaxPopupFind($frm);
+
+	Devblocks.formDisableSubmit($frm);
+
+	$popup.one('popup_open', function() {
+		let $this = $(this);
+
+		let title = "Export Widget: " + {$widget->label|json_encode nofilter};
+		$this.dialog('option','title', title);
+
+		$frm.find('button.submit').click(function(e) {
+			let $popup = genericAjaxPopupFind($(this));
+			$popup.dialog('close');
+		});
 	});
 });
 </script>

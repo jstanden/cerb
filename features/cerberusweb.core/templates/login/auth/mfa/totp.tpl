@@ -1,4 +1,4 @@
-<form action="{devblocks_url}c=login&a=mfa{/devblocks_url}" method="post" id="loginMfaForm" onsubmit="return false;">
+<form action="{devblocks_url}c=login&a=mfa{/devblocks_url}" method="post" id="loginMfaForm">
 <input type="hidden" name="_csrf_token" value="{$csrf_token}">
 
 <div style="vertical-align:middle;max-width:500px;margin:20px auto 20px auto;padding:5px 20px 20px 20px;border-radius:5px;box-shadow:darkgray 0px 0px 5px;">
@@ -40,6 +40,8 @@ $(function() {
 	let $otp = $frm.find('[name=otp]');
 	let $submit = $frm.find('.submit').attr('disabled', null);
 
+	Devblocks.formDisableSubmit($frm);
+
 	$frm.find('input[name=otp]').focus();
 
 	$otp.on('keyup', function(e) {
@@ -53,7 +55,7 @@ $(function() {
 
 	$submit.on('click', function(e) {
 		e.stopPropagation();
-		$frm.attr('onsubmit', null);
+		$frm[0].onsubmit = null;
 		$submit.attr('disabled', 'disabled');
 		$frm.submit();
 	});

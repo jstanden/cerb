@@ -2,7 +2,7 @@
 {$peek_context_id = $task->id}
 {$tabset_id = "peek-editor-{DevblocksPlatform::strAlphaNum($peek_context,'','_')}"}
 
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="formTaskPeek" name="formTaskPeek" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="POST" id="formTaskPeek" name="formTaskPeek">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="task">
@@ -134,9 +134,11 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $frm = $('#formTaskPeek');
-	var $popup = genericAjaxPopupFind($frm);
-	
+	let $frm = $('#formTaskPeek');
+	let $popup = genericAjaxPopupFind($frm);
+
+	Devblocks.formDisableSubmit($frm);
+
 	$popup.one('popup_open',function() {
 		$popup.dialog('option','title','Tasks');
 		

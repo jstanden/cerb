@@ -1,7 +1,7 @@
 {$peek_context = CerberusContexts::CONTEXT_SNIPPET}
 {$peek_context_id = $model->id}
 {$frm_id = "form{uniqid()}"}
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="{$frm_id}" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="POST" id="{$frm_id}">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="snippet">
@@ -97,8 +97,10 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $frm = $('#{$frm_id}');
-	var $popup = genericAjaxPopupFind($frm);
+	let $frm = $('#{$frm_id}');
+	let $popup = genericAjaxPopupFind($frm);
+
+	Devblocks.formDisableSubmit($frm);
 
 	$popup.one('popup_open', function (event) {
 		event.stopPropagation();

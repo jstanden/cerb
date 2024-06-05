@@ -27,7 +27,9 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $frm = $('#{$form_id}');
+	let $frm = $('#{$form_id}');
+
+	Devblocks.formDisableSubmit($frm);
 
 	$frm.find('.chooser-abstract')
 		.cerbChooserTrigger()

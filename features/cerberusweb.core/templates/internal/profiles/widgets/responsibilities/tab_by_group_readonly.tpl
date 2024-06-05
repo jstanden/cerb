@@ -5,7 +5,7 @@
 {$tab_uniqid = uniqid()}
 
 {if $tab_is_editable}
-<form action="javascript:;" method="post" style="margin:5px;" onsubmit="return false;" id="frm{$tab_uniqid}">
+<form action="javascript:;" method="post" style="margin:5px;" id="frm{$tab_uniqid}">
 	<button type="button"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
 </form>
 {/if}
@@ -49,8 +49,10 @@
 {if $tab_is_editable}
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $frm = $('#frm{$tab_uniqid}');
-	var $fieldsets = $('#fieldsets{$tab_uniqid}');
+	let $frm = $('#frm{$tab_uniqid}');
+	let $fieldsets = $('#fieldsets{$tab_uniqid}');
+
+	Devblocks.formDisableSubmit($frm);
 	
 	$fieldsets.find('.cerb-peek-trigger').cerbPeekTrigger();
 	

@@ -1,7 +1,7 @@
 {$peek_context = CerberusContexts::CONTEXT_CONTACT}
 {$peek_context_id = $model->id}
 {$form_id = "frmContactPeekEdit{uniqid()}"}
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="contact">
@@ -212,13 +212,15 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $frm = $('#{$form_id}');
-	var $popup = genericAjaxPopupFind($frm);
+	let $frm = $('#{$form_id}');
+	let $popup = genericAjaxPopupFind($frm);
 	var $chooser_org = $popup.find('button.chooser-abstract[data-field-name="org_id"]');
 	var $chooser_email = $popup.find('button.chooser-abstract[data-field-name="primary_email_id"]');
 	var $avatar_chooser = $popup.find('button.cerb-avatar-chooser');
 	var $avatar_image = $avatar_chooser.closest('td').find('img.cerb-avatar');
-	
+
+	Devblocks.formDisableSubmit($frm);
+
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{'common.edit'|devblocks_translate|capitalize|escape:'javascript' nofilter}: {'common.contact'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		

@@ -1,6 +1,6 @@
 {$popup_id = uniqid()}
 
-<form action="javascript:;" method="POST" onsubmit="return false;">
+<form action="javascript:;" method="POST">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="classifier">
@@ -30,12 +30,14 @@ reminder,Remind me about {{remind:meeting}} {{time:at 2pm}}
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $div = $('#{$popup_id}');
-	var $popup = genericAjaxPopupFind($div);
-	var $frm = $popup.find('form');
-	var $status = $popup.find('div.status');
+	let $div = $('#{$popup_id}');
+	let $popup = genericAjaxPopupFind($div);
+	let $frm = $popup.find('form');
+	let $status = $popup.find('div.status');
+
+	Devblocks.formDisableSubmit($frm);
 	
-	$popup.one('popup_open',function(event,ui) {
+	$popup.one('popup_open',function() {
 		$popup.dialog('option','title', "Import Classifier Training Data");
 		
 		$popup.find('button.submit').click(function() {

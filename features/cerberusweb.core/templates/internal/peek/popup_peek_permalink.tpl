@@ -1,6 +1,6 @@
 {$popup_id = "popup{uniqid()}"}
 <div id="{$popup_id}">
-<form action="#" onsubmit="return false;">
+<form action="#">
 	<div>
 		<b>Share a <a href="{$url}">link</a> to this page:</b>
 	</div>
@@ -12,8 +12,10 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $div = $('#{$popup_id}');
-	var $popup = genericAjaxPopupFind($div);
+	let $div = $('#{$popup_id}');
+	let $popup = genericAjaxPopupFind($div);
+
+	Devblocks.formDisableSubmit($frm);
 	
 	$popup.one('popup_open',function() {
 		// Title

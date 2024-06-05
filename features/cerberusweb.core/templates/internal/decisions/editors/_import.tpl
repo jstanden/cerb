@@ -1,4 +1,4 @@
-<form action="javascript:;" method="post" id="frmBehaviorImport" onsubmit="return false;">
+<form action="javascript:;" method="post" id="frmBehaviorImport">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="behavior">
@@ -26,12 +26,14 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $frm = $('#frmBehaviorImport');
-	var $popup = genericAjaxPopupFind($frm);
-	var $status = $popup.find('div.status');
-	var $config = $popup.find('div.config');
+	let $frm = $('#frmBehaviorImport');
+	let $popup = genericAjaxPopupFind($frm);
+	let $status = $popup.find('div.status');
+	let $config = $popup.find('div.config');
+
+	Devblocks.formDisableSubmit($frm);
 	
-	$popup.one('popup_open', function(event,ui) {
+	$popup.one('popup_open', function() {
 		$popup.dialog('option','title',"{'Import Behavior Fragment'}");
 		
 		$frm.find('button.submit').click(function(e) {

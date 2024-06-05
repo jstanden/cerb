@@ -1,7 +1,7 @@
 {$peek_context = CerberusContexts::CONTEXT_GROUP}
 {$peek_context_id = $group->id}
 {$form_id = "formGroupsPeek{uniqid()}"}
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="{$form_id}" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="POST" id="{$form_id}">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="group">
@@ -238,10 +238,12 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $frm = $('#{$form_id}');
-	var $popup = genericAjaxPopupFind($frm);
-	
-	$popup.one('popup_open', function(event,ui) {
+	let $frm = $('#{$form_id}');
+	let $popup = genericAjaxPopupFind($frm);
+
+	Devblocks.formDisableSubmit($frm);
+
+	$popup.one('popup_open', function() {
 		$popup.dialog('option','title',"{'common.edit'|devblocks_translate|capitalize}: {'common.group'|devblocks_translate|capitalize}");
 		
 		// Buttons

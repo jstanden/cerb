@@ -1,4 +1,4 @@
-<form action="{devblocks_url}c=login&a=authenticate{/devblocks_url}" method="post" id="loginForm" onsubmit="return false;">
+<form action="{devblocks_url}c=login&a=authenticate{/devblocks_url}" method="post" id="loginForm">
 <input type="hidden" name="_csrf_token" value="{$csrf_token}">
 
 <div style="vertical-align:middle;max-width:500px;margin:20px auto 20px auto;padding:5px 20px 20px 20px;border-radius:5px;box-shadow:darkgray 0px 0px 5px;">
@@ -49,6 +49,8 @@ $(function() {
 	let $submit = $frm.find('.submit').attr('disabled', null);
 	let $password = $frm.find('[name=password]');
 
+	Devblocks.formDisableSubmit($frm);
+
 	// Auto-focus the email input field
 	{if $email}
 	$password.focus();
@@ -67,7 +69,7 @@ $(function() {
 
 	$submit.on('click', function(e) {
 		e.stopPropagation();
-		$frm.attr('onsubmit', null);
+		$frm[0].onsubmit = null;
 		$submit.attr('disabled', 'disabled');
 		$frm.submit();
 	});

@@ -1,7 +1,7 @@
 {$peek_context = CerberusContexts::CONTEXT_TICKET}
 {$peek_context_id = $ticket->id}
 
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmTicketPeek" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmTicketPeek">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="ticket">
@@ -148,9 +148,11 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $frm = $('#frmTicketPeek');
-	var $popup = genericAjaxPopupFind($frm);
-	
+	let $frm = $('#frmTicketPeek');
+	let $popup = genericAjaxPopupFind($frm);
+
+	Devblocks.formDisableSubmit($frm);
+
 	$popup.one('popup_open',function() {
 		var $chooser_owner = $popup.find('button[data-field-name="owner_id"]');
 		

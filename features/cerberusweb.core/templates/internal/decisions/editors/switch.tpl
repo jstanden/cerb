@@ -8,7 +8,7 @@
 	
 	{if !$id && $packages}
 	<div id="switch{$id}-library" class="package-library">
-		<form id="frmDecisionSwitch{$id}Library" onsubmit="return false;">
+		<form id="frmDecisionSwitch{$id}Library">
 		<input type="hidden" name="c" value="profiles">
 		<input type="hidden" name="a" value="invoke">
 		<input type="hidden" name="module" value="behavior">
@@ -25,7 +25,7 @@
 	{/if}
 	
 	<div id="switch{$id}-build">
-		<form id="frmDecisionSwitch{$id}" onsubmit="return false;" method="post">
+		<form id="frmDecisionSwitch{$id}" method="post">
 		<input type="hidden" name="c" value="profiles">
 		<input type="hidden" name="a" value="invoke">
 		<input type="hidden" name="module" value="behavior">
@@ -75,7 +75,9 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFetch('node_switch{$id}');
+	let $popup = genericAjaxPopupFetch('node_switch{$id}');
+
+	Devblocks.formDisableSubmit($popup.find('form'));
 	
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{if empty($id)}New {/if}Decision");

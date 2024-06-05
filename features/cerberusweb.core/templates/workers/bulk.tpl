@@ -1,4 +1,4 @@
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="formBatchUpdate" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="POST" id="formBatchUpdate">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="worker">
@@ -138,8 +138,10 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFind('#formBatchUpdate');
-	Devblocks.formDisableSubmit($popup);
+	let $frm = $('#formBatchUpdate');
+	let $popup = genericAjaxPopupFind($frm);
+
+	Devblocks.formDisableSubmit($frm);
 	
 	$popup.css('overflow', 'inherit');
 	

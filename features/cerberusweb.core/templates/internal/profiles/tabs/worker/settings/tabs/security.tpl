@@ -90,7 +90,7 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $frm = $('#{$form_id}');
+	let $frm = $('#{$form_id}');
 	
 	{if !$worker->is_mfa_required}
 	var $input_mfa_enable = $frm.find('input[name="mfa_params[state]"]');

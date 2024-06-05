@@ -1,4 +1,4 @@
-<form id="frmBehaviorSimulator{$trigger->id}" onsubmit="return false;">
+<form id="frmBehaviorSimulator{$trigger->id}">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="behavior">
@@ -70,16 +70,19 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFetch('simulate_behavior');
+	let $popup = genericAjaxPopupFetch('simulate_behavior');
+	let $frm = $('#frmBehaviorSimulator{$trigger->id}');
+
+	Devblocks.formDisableSubmit($frm);
 	
-	$popup.one('popup_open', function(event,ui) {
+	$popup.one('popup_open', function() {
 		$popup.dialog('option','title',"Simulate: {$trigger->title|escape:'javascript' nofilter}");
 		
 		$popup.find('button.submit').click(function() {
-			var $button = $(this).hide();
-			var $output = $('#divBehaviorSimulatorResults{$trigger->id}').empty().append(Devblocks.getSpinner());
+			let $button = $(this).hide();
+			let $output = $('#divBehaviorSimulatorResults{$trigger->id}').empty().append(Devblocks.getSpinner());
 			
-			genericAjaxPost('frmBehaviorSimulator{$trigger->id}',$output,null, function() {
+			genericAjaxPost($frm, $output, null, function() {
 				$button.show();
 			});
 		});

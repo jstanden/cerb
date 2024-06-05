@@ -1,5 +1,5 @@
 {if $prompts}
-<form id="tabFilters{$tab->id}" action="{devblocks_url}{/devblocks_url}" method="POST" onsubmit="return false;" style="padding:5px 10px;display:inline-block;">
+<form id="tabFilters{$tab->id}" action="{devblocks_url}{/devblocks_url}" method="POST" style="padding:5px 10px;display:inline-block;">
 	<input type="hidden" name="c" value="profiles">
 	<input type="hidden" name="a" value="invoke">
 	<input type="hidden" name="module" value="workspace_tab">
@@ -19,14 +19,15 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $frm = $('#tabFilters{$tab->id}');
+	let $frm = $('#tabFilters{$tab->id}');
+	Devblocks.formDisableSubmit($frm);
 	
 	$frm.find('.cerb-filter-editor--save')
 		.on('click', function(e) {
 			e.stopPropagation();
 			genericAjaxPost($frm, '', '', function() {
 				// Reload widgets
-				var $container = $('#workspaceTab{$tab->id}');
+				let $container = $('#workspaceTab{$tab->id}');
 				$container.triggerHandler('cerb-widgets-refresh');
 			});
 		})
@@ -36,13 +37,13 @@ $(function() {
 		.on('click', function(e) {
 			e.stopPropagation();
 
-			var formData = new FormData($frm[0]);
+			let formData = new FormData($frm[0]);
 			formData.set('reset', '1');
 			
 			// Reset the dashboard prefs
 			genericAjaxPost(formData, '', '', function() {
 				// Reload
-				var $tabs = $('#workspaceTab{$tab->id}').closest('.ui-tabs');
+				let $tabs = $('#workspaceTab{$tab->id}').closest('.ui-tabs');
 				$tabs.tabs('load', $tabs.tabs('option','active'));
 			});
 		})

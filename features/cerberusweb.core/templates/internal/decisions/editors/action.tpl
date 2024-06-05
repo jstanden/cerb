@@ -7,7 +7,7 @@
 	{/if}
 	
 	<div id="action{$id}-build" class="action-build">
-		<form id="frmDecisionAction{$id}Action" onsubmit="return false;" method="post">
+		<form id="frmDecisionAction{$id}Action" method="post">
 		<input type="hidden" name="c" value="profiles">
 		<input type="hidden" name="a" value="invoke">
 		<input type="hidden" name="module" value="behavior">
@@ -93,7 +93,7 @@
 
 		</form>
 
-		<form id="frmDecisionActionAdd{$id}" action="javascript:;" onsubmit="return false;" method="post">
+		<form id="frmDecisionActionAdd{$id}" action="javascript:;" method="post">
 		<input type="hidden" name="c" value="profiles">
 		<input type="hidden" name="a" value="invoke">
 		<input type="hidden" name="module" value="behavior">
@@ -155,7 +155,7 @@
 
 	{if !$id && $packages}
 	<div id="action{$id}-library" class="package-library">
-		<form id="frmDecisionAction{$id}Library" onsubmit="return false;">
+		<form id="frmDecisionAction{$id}Library">
 		<input type="hidden" name="c" value="profiles">
 		<input type="hidden" name="a" value="invoke">
 		<input type="hidden" name="module" value="behavior">
@@ -174,9 +174,11 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFetch('node_action{$id}');
+	let $popup = genericAjaxPopupFetch('node_action{$id}');
 
-	$popup.one('popup_open', function(event,ui) {
+	Devblocks.formDisableSubmit($popup.find('form'));
+
+	$popup.one('popup_open', function() {
 		$popup.dialog('option','title',"{if empty($id)}New {/if}Actions");
 		$popup.find('input:text').first().focus();
 		$popup.css('overflow', 'inherit');

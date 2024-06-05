@@ -28,7 +28,7 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $frm = $('#{$form_id}');
+	let $frm = $('#{$form_id}');
 	
 	$frm.find('.chooser-abstract')
 		.cerbChooserTrigger()

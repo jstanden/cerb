@@ -2,7 +2,7 @@
 {$peek_context_id = $worker->id}
 {$form_id = "frmWorkerEdit{uniqid()}"}
 
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="{$form_id}" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="POST" id="{$form_id}">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="worker">
@@ -318,9 +318,11 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $frm = $('#{$form_id}');
-	var $popup = genericAjaxPopupFind($frm);
-	
+	let $frm = $('#{$form_id}');
+	let $popup = genericAjaxPopupFind($frm);
+
+	Devblocks.formDisableSubmit($frm);
+
 	$popup.one('popup_open', function(event,ui) {
 		{if $worker->id}
 			{$popup_title = "{'common.edit'|devblocks_translate|capitalize}: {$worker->getName()}"}

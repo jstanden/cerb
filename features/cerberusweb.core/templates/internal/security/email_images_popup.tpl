@@ -2,7 +2,7 @@
 {$sender = $message->getSender()}
 
 <div id="{$popup_id}">
-    <form action="{devblocks_url}{/devblocks_url}" method="post" onsubmit="return false;">
+    <form action="{devblocks_url}{/devblocks_url}" method="post">
         <input type="hidden" name="c" value="profiles">
         <input type="hidden" name="a" value="invoke">
         <input type="hidden" name="module" value="message">
@@ -68,20 +68,21 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-    var $popup = genericAjaxPopupFind('#{$popup_id}');
-    var $layer = $popup.attr('data-layer');
+    let $popup = genericAjaxPopupFind('#{$popup_id}');
+    let $frm = $popup.find('form');
+    let $layer = $popup.attr('data-layer');
+
+    Devblocks.formDisableSubmit($frm);
 
     $popup.one('popup_open',function() {
         $popup.dialog('option','title', 'External Images');
 
         $popup.find('.cerb-peek-trigger').cerbPeekTrigger();
 
-        var $frm = $popup.find('form');
-
         $popup.find('[data-cerb-button=show-images]').on('click', function(e) {
             e.stopPropagation();
 
-            var evt = $.Event('cerb-message--show-images');
+            let evt = $.Event('cerb-message--show-images');
             $popup.triggerHandler(evt);
 
             genericAjaxPopupClose($popup);
@@ -90,7 +91,7 @@ $(function() {
         $popup.find('[data-cerb-button=trust]').on('click', function(e) {
             e.stopPropagation();
 
-            var formData = new FormData($frm[0]);
+            let formData = new FormData($frm[0]);
             formData.set('is_trusted', '1');
 
             genericAjaxPopupPostCloseReloadView($layer, formData, null, false);
@@ -99,7 +100,7 @@ $(function() {
         $popup.find('[data-cerb-button=untrust]').on('click', function(e) {
             e.stopPropagation();
 
-            var formData = new FormData($frm[0]);
+            let formData = new FormData($frm[0]);
             formData.set('is_trusted', '0');
 
             genericAjaxPopupPostCloseReloadView($layer, formData, null, false);

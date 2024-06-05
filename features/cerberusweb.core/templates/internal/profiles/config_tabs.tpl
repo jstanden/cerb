@@ -1,5 +1,5 @@
 {$uniqid = uniqid()}
-<form id="profileTabsConfig{$uniqid}" action="{devblocks_url}{/devblocks_url}" method="POST" onsubmit="return false;">
+<form id="profileTabsConfig{$uniqid}" action="{devblocks_url}{/devblocks_url}" method="POST">
 	<input type="hidden" name="c" value="profiles">
 	<input type="hidden" name="a" value="configTabsSaveJson">
 	<input type="hidden" name="context" value="{$context}">
@@ -33,8 +33,10 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $frm = $('#profileTabsConfig{$uniqid}');
-	var $sortable = $frm.find('.cerb-sortable');
+	let $frm = $('#profileTabsConfig{$uniqid}');
+	let $sortable = $frm.find('.cerb-sortable');
+
+	Devblocks.formDisableSubmit($frm);
 
 	// Peeks
 

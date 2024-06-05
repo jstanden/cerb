@@ -8,7 +8,7 @@
 	
 	{if !$id && $packages}
 	<div id="loop{$id}-library" class="package-library">
-		<form id="frmDecisionLoop{$id}Library" onsubmit="return false;" method="post">
+		<form id="frmDecisionLoop{$id}Library" method="post">
 		<input type="hidden" name="c" value="profiles">
 		<input type="hidden" name="a" value="invoke">
 		<input type="hidden" name="module" value="behavior">
@@ -25,7 +25,7 @@
 	{/if}
 	
 	<div id="loop{$id}-build">
-		<form id="frmDecisionLoop{$id}" onsubmit="return false;">
+		<form id="frmDecisionLoop{$id}">
 			<input type="hidden" name="c" value="profiles">
 			<input type="hidden" name="a" value="invoke">
 			<input type="hidden" name="module" value="behavior">
@@ -115,8 +115,10 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFetch('node_loop{$id}');
-	
+	let $popup = genericAjaxPopupFetch('node_loop{$id}');
+
+	Devblocks.formDisableSubmit($popup.find('form'));
+
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{if empty($id)}New {/if}Loop");
 		$popup.css('overflow', 'inherit');

@@ -1,5 +1,5 @@
 {$frm_id = "form{uniqid()}"}
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="{$frm_id}" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="POST" id="{$frm_id}">
 <input type="hidden" name="c" value="internal">
 <input type="hidden" name="a" value="">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
@@ -47,8 +47,10 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $frm = $('#{$frm_id}');
-	var $popup = genericAjaxPopupFind($frm);
+	let $frm = $('#{$frm_id}');
+	let $popup = genericAjaxPopupFind($frm);
+
+	Devblocks.formDisableSubmit($frm);
 	
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title', '{{'Template Editor'|capitalize|escape:'javascript'}}');

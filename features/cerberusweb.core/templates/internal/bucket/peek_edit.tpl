@@ -2,7 +2,7 @@
 {$peek_context_id = $bucket->id}
 {$form_id = "frmBucketPeek{uniqid()}"}
 
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="bucket">
@@ -182,8 +182,10 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $frm = $('#{$form_id}');
-	var $popup = genericAjaxPopupFind($frm);
+	let $frm = $('#{$form_id}');
+	let $popup = genericAjaxPopupFind($frm);
+
+	Devblocks.formDisableSubmit($frm);
 	
 	$popup.one('popup_open',function() {
 		$popup.dialog('option','title', '{'common.edit'|devblocks_translate|capitalize}: {'common.bucket'|devblocks_translate|capitalize|escape:'javascript' nofilter}');

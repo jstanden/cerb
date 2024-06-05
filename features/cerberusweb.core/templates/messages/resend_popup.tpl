@@ -1,5 +1,5 @@
 {$popup_id = "popup{uniqid()}"}
-<form id="{$popup_id}" action="{devblocks_url}{/devblocks_url}" method="post" onsubmit="return false;">
+<form id="{$popup_id}" action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="ticket">
@@ -18,12 +18,13 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $frm = $('#{$popup_id}');
-	var $popup = genericAjaxPopupFind($frm);
-	var $layer = $popup.attr('data-layer');
-	var $status = $popup.find('div.status');
+	let $frm = $('#{$popup_id}');
+	let $popup = genericAjaxPopupFind($frm);
+	let $status = $popup.find('div.status');
+
+	Devblocks.formDisableSubmit($frm);
 	
-	$popup.one('popup_open',function(event,ui) {
+	$popup.one('popup_open',function() {
 		$popup.dialog('option','title', '{'Send this message again'|devblocks_translate|escape:'javascript' nofilter}');
 		
 		// Verify send with Ajax, or report error

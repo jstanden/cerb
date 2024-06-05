@@ -1,6 +1,6 @@
 {$peek_context = CerberusContexts::CONTEXT_OPPORTUNITY}
 {$peek_context_id = $opp->id}
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="formOppPeek" name="formOppPeek" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="POST" id="formOppPeek" name="formOppPeek">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="opportunity">
@@ -87,7 +87,10 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFind('#formOppPeek');
+	let $frm = $('#formOppPeek');
+	let $popup = genericAjaxPopupFind($frm);
+
+	Devblocks.formDisableSubmit($frm);
 	
 	$popup.one('popup_open',function(event,ui) {
 		var $frm = $('#formOppPeek');

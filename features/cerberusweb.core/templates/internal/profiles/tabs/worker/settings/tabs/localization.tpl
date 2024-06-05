@@ -45,7 +45,9 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $frm = $('#{$form_id}');
+	let $frm = $('#{$form_id}');
+
+	Devblocks.formDisableSubmit($frm);
 	
 	$frm.find('button.submit').on('click', function(e) {
 		Devblocks.saveAjaxTabForm($frm);

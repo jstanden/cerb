@@ -1,6 +1,6 @@
 <div style="margin-top:5px;"></div>
 
-<form action="#" onsubmit="return false;">
+<form action="#">
 <div class="help-box">
 	<h1 style="margin-bottom:5px;text-align:left;">Let's add some pages to your menu</h1>
 	

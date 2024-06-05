@@ -57,10 +57,8 @@ function DevblocksClass() {
 		if(!($frm instanceof jQuery))
 			return;
 		
-		$frm
-			.off('submit')
-			.on('submit', function() {
-			return false;
+		$frm.each(function() {
+			this.onsubmit = function() { return false; };
 		});
 	}
 

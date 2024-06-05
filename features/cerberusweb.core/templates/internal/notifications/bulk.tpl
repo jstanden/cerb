@@ -1,4 +1,4 @@
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="formBatchUpdate" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="POST" id="formBatchUpdate">
 <input type="hidden" name="c" value="internal">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="notifications">

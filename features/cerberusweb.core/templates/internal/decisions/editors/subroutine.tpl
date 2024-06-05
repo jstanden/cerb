@@ -1,4 +1,4 @@
-<form id="frmDecisionSubroutine{$id}" onsubmit="return false;" method="post">
+<form id="frmDecisionSubroutine{$id}" method="post">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="behavior">
@@ -44,9 +44,11 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFetch('node_subroutine{$id}');
-	var $frm = $('#frmDecisionSubroutine{$id}');
-	
+	let $popup = genericAjaxPopupFetch('node_subroutine{$id}');
+	let $frm = $('#frmDecisionSubroutine{$id}');
+
+	Devblocks.formDisableSubmit($frm);
+
 	$popup.one('popup_open', function() {
 		$popup.dialog('option','title',"{if empty($id)}New {/if}Subroutine");
 		$popup.find('input:text').first().focus();

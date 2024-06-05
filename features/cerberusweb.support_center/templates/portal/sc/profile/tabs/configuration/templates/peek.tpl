@@ -1,4 +1,4 @@
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="formPortalTemplatePeek" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="POST" id="formPortalTemplatePeek">
 <input type="hidden" name="c" value="internal">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="portals">
@@ -25,8 +25,10 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFind('#formPortalTemplatePeek');
-	var $frm = $popup.find('form');
+	let $popup = genericAjaxPopupFind('#formPortalTemplatePeek');
+	let $frm = $popup.find('form');
+
+	Devblocks.formDisableSubmit($frm);
 	
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"Edit Custom Template");

@@ -119,8 +119,8 @@
 </form>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
-	var $frm = $('#frmJiraIssuePeek');
-	var $popup = genericAjaxPopupFind($frm);
+	let $frm = $('#frmJiraIssuePeek');
+	let $popup = genericAjaxPopupFind($frm);
 
 	Devblocks.formDisableSubmit($frm);
 	

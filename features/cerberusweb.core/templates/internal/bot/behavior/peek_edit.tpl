@@ -210,12 +210,12 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $frm = $('#frmDecisionBehavior{$model->id}');
-	var $popup = genericAjaxPopupFind($frm);
+	let $frm = $('#frmDecisionBehavior{$model->id}');
+	let $popup = genericAjaxPopupFind($frm);
 
 	Devblocks.formDisableSubmit($frm);
 	
-	$popup.one('popup_open', function(event,ui) {
+	$popup.one('popup_open', function() {
 		$popup.dialog('option','title',"{'common.behavior'|devblocks_translate|capitalize|escape:'javascript'}");
 		$popup.css('overflow', 'inherit');
 		

@@ -71,8 +71,8 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $frm = $('#{$form_id}');
-	var $modules = $frm.find('FIELDSET[data-id="cerb-modules"]');
+	let $frm = $('#{$form_id}');
+	let $modules = $frm.find('FIELDSET[data-id="cerb-modules"]');
 		
 	$modules.find('DIV.container')
 		.sortable({ items: 'DIV.drag', placeholder:'ui-state-highlight' })

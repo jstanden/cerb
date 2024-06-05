@@ -1,4 +1,4 @@
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmCopy{$view->id}" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmCopy{$view->id}">
 <input type="hidden" name="c" value="internal">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="worklists">
@@ -41,14 +41,17 @@ You can copy this worklist to other pages in order to build your ideal workspace
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $frm = $('#frmCopy{$view->id}');
+	let $frm = $('#frmCopy{$view->id}');
+
+	Devblocks.formDisableSubmit($frm);
+
 	$frm.find('SELECT[name=workspace_page_id]').change(function() {
-		var $options = $frm.find('select[name=_workspace_tabs]');
+		let $options = $frm.find('select[name=_workspace_tabs]');
 		
-		var $dest = $frm.find('select[name=workspace_tab_id]');
+		let $dest = $frm.find('select[name=workspace_tab_id]');
 		$dest.find('option').remove();
 		
-		var page_id = $(this).val();
+		let page_id = $(this).val();
 		
 		$options.find('[page_id="' + page_id + '"]').clone().appendTo($dest);
 	});

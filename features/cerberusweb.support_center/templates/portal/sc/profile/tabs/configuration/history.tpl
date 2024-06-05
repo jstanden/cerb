@@ -33,9 +33,11 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $frm = $('#{$form_id}');
-	var $container = $frm.find('div.cerb-worklist-columns');
-		
+	let $frm = $('#{$form_id}');
+	let $container = $frm.find('div.cerb-worklist-columns');
+
+	Devblocks.formDisableSubmit($frm);
+
 	$container
 		.sortable({
 			items: 'DIV.column',

@@ -1,7 +1,7 @@
 {$peek_context = CerberusContexts::CONTEXT_TOOLBAR}
 {$peek_context_id = $model->id}
 {$form_id = uniqid('form')}
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}">
     <input type="hidden" name="c" value="profiles">
     <input type="hidden" name="a" value="invoke">
     <input type="hidden" name="module" value="toolbar">
@@ -44,8 +44,10 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
     $(function() {
-        var $frm = $('#{$form_id}');
-        var $popup = genericAjaxPopupFind($frm);
+        let $frm = $('#{$form_id}');
+        let $popup = genericAjaxPopupFind($frm);
+
+        Devblocks.formDisableSubmit($frm);
 
         $popup.one('popup_open', function() {
             $popup.dialog('option','title',"{'common.toolbar'|devblocks_translate|capitalize|escape:'javascript' nofilter}");

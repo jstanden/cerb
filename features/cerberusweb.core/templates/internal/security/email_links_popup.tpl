@@ -1,6 +1,6 @@
 {$popup_id = uniqid('popup')}
 <div id="{$popup_id}">
-    <form action="{devblocks_url}{/devblocks_url}" method="post" onsubmit="return false;">
+    <form action="{devblocks_url}{/devblocks_url}" method="post">
         <input type="hidden" name="c" value="profiles">
         <input type="hidden" name="a" value="invoke">
         <input type="hidden" name="module" value="message">
@@ -51,7 +51,9 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-    var $popup = genericAjaxPopupFind('#{$popup_id}');
+    let $popup = genericAjaxPopupFind('#{$popup_id}');
+
+    Devblocks.formDisableSubmit($popup.find('form'));
 
     $popup.one('popup_open',function() {
         $popup.dialog('option','title', 'External Links');

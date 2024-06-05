@@ -1,4 +1,4 @@
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmSetupMailFailed" onsubmit="return false;" enctype="multipart/form-data">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmSetupMailFailed" enctype="multipart/form-data">
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="mail_incoming">
@@ -34,7 +34,10 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFetch('peek');
+	let $frm = $('#frmSetupMailFailed');
+	let $popup = genericAjaxPopupFind($frm);
+
+	Devblocks.formDisableSubmit($frm);
 	
 	$popup.one('popup_open', function() {
 		var $this = $(this);

@@ -1,4 +1,4 @@
-<form action="{devblocks_url}{/devblocks_url}" method="post" onsubmit="genericAjaxPopupClose('peek');">
+<form action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="internal">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="portals">
@@ -18,16 +18,26 @@
 <input type="text" name="email" size="45" value=""><br>
 <br>
 
-<button type="submit"><span class="glyphicons glyphicons-file-export"></span></a> {'common.export'|devblocks_translate|capitalize}</button>
+<button type="button"><span class="glyphicons glyphicons-file-export"></span></a> {'common.export'|devblocks_translate|capitalize}</button>
 
 </form>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFetch('peek');
-	
-	$popup.one('popup_open', function(event,ui) {
+	let $popup = genericAjaxPopupFetch('peek');
+    let $frm = $popup.find('form');
+
+	$popup.one('popup_open', function() {
 		$popup.dialog('option','title',"{'common.export'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
+
+        $frm.find('button').on('click', function(e) {
+            e.stopPropagation();
+
+            $frm.submit();
+
+            genericAjaxPopupClose('peek');
+            return false;
+        });
 	});
 });
 </script>

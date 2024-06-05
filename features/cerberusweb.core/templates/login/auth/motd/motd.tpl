@@ -11,7 +11,7 @@
 }
 </style>
 
-<form action="{devblocks_url}c=login&a=motd{/devblocks_url}" method="post" id="cerbLoginMotdForm" onsubmit="return false;">
+<form action="{devblocks_url}c=login&a=motd{/devblocks_url}" method="post" id="cerbLoginMotdForm">
 <input type="hidden" name="accept" value="1">
 <input type="hidden" name="_csrf_token" value="{$csrf_token}">
 
@@ -35,9 +35,11 @@ $(function() {
    let $frm = $('#cerbLoginMotdForm');
    let $submit = $frm.find('.submit').attr('disabled', null);
 
+    Devblocks.formDisableSubmit($frm);
+
     $submit.on('click', function(e) {
         e.stopPropagation();
-        $frm.attr('onsubmit', null);
+        $frm[0].onsubmit = null;
         $submit.attr('disabled', 'disabled');
         $frm.submit();
     });

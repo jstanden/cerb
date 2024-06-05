@@ -83,12 +83,12 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $frm = $('#frmTwitterMessage');
-	var $popup = genericAjaxPopupFind($frm);
+	let $frm = $('#frmTwitterMessage');
+	let $popup = genericAjaxPopupFind($frm);
 
 	Devblocks.formDisableSubmit($frm);
 	
-	$popup.one('popup_open', function(event,ui) {
+	$popup.one('popup_open', function() {
 		$popup.dialog('option','title',"{'wgm.twitter.common.message'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		
 		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();

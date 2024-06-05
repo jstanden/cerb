@@ -1,4 +1,4 @@
-<form action="{devblocks_url}{/devblocks_url}" method="post" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="internal">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="portals">
@@ -21,10 +21,12 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFetch('import');
-	var $frm = $popup.find('form');
+	let $popup = genericAjaxPopupFetch('import');
+	let $frm = $popup.find('form');
+
+    Devblocks.formDisableSubmit($frm);
 	
-	$popup.one('popup_open', function(event,ui) {
+	$popup.one('popup_open', function() {
 		$popup.dialog('option','title',"{'common.import'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		
 		$popup.find('button.chooser_file').each(function() {

@@ -78,7 +78,9 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $frm = $('#{$form_id}');
+	let $frm = $('#{$form_id}');
+
+	Devblocks.formDisableSubmit($frm);
 	
 	// Avatar chooser
 	var $avatar_chooser = $frm.find('button.cerb-avatar-chooser');

@@ -5,7 +5,7 @@
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=devblocks.core&f=js/rangy/rangy-highlighter.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
 
 {$frm_id = uniqid()}
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="{$frm_id}" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="{$frm_id}">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="classifier_example">
@@ -106,9 +106,11 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $frm = $('#{$frm_id}');
-	var $popup = genericAjaxPopupFind($frm);
-	var $layer = $popup.attr('data-layer');
+	let $frm = $('#{$frm_id}');
+	let $popup = genericAjaxPopupFind($frm);
+	let $layer = $popup.attr('data-layer');
+
+	Devblocks.formDisableSubmit($frm);
 	
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{'common.example'|devblocks_translate|capitalize|escape:'javascript' nofilter}");

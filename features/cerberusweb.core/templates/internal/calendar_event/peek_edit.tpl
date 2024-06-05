@@ -2,7 +2,7 @@
 {$peek_context_id = $model->id}
 {$form_id = "frmCalendarPeek{uniqid()}"}
 
-<form action="#" method="POST" id="{$form_id}" name="{$form_id}" onsubmit="return false;" class="calendar_popup">
+<form action="#" method="POST" id="{$form_id}" name="{$form_id}" class="calendar_popup">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="calendar_event">
@@ -95,8 +95,10 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $frm = $('#{$form_id}');
-	var $popup = genericAjaxPopupFind($frm);
+	let $frm = $('#{$form_id}');
+	let $popup = genericAjaxPopupFind($frm);
+
+	Devblocks.formDisableSubmit($frm);
 	
 	$popup.one('popup_open',function(event,ui) {
 		// Title

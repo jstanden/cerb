@@ -3,7 +3,7 @@
 {$form_id = uniqid()}
 {if $model}{$extension = $model->getTriggerExtension()}{else}{$extension = null}{/if}
 
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="editor{$form_id}" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="editor{$form_id}">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="automation">
@@ -173,8 +173,10 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $frm = $('#editor{$form_id}');
-	var $popup = genericAjaxPopupFind($frm);
+	let $frm = $('#editor{$form_id}');
+	let $popup = genericAjaxPopupFind($frm);
+
+	Devblocks.formDisableSubmit($frm);
 
 	$popup.one('popup_open', function() {
 		$frm.find('[data-cerb-automation-editor-tabs]').tabs({

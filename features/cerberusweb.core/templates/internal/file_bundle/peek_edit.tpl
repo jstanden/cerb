@@ -1,7 +1,7 @@
 {$peek_context = CerberusContexts::CONTEXT_FILE_BUNDLE}
 {$peek_context_id = $model->id}
 {$frm_id = "form{uniqid()}"}
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="{$frm_id}" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="{$frm_id}">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="file_bundle">
@@ -80,13 +80,16 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFind('#{$frm_id}');
+	let $frm = $('#{$frm_id}');
+	let $popup = genericAjaxPopupFind($frm);
+
+	Devblocks.formDisableSubmit($frm);
 	
-	$popup.one('popup_open', function(event,ui) {
+	$popup.one('popup_open', function() {
 		$popup.dialog('option','title',"{'common.file_bundle'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		$popup.css('overflow', 'inherit');
 
-		var $textarea = $popup.find('textarea[name=comment]');
+		let $textarea = $popup.find('textarea[name=comment]');
 		
 		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
 		

@@ -1,4 +1,4 @@
-<form action="javascript:;" method="post" id="frmAvatarEditor" onsubmit="return false;">
+<form action="javascript:;" method="post" id="frmAvatarEditor">
 	<table width="100%" cellpadding="0" cellspacing="5">
 		<tr>
 			<td width="1%" valign="top" nowrap="nowrap">
@@ -43,7 +43,8 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFind($('#frmAvatarEditor'));
+	let $popup = genericAjaxPopupFind($('#frmAvatarEditor'));
+	Devblocks.formDisableSubmit($popup);
 	
 	$popup.one('popup_open', function() {
 		$popup.dialog('option','title',"Profile Picture Editor");

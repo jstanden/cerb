@@ -1,5 +1,5 @@
 {if empty($worklists)}
-<form action="#" onsubmit="return false;">
+<form action="#">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 <div class="help-box">
 	<h1 style="margin-bottom:5px;text-align:left;">Let's put this workspace to good use</h1>

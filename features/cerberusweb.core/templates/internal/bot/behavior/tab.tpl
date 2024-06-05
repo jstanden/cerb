@@ -1,7 +1,7 @@
 {$tab_uniqid = "{uniqid()}"}
 {$is_writeable = Context_TriggerEvent::isWriteableByActor($behavior, $active_worker)}
 
-<form id="decisionTree{$behavior->id}" action="javascript:;" style="margin-top:10px;" onsubmit="return false;">
+<form id="decisionTree{$behavior->id}" action="javascript:;" style="margin-top:10px;">
 	<input type="hidden" name="trigger_id[]" value="{$behavior->id}">
 	<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 	{include file="devblocks:cerberusweb.core::internal/decisions/tree.tpl" trigger=$behavior event=$event is_writeable=$is_writeable}
@@ -13,7 +13,9 @@
 {if $is_writeable && $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_BEHAVIOR}.update")}
 $(function() {
 	// [TODO] This is not guaranteed unique (use tab_uniqid)
-	var $frm = $('#decisionTree{$behavior->id}');
+	let $frm = $('#decisionTree{$behavior->id}');
+
+	Devblocks.formDisableSubmit($frm);
 	
 	$frm.on('click', function(e) {
 		var $target = $(e.target);

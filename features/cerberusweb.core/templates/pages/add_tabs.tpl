@@ -1,5 +1,5 @@
 {if Context_WorkspacePage::isWriteableByActor($page, $active_worker)}
-<form action="#" onsubmit="return false;">
+<form action="#">
 <div class="help-box">
 	<h1 style="margin-bottom:5px;text-align:left;">Let's add some tabs to your page</h1>
 	
@@ -15,13 +15,15 @@
 {/if}
 
 {$uniq_id = uniqid()}
-<form id="{$uniq_id}" action="{devblocks_url}{/devblocks_url}" method="post" onsubmit="return false;">
+<form id="{$uniq_id}" action="{devblocks_url}{/devblocks_url}" method="post">
 <button type="button" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKSPACE_TAB}" data-context-id="0" data-edit="page.id:{$page->id}"><span class="glyphicons glyphicons-circle-plus"></span> {'common.add'|devblocks_translate|capitalize}</button>
 </form>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $frm = $('#{$uniq_id}');
+	let $frm = $('#{$uniq_id}');
+
+	Devblocks.formDisableSubmit($frm);
 	
 	$frm.find('button.cerb-peek-trigger')
 		.cerbPeekTrigger()

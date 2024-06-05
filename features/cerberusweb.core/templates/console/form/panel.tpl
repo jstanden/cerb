@@ -1,5 +1,5 @@
 <div id="{$layer}">
-    <form action="{devblocks_url}{/devblocks_url}" method="POST" class="cerb-form-builder" style="{if 'inline' === $interaction_style}padding-left:10px;{/if}" onsubmit="return false;">
+    <form action="{devblocks_url}{/devblocks_url}" method="POST" class="cerb-form-builder" style="{if 'inline' === $interaction_style}padding-left:10px;{/if}">
         <input type="hidden" name="session_id" value="{$session_id}">
         <div class="cerb-form-data"></div>
     </form>

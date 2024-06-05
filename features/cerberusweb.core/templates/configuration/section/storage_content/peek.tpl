@@ -15,11 +15,11 @@
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
     let $frm = $('#frmStorageSchemaPeek');
-	var $popup = genericAjaxPopupFind($frm);
+	let $popup = genericAjaxPopupFind($frm);
 
     Devblocks.formDisableSubmit($frm);
 	
-	$popup.one('popup_open', function(event,ui) {
+	$popup.one('popup_open', function() {
 		$popup.dialog('option','title',"{$schema->manifest->name|escape:'javascript' nofilter}");
 		
 		$popup.find('button.submit').click(function() {

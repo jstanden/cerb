@@ -1,4 +1,4 @@
-<form id="worker{$worker->id}Responsibilities" action="javascript:;" onsubmit="return false;">
+<form id="worker{$worker->id}Responsibilities" action="javascript:;">
 
 <div class="cerb-delta-slider-container" style="display:none;margin-right:0;">
 	<div class="cerb-delta-slider cerb-slider-gray">
@@ -48,10 +48,12 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFetch('peek');
-	var $frm = $('#worker{$worker->id}Responsibilities');
+	let $popup = genericAjaxPopupFetch('peek');
+	let $frm = $('#worker{$worker->id}Responsibilities');
+
+	Devblocks.formDisableSubmit($frm);
 	
-	$popup.one('popup_open', function(event,ui) {
+	$popup.one('popup_open', function() {
 		$popup.dialog('option','title',"{'common.responsibilities'|devblocks_translate|capitalize}: {$worker->getName()}");
 		
 		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();

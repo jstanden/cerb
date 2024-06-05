@@ -2,7 +2,7 @@
 	<div class="bot-chat-window-convo"></div>
 	
 	<div class="bot-chat-window-input">
-		<form class="bot-chat-window-input-form" action="javascript:;" onsubmit="return false;" method="post">
+		<form class="bot-chat-window-input-form" action="javascript:;" method="post">
 			<input type="hidden" name="c" value="profiles">
 			<input type="hidden" name="a" value="invoke">
 			<input type="hidden" name="module" value="bot">
@@ -158,7 +158,7 @@ $(function() {
 		});
 		
 		$chat_window_input_form.on('submit', function() {
-			var txt = $chat_message.val();
+			let txt = $chat_message.val();
 			
 			if(txt.length > 0) {
 				// Create outgoing message in log
@@ -179,6 +179,7 @@ $(function() {
 			}
 			
 			$chat_window_convo.trigger('bot-chat-message-send');
+			return false;
 		});
 		
 		// Submit form when open

@@ -1,4 +1,4 @@
-<form action="javascript:;" method="post" id="frmBehaviorExport" onsubmit="return false;">
+<form action="javascript:;" method="post" id="frmBehaviorExport">
 
 <b>Behavior:</b>
 
@@ -16,16 +16,16 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFind('#frmBehaviorExport');
+	let $popup = genericAjaxPopupFind('#frmBehaviorExport');
+	Devblocks.formDisableSubmit($popup);
 	
 	$popup.one('popup_open', function(event,ui) {
-		var $this = $(this);
+		let $this = $(this);
 		
 		$this.dialog('option','title','Export Behavior');
 		
-		var $frm = $(this).find('form');
-		
 		$frm.find('button.submit').click(function(e) {
+			e.stopPropagation();
 			$popup.dialog('close');
 		});
 	});

@@ -1,6 +1,6 @@
 <div id="divPortalAddTemplate">
 	{if !empty($templates)}
-		<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmPortalAddTemplatePeek" onsubmit="return false;">
+		<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmPortalAddTemplatePeek">
 		<input type="hidden" name="c" value="profiles">
 		<input type="hidden" name="a" value="invoke">
 		<input type="hidden" name="module" value="community_portal">
@@ -34,7 +34,10 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFind('#divPortalAddTemplate');
+	let $popup = genericAjaxPopupFind('#divPortalAddTemplate');
+	let $frm = $popup.find('form');
+
+	Devblocks.formDisableSubmit($frm);
 	
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"Add Custom Template");

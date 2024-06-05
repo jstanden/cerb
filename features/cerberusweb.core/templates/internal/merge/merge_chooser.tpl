@@ -1,5 +1,5 @@
 {$uniq_id = uniqid()}
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frm{$uniq_id}" name="frm{$uniq_id}" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frm{$uniq_id}" name="frm{$uniq_id}">
 <input type="hidden" name="c" value="internal">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="records">
@@ -33,12 +33,13 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	let $popup = genericAjaxPopupFetch('peek');
+	let $frm = $('#frm{$uniq_id}');
+	let $popup = genericAjaxPopupFind($frm);
+
+	Devblocks.formDisableSubmit($frm);
 
 	$popup.one('popup_open',function() {
 		$(this).dialog('option','title', "Merge {$aliases.plural|capitalize}");
-
-		let $frm = $('#frm{$uniq_id}');
 
 		// Peeks
 		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
@@ -49,7 +50,7 @@ $(function() {
 		$frm.find('BUTTON.submit').click(function(e) {
 			e.stopPropagation();
 			// Replace the current form
-			genericAjaxPost('frm{$uniq_id}','popuppeek','');
+			genericAjaxPost($frm, 'popuppeek', '');
 		});
 	});
 });

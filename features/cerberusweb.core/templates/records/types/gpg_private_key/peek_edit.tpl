@@ -11,7 +11,7 @@
     {/if}
 
     <div id="privkey-import">
-        <form action="{devblocks_url}{/devblocks_url}" method="post" onsubmit="return false;">
+        <form action="{devblocks_url}{/devblocks_url}" method="post">
             <input type="hidden" name="c" value="profiles">
             <input type="hidden" name="a" value="invoke">
             <input type="hidden" name="module" value="gpg_private_key">
@@ -76,7 +76,7 @@
 
     {if !$model->id}
         <div id="privkey-generate">
-            <form action="{devblocks_url}{/devblocks_url}" method="post" onsubmit="return false;">
+            <form action="{devblocks_url}{/devblocks_url}" method="post">
                 <input type="hidden" name="c" value="profiles">
                 <input type="hidden" name="a" value="invoke">
                 <input type="hidden" name="module" value="gpg_private_key">
@@ -142,8 +142,10 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
     $(function() {
-        var $tabs = $('#{$tabs_id}');
-        var $popup = genericAjaxPopupFind($tabs);
+        let $tabs = $('#{$tabs_id}');
+        let $popup = genericAjaxPopupFind($tabs);
+
+        Devblocks.formDisableSubmit($popup);
 
         $popup.one('popup_open', function(event,ui) {
             $popup.dialog('option','title',"{'Gpg Private Key'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
