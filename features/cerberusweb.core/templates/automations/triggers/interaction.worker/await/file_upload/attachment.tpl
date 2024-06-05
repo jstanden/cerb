@@ -10,10 +10,10 @@
 				{if !empty($file)}
 					<li>
 						<input type="hidden" name="prompts[{$var}]" value="{$file->id}">
-						<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$file->id}">
+						<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$file->id}">
 							{$file->name} ({$file->storage_size|devblocks_prettybytes})
 						</a>
-						<a href="javascript:;" onclick="$(this).parent().remove();">
+						<a>
 							<span class="glyphicons glyphicons-circle-remove"></span>
 						</a>
 					</li>
@@ -25,7 +25,13 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $prompt = $('#{$element_id}');
+	let $prompt = $('#{$element_id}');
+	let $container = $prompt.find('.chooser-container');
+
+	$container.find('.glyphicons-circle-remove').parent().on('click', function(e) {
+		e.stopPropagation();
+		$(this).closest('li').remove();
+	});
 
 	$prompt.find('button.chooser_file').each(function() {
 		ajax.chooserFile(this, 'prompts[{$var}]', { single: true });

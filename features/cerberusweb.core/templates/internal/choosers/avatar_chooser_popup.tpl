@@ -1,4 +1,4 @@
-<form action="javascript:;" method="post" id="frmAvatarEditor">
+<form action="#" method="post" id="frmAvatarEditor">
 	<table width="100%" cellpadding="0" cellspacing="5">
 		<tr>
 			<td width="1%" valign="top" nowrap="nowrap">

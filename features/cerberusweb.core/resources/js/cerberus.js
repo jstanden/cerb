@@ -1803,9 +1803,10 @@ var cAjaxCalls = function() {
 				// Add the labels
 				for(var idx in event.labels)
 					if(0===$ul.find('input:hidden[value="'+event.values[idx]+'"]').length) {
-						var $li = $('<li/>').text(event.labels[idx]);
-						var $hidden = $('<input type="hidden">').attr('name', field_name + '[]').attr('value',event.values[idx]).appendTo($li);
-						var $a = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($li); 
+						let $li = $('<li/>').text(event.labels[idx]);
+						$('<input type="hidden">').attr('name', field_name + '[]').attr('value',event.values[idx]).appendTo($li);
+						let $a = $('<a><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($li);
+						$a.on('click', function(e) { e.stopPropagation(); $(this).parent().remove(); });
 						
 						if(null != options.style)
 							$li.addClass(options.style);
@@ -1840,9 +1841,10 @@ var cAjaxCalls = function() {
 					
 					if(undefined != $label && undefined != $value) {
 						if(0 == $ul.find('input:hidden[value="'+$value+'"]').length) {
-							var $li = $('<li/>').text($label);
-							var $hidden = $('<input type="hidden">').attr('name', field_name + '[]').attr('title', $label).attr('value', $value).appendTo($li);
-							var $a = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($li);
+							let $li = $('<li/>').text($label);
+							$('<input type="hidden">').attr('name', field_name + '[]').attr('title', $label).attr('value', $value).appendTo($li);
+							let $a = $('<a><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($li);
+							$a.on('click', function(e) { e.stopPropagation(); $(this).parent().remove(); });
 							$ul.append($li);
 						}
 					}
@@ -1885,14 +1887,15 @@ var cAjaxCalls = function() {
 			// Add the labels
 			for(var idx in event.labels) {
 				if (0 === $ul.find('input:hidden[value="' + event.values[idx] + '"]').length) {
-					var $label = $('<a href="javascript:;" class="cerb-peek-trigger" data-context="cerberusweb.contexts.attachment" />')
+					let $label = $('<a class="cerb-peek-trigger" data-context="cerberusweb.contexts.attachment" />')
 						.attr('data-context-id', event.values[idx])
 						.text(event.labels[idx])
 						.cerbPeekTrigger()
 					;
-					var $li = $('<li/>').append($label);
+					let $li = $('<li/>').append($label);
 					$('<input type="hidden">').attr('name', field_name + (options.single ? '' : '[]')).attr('value', event.values[idx]).appendTo($li);
-					$('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($li);
+					let $a = $('<a><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($li);
+					$a.on('click', function(e) { e.stopPropagation(); $(this).parent().remove(); });
 
 					if (null != options.style)
 						$li.addClass(options.style);
@@ -5675,8 +5678,9 @@ var ajax = new cAjaxCalls();
 											.attr('name', $attachments.find('button[data-field-name]').attr('data-field-name') + '[]')
 											.val(file_id)
 										;
-										var $remove = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>');
-										var $a = $('<a href="javascript:;"/>')
+										let $remove = $('<a><span class="glyphicons glyphicons-circle-remove"></span></a>');
+										$remove.on('click', function(e) { e.stopPropagation(); $(this).parent().remove(); });
+										let $a = $('<a/>')
 											.attr('data-context', 'attachment')
 											.attr('data-context-id', file_id)
 											.text(file_name + ' ' + file_size_label)
@@ -5788,8 +5792,9 @@ var ajax = new cAjaxCalls();
 											.attr('name', $attachments.find('button[data-field-name]').attr('data-field-name') + '[]')
 											.val(file_id)
 											;
-										var $remove = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>');
-										var $a = $('<a href="javascript:;"/>')
+										let $remove = $('<a><span class="glyphicons glyphicons-circle-remove"></span></a>');
+										$remove.on('click', function(e) { e.stopPropagation(); $(this).parent().remove(); });
+										let $a = $('<a/>')
 											.attr('data-context', 'attachment')
 											.attr('data-context-id', file_id)
 											.text(file_name + ' ' + file_size_label)
@@ -5914,8 +5919,9 @@ var ajax = new cAjaxCalls();
 								.attr('name', $attachments.find('button[data-field-name]').attr('data-field-name') + '[]')
 								.val(json[i].id)
 								;
-							var $remove = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>');
-							var $a = $('<a href="javascript:;"/>')
+							let $remove = $('<a><span class="glyphicons glyphicons-circle-remove"></span></a>');
+							$remove.on('click', function(e) { e.stopPropagation(); $(this).parent().remove(); });
+							let $a = $('<a/>')
 								.attr('data-context', 'attachment')
 								.attr('data-context-id', json[i].id)
 								.text(json[i].name + ' (' + json[i].size_label + ')')
@@ -6016,7 +6022,6 @@ var ajax = new cAjaxCalls();
 						
 						$('<a/>')
 							.text($label)
-							.attr('href','javascript:;')
 							.attr('data-context',context)
 							.attr('data-context-id',$value)
 							.appendTo($li)
