@@ -553,6 +553,20 @@ function DevblocksClass() {
 		});
 	};
 	
+	this.callbackPeekEditDeletePrompt = function(e) {
+		e.stopPropagation();
+		let $button = $(e.target);
+		$button.parent().siblings('fieldset.delete').fadeIn();
+		$button.closest('div').fadeOut();
+	};
+	
+	this.callbackPeekEditDeleteCancel = function(e) {
+		e.stopPropagation();
+		let $button = $(e.target);
+		$button.closest('form').find('div.buttons').fadeIn();
+		$button.closest('fieldset.delete').fadeOut();
+	};
+	
 	this.triggerEvent = function(element, e) {
 		$(element).trigger(e);
 	};

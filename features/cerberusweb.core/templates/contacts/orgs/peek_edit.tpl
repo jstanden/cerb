@@ -102,7 +102,7 @@
 	</div>
 
 	<button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
-	<button type="button" onclick="$(this).closest('form').find('div.buttons').fadeIn();$(this).closest('fieldset.delete').fadeOut();">{'common.no'|devblocks_translate|capitalize}</button>
+	<button type="button" class="delete-cancel">{'common.no'|devblocks_translate|capitalize}</button>
 </fieldset>
 {/if}
 
@@ -112,7 +112,7 @@
 	{if (!$org->id && $active_worker->hasPriv("contexts.{$peek_context}.create")) || ($org->id && $active_worker->hasPriv("contexts.{$peek_context}.update"))}
 	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 	{/if}
-	{if $active_worker->hasPriv("contexts.{$peek_context}.delete") && !empty($org->id)}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	{if $active_worker->hasPriv("contexts.{$peek_context}.delete") && !empty($org->id)}<button type="button" class="delete-prompt"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 </form>
 
@@ -127,6 +127,8 @@ $(function() {
 		// Buttons
 		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
+		$popup.find('button.delete-prompt').click(Devblocks.callbackPeekEditDeletePrompt);
+		$popup.find('button.delete-cancel').click(Devblocks.callbackPeekEditDeleteCancel);
 
 		// Abstract choosers
 		$popup.find('button.chooser-abstract').cerbChooserTrigger();
