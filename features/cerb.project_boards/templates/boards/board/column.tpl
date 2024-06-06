@@ -20,7 +20,7 @@
 	</div>
 	<div style="text-align:left;">
 		<span class="glyphicons glyphicons-menu-hamburger"></span>
-		<a href="javascript:" class="cerb-board-column-edit no-underline" data-context="{Context_ProjectBoardColumn::ID}" data-context-id="{$column->id}">
+		<a class="cerb-board-column-edit no-underline" data-context="{Context_ProjectBoardColumn::ID}" data-context-id="{$column->id}">
 			{$column->name}
 		</a>
 	</div>

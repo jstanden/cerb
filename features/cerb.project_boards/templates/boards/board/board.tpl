@@ -4,7 +4,7 @@
 	<div id="board{$board->id}_{$widget->id}" class="cerb-board">
 		<div style="float:right;">
 			<span class="glyphicons glyphicons-edit"></span>
-			<a href="javascript:;" class="cerb-button-edit-board" data-context="project_board" data-context-id="{$board->id}">
+			<a class="cerb-button-edit-board" data-context="project_board" data-context-id="{$board->id}">
 				edit board
 			</a>
 		</div>
@@ -18,7 +18,7 @@
 
 				{if $active_worker->hasPriv("contexts.{Context_ProjectBoardColumn::ID}.create")}
 				<div class="cerb-board-column-add">
-					<p><span class="glyphicons glyphicons-circle-plus"></span> <a href="javascript:;" data-context="{Context_ProjectBoardColumn::ID}" data-context-id="0" data-edit="board.id:{$board->id}">{'common.add'|devblocks_translate|capitalize}</a></p>
+					<p><span class="glyphicons glyphicons-circle-plus"></span> <a data-context="{Context_ProjectBoardColumn::ID}" data-context-id="0" data-edit="board.id:{$board->id}">{'common.add'|devblocks_translate|capitalize}</a></p>
 				</div>
 				{/if}
 			</div>
