@@ -7,7 +7,7 @@
 
 		<label for="{$uniq_id}" class="cerb-button-upload">
 			<input id="{$uniq_id}" type="file" style="display:none;" {if $accept}accept="{$accept}"{/if}>
-			<button type="button" onclick="$(this).parent().click();"><span class="glyphicons glyphicons-paperclip"></span></button>
+			<button type="button"><span class="glyphicons glyphicons-paperclip"></span></button>
 		</label>
 
 		<ul data-cerb-uploads-summary class="bubbles chooser-container">
@@ -30,6 +30,12 @@ $(function() {
 	let $prompt = $('#{$element_id}');
 	let $input = $prompt.find('input[type=file]');
 	let $summary = $prompt.find('ul[data-cerb-uploads-summary]');
+	let $button = $prompt.find('.cerb-button-upload button');
+
+	$button.on('click', function(e) {
+		e.stopPropagation();
+		$(this).parent().click();
+	});
 
 	// bind all summary remove clicks
 	$summary.on('click', function(e) {
