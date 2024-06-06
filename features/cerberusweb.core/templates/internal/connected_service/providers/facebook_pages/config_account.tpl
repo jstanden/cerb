@@ -6,7 +6,7 @@
 		<button type="button" class="chooser-abstract" data-field-name="params[connected_account_id]" data-context="{CerberusContexts::CONTEXT_CONNECTED_ACCOUNT}" data-single="true" data-query="facebook"><span class="glyphicons glyphicons-search"></span></button>
 		<ul class="bubbles chooser-container">
 			{if $connected_account}
-				<li><input type="hidden" name="params[connected_account_id]" value="{$connected_account->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CONNECTED_ACCOUNT}" data-context-id="{$connected_account->id}">{$connected_account->name}</a></li>
+				<li><input type="hidden" name="params[connected_account_id]" value="{$connected_account->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CONNECTED_ACCOUNT}" data-context-id="{$connected_account->id}">{$connected_account->name}</a></li>
 			{/if}
 		</ul>
 		<br>
