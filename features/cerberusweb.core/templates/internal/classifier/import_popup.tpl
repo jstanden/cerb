@@ -1,6 +1,6 @@
 {$popup_id = uniqid()}
 
-<form action="javascript:;" method="POST">
+<form action="#" method="POST">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="classifier">
