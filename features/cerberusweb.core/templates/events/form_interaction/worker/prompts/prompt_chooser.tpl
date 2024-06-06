@@ -8,7 +8,7 @@
 			{foreach from=$records item=record}
 				<li>
 					<input type="hidden" name="prompts[{$var}][]" value="{$record->id}">
-					<a href="javascript:;" class="cerb-peek-trigger" data-context="{$record->_context}" data-context-id="{$record->id}">
+					<a class="cerb-peek-trigger" data-context="{$record->_context}" data-context-id="{$record->id}">
 						{$record->_label}
 					</a>
 				</li>

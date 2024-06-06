@@ -1,4 +1,4 @@
-<form action="javascript:;" method="post" id="frmBehaviorExport">
+<form action="#" method="post" id="frmBehaviorExport">
 
 <b>Behavior:</b>
 
@@ -19,12 +19,12 @@ $(function() {
 	let $popup = genericAjaxPopupFind('#frmBehaviorExport');
 	Devblocks.formDisableSubmit($popup);
 	
-	$popup.one('popup_open', function(event,ui) {
+	$popup.one('popup_open', function() {
 		let $this = $(this);
 		
 		$this.dialog('option','title','Export Behavior');
 		
-		$frm.find('button.submit').click(function(e) {
+		$popup.find('button.submit').click(function(e) {
 			e.stopPropagation();
 			$popup.dialog('close');
 		});

@@ -1,7 +1,7 @@
 {$tab_uniqid = "{uniqid()}"}
 {$is_writeable = Context_TriggerEvent::isWriteableByActor($behavior, $active_worker)}
 
-<form id="decisionTree{$behavior->id}" action="javascript:;" style="margin-top:10px;">
+<form id="decisionTree{$behavior->id}" action="#" style="margin-top:10px;">
 	<input type="hidden" name="trigger_id[]" value="{$behavior->id}">
 	<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 	{include file="devblocks:cerberusweb.core::internal/decisions/tree.tpl" trigger=$behavior event=$event is_writeable=$is_writeable}

@@ -26,8 +26,8 @@
 {if empty($model->params.groups)}
 	<fieldset>
 		<legend>
-			If <a href="javascript:;">all&#x25be;</a> of these conditions are satisfied
-			<a href="javascript:;" onclick="$(this).closest('fieldset').remove();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></a>
+			If <a>all&#x25be;</a> of these conditions are satisfied
+			<a onclick="$(this).closest('fieldset').remove();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></a>
 		</legend>
 		<input type="hidden" name="nodes[]" value="all">
 		
@@ -38,8 +38,8 @@
 	{foreach from=$model->params.groups item=group_data}
 	<fieldset>
 		<legend>
-			If <a href="javascript:;">{if !empty($group_data.any)}any{else}all{/if}&#x25be;</a> of these conditions are satisfied
-			<a href="javascript:;" onclick="$(this).closest('fieldset').trigger('cerb.remove');"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></a>
+			If <a>{if !empty($group_data.any)}any{else}all{/if}&#x25be;</a> of these conditions are satisfied
+			<a onclick="$(this).closest('fieldset').trigger('cerb.remove');"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></a>
 		</legend>
 		<input type="hidden" name="nodes[]" value="{if !empty($group_data.any)}any{else}all{/if}">
 		
@@ -49,7 +49,7 @@
 				<li style="padding-bottom:5px;" id="condition{$seq}_{$nonce}">
 					<input type="hidden" name="nodes[]" value="{$seq}">
 					<input type="hidden" name="condition{$seq}[condition]" value="{$params.condition}">
-					<a href="javascript:;" onclick="$(this).closest('li').trigger('cerb.remove');"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></a>
+					<a onclick="$(this).closest('li').trigger('cerb.remove');"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></a>
 					<b style="cursor:move;">{$conditions.{$params.condition}.label}</b>&nbsp;
 					<div style="margin-left:20px;">
 						{$event->renderCondition({$params.condition},$trigger,$params,$seq)}
@@ -98,7 +98,7 @@
 
 </form>
 
-<form id="frmDecisionOutcomeAdd{$id}" action="javascript:;" method="post">
+<form id="frmDecisionOutcomeAdd{$id}" action="#" method="post">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="behavior">
@@ -269,7 +269,7 @@ $(function() {
 		$frmAdd.find('button.group')
 			.click(function(e) {
 				var $group = $('<fieldset></fieldset>');
-				$group.append('<legend>If <a href="javascript:;">all&#x25be;</a> of these conditions are satisfied <a href="javascript:;" onclick="$(this).closest(\'fieldset\').trigger(\'cerb.remove\');"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></a></legend>');
+				$group.append('<legend>If <a>all&#x25be;</a> of these conditions are satisfied <a onclick="$(this).closest(\'fieldset\').trigger(\'cerb.remove\');"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></a></legend>');
 				$group.append('<input type="hidden" name="nodes[]" value="all">');
 				$group.append('<ul class="rules" style="margin:0px;list-style:none;padding:0px;padding-bottom:5px;"></ul>');
 				$group.find('legend > a').click($funcGroupAnyToggle);
@@ -435,7 +435,7 @@ $(function() {
 					var $container = $('<li style="padding-bottom:5px;"/>').attr('id','condition' + seq + '_{$nonce}');
 					$container.append($('<input type="hidden" name="nodes[]">').attr('value', seq));
 					$container.append($('<input type="hidden">').attr('name', 'condition'+seq+'[condition]').attr('value',token));
-					$container.append($('<a href="javascript:;" onclick="$(this).closest(\'li\').trigger(\'cerb.remove\');"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></a>'));
+					$container.append($('<a onclick="$(this).closest(\'li\').trigger(\'cerb.remove\');"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></a>'));
 					$container.append('&nbsp;');
 					$container.append($('<b style="cursor:move;"/>').text(label));
 					$container.append('&nbsp;');

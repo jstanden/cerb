@@ -25,7 +25,6 @@ $(function() {
 			} else {
 				// Trigger the behavior
 				var $target = $('<a/>')
-					.attr('href', 'javascript:;')
 					.attr('data-behavior-id', json.behavior_id)
 					.attr('data-interaction', json.interaction)
 					.attr('data-interaction-params', $.param(json.interaction_params))

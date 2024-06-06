@@ -6,35 +6,35 @@
 <div class="node {$node->node_type}">
 	{if $node->node_type == 'subroutine'}
 		<div class="badge badge-lightgray" style="margin:2px;">
-			<a href="javascript:;" style="text-decoration:none;font-weight:bold;color:var(--cerb-color-background-contrast-50);">
+			<a style="text-decoration:none;font-weight:bold;color:var(--cerb-color-background-contrast-50);">
 				{$node->title}
 			</a>
 		</div>
 
 	{elseif $node->node_type == 'switch'}
 		<div class="badge badge-lightgray" style="margin:2px;">
-			<a href="javascript:;" style="text-decoration:none;font-weight:bold;color:rgb(68,154,220);">
+			<a style="text-decoration:none;font-weight:bold;color:rgb(68,154,220);">
 				{$node->title}
 			</a>
 		</div>
 		
 	{elseif $node->node_type == 'loop'}
 		<div class="badge badge-lightgray" style="margin:2px;">
-			<a href="javascript:;" style="text-decoration:none;font-weight:bold;color:var(--cerb-color-background-contrast-100);">
+			<a style="text-decoration:none;font-weight:bold;color:var(--cerb-color-background-contrast-100);">
 				<span style="font-weight:normal;">&#x27f3;</span> {$node->title}
 			</a>
 		</div>
 	
 	{elseif $node->node_type == 'outcome'}
 		<div class="badge badge-lightgray">
-			<a href="javascript:;" style="text-decoration:none;font-weight:bold;{if preg_match('#^yes($|,| )#i',$node->title)}color:rgb(0,150,0);{elseif preg_match('#^no($|,| )#i',$node->title)}color:rgb(150,0,0);{/if}">
+			<a style="text-decoration:none;font-weight:bold;{if preg_match('#^yes($|,| )#i',$node->title)}color:rgb(0,150,0);{elseif preg_match('#^no($|,| )#i',$node->title)}color:rgb(150,0,0);{/if}">
 				{$node->title}
 			</a>
 		</div>
 	
 	{elseif $node->node_type == 'action'}
 		<div class="badge badge-lightgray" style="margin:2px;">
-			<a href="javascript:;" style="text-decoration:none;font-weight:normal;font-style:italic;">
+			<a style="text-decoration:none;font-weight:normal;font-style:italic;">
 				{$node->title}
 			</a>
 		</div>

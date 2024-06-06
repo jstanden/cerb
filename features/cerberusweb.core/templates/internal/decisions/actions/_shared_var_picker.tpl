@@ -6,14 +6,14 @@
 	{if isset($values_to_contexts.$val_key)}
 		{$var_data = $values_to_contexts.$val_key}
 		{if !empty($var_data)}
-		<li>{$var_data.label}<input type="hidden" name="{$namePrefix}[{$param_name}][]" value="{$val_key}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
+		<li>{$var_data.label}<input type="hidden" name="{$namePrefix}[{$param_name}][]" value="{$val_key}"><a onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
 		{/if}
 	{/if}
 {/foreach}
 {/if}
 </ul>
 
-<div id="{$menu_button}" class="badge badge-lightgray" style="cursor:pointer;"><a href="javascript:;" style="text-decoration:none;color:var(--cerb-color-background-contrast-50);">Add &#x25be;</a></div>
+<div id="{$menu_button}" class="badge badge-lightgray" style="cursor:pointer;"><a style="text-decoration:none;color:var(--cerb-color-background-contrast-50);">Add &#x25be;</a></div>
 
 <ul class="cerb-popupmenu" style="max-height:200px;overflow-y:auto;border:0;">
 	<li class="filter"><input type="text" class="input_search" size="45"></li>
@@ -22,7 +22,7 @@
 
 	{foreach from=$values_to_contexts item=var_data key=var_key}
 		<li class="item" key="{$var_key}" style="padding-left:20px;">
-			<a href="javascript:;">{$var_data.label}</a>
+			<a>{$var_data.label}</a>
 		</li>
 	{/foreach}
 </ul>
@@ -101,8 +101,12 @@ $menu.find('> li.item > a').click(function() {
 	$bubble = $('<li></li>');
 	$bubble.append($li.find('a').text());
 	$bubble.append($('<input type="hidden">').attr('name', '{$namePrefix}[{$param_name}][]').attr('value', $key));
-	$bubble.append($('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>'));
-	
+	let $a = $('<a><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($bubble);
+	$a.on('click', function(e) {
+		e.stopPropagation();
+		$(this).parent().remove();
+	});
+
 	$bubbles.append($bubble);
 });
 });

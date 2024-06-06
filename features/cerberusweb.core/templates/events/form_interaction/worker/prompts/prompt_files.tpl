@@ -7,13 +7,13 @@
 		{if $records && is_array($records)}
 			{foreach from=$records item=record name=records}
 				<li>
-					<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$record->id}">
+					<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$record->id}">
 						<b>{$record->_label}</b>
 						({$record->size|devblocks_prettybytes}	-
 						{if !empty($record->mime_type)}{$record->mime_type}{else}{'display.convo.unknown_format'|devblocks_translate|capitalize}{/if})
 					</a>
 					<input type="hidden" name="prompts[{$var}]{if $selection=='single'}{else}[]{/if}" value="{$record->id}">
-					<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>
+					<a onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>
 				</li>
 			{/foreach}
 		{/if}

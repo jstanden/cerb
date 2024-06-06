@@ -49,7 +49,7 @@
 	{/foreach}
 	</ul>
 
-	<div id="{$menu_button}" class="badge badge-lightgray" style="cursor:pointer;"><a href="javascript:;" style="text-decoration:none;color:var(--cerb-color-background-contrast-50);">{'common.add'|devblocks_translate|capitalize} &#x25be;</a></div>
+	<div id="{$menu_button}" class="badge badge-lightgray" style="cursor:pointer;"><a style="text-decoration:none;color:var(--cerb-color-background-contrast-50);">{'common.add'|devblocks_translate|capitalize} &#x25be;</a></div>
 	
 	<ul class="cerb-popupmenu" style="max-height:200px;overflow-y:auto;">
 		<li class="filter"><input type="text" class="input_search" size="45"></li>
@@ -59,7 +59,7 @@
 		{foreach from=$values_to_contexts item=var_data key=var_key}
 			{if !empty($var_data.context)}
 			<li class="item" key="{$var_key}" style="padding-left:20px;">
-				<a href="javascript:;">{$var_data.label}</a>
+				<a>{$var_data.label}</a>
 			</li>
 			{/if}
 		{/foreach}
@@ -69,7 +69,7 @@
 		{foreach from=$contexts item=context key=context_id}
 			{if $context->hasOption('links')}
 				<li class="chooser" key="{$context_id}" style="padding-left:20px;">
-					<a href="javascript:;">{$context->name}</a>
+					<a>{$context->name}</a>
 				</li>
 			{/if}
 		{/foreach}
@@ -184,8 +184,12 @@ $(function() {
 		var $bubble = $('<li></li>');
 		$bubble.append($li.find('a').text());
 		$bubble.append($('<input type="hidden" name="{$namePrefix}[{$param_name}][]">').attr('value',$key));
-		$bubble.append($('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>'));
-		
+		let $a = $('<a><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($bubble);
+		$a.on('click', function(e) {
+			e.stopPropagation();
+			$(this).parent().remove();
+		});
+
 		$bubbles.append($bubble);
 	});
 });

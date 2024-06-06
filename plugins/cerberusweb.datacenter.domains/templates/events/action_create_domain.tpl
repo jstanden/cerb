@@ -19,11 +19,10 @@
 			{if is_numeric($params.server_id)}
 				{$server = DAO_Server::get($params.server_id)}
 				{if $server}
-					<li><input type="hidden" name="{$namePrefix}[server_id]" value="{$params.server_id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_SERVER}" data-context-id="{$server->id}">{$server->name}</a></li>
+					<li><input type="hidden" name="{$namePrefix}[server_id]" value="{$params.server_id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_SERVER}" data-context-id="{$server->id}">{$server->name}</a></li>
 				{/if}
 			{else}
-				{*$var = $trigger->variables[$params.server_id]*}
-				<li><input type="hidden" name="{$namePrefix}[server_id]" value="{$params.server_id}"><a href="javascript:;" class="no-underline">(variable) {$params.server_id}</a></li>
+				<li><input type="hidden" name="{$namePrefix}[server_id]" value="{$params.server_id}"><a class="no-underline">(variable) {$params.server_id}</a></li>
 			{/if}
 		{/if}
 	</ul>
@@ -38,11 +37,10 @@
 			{if is_numeric($email_id)}
 				{$address = DAO_Address::get($email_id)}
 				{if $address}
-					<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=address&context_id={$address->id}{/devblocks_url}?v={$address->updated}"><input type="hidden" name="{$namePrefix}[email_ids][]" value="{$email_id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$email_id}">{$address->email}</a></li>
+					<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=address&context_id={$address->id}{/devblocks_url}?v={$address->updated}"><input type="hidden" name="{$namePrefix}[email_ids][]" value="{$email_id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$email_id}">{$address->email}</a></li>
 				{/if}
 			{else}
-				{*$var = $trigger->variables[$email_id]*}
-				<li><input type="hidden" name="{$namePrefix}[email_ids][]" value="{$email_id}"><a href="javascript:;" class="no-underline">(variable) {$email_id}</a></li>
+				<li><input type="hidden" name="{$namePrefix}[email_ids][]" value="{$email_id}"><a class="no-underline">(variable) {$email_id}</a></li>
 			{/if}
 		{/if}
 		{/foreach}

@@ -5,7 +5,7 @@
 		{if $connected_account}
 		<li>
 			<input type="hidden" name="{$namePrefix}[connected_account_id]" value="{$connected_account->id}">
-			<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CONNECTED_ACCOUNT}" data-context-id="{$connected_account->id}">{$connected_account->name}</a>
+			<a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CONNECTED_ACCOUNT}" data-context-id="{$connected_account->id}">{$connected_account->name}</a>
 		</li>
 		{/if}
 	</ul>

@@ -7,7 +7,7 @@
 	<div class="cerb-bot-chat-window-convo"></div>
 	
 	<div class="cerb-bot-chat-window-input">
-		<form class="cerb-bot-chat-window-input-form" action="javascript:;">
+		<form class="cerb-bot-chat-window-input-form" action="#">
 			<input type="hidden" name="session_id" value="{$session_id}">
 			<textarea name="message" style="display:none;"></textarea>
 		</form>

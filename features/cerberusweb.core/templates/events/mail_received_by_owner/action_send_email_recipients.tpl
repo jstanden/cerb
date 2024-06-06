@@ -17,7 +17,7 @@
 			{if $params.html_template_id}
 				{$html_template = $html_templates.{$params.html_template_id}}
 				{if $html_template}
-				<li><input type="hidden" name="{$namePrefix}[html_template_id]" value="{$html_template->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE}" data-context-id="{$html_template->id}">{$html_template->name}</a></li>
+				<li><input type="hidden" name="{$namePrefix}[html_template_id]" value="{$html_template->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE}" data-context-id="{$html_template->id}">{$html_template->name}</a></li>
 				{/if}
 			{/if}
 		</ul>
@@ -57,7 +57,7 @@
 	{foreach from=$params.bundle_ids item=bundle_id}
 		{$bundle = DAO_FileBundle::get($bundle_id)}
 		{if !empty($bundle)}
-		<li><input type="hidden" name="{$namePrefix}[bundle_ids][]" value="{$bundle_id}">{$bundle->name} <a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
+		<li><input type="hidden" name="{$namePrefix}[bundle_ids][]" value="{$bundle_id}">{$bundle->name} <a onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
 		{/if} 
 	{/foreach}
 	</ul>

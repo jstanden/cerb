@@ -93,7 +93,7 @@
 
 		</form>
 
-		<form id="frmDecisionActionAdd{$id}" action="javascript:;" method="post">
+		<form id="frmDecisionActionAdd{$id}" action="#" method="post">
 		<input type="hidden" name="c" value="profiles">
 		<input type="hidden" name="a" value="invoke">
 		<input type="hidden" name="module" value="behavior">

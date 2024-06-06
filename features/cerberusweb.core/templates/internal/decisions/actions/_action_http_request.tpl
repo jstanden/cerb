@@ -41,7 +41,7 @@
 			{if $params.auth_connected_account_id}
 				{$account = DAO_ConnectedAccount::get($params.auth_connected_account_id)}
 				{if $account && Context_ConnectedAccount::isWriteableByActor($account, $trigger->getBot())}
-					<li><input type="hidden" name="{$namePrefix}[auth_connected_account_id]" value="{$account->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CONNECTED_ACCOUNT}" data-context-id="{$account->id}">{$account->name}</a></li>
+					<li><input type="hidden" name="{$namePrefix}[auth_connected_account_id]" value="{$account->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CONNECTED_ACCOUNT}" data-context-id="{$account->id}">{$account->name}</a></li>
 				{/if}
 			{/if}
 		</ul>
@@ -49,7 +49,7 @@
 </div>
 
 <div class="cerb-httprequest-placeholder" style="margin-left:20px;{if 'placeholder' != $params.auth}display:none;{/if}">
-	<a href="javascript:;" class="chooser-account" data-field-name="{$namePrefix}[auth_placeholder]" data-context="{CerberusContexts::CONTEXT_CONNECTED_ACCOUNT}" data-single="true" data-query=""><b>{'common.connected_account'|devblocks_translate|capitalize} {'common.id'|devblocks_translate}:</b></a>
+	<a class="chooser-account" data-field-name="{$namePrefix}[auth_placeholder]" data-context="{CerberusContexts::CONTEXT_CONNECTED_ACCOUNT}" data-single="true" data-query=""><b>{'common.connected_account'|devblocks_translate|capitalize} {'common.id'|devblocks_translate}:</b></a>
 	<div style="margin-left:10px;margin-bottom:10px;">
 		<textarea name="{$namePrefix}[auth_placeholder]" class="placeholders" spellcheck="false" cols="45" rows="5" style="width:100%;" placeholder="e.g. {literal}{{connected_account_id}}{/literal}">{$params.auth_placeholder}</textarea>
 	</div>

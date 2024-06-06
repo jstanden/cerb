@@ -1,4 +1,4 @@
-<form action="javascript:;" method="post" id="frmBehaviorImport">
+<form action="#" method="post" id="frmBehaviorImport">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="behavior">

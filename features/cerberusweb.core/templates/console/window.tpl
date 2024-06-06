@@ -2,7 +2,7 @@
 	<div class="bot-chat-window-convo"></div>
 	
 	<div class="bot-chat-window-input">
-		<form class="bot-chat-window-input-form" action="javascript:;" method="post">
+		<form class="bot-chat-window-input-form" action="#" method="post">
 			<input type="hidden" name="c" value="profiles">
 			<input type="hidden" name="a" value="invoke">
 			<input type="hidden" name="module" value="bot">

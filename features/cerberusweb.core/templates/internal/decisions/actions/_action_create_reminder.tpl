@@ -22,7 +22,7 @@
 	<fieldset class="peek black" style="position:relative;">
 		<span class="glyphicons glyphicons-circle-remove" style="position:absolute;top:0;right:0;cursor:pointer;"></span>
 		<input type="hidden" name="{$namePrefix}[behavior_ids][]" value="{$behavior->id}">
-		<legend><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-context-id="{$behavior->id}">{$behavior->title}</a></legend>
+		<legend><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-context-id="{$behavior->id}">{$behavior->title}</a></legend>
 		<div class="parameters">
 		{include file="devblocks:cerberusweb.core::events/_action_behavior_params.tpl" namePrefix="{$namePrefix}[behaviors][{$behavior->id}]" params=$params.behaviors[$behavior->id] macro_params=$behavior->variables}
 		</div>
@@ -137,8 +137,7 @@ $(function() {
 						.appendTo($fieldset)
 					;
 					
-					var $a = $('<a/>')
-						.attr('href','javascript:;')
+					$('<a/>')
 						.addClass('no-underline')
 						.text(behavior_label)
 						.attr('data-context', 'cerberusweb.contexts.behavior')

@@ -27,7 +27,7 @@
 				<ul class="bubbles">
 					<li>
 						<img src="{devblocks_url}c=avatars&context=bot&context_id={$va->id}{/devblocks_url}?v={$va->updated_at}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;">
-						<a href="javascript:;" class="cerb-behavior-trigger" data-context="{CerberusContexts::CONTEXT_BEHAVIOR_SCHEDULED}" data-context-id="{$k}">{$behavior->title}</a>
+						<a class="cerb-behavior-trigger" data-context="{CerberusContexts::CONTEXT_BEHAVIOR_SCHEDULED}" data-context-id="{$k}">{$behavior->title}</a>
 					</li>
 				</ul>
 			</td>
@@ -40,7 +40,7 @@
 		<tr>
 			<td></td>
 			<td>
-				<a href="javascript:;" style="font-weight:bold;" onclick="$(this).closest('fieldset').find('table tr:hidden').show();$(this).remove();">show all {$smarty.foreach.behaviors.total}</a>
+				<a style="font-weight:bold;" onclick="$(this).closest('fieldset').find('table tr:hidden').show();$(this).remove();">show all {$smarty.foreach.behaviors.total}</a>
 			</td>
 		</tr>
 	{/if}

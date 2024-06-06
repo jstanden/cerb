@@ -7,7 +7,7 @@
 			{$public_keys = DAO_GpgPublicKey::getIds($params.public_key_ids)}
 			{foreach from=$public_keys item=public_key}
 				{if Context_GpgPublicKey::isReadableByActor($public_key, $trigger->getBot())}
-					<li><input type="hidden" name="{$namePrefix}[public_key_ids][]" value="{$public_key->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_GPG_PUBLIC_KEY}" data-context-id="{$public_key->id}">{$public_key->name}</a></li>
+					<li><input type="hidden" name="{$namePrefix}[public_key_ids][]" value="{$public_key->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_GPG_PUBLIC_KEY}" data-context-id="{$public_key->id}">{$public_key->name}</a></li>
 				{/if}
 			{/foreach}
 		{/if}
