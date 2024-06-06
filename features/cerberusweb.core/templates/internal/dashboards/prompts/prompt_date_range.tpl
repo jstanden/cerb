@@ -8,23 +8,23 @@
 
 			{if $prompt.params.presets}
 				{foreach from=$prompt.params.presets item=preset_query key=preset_label name=presets}
-				<a href="javascript:;" data-preset="{$preset_query}">{$preset_label}</a>
+				<a data-preset="{$preset_query}">{$preset_label}</a>
 				{if !$smarty.foreach.presets.last} | {/if}
 				{/foreach}
 			{else}
-				<a href="javascript:;" data-preset="today to now">1d</a>
+				<a data-preset="today to now">1d</a>
 				|
-				<a href="javascript:;" data-preset="today -1 week">1wk</a>
+				<a data-preset="today -1 week">1wk</a>
 				|
-				<a href="javascript:;" data-preset="first day of this month -1 month">1mo</a>
+				<a data-preset="first day of this month -1 month">1mo</a>
 				|
-				<a href="javascript:;" data-preset="first day of this month -6 months">6mo</a>
+				<a data-preset="first day of this month -6 months">6mo</a>
 				|
-				<a href="javascript:;" data-preset="first day of this month -1 year">1yr</a>
+				<a data-preset="first day of this month -1 year">1yr</a>
 				|
-				<a href="javascript:;" data-preset="Jan 1 to now">ytd</a>
+				<a data-preset="Jan 1 to now">ytd</a>
 				|
-				<a href="javascript:;" data-preset="big bang to now">all</a>
+				<a data-preset="big bang to now">all</a>
 			{/if}
 		</div>
 		<div>

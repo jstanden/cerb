@@ -31,7 +31,7 @@
 						<img class="cerb-avatar" src="{devblocks_url}c=avatars&context={$context_mft->params.alias}&context_id={$dict->id}{/devblocks_url}?v={$dict->get('updated_at', $dict->updated)}">
 						{/if}
 						<input type="hidden" name="prompts[{$prompt.placeholder}][]" value="{$dict->id}">
-						<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{$dict->_context}" data-context-id="{$dict->id}">
+						<a class="cerb-peek-trigger no-underline" data-context="{$dict->_context}" data-context-id="{$dict->id}">
 							{$dict->_label}
 						</a>
 					</li>

@@ -17,7 +17,7 @@
 	
 	<ul class="bubbles chooser-container">
 		{foreach from=$pages item=page}
-		<li style="cursor:move;"><input type="hidden" name="pages[]" value="{$page->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKSPACE_PAGE}" data-context-id="{$page->id}">{$page->name}</a></li>
+		<li style="cursor:move;"><input type="hidden" name="pages[]" value="{$page->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKSPACE_PAGE}" data-context-id="{$page->id}">{$page->name}</a></li>
 		{/foreach}
 	</ul>
 </fieldset>

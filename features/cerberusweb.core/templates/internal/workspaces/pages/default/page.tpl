@@ -10,12 +10,12 @@
 {else}
 
 {if array_key_exists('tab_style', $page->extension_params) && 'menu' == $page->extension_params.tab_style}
-<h2 class="cerb-page-tab--title" style="display:inline-block;color:black;margin:-5px 0 0 0;padding:0;"><a href="javascript:;" style="text-decoration:none;"></a> <span class="glyphicons glyphicons-chevron-down" style="font-size:12px;vertical-align:middle;"></span></h2>
+<h2 class="cerb-page-tab--title" style="display:inline-block;color:black;margin:-5px 0 0 0;padding:0;"><a style="text-decoration:none;"></a> <span class="glyphicons glyphicons-chevron-down" style="font-size:12px;vertical-align:middle;"></span></h2>
 
 <ul class="cerb-tab-switcher-menu cerb-popupmenu cerb-float">
 	{foreach from=$page_tabs item=tab name=page_tabs}
 	<li>
-		<a href="javascript:;" data-index="{$smarty.foreach.page_tabs.index}">{$tab->name}</a>
+		<a data-index="{$smarty.foreach.page_tabs.index}">{$tab->name}</a>
 	</li>
 	{/foreach}
 </ul>

@@ -18,7 +18,7 @@
 				<img src="{devblocks_url}c=avatars&context={$page->owner_context}&context_id={$page->owner_context_id}{/devblocks_url}?v={$page_owner_meta.updated}" style="height:1.2em;width:1.2em;border-radius:0.75em;vertical-align:middle;">
 				<b>
 				{if $page->owner_context_id} 
-				<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{$page->owner_context}" data-context-id="{$page->owner_context_id}">{$page_owner_meta.name}</a>
+				<a class="cerb-peek-trigger no-underline" data-context="{$page->owner_context}" data-context-id="{$page->owner_context_id}">{$page_owner_meta.name}</a>
 				{else}
 				{$page_owner_meta.name}
 				{/if}
@@ -34,11 +34,11 @@
 			--><button class="config-page split-right" type="button"><span class="glyphicons glyphicons-chevron-down"></span></button>
 			<ul class="cerb-popupmenu cerb-float">
 				{if Context_WorkspacePage::isWriteableByActor($page, $active_worker)}
-					{if $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_PAGE}.update")}<li><a href="javascript:;" class="edit-page" data-context="{CerberusContexts::CONTEXT_WORKSPACE_PAGE}" data-context-id="{$page->id}" data-edit="true">Edit Page</a></li>{/if}
-					{if $page->extension_id == 'core.workspace.page.workspace' && $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_TAB}.update")}<li><a href="javascript:;" class="edit-tab" data-context="{CerberusContexts::CONTEXT_WORKSPACE_TAB}" data-context-id="" data-edit="true">Edit Tab</a></li>{/if}
+					{if $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_PAGE}.update")}<li><a class="edit-page" data-context="{CerberusContexts::CONTEXT_WORKSPACE_PAGE}" data-context-id="{$page->id}" data-edit="true">Edit Page</a></li>{/if}
+					{if $page->extension_id == 'core.workspace.page.workspace' && $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_TAB}.update")}<li><a class="edit-tab" data-context="{CerberusContexts::CONTEXT_WORKSPACE_TAB}" data-context-id="" data-edit="true">Edit Tab</a></li>{/if}
 				{/if}
-				{if $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_PAGE}.export")}<li><a href="javascript:;" class="export-page">Export Page</a></li>{/if}
-				{if $page->extension_id == 'core.workspace.page.workspace' && $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_TAB}.export")}<li><a href="javascript:;" class="export-tab">Export Tab</a></li>{/if}
+				{if $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_PAGE}.export")}<li><a class="export-page">Export Page</a></li>{/if}
+				{if $page->extension_id == 'core.workspace.page.workspace' && $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_TAB}.export")}<li><a class="export-tab">Export Tab</a></li>{/if}
 			</ul>
 		</div>
 		{/if}
