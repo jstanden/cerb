@@ -23,6 +23,8 @@ BODY, FORM, TD {
 }
 
 A {
+	cursor: pointer;
+	text-decoration: underline;
 	color: var(--cerb-color-link);
 }
 
