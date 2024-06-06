@@ -27,7 +27,7 @@
 			
 			<ul class="bubbles chooser-container">
 				{if $category}
-					<li><input type="hidden" name="parent_id" value="{$model->parent_id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_KB_CATEGORY}" data-context-id="{$category->id}">{$category->name}</a></li>
+					<li><input type="hidden" name="parent_id" value="{$model->parent_id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_KB_CATEGORY}" data-context-id="{$category->id}">{$category->name}</a></li>
 				{/if}
 			</ul>
 		</td>

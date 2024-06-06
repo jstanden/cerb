@@ -37,7 +37,7 @@
 			{$owner_parts = explode(':', $owner->key)}
 			<ul class="chooser-container bubbles">
 				<li>
-					<img class="cerb-avatar" src="{devblocks_url}c=avatars&ctx=cerberusweb.contexts.app&id=0{/devblocks_url}?v="><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{$owner_parts.0}" data-context-id="{$owner_parts.1}">{$owner->label}</a>
+					<img class="cerb-avatar" src="{devblocks_url}c=avatars&ctx=cerberusweb.contexts.app&id=0{/devblocks_url}?v="><a class="cerb-peek-trigger no-underline" data-context="{$owner_parts.0}" data-context-id="{$owner_parts.1}">{$owner->label}</a>
 					<input type="hidden" name="owner" value="{$owner->key}">
 				</li>
 			</ul>
@@ -76,13 +76,13 @@
 		{if !empty($attachments)}
 			{foreach from=$attachments item=attachment name=attachments}
 				<li>
-					<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$attachment->id}">
+					<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$attachment->id}">
 						<b>{$attachment->name}</b>
 						({$attachment->storage_size|devblocks_prettybytes}	-
 						{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{'display.convo.unknown_format'|devblocks_translate|capitalize}{/if})
 					</a>
 					<input type="hidden" name="file_ids[]" value="{$attachment->id}">
-					<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>
+					<a onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>
 				</li>
 			{/foreach}
 		{/if}
@@ -163,11 +163,15 @@ $(function() {
 				
 				var context_data = token.split(':');
 				var $li = $('<li/>');
-				var $label = $('<a href="javascript:;" class="cerb-peek-trigger no-underline" />').attr('data-context',context_data[0]).attr('data-context-id',context_data[1]).text(label);
+				var $label = $('<a class="cerb-peek-trigger no-underline" />').attr('data-context',context_data[0]).attr('data-context-id',context_data[1]).text(label);
 				$label.cerbPeekTrigger().appendTo($li);
-				var $hidden = $('<input type="hidden">').attr('name', 'owner').attr('value',token).appendTo($li);
+				$('<input type="hidden">').attr('name', 'owner').attr('value',token).appendTo($li);
 				ui.item.find('img.cerb-avatar').clone().prependTo($li);
-				var $a = $('<a href="javascript:;" onclick="$(this).trigger(\'bubble-remove\');"><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($li);
+				let $a = $('<a><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($li);
+				$a.on('click', function(e) {
+					e.stopPropagation();
+					$(this).trigger('bubble-remove');
+				});
 				
 				$ul.find('> *').remove();
 				$ul.append($li);

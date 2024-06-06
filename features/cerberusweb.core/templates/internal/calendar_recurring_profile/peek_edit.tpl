@@ -28,7 +28,7 @@
 				{if $model}
 					{$calendar = $model->getCalendar()}
 					{if $calendar}
-						<li><input type="hidden" name="calendar_id" value="{$calendar->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CALENDAR}" data-context-id="{$calendar->id}">{$calendar->name}</a></li>
+						<li><input type="hidden" name="calendar_id" value="{$calendar->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CALENDAR}" data-context-id="{$calendar->id}">{$calendar->name}</a></li>
 					{/if}
 				{/if}
 			</ul>

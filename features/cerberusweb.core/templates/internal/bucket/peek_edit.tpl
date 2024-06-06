@@ -35,7 +35,7 @@
 			
 			<ul class="bubbles chooser-container">
 				{if $group}
-					<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=group&context_id={$group->id}{/devblocks_url}?v={$group->updated}"><input type="hidden" name="group_id" value="{$group->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$group->id}">{$group->name}</a></li>
+					<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=group&context_id={$group->id}{/devblocks_url}?v={$group->updated}"><input type="hidden" name="group_id" value="{$group->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$group->id}">{$group->name}</a></li>
 				{/if}
 			</ul>
 		</td>
@@ -72,7 +72,7 @@
 				
 				<ul class="bubbles chooser-container">
 					{if $replyto}
-						<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=address&context_id={$replyto->id}{/devblocks_url}?v={$replyto->updated_at}"><input type="hidden" name="reply_address_id" value="{$replyto->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$replyto->id}">{$replyto->email}</a></li>
+						<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=address&context_id={$replyto->id}{/devblocks_url}?v={$replyto->updated_at}"><input type="hidden" name="reply_address_id" value="{$replyto->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$replyto->id}">{$replyto->email}</a></li>
 					{/if}
 				</ul>
 			</td>
@@ -98,7 +98,7 @@
 				
 				<ul class="bubbles chooser-container">
 					{if $signature}
-						<li><input type="hidden" name="reply_signature_id" value="{$signature->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_EMAIL_SIGNATURE}" data-context-id="{$signature->id}">{$signature->name}</a></li>
+						<li><input type="hidden" name="reply_signature_id" value="{$signature->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_EMAIL_SIGNATURE}" data-context-id="{$signature->id}">{$signature->name}</a></li>
 					{/if}
 				</ul>
 			</td>
@@ -115,7 +115,7 @@
 
 				<ul class="bubbles chooser-container">
 					{if $signing_key}
-						<li><input type="hidden" name="reply_signing_key_id" value="{$signing_key->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{Context_GpgPrivateKey::ID}" data-context-id="{$signing_key->id}">{$signing_key->name}</a></li>
+						<li><input type="hidden" name="reply_signing_key_id" value="{$signing_key->id}"><a class="cerb-peek-trigger no-underline" data-context="{Context_GpgPrivateKey::ID}" data-context-id="{$signing_key->id}">{$signing_key->name}</a></li>
 					{/if}
 				</ul>
 			</td>
@@ -132,7 +132,7 @@
 				
 				<ul class="bubbles chooser-container">
 					{if $html_template}
-						<li><input type="hidden" name="reply_html_template_id" value="{$html_template->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE}" data-context-id="{$html_template->id}">{$html_template->name}</a></li>
+						<li><input type="hidden" name="reply_html_template_id" value="{$html_template->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE}" data-context-id="{$html_template->id}">{$html_template->name}</a></li>
 					{/if}
 				</ul>
 			</td>

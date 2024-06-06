@@ -10,7 +10,7 @@
 			(system)
 		{else}
 			{if $owner_meta.context_ext instanceof IDevblocksContextPeek} 
-			<a href="javascript:;" class="cerb-peek-trigger" style="font-size:1.2em;" data-context="{$comment->owner_context}" data-context-id="{$comment->owner_context_id}">{$owner_meta.name}</a>
+			<a class="cerb-peek-trigger" style="font-size:1.2em;" data-context="{$comment->owner_context}" data-context-id="{$comment->owner_context_id}">{$owner_meta.name}</a>
 			{elseif !empty($owner_meta.permalink)} 
 			<a href="{$owner_meta.permalink}" target="_blank" rel="noopener">{$owner_meta.name}</a>
 			{else}

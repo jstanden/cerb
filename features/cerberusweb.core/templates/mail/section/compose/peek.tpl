@@ -45,25 +45,25 @@
 		</td>
 	</tr>
 	<tr>
-		<td width="0%" nowrap="nowrap" valign="top" align="right"><a href="javascript:;" class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="">{'message.header.to'|devblocks_translate|capitalize}</a>:&nbsp;</td>
+		<td width="0%" nowrap="nowrap" valign="top" align="right"><a class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="">{'message.header.to'|devblocks_translate|capitalize}</a>:&nbsp;</td>
 		<td width="100%">
 			<input type="text" name="to" id="emailinput{$popup_uniqid}" value="{$draft->getParam('to')}" style="padding:2px;width:98%;" placeholder="These recipients will automatically be included in all future correspondence">
 
 			<div id="compose_suggested{$popup_uniqid}" style="display:none;">
-				<a href="javascript:;" onclick="$(this).closest('div').hide();">x</a>
+				<a onclick="$(this).closest('div').hide();">x</a>
 				<b>Consider adding these recipients:</b>
 				<ul class="bubbles"></ul>
 			</div>
 		</td>
 	</tr>
 	<tr>
-		<td width="0%" nowrap="nowrap" valign="top" align="right"><a href="javascript:;" class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="">{'message.header.cc'|devblocks_translate|capitalize}</a>:&nbsp;</td>
+		<td width="0%" nowrap="nowrap" valign="top" align="right"><a class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="">{'message.header.cc'|devblocks_translate|capitalize}</a>:&nbsp;</td>
 		<td width="100%">
 			<input type="text" name="cc" style="width:98%;padding:2px;" value="{$draft->params.cc}" placeholder="These recipients will publicly receive a copy of this message" autocomplete="off">
 		</td>
 	</tr>
 	<tr>
-		<td width="0%" nowrap="nowrap" valign="top" align="right"><a href="javascript:;" class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="">{'message.header.bcc'|devblocks_translate|capitalize}</a>:&nbsp;</td>
+		<td width="0%" nowrap="nowrap" valign="top" align="right"><a class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="">{'message.header.bcc'|devblocks_translate|capitalize}</a>:&nbsp;</td>
 		<td width="100%">
 			<input type="text" name="bcc" style="width:98%;padding:2px;" value="{$draft->params.bcc}" placeholder="These recipients will secretly receive a copy of this message" autocomplete="off">
 		</td>
@@ -130,7 +130,7 @@
 	{foreach from=$draft->params.file_ids item=file_id}
 		{$file = DAO_Attachment::get($file_id)}
 		{if !empty($file)}
-			<li><input type="hidden" name="file_ids[]" value="{$file_id}">{$file->name} ({$file->storage_size} bytes) <a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
+			<li><input type="hidden" name="file_ids[]" value="{$file_id}">{$file->name} ({$file->storage_size} bytes) <a onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
 		{/if} 
 	{/foreach}
 	{/if}
@@ -176,7 +176,7 @@
 		<ul class="bubbles chooser-container">
 			{foreach from=$workers item=v key=k}
 				{if !$v->is_disabled && $draft->params.owner_id == $v->id}
-					<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=worker&context_id={$v->id}{/devblocks_url}?v={$v->updated}"><input type="hidden" name="owner_id" value="{$v->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$v->id}">{$v->getName()}</a></li>
+					<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=worker&context_id={$v->id}{/devblocks_url}?v={$v->updated}"><input type="hidden" name="owner_id" value="{$v->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$v->id}">{$v->getName()}</a></li>
 				{/if}
 			{/foreach}
 		</ul>
@@ -190,7 +190,7 @@
 			{if is_array($draft->params.watcher_ids)}
 			{foreach from=$workers item=v key=k}
 				{if !$v->is_disabled && in_array($v->id,$draft->params.watcher_ids)}
-					<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=worker&context_id={$v->id}{/devblocks_url}?v={$v->updated}"><input type="hidden" name="watcher_ids[]" value="{$v->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$v->id}">{$v->getName()}</a></li>
+					<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=worker&context_id={$v->id}{/devblocks_url}?v={$v->updated}"><input type="hidden" name="watcher_ids[]" value="{$v->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$v->id}">{$v->getName()}</a></li>
 				{/if}
 			{/foreach}
 			{/if}
@@ -685,7 +685,6 @@ $(function() {
 						.appendTo($sug.find('ul.bubbles'))
 						.append(
 							$('<a/>')
-								.attr('href', "javascript:;")
 								.addClass('suggested')
 								.text(label)
 								.appendTo($sug)

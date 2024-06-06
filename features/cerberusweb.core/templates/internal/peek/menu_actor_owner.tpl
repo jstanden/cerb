@@ -29,9 +29,9 @@
 	{if $meta}
 		<li>
 			<img class="cerb-avatar" src="{devblocks_url}c=avatars&context={$owner_context_ext->manifest->params.alias}&context_id={$model->owner_context_id}{/devblocks_url}?v={$meta.updated|default:$smarty.const.APP_BUILD}">
-			<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{$model->owner_context}" data-context-id="{$model->owner_context_id}">{$meta.name}</a>
+			<a class="cerb-peek-trigger no-underline" data-context="{$model->owner_context}" data-context-id="{$model->owner_context_id}">{$meta.name}</a>
 			<input type="hidden" name="owner" value="{$model->owner_context}:{$model->owner_context_id}">
-			<a href="javascript:;" onclick="$(this).trigger('bubble-remove');"><span class="glyphicons glyphicons-circle-remove"></span></a>
+			<a onclick="$(this).trigger('bubble-remove');"><span class="glyphicons glyphicons-circle-remove"></span></a>
 		</li>
 	{/if}
 {/if}

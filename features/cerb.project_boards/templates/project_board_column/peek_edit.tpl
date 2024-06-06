@@ -28,7 +28,7 @@
 			<ul class="bubbles chooser-container">
 				{if $model}
 					{if $board}
-						<li><input type="hidden" name="board_id" value="{$board->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{Context_ProjectBoard::ID}" data-context-id="{$board->id}">{$board->name}</a></li>
+						<li><input type="hidden" name="board_id" value="{$board->id}"><a class="cerb-peek-trigger no-underline" data-context="{Context_ProjectBoard::ID}" data-context-id="{$board->id}">{$board->name}</a></li>
 					{/if}
 				{/if}
 			</ul>

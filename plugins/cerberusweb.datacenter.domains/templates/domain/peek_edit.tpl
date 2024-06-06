@@ -27,7 +27,7 @@
 			
 			<ul class="bubbles chooser-container">
 				{if $server}
-					<li><input type="hidden" name="server_id" value="{$server->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_SERVER}" data-context-id="{$server->id}">{$server->name}</a></li>
+					<li><input type="hidden" name="server_id" value="{$server->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_SERVER}" data-context-id="{$server->id}">{$server->name}</a></li>
 				{/if}
 			</ul>
 		</td>
@@ -44,7 +44,7 @@
 			<ul class="bubbles chooser-container" style="display:block;">
 				{if !empty($contact_addresses)}
 					{foreach from=$contact_addresses item=contact_address key=contact_address_id}
-					<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=address&context_id={$contact_address->id}{/devblocks_url}?v={$contact_address->updated}"><input type="hidden" name="contact_address_id[]" value="{$contact_address->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$contact_address->id}">{$contact_address->getNameWithEmail()}</a></li>
+					<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=address&context_id={$contact_address->id}{/devblocks_url}?v={$contact_address->updated}"><input type="hidden" name="contact_address_id[]" value="{$contact_address->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$contact_address->id}">{$contact_address->getNameWithEmail()}</a></li>
 					{/foreach}
 				{/if}
 			</ul>

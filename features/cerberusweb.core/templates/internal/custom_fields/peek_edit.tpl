@@ -54,7 +54,7 @@
 				{if $model}
 					{$custom_fieldset = $model->getFieldset()}
 					{if $custom_fieldset}
-						<li><input type="hidden" name="custom_fieldset_id" value="{$custom_fieldset->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CUSTOM_FIELDSET}" data-context-id="{$custom_fieldset->id}">{$custom_fieldset->name}</a></li>
+						<li><input type="hidden" name="custom_fieldset_id" value="{$custom_fieldset->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CUSTOM_FIELDSET}" data-context-id="{$custom_fieldset->id}">{$custom_fieldset->name}</a></li>
 					{/if}
 				{/if}
 			</ul>

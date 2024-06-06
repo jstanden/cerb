@@ -28,7 +28,7 @@
 					
 					<ul class="bubbles chooser-container">
 						{if $model->workspace_page_id && $page}
-							<li><input type="hidden" name="workspace_page_id" value="{$page->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKSPACE_PAGE}" data-context-id="{$page->id}">{$page->name}</a></li>
+							<li><input type="hidden" name="workspace_page_id" value="{$page->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKSPACE_PAGE}" data-context-id="{$page->id}">{$page->name}</a></li>
 						{/if}
 					</ul>
 				</td>

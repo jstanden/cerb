@@ -34,7 +34,7 @@
 		{$owner_ctx = Extension_DevblocksContext::get($cf_group->owner_context|default:'')}
 		<li class="item" cf_group_id="{$cf_group->id}">
 			<div>
-				<a href="javascript:;">
+				<a>
 					{$cf_group->name}
 				</a>
 			</div>

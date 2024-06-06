@@ -26,7 +26,7 @@
 				{$classifier = $model->getClassifier()}
 				{if $classifier}
 				<ul class="bubbles">
-					<li><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CLASSIFIER}" data-context-id="{$classifier->id}">{$classifier->name}</a></li>
+					<li><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CLASSIFIER}" data-context-id="{$classifier->id}">{$classifier->name}</a></li>
 				</ul>
 				{/if}
 			{else}
@@ -36,7 +36,7 @@
 				{if $model}
 					{$classifier = $model->getClassifier()}
 					{if $classifier}
-						<li><input type="hidden" name="classifier_id" value="{$classifier->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CLASSIFIER}" data-context-id="{$classifier->id}">{$classifier->name}</a></li>
+						<li><input type="hidden" name="classifier_id" value="{$classifier->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CLASSIFIER}" data-context-id="{$classifier->id}">{$classifier->name}</a></li>
 					{/if}
 				{/if}
 			</ul>

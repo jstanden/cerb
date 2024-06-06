@@ -3,7 +3,7 @@
     {foreach from=$target_dicts item=target_dict}
         <li>
             {* [TODO] Avatars *}
-            <a href="javascript:;" data-context="{$target_dict->_context}" data-context-id="{$target_dict->id}">{$target_dict->_label}</a>
+            <a data-context="{$target_dict->_context}" data-context-id="{$target_dict->id}">{$target_dict->_label}</a>
         </li>
     {/foreach}
 </ul>

@@ -39,7 +39,7 @@
 		<ul class="bubbles" style="margin-right:5px;">
 		<li class="bubble-gray">
 			<img src="{devblocks_url}c=avatars&context=worker&context_id={$worker_id}{/devblocks_url}?v={$worker->updated}" style="height:16px;width:16px;border-radius:16px;vertical-align:middle;">
-			<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$worker_id}">{$worker->getName()}</a>
+			<a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$worker_id}">{$worker->getName()}</a>
 		</li>
 		</ul>
 	{/if}
@@ -79,7 +79,7 @@
 					{if $k_alias && $k_updated}
 						<img src="{devblocks_url}c=avatars&context={$k_alias}&context_id={$dict->$k_id}{/devblocks_url}?v={$dict->$k_updated}" style="height:16px;width:16px;border-radius:16px;vertical-align:middle;">
 					{/if}
-					<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{$dict->$k_context}" data-context-id="{$dict->$k_id}">{$dict->$k_label|truncate:64}</a>
+					<a class="cerb-peek-trigger no-underline" data-context="{$dict->$k_context}" data-context-id="{$dict->$k_id}">{$dict->$k_label|truncate:64}</a>
 				</li>
 			</ul>
 		{/if}

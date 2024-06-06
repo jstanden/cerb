@@ -6,7 +6,7 @@
         {if $linked_dicts && is_array($linked_dicts)}
             {foreach from=$linked_dicts item=linked_dict}
             <li>
-                <a href="javascript:;" class="peek-cfield-links no-underline" data-context="{$linked_dict->_context}" data-context-id="{$linked_dict->id}">{$linked_dict->_label}</a>
+                <a class="peek-cfield-links no-underline" data-context="{$linked_dict->_context}" data-context-id="{$linked_dict->id}">{$linked_dict->_label}</a>
                 <input type="hidden" name="{$form_key}[]" value="{$linked_dict->id}">
             </li>
             {/foreach}

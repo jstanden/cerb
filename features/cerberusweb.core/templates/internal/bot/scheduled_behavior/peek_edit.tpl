@@ -40,7 +40,7 @@
 				{if $model->context_id}
 				{$record = $model->getRecordDictionary()}
 				{if $record}
-					<li><input type="hidden" name="context_id" value="{$record->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{$record->_context}" data-context-id="{$record->id}">{$record->_label}</a></li>
+					<li><input type="hidden" name="context_id" value="{$record->id}"><a class="cerb-peek-trigger no-underline" data-context="{$record->_context}" data-context-id="{$record->id}">{$record->_label}</a></li>
 				{/if}
 				{/if}
 			</ul>
@@ -57,7 +57,7 @@
 				
 				<ul class="bubbles chooser-container">
 					{if $behavior}
-					<li><input type="hidden" name="behavior_id" value="{$model->behavior_id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-context-id="{$model->behavior_id}">{$behavior->title}</a></li>
+					<li><input type="hidden" name="behavior_id" value="{$model->behavior_id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-context-id="{$model->behavior_id}">{$behavior->title}</a></li>
 					{/if}
 				</ul>
 				

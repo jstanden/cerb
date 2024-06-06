@@ -21,7 +21,7 @@
 			<td width="99%">
 				<ul class="bubbles">
 					<li>
-						<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_TICKET}" data-context-id="{$ticket->id}">#{$ticket->mask}: {$ticket->subject}</a>
+						<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_TICKET}" data-context-id="{$ticket->id}">#{$ticket->mask}: {$ticket->subject}</a>
 					</li>
 				</ul>
 			</td>
@@ -36,7 +36,7 @@
 				<ul class="bubbles">
 					<li>
 						<img class="cerb-avatar" src="{devblocks_url}c=avatars&context=worker&context_id={$worker->id}{/devblocks_url}?v={$worker->updated}">
-						<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$worker->id}">{$worker->getName()}</a>
+						<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$worker->id}">{$worker->getName()}</a>
 					</li>
 				</ul>
 			</td>

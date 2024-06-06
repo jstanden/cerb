@@ -28,7 +28,7 @@
 				
 				<ul class="bubbles chooser-container">
 					{if $tab}
-						<li><input type="hidden" name="workspace_tab_id" value="{$tab->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKSPACE_TAB}" data-context-id="{$tab->id}">{$tab->name}</a></li>
+						<li><input type="hidden" name="workspace_tab_id" value="{$tab->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKSPACE_TAB}" data-context-id="{$tab->id}">{$tab->name}</a></li>
 					{/if}
 				</ul>
 			</td>
@@ -103,7 +103,7 @@
 						
 						<ul class="bubbles chooser-container">
 							{if $tab}
-								<li><input type="hidden" name="workspace_tab_id" value="{$tab->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKSPACE_TAB}" data-context-id="{$tab->id}">{$tab->name}</a></li>
+								<li><input type="hidden" name="workspace_tab_id" value="{$tab->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKSPACE_TAB}" data-context-id="{$tab->id}">{$tab->name}</a></li>
 							{/if}
 						</ul>
 					</td>

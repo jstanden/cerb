@@ -29,7 +29,7 @@
 				<ul class="bubbles chooser-container">
 					{$ticket_org = $ticket->getOrg()}
 					{if $ticket_org}
-						<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=org&context_id={$ticket_org->id}{/devblocks_url}?v={$ticket_org->updated}"><input type="hidden" name="org_id" value="{$ticket_org->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$ticket_org->id}">{$ticket_org->name}</a></li>
+						<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=org&context_id={$ticket_org->id}{/devblocks_url}?v={$ticket_org->updated}"><input type="hidden" name="org_id" value="{$ticket_org->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$ticket_org->id}">{$ticket_org->name}</a></li>
 					{/if}
 				</ul>
 		</td>
@@ -113,7 +113,7 @@
 			<ul class="bubbles chooser-container">
 				{$owner = $ticket->getOwner()}
 				{if $owner}
-					<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=worker&context_id={$owner->id}{/devblocks_url}?v={$owner->updated}"><input type="hidden" name="owner_id" value="{$owner->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$owner->id}">{$owner->getName()}</a></li>
+					<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=worker&context_id={$owner->id}{/devblocks_url}?v={$owner->updated}"><input type="hidden" name="owner_id" value="{$owner->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$owner->id}">{$owner->getName()}</a></li>
 				{/if}
 			</ul>
 		</td>
@@ -126,7 +126,7 @@
 			<ul class="bubbles chooser-container" style="display:block;">
 				{if !empty($requesters)}
 				{foreach from=$requesters item=requester}
-					<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=address&context_id={$requester->id}{/devblocks_url}?v={$requester->updated}"><input type="hidden" name="participants[]" value="{$requester->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$requester->id}">{$requester->getNameWithEmail()}</a></li>
+					<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=address&context_id={$requester->id}{/devblocks_url}?v={$requester->updated}"><input type="hidden" name="participants[]" value="{$requester->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$requester->id}">{$requester->getNameWithEmail()}</a></li>
 				{/foreach}
 				{/if}
 			</ul>

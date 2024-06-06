@@ -90,7 +90,7 @@
 						<li>
 							<input type="hidden" name="email_id" value="{$addy->id}">
 							<img class="cerb-avatar" src="{devblocks_url}c=avatars&context=address&context_id={$addy->id}{/devblocks_url}?v={$addy->updated}">
-							<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$addy->id}">{$addy->email}</a>
+							<a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$addy->id}">{$addy->email}</a>
 						</li>
 						{/if}
 					</ul>
@@ -110,7 +110,7 @@
 							<li>
 								<input type="hidden" name="email_ids[]" value="{$addy->id}">
 								<img class="cerb-avatar" src="{devblocks_url}c=avatars&context=address&context_id={$addy->id}{/devblocks_url}?v={$addy->updated}">
-								<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$addy->id}">{$addy->email}</a>
+								<a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$addy->id}">{$addy->email}</a>
 							</li>
 							{/if}
 						{/foreach}
@@ -246,9 +246,9 @@
 			<thead>
 				<tr>
 					<th></th>
-					<th width="60"><a href="javascript:;" data-value="1">{'common.member'|devblocks_translate|capitalize}</a></th>
-					<th width="60"><a href="javascript:;" data-value="2">{'common.manager'|devblocks_translate|capitalize}</a></th>
-					<th width="60"><a href="javascript:;" data-value="0">{'common.neither'|devblocks_translate|capitalize}</a></th>
+					<th width="60"><a data-value="1">{'common.member'|devblocks_translate|capitalize}</a></th>
+					<th width="60"><a data-value="2">{'common.manager'|devblocks_translate|capitalize}</a></th>
+					<th width="60"><a data-value="0">{'common.neither'|devblocks_translate|capitalize}</a></th>
 				</tr>
 			</thead>
 			{foreach from=$groups item=group key=group_id name=groups}
@@ -256,7 +256,7 @@
 			<tbody style="{if 0 == $smarty.foreach.groups.iteration % 2}background-color:var(--cerb-color-background-contrast-240);{/if}">
 				<tr>
 					<td style="text-align:left;padding-right:30px;">
-						<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$group->id}"><b>{$group->name}</b></a>
+						<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$group->id}"><b>{$group->name}</b></a>
 					</td>
 					<td>
 						<input type="radio" name="group_memberships[{$group->id}]" value="1" {if $member && !$member->is_manager}checked="checked"{/if}>

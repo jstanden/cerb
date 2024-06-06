@@ -45,7 +45,7 @@
 				
 				<ul class="bubbles chooser-container">
 					{if $org}
-						<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=org&context_id={$org->id}{/devblocks_url}?v={$org->updated}"><input type="hidden" name="org_id" value="{$org->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$org->id}">{$org->name}</a></li>
+						<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=org&context_id={$org->id}{/devblocks_url}?v={$org->updated}"><input type="hidden" name="org_id" value="{$org->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$org->id}">{$org->name}</a></li>
 					{/if}
 				</ul>
 		</td>
@@ -58,7 +58,7 @@
 				
 				<ul class="bubbles chooser-container">
 					{if $contact}
-						<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=contact&context_id={$contact->id}{/devblocks_url}?v={$contact->updated_at}"><input type="hidden" name="contact_id" value="{$contact->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CONTACT}" data-context-id="{$contact->id}">{$contact->getName()}</a></li>
+						<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=contact&context_id={$contact->id}{/devblocks_url}?v={$contact->updated_at}"><input type="hidden" name="contact_id" value="{$contact->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CONTACT}" data-context-id="{$contact->id}">{$contact->getName()}</a></li>
 					{/if}
 				</ul>
 				
@@ -107,7 +107,7 @@
 					
 					<ul class="bubbles chooser-container">
 					{if $mail_transport}
-						<li><input type="hidden" name="mail_transport_id" value="{$mail_transport->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_MAIL_TRANSPORT}" data-context-id="{$mail_transport->id}">{$mail_transport->name}</a></li>
+						<li><input type="hidden" name="mail_transport_id" value="{$mail_transport->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_MAIL_TRANSPORT}" data-context-id="{$mail_transport->id}">{$mail_transport->name}</a></li>
 					{/if}
 					</ul>
 				</td>
@@ -132,7 +132,7 @@
 					
 					<ul class="bubbles chooser-container">
 					{if $worker}
-						<li><input type="hidden" name="worker_id" value="{$worker->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$worker->id}">{$worker->getName()}</a></li>
+						<li><input type="hidden" name="worker_id" value="{$worker->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$worker->id}">{$worker->getName()}</a></li>
 					{/if}
 					</ul>
 				</td>

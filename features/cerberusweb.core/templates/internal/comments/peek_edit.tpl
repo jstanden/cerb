@@ -26,7 +26,7 @@
 					{if $author->_image_url}
 					<img src="{$author->_image_url}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;">
 					{/if}
-					<a href="javascript:;" class="cerb-peek-trigger" data-context="{$author->_context}" data-context-id="{$author->id}">{$author->_label}</a>
+					<a class="cerb-peek-trigger" data-context="{$author->_context}" data-context-id="{$author->id}">{$author->_label}</a>
 				</li>
 			</ul>
 		</div>
@@ -44,7 +44,7 @@
 					{if $target->_image_url}
 					<img src="{$target->_image_url}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;">
 					{/if}
-					<a href="javascript:;" class="cerb-peek-trigger" data-context="{$target->_context}" data-context-id="{$target->id}">{$target->_label}</a>
+					<a class="cerb-peek-trigger" data-context="{$target->_context}" data-context-id="{$target->id}">{$target->_label}</a>
 				</li>
 			</ul>
 		</div>
@@ -101,13 +101,13 @@
 				{if !empty($attachments)}
 					{foreach from=$attachments item=attachment name=attachments}
 						<li>
-							<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$attachment->id}">
+							<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$attachment->id}">
 								<b>{$attachment->name}</b>
 								({$attachment->storage_size|devblocks_prettybytes}	-
 								{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{'display.convo.unknown_format'|devblocks_translate|capitalize}{/if})
 							</a>
 							<input type="hidden" name="file_ids[]" value="{$attachment->id}">
-							<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>
+							<a onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>
 						</li>
 					{/foreach}
 				{/if}

@@ -1,4 +1,4 @@
-<form id="group{$group->id}Responsibilities" action="javascript:;">
+<form id="group{$group->id}Responsibilities" action="#">
 
 <div class="cerb-delta-slider-container" style="display:none;margin-right:0;">
 	<div class="cerb-delta-slider cerb-slider-gray">
@@ -10,7 +10,7 @@
 {foreach from=$buckets item=bucket}
 	<fieldset class="peek" style="vertical-align:top;break-inside:avoid-column;margin:0;">
 		<legend>
-			<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-context-id="{$bucket->id}">{$bucket->name}</a>
+			<a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-context-id="{$bucket->id}">{$bucket->name}</a>
 		</legend>
 	
 		<div style="margin-left:15px;">
@@ -21,7 +21,7 @@
 		{if $worker}
 		<div class="cerb-slider-card" style="width:250px;display:block;margin:0 10px 10px 5px;">
 			<label>
-				<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$worker->id}"><b>{$worker->getName()}</b></a> {if $worker->title}({$worker->title}){/if}
+				<a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$worker->id}"><b>{$worker->getName()}</b></a> {if $worker->title}({$worker->title}){/if}
 			</label>
 			
 			<div class="cerb-slider-readonly" style="margin-bottom:15px;">

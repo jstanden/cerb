@@ -119,7 +119,7 @@ ul, ol {
 
 		<ul class="bubbles chooser-container">
 			{if $signature}
-				<li><input type="hidden" name="signature_id" value="{$signature->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_EMAIL_SIGNATURE}" data-context-id="{$signature->id}">{$signature->name}</a></li>
+				<li><input type="hidden" name="signature_id" value="{$signature->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_EMAIL_SIGNATURE}" data-context-id="{$signature->id}">{$signature->name}</a></li>
 			{/if}
 		</ul>
 	{/if}
@@ -135,13 +135,13 @@ ul, ol {
 		{if !empty($attachments)}
 			{foreach from=$attachments item=attachment name=attachments}
 				<li>
-					<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$attachment->id}">
+					<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$attachment->id}">
 						<b>{$attachment->name}</b>
 						({$attachment->storage_size|devblocks_prettybytes}	-
 						{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{'display.convo.unknown_format'|devblocks_translate|capitalize}{/if})
 					</a>
 					<input type="hidden" name="file_ids[]" value="{$attachment->id}">
-					<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>
+					<a onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>
 				</li>
 			{/foreach}
 		{/if}

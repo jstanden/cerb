@@ -84,7 +84,7 @@
 		<h1>{{'common.actions'|devblocks_translate|capitalize}}</h1>
 
 		<div style="margin-bottom:10px;">
-			<a href="javascript:;" style="font-size:90%;" onclick="checkAll('roleEditorPrivsOther');">check all</a>
+			<a style="font-size:90%;" onclick="checkAll('roleEditorPrivsOther');">check all</a>
 		</div>
 		
 		{foreach from=$core_acl item=section}
@@ -139,7 +139,7 @@
 		<h1>{{'common.records'|devblocks_translate|capitalize}}</h1>
 
 		<div style="margin-bottom:10px;">
-			<a href="javascript:;" style="font-size:90%;" onclick="checkAll('roleEditorPrivsRecords');">check all</a>
+			<a style="font-size:90%;" onclick="checkAll('roleEditorPrivsRecords');">check all</a>
 		</div>
 
 		{$priv_labels = []}

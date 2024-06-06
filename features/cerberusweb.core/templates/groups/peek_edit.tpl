@@ -63,7 +63,7 @@
 				
 				<ul class="bubbles chooser-container">
 					{if $replyto}
-						<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=address&context_id={$replyto->id}{/devblocks_url}?v={$replyto->updated_at}"><input type="hidden" name="reply_address_id" value="{$replyto->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$replyto->id}">{$replyto->email}</a></li>
+						<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=address&context_id={$replyto->id}{/devblocks_url}?v={$replyto->updated_at}"><input type="hidden" name="reply_address_id" value="{$replyto->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$replyto->id}">{$replyto->email}</a></li>
 					{/if}
 				</ul>
 			</td>
@@ -89,7 +89,7 @@
 				
 				<ul class="bubbles chooser-container">
 					{if $signature}
-						<li><input type="hidden" name="reply_signature_id" value="{$signature->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_EMAIL_SIGNATURE}" data-context-id="{$signature->id}">{$signature->name}</a></li>
+						<li><input type="hidden" name="reply_signature_id" value="{$signature->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_EMAIL_SIGNATURE}" data-context-id="{$signature->id}">{$signature->name}</a></li>
 					{/if}
 				</ul>
 			</td>
@@ -106,7 +106,7 @@
 
 				<ul class="bubbles chooser-container">
 					{if $signing_key}
-						<li><input type="hidden" name="reply_signing_key_id" value="{$signing_key->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{Context_GpgPrivateKey::ID}" data-context-id="{$signing_key->id}">{$signing_key->name}</a></li>
+						<li><input type="hidden" name="reply_signing_key_id" value="{$signing_key->id}"><a class="cerb-peek-trigger no-underline" data-context="{Context_GpgPrivateKey::ID}" data-context-id="{$signing_key->id}">{$signing_key->name}</a></li>
 					{/if}
 				</ul>
 			</td>
@@ -123,7 +123,7 @@
 				
 				<ul class="bubbles chooser-container">
 					{if $html_template}
-						<li><input type="hidden" name="reply_html_template_id" value="{$html_template->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE}" data-context-id="{$html_template->id}">{$html_template->name}</a></li>
+						<li><input type="hidden" name="reply_html_template_id" value="{$html_template->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE}" data-context-id="{$html_template->id}">{$html_template->name}</a></li>
 					{/if}
 				</ul>
 			</td>
@@ -151,9 +151,9 @@
 		<thead>
 			<tr>
 				<th></th>
-				<th width="60"><a href="javascript:;" data-value="1">{'common.member'|devblocks_translate|capitalize}</a></th>
-				<th width="60"><a href="javascript:;" data-value="2">{'common.manager'|devblocks_translate|capitalize}</a></th>
-				<th width="60"><a href="javascript:;" data-value="0">{'common.neither'|devblocks_translate|capitalize}</a></th>
+				<th width="60"><a data-value="1">{'common.member'|devblocks_translate|capitalize}</a></th>
+				<th width="60"><a data-value="2">{'common.manager'|devblocks_translate|capitalize}</a></th>
+				<th width="60"><a data-value="0">{'common.neither'|devblocks_translate|capitalize}</a></th>
 			</tr>
 		</thead>
 		{foreach from=$workers item=worker key=worker_id name=workers}
@@ -161,7 +161,7 @@
 		<tbody style="{if 0 == $smarty.foreach.workers.iteration % 2}background-color:var(--cerb-color-background-contrast-240);{/if}">
 			<tr>
 				<td style="text-align:left;padding-right:30px;">
-					<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$worker->id}"><b>{$worker->getName()}</b></a>
+					<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$worker->id}"><b>{$worker->getName()}</b></a>
 				</td>
 				<td>
 					<input type="radio" name="group_memberships[{$worker->id}]" value="1" {if $member && !$member->is_manager}checked="checked"{/if}>

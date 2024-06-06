@@ -66,13 +66,13 @@
 							
 							<ul class="bubbles chooser-container">
 								{if $bot}
-									<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=bot&context_id={$bot->id}{/devblocks_url}?v={$bot->updated_at}"><input type="hidden" name="bot_id" value="{$bot->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BOT}" data-context-id="{$bot->id}">{$bot->name}</a></li>
+									<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=bot&context_id={$bot->id}{/devblocks_url}?v={$bot->updated_at}"><input type="hidden" name="bot_id" value="{$bot->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BOT}" data-context-id="{$bot->id}">{$bot->name}</a></li>
 								{/if}
 							</ul>
 						{else}
 							{if $bot}
 								<ul class="bubbles chooser-container">
-									<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=bot&context_id={$bot->id}{/devblocks_url}?v={$bot->updated_at}"><input type="hidden" name="bot_id" value="{$bot->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BOT}" data-context-id="{$bot->id}">{$bot->name}</a></li>
+									<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=bot&context_id={$bot->id}{/devblocks_url}?v={$bot->updated_at}"><input type="hidden" name="bot_id" value="{$bot->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BOT}" data-context-id="{$bot->id}">{$bot->name}</a></li>
 								</ul>
 							{/if}
 						{/if}
@@ -348,9 +348,13 @@ $(function() {
 					var $li = $('<li/>');
 					var $label = $('<span/>').attr('data-event',token).text(label);
 					$label.appendTo($li);
-					var $hidden = $('<input type="hidden">').attr('name', 'event_point').attr('value',token).appendTo($li);
-					var $a = $('<a href="javascript:;" onclick="$(this).trigger(\'events-bubble-remove\');"><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($li);
-					
+					$('<input type="hidden">').attr('name', 'event_point').attr('value',token).appendTo($li);
+					let $a = $('<a><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($li);
+					$a.on('click', function(e) {
+						e.stopPropagation();
+						$(this).trigger('events-bubble-remove');
+					});
+
 					$events_ul.find('> *').remove();
 					$events_ul.append($li);
 					$events_ul.show();

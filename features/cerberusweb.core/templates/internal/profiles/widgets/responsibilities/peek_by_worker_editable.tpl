@@ -1,4 +1,4 @@
-<form id="worker{$worker->id}Responsibilities" action="javascript:;">
+<form id="worker{$worker->id}Responsibilities" action="#">
 
 <div class="cerb-delta-slider-container" style="display:none;margin-right:0;">
 	<div class="cerb-delta-slider cerb-slider-gray">
@@ -14,7 +14,7 @@
 	{if $group}
 	<fieldset class="peek" style="vertical-align:top;break-inside: avoid-column;margin:0;">
 		<legend>
-			<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$group->id}">{$group->name}</a>
+			<a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$group->id}">{$group->name}</a>
 		</legend>
 	
 		<div style="margin-left:15px;">
@@ -23,7 +23,7 @@
 			{$responsibility = $responsibilities.{$bucket->id}}
 			<div class="cerb-slider-card" style="width:250px;display:block;margin:0 10px 10px 5px;">
 				<label>
-					<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-context-id="{$bucket->id}">{$bucket->name}</a>
+					<a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-context-id="{$bucket->id}">{$bucket->name}</a>
 				</label>
 				
 				<div class="cerb-slider-readonly" style="margin-bottom:15px;">

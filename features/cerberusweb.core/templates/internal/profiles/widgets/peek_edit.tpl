@@ -20,7 +20,7 @@
 		
 		<ul class="bubbles chooser-container">
 			{if $profile_tab}
-				<li><input type="hidden" name="profile_tab_id" value="{$profile_tab->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_PROFILE_TAB}" data-context-id="{$profile_tab->id}">{$profile_tab->name}</a></li>
+				<li><input type="hidden" name="profile_tab_id" value="{$profile_tab->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_PROFILE_TAB}" data-context-id="{$profile_tab->id}">{$profile_tab->name}</a></li>
 			{/if}
 		</ul>
 	</div>

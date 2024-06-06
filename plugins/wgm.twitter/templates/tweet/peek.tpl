@@ -40,7 +40,7 @@
 			<td width="99%" valign="top">
 				<ul class="bubbles">
 					<li>
-						<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_CONNECTED_ACCOUNT}" data-context-id="{$account->id}">
+						<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_CONNECTED_ACCOUNT}" data-context-id="{$account->id}">
 							{$account->name}
 						</a>
 					</li>
@@ -75,7 +75,7 @@
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=Context_TwitterMessage::ID context_id=$message->id}
 
 <div class="toolbar">
-	<button type="button" class="submit" onclick="genericAjaxPopupPostCloseReloadView(null,'frmTwitterMessage','{$view_id}',false,'twitter_message_save');"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 </div>
 {/if}
 
@@ -119,6 +119,11 @@ $(function() {
 			}
 		});
 		{/if}
+
+		$popup.find('.submit').on('click', function(e) {
+			e.stopPropagation();
+			genericAjaxPopupPostCloseReloadView(null,'frmTwitterMessage','{$view_id}',false,'twitter_message_save');
+		});
 	});
 });
 </script>

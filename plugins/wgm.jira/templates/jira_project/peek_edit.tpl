@@ -41,7 +41,7 @@
 			<ul class="bubbles chooser-container">
 				{if $model->connected_account_id}
 					{$connected_account = $model->getConnectedAccount()}
-					<li><input type="hidden" name="connected_account_id" value="{$model->connected_account_id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CONNECTED_ACCOUNT}" data-context-id="{$connected_account->id}">{$connected_account->name}</a></li>
+					<li><input type="hidden" name="connected_account_id" value="{$model->connected_account_id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CONNECTED_ACCOUNT}" data-context-id="{$connected_account->id}">{$connected_account->name}</a></li>
 				{/if}
 			</ul>
 		</td>
