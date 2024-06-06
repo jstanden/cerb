@@ -21,7 +21,7 @@
 			{if $context_ext->hasOption('avatars')}
 			<img class="cerb-avatar" src="{devblocks_url}c=avatars&context={$context_ext->id}&context_id={$dict->id}{/devblocks_url}?v={$dict->updated_at}">
 			{/if}
-			<a href="javascript:;" class="cerb-peek-trigger" data-context="{$dict->_context}" data-context-id="{$dict->id}">{$dict->_label} (id:{$dict->id})</a>
+			<a class="cerb-peek-trigger" data-context="{$dict->_context}" data-context-id="{$dict->id}">{$dict->_label} (id:{$dict->id})</a>
 		</li>
 		{/foreach}
 	</ul>

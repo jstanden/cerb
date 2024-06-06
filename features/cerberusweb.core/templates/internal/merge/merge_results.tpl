@@ -7,7 +7,7 @@
 				{if $context_ext->hasOption('avatars')}
 				<img class="cerb-avatar" src="{devblocks_url}c=avatars&context={$context_ext->id}&context_id={$dicts[$target_id]->id}{/devblocks_url}?v={$dicts[$target_id]->updated_at}">
 				{/if}
-				<a href="javascript:;" class="cerb-peek-trigger" data-context="{$dicts[$target_id]->_context}" data-context-id="{$dicts[$target_id]->id}">{$dicts[$target_id]->_label}</a>
+				<a class="cerb-peek-trigger" data-context="{$dicts[$target_id]->_context}" data-context-id="{$dicts[$target_id]->id}">{$dicts[$target_id]->_label}</a>
 			</li>
 		</ul> 
 	</div>

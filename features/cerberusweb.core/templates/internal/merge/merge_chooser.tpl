@@ -18,8 +18,8 @@
 	{if $context_ext->hasOption('avatars')}
 	<img class="cerb-avatar" src="{devblocks_url}c=avatars&context={$context_ext->id}&context_id={$dict->id}{/devblocks_url}?v={$dict->updated_at}">
 	{/if}
-	<a href="javascript:;" class="cerb-peek-trigger" data-context="{$dict->_context}" data-context-id="{$dict->id}">{$dict->_label}</a>
-	<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>
+	<a class="cerb-peek-trigger" data-context="{$dict->_context}" data-context-id="{$dict->id}">{$dict->_label}</a>
+	<a onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>
 </li>
 {/foreach}
 {/if}
