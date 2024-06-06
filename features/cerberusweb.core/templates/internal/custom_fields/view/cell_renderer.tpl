@@ -53,7 +53,7 @@
 				{$link_ctx_meta = $link_ctx->getMeta($result.$column)}
 				{if $link_ctx_meta}
 					{if $link_ctx->hasOption('cards')}
-						<a href="javascript:;" class="cerb-peek-trigger" data-context="{$col->params.context}" data-context-id="{$result.$column}" data-permalink="{$link_ctx_meta.permalink}">{$link_ctx_meta.name}</a>
+						<a class="cerb-peek-trigger" data-context="{$col->params.context}" data-context-id="{$result.$column}" data-permalink="{$link_ctx_meta.permalink}">{$link_ctx_meta.name}</a>
 					{elseif $link_ctx_meta.permalink}
 						<a href="{$link_ctx_meta.permalink}">{$link_ctx_meta.name}</a>
 					{else}
@@ -89,7 +89,7 @@
 		{$workers = DAO_Worker::getAll()}
 	{/if}
 	{if !empty($worker_id) && isset($workers.$worker_id)}
-		<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$worker_id}">{$workers.$worker_id->getName()}</a>
+		<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$worker_id}">{$workers.$worker_id->getName()}</a>
 	{/if}
 	</td>
 {else}

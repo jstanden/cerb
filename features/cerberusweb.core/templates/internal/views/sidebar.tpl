@@ -1,10 +1,10 @@
 <fieldset>
 	<legend class="cerb-menu">
-		<a href="javascript:;" class="menu">{if isset($subtotal_fields.{$view->renderSubtotals})}{$subtotal_fields.{$view->renderSubtotals}->db_label|capitalize}{else}{'common.subtotals'|devblocks_translate|capitalize}{/if}</a> &#x25be;
+		<a class="menu">{if isset($subtotal_fields.{$view->renderSubtotals})}{$subtotal_fields.{$view->renderSubtotals}->db_label|capitalize}{else}{'common.subtotals'|devblocks_translate|capitalize}{/if}</a> &#x25be;
 	</legend>
 	<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;">
 		{foreach from=$subtotal_fields item=field_model key=field_key}
-		<li><a href="javascript:;" onclick="$('#view{$view_id}_sidebar').fadeTo('normal', 0.2);genericAjaxGet('','c=internal&a=invoke&module=worklists&action=subtotal&category={$field_key}&view_id={$view_id}',function(html) { $('#view{$view_id}_sidebar').html(html).fadeTo('normal',1.0).find('FIELDSET:first TABLE:first TD:first A:first').focus(); });">{$field_model->db_label|capitalize}</a></li>
+		<li><a onclick="$('#view{$view_id}_sidebar').fadeTo('normal', 0.2);genericAjaxGet('','c=internal&a=invoke&module=worklists&action=subtotal&category={$field_key}&view_id={$view_id}',function(html) { $('#view{$view_id}_sidebar').html(html).fadeTo('normal',1.0).find('FIELDSET:first TABLE:first TD:first A:first').focus(); });">{$field_model->db_label|capitalize}</a></li>
 		{/foreach}
 	</ul>
 
@@ -13,11 +13,11 @@
 		<tr>
 			<td style="padding-right:10px;" nowrap="nowrap" valign="top">
 				{if $category.filter.query}
-					<a href="javascript:;" onclick="ajax.viewAddQuery('{$view_id}', '{$category.filter.query}', '{$category.filter.field}', true);">
+					<a onclick="ajax.viewAddQuery('{$view_id}', '{$category.filter.query}', '{$category.filter.field}', true);">
 					<span style="font-weight:bold;" title="{$category.label}">{$category.label|truncate:32}</span>
 					</a>
 				{elseif $category.filter.field}
-					<a href="javascript:;" onclick="ajax.viewAddFilter('{$view_id}', '{$category.filter.field}', '{$category.filter.oper}', { {foreach from=$category.filter.values name=values item=value key=key}'{$key}':'{$value|escape:'quotes'}'{if !$smarty.foreach.values.last},{/if}{/foreach} }, '{$category.filter.field}');">
+					<a onclick="ajax.viewAddFilter('{$view_id}', '{$category.filter.field}', '{$category.filter.oper}', { {foreach from=$category.filter.values name=values item=value key=key}'{$key}':'{$value|escape:'quotes'}'{if !$smarty.foreach.values.last},{/if}{/foreach} }, '{$category.filter.field}');">
 					<span style="font-weight:bold;" title="{$category.label}">{$category.label|truncate:32}</span>
 					</a>
 				{else}
@@ -33,11 +33,11 @@
 		<tr>
 			<td style="padding-left:10px;padding-right:10px;" nowrap="nowrap" valign="top">
 				{if $subcategory.filter.query}
-					<a href="javascript:;" onclick="ajax.viewAddQuery('{$view_id}', '{$subcategory.filter.query}', '{$subcategory.filter.field}');">
+					<a onclick="ajax.viewAddQuery('{$view_id}', '{$subcategory.filter.query}', '{$subcategory.filter.field}');">
 					<span>{$subcategory.label|truncate:32}</span>
 					</a>
 				{elseif $subcategory.filter.field}
-					<a href="javascript:;" onclick="ajax.viewAddFilter('{$view_id}', '{$subcategory.filter.field}', '{$subcategory.filter.oper}', { {foreach from=$subcategory.filter.values name=values item=value key=key}'{$key}':'{$value|escape:'quotes'}'{if !$smarty.foreach.values.last},{/if}{/foreach} }, '{$subcategory.filter.field}');">
+					<a onclick="ajax.viewAddFilter('{$view_id}', '{$subcategory.filter.field}', '{$subcategory.filter.oper}', { {foreach from=$subcategory.filter.values name=values item=value key=key}'{$key}':'{$value|escape:'quotes'}'{if !$smarty.foreach.values.last},{/if}{/foreach} }, '{$subcategory.filter.field}');">
 					<span>{$subcategory.label|truncate:32}</span>
 					</a>
 				{else}

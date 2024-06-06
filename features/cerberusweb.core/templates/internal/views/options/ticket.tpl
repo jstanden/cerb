@@ -12,7 +12,7 @@
 			{if array_key_exists('compose_bucket_id', $view->options)}
 				{$bucket = DAO_Bucket::get($view->options.compose_bucket_id)}
 				{if $bucket}
-				<li><a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-context-id="{$bucket->id}">{$bucket->name}</a></li>
+				<li><a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-context-id="{$bucket->id}">{$bucket->name}</a></li>
 				{/if}
 			{/if}
 		</ul>

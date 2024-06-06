@@ -40,7 +40,7 @@
 
 <fieldset class="peek peek-noborder black">
 	<legend>
-		{'dashboard.columns'|devblocks_translate|capitalize} (<a href="javascript:;" onclick="$(this).closest('fieldset').find('input:checkbox').removeAttr('checked');">{'common.clear'|devblocks_translate|lower}</a>)</b>
+		{'dashboard.columns'|devblocks_translate|capitalize} (<a onclick="$(this).closest('fieldset').find('input:checkbox').removeAttr('checked');">{'common.clear'|devblocks_translate|lower}</a>)</b>
 	</legend>
 
 	<div style="{if count($columns) > 15}column-width:300px;column-count:3;{/if}">

@@ -99,7 +99,7 @@ $(function() {
 	// Header clicks
 	$view_form.find('table.worklistBody thead th, table.worklistBody tbody th')
 		.click(function(e) {
-			$target = $(e.target);
+			let $target = $(e.target);
 			if(!$target.is('th'))
 				return;
 			
@@ -107,22 +107,81 @@ $(function() {
 			$target.find('A').first().click();
 		})
 		;
-	
+
+	// Sort
+	$view_form.find('table.worklistBody [data-cerb-worklist-sort]').click(function(e) {
+		e.stopPropagation();
+		let header = $(this).attr('data-cerb-worklist-sort');
+		genericAjaxGet('view{$view->id}','c=internal&a=invoke&module=worklists&action=sort&id={$view->id}&sortBy=' + encodeURIComponent(header));
+	});
+
+	// Search
+	$view.find('table.worklist [data-cerb-worklist-icon-search]').click(function(e) {
+		e.stopPropagation();
+		genericAjaxPopup('search','c=internal&a=invoke&module=worklists&action=showQuickSearchPopup&view_id={$view->id}',null,false,'50%');
+	});
+
+	// Customize
+	$view.find('table.worklist [data-cerb-worklist-icon-customize]').click(function(e) {
+		e.stopPropagation();
+		genericAjaxGet('customize{$view->id}','c=internal&a=invoke&module=worklists&action=customize&id={$view->id}');
+		toggleDiv('customize{$view->id}','block');
+	});
+
+	// Import
+	$view.find('table.worklist [data-cerb-worklist-icon-import]').click(function(e) {
+		e.stopPropagation();
+		genericAjaxPopup('import','c=internal&a=invoke&module=worklists&action=renderImportPopup&context={$view_context}&view_id={$view->id}',null,false,'50%');
+	});
+
+	// Export
+	$view.find('table.worklist [data-cerb-worklist-icon-export]').click(function(e) {
+		e.stopPropagation();
+		genericAjaxGet('{$view->id}_tips','c=internal&a=invoke&module=worklists&action=renderExport&id={$view->id}');
+		toggleDiv('{$view->id}_tips','block');
+	});
+
+	// Copy
+	$view.find('table.worklist [data-cerb-worklist-icon-copy]').click(function(e) {
+		e.stopPropagation();
+		genericAjaxGet('{$view->id}_tips','c=internal&a=invoke&module=worklists&action=renderCopy&view_id={$view->id}');
+		toggleDiv('{$view->id}_tips','block');
+	});
+
 	// Subtotals
-	$view.find('table.worklist A.subtotals').click(function(event) {
+	$view.find('table.worklist [data-cerb-worklist-icon-subtotals]').click(function(e) {
+		e.stopPropagation();
 		genericAjaxGet('view{$view->id}_sidebar','c=internal&a=invoke&module=worklists&action=subtotal&view_id={$view->id}&toggle=1', function(html) {
-			var $sidebar = $('#view{$view->id}_sidebar');
-			
-			if(0 == html.length) {
+			let $sidebar = $('#view{$view->id}_sidebar');
+
+			if(0 === html.length) {
 				$sidebar.hide();
 			} else {
 				$sidebar.show();
 			}
 		});
 	});
-	
+
+	// Paging
+	$view_form.find('[data-cerb-worklist-page-link]').click(function(e) {
+		e.stopPropagation();
+		let page = $(this).attr('data-cerb-worklist-page-link');
+		genericAjaxGet('view{$view->id}','c=internal&a=invoke&module=worklists&action=page&id={$view->id}&page=' + encodeURIComponent(page));
+	});
+
+	// Jump
+	$view.find('table.worklist [data-cerb-worklist-icon-actions]').click(function(e) {
+		e.stopPropagation();
+		$('#{$view->id}_actions button').first().focus();
+	});
+
+	// Refresh
+	$view.find('table.worklist [data-cerb-worklist-icon-refresh]').click(function(e) {
+		e.stopPropagation();
+		genericAjaxGet('view{$view->id}','c=internal&a=invoke&module=worklists&action=refresh&id={$view->id}');
+	});
+
 	// Select all
-	
 	$view.find('table.worklist input:checkbox.select-all').click(function(e) {
 		// Trigger event
 		e = jQuery.Event('select_all');
@@ -254,7 +313,15 @@ $(function() {
 	
 	// View actions
 	$view_actions.find('button,.action-on-select').not('.action-always-show').hide();
-	
+
+	// Explore
+	$view_actions.find('.action-explore').on('click', function(e) {
+		e.stopPropagation();
+		this.form.explore_from.value = $(this).closest('form').find('tbody input:checkbox:checked:first').val();
+		this.form.action.value='viewExplore';
+		this.form.submit();
+	});
+
 	// Peeks
 	$view.find('.cerb-peek-trigger').cerbPeekTrigger({ view_id: '{$view->id}' });
 
@@ -278,7 +345,7 @@ $(function() {
 		} catch(e) { }
 		{/foreach}
 
-		var $va_button = $('<a href="javascript:;" title="This worklist was modified by bots"><div style="background-color:var(--cerb-color-background-contrast-230);display:inline-block;margin-top:3px;border-radius:11px;padding:2px;"><img src="{devblocks_url}c=avatars&context=app&id=0{/devblocks_url}" style="width:14px;height:14px;margin:0;"></div></a>');
+		var $va_button = $('<a title="This worklist was modified by bots"><div style="background-color:var(--cerb-color-background-contrast-230);display:inline-block;margin-top:3px;border-radius:11px;padding:2px;"><img src="{devblocks_url}c=avatars&context=app&id=0{/devblocks_url}" style="width:14px;height:14px;margin:0;"></div></a>');
 		$va_button.click(function() {
 			var $va_action_log = $('#view{$view->id}_va_actions');
 			if($va_action_log.is(':hidden')) {

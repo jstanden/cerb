@@ -34,7 +34,7 @@
 			{/if}
 		{/if}
 	
-		(<a href="javascript:;" onclick="ajax.viewUndo('{$view->id}', false);" style="font-weight:bold;">undo</a>)
+		(<a onclick="ajax.viewUndo('{$view->id}', false);" style="font-weight:bold;">undo</a>)
 	</div>
 </div>
 {/if}

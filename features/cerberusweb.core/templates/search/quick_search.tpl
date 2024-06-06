@@ -2,7 +2,7 @@
 {if !isset($focus)}{$focus = null}{/if}
 {if isset($view) && is_a($view, 'IAbstractView_QuickSearch')}
 
-<form action="javascript:;" method="post" id="{$uniqid}" class="quick-search" style="background-color:var(--cerb-editor-background);">
+<form action="#" method="post" id="{$uniqid}" class="quick-search" style="background-color:var(--cerb-editor-background);">
 	<input type="hidden" name="c" value="search">
 	<input type="hidden" name="a" value="ajaxQuickSearch">
 	<input type="hidden" name="view_id" value="{$view->id}">
@@ -15,7 +15,7 @@
 					<textarea name="query" class="cerb-code-editor cerb-input-quicksearch" data-editor-mode="ace/mode/cerb_query" style="width:100%;height:30px;border:0;visibility:hidden;">{$view->getParamsQuery()}</textarea>
 				</td>
 				<td width="0%" nowrap="nowrap" valign="top">
-					<a href="javascript:;" class="cerb-quick-search-menu-trigger" style="position:relative;top:5px;padding:0px 10px;"><span class="glyphicons glyphicons-circle-question-mark" style="margin:0;color:gray;"></span></a>
+					<a class="cerb-quick-search-menu-trigger" style="position:relative;top:5px;padding:0px 10px;"><span class="glyphicons glyphicons-circle-question-mark" style="margin:0;color:gray;"></span></a>
 				</td>
 			</tr>
 		</table>

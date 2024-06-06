@@ -1066,7 +1066,7 @@ abstract class C4_AbstractView {
 				
 				// Use abstract popups if we can
 				if($ctx instanceof IDevblocksContextPeek) {
-					$string = sprintf("New %s created: <a href='javascript:;' class='cerb-peek-trigger' data-context='%s' data-context-id='%d' data-profile-url='%s'><b>%s</b></a>",
+					$string = sprintf("New %s created: <a class='cerb-peek-trigger' data-context='%s' data-context-id='%d' data-profile-url='%s'><b>%s</b></a>",
 						DevblocksPlatform::strEscapeHtml(DevblocksPlatform::strLower($ctx->manifest->name)),
 						DevblocksPlatform::strEscapeHtml($context),
 						DevblocksPlatform::strEscapeHtml($context_id),

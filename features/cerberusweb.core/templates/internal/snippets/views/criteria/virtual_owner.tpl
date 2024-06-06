@@ -18,7 +18,7 @@
 	{foreach from=$roles item=role name=roles}
 	<li context="{CerberusContexts::CONTEXT_ROLE}" context_id="{$role->id}" label="{$role->name} (Role)">
 		<div class="item">
-			<a href="javascript:;">{$role->name}</a><br>
+			<a>{$role->name}</a><br>
 			<div style="margin-left:10px;">Role</div>
 		</div>
 	</li>
@@ -27,7 +27,7 @@
 	{foreach from=$groups item=group name=groups}
 	<li context="{CerberusContexts::CONTEXT_GROUP}" context_id="{$group->id}" label="{$group->name} (Group)">
 		<div class="item">
-			<a href="javascript:;">{$group->name}</a><br>
+			<a>{$group->name}</a><br>
 			<div style="margin-left:10px;">Group</div>
 		</div>
 	</li>
@@ -36,7 +36,7 @@
 	{foreach from=$workers item=worker name=workers}
 	<li context="{CerberusContexts::CONTEXT_WORKER}" context_id="{$worker->id}" label="{$worker->getName()} (Worker)">
 		<div class="item">
-			<a href="javascript:;">{$worker->getName()}</a><br>
+			<a>{$worker->getName()}</a><br>
 			<div style="margin-left:10px;">Worker</div>
 		</div>
 	</li>
@@ -103,11 +103,15 @@ $menu.find('> li > div.item a').click(function() {
 	if($bubbles.find('li input:hidden[value="'+context_pair+'"]').length > 0)
 		return;
 	
-	$bubble = $('<li></li>');
+	let $bubble = $('<li></li>');
 	$bubble.append($('<input type="hidden" name="owner_context[]">').attr('value',context_pair));
 	$bubble.append(label);
-	$bubble.append('<a href="javascript:;" onclick="$li=$(this).closest(\'li\');$li.remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>');
-	
+	let $a = $('<a><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($bubble);
+	$a.on('click', function(e) {
+		e.stopPropagation();
+		$(this).closest('li').remove();
+	});
+
 	$bubbles.append($bubble);
 });	
 </script>

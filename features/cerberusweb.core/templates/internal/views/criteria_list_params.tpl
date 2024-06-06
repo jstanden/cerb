@@ -167,7 +167,7 @@
 	{/if}
 		
 	{if !$nested && !$readonly}</div>{/if}
-	{if !$nested && $readonly}<a href="javascript:;" class="delete" onclick="ajax.viewRemoveFilter('{$view->id}', ['{$param_key}']);" style="position:absolute;top:-7px;right:-6px;display:none;"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span></a></li>{/if}
+	{if !$nested && $readonly}<a data-cerb-worklist-remove-filter="{$param_key}" class="delete" onclick="ajax.viewRemoveFilter('{$view->id}', ['{$param_key}']);" style="position:absolute;top:-7px;right:-6px;display:none;"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span></a></li>{/if}
 {/if}
 {/foreach}
 {if $readonly}</ul>{/if}

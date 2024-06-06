@@ -7,10 +7,10 @@
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
 		<td nowrap="nowrap" align="right" class="title-toolbar">
-			<a href="javascript:;" title="{'common.search'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('search','c=internal&a=invoke&module=worklists&action=showQuickSearchPopup&view_id={$view->id}',null,false,'400');"><span class="glyphicons glyphicons-search"></span></a>
-			<a href="javascript:;" title="{'common.customize'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=invoke&module=worklists&action=customize&id={$view->id}');toggleDiv('customize{$view->id}','block');"><span class="glyphicons glyphicons-cogwheel"></span></a>
-			<a href="javascript:;" title="{'common.copy'|devblocks_translate|capitalize}" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=invoke&module=worklists&action=renderCopy&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');"><span class="glyphicons glyphicons-duplicate"></span></a>
-			<a href="javascript:;" title="{'common.refresh'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('view{$view->id}','c=internal&a=invoke&module=worklists&action=refresh&id={$view->id}');"><span class="glyphicons glyphicons-refresh"></span></a>
+			<a data-cerb-worklist-icon-search title="{'common.search'|devblocks_translate|capitalize}" class="minimal"><span class="glyphicons glyphicons-search"></span></a>
+			<a data-cerb-worklist-icon-customize title="{'common.customize'|devblocks_translate|capitalize}" class="minimal"><span class="glyphicons glyphicons-cogwheel"></span></a>
+			<a data-cerb-worklist-icon-copy title="{'common.copy'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-duplicate"></span></a>
+			<a data-cerb-worklist-icon-refresh title="{'common.refresh'|devblocks_translate|capitalize}" class="minimal"><span class="glyphicons glyphicons-refresh"></span></a>
 			<input type="checkbox" class="select-all">
 		</td>
 	</tr>
@@ -37,9 +37,9 @@
 			{* start table header, insert column title and link *}
 			<th class="{if array_key_exists('disable_sorting', $view->options) && $view->options.disable_sorting}no-sort{/if}">
 			{if (!array_key_exists('disable_sorting', $view->options) || !$view->options.disable_sorting) && !empty($view_fields.$header->db_column)}
-				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=invoke&module=worklists&action=sort&id={$view->id}&sortBy={$header}');">{$view_fields.$header->db_label|capitalize}</a>
+				<a data-cerb-worklist-sort="{$header}">{$view_fields.$header->db_label|capitalize}</a>
 			{else}
-				<a href="javascript:;" style="text-decoration:none;">{$view_fields.$header->db_label|capitalize}</a>
+				<a style="text-decoration:none;">{$view_fields.$header->db_label|capitalize}</a>
 			{/if}
 			
 			{* add arrow if sorting by this column, finish table header tag *}
@@ -108,9 +108,9 @@
 			{elseif $column=="c_enabled"}
 				<td data-column="{$column}">
 					{if !$result.c_enabled}
-						<a href="javascript:;" onclick="" style="color:var(--cerb-color-error-text);text-decoration:none;font-weight:bold;">{'common.no'|devblocks_translate}</a>
+						<a style="color:var(--cerb-color-error-text);text-decoration:none;font-weight:bold;">{'common.no'|devblocks_translate}</a>
 					{else}
-						<a href="javascript:;" onclick="" style="color:var(--cerb-color-text);text-decoration:none;font-weight:normal;">{'common.yes'|devblocks_translate}</a>
+						<a style="color:var(--cerb-color-text);text-decoration:none;font-weight:normal;">{'common.yes'|devblocks_translate}</a>
 					{/if}
 				</td>
 			{elseif $column=="c_author"}
@@ -133,7 +133,7 @@
 				</div>
 				<div style="margin:5px;">
 					{if !empty($plugin)}
-						<div class="badge badge-lightgray" style="padding:3px;"><a href="javascript:;" onclick="genericAjaxPopup('peek','c=config&a=invoke&module=plugins&action=showPopup&plugin_id={$result.c_id}&view_id={$view->id}',null,true,'550');" style="color:var(--cerb-color-text);text-decoration:none;font-weight:bold;">Configure &#x25be;</a></div>
+						<div class="badge badge-lightgray" style="padding:3px;"><a onclick="genericAjaxPopup('peek','c=config&a=invoke&module=plugins&action=showPopup&plugin_id={$result.c_id}&view_id={$view->id}',null,true,'550');" style="color:var(--cerb-color-text);text-decoration:none;font-weight:bold;">Configure &#x25be;</a></div>
 					{/if}
 					
 					{if !$meets_requirements && !empty($plugin)}
@@ -158,28 +158,8 @@
 
 {if $total >= 0}
 <div style="padding-top:5px;">
-	<div style="float:right;">
-		{math assign=fromRow equation="(x*y)+1" x=$view->renderPage y=$view->renderLimit}
-		{math assign=toRow equation="(x-1)+y" x=$fromRow y=$view->renderLimit}
-		{math assign=nextPage equation="x+1" x=$view->renderPage}
-		{math assign=prevPage equation="x-1" x=$view->renderPage}
-		{math assign=lastPage equation="ceil(x/y)-1" x=$total y=$view->renderLimit}
-		
-		{* Sanity checks *}
-		{if $toRow > $total}{assign var=toRow value=$total}{/if}
-		{if $fromRow > $toRow}{assign var=fromRow value=$toRow}{/if}
-		
-		{if $view->renderPage > 0}
-			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=invoke&module=worklists&action=page&id={$view->id}&page=0');">&lt;&lt;</a>
-			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=invoke&module=worklists&action=page&id={$view->id}&page={$prevPage}');">&lt;{'common.previous_short'|devblocks_translate|capitalize}</a>
-		{/if}
-		({'views.showing_from_to'|devblocks_translate:$fromRow:$toRow:$total})
-		{if $toRow < $total}
-			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=invoke&module=worklists&action=page&id={$view->id}&page={$nextPage}');">{'common.next'|devblocks_translate|capitalize}&gt;</a>
-			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=invoke&module=worklists&action=page&id={$view->id}&page={$lastPage}');">&gt;&gt;</a>
-		{/if}
-	</div>
-	
+	{include file="devblocks:cerberusweb.core::internal/views/view_paging.tpl" view=$view}
+
 	<div style="float:left;" id="{$view->id}_actions">
 	</div>
 </div>

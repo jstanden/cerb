@@ -118,7 +118,7 @@
 							{$cf_link_labels = []}
 							{$cf_link_values = []}
 							{CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $custom_field_values.$f_id, $cf_link_labels, $cf_link_values, null, true)}
-							<li><img src="{devblocks_url}c=avatars&context=worker&context_id={$custom_field_values.$f_id}{/devblocks_url}?v=" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;"> <input type="hidden" name="{$field_name}" value="{$custom_field_values.$f_id}">{$cf_link_values._label} <a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
+							<li><img src="{devblocks_url}c=avatars&context=worker&context_id={$custom_field_values.$f_id}{/devblocks_url}?v=" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;"> <input type="hidden" name="{$field_name}" value="{$custom_field_values.$f_id}">{$cf_link_values._label} <a onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
 						{/if}
 					</ul>
 				{elseif $f->type==Model_CustomField::TYPE_LINK}
@@ -128,9 +128,9 @@
 						{if $custom_field_values.$f_id}
 							{$link_dict = DevblocksDictionaryDelegate::instance(['_context' => $f->params.context, 'id' => $custom_field_values.$f_id])}
 							<li>
-								<a href="javascript:;" class="peek-cfield-link no-underline" data-context="{$link_dict->_context}" data-context-id="{$link_dict->id}">{$link_dict->_label}</a>
+								<a class="peek-cfield-link no-underline" data-context="{$link_dict->_context}" data-context-id="{$link_dict->id}">{$link_dict->_label}</a>
 								<input type="hidden" name="{$field_name}" value="{$link_dict->id}">
-								<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>
+								<a onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>
 							</li>
 						{/if}
 					</ul>
@@ -141,7 +141,7 @@
 					{if $custom_field_values.$f_id}
 						{$file_id = $custom_field_values.$f_id}
 						{$file = DAO_Attachment::get($file_id)}
-						<li><input type="hidden" name="{$field_name}" value="{$file->id}"><a href="{devblocks_url}c=files&id={$file->id}&file={$file->name|escape:'url'}{/devblocks_url}" target="_blank" rel="noopener">{$file->name}</a> ({$file->storage_size|devblocks_prettybytes}) <a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
+						<li><input type="hidden" name="{$field_name}" value="{$file->id}"><a href="{devblocks_url}c=files&id={$file->id}&file={$file->name|escape:'url'}{/devblocks_url}" target="_blank" rel="noopener">{$file->name}</a> ({$file->storage_size|devblocks_prettybytes}) <a onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
 					{/if}
 					</ul>
 				{elseif $f->type==Model_CustomField::TYPE_FILES}
@@ -149,7 +149,7 @@
 					<ul class="bubbles chooser-container">
 					{foreach from=$custom_field_values.$f_id item=file_id}
 						{$file = DAO_Attachment::get($file_id)}
-						<li><input type="hidden" name="{$field_name}[]" value="{$file->id}"><a href="{devblocks_url}c=files&id={$file->id}&file={$file->name|escape:'url'}{/devblocks_url}" target="_blank" rel="noopener">{$file->name}</a> ({$file->storage_size|devblocks_prettybytes}) <a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
+						<li><input type="hidden" name="{$field_name}[]" value="{$file->id}"><a href="{devblocks_url}c=files&id={$file->id}&file={$file->name|escape:'url'}{/devblocks_url}" target="_blank" rel="noopener">{$file->name}</a> ({$file->storage_size|devblocks_prettybytes}) <a onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
 					{/foreach}
 					</ul>
 				{elseif $f->type==Model_CustomField::TYPE_DATE}
