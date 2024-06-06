@@ -29,11 +29,11 @@
 					<p>
 						{$sender_address = DAO_Address::get($bucket->getReplyFrom())}
 						{if $sender_address}
-							<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$sender_address->id}">{$sender_address->email}</a> 
+							<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$sender_address->id}">{$sender_address->email}</a>
 							is not configured as a sender address. To send live mail, edit the email address and select <b>"We send email from this address"</b>.
 						{else}
 							The sender address for this bucket does not have a mail transport configured. 
-							To send live email, an administrator must assign a mail transport to the <a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-context-id="{$ticket->bucket_id}">bucket</a> or <a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$ticket->group_id}">group</a>.
+							To send live email, an administrator must assign a mail transport to the <a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-context-id="{$ticket->bucket_id}">bucket</a> or <a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$ticket->group_id}">group</a>.
 						{/if}
 					</p>
 				</div>
@@ -42,7 +42,7 @@
 					<h1>Your message will not be delivered.</h1>
 					<p>
 						This bucket is configured to discard outgoing messages. 
-						To send live email, change the mail transport on the <a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-context-id="{$ticket->bucket_id}">bucket</a> or <a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$ticket->group_id}">group</a>.
+						To send live email, change the mail transport on the <a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-context-id="{$ticket->bucket_id}">bucket</a> or <a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$ticket->group_id}">group</a>.
 					</p>
 				</div>
 			{/if}
@@ -52,24 +52,24 @@
 				<tr>
 					<td width="1%" nowrap="nowrap" align="right" valign="middle"><b>{'message.header.from'|devblocks_translate|capitalize}:</b>&nbsp;</td>
 					<td width="99%" align="left">
-						{$reply_as} &lt;<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$reply_from->id}">{$reply_from->email}</a>&gt; via 
-						<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_MAIL_TRANSPORT}" data-context-id="{$reply_transport->id}">{$reply_transport->name}</a>
+						{$reply_as} &lt;<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$reply_from->id}">{$reply_from->email}</a>&gt; via
+						<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_MAIL_TRANSPORT}" data-context-id="{$reply_transport->id}">{$reply_transport->name}</a>
 					</td>
 				</tr>
 				{/if}
 				
 				<tr>
-					<td width="1%" nowrap="nowrap" align="right" valign="middle"><a href="javascript:;" class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query=""><b>{'message.header.to'|devblocks_translate|capitalize}</b></a>:&nbsp;</td>
+					<td width="1%" nowrap="nowrap" align="right" valign="middle"><a class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query=""><b>{'message.header.to'|devblocks_translate|capitalize}</b></a>:&nbsp;</td>
 					<td width="99%" align="left">
 						<input type="text" size="45" name="to" value="{$draft->params.to}" placeholder="{if $is_forward}These recipients will receive this forwarded message{else}These recipients will automatically be included in all future correspondence as participants{/if}" class="required" style="width:100%;padding:2px;">
 						{if !$is_forward}
 							{if !empty($suggested_recipients)}
 								<div id="reply{$message->id}_suggested">
-									<a href="javascript:;" onclick="$(this).closest('div').remove();">x</a>
+									<a onclick="$(this).closest('div').remove();">x</a>
 									<b>Consider adding these recipients:</b>
 									<ul class="bubbles">
 									{foreach from=$suggested_recipients item=sug name=sugs}
-										<li><a href="javascript:;" class="suggested">{$sug.full_email}</a></li>
+										<li><a class="suggested">{$sug.full_email}</a></li>
 									{/foreach}
 									</ul> 
 								</div>
@@ -79,14 +79,14 @@
 				</tr>
 				
 				<tr>
-					<td width="1%" nowrap="nowrap" align="right" valign="middle"><a href="javascript:;" class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="">{'message.header.cc'|devblocks_translate|capitalize}</a>:&nbsp;</td>
+					<td width="1%" nowrap="nowrap" align="right" valign="middle"><a class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="">{'message.header.cc'|devblocks_translate|capitalize}</a>:&nbsp;</td>
 					<td width="99%" align="left">
 						<input type="text" size="45" name="cc" value="{$draft->params.cc}" placeholder="These recipients will publicly receive a one-time copy of this message" style="width:100%;padding:2px;">
 					</td>
 				</tr>
 				
 				<tr>
-					<td width="1%" nowrap="nowrap" align="right" valign="middle"><a href="javascript:;" class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="">{'message.header.bcc'|devblocks_translate|capitalize}</a>:&nbsp;</td>
+					<td width="1%" nowrap="nowrap" align="right" valign="middle"><a class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="">{'message.header.bcc'|devblocks_translate|capitalize}</a>:&nbsp;</td>
 					<td width="99%" align="left">
 						<input type="text" size="45" name="bcc" value="{$draft->params.bcc}" placeholder="These recipients will secretly receive a one-time copy of this message" style="width:100%;padding:2px;">
 					</td>
@@ -159,12 +159,12 @@
 		{foreach from=$draft->params.file_ids item=file_id}
 			{$file = DAO_Attachment::get($file_id)}
 			{if !empty($file)}
-			<li><input type="hidden" name="file_ids[]" value="{$file_id}">{$file->name} ({$file->storage_size|devblocks_prettybytes}) <a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
+			<li><input type="hidden" name="file_ids[]" value="{$file_id}">{$file->name} ({$file->storage_size|devblocks_prettybytes}) <a onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
 			{/if}
 		{/foreach}
 	{elseif $is_forward && !empty($forward_attachments)}
 		{foreach from=$forward_attachments item=attach}
-			<li><input type="hidden" name="file_ids[]" value="{$attach->id}">{$attach->name} ({$attach->storage_size|devblocks_prettybytes}) <a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
+			<li><input type="hidden" name="file_ids[]" value="{$attach->id}">{$attach->name} ({$attach->storage_size|devblocks_prettybytes}) <a onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
 		{/foreach}
 	{/if}
 	</ul>
@@ -242,7 +242,7 @@
 					<ul class="bubbles chooser-container">
 						{$owner = $workers.{$ticket->owner_id}}
 						{if $owner}
-						<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=worker&context_id={$owner->id}{/devblocks_url}?v={$owner->updated}"><input type="hidden" name="owner_id" value="{$owner->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$owner->id}">{$owner->getName()}</a></li>
+						<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=worker&context_id={$owner->id}{/devblocks_url}?v={$owner->updated}"><input type="hidden" name="owner_id" value="{$owner->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$owner->id}">{$owner->getName()}</a></li>
 						{/if}
 					</ul>
 				</div>
@@ -295,8 +295,8 @@
 	<button type="button" class="send split-left" title="{if $pref_keyboard_shortcuts}(Ctrl+Shift+Enter){/if}"><span class="glyphicons glyphicons-send"></span> {if $is_forward}{'display.ui.forward'|devblocks_translate|capitalize}{else}{'display.ui.send_message'|devblocks_translate}{/if}</button><!--
 	--><button type="button" class="split-right" onclick="$(this).next('ul').toggle();"><span class="glyphicons glyphicons-chevron-down"></span></button>
 	<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;">
-		<li><a href="javascript:;" class="send">{if $is_forward}{'display.ui.forward'|devblocks_translate}{else}{'display.ui.send_message'|devblocks_translate}{/if}</a></li>
-		{if $active_worker->hasPriv('core.mail.save_without_sending')}<li><a href="javascript:;" class="save">{'display.ui.save_nosend'|devblocks_translate}</a></li>{/if}
+		<li><a class="send">{if $is_forward}{'display.ui.forward'|devblocks_translate}{else}{'display.ui.send_message'|devblocks_translate}{/if}</a></li>
+		{if $active_worker->hasPriv('core.mail.save_without_sending')}<li><a class="save">{'display.ui.save_nosend'|devblocks_translate}</a></li>{/if}
 	</ul>
 	<button type="button" class="draft"><span class="glyphicons glyphicons-disk-save"></span> {'display.ui.continue_later'|devblocks_translate}</button>
 	<button type="button" class="discard"><span class="glyphicons glyphicons-circle-remove"></span> {'display.ui.discard'|devblocks_translate|capitalize}</button>

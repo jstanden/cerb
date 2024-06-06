@@ -32,7 +32,7 @@
 
 	<div style="display:inline-block;">
 		{if $draft_worker}
-			<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$draft_worker->id}" style="font-weight:bold;font-size:1.2em;">{$draft_worker->getName()}</a>
+			<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$draft_worker->id}" style="font-weight:bold;font-size:1.2em;">{$draft_worker->getName()}</a>
 			{if $draft_worker->title}
 				{$draft_worker->title}
 			{/if}

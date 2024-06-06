@@ -23,7 +23,7 @@
         </div>
 
         <div>
-            <b>Sender:</b> <a href="javascript:;" class="cerb-peek-trigger" style="font-weight:bold;word-break:break-all;" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$sender->id}">{$sender->email}</a>
+            <b>Sender:</b> <a class="cerb-peek-trigger" style="font-weight:bold;word-break:break-all;" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$sender->id}">{$sender->email}</a>
         </div>
 
         {if $filtering_results.urls.blockedImage}

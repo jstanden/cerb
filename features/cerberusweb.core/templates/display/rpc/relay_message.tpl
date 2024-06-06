@@ -44,7 +44,7 @@
 				{foreach from=$object_addys item=addy}
 				<li email="{$addy->email}" label="{$addy->email}">
 					<div class="item">
-						<a href="javascript:;">{$addy->email}</a><br>
+						<a>{$addy->email}</a><br>
 						<div style="margin-left:10px;">{$worker->getName()}</div>
 					</div>
 				</li>
@@ -139,10 +139,15 @@ $(function() {
 			if($bubbles.find('li input:hidden[value="'+email+'"]').length > 0)
 				return;
 			
-			var $bubble = $('<li/>').text(label);
+			let $bubble = $('<li/>').text(label);
 			$bubble.append($('<input type="hidden">').attr('name','emails[]').attr('value',email));
-			$bubble.append('<a href="javascript:;" onclick="$li=$(this).closest(\'li\');$li.remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>');
-			
+			let $a = $('<a><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($bubble);
+			$a.on('click', function(e) {
+				e.stopPropagation();
+				let $li = $(this).closest('li');
+				$li.remove();
+			});
+
 			$bubbles.append($bubble);
 		});
 		

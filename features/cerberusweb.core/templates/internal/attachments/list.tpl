@@ -7,13 +7,13 @@
 		{foreach from=$attachments item=attachment}
 		<li>
 			<span class="glyphicons glyphicons-paperclip" style="vertical-align:baseline;"></span>
-			<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$attachment->id}" data-profile-url="{devblocks_url}c=files&id={$attachment->id}&name={$attachment->name|devblocks_permalink}{/devblocks_url}">
+			<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$attachment->id}" data-profile-url="{devblocks_url}c=files&id={$attachment->id}&name={$attachment->name|devblocks_permalink}{/devblocks_url}">
 				<b>{$attachment->name}</b>
 				({$attachment->storage_size|devblocks_prettybytes}
 				-
 				{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{'display.convo.unknown_format'|devblocks_translate|capitalize}{/if})
 			</a>
-			<a href="javascript:;" class="cerb-menu-trigger"><span class="glyphicons glyphicons-chevron-down" style="top:4px;"></span></a>
+			<a class="cerb-menu-trigger"><span class="glyphicons glyphicons-chevron-down" style="top:4px;"></span></a>
 		</li>
 		{/foreach}
 	</ul>

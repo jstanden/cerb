@@ -41,7 +41,7 @@
 		</div>
 
 		{if $sender_worker}
-			<a href="javascript:;" class="cerb-peek-trigger" style="font-size:1.2em;font-weight:bold;" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$sender_worker->id}">{if 0 != strlen($sender_worker->getName())}{$sender_worker->getName()}{else}&lt;{$sender_worker->getEmailString()}&gt;{/if}</a>
+			<a class="cerb-peek-trigger" style="font-size:1.2em;font-weight:bold;" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$sender_worker->id}">{if 0 != strlen($sender_worker->getName())}{$sender_worker->getName()}{else}&lt;{$sender_worker->getEmailString()}&gt;{/if}</a>
 			&nbsp;
 			{if $sender_worker->title}
 				{$sender_worker->title}
@@ -49,21 +49,21 @@
 		{else}
 			{if $sender_contact}
 				{$sender_org = $sender_contact->getOrg()}
-				<a href="javascript:;" class="cerb-peek-trigger" style="font-size:1.2em;font-weight:bold;" data-context="{CerberusContexts::CONTEXT_CONTACT}" data-context-id="{$sender_contact->id}">{$sender_contact->getName()}</a>
+				<a class="cerb-peek-trigger" style="font-size:1.2em;font-weight:bold;" data-context="{CerberusContexts::CONTEXT_CONTACT}" data-context-id="{$sender_contact->id}">{$sender_contact->getName()}</a>
 				&nbsp;
 				{if $sender_contact->title}
 					{$sender_contact->title}
 				{/if}
 				{if $sender_contact->title && $sender_org} at {/if}
 				{if $sender_org}
-					<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$sender_org->id}"><b>{$sender_org->name}</b></a>
+					<a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$sender_org->id}"><b>{$sender_org->name}</b></a>
 				{/if}
 			{else}
 				{$sender_org = $sender->getOrg()}
-				<a href="javascript:;" class="cerb-peek-trigger" style="font-size:1.2em;font-weight:bold;" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$sender_id}">&lt;{$sender->email}&gt;</a>
+				<a class="cerb-peek-trigger" style="font-size:1.2em;font-weight:bold;" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$sender_id}">&lt;{$sender->email}&gt;</a>
 				&nbsp;
 				{if $sender_org}
-					<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$sender_org->id}"><b>{$sender_org->name}</b></a>
+					<a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$sender_org->id}"><b>{$sender_org->name}</b></a>
 				{/if}
 			{/if}
 		{/if}
@@ -81,7 +81,7 @@
 				<span style="margin-left:1em;">
 					<span class="glyphicons glyphicons-circle-ok" style="font-size:1.2em;color:rgb(66,131,73);" title="{'common.encrypted.verified'|devblocks_translate|capitalize}"></span>
 					Verified
-					(<a href="javascript:;" class="cerb-search-trigger" data-context="{Context_GpgPublicKey::ID}" data-query="fingerprint:{$message->signed_key_fingerprint}">{$message->signed_key_fingerprint|substr:-16}</a>)
+					(<a class="cerb-search-trigger" data-context="{Context_GpgPublicKey::ID}" data-query="fingerprint:{$message->signed_key_fingerprint}">{$message->signed_key_fingerprint|substr:-16}</a>)
 					{if false && $message->signed_at}
 						(<abbr title="{$message->signed_at|devblocks_date}">{$message->signed_at|devblocks_prettytime}</abbr>)
 					{/if}
@@ -265,11 +265,11 @@
 							<button type="button" class="reply split-left" title="{if 2 == $mail_reply_button}{'display.reply.only_these_recipients'|devblocks_translate}{elseif 1 == $mail_reply_button}{'display.reply.no_quote'|devblocks_translate}{else}{'display.reply.quote'|devblocks_translate}{/if}"><span class="glyphicons glyphicons-send"></span> {'common.reply'|devblocks_translate|capitalize}</button><!--
 						--><button type="button" class="split-right" onclick="$ul=$(this).next('ul');$ul.toggle();if($ul.is(':hidden')) { $ul.blur(); } else { $ul.find('a:first').focus(); }"><span class="glyphicons glyphicons-chevron-down"></span></button>
 							<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;">
-								<li><a href="javascript:;" class="cerb-button-reply-quote">{'display.reply.quote'|devblocks_translate}</a></li>
-								<li><a href="javascript:;" class="cerb-button-reply-only-these">{'display.reply.only_these_recipients'|devblocks_translate}</a></li>
-								<li><a href="javascript:;" class="cerb-button-reply-noquote">{'display.reply.no_quote'|devblocks_translate}</a></li>
-								{if $active_worker->hasPriv('core.display.actions.forward')}<li><a href="javascript:;" class="cerb-button-reply-forward">{'display.ui.forward'|devblocks_translate|capitalize}</a></li>{/if}
-								<li><a href="javascript:;" class="cerb-button-reply-relay" data-message-id="{$message->id}">Relay to worker email</a></li>
+								<li><a class="cerb-button-reply-quote">{'display.reply.quote'|devblocks_translate}</a></li>
+								<li><a class="cerb-button-reply-only-these">{'display.reply.only_these_recipients'|devblocks_translate}</a></li>
+								<li><a class="cerb-button-reply-noquote">{'display.reply.no_quote'|devblocks_translate}</a></li>
+								{if $active_worker->hasPriv('core.display.actions.forward')}<li><a class="cerb-button-reply-forward">{'display.ui.forward'|devblocks_translate|capitalize}</a></li>{/if}
+								<li><a class="cerb-button-reply-relay" data-message-id="{$message->id}">Relay to worker email</a></li>
 							</ul>
 						{/if}
 
