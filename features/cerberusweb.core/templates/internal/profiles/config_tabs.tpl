@@ -19,7 +19,7 @@
 					
 					--><label style="margin:0 5px;"><input type="checkbox" name="profile_tabs[]" value="{$profile_tab->id}" {if in_array($profile_tab->id, $profile_tabs_enabled)}checked="checked"{/if}></label><!--
 					
-					--><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_PROFILE_TAB}" data-context-id="{$profile_tab->id}"><b>{$profile_tab->name}</b></a>
+					--><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_PROFILE_TAB}" data-context-id="{$profile_tab->id}"><b>{$profile_tab->name}</b></a>
 				</div>
 				{/foreach}
 			</div>
@@ -79,8 +79,7 @@ $(function() {
 				.text(e.label)
 				;
 			
-			var $a = $('<a/>')
-				.attr('href', 'javascript:;')
+			$('<a/>')
 				.addClass('cerb-peek-trigger no-underline')
 				.attr('data-context', '{CerberusContexts::CONTEXT_PROFILE_TAB}')
 				.attr('data-context-id', e.id)

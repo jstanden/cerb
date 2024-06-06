@@ -18,7 +18,7 @@
 	<ul class="bubbles chooser-container">
 		{$calendar = DAO_Calendar::get($worker->calendar_id)}
 		{if $calendar}
-			<li><input type="hidden" name="availability_calendar_id" value="{$calendar->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CALENDAR}" data-context-id="{$calendar->id}">{$calendar->name}</a></li>
+			<li><input type="hidden" name="availability_calendar_id" value="{$calendar->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CALENDAR}" data-context-id="{$calendar->id}">{$calendar->name}</a></li>
 		{/if}
 	</ul>
 </fieldset>

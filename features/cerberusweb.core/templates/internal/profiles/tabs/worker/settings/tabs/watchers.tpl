@@ -11,8 +11,8 @@
 <fieldset class="peek">
 <legend>If I'm watching something, send me a notification when these events happen:</legend>
 Select: 
-<a href="javascript:;" onclick="checkAll('{$form_id}',true);">{'common.all'|devblocks_translate|lower}</a>
-| <a href="javascript:;" onclick="checkAll('{$form_id}',false);">{'common.none'|devblocks_translate|lower}</a>
+<a onclick="checkAll('{$form_id}',true);">{'common.all'|devblocks_translate|lower}</a>
+| <a onclick="checkAll('{$form_id}',false);">{'common.none'|devblocks_translate|lower}</a>
 <br>
 
 <ul style="padding:0;margin:10px 0px 10px 0px;margin-top:10px;list-style:none;line-height:150%;">

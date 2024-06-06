@@ -20,7 +20,7 @@
 		<tr>
 			<td></td>
 			<td>
-				<a href="javascript:;" style="font-weight:bold;" onclick="$(this).closest('fieldset').find('table tr:hidden').show();$(this).remove();">show all {$smarty.foreach.notifications.total}</a>
+				<a style="font-weight:bold;" onclick="$(this).closest('fieldset').find('table tr:hidden').show();$(this).remove();">show all {$smarty.foreach.notifications.total}</a>
 			</td>
 		</tr>
 	{/if}

@@ -29,12 +29,12 @@
 	{if $v.value}
 		{if strlen($v.value) > 128 || false != strpos($v.value,"\n")}
 		<span>
-			{$v.value|truncate:128} [<a href="javascript:;" onclick="$(this).parent().next('div').fadeIn().end().hide();">expand</a>]
+			{$v.value|truncate:128} [<a onclick="$(this).parent().next('div').fadeIn().end().hide();">expand</a>]
 		</span>
 		<div style="display:none;">
 			{$v.value|escape|devblocks_hyperlinks|nl2br nofilter}
 			<br>
-			[<a href="javascript:;" onclick="$(this).parent().hide().prev('span').fadeIn();">collapse</a>]
+			[<a onclick="$(this).parent().hide().prev('span').fadeIn();">collapse</a>]
 		</div>
 		{else}
 			{$v.value}
@@ -47,7 +47,7 @@
 	{if isset($workers.{$v.value})}
 		<ul class="bubbles">
 			<li>
-				<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$v.value}">{$workers.{$v.value}->getName()}</a>
+				<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$v.value}">{$workers.{$v.value}->getName()}</a>
 			</li>
 		</ul>
 	{/if}
@@ -77,7 +77,7 @@
 				{/if}
 				
 				{if $link_context_ext->hasOption('cards')}
-					<a href="javascript:;" class="cerb-peek-trigger" data-context="{$v.params.context}" data-context-id="{$v.value}">{$link_meta.name|truncate:64}</a>
+					<a class="cerb-peek-trigger" data-context="{$v.params.context}" data-context-id="{$v.value}">{$link_meta.name|truncate:64}</a>
 				{else}
 					{$link_meta.name|truncate:64}
 				{/if}
@@ -89,14 +89,14 @@
 	{$file_id = $v.value}
 	{$file = DAO_Attachment::get($file_id)}
 	{if $file}
-		<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$file->id}">{$file->name}</a> ({$file->storage_size|devblocks_prettybytes})
+		<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$file->id}">{$file->name}</a> ({$file->storage_size|devblocks_prettybytes})
 	</ul>
 	{/if}
 {elseif $v.type == Model_CustomField::TYPE_FILES}
 	{foreach from=$v.value item=file_id name=files}
 		{$file = DAO_Attachment::get($file_id)}
 		{if $file}
-		<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$file->id}">{$file->name}</a> ({$file->storage_size|devblocks_prettybytes}){if !$smarty.foreach.files.last}, {/if}
+		<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$file->id}">{$file->name}</a> ({$file->storage_size|devblocks_prettybytes}){if !$smarty.foreach.files.last}, {/if}
 		{/if}
 	{/foreach}
 {elseif $v.type == 'context'}
