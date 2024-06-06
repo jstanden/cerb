@@ -8,7 +8,7 @@
 		{foreach from=$sync_accounts item=sync_account}
 		<li>
 			<input type="hidden" name="sync_account_ids[]" value="{$sync_account->id}">
-			<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CONNECTED_ACCOUNT}" data-context-id="{$sync_account->id}">{$sync_account->name}</a>
+			<a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CONNECTED_ACCOUNT}" data-context-id="{$sync_account->id}">{$sync_account->name}</a>
 		</li>
 		{/foreach}
 		{/if}

@@ -25,7 +25,7 @@
 				
 				<ul class="bubbles chooser-container">
 					{if $oauth_app}
-						<li><input type="hidden" name="oauth_app_id" value="{$oauth_app->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{Context_OAuthApp::ID}" data-context-id="{$oauth_app->id}">{$oauth_app->name}</a></li>
+						<li><input type="hidden" name="oauth_app_id" value="{$oauth_app->id}"><a class="cerb-peek-trigger no-underline" data-context="{Context_OAuthApp::ID}" data-context-id="{$oauth_app->id}">{$oauth_app->name}</a></li>
 					{/if}
 				</ul>
 			</td>
@@ -42,7 +42,7 @@
 				
 				<ul class="bubbles chooser-container">
 					{if $worker}
-						<li><input type="hidden" name="worker_id" value="{$worker->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{Context_Worker::ID}" data-context-id="{$worker->id}">{$worker->getName()}</a></li>
+						<li><input type="hidden" name="worker_id" value="{$worker->id}"><a class="cerb-peek-trigger no-underline" data-context="{Context_Worker::ID}" data-context-id="{$worker->id}">{$worker->getName()}</a></li>
 					{/if}
 				</ul>
 			</td>

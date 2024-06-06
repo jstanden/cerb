@@ -22,7 +22,7 @@
 					<input type="checkbox" name="params[auth_sso_service_ids][]" value="{$sso_service->id}" {if array_key_exists($sso_service->id, $sso_services_enabled)}checked="checked"{/if}> 
 				</label>
 				
-				<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CONNECTED_SERVICE}" data-context-id="{$sso_service->id}"><b>{$sso_service->name}</b></a>
+				<a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CONNECTED_SERVICE}" data-context-id="{$sso_service->id}"><b>{$sso_service->name}</b></a>
 			</div>
 			{/foreach}
 		</div>

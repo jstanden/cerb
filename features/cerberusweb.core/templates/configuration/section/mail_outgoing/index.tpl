@@ -27,7 +27,7 @@
 			
 			<ul class="bubbles chooser-container">
 				{if $default_sender}
-					<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=address&context_id={$default_sender->id}{/devblocks_url}?v={$default_sender->updated_at}"><input type="hidden" name="mail_default_from_id" value="{$default_sender->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$default_sender->id}">{$default_sender->getNameWithEmail()}</a></li>
+					<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=address&context_id={$default_sender->id}{/devblocks_url}?v={$default_sender->updated_at}"><input type="hidden" name="mail_default_from_id" value="{$default_sender->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$default_sender->id}">{$default_sender->getNameWithEmail()}</a></li>
 				{/if}
 			</ul>
 		</div>
@@ -72,7 +72,7 @@
 				
 				<ul class="bubbles chooser-container">
 					{if $send_from}
-						<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=address&context_id={$send_from->id}{/devblocks_url}?v={$send_from->updated_at}"><input type="hidden" name="templates[worker_invite][send_from_id]" value="{$send_from->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$send_from->id}">{$send_from->getNameWithEmail()}</a></li>
+						<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=address&context_id={$send_from->id}{/devblocks_url}?v={$send_from->updated_at}"><input type="hidden" name="templates[worker_invite][send_from_id]" value="{$send_from->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$send_from->id}">{$send_from->getNameWithEmail()}</a></li>
 					{/if}
 				</ul>
 			</div>
@@ -124,7 +124,7 @@
 				
 				<ul class="bubbles chooser-container">
 					{if $send_from}
-						<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=address&context_id={$send_from->id}{/devblocks_url}?v={$send_from->updated_at}"><input type="hidden" name="templates[worker_recover][send_from_id]" value="{$send_from->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$send_from->id}">{$send_from->getNameWithEmail()}</a></li>
+						<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=address&context_id={$send_from->id}{/devblocks_url}?v={$send_from->updated_at}"><input type="hidden" name="templates[worker_recover][send_from_id]" value="{$send_from->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$send_from->id}">{$send_from->getNameWithEmail()}</a></li>
 					{/if}
 				</ul>
 			</div>

@@ -56,7 +56,7 @@
 					{/if}
 				</td>
 				<td style="{if $rule->is_sticky}border:1px solid rgb(255,215,0);{else}{/if}padding:5px;">
-					<a href="javascript:;" onclick="genericAjaxPopup('peek','c=config&a=invoke&module=mail_incoming&action=showMailRoutingRulePanel&id={$rule_id}',null,false,'50%');"><b>{$rule->name}</b></a>
+					<a onclick="genericAjaxPopup('peek','c=config&a=invoke&module=mail_incoming&action=showMailRoutingRulePanel&id={$rule_id}',null,false,'50%');"><b>{$rule->name}</b></a>
 					<br>
 					
 					{foreach from=$rule->criteria item=crit key=crit_key}

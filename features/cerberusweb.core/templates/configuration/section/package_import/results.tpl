@@ -21,7 +21,7 @@
 						{$rendered_avatars = $rendered_avatars + 1}
 					{/if}
 					{if $context_mft->hasOption('cards')}
-						<a href="javascript:;" class="cerb-peek-trigger" data-context="{$context_mft->id}" data-context-id="{$record.id}">{$record.label}</a>
+						<a class="cerb-peek-trigger" data-context="{$context_mft->id}" data-context-id="{$record.id}">{$record.label}</a>
 					{else}
 						{$record.label}
 					{/if}
@@ -55,7 +55,7 @@
 						{$rendered_avatars = $rendered_avatars + 1}
 					{/if}
 					{if $context_mft->hasOption('cards')}
-						<a href="javascript:;" class="cerb-peek-trigger" data-context="{$context_mft->id}" data-context-id="{$record.id}">{$record.label}</a>
+						<a class="cerb-peek-trigger" data-context="{$context_mft->id}" data-context-id="{$record.id}">{$record.label}</a>
 					{else}
 						{$record.label}
 					{/if}

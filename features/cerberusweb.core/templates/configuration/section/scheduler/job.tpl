@@ -13,7 +13,7 @@
 			<span class="glyphicons glyphicons-circle-remove" style="font-size:16px;color:rgb(185,185,185);"></span>
 		{/if}
 	{/if}
-	<a href="javascript:;" onclick="toggleDiv('jobedit_{$jobdiv}');">{$job->manifest->name}</a>
+	<a onclick="toggleDiv('jobedit_{$jobdiv}');">{$job->manifest->name}</a>
 </h3>
 
 <div style="display:block;border:1px solid var(--cerb-color-background-contrast-200);background-color:var(--cerb-color-background);padding:5px;margin:5px;">
