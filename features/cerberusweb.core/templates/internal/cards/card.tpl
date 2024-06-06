@@ -50,7 +50,7 @@
             </div>
             {if $active_worker->is_superuser}
                 <div data-cerb-toolbar-setup style="display:inline-block;vertical-align:middle;">
-                    <a href="javascript:" data-context="{CerberusContexts::CONTEXT_TOOLBAR}" data-context-id="record.card" data-edit="true"><span class="glyphicons glyphicons-cogwheel" style="color:lightgray;"></span></a>
+                    <a data-context="{CerberusContexts::CONTEXT_TOOLBAR}" data-context-id="record.card" data-edit="true"><span class="glyphicons glyphicons-cogwheel" style="color:lightgray;"></span></a>
                 </div>
             {/if}
         </div>

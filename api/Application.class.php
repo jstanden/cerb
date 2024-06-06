@@ -1865,7 +1865,7 @@ class CerberusContexts {
 							$url = 'ctx://' . $uri_parts['context'] . ':' . $uri_parts['context_id'];
 						
 						if(($parts = self::parseContextUrl($url))) {
-							$vars[$token] = sprintf('<a href="javascript:;" class="cerb-peek-trigger subject" data-context="%s" data-context-id="%d" data-profile-url="%s">%s</a>',
+							$vars[$token] = sprintf('<a class="cerb-peek-trigger subject" data-context="%s" data-context-id="%d" data-profile-url="%s">%s</a>',
 								$parts['context'],
 								$parts['id'],
 								$parts['url'],

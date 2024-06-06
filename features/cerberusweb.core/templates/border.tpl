@@ -15,9 +15,9 @@
 	</div>
 	<div style="flex:1 1 250px;text-align:right;padding-bottom:5px;margin-top:auto;">
 			<img src="{devblocks_url}c=avatars&context=worker&context_id={$active_worker->id}{/devblocks_url}?v={$active_worker->updated}" style="height:1.75em;width:1.75em;border-radius:0.875em;vertical-align:middle;">
-			<b><a href="javascript:;" id="lnkSignedIn" data-worker-id="{$active_worker->id}" data-worker-name="{$active_worker->getName()}">{$active_worker->getName()}</a></b><span class="glyphicons glyphicons-chevron-down" style="margin:2px 0 0 2px;vertical-align:baseline;"></span>
+			<b><a id="lnkSignedIn" data-worker-id="{$active_worker->id}" data-worker-name="{$active_worker->getName()}">{$active_worker->getName()}</a></b><span class="glyphicons glyphicons-chevron-down" style="margin:2px 0 0 2px;vertical-align:baseline;"></span>
 			{if $visit->isImposter()}
-				[ <a href="javascript:;" id="aImposter">{$visit->getImposter()->getName()}</a> ]
+				[ <a id="aImposter">{$visit->getImposter()->getName()}</a> ]
 			{/if}
 
 			{if $pref_dark_mode}
@@ -26,16 +26,16 @@
 				<button type="button" id="cerb-theme" data-theme="light" title="Switch to dark mode" style="margin:0 0 0 5px;vertical-align:middle;"><span class="glyphicons glyphicons-brightness-increase"></span></button>
 			{/if}
 			
-			<span id="badgeNotifications"><a href="javascript:;"></a></span>
+			<span id="badgeNotifications"><a></a></span>
 			
 			<ul id="menuSignedIn" class="cerb-popupmenu cerb-float">
 				<li><a href="{devblocks_url}c=profiles&w=worker&me=me{/devblocks_url}">{'header.my_profile'|devblocks_translate|lower}</a></li>
-				<li><a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$active_worker->id}">{'header.my_card'|devblocks_translate|lower}</a></li>
+				<li><a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$active_worker->id}">{'header.my_card'|devblocks_translate|lower}</a></li>
 				<li><a href="{devblocks_url}c=profiles&w=worker&me=me&tab=settings{/devblocks_url}">{'common.settings'|devblocks_translate|lower}</a></li>
-				<li><a href="javascript:;" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_NOTIFICATION}" data-layer="notifications_me" data-query="*" data-query-required="worker.id:{$active_worker->id}">{'home.tab.my_notifications'|devblocks_translate|lower}</a></li>
-				<li><a href="javascript:;" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_ACTIVITY_LOG}" data-query="actor.worker:(id:{$active_worker->id}) created:&quot;-1 day&quot;">{'common.activity_log'|devblocks_translate|lower}</a></li>
-				<li><a href="javascript:;" data-cerb-action="signout">{'header.signoff'|devblocks_translate|lower}</a></li>
-				<li><a href="javascript:;" data-cerb-action="signout-all">{'header.signoff.all.my'|devblocks_translate|lower}</a></li>
+				<li><a class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_NOTIFICATION}" data-layer="notifications_me" data-query="*" data-query-required="worker.id:{$active_worker->id}">{'home.tab.my_notifications'|devblocks_translate|lower}</a></li>
+				<li><a class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_ACTIVITY_LOG}" data-query="actor.worker:(id:{$active_worker->id}) created:&quot;-1 day&quot;">{'common.activity_log'|devblocks_translate|lower}</a></li>
+				<li><a data-cerb-action="signout">{'header.signoff'|devblocks_translate|lower}</a></li>
+				<li><a data-cerb-action="signout-all">{'header.signoff.all.my'|devblocks_translate|lower}</a></li>
 			</ul>
 	</div>
 </div>
@@ -72,7 +72,7 @@ $(function(e) {
 
 			var $link = $(this).find('a:first');
 			
-			if($link.attr('href') !== 'javascript:;') {
+			if($link.attr('href') && '#' !== $link.attr('href')) {
 				window.location.href = $link.attr('href');
 			} else {
 				$link.click();
@@ -83,6 +83,7 @@ $(function(e) {
 	
 	$('#lnkSignedIn')
 		.click(function(e) {
+			e.stopPropagation();
 			if($menu.is(':visible')) {
 				$menu.hide();
 				return;

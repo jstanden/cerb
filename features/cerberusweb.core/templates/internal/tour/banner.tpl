@@ -11,8 +11,7 @@
 				<input type="hidden" name="module" value="worker">
 				<input type="hidden" name="action" value="stopTour">
 				<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
-				<a href="javascript:;" onclick="$('#tourDiv').fadeOut();genericAjaxPost($('#formTour'));">hide this</a>
-				&nbsp;
+				<a data-cerb-tour-hide>hide this</a>
 			</form>
 		</td>
 	</tr>
@@ -37,6 +36,13 @@
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	let $tour = $('#tourDiv');
+
+	$tour.find('[data-cerb-tour-hide]').on('click', function(e) {
+		e.stopPropagation();
+		$('#tourDiv').fadeOut();
+		genericAjaxPost($('#formTour'));
+	});
+
 	let $tooltip = $('<span/>')
 		.tooltip({
 		})

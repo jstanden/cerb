@@ -34,7 +34,7 @@
 	{/if}
 
 	<li class="tour-navmenu-search{if $page->id=='core.page.search'} selected{/if}" style="float:right;">
-		<a href="javascript:;" class="submenu" title="{{'common.search'|devblocks_translate|capitalize}} (/)"><span class="glyphicons glyphicons-search"></span> <span class="glyphicons glyphicons-chevron-down" style="{if $page->id=='core.page.search'}color:white;{else}{/if}"></span></a>
+		<a class="submenu" title="{{'common.search'|devblocks_translate|capitalize}} (/)"><span class="glyphicons glyphicons-search"></span> <span class="glyphicons glyphicons-chevron-down" style="{if $page->id=='core.page.search'}color:white;{else}{/if}"></span></a>
 	</li>
 </ul>
 <div style="clear:both;" class="navmenu-submenu cerb-no-print"></div>
@@ -144,7 +144,7 @@ $(function() {
 		
 		var $link = $target.find('a').first();
 		
-		if($link.length > 0)
+		if($link.length > 0 && $link.attr('href'))
 			window.location.href = $link.attr('href');
 	});
 
