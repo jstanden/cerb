@@ -24,10 +24,10 @@
 	</legend>
 	
 	<div style="padding-bottom:5px;">
-	<a href="javascript:;" onclick="genericAjaxGet('divKbWidget{$widget->id}','c=pages&a=invokeWidget&widget_id={$widget->id}&action=changeCategory&category_id=0');">Top</a> ::
+	<a onclick="genericAjaxGet('divKbWidget{$widget->id}','c=pages&a=invokeWidget&widget_id={$widget->id}&action=changeCategory&category_id=0');">Top</a> ::
 	{if !empty($breadcrumb)}
 		{foreach from=$breadcrumb item=bread_id}
-			<a href="javascript:;" onclick="genericAjaxGet('divKbWidget{$widget->id}','c=pages&a=invokeWidget&widget_id={$widget->id}&action=changeCategory&category_id={$bread_id}');">{$categories.$bread_id->name}</a> :
+			<a onclick="genericAjaxGet('divKbWidget{$widget->id}','c=pages&a=invokeWidget&widget_id={$widget->id}&action=changeCategory&category_id={$bread_id}');">{$categories.$bread_id->name}</a> :
 		{/foreach} 
 	{/if}
 	</div>
@@ -39,12 +39,12 @@
 		<td width="50%" valign="top">
 		{foreach from=$tree.$root_id item=count key=cat_id name=kbcats}
 			<span class="glyphicons glyphicons-folder-closed" style="color:rgb(80,80,80);"></span> 
-			<a href="javascript:;" onclick="genericAjaxGet('divKbWidget{$widget->id}','c=pages&a=invokeWidget&widget_id={$widget->id}&action=changeCategory&category_id={$cat_id}');" style="font-weight:bold;">{$categories.$cat_id->name}</a> ({$count|string_format:"%d"})<br>
+			<a onclick="genericAjaxGet('divKbWidget{$widget->id}','c=pages&a=invokeWidget&widget_id={$widget->id}&action=changeCategory&category_id={$cat_id}');" style="font-weight:bold;">{$categories.$cat_id->name}</a> ({$count|string_format:"%d"})<br>
 		
 			{if !empty($tree.$cat_id)}
 				&nbsp; &nbsp; 
 				{foreach from=$tree.$cat_id item=count key=child_id name=subcats}
-					<a href="javascript:;" onclick="genericAjaxGet('divKbWidget{$widget->id}','c=pages&a=invokeWidget&widget_id={$widget->id}&action=changeCategory&category_id={$child_id}');">{$categories.$child_id->name}</a>{if !$smarty.foreach.subcats.last}, {/if}
+					<a onclick="genericAjaxGet('divKbWidget{$widget->id}','c=pages&a=invokeWidget&widget_id={$widget->id}&action=changeCategory&category_id={$child_id}');">{$categories.$child_id->name}</a>{if !$smarty.foreach.subcats.last}, {/if}
 				{/foreach}
 				<br>
 			{/if}
