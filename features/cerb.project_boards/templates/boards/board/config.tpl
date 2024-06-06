@@ -6,7 +6,7 @@
 <ul class="bubbles chooser-container">
 	{$board = DAO_ProjectBoard::get($workspace_tab->params.board_id)}
 	{if $board}
-		<li><input type="hidden" name="params[board_id]" value="{$board->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{Context_ProjectBoard::ID}" data-context-id="{$board->id}">{$board->name}</a></li>
+		<li><input type="hidden" name="params[board_id]" value="{$board->id}"><a class="cerb-peek-trigger no-underline" data-context="{Context_ProjectBoard::ID}" data-context-id="{$board->id}">{$board->name}</a></li>
 	{/if}
 </ul>
 

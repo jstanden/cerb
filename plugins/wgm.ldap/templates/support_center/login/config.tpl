@@ -4,7 +4,7 @@
 <ul class="bubbles chooser-container">
 	{$service = DAO_ConnectedService::get($ldap_service_id)}
 	{if $service}
-		<li><input type="hidden" name="params[ldap_service_id]" value="{$service->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CONNECTED_SERVICE}" data-context-id="{$service->id}">{$service->name}</a></li>
+		<li><input type="hidden" name="params[ldap_service_id]" value="{$service->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CONNECTED_SERVICE}" data-context-id="{$service->id}">{$service->name}</a></li>
 	{/if}
 </ul>
 <br>

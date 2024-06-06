@@ -9,7 +9,7 @@
 		
 		<span style="margin-left:10px;">
 			<ul class="bubbles">
-				<li><a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR}" data-context-id="{$calendar->id}">{$calendar->name}</a></li>
+				<li><a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR}" data-context-id="{$calendar->id}">{$calendar->name}</a></li>
 			</ul> 
 		</span>
 	</div>
@@ -50,15 +50,15 @@
 			<div class="day_header">
 				{if $calendar->params.manual_disabled}
 					{if $calendar_properties.today == $day.timestamp}
-					<a href="javascript:;">Today, {$calendar_properties.today|devblocks_date:"M d"}</a>
+					<a>Today, {$calendar_properties.today|devblocks_date:"M d"}</a>
 					{else}
-					<a href="javascript:;">{$day.dom}</a>
+					<a>{$day.dom}</a>
 					{/if}
 				{else}
 					{if $calendar_properties.today == $day.timestamp}
-					<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR_EVENT}" data-context-id="0" data-edit="calendar.id:{$calendar->id} start:{$day.timestamp}">Today, {$calendar_properties.today|devblocks_date:"M d"}</a>
+					<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR_EVENT}" data-context-id="0" data-edit="calendar.id:{$calendar->id} start:{$day.timestamp}">Today, {$calendar_properties.today|devblocks_date:"M d"}</a>
 					{else}
-					<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR_EVENT}" data-context-id="0" data-edit="calendar.id:{$calendar->id} start:{$day.timestamp}">{$day.dom}</a>
+					<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR_EVENT}" data-context-id="0" data-edit="calendar.id:{$calendar->id} start:{$day.timestamp}">{$day.dom}</a>
 					{/if}
 				{/if}
 			</div>
@@ -66,7 +66,7 @@
 				{if is_array($calendar_events) && array_key_exists($day.timestamp, $calendar_events)}
 					{foreach from=$calendar_events.{$day.timestamp} item=event}
 						<div class="event" style="background-color:{$event.color|default:'#C8C8C8'};" link="{$event.link}">
-							<a href="javascript:;" class="cerb-peek-trigger" data-context="{$event.context}" data-context-id="{$event.context_id}">
+							<a class="cerb-peek-trigger" data-context="{$event.context}" data-context-id="{$event.context_id}">
 							{$event.label}
 							</a>
 							

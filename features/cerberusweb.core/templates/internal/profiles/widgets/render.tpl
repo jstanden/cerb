@@ -5,7 +5,7 @@
 	<div>
 		<div class="cerb-profile-widget--header {if $active_worker->is_superuser}cerb-draggable{/if}">
 			<b>
-				<a href="javascript:;" class="cerb-profile-widget--link no-underline">
+				<a class="cerb-profile-widget--link no-underline">
                     {if $widget_is_hidden}<span class="glyphicons glyphicons-eye-close"></span> {/if}{$widget->name}<!--
                     --><span class="glyphicons glyphicons-chevron-down"></span>
                 </a>
@@ -19,18 +19,18 @@
 				{if $active_worker->is_superuser}
 				<li class="cerb-profile-widget-menu--edit" data-context="{CerberusContexts::CONTEXT_PROFILE_WIDGET}" data-context-id="{$widget->id}" data-edit="true" data-width="75%">
 					<div>
-						<a href="javascript:;">{'common.edit'|devblocks_translate|capitalize}</a>
+						<a>{'common.edit'|devblocks_translate|capitalize}</a>
 					</div>
 				</li>
 				<li class="cerb-profile-widget-menu--export-widget">
 					<div>
-						<a href="javascript:;">{'common.export.widget'|devblocks_translate|capitalize}</a>
+						<a>{'common.export.widget'|devblocks_translate|capitalize}</a>
 					</div>
 				</li>
 				{/if}
 				<li class="cerb-profile-widget-menu--refresh">
 					<div>
-						<a href="javascript:;">{'common.refresh'|devblocks_translate|capitalize}</a>
+						<a>{'common.refresh'|devblocks_translate|capitalize}</a>
 					</div>
 				</li>
 			</ul>

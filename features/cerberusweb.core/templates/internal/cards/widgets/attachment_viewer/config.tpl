@@ -3,7 +3,7 @@
     <fieldset class="peek">
         <legend>Display this attachment:</legend>
 
-        <b><a href="javascript:;" class="cerb-chooser" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-single="true">ID</a>:</b>
+        <b><a class="cerb-chooser" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-single="true">ID</a>:</b>
 
         <div style="margin-left:10px;">
             <input type="text" name="params[attachment_id]" value="{$widget->extension_params.attachment_id}" class="placeholders" style="width:95%;padding:5px;border-radius:5px;" autocomplete="off" spellcheck="false">

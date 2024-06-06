@@ -1,4 +1,4 @@
-<form action="javascript:;" method="post" id="frmCardWidgetExport">
+<form action="#" method="post" id="frmCardWidgetExport">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <div>

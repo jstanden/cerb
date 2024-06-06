@@ -5,7 +5,7 @@
 {$tab_uniqid = uniqid()}
 
 {if $tab_is_editable}
-<form action="javascript:;" method="post" style="margin:5px;" id="frm{$tab_uniqid}">
+<form action="#" method="post" style="margin:5px;" id="frm{$tab_uniqid}">
 	<button type="button"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
 </form>
 {/if}
@@ -15,7 +15,7 @@
 {foreach from=$buckets item=bucket key=bucket_id}
 <fieldset class="peek" style="margin-bottom:0;display:inline-block;vertical-align:top;break-inside:avoid-column;">
 	<legend>
-		<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-context-id="{$bucket->id}">{$bucket->name}</a>
+		<a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-context-id="{$bucket->id}">{$bucket->name}</a>
 	</legend>
 	
 	<div style="padding-left:10px;">
@@ -27,7 +27,7 @@
 		{if $worker}
 		<div style="width:250px;display:block;margin:0 10px 10px 5px;">
 			<label>
-				<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$worker->id}"><b>{$worker->getName()}</b></a> {if $worker->title}({$worker->title}){/if}
+				<a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$worker->id}"><b>{$worker->getName()}</b></a> {if $worker->title}({$worker->title}){/if}
 			</label>
 			
 			<div style="margin-top:5px;position:relative;margin-left:5px;width:250px;height:10px;background-color:var(--cerb-color-background-contrast-230);border-radius:10px;">

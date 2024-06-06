@@ -6,7 +6,7 @@
 	<div>
 		<div class="cerb-workspace-widget--header {if $is_widget_writeable}cerb-draggable{/if}">
 			<b>
-				<a href="javascript:;" class="cerb-workspace-widget--link no-underline">
+				<a class="cerb-workspace-widget--link no-underline">
 					{if $widget_is_hidden}<span class="glyphicons glyphicons-eye-close"></span> {/if}{$widget->label}<!--
 					--><span class="glyphicons glyphicons-chevron-down"></span>
 				</a>
@@ -20,12 +20,12 @@
 				{if $is_widget_writeable}
 				<li class="cerb-workspace-widget-menu--edit" data-context="{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}" data-context-id="{$widget->id}" data-edit="true" data-width="75%">
 					<div>
-						<a href="javascript:;">{'common.edit'|devblocks_translate|capitalize}</a>
+						<a>{'common.edit'|devblocks_translate|capitalize}</a>
 					</div>
 				</li>
 				<li class="cerb-workspace-widget-menu--export-widget">
 					<div>
-						<a href="javascript:;">{'common.export.widget'|devblocks_translate|capitalize}</a>
+						<a>{'common.export.widget'|devblocks_translate|capitalize}</a>
 					</div>
 				</li>
 				{/if}
@@ -33,14 +33,14 @@
 				{if $widget_extension && $widget_extension instanceof ICerbWorkspaceWidget_ExportData}
 				<li class="cerb-workspace-widget-menu--export-data">
 					<div>
-						<a href="javascript:;">{'common.export.data'|devblocks_translate|capitalize}</a>
+						<a>{'common.export.data'|devblocks_translate|capitalize}</a>
 					</div>
 				</li>
 				{/if}
 				
 				<li class="cerb-workspace-widget-menu--refresh">
 					<div>
-						<a href="javascript:;">{'common.refresh'|devblocks_translate|capitalize}</a>
+						<a>{'common.refresh'|devblocks_translate|capitalize}</a>
 					</div>
 				</li>
 			</ul>

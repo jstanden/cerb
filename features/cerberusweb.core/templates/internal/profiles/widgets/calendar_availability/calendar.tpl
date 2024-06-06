@@ -6,7 +6,7 @@
 		{if !empty($calendar)}
 			<span style="margin-left:10px;">
 				<ul class="bubbles">
-					<li><a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR}" data-context-id="{$calendar->id}">{$calendar->name}</a></li>
+					<li><a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR}" data-context-id="{$calendar->id}">{$calendar->name}</a></li>
 				</ul> 
 			</span>
 		{else}
@@ -59,9 +59,9 @@
 		<td class="{if $is_today}today{/if}{if $day.is_padding} inactive{/if}{if $smarty.foreach.days.last} cellborder_r{/if}{if $smarty.foreach.weeks.last} cellborder_b{/if}">
 			<div class="day_header">
 				{if $is_today}
-				<a href="javascript:;" onclick="">Today, {$calendar_properties.today|devblocks_date:"M d"}</a>
+				<a onclick="">Today, {$calendar_properties.today|devblocks_date:"M d"}</a>
 				{else}
-				<a href="javascript:;" onclick="">{$day.dom}</a>
+				<a onclick="">{$day.dom}</a>
 				{/if}
 			</div>
 			<div class="day_contents">

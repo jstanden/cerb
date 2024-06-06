@@ -52,7 +52,7 @@ This mail transport delivers mail to an <a href="http://en.wikipedia.org/wiki/Si
 				{if $model && $model->params.connected_account_id}
 					{$account = DAO_ConnectedAccount::get($model->params.connected_account_id)}
 					{if $account}
-						<li><input type="hidden" name="params[{$extension->id}][connected_account_id]" value="{$account->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{Context_ConnectedAccount::ID}" data-context-id="{$account->id}">{$account->name}</a></li>
+						<li><input type="hidden" name="params[{$extension->id}][connected_account_id]" value="{$account->id}"><a class="cerb-peek-trigger no-underline" data-context="{Context_ConnectedAccount::ID}" data-context-id="{$account->id}">{$account->name}</a></li>
 					{/if}
 				{/if}
 			</ul>

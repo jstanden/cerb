@@ -42,7 +42,7 @@
 						{/if}
 						
 						{if $context_id}
-						<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{$context}" data-context-id="{$context_id}">{$value}</a>
+						<a class="cerb-peek-trigger no-underline" data-context="{$context}" data-context-id="{$context_id}">{$value}</a>
 						{else}
 						{$value}
 						{/if}
@@ -57,7 +57,7 @@
 						{/if}
 						
 						{if $context}
-						<a href="javascript:;" class="cerb-search-trigger no-underline" data-context="{$context}" data-query="{$type_options.query}"><abbr>{$value}</abbr></a>
+						<a class="cerb-search-trigger no-underline" data-context="{$context}" data-query="{$type_options.query}"><abbr>{$value}</abbr></a>
 						{else}
 						{$value}
 						{/if}
@@ -70,7 +70,7 @@
 						{$context_id_key = $type_options.context_id_key}
 						{$context_id = $row.$context_id_key}
 						{if $context_id}
-						<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{$context}" data-context-id="{$context_id}">{$value}</a>
+						<a class="cerb-peek-trigger no-underline" data-context="{$context}" data-context-id="{$context_id}">{$value}</a>
 						{else}
 						{$value}
 						{/if}
