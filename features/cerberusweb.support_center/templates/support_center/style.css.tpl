@@ -9,6 +9,8 @@ FORM {
 }
 
 A {
+	cursor:pointer;
+	text-decoration:underline;
 	color:rgb(50,50,50);
 }
 

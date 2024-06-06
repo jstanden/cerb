@@ -9,19 +9,19 @@
 	<div id="{$uniqid}" class="cerb-filter-created" style="padding:5px;display:block;">
 		<div>
 			<b>{'common.created'|devblocks_translate|capitalize}:</b>
-			<a href="javascript:;" data-preset="today to now">1d</a>
+			<a data-preset="today to now">1d</a>
 			| 
-			<a href="javascript:;" data-preset="today -1 week">1wk</a>
+			<a data-preset="today -1 week">1wk</a>
 			| 
-			<a href="javascript:;" data-preset="first day of this month -1 month">1mo</a>
+			<a data-preset="first day of this month -1 month">1mo</a>
 			| 
-			<a href="javascript:;" data-preset="first day of this month -6 months">6mo</a>
+			<a data-preset="first day of this month -6 months">6mo</a>
 			| 
-			<a href="javascript:;" data-preset="first day of this month -1 year">1yr</a>
+			<a data-preset="first day of this month -1 year">1yr</a>
 			| 
-			<a href="javascript:;" data-preset="Jan 1 to now">ytd</a>
+			<a data-preset="Jan 1 to now">ytd</a>
 			| 
-			<a href="javascript:;" data-preset="big bang to now">all</a>
+			<a data-preset="big bang to now">all</a>
 		</div>
 		<div>
 			<input type="text" name="prompts[created]" value="{$prompts.created}" placeholder="e.g. -1 year to now" size="32" style="width:95%;">
