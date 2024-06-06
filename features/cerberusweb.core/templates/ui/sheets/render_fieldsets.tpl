@@ -54,12 +54,12 @@
 
 	{if $layout.paging && $paging && $paging.page.of > 1}
 		<div style="text-align:right;margin-top:5px;">
-			{if array_key_exists('first', $paging.page)}<a href="javascript:;" class="cerb-paging" data-page="{$paging.page.first}">&lt;&lt;</a>{/if}
-			{if array_key_exists('prev', $paging.page)}<a href="javascript:;" class="cerb-paging" data-page="{$paging.page.prev}">&lt;{'common.previous_short'|devblocks_translate|capitalize}</a>{/if}
+			{if array_key_exists('first', $paging.page)}<a class="cerb-paging" data-page="{$paging.page.first}">&lt;&lt;</a>{/if}
+			{if array_key_exists('prev', $paging.page)}<a class="cerb-paging" data-page="{$paging.page.prev}">&lt;{'common.previous_short'|devblocks_translate|capitalize}</a>{/if}
 			(Showing {if $paging.page.rows.from==$paging.page.rows.to}{$paging.page.rows.from}{else}{$paging.page.rows.from}-{$paging.page.rows.to}{/if}
 			of {$paging.page.rows.of})
-			{if array_key_exists('next', $paging.page)}<a href="javascript:;" class="cerb-paging" data-page="{$paging.page.next}">{'common.next'|devblocks_translate|capitalize}&gt;</a>{/if}
-			{if array_key_exists('last', $paging.page)}<a href="javascript:;" class="cerb-paging" data-page="{$paging.page.last}">&gt;&gt;</a>{/if}
+			{if array_key_exists('next', $paging.page)}<a class="cerb-paging" data-page="{$paging.page.next}">{'common.next'|devblocks_translate|capitalize}&gt;</a>{/if}
+			{if array_key_exists('last', $paging.page)}<a class="cerb-paging" data-page="{$paging.page.last}">&gt;&gt;</a>{/if}
 		</div>
 	{/if}
 </div>
