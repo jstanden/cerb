@@ -6,6 +6,7 @@ use Symfony\Component\Mailer\Exception\TransportException;
 use Symfony\Component\Mailer\Mailer;
 use Symfony\Component\Mailer\Transport\Smtp\Auth\XOAuth2Authenticator;
 use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
+use Symfony\Component\Mailer\Transport\Smtp\Stream\SocketStream;
 use Symfony\Component\Mime\Exception\RfcComplianceException;
 
 class CerbMailTransport_Smtp extends Extension_MailTransport {
@@ -46,6 +47,7 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 			'port' => $port,
 			'enc' => $encryption,
 			'timeout' => 10,
+			'ssl_disable_validation' => $params['ssl_disable_validation'] ?? 0,
 		];
 		
 		if($auth_enabled) {
@@ -111,6 +113,7 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 			'max_sends' => $model->params['max_sends'] ?? null,
 			'timeout' => $model->params['timeout'] ?? null,
 			'connected_account_id' => $model->params['connected_account_id'] ?? null,
+			'ssl_disable_validation' => $model->params['ssl_disable_validation'] ?? 0,
 		];
 		
 		// Error messages are inherited
@@ -167,6 +170,7 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 		$smtp_max_sends = intval($options['max_sends'] ?? 20);
 		$smtp_timeout = intval($options['timeout']) ?? 30;
 		$smtp_connected_account_id = intval($options['connected_account_id'] ?? 0);
+		$ssl_disable_validation = $options['ssl_disable_validation'] ?? 0;
 		
 		/*
 		 * [JAS]: We'll cache connection info hashed by params and hold a persistent
@@ -188,6 +192,17 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 		if(!isset($connections[$hash])) {
 			$smtp = new EsmtpTransport($smtp_host, $smtp_port, $smtp_enc == 'SSL');
 			
+			// Optionally disable SSL validation
+			if($ssl_disable_validation) {
+				if(($stream = $smtp->getStream())) { /* @var $stream SocketStream */
+					$stream_options = $stream->getStreamOptions();
+					$stream_options['ssl']['allow_self_signed'] = true;
+					$stream_options['ssl']['verify_peer'] = false;
+					$stream_options['ssl']['verify_peer_name'] = false;
+					$stream->setStreamOptions($stream_options);
+				}
+			}
+
 			// Is XOAUTH2 enabled?
 			if($smtp_user && $smtp_connected_account_id) {
 				$connected_account = DAO_ConnectedAccount::get($smtp_connected_account_id);

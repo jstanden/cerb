@@ -25,6 +25,13 @@ This mail transport delivers mail to an <a href="http://en.wikipedia.org/wiki/Si
 <label><input type="radio" name="params[{$extension->id}][encryption]" value="SSL" {if $model->params.encryption == 'SSL'}checked{/if}> SSL</label><br>
 <br>
 
+<b>SSL Validation:</b>
+<div>
+	<label><input type="radio" name="params[{$extension->id}][ssl_disable_validation]" value="0" {if empty($model->params.ssl_disable_validation) || $model->params.ssl_disable_validation == 0}checked{/if}> Strict (recommended)</label>
+	<label><input type="radio" name="params[{$extension->id}][ssl_disable_validation]" value="1" {if $model->params.ssl_disable_validation == 1}checked{/if}> {{'common.disabled'|devblocks_translate|capitalize}}</label>
+</div>
+<br>
+
 <b>Authentication:</b> (optional)
 <div style="margin-bottom:10px;">
 	<label><input type="checkbox" name="params[{$extension->id}][auth_enabled]" value="1" class="peek-smtp-auth" {if $model->params.auth_enabled}checked{/if}> Enabled</label><br>
