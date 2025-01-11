@@ -3744,7 +3744,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		$headers = [];
 		
 		foreach($_SERVER as $k => $v) {
-			if('HTTP_' == substr($k, 0, 5)) {
+			if(str_starts_with($k, 'HTTP_')) {
 				$headers[DevblocksPlatform::strLower(substr($k, 5))] = $v;
 			}
 		}

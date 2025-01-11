@@ -51,7 +51,7 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $frm = $('#frmSetupSecurity');
+	let $frm = $('#frmSetupSecurity');
 
 	Devblocks.formDisableSubmit($frm);
 	

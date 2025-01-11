@@ -66,7 +66,7 @@ class FunctionAction extends AbstractAction {
 				throw new Exception_DevblocksAutomationError($error);
 			}
 			
-			if (false == ($automation = DAO_Automation::getByUri($params['uri'], AutomationTrigger_AutomationFunction::ID))) {
+			if (!($automation = DAO_Automation::getByUri($params['uri'], AutomationTrigger_AutomationFunction::ID))) {
 				throw new Exception_DevblocksAutomationError(sprintf('Function (%s) must be an automation.function', $params['uri']));
 			}
 			
@@ -74,7 +74,7 @@ class FunctionAction extends AbstractAction {
 				'inputs' => $inputs,
 			];
 			
-			if (false == ($automation_results = $automator->executeScript($automation, $initial_state, $error))) {
+			if (!($automation_results = $automator->executeScript($automation, $initial_state, $error))) {
 				throw new Exception_DevblocksAutomationError($error);
 			}
 			

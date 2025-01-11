@@ -62,7 +62,7 @@ class SheetAwait extends AbstractAwait {
 		if(is_array($sheet_data) && array_key_exists('automation', $sheet_data)) {
 			$automation_uri = $sheet_data['automation']['uri'] ?? null;
 			
-			if(!is_null($automation_uri) && false != ($callback = DAO_Automation::getByUri($automation_uri))) {
+			if(!is_null($automation_uri) && ($callback = DAO_Automation::getByUri($automation_uri))) {
 				if($callback->extension_id != AutomationTrigger_UiSheetData::ID)
 					return;
 				

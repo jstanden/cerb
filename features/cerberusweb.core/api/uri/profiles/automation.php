@@ -793,7 +793,7 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		if(!$extension_id)
 			return;
 		
-		if(false == ($trigger_ext = Extension_AutomationTrigger::get($extension_id, true)))
+		if(!($trigger_ext = Extension_AutomationTrigger::get($extension_id, true)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		/* @var $trigger_ext Extension_AutomationTrigger */

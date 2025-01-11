@@ -315,7 +315,7 @@ class CerberusApplication extends DevblocksApplication {
 		}
 	}
 
-	static function checkRequirements() {
+	static function checkRequirements() : array {
 		$errors = [];
 
 		// Privileges

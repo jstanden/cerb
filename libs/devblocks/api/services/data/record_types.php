@@ -74,6 +74,8 @@ class _DevblocksDataProviderRecordTypes extends _DevblocksDataProvider {
 		$record_type_exts = Extension_DevblocksContext::getAll(true);
 		
 		foreach($record_type_exts as $record_type_ext) {
+			if(!$record_type_ext) continue;
+			
 			if(null != ($chart_model['options'] ?? null)) {
 				$options = $record_type_ext->manifest->params['options'][0] ?? [];
 				
