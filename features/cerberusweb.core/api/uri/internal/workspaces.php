@@ -25,8 +25,22 @@ class WorkspacePage_Workspace extends Extension_WorkspacePage {
 		$tpl->assign('page', $page);
 		
 		$tabs = $page->getTabs();
-		$tpl->assign('page_tabs', $tabs);
 		
+		// Does this page allow workers to sort tabs?
+		if($page->extension_params['tab_sorting'] ?? null) {
+			$tab_order = array_flip(DAO_WorkerPref::getAsJson($active_worker->id, 'page_tabs_' . $page->id . '_json', '[]'));
+			
+			// Reorder tabs by worker prefs
+			if($tab_order) {
+				uksort($tabs, function ($a, $b) use ($tab_order) {
+					if (!array_key_exists($a, $tab_order)) return 1;
+					if (!array_key_exists($b, $tab_order)) return -1;
+					return $tab_order[$a] <=> $tab_order[$b];
+				});
+			}
+		}
+		
+		$tpl->assign('page_tabs', $tabs);
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/pages/default/page.tpl');
 	}
 	

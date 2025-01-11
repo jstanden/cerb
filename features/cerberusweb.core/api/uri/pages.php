@@ -72,6 +72,8 @@ class Page_Custom extends CerberusPageExtension {
 				return $this->_pageAction_setOrder();
 			case 'saveTabs':
 				return $this->_pageAction_saveTabs();
+			case 'setWorkerTabOrder':
+				return $this->_pageAction_setWorkerTabOrder();
 			case 'toggleMenuPageJson':
 				return $this->_pageAction_toggleMenuPageJson();
 		}
@@ -282,6 +284,29 @@ class Page_Custom extends CerberusPageExtension {
 		
 		$tpl->assign('page', $page);
 		$tpl->display('devblocks:cerberusweb.core::pages/add_tabs.tpl');
+	}
+	
+	private function _pageAction_setWorkerTabOrder() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		$page_id = DevblocksPlatform::importGPC($_POST['page_id'] ?? null, 'integer','0');
+		
+		if(!($page = DAO_WorkspacePage::get($page_id)))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if(!Context_WorkspacePage::isReadableByActor($page, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if(!($page->extension_params['tab_sorting'] ?? null))
+			return;
+		
+		$tabs = DevblocksPlatform::importGPC($_POST['tabs'] ?? null, 'string', '');
+		$tabs = DevblocksPlatform::sanitizeArray(DevblocksPlatform::parseCsvString($tabs), 'integer', ['nonzero','unique']);
+		
+		DAO_WorkerPref::setAsJson($active_worker->id, 'page_tabs_' . $page->id . '_json', $tabs);
 	}
 	
 	private function _pageAction_toggleMenuPageJson() {

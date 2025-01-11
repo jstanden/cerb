@@ -34,7 +34,7 @@
 		{foreach from=$page_tabs item=tab}
 			{if !$tab->isHidden($page_dict)}
 			{$tabs[] = "{$tab->name|lower|devblocks_permalink}"}
-			<li data-tab-id="{$tab->id}">
+			<li data-tab-id="{$tab->id}" {if $page->extension_params['tab_sorting']}class="drag"{/if}>
 				<a href="{devblocks_url}ajax.php?c=pages&a=renderTab&point={$point}&id={$tab->id}{/devblocks_url}" draggable="false">
 					{$tab->name}
 				</a>
@@ -48,7 +48,7 @@
 	</ul>
 </div>
 {/if}
-	
+
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	// Set the browser tab label to the record label
@@ -127,12 +127,54 @@ $(function() {
 		{/if}
 	};
 	
-	var tabs = $tabs.tabs(tabOptions);
-	
+	$tabs.tabs(tabOptions);
 	$tabs.tabs('option', 'active', tabActiveIndex);
 	
 	{$user_agent = DevblocksPlatform::getClientUserAgent()}
 
+	{if $page->extension_params['tab_sorting'] && is_array($user_agent) && 0 != strcasecmp($user_agent.platform|default:'', 'Android')}
+	$tabs.find('ul')
+		.find('> li.drag')
+		.hoverIntent({
+			interval:750,
+			timeout:250,
+			over:function(e) {
+				e.stopPropagation();
+				$(this).css('cursor', 'move');
+				$(this).children().css('cursor', 'move');
+			},
+			out:function(e) {
+				e.stopPropagation();
+				$(this).css('cursor', 'pointer');
+				$(this).children().css('cursor', 'pointer');
+			}
+		})
+	;
+
+	$tabs.find('> ul').sortable({
+		items:'> li.drag',
+		distance: 20,
+		forcePlaceholderWidth:true,
+		stop:function(e) {
+			e.stopPropagation();
+
+			$tabs = $("#pageTabs{$page->id}");
+			let $page_tabs = $tabs.find('ul.ui-tabs-nav > li.drag[data-tab-id]');
+			let page_tab_ids = $page_tabs.map(function() {
+				return $(this).attr('data-tab-id');
+			}).get().join(',');
+
+			let formData = new FormData();
+			formData.set('c', 'pages');
+			formData.set('a', 'setWorkerTabOrder');
+			formData.set('page_id', '{$page->id}');
+			formData.set('tabs', page_tab_ids);
+
+			genericAjaxPost(formData, '', '');
+		}
+	});
+	{/if}
+	
 	// Keyboard shortcuts
 	
 	$(document).keypress(function(event) {
