@@ -55,4 +55,4 @@ INSERT INTO `worker_role` (`id`, `name`, `updated_at`, `privs_json`, `privs_mode
 INSERT INTO `worker_role` (`id`, `name`, `updated_at`, `privs_json`, `privs_mode`, `member_query_worker`, `editor_query_worker`, `reader_query_worker`) VALUES (2,'Admins',UNIX_TIMESTAMP(),NULL,'all','isAdmin:y isDisabled:n','isAdmin:y isDisabled:n','isDisabled:n');
 
 INSERT INTO `worker_to_group` (`worker_id`, `group_id`, `is_manager`) VALUES (1,1,1);
-
+INSERT INTO `worker_to_group` (`worker_id`, `group_id`, `is_manager`) VALUES (1,2,1);
