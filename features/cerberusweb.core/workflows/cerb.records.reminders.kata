@@ -1,0 +1,100 @@
+workflow:
+  name: cerb.records.reminders
+  description: Create reminders from record profiles and cards
+  website: https://cerb.ai/workflows/cerb.records.reminders/
+  requirements:
+    cerb_version: >=11.0 <11.1
+    cerb_plugins: cerberusweb.core
+  version: 2025-01-13T23:21:57Z
+records:
+  automation/workerInteraction:
+    fields:
+      name: cerb.records.reminders.interaction
+      extension_id: cerb.trigger.interaction.worker
+      description@text:
+      script@raw:
+        inputs:
+          text/record_type:
+            type: freeform
+            required@bool: yes
+          text/record_id:
+            type: number
+            required@bool: yes
+
+        start:
+          set/load:
+            record_id@int: {{inputs.record_id}}
+            record__context: {{inputs.record_type}}
+
+          await/input:
+            form:
+              title: Create Reminder
+              elements:
+                text/prompt_name:
+                  label: Reminder:
+                  required@bool: yes
+                  type: freeform
+                  default: {{record__label}}
+                  placeholder: (e.g. "Remind me to write back")
+                text/prompt_due:
+                  label: When:
+                  type: date
+                  required@bool: yes
+                chooser/prompt_owner_id:
+                  label: Who:
+                  record_type: worker
+                  query@text: isDisabled:n
+                  default: {{worker_id}}
+                  required@bool: yes
+
+          record.create/reminder:
+            output: new_reminder
+            inputs@ref:
+              record_type: reminder
+              fields:
+                name: {{prompt_name}}
+                remind_at@date: {{prompt_due}}
+                worker_id@optional,int: {{prompt_owner_id}}
+                links@csv: {{record__context}}:{{record_id}}
+
+          return:
+            alert: Reminder created!
+      policy_kata@raw:
+        commands:
+          record.create:
+            deny/type@bool: {{inputs.record_type is not record type ('reminder')}}
+            allow@bool: yes
+  toolbar_section/recordProfile:
+    fields:
+      name: Reminders
+      toolbar_name: record.profile
+      priority@int: 50
+      is_disabled: 0
+      toolbar_kata@raw:
+        interaction/reminder:
+          label: Reminder
+          uri: cerb:automation:cerb.records.reminders.interaction
+          icon: pushpin
+          inputs:
+            record_type: {{record__context}}
+            record_id: {{record_id}}
+          after:
+            refresh_toolbar@bool: no
+            refresh_widgets@list: Ticket
+  toolbar_section/recordCard:
+    fields:
+      name: Reminders
+      toolbar_name: record.card
+      priority@int: 50
+      is_disabled: 0
+      toolbar_kata@raw:
+        interaction/reminder:
+          label: Reminder
+          uri: cerb:automation:cerb.records.reminders.interaction
+          icon: pushpin
+          inputs:
+            record_type: {{record__context}}
+            record_id: {{record_id}}
+          after:
+            refresh_toolbar@bool: no
+            refresh_widgets@list: Properties

@@ -661,6 +661,7 @@ class CerberusApplication extends DevblocksApplication {
 			'cerb.login.terms_of_use',
 			'cerb.notifications.mention_emailer',
 			'cerb.quickstart',
+			'cerb.records.reminders',
 			'cerb.satisfaction.surveys',
 			'cerb.search.simple',
 			'cerb.sla',

@@ -2028,6 +2028,11 @@ function getContextIdFromAlias($alias) {
 						'name' => 'Quickstart Checklist',
 						'description' => 'A workspace with a quickstart checklist for initial configuration of Cerb',
 					],
+					'cerb.records.reminders' => [
+						'id' => 'cerb.records.reminders',
+						'name' => 'Record Reminders',
+						'description' => 'Create reminders from record profiles and cards',
+					],
 					'cerb.email.org_by_hostname' => [
 						'id' => 'cerb.email.org_by_hostname',
 						'name' => 'Sender Org By Hostname',
