@@ -312,6 +312,16 @@ var cerbAutocompleteSuggestions = {
 		'map:resource:': [
 			'uri:'
 		],
+		'map:resource:uri:': {
+			'type': 'cerb-uri',
+			'params': {
+				'resource': {
+					'types': [
+						'cerb.resource.map'
+					]
+				}
+			}
+		},
 
 		'map:projection:': [
 			'type:',
@@ -416,6 +426,16 @@ var cerbAutocompleteSuggestions = {
 		'map:points:resource:': [
 			'uri:'
 		],
+		'map:points:resource:uri:': {
+			'type': 'cerb-uri',
+			'params': {
+				'resource': {
+					'types': [
+						'cerb.resource.map.points'
+					]
+				}
+			}
+		},
 		'map:points:label:': [
 			'title:',
 			'properties:'
