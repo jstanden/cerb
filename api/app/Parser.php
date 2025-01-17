@@ -1528,6 +1528,8 @@ class CerberusParser {
 					$model->setRouteBucket($default_group->getDefaultBucket());
 				}
 			}
+			
+			self::_parseMessageGroupRoutingKata($model);
 
 			// Bounce if we can't set the group id
 			if(null == $model->getRouteGroup()) {
@@ -1929,7 +1931,7 @@ class CerberusParser {
 			}
 		}
 		
-		return false;
+		return true;
 	}
 	
 	static private function _parseMessageRoutingKata(CerberusParserModel $model) : bool {
@@ -1997,10 +1999,28 @@ class CerberusParser {
 			$mail->runRoutingKataActions($route_actions, $model);
 		}
 		
+		return false;
+	}
+	
+	static private function _parseMessageGroupRoutingKata(CerberusParserModel $model) : bool {
+		$kata = DevblocksPlatform::services()->kata();
+		$mail = DevblocksPlatform::services()->mail();
+		$metrics = DevblocksPlatform::services()->metrics();
+		
 		// If we sent something to a group inbox, also run its routing rules
 		if($model->getRouteGroup() && ($model->getRouteBucket()->is_default ?? false)) {
 			$bucket_routing_kata = $model->getRouteGroup()->routing_kata ?? '';
 			$error = null;
+			
+			$routing_dict = DevblocksDictionaryDelegate::instance([
+				'subject' => $model->getSubject(),
+				'body' => $model->getParserMessage()->body,
+				'recipients' => $model->getRecipients(),
+				'spam_score' => $model->getTicketModel()->spam_score ?? 0,
+				'headers' => $model->getHeaders(),
+			]);
+			
+			$routing_dict->mergeKeys('sender_', DevblocksDictionaryDelegate::getDictionaryFromModel($model->getSenderAddressModel(), CerberusContexts::CONTEXT_ADDRESS));
 			
 			if(false === ($bucket_routing = $kata->parse($bucket_routing_kata, $error))) {
 				$bucket_routing = [];
@@ -2044,7 +2064,7 @@ class CerberusParser {
 			}
 		}
 		
-		return false;
+		return true;
 	}
 	
 	static private function _parseMessageRoutingLegacy(CerberusParserModel $model) {
