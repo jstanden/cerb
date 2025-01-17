@@ -197,6 +197,9 @@ class DAO_MailRoutingRule extends Cerb_ORMHelper {
 		$map_keys_to_ids = [];
 		
 		foreach($routing_rulesets as $routing_ruleset) {
+			if($routing_ruleset->is_disabled)
+				continue;
+			
 			$lines = DevblocksPlatform::parseCrlfString($routing_ruleset->routing_kata, true, false);
 			
 			foreach($lines as $line) {
