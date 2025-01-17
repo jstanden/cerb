@@ -34,8 +34,8 @@ class _DevblocksDataProviderSampleGeoPoints extends _DevblocksDataProvider {
 	
 	function getData($query, $chart_fields, &$error=null, array $options=[]) {
 		$data = [
-			'type' => 'Topology',
-			'objects' => [],
+			'type' => 'FeatureCollection',
+			'features' => [],
 		];
 		
 		foreach($chart_fields as $field) {
@@ -50,19 +50,13 @@ class _DevblocksDataProviderSampleGeoPoints extends _DevblocksDataProvider {
 				
 				$series_fields = CerbQuickSearchLexer::getFieldsFromQuery($series_query);
 				
-				$series_id = explode('.', $field->key, 2)[1];
-				
-				$geometries = [];
-				
-				$data['objects'][$series_id] = [
-					'type' => 'GeometryCollection',
-					'geometries' => &$geometries,
-				];
-				
 				foreach($series_fields as $series_field) {
-					$geometry = [
-						'type' => 'Point',
-						'coordinates' => [],
+					$feature = [
+						'type' => 'Feature',
+						'geometry' => [
+							'type' => 'Point',
+							'coordinates' => []
+						],
 						'properties' => [],
 					];
 					
@@ -76,19 +70,19 @@ class _DevblocksDataProviderSampleGeoPoints extends _DevblocksDataProvider {
 						
 						if($point_field->key == 'coordinates') {
 							CerbQuickSearchLexer::getOperStringFromTokens($point_field->tokens, $oper, $value);
-							$geometry['properties']['coordinates'] = $value;
+							$feature['properties']['coordinates'] = $value;
 							
-							if(false != ($geo = DevblocksPlatform::parseGeoPointString($value))) {
-								$geometry['coordinates'] = [$geo['longitude'], $geo['latitude']];
+							if(($geo = DevblocksPlatform::parseGeoPointString($value))) {
+								$feature['geometry']['coordinates'] = [$geo['longitude'], $geo['latitude']];
 							}
 							
 						} else {
 							CerbQuickSearchLexer::getOperStringFromTokens($point_field->tokens, $oper, $value);
-							$geometry['properties'][$point_field->key] = $value;
+							$feature['properties'][$point_field->key] = $value;
 						}
 					}
 					
-					$geometries[] = $geometry;
+					$data['features'][] = $feature;
 				}
 				
 			} else if($field->key == 'format') {
