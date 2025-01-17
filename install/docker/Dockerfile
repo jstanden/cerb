@@ -6,7 +6,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 VOLUME /var/www/html/
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
     php8.3-bcmath \
     php8.3-curl \
     php8.3-dom \
