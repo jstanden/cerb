@@ -17,8 +17,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     php8.3-ldap \
     php8.3-mailparse \
     php8.3-mbstring \
+    php8.3-memcache \
     php8.3-mysql \
     php8.3-opcache \
+    php8.3-redis \
     php8.3-tidy \
     php8.3-xml \
     php8.3-yaml \
