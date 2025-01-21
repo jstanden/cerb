@@ -840,7 +840,7 @@ records:
       reply_address_id: {{records.address_demo_at_cerb_dot_example.id}}
       reply_signature_id: {{records.signature_demo.id}}
       reply_html_template_id: {{records.html_template_demo.id}}
-      is_default@int: {{config.isDefaultGroup == 'yes'}}
+      is_default: {{config.isDefaultGroup == 'yes' ? 1 : 0}}
       members:
         manager: 1,{{records.worker_kina.id}}
         member: {{records.worker_milo.id}},{{records.worker_janey.id}},{{records.worker_ned.id}},{{records.worker_mara.id}},{{records.worker_karl.id}}
