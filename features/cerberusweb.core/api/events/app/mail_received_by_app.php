@@ -873,10 +873,10 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 					
 					// Update the model
 					
-					@$parser_model = $dict->_parser_model;
+					@$parser_model = $dict->_parser_model; /* @var $parser_model CerberusParserModel */
 					
 					if(!empty($parser_model))
-						$parser_model->getMessage()->custom_fields[] = [
+						$parser_model->getParserMessage()->custom_fields[] = [
 							'field_id' => $field_id,
 							'context' => $custom_field->context,
 							'context_id' => $dict->$field_id_key,
@@ -1147,10 +1147,10 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 					
 					// Update the model
 					
-					@$parser_model = $dict->_parser_model;
+					@$parser_model = $dict->_parser_model; /* @var $parser_model CerberusParserModel */
 					
 					if(!empty($parser_model))
-						$parser_model->getMessage()->custom_fields[] = [
+						$parser_model->getParserMessage()->custom_fields[] = [
 							'field_id' => $field_id,
 							'context' => $custom_field->context,
 							'context_id' => $dict->$field_id_key,
