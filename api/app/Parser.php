@@ -2095,9 +2095,20 @@ class CerberusParser {
 			$model->getParserMessage()
 		))) {
 			// Update our model with the results of the routing rules
-			if(is_array($routing_rules))
-			foreach($routing_rules as $rule) {
-				$rule->run($model);
+			if(is_array($routing_rules) && $routing_rules) {
+				$routing_results = [];
+				
+				foreach ($routing_rules as $rule) { /* @var $rule Model_MailToGroupRule */
+					$rule->run($model);
+					$routing_results[] = DevblocksDictionaryDelegate::instance([
+						'__handler' => 'rule/' . ($rule->id ?? ''),
+						'__handler_uri' => sprintf('cerb:mail_to_group_rule:%d-%s', $rule->id, DevblocksPlatform::strToPermalink($rule->name)),
+						'__return' => [
+							'actions' => $rule->actions
+						]
+					]);
+				}
+				$model->logEventResults('mail.routing.rule.legacy', $routing_results);
 			}
 		}
 	}
