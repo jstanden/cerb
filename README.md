@@ -2,17 +2,27 @@
 
 # What is Cerb?
 
-**Cerb** is a fully customizable, web-based platform for team email and workflow automation. The project has continuously evolved for over 23 years based on the feedback of thousands of teams around the world in almost every industry. It is used by everyone from solo founders to 1,000+ person teams managing millions of customer requests.
+**Cerb** automates helpdesk inboxes and workflows. It has evolved continuously for over 23 years based on the feedback of thousands of teams; from solo founders to 1,000+ person enterprises managing millions of customer requests.
 
-Cerb integrates with any API-based service. It can automate nearly any repetitive digital workflow with its specialized [KATA](https://cerb.ai/docs/kata/) language and browser-based coding tools. [Automations](https://cerb.ai/docs/automations/) add conditional actions to any event. [Interactions](https://cerb.ai/docs/interactions/) extend any toolbar for complex multistep workflows that require user input.
+Cerb integrates with any API-based service. It can automate nearly any repetitive digital process with its specialized KATA language and browser-based coding tools. Any toolbar in the UI can be extended with interactive multistep workflows that include human approval.
 
-Teams and individuals can build a personalized "mission control" using highly customizable workspace widgets to stay focused on their most important tasks. Custom records and fields organize of any kind of task (email, calls, social media, orders, survey responses, todo, etc). Pre-built solutions can be easily shared within the community using [packages](https://cerb.ai/docs/packages/).
+Teams and individuals can build a personalized "mission control" using a wide array of configurable widgets to stay focused on their most important tasks. Custom records and fields organize of any kind of task (email, social posts, orders, surveys, calls, tasks, text messages). Pre-built solutions can be easily shared within the community using workflows.
 
-The most common use case is converting standard POP3/IMAP mailboxes (e.g. `support@`, `team@`) into high-volume team-based webmail with automated triage, internal discussions with `@mentions`, built-in productivity tools, custom actions, reporting, and a shared history.
+Try Cerb in Docker or Cerb Cloud for free with no time limit. 100% of the source code is available on GitHub.
 
-An emerging use case is integrating with large language models (LLMs) to automatically suggest answers to customer requests based on existing team knowledge (documentation, FAQs, articles).
+* Your first self-hosted seat is free forever with no license or registration required.
+* Add seats as your team grows.
+* Every member of your team can run a free local copy of Cerb for testing, development, and staging.
+* Downgrade to a community license from self-hosted or Cerb Cloud at any time and retain permanent free access to your data.
+* Academic institutions, non-profits, charities, and open source projects are eligible for additional seats or discounts.
 
-![image](https://cerb.ai/assets/images/home/features/workspaces.png)
+![image](https://cerb.ai/assets/images/home/features/mission-control.png)
+
+![image](https://cerb.ai/assets/images/home/features/automate-workflows.png)
+
+![image](https://cerb.ai/assets/images/home/features/interactive-agents.png)
+
+![image](https://cerb.ai/assets/images/home/features/share-workflows.png)
 
 # Installation
 
