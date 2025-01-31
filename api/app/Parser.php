@@ -376,6 +376,17 @@ class CerberusParserModel {
 					$this->_ticket_model = DAO_Ticket::get($this->_ticket_id);
 					$this->_message_id = $ids['message_id'];
 					$this->_is_new = empty($this->_ticket_model->first_message_id);
+					$this->logEventResults('mail.thread', [
+						DevblocksDictionaryDelegate::instance([
+							'__handler' => 'references/' . uniqid(),
+							'__handler_uri' => 'cerb:app:0',
+							'__return' => [
+								'reference' => $ref,
+								'message_id' => $this->_message_id ?? null,
+								'ticket_id' => $this->_ticket_id ?? null,
+							],
+						])
+					]);
 					return;
 				}
 			}
@@ -396,6 +407,17 @@ class CerberusParserModel {
 						$this->_ticket_model = $ticket;
 						$this->_message_id = $ticket->last_message_id;
 						$this->_is_new = empty($this->_ticket_model->first_message_id);
+						$this->logEventResults('mail.thread', [
+							DevblocksDictionaryDelegate::instance([
+								'__handler' => 'subject/' . uniqid(),
+								'__handler_uri' => 'cerb:app:0',
+								'__return' => [
+									'mask' => $mask,
+									'message_id' => $this->_message_id ?? null,
+									'ticket_id' => $this->_ticket_id ?? null,
+								],
+							])
+						]);
 						return;
 					}
 				}
