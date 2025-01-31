@@ -1599,15 +1599,15 @@ class CerberusMail {
 							unset($email_headers[$header_key]);
 						} elseif (strtolower(trim($header_key)) == 'to') {
 							if (($addresses = CerberusMail::parseRfcAddresses($header_val)))
-								$smtp_email->to(...array_map(fn($address) => new Address($address), $addresses));
+								$smtp_email->to(...array_map(fn($address) => new Address($address['email']), $addresses));
 							unset($email_headers[$header_key]);
 						} elseif (strtolower(trim($header_key)) == 'cc') {
 							if (($addresses = CerberusMail::parseRfcAddresses($header_val)))
-								$smtp_email->cc(...array_map(fn($address) => new Address($address), $addresses));
+								$smtp_email->cc(...array_map(fn($address) => new Address($address['email']), $addresses));
 							unset($email_headers[$header_key]);
 						} elseif (strtolower(trim($header_key)) == 'bcc') {
 							if (($addresses = CerberusMail::parseRfcAddresses($header_val)))
-								$smtp_email->bcc(...array_map(fn($address) => new Address($address), $addresses));
+								$smtp_email->bcc(...array_map(fn($address) => new Address($address['email']), $addresses));
 							unset($email_headers[$header_key]);
 						} else {
 							if (null == ($header = $headers->get($header_key))) {
