@@ -320,6 +320,12 @@ class CerberusParserModel {
 
 		$senderWorker = $this->getSenderWorkerModel();
 		
+		// Reset the parent ticket and routing when we start
+		$this->_is_new = true;
+		$this->_message_id = 0;
+		$this->setTicketModel(null);
+		$this->setRouteGroup(null);
+		
 		$aReferences = [];
 		
 		// Append first <*> from In-Reply-To
@@ -423,11 +429,6 @@ class CerberusParserModel {
 				}
 			}
 		}
-
-		$this->_is_new = true;
-		$this->_ticket_id = 0;
-		$this->_ticket_model = null;
-		$this->_message_id = 0;
 	}
 	
 	public function getRecipients() : array {
