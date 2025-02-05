@@ -203,11 +203,15 @@ class SheetAwait extends AbstractAwait {
 		
 		$this->_render($prompt_key, $continuation);
 		
-		$tpl->assign('layout_style', $layout_style);
-		
 		$tpl->assign('sheet_selection_key', uniqid('selection_'));
 		
-		$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.website/await/sheet/render.tpl');
+		if('buttons' == $layout_style) {
+			$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.website/await/sheet/render_buttons.tpl');
+		} else if('scale' == $layout_style) {
+			$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.website/await/sheet/render_scale.tpl');
+		} else {
+			$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.website/await/sheet/render.tpl');
+		}
 		
 		if($is_dirty) {
 			DAO_AutomationContinuation::update($continuation->token, [
