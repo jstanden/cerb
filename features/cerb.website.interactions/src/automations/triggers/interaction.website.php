@@ -183,6 +183,7 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 						'score' => 2000,
 					],
 					'accept: .png,image/png,.jpg,image/jpeg',
+					'hidden@bool: yes',
 					'multiple@bool: yes',
 					'required@bool: yes',
 					'validation@raw:',
@@ -199,6 +200,7 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 						'score' => 2000,
 						'description' => "Display Markdown formatted text",
 					],
+					'hidden@bool: yes',
 					[
 						'caption' => 'message:',
 						'snippet' => "message@text:\n\t\${1:}",
@@ -237,6 +239,7 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 						'score' => 1998,
 					],
 					'default:',
+					'hidden@bool: yes',
 					'limit:',
 					'page:',
 					'required@bool: yes',
@@ -388,6 +391,7 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 				
 				'(.*):await:form:elements:text:' => [
 					'default:',
+					'hidden@bool: yes',
 					'label:',
 					'max_length@int:',
 					'min_length@int:',
@@ -413,6 +417,7 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 				
 				'(.*):await:form:elements:textarea:' => [
 					'default:',
+					'hidden@bool: yes',
 					'label:',
 					'max_length@int:',
 					'min_length@int:',
