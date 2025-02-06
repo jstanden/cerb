@@ -376,6 +376,7 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 				],
 				'(.*):await:form:elements:sheet:schema:layout:style:' => [
 					'buttons',
+					'fieldsets',
 					'scale',
 					'table',
 				],

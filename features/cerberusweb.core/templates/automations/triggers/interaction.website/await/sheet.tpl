@@ -10,6 +10,8 @@
 		<div data-cerb-sheet-container>
 			{if $layout.style == 'buttons'}
 				{include file="devblocks:cerberusweb.core::automations/triggers/interaction.website/await/sheet/render_buttons.tpl" sheet_selection_key=$selection_key default=$default}
+			{elseif $layout.style == 'fieldsets'}
+				{include file="devblocks:cerberusweb.core::automations/triggers/interaction.website/await/sheet/render_fieldsets.tpl" sheet_selection_key=$selection_key default=$default}
 			{elseif $layout.style == 'scale'}
 				{include file="devblocks:cerberusweb.core::automations/triggers/interaction.website/await/sheet/render_scale.tpl" sheet_selection_key=$selection_key default=$default}
 			{else}

@@ -364,6 +364,41 @@
     /*background-color: #ffffc8;*/
 }
 
+/* Sheet fieldsets */
+
+.cerb-interaction-popup--form-elements-sheet .cerb-sheet-fieldsets .cerb-sheet--row-title {
+    font-size: 1.1em;
+    font-weight: bold;
+    padding: 0.3em 0;
+}
+
+.cerb-interaction-popup--form-elements-sheet .cerb-sheet-fieldsets .cerb-sheet--row-selection {
+    width: 0;
+    text-align: center;
+    vertical-align: top;
+    padding-top: 0.5em;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+}
+
+.cerb-interaction-popup--form-elements-sheet .cerb-sheet-fieldsets .cerb-sheet--row td {
+    padding-bottom: 0.3em;
+}
+
+.cerb-interaction-popup--form-elements-sheet .cerb-sheet-fieldsets .cerb-sheet--row tr:last-child td {
+    padding-bottom: 1em;
+}
+
+.cerb-interaction-popup--form-elements-sheet .cerb-sheet-fieldsets td[data-column-key] {
+    text-transform: uppercase;
+    font-size: 0.7em;
+    padding: 0 1em 0 0;
+    text-align: right;
+    vertical-align: top;
+}
+
+/* Sheet buttons */
+
 .cerb-interaction-popup--form-elements-sheet .cerb-sheet-buttons {
     margin-top: 5px;
 }

@@ -207,6 +207,8 @@ class SheetAwait extends AbstractAwait {
 		
 		if('buttons' == $layout_style) {
 			$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.website/await/sheet/render_buttons.tpl');
+		} else if('fieldsets' == $layout_style) {
+			$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.website/await/sheet/render_fieldsets.tpl');
 		} else if('scale' == $layout_style) {
 			$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.website/await/sheet/render_scale.tpl');
 		} else {
