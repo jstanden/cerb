@@ -15,9 +15,13 @@
 
 			let $popup = $prompt.closest('.cerb-interaction-popup');
 
-			// If we have a continue button
-			if(1 === $popup.querySelectorAll('.cerb-interaction-popup--form-elements-continue').length) {
-				$popup.dispatchEvent($$.createEvent('cerb-interaction-event--submit'));
+			let $submits = $popup.querySelectorAll('.cerb-interaction-popup--form-elements-continue');
+
+			// If we have multiple submits, click the first one when pressing enter
+			if($submits.length) {
+				$submits[0].dispatchEvent(
+					new MouseEvent("click", { "view": window, "bubbles": true, "cancelable": false })
+				);
 			}
 		}
 	});
