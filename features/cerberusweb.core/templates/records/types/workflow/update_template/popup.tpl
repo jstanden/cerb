@@ -123,6 +123,7 @@ $(function() {
             formData.set('module', 'workflow');
             formData.set('action', 'showBuilderPopup');
             formData.set('id', '{$model->id}');
+            formData.set('template_kata', editor_template.getValue());
 
             genericAjaxPopup('editorBuilder{$popup_id}', formData, null, null, '75%');
         });

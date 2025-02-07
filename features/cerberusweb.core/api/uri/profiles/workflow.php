@@ -249,8 +249,10 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 	
 	private function _profileAction_showBuilderPopup() {
 		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
+		$template_kata = DevblocksPlatform::importGPC($_POST['template_kata'] ?? null, 'string', '');
 		
 		$tpl = DevblocksPlatform::services()->template();
+		$kata = DevblocksPlatform::services()->kata();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
@@ -263,13 +265,21 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 			if(!($workflow = DAO_Workflow::get($id)))
 				DevblocksPlatform::dieWithHttpError(null, 404);
 			
+			$error = null;
+			
 			// If the builder KATA is empty, default it
 			if(!$workflow->builder_kata) {
 				$builder_kata = [
 					'export' => [
 						'workflow' => [
 							'name' => $workflow->name,
+							'version' => gmdate('Y-m-d\T00:00:00\Z'),
 							'description' => $workflow->description,
+							'website' => 'https://cerb.ai/resources/workflows/',
+							'requirements' => [
+								'cerb_version' => '>=' . APP_VERSION,
+								'cerb_plugins' => 'cerberusweb.core, ',
+							]
 						],
 						'records' => [],
 						'label_map' => [],
@@ -293,8 +303,23 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 				
 				ksort($builder_kata['export']['label_map']);
 				
-				$workflow->builder_kata = DevblocksPlatform::services()->kata()->emit($builder_kata);
+			} else {
+				$builder_kata = $kata->parse($workflow->builder_kata, $error);
 			}
+			
+			// Override the workflow section with the most recent KATA from the template
+			if(
+				$template_kata
+				&& ($template_kata = $kata->parse($template_kata, $error))
+				&& ($template_kata['workflow'] ?? null)
+			) {
+				$builder_kata['export']['workflow'] = $template_kata['workflow'];
+			}
+			
+			// Use the current UTC time as the new version
+			$builder_kata['export']['workflow']['version'] = gmdate('Y-m-d\TH:i:s\Z');
+			
+			$workflow->builder_kata = DevblocksPlatform::services()->kata()->emit($builder_kata);
 			
 			$tpl->assign('model', $workflow);
 			$tpl->display('devblocks:cerberusweb.core::records/types/workflow/builder/popup.tpl');
