@@ -440,7 +440,7 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 		$validation = DevblocksPlatform::services()->validation();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
-		$prompts_without_output = ['say','submit'];
+		$prompts_without_output = ['say'];
 		
 		$form_components = AutomationTrigger_InteractionWebsite::getFormComponentMeta();
 		

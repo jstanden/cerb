@@ -2,7 +2,7 @@
     --cerb-interaction-badge-bg-color: rgb(207, 221, 235);
     --cerb-interaction-badge-border: 3px solid rgb(65, 172, 255);
     --cerb-interaction-badge-shadow: 0 0 12px 2px rgb(50, 50, 50);
-    --cerb-interaction-button-alt-bg-color: rgb(230, 230, 230);
+    --cerb-interaction-button-alt-bg-color: rgb(225, 225, 225);
     --cerb-interaction-button-bg-color: rgb(70, 150, 250);
     --cerb-interaction-button-text-color: white;
     --cerb-interaction-form-element-border: 1px solid rgb(220,220,220);
@@ -228,45 +228,47 @@
 }
 
 .cerb-interaction-popup--form-elements-button {
+    flex:1 1;
     background-color: var(--cerb-interaction-button-bg-color);
     color: var(--cerb-interaction-button-text-color);
     height: unset;
     font-size: 1.1em;
     border: 0;
-    border-radius: 50px;
+    border-radius: 5px;
     padding: 10px;
     cursor: pointer;
+    min-width: 200px;
+}
+
+.cerb-button-style-secondary {
+    background-color: var(--cerb-interaction-button-alt-bg-color);
+    color: inherit;
+}
+
+.cerb-button-style-outline {
+    background: none;
+    color: var(--cerb-interaction-button-text-color);
+    border: 2px solid var(--cerb-interaction-button-text-color);
 }
 
 .cerb-interaction-popup--form-elements-button:hover {
-    filter: brightness(1.2);
+    filter: brightness(0.8);
 }
 
 .cerb-interaction-popup--form-elements-submit {
-    display:flex;
-    margin-top:50px;
+    display: flex;
+    flex-wrap: wrap;
+    margin-top:1.5em;
 }
 
 .cerb-interaction-popup--form-elements-continue {
-    flex:1 1;
-    max-width:5em;
-    height: 2em;
-    background-image: url(continue.svg);
-    background-repeat: no-repeat;
-    background-position: center center;
+    font-weight: bold;
+    margin: 0.25em;
 }
 
 .cerb-interaction-popup--form-elements-reset {
-    background-color: var(--cerb-interaction-button-alt-bg-color);
-    flex:1 1;
-    max-width:5em;
-    background-image: url(reset.svg);
-    background-repeat: no-repeat;
-    background-position: center center;
-}
-
-.cerb-interaction-popup--form-elements-spacer {
-    flex: 2 2;
+    font-weight: bold;
+    margin: 0.25em;
 }
 
 .cerb-interaction-popup--form-elements-text input[type=text],

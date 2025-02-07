@@ -385,8 +385,73 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 				],
 				
 				'(.*):await:form:elements:submit:' => [
+					'buttons:',
 					'continue@bool: no',
 					'reset@bool: no',
+				],
+				
+				'(.*):await:form:elements:submit:buttons:' => [
+					[
+						'caption' => 'continue:',
+						'snippet' => "continue/\${1:yes}:\n\tlabel: Continue\n\ticon: circle-ok\n\ticon_at: start\n\tvalue: yes\n",
+					],
+					[
+						'caption' => 'reset:',
+						'snippet' => "reset:\n\tlabel: Reset\n\ticon: refresh\n\ticon_at: start",
+					],
+				],
+				
+				'(.*):await:form:elements:submit:buttons:continue:' => [
+					[
+						'caption' => 'label:',
+						'snippet' => "label: \${1:Label:}",
+						'score' => 2000,
+					],
+					'hidden@bool: yes',
+					'icon:',
+					'icon_at:',
+					'style:',
+					'value:',
+				],
+				
+				'(.*):await:form:elements:submit:buttons:continue:icon:' => [
+					'type' => 'icon',
+				],
+				
+				'(.*):await:form:elements:submit:buttons:continue:icon_at:' => [
+					'start',
+					'end',
+				],
+				
+				'(.*):await:form:elements:submit:buttons:continue:style:' => [
+					'outline',
+					'secondary',
+				],
+				
+				'(.*):await:form:elements:submit:buttons:reset:' => [
+					[
+						'caption' => 'label:',
+						'snippet' => "label: \${1:Label:}",
+						'score' => 2000,
+					],
+					'hidden@bool: yes',
+					'icon:',
+					'icon_at:',
+					'style:',
+				],
+				
+				'(.*):await:form:elements:submit:buttons:reset:icon' => [
+					'type' => 'icon',
+				],
+				
+				'(.*):await:form:elements:submit:buttons:reset:icon_at:' => [
+					'start',
+					'end',
+				],
+				
+				'(.*):await:form:elements:submit:buttons:reset:style:' => [
+					'outline',
+					'secondary',
 				],
 				
 				'(.*):await:form:elements:text:' => [

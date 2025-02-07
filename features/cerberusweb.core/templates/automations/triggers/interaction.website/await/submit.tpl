@@ -1,40 +1,54 @@
 {$element_uid = uniqid('el_')}
 <div id="{$element_uid}" class="cerb-interaction-popup--form-elements-submit">
-	{if $continue_options.reset}
-	<button type="button" class="cerb-interaction-popup--form-elements-button cerb-interaction-popup--form-elements-reset" tabindex="-1"><span></span></button>
+	{if $var}
+		<input type="hidden" data-cerb-submit-var name="prompts[{$var}]" value="">
 	{/if}
-	
-	<div class="cerb-interaction-popup--form-elements-spacer"></div>
-	
-	{if $continue_options.continue}
-	<button type="button" class="cerb-interaction-popup--form-elements-button cerb-interaction-popup--form-elements-continue"><span></span></button>
-	{/if}
+
+	{foreach from=$buttons item=button}
+		<button type="button" value="{$button.value}" class="cerb-interaction-popup--form-elements-button cerb-interaction-popup--form-elements-{$button._type} {if $button.style}cerb-button-style-{$button.style}{/if}">
+			{if 'end' == $button.icon_at}
+				{$button.label}
+			{/if}
+			{*if $button.icon}
+				<span class="glyphicons glyphicons-{$button.icon}" style="color:inherit;margin-right:3px;"></span>
+			{/if*}
+			{if 'end' != $button.icon_at}
+				{$button.label}
+			{/if}
+		</button>
+	{/foreach}
 </div>
 
 <script type="text/javascript" nonce="{$session->nonce}">
 {
 	let $element = document.querySelector('#{$element_uid}');
 	let $popup = $element.closest('.cerb-interaction-popup');
-	let $button_continue = $element.querySelector('.cerb-interaction-popup--form-elements-continue');
-	let $button_reset = $element.querySelector('.cerb-interaction-popup--form-elements-reset');
+	let $hidden = $element.querySelector('input[data-cerb-submit-var]');
+	let $buttons_continue = $element.querySelectorAll('.cerb-interaction-popup--form-elements-continue');
+	let $buttons_reset = $element.querySelectorAll('.cerb-interaction-popup--form-elements-reset');
 
-	if($button_continue) {
-		$button_continue.addEventListener('click', function (e) {
-			e.stopPropagation();
+	if($buttons_continue) {
+		$$.forEach($buttons_continue, function(index, $button) {
+			$button.addEventListener('click', function (e) {
+				e.stopPropagation();
 
-			$button_continue.style.display = 'none';
-			
-			$popup.dispatchEvent($$.createEvent('cerb-interaction-event--submit'));
+				$hidden.value = $button.value;
+				$element.style.display = 'none';
+
+				$popup.dispatchEvent($$.createEvent('cerb-interaction-event--submit'));
+			});
 		});
 	}
-	
-	if($button_reset) {
-		$button_reset.addEventListener('click', function (e) {
-			e.stopPropagation();
 
-			$button_reset.style.display = 'none';
+	if($buttons_reset) {
+		$$.forEach($buttons_reset, function(index, $button) {
+			$button.addEventListener('click', function (e) {
+				e.stopPropagation();
 
-			$popup.dispatchEvent($$.createEvent('cerb-interaction-event--reset'));
+				$element.style.display = 'none';
+
+				$popup.dispatchEvent($$.createEvent('cerb-interaction-event--reset'));
+			});
 		});
 	}
 }
