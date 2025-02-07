@@ -2316,6 +2316,22 @@ abstract class Extension_CommunityPortal extends DevblocksExtension implements D
 	static $_registry = [];
 	
 	/**
+	 * @param $as_instances
+	 * @return Extension_CommunityPortal[] | DevblocksExtensionManifest[]
+	 */
+	static function getAll(bool $as_instances=true) {
+		$exts = DevblocksPlatform::getExtensions(self::ID, $as_instances);
+		
+		// Sorting
+		if($as_instances)
+			DevblocksPlatform::sortObjects($exts, 'manifest->name');
+		else
+			DevblocksPlatform::sortObjects($exts, 'name');
+		
+		return $exts;
+	}
+	
+	/**
 	 * @internal
 	 */
 	static function get($extension_id) {
