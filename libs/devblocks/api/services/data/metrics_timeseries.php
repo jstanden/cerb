@@ -481,6 +481,10 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 				return false;
 		}
 		
+		$chart_model['unit'] = $unit;
+		$chart_model['unit_format_js'] = $unit_format_js;
+		$chart_model['unit_format_php'] = $unit_format_php;
+		
 		$chart_model['xaxis'] = DevblocksPlatform::services()->date()->formatTimestamps(
 			DevblocksPlatform::dateLerpArray([$range['from_string'], $range['to_string']], $unit, $step, 1001),
 			$unit_format_php

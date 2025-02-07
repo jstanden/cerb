@@ -592,7 +592,7 @@ class DAO_Attachment extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::services()->database();
 		$query = null;
 		
-		if(false == ($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_ATTACHMENT)))
+		if(!($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_ATTACHMENT)))
 			return 0;
 		
 		switch($context) {

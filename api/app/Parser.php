@@ -80,13 +80,13 @@ class CerberusParserMessage {
 		foreach ($this->files as $file) { /* @var $file ParserFile */
 			switch($file->mime_type) {
 				case 'message/rfc822':
-					if(false == ($mime = new MimeMessage('file',  $file->tmpname)))
+					if(!($mime = new MimeMessage('file', $file->tmpname)))
 						break;
 						
 					if(!isset($this->headers['from']) || !isset($mime->data['headers']) || !isset($mime->data['headers']['message-id']))
 						break;
 					
-					if(false == ($bounce_from = CerberusMail::parseRfcAddress($this->headers['from'])))
+					if(!($bounce_from = CerberusMail::parseRfcAddress($this->headers['from'])))
 						break;
 					
 					// Change the inbound In-Reply-To: header to that of the bounce
