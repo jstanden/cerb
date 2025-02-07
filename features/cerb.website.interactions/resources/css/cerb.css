@@ -333,6 +333,10 @@
     padding: 0 0 0 5px;
 }
 
+.cerb-interaction-popup--form-elements-sheet .cerb-sheet--row-title a {
+    font-weight: bold;
+}
+
 .cerb-interaction-popup--form-elements-sheet .cerb-sheet tbody.cerb-sheet--row .cerb-sheet--row-selection {
     width: 20px;
     text-align: center;
@@ -374,11 +378,14 @@
     padding: 0.3em 0;
 }
 
+.cerb-interaction-popup--form-elements-sheet .cerb-sheet-fieldsets .cerb-sheet--row-title a {
+    font-weight: bold;
+}
+
 .cerb-interaction-popup--form-elements-sheet .cerb-sheet-fieldsets .cerb-sheet--row-selection {
     width: 0;
     text-align: center;
     vertical-align: top;
-    padding-top: 0.5em;
     padding-left: 0.5em;
     padding-right: 0.5em;
 }
@@ -408,11 +415,12 @@
 .cerb-interaction-popup--form-elements-sheet .cerb-sheet-buttons--button {
     background: var(--cerb-interaction-button-bg-color) none;
     color: var(--cerb-interaction-button-text-color);
-    padding: 10px 10px;
+    padding: 10px;
     border-radius: 5px;
     margin: 5px 0 0 0;
     cursor: pointer;
     text-align: center;
+    font-weight: bold;
 }
 
 .cerb-interaction-popup--form-elements-sheet .cerb-sheet-buttons--button:hover {
