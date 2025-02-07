@@ -319,6 +319,11 @@ CerbInteractions.prototype.interactionContinue = function(mode) {
 
                 setTimeout(function () {
                     $container.focus();
+                    
+                    // Focus the first text/input
+                    let $focusable = $elements.querySelector('input[type=text], textarea, input[type=checkbox], input[type=radio], button[type=button]');
+                    if($focusable) $focusable.focus();
+                    
                 }, 0);
                 
             } else if (404 === this.status) {

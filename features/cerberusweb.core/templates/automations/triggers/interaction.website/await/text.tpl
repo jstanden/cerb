@@ -9,10 +9,6 @@
 	let $prompt = document.querySelector('#{$element_id}');
 	let $input = $prompt.querySelector('input[type=text]');
 
-	// Move the cursor to the end of the text
-	$input.focus();
-	$input.setSelectionRange($input.value.length, $input.value.length);
-
 	$input.addEventListener('keydown', function(e) {
 		if (e.keyIdentifier==='U+000A' || e.keyIdentifier==='Enter' || e.keyCode===13) {
 			e.preventDefault();
