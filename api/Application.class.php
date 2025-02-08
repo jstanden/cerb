@@ -4809,6 +4809,7 @@ class _CerbApplication_KataAutocompletions {
 				'badge:',
 				'header:',
 				'meta:',
+				'page:',
 			],
 			'layout:badge:' => [
 				'interaction:'
@@ -4887,6 +4888,10 @@ class _CerbApplication_KataAutocompletions {
 						]
 					]
 				]
+			],
+			
+			'layout:page:' => [
+				'interaction:'
 			],
 			
 			'security:' => [

@@ -227,9 +227,12 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 				
 				DevblocksPlatform::services()->http()->setHeader('Content-Type', 'text/html');
 				
+				$interaction_params = DevblocksPlatform::services()->url()->arrayToQueryString($_GET ?? []);
+				
 				if(null != ($interaction = $stack)) {
-					$interaction_params = DevblocksPlatform::services()->url()->arrayToQueryString($_GET ?? []);
-					
+					$tpl->assign('page_interaction', $interaction);
+					$tpl->assign('page_interaction_params', $interaction_params);
+				} elseif (null != ($interaction = $portal_schema->getPageInteraction())) {
 					$tpl->assign('page_interaction', $interaction);
 					$tpl->assign('page_interaction_params', $interaction_params);
 				}
@@ -917,6 +920,10 @@ class CerbPortalWebsiteInteractions_Model {
 		}
 		
 		return $navbar;
+	}
+	
+	function getPageInteraction() {
+		return $this->_schema['layout']['page']['interaction'] ?? null;
 	}
 	
 	function getContentSecurityPolicy() {
