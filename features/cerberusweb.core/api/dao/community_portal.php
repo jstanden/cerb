@@ -1381,9 +1381,7 @@ class Context_CommunityTool extends Extension_DevblocksContext implements IDevbl
 			$workflow_kata['records'][$record_key] = [
 				'fields' => [
 					'name' => $model->name,
-					'code' => $model->code,
 					'extension_id' => $model->extension_id,
-					'updated_at' => $model->updated_at,
 					'uri' => $model->uri,
 				],
 			];
