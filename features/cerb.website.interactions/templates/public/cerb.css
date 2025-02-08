@@ -1,7 +1,9 @@
 :root {
     --cerb-portal-background-color: rgb(235,235,235);
-    --cerb-portal-background-gradient: linear-gradient(white 20%, gray);
-    
+    --cerb-portal-background-color-from: white;
+    --cerb-portal-background-color-to: gray;
+    --cerb-portal-background-gradient: linear-gradient(var(--cerb-portal-background-color-from) 20%, var(--cerb-portal-background-color-to));
+
     --cerb-portal-header-background-button-color: rgb(65,120,225);
     
     --cerb-portal-text-color: black;
