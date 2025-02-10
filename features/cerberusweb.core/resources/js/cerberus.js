@@ -5409,8 +5409,25 @@ var ajax = new cAjaxCalls();
 					return await promise;
 				}
 
-				// √: Safari, Chrome, Opera, Edge
-				if('function' == typeof navigator?.clipboard?.write && -1 === navigator.userAgent.indexOf("Firefox")) {
+				// √: Firefox, Chrome, Opera, Edge
+				if ('function' == typeof navigator?.clipboard.writeText && -1 === navigator.userAgent.indexOf('Safari/')) {
+					// Otherwise we need to call our promise async manually
+					startInteraction().then(
+						function(result) {
+							if(result?.return?.clipboard) {
+								navigator.clipboard.writeText(result.return.clipboard).then(
+									function() { },
+									function() { }
+								);
+							}
+						},
+						function(err) {
+							// Failed the interaction
+						}
+					).catch(function(reason) {});
+					
+				// √ Safari
+				} else if('function' == typeof navigator?.clipboard?.write) {
 					navigator.clipboard.write([new ClipboardItem({
 						'text/plain': startInteraction().then((result) => {
 							return new Promise(async (resolve, reject) => {
@@ -5430,29 +5447,6 @@ var ajax = new cAjaxCalls();
 							// Failed
 						}
 					).catch(function(reason) { });
-				
-				// √: Firefox
-				} else {
-					// Otherwise we need to call our promise async manually
-					startInteraction().then(
-						function(result) {
-							if(result?.return?.clipboard) {
-								if('function' == typeof navigator?.clipboard?.writeText) {
-									navigator.clipboard.writeText(result.return.clipboard).then(
-										function() {
-										},
-										function() {
-										}
-									);
-								}
-							} else {
-								// document.execCommand('copy')
-							}
-						},
-						function(err) {
-							// Failed the interaction
-						}
-					).catch(function(reason) {});
 				}
 			});
 		});
