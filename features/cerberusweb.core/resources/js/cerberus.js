@@ -5410,7 +5410,7 @@ var ajax = new cAjaxCalls();
 				}
 
 				// √: Firefox, Chrome, Opera, Edge
-				if ('function' == typeof navigator?.clipboard.writeText && -1 === navigator.userAgent.indexOf('Safari/')) {
+				if ('function' == typeof navigator?.clipboard.writeText && 'safari' !== Devblocks.getBrowserName()) {
 					// Otherwise we need to call our promise async manually
 					startInteraction().then(
 						function(result) {
