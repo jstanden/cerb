@@ -243,6 +243,7 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 					'limit:',
 					'page:',
 					'required@bool: yes',
+					'validation@raw:',
 				],
 				'(.*):await:form:elements:sheet:data:' => [
 					[
@@ -464,6 +465,7 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 					'required@bool:',
 					'truncate@bool: yes',
 					'type:',
+					'validation@raw:',
 				],
 				
 				'(.*):await:form:elements:text:type:' => [
@@ -489,6 +491,7 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 					'placeholder:',
 					'required@bool:',
 					'truncate@bool: yes',
+					'validation@raw:',
 				],
 				
 				'(.*):await:interaction:' => [
