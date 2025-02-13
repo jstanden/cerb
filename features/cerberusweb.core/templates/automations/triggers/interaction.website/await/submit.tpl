@@ -32,7 +32,9 @@
 			$button.addEventListener('click', function (e) {
 				e.stopPropagation();
 
-				$hidden.value = $button.value;
+				if($hidden)
+					$hidden.value = $button.value;
+
 				$element.style.display = 'none';
 
 				$popup.dispatchEvent($$.createEvent('cerb-interaction-event--submit'));
