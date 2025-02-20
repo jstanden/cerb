@@ -365,6 +365,9 @@ class DevblocksEventHelper {
 				
 			case Model_CustomField::TYPE_MULTI_CHECKBOX:
 				$opts = $params['values'] ?? null;
+				
+				if(!is_array($opts))
+					$opts = [];
 
 				$out .= sprintf("%s\n",
 					implode(', ', $opts)
@@ -604,6 +607,9 @@ class DevblocksEventHelper {
 			case Model_CustomField::TYPE_MULTI_CHECKBOX:
 				$opts = $params['values'] ?? null;
 				
+				if(!is_array($opts))
+					$opts = [];
+				
 				$out .= sprintf(">>> Setting %s to:\n",
 					$custom_field->name
 				);
@@ -721,6 +727,10 @@ class DevblocksEventHelper {
 				
 			case Model_CustomField::TYPE_MULTI_CHECKBOX:
 				$opts = $params['values'] ?? null;
+				
+				if(!is_array($opts))
+					$opts = [];
+				
 				return $opts;
 			
 			case Model_CustomField::TYPE_WORKER:
