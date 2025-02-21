@@ -1,0 +1,66 @@
+{
+  "package": {
+    "name": "Connected Service: Groq",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "10.0.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Groq",
+      "uri": "cerb_connected_service_groq",
+      "description": "Integration with Groq",
+      "instructions": "# Instructions\r\n\r\n* Enter your API key from <https://console.groq.com/keys>",
+      "point": "connected_service",
+      "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAeAAAAEOCAMAAABmRDRVAAAANlBMVEUAAAD///8/Pz9/f3+/v7/v7+8PDw+fn59fX18vLy8fHx/Pz8/f39+Pj49PT0+vr69vb2/+/v76Z7S1AAAATmVYSWZNTQAqAAAACAAEARoABQAAAAEAAAA+ARsABQAAAAEAAABGASgAAwAAAAEAAgAAAhMAAwAAAAEAAQAAAAAAAAAAAEgAAAABAAAASAAAAAFvySO6AAAMpUlEQVR42u2d6ZbjKBKFESBAaJ33f9mxnVnTXWN2Aox87v3V53SWCMdHBDuw/0zQN4vBBQAMATAEwBAAQwAMATAEwAAMATAEwBAAQwAMATAEwAAMATAEwBAAQwAMATAEwBAAAzAEwBAAQwAMATAEwBAAAzAEwBAAQwAMATAEwBAAAzAEwBAAQwAMATAEwBAAQwAMwBAAQwAMATAEwBAAQwAMwBAAQwAMATAEwBAAQwAMwBAAQwAMATAEwBAAQwAMATAAQwAMATAEwBAAQwAMdQG8yh+t/eyff4uUG9Ev6GP2egrB/8iIXc41X9sCPqcBvGnBF/ZvLVycW2MXcf5XkYqbvZCP3K9/f2zhl6hzeahK6utvV/3IHnthXKycPWqJsroR4E0firmlDt0E8rp7i2Rc5PlpPp3+frrcaHLI274wv5Q58z+plXiZqS2f6QGHDX5Fw07MeL1spEh7rcnRdMSsJ2Q8R531ZJwZx6f68w/m5aAGfB4sRcdJ6CObVOSSEnzSqI7Wb4axRNtzHKLkJNUjRS/r678pAWvLUmV1Xx89Q0FEEGve0/oc03MK3PmjovJnbVXztB+EgDPwEjkpy0cxxHnm11qfazqzqWmD61/AE5PTxsgAS8tyZetGILPJLpEpX3smOWvlcZeEyredp3VduPwFfD4AT1SAt4OV6Kjobu0FPmJ2JqsryR539AqXIm+pPRnwsw1my0QGuMjZ6TbT+Uh7+p1drResVClVip/PdCoEf1bmmQTwfLByHUWjjr3QQXTh+/vBfOtnXuEtFW8XLvOToufn3+qFAPBqWY3s2q9GSbpc8Mfjsq+3WDRpbGz9bYPVPLv6grmAtaqzmCndy0eGMD1Hsr5/FqKyOOeP+DuEl3l7GbVLs9RPdOysXnlNmSxu8B35VNdbb3KigcBb0WbB/A5PNr7UT1UaRqE+PhKU/Z0i6zWJt5YYYaGW69HLYmauXmyg4dvHR7aZ+aYr3wTCsxZC+Kb82Qf4dvHRewf06mu9JvPWUTNBlAFYMDqJtP5VRdPV0OFJhCVj3eOhDjChgxJ7o2tFH3Rtar5oanttv7QMcFI0LT97UFQJgfemZSGs87QOj9bPNNufU4xpEyGyOeA55iD+1yYXqY3NH8VkN/n8Eufvnixx8cDH5+hgerl2+foFUmoR9bpaK20/xD+7yJ67j1itt2oBhy04XOvr66WyJxIzcqpjD5P8s9njLYUekW0Up/dTeesYSba7dubE9pbwxoBDExzq2opWXcMN2RauHb4dG9K4hkh7+FuBTxV1fIK2W5/pW3BVcW8KeAuUfM2l+wLW0pTBQ03SJt5arJDDQ98KrtOfRbYHZ2rnAGK1tQTMK5a0RFHaOQvxvrikmx/bhbDxgiR9lkZDcKWdNwSsqxKHfwEnUJst4aqs3/yrZnXF94/9HbqUpTR/ebIZYG8PWqWt/XmXYP19Q2/YL/mZyuvwtMW/zVs/t0zb0xbDvfFgmwEWpZOk0U6OyK1SJXM6orKueOsnz7P9Sq2QB8lSZTpgn8XLXJ0lfSG8E3YlCcw3OUlT1OMxhCHMiiNgyRp766wQtoRVmMJ8kx7CvvqUZbuh+/2sNAKWzLmVPSOE82pDD/NN8kBvr8vPv3K3w0sTwLqmfxX1kTPpHoRrKrpgIqrGJEuy4ufpGMoWgG3uMD9r/t0mT6vYsulYW7jUkebxOW2VMN/2laqOs7KSStag19RKuRMOA1eqzlrihwyV7TvRmgMryqxlixsisVJygkYsaD4ns/6tVVRktnOablYUsCLrzrrTpXrPhpTrZSpjhqIk2W8Js5Rltq80mTMGWNLNqXg6PDJpKleUlSgJk8GZkKMNYTiYpHCoBXwRWuwOgiupyMIAvigXz3k821vCcNhIWvMY4IXQYncILyl+LN12tlBuYdPRmreRbqgyFJksAngm3gKmEoKTZlTmN7/8EKuNWaZJd9tIiv4hK2jDKo75XnF4K0nT4282ebn1IhZShnbPq6tCEQMWxPuw13jWkYRFCsoOhDsD81jrctJWqJUW8EGboZ05+oj/qtIiOV13zdekq0jroojD4aQFvFBM80WS2BIHLOly3FJj/RWuMBtxvnOFg6AFTFwl3TNw8agrLY1uQO1vPmT4f1eVd9Q36Sy7F8onahdtrQBvtE2i2x863ImuultI1LufZeO4qgBPUR9wujolaYcA7pwvwq3LTBwO7QGLOsDqw4DrrOfZgKuKW+s/mA/4JHfR2QrwTjkL5+sjmiDghTzfkQLeqRuVWAzQAhbUPYjIFw/y8loDFgCc80UOwAAMwEjRHQGfXTpZXwNY3A5wg2FSCeDSobemnoeLTC0J8vI+AfjqD7i0Tt1+HNwc8Eo+VRnnd7UFXPemU3j2X5OX1xqwc3dFY8CCDnDvuWhJu/zcA7Air5M9AU/ULcwZHlVs5C1ac8CcesG/L+Cl73rwxIjLaw/4Ije5K+CDeDnJRrrJnHr5qjlgzahN7gq4954sQ53wmgNeGfVIuCtgSZuArpgzNHXCaw7Y2cuyvQEXz4723hdNcxihK+CDEXf9uwLufbLBWQXM0IA1Iw7hKGBJCfiiDGEbT8CGuM/SHvBGdYD6M4BXRhdSOsETJ9lx5F6A3deBlJ+3iQPeSVsx56HeoqmaOeV8sPs88jkyYPd9Ckc7wKRtsDtHL+2+5MzRdh4YsLMjWtHPKgFc0SK4r9YoGHfJtLbK/WdmYMCea0XU2hFwzcDbfeNUdk7wXLc1p7UJxfHQA7Dn+ZDSZrg3YM81XxtJPTGpTVrpCk0PwL7blpf5FoCnzjfdeUK9MON1Aex7AaiMcHfAne+q9JVXRrgLYO+F6ct6B8C9b5v1lVdEuA9g7yNeSt4AsPd+39SnjL1vPPO88pQeFXDgzQNBD5hTA/Y+D6CSJiDW3Bvf/Vf6X6MCDjy6ssjxAfsfyTDxNO1/kefKLy/bW50AB9+lNFtzwJUbOQPPYsXSpvQ/UReYngo8q2PmIQFPwaf4zDo44NC7SaGgWkOvkZ1l5Skxjwg48jTlsm8jAw4/Ned7iuwMPudnistjRo4HOPw43Ivxda7DAo68XcgO/X8VdD5N+DXOyCAr8jilvc55MMBpz38r/i49AuD4c6/2EPrnHdNTmOhfxwa1Cc/LLofY5bvmTwEufs1XjAC49/vB5eXJTwGOvyA8NGDSJ9dTxm3ydoBLK+UggCnfeDcNy/sg4ELCowCmI2xalvdJwGWEhwFMRdg0Le+jgIsIEwAW00CETdvyPgs4MPN+B8AUhLO2V53qboD9a2e3AFw/Wspc8lvt3QCHFx6GB1w+nC9ctM8OiM8DnqS6MWDP/uY08ZJNSuJ2gP1PVN8C8CRtYfgWbs/O67eMADjPR8MBnmZRwvcoP0Mm1N0A59g8HuBp2rK7irbqBsfN3A7wIwxUN8D7RC6Zhdjq6ip13A3wE7HtBFhO0ycR1+PNiOKBAD8H8sd9AT9cfqUkIUNW+rzbuwF+GK2PasD7hwA/a2hk48ahZ9Ly1mu5GeBXshNc1QBuxy/J5z7r+XU2yRs6uGFkRMAvs+UuDs7jW3bYaIBfkE9h+P/cbvlz+07TAuUpLqe3+Doo4OSUPiTgYXU/wK6dLDNAfg9g+juzAXgowI4+9wKOXwTYNRQBx+8BfJbtQQXguwA26ER/NWDnpVvoRH8PYFcfGn2s7wHsPP2CJvh7ADt3UqzA+C2AZ/Lr4wF4KMDOhcULFL8FsPvyGWTobwHsvpkEfehvAew5UqAB8UsAu3f2KMxyDAyY4L5WDIIHBmzq72tFAA8M+MFsSTzN4T1ihwAeF/ArJtPuE/aevrII4GEBm/QY3BXRaWoA7gf4nzY1dkPu6j8hwgFwVMAm9Vxl6ECO2gBwUMAm8fjOGjxvtYPfoIAd2Oz1Nqe87uFjOEjQowL2hKU9hPxNupsUJnaQDkPgUQGnH1YPCqtIgwIm4osR0qCAifiigzUoYCK+BujGBCzB98sjWIPvl7fBGv2rL+9Fy8r7WhX4Dj4OXqvua7UY/w4/kzVXdKUPzF+ND7joInOk5zsBzrxQmOC+VgDuvaNDZrfEFge97wT4MWDKulfbIjvfDXAOYuC9JeC022Yfbe8JUjcFPE1bZN9GztvR0Jscl1l2BvxkrA/PsEm9PbwMdc8BNJ/ZTsH/CmV+iBNwvwfwH84/r1iD7LcChgAYAmAIgCEAhgAYgCEAhgAYAmAIgCEAhgAYgCEAhgAYAmAIgCEAhgAYgCEAhgAYAmAIgCEAhgAYAmAAhgAYAmAIgCEAhgAYAmAAhgAYAmAIgCEAhgAYAmAIgAEYAmAIgCEAhhrovyEA3gdhqQ7sAAAAAElFTkSuQmCC\n"
+    },
+    "configure": {
+      "placeholders": [],
+      "prompts": [
+        {
+          "type": "text",
+          "label": "API Key",
+          "key": "prompt_api_key",
+          "params": {
+            "default": "",
+            "placeholder": "(paste your API Key)"
+          }
+        },
+        {
+          "type": "text",
+          "label": "Alias",
+          "key": "prompt_name",
+          "params": {
+            "default": "groq",
+            "placeholder": "(enter a URI, a-z,0-9,_)"
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "service_groq",
+      "_context": "connected_service",
+      "name": "Groq",
+      "extension_id": "cerb.service.provider.token.bearer",
+      "params": {
+        "token_name": "Bearer"
+      }
+    },
+    {
+      "uid": "account_groq",
+      "_context": "connected_account",
+      "name": "Groq",
+      "service_id": "{{{uid.service_groq}}}",
+      "owner__context": "cerberusweb.contexts.app",
+      "owner_id": "0",
+      "uri": "{{{prompt_name}}}",
+      "params": {
+        "token": "{{{prompt_api_key}}}"
+      }
+    }
+  ]
+}

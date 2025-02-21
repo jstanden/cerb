@@ -202,6 +202,7 @@ $packages = [
 	'card_widget/cerb_card_widget_gpg_public_key_subkeys.json',
 	'cerb_connected_service_anthropic.json',
 	'cerb_connected_service_deepl.json',
+	'cerb_connected_service_groq.json',
 	'cerb_connected_service_ipstack.json',
 	'cerb_connected_service_slack.json',
 	'cerb_profile_tab_ticket_overview.json',
