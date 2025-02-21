@@ -492,47 +492,10 @@ class DAO_Contact extends Cerb_ORMHelper {
 		
 		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_Contact', $sortBy);
 		
-		$select_sql = sprintf("SELECT ".
-			"contact.id as %s, ".
-			"contact.primary_email_id as %s, ".
-			"contact.first_name as %s, ".
-			"contact.last_name as %s, ".
-			"contact.title as %s, ".
-			"contact.org_id as %s, ".
-			"contact.username as %s, ".
-			"contact.gender as %s, ".
-			"contact.dob as %s, ".
-			"contact.location as %s, ".
-			"contact.phone as %s, ".
-			"contact.mobile as %s, ".
-			"contact.auth_salt as %s, ".
-			"contact.auth_password as %s, ".
-			"contact.created_at as %s, ".
-			"contact.updated_at as %s, ".
-			"contact.language as %s, ".
-			"contact.timezone as %s, ".
-			"contact.last_login_at as %s ",
-				SearchFields_Contact::ID,
-				SearchFields_Contact::PRIMARY_EMAIL_ID,
-				SearchFields_Contact::FIRST_NAME,
-				SearchFields_Contact::LAST_NAME,
-				SearchFields_Contact::TITLE,
-				SearchFields_Contact::ORG_ID,
-				SearchFields_Contact::USERNAME,
-				SearchFields_Contact::GENDER,
-				SearchFields_Contact::DOB,
-				SearchFields_Contact::LOCATION,
-				SearchFields_Contact::PHONE,
-				SearchFields_Contact::MOBILE,
-				SearchFields_Contact::AUTH_SALT,
-				SearchFields_Contact::AUTH_PASSWORD,
-				SearchFields_Contact::CREATED_AT,
-				SearchFields_Contact::UPDATED_AT,
-				SearchFields_Contact::LANGUAGE,
-				SearchFields_Contact::TIMEZONE,
-				SearchFields_Contact::LAST_LOGIN_AT
-			);
-			
+		$select_sql = sprintf('SELECT contact.id AS %s ',
+			SearchFields_Contact::ID,
+		);
+		
 		$join_sql = "FROM contact ".
 			(isset($tables['address']) ? "INNER JOIN address ON (address.id=contact.primary_email_id) " : '').
 			(isset($tables['contact_org']) ? sprintf("INNER JOIN contact_org ON (contact_org.id = contact.org_id) ") : " ").
@@ -619,7 +582,7 @@ class DAO_Contact extends Cerb_ORMHelper {
 		$where_sql = $query_parts['where'];
 		$sort_sql = $query_parts['sort'];
 		
-		return self::_searchWithTimeout(
+		$results = self::_searchWithTimeout(
 			SearchFields_Contact::ID,
 			$select_sql,
 			$join_sql,
@@ -629,6 +592,42 @@ class DAO_Contact extends Cerb_ORMHelper {
 			$limit,
 			$withCounts
 		);
+		
+		$models = CerberusContexts::getModels(
+			CerberusContexts::CONTEXT_CONTACT,
+			array_column(
+				$results[0],
+				SearchFields_Contact::ID
+			)
+		);
+		
+		foreach($results[0] as $id => $result) {
+			if(null != ($model = $models[$id] ?? null)) { /* @var Model_Contact $model */
+				$result[SearchFields_Contact::ID] = $model->id;
+				$result[SearchFields_Contact::PRIMARY_EMAIL_ID] = $model->primary_email_id;
+				$result[SearchFields_Contact::FIRST_NAME] = $model->first_name;
+				$result[SearchFields_Contact::LAST_NAME] = $model->last_name;
+				$result[SearchFields_Contact::TITLE] = $model->title;
+				$result[SearchFields_Contact::ORG_ID] = $model->org_id;
+				$result[SearchFields_Contact::USERNAME] = $model->username;
+				$result[SearchFields_Contact::GENDER] = $model->gender;
+				$result[SearchFields_Contact::DOB] = $model->dob;
+				$result[SearchFields_Contact::LOCATION] = $model->location;
+				$result[SearchFields_Contact::PHONE] = $model->phone;
+				$result[SearchFields_Contact::MOBILE] = $model->mobile;
+				$result[SearchFields_Contact::AUTH_SALT] = $model->auth_salt;
+				$result[SearchFields_Contact::AUTH_PASSWORD] = $model->auth_password;
+				$result[SearchFields_Contact::CREATED_AT] = $model->created_at;
+				$result[SearchFields_Contact::UPDATED_AT] = $model->updated_at;
+				$result[SearchFields_Contact::LANGUAGE] = $model->language;
+				$result[SearchFields_Contact::TIMEZONE] = $model->timezone;
+				$result[SearchFields_Contact::LAST_LOGIN_AT] = $model->last_login_at;
+				
+				$results[0][$id] = array_merge($result, $results[0][$id]);
+			}
+		}
+		
+		return $results;
 	}
 
 };
