@@ -5388,6 +5388,34 @@ class _CerbApplication_KataSchemas {
                       output:
                         types:
                           string:
+
+              llm.embed:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+                      inputs:
+                        types:
+                          object:
+                            attributes:
+                              texts:
+                                types:
+                                  list:
+                              params:
+                                types:
+                                  list:
+                              uri:
+                                types:
+                                  string:
+                      on_error:
+                        ref: commands
+                      on_simulate:
+                        ref: commands
+                      on_success:
+                        ref: commands
+                      output:
+                        types:
+                          string:
               
               log:
                 multiple@bool: yes
@@ -6024,6 +6052,7 @@ class _CerbApplication_KataSchemas {
                 file.write@ref: policyRule
                 function@ref: policyRule
                 http.request@ref: policyRule
+                llm.embed@ref: policyRule
                 metric.increment@ref: policyRule
                 queue.pop@ref: policyRule
                 queue.push@ref: policyRule

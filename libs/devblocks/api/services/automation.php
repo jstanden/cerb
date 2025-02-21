@@ -558,6 +558,7 @@ class _DevblocksAutomationService {
 			'function',
 			'http.request',
 			'kata.parse',
+			'llm.embed',
 			'log',
 			'log.alert',
 			'log.error',

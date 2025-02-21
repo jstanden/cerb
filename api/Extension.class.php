@@ -918,6 +918,11 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'description' => "Parse a KATA tree and substitute placeholders",
 			],
 			[
+				'caption' => 'llm.embed:',
+				'snippet' => "llm.embed:\n\tinputs:\n\t\t\${1:}\n\toutput: results\n\t#on_simulate:\n\t#on_success:\n\t#on_error:\n",
+				'description' => "Embed text using a large language model",
+			],
+			[
 				'caption' => 'log:',
 				'snippet' => "log: \${1:This is a debug message}",
 				'description' => "Log a message with debug severity",
@@ -1364,6 +1369,34 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				],
 				'(.*):http.request:inputs:response:resource:' => [
 					'expires@date:',
+				],
+				
+				'(.*):llm.embed:' => $action_base,
+				'(.*):llm.embed:inputs:' => [
+					[
+						'caption' => 'uri:',
+						'snippet' => "uri: cerb:automation:\${1:example}",
+						'score' => 2000,
+					],
+					[
+						'caption' => 'texts:',
+						'snippet' => "texts:\n\t0@text:\n\t\t\${1:This is an example}",
+						'score' => 1998,
+					],
+					'params:',
+				],
+				'(.*):llm.embed:inputs:params:' => [
+					'type' => 'automation-inputs',
+				],
+				'(.*):llm.embed:inputs:uri:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'automation' => [
+							'triggers' => [
+								'cerb.trigger.llm.embedding'
+							]
+						]
+					]
 				],
 				
 				'(.*):kata.parse:' => $action_base,

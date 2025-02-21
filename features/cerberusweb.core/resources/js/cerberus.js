@@ -42,6 +42,7 @@ var cerbAutocompleteSuggestions = {
 			'file.write:',
 			'function:',
 			'http.request:',
+			'llm.embed:',
 			'metric.increment:',
 			'queue.pop:',
 			'queue.push:',
@@ -117,6 +118,15 @@ var cerbAutocompleteSuggestions = {
 				'caption': 'deny/url:',
 				'snippet': "deny/url@bool: {{inputs.url is not prefixed ('https://')}}",
 				'docHTML': 'Validate HTTP URL'
+			},
+			'deny@bool: yes',
+			'allow@bool: yes'
+		],
+		'commands:llm.embed:': [
+			{
+				'caption': 'deny/uri:',
+				'snippet': "deny/uri@bool: {{inputs.uri != 'cerb:automation:example.name'}}",
+				'docHTML': 'Validate llm.embed automation URI'
 			},
 			'deny@bool: yes',
 			'allow@bool: yes'
