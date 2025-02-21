@@ -369,9 +369,7 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 		;
 		$rs = $db->QueryReader($sql);
 
-		$objects = self::_getObjectsFromResultSet($rs);
-
-		return $objects;
+		return self::_getObjectsFromResultSet($rs);
 	}
 	
 	static private function _getObjectsFromResultSet($rs) {
@@ -461,32 +459,9 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 		
 		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_ContactOrg', $sortBy);
 		
-		$select_sql = sprintf("SELECT ".
-			"c.id as %s, ".
-			"c.name as %s, ".
-			"c.street as %s, ".
-			"c.city as %s, ".
-			"c.province as %s, ".
-			"c.postal as %s, ".
-			"c.country as %s, ".
-			"c.phone as %s, ".
-			"c.website as %s, ".
-			"c.updated as %s, ".
-			"c.created as %s, ".
-			"c.email_id as %s ",
-				SearchFields_ContactOrg::ID,
-				SearchFields_ContactOrg::NAME,
-				SearchFields_ContactOrg::STREET,
-				SearchFields_ContactOrg::CITY,
-				SearchFields_ContactOrg::PROVINCE,
-				SearchFields_ContactOrg::POSTAL,
-				SearchFields_ContactOrg::COUNTRY,
-				SearchFields_ContactOrg::PHONE,
-				SearchFields_ContactOrg::WEBSITE,
-				SearchFields_ContactOrg::UPDATED,
-				SearchFields_ContactOrg::CREATED,
-				SearchFields_ContactOrg::EMAIL_ID
-			);
+		$select_sql = sprintf('SELECT c.id AS %s ',
+			SearchFields_ContactOrg::ID
+		);
 
 		$join_sql =
 			"FROM contact_org c ";
@@ -527,7 +502,7 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 		$where_sql = $query_parts['where'];
 		$sort_sql = $query_parts['sort'];
 		
-		return self::_searchWithTimeout(
+		$results = self::_searchWithTimeout(
 			SearchFields_ContactOrg::ID,
 			$select_sql,
 			$join_sql,
@@ -537,6 +512,35 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 			$limit,
 			$withCounts
 		);
+		
+		$models = CerberusContexts::getModels(
+			CerberusContexts::CONTEXT_ORG,
+			array_column(
+				$results[0],
+				SearchFields_ContactOrg::ID
+			)
+		);
+		
+		foreach($results[0] as $id => $result) {
+			if(null != ($model = $models[$id] ?? null)) { /* @var Model_ContactOrg $model */
+				$result[SearchFields_ContactOrg::ID] = $model->id;
+				$result[SearchFields_ContactOrg::NAME] = $model->name;
+				$result[SearchFields_ContactOrg::STREET] = $model->street;
+				$result[SearchFields_ContactOrg::CITY] = $model->city;
+				$result[SearchFields_ContactOrg::PROVINCE] = $model->province;
+				$result[SearchFields_ContactOrg::POSTAL] = $model->postal;
+				$result[SearchFields_ContactOrg::COUNTRY] = $model->country;
+				$result[SearchFields_ContactOrg::PHONE] = $model->phone;
+				$result[SearchFields_ContactOrg::WEBSITE] = $model->website;
+				$result[SearchFields_ContactOrg::UPDATED] = $model->updated;
+				$result[SearchFields_ContactOrg::CREATED] = $model->created;
+				$result[SearchFields_ContactOrg::EMAIL_ID] = $model->email_id;
+				
+				$results[0][$id] = array_merge($result, $results[0][$id]);
+			}
+		}
+		
+		return $results;
 	}
 };
 
@@ -1184,7 +1188,7 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 					'score' => 2000,
 					'options' => [
 						'param_key' => SearchFields_ContactOrg::NAME,
-						'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL,
+						'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX,
 					],
 					'suggester' => [
 						'type' => 'autocomplete',
