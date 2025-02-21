@@ -396,27 +396,10 @@ class DAO_Comment extends Cerb_ORMHelper {
 		
 		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_Comment', $sortBy);
 		
-		$select_sql = sprintf("SELECT ".
-			"comment.id as %s, ".
-			"comment.context as %s, ".
-			"comment.context_id as %s, ".
-			"comment.created as %s, ".
-			"comment.owner_context as %s, ".
-			"comment.owner_context_id as %s, ".
-			"comment.is_markdown as %s, ".
-			"comment.is_pinned as %s, ".
-			"comment.comment as %s ",
-				SearchFields_Comment::ID,
-				SearchFields_Comment::CONTEXT,
-				SearchFields_Comment::CONTEXT_ID,
-				SearchFields_Comment::CREATED,
-				SearchFields_Comment::OWNER_CONTEXT,
-				SearchFields_Comment::OWNER_CONTEXT_ID,
-				SearchFields_Comment::IS_MARKDOWN,
-				SearchFields_Comment::IS_PINNED,
-				SearchFields_Comment::COMMENT
-			);
-			
+		$select_sql = sprintf('SELECT comment.id AS %s ',
+			SearchFields_Comment::ID
+		);
+		
 		$join_sql = "FROM comment ";
 		
 		$where_sql = "".
@@ -456,7 +439,7 @@ class DAO_Comment extends Cerb_ORMHelper {
 		$where_sql = $query_parts['where'];
 		$sort_sql = $query_parts['sort'];
 		
-		return self::_searchWithTimeout(
+		$results = self::_searchWithTimeout(
 			SearchFields_Comment::ID,
 			$select_sql,
 			$join_sql,
@@ -466,6 +449,32 @@ class DAO_Comment extends Cerb_ORMHelper {
 			$limit,
 			$withCounts
 		);
+		
+		$models = CerberusContexts::getModels(
+			CerberusContexts::CONTEXT_COMMENT,
+			array_column(
+				$results[0],
+				SearchFields_Comment::ID
+			)
+		);
+		
+		foreach($results[0] as $id => $result) {
+			if(null != ($model = $models[$id] ?? null)) { /* @var Model_Comment $model */
+				$result[SearchFields_Comment::ID] = $model->id;
+				$result[SearchFields_Comment::CONTEXT] = $model->context;
+				$result[SearchFields_Comment::CONTEXT_ID] = $model->context_id;
+				$result[SearchFields_Comment::CREATED] = $model->created;
+				$result[SearchFields_Comment::OWNER_CONTEXT] = $model->owner_context;
+				$result[SearchFields_Comment::OWNER_CONTEXT_ID] = $model->owner_context_id;
+				$result[SearchFields_Comment::IS_MARKDOWN] = $model->is_markdown;
+				$result[SearchFields_Comment::IS_PINNED] = $model->is_pinned;
+				$result[SearchFields_Comment::COMMENT] = $model->comment;
+				
+				$results[0][$id] = array_merge($result, $results[0][$id]);
+			}
+		}
+		
+		return $results;
 	}
 
 	static function maint() {
