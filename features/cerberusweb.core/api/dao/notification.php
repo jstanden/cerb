@@ -557,25 +557,10 @@ class DAO_Notification extends Cerb_ORMHelper {
 		
 		list(,$wheres) = parent::_parseSearchParams($params, [], 'SearchFields_Notification', $sortBy);
 		
-		$select_sql = sprintf("SELECT ".
-			"we.id as %s, ".
-			"we.context as %s, ".
-			"we.context_id as %s, ".
-			"we.created_date as %s, ".
-			"we.worker_id as %s, ".
-			"we.is_read as %s, ".
-			"we.activity_point as %s, ".
-			"we.entry_json as %s ",
-				SearchFields_Notification::ID,
-				SearchFields_Notification::CONTEXT,
-				SearchFields_Notification::CONTEXT_ID,
-				SearchFields_Notification::CREATED_DATE,
-				SearchFields_Notification::WORKER_ID,
-				SearchFields_Notification::IS_READ,
-				SearchFields_Notification::ACTIVITY_POINT,
-				SearchFields_Notification::ENTRY_JSON
+		$select_sql = sprintf('SELECT we.id AS %s ',
+			SearchFields_Notification::ID
 		);
-			
+
 		$join_sql = "FROM notification we ";
 			
 		$where_sql = "".
@@ -583,13 +568,13 @@ class DAO_Notification extends Cerb_ORMHelper {
 		
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_Notification');
 
-		$result = array(
+		$result = [
 			'primary_table' => 'we',
 			'select' => $select_sql,
 			'join' => $join_sql,
 			'where' => $where_sql,
 			'sort' => $sort_sql,
-		);
+		];
 		
 		return $result;
 	}
@@ -614,7 +599,7 @@ class DAO_Notification extends Cerb_ORMHelper {
 		$where_sql = $query_parts['where'];
 		$sort_sql = $query_parts['sort'];
 		
-		return self::_searchWithTimeout(
+		$results = self::_searchWithTimeout(
 			SearchFields_Notification::ID,
 			$select_sql,
 			$join_sql,
@@ -624,6 +609,31 @@ class DAO_Notification extends Cerb_ORMHelper {
 			$limit,
 			$withCounts
 		);
+		
+		$models = CerberusContexts::getModels(
+			CerberusContexts::CONTEXT_NOTIFICATION,
+			array_column(
+				$results[0],
+				SearchFields_Notification::ID
+			)
+		);
+		
+		foreach($results[0] as $id => $result) {
+			if(null != ($model = $models[$id] ?? null)) { /* @var Model_Notification $model */
+				$result[SearchFields_Notification::ID] = $model->id;
+				$result[SearchFields_Notification::CONTEXT] = $model->context;
+				$result[SearchFields_Notification::CONTEXT_ID] = $model->context_id;
+				$result[SearchFields_Notification::CREATED_DATE] = $model->created_date;
+				$result[SearchFields_Notification::WORKER_ID] = $model->worker_id;
+				$result[SearchFields_Notification::IS_READ] = $model->is_read;
+				$result[SearchFields_Notification::ACTIVITY_POINT] = $model->activity_point;
+				$result[SearchFields_Notification::ENTRY_JSON] = json_encode($model->entry);
+				
+				$results[0][$id] = array_merge($result, $results[0][$id]);
+			}
+		}
+		
+		return $results;
 	}
 	
 };
