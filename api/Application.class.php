@@ -4998,6 +4998,9 @@ class _CerbApplication_KataSchemas {
                 types:
                   object:
                     attributes:
+                      allowed_values:
+                        types:
+                          list:
                       default:
                         types:
                           string:

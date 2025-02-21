@@ -1819,6 +1819,11 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					],
 					'type_options:',
 					'required@bool: yes',
+					[
+						'caption' => 'allowed_values:',
+						'snippet' => "allowed_values@csv: \${1:value1, value2}:",
+						'description' => 'An optional list of allowed values',
+					],
 					'default:',
 					'description:',
 				],
