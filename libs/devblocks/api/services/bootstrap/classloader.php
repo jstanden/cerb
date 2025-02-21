@@ -225,6 +225,13 @@ class _DevblocksClassLoadManager {
 			'_DevblocksKataService',
 			'DevblocksKataRawString',
 		]);
+		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/llm.php', [
+			'DevblocksLlmChatResponse',
+			'DevblocksLlmChatResponse_Tool',
+			'Extension_DevblocksLlmMemoryStore',
+			'Extension_DevblocksLlmProvider',
+			'_DevblocksLlmService',
+		]);
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/metrics.php', [
 			'_DevblocksMetricsService',
 		]);

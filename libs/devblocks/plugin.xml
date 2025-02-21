@@ -29,6 +29,7 @@
 
 	<class_loader>
 		<dir path="api/services/automation/" namespace="Cerb\AutomationBuilder\" />
+		<dir path="api/services/llm/" namespace="Cerb\LLM\" />
 
 		<file path="api/dao/devblocks_storage_profile.php">
 			<class name="View_DevblocksStorageProfile" />

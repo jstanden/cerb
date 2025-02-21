@@ -146,6 +146,10 @@ class _DevblocksServices {
 		return _DevblocksKataService::getInstance();
 	}
 
+	function llm() : _DevblocksLlmService {
+		return _DevblocksLlmService::getInstance();
+	}
+	
 	/**
 	 * 
 	 * @param string $prefix
