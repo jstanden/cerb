@@ -4934,6 +4934,9 @@ class _CerbApplication_KataSchemas {
                       default:
                         types:
                           list:
+                      description:
+                        types:
+                          string:
                       required:
                         types:
                           bool:
@@ -4949,6 +4952,9 @@ class _CerbApplication_KataSchemas {
                       default:
                         types:
                           number:
+                      description:
+                        types:
+                          string:
                       expand:
                         types:
                           string:
@@ -4971,6 +4977,9 @@ class _CerbApplication_KataSchemas {
                         types:
                           # [TODO] list of type number
                           list:
+                      description:
+                        types:
+                          string:
                       expand:
                         types:
                           string:
@@ -4990,6 +4999,9 @@ class _CerbApplication_KataSchemas {
                   object:
                     attributes:
                       default:
+                        types:
+                          string:
+                      description:
                         types:
                           string:
                       required:

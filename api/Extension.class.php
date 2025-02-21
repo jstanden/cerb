@@ -1782,6 +1782,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'inputs:array:' => [
 					'required@bool: yes',
 					'default@list:',
+					'description:',
 				],
 				
 				'inputs:record:' => [
@@ -1793,6 +1794,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'required@bool: yes',
 					'expand:',
 					'default:',
+					'description:',
 				],
 				'inputs:record:record_type:' => $this->_getRecordTypeSuggestions(),
 				
@@ -1805,6 +1807,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'required@bool: yes',
 					'expand:',
 					'default:',
+					'description:',
 				],
 				'inputs:records:record_type:' => $this->_getRecordTypeSuggestions(),
 				
@@ -1817,6 +1820,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'type_options:',
 					'required@bool: yes',
 					'default:',
+					'description:',
 				],
 				'inputs:text:type:' => [
 					'bool',
