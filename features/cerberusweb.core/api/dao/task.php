@@ -504,27 +504,8 @@ class DAO_Task extends Cerb_ORMHelper {
 		
 		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_Task', $sortBy);
 		
-		$select_sql = sprintf("SELECT ".
-			"t.id as %s, ".
-			"t.title as %s, ".
-			"t.created_at as %s, ".
-			"t.updated_date as %s, ".
-			"t.owner_id as %s, ".
-			"t.importance as %s, ".
-			"t.due_date as %s, ".
-			"t.reopen_at as %s, ".
-			"t.status_id as %s, ".
-			"t.completed_date as %s ",
-				SearchFields_Task::ID,
-				SearchFields_Task::TITLE,
-				SearchFields_Task::CREATED_AT,
-				SearchFields_Task::UPDATED_DATE,
-				SearchFields_Task::OWNER_ID,
-				SearchFields_Task::IMPORTANCE,
-				SearchFields_Task::DUE_DATE,
-				SearchFields_Task::REOPEN_AT,
-				SearchFields_Task::STATUS_ID,
-				SearchFields_Task::COMPLETED_DATE
+		$select_sql = sprintf('SELECT t.id AS %s ',
+			SearchFields_Task::ID
 		);
 
 		$join_sql =
@@ -566,7 +547,7 @@ class DAO_Task extends Cerb_ORMHelper {
 		$where_sql = $query_parts['where'];
 		$sort_sql = $query_parts['sort'];
 		
-		return self::_searchWithTimeout(
+		$results = self::_searchWithTimeout(
 			SearchFields_Task::ID,
 			$select_sql,
 			$join_sql,
@@ -576,6 +557,33 @@ class DAO_Task extends Cerb_ORMHelper {
 			$limit,
 			$withCounts
 		);
+		
+		$models = CerberusContexts::getModels( /* @var Model_Task[] $models */
+			CerberusContexts::CONTEXT_TASK,
+			array_column(
+				$results[0],
+				SearchFields_Task::ID
+			)
+		);
+		
+		foreach($results[0] as $id => $result) {
+			if(null != ($model = $models[$id] ?? null)) {
+				$result[SearchFields_Task::ID] = $model->id;
+				$result[SearchFields_Task::TITLE] = $model->title;
+				$result[SearchFields_Task::CREATED_AT] = $model->created_at;
+				$result[SearchFields_Task::UPDATED_DATE] = $model->updated_date;
+				$result[SearchFields_Task::OWNER_ID] = $model->owner_id;
+				$result[SearchFields_Task::IMPORTANCE] = $model->importance;
+				$result[SearchFields_Task::DUE_DATE] = $model->due_date;
+				$result[SearchFields_Task::REOPEN_AT] = $model->reopen_at;
+				$result[SearchFields_Task::STATUS_ID] = $model->status_id;
+				$result[SearchFields_Task::COMPLETED_DATE] = $model->completed_date;
+				
+				$results[0][$id] = array_merge($result, $results[0][$id]);
+			}
+		}
+
+		return $results;
 	}
 	
 };
