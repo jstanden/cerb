@@ -633,7 +633,7 @@ class DAO_Attachment extends Cerb_ORMHelper {
 		$view->renderPage = 0;
 		$view->renderTotal = true;
 		
-		$query_parts = DAO_Attachment::getSearchQueryComponents($view->view_columns, $view->getParams());
+		$query_parts = DAO_Attachment::getSearchQueryComponents([], $view->getParams());
 		
 		$sql = "SELECT count(a.id) ".
 			$query_parts['join'] .
@@ -669,28 +669,10 @@ class DAO_Attachment extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Attachment::getFields();
 		
-		list(,$wheres) = parent::_parseSearchParams($params, array(), 'SearchFields_Attachment', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, [], 'SearchFields_Attachment', $sortBy);
 		
-		$select_sql = sprintf("SELECT ".
-			"a.id as %s, ".
-			"a.name as %s, ".
-			"a.mime_type as %s, ".
-			"a.storage_size as %s, ".
-			"a.storage_extension as %s, ".
-			"a.storage_key as %s, ".
-			"a.storage_profile_id as %s, ".
-			"a.storage_sha1hash as %s, ".
-			"a.updated as %s ".
-			"",
-				SearchFields_Attachment::ID,
-				SearchFields_Attachment::NAME,
-				SearchFields_Attachment::MIME_TYPE,
-				SearchFields_Attachment::STORAGE_SIZE,
-				SearchFields_Attachment::STORAGE_EXTENSION,
-				SearchFields_Attachment::STORAGE_KEY,
-				SearchFields_Attachment::STORAGE_PROFILE_ID,
-				SearchFields_Attachment::STORAGE_SHA1HASH,
-				SearchFields_Attachment::UPDATED
+		$select_sql = sprintf('SELECT a.id AS %s ',
+			SearchFields_Attachment::ID
 		);
 		
 		$join_sql = "FROM attachment a ";
@@ -725,14 +707,14 @@ class DAO_Attachment extends Cerb_ORMHelper {
 	 */
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		// Build search queries
-		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);
+		$query_parts = self::getSearchQueryComponents([],$params,$sortBy,$sortAsc);
 
 		$select_sql = $query_parts['select'];
 		$join_sql = $query_parts['join'];
 		$where_sql = $query_parts['where'];
 		$sort_sql = $query_parts['sort'];
 		
-		return self::_searchWithTimeout(
+		$results = self::_searchWithTimeout(
 			SearchFields_Attachment::ID,
 			$select_sql,
 			$join_sql,
@@ -742,6 +724,32 @@ class DAO_Attachment extends Cerb_ORMHelper {
 			$limit,
 			$withCounts
 		);
+		
+		$models = CerberusContexts::getModels(
+			CerberusContexts::CONTEXT_ATTACHMENT,
+			array_column(
+				$results[0],
+				SearchFields_Attachment::ID
+			)
+		);
+		
+		foreach($results[0] as $id => $result) {
+			if(null != ($model = $models[$id] ?? null)) { /* @var Model_Attachment $model */
+				$result[SearchFields_Attachment::ID] = $model->id;
+				$result[SearchFields_Attachment::NAME] = $model->name;
+				$result[SearchFields_Attachment::MIME_TYPE] = $model->mime_type;
+				$result[SearchFields_Attachment::STORAGE_SIZE] = $model->storage_size;
+				$result[SearchFields_Attachment::STORAGE_EXTENSION] = $model->storage_extension;
+				$result[SearchFields_Attachment::STORAGE_KEY] = $model->storage_key;
+				$result[SearchFields_Attachment::STORAGE_PROFILE_ID] = $model->storage_profile_id;
+				$result[SearchFields_Attachment::STORAGE_SHA1HASH] = $model->storage_sha1hash;
+				$result[SearchFields_Attachment::UPDATED] = $model->updated;
+				
+				$results[0][$id] = array_merge($result, $results[0][$id]);
+			}
+		}
+		
+		return $results;
 	}
 };
 
