@@ -61,6 +61,7 @@ class ApiCommand_CerbWorklistQueryDebug extends Extension_AutomationApiCommand {
 				'record_type:',
 				'query:',
 			],
+			'record_type:' => array_values(Extension_DevblocksContext::getUris()),
 			default => [],
 		};
 	}
