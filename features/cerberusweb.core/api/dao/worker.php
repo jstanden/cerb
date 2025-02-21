@@ -1214,51 +1214,10 @@ class DAO_Worker extends Cerb_ORMHelper {
 		
 		list($tables, $wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_Worker', $sortBy);
 		
-		$select_sql = sprintf("SELECT ".
-			"w.id as %s, ".
-			"w.first_name as %s, ".
-			"w.last_name as %s, ".
-			"w.title as %s, ".
-			"w.email_id as %s, ".
-			"w.is_superuser as %s, ".
-			"w.is_mfa_required as %s, ".
-			"w.is_password_disabled as %s, ".
-			"w.at_mention_name as %s, ".
-			"w.timezone as %s, ".
-			"w.time_format as %s, ".
-			"w.timeout_idle_secs as %s, ".
-			"w.language as %s, ".
-			"w.calendar_id as %s, ".
-			"w.gender as %s, ".
-			"w.dob as %s, ".
-			"w.location as %s, ".
-			"w.mobile as %s, ".
-			"w.phone as %s, ".
-			"w.updated as %s, ".
-			"w.is_disabled as %s ",
-				SearchFields_Worker::ID,
-				SearchFields_Worker::FIRST_NAME,
-				SearchFields_Worker::LAST_NAME,
-				SearchFields_Worker::TITLE,
-				SearchFields_Worker::EMAIL_ID,
-				SearchFields_Worker::IS_SUPERUSER,
-				SearchFields_Worker::IS_MFA_REQUIRED,
-				SearchFields_Worker::IS_PASSWORD_DISABLED,
-				SearchFields_Worker::AT_MENTION_NAME,
-				SearchFields_Worker::TIMEZONE,
-				SearchFields_Worker::TIME_FORMAT,
-				SearchFields_Worker::TIMEOUT_IDLE_SECS,
-				SearchFields_Worker::LANGUAGE,
-				SearchFields_Worker::CALENDAR_ID,
-				SearchFields_Worker::GENDER,
-				SearchFields_Worker::DOB,
-				SearchFields_Worker::LOCATION,
-				SearchFields_Worker::MOBILE,
-				SearchFields_Worker::PHONE,
-				SearchFields_Worker::UPDATED,
-				SearchFields_Worker::IS_DISABLED
-			);
-			
+		$select_sql = sprintf('SELECT w.id AS %s ',
+			SearchFields_Worker::ID
+		);
+		
 		$join_sql = "FROM worker w ".
 
 		// Dynamic joins
@@ -1349,7 +1308,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		$where_sql = $query_parts['where'];
 		$sort_sql = $query_parts['sort'];
 		
-		return self::_searchWithTimeout(
+		$results = self::_searchWithTimeout(
 			SearchFields_Worker::ID,
 			$select_sql,
 			$join_sql,
@@ -1359,6 +1318,44 @@ class DAO_Worker extends Cerb_ORMHelper {
 			$limit,
 			$withCounts
 		);
+		
+		$models = CerberusContexts::getModels( /* @var Model_Worker[] $models */
+			CerberusContexts::CONTEXT_WORKER,
+			array_column(
+				$results[0],
+				SearchFields_Worker::ID
+			)
+		);
+		
+		foreach($results[0] as $id => $result) {
+			if(null != ($model = $models[$id] ?? null)) {
+				$result[SearchFields_Worker::AT_MENTION_NAME] = $model->at_mention_name;
+				$result[SearchFields_Worker::CALENDAR_ID] = $model->calendar_id;
+				$result[SearchFields_Worker::DOB] = $model->dob;
+				$result[SearchFields_Worker::EMAIL_ID] = $model->email_id;
+				$result[SearchFields_Worker::FIRST_NAME] = $model->first_name;
+				$result[SearchFields_Worker::GENDER] = $model->gender;
+				$result[SearchFields_Worker::ID] = $model->id;
+				$result[SearchFields_Worker::IS_DISABLED] = $model->is_disabled;
+				$result[SearchFields_Worker::IS_MFA_REQUIRED] = $model->is_mfa_required;
+				$result[SearchFields_Worker::IS_PASSWORD_DISABLED] = $model->is_password_disabled;
+				$result[SearchFields_Worker::IS_SUPERUSER] = $model->is_superuser;
+				$result[SearchFields_Worker::LANGUAGE] = $model->language;
+				$result[SearchFields_Worker::LAST_NAME] = $model->last_name;
+				$result[SearchFields_Worker::LOCATION] = $model->location;
+				$result[SearchFields_Worker::MOBILE] = $model->mobile;
+				$result[SearchFields_Worker::PHONE] = $model->phone;
+				$result[SearchFields_Worker::TIMEOUT_IDLE_SECS] = $model->timeout_idle_secs;
+				$result[SearchFields_Worker::TIMEZONE] = $model->timezone;
+				$result[SearchFields_Worker::TIME_FORMAT] = $model->time_format;
+				$result[SearchFields_Worker::TITLE] = $model->title;
+				$result[SearchFields_Worker::UPDATED] = $model->updated;
+				
+				$results[0][$id] = array_merge($result, $results[0][$id]);
+			}
+		}
+		
+		return $results;
 	}
 	
 	public static function updateGroupMemberships(int $id, mixed $group_memberships) {
