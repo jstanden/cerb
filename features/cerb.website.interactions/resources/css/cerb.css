@@ -4,7 +4,7 @@
     --cerb-interaction-badge-shadow: 0 0 12px 2px rgb(50, 50, 50);
     --cerb-interaction-button-alt-bg-color: rgb(225, 225, 225);
     --cerb-interaction-button-alt-text-color: rgb(0, 0, 0);
-    --cerb-interaction-button-outline-border-color: rgb(100, 100, 100);
+    --cerb-interaction-button-outline-border-color: rgb(150, 150, 150);
     --cerb-interaction-button-outline-text-color: rgb(100, 100, 100);
     --cerb-interaction-button-bg-color: rgb(70, 150, 250);
     --cerb-interaction-button-text-color: white;
@@ -13,6 +13,7 @@
     --cerb-interaction-sheet-cell-border: 1px solid rgb(200,200,200);
     --cerb-interaction-sheet-cell-selected-bg-color: rgb(70, 150, 250);
     --cerb-interaction-sheet-cell-selected-text-color: white;
+    --cerb-interaction-sheet-fieldset-heading-text-color: rgb(120, 120, 120);
     --cerb-interaction-window-bg-color: white;
     --cerb-interaction-window-close-bg-color: rgb(95, 95, 95);
     --cerb-interaction-window-close-hover-bg-color: rgb(125, 125, 125);
@@ -33,8 +34,11 @@
 .cerb-interaction-popup {
     font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     background: var(--cerb-interaction-window-bg-color);
-    border-radius: 15px;
     box-shadow: 0 0 10px 0 rgb(50, 50, 50);
+
+    /*opacity: 0;*/
+    /*transform: scale(0.8);*/
+    /*transition: opacity 0.3s ease, transform 0.3s ease;*/
 }
 
 .cerb-interaction-popup--style-embed {
@@ -211,18 +215,18 @@
     max-width: 100%;
 }
 
-.cerb-interaction-popup--form-elements-say-error {
+.cerb-interaction-popup--form-elements-say--style-error {
     background-color: var(--cerb-interaction-window-error-bg-color);
     color: var(--cerb-interaction-window-error-text-color);
     padding: 15px;
 }
 
-.cerb-interaction-popup--form-elements-say-error H1 {
+.cerb-interaction-popup--form-elements-say--style-error H1 {
     margin: 0;
     color: var(--cerb-interaction-window-error-text-color);
 }
 
-.cerb-interaction-popup--form-elements-say-error > P {
+.cerb-interaction-popup--form-elements-say--style-error > P {
     margin: 0;
     padding: 0;
     color: inherit;
@@ -250,6 +254,7 @@
     background: none;
     color: var(--cerb-interaction-button-outline-text-color);
     border: 1px solid var(--cerb-interaction-button-outline-border-color);
+    font-weight: normal !important;
 }
 
 .cerb-interaction-popup--form-elements-button:hover {
@@ -401,6 +406,7 @@
 
 .cerb-interaction-popup--form-elements-sheet .cerb-sheet-fieldsets td[data-column-key] {
     text-transform: uppercase;
+    color: var(--cerb-interaction-sheet-fieldset-heading-text-color);
     font-size: 0.7em;
     padding: 0.2em 1em 0 0;
     text-align: right;
