@@ -2646,7 +2646,7 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 				$workflow_kata['records'][$record_key]['fields']['params'] = $model->params;
 			
 			if($workflow_kata['records'][$record_key]['fields']['params']['context'] ?? '')
-				$workflow_kata['records'][$record_key]['fields']['params']['context'] = CerberusContexts::getContextName($workflow_kata['records'][$record_key]['fields']['params']['context'], 'uri');
+				$workflow_kata['records'][$record_key]['fields']['params']['context'] = CerberusContexts::getContextName($workflow_kata['records'][$record_key]['fields']['params']['context'], 'id');
 		}
 		
 		return $workflow_kata;
