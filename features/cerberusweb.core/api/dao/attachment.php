@@ -2054,6 +2054,18 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		return $keys;
 	}
 	
+	function getKeyAutocompleteSuggestions() : array {
+		return [
+			'mime_type' => [
+				'application/octet-stream',
+				'application/json',
+				'image/png',
+				'text/plain',
+				'text/html',
+			],
+		];
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'attach':

@@ -1222,6 +1222,14 @@ class Context_CommunityTool extends Extension_DevblocksContext implements IDevbl
 		return $keys;
 	}
 	
+	function getKeyAutocompleteSuggestions() : array {
+		$ext_mfts = Extension_CommunityPortal::getAll(false);
+		
+		return [
+			'extension_id' => array_column($ext_mfts, 'id'),
+		];
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'params':

@@ -1421,6 +1421,15 @@ class Context_Notification extends Extension_DevblocksContext {
 		return $keys;
 	}
 	
+	function getKeyAutocompleteSuggestions() : array {
+		$activity_points = DevblocksPlatform::getActivityPointRegistry();
+		
+		return [
+			'activity_point' => array_column($activity_points, 'point'),
+			'target__context' => self::getAutocompleteRecordTypes(),
+		];
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		$dict_key = DevblocksPlatform::strLower($key);
 		switch($dict_key) {

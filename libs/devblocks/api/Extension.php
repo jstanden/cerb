@@ -928,6 +928,52 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		return $keys;
 	}
 	
+	function getKeyAutocompleteSuggestions() : array {
+		return [];
+	}
+	
+	static function getKeyAutocompleteBit() : array {
+		return ['0', '1'];
+	}
+	
+	static function getKeyAutocompleteDate() : array {
+		return ['now', 'tomorrow 8am', 'Friday 5pm', '2025-12-31 12:00:00'];
+	}
+	
+	static function getKeyAutocompleteLinks() : array {
+		return [
+			'ticket:123',
+		];
+	}
+	
+	static function getKeyAutocompleteRecordFieldSearch(string $record_type, string $field_key) : array {
+		return [
+			'type' => 'record-field',
+			'params' => [
+				'record_type' => $record_type,
+				'field_key' => $field_key,
+			]
+		];
+	}
+	
+	static function getAutocompleteRecordOwnerTypes() {
+		$owner_record_contexts = Extension_DevblocksContext::getAll(false, ['owner']);
+		return array_values(array_map(fn($ctx) => $ctx->params['alias'] ?? $ctx->id, $owner_record_contexts));
+	}
+	
+	static function getAutocompleteRecordTypes() {
+		$record_contexts = Extension_DevblocksContext::getAll(false);
+		return array_values(array_map(fn($ctx) => $ctx->params['alias'] ?? $ctx->id, $record_contexts));
+	}
+	
+	static function getAutocompleteLanguages() {
+		return array_keys(DAO_Translation::getDefinedLangCodes());
+	}
+	
+	static function getAutocompleteTimezones() {
+		return DevblocksPlatform::services()->date()->getTimezones();
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		return true;
 	}

@@ -3587,8 +3587,23 @@ var ajax = new cAjaxCalls();
 								if(completions.hasOwnProperty('params') && completions.params.hasOwnProperty('record_type')) {
 									record_type = completions.params.record_type;
 									
+								} else if(completions.hasOwnProperty('params') && completions.params.hasOwnProperty('parent_key')) {
+									let record_type_path = Devblocks.cerbCodeEditor.getKataTokenPath(
+										null,
+										editor
+									);
+									
+									record_type_path.pop();
+									
+									let parent_key = record_type_path.pop();
+									let matches = parent_key.match(/([^:]*):/i);
+									
+									if(Array.isArray(matches) && 2 === matches.length) {
+										record_type = matches[1].split('/')[0];
+									}
+									
 								} else {
-									var record_type_path = Devblocks.cerbCodeEditor.getKataTokenPath(
+									let record_type_path = Devblocks.cerbCodeEditor.getKataTokenPath(
 										null,
 										editor
 									);
@@ -3596,9 +3611,9 @@ var ajax = new cAjaxCalls();
 									record_type_path.pop();
 									record_type_path.push('record_type:');
 									
-									var key_row = Devblocks.cerbCodeEditor.getKataRowByPath(editor, record_type_path.join(''));
-									var key_line = editor.session.getLine(key_row);
-									var matches = key_line.match(/[^:]*:\s*(.*)/i);
+									let key_row = Devblocks.cerbCodeEditor.getKataRowByPath(editor, record_type_path.join(''));
+									let key_line = editor.session.getLine(key_row);
+									let matches = key_line.match(/[^:]*:\s*(.*)/i);
 									
 									if(Array.isArray(matches) && 2 === matches.length) {
 										record_type = matches[1];
@@ -3611,6 +3626,43 @@ var ajax = new cAjaxCalls();
 								formData.set('prefix', prefix);
 								formData.set('params[record_type]', record_type);
 								
+							} else if('record-fields-value' === completions['type']) {
+								editor.completer.getPopup().container.style.width = '400px';
+								
+								let record_type_path = Devblocks.cerbCodeEditor.getKataTokenPath(
+									null,
+									editor
+								);
+								
+								let record_type;
+								let field_name = record_type_path.pop();
+								
+								if(completions.hasOwnProperty('params') && completions.params.hasOwnProperty('record_type')) {
+									record_type = completions.params.record_type;
+									
+								} else {
+									// Look for a `record_type:` sibling
+									record_type_path.pop(); // fields:
+									record_type_path.push('record_type:');
+									
+									let key_row = Devblocks.cerbCodeEditor.getKataRowByPath(editor, record_type_path.join(''));
+									let key_line = editor.session.getLine(key_row);
+									let matches = key_line.match(/[^:]*:\s*(.*)/i);
+									
+									if(Array.isArray(matches) && 2 === matches.length) {
+										record_type = matches[1];
+									}
+								}
+							
+								if(record_type && field_name) {
+									formData = new FormData();
+									formData.set('c', 'ui');
+									formData.set('a', 'kataSuggestionsRecordFieldsValueJson');
+									formData.set('prefix', prefix);
+									formData.set('params[record_type]', record_type);
+									formData.set('params[field_name]', field_name.split(':')[0].split('@')[0]);
+								}
+							
 							} else if('record-type' === completions['type']) {
 								editor.completer.getPopup().container.style.width = '300px';
 								editor.completer.isDynamic = false;

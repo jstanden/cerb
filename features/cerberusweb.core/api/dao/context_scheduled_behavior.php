@@ -1376,6 +1376,12 @@ class Context_ContextScheduledBehavior extends Extension_DevblocksContext implem
 		return $keys;
 	}
 	
+	function getKeyAutocompleteSuggestions() : array {
+		return [
+			'target__context' => self::getAutocompleteRecordTypes(),
+		];
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'variables':

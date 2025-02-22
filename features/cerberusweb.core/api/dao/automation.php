@@ -1810,6 +1810,14 @@ class Context_Automation extends Extension_DevblocksContext implements IDevblock
 		return parent::getKeyMeta($with_dao_fields);
 	}
 	
+	function getKeyAutocompleteSuggestions() : array {
+		$triggers = Extension_AutomationTrigger::getAll(false);
+		
+		return [
+			'extension_id' => array_column($triggers, 'id'),
+		];
+	}
+	
 	// [TODO] Params
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {

@@ -1282,6 +1282,12 @@ class Context_AutomationResource extends Extension_DevblocksContext {
 		return parent::getKeyMeta($with_dao_fields);
 	}
 	
+	function getKeyAutocompleteSuggestions() : array {
+		return [
+			'mime_type' => ['application/octet-stream', 'application/json', 'image/png'],
+		];
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 		}

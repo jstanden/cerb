@@ -1871,6 +1871,13 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 		return $keys;
 	}
 	
+	function getKeyAutocompleteSuggestions() : array {
+		return [
+			'timezone' => self::getAutocompleteTimezones(),
+			'website' => ['https://example.com/'],
+		];
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'image':

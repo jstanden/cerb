@@ -1183,6 +1183,13 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 		return $keys;
 	}
 	
+	function getKeyAutocompleteSuggestions() : array {
+		return [
+			'owner__context' => self::getAutocompleteRecordOwnerTypes(),
+			'context' => self::getAutocompleteRecordTypes(),
+		];
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 		}

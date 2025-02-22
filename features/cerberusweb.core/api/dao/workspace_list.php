@@ -1229,6 +1229,12 @@ class Context_WorkspaceList extends Extension_DevblocksContext implements IDevbl
 		return $keys;
 	}
 	
+	function getKeyAutocompleteSuggestions() : array {
+		return [
+			'context' => self::getAutocompleteRecordTypes(),
+		];
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		$dict_key = DevblocksPlatform::strLower($key);
 		

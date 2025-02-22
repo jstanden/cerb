@@ -2509,6 +2509,14 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		return $keys;
 	}
 	
+	function getKeyAutocompleteSuggestions() : array {
+		return [
+			'email' => ['customer@cerb.example'],
+			'host' => ['cerb.example'],
+			'org' => $this::getKeyAutocompleteRecordFieldSearch('org', 'name'),
+		];
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		$dict_key = DevblocksPlatform::strLower($key);
 		

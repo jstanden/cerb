@@ -1040,6 +1040,14 @@ class Context_MailTransport extends Extension_DevblocksContext implements IDevbl
 		return $keys;
 	}
 	
+	function getKeyAutocompleteSuggestions() : array {
+		$extensions = DevblocksPlatform::getExtensions(Extension_MailTransport::POINT);
+		
+		return [
+			'extension_id' => array_keys($extensions),
+		];
+	}
+	
 	// [TODO] Params?
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {

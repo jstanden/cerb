@@ -83,6 +83,8 @@ class Controller_UI extends DevblocksControllerExtension {
 				return $this->_uiAction_kataSuggestionsRecordFieldJson();
 			case 'kataSuggestionsRecordFieldsJson':
 				return $this->_uiAction_kataSuggestionsRecordFieldsJson();
+			case 'kataSuggestionsRecordFieldsValueJson':
+				return $this->_uiAction_kataSuggestionsRecordFieldsValueJson();
 			case 'kataSuggestionsRecordTypeJson':
 				return $this->_uiAction_kataSuggestionsRecordTypeJson();
 			case 'markdownPreview':
@@ -128,7 +130,7 @@ class Controller_UI extends DevblocksControllerExtension {
 		);
 	}
 		
-	private function _uiAction_kataSuggestionsRecordFieldsJson() {
+	private function _uiAction_kataSuggestionsRecordFieldsJson() : void {
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 		
 		$params = DevblocksPlatform::importGPC($_POST['params'] ?? [], 'array', []);
@@ -167,8 +169,9 @@ class Controller_UI extends DevblocksControllerExtension {
 						$is_required = $key_meta['is_required'] ?? false;
 						
 						return [
-							'caption' => $key . ':',
+							'caption' => $key . ':' . ($is_required ? '*' : ''),
 							'snippet' => $key . ':',
+							'description' => ($key_meta['notes'] ?? ''),
 							'score' => $is_required ? 2000 : 1000,
 						];
 					},
@@ -177,8 +180,34 @@ class Controller_UI extends DevblocksControllerExtension {
 			)
 		);
 	}
+	
+	private function _uiAction_kataSuggestionsRecordFieldsValueJson() : void {
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 		
-	private function _uiAction_kataSuggestionsRecordTypeJson() {
+		$params = DevblocksPlatform::importGPC($_POST['params'] ?? [], 'array', []);
+		
+		try {
+			if (!($record_type = $params['record_type'] ?? null))
+				throw new Exception_DevblocksAjaxValidationError();
+			
+			if (!($field_name = $params['field_name'] ?? null))
+				throw new Exception_DevblocksAjaxValidationError();
+			
+			if (!($context_ext = Extension_DevblocksContext::getByAlias($record_type, true)))
+				throw new Exception_DevblocksAjaxValidationError();
+			
+			if (!($record_field_suggestions = $context_ext->getKeyAutocompleteSuggestions()))
+				throw new Exception_DevblocksAjaxValidationError();
+			
+			echo json_encode($record_field_suggestions[$field_name] ?? []);
+			
+		} catch (Throwable) {
+			echo json_encode([]);
+			return;
+		}
+	}
+		
+	private function _uiAction_kataSuggestionsRecordTypeJson() : void {
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 		
 		echo json_encode(
@@ -188,7 +217,7 @@ class Controller_UI extends DevblocksControllerExtension {
 		);
 	}
 	
-	private function _uiAction_kataSuggestionsMetricDimensionJson() {
+	private function _uiAction_kataSuggestionsMetricDimensionJson() : void {
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 		
 		$params = DevblocksPlatform::importGPC($_POST['params'] ?? [], 'array', []);

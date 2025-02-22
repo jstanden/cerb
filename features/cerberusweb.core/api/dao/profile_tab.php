@@ -1042,6 +1042,15 @@ class Context_ProfileTab extends Extension_DevblocksContext implements IDevblock
 		return $keys;
 	}
 	
+	function getKeyAutocompleteSuggestions() : array {
+		$extensions = DevblocksPlatform::getExtensions(Extension_ProfileTab::POINT);
+		
+		return [
+			'context' => self::getAutocompleteRecordTypes(),
+			'extension_id' => array_keys($extensions),
+		];
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'extension_params':

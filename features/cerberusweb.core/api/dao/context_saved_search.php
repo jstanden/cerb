@@ -1116,6 +1116,13 @@ class Context_ContextSavedSearch extends Extension_DevblocksContext implements I
 		return $keys;
 	}
 	
+	function getKeyAutocompleteSuggestions() : array {
+		return [
+			'context' => self::getAutocompleteRecordTypes(),
+			'owner__context' => self::getAutocompleteRecordOwnerTypes(),
+		];
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 		}

@@ -2111,6 +2111,14 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 		return $keys;
 	}
 	
+	function getKeyAutocompleteSuggestions() : array {
+		return [
+			'gender' => ['F', 'M'],
+			'language' => self::getAutocompleteLanguages(),
+			'timezone' => self::getAutocompleteTimezones(),
+		];
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'email':

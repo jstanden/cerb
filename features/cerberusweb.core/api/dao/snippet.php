@@ -1647,6 +1647,13 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 		return $keys;
 	}
 	
+	function getKeyAutocompleteSuggestions() : array {
+		return [
+			'context' => self::getAutocompleteRecordTypes(),
+			'owner__context' => self::getAutocompleteRecordOwnerTypes(),
+		];
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		$dict_key = DevblocksPlatform::strLower($key);
 		

@@ -1586,6 +1586,13 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 		return $keys;
 	}
 	
+	function getKeyAutocompleteSuggestions() : array {
+		return [
+			'author__context' => self::getAutocompleteRecordOwnerTypes(),
+			'target__context' => self::getAutocompleteRecordTypes(),
+		];
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 		}

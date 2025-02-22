@@ -1857,6 +1857,18 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 		return $keys;
 	}
 	
+	function getKeyAutocompleteSuggestions() : array {
+		return [
+			'type' => [
+				Model_MailQueue::TYPE_TRANSACTIONAL,
+				Model_MailQueue::TYPE_COMPOSE,
+				Model_MailQueue::TYPE_TICKET_REPLY,
+				Model_MailQueue::TYPE_TICKET_FORWARD,
+			],
+			'target__context' => self::getAutocompleteRecordTypes(),
+		];
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'params':

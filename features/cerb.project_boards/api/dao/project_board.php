@@ -1061,6 +1061,12 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 		return parent::getKeyMeta($with_dao_fields);
 	}
 	
+	function getKeyAutocompleteSuggestions() : array {
+		return [
+			'owner__context' => self::getAutocompleteRecordOwnerTypes(),
+		];
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		//$dict_key = DevblocksPlatform::strLower($key);
 		return true;

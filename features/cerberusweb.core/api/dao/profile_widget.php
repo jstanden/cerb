@@ -1229,6 +1229,16 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 		return $keys;
 	}
 	
+	function getKeyAutocompleteSuggestions() : array {
+		$extensions = DevblocksPlatform::getExtensions(Extension_ProfileWidget::POINT);
+		
+		return [
+			'extension_id' => array_keys($extensions),
+			'width_units' => ['1','2','3','4'],
+			'zone' => ['content','sidebar'],
+		];
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'extension_params':

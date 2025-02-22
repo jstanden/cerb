@@ -1484,6 +1484,12 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		return $keys;
 	}
 	
+	function getKeyAutocompleteSuggestions() : array {
+		return [
+			'status' => ['open', 'closed_won', 'closed_lost'],
+		];
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'status':

@@ -1364,6 +1364,14 @@ class Context_WorkspaceTab extends Extension_DevblocksContext implements IDevblo
 		return $keys;
 	}
 	
+	function getKeyAutocompleteSuggestions() : array {
+		$extensions = DevblocksPlatform::getExtensions(Extension_WorkspaceTab::POINT);
+		
+		return [
+			'extension_id' => array_keys($extensions),
+		];
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		$dict_key = DevblocksPlatform::strLower($key);
 		switch($dict_key) {

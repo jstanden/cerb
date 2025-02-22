@@ -1196,6 +1196,15 @@ class Context_WorkspacePage extends Extension_DevblocksContext implements IDevbl
 		return $keys;
 	}
 	
+	function getKeyAutocompleteSuggestions() : array {
+		$extensions = DevblocksPlatform::getExtensions(Extension_WorkspacePage::POINT);
+		
+		return [
+			'extension_id' => array_keys($extensions),
+			'owner__context' => self::getAutocompleteRecordOwnerTypes(),
+		];
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'extension_params':

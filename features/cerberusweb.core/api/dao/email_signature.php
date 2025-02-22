@@ -1059,6 +1059,12 @@ class Context_EmailSignature extends Extension_DevblocksContext implements IDevb
 		return $keys;
 	}
 	
+	function getKeyAutocompleteSuggestions() : array {
+		return [
+			'owner__context' => self::getAutocompleteRecordOwnerTypes(),
+		];
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 		}

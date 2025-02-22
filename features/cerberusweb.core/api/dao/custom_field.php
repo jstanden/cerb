@@ -2441,6 +2441,16 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 		return $keys;
 	}
 	
+	function getKeyAutocompleteSuggestions() : array {
+		$types = Model_CustomField::getTypes();
+		
+		return [
+			'context' => self::getAutocompleteRecordTypes(),
+			'target__context' => self::getAutocompleteRecordTypes(),
+			'type' => array_map(fn($type) => ['caption'=>$types[$type], 'snippet'=>$type], array_keys($types)),
+		];
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'params':

@@ -1632,6 +1632,13 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 		return $keys;
 	}
 	
+	function getKeyAutocompleteSuggestions() : array {
+		return [
+			'owner__context' => self::getAutocompleteRecordOwnerTypes(),
+			'timezone' => self::getAutocompleteTimezones(),
+		];
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		$dict_key = DevblocksPlatform::strLower($key);
 		switch($dict_key) {

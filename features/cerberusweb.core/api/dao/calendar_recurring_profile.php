@@ -1419,6 +1419,12 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 		return $keys;
 	}
 	
+	function getKeyAutocompleteSuggestions() : array {
+		return [
+			'tz' => self::getAutocompleteTimezones(),
+		];
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 		}

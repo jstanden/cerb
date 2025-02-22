@@ -957,6 +957,10 @@ class Context_WebhookListener extends Extension_DevblocksContext implements IDev
 		return $keys;
 	}
 	
+	function getKeyAutocompleteSuggestions() : array {
+		return [];
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		//$dict_key = DevblocksPlatform::strLower($key);
 		return true;

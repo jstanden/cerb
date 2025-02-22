@@ -1007,6 +1007,17 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		$keys = parent::getKeyMeta($with_dao_fields);
         return $keys;
 	}
+    
+    // [TODO]
+	function getKeyAutocompleteSuggestions() : array {
+		//$extensions = DevblocksPlatform::getExtensions(Extension_ProfileWidget::POINT);
+		
+		return [
+			//'context' => self::getAutocompleteRecordTypes(),
+			//'extension_id' => array_keys($extensions),
+			//'owner__context' => self::getAutocompleteRecordOwnerTypes(),
+		];
+	}
 	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {

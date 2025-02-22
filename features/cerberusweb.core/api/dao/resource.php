@@ -1653,6 +1653,14 @@ class Context_Resource extends Extension_DevblocksContext implements IDevblocksC
 		return $keys;
 	}
 	
+	function getKeyAutocompleteSuggestions() : array {
+		$extensions = DevblocksPlatform::getExtensions(Extension_ResourceType::POINT);
+		
+		return [
+			'extension_id' => array_keys($extensions),
+		];
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'content':

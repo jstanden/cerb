@@ -1299,6 +1299,15 @@ class Context_AutomationTimer extends Extension_DevblocksContext implements IDev
 		return $keys;
 	}
 	
+	function getKeyAutocompleteSuggestions() : array {
+		return [
+			'recurring_patterns' => [
+				"# https://en.wikipedia.org/wiki/Cron#CRON_expression\n# [min] [hour] [dom] [month] [dow]\n# Hourly\n0 * * * *"
+			],
+			'recurring_timezone' => $this->getAutocompleteTimezones(),
+		];
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 		}

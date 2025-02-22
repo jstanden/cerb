@@ -1058,6 +1058,14 @@ class Context_AutomationEventListener extends Extension_DevblocksContext impleme
 		return parent::getKeyMeta($with_dao_fields);
 	}
 	
+	function getKeyAutocompleteSuggestions() : array {
+		$triggers = Extension_AutomationTrigger::getAll(false);
+		
+		return [
+			'event_name' => array_values(array_map(fn($trigger) => $trigger->name, $triggers)),
+		];
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 		}

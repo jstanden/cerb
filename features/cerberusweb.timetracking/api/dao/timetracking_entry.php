@@ -1464,6 +1464,14 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 		return $keys;
 	}
 	
+	function getKeyAutocompleteSuggestions() : array {
+		$activities = DAO_TimeTrackingActivity::getAll();
+		
+		return [
+			'activity_id' => array_values(array_map(fn($activity) => ['caption'=>$activity->name ?? '', 'snippet'=>strval($activity->id)], $activities)),
+		];
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'mins':

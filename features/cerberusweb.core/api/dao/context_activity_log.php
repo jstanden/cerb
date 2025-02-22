@@ -1382,6 +1382,20 @@ class Context_ContextActivityLog extends Extension_DevblocksContext implements I
 		return $keys;
 	}
 	
+	function getKeyAutocompleteSuggestions() : array {
+		$activity_points = DevblocksPlatform::getActivityPointRegistry();
+		
+		return [
+			'activity_point' => array_column($activity_points, 'point'),
+			'actor__context' => self::getAutocompleteRecordOwnerTypes(),
+			'params' => ['message:','variables:','urls:'],
+			'params:message' => ['The log message with your own {{key}}'],
+			'params:variables' => ['key: value'],
+			'params:urls' => ['key: cerb:worker:1'],
+			'target__context' => self::getAutocompleteRecordTypes(),
+		];
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		$dict_key = DevblocksPlatform::strLower($key);
 		switch($dict_key) {

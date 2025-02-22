@@ -1082,6 +1082,14 @@ class Context_ConnectedService extends Extension_DevblocksContext implements IDe
 		return $keys;
 	}
 	
+	function getKeyAutocompleteSuggestions() : array {
+		$extensions = DevblocksPlatform::getExtensions(Extension_ConnectedServiceProvider::POINT);
+		
+		return [
+			'extension_id' => array_values(array_column($extensions, 'id')),
+		];
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'params':

@@ -464,9 +464,9 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 			));
 			
 			foreach($record_types as $record_type) {
-				$autocomplete_suggestions['records:'][] = [
+				$record_suggestions = [
 					'caption' => $record_type->manifest->params['alias'] . ':',
-					'snippet' => $record_type->manifest->params['alias'] . '/${1:resourceName}:',
+					'snippet' => $record_type->manifest->params['alias'] . "/\${1:" . uniqid('record'). "}:\n  fields:\n",
 				];
 				
 				$key = 'records:' . $record_type->manifest->params['alias'] . ':';
@@ -476,21 +476,67 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 				$autocomplete_suggestions[$key][] = 'updatePolicy:';
 				$autocomplete_suggestions[$key . 'updatePolicy:'] = ['field_name, other_field_name'];
 				
-				// [TODO] Is this cached for autocompletion already?
-
-//					$dao_class = $record_type->getDaoClass();
-//					$dao_fields = $dao_class::getFields();
-				
-				// [TODO] Required fields with higher score
-				// [TODO] Field values autocompletion
-				$fields_map = $record_type->getKeyToDaoFieldMap();
-
-//					foreach($fields_map as $dict_key => $dao_key) {
-//						DevblocksPlatform::logError(json_encode($dao_fields[$dao_key]));
-//					}
+				$fields_meta = $record_type->getKeyMeta();
 				
 				$key = 'records:' . $record_type->manifest->params['alias'] . ':fields:';
-				$autocomplete_suggestions[$key] = array_map(fn($key) => $key . ':', array_keys($fields_map));
+				$autocomplete_suggestions[$key] = [
+					'type' => 'record-fields',
+					'params' => [
+						'parent_key' => true,
+					],
+				];
+				
+				$field_snippet_count = 1;
+				
+				foreach($fields_meta as $field_key => $field_meta) {
+					$field_caption = $field_key . ':';
+					$field_snippet = $field_key;
+					
+					if($field_meta['is_immutable'] ?? null)
+						continue;
+					
+					$field_is_required = $field_meta['is_required'] ?? null;
+					
+					$field_snippet .= match($field_meta['type'] ?? null) {
+						'bit' => '@bit',
+						'links' => '@list',
+						'timestamp' => '@date',
+						default => '',
+					} . ':';
+					
+					// Add all required fields to the snippet
+					if($field_is_required)
+						$record_suggestions['snippet'] .= '    ' . $field_snippet . "\${" . ++$field_snippet_count . ":}\n";
+					
+					$autocomplete_suggestions[$key][] = [
+						'caption' => $field_caption . (($field_meta['is_required'] ?? null) ? '*' : ''),
+						'snippet' => $field_snippet,
+						'description' => ($field_meta['notes'] ?? ''),
+						'score' => $field_is_required ? 2000 : 1000,
+					];
+				
+					$suggest_key = 'records:' . $record_type->manifest->params['alias'] . ':fields:' . $field_key . ':';
+					$field_type = $field_meta['type'] ?? null;
+					
+					if('bit' == $field_type) {
+						$autocomplete_suggestions[$suggest_key] = $record_type::getKeyAutocompleteBit();
+					} else if('timestamp' == $field_type) {
+						$autocomplete_suggestions[$suggest_key] = $record_type::getKeyAutocompleteDate();
+					} else if('links' == $field_type) {
+						$autocomplete_suggestions[$suggest_key] = $record_type::getKeyAutocompleteLinks();
+					}
+				}
+				
+				$autocomplete_suggestions['records:'][] = $record_suggestions;
+				
+				$key = 'records:' . $record_type->manifest->params['alias'] . ':fields:([^\:]*):';
+				
+				$autocomplete_suggestions['*'][$key] = [
+					'type' => 'record-fields-value',
+					'params' => [
+						'record_type' => $record_type->manifest->params['alias'],
+					],
+				];
 			}
 			
 			$tpl->assign('autocomplete_suggestions', $autocomplete_suggestions);

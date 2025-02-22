@@ -1155,6 +1155,17 @@ class Context_CardWidget extends Extension_DevblocksContext implements IDevblock
 		return $keys;
 	}
 	
+	function getKeyAutocompleteSuggestions() : array {
+		$extension_points = DevblocksPlatform::getExtensions(Extension_CardWidget::POINT);
+		
+		return [
+			'extension_id' => array_values(array_column($extension_points, 'id')),
+			'record_type' => self::getAutocompleteRecordTypes(),
+			'width_units' => ['1','2','3','4'],
+			'zone' => ['content', 'sidebar'],
+		];
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'extension_params':

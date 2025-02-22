@@ -3655,6 +3655,14 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		return $keys;
 	}
 	
+	function getKeyAutocompleteSuggestions() : array {
+		return [
+			'gender' => ['F','M'],
+			'language' => self::getAutocompleteLanguages(),
+			'timezone' => self::getAutocompleteTimezones(),
+		];
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		$dict_key = DevblocksPlatform::strLower($key);
 		switch($dict_key) {

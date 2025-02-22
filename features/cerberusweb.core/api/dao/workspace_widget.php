@@ -1246,6 +1246,16 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext implements IDev
 		return $keys;
 	}
 	
+	function getKeyAutocompleteSuggestions() : array {
+		$extensions = DevblocksPlatform::getExtensions(Extension_WorkspaceWidget::POINT);
+		
+		return [
+			'extension_id' => array_keys($extensions),
+			'width_units' => ['1','2','3','4'],
+			'zone' => ['content', 'sidebar'],
+		];
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		$dict_key = DevblocksPlatform::strLower($key);
 		switch($dict_key) {

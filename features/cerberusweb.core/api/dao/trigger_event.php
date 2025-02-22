@@ -2317,6 +2317,15 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 		return $keys;
 	}
 	
+	function getKeyAutocompleteSuggestions() : array {
+		$event_points = Extension_DevblocksEvent::getAll();
+		
+		return [
+			'event_point' => array_column($event_points, 'id'),
+			'owner__context' => self::getAutocompleteRecordOwnerTypes(),
+		];
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 		}

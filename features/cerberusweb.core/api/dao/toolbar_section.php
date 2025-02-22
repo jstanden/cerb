@@ -1064,6 +1064,14 @@ class Context_ToolbarSection extends Extension_DevblocksContext implements IDevb
 		return parent::getKeyMeta($with_dao_fields);
 	}
 	
+	function getKeyAutocompleteSuggestions() : array {
+		$toolbars = Extension_Toolbar::getAll(false);
+		
+		return [
+			'toolbar_name' => array_values(array_map(fn($trigger) => $trigger->name, $toolbars)),
+		];
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 		}
