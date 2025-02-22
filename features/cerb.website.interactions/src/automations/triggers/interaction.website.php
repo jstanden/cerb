@@ -212,6 +212,7 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 						'snippet' => "references:\n\tresource/\${1:example}:\n\t\turi:",
 						'description' => "Add image resources as references",
 					],
+					'styles@csv:',
 				],
 				'(.*):await:form:elements:say:references:' => [
 					[
@@ -229,7 +230,14 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 							]
 						]
 					]
-				],				
+				],
+				'(.*):await:form:elements:say:styles:' => [
+					'text-center',
+					'text-large',
+					'text-left',
+					'text-right',
+					'text-small',
+				],
 				'(.*):await:form:elements:sheet:' => [
 					[
 						'caption' => 'label:',

@@ -23,7 +23,31 @@ class SayAwait extends AbstractAwait {
 		
 		$msg = '';
 		$format = 'text';
-		$style = is_array($this->_data) && array_key_exists('style', $this->_data) ? $this->_data['style'] : null;
+		$error_style = false;
+		$styles = [];
+		
+		if(is_array($this->_data) && array_key_exists('style', $this->_data) && $this->_data['style']) {
+			if(!is_array($this->_data['style']))
+				$this->_data['style'] = [$this->_data['style']];
+			
+			// Sanitize styles
+			$styles = array_intersect(
+				$this->_data['style'],
+				[
+					'error',
+					'text-center',
+					'text-large',
+					'text-left',
+					'text-right',
+					'text-small',
+				]
+			);
+		}
+		
+		if(in_array('error', $styles)) {
+			$styles = array_diff($styles, ['error']);
+			$error_style = true;
+		}
 		
 		if(is_string($this->_data)) {
 			$msg = $this->_data;
@@ -97,7 +121,8 @@ class SayAwait extends AbstractAwait {
 		$tpl->assign('session', $session);
 		$tpl->assign('message', $msg);
 		$tpl->assign('format', $format);
-		$tpl->assign('style', $style);
+		$tpl->assign('error_style', $error_style);
+		$tpl->assign('styles', $styles);
 		$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.website/await/say.tpl');
 	}
 }

@@ -144,6 +144,22 @@
     padding: 10px 10px 10px 10px;
 }
 
+.cerb-interaction-popup--form .cerb-interaction-style--text-center {
+    text-align: center;
+}
+.cerb-interaction-popup--form .cerb-interaction-style--text-large {
+    font-size: 1.2em;
+}
+.cerb-interaction-popup--form .cerb-interaction-style--text-left {
+    text-align: left;
+}
+.cerb-interaction-popup--form .cerb-interaction-style--text-right {
+    text-align: right;
+}
+.cerb-interaction-popup--form .cerb-interaction-style--text-small {
+    font-size: 0.8em;
+}
+
 .cerb-interaction-popup .cerb-interaction-popup--form-elements H1,
 .cerb-interaction-popup .cerb-interaction-popup--form-elements H2,
 .cerb-interaction-popup .cerb-interaction-popup--form-elements H3,
