@@ -79,6 +79,9 @@ class SubmitAwait extends AbstractAwait {
 			// Allow buttons to be conditionally hidden
 			if(($button_data['hidden'] ?? false))
 				continue;
+			
+			if((array_key_exists('size', $button_data) && !in_array($button_data['size'], ['whole','half','third','quarter'])))
+				unset($buttons['size']);
 				
 			$buttons[$button_name] = [
 				'_key' => $button_key,
@@ -87,6 +90,7 @@ class SubmitAwait extends AbstractAwait {
 				'label' => $button_data['label'] ?? DevblocksPlatform::strTitleCase($button_type),
 				'icon' => $button_data['icon'] ?? '',
 				'icon_at' => $button_data['icon_at'] ?? 'start',
+				'size' => $button_data['size'] ?? '',
 				'style' => $button_data['style'] ?? ('reset' == $button_type ? 'secondary' : ''),
 				'value' => $button_data['value'] ?? $button_name ?? $button_type,
 			];

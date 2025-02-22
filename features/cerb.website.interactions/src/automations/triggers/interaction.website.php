@@ -427,6 +427,7 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 					'hidden@bool: yes',
 					'icon:',
 					'icon_at:',
+					'size:',
 					'style:',
 					'value:',
 				],
@@ -438,6 +439,13 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 				'(.*):await:form:elements:submit:buttons:continue:icon_at:' => [
 					'start',
 					'end',
+				],
+				
+				'(.*):await:form:elements:submit:buttons:continue:size:' => [
+					'whole',
+					'half',
+					'third',
+					'quarter',
 				],
 				
 				'(.*):await:form:elements:submit:buttons:continue:style:' => [
@@ -454,6 +462,7 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 					'hidden@bool: yes',
 					'icon:',
 					'icon_at:',
+					'size:',
 					'style:',
 				],
 				
@@ -464,6 +473,13 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 				'(.*):await:form:elements:submit:buttons:reset:icon_at:' => [
 					'start',
 					'end',
+				],
+				
+				'(.*):await:form:elements:submit:buttons:reset:size:' => [
+					'whole',
+					'half',
+					'third',
+					'quarter',
 				],
 				
 				'(.*):await:form:elements:submit:buttons:reset:style:' => [

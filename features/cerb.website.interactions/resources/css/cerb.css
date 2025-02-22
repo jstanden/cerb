@@ -273,6 +273,22 @@
     font-weight: normal !important;
 }
 
+.cerb-button-size-whole {
+    flex: 1 1 100%;
+}
+
+.cerb-button-size-half {
+    flex: 1 1 49%;
+}
+
+.cerb-button-size-third {
+    flex: 1 1 32%;
+}
+
+.cerb-button-size-quarter {
+    flex: 1 1 25%;
+}
+
 .cerb-interaction-popup--form-elements-button:hover {
     filter: brightness(0.8);
 }

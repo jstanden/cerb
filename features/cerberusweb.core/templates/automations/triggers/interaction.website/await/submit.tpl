@@ -5,7 +5,7 @@
 	{/if}
 
 	{foreach from=$buttons item=button}
-		<button type="button" value="{$button.value}" class="cerb-interaction-popup--form-elements-button cerb-interaction-popup--form-elements-{$button._type} {if $button.style}cerb-button-style-{$button.style}{/if}">
+		<button type="button" value="{$button.value}" class="cerb-interaction-popup--form-elements-button cerb-interaction-popup--form-elements-{$button._type} {if $button.style}cerb-button-style-{$button.style}{/if} {if $button.size}cerb-button-size-{$button.size}{/if}">
 			{if 'end' == $button.icon_at}
 				{$button.label}
 			{/if}
