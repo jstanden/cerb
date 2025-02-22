@@ -1962,7 +1962,7 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 				'fields' => [
 					'name' => $model->name,
 					'owner__context' => CerberusContexts::getContextName($model->owner_context, 'uri'),
-					'owner_context_id' => $model->owner_context_id,
+					'owner_id' => $model->owner_context_id,
 					'timezone' => $model->timezone,
 				],
 			];
