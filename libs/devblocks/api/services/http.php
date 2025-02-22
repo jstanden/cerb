@@ -1,9 +1,13 @@
 <?php
+
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Handler\CurlHandler;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\RequestOptions;
+use Psr\Http\Message\ResponseInterface as ResponseInterfaceAlias;
 
 class _DevblocksHttpService {
 	static $instance = null;
@@ -21,7 +25,7 @@ class _DevblocksHttpService {
 	
 	private function _configure_defaults() {
 		return function(callable $handler) {
-			return function (\Psr\Http\Message\RequestInterface $request, array $options) use ($handler) {
+			return function (RequestInterface $request, array $options) use ($handler) {
 				if(!array_key_exists(RequestOptions::HTTP_ERRORS, $options))
 					$options[RequestOptions::HTTP_ERRORS] = false;
 				
@@ -58,13 +62,14 @@ class _DevblocksHttpService {
 	}
 	
 	/**
-	 * 
+	 *
 	 * @param RequestInterface $request
 	 * @param array $options
-	 * @param string $error
-	 * @return \Psr\Http\Message\ResponseInterface|false
+	 * @param null $error
+	 * @param null $error_response
+	 * @return ResponseInterfaceAlias|false
 	 */
-	function sendRequest(\Psr\Http\Message\RequestInterface $request, array $options=[], &$error=null, &$error_response=null) {
+	function sendRequest(RequestInterface $request, array $options=[], &$error=null, &$error_response=null) {
 		$client = $this->getClient();
 		
 		$error = '';
@@ -73,12 +78,17 @@ class _DevblocksHttpService {
 		try {
 			return $client->send($request, $options);
 			
-		} catch (\GuzzleHttp\Exception\RequestException $e) {
+		} catch (RequestException $e) {
 			$error = $e->getMessage();
 			
 			if($e->hasResponse())
 				$error_response = $e->getResponse();
 			
+			return false;
+			
+		} catch (GuzzleException $e) {
+			$error = get_class($e);
+			DevblocksPlatform::logException($e);
 			return false;
 		}
 	}
@@ -87,14 +97,13 @@ class _DevblocksHttpService {
 	 * 
 	 * @param ResponseInterface $response
 	 * @param string $error
-	 * @return string|false
+	 * @return mixed|false
 	 */
 	function getResponseAsJson(ResponseInterface $response, &$error=null) {
-		// [TODO] Check status code
-		// [TODO] Check content-type?
-		
-		if(false === ($json = @json_decode($response->getBody()->getContents(), true)))
+		if(false === ($json = @json_decode($response->getBody()->getContents(), true))) {
+			$error = json_last_error();
 			return false;
+		}
 		
 		return $json;
 	}
