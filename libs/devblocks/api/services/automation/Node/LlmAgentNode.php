@@ -87,6 +87,16 @@ class LlmAgentNode extends AbstractNode {
 					['llm', []],
 				];
 			}
+		
+			$llm_provider = $this->_getLlmProvider();
+			$session_key = '__session::' . $this->node->getId();
+			
+			if(!($this->_dict->getKeyPath($session_key, null, '::'))) {
+				if(!($llm_session = \DAO_LlmAgentSession::create($llm_provider::ID)))
+					throw new Exception_DevblocksAutomationError("Failed to create an LLM session");
+				
+				$this->_dict->setKeyPath($session_key, $llm_session->uuid, '::');
+			}
 			
 			$state = array_pop($this->_node_memory['stack']);
 			
@@ -240,7 +250,7 @@ class LlmAgentNode extends AbstractNode {
 		
 		// Memory
 		
-		$session_id = $this->_dict->getKeyPath('__chat::' . $this->node->getId(), null, '::');
+		$session_id = $this->_dict->getKeyPath('__session::' . $this->node->getId(), null, '::');
 		$memory_store = $llm->getMemoryStore($session_id);
 		
 		// Messages
@@ -249,8 +259,13 @@ class LlmAgentNode extends AbstractNode {
 		$memory_messages = $memory_store->getMessages(limit: 10);
 		
 		// If we're not running after tools, add the next message
-		if('llm' == $state)
-			$memory_messages = array_merge($memory_messages, array_values($this->_inputs['messages']));
+		if('llm' == $state) {
+			//$memory_messages = array_merge($memory_messages, array_values($this->_inputs['messages']));
+			foreach($this->_inputs['messages'] ?? [] as $new_message) {
+				$memory_messages[] = $new_message;
+				$memory_store->appendMessage($new_message);
+			}
+		}
 		
 		// LLM
 		
@@ -294,7 +309,7 @@ class LlmAgentNode extends AbstractNode {
 		
 		$tools = $this->_getTools();
 		
-		$session_id = $this->_dict->getKeyPath('__chat::' . $this->node->getId(), null, '::');
+		$session_id = $this->_dict->getKeyPath('__session::' . $this->node->getId(), null, '::');
 		$memory_store = $llm->getMemoryStore($session_id);
 		
 		$llm_provider = $this->_getLlmProvider();

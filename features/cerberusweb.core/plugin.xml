@@ -501,7 +501,17 @@
 			<class name="View_Group" />
 			<class name="Model_GroupMember" />
 		</file>
-		
+
+		<file path="api/dao/llm_agent_message.php">
+			<class name="DAO_LlmAgentMessage" />
+			<class name="Model_LlmAgentMessage" />
+		</file>
+
+		<file path="api/dao/llm_agent_session.php">
+			<class name="DAO_LlmAgentSession" />
+			<class name="Model_LlmAgentSession" />
+		</file>
+
 		<file path="api/dao/mail_failed.php">
 			<class name="SearchFields_MailParseFail" />
 			<class name="View_MailParseFail" />

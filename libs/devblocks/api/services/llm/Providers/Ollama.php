@@ -83,7 +83,7 @@ class Ollama extends Extension_DevblocksLlmProvider {
 		
 		// Add to the memory
 		if($response_json['message'] ?? null)
-			$messages = array_merge($messages, [$response_json['message']]);
+			$memory->appendMessage($response_json['message']);
 		
 		$chat_response = new DevblocksLlmChatResponse();
 		
@@ -99,22 +99,16 @@ class Ollama extends Extension_DevblocksLlmProvider {
 			}
 		}
 		
-		$memory->setMessages($messages);
-		
 		return $chat_response;
 	}
 	
 	function returnTool(DevblocksLlmChatResponse_Tool $tool, string $content, Extension_DevblocksLlmMemoryStore $memory): void {
-		$memory_messages = $memory->getMessages();
-		
 		$tool_message = [
 			'role' => 'tool',
 			'name' => $tool->getName(),
 			'content' => $content,
 		];
 		
-		$memory_messages[] = $tool_message;
-		
-		$memory->setMessages($memory_messages);
+		$memory->appendMessage($tool_message);
 	}
 }

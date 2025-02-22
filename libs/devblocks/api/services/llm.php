@@ -13,6 +13,9 @@ abstract class Extension_DevblocksLlmMemoryStore {
 	function getSessionId() : string {
 		return $this->_session_id;
 	}
+	
+	abstract function getMessages(int $limit=10) : array;
+	abstract function appendMessage(array $message) : bool;
 }
 
 class DevblocksLlmChatResponse_Tool {

@@ -87,7 +87,7 @@ class OpenAI extends Extension_DevblocksLlmProvider {
 		
 		// Add to the memory
 		if($message)
-			$messages = array_merge($messages, [$message]);
+			$memory->appendMessage($message);
 		
 		$chat_response = new DevblocksLlmChatResponse();
 		
@@ -113,22 +113,16 @@ class OpenAI extends Extension_DevblocksLlmProvider {
 			}
 		}
 		
-		$memory->setMessages($messages);
-		
 		return $chat_response;
 	}
 	
 	function returnTool(DevblocksLlmChatResponse_Tool $tool, string $content, Extension_DevblocksLlmMemoryStore $memory): void {
-		$memory_messages = $memory->getMessages();
-		
 		$tool_message = [
 			'role' => 'tool',
 			'tool_call_id' => $tool->getId(),
 			'content' => $content,
 		];
 		
-		$memory_messages[] = $tool_message;
-		
-		$memory->setMessages($memory_messages);
+		$memory->appendMessage($tool_message);
 	}
 }

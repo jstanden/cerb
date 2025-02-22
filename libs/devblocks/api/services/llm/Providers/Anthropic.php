@@ -101,13 +101,12 @@ class Anthropic extends Extension_DevblocksLlmProvider {
 		}
 		
 		// Add to the memory
-		if($response_json['content'] ?? null)
-			$messages = array_merge($messages, [
-				[
-					'role' => $response_json['role'],
-					'content' => $response_json['content'],
-				]
+		if($response_json['content'] ?? null) {
+			$memory->appendMessage([
+				'role' => $response_json['role'],
+				'content' => $response_json['content'],
 			]);
+		}
 		
 		$chat_response = new DevblocksLlmChatResponse();
 		
@@ -129,14 +128,10 @@ class Anthropic extends Extension_DevblocksLlmProvider {
 			}
 		}
 		
-		$memory->setMessages($messages);
-		
 		return $chat_response;
 	}
 	
 	function returnTool(DevblocksLlmChatResponse_Tool $tool, string $content, Extension_DevblocksLlmMemoryStore $memory): void {
-		$memory_messages = $memory->getMessages();
-		
 		$tool_message = [
 			'role' => 'user',
 			'content' => [
@@ -148,8 +143,6 @@ class Anthropic extends Extension_DevblocksLlmProvider {
 			],
 		];
 		
-		$memory_messages[] = $tool_message;
-		
-		$memory->setMessages($memory_messages);
+		$memory->appendMessage($tool_message);
 	}
 }
