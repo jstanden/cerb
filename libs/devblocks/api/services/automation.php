@@ -540,6 +540,7 @@ class _DevblocksAutomationService {
 		$commands = [
 			'start',
 			'decision',
+			'llm.agent',
 			'outcome',
 			'repeat',
 			'while',
@@ -670,6 +671,8 @@ class _DevblocksAutomationService {
 				}
 			}
 			
+		} elseif ($node_type == 'llm.agent') {
+		
 		} elseif ($node_type == 'outcome') {
 			$is_decision = 'decision' == $node->getParent()->getNameType();
 			
@@ -1230,6 +1233,7 @@ class CerbAutomationAstNode implements JsonSerializable {
 			'action' => '\Cerb\AutomationBuilder\Node\ActionNode',
 			'decision' => '\Cerb\AutomationBuilder\Node\DecisionNode',
 			'event' => '\Cerb\AutomationBuilder\Node\EventNode',
+			'llm.agent' => '\Cerb\AutomationBuilder\Node\LlmAgentNode',
 			'outcome' => '\Cerb\AutomationBuilder\Node\OutcomeNode',
 			'repeat' => '\Cerb\AutomationBuilder\Node\RepeatNode',
 			'root' => '\Cerb\AutomationBuilder\Node\RootNode',

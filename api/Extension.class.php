@@ -918,6 +918,11 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'description' => "Parse a KATA tree and substitute placeholders",
 			],
 			[
+				'caption' => 'llm.agent:',
+				'snippet' => "llm.agent:\n\tinputs:\n\t\t\${1:}\n\toutput: results\n\t#on_simulate:\n\t#on_success:\n\t#on_error:\n",
+				'description' => "Chat and invoke tools with a large language model",
+			],
+			[
 				'caption' => 'llm.embed:',
 				'snippet' => "llm.embed:\n\tinputs:\n\t\t\${1:}\n\toutput: results\n\t#on_simulate:\n\t#on_success:\n\t#on_error:\n",
 				'description' => "Embed text using a large language model",
@@ -1369,6 +1374,167 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				],
 				'(.*):http.request:inputs:response:resource:' => [
 					'expires@date:',
+				],
+				
+				'(.*):llm.agent:' => $action_base,
+				'(.*):llm.agent:inputs:' => [
+					[
+						'caption' => 'llm:',
+						'snippet' => "llm:",
+						'score' => 2000,
+					],
+					[
+						'caption' => 'system_prompt:',
+						'snippet' => "system_prompt@text:\n\t\${1:You are a helpful AI assistant.}",
+						'score' => 1999,
+					],
+					[
+						'caption' => 'messages:',
+						'snippet' => "messages:",
+						'score' => 1998,
+					],
+					[
+						'caption' => 'tools:',
+						'snippet' => "tools:",
+						'score' => 1997,
+					],
+				],
+				'(.*):llm.agent:inputs:llm:' => [
+					'anthropic:',
+					'groq:',
+					'ollama:',
+					'openai:',
+				],
+				'(.*):llm.agent:inputs:llm:anthropic:' => [
+					[
+						'caption' => 'model:',
+						'snippet' => "model:",
+						'score' => 2000,
+					],
+					'authentication:',
+					'max_tokens@int: 2048',
+				],
+				'(.*):llm.agent:inputs:llm:anthropic:authentication:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'connected_account' => null,
+					]
+				],
+				'(.*):llm.agent:inputs:llm:anthropic:model:' => [
+					'claude-3-5-haiku-20241022',
+					'claude-3-5-haiku-latest',
+					'claude-3-5-sonnet-20241022',
+					'claude-3-5-sonnet-latest',
+					'claude-3-7-sonnet-20250219',
+					'claude-3-7-sonnet-latest',
+					'claude-3-opus-20240229',
+					'claude-3-opus-latest',
+				],
+				'(.*):llm.agent:inputs:llm:groq:' => [
+					[
+						'caption' => 'model:',
+						'snippet' => "model:",
+						'score' => 2000,
+					],
+					'api_endpoint_url:',
+					'authentication:',
+				],
+				'(.*):llm.agent:inputs:llm:groq:authentication:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'connected_account' => null,
+					]
+				],
+				'(.*):llm.agent:inputs:llm:groq:model:' => [
+					'deepseek-r1-distill-llama-70b',
+					'deepseek-r1-distill-qwen-32b',
+					'gemma2-9b-it',
+					'llama-3.1-8b-instant',
+					'llama-3.3-70b-versatile',
+					'mixtral-8x7b-32768',
+					'qwen-2.5-32b',
+				],
+				'(.*):llm.agent:inputs:llm:ollama:' => [
+					[
+						'caption' => 'model:',
+						'snippet' => "model:",
+						'score' => 2000,
+					],
+					'api_endpoint_url:',
+					'authentication:',
+				],
+				'(.*):llm.agent:inputs:llm:ollama:api_endpoint_url:' => [
+					'http://localhost:11434',
+					'http://host.docker.internal:11434',
+				],
+				'(.*):llm.agent:inputs:llm:ollama:authentication:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'connected_account' => null,
+					]
+				],
+				'(.*):llm.agent:inputs:llm:ollama:model:' => [
+					'llama3.2',
+				],
+				'(.*):llm.agent:inputs:llm:openai:' => [
+					[
+						'caption' => 'model:',
+						'snippet' => "model:",
+						'score' => 2000,
+					],
+					'api_endpoint_url:',
+					'authentication:',
+				],
+				'(.*):llm.agent:inputs:llm:openai:api_endpoint_url:' => [
+					'https://api.openai.com',
+				],
+				'(.*):llm.agent:inputs:llm:openai:authentication:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'connected_account' => null,
+					]
+				],
+				'(.*):llm.agent:inputs:llm:openai:model:' => [
+					'gpt-4o',
+					'gpt-4o-2024-08-06',
+					'gpt-4o-mini',
+					'o1',
+					'o1-mini',
+					'o3-mini',
+					'gpt-4o-mini-realtime-preview',
+					'gpt-4o-realtime-preview',
+				],
+				
+				'(.*):llm.agent:inputs:messages:' => [
+					'message:',
+				],
+				'(.*):llm.agent:inputs:messages:message:' => [
+					'role: user',
+					'content@text:',
+				],
+				'(.*):llm.agent:inputs:messages:message:role:' => [
+					'assistant',
+					'user',
+				],
+				'(.*):llm.agent:inputs:tools:' => [
+					[
+						'caption' => 'automation:',
+						'snippet' => "automation/\${1:example_tool}:",
+						'score' => 2000,
+					],
+				],
+				'(.*):llm.agent:inputs:tools:automation:' => [
+					'uri:',
+				],
+				'(.*):llm.agent:inputs:tools:automation:uri:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'automation' => [
+							'triggers' => [
+								'cerb.trigger.llm.tool'
+							]
+						]
+					]
 				],
 				
 				'(.*):llm.embed:' => $action_base,

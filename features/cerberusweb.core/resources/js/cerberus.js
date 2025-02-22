@@ -42,6 +42,7 @@ var cerbAutocompleteSuggestions = {
 			'file.write:',
 			'function:',
 			'http.request:',
+			'llm.agent:',
 			'llm.embed:',
 			'metric.increment:',
 			'queue.pop:',
@@ -119,6 +120,10 @@ var cerbAutocompleteSuggestions = {
 				'snippet': "deny/url@bool: {{inputs.url is not prefixed ('https://')}}",
 				'docHTML': 'Validate HTTP URL'
 			},
+			'deny@bool: yes',
+			'allow@bool: yes'
+		],
+		'commands:llm.agent:': [
 			'deny@bool: yes',
 			'allow@bool: yes'
 		],

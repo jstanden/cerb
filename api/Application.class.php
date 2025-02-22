@@ -5388,6 +5388,74 @@ class _CerbApplication_KataSchemas {
                       output:
                         types:
                           string:
+                          
+              llm.agent:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+                      inputs:
+                        types:
+                          object:
+                            attributes:
+                              llm:
+                                types:
+                                  object:
+                                    attributes:
+                                      anthropic:
+                                        types:
+                                          list:
+                                      groq:
+                                        types:
+                                          list:
+                                      ollama:
+                                        types:
+                                          list:
+                                      openai:
+                                        types:
+                                          list:
+                              messages:
+                                types:
+                                  object:
+                                    attributes:
+                                      message:
+                                        multiple@bool: yes
+                                        types:
+                                          object:
+                                            attributes:
+                                              content:
+                                                types:
+                                                  string:
+                                              role:
+                                                types:
+                                                  string:
+                              system_prompt:
+                                types:
+                                  string:
+                              tools:
+                                types:
+                                  object:
+                                    attributes:
+                                      automation:
+                                        multiple@bool: yes
+                                        types:
+                                          object:
+                                            attributes:
+                                              params:
+                                                types:
+                                                  list:
+                                              uri:
+                                                types:
+                                                  string:
+                      on_error:
+                        ref: commands
+                      on_simulate:
+                        ref: commands
+                      on_success:
+                        ref: commands
+                      output:
+                        types:
+                          string:
 
               llm.embed:
                 multiple@bool: yes
@@ -6052,6 +6120,7 @@ class _CerbApplication_KataSchemas {
                 file.write@ref: policyRule
                 function@ref: policyRule
                 http.request@ref: policyRule
+                llm.agent@ref: policyRule
                 llm.embed@ref: policyRule
                 metric.increment@ref: policyRule
                 queue.pop@ref: policyRule
