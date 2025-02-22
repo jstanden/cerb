@@ -8,6 +8,7 @@ function CerbInteractions() {
     this.$head = document.getElementsByTagName('head')[0];
     this.$body = document.getElementsByTagName('body')[0];
     this.$badge = null;
+    this.$overlay = null;
     this.$popup = null;
     this.$spinner = null;
     this.focusableSelector = 'a:not([disabled]), input[type=text]:not([disabled]), textarea:not([disabled]), [tabindex]:not([disabled]):not([tabindex="-1"])';
@@ -94,7 +95,7 @@ CerbInteractions.prototype.init = function() {
             let params_pos = hash.indexOf('&');
             let interaction = hash.substring(0, (-1 === params_pos) ? hash.length : params_pos);
             let interaction_query = (-1 === params_pos) ? '' : hash.substring(params_pos+1);
-            let interaction_style = null;
+            let interaction_style = 'full';
             
             inst.interactionStart(interaction, interaction_query, interaction_style);
         }
@@ -211,6 +212,12 @@ CerbInteractions.prototype.interactionStart = function(interaction, interaction_
     xhttp.onreadystatechange = function () {
         if (4 === this.readyState) {
             if(200 === this.status) {
+                if (!inst.$overlay) {
+                    inst.$overlay = document.createElement('div');
+                    inst.$overlay.className = 'cerb-interaction-overlay';
+                    inst.$body.append(inst.$overlay);
+                }
+                
                 // Open the interaction popup
                 if (!inst.$popup) {
                     inst.$popup = document.createElement('div');
@@ -222,13 +229,14 @@ CerbInteractions.prototype.interactionStart = function(interaction, interaction_
                         element.append(inst.$popup);
                         
                     } else {
+                        inst.$overlay.classList.add('cerb-interaction-overlay--active');
                         inst.$popup.className += ' cerb-interaction-popup--style-float';
                         
-                        if (interaction_style === 'full') {
+                        if ('popup' !== interaction_style) {
                             inst.$popup.className += ' cerb-interaction-popup--style-full';
                         }
                         
-                        inst.$body.append(inst.$popup);
+                        inst.$overlay.append(inst.$popup);
                     }
                     
                     inst.html(inst.$popup, this.responseText);
@@ -369,8 +377,9 @@ CerbInteractions.prototype.interactionEnd = function(eventData) {
     if(null == eventData)
         eventData = { };
     
-    this.$popup.parentNode.removeChild(this.$popup);
+    this.$overlay.parentNode.removeChild(this.$overlay);
     
+    this.$overlay = null;
     this.$popup = null;
     if(this.$badge) this.$badge.style.display = 'block';
     

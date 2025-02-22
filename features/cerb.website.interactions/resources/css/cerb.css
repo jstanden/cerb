@@ -31,6 +31,27 @@
     display: none;
 }
 
+.cerb-interaction-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    backdrop-filter: blur(10px);
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.3s ease;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.cerb-interaction-overlay--active {
+    opacity: 1;
+    pointer-events: all;
+}
+
 .cerb-interaction-popup {
     font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     background: var(--cerb-interaction-window-bg-color);
