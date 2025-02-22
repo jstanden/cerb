@@ -1,11 +1,11 @@
 # [TODO] Automation timer for updating status on linked issues when closed
 workflow:
   name: cerb.integrations.gitlab.issues
-  version: 2024-11-05T01:55:03Z
+  version: 2025-02-21T00:00:00Z
   description: Search and link GitLab issues to tickets
   website: https://cerb.ai/workflows/cerb.integrations.gitlab.issues/
   requirements:
-    cerb_version: >=11.0 <11.1
+    cerb_version: >=11.0 <11.2
     cerb_plugins: cerberusweb.core
   config:
     chooser/gitlab_account_id:

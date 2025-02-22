@@ -1,10 +1,10 @@
 workflow:
   name: cerb.auto_responder
-  version@date: 2025-04-10T00:00:00Z
+  version: 2025-04-22T00:00:00Z
   description: Send an automatic response when new tickets are opened
   website: https://cerb.ai/workflows/cerb.auto_responder/
   requirements:
-    cerb_version: >=11.0 <11.1
+    cerb_version: >=11.0 <11.2
     cerb_plugins: cerberusweb.core,
 
 records:
