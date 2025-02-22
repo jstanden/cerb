@@ -282,7 +282,7 @@ class Controller_UI extends DevblocksControllerExtension {
 			return;
 		}
 		
-		if(false == ($automation = DAO_Automation::getByUri($uri_parts['context_id']))) {
+		if(!($automation = DAO_Automation::getByUri($uri_parts['context_id']))) {
 			echo json_encode([]);
 			return;
 		}

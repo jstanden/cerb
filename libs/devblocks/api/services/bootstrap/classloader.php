@@ -3,7 +3,7 @@ class _DevblocksClassLoadManager {
 	const CACHE_CLASS_MAP = 'devblocks_classloader_map';
 	
 	private static $instance = null;
-	private $classMap = array();
+	private $classMap = [];
 	
 	private function __construct() {
 		$cache = _DevblocksCacheManager::getInstance();

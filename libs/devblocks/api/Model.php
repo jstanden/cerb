@@ -681,10 +681,10 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 		} else if(DevblocksPlatform::strStartsWith($key, 'cf_')) {
 			$custom_field_id = intval(substr($key, 3));
 			
-			if(false != ($custom_field = DAO_CustomField::get($custom_field_id)))
+			if(($custom_field = DAO_CustomField::get($custom_field_id)))
 				switch($custom_field->type) {
 					case Model_CustomField::TYPE_LINK:
-						if(false == ($dao_context = Extension_DevblocksContext::get($custom_field->params['context'], true)))
+						if(!($dao_context = Extension_DevblocksContext::get($custom_field->params['context'], true)))
 							break;
 							
 						$models = $dao_context->getModelObjects($values);
@@ -696,7 +696,6 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 							$map[$id] = $dict->_label;
 						
 						return $map;
-						break;
 						
 					default:
 						if(null != ($field_ext = $custom_field->getTypeExtension())) {
@@ -742,10 +741,10 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 		}
 		
 		foreach($context_map as $context => $ids) {
-			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+			if(!($context_ext = Extension_DevblocksContext::get($context)))
 				continue;
 			
-			if(false == ($models = $context_ext->getModelObjects($ids)))
+			if(!($models = $context_ext->getModelObjects($ids)))
 				continue;
 			
 			$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $context);
@@ -893,10 +892,10 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 				$query = mb_substr($query, 1);
 			}
 			
-			if(false == ($ext_attachments = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_ATTACHMENT)))
+			if(!($ext_attachments = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_ATTACHMENT)))
 				return;
 			
-			if(false == (Extension_DevblocksContext::get($context)))
+			if(!(Extension_DevblocksContext::get($context)))
 				return;
 			
 			$view = $ext_attachments->getTempView();
@@ -905,7 +904,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 			
 			$params = $view->getParams();
 			
-			$query_parts = DAO_Attachment::getSearchQueryComponents(array(), $params);
+			$query_parts = DAO_Attachment::getSearchQueryComponents([], $params);
 			
 			$query_parts['select'] = sprintf("SELECT %s ", SearchFields_Attachment::getPrimaryKey());
 			
@@ -936,7 +935,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 				$query = mb_substr($query, 1);
 			}
 			
-			if(false == ($ext = Extension_DevblocksContext::get($context)))
+			if (!($ext = Extension_DevblocksContext::get($context)))
 				return;
 			
 			$view = $ext->getTempView();
@@ -945,10 +944,10 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 			
 			$params = $view->getParams();
 			
-			if(false == ($dao_class = $ext->getDaoClass()))
+			if (!($dao_class = $ext->getDaoClass()))
 				return;
 			
-			if(false == ($search_class = $ext->getSearchClass()))
+			if (!($search_class = $ext->getSearchClass()))
 				return;
 			
 			$query_parts = $dao_class::getSearchQueryComponents([], $params);
@@ -962,7 +961,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 				. $query_parts['sort']
 				;
 			
-			if(!empty($where_key)) {
+			if (!empty($where_key)) {
 				$subquery_sql = sprintf("%s %s (%s)",
 					$where_key,
 					$not ? 'NOT IN' : 'IN',
@@ -985,7 +984,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 				$query = mb_substr($query, 1);
 			}
 			
-			if(false == ($ext = Extension_DevblocksContext::get($context)))
+			if(!($ext = Extension_DevblocksContext::get($context)))
 				return;
 			
 			$view = $ext->getTempView();
@@ -994,13 +993,13 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 			
 			$params = $view->getParams();
 			
-			if(false == ($dao_class = $ext->getDaoClass()) || !class_exists($dao_class))
+			if(!($dao_class = $ext->getDaoClass()) || !class_exists($dao_class))
 				return;
 			
-			if(false == ($search_class = $ext->getSearchClass()) || !class_exists($search_class))
+			if(!($search_class = $ext->getSearchClass()) || !class_exists($search_class))
 				return;
 			
-			if(false == ($primary_key = $search_class::getPrimaryKey()))
+			if(!($primary_key = $search_class::getPrimaryKey()))
 				return;
 			
 			$query_parts = $dao_class::getSearchQueryComponents(array(), $params);
@@ -1027,7 +1026,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 		if($param->operator == DevblocksSearchCriteria::OPER_CUSTOM) {
 			list($alias, $query) = array_pad(explode(':', $param->value, 2), 2, null);
 			
-			if(empty($alias) || (false == ($ext = Extension_DevblocksContext::getByAlias(str_replace('.', ' ', $alias), true))))
+			if(empty($alias) || !($ext = Extension_DevblocksContext::getByAlias(str_replace('.', ' ', $alias), true)))
 				return;
 			
 			if(!method_exists($ext, 'getSearchView') || false == ($view = $ext->getTempView())) {
@@ -1049,13 +1048,13 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 			
 			$params = $view->getParams();
 			
-			if(false == ($dao_class = $ext->getDaoClass()) || !class_exists($dao_class))
+			if(!($dao_class = $ext->getDaoClass()) || !class_exists($dao_class))
 				return;
 			
-			if(false == ($search_class = $ext->getSearchClass()) || !class_exists($search_class))
+			if(!($search_class = $ext->getSearchClass()) || !class_exists($search_class))
 				return;
 			
-			if(false == ($primary_key = $search_class::getPrimaryKey()))
+			if(!($primary_key = $search_class::getPrimaryKey()))
 				return;
 			
 			$query_parts = $dao_class::getSearchQueryComponents([], $params);
@@ -1121,7 +1120,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 			list($alias, $query) = array_pad(explode(':', $param->value, 2), 2, null);
 			list($alias, $field) = array_pad(explode('.', $alias, 2),2, null);
 			
-			if(empty($alias) || (false == ($ext = Extension_DevblocksContext::getByAlias($alias, true))))
+			if(empty($alias) || !($ext = Extension_DevblocksContext::getByAlias($alias, true)))
 				return;
 			
 			$not = false;
@@ -1141,13 +1140,13 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 			
 			$params = $view->getParams();
 			
-			if(false == ($dao_class = $ext->getDaoClass()) || !class_exists($dao_class))
+			if(!($dao_class = $ext->getDaoClass()) || !class_exists($dao_class))
 				return;
 			
-			if(false == ($search_class = $ext->getSearchClass()) || !class_exists($search_class))
+			if(!($search_class = $ext->getSearchClass()) || !class_exists($search_class))
 				return;
 			
-			if(false == ($primary_key = $search_class::getPrimaryKey()))
+			if(!($primary_key = $search_class::getPrimaryKey()))
 				return;
 			
 			$query_parts = $dao_class::getSearchQueryComponents([], $params);
@@ -1163,7 +1162,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 			
 			// If there's a $field URI, it's a custom field URI
 			if($field) {
-				if(false == ($custom_field = DAO_CustomField::getByUri($ext->id, $field)))
+				if(!($custom_field = DAO_CustomField::getByUri($ext->id, $field)))
 					return;
 				
 				if(null == ($table_name = DAO_CustomFieldValue::getValueTableName($custom_field->id)))
@@ -1313,10 +1312,10 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 	static function _getWhereSQLFromWatchersField(DevblocksSearchCriteria $param, $from_context, $pkey) {
 		switch($param->operator) {
 			case DevblocksSearchCriteria::OPER_CUSTOM:
-				if(false == ($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_WORKER, true)))
+				if(!($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_WORKER, true)))
 					return null;
 				
-				if(false == ($view = $context_ext->getTempView()))
+				if(!($view = $context_ext->getTempView()))
 					return null;
 				
 				$not = DevblocksPlatform::strStartsWith($param->value, '!');
@@ -1440,7 +1439,6 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 
 		$field_table = sprintf("cf_%d", $field_id);
 		$value_table = DAO_CustomFieldValue::getValueTableName($field_id);
-		$cfield_key = null;
 		
 		$cfield_key = static::getCustomFieldContextWhereKey($field->context);
 		
@@ -1528,6 +1526,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 						$param->operator = DevblocksSearchCriteria::OPER_IN;
 						break;
 						
+					case DevblocksSearchCriteria::OPER_NIN:
 					case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
 						$not = true;
 						$param->operator = DevblocksSearchCriteria::OPER_IN;
@@ -1536,11 +1535,6 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 					case DevblocksSearchCriteria::OPER_NEQ:
 						$not = true;
 						$param->operator = DevblocksSearchCriteria::OPER_EQ;
-						break;
-						
-					case DevblocksSearchCriteria::OPER_NIN:
-						$not = true;
-						$param->operator = DevblocksSearchCriteria::OPER_IN;
 						break;
 						
 					case DevblocksSearchCriteria::OPER_NOT_LIKE:

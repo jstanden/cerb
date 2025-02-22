@@ -207,10 +207,18 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 						'score' => 1999,
 						'description' => "Display plaintext without formatting",
 					],
-					"references:",
+					[
+						'caption' => 'references:',
+						'snippet' => "references:\n\tresource/\${1:example}:\n\t\turi:",
+						'description' => "Add image resources as references",
+					],
 				],
 				'(.*):await:form:elements:say:references:' => [
-					'resource:',
+					[
+						'caption' => 'resource:',
+						'snippet' => "resource:\n\tresource/\${1:example}:\n\t\turi:",
+						'description' => "Load an image resources",
+					],
 				],
 				'(.*):await:form:elements:say:references:resource:uri:' => [
 					'type' => 'cerb-uri',

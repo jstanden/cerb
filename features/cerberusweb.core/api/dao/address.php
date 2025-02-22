@@ -753,11 +753,8 @@ class DAO_Address extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Address::getFields();
 		
-		if(is_string($sortBy))
-		switch($sortBy) {
-			case SearchFields_Address::ORG_NAME:
-				$sortBy = SearchFields_Address::CONTACT_ORG_ID;
-				break;
+		if (is_string($sortBy) && $sortBy == SearchFields_Address::ORG_NAME) {
+			$sortBy = SearchFields_Address::CONTACT_ORG_ID;
 		}
 		
 		list(, $wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_Address', $sortBy);

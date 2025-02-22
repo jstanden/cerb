@@ -334,10 +334,10 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	 * @return integer
 	 */
 	static function getTicketByMessageId($message_id) {
-		if(false == ($message = DAO_Message::get($message_id)))
+		if(!($message = DAO_Message::get($message_id)))
 			return null;
 		
-		if(false == ($ticket = DAO_Ticket::get($message->ticket_id)))
+		if(!($ticket = DAO_Ticket::get($message->ticket_id)))
 			return null;
 		
 		return $ticket;

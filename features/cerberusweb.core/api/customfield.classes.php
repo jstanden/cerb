@@ -737,7 +737,7 @@ class CustomField_RecordLinks extends Extension_CustomField {
 		if(!array_key_exists('context', $field->params))
 			return;
 		
-		if(false == ($context_mft = Extension_DevblocksContext::get($field->params['context'], false)))
+		if(!($context_mft = Extension_DevblocksContext::get($field->params['context'], false)))
 			return;
 		
 		$aliases = Extension_DevblocksContext::getAliasesForContext($context_mft);

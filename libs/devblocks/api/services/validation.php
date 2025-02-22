@@ -308,8 +308,8 @@ class _DevblocksValidators {
 		return function(&$value, &$error=null) use ($context, $allow_empty) {
 			if(!is_numeric($value)) {
 				if(DevblocksPlatform::strStartsWith($value, 'cerb:')) {
-					if(false == ($uri_parts = DevblocksPlatform::services()->ui()->parseURI($value))) {
-						$error = "must be an ID or URI.";
+					if(!($uri_parts = DevblocksPlatform::services()->ui()->parseURI($value))) {
+						$error = sprintf("must be an ID or URI. (%s)", $value);
 						return false;
 					}
 					
@@ -326,7 +326,7 @@ class _DevblocksValidators {
 					}
 					
 				} else {
-					$error = "must be an ID or URI.";
+					$error = sprintf("must be an ID or URI. (%s)", $value);
 					return false;
 				}
 			}

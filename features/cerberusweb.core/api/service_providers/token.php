@@ -58,7 +58,7 @@ class ServiceProvider_TokenBearer extends Extension_ConnectedServiceProvider {
 			->setRequired(true)
 			;
 		
-		if(false == $validation->validateAll($edit_params, $error))
+		if(!$validation->validateAll($edit_params, $error))
 			return false;
 		
 		foreach($edit_params as $k => $v)
@@ -68,7 +68,7 @@ class ServiceProvider_TokenBearer extends Extension_ConnectedServiceProvider {
 	}
 	
 	function authenticateHttpRequest(Model_ConnectedAccount $account, Psr\Http\Message\RequestInterface &$request, array &$options = []) : bool {
-		if(false == ($service = $account->getService()))
+		if(!($service = $account->getService()))
 			return false;
 		
 		$service_params = $service->decryptParams();

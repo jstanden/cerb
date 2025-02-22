@@ -1,10 +1,10 @@
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $view = $('div#view{$view->id}');
-	var $view_form = $('form#viewForm{$view->id}');
-	var $view_actions = $view_form.find('#{$view->id}_actions');
-	var $last_row_clicked = null;
-	
+	let $view = $('div#view{$view->id}');
+	let $view_form = $('form#viewForm{$view->id}');
+	let $view_actions = $view_form.find('#{$view->id}_actions');
+	let $last_row_clicked = null;
+
 	// Row selection and hover effect
 	$view_form.find('TABLE.worklistBody TBODY')
 		.disableSelection()

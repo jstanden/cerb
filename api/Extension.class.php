@@ -1153,7 +1153,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'(.*):decrypt.pgp:inputs:' => [
 					[
 						'caption' => 'message:',
-						'snippet' => "message:\n\t\${1:}",
+						'snippet' => "message@text:\n\t\${1:}",
 					],
 				],
 				
@@ -1161,7 +1161,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'(.*):email.parse:inputs:' => [
 					[
 						'caption' => 'message:',
-						'snippet' => "message:\n\t\${1:}",
+						'snippet' => "message@text:\n\t\${1:}",
 					],
 				],
 				
@@ -1169,7 +1169,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'(.*):encrypt.pgp:inputs:' => [
 					[
 						'caption' => 'message:',
-						'snippet' => "message:\n\t\${1:}",
+						'snippet' => "message@text:\n\t\${1:}",
 					],
 					'public_keys:',
 				],
@@ -1344,6 +1344,11 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'params' => [
 						'connected_account' => null,
 					]
+				],
+				'(.*):http.request:inputs:headers:' => [
+					'Authorization: Bearer {token}',
+					'Content-Type: application/json',
+					'Content-Type: application/x-www-form-urlencoded',
 				],
 				'(.*):http.request:inputs:method:' => [
 					'GET',

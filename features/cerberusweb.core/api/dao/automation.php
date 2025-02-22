@@ -269,6 +269,11 @@ class DAO_Automation extends Cerb_ORMHelper {
 		return null;
 	}
 	
+	/**
+	 * @param string $interaction_uri
+	 * @param string|array $extension_ids
+	 * @return Model_Automation|null
+	 */
 	public static function getByUri(string $interaction_uri, $extension_ids=null) {
 		$objects = self::getByUris([$interaction_uri], $extension_ids);
 		

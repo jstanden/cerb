@@ -631,7 +631,7 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 		if(null == $delegate_token)
 			DevblocksPlatform::dieWithHttpError("Null delegate", 404);
 		
-		if(false == ($delegate_continuation = DAO_AutomationContinuation::getByToken($delegate_token)))
+		if(!($delegate_continuation = DAO_AutomationContinuation::getByToken($delegate_token)))
 			DevblocksPlatform::dieWithHttpError("Null delegate continuation", 404);
 		
 		// Is the delegate completed?
@@ -639,7 +639,7 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 		if('await' != $delegate_continuation->state) {
 			$automator = DevblocksPlatform::services()->automation();
 			
-			if(false == ($automation = $continuation->getAutomation()))
+			if(!($automation = $continuation->getAutomation()))
 				DevblocksPlatform::dieWithHttpError("Null delegate automation", 404);
 			
 			$error = null;
@@ -768,7 +768,7 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 		$event_handler = DevblocksPlatform::services()->ui()->eventHandler();
 		
 		// Must have a URI
-		if(false == ($interaction_uri = trim($automation_results->getKeyPath('__return.interaction.uri'))))
+		if(!($interaction_uri = trim($automation_results->getKeyPath('__return.interaction.uri'))))
 			DevblocksPlatform::dieWithHttpError("invalid return interaction uri", 404);
 		
 		$handler_name = uniqid();
@@ -803,7 +803,7 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 			$handler
 		);
 		
-		if(false == $delegate_results)
+		if(!$delegate_results)
 			DevblocksPlatform::dieWithHttpError("null delegate results", 404);
 		
 		$state_data = [
@@ -899,13 +899,13 @@ class CerbPortalWebsiteInteractions_Model {
 	}
 	
 	function getFavicon() {
-		if(false == ($icon_uri = $this->getFaviconUri()))
+		if(!($icon_uri = $this->getFaviconUri()))
 			return null;
 		
-		if(false == ($uri_parts = DevblocksPlatform::services()->ui()->parseURI($icon_uri)))
+		if(!($uri_parts = DevblocksPlatform::services()->ui()->parseURI($icon_uri)))
 			return null;
 		
-		if(false == ($resource = DAO_Resource::getByName($uri_parts['context_id'] ?? null)))
+		if(!($resource = DAO_Resource::getByName($uri_parts['context_id'] ?? null)))
 			return null;
 		
 		return $resource;
