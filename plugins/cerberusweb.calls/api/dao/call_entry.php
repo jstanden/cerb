@@ -441,7 +441,7 @@ class SearchFields_CallEntry extends DevblocksSearchFields {
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_CALL, self::getPrimaryKey());
 				
 			case self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_CALL), '%s'), self::getPrimaryKey());
+				return self::_getWhereSQLFromFieldset($param, CerberusContexts::CONTEXT_CALL, self::getPrimaryKey());
 				
 			case self::VIRTUAL_WATCHERS:
 				return self::_getWhereSQLFromWatchersField($param, CerberusContexts::CONTEXT_CALL, self::getPrimaryKey());

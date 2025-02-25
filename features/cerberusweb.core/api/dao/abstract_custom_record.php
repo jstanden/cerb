@@ -614,7 +614,7 @@ class SearchFields_AbstractCustomRecord extends DevblocksSearchFields {
 				return self::_getWhereSQLFromContextLinksField($param, $context_name, self::getPrimaryKey());
 				
 			case self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr($context_name), '%s'), self::getPrimaryKey());
+				return self::_getWhereSQLFromFieldset($param, $context_name, self::getPrimaryKey());
 				
 			case self::VIRTUAL_OWNER:
 				return self::_getWhereSQLFromContextAndID($param, sprintf('%s.owner_context', Cerb_ORMHelper::escape($table_name)), sprintf('%s.owner_context_id', Cerb_ORMHelper::escape($table_name)));

@@ -403,7 +403,7 @@ class SearchFields_FeedItem extends DevblocksSearchFields {
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_FEED, 'feed_item.feed_id');
 				
 			case self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_FEED_ITEM), '%s'), self::getPrimaryKey());
+				return self::_getWhereSQLFromFieldset($param, CerberusContexts::CONTEXT_FEED_ITEM, self::getPrimaryKey());
 				
 			case self::VIRTUAL_WATCHERS:
 				return self::_getWhereSQLFromWatchersField($param, CerberusContexts::CONTEXT_FEED_ITEM, self::getPrimaryKey());

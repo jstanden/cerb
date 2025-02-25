@@ -488,7 +488,7 @@ class SearchFields_Calendar extends DevblocksSearchFields {
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_CALENDAR, self::getPrimaryKey());
 			
 			case self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_CALENDAR), '%s'), self::getPrimaryKey());
+				return self::_getWhereSQLFromFieldset($param, CerberusContexts::CONTEXT_CALENDAR, self::getPrimaryKey());
 				
 			case self::VIRTUAL_OWNER:
 				return self::_getWhereSQLFromContextAndID($param, 'calendar.owner_context', 'calendar.owner_context_id');

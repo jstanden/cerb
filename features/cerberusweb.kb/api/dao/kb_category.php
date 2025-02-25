@@ -598,7 +598,7 @@ class SearchFields_KbCategory extends DevblocksSearchFields {
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
 			case self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_KB_CATEGORY), '%s'), self::getPrimaryKey());
+				return self::_getWhereSQLFromFieldset($param, CerberusContexts::CONTEXT_KB_CATEGORY, self::getPrimaryKey());
 			
 			case self::VIRTUAL_WATCHERS:
 				return self::_getWhereSQLFromWatchersField($param, CerberusContexts::CONTEXT_KB_CATEGORY, self::getPrimaryKey());

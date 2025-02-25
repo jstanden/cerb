@@ -1347,6 +1347,11 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 		}
 	}
 	
+	static function _getWhereSQLFromFieldset(DevblocksSearchCriteria $param, string $context, string $primary_key) {
+		$subquery_sql = sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND context_id = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr($context), $primary_key, '%s');
+		return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, $subquery_sql, $primary_key);
+	}
+	
 	static function _getWhereSQLFromAliasesField(DevblocksSearchCriteria $param, $context, $pkey) {
 		$terms = DAO_ContextAlias::prepare($param->value);
 		
