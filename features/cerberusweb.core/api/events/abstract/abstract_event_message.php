@@ -1148,8 +1148,14 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 					$properties['is_autoreply'] = true;
 				
 				// Send
-				
-				CerberusMail::sendTicketReply($properties);
+				$draft_type = Model_MailQueue::TYPE_TICKET_REPLY;
+				$draft_fields = DAO_MailQueue::getFieldsFromMessageProperties($properties, $draft_type);
+				$draft_fields[DAO_MailQueue::NAME] = 'Bot auto-reply';
+				$draft_fields[DAO_MailQueue::HINT_TO] = '(participants)';
+				$draft_fields[DAO_MailQueue::TYPE] = $draft_type;
+				$draft_fields[DAO_MailQueue::IS_QUEUED] = 1;
+				$draft_fields[DAO_MailQueue::QUEUE_DELIVERY_DATE] = time();
+				DAO_MailQueue::create($draft_fields);
 				break;
 
 			case 'set_reopen_date':
