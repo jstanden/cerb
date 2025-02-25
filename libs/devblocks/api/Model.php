@@ -954,12 +954,34 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 			
 			$query_parts['select'] = sprintf("SELECT %s ", $search_class::getPrimaryKey());
 			
-			$sql = 
+			$sql =
 				$query_parts['select']
 				. $query_parts['join']
 				. $query_parts['where']
 				. $query_parts['sort']
-				;
+			;
+			
+			// If we can resolve the linked records to IDs, replace the subquery
+			if(APP_OPT_SQL_SUBQUERY_TO_IDS) {
+				try {
+					$db = DevblocksPlatform::services()->database();
+					
+					$preview_rows = $db->GetArrayReader($sql . ' LIMIT ' . APP_OPT_SQL_SUBQUERY_TO_IDS_LIMIT, 1500);
+					
+					if(is_array($preview_rows)) {
+						if(count($preview_rows) < APP_OPT_SQL_SUBQUERY_TO_IDS_LIMIT) {
+							$preview_ids = array_unique(array_map(function ($row) use (&$db) {
+								$preview_id = $row[array_key_first($row)];
+								return is_numeric($preview_id) ? intval($preview_id) : $db->qstr($preview_id);
+							}, $preview_rows));
+							
+							$sql = $preview_ids ? implode(',', $preview_ids) : '0';
+						}
+					}
+				} catch (Exception_DevblocksDatabaseQueryTimeout) {
+					// If we time out on our estimate, do the full query as planned
+				}
+			}
 			
 			if (!empty($where_key)) {
 				$subquery_sql = sprintf("%s %s (%s)",
@@ -969,7 +991,10 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 				);
 			}
 			
-			return sprintf($subquery_sql, $sql);
+			if (str_contains($subquery_sql, '%s'))
+				$subquery_sql = sprintf($subquery_sql, $sql);
+			
+			return $subquery_sql;
 		}
 	}
 	
@@ -1012,6 +1037,28 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 				. $query_parts['where']
 				. $query_parts['sort']
 				;
+			
+			if(APP_OPT_SQL_SUBQUERY_TO_IDS) {
+				// Run a speculative query to see if we can convert subqueries to ids[]
+				try {
+					$db = DevblocksPlatform::services()->database();
+					
+					$preview_rows = $db->GetArrayReader($sql . ' LIMIT ' . APP_OPT_SQL_SUBQUERY_TO_IDS_LIMIT, 1500);
+					
+					if(is_array($preview_rows)) {
+						if(count($preview_rows) < APP_OPT_SQL_SUBQUERY_TO_IDS_LIMIT) {
+							$preview_ids = array_unique(array_map(function ($row) use (&$db) {
+								$preview_id = $row[array_key_first($row)];
+								return is_numeric($preview_id) ? intval($preview_id) : $db->qstr($preview_id);
+							}, $preview_rows));
+							
+							$sql = $preview_ids ? implode(',', $preview_ids) : '0';
+						}
+					}
+				} catch (Exception_DevblocksDatabaseQueryTimeout) {
+					// If we time out on our estimate, do the full query as planned
+				}
+			}
 			
 			return sprintf("%s %sIN (%s) ",
 				Cerb_OrmHelper::escape($join_key),
@@ -1067,6 +1114,26 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 				. $query_parts['where']
 				. $query_parts['sort']
 				;
+			
+			if(APP_OPT_SQL_SUBQUERY_TO_IDS) {
+				try {
+					$db = DevblocksPlatform::services()->database();
+					
+					$prefetch_rows = $db->GetArrayReader($sql . ' LIMIT ' . APP_OPT_SQL_SUBQUERY_TO_IDS_LIMIT, 1500);
+					
+					if(is_array($prefetch_rows)) {
+						if(count($prefetch_rows) < APP_OPT_SQL_SUBQUERY_TO_IDS_LIMIT) {
+							$prefetch_ids = array_unique(array_map(function ($row) use (&$db) {
+								$prefetch_id = $row[array_key_first($row)];
+								return is_numeric($prefetch_id) ? intval($prefetch_id) : $db->qstr($prefetch_id);
+							}, $prefetch_rows));
+							
+							$sql = $prefetch_ids ? implode(',', $prefetch_ids) : '0';
+						}
+					}
+					
+				} catch(Exception_DevblocksDatabaseQueryTimeout) {}
+			}
 			
 			return sprintf("(%s = %s AND %s IN (%s)) ",
 				Cerb_OrmHelper::escape($context_field),
@@ -1567,9 +1634,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 				);
 
 			default:
-				return sprintf("%s %sIN (SELECT context_id FROM %s AS %s WHERE %s.context = %s AND %s.context_id = %s AND %s.field_id=%d AND %s)",
-					$cfield_key,
-					($not) ? 'NOT ' : '',
+				$subquery_sql = sprintf('SELECT context_id FROM %s AS %s WHERE %s.context = %s AND %s.context_id = %s AND %s.field_id=%d AND %s',
 					$value_table,
 					$field_table,
 					$field_table,
@@ -1580,10 +1645,44 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 					$field_id,
 					$param->getWhereSQL(static::getFields(), static::getPrimaryKey())
 				);
-				break;
+				
+				if(APP_OPT_SQL_SUBQUERY_TO_IDS) {
+					try {
+						$db = DevblocksPlatform::services()->database();
+						
+						// Check values without depending on the outer query
+						$prefetch_sql = sprintf('SELECT context_id FROM %s AS %s WHERE %s.context = %s AND %s.field_id=%d AND %s',
+							$value_table,
+							$field_table,
+							$field_table,
+							Cerb_ORMHelper::qstr($field->context),
+							$field_table,
+							$field_id,
+							$param->getWhereSQL(static::getFields(), static::getPrimaryKey())
+						);
+						
+						$prefetch_rows = $db->GetArrayReader($prefetch_sql . ' LIMIT ' . APP_OPT_SQL_SUBQUERY_TO_IDS_LIMIT, 1500);
+						
+						if(count($prefetch_rows) < APP_OPT_SQL_SUBQUERY_TO_IDS_LIMIT) {
+							$prefetch_ids = array_unique(array_map(
+								fn($row) => intval($row['context_id']),
+								$prefetch_rows
+							));
+							
+							$subquery_sql = $prefetch_ids ? implode(',', $prefetch_ids) : '0';
+						}
+						
+					} catch (Exception_DevblocksDatabaseQueryTimeout) {
+						// If we time out on our estimate, do the full query as planned
+					}
+				}
+				
+				return sprintf("%s %sIN (%s)",
+					$cfield_key,
+					($not) ? 'NOT ' : '',
+					$subquery_sql
+				);
 		}
-		
-		return 0;
 	}
 }
 
