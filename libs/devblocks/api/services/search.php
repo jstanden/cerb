@@ -563,7 +563,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		if(!($query_parts = $this->_parseQuery($query, $schema->areWildcardsAllowed())))
 			return false;
 		
-		if(!isset($query_parts['terms']) || empty($query_parts['terms']))
+		if(!($query_parts['terms'] ?? null))
 			return false;
 		
 		$id_key = $schema->getIdField();

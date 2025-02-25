@@ -2064,8 +2064,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 			return '';
 	
 		$url_writer = DevblocksPlatform::services()->url();
-		$url = $url_writer->writeNoProxy('c=profiles&type=trigger_event&id='.$context_id, true);
-		return $url;
+		return $url_writer->writeNoProxy('c=profiles&type=behavior&id='.$context_id, true);
 	}
 	
 	function profileGetFields($model=null) {

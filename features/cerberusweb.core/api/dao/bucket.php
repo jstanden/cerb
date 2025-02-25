@@ -803,13 +803,13 @@ class Model_Bucket extends DevblocksRecordModel {
 		$from_id = $this->reply_address_id;
 		
 		// Cascade to group
-		if(empty($from_id) && false != ($group = $this->getGroup())) {
+		if(empty($from_id) && ($group = $this->getGroup())) {
 			$from_id = $group->getReplyFrom();
 		}
 		
 		// Cascade to global
 		if(empty($from_id) || !isset($froms[$from_id])) {
-			if(false != ($from = DAO_Address::getDefaultLocalAddress()))
+			if(($from = DAO_Address::getDefaultLocalAddress()))
 				$from_id = $from->id;
 		}
 		

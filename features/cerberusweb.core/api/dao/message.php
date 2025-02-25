@@ -792,7 +792,7 @@ class SearchFields_Message extends DevblocksSearchFields {
 				if(DevblocksPlatform::strStartsWith($value, '<'))
 					$value = sha1($value);
 				
-				if(false !== strpos($value, '*')) {
+				if(str_contains($value, '*')) {
 					return sprintf("m.hash_header_message_id LIKE %s",
 						Cerb_ORMHelper::qstr(str_replace('*','%',$value))
 					);

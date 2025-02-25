@@ -1077,7 +1077,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				$format = $params['format'] ?? null;
 				$html_template_id = $params['html_template_id'] ?? null;
 				
-				$properties = array(
+				$properties = [
 					'ticket_id' => $ticket_id,
 					'message_id' => $message_id,
 					'content' => $content,
@@ -1086,7 +1086,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 					'worker_id' => 0, //$worker_id,
 					'forward_files' => array(),
 					'link_forward_files' => true,
-				);
+				];
 				
 				// Headers
 
@@ -1106,7 +1106,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 		
 				if(isset($params['attachment_vars']) && is_array($params['attachment_vars'])) {
 					foreach($params['attachment_vars'] as $attachment_var) {
-						if(false != ($attachments = $dict->$attachment_var) && is_array($attachments)) {
+						if(($attachments = $dict->$attachment_var) && is_array($attachments)) {
 							foreach($attachments as $attachment) {
 								$properties['forward_files'][] = $attachment->id;
 							}

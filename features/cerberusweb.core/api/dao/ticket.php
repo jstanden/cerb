@@ -1011,7 +1011,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		// Automatically add new 'To:' recipients?
 		if(!array_key_exists('is_forward', $properties) && array_key_exists('to', $properties)) {
 			try {
-				if(false != ($to_addys = CerberusMail::parseRfcAddresses($properties['to']))) {
+				if(($to_addys = CerberusMail::parseRfcAddresses($properties['to']))) {
 					foreach(array_keys($to_addys) as $to_addy)
 						DAO_Ticket::createRequester($to_addy, $ticket->id);
 				}
@@ -1067,7 +1067,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			@$move_to_group_id = intval($properties['group_id']);
 			@$move_to_bucket_id = intval($properties['bucket_id']);
 			
-			if(!$move_to_group_id || false == ($move_to_group = DAO_Group::get($move_to_group_id)))
+			if(!$move_to_group_id || !($move_to_group = DAO_Group::get($move_to_group_id)))
 				$move_to_group = DAO_Group::getDefaultGroup();
 			
 			$change_fields[DAO_Ticket::GROUP_ID] = $move_to_group->id;
@@ -1075,7 +1075,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			// Validate the given bucket id
 			
 			if(!$move_to_bucket_id
-				|| false == ($move_to_bucket = DAO_Bucket::get($move_to_bucket_id))
+				|| !($move_to_bucket = DAO_Bucket::get($move_to_bucket_id))
 				|| $move_to_bucket->group_id != $move_to_group->id) {
 				
 				$move_to_bucket = $move_to_group->getDefaultBucket();

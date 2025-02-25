@@ -4787,7 +4787,7 @@ class DevblocksEventHelper {
 			$out = rtrim($out,"\n") . "\n\n>>> Attaching files from variables:\n";
 			
 			foreach($params['attachment_vars'] as $attachment_var) {
-				if(false != ($attachments = $dict->$attachment_var) && is_array($attachments)) {
+				if(($attachments = $dict->$attachment_var) && is_array($attachments)) {
 					foreach($attachments as $attachment) {
 						$out .= " * " . $attachment->name . ' (' . DevblocksPlatform::strPrettyBytes($attachment->size) . ')' . "\n";
 					}

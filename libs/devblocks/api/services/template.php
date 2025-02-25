@@ -71,6 +71,7 @@ class _DevblocksTemplateManager {
 					'DAO_CustomFieldset',
 					'DAO_CustomFieldValue',
 					'DAO_EmailSignature',
+					'DAO_FileBundle',
 					'DAO_GpgPrivateKey',
 					'DAO_Group',
 					'DAO_KbCategory',

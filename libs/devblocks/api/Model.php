@@ -3106,6 +3106,9 @@ class DevblocksSearchCriteria {
 				break;
 			
 			case DevblocksSearchCriteria::OPER_CUSTOM:
+				if(!is_array($this->value))
+					$this->value = [];
+				
 				if(array_key_exists('sql', $this->value)) {
 					$where = sprintf($this->value['sql'], $db_field_name);
 					

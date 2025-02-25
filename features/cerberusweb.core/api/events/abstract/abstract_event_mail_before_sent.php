@@ -126,7 +126,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 		$values['content'] = $properties['content'] ?? null;
 		
 		$labels['content_format'] = $prefix.'content is HTML';
-		$values['content_format'] = (@$properties['content_format'] == 'parsedown') ? 1 : 0;
+		$values['content_format'] = ($properties['content_format'] ?? null) == 'parsedown' ? 1 : 0;
 		
 		$labels['headers'] = $prefix.'headers';
 		$values['headers'] = $properties['headers'] ?? [];
@@ -933,10 +933,10 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 						if($matches[1] !== 'ticket_')
 							break;
 						
-						if(false == ($field_id = $matches[2]))
+						if(!($field_id = $matches[2]))
 							break;
 						
-						if(false == ($custom_field = DAO_CustomField::get($field_id)))
+						if(!($custom_field = DAO_CustomField::get($field_id)))
 							break;
 						
 						if(!array_key_exists('custom_fields', $dict->_properties))
