@@ -3008,7 +3008,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 						case 'id':
 						case 'time_mins':
 						case 'time_secs':
-							$not = (substr($params['oper'],0,1) == '!');
+							$not = (str_starts_with($params['oper'] ?? '', '!'));
 							$oper = ltrim($params['oper'],'!');
 							@$desired_value = intval($params['value']);
 
@@ -3033,9 +3033,9 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 							break;
 
 						case Model_CustomField::TYPE_DROPDOWN:
-							$not = (substr($params['oper'],0,1) == '!');
+							$not = (str_starts_with($params['oper'] ?? '', '!'));
 							$oper = ltrim($params['oper'],'!');
-							$desired_values = isset($params['values']) ? $params['values'] : [];
+							$desired_values = $params['values'] ?? [];
 
 							$logger->info(sprintf("`%s` %s%s `%s`",
 								$value,
@@ -3099,7 +3099,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 
 						case Model_CustomField::TYPE_WORKER:
 							$worker_ids = $params['worker_id'] ?? null;
-							$not = (substr($params['oper'],0,1) == '!');
+							$not = (str_starts_with($params['oper'] ?? '', '!'));
 							$oper = ltrim($params['oper'],'!');
 
 							if(!is_array($value))
@@ -3127,12 +3127,12 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 							break;
 
 						default:
-							if(@substr($condition['type'],0,4) == 'ctx_') {
+							if(str_starts_with($condition['type'] ?? '', 'ctx_')) {
 								$count = (isset($dict->$token) && is_array($dict->$token)) ? count($dict->$token) : 0;
 
-								$not = (substr($params['oper'],0,1) == '!');
+								$not = (str_starts_with($params['oper'] ?? '', '!'));
 								$oper = ltrim($params['oper'],'!');
-								@$desired_count = intval($params['value']);
+								$desired_count = intval($params['value'] ?? 0);
 
 								$logger->info(sprintf("Count: %d %s%s %d",
 									$count,
