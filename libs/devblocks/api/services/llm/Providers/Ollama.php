@@ -49,12 +49,16 @@ class Ollama extends Extension_DevblocksLlmProvider {
 		$headers = [
 			'Content-Type' => 'application/json',
 		];
-		$body = json_encode([
+		$body_payload = [
 			'model' => $this->getParam('model', ''),
 			'stream' => false,
 			'messages' => $model_messages,
-			'tools' => $tools,
-		]);
+		];
+		
+		if($tools)
+			$body_payload['tools'] = $tools;
+		
+		$body = json_encode($body_payload);
 		
 		$request = new Request($verb, $url, $headers, $body);
 		$request_options = [
