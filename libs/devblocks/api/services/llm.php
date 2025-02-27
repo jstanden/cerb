@@ -132,6 +132,7 @@ class _DevblocksLlmService {
 		return match($provider_id) {
 			'anthropic' => new Cerb\LLM\Providers\Anthropic($params),
 			'groq' => new Cerb\LLM\Providers\Groq($params),
+			'huggingface' => new Cerb\LLM\Providers\HuggingFace($params),
 			'ollama' => new Cerb\LLM\Providers\Ollama($params),
 			'openai' => new Cerb\LLM\Providers\OpenAI($params),
 			default => null,

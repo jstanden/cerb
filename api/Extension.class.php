@@ -1402,6 +1402,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'(.*):llm.agent:inputs:llm:' => [
 					'anthropic:',
 					'groq:',
+					'huggingface:',
 					'ollama:',
 					'openai:',
 				],
@@ -1453,6 +1454,25 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'llama-3.3-70b-versatile',
 					'mixtral-8x7b-32768',
 					'qwen-2.5-32b',
+				],
+				'(.*):llm.agent:inputs:llm:huggingface:' => [
+					[
+						'caption' => 'model:',
+						'snippet' => "model:",
+						'score' => 2000,
+					],
+					'api_endpoint_url:',
+					'authentication:',
+				],
+				'(.*):llm.agent:inputs:llm:huggingface:authentication:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'connected_account' => null,
+					]
+				],
+				'(.*):llm.agent:inputs:llm:huggingface:model:' => [
+					'meta-llama/Llama-3.2-3B-Instruct',
+					'google/gemma-2-2b-it',
 				],
 				'(.*):llm.agent:inputs:llm:ollama:' => [
 					[

@@ -5408,6 +5408,9 @@ class _CerbApplication_KataSchemas {
                                       groq:
                                         types:
                                           list:
+                                      huggingface:
+                                        types:
+                                          list:
                                       ollama:
                                         types:
                                           list:
