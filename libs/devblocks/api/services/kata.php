@@ -32,6 +32,7 @@ class _DevblocksKataService {
 		'kata',
 		'key',
 		'list',
+		'nowrap',
 		'raw',
 		'text',
 		'trim',
@@ -669,6 +670,8 @@ class _DevblocksKataService {
 					}
 				} else if($annotation == 'list') {
 					$v = DevblocksPlatform::parseCrlfString($v);
+				} else if($annotation == 'nowrap') {
+					$v = DevblocksPlatform::services()->string()->strStripCrlf($v);
 				} else if(in_array($annotation, ['optional','text'])) {
 					DevblocksPlatform::noop();
 				} else if($annotation == 'raw') {

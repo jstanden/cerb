@@ -3804,6 +3804,7 @@ var ajax = new cAjaxCalls();
 						'kata',
 						'key',
 						'list',
+						'nowrap',
 						'optional',
 						'ref',
 						'text',
