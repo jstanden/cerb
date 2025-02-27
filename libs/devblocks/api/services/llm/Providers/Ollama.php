@@ -34,7 +34,7 @@ class Ollama extends Extension_DevblocksLlmProvider {
 		$base_url = rtrim($this->getParam('api_endpoint_url'), '/');
 		$authentication_uri = $this->getParam('authentication', null);
 		
-		$model_messages = $messages;
+		$model_messages = $this->sanitizeMessages($messages);
 		
 		// Always start with the system prompt
 		array_unshift($model_messages,
@@ -100,6 +100,10 @@ class Ollama extends Extension_DevblocksLlmProvider {
 		}
 		
 		return $chat_response;
+	}
+	
+	function sanitizeMessages(array $messages) : array {
+		return array_values($messages);
 	}
 	
 	function returnTool(DevblocksLlmChatResponse_Tool $tool, string $content, Extension_DevblocksLlmMemoryStore $memory): void {

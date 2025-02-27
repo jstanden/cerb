@@ -34,7 +34,7 @@ class OpenAI extends Extension_DevblocksLlmProvider {
 		$base_url = rtrim($this->getParam('api_endpoint_url'), '/');
 		$authentication_uri = $this->getParam('authentication', null);
 		
-		$model_messages = $messages;
+		$model_messages = $this->sanitizeMessages($messages);
 		
 		// Always start with the system prompt
 		if($system_prompt) {
@@ -114,6 +114,22 @@ class OpenAI extends Extension_DevblocksLlmProvider {
 		}
 		
 		return $chat_response;
+	}
+	
+	function sanitizeMessages(array $messages) : array {
+		// The first message must be role:user
+		while(!empty($messages)) {
+			$key = array_key_first($messages);
+			
+			if(
+				($messages[$key]['role'] ?? '') == 'user'
+			) break;
+			
+			// Otherwise prune the message
+			unset($messages[$key]);
+		}
+		
+		return array_values($messages);
 	}
 	
 	function returnTool(DevblocksLlmChatResponse_Tool $tool, string $content, Extension_DevblocksLlmMemoryStore $memory): void {

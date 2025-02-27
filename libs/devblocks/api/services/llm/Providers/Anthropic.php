@@ -45,7 +45,7 @@ class Anthropic extends Extension_DevblocksLlmProvider {
 			'model' => $this->getParam('model', ''),
 			'max_tokens' => $max_tokens,
 			'stream' => false,
-			'messages' => $messages,
+			'messages' => $this->sanitizeMessages($messages),
 		];
 		
 		if($system_prompt)
@@ -129,6 +129,22 @@ class Anthropic extends Extension_DevblocksLlmProvider {
 		}
 		
 		return $chat_response;
+	}
+	
+	function sanitizeMessages(array $messages) : array {
+		while(!empty($messages)) {
+			$key = array_key_first($messages);
+			
+			if(
+				($messages[$key]['role'] ?? '') == 'user'
+				&& 'tool_result' != ($messages[$key]['content'][0]['type'] ?? '')
+			) break;
+			
+			// Prune non-user messages
+			unset($messages[$key]);
+		}
+		
+		return array_values($messages);
 	}
 	
 	function returnTool(DevblocksLlmChatResponse_Tool $tool, string $content, Extension_DevblocksLlmMemoryStore $memory): void {

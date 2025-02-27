@@ -34,7 +34,7 @@ class Groq extends Extension_DevblocksLlmProvider {
 		$base_url = rtrim($this->getParam('api_endpoint_url'), '/');
 		$authentication_uri = $this->getParam('authentication', null);
 		
-		$model_messages = $messages;
+		$model_messages = $this->sanitizeMessages($messages);
 		
 		// Always start with the system prompt
 		if($system_prompt) {
@@ -113,6 +113,20 @@ class Groq extends Extension_DevblocksLlmProvider {
 		}
 		
 		return $chat_response;
+	}
+	
+	function sanitizeMessages(array $messages) : array {
+		while(!empty($messages)) {
+			$key = array_key_first($messages);
+			
+			if(($messages[$key]['role'] ?? '') == 'user')
+				break;
+			
+			// Prune non-user messages
+			unset($messages[$key]);
+		}
+		
+		return array_values($messages);
 	}
 	
 	function returnTool(DevblocksLlmChatResponse_Tool $tool, string $content, Extension_DevblocksLlmMemoryStore $memory): void {
