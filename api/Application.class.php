@@ -5453,11 +5453,36 @@ class _CerbApplication_KataSchemas {
                                               uri:
                                                 types:
                                                   string:
+                                      tool:
+                                        multiple@bool: yes
+                                        types:
+                                          object:
+                                            attributes:
+                                              description:
+                                                types:
+                                                  string:
+                                              parameters:
+                                                types:
+                                                  object:
+                                                    attributes:
+                                                      string:
+                                                        multiple@bool: yes
+                                                        types:
+                                                          object:
+                                                            attributes:
+                                                              description:
+                                                                types:
+                                                                  string:
+                                                              required:
+                                                                types:
+                                                                  bool:
                       on_error:
                         ref: commands
                       on_simulate:
                         ref: commands
                       on_success:
+                        ref: commands
+                      on_tool:
                         ref: commands
                       output:
                         types:
@@ -5920,6 +5945,11 @@ class _CerbApplication_KataSchemas {
                       on_simulate:
                         ref: commands
               
+              tool.return:
+                multiple@bool: yes
+                types:
+                  list:
+
               var.expand:
                 multiple@bool: yes
                 types:

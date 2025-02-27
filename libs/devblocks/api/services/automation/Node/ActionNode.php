@@ -41,6 +41,7 @@ class ActionNode extends AbstractNode {
 			'storage.delete' => '\Cerb\AutomationBuilder\Action\StorageDeleteAction',
 			'storage.get' => '\Cerb\AutomationBuilder\Action\StorageGetAction',
 			'storage.set' => '\Cerb\AutomationBuilder\Action\StorageSetAction',
+			'tool.return' => '\Cerb\AutomationBuilder\Action\ToolReturnAction',
 			'var.expand' => '\Cerb\AutomationBuilder\Action\VarExpandAction',
 			'var.push' => '\Cerb\AutomationBuilder\Action\VarPushAction',
 			'var.set' => '\Cerb\AutomationBuilder\Action\VarSetAction',

@@ -580,6 +580,7 @@ class _DevblocksAutomationService {
 			'storage.delete',
 			'storage.get',
 			'storage.set',
+			'tool.return',
 			'var.expand',
 			'var.push',
 			'var.set',
@@ -672,6 +673,22 @@ class _DevblocksAutomationService {
 			}
 			
 		} elseif ($node_type == 'llm.agent') {
+			$event_id = $node->getId() . ':on_tool';
+			$event_node = new CerbAutomationAstNode($event_id, 'event');
+			$node->addChild($event_node);
+			
+			if(array_key_exists('on_tool', $yaml)) {
+				$node->removeParam('on_tool');
+				
+				$states[] = 'on_tool';
+				
+				foreach($yaml['on_tool'] as $type => $child) {
+					if(false === ($this->_buildNode($event_node, $type, $child, $environment, $states, $error)))
+						return false;
+				}
+				
+				array_pop($states);
+			}
 		
 		} elseif ($node_type == 'outcome') {
 			$is_decision = 'decision' == $node->getParent()->getNameType();

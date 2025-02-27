@@ -975,6 +975,15 @@ class Model_Automation extends DevblocksRecordModel {
 					}
 				}
 				
+				if(
+					$visitor->node->getName() == 'llm.agent'
+				) {
+					if(!$visitor->node->getChildBySuffix(':on_tool')) {
+						$on_tool = new CerbAutomationAstNode($visitor->node->getId() . ':on_tool', 'event', []);
+						$visitor->node->addChild($on_tool);
+					}
+				}
+				
 				$visitor->state[$visitor->node->getId()] = $visitor->node->getChildren();
 			}
 

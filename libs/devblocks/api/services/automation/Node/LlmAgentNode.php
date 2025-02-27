@@ -104,14 +104,36 @@ class LlmAgentNode extends AbstractNode {
 			if($state) {
 				list($state, $state_params) = array_pad($state, 2, null);
 				
-				// [TODO] We actually want to look for an `on_tool:` or `on_llm:` before repeating self
 				if(in_array($state, ['llm', 'tools_done'])) {
 					if(!$this->_activateLLM($state, $error))
 						return false;
 					
 					return $this->node->getId();
 				
-				// [TODO] `tool_response` state (from `on_tool:`)
+				} else if('tool_branch' == $state) {
+					$this->_node_memory['stack'][] = ['tool_return', []];
+					
+					if (null != ($event_tool = $this->node->getChild($this->node->getId() . ':on_tool'))) {
+						return $event_tool->getId();
+					} else {
+						return $this->node->getId();
+					}
+					
+				} else if('tool_return' == $state) {
+					$llm = DevblocksPlatform::services()->llm();
+					
+					$session_id = $this->_dict->getKeyPath('__session::' . $this->node->getId(), null, '::');
+					$memory_store = $llm->getMemoryStore($session_id);
+					
+					$tool = $this->_dict->get('__tool', []);
+					$tool_spec = new DevblocksLlmChatResponse_Tool($tool['name'] ?? '', $tool['parameters'] ?? [], $tool['id'] ?? '');
+					
+					$llm_provider->returnTool($tool_spec, $tool['content'] ?? '', $memory_store);
+					
+					$this->_dict->unset('__tool');
+					
+					return $this->node->getId();
+					
 				} else if('tool' == $state) {
 					// [TODO] We can be given hallucinated tools
 					
@@ -177,6 +199,97 @@ class LlmAgentNode extends AbstractNode {
 		return $tools;
 	}
 	
+	private function _getToolSchemaAutomation(string $tool_name, array $tool) : ?array {
+		if(!array_key_exists('uri', $tool))
+			return null;
+		
+		if(!($tool_automation = DAO_Automation::getByUri($tool['uri'], \AutomationTrigger_LlmTool::ID)))
+			return null;
+		
+		// [TODO] Cache the tool inputs per automation
+		$tool_dict = DevblocksDictionaryDelegate::getDictionaryFromModel($tool_automation, CerberusContextsAlias::CONTEXT_AUTOMATION, ['inputs']);
+		
+		// [TODO] strict mode
+		
+		$automation_inputs = $tool_dict->get('inputs', []);
+		
+		$tool_schema = [
+			'type' => 'function',
+			'function' => [
+				'name' => $tool_name,
+				'description' => $tool_automation->description ?? '',
+			]
+		];
+		
+		if($automation_inputs) {
+			$tool_schema['function']['parameters'] = [
+				'type' => 'object',
+				'properties' => [],
+				'required' => [],
+			];
+			
+			foreach($automation_inputs as $automation_input) {
+				$tool_property = [
+					// [TODO] `type`
+					'type' => 'string',
+					'description' => $automation_input['description'] ?? '',
+				];
+				
+				// [TODO] Validate
+				if($automation_input['allowed_values'] ?? null && is_array($automation_input['allowed_values']))
+					$tool_property['enum'] = $automation_input['allowed_values'];
+				
+				$tool_schema['function']['parameters']['properties'][$automation_input['key']] = $tool_property;
+				
+				if($automation_input['required'] ?? false)
+					$tool_schema['function']['parameters']['required'][] = $automation_input['key'];
+			}
+		}
+		
+		return $tool_schema;
+	}
+	
+	private function _getToolSchemaCustom(string $tool_name, array $tool) : ?array {
+		$tool_schema = [
+			'type' => 'function',
+			'function' => [
+				'name' => $tool_name,
+				'description' => $tool['description'] ?? '',
+			]
+		];
+		
+		if(array_key_exists('parameters', $tool) && is_array($tool['parameters'])) {
+			$tool_schema['function']['parameters'] = [
+				'type' => 'object',
+				'properties' => [],
+				'required' => [],
+			];
+			
+			foreach($tool['parameters'] as $param_key => $parameter) {
+				list($param_type, $param_name) = array_pad(
+					explode('/', $param_key),
+					2,
+					null
+				);
+				
+				if(!$param_name)
+					$param_name = $param_type;
+				
+				if('string' == $param_type) {
+					$tool_schema['function']['parameters']['properties'][$param_name] = [
+						'type' => 'string',
+						'description' => $parameter['description'] ?? '',
+					];
+					
+					if($parameter['required'] ?? false)
+						$tool_schema['function']['parameters']['required'][] = $param_name;
+				}
+			}
+		}
+		
+		return $tool_schema;
+	}
+	
 	// [TODO] Cache these by signatures
 	private function _getToolSchemas() : array {
 		$tools = [];
@@ -184,57 +297,14 @@ class LlmAgentNode extends AbstractNode {
 		foreach($this->_getTools() as $tool_name => $tool) {
 			$tool_type = $tool['type'] ?? null;
 			
-			// [TODO] Only do this for 'automation' tools. We have other types
-			// [TODO] We only automatically configure tool schemas for automations
-			if('automation' == $tool_type) {
-				// [TODO] Error?
-				if(!array_key_exists('uri', $tool)) continue;
-				
-				if(!($tool_automation = DAO_Automation::getByUri($tool['uri'], \AutomationTrigger_LlmTool::ID)))
-					continue;
-				
-				// [TODO] Cache the tool inputs per automation
-				$tool_dict = DevblocksDictionaryDelegate::getDictionaryFromModel($tool_automation, CerberusContextsAlias::CONTEXT_AUTOMATION, ['inputs']);
-				
-				// [TODO] Get rid of the OpenAI function wrapper and abstract tools
-				
-				$automation_inputs = $tool_dict->get('inputs', []);
-				
-				$tool_schema = [
-					'type' => 'function',
-					'function' => [
-						'name' => $tool_name ?? '',
-						'description' => $tool_automation->description ?? '',
-					]
-				];
-				
-				if($automation_inputs) {
-					$tool_schema['function']['parameters'] = [
-						'type' => 'object',
-						'properties' => [],
-						'required' => [],
-					];
-					
-					foreach($automation_inputs as $automation_input) {
-						$tool_property = [
-							// [TODO] `type`
-							'type' => 'string',
-							'description' => $automation_input['description'] ?? '',
-						];
-						
-						// [TODO] Validate
-						if($automation_input['allowed_values'] ?? null && is_array($automation_input['allowed_values']))
-							$tool_property['enum'] = $automation_input['allowed_values'];
-						
-						$tool_schema['function']['parameters']['properties'][$automation_input['key']] = $tool_property;
-						
-						if($automation_input['required'] ?? false)
-							$tool_schema['function']['parameters']['required'][] = $automation_input['key'];
-					}
-				}
-				
+			$tool_schema = match($tool_type) {
+				'automation' => $this->_getToolSchemaAutomation($tool_name, $tool),
+				'tool' => $this->_getToolSchemaCustom($tool_name, $tool),
+				default => null,
+			};
+			
+			if($tool_schema)
 				$tools[$tool_name] = $tool_schema;
-			}
 		}
 		
 		return $tools;
@@ -317,25 +387,54 @@ class LlmAgentNode extends AbstractNode {
 		$tool = $tools[$tool_spec->getName()] ?? null;
 		
 		if($tool) {
-			if (!($tool_automation = DAO_Automation::getByUri($tool['uri'], \AutomationTrigger_LlmTool::ID)))
-				return false;
+			$tool_type = $tool['type'] ?? null;
 			
-			$initial_state = [
-				'inputs' => $tool_spec->getParameters() ?? [],
-			];
-			
-			if(false === ($automation_results = $automator->executeScript($tool_automation, $initial_state, $error))) {
-				$tool_response = [
-					'content' => "ERROR: " . $error,
+			if('automation' == $tool_type) {
+				if (!($tool_automation = DAO_Automation::getByUri($tool['uri'] ?? '', \AutomationTrigger_LlmTool::ID)))
+					return false;
+				
+				$initial_state = [
+					'inputs' => $tool_spec->getParameters() ?? [],
 				];
+				
+				if (false === ($automation_results = $automator->executeScript($tool_automation, $initial_state, $error))) {
+					$tool_response = [
+						'content' => "ERROR: " . $error,
+					];
+				} else {
+					// [TODO] Validate the return contains `content`
+					$tool_response = $automation_results->get('__return', []);
+				}
+				
+			} elseif ('tool' == $tool_type) {
+				if($this->_output) {
+					$this->_dict->set('__tool', [
+						'id' => $tool_spec->getId(),
+						'name' => $tool_spec->getName(),
+						'parameters' => $tool_spec->getParameters(),
+					]);
+				}
+				
+				// Run the custom `on_tool:` branch
+				if (null != ($this->node->getChild($this->node->getId() . ':on_tool'))) {
+					$this->_node_memory['stack'][] = ['tool_branch', []];
+					return true;
+					
+				} else {
+					$tool_response = [
+						'content' => 'ERROR: Tool is not implemented.'
+					];
+				}
+			
 			} else {
-				// [TODO] Validate the return contains `content`
-				$tool_response = $automation_results->get('__return', []);
+				$tool_response = [
+					'content' => 'ERROR: Unknown tool type.'
+				];
 			}
 			
 		} else {
 			$tool_response = [
-				'content' => 'This tool does not exist.'
+				'content' => 'ERROR: This tool does not exist.'
 			];
 		}
 		

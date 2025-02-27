@@ -1376,7 +1376,26 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'expires@date:',
 				],
 				
-				'(.*):llm.agent:' => $action_base,
+				'(.*):llm.agent:' => array_merge(
+					$action_base,
+					[
+						[
+							'caption' => 'on_tool:',
+							'snippet' => "on_tool:\n\t# [TODO] Inputs: {{__tool.name}} and {{__tool.parameters}}\n\ttool.return:\n\t\tcontent: This is the tool result.",
+							'description' => "Run these commands when a tool is invoked",
+						],
+					]
+				),
+				'(.*):llm.agent:on_tool:' => array_merge(
+					$common_actions,
+					[
+						[
+							'caption' => 'tool.return:',
+							'snippet' => "tool.return:\n\tcontent: \${1:value}",
+							'description' => "Return tool results to an LLM agent",
+						],
+					],
+				),
 				'(.*):llm.agent:inputs:' => [
 					[
 						'caption' => 'llm:',
@@ -1572,8 +1591,15 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'(.*):llm.agent:inputs:tools:' => [
 					[
 						'caption' => 'automation:',
-						'snippet' => "automation/\${1:example_tool}:",
+						'snippet' => "automation/\${1:tool_name}:",
 						'score' => 2000,
+						'docHTML' => '<b>automation:</b> Run an <code>llm.tool</code> automation with inputs as a tool.',
+					],
+					[
+						'caption' => 'tool:',
+						'snippet' => "tool/\${1:tool_name}:",
+						'score' => 1999,
+						'docHTML' => '<b>tool:</b> Run logic in <code>llm.agent:on_tool:</code> and use the <code>tool.return:</code> command.',
 					],
 				],
 				'(.*):llm.agent:inputs:tools:automation:' => [
@@ -1588,6 +1614,32 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 							]
 						]
 					]
+				],
+				'(.*):llm.agent:inputs:tools:tool:' => [
+					[
+						'caption' => 'description:',
+						'snippet' => "description: \${1:This is a detailed description of the tool.}",
+					],
+					[
+						'caption' => 'parameters:',
+						'snippet' => "parameters:",
+						'docHTML' => '<b>parameters:</b> Optional parameters passed to the tool.',
+					]
+				],
+				'(.*):llm.agent:inputs:tools:tool:parameters:' => [
+					[
+						'caption' => 'string:',
+						'snippet' => "string/\${1:input_name}:\n\tdescription: \${2:A description of this parameter}\n\trequired@bool: \${3:no}",
+						'docHTML' => '<b>string:</b> A text-based tool parameter.',
+					]
+				],
+				'(.*):llm.agent:inputs:tools:tool:(.*?):parameters:' => [
+					'description:',
+					'required@bool: yes',
+				],
+				'(.*):llm.agent:inputs:tools:tool:parameters:required:' => [
+					'yes',
+					'no',
 				],
 				
 				'(.*):llm.embed:' => $action_base,
@@ -1953,6 +2005,14 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					],
 					'value:',
 					'expires:',
+				],
+				
+				'(.*):tool.return:' => [
+					[
+						'caption' => 'content:',
+						'snippet' => 'content@text: value',
+						'score' => 2000,
+					]
 				],
 				
 				'(.*):var.expand:' => $action_base,
