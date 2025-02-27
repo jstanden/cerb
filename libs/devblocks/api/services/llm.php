@@ -135,6 +135,7 @@ class _DevblocksLlmService {
 			'huggingface' => new Cerb\LLM\Providers\HuggingFace($params),
 			'ollama' => new Cerb\LLM\Providers\Ollama($params),
 			'openai' => new Cerb\LLM\Providers\OpenAI($params),
+			'together' => new Cerb\LLM\Providers\TogetherAI($params),
 			default => null,
 		};
 	}

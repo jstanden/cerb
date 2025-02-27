@@ -1405,6 +1405,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'huggingface:',
 					'ollama:',
 					'openai:',
+					'together:',
 				],
 				'(.*):llm.agent:inputs:llm:anthropic:' => [
 					[
@@ -1523,6 +1524,38 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'o3-mini',
 					'gpt-4o-mini-realtime-preview',
 					'gpt-4o-realtime-preview',
+				],
+				'(.*):llm.agent:inputs:llm:together:' => [
+					[
+						'caption' => 'model:',
+						'snippet' => "model:",
+						'score' => 2000,
+					],
+					'api_endpoint_url:',
+					'authentication:',
+					'safety_model:',
+				],
+				'(.*):llm.agent:inputs:llm:together:api_endpoint_url:' => [
+					'https://api.together.xyz',
+				],
+				'(.*):llm.agent:inputs:llm:together:authentication:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'connected_account' => null,
+					]
+				],
+				'(.*):llm.agent:inputs:llm:together:model:' => [
+					'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo',
+					'meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo',
+					'meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo',
+					'meta-llama/Llama-3.3-70B-Instruct-Turbo',
+					'mistralai/Mixtral-8x7B-Instruct-v0.1',
+					'mistralai/Mistral-7B-Instruct-v0.1',
+					'Qwen/Qwen2.5-7B-Instruct-Turbo',
+					'Qwen/Qwen2.5-72B-Instruct-Turbo',
+				],
+				'(.*):llm.agent:inputs:llm:together:safety_model:' => [
+					'Meta-Llama/Llama-Guard-7b',
 				],
 				
 				'(.*):llm.agent:inputs:messages:' => [

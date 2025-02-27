@@ -5417,6 +5417,9 @@ class _CerbApplication_KataSchemas {
                                       openai:
                                         types:
                                           list:
+                                      together:
+                                        types:
+                                          list:
                               messages:
                                 types:
                                   object:
