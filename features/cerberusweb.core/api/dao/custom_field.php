@@ -2634,6 +2634,7 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 		$record_uri = $this->manifest->params['alias'] ?? '';
 		
 		$models = DAO_CustomField::getIds($ids);
+		$label_map = $export_model->getLabelMap();
 		
 		foreach($models as $model) {
 			$model_key = $export_model->getLabelMapFor(sprintf('%s_%d', $record_uri, $model->id));
@@ -2649,8 +2650,18 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 				]
 			];
 			
-			if($model->custom_fieldset_id)
-				$workflow_kata['records'][$record_key]['fields']['custom_fieldset_id'] = $model->custom_fieldset_id;
+			if($model->custom_fieldset_id) {
+				$parent_key = 'custom_fieldset_' . $model->custom_fieldset_id;
+				
+				if($label_map[$parent_key] ?? false) {
+					$workflow_kata['records'][$record_key]['fields']['custom_fieldset_id'] = sprintf(
+						"{{records.%s.id}}",
+						$label_map[$parent_key]
+					);
+				} else {
+					$workflow_kata['records'][$record_key]['fields']['custom_fieldset_id'] = $model->custom_fieldset_id;
+				}
+			}
 				
 			if($model->params)
 				$workflow_kata['records'][$record_key]['fields']['params'] = $model->params;
