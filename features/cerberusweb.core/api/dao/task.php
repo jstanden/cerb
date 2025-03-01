@@ -1255,7 +1255,7 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 	}
 };
 
-class Context_Task extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport, IDevblocksContextMerge, IDevblocksContextAutocomplete {
+class Context_Task extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport, IDevblocksContextMerge, IDevblocksContextAutocomplete, IDevblocksContextWorkflow {
 	const ID = 'cerberusweb.contexts.task';
 	const URI = 'task';
 	
@@ -1875,5 +1875,33 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 		if(!empty($custom_fields) && !empty($meta['object_id'])) {
 			DAO_CustomFieldValue::formatAndSetFieldValues($this->manifest->id, $meta['object_id'], $custom_fields, false, true, true); //$is_blank_unset (4th)
 		}
+	}
+	
+	function workflowExport(array $ids, DevblocksWorkflowExportModel $export_model, bool $include_children = false): array {
+		$workflow_kata = [
+			'records' => [],
+		];
+		
+		$record_uri = $this->manifest->params['alias'] ?? '';
+		
+		$models = DAO_Task::getIds($ids); /* @var Model_Task[] $models */
+		
+		foreach($models as $model) {
+			$model_key = $export_model->getLabelMapFor(sprintf('%s_%d', $record_uri, $model->id));
+			$record_key = sprintf('%s/%s', $record_uri, $model_key);
+			
+			$workflow_kata['records'][$record_key] = [
+				'fields' => [
+					'completed' => $model->completed_date,
+					'due' => $model->due_date,
+					'importance' => $model->importance,
+					'reopen' => $model->reopen_at,
+					'status' => $model->getStatusText(),
+					'title' => $model->title,
+				]
+			];
+		}
+		
+		return $workflow_kata;
 	}
 };
