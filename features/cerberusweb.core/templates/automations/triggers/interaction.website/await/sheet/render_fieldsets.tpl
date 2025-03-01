@@ -36,7 +36,7 @@
 									<td data-column-key="{$column.key}" data-column-type="{$column._type}">{$column.label}:</td>
 								{/if}
 							{/if}
-							<td class="{if $column.params.bold}cerb-font-bold{/if}">{$row[$column.key] nofilter}</td>
+							<td data-column-type="{$column._type}" class="{if $column.params.bold}cerb-font-bold{/if}">{$row[$column.key] nofilter}</td>
 						</tr>
 					{/if}
 				{/foreach}
