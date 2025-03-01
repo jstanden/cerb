@@ -720,6 +720,23 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 				$update_fields[DAO_Workflow::DESCRIPTION] = $workflow->description;
 			}
 			
+			// Verify records all have distinct names
+			if($new_template['records'] ?? []) {
+				$record_names = [];
+				
+				foreach(array_keys($new_template['records']) as $record_key) {
+					$record_name = DevblocksPlatform::services()->string()->strAfter($record_key, '/');
+					
+					if(array_key_exists($record_name, $record_names))
+						throw new Exception_DevblocksValidationError(sprintf('Record names must be unique (%s)', $record_key));
+					
+					if(!$record_name)
+						throw new Exception_DevblocksValidationError(sprintf('Record names are required (%s)', $record_key));
+					
+					$record_names[$record_name] = true;
+				}
+			}
+			
 			if($workflow->id && $update_fields) {
 				if(!DAO_Workflow::validate($update_fields, $error, $workflow->id)) {
 					throw new Exception_DevblocksValidationError($error);
