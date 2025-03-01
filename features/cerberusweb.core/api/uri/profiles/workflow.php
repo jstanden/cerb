@@ -267,45 +267,39 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 			
 			$error = null;
 			
-			// If the builder KATA is empty, default it
-			if(!$workflow->builder_kata) {
-				$builder_kata = [
-					'export' => [
-						'workflow' => [
-							'name' => $workflow->name,
-							'version' => gmdate('Y-m-d\T00:00:00\Z'),
-							'description' => $workflow->description,
-							'website' => 'https://cerb.ai/resources/workflows/',
-							'requirements' => [
-								'cerb_version' => '>=' . APP_VERSION,
-								'cerb_plugins' => 'cerberusweb.core, ',
-							]
-						],
-						'records' => [],
-						'label_map' => [],
+			$builder_kata = [
+				'export' => [
+					'workflow' => [
+						'name' => $workflow->name,
+						'version' => gmdate('Y-m-d\T00:00:00\Z'),
+						'description' => $workflow->description,
+						'website' => 'https://cerb.ai/resources/workflows/',
+						'requirements' => [
+							'cerb_version' => '>=' . APP_VERSION,
+							'cerb_plugins' => 'cerberusweb.core, ',
+						]
 					],
-				];
-				
-				$record_type_ids = [];
-				
-				foreach(($workflow->getResources()['records'] ?? []) as $resource_key => $resource_id) {
-					list($resource_type, $resource_name) = explode('/', $resource_key, 2);
-					$record_type_ids[$resource_type][] = $resource_id;
-					$builder_kata['export']['label_map'][$resource_type . '_' . $resource_id] = $resource_name;
-				}
-				
-				// [TODO] Condense as sets in the order defined (break up non-contiguous same record type)
-				foreach($record_type_ids as $record_type => $record_ids) {
-					$builder_kata['export']['records'][$record_type] = [
-						'query' => 'id:[' . implode(',', $record_ids) . ']',
-					];
-				}
-				
-				ksort($builder_kata['export']['label_map']);
-				
-			} else {
-				$builder_kata = $kata->parse($workflow->builder_kata, $error);
+					'records' => [],
+					'label_map' => [],
+				],
+			];
+			
+			$record_type_ids = [];
+			
+			foreach(($workflow->getResources()['records'] ?? []) as $resource_key => $resource_id) {
+				list($resource_type, $resource_name) = explode('/', $resource_key, 2);
+				$record_type_ids[$resource_type][] = $resource_id;
+				$builder_kata['export']['label_map'][$resource_type . '_' . $resource_id] = $resource_name;
 			}
+			
+			// [TODO] Condense as sets in the order defined (break up non-contiguous same record type)
+			foreach($record_type_ids as $record_type => $record_ids) {
+				$builder_kata['export']['records'][$record_type] = [
+					'query' => 'id:[' . implode(',', $record_ids) . ']',
+				];
+			}
+			
+			ksort($builder_kata['export']['label_map']);
 			
 			// Override the workflow section with the most recent KATA from the template
 			if(
