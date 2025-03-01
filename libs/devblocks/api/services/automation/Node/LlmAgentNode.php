@@ -218,15 +218,15 @@ class LlmAgentNode extends AbstractNode {
 			'function' => [
 				'name' => $tool_name,
 				'description' => $tool_automation->description ?? '',
+				'parameters' => [
+					'type' => 'object',
+				],
 			]
 		];
 		
 		if($automation_inputs) {
-			$tool_schema['function']['parameters'] = [
-				'type' => 'object',
-				'properties' => [],
-				'required' => [],
-			];
+			$tool_schema['function']['parameters']['properties'] = [];
+			$tool_schema['function']['parameters']['required'] = [];
 			
 			foreach($automation_inputs as $automation_input) {
 				$tool_property = [
@@ -255,15 +255,15 @@ class LlmAgentNode extends AbstractNode {
 			'function' => [
 				'name' => $tool_name,
 				'description' => $tool['description'] ?? '',
+				'parameters' => [
+					'type' => 'object',
+				],
 			]
 		];
 		
 		if(array_key_exists('parameters', $tool) && is_array($tool['parameters'])) {
-			$tool_schema['function']['parameters'] = [
-				'type' => 'object',
-				'properties' => [],
-				'required' => [],
-			];
+			$tool_schema['function']['parameters']['properties'] = [];
+			$tool_schema['function']['parameters']['required'] = [];
 			
 			foreach($tool['parameters'] as $param_key => $parameter) {
 				list($param_type, $param_name) = array_pad(
