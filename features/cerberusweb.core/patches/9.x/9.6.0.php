@@ -34,8 +34,8 @@ list($columns,) = $db->metaTable('custom_field_stringvalue');
 if(!array_key_exists('field_value', $columns))
 	return FALSE;
 
-if('utf8_general_ci' == $columns['field_value']['collation']) {
-	$db->ExecuteMaster("ALTER TABLE custom_field_stringvalue MODIFY COLUMN field_value varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+if('utf8mb4_unicode_ci' != $columns['field_value']['collation']) {
+	$db->ExecuteMaster("ALTER TABLE custom_field_stringvalue MODIFY COLUMN field_value varchar(255) CHARACTER SET utf8mb4_unicode_ci COLLATE utf8mb4_unicode_ci");
 	$db->ExecuteMaster("REPAIR TABLE custom_field_stringvalue");
 	$db->ExecuteMaster("OPTIMIZE TABLE custom_field_stringvalue");
 }
@@ -51,8 +51,8 @@ list($columns,) = $db->metaTable('custom_field_clobvalue');
 if(!array_key_exists('field_value', $columns))
 	return FALSE;
 
-if('utf8_general_ci' == $columns['field_value']['collation']) {
-	$db->ExecuteMaster("ALTER TABLE custom_field_clobvalue MODIFY COLUMN field_value MEDIUMTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+if('utf8mb4_unicode_ci' != $columns['field_value']['collation']) {
+	$db->ExecuteMaster("ALTER TABLE custom_field_clobvalue MODIFY COLUMN field_value MEDIUMTEXT CHARACTER SET utf8mb4_unicode_ci COLLATE utf8mb4_unicode_ci");
 	$db->ExecuteMaster("REPAIR TABLE custom_field_clobvalue");
 	$db->ExecuteMaster("OPTIMIZE TABLE custom_field_clobvalue");
 }

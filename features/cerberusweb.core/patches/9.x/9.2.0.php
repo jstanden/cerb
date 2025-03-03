@@ -283,7 +283,7 @@ list($columns,) = $db->metaTable('comment');
 if(!array_key_exists('comment', $columns))
 	return FALSE;
 
-if('utf8_general_ci' == $columns['comment']['collation']) {
+if('utf8mb4_unicode_ci' != $columns['comment']['collation']) {
 	$db->ExecuteMaster("ALTER TABLE comment MODIFY COLUMN comment MEDIUMTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
 	$db->ExecuteMaster("REPAIR TABLE comment");
 	$db->ExecuteMaster("OPTIMIZE TABLE comment");
@@ -297,7 +297,7 @@ if(!isset($tables['ticket']))
 
 list($columns,) = $db->metaTable('ticket');
 
-if('utf8_general_ci' == $columns['subject']['collation']) {
+if('utf8mb4_unicode_ci' != $columns['subject']['collation']) {
 	$db->ExecuteMaster("ALTER TABLE ticket MODIFY COLUMN subject VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
 	$db->ExecuteMaster("REPAIR TABLE ticket");
 	$db->ExecuteMaster("OPTIMIZE TABLE ticket");
@@ -313,11 +313,11 @@ list($columns,) = $db->metaTable('worker');
 
 $changes = [];
 
-if('utf8_general_ci' == $columns['location']['collation']) {
+if('utf8mb4_unicode_ci' != $columns['location']['collation']) {
 	$changes[] = "ALTER TABLE worker MODIFY COLUMN location VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci";
 }
 
-if('utf8_general_ci' == $columns['title']['collation']) {
+if('utf8mb4_unicode_ci' != $columns['title']['collation']) {
 	$changes[] = "ALTER TABLE worker MODIFY COLUMN title VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci";
 }
 

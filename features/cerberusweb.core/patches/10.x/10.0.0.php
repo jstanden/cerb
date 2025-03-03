@@ -36,9 +36,9 @@ if(!isset($tables['message_html_cache'])) {
 } else {
 	list($columns,) = $db->metaTable('message_html_cache');
 	
-	if('utf8_general_ci' == $columns['html_content']['collation']) {
+	if('utf8mb4_unicode_ci' != $columns['html_content']['collation']) {
 		$db->ExecuteMaster("DELETE FROM message_html_cache");
-		$db->ExecuteMaster("ALTER TABLE message_html_cache MODIFY COLUMN html_content MEDIUMTEXT CHARACTER SET utf8mb4");
+		$db->ExecuteMaster("ALTER TABLE message_html_cache MODIFY COLUMN html_content MEDIUMTEXT CHARACTER SET utf8mb4_unicode_ci");
 	}
 }
 
@@ -67,7 +67,7 @@ if(!array_key_exists('name', $columns))
 	return FALSE;
 
 // Convert `mail_queue.name` to utf8mb4
-if('utf8_general_ci' == $columns['name']['collation']) {
+if('utf8mb4_unicode_ci' != $columns['name']['collation']) {
 	$db->ExecuteMaster("ALTER TABLE mail_queue MODIFY COLUMN name VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
 	$db->ExecuteMaster("REPAIR TABLE mail_queue");
 	$db->ExecuteMaster("OPTIMIZE TABLE mail_queue");
