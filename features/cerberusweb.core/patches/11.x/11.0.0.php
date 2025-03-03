@@ -849,6 +849,23 @@ if(array_key_exists('wgm_google_cse', $tables)) {
 }
 
 // ===========================================================================
+// Convert `automation.script` to utf8mb4
+
+if(!isset($tables['automation']))
+	return FALSE;
+
+list($columns,) = $db->metaTable('automation');
+
+if(!array_key_exists('script', $columns))
+	return FALSE;
+
+if('utf8mb4_unicode_ci' != $columns['script']['collation']) {
+	$db->ExecuteMaster("ALTER TABLE automation MODIFY COLUMN script MEDIUMTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+	$db->ExecuteMaster("REPAIR TABLE automation");
+	$db->ExecuteMaster("OPTIMIZE TABLE automation");
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

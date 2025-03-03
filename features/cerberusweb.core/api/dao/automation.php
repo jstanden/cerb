@@ -65,7 +65,7 @@ class DAO_Automation extends Cerb_ORMHelper {
 			;
 		$validation
 			->addField(self::SCRIPT)
-			->string()
+			->string($validation::STRING_UTF8MB4)
 			->setMaxLength('24 bits')
 			;
 		$validation
