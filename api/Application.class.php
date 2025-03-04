@@ -4814,6 +4814,9 @@ class _CerbApplication_KataAutocompletions {
 			'layout:badge:' => [
 				'interaction:'
 			],
+			'layout:badge:interaction:' => [
+				'interaction_name',
+			],
 			'layout:header:' => [
 				'logo:',
 				'navbar:',
@@ -4892,6 +4895,9 @@ class _CerbApplication_KataAutocompletions {
 			
 			'layout:page:' => [
 				'interaction:'
+			],
+			'layout:page:interaction:' => [
+				'interaction_name',
 			],
 			
 			'security:' => [

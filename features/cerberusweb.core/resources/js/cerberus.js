@@ -3551,9 +3551,10 @@ var ajax = new cAjaxCalls();
 								
 								if(
 									autocomplete_options.hasOwnProperty('autocomplete_type_defaults')
-									&& autocomplete_options.autocomplete_type_defaults.hasOwnProperty('cerb-uri')
+									&& autocomplete_options['autocomplete_type_defaults'].hasOwnProperty('cerb-uri')
+									&& 'object' == typeof autocomplete_options['autocomplete_type_defaults']['cerb-uri']
 								) {
-									params = Object.assign(autocomplete_options.autocomplete_type_defaults['cerb-uri'], params);
+									params = Object.assign(params, autocomplete_options['autocomplete_type_defaults']['cerb-uri']);
 								}
 								
 								formData = new FormData();
