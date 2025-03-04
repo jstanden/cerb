@@ -438,7 +438,7 @@ class LlmAgentNode extends AbstractNode {
 			];
 		}
 		
-		$llm_provider->returnTool($tool_spec, $tool_response['content'], $memory_store);
+		$llm_provider->returnTool($tool_spec, $tool_response['content'] ?? '', $memory_store);
 		
 		// [TODO] Customize the output for `on_tool:`
 		if($this->_output)
