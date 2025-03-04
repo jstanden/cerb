@@ -1071,7 +1071,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 					$sheets->addType('time_elapsed', $sheets->types()->timeElapsed());
 					$sheets->setDefaultType('text');
 					
-					$sheet_dicts = $results['data'];
+					$sheet_dicts = $results['data'] ?? [];
 					
 					$layout = $sheets->getLayout($sheet);
 					$tpl->assign('layout', $layout);

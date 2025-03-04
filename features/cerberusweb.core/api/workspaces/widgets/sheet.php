@@ -73,7 +73,7 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget implements ICerbWo
 		
 		$sheets = $sheets->withDefaultTypes();
 		
-		$sheet_dicts = $results['data'];
+		$sheet_dicts = $results['data'] ?? [];
 		
 		$columns = $sheets->getColumns($sheet);
 		

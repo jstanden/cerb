@@ -90,7 +90,7 @@ class ProfileWidget_Sheet extends Extension_ProfileWidget {
 				
 				$sheets = $sheets->withDefaultTypes();
 				
-				$sheet_dicts = $results['data'];
+				$sheet_dicts = $results['data'] ?? [];
 				
 				$layout = $sheets->getLayout($sheet);
 				$tpl->assign('layout', $layout);
