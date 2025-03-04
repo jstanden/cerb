@@ -3521,6 +3521,13 @@ var ajax = new cAjaxCalls();
 						
 					} else {
 						editor.completer.insertMatch(data);
+						
+						let markers = editor.session.getMarkers();
+						
+						Object.keys(markers).forEach(function(markerId){
+							if('ace_snippet-marker' === markers[markerId].clazz)
+								editor.session.removeMarker(markerId);
+						});
 					}
 				},
 				formatData: function(scope_key) {
