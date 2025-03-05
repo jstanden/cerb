@@ -1,0 +1,68 @@
+{
+  "package": {
+    "name": "Connected Service: ElevenLabs",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "10.4.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "ElevenLabs",
+      "uri": "cerb_connected_service_elevenlabs",
+      "description": "Integration with ElevenLabs",
+      "instructions": "# Instructions\r\n\r\n* Enter your API key from <https://elevenlabs.io/app/settings/api-keys>",
+      "point": "connected_service",
+      "image": "data:image/png;base64,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"
+    },
+    "configure": {
+      "placeholders": [],
+      "prompts": [
+        {
+          "type": "text",
+          "label": "API Key",
+          "key": "prompt_api_key",
+          "params": {
+            "default": "",
+            "placeholder": "(paste your API Key)"
+          }
+        },
+        {
+          "type": "text",
+          "label": "Alias",
+          "key": "prompt_name",
+          "params": {
+            "default": "elevenlabs",
+            "placeholder": "(enter a URI, a-z,0-9,_)"
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "service_elevenlabs",
+      "_context": "connected_service",
+      "name": "ElevenLabs",
+      "extension_id": "cerb.service.provider.api_key",
+      "params": {
+        "api_base_url": "https://api.elevenlabs.io/",
+        "api_key_name": "xi-api-key",
+        "api_key_location": "header"
+      }
+    },
+    {
+      "uid": "account_elevenlabs",
+      "_context": "connected_account",
+      "name": "ElevenLabs",
+      "service_id": "{{{uid.service_elevenlabs}}}",
+      "owner__context": "cerberusweb.contexts.app",
+      "owner_id": "0",
+      "uri": "{{{prompt_name}}}",
+      "params": {
+        "api_key": "{{{prompt_api_key}}}"
+      }
+    }
+  ]
+}
