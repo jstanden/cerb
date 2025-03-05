@@ -1,0 +1,66 @@
+{
+  "package": {
+    "name": "Connected Service: Tavily",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "10.0.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Tavily",
+      "uri": "cerb_connected_service_tavily",
+      "description": "Integration with Tavily",
+      "instructions": "# Instructions\r\n\r\n* Enter your API key from <https://app.tavily.com/>",
+      "point": "connected_service",
+      "image": "data:image/png;base64,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"
+    },
+    "configure": {
+      "placeholders": [],
+      "prompts": [
+        {
+          "type": "text",
+          "label": "API Key",
+          "key": "prompt_api_key",
+          "params": {
+            "default": "",
+            "placeholder": "(paste your API Key)"
+          }
+        },
+        {
+          "type": "text",
+          "label": "Alias",
+          "key": "prompt_name",
+          "params": {
+            "default": "tavily",
+            "placeholder": "(enter a URI, a-z,0-9,_)"
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "service_tavily",
+      "_context": "connected_service",
+      "name": "Tavily",
+      "extension_id": "cerb.service.provider.token.bearer",
+      "params": {
+        "token_name": "Bearer"
+      }
+    },
+    {
+      "uid": "account_tavily",
+      "_context": "connected_account",
+      "name": "Tavily",
+      "service_id": "{{{uid.service_tavily}}}",
+      "owner__context": "cerberusweb.contexts.app",
+      "owner_id": "0",
+      "uri": "{{{prompt_name}}}",
+      "params": {
+        "token": "{{{prompt_api_key}}}"
+      }
+    }
+  ]
+}
