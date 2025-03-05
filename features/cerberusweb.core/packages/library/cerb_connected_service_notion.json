@@ -1,0 +1,66 @@
+{
+  "package": {
+    "name": "Connected Service: Notion",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "10.0.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Notion",
+      "uri": "cerb_connected_service_notion",
+      "description": "Integration with Notion",
+      "instructions": "# Instructions\r\n\r\n* Enter your Integration Secret from <https://www.notion.so/profile/integrations>",
+      "point": "connected_service",
+      "image": "data:image/png;base64,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"
+    },
+    "configure": {
+      "placeholders": [],
+      "prompts": [
+        {
+          "type": "text",
+          "label": "Integration Secret",
+          "key": "prompt_api_key",
+          "params": {
+            "default": "",
+            "placeholder": "(paste your Integration Secret)"
+          }
+        },
+        {
+          "type": "text",
+          "label": "Alias",
+          "key": "prompt_name",
+          "params": {
+            "default": "notion",
+            "placeholder": "(enter a URI, a-z,0-9,_)"
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "service_notion",
+      "_context": "connected_service",
+      "name": "Notion",
+      "extension_id": "cerb.service.provider.token.bearer",
+      "params": {
+        "token_name": "Bearer"
+      }
+    },
+    {
+      "uid": "account_notion",
+      "_context": "connected_account",
+      "name": "Notion",
+      "service_id": "{{{uid.service_notion}}}",
+      "owner__context": "cerberusweb.contexts.app",
+      "owner_id": "0",
+      "uri": "{{{prompt_name}}}",
+      "params": {
+        "token": "{{{prompt_api_key}}}"
+      }
+    }
+  ]
+}

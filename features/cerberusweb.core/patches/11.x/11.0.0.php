@@ -206,6 +206,7 @@ $packages = [
 	'cerb_connected_service_elevenlabs.json',
 	'cerb_connected_service_groq.json',
 	'cerb_connected_service_ipstack.json',
+	'cerb_connected_service_notion.json',
 	'cerb_connected_service_slack.json',
 	'cerb_profile_tab_ticket_overview.json',
 	'cerb_profile_widget_ticket_status.json',
