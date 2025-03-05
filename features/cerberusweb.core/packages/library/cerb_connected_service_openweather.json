@@ -1,0 +1,68 @@
+{
+  "package": {
+    "name": "Connected Service: OpenWeather",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "10.4.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "OpenWeather",
+      "uri": "cerb_connected_service_openweather",
+      "description": "Integration with OpenWeather",
+      "instructions": "# Instructions\r\n\r\n* Enter your API key from <https://console.openweather.com/settings/keys>",
+      "point": "connected_service",
+      "image": "data:image/png;base64,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"
+    },
+    "configure": {
+      "placeholders": [],
+      "prompts": [
+        {
+          "type": "text",
+          "label": "API Key",
+          "key": "prompt_api_key",
+          "params": {
+            "default": "",
+            "placeholder": "(paste your API Key)"
+          }
+        },
+        {
+          "type": "text",
+          "label": "Alias",
+          "key": "prompt_name",
+          "params": {
+            "default": "openweather",
+            "placeholder": "(enter a URI, a-z,0-9,_)"
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "service_openweather",
+      "_context": "connected_service",
+      "name": "OpenWeather",
+      "extension_id": "cerb.service.provider.api_key",
+      "params": {
+        "api_base_url": "https://api.openweathermap.org/",
+        "api_key_name": "appid",
+        "api_key_location": "url"
+      }
+    },
+    {
+      "uid": "account_openweather",
+      "_context": "connected_account",
+      "name": "OpenWeather",
+      "service_id": "{{{uid.service_openweather}}}",
+      "owner__context": "cerberusweb.contexts.app",
+      "owner_id": "0",
+      "uri": "{{{prompt_name}}}",
+      "params": {
+        "api_key": "{{{prompt_api_key}}}"
+      }
+    }
+  ]
+}
