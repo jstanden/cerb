@@ -1,0 +1,66 @@
+{
+  "package": {
+    "name": "Connected Service: Airtable",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "10.0.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Airtable",
+      "uri": "cerb_connected_service_airtable",
+      "description": "Integration with Airtable",
+      "instructions": "# Instructions\r\n\r\n* Enter your API key from <https://airtable.com>",
+      "point": "connected_service",
+      "image": "data:image/png;base64,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"
+    },
+    "configure": {
+      "placeholders": [],
+      "prompts": [
+        {
+          "type": "text",
+          "label": "API Key",
+          "key": "prompt_api_key",
+          "params": {
+            "default": "",
+            "placeholder": "(paste your API Key)"
+          }
+        },
+        {
+          "type": "text",
+          "label": "Alias",
+          "key": "prompt_name",
+          "params": {
+            "default": "airtable",
+            "placeholder": "(enter a URI, a-z,0-9,_)"
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "service_airtable",
+      "_context": "connected_service",
+      "name": "Airtable",
+      "extension_id": "cerb.service.provider.token.bearer",
+      "params": {
+        "token_name": "Bearer"
+      }
+    },
+    {
+      "uid": "account_airtable",
+      "_context": "connected_account",
+      "name": "airtable",
+      "service_id": "{{{uid.service_airtable}}}",
+      "owner__context": "cerberusweb.contexts.app",
+      "owner_id": "0",
+      "uri": "{{{prompt_name}}}",
+      "params": {
+        "token": "{{{prompt_api_key}}}"
+      }
+    }
+  ]
+}

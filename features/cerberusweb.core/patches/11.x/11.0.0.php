@@ -200,6 +200,7 @@ $db->ExecuteMaster("DELETE FROM package_library WHERE uri = 'cerb_workspace_widg
 
 $packages = [
 	'card_widget/cerb_card_widget_gpg_public_key_subkeys.json',
+	'cerb_connected_service_airtable.json',
 	'cerb_connected_service_anthropic.json',
 	'cerb_connected_service_deepl.json',
 	'cerb_connected_service_groq.json',
