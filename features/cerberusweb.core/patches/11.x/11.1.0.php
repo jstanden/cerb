@@ -6,18 +6,22 @@ $tables = $db->metaTables();
 $revision = $db->GetOneMaster("SELECT revision FROM cerb_patch_history WHERE plugin_id = 'cerberusweb.core'");
 
 // ===========================================================================
-// LLM chat history
+// LLM agent session
 
 if(!isset($tables['llm_agent_session'])) {
 	$sql = sprintf("
 		CREATE TABLE `llm_agent_session` (
-		`id` int unsigned NOT NULL AUTO_INCREMENT,
-		`uuid` varchar(64) NOT NULL DEFAULT '',
+		`uuid` binary(16) NOT NULL,
 		`provider` varchar(32) NOT NULL DEFAULT '',
 		`created_at` int unsigned NOT NULL DEFAULT 0,
-		PRIMARY KEY (id),
-		INDEX (uuid(6)),
-		INDEX (created_at)
+		`automation_id` int unsigned NOT NULL DEFAULT 0,
+		`automation_node` varchar(255) NOT NULL DEFAULT '',
+		`user_type` varchar(64) NOT NULL DEFAULT '',
+		`user_id` int unsigned NOT NULL DEFAULT 0,
+		`user_ip` varchar(64) NOT NULL DEFAULT '',
+		PRIMARY KEY (uuid),
+		INDEX (created_at),
+		INDEX `user` (user_type, user_id)
 		) ENGINE=%s
 	", APP_DB_ENGINE);
 	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
@@ -25,16 +29,20 @@ if(!isset($tables['llm_agent_session'])) {
 	$tables['llm_agent_session'] = 'llm_agent_session';
 }
 
+// ===========================================================================
+// LLM agent message
+
 if(!isset($tables['llm_agent_message'])) {
 	$sql = sprintf("
 		CREATE TABLE `llm_agent_message` (
-		`id` int unsigned NOT NULL AUTO_INCREMENT,
-		`session_uuid` varchar(64) DEFAULT '' NOT NULL,
+		`uuid` binary(16) NOT NULL,
+		`seq` int unsigned AUTO_INCREMENT,
+		`session_uuid` binary(16) NOT NULL,
 		`created_at` int unsigned NOT NULL DEFAULT 0,
 		`data_json` MEDIUMTEXT,
-		PRIMARY KEY (id),
-		INDEX (created_at),
-		INDEX (session_uuid(6))
+		PRIMARY KEY (uuid),
+		UNIQUE (seq),
+		INDEX (session_uuid)
 		) ENGINE=%s
 	", APP_DB_ENGINE);
 	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());

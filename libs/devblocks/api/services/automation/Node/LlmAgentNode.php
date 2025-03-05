@@ -17,6 +17,10 @@ class LlmAgentNode extends AbstractNode {
 	private DevblocksDictionaryDelegate $_dict;
 	private array $_node_memory = [];
 	
+	private function _getSessionKey(\Extension_DevblocksLlmProvider $provider) : string {
+		return sprintf('__session::%s::%s', $this->node->getId(), $provider::ID);
+	}
+	
 	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) : string|false {
 		$this->_node_memory =& $node_memory;
 		$this->_dict = $dict;
@@ -89,10 +93,31 @@ class LlmAgentNode extends AbstractNode {
 			}
 		
 			$llm_provider = $this->_getLlmProvider();
-			$session_key = '__session::' . $this->node->getId();
+			$session_key = $this->_getSessionKey($llm_provider);
 			
 			if(!($this->_dict->getKeyPath($session_key, null, '::'))) {
-				if(!($llm_session = \DAO_LlmAgentSession::create($llm_provider::ID)))
+				$llm_session = new \Model_LlmAgentSession();
+				$llm_session->provider = $llm_provider::ID;
+				$llm_session->automation_id = $automation->id ?? 0;
+				$llm_session->automation_node = $this->node->getId();
+				
+				if(in_array($automation->extension_id, [
+					\AutomationTrigger_InteractionInternal::ID,
+					\AutomationTrigger_InteractionWorker::ID,
+					\AutomationTrigger_MailDraftValidate::ID,
+					\AutomationTrigger_MailReplyValidate::ID,
+				])) {
+					$llm_session->user_type = 'worker';
+					$llm_session->user_id = $this->_dict->get('worker_id', 0);
+					
+				} elseif($automation->extension_id == \AutomationTrigger_InteractionWebsite::ID) {
+					$llm_session->user_type = 'portal_visitor';
+					$llm_session->user_ip = $this->_dict->get('client_ip', '');
+				}
+				
+				if($automation->extension_id == \AutomationTrigger_InteractionWorker::ID)
+				
+				if(!($llm_session = \DAO_LlmAgentSession::create($llm_session)))
 					throw new Exception_DevblocksAutomationError("Failed to create an LLM session");
 				
 				$this->_dict->setKeyPath($session_key, $llm_session->uuid, '::');
@@ -122,7 +147,8 @@ class LlmAgentNode extends AbstractNode {
 				} else if('tool_return' == $state) {
 					$llm = DevblocksPlatform::services()->llm();
 					
-					$session_id = $this->_dict->getKeyPath('__session::' . $this->node->getId(), null, '::');
+					$session_key = $this->_getSessionKey($llm_provider);
+					$session_id = $this->_dict->getKeyPath($session_key, null, '::');
 					$memory_store = $llm->getMemoryStore($session_id);
 					
 					$tool = $this->_dict->get('__tool', []);
@@ -318,9 +344,12 @@ class LlmAgentNode extends AbstractNode {
 	private function _activateLLM(string $state, string &$error=null) : bool {
 		$llm = DevblocksPlatform::services()->llm();
 		
+		$llm_provider = $this->_getLlmProvider();
+		
 		// Memory
 		
-		$session_id = $this->_dict->getKeyPath('__session::' . $this->node->getId(), null, '::');
+		$session_key = $this->_getSessionKey($llm_provider);
+		$session_id = $this->_dict->getKeyPath($session_key, null, '::');
 		$memory_store = $llm->getMemoryStore($session_id);
 		
 		// Messages
@@ -330,7 +359,6 @@ class LlmAgentNode extends AbstractNode {
 		
 		// If we're not running after tools, add the next message
 		if('llm' == $state) {
-			//$memory_messages = array_merge($memory_messages, array_values($this->_inputs['messages']));
 			foreach($this->_inputs['messages'] ?? [] as $new_message) {
 				$memory_messages[] = $new_message;
 				$memory_store->appendMessage($new_message);
@@ -338,8 +366,6 @@ class LlmAgentNode extends AbstractNode {
 		}
 		
 		// LLM
-		
-		$llm_provider = $this->_getLlmProvider();
 		
 		$llm_response = $llm_provider->chatCompletion(
 			$memory_messages,
@@ -379,10 +405,11 @@ class LlmAgentNode extends AbstractNode {
 		
 		$tools = $this->_getTools();
 		
-		$session_id = $this->_dict->getKeyPath('__session::' . $this->node->getId(), null, '::');
-		$memory_store = $llm->getMemoryStore($session_id);
-		
 		$llm_provider = $this->_getLlmProvider();
+		
+		$session_key = $this->_getSessionKey($llm_provider);
+		$session_id = $this->_dict->getKeyPath($session_key, null, '::');
+		$memory_store = $llm->getMemoryStore($session_id);
 		
 		$tool = $tools[$tool_spec->getName()] ?? null;
 		

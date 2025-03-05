@@ -8,7 +8,10 @@ class DAO_LlmAgentMessage {
 		$model->created_at = time();
 		$model->data = $message;
 		
-		$result = $db->ExecuteWriter(sprintf("INSERT INTO llm_agent_message (`session_uuid`,`created_at`,`data_json`) VALUES (%s, %d, %s)",
+		$result = $db->ExecuteWriter(sprintf(
+			"INSERT INTO llm_agent_message (`uuid`,`session_uuid`,`created_at`,`data_json`) ".
+			"VALUES (UUID_TO_BIN(%s), UUID_TO_BIN(%s), %d, %s)",
+			$db->qstr(DevblocksPlatform::services()->string()->uuid()),
 			$db->qstr($model->session_uuid),
 			$model->created_at,
 			$db->qstr(json_encode($model->data)),
@@ -17,13 +20,11 @@ class DAO_LlmAgentMessage {
 		if(!$result)
 			return null;
 		
-		$model->id = $db->lastInsertId();
-		
 		return $model;
 	}
 	
 	/**
-	 * @param string $uuid
+	 * @param string $session_uuid
 	 * @param int $last_n
 	 * @return Model_LlmAgentMessage[]
 	 */
@@ -32,13 +33,14 @@ class DAO_LlmAgentMessage {
 		
 		try {
 			$sql =
-				"SELECT id, session_uuid, created_at, data_json ".
+				"SELECT BIN_TO_UUID(`uuid`) as `uuid`, BIN_TO_UUID(`session_uuid`) as `session_uuid`, `created_at`, `data_json` ".
 				"FROM llm_agent_message ".
-				"WHERE session_uuid = %s"
+				"WHERE session_uuid = UUID_TO_BIN(%s) ".
+				"ORDER BY seq DESC"
 			;
 			
 			if($last_n)
-				$sql .= sprintf(" ORDER BY id DESC LIMIT %d", $last_n);
+				$sql .= sprintf(" LIMIT %d", $last_n);
 			
 			$rows = $db->GetArrayReader(sprintf($sql,
 				$db->qstr($session_uuid)
@@ -49,7 +51,7 @@ class DAO_LlmAgentMessage {
 			return array_map(
 				function($row) {
 					$msg = new Model_LlmAgentMessage();
-					$msg->id = intval($row['id']);
+					$msg->uuid = $row['uuid'];
 					$msg->session_uuid = $row['session_uuid'];
 					$msg->created_at = intval($row['created_at']);
 					$msg->data = @json_decode($row['data_json'] ?? '', true) ?: [];
@@ -67,7 +69,7 @@ class DAO_LlmAgentMessage {
 }
 
 class Model_LlmAgentMessage {
-	public int $id;
+	public string $uuid;
 	public string $session_uuid;
 	public int $created_at;
 	public array $data;
