@@ -115,8 +115,6 @@ class LlmAgentNode extends AbstractNode {
 					$llm_session->user_ip = $this->_dict->get('client_ip', '');
 				}
 				
-				if($automation->extension_id == \AutomationTrigger_InteractionWorker::ID)
-				
 				if(!($llm_session = \DAO_LlmAgentSession::create($llm_session)))
 					throw new Exception_DevblocksAutomationError("Failed to create an LLM session");
 				
