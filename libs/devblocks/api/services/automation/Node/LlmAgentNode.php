@@ -244,6 +244,7 @@ class LlmAgentNode extends AbstractNode {
 				'description' => $tool_automation->description ?? '',
 				'parameters' => [
 					'type' => 'object',
+					'properties' => (object)[],
 				],
 			]
 		];
@@ -281,6 +282,7 @@ class LlmAgentNode extends AbstractNode {
 				'description' => $tool['description'] ?? '',
 				'parameters' => [
 					'type' => 'object',
+					'properties' => (object)[],
 				],
 			]
 		];
