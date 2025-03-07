@@ -67,6 +67,7 @@ class Anthropic extends Extension_DevblocksLlmProvider {
 			}
 			
 			if('tool_result' == $message_content['type'] ?? null) {
+				$chat_response->setRole('tool');
 				$chat_response->pushToolResult($message_content['tool_use_id'] ?? '', $message_content['content']);
 			}
 		}

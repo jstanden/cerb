@@ -39,6 +39,7 @@
 
 		&.cerb-code-editor-toolbar-button--enabled {
 			background-color: var(--cerb-color-button-icon-enabled-background);
+			color: var(--cerb-color-button-icon-enabled);
 
 			span.glyphicons {
 				color: var(--cerb-color-button-icon-enabled);

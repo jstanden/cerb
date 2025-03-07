@@ -29,7 +29,7 @@ class Groq extends Extension_DevblocksLlmProvider {
 		$chat_response = new DevblocksLlmChatResponse();
 		
 		if('tool' == $message['role'] ?? '') {
-			$chat_response->setRole('user');
+			$chat_response->setRole('tool');
 			$chat_response->pushToolResult($message['tool_call_id'] ?? '', $message['content'] ?? '');
 			
 		} else {

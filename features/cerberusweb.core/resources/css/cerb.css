@@ -2262,6 +2262,7 @@ UL.ui-menu li.ui-state-focus {
 }
 .cerb-code-editor-toolbar button.cerb-code-editor-toolbar-button--enabled {
   background-color: var(--cerb-color-button-icon-enabled-background);
+  color: var(--cerb-color-button-icon-enabled);
 }
 .cerb-code-editor-toolbar button.cerb-code-editor-toolbar-button--enabled span.glyphicons {
   color: var(--cerb-color-button-icon-enabled);

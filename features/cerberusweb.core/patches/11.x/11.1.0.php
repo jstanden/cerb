@@ -19,6 +19,7 @@ if(!isset($tables['llm_agent_session'])) {
 		`user_type` varchar(64) NOT NULL DEFAULT '',
 		`user_id` int unsigned NOT NULL DEFAULT 0,
 		`user_ip` varchar(64) NOT NULL DEFAULT '',
+		`is_read` tinyint NOT NULL DEFAULT 0,
 		PRIMARY KEY (uuid),
 		INDEX (created_at),
 		INDEX `user` (user_type, user_id)

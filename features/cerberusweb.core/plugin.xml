@@ -7106,6 +7106,19 @@
 			</extension>
 
 			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.setup.developers.llm_agent_transcripts</id>
+				<name>LLM Agent Transcripts</name>
+				<class>
+					<file>api/uri/config/llm_agent_transcripts.php</file>
+					<name>PageSection_SetupDevelopersLlmAgentTranscripts</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.configuration" />
+					<param key="uri" value="llm_agent_transcripts" />
+				</params>
+			</extension>
+
+			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.setup.developers.oauth2_token_generator</id>
 				<name>OAuth2 Token Generator</name>
 				<class>

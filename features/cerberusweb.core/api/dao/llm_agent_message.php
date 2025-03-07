@@ -23,6 +23,38 @@ class DAO_LlmAgentMessage {
 		return $model;
 	}
 	
+	static private function _getRowAsModel(array $row) : Model_LlmAgentMessage {
+		$msg = new Model_LlmAgentMessage();
+		$msg->uuid = $row['uuid'] ?? '';
+		$msg->session_uuid = $row['session_uuid'] ?? '';
+		$msg->created_at = intval($row['created_at'] ?? 0);
+		$msg->data = @json_decode($row['data_json'] ?? '', true) ?: [];
+		return $msg;
+	}
+	
+	static function get(string $uuid) : ?Model_LlmAgentMessage {
+		$db = DevblocksPlatform::services()->database();
+		
+		try {
+			$sql =
+				"SELECT BIN_TO_UUID(`uuid`) as `uuid`, BIN_TO_UUID(`session_uuid`) as `session_uuid`, `created_at`, `data_json` ".
+				"FROM llm_agent_message ".
+				"WHERE uuid = UUID_TO_BIN(%s)"
+			;
+			
+			$row = $db->GetRowReader(sprintf($sql, $db->qstr($uuid)));
+			
+			if(!$row) return null;
+		
+			return self::_getRowAsModel($row);
+			
+		} catch (Throwable $e) {
+			DevblocksPlatform::logException($e);
+		}
+		
+		return null;
+	}
+	
 	/**
 	 * @param string $session_uuid
 	 * @param int $last_n
@@ -49,14 +81,7 @@ class DAO_LlmAgentMessage {
 			if(!$rows) return [];
 			
 			return array_map(
-				function($row) {
-					$msg = new Model_LlmAgentMessage();
-					$msg->uuid = $row['uuid'];
-					$msg->session_uuid = $row['session_uuid'];
-					$msg->created_at = intval($row['created_at']);
-					$msg->data = @json_decode($row['data_json'] ?? '', true) ?: [];
-					return $msg;
-				},
+				fn($row) => self::_getRowAsModel($row),
 				array_reverse($rows),
 			);
 			
@@ -65,6 +90,17 @@ class DAO_LlmAgentMessage {
 		}
 		
 		return [];
+	}
+	
+	public static function deleteBySession(string $uuid) : bool {
+		$db = DevblocksPlatform::services()->database();
+		
+		$result = $db->ExecuteMaster(sprintf(
+			"DELETE FROM llm_agent_message WHERE `session_uuid` = UUID_TO_BIN(%s)",
+			$db->qstr($uuid)
+		));
+		
+		return boolval($result);
 	}
 }
 
