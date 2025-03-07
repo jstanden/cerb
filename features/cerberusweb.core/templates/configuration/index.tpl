@@ -9,7 +9,7 @@
 					{if !$smarty.const.DEVBLOCKS_CACHE_ENGINE_PREVENT_CHANGE}<li><a href="{devblocks_url}c=config&a=cache{/devblocks_url}">Cache</a></li>{/if}
 					<li><a href="{devblocks_url}c=config&a=license{/devblocks_url}">License</a></li>
 					<li><a href="{devblocks_url}c=config&a=localization{/devblocks_url}">Localization</a></li>
-					<li><a href="{devblocks_url}c=config&a=scheduler{/devblocks_url}">Scheduler</a></li>
+					<li><a href="{devblocks_url}c=config&a=plugins{/devblocks_url}">{'common.plugins'|devblocks_translate|capitalize}</a></li>					<li><a href="{devblocks_url}c=config&a=scheduler{/devblocks_url}">Scheduler</a></li>
 					{if !$smarty.const.DEVBLOCKS_SEARCH_ENGINE_PREVENT_CHANGE}<li><a href="{devblocks_url}c=config&a=search{/devblocks_url}">{'common.search'|devblocks_translate|capitalize}</a></li>{/if}
 
 					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.settings')}
@@ -137,20 +137,6 @@
 					<li><a href="{devblocks_url}c=config&a=workflow_builder{/devblocks_url}">Workflow Builder</a></li>
 
 					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.developers')}
-					{if !empty($exts)}<li><hr></li>{/if}
-					{foreach from=$exts item=menu_item}
-						{if method_exists($menu_item,'render')}<li>{$menu_item->render()}</li>{/if}
-					{/foreach}
-				</ul>
-			</div>
-		</li>
-		<li>
-			<div>
-				<a class="menu">{'common.plugins'|devblocks_translate|capitalize} <span class="glyphicons glyphicons-chevron-down" style="color:white;"></span></a>
-				<ul class="cerb-popupmenu cerb-float">
-					<li><a href="{devblocks_url}c=config&a=plugins{/devblocks_url}">{'common.configure'|devblocks_translate|capitalize}</a></li>
-
-					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.plugins')}
 					{if !empty($exts)}<li><hr></li>{/if}
 					{foreach from=$exts item=menu_item}
 						{if method_exists($menu_item,'render')}<li>{$menu_item->render()}</li>{/if}
