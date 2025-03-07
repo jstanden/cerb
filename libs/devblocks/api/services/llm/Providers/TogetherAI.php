@@ -78,6 +78,18 @@ class TogetherAI extends Extension_DevblocksLlmProvider {
 		
 		$model_messages = $this->sanitizeMessages($messages);
 		
+		// Remove empty `tool_calls`
+		$model_messages = array_map(function($message) {
+			if (
+				'assistant' == ($message['role'] ?? null)
+				&& array_key_exists('tool_calls', $message)
+				&& !($message['tool_calls'] ?? null)
+			) {
+				unset($message['tool_calls']);
+			}
+			return $message;
+		}, $model_messages);
+		
 		// Always start with the system prompt
 		if($system_prompt) {
 			array_unshift($model_messages,
