@@ -15,20 +15,63 @@ class Anthropic extends Extension_DevblocksLlmProvider {
 	/**
 	 * @throws Exception_DevblocksAutomationError
 	 */
-	function __construct(array $params) {
+	function __construct(array $params, bool $validate=true) {
 		parent::__construct($params);
 		
 		if(!$this->getParam('api_endpoint_url'))
 			$this->setParam('api_endpoint_url', 'https://api.anthropic.com');
 		
-		if(!$this->getParam('authentication'))
+		if($validate && !$this->getParam('authentication'))
 			throw new Exception_DevblocksAutomationError('llm:inputs:llm:anthropic:authentication: is required.');
 		
 		if(!$this->getParam('max_tokens'))
 			$this->setParam('max_tokens', 2048);
 		
-		if(!$this->getParam('model'))
+		if($validate && !$this->getParam('model'))
 			throw new Exception_DevblocksAutomationError('llm:inputs:llm:anthropic:model: is required.');
+	}
+	
+	public function convertToGenericMessage(array $message): DevblocksLlmChatResponse {
+		$chat_response = new DevblocksLlmChatResponse();
+		
+		if(array_key_exists('role', $message))
+			$chat_response->setRole($message['role']);
+		
+		if(
+			array_key_exists('content', $message)
+			&& is_string($message['content'])
+		) {
+			$message['content'] = [
+				[
+					'type' => 'text',
+					'text' => $message['content']
+				]
+			];
+		}
+		
+		foreach($message['content'] ?? [] as $message_content) {
+			if ('text' == ($message_content['type'] ?? null))
+				$chat_response->pushMessage($message_content['text']);
+			
+			if ('tool_use' == $message_content['type'] ?? null) {
+				if (!($message_content['id'] ?? null) || !($message_content['name'] ?? null))
+					continue;
+				
+				$tool = new DevblocksLlmChatResponse_Tool(
+					$message_content['name'] ?? '',
+					$message_content['input'] ?? [],
+					$message_content['id'],
+				);
+				
+				$chat_response->pushTool($tool);
+			}
+			
+			if('tool_result' == $message_content['type'] ?? null) {
+				$chat_response->pushToolResult($message_content['tool_use_id'] ?? '', $message_content['content']);
+			}
+		}
+		
+		return $chat_response;
 	}
 	
 	/**
@@ -108,27 +151,7 @@ class Anthropic extends Extension_DevblocksLlmProvider {
 			]);
 		}
 		
-		$chat_response = new DevblocksLlmChatResponse();
-		
-		foreach($response_json['content'] ?? [] as $message_content) {
-			if ('text' == ($message_content['type'] ?? null))
-				$chat_response->pushMessage($message_content['text']);
-			
-			if ('tool_use' == $message_content['type'] ?? null) {
-				if (!($message_content['id'] ?? null) || !($message_content['name'] ?? null))
-					continue;
-				
-				$tool = new DevblocksLlmChatResponse_Tool(
-					$message_content['name'] ?? '',
-					$message_content['input'] ?? [],
-					$message_content['id'],
-				);
-				
-				$chat_response->pushTool($tool);
-			}
-		}
-		
-		return $chat_response;
+		return $this->convertToGenericMessage($response_json);
 	}
 	
 	function sanitizeMessages(array $messages) : array {

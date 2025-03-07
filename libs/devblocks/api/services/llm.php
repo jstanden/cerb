@@ -43,8 +43,22 @@ class DevblocksLlmChatResponse_Tool {
 }
 
 class DevblocksLlmChatResponse {
+	private string $_role = '';
 	private array $_messages = [];
 	private array $_tool_calls = [];
+	private array $_tool_results = [];
+	
+	function __construct(string $role = 'assistant') {
+		$this->setRole($role);
+	}
+	
+	function getRole() : string {
+		return $this->_role;
+	}
+	
+	function setRole(string $role) : void {
+		$this->_role = $role;
+	}
 	
 	function pushMessage(string $message) : void {
 		$this->_messages[] = [
@@ -67,12 +81,20 @@ class DevblocksLlmChatResponse {
 	function getToolCalls() : array {
 		return $this->_tool_calls;
 	}
+	
+	function pushToolResult($id, $content) : void {
+		$this->_tool_results[$id] = $content;
+	}
+	
+	function getToolResults() : array {
+		return $this->_tool_results;
+	}
 }
 
 abstract class Extension_DevblocksLlmProvider {
 	protected array $_params = [];
 	
-	function __construct(array $params) {
+	function __construct(array $params, bool $validate=true) {
 		$this->_params = $params;
 	}
 	
@@ -112,6 +134,12 @@ abstract class Extension_DevblocksLlmProvider {
 	
 	abstract function chatCompletion(array $messages, string $system_prompt, array $tools, Extension_DevblocksLlmMemoryStore $memory) : DevblocksLlmChatResponse;
 	abstract function returnTool(DevblocksLlmChatResponse_Tool $tool, string $content, Extension_DevblocksLlmMemoryStore $memory) : void;
+	
+	/**
+	 * @param array $message
+	 * @return DevblocksLlmChatResponse
+	 */
+	abstract function convertToGenericMessage(array $message) : DevblocksLlmChatResponse;
 }
 
 class _DevblocksLlmService {
@@ -128,14 +156,14 @@ class _DevblocksLlmService {
 		return self::$instance;
 	}
 	
-	function getProvider(string $provider_id, array $params=[]) : ?Extension_DevblocksLlmProvider {
+	function getProvider(string $provider_id, array $params=[], bool $validate=true) : ?Extension_DevblocksLlmProvider {
 		return match($provider_id) {
-			'anthropic' => new Cerb\LLM\Providers\Anthropic($params),
-			'groq' => new Cerb\LLM\Providers\Groq($params),
-			'huggingface' => new Cerb\LLM\Providers\HuggingFace($params),
-			'ollama' => new Cerb\LLM\Providers\Ollama($params),
-			'openai' => new Cerb\LLM\Providers\OpenAI($params),
-			'together' => new Cerb\LLM\Providers\TogetherAI($params),
+			'anthropic' => new Cerb\LLM\Providers\Anthropic($params, $validate),
+			'groq' => new Cerb\LLM\Providers\Groq($params, $validate),
+			'huggingface' => new Cerb\LLM\Providers\HuggingFace($params, $validate),
+			'ollama' => new Cerb\LLM\Providers\Ollama($params, $validate),
+			'openai' => new Cerb\LLM\Providers\OpenAI($params, $validate),
+			'together' => new Cerb\LLM\Providers\TogetherAI($params, $validate),
 			default => null,
 		};
 	}

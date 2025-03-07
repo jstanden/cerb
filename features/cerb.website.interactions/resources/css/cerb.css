@@ -389,6 +389,7 @@
 .cerb-interaction-popup--form-elements-sheet [data-column-type=markdown] pre:has(> code) {
     background-color: rgb(32, 32, 32);
     color: rgb(255, 255, 255);
+    padding: 1em;
 }
 
 .cerb-interaction-popup--form-elements-sheet .cerb-sheet--row-title {

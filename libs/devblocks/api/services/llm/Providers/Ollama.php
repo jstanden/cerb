@@ -15,14 +15,51 @@ class Ollama extends Extension_DevblocksLlmProvider {
 	/**
 	 * @throws Exception_DevblocksAutomationError
 	 */
-	function __construct(array $params) {
+	function __construct(array $params, bool $validate=true) {
 		parent::__construct($params);
 		
-		if(!$this->getParam('api_endpoint_url'))
+		if($validate && !$this->getParam('api_endpoint_url'))
 			throw new Exception_DevblocksAutomationError('llm:inputs:llm:ollama:api_endpoint_url: is required.');
 		
-		if(!$this->getParam('model'))
+		if($validate && !$this->getParam('model'))
 			throw new Exception_DevblocksAutomationError('llm:inputs:llm:ollama:model: is required.');
+	}
+	
+	public function convertToGenericMessage(array $message): DevblocksLlmChatResponse {
+		$chat_response = new DevblocksLlmChatResponse();
+		
+		if('tool' == $message['role'] ?? '') {
+			$chat_response->setRole('user');
+			$chat_response->pushToolResult($message['name'] ?? '', $message['content'] ?? '');
+		
+		} else {
+			if(array_key_exists('role', $message))
+				$chat_response->setRole($message['role']);
+			
+			if(is_string($message['content'] ?? null)) {
+				$chat_response->pushMessage($message['content']);
+				
+			} elseif(is_array($message['content'] ?? null)) {
+				foreach($message['content'] as $content) {
+					if('text' == $content['type']) {
+						$chat_response->pushMessage($content['content']);
+					} elseif('tool_result' == $content['type']) {
+						$chat_response->pushToolResult($content['name'] ?? '', $content['content'] ?? '');
+					}
+				}
+			}
+			
+			if($message['tool_calls'] ?? null) {
+				foreach($message['tool_calls'] as $tool_call) {
+					$chat_response->pushTool(new DevblocksLlmChatResponse_Tool(
+						$tool_call['function']['name'] ?? '',
+						$tool_call['function']['arguments'] ?? [],
+					));
+				}
+			}
+		}
+		
+		return $chat_response;
 	}
 	
 	/**
@@ -89,21 +126,7 @@ class Ollama extends Extension_DevblocksLlmProvider {
 		if($response_json['message'] ?? null)
 			$memory->appendMessage($response_json['message']);
 		
-		$chat_response = new DevblocksLlmChatResponse();
-		
-		if($response_json['message']['content'] ?? null)
-			$chat_response->pushMessage($response_json['message']['content']);
-		
-		if($response_json['message']['tool_calls'] ?? null) {
-			foreach($response_json['message']['tool_calls'] as $tool_call) {
-				$chat_response->pushTool(new DevblocksLlmChatResponse_Tool(
-					$tool_call['function']['name'] ?? '',
-					$tool_call['function']['arguments'] ?? [],
-				));
-			}
-		}
-		
-		return $chat_response;
+		return $this->convertToGenericMessage($response_json['message']);
 	}
 	
 	function sanitizeMessages(array $messages) : array {

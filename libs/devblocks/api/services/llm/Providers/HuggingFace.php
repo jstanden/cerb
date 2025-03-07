@@ -15,14 +15,51 @@ class HuggingFace extends Extension_DevblocksLlmProvider {
 	/**
 	 * @throws Exception_DevblocksAutomationError
 	 */
-	function __construct(array $params) {
+	function __construct(array $params, bool $validate=true) {
 		parent::__construct($params);
 		
 		if(!$this->getParam('api_endpoint_url'))
 			$this->setParam('api_endpoint_url', 'https://api-inference.huggingface.co');
 		
-		if(!$this->getParam('model'))
+		if($validate && !$this->getParam('model'))
 			throw new Exception_DevblocksAutomationError('llm:inputs:llm:huggingface:model: is required.');
+	}
+	
+	public function convertToGenericMessage(array $message): DevblocksLlmChatResponse {
+		$chat_response = new DevblocksLlmChatResponse();
+		
+		if('tool' == $message['role'] ?? '') {
+			$chat_response->setRole('user');
+			$chat_response->pushToolResult($message['name'] ?? '', $message['content'] ?? '');
+			
+		} else {
+			if (array_key_exists('role', $message))
+				$chat_response->setRole($message['role']);
+			
+			if ($message['content'] ?? null)
+				$chat_response->pushMessage($message['content']);
+			
+			if ($message['tool_calls'] ?? null) {
+				foreach ($message['tool_calls'] as $tool_call) {
+					if (
+						!($tool_call['function']['name'] ?? null)
+						|| is_null($tool_call['id'] ?? null)
+					) continue;
+					
+					$tool_args = $tool_call['function']['arguments'] ?? [];
+					
+					$tool = new DevblocksLlmChatResponse_Tool(
+						$tool_call['function']['name'] ?? '',
+						is_string($tool_args) ? json_decode($tool_args, true) : $tool_args,
+						$tool_call['id'] ?? null,
+					);
+					
+					$chat_response->pushTool($tool);
+				}
+			}
+		}
+		
+		return $chat_response;
 	}
 	
 	/**
@@ -98,31 +135,7 @@ class HuggingFace extends Extension_DevblocksLlmProvider {
 		if($message)
 			$memory->appendMessage($message);
 		
-		$chat_response = new DevblocksLlmChatResponse();
-		
-		if($message['content'] ?? null)
-			$chat_response->pushMessage($message['content']);
-		
-		if($message['tool_calls'] ?? null) {
-			foreach($message['tool_calls'] as $tool_call) {
-				if(
-					!($tool_call['function']['name'] ?? null)
-					|| is_null($tool_call['id'] ?? null)
-				) continue;
-				
-				$tool_args = $tool_call['function']['arguments'] ?? [];
-				
-				$tool = new DevblocksLlmChatResponse_Tool(
-					$tool_call['function']['name'] ?? '',
-					is_string($tool_args) ? json_decode($tool_args, true) : $tool_args,
-					$tool_call['id'] ?? null,
-				);
-				
-				$chat_response->pushTool($tool);
-			}
-		}
-		
-		return $chat_response;
+		return $this->convertToGenericMessage($message);
 	}
 	
 	function sanitizeMessages(array $messages) : array {
@@ -143,6 +156,7 @@ class HuggingFace extends Extension_DevblocksLlmProvider {
 	function returnTool(DevblocksLlmChatResponse_Tool $tool, string $content, Extension_DevblocksLlmMemoryStore $memory): void {
 		$tool_message = [
 			'role' => 'tool',
+			'name' => $tool->getName(),
 			'tool_call_id' => $tool->getId(),
 			'content' => $content,
 		];
