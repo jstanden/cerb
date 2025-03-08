@@ -204,6 +204,7 @@ $packages = [
 	'cerb_connected_service_anthropic.json',
 	'cerb_connected_service_deepl.json',
 	'cerb_connected_service_elevenlabs.json',
+	'cerb_connected_service_exa.json',
 	'cerb_connected_service_groq.json',
 	'cerb_connected_service_ipstack.json',
 	'cerb_connected_service_notion.json',
