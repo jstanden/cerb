@@ -231,11 +231,14 @@ class PageSection_ProfilesDomain extends Extension_PageSection {
 		
 		// Filter: whole list or check
 		$filter = DevblocksPlatform::importGPC($_POST['filter'] ?? null, 'string','');
-		$ids = array();
+		$ids = [];
 	
 		// View
 		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
-		$view = C4_AbstractViewLoader::getView($view_id);
+		
+		if(!($view = C4_AbstractViewLoader::getView($view_id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
 		$view->setAutoPersist(false);
 		
 		// Scheduled behavior
@@ -243,7 +246,7 @@ class PageSection_ProfilesDomain extends Extension_PageSection {
 		$behavior_when = DevblocksPlatform::importGPC($_POST['behavior_when'] ?? null, 'string','');
 		$behavior_params = DevblocksPlatform::importGPC($_POST['behavior_params'] ?? null, 'array', []);
 		
-		$do = array();
+		$do = [];
 		
 		$status = DevblocksPlatform::importGPC($_POST['status'],'string','');
 		$server_id = DevblocksPlatform::importGPC($_POST['server_id'],'string','');
@@ -336,8 +339,6 @@ class PageSection_ProfilesDomain extends Extension_PageSection {
 		echo json_encode(array(
 			'cursor' => $batch_key,
 		));
-		
-		return;
 	}
 	
 	private function _profileAction_viewExplore() {

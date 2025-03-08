@@ -1499,7 +1499,7 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 		$defaults->class_name = 'View_Snippet';
 		$defaults->is_ephemeral = true;
 		
-		if(false == ($view = C4_AbstractViewLoader::getView($defaults->id, $defaults)))
+		if(!($view = C4_AbstractViewLoader::getView($defaults->id, $defaults)))
 			return [];
 		
 		// By owner

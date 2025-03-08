@@ -239,7 +239,10 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 		$ids = [];
 		
 		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
-		$view = C4_AbstractViewLoader::getView($view_id);
+		
+		if(!($view = C4_AbstractViewLoader::getView($view_id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
 		$view->setAutoPersist(false);
 
 		$org_id = DevblocksPlatform::importGPC($_POST['org_id'] ?? null, 'string',null);

@@ -292,7 +292,10 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 		
 		// View
 		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
-		$view = C4_AbstractViewLoader::getView($view_id);
+		
+		if(!($view = C4_AbstractViewLoader::getView($view_id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
 		$view->setAutoPersist(false);
 		
 		// Actions

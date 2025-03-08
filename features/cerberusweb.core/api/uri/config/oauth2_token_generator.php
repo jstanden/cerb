@@ -28,7 +28,7 @@ class PageSection_SetupDevelopersOAuth2TokenGenerator extends Extension_PageSect
 		$stack = $response->path;
 		
 		@array_shift($stack); // config
-		@array_shift($stack); // bot_scripting_tester
+		@array_shift($stack); // oauth2_token_generator
 		
 		$visit->set(ChConfigurationPage::ID, 'oauth2_token_generator');
 		

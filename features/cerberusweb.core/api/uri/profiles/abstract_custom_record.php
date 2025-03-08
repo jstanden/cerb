@@ -275,7 +275,10 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 		$ids = [];
 		
 		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
-		$view = C4_AbstractViewLoader::getView($view_id);
+		
+		if(!($view = C4_AbstractViewLoader::getView($view_id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
 		$view->setAutoPersist(false);
 		
 		$actions = DevblocksPlatform::importGPC($_POST['actions'] ?? [],'array');

@@ -425,7 +425,9 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 			//
 		}
 		
-		$view = C4_AbstractViewLoader::getView($view_id);
+		if(!($view = C4_AbstractViewLoader::getView($view_id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
 		$view->setAutoPersist(false);
 		$view->render();
 		
@@ -482,7 +484,10 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 		
 		// View
 		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
-		$view = C4_AbstractViewLoader::getView($view_id);
+		
+		if(!($view = C4_AbstractViewLoader::getView($view_id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
 		$view->setAutoPersist(false);
 		
 		// Time Tracking fields

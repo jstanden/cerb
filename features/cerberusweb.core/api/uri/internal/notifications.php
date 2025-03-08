@@ -118,7 +118,10 @@ class PageSection_InternalNotifications extends Extension_PageSection {
 		
 		// View
 		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
-		$view = C4_AbstractViewLoader::getView($view_id);
+		
+		if(!($view = C4_AbstractViewLoader::getView($view_id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
 		$view->setAutoPersist(false);
 		
 		// Task fields
@@ -208,7 +211,9 @@ class PageSection_InternalNotifications extends Extension_PageSection {
 		$hash = md5($view_id.$active_worker->id.time());
 		
 		// Loop through view and get IDs
-		$view = C4_AbstractViewLoader::getView($view_id);
+		if(!($view = C4_AbstractViewLoader::getView($view_id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
 		$view->setAutoPersist(false);
 		
 		// Page start

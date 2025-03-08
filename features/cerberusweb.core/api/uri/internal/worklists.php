@@ -425,8 +425,8 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		
 		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		
-		if(false == ($view = C4_AbstractViewLoader::getView($view_id)))
-			return;
+		if(!($view = C4_AbstractViewLoader::getView($view_id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		$view->setAutoPersist(false);
 		
@@ -803,8 +803,8 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 	private function _getViewFromCursor(array $cursor) {
 		$view_id = $cursor['view_id'];
 		
-		if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
-			return false;
+		if(!($view = C4_AbstractViewLoader::getView($view_id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		$view->setAutoPersist(false);
 		
@@ -1357,8 +1357,8 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 			}
 		}
 		
-		if(null == ($view = C4_AbstractViewLoader::getView($id)))
-			return;
+		if(!($view = C4_AbstractViewLoader::getView($id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		// [TODO] This saves $options even when they're hidden (e.g. header color)
 		$view->doCustomize($columns, $num_rows, $options);
