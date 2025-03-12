@@ -274,6 +274,31 @@ $(function() {
 	});
 	{/if}
 
+	let doneFunc = function(e) {
+		e.stopPropagation();
+
+		$sheet_toolbar.trigger('cerb-sheet--refresh');
+
+		var $target = e.trigger;
+		var done_params;
+
+		if($target.is('.cerb-bot-trigger')) {
+			if(e.eventData.exit === 'error') {
+
+			} else if(e.eventData.exit === 'return') {
+				Devblocks.interactionWorkerPostActions(e.eventData);
+			}
+
+			done_params = new URLSearchParams($target.attr('data-interaction-done'));
+
+			if (done_params.has('clear_selections')) {
+				$sheet_toolbar.trigger('cerb-sheet--selections-clear');
+			}
+		}
+	};
+
+	// Toolbars
+
 	$sheet_toolbar.cerbToolbar({
 		caller: {
 			name: 'cerb.toolbar.interaction.worker.await.sheet',
@@ -282,29 +307,7 @@ $(function() {
 		},
 		start: function(formData) {
 		},
-		done: function(e) {
-			e.stopPropagation();
-
-			// [TODO] Listen to the toolbar. Don't always refresh
-			$sheet_toolbar.trigger('cerb-sheet--refresh');
-
-			var $target = e.trigger;
-			var done_params;
-
-			if($target.is('.cerb-bot-trigger')) {
-				if(e.eventData.exit === 'error') {
-
-				} else if(e.eventData.exit === 'return') {
-					Devblocks.interactionWorkerPostActions(e.eventData);
-				}
-				
-				done_params = new URLSearchParams($target.attr('data-interaction-done'));
-
-				if (done_params.has('clear_selections')) {
-					$sheet_toolbar.trigger('cerb-sheet--selections-clear');
-				}
-			}
-		},
+		done: doneFunc,
 		reset: function(e) {
 			e.stopPropagation();
 			$sheet_toolbar.trigger('cerb-sheet--refresh');
@@ -313,6 +316,18 @@ $(function() {
 			e.stopPropagation();
 			$sheet_toolbar.trigger('cerb-sheet--refresh');
 		}
+	});
+
+	$sheet.find('[data-cerb-sheet-column-toolbar]').cerbToolbar({
+		interaction_class: 'cerb-sheet-toolbar--interaction',
+		caller: {
+			name: 'cerb.toolbar.sheet.column',
+			params: {
+			}
+		},
+		start: function(formData) {
+		},
+		done: doneFunc
 	});
 
 	// Update selection styles from defaults

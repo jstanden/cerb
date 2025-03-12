@@ -7309,6 +7309,9 @@ class _CerbApplication_KataSchemas {
                                 kata:
                                   types:
                                     list:
+                                text_align:
+                                  types:
+                                    string:
                                 text_size:
                                   types:
                                     string:

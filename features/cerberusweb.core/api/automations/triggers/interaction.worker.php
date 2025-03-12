@@ -1033,6 +1033,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'slider/key:',
 					'text/key:',
 					'time_elapsed/key:',
+					'toolbar/key:',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:card:' => [
 					'label:',
@@ -1270,6 +1271,13 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'color@raw:',
 					'text_color@raw:',
 					'text_size@raw: 150%',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:toolbar:' => [
+					'label:',
+					'params:',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:toolbar:params:' => [
+					'kata:',
 				],
 				'(.*):await:form:elements:sheet:schema:layout:' => [
 					'filtering@bool: yes',
