@@ -326,6 +326,24 @@ function DevblocksClass() {
 		if(eventData.return.hasOwnProperty('alert')) {
 			Devblocks.createAlert(eventData.return['alert']);
 		}
+		
+		if(
+			eventData.return.hasOwnProperty('search')
+			&& 'object' == typeof eventData.return.search
+			&& eventData.return.search.hasOwnProperty('record_type')
+			&& eventData.return.search.hasOwnProperty('query')
+		) {
+			$('<div/>')
+				.attr('data-context', eventData.return.search.record_type)
+				.attr('data-query', eventData.return.search.query)
+				.cerbSearchTrigger()
+				.on('cerb-search-opened', function(e) {
+					e.stopPropagation();
+					$(this).remove();
+				})
+				.click()
+			;
+		}
 
 		// Open links in a new tab
 		if(eventData.return.hasOwnProperty('open_link')) {

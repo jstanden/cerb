@@ -101,6 +101,10 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'notes' => 'Open the given URL in the current browser tab',
 				],
 				[
+					'key' => 'search',
+					'notes' => 'Open a search popup with a `record_type:` and `query:`',
+				],
+				[
 					'key' => 'snippet',
 					'notes' => 'Insert the given text at the cursor in the current editor (if applicable)',
 				],
@@ -1479,12 +1483,18 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 			'at: left bottom'
 		];
 		
+		$suggestions['*']['(.*):return:search:'] = [
+			'record_type: ticket',
+			'query: status:o',
+		];
+		
 		$suggestions['*']['(.*):return:'] = [
 			'alert:',
 			'callout:',
 			'clipboard:',
 			'open_link:',
 			'open_url:',
+			'search:',
 			'snippet:',
 			'timer:',
 		];

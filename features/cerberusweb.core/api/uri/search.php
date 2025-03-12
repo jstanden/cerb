@@ -86,14 +86,14 @@ class Page_Search extends CerberusPageExtension {
 		$query_required = DevblocksPlatform::importGPC($_REQUEST['qr'] ?? null,'string','');
 		$id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null,'string',null);
 		
-		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+		if(!($context_ext = Extension_DevblocksContext::getByAlias($context, true)))
 			return;
 		
 		// Verify that this context is publicly searchable
 		if(!$context_ext->hasOption('workspace'))
 			return;
 		
-		if(false == ($view = $context_ext->getSearchView($id)) || !($view instanceof IAbstractView_QuickSearch))
+		if(!($view = $context_ext->getSearchView($id)) || !($view instanceof IAbstractView_QuickSearch))
 			return;
 		
 		if($id)
