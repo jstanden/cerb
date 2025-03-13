@@ -43,10 +43,36 @@ class Controller_Default extends DevblocksControllerExtension {
 						->setHeader('Pragma', 'cache')
 					;
 			
-					return DevblocksPlatform::dieWithHttpErrorHtml($bytes, 200);
+					DevblocksPlatform::dieWithHttpErrorHtml($bytes, 200);
+					
+				case 'favicon.ico':
+					$bytes = file_get_contents(APP_PATH . '/favicon.ico');
+					
+					DevblocksPlatform::services()->http()
+						->setHeader('Cache-Control', 'max-age=86400')
+						->setHeader('Content-Length', strlen($bytes))
+						->setHeader('Content-Type', 'image/x-icon')
+						->setHeader('Expires', gmdate('D, d M Y H:i:s',time()+86400) . ' GMT')
+						->setHeader('Pragma', 'cache')
+					;
+					
+					DevblocksPlatform::dieWithHttpErrorHtml($bytes, 200);
 					
 				case 'portal':
-					return DevblocksPlatform::dieWithHttpError(null, 404);
+					DevblocksPlatform::dieWithHttpError(null, 404);
+				
+				case 'robots.txt':
+					$bytes = file_get_contents(APP_PATH . '/robots.txt');
+					
+					DevblocksPlatform::services()->http()
+						->setHeader('Cache-Control', 'max-age=86400')
+						->setHeader('Content-Length', strlen($bytes))
+						->setHeader('Content-Type', 'text/plain')
+						->setHeader('Expires', gmdate('D, d M Y H:i:s',time()+86400) . ' GMT')
+						->setHeader('Pragma', 'cache')
+					;
+					
+					DevblocksPlatform::dieWithHttpErrorHtml($bytes, 200);
 					
 				default:
 					return true;
