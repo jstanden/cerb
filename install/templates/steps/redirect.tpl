@@ -1,13 +1,13 @@
 <html>
 <head>
 	<title>Installing Cerb...</title>
-	<link rel="stylesheet" href="install.css" type="text/css">
 	<meta http-equiv="refresh" content="1;url=index.php?step={$step}">
+	{include file="includes/cerb.css.tpl"}
 </head>
 
 <body>
 <div>
-	<img src="cerb_logo.svg" height="80" width="280">
+	{include file="includes/cerb_logo.svg.tpl"}
 </div>
 
 <H1>Installing Cerb {$smarty.const.APP_VERSION}</H1>

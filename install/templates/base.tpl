@@ -1,13 +1,13 @@
 <html>
 <head>
 	<title>Installing Cerb...</title>
-	<link rel="stylesheet" href="install.css" type="text/css">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+	{include file="includes/cerb.css.tpl"}
 </head>
 
 <body>
 <div>
-	<img src="cerb_logo.svg" height="80" width="280">
+	{include file="includes/cerb_logo.svg.tpl"}
 </div>
 <H1>Installing Cerb {$smarty.const.APP_VERSION}</H1>
 <table cellpadding="2" cellspacing="2">

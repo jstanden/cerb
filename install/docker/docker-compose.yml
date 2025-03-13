@@ -17,9 +17,6 @@ services:
       - ../../apple-touch-icon.png:/usr/share/nginx/html/apple-touch-icon.png:ro
       - ../../favicon.ico:/usr/share/nginx/html/favicon.ico:ro
       - ../../robots.txt:/usr/share/nginx/html/robots.txt:ro
-      - ../../install/cerb_logo.svg:/usr/share/nginx/html/install/cerb_logo.svg:ro
-      - ../../install/install.css:/usr/share/nginx/html/install/install.css:ro
-      - ../../install/jstz.min.js:/usr/share/nginx/html/install/jstz.min.js:ro
   php-fpm:
     build: .
     depends_on:

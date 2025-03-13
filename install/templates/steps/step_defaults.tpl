@@ -1,6 +1,6 @@
 <h2>Creating Your Account</h2>
 
-<script type="text/javascript" src="jstz.min.js"></script>
+{include file="includes/jstz.js.tpl"}
 
 <form action="index.php" method="POST">
 <input type="hidden" name="step" value="{$smarty.const.STEP_DEFAULTS}">
