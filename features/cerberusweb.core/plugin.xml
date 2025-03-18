@@ -6099,7 +6099,23 @@
 				</param>
 			</params>
 		</extension>
-		
+
+		<extension point="cerb.connected_service.provider">
+			<id>cerb.service.provider.telegram.bot</id>
+			<name>Telegram Bot</name>
+			<class>
+				<file>api/service_providers/telegram_bot.php</file>
+				<name>ServiceProvider_TelegramBot</name>
+			</class>
+			<params>
+				<param key="options">
+					<value>
+						<data key="accounts" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
 		<extension point="cerb.connected_service.provider">
 			<id>cerb.service.provider.token.bearer</id>
 			<name>Token Bearer</name>
