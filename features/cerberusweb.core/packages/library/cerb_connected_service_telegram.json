@@ -1,0 +1,63 @@
+{
+  "package": {
+    "name": "Connected Service: Telegram",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "11.0.7",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Telegram",
+      "uri": "cerb_connected_service_telegram",
+      "description": "Integration with Telegram",
+      "instructions": "# Instructions\r\n\r\n* Enter your Bot Token from @BotFather",
+      "point": "connected_service",
+      "image": "data:image/png;base64,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"
+    },
+    "configure": {
+      "placeholders": [],
+      "prompts": [
+        {
+          "type": "text",
+          "label": "Bot Token",
+          "key": "prompt_token",
+          "params": {
+            "default": "",
+            "placeholder": "(paste your Bot Token)"
+          }
+        },
+        {
+          "type": "text",
+          "label": "Alias",
+          "key": "prompt_name",
+          "params": {
+            "default": "telegram",
+            "placeholder": "(enter a URI, a-z,0-9,_)"
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "service_telegram",
+      "_context": "connected_service",
+      "name": "Telegram",
+      "extension_id": "cerb.service.provider.telegram.bot"
+    },
+    {
+      "uid": "account_telegram",
+      "_context": "connected_account",
+      "name": "Telegram",
+      "service_id": "{{{uid.service_telegram}}}",
+      "owner__context": "cerberusweb.contexts.app",
+      "owner_id": "0",
+      "uri": "{{{prompt_name}}}",
+      "params": {
+        "token": "{{{prompt_token}}}"
+      }
+    }
+  ]
+}

@@ -214,6 +214,7 @@ $packages = [
 	'cerb_connected_service_sambanova.json',
 	'cerb_connected_service_slack.json',
 	'cerb_connected_service_tavily.json',
+	'cerb_connected_service_telegram.json',
 	'cerb_connected_service_togetherai.json',
 	'cerb_profile_tab_ticket_overview.json',
 	'cerb_profile_widget_ticket_status.json',
