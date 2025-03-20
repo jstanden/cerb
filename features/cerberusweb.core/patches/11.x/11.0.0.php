@@ -877,6 +877,15 @@ if('utf8mb4_unicode_ci' != $columns['script']['collation']) {
 }
 
 // ===========================================================================
+// Convert saved search profile page 'Search' widgets from HTML/JS to sheet
+
+$db->ExecuteMaster(
+	sprintf("update profile_widget set extension_id = 'cerb.profile.tab.widget.sheet', extension_params_json = %s where profile_tab_id in (select id from profile_tab where context = 'cerberusweb.contexts.context.saved.search') and name = 'Query' and extension_id = 'cerb.profile.tab.widget.html'",
+		$db->qstr("{\"data_query\": \"type:worklist.records\\r\\nof:saved_search\\r\\nquery:(\\r\\n  id:{{record_id}}\\r\\n)\\r\\nformat:dictionaries\",\"cache_secs\": \"\",\"placeholder_simulator_kata\": \"\",\"sheet_kata\": \"layout:\\r\\n  style: table\\r\\n  headings@bool: no\\r\\n  paging@bool: no\\r\\n  title_column: query\\r\\n\\r\\ncolumns:\\r\\n  text/query:\\r\\n    params:\\r\\n      text_size@raw: 125%\\r\\n  search_button/_query:\\r\\n    params:\\r\\n      context_key: context\\r\\n      query_key: query\",\"toolbar_kata\": \"\"}")
+	)
+);
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
