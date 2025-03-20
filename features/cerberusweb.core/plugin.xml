@@ -5971,7 +5971,23 @@
 				</param>
 			</params>
 		</extension>
-		
+
+		<extension point="cerb.connected_service.provider">
+			<id>cerb.service.provider.atproto</id>
+			<name>AT Protocol</name>
+			<class>
+				<file>api/service_providers/at_protocol.php</file>
+				<name>ServiceProvider_AtProtocol</name>
+			</class>
+			<params>
+				<param key="options">
+					<value>
+						<data key="accounts" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
 		<extension point="cerb.connected_service.provider">
 			<id>cerb.service.provider.cerb.api.legacy</id>
 			<name>Cerb API (Legacy Signatures)</name>
