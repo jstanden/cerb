@@ -61,11 +61,11 @@ First, make sure [Docker Desktop](https://www.docker.com/products/docker-desktop
 Navigate to the directory where you want to install a copy of Cerb. Then run the following commands:
 
 ```shell
-git clone -b v11.0 https://github.com/cerb/cerb-release.git v11.0
+git clone -b v11.1 https://github.com/cerb/cerb-release.git v11.1
 
-# ... or download + unzip: https://codeload.github.com/cerb/cerb-release/zip/refs/heads/v11.0.zip
+# ... or download + unzip: https://codeload.github.com/cerb/cerb-release/zip/refs/heads/v11.1.zip
 
-cd v11.0
+cd v11.1
 
 cd install/docker
 
