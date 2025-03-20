@@ -12,7 +12,6 @@ use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Utils;
 use Model_Automation;
 use Psr\Http\Message\ResponseInterface;
-use function GuzzleHttp\headers_from_lines;
 
 class HttpRequestAction extends AbstractAction {
 	const ID = 'http.request';
@@ -115,7 +114,7 @@ class HttpRequestAction extends AbstractAction {
 				
 				if (array_key_exists('headers', $inputs)) {
 					if (is_string($inputs['headers'])) {
-						$headers = @headers_from_lines(DevblocksPlatform::parseCrlfString($inputs['headers']));
+						$headers = \GuzzleHttp\Utils::headersFromLines(DevblocksPlatform::parseCrlfString($inputs['headers']));
 						
 						$headers = array_combine(
 							array_map(fn($k) => DevblocksPlatform::strLower($k), array_keys($headers)),

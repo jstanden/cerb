@@ -208,7 +208,7 @@ class BotAction_HttpRequest extends Extension_DevblocksEventAction {
 		if(!empty($params) && is_array($params))
 			$url .= '?' . http_build_query($params);
 		
-		$headers = GuzzleHttp\headers_from_lines($headers);
+		$headers = GuzzleHttp\Utils::headersFromLines($headers);
 		
 		$request = new Request($verb, $url, $headers, $body);
 		$request_options = [

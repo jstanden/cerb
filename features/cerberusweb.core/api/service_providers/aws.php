@@ -394,7 +394,7 @@ class BotAction_AwsGetPresignedUrl extends Extension_DevblocksEventAction {
 		if(false == (Context_ConnectedAccount::isUsableByActor($connected_account, $trigger->getBot())))
 			return false;
 		
-		$http_headers = GuzzleHttp\headers_from_lines($http_headers);
+		$http_headers = GuzzleHttp\Utils::headersFromLines($http_headers);
 		
 		$request = new Request($http_verb, $http_url, $http_headers, $http_body);
 		
