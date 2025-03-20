@@ -1035,13 +1035,6 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		if(isset($tables['fulltext_'.$namespace]))
 			return true;
 		
-		// Prior to MySQL 5.6 we can only do fulltext in MyISAM tables
-		if(mysqli_get_server_version($db->getMasterConnection()) < 50600) {
-			$db_engine_fulltext = 'MyISAM';
-		} else {
-			$db_engine_fulltext = APP_DB_ENGINE_FULLTEXT;
-		}
-		
 		// Primary key
 		if(is_string($primary_key))
 			$primary_key = [$primary_key];
@@ -1066,7 +1059,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 			(!empty($attributes_sql) ? implode(",\n", $attributes_sql) : ''),
 			implode(',', $primary_key),
 			$db->escape($content_key),
-			$db_engine_fulltext
+			APP_DB_ENGINE
 		);
 		
 		$result = $db->ExecuteMaster($sql);

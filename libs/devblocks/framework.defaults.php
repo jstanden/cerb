@@ -8,9 +8,6 @@ if(!defined('APP_DB_PCONNECT'))
 if(!defined('APP_DB_ENGINE'))
 	define('APP_DB_ENGINE','InnoDB');
 
-if(!defined('APP_DB_ENGINE_FULLTEXT'))
-	define('APP_DB_ENGINE_FULLTEXT', APP_DB_ENGINE);
-
 if(!defined('APP_DB_DATABASE'))
 	define('APP_DB_DATABASE','');
 

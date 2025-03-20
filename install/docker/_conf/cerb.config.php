@@ -11,7 +11,6 @@ define('AUTHORIZED_IPS_DEFAULTS', '172.');
  * [JAS]: Don't change the following unless you know what you're doing!
  ***************************************************************************/
 define('APP_DEFAULT_CONTROLLER','core.controller.page');
-define('APP_DB_PREFIX','cerb');
 define('APP_PATH',dirname(__FILE__));
 define('APP_STORAGE_PATH',APP_PATH . '/storage');
 define('APP_TEMP_PATH',APP_STORAGE_PATH . '/tmp');
