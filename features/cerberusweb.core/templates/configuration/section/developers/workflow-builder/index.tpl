@@ -64,6 +64,16 @@
                         'version:',
                         'website:',
                     ],
+                    'export:workflow:requirements:': [
+                        'cerb_version: >=11.0 <11.2',
+                        'cerb_plugins: cerberusweb.core, ',
+                    ],
+                    'export:workflow:version:': [
+                        '2025-12-31T00:00:00Z',
+                    ],
+                    'export:workflow:website:': [
+                        'https://cerb.ai/resources/workflows/',
+                    ],
                     'export:records:': [
                         'record_type/record_key:',
                     ],
