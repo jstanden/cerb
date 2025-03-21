@@ -1377,7 +1377,7 @@ class Storage_Resource extends Extension_DevblocksStorageSchema {
 	}
 };
 
-class Context_Resource extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextUri {
+class Context_Resource extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextUri, IDevblocksContextWorkflow {
 	const ID = CerberusContexts::CONTEXT_RESOURCE;
 	const URI = 'resource';
 	
@@ -1822,5 +1822,49 @@ class Context_Resource extends Extension_DevblocksContext implements IDevblocksC
 		} else {
 			Page_Profiles::renderCard($context, $context_id, $model);
 		}
+	}
+
+	function workflowExport(array $ids, DevblocksWorkflowExportModel $export_model, bool $include_children = false): array {
+		$workflow_kata = [
+			'records' => [],
+		];
+		
+		$record_uri = $this->manifest->params['alias'] ?? '';
+		
+		$models = DAO_Resource::getIds($ids);
+		
+		foreach($models as $model) {
+			$model_key = $export_model->getLabelMapFor(sprintf('%s_%d', $record_uri, $model->id));
+			$record_key = sprintf('%s/%s', $record_uri, $model_key);
+			
+			$extension = $model->getExtension();
+			
+			$record_kata = [
+				'fields' => [
+					'name' => $model->name,
+					'description' => $model->description,
+					'extension_id' => $model->extension_id,
+					'is_dynamic' => $model->is_dynamic,
+					'cache_until' => $model->cache_until,
+					'automation_kata' => $model->automation_kata,
+				]
+			];
+			
+			if(!$model->is_dynamic) {
+				$content_data = $extension->getContentData($model);
+			
+				$headers = DAO_MessageHeaders::parse(implode("\r\n", $content_data->headers) . "\r\n\r\n");
+				
+				$record_kata['fields']['content'] = sprintf(
+					'data:%s;base64,%s',
+					$headers['content-type'] ?? 'application/octet-stream',
+					is_resource($content_data->data) ? base64_encode(stream_get_contents($content_data->data)) : '',
+				);
+			}
+			
+			$workflow_kata['records'][$record_key] = $record_kata;
+		}
+		
+		return $workflow_kata;
 	}
 };
