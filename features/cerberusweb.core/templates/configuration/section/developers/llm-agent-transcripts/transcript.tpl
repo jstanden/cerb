@@ -60,12 +60,12 @@
     </div>
 
     {foreach from=$message->getMessages() item=content}
-    <div class="commentBodyHtml">
-        {if 'text' == $content['type']}
-            {$content = DevblocksPlatform::parseMarkdown($content['content'], true)}
-            {DevblocksPlatform::purifyHTML($content, true, true, [$filter_links]) nofilter}
-        {/if}
-    </div>
+        <div class="commentBodyHtml">
+            {if 'text' == $content['type']}
+                {$message_html = DevblocksPlatform::parseMarkdown($content['content'], true)}
+                {DevblocksPlatform::purifyHTML($message_html, true, true, [$filter_links]) nofilter}
+            {/if}
+        </div>
     {/foreach}
 
     {if 'assistant' == $message->getRole()}
@@ -88,6 +88,16 @@
                 <pre>{$tool_result}</pre>
             </details>
         {/foreach}
+    {/if}
+
+    {if 'assistant' == $message->getRole()}
+        {capture name="transcript_markdown"}{foreach from=$message->getMessages() item=content}{if 'text' == $content['type']}{$content['content']}{/if}{/foreach}{/capture}
+        {if $smarty.capture.transcript_markdown}
+            <pre class="cerb-transcript-assistant-markdown" style="display:none;">{$smarty.capture.transcript_markdown}</pre>
+            <div class="cerb-code-editor-toolbar" style="border:0;">
+                <button type="button" data-cerb-button="transcript-copy" title="{{'common.copy'|devblocks_translate|capitalize}}"><span class="glyphicons glyphicons-copy"></span></button>
+            </div>
+        {/if}
     {/if}
 </div>
 {/foreach}

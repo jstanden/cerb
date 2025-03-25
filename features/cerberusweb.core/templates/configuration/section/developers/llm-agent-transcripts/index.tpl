@@ -257,6 +257,17 @@ $(function() {
                     }
                 }
             });
+
+        } else if ('transcript-copy' === button_action) {
+            let $content = $button.parent().prev('.cerb-transcript-assistant-markdown');
+
+            if($content) {
+                const textarea = document.createElement('textarea');
+                textarea.innerHTML = $content.text();
+                navigator.clipboard.writeText(textarea.innerHTML);
+                textarea.remove();
+                Devblocks.createAlert('Transcript copied to clipboard.');
+            }
         }
     });
 });
