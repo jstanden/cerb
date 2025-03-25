@@ -115,7 +115,7 @@ class PageSection_SetupDevelopersLlmAgentTranscripts extends Extension_PageSecti
 			if(!($llm_provider = $llm->getProvider($llm_session->provider, [], validate: false)))
 				throw new Exception_DevblocksAjaxValidationError('Invalid LLM provider.');
 			
-			if(!($messages = DAO_LlmAgentMessage::getMessagesBySession($transcript_id)))
+			if(!($messages = DAO_LlmAgentMessage::getMessagesBySession($transcript_id, 250)))
 				$messages = [];
 			
 			// Convert the messages into a neutral format using providers
