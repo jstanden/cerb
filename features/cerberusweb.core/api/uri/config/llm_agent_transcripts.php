@@ -124,6 +124,8 @@ class PageSection_SetupDevelopersLlmAgentTranscripts extends Extension_PageSecti
 			$tpl->assign('filter_links', new \Cerb_HTMLPurifier_URIFilter_Extract());
 			
 			$tpl->assign('llm_session', $llm_session);
+			$tpl->assign('llm_session_automation', $llm_session->getAutomation());
+			$tpl->assign('llm_session_user', $llm_session->getUser());
 			$tpl->assign('messages', $messages);
 			$html = $tpl->fetch('devblocks:cerberusweb.core::configuration/section/developers/llm-agent-transcripts/transcript.tpl');
 			

@@ -46,6 +46,15 @@
     white-space:break-spaces;
     overflow-x:auto;
 }
+
+#{$div_uid} > div:nth-child(2) .cerb-llm-transcript-fields {
+    display:flex;
+    flex-flow: row wrap;
+}
+
+#{$div_uid} > div:nth-child(2) .cerb-llm-transcript-fields > div {
+    margin: 0 1em 0.5em 0;
+}
 </style>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}">
@@ -85,6 +94,7 @@ $(function() {
 
                 } else {
                     $viewer.html(json.html);
+                    $viewer.find('[data-cerb-peek]').cerbPeekTrigger();
                 }
             }
         });

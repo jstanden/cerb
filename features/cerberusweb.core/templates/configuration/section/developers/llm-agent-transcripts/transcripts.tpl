@@ -7,7 +7,7 @@
             <br>
             <abbr title="{$transcript->created_at|devblocks_date}">{$transcript->created_at|devblocks_prettytime}</abbr>
             <br>
-            {$transcript->provider}
+            {$transcript->provider} &nbsp; {$transcript->user_type}
             <br>
         </td>
     </tr>

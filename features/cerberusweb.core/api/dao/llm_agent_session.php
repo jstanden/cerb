@@ -136,4 +136,20 @@ class Model_LlmAgentSession {
 		$this->created_at = time();
 		$this->user_ip = DevblocksPlatform::getClientIp();
 	}
+	
+	public function getAutomation() : ?Model_Automation {
+		if($this->automation_id)
+			return DAO_Automation::get($this->automation_id);
+		return null;
+	}
+	
+	public function getUser() : ?DevblocksRecordModel {
+		if(!$this->user_type || !$this->user_id)
+			return null;
+		
+		return match($this->user_type) {
+			'worker' => DAO_Worker::get($this->user_id),
+			default => null,
+		};
+	}
 }
