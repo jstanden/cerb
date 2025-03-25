@@ -5473,6 +5473,9 @@ class _CerbApplication_KataSchemas {
                                                               description:
                                                                 types:
                                                                   string:
+                                                              enum:
+                                                                 types:
+                                                                   list:
                                                               required:
                                                                 types:
                                                                   bool:

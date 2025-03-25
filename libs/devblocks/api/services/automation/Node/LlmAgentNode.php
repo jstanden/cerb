@@ -307,6 +307,9 @@ class LlmAgentNode extends AbstractNode {
 						'description' => $parameter['description'] ?? '',
 					];
 					
+					if(array_key_exists('enum', $parameter) && is_array($parameter['enum']))
+						$tool_schema['function']['parameters']['properties'][$param_name]['enum'] = $parameter['enum'];
+					
 					if($parameter['required'] ?? false)
 						$tool_schema['function']['parameters']['required'][] = $param_name;
 				}

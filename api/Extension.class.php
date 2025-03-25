@@ -1633,8 +1633,9 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 						'docHTML' => '<b>string:</b> A text-based tool parameter.',
 					]
 				],
-				'(.*):llm.agent:inputs:tools:tool:(.*?):parameters:' => [
+				'(.*):llm.agent:inputs:tools:tool:parameters:string:' => [
 					'description:',
+					'enum@csv: option1, option2, option3:',
 					'required@bool: yes',
 				],
 				'(.*):llm.agent:inputs:tools:tool:parameters:required:' => [
