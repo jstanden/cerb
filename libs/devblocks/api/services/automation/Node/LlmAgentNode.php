@@ -391,6 +391,7 @@ class LlmAgentNode extends AbstractNode {
 		
 		// Return an abstract list of messages
 		$this->_dict->set($this->_output, [
+			'session_id' => $session_id,
 			'messages' => $llm_response->getMessages(),
 		]);
 		
