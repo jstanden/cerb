@@ -245,6 +245,7 @@ class _DevblocksTemplateManager {
 				'in_array',
 				'is_a',
 				'is_array',
+				'is_string',
 				'isset',
 				'method_exists',
 				'strcasecmp',
