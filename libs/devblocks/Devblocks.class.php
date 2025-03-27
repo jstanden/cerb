@@ -1449,23 +1449,21 @@ class DevblocksPlatform extends DevblocksEngine {
 	/**
 	 * 
 	 * @param string $string
-	 * @param string $from_encoding
+	 * @param ?string $from_encoding
 	 * @return string
 	 * @test DevblocksPlatformTest
 	 */
-	static function strUnidecode($string, $from_encoding = 'utf-8') {
+	static function strUnidecode(string $string, string $from_encoding = 'utf-8') : string {
 		if(0 == strlen($string))
 			return '';
 		
 		$out = '';
-			
-		$string = (is_null($from_encoding))
-			? mb_convert_encoding($string, "UCS-4BE")
-			: mb_convert_encoding($string, "UCS-4BE", $from_encoding)
-			;
-		
-		while(false !== ($part = mb_substr($string, 0, 25000)) && 0 !== mb_strlen($part)) {
-			$string = mb_substr($string, mb_strlen($part));
+		$from_encoding = $from_encoding ?: mb_detect_encoding($string);
+		$string = mb_convert_encoding($string, "UCS-4BE", $from_encoding);
+
+		// Convert UTF-8 string to UCS-4BE before unpacking
+		while('' !== ($part = mb_substr($string, 0, 25000, 'UCS-4BE')) && 0 !== mb_strlen($part)) {
+			$string = mb_substr($string, mb_strlen($part), null, 'UCS-4BE');
 			
 			$unpack = unpack("N*", $part);
 			
