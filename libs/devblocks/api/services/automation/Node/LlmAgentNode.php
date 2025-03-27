@@ -149,12 +149,39 @@ class LlmAgentNode extends AbstractNode {
 					$session_id = $this->_dict->getKeyPath($session_key, null, '::');
 					$memory_store = $llm->getMemoryStore($session_id);
 					
-					$tool = $this->_dict->get('__tool', []);
-					$tool_spec = new DevblocksLlmChatResponse_Tool($tool['name'] ?? '', $tool['parameters'] ?? [], $tool['id'] ?? '');
+					$tool_dict = $this->_dict->get('__tool', []);
+					$tool_spec = new DevblocksLlmChatResponse_Tool($tool_dict['name'] ?? '', $tool_dict['parameters'] ?? [], $tool_dict['id'] ?? '');
 					
-					$llm_provider->returnTool($tool_spec, $tool['content'] ?? '', $memory_store);
+					$tools = $this->_getTools();
+					$tool = $tools[$tool_spec->getName()] ?? null;
+					
+					if('automation' == $tool_dict['type']) {
+						$automator = DevblocksPlatform::services()->automation();
+						
+						if (!($tool_automation = DAO_Automation::getByUri($tool['uri'] ?? '', \AutomationTrigger_LlmTool::ID)))
+							return false;
+						
+						$initial_state = [
+							'inputs' => $tool_spec->getParameters() ?? [],
+						];
+						
+						if (false === ($automation_results = $automator->executeScript($tool_automation, $initial_state, $error))) {
+							$tool_response = [
+								'content' => "ERROR: " . $error,
+							];
+						} else {
+							// [TODO] Validate the return contains `content`
+							$tool_response = $automation_results->get('__return', []);
+						}
+						
+						$llm_provider->returnTool($tool_spec, $tool_response['content'] ?? '', $memory_store);
+						
+					} elseif('tool' == $tool['type']) {
+						$llm_provider->returnTool($tool_spec, $tool['content'] ?? '', $memory_store);
+					}
 					
 					$this->_dict->unset('__tool');
+					$this->_dict->scrubKeyPathPrefix('__state|memory', $this->node->getId() . ':on_tool', '|');
 					
 					return $this->node->getId();
 					
@@ -404,57 +431,32 @@ class LlmAgentNode extends AbstractNode {
 	 * @return bool
 	 */
 	private function _activateTool(DevblocksLlmChatResponse_Tool $tool_spec, string &$error=null) : bool {
-		$automator = DevblocksPlatform::services()->automation();
 		$llm = DevblocksPlatform::services()->llm();
 		
-		$tools = $this->_getTools();
-		
 		$llm_provider = $this->_getLlmProvider();
+		
+		$tools = $this->_getTools();
+		$tool =	$tools[$tool_spec->getName()] ?? null;
 		
 		$session_key = $this->_getSessionKey($llm_provider);
 		$session_id = $this->_dict->getKeyPath($session_key, null, '::');
 		$memory_store = $llm->getMemoryStore($session_id);
 		
-		$tool = $tools[$tool_spec->getName()] ?? null;
-		
 		if($tool) {
 			$tool_type = $tool['type'] ?? null;
 			
-			if('automation' == $tool_type) {
-				if (!($tool_automation = DAO_Automation::getByUri($tool['uri'] ?? '', \AutomationTrigger_LlmTool::ID)))
-					return false;
-				
-				$initial_state = [
-					'inputs' => $tool_spec->getParameters() ?? [],
-				];
-				
-				if (false === ($automation_results = $automator->executeScript($tool_automation, $initial_state, $error))) {
-					$tool_response = [
-						'content' => "ERROR: " . $error,
-					];
-				} else {
-					// [TODO] Validate the return contains `content`
-					$tool_response = $automation_results->get('__return', []);
-				}
-				
-			} elseif ('tool' == $tool_type) {
-				if($this->_output) {
-					$this->_dict->set('__tool', [
-						'id' => $tool_spec->getId(),
-						'name' => $tool_spec->getName(),
-						'parameters' => $tool_spec->getParameters(),
-					]);
-				}
-				
+			$this->_dict->set('__tool', [
+				'id' => $tool_spec->getId(),
+				'name' => $tool_spec->getName(),
+				'parameters' => $tool_spec->getParameters(),
+				'type' => $tool_type,
+			]);
+			
+			if(in_array($tool_type, ['automation', 'tool'])) {
 				// Run the custom `on_tool:` branch
 				if (null != ($this->node->getChild($this->node->getId() . ':on_tool'))) {
 					$this->_node_memory['stack'][] = ['tool_branch', []];
 					return true;
-					
-				} else {
-					$tool_response = [
-						'content' => 'ERROR: Tool is not implemented.'
-					];
 				}
 			
 			} else {
@@ -470,11 +472,6 @@ class LlmAgentNode extends AbstractNode {
 		}
 		
 		$llm_provider->returnTool($tool_spec, $tool_response['content'] ?? '', $memory_store);
-		
-		// [TODO] Customize the output for `on_tool:`
-		if($this->_output)
-			$this->_dict->set($this->_output, $tool_response);
-		
 		return true;
 	}
 }
