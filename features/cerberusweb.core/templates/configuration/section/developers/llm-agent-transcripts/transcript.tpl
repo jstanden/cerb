@@ -51,6 +51,7 @@
     <button class="button" data-cerb-button="mark-read"><span class="glyphicons glyphicons-circle-ok"></span> {{'home.my_notifications.button.mark_read'|devblocks_translate|capitalize}}</button>
     {/if}
     <button class="button" data-cerb-button="delete"><span class="glyphicons glyphicons-circle-remove"></span> {{'common.delete'|devblocks_translate|capitalize}}</button>
+    <button class="button" data-cerb-button="permalink" data-cerb-permalink="{devblocks_url full=true}c=config&a=llm_agent_transcripts&uuid={$llm_session->uuid}{/devblocks_url}"><span class="glyphicons glyphicons-link"></span> {{'common.permalink'|devblocks_translate|capitalize}}</button>
 </div>
 
 {foreach from=$messages item=message}

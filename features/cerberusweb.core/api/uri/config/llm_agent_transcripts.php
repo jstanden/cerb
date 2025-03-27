@@ -28,6 +28,7 @@ class PageSection_SetupDevelopersLlmAgentTranscripts extends Extension_PageSecti
 		$stack = $response->path;
 		@array_shift($stack); // config
 		@array_shift($stack); // llm_agent_transcripts
+		$transcript_id = array_shift($stack); // a1b2c3d4-a1b2-c3d4-e5f6-a1b2c3d4e5f6
 		
 		$visit->set(ChConfigurationPage::ID, 'llm_agent_transcripts');
 		
@@ -36,6 +37,7 @@ class PageSection_SetupDevelopersLlmAgentTranscripts extends Extension_PageSecti
 		
 		$tpl->assign('limit', $limit);
 		$tpl->assign('transcripts', $transcripts);
+		$tpl->assign('transcript_id', $transcript_id);
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/developers/llm-agent-transcripts/index.tpl');
 	}
 	

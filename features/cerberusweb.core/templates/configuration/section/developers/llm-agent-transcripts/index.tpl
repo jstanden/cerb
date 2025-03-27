@@ -66,16 +66,7 @@ $(function() {
     let $current_transcript = null;
     let current_transcript_id = null;
 
-    $sidebar.on('click', '[data-cerb-transcript-id]', function(e) {
-        e.stopPropagation();
-
-        if($current_transcript)
-            $current_transcript.removeClass('selected');
-
-        $current_transcript = $(this);
-        $current_transcript.addClass('selected');
-        current_transcript_id = $current_transcript.attr('data-cerb-transcript-id');
-
+    const funcLoadTranscript = function(transcript_id) {
         $viewer.html(Devblocks.getSpinner());
 
         let formData = new FormData();
@@ -83,7 +74,7 @@ $(function() {
         formData.set('a', 'invoke');
         formData.set('module', 'llm_agent_transcripts');
         formData.set('action', 'getTranscript');
-        formData.set('transcript_id', current_transcript_id);
+        formData.set('transcript_id', transcript_id);
 
         genericAjaxPost(formData, $viewer, null, function(json) {
             Devblocks.clearAlerts();
@@ -95,9 +86,28 @@ $(function() {
                 } else {
                     $viewer.html(json.html);
                     $viewer.find('[data-cerb-peek]').cerbPeekTrigger();
+
+                    $viewer.find('[data-cerb-permalink]').on('click', function(e) {
+                        e.stopPropagation();
+                        let permalink_url = $(this).attr('data-cerb-permalink');
+                        genericAjaxPopup('permalink', 'c=internal&a=invoke&module=records&action=showPermalinkPopup&url=' + encodeURIComponent(permalink_url));
+                    });
                 }
             }
         });
+    };
+
+    $sidebar.on('click', '[data-cerb-transcript-id]', function(e) {
+        e.stopPropagation();
+
+        if($current_transcript)
+            $current_transcript.removeClass('selected');
+
+        $current_transcript = $(this);
+        $current_transcript.addClass('selected');
+        current_transcript_id = $current_transcript.attr('data-cerb-transcript-id');
+
+        funcLoadTranscript(current_transcript_id);
     });
 
     $sidebar.on('click', 'button[data-cerb-button]', function(e) {
@@ -270,5 +280,9 @@ $(function() {
             }
         }
     });
+
+    {if $transcript_id}
+    funcLoadTranscript('{$transcript_id}');
+    {/if}
 });
 </script>
