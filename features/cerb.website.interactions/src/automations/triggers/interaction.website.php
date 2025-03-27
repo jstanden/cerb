@@ -6,6 +6,7 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 		return [
 			'end' => 'Cerb\Automation\Builder\Trigger\InteractionWebsite\Awaits\EndAwait',
 			'fileUpload' => 'Cerb\Automation\Builder\Trigger\InteractionWebsite\Awaits\FileUploadAwait',
+			'llmTranscript' => 'Cerb\Automation\Builder\Trigger\InteractionWebsite\Awaits\LlmTranscriptAwait',
 			'say' => 'Cerb\Automation\Builder\Trigger\InteractionWebsite\Awaits\SayAwait',
 			'sheet' => 'Cerb\Automation\Builder\Trigger\InteractionWebsite\Awaits\SheetAwait',
 			'submit' => 'Cerb\Automation\Builder\Trigger\InteractionWebsite\Awaits\SubmitAwait',
@@ -150,6 +151,11 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 						'description' => "Prompt for one or more file uploads",
 					],
 					[
+						'caption' => 'llmTranscript:',
+						'snippet' => "llmTranscript/\${1:prompt_transcript}:\n\t\${2:}",
+						'description' => "Display an LLM transcript",
+					],
+					[
 						'caption' => 'say:',
 						'snippet' => "say/\${1:prompt_say}:\n\t\${2:}",
 						'description' => "Display arbitrary plaintext or Markdown",
@@ -191,6 +197,16 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 						'caption' => 'validation: (image/png)',
 						'snippet' => "validation@raw:\n\t{% if prompt_file_mime_type != 'image/png' %}\n\tThe file must be a PNG image ({{prompt_file_mime_type}})\n\t{% elseif prompt_file_size > 1024000 %}\n\tThe file ({{prompt_file_size|bytes_pretty}}) must be smaller than 1MB.\n\t{% endif %}",
 					]
+				],
+				
+				'(.*):await:form:elements:llmTranscript:' => [
+					[
+						'caption' => 'label:',
+						'snippet' => "label: \${1:Label:}",
+						'score' => 2000,
+					],
+					'session_id: a1b2c3d4-a1b2-c3d4-e5f6-a1b2c3d4e5f6',
+					'hidden@bool: yes',
 				],
 				
 				'(.*):await:form:elements:say:' => [

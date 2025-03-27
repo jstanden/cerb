@@ -15,6 +15,7 @@
     --cerb-interaction-sheet-cell-selected-text-color: white;
     --cerb-interaction-sheet-fieldset-heading-text-color: rgb(120, 120, 120);
     --cerb-interaction-window-bg-color: white;
+    --cerb-interaction-window-bg-alt-color: rgb(220, 220, 220);
     --cerb-interaction-window-close-bg-color: rgb(95, 95, 95);
     --cerb-interaction-window-close-hover-bg-color: rgb(125, 125, 125);
     --cerb-interaction-window-close-text-color: white;
@@ -343,6 +344,49 @@
 .cerb-interaction-popup--form-elements-textarea textarea {
     min-height:6.5em;
     font-size: 1em;
+}
+
+.cerb-interaction-popup--form-elements-llm-transcript [data-cerb-transcript-role] pre:has(> code) {
+    background-color: rgb(32, 32, 32);
+    color: rgb(255, 255, 255);
+    padding: 1em;
+    overflow: auto;
+}
+
+.cerb-interaction-popup--form-elements-llm-transcript [data-cerb-transcript-role] ul {
+    padding-left: 1.5em;
+}
+
+.cerb-interaction-popup--form-elements-llm-transcript [data-cerb-transcript-role] ol {
+    padding-left: 1.5em;
+}
+
+.cerb-interaction-popup--form-elements-llm-transcript [data-cerb-transcript-role] {
+    margin-bottom: 2em;
+}
+
+.cerb-interaction-popup--form-elements-llm-transcript [data-cerb-transcript-role=user] {
+    background-color: var(--cerb-interaction-window-bg-alt-color);
+    padding: 0.1em 0.5em;
+    margin-bottom: 1em;
+    border-radius: 10px;
+}
+
+.cerb-interaction-popup--form-elements-llm-transcript [data-cerb-transcript-role=assistant] {
+    padding-left: 1em;
+}
+
+.cerb-interaction-popup--form-elements-llm-transcript [data-cerb-dom=transcript-toolbar] button {
+    cursor: pointer;
+    background: none;
+    border: 0;
+    padding: 0;
+}
+
+.cerb-interaction-popup--form-elements-llm-transcript [data-cerb-dom=transcript-disclaimer] {
+    line-height: 32px;
+    vertical-align: top;
+    font-size: 0.8em;
 }
 
 .cerb-interaction-popup--form-elements-sheet a {
