@@ -405,6 +405,7 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 					'buttons:',
 					'continue@bool: no',
 					'reset@bool: no',
+					'is_automatic@bool: yes',
 				],
 				
 				'(.*):await:form:elements:submit:buttons:' => [
