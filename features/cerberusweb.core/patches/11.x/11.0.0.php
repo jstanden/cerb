@@ -214,6 +214,7 @@ $packages = [
 	'cerb_connected_service_pinecone.json',
 	'cerb_connected_service_sambanova.json',
 	'cerb_connected_service_slack.json',
+	'cerb_connected_service_stripe.json',
 	'cerb_connected_service_tavily.json',
 	'cerb_connected_service_telegram.json',
 	'cerb_connected_service_togetherai.json',
