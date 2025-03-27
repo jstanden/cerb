@@ -1,0 +1,66 @@
+{
+  "package": {
+    "name": "Connected Service: Buttondown",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "10.0.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Buttondown",
+      "uri": "cerb_connected_service_buttondown",
+      "description": "Integration with Buttondown",
+      "instructions": "# Instructions\r\n\r\n* Enter your API Key from <https://buttondown.com/requests>",
+      "point": "connected_service",
+      "image": "data:image/png;base64,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"
+    },
+    "configure": {
+      "placeholders": [],
+      "prompts": [
+        {
+          "type": "text",
+          "label": "API Key",
+          "key": "prompt_api_key",
+          "params": {
+            "default": "",
+            "placeholder": "(paste your API Key)"
+          }
+        },
+        {
+          "type": "text",
+          "label": "Alias",
+          "key": "prompt_name",
+          "params": {
+            "default": "buttondown",
+            "placeholder": "(enter a URI, a-z,0-9,_)"
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "service_buttondown",
+      "_context": "connected_service",
+      "name": "Buttondown",
+      "extension_id": "cerb.service.provider.token.bearer",
+      "params": {
+        "token_name": "Token"
+      }
+    },
+    {
+      "uid": "account_buttondown",
+      "_context": "connected_account",
+      "name": "Buttondown",
+      "service_id": "{{{uid.service_buttondown}}}",
+      "owner__context": "cerberusweb.contexts.app",
+      "owner_id": "0",
+      "uri": "{{{prompt_name}}}",
+      "params": {
+        "token": "{{{prompt_api_key}}}"
+      }
+    }
+  ]
+}
