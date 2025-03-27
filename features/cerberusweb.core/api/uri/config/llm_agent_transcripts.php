@@ -119,7 +119,7 @@ class PageSection_SetupDevelopersLlmAgentTranscripts extends Extension_PageSecti
 				$messages = [];
 			
 			// Convert the messages into a neutral format using providers
-			$messages = array_map(fn($message) => $llm_provider->convertToGenericMessage($message->data), $messages);
+			$messages = array_map(fn($message) => $llm_provider->convertToGenericMessage($message->data, $message->uuid), $messages);
 			
 			$tpl->assign('filter_links', new \Cerb_HTMLPurifier_URIFilter_Extract());
 			

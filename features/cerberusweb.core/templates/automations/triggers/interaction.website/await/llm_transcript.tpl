@@ -14,7 +14,7 @@
 		{/strip}
 
 		{if $smarty.capture.message_content}
-			<div data-cerb-dom="transcript-message" data-cerb-transcript-role="{$message->getRole()}">
+			<div data-cerb-dom="transcript-message" data-cerb-transcript-role="{$message->getRole()}" data-cerb-message-uuid="{$message->getUuid()}">
 				<pre data-cerb-dom="transcript-message-markdown" class="cerb-interaction--hidden">{$smarty.capture.message_content}</pre>
 				<div class="emailBodyHtml">
 				{$smarty.capture.message_content|devblocks_markdown_to_html nofilter}

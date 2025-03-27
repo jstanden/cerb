@@ -44,16 +44,26 @@ class DevblocksLlmChatResponse_Tool {
 
 class DevblocksLlmChatResponse {
 	private string $_role = '';
+	private ?string $_uuid = '';
 	private array $_messages = [];
 	private array $_tool_calls = [];
 	private array $_tool_results = [];
 	
-	function __construct(string $role = 'assistant') {
+	function __construct(string $role = 'assistant', ?string $uuid = null) {
 		$this->setRole($role);
+		$this->setUuid($uuid);
 	}
 	
 	function getRole() : string {
 		return $this->_role;
+	}
+	
+	function setUuid(?string $uuid) : void {
+		$this->_uuid = $uuid;
+	}
+	
+	function getUuid() : ?string {
+		return $this->_uuid;
 	}
 	
 	function setRole(string $role) : void {
@@ -137,9 +147,10 @@ abstract class Extension_DevblocksLlmProvider {
 	
 	/**
 	 * @param array $message
+	 * @param ?string $message_uuid
 	 * @return DevblocksLlmChatResponse
 	 */
-	abstract function convertToGenericMessage(array $message) : DevblocksLlmChatResponse;
+	abstract function convertToGenericMessage(array $message, ?string $message_uuid=null) : DevblocksLlmChatResponse;
 }
 
 class _DevblocksLlmService {

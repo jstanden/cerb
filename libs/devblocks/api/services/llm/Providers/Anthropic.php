@@ -31,8 +31,8 @@ class Anthropic extends Extension_DevblocksLlmProvider {
 			throw new Exception_DevblocksAutomationError('llm:inputs:llm:anthropic:model: is required.');
 	}
 	
-	public function convertToGenericMessage(array $message): DevblocksLlmChatResponse {
-		$chat_response = new DevblocksLlmChatResponse();
+	public function convertToGenericMessage(array $message, ?string $message_uuid=null): DevblocksLlmChatResponse {
+		$chat_response = new DevblocksLlmChatResponse('', $message_uuid);
 		
 		if(array_key_exists('role', $message))
 			$chat_response->setRole($message['role']);

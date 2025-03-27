@@ -36,9 +36,10 @@ class LlmTranscriptAwait extends AbstractAwait {
 			$messages = [];
 		
 		// Convert the messages into a neutral format using providers
-		$messages = array_map(fn($message) => $llm_provider->convertToGenericMessage($message->data), $messages);
+		$messages = array_map(fn($message) => $llm_provider->convertToGenericMessage($message->data, $message->uuid), $messages);
 		$tpl->assign('transcript_messages', $messages);
 		
+		$tpl->assign('continuation_token', $continuation->token);
 		$tpl->assign('session', $session);
 		$tpl->assign('label', $label);
 		$tpl->assign('var', $this->_key);
