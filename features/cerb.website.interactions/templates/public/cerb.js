@@ -329,7 +329,7 @@ CerbInteractions.prototype.interactionContinue = function(mode) {
                     $container.focus();
                     
                     // Focus the first text/input
-                    let $focusable = $elements.querySelector('input[type=text], textarea, input[type=checkbox], input[type=radio], button[type=button]');
+                    let $focusable = $elements.querySelector('input[type=text], textarea, input[type=checkbox], input[type=radio], button[type=button]:not([data-cerb-button])');
                     if($focusable) $focusable.focus();
                     
                 }, 0);
