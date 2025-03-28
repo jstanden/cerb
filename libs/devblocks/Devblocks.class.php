@@ -1,4 +1,11 @@
 <?php
+
+use League\CommonMark\Environment\Environment;
+use League\CommonMark\Extension\Attributes\AttributesExtension;
+use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
+use League\CommonMark\Extension\ExternalLink\ExternalLinkExtension;
+use League\CommonMark\Extension\GithubFlavoredMarkdownExtension;
+use League\CommonMark\MarkdownConverter;
 use TijsVerkoyen\CssToInlineStyles\CssToInlineStyles;
 
 include_once(DEVBLOCKS_PATH . "api/Engine.php");
@@ -1733,14 +1740,45 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @return string
 	 * @test DevblocksPlatformTest
 	 */
-	static function parseMarkdown($text, $safeMode=false) {
+	static function parseMarkdown($text, $safeMode=false, $externalLinks=false) {
 		$text = strval($text);
 		
-		$parser = new Parsedown();
-		$parser->setBreaksEnabled(true);
-		$parser->setMarkupEscaped($safeMode);
-		$parser->setSafeMode($safeMode);
-		return $parser->parse($text);
+		$config = [
+			'html_input' => $safeMode ? 'escape' : 'allow',
+			'allow_unsafe_links' => !$safeMode,
+			'max_nesting_level' => 100,
+		];
+		
+		if($externalLinks) {
+			$config['external_link'] = [
+				'internal_hosts' => [
+					DevblocksPlatform::getHostname(),
+				],
+				'open_in_new_window' => true,
+				'nofollow' => '',
+				'noopener' => 'external',
+				'noreferrer' => 'external',
+			];
+		}
+
+		$environment = new Environment($config);
+		$environment->addExtension(new CommonMarkCoreExtension());
+		$environment->addExtension(new GithubFlavoredMarkdownExtension());
+		$environment->addExtension(new AttributesExtension());
+		
+		if($externalLinks) {
+			$environment->addExtension(new ExternalLinkExtension());
+		}
+		
+		$converter = new MarkdownConverter($environment);
+		
+		try {
+			$text = $converter->convert($text);
+		} catch (Throwable) {
+			$text = '';
+		}
+		
+		return (string) $text;
 	}
 	
 	static function parseRss($url) {

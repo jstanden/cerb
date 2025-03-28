@@ -759,17 +759,17 @@ class DevblocksPlatformTest extends TestCase {
 	
 	public function testParseMarkdown() {
 		// Bold
-		$expected = '<p><strong>Bold</strong></p>'; 
+		$expected = '<p><strong>Bold</strong></p>' . "\n";
 		$actual = DevblocksPlatform::parseMarkdown('**Bold**');
 		$this->assertEquals($expected, $actual);
 		
 		// Italics
-		$expected = '<p><em>Bold</em></p>'; 
+		$expected = '<p><em>Bold</em></p>' . "\n";
 		$actual = DevblocksPlatform::parseMarkdown('_Bold_');
 		$this->assertEquals($expected, $actual);
 		
 		// Link
-		$expected = '<p><a href="http://www.example.com">text</a></p>'; 
+		$expected = '<p><a href="http://www.example.com">text</a></p>' . "\n";
 		$actual = DevblocksPlatform::parseMarkdown('[text](http://www.example.com)');
 		$this->assertEquals($expected, $actual);
 	}

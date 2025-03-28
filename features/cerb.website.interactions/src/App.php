@@ -246,12 +246,7 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 	}
 	
 	public static function parseMarkdown($string) : string {
-		$parser = new CerbMarkdown_InteractionWebsite();
-		$parser->setBreaksEnabled(true);
-		$parser->setMarkupEscaped(true);
-		$parser->setSafeMode(true);
-		
-		return $parser->parse($string);
+		return DevblocksPlatform::parseMarkdown($string, true, true);
 	}
 	
 	private function _renderPortalImage(Model_Resource $resource) {
@@ -947,57 +942,5 @@ class CerbPortalWebsiteInteractions_Model {
 	
 	public function getImageRequestsSecret() {
 		return $this->_schema['security']['imageRequests']['secret'] ?? null;
-	}
-}
-
-class CerbMarkdown_InteractionWebsite extends Parsedown {
-	protected $safeLinksWhitelist = [
-		'http://',
-		'https://',
-		'mailto:',
-		'tel:',
-	];
-	
-	protected function inlineImage($Excerpt) {
-		$image = parent::inlineImage($Excerpt);
-		
-		$alt = $image['element']['attributes']['alt'] ?? null;
-		
-		$matches = [];
-		
-		if($alt && preg_match('#^(.*?) =(\d*)x(\d*)$#', $alt, $matches)) {
-			$width = $matches[2];
-			$height = $matches[3];
-			
-			if($width || $height) {
-				$image['element']['attributes']['alt'] = $matches[1];
-				
-				if($width)
-					$image['element']['attributes']['width'] = $width;
-				
-				if($height)
-					$image['element']['attributes']['height'] = $height;
-			}
-		}
-		
-		return $image;
-	}
-	
-	protected function inlineLink($Excerpt) {
-		$url_writer = DevblocksPlatform::services()->url();
-		
-		$link = parent::inlineLink($Excerpt);
-		
-		$href = $link['element']['attributes']['href'] ?? null;
-		
-		if(DevblocksPlatform::strStartsWith($href, '/')) {
-			$link['element']['attributes']['href'] = $url_writer->write('') . ltrim($href, '/');
-			
-		} else if (DevblocksPlatform::strStartsWith($href, ['http:','https:'])) {
-			$link['element']['attributes']['target'] = '_blank';
-			$link['element']['attributes']['rel'] = 'nofollow noopener';
-		}
-		
-		return $link;
 	}
 }

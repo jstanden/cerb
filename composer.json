@@ -57,15 +57,14 @@
 		"phpseclib/phpseclib": "^3.0.36",
 		"tijsverkoyen/css-to-inline-styles": "2.2.6",
 		"ezyang/htmlpurifier": "^4.17",
-		"erusev/parsedown": "^1.7",
-		"erusev/parsedown-extra": "^0.7.1",
 		"donatj/phpuseragentparser": "^1.0",
 		"twig/twig" : "dev-3.8.0-cerb",
 		"singpolyma/openpgp-php": "^0.7.0",
 		"horde/imap-client": "dev-2.30.6-cerb",
 		"ramsey/uuid": "^4.1",
 		"enshrined/svg-sanitize": "^0.15",
-		"sebastian/diff": "^4.0"
+		"sebastian/diff": "^4.0",
+		"league/commonmark": "^2.6"
 	},
 	"require-dev" : {
 		"phpunit/phpunit": "^9"
