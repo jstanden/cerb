@@ -1054,12 +1054,12 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		
 		$result = $db->ExecuteMaster($sql);
 		
-		$return = (false !== $result) ? true : false;
+		$return = false !== $result;
 		
 		if($result instanceof mysqli_result)
 			mysqli_free_result($result);
 		
-		DevblocksPlatform::clearCache(DevblocksPlatform::CACHE_TABLES);
+		DevblocksPlatform::clearCache(DevblocksEngine::CACHE_TABLES);
 		
 		return $return;
 	}

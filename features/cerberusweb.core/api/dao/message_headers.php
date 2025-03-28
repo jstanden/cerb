@@ -39,7 +39,7 @@ class DAO_MessageHeaders extends Cerb_ORMHelper {
 	}
 	
 	static function parse($raw_headers, $flatten_arrays=true, $convert_qp=true) {
-		if(false == ($mime = new MimeMessage('var', $raw_headers)))
+		if(!($mime = new MimeMessage('var', $raw_headers)))
 			return false;
 		
 		if(!isset($mime->data))

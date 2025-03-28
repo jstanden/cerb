@@ -262,7 +262,7 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 		if($resource_type->id != ResourceType_PortalImage::ID)
 			DevblocksPlatform::dieWithHttpError('Forbidden', 403);
 		
-		if(false == ($resource_content = $resource_type->getContentData($resource)))
+		if(!($resource_content = $resource_type->getContentData($resource)))
 			DevblocksPlatform::dieWithHttpError(null, 500);
 		
 		if($resource_content->error) {
