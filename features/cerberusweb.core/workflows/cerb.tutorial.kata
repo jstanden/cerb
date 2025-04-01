@@ -1,6 +1,6 @@
 workflow:
   name: cerb.tutorial
-  version: 2025-02-21T00:00:00Z
+  version: 2025-03-28T23:33:00Z
   description: A workspace with detailed descriptions and examples of Cerb functionality
   requirements:
     cerb_version: >=11.0 <11.2
@@ -12,12 +12,294 @@ records:
       extension_id: core.workspace.page.workspace
       owner__context: workflow
       owner_id: {{workflow_id}}
+  workspace_tab/tab_api:
+    fields:
+      name: API
+      page_id: {{records.page_tutorial.id}}
+      extension_id: core.workspace.tab.dashboard
+      pos@int: 29
+      params:
+        layout@text:
+        prompts_kata@text:
+      options_kata@raw: locked@bool: yes
+  workspace_tab/tab_automations:
+    fields:
+      name: Automations
+      page_id: {{records.page_tutorial.id}}
+      extension_id: core.workspace.tab.dashboard
+      pos@int: 17
+      params:
+        layout@text:
+        prompts_kata@text:
+      options_kata@raw: locked@bool: yes
+  workspace_tab/tab_calendars:
+    fields:
+      name: Calendars
+      page_id: {{records.page_tutorial.id}}
+      extension_id: core.workspace.tab.dashboard
+      pos@int: 11
+      params:
+        layout@text:
+        prompts_kata@text:
+      options_kata@raw: locked@bool: yes
+  workspace_tab/tab_charts:
+    fields:
+      name: Charts
+      page_id: {{records.page_tutorial.id}}
+      extension_id: core.workspace.tab.dashboard
+      pos@int: 15
+      params:
+        layout@text:
+        prompts_kata@text:
+      options_kata@raw: locked@bool: yes
+  workspace_tab/tab_clients:
+    fields:
+      name: Clients
+      page_id: {{records.page_tutorial.id}}
+      extension_id: core.workspace.tab.dashboard
+      pos@int: 6
+      params:
+        layout@text:
+        prompts_kata@text:
+      options_kata@raw: locked@bool: yes
+  workspace_tab/tab_connected_services:
+    fields:
+      name: Connected Services
+      page_id: {{records.page_tutorial.id}}
+      extension_id: core.workspace.tab.dashboard
+      pos@int: 21
+      params:
+        layout@text:
+        prompts_kata@text:
+      options_kata@raw: locked@bool: yes
+  workspace_tab/tab_data_queries:
+    fields:
+      name: Data Queries
+      page_id: {{records.page_tutorial.id}}
+      extension_id: core.workspace.tab.dashboard
+      pos@int: 12
+      params:
+        layout: sidebar_right
+        prompts_kata@text:
+      options_kata@raw: locked@bool: yes
+  workspace_tab/tab_email:
+    fields:
+      name: Email
+      page_id: {{records.page_tutorial.id}}
+      extension_id: core.workspace.tab.dashboard
+      pos@int: 8
+      params:
+        layout@text:
+        prompts_kata@text:
+      options_kata@raw: locked@bool: yes
+  workspace_tab/tab_interactions:
+    fields:
+      name: Interactions
+      page_id: {{records.page_tutorial.id}}
+      extension_id: core.workspace.tab.dashboard
+      pos@int: 18
+      params:
+        layout: halves
+        prompts_kata@text:
+      options_kata@raw: locked@bool: yes
+  workspace_tab/tab_maps:
+    fields:
+      name: Maps
+      page_id: {{records.page_tutorial.id}}
+      extension_id: core.workspace.tab.dashboard
+      pos@int: 16
+      params:
+        layout@text:
+        prompts_kata@text:
+      options_kata@raw: locked@bool: yes
+  workspace_tab/tab_metrics:
+    fields:
+      name: Metrics
+      page_id: {{records.page_tutorial.id}}
+      extension_id: core.workspace.tab.dashboard
+      pos@int: 22
+      params:
+        layout@text:
+        prompts_kata@text:
+      options_kata@raw: locked@bool: yes
+  workspace_tab/tab_packages:
+    fields:
+      name: Packages
+      page_id: {{records.page_tutorial.id}}
+      extension_id: core.workspace.tab.dashboard
+      pos@int: 27
+      params:
+        layout@text:
+        prompts_kata@text:
+      options_kata@raw: locked@bool: yes
+  workspace_tab/tab_pgp_encryption:
+    fields:
+      name: PGP Encryption
+      page_id: {{records.page_tutorial.id}}
+      extension_id: core.workspace.tab.dashboard
+      pos@int: 20
+      params:
+        layout: sidebar_left
+        prompts_kata@text:
+      options_kata@raw: locked@bool: yes
+  workspace_tab/tab_portals:
+    fields:
+      name: Portals
+      page_id: {{records.page_tutorial.id}}
+      extension_id: core.workspace.tab.dashboard
+      pos@int: 23
+      params:
+        layout: sidebar_left
+        prompts_kata@text:
+      options_kata@raw: locked@bool: yes
+  workspace_tab/tab_project_boards:
+    fields:
+      name: Project Boards
+      page_id: {{records.page_tutorial.id}}
+      extension_id: core.workspace.tab.dashboard
+      pos@int: 24
+      params:
+        layout@text:
+        prompts_kata@text:
+      options_kata@raw:
+        hidden@bool: {{not cerb_plugin_enabled('cerb.project_boards')}}
+        locked@bool: yes
+  workspace_tab/tab_records:
+    fields:
+      name: Records
+      page_id: {{records.page_tutorial.id}}
+      extension_id: core.workspace.tab.dashboard
+      pos@int: 2
+      params:
+        layout@text:
+        prompts_kata@text:
+      options_kata@raw: locked@bool: yes
+  workspace_tab/tab_reminders:
+    fields:
+      name: Reminders
+      page_id: {{records.page_tutorial.id}}
+      extension_id: core.workspace.tab.dashboard
+      pos@int: 10
+      params:
+        layout@text:
+        prompts_kata@text:
+      options_kata@raw: locked@bool: yes
+  workspace_tab/tab_search:
+    fields:
+      name: Search
+      page_id: {{records.page_tutorial.id}}
+      extension_id: core.workspace.tab.dashboard
+      pos@int: 4
+      params:
+        layout@text:
+        prompts_kata@text:
+      options_kata@raw: locked@bool: yes
+  workspace_tab/tab_sheets:
+    fields:
+      name: Sheets
+      page_id: {{records.page_tutorial.id}}
+      extension_id: core.workspace.tab.dashboard
+      pos@int: 14
+      params:
+        layout@text:
+        prompts_kata@text:
+      options_kata@raw: locked@bool: yes
+  workspace_tab/tab_snippets:
+    fields:
+      name: Snippets
+      page_id: {{records.page_tutorial.id}}
+      extension_id: core.workspace.tab.dashboard
+      pos@int: 25
+      params:
+        layout@text:
+        prompts_kata@text:
+      options_kata@raw: locked@bool: yes
+  workspace_tab/tab_tasks:
+    fields:
+      name: Tasks
+      page_id: {{records.page_tutorial.id}}
+      extension_id: core.workspace.tab.dashboard
+      pos@int: 9
+      params:
+        layout@text:
+        prompts_kata@text:
+      options_kata@raw: locked@bool: yes
+  workspace_tab/tab_tickets:
+    fields:
+      name: Tickets
+      page_id: {{records.page_tutorial.id}}
+      extension_id: core.workspace.tab.dashboard
+      pos@int: 7
+      params:
+        layout@text:
+        prompts_kata@text:
+      options_kata@raw: locked@bool: yes
+  workspace_tab/tab_toolbars:
+    fields:
+      name: Toolbars
+      page_id: {{records.page_tutorial.id}}
+      extension_id: core.workspace.tab.dashboard
+      pos@int: 19
+      params:
+        layout: halves
+        prompts_kata@text:
+      options_kata@raw: locked@bool: yes
+  workspace_tab/tab_webhooks:
+    fields:
+      name: Webhooks
+      page_id: {{records.page_tutorial.id}}
+      extension_id: core.workspace.tab.dashboard
+      pos@int: 28
+      params:
+        layout@text:
+        prompts_kata@text:
+      options_kata@raw: locked@bool: yes
   workspace_tab/tab_welcome:
     fields:
       name: Welcome
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
       pos@int: 1
+      params:
+        layout@text:
+        prompts_kata@text:
+      options_kata@raw: locked@bool: yes
+  workspace_tab/tab_workers:
+    fields:
+      name: Workers, Groups & Roles
+      page_id: {{records.page_tutorial.id}}
+      extension_id: core.workspace.tab.dashboard
+      pos@int: 5
+      params:
+        layout@text:
+        prompts_kata@text:
+      options_kata@raw: locked@bool: yes
+  workspace_tab/tab_workflows:
+    fields:
+      name: Workflows
+      page_id: {{records.page_tutorial.id}}
+      extension_id: core.workspace.tab.dashboard
+      pos@int: 26
+      params:
+        layout@text:
+        prompts_kata@text:
+      options_kata@raw: locked@bool: yes
+  workspace_tab/tab_worklists:
+    fields:
+      name: Worklists
+      page_id: {{records.page_tutorial.id}}
+      extension_id: core.workspace.tab.dashboard
+      pos@int: 3
+      params:
+        layout@text:
+        prompts_kata@text:
+      options_kata@raw: locked@bool: yes
+  workspace_tab/tab_workspaces:
+    fields:
+      name: Workspaces & Dashboards
+      page_id: {{records.page_tutorial.id}}
+      extension_id: core.workspace.tab.dashboard
+      pos@int: 13
       params:
         layout@text:
         prompts_kata@text:
@@ -197,16 +479,6 @@ records:
                           my: middle bottom
                           at: middle top
         toolbar_kata@text:
-  workspace_tab/tab_records:
-    fields:
-      name: Records
-      page_id: {{records.page_tutorial.id}}
-      extension_id: core.workspace.tab.dashboard
-      pos@int: 2
-      params:
-        layout@text:
-        prompts_kata@text:
-      options_kata@raw: locked@bool: yes
   workspace_widget/widget_records:
     fields:
       label: Records
@@ -277,7 +549,6 @@ records:
                 text_size@raw: 120%
                 bold@bool: yes
                 underline@bool: no
-
         toolbar_kata@text:
   workspace_widget/widget_custom_record_types:
     fields:
@@ -317,7 +588,6 @@ records:
                   * An educational institution can create records for students, instructors, courses, and rooms. Those records can then be linked to assets (like tablets and projectors) and support requests. If an instructor opened a support request about their projector being broken, you'd know exactly what model it is and where to find it on campus.
 
                   * A company in the transportation industry may frequently refer to physical trucks, planes, and ships; each with a geopositional location.
-
         toolbar_kata@text:
   workspace_widget/widget_list_of_custom_record_types:
     fields:
@@ -731,16 +1001,6 @@ records:
 
                   The summary on a card displays all the unread notifications on that record at the same time.  The notifications are automatically marked as read and the underlying worklist is refreshed.
         toolbar_kata@text:
-  workspace_tab/tab_worklists:
-    fields:
-      name: Worklists
-      page_id: {{records.page_tutorial.id}}
-      extension_id: core.workspace.tab.dashboard
-      pos@int: 3
-      params:
-        layout@text:
-        prompts_kata@text:
-      options_kata@raw: locked@bool: yes
   workspace_widget/widget_worklists:
     fields:
       label: Worklists
@@ -775,7 +1035,6 @@ records:
                   By saving a worklist, you'll always have an up-to-date view of matching records without wasting any time searching.
 
                   For instance, a worklist can display new customer messages that need a response, client organizations in a specific industry, tasks that are overdue, etc.
-
         toolbar_kata@text:
   workspace_widget/widget_worklist_actions:
     fields:
@@ -868,16 +1127,6 @@ records:
           t_bucket_id
           t_owner_id
           t_updated_date
-  workspace_tab/tab_search:
-    fields:
-      name: Search
-      page_id: {{records.page_tutorial.id}}
-      extension_id: core.workspace.tab.dashboard
-      pos@int: 4
-      params:
-        layout@text:
-        prompts_kata@text:
-      options_kata@raw: locked@bool: yes
   workspace_widget/widget_search:
     fields:
       label: Search
@@ -1121,16 +1370,6 @@ records:
                 context_template@raw: {{record_type}}
                 query_template@raw: {{query}}
         toolbar_kata@text:
-  workspace_tab/tab_workers:
-    fields:
-      name: Workers, Groups & Roles
-      page_id: {{records.page_tutorial.id}}
-      extension_id: core.workspace.tab.dashboard
-      pos@int: 5
-      params:
-        layout@text:
-        prompts_kata@text:
-      options_kata@raw: locked@bool: yes
   workspace_widget/widget_workers:
     fields:
       label: Workers
@@ -1293,7 +1532,6 @@ records:
                   * [Authenticate worker single sign-on (SSO) from G Suite using SAML](https://cerb.ai/guides/integrations/google/sso-saml/)
                   * [Authenticate worker single sign-on (SSO) from Microsoft Azure AD using OpenID Connect](https://cerb.ai/guides/integrations/azure/sso-openid/)
                   * [Authenticate worker single sign-on (SSO) from Salesforce using OpenID Connect](https://cerb.ai/guides/integrations/salesforce/sso-openid/)
-
         toolbar_kata@text:
   workspace_widget/widget_groups:
     fields:
@@ -1329,7 +1567,6 @@ records:
                   Groups typically reflect existing departments: support, sales, development, marketing, billing, legal, etc. However, groups may alternatively be based on any criteria that suits your needs: division, region, role, product line, and so on.
 
                   You don't need to figure out which specific person is both responsible for a task and currently available to handle it. Instead, you can quickly route a task to the most appropriate group and move on to your next item. That group can organize their own work so each task gets in front of the right person.
-
         toolbar_kata@text:
           # interaction/sending:
           #   uri: cerb:automation:ai.cerb.tour
@@ -1402,7 +1639,6 @@ records:
                   * **Viewership:** Workers who can view or otherwise utilize records owned by the role.
 
                   A **Default** role was automatically created for you during installation.  It simply grants all permissions to all workers.  You'll probably want to adjust this depending on your needs. Even if workers are granted all permissions, they still must also be an administrator to enter **Setup** and perform global configuration.
-
         toolbar_kata@text:
   workspace_widget/widget_list_of_roles:
     fields:
@@ -1423,16 +1659,6 @@ records:
           w_privs_mode
           w_member_query_worker
           w_updated_at
-  workspace_tab/tab_clients:
-    fields:
-      name: Clients
-      page_id: {{records.page_tutorial.id}}
-      extension_id: core.workspace.tab.dashboard
-      pos@int: 6
-      params:
-        layout@text:
-        prompts_kata@text:
-      options_kata@raw: locked@bool: yes
   workspace_widget/widget_clients_emails:
     fields:
       label: Email Addresses
@@ -1590,16 +1816,6 @@ records:
           c_title
           c_location
           c_timezone
-  workspace_tab/tab_tickets:
-    fields:
-      name: Tickets
-      page_id: {{records.page_tutorial.id}}
-      extension_id: core.workspace.tab.dashboard
-      pos@int: 7
-      params:
-        layout@text:
-        prompts_kata@text:
-      options_kata@raw: locked@bool: yes
   workspace_widget/widget_tickets:
     fields:
       label: Tickets
@@ -1634,7 +1850,6 @@ records:
                   Each ticket functions like a private mailing list. Any number of [contacts](/docs/contacts/) may be subscribed to a ticket conversation as **participants**, and they will receive a copy of all outgoing email messages from your team.
 
                   The **worker** who is currently responsible for a ticket's completion is its **owner**.
-
         toolbar_kata@text:
   workspace_widget/widget_status:
     fields:
@@ -1665,7 +1880,7 @@ records:
                 value@text:
                   The **status** of a **ticket** is always one of the following:
 
-                  ||
+                  |||
                   |-:|:-
                   |**open**| the conversation needs worker attention
                   |**waiting**| the conversation is on hold pending client action
@@ -1679,7 +1894,6 @@ records:
                   If a contact adds a new message to a ticket that is _waiting_ or _closed_ it will automatically change back to the _open_ status.
 
                   By default, when a ticket is deleted you will have 7 days from its last activity to change it to a different status before it's removed permanently.  This is known as the "undo window".
-
         toolbar_kata@text:
   workspace_widget/widget_list_of_tickets:
     fields:
@@ -1801,7 +2015,6 @@ records:
                   The term _"mask"_ refers to the fact that the randomized reference number (opposed to a numeric ID) doesn't disclose information about your total number of tickets or your daily email volume.
 
                   A contact can provide the first three letters of the mask for quick lookups.
-
         toolbar_kata@text:
   workspace_widget/widget_importance:
     fields:
@@ -1845,7 +2058,6 @@ records:
                 value: 75
                 min: 0
                 max: 100
-
         toolbar_kata@text:
   workspace_widget/widget_response_times:
     fields:
@@ -1882,7 +2094,6 @@ records:
                   |**First resolution**:| The total time elapsed before the ticket was first changed to the _closed_ status. This isn't affected by subsequent changes between the _open_ and _closed_ statuses that may occur when you get stuck in a loop of _"Thanks!"_ and _"You're welcome!"_ -- especially because that may occur days after the ticket was actually resolved.
 
                   When a worker responds to a specific client message, Cerb also records the response time on the worker's message. This encourages workers to respond quickly, even if it's only to say, _"Let me check on that and get right back to you"._
-
         toolbar_kata@text:
   workspace_widget/widget_anti_spam:
     fields:
@@ -1920,7 +2131,6 @@ records:
                   The spam predictions improve and adapt over time through training.  When a worker replies to a client message, Cerb learns to be more approving of similar messages in the future.
 
                   When workers click the **Report spam** button on a ticket, Cerb becomes more critical of similar messages in the future.
-
         toolbar_kata@text:
   workspace_widget/widget_drafts:
     fields:
@@ -1954,7 +2164,6 @@ records:
                   In-progress drafts are displayed in a ticket's conversation timeline, which instantly lets _other_ workers know that a response is being sent so they can move on to a different ticket.  This prevents _duplication of effort_.
 
                   Similarly, a trainee can ask a supervisor to review their draft before they send a message to a client.
-
         toolbar_kata@text:
   workspace_widget/widget_merge_split:
     fields:
@@ -1986,18 +2195,7 @@ records:
                   Related tickets from the same participants can be **merged** together into a single ticket, which combines all of the messages and comments.
 
                   Conversely, if a ticket conversation diverges into multiple topics that would be better handled by other groups or workers, one or more messages can be **split** off into new tickets.
-
         toolbar_kata@text:
-  workspace_tab/tab_email:
-    fields:
-      name: Email
-      page_id: {{records.page_tutorial.id}}
-      extension_id: core.workspace.tab.dashboard
-      pos@int: 8
-      params:
-        layout@text:
-        prompts_kata@text:
-      options_kata@raw: locked@bool: yes
   workspace_widget/widget_incoming_email:
     fields:
       label: Incoming Email
@@ -2354,16 +2552,6 @@ records:
         columns@list:
           m_name
           m_updated_at
-  workspace_tab/tab_tasks:
-    fields:
-      name: Tasks
-      page_id: {{records.page_tutorial.id}}
-      extension_id: core.workspace.tab.dashboard
-      pos@int: 9
-      params:
-        layout@text:
-        prompts_kata@text:
-      options_kata@raw: locked@bool: yes
   workspace_widget/widget_tasks:
     fields:
       label: Tasks
@@ -2418,16 +2606,6 @@ records:
           t_importance
           t_owner_id
           t_created_at
-  workspace_tab/tab_reminders:
-    fields:
-      name: Reminders
-      page_id: {{records.page_tutorial.id}}
-      extension_id: core.workspace.tab.dashboard
-      pos@int: 10
-      params:
-        layout@text:
-        prompts_kata@text:
-      options_kata@raw: locked@bool: yes
   workspace_widget/widget_reminders:
     fields:
       label: Reminders
@@ -2460,7 +2638,6 @@ records:
                   A reminder can be [linked](https://cerb.ai/docs/records/links/) to any number of [records](https://cerb.ai/docs/records/).
 
                   When a reminder is triggered, it may run any number of [automations](https://cerb.ai/docs/automations/). These are typically different methods for contacting a worker depending on the urgency of the reminder (e.g. notification, email, mobile text message, Slack, etc).
-
         toolbar_kata@text:
   workspace_widget/widget_list_of_reminders:
     fields:
@@ -2481,16 +2658,6 @@ records:
           r_remind_at
           r_worker_id
           r_updated_at
-  workspace_tab/tab_calendars:
-    fields:
-      name: Calendars
-      page_id: {{records.page_tutorial.id}}
-      extension_id: core.workspace.tab.dashboard
-      pos@int: 11
-      params:
-        layout@text:
-        prompts_kata@text:
-      options_kata@raw: locked@bool: yes
   workspace_widget/widget_calendars:
     fields:
       label: Calendars
@@ -2550,16 +2717,6 @@ records:
       params:
         calendar_id@raw: {{current_worker_calendar_id}}
       options_kata@raw: hidden@bool: {{not current_worker_calendar_id}}
-  workspace_tab/tab_data_queries:
-    fields:
-      name: Data Queries
-      page_id: {{records.page_tutorial.id}}
-      extension_id: core.workspace.tab.dashboard
-      pos@int: 12
-      params:
-        layout: sidebar_right
-        prompts_kata@text:
-      options_kata@raw: locked@bool: yes
   workspace_widget/widget_data_queries:
     fields:
       label: Data Queries
@@ -2688,16 +2845,6 @@ records:
                 href_new_tab@bool: yes
             text/description:
         toolbar_kata@text:
-  workspace_tab/tab_workspaces:
-    fields:
-      name: Workspaces & Dashboards
-      page_id: {{records.page_tutorial.id}}
-      extension_id: core.workspace.tab.dashboard
-      pos@int: 13
-      params:
-        layout@text:
-        prompts_kata@text:
-      options_kata@raw: locked@bool: yes
   workspace_widget/widget_workspaces:
     fields:
       label: Workspaces
@@ -2807,7 +2954,6 @@ records:
                           message: Add widgets to a dashboard from the toolbar at the top.
                           my: left top+5
                           at: left bottom
-
         toolbar_kata@text:
   workspace_widget/widget_dashboard_widget_types:
     fields:
@@ -3028,7 +3174,6 @@ records:
                 inputs:
                   outputs:
                     alert: You clicked menu item #2.
-
         is_popup: 0
   workspace_widget/widget_map_world_countries_with_capital_cities:
     fields:
@@ -3053,7 +3198,6 @@ records:
               resource:
                 #uri: cerb:resource:mapPoints.usaStateCapitals
                 uri: cerb:resource:mapPoints.worldCapitalCities
-
         automation:
           map_clicked@text:
   workspace_widget/widget_record_fields_current_worker:
@@ -3124,8 +3268,6 @@ records:
               params:
                 value_template@raw:
                   {{'now'|date('h:ia', timezone)}}
-
-
         toolbar_kata@text:
   workspace_widget/widget_worklist_open_tickets:
     fields:
@@ -3147,16 +3289,6 @@ records:
           t_bucket_id
           t_owner_id
           t_updated_date
-  workspace_tab/tab_sheets:
-    fields:
-      name: Sheets
-      page_id: {{records.page_tutorial.id}}
-      extension_id: core.workspace.tab.dashboard
-      pos@int: 14
-      params:
-        layout@text:
-        prompts_kata@text:
-      options_kata@raw: locked@bool: yes
   workspace_widget/widget_sheets:
     fields:
       label: Sheets
@@ -3193,7 +3325,6 @@ records:
                   Sheets use placeholder dictionaries to to render cells, and they receive their input from any data query that can generate dictionaries -- including [worklist.subtotals](https://cerb.ai/docs/data-queries/worklist/subtotals/) and a new [worklist.records](https://cerb.ai/docs/data-queries/worklist/records/) data query type that significantly simplifies fetching record data. This means that sheets can also easily format and display data from third-party APIs. The data query itself, being text, supports placeholders and bot scripting logic -- so you can determine which columns are available, or what a cell displays, based not only on aspects of the record, but also based on on who is looking at it, their permissions, etc.
 
                   State on sheets is maintained client-side, and paging/sorting/filtering is customized for the use case (e.g. bot interaction vs portal vs dashboard widget) -- essentially just passing simple information to the input data query.
-
         toolbar_kata@text:
   workspace_widget/widget_column_types:
     fields:
@@ -3573,18 +3704,7 @@ records:
 
             text/color:
               label: Color
-
         toolbar_kata@text:
-  workspace_tab/tab_charts:
-    fields:
-      name: Charts
-      page_id: {{records.page_tutorial.id}}
-      extension_id: core.workspace.tab.dashboard
-      pos@int: 15
-      params:
-        layout@text:
-        prompts_kata@text:
-      options_kata@raw: locked@bool: yes
   workspace_widget/widget_charts:
     fields:
       label: Charts
@@ -3665,12 +3785,11 @@ records:
 
                   ##### Types
 
-                  ||
+                  |||
                   |-|-
                   | **automation:** | Load data from an **automation**. Almost anything is possible here.
                   | **dataQuery:** | Load data from a **data query**.
                   | **manual:** | Static data. This is primarily useful in **interactions** where some chart data has already been loaded.
-
         toolbar_kata@text:
   workspace_widget/widget_time_series_stacked_bar_of_tickets_created_12mo:
     fields:
@@ -3939,16 +4058,6 @@ records:
         yaxis_label: Importance
         yaxis_format: number
         height@text:
-  workspace_tab/tab_maps:
-    fields:
-      name: Maps
-      page_id: {{records.page_tutorial.id}}
-      extension_id: core.workspace.tab.dashboard
-      pos@int: 16
-      params:
-        layout@text:
-        prompts_kata@text:
-      options_kata@raw: locked@bool: yes
   workspace_widget/widget_world_countries_with_capital_cities:
     fields:
       label: World Countries with Capital Cities
@@ -3971,7 +4080,6 @@ records:
             points:
               resource:
                 uri: cerb:resource:mapPoints.worldCapitalCities
-
         automation:
           map_clicked@text:
   workspace_widget/widget_world_countries_with_region_colorization:
@@ -4063,7 +4171,6 @@ records:
               filter:
                 property: continent
                 is: North America
-
         automation:
           map_clicked@text:
   workspace_widget/widget_us_states_with_capital_cities_and_highlights:
@@ -4128,7 +4235,6 @@ records:
               filter:
                 property: iso_a2
                 is: US
-
         automation:
           map_clicked@text:
   workspace_widget/widget_us_state_of_california_counties_with_la_highlighted:
@@ -4191,7 +4297,6 @@ records:
                   longitude: -96.78955078125
                   properties:
                     name: Dallas
-
         automation:
           map_clicked@text:
   workspace_widget/widget_european_countries_with_capital_cities_and_germany_highlighted:
@@ -4267,7 +4372,6 @@ records:
               filter:
                 property: continent
                 is: Asia
-
         automation:
           map_clicked@text:
   workspace_widget/widget_south_american_countries_with_population_choropleth:
@@ -4309,7 +4413,6 @@ records:
               filter:
                 property: continent
                 is: South America
-
         automation:
           map_clicked@text:
   workspace_widget/widget_africa_with_population_choropleth:
@@ -4351,7 +4454,6 @@ records:
               filter:
                 property: continent
                 is: Africa
-
         automation:
           map_clicked@text:
   workspace_widget/widget_oceanian_countries_with_capital_cities:
@@ -4385,19 +4487,8 @@ records:
               filter:
                 property: continent
                 is: Oceania
-
         automation:
           map_clicked@text:
-  workspace_tab/tab_automations:
-    fields:
-      name: Automations
-      page_id: {{records.page_tutorial.id}}
-      extension_id: core.workspace.tab.dashboard
-      pos@int: 17
-      params:
-        layout@text:
-        prompts_kata@text:
-      options_kata@raw: locked@bool: yes
   workspace_widget/widget_automations:
     fields:
       label: Automations
@@ -4520,7 +4611,6 @@ records:
                   The purpose of an automation is to transform an input dictionary into an output dictionary. Depending on where an automation is used, there are different expected inputs and outputs.
 
                   When an automation executes, it creates a new **working memory** dictionary that starts as a copy of its input. Within this dictionary an automation can store, retrieve, and manipulate data using keys.
-
         toolbar_kata@text:
   workspace_widget/widget_dialects:
     fields:
@@ -4669,7 +4759,7 @@ records:
 
                   Here are some common annotations:
 
-                  | Annotation |
+                  | Annotation ||
                   |-|-
                   | **`@base64:`** | Binary data encoded as Base64 text
                   | **`@bit:`** | `0` (`off`, `false`, `no`, `n`) or `1` (any non-false value)
@@ -4701,7 +4791,6 @@ records:
                   ```
 
                   The line `b@key,int: a` is setting the key `b:` to the value of the `a` key, and then converting it to an integer.
-
         toolbar_kata@text:
   workspace_widget/widget_list_of_automations:
     fields:
@@ -4722,16 +4811,6 @@ records:
           a_description
           a_extension_id
           a_updated_at
-  workspace_tab/tab_interactions:
-    fields:
-      name: Interactions
-      page_id: {{records.page_tutorial.id}}
-      extension_id: core.workspace.tab.dashboard
-      pos@int: 18
-      params:
-        layout: halves
-        prompts_kata@text:
-      options_kata@raw: locked@bool: yes
   workspace_widget/widget_interactions:
     fields:
       label: Interactions
@@ -4807,7 +4886,6 @@ records:
                     key1: value1
                     key2: value2
                     ...
-
         toolbar_kata@text:
   workspace_widget/widget_await_form_elements:
     fields:
@@ -4838,6 +4916,9 @@ records:
             )
             fileUpload:(
               name:"fileUpload" description:"File upload prompt"
+            )
+            llmTranscript:(
+              name:"llmTranscript" description:"LLM chat history"
             )
             map:(
               name:"map" description:"Interactive map"
@@ -4990,16 +5071,6 @@ records:
                 bold@bool: yes
             text/description:
         toolbar_kata@text:
-  workspace_tab/tab_toolbars:
-    fields:
-      name: Toolbars
-      page_id: {{records.page_tutorial.id}}
-      extension_id: core.workspace.tab.dashboard
-      pos@int: 19
-      params:
-        layout: halves
-        prompts_kata@text:
-      options_kata@raw: locked@bool: yes
   workspace_widget/widget_toolbars:
     fields:
       label: Toolbars
@@ -5129,18 +5200,7 @@ records:
                     alert: You clicked menu item #3.
                 after:
                   refresh_widgets@bool: no
-
         is_popup: 1
-  workspace_tab/tab_pgp_encryption:
-    fields:
-      name: PGP Encryption
-      page_id: {{records.page_tutorial.id}}
-      extension_id: core.workspace.tab.dashboard
-      pos@int: 20
-      params:
-        layout: sidebar_left
-        prompts_kata@text:
-      options_kata@raw: locked@bool: yes
   workspace_widget/widget_list_of_pgp_private_keys:
     fields:
       label: List of PGP Private Keys
@@ -5230,16 +5290,6 @@ records:
             inputs:
               mode: decrypt
         is_popup: 1
-  workspace_tab/tab_connected_services:
-    fields:
-      name: Connected Services
-      page_id: {{records.page_tutorial.id}}
-      extension_id: core.workspace.tab.dashboard
-      pos@int: 21
-      params:
-        layout@text:
-        prompts_kata@text:
-      options_kata@raw: locked@bool: yes
   workspace_widget/widget_connected_services:
     fields:
       label: Connected Services
@@ -5376,16 +5426,6 @@ records:
           c_uri
           *_owner
           c_updated_at
-  workspace_tab/tab_metrics:
-    fields:
-      name: Metrics
-      page_id: {{records.page_tutorial.id}}
-      extension_id: core.workspace.tab.dashboard
-      pos@int: 22
-      params:
-        layout@text:
-        prompts_kata@text:
-      options_kata@raw: locked@bool: yes
   workspace_widget/widget_metrics:
     fields:
       label: Metrics
@@ -5420,7 +5460,6 @@ records:
                   The `cerb.` prefix is reserved for built-in metrics. You can create your metrics with any other prefix.
 
                   By convention, the prefix is most often a domain name you own in reverse order (e.g. `com.example.metric.name`) to ensure global uniqueness. This makes it easier to combine and share metrics across multiple Cerb environments.
-
         toolbar_kata@text:
   workspace_widget/widget_list_of_metrics:
     fields:
@@ -5510,7 +5549,7 @@ records:
 
                   A dimension is of one of the following types:
 
-                  ||
+                  |||
                   |-|-
                   |`extension`| A platform extension ID (e.g. record type)
                   |`number`| A whole number
@@ -5522,7 +5561,6 @@ records:
                   For example, the `cerb.tickets.open.elapsed` metric has dimensions for `group_id` and `bucket_id`.
 
                   When just querying the `cerb.tickets.open.elapsed` metric, the results will combine all dimensions together. The metric could also be queried for any combination of groups, or for a specific set of buckets. These dimensions could be reported independently or compared to each other.
-
         toolbar_kata@text:
   workspace_widget/widget_metric_automation_invocations:
     fields:
@@ -5564,16 +5602,6 @@ records:
                     pattern: %-I %p
             y:
               type: linear
-  workspace_tab/tab_portals:
-    fields:
-      name: Portals
-      page_id: {{records.page_tutorial.id}}
-      extension_id: core.workspace.tab.dashboard
-      pos@int: 23
-      params:
-        layout: sidebar_left
-        prompts_kata@text:
-      options_kata@raw: locked@bool: yes
   workspace_widget/widget_list_of_portals:
     fields:
       label: List of Portals
@@ -5626,18 +5654,6 @@ records:
                   * [Build and authenticate a custom API using webhook portals](https://cerb.ai/guides/webhooks/custom-api/)
                   * [Host community portals using Nginx](https://cerb.ai/guides/portals/nginx-proxy/)
         toolbar_kata@text:
-  workspace_tab/tab_project_boards:
-    fields:
-      name: Project Boards
-      page_id: {{records.page_tutorial.id}}
-      extension_id: core.workspace.tab.dashboard
-      pos@int: 24
-      params:
-        layout@text:
-        prompts_kata@text:
-      options_kata@raw:
-        hidden@bool: {{not cerb_plugin_enabled('cerb.project_boards')}}
-        locked@bool: yes
   workspace_widget/widget_project_boards:
     fields:
       label: Project Boards
@@ -5682,7 +5698,6 @@ records:
                   * [Automations](https://cerb.ai/docs/automations/) can be [triggered](https://cerb.ai/docs/automations/triggers/projectBoard.cardAction/) every time a card is moved into a new column. This can automate field changes, comments, notifications, webhooks, or anything else.
 
                   * Automations can also [customize the display of cards](https://cerb.ai/docs/automations/triggers/projectBoard.renderCard/) based on dynamic factors like record type, field values, custom fields, and the current column. Cards always show the most recent information available.
-
         toolbar_kata@text:
   workspace_widget/widget_list_of_project_boards:
     fields:
@@ -5701,16 +5716,6 @@ records:
         columns@list:
           p_name
           p_updated_at
-  workspace_tab/tab_snippets:
-    fields:
-      name: Snippets
-      page_id: {{records.page_tutorial.id}}
-      extension_id: core.workspace.tab.dashboard
-      pos@int: 25
-      params:
-        layout@text:
-        prompts_kata@text:
-      options_kata@raw: locked@bool: yes
   workspace_widget/widget_snippets:
     fields:
       label: Snippets
@@ -5784,7 +5789,6 @@ records:
                   Subject: **Do you accept purchase orders?**
 
                   We'll be in contact shortly.
-
         toolbar_kata@text:
   workspace_widget/widget_snippets_prompts:
     fields:
@@ -5818,7 +5822,7 @@ records:
                 value@text:
                   **Prompts** offer optional dynamic customization of a snippet every time it is used by a worker.
 
-                  ||
+                  |||
                   |-|-
                   |**Checkbox**| A true/false option that can be used to show or hide sections in the snippet.
                   |**Picklist**| A dropdown of pre-defined values.
@@ -5872,16 +5876,6 @@ records:
           suh_my_uses
           s_total_uses
           s_updated_at
-  workspace_tab/tab_workflows:
-    fields:
-      name: Workflows
-      page_id: {{records.page_tutorial.id}}
-      extension_id: core.workspace.tab.dashboard
-      pos@int: 26
-      params:
-        layout@text:
-        prompts_kata@text:
-      options_kata@raw: locked@bool: yes
   workspace_widget/widget_workflows:
     fields:
       label: Workflows
@@ -5997,7 +5991,6 @@ records:
                   If the configuration value is a `chooser:`, you can expand its dictionary keys like: `{{config.keyName__label}}`
 
                   Workflow placeholders also support automation scripting [filters](https://cerb.ai/docs/scripting/filters/), such as: `{{config.keyName|lower|sha1}}`
-
         toolbar_kata@text:
   workspace_widget/widget_list_of_workflows:
     fields:
@@ -6018,16 +6011,6 @@ records:
           a_description
           a_version
           a_updated_at
-  workspace_tab/tab_packages:
-    fields:
-      name: Packages
-      page_id: {{records.page_tutorial.id}}
-      extension_id: core.workspace.tab.dashboard
-      pos@int: 27
-      params:
-        layout@text:
-        prompts_kata@text:
-      options_kata@raw: locked@bool: yes
   workspace_widget/widget_packages:
     fields:
       label: Packages
@@ -6181,16 +6164,6 @@ records:
           p_description
           p_point
           p_updated_at
-  workspace_tab/tab_webhooks:
-    fields:
-      name: Webhooks
-      page_id: {{records.page_tutorial.id}}
-      extension_id: core.workspace.tab.dashboard
-      pos@int: 28
-      params:
-        layout@text:
-        prompts_kata@text:
-      options_kata@raw: locked@bool: yes
   workspace_widget/widget_webhooks:
     fields:
       label: Webhooks
@@ -6319,16 +6292,6 @@ records:
           w_name
           w_guid
           w_updated_at
-  workspace_tab/tab_api:
-    fields:
-      name: API
-      page_id: {{records.page_tutorial.id}}
-      extension_id: core.workspace.tab.dashboard
-      pos@int: 29
-      params:
-        layout@text:
-        prompts_kata@text:
-      options_kata@raw: locked@bool: yes
   workspace_widget/widget_api:
     fields:
       label: API
@@ -6713,6 +6676,25 @@ records:
                                       {% elseif prompt_file_size > 1024000 %}
                                       The file ({{prompt_file_size|bytes_pretty}}) must be smaller than 1MB.
                                       {% endif %}
+            outcome/llmTranscript:
+              if: {{'llmTranscript' == inputs.element}}
+              then:
+                await:
+                  form:
+                    title: LLM Transcript
+                    elements:
+                      editor/code:
+                        label: Syntax:
+                        syntax: kata
+                        readonly@bool: yes
+                        default@raw:
+                          start:
+                            await:
+                              form:
+                                title: AI Agent
+                                elements:
+                                  llmTranscript/prompt_transcript:
+                                    session_id: a1b2c3d4-e5f6-a1b2-c3d4-e5f6-a1b2c3d4e5f6
             outcome/map:
               if: {{'map' == inputs.element}}
               then:
@@ -7355,7 +7337,6 @@ records:
       policy_kata@raw:
         commands:
           # [TODO] Specify a command policy here (use Ctrl+Space for autocompletion)
-
   automation/tutorial_dataqueries:
     fields:
       name: cerb.tutorial.dataQueries
@@ -7806,7 +7787,6 @@ records:
       policy_kata@raw:
         commands:
           # [TODO] Specify a command policy here (use Ctrl+Space for autocompletion)
-
   toolbar_section/toolbar_global_menu_tutorial:
     fields:
       name: Tutorial
