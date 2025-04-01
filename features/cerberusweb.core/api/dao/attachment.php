@@ -116,9 +116,14 @@ class DAO_Attachment extends Cerb_ORMHelper {
 		return $id;
 	}
 	
-	public static function update($ids, $fields) {
+	public static function update($ids, $fields, $check_deltas=true) {
 		if(!is_array($ids))
 			$ids = [$ids];
+		
+		// Send events
+		if($check_deltas) {
+			CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_ATTACHMENT, $ids);
+		}
 		
 		if(!isset($fields[self::UPDATED]))
 			$fields[self::UPDATED] = time();
@@ -131,6 +136,11 @@ class DAO_Attachment extends Cerb_ORMHelper {
 			$fields[self::NAME] = DevblocksPlatform::services()->string()->strPrintable($fields[self::NAME]);
 		
 		self::_update($ids, 'attachment', $fields);
+		
+		// Log the context update
+		if($check_deltas) {
+			DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_ATTACHMENT, $ids);
+		}
 	}
 	
 	private static function _updateAttach($ids, &$fields) {
