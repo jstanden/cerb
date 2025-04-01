@@ -1,0 +1,85 @@
+{
+  "package": {
+    "name": "Connected Service: Bluesky",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "11.0.7",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Bluesky",
+      "uri": "cerb_connected_service_bluesky",
+      "description": "Integration with Bluesky",
+      "instructions": "# Instructions\r\n\r\n* Enter your Bluesky account details. See: <https://cerb.ai/solutions/integrations/bluesky/>",
+      "point": "connected_service",
+      "image": "data:image/png;base64,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"
+    },
+    "configure": {
+      "placeholders": [],
+      "prompts": [
+        {
+          "type": "text",
+          "label": "PDS Entryway URL",
+          "key": "prompt_url",
+          "params": {
+            "default": "",
+            "placeholder": "https://bsky.social"
+          }
+        },
+        {
+          "type": "text",
+          "label": "Identifier",
+          "key": "prompt_identifier",
+          "params": {
+            "default": "",
+            "placeholder": "example.bsky.social"
+          }
+        },
+        {
+          "type": "text",
+          "label": "Password",
+          "key": "prompt_password",
+          "params": {
+            "default": "",
+            "placeholder": "Your App Password"
+          }
+        },
+        {
+          "type": "text",
+          "label": "Alias",
+          "key": "prompt_name",
+          "params": {
+            "default": "bluesky",
+            "placeholder": "(enter a URI, a-z,0-9,_)"
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "service_bluesky",
+      "_context": "connected_service",
+      "name": "Bluesky",
+      "extension_id": "cerb.service.provider.atproto",
+      "params": {
+        "pds_base_url": "{{{prompt_url}}}"
+      }
+    },
+    {
+      "uid": "account_bluesky",
+      "_context": "connected_account",
+      "name": "Bluesky",
+      "service_id": "{{{uid.service_bluesky}}}",
+      "owner__context": "cerberusweb.contexts.app",
+      "owner_id": "0",
+      "uri": "{{{prompt_name}}}",
+      "params": {
+        "identifier": "{{{prompt_identifier}}}",
+        "password": "{{{prompt_password}}}"
+      }
+    }
+  ]
+}
