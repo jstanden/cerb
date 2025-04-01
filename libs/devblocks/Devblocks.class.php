@@ -1747,6 +1747,9 @@ class DevblocksPlatform extends DevblocksEngine {
 			'html_input' => $safeMode ? 'escape' : 'allow',
 			'allow_unsafe_links' => !$safeMode,
 			'max_nesting_level' => 100,
+			'renderer' => [
+				'soft_break' => '<br />',
+			],
 		];
 		
 		if($externalLinks) {
