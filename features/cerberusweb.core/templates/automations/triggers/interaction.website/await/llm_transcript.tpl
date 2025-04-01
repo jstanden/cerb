@@ -95,6 +95,10 @@
 {
 	let $prompt = document.querySelector('#{$element_id}');
 
+	// Scroll down
+	const $container = $prompt.closest('.cerb-interaction-popup--container');
+	$container.scrollTop = $container.scrollHeight;
+
 	$prompt.addEventListener('click', function(e) {
 		e.stopPropagation();
 

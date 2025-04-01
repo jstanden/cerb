@@ -9,10 +9,5 @@
 
 	$element.style.display = 'none';
 	$popup.dispatchEvent($$.createEvent('cerb-interaction-event--submit'));
-
-	// Scroll down
-	const $form = $element.closest('.cerb-interaction-popup--form');
-	const lastChild = $form.lastElementChild;
-	lastChild.scrollIntoView({ behavior: 'smooth', block: 'end' });
 }
 </script>
