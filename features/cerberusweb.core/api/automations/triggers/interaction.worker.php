@@ -1343,6 +1343,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'buttons:',
 					'continue@bool: yes',
 					'hidden@bool: no',
+ 					'is_automatic@bool: yes',
 					'reset@bool: no',
 				],
 				

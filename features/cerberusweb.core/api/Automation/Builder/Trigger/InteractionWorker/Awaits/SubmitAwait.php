@@ -26,34 +26,42 @@ class SubmitAwait extends AbstractAwait {
 	function render(Model_AutomationContinuation $continuation) {
 		$tpl = DevblocksPlatform::services()->template();
 		
-		@$buttons_data = $this->_data['buttons'] ?? null;
+		$is_automatic = $this->_data['is_automatic'] ?? null;
 		
-		// Synthesize buttons
-		if(!$buttons_data) {
-			@$show_continue = $this->_data['continue'] ?? true;
-			@$show_reset = $this->_data['reset'] ?? false;
+		if($is_automatic) {
+			$tpl->assign('auto_submit', true);
+			$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.worker/await/submit_auto.tpl');
 			
-			if($show_continue) {
-				$buttons_data['continue'] = [
-					'label' => 'Continue',
-					'icon' => 'right-arrow',
-					'icon_at' => 'end',
-				];
+		} else {
+			@$buttons_data = $this->_data['buttons'] ?? null;
+		
+			// Synthesize buttons
+			if(!$buttons_data) {
+				@$show_continue = $this->_data['continue'] ?? true;
+				@$show_reset = $this->_data['reset'] ?? false;
+				
+				if($show_continue) {
+					$buttons_data['continue'] = [
+						'label' => 'Continue',
+						'icon' => 'right-arrow',
+						'icon_at' => 'end',
+					];
+				}
+				
+				if($show_reset) {
+					$buttons_data['reset'] = [
+						'label' => 'Start over',
+						'style' => 'secondary',
+						'icon' => 'repeat',
+						'icon_at' => 'start',
+					];
+				}
 			}
 			
-			if($show_reset) {
-				$buttons_data['reset'] = [
-					'label' => 'Start over',
-					'style' => 'secondary',
-					'icon' => 'repeat',
-					'icon_at' => 'start',
-				];
+			if(is_array($buttons_data)) {
+				$buttons = $this->_parseButtons($buttons_data);
+				$tpl->assign('buttons', $buttons);
 			}
-		}
-		
-		if(is_array($buttons_data)) {
-			$buttons = $this->_parseButtons($buttons_data);
-			$tpl->assign('buttons', $buttons);
 		}
 		
 		$tpl->assign('var', $this->_key);
