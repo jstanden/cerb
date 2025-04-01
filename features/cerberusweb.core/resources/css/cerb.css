@@ -2620,6 +2620,24 @@ UL.ui-menu li.ui-state-focus {
   margin: 0 0 0.75em 0;
   padding: 0;
 }
+.cerb-form-builder .cerb-form-builder-response-llm-transcript {
+  overflow: auto;
+  max-height: 75vh;
+  padding-right: 0.5em;
+}
+.cerb-form-builder .cerb-form-builder-response-llm-transcript [data-cerb-transcript-role=user] {
+  color: var(--cerb-color-action-primary-text);
+  background-color: var(--cerb-color-background-contrast-230);
+  border: 0;
+  border-radius: 12px 12px 12px 0;
+  font-size: 1.1em;
+}
+.cerb-form-builder .cerb-form-builder-response-llm-transcript [data-cerb-transcript-role=user] > div {
+  padding: 0 0.5em;
+}
+.cerb-form-builder .cerb-form-builder-response-llm-transcript [data-cerb-dom=transcript-toolbar] {
+  margin-bottom: 1em;
+}
 .cerb-form-builder .cerb-form-builder-response-say {
   color: var(--cerb-color-text);
   background-color: var(--cerb-color-background-contrast-240);

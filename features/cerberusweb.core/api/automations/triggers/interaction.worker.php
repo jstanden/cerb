@@ -10,6 +10,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 			'end' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\EndAwait',
 			'fileDownload' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\FileDownloadAwait',
 			'fileUpload' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\FileUploadAwait',
+			'llmTranscript' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\LlmTranscriptAwait',
 			'map' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\MapAwait',
 			'query' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\QueryAwait',
 			'say' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\SayAwait',
@@ -446,6 +447,11 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 						'description' => "Prompt for a file upload",
 					],
 					[
+						'caption' => 'llmTranscript:',
+						'snippet' => "llmTranscript/\${1:prompt_transcript}:\n\t\${2:}",
+						'description' => "Display an LLM transcript",
+					],
+					[
 						'caption' => 'map:',
 						'snippet' => "map/\${1:prompt_map}:\n\t\${2:}",
 						'description' => "Display an interactive map",
@@ -617,7 +623,17 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'attachment',
 					'automation_resource',
 				],
-			
+				
+				'(.*):await:form:elements:llmTranscript:' => [
+					[
+						'caption' => 'label:',
+						'snippet' => "label: \${1:Label:}",
+						'score' => 2000,
+					],
+					'session_id: a1b2c3d4-a1b2-c3d4-e5f6-a1b2c3d4e5f6',
+					'hidden@bool: yes',
+				],
+				
 				'(.*):await:form:elements:map:' => [
 					[
 						'caption' => 'resource:',
