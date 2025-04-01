@@ -23,7 +23,8 @@ $(function() {
 	$form.on('cerb-form-builder-submit', function(e) {
 		e.stopPropagation();
 
-		$spinner.insertAfter($data.hide());
+		$data.find('.cerb-form-builder-prompt-submit').hide();
+		$spinner.insertAfter($data);
 
 		var formData = new FormData($form[0]);
 		formData.set('c', 'profiles');
