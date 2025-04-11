@@ -534,14 +534,36 @@ class CerberusMail {
 		if(!($email_model = $mail_service->createReplyModelFromProperties($properties, $error)))
 			return false;
 		
-		// Modify with behaviors
-		$email_model->triggerReplyBehaviors();
-		
 		$ticket = $email_model->getTicket();
+		
+		// Modify with behaviors
+		$runners = $email_model->triggerReplyBehaviors(
+			$email_model->getProperty('message_id'),
+			$ticket->id,
+			$email_model->getProperty('group_id') ?? $ticket->group_id
+		);
 		
 		$hash_commands = [];
 		
 		DAO_Ticket::updateWithMessageProperties($properties, $ticket, [], false);
+		
+		// Re-cache if the ticket was modified, or we have override group/bucket
+		if(
+			$runners
+			|| (
+				$email_model->getProperty('group_id')
+				&& $ticket->group_id != $email_model->getProperty('group_id'))
+			|| (
+				$email_model->getProperty('bucket_id')
+				&& $ticket->bucket_id != $email_model->getProperty('bucket_id'))
+		) {
+			$email_model->setProperty('ticket_id', null);
+			$email_model->setProperty('ticket_id', $ticket->id);
+			$ticket = $email_model->getTicket();
+		}
+		
+		$email_model->setProperty('group_id', $ticket->group_id);
+		$email_model->setProperty('bucket_id', $ticket->bucket_id);
 		
 		unset($properties);
 		

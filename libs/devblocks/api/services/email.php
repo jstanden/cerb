@@ -248,16 +248,22 @@ class Model_DevblocksOutboundEmail {
 		}
 	}
 	
-	public function triggerReplyBehaviors() {
-		$message_id = $this->getProperty('message_id');
-		$ticket_id = $this->getProperty('ticket_id');
-		$group_id = $this->getProperty('group_id');
+	public function triggerReplyBehaviors($message_id, $ticket_id, $group_id) : array {
+		$results = [];
 		
 		// Changing the outgoing message through a VA (global)
-		Event_MailBeforeSent::trigger($this->_properties, $message_id, $ticket_id, $group_id);
+		$runners = Event_MailBeforeSent::trigger($this->_properties, $message_id, $ticket_id, $group_id);
+		$results = array_merge(
+			$results,
+			!is_array($runners) ? [] : $runners,
+		);
 		
 		// Changing the outgoing message through a VA (group)
-		Event_MailBeforeSentByGroup::trigger($this->_properties, $message_id, $ticket_id, $group_id);
+		$runners = Event_MailBeforeSentByGroup::trigger($this->_properties, $message_id, $ticket_id, $group_id);
+		return array_merge(
+			$results,
+			!is_array($runners) ? [] : $runners,
+		);
 	}
 	
 	private function isSensitive() : bool {
@@ -1079,12 +1085,7 @@ class _DevblocksEmailManager {
 			}
 		}
 		
-		$email_model = new Model_DevblocksOutboundEmail($type, $properties);
-		
-		// Build the group + bucket keys
-		$email_model->getBucket();
-		
-		return $email_model;
+		return new Model_DevblocksOutboundEmail($type, $properties);
 	}
 	
 	function send(Model_DevblocksOutboundEmail $email_model) : bool {
