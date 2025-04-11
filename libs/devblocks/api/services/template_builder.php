@@ -2257,7 +2257,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 		if(!is_string($string))
 			return [];
 		
-		if(false == ($url_parts = parse_url($string)))
+		if(!($url_parts = parse_url($string)))
 			return [];
 		
 		return $url_parts;
