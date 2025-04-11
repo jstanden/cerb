@@ -1,7 +1,8 @@
 <div>
-    {include file="devblocks:cerberusweb.core::ui/spinner.tpl"}
     <h4 style="display:inline-block;">{$wait_message}</h4>
     <input type="hidden" name="prompts[duration]" value="done">
+    <br>
+    {include file="devblocks:cerberusweb.core::ui/spinner.tpl"}
 </div>
 
 {$script_uid = uniqid('script')}
@@ -9,10 +10,12 @@
 $(function() {
     setTimeout(
         function() {
-            var $script = $('#{$script_uid}');
-            var $form = $script.closest('form');
-            
-            var evt = $.Event('cerb-form-builder-submit');
+            const $script = $('#{$script_uid}');
+            const $form = $script.closest('form');
+
+            $form.find('svg.cerb-spinner').first().hide();
+
+            const evt = $.Event('cerb-form-builder-submit');
             $form.triggerHandler(evt);
         },
         {$wait_ms}
