@@ -389,6 +389,26 @@
     font-size: 0.8em;
 }
 
+.cerb-interaction-popup--form-elements-llm-transcript [data-cerb-tool] {
+    padding: 0.5em 1em;
+    border-radius: 1em;
+    background-color: rgb(32, 32, 32);
+    color: white;
+
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.cerb-interaction-popup--form-elements-llm-transcript [data-cerb-tool] svg {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.cerb-interaction-popup--form-elements-llm-transcript [data-cerb-tool] svg path {
+    fill: white;
+    stroke: white;
+}
+
 .cerb-interaction-popup--form-elements-sheet a {
     color: #333333;
     text-decoration: underline;

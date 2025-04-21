@@ -40,6 +40,22 @@ class DevblocksLlmChatResponse_Tool {
 	function getParameters(): array {
 		return $this->_parameters;
 	}
+	
+	function getLabel(?array $tool_labels) : ?string {
+		$label = sprintf("Tool: %s", $this->getName());
+		
+		if($tool_labels && array_key_exists($this->getName(), $tool_labels)) {
+			$label = $tool_labels[$this->getName()];
+			
+			if(str_contains($label, '{{')) {
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+				if(false !== ($new_label = $tpl_builder->build($label, $this->getParameters())))
+					$label = $new_label;
+			}
+		}
+		
+		return $label;
+	}
 }
 
 class DevblocksLlmChatResponse {

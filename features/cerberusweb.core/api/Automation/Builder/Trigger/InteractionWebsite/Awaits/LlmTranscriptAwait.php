@@ -24,6 +24,7 @@ class LlmTranscriptAwait extends AbstractAwait {
 		
 		$label = $this->_data['label'] ?? null;
 		$transcript_id = $this->_data['session_id'] ?? null;
+		$tool_labels = $this->_data['tool_labels'] ?? null;
 		$limit = 250; // [TODO] Configurable
 		
 		$transcript = \DAO_LlmAgentSession::get($transcript_id);
@@ -38,6 +39,8 @@ class LlmTranscriptAwait extends AbstractAwait {
 		// Convert the messages into a neutral format using providers
 		$messages = array_map(fn($message) => $llm_provider->convertToGenericMessage($message->data, $message->uuid), $messages);
 		$tpl->assign('transcript_messages', $messages);
+		
+		$tpl->assign('tool_labels', $tool_labels);
 		
 		$tpl->assign('continuation_token', $continuation->token);
 		$tpl->assign('session', $session);

@@ -207,6 +207,10 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 					],
 					'session_id: a1b2c3d4-a1b2-c3d4-e5f6-a1b2c3d4e5f6',
 					'hidden@bool: yes',
+					[
+						'caption' => 'tool_labels:',
+						'snippet' => "tool_labels:\n\t\${1:example_tool}: \${2:Using tool...}",
+					],
 				],
 				
 				'(.*):await:form:elements:say:' => [

@@ -23,7 +23,20 @@
 				{$tools = $message->getToolCalls()}
 				{if $tools}
 				{foreach from=$tools item=tool}
-					<div><b>(Tool: {$tool->getName()})</b></div>
+					<div data-cerb-tool="{$tool->getName()}">
+						<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="20px" height="20px" viewBox="0 0 48 48" xml:space="preserve">
+							<g id="glyphicons">
+								<g id="claw-hammer">
+									<path d="M29.157,19.43l-6.01,6.01l0.727,0.726L14.64,36.732l-4.2-4.2l10.565-9.234l0.727,0.728l6.011-6.011L29.157,19.43z
+										 M34.106,18.015c-2.137-2.137-4.243-4.242-4.243-4.242H28.45l-1.415,1.414v1.414l3.182,3.183c0,0,1.125,0.996,2.475-0.354
+										c3.536,3.536,3.889,6.718,3.889,6.718l0.354,0.354C36.935,26.5,37.642,21.551,34.106,18.015z M26.682,14.833l1.415-1.414v-1.415
+										L27,11l-2.828,2.829l1.096,1.004H26.682z"/>
+								</g>
+							</g>
+						</svg>
+
+						{$tool->getLabel($tool_labels)}
+					</div>
 				{/foreach}
 				{/if}
 
