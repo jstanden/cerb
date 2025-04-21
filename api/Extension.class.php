@@ -1420,6 +1420,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				],
 				'(.*):llm.agent:inputs:llm:' => [
 					'anthropic:',
+					'aws_bedrock:',
 					'groq:',
 					'huggingface:',
 					'ollama:',
@@ -1450,6 +1451,32 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'claude-3-7-sonnet-latest',
 					'claude-3-opus-20240229',
 					'claude-3-opus-latest',
+				],
+				'(.*):llm.agent:inputs:llm:aws_bedrock:' => [
+					'anthropic_version: bedrock-2023-05-31',
+					'api_endpoint_url:',
+					'authentication:',
+					'max_tokens@int: 2048',
+					[
+						'caption' => 'model:',
+						'snippet' => "# See: https://docs.aws.amazon.com/bedrock/latest/userguide/models-supported.html\nmodel:",
+						'score' => 2000,
+					],
+				],
+				'(.*):llm.agent:inputs:llm:aws_bedrock:api_endpoint_url:' => [
+					'https://bedrock-runtime.us-east-1.amazonaws.com',
+				],
+				'(.*):llm.agent:inputs:llm:aws_bedrock:authentication:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'connected_account' => null,
+					]
+				],
+				'(.*):llm.agent:inputs:llm:aws_bedrock:model:' => [
+					'anthropic.claude-3-5-haiku-20241022-v1:0',
+					'anthropic.claude-3-5-sonnet-20240620-v1:0',
+					'anthropic.claude-3-5-sonnet-20241022-v2:0',
+					'anthropic.claude-3-7-sonnet-20250219-v1:0',
 				],
 				'(.*):llm.agent:inputs:llm:groq:' => [
 					[

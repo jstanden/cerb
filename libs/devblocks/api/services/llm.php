@@ -170,6 +170,7 @@ class _DevblocksLlmService {
 	function getProvider(string $provider_id, array $params=[], bool $validate=true) : ?Extension_DevblocksLlmProvider {
 		return match($provider_id) {
 			'anthropic' => new Cerb\LLM\Providers\Anthropic($params, $validate),
+			'aws_bedrock' => new Cerb\LLM\Providers\AwsBedrock($params, $validate),
 			'groq' => new Cerb\LLM\Providers\Groq($params, $validate),
 			'huggingface' => new Cerb\LLM\Providers\HuggingFace($params, $validate),
 			'ollama' => new Cerb\LLM\Providers\Ollama($params, $validate),

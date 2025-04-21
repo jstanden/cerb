@@ -5405,6 +5405,9 @@ class _CerbApplication_KataSchemas {
                                       anthropic:
                                         types:
                                           list:
+                                      aws_bedrock:
+                                        types:
+                                          list:
                                       groq:
                                         types:
                                           list:
