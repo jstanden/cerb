@@ -1554,6 +1554,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				],
 				'(.*):llm.agent:inputs:llm:openai:api_endpoint_url:' => [
 					'https://api.openai.com',
+					'http://model-runner.docker.internal/engines',
 				],
 				'(.*):llm.agent:inputs:llm:openai:authentication:' => [
 					'type' => 'cerb-uri',
