@@ -1,6 +1,6 @@
 workflow:
   name: cerb.tutorial
-  version: 2025-03-28T23:33:00Z
+  version: 2025-04-17T00:00:00Z
   description: A workspace with detailed descriptions and examples of Cerb functionality
   requirements:
     cerb_version: >=11.0 <11.2
@@ -261,7 +261,7 @@ records:
       extension_id: core.workspace.tab.dashboard
       pos@int: 1
       params:
-        layout@text:
+        layout@text: halves
         prompts_kata@text:
       options_kata@raw: locked@bool: yes
   workspace_tab/tab_workers:
@@ -311,7 +311,7 @@ records:
       extension_id: core.workspace.widget.sheet
       pos@int: 1
       width_units@int: 2
-      zone: content
+      zone: left
       params:
         data_query@text:
           type:sample.records
@@ -354,7 +354,7 @@ records:
       extension_id: core.workspace.widget.sheet
       pos@int: 2
       width_units@int: 2
-      zone: content
+      zone: right
       params:
         data_query@text:
           type:sample.records
@@ -478,6 +478,48 @@ records:
                           message: Workspace pages are organized into tabs.
                           my: middle bottom
                           at: middle top
+        toolbar_kata@text:
+  workspace_widget/widget_contribute:
+    fields:
+      label: Contribute
+      tab_id: {{records.tab_welcome.id}}
+      extension_id: core.workspace.widget.sheet
+      pos@int: 2
+      width_units@int: 2
+      zone: right
+      options_kata@text:
+      params:
+        data_query@text:
+          type:sample.records
+          records:(help:())
+          format:dictionaries
+        cache_secs@text:
+        placeholder_simulator_kata@text:
+        sheet_kata@text:
+          layout:
+            style: fieldsets
+            headings@bool: no
+            paging@bool: no
+            filtering@bool: no
+            colors:
+              code_dark@csv: #000000, #FFFFFF
+              code@csv: #F3EFEC, #333333
+
+          columns:
+            markdown/instructions:
+              params:
+                text_size@raw: 120%
+                value_template@raw:
+                  If you find Cerb useful, we'd greatly appreciate you taking one or more of the following actions:
+
+                  * [Subscribe to our weekly email newsletter](https://newsletter.cerb.ai/#subscribe-form)
+                  * [Subscribe to our YouTube channel](https://www.youtube.com/@cerb_ai)
+                  * [Follow our LinkedIn page](https://www.linkedin.com/company/webgroupmedia/)
+                  * [Star us on GitHub](https://github.com/cerb/cerb-release/)
+                  * [Request a feature or report a bug on GitHub](https://github.com/jstanden/cerb/issues/)
+                  * [Favorite us on Docker Hub](https://hub.docker.com/r/cerb/cerb)
+                  * [Follow us on Bluesky](https://bsky.app/profile/cerb.ai)
+                  * [Rate us on G2](https://www.g2.com/products/cerb/reviews)
         toolbar_kata@text:
   workspace_widget/widget_records:
     fields:
