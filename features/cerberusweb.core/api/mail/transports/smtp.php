@@ -193,6 +193,8 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 		if(!isset($connections[$hash])) {
 			$smtp = new EsmtpTransport($smtp_host, $smtp_port, $smtp_enc == 'SSL');
 			
+			$smtp->setLocalDomain(DevblocksPlatform::getHostname());
+			
 			// Optionally disable SSL validation
 			if($ssl_disable_validation) {
 				if(($stream = $smtp->getStream())) { /* @var $stream SocketStream */
