@@ -70,6 +70,61 @@ class TogetherAI extends Extension_DevblocksLlmProvider implements Chat, Embeddi
 	/**
 	 * @throws Exception_DevblocksAutomationError
 	 */
+	function embed(array $texts) : array {
+		$http = DevblocksPlatform::services()->http();
+		
+		$base_url = rtrim($this->getParam('api_endpoint_url', 'https://api.together.xyz'), '/');
+		$authentication_uri = $this->getParam('authentication', null);
+		$model = $this->getParam('model', 'BAAI/bge-large-en-v1.5');
+		
+		$verb = 'POST';
+		$url = $base_url . '/v1/embeddings';
+		$headers = [
+			'Content-Type' => 'application/json',
+		];
+		$body_payload = [
+			'model' => $model,
+			'input' => $texts
+		];
+		
+		$body = json_encode($body_payload);
+		
+		$request = new Request($verb, $url, $headers, $body);
+		$request_options = [
+			'http_errors' => false,
+		];
+		$error = null;
+		
+		// Authenticate the request if required
+		if ($authentication_uri) {
+			if (!$this->_authenticateRequest($authentication_uri, $request, $request_options, $error))
+				throw new Exception_DevblocksAutomationError($error);
+		}
+		
+		if (false === ($response = $http->sendRequest($request, $request_options, $error)))
+			throw new Exception_DevblocksAutomationError($error);
+		
+		if (false === ($response_json = $http->getResponseAsJson($response, $error)))
+			throw new Exception_DevblocksAutomationError($error);
+		
+		if (200 != $response->getStatusCode()) {
+			if ($response_json['error']['message'] ?? null)
+				throw new Exception_DevblocksAutomationError($response_json['error']['message']);
+			
+			throw new Exception_DevblocksAutomationError('HTTP status code: ' . $response->getStatusCode());
+		}
+		
+		return [
+			'embeddings' => array_map(
+				fn($data) => $data['embedding'] ?? [],
+				$response_json['data'] ?? []
+			),
+		];
+	}
+	
+	/**
+	 * @throws Exception_DevblocksAutomationError
+	 */
 	function chatCompletion(array $messages, string $system_prompt, array $tools, Extension_DevblocksLlmMemoryStore $memory) : DevblocksLlmChatResponse {
 		$http = DevblocksPlatform::services()->http();
 		

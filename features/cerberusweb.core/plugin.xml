@@ -5261,23 +5261,6 @@
 		</extension>
 
 		<extension point="cerb.automation.trigger">
-			<id>cerb.trigger.llm.embedding</id>
-			<name>llm.embedding</name>
-			<class>
-				<file>api/automations/triggers/llm.embedding.php</file>
-				<name>AutomationTrigger_LlmEmbedding</name>
-			</class>
-			<params>
-				<param key="description" value="Embed text using a large language model" />
-				<param key="features">
-					<value>
-						<data key="inputs" />
-					</value>
-				</param>
-			</params>
-		</extension>
-
-		<extension point="cerb.automation.trigger">
 			<id>cerb.trigger.llm.tool</id>
 			<name>llm.tool</name>
 			<class>

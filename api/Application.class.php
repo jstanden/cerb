@@ -5503,15 +5503,28 @@ class _CerbApplication_KataSchemas {
                         types:
                           object:
                             attributes:
+                              llm:
+                                types:
+                                  object:
+                                    attributes:
+                                      aws_bedrock:
+                                        types:
+                                          list:
+                                      huggingface:
+                                        types:
+                                          list:
+                                      ollama:
+                                        types:
+                                          list:
+                                      openai:
+                                        types:
+                                          list:
+                                      together:
+                                        types:
+                                          list:
                               texts:
                                 types:
                                   list:
-                              params:
-                                types:
-                                  list:
-                              uri:
-                                types:
-                                  string:
                       on_error:
                         ref: commands
                       on_simulate:

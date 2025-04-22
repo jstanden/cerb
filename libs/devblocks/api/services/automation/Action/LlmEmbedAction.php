@@ -1,7 +1,7 @@
 <?php
 namespace Cerb\AutomationBuilder\Action;
 
-use DAO_Automation;
+use Cerb\LLM\Providers\Interfaces\Embedding;
 use DevblocksDictionaryDelegate;
 use DevblocksPlatform;
 use Exception_DevblocksAutomationError;
@@ -10,15 +10,15 @@ use Model_Automation;
 class LlmEmbedAction extends AbstractAction {
 	const ID = 'llm.embed';
 	
+	private array $_inputs = [];
+	
 	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) : string|false {
-		
 		$validation = DevblocksPlatform::services()->validation();
-		$automator = DevblocksPlatform::services()->automation();
 		
 		$params = $automation->getParams($this->node, $dict);
 		$policy = $automation->getPolicy();
 		
-		$inputs = $params['inputs'] ?? [];
+		$this->_inputs = $params['inputs'] ?? [];
 		$output = $params['output'] ?? null;
 		
 		try {
@@ -40,22 +40,16 @@ class LlmEmbedAction extends AbstractAction {
 			
 			// Inputs validation
 			
-			$validation->addField('uri', 'uri:')
-				->string()
-				->setMaxLength(512)
-				->setRequired(true)
-			;
+			$validation->addField('llm', 'llm:')
+				->array()
+				->setRequired(true);
 			
 			$validation->addField('texts', 'texts:')
 				->stringOrArray()
 				->setRequired(true)
 			;
 			
-			$validation->addField('params', 'params:')
-				->array()
-			;
-
-			if(false === ($validation->validateAll($inputs, $error)))
+			if(false === ($validation->validateAll($this->_inputs, $error)))
 				throw new Exception_DevblocksAutomationError($error);
 			
 			// Policy
@@ -65,7 +59,7 @@ class LlmEmbedAction extends AbstractAction {
 					'id' => $this->node->getId(),
 					'type' => self::ID,
 				],
-				'inputs' => $inputs,
+				'inputs' => $this->_inputs,
 				'output' => $output,
 			]);
 			
@@ -74,34 +68,24 @@ class LlmEmbedAction extends AbstractAction {
 				throw new Exception_DevblocksAutomationError($error);
 			}
 			
-			if (!($automation = DAO_Automation::getByUri($inputs['uri'], \AutomationTrigger_LlmEmbedding::ID))) {
-				throw new Exception_DevblocksAutomationError(sprintf('inputs:uri: (%s) must be an llm.embed trigger', $inputs['uri']));
-			}
-			
-			if(!is_array($inputs['texts']))
-				$inputs['texts'] = [$inputs['texts']];
-			
-			$initial_state = [
-				'texts' => $inputs['texts'] ?? [],
-				'inputs' => $inputs['params'] ?? [],
-			];
-			
-			if (!($automation_results = $automator->executeScript($automation, $initial_state, $error))) {
+			if(!($llm_provider = $this->_getLlmProvider())) {
+				$llm_id = array_key_first($this->_inputs['llm'] ?? []);
+				$error = sprintf('Unknown LLM provider: %s', $llm_id);
 				throw new Exception_DevblocksAutomationError($error);
 			}
 			
-			// Check exit code
-			$exit_code = $automation_results->get('__exit');
-			
-			if ('error' == $exit_code) {
-				$error = $automation_results->getKeyPath('__error.message', '');
+			if(!($llm_provider instanceof Embedding)) {
+				$llm_id = array_key_first($this->_inputs['llm'] ?? []);
+				$error = sprintf('LLM provider does not support vector embeddings: %s', $llm_id);
 				throw new Exception_DevblocksAutomationError($error);
 			}
 			
-			$end_state = $automation_results->get('__return');
+			if(!is_array($this->_inputs['texts']))
+				$this->_inputs['texts'] = [$this->_inputs['texts']];
 			
 			if ($output) {
-				$dict->set($output, $end_state);
+				$results = $llm_provider->embed($this->_inputs['texts']);
+				$dict->set($output, $results);
 			}
 			
 		} catch (Exception_DevblocksAutomationError $e) {
@@ -125,5 +109,11 @@ class LlmEmbedAction extends AbstractAction {
 		}
 		
 		return $this->node->getParent()->getId();
+	}
+	
+	private function _getLlmProvider() : ?\Extension_DevblocksLlmProvider {
+		$llm_id = array_key_first($this->_inputs['llm']);
+		$llm_params = $this->_inputs['llm'][$llm_id] ?? [];
+		return DevblocksPlatform::services()->llm()->getProvider($llm_id, $llm_params);
 	}
 }

@@ -1674,8 +1674,8 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'(.*):llm.embed:' => $action_base,
 				'(.*):llm.embed:inputs:' => [
 					[
-						'caption' => 'uri:',
-						'snippet' => "uri: cerb:automation:\${1:example}",
+						'caption' => 'llm:',
+						'snippet' => "llm:",
 						'score' => 2000,
 					],
 					[
@@ -1683,19 +1683,119 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 						'snippet' => "texts:\n\t0@text:\n\t\t\${1:This is an example}",
 						'score' => 1998,
 					],
-					'params:',
 				],
-				'(.*):llm.embed:inputs:params:' => [
-					'type' => 'automation-inputs',
+				'(.*):llm.embed:inputs:llm:' => [
+					'aws_bedrock:',
+					'huggingface:',
+					'ollama:',
+					'openai:',
+					'together:',
 				],
-				'(.*):llm.embed:inputs:uri:' => [
+				'(.*):llm.embed:inputs:llm:aws_bedrock:' => [
+					'api_endpoint_url:',
+					'authentication:',
+					'dimensions:',
+					'model:',
+				],
+				'(.*):llm.embed:inputs:llm:aws_bedrock:api_endpoint_url:' => [
+					'https://bedrock-runtime.us-east-1.amazonaws.com',
+				],
+				'(.*):llm.embed:inputs:llm:aws_bedrock:authentication:' => [
 					'type' => 'cerb-uri',
 					'params' => [
-						'automation' => [
-							'triggers' => [
-								'cerb.trigger.llm.embedding'
-							]
-						]
+						'connected_account' => null,
+					]
+				],
+				'(.*):llm.embed:inputs:llm:aws_bedrock:dimensions:' => [
+					'256',
+					'512',
+					'1024',
+				],
+				'(.*):llm.embed:inputs:llm:aws_bedrock:model:' => [
+					'amazon.titan-embed-text-v2:0',
+				],
+				'(.*):llm.embed:inputs:llm:huggingface:' => [
+					'api_endpoint_url:',
+					'authentication:',
+					'model:',
+				],
+				'(.*):llm.embed:inputs:llm:huggingface:api_endpoint_url:' => [
+					'https://api-inference.huggingface.co',
+				],
+				'(.*):llm.embed:inputs:llm:huggingface:authentication:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'connected_account' => null,
+					]
+				],
+				'(.*):llm.embed:inputs:llm:huggingface:model:' => [
+					'BAAI/bge-large-en-v1.5'
+				],
+				'(.*):llm.embed:inputs:llm:ollama:' => [
+					'api_endpoint_url:',
+					'authentication:',
+					'model:',
+				],
+				'(.*):llm.embed:inputs:llm:ollama:api_endpoint_url:' => [
+					'http://host.docker.internal:11434',
+				],
+				'(.*):llm.embed:inputs:llm:ollama:authentication:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'connected_account' => null,
+					]
+				],
+				'(.*):llm.embed:inputs:llm:ollama:model:' => [
+					'nomic-embed-text'
+				],
+				'(.*):llm.embed:inputs:llm:openai:' => [
+					'api_endpoint_url:',
+					'authentication:',
+					'model:',
+				],
+				'(.*):llm.embed:inputs:llm:openai:api_endpoint_url:' => [
+					[
+						'caption' => 'https://api.openai.com',
+						'snippet' => 'https://api.openai.com',
+						'score' => 2000,
+					],
+					[
+						'caption' => 'http://model-runner.docker.internal/engines',
+						'snippet' => 'http://model-runner.docker.internal/engines',
+						'score' => 1500,
+					],
+				],
+				'(.*):llm.embed:inputs:llm:openai:authentication:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'connected_account' => null,
+					]
+				],
+				'(.*):llm.embed:inputs:llm:openai:model:' => [
+					'text-embedding-3-small',
+					'text-embedding-3-large',
+					'text-embedding-ada-002',
+				],
+				'(.*):llm.embed:inputs:llm:together:' => [
+					'api_endpoint_url:',
+					'authentication:',
+					'model:',
+				],
+				'(.*):llm.embed:inputs:llm:together:api_endpoint_url:' => [
+					'https://api.together.xyz',
+				],
+				'(.*):llm.embed:inputs:llm:together:authentication:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'connected_account' => null,
+					]
+				],
+				'(.*):llm.embed:inputs:llm:together:model:' => [
+					'BAAI/bge-base-en-v1.5',
+					'BAAI/bge-large-en-v1.5',
+					'togethercomputer/m2-bert-80M-2k-retrieval',
+					'togethercomputer/m2-bert-80M-8k-retrieval',
+				],
 					]
 				],
 				
