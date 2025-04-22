@@ -96,6 +96,13 @@
 			}
 		}
 
+		[data-cerb-tool] {
+			display: inline-block;
+			background-color: var(--cerb-color-background-contrast-200);
+			padding: 0.5em 1em;
+			border-radius: 1em;
+		}
+
 		[data-cerb-dom="transcript-toolbar"] {
 			margin-bottom: 1em;
 		}

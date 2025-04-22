@@ -23,8 +23,9 @@
                 {$tools = $message->getToolCalls()}
                 {if $tools}
                     {foreach from=$tools item=tool}
-                        <div class="emailBodyHtml">
-                            <b>(Tool: {$tool->getName()})</b>
+                        <div class="emailBodyHtml" data-cerb-tool="{$tool->getName()}">
+                            <span class="glyphicons glyphicons-classic-hammer"></span>&nbsp;
+                            {$tool->getLabel($tool_labels)}
                         </div>
                     {/foreach}
                 {/if}

@@ -2635,6 +2635,12 @@ UL.ui-menu li.ui-state-focus {
 .cerb-form-builder .cerb-form-builder-response-llm-transcript [data-cerb-transcript-role=user] > div {
   padding: 0 0.5em;
 }
+.cerb-form-builder .cerb-form-builder-response-llm-transcript [data-cerb-tool] {
+  display: inline-block;
+  background-color: var(--cerb-color-background-contrast-200);
+  padding: 0.5em 1em;
+  border-radius: 1em;
+}
 .cerb-form-builder .cerb-form-builder-response-llm-transcript [data-cerb-dom=transcript-toolbar] {
   margin-bottom: 1em;
 }
