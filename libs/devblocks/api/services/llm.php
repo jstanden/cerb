@@ -183,6 +183,7 @@ class _DevblocksLlmService {
 			'openai' => new Cerb\LLM\Providers\OpenAI($params, $validate),
 			'pinecone' => new Cerb\LLM\Providers\Pinecone($params, $validate),
 			'together' => new Cerb\LLM\Providers\TogetherAI($params, $validate),
+			'voyage' => new Cerb\LLM\Providers\VoyageAI($params, $validate),
 			default => null,
 		};
 	}

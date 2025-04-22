@@ -5525,6 +5525,9 @@ class _CerbApplication_KataSchemas {
                                       together:
                                         types:
                                           list:
+                                      voyage:
+                                        types:
+                                          list:
                               texts:
                                 types:
                                   list:

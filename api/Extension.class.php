@@ -1691,6 +1691,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'openai:',
 					'pinecone:',
 					'together:',
+					'voyage:',
 				],
 				'(.*):llm.embed:inputs:llm:aws_bedrock:' => [
 					'api_endpoint_url:',
@@ -1815,7 +1816,35 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'togethercomputer/m2-bert-80M-2k-retrieval',
 					'togethercomputer/m2-bert-80M-8k-retrieval',
 				],
+				'(.*):llm.embed:inputs:llm:voyage:' => [
+					'api_endpoint_url:',
+					'authentication:',
+					[
+						'caption' => 'model:',
+						'snippet' => "# See: https://docs.voyageai.com/docs/embeddings#model-choices\nmodel:",
 					]
+				],
+				'(.*):llm.embed:inputs:llm:voyage:api_endpoint_url:' => [
+					[
+						'caption' => 'https://api.voyageai.com',
+						'snippet' => 'https://api.voyageai.com',
+						'score' => 2000,
+					],
+				],
+				'(.*):llm.embed:inputs:llm:voyage:authentication:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'connected_account' => null,
+					]
+				],
+				// https://docs.voyageai.com/docs/embeddings#model-choices
+				'(.*):llm.embed:inputs:llm:voyage:model:' => [
+					'voyage-3-large',
+					'voyage-3',
+					'voyage-3-lite',
+					'voyage-code-3',
+					'voyage-finance-2',
+					'voyage-law-2',
 				],
 				
 				'(.*):kata.parse:' => $action_base,
