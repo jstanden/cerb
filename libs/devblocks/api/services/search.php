@@ -790,7 +790,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		
 		$terms = '+'.str_replace(' ', ' +', $terms);
 		
-		return array('terms' => $terms, 'phrases' => $phrases);
+		return ['terms' => $terms, 'phrases' => $phrases];
 	}
 	
 	public function removeStopWords($words) {
