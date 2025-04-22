@@ -157,16 +157,6 @@ abstract class Extension_DevblocksLlmProvider {
 		
 		return true;
 	}
-	
-	abstract function chatCompletion(array $messages, string $system_prompt, array $tools, Extension_DevblocksLlmMemoryStore $memory) : DevblocksLlmChatResponse;
-	abstract function returnTool(DevblocksLlmChatResponse_Tool $tool, string $content, Extension_DevblocksLlmMemoryStore $memory) : void;
-	
-	/**
-	 * @param array $message
-	 * @param ?string $message_uuid
-	 * @return DevblocksLlmChatResponse
-	 */
-	abstract function convertToGenericMessage(array $message, ?string $message_uuid=null) : DevblocksLlmChatResponse;
 }
 
 class _DevblocksLlmService {

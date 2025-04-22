@@ -1,6 +1,8 @@
 <?php
 namespace Cerb\LLM\Providers;
 
+use Cerb\LLM\Providers\Interfaces\Chat;
+use Cerb\LLM\Providers\Interfaces\Embedding;
 use DevblocksLlmChatResponse;
 use DevblocksLlmChatResponse_Tool;
 use DevblocksPlatform;
@@ -9,7 +11,7 @@ use Extension_DevblocksLlmMemoryStore;
 use Extension_DevblocksLlmProvider;
 use GuzzleHttp\Psr7\Request;
 
-class TogetherAI extends Extension_DevblocksLlmProvider {
+class TogetherAI extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 	const ID = 'together';
 	
 	/**

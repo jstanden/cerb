@@ -1,6 +1,7 @@
 <?php
 namespace Cerb\LLM\Providers;
 
+use Cerb\LLM\Providers\Interfaces\Chat;
 use DevblocksLlmChatResponse;
 use DevblocksLlmChatResponse_Tool;
 use DevblocksPlatform;
@@ -9,7 +10,7 @@ use Extension_DevblocksLlmMemoryStore;
 use Extension_DevblocksLlmProvider;
 use GuzzleHttp\Psr7\Request;
 
-class Anthropic extends Extension_DevblocksLlmProvider {
+class Anthropic extends Extension_DevblocksLlmProvider implements Chat {
 	const ID = 'anthropic';
 	
 	/**
