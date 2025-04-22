@@ -5519,6 +5519,9 @@ class _CerbApplication_KataSchemas {
                                       openai:
                                         types:
                                           list:
+                                      pinecone:
+                                        types:
+                                          list:
                                       together:
                                         types:
                                           list:

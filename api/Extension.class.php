@@ -1689,6 +1689,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'huggingface:',
 					'ollama:',
 					'openai:',
+					'pinecone:',
 					'together:',
 				],
 				'(.*):llm.embed:inputs:llm:aws_bedrock:' => [
@@ -1775,6 +1776,24 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'text-embedding-3-small',
 					'text-embedding-3-large',
 					'text-embedding-ada-002',
+				],
+				'(.*):llm.embed:inputs:llm:pinecone:' => [
+					'api_endpoint_url:',
+					'authentication:',
+					'model:',
+				],
+				'(.*):llm.embed:inputs:llm:pinecone:api_endpoint_url:' => [
+					'https://api.pinecone.io',
+				],
+				'(.*):llm.embed:inputs:llm:pinecone:authentication:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'connected_account' => null,
+					]
+				],
+				'(.*):llm.embed:inputs:llm:pinecone:model:' => [
+					'llama-text-embed-v2',
+					'multilingual-e5-large',
 				],
 				'(.*):llm.embed:inputs:llm:together:' => [
 					'api_endpoint_url:',
