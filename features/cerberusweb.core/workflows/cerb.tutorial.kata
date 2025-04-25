@@ -1,6 +1,6 @@
 workflow:
   name: cerb.tutorial
-  version: 2025-04-17T00:00:00Z
+  version: 2025-04-24T00:00:00Z
   description: A workspace with detailed descriptions and examples of Cerb functionality
   requirements:
     cerb_version: >=11.0 <11.2
@@ -1571,9 +1571,9 @@ records:
                   This allows you to enforce an organization-wide password policy and require additional authentication factors (e.g. biometrics, security keys).
 
                   See the following guides for instructions on configuring SSO:
-                  * [Authenticate worker single sign-on (SSO) from G Suite using SAML](https://cerb.ai/guides/integrations/google/sso-saml/)
-                  * [Authenticate worker single sign-on (SSO) from Microsoft Azure AD using OpenID Connect](https://cerb.ai/guides/integrations/azure/sso-openid/)
-                  * [Authenticate worker single sign-on (SSO) from Salesforce using OpenID Connect](https://cerb.ai/guides/integrations/salesforce/sso-openid/)
+                  * [Authenticate worker single sign-on (SSO) from G Suite using SAML](https://cerb.ai/guides/sso/google-saml/)
+                  * [Authenticate worker single sign-on (SSO) from Microsoft Azure AD using OpenID Connect](https://cerb.ai/guides/sso/azure-openid/)
+                  * [Authenticate worker single sign-on (SSO) from Salesforce using OpenID Connect](https://cerb.ai/guides/sso/salesforce-openid/)
         toolbar_kata@text:
   workspace_widget/widget_groups:
     fields:
