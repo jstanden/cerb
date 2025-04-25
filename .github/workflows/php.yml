@@ -3,11 +3,9 @@ name: Cerb Platform Tests
 on:
   push:
     branches:
-    - "10.*"
     - "11.*"
   pull_request:
     branches:
-    - "10.*"
     - "11.*"
 
 jobs:
@@ -29,7 +27,7 @@ jobs:
 
       - name: Cache Composer packages
         id: composer-cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: vendor
           key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
