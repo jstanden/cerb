@@ -21,6 +21,7 @@
     --cerb-interaction-window-close-text-color: white;
     --cerb-interaction-window-error-bg-color: rgb(255, 240, 240);
     --cerb-interaction-window-error-text-color: rgb(200, 0, 0);
+    --cerb-interaction-window-text-color: black;
     --cerb-interaction-window-title-bg: rgb(26, 26, 26);
     --cerb-interaction-window-title-bg-color: rgb(35,35,35);
     --cerb-interaction-window-title-bg-color-gradient: rgb(75,75,75);
@@ -56,6 +57,7 @@
 .cerb-interaction-popup {
     font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     background: var(--cerb-interaction-window-bg-color);
+    color: var(--cerb-interaction-window-text-color);
     box-shadow: 0 0 10px 0 rgb(50, 50, 50);
 
     /*opacity: 0;*/
