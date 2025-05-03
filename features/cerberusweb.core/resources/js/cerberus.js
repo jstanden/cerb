@@ -374,7 +374,7 @@ var cerbAutocompleteSuggestions = {
 			},
 			'resource:'
 		],
-		'map:regions:properties:join': [
+		'map:regions:properties:join:': [
 			'property:',
 			'case:'
 		],
@@ -385,6 +385,16 @@ var cerbAutocompleteSuggestions = {
 		'map:regions:properties:resource:': [
 			'uri:'
 		],
+		'map:regions:properties:resource:uri:': {
+			'type': 'cerb-uri',
+			'params': {
+				'resource': {
+					'types': [
+						'cerb.resource.map.properties'
+					]
+				}
+			}
+		},
 		'map:regions:filter:': [
 			{
 				'caption': 'is:',
