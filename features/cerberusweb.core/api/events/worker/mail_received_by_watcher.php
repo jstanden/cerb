@@ -623,9 +623,11 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 				$content = $tpl_builder->build($params['content'] ?? '', $dict);
 				$format = $params['format'] ?? null;
 				$html_template_id = $params['html_template_id'] ?? null;
+				$participants = DAO_Ticket::getRequestersByTicket($ticket_id);
 				
 				$properties = [
 					'ticket_id' => $ticket_id,
+					'to' => is_array($participants) ? implode(', ', array_column($participants, 'email')) : '',
 					'message_id' => $message_id,
 					'content' => $content,
 					'content_format' => $format,

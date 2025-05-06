@@ -1076,15 +1076,17 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				$content = $tpl_builder->build($params['content'] ?? '', $dict);
 				$format = $params['format'] ?? null;
 				$html_template_id = $params['html_template_id'] ?? null;
+				$participants = DAO_Ticket::getRequestersByTicket($ticket_id);
 				
 				$properties = [
 					'ticket_id' => $ticket_id,
+					'to' => is_array($participants) ? implode(', ', array_column($participants, 'email')) : '',
 					'message_id' => $message_id,
 					'content' => $content,
 					'content_format' => $format,
 					'html_template_id' => $html_template_id,
 					'worker_id' => 0, //$worker_id,
-					'forward_files' => array(),
+					'forward_files' => [],
 					'link_forward_files' => true,
 				];
 				
