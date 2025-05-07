@@ -368,28 +368,26 @@ class CerberusParserModel {
 					&& ($relay_message_id = $this->isValidAuthHeader($ref, $senderWorker))) {
 					
 					if(null != ($ticket = DAO_Ticket::getTicketByMessageId($relay_message_id))) {
-						$this->_ticket_id = $ticket->id;
-						$this->_ticket_model = $ticket;
-						$this->_message_id = $relay_message_id;
-						$this->_is_new = empty($this->_ticket_model->first_message_id);
+						$this->setTicketModel($ticket);
+						$this->setMessageId($relay_message_id);
+						$this->setIsNew(empty($ticket->first_message_id));
 						return;
 					}
 				}
 				
 				// Otherwise, look up the normal header
 				if(null != ($ids = DAO_Ticket::getTicketByMessageIdHeader($ref))) {
-					$this->_ticket_id = $ids['ticket_id'];
-					$this->_ticket_model = DAO_Ticket::get($this->_ticket_id);
-					$this->_message_id = $ids['message_id'];
-					$this->_is_new = empty($this->_ticket_model->first_message_id);
+					$this->setTicketId($ids['ticket_id']);
+					$this->setMessageId($ids['message_id']);
+					$this->setIsNew(empty($this->getTicketModel()->first_message_id ?? null));
 					$this->logEventResults('mail.thread', [
 						DevblocksDictionaryDelegate::instance([
 							'__handler' => 'references/' . uniqid(),
 							'__handler_uri' => 'cerb:app:0',
 							'__return' => [
 								'reference' => $ref,
-								'message_id' => $this->_message_id ?? null,
-								'ticket_id' => $this->_ticket_id ?? null,
+								'message_id' => $this->getMessageId() ?? null,
+								'ticket_id' => $this->getTicketId() ?? null,
 							],
 						])
 					]);
@@ -409,18 +407,17 @@ class CerberusParserModel {
 				if(isset($matches[1])) {
 					$mask = $matches[1];
 					if($mask && null != ($ticket = DAO_Ticket::getTicketByMask($mask))) {
-						$this->_ticket_id = $ticket->id;
-						$this->_ticket_model = $ticket;
-						$this->_message_id = $ticket->last_message_id;
-						$this->_is_new = empty($this->_ticket_model->first_message_id);
+						$this->setTicketModel($ticket);
+						$this->setMessageId($ticket->last_message_id);
+						$this->setIsNew(empty($this->_ticket_model->first_message_id));
 						$this->logEventResults('mail.thread', [
 							DevblocksDictionaryDelegate::instance([
 								'__handler' => 'subject/' . uniqid(),
 								'__handler_uri' => 'cerb:app:0',
 								'__return' => [
 									'mask' => $mask,
-									'message_id' => $this->_message_id ?? null,
-									'ticket_id' => $this->_ticket_id ?? null,
+									'message_id' => $this->getMessageId() ?? null,
+									'ticket_id' => $this->getTicketId() ?? null,
 								],
 							])
 						]);

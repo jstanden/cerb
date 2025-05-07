@@ -694,6 +694,12 @@ class CerberusMail {
 			}
 		}
 		
+		// Index the first message
+		if(!$ticket->first_message_id) {
+			$change_fields[DAO_Ticket::FIRST_MESSAGE_ID] = $new_message_id;
+			$change_fields[DAO_Ticket::FIRST_WROTE_ID] = $from_address->id ?? 0;
+		}
+		
 		// Store ticket.last_message_id
 		$change_fields[DAO_Ticket::LAST_MESSAGE_ID] = $new_message_id;
 		
