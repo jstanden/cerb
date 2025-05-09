@@ -1276,16 +1276,26 @@ DIV.block.hover-underline A {
 DIV.block.hover-underline A:hover {
   text-decoration: underline;
 }
-DIV.block H2, DIV.block H3 {
+DIV.block H1, DIV.block H2, DIV.block H3, DIV.block H4 {
   font-weight: bold;
-  font-size: 18px;
   margin: 0;
 }
+DIV.block H1 {
+  font-size: 2em;
+}
 DIV.block H2 {
+  font-size: 1.75em;
   color: var(--cerb-color-h1);
 }
 DIV.block H3 {
+  font-size: 1.5em;
   color: var(--cerb-color-background-contrast-75);
+}
+DIV.block H4 {
+  font-size: 1.25em;
+}
+DIV.block .emailBodyHtml H1, DIV.block .emailBodyHtml H2, DIV.block .emailBodyHtml H3, DIV.block .emailBodyHtml H4, DIV.block .emailBodyHtml H5, DIV.block .emailBodyHtml H6, DIV.block .emailBodyHtmlLight H1, DIV.block .emailBodyHtmlLight H2, DIV.block .emailBodyHtmlLight H3, DIV.block .emailBodyHtmlLight H4, DIV.block .emailBodyHtmlLight H5, DIV.block .emailBodyHtmlLight H6 {
+  color: var(--cerb-color-text);
 }
 
 DIV.error {

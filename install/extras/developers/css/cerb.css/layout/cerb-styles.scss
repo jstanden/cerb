@@ -1077,18 +1077,34 @@ DIV.block {
 		}
 	}
 
-	H2, H3 {
+	H1, H2, H3, H4 {
 		font-weight: bold;
-		font-size: 18px;
 		margin: 0;
 	}
 
+	H1 {
+		font-size: 2em;
+	}
+
 	H2 {
+		font-size: 1.75em;
 		color: var(--cerb-color-h1);
 	}
 
 	H3 {
+		font-size: 1.5em;
 		color: var(--cerb-color-background-contrast-75);
+	}
+
+	H4 {
+		font-size: 1.25em;
+	}
+
+	// Don't override HTML headings
+	.emailBodyHtml, .emailBodyHtmlLight {
+		H1, H2, H3, H4, H5, H6 {
+			color: var(--cerb-color-text);
+		}
 	}
 }
 
