@@ -592,7 +592,12 @@ class Controller_UI extends DevblocksControllerExtension {
 			fclose($fp);
 			
 		} else { // Otherwise output as a string
-			$validator = DevblocksPlatform::services()->validation()->validators()->image();
+			$validator = DevblocksPlatform::services()->validation()->validators()->image(
+				max_width: 4096,
+				max_height: 4096,
+				max_size: 2_048_000,
+			);
+			
 			$bytes = $resource->getFileContents();
 			
 			if(!($validator('data:image/png;base64,' . base64_encode($bytes), $error)))
