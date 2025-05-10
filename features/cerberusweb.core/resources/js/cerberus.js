@@ -1415,6 +1415,8 @@ let twigAutocompleteSuggestions = {
 		{ value: "parse_url", meta: "filter" },
 		{ value: "parse_user_agent", meta: "filter" },
 		{ value: "permalink", meta: "filter" },
+		{ value: "qp_decode", meta: "filter" },
+		{ value: "qp_encode", meta: "filter" },
 		{ value: "quote", meta: "filter" },
 		{ value: "raw", meta: "filter" },
 		{ value: "reduce(func,initial)", snippet: "reduce((carry,v) => carry + v)", meta: "filter" },

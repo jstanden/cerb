@@ -189,6 +189,8 @@ class _DevblocksTemplateBuilder {
 				'parse_user_agent',
 				'parse_url',
 				'permalink',
+				'qp_decode',
+				'qp_encode',
 				'quote',
 				'regexp',
 				'repeat',
@@ -1895,6 +1897,8 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			new \Twig\TwigFilter('parse_url', [$this, 'filter_parse_url']),
 			new \Twig\TwigFilter('parse_user_agent', [$this, 'filter_parse_user_agent']),
 			new \Twig\TwigFilter('permalink', [$this, 'filter_permalink']),
+			new \Twig\TwigFilter('qp_decode', [$this, 'filter_qp_decode']),
+			new \Twig\TwigFilter('qp_encode', [$this, 'filter_qp_encode']),
 			new \Twig\TwigFilter('quote', [$this, 'filter_quote']),
 			new \Twig\TwigFilter('regexp', [$this, 'filter_regexp']),
 			new \Twig\TwigFilter('repeat', [$this, 'filter_repeat']),
@@ -2287,6 +2291,26 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			return '';
 		
 		return DevblocksPlatform::strToPermalink($string, $spaces_as);
+	}
+	
+	function filter_qp_decode($string) {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
+		if(!is_string($string))
+			return '';
+		
+		return Horde_Mime_QuotedPrintable::decode($string);
+	}
+	
+	function filter_qp_encode($string, $wrap_to=76) {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
+		if(!is_string($string))
+			return '';
+		
+		return Horde_Mime_QuotedPrintable::encode($string, "\n", $wrap_to);
 	}
 	
 	function filter_quote($string, $wrap_to=76) {
