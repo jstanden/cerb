@@ -12,6 +12,7 @@
 		<li data-example="text"><div><b>Plaintext</b></div></li>
 		<li data-example="html"><div><b>HTML</b></div></li>
 		<li data-example="text/html"><div><b>Plaintext + HTML</b></div></li>
+		<li data-example="quoted-printable"><div><b>Quoted-printable with emoji</b></div></li>
 		<li data-example="attachment-text"><div><b>Attachment (.txt)</b></div></li>
 		<li data-example="attachment-image"><div><b>Attachment (.png)</b></div></li>
 	</ul>
@@ -51,6 +52,8 @@ $(function() {
 				snippet = "From: customer@cerb.example\nTo: support@cerb.example\nSubject: HTML message\nContent-Type: text/html; charset=utf-8\n\n<div>This is an <b>HTML</b> message.</div>\n";
 			} else if('text/html' === example_type) {
 				snippet = "From: customer@cerb.example\nTo: support@cerb.example\nSubject: Plaintext + HTML message\nContent-Type: multipart/alternative; boundary=a1b2c3d4e5\n\n--a1b2c3d4e5\nContent-Type: text/plain; charset=utf-8\n\nThis is a plaintext part.\n\n--a1b2c3d4e5\nContent-Type: text/html; charset=utf-8\n\n<div>This is an <b>HTML</b> message.</div>\n--a1b2c3d4e5--";
+			} else if('quoted-printable' === example_type) {
+				snippet = "From: customer@cerb.example\nTo: support@cerb.example\nMIME-Version: 1.0\nContent-Type: text/plain; charset=\"UTF-8\"\nContent-Transfer-Encoding: quoted-printable\nSubject: =?UTF-8?Q?Welcome_=F0=9F=8C=9F_to_our_service=21?=\n\nHello and welcome to our new service! =F0=9F=98=80\n\nWe're delighted =F0=9F=8E=89 to have you as a member of our community.\nThis is a sample email with emojis =F0=9F=9A=80 and quoted-printable =\nencoding.\n\nHave a great day! =F0=9F=8C=88\n\nBest regards,\nThe Team =F0=9F=91=8B";
 			} else if('attachment-text' === example_type) {
 				snippet = "From: customer@cerb.example\nTo: support@cerb.example\nSubject: Message with text attachment\nContent-Type: multipart/mixed; boundary=a1b2c3d4e5\n\n--a1b2c3d4e5\nContent-Type: text/plain; charset=utf-8\n\nThis is a plaintext part.\n\n--a1b2c3d4e5\nContent-Type: text/plain; charset=utf-8\nContent-Disposition: attachment; filename=example.txt\n\nThis is the file content.\n--a1b2c3d4e5--";
 			} else if('attachment-image' === example_type) {
