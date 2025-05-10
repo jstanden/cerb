@@ -60,7 +60,7 @@
 		"donatj/phpuseragentparser": "^1.0",
 		"twig/twig" : "dev-3.8.0-cerb",
 		"singpolyma/openpgp-php": "^0.7.0",
-		"horde/imap-client": "dev-2.30.6-cerb",
+		"horde/imap-client": "dev-2.30.7-cerb",
 		"ramsey/uuid": "^4.1",
 		"enshrined/svg-sanitize": "^0.15",
 		"sebastian/diff": "^4.0",
