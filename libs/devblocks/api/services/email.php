@@ -1207,20 +1207,19 @@ class _DevblocksEmailManager {
 			
 			// Are we using a connected account for XOAUTH2?
 			if($connected_account_id) {
-				if(false == ($connected_account = DAO_ConnectedAccount::get($connected_account_id)))
+				if(!($connected_account = DAO_ConnectedAccount::get($connected_account_id)))
 					throw new Exception("Failed to load the connected account");
 					
-				if(false == ($service = $connected_account->getService()))
+				if(!($service = $connected_account->getService()))
 					throw new Exception("Failed to load the connected service");
 				
-				if(false == ($service_extension = $service->getExtension()))
+				if(!($service_extension = $service->getExtension()))
 					throw new Exception("Failed to load the connected service extension");
 				
 				if(!($service_extension instanceof ServiceProvider_OAuth2))
 					throw new Exception("The connected account is not an OAuth2 provider");
 				
-				/** @var $service_extension ServiceProvider_OAuth2 */
-				if(false == ($access_token = $service_extension->getAccessToken($connected_account)))
+				if(!($access_token = $service_extension->getAccessToken($connected_account)))
 					throw new Exception("Failed to load the access token");
 				
 				$options['xoauth2_token'] = new Horde_Imap_Client_Password_Xoauth2($username, $access_token->getToken());
@@ -1247,7 +1246,7 @@ class _DevblocksEmailManager {
 		return TRUE;
 	}
 	
-	private function _testMailboxPop3($server, $port, $service, $username, $password, $timeout_secs=30) {
+	private function _testMailboxPop3($server, $port, $service, $username, $password, $timeout_secs=30, $connected_account_id=0) {
 		$imap_timeout = !empty($timeout_secs) ? $timeout_secs : 30;
 		
 		//$fp_log = fopen('php://memory', 'w');
@@ -1267,6 +1266,31 @@ class _DevblocksEmailManager {
 				$options['secure'] = 'tlsv1';
 			} else if($service == 'pop3-starttls') {
 				$options['secure'] = 'tls';
+			}
+			
+			// Are we using a connected account for XOAUTH2?
+			if($connected_account_id) {
+				if(!($connected_account = DAO_ConnectedAccount::get($connected_account_id)))
+					throw new Exception("Failed to load the connected account");
+				
+				if(!($service = $connected_account->getService()))
+					throw new Exception("Failed to load the connected service");
+				
+				if(!($service_extension = $service->getExtension()))
+					throw new Exception("Failed to load the connected service extension");
+				
+				if(!($service_extension instanceof ServiceProvider_OAuth2))
+					throw new Exception("The connected account is not an OAuth2 provider");
+				
+				if(!($access_token = $service_extension->getAccessToken($connected_account)))
+					throw new Exception("Failed to load the access token");
+				
+				$xoauth2 = new Horde_Imap_Client_Password_Xoauth2($username, $access_token->getToken());
+				
+				$options['xoauth2_token'] = $xoauth2;
+				
+				if(!$options['password'])
+					$options['password'] = 'XOAUTH2';
 			}
 			
 			$client = new Horde_Imap_Client_Socket_Pop3($options);
@@ -1293,7 +1317,7 @@ class _DevblocksEmailManager {
 			case 'pop3':
 			case 'pop3-ssl':
 			case 'pop3-starttls':
-				return $this->_testMailboxPop3($server, $port, $service, $username, $password, $timeout_secs);
+				return $this->_testMailboxPop3($server, $port, $service, $username, $password, $timeout_secs, $connected_account_id);
 				
 			case 'imap':
 			case 'imap-ssl':
