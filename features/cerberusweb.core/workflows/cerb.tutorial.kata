@@ -1,6 +1,6 @@
 workflow:
   name: cerb.tutorial
-  version: 2025-04-24T00:00:00Z
+  version: 2025-05-08T00:00:00Z
   description: A workspace with detailed descriptions and examples of Cerb functionality
   requirements:
     cerb_version: >=11.0 <11.2
@@ -353,7 +353,7 @@ records:
       tab_id: {{records.tab_welcome.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 2
-      width_units@int: 2
+      width_units@int: 4
       zone: right
       params:
         data_query@text:
@@ -481,11 +481,11 @@ records:
         toolbar_kata@text:
   workspace_widget/widget_contribute:
     fields:
-      label: Contribute
+      label: Promote
       tab_id: {{records.tab_welcome.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 2
-      width_units@int: 2
+      width_units@int: 4
       zone: right
       options_kata@text:
       params:
