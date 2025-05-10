@@ -66,6 +66,16 @@
 	</div>
 </fieldset>
 
+<fieldset data-id="cerb-security" class="peek">
+	<legend>{{'common.security'|devblocks_translate|capitalize}}</legend>
+
+	<b>Allow external images from these URL prefixes:</b> (one per line)
+	<div>
+		<textarea name="security_csp_img_src" style="height:8.5em;width:90%;">{$security_csp_img_src}</textarea>
+		<div>(e.g. <code>https://example.com/</code>)</div>
+	</div>
+</fieldset>
+
 <button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 </form>
 

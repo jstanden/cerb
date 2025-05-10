@@ -59,6 +59,7 @@ class UmScApp extends Extension_CommunityPortal {
 	const PARAM_FAVICON_URL = 'common.favicon_url';
 	const PARAM_DEFAULT_LOCALE = 'common.locale';
 	const PARAM_LOGIN_EXTENSIONS = 'common.login_extensions';
+	const PARAM_SECURITY_CSP_IMG_SRC = 'security.csp_img_src';
 	const PARAM_VISIBLE_MODULES = 'common.visible_modules';
 	
 	const SESSION_CAPTCHA = 'write_captcha';
@@ -255,6 +256,18 @@ class UmScApp extends Extension_CommunityPortal {
 		$login_extensions_enabled = UmScApp::getLoginExtensionsEnabled(ChPortalHelper::getCode());
 		$tpl->assign('login_extensions_enabled', $login_extensions_enabled);
 		
+		$security_csp_img_srcs = DevblocksPlatform::parseCrlfString(
+			DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_SECURITY_CSP_IMG_SRC, null)
+		);
+		
+		DevblocksPlatform::services()->http()->setHeader(
+			'Content-Security-Policy',
+			sprintf(
+				"default-src 'self'; img-src 'self' %s; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; object-src 'none';",
+				$security_csp_img_srcs ? implode(' ', $security_csp_img_srcs) : '',
+			)
+		);
+		
 		$module_uri = array_shift($stack);
 		
 		switch($module_uri) {
@@ -432,6 +445,9 @@ class UmScApp extends Extension_CommunityPortal {
 		$favicon_url = DAO_CommunityToolProperty::get($portal->code, self::PARAM_FAVICON_URL, null);
 		$tpl->assign('favicon_url', $favicon_url);
 
+		$security_csp_img_src = DAO_CommunityToolProperty::get($portal->code, self::PARAM_SECURITY_CSP_IMG_SRC, null);
+		$tpl->assign('security_csp_img_src', $security_csp_img_src);
+
 		// Modules
 
 		$visible_modules = DAO_CommunityToolProperty::getJson($portal->code, self::PARAM_VISIBLE_MODULES, '');
@@ -468,6 +484,7 @@ class UmScApp extends Extension_CommunityPortal {
 		$sPageTitle = DevblocksPlatform::importGPC($_POST['page_title'] ?? null, 'string','Contact Us');
 		$logo_url = DevblocksPlatform::importGPC($_POST['logo_url'] ?? null, 'string',null);
 		$favicon_url = DevblocksPlatform::importGPC($_POST['favicon_url'] ?? null, 'string',null);
+		$security_csp_img_src = DevblocksPlatform::importGPC($_POST['security_csp_img_src'] ?? null, 'string',null);
 		
 		// Modules (toggle + sort)
 		$aEnabledModules = array();
@@ -483,6 +500,22 @@ class UmScApp extends Extension_CommunityPortal {
 		// [TODO] Validate these URLs
 		DAO_CommunityToolProperty::set($portal->code, self::PARAM_LOGO_URL, $logo_url);
 		DAO_CommunityToolProperty::set($portal->code, self::PARAM_FAVICON_URL, $favicon_url);
+		
+		// Validate as URLs
+		if($security_csp_img_src) {
+			$validation = DevblocksPlatform::services()->validation();
+			
+			$security_csp_img_src = array_filter(
+				DevblocksPlatform::parseCrlfString($security_csp_img_src),
+				function($url) use ($validation) {
+					return $validation->validators()->url()($url);
+				},
+			);
+			
+			$security_csp_img_src = implode("\n", $security_csp_img_src);
+		}
+		
+		DAO_CommunityToolProperty::set($portal->code, self::PARAM_SECURITY_CSP_IMG_SRC, $security_csp_img_src);
 
 		// Default Locale
 		$sDefaultLocale = DevblocksPlatform::importGPC($_POST['default_locale'] ?? null, 'string','en_US');
