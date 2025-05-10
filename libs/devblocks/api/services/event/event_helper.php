@@ -3574,14 +3574,14 @@ class DevblocksEventHelper {
 			$dict
 		);
 		
-		if(false != ($parsed_recipients = CerberusMail::parseRfcAddresses($email_addresses_str, true)) && is_array($recipients))
+		if(($parsed_recipients = CerberusMail::parseRfcAddresses($email_addresses_str, true)) && is_array($recipients))
 			$recipients = DevblocksPlatform::extractArrayValues($parsed_recipients, 'email', true);
 		
 		// Include addys from variables
 		
-		@$from_vars = DevblocksPlatform::importVar($params['from_vars'],'array',[]);
+		$from_vars = DevblocksPlatform::importVar($params['from_vars'] ?? null,'array',[]);
 
-		if(false != ($objects = self::_getObjectsFromDictVars($dict, $from_vars, CerberusContexts::CONTEXT_ADDRESS)))
+		if(($objects = self::_getObjectsFromDictVars($dict, $from_vars, CerberusContexts::CONTEXT_ADDRESS)))
 			foreach($objects as $object)
 				$recipients[] = $object->address;
 		

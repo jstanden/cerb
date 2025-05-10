@@ -49,7 +49,7 @@
 		<div class="config"></div>
 		
 		<div>
-			<button type="button" class="import"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.import'|devblocks_translate|capitalize}</button>
+			<button type="button" class="import"><span class="glyphicons glyphicons-circle-ok"></span> {'common.import'|devblocks_translate|capitalize}</button>
 		</div>
 	</div>
 	{/if}

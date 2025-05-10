@@ -145,7 +145,7 @@
                 <textarea name="import_json" style="width:100%;height:250px;white-space:pre;word-wrap:normal;" rows="10" cols="45" spellcheck="false" placeholder="Paste a dashboard widget in JSON format"></textarea>
 
                 <div>
-                    <button type="button" class="import"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.import'|devblocks_translate|capitalize}</button>
+                    <button type="button" class="import"><span class="glyphicons glyphicons-circle-ok"></span> {'common.import'|devblocks_translate|capitalize}</button>
                 </div>
             </div>
         {/if}

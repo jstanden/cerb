@@ -10,7 +10,7 @@
 	<textarea name="data_query" data-editor-mode="ace/mode/cerb_query" rows="5" cols="45"></textarea>
 	<br>
 	
-	<button type="button" class="submit"><span class="glyphicons glyphicons-play" style="color:rgb(0,180,0);"></span> {'common.run'|devblocks_translate|capitalize}</button>
+	<button type="button" class="submit"><span class="glyphicons glyphicons-play"></span> {'common.run'|devblocks_translate|capitalize}</button>
 	
 	<div class="status" style="margin-top:10px;display:none;">
 		<textarea class="cerb-data-query-results" data-editor-mode="ace/mode/json" rows="5" cols="45"></textarea>

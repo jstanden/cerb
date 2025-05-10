@@ -16,7 +16,7 @@
 	<textarea name="bot_script" data-editor-mode="ace/mode/twig" rows="5" cols="45" class="placeholders"></textarea>
 	<br>
 	
-	<button type="button" class="submit"><span class="glyphicons glyphicons-play" style="color:rgb(0,180,0);"></span> {'common.run'|devblocks_translate|capitalize}</button>
+	<button type="button" class="submit"><span class="glyphicons glyphicons-play"></span> {'common.run'|devblocks_translate|capitalize}</button>
 </fieldset>
 
 <div class="status" style="margin-top:10px;"></div>
