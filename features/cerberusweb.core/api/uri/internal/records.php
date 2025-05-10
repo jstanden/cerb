@@ -364,14 +364,13 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		$file_name = rawurldecode($_SERVER['HTTP_X_FILE_NAME'] ?? null);
 		$file_type = $_SERVER['HTTP_X_FILE_TYPE'] ?? null;
 		$file_size = $_SERVER['HTTP_X_FILE_SIZE'] ?? null;
+		$file_as_resource = $_SERVER['HTTP_X_FILE_AS_RESOURCE'] ?? null;
 		
 		$url_writer = DevblocksPlatform::services()->url();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 		
-		// [TODO] Privs!
-		// [TODO] Exceptions return JSON
 		if(empty($file_name) || empty($file_size)) {
 			return;
 		}
@@ -395,42 +394,72 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		// SHA-1 the temp file
 		$sha1_hash = sha1_file($temp_name) ?? null;
 		
-		if(!($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $file_size, $file_type, $file_name))) {
-			// Create a record w/ timestamp + ID
-			$fields = [
-				DAO_Attachment::NAME => $file_name,
-				DAO_Attachment::MIME_TYPE => $file_type,
-				DAO_Attachment::STORAGE_SHA1HASH => $sha1_hash,
-			];
-			$file_id = DAO_Attachment::create($fields);
+		if($file_as_resource) {
+			$expires_at = time() + 3600;
+			$resource_token = DevblocksPlatform::services()->string()->uuid();
 			
-			// Save the file
-			Storage_Attachments::put($file_id, $fp);
+			$resource_id = \DAO_AutomationResource::create([
+				\DAO_AutomationResource::NAME => $file_name,
+				\DAO_AutomationResource::MIME_TYPE => $file_type,
+				\DAO_AutomationResource::TOKEN => $resource_token,
+				\DAO_AutomationResource::EXPIRES_AT => $expires_at,
+			]);
+			
+			\Storage_AutomationResource::put($resource_id, $fp);
+			
+			fclose($fp);
+			
+			if($resource_id) {
+				echo json_encode([
+					'uri' => 'cerb:automation_resource:' . $resource_token,
+					'token' => $resource_token,
+					'name' => $file_name,
+					'type' => $file_type,
+					'expires_at' => $expires_at,
+					'size' => $file_size,
+					'size_label' => DevblocksPlatform::strPrettyBytes($file_size),
+					'url' => $url_writer->write(sprintf("c=ui&a=image&token=%s", urlencode($resource_token)), true),
+				]);
+			}
 			
 		} else {
-			if(($file = DAO_Attachment::get($file_id))) {
-				$file_name = $file->name; 
-				$file_type = $file->mime_type; 
-				$file_size = $file->storage_size; 
+			if(!($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $file_size, $file_type, $file_name))) {
+				// Create a record w/ timestamp + ID
+				$fields = [
+					DAO_Attachment::NAME => $file_name,
+					DAO_Attachment::MIME_TYPE => $file_type,
+					DAO_Attachment::STORAGE_SHA1HASH => $sha1_hash,
+				];
+				$file_id = DAO_Attachment::create($fields);
+				
+				// Save the file
+				Storage_Attachments::put($file_id, $fp);
+				
+			} else {
+				if(($file = DAO_Attachment::get($file_id))) {
+					$file_name = $file->name;
+					$file_type = $file->mime_type;
+					$file_size = $file->storage_size;
+				}
 			}
-		}
-		
-		// A worker who uploaded this file will always have access to it, whether it was a dupe or not
-		DAO_Attachment::addLinks(CerberusContexts::CONTEXT_WORKER, $active_worker->id, $file_id);
-		
-		// Close the temp file
-		fclose($fp);
-		
-		if($file_id) {
-			echo json_encode([
-				'id' => intval($file_id),
-				'name' => $file_name,
-				'type' => $file_type,
-				'size' => intval($file_size),
-				'size_label' => DevblocksPlatform::strPrettyBytes($file_size),
-				'sha1_hash' => $sha1_hash,
-				'url' => $url_writer->write(sprintf("c=files&id=%d&name=%s", $file_id, urlencode($file_name)), true),
-			]);
+			
+			// A worker who uploaded this file will always have access to it, whether it was a dupe or not
+			DAO_Attachment::addLinks(CerberusContexts::CONTEXT_WORKER, $active_worker->id, $file_id);
+			
+			fclose($fp);
+			
+			if($file_id) {
+				echo json_encode([
+					'id' => intval($file_id),
+					'uri' => 'cerb:attachment:' . intval($file_id),
+					'name' => $file_name,
+					'type' => $file_type,
+					'size' => intval($file_size),
+					'size_label' => DevblocksPlatform::strPrettyBytes($file_size),
+					'sha1_hash' => $sha1_hash,
+					'url' => $url_writer->write(sprintf("c=files&id=%d&name=%s", $file_id, urlencode($file_name)), true),
+				]);
+			}
 		}
 	}
 	

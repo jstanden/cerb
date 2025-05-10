@@ -29,8 +29,12 @@ class EditorAwait extends AbstractAwait {
 		
 		$label = $this->_data['label'] ?? null;
 		$default = $this->_data['default'] ?? null;
+		$options = $this->_data['options'] ?? [];
 		$syntax = $this->_data['syntax'] ?? null;
 		$editor_readonly = boolval($this->_data['readonly'] ?? null);
+		
+		if(!is_array($options))
+			$options = [];
 		
 		if(array_key_exists('line_numbers', $this->_data)) {
 			$editor_show_line_numbers = boolval($this->_data['line_numbers'] ?? false);
@@ -40,6 +44,7 @@ class EditorAwait extends AbstractAwait {
 		
 		$editor_mode = '';
 		$editor_autocompletion = '';
+		$editor_options = [];
 		
 		switch($syntax) {
 			case 'cerb_query_data':
@@ -55,10 +60,14 @@ class EditorAwait extends AbstractAwait {
 			
 			case 'html':
 			case 'json':
-			case 'markdown':
 			case 'text':
 			case 'yaml':
 				$editor_mode = 'ace/mode/' . $syntax;
+				break;
+				
+			case 'markdown':
+				$editor_mode = 'ace/mode/markdown';
+				$editor_options = $options['markdown'] ?? [];
 				break;
 				
 			case 'kata':
@@ -94,6 +103,7 @@ class EditorAwait extends AbstractAwait {
 		$tpl->assign('default', $default);
 		$tpl->assign('editor_mode', $editor_mode);
 		$tpl->assign('editor_autocompletion', $editor_autocompletion);
+		$tpl->assign('editor_options', $editor_options);
 		$tpl->assign('editor_readonly', $editor_readonly);
 		$tpl->assign('editor_show_line_numbers', $editor_show_line_numbers);
 		

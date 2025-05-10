@@ -39,7 +39,14 @@ $(function() {
     ;
 
     var editor = ace.edit($editor.attr('id'));
-    
+
+    {if $editor_mode == 'ace/mode/markdown' && $editor_options['paste_images']}
+    $editor.cerbCodeEditorInlineImagePaster({
+        'editor': editor,
+        'as_attachment': false
+    });
+    {/if}
+
     {if editor_has_toolbar}
     $editor_toolbar.cerbToolbar({
         caller: {

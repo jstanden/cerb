@@ -571,6 +571,12 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'yes',
 					'no',
 				],
+				'(.*):await:form:elements:editor:options:' => [
+					'markdown:',
+				],
+				'(.*):await:form:elements:editor:options:markdown:' => [
+					'paste_images@bool: yes',
+				],
 				'(.*):await:form:elements:editor:syntax:' => [
 					'cerb_query_data',
 					'cerb_query_search',

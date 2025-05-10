@@ -5930,9 +5930,8 @@ var ajax = new cAjaxCalls();
 
 	$.fn.cerbCodeEditorInlineImagePaster = function(options) {
 		return this.each(function() {
-			var $cursor = $(this);
-			var $attachments = options['attachmentsContainer'];
-			var $ul = $attachments.find('ul.chooser-container');
+			let $cursor = $(this);
+			let as_attachment = options['as_attachment'] || false;
 
 			$cursor.on('paste', function(e) {
 				e.preventDefault();
@@ -5940,81 +5939,39 @@ var ajax = new cAjaxCalls();
 
 				// Uploads
 
-				var jobs = [];
-				var labels = [];
-				var values = [];
+				let jobs = [];
 
-				var uploadFunc = function(f, labels, values, callback) {
-					var xhr = new XMLHttpRequest();
+				let uploadFunc = function(f, callback) {
+					let xhr = new XMLHttpRequest();
 
 					if(xhr.upload) {
-						var $spinner = Devblocks.getSpinner()
-							.css('max-width', '16px')
-							.css('margin-right', '5px')
-						;
+						let upload_url = DevblocksAppPath + 'ajax.php?c=internal&a=invoke&module=records&action=chooserOpenFileAjaxUpload';
 
-						var $status = $('<li/>');
-
-						$status
-							.appendTo($ul)
-							.append($spinner)
-							.append(
-								$('<span/>')
-									.text('Uploading ' + f.name)
-							)
-						;
-
-						xhr.open('POST', DevblocksAppPath + 'ajax.php?c=internal&a=invoke&module=records&action=chooserOpenFileAjaxUpload', true);
+						xhr.open('POST', upload_url, true);
 						xhr.setRequestHeader('X-File-Name', encodeURIComponent(f.name));
 						xhr.setRequestHeader('X-File-Type', f.type);
 						xhr.setRequestHeader('X-File-Size', f.size);
 						xhr.setRequestHeader('X-CSRF-Token', $('meta[name="_csrf_token"]').attr('content'));
+						
+						if(!as_attachment) {
+							xhr.setRequestHeader('X-File-As-Resource', 'true');
+						}
 
 						xhr.onreadystatechange = function(e) {
-							if(xhr.readyState == 4) {
-								$status.remove();
-
-								// var json = {};
-
-								if(xhr.status == 200) {
-									var json = JSON.parse(xhr.responseText);
-
-									var file_id = json.id;
-									var file_name = json.name;
-									var file_type = json.type;
-									var file_size_label = '(' + json.size_label + ')';
-
-									var url =
-										document.location.protocol
-										+ '//'
-										+ document.location.host
-										+ DevblocksWebPath
-										+ 'files/'
-										+ encodeURIComponent(file_id) + '/'
-										+ encodeURIComponent(file_name)
-									;
-
-									// Paste at cursor
-									if(file_type.lastIndexOf("image/", 0) === 0) {
-										options['editor'].insertSnippet('![inline-image](' + url + ")\n");
-									}
-
-									// Add to attachments container
-									if($ul && 0 === $ul.find('input:hidden[value="' + file_id + '"]').length) {
-										var $hidden = $('<input type="hidden"/>')
-											.attr('name', $attachments.find('button[data-field-name]').attr('data-field-name') + '[]')
-											.val(file_id)
-											;
-										let $remove = $('<a><span class="glyphicons glyphicons-circle-remove"></span></a>');
-										$remove.on('click', Devblocks.onClickRemoveParent);
-										let $a = $('<a/>')
-											.attr('data-context', 'attachment')
-											.attr('data-context-id', file_id)
-											.text(file_name + ' ' + file_size_label)
-											.cerbPeekTrigger()
-										;
-										var $li = $('<li/>').append($a).append($hidden).append($remove);
-										$ul.append($li);
+							if(xhr.readyState === 4) {
+								if(xhr.status === 200) {
+									let json = JSON.parse(xhr.responseText);
+									
+									if(typeof json == 'object'
+										&& json.hasOwnProperty('type')
+										&& json.hasOwnProperty('url')
+									) {
+										let file_type = json.type;
+										
+										// Paste at cursor
+										if (file_type.lastIndexOf("image/", 0) === 0) {
+											options['editor'].insertSnippet('![image](' + json.url + ")\n");
+										}
 									}
 								}
 
@@ -6025,13 +5982,19 @@ var ajax = new cAjaxCalls();
 						xhr.send(f);
 					}
 				};
+				
+				let files = e.originalEvent.clipboardData.files;
 
-				var files = e.originalEvent.clipboardData.files;
-
-				for(var i = 0, f; f = files[i]; i++) {
-					jobs.push(
-						async.apply(uploadFunc, f, labels, values)
-					);
+				for(let i = 0, f; i < files.length; i++) {
+					let f = files[i]
+					
+					if(f.type.indexOf('image/') === 0) {
+						e.preventDefault();
+						
+						jobs.push(
+							async.apply(uploadFunc, f)
+						);
+					}
 				}
 
 				if(0 === jobs.length)
