@@ -647,12 +647,12 @@ class _DevblocksValidators {
 			if(0 == strlen($value))
 				return true;
 			
-			if(false == filter_var($value, FILTER_VALIDATE_URL)) {
+			if(!filter_var($value, FILTER_VALIDATE_URL)) {
 				$error = "is not a valid URL. It must start with http:// or https://";
 				return false;
 			}
 			
-			if(false == ($url_parts = parse_url($value))) {
+			if(!($url_parts = parse_url($value))) {
 				$error = "is not a valid URL.";
 				return false;
 			}

@@ -1221,7 +1221,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					],
 					[
 						'caption' => 'length_split:',
-						'snippet' => "length_split@json: \"\n\"",
+						'snippet' => "length_split@json: \"\\n\"",
 						'description' => "When using `length:` truncate at the last occurrence of this delimiter within the read bytes",
 					],
 					[
@@ -2877,7 +2877,7 @@ abstract class Extension_CommunityPortal extends DevblocksExtension implements D
 	}
 	
 	/**
-	 * @param DevblocksHttpRequest
+	 * @param DevblocksHttpRequest $request
 	 * @return DevblocksHttpResponse
 	 */
 	public function handleRequest(DevblocksHttpRequest $request) {

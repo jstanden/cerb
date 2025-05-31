@@ -2045,7 +2045,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 					'score' => 2000,
 					'options' => array('param_key' => SearchFields_Message::CREATED_DATE),
 				),
-			'header.cc' => 
+			'header.cc' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
 					'options' => array('param_key' => SearchFields_Message::VIRTUAL_HEADER_CC),

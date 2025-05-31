@@ -4760,7 +4760,7 @@ abstract class DevblocksEventListenerExtension extends DevblocksExtension {
 
 interface DevblocksHttpRequestHandler {
 	/**
-	 * @param DevblocksHttpRequest
+	 * @param DevblocksHttpRequest $request
 	 * @return DevblocksHttpResponse
 	 */
 	public function handleRequest(DevblocksHttpRequest $request);

@@ -126,7 +126,7 @@ abstract class Extension_UmScController extends DevblocksExtension implements De
 	 */
 	
 	/**
-	 * @param DevblocksHttpRequest
+	 * @param DevblocksHttpRequest $request
 	 * @return DevblocksHttpResponse
 	 */
 	public function handleRequest(DevblocksHttpRequest $request) {

@@ -838,7 +838,7 @@ class PageSection_InternalRecords extends Extension_PageSection {
 			if(
 				empty($ids)
 				|| count($ids) < 2
-				|| false == ($models = $context_ext->getModelObjects($ids))
+				|| !($models = $context_ext->getModelObjects($ids))
 				|| count($models) < 2
 			)
 				throw new Exception_DevblocksValidationError("You haven't provided at least two records to merge.");
@@ -1102,7 +1102,8 @@ class PageSection_InternalRecords extends Extension_PageSection {
 				$desired_models,
 				array_flip(
 					array_keys(
-						CerberusContexts::isWriteableByActor($context_ext->id, $desired_models, $active_worker), true
+						CerberusContexts::isWriteableByActor($context_ext->id, $desired_models, $active_worker),
+						true
 					)
 				)
 			);

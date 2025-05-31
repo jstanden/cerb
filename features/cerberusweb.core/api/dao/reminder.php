@@ -729,11 +729,9 @@ class View_Reminder extends C4_AbstractView implements IAbstractView_Subtotals, 
 		switch($field) {
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
-				break;
 			
 			case 'worker':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Reminder::VIRTUAL_WORKER_SEARCH);
-				break;
 			
 			default:
 				if($field == 'links' || substr($field, 0, 6) == 'links.')
@@ -741,10 +739,7 @@ class View_Reminder extends C4_AbstractView implements IAbstractView_Subtotals, 
 				
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
-				break;
 		}
-		
-		return false;
 	}
 	
 	function render() {

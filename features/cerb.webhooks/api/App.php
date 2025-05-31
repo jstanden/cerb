@@ -184,7 +184,7 @@ class Portal_Webhook extends Extension_CommunityPortal {
 	}
 	
 	/**
-	 * @param DevblocksHttpRequest
+	 * @param DevblocksHttpRequest $request
 	 * @return DevblocksHttpResponse
 	 */
 	public function handleRequest(DevblocksHttpRequest $request) {

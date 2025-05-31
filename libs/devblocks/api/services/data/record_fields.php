@@ -68,7 +68,7 @@ class _DevblocksDataProviderRecordFields extends _DevblocksDataProvider {
 			return false;
 		}
 		
-		if(false == ($record_type_ext = Extension_DevblocksContext::getByAlias($chart_model['of'], true))) {
+		if(!($record_type_ext = Extension_DevblocksContext::getByAlias($chart_model['of'], true))) {
 			$error = 'The `of:` parameter is not a valid record type.';
 			return false;
 		}
