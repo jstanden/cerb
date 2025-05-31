@@ -190,8 +190,21 @@ $(function() {
 							},
 							'done': function(e) {
 								e.stopPropagation();
-								// If the interaction rejected validation
-								if(e.eventData.hasOwnProperty('exit') && 'return' === e.eventData.exit) {
+
+								if('object' !== typeof e || !e.hasOwnProperty('eventData'))
+									return;
+
+								var $target = e.trigger;
+
+								if(!$target.is('.cerb-bot-trigger'))
+									return;
+
+								if (e.eventData.exit === 'error') {
+
+								} else if(e.eventData.exit === 'return') {
+									Devblocks.interactionWorkerPostActions(e.eventData);
+
+									// [TODO] This could use the `return:search:` interaction key now
 									if(e.eventData.hasOwnProperty('return') && e.eventData.return.hasOwnProperty('record_type')) {
 										var search_context = e.eventData.return.record_type;
 										genericAjaxPopup('search' + Devblocks.uniqueId(),'c=search&a=openSearchPopup&context=' + encodeURIComponent(search_context) + '&q=*&qr=', null, false, '90%');
