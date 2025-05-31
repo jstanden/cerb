@@ -260,6 +260,7 @@ class Search_MessageHeaders extends Extension_DevblocksSearchSchema {
 							'delivered-to' => true,
 							'from' => true,
 							'to' => true,
+							'x-cerberus-mailbox' => true,
 							'x-forwarded-to' => true,
 							'x-mailer' => true,
 						]
