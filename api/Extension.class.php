@@ -1409,7 +1409,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					],
 					[
 						'caption' => 'messages:',
-						'snippet' => "messages:",
+						'snippet' => "messages:\n\tmessage:\n\t\trole: user\n\t\tcontent@text:\n\t\t\t\${1:Hello!}\n",
 						'score' => 1998,
 					],
 					[
@@ -1487,6 +1487,9 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'api_endpoint_url:',
 					'authentication:',
 				],
+				'(.*):llm.agent:inputs:llm:groq:api_endpoint_url:' => [
+					'https://api.groq.com/openai'
+				],
 				'(.*):llm.agent:inputs:llm:groq:authentication:' => [
 					'type' => 'cerb-uri',
 					'params' => [
@@ -1510,6 +1513,9 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					],
 					'api_endpoint_url:',
 					'authentication:',
+				],
+				'(.*):llm.agent:inputs:llm:huggingface:api_endpoint_url:' => [
+					'https://api-inference.huggingface.co',
 				],
 				'(.*):llm.agent:inputs:llm:huggingface:authentication:' => [
 					'type' => 'cerb-uri',
@@ -1606,7 +1612,11 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				],
 				
 				'(.*):llm.agent:inputs:messages:' => [
-					'message:',
+					[
+						'caption' => 'message:',
+						'snippet' => "message:\n\trole: user\n\tcontent@text:\n\t\tThis is a test message.\n",
+						'score' => 2000,
+					]
 				],
 				'(.*):llm.agent:inputs:messages:message:' => [
 					'role: user',
