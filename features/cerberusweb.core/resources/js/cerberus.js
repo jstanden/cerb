@@ -1429,6 +1429,7 @@ let twigAutocompleteSuggestions = {
 		{ value: "sha1", meta: "filter" },
 		{ value: "slice", meta: "filter" },
 		{ value: "sort", meta: "filter" },
+		{ value: "sort(func)", snippet: "sort((a,b) => a <=> b)", meta: "filter" },
 		{ value: "spaceless", meta: "filter" },
 		{ value: "split(',')", meta: "filter" },
 		{ value: "split_crlf", meta: "filter" },
