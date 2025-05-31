@@ -169,6 +169,26 @@ class Anthropic extends Extension_DevblocksLlmProvider implements Chat {
 			unset($messages[$key]);
 		}
 		
+		// Fix tool calls with no inputs
+		foreach($messages as $message_index => $message) {
+			if(!is_array($message['content'] ?? null))
+				continue;
+			
+			$messages[$message_index]['content'] = array_map(
+				function($content) {
+					// Fix tool use for empty inputs [] -> {}
+					if(
+						($content['type'] ?? null) == 'tool_use'
+						&& is_array($content['input'])
+						&& empty($content['input'])
+					) $content['input'] = (object)[];
+					
+					return $content;
+				},
+				$message['content']
+			);
+		}
+		
 		return array_values($messages);
 	}
 	

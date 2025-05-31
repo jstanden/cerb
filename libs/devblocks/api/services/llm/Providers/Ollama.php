@@ -183,6 +183,26 @@ class Ollama extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 	}
 	
 	function sanitizeMessages(array $messages) : array {
+		// Fix tool calls with no inputs
+		foreach($messages as $message_index => $message) {
+			if(!array_key_exists('tool_calls', $message))
+				continue;
+			
+			$messages[$message_index]['tool_calls'] = array_map(
+				function($tool_call) {
+					// Fix tool use for empty inputs [] -> {}
+					if(
+						($tool_call['function'] ?? null)
+						&& is_array($tool_call['function']['arguments'])
+						&& empty($tool_call['function']['arguments'])
+					) $tool_call['function']['arguments'] = (object)[];
+					
+					return $tool_call;
+				},
+				$message['tool_calls']
+			);
+		}
+		
 		return array_values($messages);
 	}
 	

@@ -100,7 +100,9 @@ class _DevblocksHttpService {
 	 * @return mixed|false
 	 */
 	function getResponseAsJson(ResponseInterface $response, &$error=null) {
-		if(false === ($json = @json_decode($response->getBody()->getContents(), true))) {
+		$contents = $response->getBody()->getContents();
+		
+		if(false === ($json = @json_decode($contents, true))) {
 			$error = json_last_error();
 			return false;
 		}
