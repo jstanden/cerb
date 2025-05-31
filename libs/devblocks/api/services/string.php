@@ -528,7 +528,7 @@ class _DevblocksStringService {
 		return $result;
 	}
 	
-	public function arrayMatches(mixed $array, mixed $patterns, bool $only_first_match=false) : array {
+	public function arrayMatches(mixed $array, mixed $patterns, bool $only_first_match=false, $extra_flags='') : array {
 		if(is_string($array))
 			$array = [$array];
 		
@@ -544,7 +544,7 @@ class _DevblocksStringService {
 		$matched = [];
 		
 		foreach($patterns as $pattern) {
-			$pattern = DevblocksPlatform::strToRegExp($pattern);
+			$pattern = DevblocksPlatform::strToRegExp($pattern, extra_flags: $extra_flags);
 			
 			foreach($array as $value) {
 				if(preg_match($pattern, $value)) {

@@ -1406,18 +1406,22 @@ class DevblocksPlatform extends DevblocksEngine {
 	 *
 	 * @param string $arg
 	 * @param boolean $is_partial
+	 * @param boolean $escape
+	 * @param boolean $wrap
+	 * @param string $extra_flags
 	 * @return string
 	 * @test DevblocksPlatformTest
 	 */
-	static function strToRegExp($arg, $is_partial=false, $escape=true, $wrap=true) {
+	static function strToRegExp($arg, $is_partial=false, $escape=true, $wrap=true, $extra_flags='') {
 		$arg = str_replace(array('*'),array('__WILD__'),$arg);
+		$flags = 'i' . $extra_flags;
 		
 		return sprintf("%s%s%s%s%s",
 			($wrap ? '/' : ''),
 			($is_partial ? '' : '^'),
 			str_replace(array('__WILD__','/'),array('(.*?)','\/'), $escape ? preg_quote($arg) : $arg),
 			($is_partial ? '' : '$'),
-			($wrap ? '/i' : '')
+			($wrap ? ('/'.$flags) : '')
 		);
 	}
 	
