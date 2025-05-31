@@ -54,6 +54,12 @@ class AutomationTrigger_LlmTool extends Extension_AutomationTrigger {
 	}
 	
 	public function getAutocompleteSuggestions() : array {
-		return [];
+		return [
+			'*' => [
+				'(.*):return:' => [
+					'content@text:',
+				],
+			]
+		];
 	}
 }
