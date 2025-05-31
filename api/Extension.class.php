@@ -1569,14 +1569,19 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					]
 				],
 				'(.*):llm.agent:inputs:llm:openai:model:' => [
+					'gpt-4.1-2025-04-14',
+					'gpt-4.1-nano-2025-04-14',
 					'gpt-4o',
 					'gpt-4o-2024-08-06',
 					'gpt-4o-mini',
-					'o1',
-					'o1-mini',
-					'o3-mini',
 					'gpt-4o-mini-realtime-preview',
 					'gpt-4o-realtime-preview',
+					'o1',
+					'o1-mini',
+					'o1-pro',
+					'o3',
+					'o3-mini',
+					'o4-mini',
 				],
 				'(.*):llm.agent:inputs:llm:together:' => [
 					[
