@@ -191,4 +191,55 @@ class _DevblocksLlmService {
 	function getMemoryStore(string $session_id) : Extension_DevblocksLlmMemoryStore {
 		return new DatabaseHistory($session_id);
 	}
+	
+	function getToolSchemaForAutomation(string $tool_name, array $tool, string $schema_key='parameters') : ?array {
+		if(!array_key_exists('uri', $tool))
+			return null;
+		
+		if(!($tool_automation = DAO_Automation::getByUri($tool['uri'], \AutomationTrigger_LlmTool::ID)))
+			return null;
+		
+		// [TODO] Cache the tool inputs per automation
+		$tool_dict = DevblocksDictionaryDelegate::getDictionaryFromModel($tool_automation, CerberusContexts::CONTEXT_AUTOMATION, ['inputs']);
+		
+		// [TODO] strict mode
+		
+		$automation_inputs = $tool_dict->get('inputs', []);
+		
+		$tool_schema = [
+			'type' => 'function',
+			'function' => [
+				'name' => $tool_name,
+				'description' => $tool_automation->description ?? '',
+				$schema_key => [
+					'type' => 'object',
+					'properties' => (object)[],
+				],
+			]
+		];
+		
+		if($automation_inputs) {
+			$tool_schema['function'][$schema_key]['properties'] = [];
+			$tool_schema['function'][$schema_key]['required'] = [];
+			
+			foreach($automation_inputs as $automation_input) {
+				$tool_property = [
+					// [TODO] `type`
+					'type' => 'string',
+					'description' => $automation_input['description'] ?? '',
+				];
+				
+				// [TODO] Validate
+				if($automation_input['allowed_values'] ?? null && is_array($automation_input['allowed_values']))
+					$tool_property['enum'] = $automation_input['allowed_values'];
+				
+				$tool_schema['function'][$schema_key]['properties'][$automation_input['key']] = $tool_property;
+				
+				if($automation_input['required'] ?? false)
+					$tool_schema['function'][$schema_key]['required'][] = $automation_input['key'];
+			}
+		}
+		
+		return $tool_schema;
+	}
 }
