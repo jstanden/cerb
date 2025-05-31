@@ -384,7 +384,7 @@ class SearchFields_Reminder extends DevblocksSearchFields {
 				);
 				
 			case self::VIRTUAL_WORKER_SEARCH:
-				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_WORKER, 'reminder.worker_id');
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_WORKER, "SELECT id FROM worker w WHERE w.id IN (%s)", 'reminder.worker_id');
 				
 			default:
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
@@ -691,7 +691,7 @@ class View_Reminder extends C4_AbstractView implements IAbstractView_Subtotals, 
 				),
 			'worker' =>
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_WORKER,
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Reminder::VIRTUAL_WORKER_SEARCH),
 					'examples' => [
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => ''],
@@ -731,7 +731,7 @@ class View_Reminder extends C4_AbstractView implements IAbstractView_Subtotals, 
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
 				break;
 			
-			case 'owner':
+			case 'worker':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Reminder::VIRTUAL_WORKER_SEARCH);
 				break;
 			
