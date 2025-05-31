@@ -93,6 +93,10 @@ class _DevblocksDataService {
 				$provider = new _DevblocksDataProviderRecordFields();
 				return $provider->getSuggestions($type, $params);
 				
+			case 'record.filters':
+				$provider = new _DevblocksDataProviderRecordFilters();
+				return $provider->getSuggestions($type, $params);
+				
 			case 'record.types':
 				$provider = new _DevblocksDataProviderRecordTypes();
 				return $provider->getSuggestions($type, $params);
@@ -197,6 +201,11 @@ class _DevblocksDataService {
 				'name' => 'record.fields',
 				'description' => 'Filterable and pageable list of fields from a record type',
 				'docs_url' => 'https://cerb.ai/docs/data-queries/record/fields/',
+			],
+			[
+				'name' => 'record.filters',
+				'description' => 'Filterable and pageable list of search query filters from a record type',
+				'docs_url' => 'https://cerb.ai/docs/data-queries/record/filters/',
 			],
 			[
 				'name' => 'record.types',
@@ -412,6 +421,14 @@ class _DevblocksDataService {
 				
 			case 'record.fields':
 				$provider = new _DevblocksDataProviderRecordFields();
+				
+				if(false === ($results = $provider->getData($query, $chart_fields, $error)))
+					return false;
+				
+				break;
+				
+			case 'record.filters':
+				$provider = new _DevblocksDataProviderRecordFilters();
 				
 				if(false === ($results = $provider->getData($query, $chart_fields, $error)))
 					return false;

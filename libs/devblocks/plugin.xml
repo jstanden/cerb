@@ -84,6 +84,9 @@
 		<file path="api/services/data/record_fields.php">
 			<class name="_DevblocksDataProviderRecordFields" />
 		</file>
+		<file path="api/services/data/record_filters.php">
+			<class name="_DevblocksDataProviderRecordFilters" />
+		</file>
 		<file path="api/services/data/record_types.php">
 			<class name="_DevblocksDataProviderRecordTypes" />
 		</file>
