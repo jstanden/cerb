@@ -5450,6 +5450,9 @@ class _CerbApplication_KataSchemas {
                                         types:
                                           object:
                                             attributes:
+                                              disabled:
+                                                types:
+                                                  bool:
                                               params:
                                                 types:
                                                   list:
@@ -5464,6 +5467,9 @@ class _CerbApplication_KataSchemas {
                                               description:
                                                 types:
                                                   string:
+                                              disabled:
+                                                types:
+                                                  bool:
                                               parameters:
                                                 types:
                                                   object:

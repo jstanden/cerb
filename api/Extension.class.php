@@ -1646,7 +1646,12 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					],
 				],
 				'(.*):llm.agent:inputs:tools:automation:' => [
+					'disabled@bool:',
 					'uri:',
+				],
+				'(.*):llm.agent:inputs:tools:automation:disabled:' => [
+					'yes',
+					'no',
 				],
 				'(.*):llm.agent:inputs:tools:automation:uri:' => [
 					'type' => 'cerb-uri',
@@ -1663,11 +1668,16 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 						'caption' => 'description:',
 						'snippet' => "description: \${1:This is a detailed description of the tool.}",
 					],
+					'disabled@bool:',
 					[
 						'caption' => 'parameters:',
 						'snippet' => "parameters:",
 						'docHTML' => '<b>parameters:</b> Optional parameters passed to the tool.',
 					]
+				],
+				'(.*):llm.agent:inputs:tools:tool:disabled:' => [
+					'yes',
+					'no',
 				],
 				'(.*):llm.agent:inputs:tools:tool:parameters:' => [
 					[

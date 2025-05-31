@@ -243,6 +243,10 @@ class LlmAgentNode extends AbstractNode {
 			list($tool_type, $tool_name) = explode('/', $tool_key);
 			if (empty($tool_name)) $tool_name = $tool_type;
 			
+			// Conditionally disable tools
+			if(array_key_exists('disabled', $tool) && $tool['disabled'])
+				continue;
+			
 			$tool['type'] = $tool_type;
 			$tools[$tool_name] = $tool;
 		}
