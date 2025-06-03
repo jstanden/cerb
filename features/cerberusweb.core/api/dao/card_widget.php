@@ -767,10 +767,21 @@ class View_CardWidget extends C4_AbstractView implements IAbstractView_Subtotals
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_CardWidget::POS),
 				),
+			'record' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_CardWidget::RECORD_TYPE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'examples' => [
+						['type' => 'list', 'values' => $contexts],
+					]
+				),
 			'type' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_CardWidget::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'options' => array('param_key' => SearchFields_CardWidget::EXTENSION_ID),
+					'examples' => [
+						['type' => 'list', 'values' => $extensions],
+					],
 				),
 			'updated' =>
 				array(
