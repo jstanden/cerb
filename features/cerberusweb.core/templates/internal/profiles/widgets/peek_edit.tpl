@@ -299,7 +299,9 @@ $(function() {
 					'hidden:': [
 						'yes',
 						'no',
-						'{literal}{{record_id == 123}}{/literal}'
+						'{literal}{{record_id == 123}}{/literal}',
+						'{literal}{{not current_worker_is_superuser}}{/literal}',
+						"{literal}{{'Support' not in current_worker_groups|column('name')}}{/literal}",
 					]
 				}
 			})
