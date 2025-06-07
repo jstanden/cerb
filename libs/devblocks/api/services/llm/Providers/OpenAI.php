@@ -64,6 +64,10 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 		return $chat_response;
 	}
 	
+	function getEmbeddingsEndpointUrl(string $base_url) : string {
+		return $base_url . '/v1/embeddings';
+	}
+	
 	/**
 	 * @throws Exception_DevblocksAutomationError
 	 */
@@ -74,7 +78,7 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 		$authentication_uri = $this->getParam('authentication', null);
 		
 		$verb = 'POST';
-		$url = $base_url . '/v1/embeddings';
+		$url = $this->getEmbeddingsEndpointUrl($base_url);
 		$headers = [
 			'Content-Type' => 'application/json',
 		];
@@ -119,6 +123,10 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 		];
 	}
 	
+	function getChatCompletionEndpointUrl(string $base_url) : string {
+		return $base_url . '/v1/chat/completions';
+	}
+	
 	/**
 	 * @throws Exception_DevblocksAutomationError
 	 */
@@ -141,7 +149,7 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 		}
 		
 		$verb = 'POST';
-		$url = $base_url . '/v1/chat/completions';
+		$url = $this->getChatCompletionEndpointUrl($base_url);
 		$headers = [
 			'Content-Type' => 'application/json',
 		];
