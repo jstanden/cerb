@@ -60,6 +60,7 @@ $packages = [
 	'cerb_connected_service_buttondown.json',
 	'cerb_connected_service_elevenlabs.json',
 	'cerb_connected_service_exa.json',
+	'cerb_connected_service_gemini.json',
 	'cerb_connected_service_groq.json',
 	'cerb_connected_service_linkup.json',
 	'cerb_connected_service_notion.json',

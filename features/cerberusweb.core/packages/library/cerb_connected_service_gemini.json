@@ -1,0 +1,66 @@
+{
+  "package": {
+    "name": "Connected Service: Gemini",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "10.0.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Gemini",
+      "uri": "cerb_connected_service_gemini",
+      "description": "Integration with Gemini",
+      "instructions": "# Instructions\r\n\r\n* Enter your API key from <https://aistudio.google.com/apikey>",
+      "point": "connected_service",
+      "image": "data:image/png;base64,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"
+    },
+    "configure": {
+      "placeholders": [],
+      "prompts": [
+        {
+          "type": "text",
+          "label": "API Key",
+          "key": "prompt_api_key",
+          "params": {
+            "default": "",
+            "placeholder": "(paste your API Key)"
+          }
+        },
+        {
+          "type": "text",
+          "label": "Alias",
+          "key": "prompt_name",
+          "params": {
+            "default": "gemini",
+            "placeholder": "(enter a URI, a-z,0-9,_)"
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "service_gemini",
+      "_context": "connected_service",
+      "name": "Gemini",
+      "extension_id": "cerb.service.provider.token.bearer",
+      "params": {
+        "token_name": "Bearer"
+      }
+    },
+    {
+      "uid": "account_gemini",
+      "_context": "connected_account",
+      "name": "Gemini",
+      "service_id": "{{{uid.service_gemini}}}",
+      "owner__context": "cerberusweb.contexts.app",
+      "owner_id": "0",
+      "uri": "{{{prompt_name}}}",
+      "params": {
+        "token": "{{{prompt_api_key}}}"
+      }
+    }
+  ]
+}
