@@ -920,12 +920,17 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 			[
 				'caption' => 'llm.agent:',
 				'snippet' => "llm.agent:\n\tinputs:\n\t\t\${1:}\n\toutput: results\n\t#on_simulate:\n\t#on_success:\n\t#on_error:\n",
-				'description' => "Chat and invoke tools with a large language model",
+				'description' => "Multi-turn chat with tool use, memory, and transcripts using a large language model",
+			],
+			[
+				'caption' => 'llm.chat:',
+				'snippet' => "llm.chat:\n\tinputs:\n\t\t\${1:}\n\toutput: results\n\t#on_simulate:\n\t#on_success:\n\t#on_error:\n",
+				'description' => "Single-turn chat completion using a large language model",
 			],
 			[
 				'caption' => 'llm.embed:',
 				'snippet' => "llm.embed:\n\tinputs:\n\t\t\${1:}\n\toutput: results\n\t#on_simulate:\n\t#on_success:\n\t#on_error:\n",
-				'description' => "Embed text using a large language model",
+				'description' => "Generate text vector embeddings using a large language model",
 			],
 			[
 				'caption' => 'log:',
@@ -1695,6 +1700,237 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'yes',
 					'no',
 				],
+				
+				'(.*):llm.chat:' => $action_base,
+				'(.*):llm.chat:inputs:' => [
+					[
+						'caption' => 'llm:',
+						'snippet' => "llm:",
+						'score' => 2000,
+					],
+					[
+						'caption' => 'system_prompt:',
+						'snippet' => "system_prompt@text:\n\t\${1:You are a helpful AI assistant.}",
+						'score' => 1999,
+					],
+					[
+						'caption' => 'messages:',
+						'snippet' => "messages:\n\t0:\n\t\trole: user\n\t\tcontent@text: \${1:This is an example}",
+						'score' => 1998,
+					],
+				],
+				'(.*):llm.chat:inputs:llm:' => [
+					'anthropic:',
+					'aws_bedrock:',
+					'groq:',
+					'huggingface:',
+					'ollama:',
+					'openai:',
+					'together:',
+				],
+				'(.*):llm.chat:inputs:llm:anthropic:' => [
+					[
+						'caption' => 'model:',
+						'snippet' => "model:",
+						'score' => 2000,
+					],
+					'authentication:',
+					'max_tokens@int: 2048',
+				],
+				'(.*):llm.chat:inputs:llm:anthropic:authentication:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'connected_account' => null,
+					]
+				],
+				'(.*):llm.chat:inputs:llm:anthropic:model:' => [
+					'claude-3-5-haiku-20241022',
+					'claude-3-5-sonnet-20241022',
+					'claude-3-7-sonnet-20250219',
+					'claude-3-opus-20240229',
+					'claude-sonnet-4-20250514',
+					'claude-opus-4-20250514',
+				],
+				'(.*):llm.chat:inputs:llm:aws_bedrock:' => [
+					'anthropic_version: bedrock-2023-05-31',
+					'api_endpoint_url:',
+					'authentication:',
+					'max_tokens@int: 2048',
+					[
+						'caption' => 'model:',
+						'snippet' => "# See: https://docs.aws.amazon.com/bedrock/latest/userguide/models-supported.html\nmodel:",
+						'score' => 2000,
+					],
+				],
+				'(.*):llm.chat:inputs:llm:aws_bedrock:api_endpoint_url:' => [
+					'https://bedrock-runtime.us-east-1.amazonaws.com',
+				],
+				'(.*):llm.chat:inputs:llm:aws_bedrock:authentication:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'connected_account' => null,
+					]
+				],
+				'(.*):llm.chat:inputs:llm:aws_bedrock:model:' => [
+					'anthropic.claude-3-5-haiku-20241022-v1:0',
+					'anthropic.claude-3-5-sonnet-20240620-v1:0',
+					'anthropic.claude-3-5-sonnet-20241022-v2:0',
+					'anthropic.claude-3-7-sonnet-20250219-v1:0',
+					'anthropic.claude-opus-4-20250514-v1:0',
+					'anthropic.claude-sonnet-4-20250514-v1:0',
+				],
+				'(.*):llm.chat:inputs:llm:groq:' => [
+					[
+						'caption' => 'model:',
+						'snippet' => "model:",
+						'score' => 2000,
+					],
+					'api_endpoint_url:',
+					'authentication:',
+				],
+				'(.*):llm.chat:inputs:llm:groq:api_endpoint_url:' => [
+					'https://api.groq.com/openai'
+				],
+				'(.*):llm.chat:inputs:llm:groq:authentication:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'connected_account' => null,
+					]
+				],
+				'(.*):llm.chat:inputs:llm:groq:model:' => [
+					'deepseek-r1-distill-llama-70b',
+					'deepseek-r1-distill-qwen-32b',
+					'gemma2-9b-it',
+					'llama-3.1-8b-instant',
+					'llama-3.3-70b-versatile',
+					'mixtral-8x7b-32768',
+					'qwen-2.5-32b',
+				],
+				'(.*):llm.chat:inputs:llm:huggingface:' => [
+					[
+						'caption' => 'model:',
+						'snippet' => "model:",
+						'score' => 2000,
+					],
+					'api_endpoint_url:',
+					'authentication:',
+				],
+				'(.*):llm.chat:inputs:llm:huggingface:api_endpoint_url:' => [
+					'https://api-inference.huggingface.co',
+				],
+				'(.*):llm.chat:inputs:llm:huggingface:authentication:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'connected_account' => null,
+					]
+				],
+				'(.*):llm.chat:inputs:llm:huggingface:model:' => [
+					'meta-llama/Llama-3.2-3B-Instruct',
+					'google/gemma-2-2b-it',
+				],
+				'(.*):llm.chat:inputs:llm:ollama:' => [
+					[
+						'caption' => 'model:',
+						'snippet' => "model:",
+						'score' => 2000,
+					],
+					'api_endpoint_url:',
+					'authentication:',
+				],
+				'(.*):llm.chat:inputs:llm:ollama:api_endpoint_url:' => [
+					'http://localhost:11434',
+					'http://host.docker.internal:11434',
+				],
+				'(.*):llm.chat:inputs:llm:ollama:authentication:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'connected_account' => null,
+					]
+				],
+				'(.*):llm.chat:inputs:llm:ollama:model:' => [
+					'llama3.2',
+				],
+				'(.*):llm.chat:inputs:llm:openai:' => [
+					[
+						'caption' => 'model:',
+						'snippet' => "model:",
+						'score' => 2000,
+					],
+					'api_endpoint_url:',
+					'authentication:',
+				],
+				'(.*):llm.chat:inputs:llm:openai:api_endpoint_url:' => [
+					'https://api.openai.com',
+				],
+				'(.*):llm.chat:inputs:llm:openai:authentication:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'connected_account' => null,
+					]
+				],
+				'(.*):llm.chat:inputs:llm:openai:model:' => [
+					'gpt-4.1-2025-04-14',
+					'gpt-4.1-nano-2025-04-14',
+					'gpt-4o',
+					'gpt-4o-2024-08-06',
+					'gpt-4o-mini',
+					'gpt-4o-mini-realtime-preview',
+					'gpt-4o-realtime-preview',
+					'o1',
+					'o1-mini',
+					'o1-pro',
+					'o3',
+					'o3-mini',
+					'o4-mini',
+				],
+				'(.*):llm.chat:inputs:llm:together:' => [
+					[
+						'caption' => 'model:',
+						'snippet' => "model:",
+						'score' => 2000,
+					],
+					'api_endpoint_url:',
+					'authentication:',
+					'safety_model:',
+				],
+				'(.*):llm.chat:inputs:llm:together:api_endpoint_url:' => [
+					'https://api.together.xyz',
+				],
+				'(.*):llm.chat:inputs:llm:together:authentication:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'connected_account' => null,
+					]
+				],
+				'(.*):llm.chat:inputs:llm:together:model:' => [
+					'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo',
+					'meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo',
+					'meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo',
+					'meta-llama/Llama-3.3-70B-Instruct-Turbo',
+					'mistralai/Mixtral-8x7B-Instruct-v0.1',
+					'mistralai/Mistral-7B-Instruct-v0.1',
+					'Qwen/Qwen2.5-7B-Instruct-Turbo',
+					'Qwen/Qwen2.5-72B-Instruct-Turbo',
+				],
+				'(.*):llm.chat:inputs:llm:together:safety_model:' => [
+					'Meta-Llama/Llama-Guard-7b',
+				],
+				
+				'(.*):llm.chat:inputs:messages:' => [
+					[
+						'caption' => 'message:',
+						'snippet' => "message:\n\trole: user\n\tcontent@text:\n\t\tThis is a test message.\n",
+						'score' => 2000,
+					]
+				],
+				'(.*):llm.chat:inputs:messages:message:' => [
+					'role: user',
+					'content@text:',
+				],
+				'(.*):llm.chat:inputs:messages:message:role:' => [
+					'assistant',
+					'user',
+				],				
 				
 				'(.*):llm.embed:' => $action_base,
 				'(.*):llm.embed:inputs:' => [

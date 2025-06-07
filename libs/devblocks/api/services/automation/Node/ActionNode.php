@@ -20,6 +20,7 @@ class ActionNode extends AbstractNode {
 			'function' => '\Cerb\AutomationBuilder\Action\FunctionAction',
 			'http.request' => '\Cerb\AutomationBuilder\Action\HttpRequestAction',
 			'kata.parse' => '\Cerb\AutomationBuilder\Action\KataParseAction',
+			'llm.chat' => '\Cerb\AutomationBuilder\Action\LlmChatAction',
 			'llm.embed' => '\Cerb\AutomationBuilder\Action\LlmEmbedAction',
 			'log' => '\Cerb\AutomationBuilder\Action\LogAction',
 			'log.alert' => '\Cerb\AutomationBuilder\Action\LogAction',

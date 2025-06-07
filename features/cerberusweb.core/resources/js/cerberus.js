@@ -43,6 +43,7 @@ var cerbAutocompleteSuggestions = {
 			'function:',
 			'http.request:',
 			'llm.agent:',
+			'llm.chat:',
 			'llm.embed:',
 			'metric.increment:',
 			'queue.pop:',
@@ -124,6 +125,10 @@ var cerbAutocompleteSuggestions = {
 			'allow@bool: yes'
 		],
 		'commands:llm.agent:': [
+			'deny@bool: yes',
+			'allow@bool: yes'
+		],
+		'commands:llm.chat:': [
 			'deny@bool: yes',
 			'allow@bool: yes'
 		],
