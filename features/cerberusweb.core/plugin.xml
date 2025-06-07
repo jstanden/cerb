@@ -83,7 +83,7 @@
 		<patch version="10.4.0" revision="1452" file="patches/10.x/10.4.0.php" />
 
 		<patch version="11.0.0" revision="1476" file="patches/11.x/11.0.0.php" />
-		<patch version="11.1.0" revision="1490" file="patches/11.x/11.1.0.php" />
+		<patch version="11.1.0" revision="1491" file="patches/11.x/11.1.0.php" />
 	</patches>
 
 	<!-- Exported Classes -->
