@@ -1427,6 +1427,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'anthropic:',
 					'aws_bedrock:',
 					'docker:',
+					'gemini:',
 					'groq:',
 					'huggingface:',
 					'ollama:',
@@ -1504,6 +1505,31 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				],
 				'(.*):llm.agent:inputs:llm:docker:model:' => [
 					'ai/llama3.2',
+				],
+				'(.*):llm.agent:inputs:llm:gemini:' => [
+					[
+						'caption' => 'model:',
+						'snippet' => "model:",
+						'score' => 2000,
+					],
+					'api_endpoint_url:',
+					'authentication:',
+				],
+				'(.*):llm.agent:inputs:llm:gemini:api_endpoint_url:' => [
+					'https://generativelanguage.googleapis.com/v1beta/openai'
+				],
+				'(.*):llm.agent:inputs:llm:gemini:authentication:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'connected_account' => null,
+					]
+				],
+				// https://ai.google.dev/gemini-api/docs/models
+				'(.*):llm.agent:inputs:llm:gemini:model:' => [
+					'gemini-2.0-flash',
+					'gemini-2.0-flash-lite',
+					'gemini-2.5-flash-preview-05-20',
+					'gemini-2.5-pro-preview-06-05',
 				],
 				'(.*):llm.agent:inputs:llm:groq:' => [
 					[
@@ -1744,6 +1770,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'anthropic:',
 					'aws_bedrock:',
 					'docker:',
+					'gemini:',
 					'groq:',
 					'huggingface:',
 					'ollama:',
@@ -1821,6 +1848,31 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				],
 				'(.*):llm.chat:inputs:llm:docker:model:' => [
 					'ai/llama3.2',
+				],
+				'(.*):llm.chat:inputs:llm:gemini:' => [
+					[
+						'caption' => 'model:',
+						'snippet' => "model:",
+						'score' => 2000,
+					],
+					'api_endpoint_url:',
+					'authentication:',
+				],
+				'(.*):llm.chat:inputs:llm:gemini:api_endpoint_url:' => [
+					'https://generativelanguage.googleapis.com/v1beta/openai'
+				],
+				'(.*):llm.chat:inputs:llm:gemini:authentication:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'connected_account' => null,
+					]
+				],
+				// https://ai.google.dev/gemini-api/docs/models
+				'(.*):llm.chat:inputs:llm:gemini:model:' => [
+					'gemini-2.0-flash',
+					'gemini-2.0-flash-lite',
+					'gemini-2.5-flash-preview-05-20',
+					'gemini-2.5-pro-preview-06-05',
 				],
 				'(.*):llm.chat:inputs:llm:groq:' => [
 					[
@@ -1991,6 +2043,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'(.*):llm.embed:inputs:llm:' => [
 					'aws_bedrock:',
 					'docker:',
+					'gemini:',
 					'huggingface:',
 					'ollama:',
 					'openai:',
@@ -2037,6 +2090,28 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				],
 				'(.*):llm.embed:inputs:llm:docker:model:' => [
 					'ai/mxbai-embed-large',
+				],
+				'(.*):llm.embed:inputs:llm:gemini:' => [
+					[
+						'caption' => 'model:',
+						'snippet' => "model:",
+						'score' => 2000,
+					],
+					'api_endpoint_url:',
+					'authentication:',
+				],
+				'(.*):llm.embed:inputs:llm:gemini:api_endpoint_url:' => [
+					'https://generativelanguage.googleapis.com/v1beta/openai'
+				],
+				'(.*):llm.embed:inputs:llm:gemini:authentication:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'connected_account' => null,
+					]
+				],
+				// https://ai.google.dev/gemini-api/docs/models
+				'(.*):llm.embed:inputs:llm:gemini:model:' => [
+					'text-embedding-004',
 				],
 				'(.*):llm.embed:inputs:llm:huggingface:' => [
 					'api_endpoint_url:',

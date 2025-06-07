@@ -5411,6 +5411,9 @@ class _CerbApplication_KataSchemas {
                                       docker:
                                         types:
                                           list:
+                                      gemini:
+                                        types:
+                                          list:
                                       groq:
                                         types:
                                           list:
@@ -5525,6 +5528,9 @@ class _CerbApplication_KataSchemas {
                                       docker:
                                         types:
                                           list:
+                                      gemini:
+                                        types:
+                                          list:
                                       groq:
                                         types:
                                           list:
@@ -5585,6 +5591,9 @@ class _CerbApplication_KataSchemas {
                                         types:
                                           list:
                                       docker:
+                                        types:
+                                          list:
+                                      gemini:
                                         types:
                                           list:
                                       huggingface:
