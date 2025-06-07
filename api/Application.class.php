@@ -5408,6 +5408,9 @@ class _CerbApplication_KataSchemas {
                                       aws_bedrock:
                                         types:
                                           list:
+                                      docker:
+                                        types:
+                                          list:
                                       groq:
                                         types:
                                           list:
@@ -5519,6 +5522,9 @@ class _CerbApplication_KataSchemas {
                                       aws_bedrock:
                                         types:
                                           list:
+                                      docker:
+                                        types:
+                                          list:
                                       groq:
                                         types:
                                           list:
@@ -5576,6 +5582,9 @@ class _CerbApplication_KataSchemas {
                                   object:
                                     attributes:
                                       aws_bedrock:
+                                        types:
+                                          list:
+                                      docker:
                                         types:
                                           list:
                                       huggingface:

@@ -1426,6 +1426,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'(.*):llm.agent:inputs:llm:' => [
 					'anthropic:',
 					'aws_bedrock:',
+					'docker:',
 					'groq:',
 					'huggingface:',
 					'ollama:',
@@ -1482,6 +1483,27 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'anthropic.claude-3-7-sonnet-20250219-v1:0',
 					'anthropic.claude-opus-4-20250514-v1:0',
 					'anthropic.claude-sonnet-4-20250514-v1:0',
+				],
+				'(.*):llm.agent:inputs:llm:docker:' => [
+					[
+						'caption' => 'model:',
+						'snippet' => "model:",
+						'score' => 2000,
+					],
+					'api_endpoint_url:',
+					'authentication:',
+				],
+				'(.*):llm.agent:inputs:llm:docker:api_endpoint_url:' => [
+					'http://model-runner.docker.internal/engines'
+				],
+				'(.*):llm.agent:inputs:llm:docker:authentication:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'connected_account' => null,
+					]
+				],
+				'(.*):llm.agent:inputs:llm:docker:model:' => [
+					'ai/llama3.2',
 				],
 				'(.*):llm.agent:inputs:llm:groq:' => [
 					[
@@ -1565,7 +1587,6 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				],
 				'(.*):llm.agent:inputs:llm:openai:api_endpoint_url:' => [
 					'https://api.openai.com',
-					'http://model-runner.docker.internal/engines',
 				],
 				'(.*):llm.agent:inputs:llm:openai:authentication:' => [
 					'type' => 'cerb-uri',
@@ -1722,6 +1743,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'(.*):llm.chat:inputs:llm:' => [
 					'anthropic:',
 					'aws_bedrock:',
+					'docker:',
 					'groq:',
 					'huggingface:',
 					'ollama:',
@@ -1778,6 +1800,27 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'anthropic.claude-3-7-sonnet-20250219-v1:0',
 					'anthropic.claude-opus-4-20250514-v1:0',
 					'anthropic.claude-sonnet-4-20250514-v1:0',
+				],
+				'(.*):llm.chat:inputs:llm:docker:' => [
+					[
+						'caption' => 'model:',
+						'snippet' => "model:",
+						'score' => 2000,
+					],
+					'api_endpoint_url:',
+					'authentication:',
+				],
+				'(.*):llm.chat:inputs:llm:docker:api_endpoint_url:' => [
+					'http://model-runner.docker.internal/engines'
+				],
+				'(.*):llm.chat:inputs:llm:docker:authentication:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'connected_account' => null,
+					]
+				],
+				'(.*):llm.chat:inputs:llm:docker:model:' => [
+					'ai/llama3.2',
 				],
 				'(.*):llm.chat:inputs:llm:groq:' => [
 					[
@@ -1947,6 +1990,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				],
 				'(.*):llm.embed:inputs:llm:' => [
 					'aws_bedrock:',
+					'docker:',
 					'huggingface:',
 					'ollama:',
 					'openai:',
@@ -1977,6 +2021,23 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'(.*):llm.embed:inputs:llm:aws_bedrock:model:' => [
 					'amazon.titan-embed-text-v2:0',
 				],
+				'(.*):llm.embed:inputs:llm:docker:' => [
+					'api_endpoint_url:',
+					'authentication:',
+					'model:',
+				],
+				'(.*):llm.embed:inputs:llm:docker:api_endpoint_url:' => [
+					'http://model-runner.docker.internal/engines',
+				],
+				'(.*):llm.embed:inputs:llm:docker:authentication:' => [
+					'type' => 'cerb-uri',
+					'params' => [
+						'connected_account' => null,
+					]
+				],
+				'(.*):llm.embed:inputs:llm:docker:model:' => [
+					'ai/mxbai-embed-large',
+				],
 				'(.*):llm.embed:inputs:llm:huggingface:' => [
 					'api_endpoint_url:',
 					'authentication:',
@@ -2000,6 +2061,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'model:',
 				],
 				'(.*):llm.embed:inputs:llm:ollama:api_endpoint_url:' => [
+					'http://localhost:11434',
 					'http://host.docker.internal:11434',
 				],
 				'(.*):llm.embed:inputs:llm:ollama:authentication:' => [
@@ -2017,16 +2079,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'model:',
 				],
 				'(.*):llm.embed:inputs:llm:openai:api_endpoint_url:' => [
-					[
-						'caption' => 'https://api.openai.com',
-						'snippet' => 'https://api.openai.com',
-						'score' => 2000,
-					],
-					[
-						'caption' => 'http://model-runner.docker.internal/engines',
-						'snippet' => 'http://model-runner.docker.internal/engines',
-						'score' => 1500,
-					],
+					'https://api.openai.com',
 				],
 				'(.*):llm.embed:inputs:llm:openai:authentication:' => [
 					'type' => 'cerb-uri',

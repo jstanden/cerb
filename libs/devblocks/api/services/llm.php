@@ -177,6 +177,7 @@ class _DevblocksLlmService {
 		return match($provider_id) {
 			'anthropic' => new Cerb\LLM\Providers\Anthropic($params, $validate),
 			'aws_bedrock' => new Cerb\LLM\Providers\AwsBedrock($params, $validate),
+			'docker' => new Cerb\LLM\Providers\Docker($params, $validate),
 			'groq' => new Cerb\LLM\Providers\Groq($params, $validate),
 			'huggingface' => new Cerb\LLM\Providers\HuggingFace($params, $validate),
 			'ollama' => new Cerb\LLM\Providers\Ollama($params, $validate),
