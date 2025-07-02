@@ -975,7 +975,10 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 								return is_numeric($preview_id) ? intval($preview_id) : $db->qstr($preview_id);
 							}, $preview_rows));
 							
-							$sql = $preview_ids ? implode(',', $preview_ids) : '0';
+							if(empty($preview_ids))
+								return '0';
+							
+							$sql = implode(',', $preview_ids) ?: '-1';
 						}
 					}
 				} catch (Exception_DevblocksDatabaseQueryTimeout) {
@@ -1052,7 +1055,10 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 								return is_numeric($preview_id) ? intval($preview_id) : $db->qstr($preview_id);
 							}, $preview_rows));
 							
-							$sql = $preview_ids ? implode(',', $preview_ids) : '0';
+							if(empty($preview_ids))
+								return '0';
+							
+							$sql = implode(',', $preview_ids) ?: '-1';
 						}
 					}
 				} catch (Exception_DevblocksDatabaseQueryTimeout) {
@@ -1128,7 +1134,10 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 								return is_numeric($prefetch_id) ? intval($prefetch_id) : $db->qstr($prefetch_id);
 							}, $prefetch_rows));
 							
-							$sql = $prefetch_ids ? implode(',', $prefetch_ids) : '0';
+							if(empty($prefetch_ids))
+								return '0';
+							
+							$sql = implode(',', $prefetch_ids) ?: '-1';
 						}
 					}
 					
@@ -1674,7 +1683,10 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 								$prefetch_rows
 							));
 							
-							$subquery_sql = $prefetch_ids ? implode(',', $prefetch_ids) : '0';
+							if(empty($prefetch_ids))
+								return '0';
+							
+							$subquery_sql = implode(',', $prefetch_ids) ?: '-1';
 						}
 						
 					} catch (Exception_DevblocksDatabaseQueryTimeout) {
@@ -2425,9 +2437,7 @@ class DevblocksSearchCriteria {
 				}
 			}
 			
-			if(!empty($worker_ids)) {
-				$value = array_keys($worker_ids);
-			}
+			$value = count($worker_ids) ? array_keys($worker_ids) : [-1];
 		}
 		
 		return new DevblocksSearchCriteria(
