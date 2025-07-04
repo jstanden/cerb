@@ -38,7 +38,7 @@ if(!isset($tables['message_html_cache'])) {
 	
 	if('utf8mb4_unicode_ci' != $columns['html_content']['collation']) {
 		$db->ExecuteMaster("DELETE FROM message_html_cache");
-		$db->ExecuteMaster("ALTER TABLE message_html_cache MODIFY COLUMN html_content MEDIUMTEXT CHARACTER SET utf8mb4_unicode_ci");
+		$db->ExecuteMaster("ALTER TABLE message_html_cache MODIFY COLUMN html_content MEDIUMTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
 	}
 }
 
