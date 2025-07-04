@@ -36,6 +36,8 @@ if(!isset($tables['queue_message'])) {
 			`status_at` int unsigned NOT NULL DEFAULT 0,
 			`consumer_id` binary(16),
 			`message` TEXT,
+			-- This has been retroactively added to allow the elapsed_status_open migration to run when upgrading from pre-10.3.0.
+			`available_at` int unsigned NOT NULL DEFAULT 0,
 			PRIMARY KEY (uuid),
 			INDEX queue_claimed (queue_id, status_id, consumer_id)
 		) ENGINE=%s
