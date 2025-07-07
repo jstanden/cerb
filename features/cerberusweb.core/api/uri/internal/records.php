@@ -928,7 +928,8 @@ class PageSection_InternalRecords extends Extension_PageSection {
 							break;
 						
 						case Model_CustomField::TYPE_DECIMAL:
-							// [TODO]
+							$decimal_at = $dict->get($k . '_decimal_at');
+							$v = DevblocksPlatform::strFormatDecimal(intval($v), $decimal_at);
 							break;
 						
 						case Model_CustomField::TYPE_DROPDOWN:
