@@ -1605,6 +1605,7 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 			$token_values['id'] = $snippet->id;
 			$token_values['owner__context'] = $snippet->owner_context;
 			$token_values['owner_id'] = $snippet->owner_context_id;
+			$token_values['prompts'] = $snippet->getPrompts();
 			$token_values['title'] = $snippet->title;
 			$token_values['total_uses'] = $snippet->total_uses;
 			$token_values['updated_at'] = $snippet->updated_at;
