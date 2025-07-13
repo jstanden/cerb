@@ -261,4 +261,35 @@ EOD;
 		$this->assertFalse($automation_result);
 		$this->assertTrue(!empty($error));
 	}
+	
+	function testAnnotationKata() {
+		$automator = DevblocksPlatform::services()->automation();
+		
+		$automation_script = <<< EOD
+start:
+  set:
+    example@kata:
+      str@text:
+        This is a
+        multiple line
+        value
+      num@int: 12345
+      when@date: now
+EOD;
+		
+		$expected = [
+			'str' => "This is a\nmultiple line\nvalue",
+			'num' => 12345,
+			'when' => time(),
+		];
+		
+		$initial_state = [];
+		
+		$automation = new Model_Automation();
+		$automation->script = $automation_script;
+		
+		$automation_result = $automator->executeScript($automation, $initial_state, $error);
+		
+		$this->assertEquals($expected, $automation_result->get('example'));
+	}
 }

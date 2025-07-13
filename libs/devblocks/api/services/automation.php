@@ -1386,7 +1386,8 @@ class CerbAutomationAstNode implements JsonSerializable {
 						break;
 						
 					case 'kata':
-						$value = DevblocksPlatform::services()->kata()->parse($value);
+						if(false !== ($value = DevblocksPlatform::services()->kata()->parse($value)))
+							$value = DevblocksPlatform::services()->kata()->formatTree($value, $dict);
 						break;
 						
 					case 'key':

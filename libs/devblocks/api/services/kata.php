@@ -655,7 +655,8 @@ class _DevblocksKataService {
 					if(!is_string($v)) $v = '';
 					$v = json_decode($v, true);
 				} else if($annotation == 'kata') {
-					$v = DevblocksPlatform::services()->kata()->parse($v);
+					if(false !== ($v = DevblocksPlatform::services()->kata()->parse($v)))
+						$v = DevblocksPlatform::services()->kata()->formatTree($v, $dict);
 				} else if($annotation == 'key') {
 					$key_path = trim($v);
 					

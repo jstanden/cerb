@@ -376,6 +376,35 @@ EOD;
 		$this->assertArrayHasKey('success', $actual['event/start']['decision']['outcome/yes']['then']['return'] ?? []);
 	}
 	
+	
+	function testAnnotationKata() {
+		$kata = <<< EOD
+set:
+  example@kata:
+    str@text:
+      This is a
+      multiple line
+      value
+    num@int: 12345
+    when@date: now
+EOD;
+		
+		$expected = [
+			'set' => [
+				'example' => [
+					'str' => "This is a\nmultiple line\nvalue",
+					'num' => 12345,
+					'when' => time(),
+				]
+			]
+		];
+		
+		$actual = DevblocksPlatform::services()->kata()->parse($kata);
+		$actual = DevblocksPlatform::services()->kata()->formatTree($actual);
+		
+		$this->assertEquals($expected, $actual);
+	}
+	
 	function testKataReferencesWithMergedAnnotations() {
 		$kata = <<< EOD
 picklist:
