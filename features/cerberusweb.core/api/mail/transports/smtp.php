@@ -5,6 +5,7 @@ use Cerb\Email\Crypto\PgpSigner;
 use Symfony\Component\Mailer\Exception\TransportException;
 use Symfony\Component\Mailer\Mailer;
 use Symfony\Component\Mailer\Transport\Smtp\Auth\LoginAuthenticator;
+use Symfony\Component\Mailer\Transport\Smtp\Auth\PlainAuthenticator;
 use Symfony\Component\Mailer\Transport\Smtp\Auth\XOAuth2Authenticator;
 use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
 use Symfony\Component\Mailer\Transport\Smtp\Stream\SocketStream;
@@ -239,6 +240,7 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 			
 			// Always try PLAIN last if XOAUTH is enabled
 			$smtp->addAuthenticator(new LoginAuthenticator());
+			$smtp->addAuthenticator(new PlainAuthenticator());
 			
 			$smtp->setRestartThreshold($smtp_max_sends, 1);
 			
