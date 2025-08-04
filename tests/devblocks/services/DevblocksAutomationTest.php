@@ -259,7 +259,7 @@ EOD;
 		$automation_result = $automator->executeScript($automation, $initial_state, $error);
 		
 		$this->assertFalse($automation_result);
-		$this->assertTrue(!empty($error));
+		$this->assertNotEmpty($error);
 	}
 	
 	function testAnnotationKata() {

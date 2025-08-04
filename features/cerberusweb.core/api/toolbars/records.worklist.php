@@ -49,6 +49,10 @@ class Toolbar_RecordsWorklist extends Extension_Toolbar {
 				'key' => 'selected_record_ids',
 				'notes' => 'An array of selected record IDs in the worklist (if any).',
 			],
+			[
+				'key' => 'visible_record_ids',
+				'notes' => 'An array of visible record IDs on the current worklist page.',
+			],
 		];
 	}
 	

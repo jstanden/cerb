@@ -1393,7 +1393,7 @@ class CerbAutomationAstNode implements JsonSerializable {
 					case 'key':
 						$key_path = trim($value);
 						
-						if(false !== strpos($key_path, ':')) {
+						if(str_contains($key_path, ':')) {
 							$value = $dict->getKeyPath($key_path, null, ':');
 						} else {
 							$value = $dict->get($key_path);

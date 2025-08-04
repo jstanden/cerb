@@ -60,6 +60,11 @@ class _DevblocksKataService {
 	function parse($kata_string, &$error=null, $dereference=true, &$symbol_meta=[], $keep_comments=false) {
 		$error = null;
 		
+		if(!is_string($kata_string ?? '')) {
+			$error = "KATA document must be text.";
+			return false;
+		}
+		
 		$lines = explode(
 			"\n",
 			str_replace(

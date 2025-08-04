@@ -1551,6 +1551,7 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 			$snippet = DAO_Snippet::get($snippet);
 		} elseif($snippet instanceof Model_Snippet) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($snippet)) {
 			$snippet = Cerb_ORMHelper::recastArrayToModel($snippet, 'Model_Snippet');
 		} else {
@@ -1565,6 +1566,7 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 			'context' => $prefix.$translate->_('common.context'),
 			'content' => $prefix.$translate->_('common.content'),
 			'owner__label' => $prefix.$translate->_('common.owner'),
+			'prompts' => $prefix.$translate->_('common.prompts'),
 			'total_uses' => $prefix.$translate->_('dao.snippet.total_uses'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
 		);
@@ -1577,6 +1579,7 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 			'context' => Model_CustomField::TYPE_SINGLE_LINE,
 			'content' => Model_CustomField::TYPE_MULTI_LINE,
 			'owner__label' => 'context_url',
+			'prompts' => null, // array
 			'total_uses' => Model_CustomField::TYPE_NUMBER,
 			'updated_at' => Model_CustomField::TYPE_DATE,
 		);

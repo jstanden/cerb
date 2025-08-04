@@ -25,7 +25,7 @@ class AutomationTrigger_MailFilter extends Extension_AutomationTrigger {
 			],
 			[
 				'key' => 'email_headers',
-				'notes' => 'A set of header/value pairs. Keys are lowercase with dashes as underscores (e.g. `content_type`).',
+				'notes' => 'A set of header/value pairs. Keys are lowercase (e.g. `content-type`).',
 			],
 			[
 				'key' => 'email_body',

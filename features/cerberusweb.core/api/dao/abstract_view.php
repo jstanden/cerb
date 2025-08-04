@@ -784,10 +784,10 @@ abstract class C4_AbstractView {
 			)
 			return false;
 		
-		if(false == ($subtotal_fields = $this->getSubtotalFields()))
+		if(!($subtotal_fields = $this->getSubtotalFields()))
 			return false;
 		
-		if(false == ($search_fields = $this->getQuickSearchFields()))
+		if(!($search_fields = $this->getQuickSearchFields()))
 			return false;
 		
 		if(0 == strcasecmp($subtotal_query, 'null'))
@@ -825,7 +825,7 @@ abstract class C4_AbstractView {
 		if(empty($columns) || !($this instanceof IAbstractView_QuickSearch))
 			return false;
 		
-		if(false == ($search_fields = $this->getQuickSearchFields()))
+		if(!($search_fields = $this->getQuickSearchFields()))
 			return false;
 		
 		foreach($columns as $column) {
