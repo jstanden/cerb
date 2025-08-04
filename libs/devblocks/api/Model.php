@@ -976,7 +976,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 							}, $preview_rows));
 							
 							if(empty($preview_ids))
-								return '0';
+								return $not ? '1' : '0';
 							
 							$sql = implode(',', $preview_ids) ?: '-1';
 						}
@@ -1034,12 +1034,17 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 			
 			$query_parts['select'] = sprintf("SELECT %s ", $primary_key);
 			
-			$sql = 
-				$query_parts['select']
-				. $query_parts['join']
-				. $query_parts['where']
-				. $query_parts['sort']
-				;
+			if(APP_OPT_SQL_SUBQUERY_TO_IDS && $query_parts['where'] == 'WHERE (1) ') {
+				return $not ? '0' : '1';
+				
+			} else {
+				$sql =
+					$query_parts['select']
+					. $query_parts['join']
+					. $query_parts['where']
+					. $query_parts['sort']
+					;
+			}
 			
 			if(APP_OPT_SQL_SUBQUERY_TO_IDS) {
 				// Run a speculative query to see if we can convert subqueries to ids[]
@@ -1056,7 +1061,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 							}, $preview_rows));
 							
 							if(empty($preview_ids))
-								return '0';
+								return $not ? '1' : '0';
 							
 							$sql = implode(',', $preview_ids) ?: '-1';
 						}
@@ -1684,7 +1689,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 							));
 							
 							if(empty($prefetch_ids))
-								return '0';
+								return $not ? '1' : '0';
 							
 							$subquery_sql = implode(',', $prefetch_ids) ?: '-1';
 						}
