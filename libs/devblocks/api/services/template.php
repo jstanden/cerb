@@ -576,7 +576,7 @@ class _DevblocksTemplateManager {
 					$link_script = sprintf(
 						"<script nonce=\"%s\" id=\"%s\" type=\"text/javascript\">".
 						"\$('#%s').prevAll('div.cerb-code-editor-toolbar').find('button').on('click',function(e) {".
-						"e.stopPropagation();\$(this).closest('div').next('div').toggle();\$(this).parent().hide();});".
+						"e.stopPropagation();\$(this).closest('div').next('div').show();\$(this).closest('div').hide();});".
 						"</script>",
 						DevblocksPlatform::strEscapeHtml(DevblocksPlatform::getRequestNonce()),
 						DevblocksPlatform::strEscapeHtml($script_id),
