@@ -1719,9 +1719,9 @@ class DevblocksPlatform extends DevblocksEngine {
 		if($with_onclick && str_contains($html, '#cerb-external-link')) {
 			$script_uid = uniqid('script');
 			$html = sprintf(
-				'<div style="display:inline-block;">%s</div>'.
+				'%s'.
 				'<script nonce="%s" id="%s" type="text/javascript">{'.
-				'$("#%s").prev("div").find("a[href=\"#cerb-external-link\"]").each(function(){let $link=$(this);'.
+				'$("#%s").parent().find("a[href=\"#cerb-external-link\"]").each(function(){let $link=$(this);'.
 				'if($link.text() === $link.attr("data-cerb-external-link")){'.
 				'$link.attr("href", $link.attr("data-cerb-external-link")).attr("target","_blank");'.
 				'}else{'.
