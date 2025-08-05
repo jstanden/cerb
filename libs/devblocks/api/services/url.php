@@ -453,49 +453,44 @@ class Cerb_HTMLPurifier_URIFilter_Email extends HTMLPurifier_URIFilter {
 				}
 			}
 			
+			$allowed_hosts = $this->mail->getImageProxyAllowlist();
+			
+			$host = DevblocksPlatform::strLower($uri->host);
+			$url = $uri->toString();
+			
+			$host_patterns = [$host];
+			
+			$last_pos = 0;
+			while (false !== ($pos = strpos($host, '.', $last_pos))) {
+				$host_patterns[] = substr($host,$pos);
+				$last_pos = ++$pos;
+			}
+			
 			if(!$this->allowImages) {
+				// Check the whitelist first
+				if($this->doesImageHostUrlMatchList($host_patterns, $url, $allowed_hosts)) {
+					// If allowed, proxy it
+					$uri = $this->proxyImageUrl($uri);
+					return true;
+				}
+				
+				// Block by default
 				$this->_logBlockedImage($uri);
 				$uri = $this->parser->parse(null);
 				return true;
 				
 			} else {
 				$blocked_hosts = $this->mail->getImageProxyBlocklist();
-				$host = DevblocksPlatform::strLower($uri->host);
-				$url = $uri->toString();
 				
-				$host_patterns = [$host];
-				
-				$last_pos = 0;
-				while (false !== ($pos = strpos($host, '.', $last_pos))) {
-					$host_patterns[] = substr($host,$pos);
-					$last_pos = ++$pos;
+				// Check the blocklist
+				if($this->doesImageHostUrlMatchList($host_patterns, $url, $blocked_hosts)) {
+					$this->_logBlockedImage($uri);
+					$uri = $this->parser->parse(null);
+					return true;
 				}
 				
-				foreach ($host_patterns as $host_pattern) {
-					if (array_key_exists($host_pattern, $blocked_hosts)) {
-						foreach ($blocked_hosts[$host_pattern] as $regexp) {
-							if (preg_match($regexp, $url)) {
-								$this->_logBlockedImage($uri);
-								$uri = $this->parser->parse(null);
-								return true;
-							}
-						}
-					}
-				}
-				
-				$this->_logProxiedImage($uri);
-				
-				$new_url = $this->urlWriter->write('c=security&a=proxyImage');
-				
-				$new_url .= '?url=' . rawurlencode($uri->toString());
-				
-				if($this->secret) {
-					$hash = hash_hmac('sha256', $uri->toString(), $this->secret, true);
-					$hash = DevblocksPlatform::services()->string()->base64UrlEncode($hash);
-					$new_url .= '&s=' . rawurlencode(substr($hash, 0, 10));
-				}
-				
-				$uri = $this->parser->parse($new_url);
+				// Proxy it
+				$uri = $this->proxyImageUrl($uri);
 				
 				return true;
 			}
@@ -536,6 +531,36 @@ class Cerb_HTMLPurifier_URIFilter_Email extends HTMLPurifier_URIFilter {
 		}
 		
 		return true;
+	}
+	
+	private function doesImageHostUrlMatchList(array $host_patterns, string $image_url, array $list_patterns) : bool {
+		foreach ($host_patterns as $host_pattern) {
+			if (array_key_exists($host_pattern, $list_patterns)) {
+				foreach ($list_patterns[$host_pattern] as $regexp) {
+					if (preg_match($regexp, $image_url)) {
+						return true;
+					}
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	private function proxyImageUrl(HTMLPurifier_URI $uri) : null|HTMLPurifier_URI {
+		$this->_logProxiedImage($uri);
+		
+		$new_url = $this->urlWriter->write('c=security&a=proxyImage');
+		
+		$new_url .= '?url=' . rawurlencode($uri->toString());
+		
+		if($this->secret) {
+			$hash = hash_hmac('sha256', $uri->toString(), $this->secret, true);
+			$hash = DevblocksPlatform::services()->string()->base64UrlEncode($hash);
+			$new_url .= '&s=' . rawurlencode(substr($hash, 0, 10));
+		}
+		
+		return $this->parser->parse($new_url);
 	}
 	
 	private function _logBlockedImage(HTMLPurifier_URI $uri) {

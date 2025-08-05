@@ -68,6 +68,18 @@
                 <textarea name="proxy_image_blocklist" class="cerb-code-editor">{$params.proxy_image_blocklist}</textarea>
             </div>
         </fieldset>
+
+        <fieldset class="peek black">
+            <legend>Allowlist</legend>
+
+            <p>
+                Images matching these patterns will <b>always</b> be allowed:
+            </p>
+
+            <div>
+                <textarea name="proxy_image_allowlist" class="cerb-code-editor">{$params.proxy_image_allowlist}</textarea>
+            </div>
+        </fieldset>
     </fieldset>
 
     <fieldset>

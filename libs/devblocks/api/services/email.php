@@ -1368,6 +1368,43 @@ class _DevblocksEmailManager {
 		
 		return $blocklist_hash;
 	}
+	public function getImageProxyAllowlist() {
+		$cache = DevblocksPlatform::services()->cache();
+		
+		if(null === ($allowlist_hash = $cache->load('mail_html_image_allowlist'))) {
+			$image_allowlist = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::MAIL_HTML_IMAGE_PROXY_ALLOWLIST, '');
+			
+			$allowlist_items = DevblocksPlatform::parseCrlfString($image_allowlist);
+			$allowlist_hash = [];
+			
+			foreach($allowlist_items as $idx => $allowlist_item) {
+				if(DevblocksPlatform::strStartsWith($allowlist_item, '#'))
+					continue;
+				
+				if(!DevblocksPlatform::strStartsWith($allowlist_item, ['http://', 'https://']))
+					$allowlist_item = 'http://' . $allowlist_item;
+				
+				if(!($url_parts = parse_url($allowlist_item)))
+					continue;
+				
+				if(!array_key_exists('host', $url_parts))
+					continue;
+				
+				if(!array_key_exists($url_parts['host'], $allowlist_hash))
+					$allowlist_hash[$url_parts['host']] = [];
+				
+				$allowlist_hash[$url_parts['host']][] = DevblocksPlatform::strToRegExp(sprintf('*://%s%s%s',
+					DevblocksPlatform::strStartsWith($url_parts['host'],'.') ? '*' : '',
+					$url_parts['host'],
+					array_key_exists('path', $url_parts) ? ($url_parts['path'].'*') : '/*'
+				));
+			}
+			
+			$cache->save($allowlist_hash, 'mail_html_image_allowlist', [], 0);
+		}
+		
+		return $allowlist_hash;
+	}
 	
 	public function getLinksWhitelist() {
 		$cache = DevblocksPlatform::services()->cache();
