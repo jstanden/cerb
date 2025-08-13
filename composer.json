@@ -62,7 +62,7 @@
 		"singpolyma/openpgp-php": "^0.7.0",
 		"horde/imap-client": "dev-2.30.7-cerb",
 		"ramsey/uuid": "^4.1",
-		"enshrined/svg-sanitize": "^0.15",
+		"enshrined/svg-sanitize": "^0.22",
 		"sebastian/diff": "^4.0",
 		"league/commonmark": "^2.7"
 	},
