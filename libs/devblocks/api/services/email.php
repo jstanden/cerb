@@ -480,9 +480,12 @@ class Model_DevblocksOutboundEmail {
 		);
 		
 		// Prefix 'Re:' to the subject if not exists and the conversation has messages (i.e. this isn't the first)
-		$has_re_already = str_contains($subject, 'Re:') || str_contains($subject, 're:');
-		$has_messages = $this->getTicket()->num_messages > 0;
-		$do_prefix_re = $this->getType() == Model_MailQueue::TYPE_TICKET_REPLY && !$has_re_already && $has_messages;
+		$do_prefix_re = false;
+		if($this->getType() == Model_MailQueue::TYPE_TICKET_REPLY) {
+			$has_re_already = str_contains($subject, 'Re:') || str_contains($subject, 're:');
+			$has_messages = intval($this->getTicket()?->num_messages) > 0;
+			$do_prefix_re = !$has_re_already && $has_messages;
+		}
 		
 		return (sprintf('%s%s%s',
 			$do_prefix_re ? 'Re: ' : '',
