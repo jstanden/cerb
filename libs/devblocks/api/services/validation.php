@@ -449,7 +449,7 @@ class _DevblocksValidators {
 				return false;
 			}
 			
-			$value = implode(', ', array_map(['DevblocksPlatform','strUpper'], array_keys($validated_emails)));
+			$value = implode(', ', array_map(['DevblocksPlatform','strLower'], array_keys($validated_emails)));
 			
 			return true;
 		};
