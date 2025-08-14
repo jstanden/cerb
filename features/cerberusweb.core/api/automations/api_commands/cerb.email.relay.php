@@ -44,7 +44,7 @@ class ApiCommand_CerbEmailRelay extends Extension_AutomationApiCommand {
 		
 		$result = CerberusMail::relay(
 			$values['message_id'],
-			$values['emails'],
+			DevblocksPlatform::parseCsvString($values['emails'] ?? '') ?? [],
 			$values['include_attachments'],
 			$values['body_template'],
 			CerberusContexts::CONTEXT_APPLICATION,
