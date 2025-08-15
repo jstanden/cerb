@@ -163,12 +163,14 @@
 		<b>Attachments:</b><br>
 		<ul style="margin-top:0px;">
 		{foreach from=$attachments.$message_id item=attachment}
+		{if $attachment->storage_sha1hash}
 		<li>
 			<a href="{devblocks_url}c=ajax&a=downloadFile&guid={$attachment->storage_sha1hash}&name={$attachment->name|escape:'url'}{/devblocks_url}" target="_blank" rel="noopener">{$attachment->name}</a>
 			({$attachment->storage_size|devblocks_prettybytes}
 			 - 
 			{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{'display.convo.unknown_format'|devblocks_translate|capitalize}{/if})
 		</li>
+		{/if}
 		{/foreach}
 		</ul>
 		</div>
