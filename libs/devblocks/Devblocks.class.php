@@ -1691,7 +1691,13 @@ class DevblocksPlatform extends DevblocksEngine {
 		if($inline_css) {
 			if($dirty_html) {
 				$css_converter = new CssToInlineStyles();
-				$dirty_html = $css_converter->convert($dirty_html);
+				try {
+					$cleaned_html = $css_converter->convert($dirty_html);
+				} catch (Throwable) {
+					$cleaned_html = $dirty_html;
+				} finally {
+					$dirty_html = $cleaned_html;
+				}
 			}
 		}
 		

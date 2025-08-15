@@ -840,14 +840,12 @@ class Model_Comment extends DevblocksRecordModel {
 		if($this->is_markdown) {
 			$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
 			
-			$clean_html =  DevblocksPlatform::purifyHTML(
-				DevblocksPlatform::parseMarkdown($this->comment),
+			return DevblocksPlatform::purifyHTML(
+				DevblocksPlatform::parseMarkdown($this->comment, true),
 				true,
 				true,
 				[$filter]
 			);
-			
-			return $clean_html;
 			
 		} else {
 			return $this->comment;
