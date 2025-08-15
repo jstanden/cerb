@@ -248,6 +248,7 @@ class DAO_Message extends Cerb_ORMHelper {
 							DAO_Attachment::NAME => 'original_message.html',
 							DAO_Attachment::MIME_TYPE => 'text/html',
 							DAO_Attachment::UPDATED => time(),
+							DAO_Attachment::STORAGE_SHA1HASH => sha1($fields[self::_CONTENT_HTML]),
 						]);
 					}
 					
