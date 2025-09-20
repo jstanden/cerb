@@ -366,6 +366,7 @@ $(function() {
 		} catch(e) { }
 		{/foreach}
 
+		let $view = $('div#view{$view->id}');
 		let $va_actions = $('#view{$view->id}_va_actions');
 		let $va_button = $('<a title="This worklist was modified by bots"><div style="background-color:var(--cerb-color-background-contrast-230);display:inline-block;margin-top:3px;border-radius:11px;padding:2px;"><img src="{devblocks_url}c=avatars&context=app&id=0{/devblocks_url}" style="width:14px;height:14px;margin:0;"></div></a>');
 		$va_button.click(function(e) {
