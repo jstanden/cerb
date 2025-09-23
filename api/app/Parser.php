@@ -1580,7 +1580,13 @@ class CerberusParser {
 			);
 		}
 		
-		$fields[DAO_Message::HASH_HEADER_MESSAGE_ID] = sha1($model->getHeader('message-id'));
+		$header_message_id = $model->getHeader('message-id');
+		
+		if(is_array($header_message_id))
+			$header_message_id = array_shift($header_message_id);
+		
+		if(is_string($header_message_id))
+			$fields[DAO_Message::HASH_HEADER_MESSAGE_ID] = sha1($header_message_id);
 		
 		$model->setMessageId(DAO_Message::create($fields));
 

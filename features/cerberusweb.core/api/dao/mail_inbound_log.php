@@ -111,9 +111,14 @@ class DAO_MailInboundLog extends Cerb_ORMHelper {
 	}
 	
 	public static function createFromModel(CerberusParserModel $model) : int|false {
+		$header_message_id = $model->getHeaders()['message-id'] ?? '';
+		
+		if(is_array($header_message_id))
+			$header_message_id = array_shift($header_message_id);
+		
 		$fields = [
 			self::CREATED_AT => time(),
-			self::HEADER_MESSAGE_ID => $model->getHeaders()['message-id'] ?? '',
+			self::HEADER_MESSAGE_ID => (is_string($header_message_id) && $header_message_id) ? $header_message_id : '',
 			self::FROM_ID => $model->getSenderAddressModel()->id ?? 0,
 			self::TO => implode(',', $model->getRecipients() ?: []),
 			self::SUBJECT => $model->getSubject() ?? '',
