@@ -108,6 +108,16 @@ class PageSection_ProfilesResource extends Extension_PageSection {
 				if(!($resource_ext = Extension_ResourceType::get($extension_id, true)))
 						throw new Exception_DevblocksAjaxValidationError('Invalid resource extension.');
 				
+				// Report file upload errors
+				if(is_array($file) && array_key_exists('error', $file) && $file['error']) {
+					$error = match($file['error']) {
+						UPLOAD_ERR_INI_SIZE => 'The uploaded file is too large (upload_max_filesize).',
+						UPLOAD_ERR_FORM_SIZE => 'The uploaded file is too large (MAX_FILE_SIZE).',
+						default => 'The uploaded file was not uploaded.',
+					};
+					throw new Exception_DevblocksAjaxValidationError($error);
+				}
+				
 				if(is_array($file) && array_key_exists('tmp_name', $file) && $file['tmp_name']) {
 					$extension_params = [];
 					
