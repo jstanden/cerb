@@ -1195,12 +1195,8 @@ class CerberusParser {
 		return true;
 	}
 	
-	static private function _handleMailFilteringAutomations(CerberusParserModel &$model) {
-		$event_handler = DevblocksPlatform::services()->ui()->eventHandler();
-		
-		$error = null;
-		
-		$initial_state = [
+	static private function _buildMailFilterInitialState(CerberusParserModel &$model) {
+		return [
 			'email_sender__context' => CerberusContexts::CONTEXT_ADDRESS,
 			'email_sender_id' => ($model->getSenderAddressModel()->id ?? null) ?: 0,
 			'email_subject' => $model->getSubject(),
@@ -1211,6 +1207,14 @@ class CerberusParser {
 			'parent_ticket__context' => CerberusContexts::CONTEXT_TICKET,
 			'parent_ticket_id' => $model->getTicketId(),
 		];
+	}
+	
+	static private function _handleMailFilteringAutomations(CerberusParserModel &$model) {
+		$event_handler = DevblocksPlatform::services()->ui()->eventHandler();
+		
+		$error = null;
+		
+		$initial_state = self::_buildMailFilterInitialState($model);
 		
 		$handlers_dict = DevblocksDictionaryDelegate::instance($initial_state);
 		
