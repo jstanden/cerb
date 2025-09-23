@@ -305,17 +305,29 @@ class CerberusParserModel {
 		$this->_parseHeadersFrom();
 	}
 	
+	private function _getTrimmedSingleHeader(string $header_name) : ?string {
+		$header_value = $this->_message->headers[$header_name] ?? null;
+		
+		if(is_array($header_value))
+			$header_value = array_shift($header_value);
+		
+		if(!is_string($header_value))
+			return null;
+		
+		return trim($header_value);
+	}
+	
 	/**
 	 * First we check the references and in-reply-to headers to find a
 	 * historical match in the database. If those don't match we check
 	 * the subject line for a mask (if one exists). If none of those
 	 * options match we return null.
 	 */
-	private function _parseHeadersIsNew() {
-		$aSubject = $this->_message->headers['subject'] ?? '';
-		$sMessageId = trim($this->_message->headers['message-id'] ?? '');
-		$sInReplyTo = trim($this->_message->headers['in-reply-to'] ?? '');
-		$sReferences = trim($this->_message->headers['references'] ?? '');
+	private function _parseHeadersIsNew() : void {
+		$aSubject = $this->_getTrimmedSingleHeader('subject') ?? '';
+		$sMessageId = $this->_getTrimmedSingleHeader('message-id') ?? '';
+		$sInReplyTo = $this->_getTrimmedSingleHeader('in-reply-to') ?? '';
+		$sReferences = $this->_getTrimmedSingleHeader('references') ?? '';
 		//$sThreadTopic = trim($this->_message->headers['thread-topic'] ?? '');
 
 		$senderWorker = $this->getSenderWorkerModel();
