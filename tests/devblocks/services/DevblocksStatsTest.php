@@ -20,8 +20,13 @@ class DevblocksStatsTest extends TestCase {
 		$vec_b = [5,4,3,2,1];
 		
 		$expected = 0.6364;
-		$actual = $stats->cosineSimilarity($vec_a, $vec_b);
 		
+		if(extension_loaded('bcmath')) {
+			$actual = $stats->cosineSimilarity($vec_a, $vec_b, try_bcmath:true);
+			$this->assertEqualsWithDelta($expected, $actual, 0.001);
+		}
+		
+		$actual = $stats->cosineSimilarity($vec_a, $vec_b);
 		$this->assertEqualsWithDelta($expected, $actual, 0.001);
 	}
 	

@@ -830,7 +830,7 @@ class DevblocksPlatformTest extends TestCase {
 	public function testPurifyHtmlUriFiltering() {
 		// Don't allow images
 		$filter = new Cerb_HTMLPurifier_URIFilter_Email(false);
-		$dirty_html = "<img src='https://cerb.ai/assets/cerb_logo.png'>";
+		$dirty_html = "<img src='https://cerb.example/assets/cerb_logo.png'>";
 		$expected = '<img src="" alt="cerb_logo.png">';
 		$actual = DevblocksPlatform::purifyHTML($dirty_html, false, true, [$filter]);
 		$this->assertEquals($expected, $actual);
