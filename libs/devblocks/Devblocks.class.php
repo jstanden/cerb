@@ -1762,6 +1762,22 @@ class DevblocksPlatform extends DevblocksEngine {
 			],
 		];
 		
+		if(!$safeMode) {
+			$config['disallowed_raw_html'] = [
+				'disallowed_tags' => [
+					'title',
+					'textarea',
+					'style',
+					'xmp',
+					'iframe',
+					'noembed',
+					'noframes',
+					'script',
+					'plaintext'
+				],
+			];
+		}
+		
 		if($externalLinks) {
 			$config['external_link'] = [
 				'internal_hosts' => [
