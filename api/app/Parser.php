@@ -1278,7 +1278,12 @@ class CerberusParser {
 				$handlers,
 				$initial_state,
 				$error,
-				function(DevblocksDictionaryDelegate $result) {
+				function(DevblocksDictionaryDelegate $result, array $handler, array &$initial_state) use ($model) {
+					self::_handleMailFilterAutomationActions($model, $result);
+					
+					// Rebuild the initial state for the next filter
+					$initial_state = self::_buildMailFilterInitialState($model);
+					
 					// Continue unless we rejected the message
 					return false == $result->getKeyPath('__return.reject');
 				},
@@ -1292,71 +1297,71 @@ class CerberusParser {
 					$model->addPreAction('reject');
 					break;
 				}
-				
-				if(null != ($subject = $result->getKeyPath('__return.set.email_subject'))) {
-					$model->setSubject($subject);
-					$model->getParserMessage()->headers['subject'] = $subject;
-					$model->updateThreadHeaders();
-				}
-				
-				if(null != ($body = $result->getKeyPath('__return.set.email_body'))) {
-					$model->getParserMessage()->body = $body;
-					unset($body);
-				}
-				
-				if(null != ($html_body = $result->getKeyPath('__return.set.email_body_html'))) {
-					$model->getParserMessage()->htmlbody = $html_body;
-					unset($html_body);
-				}
-				
-				if(null != ($headers = $result->getKeyPath('__return.set.headers'))) {
-					if(is_array($headers)) {
-						foreach($headers as $k => $v) {
-							$k = DevblocksPlatform::strLower($k);
-							
-							if('' === $v) {
-								unset($model->getParserMessage()->headers[$k]);
-							} else {
-								$model->getParserMessage()->headers[$k] = $v;
-							}
-							
-						}
-						
-						$model->getParserMessage()->raw_headers = '';
-						$model->getParserMessage()->build();
-						$model->updateThreadHeaders();
-					}
-				}
-				
-				if(null != ($new_org_id = $result->getKeyPath('__return.set.email_sender_org_id'))) {
-					if(
-						($sender_model = $model->getSenderAddressModel())
-						&& ($new_org = DAO_ContactOrg::get($new_org_id))
-					) {
-						DAO_Address::update($model->getSenderAddressModel()->id, [
-							DAO_Address::CONTACT_ORG_ID => $new_org->id
-						]);
-						
-						/* @var $sender_model Model_Address */
-						$sender_model->setOrg($new_org);
-					}
-				}
-				
-				if(null != ($custom_fields = $result->getKeyPath('__return.set.custom_fields'))) {
-					if(is_array($custom_fields)) {
-						foreach($custom_fields as $cf_key => $cf_value) {
-							$model->getParserMessage()->custom_fields[] = [
-								'field_id' => $cf_key,
-								'context' => CerberusContexts::CONTEXT_TICKET,
-								'value' => $cf_value,
-							];
-						}
-					}
-				}
 			}
 		}
 		
 		return $model;
+	}
+	
+	static public function _handleMailFilterAutomationActions(CerberusParserModel &$model, DevblocksDictionaryDelegate $result) : void {
+		if(null != ($subject = $result->getKeyPath('__return.set.email_subject'))) {
+			$model->setSubject($subject);
+			$model->getParserMessage()->headers['subject'] = $subject;
+			$model->updateThreadHeaders();
+		}
+		
+		if(null != ($body = $result->getKeyPath('__return.set.email_body'))) {
+			$model->getParserMessage()->body = $body;
+			unset($body);
+		}
+		
+		if(null != ($html_body = $result->getKeyPath('__return.set.email_body_html'))) {
+			$model->getParserMessage()->htmlbody = $html_body;
+			unset($html_body);
+		}
+		
+		if(null != ($headers = $result->getKeyPath('__return.set.headers'))) {
+			if(is_array($headers)) {
+				foreach($headers as $k => $v) {
+					$k = DevblocksPlatform::strLower($k);
+					
+					if('' === $v) {
+						unset($model->getParserMessage()->headers[$k]);
+					} else {
+						$model->getParserMessage()->headers[$k] = $v;
+					}
+				}
+				
+				$model->getParserMessage()->raw_headers = '';
+				$model->getParserMessage()->build();
+				$model->updateThreadHeaders();
+			}
+		}
+		
+		if(null != ($new_org_id = $result->getKeyPath('__return.set.email_sender_org_id'))) {
+			if(
+				($sender_model = $model->getSenderAddressModel())
+				&& ($new_org = DAO_ContactOrg::get($new_org_id))
+			) {
+				DAO_Address::update($model->getSenderAddressModel()->id, [
+					DAO_Address::CONTACT_ORG_ID => $new_org->id
+				]);
+				
+				$sender_model->setOrg($new_org);
+			}
+		}
+		
+		if(null != ($custom_fields = $result->getKeyPath('__return.set.custom_fields'))) {
+			if(is_array($custom_fields)) {
+				foreach($custom_fields as $cf_key => $cf_value) {
+					$model->getParserMessage()->custom_fields[] = [
+						'field_id' => $cf_key,
+						'context' => CerberusContexts::CONTEXT_TICKET,
+						'value' => $cf_value,
+					];
+				}
+			}
+		}
 	}
 	
 	/**
