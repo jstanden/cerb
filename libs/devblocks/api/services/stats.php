@@ -11,8 +11,9 @@ class _DevblocksStatsService {
 	
 	private function __construct() {}
 	
-	public function cosineSimilarity($vectorA, $vectorB) : float {
-		if(extension_loaded('bcmath')) {
+	public function cosineSimilarity($vectorA, $vectorB, $try_bcmath=false) : float {
+		// bcmath implementation is slower than Pure PHP
+		if($try_bcmath && extension_loaded('bcmath')) {
 			return $this->_cosineSimilarityBcMath($vectorA, $vectorB);
 		} else {
 			return $this->_cosineSimilarityPurePhp($vectorA, $vectorB);
@@ -24,10 +25,10 @@ class _DevblocksStatsService {
 		$dotProduct = '0';
 		$magnitudeA = '0';
 		$magnitudeB = '0';
-		$scale = 20;
+		$scale = 10;
 		
-		$funcConvSciNotation = function($n) {
-			return sprintf('%.20f', $n);
+		$funcConvSciNotation = function($n) use ($scale) {
+			return sprintf('%.' . $scale . 'f', $n);
 		};
 		
 		$vectorA = array_map($funcConvSciNotation, $vectorA);
