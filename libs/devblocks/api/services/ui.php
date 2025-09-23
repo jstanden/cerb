@@ -250,7 +250,7 @@ class DevblocksUiEventHandler {
 		
 		// By default, always continue through all handlers
 		if(is_null($continue_callback))
-			$continue_callback = fn(DevblocksDictionaryDelegate $result, array $handler) => true;
+			$continue_callback = fn(DevblocksDictionaryDelegate $result, array $handler, array &$initial_state) => true;
 		
 		// [TODO] Preload automations?
 		
@@ -264,7 +264,7 @@ class DevblocksUiEventHandler {
 			
 			if(is_callable($continue_callback)) {
 				// Does the callback say to exit?
-				if(!$continue_callback($result, $handler))
+				if(!$continue_callback($result, $handler, $initial_state))
 					return $results;
 			}
 		}
