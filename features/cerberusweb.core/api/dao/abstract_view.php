@@ -2549,6 +2549,36 @@ abstract class C4_AbstractView {
 		return $pass;
 	}
 	
+	protected function _getQueryParts(string $context) {
+		$columns = $this->view_columns;
+		$params = $this->getParams();
+		
+		if(!($context_ext = Extension_DevblocksContext::get($context)))
+			return [];
+		
+		if(!($dao_class = $context_ext->getDaoClass()))
+			return [];
+		
+		if(!($search_class = $context_ext->getSearchClass()))
+			return [];
+		
+		if(!method_exists($dao_class, 'getSearchQueryComponents'))
+			return [];
+		
+		if(!method_exists($search_class, 'getPrimaryKey'))
+			return [];
+		
+		return call_user_func_array(
+			array($dao_class,'getSearchQueryComponents'),
+			array(
+				$columns,
+				$params,
+				$this->renderSortBy,
+				$this->renderSortAsc
+			)
+		);
+	}
+	
 	protected function _getSubtotalDataForColumn($context, $field_key) {
 		$db = DevblocksPlatform::services()->database();
 		
