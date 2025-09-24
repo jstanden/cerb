@@ -3,7 +3,7 @@ workflow:
   description: Notify a Slack channel about new ticket messages
   website: https://cerb.ai/workflows/cerb.integrations.slack.notifications/
   requirements:
-    cerb_version: >=11.0 <11.2
+    cerb_version: >=11.0 <11.3
     cerb_plugins: cerberusweb.core,
   config:
     chooser/slack_account_id:

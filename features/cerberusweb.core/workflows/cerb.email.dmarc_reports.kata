@@ -4,7 +4,7 @@ workflow:
   description: Parse DMARC report attachments in email
   website: https://cerb.ai/workflows/cerb.email.dmarc_reports/
   requirements:
-    cerb_version: >=11.0 <11.2
+    cerb_version: >=11.0 <11.3
     cerb_plugins: cerberusweb.core
 
 records:

@@ -448,7 +448,7 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 					'multiple@bool: yes',
 				],
 				'workflow:requirements:' => [
-					'cerb_version: >=11.0 <11.2',
+					'cerb_version: >=11.0 <11.3',
 					'cerb_plugins: cerberusweb.core, ',
 				],
 				'workflow:version:' => [
@@ -567,7 +567,7 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 					'cerb.search.simple' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.search.simple.kata'),
 					'cerb.sla' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.sla.kata'),
 					'cerb.tutorial' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.tutorial.kata'),
-					default => sprintf("workflow:\n  name: %s\n  version: %s\n  description: A description of the workflow\n  website: https://cerb.ai/resources/workflows/\n  requirements:\n    cerb_version: >=11.0 <11.2\n    cerb_plugins: cerberusweb.core, \n\nrecords:\n", $workflow->name, gmdate('Y-m-d\T00:00:00\Z')),
+					default => sprintf("workflow:\n  name: %s\n  version: %s\n  description: A description of the workflow\n  website: https://cerb.ai/resources/workflows/\n  requirements:\n    cerb_version: >=11.0 <11.3\n    cerb_plugins: cerberusweb.core, \n\nrecords:\n", $workflow->name, gmdate('Y-m-d\T00:00:00\Z')),
 				};
 			}
 			

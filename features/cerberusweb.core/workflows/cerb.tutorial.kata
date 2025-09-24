@@ -3,7 +3,7 @@ workflow:
   version: 2025-05-08T00:00:00Z
   description: A workspace with detailed descriptions and examples of Cerb functionality
   requirements:
-    cerb_version: >=11.0 <11.2
+    cerb_version: >=11.0 <11.3
     cerb_plugins: cerberusweb.core,
 records:
   workspace_page/page_tutorial:
@@ -5964,7 +5964,7 @@ records:
                     description: This example workflow manages a task record
                     website: https://cerb.ai/resources/workflows/
                     requirements:
-                      cerb_version: >=11.0 <11.2
+                      cerb_version: >=11.0 <11.3
                       cerb_plugins: cerberusweb.core,
                     config:
                       text/taskName:

@@ -4,7 +4,7 @@ workflow:
   description: Require acceptance of 'Terms of Use' before a worker can login in.
   website: https://cerb.ai/workflows/cerb.login.terms_of_use/
   requirements:
-    cerb_version: >=11.0 <11.2
+    cerb_version: >=11.0 <11.3
     cerb_plugins: cerberusweb.core
   config:
     text/continueButtonLabel:

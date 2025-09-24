@@ -4,14 +4,14 @@
 	<name>Opportunity Tracking (DEPRECATED)</name>
 	<description>Create opportunities linked to email addresses. In modern versions of Cerb, use custom records instead.</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>11.1.0</version>
+	<version>11.2.0</version>
 	<link>http://wiki.cerbweb.com/Features:Opportunity_Tracking</link>
 	<image>plugin.png</image>
 	
 	<!-- Requirements -->
 
 	<requires>
-		<app_version min="11.1" max="11.1.99" />
+		<app_version min="11.2" max="11.2.99" />
 	</requires>
 	
 	<!-- Plugin Dependencies -->
