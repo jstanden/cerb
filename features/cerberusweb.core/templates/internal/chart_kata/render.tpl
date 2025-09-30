@@ -136,7 +136,7 @@ $(function() {
             chart_json.tooltip.contents = function(d, defaultTitleFormat, defaultValueFormat, color) {
                 // Exclude zero values
                 d = d.filter(function(series) {
-                    return series.value > 0;
+                    return series.value !== 0;
                 });
                 
                 if(0 === d.length)
