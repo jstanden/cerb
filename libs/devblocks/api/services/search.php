@@ -758,7 +758,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		// Parse phrases
 		$phrases = array_filter(
 			array_map(
-				function($term) {
+				function($term) use ($allow_wildcards) {
 					// Ignore non-quoted phrases
 					if(!str_starts_with($term, '"'))
 						return '';
@@ -773,7 +773,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 					if(empty(trim($term,'*')))
 						return '';
 					
-					return $term;
+					return str_replace('*', ($allow_wildcards ? '%' : ''), $term);
 				},
 				$query_terms
 			)

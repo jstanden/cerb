@@ -716,7 +716,7 @@ class Search_CommentContent extends Extension_DevblocksSearchSchema {
 	}
 	
 	public function areWildcardsAllowed() : bool {
-		return false;
+		return APP_OPT_FULLTEXT_ALLOW_WILDCARDS;
 	}
 	
 	public function reindex() {
