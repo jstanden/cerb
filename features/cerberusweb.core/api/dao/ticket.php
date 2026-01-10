@@ -6102,6 +6102,16 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			
 			if(!array_key_exists('status_id', $draft->params))
 				$draft->params['status_id'] = DAO_Ticket::getStatusIdFromText($defaults['status']);
+			
+			// If the draft params have an `org_id` and no `org_name`, load the record
+			if(array_key_exists('org_id', $draft->params) && !array_key_exists('org_name', $draft->params)) {
+				if(
+					($draft_org = DAO_ContactOrg::get($draft->params['org_id']))
+					&& $draft_org->name
+				) {
+					$draft->params['org_name'] = $draft_org->name;
+				}
+			}
 		}
 		
 		// Changing the draft through an automation
