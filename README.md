@@ -2,7 +2,7 @@
 
 # What is Cerb?
 
-**Cerb** automates helpdesk inboxes and workflows. It has evolved continuously for over 23 years based on the feedback of thousands of teams; from solo founders to 1,000+ person enterprises managing millions of customer requests.
+**Cerb** automates helpdesk inboxes and workflows. It has evolved continuously for over 24 years based on the feedback of thousands of teams; from solo founders to 1,000+ person enterprises managing millions of customer requests.
 
 Cerb integrates with any API-based service. It can automate nearly any repetitive digital process with its specialized KATA language and browser-based coding tools. Any toolbar in the UI can be extended with interactive multistep workflows that include human approval.
 

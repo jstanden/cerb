@@ -331,7 +331,7 @@ records:
               params:
                 text_size@raw: 120%
                 value@text:
-                  **Cerb** automates helpdesk inboxes and workflows. The project has continuously evolved for over 23 years based on the feedback of thousands of teams around the world. It is used by everyone from solo founders to 1,000+ person teams managing millions of customer requests.
+                  **Cerb** automates helpdesk inboxes and workflows. The project has continuously evolved for over 24 years based on the feedback of thousands of teams around the world. It is used by everyone from solo founders to 1,000+ person teams managing millions of customer requests.
 
                   Cerb integrates with any API-based service. It can automate nearly any repetitive digital workflow with its specialized KATA language and browser-based coding tools.
 
