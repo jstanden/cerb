@@ -25,6 +25,21 @@ class Gemini extends OpenAI {
 		return $base_url . '/chat/completions';
 	}
 	
+	function getChatCompletionsParams() : array {
+		$params = [];
+		
+		if($this->getParam('thinking_include')) {
+			$params['extra_body']['google']['thinking_config']['include_thoughts'] = true;
+		}
+		
+		// minimal, low, medium, high
+		if(($thinking_level = $this->getParam('thinking_level'))) {
+			$params['reasoning_effort'] = $thinking_level;
+		}
+		
+		return $params;
+	}
+	
 	function getEmbeddingsEndpointUrl(string $base_url) : string {
 		return $base_url . '/embeddings';
 	}

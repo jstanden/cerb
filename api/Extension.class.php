@@ -1514,6 +1514,16 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					],
 					'api_endpoint_url:',
 					'authentication:',
+					[
+						'caption' => 'thinking_include:',
+						'snippet' => "thinking_include@bool: yes",
+						'docHTML' => '<b>thinking_include:</b>Include thoughts in the chat completion output.',
+					],
+					[
+						'caption' => 'thinking_level:',
+						'snippet' => "thinking_level: low",
+						'docHTML' => '<b>thinking_level:</b>Adjust the reasoning effort based on the complexity of a request.<br><code>low</code> or <code>high</code> for Gemini 3 Pro, any setting for Gemini 3 Flash. Not supported for Gemini 2.5.',
+					],
 				],
 				'(.*):llm.agent:inputs:llm:gemini:api_endpoint_url:' => [
 					'https://generativelanguage.googleapis.com/v1beta/openai'
@@ -1530,6 +1540,12 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'gemini-2.0-flash-lite',
 					'gemini-2.5-flash-preview-05-20',
 					'gemini-2.5-pro-preview-06-05',
+				],
+				'(.*):llm.agent:inputs:llm:gemini:thinking_level:' => [
+					'minimal',
+					'low',
+					'medium',
+					'high',
 				],
 				'(.*):llm.agent:inputs:llm:groq:' => [
 					[
@@ -1610,6 +1626,10 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					],
 					'api_endpoint_url:',
 					'authentication:',
+					[
+						'caption' => 'reasoning_effort:',
+						'snippet' => "reasoning_effort: medium",
+					],
 				],
 				'(.*):llm.agent:inputs:llm:openai:api_endpoint_url:' => [
 					'https://api.openai.com',
@@ -1634,6 +1654,13 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'o3',
 					'o3-mini',
 					'o4-mini',
+				],
+				'(.*):llm.agent:inputs:llm:openai:reasoning_effort:' => [
+					'none',
+					'low',
+					'medium',
+					'high',
+					'xhigh',
 				],
 				'(.*):llm.agent:inputs:llm:together:' => [
 					[
