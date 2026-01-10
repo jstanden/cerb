@@ -27,8 +27,6 @@
 		({$owner_meta.context_ext->manifest->name|lower})
 	{/if}
 
-	&nbsp; <abbr title="{$comment->created|devblocks_date}">{$comment->created|devblocks_prettytime}</abbr>
-
 	{if !$embed}
 	<div class="toolbar">
 		<button type="button" class="cerb-edit-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="{$comment->id}" title="Open card popup (Shift+Click to edit)"><span class="glyphicons glyphicons-new-window-alt"></span></button>
@@ -52,6 +50,12 @@
 	{/if}
 	
 	<div class="cerb-comment--content">
+        <div>
+            <b>{{'message.header.date'|devblocks_translate|capitalize}}: </b>
+            {$comment->created|devblocks_date}
+            (<abbr title="{$comment->created|devblocks_date}">{$comment->created|devblocks_prettytime}</abbr>)
+        </div>
+
 		{if $comment->is_markdown}
 			<div class="commentBodyHtml" dir="auto">{$comment->getContent() nofilter}</div>
 		{else}
