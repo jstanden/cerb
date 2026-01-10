@@ -127,6 +127,17 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 		return $base_url . '/v1/chat/completions';
 	}
 	
+	function getChatCompletionsParams() : array {
+		$params = [];
+		
+		// low, medium, high
+		if(($reasoning_effort = $this->getParam('reasoning_effort'))) {
+			$params['reasoning_effort'] = $reasoning_effort;
+		}
+		
+		return $params;
+	}
+	
 	/**
 	 * @throws Exception_DevblocksAutomationError
 	 */
@@ -161,6 +172,11 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 		
 		if($tools)
 			$body_payload['tools'] = $tools;
+		
+		// Add provider-specific body params
+		if(($provider_params = $this->getChatCompletionsParams())) {
+			$body_payload = array_merge($body_payload, $provider_params);
+		}
 		
 		$body = json_encode($body_payload);
 		
