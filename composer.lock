@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "02c33c811fd1d599000dd494335b2598",
+    "content-hash": "9fedcc78c6a56e12e30e58cec1c3f614",
     "packages": [
         {
             "name": "brick/math",
@@ -3993,31 +3993,37 @@
         },
         {
             "name": "twig/twig",
-            "version": "dev-3.8.0-cerb",
+            "version": "dev-3.22.1-cerb",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jstanden/Twig.git",
-                "reference": "ed6b809d938dd0b69ed2a3fdc0d1c637c76debee"
+                "reference": "d33cad7ea4e3e15e31a778b3a811fdc044c58b78"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jstanden/Twig/zipball/ed6b809d938dd0b69ed2a3fdc0d1c637c76debee",
-                "reference": "ed6b809d938dd0b69ed2a3fdc0d1c637c76debee",
+                "url": "https://api.github.com/repos/jstanden/Twig/zipball/d33cad7ea4e3e15e31a778b3a811fdc044c58b78",
+                "reference": "d33cad7ea4e3e15e31a778b3a811fdc044c58b78",
                 "shasum": ""
             },
             "require": {
-                "php": ">=7.2.5",
+                "php": ">=8.1.0",
+                "symfony/deprecation-contracts": "^2.5|^3",
                 "symfony/polyfill-ctype": "^1.8",
-                "symfony/polyfill-mbstring": "^1.3",
-                "symfony/polyfill-php80": "^1.22"
+                "symfony/polyfill-mbstring": "^1.3"
             },
             "require-dev": {
+                "phpstan/phpstan": "^2.0",
                 "psr/container": "^1.0|^2.0",
-                "symfony/phpunit-bridge": "^5.4.9|^6.3|^7.0"
+                "symfony/phpunit-bridge": "^5.4.9|^6.4|^7.0"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
+                "files": [
+                    "src/Resources/core.php",
+                    "src/Resources/debug.php",
+                    "src/Resources/escaper.php",
+                    "src/Resources/string_loader.php"
+                ],
                 "psr-4": {
                     "Twig\\": "src/"
                 }
@@ -4053,9 +4059,9 @@
                 "templating"
             ],
             "support": {
-                "source": "https://github.com/jstanden/Twig/tree/3.8.0-cerb"
+                "source": "https://github.com/jstanden/Twig/tree/3.22.1-cerb"
             },
-            "time": "2023-11-30T02:58:49+00:00"
+            "time": "2025-12-06T04:15:52+00:00"
         }
     ],
     "packages-dev": [
