@@ -6786,6 +6786,201 @@ tables:
             index_type: BTREE
             subpart@text:
             unique@text:
+  llm_agent_message:
+    columns:
+      created_at:
+        field: created_at
+        type: int unsigned
+        collation@text:
+        null: NO
+        key: MUL
+        default: 0
+        extra@text:
+        nullable: NOT NULL
+      data_json:
+        field: data_json
+        type: mediumtext
+        collation: utf8mb4_unicode_ci
+        null: YES
+        key@text:
+        default@text:
+        extra@text:
+        nullable: NULL
+      rating:
+        field: rating
+        type: tinyint unsigned
+        collation@text:
+        null: NO
+        key@text:
+        default: 0
+        extra@text:
+        nullable: NOT NULL
+      seq:
+        field: seq
+        type: int unsigned
+        collation@text:
+        null: NO
+        key: UNI
+        default@text:
+        extra: auto_increment
+        nullable: NOT NULL
+      session_uuid:
+        field: session_uuid
+        type: binary(16)
+        collation@text:
+        null: NO
+        key: MUL
+        default@text:
+        extra@text:
+        nullable: NOT NULL
+      uuid:
+        field: uuid
+        type: binary(16)
+        collation@text:
+        null: NO
+        key: PRI
+        default@text:
+        extra@text:
+        nullable: NOT NULL
+    indexes:
+      PRIMARY:
+        columns:
+          uuid:
+            column_name: uuid
+            index_type: BTREE
+            subpart@text:
+            unique: 1
+      created_at:
+        columns:
+          created_at:
+            column_name: created_at
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+      seq:
+        columns:
+          seq:
+            column_name: seq
+            index_type: BTREE
+            subpart@text:
+            unique: 1
+      session_uuid:
+        columns:
+          session_uuid:
+            column_name: session_uuid
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+  llm_agent_session:
+    columns:
+      automation_id:
+        field: automation_id
+        type: int unsigned
+        collation@text:
+        null: NO
+        key@text:
+        default: 0
+        extra@text:
+        nullable: NOT NULL
+      automation_node:
+        field: automation_node
+        type: varchar(255)
+        collation: utf8mb4_unicode_ci
+        null: NO
+        key@text:
+        default@text:
+        extra@text:
+        nullable: NOT NULL
+      created_at:
+        field: created_at
+        type: int unsigned
+        collation@text:
+        null: NO
+        key: MUL
+        default: 0
+        extra@text:
+        nullable: NOT NULL
+      is_read:
+        field: is_read
+        type: tinyint
+        collation@text:
+        null: NO
+        key@text:
+        default: 0
+        extra@text:
+        nullable: NOT NULL
+      provider:
+        field: provider
+        type: varchar(64)
+        collation: utf8mb4_unicode_ci
+        null: NO
+        key@text:
+        default@text:
+        extra@text:
+        nullable: NOT NULL
+      user_id:
+        field: user_id
+        type: int unsigned
+        collation@text:
+        null: NO
+        key@text:
+        default: 0
+        extra@text:
+        nullable: NOT NULL
+      user_ip:
+        field: user_ip
+        type: varchar(64)
+        collation: utf8mb4_unicode_ci
+        null: NO
+        key@text:
+        default@text:
+        extra@text:
+        nullable: NOT NULL
+      user_type:
+        field: user_type
+        type: varchar(255)
+        collation: utf8mb4_unicode_ci
+        null: NO
+        key: MUL
+        default@text:
+        extra@text:
+        nullable: NOT NULL
+      uuid:
+        field: uuid
+        type: binary(16)
+        collation@text:
+        null: NO
+        key: PRI
+        default@text:
+        extra@text:
+        nullable: NOT NULL
+    indexes:
+      PRIMARY:
+        columns:
+          uuid:
+            column_name: uuid
+            index_type: BTREE
+            subpart@text:
+            unique: 1
+      created_at:
+        columns:
+          created_at:
+            column_name: created_at
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+      user:
+        columns:
+          user_type:
+            column_name: user_type
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+          user_id:
+            column_name: user_id
+            index_type: BTREE
+            subpart@text:
+            unique@text:
   mail_delivery_log:
     columns:
       created_at:
