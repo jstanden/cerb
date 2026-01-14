@@ -12,12 +12,12 @@
 	
 	<b>Allow remote administration tools (upgrade, cron) from these IPs:</b> (one IP per line)
 	<br>
-	<textarea name="authorized_ips" rows="5" cols="24" style="width:400px;">{$settings->get('cerberusweb.core','authorized_ips',CerberusSettingsDefaults::AUTHORIZED_IPS)}</textarea>	
+	<textarea name="authorized_ips" rows="5" cols="24" style="width:400px;">{$settings->get('cerberusweb.core','authorized_ips',CerberusSettingsDefaults::AUTHORIZED_IPS)}</textarea>
 	<br>
 	(Partial IP matches OK. For example: 192.168.1.)<br>
 </fieldset>
 
-<fieldset>
+<fieldset class="peek">
 	<legend>Session Cookies</legend>
 	
 	<b>Expire sessions after </b>

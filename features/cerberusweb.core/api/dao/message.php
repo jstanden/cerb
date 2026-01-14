@@ -1139,7 +1139,7 @@ class Model_Message extends DevblocksRecordModel {
 				return false;
 			
 			// If the attachment is inaccessible, fallback to plaintext 
-			if(false == ($dirty_html = $attachment->getFileContents()))
+			if(!($dirty_html = $attachment->getFileContents()))
 				return false;
 		}
 		
@@ -1353,6 +1353,7 @@ class Search_MessageContent extends Extension_DevblocksSearchSchema {
 		// If the index has a delta, start from the current record
 		} elseif($meta['is_indexed_externally']) {
 			// Do nothing (let the remote tool update the DB)
+			DevblocksPlatform::noop();
 			
 		// Otherwise, start over
 		} else {

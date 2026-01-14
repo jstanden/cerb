@@ -1350,7 +1350,7 @@ class _DevblocksEmailManager {
 				if(!DevblocksPlatform::strStartsWith($blocklist_item, ['http://', 'https://']))
 					$blocklist_item = 'http://' . $blocklist_item;
 				
-				if(false == ($url_parts = parse_url($blocklist_item)))
+				if(!($url_parts = parse_url($blocklist_item)))
 					continue;
 				
 				if(!array_key_exists('host', $url_parts))
@@ -1425,7 +1425,7 @@ class _DevblocksEmailManager {
 				if(!DevblocksPlatform::strStartsWith($whitelist_item, ['http://', 'https://']))
 					$whitelist_item = 'http://' . $whitelist_item;
 				
-				if(false == ($url_parts = parse_url($whitelist_item)))
+				if(!($url_parts = parse_url($whitelist_item)))
 					continue;
 				
 				if(!array_key_exists('host', $url_parts))

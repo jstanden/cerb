@@ -836,7 +836,7 @@ class Model_Comment extends DevblocksRecordModel {
 	private $_attachments = null;
 	private $_custom_field_values = null;
 	
-	public function getContent() {
+	public function getContent() : string {
 		if($this->is_markdown) {
 			$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
 			

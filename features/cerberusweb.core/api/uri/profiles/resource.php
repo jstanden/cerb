@@ -58,7 +58,7 @@ class PageSection_ProfilesResource extends Extension_PageSection {
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_RESOURCE)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
-				if(false == ($model = DAO_Resource::get($id)))
+				if(!($model = DAO_Resource::get($id)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
 				
 				if(!Context_Resource::isDeletableByActor($model, $active_worker))
@@ -106,7 +106,7 @@ class PageSection_ProfilesResource extends Extension_PageSection {
 				
 				/** @var $resource_ext Extension_ResourceType */
 				if(!($resource_ext = Extension_ResourceType::get($extension_id, true)))
-						throw new Exception_DevblocksAjaxValidationError('Invalid resource extension.');
+					throw new Exception_DevblocksAjaxValidationError('Invalid resource extension.');
 				
 				// Report file upload errors
 				if(is_array($file) && array_key_exists('error', $file) && $file['error']) {
@@ -125,7 +125,7 @@ class PageSection_ProfilesResource extends Extension_PageSection {
 						throw new Exception_DevblocksAjaxValidationError('Failed to upload file.');
 					}
 					
-					if(false == ($resource_ext->validateContentData($fp, $extension_params, $error))) {
+					if(!($resource_ext->validateContentData($fp, $extension_params, $error))) {
 						throw new Exception_DevblocksAjaxValidationError($error ?? 'Uploaded file is not a valid image.');
 					}
 					
@@ -205,7 +205,7 @@ class PageSection_ProfilesResource extends Extension_PageSection {
 			));
 			return;
 			
-		} catch (Exception $e) {
+		} catch (Throwable) {
 			echo json_encode(array(
 				'status' => false,
 				'error' => 'An error occurred.',

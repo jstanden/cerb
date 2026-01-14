@@ -534,7 +534,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 
 		$where_sql = [];
 		
-		if(isset($query_parts['phrases']) && isset($query_parts['phrases']))
+		if(isset($query_parts['phrases']))
 			foreach($query_parts['phrases'] as $phrase) {
 				$where_sql[] = sprintf("%s LIKE '%%%s%%'",
 					$db->escape($content_key),
@@ -681,7 +681,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		if(!($query_parts = $this->_parseQuery($query, $schema->areWildcardsAllowed())))
 			return null;
 		
-		if(!isset($query_parts['terms']) || empty($query_parts['terms']))
+		if(empty($query_parts['terms'] ?? ''))
 			return null;
 		
 		$id_key = $schema->getIdField();

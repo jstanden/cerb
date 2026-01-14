@@ -457,7 +457,7 @@ class _DevblocksValidators {
 	
 	function extension($extension_class) {
 		return function($value, &$error=null) use ($extension_class) {
-			if(false == ($extension_class::get($value))) {
+			if(!($extension_class::get($value))) {
 				$error = sprintf("(%s) is not a valid extension ID on (%s).",
 					$value,
 					$extension_class::POINT

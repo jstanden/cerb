@@ -56,13 +56,13 @@ class ChDebugController extends DevblocksControllerExtension  {
 		switch(array_shift($stack)) {
 			case 'phpinfo':
 				if(!($this->isAllowed('phpinfo')))
-					CerberusApplication::respondWithErrorReason(CerbErrorReason::AccessDenied);
+					CerberusApplication::respondWithErrorReason(CerbErrorReason::AccessDenied, true);
 				phpinfo();
 				break;
 				
 			case 'check':
 				if(!($this->isAllowed('check')))
-					CerberusApplication::respondWithErrorReason(CerbErrorReason::AccessDenied);
+					CerberusApplication::respondWithErrorReason(CerbErrorReason::AccessDenied, true);
 				
 				echo sprintf(
 					"<html>
@@ -103,7 +103,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 				
 			case 'status':
 				if(!($this->isAllowed('status')))
-					CerberusApplication::respondWithErrorReason(CerbErrorReason::AccessDenied);
+					CerberusApplication::respondWithErrorReason(CerbErrorReason::AccessDenied, true);
 				
 				$db = DevblocksPlatform::services()->database();
 
@@ -258,7 +258,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 				
 			case 'report':
 				if(!($this->isAllowed('report')))
-					CerberusApplication::respondWithErrorReason(CerbErrorReason::AccessDenied);
+					CerberusApplication::respondWithErrorReason(CerbErrorReason::AccessDenied, true);
 				
 				@$db = DevblocksPlatform::services()->database();
 				

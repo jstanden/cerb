@@ -433,8 +433,8 @@ class UmScContactController extends Extension_UmScController {
 			$message_headers['cc'] = $sCc;
 		
 		// Sender
-		if(false == ($from = CerberusMail::parseRfcAddress($sFrom)))
-			return; // abort with message
+		if(!($from = CerberusMail::parseRfcAddress($sFrom)))
+			return; // abort with a message
 		
 		$message_headers['from'] = $from['email'];
 

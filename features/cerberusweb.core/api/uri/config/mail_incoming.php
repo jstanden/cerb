@@ -633,7 +633,7 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		
 		$error = null;
 		
-		if(false == ($validation->validateAll($values, $error))) {
+		if(!($validation->validateAll($values, $error))) {
 			echo json_encode([
 				'status' => false,
 				'error' => $error
