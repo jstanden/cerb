@@ -678,7 +678,11 @@ class View_ConnectedService extends C4_AbstractView implements IAbstractView_Sub
 	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_ConnectedService::getFields();
-	
+		
+		$extensions = array_map(function(DevblocksExtensionManifest $e) {
+			return $e->name;
+		}, DevblocksPlatform::getExtensions(Extension_ConnectedServiceProvider::POINT));
+		
 		$fields = array(
 			'text' => 
 				array(
@@ -710,6 +714,9 @@ class View_ConnectedService extends C4_AbstractView implements IAbstractView_Sub
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_ConnectedService::EXTENSION_ID, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'examples' => [
+						['type' => 'list', 'values' => $extensions],
+					],
 				),
 			'updated' => 
 				array(

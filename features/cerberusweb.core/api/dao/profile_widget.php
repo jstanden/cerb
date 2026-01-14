@@ -826,8 +826,14 @@ class View_ProfileWidget extends C4_AbstractView implements IAbstractView_Subtot
 			'type' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'score' => 2500,
 					'options' => array('param_key' => SearchFields_ProfileWidget::EXTENSION_ID),
-					// [TODO] Examples
+					'suggester' => [
+						'type' => 'autocomplete',
+						'query' => 'type:worklist.subtotals of:profile_widget by:type~100 query:(type:*{{term}}*) format:dictionaries',
+						'key' => 'type',
+						'limit' => 100,
+					],
 				),
 			'updated' => 
 				array(

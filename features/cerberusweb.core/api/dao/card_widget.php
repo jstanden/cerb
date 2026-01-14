@@ -730,6 +730,12 @@ class View_CardWidget extends C4_AbstractView implements IAbstractView_Subtotals
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_CardWidget::getFields();
 		
+		$contexts = array_column(DevblocksPlatform::objectsToArrays(Extension_DevblocksContext::getAll(false)), 'name', 'id');
+		
+		$extensions = array_map(function(DevblocksExtensionManifest $e) {
+			return $e->name;
+		}, DevblocksPlatform::getExtensions(Extension_CardWidget::POINT));
+		
 		$fields = array(
 			'text' =>
 				array(
