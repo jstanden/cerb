@@ -1485,7 +1485,7 @@ class _DevblocksEmailManager {
 								$cond_passed++;
 							
 						} else if('body' == $cond_type) {
-							if(DevblocksPlatform::services()->string()->arrayMatches($routing_dict->get('body', ''), $cond_data, only_first_match: true))
+							if(DevblocksPlatform::services()->string()->arrayMatches($routing_dict->get('body', ''), $cond_data, only_first_match: true, extra_flags: 's'))
 								$cond_passed++;
 							
 						} else if('sender_email' == $cond_type) {
