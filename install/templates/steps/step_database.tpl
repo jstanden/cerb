@@ -1,43 +1,70 @@
 <h2>Database Setup</h2>
 
-<form action="index.php" method="POST">
-<input type="hidden" name="step" value="{$smarty.const.STEP_DATABASE}">
-
 {if $failed && !empty($errors)}
-<ul>
-{foreach from=$errors item=error}
-<li style="font-weight:bold;color:rgb(220,0,0);">{$error}</li>
-{/foreach}
-</ul>
+<div class="alert alert-error">
+	<span class="icon">{call name="icon" icon="circle-x" size=20}</span>
+	<div class="content">
+		<strong>Database connection failed</strong>
+		<ul>
+		{foreach from=$errors item=error}
+			<li>{$error}</li>
+		{/foreach}
+		</ul>
+	</div>
+</div>
 {/if}
 
-<b>Engine:</b><br>
-<select name="db_engine">
-	{foreach from=$engines item=engine key=k}
-	<option value="{$k}" {if $k==$db_engine}selected{/if}>{$engine}
-	{/foreach}
-</select><br>
-<br>
+<form action="index.php" method="POST">
+	<input type="hidden" name="step" value="{$smarty.const.STEP_DATABASE}">
 
-<b>Host:</b><br>
-<input type="text" name="db_server" value="{$db_server}"><br>
-<br>
+	<fieldset>
+		<legend>Connection Settings</legend>
 
-<b>Port:</b> (optional)<br>
-<input type="text" name="db_port" value="{$db_port}"><br>
-<br>
+		<div class="form-group">
+			<label for="db_engine">Storage Engine</label>
+			<select name="db_engine" id="db_engine">
+				{foreach from=$engines item=engine key=k}
+				<option value="{$k}" {if $k==$db_engine}selected{/if}>{$engine}</option>
+				{/foreach}
+			</select>
+		</div>
 
-<b>Database Name:</b><br>
-<input type="text" name="db_name" value="{$db_name}"><br>
-<br>
+		<div class="form-row">
+			<div class="form-group">
+				<label for="db_server">Host</label>
+				<input type="text" name="db_server" id="db_server" value="{$db_server}" placeholder="localhost">
+			</div>
+			<div class="form-group">
+				<label for="db_port">Port</label>
+				<input type="text" name="db_port" id="db_port" value="{$db_port}" placeholder="3306 (optional)">
+				<div class="hint">Leave blank for default</div>
+			</div>
+		</div>
 
-<b>Username:</b><br>
-<input type="text" name="db_user" value="{$db_user}"><br>
-<br>
+		<div class="form-group">
+			<label for="db_name">Database Name</label>
+			<input type="text" name="db_name" id="db_name" value="{$db_name}" placeholder="cerb">
+		</div>
+	</fieldset>
 
-<b>Password:</b><br>
-<input type="text" name="db_pass" value="{$db_pass}"><br>
-<br>
+	<fieldset>
+		<legend>Authentication</legend>
 
-<button type="submit">Verify database connection &raquo;</button>
+		<div class="form-group">
+			<label for="db_user">Username</label>
+			<input type="text" name="db_user" id="db_user" value="{$db_user}" placeholder="Database username">
+		</div>
+
+		<div class="form-group">
+			<label for="db_pass">Password</label>
+			<input type="password" name="db_pass" id="db_pass" value="{$db_pass}" placeholder="Database password">
+		</div>
+	</fieldset>
+
+	<div class="button-row">
+		<button type="submit">
+			Test Connection
+			{call name="icon" icon="arrow-right" size=18}
+		</button>
+	</div>
 </form>

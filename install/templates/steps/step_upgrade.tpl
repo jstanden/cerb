@@ -1,14 +1,16 @@
-<h2>Upgrade</h2>
+<h2>Existing Installation Detected</h2>
 
-<h3>Oops! Is this an upgrade?</h3>
+<div class="alert alert-info">
+	<span class="icon">{call name="icon" icon="circle-alert" size=20}</span>
+	<div class="content">
+		<strong>Your database already exists</strong>
+		<p class="mb-0">The installer doesn't need to run for upgrades. Database patches are applied automatically when required.</p>
+	</div>
+</div>
 
-<form action="index.php" method="POST">
-<input type="hidden" name="step" value="{$smarty.const.STEP_UPGRADE}">
+<p>You can return to your helpdesk:</p>
 
-Your database appears to exist already!  This installer doesn't need to be run for every upgrade.  Database patches will be applied automatically if they are required.<br>
-<br>
-You can return to your helpdesk: 
-<a href="{devblocks_url full=true}{/devblocks_url}">{devblocks_url full=true}{/devblocks_url}</a><br>
-<br>
-
-</form>
+<a href="{devblocks_url full=true}{/devblocks_url}" class="button button-primary">
+	Go to Cerb
+	{call name="icon" icon="arrow-right" size=18}
+</a>
