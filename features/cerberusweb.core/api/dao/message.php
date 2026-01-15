@@ -1850,7 +1850,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 		$this->addColumnsHidden(array(
 			SearchFields_Message::FULLTEXT_NOTE_CONTENT,
 			SearchFields_Message::HTML_ATTACHMENT_ID,
-			SearchFields_Message::ID,
 			SearchFields_Message::MESSAGE_CONTENT,
 			SearchFields_Message::STORAGE_EXTENSION,
 			SearchFields_Message::STORAGE_KEY,
