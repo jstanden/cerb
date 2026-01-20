@@ -5716,6 +5716,9 @@ class _CerbApplication_KataSchemas {
                               queue_name:
                                 types:
                                   string:
+                              namespace:
+                                types:
+                                  string:
                               limit:
                                 types:
                                   number:
@@ -5742,6 +5745,9 @@ class _CerbApplication_KataSchemas {
                                 types:
                                   string:
                               queue_name:
+                                types:
+                                  string:
+                              namespace:
                                 types:
                                   string:
                               messages:

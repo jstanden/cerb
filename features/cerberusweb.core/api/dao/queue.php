@@ -377,7 +377,7 @@ class DAO_QueueMessage {
 	 * @param int $available_at
 	 * @return array|false
 	 */
-	static function enqueue(Model_Queue $queue, array $messages, int $available_at=0) {
+	static function enqueue(Model_Queue $queue, array $messages, ?string $namespace=null, int $available_at=0) {
 		$db = DevblocksPlatform::services()->database();
 		$nodeProvider = new RandomNodeProvider();
 		
@@ -391,9 +391,10 @@ class DAO_QueueMessage {
 			$uuid = Uuid::uuid6($nodeProvider->getNode());
 			$message_uuid = $uuid->getHex();
 			
-			$insert_values[] = sprintf("(%s, %d, %d, %d, %s, %s, %d)",
+			$insert_values[] = sprintf("(%s, %d, %s, %d, %d, %s, %s, %d)",
 				'0x' . $db->escape($message_uuid),
 				$queue->id,
+				$db->qstr($namespace),
 				self::STATUS_AVAILABLE,
 				time(),
 				$db->escape('NULL'),
@@ -405,14 +406,14 @@ class DAO_QueueMessage {
 		}
 		
 		$db->ExecuteWriter(
-			sprintf("INSERT INTO queue_message (uuid, queue_id, status_id, status_at, consumer_id, message, available_at) VALUES %s",
+			sprintf("INSERT INTO queue_message (uuid, queue_id, namespace, status_id, status_at, consumer_id, message, available_at) VALUES %s",
 			implode(',', $insert_values)
 		));
 		
 		return $results;
 	}
 	
-	static function dequeue(Model_Queue $queue, ?int $limit=1, &$consumer_id=null) : array {
+	static function dequeue(Model_Queue $queue, ?int $limit=1, &$consumer_id=null, ?string $namespace=null) : array {
 		$db = DevblocksPlatform::services()->database();
 		$nodeProvider = new RandomNodeProvider();
 		
@@ -423,19 +424,21 @@ class DAO_QueueMessage {
 		$consumer_id = '0x' . $uuid->getHex();
 		
 		$db->ExecuteWriter(
-			sprintf("UPDATE queue_message SET status_id=%d, status_at=%d, consumer_id=%s WHERE queue_id=%d AND status_id=%d AND available_at <= %d LIMIT %d",
+			sprintf("UPDATE queue_message SET status_id=%d, status_at=%d, consumer_id=%s WHERE queue_id=%d %sAND status_id=%d AND available_at <= %d LIMIT %d",
 				self::STATUS_IN_FLIGHT,
 				time(),
 				$db->escape($consumer_id),
 				$queue->id,
+				!is_null($namespace) ? sprintf("AND namespace=%s", $db->qstr($namespace)) : '',
 				self::STATUS_AVAILABLE,
 				time(),
 				$limit
 			)
 		);
 		
-		$results = $db->GetArrayMaster(sprintf("SELECT uuid, message, available_at FROM queue_message WHERE queue_id=%d AND status_id=%d AND consumer_id=%s",
+		$results = $db->GetArrayMaster(sprintf("SELECT uuid, namespace, message, available_at FROM queue_message WHERE queue_id=%d %sAND status_id=%d AND consumer_id=%s",
 			$queue->id,
+			!is_null($namespace) ? sprintf("AND namespace=%s ", $db->qstr($namespace)) : '',
 			self::STATUS_IN_FLIGHT,
 			$db->escape($consumer_id)
 		));
@@ -449,6 +452,7 @@ class DAO_QueueMessage {
 			$message = new Model_QueueMessage();
 			$message->uuid = Uuid::fromBytes($result['uuid'])->getHex()->toString();
 			$message->queue_id = intval($queue->id);
+			$message->namespace = $result['namespace'] ?? '';
 			$message->message = json_decode($result['message'], true);
 			$message->available_at = intval($result['available_at']);
 			$messages[] = $message;
@@ -605,6 +609,7 @@ class Model_QueueMessage {
 	public string $uuid = '';
 	public int $queue_id = 0;
 	public $message = null;
+	public string $namespace = '';
 	public int $available_at = 0;
 }
 

@@ -26,36 +26,37 @@ class _DevblocksQueueService {
 	 * @param string $queue_name
 	 * @param array $messages
 	 * @param string|null $error
+	 * @param string|null $namespace
 	 * @param int $available_at
 	 * @return array|false
 	 */
-	public function enqueue(string $queue_name, array $messages, string &$error=null, int $available_at=0) {
+	public function enqueue(string $queue_name, array $messages, string &$error=null, ?string $namespace=null, int $available_at=0) {
 		if(null == ($queue = $this->_getQueueByName($queue_name))) {
 			$error = sprintf("Unknown queue `%s`", $queue_name);
 			return false;
 		}
 		
-		return DAO_QueueMessage::enqueue($queue, $messages, $available_at);
+		return DAO_QueueMessage::enqueue($queue, $messages, $namespace, $available_at);
 	}
 	
-	public function dequeue(string $queue_name, int $limit=1, &$consumer_id=null) {
+	public function dequeue(string $queue_name, int $limit=1, &$consumer_id=null, ?string $namespace=null) {
 		if(null == ($queue = $this->_getQueueByName($queue_name)))
 			return false;
 		
-		return DAO_QueueMessage::dequeue($queue, $limit, $consumer_id);
+		return DAO_QueueMessage::dequeue($queue, $limit, $consumer_id, $namespace);
 	}
 	
-	public function reportSuccess(array $message_uuids) {
+	public function reportSuccess(array $message_uuids) : void {
 		if($message_uuids)
 			DAO_QueueMessage::reportSuccess($message_uuids);
 	}
 	
-	public function reportFailure(array $message_uuids) {
+	public function reportFailure(array $message_uuids) : void {
 		if($message_uuids)
 			DAO_QueueMessage::reportFailure($message_uuids);
 	}
 	
-	function maint() {
+	function maint() : void {
 		// Purge completed queue messages
 		DAO_QueueMessage::maint();
 	}

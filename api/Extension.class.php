@@ -2336,6 +2336,12 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 						'snippet' => 'queue_name:',
 						'score' => 2000,
 					],
+					[
+						'caption' => 'namespace:',
+						'snippet' => 'namespace:',
+						'score' => 1999,
+						'docHTML' => '(optional) A namespace filter for queue messages.'
+					],
 					"limit: 10",
 				],
 				'(.*):queue.pop:inputs:queue_name:' => [
@@ -2354,19 +2360,25 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 						'score' => 2000,
 					],
 					[
+						'caption' => 'namespace:',
+						'snippet' => 'namespace:',
+						'score' => 1999,
+						'docHTML' => '(optional) A namespace filter for queue messages.'
+					],
+					[
 						'caption' => 'messages@list:',
 						'snippet' => "# [TODO] Build a collection with one message per line\nmessages@list:\n\tMessage 1\n\tMessage 2",
-						'score' => 1999,
+						'score' => 1998,
 					],
 					[
 						'caption' => 'messages@key:',
 						'snippet' => "# [TODO] Refer to a key with a collection of messages\nmessages@key: \${1:key}",
-						'score' => 1999,
+						'score' => 1997,
 					],
 					[
 						'caption' => 'available_at@date:',
 						'snippet' => "available_at@date: now",
-						'score' => 1998,
+						'score' => 1996,
 					],
 				],
 				'(.*):queue.push:inputs:queue_name:' => [
