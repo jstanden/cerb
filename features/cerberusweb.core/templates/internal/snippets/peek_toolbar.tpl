@@ -1,4 +1,5 @@
-<div id="peekTemplateTest"></div>
+{$peek_id = uniqid('peek_')}
+<div id="{$peek_id}_template_test"></div>
 
 {if !empty($placeholders)}<button type="button" class="cerb-popupmenu-trigger">Insert placeholder &#x25be;</button>{/if} 
 <button type="button" data-cerb-button="toolbar-test">Test</button>
@@ -30,13 +31,14 @@
 {if !empty($placeholders)}
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFind('#peekTemplateTest');
-	var $menu_trigger = $popup.find('button.cerb-popupmenu-trigger');
-	var $placeholder_menu = $popup.find('ul.menu').hide();
-	var $content = $popup.find('textarea[name=content]');
-	var $frm = $menu_trigger.closest('form');
+	let $popup = genericAjaxPopupFind('#{$peek_id}_template_test');
+	let $menu_trigger = $popup.find('button.cerb-popupmenu-trigger');
+	let $placeholder_menu = $popup.find('ul.menu').hide();
+	let $content = $popup.find('textarea[name=content]');
+	let $frm = $menu_trigger.closest('form');
 	
-	$menu_trigger.click(function() {
+	$menu_trigger.click(function(e) {
+		e.stopPropagation();
 		$placeholder_menu.toggle();
 	});
 	
@@ -44,23 +46,23 @@ $(function() {
 	
 	$placeholder_menu.menu({
 		select: function(event, ui) {
-			var token = ui.item.attr('data-token');
-			var label = ui.item.attr('data-label');
+			let token = ui.item.attr('data-token');
+			let label = ui.item.attr('data-label');
 			
 			if(undefined == token || undefined == label)
 				return;
 			
-			var $field = $content.next('pre.ace_editor');
-			
+			let $field = $content.next('pre.ace_editor');
+
 			if(0 === $field.length) {
 				if(token.match(/^\(\(__(.*?)__\)\)$/)) {
 					$content.insertAtCursor(token);
 				} else {
 					{literal}$content.insertAtCursor('{{'+token+'}}');{/literal}
 				}
-				
+
 			} else if($field.is('.ace_editor')) {
-				var evt = new jQuery.Event('cerb.insertAtCursor');
+				let evt = new jQuery.Event('cerb.insertAtCursor');
 				
 				if(token.match(/^\(\(__(.*?)__\)\)$/)) {
 					evt.content = token;
@@ -76,7 +78,7 @@ $(function() {
 	$popup.find('[data-cerb-button=toolbar-test]').on('click', function(e) {
 		e.stopPropagation();
 
-		var formData = new FormData($frm[0]);
+		let formData = new FormData($frm[0]);
 		formData.set('c', 'profiles');
 		formData.set('a', 'invoke');
 		formData.set('module', 'snippet');
@@ -85,7 +87,7 @@ $(function() {
 		formData.set('snippet_context', '{$context}');
 		{if $context_id}formData.set('snippet_context_id', '{$context_id}');{/if}
 
-		genericAjaxPost(formData,'peekTemplateTest',null);
+		genericAjaxPost(formData,'{$peek_id}_template_test',null);
 	});
 
 	$popup.find('[data-cerb-button=toolbar-help]').on('click', function(e) {

@@ -77,8 +77,10 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 		$tpl->assign('context', $context);
 		$tpl->assign('form_id', $form_id);
 		
-		if(false == (Extension_DevblocksContext::get($context)))
+		if(!($context_ext = Extension_DevblocksContext::getByAlias($context)))
 			return;
+		
+		$context = $context_ext->id;
 		
 		$labels = [];
 		$null = [];
@@ -255,7 +257,10 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 		
 		$token_labels = $token_values = $merge_labels = $merge_values = [];
 		
-		$ctx = Extension_DevblocksContext::get($snippet_context);
+		if(!($ctx = Extension_DevblocksContext::getByAlias($snippet_context, true)))
+			return;
+		
+		$snippet_context = $ctx->id;
 		
 		// If no ID is given, randomize one
 		if(empty($snippet_context_id) && method_exists($ctx, 'getRandom'))
@@ -281,33 +286,15 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 		$output = '';
 		
 		if(!empty($token_values)) {
-			// Tokenize
-			//$tokens = $tpl_builder->tokenize($content);
-			$unknown_tokens = array();
-			
-			//$valid_tokens = $tpl_builder->stripModifiers(array_keys($token_labels));
-			
-			// Test legal values
-			//$unknown_tokens = array_diff($tokens, $valid_tokens);
-			//$matching_tokens = array_intersect($tokens, $valid_tokens);
-			
-			if(!empty($unknown_tokens)) {
-				$success = false;
-				$output = "The following placeholders are unknown: ".
-					implode(', ', $unknown_tokens);
-				
+			// Try to build the template
+			if(false === (@$out = $tpl_builder->build($content, $token_values))) {
+				// If we failed, show the compiler errors
+				$errors = $tpl_builder->getErrors();
+				$output = @array_shift($errors);
 			} else {
-				// Try to build the template
-				if(false === (@$out = $tpl_builder->build($content, $token_values))) {
-					// If we failed, show the compile errors
-					$errors = $tpl_builder->getErrors();
-					$success= false;
-					$output = @array_shift($errors);
-				} else {
-					// If successful, return the parsed template
-					$success = true;
-					$output = $out;
-				}
+				// If successful, return the parsed template
+				$success = true;
+				$output = $out;
 			}
 		}
 		
