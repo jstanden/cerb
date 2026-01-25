@@ -322,7 +322,7 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		$labels = $placeholders;
 		$values = $merge_labels = $merge_values = [];
 		
-		if($context && false != ($context_ext = Extension_DevblocksContext::get($context))) {
+		if($context && ($context_ext = Extension_DevblocksContext::getByAlias($context, true))) {
 			$tpl->assign('context_ext', $context_ext);
 			
 			if(empty($label_prefix))
