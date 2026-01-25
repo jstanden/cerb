@@ -1,11 +1,11 @@
 $.fn.extend({
 	insertAtCursor: function (myValue) {
 		this.each(function () {
-			var $this = $(this).focus();
-			var txt = $this.val();
-			var pos = $this.caret('pos');
-			var newTxt = '';
-			var cursorPos = pos;
+			let $this = $(this).focus();
+			let txt = $this.val();
+			let pos = $this.caret();
+			let newTxt = '';
+			let cursorPos = pos;
 
 			newTxt = txt.substring(0, pos);
 			newTxt += myValue;
@@ -22,7 +22,7 @@ $.fn.extend({
 			newTxt += txt.substring(pos);
 			$this.val(newTxt);
 
-			$this.caret('pos', cursorPos);
+			$this.caret(cursorPos);
 
 			$this.focus();
 		});
