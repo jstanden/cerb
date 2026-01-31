@@ -3407,7 +3407,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	static function getRegistryKey($key, $as=DevblocksRegistryEntry::TYPE_STRING, $default=null) {
 		$registry = DevblocksPlatform::services()->registry();
 		
-		if(null == ($value = $registry->get($key, $as, $default)))
+		if(is_null($value = $registry->get($key, $as, $default)))
 			return null;
 		
 		return $value;
