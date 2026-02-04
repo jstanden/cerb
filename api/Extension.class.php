@@ -815,7 +815,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 		return $this->getInputsMeta();
 	}
 	
-	public function getAutocompleteSuggestionsJson() {
+	public function getAutocompleteSuggestionsArray() : array {
 		$trigger_features = current($this->manifest->params['features'] ?? []);
 		
 		$api_commands = array_values(array_map(
@@ -1039,7 +1039,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 			]
 		];
 		
-		if(array_key_exists('await', $trigger_features)) {
+		if (array_key_exists('await', $trigger_features ?: [])) {
 			$common_actions[] =
 				[
 					'caption' => 'await:',
@@ -1077,7 +1077,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 		];
 		
 		$schema = [
-			''=> [
+			'' => [
 				[
 					'caption' => 'inputs:',
 					'snippet' => "inputs:\n\t\${1:}",
@@ -1106,10 +1106,10 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 							'snippet' => "simulate.success:\n\t\${1:key}: \${2:value}",
 							'description' => "Trigger a command `on_success:` event",
 						],
-					],					
+					],
 					$common_actions
 				),
-					
+
 				'(.*):decision:' => [
 					[
 						'caption' => 'outcome:',
@@ -2073,7 +2073,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'(.*):llm.chat:inputs:messages:message:role:' => [
 					'assistant',
 					'user',
-				],				
+				],
 				
 				'(.*):llm.embed:' => $action_base,
 				'(.*):llm.embed:inputs:' => [
@@ -2777,12 +2777,17 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 		];
 		
 		// Trigger-specific autocomplete suggestions
-		$trigger_schema = $this->getAutocompleteSuggestions();
-		
-		if(is_array($trigger_schema))
+		if(($trigger_schema = $this->getAutocompleteSuggestions()))
 			$schema = array_merge_recursive($trigger_schema, $schema);
 		
-		return json_encode($schema);
+		return $schema;
+	}
+	
+	public function getAutocompleteSuggestionsJson(): string {
+		if(($schema = $this->getAutocompleteSuggestionsArray()))
+			return json_encode($schema);
+		
+		return '';
 	}
 };
 

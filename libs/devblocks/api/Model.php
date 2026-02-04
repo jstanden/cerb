@@ -2711,7 +2711,7 @@ class DevblocksSearchCriteria {
 	public static function getFulltextParamFromTokens($field_key, $tokens) {
 		$terms = [];
 		
-		// Unwrap a parenthetical group ("quoted phrease" terms)
+		// Unwrap a parenthetical group ("quoted phrase" terms)
 		if(
 			is_array($tokens)
 			&& array_key_exists(0, $tokens)

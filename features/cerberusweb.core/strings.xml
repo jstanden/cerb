@@ -2473,6 +2473,11 @@
 				<seg>on record</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.record.query">
+			<tuv xml:lang="en_US">
+				<seg>record query</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.record.type">
 			<tuv xml:lang="en_US">
 				<seg>record type</seg>

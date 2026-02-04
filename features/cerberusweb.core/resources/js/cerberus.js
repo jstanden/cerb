@@ -5545,7 +5545,7 @@ var ajax = new cAjaxCalls();
 	
 	$.fn.cerbQueryTrigger = function(options) {
 		return this.each(function() {
-			var $trigger = $(this);
+			let $trigger = $(this);
 			
 			if(!($trigger.is('input[type=text]')) && !($trigger.is('textarea')))
 				return;
@@ -5564,14 +5564,14 @@ var ajax = new cAjaxCalls();
 			$trigger.on('click keypress', function(e) {
 				e.stopPropagation();
 				
-				var width = $(window).width()-100;
-				var q = $trigger.val();
-				var context = $trigger.attr('data-context');
+				let width = $(window).width()-100;
+				let q = $trigger.val();
+				let context = $trigger.attr('data-context');
 				
 				if(!(typeof context == "string") || 0 === context.length)
 					return;
 				
-				var $chooser = genericAjaxPopup("chooser" + Devblocks.uniqueId(),'c=internal&a=invoke&module=records&action=chooserOpenParams&context=' + encodeURIComponent(context) + '&q=' + encodeURIComponent(q),null,true,width);
+				let $chooser = genericAjaxPopup("chooser" + Devblocks.uniqueId(),'c=internal&a=invoke&module=records&action=chooserOpenParams&context=' + encodeURIComponent(context) + '&q=' + encodeURIComponent(q),null,true,width);
 				
 				$chooser.on('chooser_save',function(event) {
 					$trigger.val(event.worklist_quicksearch);

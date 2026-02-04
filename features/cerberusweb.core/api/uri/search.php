@@ -148,7 +148,7 @@ class Page_Search extends CerberusPageExtension {
 		$replace_params = true;
 		
 		// Allow parameters to be added incrementally with a leading '+' character
-		if ('+' == substr($query, 0, 1)) {
+		if (str_starts_with($query, '+')) {
 			$replace_params = false;
 			$query = ltrim($query, '+ ');
 		}

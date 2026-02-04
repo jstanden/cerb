@@ -1082,7 +1082,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		$id_key = $schema->getIdField();
 		
 		if(!is_array($ids)) $ids = [$ids];
-			
+		
 		if(empty($ns) || empty($ids))
 			return false;
 			

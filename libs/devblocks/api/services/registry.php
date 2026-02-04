@@ -35,27 +35,12 @@ class _DevblocksRegistryManager {
 			}
 		}
 		
-		switch($as) {
-			case DevblocksRegistryEntry::TYPE_BOOL:
-				return !empty($entry->value);
-				break;
-				
-			case DevblocksRegistryEntry::TYPE_NUMBER:
-				return intval($entry->value);
-				break;
-				
-			case DevblocksRegistryEntry::TYPE_STRING:
-				return $entry->value;
-				break;
-				
-			case DevblocksRegistryEntry::TYPE_JSON:
-				return json_decode($entry->value, true);
-				break;
-				
-			default:
-				return $entry->value;
-				break;
-		}
+		return match ($as) {
+			DevblocksRegistryEntry::TYPE_BOOL => !empty($entry->value),
+			DevblocksRegistryEntry::TYPE_NUMBER => intval($entry->value),
+			DevblocksRegistryEntry::TYPE_JSON => json_decode($entry->value, true),
+			default => $entry->value,
+		};
 	}
 	
 	private function _initIfEmpty($key, $value=null, $as=DevblocksRegistryEntry::TYPE_STRING) {

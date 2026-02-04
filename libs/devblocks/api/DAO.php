@@ -1049,13 +1049,12 @@ abstract class DevblocksORMHelper {
 						}
 						
 					} else {
-						if(!isset($fields[$p->field])) {
+						if(!array_key_exists($p->field, $fields)) {
 							$group_wheres[] = '0';
 							
 						} else {
 							// [JAS]: Indexes for optimization
-							if(isset($fields[$p->field]))
-								$tables[$fields[$p->field]->db_table] = $fields[$p->field]->db_table;
+							$tables[$fields[$p->field]->db_table] = $fields[$p->field]->db_table;
 							
 							$group_wheres[] = $search_class::getWhereSQL($p);
 						}
@@ -1398,7 +1397,7 @@ class DAO_DevblocksExtensionPropertyStore extends DevblocksORMHelper {
 			$db = DevblocksPlatform::services()->database();
 			$params = [];
 			
-			if(false != ($extension = DevblocksPlatform::getExtension($extension_id, false, true))) {
+			if(($extension = DevblocksPlatform::getExtension($extension_id, false, true))) {
 				$params = $extension->params;
 			}
 			
@@ -1408,7 +1407,7 @@ class DAO_DevblocksExtensionPropertyStore extends DevblocksORMHelper {
 				$db->qstr($extension_id)
 			);
 			
-			if(false == ($results = $db->GetArrayMaster($sql)))
+			if(!($results = $db->GetArrayMaster($sql)))
 				return false;
 			
 			if(is_array($results))

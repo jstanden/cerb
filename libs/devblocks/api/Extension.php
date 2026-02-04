@@ -409,9 +409,6 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		return $results;
 	}
 
-	/**
-	 * @internal
-	 */
 	public static function getAliasesForContext(DevblocksExtensionManifest $ctx_manifest) {
 		$names = $ctx_manifest->params['names'][0] ?? null;
 		$uri = $ctx_manifest->params['alias'] ?? null;
@@ -455,8 +452,6 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	}
 	
 	/**
-	 * @internal
-	 * 
 	 * @param string $alias
 	 * @param bool $as_instance
 	 * @return Extension_DevblocksContext|DevblocksExtensionManifest
@@ -1086,9 +1081,6 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		return null;
 	}
 	
-	/**
-	 * @internal
-	 */
 	function getModelObjects(array $ids) {
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
 		$models = [];

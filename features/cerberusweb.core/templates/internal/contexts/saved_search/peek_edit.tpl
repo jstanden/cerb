@@ -15,14 +15,14 @@
 	
 	<table cellspacing="0" cellpadding="2" border="0" width="98%">
 		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate}:</b></td>
+			<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%">
 				<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
 			</td>
 		</tr>
 		
 		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'common.tag'|devblocks_translate}:</b></td>
+			<td width="1%" nowrap="nowrap"><b>{'common.tag'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%">
 				<input type="text" name="tag" value="{$model->tag}" style="width:98%;" placeholder="e.g. eu-sales (letters, numbers, dash)">
 			</td>

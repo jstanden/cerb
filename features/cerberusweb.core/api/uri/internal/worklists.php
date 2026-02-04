@@ -1576,7 +1576,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		$context = DevblocksPlatform::importGPC($_REQUEST['context'] ?? null,'string','');
 		$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'] ?? null,'string','');
 		
-		if(null == ($context_ext = Extension_DevblocksContext::get($context)))
+		if(!($context_ext = Extension_DevblocksContext::get($context)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(!($context_ext instanceof IDevblocksContextImport))
@@ -1616,7 +1616,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 	}
 	
 	private function _filterImportCustomFields(&$keys) {
-		if(false == (CerberusApplication::getActiveWorker()))
+		if(!CerberusApplication::getActiveWorker())
 			return;
 		
 		$custom_fields = DAO_CustomField::getAll();
@@ -1639,7 +1639,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 				if(!$cfield->custom_fieldset_id)
 					continue;
 				
-				if(false == ($cfieldset = @$custom_fieldsets[$cfield->custom_fieldset_id])) {
+				if(!($cfieldset = ($custom_fieldsets[$cfield->custom_fieldset_id] ?? null))) {
 					unset($keys[$key]);
 					continue;
 				}
@@ -1838,20 +1838,8 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 							));
 							break;
 						
-						case Model_CustomField::TYPE_MULTI_LINE:
-							$value = $val;
-							break;
-						
 						case Model_CustomField::TYPE_NUMBER:
 							$value = intval($val);
-							break;
-						
-						case Model_CustomField::TYPE_SINGLE_LINE:
-							$value = $val;
-							break;
-						
-						case Model_CustomField::TYPE_URL:
-							$value = $val;
 							break;
 						
 						case Model_CustomField::TYPE_WORKER:
@@ -1878,6 +1866,9 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 							$value = $val_worker_id;
 							break;
 						
+						case Model_CustomField::TYPE_MULTI_LINE:
+						case Model_CustomField::TYPE_SINGLE_LINE:
+						case Model_CustomField::TYPE_URL:
 						default:
 							$value = $val;
 							break;
@@ -1898,12 +1889,12 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 						
 						// Are we setting a custom field?
 						$cf_id = null;
-						if('cf_' == substr($key,0,3)) {
+						if(str_starts_with($key, 'cf_')) {
 							$cf_id = substr($key,3);
 						}
 						
 						// Is this a virtual field?
-						if(substr($key,0,1) == '_') {
+						if(str_starts_with($key, '_')) {
 							$meta['virtual_fields'][$key] = $value;
 							
 							// ...or is it a normal DAO field?
@@ -1968,7 +1959,9 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 				'error' => $e->getMessage(),
 			]);
 			
-		} catch (Exception $e) {
+		} catch (Throwable $e) {
+			DevblocksPlatform::logException($e);
+			
 			echo json_encode([
 				'status' => false,
 				'error' => 'An unexpected error occurred.',

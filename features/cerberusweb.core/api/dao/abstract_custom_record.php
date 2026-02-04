@@ -975,10 +975,10 @@ class View_AbstractCustomRecord extends C4_AbstractView implements IAbstractView
 				return DevblocksSearchCriteria::getWatcherParamFromTokens(SearchFields_AbstractCustomRecord::VIRTUAL_WATCHERS, $tokens);
 				
 			default:
-				if($field == 'owner' || substr($field, 0, strlen('owner.')) == 'owner.')
+				if($field == 'owner' || str_starts_with($field, 'owner.'))
 					return DevblocksSearchCriteria::getVirtualContextParamFromTokens($field, $tokens, 'owner', SearchFields_AbstractCustomRecord::VIRTUAL_OWNER);
 				
-				if($field == 'links' || substr($field, 0, 6) == 'links.')
+				if($field == 'links' || str_starts_with($field, 'links.'))
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
 				
 				$search_fields = $this->getQuickSearchFields();
