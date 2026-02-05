@@ -399,8 +399,16 @@ class SearchFields_Currency extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'currency.id';
+	static function getTableName() : string {
+		return 'currency';
+	}
+	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_Currency::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_Currency::UPDATED_AT);
 	}
 	
 	static function getCustomFieldContextKeys() {

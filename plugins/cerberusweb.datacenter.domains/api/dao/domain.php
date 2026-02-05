@@ -974,10 +974,18 @@ class SearchFields_Domain extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'datacenter_domain.id';
+	static function getTableName() : string {
+		return 'datacenter_domain';
 	}
 	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_Domain::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_Domain::UPDATED);
+	}
+
 	static function getCustomFieldContextKeys() {
 		return array(
 			CerberusContexts::CONTEXT_DOMAIN => new DevblocksSearchFieldContextKeys('datacenter_domain.id', self::ID),

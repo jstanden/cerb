@@ -399,8 +399,16 @@ class SearchFields_AutomationEventListener extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'automation_event_listener.id';
+	static function getTableName() : string {
+		return 'automation_event_listener';
+	}
+	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_AutomationEventListener::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_AutomationEventListener::UPDATED_AT);
 	}
 	
 	static function getCustomFieldContextKeys() {

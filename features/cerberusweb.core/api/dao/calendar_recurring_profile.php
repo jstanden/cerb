@@ -430,8 +430,16 @@ class SearchFields_CalendarRecurringProfile extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'calendar_recurring_profile.id';
+	static function getTableName() : string {
+		return 'calendar_recurring_profile';
+	}
+	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_CalendarRecurringProfile::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return '';
 	}
 	
 	static function getCustomFieldContextKeys() {

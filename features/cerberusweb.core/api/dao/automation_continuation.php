@@ -350,8 +350,16 @@ class SearchFields_AutomationContinuation extends DevblocksSearchFields {
 
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'automation_continuation.token';
+	static function getTableName() : string {
+		return 'automation_continuation';
+	}
+	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_AutomationContinuation::TOKEN);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_AutomationContinuation::UPDATED_AT);
 	}
 	
 	static function getCustomFieldContextKeys() {

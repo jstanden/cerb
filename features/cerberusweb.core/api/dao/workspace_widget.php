@@ -479,10 +479,18 @@ class SearchFields_WorkspaceWidget extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'workspace_widget.id';
+	static function getTableName() : string {
+		return 'workspace_widget';
 	}
 	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_WorkspaceWidget::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_WorkspaceWidget::UPDATED_AT);
+	}
+
 	static function getCustomFieldContextKeys() {
 		return array(
 			CerberusContexts::CONTEXT_WORKSPACE_WIDGET => new DevblocksSearchFieldContextKeys('workspace_widget.id', self::ID),

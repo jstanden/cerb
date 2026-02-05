@@ -1722,10 +1722,18 @@ class SearchFields_CustomField extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'custom_field.id';
+	static function getTableName() : string {
+		return 'custom_field';
 	}
 	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_CustomField::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_CustomField::UPDATED_AT);
+	}
+
 	static function getCustomFieldContextKeys() {
 		return array(
 			CerberusContexts::CONTEXT_CUSTOM_FIELD => new DevblocksSearchFieldContextKeys('custom_field.id', self::ID),

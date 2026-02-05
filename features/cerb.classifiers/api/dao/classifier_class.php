@@ -390,8 +390,16 @@ class SearchFields_ClassifierClass extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'classifier_class.id';
+	static function getTableName() : string {
+		return 'classifier_class';
+	}
+	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_ClassifierClass::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_ClassifierClass::UPDATED_AT);
 	}
 	
 	static function getCustomFieldContextKeys() {

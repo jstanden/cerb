@@ -338,10 +338,18 @@ class SearchFields_DevblocksSession extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'devblocks_session.session_id';
+	static function getTableName() : string {
+		return 'devblocks_session';
 	}
 	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_DevblocksSession::SESSION_ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_DevblocksSession::UPDATED);
+	}
+
 	static function getCustomFieldContextKeys() {
 		return array(
 			'' => new DevblocksSearchFieldContextKeys('devblocks_session.session_id', self::SESSION_ID),

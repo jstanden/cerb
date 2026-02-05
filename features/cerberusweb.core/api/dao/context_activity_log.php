@@ -542,8 +542,16 @@ class SearchFields_ContextActivityLog extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'context_activity_log.id';
+	static function getTableName() : string {
+		return 'context_activity_log';
+	}
+	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_ContextActivityLog::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_ContextActivityLog::CREATED);
 	}
 	
 	static function getCustomFieldContextKeys() {

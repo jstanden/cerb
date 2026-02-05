@@ -352,10 +352,18 @@ class SearchFields_TimeTrackingActivity extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'timetracking_activity.id';
+	static function getTableName() : string {
+		return 'timetracking_activity';
 	}
 	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_TimeTrackingActivity::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_TimeTrackingActivity::UPDATED_AT);
+	}
+
 	static function getCustomFieldContextKeys() {
 		return array(
 			Context_TimeTrackingActivity::ID => new DevblocksSearchFieldContextKeys('timetracking_activity.id', self::ID),

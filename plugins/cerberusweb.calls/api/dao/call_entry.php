@@ -325,13 +325,13 @@ class DAO_CallEntry extends Cerb_ORMHelper {
 		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_CallEntry', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
-			"c.id as %s, ".
-			"c.subject as %s, ".
-			"c.phone as %s, ".
-			"c.created_date as %s, ".
-			"c.updated_date as %s, ".
-			"c.is_outgoing as %s, ".
-			"c.is_closed as %s ",
+			"call_entry.id as %s, ".
+			"call_entry.subject as %s, ".
+			"call_entry.phone as %s, ".
+			"call_entry.created_date as %s, ".
+			"call_entry.updated_date as %s, ".
+			"call_entry.is_outgoing as %s, ".
+			"call_entry.is_closed as %s ",
 				SearchFields_CallEntry::ID,
 				SearchFields_CallEntry::SUBJECT,
 				SearchFields_CallEntry::PHONE,
@@ -342,7 +342,7 @@ class DAO_CallEntry extends Cerb_ORMHelper {
 			);
 		
 		$join_sql =
-			"FROM call_entry c ";
+			"FROM call_entry ";
 		
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
@@ -350,7 +350,7 @@ class DAO_CallEntry extends Cerb_ORMHelper {
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_CallEntry');
 		
 		$result = array(
-			'primary_table' => 'c',
+			'primary_table' => 'call_entry',
 			'select' => $select_sql,
 			'join' => $join_sql,
 			'where' => $where_sql,
@@ -422,13 +422,21 @@ class SearchFields_CallEntry extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'c.id';
+	static function getTableName() : string {
+		return 'call_entry';
 	}
 	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_CallEntry::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_CallEntry::UPDATED_DATE);
+	}
+
 	static function getCustomFieldContextKeys() {
 		return array(
-			CerberusContexts::CONTEXT_CALL => new DevblocksSearchFieldContextKeys('c.id', self::ID),
+			CerberusContexts::CONTEXT_CALL => new DevblocksSearchFieldContextKeys('call_entry.id', self::ID),
 		);
 	}
 	
@@ -495,13 +503,13 @@ class SearchFields_CallEntry extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'c', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
-			self::SUBJECT => new DevblocksSearchField(self::SUBJECT, 'c', 'subject', $translate->_('message.header.subject'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::PHONE => new DevblocksSearchField(self::PHONE, 'c', 'phone', $translate->_('call_entry.model.phone'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::CREATED_DATE => new DevblocksSearchField(self::CREATED_DATE, 'c', 'created_date', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
-			self::UPDATED_DATE => new DevblocksSearchField(self::UPDATED_DATE, 'c', 'updated_date', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
-			self::IS_OUTGOING => new DevblocksSearchField(self::IS_OUTGOING, 'c', 'is_outgoing', $translate->_('call_entry.model.is_outgoing'), Model_CustomField::TYPE_CHECKBOX, true),
-			self::IS_CLOSED => new DevblocksSearchField(self::IS_CLOSED, 'c', 'is_closed', $translate->_('common.is_closed'), Model_CustomField::TYPE_CHECKBOX, true),
+			self::ID => new DevblocksSearchField(self::ID, 'call_entry', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::SUBJECT => new DevblocksSearchField(self::SUBJECT, 'call_entry', 'subject', $translate->_('message.header.subject'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::PHONE => new DevblocksSearchField(self::PHONE, 'call_entry', 'phone', $translate->_('call_entry.model.phone'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::CREATED_DATE => new DevblocksSearchField(self::CREATED_DATE, 'call_entry', 'created_date', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
+			self::UPDATED_DATE => new DevblocksSearchField(self::UPDATED_DATE, 'call_entry', 'updated_date', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
+			self::IS_OUTGOING => new DevblocksSearchField(self::IS_OUTGOING, 'call_entry', 'is_outgoing', $translate->_('call_entry.model.is_outgoing'), Model_CustomField::TYPE_CHECKBOX, true),
+			self::IS_CLOSED => new DevblocksSearchField(self::IS_CLOSED, 'call_entry', 'is_closed', $translate->_('common.is_closed'), Model_CustomField::TYPE_CHECKBOX, true),
 			
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),

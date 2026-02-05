@@ -349,10 +349,18 @@ class SearchFields_GpgPublicKey extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'gpg_public_key.id';
+	static function getTableName() : string {
+		return 'gpg_public_key';
 	}
 	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_GpgPublicKey::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_GpgPublicKey::UPDATED_AT);
+	}
+
 	static function getCustomFieldContextKeys() {
 		return array(
 			CerberusContexts::CONTEXT_GPG_PUBLIC_KEY => new DevblocksSearchFieldContextKeys('gpg_public_key.id', self::ID),

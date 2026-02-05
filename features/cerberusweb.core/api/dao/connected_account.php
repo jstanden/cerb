@@ -543,8 +543,16 @@ class SearchFields_ConnectedAccount extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'connected_account.id';
+	static function getTableName() : string {
+		return 'connected_account';
+	}
+	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_ConnectedAccount::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_ConnectedAccount::UPDATED_AT);
 	}
 	
 	static function getCustomFieldContextKeys() {

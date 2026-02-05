@@ -625,10 +625,18 @@ class SearchFields_WorkerRole extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'worker_role.id';
+	static function getTableName() : string {
+		return 'worker_role';
 	}
 	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_WorkerRole::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_WorkerRole::UPDATED_AT);
+	}
+
 	static function getCustomFieldContextKeys() {
 		return array(
 			CerberusContexts::CONTEXT_ROLE => new DevblocksSearchFieldContextKeys('worker_role.id', self::ID),

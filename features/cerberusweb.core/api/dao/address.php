@@ -759,11 +759,11 @@ class DAO_Address extends Cerb_ORMHelper {
 		
 		list(, $wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_Address', $sortBy);
 		
-		$select_sql = sprintf('SELECT a.id AS %s ',
+		$select_sql = sprintf('SELECT address.id AS %s ',
 			SearchFields_Address::ID
 		);
 		
-		$join_sql = "FROM address a ";
+		$join_sql = "FROM address ";
 
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
@@ -771,7 +771,7 @@ class DAO_Address extends Cerb_ORMHelper {
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_Address');
 		
 		$result = array(
-			'primary_table' => 'a',
+			'primary_table' => 'address',
 			'select' => $select_sql,
 			'join' => $join_sql,
 			'where' => $where_sql,
@@ -949,15 +949,23 @@ class SearchFields_Address extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'a.id';
+	static function getTableName() : string {
+		return 'address';
+	}
+	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_Address::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_Address::UPDATED);
 	}
 	
 	static function getCustomFieldContextKeys() {
 		return array(
-			CerberusContexts::CONTEXT_ADDRESS => new DevblocksSearchFieldContextKeys('a.id', self::ID),
-			CerberusContexts::CONTEXT_CONTACT => new DevblocksSearchFieldContextKeys('a.contact_id', self::CONTACT_ID),
-			CerberusContexts::CONTEXT_ORG => new DevblocksSearchFieldContextKeys('a.contact_org_id', self::CONTACT_ORG_ID),
+			CerberusContexts::CONTEXT_ADDRESS => new DevblocksSearchFieldContextKeys('address.id', self::ID),
+			CerberusContexts::CONTEXT_CONTACT => new DevblocksSearchFieldContextKeys('address.contact_id', self::CONTACT_ID),
+			CerberusContexts::CONTEXT_ORG => new DevblocksSearchFieldContextKeys('address.contact_org_id', self::CONTACT_ORG_ID),
 		);
 	}
 	
@@ -981,7 +989,7 @@ class SearchFields_Address extends DevblocksSearchFields {
 				return self::_getWhereSQLFromCommentFulltextField($param, Search_CommentContent::ID, CerberusContexts::CONTEXT_ADDRESS, self::getPrimaryKey());
 				
 			case self::VIRTUAL_CONTACT_SEARCH:
-				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_CONTACT, 'a.contact_id');
+				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_CONTACT, 'address.contact_id');
 				
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_ADDRESS, self::getPrimaryKey());
@@ -990,16 +998,16 @@ class SearchFields_Address extends DevblocksSearchFields {
 				return self::_getWhereSQLFromFieldset($param, CerberusContexts::CONTEXT_ADDRESS, self::getPrimaryKey());
 				
 			case self::VIRTUAL_ORG_SEARCH:
-				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_ORG, 'a.contact_org_id');
+				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_ORG, 'address.contact_org_id');
 				
 			case self::VIRTUAL_TICKET_SEARCH:
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_TICKET, "SELECT address_id FROM requester r WHERE r.ticket_id IN (%s)", 'a.id');
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_TICKET, "SELECT address_id FROM requester r WHERE r.ticket_id IN (%s)", 'address.id');
 				
 			case self::VIRTUAL_WATCHERS:
 				return self::_getWhereSQLFromWatchersField($param, CerberusContexts::CONTEXT_ADDRESS, self::getPrimaryKey());
 				
 			case self::VIRTUAL_WORKER_SEARCH:
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_WORKER, "SELECT id FROM worker w WHERE w.id IN (%s)", 'a.worker_id');
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_WORKER, "SELECT id FROM worker w WHERE w.id IN (%s)", 'address.worker_id');
 				
 			default:
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
@@ -1080,21 +1088,21 @@ class SearchFields_Address extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'a', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
-			self::EMAIL => new DevblocksSearchField(self::EMAIL, 'a', 'email', $translate->_('common.email'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::HOST => new DevblocksSearchField(self::HOST, 'a', 'host', $translate->_('common.host'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::CONTACT_ID => new DevblocksSearchField(self::CONTACT_ID, 'a', 'contact_id', $translate->_('common.contact'), null, true),
-			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'a', 'created_at', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
-			self::MAIL_TRANSPORT_ID => new DevblocksSearchField(self::MAIL_TRANSPORT_ID, 'a', 'mail_transport_id', $translate->_('common.email_transport'), Model_CustomField::TYPE_NUMBER, true),
-			self::NUM_SPAM => new DevblocksSearchField(self::NUM_SPAM, 'a', 'num_spam', $translate->_('address.num_spam'), Model_CustomField::TYPE_NUMBER, true),
-			self::NUM_NONSPAM => new DevblocksSearchField(self::NUM_NONSPAM, 'a', 'num_nonspam', $translate->_('address.num_nonspam'), Model_CustomField::TYPE_NUMBER, true),
-			self::IS_BANNED => new DevblocksSearchField(self::IS_BANNED, 'a', 'is_banned', $translate->_('address.is_banned'), Model_CustomField::TYPE_CHECKBOX, true),
-			self::IS_DEFUNCT => new DevblocksSearchField(self::IS_DEFUNCT, 'a', 'is_defunct', $translate->_('address.is_defunct'), Model_CustomField::TYPE_CHECKBOX, true),
-			self::IS_TRUSTED => new DevblocksSearchField(self::IS_TRUSTED, 'a', 'is_trusted', $translate->_('address.is_trusted'), Model_CustomField::TYPE_CHECKBOX, true),
-			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'a', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
-			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'a', 'worker_id', $translate->_('common.worker'), Model_CustomField::TYPE_NUMBER, true),
+			self::ID => new DevblocksSearchField(self::ID, 'address', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::EMAIL => new DevblocksSearchField(self::EMAIL, 'address', 'email', $translate->_('common.email'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::HOST => new DevblocksSearchField(self::HOST, 'address', 'host', $translate->_('common.host'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::CONTACT_ID => new DevblocksSearchField(self::CONTACT_ID, 'address', 'contact_id', $translate->_('common.contact'), null, true),
+			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'address', 'created_at', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
+			self::MAIL_TRANSPORT_ID => new DevblocksSearchField(self::MAIL_TRANSPORT_ID, 'address', 'mail_transport_id', $translate->_('common.email_transport'), Model_CustomField::TYPE_NUMBER, true),
+			self::NUM_SPAM => new DevblocksSearchField(self::NUM_SPAM, 'address', 'num_spam', $translate->_('address.num_spam'), Model_CustomField::TYPE_NUMBER, true),
+			self::NUM_NONSPAM => new DevblocksSearchField(self::NUM_NONSPAM, 'address', 'num_nonspam', $translate->_('address.num_nonspam'), Model_CustomField::TYPE_NUMBER, true),
+			self::IS_BANNED => new DevblocksSearchField(self::IS_BANNED, 'address', 'is_banned', $translate->_('address.is_banned'), Model_CustomField::TYPE_CHECKBOX, true),
+			self::IS_DEFUNCT => new DevblocksSearchField(self::IS_DEFUNCT, 'address', 'is_defunct', $translate->_('address.is_defunct'), Model_CustomField::TYPE_CHECKBOX, true),
+			self::IS_TRUSTED => new DevblocksSearchField(self::IS_TRUSTED, 'address', 'is_trusted', $translate->_('address.is_trusted'), Model_CustomField::TYPE_CHECKBOX, true),
+			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'address', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
+			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'address', 'worker_id', $translate->_('common.worker'), Model_CustomField::TYPE_NUMBER, true),
 			
-			self::CONTACT_ORG_ID => new DevblocksSearchField(self::CONTACT_ORG_ID, 'a', 'contact_org_id', $translate->_('common.organization') . ' ' . $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::CONTACT_ORG_ID => new DevblocksSearchField(self::CONTACT_ORG_ID, 'address', 'contact_org_id', $translate->_('common.organization') . ' ' . $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
 			self::ORG_NAME => new DevblocksSearchField(self::ORG_NAME, 'o', 'name', $translate->_('common.organization'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			
 			self::FULLTEXT_ADDRESS => new DevblocksSearchField(self::FULLTEXT_ADDRESS, 'ft', 'address', $translate->_('common.search.fulltext'), 'FT', false),

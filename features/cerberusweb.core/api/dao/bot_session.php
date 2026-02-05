@@ -279,8 +279,16 @@ class SearchFields_BotSession extends DevblocksSearchFields {
 
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'bot_session.session_id';
+	static function getTableName() : string {
+		return 'bot_session';
+	}
+	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_BotSession::SESSION_ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_BotSession::UPDATED_AT);
 	}
 	
 	static function getCustomFieldContextKeys() {

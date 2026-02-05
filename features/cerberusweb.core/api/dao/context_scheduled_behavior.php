@@ -536,8 +536,16 @@ class SearchFields_ContextScheduledBehavior extends DevblocksSearchFields {
 
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'context_scheduled_behavior.id';
+	static function getTableName() : string {
+		return 'context_scheduled_behavior';
+	}
+	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_ContextScheduledBehavior::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return '';
 	}
 	
 	static function getCustomFieldContextKeys() {

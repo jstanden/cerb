@@ -271,8 +271,16 @@ class SearchFields_ConfirmationCode extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'confirmation_code.id';
+	static function getTableName() : string {
+		return 'confirmation_code';
+	}
+	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_ConfirmationCode::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_ConfirmationCode::CREATED);
 	}
 	
 	static function getCustomFieldContextKeys() {

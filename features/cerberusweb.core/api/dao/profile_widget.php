@@ -485,10 +485,18 @@ class SearchFields_ProfileWidget extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'profile_widget.id';
+	static function getTableName() : string {
+		return 'profile_widget';
 	}
 	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_ProfileWidget::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_ProfileWidget::UPDATED_AT);
+	}
+
 	static function getCustomFieldContextKeys() {
 		return array(
 			CerberusContexts::CONTEXT_PROFILE_WIDGET => new DevblocksSearchFieldContextKeys('profile_widget.id', self::ID),

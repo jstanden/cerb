@@ -591,13 +591,13 @@ class DAO_Message extends Cerb_ORMHelper {
 		
 		list($tables,$wheres,) = parent::_parseSearchParams($params, [], 'SearchFields_Message', $sortBy);
 
-		$select_sql = sprintf('SELECT m.id AS %s ',
+		$select_sql = sprintf('SELECT message.id AS %s ',
 			SearchFields_Message::ID
 		);
 		
-		$join_sql = "FROM message m ".
-			(isset($tables['t']) ? "INNER JOIN ticket t ON (m.ticket_id = t.id) " : " ").
-			(isset($tables['a']) ? "INNER JOIN address a ON (m.address_id = a.id) " : " ")
+		$join_sql = "FROM message ".
+			(isset($tables['ticket']) ? "INNER JOIN ticket t ON (message.ticket_id = ticket.id) " : " ").
+			(isset($tables['address']) ? "INNER JOIN address ON (message.address_id = address.id) " : " ")
 			;
 		
 		$where_sql = 
@@ -607,7 +607,7 @@ class DAO_Message extends Cerb_ORMHelper {
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_Message');
 		
 		return [
-			'primary_table' => 'm',
+			'primary_table' => 'message',
 			'select' => $select_sql,
 			'join' => $join_sql,
 			'where' => $where_sql,
@@ -754,17 +754,25 @@ class SearchFields_Message extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'm.id';
+	static function getTableName() : string {
+		return 'message';
 	}
 	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_Message::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_Message::CREATED_DATE);
+	}
+
 	static function getCustomFieldContextKeys() {
 		return array(
-			CerberusContexts::CONTEXT_MESSAGE => new DevblocksSearchFieldContextKeys('m.id', self::ID),
-			CerberusContexts::CONTEXT_ADDRESS => new DevblocksSearchFieldContextKeys('m.address_id', self::ADDRESS_ID),
-			CerberusContexts::CONTEXT_GROUP => new DevblocksSearchFieldContextKeys('t.group_id', self::TICKET_GROUP_ID),
-			CerberusContexts::CONTEXT_BUCKET => new DevblocksSearchFieldContextKeys('t.group_id', self::TICKET_BUCKET_ID),
-			CerberusContexts::CONTEXT_TICKET => new DevblocksSearchFieldContextKeys('m.ticket_id', self::TICKET_ID),
+			CerberusContexts::CONTEXT_MESSAGE => new DevblocksSearchFieldContextKeys('message.id', self::ID),
+			CerberusContexts::CONTEXT_ADDRESS => new DevblocksSearchFieldContextKeys('message.address_id', self::ADDRESS_ID),
+			CerberusContexts::CONTEXT_GROUP => new DevblocksSearchFieldContextKeys('ticket.group_id', self::TICKET_GROUP_ID),
+			CerberusContexts::CONTEXT_BUCKET => new DevblocksSearchFieldContextKeys('ticket.group_id', self::TICKET_BUCKET_ID),
+			CerberusContexts::CONTEXT_TICKET => new DevblocksSearchFieldContextKeys('message.ticket_id', self::TICKET_ID),
 		);
 	}
 	
@@ -795,11 +803,11 @@ class SearchFields_Message extends DevblocksSearchFields {
 					$value = sha1($value);
 				
 				if(str_contains($value, '*')) {
-					return sprintf("m.hash_header_message_id LIKE %s",
+					return sprintf("message.hash_header_message_id LIKE %s",
 						Cerb_ORMHelper::qstr(str_replace('*','%',$value))
 					);
 				} else {
-					return sprintf("m.hash_header_message_id = %s",
+					return sprintf("message.hash_header_message_id = %s",
 						Cerb_ORMHelper::qstr($value)
 					);
 				}
@@ -827,13 +835,13 @@ class SearchFields_Message extends DevblocksSearchFields {
 				return self::_getWhereSQLFromFulltextField($param, Search_MessageHeaders::ID, self::getPrimaryKey(), $attributes);
 				
 			case self::VIRTUAL_SENDER_SEARCH:
-				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_ADDRESS, 'm.address_id');
+				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_ADDRESS, 'message.address_id');
 				
 			case self::VIRTUAL_TICKET_SEARCH:
-				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_TICKET, 'm.ticket_id');
+				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_TICKET, 'message.ticket_id');
 				
 			case self::VIRTUAL_WORKER_SEARCH:
-				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_WORKER, 'm.worker_id');
+				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_WORKER, 'message.worker_id');
 				
 			default:
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
@@ -874,7 +882,7 @@ class SearchFields_Message extends DevblocksSearchFields {
 						Cerb_ORMHelper::escape($join_as),
 						Cerb_ORMHelper::escape($group_field->db_column)
 					),
-					'sql_join' => sprintf("INNER JOIN ticket AS %s ON (%s.id=m.ticket_id)",
+					'sql_join' => sprintf("INNER JOIN ticket AS %s ON (%s.id=message.ticket_id)",
 						Cerb_ORMHelper::escape($join_as),
 						Cerb_ORMHelper::escape($join_as)
 					),
@@ -904,7 +912,7 @@ class SearchFields_Message extends DevblocksSearchFields {
 						Cerb_ORMHelper::escape($join_as),
 						Cerb_ORMHelper::escape($bucket_field->db_column)
 					),
-					'sql_join' => sprintf("INNER JOIN ticket AS %s ON (%s.id=m.ticket_id)",
+					'sql_join' => sprintf("INNER JOIN ticket AS %s ON (%s.id=message.ticket_id)",
 						Cerb_ORMHelper::escape($join_as),
 						Cerb_ORMHelper::escape($join_as)
 					),
@@ -923,7 +931,7 @@ class SearchFields_Message extends DevblocksSearchFields {
 					'key_query' => $key,
 					'key_select' => $search_key,
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'sql_select' => sprintf("(SELECT mask FROM ticket WHERE id = m.ticket_id)",
+					'sql_select' => sprintf("(SELECT mask FROM ticket WHERE id = message.ticket_id)",
 						Cerb_ORMHelper::escape($mask_field->db_table),
 						Cerb_ORMHelper::escape($mask_field->db_column)
 					),
@@ -1014,33 +1022,33 @@ class SearchFields_Message extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			SearchFields_Message::ID => new DevblocksSearchField(SearchFields_Message::ID, 'm', 'id', $translate->_('common.id'), null, true),
-			SearchFields_Message::ADDRESS_ID => new DevblocksSearchField(SearchFields_Message::ADDRESS_ID, 'm', 'address_id', $translate->_('common.sender'), Model_CustomField::TYPE_NUMBER, true),
-			SearchFields_Message::CREATED_DATE => new DevblocksSearchField(SearchFields_Message::CREATED_DATE, 'm', 'created_date', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
-			SearchFields_Message::IS_OUTGOING => new DevblocksSearchField(SearchFields_Message::IS_OUTGOING, 'm', 'is_outgoing', $translate->_('message.is_outgoing'), Model_CustomField::TYPE_CHECKBOX, true),
-			SearchFields_Message::TICKET_ID => new DevblocksSearchField(SearchFields_Message::TICKET_ID, 'm', 'ticket_id', 'Ticket ID', null, true),
-			SearchFields_Message::WORKER_ID => new DevblocksSearchField(SearchFields_Message::WORKER_ID, 'm', 'worker_id', $translate->_('common.worker'), Model_CustomField::TYPE_WORKER, true),
-			SearchFields_Message::HTML_ATTACHMENT_ID => new DevblocksSearchField(SearchFields_Message::HTML_ATTACHMENT_ID, 'm', 'html_attachment_id', null, null, true),
-			SearchFields_Message::RESPONSE_TIME => new DevblocksSearchField(SearchFields_Message::RESPONSE_TIME, 'm', 'response_time', $translate->_('message.response_time'), Model_CustomField::TYPE_NUMBER, true),
-			SearchFields_Message::IS_BROADCAST => new DevblocksSearchField(SearchFields_Message::IS_BROADCAST, 'm', 'is_broadcast', $translate->_('message.is_broadcast'), Model_CustomField::TYPE_CHECKBOX, true),
-			SearchFields_Message::IS_NOT_SENT => new DevblocksSearchField(SearchFields_Message::IS_NOT_SENT, 'm', 'is_not_sent', $translate->_('message.is_not_sent'), Model_CustomField::TYPE_CHECKBOX, true),
-			SearchFields_Message::SIGNED_KEY_FINGERPRINT => new DevblocksSearchField(SearchFields_Message::SIGNED_KEY_FINGERPRINT, 'm', 'signed_key_fingerprint', $translate->_('message.signed_key_fingerprint'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			SearchFields_Message::SIGNED_AT => new DevblocksSearchField(SearchFields_Message::SIGNED_AT, 'm', 'signed_at', $translate->_('message.signed_at'), Model_CustomField::TYPE_DATE, true),
-			SearchFields_Message::TOKEN => new DevblocksSearchField(SearchFields_Message::TOKEN, 'm', 'token', $translate->_('common.token'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			SearchFields_Message::WAS_ENCRYPTED => new DevblocksSearchField(SearchFields_Message::WAS_ENCRYPTED, 'm', 'was_encrypted', $translate->_('message.is_encrypted'), Model_CustomField::TYPE_CHECKBOX, true),
+			SearchFields_Message::ID => new DevblocksSearchField(SearchFields_Message::ID, 'message', 'id', $translate->_('common.id'), null, true),
+			SearchFields_Message::ADDRESS_ID => new DevblocksSearchField(SearchFields_Message::ADDRESS_ID, 'message', 'address_id', $translate->_('common.sender'), Model_CustomField::TYPE_NUMBER, true),
+			SearchFields_Message::CREATED_DATE => new DevblocksSearchField(SearchFields_Message::CREATED_DATE, 'message', 'created_date', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
+			SearchFields_Message::IS_OUTGOING => new DevblocksSearchField(SearchFields_Message::IS_OUTGOING, 'message', 'is_outgoing', $translate->_('message.is_outgoing'), Model_CustomField::TYPE_CHECKBOX, true),
+			SearchFields_Message::TICKET_ID => new DevblocksSearchField(SearchFields_Message::TICKET_ID, 'message', 'ticket_id', 'Ticket ID', null, true),
+			SearchFields_Message::WORKER_ID => new DevblocksSearchField(SearchFields_Message::WORKER_ID, 'message', 'worker_id', $translate->_('common.worker'), Model_CustomField::TYPE_WORKER, true),
+			SearchFields_Message::HTML_ATTACHMENT_ID => new DevblocksSearchField(SearchFields_Message::HTML_ATTACHMENT_ID, 'message', 'html_attachment_id', null, null, true),
+			SearchFields_Message::RESPONSE_TIME => new DevblocksSearchField(SearchFields_Message::RESPONSE_TIME, 'message', 'response_time', $translate->_('message.response_time'), Model_CustomField::TYPE_NUMBER, true),
+			SearchFields_Message::IS_BROADCAST => new DevblocksSearchField(SearchFields_Message::IS_BROADCAST, 'message', 'is_broadcast', $translate->_('message.is_broadcast'), Model_CustomField::TYPE_CHECKBOX, true),
+			SearchFields_Message::IS_NOT_SENT => new DevblocksSearchField(SearchFields_Message::IS_NOT_SENT, 'message', 'is_not_sent', $translate->_('message.is_not_sent'), Model_CustomField::TYPE_CHECKBOX, true),
+			SearchFields_Message::SIGNED_KEY_FINGERPRINT => new DevblocksSearchField(SearchFields_Message::SIGNED_KEY_FINGERPRINT, 'message', 'signed_key_fingerprint', $translate->_('message.signed_key_fingerprint'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			SearchFields_Message::SIGNED_AT => new DevblocksSearchField(SearchFields_Message::SIGNED_AT, 'message', 'signed_at', $translate->_('message.signed_at'), Model_CustomField::TYPE_DATE, true),
+			SearchFields_Message::TOKEN => new DevblocksSearchField(SearchFields_Message::TOKEN, 'message', 'token', $translate->_('common.token'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			SearchFields_Message::WAS_ENCRYPTED => new DevblocksSearchField(SearchFields_Message::WAS_ENCRYPTED, 'message', 'was_encrypted', $translate->_('message.is_encrypted'), Model_CustomField::TYPE_CHECKBOX, true),
 			
-			SearchFields_Message::STORAGE_EXTENSION => new DevblocksSearchField(SearchFields_Message::STORAGE_EXTENSION, 'm', 'storage_extension', null, true),
-			SearchFields_Message::STORAGE_KEY => new DevblocksSearchField(SearchFields_Message::STORAGE_KEY, 'm', 'storage_key', null, true),
-			SearchFields_Message::STORAGE_PROFILE_ID => new DevblocksSearchField(SearchFields_Message::STORAGE_PROFILE_ID, 'm', 'storage_profile_id', null, true),
-			SearchFields_Message::STORAGE_SIZE => new DevblocksSearchField(SearchFields_Message::STORAGE_SIZE, 'm', 'storage_size', $translate->_('common.size'), true),
+			SearchFields_Message::STORAGE_EXTENSION => new DevblocksSearchField(SearchFields_Message::STORAGE_EXTENSION, 'message', 'storage_extension', null, true),
+			SearchFields_Message::STORAGE_KEY => new DevblocksSearchField(SearchFields_Message::STORAGE_KEY, 'message', 'storage_key', null, true),
+			SearchFields_Message::STORAGE_PROFILE_ID => new DevblocksSearchField(SearchFields_Message::STORAGE_PROFILE_ID, 'message', 'storage_profile_id', null, true),
+			SearchFields_Message::STORAGE_SIZE => new DevblocksSearchField(SearchFields_Message::STORAGE_SIZE, 'message', 'storage_size', $translate->_('common.size'), true),
 			
 			SearchFields_Message::ADDRESS_EMAIL => new DevblocksSearchField(SearchFields_Message::ADDRESS_EMAIL, 'a', 'email', $translate->_('common.email'), Model_CustomField::TYPE_SINGLE_LINE, false),
 			
-			SearchFields_Message::TICKET_BUCKET_ID => new DevblocksSearchField(SearchFields_Message::TICKET_BUCKET_ID, 't', 'bucket_id', $translate->_('common.bucket'), null, false),
-			SearchFields_Message::TICKET_GROUP_ID => new DevblocksSearchField(SearchFields_Message::TICKET_GROUP_ID, 't', 'group_id', $translate->_('common.group'), null, false),
-			SearchFields_Message::TICKET_STATUS_ID => new DevblocksSearchField(SearchFields_Message::TICKET_STATUS_ID, 't', 'status_id', $translate->_('common.status'), Model_CustomField::TYPE_NUMBER, false),
-			SearchFields_Message::TICKET_MASK => new DevblocksSearchField(SearchFields_Message::TICKET_MASK, 't', 'mask', $translate->_('ticket.mask'), Model_CustomField::TYPE_SINGLE_LINE, false),
-			SearchFields_Message::TICKET_SUBJECT => new DevblocksSearchField(SearchFields_Message::TICKET_SUBJECT, 't', 'subject', $translate->_('ticket.subject'), Model_CustomField::TYPE_SINGLE_LINE, false),
+			SearchFields_Message::TICKET_BUCKET_ID => new DevblocksSearchField(SearchFields_Message::TICKET_BUCKET_ID, 'ticket', 'bucket_id', $translate->_('common.bucket'), null, false),
+			SearchFields_Message::TICKET_GROUP_ID => new DevblocksSearchField(SearchFields_Message::TICKET_GROUP_ID, 'ticket', 'group_id', $translate->_('common.group'), null, false),
+			SearchFields_Message::TICKET_STATUS_ID => new DevblocksSearchField(SearchFields_Message::TICKET_STATUS_ID, 'ticket', 'status_id', $translate->_('common.status'), Model_CustomField::TYPE_NUMBER, false),
+			SearchFields_Message::TICKET_MASK => new DevblocksSearchField(SearchFields_Message::TICKET_MASK, 'ticket', 'mask', $translate->_('ticket.mask'), Model_CustomField::TYPE_SINGLE_LINE, false),
+			SearchFields_Message::TICKET_SUBJECT => new DevblocksSearchField(SearchFields_Message::TICKET_SUBJECT, 'ticket', 'subject', $translate->_('ticket.subject'), Model_CustomField::TYPE_SINGLE_LINE, false),
 			
 			SearchFields_Message::VIRTUAL_ATTACHMENTS_SEARCH => new DevblocksSearchField(SearchFields_Message::VIRTUAL_ATTACHMENTS_SEARCH, '*', 'attachments_search', null, null, false),
 			SearchFields_Message::VIRTUAL_NOTES_SEARCH => new DevblocksSearchField(SearchFields_Message::VIRTUAL_NOTES_SEARCH, '*', 'notes_search', null, null, false),

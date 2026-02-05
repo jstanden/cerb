@@ -569,10 +569,18 @@ class SearchFields_Resource extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'resource.id';
+	static function getTableName() : string {
+		return 'resource';
 	}
 	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_Resource::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_Resource::UPDATED_AT);
+	}
+
 	static function getCustomFieldContextKeys() {
 		return array(
 			CerberusContexts::CONTEXT_RESOURCE => new DevblocksSearchFieldContextKeys('resource.id', self::ID),

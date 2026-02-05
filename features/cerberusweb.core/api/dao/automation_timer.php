@@ -394,8 +394,16 @@ class SearchFields_AutomationTimer extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'automation_timer.id';
+	static function getTableName() : string {
+		return 'automation_timer';
+	}
+	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_AutomationTimer::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_AutomationTimer::UPDATED_AT);
 	}
 	
 	static function getCustomFieldContextKeys() {

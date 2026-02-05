@@ -459,14 +459,14 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_CrmOpportunity', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
-			"o.id as %s, ".
-			"o.name as %s, ".
-			"o.currency_id as %s, ".
-			"o.currency_amount as %s, ".
-			"o.created_date as %s, ".
-			"o.updated_date as %s, ".
-			"o.closed_date as %s, ".
-			"o.status_id as %s ",
+			"crm_opportunity.id as %s, ".
+			"crm_opportunity.name as %s, ".
+			"crm_opportunity.currency_id as %s, ".
+			"crm_opportunity.currency_amount as %s, ".
+			"crm_opportunity.created_date as %s, ".
+			"crm_opportunity.updated_date as %s, ".
+			"crm_opportunity.closed_date as %s, ".
+			"crm_opportunity.status_id as %s ",
 				SearchFields_CrmOpportunity::ID,
 				SearchFields_CrmOpportunity::NAME,
 				SearchFields_CrmOpportunity::CURRENCY_ID,
@@ -478,7 +478,7 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 			);
 
 		$join_sql =
-			"FROM crm_opportunity o ";
+			"FROM crm_opportunity ";
 			
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
@@ -486,7 +486,7 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_CrmOpportunity');
 
 		$result = array(
-			'primary_table' => 'o',
+			'primary_table' => 'crm_opportunity',
 			'select' => $select_sql,
 			'join' => $join_sql,
 			'where' => $where_sql,
@@ -582,13 +582,21 @@ class SearchFields_CrmOpportunity extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'o.id';
+	static function getTableName() : string {
+		return 'crm_opportunity';
 	}
 	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_CrmOpportunity::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_CrmOpportunity::UPDATED_DATE);
+	}
+
 	static function getCustomFieldContextKeys() {
 		return array(
-			CerberusContexts::CONTEXT_OPPORTUNITY => new DevblocksSearchFieldContextKeys('o.id', self::ID),
+			CerberusContexts::CONTEXT_OPPORTUNITY => new DevblocksSearchFieldContextKeys('crm_opportunity.id', self::ID),
 		);
 	}
 	
@@ -667,15 +675,15 @@ class SearchFields_CrmOpportunity extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'o', 'id', $translate->_('common.id'), null, true),
+			self::ID => new DevblocksSearchField(self::ID, 'crm_opportunity', 'id', $translate->_('common.id'), null, true),
 			
-			self::NAME => new DevblocksSearchField(self::NAME, 'o', 'name', $translate->_('common.title'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::CURRENCY_AMOUNT => new DevblocksSearchField(self::CURRENCY_AMOUNT, 'o', 'currency_amount', $translate->_('crm.opportunity.amount'), Model_CustomField::TYPE_NUMBER, true),
-			self::CURRENCY_ID => new DevblocksSearchField(self::CURRENCY_ID, 'o', 'currency_id', $translate->_('common.currency'), Model_CustomField::TYPE_NUMBER, true),
-			self::CREATED_DATE => new DevblocksSearchField(self::CREATED_DATE, 'o', 'created_date', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
-			self::UPDATED_DATE => new DevblocksSearchField(self::UPDATED_DATE, 'o', 'updated_date', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
-			self::CLOSED_DATE => new DevblocksSearchField(self::CLOSED_DATE, 'o', 'closed_date', $translate->_('crm.opportunity.closed_date'), Model_CustomField::TYPE_DATE, true),
-			self::STATUS_ID => new DevblocksSearchField(self::STATUS_ID, 'o', 'status_id', $translate->_('common.status'), Model_CustomField::TYPE_NUMBER, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'crm_opportunity', 'name', $translate->_('common.title'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::CURRENCY_AMOUNT => new DevblocksSearchField(self::CURRENCY_AMOUNT, 'crm_opportunity', 'currency_amount', $translate->_('crm.opportunity.amount'), Model_CustomField::TYPE_NUMBER, true),
+			self::CURRENCY_ID => new DevblocksSearchField(self::CURRENCY_ID, 'crm_opportunity', 'currency_id', $translate->_('common.currency'), Model_CustomField::TYPE_NUMBER, true),
+			self::CREATED_DATE => new DevblocksSearchField(self::CREATED_DATE, 'crm_opportunity', 'created_date', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
+			self::UPDATED_DATE => new DevblocksSearchField(self::UPDATED_DATE, 'crm_opportunity', 'updated_date', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
+			self::CLOSED_DATE => new DevblocksSearchField(self::CLOSED_DATE, 'crm_opportunity', 'closed_date', $translate->_('crm.opportunity.closed_date'), Model_CustomField::TYPE_DATE, true),
+			self::STATUS_ID => new DevblocksSearchField(self::STATUS_ID, 'crm_opportunity', 'status_id', $translate->_('common.status'), Model_CustomField::TYPE_NUMBER, true),
 			
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),

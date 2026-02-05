@@ -241,8 +241,16 @@ class SearchFields_CerbPlugin extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'cerb_plugin.id';
+	static function getTableName() : string {
+		return 'cerb_plugin';
+	}
+	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_CerbPlugin::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return '';
 	}
 	
 	static function getCustomFieldContextKeys() {

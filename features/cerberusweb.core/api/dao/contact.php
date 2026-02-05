@@ -669,8 +669,16 @@ class SearchFields_Contact extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'contact.id';
+	static function getTableName() : string {
+		return 'contact';
+	}
+	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_Contact::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_Contact::UPDATED_AT);
 	}
 	
 	static function getCustomFieldContextKeys() {

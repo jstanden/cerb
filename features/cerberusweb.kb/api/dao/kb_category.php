@@ -450,24 +450,24 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_KbCategory', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
-			"kbc.id as %s, ".
-			"kbc.name as %s, ".
-			"kbc.updated_at as %s, ".
-			"kbc.parent_id as %s ",
+			"kb_category.id as %s, ".
+			"kb_category.name as %s, ".
+			"kb_category.updated_at as %s, ".
+			"kb_category.parent_id as %s ",
 				SearchFields_KbCategory::ID,
 				SearchFields_KbCategory::NAME,
 				SearchFields_KbCategory::UPDATED_AT,
 				SearchFields_KbCategory::PARENT_ID
 			);
 			
-		$join_sql = "FROM kb_category kbc ";
+		$join_sql = "FROM kb_category ";
 		
 		// [JAS]: Dynamic table joins
 		if(isset($tables['katc'])) {
 			$select_sql .= sprintf(", katc.kb_article_id AS %s ",
 				SearchFields_KbArticle::TOP_CATEGORY_ID
 			);
-			$join_sql .= "LEFT JOIN kb_article_to_category katc ON (kbc.id=katc.kb_category_id) ";
+			$join_sql .= "LEFT JOIN kb_article_to_category katc ON (kb_category.id=katc.kb_category_id) ";
 		}
 
 		$where_sql = "".
@@ -476,7 +476,7 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_KbCategory');
 		
 		$result = array(
-			'primary_table' => 'kbc',
+			'primary_table' => 'kb_category',
 			'select' => $select_sql,
 			'join' => $join_sql,
 			'where' => $where_sql,
@@ -584,13 +584,21 @@ class SearchFields_KbCategory extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'kbc.id';
+	static function getTableName() : string {
+		return 'kb_category';
 	}
 	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_KbCategory::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_KbCategory::UPDATED_AT);
+	}
+
 	static function getCustomFieldContextKeys() {
 		return array(
-			CerberusContexts::CONTEXT_KB_CATEGORY => new DevblocksSearchFieldContextKeys('kbc.id', self::ID),
+			CerberusContexts::CONTEXT_KB_CATEGORY => new DevblocksSearchFieldContextKeys('kb_category.id', self::ID),
 			CerberusContexts::CONTEXT_KB_ARTICLE => new DevblocksSearchFieldContextKeys('katc.kb_article_id', self::ARTICLE_ID),
 		);
 	}
@@ -663,10 +671,10 @@ class SearchFields_KbCategory extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'kbc', 'id', $translate->_('common.id'), null, true),
-			self::PARENT_ID => new DevblocksSearchField(self::PARENT_ID, 'kbc', 'parent_id', $translate->_('common.parent'), null, true),
-			self::NAME => new DevblocksSearchField(self::NAME, 'kbc', 'name', $translate->_('common.name'), null, true),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'kbc', 'updated_at', $translate->_('common.updated'), null, true),
+			self::ID => new DevblocksSearchField(self::ID, 'kb_category', 'id', $translate->_('common.id'), null, true),
+			self::PARENT_ID => new DevblocksSearchField(self::PARENT_ID, 'kb_category', 'parent_id', $translate->_('common.parent'), null, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'kb_category', 'name', $translate->_('common.name'), null, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'kb_category', 'updated_at', $translate->_('common.updated'), null, true),
 			
 			self::ARTICLE_ID => new DevblocksSearchField(self::ARTICLE_ID, 'katc', 'kb_article_id', DevblocksPlatform::translateCapitalized('kb.common.knowledgebase_article'), Model_CustomField::TYPE_NUMBER, true),
 			

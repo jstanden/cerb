@@ -256,10 +256,18 @@ class SearchFields_Feed extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'feed.id';
+	static function getTableName() : string {
+		return 'feed';
 	}
 	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_Feed::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return '';
+	}
+
 	static function getCustomFieldContextKeys() {
 		return array(
 			CerberusContexts::CONTEXT_FEED => new DevblocksSearchFieldContextKeys('feed.id', self::ID),

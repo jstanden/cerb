@@ -596,8 +596,16 @@ class SearchFields_Mailbox extends DevblocksSearchFields {
 
 	static private $_fields = null;
 
-	static function getPrimaryKey() {
-		return 'mailbox.id';
+	static function getTableName() : string {
+		return 'mailbox';
+	}
+	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_Mailbox::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_Mailbox::UPDATED_AT);
 	}
 
 	static function getCustomFieldContextKeys() {

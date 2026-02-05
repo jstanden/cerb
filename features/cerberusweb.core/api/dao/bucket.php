@@ -631,8 +631,16 @@ class SearchFields_Bucket extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'bucket.id';
+	static function getTableName() : string {
+		return 'bucket';
+	}
+	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_Bucket::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_Bucket::UPDATED_AT);
 	}
 	
 	static function getCustomFieldContextKeys() {

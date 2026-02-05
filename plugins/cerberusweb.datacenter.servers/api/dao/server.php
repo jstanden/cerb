@@ -858,10 +858,18 @@ class SearchFields_Server extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'server.id';
+	static function getTableName() : string {
+		return 'server';
 	}
 	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_Server::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_Server::UPDATED);
+	}
+
 	static function getCustomFieldContextKeys() {
 		return array(
 			CerberusContexts::CONTEXT_SERVER => new DevblocksSearchFieldContextKeys('server.id', self::ID),

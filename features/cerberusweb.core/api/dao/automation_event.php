@@ -392,8 +392,16 @@ class SearchFields_AutomationEvent extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'automation_event.id';
+	static function getTableName() : string {
+		return 'automation_event';
+	}
+	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_AutomationEvent::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_AutomationEvent::UPDATED_AT);
 	}
 	
 	static function getCustomFieldContextKeys() {

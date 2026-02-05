@@ -376,8 +376,16 @@ class SearchFields_CalendarEvent extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'calendar_event.id';
+	static function getTableName() : string {
+		return 'calendar_event';
+	}
+	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_CalendarEvent::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return '';
 	}
 	
 	static function getCustomFieldContextKeys() {

@@ -385,10 +385,18 @@ class SearchFields_EmailSignature extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'email_signature.id';
+	static function getTableName() : string {
+		return 'email_signature';
 	}
 	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_EmailSignature::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_EmailSignature::UPDATED_AT);
+	}
+
 	static function getCustomFieldContextKeys() {
 		return array(
 			CerberusContexts::CONTEXT_EMAIL_SIGNATURE => new DevblocksSearchFieldContextKeys('email_signature.id', self::ID),

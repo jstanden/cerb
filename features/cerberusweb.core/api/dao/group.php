@@ -812,9 +812,9 @@ class DAO_Group extends Cerb_ORMHelper {
 			$db = DevblocksPlatform::services()->database();
 			$sql = "SELECT wt.worker_id, wt.group_id, wt.is_manager, w.is_disabled ".
 				"FROM worker_to_group wt ".
-				"INNER JOIN worker_group g ON (wt.group_id=g.id) ".
+				"INNER JOIN worker_group ON (wt.group_id=worker_group.id) ".
 				"INNER JOIN worker w ON (w.id=wt.worker_id) ".
-				"ORDER BY g.name ASC, w.first_name ASC "
+				"ORDER BY worker_group.name ASC, w.first_name ASC "
 			;
 			
 			if(!($rs = $db->QueryReader($sql)))
@@ -877,17 +877,17 @@ class DAO_Group extends Cerb_ORMHelper {
 		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_Group', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
-			"g.id as %s, ".
-			"g.name as %s, ".
-			"g.is_default as %s, ".
-			"g.is_private as %s, ".
-			"g.reply_address_id as %s, ".
-			"g.reply_html_template_id as %s, ".
-			"g.reply_personal as %s, ".
-			"g.reply_signature_id as %s, ".
-			"g.reply_signing_key_id as %s, ".
-			"g.created as %s, ".
-			"g.updated as %s ",
+			"worker_group.id as %s, ".
+			"worker_group.name as %s, ".
+			"worker_group.is_default as %s, ".
+			"worker_group.is_private as %s, ".
+			"worker_group.reply_address_id as %s, ".
+			"worker_group.reply_html_template_id as %s, ".
+			"worker_group.reply_personal as %s, ".
+			"worker_group.reply_signature_id as %s, ".
+			"worker_group.reply_signing_key_id as %s, ".
+			"worker_group.created as %s, ".
+			"worker_group.updated as %s ",
 				SearchFields_Group::ID,
 				SearchFields_Group::NAME,
 				SearchFields_Group::IS_DEFAULT,
@@ -901,20 +901,20 @@ class DAO_Group extends Cerb_ORMHelper {
 				SearchFields_Group::UPDATED
 			);
 			
-		$join_sql = "FROM worker_group g ";
+		$join_sql = "FROM worker_group ";
 
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_Group');
 
-		$result = array(
-			'primary_table' => 'g',
+		$result = [
+			'primary_table' => 'worker_group',
 			'select' => $select_sql,
 			'join' => $join_sql,
 			'where' => $where_sql,
 			'sort' => $sort_sql,
-		);
+		];
 		
 		return $result;
 	}
@@ -973,13 +973,21 @@ class SearchFields_Group extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'g.id';
+	static function getTableName() : string {
+		return 'worker_group';
 	}
 	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_Group::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_Group::UPDATED);
+	}
+
 	static function getCustomFieldContextKeys() {
 		return array(
-			CerberusContexts::CONTEXT_GROUP => new DevblocksSearchFieldContextKeys('g.id', self::ID),
+			CerberusContexts::CONTEXT_GROUP => new DevblocksSearchFieldContextKeys('worker_group.id', self::ID),
 		);
 	}
 	
@@ -995,12 +1003,12 @@ class SearchFields_Group extends DevblocksSearchFields {
 			
 			case self::VIRTUAL_MANAGER_SEARCH:
 				$sql = "SELECT DISTINCT wtg.group_id FROM worker_to_group wtg WHERE wtg.is_manager = 1 AND wtg.worker_id IN (%s)";
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_WORKER, $sql, 'g.id');
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_WORKER, $sql, 'worker_group.id');
 				break;
 				
 			case self::VIRTUAL_MEMBER_SEARCH:
 				$sql = "SELECT DISTINCT wtg.group_id FROM worker_to_group wtg WHERE wtg.worker_id IN (%s)";
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_WORKER, $sql, 'g.id');
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_WORKER, $sql, 'worker_group.id');
 				break;
 			
 			default:
@@ -1088,17 +1096,17 @@ class SearchFields_Group extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'g', 'id', $translate->_('common.id'), null, true),
-			self::NAME => new DevblocksSearchField(self::NAME, 'g', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::CREATED => new DevblocksSearchField(self::CREATED, 'g', 'created', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
-			self::IS_DEFAULT => new DevblocksSearchField(self::IS_DEFAULT, 'g', 'is_default', $translate->_('common.default'), Model_CustomField::TYPE_CHECKBOX, true),
-			self::IS_PRIVATE => new DevblocksSearchField(self::IS_PRIVATE, 'g', 'is_private', $translate->_('common.private'), Model_CustomField::TYPE_CHECKBOX, true),
-			self::REPLY_ADDRESS_ID => new DevblocksSearchField(self::REPLY_ADDRESS_ID, 'g', 'reply_address_id', $translate->_('common.send.from'), Model_CustomField::TYPE_NUMBER, true),
-			self::REPLY_HTML_TEMPLATE_ID => new DevblocksSearchField(self::REPLY_HTML_TEMPLATE_ID, 'g', 'reply_html_template_id', $translate->_('common.email_template'), Model_CustomField::TYPE_NUMBER, true),
-			self::REPLY_PERSONAL => new DevblocksSearchField(self::REPLY_PERSONAL, 'g', 'reply_personal', $translate->_('common.send.as'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::REPLY_SIGNATURE_ID => new DevblocksSearchField(self::REPLY_SIGNATURE_ID, 'g', 'reply_signature_id', $translate->_('common.signature'), Model_CustomField::TYPE_NUMBER, true),
-			self::REPLY_SIGNING_KEY_ID => new DevblocksSearchField(self::REPLY_SIGNING_KEY_ID, 'g', 'reply_signing_key_id', $translate->_('common.encrypt.signing.key'), Model_CustomField::TYPE_NUMBER, true),
-			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'g', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
+			self::ID => new DevblocksSearchField(self::ID, 'worker_group', 'id', $translate->_('common.id'), null, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'worker_group', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::CREATED => new DevblocksSearchField(self::CREATED, 'worker_group', 'created', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
+			self::IS_DEFAULT => new DevblocksSearchField(self::IS_DEFAULT, 'worker_group', 'is_default', $translate->_('common.default'), Model_CustomField::TYPE_CHECKBOX, true),
+			self::IS_PRIVATE => new DevblocksSearchField(self::IS_PRIVATE, 'worker_group', 'is_private', $translate->_('common.private'), Model_CustomField::TYPE_CHECKBOX, true),
+			self::REPLY_ADDRESS_ID => new DevblocksSearchField(self::REPLY_ADDRESS_ID, 'worker_group', 'reply_address_id', $translate->_('common.send.from'), Model_CustomField::TYPE_NUMBER, true),
+			self::REPLY_HTML_TEMPLATE_ID => new DevblocksSearchField(self::REPLY_HTML_TEMPLATE_ID, 'worker_group', 'reply_html_template_id', $translate->_('common.email_template'), Model_CustomField::TYPE_NUMBER, true),
+			self::REPLY_PERSONAL => new DevblocksSearchField(self::REPLY_PERSONAL, 'worker_group', 'reply_personal', $translate->_('common.send.as'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::REPLY_SIGNATURE_ID => new DevblocksSearchField(self::REPLY_SIGNATURE_ID, 'worker_group', 'reply_signature_id', $translate->_('common.signature'), Model_CustomField::TYPE_NUMBER, true),
+			self::REPLY_SIGNING_KEY_ID => new DevblocksSearchField(self::REPLY_SIGNING_KEY_ID, 'worker_group', 'reply_signing_key_id', $translate->_('common.encrypt.signing.key'), Model_CustomField::TYPE_NUMBER, true),
+			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'worker_group', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 			
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),

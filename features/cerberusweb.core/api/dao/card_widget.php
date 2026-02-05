@@ -450,8 +450,16 @@ class SearchFields_CardWidget extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'card_widget.id';
+	static function getTableName() : string {
+		return 'card_widget';
+	}
+	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_CardWidget::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_CardWidget::UPDATED_AT);
 	}
 	
 	static function getCustomFieldContextKeys() {

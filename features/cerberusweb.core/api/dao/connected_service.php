@@ -431,8 +431,16 @@ class SearchFields_ConnectedService extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'connected_service.id';
+	static function getTableName() : string {
+		return 'connected_service';
+	}
+	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_ConnectedService::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_ConnectedService::UPDATED_AT);
 	}
 	
 	static function getCustomFieldContextKeys() {

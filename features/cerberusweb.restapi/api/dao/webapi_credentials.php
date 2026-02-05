@@ -390,10 +390,18 @@ class SearchFields_WebApiCredentials extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'webapi_credentials.id';
+	static function getTableName() : string {
+		return 'webapi_credentials';
 	}
 	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_WebApiCredentials::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_WebApiCredentials::UPDATED_AT);
+	}
+
 	static function getCustomFieldContextKeys() {
 		return array(
 			CerberusContexts::CONTEXT_WEBAPI_CREDENTIAL => new DevblocksSearchFieldContextKeys('webapi_credentials.id', self::ID),

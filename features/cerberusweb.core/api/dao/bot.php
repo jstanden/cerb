@@ -505,8 +505,16 @@ class SearchFields_Bot extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'bot.id';
+	static function getTableName() : string {
+		return 'bot';
+	}
+	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_Bot::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_Bot::UPDATED_AT);
 	}
 	
 	static function getCustomFieldContextKeys() {

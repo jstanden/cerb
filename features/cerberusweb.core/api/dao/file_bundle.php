@@ -431,10 +431,18 @@ class SearchFields_FileBundle extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'file_bundle.id';
+	static function getTableName() : string {
+		return 'file_bundle';
 	}
 	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_FileBundle::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_FileBundle::UPDATED_AT);
+	}
+
 	static function getCustomFieldContextKeys() {
 		return array(
 			CerberusContexts::CONTEXT_FILE_BUNDLE => new DevblocksSearchFieldContextKeys('file_bundle.id', self::ID),

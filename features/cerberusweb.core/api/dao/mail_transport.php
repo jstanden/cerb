@@ -370,10 +370,18 @@ class SearchFields_MailTransport extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'mail_transport.id';
+	static function getTableName() : string {
+		return 'mail_transport';
 	}
 	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_MailTransport::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_MailTransport::UPDATED_AT);
+	}
+
 	static function getCustomFieldContextKeys() {
 		return array(
 			CerberusContexts::CONTEXT_MAIL_TRANSPORT => new DevblocksSearchFieldContextKeys('mail_transport.id', self::ID),

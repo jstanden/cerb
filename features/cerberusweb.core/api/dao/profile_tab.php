@@ -400,10 +400,18 @@ class SearchFields_ProfileTab extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'profile_tab.id';
+	static function getTableName() : string {
+		return 'profile_tab';
 	}
 	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_ProfileTab::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_ProfileTab::UPDATED_AT);
+	}
+
 	static function getCustomFieldContextKeys() {
 		return array(
 			CerberusContexts::CONTEXT_PROFILE_TAB => new DevblocksSearchFieldContextKeys('profile_tab.id', self::ID),

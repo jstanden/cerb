@@ -398,12 +398,12 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_CommunityTool', $sortBy);
 					
 		$select_sql = sprintf("SELECT ".
-			"ct.id as %s, ".
-			"ct.name as %s, ".
-			"ct.code as %s, ".
-			"ct.extension_id as %s, ".
-			"ct.updated_at as %s, ".
-			"ct.uri as %s ",
+			"community_tool.id as %s, ".
+			"community_tool.name as %s, ".
+			"community_tool.code as %s, ".
+			"community_tool.extension_id as %s, ".
+			"community_tool.updated_at as %s, ".
+			"community_tool.uri as %s ",
 				SearchFields_CommunityTool::ID,
 				SearchFields_CommunityTool::NAME,
 				SearchFields_CommunityTool::CODE,
@@ -412,7 +412,7 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 				SearchFields_CommunityTool::URI
 			);
 		
-		$join_sql = "FROM community_tool ct ";
+		$join_sql = "FROM community_tool ";
 		
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
@@ -420,7 +420,7 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_CommunityTool');
 		
 		$result = array(
-			'primary_table' => 'ct',
+			'primary_table' => 'community_tool',
 			'select' => $select_sql,
 			'join' => $join_sql,
 			'where' => $where_sql,
@@ -477,13 +477,21 @@ class SearchFields_CommunityTool extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'ct.id';
+	static function getTableName() : string {
+		return 'community_tool';
+	}
+	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_CommunityTool::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_CommunityTool::UPDATED_AT);
 	}
 	
 	static function getCustomFieldContextKeys() {
 		return array(
-			CerberusContexts::CONTEXT_PORTAL => new DevblocksSearchFieldContextKeys('ct.id', self::ID),
+			CerberusContexts::CONTEXT_PORTAL => new DevblocksSearchFieldContextKeys('community_tool.id', self::ID),
 		);
 	}
 	
@@ -547,12 +555,12 @@ class SearchFields_CommunityTool extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'ct', 'id', $translate->_('common.id'), null, true),
-			self::NAME => new DevblocksSearchField(self::NAME, 'ct', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::CODE => new DevblocksSearchField(self::CODE, 'ct', 'code', $translate->_('community_portal.code'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'ct', 'extension_id', $translate->_('common.extension'), null, true),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'ct', 'updated_at', $translate->_('common.updated'), null, true),
-			self::URI => new DevblocksSearchField(self::URI, 'ct', 'uri', $translate->_('common.path'), null, true),
+			self::ID => new DevblocksSearchField(self::ID, 'community_tool', 'id', $translate->_('common.id'), null, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'community_tool', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::CODE => new DevblocksSearchField(self::CODE, 'community_tool', 'code', $translate->_('community_portal.code'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'community_tool', 'extension_id', $translate->_('common.extension'), null, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'community_tool', 'updated_at', $translate->_('common.updated'), null, true),
+			self::URI => new DevblocksSearchField(self::URI, 'community_tool', 'uri', $translate->_('common.path'), null, true),
 			
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),

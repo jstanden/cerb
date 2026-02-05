@@ -504,27 +504,25 @@ class DAO_Task extends Cerb_ORMHelper {
 		
 		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_Task', $sortBy);
 		
-		$select_sql = sprintf('SELECT t.id AS %s ',
+		$select_sql = sprintf('SELECT task.id AS %s ',
 			SearchFields_Task::ID
 		);
 
 		$join_sql =
-			"FROM task t ";
+			"FROM task ";
 
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_Task');
 		
-		$result = array(
-			'primary_table' => 't',
+		return [
+			'primary_table' => 'task',
 			'select' => $select_sql,
 			'join' => $join_sql,
 			'where' => $where_sql,
 			'sort' => $sort_sql,
-		);
-		
-		return $result;
+		];
 	}
 
 	/**
@@ -611,13 +609,21 @@ class SearchFields_Task extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 't.id';
+	static function getTableName() : string {
+		return 'task';
 	}
 	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_Task::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_Task::UPDATED_DATE);
+	}
+
 	static function getCustomFieldContextKeys() {
 		return array(
-			CerberusContexts::CONTEXT_TASK => new DevblocksSearchFieldContextKeys('t.id', self::ID),
+			CerberusContexts::CONTEXT_TASK => new DevblocksSearchFieldContextKeys('task.id', self::ID),
 		);
 	}
 	
@@ -633,7 +639,7 @@ class SearchFields_Task extends DevblocksSearchFields {
 				return self::_getWhereSQLFromFieldset($param, CerberusContexts::CONTEXT_TASK, self::getPrimaryKey());
 				
 			case self::VIRTUAL_OWNER_SEARCH:
-				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_WORKER, 't.owner_id');
+				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_WORKER, 'task.owner_id');
 				
 			case self::VIRTUAL_WATCHERS:
 				return self::_getWhereSQLFromWatchersField($param, CerberusContexts::CONTEXT_TASK, self::getPrimaryKey());
@@ -703,16 +709,16 @@ class SearchFields_Task extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 't', 'id', $translate->_('common.id'), null, true),
-			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 't', 'created_at', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
-			self::UPDATED_DATE => new DevblocksSearchField(self::UPDATED_DATE, 't', 'updated_date', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
-			self::TITLE => new DevblocksSearchField(self::TITLE, 't', 'title', $translate->_('common.title'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::STATUS_ID => new DevblocksSearchField(self::STATUS_ID, 't', 'status_id', $translate->_('common.status'), null, true),
-			self::OWNER_ID => new DevblocksSearchField(self::OWNER_ID, 't', 'owner_id', $translate->_('common.owner'), Model_CustomField::TYPE_WORKER, true),
-			self::IMPORTANCE => new DevblocksSearchField(self::IMPORTANCE, 't', 'importance', $translate->_('common.importance'), Model_CustomField::TYPE_NUMBER, true),
-			self::DUE_DATE => new DevblocksSearchField(self::DUE_DATE, 't', 'due_date', $translate->_('task.due_date'), Model_CustomField::TYPE_DATE, true),
-			self::REOPEN_AT => new DevblocksSearchField(self::REOPEN_AT, 't', 'reopen_at', $translate->_('common.reopen_at'), Model_CustomField::TYPE_DATE, true),
-			self::COMPLETED_DATE => new DevblocksSearchField(self::COMPLETED_DATE, 't', 'completed_date', $translate->_('task.completed_date'), Model_CustomField::TYPE_DATE, true),
+			self::ID => new DevblocksSearchField(self::ID, 'task', 'id', $translate->_('common.id'), null, true),
+			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'task', 'created_at', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
+			self::UPDATED_DATE => new DevblocksSearchField(self::UPDATED_DATE, 'task', 'updated_date', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
+			self::TITLE => new DevblocksSearchField(self::TITLE, 'task', 'title', $translate->_('common.title'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::STATUS_ID => new DevblocksSearchField(self::STATUS_ID, 'task', 'status_id', $translate->_('common.status'), null, true),
+			self::OWNER_ID => new DevblocksSearchField(self::OWNER_ID, 'task', 'owner_id', $translate->_('common.owner'), Model_CustomField::TYPE_WORKER, true),
+			self::IMPORTANCE => new DevblocksSearchField(self::IMPORTANCE, 'task', 'importance', $translate->_('common.importance'), Model_CustomField::TYPE_NUMBER, true),
+			self::DUE_DATE => new DevblocksSearchField(self::DUE_DATE, 'task', 'due_date', $translate->_('task.due_date'), Model_CustomField::TYPE_DATE, true),
+			self::REOPEN_AT => new DevblocksSearchField(self::REOPEN_AT, 'task', 'reopen_at', $translate->_('common.reopen_at'), Model_CustomField::TYPE_DATE, true),
+			self::COMPLETED_DATE => new DevblocksSearchField(self::COMPLETED_DATE, 'task', 'completed_date', $translate->_('task.completed_date'), Model_CustomField::TYPE_DATE, true),
 			
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),

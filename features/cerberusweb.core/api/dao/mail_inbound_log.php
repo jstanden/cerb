@@ -451,12 +451,19 @@ class SearchFields_MailInboundLog extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'mail_inbound_log.id';
+	static function getTableName() : string {
+		return 'mail_inbound_log';
 	}
 	
-	static function getCustomFieldContextKeys() {
-		return [
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_MailInboundLog::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_MailInboundLog::CREATED_AT);
+	}
+
+	static function getCustomFieldContextKeys() {		return [
 			Context_MailInboundLog::ID => new DevblocksSearchFieldContextKeys('mail_inbound_log.id', self::ID),
 		];
 	}

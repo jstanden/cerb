@@ -398,10 +398,18 @@ class SearchFields_DecisionNode extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'decision_node.id';
+	static function getTableName() : string {
+		return 'decision_node';
 	}
 	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_DecisionNode::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return '';
+	}
+
 	static function getCustomFieldContextKeys() {
 		return array(
 			'' => new DevblocksSearchFieldContextKeys('decision_node.id', self::ID),

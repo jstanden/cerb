@@ -422,12 +422,19 @@ class SearchFields_MailRoutingRule extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'mail_routing_rule.id';
+	static function getTableName() : string {
+		return 'mail_routing_rule';
 	}
 	
-	static function getCustomFieldContextKeys() {
-		return [
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_MailRoutingRule::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_MailRoutingRule::UPDATED_AT);
+	}
+
+	static function getCustomFieldContextKeys() {		return [
 			Context_MailRoutingRule::ID => new DevblocksSearchFieldContextKeys('mail_routing_rule.id', self::ID),
 			CerberusContexts::CONTEXT_WORKFLOW => new DevblocksSearchFieldContextKeys('mail_routing_rule.workflow_id', self::WORKFLOW_ID),
 		];

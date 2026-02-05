@@ -383,8 +383,16 @@ class SearchFields_ClassifierEntity extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'classifier_entity.id';
+	static function getTableName() : string {
+		return 'classifier_entity';
+	}
+	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_ClassifierEntity::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_ClassifierEntity::UPDATED_AT);
 	}
 	
 	static function getCustomFieldContextKeys() {

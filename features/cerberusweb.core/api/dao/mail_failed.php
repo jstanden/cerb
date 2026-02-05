@@ -21,7 +21,15 @@ class SearchFields_MailParseFail extends DevblocksSearchFields {
 	const CTIME = 'mf_ctime';
 	const MTIME = 'mf_mtime';
 	
-	static function getPrimaryKey() {
+	public static function getTableName(): string {
+		return '';
+	}
+	
+	static function getPrimaryKey() : string {
+		return '';
+	}
+	
+	public static function getUpdatedKey(): string {
 		return '';
 	}
 	

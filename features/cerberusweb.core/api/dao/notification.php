@@ -557,11 +557,11 @@ class DAO_Notification extends Cerb_ORMHelper {
 		
 		list(,$wheres) = parent::_parseSearchParams($params, [], 'SearchFields_Notification', $sortBy);
 		
-		$select_sql = sprintf('SELECT we.id AS %s ',
+		$select_sql = sprintf('SELECT notification.id AS %s ',
 			SearchFields_Notification::ID
 		);
 
-		$join_sql = "FROM notification we ";
+		$join_sql = "FROM notification ";
 			
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
@@ -569,7 +569,7 @@ class DAO_Notification extends Cerb_ORMHelper {
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_Notification');
 
 		$result = [
-			'primary_table' => 'we',
+			'primary_table' => 'notification',
 			'select' => $select_sql,
 			'join' => $join_sql,
 			'where' => $where_sql,
@@ -653,21 +653,29 @@ class SearchFields_Notification extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'we.id';
+	static function getTableName() : string {
+		return 'notification';
 	}
 	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_Notification::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_Notification::CREATED_DATE);
+	}
+
 	static function getCustomFieldContextKeys() {
 		return array(
-			CerberusContexts::CONTEXT_NOTIFICATION => new DevblocksSearchFieldContextKeys('we.id', self::ID),
-			CerberusContexts::CONTEXT_WORKER => new DevblocksSearchFieldContextKeys('we.worker_id', self::WORKER_ID),
+			CerberusContexts::CONTEXT_NOTIFICATION => new DevblocksSearchFieldContextKeys('notification.id', self::ID),
+			CerberusContexts::CONTEXT_WORKER => new DevblocksSearchFieldContextKeys('notification.worker_id', self::WORKER_ID),
 		);
 	}
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
 			case self::VIRTUAL_WORKER_SEARCH:
-				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_WORKER, 'we.worker_id');
+				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_WORKER, 'notification.worker_id');
 				break;
 			
 			default:
@@ -748,14 +756,14 @@ class SearchFields_Notification extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'we', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
-			self::CONTEXT => new DevblocksSearchField(self::CONTEXT, 'we', 'context', null, Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::CONTEXT_ID => new DevblocksSearchField(self::CONTEXT_ID, 'we', 'context_id', null, Model_CustomField::TYPE_NUMBER, true),
-			self::CREATED_DATE => new DevblocksSearchField(self::CREATED_DATE, 'we', 'created_date', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
-			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'we', 'worker_id', $translate->_('notification.worker_id'), Model_CustomField::TYPE_WORKER, true),
-			self::IS_READ => new DevblocksSearchField(self::IS_READ, 'we', 'is_read', $translate->_('notification.is_read'), Model_CustomField::TYPE_CHECKBOX, true),
-			self::ACTIVITY_POINT => new DevblocksSearchField(self::ACTIVITY_POINT, 'we', 'activity_point', $translate->_('dao.context_activity_log.activity_point'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::ENTRY_JSON => new DevblocksSearchField(self::ENTRY_JSON, 'we', 'entry_json', null, Model_CustomField::TYPE_MULTI_LINE, true),
+			self::ID => new DevblocksSearchField(self::ID, 'notification', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::CONTEXT => new DevblocksSearchField(self::CONTEXT, 'notification', 'context', null, Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::CONTEXT_ID => new DevblocksSearchField(self::CONTEXT_ID, 'notification', 'context_id', null, Model_CustomField::TYPE_NUMBER, true),
+			self::CREATED_DATE => new DevblocksSearchField(self::CREATED_DATE, 'notification', 'created_date', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
+			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'notification', 'worker_id', $translate->_('notification.worker_id'), Model_CustomField::TYPE_WORKER, true),
+			self::IS_READ => new DevblocksSearchField(self::IS_READ, 'notification', 'is_read', $translate->_('notification.is_read'), Model_CustomField::TYPE_CHECKBOX, true),
+			self::ACTIVITY_POINT => new DevblocksSearchField(self::ACTIVITY_POINT, 'notification', 'activity_point', $translate->_('dao.context_activity_log.activity_point'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::ENTRY_JSON => new DevblocksSearchField(self::ENTRY_JSON, 'notification', 'entry_json', null, Model_CustomField::TYPE_MULTI_LINE, true),
 				
 			self::VIRTUAL_WORKER_SEARCH => new DevblocksSearchField(self::VIRTUAL_WORKER_SEARCH, '*', 'worker_search', null, null, true),
 		);

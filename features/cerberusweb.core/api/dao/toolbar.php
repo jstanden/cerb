@@ -403,10 +403,18 @@ class SearchFields_Toolbar extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'toolbar.id';
+	static function getTableName() : string {
+		return 'toolbar';
 	}
 	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_Toolbar::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_Toolbar::UPDATED_AT);
+	}
+
 	static function getCustomFieldContextKeys() {
 		return array(
 			CerberusContexts::CONTEXT_TOOLBAR => new DevblocksSearchFieldContextKeys('toolbar.id', self::ID),

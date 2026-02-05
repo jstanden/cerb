@@ -459,25 +459,25 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 		
 		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_ContactOrg', $sortBy);
 		
-		$select_sql = sprintf('SELECT c.id AS %s ',
+		$select_sql = sprintf('SELECT contact_org.id AS %s ',
 			SearchFields_ContactOrg::ID
 		);
 
 		$join_sql =
-			"FROM contact_org c ";
+			"FROM contact_org ";
 		
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_ContactOrg');
 
-		$result = array(
-			'primary_table' => 'c',
+		$result = [
+			'primary_table' => 'contact_org',
 			'select' => $select_sql,
 			'join' => $join_sql,
 			'where' => $where_sql,
 			'sort' => $sort_sql,
-		);
+		];
 		
 		return $result;
 	}
@@ -574,13 +574,21 @@ class SearchFields_ContactOrg extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'c.id';
+	static function getTableName() : string {
+		return 'contact_org';
+	}
+	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_ContactOrg::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_ContactOrg::UPDATED);
 	}
 	
 	static function getCustomFieldContextKeys() {
 		return array(
-			CerberusContexts::CONTEXT_ORG => new DevblocksSearchFieldContextKeys('c.id', self::ID),
+			CerberusContexts::CONTEXT_ORG => new DevblocksSearchFieldContextKeys('contact_org.id', self::ID),
 		);
 	}
 	
@@ -592,7 +600,7 @@ class SearchFields_ContactOrg extends DevblocksSearchFields {
 				
 				$ids = DevblocksPlatform::sanitizeArray($param->value, 'integer');
 				
-				return sprintf("%s IN (SELECT org_id FROM ticket t WHERE t.id IN (%s))",
+				return sprintf("%s IN (SELECT org_id FROM ticket WHERE ticket.id IN (%s))",
 					self::getPrimaryKey(),
 					implode(',', $ids)
 				);
@@ -608,19 +616,19 @@ class SearchFields_ContactOrg extends DevblocksSearchFields {
 			
 			case self::VIRTUAL_CONTACTS_SEARCH:
 				$sql = "SELECT contact.org_id FROM contact WHERE contact.id IN (%s)";
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CONTACT, $sql, 'c.id');
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CONTACT, $sql, 'contact_org.id');
 				
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_ORG, self::getPrimaryKey());
 				
 			case self::VIRTUAL_EMAIL_SEARCH:
-				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_ADDRESS, 'c.email_id');
+				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_ADDRESS, 'contact_org.email_id');
 				
 			case self::VIRTUAL_HAS_FIELDSET:
 				return self::_getWhereSQLFromFieldset($param, CerberusContexts::CONTEXT_ORG, self::getPrimaryKey());
 
 			case self::VIRTUAL_TICKET_SEARCH:
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_TICKET, "SELECT org_id FROM ticket t WHERE t.id IN (%s)", 'c.id');
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_TICKET, "SELECT org_id FROM ticket WHERE ticket.id IN (%s)", 'contact_org.id');
 				
 			case self::VIRTUAL_WATCHERS:
 				return self::_getWhereSQLFromWatchersField($param, CerberusContexts::CONTEXT_ORG, self::getPrimaryKey());
@@ -673,18 +681,18 @@ class SearchFields_ContactOrg extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'c', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
-			self::NAME => new DevblocksSearchField(self::NAME, 'c', 'name', $translate->_('common.name'),Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::STREET => new DevblocksSearchField(self::STREET, 'c', 'street', $translate->_('contact_org.street'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::CITY => new DevblocksSearchField(self::CITY, 'c', 'city', $translate->_('contact_org.city'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::PROVINCE => new DevblocksSearchField(self::PROVINCE, 'c', 'province', $translate->_('contact_org.province'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::POSTAL => new DevblocksSearchField(self::POSTAL, 'c', 'postal', $translate->_('contact_org.postal'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::COUNTRY => new DevblocksSearchField(self::COUNTRY, 'c', 'country', $translate->_('contact_org.country'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::PHONE => new DevblocksSearchField(self::PHONE, 'c', 'phone', $translate->_('common.phone'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::WEBSITE => new DevblocksSearchField(self::WEBSITE, 'c', 'website', $translate->_('common.website'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::CREATED => new DevblocksSearchField(self::CREATED, 'c', 'created', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
-			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'c', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
-			self::EMAIL_ID => new DevblocksSearchField(self::EMAIL_ID, 'c', 'email_id', $translate->_('common.email'), Model_CustomField::TYPE_NUMBER, true),
+			self::ID => new DevblocksSearchField(self::ID, 'contact_org', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'contact_org', 'name', $translate->_('common.name'),Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::STREET => new DevblocksSearchField(self::STREET, 'contact_org', 'street', $translate->_('contact_org.street'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::CITY => new DevblocksSearchField(self::CITY, 'contact_org', 'city', $translate->_('contact_org.city'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::PROVINCE => new DevblocksSearchField(self::PROVINCE, 'contact_org', 'province', $translate->_('contact_org.province'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::POSTAL => new DevblocksSearchField(self::POSTAL, 'contact_org', 'postal', $translate->_('contact_org.postal'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::COUNTRY => new DevblocksSearchField(self::COUNTRY, 'contact_org', 'country', $translate->_('contact_org.country'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::PHONE => new DevblocksSearchField(self::PHONE, 'contact_org', 'phone', $translate->_('common.phone'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::WEBSITE => new DevblocksSearchField(self::WEBSITE, 'contact_org', 'website', $translate->_('common.website'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::CREATED => new DevblocksSearchField(self::CREATED, 'contact_org', 'created', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
+			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'contact_org', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
+			self::EMAIL_ID => new DevblocksSearchField(self::EMAIL_ID, 'contact_org', 'email_id', $translate->_('common.email'), Model_CustomField::TYPE_NUMBER, true),
 
 			self::FULLTEXT_COMMENT_CONTENT => new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT', false),
 			self::FULLTEXT_ORG => new DevblocksSearchField(self::FULLTEXT_ORG, 'ft', 'org', $translate->_('common.search.fulltext'), 'FT', false),

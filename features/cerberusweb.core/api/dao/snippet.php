@@ -508,10 +508,18 @@ class SearchFields_Snippet extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'snippet.id';
+	static function getTableName() : string {
+		return 'snippet';
 	}
 	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_Snippet::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_Snippet::UPDATED_AT);
+	}
+
 	static function getCustomFieldContextKeys() {
 		return array(
 			CerberusContexts::CONTEXT_SNIPPET => new DevblocksSearchFieldContextKeys('snippet.id', self::ID),

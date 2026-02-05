@@ -466,8 +466,16 @@ class SearchFields_ContextSavedSearch extends DevblocksSearchFields {
 
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'context_saved_search.id';
+	static function getTableName() : string {
+		return 'context_saved_search';
+	}
+	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_ContextSavedSearch::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_ContextSavedSearch::UPDATED_AT);
 	}
 	
 	static function getCustomFieldContextKeys() {

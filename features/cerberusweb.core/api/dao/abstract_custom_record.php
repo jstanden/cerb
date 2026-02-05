@@ -581,20 +581,20 @@ class SearchFields_AbstractCustomRecord extends DevblocksSearchFields {
 		return 'contexts.custom_record.' . static::_ID;
 	}
 	
-	static private function _getTableName() {
+	static function getTableName() : string {
 		return 'custom_record_' . static::_ID;
 	}
 	
-	static function getPrimaryKey() {
-		$table_name = self::_getTableName();
-		
-		return sprintf('%s.id',
-			Cerb_ORMHelper::escape($table_name)
-		);
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_AbstractCustomRecord::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_AbstractCustomRecord::UPDATED_AT);
 	}
 	
 	static function getCustomFieldContextKeys() {
-		$table_name = self::_getTableName();
+		$table_name = self::getTableName();
 		$context = self::_getContextName();
 		
 		return array(
@@ -603,7 +603,7 @@ class SearchFields_AbstractCustomRecord extends DevblocksSearchFields {
 	}
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
-		$table_name = self::_getTableName();
+		$table_name = self::getTableName();
 		$context_name = self::_getContextName();
 		
 		switch($param->field) {
@@ -684,7 +684,7 @@ class SearchFields_AbstractCustomRecord extends DevblocksSearchFields {
 	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		$table_name = self::_getTableName();
+		$table_name = self::getTableName();
 		
 		$columns = array(
 			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, $table_name, 'created_at', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),

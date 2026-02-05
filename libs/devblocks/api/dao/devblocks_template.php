@@ -407,10 +407,18 @@ class SearchFields_DevblocksTemplate extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'devblocks_template.id';
+	static function getTableName() : string {
+		return 'devblocks_template';
 	}
 	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(),DAO_DevblocksTemplate::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_DevblocksTemplate::LAST_UPDATED);
+	}
+
 	static function getCustomFieldContextKeys() {
 		return array(
 			'' => new DevblocksSearchFieldContextKeys('devblocks_template.id', self::ID),

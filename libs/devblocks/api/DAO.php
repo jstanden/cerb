@@ -1729,11 +1729,11 @@ class DAO_Translation extends DevblocksORMHelper {
 		list(,$wheres) = parent::_parseSearchParams($params, [], 'SearchFields_Translation', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
-			"tl.id as %s, ".
-			"tl.string_id as %s, ".
-			"tl.lang_code as %s, ".
-			"tl.string_default as %s, ".
-			"tl.string_override as %s ",
+			"translation.id as %s, ".
+			"translation.string_id as %s, ".
+			"translation.lang_code as %s, ".
+			"translation.string_default as %s, ".
+			"translation.string_override as %s ",
 				SearchFields_Translation::ID,
 				SearchFields_Translation::STRING_ID,
 				SearchFields_Translation::LANG_CODE,
@@ -1742,7 +1742,7 @@ class DAO_Translation extends DevblocksORMHelper {
 			);
 		
 		$join_sql =
-			"FROM translation tl ";
+			"FROM translation ";
 
 		$where_sql =
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ")
@@ -1803,13 +1803,21 @@ class SearchFields_Translation extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'tl.id';
+	static function getTableName() : string {
+		return 'translation';
 	}
 	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_Translation::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return '';
+	}
+
 	static function getCustomFieldContextKeys() {
 		return array(
-			'' => new DevblocksSearchFieldContextKeys('tl.id', self::ID),
+			'' => new DevblocksSearchFieldContextKeys('translation.id', self::ID),
 		);
 	}
 	
@@ -1837,11 +1845,11 @@ class SearchFields_Translation extends DevblocksSearchFields {
 	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		return array(
-			self::ID => new DevblocksSearchField(self::ID, 'tl', 'id', $translate->_('translate.id'), null, true),
-			self::STRING_ID => new DevblocksSearchField(self::STRING_ID, 'tl', 'string_id', $translate->_('translate.string_id'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::LANG_CODE => new DevblocksSearchField(self::LANG_CODE, 'tl', 'lang_code', $translate->_('translate.lang_code'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::STRING_DEFAULT => new DevblocksSearchField(self::STRING_DEFAULT, 'tl', 'string_default', $translate->_('translate.string_default'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::STRING_OVERRIDE => new DevblocksSearchField(self::STRING_OVERRIDE, 'tl', 'string_override', $translate->_('translate.string_override'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::ID => new DevblocksSearchField(self::ID, 'translation', 'id', $translate->_('translate.id'), null, true),
+			self::STRING_ID => new DevblocksSearchField(self::STRING_ID, 'translation', 'string_id', $translate->_('translate.string_id'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::LANG_CODE => new DevblocksSearchField(self::LANG_CODE, 'translation', 'lang_code', $translate->_('translate.lang_code'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::STRING_DEFAULT => new DevblocksSearchField(self::STRING_DEFAULT, 'translation', 'string_default', $translate->_('translate.string_default'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::STRING_OVERRIDE => new DevblocksSearchField(self::STRING_OVERRIDE, 'translation', 'string_override', $translate->_('translate.string_override'), Model_CustomField::TYPE_SINGLE_LINE, true),
 		);
 	}
 };
@@ -2184,10 +2192,18 @@ class SearchFields_DevblocksStorageProfile extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'devblocks_storage_profile.id';
+	static function getTableName() : string {
+		return 'devblocks_storage_profile';
 	}
 	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_DevblocksStorageProfile::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return '';
+	}
+
 	static function getCustomFieldContextKeys() {
 		return array(
 			'' => new DevblocksSearchFieldContextKeys('devblocks_storage_profile.id', self::ID),

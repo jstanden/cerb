@@ -430,12 +430,19 @@ class SearchFields_Workflow extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'workflow.id';
+	static function getTableName() : string {
+		return 'workflow';
 	}
 	
-	static function getCustomFieldContextKeys() {
-		return [
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_Workflow::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_Workflow::UPDATED_AT);
+	}
+
+	static function getCustomFieldContextKeys() {		return [
 			Context_Workflow::ID => new DevblocksSearchFieldContextKeys('workflow.id', self::ID),
 		];
 	}

@@ -422,10 +422,18 @@ class SearchFields_OAuthApp extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'oauth_app.id';
+	static function getTableName() : string {
+		return 'oauth_app';
 	}
 	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_OAuthApp::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_OAuthApp::UPDATED_AT);
+	}
+
 	static function getCustomFieldContextKeys() {
 		return array(
 			Context_OAuthApp::ID => new DevblocksSearchFieldContextKeys('oauth_app.id', self::ID),

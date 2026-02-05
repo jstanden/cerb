@@ -505,10 +505,18 @@ class SearchFields_JiraIssue extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'jira_issue.id';
+	static function getTableName() : string {
+		return 'jira_issue';
 	}
 	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_JiraIssue::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_JiraIssue::UPDATED);
+	}
+
 	static function getCustomFieldContextKeys() {
 		return array(
 			Context_JiraIssue::ID => new DevblocksSearchFieldContextKeys('jira_issue.id', self::ID),

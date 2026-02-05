@@ -506,12 +506,19 @@ class SearchFields_SearchIndex extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'search_index.id';
+	static function getTableName() : string {
+		return 'search_index';
 	}
 	
-	static function getCustomFieldContextKeys() {
-		return [
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_SearchIndex::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_SearchIndex::UPDATED_AT);
+	}
+
+	static function getCustomFieldContextKeys() {		return [
 			Context_SearchIndex::ID => new DevblocksSearchFieldContextKeys('search_index.id', self::ID),
 		];
 	}

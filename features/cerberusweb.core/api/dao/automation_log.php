@@ -287,8 +287,16 @@ class SearchFields_AutomationLog extends DevblocksSearchFields {
 
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'automation_log.id';
+	static function getTableName() : string {
+		return 'automation_log';
+	}
+	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_AutomationLog::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_AutomationLog::CREATED_AT);
 	}
 	
 	static function getCustomFieldContextKeys() {

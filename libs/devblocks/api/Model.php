@@ -74,8 +74,9 @@ abstract class DevblocksRecordModel {
 
 interface IDevblocksSearchFields {
 	static function getFields();
-	static function getPrimaryKey();
-	static function getUpdatedKey();
+	static function getTableName() : string;
+	static function getPrimaryKey() : string;
+	static function getUpdatedKey() : string;
 	static function getCustomFieldContextKeys();
 	static function getWhereSQL(DevblocksSearchCriteria $param);
 	static function getFieldForSubtotalKey($key, $context, array $query_fields, array $search_fields, $primary_key);
@@ -86,7 +87,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 	/**
 	 * Fallback to resolve `updated` column (classes should implement)
 	 */
-	static function getUpdatedKey() {
+	static function getUpdatedKey() : string {
 		$search_fields = static::getFields();
 		
 		return array_reduce($search_fields, function($match, DevblocksSearchField $field) {

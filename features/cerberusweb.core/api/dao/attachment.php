@@ -610,11 +610,11 @@ class DAO_Attachment extends Cerb_ORMHelper {
 				//$query = sprintf("(on.msgs:(ticket.id:%d) OR on.comments:(on.ticket:(id:%d)) OR on.comments:(on.msgs:(ticket.id:%d)))", $context_id, $context_id, $context_id);
 				$sql = sprintf(
 					"SELECT COUNT(1) FROM (".
-					"SELECT attachment_id FROM attachment_link WHERE context = 'cerberusweb.contexts.message' AND context_id IN (SELECT m.id FROM message m INNER JOIN ticket t ON (m.ticket_id = t.id) INNER JOIN address a ON (m.address_id = a.id) WHERE (m.ticket_id = %d)) ".
+					"SELECT attachment_id FROM attachment_link WHERE context = 'cerberusweb.contexts.message' AND context_id IN (SELECT m.id FROM message m INNER JOIN ticket t ON (m.ticket_id = t.id) INNER JOIN address a ON (m.address_id = attachment.id) WHERE (m.ticket_id = %d)) ".
 					"UNION ".
 					"SELECT attachment_id FROM attachment_link WHERE context = 'cerberusweb.contexts.comment' AND context_id IN (SELECT comment.id FROM comment WHERE ((context = 'cerberusweb.contexts.ticket' AND context_id IN (SELECT t.id FROM ticket t  WHERE (t.id = %d))))) ".
 					"UNION ".
-					"SELECT attachment_id FROM attachment_link WHERE context = 'cerberusweb.contexts.comment' AND context_id IN (SELECT comment.id FROM comment WHERE ((context = 'cerberusweb.contexts.message' AND context_id IN (SELECT m.id FROM message m INNER JOIN ticket t ON (m.ticket_id = t.id) INNER JOIN address a ON (m.address_id = a.id) WHERE (m.ticket_id = %d)))))".
+					"SELECT attachment_id FROM attachment_link WHERE context = 'cerberusweb.contexts.comment' AND context_id IN (SELECT comment.id FROM comment WHERE ((context = 'cerberusweb.contexts.message' AND context_id IN (SELECT m.id FROM message m INNER JOIN ticket t ON (m.ticket_id = t.id) INNER JOIN address a ON (m.address_id = attachment.id) WHERE (m.ticket_id = %d)))))".
 					") S",
 					$context_id,
 					$context_id,
@@ -645,7 +645,7 @@ class DAO_Attachment extends Cerb_ORMHelper {
 		
 		$query_parts = DAO_Attachment::getSearchQueryComponents([], $view->getParams());
 		
-		$sql = "SELECT count(a.id) ".
+		$sql = "SELECT count(attachment.id) ".
 			$query_parts['join'] .
 			$query_parts['where']
 			;
@@ -681,11 +681,11 @@ class DAO_Attachment extends Cerb_ORMHelper {
 		
 		list(,$wheres) = parent::_parseSearchParams($params, [], 'SearchFields_Attachment', $sortBy);
 		
-		$select_sql = sprintf('SELECT a.id AS %s ',
+		$select_sql = sprintf('SELECT attachment.id AS %s ',
 			SearchFields_Attachment::ID
 		);
 		
-		$join_sql = "FROM attachment a ";
+		$join_sql = "FROM attachment ";
 			
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
@@ -693,7 +693,7 @@ class DAO_Attachment extends Cerb_ORMHelper {
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_Attachment');
 		
 		$result = array(
-			'primary_table' => 'a',
+			'primary_table' => 'attachment',
 			'select' => $select_sql,
 			'join' => $join_sql,
 			'where' => $where_sql,
@@ -781,13 +781,21 @@ class SearchFields_Attachment extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'a.id';
+	static function getTableName() : string {
+		return 'attachment';
+	}
+	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_Attachment::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_Attachment::UPDATED);
 	}
 	
 	static function getCustomFieldContextKeys() {
 		return array(
-			CerberusContexts::CONTEXT_ATTACHMENT => new DevblocksSearchFieldContextKeys('a.id', self::ID),
+			CerberusContexts::CONTEXT_ATTACHMENT => new DevblocksSearchFieldContextKeys('attachment.id', self::ID),
 		);
 	}
 	
@@ -798,7 +806,7 @@ class SearchFields_Attachment extends DevblocksSearchFields {
 					Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_FILE_BUNDLE),
 					'%s'
 				);
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_FILE_BUNDLE, $sql, 'a.id');
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_FILE_BUNDLE, $sql, 'attachment.id');
 			
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_ATTACHMENT, self::getPrimaryKey());
@@ -956,15 +964,15 @@ class SearchFields_Attachment extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'a', 'id', $translate->_('attachment.id'), Model_CustomField::TYPE_NUMBER, true),
-			self::NAME => new DevblocksSearchField(self::NAME, 'a', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::MIME_TYPE => new DevblocksSearchField(self::MIME_TYPE, 'a', 'mime_type', $translate->_('attachment.mime_type'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::STORAGE_SIZE => new DevblocksSearchField(self::STORAGE_SIZE, 'a', 'storage_size', $translate->_('common.size'), Model_CustomField::TYPE_NUMBER, true),
-			self::STORAGE_EXTENSION => new DevblocksSearchField(self::STORAGE_EXTENSION, 'a', 'storage_extension', $translate->_('common.storage_extension'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::STORAGE_KEY => new DevblocksSearchField(self::STORAGE_KEY, 'a', 'storage_key', $translate->_('common.storage_key'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::STORAGE_PROFILE_ID => new DevblocksSearchField(self::STORAGE_PROFILE_ID, 'a', 'storage_profile_id', $translate->_('common.storage_profile_id'), Model_CustomField::TYPE_NUMBER, true),
-			self::STORAGE_SHA1HASH => new DevblocksSearchField(self::STORAGE_SHA1HASH, 'a', 'storage_sha1hash', $translate->_('attachment.storage_sha1hash'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'a', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
+			self::ID => new DevblocksSearchField(self::ID, 'attachment', 'id', $translate->_('attachment.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'attachment', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::MIME_TYPE => new DevblocksSearchField(self::MIME_TYPE, 'attachment', 'mime_type', $translate->_('attachment.mime_type'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::STORAGE_SIZE => new DevblocksSearchField(self::STORAGE_SIZE, 'attachment', 'storage_size', $translate->_('common.size'), Model_CustomField::TYPE_NUMBER, true),
+			self::STORAGE_EXTENSION => new DevblocksSearchField(self::STORAGE_EXTENSION, 'attachment', 'storage_extension', $translate->_('common.storage_extension'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::STORAGE_KEY => new DevblocksSearchField(self::STORAGE_KEY, 'attachment', 'storage_key', $translate->_('common.storage_key'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::STORAGE_PROFILE_ID => new DevblocksSearchField(self::STORAGE_PROFILE_ID, 'attachment', 'storage_profile_id', $translate->_('common.storage_profile_id'), Model_CustomField::TYPE_NUMBER, true),
+			self::STORAGE_SHA1HASH => new DevblocksSearchField(self::STORAGE_SHA1HASH, 'attachment', 'storage_sha1hash', $translate->_('attachment.storage_sha1hash'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'attachment', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 
 			self::VIRTUAL_BUNDLE_SEARCH => new DevblocksSearchField(self::VIRTUAL_BUNDLE_SEARCH, '*', 'bundle_search', null, null),
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),

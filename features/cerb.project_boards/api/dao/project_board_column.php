@@ -411,8 +411,16 @@ class SearchFields_ProjectBoardColumn extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'project_board_column.id';
+	static function getTableName() : string {
+		return 'project_board_column';
+	}
+	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_ProjectBoardColumn::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_ProjectBoardColumn::UPDATED_AT);
 	}
 	
 	static function getCustomFieldContextKeys() {

@@ -363,10 +363,18 @@ class SearchFields_GpgPrivateKey extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'gpg_private_key.id';
+	static function getTableName() : string {
+		return 'gpg_private_key';
 	}
 	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_GpgPrivateKey::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_GpgPrivateKey::UPDATED_AT);
+	}
+
 	static function getCustomFieldContextKeys() {
 		return array(
 			Context_GpgPrivateKey::ID => new DevblocksSearchFieldContextKeys('gpg_private_key.id', self::ID),

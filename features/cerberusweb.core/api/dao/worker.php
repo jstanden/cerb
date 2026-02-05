@@ -1214,14 +1214,14 @@ class DAO_Worker extends Cerb_ORMHelper {
 		
 		list($tables, $wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_Worker', $sortBy);
 		
-		$select_sql = sprintf('SELECT w.id AS %s ',
+		$select_sql = sprintf('SELECT worker.id AS %s ',
 			SearchFields_Worker::ID
 		);
 		
-		$join_sql = "FROM worker w ".
+		$join_sql = "FROM worker ".
 
 		// Dynamic joins
-		(isset($tables['address']) ? "INNER JOIN address ON (w.email_id = address.id) " : " ")
+		(isset($tables['address']) ? "INNER JOIN address ON (worker.email_id = address.id) " : " ")
 		;
 		
 		$where_sql = "".
@@ -1230,7 +1230,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_Worker');
 		
 		$result = array(
-			'primary_table' => 'w',
+			'primary_table' => 'worker',
 			'select' => $select_sql,
 			'join' => $join_sql,
 			'where' => $where_sql,
@@ -1255,7 +1255,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		
 		$query_parts = DAO_Worker::getSearchQueryComponents([], $view->getParams(), $view->renderSortBy, $view->renderSortAsc);
 		
-		$sql = "SELECT w.id ".
+		$sql = "SELECT worker.id ".
 			$query_parts['join'] .
 			$query_parts['where'] .
 			sprintf('AND (first_name LIKE %s OR last_name LIKE %s %s) ',
@@ -1265,7 +1265,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 					? sprintf("OR concat(first_name,' ',last_name) LIKE %s ", $db->qstr($term.'%'))
 					: '')
 			).
-			'ORDER BY w.first_name ASC '.
+			'ORDER BY worker.first_name ASC '.
 			'LIMIT 25 '
 			;
 		
@@ -1424,15 +1424,23 @@ class SearchFields_Worker extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'w.id';
+	static function getTableName() : string {
+		return 'worker';
 	}
 	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_Worker::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_Worker::UPDATED);
+	}
+
 	static function getCustomFieldContextKeys() {
 		return array(
-			CerberusContexts::CONTEXT_WORKER => new DevblocksSearchFieldContextKeys('w.id', self::ID),
-			CerberusContexts::CONTEXT_ADDRESS => new DevblocksSearchFieldContextKeys('w.email_id', self::EMAIL_ID),
-			CerberusContexts::CONTEXT_CALENDAR => new DevblocksSearchFieldContextKeys('w.calendar_id', self::CALENDAR_ID),
+			CerberusContexts::CONTEXT_WORKER => new DevblocksSearchFieldContextKeys('worker.id', self::ID),
+			CerberusContexts::CONTEXT_ADDRESS => new DevblocksSearchFieldContextKeys('worker.email_id', self::EMAIL_ID),
+			CerberusContexts::CONTEXT_CALENDAR => new DevblocksSearchFieldContextKeys('worker.calendar_id', self::CALENDAR_ID),
 		);
 	}
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
@@ -1444,13 +1452,13 @@ class SearchFields_Worker extends DevblocksSearchFields {
 				return self::_getWhereSQLFromAliasesField($param, CerberusContexts::CONTEXT_WORKER, self::getPrimaryKey());
 				
 			case self::VIRTUAL_CALENDAR_SEARCH:
-				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_CALENDAR, 'w.calendar_id');
+				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_CALENDAR, 'worker.calendar_id');
 				
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_WORKER, self::getPrimaryKey());
 				
 			case self::VIRTUAL_EMAIL_SEARCH:
-				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_ADDRESS, 'w.email_id');
+				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_ADDRESS, 'worker.email_id');
 				
 			case self::VIRTUAL_GROUPS:
 				@$ids = $param->value;
@@ -1460,15 +1468,15 @@ class SearchFields_Worker extends DevblocksSearchFields {
 				if(!is_array($ids) || empty($ids))
 					return '0';
 				
-				return sprintf("w.id IN (SELECT worker_id FROM worker_to_group WHERE group_id IN (%s))", implode(',', $ids));
+				return sprintf("worker.id IN (SELECT worker_id FROM worker_to_group WHERE group_id IN (%s))", implode(',', $ids));
 				
 			case self::VIRTUAL_GROUP_SEARCH:
 				$sql = "SELECT worker_id FROM worker_to_group WHERE group_id IN (%s)";
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_GROUP, $sql, 'w.id');
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_GROUP, $sql, 'worker.id');
 				
 			case self::VIRTUAL_GROUP_MANAGER_SEARCH:
 				$sql = "SELECT worker_id FROM worker_to_group WHERE is_manager = 1 AND group_id IN (%s)";
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_GROUP, $sql, 'w.id');
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_GROUP, $sql, 'worker.id');
 				
 			case self::VIRTUAL_HAS_FIELDSET:
 				return self::_getWhereSQLFromFieldset($param, CerberusContexts::CONTEXT_WORKER, self::getPrimaryKey());
@@ -1519,25 +1527,25 @@ class SearchFields_Worker extends DevblocksSearchFields {
 				if(empty($results))
 					$results[] = '-1';
 				
-				return sprintf("w.id IN (%s) ", implode(', ', $results));
+				return sprintf("worker.id IN (%s) ", implode(', ', $results));
 			
 			case self::VIRTUAL_SESSION_ACTIVITY:
 				@$from_ts = strtotime($param->value[0]);
 				@$to_ts = strtotime($param->value[1]);
 				
-				return sprintf('w.id IN (SELECT DISTINCT user_id FROM devblocks_session WHERE updated BETWEEN %d AND %d)', $from_ts, $to_ts);
+				return sprintf('worker.id IN (SELECT DISTINCT user_id FROM devblocks_session WHERE updated BETWEEN %d AND %d)', $from_ts, $to_ts);
 			
 			case self::VIRTUAL_ROLE_SEARCH:
 				$sql = "SELECT worker_id FROM worker_to_role WHERE is_member = 1 AND role_id IN (%s)";
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_ROLE, $sql, 'w.id');
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_ROLE, $sql, 'worker.id');
 				
 			case self::VIRTUAL_ROLE_EDITOR_SEARCH:
 				$sql = "SELECT worker_id FROM worker_to_role WHERE is_editable = 1 AND role_id IN (%s)";
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_ROLE, $sql, 'w.id');
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_ROLE, $sql, 'worker.id');
 				
 			case self::VIRTUAL_ROLE_READER_SEARCH:
 				$sql = "SELECT worker_id FROM worker_to_role WHERE is_readable = 1 AND role_id IN (%s)";
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_ROLE, $sql, 'w.id');
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_ROLE, $sql, 'worker.id');
 				
 			case self::VIRTUAL_USING_WORKSPACE_PAGE:
 				$db = DevblocksPlatform::services()->database();
@@ -1549,7 +1557,7 @@ class SearchFields_Worker extends DevblocksSearchFields {
 				if(!($worker_ids = DAO_WorkspacePage::getUsers(array_column($rows, 'id'))))
 					return '0';
 				
-				return sprintf('w.id IN (%s)', implode(',', $worker_ids));
+				return sprintf('worker.id IN (%s)', implode(',', $worker_ids));
 				
 			default:
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
@@ -1644,27 +1652,27 @@ class SearchFields_Worker extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'w', 'id', $translate->_('common.id'), null, true),
-			self::AT_MENTION_NAME => new DevblocksSearchField(self::AT_MENTION_NAME, 'w', 'at_mention_name', $translate->_('worker.at_mention_name'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::CALENDAR_ID => new DevblocksSearchField(self::CALENDAR_ID, 'w', 'calendar_id', $translate->_('common.calendar'), null, true),
-			self::DOB => new DevblocksSearchField(self::DOB, 'w', 'dob', $translate->_('common.dob.abbr'), Model_CustomField::TYPE_DATE, true),
-			self::EMAIL_ID => new DevblocksSearchField(self::EMAIL_ID, 'w', 'email_id', ucwords($translate->_('common.email')), null, true),
-			self::FIRST_NAME => new DevblocksSearchField(self::FIRST_NAME, 'w', 'first_name', $translate->_('common.name.first'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::GENDER => new DevblocksSearchField(self::GENDER, 'w', 'gender', $translate->_('common.gender'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'w', 'is_disabled', ucwords($translate->_('common.disabled')), Model_CustomField::TYPE_CHECKBOX, true),
-			self::IS_MFA_REQUIRED => new DevblocksSearchField(self::IS_MFA_REQUIRED, 'w', 'is_mfa_required', ucwords($translate->_('worker.is_mfa_required')), Model_CustomField::TYPE_CHECKBOX, true),
-			self::IS_PASSWORD_DISABLED => new DevblocksSearchField(self::IS_PASSWORD_DISABLED, 'w', 'is_password_disabled', ucwords($translate->_('worker.is_password_disabled')), Model_CustomField::TYPE_CHECKBOX, true),
-			self::IS_SUPERUSER => new DevblocksSearchField(self::IS_SUPERUSER, 'w', 'is_superuser', $translate->_('worker.is_superuser'), Model_CustomField::TYPE_CHECKBOX, true),
-			self::LANGUAGE => new DevblocksSearchField(self::LANGUAGE, 'w', 'language', $translate->_('common.language'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::LAST_NAME => new DevblocksSearchField(self::LAST_NAME, 'w', 'last_name', $translate->_('common.name.last'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::LOCATION => new DevblocksSearchField(self::LOCATION, 'w', 'location', $translate->_('common.location'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::MOBILE => new DevblocksSearchField(self::MOBILE, 'w', 'mobile', $translate->_('common.mobile'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::PHONE => new DevblocksSearchField(self::PHONE, 'w', 'phone', $translate->_('common.phone'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::TIME_FORMAT => new DevblocksSearchField(self::TIME_FORMAT, 'w', 'time_format', $translate->_('worker.time_format'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::TIMEZONE => new DevblocksSearchField(self::TIMEZONE, 'w', 'timezone', $translate->_('common.timezone'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::TIMEOUT_IDLE_SECS => new DevblocksSearchField(self::TIMEOUT_IDLE_SECS, 'w', 'timeout_idle_secs', $translate->_('worker.timeout_idle_secs'), Model_CustomField::TYPE_NUMBER, true),
-			self::TITLE => new DevblocksSearchField(self::TITLE, 'w', 'title', $translate->_('worker.title'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'w', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
+			self::ID => new DevblocksSearchField(self::ID, 'worker', 'id', $translate->_('common.id'), null, true),
+			self::AT_MENTION_NAME => new DevblocksSearchField(self::AT_MENTION_NAME, 'worker', 'at_mention_name', $translate->_('worker.at_mention_name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::CALENDAR_ID => new DevblocksSearchField(self::CALENDAR_ID, 'worker', 'calendar_id', $translate->_('common.calendar'), null, true),
+			self::DOB => new DevblocksSearchField(self::DOB, 'worker', 'dob', $translate->_('common.dob.abbr'), Model_CustomField::TYPE_DATE, true),
+			self::EMAIL_ID => new DevblocksSearchField(self::EMAIL_ID, 'worker', 'email_id', ucwords($translate->_('common.email')), null, true),
+			self::FIRST_NAME => new DevblocksSearchField(self::FIRST_NAME, 'worker', 'first_name', $translate->_('common.name.first'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::GENDER => new DevblocksSearchField(self::GENDER, 'worker', 'gender', $translate->_('common.gender'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'worker', 'is_disabled', ucwords($translate->_('common.disabled')), Model_CustomField::TYPE_CHECKBOX, true),
+			self::IS_MFA_REQUIRED => new DevblocksSearchField(self::IS_MFA_REQUIRED, 'worker', 'is_mfa_required', ucwords($translate->_('worker.is_mfa_required')), Model_CustomField::TYPE_CHECKBOX, true),
+			self::IS_PASSWORD_DISABLED => new DevblocksSearchField(self::IS_PASSWORD_DISABLED, 'worker', 'is_password_disabled', ucwords($translate->_('worker.is_password_disabled')), Model_CustomField::TYPE_CHECKBOX, true),
+			self::IS_SUPERUSER => new DevblocksSearchField(self::IS_SUPERUSER, 'worker', 'is_superuser', $translate->_('worker.is_superuser'), Model_CustomField::TYPE_CHECKBOX, true),
+			self::LANGUAGE => new DevblocksSearchField(self::LANGUAGE, 'worker', 'language', $translate->_('common.language'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::LAST_NAME => new DevblocksSearchField(self::LAST_NAME, 'worker', 'last_name', $translate->_('common.name.last'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::LOCATION => new DevblocksSearchField(self::LOCATION, 'worker', 'location', $translate->_('common.location'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::MOBILE => new DevblocksSearchField(self::MOBILE, 'worker', 'mobile', $translate->_('common.mobile'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::PHONE => new DevblocksSearchField(self::PHONE, 'worker', 'phone', $translate->_('common.phone'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::TIME_FORMAT => new DevblocksSearchField(self::TIME_FORMAT, 'worker', 'time_format', $translate->_('worker.time_format'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::TIMEZONE => new DevblocksSearchField(self::TIMEZONE, 'worker', 'timezone', $translate->_('common.timezone'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::TIMEOUT_IDLE_SECS => new DevblocksSearchField(self::TIMEOUT_IDLE_SECS, 'worker', 'timeout_idle_secs', $translate->_('worker.timeout_idle_secs'), Model_CustomField::TYPE_NUMBER, true),
+			self::TITLE => new DevblocksSearchField(self::TITLE, 'worker', 'title', $translate->_('worker.title'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'worker', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 			
 			self::EMAIL_ADDRESS => new DevblocksSearchField(self::EMAIL_ADDRESS, 'address', 'email', ucwords($translate->_('common.email_address')), Model_CustomField::TYPE_SINGLE_LINE, false),
 			
@@ -2386,7 +2394,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		
 		$sql = sprintf("SELECT wtg.group_id AS label, count(*) AS hits ".
 			"%s ". // from
-			"INNER JOIN worker_to_group AS wtg ON (wtg.worker_id=w.id) ".
+			"INNER JOIN worker_to_group AS wtg ON (wtg.worker_id=worker.id) ".
 			"%s ". // where
 			"GROUP BY label ".
 			"ORDER BY hits DESC ".
@@ -2462,7 +2470,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					'score' => 1500,
 					'options' => [
 						'param_key' => SearchFields_Worker::VIRTUAL_CALENDAR_SEARCH,
-						'select_key' => 'w.calendar_id',
+						'select_key' => 'worker.calendar_id',
 					],
 					'examples' => [
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CALENDAR, 'q' => ''],

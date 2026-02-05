@@ -459,10 +459,18 @@ class SearchFields_PackageLibrary extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'package_library.id';
+	static function getTableName() : string {
+		return 'package_library';
 	}
 	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_PackageLibrary::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_PackageLibrary::UPDATED_AT);
+	}
+
 	static function getCustomFieldContextKeys() {
 		return array(
 			CerberusContexts::CONTEXT_PACKAGE => new DevblocksSearchFieldContextKeys('package_library.id', self::ID),

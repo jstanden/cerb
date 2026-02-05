@@ -386,12 +386,20 @@ class SearchFields_<?php echo $class_name; ?> extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return '<?php echo $table_name; ?>.id';
+	static function getTableName() : string {
+		return '<?php echo $table_name; ?>';
 	}
 	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_<?php echo $class_name; ?>::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_<?php echo $class_name; ?>::UPDATED_AT);
+	}
+
 	static function getCustomFieldContextKeys() {
-		return [
+        return [
 			Context_<?php echo $class_name; ?>::ID => new DevblocksSearchFieldContextKeys('<?php echo $table_name; ?>.id', self::ID),
 		];
 	}

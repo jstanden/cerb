@@ -431,10 +431,18 @@ class SearchFields_MailHtmlTemplate extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'mail_html_template.id';
+	static function getTableName() : string {
+		return 'mail_html_template';
 	}
 	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_MailHtmlTemplate::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_MailHtmlTemplate::UPDATED_AT);
+	}
+
 	static function getCustomFieldContextKeys() {
 		return array(
 			CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE => new DevblocksSearchFieldContextKeys('mail_html_template.id', self::ID),

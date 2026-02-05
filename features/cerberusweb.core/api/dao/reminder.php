@@ -355,10 +355,18 @@ class SearchFields_Reminder extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'reminder.id';
+	static function getTableName() : string {
+		return 'reminder';
 	}
 	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_Reminder::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_Reminder::UPDATED_AT);
+	}
+
 	static function getCustomFieldContextKeys() {
 		return array(
 			CerberusContexts::CONTEXT_REMINDER => new DevblocksSearchFieldContextKeys('reminder.id', self::ID),

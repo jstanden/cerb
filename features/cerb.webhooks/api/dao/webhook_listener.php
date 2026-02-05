@@ -350,8 +350,16 @@ class SearchFields_WebhookListener extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'webhook_listener.id';
+	static function getTableName() : string {
+		return 'webhook_listener';
+	}
+	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_WebhookListener::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_WebhookListener::UPDATED_AT);
 	}
 	
 	static function getCustomFieldContextKeys() {

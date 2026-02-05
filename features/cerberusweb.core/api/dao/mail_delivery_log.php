@@ -447,10 +447,18 @@ class SearchFields_MailDeliveryLog extends DevblocksSearchFields {
 	
 	static private $_fields = null;
 	
-	static function getPrimaryKey() {
-		return 'mail_delivery_log.id';
+	static function getTableName() : string {
+		return 'mail_delivery_log';
 	}
 	
+	static function getPrimaryKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_MailDeliveryLog::ID);
+	}
+	
+	static function getUpdatedKey() : string {
+		return sprintf('%s.%s', self::getTableName(), DAO_MailDeliveryLog::CREATED_AT);
+	}
+
 	static function getCustomFieldContextKeys() {
 		return [
 			Context_MailDeliveryLog::ID => new DevblocksSearchFieldContextKeys('mail_delivery_log.id', self::ID),
