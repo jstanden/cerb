@@ -247,6 +247,14 @@ class _DevblocksServices {
 	}
 	
 	/**
+	 *
+	 * @return _DevblocksSearchService
+	 */
+	function search() : _DevblocksSearchService {
+		return _DevblocksSearchService::getInstance();
+	}
+	
+	/**
 	 * 
 	 * @return _DevblocksSessionManager
 	 */

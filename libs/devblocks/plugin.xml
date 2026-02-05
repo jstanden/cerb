@@ -30,6 +30,7 @@
 	<class_loader>
 		<dir path="api/services/automation/" namespace="Cerb\AutomationBuilder\" />
 		<dir path="api/services/llm/" namespace="Cerb\LLM\" />
+		<dir path="api/services/Search/" namespace="Cerb\Services\Search\" />
 
 		<file path="api/dao/devblocks_storage_profile.php">
 			<class name="View_DevblocksStorageProfile" />

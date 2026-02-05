@@ -1327,6 +1327,18 @@ abstract class C4_AbstractView {
 		}
 	}
 	
+	protected function _renderVirtualSearchIndex(DevblocksSearchCriteria $param) : void {
+		if(!($search_index = DAO_SearchIndex::get($param->value['index_id'] ?? 0))) {
+			$search_index = new Model_SearchIndex();
+			$search_index->name = 'Search';
+		}
+		
+		echo sprintf("%s matches <b>%s</b>",
+			DevblocksPlatform::strEscapeHtml($search_index->name),
+			DevblocksPlatform::strEscapeHtml($param->value['query'] ?? ''),
+		);
+	}
+	
 	protected function _renderVirtualHasFieldset($param) {
 		echo sprintf("%s matches <b>%s</b>",
 			DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.custom_fieldset')),

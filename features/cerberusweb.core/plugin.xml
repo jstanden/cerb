@@ -84,7 +84,7 @@
 
 		<patch version="11.0.0" revision="1476" file="patches/11.x/11.0.0.php" />
 		<patch version="11.1.0" revision="1491" file="patches/11.x/11.1.0.php" />
-		<patch version="11.2.0" revision="1501" file="patches/11.x/11.2.0.php" />
+		<patch version="11.2.0" revision="1502" file="patches/11.x/11.2.0.php" />
 	</patches>
 
 	<!-- Exported Classes -->
@@ -92,6 +92,7 @@
 	<class_loader>
 		<dir path="api/Automation/Builder/" namespace="Cerb\Automation\Builder\" />
 		<dir path="api/Email/" namespace="Cerb\Email\" />
+		<dir path="api/Extensions/" namespace="Cerb\Extensions\" />
 
 		<file path="api/packages.php">
 			<class name="Cerb_Packages" />
@@ -662,6 +663,14 @@
 			<class name="DAO_RecordChangeset" />
 			<class name="Model_RecordChangeset" />
 			<class name="Storage_RecordChangeset" />
+		</file>
+
+		<file path="api/dao/search_index.php">
+			<class name="Context_SearchIndex" />
+			<class name="DAO_SearchIndex" />
+			<class name="Model_SearchIndex" />
+			<class name="SearchFields_SearchIndex" />
+			<class name="View_SearchIndex" />
 		</file>
 
 		<file path="api/dao/reminder.php">
@@ -3777,7 +3786,48 @@
 				</param>
 			</params>
 		</extension>
-		
+
+		<extension point="devblocks.context">
+			<id>cerb.contexts.record.search.index</id>
+			<name>Search Index</name>
+			<class>
+				<file>api/dao/search_index.php</file>
+				<name>Context_SearchIndex</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="search index" value="singular" />
+						<data key="search indexes" value="plural" />
+					</value>
+				</param>
+				<param key="alias" value="search_index" />
+				<param key="dao_class" value="DAO_SearchIndex" />
+				<param key="view_class" value="View_SearchIndex" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="comments" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="records" />
+						<data key="search" />
+						<data key="watchers" />
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="update" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
 		<extension point="devblocks.context">
 			<id>cerberusweb.contexts.reminder</id>
 			<name>Reminder</name>
@@ -7986,6 +8036,19 @@
 				<params>
 					<param key="page_id" value="core.page.profiles" />
 					<param key="uri" value="queue" />
+				</params>
+			</extension>
+
+			<extension point="cerberusweb.ui.page.section">
+				<id>cerb.page.profiles.search_index</id>
+				<name>Search Index Section</name>
+				<class>
+					<file>api/uri/profiles/search_index.php</file>
+					<name>PageSection_ProfilesRecordSearchIndex</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="search_index" />
 				</params>
 			</extension>
 

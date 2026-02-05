@@ -1,4 +1,179 @@
 <?php
+
+use Cerb\Services\Search\PorterStemmer;
+
+class _DevblocksSearchService {
+	static ?_DevblocksSearchService $instance = null;
+	
+	const DEFAULT_TOKENIZER_PATTERN = "[^[:alnum:]\'\.\_\-]";
+	
+	private function __construct() {}
+	
+	static function getInstance() : _DevblocksSearchService {
+		if(null == self::$instance)
+			self::$instance = new _DevblocksSearchService();
+		
+		return self::$instance;
+	}
+	
+	private function _hashToken(string $token) : int {
+		return unpack('J', hash('xxh3', $token, true))[1];
+	}
+	
+	public function expandTokens(array $tokens) : array {
+		foreach ($tokens as $token) {
+			$terms = preg_split('/[^\pL\pN]+/u', $token, -1, PREG_SPLIT_NO_EMPTY);
+			if (count($terms) > 1) $tokens = array_merge($tokens, $terms);
+		}
+		
+		return $tokens;
+	}
+	
+	public function getQueryTokensFromText(string $string, array $stop_words=self::DEFAULT_STOP_WORDS, int $truncate=0, int $min_length=1, int $max_length=84, bool $stem=true, string $tokenizer_pattern=self::DEFAULT_TOKENIZER_PATTERN) : array {
+		// Truncate
+		if($truncate) $string = $this->truncateOnWhitespace($string, $truncate);
+		
+		// Tokenize by regex
+		$tokens = $this->tokenize($string, $tokenizer_pattern);
+		
+		// Remove stop words
+		if($stop_words) $tokens = $this->removeStopWords($tokens, $stop_words);
+		
+		// Stem tokens (only alphabetic words)
+		if($stem) $tokens = array_map(fn($token) => ctype_alpha($token) ? PorterStemmer::Stem($token) : $token, $tokens);
+		
+		// Filter min/max token lengths
+		if($min_length || $max_length) {
+			$tokens = array_filter(
+				$tokens,
+				fn($token) => strlen($token) >= $min_length && strlen($token) <= $max_length
+			);
+		}
+		
+		return $tokens;
+	}
+	
+	public function indexTokens(array $tokens) : array {
+		$total_tokens = count($tokens);
+		$token_frequencies = array_count_values($tokens);
+		
+		return array_combine(
+			array_map(fn($token) => $this->_hashToken($token), array_keys($token_frequencies)),
+			array_map(
+				fn($token) => [$token, intval($token_frequencies[$token]) / $total_tokens],
+				array_keys($token_frequencies)
+			)
+		);
+	}
+	
+	public function truncateOnWhitespace(string $content, int $length) : string {
+		$start = 0;
+		$len = mb_strlen($content);
+		$end = $start + $length;
+		
+		// If our offset is past EOS, use the last pos
+		if($end > $len) {
+			$next_ws = $len;
+			
+		} else {
+			if(false === ($next_ws = mb_strpos($content, ' ', $end)))
+				if(false === ($next_ws = mb_strpos($content, "\n", $end)))
+					$next_ws = $end;
+		}
+		
+		return mb_substr($content, $start, $next_ws-$start);
+	}
+	
+	public function tokenize(string $string, string $pattern=self::DEFAULT_TOKENIZER_PATTERN) : array {
+		$strings = DevblocksPlatform::services()->string();
+		
+		// Tokenize (term-frequency)
+		$tokens = $strings->tokenize($string, true, false, $pattern);
+		
+		// Fix outer punctuation
+		return array_filter(array_map(fn($token) => trim(str_replace(["'"], "", $token),"._-'"), $tokens));
+	}
+	
+	public function removeStopWords(array $tokens, array $stop_words=[]) : array {
+		return array_diff($tokens, $stop_words);
+	}
+	
+	const DEFAULT_STOP_WORDS = [
+		'a',
+		'about',
+		'almost',
+		'an',
+		'and',
+		'are',
+		'as',
+		'at',
+		'be',
+		'but',
+		'by',
+		'can',
+		'com',
+		'de',
+		'en',
+		'for',
+		'from',
+		'how',
+		'i',
+		'if',
+		'im',
+		'in',
+		'into',
+		'is',
+		'it',
+		'la',
+		'like',
+		'me',
+		'my',
+		'no',
+		'not',
+		'of',
+		'on',
+		'or',
+		'please',
+		'such',
+		'thank',
+		'that',
+		'the',
+		'their',
+		'then',
+		'there',
+		'these',
+		'they',
+		'this',
+		'to',
+		'und',
+		'was',
+		'what',
+		'when',
+		'where',
+		'who',
+		'will',
+		'with',
+		'www',
+		'you',
+		'your',
+	];
+	
+	public function stripPemContentBlocks(string $text) : string {
+		return preg_replace(
+			'/(-----BEGIN [A-Z0-9 ]+-----).*?(-----END [A-Z0-9 ]+-----)/s',
+			'$1 $2',
+			$text
+		);
+	}
+	
+	public function sanitizeTextUrlQueryStrings(string $string_to_index) : string {
+		if(str_contains($string_to_index, 'http'))
+			return preg_replace('/(\bhttps?:\/\/[^\s?]+)\?[^\s]*/', '$1', $string_to_index);
+		
+		return $string_to_index;
+	}
+}
+
 class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine {
 	const ID = 'devblocks.search.engine.elasticsearch';
 	const READ_TIMEOUT_MS = 15000;

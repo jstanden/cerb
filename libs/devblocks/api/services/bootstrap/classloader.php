@@ -266,6 +266,7 @@ class _DevblocksClassLoadManager {
 			'_DevblocksSanitizationManager',
 		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/search.php', array(
+			'_DevblocksSearchService',
 			'_DevblocksSearchEngineMysqlFulltext',
 		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/session.php', array(
