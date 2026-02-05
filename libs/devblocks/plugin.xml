@@ -4,7 +4,7 @@
 	<name>Devblocks Framework</name>
 	<description>Devblocks is a PHP8 application development framework.</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>2.5.1</version>
+	<version>2.5.2</version>
 	<link>http://wiki.devblocks.com/</link>
 	
 	<!-- Patches -->
