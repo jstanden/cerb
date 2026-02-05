@@ -62,6 +62,23 @@ if(!array_key_exists('search_index_tokens', $tables)) {
 }
 
 // ===========================================================================
+// Convert `custom_field_clobvalue.field_value` to utf8mb4
+
+if(!array_key_exists('custom_field_clobvalue', $tables))
+	return FALSE;
+
+list($columns,) = $db->metaTable('custom_field_clobvalue');
+
+if(!array_key_exists('field_value', $columns))
+	return FALSE;
+
+if('utf8mb4_unicode_ci' != $columns['field_value']['collation']) {
+	$db->ExecuteMaster("ALTER TABLE custom_field_clobvalue MODIFY COLUMN field_value MEDIUMTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+	$db->ExecuteMaster("REPAIR TABLE custom_field_clobvalue");
+	$db->ExecuteMaster("OPTIMIZE TABLE custom_field_clobvalue");
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
