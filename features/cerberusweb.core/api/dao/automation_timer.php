@@ -1054,24 +1054,16 @@ class Context_AutomationTimer extends Extension_DevblocksContext implements IDev
 	const ID = CerberusContexts::CONTEXT_AUTOMATION_TIMER;
 	const URI = 'automation_timer';
 	
-	static function isReadableByActor($models, $actor) {
+	static function isReadableByActor($models, $actor) : bool {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);
 	}
 	
-	static function isWriteableByActor($models, $actor) {
-		// Only admin workers can modify
-		
-		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
-			return CerberusContexts::denyEverything($models);
-		
-		if(CerberusContexts::isActorAnAdmin($actor))
-			return CerberusContexts::allowEverything($models);
-		
-		return CerberusContexts::denyEverything($models);
+	static function isWriteableByActor($models, $actor) : bool {
+		return self::_isWriteableOnlyByAdmin($models, $actor);
 	}
 	
-	static function isDeletableByActor($models, $actor) {
+	static function isDeletableByActor($models, $actor) : bool {
 		return self::isWriteableByActor($models, $actor);
 	}
 	

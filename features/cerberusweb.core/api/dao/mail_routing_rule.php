@@ -857,24 +857,16 @@ class Context_MailRoutingRule extends Extension_DevblocksContext implements IDev
 	const ID = 'cerb.contexts.mail.routing.rule';
 	const URI = 'mail_routing_rule';
 	
-	static function isReadableByActor($models, $actor) {
+	static function isReadableByActor($models, $actor) : bool {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);
 	}
 	
-	static function isWriteableByActor($models, $actor) {
-		// Only admin workers can modify
-		
-		if(!($actor = CerberusContexts::polymorphActorToDictionary($actor)))
-			return CerberusContexts::denyEverything($models);
-		
-		if(CerberusContexts::isActorAnAdmin($actor))
-			return CerberusContexts::allowEverything($models);
-		
-		return CerberusContexts::denyEverything($models);
+	static function isWriteableByActor($models, $actor) : bool {
+		return self::_isWriteableOnlyByAdmin($models, $actor);
 	}
 	
-	static function isDeletableByActor($models, $actor) {
+	static function isDeletableByActor($models, $actor) : bool {
 		return self::isWriteableByActor($models, $actor);
 	}
 	

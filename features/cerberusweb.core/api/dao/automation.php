@@ -1569,24 +1569,16 @@ class Context_Automation extends Extension_DevblocksContext implements IDevblock
 	const ID = CerberusContexts::CONTEXT_AUTOMATION;
 	const URI = 'automation';
 	
-	static function isReadableByActor($models, $actor) {
+	static function isReadableByActor($models, $actor) : bool {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);
 	}
 	
-	static function isWriteableByActor($models, $actor) {
-		// Only admin workers can modify
-		
-		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
-			return CerberusContexts::denyEverything($models);
-		
-		if(CerberusContexts::isActorAnAdmin($actor))
-			return CerberusContexts::allowEverything($models);
-		
-		return CerberusContexts::denyEverything($models);
+	static function isWriteableByActor($models, $actor) : bool {
+		return self::_isWriteableOnlyByAdmin($models, $actor);
 	}
 	
-	static function isDeletableByActor($models, $actor) {
+	static function isDeletableByActor($models, $actor) : bool {
 		return self::isWriteableByActor($models, $actor);
 	}
 	

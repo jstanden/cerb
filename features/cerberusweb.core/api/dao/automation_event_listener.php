@@ -839,15 +839,7 @@ class Context_AutomationEventListener extends Extension_DevblocksContext impleme
 	}
 	
 	static function isWriteableByActor($models, $actor) {
-		// Only admin workers can modify
-		
-		if(!($actor = CerberusContexts::polymorphActorToDictionary($actor)))
-			return CerberusContexts::denyEverything($models);
-		
-		if(CerberusContexts::isActorAnAdmin($actor))
-			return CerberusContexts::allowEverything($models);
-		
-		return CerberusContexts::denyEverything($models);
+		return self::_isWriteableOnlyByAdmin($models, $actor);
 	}
 	
 	static function isDeletableByActor($models, $actor) {
