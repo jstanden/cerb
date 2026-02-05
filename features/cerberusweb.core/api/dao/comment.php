@@ -760,6 +760,7 @@ class Search_CommentContent extends Extension_DevblocksSearchSchema {
 	
 	public function index($stop_time=null) {
 		$logger = DevblocksPlatform::services()->log();
+		$search = DevblocksPlatform::services()->search();
 		
 		if(false == ($engine = $this->getEngine()))
 			return false;
@@ -791,7 +792,7 @@ class Search_CommentContent extends Extension_DevblocksSearchSchema {
 				$content = $comment->comment;
 				
 				if(!empty($content)) {
-					$content = $engine->truncateOnWhitespace($content, 5000);
+					$content = $search->truncateOnWhitespace($content, 5_000);
 					
 					$doc = array(
 						'content' => $content,

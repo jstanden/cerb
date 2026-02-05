@@ -1384,6 +1384,7 @@ class Search_MessageContent extends Extension_DevblocksSearchSchema {
 	
 	private function _indexDictionary($dict, $engine) {
 		$logger = DevblocksPlatform::services()->log();
+		$search = DevblocksPlatform::services()->search();
 
 		$id = $dict->id;
 		
@@ -1397,7 +1398,7 @@ class Search_MessageContent extends Extension_DevblocksSearchSchema {
 		$content = preg_replace("/[\r\n]+/", "\n", $content);
 		
 		// Truncate to 5KB
-		$content = $engine->truncateOnWhitespace($content, 5000);
+		$content = $search->truncateOnWhitespace($content, 5_000);
 		
 		$doc = array(
 			'created' => $dict->created,

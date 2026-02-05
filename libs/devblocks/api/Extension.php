@@ -4473,24 +4473,6 @@ abstract class Extension_DevblocksSearchEngine extends DevblocksExtension implem
 	/**
 	 * @internal
 	 */
-	public function truncateOnWhitespace($content, $length) {
-		$start = 0;
-		$len = mb_strlen($content);
-		$end = $start + $length;
-
-		// If our offset is past EOS, use the last pos
-		if($end > $len) {
-			$next_ws = $len;
-
-		} else {
-			if(false === ($next_ws = mb_strpos($content, ' ', $end)))
-				if(false === ($next_ws = mb_strpos($content, "\n", $end)))
-					$next_ws = $end;
-		}
-
-		return mb_substr($content, $start, $next_ws-$start);
-	}
-	
 	abstract function canGenerateSql() : bool;
 	abstract function generateSql(Extension_DevblocksSearchSchema $schema, string $query, array $attributes=[], ?callable $where_callback=null) : ?string;
 	abstract function query(Extension_DevblocksSearchSchema $schema, $query, array $attributes=[], $limit=null, &$error=null) : ?array;
