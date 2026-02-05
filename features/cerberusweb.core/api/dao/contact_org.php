@@ -726,7 +726,7 @@ class Search_Org extends Extension_DevblocksSearchSchema {
 	}
 	
 	public function getAttributes() {
-		return array();
+		return [];
 	}
 	
 	public function getIdField() {

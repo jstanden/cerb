@@ -471,7 +471,6 @@ class SearchFields_MailInboundLog extends DevblocksSearchFields {
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_MESSAGE, 'mail_inbound_log.message_id');
 			
 			case self::VIRTUAL_SENDER_SEARCH:
-				DevblocksPlatform::logError($param);
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_ADDRESS, 'mail_inbound_log.from_id');
 			
 			case self::VIRTUAL_TICKET_SEARCH:

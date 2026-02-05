@@ -413,9 +413,8 @@ class SearchFields_Classifier extends DevblocksSearchFields {
 	}
 	
 	static function getCustomFieldContextKeys() {
-		// [TODO] Context
 		return array(
-			'' => new DevblocksSearchFieldContextKeys('classifier.id', self::ID),
+			CerberusContexts::CONTEXT_CLASSIFIER => new DevblocksSearchFieldContextKeys('classifier.id', self::ID),
 		);
 	}
 	

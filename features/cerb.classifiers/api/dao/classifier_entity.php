@@ -388,10 +388,9 @@ class SearchFields_ClassifierEntity extends DevblocksSearchFields {
 	}
 	
 	static function getCustomFieldContextKeys() {
-		// [TODO] Context
-		return array(
-			'' => new DevblocksSearchFieldContextKeys('classifier_entity.id', self::ID),
-		);
+		return [
+			CerberusContexts::CONTEXT_CLASSIFIER_ENTITY => new DevblocksSearchFieldContextKeys('classifier_entity.id', self::ID),
+		];
 	}
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {

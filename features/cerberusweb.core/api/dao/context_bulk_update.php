@@ -467,10 +467,9 @@ class SearchFields_ContextBulkUpdate extends DevblocksSearchFields {
 	}
 	
 	static function getCustomFieldContextKeys() {
-		// [TODO] Context
-		return array(
+		return [
 			'' => new DevblocksSearchFieldContextKeys('context_bulk_update.id', self::ID),
-		);
+		];
 	}
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {

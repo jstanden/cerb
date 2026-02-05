@@ -65,11 +65,9 @@
 	{* Column Data *}
 	{$object_watchers = DAO_ContextLink::getContextLinks($view_context, array_keys($data), CerberusContexts::CONTEXT_WORKER)}
 	
-	{$jira_projects = DAO_JiraProject::getAll()}
-	
 	{foreach from=$data item=result key=idx name=results}
 
-	{$project = $jira_projects.{$result.j_project_id}}
+	{$project = $projects.{$result.j_project_id}}
 	
 	{if $smarty.foreach.results.iteration % 2}
 		{$tableRowClass = "even"}

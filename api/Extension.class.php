@@ -794,7 +794,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 	
 	public function getEventToolbarItems(array $toolbar) : array {
 		return $toolbar;
-	}	
+	}
 	
 	public function getEventToolbar() : array {
 		$toolbar = [

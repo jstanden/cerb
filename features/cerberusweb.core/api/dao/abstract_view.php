@@ -577,7 +577,7 @@ abstract class C4_AbstractView {
 						if(!(CerbQuickSearchLexer::getOperStringFromTokens($p->tokens, $oper, $value)))
 							break;
 						
-						$limit = DevblocksPlatform::intClamp($value, 1, 250);
+						$limit = DevblocksPlatform::intClamp(intval($value), 1, 250);
 						$this->renderLimit = $limit;
 						
 						unset($fields[$k]);
@@ -609,10 +609,10 @@ abstract class C4_AbstractView {
 						if(!($sort_results = $this->_getSortFromQuickSearchQuery($value)))
 							break;
 						
-						if(isset($sort_results['sort_by']) && !empty($sort_results['sort_by']))
+						if(array_key_exists('sort_by', $sort_results) && !empty($sort_results['sort_by']))
 							$this->renderSortBy = $sort_results['sort_by'];
 						
-						if(isset($sort_results['sort_asc']) && !empty($sort_results['sort_asc']))
+						if(array_key_exists('sort_asc', $sort_results) && !empty($sort_results['sort_asc']))
 							$this->renderSortAsc = $sort_results['sort_asc'];
 						
 						unset($fields[$k]);
@@ -740,7 +740,7 @@ abstract class C4_AbstractView {
 		if(empty($sort_query) || !($this instanceof IAbstractView_QuickSearch))
 			return false;
 		
-		if(false == ($search_fields = $this->getQuickSearchFields()))
+		if(!($search_fields = $this->getQuickSearchFields()))
 			return false;
 		
 		// Tokenize the sort string with commas

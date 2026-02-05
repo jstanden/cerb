@@ -26,8 +26,7 @@ class SearchFields_MailParseFail extends DevblocksSearchFields {
 	}
 	
 	static function getCustomFieldContextKeys() {
-		return array(
-		);
+		return [];
 	}
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
