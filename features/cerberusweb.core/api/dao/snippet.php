@@ -528,16 +528,10 @@ class SearchFields_Snippet extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
-			case self::VIRTUAL_CONTEXT_LINK:
-				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_SNIPPET, self::getPrimaryKey());
-				
-			case self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromFieldset($param, CerberusContexts::CONTEXT_SNIPPET, self::getPrimaryKey());
-				
 			case self::VIRTUAL_OWNER:
 				return self::_getWhereSQLFromContextAndID($param, 'snippet.owner_context', 'snippet.owner_context_id');
 				
-			case SearchFields_Snippet::FULLTEXT_SNIPPET:
+			case self::FULLTEXT_SNIPPET:
 				return self::_getWhereSQLFromFulltextField($param, Search_Snippet::ID, self::getPrimaryKey());
 				
 			case self::USE_HISTORY_MINE:
@@ -550,6 +544,9 @@ class SearchFields_Snippet extends DevblocksSearchFields {
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
 				} else {
+					if(null !== ($virtual_where_sql = self::_getWhereSQLForCommonVirtual($param, CerberusContexts::CONTEXT_SNIPPET, self::getPrimaryKey())))
+						return $virtual_where_sql;
+					
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
 		}

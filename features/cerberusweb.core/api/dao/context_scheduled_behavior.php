@@ -560,27 +560,22 @@ class SearchFields_ContextScheduledBehavior extends DevblocksSearchFields {
 		switch($param->field) {
 			case self::VIRTUAL_BEHAVIOR_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_BEHAVIOR, 'context_scheduled_behavior.behavior_id');
-				break;
 				
 			case self::VIRTUAL_BOT_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_BOT, 'trigger_event.bot_id');
-				break;
 				
-			case self::VIRTUAL_CONTEXT_LINK:
-				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_BEHAVIOR_SCHEDULED, self::getPrimaryKey());
-				break;
-			
 			case self::VIRTUAL_TARGET:
 				return self::_getWhereSQLFromContextAndID($param, 'context_scheduled_behavior.context', 'context_scheduled_behavior.context_id');
-				break;
 				
 			default:
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
 				} else {
+					if(null !== ($virtual_where_sql = self::_getWhereSQLForCommonVirtual($param, CerberusContexts::CONTEXT_BEHAVIOR_SCHEDULED, self::getPrimaryKey())))
+						return $virtual_where_sql;
+					
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
-				break;
 		}
 	}
 	

@@ -794,6 +794,24 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 		
 		return $field_key;
 	}
+
+	static function _getWhereSQLForCommonVirtual(DevblocksSearchCriteria $param, string $context_name, string $join_key) : ?string {
+		switch($param->field) {
+			case '*_context_link': //self::VIRTUAL_CONTEXT_LINK:
+				return self::_getWhereSQLFromContextLinksField($param, $context_name, $join_key);
+			
+			case '*_has_fieldset': //self::VIRTUAL_HAS_FIELDSET:
+				return self::_getWhereSQLFromFieldset($param, $context_name, $join_key);
+			
+			case '*_search_index': //self::VIRTUAL_SEARCH_INDEX:
+				return self::_getWhereSQLFromSearchIndexField($param, $join_key);
+			
+			case '*_workers': //self::VIRTUAL_WATCHERS:
+				return self::_getWhereSQLFromWatchersField($param, $context_name, $join_key);
+		}
+		
+		return null;
+	}
 	
 	static function _getWhereSQLFromFulltextField(DevblocksSearchCriteria $param, $schema, $join_key, $attributes=[], $allow_wildcards=true) {
 		if(!($search = Extension_DevblocksSearchSchema::get($schema)))

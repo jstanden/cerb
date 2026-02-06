@@ -1454,9 +1454,6 @@ class SearchFields_Worker extends DevblocksSearchFields {
 			case self::VIRTUAL_CALENDAR_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_CALENDAR, 'worker.calendar_id');
 				
-			case self::VIRTUAL_CONTEXT_LINK:
-				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_WORKER, self::getPrimaryKey());
-				
 			case self::VIRTUAL_EMAIL_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_ADDRESS, 'worker.email_id');
 				
@@ -1477,9 +1474,6 @@ class SearchFields_Worker extends DevblocksSearchFields {
 			case self::VIRTUAL_GROUP_MANAGER_SEARCH:
 				$sql = "SELECT worker_id FROM worker_to_group WHERE is_manager = 1 AND group_id IN (%s)";
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_GROUP, $sql, 'worker.id');
-				
-			case self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromFieldset($param, CerberusContexts::CONTEXT_WORKER, self::getPrimaryKey());
 				
 			case self::VIRTUAL_CALENDAR_AVAILABILITY:
 				if(!is_array($param->value) || count($param->value) != 3)
@@ -1563,6 +1557,9 @@ class SearchFields_Worker extends DevblocksSearchFields {
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
 				} else {
+					if(null !== ($virtual_where_sql = self::_getWhereSQLForCommonVirtual($param, CerberusContexts::CONTEXT_WORKER, self::getPrimaryKey())))
+						return $virtual_where_sql;
+					
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
 		}

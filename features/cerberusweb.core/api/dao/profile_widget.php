@@ -505,12 +505,6 @@ class SearchFields_ProfileWidget extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
-			case self::VIRTUAL_CONTEXT_LINK:
-				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_PROFILE_WIDGET, self::getPrimaryKey());
-				
-			case self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromFieldset($param, CerberusContexts::CONTEXT_PROFILE_WIDGET, self::getPrimaryKey());
-				
 			case self::VIRTUAL_TAB_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_PROFILE_TAB, 'profile_widget.profile_tab_id');
 				
@@ -518,6 +512,9 @@ class SearchFields_ProfileWidget extends DevblocksSearchFields {
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
 				} else {
+					if(null !== ($virtual_where_sql = self::_getWhereSQLForCommonVirtual($param, CerberusContexts::CONTEXT_PROFILE_WIDGET, self::getPrimaryKey())))
+						return $virtual_where_sql;
+					
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
 		}

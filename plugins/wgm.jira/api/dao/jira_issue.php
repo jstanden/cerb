@@ -529,23 +529,17 @@ class SearchFields_JiraIssue extends DevblocksSearchFields {
 			case self::FULLTEXT_CONTENT:
 				return self::_getWhereSQLFromFulltextField($param, Search_JiraIssue::ID, self::getPrimaryKey());
 				
-			case self::VIRTUAL_CONTEXT_LINK:
-				return self::_getWhereSQLFromContextLinksField($param, Context_JiraIssue::ID, self::getPrimaryKey());
-				
-			case self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromFieldset($param, Context_JiraIssue::ID, self::getPrimaryKey());
-			
 			case self::VIRTUAL_PROJECT_SEARCH:
 				$sql = "SELECT id FROM jira_project WHERE id IN (%s)";
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, Context_JiraProject::ID, $sql, 'jira_issue.project_id');
-				
-			case self::VIRTUAL_WATCHERS:
-				return self::_getWhereSQLFromWatchersField($param, Context_JiraIssue::ID, self::getPrimaryKey());
 				
 			default:
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
 				} else {
+					if(null !== ($virtual_where_sql = self::_getWhereSQLForCommonVirtual($param, Context_JiraIssue::ID, self::getPrimaryKey())))
+						return $virtual_where_sql;
+					
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
 		}

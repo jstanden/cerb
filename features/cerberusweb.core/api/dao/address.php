@@ -991,20 +991,11 @@ class SearchFields_Address extends DevblocksSearchFields {
 			case self::VIRTUAL_CONTACT_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_CONTACT, 'address.contact_id');
 				
-			case self::VIRTUAL_CONTEXT_LINK:
-				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_ADDRESS, self::getPrimaryKey());
-				
-			case self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromFieldset($param, CerberusContexts::CONTEXT_ADDRESS, self::getPrimaryKey());
-				
 			case self::VIRTUAL_ORG_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_ORG, 'address.contact_org_id');
 				
 			case self::VIRTUAL_TICKET_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_TICKET, "SELECT address_id FROM requester r WHERE r.ticket_id IN (%s)", 'address.id');
-				
-			case self::VIRTUAL_WATCHERS:
-				return self::_getWhereSQLFromWatchersField($param, CerberusContexts::CONTEXT_ADDRESS, self::getPrimaryKey());
 				
 			case self::VIRTUAL_WORKER_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_WORKER, "SELECT id FROM worker w WHERE w.id IN (%s)", 'address.worker_id');
@@ -1013,6 +1004,9 @@ class SearchFields_Address extends DevblocksSearchFields {
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
 				} else {
+					if(null !== ($virtual_where_sql = self::_getWhereSQLForCommonVirtual($param, CerberusContexts::CONTEXT_ADDRESS, self::getPrimaryKey())))
+						return $virtual_where_sql;
+					
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
 		}

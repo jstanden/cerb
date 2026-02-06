@@ -384,7 +384,6 @@ class SearchFields_GpgPublicKey extends DevblocksSearchFields {
 						Cerb_ORMHelper::qstr($param->value)
 					);
 				}
-				break;
 				
 			case self::VIRTUAL_UID:
 				$oper = in_array($param->operator,
@@ -408,7 +407,6 @@ class SearchFields_GpgPublicKey extends DevblocksSearchFields {
 					$oper,
 					Cerb_ORMHelper::qstr($value)
 				);
-				break;
 				
 			case self::VIRTUAL_UID_NAME:
 				$oper = in_array($param->operator,
@@ -432,7 +430,6 @@ class SearchFields_GpgPublicKey extends DevblocksSearchFields {
 					$oper,
 					Cerb_ORMHelper::qstr($value)
 				);
-				break;
 				
 			case self::VIRTUAL_UID_EMAIL:
 				$oper = in_array($param->operator,
@@ -456,23 +453,16 @@ class SearchFields_GpgPublicKey extends DevblocksSearchFields {
 					$oper,
 					Cerb_ORMHelper::qstr($value)
 				);
-				break;
-				
-			case self::VIRTUAL_CONTEXT_LINK:
-				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_GPG_PUBLIC_KEY, self::getPrimaryKey());
-				break;
-				
-			case self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromFieldset($param, CerberusContexts::CONTEXT_GPG_PUBLIC_KEY, self::getPrimaryKey());
-				break;
 			
 			default:
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
 				} else {
+					if(null !== ($virtual_where_sql = self::_getWhereSQLForCommonVirtual($param, Context_GpgPublicKey::ID, self::getPrimaryKey())))
+						return $virtual_where_sql;
+					
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
-				break;
 		}
 	}
 	

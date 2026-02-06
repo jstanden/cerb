@@ -454,25 +454,19 @@ class SearchFields_FileBundle extends DevblocksSearchFields {
 			case self::FULLTEXT_COMMENT_CONTENT:
 				return self::_getWhereSQLFromCommentFulltextField($param, Search_CommentContent::ID, CerberusContexts::CONTEXT_FILE_BUNDLE, self::getPrimaryKey());
 				
-			case self::VIRTUAL_CONTEXT_LINK:
-				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_FILE_BUNDLE, self::getPrimaryKey());
-				
-			case self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromFieldset($param, CerberusContexts::CONTEXT_FILE_BUNDLE, self::getPrimaryKey());
-				
 			case self::VIRTUAL_OWNER:
 				return self::_getWhereSQLFromContextAndID($param, 'file_bundle.owner_context', 'file_bundle.owner_context_id');
 			
 			case self::VIRTUAL_USABLE_BY:
 				return self::_getWhereSQLForUsableBy($param, self::getPrimaryKey());
-
-			case self::VIRTUAL_WATCHERS:
-				return self::_getWhereSQLFromWatchersField($param, CerberusContexts::CONTEXT_FILE_BUNDLE, self::getPrimaryKey());
 			
 			default:
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
 				} else {
+					if(null !== ($virtual_where_sql = self::_getWhereSQLForCommonVirtual($param, CerberusContexts::CONTEXT_FILE_BUNDLE, self::getPrimaryKey())))
+						return $virtual_where_sql;
+					
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
 		}

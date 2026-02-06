@@ -435,22 +435,15 @@ class SearchFields_ProjectBoardColumn extends DevblocksSearchFields {
 			case self::VIRTUAL_BOARD_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, Context_ProjectBoard::ID, 'project_board_column.board_id');
 			
-			case self::VIRTUAL_CONTEXT_LINK:
-				return self::_getWhereSQLFromContextLinksField($param, Context_ProjectBoardColumn::ID, self::getPrimaryKey());
-			
-			case self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromFieldset($param, Context_ProjectBoardColumn::ID, self::getPrimaryKey());
-			
-			case self::VIRTUAL_WATCHERS:
-				return self::_getWhereSQLFromWatchersField($param, Context_ProjectBoardColumn::ID, self::getPrimaryKey());
-				
 			default:
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
 				} else {
+					if(null !== ($virtual_where_sql = self::_getWhereSQLForCommonVirtual($param, Context_ProjectBoardColumn::ID, self::getPrimaryKey())))
+						return $virtual_where_sql;
+					
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
-				break;
 		}
 	}
 	

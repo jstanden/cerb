@@ -634,7 +634,6 @@ class SearchFields_MailQueue extends DevblocksSearchFields {
 		switch($param->field) {
 			case self::VIRTUAL_WORKER_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_WORKER, 'mail_queue.worker_id');
-				break;
 			
 			default:
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {

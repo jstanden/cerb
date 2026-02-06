@@ -610,22 +610,16 @@ class SearchFields_AbstractCustomRecord extends DevblocksSearchFields {
 			case self::VIRTUAL_COMMENTS_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_COMMENT, sprintf('SELECT context_id FROM comment WHERE context = %s AND id IN (%s)', Cerb_ORMHelper::qstr($context_name), '%s'), self::getPrimaryKey());
 
-			case self::VIRTUAL_CONTEXT_LINK:
-				return self::_getWhereSQLFromContextLinksField($param, $context_name, self::getPrimaryKey());
-				
-			case self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromFieldset($param, $context_name, self::getPrimaryKey());
-				
 			case self::VIRTUAL_OWNER:
 				return self::_getWhereSQLFromContextAndID($param, sprintf('%s.owner_context', Cerb_ORMHelper::escape($table_name)), sprintf('%s.owner_context_id', Cerb_ORMHelper::escape($table_name)));
-				
-			case self::VIRTUAL_WATCHERS:
-				return self::_getWhereSQLFromWatchersField($param, $context_name, self::getPrimaryKey());
 			
 			default:
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
 				} else {
+					if(null !== ($virtual_where_sql = self::_getWhereSQLForCommonVirtual($param, $context_name, self::getPrimaryKey())))
+						return $virtual_where_sql;
+					
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
 		}

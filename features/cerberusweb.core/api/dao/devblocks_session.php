@@ -363,7 +363,6 @@ class SearchFields_DevblocksSession extends DevblocksSearchFields {
 		switch($field) {
 			case SearchFields_DevblocksSession::VIRTUAL_WORKER_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_WORKER, 'devblocks_session.user_id');
-				break;
 				
 			default:
 				if('cf_' == substr($field, 0, 3)) {
@@ -371,7 +370,6 @@ class SearchFields_DevblocksSession extends DevblocksSearchFields {
 				} else {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
-				break;
 		}
 	}
 	

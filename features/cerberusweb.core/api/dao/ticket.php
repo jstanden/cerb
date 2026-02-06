@@ -2471,9 +2471,6 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 			case self::FULLTEXT_COMMENT_CONTENT:
 				return self::_getWhereSQLFromCommentFulltextField($param, Search_CommentContent::ID, CerberusContexts::CONTEXT_TICKET, self::getPrimaryKey());
 				
-			case self::VIRTUAL_CONTEXT_LINK:
-				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_TICKET, self::getPrimaryKey());
-				
 			case self::VIRTUAL_BUCKET_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_BUCKET, 'ticket.bucket_id');
 				
@@ -2488,9 +2485,6 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 			
 			case self::VIRTUAL_GROUP_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_GROUP, 'ticket.group_id');
-				
-			case self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromFieldset($param, CerberusContexts::CONTEXT_TICKET, self::getPrimaryKey());
 				
 			case self::VIRTUAL_ORG_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_ORG, 'ticket.org_id');
@@ -2651,9 +2645,6 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 					return '0';
 				}
 			
-			case self::VIRTUAL_WATCHERS:
-				return self::_getWhereSQLFromWatchersField($param, CerberusContexts::CONTEXT_TICKET, self::getPrimaryKey());
-				
 			case self::VIRTUAL_WATCHERS_COUNT:
 				return self::_getWhereSQLFromWatchersCountField($param, CerberusContexts::CONTEXT_TICKET, self::getPrimaryKey());
 			
@@ -2683,6 +2674,9 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
 				} else {
+					if(null !== ($virtual_where_sql = self::_getWhereSQLForCommonVirtual($param, CerberusContexts::CONTEXT_TICKET, self::getPrimaryKey())))
+						return $virtual_where_sql;
+					
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
 		}

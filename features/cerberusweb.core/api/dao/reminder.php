@@ -376,21 +376,6 @@ class SearchFields_Reminder extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
-			case self::VIRTUAL_CONTEXT_LINK:
-				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_REMINDER, self::getPrimaryKey());
-				
-			case self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromVirtualSearchSqlField(
-					$param, 
-					CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 
-					sprintf(
-						'SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)',
-						Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_REMINDER),
-						'%s'
-					),
-					self::getPrimaryKey()
-				);
-				
 			case self::VIRTUAL_WORKER_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_WORKER, "SELECT id FROM worker w WHERE w.id IN (%s)", 'reminder.worker_id');
 				
@@ -398,6 +383,9 @@ class SearchFields_Reminder extends DevblocksSearchFields {
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
 				} else {
+					if(null !== ($virtual_where_sql = self::_getWhereSQLForCommonVirtual($param, CerberusContexts::CONTEXT_REMINDER, self::getPrimaryKey())))
+						return $virtual_where_sql;
+					
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
 		}

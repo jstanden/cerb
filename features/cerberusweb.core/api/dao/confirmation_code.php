@@ -297,7 +297,6 @@ class SearchFields_ConfirmationCode extends DevblocksSearchFields {
 				} else {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
-				break;
 		}
 	}
 	
