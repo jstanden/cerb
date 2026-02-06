@@ -462,8 +462,6 @@ class SearchFields_ContextSavedSearch extends DevblocksSearchFields {
 	const OWNER_CONTEXT_ID = 'c_owner_context_id';
 	const UPDATED_AT = 'c_updated_at';
 	
-	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
-
 	static private $_fields = null;
 	
 	static function getTableName() : string {
@@ -536,7 +534,7 @@ class SearchFields_ContextSavedSearch extends DevblocksSearchFields {
 	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		$columns = array(
+		$columns = [
 			self::ID => new DevblocksSearchField(self::ID, 'context_saved_search', 'id', $translate->_('common.id'), null, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'context_saved_search', 'name', $translate->_('common.name'), null, true),
 			self::TAG => new DevblocksSearchField(self::TAG, 'context_saved_search', 'tag', $translate->_('common.tag'), null, true),
@@ -545,9 +543,11 @@ class SearchFields_ContextSavedSearch extends DevblocksSearchFields {
 			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'context_saved_search', 'owner_context', null, null, true),
 			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'context_saved_search', 'owner_context_id', null, null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'context_saved_search', 'updated_at', $translate->_('common.updated'), null, true),
-			
-			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
-		);
+		];
+		
+		// Virtual fields
+		if(($virtual_columns = DevblocksSearchField::getVirtualFields(links: false, watchers: false)))
+			$columns = array_merge($columns, $virtual_columns);
 		
 		// Custom Fields
 		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
@@ -618,21 +618,20 @@ class View_ContextSavedSearch extends C4_AbstractView implements IAbstractView_S
 		$this->renderSortBy = SearchFields_ContextSavedSearch::ID;
 		$this->renderSortAsc = true;
 
-		$this->view_columns = array(
+		$this->view_columns = [
 			SearchFields_ContextSavedSearch::NAME,
 			SearchFields_ContextSavedSearch::CONTEXT,
 			SearchFields_ContextSavedSearch::QUERY,
 			SearchFields_ContextSavedSearch::TAG,
-			// [TODO] Virtual Owner
 			SearchFields_ContextSavedSearch::UPDATED_AT,
-		);
+		];
 
-		$this->addColumnsHidden(array(
+		$this->addColumnsHidden([
 			SearchFields_ContextSavedSearch::OWNER_CONTEXT,
 			SearchFields_ContextSavedSearch::OWNER_CONTEXT_ID,
-			SearchFields_ContextSavedSearch::VIRTUAL_HAS_FIELDSET,
-		));
-		
+			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
+		]);
+
 		$this->doResetCriteria();
 	}
 	
@@ -671,7 +670,7 @@ class View_ContextSavedSearch extends C4_AbstractView implements IAbstractView_S
 	function getSubtotalFields() {
 		$all_fields = $this->getParamsAvailable(true);
 		
-		$fields = array();
+		$fields = [];
 
 		if(is_array($all_fields))
 		foreach($all_fields as $field_key => $field_model) {
@@ -680,8 +679,15 @@ class View_ContextSavedSearch extends C4_AbstractView implements IAbstractView_S
 			switch($field_key) {
 				// Fields
 				case SearchFields_ContextSavedSearch::CONTEXT:
-				case SearchFields_ContextSavedSearch::VIRTUAL_HAS_FIELDSET:
 					$pass = true;
+					break;
+					
+				default:
+					if(DevblocksPlatform::strStartsWith($field_key, 'cf_')) {
+						$pass = $this->_canSubtotalCustomField($field_key);
+					} else if (str_starts_with($field_key, '*_')) {
+						$pass = $this->_canSubtotalVirtualField($field_key);
+					}
 					break;
 			}
 			
@@ -693,12 +699,12 @@ class View_ContextSavedSearch extends C4_AbstractView implements IAbstractView_S
 	}
 	
 	function getSubtotalCounts($column) {
-		$counts = array();
+		$counts = [];
 		$fields = $this->getFields();
 		$context = 'cerberusweb.contexts.context.saved.search';
 
-		if(!isset($fields[$column]))
-			return array();
+		if(!array_key_exists($column, $fields))
+			return [];
 		
 		switch($column) {
 			case SearchFields_ContextSavedSearch::CONTEXT:
@@ -707,16 +713,13 @@ class View_ContextSavedSearch extends C4_AbstractView implements IAbstractView_S
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
 				break;
 				
-			case SearchFields_ContextSavedSearch::VIRTUAL_HAS_FIELDSET:
-				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
-				break;
-
 			default:
 				// Custom fields
 				if(DevblocksPlatform::strStartsWith($column, 'cf_')) {
 					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
+				} else if(DevblocksPlatform::strStartsWith($column, '*_')) {
+					$counts = $this->_getSubtotalCountForVirtualField($context, $column);
 				}
-				
 				break;
 		}
 		
@@ -740,7 +743,7 @@ class View_ContextSavedSearch extends C4_AbstractView implements IAbstractView_S
 			'fieldset' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array('param_key' => SearchFields_ContextSavedSearch::VIRTUAL_HAS_FIELDSET),
+					'options' => ['param_key' => DevblocksSearchField::VIRTUAL_HAS_FIELDSET],
 					'examples' => [
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'qr' => 'context:' . CerberusContexts::CONTEXT_SAVED_SEARCH],
 					]
@@ -835,14 +838,8 @@ class View_ContextSavedSearch extends C4_AbstractView implements IAbstractView_S
 		}
 	}
 
-	function renderVirtualCriteria($param) {
-		$key = $param->field;
-		
-		switch($key) {
-			case SearchFields_ContextSavedSearch::VIRTUAL_HAS_FIELDSET:
-				$this->_renderVirtualHasFieldset($param);
-				break;
-		}
+	function renderVirtualCriteria($param) : void {
+		$this->_renderVirtualCriteria($param);
 	}
 
 	function getFields() {
@@ -868,15 +865,13 @@ class View_ContextSavedSearch extends C4_AbstractView implements IAbstractView_S
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
-			case SearchFields_ContextSavedSearch::VIRTUAL_HAS_FIELDSET:
-				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array', []);
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
-				break;
-				
 			default:
 				// Custom Fields
-				if(substr($field,0,3)=='cf_') {
+				if(str_starts_with($field, 'cf_')) {
 					$criteria = $this->_doSetCriteriaCustomField($field, substr($field,3));
+				} else if (str_starts_with($field, '*_')) {
+					if(($virtual_criteria = $this->_doSetCriteriaVirtual($field, $_POST, $oper)))
+						$criteria = $virtual_criteria;
 				}
 				break;
 		}
@@ -1191,7 +1186,7 @@ class Context_ContextSavedSearch extends Extension_DevblocksContext implements I
 		return $view;
 	}
 	
-	function getView($context=null, $context_id=null, $options=array(), $view_id=null) {
+	function getView($context=null, $context_id=null, $options=[], $view_id=null) {
 		$view_id = !empty($view_id) ? $view_id : str_replace('.','_',$this->id);
 		
 		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
@@ -1200,11 +1195,7 @@ class Context_ContextSavedSearch extends Extension_DevblocksContext implements I
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Saved Search';
 		
-		$params_req = array();
-		
-		if(!empty($context) && !empty($context_id)) {
-		}
-		
+		$params_req = [];
 		$view->addParamsRequired($params_req, true);
 		
 		$view->renderTemplate = 'context';

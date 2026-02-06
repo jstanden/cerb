@@ -458,7 +458,7 @@ class SearchFields_DecisionNode extends DevblocksSearchFields {
 	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		$columns = array(
+		$columns = [
 			self::ID => new DevblocksSearchField(self::ID, 'decision_node', 'id', $translate->_('common.id'), null, true),
 			self::PARENT_ID => new DevblocksSearchField(self::PARENT_ID, 'decision_node', 'parent_id', $translate->_('common.parent'), null, true),
 			self::TRIGGER_ID => new DevblocksSearchField(self::TRIGGER_ID, 'decision_node', 'trigger_id', $translate->_('dao.decision_node.trigger_id'), null, true),
@@ -467,7 +467,7 @@ class SearchFields_DecisionNode extends DevblocksSearchFields {
 			self::STATUS_ID => new DevblocksSearchField(self::STATUS_ID, 'decision_node', 'status_id', $translate->_('common.status'), null, true),
 			self::POS => new DevblocksSearchField(self::POS, 'decision_node', 'pos', $translate->_('common.order'), null, true),
 			self::PARAMS_JSON => new DevblocksSearchField(self::PARAMS_JSON, 'decision_node', 'params_json', $translate->_('common.params'), null, false),
-		);
+		];
 		
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
@@ -504,20 +504,20 @@ class View_DecisionNode extends C4_AbstractView {
 		$this->renderSortBy = SearchFields_DecisionNode::ID;
 		$this->renderSortAsc = true;
 
-		$this->view_columns = array(
+		$this->view_columns = [
 			SearchFields_DecisionNode::TITLE,
 			SearchFields_DecisionNode::STATUS_ID,
-		);
+		];
 		
-		$this->addColumnsHidden(array(
+		$this->addColumnsHidden([
 			SearchFields_DecisionNode::ID,
 			SearchFields_DecisionNode::PARENT_ID,
 			SearchFields_DecisionNode::TRIGGER_ID,
 			SearchFields_DecisionNode::PARAMS_JSON,
 			SearchFields_DecisionNode::NODE_TYPE,
 			SearchFields_DecisionNode::POS,
-		));
-		
+		]);
+
 		$this->doResetCriteria();
 	}
 	
@@ -591,31 +591,18 @@ class View_DecisionNode extends C4_AbstractView {
 			case SearchFields_DecisionNode::STATUS_ID:
 			case SearchFields_DecisionNode::POS:
 			case SearchFields_DecisionNode::PARAMS_JSON:
-			case 'placeholder_string':
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
-			case 'placeholder_number':
-				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
-				break;
-				
-			case 'placeholder_date':
-				$criteria = $this->_doSetCriteriaDate($field, $oper);
-				break;
-				
-			case 'placeholder_bool':
-				$bool = DevblocksPlatform::importGPC($_POST['bool'] ?? null, 'integer',1);
-				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
-				break;
-				
-			/*
 			default:
 				// Custom Fields
-				if(substr($field,0,3)=='cf_') {
+				if(str_starts_with($field, 'cf_')) {
 					$criteria = $this->_doSetCriteriaCustomField($field, substr($field,3));
+				} else if (str_starts_with($field, '*_')) {
+					if(($virtual_criteria = $this->_doSetCriteriaVirtual($field, $_POST, $oper)))
+						$criteria = $virtual_criteria;
 				}
 				break;
-			*/
 		}
 
 		if(!empty($criteria)) {

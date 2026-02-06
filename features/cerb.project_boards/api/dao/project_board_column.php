@@ -405,9 +405,6 @@ class SearchFields_ProjectBoardColumn extends DevblocksSearchFields {
 	const UPDATED_AT = 'p_updated_at';
 	
 	const VIRTUAL_BOARD_SEARCH = '*_board_search';
-	const VIRTUAL_CONTEXT_LINK = '*_context_link';
-	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
-	const VIRTUAL_WATCHERS = '*_workers';
 	
 	static private $_fields = null;
 	
@@ -487,17 +484,18 @@ class SearchFields_ProjectBoardColumn extends DevblocksSearchFields {
 	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		$columns = array(
+		$columns = [
 			self::ID => new DevblocksSearchField(self::ID, 'project_board_column', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'project_board_column', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::BOARD_ID => new DevblocksSearchField(self::BOARD_ID, 'project_board_column', 'board_id', $translate->_('projects.common.board'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'project_board_column', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 
 			self::VIRTUAL_BOARD_SEARCH => new DevblocksSearchField(self::VIRTUAL_BOARD_SEARCH, '*', 'board_search', null, null, false),
-			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
-			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
-			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS', false),
-		);
+		];
+		
+		// Virtual fields
+		if(($virtual_columns = DevblocksSearchField::getVirtualFields()))
+			$columns = array_merge($columns, $virtual_columns);
 		
 		// Custom Fields
 		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
@@ -699,19 +697,19 @@ class View_ProjectBoardColumn extends C4_AbstractView implements IAbstractView_S
 		$this->renderSortBy = SearchFields_ProjectBoardColumn::ID;
 		$this->renderSortAsc = true;
 
-		$this->view_columns = array(
+		$this->view_columns = [
 			SearchFields_ProjectBoardColumn::NAME,
 			SearchFields_ProjectBoardColumn::BOARD_ID,
 			SearchFields_ProjectBoardColumn::UPDATED_AT,
-		);
+		];
 		
-		$this->addColumnsHidden(array(
+		$this->addColumnsHidden([
 			SearchFields_ProjectBoardColumn::VIRTUAL_BOARD_SEARCH,
-			SearchFields_ProjectBoardColumn::VIRTUAL_CONTEXT_LINK,
-			SearchFields_ProjectBoardColumn::VIRTUAL_HAS_FIELDSET,
-			SearchFields_ProjectBoardColumn::VIRTUAL_WATCHERS,
-		));
-		
+			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
+			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
+			DevblocksSearchField::VIRTUAL_WATCHERS,
+		]);
+
 		$this->doResetCriteria();
 	}
 	
@@ -762,17 +760,13 @@ class View_ProjectBoardColumn extends C4_AbstractView implements IAbstractView_S
 					$pass = true;
 					break;
 					
-				// Virtuals
-				case SearchFields_ProjectBoardColumn::VIRTUAL_CONTEXT_LINK:
-				case SearchFields_ProjectBoardColumn::VIRTUAL_HAS_FIELDSET:
-				case SearchFields_ProjectBoardColumn::VIRTUAL_WATCHERS:
-					$pass = true;
-					break;
-					
 				// Valid custom fields
 				default:
-					if(DevblocksPlatform::strStartsWith($field_key, 'cf_'))
+					if(DevblocksPlatform::strStartsWith($field_key, 'cf_')) {
 						$pass = $this->_canSubtotalCustomField($field_key);
+					} else if (str_starts_with($field_key, '*_')) {
+						$pass = $this->_canSubtotalVirtualField($field_key);
+					}
 					break;
 			}
 			
@@ -784,12 +778,12 @@ class View_ProjectBoardColumn extends C4_AbstractView implements IAbstractView_S
 	}
 	
 	function getSubtotalCounts($column) {
-		$counts = array();
+		$counts = [];
 		$fields = $this->getFields();
 		$context = Context_ProjectBoardColumn::ID;
 
-		if(!isset($fields[$column]))
-			return array();
+		if(!array_key_exists($column, $fields))
+			return [];
 		
 		switch($column) {
 			case SearchFields_ProjectBoardColumn::BOARD_ID:
@@ -800,24 +794,13 @@ class View_ProjectBoardColumn extends C4_AbstractView implements IAbstractView_S
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
 				break;
 				
-			case SearchFields_ProjectBoardColumn::VIRTUAL_CONTEXT_LINK:
-				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
-				break;
-
-			case SearchFields_ProjectBoardColumn::VIRTUAL_HAS_FIELDSET:
-				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
-				break;
-				
-			case SearchFields_ProjectBoardColumn::VIRTUAL_WATCHERS:
-				$counts = $this->_getSubtotalCountForWatcherColumn($context, $column);
-				break;
-			
 			default:
 				// Custom fields
 				if(DevblocksPlatform::strStartsWith($column, 'cf_')) {
 					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
+				} else if(DevblocksPlatform::strStartsWith($column, '*_')) {
+					$counts = $this->_getSubtotalCountForVirtualField($context, $column);
 				}
-				
 				break;
 		}
 		
@@ -852,7 +835,7 @@ class View_ProjectBoardColumn extends C4_AbstractView implements IAbstractView_S
 			'fieldset' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array('param_key' => SearchFields_ProjectBoardColumn::VIRTUAL_HAS_FIELDSET),
+					'options' => ['param_key' => DevblocksSearchField::VIRTUAL_HAS_FIELDSET],
 					'examples' => [
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'qr' => 'context:' . Context_ProjectBoardColumn::ID],
 					]
@@ -878,7 +861,7 @@ class View_ProjectBoardColumn extends C4_AbstractView implements IAbstractView_S
 			'watchers' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array('param_key' => SearchFields_ProjectBoardColumn::VIRTUAL_WATCHERS),
+					'options' => ['param_key' => DevblocksSearchField::VIRTUAL_WATCHERS],
 					'examples' => [
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => ''],
 					],
@@ -887,7 +870,7 @@ class View_ProjectBoardColumn extends C4_AbstractView implements IAbstractView_S
 		
 		// Add quick search links
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', SearchFields_ProjectBoardColumn::VIRTUAL_CONTEXT_LINK);
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', DevblocksSearchField::VIRTUAL_CONTEXT_LINK);
 		
 		// Add searchable custom fields
 		
@@ -912,10 +895,10 @@ class View_ProjectBoardColumn extends C4_AbstractView implements IAbstractView_S
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
 			
 			case 'watchers':
-				return DevblocksSearchCriteria::getWatcherParamFromTokens(SearchFields_ProjectBoardColumn::VIRTUAL_WATCHERS, $tokens);
+				return DevblocksSearchCriteria::getWatcherParamFromTokens(DevblocksSearchField::VIRTUAL_WATCHERS, $tokens);
 				
 			default:
-				if($field == 'links' || substr($field, 0, 6) == 'links.')
+				if($field == 'links' || str_starts_with($field, 'links.'))
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
 				
 				$search_fields = $this->getQuickSearchFields();
@@ -962,7 +945,7 @@ class View_ProjectBoardColumn extends C4_AbstractView implements IAbstractView_S
 		}
 	}
 
-	function renderVirtualCriteria($param) {
+	function renderVirtualCriteria($param) : void {
 		$key = $param->field;
 		
 		switch($key) {
@@ -970,16 +953,8 @@ class View_ProjectBoardColumn extends C4_AbstractView implements IAbstractView_S
 				echo sprintf("Project matches <b>%s</b>", DevblocksPlatform::strEscapeHtml($param->value));
 				break;
 			
-			case SearchFields_ProjectBoardColumn::VIRTUAL_CONTEXT_LINK:
-				$this->_renderVirtualContextLinks($param);
-				break;
-				
-			case SearchFields_ProjectBoardColumn::VIRTUAL_HAS_FIELDSET:
-				$this->_renderVirtualHasFieldset($param);
-				break;
-			
-			case SearchFields_ProjectBoardColumn::VIRTUAL_WATCHERS:
-				$this->_renderVirtualWatchers($param);
+			default:
+				$this->_renderVirtualCriteria($param);
 				break;
 		}
 	}
@@ -1005,25 +980,18 @@ class View_ProjectBoardColumn extends C4_AbstractView implements IAbstractView_S
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
-			case SearchFields_ProjectBoardColumn::VIRTUAL_CONTEXT_LINK:
+			case DevblocksSearchField::VIRTUAL_CONTEXT_LINK:
 				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array', []);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
-			case SearchFields_ProjectBoardColumn::VIRTUAL_HAS_FIELDSET:
-				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array', []);
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
-				break;
-				
-			case SearchFields_ProjectBoardColumn::VIRTUAL_WATCHERS:
-				$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'] ?? null, 'array', []);
-				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
-				break;
-				
 			default:
 				// Custom Fields
-				if(substr($field,0,3)=='cf_') {
+				if(str_starts_with($field, 'cf_')) {
 					$criteria = $this->_doSetCriteriaCustomField($field, substr($field,3));
+				} else if (str_starts_with($field, '*_')) {
+					if(($virtual_criteria = $this->_doSetCriteriaVirtual($field, $_POST, $oper)))
+						$criteria = $virtual_criteria;
 				}
 				break;
 		}
@@ -1346,7 +1314,7 @@ class Context_ProjectBoardColumn extends Extension_DevblocksContext implements I
 		return $view;
 	}
 	
-	function getView($context=null, $context_id=null, $options=array(), $view_id=null) {
+	function getView($context=null, $context_id=null, $options=[], $view_id=null) {
 		$view_id = !empty($view_id) ? $view_id : str_replace('.','_',$this->id);
 		
 		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
@@ -1355,12 +1323,12 @@ class Context_ProjectBoardColumn extends Extension_DevblocksContext implements I
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Project Board Column';
 		
-		$params_req = array();
+		$params_req = [];
 		
 		if(!empty($context) && !empty($context_id)) {
-			$params_req = array(
-				new DevblocksSearchCriteria(SearchFields_ProjectBoardColumn::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
-			);
+			$params_req = [
+				new DevblocksSearchCriteria(DevblocksSearchField::VIRTUAL_CONTEXT_LINK, 'in', [$context.':'.$context_id]),
+			];
 		}
 		
 		$view->addParamsRequired($params_req, true);

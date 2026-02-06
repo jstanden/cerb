@@ -155,7 +155,7 @@ class UmScAccountController extends Extension_UmScController {
 		if(null != ($show_fields = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), 'account.fields', '[]')))
 			@$show_fields = json_decode($show_fields, true);
 		
-		$fields = array();
+		$fields = [];
 		
 		// First name
 		if(isset($show_fields['contact_first_name']) && $show_fields['contact_first_name'] == 2) {
@@ -718,7 +718,7 @@ class UmScAccountController extends Extension_UmScController {
 		$aFields = DevblocksPlatform::importGPC($_POST['fields'] ?? null, 'array', []);
 		$aFieldsVisible = DevblocksPlatform::importGPC($_POST['fields_visible'] ?? null, 'array', []);
 
-		$fields = array();
+		$fields = [];
 		
 		if(is_array($aFields))
 		foreach($aFields as $idx => $field) {

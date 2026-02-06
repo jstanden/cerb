@@ -2360,10 +2360,8 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 	const VIRTUAL_COMMENTS_SEARCH = '*_comments_search';
 	const VIRTUAL_COMMENTS_FIRST_SEARCH = '*_comments_first_search';
 	const VIRTUAL_COMMENTS_LAST_SEARCH = '*_comments_last_search';
-	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_GROUP_SEARCH = '*_group_search';
 	const VIRTUAL_GROUPS_OF_WORKER = '*_groups_of_worker';
-	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_MASK_MERGED = '*_mask_merged';
 	const VIRTUAL_MESSAGE_FIRST_SEARCH = '*_message_first_search';
 	const VIRTUAL_MESSAGE_FIRST_OUTGOING_SEARCH = '*_message_first_outgoing_search';
@@ -2376,7 +2374,6 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 	const VIRTUAL_SENDER_FIRST_SEARCH = '*_sender_first_search';
 	const VIRTUAL_SENDER_LAST_SEARCH = '*_sender_last_search';
 	const VIRTUAL_STATUS = '*_status';
-	const VIRTUAL_WATCHERS = '*_workers';
 	const VIRTUAL_WATCHERS_COUNT = '*_workers_count';
 	const VIRTUAL_WORKER_COMMENTED = '*_worker_commented';
 	const VIRTUAL_WORKER_REPLIED = '*_worker_replied';
@@ -2851,7 +2848,7 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		$columns = array(
+		$columns = [
 			SearchFields_Ticket::TICKET_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_ID, 'ticket', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
 			SearchFields_Ticket::TICKET_MASK => new DevblocksSearchField(SearchFields_Ticket::TICKET_MASK, 'ticket', 'mask', $translate->_('ticket.mask'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			SearchFields_Ticket::TICKET_SUBJECT => new DevblocksSearchField(SearchFields_Ticket::TICKET_SUBJECT, 'ticket', 'subject', $translate->_('ticket.subject'), Model_CustomField::TYPE_SINGLE_LINE, true),
@@ -2897,10 +2894,8 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 			SearchFields_Ticket::VIRTUAL_COMMENTS_SEARCH => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_COMMENTS_SEARCH, '*', 'comments_search', null, null, false),
 			SearchFields_Ticket::VIRTUAL_COMMENTS_FIRST_SEARCH => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_COMMENTS_FIRST_SEARCH, '*', 'comments_first_search', null, null, false),
 			SearchFields_Ticket::VIRTUAL_COMMENTS_LAST_SEARCH => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_COMMENTS_LAST_SEARCH, '*', 'comments_last_search', null, null, false),
-			SearchFields_Ticket::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			SearchFields_Ticket::VIRTUAL_GROUP_SEARCH => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_GROUP_SEARCH, '*', 'group_search', null, null, false),
 			SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER, '*', 'groups_of_worker', $translate->_('ticket.groups_of_worker'), null, false),
-			SearchFields_Ticket::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			SearchFields_Ticket::VIRTUAL_MASK_MERGED => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_MASK_MERGED, '*', 'mask_merged', null, null, false),
 			SearchFields_Ticket::VIRTUAL_MESSAGE_FIRST_SEARCH => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_MESSAGE_FIRST_SEARCH, '*', 'message_first_search', null, null, false),
 			SearchFields_Ticket::VIRTUAL_MESSAGE_FIRST_OUTGOING_SEARCH => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_MESSAGE_FIRST_OUTGOING_SEARCH, '*', 'message_first_outgoing_search', null, null, false),
@@ -2913,14 +2908,17 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 			SearchFields_Ticket::VIRTUAL_SENDER_FIRST_SEARCH => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_SENDER_FIRST_SEARCH, '*', 'sender_first_search', null, null, false),
 			SearchFields_Ticket::VIRTUAL_SENDER_LAST_SEARCH => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_SENDER_LAST_SEARCH, '*', 'sender_last_search', null, null, false),
 			SearchFields_Ticket::VIRTUAL_STATUS => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_STATUS, '*', 'status', $translate->_('common.status'), null, false),
-			SearchFields_Ticket::VIRTUAL_WATCHERS => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS', false),
 			SearchFields_Ticket::VIRTUAL_WATCHERS_COUNT => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_WATCHERS_COUNT, '*', 'workers_count', null, null, false),
 			SearchFields_Ticket::VIRTUAL_WORKER_COMMENTED => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_WORKER_COMMENTED, '*', 'worker_commented', null, null, false),
 			SearchFields_Ticket::VIRTUAL_WORKER_REPLIED => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_WORKER_REPLIED, '*', 'worker_replied', null, null, false),
 			
 			SearchFields_Ticket::FULLTEXT_COMMENT_CONTENT => new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT', false),
 			SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT => new DevblocksSearchField(self::FULLTEXT_MESSAGE_CONTENT, 'ftmc', 'content', $translate->_('message.content'), 'FT', false),
-		);
+		];
+		
+		// Virtual fields
+		if(($virtual_columns = DevblocksSearchField::getVirtualFields()))
+			$columns = array_merge($columns, $virtual_columns);
 		
 		// Fulltext indexes
 		
@@ -3166,16 +3164,16 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		$this->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
 		$this->renderSortAsc = false;
 
-		$this->view_columns = array(
+		$this->view_columns = [
 			SearchFields_Ticket::TICKET_IMPORTANCE,
 			SearchFields_Ticket::TICKET_LAST_WROTE_ID,
 			SearchFields_Ticket::TICKET_GROUP_ID,
 			SearchFields_Ticket::TICKET_BUCKET_ID,
 			SearchFields_Ticket::TICKET_OWNER_ID,
 			SearchFields_Ticket::TICKET_UPDATED_DATE,
-		);
+		];
 		
-		$this->addColumnsHidden(array(
+		$this->addColumnsHidden([
 			SearchFields_Ticket::FULLTEXT_COMMENT_CONTENT,
 			SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT,
 			SearchFields_Ticket::REQUESTER_ADDRESS,
@@ -3184,9 +3182,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Ticket::VIRTUAL_COMMENTS_SEARCH,
 			SearchFields_Ticket::VIRTUAL_COMMENTS_FIRST_SEARCH,
 			SearchFields_Ticket::VIRTUAL_COMMENTS_LAST_SEARCH,
-			SearchFields_Ticket::VIRTUAL_CONTEXT_LINK,
 			SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER,
-			SearchFields_Ticket::VIRTUAL_HAS_FIELDSET,
 			SearchFields_Ticket::VIRTUAL_BUCKET_SEARCH,
 			SearchFields_Ticket::VIRTUAL_GROUP_SEARCH,
 			SearchFields_Ticket::VIRTUAL_OWNER_SEARCH,
@@ -3200,12 +3196,14 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Ticket::VIRTUAL_SENDER_FIRST_SEARCH,
 			SearchFields_Ticket::VIRTUAL_SENDER_LAST_SEARCH,
 			SearchFields_Ticket::TICKET_STATUS_ID,
-			SearchFields_Ticket::VIRTUAL_WATCHERS,
 			SearchFields_Ticket::VIRTUAL_WATCHERS_COUNT,
 			SearchFields_Ticket::VIRTUAL_WORKER_COMMENTED,
 			SearchFields_Ticket::VIRTUAL_WORKER_REPLIED,
-		));
-		
+			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
+			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
+			DevblocksSearchField::VIRTUAL_WATCHERS,
+		]);
+
 		$this->doResetCriteria();
 	}
 	
@@ -3260,24 +3258,17 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				case SearchFields_Ticket::TICKET_BUCKET_ID:
 				case SearchFields_Ticket::TICKET_ORG_ID:
 				case SearchFields_Ticket::TICKET_OWNER_ID:
-					$pass = true;
-					break;
-
-				// Virtuals
 				case SearchFields_Ticket::VIRTUAL_STATUS:
-					$pass = true;
-					break;
-					
-				case SearchFields_Ticket::VIRTUAL_CONTEXT_LINK:
-				case SearchFields_Ticket::VIRTUAL_HAS_FIELDSET:
-				case SearchFields_Ticket::VIRTUAL_WATCHERS:
 					$pass = true;
 					break;
 					
 				// Valid custom fields
 				default:
-					if(DevblocksPlatform::strStartsWith($field_key, 'cf_'))
+					if(DevblocksPlatform::strStartsWith($field_key, 'cf_')) {
 						$pass = $this->_canSubtotalCustomField($field_key);
+					} else if (str_starts_with($field_key, '*_')) {
+						$pass = $this->_canSubtotalVirtualField($field_key);
+					}
 					break;
 			}
 			
@@ -3293,7 +3284,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		$fields = $this->getFields();
 		$context = CerberusContexts::CONTEXT_TICKET;
 
-		if(!isset($fields[$column]))
+		if(!array_key_exists($column, $fields))
 			return [];
 		
 		switch($column) {
@@ -3343,24 +3334,13 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				$counts = $this->_getSubtotalCountForStatus();
 				break;
 				
-			case SearchFields_Ticket::VIRTUAL_CONTEXT_LINK:
-				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
-				break;
-				
-			case SearchFields_Ticket::VIRTUAL_HAS_FIELDSET:
-				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
-				break;
-				
-			case SearchFields_Ticket::VIRTUAL_WATCHERS:
-				$counts = $this->_getSubtotalCountForWatcherColumn($context, $column);
-				break;
-			
 			default:
 				// Custom fields
 				if(DevblocksPlatform::strStartsWith($column, 'cf_')) {
 					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
+				} else if(DevblocksPlatform::strStartsWith($column, '*_')) {
+					$counts = $this->_getSubtotalCountForVirtualField($context, $column);
 				}
-				
 				break;
 		}
 		
@@ -3705,7 +3685,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			'fieldset' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array('param_key' => SearchFields_Ticket::VIRTUAL_HAS_FIELDSET),
+					'options' => ['param_key' => DevblocksSearchField::VIRTUAL_HAS_FIELDSET],
 					'examples' => [
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'qr' => 'context:' . CerberusContexts::CONTEXT_TICKET],
 					]
@@ -3948,7 +3928,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			'watchers' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array('param_key' => SearchFields_Ticket::VIRTUAL_WATCHERS),
+					'options' => ['param_key' => DevblocksSearchField::VIRTUAL_WATCHERS],
 					'examples' => [
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => ''],
 					],
@@ -3972,7 +3952,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		
 		// Add quick search links
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', SearchFields_Ticket::VIRTUAL_CONTEXT_LINK);
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', DevblocksSearchField::VIRTUAL_CONTEXT_LINK);
 		
 		// Add searchable custom fields
 		
@@ -4022,7 +4002,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Ticket::VIRTUAL_GROUP_SEARCH);
 				
 			case 'fieldset':
-				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Ticket::VIRTUAL_HAS_FIELDSET);
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, DevblocksSearchField::VIRTUAL_HAS_FIELDSET);
 				
 			case 'inGroupsOf':
 			case 'inGroupsOfWorker':
@@ -4188,7 +4168,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				return DevblocksSearchCriteria::getNumberParamFromTokens($field_key, $tokens);
 			
 			case 'watchers':
-				return DevblocksSearchCriteria::getWatcherParamFromTokens(SearchFields_Ticket::VIRTUAL_WATCHERS, $tokens);
+				return DevblocksSearchCriteria::getWatcherParamFromTokens(DevblocksSearchField::VIRTUAL_WATCHERS, $tokens);
 				
 			case 'watchers.count':
 				return DevblocksSearchCriteria::getNumberParamFromTokens(SearchFields_Ticket::VIRTUAL_WATCHERS_COUNT, $tokens);
@@ -4202,7 +4182,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				return DevblocksSearchCriteria::getWorkerParamFromTokens(SearchFields_Ticket::VIRTUAL_WORKER_REPLIED, $tokens, $search_fields[SearchFields_Ticket::VIRTUAL_WORKER_REPLIED]);
 				
 			default:
-				if($field == 'links' || substr($field, 0, 6) == 'links.')
+				if($field == 'links' || str_starts_with($field, 'links.'))
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
 				
 				break;
@@ -4295,7 +4275,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		$tpl->display('devblocks:cerberusweb.core::internal/views/options/ticket.tpl');
 	}
 
-	function renderVirtualCriteria($param) {
+	function renderVirtualCriteria($param) : void {
 		$key = $param->field;
 		
 		$translate = DevblocksPlatform::getTranslationService();
@@ -4327,14 +4307,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateLower('common.comment')),
 					DevblocksPlatform::strEscapeHtml($param->value)
 				);
-				break;
-				
-			case SearchFields_Ticket::VIRTUAL_CONTEXT_LINK:
-				$this->_renderVirtualContextLinks($param);
-				break;
-				
-			case SearchFields_Ticket::VIRTUAL_HAS_FIELDSET:
-				$this->_renderVirtualHasFieldset($param);
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_GROUP_SEARCH:
@@ -4422,10 +4394,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				);
 				break;
 			
-			case SearchFields_Ticket::VIRTUAL_WATCHERS:
-				$this->_renderVirtualWatchers($param);
-				break;
-				
 			case SearchFields_Ticket::VIRTUAL_WATCHERS_COUNT:
 				$this->_renderVirtualWatchersCount($param);
 				break;
@@ -4552,6 +4520,10 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 						break;
 				}
 				echo sprintf("Status %s %s", $oper, implode(' or ', $strings));
+				break;
+			
+			default:
+				$this->_renderVirtualCriteria($param);
 				break;
 		}
 	}
@@ -4712,22 +4684,11 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				$criteria = $this->_doSetCriteriaWorker($field, $oper);
 				break;
 				
-			case SearchFields_Ticket::VIRTUAL_CONTEXT_LINK:
-				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array',[]);
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
-				break;
-				
 			case SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER:
 				$worker_id = DevblocksPlatform::importGPC($_POST['worker_id'] ?? null, 'string','');
 				$criteria = new DevblocksSearchCriteria($field, '=', $worker_id);
 				break;
 
-			case SearchFields_Ticket::VIRTUAL_HAS_FIELDSET:
-				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array',[]);
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
-				break;
-				
-			case SearchFields_Ticket::VIRTUAL_WATCHERS:
 			case SearchFields_Ticket::VIRTUAL_WORKER_COMMENTED:
 			case SearchFields_Ticket::VIRTUAL_WORKER_REPLIED:
 				$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'] ?? null, 'array',[]);
@@ -4736,8 +4697,11 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				
 			default:
 				// Custom Fields
-				if(substr($field,0,3)=='cf_') {
+				if(str_starts_with($field, 'cf_')) {
 					$criteria = $this->_doSetCriteriaCustomField($field, substr($field,3));
+				} else if (str_starts_with($field, '*_')) {
+					if(($virtual_criteria = $this->_doSetCriteriaVirtual($field, $_POST, $oper)))
+						$criteria = $virtual_criteria;
 				}
 				break;
 		}
@@ -5914,9 +5878,9 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		$params_req = [];
 		
 		if(!empty($context) && !empty($context_id)) {
-			$params_req = array(
-				new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
-			);
+			$params_req = [
+				new DevblocksSearchCriteria(DevblocksSearchField::VIRTUAL_CONTEXT_LINK, 'in', [$context.':'.$context_id]),
+			];
 		}
 		
 		$view->addParamsRequired($params_req, true);

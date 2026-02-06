@@ -440,8 +440,6 @@ class SearchFields_MailDeliveryLog extends DevblocksSearchFields {
 	const TO = 'm_to';
 	const TYPE = 'm_type';
 	
-	const VIRTUAL_CONTEXT_LINK = '*_context_link';
-	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_SENDER_SEARCH = '*_sender_search';
 	const VIRTUAL_TRANSPORT_SEARCH = '*_transport_search';
 	
@@ -548,11 +546,13 @@ class SearchFields_MailDeliveryLog extends DevblocksSearchFields {
 			self::TO => new DevblocksSearchField(self::TO, 'mail_delivery_log', 'to', $translate->_('message.header.to'), null, true),
 			self::TYPE => new DevblocksSearchField(self::TYPE, 'mail_delivery_log', 'type', $translate->_('common.type'), null, true),
 			
-			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
-			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			self::VIRTUAL_SENDER_SEARCH => new DevblocksSearchField(self::VIRTUAL_SENDER_SEARCH, '*', 'sender_search', null, null, false),
 			self::VIRTUAL_TRANSPORT_SEARCH => new DevblocksSearchField(self::VIRTUAL_TRANSPORT_SEARCH, '*', 'transport_search', null, null, false),
 		];
+		
+		// Virtual fields
+		if(($virtual_columns = DevblocksSearchField::getVirtualFields(watchers: false)))
+			$columns = array_merge($columns, $virtual_columns);
 		
 		// Custom Fields
 		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
@@ -609,10 +609,10 @@ class View_MailDeliveryLog extends C4_AbstractView implements IAbstractView_Subt
 			SearchFields_MailDeliveryLog::CREATED_AT,
 		];
 		$this->addColumnsHidden([
-			SearchFields_MailDeliveryLog::VIRTUAL_CONTEXT_LINK,
-			SearchFields_MailDeliveryLog::VIRTUAL_HAS_FIELDSET,
 			SearchFields_MailDeliveryLog::VIRTUAL_SENDER_SEARCH,
 			SearchFields_MailDeliveryLog::VIRTUAL_TRANSPORT_SEARCH,
+			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
+			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
 		]);
 		
 		$this->doResetCriteria();
@@ -664,15 +664,16 @@ class View_MailDeliveryLog extends C4_AbstractView implements IAbstractView_Subt
 					case SearchFields_MailDeliveryLog::FROM_ID:
 					case SearchFields_MailDeliveryLog::MAIL_TRANSPORT_ID:
 					case SearchFields_MailDeliveryLog::STATUS_ID:
-					case SearchFields_MailDeliveryLog::VIRTUAL_CONTEXT_LINK:
-					case SearchFields_MailDeliveryLog::VIRTUAL_HAS_FIELDSET:
 						$pass = true;
 						break;
 					
 					// Valid custom fields
 					default:
-						if(DevblocksPlatform::strStartsWith($field_key, 'cf_'))
+						if(DevblocksPlatform::strStartsWith($field_key, 'cf_')) {
 							$pass = $this->_canSubtotalCustomField($field_key);
+						} else if (str_starts_with($field_key, '*_')) {
+							$pass = $this->_canSubtotalVirtualField($field_key);
+						}
 						break;
 				}
 				
@@ -688,7 +689,7 @@ class View_MailDeliveryLog extends C4_AbstractView implements IAbstractView_Subt
 		$fields = $this->getFields();
 		$context = Context_MailDeliveryLog::ID;
 		
-		if(!isset($fields[$column]))
+		if(!array_key_exists($column, $fields))
 			return [];
 		
 		switch($column) {
@@ -715,20 +716,13 @@ class View_MailDeliveryLog extends C4_AbstractView implements IAbstractView_Subt
 				$counts = $this->_getSubtotalCountForNumberColumn($context, $column, $label_map);
 				break;
 			
-			case SearchFields_MailDeliveryLog::VIRTUAL_CONTEXT_LINK:
-				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
-				break;
-			
-			case SearchFields_MailDeliveryLog::VIRTUAL_HAS_FIELDSET:
-				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
-				break;
-			
 			default:
 				// Custom fields
 				if(DevblocksPlatform::strStartsWith($column, 'cf_')) {
 					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
+				} else if(DevblocksPlatform::strStartsWith($column, '*_')) {
+					$counts = $this->_getSubtotalCountForVirtualField($context, $column);
 				}
-				
 				break;
 		}
 		
@@ -752,7 +746,7 @@ class View_MailDeliveryLog extends C4_AbstractView implements IAbstractView_Subt
 			'fieldset' =>
 				[
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => ['param_key' => SearchFields_MailDeliveryLog::VIRTUAL_HAS_FIELDSET],
+					'options' => ['param_key' => DevblocksSearchField::VIRTUAL_HAS_FIELDSET],
 					'examples' => [
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'qr' => 'context:' . Context_MailDeliveryLog::ID],
 					]
@@ -837,7 +831,7 @@ class View_MailDeliveryLog extends C4_AbstractView implements IAbstractView_Subt
 		
 		// Add quick search links
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', SearchFields_MailDeliveryLog::VIRTUAL_CONTEXT_LINK);
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', DevblocksSearchField::VIRTUAL_CONTEXT_LINK);
 		
 		// Add searchable custom fields
 		
@@ -950,18 +944,10 @@ class View_MailDeliveryLog extends C4_AbstractView implements IAbstractView_Subt
 		}
 	}
 	
-	function renderVirtualCriteria($param) {
+	function renderVirtualCriteria($param) : void {
 		$key = $param->field;
 		
 		switch($key) {
-			case SearchFields_MailDeliveryLog::VIRTUAL_CONTEXT_LINK:
-				$this->_renderVirtualContextLinks($param);
-				break;
-			
-			case SearchFields_MailDeliveryLog::VIRTUAL_HAS_FIELDSET:
-				$this->_renderVirtualHasFieldset($param);
-				break;
-			
 			case SearchFields_MailDeliveryLog::VIRTUAL_SENDER_SEARCH:
 				echo sprintf("%s matches <b>%s</b>",
 					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('message.header.from')),
@@ -974,6 +960,10 @@ class View_MailDeliveryLog extends C4_AbstractView implements IAbstractView_Subt
 					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.email_transport')),
 					DevblocksPlatform::strEscapeHtml($param->value)
 				);
+				break;
+				
+			default:
+				$this->_renderVirtualCriteria($param);
 				break;
 		}
 	}
@@ -1005,25 +995,13 @@ class View_MailDeliveryLog extends C4_AbstractView implements IAbstractView_Subt
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 			
-			case 'placeholder_bool':
-				$bool = DevblocksPlatform::importGPC($_POST['bool'] ?? null, 'integer',1);
-				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
-				break;
-			
-			case SearchFields_MailDeliveryLog::VIRTUAL_CONTEXT_LINK:
-				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array',[]);
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
-				break;
-			
-			case SearchFields_MailDeliveryLog::VIRTUAL_HAS_FIELDSET:
-				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array',[]);
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
-				break;
-			
 			default:
 				// Custom Fields
 				if(str_starts_with($field, 'cf_')) {
 					$criteria = $this->_doSetCriteriaCustomField($field, substr($field,3));
+				} else if (str_starts_with($field, '*_')) {
+					if(($virtual_criteria = $this->_doSetCriteriaVirtual($field, $_POST, $oper)))
+						$criteria = $virtual_criteria;
 				}
 				break;
 		}
@@ -1363,7 +1341,7 @@ class Context_MailDeliveryLog extends Extension_DevblocksContext implements IDev
 		
 		if(!empty($context) && !empty($context_id)) {
 			$params_req = [
-				new DevblocksSearchCriteria(SearchFields_MailDeliveryLog::VIRTUAL_CONTEXT_LINK,'in',[$context.':'.$context_id]),
+				new DevblocksSearchCriteria(DevblocksSearchField::VIRTUAL_CONTEXT_LINK,'in',[$context.':'.$context_id]),
 			];
 		}
 		

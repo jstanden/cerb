@@ -64,11 +64,11 @@ class ChRest_Messages extends Extension_RestController implements IExtensionRest
 	}
 
 	function translateToken($token, $type='dao') {
-		if('custom_' == substr($token, 0, 7) && in_array($type, array('search', 'subtotal'))) {
+		if(str_starts_with($token, 'custom_') && in_array($type, ['search', 'subtotal'])) {
 			return 'cf_' . intval(substr($token, 7));
 		}
 		
-		$tokens = array();
+		$tokens = [];
 		
 		if('dao'==$type) {
 			$tokens = array(

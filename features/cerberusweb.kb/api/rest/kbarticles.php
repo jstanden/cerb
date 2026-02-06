@@ -94,11 +94,11 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 	}
 
 	function translateToken($token, $type='dao') {
-		if('custom_' == substr($token, 0, 7) && in_array($type, array('search', 'subtotal'))) {
+		if(str_starts_with($token, 'custom_') && in_array($type, ['search', 'subtotal'])) {
 			return 'cf_' . intval(substr($token, 7));
 		}
 		
-		$tokens = array();
+		$tokens = [];
 		
 		if('dao'==$type) {
 			$tokens = array(
@@ -112,9 +112,9 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 			
 		} elseif ('subtotal'==$type) {
 			$tokens = array(
-				'links' => SearchFields_KbArticle::VIRTUAL_CONTEXT_LINK,
-				'fieldsets' => SearchFields_KbArticle::VIRTUAL_HAS_FIELDSET,
-				'watchers' => SearchFields_KbArticle::VIRTUAL_WATCHERS,
+				'links' => DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
+				'fieldsets' => DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
+				'watchers' => DevblocksSearchField::VIRTUAL_WATCHERS,
 					
 				'topic' => SearchFields_KbArticle::TOP_CATEGORY_ID,
 				'format' => SearchFields_KbArticle::FORMAT,
@@ -252,7 +252,7 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 			'views' => 'integer',
 		);
 
-		$fields = array();
+		$fields = [];
 
 		foreach($putfields as $putfield => $type) {
 			if(!isset($_POST[$putfield]))
@@ -305,7 +305,7 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 			'views' => 'integer',
 		);
 
-		$fields = array();
+		$fields = [];
 		
 		foreach($postfields as $postfield => $type) {
 			if(!isset($_POST[$postfield]))

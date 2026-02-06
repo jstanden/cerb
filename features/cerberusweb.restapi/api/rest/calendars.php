@@ -64,11 +64,11 @@ class ChRest_Calendars extends Extension_RestController implements IExtensionRes
 	}
 
 	function translateToken($token, $type='dao') {
-		if('custom_' == substr($token, 0, 7) && in_array($type, array('search', 'subtotal'))) {
+		if(str_starts_with($token, 'custom_') && in_array($type, ['search', 'subtotal'])) {
 			return 'cf_' . intval(substr($token, 7));
 		}
 		
-		$tokens = array();
+		$tokens = [];
 		
 		if('dao'==$type) {
 			$tokens = array(
@@ -78,10 +78,10 @@ class ChRest_Calendars extends Extension_RestController implements IExtensionRes
 			
 		} elseif ('subtotal'==$type) {
 			$tokens = array(
-				'fieldsets' => SearchFields_Calendar::VIRTUAL_HAS_FIELDSET,
-				'links' => SearchFields_Calendar::VIRTUAL_CONTEXT_LINK,
-				'owner' => SearchFields_Calendar::VIRTUAL_OWNER,
-				'watchers' => SearchFields_Calendar::VIRTUAL_WATCHERS,
+				'fieldsets' => DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
+				'links' => DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
+				'owner' => DevblocksSearchField::VIRTUAL_OWNER,
+				'watchers' => DevblocksSearchField::VIRTUAL_WATCHERS,
 			);
 			
 			$tokens_cfields = $this->_handleSearchTokensCustomFields(CerberusContexts::CONTEXT_CALENDAR);

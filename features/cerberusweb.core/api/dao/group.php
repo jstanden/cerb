@@ -966,8 +966,6 @@ class SearchFields_Group extends DevblocksSearchFields {
 	const REPLY_SIGNING_KEY_ID = 'g_reply_signing_key_id';
 	const UPDATED = 'g_updated';
 	
-	const VIRTUAL_CONTEXT_LINK = '*_context_link';
-	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_MANAGER_SEARCH = '*_manager_search';
 	const VIRTUAL_MEMBER_SEARCH = '*_member_search';
 	
@@ -1087,7 +1085,7 @@ class SearchFields_Group extends DevblocksSearchFields {
 	static private function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		$columns = array(
+		$columns = [
 			self::ID => new DevblocksSearchField(self::ID, 'worker_group', 'id', $translate->_('common.id'), null, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'worker_group', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::CREATED => new DevblocksSearchField(self::CREATED, 'worker_group', 'created', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
@@ -1100,11 +1098,13 @@ class SearchFields_Group extends DevblocksSearchFields {
 			self::REPLY_SIGNING_KEY_ID => new DevblocksSearchField(self::REPLY_SIGNING_KEY_ID, 'worker_group', 'reply_signing_key_id', $translate->_('common.encrypt.signing.key'), Model_CustomField::TYPE_NUMBER, true),
 			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'worker_group', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 			
-			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
-			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			self::VIRTUAL_MANAGER_SEARCH => new DevblocksSearchField(self::VIRTUAL_MANAGER_SEARCH, '*', 'manager_search', null, null, false),
 			self::VIRTUAL_MEMBER_SEARCH => new DevblocksSearchField(self::VIRTUAL_MEMBER_SEARCH, '*', 'member_search', null, null, false),
-		);
+		];
+		
+		// Virtual fields
+		if(($virtual_columns = DevblocksSearchField::getVirtualFields(watchers: false)))
+			$columns = array_merge($columns, $virtual_columns);
 		
 		// Custom fields with fieldsets
 		
@@ -1359,7 +1359,7 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 		$this->renderSortBy = SearchFields_Group::NAME;
 		$this->renderSortAsc = true;
 
-		$this->view_columns = array(
+		$this->view_columns = [
 			SearchFields_Group::NAME,
 			SearchFields_Group::IS_PRIVATE,
 			SearchFields_Group::IS_DEFAULT,
@@ -1369,15 +1369,15 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 			SearchFields_Group::REPLY_SIGNING_KEY_ID,
 			SearchFields_Group::REPLY_HTML_TEMPLATE_ID,
 			SearchFields_Group::UPDATED,
-		);
+		];
 		
-		$this->addColumnsHidden(array(
-			SearchFields_Group::VIRTUAL_HAS_FIELDSET,
-			SearchFields_Group::VIRTUAL_CONTEXT_LINK,
+		$this->addColumnsHidden([
+			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
+			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
 			SearchFields_Group::VIRTUAL_MANAGER_SEARCH,
 			SearchFields_Group::VIRTUAL_MEMBER_SEARCH,
-		));
-		
+		]);
+
 		$this->doResetCriteria();
 	}
 	
@@ -1431,15 +1431,16 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 				case SearchFields_Group::REPLY_PERSONAL:
 				case SearchFields_Group::REPLY_SIGNATURE_ID:
 				case SearchFields_Group::REPLY_SIGNING_KEY_ID:
-				case SearchFields_Group::VIRTUAL_CONTEXT_LINK:
-				case SearchFields_Group::VIRTUAL_HAS_FIELDSET:
 					$pass = true;
 					break;
 				
 				// Valid custom fields
 				default:
-					if(DevblocksPlatform::strStartsWith($field_key, 'cf_'))
+					if(DevblocksPlatform::strStartsWith($field_key, 'cf_')) {
 						$pass = $this->_canSubtotalCustomField($field_key);
+					} else if (str_starts_with($field_key, '*_')) {
+						$pass = $this->_canSubtotalVirtualField($field_key);
+					}
 					break;
 			}
 			
@@ -1455,7 +1456,7 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 		$fields = $this->getFields();
 		$context = CerberusContexts::CONTEXT_GROUP;
 
-		if(!isset($fields[$column]))
+		if(!array_key_exists($column, $fields))
 			return [];
 		
 		switch($column) {
@@ -1500,20 +1501,13 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
 				break;
 				
-			case SearchFields_Group::VIRTUAL_CONTEXT_LINK;
-				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
-				break;
-				
-			case SearchFields_Group::VIRTUAL_HAS_FIELDSET:
-				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
-				break;
-			
 			default:
 				// Custom fields
 				if(DevblocksPlatform::strStartsWith($column, 'cf_')) {
 					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
+				} else if(DevblocksPlatform::strStartsWith($column, '*_')) {
+					$counts = $this->_getSubtotalCountForVirtualField($context, $column);
 				}
-				
 				break;
 		}
 		
@@ -1542,7 +1536,7 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 			'fieldset' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array('param_key' => SearchFields_Group::VIRTUAL_HAS_FIELDSET),
+					'options' => ['param_key' => DevblocksSearchField::VIRTUAL_HAS_FIELDSET],
 					'examples' => [
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'qr' => 'context:' . CerberusContexts::CONTEXT_GROUP],
 					]
@@ -1634,7 +1628,7 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 		
 		// Add quick search links
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', SearchFields_Group::VIRTUAL_CONTEXT_LINK);
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', DevblocksSearchField::VIRTUAL_CONTEXT_LINK);
 		
 		// Add searchable custom fields
 		
@@ -1655,26 +1649,20 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 		switch($field) {
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
-				break;
 			
 			case 'manager':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Group::VIRTUAL_MANAGER_SEARCH);
-				break;
 				
 			case 'member':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Group::VIRTUAL_MEMBER_SEARCH);
-				break;
 			
 			default:
-				if($field == 'links' || substr($field, 0, 6) == 'links.')
+				if($field == 'links' || str_starts_with($field, 'links.'))
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
 				
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
-				break;
 		}
-		
-		return false;
 	}
 	
 	function render() {
@@ -1708,18 +1696,10 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 		}
 	}
 
-	function renderVirtualCriteria($param) {
+	function renderVirtualCriteria($param) : void {
 		$key = $param->field;
 		
 		switch($key) {
-			case SearchFields_Group::VIRTUAL_CONTEXT_LINK:
-				$this->_renderVirtualContextLinks($param);
-				break;
-				
-			case SearchFields_Group::VIRTUAL_HAS_FIELDSET:
-				$this->_renderVirtualHasFieldset($param);
-				break;
-				
 			case SearchFields_Group::VIRTUAL_MANAGER_SEARCH:
 				echo sprintf("%s matches <b>%s</b>",
 					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.manager')),
@@ -1732,6 +1712,10 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.member')),
 					DevblocksPlatform::strEscapeHtml($param->value)
 				);
+				break;
+			
+			default:
+				$this->_renderVirtualCriteria($param);
 				break;
 		}
 	}
@@ -1791,20 +1775,13 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 				
-			case SearchFields_Group::VIRTUAL_CONTEXT_LINK:
-				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array',[]);
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
-				break;
-				
-			case SearchFields_Group::VIRTUAL_HAS_FIELDSET:
-				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array',[]);
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
-				break;
-				
 			default:
 				// Custom Fields
-				if(substr($field,0,3)=='cf_') {
+				if(str_starts_with($field, 'cf_')) {
 					$criteria = $this->_doSetCriteriaCustomField($field, substr($field,3));
+				} else if (str_starts_with($field, '*_')) {
+					if(($virtual_criteria = $this->_doSetCriteriaVirtual($field, $_POST, $oper)))
+						$criteria = $virtual_criteria;
 				}
 				break;
 		}
@@ -2479,9 +2456,9 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		$params_req = [];
 		
 		if(!empty($context) && !empty($context_id)) {
-			$params_req = array(
-				new DevblocksSearchCriteria(SearchFields_Group::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
-			);
+			$params_req = [
+				new DevblocksSearchCriteria(DevblocksSearchField::VIRTUAL_CONTEXT_LINK, 'in', [$context.':'.$context_id]),
+			];
 		}
 		
 		$view->addParamsRequired($params_req, true);

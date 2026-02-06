@@ -86,11 +86,11 @@ class ChRest_TimeTracking extends Extension_RestController implements IExtension
 	}
 	
 	function translateToken($token, $type='dao') {
-		if('custom_' == substr($token, 0, 7) && in_array($type, array('search', 'subtotal'))) {
+		if(str_starts_with($token, 'custom_') && in_array($type, ['search', 'subtotal'])) {
 			return 'cf_' . intval(substr($token, 7));
 		}
 		
-		$tokens = array();
+		$tokens = [];
 		
 		if('dao'==$type) {
 			$tokens = array(
@@ -104,9 +104,9 @@ class ChRest_TimeTracking extends Extension_RestController implements IExtension
 			
 		} elseif ('subtotal'==$type) {
 			$tokens = array(
-				'fieldsets' => SearchFields_TimeTrackingEntry::VIRTUAL_HAS_FIELDSET,
-				'links' => SearchFields_TimeTrackingEntry::VIRTUAL_CONTEXT_LINK,
-				'watchers' => SearchFields_TimeTrackingEntry::VIRTUAL_WATCHERS,
+				'fieldsets' => DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
+				'links' => DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
+				'watchers' => DevblocksSearchField::VIRTUAL_WATCHERS,
 					
 				'activity' => SearchFields_TimeTrackingEntry::ACTIVITY_ID,
 				'is_closed' => SearchFields_TimeTrackingEntry::IS_CLOSED,
@@ -127,7 +127,7 @@ class ChRest_TimeTracking extends Extension_RestController implements IExtension
 				'mins' => SearchFields_TimeTrackingEntry::TIME_ACTUAL_MINS,
 				'worker_id' => SearchFields_TimeTrackingEntry::WORKER_ID,
 					
-				'links' => SearchFields_TimeTrackingEntry::VIRTUAL_CONTEXT_LINK,
+				'links' => DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
 			);
 		}
 		
@@ -242,7 +242,7 @@ class ChRest_TimeTracking extends Extension_RestController implements IExtension
 			'worker_id' => 'integer',
 		);
 
-		$fields = array();
+		$fields = [];
 
 		foreach($putfields as $putfield => $type) {
 			if(!isset($_POST[$putfield]))
@@ -301,7 +301,7 @@ class ChRest_TimeTracking extends Extension_RestController implements IExtension
 			'worker_id' => 'integer',
 		);
 
-		$fields = array();
+		$fields = [];
 		
 		foreach($postfields as $postfield => $type) {
 			if(!isset($_POST[$postfield]))

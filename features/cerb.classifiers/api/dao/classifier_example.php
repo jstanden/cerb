@@ -383,7 +383,6 @@ class SearchFields_ClassifierExample extends DevblocksSearchFields {
 	
 	const VIRTUAL_CLASSIFIER_SEARCH = '*_classifier_search';
 	const VIRTUAL_CLASSIFIER_CLASS_SEARCH = '*_classifier_class_search';
-	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 
 	static private $_fields = null;
 	
@@ -484,7 +483,7 @@ class SearchFields_ClassifierExample extends DevblocksSearchFields {
 	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		$columns = array(
+		$columns = [
 			self::ID => new DevblocksSearchField(self::ID, 'classifier_example', 'id', $translate->_('common.id'), null, true),
 			self::CLASSIFIER_ID => new DevblocksSearchField(self::CLASSIFIER_ID, 'classifier_example', 'classifier_id', $translate->_('common.classifier'), null, true),
 			self::CLASS_ID => new DevblocksSearchField(self::CLASS_ID, 'classifier_example', 'class_id', $translate->_('common.classifier.classification'), null, true),
@@ -493,8 +492,11 @@ class SearchFields_ClassifierExample extends DevblocksSearchFields {
 				
 			self::VIRTUAL_CLASSIFIER_SEARCH => new DevblocksSearchField(self::VIRTUAL_CLASSIFIER_SEARCH, '*', 'classifier_search', null, null, false),
 			self::VIRTUAL_CLASSIFIER_CLASS_SEARCH => new DevblocksSearchField(self::VIRTUAL_CLASSIFIER_CLASS_SEARCH, '*', 'classifier_class_search', null, null, false),
-			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
-		);
+		];
+		
+		// Virtual fields
+		if(($virtual_columns = DevblocksSearchField::getVirtualFields(watchers: false)))
+			$columns = array_merge($columns, $virtual_columns);
 		
 		// Custom Fields
 		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
@@ -537,17 +539,18 @@ class View_ClassifierExample extends C4_AbstractView implements IAbstractView_Su
 		$this->renderSortBy = SearchFields_ClassifierExample::ID;
 		$this->renderSortAsc = true;
 
-		$this->view_columns = array(
+		$this->view_columns = [
 			SearchFields_ClassifierExample::CLASS_ID,
 			SearchFields_ClassifierExample::CLASSIFIER_ID,
 			SearchFields_ClassifierExample::UPDATED_AT,
-		);
-		$this->addColumnsHidden(array(
+		];
+		
+		$this->addColumnsHidden([
 			SearchFields_ClassifierExample::VIRTUAL_CLASSIFIER_CLASS_SEARCH,
 			SearchFields_ClassifierExample::VIRTUAL_CLASSIFIER_SEARCH,
-			SearchFields_ClassifierExample::VIRTUAL_HAS_FIELDSET,
-		));
-		
+			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
+		]);
+
 		$this->doResetCriteria();
 	}
 	
@@ -586,7 +589,7 @@ class View_ClassifierExample extends C4_AbstractView implements IAbstractView_Su
 	function getSubtotalFields() {
 		$all_fields = $this->getParamsAvailable(true);
 		
-		$fields = array();
+		$fields = [];
 
 		if(is_array($all_fields))
 		foreach($all_fields as $field_key => $field_model) {
@@ -596,14 +599,16 @@ class View_ClassifierExample extends C4_AbstractView implements IAbstractView_Su
 				// Fields
 				case SearchFields_ClassifierExample::CLASS_ID:
 				case SearchFields_ClassifierExample::CLASSIFIER_ID:
-				case SearchFields_ClassifierExample::VIRTUAL_HAS_FIELDSET:
 					$pass = true;
 					break;
 					
 				// Valid custom fields
 				default:
-					if(DevblocksPlatform::strStartsWith($field_key, 'cf_'))
+					if(DevblocksPlatform::strStartsWith($field_key, 'cf_')) {
 						$pass = $this->_canSubtotalCustomField($field_key);
+					} else if (str_starts_with($field_key, '*_')) {
+						$pass = $this->_canSubtotalVirtualField($field_key);
+					}
 					break;
 			}
 			
@@ -615,12 +620,12 @@ class View_ClassifierExample extends C4_AbstractView implements IAbstractView_Su
 	}
 	
 	function getSubtotalCounts($column) {
-		$counts = array();
+		$counts = [];
 		$fields = $this->getFields();
 		$context = CerberusContexts::CONTEXT_CLASSIFIER_EXAMPLE;
 
-		if(!isset($fields[$column]))
-			return array();
+		if(!array_key_exists($column, $fields))
+			return [];
 		
 		switch($column) {
 			case SearchFields_ClassifierExample::CLASS_ID:
@@ -639,16 +644,13 @@ class View_ClassifierExample extends C4_AbstractView implements IAbstractView_Su
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
 				break;
 				
-			case SearchFields_ClassifierExample::VIRTUAL_HAS_FIELDSET:
-				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
-				break;
-				
 			default:
 				// Custom fields
 				if(DevblocksPlatform::strStartsWith($column, 'cf_')) {
 					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
+				} else if(DevblocksPlatform::strStartsWith($column, '*_')) {
+					$counts = $this->_getSubtotalCountForVirtualField($context, $column);
 				}
-				
 				break;
 		}
 		
@@ -704,7 +706,7 @@ class View_ClassifierExample extends C4_AbstractView implements IAbstractView_Su
 			'fieldset' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array('param_key' => SearchFields_ClassifierExample::VIRTUAL_HAS_FIELDSET),
+					'options' => ['param_key' => DevblocksSearchField::VIRTUAL_HAS_FIELDSET],
 					'examples' => [
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'qr' => 'context:' . CerberusContexts::CONTEXT_CLASSIFIER_EXAMPLE],
 					]
@@ -805,7 +807,7 @@ class View_ClassifierExample extends C4_AbstractView implements IAbstractView_Su
 		}
 	}
 
-	function renderVirtualCriteria($param) {
+	function renderVirtualCriteria($param) : void {
 		$key = $param->field;
 		
 		switch($key) {
@@ -817,8 +819,8 @@ class View_ClassifierExample extends C4_AbstractView implements IAbstractView_Su
 				echo sprintf("Classifier matches <b>%s</b>", DevblocksPlatform::strEscapeHtml($param->value));
 				break;
 				
-			case SearchFields_ClassifierExample::VIRTUAL_HAS_FIELDSET:
-				$this->_renderVirtualHasFieldset($param);
+			default:
+				$this->_renderVirtualCriteria($param);
 				break;
 		}
 	}
@@ -845,15 +847,13 @@ class View_ClassifierExample extends C4_AbstractView implements IAbstractView_Su
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
-			case SearchFields_ClassifierExample::VIRTUAL_HAS_FIELDSET:
-				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array', []);
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
-				break;
-				
 			default:
 				// Custom Fields
-				if(substr($field,0,3)=='cf_') {
+				if(str_starts_with($field, 'cf_')) {
 					$criteria = $this->_doSetCriteriaCustomField($field, substr($field,3));
+				} else if (str_starts_with($field, '*_')) {
+					if(($virtual_criteria = $this->_doSetCriteriaVirtual($field, $_POST, $oper)))
+						$criteria = $virtual_criteria;
 				}
 				break;
 		}
@@ -1157,7 +1157,7 @@ class Context_ClassifierExample extends Extension_DevblocksContext implements ID
 		return $view;
 	}
 	
-	function getView($context=null, $context_id=null, $options=array(), $view_id=null) {
+	function getView($context=null, $context_id=null, $options=[], $view_id=null) {
 		$view_id = !empty($view_id) ? $view_id : str_replace('.','_',$this->id);
 		
 		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
@@ -1166,7 +1166,7 @@ class Context_ClassifierExample extends Extension_DevblocksContext implements ID
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Examples';
 		
-		$params_req = array();
+		$params_req = [];
 		
 		$view->addParamsRequired($params_req, true);
 		

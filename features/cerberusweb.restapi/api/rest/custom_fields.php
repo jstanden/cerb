@@ -39,7 +39,7 @@ class ChRest_CustomFields extends Extension_RestController implements IExtension
 		
 		switch($context) {
 			case CerberusContexts::CONTEXT_TICKET:
-				$fields = array();
+				$fields = [];
 				if(null != ($context_fields = DAO_CustomField::getByContext($context)) && !empty($context_fields))
 					foreach($context_fields as $field)
 						$fields['custom_' . $field->id] = array(
@@ -54,7 +54,7 @@ class ChRest_CustomFields extends Extension_RestController implements IExtension
 				break;
 				
 			default:
-				$fields = array();
+				$fields = [];
 				if(null != ($context_fields = DAO_CustomField::getByContext($context)) && !empty($context_fields))
 					foreach($context_fields as $field)
 						$fields['custom_' . $field->id] = array(
@@ -92,25 +92,10 @@ class ChRest_CustomFields extends Extension_RestController implements IExtension
 	}
 	
 	function deleteAction($stack) {
-		// [TODO] Expose the ability to delete custom fields
 		$this->error(self::ERRNO_NOT_IMPLEMENTED);
 	}
 
 	function translateToken($token, $type='dao') {
-		// [TODO]
-//		$tokens = array();
-//
-//		if('dao'==$type) {
-//			$tokens = array(
-//			);
-//		} else {
-//			$tokens = array(
-//			);
-//		}
-//
-//		if(isset($tokens[$token]))
-//			return $tokens[$token];
-//
 		return NULL;
 	}
 	
@@ -123,14 +108,14 @@ class ChRest_CustomFields extends Extension_RestController implements IExtension
 	}
 	
 	function putId($id) {
-		// [TODO] Implement the ability to update custom fields
+		$this->error(self::ERRNO_NOT_IMPLEMENTED);
 	}
 	
 	function postCreate() {
-		
+		$this->error(self::ERRNO_NOT_IMPLEMENTED);
 	}
 	
 	function postSearch() {
-		
+		$this->error(self::ERRNO_NOT_IMPLEMENTED);
 	}
 };

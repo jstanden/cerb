@@ -467,13 +467,13 @@ class SearchFields_DevblocksTemplate extends DevblocksSearchFields {
 	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		$columns = array(
+		$columns = [
 			self::ID => new DevblocksSearchField(self::ID, 'devblocks_template', 'id', $translate->_('common.id'), null, true),
 			self::PLUGIN_ID => new DevblocksSearchField(self::PLUGIN_ID, 'devblocks_template', 'plugin_id', $translate->_('Plugin'), null, true),
 			self::PATH => new DevblocksSearchField(self::PATH, 'devblocks_template', 'path', $translate->_('path'), null, true),
 			self::TAG => new DevblocksSearchField(self::TAG, 'devblocks_template', 'tag', $translate->_('tag'), null, true),
 			self::LAST_UPDATED => new DevblocksSearchField(self::LAST_UPDATED, 'devblocks_template', 'last_updated', $translate->_('common.updated'), null, true),
-		);
+		];
 		
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
@@ -493,11 +493,10 @@ class View_DevblocksTemplate extends C4_AbstractView implements IAbstractView_Qu
 		$this->renderSortBy = SearchFields_DevblocksTemplate::PATH;
 		$this->renderSortAsc = true;
 
-		$this->view_columns = array(
+		$this->view_columns = [
 			SearchFields_DevblocksTemplate::PLUGIN_ID,
-//			SearchFields_DevblocksTemplate::TAG,
 			SearchFields_DevblocksTemplate::LAST_UPDATED,
-		);
+		];
 		
 		$this->doResetCriteria();
 	}

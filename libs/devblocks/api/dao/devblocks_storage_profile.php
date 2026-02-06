@@ -48,10 +48,10 @@ class View_DevblocksStorageProfile extends C4_AbstractView implements IAbstractV
 		$this->id = self::DEFAULT_ID;
 		$this->name = 'Storage Profiles';
 
-		$this->view_columns = array(
+		$this->view_columns = [
 			SearchFields_DevblocksStorageProfile::NAME,
 			SearchFields_DevblocksStorageProfile::EXTENSION_ID,
-		);
+		];
 
 		$this->addColumnsHidden(array(
 			SearchFields_DevblocksStorageProfile::PARAMS_JSON,

@@ -1233,6 +1233,30 @@ abstract class C4_AbstractView {
 		echo $list_of_strings;
 	}
 	
+	protected function _renderVirtualCriteria($param) : void {
+		switch($param->field) {
+			case DevblocksSearchField::VIRTUAL_CONTEXT_LINK:
+				$this->_renderVirtualContextLinks($param);
+				break;
+			
+			case DevblocksSearchField::VIRTUAL_HAS_FIELDSET:
+				$this->_renderVirtualHasFieldset($param);
+				break;
+			
+			case DevblocksSearchField::VIRTUAL_OWNER:
+				$this->_renderVirtualContextLinks($param, 'Owner', 'Owners', 'Owner matches');
+				break;
+				
+			case DevblocksSearchField::VIRTUAL_SEARCH_INDEX:
+				$this->_renderVirtualSearchIndex($param);
+				break;
+			
+			case DevblocksSearchField::VIRTUAL_WATCHERS:
+				$this->_renderVirtualWatchers($param);
+				break;
+		}
+	}
+	
 	protected function _renderVirtualContextLinks($param, $label_singular='Link', $label_plural='Links', $label_verb='Linked to', $label_null=null) {
 		$strings = [];
 		
@@ -1466,6 +1490,7 @@ abstract class C4_AbstractView {
 	 */
 	function doSetCriteria($field, $oper, $value) {
 		// Expect Override
+		return null;
 	}
 
 	protected function _doSetCriteriaString($field, $oper, $value) {
@@ -1532,6 +1557,28 @@ abstract class C4_AbstractView {
 		}
 		
 		return new DevblocksSearchCriteria($field, $oper, $worker_ids);
+	}
+	
+	protected function _doSetCriteriaVirtual($token, array $post_fields=[], $oper=null) : ?DevblocksSearchCriteria {
+		switch($token) {
+			case DevblocksSearchField::VIRTUAL_CONTEXT_LINK:
+				$context_links = DevblocksPlatform::importGPC($post_fields['context_link'] ?? null, 'array', []);
+				return new DevblocksSearchCriteria($token, DevblocksSearchCriteria::OPER_IN, $context_links);
+			
+			case DevblocksSearchField::VIRTUAL_HAS_FIELDSET:
+				$options = DevblocksPlatform::importGPC($post_fields['options'] ?? null, 'array', []);
+				return new DevblocksSearchCriteria($token, DevblocksSearchCriteria::OPER_IN, $options);
+			
+			case DevblocksSearchField::VIRTUAL_OWNER:
+				$owner_contexts = DevblocksPlatform::importGPC($post_fields['owner_context'] ?? null, 'array', []);
+				return new DevblocksSearchCriteria($token, $oper, $owner_contexts);
+			
+			case DevblocksSearchField::VIRTUAL_WATCHERS:
+				$worker_ids = DevblocksPlatform::importGPC($post_fields['worker_id'] ?? null, 'array', []);
+				return new DevblocksSearchCriteria($token, $oper, $worker_ids);
+		}
+		
+		return null;
 	}
 	
 	protected function _doSetCriteriaCustomField($token, $field_id) {
@@ -2529,6 +2576,17 @@ abstract class C4_AbstractView {
 		$tpl->display('devblocks:cerberusweb.core::internal/views/sidebar.tpl');
 	}
 	
+	protected function _canSubtotalVirtualField($field_key) : bool {
+		return match ($field_key) {
+			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
+			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
+			DevblocksSearchField::VIRTUAL_OWNER,
+			DevblocksSearchField::VIRTUAL_WATCHERS
+				=> true,
+			default => false,
+		};
+	}
+	
 	protected function _canSubtotalCustomField($field_key) {
 		$custom_fields = DAO_CustomField::getAll();
 		
@@ -2704,6 +2762,16 @@ abstract class C4_AbstractView {
 		}
 
 		return $results;
+	}
+	
+	protected function _getSubtotalCountForVirtualField($context, $field_key) : array {
+		return match ($field_key) {
+			DevblocksSearchField::VIRTUAL_CONTEXT_LINK => $this->_getSubtotalCountForContextLinkColumn($context, $field_key),
+			DevblocksSearchField::VIRTUAL_HAS_FIELDSET => $this->_getSubtotalCountForHasFieldsetColumn($context, $field_key),
+			DevblocksSearchField::VIRTUAL_OWNER => $this->_getSubtotalCountForContextAndIdColumns($context, $field_key, 'owner_context', 'owner_context_id', 'owner_context[]'),
+			DevblocksSearchField::VIRTUAL_WATCHERS => $this->_getSubtotalCountForWatcherColumn($context, $field_key),
+			default => [],
+		};
 	}
 	
 	protected function _getSubtotalCountForVirtualColumn($context, $field_key, $label_map, $virtual_key, $virtual_query, $virtual_query_null) {

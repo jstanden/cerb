@@ -90,11 +90,11 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 	}
 	
 	function translateToken($token, $type='dao') {
-		if('custom_' == substr($token, 0, 7) && in_array($type, array('search', 'subtotal'))) {
+		if(str_starts_with($token, 'custom_') && in_array($type, ['search', 'subtotal'])) {
 			return 'cf_' . intval(substr($token, 7));
 		}
 		
-		$tokens = array();
+		$tokens = [];
 		
 		if('dao'==$type) {
 			$tokens = array(
@@ -112,9 +112,9 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 			
 		} elseif ('subtotal'==$type) {
 			$tokens = array(
-				'fieldsets' => SearchFields_ContactOrg::VIRTUAL_HAS_FIELDSET,
-				'links' => SearchFields_ContactOrg::VIRTUAL_CONTEXT_LINK,
-				'watchers' => SearchFields_ContactOrg::VIRTUAL_WATCHERS,
+				'fieldsets' => DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
+				'links' => DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
+				'watchers' => DevblocksSearchField::VIRTUAL_WATCHERS,
 					
 				'country' => SearchFields_ContactOrg::COUNTRY,
 				'province' => SearchFields_ContactOrg::PROVINCE,
@@ -261,7 +261,7 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 			'website' => 'string',
 		);
 
-		$fields = array();
+		$fields = [];
 
 		foreach($putfields as $putfield => $type) {
 			if(!isset($_POST[$putfield]))
@@ -309,7 +309,7 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 			'updated' => 'timestamp',
 		);
 
-		$fields = array();
+		$fields = [];
 		
 		foreach($postfields as $postfield => $type) {
 			if(!isset($_POST[$postfield]))

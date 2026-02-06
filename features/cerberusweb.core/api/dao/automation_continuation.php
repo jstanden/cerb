@@ -399,7 +399,7 @@ class SearchFields_AutomationContinuation extends DevblocksSearchFields {
 	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		$columns = array(
+		$columns = [
 			self::EXPIRES_AT => new DevblocksSearchField(self::EXPIRES_AT, 'automation_continuation', 'expires_at', $translate->_('common.expires'), null, true),
 			self::PARENT_TOKEN => new DevblocksSearchField(self::PARENT_TOKEN, 'automation_continuation', 'parent_token', null, null, true),
 			self::ROOT_TOKEN => new DevblocksSearchField(self::ROOT_TOKEN, 'automation_continuation', 'root_token', null, null, true),
@@ -407,7 +407,7 @@ class SearchFields_AutomationContinuation extends DevblocksSearchFields {
 			self::TOKEN => new DevblocksSearchField(self::TOKEN, 'automation_continuation', 'token', null, null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'automation_continuation', 'updated_at', $translate->_('common.updated'), null, true),
 			self::URI => new DevblocksSearchField(self::STATE, 'automation_continuation', 'uri', DevblocksPlatform::translate('common.uri'), null, true),
-		);
+		];
 		
 		// Custom Fields
 		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));

@@ -1211,7 +1211,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 						);
 						break;
 					default:
-						$fields = array();
+						$fields = [];
 						break;
 				}
 				if(!empty($fields)) {

@@ -254,25 +254,6 @@ class DAO_ContextBulkUpdate extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 *
-	 * @param bool $nocache
-	 * @return Model_ContextBulkUpdate[]
-	 */
-	static function getAll($nocache=false) {
-		//$cache = DevblocksPlatform::services()->cache();
-		//if($nocache || null === ($objects = $cache->load(self::_CACHE_ALL))) {
-			$objects = self::getWhere(null, DAO_ContextBulkUpdate::NAME, true, null, Cerb_ORMHelper::OPT_GET_MASTER_ONLY);
-			
-			//if(!is_array($objects))
-			//	return false;
-				
-			//$cache->save($objects, self::_CACHE_ALL);
-		//}
-		
-		return $objects;
-	}
-
-	/**
 	 * @param integer $id
 	 * @return Model_ContextBulkUpdate
 	 */
@@ -456,10 +437,6 @@ class SearchFields_ContextBulkUpdate extends DevblocksSearchFields {
 	const STATUS_ID = 'c_status_id';
 	const ACTIONS_JSON = 'c_actions_json';
 
-	const VIRTUAL_CONTEXT_LINK = '*_context_link';
-	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
-	const VIRTUAL_WATCHERS = '*_workers';
-	
 	static private $_fields = null;
 	
 	static function getTableName() : string {
@@ -528,7 +505,7 @@ class SearchFields_ContextBulkUpdate extends DevblocksSearchFields {
 	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		$columns = array(
+		$columns = [
 			self::ID => new DevblocksSearchField(self::ID, 'context_bulk_update', 'id', $translate->_('common.id'), null, true),
 			self::BATCH_KEY => new DevblocksSearchField(self::BATCH_KEY, 'context_bulk_update', 'batch_key', $translate->_('dao.context_bulk_update.batch_key'), null, true),
 			self::CONTEXT => new DevblocksSearchField(self::CONTEXT, 'context_bulk_update', 'context', $translate->_('common.context'), null, true),
@@ -539,11 +516,11 @@ class SearchFields_ContextBulkUpdate extends DevblocksSearchFields {
 			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'context_bulk_update', 'created_at', $translate->_('common.created'), null, true),
 			self::STATUS_ID => new DevblocksSearchField(self::STATUS_ID, 'context_bulk_update', 'status_id', $translate->_('common.status'), null, true),
 			self::ACTIONS_JSON => new DevblocksSearchField(self::ACTIONS_JSON, 'context_bulk_update', 'actions_json', $translate->_('common.actions'), null, true),
-
-			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
-			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
-			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS', false),
-		);
+		];
+		
+		// Virtual fields
+		if(($virtual_columns = DevblocksSearchField::getVirtualFields(links: false, has_fieldset: false, watchers: false)))
+			$columns = array_merge($columns, $virtual_columns);
 		
 		// Custom Fields
 		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));

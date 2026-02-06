@@ -312,7 +312,7 @@ class DAO_Classifier extends Cerb_ORMHelper {
 		$fields = SearchFields_Classifier::getFields();
 		
 		switch($sortBy) {
-			case SearchFields_Classifier::VIRTUAL_OWNER:
+			case DevblocksSearchField::VIRTUAL_OWNER:
 				$sortBy = SearchFields_Classifier::OWNER_CONTEXT;
 				
 				if(!in_array($sortBy, $columns))
@@ -402,10 +402,6 @@ class SearchFields_Classifier extends DevblocksSearchFields {
 	const DICTIONARY_SIZE = 'c_dictionary_size';
 	const PARAMS_JSON = 'c_params_json';
 
-	const VIRTUAL_CONTEXT_LINK = '*_context_link';
-	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
-	const VIRTUAL_OWNER = '*_owner';
-	
 	static private $_fields = null;
 	
 	static function getTableName() : string {
@@ -428,7 +424,7 @@ class SearchFields_Classifier extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
-			case self::VIRTUAL_OWNER:
+			case DevblocksSearchField::VIRTUAL_OWNER:
 				return self::_getWhereSQLFromContextAndID($param, 'classifier.owner_context', 'classifier.owner_context_id');
 			
 			default:
@@ -463,7 +459,6 @@ class SearchFields_Classifier extends DevblocksSearchFields {
 					),
 					'get_value_as_filter_callback' => parent::getValueAsFilterCallback()->link('owner'),
 				];
-				break;
 		}
 		
 		return parent::getFieldForSubtotalKey($key, $context, $query_fields, $search_fields, $primary_key);
@@ -498,7 +493,7 @@ class SearchFields_Classifier extends DevblocksSearchFields {
 	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		$columns = array(
+		$columns = [
 			self::ID => new DevblocksSearchField(self::ID, 'classifier', 'id', $translate->_('common.id'), null, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'classifier', 'name', $translate->_('common.name'), null, true),
 			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'classifier', 'owner_context', $translate->_('common.owner_context'), null, true),
@@ -507,11 +502,11 @@ class SearchFields_Classifier extends DevblocksSearchFields {
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'classifier', 'updated_at', $translate->_('common.updated'), null, true),
 			self::DICTIONARY_SIZE => new DevblocksSearchField(self::DICTIONARY_SIZE, 'classifier', 'dictionary_size', $translate->_('dao.classifier.dictionary_size'), null, true),
 			self::PARAMS_JSON => new DevblocksSearchField(self::PARAMS_JSON, 'classifier', 'params_json', $translate->_('common.params'), null, true),
-
-			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
-			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
-			self::VIRTUAL_OWNER => new DevblocksSearchField(self::VIRTUAL_OWNER, '*', 'owner', $translate->_('common.owner')),
-		);
+		];
+		
+		// Virtual fields
+		if(($virtual_columns = DevblocksSearchField::getVirtualFields(owner: true, watchers: false)))
+			$columns = array_merge($columns, $virtual_columns);
 		
 		// Custom Fields
 		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
@@ -2260,19 +2255,19 @@ class View_Classifier extends C4_AbstractView implements IAbstractView_Subtotals
 		$this->renderSortBy = SearchFields_Classifier::NAME;
 		$this->renderSortAsc = true;
 
-		$this->view_columns = array(
+		$this->view_columns = [
 			SearchFields_Classifier::NAME,
-			SearchFields_Classifier::VIRTUAL_OWNER,
+			DevblocksSearchField::VIRTUAL_OWNER,
 			SearchFields_Classifier::UPDATED_AT,
-		);
+		];
 		
-		$this->addColumnsHidden(array(
+		$this->addColumnsHidden([
 			SearchFields_Classifier::OWNER_CONTEXT,
 			SearchFields_Classifier::OWNER_CONTEXT_ID,
 			SearchFields_Classifier::PARAMS_JSON,
-			SearchFields_Classifier::VIRTUAL_CONTEXT_LINK,
-			SearchFields_Classifier::VIRTUAL_HAS_FIELDSET,
-		));
+			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
+			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
+		]);
 		
 		$this->doResetCriteria();
 	}
@@ -2312,29 +2307,20 @@ class View_Classifier extends C4_AbstractView implements IAbstractView_Subtotals
 	function getSubtotalFields() {
 		$all_fields = $this->getParamsAvailable(true);
 		
-		$fields = array();
+		$fields = [];
 
 		if(is_array($all_fields))
 		foreach($all_fields as $field_key => $field_model) {
 			$pass = false;
 			
 			switch($field_key) {
-				// Fields
-//				case SearchFields_Classifier::EXAMPLE:
-//					$pass = true;
-//					break;
-					
-				// Virtuals
-				case SearchFields_Classifier::VIRTUAL_CONTEXT_LINK:
-				case SearchFields_Classifier::VIRTUAL_HAS_FIELDSET:
-				case SearchFields_Classifier::VIRTUAL_OWNER:
-					$pass = true;
-					break;
-					
 				// Valid custom fields
 				default:
-					if(DevblocksPlatform::strStartsWith($field_key, 'cf_'))
+					if(DevblocksPlatform::strStartsWith($field_key, 'cf_')) {
 						$pass = $this->_canSubtotalCustomField($field_key);
+					} else if (str_starts_with($field_key, '*_')) {
+						$pass = $this->_canSubtotalVirtualField($field_key);
+					}
 					break;
 			}
 			
@@ -2346,40 +2332,21 @@ class View_Classifier extends C4_AbstractView implements IAbstractView_Subtotals
 	}
 	
 	function getSubtotalCounts($column) {
-		$counts = array();
+		$counts = [];
 		$fields = $this->getFields();
 		$context = CerberusContexts::CONTEXT_CLASSIFIER;
 
-		if(!isset($fields[$column]))
-			return array();
+		if(!array_key_exists($column, $fields))
+			return [];
 		
 		switch($column) {
-//			case SearchFields_Classifier::EXAMPLE_BOOL:
-//				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
-//				break;
-
-//			case SearchFields_Classifier::EXAMPLE_STRING:
-//				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
-//				break;
-				
-			case SearchFields_Classifier::VIRTUAL_CONTEXT_LINK:
-				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
-				break;
-
-			case SearchFields_Classifier::VIRTUAL_HAS_FIELDSET:
-				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
-				break;
-				
-			case SearchFields_Classifier::VIRTUAL_OWNER:
-				$counts = $this->_getSubtotalCountForContextAndIdColumns($context, $column, DAO_Classifier::OWNER_CONTEXT, DAO_Classifier::OWNER_CONTEXT_ID, 'owner_context[]');
-				break;
-				
 			default:
 				// Custom fields
 				if(DevblocksPlatform::strStartsWith($column, 'cf_')) {
 					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
+				} else if(DevblocksPlatform::strStartsWith($column, '*_')) {
+					$counts = $this->_getSubtotalCountForVirtualField($context, $column);
 				}
-				
 				break;
 		}
 		
@@ -2403,7 +2370,7 @@ class View_Classifier extends C4_AbstractView implements IAbstractView_Subtotals
 			'fieldset' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array('param_key' => SearchFields_Classifier::VIRTUAL_HAS_FIELDSET),
+					'options' => ['param_key' => DevblocksSearchField::VIRTUAL_HAS_FIELDSET],
 					'examples' => [
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'qr' => 'context:' . CerberusContexts::CONTEXT_CLASSIFIER],
 					]
@@ -2437,11 +2404,11 @@ class View_Classifier extends C4_AbstractView implements IAbstractView_Subtotals
 		
 		// Add dynamic owner.* fields
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('owner', $fields, 'owner', SearchFields_Classifier::VIRTUAL_OWNER);
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('owner', $fields, 'owner', DevblocksSearchField::VIRTUAL_OWNER);
 		
 		// Add quick search links
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', SearchFields_Classifier::VIRTUAL_CONTEXT_LINK);
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', DevblocksSearchField::VIRTUAL_CONTEXT_LINK);
 		
 		// Add searchable custom fields
 		
@@ -2463,20 +2430,16 @@ class View_Classifier extends C4_AbstractView implements IAbstractView_Subtotals
 		switch($field) {
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
-				break;
 			
 			default:
-				if($field == 'owner' || substr($field, 0, strlen('owner.')) == 'owner.')
-					return DevblocksSearchCriteria::getVirtualContextParamFromTokens($field, $tokens, 'owner', SearchFields_Classifier::VIRTUAL_OWNER);
+				if($field == 'owner' || str_starts_with($field, 'owner.'))
+					return DevblocksSearchCriteria::getVirtualContextParamFromTokens($field, $tokens, 'owner', DevblocksSearchField::VIRTUAL_OWNER);
 				
-				if($field == 'links' || substr($field, 0, 6) == 'links.')
+				if($field == 'links' || str_starts_with($field, 'links.'))
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
 				
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
-				break;
 		}
-		
-		return false;
 	}
 	
 	function render() {
@@ -2504,20 +2467,16 @@ class View_Classifier extends C4_AbstractView implements IAbstractView_Subtotals
 		}
 	}
 
-	function renderVirtualCriteria($param) {
+	function renderVirtualCriteria($param) : void {
 		$key = $param->field;
 		
 		switch($key) {
-			case SearchFields_Classifier::VIRTUAL_CONTEXT_LINK:
-				$this->_renderVirtualContextLinks($param);
-				break;
-				
-			case SearchFields_Classifier::VIRTUAL_HAS_FIELDSET:
-				$this->_renderVirtualHasFieldset($param);
-				break;
-				
-			case SearchFields_Classifier::VIRTUAL_OWNER:
+			case DevblocksSearchField::VIRTUAL_OWNER:
 				$this->_renderVirtualContextLinks($param, 'Owner', 'Owners');
+				break;
+			
+			default:
+				$this->_renderVirtualCriteria($param);
 				break;
 		}
 	}
@@ -2530,9 +2489,6 @@ class View_Classifier extends C4_AbstractView implements IAbstractView_Subtotals
 		$criteria = null;
 
 		switch($field) {
-			//case SearchFields_Classifier::OWNER_CONTEXT:
-			//case SearchFields_Classifier::OWNER_CONTEXT_ID:
-			
 			case SearchFields_Classifier::NAME:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
@@ -2547,30 +2503,13 @@ class View_Classifier extends C4_AbstractView implements IAbstractView_Subtotals
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
-			case 'placeholder_bool':
-				$bool = DevblocksPlatform::importGPC($_POST['bool'] ?? null, 'integer',1);
-				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
-				break;
-				
-			case SearchFields_Classifier::VIRTUAL_CONTEXT_LINK:
-				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array', []);
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
-				break;
-				
-			case SearchFields_Classifier::VIRTUAL_HAS_FIELDSET:
-				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array', []);
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
-				break;
-				
-			case SearchFields_Classifier::VIRTUAL_OWNER:
-				$owner_contexts = DevblocksPlatform::importGPC($_POST['owner_context'] ?? null, 'array', []);
-				$criteria = new DevblocksSearchCriteria($field,$oper,$owner_contexts);
-				break;
-				
 			default:
 				// Custom Fields
-				if(substr($field,0,3)=='cf_') {
+				if(str_starts_with($field, 'cf_')) {
 					$criteria = $this->_doSetCriteriaCustomField($field, substr($field,3));
+				} else if (str_starts_with($field, '*_')) {
+					if(($virtual_criteria = $this->_doSetCriteriaVirtual($field, $_POST, $oper)))
+						$criteria = $virtual_criteria;
 				}
 				break;
 		}
@@ -2860,7 +2799,7 @@ class Context_Classifier extends Extension_DevblocksContext implements IDevblock
 		return $view;
 	}
 	
-	function getView($context=null, $context_id=null, $options=array(), $view_id=null) {
+	function getView($context=null, $context_id=null, $options=[], $view_id=null) {
 		$view_id = !empty($view_id) ? $view_id : str_replace('.','_',$this->id);
 		
 		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
@@ -2869,12 +2808,12 @@ class Context_Classifier extends Extension_DevblocksContext implements IDevblock
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Classifier';
 		
-		$params_req = array();
+		$params_req = [];
 		
 		if(!empty($context) && !empty($context_id)) {
-			$params_req = array(
-				new DevblocksSearchCriteria(SearchFields_Classifier::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
-			);
+			$params_req = [
+				new DevblocksSearchCriteria(DevblocksSearchField::VIRTUAL_CONTEXT_LINK, 'in', [$context.':'.$context_id]),
+			];
 		}
 		
 		$view->addParamsRequired($params_req, true);

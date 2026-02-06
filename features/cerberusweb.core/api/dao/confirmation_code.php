@@ -334,13 +334,13 @@ class SearchFields_ConfirmationCode extends DevblocksSearchFields {
 	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		$columns = array(
+		$columns = [
 			self::ID => new DevblocksSearchField(self::ID, 'confirmation_code', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
 			self::NAMESPACE_KEY => new DevblocksSearchField(self::NAMESPACE_KEY, 'confirmation_code', 'namespace_key', $translate->_('dao.confirmation_code.namespace_key'), null, true),
 			self::CREATED => new DevblocksSearchField(self::CREATED, 'confirmation_code', 'created', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
 			self::CONFIRMATION_CODE => new DevblocksSearchField(self::CONFIRMATION_CODE, 'confirmation_code', 'confirmation_code', $translate->_('dao.confirmation_code.confirmation_code'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::META_JSON => new DevblocksSearchField(self::META_JSON, 'confirmation_code', 'meta_json', null, null, false),
-		);
+		];
 		
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');

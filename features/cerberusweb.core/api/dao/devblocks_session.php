@@ -365,7 +365,7 @@ class SearchFields_DevblocksSession extends DevblocksSearchFields {
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_WORKER, 'devblocks_session.user_id');
 				
 			default:
-				if('cf_' == substr($field, 0, 3)) {
+				if(str_starts_with($field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
 				} else {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
@@ -407,7 +407,7 @@ class SearchFields_DevblocksSession extends DevblocksSearchFields {
 	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		$columns = array(
+		$columns = [
 			self::SESSION_ID => new DevblocksSearchField(self::SESSION_ID, 'devblocks_session', 'session_id', $translate->_('common.id'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::CREATED => new DevblocksSearchField(self::CREATED, 'devblocks_session', 'created', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
 			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'devblocks_session', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
@@ -417,7 +417,7 @@ class SearchFields_DevblocksSession extends DevblocksSearchFields {
 			self::USER_AGENT => new DevblocksSearchField(self::USER_AGENT, 'devblocks_session', 'user_agent', $translate->_('dao.devblocks_session.user_agent'), Model_CustomField::TYPE_SINGLE_LINE, true),
 				
 			self::VIRTUAL_WORKER_SEARCH => new DevblocksSearchField(self::VIRTUAL_WORKER_SEARCH, '*', 'worker_search', null, null, true),
-		);
+		];
 		
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
@@ -438,20 +438,20 @@ class View_DevblocksSession extends C4_AbstractView implements IAbstractView_Qui
 		$this->renderSortBy = SearchFields_DevblocksSession::UPDATED;
 		$this->renderSortAsc = false;
 
-		$this->view_columns = array(
+		$this->view_columns = [
 			SearchFields_DevblocksSession::USER_ID,
 			SearchFields_DevblocksSession::CREATED,
 			SearchFields_DevblocksSession::UPDATED,
 			SearchFields_DevblocksSession::USER_IP,
 			SearchFields_DevblocksSession::USER_AGENT,
-		);
+		];
 
-		$this->addColumnsHidden(array(
+		$this->addColumnsHidden([
 			SearchFields_DevblocksSession::SESSION_ID,
 			SearchFields_DevblocksSession::SESSION_DATA,
 			SearchFields_DevblocksSession::VIRTUAL_WORKER_SEARCH,
-		));
-		
+		]);
+
 		$this->doResetCriteria();
 	}
 	
@@ -487,55 +487,6 @@ class View_DevblocksSession extends C4_AbstractView implements IAbstractView_Qui
 		return $this->_doGetDataSample('DAO_DevblocksSession', $size);
 	}
 
-	/*
-	function getSubtotalFields() {
-		$all_fields = $this->getParamsAvailable(true);
-		
-		$fields = array();
-
-		if(is_array($all_fields))
-		foreach($all_fields as $field_key => $field_model) {
-			$pass = false;
-			
-			switch($field_key) {
-				// Fields
-				case SearchFields_DevblocksSession::USER_ID:
-					$pass = true;
-					break;
-			}
-			
-			if($pass)
-				$fields[$field_key] = $field_model;
-		}
-		
-		return $fields;
-	}
-	
-	function getSubtotalCounts($column) {
-		$counts = array();
-		$fields = $this->getFields();
-		$context = null;
-
-		if(!isset($fields[$column]))
-			return array();
-		
-		switch($column) {
-			case SearchFields_DevblocksSession::USER_ID:
-				$label_map = array();
-				
-				$workers = DAO_Worker::getAll();
-				foreach($workers as $worker_id => $worker) {
-					$label_map[$worker_id] = $worker->getName();
-				}
-				
-				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, 'in', 'worker_id[]');
-				break;
-		}
-		
-		return $counts;
-	}
-	*/
-	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_DevblocksSession::getFields();
 		
@@ -636,7 +587,7 @@ class View_DevblocksSession extends C4_AbstractView implements IAbstractView_Qui
 		}
 	}
 
-	function renderVirtualCriteria($param) {
+	function renderVirtualCriteria($param) : void {
 		$key = $param->field;
 		
 		switch($key) {
@@ -645,6 +596,10 @@ class View_DevblocksSession extends C4_AbstractView implements IAbstractView_Qui
 					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.worker')),
 					DevblocksPlatform::strEscapeHtml($param->value)
 				);
+				break;
+			
+			default:
+				$this->_renderVirtualCriteria($param);
 				break;
 		}
 	}

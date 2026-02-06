@@ -335,11 +335,11 @@ class SearchFields_BotSession extends DevblocksSearchFields {
 	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		$columns = array(
+		$columns = [
 			self::SESSION_ID => new DevblocksSearchField(self::SESSION_ID, 'bot_session', 'session_id', null, null, true),
 			self::SESSION_DATA => new DevblocksSearchField(self::SESSION_DATA, 'bot_session', 'session_data', null, null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'bot_session', 'updated_at', $translate->_('common.updated'), null, true),
-		);
+		];
 		
 		// Custom Fields
 		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));

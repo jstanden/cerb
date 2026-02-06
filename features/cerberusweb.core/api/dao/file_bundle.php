@@ -306,7 +306,7 @@ class DAO_FileBundle extends Cerb_ORMHelper {
 		$fields = SearchFields_FileBundle::getFields();
 
 		switch($sortBy) {
-			case SearchFields_FileBundle::VIRTUAL_OWNER:
+			case DevblocksSearchField::VIRTUAL_OWNER:
 				$sortBy = SearchFields_FileBundle::OWNER_CONTEXT;
 				
 				if(!in_array($sortBy, $columns))
@@ -314,7 +314,7 @@ class DAO_FileBundle extends Cerb_ORMHelper {
 				break;
 		}
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_FileBundle', $sortBy);
+		list(, $wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_FileBundle', $sortBy);
 
 		$select_sql = sprintf("SELECT ".
 			"file_bundle.id as %s, ".
@@ -423,11 +423,7 @@ class SearchFields_FileBundle extends DevblocksSearchFields {
 
 	const FULLTEXT_COMMENT_CONTENT = 'ftcc_content';
 	
-	const VIRTUAL_CONTEXT_LINK = '*_context_link';
-	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
-	const VIRTUAL_OWNER = '*_owner';
 	const VIRTUAL_USABLE_BY = '*_usable_by';
-	const VIRTUAL_WATCHERS = '*_workers';
 	
 	static private $_fields = null;
 	
@@ -454,7 +450,7 @@ class SearchFields_FileBundle extends DevblocksSearchFields {
 			case self::FULLTEXT_COMMENT_CONTENT:
 				return self::_getWhereSQLFromCommentFulltextField($param, Search_CommentContent::ID, CerberusContexts::CONTEXT_FILE_BUNDLE, self::getPrimaryKey());
 				
-			case self::VIRTUAL_OWNER:
+			case DevblocksSearchField::VIRTUAL_OWNER:
 				return self::_getWhereSQLFromContextAndID($param, 'file_bundle.owner_context', 'file_bundle.owner_context_id');
 			
 			case self::VIRTUAL_USABLE_BY:
@@ -566,7 +562,7 @@ class SearchFields_FileBundle extends DevblocksSearchFields {
 	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 
-		$columns = array(
+		$columns = [
 			self::ID => new DevblocksSearchField(self::ID, 'file_bundle', 'id', $translate->_('common.id'), null, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'file_bundle', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::TAG => new DevblocksSearchField(self::TAG, 'file_bundle', 'tag', $translate->_('common.tag'), Model_CustomField::TYPE_SINGLE_LINE, true),
@@ -576,13 +572,13 @@ class SearchFields_FileBundle extends DevblocksSearchFields {
 
 			self::FULLTEXT_COMMENT_CONTENT => new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT', false),
 				
-			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
-			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
-			self::VIRTUAL_OWNER => new DevblocksSearchField(self::VIRTUAL_OWNER, '*', 'owner', $translate->_('common.owner'), null, false),
 			self::VIRTUAL_USABLE_BY => new DevblocksSearchField(self::VIRTUAL_USABLE_BY, '*', 'usable_by', null, null, false),
-			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS', false),
-		);
-
+		];
+		
+		// Virtual fields
+		if(($virtual_columns = DevblocksSearchField::getVirtualFields(owner: true)))
+			$columns = array_merge($columns, $virtual_columns);
+		
 		// Fulltext indexes
 		
 		$columns[self::FULLTEXT_COMMENT_CONTENT]->ft_schema = Search_CommentContent::ID;
@@ -625,22 +621,23 @@ class View_FileBundle extends C4_AbstractView implements IAbstractView_Subtotals
 		$this->renderSortBy = SearchFields_FileBundle::ID;
 		$this->renderSortAsc = true;
 
-		$this->view_columns = array(
+		$this->view_columns = [
 			SearchFields_FileBundle::NAME,
 			SearchFields_FileBundle::TAG,
 			SearchFields_FileBundle::UPDATED_AT,
-			SearchFields_FileBundle::VIRTUAL_OWNER,
-		);
+			DevblocksSearchField::VIRTUAL_OWNER,
+		];
 		
-		$this->addColumnsHidden(array(
+		$this->addColumnsHidden([
 			SearchFields_FileBundle::OWNER_CONTEXT,
 			SearchFields_FileBundle::OWNER_CONTEXT_ID,
 			SearchFields_FileBundle::FULLTEXT_COMMENT_CONTENT,
-			SearchFields_FileBundle::VIRTUAL_CONTEXT_LINK,
-			SearchFields_FileBundle::VIRTUAL_HAS_FIELDSET,
 			SearchFields_FileBundle::VIRTUAL_USABLE_BY,
-			SearchFields_FileBundle::VIRTUAL_WATCHERS,
-		));
+			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
+			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
+			DevblocksSearchField::VIRTUAL_WATCHERS,
+		]);
+
 
 		$this->doResetCriteria();
 	}
@@ -687,24 +684,12 @@ class View_FileBundle extends C4_AbstractView implements IAbstractView_Subtotals
 			$pass = false;
 				
 			switch($field_key) {
-				// Fields
-				//	case SearchFields_FileBundle::EXAMPLE:
-				//		$pass = true;
-				//		break;
-						
-				// Virtuals
-				case SearchFields_FileBundle::VIRTUAL_CONTEXT_LINK:
-				case SearchFields_FileBundle::VIRTUAL_HAS_FIELDSET:
-				case SearchFields_FileBundle::VIRTUAL_OWNER:
-				case SearchFields_FileBundle::VIRTUAL_WATCHERS:
-					$pass = true;
-					break;
-						
-					// Valid custom fields
 				default:
-					if(DevblocksPlatform::strStartsWith($field_key, 'cf_'))
+					if(DevblocksPlatform::strStartsWith($field_key, 'cf_')) {
 						$pass = $this->_canSubtotalCustomField($field_key);
-						break;
+					} else if (str_starts_with($field_key, '*_')) {
+						$pass = $this->_canSubtotalVirtualField($field_key);
+					}
 			}
 				
 			if($pass)
@@ -719,26 +704,14 @@ class View_FileBundle extends C4_AbstractView implements IAbstractView_Subtotals
 		$fields = $this->getFields();
 		$context = CerberusContexts::CONTEXT_FILE_BUNDLE;
 
-		if(!isset($fields[$column]))
+		if(!array_key_exists($column, $fields))
 			return [];
 
 		switch($column) {
-			case SearchFields_FileBundle::VIRTUAL_CONTEXT_LINK:
-				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
-				break;
-
-			case SearchFields_FileBundle::VIRTUAL_HAS_FIELDSET:
-				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
-				break;
-
-			case SearchFields_FileBundle::VIRTUAL_WATCHERS:
+			case DevblocksSearchField::VIRTUAL_WATCHERS:
 				$counts = $this->_getSubtotalCountForWatcherColumn($context, $column);
 				break;
 					
-			case SearchFields_FileBundle::VIRTUAL_OWNER:
-				$counts = $this->_getSubtotalCountForContextAndIdColumns($context, $column, DAO_FileBundle::OWNER_CONTEXT, DAO_FileBundle::OWNER_CONTEXT_ID, 'owner_context[]');
-				break;
-				
 			default:
 				// Custom fields
 				if(DevblocksPlatform::strStartsWith($column, 'cf_')) {
@@ -768,7 +741,7 @@ class View_FileBundle extends C4_AbstractView implements IAbstractView_Subtotals
 			'fieldset' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array('param_key' => SearchFields_FileBundle::VIRTUAL_HAS_FIELDSET),
+					'options' => ['param_key' => DevblocksSearchField::VIRTUAL_HAS_FIELDSET],
 					'examples' => [
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'qr' => 'context:' . CerberusContexts::CONTEXT_FILE_BUNDLE],
 					]
@@ -807,7 +780,7 @@ class View_FileBundle extends C4_AbstractView implements IAbstractView_Subtotals
 			'watchers' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array('param_key' => SearchFields_FileBundle::VIRTUAL_WATCHERS),
+					'options' => ['param_key' => DevblocksSearchField::VIRTUAL_WATCHERS],
 					'examples' => [
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => ''],
 					],
@@ -816,11 +789,11 @@ class View_FileBundle extends C4_AbstractView implements IAbstractView_Subtotals
 		
 		// Add dynamic owner.* fields
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('owner', $fields, 'owner', SearchFields_FileBundle::VIRTUAL_OWNER);
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('owner', $fields, 'owner', DevblocksSearchField::VIRTUAL_OWNER);
 		
 		// Add quick search links
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', SearchFields_FileBundle::VIRTUAL_CONTEXT_LINK);
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', DevblocksSearchField::VIRTUAL_CONTEXT_LINK);
 		
 		// Add searchable custom fields
 		
@@ -873,13 +846,13 @@ class View_FileBundle extends C4_AbstractView implements IAbstractView_Subtotals
 				);
 			
 			case 'watchers':
-				return DevblocksSearchCriteria::getWatcherParamFromTokens(SearchFields_FileBundle::VIRTUAL_WATCHERS, $tokens);
+				return DevblocksSearchCriteria::getWatcherParamFromTokens(DevblocksSearchField::VIRTUAL_WATCHERS, $tokens);
 				
 			default:
-				if($field == 'owner' || substr($field, 0, strlen('owner.')) == 'owner.')
-					return DevblocksSearchCriteria::getVirtualContextParamFromTokens($field, $tokens, 'owner', SearchFields_FileBundle::VIRTUAL_OWNER);
+				if($field == 'owner' || str_starts_with($field, 'owner.'))
+					return DevblocksSearchCriteria::getVirtualContextParamFromTokens($field, $tokens, 'owner', DevblocksSearchField::VIRTUAL_OWNER);
 				
-				if($field == 'links' || substr($field, 0, 6) == 'links.')
+				if($field == 'links' || str_starts_with($field, 'links.'))
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
 				
 				$search_fields = $this->getQuickSearchFields();
@@ -913,45 +886,29 @@ class View_FileBundle extends C4_AbstractView implements IAbstractView_Subtotals
 		}
 	}
 
-	function renderVirtualCriteria($param) {
+	function renderVirtualCriteria($param) : void {
 		$key = $param->field;
 
-		$translate = DevblocksPlatform::getTranslationService();
-
 		switch($key) {
-			case SearchFields_FileBundle::VIRTUAL_CONTEXT_LINK:
-				$this->_renderVirtualContextLinks($param);
-				break;
-
-			case SearchFields_FileBundle::VIRTUAL_HAS_FIELDSET:
-				$this->_renderVirtualHasFieldset($param);
-				break;
-				
-			case SearchFields_FileBundle::VIRTUAL_OWNER:
-				$this->_renderVirtualContextLinks($param, 'Owner', 'Owners');
-				break;
-			
 			case SearchFields_FileBundle::VIRTUAL_USABLE_BY:
 				if(!is_array($param->value) || !isset($param->value['context']))
 					return;
 				
-				switch($param->value['context']) {
-					case CerberusContexts::CONTEXT_WORKER:
-						if(false == ($worker = DAO_Worker::get($param->value['id']))) {
-							$worker_name = '(invalid worker)';
-						} else {
-							$worker_name = $worker->getName();
-						}
-						
-						echo sprintf("Usable by %s <b>%s</b>",
-							DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translate('common.worker', DevblocksPlatform::TRANSLATE_LOWER)),
-							DevblocksPlatform::strEscapeHtml($worker_name)
-						);
-						break;
+				if ($param->value['context'] == CerberusContexts::CONTEXT_WORKER) {
+					if (!($worker = DAO_Worker::get($param->value['id']))) {
+						$worker_name = '(invalid worker)';
+					} else {
+						$worker_name = $worker->getName();
+					}
+					
+					echo sprintf("Usable by %s <b>%s</b>",
+						DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translate('common.worker', DevblocksPlatform::TRANSLATE_LOWER)),
+						DevblocksPlatform::strEscapeHtml($worker_name)
+					);
 				}
-				
-			case SearchFields_FileBundle::VIRTUAL_WATCHERS:
-				$this->_renderVirtualWatchers($param);
+			
+			default:
+				$this->_renderVirtualCriteria($param);
 				break;
 		}
 	}
@@ -984,30 +941,13 @@ class View_FileBundle extends C4_AbstractView implements IAbstractView_Subtotals
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
 
-			case SearchFields_FileBundle::VIRTUAL_CONTEXT_LINK:
-				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array',[]);
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
-				break;
-
-			case SearchFields_FileBundle::VIRTUAL_HAS_FIELDSET:
-				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array',[]);
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
-				break;
-				
-			case SearchFields_FileBundle::VIRTUAL_OWNER:
-				$owner_contexts = DevblocksPlatform::importGPC($_POST['owner_context'] ?? null, 'array',[]);
-				$criteria = new DevblocksSearchCriteria($field,$oper,$owner_contexts);
-				break;
-
-			case SearchFields_FileBundle::VIRTUAL_WATCHERS:
-				$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'] ?? null, 'array',[]);
-				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
-				break;
-
 			default:
 				// Custom Fields
-				if(substr($field,0,3)=='cf_') {
+				if(str_starts_with($field, 'cf_')) {
 					$criteria = $this->_doSetCriteriaCustomField($field, substr($field,3));
+				} else if (str_starts_with($field, '*_')) {
+					if(($virtual_criteria = $this->_doSetCriteriaVirtual($field, $_POST, $oper)))
+						$criteria = $virtual_criteria;
 				}
 				break;
 		}
@@ -1307,9 +1247,9 @@ class Context_FileBundle extends Extension_DevblocksContext implements IDevblock
 		$params_req = [];
 		
 		if(!empty($context) && !empty($context_id)) {
-			$params_req = array(
-				new DevblocksSearchCriteria(SearchFields_FileBundle::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
-			);
+			$params_req = [
+				new DevblocksSearchCriteria(DevblocksSearchField::VIRTUAL_CONTEXT_LINK, 'in', [$context.':'.$context_id]),
+			];
 		}
 		
 		$view->addParamsRequired($params_req, true);

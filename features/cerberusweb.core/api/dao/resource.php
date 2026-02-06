@@ -564,9 +564,6 @@ class SearchFields_Resource extends DevblocksSearchFields {
 	const STORAGE_PROFILE_ID = 'r_storage_profile_id';
 	const UPDATED_AT = 'r_updated_at';
 	
-	const VIRTUAL_CONTEXT_LINK = '*_context_link';
-	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
-	
 	static private $_fields = null;
 	
 	static function getTableName() : string {
@@ -635,7 +632,7 @@ class SearchFields_Resource extends DevblocksSearchFields {
 	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		$columns = array(
+		$columns = [
 			self::CACHE_UNTIL => new DevblocksSearchField(self::CACHE_UNTIL, 'resource', 'cache_until', $translate->_('common.cache'), null, true),
 			self::DESCRIPTION => new DevblocksSearchField(self::DESCRIPTION, 'resource', 'description', $translate->_('common.description'), null, true),
 			self::ID => new DevblocksSearchField(self::ID, 'resource', 'id', $translate->_('common.id'), null, true),
@@ -647,10 +644,11 @@ class SearchFields_Resource extends DevblocksSearchFields {
 			self::STORAGE_PROFILE_ID => new DevblocksSearchField(self::STORAGE_PROFILE_ID, 'resource', 'storage_profile_id', $translate->_('common.storage_profile_id'), null, true),
 			self::STORAGE_SIZE => new DevblocksSearchField(self::STORAGE_SIZE, 'resource', 'storage_size', $translate->_('common.size'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'resource', 'updated_at', $translate->_('common.updated'), null, true),
-			
-			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
-			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
-		);
+		];
+		
+		// Virtual fields
+		if(($virtual_columns = DevblocksSearchField::getVirtualFields(watchers: false)))
+			$columns = array_merge($columns, $virtual_columns);
 		
 		// Custom Fields
 		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
@@ -762,8 +760,8 @@ class View_Resource extends C4_AbstractView implements IAbstractView_Subtotals, 
 		];
 		
 		$this->addColumnsHidden([
-			SearchFields_Resource::VIRTUAL_CONTEXT_LINK,
-			SearchFields_Resource::VIRTUAL_HAS_FIELDSET,
+			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
+			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
 		]);
 		
 		$this->doResetCriteria();
@@ -817,16 +815,13 @@ class View_Resource extends C4_AbstractView implements IAbstractView_Subtotals, 
 					$pass = true;
 					break;
 					
-					// Virtuals
-					case SearchFields_Resource::VIRTUAL_CONTEXT_LINK:
-					case SearchFields_Resource::VIRTUAL_HAS_FIELDSET:
-						$pass = true;
-						break;
-					
 					// Valid custom fields
 					default:
-						if(DevblocksPlatform::strStartsWith($field_key, 'cf_'))
+						if(DevblocksPlatform::strStartsWith($field_key, 'cf_')) {
 							$pass = $this->_canSubtotalCustomField($field_key);
+						} else if (str_starts_with($field_key, '*_')) {
+							$pass = $this->_canSubtotalVirtualField($field_key);
+						}
 						break;
 				}
 				
@@ -842,7 +837,7 @@ class View_Resource extends C4_AbstractView implements IAbstractView_Subtotals, 
 		$fields = $this->getFields();
 		$context = CerberusContexts::CONTEXT_RESOURCE;
 		
-		if(!isset($fields[$column]))
+		if(!array_key_exists($column, $fields))
 			return [];
 		
 		switch($column) {
@@ -855,20 +850,13 @@ class View_Resource extends C4_AbstractView implements IAbstractView_Subtotals, 
 				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
 				break;
 
-			case SearchFields_Resource::VIRTUAL_CONTEXT_LINK:
-				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
-				break;
-			
-			case SearchFields_Resource::VIRTUAL_HAS_FIELDSET:
-				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
-				break;
-			
 			default:
 				// Custom fields
 				if(DevblocksPlatform::strStartsWith($column, 'cf_')) {
 					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
+				} else if(DevblocksPlatform::strStartsWith($column, '*_')) {
+					$counts = $this->_getSubtotalCountForVirtualField($context, $column);
 				}
-				
 				break;
 		}
 		
@@ -897,7 +885,7 @@ class View_Resource extends C4_AbstractView implements IAbstractView_Subtotals, 
 			'fieldset' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array('param_key' => SearchFields_Resource::VIRTUAL_HAS_FIELDSET),
+					'options' => ['param_key' => DevblocksSearchField::VIRTUAL_HAS_FIELDSET],
 					'examples' => [
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'qr' => 'context:' . CerberusContexts::CONTEXT_RESOURCE],
 					]
@@ -939,7 +927,7 @@ class View_Resource extends C4_AbstractView implements IAbstractView_Subtotals, 
 		
 		// Add quick search links
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', SearchFields_Resource::VIRTUAL_CONTEXT_LINK);
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', DevblocksSearchField::VIRTUAL_CONTEXT_LINK);
 		
 		// Add searchable custom fields
 		
@@ -961,14 +949,12 @@ class View_Resource extends C4_AbstractView implements IAbstractView_Subtotals, 
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
 			
 			default:
-				if($field == 'links' || substr($field, 0, 6) == 'links.')
+				if($field == 'links' || str_starts_with($field, 'links.'))
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
 				
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
 		}
-		
-		return false;
 	}
 	
 	function render() {
@@ -1005,18 +991,8 @@ class View_Resource extends C4_AbstractView implements IAbstractView_Subtotals, 
 		}
 	}
 	
-	function renderVirtualCriteria($param) {
-		$key = $param->field;
-		
-		switch($key) {
-			case SearchFields_Resource::VIRTUAL_CONTEXT_LINK:
-				$this->_renderVirtualContextLinks($param);
-				break;
-			
-			case SearchFields_Resource::VIRTUAL_HAS_FIELDSET:
-				$this->_renderVirtualHasFieldset($param);
-				break;
-		}
+	function renderVirtualCriteria($param) : void {
+		$this->_renderVirtualCriteria($param);
 	}
 	
 	function getFields() {
@@ -1051,20 +1027,13 @@ class View_Resource extends C4_AbstractView implements IAbstractView_Subtotals, 
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 			
-			case SearchFields_Resource::VIRTUAL_CONTEXT_LINK:
-				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array',[]);
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
-				break;
-			
-			case SearchFields_Resource::VIRTUAL_HAS_FIELDSET:
-				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array',[]);
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
-				break;
-			
 			default:
 				// Custom Fields
-				if(substr($field,0,3)=='cf_') {
+				if(str_starts_with($field, 'cf_')) {
 					$criteria = $this->_doSetCriteriaCustomField($field, substr($field,3));
+				} else if (str_starts_with($field, '*_')) {
+					if(($virtual_criteria = $this->_doSetCriteriaVirtual($field, $_POST, $oper)))
+						$criteria = $virtual_criteria;
 				}
 				break;
 		}
@@ -1733,9 +1702,9 @@ class Context_Resource extends Extension_DevblocksContext implements IDevblocksC
 		$params_req = [];
 		
 		if(!empty($context) && !empty($context_id)) {
-			$params_req = array(
-				new DevblocksSearchCriteria(SearchFields_Resource::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
-			);
+			$params_req = [
+				new DevblocksSearchCriteria(DevblocksSearchField::VIRTUAL_CONTEXT_LINK, 'in', [$context.':'.$context_id]),
+			];
 		}
 		
 		$view->addParamsRequired($params_req, true);

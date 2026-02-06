@@ -75,11 +75,11 @@ class ChRest_MailHtmlTemplates extends Extension_RestController implements IExte
 	}
 
 	function translateToken($token, $type='dao') {
-		if('custom_' == substr($token, 0, 7) && in_array($type, array('search', 'subtotal'))) {
+		if(str_starts_with($token, 'custom_') && in_array($type, ['search', 'subtotal'])) {
 			return 'cf_' . intval(substr($token, 7));
 		}
 		
-		$tokens = array();
+		$tokens = [];
 		
 		if('dao'==$type) {
 			$tokens = array(
@@ -93,8 +93,8 @@ class ChRest_MailHtmlTemplates extends Extension_RestController implements IExte
 			
 		} elseif ('subtotal'==$type) {
 			$tokens = array(
-				'fieldsets' => SearchFields_MailHtmlTemplate::VIRTUAL_HAS_FIELDSET,
-				'links' => SearchFields_MailHtmlTemplate::VIRTUAL_CONTEXT_LINK,
+				'fieldsets' => DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
+				'links' => DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
 			);
 			
 			$tokens_cfields = $this->_handleSearchTokensCustomFields(CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE);
@@ -247,7 +247,7 @@ class ChRest_MailHtmlTemplates extends Extension_RestController implements IExte
 			'updated_at' => 'timestamp',
 		);
 
-		$fields = array();
+		$fields = [];
 
 		foreach($putfields as $putfield => $type) {
 			if(!isset($_POST[$putfield]))

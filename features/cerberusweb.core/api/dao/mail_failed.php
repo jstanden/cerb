@@ -54,12 +54,12 @@ class SearchFields_MailParseFail extends DevblocksSearchFields {
 	static function getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		$columns = array(
+		$columns = [
 			self::NAME => new DevblocksSearchField(self::NAME, 'mf', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::SIZE => new DevblocksSearchField(self::SIZE, 'mf', 'size', $translate->_('common.size'), Model_CustomField::TYPE_NUMBER, true),
 			self::CTIME => new DevblocksSearchField(self::CTIME, 'mf', 'ctime', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
 			self::MTIME => new DevblocksSearchField(self::MTIME, 'mf', 'mtime', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
-		);
+		];
 		
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
@@ -80,14 +80,14 @@ class View_MailParseFail extends C4_AbstractView implements IAbstractView_QuickS
 		$this->renderSortBy = SearchFields_MailParseFail::CTIME;
 		$this->renderSortAsc = true;
 
-		$this->view_columns = array(
+		$this->view_columns = [
 			SearchFields_MailParseFail::NAME,
 			SearchFields_MailParseFail::SIZE,
 			SearchFields_MailParseFail::CTIME,
-		);
-		$this->addColumnsHidden(array(
-		));
+		];
 		
+		$this->addColumnsHidden([]);
+
 		$this->doResetCriteria();
 	}
 	
@@ -303,14 +303,8 @@ class View_MailParseFail extends C4_AbstractView implements IAbstractView_QuickS
 		}
 	}
 	
-	function renderVirtualCriteria($param) {
-		$key = $param->field;
-		
-		switch($key) {
-			//case SearchFields_MailParseFail::VIRTUAL_CONTEXT_LINK:
-			//	$this->_renderVirtualContextLinks($param);
-			//	break;
-		}
+	function renderVirtualCriteria($param) : void {
+		$this->_renderVirtualCriteria($param);
 	}
 
 	function renderCriteriaParam($param) {
@@ -348,11 +342,6 @@ class View_MailParseFail extends C4_AbstractView implements IAbstractView_QuickS
 			case SearchFields_MailParseFail::CTIME:
 			case SearchFields_MailParseFail::MTIME:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
-				break;
-				
-			case 'placeholder_fulltext':
-				$scope = DevblocksPlatform::importGPC($_POST['scope'] ?? null, 'string','expert');
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
 		}
 

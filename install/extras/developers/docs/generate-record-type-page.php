@@ -503,7 +503,7 @@ EOD;
 			$quick_search['owner.<type>'] = [
 				'type' => 'Record',
 				'options' => [
-					'param_key' => SearchFields_Bot::VIRTUAL_OWNER,
+					'param_key' => DevblocksSearchField::VIRTUAL_OWNER,
 				],
 			];
 			
@@ -528,7 +528,7 @@ EOD;
 			$quick_search['author.<type>'] = [
 				'type' => 'Record',
 				'options' => [
-					'param_key' => SearchFields_Comment::VIRTUAL_OWNER,
+					'param_key' => DevblocksSearchField::VIRTUAL_OWNER,
 				],
 			];
 			

@@ -561,9 +561,6 @@ class SearchFields_TimeTrackingEntry extends DevblocksSearchFields {
 	const FULLTEXT_COMMENT_CONTENT = 'ftcc_content';
 
 	// Virtuals
-	const VIRTUAL_CONTEXT_LINK = '*_context_link';
-	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
-	const VIRTUAL_WATCHERS = '*_owners';
 	const VIRTUAL_WORKER_SEARCH = '*_worker_search';
 	
 	static private $_fields = null;
@@ -671,7 +668,7 @@ class SearchFields_TimeTrackingEntry extends DevblocksSearchFields {
 	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		$columns = array(
+		$columns = [
 			self::ID => new DevblocksSearchField(self::ID, 'tt', 'id', $translate->_('common.id'), null, true),
 			self::TIME_ACTUAL_MINS => new DevblocksSearchField(self::TIME_ACTUAL_MINS, 'tt', 'time_actual_mins', $translate->_('timetracking.ui.entry_panel.time_spent'), Model_CustomField::TYPE_NUMBER, true),
 			self::TIME_ACTUAL_SECS => new DevblocksSearchField(self::TIME_ACTUAL_SECS, 'tt', 'time_actual_secs', $translate->_('timetracking.ui.entry_panel.time_spent'), Model_CustomField::TYPE_NUMBER, true),
@@ -680,13 +677,14 @@ class SearchFields_TimeTrackingEntry extends DevblocksSearchFields {
 			self::ACTIVITY_ID => new DevblocksSearchField(self::ACTIVITY_ID, 'tt', 'activity_id', $translate->_('timetracking_entry.activity_id'), null, true),
 			self::IS_CLOSED => new DevblocksSearchField(self::IS_CLOSED, 'tt', 'is_closed', $translate->_('common.is_closed'), Model_CustomField::TYPE_CHECKBOX, true),
 			
-			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
-			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
-			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'owners', $translate->_('common.watchers'), 'WS', false),
 			self::VIRTUAL_WORKER_SEARCH => new DevblocksSearchField(self::VIRTUAL_WORKER_SEARCH, '*', 'worker_search', null, null, false),
 				
 			self::FULLTEXT_COMMENT_CONTENT => new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT', false),
-		);
+		];
+		
+		// Virtual fields
+		if(($virtual_columns = DevblocksSearchField::getVirtualFields()))
+			$columns = array_merge($columns, $virtual_columns);
 		
 		// Fulltext indexes
 		
@@ -718,19 +716,19 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 		$this->renderSortBy = SearchFields_TimeTrackingEntry::LOG_DATE;
 		$this->renderSortAsc = false;
 
-		$this->view_columns = array(
+		$this->view_columns = [
 			SearchFields_TimeTrackingEntry::LOG_DATE,
-		);
+		];
 		
-		$this->addColumnsHidden(array(
+		$this->addColumnsHidden([
 			SearchFields_TimeTrackingEntry::ID,
 			SearchFields_TimeTrackingEntry::FULLTEXT_COMMENT_CONTENT,
-			SearchFields_TimeTrackingEntry::VIRTUAL_CONTEXT_LINK,
-			SearchFields_TimeTrackingEntry::VIRTUAL_HAS_FIELDSET,
-			SearchFields_TimeTrackingEntry::VIRTUAL_WATCHERS,
 			SearchFields_TimeTrackingEntry::VIRTUAL_WORKER_SEARCH,
-		));
-		
+			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
+			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
+			DevblocksSearchField::VIRTUAL_WATCHERS,
+		]);
+
 		$this->addParamsDefault(array(
 			SearchFields_TimeTrackingEntry::IS_CLOSED => new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::IS_CLOSED,DevblocksSearchCriteria::OPER_EQ,0),
 		));
@@ -786,13 +784,6 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 					$pass = true;
 					break;
 					
-				// Virtuals
-				case SearchFields_TimeTrackingEntry::VIRTUAL_CONTEXT_LINK:
-				case SearchFields_TimeTrackingEntry::VIRTUAL_HAS_FIELDSET:
-				case SearchFields_TimeTrackingEntry::VIRTUAL_WATCHERS:
-					$pass = true;
-					break;
-					
 				// Valid custom fields
 				default:
 					if(DevblocksPlatform::strStartsWith($field_key, 'cf_')) {
@@ -813,7 +804,7 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 		$fields = $this->getFields();
 		$context = CerberusContexts::CONTEXT_TIMETRACKING;
 
-		if(!isset($fields[$column]))
+		if(!array_key_exists($column, $fields))
 			return [];
 		
 		switch($column) {
@@ -836,31 +827,18 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 				$counts = $this->_getSubtotalCountForNumberColumn($context, $column, $label_map, 'in', 'worker_id[]');
 				break;
 				
-			case SearchFields_TimeTrackingEntry::VIRTUAL_CONTEXT_LINK:
-				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
-				break;
-				
-			case SearchFields_TimeTrackingEntry::VIRTUAL_HAS_FIELDSET:
-				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
-				break;
-				
-			case SearchFields_TimeTrackingEntry::VIRTUAL_WATCHERS:
-				$counts = $this->_getSubtotalCountForWatcherColumn($context, $column);
-				break;
-			
 			default:
 				// Custom fields
 				if(DevblocksPlatform::strStartsWith($column, 'cf_')) {
 					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
+				} else if(DevblocksPlatform::strStartsWith($column, '*_')) {
+					$counts = $this->_getSubtotalCountForVirtualField($context, $column);
 				}
-				
 				break;
 		}
 		
 		return $counts;
 	}
-	
-	// [TODO] activity
 	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_TimeTrackingEntry::getFields();
@@ -895,7 +873,7 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 			'fieldset' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array('param_key' => SearchFields_TimeTrackingEntry::VIRTUAL_HAS_FIELDSET),
+					'options' => ['param_key' => DevblocksSearchField::VIRTUAL_HAS_FIELDSET],
 					'examples' => [
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'qr' => 'context:' . CerberusContexts::CONTEXT_TIMETRACKING],
 					]
@@ -946,7 +924,7 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 			'watchers' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array('param_key' => SearchFields_TimeTrackingEntry::VIRTUAL_WATCHERS),
+					'options' => ['param_key' => DevblocksSearchField::VIRTUAL_WATCHERS],
 					'examples' => [
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => ''],
 					],
@@ -955,7 +933,7 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 		
 		// Add quick search links
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', SearchFields_TimeTrackingEntry::VIRTUAL_CONTEXT_LINK);
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', DevblocksSearchField::VIRTUAL_CONTEXT_LINK);
 		
 		// Add searchable custom fields
 		
@@ -1001,13 +979,13 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 				return DevblocksSearchCriteria::getNumberParamFromTokens($field_key, $tokens);
 
 			case 'watchers':
-				return DevblocksSearchCriteria::getWatcherParamFromTokens(SearchFields_TimeTrackingEntry::VIRTUAL_WATCHERS, $tokens);
+				return DevblocksSearchCriteria::getWatcherParamFromTokens(DevblocksSearchField::VIRTUAL_WATCHERS, $tokens);
 				
 			case 'worker':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_TimeTrackingEntry::VIRTUAL_WORKER_SEARCH);
 				
 			default:
-				if($field == 'links' || substr($field, 0, 6) == 'links.')
+				if($field == 'links' || str_starts_with($field, 'links.'))
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
 				
 				$search_fields = $this->getQuickSearchFields();
@@ -1042,27 +1020,19 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 		
 	}
 
-	function renderVirtualCriteria($param) {
+	function renderVirtualCriteria($param) : void {
 		$key = $param->field;
 		
 		switch($key) {
-			case SearchFields_TimeTrackingEntry::VIRTUAL_CONTEXT_LINK:
-				$this->_renderVirtualContextLinks($param);
-				break;
-				
-			case SearchFields_TimeTrackingEntry::VIRTUAL_HAS_FIELDSET:
-				$this->_renderVirtualHasFieldset($param);
-				break;
-				
-			case SearchFields_TimeTrackingEntry::VIRTUAL_WATCHERS:
-				$this->_renderVirtualWatchers($param);
-				break;
-				
 			case SearchFields_TimeTrackingEntry::VIRTUAL_WORKER_SEARCH:
 				echo sprintf("%s matches <b>%s</b>",
 					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.worker')),
 					DevblocksPlatform::strEscapeHtml($param->value)
 				);
+				break;
+				
+			default:
+				$this->_renderVirtualCriteria($param);
 				break;
 		}
 	}
@@ -1151,18 +1121,6 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 				$worker_id = DevblocksPlatform::importGPC($_POST['worker_id'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_id);
 				break;
-			case SearchFields_TimeTrackingEntry::VIRTUAL_CONTEXT_LINK:
-				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array',[]);
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
-				break;
-			case SearchFields_TimeTrackingEntry::VIRTUAL_HAS_FIELDSET:
-				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array',[]);
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
-				break;
-			case SearchFields_TimeTrackingEntry::VIRTUAL_WATCHERS:
-				$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'] ?? null, 'array',[]);
-				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
-				break;
 			case SearchFields_TimeTrackingEntry::ACTIVITY_ID:
 				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$options);
@@ -1173,8 +1131,11 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 				break;
 			default:
 				// Custom Fields
-				if(substr($field,0,3)=='cf_') {
+				if(str_starts_with($field, 'cf_')) {
 					$criteria = $this->_doSetCriteriaCustomField($field, substr($field,3));
+				} else if (str_starts_with($field, '*_')) {
+					if(($virtual_criteria = $this->_doSetCriteriaVirtual($field, $_POST, $oper)))
+						$criteria = $virtual_criteria;
 				}
 				break;
 		}
@@ -1561,9 +1522,9 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 		$params_req = [];
 		
 		if(!empty($context) && !empty($context_id)) {
-			$params_req = array(
-				new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
-			);
+			$params_req = [
+				new DevblocksSearchCriteria(DevblocksSearchField::VIRTUAL_CONTEXT_LINK, 'in', [$context.':'.$context_id]),
+			];
 		}
 
 		$view->addParamsRequired($params_req, true);

@@ -507,10 +507,6 @@ class SearchFields_WorkspacePage extends DevblocksSearchFields {
 	const EXTENSION_ID = 'w_extension_id';
 	const UPDATED_AT = 'w_updated_at';
 	
-	const VIRTUAL_CONTEXT_LINK = '*_context_link';
-	const VIRTUAL_HAS_FIELDSET = '*_fieldset';
-	const VIRTUAL_OWNER = '*_owner';
-	
 	static private $_fields = null;
 	
 	static function getTableName() : string {
@@ -533,7 +529,7 @@ class SearchFields_WorkspacePage extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
-			case self::VIRTUAL_OWNER:
+			case DevblocksSearchField::VIRTUAL_OWNER:
 				return self::_getWhereSQLFromContextAndID($param, 'workspace_page.owner_context', 'workspace_page.owner_context_id');
 				
 			default:
@@ -608,18 +604,18 @@ class SearchFields_WorkspacePage extends DevblocksSearchFields {
 	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		$columns = array(
+		$columns = [
 			self::ID => new DevblocksSearchField(self::ID, 'workspace_page', 'id', $translate->_('common.id'), null, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'workspace_page', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'workspace_page', 'owner_context', null, null, false),
 			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'workspace_page', 'owner_context_id', null, null, false),
 			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'workspace_page', 'extension_id', $translate->_('common.type'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'workspace_page', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
-			
-			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
-			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
-			self::VIRTUAL_OWNER => new DevblocksSearchField(self::VIRTUAL_OWNER, '*', 'owner', $translate->_('common.owner'), null, false),
-		);
+		];
+		
+		// Virtual fields
+		if(($virtual_columns = DevblocksSearchField::getVirtualFields(owner: true, watchers: false)))
+			$columns = array_merge($columns, $virtual_columns);
 		
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
@@ -682,19 +678,19 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 		$this->renderSortBy = SearchFields_WorkspacePage::NAME;
 		$this->renderSortAsc = true;
 
-		$this->view_columns = array(
+		$this->view_columns = [
 			SearchFields_WorkspacePage::NAME,
-			SearchFields_WorkspacePage::VIRTUAL_OWNER,
+			DevblocksSearchField::VIRTUAL_OWNER,
 			SearchFields_WorkspacePage::UPDATED_AT,
-		);
+		];
 		
-		$this->addColumnsHidden(array(
+		$this->addColumnsHidden([
 			SearchFields_WorkspacePage::ID,
 			SearchFields_WorkspacePage::OWNER_CONTEXT,
 			SearchFields_WorkspacePage::OWNER_CONTEXT_ID,
-			SearchFields_WorkspacePage::VIRTUAL_CONTEXT_LINK,
-			SearchFields_WorkspacePage::VIRTUAL_HAS_FIELDSET,
-		));
+			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
+			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
+		]);
 
 		$this->doResetCriteria();
 	}
@@ -745,17 +741,13 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 					$pass = true;
 					break;
 					
-				// Virtuals
-				case SearchFields_WorkspacePage::VIRTUAL_CONTEXT_LINK:
-				case SearchFields_WorkspacePage::VIRTUAL_HAS_FIELDSET:
-				case SearchFields_WorkspacePage::VIRTUAL_OWNER:
-					$pass = true;
-					break;
-					
 				// Valid custom fields
 				default:
-					if(DevblocksPlatform::strStartsWith($field_key, 'cf_'))
+					if(DevblocksPlatform::strStartsWith($field_key, 'cf_')) {
 						$pass = $this->_canSubtotalCustomField($field_key);
+					} else if (str_starts_with($field_key, '*_')) {
+						$pass = $this->_canSubtotalVirtualField($field_key);
+					}
 					break;
 			}
 			
@@ -771,7 +763,7 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 		$fields = $this->getFields();
 		$context = CerberusContexts::CONTEXT_WORKSPACE_PAGE;
 
-		if(!isset($fields[$column]))
+		if(!array_key_exists($column, $fields))
 			return [];
 		
 		switch($column) {
@@ -782,24 +774,13 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, '=', 'value');
 				break;
 				
-			case SearchFields_WorkspacePage::VIRTUAL_CONTEXT_LINK:
-				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
-				break;
-			
-			case SearchFields_WorkspacePage::VIRTUAL_HAS_FIELDSET:
-				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
-				break;
-				
-			case SearchFields_WorkspacePage::VIRTUAL_OWNER:
-				$counts = $this->_getSubtotalCountForContextAndIdColumns($context, $column, DAO_WorkspacePage::OWNER_CONTEXT, DAO_WorkspacePage::OWNER_CONTEXT_ID, 'owner_context[]');
-				break;
-				
 			default:
 				// Custom fields
 				if(DevblocksPlatform::strStartsWith($column, 'cf_')) {
 					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
+				} else if(DevblocksPlatform::strStartsWith($column, '*_')) {
+					$counts = $this->_getSubtotalCountForVirtualField($context, $column);
 				}
-				
 				break;
 		}
 		
@@ -818,7 +799,7 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 			'fieldset' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array('param_key' => SearchFields_WorkspacePage::VIRTUAL_HAS_FIELDSET),
+					'options' => ['param_key' => DevblocksSearchField::VIRTUAL_HAS_FIELDSET],
 					'examples' => [
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'qr' => 'context:' . CerberusContexts::CONTEXT_WORKSPACE_PAGE],
 					]
@@ -857,7 +838,7 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 		
 		// Add 'owner.*'
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('owner', $fields, 'owner', SearchFields_WorkspacePage::VIRTUAL_OWNER);
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('owner', $fields, 'owner', DevblocksSearchField::VIRTUAL_OWNER);
 		
 		// Add searchable custom fields
 		
@@ -877,19 +858,15 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
 			case 'fieldset':
-				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_WorkspacePage::VIRTUAL_HAS_FIELDSET);
-				break;
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, DevblocksSearchField::VIRTUAL_HAS_FIELDSET);
 			
 			default:
 				if($field == 'owner' || DevblocksPlatform::strStartsWith($field, 'owner.'))
-					return DevblocksSearchCriteria::getVirtualContextParamFromTokens($field, $tokens, 'owner', SearchFields_WorkspacePage::VIRTUAL_OWNER);
+					return DevblocksSearchCriteria::getVirtualContextParamFromTokens($field, $tokens, 'owner', DevblocksSearchField::VIRTUAL_OWNER);
 				
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
-				break;
 		}
-		
-		return false;
 	}
 
 	function render() {
@@ -906,20 +883,16 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 	}
 
-	function renderVirtualCriteria($param) {
+	function renderVirtualCriteria($param) : void {
 		$key = $param->field;
 		
 		switch($key) {
-			case SearchFields_WorkspacePage::VIRTUAL_CONTEXT_LINK:
-				$this->_renderVirtualContextLinks($param);
-				break;
-			
-			case SearchFields_WorkspacePage::VIRTUAL_HAS_FIELDSET:
-				$this->_renderVirtualHasFieldset($param);
-				break;
-			
-			case SearchFields_WorkspacePage::VIRTUAL_OWNER:
+			case DevblocksSearchField::VIRTUAL_OWNER:
 				$this->_renderVirtualContextLinks($param, 'Owner', 'Owners', 'Owner matches');
+				break;
+				
+			default:
+				$this->_renderVirtualCriteria($param);
 				break;
 		}
 	}
@@ -956,20 +929,10 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 			case SearchFields_WorkspacePage::UPDATED_AT:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
-
-			case SearchFields_WorkspacePage::VIRTUAL_CONTEXT_LINK:
-				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array',[]);
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
-				break;
-			
-			case SearchFields_WorkspacePage::VIRTUAL_HAS_FIELDSET:
-				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array',[]);
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
-				break;
 				
-			case SearchFields_WorkspacePage::VIRTUAL_OWNER:
-				$owner_contexts = DevblocksPlatform::importGPC($_POST['owner_context'] ?? null, 'array',[]);
-				$criteria = new DevblocksSearchCriteria($field,$oper,$owner_contexts);
+			default:
+				if(($virtual_criteria = $this->_doSetCriteriaVirtual($field, $_POST, $oper)))
+					$criteria = $virtual_criteria;
 				break;
 		}
 
@@ -1374,7 +1337,7 @@ class Context_WorkspacePage extends Extension_DevblocksContext implements IDevbl
 		
 		if(!empty($context) && !empty($context_id)) {
 			$params_req = [
-				new DevblocksSearchCriteria(SearchFields_WorkspacePage::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
+				new DevblocksSearchCriteria(DevblocksSearchField::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
 			];
 		}
 		

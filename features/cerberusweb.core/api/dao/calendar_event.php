@@ -371,8 +371,6 @@ class SearchFields_CalendarEvent extends DevblocksSearchFields {
 	
 	// Virtuals
 	const VIRTUAL_CALENDAR_SEARCH = '*_calendar_search';
-	const VIRTUAL_CONTEXT_LINK = '*_context_link';
-	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	
 	static private $_fields = null;
 	
@@ -465,17 +463,18 @@ class SearchFields_CalendarEvent extends DevblocksSearchFields {
 	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		$columns = array(
+		$columns = [
 			self::ID => new DevblocksSearchField(self::ID, 'calendar_event', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'calendar_event', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::CALENDAR_ID => new DevblocksSearchField(self::CALENDAR_ID, 'calendar_event', 'calendar_id', $translate->_('common.calendar'), null, true),
 			self::IS_AVAILABLE => new DevblocksSearchField(self::IS_AVAILABLE, 'calendar_event', 'is_available', $translate->_('dao.calendar_event.is_available'), Model_CustomField::TYPE_CHECKBOX, true),
 			self::DATE_START => new DevblocksSearchField(self::DATE_START, 'calendar_event', 'date_start', $translate->_('dao.calendar_event.date_start'), Model_CustomField::TYPE_DATE, true),
 			self::DATE_END => new DevblocksSearchField(self::DATE_END, 'calendar_event', 'date_end', $translate->_('dao.calendar_event.date_end'), Model_CustomField::TYPE_DATE, true),
-
-			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
-			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
-		);
+		];
+		
+		// Virtual fields
+		if(($virtual_columns = DevblocksSearchField::getVirtualFields(watchers: false)))
+			$columns = array_merge($columns, $virtual_columns);
 		
 		// Custom fields with fieldsets
 		
@@ -524,18 +523,18 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 		$this->renderSortBy = SearchFields_CalendarEvent::ID;
 		$this->renderSortAsc = true;
 
-		$this->view_columns = array(
+		$this->view_columns = [
 			SearchFields_CalendarEvent::CALENDAR_ID,
 			SearchFields_CalendarEvent::DATE_START,
 			SearchFields_CalendarEvent::DATE_END,
 			SearchFields_CalendarEvent::IS_AVAILABLE,
-		);
+		];
 		
-		$this->addColumnsHidden(array(
+		$this->addColumnsHidden([
 			SearchFields_CalendarEvent::ID,
-			SearchFields_CalendarEvent::VIRTUAL_CONTEXT_LINK,
-		));
-		
+			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
+		]);
+
 		$this->doResetCriteria();
 	}
 	
@@ -574,7 +573,7 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 	function getSubtotalFields() {
 		$all_fields = $this->getParamsAvailable(true);
 		
-		$fields = array();
+		$fields = [];
 
 		if(is_array($all_fields))
 		foreach($all_fields as $field_key => $field_model) {
@@ -587,16 +586,13 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 					$pass = true;
 					break;
 					
-				// Virtuals
-				case SearchFields_CalendarEvent::VIRTUAL_CONTEXT_LINK:
-				case SearchFields_CalendarEvent::VIRTUAL_HAS_FIELDSET:
-					$pass = true;
-					break;
-					
 				// Valid custom fields
 				default:
-					if(DevblocksPlatform::strStartsWith($field_key, 'cf_'))
+					if(DevblocksPlatform::strStartsWith($field_key, 'cf_')) {
 						$pass = $this->_canSubtotalCustomField($field_key);
+					} else if (str_starts_with($field_key, '*_')) {
+						$pass = $this->_canSubtotalVirtualField($field_key);
+					}
 					break;
 			}
 			
@@ -608,12 +604,12 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 	}
 	
 	function getSubtotalCounts($column) {
-		$counts = array();
+		$counts = [];
 		$fields = $this->getFields();
 		$context = CerberusContexts::CONTEXT_CALENDAR_EVENT;
 
-		if(!isset($fields[$column]))
-			return array();
+		if(!array_key_exists($column, $fields))
+			return [];
 		
 		switch($column) {
 			case SearchFields_CalendarEvent::CALENDAR_ID:
@@ -632,20 +628,13 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
 				break;
 				
-			case SearchFields_CalendarEvent::VIRTUAL_CONTEXT_LINK:
-				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
-				break;
-				
-			case SearchFields_CalendarEvent::VIRTUAL_HAS_FIELDSET:
-				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
-				break;
-				
 			default:
 				// Custom fields
 				if(DevblocksPlatform::strStartsWith($column, 'cf_')) {
 					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
+				} else if(DevblocksPlatform::strStartsWith($column, '*_')) {
+					$counts = $this->_getSubtotalCountForVirtualField($context, $column);
 				}
-				
 				break;
 		}
 		
@@ -685,7 +674,7 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 			'fieldset' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array('param_key' => SearchFields_CalendarEvent::VIRTUAL_HAS_FIELDSET),
+					'options' => ['param_key' => DevblocksSearchField::VIRTUAL_HAS_FIELDSET],
 					'examples' => [
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'qr' => 'context:' . CerberusContexts::CONTEXT_CALENDAR_EVENT],
 					]
@@ -721,7 +710,7 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 		
 		// Add quick search links
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', SearchFields_CalendarEvent::VIRTUAL_CONTEXT_LINK);
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', DevblocksSearchField::VIRTUAL_CONTEXT_LINK);
 		
 		// Add searchable custom fields
 		
@@ -742,11 +731,9 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 		switch($field) {
 			case 'calendar':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_CalendarEvent::VIRTUAL_CALENDAR_SEARCH);
-				break;
 				
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
-				break;
 				
 			case 'status':
 				$field_key = SearchFields_CalendarEvent::IS_AVAILABLE;
@@ -771,18 +758,14 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 					$oper,
 					$value
 				);
-				break;
 				
 			default:
-				if($field == 'links' || substr($field, 0, 6) == 'links.')
+				if($field == 'links' || str_starts_with($field, 'links.'))
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
 				
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
-				break;
 		}
-		
-		return false;
 	}
 	
 	function render() {
@@ -834,7 +817,7 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 		}
 	}
 
-	function renderVirtualCriteria($param) {
+	function renderVirtualCriteria($param) : void {
 		$key = $param->field;
 		
 		switch($key) {
@@ -844,13 +827,9 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 					DevblocksPlatform::strEscapeHtml($param->value)
 				);
 				break;
-		
-			case SearchFields_CalendarEvent::VIRTUAL_HAS_FIELDSET:
-				$this->_renderVirtualHasFieldset($param);
-				break;
-				
-			case SearchFields_CalendarEvent::VIRTUAL_CONTEXT_LINK:
-				$this->_renderVirtualContextLinks($param);
+			
+			default:
+				$this->_renderVirtualCriteria($param);
 				break;
 		}
 	}
@@ -886,15 +865,13 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 				$criteria = new DevblocksSearchCriteria($field,$oper,$context_ids);
 				break;
 				
-			case SearchFields_CalendarEvent::VIRTUAL_CONTEXT_LINK:
-				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null,'array',array());
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
-				break;
-				
 			default:
 				// Custom Fields
-				if(substr($field,0,3)=='cf_') {
+				if(str_starts_with($field, 'cf_')) {
 					$criteria = $this->_doSetCriteriaCustomField($field, substr($field,3));
+				} else if (str_starts_with($field, '*_')) {
+					if(($virtual_criteria = $this->_doSetCriteriaVirtual($field, $_POST, $oper)))
+						$criteria = $virtual_criteria;
 				}
 				break;
 		}
@@ -1215,7 +1192,7 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 		return $view;
 	}
 	
-	function getView($context=null, $context_id=null, $options=array(), $view_id=null) {
+	function getView($context=null, $context_id=null, $options=[], $view_id=null) {
 		$view_id = !empty($view_id) ? $view_id : str_replace('.','_',$this->id);
 		
 		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
@@ -1224,12 +1201,12 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Calendar Events';
 		
-		$params_req = array();
+		$params_req = [];
 		
 		if(!empty($context) && !empty($context_id)) {
-			$params_req = array(
-				new DevblocksSearchCriteria(SearchFields_CalendarEvent::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
-			);
+			$params_req = [
+				new DevblocksSearchCriteria(DevblocksSearchField::VIRTUAL_CONTEXT_LINK, 'in', [$context.':'.$context_id]),
+			];
 		}
 		
 		$view->addParamsRequired($params_req, true);

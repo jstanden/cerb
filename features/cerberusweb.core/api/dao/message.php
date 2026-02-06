@@ -740,8 +740,6 @@ class SearchFields_Message extends DevblocksSearchFields {
 	// Virtuals
 	const VIRTUAL_ATTACHMENTS_SEARCH = '*_attachments_search';
 	const VIRTUAL_NOTES_SEARCH = '*_notes_search';
-	const VIRTUAL_CONTEXT_LINK = '*_context_link';
-	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_HEADER_CC = '*_header_cc';
 	const VIRTUAL_HEADER_DELIVERED_TO = '*_header_delivered_to';
 	const VIRTUAL_HEADER_FROM = '*_header_from';
@@ -1018,7 +1016,7 @@ class SearchFields_Message extends DevblocksSearchFields {
 	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		$columns = array(
+		$columns = [
 			SearchFields_Message::ID => new DevblocksSearchField(SearchFields_Message::ID, 'message', 'id', $translate->_('common.id'), null, true),
 			SearchFields_Message::ADDRESS_ID => new DevblocksSearchField(SearchFields_Message::ADDRESS_ID, 'message', 'address_id', $translate->_('common.sender'), Model_CustomField::TYPE_NUMBER, true),
 			SearchFields_Message::CREATED_DATE => new DevblocksSearchField(SearchFields_Message::CREATED_DATE, 'message', 'created_date', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
@@ -1049,8 +1047,6 @@ class SearchFields_Message extends DevblocksSearchFields {
 			
 			SearchFields_Message::VIRTUAL_ATTACHMENTS_SEARCH => new DevblocksSearchField(SearchFields_Message::VIRTUAL_ATTACHMENTS_SEARCH, '*', 'attachments_search', null, null, false),
 			SearchFields_Message::VIRTUAL_NOTES_SEARCH => new DevblocksSearchField(SearchFields_Message::VIRTUAL_NOTES_SEARCH, '*', 'notes_search', null, null, false),
-			SearchFields_Message::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(SearchFields_Message::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
-			SearchFields_Message::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(SearchFields_Message::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			SearchFields_Message::VIRTUAL_HEADER_CC => new DevblocksSearchField(SearchFields_Message::VIRTUAL_HEADER_CC, '*', 'header_cc', $translate->_('message.header.cc'), Model_CustomField::TYPE_SINGLE_LINE, false),
 			SearchFields_Message::VIRTUAL_HEADER_DELIVERED_TO => new DevblocksSearchField(SearchFields_Message::VIRTUAL_HEADER_DELIVERED_TO, '*', 'header_message_id', $translate->_('message.header.delivered_to'), Model_CustomField::TYPE_SINGLE_LINE, false),
 			SearchFields_Message::VIRTUAL_HEADER_FROM => new DevblocksSearchField(SearchFields_Message::VIRTUAL_HEADER_FROM, '*', 'header_message_id', $translate->_('message.header.from'), Model_CustomField::TYPE_SINGLE_LINE, false),
@@ -1063,8 +1059,12 @@ class SearchFields_Message extends DevblocksSearchFields {
 
 			SearchFields_Message::MESSAGE_CONTENT => new DevblocksSearchField(SearchFields_Message::MESSAGE_CONTENT, 'ftmc', 'content', $translate->_('common.content'), 'FT', false),
 			SearchFields_Message::FULLTEXT_NOTE_CONTENT => new DevblocksSearchField(self::FULLTEXT_NOTE_CONTENT, 'ftnc', 'content', $translate->_('message.note.content'), 'FT', false),
-		);
-
+		];
+		
+		// Virtual fields
+		if(($virtual_columns = DevblocksSearchField::getVirtualFields(watchers: false)))
+			$columns = array_merge($columns, $virtual_columns);
+		
 		// Fulltext indexes
 		
 		$columns[self::MESSAGE_CONTENT]->ft_schema = Search_MessageContent::ID;
@@ -1846,14 +1846,14 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 		$this->renderSortBy = SearchFields_Message::CREATED_DATE;
 		$this->renderSortAsc = true;
 
-		$this->view_columns = array(
+		$this->view_columns = [
 			SearchFields_Message::ADDRESS_EMAIL,
 			SearchFields_Message::TICKET_GROUP_ID,
 			SearchFields_Message::WORKER_ID,
 			SearchFields_Message::CREATED_DATE,
-		);
+		];
 		
-		$this->addColumnsHidden(array(
+		$this->addColumnsHidden([
 			SearchFields_Message::FULLTEXT_NOTE_CONTENT,
 			SearchFields_Message::HTML_ATTACHMENT_ID,
 			SearchFields_Message::MESSAGE_CONTENT,
@@ -1863,7 +1863,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Message::STORAGE_SIZE,
 			SearchFields_Message::TICKET_STATUS_ID,
 			SearchFields_Message::VIRTUAL_ATTACHMENTS_SEARCH,
-			SearchFields_Message::VIRTUAL_CONTEXT_LINK,
 			SearchFields_Message::VIRTUAL_HEADER_CC,
 			SearchFields_Message::VIRTUAL_HEADER_DELIVERED_TO,
 			SearchFields_Message::VIRTUAL_HEADER_FROM,
@@ -1872,8 +1871,10 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Message::VIRTUAL_HEADER_X_CERBERUS_MAILBOX,
 			SearchFields_Message::VIRTUAL_NOTES_SEARCH,
 			SearchFields_Message::VIRTUAL_TICKET_SEARCH,
-		));
-		
+			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
+			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
+		]);
+
 		$this->doResetCriteria();
 	}
 	
@@ -1925,15 +1926,16 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				case SearchFields_Message::TICKET_MASK:
 				case SearchFields_Message::WAS_ENCRYPTED:
 				case SearchFields_Message::WORKER_ID:
-				case SearchFields_Message::VIRTUAL_CONTEXT_LINK:
-				case SearchFields_Message::VIRTUAL_HAS_FIELDSET:
 					$pass = true;
 					break;
 					
 				// Valid custom fields
 				default:
-					if(DevblocksPlatform::strStartsWith($field_key, 'cf_'))
+					if(DevblocksPlatform::strStartsWith($field_key, 'cf_')) {
 						$pass = $this->_canSubtotalCustomField($field_key);
+					} else if (str_starts_with($field_key, '*_')) {
+						$pass = $this->_canSubtotalVirtualField($field_key);
+					}
 					break;
 			}
 			
@@ -1949,7 +1951,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 		$fields = $this->getFields();
 		$context = CerberusContexts::CONTEXT_MESSAGE;
 
-		if(!isset($fields[$column]))
+		if(!array_key_exists($column, $fields))
 			return [];
 		
 		switch($column) {
@@ -2004,20 +2006,13 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
 				break;
 				
-			case SearchFields_Message::VIRTUAL_CONTEXT_LINK:
-				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
-				break;
-				
-			case SearchFields_Message::VIRTUAL_HAS_FIELDSET:
-				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
-				break;
-			
 			default:
 				// Custom fields
 				if(DevblocksPlatform::strStartsWith($column, 'cf_')) {
 					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
+				} else if(DevblocksPlatform::strStartsWith($column, '*_')) {
+					$counts = $this->_getSubtotalCountForVirtualField($context, $column);
 				}
-				
 				break;
 		}
 		
@@ -2085,7 +2080,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			'fieldset' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array('param_key' => SearchFields_Message::VIRTUAL_HAS_FIELDSET),
+					'options' => ['param_key' => DevblocksSearchField::VIRTUAL_HAS_FIELDSET],
 					'examples' => [
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'qr' => 'context:' . CerberusContexts::CONTEXT_MESSAGE],
 					]
@@ -2252,13 +2247,11 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 		
 		// Add quick search links
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', SearchFields_Message::VIRTUAL_CONTEXT_LINK);
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', DevblocksSearchField::VIRTUAL_CONTEXT_LINK);
 		
 		// Add searchable custom fields
 		
 		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_MESSAGE, $fields, null);
-		//$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_ORG, $fields, 'org');
-		//$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_TICKET, $fields, 'ticket');
 		
 		// Engine/schema examples: Fulltext
 		
@@ -2358,7 +2351,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 		}
 	}
 
-	function renderVirtualCriteria($param) {
+	function renderVirtualCriteria($param) : void {
 		$key = $param->field;
 		
 		switch($key) {
@@ -2407,14 +2400,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				);
 				break;
 				
-			case SearchFields_Message::VIRTUAL_CONTEXT_LINK:
-				$this->_renderVirtualContextLinks($param);
-				break;
-			
-			case SearchFields_message::VIRTUAL_HAS_FIELDSET:
-				$this->_renderVirtualHasFieldset($param);
-				break;
-				
 			case SearchFields_Message::VIRTUAL_SENDER_SEARCH:
 				echo sprintf("%s matches <b>%s</b>",
 					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.sender')),
@@ -2434,6 +2419,10 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.worker')),
 					DevblocksPlatform::strEscapeHtml($param->value)
 				);
+				break;
+			
+			default:
+				$this->_renderVirtualCriteria($param);
 				break;
 		}
 	}
@@ -2557,21 +2546,9 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
 				
-			case SearchFields_Message::VIRTUAL_CONTEXT_LINK:
-				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array',[]);
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
-				break;
-				
-			case SearchFields_Message::VIRTUAL_HAS_FIELDSET:
-				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array',[]);
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
-				break;
-				
 			default:
-				// Custom Fields
-//				if(substr($field,0,3)=='cf_') {
-//					$criteria = $this->_doSetCriteriaCustomField($field, substr($field,3));
-//				}
+				if(($virtual_criteria = $this->_doSetCriteriaVirtual($field, $_POST, $oper)))
+					$criteria = $virtual_criteria;
 				break;
 		}
 
@@ -3179,9 +3156,9 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 		$params_req = [];
 		
 		if(!empty($context) && !empty($context_id)) {
-			$params_req = array(
-				new DevblocksSearchCriteria(SearchFields_Message::VIRTUAL_CONTEXT_LINK,'in',[$context.':'.$context_id]),
-			);
+			$params_req = [
+				new DevblocksSearchCriteria(DevblocksSearchField::VIRTUAL_CONTEXT_LINK,'in',[$context.':'.$context_id]),
+			];
 		}
 		
 		$view->addParamsRequired($params_req, true);

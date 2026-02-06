@@ -819,7 +819,7 @@ abstract class Extension_RestController extends DevblocksExtension {
 	 * @internal
 	 */
 	protected function _handleCustomFields($scope_array) {
-		$fields = array();
+		$fields = [];
 
 		if(is_array($scope_array))
 		foreach(array_keys($scope_array) as $k) {
@@ -836,7 +836,7 @@ abstract class Extension_RestController extends DevblocksExtension {
 	 * @internal
 	 */
 	protected function _handleSearchTokensCustomFields($context) {
-		$tokens = array();
+		$tokens = [];
 		$cfields = DAO_CustomField::getByContext($context, true);
 
 		if(is_array($cfields))

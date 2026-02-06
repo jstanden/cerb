@@ -796,21 +796,14 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 	}
 
 	static function _getWhereSQLForCommonVirtual(DevblocksSearchCriteria $param, string $context_name, string $join_key) : ?string {
-		switch($param->field) {
-			case '*_context_link': //self::VIRTUAL_CONTEXT_LINK:
-				return self::_getWhereSQLFromContextLinksField($param, $context_name, $join_key);
-			
-			case '*_has_fieldset': //self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromFieldset($param, $context_name, $join_key);
-			
-			case '*_search_index': //self::VIRTUAL_SEARCH_INDEX:
-				return self::_getWhereSQLFromSearchIndexField($param, $join_key);
-			
-			case '*_workers': //self::VIRTUAL_WATCHERS:
-				return self::_getWhereSQLFromWatchersField($param, $context_name, $join_key);
-		}
-		
-		return null;
+		return match ($param->field) {
+			DevblocksSearchField::VIRTUAL_CONTEXT_LINK => self::_getWhereSQLFromContextLinksField($param, $context_name, $join_key),
+			DevblocksSearchField::VIRTUAL_HAS_FIELDSET => self::_getWhereSQLFromFieldset($param, $context_name, $join_key),
+			DevblocksSearchField::VIRTUAL_OWNER => self::_getWhereSQLFromContextAndID($param, 'owner_context', 'owner_context_id'),
+			DevblocksSearchField::VIRTUAL_SEARCH_INDEX => self::_getWhereSQLFromSearchIndexField($param, $join_key),
+			DevblocksSearchField::VIRTUAL_WATCHERS => self::_getWhereSQLFromWatchersField($param, $context_name, $join_key),
+			default => null,
+		};
 	}
 	
 	static function _getWhereSQLFromFulltextField(DevblocksSearchCriteria $param, $schema, $join_key, $attributes=[], $allow_wildcards=true) {
@@ -3225,6 +3218,12 @@ class DevblocksSearchField {
 	public $is_sortable = false;
 	public $ft_schema = null;
 	
+	const VIRTUAL_CONTEXT_LINK = '*_context_link';
+	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
+	const VIRTUAL_OWNER = '*_owner';
+	const VIRTUAL_SEARCH_INDEX = '*_search_index';
+	const VIRTUAL_WATCHERS = '*_workers';
+	
 	function __construct($token, $db_table, $db_column, $label=null, $type=null, $is_sortable=false) {
 		$this->token = $token;
 		$this->db_table = $db_table;
@@ -3234,11 +3233,30 @@ class DevblocksSearchField {
 		$this->is_sortable = $is_sortable;
 	}
 	
+	static function getVirtualFields($links=true, $has_fieldset=true, $owner=false, $search_indexes=true, $watchers=true) : array {
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		$columns = [];
+		
+		if($links)
+			$columns[self::VIRTUAL_CONTEXT_LINK] = new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false);
+		if($has_fieldset)
+			$columns[self::VIRTUAL_HAS_FIELDSET] = new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false);
+		if($owner)
+			$columns[self::VIRTUAL_OWNER] = new DevblocksSearchField(self::VIRTUAL_OWNER, '*', 'owner', $translate->_('common.owner'));
+		if($search_indexes)
+			$columns[self::VIRTUAL_SEARCH_INDEX] = new DevblocksSearchField(self::VIRTUAL_SEARCH_INDEX, '*', 'search_index', null, null, false);
+		if($watchers)
+			$columns[self::VIRTUAL_WATCHERS] = new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS', false);
+		
+		return $columns;
+	}
+	
 	static function getCustomSearchFieldsByContexts($contexts) {
 		if(!is_array($contexts))
 			$contexts = array($contexts);
 		
-		$columns = array();
+		$columns = [];
 		$custom_fieldsets = DAO_CustomFieldset::getAll();
 
 		foreach($contexts as $context) {

@@ -695,7 +695,7 @@ class SearchFields_MailQueue extends DevblocksSearchFields {
 	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		$columns = array(
+		$columns = [
 			self::ID => new DevblocksSearchField(self::ID, 'mail_queue', 'id', $translate->_('common.id'), null, true),
 			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'mail_queue', 'worker_id', ucwords($translate->_('common.worker')), null, true),
 			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'mail_queue', 'updated', ucwords($translate->_('common.updated')), null, true),
@@ -709,7 +709,11 @@ class SearchFields_MailQueue extends DevblocksSearchFields {
 			self::QUEUE_FAILS => new DevblocksSearchField(self::QUEUE_FAILS, 'mail_queue', 'queue_fails', $translate->_('mail_queue.queue_fails'), null, true),
 				
 			self::VIRTUAL_WORKER_SEARCH => new DevblocksSearchField(self::VIRTUAL_WORKER_SEARCH, '*', 'worker_search', null, null, true),
-		);
+		];
+		
+		// Virtual fields
+		if(($virtual_columns = DevblocksSearchField::getVirtualFields(links: false, has_fieldset:false, watchers: false)))
+			$columns = array_merge($columns, $virtual_columns);
 		
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
@@ -1075,7 +1079,7 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 		$this->renderSortBy = SearchFields_MailQueue::UPDATED;
 		$this->renderSortAsc = false;
 
-		$this->view_columns = array(
+		$this->view_columns = [
 			SearchFields_MailQueue::HINT_TO,
 			SearchFields_MailQueue::TYPE,
 			SearchFields_MailQueue::WORKER_ID,
@@ -1083,13 +1087,13 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 			SearchFields_MailQueue::QUEUE_DELIVERY_DATE,
 			SearchFields_MailQueue::QUEUE_FAILS,
 			SearchFields_MailQueue::UPDATED,
-		);
+		];
 		
-		$this->addColumnsHidden(array(
+		$this->addColumnsHidden([
 			SearchFields_MailQueue::TICKET_ID,
 			SearchFields_MailQueue::VIRTUAL_WORKER_SEARCH,
-		));
-		
+		]);
+
 		$this->doResetCriteria();
 	}
 	
@@ -1143,8 +1147,11 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 					
 				// Valid custom fields
 				default:
-					if(DevblocksPlatform::strStartsWith($field_key, 'cf_'))
+					if(DevblocksPlatform::strStartsWith($field_key, 'cf_')) {
 						$pass = $this->_canSubtotalCustomField($field_key);
+					} else if (str_starts_with($field_key, '*_')) {
+						$pass = $this->_canSubtotalVirtualField($field_key);
+					}
 					break;
 			}
 			
@@ -1160,7 +1167,7 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 		$fields = $this->getFields();
 		$context = CerberusContexts::CONTEXT_DRAFT;
 
-		if(!isset($fields[$column]))
+		if(!array_key_exists($column, $fields))
 			return [];
 		
 		switch($column) {
@@ -1186,8 +1193,9 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 				// Custom fields
 				if(DevblocksPlatform::strStartsWith($column, 'cf_')) {
 					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
+				} else if(DevblocksPlatform::strStartsWith($column, '*_')) {
+					$counts = $this->_getSubtotalCountForVirtualField($context, $column);
 				}
-				
 				break;
 		}
 		
@@ -1356,7 +1364,7 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 		}
 	}
 	
-	function renderVirtualCriteria($param) {
+	function renderVirtualCriteria($param) : void {
 		$key = $param->field;
 		
 		switch($key) {
@@ -1365,6 +1373,10 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.worker')),
 					DevblocksPlatform::strEscapeHtml($param->value)
 				);
+				break;
+				
+			default:
+				$this->_renderVirtualCriteria($param);
 				break;
 		}
 	}
@@ -1403,6 +1415,11 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 			case SearchFields_MailQueue::WORKER_ID:
 				$worker_id = DevblocksPlatform::importGPC($_POST['worker_id'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_id);
+				break;
+				
+			default:
+				if(($virtual_criteria = $this->_doSetCriteriaVirtual($field, $_POST, $oper)))
+					$criteria = $virtual_criteria;
 				break;
 		}
 
@@ -2008,13 +2025,6 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 		$view->name = 'Drafts';
 		
 		$params_req = [];
-		
-		if($context && $context_id) {
-			$params_req = [
-				//new DevblocksSearchCriteria(SearchFields_MailQueue::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
-			];
-		}
-		
 		$view->addParamsRequired($params_req, true);
 		
 		$view->renderTemplate = 'context';

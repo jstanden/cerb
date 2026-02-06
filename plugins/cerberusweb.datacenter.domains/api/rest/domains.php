@@ -76,11 +76,11 @@ class ChRest_Domains extends Extension_RestController implements IExtensionRestC
 	}
 
 	function translateToken($token, $type='dao') {
-		if('custom_' == substr($token, 0, 7) && in_array($type, array('search', 'subtotal'))) {
+		if(str_starts_with($token, 'custom_') && in_array($type, ['search', 'subtotal'])) {
 			return 'cf_' . intval(substr($token, 7));
 		}
 		
-		$tokens = array();
+		$tokens = [];
 		
 		if('dao'==$type) {
 			$tokens = array(
@@ -91,9 +91,9 @@ class ChRest_Domains extends Extension_RestController implements IExtensionRestC
 			
 		} elseif ('subtotal'==$type) {
 			$tokens = array(
-				'fieldsets' => SearchFields_Domain::VIRTUAL_HAS_FIELDSET,
-				'links' => SearchFields_Domain::VIRTUAL_CONTEXT_LINK,
-				'watchers' => SearchFields_Domain::VIRTUAL_WATCHERS,
+				'fieldsets' => DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
+				'links' => DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
+				'watchers' => DevblocksSearchField::VIRTUAL_WATCHERS,
 					
 				'server' => SearchFields_Domain::SERVER_ID,
 			);
@@ -231,7 +231,7 @@ class ChRest_Domains extends Extension_RestController implements IExtensionRestC
 			'server_id' => 'integer',
 		);
 
-		$fields = array();
+		$fields = [];
 
 		foreach($putfields as $putfield => $type) {
 			if(!isset($_POST[$putfield]))
@@ -272,7 +272,7 @@ class ChRest_Domains extends Extension_RestController implements IExtensionRestC
 			'server_id' => 'integer',
 		);
 
-		$fields = array();
+		$fields = [];
 		
 		foreach($postfields as $postfield => $type) {
 			if(!isset($_POST[$postfield]))

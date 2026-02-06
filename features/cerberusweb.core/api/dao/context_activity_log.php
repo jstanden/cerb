@@ -784,7 +784,7 @@ class SearchFields_ContextActivityLog extends DevblocksSearchFields {
 	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		$columns = array(
+		$columns = [
 			self::ID => new DevblocksSearchField(self::ID, 'context_activity_log', 'id', $translate->_('common.id'), null, true),
 			self::ACTIVITY_POINT => new DevblocksSearchField(self::ACTIVITY_POINT, 'context_activity_log', 'activity_point', $translate->_('dao.context_activity_log.activity_point'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::ACTOR_CONTEXT => new DevblocksSearchField(self::ACTOR_CONTEXT, 'context_activity_log', 'actor_context', $translate->_('dao.context_activity_log.actor_context'), null, true),
@@ -796,7 +796,11 @@ class SearchFields_ContextActivityLog extends DevblocksSearchFields {
 				
 			self::VIRTUAL_ACTOR => new DevblocksSearchField(self::VIRTUAL_ACTOR, '*', 'actor', $translate->_('common.actor'), null, false),
 			self::VIRTUAL_TARGET => new DevblocksSearchField(self::VIRTUAL_TARGET, '*', 'target', $translate->_('common.target'), null, false),
-		);
+		];
+		
+		// Virtual fields
+		if(($virtual_columns = DevblocksSearchField::getVirtualFields(links: false, has_fieldset: false, watchers: false)))
+			$columns = array_merge($columns, $virtual_columns);
 		
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
@@ -906,7 +910,7 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 	function getSubtotalFields() {
 		$all_fields = $this->getParamsAvailable(true);
 
-		$fields = array();
+		$fields = [];
 
 		if(is_array($all_fields))
 		foreach($all_fields as $field_key => $field_model) {
@@ -915,9 +919,6 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 			switch($field_key) {
 				// DAO
 				case SearchFields_ContextActivityLog::ACTIVITY_POINT:
-					$pass = true;
-					break;
-					
 				case SearchFields_ContextActivityLog::VIRTUAL_ACTOR:
 				case SearchFields_ContextActivityLog::VIRTUAL_TARGET:
 					$pass = true;
@@ -925,8 +926,11 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 					
 				// Valid custom fields
 				default:
-					if(DevblocksPlatform::strStartsWith($field_key, 'cf_'))
+					if(DevblocksPlatform::strStartsWith($field_key, 'cf_')) {
 						$pass = $this->_canSubtotalCustomField($field_key);
+					} else if (str_starts_with($field_key, '*_')) {
+						$pass = $this->_canSubtotalVirtualField($field_key);
+					}
 					break;
 			}
 			
@@ -938,12 +942,12 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 	}
 	
 	function getSubtotalCounts($column) {
-		$counts = array();
+		$counts = [];
 		$fields = $this->getFields();
 		$context = CerberusContexts::CONTEXT_ACTIVITY_LOG;
 
-		if(!isset($fields[$column]))
-			return array();
+		if(!array_key_exists($column, $fields))
+			return [];
 		
 		switch($column) {
 			case SearchFields_ContextActivityLog::ACTIVITY_POINT:
@@ -973,8 +977,9 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 				// Custom fields
 				if(DevblocksPlatform::strStartsWith($column, 'cf_')) {
 					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
+				} else if(DevblocksPlatform::strStartsWith($column, '*_')) {
+					$counts = $this->_getSubtotalCountForVirtualField($context, $column);
 				}
-				
 				break;
 		}
 		
@@ -1064,7 +1069,7 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 	}
 
-	function renderVirtualCriteria($param) {
+	function renderVirtualCriteria($param) : void {
 		$key = $param->field;
 		
 		switch($key) {
@@ -1074,6 +1079,10 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 			
 			case SearchFields_ContextActivityLog::VIRTUAL_TARGET:
 				$this->_renderVirtualContextLinks($param, 'Target', 'Targets', 'Target is');
+				break;
+			
+			default:
+				$this->_renderVirtualCriteria($param);
 				break;
 		}
 	}
@@ -1137,6 +1146,11 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 			case SearchFields_ContextActivityLog::VIRTUAL_TARGET:
 				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
+				break;
+				
+			default:
+				if(($virtual_criteria = $this->_doSetCriteriaVirtual($field, $_POST, $oper)))
+					$criteria = $virtual_criteria;
 				break;
 		}
 
@@ -1477,7 +1491,7 @@ class Context_ContextActivityLog extends Extension_DevblocksContext implements I
 		return $view;
 	}
 	
-	function getView($context=null, $context_id=null, $options=array(), $view_id=null) {
+	function getView($context=null, $context_id=null, $options=[], $view_id=null) {
 		$view_id = !empty($view_id) ? $view_id : str_replace('.','_',$this->id);
 		
 		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
@@ -1486,14 +1500,7 @@ class Context_ContextActivityLog extends Extension_DevblocksContext implements I
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Activity Log';
 		
-		$params_req = array();
-		
-		if($context && $context_id) {
-			$params_req = [
-				//new DevblocksSearchCriteria(SearchFields_ContextActivityLog::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
-			];
-		}
-		
+		$params_req = [];
 		$view->addParamsRequired($params_req, true);
 		
 		$view->renderTemplate = 'context';

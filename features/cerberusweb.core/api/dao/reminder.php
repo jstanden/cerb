@@ -349,8 +349,6 @@ class SearchFields_Reminder extends DevblocksSearchFields {
 	const IS_CLOSED = 'r_is_closed';
 	const UPDATED_AT = 'r_updated_at';
 
-	const VIRTUAL_CONTEXT_LINK = '*_context_link';
-	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_WORKER_SEARCH = '*_worker_search';
 	
 	static private $_fields = null;
@@ -438,7 +436,7 @@ class SearchFields_Reminder extends DevblocksSearchFields {
 	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		$columns = array(
+		$columns = [
 			self::ID => new DevblocksSearchField(self::ID, 'reminder', 'id', $translate->_('common.id'), null, true),
 			self::IS_CLOSED => new DevblocksSearchField(self::IS_CLOSED, 'reminder', 'is_closed', $translate->_('common.is_closed'), null, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'reminder', 'name', $translate->_('common.name'), null, true),
@@ -446,10 +444,12 @@ class SearchFields_Reminder extends DevblocksSearchFields {
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'reminder', 'updated_at', $translate->_('common.updated'), null, true),
 			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'reminder', 'worker_id', $translate->_('common.worker'), null, true),
 
-			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
-			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			self::VIRTUAL_WORKER_SEARCH => new DevblocksSearchField(self::VIRTUAL_WORKER_SEARCH, '*', 'worker_search', null, null, false),
-		);
+		];
+		
+		// Virtual fields
+		if(($virtual_columns = DevblocksSearchField::getVirtualFields(watchers: false)))
+			$columns = array_merge($columns, $virtual_columns);
 		
 		// Custom Fields
 		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
@@ -517,18 +517,19 @@ class View_Reminder extends C4_AbstractView implements IAbstractView_Subtotals, 
 		$this->renderSortBy = SearchFields_Reminder::REMIND_AT;
 		$this->renderSortAsc = false;
 
-		$this->view_columns = array(
+		$this->view_columns = [
 			SearchFields_Reminder::NAME,
 			SearchFields_Reminder::REMIND_AT,
 			SearchFields_Reminder::WORKER_ID,
 			SearchFields_Reminder::UPDATED_AT,
-		);
-		$this->addColumnsHidden(array(
-			SearchFields_Reminder::VIRTUAL_CONTEXT_LINK,
-			SearchFields_Reminder::VIRTUAL_HAS_FIELDSET,
-			SearchFields_Reminder::VIRTUAL_WORKER_SEARCH,
-		));
+		];
 		
+		$this->addColumnsHidden([
+			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
+			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
+			SearchFields_Reminder::VIRTUAL_WORKER_SEARCH,
+		]);
+
 		$this->doResetCriteria();
 	}
 	
@@ -580,16 +581,13 @@ class View_Reminder extends C4_AbstractView implements IAbstractView_Subtotals, 
 					$pass = true;
 					break;
 					
-				// Virtuals
-				case SearchFields_Reminder::VIRTUAL_CONTEXT_LINK:
-				case SearchFields_Reminder::VIRTUAL_HAS_FIELDSET:
-					$pass = true;
-					break;
-					
 				// Valid custom fields
 				default:
-					if(DevblocksPlatform::strStartsWith($field_key, 'cf_'))
+					if(DevblocksPlatform::strStartsWith($field_key, 'cf_')) {
 						$pass = $this->_canSubtotalCustomField($field_key);
+					} else if (str_starts_with($field_key, '*_')) {
+						$pass = $this->_canSubtotalVirtualField($field_key);
+					}
 					break;
 			}
 			
@@ -605,7 +603,7 @@ class View_Reminder extends C4_AbstractView implements IAbstractView_Subtotals, 
 		$fields = $this->getFields();
 		$context = CerberusContexts::CONTEXT_REMINDER;
 
-		if(!isset($fields[$column]))
+		if(!array_key_exists($column, $fields))
 			return [];
 		
 		switch($column) {
@@ -620,20 +618,13 @@ class View_Reminder extends C4_AbstractView implements IAbstractView_Subtotals, 
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, 'in', 'worker_id[]');
 				break;
 				
-			case SearchFields_Reminder::VIRTUAL_CONTEXT_LINK:
-				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
-				break;
-
-			case SearchFields_Reminder::VIRTUAL_HAS_FIELDSET:
-				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
-				break;
-				
 			default:
 				// Custom fields
 				if(DevblocksPlatform::strStartsWith($column, 'cf_')) {
 					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
+				} else if(DevblocksPlatform::strStartsWith($column, '*_')) {
+					$counts = $this->_getSubtotalCountForVirtualField($context, $column);
 				}
-				
 				break;
 		}
 		
@@ -652,7 +643,7 @@ class View_Reminder extends C4_AbstractView implements IAbstractView_Subtotals, 
 			'fieldset' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array('param_key' => SearchFields_Reminder::VIRTUAL_HAS_FIELDSET),
+					'options' => ['param_key' => DevblocksSearchField::VIRTUAL_HAS_FIELDSET],
 					'examples' => [
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'qr' => 'context:' . CerberusContexts::CONTEXT_REMINDER],
 					]
@@ -705,7 +696,7 @@ class View_Reminder extends C4_AbstractView implements IAbstractView_Subtotals, 
 		
 		// Add quick search links
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', SearchFields_Reminder::VIRTUAL_CONTEXT_LINK);
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', DevblocksSearchField::VIRTUAL_CONTEXT_LINK);
 		
 		// Add searchable custom fields
 		
@@ -730,7 +721,7 @@ class View_Reminder extends C4_AbstractView implements IAbstractView_Subtotals, 
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Reminder::VIRTUAL_WORKER_SEARCH);
 			
 			default:
-				if($field == 'links' || substr($field, 0, 6) == 'links.')
+				if($field == 'links' || str_starts_with($field, 'links.'))
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
 				
 				$search_fields = $this->getQuickSearchFields();
@@ -773,7 +764,7 @@ class View_Reminder extends C4_AbstractView implements IAbstractView_Subtotals, 
 		}
 	}
 
-	function renderVirtualCriteria($param) {
+	function renderVirtualCriteria($param) : void {
 		$key = $param->field;
 		
 		switch($key) {
@@ -784,12 +775,8 @@ class View_Reminder extends C4_AbstractView implements IAbstractView_Subtotals, 
 				);
 				break;
 			
-			case SearchFields_Reminder::VIRTUAL_CONTEXT_LINK:
-				$this->_renderVirtualContextLinks($param);
-				break;
-				
-			case SearchFields_Reminder::VIRTUAL_HAS_FIELDSET:
-				$this->_renderVirtualHasFieldset($param);
+			default:
+				$this->_renderVirtualCriteria($param);
 				break;
 		}
 	}
@@ -824,20 +811,13 @@ class View_Reminder extends C4_AbstractView implements IAbstractView_Subtotals, 
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 				
-			case SearchFields_Reminder::VIRTUAL_CONTEXT_LINK:
-				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array',[]);
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
-				break;
-				
-			case SearchFields_Reminder::VIRTUAL_HAS_FIELDSET:
-				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array',[]);
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
-				break;
-				
 			default:
 				// Custom Fields
-				if(substr($field,0,3)=='cf_') {
+				if(str_starts_with($field, 'cf_')) {
 					$criteria = $this->_doSetCriteriaCustomField($field, substr($field,3));
+				} else if (str_starts_with($field, '*_')) {
+					if(($virtual_criteria = $this->_doSetCriteriaVirtual($field, $_POST, $oper)))
+						$criteria = $virtual_criteria;
 				}
 				break;
 		}
@@ -1141,9 +1121,9 @@ class Context_Reminder extends Extension_DevblocksContext implements IDevblocksC
 		$params_req = [];
 		
 		if(!empty($context) && !empty($context_id)) {
-			$params_req = array(
-				new DevblocksSearchCriteria(SearchFields_Reminder::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
-			);
+			$params_req = [
+				new DevblocksSearchCriteria(DevblocksSearchField::VIRTUAL_CONTEXT_LINK, 'in', [$context.':'.$context_id]),
+			];
 		}
 		
 		$view->addParamsRequired($params_req, true);

@@ -72,11 +72,11 @@ class ChRest_Servers extends Extension_RestController implements IExtensionRestC
 	}
 
 	function translateToken($token, $type='dao') {
-		if('custom_' == substr($token, 0, 7) && in_array($type, array('search', 'subtotal'))) {
+		if(str_starts_with($token, 'custom_') && in_array($type, ['search', 'subtotal'])) {
 			return 'cf_' . intval(substr($token, 7));
 		}
 		
-		$tokens = array();
+		$tokens = [];
 		
 		if('dao'==$type) {
 			$tokens = array(
@@ -85,9 +85,9 @@ class ChRest_Servers extends Extension_RestController implements IExtensionRestC
 			
 		} elseif ('subtotal'==$type) {
 			$tokens = array(
-				'fieldsets' => SearchFields_CrmOpportunity::VIRTUAL_HAS_FIELDSET,
-				'links' => SearchFields_CrmOpportunity::VIRTUAL_CONTEXT_LINK,
-				'watchers' => SearchFields_CrmOpportunity::VIRTUAL_WATCHERS,
+				'fieldsets' => DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
+				'links' => DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
+				'watchers' => DevblocksSearchField::VIRTUAL_WATCHERS,
 			);
 			
 			$tokens_cfields = $this->_handleSearchTokensCustomFields(CerberusContexts::CONTEXT_SERVER);
@@ -228,7 +228,7 @@ class ChRest_Servers extends Extension_RestController implements IExtensionRestC
 			'name' => 'string',
 		);
 
-		$fields = array();
+		$fields = [];
 
 		foreach($putfields as $putfield => $type) {
 			if(!isset($_POST[$putfield]))
@@ -267,7 +267,7 @@ class ChRest_Servers extends Extension_RestController implements IExtensionRestC
 			'name' => 'string',
 		);
 
-		$fields = array();
+		$fields = [];
 		
 		foreach($postfields as $postfield => $type) {
 			if(!isset($_POST[$postfield]))

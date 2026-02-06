@@ -379,10 +379,6 @@ class SearchFields_EmailSignature extends DevblocksSearchFields {
 	const SIGNATURE = 'e_signature';
 	const UPDATED_AT = 'e_updated_at';
 
-	const VIRTUAL_CONTEXT_LINK = '*_context_link';
-	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
-	const VIRTUAL_OWNER = '*_owner';
-	
 	static private $_fields = null;
 	
 	static function getTableName() : string {
@@ -405,7 +401,7 @@ class SearchFields_EmailSignature extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
-			case self::VIRTUAL_OWNER:
+			case DevblocksSearchField::VIRTUAL_OWNER:
 				return self::_getWhereSQLFromContextAndID($param, 'email_signature.owner_context', 'email_signature.owner_context_id');
 				
 			default:
@@ -476,18 +472,18 @@ class SearchFields_EmailSignature extends DevblocksSearchFields {
 	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		$columns = array(
+		$columns = [
 			self::ID => new DevblocksSearchField(self::ID, 'email_signature', 'id', $translate->_('common.id'), null, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'email_signature', 'name', $translate->_('common.name'), null, true),
 			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'email_signature', 'owner_context', $translate->_('common.owner_context'), null, true),
 			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'email_signature', 'owner_context_id', $translate->_('common.owner_context_id'), null, true),
 			self::SIGNATURE => new DevblocksSearchField(self::SIGNATURE, 'email_signature', 'signature', $translate->_('common.signature'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'email_signature', 'updated_at', $translate->_('common.updated'), null, true),
-
-			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
-			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
-			self::VIRTUAL_OWNER => new DevblocksSearchField(self::VIRTUAL_OWNER, '*', 'owner', $translate->_('common.owner'), null, false),
-		);
+		];
+		
+		// Virtual fields
+		if(($virtual_columns = DevblocksSearchField::getVirtualFields(owner: true, watchers: false)))
+			$columns = array_merge($columns, $virtual_columns);
 		
 		// Custom Fields
 		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
@@ -542,18 +538,18 @@ class View_EmailSignature extends C4_AbstractView implements IAbstractView_Subto
 		$this->renderSortBy = SearchFields_EmailSignature::ID;
 		$this->renderSortAsc = true;
 
-		$this->view_columns = array(
+		$this->view_columns = [
 			SearchFields_EmailSignature::NAME,
-			SearchFields_EmailSignature::VIRTUAL_OWNER,
+			DevblocksSearchField::VIRTUAL_OWNER,
 			SearchFields_EmailSignature::UPDATED_AT,
-		);
-		$this->addColumnsHidden(array(
+		];
+		$this->addColumnsHidden([
 			SearchFields_EmailSignature::OWNER_CONTEXT,
 			SearchFields_EmailSignature::OWNER_CONTEXT_ID,
-			SearchFields_EmailSignature::VIRTUAL_CONTEXT_LINK,
-			SearchFields_EmailSignature::VIRTUAL_HAS_FIELDSET,
-		));
-		
+			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
+			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
+		]);
+
 		$this->doResetCriteria();
 	}
 	
@@ -599,21 +595,13 @@ class View_EmailSignature extends C4_AbstractView implements IAbstractView_Subto
 			$pass = false;
 			
 			switch($field_key) {
-				// Fields
-				case SearchFields_EmailSignature::VIRTUAL_OWNER:
-					$pass = true;
-					break;
-					
-				// Virtuals
-				case SearchFields_EmailSignature::VIRTUAL_CONTEXT_LINK:
-				case SearchFields_EmailSignature::VIRTUAL_HAS_FIELDSET:
-					$pass = true;
-					break;
-					
 				// Valid custom fields
 				default:
-					if(DevblocksPlatform::strStartsWith($field_key, 'cf_'))
+					if(DevblocksPlatform::strStartsWith($field_key, 'cf_')) {
 						$pass = $this->_canSubtotalCustomField($field_key);
+					} else if (str_starts_with($field_key, '*_')) {
+						$pass = $this->_canSubtotalVirtualField($field_key);
+					}
 					break;
 			}
 			
@@ -629,28 +617,17 @@ class View_EmailSignature extends C4_AbstractView implements IAbstractView_Subto
 		$fields = $this->getFields();
 		$context = CerberusContexts::CONTEXT_EMAIL_SIGNATURE;
 
-		if(!isset($fields[$column]))
+		if(!array_key_exists($column, $fields))
 			return [];
 		
 		switch($column) {
-			case SearchFields_EmailSignature::VIRTUAL_OWNER:
-				$counts = $this->_getSubtotalCountForContextAndIdColumns($context, $column, DAO_EmailSignature::OWNER_CONTEXT, DAO_EmailSignature::OWNER_CONTEXT_ID, 'owner_context[]');
-				break;
-				
-			case SearchFields_EmailSignature::VIRTUAL_CONTEXT_LINK:
-				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
-				break;
-
-			case SearchFields_EmailSignature::VIRTUAL_HAS_FIELDSET:
-				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
-				break;
-				
 			default:
 				// Custom fields
 				if(DevblocksPlatform::strStartsWith($column, 'cf_')) {
 					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
+				} else if(DevblocksPlatform::strStartsWith($column, '*_')) {
+					$counts = $this->_getSubtotalCountForVirtualField($context, $column);
 				}
-				
 				break;
 		}
 		
@@ -669,7 +646,7 @@ class View_EmailSignature extends C4_AbstractView implements IAbstractView_Subto
 			'fieldset' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array('param_key' => SearchFields_EmailSignature::VIRTUAL_HAS_FIELDSET),
+					'options' => ['param_key' => DevblocksSearchField::VIRTUAL_HAS_FIELDSET],
 					'examples' => [
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'qr' => 'context:' . CerberusContexts::CONTEXT_EMAIL_SIGNATURE],
 					]
@@ -701,11 +678,11 @@ class View_EmailSignature extends C4_AbstractView implements IAbstractView_Subto
 		
 		// Add dynamic owner.* fields
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('owner', $fields, 'owner', SearchFields_EmailSignature::VIRTUAL_OWNER);
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('owner', $fields, 'owner', DevblocksSearchField::VIRTUAL_OWNER);
 		
 		// Add quick search links
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', SearchFields_EmailSignature::VIRTUAL_CONTEXT_LINK);
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', DevblocksSearchField::VIRTUAL_CONTEXT_LINK);
 		
 		// Add searchable custom fields
 		
@@ -728,10 +705,10 @@ class View_EmailSignature extends C4_AbstractView implements IAbstractView_Subto
 				break;
 			
 			default:
-				if($field == 'owner' || substr($field, 0, strlen('owner.')) == 'owner.')
-					return DevblocksSearchCriteria::getVirtualContextParamFromTokens($field, $tokens, 'owner', SearchFields_EmailSignature::VIRTUAL_OWNER);
+				if($field == 'owner' || str_starts_with($field, 'owner.'))
+					return DevblocksSearchCriteria::getVirtualContextParamFromTokens($field, $tokens, 'owner', DevblocksSearchField::VIRTUAL_OWNER);
 				
-				if($field == 'links' || substr($field, 0, 6) == 'links.')
+				if($field == 'links' || str_starts_with($field, 'links.'))
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
 				
 				$search_fields = $this->getQuickSearchFields();
@@ -767,20 +744,16 @@ class View_EmailSignature extends C4_AbstractView implements IAbstractView_Subto
 		}
 	}
 
-	function renderVirtualCriteria($param) {
+	function renderVirtualCriteria($param) : void {
 		$key = $param->field;
 		
 		switch($key) {
-			case SearchFields_EmailSignature::VIRTUAL_CONTEXT_LINK:
-				$this->_renderVirtualContextLinks($param);
-				break;
-				
-			case SearchFields_EmailSignature::VIRTUAL_HAS_FIELDSET:
-				$this->_renderVirtualHasFieldset($param);
-				break;
-				
-			case SearchFields_EmailSignature::VIRTUAL_OWNER:
+			case DevblocksSearchField::VIRTUAL_OWNER:
 				$this->_renderVirtualContextLinks($param, 'Owner', 'Owners', 'Owner matches');
+				break;
+				
+			default:
+				$this->_renderVirtualCriteria($param);
 				break;
 		}
 	}
@@ -806,25 +779,13 @@ class View_EmailSignature extends C4_AbstractView implements IAbstractView_Subto
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
-			case SearchFields_EmailSignature::VIRTUAL_CONTEXT_LINK:
-				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array',[]);
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
-				break;
-				
-			case SearchFields_EmailSignature::VIRTUAL_HAS_FIELDSET:
-				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array',[]);
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
-				break;
-				
-			case SearchFields_EmailSignature::VIRTUAL_OWNER:
-				$owner_contexts = DevblocksPlatform::importGPC($_POST['owner_context'] ?? null, 'array',[]);
-				$criteria = new DevblocksSearchCriteria($field,$oper,$owner_contexts);
-				break;
-				
 			default:
 				// Custom Fields
-				if(substr($field,0,3)=='cf_') {
+				if(str_starts_with($field, 'cf_')) {
 					$criteria = $this->_doSetCriteriaCustomField($field, substr($field,3));
+				} else if (str_starts_with($field, '*_')) {
+					if(($virtual_criteria = $this->_doSetCriteriaVirtual($field, $_POST, $oper)))
+						$criteria = $virtual_criteria;
 				}
 				break;
 		}
@@ -1139,9 +1100,9 @@ class Context_EmailSignature extends Extension_DevblocksContext implements IDevb
 		$params_req = [];
 		
 		if(!empty($context) && !empty($context_id)) {
-			$params_req = array(
-				new DevblocksSearchCriteria(SearchFields_EmailSignature::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
-			);
+			$params_req = [
+				new DevblocksSearchCriteria(DevblocksSearchField::VIRTUAL_CONTEXT_LINK, 'in', [$context.':'.$context_id]),
+			];
 		}
 		
 		$view->addParamsRequired($params_req, true);

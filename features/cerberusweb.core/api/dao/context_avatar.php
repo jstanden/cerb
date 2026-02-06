@@ -469,10 +469,6 @@ class SearchFields_ContextAvatar extends DevblocksSearchFields {
 	const STORAGE_SIZE = 'c_storage_size';
 	const STORAGE_PROFILE_ID = 'c_storage_profile_id';
 
-	const VIRTUAL_CONTEXT_LINK = '*_context_link';
-	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
-	const VIRTUAL_WATCHERS = '*_workers';
-	
 	static private $_fields = null;
 	
 	static function getTableName() : string {
@@ -541,7 +537,7 @@ class SearchFields_ContextAvatar extends DevblocksSearchFields {
 	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		$columns = array(
+		$columns = [
 			self::ID => new DevblocksSearchField(self::ID, 'context_avatar', 'id', $translate->_('dao.context_avatar.id'), Model_CustomField::TYPE_NUMBER, true),
 			self::CONTEXT => new DevblocksSearchField(self::CONTEXT, 'context_avatar', 'context', $translate->_('dao.context_avatar.context'), null, true),
 			self::CONTEXT_ID => new DevblocksSearchField(self::CONTEXT_ID, 'context_avatar', 'context_id', $translate->_('dao.context_avatar.context_id'), null, true),
@@ -552,11 +548,11 @@ class SearchFields_ContextAvatar extends DevblocksSearchFields {
 			self::STORAGE_KEY => new DevblocksSearchField(self::STORAGE_KEY, 'context_avatar', 'storage_key', $translate->_('common.storage_key'), null, true),
 			self::STORAGE_SIZE => new DevblocksSearchField(self::STORAGE_SIZE, 'context_avatar', 'storage_size', $translate->_('common.size'), Model_CustomField::TYPE_NUMBER, true),
 			self::STORAGE_PROFILE_ID => new DevblocksSearchField(self::STORAGE_PROFILE_ID, 'context_avatar', 'storage_profile_id', $translate->_('common.storage_profile_id'), Model_CustomField::TYPE_NUMBER, true),
-
-			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
-			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
-			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS', false),
-		);
+		];
+		
+		// Virtual fields
+		if(($virtual_columns = DevblocksSearchField::getVirtualFields()))
+			$columns = array_merge($columns, $virtual_columns);
 		
 		// Custom Fields
 		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));

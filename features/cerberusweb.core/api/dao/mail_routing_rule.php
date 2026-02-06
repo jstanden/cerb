@@ -417,9 +417,6 @@ class SearchFields_MailRoutingRule extends DevblocksSearchFields {
 	const UPDATED_AT = 'm_updated_at';
 	const WORKFLOW_ID = 'm_workflow_id';
 	
-	const VIRTUAL_CONTEXT_LINK = '*_context_link';
-	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
-	
 	static private $_fields = null;
 	
 	static function getTableName() : string {
@@ -495,10 +492,11 @@ class SearchFields_MailRoutingRule extends DevblocksSearchFields {
 			self::PRIORITY => new DevblocksSearchField(self::PRIORITY, 'mail_routing_rule', 'priority', $translate->_('common.priority'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'mail_routing_rule', 'updated_at', $translate->_('common.updated'), null, true),
 			self::WORKFLOW_ID => new DevblocksSearchField(self::WORKFLOW_ID, 'mail_routing_rule', 'workflow_id', $translate->_('common.workflow'), null, true),
-			
-			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
-			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 		];
+		
+		// Virtual fields
+		if(($virtual_columns = DevblocksSearchField::getVirtualFields(watchers: false)))
+			$columns = array_merge($columns, $virtual_columns);
 		
 		// Custom Fields
 		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
@@ -564,8 +562,8 @@ class View_MailRoutingRule extends C4_AbstractView implements IAbstractView_Subt
 			SearchFields_MailRoutingRule::UPDATED_AT,
 		];
 		$this->addColumnsHidden([
-			SearchFields_MailRoutingRule::VIRTUAL_CONTEXT_LINK,
-			SearchFields_MailRoutingRule::VIRTUAL_HAS_FIELDSET,
+			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
+			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
 		]);
 		
 		$this->doResetCriteria();
@@ -616,15 +614,16 @@ class View_MailRoutingRule extends C4_AbstractView implements IAbstractView_Subt
 					case SearchFields_MailRoutingRule::IS_DISABLED:
 					case SearchFields_MailRoutingRule::PRIORITY:
 					case SearchFields_MailRoutingRule::WORKFLOW_ID:
-					case SearchFields_MailRoutingRule::VIRTUAL_CONTEXT_LINK:
-					case SearchFields_MailRoutingRule::VIRTUAL_HAS_FIELDSET:
 						$pass = true;
 						break;
 					
 					// Valid custom fields
 					default:
-						if(DevblocksPlatform::strStartsWith($field_key, 'cf_'))
+						if(DevblocksPlatform::strStartsWith($field_key, 'cf_')) {
 							$pass = $this->_canSubtotalCustomField($field_key);
+						} else if (str_starts_with($field_key, '*_')) {
+							$pass = $this->_canSubtotalVirtualField($field_key);
+						}
 						break;
 				}
 				
@@ -640,7 +639,7 @@ class View_MailRoutingRule extends C4_AbstractView implements IAbstractView_Subt
 		$fields = $this->getFields();
 		$context = Context_MailRoutingRule::ID;
 		
-		if(!isset($fields[$column]))
+		if(!array_key_exists($column, $fields))
 			return [];
 		
 		switch($column) {
@@ -653,20 +652,13 @@ class View_MailRoutingRule extends C4_AbstractView implements IAbstractView_Subt
 				$counts = $this->_getSubtotalCountForNumberColumn($context, $column);
 				break;
 				
-			case SearchFields_MailRoutingRule::VIRTUAL_CONTEXT_LINK:
-				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
-				break;
-			
-			case SearchFields_MailRoutingRule::VIRTUAL_HAS_FIELDSET:
-				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
-				break;
-			
 			default:
 				// Custom fields
 				if(DevblocksPlatform::strStartsWith($column, 'cf_')) {
 					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
+				} else if(DevblocksPlatform::strStartsWith($column, '*_')) {
+					$counts = $this->_getSubtotalCountForVirtualField($context, $column);
 				}
-				
 				break;
 		}
 		
@@ -690,7 +682,7 @@ class View_MailRoutingRule extends C4_AbstractView implements IAbstractView_Subt
 			'fieldset' =>
 				[
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => ['param_key' => SearchFields_MailRoutingRule::VIRTUAL_HAS_FIELDSET],
+					'options' => ['param_key' => DevblocksSearchField::VIRTUAL_HAS_FIELDSET],
 					'examples' => [
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'qr' => 'context:' . Context_MailRoutingRule::ID],
 					]
@@ -735,7 +727,7 @@ class View_MailRoutingRule extends C4_AbstractView implements IAbstractView_Subt
 		
 		// Add quick search links
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', SearchFields_MailRoutingRule::VIRTUAL_CONTEXT_LINK);
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', DevblocksSearchField::VIRTUAL_CONTEXT_LINK);
 		
 		// Add searchable custom fields
 		
@@ -757,7 +749,7 @@ class View_MailRoutingRule extends C4_AbstractView implements IAbstractView_Subt
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
 			
 			default:
-				if($field == 'links' || substr($field, 0, 6) == 'links.')
+				if($field == 'links' || str_starts_with($field, 'links.'))
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
 				
 				$search_fields = $this->getQuickSearchFields();
@@ -790,18 +782,8 @@ class View_MailRoutingRule extends C4_AbstractView implements IAbstractView_Subt
 		}
 	}
 	
-	function renderVirtualCriteria($param) {
-		$key = $param->field;
-		
-		switch($key) {
-			case SearchFields_MailRoutingRule::VIRTUAL_CONTEXT_LINK:
-				$this->_renderVirtualContextLinks($param);
-				break;
-			
-			case SearchFields_MailRoutingRule::VIRTUAL_HAS_FIELDSET:
-				$this->_renderVirtualHasFieldset($param);
-				break;
-		}
+	function renderVirtualCriteria($param) : void {
+		$this->_renderVirtualCriteria($param);
 	}
 	
 	function getFields() {
@@ -832,20 +814,13 @@ class View_MailRoutingRule extends C4_AbstractView implements IAbstractView_Subt
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 			
-			case SearchFields_MailRoutingRule::VIRTUAL_CONTEXT_LINK:
-				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array',[]);
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
-				break;
-			
-			case SearchFields_MailRoutingRule::VIRTUAL_HAS_FIELDSET:
-				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array',[]);
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
-				break;
-			
 			default:
 				// Custom Fields
-				if(substr($field,0,3)=='cf_') {
+				if(str_starts_with($field, 'cf_')) {
 					$criteria = $this->_doSetCriteriaCustomField($field, substr($field,3));
+				} else if (str_starts_with($field, '*_')) {
+					if(($virtual_criteria = $this->_doSetCriteriaVirtual($field, $_POST, $oper)))
+						$criteria = $virtual_criteria;
 				}
 				break;
 		}
@@ -1141,7 +1116,7 @@ class Context_MailRoutingRule extends Extension_DevblocksContext implements IDev
 		
 		if(!empty($context) && !empty($context_id)) {
 			$params_req = [
-				new DevblocksSearchCriteria(SearchFields_MailRoutingRule::VIRTUAL_CONTEXT_LINK,'in',[$context.':'.$context_id]),
+				new DevblocksSearchCriteria(DevblocksSearchField::VIRTUAL_CONTEXT_LINK,'in',[$context.':'.$context_id]),
 			];
 		}
 		

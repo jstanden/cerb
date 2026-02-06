@@ -345,11 +345,11 @@ class UmSc_KbArticleView extends C4_AbstractView {
 		$this->renderSortBy = 'kb_updated';
 		$this->renderSortAsc = false;
 
-		$this->view_columns = array(
+		$this->view_columns = [
 			SearchFields_KbArticle::TITLE,
 			SearchFields_KbArticle::UPDATED,
 			SearchFields_KbArticle::VIEWS,
-		);
+		];
 		
 		$this->doResetCriteria();
 	}

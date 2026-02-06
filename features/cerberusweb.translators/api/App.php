@@ -457,14 +457,14 @@ class View_Translation extends C4_AbstractView implements IAbstractView_Subtotal
 		$this->renderSortBy = SearchFields_Translation::STRING_ID;
 		$this->renderSortAsc = true;
 
-		$this->view_columns = array(
+		$this->view_columns = [
 			SearchFields_Translation::STRING_OVERRIDE,
 			SearchFields_Translation::STRING_ID,
-		);
+		];
 		
-		$this->addColumnsHidden(array(
+		$this->addColumnsHidden([
 			SearchFields_Translation::ID,
-		));
+		]);
 		
 		$this->doResetCriteria();
 	}
@@ -496,7 +496,7 @@ class View_Translation extends C4_AbstractView implements IAbstractView_Subtotal
 	function getSubtotalFields() {
 		$all_fields = $this->getParamsAvailable(true);
 		
-		$fields = array();
+		$fields = [];
 
 		if(is_array($all_fields))
 		foreach($all_fields as $field_key => $field_model) {
@@ -517,18 +517,14 @@ class View_Translation extends C4_AbstractView implements IAbstractView_Subtotal
 	}
 	
 	function getSubtotalCounts($column) {
-		$counts = array();
+		$counts = [];
 		$fields = $this->getFields();
-		$context = null; // [TODO]
 
-		if(!isset($fields[$column]))
-			return array();
+		if(!array_key_exists($column, $fields))
+			return [];
 		
-		switch($column) {
-			case SearchFields_Translation::LANG_CODE:
-				$codes = DAO_Translation::getDefinedLangCodes();
-				$counts = $this->_getSubtotalCountForLanguage();
-				break;
+		if ($column == SearchFields_Translation::LANG_CODE) {
+			$counts = $this->_getSubtotalCountForLanguage();
 		}
 		
 		return $counts;
@@ -539,7 +535,7 @@ class View_Translation extends C4_AbstractView implements IAbstractView_Subtotal
 		$value_oper = DevblocksSearchCriteria::OPER_IN;
 		$value_key = 'options[]';
 		
-		if(false == ($results = $this->_getSubtotalDataForLanguage()))
+		if(!($results = $this->_getSubtotalDataForLanguage()))
 			return false;
 		
 		$counts = [];
@@ -690,13 +686,13 @@ class View_Translation extends C4_AbstractView implements IAbstractView_Subtotal
 			case 'lang':
 				$field_key = SearchFields_Translation::LANG_CODE;
 				$oper = null;
-				$patterns = array();
+				$patterns = [];
 				
 				CerbQuickSearchLexer::getOperArrayFromTokens($tokens, $oper, $patterns);
 				
 				$lang_codes = DAO_Translation::getDefinedLangCodes();
 				
-				$values = array();
+				$values = [];
 				
 				foreach($patterns as $pattern) {
 					foreach($lang_codes as $lang_code => $lang_label) {
@@ -710,36 +706,11 @@ class View_Translation extends C4_AbstractView implements IAbstractView_Subtotal
 					$oper,
 					array_keys($values)
 				);
-				break;
 		
-			case 'ticket.id':
-				$field_key = SearchFields_Address::VIRTUAL_TICKET_ID;
-				$oper = null;
-				$value = null;
-				
-				if(false == CerbQuickSearchLexer::getOperArrayFromTokens($tokens, $oper, $value))
-					return false;
-				
-				$value = DevblocksPlatform::sanitizeArray($value, 'int');
-				
-				return new DevblocksSearchCriteria(
-					$field_key,
-					$oper,
-					$value
-				);
-				break;
-				
-			case 'watchers':
-				return DevblocksSearchCriteria::getWatcherParamFromTokens(SearchFields_Address::VIRTUAL_WATCHERS, $tokens);
-				break;
-				
 			default:
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
-				break;
 		}
-		
-		return false;
 	}
 	
 	function render() {

@@ -339,11 +339,11 @@ class UmSc_TicketHistoryView extends C4_AbstractView implements IAbstractView_Qu
 		$this->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
 		$this->renderSortAsc = false;
 
-		$this->view_columns = array(
+		$this->view_columns = [
 			SearchFields_Ticket::TICKET_UPDATED_DATE,
 			SearchFields_Ticket::TICKET_SUBJECT,
 			SearchFields_Ticket::TICKET_LAST_WROTE_ID,
-		);
+		];
 		
 		$this->doResetCriteria();
 	}
@@ -561,13 +561,6 @@ class UmSc_TicketHistoryView extends C4_AbstractView implements IAbstractView_Qu
 				
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$intersect);
 				break;
-				
-//			default:
-//				// Custom Fields
-//				if(substr($field,0,3)=='cf_') {
-//					$criteria = $this->_doSetCriteriaCustomField($field, substr($field,3));
-//				}
-//				break;
 		}
 
 		if(!empty($criteria)) {

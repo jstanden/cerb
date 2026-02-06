@@ -298,7 +298,7 @@ class SearchFields_CerbPlugin extends DevblocksSearchFields {
 	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		$columns = array(
+		$columns = [
 			self::ID => new DevblocksSearchField(self::ID, 'cerb_plugin', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
 			self::ENABLED => new DevblocksSearchField(self::ENABLED, 'cerb_plugin', 'enabled', $translate->_('common.enabled'), Model_CustomField::TYPE_CHECKBOX, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'cerb_plugin', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
@@ -308,7 +308,7 @@ class SearchFields_CerbPlugin extends DevblocksSearchFields {
 			self::DIR => new DevblocksSearchField(self::DIR, 'cerb_plugin', 'dir', null, null, true),
 			self::LINK => new DevblocksSearchField(self::LINK, 'cerb_plugin', 'link', $translate->_('common.url'), Model_CustomField::TYPE_URL, true),
 			self::MANIFEST_CACHE_JSON => new DevblocksSearchField(self::MANIFEST_CACHE_JSON, 'cerb_plugin', 'manifest_cache_json', null, null, false),
-		);
+		];
 		
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
@@ -342,16 +342,16 @@ class View_CerbPlugin extends C4_AbstractView implements IAbstractView_Subtotals
 		$this->renderSortBy = SearchFields_CerbPlugin::ID;
 		$this->renderSortAsc = true;
 
-		$this->view_columns = array(
+		$this->view_columns = [
 			SearchFields_CerbPlugin::AUTHOR,
 			SearchFields_CerbPlugin::VERSION,
-		);
+		];
 
-		$this->addColumnsHidden(array(
+		$this->addColumnsHidden([
 			SearchFields_CerbPlugin::DIR,
 			SearchFields_CerbPlugin::MANIFEST_CACHE_JSON,
-		));
-		
+		]);
+
 		$this->doResetCriteria();
 	}
 	
@@ -386,7 +386,7 @@ class View_CerbPlugin extends C4_AbstractView implements IAbstractView_Subtotals
 	function getSubtotalFields() {
 		$all_fields = $this->getParamsAvailable(true);
 		
-		$fields = array();
+		$fields = [];
 
 		if(is_array($all_fields))
 		foreach($all_fields as $field_key => $field_model) {
@@ -408,12 +408,12 @@ class View_CerbPlugin extends C4_AbstractView implements IAbstractView_Subtotals
 	}
 	
 	function getSubtotalCounts($column) {
-		$counts = array();
+		$counts = [];
 		$fields = $this->getFields();
 		$context = null;
 
-		if(!isset($fields[$column]))
-			return array();
+		if(!array_key_exists($column, $fields))
+			return [];
 		
 		switch($column) {
 			case SearchFields_CerbPlugin::AUTHOR:
@@ -597,27 +597,10 @@ class View_CerbPlugin extends C4_AbstractView implements IAbstractView_Subtotals
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
-			case 'placeholder_number':
-				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
-				break;
-				
-			case 'placeholder_date':
-				$criteria = $this->_doSetCriteriaDate($field, $oper);
-				break;
-				
 			case SearchFields_CerbPlugin::ENABLED:
 				$bool = DevblocksPlatform::importGPC($_POST['bool'] ?? null, 'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
-				
-			/*
-			default:
-				// Custom Fields
-				if(substr($field,0,3)=='cf_') {
-					$criteria = $this->_doSetCriteriaCustomField($field, substr($field,3));
-				}
-				break;
-			*/
 		}
 
 		if(!empty($criteria)) {

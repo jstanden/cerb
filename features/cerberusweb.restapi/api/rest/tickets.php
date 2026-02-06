@@ -338,11 +338,11 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 	}
 	
 	function translateToken($token, $type='dao') {
-		if('custom_' == substr($token, 0, 7) && in_array($type, array('search', 'subtotal'))) {
+		if(str_starts_with($token, 'custom_') && in_array($type, ['search', 'subtotal'])) {
 			return 'cf_' . intval(substr($token, 7));
 		}
 		
-		$tokens = array();
+		$tokens = [];
 		
 		if('dao'==$type) {
 			$tokens = array(
@@ -358,9 +358,9 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			
 		} elseif ('subtotal'==$type) {
 			$tokens = array(
-				'fieldsets' => SearchFields_Ticket::VIRTUAL_HAS_FIELDSET,
-				'links' => SearchFields_Ticket::VIRTUAL_CONTEXT_LINK,
-				'watchers' => SearchFields_Ticket::VIRTUAL_WATCHERS,
+				'fieldsets' => DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
+				'links' => DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
+				'watchers' => DevblocksSearchField::VIRTUAL_WATCHERS,
 				
 				'first_wrote' => SearchFields_Ticket::TICKET_FIRST_WROTE_ID,
 				'group' => SearchFields_Ticket::TICKET_GROUP_ID,
@@ -394,7 +394,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 				'subject' => SearchFields_Ticket::TICKET_SUBJECT,
 				'updated' => SearchFields_Ticket::TICKET_UPDATED_DATE,
 					
-				'links' => SearchFields_Ticket::VIRTUAL_CONTEXT_LINK,
+				'links' => DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
 			);
 		}
 		

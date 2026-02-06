@@ -464,7 +464,7 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 			case 'set_status':
 				$this->simulateAction($token, $trigger, $params, $dict);
 				
-				$fields = array();
+				$fields = [];
 					
 				switch($dict->task_status_id) {
 					case 0:

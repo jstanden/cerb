@@ -76,11 +76,11 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 	}
 
 	function translateToken($token, $type='dao') {
-		if('custom_' == substr($token, 0, 7) && in_array($type, array('search', 'subtotal'))) {
+		if(str_starts_with($token, 'custom_') && in_array($type, ['search', 'subtotal'])) {
 			return 'cf_' . intval(substr($token, 7));
 		}
 		
-		$tokens = array();
+		$tokens = [];
 		
 		if('dao'==$type) {
 			$tokens = array(
@@ -94,9 +94,9 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 			
 		} elseif ('subtotal'==$type) {
 			$tokens = array(
-				'fieldsets' => SearchFields_Task::VIRTUAL_HAS_FIELDSET,
-				'links' => SearchFields_Task::VIRTUAL_CONTEXT_LINK,
-				'watchers' => SearchFields_Task::VIRTUAL_WATCHERS,
+				'fieldsets' => DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
+				'links' => DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
+				'watchers' => DevblocksSearchField::VIRTUAL_WATCHERS,
 					
 				'status_id' => SearchFields_Task::STATUS_ID,
 			);
@@ -114,7 +114,7 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 				'reopen_at' => SearchFields_Task::REOPEN_AT,
 				'status_id' => SearchFields_Task::STATUS_ID,
 				'title' => SearchFields_Task::TITLE,
-				'watchers' => SearchFields_Task::VIRTUAL_WATCHERS,
+				'watchers' => DevblocksSearchField::VIRTUAL_WATCHERS,
 			);
 		}
 		
@@ -256,7 +256,7 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 			'updated' => 'timestamp',
 		);
 
-		$fields = array();
+		$fields = [];
 
 		foreach($putfields as $putfield => $type) {
 			if(!isset($_POST[$putfield]))
@@ -304,7 +304,7 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 			'updated' => 'timestamp',
 		);
 
-		$fields = array();
+		$fields = [];
 		
 		foreach($postfields as $postfield => $type) {
 			if(!isset($_POST[$postfield]))

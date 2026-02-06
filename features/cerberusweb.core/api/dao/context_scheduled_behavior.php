@@ -531,7 +531,6 @@ class SearchFields_ContextScheduledBehavior extends DevblocksSearchFields {
 	
 	const VIRTUAL_BEHAVIOR_SEARCH = '*_behavior_search';
 	const VIRTUAL_BOT_SEARCH = '*_bot_search';
-	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_TARGET = '*_target';
 
 	static private $_fields = null;
@@ -643,7 +642,7 @@ class SearchFields_ContextScheduledBehavior extends DevblocksSearchFields {
 	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		$columns = array(
+		$columns = [
 			self::BEHAVIOR_ID => new DevblocksSearchField(self::BEHAVIOR_ID, 'context_scheduled_behavior', 'behavior_id', $translate->_('common.behavior'), null, true),
 			self::CONTEXT => new DevblocksSearchField(self::CONTEXT, 'context_scheduled_behavior', 'context', $translate->_('common.record.type'), null, true),
 			self::CONTEXT_ID => new DevblocksSearchField(self::CONTEXT_ID, 'context_scheduled_behavior', 'context_id', $translate->_('common.record.id'), null, true),
@@ -659,9 +658,12 @@ class SearchFields_ContextScheduledBehavior extends DevblocksSearchFields {
 			
 			self::VIRTUAL_BEHAVIOR_SEARCH => new DevblocksSearchField(self::VIRTUAL_BEHAVIOR_SEARCH, '*', 'behavior_search', null, null, false),
 			self::VIRTUAL_BOT_SEARCH => new DevblocksSearchField(self::VIRTUAL_BOT_SEARCH, '*', 'bot_search', null, null, false),
-			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_TARGET => new DevblocksSearchField(self::VIRTUAL_TARGET, '*', 'target', $translate->_('common.on'), null, false),
-		);
+		];
+		
+		// Virtual fields
+		if(($virtual_columns = DevblocksSearchField::getVirtualFields(has_fieldset: false, watchers: false)))
+			$columns = array_merge($columns, $virtual_columns);
 		
 		// Custom Fields
 		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
@@ -820,13 +822,14 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 		$this->renderSortBy = SearchFields_ContextScheduledBehavior::RUN_DATE;
 		$this->renderSortAsc = true;
 
-		$this->view_columns = array(
+		$this->view_columns = [
 			SearchFields_ContextScheduledBehavior::RUN_DATE,
 			SearchFields_ContextScheduledBehavior::BEHAVIOR_BOT_ID,
 			SearchFields_ContextScheduledBehavior::BEHAVIOR_NAME,
 			SearchFields_ContextScheduledBehavior::VIRTUAL_TARGET,
-		);
-		$this->addColumnsHidden(array(
+		];
+		
+		$this->addColumnsHidden([
 			SearchFields_ContextScheduledBehavior::BEHAVIOR_ID,
 			SearchFields_ContextScheduledBehavior::CONTEXT,
 			SearchFields_ContextScheduledBehavior::CONTEXT_ID,
@@ -835,8 +838,8 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 			SearchFields_ContextScheduledBehavior::VARIABLES_JSON,
 			SearchFields_ContextScheduledBehavior::VIRTUAL_BEHAVIOR_SEARCH,
 			SearchFields_ContextScheduledBehavior::VIRTUAL_BOT_SEARCH,
-			SearchFields_ContextScheduledBehavior::VIRTUAL_CONTEXT_LINK,
-		));
+			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
+		]);
 
 		$this->doResetCriteria();
 	}
@@ -885,19 +888,17 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 			switch($field_key) {
 				// Fields
 				case SearchFields_ContextScheduledBehavior::BEHAVIOR_ID:
-					$pass = true;
-					break;
-					
-				// Virtuals
-				case SearchFields_ContextScheduledBehavior::VIRTUAL_CONTEXT_LINK:
 				case SearchFields_ContextScheduledBehavior::VIRTUAL_TARGET:
 					$pass = true;
 					break;
 					
 				// Valid custom fields
 				default:
-					if(DevblocksPlatform::strStartsWith($field_key, 'cf_'))
+					if(DevblocksPlatform::strStartsWith($field_key, 'cf_')) {
 						$pass = $this->_canSubtotalCustomField($field_key);
+					} else if (str_starts_with($field_key, '*_')) {
+						$pass = $this->_canSubtotalVirtualField($field_key);
+					}
 					break;
 			}
 			
@@ -913,7 +914,7 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 		$fields = $this->getFields();
 		$context = CerberusContexts::CONTEXT_BEHAVIOR_SCHEDULED;
 
-		if(!isset($fields[$column]))
+		if(!array_key_exists($column, $fields))
 			return [];
 		
 		switch($column) {
@@ -925,10 +926,6 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 				$counts = $this->_getSubtotalCountForNumberColumn($context, $column, $label_map);
 				break;
 
-			case SearchFields_ContextScheduledBehavior::VIRTUAL_CONTEXT_LINK:
-				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
-				break;
-
 			case SearchFields_ContextScheduledBehavior::VIRTUAL_TARGET:
 				$counts = $this->_getSubtotalCountForContextAndIdColumns($context, $column, DAO_ContextScheduledBehavior::CONTEXT, DAO_ContextScheduledBehavior::CONTEXT_ID);
 				break;
@@ -937,8 +934,9 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 				// Custom fields
 				if(DevblocksPlatform::strStartsWith($column, 'cf_')) {
 					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
+				} else if(DevblocksPlatform::strStartsWith($column, '*_')) {
+					$counts = $this->_getSubtotalCountForVirtualField($context, $column);
 				}
-				
 				break;
 		}
 		
@@ -1084,7 +1082,7 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 		}
 	}
 	
-	function renderVirtualCriteria($param) {
+	function renderVirtualCriteria($param) : void {
 		$field = $param->field;
 
 		switch($field) {
@@ -1102,12 +1100,12 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 				);
 				break;
 				
-			case SearchFields_ContextScheduledBehavior::VIRTUAL_CONTEXT_LINK:
-				$this->_renderVirtualContextLinks($param);
-				break;
-			
 			case SearchFields_ContextScheduledBehavior::VIRTUAL_TARGET:
 				$this->_renderVirtualContextLinks($param, 'On', 'On', 'On');
+				break;
+			
+			default:
+				$this->_renderVirtualCriteria($param);
 				break;
 		}
 	}
@@ -1121,30 +1119,14 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 
 		switch($field) {
 			case SearchFields_ContextScheduledBehavior::BEHAVIOR_ID:
-				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
-				break;
-				
 			case SearchFields_ContextScheduledBehavior::BEHAVIOR_NAME:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
-			case 'placeholder_number':
-				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
-				break;
-
 			case SearchFields_ContextScheduledBehavior::RUN_DATE:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 
-			case SearchFields_ContextScheduledBehavior::VIRTUAL_CONTEXT_LINK:
-				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array',[]);
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
-				break;
-				
-			// [TODO]
-			case SearchFields_ContextScheduledBehavior::BEHAVIOR_BOT_ID:
-				break;
-				
 			case SearchFields_ContextScheduledBehavior::VIRTUAL_TARGET:
 				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
@@ -1152,8 +1134,11 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 				
 			default:
 				// Custom Fields
-				if(substr($field,0,3)=='cf_') {
+				if(str_starts_with($field, 'cf_')) {
 					$criteria = $this->_doSetCriteriaCustomField($field, substr($field,3));
+				} else if (str_starts_with($field, '*_')) {
+					if(($virtual_criteria = $this->_doSetCriteriaVirtual($field, $_POST, $oper)))
+						$criteria = $virtual_criteria;
 				}
 				break;
 		}
@@ -1467,9 +1452,9 @@ class Context_ContextScheduledBehavior extends Extension_DevblocksContext implem
 		$params_req = [];
 		
 		if(!empty($context) && !empty($context_id)) {
-			$params_req = array(
-				new DevblocksSearchCriteria(SearchFields_ContextScheduledBehavior::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
-			);
+			$params_req = [
+				new DevblocksSearchCriteria(DevblocksSearchField::VIRTUAL_CONTEXT_LINK, 'in', [$context.':'.$context_id]),
+			];
 		}
 		
 		$view->addParamsRequired($params_req, true);

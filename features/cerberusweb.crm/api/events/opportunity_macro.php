@@ -411,7 +411,7 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 				if($to_status == $current_status)
 					break;
 				
-				$fields = array();
+				$fields = [];
 					
 				switch($to_status) {
 					case 'open':

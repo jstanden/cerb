@@ -775,8 +775,6 @@ class SearchFields_Attachment extends DevblocksSearchFields {
 	const UPDATED = 'a_updated';
 	
 	const VIRTUAL_BUNDLE_SEARCH = '*_bundle_search';
-	const VIRTUAL_CONTEXT_LINK = '*_context_link';
-	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_ON = '*_on';
 	
 	static private $_fields = null;
@@ -960,7 +958,7 @@ class SearchFields_Attachment extends DevblocksSearchFields {
 	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		$columns = array(
+		$columns = [
 			self::ID => new DevblocksSearchField(self::ID, 'attachment', 'id', $translate->_('attachment.id'), Model_CustomField::TYPE_NUMBER, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'attachment', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::MIME_TYPE => new DevblocksSearchField(self::MIME_TYPE, 'attachment', 'mime_type', $translate->_('attachment.mime_type'), Model_CustomField::TYPE_SINGLE_LINE, true),
@@ -972,10 +970,12 @@ class SearchFields_Attachment extends DevblocksSearchFields {
 			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'attachment', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 
 			self::VIRTUAL_BUNDLE_SEARCH => new DevblocksSearchField(self::VIRTUAL_BUNDLE_SEARCH, '*', 'bundle_search', null, null),
-			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
-			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			self::VIRTUAL_ON => new DevblocksSearchField(self::VIRTUAL_ON, '*', 'on', $translate->_('common.on'), null, false),
-		);
+		];
+		
+		// Virtual fields
+		if(($virtual_columns = DevblocksSearchField::getVirtualFields(watchers: false)))
+			$columns = array_merge($columns, $virtual_columns);
 		
 		// Custom fields with fieldsets
 		
@@ -1362,21 +1362,21 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 		$this->renderSortBy = SearchFields_Attachment::UPDATED;
 		$this->renderSortAsc = false;
 
-		$this->view_columns = array(
+		$this->view_columns = [
 			SearchFields_Attachment::MIME_TYPE,
 			SearchFields_Attachment::STORAGE_SIZE,
 			SearchFields_Attachment::STORAGE_EXTENSION,
 			SearchFields_Attachment::STORAGE_KEY,
 			SearchFields_Attachment::UPDATED,
-		);
+		];
 
-		$this->addColumnsHidden(array(
+		$this->addColumnsHidden([
 			SearchFields_Attachment::VIRTUAL_BUNDLE_SEARCH,
-			SearchFields_Attachment::VIRTUAL_CONTEXT_LINK,
-			SearchFields_Attachment::VIRTUAL_HAS_FIELDSET,
 			SearchFields_Attachment::VIRTUAL_ON,
-		));
-		
+			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
+			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
+		]);
+
 		$this->doResetCriteria();
 	}
 	
@@ -1415,7 +1415,7 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 	function getSubtotalFields() {
 		$all_fields = $this->getParamsAvailable(true);
 		
-		$fields = array();
+		$fields = [];
 
 		if(is_array($all_fields))
 		foreach($all_fields as $field_key => $field_model) {
@@ -1429,16 +1429,13 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 					$pass = true;
 					break;
 					
-				// Virtuals
-				case SearchFields_Attachment::VIRTUAL_CONTEXT_LINK:
-				case SearchFields_Attachment::VIRTUAL_HAS_FIELDSET:
-					$pass = true;
-					break;
-					
 				// Valid custom fields
 				default:
-					if(DevblocksPlatform::strStartsWith($field_key, 'cf_'))
+					if(DevblocksPlatform::strStartsWith($field_key, 'cf_')) {
 						$pass = $this->_canSubtotalCustomField($field_key);
+					} else if (str_starts_with($field_key, '*_')) {
+						$pass = $this->_canSubtotalVirtualField($field_key);
+					}
 					break;
 			}
 			
@@ -1450,12 +1447,12 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 	}
 	
 	function getSubtotalCounts($column) {
-		$counts = array();
+		$counts = [];
 		$fields = $this->getFields();
 		$context = CerberusContexts::CONTEXT_ATTACHMENT;
 
-		if(!isset($fields[$column]))
-			return array();
+		if(!array_key_exists($column, $fields))
+			return [];
 		
 		switch($column) {
 			case SearchFields_Attachment::NAME:
@@ -1469,20 +1466,13 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
 				break;
 				
-			case SearchFields_Attachment::VIRTUAL_CONTEXT_LINK:
-				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
-				break;
-				
-			case SearchFields_Attachment::VIRTUAL_HAS_FIELDSET:
-				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
-				break;
-				
 			default:
 				// Custom fields
 				if(DevblocksPlatform::strStartsWith($column, 'cf_')) {
 					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
+				} else if(DevblocksPlatform::strStartsWith($column, '*_')) {
+					$counts = $this->_getSubtotalCountForVirtualField($context, $column);
 				}
-				
 				break;
 		}
 		
@@ -1509,7 +1499,7 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 			'fieldset' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array('param_key' => SearchFields_Attachment::VIRTUAL_HAS_FIELDSET),
+					'options' => ['param_key' => DevblocksSearchField::VIRTUAL_HAS_FIELDSET],
 					'examples' => [
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'qr' => 'context:' . CerberusContexts::CONTEXT_ATTACHMENT],
 					]
@@ -1561,7 +1551,7 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 		
 		// Add quick search links
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', SearchFields_Attachment::VIRTUAL_CONTEXT_LINK);
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', DevblocksSearchField::VIRTUAL_CONTEXT_LINK);
 		
 		// on.*
 		
@@ -1593,7 +1583,7 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 				return DevblocksSearchCriteria::getBytesParamFromTokens(SearchFields_Attachment::STORAGE_SIZE, $tokens);
 				
 			default:
-				if($field == 'links' || substr($field, 0, 6) == 'links.')
+				if($field == 'links' || str_starts_with($field, 'links.'))
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
 				
 				if($field == 'on' || DevblocksPlatform::strStartsWith($field, 'on.'))
@@ -1635,7 +1625,7 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 		}
 	}
 
-	function renderVirtualCriteria($param) {
+	function renderVirtualCriteria($param) : void {
 		$key = $param->field;
 		
 		switch($key) {
@@ -1646,16 +1636,12 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 				);
 				break;
 				
-			case SearchFields_Attachment::VIRTUAL_CONTEXT_LINK:
-				$this->_renderVirtualContextLinks($param);
-				break;
-				
-			case SearchFields_Attachment::VIRTUAL_HAS_FIELDSET:
-				$this->_renderVirtualHasFieldset($param);
-				break;
-				
 			case SearchFields_Attachment::VIRTUAL_ON:
 				$this->_renderVirtualContextLinks($param, 'On', 'On', 'On', 'attachment links');
+				break;
+			
+			default:
+				$this->_renderVirtualCriteria($param);
 				break;
 		}
 	}
@@ -1686,20 +1672,13 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
-			case SearchFields_Attachment::VIRTUAL_CONTEXT_LINK:
-				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array', []);
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
-				break;
-				
-			case SearchFields_Attachment::VIRTUAL_HAS_FIELDSET:
-				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array', []);
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
-				break;
-				
 			default:
 				// Custom Fields
-				if(substr($field,0,3)=='cf_') {
+				if(str_starts_with($field, 'cf_')) {
 					$criteria = $this->_doSetCriteriaCustomField($field, substr($field,3));
+				} else if (str_starts_with($field, '*_')) {
+					if(($virtual_criteria = $this->_doSetCriteriaVirtual($field, $_POST, $oper)))
+						$criteria = $virtual_criteria;
 				}
 				break;
 		}
@@ -2249,11 +2228,11 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		return $view;
 	}
 	
-	function getView($context=null, $context_id=null, $options=array(), $view_id=null) {
+	function getView($context=null, $context_id=null, $options=[], $view_id=null) {
 		$view_id = !empty($view_id) ? $view_id : str_replace('.','_',$this->id);
 		
-		if(false == $this->getViewClass())
-			return;
+		if(!$this->getViewClass())
+			return null;
 		
 		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
 		$defaults->id = $view_id;
@@ -2261,12 +2240,12 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = DevblocksPlatform::translate('common.attachments', DevblocksPlatform::TRANSLATE_CAPITALIZE);
 		
-		$params_req = array();
+		$params_req = [];
 		
 		if(!empty($context) && !empty($context_id)) {
-			$params_req = array(
-				new DevblocksSearchCriteria(SearchFields_Attachment::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
-			);
+			$params_req = [
+				new DevblocksSearchCriteria(DevblocksSearchField::VIRTUAL_CONTEXT_LINK, 'in', [$context.':'.$context_id]),
+			];
 		}
 		
 		$view->addParamsRequired($params_req, true);

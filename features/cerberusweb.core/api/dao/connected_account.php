@@ -536,9 +536,6 @@ class SearchFields_ConnectedAccount extends DevblocksSearchFields {
 	const UPDATED_AT = 'c_updated_at';
 	const URI = 'c_uri';
 
-	const VIRTUAL_CONTEXT_LINK = '*_context_link';
-	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
-	const VIRTUAL_OWNER = '*_owner';
 	const VIRTUAL_SERVICE_SEARCH = '*_service_search';
 	
 	static private $_fields = null;
@@ -563,7 +560,7 @@ class SearchFields_ConnectedAccount extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
-			case self::VIRTUAL_OWNER:
+			case DevblocksSearchField::VIRTUAL_OWNER:
 				return self::_getWhereSQLFromContextAndID($param, 'connected_account.owner_context', 'connected_account.owner_context_id');
 			
 			case self::VIRTUAL_SERVICE_SEARCH:
@@ -643,7 +640,7 @@ class SearchFields_ConnectedAccount extends DevblocksSearchFields {
 	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		$columns = array(
+		$columns = [
 			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'connected_account', 'created_at', $translate->_('common.created'), null, true),
 			self::ID => new DevblocksSearchField(self::ID, 'connected_account', 'id', $translate->_('common.id'), null, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'connected_account', 'name', $translate->_('common.name'), null, true),
@@ -653,11 +650,12 @@ class SearchFields_ConnectedAccount extends DevblocksSearchFields {
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'connected_account', 'updated_at', $translate->_('common.updated'), null, true),
 			self::URI => new DevblocksSearchField(self::URI, 'connected_account', 'uri', $translate->_('common.uri'), null, true),
 
-			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
-			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
-			self::VIRTUAL_OWNER => new DevblocksSearchField(self::VIRTUAL_OWNER, '*', 'owner', $translate->_('common.owner'), null, false),
 			self::VIRTUAL_SERVICE_SEARCH => new DevblocksSearchField(self::VIRTUAL_SERVICE_SEARCH, '*', 'service_search', null, null, false),
-		);
+		];
+		
+		// Virtual fields
+		if(($virtual_columns = DevblocksSearchField::getVirtualFields(owner: true, watchers: false)))
+			$columns = array_merge($columns, $virtual_columns);
 		
 		// Custom Fields
 		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
@@ -731,22 +729,22 @@ class View_ConnectedAccount extends C4_AbstractView implements IAbstractView_Sub
 		$this->renderSortBy = SearchFields_ConnectedAccount::NAME;
 		$this->renderSortAsc = true;
 
-		$this->view_columns = array(
+		$this->view_columns = [
 			SearchFields_ConnectedAccount::NAME,
 			SearchFields_ConnectedAccount::SERVICE_ID,
 			SearchFields_ConnectedAccount::URI,
-			SearchFields_ConnectedAccount::VIRTUAL_OWNER,
+			DevblocksSearchField::VIRTUAL_OWNER,
 			SearchFields_ConnectedAccount::UPDATED_AT,
-		);
+		];
 
-		$this->addColumnsHidden(array(
+		$this->addColumnsHidden([
 			SearchFields_ConnectedAccount::OWNER_CONTEXT,
 			SearchFields_ConnectedAccount::OWNER_CONTEXT_ID,
-			SearchFields_ConnectedAccount::VIRTUAL_CONTEXT_LINK,
-			SearchFields_ConnectedAccount::VIRTUAL_HAS_FIELDSET,
 			SearchFields_ConnectedAccount::VIRTUAL_SERVICE_SEARCH,
-		));
-		
+			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
+			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
+		]);
+
 		$this->doResetCriteria();
 	}
 	
@@ -785,7 +783,7 @@ class View_ConnectedAccount extends C4_AbstractView implements IAbstractView_Sub
 	function getSubtotalFields() {
 		$all_fields = $this->getParamsAvailable(true);
 		
-		$fields = array();
+		$fields = [];
 
 		if(is_array($all_fields))
 		foreach($all_fields as $field_key => $field_model) {
@@ -797,17 +795,13 @@ class View_ConnectedAccount extends C4_AbstractView implements IAbstractView_Sub
 					$pass = true;
 					break;
 					
-				// Virtuals
-				case SearchFields_ConnectedAccount::VIRTUAL_CONTEXT_LINK:
-				case SearchFields_ConnectedAccount::VIRTUAL_HAS_FIELDSET:
-				case SearchFields_ConnectedAccount::VIRTUAL_OWNER:
-					$pass = true;
-					break;
-					
 				// Valid custom fields
 				default:
-					if(DevblocksPlatform::strStartsWith($field_key, 'cf_'))
+					if(DevblocksPlatform::strStartsWith($field_key, 'cf_')) {
 						$pass = $this->_canSubtotalCustomField($field_key);
+					} else if (str_starts_with($field_key, '*_')) {
+						$pass = $this->_canSubtotalVirtualField($field_key);
+					}
 					break;
 			}
 			
@@ -819,12 +813,12 @@ class View_ConnectedAccount extends C4_AbstractView implements IAbstractView_Sub
 	}
 	
 	function getSubtotalCounts($column) {
-		$counts = array();
+		$counts = [];
 		$fields = $this->getFields();
 		$context = CerberusContexts::CONTEXT_CONNECTED_ACCOUNT;
 
-		if(!isset($fields[$column]))
-			return array();
+		if(!array_key_exists($column, $fields))
+			return [];
 		
 		switch($column) {
 			case SearchFields_ConnectedAccount::SERVICE_ID:
@@ -834,24 +828,13 @@ class View_ConnectedAccount extends C4_AbstractView implements IAbstractView_Sub
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
 				break;
 				
-			case SearchFields_ConnectedAccount::VIRTUAL_CONTEXT_LINK:
-				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
-				break;
-				
-			case SearchFields_ConnectedAccount::VIRTUAL_OWNER:
-				$counts = $this->_getSubtotalCountForContextAndIdColumns($context, $column, DAO_CustomFieldset::OWNER_CONTEXT, DAO_CustomFieldset::OWNER_CONTEXT_ID, 'owner_context[]');
-				break;
-
-			case SearchFields_ConnectedAccount::VIRTUAL_HAS_FIELDSET:
-				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
-				break;
-				
 			default:
 				// Custom fields
 				if(DevblocksPlatform::strStartsWith($column, 'cf_')) {
 					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
+				} else if(DevblocksPlatform::strStartsWith($column, '*_')) {
+					$counts = $this->_getSubtotalCountForVirtualField($context, $column);
 				}
-				
 				break;
 		}
 		
@@ -875,7 +858,7 @@ class View_ConnectedAccount extends C4_AbstractView implements IAbstractView_Sub
 			'fieldset' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array('param_key' => SearchFields_ConnectedAccount::VIRTUAL_HAS_FIELDSET),
+					'options' => ['param_key' => DevblocksSearchField::VIRTUAL_HAS_FIELDSET],
 					'examples' => [
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'qr' => 'context:' . CerberusContexts::CONTEXT_CONNECTED_ACCOUNT],
 					]
@@ -926,11 +909,11 @@ class View_ConnectedAccount extends C4_AbstractView implements IAbstractView_Sub
 		
 		// Add dynamic owner.* fields
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('owner', $fields, 'owner', SearchFields_ConnectedAccount::VIRTUAL_OWNER);
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('owner', $fields, 'owner', DevblocksSearchField::VIRTUAL_OWNER);
 		
 		// Add quick search links
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', SearchFields_ConnectedAccount::VIRTUAL_CONTEXT_LINK);
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', DevblocksSearchField::VIRTUAL_CONTEXT_LINK);
 		
 		// Add searchable custom fields
 		
@@ -950,25 +933,20 @@ class View_ConnectedAccount extends C4_AbstractView implements IAbstractView_Sub
 		switch($field) {
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
-				break;
 			
 			case 'service':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_ConnectedAccount::VIRTUAL_SERVICE_SEARCH);
-				break;
 				
 			default:
-				if($field == 'owner' || substr($field, 0, strlen('owner.')) == 'owner.')
-					return DevblocksSearchCriteria::getVirtualContextParamFromTokens($field, $tokens, 'owner', SearchFields_ConnectedAccount::VIRTUAL_OWNER);
+				if($field == 'owner' || str_starts_with($field, 'owner.'))
+					return DevblocksSearchCriteria::getVirtualContextParamFromTokens($field, $tokens, 'owner', DevblocksSearchField::VIRTUAL_OWNER);
 				
-				if($field == 'links' || substr($field, 0, 6) == 'links.')
+				if($field == 'links' || str_starts_with($field, 'links.'))
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
 				
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
-				break;
 		}
-		
-		return false;
 	}
 	
 	function render() {
@@ -1003,27 +981,19 @@ class View_ConnectedAccount extends C4_AbstractView implements IAbstractView_Sub
 		}
 	}
 
-	function renderVirtualCriteria($param) {
+	function renderVirtualCriteria($param) : void {
 		$key = $param->field;
 		
 		switch($key) {
-			case SearchFields_ConnectedAccount::VIRTUAL_CONTEXT_LINK:
-				$this->_renderVirtualContextLinks($param);
-				break;
-				
-			case SearchFields_ConnectedAccount::VIRTUAL_HAS_FIELDSET:
-				$this->_renderVirtualHasFieldset($param);
-				break;
-				
-			case SearchFields_ConnectedAccount::VIRTUAL_OWNER:
-				$this->_renderVirtualContextLinks($param, 'Owner', 'Owners', 'Owner matches');
-				break;
-			
 			case SearchFields_ConnectedAccount::VIRTUAL_SERVICE_SEARCH:
 				echo sprintf("%s matches <b>%s</b>",
 					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.service')),
 					DevblocksPlatform::strEscapeHtml($param->value)
 				);
+				break;
+				
+			default:
+				$this->_renderVirtualCriteria($param);
 				break;
 		}
 	}
@@ -1051,25 +1021,13 @@ class View_ConnectedAccount extends C4_AbstractView implements IAbstractView_Sub
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
-			case SearchFields_ConnectedAccount::VIRTUAL_CONTEXT_LINK:
-				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array', []);
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
-				break;
-				
-			case SearchFields_ConnectedAccount::VIRTUAL_HAS_FIELDSET:
-				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array', []);
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
-				break;
-				
-			case SearchFields_ConnectedAccount::VIRTUAL_OWNER:
-				$owner_contexts = DevblocksPlatform::importGPC($_POST['owner_context'] ?? null, 'array', []);
-				$criteria = new DevblocksSearchCriteria($field,$oper,$owner_contexts);
-				break;
-				
 			default:
 				// Custom Fields
-				if(substr($field,0,3)=='cf_') {
+				if(str_starts_with($field, 'cf_')) {
 					$criteria = $this->_doSetCriteriaCustomField($field, substr($field,3));
+				} else if (str_starts_with($field, '*_')) {
+					if(($virtual_criteria = $this->_doSetCriteriaVirtual($field, $_POST, $oper)))
+						$criteria = $virtual_criteria;
 				}
 				break;
 		}
@@ -1478,7 +1436,7 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 		return $view;
 	}
 	
-	function getView($context=null, $context_id=null, $options=array(), $view_id=null) {
+	function getView($context=null, $context_id=null, $options=[], $view_id=null) {
 		$view_id = !empty($view_id) ? $view_id : str_replace('.','_',$this->id);
 		
 		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());

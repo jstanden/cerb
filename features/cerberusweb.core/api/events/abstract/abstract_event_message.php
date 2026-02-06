@@ -1218,12 +1218,12 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 						);
 						break;
 					default:
-						$fields = array();
+						$fields = [];
 						break;
 				}
 				if(!empty($fields)) {
 					DAO_Ticket::update($ticket_id, $fields);
-					$dict->ticket_status = $to_status;
+					$dict->set('ticket_status', $to_status);
 				}
 				break;
 				

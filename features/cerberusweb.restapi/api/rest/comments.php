@@ -64,11 +64,11 @@ class ChRest_Comments extends Extension_RestController implements IExtensionRest
 	}
 
 	function translateToken($token, $type='dao') {
-		if('custom_' == substr($token, 0, 7) && in_array($type, array('search', 'subtotal'))) {
+		if(str_starts_with($token, 'custom_') && in_array($type, ['search', 'subtotal'])) {
 			return 'cf_' . intval(substr($token, 7));
 		}
 		
-		$tokens = array();
+		$tokens = [];
 		
 		if('dao'==$type) {
 			$tokens = array(
@@ -82,8 +82,8 @@ class ChRest_Comments extends Extension_RestController implements IExtensionRest
 			
 		} elseif ('subtotal'==$type) {
 			$tokens = array(
-				'fieldsets' => SearchFields_Comment::VIRTUAL_HAS_FIELDSET,
-				'owner' => SearchFields_Comment::VIRTUAL_OWNER,
+				'fieldsets' => DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
+				'owner' => DevblocksSearchField::VIRTUAL_OWNER,
 				'target' => SearchFields_Comment::VIRTUAL_TARGET,
 			);
 			
@@ -208,7 +208,7 @@ class ChRest_Comments extends Extension_RestController implements IExtensionRest
 		$owner_context_id = DevblocksPlatform::importGPC($_POST['owner_context_id'] ?? null, 'integer', 0);
 		$file_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['file_id'] ?? null, 'array', []), 'int');
 
-		$fields = array();
+		$fields = [];
 		
 		foreach($postfields as $postfield => $type) {
 			if(!isset($_POST[$postfield]))

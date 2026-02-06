@@ -756,7 +756,7 @@ class SearchFields_Notification extends DevblocksSearchFields {
 	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		$columns = array(
+		$columns = [
 			self::ID => new DevblocksSearchField(self::ID, 'notification', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
 			self::CONTEXT => new DevblocksSearchField(self::CONTEXT, 'notification', 'context', null, Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::CONTEXT_ID => new DevblocksSearchField(self::CONTEXT_ID, 'notification', 'context_id', null, Model_CustomField::TYPE_NUMBER, true),
@@ -767,7 +767,11 @@ class SearchFields_Notification extends DevblocksSearchFields {
 			self::ENTRY_JSON => new DevblocksSearchField(self::ENTRY_JSON, 'notification', 'entry_json', null, Model_CustomField::TYPE_MULTI_LINE, true),
 				
 			self::VIRTUAL_WORKER_SEARCH => new DevblocksSearchField(self::VIRTUAL_WORKER_SEARCH, '*', 'worker_search', null, null, true),
-		);
+		];
+		
+		// Virtual fields
+		if(($virtual_columns = DevblocksSearchField::getVirtualFields(links: false, has_fieldset: false, watchers: false)))
+			$columns = array_merge($columns, $virtual_columns);
 		
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
@@ -867,18 +871,18 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 		$this->renderSortBy = SearchFields_Notification::CREATED_DATE;
 		$this->renderSortAsc = false;
 
-		$this->view_columns = array(
+		$this->view_columns = [
 			SearchFields_Notification::CREATED_DATE,
 			SearchFields_Notification::ID,
-		);
+		];
 		
-		$this->addColumnsHidden(array(
+		$this->addColumnsHidden([
 			SearchFields_Notification::CONTEXT,
 			SearchFields_Notification::CONTEXT_ID,
 			SearchFields_Notification::ENTRY_JSON,
 			SearchFields_Notification::VIRTUAL_WORKER_SEARCH,
-		));
-		
+		]);
+
 		$this->doResetCriteria();
 	}
 	
@@ -933,8 +937,11 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 					
 				// Valid custom fields
 				default:
-					if(DevblocksPlatform::strStartsWith($field_key, 'cf_'))
+					if(DevblocksPlatform::strStartsWith($field_key, 'cf_')) {
 						$pass = $this->_canSubtotalCustomField($field_key);
+					} else if (str_starts_with($field_key, '*_')) {
+						$pass = $this->_canSubtotalVirtualField($field_key);
+					}
 					break;
 			}
 			
@@ -950,7 +957,7 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 		$fields = $this->getFields();
 		$context = CerberusContexts::CONTEXT_NOTIFICATION;
 
-		if(!isset($fields[$column]))
+		if(!array_key_exists($column, $fields))
 			return [];
 		
 		switch($column) {
@@ -985,8 +992,9 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 				// Custom fields
 				if(DevblocksPlatform::strStartsWith($column, 'cf_')) {
 					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
+				} else if(DevblocksPlatform::strStartsWith($column, '*_')) {
+					$counts = $this->_getSubtotalCountForVirtualField($context, $column);
 				}
-				
 				break;
 		}
 		
@@ -1101,7 +1109,7 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 	}
 
-	function renderVirtualCriteria($param) {
+	function renderVirtualCriteria($param) : void {
 		$field = $param->field;
 		
 		switch($field) {
@@ -1110,6 +1118,10 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.worker')),
 					DevblocksPlatform::strEscapeHtml($param->value)
 				);
+				break;
+				
+			default:
+				$this->_renderVirtualCriteria($param);
 				break;
 		}
 	}
@@ -1146,10 +1158,6 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 		$criteria = null;
 
 		switch($field) {
-			case 'placeholder_string':
-				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
-				break;
-				
 			case SearchFields_Notification::WORKER_ID:
 				$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
@@ -1167,6 +1175,11 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 			case SearchFields_Notification::ACTIVITY_POINT:
 				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
+				break;
+				
+			default:
+				if(($virtual_criteria = $this->_doSetCriteriaVirtual($field, $_POST, $oper)))
+					$criteria = $virtual_criteria;
 				break;
 		}
 
@@ -1534,13 +1547,6 @@ class Context_Notification extends Extension_DevblocksContext {
 		$view->name = 'Notifications';
 		
 		$params_req = [];
-		
-		if($context && $context_id) {
-			$params_req = [
-				//new DevblocksSearchCriteria(SearchFields_Notification::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
-			];
-		}
-		
 		$view->addParamsRequired($params_req, true);
 		
 		$view->renderTemplate = 'context';

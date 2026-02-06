@@ -442,8 +442,6 @@ class SearchFields_MailInboundLog extends DevblocksSearchFields {
 	const TICKET_ID = 'm_ticket_id';
 	const TO = 'm_to';
 	
-	const VIRTUAL_CONTEXT_LINK = '*_context_link';
-	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_MAILBOX_SEARCH = '*_mailbox_search';
 	const VIRTUAL_MESSAGE_SEARCH = '*_message_search';
 	const VIRTUAL_SENDER_SEARCH = '*_sender_search';
@@ -556,13 +554,15 @@ class SearchFields_MailInboundLog extends DevblocksSearchFields {
 			self::TICKET_ID => new DevblocksSearchField(self::TICKET_ID, 'mail_inbound_log', 'ticket_id', $translate->_('common.ticket'), null, true),
 			self::TO => new DevblocksSearchField(self::TO, 'mail_inbound_log', 'to', $translate->_('message.header.to'), null, true),
 			
-			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
-			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			self::VIRTUAL_MAILBOX_SEARCH => new DevblocksSearchField(self::VIRTUAL_MAILBOX_SEARCH, '*', 'mailbox_search', null, null, false),
 			self::VIRTUAL_MESSAGE_SEARCH => new DevblocksSearchField(self::VIRTUAL_MESSAGE_SEARCH, '*', 'message_search', null, null, false),
 			self::VIRTUAL_SENDER_SEARCH => new DevblocksSearchField(self::VIRTUAL_SENDER_SEARCH, '*', 'sender_search', null, null, false),
 			self::VIRTUAL_TICKET_SEARCH => new DevblocksSearchField(self::VIRTUAL_TICKET_SEARCH, '*', 'ticket_search', null, null, false),
 		];
+		
+		// Virtual fields
+		if(($virtual_columns = DevblocksSearchField::getVirtualFields(watchers: false)))
+			$columns = array_merge($columns, $virtual_columns);
 		
 		// Custom Fields
 		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
@@ -619,12 +619,12 @@ class View_MailInboundLog extends C4_AbstractView implements IAbstractView_Subto
 		];
 		
 		$this->addColumnsHidden([
-			SearchFields_MailInboundLog::VIRTUAL_CONTEXT_LINK,
-			SearchFields_MailInboundLog::VIRTUAL_HAS_FIELDSET,
 			SearchFields_MailInboundLog::VIRTUAL_MAILBOX_SEARCH,
 			SearchFields_MailInboundLog::VIRTUAL_MESSAGE_SEARCH,
 			SearchFields_MailInboundLog::VIRTUAL_SENDER_SEARCH,
 			SearchFields_MailInboundLog::VIRTUAL_TICKET_SEARCH,
+			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
+			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
 		]);
 		
 		$this->doResetCriteria();
@@ -676,15 +676,16 @@ class View_MailInboundLog extends C4_AbstractView implements IAbstractView_Subto
 					case SearchFields_MailInboundLog::FROM_ID:
 					case SearchFields_MailInboundLog::MAILBOX_ID:
 					case SearchFields_MailInboundLog::STATUS_ID:
-					case SearchFields_MailInboundLog::VIRTUAL_CONTEXT_LINK:
-					case SearchFields_MailInboundLog::VIRTUAL_HAS_FIELDSET:
 						$pass = true;
 						break;
 					
 					// Valid custom fields
 					default:
-						if(DevblocksPlatform::strStartsWith($field_key, 'cf_'))
+						if(DevblocksPlatform::strStartsWith($field_key, 'cf_')) {
 							$pass = $this->_canSubtotalCustomField($field_key);
+						} else if (str_starts_with($field_key, '*_')) {
+							$pass = $this->_canSubtotalVirtualField($field_key);
+						}
 						break;
 				}
 				
@@ -700,7 +701,7 @@ class View_MailInboundLog extends C4_AbstractView implements IAbstractView_Subto
 		$fields = $this->getFields();
 		$context = Context_MailInboundLog::ID;
 		
-		if(!isset($fields[$column]))
+		if(!array_key_exists($column, $fields))
 			return [];
 		
 		switch($column) {
@@ -727,20 +728,13 @@ class View_MailInboundLog extends C4_AbstractView implements IAbstractView_Subto
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
 				break;
 			
-			case SearchFields_MailInboundLog::VIRTUAL_CONTEXT_LINK:
-				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
-				break;
-			
-			case SearchFields_MailInboundLog::VIRTUAL_HAS_FIELDSET:
-				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
-				break;
-			
 			default:
 				// Custom fields
 				if(DevblocksPlatform::strStartsWith($column, 'cf_')) {
 					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
+				} else if(DevblocksPlatform::strStartsWith($column, '*_')) {
+					$counts = $this->_getSubtotalCountForVirtualField($context, $column);
 				}
-				
 				break;
 		}
 		
@@ -764,7 +758,7 @@ class View_MailInboundLog extends C4_AbstractView implements IAbstractView_Subto
 			'fieldset' =>
 				[
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => ['param_key' => SearchFields_MailInboundLog::VIRTUAL_HAS_FIELDSET],
+					'options' => ['param_key' => DevblocksSearchField::VIRTUAL_HAS_FIELDSET],
 					'examples' => [
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'qr' => 'context:' . Context_MailInboundLog::ID],
 					]
@@ -881,7 +875,7 @@ class View_MailInboundLog extends C4_AbstractView implements IAbstractView_Subto
 		
 		// Add quick search links
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', SearchFields_MailInboundLog::VIRTUAL_CONTEXT_LINK);
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', DevblocksSearchField::VIRTUAL_CONTEXT_LINK);
 		
 		// Add searchable custom fields
 		
@@ -1015,18 +1009,10 @@ class View_MailInboundLog extends C4_AbstractView implements IAbstractView_Subto
 		}
 	}
 	
-	function renderVirtualCriteria($param) {
+	function renderVirtualCriteria($param) : void {
 		$key = $param->field;
 		
 		switch($key) {
-			case SearchFields_MailInboundLog::VIRTUAL_CONTEXT_LINK:
-				$this->_renderVirtualContextLinks($param);
-				break;
-			
-			case SearchFields_MailInboundLog::VIRTUAL_HAS_FIELDSET:
-				$this->_renderVirtualHasFieldset($param);
-				break;
-			
 			case SearchFields_MailInboundLog::VIRTUAL_MAILBOX_SEARCH:
 				echo sprintf("%s matches <b>%s</b>",
 					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.mailbox')),
@@ -1053,6 +1039,10 @@ class View_MailInboundLog extends C4_AbstractView implements IAbstractView_Subto
 					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.ticket')),
 					DevblocksPlatform::strEscapeHtml($param->value)
 				);
+				break;
+			
+			default:
+				$this->_renderVirtualCriteria($param);
 				break;
 		}
 	}
@@ -1086,25 +1076,13 @@ class View_MailInboundLog extends C4_AbstractView implements IAbstractView_Subto
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 			
-			case 'placeholder_bool':
-				$bool = DevblocksPlatform::importGPC($_POST['bool'] ?? null, 'integer',1);
-				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
-				break;
-			
-			case SearchFields_MailInboundLog::VIRTUAL_CONTEXT_LINK:
-				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array',[]);
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
-				break;
-			
-			case SearchFields_MailInboundLog::VIRTUAL_HAS_FIELDSET:
-				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array',[]);
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
-				break;
-			
 			default:
 				// Custom Fields
 				if(str_starts_with($field, 'cf_')) {
 					$criteria = $this->_doSetCriteriaCustomField($field, substr($field,3));
+				} else if (str_starts_with($field, '*_')) {
+					if(($virtual_criteria = $this->_doSetCriteriaVirtual($field, $_POST, $oper)))
+						$criteria = $virtual_criteria;
 				}
 				break;
 		}
@@ -1479,7 +1457,7 @@ class Context_MailInboundLog extends Extension_DevblocksContext implements IDevb
 		
 		if(!empty($context) && !empty($context_id)) {
 			$params_req = [
-				new DevblocksSearchCriteria(SearchFields_MailInboundLog::VIRTUAL_CONTEXT_LINK,'in',[$context.':'.$context_id]),
+				new DevblocksSearchCriteria(DevblocksSearchField::VIRTUAL_CONTEXT_LINK,'in',[$context.':'.$context_id]),
 			];
 		}
 		

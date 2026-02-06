@@ -91,11 +91,11 @@ class ChRest_Contacts extends Extension_RestController implements IExtensionRest
 	}
 	
 	function translateToken($token, $type='dao') {
-		if('custom_' == substr($token, 0, 7) && in_array($type, array('search', 'subtotal'))) {
+		if(str_starts_with($token, 'custom_') && in_array($type, ['search', 'subtotal'])) {
 			return 'cf_' . intval(substr($token, 7));
 		}
 		
-		$tokens = array();
+		$tokens = [];
 		
 		if('dao'==$type) {
 			$tokens = array(
@@ -119,9 +119,9 @@ class ChRest_Contacts extends Extension_RestController implements IExtensionRest
 			
 		} elseif ('subtotal'==$type) {
 			$tokens = array(
-				'fieldsets' => SearchFields_Contact::VIRTUAL_HAS_FIELDSET,
-				'links' => SearchFields_Contact::VIRTUAL_CONTEXT_LINK,
-				'watchers' => SearchFields_Contact::VIRTUAL_WATCHERS,
+				'fieldsets' => DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
+				'links' => DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
+				'watchers' => DevblocksSearchField::VIRTUAL_WATCHERS,
 					
 				'first_name' => SearchFields_Contact::FIRST_NAME,
 				'gender' => SearchFields_Contact::GENDER,
@@ -286,7 +286,7 @@ class ChRest_Contacts extends Extension_RestController implements IExtensionRest
 		// [TODO] Validate everything
 		// [TODO] 'email' and 'org' shortcut
 
-		$fields = array();
+		$fields = [];
 		
 		// 'password' set hash w/ salt
 		if(isset($_POST['password'])) {
@@ -367,7 +367,7 @@ class ChRest_Contacts extends Extension_RestController implements IExtensionRest
 			'updated_at' => 'timestamp',
 		);
 
-		$fields = array();
+		$fields = [];
 		
 		// [TODO] Validate everything
 		// [TODO] 'email' and 'org' shortcut
