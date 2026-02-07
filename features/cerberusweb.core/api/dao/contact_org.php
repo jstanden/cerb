@@ -1743,6 +1743,7 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 		// Token labels
 		$token_labels = array(
 			'_label' => $prefix,
+			'aliases' => $prefix.$translate->_('common.aliases'),
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
 			'city' => $prefix.$translate->_('contact_org.city'),
@@ -1760,6 +1761,7 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 		// Token types
 		$token_types = array(
 			'_label' => 'context_url',
+			'aliases' => Model_CustomField::TYPE_LIST,
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'city' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -1891,6 +1893,11 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 	function lazyLoadGetKeys() {
 		$lazy_keys = parent::lazyLoadGetKeys();
 		
+		$lazy_keys['aliases'] = [
+			'label' => 'Aliases',
+			'type' => 'List of Text',
+		];
+		
 		$lazy_keys['last_recipient_message'] = [
 			'label' => 'Latest Message Received To',
 			'type' => 'Record',
@@ -1922,7 +1929,10 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
-		if($token == 'last_recipient_message' || DevblocksPlatform::strStartsWith($token, 'last_recipient_message_')) {
+		if($token == 'aliases') {
+			$values['aliases'] = DAO_ContextAlias::get($context, $dictionary['id']);
+			
+		} else if($token == 'last_recipient_message' || DevblocksPlatform::strStartsWith($token, 'last_recipient_message_')) {
 			$values['last_recipient_message__context'] = CerberusContexts::CONTEXT_MESSAGE;
 			$values['last_recipient_message_id'] = intval(DAO_Message::getLatestIdByRecipientOrgId($dictionary['id']));
 			
