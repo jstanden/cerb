@@ -651,10 +651,10 @@ class Context_Feed extends Extension_DevblocksContext implements IDevblocksConte
 		return $labels;
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'url',
-		);
+		];
 	}
 	
 	function getContext($feed, &$token_labels, &$token_values, $prefix=null) {
@@ -669,6 +669,7 @@ class Context_Feed extends Extension_DevblocksContext implements IDevblocksConte
 			$feed = DAO_Feed::get($feed);
 		} elseif($feed instanceof Model_Feed) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($feed)) {
 			$feed = Cerb_ORMHelper::recastArrayToModel($feed, 'Model_Feed');
 		} else {

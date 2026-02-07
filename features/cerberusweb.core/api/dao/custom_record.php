@@ -960,12 +960,12 @@ class Context_CustomRecord extends Extension_DevblocksContext implements IDevblo
 		);
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'name_plural',
 			'uri',
 			'updated_at',
-		);
+		];
 	}
 	
 	function getContextIdFromAlias($alias) {
@@ -988,6 +988,7 @@ class Context_CustomRecord extends Extension_DevblocksContext implements IDevblo
 			$custom_record = DAO_CustomRecord::get($custom_record);
 		} elseif($custom_record instanceof Model_CustomRecord) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($custom_record)) {
 			$custom_record = Cerb_ORMHelper::recastArrayToModel($custom_record, 'Model_CustomRecord');
 		} else {

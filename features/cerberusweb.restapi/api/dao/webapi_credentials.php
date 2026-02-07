@@ -804,12 +804,12 @@ class Context_WebApiCredentials extends Extension_DevblocksContext implements ID
 		);
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'worker__label',
 			'access_key',
 			'updated_at',
-		);
+		];
 	}
 	
 	function getContext($webapi_credentials, &$token_labels, &$token_values, $prefix=null) {
@@ -824,6 +824,7 @@ class Context_WebApiCredentials extends Extension_DevblocksContext implements ID
 			$webapi_credentials = DAO_WebApiCredentials::get($webapi_credentials);
 		} elseif($webapi_credentials instanceof Model_WebApiCredentials) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($webapi_credentials)) {
 			$webapi_credentials = Cerb_ORMHelper::recastArrayToModel($webapi_credentials, 'Model_WebApiCredentials');
 		} else {

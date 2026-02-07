@@ -930,7 +930,7 @@ class Context_ToolbarSection extends Extension_DevblocksContext implements IDevb
 		];
 	}
 	
-	function getDefaultProperties() {
+	function getDefaultProperties() : array {
 		return [
 			'toolbar_name',
 			'updated_at',

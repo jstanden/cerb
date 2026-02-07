@@ -1139,7 +1139,7 @@ class Context_MailDeliveryLog extends Extension_DevblocksContext implements IDev
 		];
 	}
 	
-	function getDefaultProperties() {
+	function getDefaultProperties() : array {
 		return [
 			'to',
 			'from_id',

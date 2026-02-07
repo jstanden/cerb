@@ -887,11 +887,11 @@ class Context_EmailSignature extends Extension_DevblocksContext implements IDevb
 		);
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'owner__label',
 			'updated_at',
-		);
+		];
 	}
 	
 	function autocomplete($term, $query=null) {
@@ -931,6 +931,7 @@ class Context_EmailSignature extends Extension_DevblocksContext implements IDevb
 			$email_signature = DAO_EmailSignature::get($email_signature);
 		} elseif($email_signature instanceof Model_EmailSignature) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($email_signature)) {
 			$email_signature = Cerb_ORMHelper::recastArrayToModel($email_signature, 'Model_EmailSignature');
 		} else {

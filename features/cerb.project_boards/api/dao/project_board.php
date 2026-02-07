@@ -909,10 +909,10 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 		);
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'updated_at',
-		);
+		];
 	}
 	
 	function getContext($project_board, &$token_labels, &$token_values, $prefix=null) {
@@ -927,6 +927,7 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 			$project_board = DAO_ProjectBoard::get($project_board);
 		} elseif($project_board instanceof Model_ProjectBoard) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($project_board)) {
 			$project_board = Cerb_ORMHelper::recastArrayToModel($project_board, 'Model_ProjectBoard');
 		} else {

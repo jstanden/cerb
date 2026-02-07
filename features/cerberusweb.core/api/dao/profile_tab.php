@@ -905,7 +905,7 @@ class Context_ProfileTab extends Extension_DevblocksContext implements IDevblock
 		);
 	}
 	
-	function getDefaultProperties() {
+	function getDefaultProperties() : array {
 		return [
 			'context',
 			'extension_id',
@@ -925,6 +925,7 @@ class Context_ProfileTab extends Extension_DevblocksContext implements IDevblock
 			$profile_tab = DAO_ProfileTab::get($profile_tab);
 		} elseif($profile_tab instanceof Model_ProfileTab) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($profile_tab)) {
 			$profile_tab = Cerb_ORMHelper::recastArrayToModel($profile_tab, 'Model_ProfileTab');
 		} else {

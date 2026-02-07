@@ -1278,13 +1278,13 @@ class Context_ContextActivityLog extends Extension_DevblocksContext implements I
 		return $labels;
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'event',
 			'created',
 			'actor__label',
 			'target__label',
-		);
+		];
 	}
 	
 	function getContext($entry, &$token_labels, &$token_values, $prefix=null) {
@@ -1298,6 +1298,7 @@ class Context_ContextActivityLog extends Extension_DevblocksContext implements I
 			$entry = DAO_ContextActivityLog::get($entry);
 		} elseif($entry instanceof Model_ContextActivityLog) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($entry)) {
 			$entry = Cerb_ORMHelper::recastArrayToModel($entry, 'Model_ContextActivityLog');
 		} else {

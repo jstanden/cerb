@@ -1237,15 +1237,15 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 		return $labels;
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'calendar__label',
 			'patterns',
 			'is_available',
 			'event_start',
 			'event_end',
 			'tz',
-		);
+		];
 	}
 	
 	function getContext($calendar_recurring_profile, &$token_labels, &$token_values, $prefix=null) {
@@ -1260,6 +1260,7 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 			$calendar_recurring_profile = DAO_CalendarRecurringProfile::get($calendar_recurring_profile);
 		} elseif($calendar_recurring_profile instanceof Model_CalendarRecurringProfile) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($calendar_recurring_profile)) {
 			$calendar_recurring_profile = Cerb_ORMHelper::recastArrayToModel($calendar_recurring_profile, 'Model_CalendarRecurringProfile');
 		} else {

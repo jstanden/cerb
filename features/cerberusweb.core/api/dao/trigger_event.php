@@ -2127,15 +2127,15 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 		);
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'bot__label',
 			'id',
 			'uri',
 			'priority',
 			'updated_at',
 			'is_disabled',
-		);
+		];
 	}
 	
 	function getContextIdFromAlias($alias) {
@@ -2158,6 +2158,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 			$trigger_event = DAO_TriggerEvent::get($trigger_event);
 		} elseif($trigger_event instanceof Model_TriggerEvent) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($trigger_event)) {
 			$trigger_event = Cerb_ORMHelper::recastArrayToModel($trigger_event, 'Model_TriggerEvent');
 		} else {

@@ -1156,8 +1156,8 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 		);
 	}
 
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'is_enabled',
 			'checked_at',
 			'host',
@@ -1168,7 +1168,7 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 			'timeout_secs',
 			'max_msg_size_kb',
 			'updated_at',
-		);
+		];
 	}
 
 	function getContext($mailbox, &$token_labels, &$token_values, $prefix=null) {
@@ -1183,6 +1183,7 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 			$mailbox = DAO_Mailbox::get($mailbox);
 		} elseif($mailbox instanceof Model_Mailbox) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($mailbox)) {
 			$mailbox = Cerb_ORMHelper::recastArrayToModel($mailbox, 'Model_Mailbox');
 		} else {

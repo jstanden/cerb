@@ -983,13 +983,13 @@ class Context_Metric extends Extension_DevblocksContext implements IDevblocksCon
 		);
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'description',
 			'type',
 			'created_at',
 			'updated_at',
-		);
+		];
 	}
 	
 	function getContextIdFromAlias($alias) {
@@ -1037,7 +1037,7 @@ class Context_Metric extends Extension_DevblocksContext implements IDevblocksCon
 			$metric = DAO_Metric::get($metric);
 		} elseif($metric instanceof Model_Metric) {
 			// It's what we want already.
-			true;
+			DevblocksPlatform::noop();
 		} elseif(is_array($metric)) {
 			$metric = Cerb_ORMHelper::recastArrayToModel($metric, 'Model_Metric');
 		} else {

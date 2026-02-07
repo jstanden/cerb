@@ -2678,15 +2678,15 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 		return $labels;
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'ticket_status',
 			'ticket__label',
 			'ticket_group__label',
 			'ticket_bucket__label',
 			'ticket_org__label',
 			'ticket_updated',
-		);
+		];
 	}
 	
 	function getContextIdFromAlias($alias) {
@@ -2709,6 +2709,7 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 			$message = DAO_Message::get($message);
 		} elseif($message instanceof Model_Message) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($message)) {
 			$message = Cerb_ORMHelper::recastArrayToModel($message, 'Model_Message');
 		} else {

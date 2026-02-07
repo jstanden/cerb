@@ -850,11 +850,11 @@ class Context_MailTransport extends Extension_DevblocksContext implements IDevbl
 		);
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'extension_id',
 			'updated_at',
-		);
+		];
 	}
 	
 	function autocomplete($term, $query=null) {
@@ -895,6 +895,7 @@ class Context_MailTransport extends Extension_DevblocksContext implements IDevbl
 			$mail_transport = DAO_MailTransport::get($mail_transport);
 		} elseif($mail_transport instanceof Model_MailTransport) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($mail_transport)) {
 			$mail_transport = Cerb_ORMHelper::recastArrayToModel($mail_transport, 'Model_MailTransport');
 		} else {

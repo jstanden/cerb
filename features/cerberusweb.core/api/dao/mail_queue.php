@@ -1626,12 +1626,12 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 		return $labels;
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'to',
 			'name',
 			'updated',
-		);
+		];
 	}
 	
 	function getContextIdFromAlias($alias) {
@@ -1653,6 +1653,7 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 			$object = DAO_MailQueue::get($object);
 		} elseif($object instanceof Model_MailQueue) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($object)) {
 			$object = Cerb_ORMHelper::recastArrayToModel($object, 'Model_MailQueue');
 		} else {

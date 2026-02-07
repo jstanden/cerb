@@ -1234,7 +1234,7 @@ class Context_ContextScheduledBehavior extends Extension_DevblocksContext implem
 		);
 	}
 	
-	function getDefaultProperties() {
+	function getDefaultProperties() : array {
 		return [
 			'run_date',
 			'behavior__label',
@@ -1254,6 +1254,7 @@ class Context_ContextScheduledBehavior extends Extension_DevblocksContext implem
 			$context_scheduled_behavior = DAO_ContextScheduledBehavior::get($context_scheduled_behavior);
 		} elseif($context_scheduled_behavior instanceof Model_ContextScheduledBehavior) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($context_scheduled_behavior)) {
 			$context_scheduled_behavior = Cerb_ORMHelper::recastArrayToModel($context_scheduled_behavior, 'Model_ContextScheduledBehavior');
 		} else {

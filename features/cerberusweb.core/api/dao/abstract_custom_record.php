@@ -845,7 +845,7 @@ class View_AbstractCustomRecord extends C4_AbstractView implements IAbstractView
 	
 	function getQuickSearchFields() {
 		$search_class = sprintf("SearchFields_AbstractCustomRecord_%d", static::_ID);
-		$search_fields = $search_class::getFields();
+		$search_fields = (class_exists($search_class) && method_exists($search_class, 'getFields')) ? $search_class::getFields() : [];
 		$context = self::_getContextName();
 		$custom_record = DAO_CustomRecord::get(static::_ID);
 	
@@ -1166,12 +1166,12 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 		);
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'owner__label',
 			'created_at',
 			'updated_at',
-		);
+		];
 	}
 	
 	function autocomplete($term, $query=null) {
@@ -1216,7 +1216,7 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 			$abstract_custom_record = $dao_class::get($abstract_custom_record);
 		} elseif($abstract_custom_record instanceof Model_AbstractCustomRecord) {
 			// It's what we want already.
-			true;
+			DevblocksPlatform::noop();
 		} elseif(is_array($abstract_custom_record)) {
 			$abstract_custom_record = Cerb_ORMHelper::recastArrayToModel($abstract_custom_record, $model_class);
 		} else {
@@ -1533,12 +1533,19 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 	}
 	
 	function importSaveObject(array $fields, array $custom_fields, array $meta) {
-		$dao_class = sprintf("DAO_AbstractCustomRecord_%d", static::_ID);
-		$context = self::_getContextName();
+		if(!($dao_class = sprintf("DAO_AbstractCustomRecord_%d", static::_ID)))
+			return false;
+		
+		if(!class_exists($dao_class))
+			return false;
+		
+		if(!($context = self::_getContextName()))
+			return false;
+		
 		$error = null;
 		
 		// If new...
-		if(!isset($meta['object_id']) || empty($meta['object_id'])) {
+		if(!array_key_exists('object_id', $meta) || empty($meta['object_id'])) {
 			if(!$dao_class::validate($fields, $error, null))
 				return false;
 	

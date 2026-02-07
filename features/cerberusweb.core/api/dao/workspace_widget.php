@@ -1094,12 +1094,12 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext implements IDev
 		);
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'extension_id',
 			'tab__label',
 			'updated_at',
-		);
+		];
 	}
 	
 	function getContext($widget, &$token_labels, &$token_values, $prefix=null) {
@@ -1114,6 +1114,7 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext implements IDev
 			$widget = DAO_WorkspaceWidget::get($widget);
 		} elseif($widget instanceof Model_WorkspaceWidget) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($widget)) {
 			$widget = Cerb_ORMHelper::recastArrayToModel($widget, 'Model_WorkspaceWidget');
 		} else {

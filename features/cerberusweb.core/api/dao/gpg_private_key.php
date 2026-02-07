@@ -840,10 +840,10 @@ class Context_GpgPrivateKey extends Extension_DevblocksContext implements IDevbl
 		);
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'updated_at',
-		);
+		];
 	}
 	
 	function getContextIdFromAlias($alias) {
@@ -866,6 +866,7 @@ class Context_GpgPrivateKey extends Extension_DevblocksContext implements IDevbl
 			$gpg_private_key = DAO_GpgPrivateKey::get($gpg_private_key);
 		} elseif($gpg_private_key instanceof Model_GpgPrivateKey) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($gpg_private_key)) {
 			$gpg_private_key = Cerb_ORMHelper::recastArrayToModel($gpg_private_key, 'Model_GpgPrivateKey');
 		} else {

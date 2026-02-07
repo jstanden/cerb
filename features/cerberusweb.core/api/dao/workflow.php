@@ -1628,7 +1628,7 @@ class Context_Workflow extends Extension_DevblocksContext implements IDevblocksC
 		];
 	}
 	
-	function getDefaultProperties() {
+	function getDefaultProperties() : array {
 		return [
 			'updated_at',
 		];

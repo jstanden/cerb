@@ -1456,13 +1456,13 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 		return $labels;
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'owner__label',
 			'context',
 			'total_uses',
 			'updated_at',
-		);
+		];
 	}
 	
 	function autocomplete($term, $query=null) {

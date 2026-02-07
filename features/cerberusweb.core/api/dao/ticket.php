@@ -5085,16 +5085,8 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		return $labels;
 	}
 	
-	function getDefaultProperties() {
-		/*
-		return array(
-			'initial_message_sender__label',
-			'latest_message_sender__label',
-			'spam_score',
-			'num_messages',
-		);
-		*/
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'status',
 			'group__label',
 			'bucket__label',
@@ -5102,7 +5094,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			'importance',
 			'updated',
 			'org__label',
-		);
+		];
 	}
 	
 	function autocomplete($term, $query=null) {

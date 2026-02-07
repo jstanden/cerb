@@ -1242,7 +1242,7 @@ class Context_MailInboundLog extends Extension_DevblocksContext implements IDevb
 		];
 	}
 	
-	function getDefaultProperties() {
+	function getDefaultProperties() : array {
 		return [
 			'created_at',
 			'to',

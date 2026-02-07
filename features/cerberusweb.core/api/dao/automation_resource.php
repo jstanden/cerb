@@ -1147,14 +1147,14 @@ class Context_AutomationResource extends Extension_DevblocksContext {
 		);
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'token',
 			'name',
 			'mime_type',
 			'storage_size',
 			'updated_at',
-		);
+		];
 	}
 	
 	function getContextIdFromAlias($alias) {
@@ -1177,6 +1177,7 @@ class Context_AutomationResource extends Extension_DevblocksContext {
 			$resource = DAO_AutomationResource::get($resource);
 		} elseif($resource instanceof Model_AutomationResource) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($resource)) {
 			$resource = Cerb_ORMHelper::recastArrayToModel($resource, 'Model_AutomationResource');
 		} else {

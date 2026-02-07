@@ -991,14 +991,14 @@ class Context_ContextSavedSearch extends Extension_DevblocksContext implements I
 		);
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'owner__label',
 			'context',
 			'tag',
 			'updated_at',
 			'query',
-		);
+		];
 	}
 	
 	function getContextIdFromAlias($alias) {
@@ -1022,6 +1022,7 @@ class Context_ContextSavedSearch extends Extension_DevblocksContext implements I
 			$context_saved_search = DAO_ContextSavedSearch::get($context_saved_search);
 		} elseif($context_saved_search instanceof Model_ContextSavedSearch) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($context_saved_search)) {
 			$context_saved_search = Cerb_ORMHelper::recastArrayToModel($context_saved_search, 'Model_ContextSavedSearch');
 		} else {

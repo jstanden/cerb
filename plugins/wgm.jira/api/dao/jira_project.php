@@ -999,14 +999,14 @@ class Context_JiraProject extends Extension_DevblocksContext implements IDevbloc
 		return $labels;
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'jira_key',
 			'connected_account__label',
 			'last_checked_at',
 			'last_synced_at',
 			'url',
-		);
+		];
 	}
 	
 	function getContext($jira_project, &$token_labels, &$token_values, $prefix=null) {
@@ -1021,6 +1021,7 @@ class Context_JiraProject extends Extension_DevblocksContext implements IDevbloc
 			$jira_project = DAO_JiraProject::get($jira_project);
 		} elseif($jira_project instanceof Model_JiraProject) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($jira_project)) {
 			$jira_project = Cerb_ORMHelper::recastArrayToModel($jira_project, 'Model_JiraProject');
 		} else {

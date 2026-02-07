@@ -2158,7 +2158,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		return $labels;
 	}
 	
-	function getDefaultProperties() {
+	function getDefaultProperties() : array {
 		return [
 			'org__label',
 			'contact__label',
@@ -2246,7 +2246,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			
 		} elseif($address instanceof Model_Address) {
 			// It's what we want already.
-			true;
+			DevblocksPlatform::noop();
 			
 		} elseif(is_string($address)) {
 			$address = DAO_Address::getByEmail($address);

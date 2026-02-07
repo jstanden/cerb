@@ -1002,14 +1002,14 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 		return $labels;
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'calendar__label',
 			'calendar_owner__label',
 			'date_start',
 			'date_end',
 			'is_available',
-		);
+		];
 	}
 	
 	function getContext($calendar_event, &$token_labels, &$token_values, $prefix=null) {
@@ -1024,6 +1024,7 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 			$calendar_event = DAO_CalendarEvent::get($calendar_event);
 		} elseif($calendar_event instanceof Model_CalendarEvent) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($calendar_event)) {
 			$calendar_event = Cerb_ORMHelper::recastArrayToModel($calendar_event, 'Model_CalendarEvent');
 		} else {

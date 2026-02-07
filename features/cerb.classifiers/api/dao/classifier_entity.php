@@ -813,10 +813,10 @@ class Context_ClassifierEntity extends Extension_DevblocksContext implements IDe
 		);
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'updated_at',
-		);
+		];
 	}
 	
 	function getContext($classifier_entity, &$token_labels, &$token_values, $prefix=null) {
@@ -831,6 +831,7 @@ class Context_ClassifierEntity extends Extension_DevblocksContext implements IDe
 			$classifier_entity = DAO_ClassifierEntity::get($classifier_entity);
 		} elseif($classifier_entity instanceof Model_ClassifierEntity) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($classifier_entity)) {
 			$classifier_entity = Cerb_ORMHelper::recastArrayToModel($classifier_entity, 'Model_ClassifierEntity');
 		} else {

@@ -923,12 +923,12 @@ class Context_GpgPublicKey extends Extension_DevblocksContext implements IDevblo
 		);
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'fingerprint',
 			'expires_at',
 			'updated_at',
-		);
+		];
 	}
 	
 	function getContextIdFromAlias($alias) {
@@ -976,6 +976,7 @@ class Context_GpgPublicKey extends Extension_DevblocksContext implements IDevblo
 			$gpg_public_key = DAO_GpgPublicKey::get($gpg_public_key);
 		} elseif($gpg_public_key instanceof Model_GpgPublicKey) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($gpg_public_key)) {
 			$gpg_public_key = Cerb_ORMHelper::recastArrayToModel($gpg_public_key, 'Model_GpgPublicKey');
 		} else {

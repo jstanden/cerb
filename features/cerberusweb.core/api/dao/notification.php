@@ -1278,14 +1278,14 @@ class Context_Notification extends Extension_DevblocksContext {
 		return $labels;
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'assignee__label',
 			'target__label',
 			'activity_point',
 			'created',
 			'is_read',
-		);
+		];
 	}
 	
 	function getContext($notification, &$token_labels, &$token_values, $prefix=null) {
@@ -1301,6 +1301,7 @@ class Context_Notification extends Extension_DevblocksContext {
 			$notification = DAO_Notification::get($notification);
 		} elseif($notification instanceof Model_Notification) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($notification)) {
 			$notification = Cerb_ORMHelper::recastArrayToModel($notification, 'Model_Notification');
 		} else {

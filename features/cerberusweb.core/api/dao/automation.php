@@ -1621,11 +1621,11 @@ class Context_Automation extends Extension_DevblocksContext implements IDevblock
 		);
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'trigger_event',
 			'updated_at',
-		);
+		];
 	}
 	
 	function autocompleteUri($term, $uri_params=null) : array {
@@ -1675,7 +1675,7 @@ class Context_Automation extends Extension_DevblocksContext implements IDevblock
 			$automation = DAO_Automation::get($automation);
 		} elseif($automation instanceof Model_Automation) {
 			// It's what we want already.
-			true;
+			DevblocksPlatform::noop();
 		} elseif(is_array($automation)) {
 			$automation = Cerb_ORMHelper::recastArrayToModel($automation, 'Model_Automation');
 		} else {

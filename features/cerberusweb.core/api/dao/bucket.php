@@ -1078,15 +1078,15 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 		);
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'replyto__label',
 			'reply_personal',
 			'reply_html_template__label',
 			'reply_signature__label',
 			'reply_signing_key__label',
 			'updated_at',
-		);
+		];
 	}
 	
 	/**
@@ -1109,6 +1109,7 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 			
 		} elseif($bucket instanceof Model_Bucket) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 			
 		} elseif(is_array($bucket)) {
 			$bucket = Cerb_ORMHelper::recastArrayToModel($bucket, 'Model_Bucket');

@@ -1036,12 +1036,12 @@ class Context_WorkspacePage extends Extension_DevblocksContext implements IDevbl
 		];
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'extension__label',
 			'owner__label',
 			'updated_at',
-		);
+		];
 	}
 	
 	function getContext($page, &$token_labels, &$token_values, $prefix=null) {
@@ -1056,6 +1056,7 @@ class Context_WorkspacePage extends Extension_DevblocksContext implements IDevbl
 			$page = DAO_WorkspacePage::get($page);
 		} elseif($page instanceof Model_WorkspacePage) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($page)) {
 			$page = Cerb_ORMHelper::recastArrayToModel($page, 'Model_WorkspacePage');
 		} else {

@@ -1115,10 +1115,10 @@ class Context_AutomationTimer extends Extension_DevblocksContext implements IDev
 		);
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'updated_at',
-		);
+		];
 	}
 	
 	function getContext($automation_timer, &$token_labels, &$token_values, $prefix=null) {
@@ -1133,7 +1133,7 @@ class Context_AutomationTimer extends Extension_DevblocksContext implements IDev
 			$automation_timer = DAO_AutomationTimer::get($automation_timer);
 		} elseif($automation_timer instanceof Model_AutomationTimer) {
 			// It's what we want already.
-			true;
+			DevblocksPlatform::noop();
 		} elseif(is_array($automation_timer)) {
 			$automation_timer = Cerb_ORMHelper::recastArrayToModel($automation_timer, 'Model_AutomationTimer');
 		} else {

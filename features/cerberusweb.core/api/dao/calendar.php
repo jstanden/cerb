@@ -1437,12 +1437,12 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 		return $labels;
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'owner__label',
 			'timezone',
 			'updated_at',
-		);
+		];
 	}
 	
 	function getContext($calendar, &$token_labels, &$token_values, $prefix=null) {
@@ -1457,6 +1457,7 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 			$calendar = DAO_Calendar::get($calendar);
 		} elseif($calendar instanceof Model_Calendar) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($calendar)) {
 			$calendar = Cerb_ORMHelper::recastArrayToModel($calendar, 'Model_Calendar');
 		} else {

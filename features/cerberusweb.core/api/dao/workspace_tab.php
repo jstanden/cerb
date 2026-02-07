@@ -1210,13 +1210,13 @@ class Context_WorkspaceTab extends Extension_DevblocksContext implements IDevblo
 		);
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'extension__label',
 			'page__label',
 			'order',
 			'updated_at',
-		);
+		];
 	}
 	
 	function getContext($tab, &$token_labels, &$token_values, $prefix=null) {

@@ -1030,7 +1030,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		return true;
 	}
 	
-	function getDefaultProperties() {
+	function getDefaultProperties() : array {
 		return [];
 	}
 	

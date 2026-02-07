@@ -933,12 +933,12 @@ class Context_ConnectedService extends Extension_DevblocksContext implements IDe
 		);
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'uri',
 			'extension_id',
 			'updated_at',
-		);
+		];
 	}
 	
 	function getContextIdFromAlias($alias) {
@@ -961,6 +961,7 @@ class Context_ConnectedService extends Extension_DevblocksContext implements IDe
 			$connected_service = DAO_ConnectedService::get($connected_service);
 		} elseif($connected_service instanceof Model_ConnectedService) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($connected_service)) {
 			$connected_service = Cerb_ORMHelper::recastArrayToModel($connected_service, 'Model_ConnectedService');
 		} else {

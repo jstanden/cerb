@@ -920,7 +920,7 @@ class Context_AutomationEventListener extends Extension_DevblocksContext impleme
 		];
 	}
 	
-	function getDefaultProperties() {
+	function getDefaultProperties() : array {
 		return [
 			'event_name',
 			'updated_at',

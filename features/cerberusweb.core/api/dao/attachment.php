@@ -1899,14 +1899,14 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		return $labels;
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'mime_type',
 			'size',
 			'storage_extension',
 			'storage_key',
 			'updated',
-		);
+		];
 	}
 	
 	function getContext($attachment, &$token_labels, &$token_values, $prefix=null) {
@@ -1923,6 +1923,7 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 			$attachment = DAO_Attachment::get($attachment);
 		} elseif($attachment instanceof Model_Attachment) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($attachment)) {
 			$attachment = Cerb_ORMHelper::recastArrayToModel($attachment, 'Model_Attachment');
 		} elseif(strlen(strval($attachment)) == 40) { // SHA-1 HASH

@@ -944,12 +944,12 @@ class Context_OAuthApp extends Extension_DevblocksContext implements IDevblocksC
 		);
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'client_id',
 			'url',
 			'updated_at',
-		);
+		];
 	}
 	
 	function getContext($oauth_app, &$token_labels, &$token_values, $prefix=null) {
@@ -964,6 +964,7 @@ class Context_OAuthApp extends Extension_DevblocksContext implements IDevblocksC
 			$oauth_app = DAO_OAuthApp::get($oauth_app);
 		} elseif($oauth_app instanceof Model_OAuthApp) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($oauth_app)) {
 			$oauth_app = Cerb_ORMHelper::recastArrayToModel($oauth_app, 'Model_OAuthApp');
 		} else {

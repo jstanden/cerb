@@ -134,10 +134,10 @@ class Context_Server extends Extension_DevblocksContext implements IDevblocksCon
 		return $labels;
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'updated'
-		);
+		];
 	}
 	
 	function getContext($server, &$token_labels, &$token_values, $prefix=null) {
@@ -152,6 +152,7 @@ class Context_Server extends Extension_DevblocksContext implements IDevblocksCon
 			$server = DAO_Server::get($server);
 		} elseif($server instanceof Model_Server) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($server)) {
 			$server = Cerb_ORMHelper::recastArrayToModel($server, 'Model_Server');
 		} else {

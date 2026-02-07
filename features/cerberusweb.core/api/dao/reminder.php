@@ -930,12 +930,12 @@ class Context_Reminder extends Extension_DevblocksContext implements IDevblocksC
 		);
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'remind_at',
 			'worker__label',
 			'updated_at',
-		);
+		];
 	}
 	
 	function getContext($reminder, &$token_labels, &$token_values, $prefix=null) {
@@ -950,6 +950,7 @@ class Context_Reminder extends Extension_DevblocksContext implements IDevblocksC
 			$reminder = DAO_Reminder::get($reminder);
 		} elseif($reminder instanceof Model_Reminder) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($reminder)) {
 			$reminder = Cerb_ORMHelper::recastArrayToModel($reminder, 'Model_Reminder');
 		} else {

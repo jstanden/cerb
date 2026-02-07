@@ -1036,13 +1036,13 @@ class Context_FeedItem extends Extension_DevblocksContext implements IDevblocksC
 		return $labels;
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'feed__label',
 			'created_at',
 			'is_closed',
 			'url',
-		);
+		];
 	}
 	
 	function getContext($item, &$token_labels, &$token_values, $prefix=null) {
@@ -1057,6 +1057,7 @@ class Context_FeedItem extends Extension_DevblocksContext implements IDevblocksC
 			$item = DAO_FeedItem::get($item);
 		} elseif($item instanceof Model_FeedItem) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($item)) {
 			$item = Cerb_ORMHelper::recastArrayToModel($item, 'Model_FeedItem');
 		} else {

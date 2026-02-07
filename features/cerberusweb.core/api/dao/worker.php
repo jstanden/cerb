@@ -3344,8 +3344,8 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		return $labels;
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'address__label',
 			'at_mention_name',
 			'is_disabled',
@@ -3356,7 +3356,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			'mobile',
 			'timezone',
 			'updated',
-		);
+		];
 	}
 	
 	function autocomplete($term, $query=null) {
@@ -3413,6 +3413,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			$worker = DAO_Worker::get($worker);
 		} elseif($worker instanceof Model_Worker) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($worker)) {
 			$worker = Cerb_ORMHelper::recastArrayToModel($worker, 'Model_Worker');
 		} else {

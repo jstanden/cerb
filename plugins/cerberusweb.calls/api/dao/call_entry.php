@@ -971,14 +971,14 @@ class Context_CallEntry extends Extension_DevblocksContext implements IDevblocks
 		return $labels;
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'phone',
 			'is_outgoing',
 			'is_closed',
 			'created',
 			'updated',
-		);
+		];
 	}
 	
 	function getContext($call, &$token_labels, &$token_values, $prefix=null) {
@@ -993,6 +993,7 @@ class Context_CallEntry extends Extension_DevblocksContext implements IDevblocks
 			$call = DAO_CallEntry::get($call);
 		} elseif($call instanceof Model_CallEntry) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($call)) {
 			$call = Cerb_ORMHelper::recastArrayToModel($call, 'Model_CallEntry');
 		} else {

@@ -1039,7 +1039,7 @@ class Context_WorkspaceList extends Extension_DevblocksContext implements IDevbl
 		];
 	}
 	
-	function getDefaultProperties() {
+	function getDefaultProperties() : array {
 		return [
 			'context',
 			'tab_page__label',
@@ -1061,6 +1061,7 @@ class Context_WorkspaceList extends Extension_DevblocksContext implements IDevbl
 			$worklist = DAO_WorkspaceList::get($worklist);
 		} elseif($worklist instanceof Model_WorkspaceList) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($worklist)) {
 			$worklist = Cerb_ORMHelper::recastArrayToModel($worklist, 'Model_WorkspaceList');
 		} else {

@@ -1446,12 +1446,12 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 		);
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'created',
 			'author__label',
 			'target__label',
-		);
+		];
 	}
 
 	function getContext($comment, &$token_labels, &$token_values, $prefix=null) {
@@ -1465,7 +1465,7 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 			$comment = DAO_Comment::get($comment);
 		} elseif($comment instanceof Model_Comment) {
 			// It's what we want already.
-			true;
+			DevblocksPlatform::noop();
 		} elseif(is_array($comment)) {
 			$comment = Cerb_ORMHelper::recastArrayToModel($comment, 'Model_Comment');
 		} else {

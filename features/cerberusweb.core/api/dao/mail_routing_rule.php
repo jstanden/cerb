@@ -937,7 +937,7 @@ class Context_MailRoutingRule extends Extension_DevblocksContext implements IDev
 		];
 	}
 	
-	function getDefaultProperties() {
+	function getDefaultProperties() : array {
 		return [
 			'updated_at',
 		];

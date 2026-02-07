@@ -2929,10 +2929,10 @@ class Context_Application extends Extension_DevblocksContext implements IDevbloc
 		);
 	}
 
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'name',
-		);
+		];
 	}
 
 	function getContext($object, &$token_labels, &$token_values, $prefix=null) {
@@ -2949,7 +2949,7 @@ class Context_Application extends Extension_DevblocksContext implements IDevbloc
 
 		} elseif($object instanceof Model_Application) {
 			// It's what we want already.
-
+			DevblocksPlatform::noop();
 		} elseif(is_array($object)) {
 			$object = Cerb_ORMHelper::recastArrayToModel($object, 'Model_Application');
 

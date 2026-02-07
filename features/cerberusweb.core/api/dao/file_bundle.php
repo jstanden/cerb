@@ -1043,10 +1043,10 @@ class Context_FileBundle extends Extension_DevblocksContext implements IDevblock
 		);
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'updated_at',
-		);
+		];
 	}
 	
 	function autocomplete($term, $query=null) {
@@ -1087,6 +1087,7 @@ class Context_FileBundle extends Extension_DevblocksContext implements IDevblock
 			$file_bundle = DAO_FileBundle::get($file_bundle);
 		} elseif($file_bundle instanceof Model_FileBundle) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($file_bundle)) {
 			$file_bundle = Cerb_ORMHelper::recastArrayToModel($file_bundle, 'Model_FileBundle');
 		} else {

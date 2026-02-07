@@ -906,11 +906,11 @@ class Context_ClassifierClass extends Extension_DevblocksContext implements IDev
 		);
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'classifier__label',
 			'updated_at',
-		);
+		];
 	}
 	
 	function autocomplete($term, $query=null) {
@@ -952,6 +952,7 @@ class Context_ClassifierClass extends Extension_DevblocksContext implements IDev
 			$classifier_class = DAO_ClassifierClass::get($classifier_class);
 		} elseif($classifier_class instanceof Model_ClassifierClass) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($classifier_class)) {
 			$classifier_class = Cerb_ORMHelper::recastArrayToModel($classifier_class, 'Model_ClassifierClass');
 		} else {

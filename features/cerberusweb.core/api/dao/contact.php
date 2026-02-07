@@ -1818,8 +1818,8 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 		);
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'email__label',
 			'org__label',
 			'location',
@@ -1828,7 +1828,7 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			'phone',
 			'mobile',
 			'updated_at',
-		);
+		];
 	}
 	
 	function autocomplete($term, $query=null) {
@@ -1883,6 +1883,7 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			$contact = DAO_Contact::get($contact);
 		} elseif($contact instanceof Model_Contact) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($contact)) {
 			$contact = Cerb_ORMHelper::recastArrayToModel($contact, 'Model_Contact');
 		} else {

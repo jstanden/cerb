@@ -142,12 +142,12 @@ class Context_Domain extends Extension_DevblocksContext implements IDevblocksCon
 		return $labels;
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'server__label',
 			'created',
 			'updated',
-		);
+		];
 	}
 	
 	function getContextIdFromAlias($alias) {

@@ -1334,8 +1334,8 @@ class Context_JiraIssue extends Extension_DevblocksContext implements IDevblocks
 		return $labels;
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'project__label',
 			'jira_key',
 			'jira_type',
@@ -1343,7 +1343,7 @@ class Context_JiraIssue extends Extension_DevblocksContext implements IDevblocks
 			'jira_versions',
 			'created',
 			'updated',
-		);
+		];
 	}
 	
 	function getContext($jira_issue, &$token_labels, &$token_values, $prefix=null) {
@@ -1358,6 +1358,7 @@ class Context_JiraIssue extends Extension_DevblocksContext implements IDevblocks
 			$jira_issue = DAO_JiraIssue::get($jira_issue);
 		} elseif($jira_issue instanceof Model_JiraIssue) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($jira_issue)) {
 			$jira_issue = Cerb_ORMHelper::recastArrayToModel($jira_issue, 'Model_JiraIssue');
 		} else {

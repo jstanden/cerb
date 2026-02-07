@@ -921,13 +921,13 @@ class Context_Toolbar extends Extension_DevblocksContext implements IDevblocksCo
 		);
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'description',
 			'extension',
 			'created_at',
 			'updated_at',
-		);
+		];
 	}
 	
 	function getContextIdFromAlias($alias) {
@@ -950,6 +950,7 @@ class Context_Toolbar extends Extension_DevblocksContext implements IDevblocksCo
 			$toolbar = DAO_Toolbar::get($toolbar);
 		} elseif($toolbar instanceof Model_Toolbar) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($toolbar)) {
 			$toolbar = Cerb_ORMHelper::recastArrayToModel($toolbar, 'Model_Toolbar');
 		} else {

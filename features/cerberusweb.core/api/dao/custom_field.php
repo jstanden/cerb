@@ -2303,8 +2303,8 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 		);
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'custom_fieldset__label',
 			'uri',
 			'context',
@@ -2312,7 +2312,7 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 			'pos',
 			'updated_at',
 			'id',
-		);
+		];
 	}
 	
 	function getContext($cfield, &$token_labels, &$token_values, $prefix=null) {
@@ -2325,7 +2325,8 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 		if(is_numeric($cfield)) {
 			$cfield = DAO_CustomField::get($cfield);
 		} elseif($cfield instanceof Model_CustomField) {
-		// It's what we want already.
+			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($cfield)) {
 			$cfield = Cerb_ORMHelper::recastArrayToModel($cfield, 'Model_CustomField');
 		} else {

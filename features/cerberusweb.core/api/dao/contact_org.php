@@ -1637,13 +1637,13 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 		return $labels;
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'email__label',
 			'phone',
 			'website',
 			'updated',
-		);
+		];
 	}
 	
 	function autocomplete($term, $query=null) {
@@ -1694,6 +1694,7 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 			$org = DAO_ContactOrg::get($org);
 		} elseif($org instanceof Model_ContactOrg) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($org)) {
 			$org = Cerb_ORMHelper::recastArrayToModel($org, 'Model_ContactOrg');
 		} else {

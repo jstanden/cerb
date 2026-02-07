@@ -1033,10 +1033,10 @@ class Context_CardWidget extends Extension_DevblocksContext implements IDevblock
 		);
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'updated_at',
-		);
+		];
 	}
 	
 	function getContext($card_widget, &$token_labels, &$token_values, $prefix=null) {
@@ -1051,6 +1051,7 @@ class Context_CardWidget extends Extension_DevblocksContext implements IDevblock
 			$card_widget = DAO_CardWidget::get($card_widget);
 		} elseif($card_widget instanceof Model_CardWidget) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($card_widget)) {
 			$card_widget = Cerb_ORMHelper::recastArrayToModel($card_widget, 'Model_CardWidget');
 		} else {

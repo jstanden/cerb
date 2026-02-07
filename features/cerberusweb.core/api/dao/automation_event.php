@@ -895,10 +895,10 @@ class Context_AutomationEvent extends Extension_DevblocksContext implements IDev
 		);
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'updated_at',
-		);
+		];
 	}
 	
 	function getContextIdFromAlias($alias) {
@@ -922,7 +922,7 @@ class Context_AutomationEvent extends Extension_DevblocksContext implements IDev
 			
 		} elseif($automation_event instanceof Model_AutomationEvent) {
 			// It's what we want already.
-			true;
+			DevblocksPlatform::noop();
 			
 		} elseif(is_array($automation_event)) {
 			$automation_event = Cerb_ORMHelper::recastArrayToModel($automation_event, 'Model_AutomationEvent');

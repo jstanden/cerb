@@ -1102,11 +1102,11 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 		return $labels;
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'views',
 			'updated',
-		);
+		];
 	}
 	
 	function getContext($article, &$token_labels, &$token_values, $prefix=null) {
@@ -1121,6 +1121,7 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 			$article = DAO_KbArticle::get($article);
 		} elseif($article instanceof Model_KbArticle) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($article)) {
 			$article = Cerb_ORMHelper::recastArrayToModel($article, 'Model_KbArticle');
 		} else {

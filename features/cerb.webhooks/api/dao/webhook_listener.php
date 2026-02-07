@@ -791,11 +791,11 @@ class Context_WebhookListener extends Extension_DevblocksContext implements IDev
 		);
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'guid',
 			'updated_at',
-		);
+		];
 	}
 	
 	function getContextIdFromAlias($alias) {
@@ -818,6 +818,7 @@ class Context_WebhookListener extends Extension_DevblocksContext implements IDev
 			$webhook_listener = DAO_WebhookListener::get($webhook_listener);
 		} elseif($webhook_listener instanceof Model_WebhookListener) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($webhook_listener)) {
 			$webhook_listener = Cerb_ORMHelper::recastArrayToModel($webhook_listener, 'Model_WebhookListener');
 		} else {

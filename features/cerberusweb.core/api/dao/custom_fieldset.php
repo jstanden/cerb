@@ -1068,12 +1068,12 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 		return $labels;
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'context',
 			'owner__label',
 			'updated_at',
-		);
+		];
 	}
 	
 	function getContext($cfieldset, &$token_labels, &$token_values, $prefix=null) {
@@ -1086,7 +1086,8 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 		if(is_numeric($cfieldset)) {
 			$cfieldset = DAO_CustomFieldset::get($cfieldset);
 		} elseif($cfieldset instanceof Model_CustomFieldset) {
-		// It's what we want already.
+			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($cfieldset)) {
 			$cfieldset = Cerb_ORMHelper::recastArrayToModel($cfieldset, 'Model_CustomFieldset');
 		} else {

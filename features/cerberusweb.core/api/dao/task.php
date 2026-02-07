@@ -1377,15 +1377,15 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 		return $labels;
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'status',
 			'reopen',
 			'importance',
 			'due',
 			'updated',
 			'owner__label',
-		);
+		];
 	}
 	
 	function autocomplete($term, $query=null) {
@@ -1415,6 +1415,7 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 			$task = DAO_Task::get($task);
 		} elseif($task instanceof Model_Task) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($task)) {
 			$task = Cerb_ORMHelper::recastArrayToModel($task, 'Model_Task');
 		} else {

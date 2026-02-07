@@ -961,12 +961,12 @@ class Context_ClassifierExample extends Extension_DevblocksContext implements ID
 		);
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'classifier__label',
 			'class__label',
 			'updated_at',
-		);
+		];
 	}
 	
 	function getContext($classifier_example, &$token_labels, &$token_values, $prefix=null) {
@@ -981,6 +981,7 @@ class Context_ClassifierExample extends Extension_DevblocksContext implements ID
 			$classifier_example = DAO_ClassifierExample::get($classifier_example);
 		} elseif($classifier_example instanceof Model_ClassifierExample) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($classifier_example)) {
 			$classifier_example = Cerb_ORMHelper::recastArrayToModel($classifier_example, 'Model_ClassifierExample');
 		} else {

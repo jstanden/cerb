@@ -954,10 +954,10 @@ class Context_Queue extends Extension_DevblocksContext implements IDevblocksCont
 		);
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'updated_at',
-		);
+		];
 	}
 	
 	function getContextIdFromAlias($alias) {
@@ -1005,7 +1005,7 @@ class Context_Queue extends Extension_DevblocksContext implements IDevblocksCont
 			$queue = DAO_Queue::get($queue);
 		} elseif($queue instanceof Model_Queue) {
 			// It's what we want already.
-			true;
+			DevblocksPlatform::noop();
 		} elseif(is_array($queue)) {
 			$queue = Cerb_ORMHelper::recastArrayToModel($queue, 'Model_Queue');
 		} else {

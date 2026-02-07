@@ -1079,12 +1079,12 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 		];
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'extension_id',
 			'profile_tab__label',
 			'updated_at',
-		);
+		];
 	}
 	
 	function getContext($profile_widget, &$token_labels, &$token_values, $prefix=null) {
@@ -1099,6 +1099,7 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 			$profile_widget = DAO_ProfileWidget::get($profile_widget);
 		} elseif($profile_widget instanceof Model_ProfileWidget) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($profile_widget)) {
 			$profile_widget = Cerb_ORMHelper::recastArrayToModel($profile_widget, 'Model_ProfileWidget');
 		} else {

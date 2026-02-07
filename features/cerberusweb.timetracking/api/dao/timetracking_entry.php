@@ -1284,12 +1284,12 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 	
 	// [TODO] Include the activity
 	// [TODO] 'time_mins' type (mins) doesn't render on cards/profiles properly
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'worker__label',
 			'log_date',
 			'is_closed',
-		);
+		];
 	}
 	
 	function getContext($timeentry, &$token_labels, &$token_values, $prefix=null) {
@@ -1304,6 +1304,7 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 			$timeentry = DAO_TimeTrackingEntry::get($timeentry);
 		} elseif($timeentry instanceof Model_TimeTrackingEntry) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($timeentry)) {
 			$timeentry = Cerb_ORMHelper::recastArrayToModel($timeentry, 'Model_TimeTrackingEntry');
 		} else {

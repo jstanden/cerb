@@ -873,7 +873,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		];
 	}
 	
-	function getDefaultProperties() {
+	function getDefaultProperties() : array {
 		return [
 			'updated_at',
 		];

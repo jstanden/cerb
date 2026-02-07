@@ -890,14 +890,14 @@ class Context_Currency extends Extension_DevblocksContext implements IDevblocksC
 		);
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'code',
 			'symbol',
 			'decimal_at',
 			'is_default',
 			'updated_at',
-		);
+		];
 	}
 	
 	function getContext($currency, &$token_labels, &$token_values, $prefix=null) {
@@ -912,6 +912,7 @@ class Context_Currency extends Extension_DevblocksContext implements IDevblocksC
 			$currency = DAO_Currency::get($currency);
 		} elseif($currency instanceof Model_Currency) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($currency)) {
 			$currency = Cerb_ORMHelper::recastArrayToModel($currency, 'Model_Currency');
 		} else {

@@ -1202,12 +1202,12 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 		);
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'owner__label',
 			'service__label',
 			'updated_at',
-		);
+		];
 	}
 	
 	function getContextIdFromAlias($alias) {
@@ -1230,6 +1230,7 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 			$connected_account = DAO_ConnectedAccount::get($connected_account);
 		} elseif($connected_account instanceof Model_ConnectedAccount) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($connected_account)) {
 			$connected_account = Cerb_ORMHelper::recastArrayToModel($connected_account, 'Model_ConnectedAccount');
 		} else {

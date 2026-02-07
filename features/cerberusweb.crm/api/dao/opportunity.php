@@ -1279,13 +1279,13 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		return $labels;
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'status',
 			'amount',
 			'created',
 			'updated',
-		);
+		];
 	}
 	
 	function getContext($id_map, &$token_labels, &$token_values, $prefix=null) {

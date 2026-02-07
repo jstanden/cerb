@@ -773,10 +773,10 @@ class Context_KbCategory extends Extension_DevblocksContext implements IDevblock
 		);
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'updated_at',
-		);
+		];
 	}
 	
 	function autocomplete($term, $query=null) {
@@ -807,6 +807,7 @@ class Context_KbCategory extends Extension_DevblocksContext implements IDevblock
 			$category = DAO_KbCategory::get($category);
 		} elseif($category instanceof Model_KbCategory) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($category)) {
 			$category = Cerb_ORMHelper::recastArrayToModel($category, 'Model_KbCategory');
 		} else {

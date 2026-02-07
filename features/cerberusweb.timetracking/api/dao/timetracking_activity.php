@@ -764,10 +764,10 @@ class Context_TimeTrackingActivity extends Extension_DevblocksContext implements
 		);
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'updated_at',
-		);
+		];
 	}
 	
 	function getContext($timetracking_activity, &$token_labels, &$token_values, $prefix=null) {
@@ -782,6 +782,7 @@ class Context_TimeTrackingActivity extends Extension_DevblocksContext implements
 			$timetracking_activity = DAO_TimeTrackingActivity::get($timetracking_activity);
 		} elseif($timetracking_activity instanceof Model_TimeTrackingActivity) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($timetracking_activity)) {
 			$timetracking_activity = Cerb_ORMHelper::recastArrayToModel($timetracking_activity, 'Model_TimeTrackingActivity');
 		} else {

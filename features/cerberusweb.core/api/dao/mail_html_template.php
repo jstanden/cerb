@@ -927,11 +927,11 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 		);
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'owner__label',
 			'updated_at',
-		);
+		];
 	}
 	
 	function autocomplete($term, $query=null) {
@@ -971,6 +971,7 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 			$mail_html_template = DAO_MailHtmlTemplate::get($mail_html_template);
 		} elseif($mail_html_template instanceof Model_MailHtmlTemplate) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($mail_html_template)) {
 			$mail_html_template = Cerb_ORMHelper::recastArrayToModel($mail_html_template, 'Model_MailHtmlTemplate');
 		} else {

@@ -1496,15 +1496,15 @@ class Context_Resource extends Extension_DevblocksContext implements IDevblocksC
 		);
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'cache_until',
 			'description',
 			'extension_id',
 			'storage_size',
 			'is_dynamic',
 			'updated_at',
-		);
+		];
 	}
 	
 	function getContextIdFromAlias($alias) {
@@ -1527,6 +1527,7 @@ class Context_Resource extends Extension_DevblocksContext implements IDevblocksC
 			$resource = DAO_Resource::get($resource);
 		} elseif($resource instanceof Model_Resource) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($resource)) {
 			$resource = Cerb_ORMHelper::recastArrayToModel($resource, 'Model_Resource');
 		} else {

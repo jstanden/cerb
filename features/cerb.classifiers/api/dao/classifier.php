@@ -2614,12 +2614,12 @@ class Context_Classifier extends Extension_DevblocksContext implements IDevblock
 		);
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'owner__label',
 			'created_at',
 			'updated_at',
-		);
+		];
 	}
 	
 	function autocomplete($term, $query=null) {
@@ -2659,6 +2659,7 @@ class Context_Classifier extends Extension_DevblocksContext implements IDevblock
 			$classifier = DAO_Classifier::get($classifier);
 		} elseif($classifier instanceof Model_Classifier) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($classifier)) {
 			$classifier = Cerb_ORMHelper::recastArrayToModel($classifier, 'Model_Classifier');
 		} else {

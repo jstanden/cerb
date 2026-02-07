@@ -1092,11 +1092,11 @@ class Context_ProjectBoardColumn extends Extension_DevblocksContext implements I
 		);
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'board__label',
 			'updated_at',
-		);
+		];
 	}
 	
 	function getContext($project_board_column, &$token_labels, &$token_values, $prefix=null) {
@@ -1111,6 +1111,7 @@ class Context_ProjectBoardColumn extends Extension_DevblocksContext implements I
 			$project_board_column = DAO_ProjectBoardColumn::get($project_board_column);
 		} elseif($project_board_column instanceof Model_ProjectBoardColumn) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($project_board_column)) {
 			$project_board_column = Cerb_ORMHelper::recastArrayToModel($project_board_column, 'Model_ProjectBoardColumn');
 		} else {

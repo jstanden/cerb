@@ -1204,13 +1204,13 @@ class Context_Bot extends Extension_DevblocksContext implements IDevblocksContex
 		return $labels;
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'owner__label',
 			'mention_name',
 			'is_disabled',
 			'updated_at',
-		);
+		];
 	}
 	
 	function getContext($model, &$token_labels, &$token_values, $prefix=null) {
@@ -1226,6 +1226,7 @@ class Context_Bot extends Extension_DevblocksContext implements IDevblocksContex
 			$model = DAO_Bot::get($model);
 		} elseif($model instanceof Model_Bot) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($model)) {
 			$model = Cerb_ORMHelper::recastArrayToModel($model, 'Model_Bot');
 		} else {

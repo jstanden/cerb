@@ -1074,13 +1074,13 @@ class Context_CommunityTool extends Extension_DevblocksContext implements IDevbl
 		);
 	}
 	
-	function getDefaultProperties() {
-		return array(
+	function getDefaultProperties() : array {
+		return [
 			'extension_id',
 			'code',
 			'uri',
 			'updated_at',
-		);
+		];
 	}
 	
 	function getContextIdFromAlias($alias) {
@@ -1103,6 +1103,7 @@ class Context_CommunityTool extends Extension_DevblocksContext implements IDevbl
 			$community_tool = DAO_CommunityTool::get($community_tool);
 		} elseif($community_tool instanceof Model_CommunityTool) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($community_tool)) {
 			$community_tool = Cerb_ORMHelper::recastArrayToModel($community_tool, 'Model_CommunityTool');
 		} else {

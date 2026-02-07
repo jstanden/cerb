@@ -1131,7 +1131,7 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 		];
 	}
 	
-	function getDefaultProperties() {
+	function getDefaultProperties() : array {
 		return [
 			'updated_at'
 		];
@@ -1149,6 +1149,7 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 			$role = DAO_WorkerRole::get($role);
 		} elseif($role instanceof Model_WorkerRole) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($role)) {
 			$role = Cerb_ORMHelper::recastArrayToModel($role, 'Model_WorkerRole');
 		} else {

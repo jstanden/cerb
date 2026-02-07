@@ -949,7 +949,7 @@ class Context_PackageLibrary extends Extension_DevblocksContext implements IDevb
 		];
 	}
 	
-	function getDefaultProperties() {
+	function getDefaultProperties() : array {
 		return [
 			'description',
 			'uri',
@@ -970,6 +970,7 @@ class Context_PackageLibrary extends Extension_DevblocksContext implements IDevb
 			$package_library = DAO_PackageLibrary::get($package_library);
 		} elseif($package_library instanceof Model_PackageLibrary) {
 			// It's what we want already.
+			DevblocksPlatform::noop();
 		} elseif(is_array($package_library)) {
 			$package_library = Cerb_ORMHelper::recastArrayToModel($package_library, 'Model_PackageLibrary');
 		} else {
