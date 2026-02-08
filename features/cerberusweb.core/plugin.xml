@@ -325,7 +325,6 @@
 			<class name="Context_Contact" />
 			<class name="DAO_Contact" />
 			<class name="Model_Contact" />
-			<class name="Search_Contact" />
 			<class name="SearchFields_Contact" />
 			<class name="View_Contact" />
 		</file>
@@ -6915,17 +6914,6 @@
 			<class>
 				<file>api/dao/comment.php</file>
 				<name>Search_CommentContent</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-		
-		<extension point="devblocks.search.schema">
-			<id>cerb.search.schema.contact</id>
-			<name>Contacts</name>
-			<class>
-				<file>api/dao/contact.php</file>
-				<name>Search_Contact</name>
 			</class>
 			<params>
 			</params>

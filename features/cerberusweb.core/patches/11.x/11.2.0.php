@@ -64,6 +64,29 @@ if(!array_key_exists('search_index_tokens', $tables)) {
 // ===========================================================================
 // Convert MySQL Fulltext indexes
 
+// Contacts
+if(!$db->GetOneMaster(sprintf("SELECT id FROM search_index WHERE record_type = %s AND record_filter = %d", $db->qstr('contact'), $db->qstr('text')))) {
+	$sql = sprintf("INSERT INTO search_index (name, uri, record_type, record_filter, extension_id, extension_params_json, priority, created_at, updated_at) " .
+		"VALUES (%s, %s, %s, %s, %s, %s, %d, %d, %d)",
+		$db->qstr('Contacts'),
+		$db->qstr('contacts'),
+		$db->qstr('contact'),
+		$db->qstr('text'),
+		$db->qstr('cerb.search.index.fulltext'),
+		$db->qstr(json_encode(['record_query' => '', 'content' => "{{first_name}} {{last_name}}\n{{aliases|join(' ')}}\n{{title}}\n{{email_address}} {{emails|join(' ')}}\n{{org__label}}\n{{username}}"])),
+		0,
+		time(),
+		time(),
+	);
+	$db->ExecuteMaster($sql);
+}
+
+if(array_key_exists('fulltext_contact', $tables)) {
+	$db->ExecuteMaster('DROP TABLE fulltext_contact');
+	unset($tables['fulltext_contact']);
+	$db->ExecuteMaster("DELETE FROM cerb_property_store WHERE extension_id = 'cerb.search.schema.contact'");
+}
+
 // Jira Issues
 if(array_key_exists('fulltext_jira_issue', $tables)) {
 	$db->ExecuteMaster('DROP TABLE fulltext_jira_issue');

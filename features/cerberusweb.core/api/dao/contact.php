@@ -478,10 +478,6 @@ class DAO_Contact extends Cerb_ORMHelper {
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM contact WHERE id IN (%s)", $ids_list));
 		
-		// Clear search records
-		$search = Extension_DevblocksSearchSchema::get(Search_Contact::ID);
-		$search->delete($ids);
-		
 		parent::_deleteAbstractAfter($context, $ids);
 		
 		return true;
@@ -658,7 +654,6 @@ class SearchFields_Contact extends DevblocksSearchFields {
 	const ORG_NAME = 'o_name';
 	
 	const FULLTEXT_COMMENT_CONTENT = 'ftcc_content';
-	const FULLTEXT_CONTACT = 'ft_contact';
 
 	const VIRTUAL_ALIAS = '*_alias';
 	const VIRTUAL_EMAIL_SEARCH = '*_email_search';
@@ -688,9 +683,6 @@ class SearchFields_Contact extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
-			case self::FULLTEXT_CONTACT:
-				return self::_getWhereSQLFromFulltextField($param, Search_Contact::ID, self::getPrimaryKey());
-				
 			case self::FULLTEXT_COMMENT_CONTENT:
 				return self::_getWhereSQLFromCommentFulltextField($param, Search_CommentContent::ID, CerberusContexts::CONTEXT_CONTACT, self::getPrimaryKey());
 				
@@ -812,7 +804,6 @@ class SearchFields_Contact extends DevblocksSearchFields {
 			self::ORG_NAME => new DevblocksSearchField(self::ORG_NAME, 'contact_org', 'name', $translate->_('common.organization'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			
 			self::FULLTEXT_COMMENT_CONTENT => new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT', false),
-			self::FULLTEXT_CONTACT => new DevblocksSearchField(self::FULLTEXT_CONTACT, 'ft', 'contact', $translate->_('common.search.fulltext'), 'FT', false),
 			
 			self::VIRTUAL_ALIAS => new DevblocksSearchField(self::VIRTUAL_ALIAS, '*', 'alias', $translate->_('common.aliases'), null, false),
 			self::VIRTUAL_EMAIL_SEARCH => new DevblocksSearchField(self::VIRTUAL_EMAIL_SEARCH, '*', 'email_search', null, null, false),
@@ -825,7 +816,6 @@ class SearchFields_Contact extends DevblocksSearchFields {
 		
 		// Fulltext indexes
 		
-		$columns[self::FULLTEXT_CONTACT]->ft_schema = Search_Contact::ID;
 		$columns[self::FULLTEXT_COMMENT_CONTENT]->ft_schema = Search_CommentContent::ID;
 		
 		// Custom Fields
@@ -838,169 +828,6 @@ class SearchFields_Contact extends DevblocksSearchFields {
 		DevblocksPlatform::sortObjects($columns, 'db_label');
 
 		return $columns;
-	}
-};
-
-class Search_Contact extends Extension_DevblocksSearchSchema {
-	const ID = 'cerb.search.schema.contact';
-	
-	public function getNamespace() {
-		return 'contact';
-	}
-	
-	public function getAttributes() {
-		return array();
-	}
-	
-	public function getIdField() {
-		return 'id';
-	}
-	
-	public function getDataField() {
-		return 'content';
-	}
-	
-	public function getPrimaryKey() {
-		return 'id';
-	}
-	
-	public function reindex() {
-		$engine = $this->getEngine();
-		$meta = $engine->getIndexMeta($this);
-		
-		// If the index has a delta, start from the current record
-		if($meta['is_indexed_externally']) {
-			// Do nothing (let the remote tool update the DB)
-			
-		// Otherwise, start over
-		} else {
-			$this->setIndexPointer(self::INDEX_POINTER_RESET);
-		}
-	}
-	
-	public function setIndexPointer($pointer) {
-		switch($pointer) {
-			case self::INDEX_POINTER_RESET:
-				$this->setParam('last_indexed_id', 0);
-				$this->setParam('last_indexed_time', 0);
-				break;
-				
-			case self::INDEX_POINTER_CURRENT:
-				$this->setParam('last_indexed_id', 0);
-				$this->setParam('last_indexed_time', time());
-				break;
-		}
-	}
-	
-	private function _indexDictionary($dict, $engine) {
-		$logger = DevblocksPlatform::services()->log();
-
-		$id = $dict->id;
-		
-		if(empty($id))
-			return false;
-		
-		$doc = array(
-			'content' => implode("\n", array(
-				$dict->_label,
-				$dict->email_address,
-				implode("\n", $dict->emails),
-				$dict->org_name,
-				$dict->title,
-				$dict->location,
-				$dict->phone,
-				$dict->mobile,
-			))
-		);
-		
-		$logger->info(sprintf("[Search] Indexing %s %d...",
-			$this->getNamespace(),
-			$id
-		));
-		
-		if(false === ($engine->index($this, $id, $doc)))
-			return false;
-		
-		return true;
-	}
-	
-	public function indexIds(array $ids=array()) {
-		if(empty($ids))
-			return;
-		
-		if(false == ($engine = $this->getEngine()))
-			return false;
-		
-		if(false == ($models = DAO_Worker::getIds($ids)))
-			return;
-		
-		$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_CONTACT, array('email_'));
-		
-		if(empty($dicts))
-			return;
-		
-		foreach($dicts as $dict) {
-			$this->_indexDictionary($dict, $engine);
-		}
-	}
-	
-	public function index($stop_time=null) {
-		if(false == ($engine = $this->getEngine()))
-			return false;
-		
-		//$ns = self::getNamespace();
-		$id = $this->getParam('last_indexed_id', 0);
-		$ptr_time = $this->getParam('last_indexed_time', 0);
-		$ptr_id = $id;
-		$done = false;
-
-		while(!$done && time() < $stop_time) {
-			$where = sprintf('(%s = %d AND %s > %d) OR (%s > %d)',
-				DAO_Contact::UPDATED_AT,
-				$ptr_time,
-				DAO_Contact::ID,
-				$id,
-				DAO_Contact::UPDATED_AT,
-				$ptr_time
-			);
-			$models = DAO_Contact::getWhere($where, array(DAO_Contact::UPDATED_AT, DAO_Contact::ID), array(true, true), 100);
-
-			$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_CONTACT, array('email_'));
-			
-			if(empty($dicts)) {
-				$done = true;
-				continue;
-			}
-			
-			$last_time = $ptr_time;
-			
-			// Loop dictionaries
-			foreach($dicts as $dict) {
-				$id = $dict->id;
-				$ptr_time = $dict->updated_at;
-				
-				$ptr_id = ($last_time == $ptr_time) ? $id : 0;
-				
-				if(false == $this->_indexDictionary($dict, $engine))
-					return false;
-			}
-		}
-		
-		// If we ran out of records, always reset the ID and use the current time
-		if($done) {
-			$ptr_id = 0;
-			$ptr_time = time();
-		}
-		
-		$this->setParam('last_indexed_id', $ptr_id);
-		$this->setParam('last_indexed_time', $ptr_time);
-	}
-	
-	public function delete($ids) {
-		if(false == ($engine = $this->getEngine()))
-			return false;
-		
-		return $engine->delete($this, $ids);
 	}
 };
 
@@ -1165,7 +992,6 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Contact::AUTH_PASSWORD,
 			SearchFields_Contact::PRIMARY_EMAIL_ADDRESS,
 			SearchFields_Contact::FULLTEXT_COMMENT_CONTENT,
-			SearchFields_Contact::FULLTEXT_CONTACT,
 			SearchFields_Contact::VIRTUAL_ALIAS,
 			SearchFields_Contact::VIRTUAL_EMAIL_SEARCH,
 			SearchFields_Contact::VIRTUAL_ORG_SEARCH,
@@ -1286,7 +1112,7 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 	}
 	
 	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
-		return 'text';
+		return 'first_name';
 	}
 	
 	function getQuickSearchFields() {
@@ -1296,12 +1122,7 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 		$timezones = $date->getTimezones();
 		
 		$fields = array(
-			'text' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
-					'options' => array('param_key' => SearchFields_Contact::FULLTEXT_CONTACT),
-				),
-			'alias' => 
+			'alias' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Contact::VIRTUAL_ALIAS),
@@ -1462,19 +1283,6 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 		// Add searchable custom fields
 		
 		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_CONTACT, $fields, null);
-		
-		// Engine/schema examples: Fulltext
-		
-		$ft_examples = array();
-		
-		if(false != ($schema = Extension_DevblocksSearchSchema::get(Search_Contact::ID))) {
-			if(false != ($engine = $schema->getEngine())) {
-				$ft_examples = $engine->getQuickSearchExamples($schema);
-			}
-		}
-		
-		if(!empty($ft_examples))
-			$fields['text']['examples'] = $ft_examples;
 		
 		// Add is_sortable
 		
@@ -1648,7 +1456,6 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 				break;
 				
 			case SearchFields_Contact::FULLTEXT_COMMENT_CONTENT:
-			case SearchFields_Contact::FULLTEXT_CONTACT:
 				$scope = DevblocksPlatform::importGPC($_POST['scope'] ?? null, 'string','expert');
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;

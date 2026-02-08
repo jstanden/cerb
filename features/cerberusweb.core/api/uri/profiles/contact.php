@@ -191,10 +191,6 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 					// Avatar image
 					$avatar_image = DevblocksPlatform::importGPC($_POST['avatar_image'] ?? null, 'string', '');
 					$profile_image_changed = DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_CONTACT, $id, $avatar_image);
-					
-					// Index immediately
-					$search = Extension_DevblocksSearchSchema::get(Search_Contact::ID);
-					$search->indexIds(array($id));
 				}
 			}
 			
