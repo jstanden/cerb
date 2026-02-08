@@ -49,7 +49,7 @@
             </td>
             <td width="99%">
                 {if $model && $model->record_type}
-                    <div class="bubble">{$model->record_type}</div>
+                    <div class="bubble">{$model->record_type|capitalize}</div>
                     <input type="hidden" name="record_type" value="{$model->record_type}">
                 {else}
                     <select name="record_type">
