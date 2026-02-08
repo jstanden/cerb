@@ -402,7 +402,16 @@ class DAO_SearchIndex extends Cerb_ORMHelper {
 		
 		parent::_deleteAbstractBefore($context, $ids);
 		
-		// [TODO] Search extension cleanup
+		// Search extension cleanup
+		
+		$search_indexes = DAO_SearchIndex::getIds($ids);
+		
+		foreach($search_indexes as $search_index) {
+			$search_extension = $search_index->getExtension();
+			$search_extension->deleteIndex($search_index);
+		}
+		
+		// Delete the primary records
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM search_index WHERE id IN (%s)", $ids_list));
 		

@@ -496,4 +496,20 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		
 		return array_keys($record_dicts);
 	}
+	
+	public function deleteIndex(Model_SearchIndex $model): bool {
+		$db = DevblocksPlatform::services()->database();
+		$registry = DevblocksPlatform::services()->registry();
+		
+		$sql = sprintf("DROP TABLE IF EXISTS search_index_%d", $model->id);
+		$db->ExecuteMaster($sql);
+		
+		$param_key_last_indexed_at = sprintf('search_index_%d.last_indexed_at', $model->id);
+		$registry->delete($param_key_last_indexed_at);
+		
+		$param_key_last_indexed_id = sprintf('search_index_%d.last_indexed_id', $model->id);
+		$registry->delete($param_key_last_indexed_id);
+		
+		return true;
+	}
 }

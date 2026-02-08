@@ -28,6 +28,8 @@ abstract class Extension_SearchIndex extends DevblocksExtension {
 	
 	abstract public function queryDocumentsWithScore(Model_SearchIndex $model, string $query, int $limit = 100): array;
 	
+	abstract public function deleteIndex(Model_SearchIndex $model): bool;
+	
 	/**
 	 * @internal
 	 */
