@@ -823,6 +823,8 @@ class _DevblocksSheetServiceTypes {
 				$icon = $this->icon()($icon_column, $sheet_dict);
 			}
 			
+			$not_underlined = !array_key_exists('underline', $column_params) || !($column_params['underline'] ?? null);
+			
 			if('text' == ($environment['format'] ?? null)) {
 				return '';
 				
@@ -830,10 +832,11 @@ class _DevblocksSheetServiceTypes {
 				if(!$uri)
 					return $text;
 				
-				return sprintf('%s<a class="cerb-interaction-trigger" data-interaction-uri="%s" data-interaction-params="%s" data-interaction-done="&refresh_widgets=no">%s</a>',
+				return sprintf('%s<a class="cerb-interaction-trigger" data-interaction-uri="%s" data-interaction-params="%s" data-interaction-done="&refresh_widgets=no" style="text-decoration:%s;">%s</a>',
 					$icon,
 					DevblocksPlatform::strEscapeHtml($uri),
 					DevblocksPlatform::services()->url()->arrayToQueryString($inputs),
+					DevblocksPlatform::strEscapeHtml($not_underlined ? 'none' : 'underline'),
 					DevblocksPlatform::strEscapeHtml($text)
 				);
 			}
