@@ -91,6 +91,14 @@
                                 <abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>
                             {/if}
                         </td>
+                    {elseif $column == "r_extension_id"}
+                        <td data-column="{$column}" title="{$result.$column}">
+                            {if $search_extensions && array_key_exists($result.$column, $search_extensions)}
+                                {$search_extensions[$result.$column]->name}
+                            {else}
+                                {$result.$column}
+                            {/if}
+                        </td>
                     {else}
                         <td data-column="{$column}">{$result.$column}</td>
                     {/if}

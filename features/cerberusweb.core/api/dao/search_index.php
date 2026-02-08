@@ -856,6 +856,10 @@ class View_SearchIndex extends C4_AbstractView implements IAbstractView_Subtotal
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 		
+		// Search extensions
+		$search_extensions = Extension_SearchIndex::getAll(false);
+		$tpl->assign('search_extensions', $search_extensions);
+		
 		// Custom fields
 		$custom_fields = DAO_CustomField::getByContext(Context_SearchIndex::ID);
 		$tpl->assign('custom_fields', $custom_fields);
