@@ -333,7 +333,6 @@
 			<class name="Context_Org" />
 			<class name="DAO_ContactOrg" />
 			<class name="Model_ContactOrg" />
-			<class name="Search_Org" />
 			<class name="SearchFields_ContactOrg" />
 			<class name="View_ContactOrg" />
 		</file>
@@ -6936,17 +6935,6 @@
 			<class>
 				<file>api/dao/message_headers.php</file>
 				<name>Search_MessageHeaders</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-		
-		<extension point="devblocks.search.schema">
-			<id>cerb.search.schema.org</id>
-			<name>Organizations</name>
-			<class>
-				<file>api/dao/contact_org.php</file>
-				<name>Search_Org</name>
 			</class>
 			<params>
 			</params>

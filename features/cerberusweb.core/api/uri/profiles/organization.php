@@ -157,10 +157,6 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 					
 					// Comments
 					DAO_Comment::handleFormPost(CerberusContexts::CONTEXT_ORG, $id);
-					
-					// Index immediately
-					$search = Extension_DevblocksSearchSchema::get(Search_Org::ID);
-					$search->indexIds(array($id));
 				}
 			}
 			

@@ -87,6 +87,28 @@ if(array_key_exists('fulltext_contact', $tables)) {
 	$db->ExecuteMaster("DELETE FROM cerb_property_store WHERE extension_id = 'cerb.search.schema.contact'");
 }
 
+// Organizations
+if(!$db->GetOneMaster(sprintf("SELECT id FROM search_index WHERE record_type = %s AND record_filter = %d", $db->qstr('org'), $db->qstr('text')))) {
+	$sql = sprintf("INSERT INTO search_index (name, uri, record_type, record_filter, extension_id, extension_params_json, priority, created_at, updated_at) " .
+		"VALUES (%s, %s, %s, %s, %s, %s, %d, %d, %d)",
+		$db->qstr('Organizations'),
+		$db->qstr('orgs'),
+		$db->qstr('org'),
+		$db->qstr('text'),
+		$db->qstr('cerb.search.index.fulltext'),
+		$db->qstr(json_encode(['record_query' => '', 'content' => "{{name}}\n{{aliases|join(' ')}}\n{{street}} {{city}} {{province}} {{postal}} {{country}}\n{{website}}\n{{email_address}}"])),
+		0,
+		time(),
+		time(),
+	);
+	$db->ExecuteMaster($sql);
+}
+
+if(array_key_exists('fulltext_org', $tables)) {
+	$db->ExecuteMaster('DROP TABLE fulltext_org');
+	unset($tables['fulltext_org']);
+	$db->ExecuteMaster("DELETE FROM cerb_property_store WHERE extension_id = 'cerb.search.schema.org'");
+}
 // Jira Issues
 if(array_key_exists('fulltext_jira_issue', $tables)) {
 	$db->ExecuteMaster('DROP TABLE fulltext_jira_issue');
