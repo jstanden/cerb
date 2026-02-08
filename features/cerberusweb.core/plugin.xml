@@ -5203,6 +5203,26 @@
 			<params/>
 		</extension>
 
+		<!-- Search Index Extensions -->
+
+		<extension point="cerb.search.index">
+			<id>cerb.search.index.fulltext</id>
+			<name>Full-Text (built-in)</name>
+			<class>
+				<file>api/Extensions/SearchIndex/SearchIndex_Fulltext.php</file>
+				<name>Cerb\Extensions\SearchIndex\SearchIndex_Fulltext</name>
+			</class>
+			<params>
+				<param key="description" value="A keyword-based search index using TF-IDF" />
+				<param key="options">
+					<value>
+						<data key="index" />
+						<data key="query" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
 		<!-- Triggers -->
 
 		<extension point="cerb.automation.trigger">

@@ -806,6 +806,21 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 		};
 	}
 	
+	static function _getWhereSQLFromSearchIndexField(DevblocksSearchCriteria $param, $join_key) : string {
+		$index_id = intval($param->value['index_id'] ?? 0);
+		$query = $param->value['query'] ?? '';
+		
+		if(!($search_index = DAO_SearchIndex::get($index_id)))
+			return '-1';
+		
+		$search_ext = $search_index->getExtension();
+		
+		if(!($sql = $search_ext->queryJoinFromRecordQuickSearch($search_index, $query)))
+			return '-1';
+		
+		return sprintf("%s IN (%s) ", $join_key, $sql);
+	}
+	
 	static function _getWhereSQLFromFulltextField(DevblocksSearchCriteria $param, $schema, $join_key, $attributes=[], $allow_wildcards=true) {
 		if(!($search = Extension_DevblocksSearchSchema::get($schema)))
 			return null;
@@ -1776,6 +1791,7 @@ class DevblocksSearchCriteria {
 	const TYPE_NUMBER_MS = 'number_ms';
 	const TYPE_NUMBER_SECONDS = 'number_seconds';
 	const TYPE_SEARCH = 'search';
+	const TYPE_SEARCH_INDEX = 'search_index';
 	const TYPE_TEXT = 'text';
 	const TYPE_VIRTUAL = 'virtual';
 	const TYPE_WORKER = 'worker';
@@ -1890,6 +1906,13 @@ class DevblocksSearchCriteria {
 			case DevblocksSearchCriteria::TYPE_NUMBER_SECONDS:
 				$tokens = CerbQuickSearchLexer::getHumanTimeTokensAsNumbers($tokens);
 				return DevblocksSearchCriteria::getNumberParamFromTokens($param_key, $tokens);
+			
+			case DevblocksSearchCriteria::TYPE_SEARCH_INDEX:
+				$index_id = $search_field['options']['index_id'] ?? 0;
+				
+				if($param_key && ($param = DevblocksSearchCriteria::getSearchIndexParamFromTokens($param_key, $tokens, $index_id)))
+					return $param;
+				break;
 				
 			case DevblocksSearchCriteria::TYPE_TEXT:
 				$match_type = $search_field['options']['match'] ?? null;
@@ -2748,7 +2771,7 @@ class DevblocksSearchCriteria {
 			$new_tokens = [];
 			
 			foreach($tokens[0]->children as $token) {
-				if($token->type == 'T_FIELD' && $token->value == 'text')
+				if($token->type == 'T_FIELD' && $token->value == '_text')
 					$new_tokens = array_merge($new_tokens, $token->children);
 			}
 			
@@ -2775,6 +2798,51 @@ class DevblocksSearchCriteria {
 				implode(' ', $terms),
 				'expert'
 			)
+		);
+	}
+	
+	public static function getSearchIndexParamFromTokens($field_key, $tokens, $index_id) : ?DevblocksSearchCriteria {
+		$oper = DevblocksSearchCriteria::OPER_CUSTOM;
+		
+		$terms = [];
+		
+		// Unwrap a parenthetical group ("quoted phrase" terms)
+		if(
+			is_array($tokens)
+			&& array_key_exists(0, $tokens)
+			&& $tokens[0] instanceof CerbQuickSearchLexerToken
+			&& $tokens[0]->type == 'T_GROUP'
+		) {
+			$new_tokens = [];
+			
+			foreach($tokens[0]->children as $token) {
+				if($token->type == 'T_FIELD' && $token->value == '_text')
+					$new_tokens = array_merge($new_tokens, $token->children);
+			}
+			
+			$tokens = $new_tokens;
+			unset($new_tokens);
+		}
+		
+		foreach($tokens as $token) {
+			switch($token->type) {
+				case 'T_QUOTED_TEXT':
+					$terms[] = '"' . $token->value . '"';
+					break;
+					
+				case 'T_TEXT':
+					$terms[] = $token->value;
+					break;
+			}
+		}
+		
+		return new DevblocksSearchCriteria(
+			$field_key,
+			$oper,
+			[
+				'index_id' => $index_id,
+				'query' => implode(' ', $terms),
+			]
 		);
 	}
 	

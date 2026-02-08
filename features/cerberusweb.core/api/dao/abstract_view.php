@@ -4544,6 +4544,9 @@ class CerbQuickSearchLexer {
 		$params = null;
 		self::buildParams($tokens, $params);
 		
+		if(!is_array($params))
+			return [];
+		
 		// Remove the outer grouping if it's not necessary
 		if($params[0] == 'AND') {
 			array_shift($params);

@@ -211,9 +211,10 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		
 		// [TODO] This should be able to take a simplified JSON view model
 		
-		if(null == ($context_ext = Extension_DevblocksContext::get($context))) { /* @var $context_ext Extension_DevblocksContext */
+		if(null == ($context_ext = Extension_DevblocksContext::getByAlias($context, true))) /* @var $context_ext Extension_DevblocksContext */
 			return;
-		}
+		
+		$context = $context_ext->id;
 		
 		if(!isset($context_ext->manifest->params['view_class']))
 			return;
