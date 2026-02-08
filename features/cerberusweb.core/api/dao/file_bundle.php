@@ -633,9 +633,6 @@ class View_FileBundle extends C4_AbstractView implements IAbstractView_Subtotals
 			SearchFields_FileBundle::OWNER_CONTEXT_ID,
 			SearchFields_FileBundle::FULLTEXT_COMMENT_CONTENT,
 			SearchFields_FileBundle::VIRTUAL_USABLE_BY,
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
-			DevblocksSearchField::VIRTUAL_WATCHERS,
 		]);
 
 

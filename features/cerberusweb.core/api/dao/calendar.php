@@ -1008,9 +1008,6 @@ class View_Calendar extends C4_AbstractView implements IAbstractView_Subtotals, 
 			SearchFields_Calendar::OWNER_CONTEXT_ID,
 			SearchFields_Calendar::PARAMS_JSON,
 			SearchFields_Calendar::VIRTUAL_WORKER_AVAILABILITY,
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
-			DevblocksSearchField::VIRTUAL_WATCHERS,
 		]);
 
 		$this->doResetCriteria();

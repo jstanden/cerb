@@ -838,7 +838,6 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 			SearchFields_ContextScheduledBehavior::VARIABLES_JSON,
 			SearchFields_ContextScheduledBehavior::VIRTUAL_BEHAVIOR_SEARCH,
 			SearchFields_ContextScheduledBehavior::VIRTUAL_BOT_SEARCH,
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
 		]);
 
 		$this->doResetCriteria();

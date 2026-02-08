@@ -525,8 +525,6 @@ class View_Reminder extends C4_AbstractView implements IAbstractView_Subtotals, 
 		];
 		
 		$this->addColumnsHidden([
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
 			SearchFields_Reminder::VIRTUAL_WORKER_SEARCH,
 		]);
 

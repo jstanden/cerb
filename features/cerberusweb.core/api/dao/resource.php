@@ -759,11 +759,6 @@ class View_Resource extends C4_AbstractView implements IAbstractView_Subtotals, 
 			SearchFields_Resource::UPDATED_AT,
 		];
 		
-		$this->addColumnsHidden([
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
-		]);
-		
 		$this->doResetCriteria();
 	}
 	

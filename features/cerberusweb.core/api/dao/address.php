@@ -1414,9 +1414,6 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Address::VIRTUAL_TICKET_ID,
 			SearchFields_Address::VIRTUAL_TICKET_SEARCH,
 			SearchFields_Address::VIRTUAL_WORKER_SEARCH,
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
-			DevblocksSearchField::VIRTUAL_WATCHERS,
 		]);
 	}
 	

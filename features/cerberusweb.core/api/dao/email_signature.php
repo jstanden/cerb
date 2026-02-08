@@ -546,8 +546,6 @@ class View_EmailSignature extends C4_AbstractView implements IAbstractView_Subto
 		$this->addColumnsHidden([
 			SearchFields_EmailSignature::OWNER_CONTEXT,
 			SearchFields_EmailSignature::OWNER_CONTEXT_ID,
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
 		]);
 
 		$this->doResetCriteria();

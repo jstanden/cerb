@@ -573,11 +573,6 @@ class View_OAuthApp extends C4_AbstractView implements IAbstractView_Subtotals, 
 			SearchFields_OAuthApp::UPDATED_AT,
 		];
 		
-		$this->addColumnsHidden([
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
-		]);
-
 		$this->doResetCriteria();
 	}
 	

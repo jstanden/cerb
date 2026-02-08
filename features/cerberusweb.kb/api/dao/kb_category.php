@@ -1045,12 +1045,6 @@ class View_KbCategory extends C4_AbstractView implements IAbstractView_Subtotals
 			SearchFields_KbCategory::UPDATED_AT,
 		];
 		
-		$this->addColumnsHidden([
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
-			DevblocksSearchField::VIRTUAL_WATCHERS,
-		]);
-
 		$this->doResetCriteria();
 	}
 	

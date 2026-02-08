@@ -532,7 +532,6 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 		
 		$this->addColumnsHidden([
 			SearchFields_CalendarEvent::ID,
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
 		]);
 
 		$this->doResetCriteria();

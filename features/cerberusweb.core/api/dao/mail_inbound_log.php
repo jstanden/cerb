@@ -623,8 +623,6 @@ class View_MailInboundLog extends C4_AbstractView implements IAbstractView_Subto
 			SearchFields_MailInboundLog::VIRTUAL_MESSAGE_SEARCH,
 			SearchFields_MailInboundLog::VIRTUAL_SENDER_SEARCH,
 			SearchFields_MailInboundLog::VIRTUAL_TICKET_SEARCH,
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
 		]);
 		
 		$this->doResetCriteria();

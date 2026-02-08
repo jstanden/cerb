@@ -636,12 +636,6 @@ class View_SearchIndex extends C4_AbstractView implements IAbstractView_Subtotal
 			SearchFields_SearchIndex::UPDATED_AT,
 		];
 		
-		$this->addColumnsHidden([
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
-			DevblocksSearchField::VIRTUAL_WATCHERS,
-		]);
-		
 		$this->doResetCriteria();
 	}
 	

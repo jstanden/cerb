@@ -541,9 +541,6 @@ class View_FeedItem extends C4_AbstractView implements IAbstractView_Subtotals, 
 			SearchFields_FeedItem::ID,
 			SearchFields_FeedItem::FULLTEXT_COMMENT_CONTENT,
 			SearchFields_FeedItem::VIRTUAL_FEED_SEARCH,
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
-			DevblocksSearchField::VIRTUAL_WATCHERS,
 		]);
 
 		$this->doResetCriteria();

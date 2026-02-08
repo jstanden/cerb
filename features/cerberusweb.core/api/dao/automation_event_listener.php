@@ -527,11 +527,6 @@ class View_AutomationEventListener extends C4_AbstractView implements IAbstractV
 			SearchFields_AutomationEventListener::UPDATED_AT,
 		];
 		
-		$this->addColumnsHidden([
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
-		]);
-		
 		$this->doResetCriteria();
 	}
 	

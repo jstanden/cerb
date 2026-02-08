@@ -566,9 +566,6 @@ class View_ProjectBoard extends C4_AbstractView implements IAbstractView_Subtota
 		$this->addColumnsHidden([
 			SearchFields_ProjectBoard::OWNER_CONTEXT,
 			SearchFields_ProjectBoard::OWNER_CONTEXT_ID,
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
-			DevblocksSearchField::VIRTUAL_WATCHERS,
 		]);
 
 		$this->doResetCriteria();

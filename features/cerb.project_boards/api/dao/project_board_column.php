@@ -705,9 +705,6 @@ class View_ProjectBoardColumn extends C4_AbstractView implements IAbstractView_S
 		
 		$this->addColumnsHidden([
 			SearchFields_ProjectBoardColumn::VIRTUAL_BOARD_SEARCH,
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
-			DevblocksSearchField::VIRTUAL_WATCHERS,
 		]);
 
 		$this->doResetCriteria();

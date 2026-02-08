@@ -3199,9 +3199,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Ticket::VIRTUAL_WATCHERS_COUNT,
 			SearchFields_Ticket::VIRTUAL_WORKER_COMMENTED,
 			SearchFields_Ticket::VIRTUAL_WORKER_REPLIED,
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
-			DevblocksSearchField::VIRTUAL_WATCHERS,
 		]);
 
 		$this->doResetCriteria();

@@ -23,6 +23,12 @@ abstract class C4_AbstractView {
 	
 	public $view_columns = [];
 	private $_columnsHidden = [];
+	private $_columnsHiddenDefaults = [
+		DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
+		DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
+		DevblocksSearchField::VIRTUAL_SEARCH_INDEX,
+		DevblocksSearchField::VIRTUAL_WATCHERS
+	];
 	
 	private $_paramsQuery = null;
 	private $_paramsEditable = [];
@@ -400,11 +406,8 @@ abstract class C4_AbstractView {
 
 	function getColumnsAvailable() {
 		$columns = $this->getFields();
-		
-		foreach($this->getColumnsHidden() as $col)
-			unset($columns[$col]);
-			
-		return $columns;
+		$columns_hidden = array_merge($this->getColumnsHidden(), $this->_columnsHiddenDefaults);
+		return array_diff_key($columns, array_fill_keys($columns_hidden, true));
 	}
 	
 	// Columns Hidden

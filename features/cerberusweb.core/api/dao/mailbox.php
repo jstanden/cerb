@@ -719,9 +719,6 @@ class View_Mailbox extends C4_AbstractView implements IAbstractView_Subtotals, I
 
 		$this->addColumnsHidden([
 			SearchFields_Mailbox::PASSWORD,
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
-			DevblocksSearchField::VIRTUAL_WATCHERS,
 		]);
 
 		$this->doResetCriteria();

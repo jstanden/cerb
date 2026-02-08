@@ -1857,7 +1857,6 @@ class View_CustomField extends C4_AbstractView implements IAbstractView_Subtotal
 		$this->addColumnsHidden([
 			SearchFields_CustomField::PARAMS_JSON,
 			SearchFields_CustomField::VIRTUAL_FIELDSET_SEARCH,
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
 		]);
 
 		$this->doResetCriteria();

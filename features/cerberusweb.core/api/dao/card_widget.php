@@ -622,8 +622,6 @@ class View_CardWidget extends C4_AbstractView implements IAbstractView_Subtotals
 		
 		$this->addColumnsHidden([
 			SearchFields_CardWidget::EXTENSION_PARAMS_JSON,
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
 		]);
 
 		$this->doResetCriteria();

@@ -715,7 +715,6 @@ class View_CustomFieldset extends C4_AbstractView implements IAbstractView_Subto
 		$this->addColumnsHidden([
 			SearchFields_CustomFieldset::OWNER_CONTEXT,
 			SearchFields_CustomFieldset::OWNER_CONTEXT_ID,
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
 		]);
 		
 		$this->doResetCriteria();

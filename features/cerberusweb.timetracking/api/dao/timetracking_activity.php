@@ -459,11 +459,6 @@ class View_TimeTrackingActivity extends C4_AbstractView implements IAbstractView
 			SearchFields_TimeTrackingActivity::UPDATED_AT,
 		];
 		
-		$this->addColumnsHidden([
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
-		]);
-
 		$this->doResetCriteria();
 	}
 	

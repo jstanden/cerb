@@ -790,9 +790,6 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 			SearchFields_Task::ID,
 			SearchFields_Task::FULLTEXT_COMMENT_CONTENT,
 			SearchFields_Task::VIRTUAL_OWNER_SEARCH,
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
-			DevblocksSearchField::VIRTUAL_WATCHERS,
 		]);
 
 		$this->addParamsDefault(array(

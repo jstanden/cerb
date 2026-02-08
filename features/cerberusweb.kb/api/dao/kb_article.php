@@ -1418,9 +1418,6 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 			SearchFields_KbArticle::CONTENT,
 			SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT,
 			SearchFields_KbArticle::TOP_CATEGORY_ID,
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
-			DevblocksSearchField::VIRTUAL_WATCHERS,
 		]);
 
 		$this->doResetCriteria();

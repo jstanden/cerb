@@ -938,8 +938,6 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Snippet::OWNER_CONTEXT_ID,
 			SearchFields_Snippet::FULLTEXT_SNIPPET,
 			SearchFields_Snippet::VIRTUAL_USABLE_BY,
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
 		]);
 
 		$this->doResetCriteria();

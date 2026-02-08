@@ -523,7 +523,6 @@ class View_WebApiCredentials extends C4_AbstractView implements IAbstractView_Qu
 			SearchFields_WebApiCredentials::PARAMS_JSON,
 			SearchFields_WebApiCredentials::SECRET_KEY,
 			SearchFields_WebApiCredentials::VIRTUAL_WORKER_SEARCH,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
 		]);
 
 		$this->doResetCriteria();

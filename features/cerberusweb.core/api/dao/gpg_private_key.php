@@ -493,12 +493,6 @@ class View_GpgPrivateKey extends C4_AbstractView implements IAbstractView_Subtot
 			SearchFields_GpgPrivateKey::UPDATED_AT,
 		];
 		
-		$this->addColumnsHidden([
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
-			DevblocksSearchField::VIRTUAL_WATCHERS,
-		]);
-
 		$this->doResetCriteria();
 	}
 	

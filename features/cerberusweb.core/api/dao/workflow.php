@@ -1256,9 +1256,6 @@ class View_Workflow extends C4_AbstractView implements IAbstractView_Subtotals, 
 			SearchFields_Workflow::CONFIG_KATA,
 			SearchFields_Workflow::RESOURCES_KATA,
 			SearchFields_Workflow::VIRTUAL_ATTACHMENTS_SEARCH,
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
-			DevblocksSearchField::VIRTUAL_WATCHERS,
 		]);
 		
 		$this->doResetCriteria();

@@ -670,8 +670,6 @@ class View_ProfileWidget extends C4_AbstractView implements IAbstractView_Subtot
 		$this->addColumnsHidden([
 			SearchFields_ProfileWidget::EXTENSION_PARAMS_JSON,
 			SearchFields_ProfileWidget::VIRTUAL_TAB_SEARCH,
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
 		]);
 
 		$this->doResetCriteria();

@@ -1491,9 +1491,6 @@ class View_Bucket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		
 		$this->addColumnsHidden([
 			SearchFields_Bucket::VIRTUAL_GROUP_SEARCH,
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
-			DevblocksSearchField::VIRTUAL_WATCHERS,
 		]);
 
 		$this->doResetCriteria();

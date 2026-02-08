@@ -1373,8 +1373,6 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 		$this->addColumnsHidden([
 			SearchFields_Attachment::VIRTUAL_BUNDLE_SEARCH,
 			SearchFields_Attachment::VIRTUAL_ON,
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
 		]);
 
 		$this->doResetCriteria();

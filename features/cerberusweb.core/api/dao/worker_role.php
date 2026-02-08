@@ -754,8 +754,6 @@ class View_WorkerRole extends C4_AbstractView implements IAbstractView_Subtotals
 			SearchFields_WorkerRole::VIRTUAL_EDITOR_SEARCH,
 			SearchFields_WorkerRole::VIRTUAL_MEMBER_SEARCH,
 			SearchFields_WorkerRole::VIRTUAL_READER_SEARCH,
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
 		]);
 
 		$this->doResetCriteria();

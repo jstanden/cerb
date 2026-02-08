@@ -629,7 +629,6 @@ class View_ContextSavedSearch extends C4_AbstractView implements IAbstractView_S
 		$this->addColumnsHidden([
 			SearchFields_ContextSavedSearch::OWNER_CONTEXT,
 			SearchFields_ContextSavedSearch::OWNER_CONTEXT_ID,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
 		]);
 
 		$this->doResetCriteria();

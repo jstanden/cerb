@@ -574,8 +574,6 @@ class View_MailHtmlTemplate extends C4_AbstractView implements IAbstractView_Sub
 		
 		$this->addColumnsHidden([
 			SearchFields_MailHtmlTemplate::FULLTEXT_COMMENT_CONTENT,
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
 		]);
 
 		$this->doResetCriteria();

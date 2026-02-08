@@ -745,9 +745,6 @@ class View_AbstractCustomRecord extends C4_AbstractView implements IAbstractView
 			SearchFields_AbstractCustomRecord::OWNER_CONTEXT,
 			SearchFields_AbstractCustomRecord::OWNER_CONTEXT_ID,
 			SearchFields_AbstractCustomRecord::VIRTUAL_COMMENTS_SEARCH,
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
-			DevblocksSearchField::VIRTUAL_WATCHERS,
 		]);
 		
 		$this->doResetCriteria();

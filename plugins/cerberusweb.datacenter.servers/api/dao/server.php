@@ -981,9 +981,6 @@ class View_Server extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		// Filter cols
 		$this->addColumnsHidden([
 			SearchFields_Server::FULLTEXT_COMMENT_CONTENT,
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
-			DevblocksSearchField::VIRTUAL_WATCHERS,
 		]);
 
 		$this->doResetCriteria();

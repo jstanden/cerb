@@ -632,9 +632,6 @@ class View_Metric extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		
 		$this->addColumnsHidden([
 			SearchFields_Metric::DIMENSIONS_KATA,
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
-			DevblocksSearchField::VIRTUAL_WATCHERS,
 		]);
 		
 		$this->doResetCriteria();

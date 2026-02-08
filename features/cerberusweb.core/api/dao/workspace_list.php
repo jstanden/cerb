@@ -647,8 +647,6 @@ class View_WorkspaceList extends C4_AbstractView implements IAbstractView_Subtot
 
 		$this->addColumnsHidden([
 			SearchFields_WorkspaceList::VIRTUAL_TAB_SEARCH,
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
 		]);
 
 		$this->doResetCriteria();

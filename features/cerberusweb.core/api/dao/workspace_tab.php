@@ -821,8 +821,6 @@ class View_WorkspaceTab extends C4_AbstractView implements IAbstractView_Subtota
 		
 		$this->addColumnsHidden([
 			SearchFields_WorkspaceTab::VIRTUAL_PAGE_SEARCH,
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
 		]);
 
 		$this->doResetCriteria();

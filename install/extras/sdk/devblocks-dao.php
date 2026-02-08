@@ -505,12 +505,10 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 	}
 	?>
 		];
-		// [TODO] Filter fields
+
 		$this->addColumnsHidden([
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
-			DevblocksSearchField::VIRTUAL_WATCHERS,
-		]);
+	    	// [TODO] Filter fields
+        ]);
 		
 		$this->doResetCriteria();
 	}

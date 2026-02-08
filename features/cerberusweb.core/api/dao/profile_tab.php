@@ -551,10 +551,6 @@ class View_ProfileTab extends C4_AbstractView implements IAbstractView_Subtotals
 			SearchFields_ProfileTab::EXTENSION_ID,
 			SearchFields_ProfileTab::UPDATED_AT,
 		];
-		$this->addColumnsHidden([
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
-		]);
 		
 		$this->doResetCriteria();
 	}

@@ -806,9 +806,6 @@ class View_JiraIssue extends C4_AbstractView implements IAbstractView_Subtotals,
 		$this->addColumnsHidden([
 			SearchFields_JiraIssue::JIRA_ID,
 			SearchFields_JiraIssue::VIRTUAL_PROJECT_SEARCH,
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
-			DevblocksSearchField::VIRTUAL_WATCHERS,
 		]);
 
 		$this->doResetCriteria();

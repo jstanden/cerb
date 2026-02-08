@@ -537,10 +537,6 @@ class View_ToolbarSection extends C4_AbstractView implements IAbstractView_Subto
 			SearchFields_ToolbarSection::WORKFLOW_ID,
 			SearchFields_ToolbarSection::UPDATED_AT,
 		];
-		$this->addColumnsHidden([
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
-		]);
 		
 		$this->doResetCriteria();
 	}

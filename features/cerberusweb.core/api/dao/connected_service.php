@@ -571,11 +571,6 @@ class View_ConnectedService extends C4_AbstractView implements IAbstractView_Sub
 			SearchFields_ConnectedService::UPDATED_AT,
 		];
 		
-		$this->addColumnsHidden([
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
-		]);
-
 		$this->doResetCriteria();
 	}
 	

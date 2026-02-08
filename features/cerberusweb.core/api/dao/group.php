@@ -1372,8 +1372,6 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 		];
 		
 		$this->addColumnsHidden([
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
 			SearchFields_Group::VIRTUAL_MANAGER_SEARCH,
 			SearchFields_Group::VIRTUAL_MEMBER_SEARCH,
 		]);

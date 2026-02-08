@@ -741,8 +741,6 @@ class View_ConnectedAccount extends C4_AbstractView implements IAbstractView_Sub
 			SearchFields_ConnectedAccount::OWNER_CONTEXT,
 			SearchFields_ConnectedAccount::OWNER_CONTEXT_ID,
 			SearchFields_ConnectedAccount::VIRTUAL_SERVICE_SEARCH,
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
 		]);
 
 		$this->doResetCriteria();

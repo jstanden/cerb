@@ -968,8 +968,6 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Comment::OWNER_CONTEXT,
 			SearchFields_Comment::OWNER_CONTEXT_ID,
 			SearchFields_Comment::VIRTUAL_ATTACHMENTS_SEARCH,
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
 			DevblocksSearchField::VIRTUAL_OWNER,
 		]);
 

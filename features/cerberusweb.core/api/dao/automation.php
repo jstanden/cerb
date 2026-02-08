@@ -1226,9 +1226,6 @@ class View_Automation extends C4_AbstractView implements IAbstractView_Subtotals
 		
 		$this->addColumnsHidden([
 			SearchFields_Automation::FULLTEXT_AUTOMATION,
-			DevblocksSearchField::VIRTUAL_CONTEXT_LINK,
-			DevblocksSearchField::VIRTUAL_HAS_FIELDSET,
-			DevblocksSearchField::VIRTUAL_WATCHERS,
 		]);
 
 		$this->doResetCriteria();
