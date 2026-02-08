@@ -1701,6 +1701,7 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 		// Token labels
 		$token_labels = array(
 			'_label' => $prefix,
+			'aliases' => $prefix.$translate->_('common.aliases'),
 			'dob' => $prefix.$translate->_('common.dob'),
 			'first_name' => $prefix.$translate->_('common.name.first'),
 			'gender' => $prefix.$translate->_('common.gender'),
@@ -1722,6 +1723,7 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 		// Token types
 		$token_types = array(
 			'_label' => 'context_url',
+			'aliases' => Model_CustomField::TYPE_LIST,
 			'dob' => Model_CustomField::TYPE_SINGLE_LINE,
 			'first_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'gender' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -1924,6 +1926,11 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 	function lazyLoadGetKeys() {
 		$lazy_keys = parent::lazyLoadGetKeys();
 		
+		$lazy_keys['aliases'] = [
+			'label' => 'Aliases',
+			'type' => 'List of Text',
+		];
+		
 		$lazy_keys['emails'] = [
 			'label' => 'Email Addresses',
 			'type' => 'Records',
@@ -1958,8 +1965,12 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 		}
 		
 		switch($token) {
+			case 'aliases':
+				$values['aliases'] = DAO_ContextAlias::get($context, $context_id);
+				break;
+			
 			case 'emails':
-				$values['emails'] = array();
+				$values['emails'] = [];
 				
 				$addresses = DAO_Address::getWhere(sprintf("%s = %d",
 					Cerb_ORMHelper::escape(DAO_Address::CONTACT_ID),
