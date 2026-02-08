@@ -694,7 +694,6 @@
 			<class name="Context_Snippet" />
 			<class name="DAO_Snippet" />
 			<class name="Model_Snippet" />
-			<class name="Search_Snippet" />
 			<class name="SearchFields_Snippet" />
 			<class name="View_Snippet" />
 		</file>
@@ -6965,17 +6964,6 @@
 			</params>
 		</extension>
 		
-		<extension point="devblocks.search.schema">
-			<id>cerb.search.schema.snippet</id>
-			<name>Snippets</name>
-			<class>
-				<file>api/dao/snippet.php</file>
-				<name>Search_Snippet</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-	
 		<extension point="devblocks.search.schema">
 			<id>cerb.search.schema.worker</id>
 			<name>Workers</name>

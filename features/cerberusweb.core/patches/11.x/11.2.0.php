@@ -62,6 +62,32 @@ if(!array_key_exists('search_index_tokens', $tables)) {
 }
 
 // ===========================================================================
+// Convert MySQL Fulltext indexes
+
+// Snippets
+if(!$db->GetOneMaster(sprintf("SELECT id FROM search_index WHERE record_type = %s AND record_filter = %d", $db->qstr('snippet'), $db->qstr('text')))) {
+	$sql = sprintf("INSERT INTO search_index (name, uri, record_type, record_filter, extension_id, extension_params_json, priority, created_at, updated_at) " .
+		"VALUES (%s, %s, %s, %s, %s, %s, %d, %d, %d)",
+		$db->qstr('Snippets Content'),
+		$db->qstr('snippets'),
+		$db->qstr('snippet'),
+		$db->qstr('text'),
+		$db->qstr('cerb.search.index.fulltext'),
+		$db->qstr(json_encode(['record_query' => '', 'content' => "{{title}}\n\n{{content}}"])),
+		0,
+		time(),
+		time(),
+	);
+	$db->ExecuteMaster($sql);
+}
+
+if(array_key_exists('fulltext_snippet', $tables)) {
+	$db->ExecuteMaster('DROP TABLE fulltext_snippet');
+	unset($tables['fulltext_snippet']);
+	$db->ExecuteMaster("DELETE FROM cerb_property_store WHERE extension_id = 'cerb.search.schema.snippet'");
+}
+
+// ===========================================================================
 // Convert `custom_field_clobvalue.field_value` to utf8mb4
 
 if(!array_key_exists('custom_field_clobvalue', $tables))

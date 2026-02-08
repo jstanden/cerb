@@ -364,9 +364,6 @@ class DAO_Snippet extends Cerb_ORMHelper {
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM snippet WHERE id IN (%s)", $ids_list));
 		
-		$search = Extension_DevblocksSearchSchema::get(Search_Snippet::ID);
-		$search->delete($ids);
-		
 		parent::_deleteAbstractAfter($context, $ids);
 		
 		return true;
@@ -497,9 +494,6 @@ class SearchFields_Snippet extends DevblocksSearchFields {
 	
 	const USE_HISTORY_MINE = 'suh_my_uses';
 	
-	// Fulltexts
-	const FULLTEXT_SNIPPET = 'ft_snippet';
-	
 	// Virtuals
 	const VIRTUAL_USABLE_BY = '*_usable_by';
 	
@@ -527,9 +521,6 @@ class SearchFields_Snippet extends DevblocksSearchFields {
 		switch($param->field) {
 			case DevblocksSearchField::VIRTUAL_OWNER:
 				return self::_getWhereSQLFromContextAndID($param, 'snippet.owner_context', 'snippet.owner_context_id');
-				
-			case self::FULLTEXT_SNIPPET:
-				return self::_getWhereSQLFromFulltextField($param, Search_Snippet::ID, self::getPrimaryKey());
 				
 			case self::USE_HISTORY_MINE:
 				return self::_getWhereSQLForMyUses($param, self::getPrimaryKey());
@@ -703,8 +694,6 @@ class SearchFields_Snippet extends DevblocksSearchFields {
 			
 			self::USE_HISTORY_MINE => new DevblocksSearchField(self::USE_HISTORY_MINE, 'snippet_usage_metric', 'uses', $translate->_('dao.snippet_use_history.uses.mine'), Model_CustomField::TYPE_NUMBER, true),
 			
-			self::FULLTEXT_SNIPPET => new DevblocksSearchField(self::FULLTEXT_SNIPPET, 'ft', 'snippet', $translate->_('common.search.fulltext'), 'FT', false),
-				
 			self::VIRTUAL_USABLE_BY => new DevblocksSearchField(self::VIRTUAL_USABLE_BY, '*', 'usable_by', null, null, false),
 		];
 		
@@ -712,9 +701,6 @@ class SearchFields_Snippet extends DevblocksSearchFields {
 		if(($virtual_columns = DevblocksSearchField::getVirtualFields(owner: true, watchers: false)))
 			$columns = array_merge($columns, $virtual_columns);
 		
-		// Fulltext indexes
-		
-		$columns[self::FULLTEXT_SNIPPET]->ft_schema = Search_Snippet::ID;
 		
 		// Custom fields with fieldsets
 		
@@ -727,126 +713,6 @@ class SearchFields_Snippet extends DevblocksSearchFields {
 		DevblocksPlatform::sortObjects($columns, 'db_label');
 
 		return $columns;
-	}
-};
-
-class Search_Snippet extends Extension_DevblocksSearchSchema {
-	const ID = 'cerb.search.schema.snippet';
-	
-	public function getNamespace() {
-		return 'snippet';
-	}
-	
-	public function getAttributes() {
-		return [];
-	}
-	
-	public function getIdField() {
-		return 'id';
-	}
-	
-	public function getDataField() {
-		return 'content';
-	}
-	
-	public function getPrimaryKey() {
-		return 'id';
-	}
-	
-	public function reindex() {
-		$engine = $this->getEngine();
-		$meta = $engine->getIndexMeta($this);
-		
-		// If the index has a delta, start from the current record
-		if($meta['is_indexed_externally']) {
-			// Do nothing (let the remote tool update the DB)
-			
-		// Otherwise, start over
-		} else {
-			$this->setIndexPointer(self::INDEX_POINTER_RESET);
-		}
-	}
-	
-	public function setIndexPointer($pointer) {
-		switch($pointer) {
-			case self::INDEX_POINTER_RESET:
-				$this->setParam('last_indexed_id', 0);
-				$this->setParam('last_indexed_time', 0);
-				break;
-				
-			case self::INDEX_POINTER_CURRENT:
-				$this->setParam('last_indexed_id', 0);
-				$this->setParam('last_indexed_time', time());
-				break;
-		}
-	}
-	
-	public function index($stop_time=null) {
-		$logger = DevblocksPlatform::services()->log();
-		
-		if(false == ($engine = $this->getEngine()))
-			return false;
-		
-		$ns = self::getNamespace();
-		$id = $this->getParam('last_indexed_id', 0);
-		$ptr_time = $this->getParam('last_indexed_time', 0);
-		$ptr_id = $id;
-		$done = false;
-
-		while(!$done && time() < $stop_time) {
-			$where = sprintf('(%1$s = %2$d AND %3$s > %4$d) OR (%1$s > %2$d)',
-				DAO_Snippet::UPDATED_AT,
-				$ptr_time,
-				DAO_Snippet::ID,
-				$id
-			);
-			$snippets = DAO_Snippet::getWhere($where, array(DAO_Snippet::UPDATED_AT, DAO_Snippet::ID), array(true, true), 100);
-
-			if(empty($snippets)) {
-				$done = true;
-				continue;
-			}
-			
-			$last_time = $ptr_time;
-			
-			foreach($snippets as $snippet) { /* @var $snippet Model_Snippet */
-				$id = $snippet->id;
-				$ptr_time = $snippet->updated_at;
-				
-				$ptr_id = ($last_time == $ptr_time) ? $id : 0;
-				
-				$logger->info(sprintf("[Search] Indexing %s %d...",
-					$ns,
-					$id
-				));
-				
-				$doc = array(
-					'content' => implode("\n", array(
-						$snippet->title,
-						$snippet->content,
-					))
-				);
-				
-				if(false === ($engine->index($this, $id, $doc)))
-					return false;
-			}
-		}
-		
-		// If we ran out of records, always reset the ID and use the current time
-		if($done) {
-			$ptr_id = 0;
-			$ptr_time = time();
-		}
-		
-		$this->setParam('last_indexed_id', $ptr_id);
-		$this->setParam('last_indexed_time', $ptr_time);
-	}
-	
-	public function delete($ids) {
-		if(!($engine = $this->getEngine()))
-			return false;
-		
-		return $engine->delete($this, $ids);
 	}
 };
 
@@ -936,7 +802,6 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Snippet::CONTENT,
 			SearchFields_Snippet::OWNER_CONTEXT,
 			SearchFields_Snippet::OWNER_CONTEXT_ID,
-			SearchFields_Snippet::FULLTEXT_SNIPPET,
 			SearchFields_Snippet::VIRTUAL_USABLE_BY,
 		]);
 
@@ -1116,19 +981,6 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 		// Add searchable custom fields
 		
 		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_SNIPPET, $fields, null);
-		
-		// Engine/schema examples: Fulltext
-		
-		$ft_examples = [];
-		
-		if(($schema = Extension_DevblocksSearchSchema::get(Search_Snippet::ID))) {
-			if(($engine = $schema->getEngine())) {
-				$ft_examples = $engine->getQuickSearchExamples($schema);
-			}
-		}
-		
-		if(!empty($ft_examples))
-			$fields['text']['examples'] = $ft_examples;
 		
 		// Add is_sortable
 		
@@ -1311,11 +1163,6 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 			case SearchFields_Snippet::CONTEXT:
 				$in_contexts = DevblocksPlatform::importGPC($_POST['contexts'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$in_contexts);
-				break;
-				
-			case SearchFields_Snippet::FULLTEXT_SNIPPET:
-				$scope = DevblocksPlatform::importGPC($_POST['scope'] ?? null, 'string','expert');
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
 				
 			default:
