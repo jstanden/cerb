@@ -1446,6 +1446,7 @@ let twigAutocompleteSuggestions = {
 		{ value: "stat(measure='stdevs',decimals=2)", meta: "filter" },
 		{ value: "stat(measure='varp',decimals=2)", meta: "filter" },
 		{ value: "stat(measure='vars',decimals=2)", meta: "filter" },
+		{ value: "strip_data_uris()", meta: "filter" },
 		{ value: "strip_lines(prefixes='>')", meta: "filter" },
 		{ value: "strip_pem_blocks()", meta: "filter" },
 		{ value: "strip_url_querystrings()", meta: "filter" },

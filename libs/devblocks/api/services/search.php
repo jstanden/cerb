@@ -158,6 +158,14 @@ class _DevblocksSearchService {
 		'your',
 	];
 	
+	public function stripDataUris(string $text) : string {
+		return preg_replace(
+			'/(data:[^;]+;base64,)([a-zA-Z0-9\/\+=]+)/',
+			'$1',
+			$text
+		);
+	}
+	
 	public function stripPemContentBlocks(string $text) : string {
 		return preg_replace(
 			'/(-----BEGIN [A-Z0-9 ]+-----).*?(-----END [A-Z0-9 ]+-----)/s',

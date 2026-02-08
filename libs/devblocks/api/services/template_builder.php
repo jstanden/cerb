@@ -202,6 +202,7 @@ class _DevblocksTemplateBuilder {
 				'stat',
 				'str_pos',
 				'str_sub',
+				'strip_data_uris',
 				'strip_lines',
 				'strip_pem_blocks',
 				'strip_url_querystrings',
@@ -1946,6 +1947,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			new \Twig\TwigFilter('stat', [$this, 'filter_stat']),
 			new \Twig\TwigFilter('str_pos', [$this, 'filter_str_pos']),
 			new \Twig\TwigFilter('str_sub', [$this, 'filter_str_sub']),
+			new \Twig\TwigFilter('strip_data_uris', [$this, 'filter_strip_data_uris']),
 			new \Twig\TwigFilter('strip_lines', [$this, 'filter_strip_lines']),
 			new \Twig\TwigFilter('strip_pem_blocks', [$this, 'filter_strip_pem_blocks']),
 			new \Twig\TwigFilter('strip_url_querystrings', [$this, 'filter_strip_url_querystrings']),
@@ -2492,6 +2494,22 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 		
 		return substr($string, $from, $to-$from);
 	}
+	
+	function filter_strip_data_uris($string) {
+		$search = DevblocksPlatform::services()->search();
+		
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
+		if(!is_string($string))
+			return '';
+		
+		if(str_contains($string, 'data:'))
+			$string = $search->stripDataUris($string);
+		
+		return $string;
+	}
+	
 	
 	function filter_strip_lines($string, $prefixes) {
 		if($string instanceof Twig\Markup)
