@@ -3207,6 +3207,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		// Token labels
 		$token_labels = array(
 			'_label' => $prefix,
+			'aliases' => $prefix.$translate->_('common.aliases'),
 			'at_mention_name' => $prefix.$translate->_('worker.at_mention_name'),
 			'dob' => $prefix.$translate->_('common.dob'),
 			'first_name' => $prefix.$translate->_('common.name.first'),
@@ -3231,6 +3232,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		// Token types
 		$token_types = array(
 			'_label' => 'context_url',
+			'aliases' => Model_CustomField::TYPE_LIST,
 			'at_mention_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'dob' => Model_CustomField::TYPE_SINGLE_LINE,
 			'first_name' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -3456,6 +3458,11 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 	function lazyLoadGetKeys() {
 		$lazy_keys = parent::lazyLoadGetKeys();
 		
+		$lazy_keys['aliases'] = [
+			'label' => 'Aliases',
+			'type' => 'List of Text',
+		];
+		
 		$lazy_keys['emails'] = [
 			'label' => 'Emails',
 			'type' => 'Records',
@@ -3490,6 +3497,10 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		}
 		
 		switch($token) {
+			case 'aliases':
+				$values['aliases'] = DAO_ContextAlias::get($context, $dictionary['id']);
+				break;
+			
 			case 'emails':
 				$models = DAO_Address::getByWorkerId($context_id);
 				$values['emails'] = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_ADDRESS);
