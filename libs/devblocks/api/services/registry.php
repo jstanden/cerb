@@ -109,10 +109,10 @@ class _DevblocksRegistryManager {
 	}
 	
 	public function delete($key) {
-		if(array_key_exists($key, $this->_registry)) {
-			DAO_DevblocksRegistry::delete($key);
+		DAO_DevblocksRegistry::delete($key);
+		
+		if(array_key_exists($key, $this->_registry))
 			unset($this->_registry[$key]);
-		}
 	}
 };
 
