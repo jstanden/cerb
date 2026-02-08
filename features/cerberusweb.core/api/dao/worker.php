@@ -1086,10 +1086,6 @@ class DAO_Worker extends Cerb_ORMHelper {
 		// OAuth tokens
 		DAO_OAuthToken::deleteByWorkerId($id);
 		
-		// Clear search records
-		$search = Extension_DevblocksSearchSchema::get(Search_Worker::ID);
-		$search->delete(array($id));
-		
 		parent::_deleteAbstractAfter($context, [$id]);
 		
 		// Invalidate caches
@@ -1405,8 +1401,6 @@ class SearchFields_Worker extends DevblocksSearchFields {
 	
 	const EMAIL_ADDRESS = 'a_address_email';
 	
-	const FULLTEXT_WORKER = 'ft_worker';
-	
 	const VIRTUAL_ALIAS = '*_alias';
 	const VIRTUAL_CALENDAR_SEARCH = '*_calendar_search';
 	const VIRTUAL_EMAIL_SEARCH = '*_email_search';
@@ -1443,9 +1437,6 @@ class SearchFields_Worker extends DevblocksSearchFields {
 	}
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
-			case self::FULLTEXT_WORKER:
-				return self::_getWhereSQLFromFulltextField($param, Search_Worker::ID, self::getPrimaryKey());
-				
 			case self::VIRTUAL_ALIAS:
 				return self::_getWhereSQLFromAliasesField($param, CerberusContexts::CONTEXT_WORKER, self::getPrimaryKey());
 				
@@ -1671,8 +1662,6 @@ class SearchFields_Worker extends DevblocksSearchFields {
 			
 			self::EMAIL_ADDRESS => new DevblocksSearchField(self::EMAIL_ADDRESS, 'address', 'email', ucwords($translate->_('common.email_address')), Model_CustomField::TYPE_SINGLE_LINE, false),
 			
-			self::FULLTEXT_WORKER => new DevblocksSearchField(self::FULLTEXT_WORKER, 'ft', 'content', $translate->_('common.content'), 'FT'),
-			
 			self::VIRTUAL_ALIAS => new DevblocksSearchField(self::VIRTUAL_ALIAS, '*', 'alias', $translate->_('common.aliases'), null, false),
 			self::VIRTUAL_CALENDAR_SEARCH => new DevblocksSearchField(self::VIRTUAL_CALENDAR_SEARCH, '*', 'calendar_search', null, null),
 			self::VIRTUAL_EMAIL_SEARCH => new DevblocksSearchField(self::VIRTUAL_EMAIL_SEARCH, '*', 'email_search', null, null),
@@ -1690,10 +1679,6 @@ class SearchFields_Worker extends DevblocksSearchFields {
 		if(($virtual_columns = DevblocksSearchField::getVirtualFields(watchers: false)))
 			$columns = array_merge($columns, $virtual_columns);
 		
-		// Fulltext indexes
-		
-		$columns[self::FULLTEXT_WORKER]->ft_schema = Search_Worker::ID;
-		
 		// Custom fields with fieldsets
 		
 		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
@@ -1705,162 +1690,6 @@ class SearchFields_Worker extends DevblocksSearchFields {
 		DevblocksPlatform::sortObjects($columns, 'db_label');
 
 		return $columns;
-	}
-};
-
-class Search_Worker extends Extension_DevblocksSearchSchema {
-	const ID = 'cerb.search.schema.worker';
-	
-	public function getNamespace() {
-		return 'worker';
-	}
-	
-	public function getAttributes() {
-		return [];
-	}
-	
-	public function getIdField() {
-		return 'id';
-	}
-	
-	public function getDataField() {
-		return 'content';
-	}
-	
-	public function getPrimaryKey() {
-		return 'id';
-	}
-	
-	public function reindex() {
-		$engine = $this->getEngine();
-		$meta = $engine->getIndexMeta($this);
-		
-		// If the index has a delta, start from the current record
-		if($meta['is_indexed_externally']) {
-			// Do nothing (let the remote tool update the DB)
-			
-		// Otherwise, start over
-		} else {
-			$this->setIndexPointer(self::INDEX_POINTER_RESET);
-		}
-	}
-	
-	public function setIndexPointer($pointer) {
-		switch($pointer) {
-			case self::INDEX_POINTER_RESET:
-				$this->setParam('last_indexed_id', 0);
-				$this->setParam('last_indexed_time', 0);
-				break;
-				
-			case self::INDEX_POINTER_CURRENT:
-				$this->setParam('last_indexed_id', 0);
-				$this->setParam('last_indexed_time', time());
-				break;
-		}
-	}
-	
-	private function _indexDictionary($dict, $engine) {
-		$logger = DevblocksPlatform::services()->log();
-
-		$id = $dict->id;
-		
-		if(empty($id))
-			return false;
-		
-		$doc = array(
-			'content' => implode("\n", array(
-				$dict->_label,
-				$dict->address_email,
-				$dict->title,
-				$dict->at_mention_name,
-			)),
-		);
-
-		$logger->info(sprintf("[Search] Indexing %s %d...",
-			$this->getNamespace(),
-			$id
-		));
-		
-		if(false === ($engine->index($this, $id, $doc)))
-			return false;
-		
-		return true;
-	}
-	
-	public function indexIds(array $ids=[]) {
-		if(empty($ids))
-			return;
-		
-		if(false == ($engine = $this->getEngine()))
-			return false;
-		
-		if(false == ($models = DAO_Worker::getIds($ids)))
-			return;
-		
-		$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_WORKER, array('address_'));
-		
-		if(empty($dicts))
-			return;
-		
-		foreach($dicts as $dict) {
-			$this->_indexDictionary($dict, $engine);
-		}
-	}
-	
-	public function index($stop_time=null) {
-		if(false == ($engine = $this->getEngine()))
-			return false;
-		
-		$id = $this->getParam('last_indexed_id', 0);
-		$ptr_time = $this->getParam('last_indexed_time', 0);
-		$ptr_id = $id;
-		$done = false;
-
-		while(!$done && time() < $stop_time) {
-			$where = sprintf('(%1$s = %2$d AND %3$s > %4$d) OR (%1$s > %2$d)',
-				DAO_Worker::UPDATED,
-				$ptr_time,
-				DAO_Worker::ID,
-				$id
-			);
-			$models = DAO_Worker::getWhere($where, array(DAO_Worker::UPDATED, DAO_Worker::ID), array(true, true), 100);
-			
-			$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_WORKER, array('address_'));
-			
-			if(empty($dicts)) {
-				$done = true;
-				continue;
-			}
-			
-			$last_time = $ptr_time;
-			
-			// Loop dictionaries
-			foreach($dicts as $dict) {
-				$id = $dict->id;
-				$ptr_time = $dict->updated;
-				
-				$ptr_id = ($last_time == $ptr_time) ? $id : 0;
-				
-				if(false == $this->_indexDictionary($dict, $engine))
-					return false;
-			}
-		}
-		
-		// If we ran out of records, always reset the ID and use the current time
-		if($done) {
-			$ptr_id = 0;
-			$ptr_time = time();
-		}
-		
-		$this->setParam('last_indexed_id', $ptr_id);
-		$this->setParam('last_indexed_time', $ptr_time);
-	}
-	
-	public function delete($ids) {
-		if(false == ($engine = $this->getEngine()))
-			return false;
-		
-		return $engine->delete($this, $ids);
 	}
 };
 
@@ -2229,7 +2058,6 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Worker::VIRTUAL_ROLE_READER_SEARCH,
 			SearchFields_Worker::VIRTUAL_USING_WORKSPACE_PAGE,
 			SearchFields_Worker::VIRTUAL_SESSION_ACTIVITY,
-			SearchFields_Worker::FULLTEXT_WORKER,
 		]);
 
 		$this->doResetCriteria();
@@ -2424,7 +2252,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	}
 	
 	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
-		return 'text';
+		return 'firstName';
 	}
 	
 	function getQuickSearchFields() {
@@ -2434,12 +2262,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		$timezones = $date->getTimezones();
 		
 		$fields = array(
-			'text' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
-					'options' => array('param_key' => SearchFields_Worker::FULLTEXT_WORKER),
-				),
-			'alias' => 
+			'alias' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Worker::VIRTUAL_ALIAS),
@@ -2696,19 +2519,6 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		
 		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_WORKER, $fields, null);
 		
-		// Engine/schema examples: Fulltext
-		
-		$ft_examples = [];
-		
-		if(($schema = Extension_DevblocksSearchSchema::get(Search_Worker::ID))) {
-			if(($engine = $schema->getEngine())) {
-				$ft_examples = $engine->getQuickSearchExamples($schema);
-			}
-		}
-		
-		if(!empty($ft_examples))
-			$fields['text']['examples'] = $ft_examples;
-		
 		// Add is_sortable
 		
 		$fields = self::_setSortableQuickSearchFields($fields, $search_fields);
@@ -2725,29 +2535,6 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case 'mentionName':
 				$field = 'mention';
 				break;
-				
-			case 'text':
-				if(false != ($active_worker = CerberusApplication::getActiveWorker())) {
-					$oper = $value = null;
-					CerbQuickSearchLexer::getOperStringFromTokens($tokens, $oper, $value);
-					
-					@$value = DevblocksPlatform::strLower($value);
-					
-					// [TODO] Implement 'nobody'
-					if($value && in_array($value, ['me'])) {
-						switch($value) {
-							case 'me':
-								return new DevblocksSearchCriteria(
-									SearchFields_Worker::ID,
-									DevblocksSearchCriteria::OPER_EQ,
-									$active_worker->id
-								);
-								break;
-						}
-					}
-				}
-				
-				return DevblocksSearchCriteria::getFulltextParamFromTokens(SearchFields_Worker::FULLTEXT_WORKER, $tokens);
 				
 			case 'alias':
 				return DevblocksSearchCriteria::getContextAliasParamFromTokens(SearchFields_Worker::VIRTUAL_ALIAS, $tokens);
@@ -3002,11 +2789,6 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Worker::IS_SUPERUSER:
 				$bool = DevblocksPlatform::importGPC($_POST['bool'] ?? null, 'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
-				break;
-				
-			case SearchFields_Worker::FULLTEXT_WORKER:
-				$scope = DevblocksPlatform::importGPC($_POST['scope'] ?? null, 'string','expert');
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
 				
 			case SearchFields_Worker::VIRTUAL_CALENDAR_AVAILABILITY:

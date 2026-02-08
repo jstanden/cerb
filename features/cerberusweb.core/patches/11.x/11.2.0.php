@@ -87,6 +87,29 @@ if(array_key_exists('fulltext_contact', $tables)) {
 	$db->ExecuteMaster("DELETE FROM cerb_property_store WHERE extension_id = 'cerb.search.schema.contact'");
 }
 
+// Workers
+if(!$db->GetOneMaster(sprintf("SELECT id FROM search_index WHERE record_type = %s AND record_filter = %d", $db->qstr('worker'), $db->qstr('text')))) {
+	$sql = sprintf("INSERT INTO search_index (name, uri, record_type, record_filter, extension_id, extension_params_json, priority, created_at, updated_at) " .
+		"VALUES (%s, %s, %s, %s, %s, %s, %d, %d, %d)",
+		$db->qstr('Workers'),
+		$db->qstr('workers'),
+		$db->qstr('worker'),
+		$db->qstr('text'),
+		$db->qstr('cerb.search.index.fulltext'),
+		$db->qstr(json_encode(['record_query' => '', 'content' => "{{first_name}} {{last_name}} {{at_mention_name}}\n{{aliases|join(' ')}}\n{{title}}\n{{email_address}}"])),
+		0,
+		time(),
+		time(),
+	);
+	$db->ExecuteMaster($sql);
+}
+
+if(array_key_exists('fulltext_worker', $tables)) {
+	$db->ExecuteMaster('DROP TABLE fulltext_worker');
+	unset($tables['fulltext_worker']);
+	$db->ExecuteMaster("DELETE FROM cerb_property_store WHERE extension_id = 'cerb.search.schema.worker'");
+}
+
 // Automations
 if(!$db->GetOneMaster(sprintf("SELECT id FROM search_index WHERE record_type = %s AND record_filter = %d", $db->qstr('automation'), $db->qstr('script')))) {
 	$sql = sprintf("INSERT INTO search_index (name, uri, record_type, record_filter, extension_id, extension_params_json, priority, created_at, updated_at) " .

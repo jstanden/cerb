@@ -323,10 +323,6 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 					// Flush caches
 					DAO_WorkerRole::clearWorkerCache($updated_worker->id);
 					
-					// Index immediately
-					$search = Extension_DevblocksSearchSchema::get(Search_Worker::ID);
-					$search->indexIds([$updated_worker->id]);
-					
 					$label = $updated_worker->getName();
 				}
 			}
