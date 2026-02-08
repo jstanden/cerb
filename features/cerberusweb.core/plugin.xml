@@ -155,7 +155,6 @@
 			<class name="Context_Address" />
 			<class name="DAO_Address" />
 			<class name="Model_Address" />
-			<class name="Search_Address" />
 			<class name="SearchFields_Address" />
 			<class name="View_Address" />
 		</file>
@@ -6884,17 +6883,6 @@
 		
 		<!-- Search Schemas -->
 		
-		<extension point="devblocks.search.schema">
-			<id>cerb.search.schema.address</id>
-			<name>Email Addresses</name>
-			<class>
-				<file>api/dao/address.php</file>
-				<name>Search_Address</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-
 		<extension point="devblocks.search.schema">
 			<id>cerberusweb.search.schema.comment_content</id>
 			<name>Comment Content</name>
