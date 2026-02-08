@@ -628,6 +628,10 @@ class View_ClassifierClass extends C4_AbstractView implements IAbstractView_Subt
 		return $counts;
 	}
 	
+	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
+		return 'name';
+	}
+	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_ClassifierClass::getFields();
 	
@@ -664,12 +668,7 @@ class View_ClassifierClass extends C4_AbstractView implements IAbstractView_Subt
 						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_CLASSIFIER_CLASS, 'q' => ''],
 					]
 				),
-			'text' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_ClassifierClass::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
-				),
-			'name' => 
+			'name' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_ClassifierClass::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),

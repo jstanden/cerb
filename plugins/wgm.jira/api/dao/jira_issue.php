@@ -916,6 +916,10 @@ class View_JiraIssue extends C4_AbstractView implements IAbstractView_Subtotals,
 		return $counts;
 	}
 	
+	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
+		return 'text';
+	}
+	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_JiraIssue::getFields();
 		

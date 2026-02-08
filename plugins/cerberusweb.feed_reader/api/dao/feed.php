@@ -399,15 +399,14 @@ class View_Feed extends C4_AbstractView implements IAbstractView_QuickSearch {
 		return $this->_doGetDataSample('DAO_Feed', $size);
 	}
 	
+	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
+		return 'name';
+	}
+	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_Feed::getFields();
 		
 		$fields = array(
-			'text' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_Feed::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
-				),
 			'fieldset' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,

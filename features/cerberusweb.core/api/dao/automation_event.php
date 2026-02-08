@@ -647,15 +647,14 @@ class View_AutomationEvent extends C4_AbstractView implements IAbstractView_Subt
 		return $counts;
 	}
 	
+	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
+		return 'name';
+	}
+	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_AutomationEvent::getFields();
 		
 		$fields = array(
-			'text' =>
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_AutomationEvent::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
-				),
 			'description' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,

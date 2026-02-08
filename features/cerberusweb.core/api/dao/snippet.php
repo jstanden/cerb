@@ -1031,16 +1031,15 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 		return $counts;
 	}
 	
+	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
+		return 'title';
+	}
+	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_Snippet::getFields();
 		
 		$fields = array(
-			'text' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_Snippet::TITLE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
-				),
-			'content' => 
+			'content' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Snippet::CONTENT, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),

@@ -941,17 +941,16 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 		
 		return $counts;
 	}
-
+	
+	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
+		return 'behavior';
+	}
+	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_ContextScheduledBehavior::getFields();
 		
 		$fields = array(
-			'text' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_ContextScheduledBehavior::BEHAVIOR_NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
-				),
-			'behavior' => 
+			'behavior' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => [

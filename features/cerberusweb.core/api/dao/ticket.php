@@ -3595,6 +3595,26 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		return $counts;
 	}
 	
+	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
+		// Contextual default filter
+		if(($param = DevblocksSearchCriteria::getTextParamFromTokens(
+			'_text',
+			$criteria->tokens
+		))) {
+			if(is_string($param->value) && !str_contains($param->value, ' ')) {
+				// Is it just a ticket mask?
+				if(preg_match('/^[a-z]{3}-[0-9]{5}-[0-9]{3}$/i', $param->value))
+					return 'mask';
+				
+				// Is it just an email address?
+				if(DevblocksPlatform::services()->validation()->validators()->email()($param->value))
+					return 'participant';
+			}
+		}
+		
+		return 'text';
+	}
+	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_Ticket::getFields();
 		

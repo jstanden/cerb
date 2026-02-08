@@ -1321,15 +1321,14 @@ class View_Automation extends C4_AbstractView implements IAbstractView_Subtotals
 		return $counts;
 	}
 	
+	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
+		return 'name';
+	}
+	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_Automation::getFields();
 	
 		$fields = array(
-			'text' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_Automation::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
-				),
 			'created' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,

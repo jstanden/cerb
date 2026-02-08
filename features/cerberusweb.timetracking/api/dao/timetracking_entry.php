@@ -837,16 +837,15 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 		return $counts;
 	}
 	
+	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
+		return 'comments';
+	}
+	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_TimeTrackingEntry::getFields();
 		
 		$fields = array(
-			'text' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
-					'options' => array('param_key' => SearchFields_TimeTrackingEntry::FULLTEXT_COMMENT_CONTENT),
-				),
-			'activity.id' => 
+			'activity.id' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_CONTEXT,
 					'type_options' => [

@@ -545,15 +545,14 @@ class View_WebhookListener extends C4_AbstractView implements IAbstractView_Subt
 		return $counts;
 	}
 	
+	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
+		return 'name';
+	}
+	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_WebhookListener::getFields();
 		
 		$fields = array(
-			'text' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_WebhookListener::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
-				),
 			'guid' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,

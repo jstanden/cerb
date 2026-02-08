@@ -739,15 +739,14 @@ class View_MailInboundLog extends C4_AbstractView implements IAbstractView_Subto
 		return $counts;
 	}
 	
+	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
+		return 'subject';
+	}
+	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_MailInboundLog::getFields();
 		
 		$fields = [
-			'text' =>
-				[
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => ['param_key' => SearchFields_MailInboundLog::SUBJECT, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL],
-				],
 			'created' =>
 				[
 					'type' => DevblocksSearchCriteria::TYPE_DATE,

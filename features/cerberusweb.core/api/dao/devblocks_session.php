@@ -486,17 +486,16 @@ class View_DevblocksSession extends C4_AbstractView implements IAbstractView_Qui
 	function getDataSample($size) {
 		return $this->_doGetDataSample('DAO_DevblocksSession', $size);
 	}
-
+	
+	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
+		return 'userAgent';
+	}
+	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_DevblocksSession::getFields();
 		
 		$fields = array(
-			'text' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_DevblocksSession::USER_AGENT, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
-				),
-			'created' => 
+			'created' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_DevblocksSession::CREATED),

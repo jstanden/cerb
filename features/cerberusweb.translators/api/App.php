@@ -634,18 +634,17 @@ class View_Translation extends C4_AbstractView implements IAbstractView_Subtotal
 		return $results;
 	}
 	
+	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
+		return 'theirs';
+	}
+	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_Translation::getFields();
 		
 		$languages = DAO_Translation::getDefinedLangCodes();
 		
 		$fields = array(
-			'text' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_Translation::STRING_DEFAULT, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
-				),
-			'id' => 
+			'id' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Translation::STRING_ID, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),

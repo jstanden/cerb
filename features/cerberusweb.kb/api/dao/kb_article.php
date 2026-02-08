@@ -1676,6 +1676,10 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 		return $counts;
 	}
 	
+	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
+		return 'text';
+	}
+	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_KbArticle::getFields();
 		

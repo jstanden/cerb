@@ -606,18 +606,17 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 		
 		return $counts;
 	}
-	
+
+    function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
+		return 'name';
+	}
+
 	function getQuickSearchFields() {
 		// [TODO] Implement quick search fields
 		$search_fields = SearchFields_<?php echo $class_name; ?>::getFields();
 	
 		$fields = [
-			'text' => 
-				[
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => ['param_key' => SearchFields_<?php echo $class_name; ?>::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL],
-				],
-			'created' => 
+			'created' =>
 				[
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => ['param_key' => SearchFields_<?php echo $class_name; ?>::CREATED_AT],

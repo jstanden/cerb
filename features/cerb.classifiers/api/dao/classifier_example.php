@@ -655,17 +655,16 @@ class View_ClassifierExample extends C4_AbstractView implements IAbstractView_Su
 		
 		return $counts;
 	}
+
+	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
+		return 'expression';
+	}
 	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_ClassifierExample::getFields();
 	
 		$fields = array(
-			'text' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_ClassifierExample::EXPRESSION, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
-				),
-			'class.id' => 
+			'class.id' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_ClassifierExample::CLASS_ID),

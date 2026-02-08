@@ -2017,11 +2017,15 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 		return $counts;
 	}
 	
+	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
+		return 'text';
+	}
+	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_Message::getFields();
 		
 		$fields = array(
-			'text' => 
+			'text' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
 					'options' => array('param_key' => SearchFields_Message::MESSAGE_CONTENT),

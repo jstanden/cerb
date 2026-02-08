@@ -674,6 +674,18 @@ abstract class C4_AbstractView {
 				return;
 			
 			if($v instanceof DevblocksSearchCriteria) {
+				if('_text' == $v->key) {
+					// Use the default filter
+					if(method_exists($this, 'getQuickSearchDefaultFilter'))
+						$v->key = $this->getQuickSearchDefaultFilter($v);
+					
+					// Override the default filter with a custom search index
+					if(($search_indexes = DAO_SearchIndex::getByRecordType($this->getContext()))) {
+						if(($search_index = array_shift($search_indexes)) && 0 == $search_index->priority)
+							$v->key = $search_index->record_filter;
+					}
+				}
+				
 				$param = $this->getParamFromQuickSearchFieldTokens($v->key, $v->tokens);
 				
 				if($param instanceof DevblocksSearchCriteria) {
@@ -1685,7 +1697,7 @@ abstract class C4_AbstractView {
 			
 			$field = array(
 				'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-				'score' => 500,
+				'score' => 600,
 				'options' => [
 					'param_key' => $param_key
 				],
@@ -1772,20 +1784,54 @@ abstract class C4_AbstractView {
 		return $fields;
 	}
 	
+	protected function _appendFieldsFromRecordTypeSearchIndexes($context, $fields=[], $prefix=null) : array {
+		$search_indexes = DAO_SearchIndex::getByRecordType($context);
+		
+		foreach($search_indexes as $search_index) {
+			$index_field_meta = [
+				'type' => DevblocksSearchCriteria::TYPE_SEARCH_INDEX,
+				'is_sortable' => false,
+				'options' => [
+					'param_key' => "*_search_index",
+					'index_id' => $search_index->id,
+				],
+				'score' => 10_000 - $search_index->priority, // higher is first here, lower is first on indexes
+				'examples' => [
+					'"your search terms"',
+					'(your search terms)',
+				],
+			];
+			
+			// Append search filters
+			$field_key = $search_index->record_filter;
+			
+			if($field_key && !array_key_exists($field_key, $fields)) {
+				if($prefix) $field_key = sprintf("%s.%s", $prefix, $field_key);
+				$fields[$field_key] = $index_field_meta;
+			}
+		}
+		
+		return $fields;
+	}
+	
 	protected function _appendFieldsFromQuickSearchContext($context, $fields=[], $prefix=null) {
+		// Search Indexes
+		$fields = self::_appendFieldsFromRecordTypeSearchIndexes($context, $fields, $prefix);
+		
+		// Custom Fields
 		$custom_fields = DAO_CustomField::getByContext($context, true, false);
 		$custom_fieldsets = DAO_CustomFieldset::getAll();
 		
 		foreach($custom_fields as $cf_id => $cfield) {
-			$search_field_meta = array(
+			$search_field_meta = [
 				'type' => null,
 				'is_sortable' => true,
 				'options' => [
 					'param_key' => sprintf("cf_%d", $cf_id),
 					'cf_ctx' => $cfield->context,
 					'cf_id' => $cf_id,
-				]
-			);
+				],
+			];
 			
 			$custom_fieldset = $custom_fieldsets[$cfield->custom_fieldset_id] ?? null;
 			
@@ -4026,6 +4072,7 @@ abstract class C4_AbstractView {
 };
 
 interface IAbstractView_QuickSearch {
+	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string;
 	function getQuickSearchFields();
 	function getParamFromQuickSearchFieldTokens($field, $tokens);
 };
@@ -4401,7 +4448,7 @@ class CerbQuickSearchLexer {
 					case 'T_QUOTED_TEXT':
 					case 'T_TEXT':
 						if(is_null($field)) {
-							$field = new CerbQuickSearchLexerToken('T_FIELD', 'text');
+							$field = new CerbQuickSearchLexerToken('T_FIELD', '_text');
 							$token->children[] = $field;
 						}
 							
@@ -4639,7 +4686,7 @@ class CerbQuickSearchLexer {
 						$string .= ' ';
 					
 					switch($token->value) {
-						case 'text':
+						case '_text':
 							break;
 							
 						default:
@@ -4658,13 +4705,11 @@ class CerbQuickSearchLexer {
 					break;
 					
 				case 'T_ARRAY':
+				case 'T_TEXT':
 					break;
 					
 				case 'T_QUOTED_TEXT':
 					$string .= '"';
-					break;
-					
-				case 'T_TEXT':
 					break;
 					
 				case 'T_FIELD':

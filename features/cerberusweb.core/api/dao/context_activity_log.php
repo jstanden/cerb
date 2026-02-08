@@ -986,6 +986,10 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 		return $counts;
 	}
 	
+	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
+		return 'activity';
+	}
+	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_ContextActivityLog::getFields();
 		
@@ -994,12 +998,7 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 		}, DevblocksPlatform::getActivityPointRegistry());
 		
 		$fields = array(
-			'text' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_ContextActivityLog::ACTIVITY_POINT, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
-				),
-			'activity' => 
+			'activity' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_ContextActivityLog::ACTIVITY_POINT),

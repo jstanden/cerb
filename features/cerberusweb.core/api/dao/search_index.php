@@ -731,15 +731,14 @@ class View_SearchIndex extends C4_AbstractView implements IAbstractView_Subtotal
 		return $counts;
 	}
 	
+	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
+		return 'name';
+	}
+	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_SearchIndex::getFields();
 		
 		$fields = [
-			'text' =>
-				[
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => ['param_key' => SearchFields_SearchIndex::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL],
-				],
 			'created' =>
 				[
 					'type' => DevblocksSearchCriteria::TYPE_DATE,

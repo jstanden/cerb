@@ -1342,15 +1342,14 @@ class View_Workflow extends C4_AbstractView implements IAbstractView_Subtotals, 
 		return $counts;
 	}
 	
+	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
+		return 'name';
+	}
+	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_Workflow::getFields();
 		
 		$fields = [
-			'text' =>
-				[
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => ['param_key' => SearchFields_Workflow::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL],
-				],
 			'attachments' =>
 				[
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,

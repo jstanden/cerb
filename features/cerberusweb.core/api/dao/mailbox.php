@@ -818,16 +818,15 @@ class View_Mailbox extends C4_AbstractView implements IAbstractView_Subtotals, I
 
 		return $counts;
 	}
-
+	
+	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
+		return 'name';
+	}
+	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_Mailbox::getFields();
 
 		$fields = array(
-			'text' =>
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_Mailbox::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
-				),
 			'checkedAt' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,

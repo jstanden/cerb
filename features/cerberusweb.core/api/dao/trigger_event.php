@@ -1683,6 +1683,10 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 		return $counts;
 	}
 	
+	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
+		return 'name';
+	}
+	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_TriggerEvent::getFields();
 		
@@ -1690,12 +1694,7 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 		DevblocksPlatform::sortObjects($event_extensions, 'name');
 		
 		$fields = array(
-			'text' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_TriggerEvent::TITLE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
-				),
-			'bot' => 
+			'bot' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_TriggerEvent::VIRTUAL_BOT_SEARCH),

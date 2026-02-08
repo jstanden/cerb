@@ -661,15 +661,14 @@ class View_MailRoutingRule extends C4_AbstractView implements IAbstractView_Subt
 		return $counts;
 	}
 	
+	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
+		return 'name';
+	}
+	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_MailRoutingRule::getFields();
 		
 		$fields = [
-			'text' =>
-				[
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => ['param_key' => SearchFields_MailRoutingRule::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL],
-				],
 			'created' =>
 				[
 					'type' => DevblocksSearchCriteria::TYPE_DATE,

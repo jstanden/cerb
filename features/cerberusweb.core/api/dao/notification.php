@@ -1001,6 +1001,10 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 		return $counts;
 	}
 	
+	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
+		return 'activity';
+	}
+	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_Notification::getFields();
 		
@@ -1009,12 +1013,7 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 		}, DevblocksPlatform::getActivityPointRegistry());
 		
 		$fields = array(
-			'text' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_Notification::ACTIVITY_POINT, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
-				),
-			'activity' => 
+			'activity' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Notification::ACTIVITY_POINT),

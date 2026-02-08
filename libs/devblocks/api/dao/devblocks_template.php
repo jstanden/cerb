@@ -525,16 +525,15 @@ class View_DevblocksTemplate extends C4_AbstractView implements IAbstractView_Qu
 		return $objects;
 	}
 	
+	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
+		return 'path';
+	}
+	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_DevblocksTemplate::getFields();
 		
 		$fields = array(
-			'text' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_DevblocksTemplate::PATH, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
-				),
-			'id' => 
+			'id' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_DevblocksTemplate::ID),

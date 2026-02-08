@@ -840,6 +840,10 @@ class View_AbstractCustomRecord extends C4_AbstractView implements IAbstractView
 		return $counts;
 	}
 	
+	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
+		return 'name';
+	}
+	
 	function getQuickSearchFields() {
 		$search_class = sprintf("SearchFields_AbstractCustomRecord_%d", static::_ID);
 		$search_fields = (class_exists($search_class) && method_exists($search_class, 'getFields')) ? $search_class::getFields() : [];
@@ -847,11 +851,6 @@ class View_AbstractCustomRecord extends C4_AbstractView implements IAbstractView
 		$custom_record = DAO_CustomRecord::get(static::_ID);
 	
 		$fields = array(
-			'text' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => $search_class::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
-				),
 			'comments' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,

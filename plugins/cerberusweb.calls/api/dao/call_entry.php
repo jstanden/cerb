@@ -638,16 +638,15 @@ class View_CallEntry extends C4_AbstractView implements IAbstractView_Subtotals,
 		return $counts;
 	}
 	
+	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
+		return 'subject';
+	}
+	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_CallEntry::getFields();
 		
 		$fields = array(
-			'text' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_CallEntry::SUBJECT, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
-				),
-			'comments' => 
+			'comments' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
 					'options' => array('param_key' => SearchFields_CallEntry::FULLTEXT_COMMENT_CONTENT),

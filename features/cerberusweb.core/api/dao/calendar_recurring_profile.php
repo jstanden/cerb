@@ -844,6 +844,10 @@ class View_CalendarRecurringProfile extends C4_AbstractView implements IAbstract
 		return $counts;
 	}
 	
+	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
+		return 'name';
+	}
+	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_CalendarRecurringProfile::getFields();
 		$date = DevblocksPlatform::services()->date();
@@ -851,12 +855,7 @@ class View_CalendarRecurringProfile extends C4_AbstractView implements IAbstract
 		$timezones = $date->getTimezones();
 		
 		$fields = array(
-			'text' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_CalendarRecurringProfile::EVENT_NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
-				),
-			'calendar' => 
+			'calendar' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_CalendarRecurringProfile::VIRTUAL_CALENDAR_SEARCH),

@@ -723,6 +723,10 @@ class View_CardWidget extends C4_AbstractView implements IAbstractView_Subtotals
 		return $counts;
 	}
 	
+	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
+		return 'name';
+	}
+	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_CardWidget::getFields();
 		
@@ -733,11 +737,6 @@ class View_CardWidget extends C4_AbstractView implements IAbstractView_Subtotals
 		}, DevblocksPlatform::getExtensions(Extension_CardWidget::POINT));
 		
 		$fields = array(
-			'text' =>
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_CardWidget::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
-				),
 			'created' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,

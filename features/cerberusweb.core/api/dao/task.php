@@ -904,16 +904,15 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 		return $counts;
 	}
 	
+	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
+		return 'title';
+	}
+	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_Task::getFields();
 		
 		$fields = array(
-			'text' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_Task::TITLE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
-				),
-			'comments' => 
+			'comments' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
 					'options' => array('param_key' => SearchFields_Task::FULLTEXT_COMMENT_CONTENT),

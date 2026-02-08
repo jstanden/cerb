@@ -667,6 +667,10 @@ class View_ConnectedService extends C4_AbstractView implements IAbstractView_Sub
 		return $counts;
 	}
 	
+	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
+		return 'name';
+	}
+	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_ConnectedService::getFields();
 		
@@ -675,11 +679,6 @@ class View_ConnectedService extends C4_AbstractView implements IAbstractView_Sub
 		}, DevblocksPlatform::getExtensions(Extension_ConnectedServiceProvider::POINT));
 		
 		$fields = array(
-			'text' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_ConnectedService::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
-				),
 			'fieldset' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,

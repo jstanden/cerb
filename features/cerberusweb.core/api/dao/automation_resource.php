@@ -653,15 +653,14 @@ class View_AutomationResource extends C4_AbstractView implements IAbstractView_S
 		return $counts;
 	}
 	
+	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
+		return 'token';
+	}
+	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_AutomationResource::getFields();
 		
 		$fields = array(
-			'text' =>
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_AutomationResource::TOKEN, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
-				),
 			'fieldset' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,

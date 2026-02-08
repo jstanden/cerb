@@ -560,16 +560,15 @@ class View_WebApiCredentials extends C4_AbstractView implements IAbstractView_Qu
 		return $this->_doGetDataSample('DAO_WebApiCredentials', $size);
 	}
 	
+	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
+		return 'name';
+	}
+	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_WebApiCredentials::getFields();
 		
 		$fields = array(
-			'text' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_WebApiCredentials::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
-				),
-			'accessKey' => 
+			'accessKey' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_WebApiCredentials::ACCESS_KEY, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),

@@ -575,6 +575,10 @@ class UmSc_TicketHistoryView extends C4_AbstractView implements IAbstractView_Qu
 		}
 	}
 	
+	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
+		return 'text';
+	}
+	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_Ticket::getFields();
 		

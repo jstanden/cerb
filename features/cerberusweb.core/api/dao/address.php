@@ -1551,6 +1551,10 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 		return $counts;
 	}
 	
+	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
+		return 'text';
+	}
+	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_Address::getFields();
 		
