@@ -496,8 +496,6 @@ class SearchFields_JiraIssue extends DevblocksSearchFields {
 	const CREATED = 'j_created';
 	const UPDATED = 'j_updated';
 	
-	const FULLTEXT_CONTENT = 'ft_j_content';
-	
 	const VIRTUAL_PROJECT_SEARCH = '*_project_search';
 	
 	static private $_fields = null;
@@ -523,9 +521,6 @@ class SearchFields_JiraIssue extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
-			case self::FULLTEXT_CONTENT:
-				return self::_getWhereSQLFromFulltextField($param, Search_JiraIssue::ID, self::getPrimaryKey());
-				
 			case self::VIRTUAL_PROJECT_SEARCH:
 				$sql = "SELECT id FROM jira_project WHERE id IN (%s)";
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, Context_JiraProject::ID, $sql, 'jira_issue.project_id');
@@ -598,17 +593,11 @@ class SearchFields_JiraIssue extends DevblocksSearchFields {
 			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'jira_issue', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 			
 			self::VIRTUAL_PROJECT_SEARCH => new DevblocksSearchField(self::VIRTUAL_PROJECT_SEARCH, '*', 'project_search', null, null, false),
-			
-			self::FULLTEXT_CONTENT => new DevblocksSearchField(self::FULLTEXT_CONTENT, 'ft', 'content', $translate->_('common.content'), 'FT', false),
 		];
 		
 		// Virtual fields
 		if(($virtual_columns = DevblocksSearchField::getVirtualFields()))
 			$columns = array_merge($columns, $virtual_columns);
-		
-		// Fulltext indexes
-		
-		$columns[self::FULLTEXT_CONTENT]->ft_schema = Search_JiraIssue::ID;
 		
 		// Custom fields with fieldsets
 		
@@ -621,133 +610,6 @@ class SearchFields_JiraIssue extends DevblocksSearchFields {
 		DevblocksPlatform::sortObjects($columns, 'db_label');
 
 		return $columns;
-	}
-};
-
-class Search_JiraIssue extends Extension_DevblocksSearchSchema {
-	const ID = 'jira.search.schema.jira_issue';
-	
-	public function getNamespace() {
-		return 'jira_issue';
-	}
-	
-	public function getAttributes() {
-		return [];
-	}
-	
-	public function getIdField() {
-		return 'id';
-	}
-	
-	public function getDataField() {
-		return 'content';
-	}
-	
-	public function getPrimaryKey() {
-		return 'id';
-	}
-	
-	public function reindex() {
-		$engine = $this->getEngine();
-		$meta = $engine->getIndexMeta($this);
-		
-		// If the index has a delta, start from the current record
-		if($meta['is_indexed_externally']) {
-			// Do nothing (let the remote tool update the DB)
-			
-		// Otherwise, start over
-		} else {
-			$this->setIndexPointer(self::INDEX_POINTER_RESET);
-		}
-	}
-	
-	public function setIndexPointer($pointer) {
-		switch($pointer) {
-			case self::INDEX_POINTER_RESET:
-				$this->setParam('last_indexed_id', 0);
-				$this->setParam('last_indexed_time', 0);
-				break;
-				
-			case self::INDEX_POINTER_CURRENT:
-				$this->setParam('last_indexed_id', 0);
-				$this->setParam('last_indexed_time', time());
-				break;
-		}
-	}
-	
-	public function index($stop_time=null) {
-		$logger = DevblocksPlatform::services()->log();
-		
-		if(false == ($engine = $this->getEngine()))
-			return false;
-		
-		$ns = self::getNamespace();
-		$id = $this->getParam('last_indexed_id', 0);
-		$ptr_time = $this->getParam('last_indexed_time', 0);
-		$ptr_id = $id;
-		$done = false;
-
-		while(!$done && time() < $stop_time) {
-			$where = sprintf('(%1$s = %2$d AND %3$s > %4$d) OR (%1$s > %2$d)',
-				DAO_JiraIssue::UPDATED,
-				$ptr_time,
-				DAO_JiraIssue::ID,
-				$id
-			);
-			$issues = DAO_JiraIssue::getWhere($where, array(DAO_JiraIssue::UPDATED, DAO_JiraIssue::ID), array(true, true), 100);
-
-			if(empty($issues)) {
-				$done = true;
-				continue;
-			}
-			
-			$last_time = $ptr_time;
-			
-			foreach($issues as $issue) { /* @var $issue Model_JiraIssue */
-				$id = $issue->id;
-				$ptr_time = $issue->updated;
-				
-				$ptr_id = ($last_time == $ptr_time) ? $id : 0;
-				
-				$logger->info(sprintf("[Search] Indexing %s %d...",
-					$ns,
-					$id
-				));
-				
-				$doc = array(
-					'content' => implode("\n", array(
-						$issue->jira_key,
-						$issue->summary,
-						$issue->description,
-					))
-				);
-				
-				$comments = $issue->getComments();
-				if(is_array($comments))
-				foreach($comments as $comment) {
-					$doc['content'] .= "\n" . $comment['body'];
-				}
-				
-				if(false === ($engine->index($this, $id, $doc)))
-					return false;
-			}
-		}
-		
-		// If we ran out of records, always reset the ID and use the current time
-		if($done) {
-			$ptr_id = 0;
-			$ptr_time = time();
-		}
-		
-		$this->setParam('last_indexed_id', $ptr_id);
-		$this->setParam('last_indexed_time', $ptr_time);
-	}
-	
-	public function delete($ids) {
-		if(false == ($engine = $this->getEngine()))
-			return false;
-		
-		return $engine->delete($this, $ids);
 	}
 };
 
@@ -917,24 +779,14 @@ class View_JiraIssue extends C4_AbstractView implements IAbstractView_Subtotals,
 	}
 	
 	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
-		return 'text';
+		return 'summary';
 	}
 	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_JiraIssue::getFields();
 		
 		$fields = array(
-			'text' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
-					'options' => array('param_key' => SearchFields_JiraIssue::FULLTEXT_CONTENT),
-				),
-			'content' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
-					'options' => array('param_key' => SearchFields_JiraIssue::FULLTEXT_CONTENT),
-				),
-			'created' => 
+			'created' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_JiraIssue::CREATED),
@@ -1026,21 +878,6 @@ class View_JiraIssue extends C4_AbstractView implements IAbstractView_Subtotals,
 		
 		$fields = self::_appendFieldsFromQuickSearchContext(Context_JiraIssue::ID, $fields, null);
 		$fields = self::_appendFieldsFromQuickSearchContext(Context_JiraProject::ID, $fields, 'project');
-		
-		// Engine/schema examples: Fulltext
-		
-		$ft_examples = [];
-		
-		if(false != ($schema = Extension_DevblocksSearchSchema::get(Search_JiraIssue::ID))) {
-			if(false != ($engine = $schema->getEngine())) {
-				$ft_examples = $engine->getQuickSearchExamples($schema);
-			}
-		}
-		
-		if(!empty($ft_examples)) {
-			$fields['text']['examples'] = $ft_examples;
-			$fields['content']['examples'] = $ft_examples;
-		}
 		
 		// Add is_sortable
 		

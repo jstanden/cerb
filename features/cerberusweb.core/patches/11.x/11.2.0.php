@@ -64,6 +64,12 @@ if(!array_key_exists('search_index_tokens', $tables)) {
 // ===========================================================================
 // Convert MySQL Fulltext indexes
 
+// Jira Issues
+if(array_key_exists('fulltext_jira_issue', $tables)) {
+	$db->ExecuteMaster('DROP TABLE fulltext_jira_issue');
+	$db->ExecuteMaster("DELETE FROM cerb_property_store WHERE extension_id = 'jira.search.schema.jira_issue'");
+}
+
 // Snippets
 if(!$db->GetOneMaster(sprintf("SELECT id FROM search_index WHERE record_type = %s AND record_filter = %d", $db->qstr('snippet'), $db->qstr('text')))) {
 	$sql = sprintf("INSERT INTO search_index (name, uri, record_type, record_filter, extension_id, extension_params_json, priority, created_at, updated_at) " .
