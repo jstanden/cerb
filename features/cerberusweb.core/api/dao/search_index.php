@@ -90,11 +90,17 @@ class DAO_SearchIndex extends Cerb_ORMHelper {
 				$aliases = Extension_DevblocksContext::getAliasesForContext($context_ext->manifest);
 				$alias = $aliases['singular'] ?: $aliases['uri'];
 				
-				$fields = $context_ext->getKeyMeta(false);
+				$view = $context_ext->getTempView();
+				$fields = $view->getQuickSearchFields();
 				
 				if(array_key_exists(DevblocksPlatform::strLower($value), $fields)) {
-					$error = sprintf("A field on %s records already exists for URI `%s`.", $alias, $value);
-					return false;
+					$dupe_index_id = $fields[DevblocksPlatform::strLower($value)]['options']['index_id'] ?? null;
+					
+					// This record is allowed to dupe
+					if($dupe_index_id != $id) {
+						$error = sprintf("A search filter on %s records already exists for `%s`.", $alias, $value);
+						return false;
+					}
 				}
 				
 				$models = DAO_SearchIndex::getWhere(sprintf("%s = %s AND %s = %s AND id != %d",
