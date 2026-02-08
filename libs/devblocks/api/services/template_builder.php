@@ -203,6 +203,8 @@ class _DevblocksTemplateBuilder {
 				'str_pos',
 				'str_sub',
 				'strip_lines',
+				'strip_pem_blocks',
+				'strip_url_querystrings',
 				'tokenize',
 				'truncate',
 				'unescape',
@@ -1945,6 +1947,8 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			new \Twig\TwigFilter('str_pos', [$this, 'filter_str_pos']),
 			new \Twig\TwigFilter('str_sub', [$this, 'filter_str_sub']),
 			new \Twig\TwigFilter('strip_lines', [$this, 'filter_strip_lines']),
+			new \Twig\TwigFilter('strip_pem_blocks', [$this, 'filter_strip_pem_blocks']),
+			new \Twig\TwigFilter('strip_url_querystrings', [$this, 'filter_strip_url_querystrings']),
 			new \Twig\TwigFilter('tokenize', [$this, 'filter_tokenize']),
 			new \Twig\TwigFilter('truncate', [$this, 'filter_truncate']),
 			new \Twig\TwigFilter('unescape', [$this, 'filter_unescape']),
@@ -2504,6 +2508,21 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 		}
 		
 		return implode("\r\n", $lines);
+	}
+	
+	function filter_strip_pem_blocks($string) {
+		$search = DevblocksPlatform::services()->search();
+		
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
+		if(!is_string($string))
+			return '';
+		
+		if(str_contains($string, '-----BEGIN'))
+			$string = $search->stripPemContentBlocks($string);
+		
+		return $string;
 	}
 	
 	function filter_tokenize($string) {
