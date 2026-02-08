@@ -2525,6 +2525,18 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 		return $string;
 	}
 	
+	function filter_strip_url_querystrings($string) {
+		$search = DevblocksPlatform::services()->search();
+		
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
+		if(!is_string($string))
+			return '';
+		
+		return $search->sanitizeTextUrlQueryStrings($string);
+	}
+	
 	function filter_tokenize($string) {
 		if($string instanceof Twig\Markup)
 			$string = strval($string);
