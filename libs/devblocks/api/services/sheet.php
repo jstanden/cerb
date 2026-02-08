@@ -1200,14 +1200,19 @@ class _DevblocksSheetServiceTypes {
 				
 			} else {
 				$range = $value_max - $value_min;
-				$value_pos = $value;
 				
-				if($value < $value_min) $value = $value_min;
-				if($value > $value_max) $value = $value_max;
-				if($value_min < 0) $value_pos += abs($value_min);
-				if($value_min > 0) $value_pos -= $value_min;
-				
-				$progress = is_numeric($value) ? ($value_pos / $range) * 5 : 0;
+				if($range != 0) {
+					$value_pos = $value;
+					
+					if($value < $value_min) $value = $value_min;
+					if($value > $value_max) $value = $value_max;
+					if($value_min < 0) $value_pos += abs($value_min);
+					if($value_min > 0) $value_pos -= $value_min;
+					
+					$progress = is_numeric($value) ? ($value_pos / $range) * 5 : 0;
+				} else { // div-by-zero
+					$progress = 0;
+				}
 				
 				$label_min = sprintf('<div style="margin-right:0.7em;width:3em;text-align:right;display:inline-block;">%s</div>', DevblocksPlatform::strEscapeHtml($value_min));
 				$label_max = sprintf('<div style="margin-left:0.7em;width:3em;text-align:left;display:inline-block;">%s</div>', DevblocksPlatform::strEscapeHtml($value_max));
