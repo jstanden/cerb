@@ -53,7 +53,10 @@ if(!array_key_exists('search_index_tokens', $tables)) {
 		CREATE TABLE `search_index_tokens` (
 		`token_hash` bigint NOT NULL DEFAULT 0,
 		`token` varchar(255) NOT NULL DEFAULT '',
-		PRIMARY KEY ('token_hash')
+		`stem` varchar(128) CHARACTER SET latin1 NOT NULL DEFAULT '',
+		PRIMARY KEY ('token_hash'),
+		INDEX `stem` (stem(4)),
+		INDEX `token` (token(4))
 		) ENGINE=%s
 	", APP_DB_ENGINE);
 	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());

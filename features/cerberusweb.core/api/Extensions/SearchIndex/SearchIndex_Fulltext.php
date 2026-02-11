@@ -3,6 +3,7 @@
 namespace Cerb\Extensions\SearchIndex;
 
 use Cerb\Extensions\Extension_SearchIndex;
+use Cerb\Services\Search\PorterStemmer;
 use DevblocksEngine;
 use DevblocksPlatform;
 use Model_SearchIndex;
@@ -330,7 +331,7 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		$db = DevblocksPlatform::services()->database();
 		
 		$db->ExecuteMaster(sprintf(
-			"INSERT IGNORE INTO search_index_tokens (token_hash, token) VALUES %s",
+			"INSERT IGNORE INTO search_index_tokens (token_hash, token, stem) VALUES %s",
 			implode(',', $insert_values),
 		));
 		
@@ -452,8 +453,15 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 			foreach($doc_token_frequencies as $token_hash => $token_data) {
 				$buffer_insert_values[] = sprintf('(%d, %d, %f)', $token_hash, $doc_id, $token_data[1]);
 				
-				if(!array_key_exists($token_hash, $buffer_tokens_to_hashes))
-					$buffer_tokens_to_hashes[$token_hash] = sprintf('(%d, %s)', $token_hash, $db->qstr($token_data[0]));
+				if(!array_key_exists($token_hash, $buffer_tokens_to_hashes)) {
+					$token = $token_data[0];
+					$buffer_tokens_to_hashes[$token_hash] = sprintf(
+						'(%d, %s, %s)',
+						$token_hash,
+						$db->qstr($token),
+						$db->qstr(ctype_alpha($token) ? PorterStemmer::Stem($token) : '')
+					);
+				}
 			}
 			
 			if(

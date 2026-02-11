@@ -39,9 +39,6 @@ class _DevblocksSearchService {
 		// Remove stop words
 		if($stop_words) $tokens = $this->removeStopWords($tokens, $stop_words);
 		
-		// Stem tokens (only alphabetic words)
-		if($stem) $tokens = array_map(fn($token) => ctype_alpha($token) ? PorterStemmer::Stem($token) : $token, $tokens);
-		
 		// Filter min/max token lengths
 		if($min_length || $max_length) {
 			$tokens = array_filter(
