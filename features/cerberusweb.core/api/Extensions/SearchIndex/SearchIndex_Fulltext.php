@@ -92,14 +92,14 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		return intval($count);
 	}
 	
-	public function getTokenStats(Model_SearchIndex $model, string $query): array {
+	public function getTokenStats(Model_SearchIndex $model, string $query, bool $allow_wildcards = false): array {
 		$db = DevblocksPlatform::services()->database();
 		$search = DevblocksPlatform::services()->search();
 		
 		if(!$query) return [];
 		
 		try {
-			$query_tokens = $search->getQueryTokensFromText($query);
+			$query_tokens = $search->getTokensFromText($query, allow_wildcards: $allow_wildcards);
 			$index_tokens = $search->indexTokens($query_tokens);
 			
 			$doc_frequencies = array_combine(
@@ -114,24 +114,52 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 				)
 			);
 			
-			$token_hashes = implode(',', DevblocksPlatform::sanitizeArray(array_keys($doc_frequencies), 'int'));
+			// Split terms and wildcards
+			if($allow_wildcards) {
+				$tokens_terms = array_filter($doc_frequencies, fn($term) => !str_contains($term['token'], '*'));
+			} else {
+				$tokens_terms = $doc_frequencies;
+			}
 			
-			if (!$token_hashes) return [];
+			if($tokens_terms) {
+				$token_term_hashes = implode(',', DevblocksPlatform::sanitizeArray(array_keys($tokens_terms), 'int'));
+				
+				// Calculate the doc frequency of each token
+				$sql = sprintf(
+					"SELECT token_hash, COUNT(record_id) AS hits " .
+					"FROM search_index_%d " .
+					"WHERE token_hash IN (%s) " .
+					"GROUP BY token_hash",
+					$model->id,
+					$token_term_hashes
+				);
+				$results = $db->GetArrayReader($sql);
+				
+				// hash => hits (including zeroes on non-matches)
+				foreach ($results as $result) {
+					$doc_frequencies[$result['token_hash']]['docs'] = intval($result['hits']);
+				}
+			}
 			
-			// Calculate the doc frequency of each token
-			$sql = sprintf(
-				"SELECT token_hash, COUNT(record_id) AS hits ".
-				"FROM search_index_%d ".
-				"WHERE token_hash IN (%s) ".
-				"GROUP BY token_hash",
-				$model->id,
-				$token_hashes
-			);
-			$results = $db->GetArrayReader($sql);
-			
-			// hash => hits (including zeroes on non-matches)
-			foreach ($results as $result) {
-				$doc_frequencies[$result['token_hash']]['docs'] = intval($result['hits']);
+			if($allow_wildcards) {
+				$tokens_wildcard = array_filter($doc_frequencies, fn($term) => str_contains($term['token'], '*'));
+				
+				foreach($tokens_wildcard as $token_hash => $token_term) {
+					// Calculate the doc frequency of each token
+					$sql = sprintf(
+						"SELECT COUNT(record_id) AS hits " .
+						"FROM search_index_%d " .
+						"WHERE token_hash IN (".
+							"SELECT token_hash FROM search_index_tokens WHERE token LIKE %s".
+						") ",
+						$model->id,
+						$db->qstr(str_replace('*', '%', $token_term['token']))
+					);
+					$result = $db->GetRowReader($sql);
+					
+					// hash => hits (including zeroes on non-matches)
+					$doc_frequencies[$token_hash]['docs'] = intval($result['hits']);
+				}
 			}
 			
 			// Sort by rarest terms first
@@ -145,27 +173,35 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 	}
 	
 	public function queryJoinFromRecordQuickSearch(Model_SearchIndex $model, string $query): string {
+		$db = DevblocksPlatform::services()->database();
+		
 		if(!$query) return '-1';
 		
 		try {
-			$doc_frequencies = $this->getTokenStats($model, $query);
+			$allow_wildcards = !($model->extension_params['wildcards_disable'] ?? false);
+			$doc_frequencies = $this->getTokenStats($model, $query, allow_wildcards: $allow_wildcards);
 			
-			// Index token->count
-			$doc_frequencies = array_combine(
-				array_column($doc_frequencies, 'hash'),
-				array_column($doc_frequencies, 'docs'),
-			);
+			if(!$doc_frequencies) return '-1';
 			
 			// If the rarest term is zero, match nothing w/ AND operator
-			if (!$doc_frequencies || reset($doc_frequencies) == 0) return '-1';
-			
+			if($doc_frequencies[array_key_first($doc_frequencies)]['docs'] == 0) return '-1';
+		
 			$sql_subqueries = array_map(
-				fn($token_hash) => sprintf(
-					'SELECT record_id FROM search_index_%d WHERE token_hash = %d',
-					$model->id,
-					$token_hash
-				),
-				array_keys($doc_frequencies)
+				fn($term) =>
+					($allow_wildcards && str_contains($term['token'], '*'))
+					// If wildcards are enabled, match any token that contains the wildcard
+					? sprintf(
+						'SELECT record_id FROM search_index_%d '.
+                 		'WHERE token_hash IN (SELECT token_hash FROM search_index_tokens WHERE token LIKE %s)',
+						$model->id,
+						$db->qstr(str_replace('*', '%', $term['token']))
+					// Otherwise match the hash directly
+					) : sprintf(
+						'SELECT record_id FROM search_index_%d WHERE token_hash = %d',
+						$model->id,
+						$term['hash']
+					),
+				$doc_frequencies
 			);
 			
 			// Nest by the rarest term first to constrain results
@@ -187,7 +223,8 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		
 		$total_docs = $this->getRecordCount($model);
 		
-		$doc_frequencies = $this->getTokenStats($model, $query);
+		$allow_wildcards = !($model->extension_params['wildcards_disable'] ?? false);
+		$doc_frequencies = $this->getTokenStats($model, $query, allow_wildcards: $allow_wildcards);
 		
 		$doc_frequencies = array_combine(
 			array_column($doc_frequencies, 'hash'),
@@ -439,7 +476,7 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 			$string_to_index = $tpl_builder->build($record_template, $dict);
 			
 			// Tokenize (consistently for indexing and querying)
-			$tokens = $search->getQueryTokensFromText($string_to_index, truncate: 25_000);
+			$tokens = $search->getTokensFromText($string_to_index, truncate: 25_000);
 			
 			if(!$tokens) continue;
 			

@@ -6,6 +6,7 @@ class _DevblocksSearchService {
 	static ?_DevblocksSearchService $instance = null;
 	
 	const DEFAULT_TOKENIZER_PATTERN = "[^[:alnum:]\'\.\_\-]";
+	const DEFAULT_TOKENIZER_PATTERN_WILDCARDS = "[^[:alnum:]\'\.\_\-\*]";
 	
 	private function __construct() {}
 	
@@ -29,7 +30,11 @@ class _DevblocksSearchService {
 		return $tokens;
 	}
 	
-	public function getQueryTokensFromText(string $string, array $stop_words=self::DEFAULT_STOP_WORDS, int $truncate=0, int $min_length=1, int $max_length=84, bool $stem=true, string $tokenizer_pattern=self::DEFAULT_TOKENIZER_PATTERN) : array {
+	public function getTokensFromText(string $string, array $stop_words=self::DEFAULT_STOP_WORDS, int $truncate=0, int $min_length=1, int $max_length=84, bool $allow_wildcards=false) : array {
+		$tokenizer_pattern =
+			($allow_wildcards) ? self::DEFAULT_TOKENIZER_PATTERN_WILDCARDS
+				: self::DEFAULT_TOKENIZER_PATTERN;
+		
 		// Truncate
 		if($truncate) $string = $this->truncateOnWhitespace($string, $truncate);
 		
