@@ -301,77 +301,45 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		
 		if(!$query) return [];
 		
-		$total_docs = $this->getRecordCount($model);
-		
 		$allow_wildcards = !($model->extension_params['wildcards_disable'] ?? false);
-		$doc_frequencies = $this->getTokenStats($model, $query, allow_wildcards: $allow_wildcards);
+		$allow_stemming = !($model->extension_params['stemming_disable'] ?? false);
 		
-		$doc_frequencies = array_combine(
-			array_column($doc_frequencies, 'hash'),
-			array_column($doc_frequencies, 'docs')
+		$doc_frequencies = $this->getTokenStats(
+			$model,
+			$query,
+			allow_wildcards: $allow_wildcards,
+			allow_stemming: $allow_stemming
 		);
 		
-		// If the rarest term is zero, match nothing w/ AND operator
-		if(reset($doc_frequencies) == 0) return [];
+		if(!$doc_frequencies) return [];
 		
-		// Pre-calculate TF-IDF
-		$idfs = array_combine(
-			array_keys($doc_frequencies),
-			array_map(
-				fn($token_hash) => log($total_docs / $doc_frequencies[$token_hash]),
-				array_keys($doc_frequencies)
-			)
-		);
+		// Get ordered nested subqueries for tokens
+		$sql_query_parts = $this->_getSqlQueryPartsForTokenFrequencies($model, $doc_frequencies);
 		
-		// Sort by the highest IDF score first
-		arsort($idfs);
+		// Index IDFs by hash for scoring
+		$idfs = array_column($doc_frequencies, 'idf', 'hash');
 		
-		// Use the top 5 IDFs
-		$idfs = array_slice($idfs, 0, 5, true);
-		
-		// Union token scores
-		$join_idfs_sql =
-			implode(' UNION ALL ',
-				array_map(
-					fn(int $hash, float $idf, int $idx) => sprintf(
-						'SELECT %d%s, %f%s',
-						$hash,
-						!$idx ? ' AS token_hash' : '',
-						$idf,
-						!$idx ? ' AS value' : '',
-					),
-					array_keys($idfs),
-					array_values($idfs),
-					range(0, count($idfs) - 1)
-				)
-			);
-		
-		$sql_subqueries = array_map(
-			fn($token_hash) => sprintf(
-				'SELECT record_id FROM search_index_%d WHERE token_hash = %d',
-				$model->id,
-				$token_hash
+		// Append score per term
+		$idf_scores = array_map(
+			fn($hash) => sprintf(
+				'MAX(%s.token_tf) * %f',
+				$sql_query_parts['tables'][$hash],
+				$idfs[$hash] ?? 0.0
 			),
-			array_keys($doc_frequencies)
+			array_keys($sql_query_parts['tables'])
 		);
 		
-		$sql = array_reduce($sql_subqueries, function ($carry, $sql) {
-			if (!$carry) return $sql;
-			return sprintf("%s AND record_id IN (%s)", $sql, $carry);
-		}, '');
+		$sql_query_parts['select'][] = sprintf('(%s) AS score',
+			implode(' + ', $idf_scores)
+		);
 		
-		$sql = sprintf(
-			"SELECT record_id, SUM(token_tf * idf.value) AS score ".
-			"FROM search_index_%d ".
-			"JOIN (%s) AS idf ON idf.token_hash = search_index_%d.token_hash ".
-			"WHERE record_id IN (%s) ".
-			"GROUP BY record_id ".
-			"ORDER BY score DESC ".
-			"LIMIT %d",
-			$model->id,
-			$join_idfs_sql,
-			$model->id,
-			$sql,
+		// Assemble query
+		$sql = sprintf('SELECT %s %s %s GROUP BY s0.record_id ORDER BY score DESC LIMIT %d',
+			implode(', ', $sql_query_parts['select']),
+			implode(' ', $sql_query_parts['join']),
+			($sql_query_parts['where'] ?? null)
+				? sprintf('WHERE %s', implode(' AND ', $sql_query_parts['where']))
+				: '',
 			$limit
 		);
 		
@@ -385,8 +353,8 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		
 		return array_map(
 			fn($row) => [
-				'id' => intval($row['record_id']),
-				'score' => floatval($row['score'])
+				'id' => intval($row['record_id'] ?? 0),
+				'score' => floatval($row['score'] ?? 0)
 			],
 			$rows,
 		);
