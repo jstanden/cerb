@@ -1,12 +1,7 @@
 <?php
 
-use Cerb\Services\Search\PorterStemmer;
-
 class _DevblocksSearchService {
 	static ?_DevblocksSearchService $instance = null;
-	
-	const DEFAULT_TOKENIZER_PATTERN = "[^[:alnum:]\'\.\_\-]";
-	const DEFAULT_TOKENIZER_PATTERN_WILDCARDS = "[^[:alnum:]\'\.\_\-\*]";
 	
 	private function __construct() {}
 	
@@ -15,6 +10,13 @@ class _DevblocksSearchService {
 			self::$instance = new _DevblocksSearchService();
 		
 		return self::$instance;
+	}
+	
+	private function _getTokenizerPattern(bool $allow_wildcards=false, bool $allow_stemming=false) : string {
+		return sprintf(
+			"[^[:alnum:]\'\.\_\-%s]",
+			($allow_wildcards ? '\*' : '') . ($allow_stemming ? '\~' : '')
+		);
 	}
 	
 	private function _hashToken(string $token) : int {
@@ -30,16 +32,26 @@ class _DevblocksSearchService {
 		return $tokens;
 	}
 	
-	public function getTokensFromText(string $string, array $stop_words=self::DEFAULT_STOP_WORDS, int $truncate=0, int $min_length=1, int $max_length=84, bool $allow_wildcards=false) : array {
-		$tokenizer_pattern =
-			($allow_wildcards) ? self::DEFAULT_TOKENIZER_PATTERN_WILDCARDS
-				: self::DEFAULT_TOKENIZER_PATTERN;
-		
+	public function getTokensFromText(string $string, array $stop_words=self::DEFAULT_STOP_WORDS, int $truncate=0, int $min_length=1, int $max_length=84, bool $allow_wildcards=false, bool $allow_stemming=false) : array {
 		// Truncate
 		if($truncate) $string = $this->truncateOnWhitespace($string, $truncate);
 		
 		// Tokenize by regex
+		$tokenizer_pattern = $this->_getTokenizerPattern($allow_wildcards, $allow_stemming);
 		$tokens = $this->tokenize($string, $tokenizer_pattern);
+		
+		// Don't allow bare wildcards
+		if($allow_wildcards) {
+			$tokens = array_diff($tokens, ['*']);
+		}
+		
+		// Only allow stemming at the end
+		if($allow_stemming) {
+			$tokens = array_map(function ($token) {
+				if (!str_contains($token, '~')) return $token;
+				return str_replace('~', '', $token) . '~';
+			}, $tokens);
+		}
 		
 		// Remove stop words
 		if($stop_words) $tokens = $this->removeStopWords($tokens, $stop_words);
@@ -86,7 +98,7 @@ class _DevblocksSearchService {
 		return mb_substr($content, $start, $next_ws-$start);
 	}
 	
-	public function tokenize(string $string, string $pattern=self::DEFAULT_TOKENIZER_PATTERN) : array {
+	public function tokenize(string $string, string $pattern) : array {
 		$strings = DevblocksPlatform::services()->string();
 		
 		// Tokenize (term-frequency)
