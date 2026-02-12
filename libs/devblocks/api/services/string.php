@@ -557,7 +557,7 @@ class _DevblocksStringService {
 		return $matched;
 	}
 	
-	public function tokenize(string $string, $case_insensitive=true, $unique=true, $pattern="[^[:alnum:]\.\_\-]", $replacement=' ') : array {
+	public function tokenize(string $string, bool $case_insensitive=true, bool $unique=true, string $pattern="[^[:alnum:]\.\_\-]", string $replacement=' ') : array {
 		if($case_insensitive)
 			$string = mb_convert_case($string, MB_CASE_LOWER);
 		
