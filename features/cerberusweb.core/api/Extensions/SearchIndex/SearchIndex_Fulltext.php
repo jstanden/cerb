@@ -187,6 +187,21 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 			// Sort by rarest terms first
 			DevblocksPlatform::sortObjects($doc_frequencies, '[docs]');
 			
+			// If the rarest term is zero, match nothing w/ AND operator
+			if($doc_frequencies[array_key_first($doc_frequencies)]['docs'] == 0) return [];
+			
+			// Pre-calculate TF-IDF
+			$doc_frequencies = array_map(
+				fn($term) => array_merge($term, ['idf' => log($total_docs / $term['docs'])]),
+				$doc_frequencies
+			);
+			
+			// Sort by the highest IDF score first
+			DevblocksPlatform::sortObjects($doc_frequencies, '[idf]', false);
+			
+			// Use the top 10 terms by IDF
+			$doc_frequencies = array_slice($doc_frequencies, 0, $max_terms, true);
+			
 			return array_values($doc_frequencies);
 			
 		} catch (\Throwable) {
