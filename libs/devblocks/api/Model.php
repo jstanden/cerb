@@ -808,14 +808,15 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 	
 	static function _getWhereSQLFromSearchIndexField(DevblocksSearchCriteria $param, $join_key) : string {
 		$index_id = intval($param->value['index_id'] ?? 0);
-		$query = $param->value['query'] ?? '';
+		$query = strval($param->value['query'] ?? '');
+		$fields = strval($param->value['fields'] ?? '');
 		
 		if(!($search_index = DAO_SearchIndex::get($index_id)))
 			return '-1';
 		
 		$search_ext = $search_index->getExtension();
 		
-		if(!($sql = $search_ext->queryJoinFromRecordQuickSearch($search_index, $query)))
+		if(!($sql = $search_ext->queryJoinFromRecordQuickSearch($search_index, $query, $fields)))
 			return '-1';
 		
 		return sprintf("%s IN (%s) ", $join_key, $sql);
@@ -2805,6 +2806,7 @@ class DevblocksSearchCriteria {
 		$oper = DevblocksSearchCriteria::OPER_CUSTOM;
 		
 		$terms = [];
+		$field_tokens = [];
 		
 		// Unwrap a parenthetical group ("quoted phrase" terms)
 		if(
@@ -2813,26 +2815,31 @@ class DevblocksSearchCriteria {
 			&& $tokens[0] instanceof CerbQuickSearchLexerToken
 			&& $tokens[0]->type == 'T_GROUP'
 		) {
-			$new_tokens = [];
-			
-			foreach($tokens[0]->children as $token) {
-				if($token->type == 'T_FIELD' && $token->value == '_text')
-					$new_tokens = array_merge($new_tokens, $token->children);
-			}
-			
-			$tokens = $new_tokens;
-			unset($new_tokens);
+			$tokens = $tokens[0]->children;
 		}
 		
 		foreach($tokens as $token) {
-			switch($token->type) {
-				case 'T_QUOTED_TEXT':
-					$terms[] = '"' . $token->value . '"';
-					break;
-					
-				case 'T_TEXT':
-					$terms[] = $token->value;
-					break;
+			if($token->type == 'T_FIELD') {
+				// Non-filter literal text
+				if($token->value == '_text') {
+					foreach($token->children as $child) {
+						if($child->type == 'T_QUOTED_TEXT') {
+							$terms[] = '"' . $child->value . '"';
+						} elseif($child->type == 'T_TEXT') {
+							$terms[] = $child->value;
+						}
+					}
+				
+				// Other filters
+				} else {
+					$field_tokens[] = $token;
+				}
+				
+			} else if($token->type == 'T_QUOTED_TEXT') {
+				$terms[] = '"' . $token->value . '"';
+				
+			} elseif($token->type == 'T_TEXT') {
+				$terms[] = $token->value;
 			}
 		}
 		
@@ -2842,6 +2849,7 @@ class DevblocksSearchCriteria {
 			[
 				'index_id' => $index_id,
 				'query' => implode(' ', $terms),
+				'fields' => CerbQuickSearchLexer::getTokensAsQuery($field_tokens),
 			]
 		);
 	}

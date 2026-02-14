@@ -24,7 +24,7 @@ abstract class Extension_SearchIndex extends DevblocksExtension {
 	
 	abstract public function indexDocumentsByModel(Model_SearchIndex $model, int $limit=25) : array;
 	
-	abstract public function queryJoinFromRecordQuickSearch(Model_SearchIndex $model, string $query): string;
+	abstract public function queryJoinFromRecordQuickSearch(Model_SearchIndex $model, string $query, string $fields=''): string;
 	
 	abstract public function queryDocumentsWithScore(Model_SearchIndex $model, string $query, int $limit = 100): array;
 	

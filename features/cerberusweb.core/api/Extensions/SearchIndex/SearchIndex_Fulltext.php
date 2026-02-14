@@ -259,7 +259,7 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		];
 	}
 	
-	public function queryJoinFromRecordQuickSearch(Model_SearchIndex $model, string $query): string {
+	public function queryJoinFromRecordQuickSearch(Model_SearchIndex $model, string $query, string $fields=''): string {
 		if(!$query) return '-1';
 		
 		try {
