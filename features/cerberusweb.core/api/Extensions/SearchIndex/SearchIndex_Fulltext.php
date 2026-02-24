@@ -6,6 +6,7 @@ use Cerb\Extensions\Extension_SearchIndex;
 use Cerb\Services\Search\PorterStemmer;
 use DevblocksEngine;
 use DevblocksPlatform;
+use DevblocksSearchCriteria;
 use Model_SearchIndex;
 
 class SearchIndex_Fulltext extends Extension_SearchIndex {
@@ -261,6 +262,31 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 	
 	public function queryJoinFromRecordQuickSearch(Model_SearchIndex $model, string $query, string $fields=''): string {
 		if(!$query) return '-1';
+		
+		// Receive filters like `top:`
+		$fields = \CerbQuickSearchLexer::getFieldsFromQuery($fields);
+
+		// If `top:` parameter is provided, use scoring and limit
+		if(($field_top = \CerbQuickSearchLexer::getFieldByKey('top', $fields))) {
+			/* @var DevblocksSearchCriteria $field_top */
+			$param_top = DevblocksSearchCriteria::getNumberParamFromTokens($field_top->key, $field_top->tokens);
+			$top_k = DevblocksPlatform::intClamp($param_top->value ?? 1, 1, 1_000);
+			
+			if($top_k) {
+				$docs = $this->queryDocumentsWithScore($model, $query, limit: $top_k);
+				
+				$doc_ids = DevblocksPlatform::sanitizeArray(
+					array_column($docs, 'id'),
+					'int'
+				);
+				
+				if(is_array($doc_ids) && $doc_ids) {
+					return implode(',', $doc_ids);
+				}
+				
+				return '-1';
+			}
+		}
 		
 		try {
 			$allow_wildcards = !($model->extension_params['wildcards_disable'] ?? false);
