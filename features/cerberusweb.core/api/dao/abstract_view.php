@@ -606,6 +606,10 @@ abstract class C4_AbstractView {
 						$oper = null;
 						$value = null;
 						
+						// Reset the model sort before parsing
+						$this->renderSortBy = null;
+						$this->renderSortAsc = 1;
+						
 						if(!(CerbQuickSearchLexer::getOperStringFromTokens($p->tokens, $oper, $value)))
 							break;
 						
