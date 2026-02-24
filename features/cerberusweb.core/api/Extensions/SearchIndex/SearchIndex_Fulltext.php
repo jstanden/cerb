@@ -444,6 +444,7 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		
 		$record_ext = $model->getRecordTypeExtension();
 		$record_template = ($model->extension_params['content'] ?? '') ?: '{{__label}}';
+		$record_template_boost = ($model->extension_params['content_boost'] ?? '');
 		
 		$search_class = $record_ext->getSearchClass();
 		
@@ -533,6 +534,16 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 			
 			// Index TF-IDF
 			if(!($doc_token_frequencies = $search->indexTokens($tokens))) continue;
+			
+			// Boost TF
+			if($record_template_boost) {
+				$string_to_boost = $tpl_builder->build($record_template_boost, $dict);
+				$tokens_boost = $search->getTokensFromText($string_to_boost, truncate: 1_000);
+				$boost_frequencies = $search->indexTokens($tokens_boost);
+				foreach(array_keys($boost_frequencies) as $token_hash) {
+					$doc_token_frequencies[$token_hash][1] += 2;
+				}
+			}
 			
 			// Map tokens to hashes for buffer
 			foreach($doc_token_frequencies as $token_hash => $token_data) {

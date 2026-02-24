@@ -16,6 +16,13 @@
                 <textarea name="params[content]" placeholder="e.g. {literal}{{content}}{/literal}" class="cerb-template-trigger" data-context="{$model->record_type}" style="width:100%;height:8em;">{$model->extension_params.content}</textarea>
             </div>
         </div>
+
+        <div style="margin-top:0.5em;">
+            <b>Boost terms using this template:</b>
+            <div>
+                <textarea name="params[content_boost]" placeholder="e.g. {literal}{{title}}{/literal}" class="cerb-template-trigger" data-context="{$model->record_type}" style="width:100%;height:4em;">{$model->extension_params.content_boost}</textarea>
+            </div>
+        </div>
     </fieldset>
 
     <fieldset class="peek" style="margin-top:1em;">
