@@ -3178,6 +3178,16 @@
 				<seg>upload file</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.upload.file.browse">
+			<tuv xml:lang="en_US">
+				<seg>browse</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.upload.file.drag_and_drop">
+			<tuv xml:lang="en_US">
+				<seg>Drag and drop a file, or</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.upload.files">
 			<tuv xml:lang="en_US">
 				<seg>upload files</seg>

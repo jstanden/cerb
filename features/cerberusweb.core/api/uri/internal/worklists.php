@@ -1562,31 +1562,59 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 	}
 	
 	private function _internalAction_parseImportFile() {
-		$csv_file = $_FILES['csv_file'] ?? null;
+		$file = $_FILES['import_file'] ?? null;
 		
-		if(!is_array($csv_file) || !isset($csv_file['tmp_name']) || empty($csv_file['tmp_name']))
+		if(!is_array($file) || !isset($file['tmp_name']) || empty($file['tmp_name']))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
-		$filename = basename($csv_file['tmp_name']);
+		$filename = basename($file['tmp_name']);
 		$new_filename = APP_TEMP_PATH . '/' . $filename;
 		
-		if(!rename($csv_file['tmp_name'], $new_filename))
+		if(!rename($file['tmp_name'], $new_filename))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		$visit = CerberusApplication::getVisit();
-		$visit->set('import.last.csv', $new_filename);
+		header('Content-Type: application/json; charset=utf-8');
+		
+		$expires_at = $inputs['expires'] ?? (time() + 3600);
+		$resource_token = DevblocksPlatform::services()->string()->uuid();
+		
+		if(!($fp = fopen($new_filename, 'r')))
+			DevblocksPlatform::dieWithHttpError(null, 500);
+		
+		$mime_type = 'text/csv';
+		
+		// Peek at the first byte to check the format
+		if(fread($fp, 1) == '{') $mime_type = 'text/jsonl';
+		fseek($fp, 0); // rewind
+		
+		$resource_id = \DAO_AutomationResource::create([
+			\DAO_AutomationResource::NAME => $file['name'],
+			\DAO_AutomationResource::MIME_TYPE => $mime_type,
+			\DAO_AutomationResource::TOKEN => $resource_token,
+			\DAO_AutomationResource::EXPIRES_AT => $expires_at,
+		]);
+		
+		if(is_resource($fp)) {
+			\Storage_AutomationResource::put($resource_id, $fp);
+			fclose($fp);
+		}
+		
+		echo json_encode([
+			'import_token' => $resource_token,
+			'mime_type' => $mime_type
+		]);
 		
 		DevblocksPlatform::exit();
 	}
 	
 	private function _internalAction_renderImportMappingPopup() {
 		$tpl = DevblocksPlatform::services()->template();
-		$visit = CerberusApplication::getVisit();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$layer = DevblocksPlatform::importGPC($_REQUEST['layer'] ?? null,'string');
 		$context = DevblocksPlatform::importGPC($_REQUEST['context'] ?? null,'string','');
 		$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'] ?? null,'string','');
+		$import_token = DevblocksPlatform::importGPC($_REQUEST['import_token'] ?? null,'string','');
 		
 		if(!($context_ext = Extension_DevblocksContext::get($context)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -1606,14 +1634,30 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		$tpl->assign('keys', $keys);
 		
 		// Read the first line from the file
-		
-		if(!($csv_file = $visit->get('import.last.csv', '')))
+		if(!($automation_resource = DAO_AutomationResource::getByToken($import_token)))
 			DevblocksPlatform::dieWithHttpError(null, 500);
+		
+		$fp = DevblocksPlatform::getTempFile();
+		
+		if(!($automation_resource->getFileContents($fp)))
+			DevblocksPlatform::dieWithHttpError(null, 500);
+		
+		// Is this CSV or JSON?
+		if($automation_resource->mime_type == 'text/jsonl') {
+			$line = fgets($fp);
 			
-		if(!($fp = fopen($csv_file, 'rt')))
-			DevblocksPlatform::dieWithHttpError(null, 500);
+			// The line must be a JSON-encoded object with keys
+			if(false === ($json = json_decode($line, true)) || !is_array($json))
+				DevblocksPlatform::dieWithHttpError(null, 500);
+			
+			$columns = array_keys($json);
 		
-		$columns = fgetcsv($fp);
+		} else {
+			// In a CSV file, the first line is assumed to be the header names
+			if(false === ($columns = fgetcsv($fp)))
+				DevblocksPlatform::dieWithHttpError(null, 500);
+		}
+		
 		fclose($fp);
 		
 		$tpl->assign('columns', $columns);
@@ -1623,6 +1667,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		$tpl->assign('layer', $layer);
 		$tpl->assign('context', $context_ext->id);
 		$tpl->assign('view_id', $view_id);
+		$tpl->assign('import_token', $import_token);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/import/popup_mapping.tpl');
 	}
@@ -1670,6 +1715,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		$context = DevblocksPlatform::importGPC($_POST['context'] ?? null, 'string','');
+		$import_token = DevblocksPlatform::importGPC($_POST['import_token'] ?? null, 'string','');
 		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string','');
 		$is_preview = DevblocksPlatform::importGPC($_POST['is_preview'] ?? null, 'integer',0);
 		
@@ -1678,14 +1724,12 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		$column_custom = DevblocksPlatform::importGPC($_POST['column_custom'] ?? null, 'array', []);
 		$sync_dupes = DevblocksPlatform::importGPC($_POST['sync_dupes'] ?? null, 'array', []);
 		
-		$visit = CerberusApplication::getVisit();
-		
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 		
 		$preview_output = '';
 		
 		try {
-			if(null == ($context_ext = Extension_DevblocksContext::get($context)))
+			if(!($context_ext = Extension_DevblocksContext::get($context)))
 				DevblocksPlatform::dieWithHttpError(null, 404);
 			
 			if(!($context_ext instanceof IDevblocksContextImport))
@@ -1727,20 +1771,37 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 			// Counters
 			$line_number = 0;
 			
-			// CSV
-			if(!($csv_file = $visit->get('import.last.csv', '')))
-				DevblocksPlatform::dieWithHttpError(null, 500);
+			$fp = DevblocksPlatform::getTempFile();
 			
-			if(!($fp = fopen($csv_file, 'rt')))
-				DevblocksPlatform::dieWithHttpError(null, 500);
+			if(!($automation_resource = DAO_AutomationResource::getByToken($import_token)))
+				throw new Exception_DevblocksValidationError("The import file does not exist.");
+				
+			if(false === $automation_resource->getFileContents($fp))
+				throw new Exception_DevblocksValidationError("The import file could not be read.");
 			
-			// Do we need to consume a first row of headings?
-			@fgetcsv($fp, 8192, ',', '"');
+			// Do we need to consume the first row of headings in CSV?
+			if(!($automation_resource->mime_type == 'text/jsonl')) {
+				fgetcsv($fp, 64_000, ',', '"');
+			}
+			
+			if($is_preview)
+				$preview_output .= "<table>";
 			
 			while(!feof($fp)) {
-				$parts = fgetcsv($fp, 8192, ',', '"');
+				$parts = [];
 				
-				if($is_preview && $line_number > 25)
+				// JSONL or CSV
+				if($automation_resource->mime_type == 'text/jsonl') {
+					if(false !== ($line = fgets($fp))) {
+						if(false !== ($parts = json_decode($line, true)) && is_array($parts))
+							$parts = array_values($parts);
+					}
+
+				} else {
+					$parts = fgetcsv($fp, 64_000, ',', '"');
+				}
+				
+				if($is_preview && $line_number >= 10)
 					continue;
 				
 				if(empty($parts) || (1==count($parts) && is_null($parts[0])))
@@ -1891,7 +1952,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 					$value = $context_ext->importKeyValue($key, $value);
 					
 					if($is_preview) {
-						$preview_output .= sprintf("%s =&gt; %s<br>",
+						$preview_output .= sprintf("<tr><td style='vertical-align:top;font-weight:bold;'>%s:</td><td>%s</td></tr>",
 							DevblocksPlatform::strEscapeHtml($keys[$key]['label']),
 							DevblocksPlatform::strEscapeHtml(is_array($value) ? sprintf('[%s]', implode(', ', $value)) : $value)
 						);
@@ -1926,7 +1987,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 				}
 				
 				if($is_preview) {
-					$preview_output .= "<hr>";
+					$preview_output .= "<tr><td colspan='2' style='border-top:1px solid;'></td></tr>";
 				}
 				
 				// Check for dupes
@@ -1948,9 +2009,11 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 					$context_ext->importSaveObject($fields, $custom_fields, $meta);
 			}
 			
+			if($is_preview)
+				$preview_output .= "</table>";
+			
 			if(!$is_preview) {
-				@unlink($csv_file); // nuke the imported file
-				$visit->set('import.last.csv',null);
+				DAO_AutomationResource::delete([$automation_resource->id]);
 				
 				if(!empty($view_id) && !empty($context)) {
 					C4_AbstractView::setMarqueeContextImported($view_id, $context, $line_number);

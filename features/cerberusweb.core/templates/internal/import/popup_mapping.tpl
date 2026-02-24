@@ -5,6 +5,7 @@
 <input type="hidden" name="module" value="worklists">
 <input type="hidden" name="action" value="saveImport">
 <input type="hidden" name="context" value="{$context}">
+<input type="hidden" name="import_token" value="{$import_token}">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
@@ -117,6 +118,7 @@ $(function() {
 			formData.set('module', 'worklists');
 			formData.set('action', 'saveImport');
 			formData.set('context', '{$context}');
+			formData.set('import_token', '{$import_token}');
 			formData.set('is_preview', '1');
 
 			genericAjaxPost(formData, '', '', function(json) {
