@@ -145,7 +145,7 @@ class AwsBedrock extends Extension_DevblocksLlmProvider implements Chat, Embeddi
 		$authentication_uri = $this->getParam('authentication', null);
 		$max_tokens = intval($this->getParam('max_tokens', 2048));
 		$anthropic_version = $this->getParam('anthropic_version', 'bedrock-2023-05-31');
-		$model = $this->getParam('model', 'anthropic.claude-3-5-haiku-20241022-v1:0');
+		$model = $this->getParam('model', 'us.anthropic.claude-haiku-4-5-20251001-v1:0');
 		
 		$body_payload = [
 			'anthropic_version' => $anthropic_version,

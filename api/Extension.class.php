@@ -1467,7 +1467,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'max_tokens@int: 2048',
 					[
 						'caption' => 'model:',
-						'snippet' => "# See: https://docs.aws.amazon.com/bedrock/latest/userguide/models-supported.html\nmodel:",
+						'snippet' => "# See: https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles-support.html\nmodel:",
 						'score' => 2000,
 					],
 				],
@@ -1481,13 +1481,10 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					]
 				],
 				'(.*):llm.agent:inputs:llm:aws_bedrock:model:' => [
-					'anthropic.claude-sonnet-4-5-20250929-v1:0',
-					'anthropic.claude-opus-4-5-20251101-v1:0',
-					'anthropic.claude-haiku-4-5-20251001-v1:0',
-					'anthropic.claude-opus-4-1-20250805-v1:0',
-					'anthropic.claude-sonnet-4-20250514-v1:0',
-					'anthropic.claude-opus-4-20250514-v1:0',
-					'anthropic.claude-3-haiku-20240307-v1:0',
+					'us.anthropic.claude-3-5-haiku-20241022-v1:0',
+					'us.anthropic.claude-haiku-4-5-20251001-v1:0',
+					'us.anthropic.claude-opus-4-6-v1',
+					'us.anthropic.claude-sonnet-4-6',
 				],
 				'(.*):llm.agent:inputs:llm:docker:' => [
 					[
@@ -1849,7 +1846,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'max_tokens@int: 2048',
 					[
 						'caption' => 'model:',
-						'snippet' => "# See: https://docs.aws.amazon.com/bedrock/latest/userguide/models-supported.html\nmodel:",
+						'snippet' => "# See: https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles-support.html\nmodel:",
 						'score' => 2000,
 					],
 				],
@@ -1863,13 +1860,10 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					]
 				],
 				'(.*):llm.chat:inputs:llm:aws_bedrock:model:' => [
-					'anthropic.claude-sonnet-4-5-20250929-v1:0',
-					'anthropic.claude-opus-4-5-20251101-v1:0',
-					'anthropic.claude-haiku-4-5-20251001-v1:0',
-					'anthropic.claude-opus-4-1-20250805-v1:0',
-					'anthropic.claude-sonnet-4-20250514-v1:0',
-					'anthropic.claude-opus-4-20250514-v1:0',
-					'anthropic.claude-3-haiku-20240307-v1:0',
+					'us.anthropic.claude-3-5-haiku-20241022-v1:0',
+					'us.anthropic.claude-haiku-4-5-20251001-v1:0',
+					'us.anthropic.claude-opus-4-6-v1',
+					'us.anthropic.claude-sonnet-4-6',
 				],
 				'(.*):llm.chat:inputs:llm:docker:' => [
 					[
