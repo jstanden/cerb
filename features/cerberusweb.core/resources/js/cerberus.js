@@ -1458,6 +1458,7 @@ let twigAutocompleteSuggestions = {
 		{ value: "url_decode('json')", meta: "filter" },
 		{ value: "url_encode", meta: "filter" },
 		{ value: "values", meta: "filter" },
+		{ value: "xml_encode(format=true)", meta: "filter" },
 	],
 
 	functions: [

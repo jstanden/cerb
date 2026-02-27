@@ -208,6 +208,7 @@ class _DevblocksTemplateBuilder {
 				'unescape',
 				'url_decode',
 				'values',
+				'xml_encode',
 				
 				'abs',
 				'batch',
@@ -1915,6 +1916,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			new \Twig\TwigFilter('unescape', [$this, 'filter_unescape']),
 			new \Twig\TwigFilter('url_decode', [$this, 'filter_url_decode']),
 			new \Twig\TwigFilter('values', [$this, 'filter_values']),
+			new \Twig\TwigFilter('xml_encode', [$this, 'filter_xml_encode']),
 		);
 	}
 	
@@ -2518,6 +2520,56 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			return [];
 		
 		return array_values($array);
+	}
+	
+	function filter_xml_encode($array, $format=false) : string {
+		if(!array($array))
+			return '';
+		
+		$arrayToXml = function(array $data, DOMDocument $doc, DOMNode $parent = null) use (&$arrayToXml) : void {
+			foreach($data as $key => $value) {
+				// Ignore DOM hints
+				if(DevblocksPlatform::strStartsWith($key, '@')) continue;
+				
+				$tagName = 'item';
+				$tagAttributes = [];
+				
+				if(is_array($value) && is_int($key)) {
+					$tagName = $value['@tag'] ?? $tagName;
+					$tagAttributes = $value['@attributes'] ?? [];
+				} else if(is_string($key)) {
+					$tagName = $key;
+				}
+				
+				$element = $doc->createElement($tagName);
+				
+				if($tagAttributes) {
+					foreach($tagAttributes as $attrName => $attrValue) {
+						$element->setAttribute($attrName, $attrValue);
+					}
+				}
+				
+				if(is_array($value)) {
+					$arrayToXml($value, $doc, $element);
+				} else if(is_scalar($value) || $value instanceof Twig\Markup) {
+					$textNode = str_replace("\r","", strval($value));
+					$element->textContent = $textNode;
+				}
+				
+				$parent->appendChild($element);
+			}
+		};
+		
+		try {
+			$dom = new DOMDocument('1.0', 'UTF-8');
+			$dom->formatOutput = boolval($format);
+			
+			$arrayToXml($array, $dom, $dom);
+			
+			return $dom->saveXML($dom->documentElement);
+		} catch (Throwable) {}
+		
+		return '';
 	}
 	
 	public function getTests() {
