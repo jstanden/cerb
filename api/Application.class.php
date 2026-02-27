@@ -1024,6 +1024,7 @@ class CerberusContexts {
 	const CONTEXT_RESOURCE = 'cerb.contexts.resource';
 	const CONTEXT_ROLE = 'cerberusweb.contexts.role';
 	const CONTEXT_SAVED_SEARCH = 'cerberusweb.contexts.context.saved.search';
+	const CONTEXT_SEARCH_INDEX = 'cerb.contexts.search.index';
 	const CONTEXT_SERVER = 'cerberusweb.contexts.datacenter.server';
 	const CONTEXT_SNIPPET = 'cerberusweb.contexts.snippet';
 	const CONTEXT_TASK = 'cerberusweb.contexts.task';

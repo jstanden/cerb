@@ -933,7 +933,7 @@ class View_SearchIndex extends C4_AbstractView implements IAbstractView_Subtotal
 };
 
 class Context_SearchIndex extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
-	const ID = 'cerb.contexts.record.search.index';
+	const ID = 'cerb.contexts.search.index';
 	const URI = 'search_index';
 	
 	static function isReadableByActor($models, $actor) : bool {

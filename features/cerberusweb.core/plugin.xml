@@ -3783,7 +3783,7 @@
 		</extension>
 
 		<extension point="devblocks.context">
-			<id>cerb.contexts.record.search.index</id>
+			<id>cerb.contexts.search.index</id>
 			<name>Search Index</name>
 			<class>
 				<file>api/dao/search_index.php</file>

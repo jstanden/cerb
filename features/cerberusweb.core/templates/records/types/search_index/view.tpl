@@ -1,4 +1,4 @@
-{$view_context = 'cerb.contexts.record.search.index'}
+{$view_context = 'cerb.contexts.search.index'}
 {$view_fields = $view->getColumnsAvailable()}
 {$results = $view->getData()}
 {$total = $results[1]}

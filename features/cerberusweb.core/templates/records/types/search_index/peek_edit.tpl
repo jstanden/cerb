@@ -1,4 +1,4 @@
-{$peek_context = 'cerb.contexts.record.search.index'}
+{$peek_context = 'cerb.contexts.search.index'}
 {$peek_context_id = $model->id}
 {$form_id = uniqid()}
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}">
