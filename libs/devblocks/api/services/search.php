@@ -20,7 +20,7 @@ class _DevblocksSearchService {
 	}
 	
 	private function _hashToken(string $token) : int {
-		return unpack('J', hash('xxh3', $token, true))[1];
+		return DevblocksPlatform::services()->string()->xxh3($token);
 	}
 	
 	public function expandTokens(array $tokens) : array {

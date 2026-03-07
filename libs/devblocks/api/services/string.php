@@ -473,6 +473,10 @@ class _DevblocksStringService {
 		return Uuid::uuid1($nodeProvider->getNode());
 	}
 	
+	public function xxh3(string $string) : int {
+		return unpack('J', hash('xxh3', $string, true))[1];
+	}
+	
 	public function truncate(?string $string, int $length, string $separator='...') : string {
 		$string = strval($string);
 		
