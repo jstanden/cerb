@@ -61,7 +61,9 @@ class LlmAgentNode extends AbstractNode {
 					->setRequired(true);
 				
 				$validation->addField('system_prompt', 'system_prompt:')
-					->string();
+					->string()
+					->setMaxLength(200_000)
+				;
 				
 				$validation->addField('tools', 'tools:')
 					->array();

@@ -56,7 +56,9 @@ class LlmChatAction extends AbstractAction {
 				->setRequired(true);
 			
 			$validation->addField('system_prompt', 'system_prompt:')
-				->string();
+				->string()
+				->setMaxLength(200_000)
+			;
 			
 			if(false === ($validation->validateAll($this->_inputs, $error)))
 				throw new Exception_DevblocksAutomationError($error);
