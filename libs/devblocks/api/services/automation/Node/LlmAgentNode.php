@@ -188,7 +188,13 @@ class LlmAgentNode extends AbstractNode {
 				} else if('tool' == $state) {
 					// [TODO] We can be given hallucinated tools
 					
-					if(!$this->_activateTool($state_params, $error))
+					$tool_use = new DevblocksLlmChatResponse_Tool(
+						$state_params['name'] ?? '',
+							$state_params['parameters'] ?? [],
+							$state_params['id'] ?? ''
+					);
+					
+					if(!$this->_activateTool($tool_use, $error))
 						return false;
 					
 					return $this->node->getId();
@@ -369,8 +375,8 @@ class LlmAgentNode extends AbstractNode {
 			$this->_node_memory['stack'][] = ['tools_done', []];
 			
 			// Push into the stack in reverse
-			foreach(array_reverse($tool_calls) as $tool_call) {
-				$this->_node_memory['stack'][] = ['tool', $tool_call];
+			foreach(array_reverse($tool_calls) as $tool_call) { /* @var $tool_call DevblocksLlmChatResponse_Tool */
+				$this->_node_memory['stack'][] = ['tool', $tool_call->serialize()];
 			}
 		}
 		

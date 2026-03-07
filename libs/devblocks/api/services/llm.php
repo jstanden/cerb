@@ -56,6 +56,14 @@ class DevblocksLlmChatResponse_Tool {
 		
 		return $label;
 	}
+	
+	function serialize() : array {
+		return [
+			'id' => $this->_id,
+			'name' => $this->_name,
+			'parameters' => $this->_parameters,
+		];
+	}
 }
 
 class DevblocksLlmChatResponse {
