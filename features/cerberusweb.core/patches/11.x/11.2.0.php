@@ -54,7 +54,7 @@ if(!array_key_exists('search_index_tokens', $tables)) {
 		`token_hash` bigint NOT NULL DEFAULT 0,
 		`token` varchar(255) NOT NULL DEFAULT '',
 		`stem` varchar(128) CHARACTER SET latin1 NOT NULL DEFAULT '',
-		PRIMARY KEY ('token_hash'),
+		PRIMARY KEY (token_hash),
 		INDEX `stem` (stem(4)),
 		INDEX `token` (token(4))
 		) ENGINE=%s
