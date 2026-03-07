@@ -1775,7 +1775,8 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 						$val = $col;
 					}
 					
-					if(0 == strlen($val))
+					// Must be a non-empty string
+					if(!is_string($val) || 0 == strlen($val))
 						continue;
 					
 					// What type of field is this?

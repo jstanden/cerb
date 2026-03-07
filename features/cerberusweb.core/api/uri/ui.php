@@ -38,11 +38,11 @@ class Controller_UI extends DevblocksControllerExtension {
 		if(!$action)
 			return;
 
-		// Default action, call arg as a method suffixed with Action
+		// Invoke action from the path
 		if(false === ($this->_invoke($action))) {
 			if(!DEVELOPMENT_MODE_SECURITY_SCAN) {
 				trigger_error(
-					sprintf('Call to undefined profile tab action `%s::%s`',
+					sprintf('Call to undefined ui action `%s::%s`',
 						get_class($this),
 						$action
 					),
