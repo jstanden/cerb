@@ -3846,6 +3846,8 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	static function errorHandler(int $errno=0, string $errstr=null, string $errfile=null, int $errline=null, array $errcontext=[]) : bool {
+		static $seen = [];
+		
 		// Suppress if we're not reporting at this level in production
 		if(!DEVELOPMENT_MODE && 0 == (error_reporting() & $errno)) {
 			return true;
@@ -3884,6 +3886,17 @@ class DevblocksPlatform extends DevblocksEngine {
 		) {
 			return true;
 		}
+		
+		// Suppress repeated errors this request
+		
+		$seen_key = $errfile . ':' . $errline;
+		
+		if($seen[$seen_key] ?? null)
+			return true;
+		
+		$seen[$seen_key] = true;
+		
+		// Store the last error
 		
 		self::$_error_last = [
 			'type' => $errno,
