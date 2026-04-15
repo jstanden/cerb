@@ -913,10 +913,6 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		if(null == ($context_ext = Extension_DevblocksContext::getByViewClass(get_class($view), true)))
 			return;
 		
-		$global_labels = $global_values = [];
-		CerberusContexts::getContext($context_ext->id, null, $global_labels, $global_values, null, true);
-		$global_types = $global_values['_types'];
-		
 		// Append mode to the temp file
 		if(!($fp = fopen($cursor['temp_file'], "a")))
 			return;
@@ -927,6 +923,9 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 			$dicts = [];
 		
 		if('kata' == $cursor['export_mode']) {
+			// Bulk lazy load custom fields across the dictionaries
+			DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'customfields');
+			
 			$export_columns = $this->_getExportColumnsKataFromCursor($cursor);
 			
 			// If the first page, add headings
@@ -953,6 +952,10 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 			}
 			
 		} else {
+			$global_labels = $global_values = [];
+			CerberusContexts::getContext($context_ext->id, null, $global_labels, $global_values, null, true);
+			$global_types = $global_values['_types'];
+			
 			// Bulk lazy load the tokens across all the dictionaries with a temporary cache
 			foreach($cursor['tokens'] as $token) {
 				DevblocksDictionaryDelegate::bulkLazyLoad($dicts, $token);
@@ -1021,10 +1024,6 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		if(null == ($context_ext = Extension_DevblocksContext::getByViewClass(get_class($view), true)))
 			return;
 		
-		$global_labels = $global_values = [];
-		CerberusContexts::getContext($context_ext->id, null, $global_labels, $global_values, null, true);
-		$global_types = $global_values['_types'];
-		
 		// Append mode to the temp file
 		if(!($fp = fopen($cursor['temp_file'], "a")))
 			return;
@@ -1035,6 +1034,9 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 			$dicts = [];
 		
 		if('kata' == $cursor['export_mode']) {
+			// Bulk lazy load custom fields across the dictionaries
+			DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'customfields');
+			
 			$export_columns = $this->_getExportColumnsKataFromCursor($cursor);
 			
 			fputs($fp, "{\"results\": [\n");
@@ -1056,6 +1058,10 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 			fputs($fp, $json);
 			
 		} else {
+			$global_labels = $global_values = [];
+			CerberusContexts::getContext($context_ext->id, null, $global_labels, $global_values, null, true);
+			$global_types = $global_values['_types'];
+			
 			// Bulk lazy load the tokens across all the dictionaries with a temporary cache
 			foreach($cursor['tokens'] as $token) {
 				DevblocksDictionaryDelegate::bulkLazyLoad($dicts, $token);
@@ -1134,10 +1140,6 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		if(null == ($context_ext = Extension_DevblocksContext::getByViewClass(get_class($view), true)))
 			return;
 		
-		$global_labels = $global_values = [];
-		CerberusContexts::getContext($context_ext->id, null, $global_labels, $global_values, null, true);
-		$global_types = $global_values['_types'];
-		
 		// Append mode to the temp file
 		if(!($fp = fopen($cursor['temp_file'], "a")))
 			return;
@@ -1148,6 +1150,9 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 			$dicts = [];
 		
 		if('kata' == $cursor['export_mode']) {
+			// Bulk lazy load custom fields across the dictionaries
+			DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'customfields');
+			
 			$export_columns = $this->_getExportColumnsKataFromCursor($cursor);
 			
 			foreach($dicts as $dict) {
@@ -1163,6 +1168,10 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 			}
 			
 		} else {
+			$global_labels = $global_values = [];
+			CerberusContexts::getContext($context_ext->id, null, $global_labels, $global_values, null, true);
+			$global_types = $global_values['_types'];
+			
 			// Bulk lazy load the tokens across all the dictionaries with a temporary cache
 			foreach($cursor['tokens'] as $token) {
 				DevblocksDictionaryDelegate::bulkLazyLoad($dicts, $token);
@@ -1220,6 +1229,9 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 			$dicts = [];
 		
 		if('kata' == $cursor['export_mode']) {
+			// Bulk lazy load custom fields across the dictionaries
+			DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'customfields');
+			
 			$export_columns = $this->_getExportColumnsKataFromCursor($cursor);
 			
 			if(0 == $cursor['page']) {

@@ -1686,7 +1686,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	}
 	
 	protected function _lazyLoadDefaults($token, array $dictionary=[]) {
-		if(!$token)
+		if(!$token || $token == '__expandable')
 			return [];
 		
 		$context = $dictionary['_context'] ?? null;
@@ -1695,7 +1695,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		if(!$context || !$context_id)
 			return [];
 		
-		if(false == ($context_ext = Extension_DevblocksContext::getByAlias($context, true)))
+		if(!($context_ext = Extension_DevblocksContext::getByAlias($context, true)))
 			return [];
 		
 		$context = $context_ext->id;
@@ -1916,6 +1916,10 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		$token_values['links'] = $dicts;
 		
 		return $token_values;
+	}
+	
+	public function lazyLoadCustomFields($token, $context, $context_id, $as_keys=true, $field_values=null, array $dictionary=[]) : array {
+		return $this->_lazyLoadCustomFields($token, $context, $context_id, $as_keys, $field_values, $dictionary);
 	}
 
 	// [TODO] This is setting the wrong type on all linked fields

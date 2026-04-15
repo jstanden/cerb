@@ -1077,10 +1077,9 @@ class DevblocksDictionaryDelegate implements JsonSerializable, IteratorAggregate
 		if(empty($dicts))
 			return;
 		
-		// [TODO] Don't run (n) queries to lazy load custom fields
+		/** @var $dicts DevblocksDictionaryDelegate[] */
 		
 		// Examine contexts on the first dictionary
-		/* @var DevblocksDictionaryDelegate $first_dict */
 		$first_dict = reset($dicts);
 		
 		if(!($first_dict instanceof DevblocksDictionaryDelegate))
@@ -1130,7 +1129,7 @@ class DevblocksDictionaryDelegate implements JsonSerializable, IteratorAggregate
 				
 				// Load the contexts from the cache
 				foreach($dicts as $dict) {
-					$dict->$prefix_key;
+					$dict->get($prefix_key);
 				}
 				
 				// Flush the temporary cache
@@ -1138,9 +1137,44 @@ class DevblocksDictionaryDelegate implements JsonSerializable, IteratorAggregate
 			}
 		}
 		
-		// Now load the tokens, since we probably already lazy loaded the contexts
+		// Bulk load outer dictionary custom fields
+		if($token == 'customfields'
+			&& ($context_ext_id = $contexts['']['context'] ?? '')
+			&& ($context_ext = Extension_DevblocksContext::get($context_ext_id))
+		) {
+			// Load a full page of custom field values at once
+			$field_values = DAO_CustomFieldValue::getValuesByContextIds($context_ext->id, array_column($dicts, 'id'));
+			
+			if(is_array($field_values)) {
+				foreach($dicts as $dict) {
+					if(!($dict_id = $dict->get('id')))
+						continue;
+					
+					if(array_key_exists($dict_id, $field_values)) {
+						$custom_values = $context_ext->lazyLoadCustomFields(
+							$token,
+							$context_ext->id,
+							$dict_id,
+							true,
+							$field_values[$dict_id],
+							$dict->getDictionary()
+						);
+						
+						$dict->mergeKeys(null, $custom_values);
+						$dict->set($token, array_keys($custom_values));
+						
+					} else {
+						$dict->set($token, []);
+					}
+					
+				}
+			}
+			return;
+		}
+		
+		// Now load the tokens, since we probably already lazy-loaded the contexts
 		foreach($dicts as $dict) { /* @var $dict DevblocksDictionaryDelegate */
-			$dict->$token;
+			$dict->get($token);
 		}
 	}
 };
