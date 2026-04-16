@@ -54,6 +54,9 @@ class PageSection_ProfilesMailDeliveryLog extends Extension_PageSection {
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 		
 		try {
+			if(!$active_worker->is_superuser)
+				throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.admin'));
+			
 			if(!empty($id) && !empty($do_delete)) { // Delete
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", Context_MailDeliveryLog::ID)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));

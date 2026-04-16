@@ -180,6 +180,11 @@ class DAO_ProfileWidget extends Cerb_ORMHelper {
 	}
 	
 	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
+		if(!CerberusContexts::isActorAnAdmin($actor)) {
+			$error = DevblocksPlatform::translate('error.core.no_acl.admin');
+			return false;
+		}
+		
 		$context = CerberusContexts::CONTEXT_PROFILE_WIDGET;
 		
 		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
@@ -1011,8 +1016,7 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 	}
 	
 	static function isWriteableByActor($models, $actor) {
-		// Everyone can modify
-		return CerberusContexts::allowEverything($models);
+		return self::_isWriteableOnlyByAdmin($models, $actor);
 	}
 	
 	static function isDeletableByActor($models, $actor) {
@@ -1358,6 +1362,9 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 		}
 		
 		if(empty($context_id) || $edit) {
+			if(!$active_worker->is_superuser)
+				DevblocksPlatform::dieWithHttpError(null, 403);
+			
 			if($model) {
 				if(!Context_ProfileWidget::isWriteableByActor($model, $active_worker))
 					DevblocksPlatform::dieWithHttpError(null, 403);

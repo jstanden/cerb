@@ -119,15 +119,15 @@ class DAO_WebhookListener extends Cerb_ORMHelper {
 	}
 
 	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
-		$context = CerberusContexts::CONTEXT_WEBHOOK_LISTENER;
-		
-		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
-			return false;
-		
 		if(!CerberusContexts::isActorAnAdmin($actor)) {
 			$error = DevblocksPlatform::translate('error.core.no_acl.admin');
 			return false;
 		}
+		
+		$context = CerberusContexts::CONTEXT_WEBHOOK_LISTENER;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
 		
 		return true;
 	}
@@ -1045,16 +1045,18 @@ class Context_WebhookListener extends Extension_DevblocksContext implements IDev
 		
 		$tpl->assign('view_id', $view_id);
 		
-		$model = null;
-		
 		if($context_id) {
-			if(false == ($model = DAO_WebhookListener::get($context_id)))
+			if(!($model = DAO_WebhookListener::get($context_id)))
 				DevblocksPlatform::dieWithHttpError(null, 404);
 		} else {
 			$model = new Model_WebhookListener();
 		}
 		
 		if(empty($context_id) || $edit) {
+			// ACL
+			if(!$active_worker->is_superuser)
+				DevblocksPlatform::dieWithHttpError(null, 403);
+			
 			if($model && $model->id) {
 				if(!Context_WebhookListener::isWriteableByActor($model, $active_worker))
 					DevblocksPlatform::dieWithHttpError(null, 403);

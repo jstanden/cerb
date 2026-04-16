@@ -725,16 +725,7 @@ class Context_WebApiCredentials extends Extension_DevblocksContext implements ID
 	}
 	
 	static function isWriteableByActor($models, $actor) {
-		// Only admins can modify
-		
-		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
-			return CerberusContexts::denyEverything($models);
-		
-		// Admins can do whatever they want
-		if(CerberusContexts::isActorAnAdmin($actor))
-			return CerberusContexts::allowEverything($models);
-		
-		return CerberusContexts::denyEverything($models);
+		return self::_isWriteableOnlyByAdmin($models, $actor);
 	}
 	
 	static function isDeletableByActor($models, $actor) {
@@ -1020,11 +1011,14 @@ class Context_WebApiCredentials extends Extension_DevblocksContext implements ID
 		$model = null;
 		
 		if($context_id) {
-			if(false == ($model = DAO_WebApiCredentials::get($context_id)))
+			if(!($model = DAO_WebApiCredentials::get($context_id)))
 				DevblocksPlatform::dieWithHttpError(null, 404);
 		}
 		
 		if(!$context_id || $edit) {
+			if(!$active_worker->is_superuser)
+				DevblocksPlatform::dieWithHttpError(null, 403);
+			
 			if($model) {
 				if(!Context_WebApiCredentials::isWriteableByActor($model, $active_worker))
 					DevblocksPlatform::dieWithHttpError(null, 403);

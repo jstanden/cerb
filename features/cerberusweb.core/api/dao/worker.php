@@ -822,15 +822,15 @@ class DAO_Worker extends Cerb_ORMHelper {
 	}
 	
 	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
-		$context = CerberusContexts::CONTEXT_WORKER;
-		
-		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
-			return false;
-		
 		if(!CerberusContexts::isActorAnAdmin($actor)) {
 			$error = DevblocksPlatform::translate('error.core.no_acl.admin');
 			return false;
 		}
+		
+		$context = CerberusContexts::CONTEXT_WORKER;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
 		
 		return true;
 	}
@@ -3191,15 +3191,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 	}
 	
 	static function isWriteableByActor($models, $actor) {
-		// Only admins can edit
-		
-		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
-			return CerberusContexts::denyEverything($models);
-		
-		if(CerberusContexts::isActorAnAdmin($actor))
-			return CerberusContexts::allowEverything($models);
-		
-		return CerberusContexts::denyEverything($models);
+		return self::_isWriteableOnlyByAdmin($models, $actor);
 	}
 	
 	static function isDeletableByActor($models, $actor) {
@@ -3822,10 +3814,8 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		
 		$tpl->assign('view_id', $view_id);
 		
-		$worker = null;
-		
 		if($context_id) {
-			if(false == ($worker = DAO_Worker::get($context_id)))
+			if(!($worker = DAO_Worker::get($context_id)))
 				DevblocksPlatform::dieWithHttpError(null, 404);
 			
 		} else {
@@ -3842,7 +3832,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		if(!$context_id || $edit) {
 			// ACL
 			if(!$active_worker->is_superuser)
-				return DevblocksPlatform::dieWithHttpError(null, 403);
+				DevblocksPlatform::dieWithHttpError(null, 403);
 			
 			$tpl->assign('worker', $worker);
 			

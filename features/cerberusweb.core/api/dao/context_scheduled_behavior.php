@@ -138,6 +138,11 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 	}
 	
 	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
+		if(!CerberusContexts::isActorAnAdmin($actor)) {
+			$error = DevblocksPlatform::translate('error.core.no_acl.admin');
+			return false;
+		}
+		
 		$context = CerberusContexts::CONTEXT_BEHAVIOR_SCHEDULED;
 		
 		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
@@ -1167,12 +1172,7 @@ class Context_ContextScheduledBehavior extends Extension_DevblocksContext implem
 	}
 	
 	static function isWriteableByActor($models, $actor) {
-		// Admins can modify
-		if(false != ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
-			if(CerberusContexts::isActorAnAdmin($actor))
-				return CerberusContexts::allowEverything($models);
-		
-		return CerberusContexts::denyEverything($models);
+		return self::_isWriteableOnlyByAdmin($models, $actor);
 	}
 	
 	static function isDeletableByActor($models, $actor) {
@@ -1482,10 +1482,8 @@ class Context_ContextScheduledBehavior extends Extension_DevblocksContext implem
 		
 		$tpl->assign('view_id', $view_id);
 		
-		$model = null;
-		
 		if($context_id) {
-			if(false == ($model = DAO_ContextScheduledBehavior::get($context_id)))
+			if(!($model = DAO_ContextScheduledBehavior::get($context_id)))
 				DevblocksPlatform::dieWithHttpError(null, 404);
 			
 		} else {
@@ -1493,7 +1491,10 @@ class Context_ContextScheduledBehavior extends Extension_DevblocksContext implem
 		}
 		
 		if(!$context_id || $edit) {
-			if($model && $model->id) {
+			if(!$active_worker->is_superuser)
+				DevblocksPlatform::dieWithHttpError(null, 403);
+			
+			if($model->id) {
 				if(!Context_ContextScheduledBehavior::isWriteableByActor($model, $active_worker))
 					DevblocksPlatform::dieWithHttpError(null, 403);
 			}
@@ -1505,8 +1506,6 @@ class Context_ContextScheduledBehavior extends Extension_DevblocksContext implem
 			// Current event point
 			if($model->behavior_id && false != ($behavior = $model->getBehavior())) {
 				$tpl->assign('event_point', $behavior->event_point);
-			} else {
-				//$tpl->assign('event_point', key($contexts));
 			}
 			
 			// Custom fields

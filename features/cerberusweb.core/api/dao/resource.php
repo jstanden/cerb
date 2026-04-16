@@ -208,6 +208,11 @@ class DAO_Resource extends Cerb_ORMHelper {
 	}	
 	
 	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
+		if(!CerberusContexts::isActorAnAdmin($actor)) {
+			$error = DevblocksPlatform::translate('error.core.no_acl.admin');
+			return false;
+		}
+		
 		$context = CerberusContexts::CONTEXT_RESOURCE;
 		
 		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
@@ -1753,7 +1758,7 @@ class Context_Resource extends Extension_DevblocksContext implements IDevblocksC
 		
 		if($context_id) {
 			if(!is_numeric($context_id)) {
-				if(false == ($model = DAO_Resource::getByName($context_id))) {
+				if(!($model = DAO_Resource::getByName($context_id))) {
 					$model = new Model_Resource();
 					$model->id = 0;
 					$model->name = $context_id;
@@ -1781,13 +1786,16 @@ class Context_Resource extends Extension_DevblocksContext implements IDevblocksC
 				$model = DAO_Resource::get($context_id);
 			}
 			
-			if(false == $model)
+			if(!$model)
 				DevblocksPlatform::dieWithHttpError(null, 404);
 			
 			$context_id = $model->id;
 		}
 		
 		if(empty($context_id) || $edit) {
+			if(!$active_worker->is_superuser)
+				DevblocksPlatform::dieWithHttpError(null, 403);
+			
 			if($model) {
 				if(!CerberusContexts::isWriteableByActor($context, $model, $active_worker))
 					DevblocksPlatform::dieWithHttpError(null, 403);

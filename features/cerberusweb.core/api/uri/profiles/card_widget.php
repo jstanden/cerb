@@ -67,17 +67,17 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		if(!$active_worker->is_superuser)
-			return;
-		
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 		
 		try {
+			if(!$active_worker->is_superuser)
+				throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.admin'));
+			
 			if(!empty($id) && !empty($do_delete)) { // Delete
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_CARD_WIDGET)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
-				if(false == ($model = DAO_CardWidget::get($id)))
+				if(!($model = DAO_CardWidget::get($id)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
 				
 				if(!Context_CardWidget::isDeletableByActor($model, $active_worker))
@@ -115,11 +115,7 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 						if(empty($package_uri))
 							throw new Exception_DevblocksAjaxValidationError("You must select a package from the library.");
 						
-						// Verify worker can edit this card (is admin)
-						if(!$active_worker->is_superuser)
-							throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.admin'));
-						
-						if(false == ($package = DAO_PackageLibrary::getByUri($package_uri)))
+						if(!($package = DAO_PackageLibrary::getByUri($package_uri)))
 							throw new Exception_DevblocksAjaxValidationError("You selected an invalid package.");
 						
 						if($package->point != 'card_widget' && !DevblocksPlatform::strStartsWith($package->point, 'card_widget:'))
@@ -154,7 +150,6 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 							'view_id' => $view_id,
 						]);
 						return;
-						break;
 					
 					case 'import':
 						$import_json = DevblocksPlatform::importGPC($_POST['import_json'] ?? null, 'string', '');
@@ -209,7 +204,6 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 							'view_id' => $view_id,
 						]);
 						return;
-						break;
 					
 					case 'build':
 						$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');
@@ -292,7 +286,6 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 							'view_id' => $view_id,
 						));
 						return;
-						break;
 				}
 			}
 			

@@ -54,11 +54,14 @@ class PageSection_ProfilesWebApiCredentials extends Extension_PageSection {
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 		
 		try {
+			if(!$active_worker->is_superuser)
+				throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.admin'));
+			
 			if(!empty($id) && !empty($do_delete)) { // Delete
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_WEBAPI_CREDENTIAL)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
-				if(false == ($model = DAO_WebApiCredentials::get($id)))
+				if(!($model = DAO_WebApiCredentials::get($id)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
 				
 				if(!Context_WebApiCredentials::isDeletableByActor($model, $active_worker))

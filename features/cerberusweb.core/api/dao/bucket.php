@@ -936,13 +936,13 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 	static function isWriteableByActor($models, $actor) {
 		// Only admins and group managers can modify
 		
-		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
+		if(!($actor = CerberusContexts::polymorphActorToDictionary($actor)))
 			return CerberusContexts::denyEverything($models);
 		
 		if(CerberusContexts::isActorAnAdmin($actor))
 			return CerberusContexts::allowEverything($models);
 		
-		if(false == ($dicts = CerberusContexts::polymorphModelsToDictionaries($models, CerberusContexts::CONTEXT_BUCKET)))
+		if(!($dicts = CerberusContexts::polymorphModelsToDictionaries($models, CerberusContexts::CONTEXT_BUCKET)))
 			return CerberusContexts::denyEverything($models);
 		
 		DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'group_');

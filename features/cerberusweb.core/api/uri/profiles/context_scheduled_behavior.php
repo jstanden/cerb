@@ -59,11 +59,14 @@ class PageSection_ProfilesContextScheduledBehavior extends Extension_PageSection
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 		
 		try {
+			if(!$active_worker->is_superuser)
+				throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.admin'));
+			
 			if(!empty($id) && !empty($do_delete)) { // Delete
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_BEHAVIOR_SCHEDULED)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
-				if(false == ($model = DAO_ContextScheduledBehavior::get($id)))
+				if(!($model = DAO_ContextScheduledBehavior::get($id)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
 				
 				if(!Context_ContextScheduledBehavior::isDeletableByActor($model, $active_worker))
@@ -135,7 +138,7 @@ class PageSection_ProfilesContextScheduledBehavior extends Extension_PageSection
 				echo json_encode(array(
 					'status' => true,
 					'id' => $id,
-					'label' => '', // [TODO]
+					'label' => '',
 					'view_id' => $view_id,
 				));
 				return;

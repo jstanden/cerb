@@ -63,6 +63,9 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 		
 		try {
+			if(!$active_worker->is_superuser)
+				throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.admin'));
+			
 			if(!empty($id) && !empty($do_delete)) { // Delete
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_PROFILE_TAB)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
@@ -99,10 +102,6 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 						
 						if(empty($package_uri))
 							throw new Exception_DevblocksAjaxValidationError("You must select a package from the library.");
-						
-						// Verify worker can edit this profile (is admin)
-						if(!$active_worker->is_superuser)
-							throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.admin'));
 						
 						if(!($package = DAO_PackageLibrary::getByUri($package_uri)))
 							throw new Exception_DevblocksAjaxValidationError("You selected an invalid package.");

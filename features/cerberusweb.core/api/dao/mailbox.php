@@ -204,15 +204,15 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 	}
 	
 	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
-		$context = CerberusContexts::CONTEXT_MAILBOX;
-		
-		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
-			return false;
-		
 		if(!CerberusContexts::isActorAnAdmin($actor)) {
 			$error = DevblocksPlatform::translate('error.core.no_acl.admin');
 			return false;
 		}
+		
+		$context = CerberusContexts::CONTEXT_MAILBOX;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
 		
 		return true;
 	}
@@ -1064,16 +1064,7 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 	}
 
 	static function isWriteableByActor($models, $actor) {
-		// Only admins can modify
-
-		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
-			return CerberusContexts::denyEverything($models);
-
-		// Admins can do whatever they want
-		if(CerberusContexts::isActorAnAdmin($actor))
-			return CerberusContexts::allowEverything($models);
-
-		return CerberusContexts::denyEverything($models);
+		return self::_isWriteableOnlyByAdmin($models, $actor);
 	}
 	
 	static function isDeletableByActor($models, $actor) {
@@ -1452,7 +1443,7 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 		$model = null;
 		
 		if(!empty($context_id)) {
-			if(false == ($model = DAO_Mailbox::get($context_id)))
+			if(!($model = DAO_Mailbox::get($context_id)))
 				DevblocksPlatform::dieWithHttpError(null, 404);
 		}
 		

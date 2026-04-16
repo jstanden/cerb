@@ -156,6 +156,11 @@ class DAO_Workflow extends Cerb_ORMHelper {
 	}
 	
 	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
+		if(!CerberusContexts::isActorAnAdmin($actor)) {
+			$error = DevblocksPlatform::translate('error.core.no_acl.admin');
+			return false;
+		}
+		
 		$context = CerberusContexts::CONTEXT_WORKFLOW;
 		
 		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
@@ -1591,8 +1596,7 @@ class Context_Workflow extends Extension_DevblocksContext implements IDevblocksC
 	}
 	
 	static function isWriteableByActor($models, $actor) {
-		// Everyone can modify
-		return CerberusContexts::allowEverything($models);
+		return self::_isWriteableOnlyByAdmin($models, $actor);
 	}
 	
 	static function isDeletableByActor($models, $actor) {
@@ -1906,6 +1910,9 @@ function getContextIdFromAlias($alias) {
 		}
 		
 		if(empty($context_id) || $edit) {
+			if(!$active_worker->is_superuser)
+				DevblocksPlatform::dieWithHttpError(null, 403);
+			
 			if(!CerberusContexts::isWriteableByActor($context, $model, $active_worker))
 				DevblocksPlatform::dieWithHttpError(null, 403);
 			

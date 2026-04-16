@@ -2583,13 +2583,13 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 	static function isReadableByActor($models, $actor) {
 		// Only admins and group members can see, unless public
 		
-		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
+		if(!($actor = CerberusContexts::polymorphActorToDictionary($actor)))
 			return CerberusContexts::denyEverything($models);
 		
 		if(CerberusContexts::isActorAnAdmin($actor))
 			return CerberusContexts::allowEverything($models);
 		
-		if(false == ($dicts = CerberusContexts::polymorphModelsToDictionaries($models, CerberusContexts::CONTEXT_MESSAGE)))
+		if(!($dicts = CerberusContexts::polymorphModelsToDictionaries($models, CerberusContexts::CONTEXT_MESSAGE)))
 			return CerberusContexts::denyEverything($models);
 		
 		DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'ticket_group_');
@@ -2611,13 +2611,13 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 	static function isWriteableByActor($models, $actor) {
 		// Only admins and group members can modify
 		
-		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
+		if(!($actor = CerberusContexts::polymorphActorToDictionary($actor)))
 			return CerberusContexts::denyEverything($models);
 		
 		if(CerberusContexts::isActorAnAdmin($actor))
 			return CerberusContexts::allowEverything($models);
 		
-		if(false == ($dicts = CerberusContexts::polymorphModelsToDictionaries($models, CerberusContexts::CONTEXT_MESSAGE)))
+		if(!($dicts = CerberusContexts::polymorphModelsToDictionaries($models, CerberusContexts::CONTEXT_MESSAGE)))
 			return CerberusContexts::denyEverything($models);
 		
 		DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'ticket_group_');

@@ -53,15 +53,15 @@ class PageSection_ProfilesCustomRecord extends Extension_PageSection {
 		
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 		
-		if(!$active_worker->is_superuser)
-			throw new Exception_DevblocksAjaxValidationError("Only administrators can modify custom records.");
-		
 		try {
+			if(!$active_worker->is_superuser)
+				throw new Exception_DevblocksAjaxValidationError("Only administrators can modify custom records.");
+			
 			if(!empty($id) && !empty($do_delete)) { // Delete
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_CUSTOM_RECORD)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
-				if(false == ($model = DAO_CustomRecord::get($id)))
+				if(!($model = DAO_CustomRecord::get($id)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
 				
 				if(!Context_CustomRecord::isDeletableByActor($model, $active_worker))

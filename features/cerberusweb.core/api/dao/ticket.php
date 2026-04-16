@@ -4792,13 +4792,13 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		
 		// Only admins and group members can see, unless public
 		
-		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
+		if(!($actor = CerberusContexts::polymorphActorToDictionary($actor)))
 			return CerberusContexts::denyEverything($models);
 		
 		if(CerberusContexts::isActorAnAdmin($actor))
 			return CerberusContexts::allowEverything($models);
 		
-		if(false == ($dicts = CerberusContexts::polymorphModelsToDictionaries($models, CerberusContexts::CONTEXT_TICKET)))
+		if(!($dicts = CerberusContexts::polymorphModelsToDictionaries($models, CerberusContexts::CONTEXT_TICKET)))
 			return CerberusContexts::denyEverything($models);
 		
 		$results = array_fill_keys(array_keys($dicts), false);

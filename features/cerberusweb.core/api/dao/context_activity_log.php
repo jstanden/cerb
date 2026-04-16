@@ -145,15 +145,15 @@ class DAO_ContextActivityLog extends Cerb_ORMHelper {
 	}
 	
 	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
-		$context = CerberusContexts::CONTEXT_ACTIVITY_LOG;
-		
-		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
-			return false;
-		
 		if(!CerberusContexts::isActorAnAdmin($actor)) {
 			$error = DevblocksPlatform::translate('error.core.no_acl.admin');
 			return false;
 		}
+		
+		$context = CerberusContexts::CONTEXT_ACTIVITY_LOG;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
 		
 		return true;
 	}
@@ -1146,15 +1146,7 @@ class Context_ContextActivityLog extends Extension_DevblocksContext implements I
 	}
 	
 	static function isWriteableByActor($models, $actor) {
-		// Only admins can modify
-		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
-			return CerberusContexts::denyEverything($models);
-		
-		// Admins can do whatever they want
-		if(CerberusContexts::isActorAnAdmin($actor))
-			return CerberusContexts::allowEverything($models);
-		
-		return CerberusContexts::denyEverything($models);
+		return self::_isWriteableOnlyByAdmin($models, $actor);
 	}
 	
 	static function isDeletableByActor($models, $actor) {

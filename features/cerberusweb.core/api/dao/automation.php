@@ -157,15 +157,15 @@ class DAO_Automation extends Cerb_ORMHelper {
 	}
 	
 	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
-		$context = CerberusContexts::CONTEXT_AUTOMATION;
-		
-		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
-			return false;
-		
 		if(!CerberusContexts::isActorAnAdmin($actor)) {
 			$error = DevblocksPlatform::translate('error.core.no_acl.admin');
 			return false;
 		}
+		
+		$context = CerberusContexts::CONTEXT_AUTOMATION;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
 		
 		if(array_key_exists(DAO_Automation::SCRIPT, $fields)) {
 			$kata = DevblocksPlatform::services()->kata();
@@ -1974,11 +1974,12 @@ class Context_Automation extends Extension_DevblocksContext implements IDevblock
 			
 		} else if ($context_id && is_numeric($context_id)) {
 			$model = DAO_Automation::get($context_id);
-		} else {
-			//DevblocksPlatform::dieWithHttpError(null, 404);
 		}
 		
 		if(!$context_id || $edit) {
+			if(!$active_worker->is_superuser)
+				DevblocksPlatform::dieWithHttpError(null, 403);
+			
 			if($model) {
 				if(!Context_Automation::isWriteableByActor($model, $active_worker))
 					DevblocksPlatform::dieWithHttpError(null, 403);

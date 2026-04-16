@@ -63,7 +63,7 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", 'cerberusweb.contexts.mailbox')))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
-				if(false == ($model = DAO_Mailbox::get($id)))
+				if(!($model = DAO_Mailbox::get($id)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
 				
 				if(!Context_Mailbox::isDeletableByActor($model, $active_worker))

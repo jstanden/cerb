@@ -147,6 +147,11 @@ class DAO_ConnectedService extends Cerb_ORMHelper {
 	}
 	
 	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
+		if(!CerberusContexts::isActorAnAdmin($actor)) {
+			$error = DevblocksPlatform::translate('error.core.no_acl.admin');
+			return false;
+		}
+		
 		$context = CerberusContexts::CONTEXT_CONNECTED_SERVICE;
 		
 		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
@@ -873,16 +878,7 @@ class Context_ConnectedService extends Extension_DevblocksContext implements IDe
 	}
 	
 	static function isWriteableByActor($models, $actor) {
-		// Only admins can modify
-		
-		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
-			return CerberusContexts::denyEverything($models);
-		
-		// Admins can do whatever they want
-		if(CerberusContexts::isActorAnAdmin($actor))
-			return CerberusContexts::allowEverything($models);
-		
-		return CerberusContexts::denyEverything($models);
+		return self::_isWriteableOnlyByAdmin($models, $actor);
 	}
 	
 	static function isDeletableByActor($models, $actor) {
@@ -1204,7 +1200,7 @@ class Context_ConnectedService extends Extension_DevblocksContext implements IDe
 		$context = CerberusContexts::CONTEXT_CONNECTED_SERVICE;
 		
 		if(!empty($context_id)) {
-			if(false == ($model = DAO_ConnectedService::get($context_id)))
+			if(!($model = DAO_ConnectedService::get($context_id)))
 				DevblocksPlatform::dieWithHttpError(null, 404);
 			
 		} else {
@@ -1213,7 +1209,10 @@ class Context_ConnectedService extends Extension_DevblocksContext implements IDe
 		}
 		
 		if(empty($context_id) || $edit) {
-			if($model && $model->id) {
+			if(!$active_worker->is_superuser)
+				DevblocksPlatform::dieWithHttpError(null, 403);
+			
+			if($model->id) {
 				if(!Context_ConnectedService::isWriteableByActor($model, $active_worker))
 					DevblocksPlatform::dieWithHttpError(null, 403);
 			}

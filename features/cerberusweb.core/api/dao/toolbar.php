@@ -140,6 +140,11 @@ class DAO_Toolbar extends Cerb_ORMHelper {
 	}
 	
 	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
+		if(!CerberusContexts::isActorAnAdmin($actor)) {
+			$error = DevblocksPlatform::translate('error.core.no_acl.admin');
+			return false;
+		}
+		
 		$context = CerberusContexts::CONTEXT_TOOLBAR;
 		
 		// These records can't be created outside of the patcher
@@ -150,11 +155,6 @@ class DAO_Toolbar extends Cerb_ORMHelper {
 		
 		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
 			return false;
-		
-		if(!CerberusContexts::isActorAnAdmin($actor)) {
-			$error = DevblocksPlatform::translate('error.core.no_acl.admin');
-			return false;
-		}
 		
 		return true;
 	}
@@ -1204,6 +1204,9 @@ class Context_Toolbar extends Extension_DevblocksContext implements IDevblocksCo
 		}
 		
 		if(empty($context_id) || $edit) {
+			if(!$active_worker->is_superuser)
+				DevblocksPlatform::dieWithHttpError(null, 403);
+			
 			if($model) {
 				if(!CerberusContexts::isWriteableByActor($context, $model, $active_worker))
 					DevblocksPlatform::dieWithHttpError(null, 403);

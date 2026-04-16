@@ -64,11 +64,14 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 		
 		try {
+			if(!$active_worker->is_superuser)
+				throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.admin'));
+			
 			if(!empty($id) && !empty($do_delete)) { // Delete
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_PROFILE_WIDGET)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
-				if(false == ($model = DAO_ProfileWidget::get($id)))
+				if(!($model = DAO_ProfileWidget::get($id)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
 				
 				if(!Context_ProfileWidget::isDeletableByActor($model, $active_worker))
@@ -106,11 +109,7 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 						if(empty($package_uri))
 							throw new Exception_DevblocksAjaxValidationError("You must select a package from the library.");
 						
-						// Verify worker can edit this profile (is admin)
-						if(!$active_worker->is_superuser)
-							throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.admin'));
-						
-						if(false == ($package = DAO_PackageLibrary::getByUri($package_uri)))
+						if(!($package = DAO_PackageLibrary::getByUri($package_uri)))
 							throw new Exception_DevblocksAjaxValidationError("You selected an invalid package.");
 						
 						if($package->point != 'profile_widget' && !DevblocksPlatform::strStartsWith($package->point, 'profile_widget:'))
@@ -154,7 +153,7 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 						
 						if(
 							empty($import_json)
-							|| false == (@$widget_json = json_decode($import_json, true))
+							|| !(@$widget_json = json_decode($import_json, true))
 							)
 							throw new Exception_DevblocksAjaxValidationError("Invalid JSON.");
 						
@@ -170,7 +169,7 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 						$name = ($widget_json['widget']['name'] ?? null) ?: 'New widget';
 						$extension_id = $widget_json['widget']['extension_id'] ?? null;
 						
-						if(empty($extension_id) || null == ($extension = Extension_ProfileWidget::get($extension_id)))
+						if(empty($extension_id) || null == (Extension_ProfileWidget::get($extension_id)))
 							throw new Exception_DevblocksAjaxValidationError("Invalid widget extension");
 						
 						$fields = [

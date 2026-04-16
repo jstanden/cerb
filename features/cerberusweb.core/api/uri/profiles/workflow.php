@@ -71,6 +71,9 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 		
 		try {
+			if(!$active_worker->is_superuser)
+				throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.admin'));
+			
 			$package_uri = DevblocksPlatform::importGPC($_POST['package'] ?? null, 'string', '');
 			
 			$mode = 'build';

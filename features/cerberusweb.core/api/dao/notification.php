@@ -1180,13 +1180,13 @@ class Context_Notification extends Extension_DevblocksContext {
 	static function isWriteableByActor($models, $actor) {
 		// Only admins and the notification owner can modify
 		
-		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
+		if(!($actor = CerberusContexts::polymorphActorToDictionary($actor)))
 			return CerberusContexts::denyEverything($models);
 		
 		if(CerberusContexts::isActorAnAdmin($actor))
 			return CerberusContexts::allowEverything($models);
 		
-		if(false == ($dicts = CerberusContexts::polymorphModelsToDictionaries($models, CerberusContexts::CONTEXT_NOTIFICATION)))
+		if(!($dicts = CerberusContexts::polymorphModelsToDictionaries($models, CerberusContexts::CONTEXT_NOTIFICATION)))
 			return CerberusContexts::denyEverything($models);
 		
 		$results = array_fill_keys(array_keys($dicts), false);

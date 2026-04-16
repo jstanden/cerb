@@ -54,10 +54,10 @@ class PageSection_ProfilesAutomationTimer extends Extension_PageSection {
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 		
 		try {
+			if(!$active_worker->is_superuser)
+				throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+			
 			if(!empty($id) && !empty($do_delete)) { // Delete
-				if(!$active_worker->is_superuser)
-					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
-				
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_AUTOMATION_TIMER)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
@@ -86,9 +86,6 @@ class PageSection_ProfilesAutomationTimer extends Extension_PageSection {
 				$recurring_patterns = DevblocksPlatform::importGPC($_POST['recurring_patterns'] ?? null, 'string', '');
 				$recurring_timezone = DevblocksPlatform::importGPC($_POST['recurring_timezone'] ?? null, 'string', '');
 				$automations_kata = DevblocksPlatform::importGPC($_POST['automations_kata'] ?? null, 'string', '');
-				
-				if(!$active_worker->is_superuser)
-					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
 				
 				if(!$recurring_timezone)
 					$recurring_timezone = DevblocksPlatform::getTimezone();

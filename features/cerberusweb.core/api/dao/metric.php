@@ -149,15 +149,15 @@ class DAO_Metric extends Cerb_ORMHelper {
 	}
 	
 	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
-		$context = CerberusContexts::CONTEXT_METRIC;
-		
-		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
-			return false;
-		
 		if(!CerberusContexts::isActorAnAdmin($actor)) {
 			$error = DevblocksPlatform::translate('error.core.no_acl.admin');
 			return false;
 		}
+		
+		$context = CerberusContexts::CONTEXT_METRIC;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
 		
 		if(array_key_exists(DAO_Metric::DIMENSIONS_KATA, $fields)) {
 			$kata = DevblocksPlatform::services()->kata();
@@ -1282,11 +1282,14 @@ class Context_Metric extends Extension_DevblocksContext implements IDevblocksCon
 		$model = null;
 		
 		if($context_id) {
-			if(false == ($model = DAO_Metric::get($context_id)))
+			if(!($model = DAO_Metric::get($context_id)))
 				DevblocksPlatform::dieWithHttpError(null, 403);
 		}
 		
 		if(empty($context_id) || $edit) {
+			if(!$active_worker->is_superuser)
+				DevblocksPlatform::dieWithHttpError(null, 403);
+			
 			if($model) {
 				if(!CerberusContexts::isWriteableByActor($context, $model, $active_worker))
 					DevblocksPlatform::dieWithHttpError(null, 403);

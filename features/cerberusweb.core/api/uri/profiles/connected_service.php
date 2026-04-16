@@ -60,6 +60,9 @@ class PageSection_ProfilesConnectedService extends Extension_PageSection {
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 		
 		try {
+			if(!$active_worker->is_superuser)
+				throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.admin'));
+			
 			if(!empty($id) && !empty($do_delete)) { // Delete
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_CONNECTED_SERVICE)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
@@ -143,7 +146,6 @@ class PageSection_ProfilesConnectedService extends Extension_PageSection {
 					case 'build':
 						$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');
 						$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'] ?? null, 'string', '');
-						$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
 						$uri = DevblocksPlatform::importGPC($_POST['uri'] ?? null, 'string', '');
 						
 						$service = new Model_ConnectedService();
@@ -151,7 +153,7 @@ class PageSection_ProfilesConnectedService extends Extension_PageSection {
 						$service->extension_id = $extension_id;
 						
 						if(!$id) { // New
-							if(false == ($extension = Extension_ConnectedServiceProvider::get($extension_id)))
+							if(!($extension = Extension_ConnectedServiceProvider::get($extension_id)))
 								throw new Exception_DevblocksAjaxValidationError("Invalid service provider.");
 							
 							$fields = array(
@@ -162,10 +164,10 @@ class PageSection_ProfilesConnectedService extends Extension_PageSection {
 							);
 							
 						} else { // Edit
-							if(false == ($service = DAO_ConnectedService::get($id)))
+							if(!($service = DAO_ConnectedService::get($id)))
 								throw new Exception_DevblocksAjaxValidationError("Invalid record.");
 							
-							if(false == ($extension = $service->getExtension()))
+							if(!($extension = $service->getExtension()))
 								throw new Exception_DevblocksAjaxValidationError("Invalid service provider.");
 							
 							$fields = array(

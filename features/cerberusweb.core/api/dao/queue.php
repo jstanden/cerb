@@ -130,6 +130,11 @@ class DAO_Queue extends Cerb_ORMHelper {
 	}
 	
 	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
+		if(!CerberusContexts::isActorAnAdmin($actor)) {
+			$error = DevblocksPlatform::translate('error.core.no_acl.admin');
+			return false;
+		}
+		
 		$context = CerberusContexts::CONTEXT_QUEUE;
 		
 		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
@@ -1221,6 +1226,9 @@ class Context_Queue extends Extension_DevblocksContext implements IDevblocksCont
 		}
 		
 		if(empty($context_id) || $edit) {
+			if(!$active_worker->is_superuser)
+				DevblocksPlatform::dieWithHttpError(null, 403);
+			
 			if($model) {
 				if(!CerberusContexts::isWriteableByActor($context, $model, $active_worker))
 					DevblocksPlatform::dieWithHttpError(null, 403);

@@ -154,15 +154,15 @@ class DAO_AutomationTimer extends Cerb_ORMHelper {
 	}
 	
 	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
-		$context = CerberusContexts::CONTEXT_AUTOMATION_TIMER;
-		
-		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
-			return false;
-		
 		if(!CerberusContexts::isActorAnAdmin($actor)) {
 			$error = DevblocksPlatform::translate('error.core.no_acl.admin');
 			return false;
 		}
+		
+		$context = CerberusContexts::CONTEXT_AUTOMATION_TIMER;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
 		
 		return true;
 	}
@@ -1394,10 +1394,8 @@ class Context_AutomationTimer extends Extension_DevblocksContext implements IDev
 		
 		$tpl->assign('view_id', $view_id);
 		
-		$model = null;
-		
 		if($context_id) {
-			if(false == ($model = DAO_AutomationTimer::get($context_id)))
+			if(!($model = DAO_AutomationTimer::get($context_id)))
 				DevblocksPlatform::dieWithHttpError(null, 403);
 		} else {
 			$model = new Model_AutomationTimer();
@@ -1406,6 +1404,9 @@ class Context_AutomationTimer extends Extension_DevblocksContext implements IDev
 		}
 		
 		if(empty($context_id) || $edit) {
+			if(!$active_worker->is_superuser)
+				DevblocksPlatform::dieWithHttpError(null, 403);
+			
 			if($model) {
 				if(!CerberusContexts::isWriteableByActor($context, $model, $active_worker))
 					DevblocksPlatform::dieWithHttpError(null, 403);
