@@ -1,6 +1,8 @@
+{if $page}
 <div style="margin:5px 0;">
 	<h2>{$page->name}</h2>
 </div>
+{/if}
 
 <div class="error-box" style="margin-top:10px;">
 	{if $error_title}

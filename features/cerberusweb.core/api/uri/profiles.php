@@ -196,8 +196,13 @@ class Page_Profiles extends CerberusPageExtension {
 		
 		// Permissions
 		
-		if(!CerberusContexts::isReadableByActor($context, $dict, $active_worker))
-			DevblocksPlatform::dieWithHttpError(DevblocksPlatform::translateCapitalized('common.access_denied'), 403);
+		if(!CerberusContexts::isReadableByActor($context, $dict, $active_worker)) {
+			$tpl->assign('page', '');
+			$tpl->assign('error_title', DevblocksPlatform::translate('common.access_denied'));
+			$tpl->assign('error_message', 'You do not have permission to view this page.');
+			$tpl->display('devblocks:cerberusweb.core::pages/error.tpl');
+			return;
+		}
 
 		// Events
 		AutomationTrigger_RecordViewed::trigger($dict);

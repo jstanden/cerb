@@ -563,10 +563,10 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 			return;
 		
 		if(!Context_CardWidget::isReadableByActor($widget, $active_worker))
-			DevblocksPlatform::dieWithHttpError(null, 403);
+			return;
 		
 		if(!CerberusContexts::isReadableByActor($context, $context_id, $active_worker))
-			DevblocksPlatform::dieWithHttpError(null, 403);
+			return;
 		
 		if(!($extension = $widget->getExtension()))
 			return;
