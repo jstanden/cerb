@@ -63,14 +63,14 @@ class AutomationTrigger_MailReceived extends Extension_AutomationTrigger {
 		return [];
 	}
 	
-	public static function trigger(string $message_id, bool $is_new)  : array {
+	public static function trigger(string $message_id, bool $is_new, array $priority_range=[])  : array {
 		$initial_state = [
 			'message__context' => CerberusContexts::CONTEXT_MESSAGE,
 			'message_id' => intval($message_id),
 			'is_new_ticket' => $is_new
 		];
 		
-		$events_kata = DAO_AutomationEvent::getKataByName('mail.received');
+		$events_kata = DAO_AutomationEvent::getKataByName('mail.received', priority_range: $priority_range);
 		
 		$handlers = DevblocksPlatform::services()->ui()->eventHandler()->parse(
 			$events_kata,

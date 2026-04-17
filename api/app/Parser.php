@@ -1868,7 +1868,8 @@ class CerberusParser {
 		$entry = [];
 		CerberusContexts::logActivity('ticket.message.inbound', CerberusContexts::CONTEXT_TICKET, $model->getTicketId(), $entry, CerberusContexts::CONTEXT_ADDRESS, $model->getSenderAddressModel()->id);
 
-		AutomationTrigger_MailReceived::trigger($model->getMessageId(), $model->getIsNew());
+		// Trigger priorities 0-127 before legacy behaviors
+		AutomationTrigger_MailReceived::trigger($model->getMessageId(), $model->getIsNew(), priority_range:[0, 127]);
 		
 		// Trigger Mail Received
 		Event_MailReceived::trigger($model->getMessageId());
@@ -1890,6 +1891,9 @@ class CerberusParser {
 		foreach(array_unique(array_keys($context_watchers)) as $watcher_id) {
 			Event_MailReceivedByWatcher::trigger($model->getMessageId(), $watcher_id);
 		}
+		
+		// Trigger priorities 128-255 before legacy behaviors
+		AutomationTrigger_MailReceived::trigger($model->getMessageId(), $model->getIsNew(), priority_range:[128, 255]);
 		
 		return $model->setExitState($model::STATE_PARSED);
 	}
