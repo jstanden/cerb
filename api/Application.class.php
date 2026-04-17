@@ -994,7 +994,14 @@ class CerberusApplication extends DevblocksApplication {
 					DAO_ServiceToken::LAST_ACCESSED_AT => time(),
 				]);
 				
-				// [TODO] Metrics
+				DevblocksPlatform::services()->metrics()->increment(
+					'cerb.service.token.uses',
+					1,
+					[
+						'scope' => $scope,
+						'client_ip' => DevblocksPlatform::getClientIp(),
+					]
+				);
 				return 'access_token';
 			}
 		}

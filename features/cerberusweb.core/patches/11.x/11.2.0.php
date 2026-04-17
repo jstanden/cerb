@@ -250,6 +250,19 @@ if(!array_key_exists('service_token', $tables)) {
 }
 
 // ===========================================================================
+// Metrics
+
+$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, dimensions_kata, created_at, updated_at) ".
+	"VALUES (%s, %s, %s, %s, %d, %d)",
+	$db->qstr('cerb.service.token.uses'),
+	$db->qstr('Usage count for service token authentications'),
+	$db->qstr('counter'),
+	$db->qstr("text/scope:\ntext/client_ip:\n"),
+	time(),
+	time()
+));
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
