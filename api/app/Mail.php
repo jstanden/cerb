@@ -491,8 +491,8 @@ class CerberusMail {
 	static private function _composeTriggerEvents($message_id, $group_id) {
 		// Events
 		if(!empty($message_id) && !empty($group_id)) {
-			// Changing the outgoing message through an automation
-			AutomationTrigger_MailSent::trigger($message_id);
+			// Changing the outgoing message through an automation (before behaviors)
+			AutomationTrigger_MailSent::trigger($message_id, priority_range:[0, 127]);
 			
 			// After message sent (global)
 			Event_MailAfterSent::trigger($message_id);
@@ -505,6 +505,9 @@ class CerberusMail {
 			
 			// Mail received by group
 			Event_MailReceivedByGroup::trigger($message_id, $group_id);
+			
+			// Changing the outgoing message through an automation (after behaviors)
+			AutomationTrigger_MailSent::trigger($message_id, priority_range:[128, 255]);
 		}
 	}
 	
@@ -757,8 +760,8 @@ class CerberusMail {
 			if($worker && $hash_commands)
 				CerberusMail::handleReplyHashCommands($hash_commands, $ticket, $new_message_id, $worker);
 			
-			// Changing the outgoing message through an automation
-			AutomationTrigger_MailSent::trigger($new_message_id);
+			// Changing the outgoing message through an automation (before behaviors)
+			AutomationTrigger_MailSent::trigger($new_message_id, priority_range:[0, 127]);
 			
 			// After message sent (global)
 			Event_MailAfterSent::trigger($new_message_id);
@@ -784,6 +787,9 @@ class CerberusMail {
 					Event_MailReceivedByWatcher::trigger($new_message_id, $watcher_id);
 				}
 			}
+			
+			// Changing the outgoing message through an automation (after behaviors)
+			AutomationTrigger_MailSent::trigger($new_message_id, priority_range:[128, 255]);
 		}
 		
 		/*

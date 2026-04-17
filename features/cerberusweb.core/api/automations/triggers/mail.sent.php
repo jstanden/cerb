@@ -47,13 +47,13 @@ class AutomationTrigger_MailSent extends Extension_AutomationTrigger {
 		return [];
 	}
 	
-	public static function trigger(string $message_id) {
+	public static function trigger(string $message_id, array $priority_range=[]) {
 		$initial_state = [
 			'message__context' => CerberusContexts::CONTEXT_MESSAGE,
 			'message_id' => $message_id,
 		];
 		
-		$events_kata = DAO_AutomationEvent::getKataByName('mail.sent');
+		$events_kata = DAO_AutomationEvent::getKataByName('mail.sent', priority_range: $priority_range);
 		
 		$handlers = DevblocksPlatform::services()->ui()->eventHandler()->parse(
 			$events_kata,
