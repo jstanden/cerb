@@ -426,7 +426,7 @@ class SearchFields_DevblocksSession extends DevblocksSearchFields {
 	}
 };
 
-class View_DevblocksSession extends C4_AbstractView implements IAbstractView_QuickSearch { /* IAbstractView_Subtotals */
+class View_DevblocksSession extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
 	const DEFAULT_ID = 'devblocks_sessions';
 
 	function __construct() {
@@ -486,7 +486,119 @@ class View_DevblocksSession extends C4_AbstractView implements IAbstractView_Qui
 	function getDataSample($size) {
 		return $this->_doGetDataSample('DAO_DevblocksSession', $size);
 	}
-	
+
+	// devblocks_session has no context extension, so bypass the context lookup
+	protected function _getSubtotalDataForColumn($context, $field_key) {
+		$db = DevblocksPlatform::services()->database();
+
+		$fields = $this->getFields();
+		$columns = $this->view_columns;
+		$params = $this->getParams();
+
+		if(!isset($columns[$field_key]))
+			$columns[] = $field_key;
+
+		$query_parts = DAO_DevblocksSession::getSearchQueryComponents(
+			$columns,
+			$params,
+			$this->renderSortBy,
+			$this->renderSortAsc
+		);
+
+		$join_sql = $query_parts['join'];
+		$where_sql = $query_parts['where'];
+
+		$sql = sprintf("SELECT %s.%s as label, count(*) as hits ",
+				$db->escape($fields[$field_key]->db_table),
+				$db->escape($fields[$field_key]->db_column)
+			).
+			$join_sql.
+			$where_sql.
+			sprintf("GROUP BY %s.%s ",
+				$db->escape($fields[$field_key]->db_table),
+				$db->escape($fields[$field_key]->db_column)
+			).
+			"ORDER BY hits DESC ".
+			"LIMIT 0,250 ";
+
+		try {
+			$results = $db->GetArrayReader($sql, 15000);
+		} catch(Exception_DevblocksDatabaseQueryTimeout $e) {
+			$results = false;
+		}
+
+		return $results;
+	}
+
+	function getSubtotalFields() {
+		$all_fields = $this->getParamsAvailable(true);
+
+		$fields = [];
+
+		if(is_array($all_fields))
+		foreach($all_fields as $field_key => $field_model) {
+			$pass = false;
+
+			switch($field_key) {
+				case SearchFields_DevblocksSession::USER_ID:
+				case SearchFields_DevblocksSession::USER_IP:
+				case SearchFields_DevblocksSession::USER_AGENT:
+					$pass = true;
+					break;
+
+				default:
+					if(DevblocksPlatform::strStartsWith($field_key, 'cf_')) {
+						$pass = $this->_canSubtotalCustomField($field_key);
+					} else if(str_starts_with($field_key, '*_')) {
+						$pass = $this->_canSubtotalVirtualField($field_key);
+					}
+					break;
+			}
+
+			if($pass)
+				$fields[$field_key] = $field_model;
+		}
+
+		return $fields;
+	}
+
+	function getSubtotalCounts($column) {
+		$counts = [];
+		$fields = $this->getFields();
+
+		if(!array_key_exists($column, $fields))
+			return [];
+
+		switch($column) {
+			case SearchFields_DevblocksSession::USER_ID:
+				$label_map = function(array $values) {
+					$models = DAO_Worker::getIds($values);
+					$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_WORKER);
+					$label_map = array_column(DevblocksPlatform::objectsToArrays($dicts), '_label', 'id');
+					if(in_array(0, $values))
+						$label_map[0] = DevblocksPlatform::translate('common.nobody');
+					return $label_map;
+				};
+				$counts = $this->_getSubtotalCountForStringColumn(null, $column, $label_map, 'in', 'worker_id');
+				break;
+
+			case SearchFields_DevblocksSession::USER_IP:
+			case SearchFields_DevblocksSession::USER_AGENT:
+				$counts = $this->_getSubtotalCountForStringColumn(null, $column, [], 'in', 'value[]');
+				break;
+
+			default:
+				if(DevblocksPlatform::strStartsWith($column, 'cf_')) {
+					$counts = $this->_getSubtotalCountForCustomColumn(null, $column);
+				} else if(DevblocksPlatform::strStartsWith($column, '*_')) {
+					$counts = $this->_getSubtotalCountForVirtualField(null, $column);
+				}
+				break;
+		}
+
+		return $counts;
+	}
+
 	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
 		return 'userAgent';
 	}
