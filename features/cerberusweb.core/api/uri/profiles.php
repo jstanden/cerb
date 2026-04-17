@@ -203,14 +203,17 @@ class Page_Profiles extends CerberusPageExtension {
 			$tpl->display('devblocks:cerberusweb.core::pages/error.tpl');
 			return;
 		}
-
-		// Events
-		AutomationTrigger_RecordViewed::trigger($dict);
+		
+		// Trigger priorities 0-127 before legacy behaviors
+		AutomationTrigger_RecordViewed::trigger($dict, priority_range:[0, 127]);
 		
 		if($context == CerberusContexts::CONTEXT_TICKET) {
 			// Trigger ticket view event (before we load it, in case we change it)
 			Event_TicketViewedByWorker::trigger($record->id, $active_worker->id);
 		}
+		
+		// Trigger priorities 128-255 after legacy behaviors
+		AutomationTrigger_RecordViewed::trigger($dict, priority_range:[128, 255]);
 		
 		// Toolbar
 		$toolbar_placeholders = $dict->getDictionary(null, false, 'record_');

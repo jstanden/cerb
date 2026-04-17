@@ -2,7 +2,7 @@
 class AutomationTrigger_RecordViewed extends Extension_AutomationTrigger {
 	const ID = 'cerb.trigger.record.viewed';
 	
-	public static function trigger(DevblocksDictionaryDelegate $dict, $is_card=false) {
+	public static function trigger(DevblocksDictionaryDelegate $dict, $is_card=false, array $priority_range=[]) {
 		$event_handler = DevblocksPlatform::services()->ui()->eventHandler();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -16,7 +16,7 @@ class AutomationTrigger_RecordViewed extends Extension_AutomationTrigger {
 			$initial_state = $event_dict->getDictionary();
 			$error = null;
 			
-			$handlers = $record_viewed_event->getKata($event_dict, $error);
+			$handlers = $record_viewed_event->getKata($event_dict, $error, priority_range: $priority_range);
 			
 			if(false === $handlers && $error) {
 				error_log('[KATA] Invalid record.viewed KATA: ' . $error);
