@@ -8,6 +8,7 @@ VOLUME /var/www/html/
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
+    gettext-base \
     php8.3-bcmath \
     php8.3-curl \
     php8.3-dom \

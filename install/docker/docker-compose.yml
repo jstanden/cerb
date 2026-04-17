@@ -20,10 +20,16 @@ services:
     depends_on:
       - mysql
     environment:
+      CERB_DB_HOST: mysql
+      CERB_DB_NAME: ${MYSQL_DATABASE:-cerb}
+      CERB_DB_USER: ${MYSQL_USER:-cerb}
+      CERB_DB_PASS: ${MYSQL_PASSWORD:-s3cr3t}
       CERB_SERVICE_TOKEN: ${CERB_SERVICE_TOKEN:-sk_docker_token}
+      CERB_SERVICE_TOKEN_SCOPE: ${CERB_SERVICE_TOKEN_SCOPE:-cron update}
     volumes:
       - ../..:/var/www/html:ro
-      - ./_conf/cerb.config.php:/var/www/html/framework.config.php:ro
+      - ./_conf/cerb.config.template.php:/tmp/cerb.framework.config.template:ro
+      - ./_conf/cerb.config.php:/var/www/html/framework.config.php
       - storage:/var/www/html/storage
   mysql:
     image: mysql:8.4
