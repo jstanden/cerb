@@ -16,42 +16,21 @@
 ***********************************************************************/
 
 class ChDebugController extends DevblocksControllerExtension  {
-	private function isAllowed(string $action) : bool {
-		$debug_mode = defined('DEVELOPMENT_MODE_ALLOW_DEBUG') ? DEVELOPMENT_MODE_ALLOW_DEBUG : [];
-		
-		if(is_bool($debug_mode) && $debug_mode)
-			return true;
-		
-		if(is_string($debug_mode))
-			$debug_mode = DevblocksPlatform::parseCsvString($debug_mode);
-		
-		if(is_array($debug_mode) && in_array($action, $debug_mode))
-			return true;
-		
-		return false;
-	}
-	
-	/*
-	 * Request Overload
-	 */
 	function handleRequest(DevblocksHttpRequest $request) {
 		$stack = $request->path;
 		array_shift($stack); // update
+		$debug_action = array_shift($stack);
+		$debug_scope = sprintf('debug%s', ($debug_action ? (':' . $debug_action) : ''));
 		
-		if(!CerberusApplication::isRequestAuthorized(allow_client_ips: false))
+		if(!CerberusApplication::isRequestAuthorized($debug_scope, allow_client_ips: false))
 			CerberusApplication::respondWithErrorReason(CerbErrorReason::AccessDeniedToken, true);
 		
-		switch(array_shift($stack)) {
+		switch($debug_action) {
 			case 'phpinfo':
-				if(!($this->isAllowed('phpinfo')))
-					CerberusApplication::respondWithErrorReason(CerbErrorReason::AccessDenied, true);
 				phpinfo();
 				break;
 				
 			case 'check':
-				if(!($this->isAllowed('check')))
-					CerberusApplication::respondWithErrorReason(CerbErrorReason::AccessDenied, true);
-				
 				echo sprintf(
 					"<html>
 					<head>
@@ -90,9 +69,6 @@ class ChDebugController extends DevblocksControllerExtension  {
 				break;
 				
 			case 'status':
-				if(!($this->isAllowed('status')))
-					CerberusApplication::respondWithErrorReason(CerbErrorReason::AccessDenied, true);
-				
 				$db = DevblocksPlatform::services()->database();
 
 				DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
@@ -245,11 +221,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 				break;
 				
 			case 'report':
-				if(!($this->isAllowed('report')))
-					CerberusApplication::respondWithErrorReason(CerbErrorReason::AccessDenied, true);
-				
 				@$db = DevblocksPlatform::services()->database();
-				
 				@$tables = $db->metaTablesDetailed();
 				
 				$report_output = sprintf(
@@ -401,14 +373,10 @@ class ChDebugController extends DevblocksControllerExtension  {
 				
 				$links = [];
 				
-				if($this->isAllowed('status'))
-					$links[] = sprintf("<li><a href='%s'>Status JSON</a></li>", $url_service->write('c=debug&a=status'));
-				if($this->isAllowed('check'))
-					$links[] = sprintf("<li><a href='%s'>Requirements Checker</a></li>", $url_service->write('c=debug&a=check'));
-				if($this->isAllowed('report'))
-					$links[] = sprintf("<li><a href='%s'>Debug Report (for technical support)</a></li>", $url_service->write('c=debug&a=report'));
-				if($this->isAllowed('phpinfo'))
-					$links[] = sprintf("<li><a href='%s'>phpinfo()</a></li>", $url_service->write('c=debug&a=phpinfo'));
+				$links[] = sprintf("<li><a href='%s'>Status JSON</a></li>", $url_service->write('c=debug&a=status'));
+				$links[] = sprintf("<li><a href='%s'>Requirements Checker</a></li>", $url_service->write('c=debug&a=check'));
+				$links[] = sprintf("<li><a href='%s'>Debug Report (for technical support)</a></li>", $url_service->write('c=debug&a=report'));
+				$links[] = sprintf("<li><a href='%s'>phpinfo()</a></li>", $url_service->write('c=debug&a=phpinfo'));
 				
 				if(empty($links))
 					CerberusApplication::respondWithErrorReason(CerbErrorReason::AccessDenied);
