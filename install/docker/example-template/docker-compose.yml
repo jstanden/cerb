@@ -13,8 +13,6 @@ services:
       - "80:80"
     depends_on:
       - php-fpm
-    networks:
-      - backend
     volumes:
       - ../_conf/nginx.conf:/etc/nginx/templates/default.conf.template:ro
       - ../../../apple-touch-icon.png:/usr/share/nginx/html/apple-touch-icon.png:ro
@@ -25,8 +23,8 @@ services:
     depends_on:
       - mysql
       #- memcached
-    networks:
-      - backend
+    environment:
+      CERB_SERVICE_TOKEN: ${CERB_SERVICE_TOKEN:-sk_docker_token}
     volumes:
       - ../../..:/var/www/html:ro
       # A custom framework file may be used for each environment
@@ -44,20 +42,12 @@ services:
       MYSQL_USER: ${MYSQL_USER:-cerb}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-s3cr3t}
       MYSQL_RANDOM_ROOT_PASSWORD: yes
-    networks:
-      - backend
     volumes:
       # A custom database volume must be used for each environment
       - db:/var/lib/mysql
   # This demonstrates adding additional containers
   #memcached:
   #  image: memcached:latest
-
-networks:
-  backend:
-    ipam:
-      config:
-        - subnet: 172.16.25.0/24
 
 # External containers must be created with:
 # `docker volume create example-cerb-db && docker volume create example-cerb-storage`
