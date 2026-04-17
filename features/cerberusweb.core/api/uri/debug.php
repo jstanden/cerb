@@ -38,20 +38,8 @@ class ChDebugController extends DevblocksControllerExtension  {
 		$stack = $request->path;
 		array_shift($stack); // update
 		
-		$settings = DevblocksPlatform::services()->pluginSettings();
-
-		$authorized_ips_str = $settings->get('cerberusweb.core',CerberusSettings::AUTHORIZED_IPS,CerberusSettingsDefaults::AUTHORIZED_IPS);
-		$authorized_ips = DevblocksPlatform::parseCrlfString($authorized_ips_str);
-		
-		$authorized_ip_defaults = DevblocksPlatform::parseCsvString(AUTHORIZED_IPS_DEFAULTS);
-		$authorized_ips = array_merge($authorized_ips, $authorized_ip_defaults);
-		
-		if(!DevblocksPlatform::isIpAuthorized(DevblocksPlatform::getClientIp(), $authorized_ips)) {
-			echo sprintf('Your IP address (%s) is not authorized to debug this helpdesk.  Your administrator needs to authorize your IP in Helpdesk Setup or in the framework.config.php file under AUTHORIZED_IPS_DEFAULTS.',
-				DevblocksPlatform::strEscapeHtml(DevblocksPlatform::getClientIp())
-			);
-			DevblocksPlatform::dieWithHttpError(null, 403);
-		}
+		if(!CerberusApplication::isRequestAuthorized(allow_client_ips: false))
+			CerberusApplication::respondWithErrorReason(CerbErrorReason::AccessDeniedToken, true);
 		
 		switch(array_shift($stack)) {
 			case 'phpinfo':

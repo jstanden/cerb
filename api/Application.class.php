@@ -940,6 +940,67 @@ class CerberusApplication extends DevblocksApplication {
 
 		return $file_ids;
 	}
+	
+	public static function isRequestAuthorized(string $scope, bool $allow_client_ips=true) : string|false {
+		$settings = DevblocksPlatform::services()->pluginSettings();
+		
+		// Client IPs (deprecated)
+		
+		if($allow_client_ips) {
+			$client_ip = DevblocksPlatform::getClientIp();
+			
+			$authorized_ips = [];
+			
+			if (($instance_ips = DevblocksPlatform::parseCrlfString($settings->get('cerberusweb.core', CerberusSettings::AUTHORIZED_IPS, CerberusSettingsDefaults::AUTHORIZED_IPS))))
+				$authorized_ips = $instance_ips;
+			
+			if (AUTHORIZED_IPS_DEFAULTS)
+				$authorized_ips = array_merge($authorized_ips, DevblocksPlatform::parseCsvString(AUTHORIZED_IPS_DEFAULTS));
+			
+			if (DevblocksPlatform::isIpAuthorized($client_ip, $authorized_ips))
+				return 'client_ip';
+		}
+		
+		// Service Tokens
+		
+		$request_headers = DevblocksPlatform::getHttpHeaders();
+		
+		// Check Authorization header, then POST
+		if(str_contains(DevblocksPlatform::strLower($request_headers['authorization'] ?? ''), 'bearer ')) {
+			$request_token = explode(' ', $request_headers['authorization'])[1] ?? null;
+		} elseif(is_array($_POST ?? null) && array_key_exists('_authorization', $_POST)) {
+			$request_token = strval($_POST['_authorization']);
+		} else {
+			$request_token = null;
+		}
+		
+		if($request_token) {
+			if(
+				defined('APP_SERVICE_TOKEN')
+				&& APP_SERVICE_TOKEN
+				&& APP_SERVICE_TOKEN === $request_token
+				&& ($service_token = DAO_ServiceToken::getMasterToken())
+				&& !$service_token->isExpired()
+				&& $service_token->hasScope($scope)
+			) return 'access_token';
+			
+			if(
+				($service_token = DAO_ServiceToken::getByToken($request_token))
+				&& $service_token->hasScope($scope)
+				&& !$service_token->isExpired()
+			) {
+				// Update last_accessed_at
+				DAO_ServiceToken::update($service_token->id, [
+					DAO_ServiceToken::LAST_ACCESSED_AT => time(),
+				]);
+				
+				// [TODO] Metrics
+				return 'access_token';
+			}
+		}
+		
+		return false;
+	}
 };
 
 class CerbException extends DevblocksException {

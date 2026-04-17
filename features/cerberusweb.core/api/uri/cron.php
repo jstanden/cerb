@@ -26,27 +26,27 @@ class ChCronController extends DevblocksControllerExtension {
 		$logger = DevblocksPlatform::services()->log();
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		$settings = DevblocksPlatform::services()->pluginSettings();
-		$authorized_ips_str = $settings->get('cerberusweb.core',CerberusSettings::AUTHORIZED_IPS,CerberusSettingsDefaults::AUTHORIZED_IPS);
-		$authorized_ips = DevblocksPlatform::parseCrlfString($authorized_ips_str);
-		
-		$authorized_ip_defaults = DevblocksPlatform::parseCsvString(AUTHORIZED_IPS_DEFAULTS);
-		$authorized_ips = array_merge($authorized_ips, $authorized_ip_defaults);
-		
 		$is_ignoring_wait = DevblocksPlatform::importGPC($_REQUEST['ignore_wait'] ?? null, 'integer',0);
 		$is_ignoring_internal = DevblocksPlatform::importGPC($_REQUEST['ignore_internal'] ?? null, 'integer',0);
-		
-		if(!DevblocksPlatform::isIpAuthorized(DevblocksPlatform::getClientIp(), $authorized_ips)) {
-			echo sprintf($translate->_('cron.ip_unauthorized'), DevblocksPlatform::strEscapeHtml(DevblocksPlatform::getClientIp()));
-			DevblocksPlatform::dieWithHttpError(null, 403);
-		}
-		
-		$logger->setLogLevel($loglevel);
 		
 		$stack = $request->path;
 		
 		array_shift($stack); // cron
-		$job_ids = array_shift($stack);
+		$job_ids_str = array_shift($stack);
+		$job_ids = DevblocksPlatform::parseCsvString($job_ids_str);
+		
+		// Authorize each requested job
+		if($job_ids) {
+			foreach ($job_ids as $job_id) {
+				if (!CerberusApplication::isRequestAuthorized('cron:' . $job_id))
+					CerberusApplication::respondWithErrorReason(CerbErrorReason::AccessDeniedToken, true);
+			}
+		} else {
+			if (!CerberusApplication::isRequestAuthorized('cron'))
+				CerberusApplication::respondWithErrorReason(CerbErrorReason::AccessDeniedToken, true);
+		}
+		
+		$logger->setLogLevel($loglevel);
 		
 		@set_time_limit(600); // 10 mins
 		
@@ -59,7 +59,7 @@ class ChCronController extends DevblocksControllerExtension {
 		
 		if($reload) {
 			$reload_url = sprintf("%s?reload=%d&loglevel=%d&ignore_wait=%d&ignore_internal=%d",
-				$url->write('c=cron' . ($job_ids ? ("&a=".$job_ids) : "")),
+				$url->write('c=cron' . ($job_ids_str ? ("&a=".$job_ids_str) : "")),
 				intval($reload),
 				intval($loglevel),
 				intval($is_ignoring_wait),
@@ -77,7 +77,7 @@ class ChCronController extends DevblocksControllerExtension {
 		$cron_manifests = DevblocksPlatform::getExtensions('cerberusweb.cron', true);
 		$jobs = new CerbPriorityQueueDesc();
 		
-		if(empty($job_ids)) { // do everything
+		if(!$job_ids) { // do everything
 			if($is_ignoring_internal) {
 				$cron_manifests = array_filter($cron_manifests, function($instance) {
 					switch($instance->id) {
@@ -106,7 +106,7 @@ class ChCronController extends DevblocksControllerExtension {
 			}
 			
 		} else { // do named jobs
-			foreach(DevblocksPlatform::parseCsvString($job_ids) as $job_id) {
+			foreach($job_ids as $job_id) {
 				if(array_key_exists($job_id, $cron_manifests)) {
 					$instance = $cron_manifests[$job_id]; /* @var $instance CerberusCronPageExtension */
 					

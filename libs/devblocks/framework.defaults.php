@@ -125,6 +125,12 @@ if(!defined('APP_SESSION_NAME'))
 if(!defined('AUTHORIZED_IPS_DEFAULTS'))
 	define('AUTHORIZED_IPS_DEFAULTS', '');
 
+if(!defined('APP_SERVICE_TOKEN'))
+	define('APP_SERVICE_TOKEN', '');
+
+if(!defined('APP_SERVICE_TOKEN_SCOPE'))
+	define('APP_SERVICE_TOKEN_SCOPE', 'cron update');
+
 if(!defined('APP_SECURITY_CSP_DEFAULT_SRC'))
 	define('APP_SECURITY_CSP_DEFAULT_SRC', defined('APP_SECURITY_CSP_DEFAULT_SRC') ? APP_SECURITY_CSP_DEFAULT_SRC : '');
 

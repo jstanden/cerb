@@ -673,7 +673,7 @@ abstract class DevblocksEngine {
 		// Security: CSRF
 		
 		// Exclude public controllers
-		if(!in_array($controller_uri, ['cron', 'oauth', 'portal', 'rest', 'sso', 'webhooks'])) {
+		if(!in_array($controller_uri, ['cron', 'debug', 'oauth', 'portal', 'rest', 'sso', 'webhooks'])) {
 			
 			// ...and we're not in DEVELOPMENT_MODE
 			if(!DEVELOPMENT_MODE_ALLOW_CSRF) {

@@ -228,6 +228,28 @@ if('utf8mb4_unicode_ci' != $columns['field_value']['collation']) {
 }
 
 // ===========================================================================
+// Service Tokens
+
+if(!array_key_exists('service_token', $tables)) {
+	$sql = sprintf("CREATE TABLE `service_token` (
+		`id` int unsigned AUTO_INCREMENT,
+		`name` varchar(255) NOT NULL DEFAULT '',
+		`token_hint` varchar(32) NOT NULL DEFAULT '',
+		`token_hash` char(64) NOT NULL DEFAULT '',
+		`created_at` int unsigned NOT NULL DEFAULT 0,
+		`updated_at` int unsigned NOT NULL DEFAULT 0,
+		`expires_at` int unsigned NOT NULL DEFAULT 0,
+		`last_accessed_at` int unsigned NOT NULL DEFAULT 0,
+		`scopes` text NOT NULL,
+		PRIMARY KEY (id)
+	) ENGINE=%s",
+		APP_DB_ENGINE
+	);
+	$db->ExecuteMaster($sql) or die("[PATCH] Failed to create 'service_token' table.");
+	$logger->info("[Patch] Created 'service_token' table.");
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

@@ -29,6 +29,7 @@
 				<ul class="cerb-popupmenu cerb-float">
 					<li><a href="{devblocks_url}c=config&a=security{/devblocks_url}">{'common.configure'|devblocks_translate|capitalize}</a></li>
 					<li><a href="{devblocks_url}c=config&a=auth{/devblocks_url}">{'common.authentication'|devblocks_translate|capitalize}</a></li>
+					<li><a href="{devblocks_url}c=config&a=service_tokens{/devblocks_url}">Service Tokens</a></li>
 					<li><a href="{devblocks_url}c=config&a=sessions{/devblocks_url}">Active Sessions</a></li>
 
 					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.security')}

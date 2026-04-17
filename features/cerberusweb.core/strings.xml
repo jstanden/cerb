@@ -3663,8 +3663,16 @@
 			<seg>Refresh Token Expires</seg></tuv>
 		</tu>
 
-		<!-- Snippets -->
+		<!-- Service Token -->
 		
+		<tu tuid="dao.service_token.last_accessed_at">
+			<tuv xml:lang="en_US">
+				<seg>Last Accessed</seg>
+			</tuv>
+		</tu>
+
+		<!-- Snippets -->
+
 		<tu tuid="dao.snippet.total_uses">
 			<tuv xml:lang="en_US">
 				<seg>All Uses</seg>

@@ -122,18 +122,9 @@ class ChUpdateController extends DevblocksControllerExtension {
 				$path = APP_TEMP_PATH . DIRECTORY_SEPARATOR;
 				$file = $path . 'cerb_update_lock';
 				
-				$settings = DevblocksPlatform::services()->pluginSettings();
-				
-				$authorized_ips_str = $settings->get('cerberusweb.core',CerberusSettings::AUTHORIZED_IPS,CerberusSettingsDefaults::AUTHORIZED_IPS);
-				$authorized_ips = DevblocksPlatform::parseCrlfString($authorized_ips_str);
-				
-				$authorized_ip_defaults = DevblocksPlatform::parseCsvString(AUTHORIZED_IPS_DEFAULTS);
-				$authorized_ips = array_merge($authorized_ips, $authorized_ip_defaults);
-				
 				// Is this IP authorized?
-				if(!DevblocksPlatform::isIpAuthorized(DevblocksPlatform::getClientIp(), $authorized_ips)) {
-					echo sprintf("Your IP address (%s) is not authorized to update this application. Your administrator needs to authorize your IP in the Security menu of Setup or in the framework.config.php file under AUTHORIZED_IPS_DEFAULTS.", DevblocksPlatform::getClientIp());
-					return;
+				if(!CerberusApplication::isRequestAuthorized('update')) {
+					CerberusApplication::respondWithErrorReason(CerbErrorReason::AccessDeniedToken, true);
 				}
 				
 				// Potential errors
