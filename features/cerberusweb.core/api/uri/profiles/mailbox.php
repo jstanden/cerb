@@ -137,7 +137,9 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 					
 					$id = DAO_Mailbox::create($fields);
 					DAO_Mailbox::onUpdateByActor($active_worker, $fields, $id);
-					
+
+					CerberusContexts::logActivityRecordCreate(CerberusContexts::CONTEXT_MAILBOX, [$id]);
+
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, 'cerberusweb.contexts.mailbox', $id);
 					
