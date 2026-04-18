@@ -4,7 +4,7 @@
 </p>
 
 <form method="POST">
-    <input type="password" name="_authorization" size="40">
+    <input type="password" name="_authorization" size="40" autofocus>
     <button type="submit">Submit</button>
 </form>
 
