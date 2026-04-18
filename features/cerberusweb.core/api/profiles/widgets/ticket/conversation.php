@@ -61,8 +61,25 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 		$tpl->assign('workers', DAO_Worker::getAll());
 		
 		// Display by record type
-		
-		if($context == CerberusContexts::CONTEXT_TICKET) {
+
+		$target_ticket_id = $model->extension_params['ticket_id'] ?? null;
+
+		if($target_ticket_id) {
+			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+
+			$dict = DevblocksDictionaryDelegate::instance([
+				'record__context' => $context,
+				'record_id' => $context_id,
+				'widget__context' => CerberusContexts::CONTEXT_PROFILE_WIDGET,
+				'widget_id' => $model->id,
+			]);
+
+			$ticket_id = intval($tpl_builder->build($target_ticket_id, $dict));
+
+			if($ticket_id)
+				$this->_showTicketConversation($ticket_id, $display_options);
+
+		} else if($context == CerberusContexts::CONTEXT_TICKET) {
 			$this->_showTicketConversation($context_id, $display_options);
 		} else if ($context == CerberusContexts::CONTEXT_MESSAGE) {
 			$this->_showMessageConversation($context_id, $display_options);
