@@ -206,6 +206,17 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	const ID = 'devblocks.context';
 	
 	static $_changed_contexts = [];
+
+	protected static function _isWriteableOnlyByAdmin($models, $actor) : bool {
+		// Only admin workers can modify
+		if(!($actor = CerberusContexts::polymorphActorToDictionary($actor)))
+			return CerberusContexts::denyEverything($models);
+		
+		if(CerberusContexts::isActorAnAdmin($actor))
+			return CerberusContexts::allowEverything($models);
+		
+		return CerberusContexts::denyEverything($models);
+	}
 	
 	/**
 	 * @internal
