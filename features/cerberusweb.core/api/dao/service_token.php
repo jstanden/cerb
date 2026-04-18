@@ -243,25 +243,6 @@ class DAO_ServiceToken extends Cerb_ORMHelper {
 		return $objects;
 	}
 	
-	public static function getMasterToken() : ?Model_ServiceToken {
-		if(
-			!defined('APP_SERVICE_TOKEN')
-			|| !APP_SERVICE_TOKEN
-			|| !is_string(APP_SERVICE_TOKEN)
-		) return null;
-		
-		$service_token = new Model_ServiceToken();
-		$service_token->id = 0;
-		$service_token->created_at = time();
-		$service_token->expires_at = 0;
-		$service_token->last_accessed_at = time();
-		$service_token->name = 'Master Service Token';
-		$service_token->scopes = array_filter(explode(' ', APP_SERVICE_TOKEN_SCOPE ?? ''));
-		$service_token->token_hint = sprintf('%s...%s', substr(APP_SERVICE_TOKEN, 0, 6), substr(APP_SERVICE_TOKEN, -1) ?? '');
-		$service_token->updated_at = time();
-		return $service_token;
-	}
-	
 	static function random() {
 		return self::_getRandom('service_token');
 	}

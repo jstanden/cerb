@@ -975,17 +975,21 @@ class CerberusApplication extends DevblocksApplication {
 		}
 		
 		if($request_token) {
+			// The master service token doesn't use records (it must function without classloader)
 			if(
 				defined('APP_SERVICE_TOKEN')
+				&& is_string(APP_SERVICE_TOKEN)
 				&& APP_SERVICE_TOKEN
 				&& APP_SERVICE_TOKEN === $request_token
-				&& ($service_token = DAO_ServiceToken::getMasterToken())
-				&& !$service_token->isExpired()
-				&& $service_token->hasScope($scope)
+				&& defined('APP_SERVICE_TOKEN_SCOPE')
+				&& is_string(APP_SERVICE_TOKEN_SCOPE)
+				&& APP_SERVICE_TOKEN_SCOPE
+				&& in_array($scope, array_filter(explode(' ', APP_SERVICE_TOKEN_SCOPE)))
 			) return 'access_token';
 			
 			if(
-				($service_token = DAO_ServiceToken::getByToken($request_token))
+				class_exists('DAO_ServiceToken')
+				&& ($service_token = DAO_ServiceToken::getByToken($request_token))
 				&& $service_token->hasScope($scope)
 				&& !$service_token->isExpired()
 			) {
