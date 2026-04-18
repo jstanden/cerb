@@ -82,7 +82,7 @@ class CerberusMail {
 		return array_shift($addresses);
 	}
 	
-	static function parseRfcAddresses($string, $exclude_controlled_addresses=false) {
+	static function parseRfcAddresses($string, $exclude_controlled_addresses=false, &$invalid_addresses=null) {
 		$strings = DevblocksPlatform::services()->string();
 		
 		if(is_null($string))
@@ -197,7 +197,13 @@ class CerberusMail {
 											'host' => $host,
 											'personal' => $personal,
 										];
+									} else {
+										if(null !== $invalid_addresses)
+											$invalid_addresses[$email] = $validator->getError()?->reason() ?? 'Invalid';
 									}
+								} else {
+									if(null !== $invalid_addresses)
+										$invalid_addresses[$email] = 'Invalid';
 								}
 							}
 							
