@@ -593,7 +593,17 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 				
 				if(!$draft->getParam('group_id'))
 					throw new Exception_DevblocksAjaxValidationError("'From:' is required.");
-				
+
+				// Check for invalid address formats
+				foreach(['to', 'cc', 'bcc'] as $field) {
+					$raw = trim($draft->getParam($field, ''));
+					if(!$raw) continue;
+					$invalid_addresses = [];
+					CerberusMail::parseRfcAddresses($raw, false, $invalid_addresses);
+					if($invalid_addresses)
+						throw new Exception_DevblocksAjaxValidationError(sprintf("Invalid '%s:' address (%s)", DevblocksPlatform::strTitleCase($field), implode(', ', array_keys($invalid_addresses))));
+				}
+
 				// Validate GPG for signature
 				if($draft->params['options_gpg_sign']) {
 					$group_id = $draft->getParam('group_id', 0);
