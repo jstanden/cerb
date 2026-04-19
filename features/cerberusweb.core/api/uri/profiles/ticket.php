@@ -878,7 +878,16 @@ EOD;
 			if('draft' != $reply_mode) {
 				if(empty($draft->params['to'] ?? null))
 					throw new Exception_DevblocksAjaxValidationError("`To:` is required.");
-				
+
+				foreach(['to', 'cc', 'bcc'] as $field) {
+					$raw = trim($draft->params[$field] ?? '');
+					if(!$raw) continue;
+					$invalid_addresses = [];
+					CerberusMail::parseRfcAddresses($raw, false, $invalid_addresses);
+					if($invalid_addresses)
+						throw new Exception_DevblocksAjaxValidationError(sprintf("Invalid '%s:' address (%s)", DevblocksPlatform::strTitleCase($field), implode(', ', array_keys($invalid_addresses))));
+				}
+
 				if(empty($draft->params['subject'] ?? null))
 					throw new Exception_DevblocksAjaxValidationError("`Subject:` is required.");
 				
