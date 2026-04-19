@@ -124,7 +124,7 @@
 					{/if}
 				{/if}
 				</td>
-			{elseif in_array($column, ['w_updated'])}
+			{elseif in_array($column, ['w_created_at', 'w_updated'])}
 				{if !empty($result.$column)}
 				<td data-column="{$column}" title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</td>
 				{else}

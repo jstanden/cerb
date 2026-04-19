@@ -228,6 +228,20 @@ if('utf8mb4_unicode_ci' != $columns['field_value']['collation']) {
 }
 
 // ===========================================================================
+// Add `created_at` to `worker`
+
+list($columns, ) = $db->metaTable('worker');
+
+if(!array_key_exists('created_at', $columns)) {
+	$db->ExecuteMaster("ALTER TABLE worker ADD COLUMN created_at int unsigned NOT NULL DEFAULT 0");
+	$db->ExecuteMaster("UPDATE worker w SET w.created_at = COALESCE(
+		(SELECT MIN(cal.created) FROM context_activity_log cal WHERE cal.actor_context = 'cerberusweb.contexts.worker' AND cal.actor_context_id = w.id),
+		(SELECT MIN(m.created_date) FROM message m WHERE m.worker_id = w.id),
+		w.updated
+	) WHERE w.created_at = 0");
+}
+
+// ===========================================================================
 // Service Tokens
 
 if(!array_key_exists('service_token', $tables)) {

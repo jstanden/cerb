@@ -18,6 +18,7 @@
 class DAO_Worker extends Cerb_ORMHelper {
 	const AT_MENTION_NAME = 'at_mention_name';
 	const CALENDAR_ID = 'calendar_id';
+	const CREATED_AT = 'created_at';
 	const DOB = 'dob';
 	const EMAIL_ID = 'email_id';
 	const FIRST_NAME = 'first_name';
@@ -75,6 +76,11 @@ class DAO_Worker extends Cerb_ORMHelper {
 			->addField(self::CALENDAR_ID)
 			->id()
 			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_CALENDAR, true))
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::CREATED_AT)
+			->timestamp()
 			;
 		// date
 		$validation
@@ -251,7 +257,10 @@ class DAO_Worker extends Cerb_ORMHelper {
 		$id = $db->LastInsertId();
 		
 		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_WORKER, $id);
-		
+
+		if(!array_key_exists(DAO_Worker::CREATED_AT, $fields))
+			$fields[DAO_Worker::CREATED_AT] = time();
+
 		if(!array_key_exists(DAO_Worker::TIMEOUT_IDLE_SECS, $fields))
 			$fields[DAO_Worker::TIMEOUT_IDLE_SECS] = 600;
 
@@ -444,7 +453,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
-		$sql = "SELECT id, first_name, last_name, email_id, title, is_superuser, is_disabled, is_password_disabled, is_mfa_required, at_mention_name, timezone, time_format, timeout_idle_secs, language, calendar_id, gender, dob, location, phone, mobile, updated ".
+		$sql = "SELECT id, first_name, last_name, email_id, title, is_superuser, is_disabled, is_password_disabled, is_mfa_required, at_mention_name, timezone, time_format, timeout_idle_secs, language, calendar_id, gender, dob, location, phone, mobile, created_at, updated ".
 			"FROM worker ".
 			$where_sql.
 			$sort_sql.
@@ -588,6 +597,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			$object = new Model_Worker();
 			$object->at_mention_name = $row['at_mention_name'];
 			$object->calendar_id = intval($row['calendar_id']);
+			$object->created_at = intval($row['created_at']);
 			$object->dob = $row['dob'];
 			$object->email_id = intval($row['email_id']);
 			$object->first_name = trim($row['first_name']);
@@ -1333,6 +1343,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			if(null != ($model = $models[$id] ?? null)) {
 				$result[SearchFields_Worker::AT_MENTION_NAME] = $model->at_mention_name;
 				$result[SearchFields_Worker::CALENDAR_ID] = $model->calendar_id;
+				$result[SearchFields_Worker::CREATED_AT] = $model->created_at;
 				$result[SearchFields_Worker::DOB] = $model->dob;
 				$result[SearchFields_Worker::EMAIL_ID] = $model->email_id;
 				$result[SearchFields_Worker::FIRST_NAME] = $model->first_name;
@@ -1386,6 +1397,7 @@ class SearchFields_Worker extends DevblocksSearchFields {
 	const ID = 'w_id';
 	const AT_MENTION_NAME = 'w_at_mention_name';
 	const CALENDAR_ID = 'w_calendar_id';
+	const CREATED_AT = 'w_created_at';
 	const DOB = 'w_dob';
 	const EMAIL_ID = 'w_email_id';
 	const FIRST_NAME = 'w_first_name';
@@ -1647,6 +1659,7 @@ class SearchFields_Worker extends DevblocksSearchFields {
 			self::ID => new DevblocksSearchField(self::ID, 'worker', 'id', $translate->_('common.id'), null, true),
 			self::AT_MENTION_NAME => new DevblocksSearchField(self::AT_MENTION_NAME, 'worker', 'at_mention_name', $translate->_('worker.at_mention_name'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::CALENDAR_ID => new DevblocksSearchField(self::CALENDAR_ID, 'worker', 'calendar_id', $translate->_('common.calendar'), null, true),
+			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'worker', 'created_at', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
 			self::DOB => new DevblocksSearchField(self::DOB, 'worker', 'dob', $translate->_('common.dob.abbr'), Model_CustomField::TYPE_DATE, true),
 			self::EMAIL_ID => new DevblocksSearchField(self::EMAIL_ID, 'worker', 'email_id', ucwords($translate->_('common.email')), null, true),
 			self::FIRST_NAME => new DevblocksSearchField(self::FIRST_NAME, 'worker', 'first_name', $translate->_('common.name.first'), Model_CustomField::TYPE_SINGLE_LINE, true),
@@ -1702,6 +1715,7 @@ class SearchFields_Worker extends DevblocksSearchFields {
 class Model_Worker extends DevblocksRecordModel {
 	public $at_mention_name;
 	public $calendar_id = 0;
+	public $created_at = 0;
 	public $dob;
 	public $email_id = 0;
 	public $first_name;
@@ -2273,6 +2287,11 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Worker::VIRTUAL_ALIAS),
 				),
+			'created' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_DATE,
+					'options' => array('param_key' => SearchFields_Worker::CREATED_AT),
+				),
 			'calendar.id' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
@@ -2782,6 +2801,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
+			case SearchFields_Worker::CREATED_AT:
 			case SearchFields_Worker::DOB:
 			case SearchFields_Worker::UPDATED:
 			case SearchFields_Worker::VIRTUAL_SESSION_ACTIVITY:
@@ -3078,6 +3098,12 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			'value' => $model->calendar_id,
 		);
 		
+		$properties['created_at'] = array(
+			'label' => mb_ucfirst($translate->_('common.created')),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->created_at,
+		);
+
 		$properties['id'] = array(
 			'label' => DevblocksPlatform::translate('common.id'),
 			'type' => Model_CustomField::TYPE_NUMBER,
@@ -3138,6 +3164,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		return [
 			'address__label',
 			'at_mention_name',
+			'created_at',
 			'is_disabled',
 			'is_superuser',
 			'language',
@@ -3215,6 +3242,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			'_label' => $prefix,
 			'aliases' => $prefix.$translate->_('common.aliases'),
 			'at_mention_name' => $prefix.$translate->_('worker.at_mention_name'),
+			'created_at' => $prefix.$translate->_('common.created'),
 			'dob' => $prefix.$translate->_('common.dob'),
 			'first_name' => $prefix.$translate->_('common.name.first'),
 			'full_name' => $prefix.$translate->_('common.name.full'),
@@ -3240,6 +3268,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			'_label' => 'context_url',
 			'aliases' => Model_CustomField::TYPE_LIST,
 			'at_mention_name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'created_at' => Model_CustomField::TYPE_DATE,
 			'dob' => Model_CustomField::TYPE_SINGLE_LINE,
 			'first_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'full_name' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -3284,6 +3313,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			$token_values['_image_url'] = $url_writer->writeNoProxy(sprintf('c=avatars&ctx=%s&id=%d', 'worker', $worker->id), true) . '?v=' . $worker->updated;
 			$token_values['at_mention_name'] = $worker->at_mention_name;
 			$token_values['calendar_id'] = $worker->calendar_id;
+			$token_values['created_at'] = $worker->created_at;
 			$token_values['dob'] = $worker->dob;
 			$token_values['id'] = $worker->id;
 			$token_values['first_name'] = $worker->first_name;
@@ -3350,6 +3380,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			'address_id' => DAO_Worker::EMAIL_ID,
 			'at_mention_name' => DAO_Worker::AT_MENTION_NAME,
 			'calendar_id' => DAO_Worker::CALENDAR_ID,
+			'created_at' => DAO_Worker::CREATED_AT,
 			'dob' => DAO_Worker::DOB,
 			'first_name' => DAO_Worker::FIRST_NAME,
 			'gender' => DAO_Worker::GENDER,
