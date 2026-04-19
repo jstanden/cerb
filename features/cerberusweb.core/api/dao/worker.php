@@ -376,19 +376,21 @@ class DAO_Worker extends Cerb_ORMHelper {
 			
 			if($idle_workers) {
 				DAO_DevblocksSession::deleteByUserIds(array_keys($idle_workers));
-			}
-			
-			foreach($idle_workers as $idle_worker_id => $idle_worker_after) {
-				$idle_worker = DAO_Worker::get($idle_worker_id);
 				
-				// Add the session kick to the worker's activity log
-				// {{actor}} logged {{target}} out to free up a license seat.
-				$entry = [
-					'variables' => [
-						'idle_time' => time()-($idle_worker_after-$idle_worker->timeout_idle_secs),
-					],
-				];
-				CerberusContexts::logActivity('worker.seat_expired', CerberusContexts::CONTEXT_WORKER, $idle_worker->id, $entry, CerberusContexts::CONTEXT_APPLICATION, 0);
+				foreach($idle_workers as $idle_worker_id => $idle_worker_after) {
+					$idle_worker = DAO_Worker::get($idle_worker_id);
+
+					DevblocksPlatform::services()->metrics()->increment('cerb.sessions.seat.kicks', 1, ['worker_id' => $idle_worker_id]);
+
+					// Add the session kick to the worker's activity log
+					// {{actor}} logged {{target}} out to free up a license seat.
+					$entry = [
+						'variables' => [
+							'idle_time' => time()-($idle_worker_after-$idle_worker->timeout_idle_secs),
+						],
+					];
+					CerberusContexts::logActivity('worker.seat_expired', CerberusContexts::CONTEXT_WORKER, $idle_worker->id, $entry, CerberusContexts::CONTEXT_APPLICATION, 0);
+				}
 			}
 		}
 		

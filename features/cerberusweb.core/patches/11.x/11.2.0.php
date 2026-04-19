@@ -262,6 +262,16 @@ $db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, 
 	time()
 ));
 
+$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, dimensions_kata, created_at, updated_at) ".
+	"VALUES (%s, %s, %s, %s, %d, %d)",
+	$db->qstr('cerb.sessions.seat.kicks'),
+	$db->qstr('Count of worker sessions ended to free up a license seat'),
+	$db->qstr('counter'),
+	$db->qstr("record/worker_id:\n  record_type: worker\n"),
+	time(),
+	time()
+));
+
 // ===========================================================================
 // Update built-in automations
 
