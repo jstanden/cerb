@@ -420,7 +420,13 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 					DevblocksPlatform::translate('message.header.to'),
 					$message_headers['to']
 				);
-			
+
+			if(array_key_exists('cc', $message_headers))
+				$content .= sprintf("%s: %s\n",
+					DevblocksPlatform::translate('message.header.cc'),
+					$message_headers['cc']
+				);
+
 			$content .= "\n" . trim($message->getContent());
 			
 		// Normal reply (non-forward)
