@@ -878,13 +878,13 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 				return $this->_profileTabAction_showSettingsSectionTab($model);
 			case 'saveSettingsSectionTabJson':
 				return $this->_profileTabAction_saveSettingsSectionTabJson($model);
+			case 'renderMfaBackupCodesPopup':
+				return $this->_profileTabAction_renderMfaBackupCodesPopup($model);
 		}
 		return false;
 	}
 	
 	function showTab(Model_ProfileTab $model, $context, $context_id) {
-		$tpl = DevblocksPlatform::services()->template();
-		
 		if($context != CerberusContexts::CONTEXT_WORKER)
 			return;
 		
@@ -896,7 +896,7 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 		if(!($active_worker->is_superuser || $active_worker->id == $worker_id))
 			return;
 		
-		if(false == ($worker = DAO_Worker::get($worker_id)))
+		if(!($worker = DAO_Worker::get($worker_id)))
 			return;
 		
 		$tpl = DevblocksPlatform::services()->template();
@@ -1029,6 +1029,9 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 					if(!$is_mfa_enabled) {
 						$seed = DevblocksPlatform::services()->mfa()->generateMultiFactorOtpSeed(24);
 						$tpl->assign('seed', $seed);
+					} else {
+						$backup_code_count = count(DAO_WorkerPref::getAsJson($worker_id, 'mfa.totp.backup_codes') ?? []);
+						$tpl->assign('mfa_backup_code_count', $backup_code_count);
 					}
 				}
 				
@@ -1079,7 +1082,7 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 			if(!($active_worker->is_superuser || $active_worker->id == $worker_id))
 				throw new Exception_DevblocksAjaxValidationError("You do not have permission to modify this worker.");
 			
-			if(false == ($worker = DAO_Worker::get($worker_id)))
+			if(!($worker = DAO_Worker::get($worker_id)))
 				throw new Exception_DevblocksAjaxValidationError("This worker record does not exist.");
 			
 			switch($tab) {
@@ -1095,7 +1098,7 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 					
 					$dob_ts = null;
 					
-					if(!empty($dob) && false == ($dob_ts = strtotime($dob . ' 00:00 GMT')))
+					if(!empty($dob) && !($dob_ts = strtotime($dob . ' 00:00 GMT')))
 						$dob_ts = null;
 					
 					// Account info
@@ -1277,7 +1280,6 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 					DAO_WorkerPref::set($worker->id, 'login.recover.secret_questions', json_encode($secret_questions));
 					
 					// MFA
-					
 					if(!$worker->is_mfa_required) {
 						$mfa_params = DevblocksPlatform::importGPC($_POST['mfa_params'] ?? null, 'array', []);
 						$state = DevblocksPlatform::importGPC($mfa_params['state'] ?? null, 'integer', 0);
@@ -1290,15 +1292,13 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 							// If disabling an enabled MFA
 							if(!$state && $is_mfa_enabled) {
 								DAO_WorkerPref::delete($worker_id, 'mfa.totp.seed');
-								
+								DAO_WorkerPref::delete($worker_id, 'mfa.totp.backup_codes');
+
 							// Or enabling a disabled MFA
 							} elseif ($state && !$is_mfa_enabled) {
 								if(!($active_worker->id == $worker_id || $active_worker->is_superuser))
 									throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translateCapitalized('common.access_denied'));
-								
-								if($is_mfa_enabled)
-									throw new Exception_DevblocksAjaxValidationError("Two-factor authentication is already enabled for this account.");
-									
+
 								if(!$seed)
 									throw new Exception_DevblocksAjaxValidationError("The TOTP seed is invalid.");
 								
@@ -1309,9 +1309,6 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 									throw new Exception_DevblocksAjaxValidationError("The given security code is invalid. Please try again.");
 								
 								DAO_WorkerPref::set($worker_id, 'mfa.totp.seed', $seed);
-								
-							} else {
-								// Leave the same settings intact
 							}
 							
 						} catch (Exception_DevblocksAjaxValidationError $e) {
@@ -1355,5 +1352,51 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 				'error' => 'An unexpected error occurred.',
 			]);
 		}
+	}
+
+	private function _profileTabAction_renderMfaBackupCodesPopup(Model_ProfileTab $model) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		$tpl = DevblocksPlatform::services()->template();
+
+		$worker_id = DevblocksPlatform::importGPC($_POST['worker_id'] ?? null, 'integer', 0);
+
+		if(!($active_worker->id == $worker_id || $active_worker->is_superuser))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+
+		if(!DAO_WorkerPref::get($worker_id, 'mfa.totp.seed', null))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+
+		$backup_codes = [];
+		for($i = 0; $i < 10; $i++)
+			$backup_codes[] = CerberusApplication::generatePassword(8);
+
+		DAO_WorkerPref::set($worker_id, 'mfa.totp.backup_codes', json_encode($backup_codes));
+
+		$sheets = DevblocksPlatform::services()->sheet()->withDefaultTypes();
+
+		$sheet_dicts = array_map(
+			fn($code) => DevblocksDictionaryDelegate::instance(['code' => $code]),
+			$backup_codes
+		);
+
+		$sheet_kata = <<< EOD
+		layout:
+		  headings@bool: no
+		  style: columns
+		columns:
+		  text/code:
+		    label: Code
+		EOD;
+
+		if(!($sheet = $sheets->parse($sheet_kata, $error)))
+			$sheet = [];
+
+		$tpl->assign('layout', $sheets->getLayout($sheet));
+		$tpl->assign('rows', $sheets->getRows($sheet, $sheet_dicts));
+		$tpl->assign('columns', $sheets->getColumns($sheet));
+		$tpl->assign('backup_codes', $backup_codes);
+		$tpl->assign('tab', $model);
+		$tpl->assign('worker_id', $worker_id);
+		$tpl->display('devblocks:cerberusweb.core::internal/profiles/tabs/worker/settings/mfa_backup_codes_popup.tpl');
 	}
 }

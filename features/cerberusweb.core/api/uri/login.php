@@ -466,8 +466,36 @@ class Page_Login extends CerberusPageExtension {
 				$remember_device = DevblocksPlatform::importGPC($_REQUEST['remember_device'] ?? null, 'integer', 0);
 				
 				if($otp) {
+					// By default, the code is invalid
+					$otp_is_valid = false;
+					
+					// Test the code
+					if(DevblocksPlatform::services()->mfa()->isAuthorized($otp, $mfa_totp_seed))
+						$otp_is_valid = true;
+					
+					// If the code failed, try a backup code
+					if(!$otp_is_valid) {
+						$backup_codes = DAO_WorkerPref::getAsJson($worker->id, 'mfa.totp.backup_codes') ?? [];
+						
+						if(is_array($backup_codes) && !empty($backup_codes) && false !== ($backup_idx = array_search($otp, $backup_codes))) {
+							// Consume the used backup code
+							array_splice($backup_codes, $backup_idx, 1);
+							DAO_WorkerPref::setAsJson($worker->id, 'mfa.totp.backup_codes', $backup_codes);
+							
+							// Notify the worker when codes are running low
+							if(count($backup_codes) <= 2) {
+								DAO_Reminder::create([
+									DAO_Reminder::NAME => 'Generate new MFA backup codes',
+									DAO_Reminder::WORKER_ID => $worker->id,
+									DAO_Reminder::REMIND_AT => time(),
+								]);
+							}
+							$otp_is_valid = true;
+						}
+					}
+					
 					// If verified
-					if(DevblocksPlatform::services()->mfa()->isAuthorized($otp, $mfa_totp_seed)) {
+					if($otp_is_valid) {
 						$login_state->setIsMfaAuthenticated(true);
 						
 						if($setting_can_remember && $remember_device) {
