@@ -135,7 +135,12 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 			
 			$mailer->send($smtp_message);
 			
-			$email_model->setResult('outgoing_email_headers', $smtp_message->getPreparedHeaders()->toString());
+			$outgoing_headers = $smtp_message->getPreparedHeaders()->toString();
+			
+			if($bcc_header = $smtp_message->getHeaders()->get('Bcc'))
+				$outgoing_headers .= $bcc_header->toString() . "\r\n";
+			
+			$email_model->setResult('outgoing_email_headers', $outgoing_headers);
 			
 			return true;
 			

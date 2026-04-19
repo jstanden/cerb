@@ -823,7 +823,12 @@ class Model_DevblocksOutboundEmail {
 			if(($message_id = $this->getProperty('outgoing_message_id')))
 				$smtp_model->getHeaders()->addIdHeader('Message-ID', $message_id);
 			
-			return $smtp_model->getPreparedHeaders()->toString();
+			$headers_text = $smtp_model->getPreparedHeaders()->toString();
+			
+			if($bcc_header = $smtp_model->getHeaders()->get('Bcc'))
+				$headers_text .= $bcc_header->toString() . "\r\n";
+			
+			return $headers_text;
 			
 		} catch(Throwable) {
 			return '';
