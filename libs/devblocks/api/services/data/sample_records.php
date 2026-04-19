@@ -34,6 +34,9 @@ class _DevblocksDataProviderSampleRecords extends _DevblocksDataProvider {
 				$records_fields = CerbQuickSearchLexer::getFieldsFromQuery($records_query);
 				
 				foreach($records_fields as $record_field) {
+					if(!($record_field instanceof DevblocksSearchCriteria))
+						continue;
+
 					$record = [];
 					
 					$fields_query = CerbQuickSearchLexer::getTokensAsQuery($record_field->tokens);
