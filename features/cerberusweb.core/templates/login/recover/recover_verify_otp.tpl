@@ -7,7 +7,7 @@
 		
 		<p>
 			To finish recovering your account, you must verify your identity by entering the security 
-			code from your device (e.g. 1Password, Authy, Google Authenticator).
+			code from your device (e.g. Apple Keychain, 1Password, Google Authenticator).
 		</p>
 	</div>
 

@@ -1535,7 +1535,7 @@ records:
 
                   This combination of "something you know" and "something you have" offers an additional layer of protection against unintentional password disclosure (e.g. phishing, snooping, password stuffing).
 
-                  Cerb generates time-based one-time passwords (TOTP) from any compatible app: 1Password, Authy, etc.
+                  Cerb generates time-based one-time passwords (TOTP) from any compatible app: Apple Keychain, 1Password, etc.
 
                   [Learn more with the multi-factor auth guide.](https://cerb.ai/guides/security/two-factor-auth/)
         toolbar_kata@text:

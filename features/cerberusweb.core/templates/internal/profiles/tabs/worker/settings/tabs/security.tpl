@@ -25,7 +25,7 @@
 	<div class="block cerb-mfa-enable" style="padding:10px;margin:5px 0;display:none;">
 		<input type="hidden" name="mfa_params[seed]" value="{$seed}">
 	
-		<h3>Step 1: Scan this QR code with your app (e.g. 1Password, Authy, Google Authenticator):</h3>
+		<h3>Step 1: Scan this QR code with your app (e.g. Apple Keychain, 1Password, Google Authenticator):</h3>
 		
 		<div class="qrcode"></div>
 		
