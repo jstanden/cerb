@@ -471,8 +471,9 @@ class Model_DevblocksOutboundEmail {
 		$mask = $this->getTicketMask();
 		
 		// add mask to subject if group setting calls for it
-		$group_has_subject = intval(DAO_GroupSettings::get($group_id,DAO_GroupSettings::SETTING_SUBJECT_HAS_MASK,0));
-		$group_subject_prefix = DAO_GroupSettings::get($group_id,DAO_GroupSettings::SETTING_SUBJECT_PREFIX,'');
+		$group = DAO_Group::get($group_id);
+		$group_has_subject = $group ? intval($group->subject_has_mask) : 0;
+		$group_subject_prefix = $group ? $group->subject_prefix : '';
 		
 		$prefix = sprintf("[%s#%s] ",
 			!empty($group_subject_prefix) ? ($group_subject_prefix.' ') : '',

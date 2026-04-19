@@ -190,9 +190,11 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 					
 					$subject_has_mask = DevblocksPlatform::importGPC($_POST['subject_has_mask'] ?? null, 'integer',0);
 					$subject_prefix = DevblocksPlatform::importGPC($_POST['subject_prefix'] ?? null, 'string','');
-			
-					DAO_GroupSettings::set($group_id, DAO_GroupSettings::SETTING_SUBJECT_HAS_MASK, $subject_has_mask);
-					DAO_GroupSettings::set($group_id, DAO_GroupSettings::SETTING_SUBJECT_PREFIX, $subject_prefix);
+
+					DAO_Group::update($group_id, [
+						DAO_Group::SUBJECT_HAS_MASK => $subject_has_mask,
+						DAO_Group::SUBJECT_PREFIX => $subject_prefix,
+					]);
 					
 					// Custom field saves
 					$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);

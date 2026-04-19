@@ -3587,6 +3587,19 @@
 			</tuv>
 		</tu>
 		
+		<!-- Group -->
+
+		<tu tuid="dao.group.subject_has_mask">
+			<tuv xml:lang="en_US">
+				<seg>Subject Has Mask</seg>
+			</tuv>
+		</tu>
+		<tu tuid="dao.group.subject_prefix">
+			<tuv xml:lang="en_US">
+				<seg>Subject Prefix</seg>
+			</tuv>
+		</tu>
+
 		<!-- Mailbox -->
 		
 		<tu tuid='dao.mailbox.checked_at'>

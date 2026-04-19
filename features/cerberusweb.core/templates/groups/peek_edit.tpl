@@ -147,10 +147,10 @@
 						Masks:
 					</td>
 					<td valign="middle">
-						<label><input type="checkbox" name="subject_has_mask" value="1" {if $group_settings.subject_has_mask}checked{/if}> Include ticket masks in message subjects:</label><br>
-						<div id="{$option_id}" style="margin:5px 0;display:{if $group_settings.subject_has_mask}block{else}none{/if}">
+						<label><input type="checkbox" name="subject_has_mask" value="1" {if $group->subject_has_mask}checked{/if}> Include ticket masks in message subjects:</label><br>
+						<div id="{$option_id}" style="margin:5px 0;display:{if $group->subject_has_mask}block{else}none{/if}">
 							<b>Subject prefix:</b> (optional, e.g. "billing", "tech-support")<br>
-							Re: [ <input type="text" name="subject_prefix" placeholder="prefix" value="{$group_settings.subject_prefix}" size="24"> #MASK-12345-678]: Subject<br>
+							Re: [ <input type="text" name="subject_prefix" placeholder="prefix" value="{$group->subject_prefix}" size="24"> #MASK-12345-678]: Subject<br>
 						</div>
 					</td>
 				</tr>

@@ -27,6 +27,8 @@ class DAO_Group extends Cerb_ORMHelper {
 	const REPLY_SIGNING_KEY_ID = 'reply_signing_key_id';
 	const ROUTING_KATA = 'routing_kata';
 	const NAME = 'name';
+	const SUBJECT_HAS_MASK = 'subject_has_mask';
+	const SUBJECT_PREFIX = 'subject_prefix';
 	const UPDATED = 'updated';
 	
 	const _IMAGE = '_image';
@@ -105,6 +107,15 @@ class DAO_Group extends Cerb_ORMHelper {
 			->setMaxLength(16777216)
 		;
 		$validation
+			->addField(self::SUBJECT_HAS_MASK)
+			->bit()
+			;
+		$validation
+			->addField(self::SUBJECT_PREFIX)
+			->string()
+			->setMaxLength(128)
+			;
+		$validation
 			->addField(self::UPDATED)
 			->timestamp()
 			;
@@ -164,7 +175,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, is_default, is_private, reply_address_id, reply_html_template_id, reply_personal, reply_signature_id, reply_signing_key_id, routing_kata, created, updated ".
+		$sql = "SELECT id, name, is_default, is_private, reply_address_id, reply_html_template_id, reply_personal, reply_signature_id, reply_signing_key_id, routing_kata, subject_has_mask, subject_prefix, created, updated ".
 			"FROM worker_group ".
 			$where_sql.
 			$sort_sql.
@@ -321,6 +332,8 @@ class DAO_Group extends Cerb_ORMHelper {
 			$object->reply_signature_id = intval($row['reply_signature_id']);
 			$object->reply_signing_key_id = intval($row['reply_signing_key_id']);
 			$object->routing_kata = $row['routing_kata'] ?? '';
+			$object->subject_has_mask = intval($row['subject_has_mask']);
+			$object->subject_prefix = $row['subject_prefix'];
 			$object->created = intval($row['created']);
 			$object->updated = intval($row['updated']);
 			$objects[$object->id] = $object;
@@ -571,10 +584,6 @@ class DAO_Group extends Cerb_ORMHelper {
 		if(!($db->ExecuteMaster($sql)))
 			return false;
 
-		$sql = sprintf("DELETE FROM group_setting WHERE group_id = %d", $deleted_group->id);
-		if(!($db->ExecuteMaster($sql)))
-			return false;
-		
 		$sql = sprintf("DELETE FROM worker_to_group WHERE group_id = %d", $deleted_group->id);
 		if(!($db->ExecuteMaster($sql)))
 			return false;
@@ -886,6 +895,8 @@ class DAO_Group extends Cerb_ORMHelper {
 			"worker_group.reply_personal as %s, ".
 			"worker_group.reply_signature_id as %s, ".
 			"worker_group.reply_signing_key_id as %s, ".
+			"worker_group.subject_has_mask as %s, ".
+			"worker_group.subject_prefix as %s, ".
 			"worker_group.created as %s, ".
 			"worker_group.updated as %s ",
 				SearchFields_Group::ID,
@@ -897,6 +908,8 @@ class DAO_Group extends Cerb_ORMHelper {
 				SearchFields_Group::REPLY_PERSONAL,
 				SearchFields_Group::REPLY_SIGNATURE_ID,
 				SearchFields_Group::REPLY_SIGNING_KEY_ID,
+				SearchFields_Group::SUBJECT_HAS_MASK,
+				SearchFields_Group::SUBJECT_PREFIX,
 				SearchFields_Group::CREATED,
 				SearchFields_Group::UPDATED
 			);
@@ -964,6 +977,8 @@ class SearchFields_Group extends DevblocksSearchFields {
 	const REPLY_PERSONAL = 'g_reply_personal';
 	const REPLY_SIGNATURE_ID = 'g_reply_signature_id';
 	const REPLY_SIGNING_KEY_ID = 'g_reply_signing_key_id';
+	const SUBJECT_HAS_MASK = 'g_subject_has_mask';
+	const SUBJECT_PREFIX = 'g_subject_prefix';
 	const UPDATED = 'g_updated';
 	
 	const VIRTUAL_MANAGER_SEARCH = '*_manager_search';
@@ -1096,6 +1111,8 @@ class SearchFields_Group extends DevblocksSearchFields {
 			self::REPLY_PERSONAL => new DevblocksSearchField(self::REPLY_PERSONAL, 'worker_group', 'reply_personal', $translate->_('common.send.as'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::REPLY_SIGNATURE_ID => new DevblocksSearchField(self::REPLY_SIGNATURE_ID, 'worker_group', 'reply_signature_id', $translate->_('common.signature'), Model_CustomField::TYPE_NUMBER, true),
 			self::REPLY_SIGNING_KEY_ID => new DevblocksSearchField(self::REPLY_SIGNING_KEY_ID, 'worker_group', 'reply_signing_key_id', $translate->_('common.encrypt.signing.key'), Model_CustomField::TYPE_NUMBER, true),
+			self::SUBJECT_HAS_MASK => new DevblocksSearchField(self::SUBJECT_HAS_MASK, 'worker_group', 'subject_has_mask', $translate->_('dao.group.subject_has_mask'), Model_CustomField::TYPE_CHECKBOX, true),
+			self::SUBJECT_PREFIX => new DevblocksSearchField(self::SUBJECT_PREFIX, 'worker_group', 'subject_prefix', $translate->_('dao.group.subject_prefix'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'worker_group', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 			
 			self::VIRTUAL_MANAGER_SEARCH => new DevblocksSearchField(self::VIRTUAL_MANAGER_SEARCH, '*', 'manager_search', null, null, false),
@@ -1132,6 +1149,8 @@ class Model_Group extends DevblocksRecordModel {
 	public $reply_signing_key_id = 0;
 	public $reply_html_template_id = 0;
 	public $routing_kata = '';
+	public $subject_has_mask = 0;
+	public $subject_prefix = '';
 	public $created;
 	public $updated;
 	
@@ -1240,114 +1259,6 @@ class Model_Group extends DevblocksRecordModel {
 	}
 };
 
-class DAO_GroupSettings extends Cerb_ORMHelper {
-	const GROUP_ID = 'group_id';
-	const SETTING = 'setting';
-	const VALUE = 'value';
-	
-	const SETTING_SUBJECT_HAS_MASK = 'subject_has_mask';
-	const SETTING_SUBJECT_PREFIX = 'subject_prefix';
-	
-	const CACHE_ALL = 'ch_group_settings';
-	
-	private function __construct() {}
-	
-	static function getFields() {
-		$validation = DevblocksPlatform::services()->validation();
-		
-		$validation
-			->addField(self::GROUP_ID)
-			->id()
-			->setRequired(true)
-			;
-		$validation
-			->addField(self::SETTING)
-			->string()
-			->setMaxLength(64)
-			->setRequired(true)
-			;
-		$validation
-			->addField(self::VALUE)
-			->string()
-			->setMaxLength(65535)
-			->setRequired(true)
-			;
-		
-		return $validation->getFields();
-	}
-	
-	static function set($group_id, $key, $value) {
-		$db = DevblocksPlatform::services()->database();
-		
-		$db->ExecuteMaster(sprintf("REPLACE INTO group_setting (group_id, setting, value) ".
-			"VALUES (%d, %s, %s)",
-			$group_id,
-			$db->qstr($key),
-			$db->qstr($value)
-		));
-		
-		$cache = DevblocksPlatform::services()->cache();
-		$cache->remove(self::CACHE_ALL);
-	}
-	
-	static function get($group_id, $key, $default=null) {
-		$value = null;
-		
-		if(null !== ($group = self::getSettings($group_id)) && isset($group[$key])) {
-			$value = $group[$key];
-		}
-		
-		if(null == $value && !is_null($default)) {
-			return $default;
-		}
-		
-		return $value;
-	}
-	
-	static function getSettings($group_id=0) {
-		$cache = DevblocksPlatform::services()->cache();
-		if(null === ($groups = $cache->load(self::CACHE_ALL))) {
-			$db = DevblocksPlatform::services()->database();
-	
-			$groups = [];
-			
-			if(!($rs = $db->QueryReader("SELECT group_id, setting, value FROM group_setting")))
-				return false;
-			
-			if(!($rs instanceof mysqli_result))
-				return false;
-			
-			while($row = mysqli_fetch_assoc($rs)) {
-				$gid = intval($row['group_id']);
-				
-				if(!isset($groups[$gid]))
-					$groups[$gid] = [];
-				
-				$groups[$gid][$row['setting']] = $row['value'];
-			}
-			
-			mysqli_free_result($rs);
-			
-			$cache->save($groups, self::CACHE_ALL);
-		}
-
-		// Empty
-		if(empty($groups))
-			return null;
-		
-		// Specific group
-		if(!empty($group_id)) {
-			// Requested group id exists
-			if(isset($groups[$group_id]))
-				return $groups[$group_id];
-			else // doesn't
-				return null;
-		}
-		
-		// All groups
-		return $groups;
-	}
-};
 
 class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
 	const DEFAULT_ID = 'groups';
@@ -1429,6 +1340,8 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 				case SearchFields_Group::REPLY_PERSONAL:
 				case SearchFields_Group::REPLY_SIGNATURE_ID:
 				case SearchFields_Group::REPLY_SIGNING_KEY_ID:
+				case SearchFields_Group::SUBJECT_HAS_MASK:
+				case SearchFields_Group::SUBJECT_PREFIX:
 					$pass = true;
 					break;
 				
@@ -1460,10 +1373,12 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 		switch($column) {
 			case SearchFields_Group::IS_DEFAULT;
 			case SearchFields_Group::IS_PRIVATE;
+			case SearchFields_Group::SUBJECT_HAS_MASK;
 				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
 				break;
 			
 			case SearchFields_Group::REPLY_PERSONAL:
+			case SearchFields_Group::SUBJECT_PREFIX:
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
 				break;
 				
@@ -1579,10 +1494,20 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 					'type' => DevblocksSearchCriteria::TYPE_BOOL,
 					'options' => array('param_key' => SearchFields_Group::IS_PRIVATE),
 				),
-			'send.as' => 
+			'send.as' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Group::REPLY_PERSONAL, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'subject.has_mask' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_BOOL,
+					'options' => array('param_key' => SearchFields_Group::SUBJECT_HAS_MASK),
+				),
+			'subject.prefix' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_Group::SUBJECT_PREFIX, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
 			'send.from.id' => 
 				array(
@@ -1724,6 +1649,7 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 		switch($field) {
 			case SearchFields_Group::IS_DEFAULT:
 			case SearchFields_Group::IS_PRIVATE:
+			case SearchFields_Group::SUBJECT_HAS_MASK:
 				parent::_renderCriteriaParamBoolean($param);
 				break;
 				
@@ -1758,6 +1684,7 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 				
 			case SearchFields_Group::NAME:
 			case SearchFields_Group::REPLY_PERSONAL:
+			case SearchFields_Group::SUBJECT_PREFIX:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
@@ -1768,6 +1695,7 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 				
 			case SearchFields_Group::IS_DEFAULT:
 			case SearchFields_Group::IS_PRIVATE:
+			case SearchFields_Group::SUBJECT_HAS_MASK:
 				$bool = DevblocksPlatform::importGPC($_POST['bool'] ?? null, 'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
@@ -2514,11 +2442,6 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		$destination_buckets = DAO_Bucket::getGroups();
 		unset($destination_buckets[$context_id]);
 		$tpl->assign('destination_buckets', $destination_buckets);
-		
-		// Settings
-		
-		if(false != ($group_settings = DAO_GroupSettings::getSettings($context_id)))
-			$tpl->assign('group_settings', $group_settings);
 		
 		// Template
 		

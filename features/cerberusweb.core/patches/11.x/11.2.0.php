@@ -315,6 +315,32 @@ foreach($automation_files as $automation_file) {
 }
 
 // ===========================================================================
+// Merge group_setting into worker_group (#1844)
+
+list($columns, ) = $db->metaTable('worker_group');
+
+$changes = [];
+
+if(!array_key_exists('subject_has_mask', $columns))
+	$changes[] = "ADD COLUMN subject_has_mask tinyint unsigned NOT NULL DEFAULT 0";
+
+if(!array_key_exists('subject_prefix', $columns))
+	$changes[] = "ADD COLUMN subject_prefix varchar(128) NOT NULL DEFAULT ''";
+
+if($changes) {
+	$db->ExecuteMaster("ALTER TABLE worker_group " . implode(', ', $changes));
+
+	// Migrate data from group_setting
+	if(array_key_exists('group_setting', $tables)) {
+		$db->ExecuteMaster("UPDATE worker_group wg INNER JOIN group_setting gs ON (gs.group_id = wg.id AND gs.setting = 'subject_has_mask') SET wg.subject_has_mask = CAST(gs.value AS UNSIGNED)");
+		$db->ExecuteMaster("UPDATE worker_group wg INNER JOIN group_setting gs ON (gs.group_id = wg.id AND gs.setting = 'subject_prefix') SET wg.subject_prefix = gs.value");
+	}
+}
+
+if(array_key_exists('group_setting', $tables))
+	$db->ExecuteMaster("DROP TABLE group_setting");
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
