@@ -7,10 +7,12 @@ $(function() {
 
 	// Row selection and hover effect
 	$view_form.find('TABLE.worklistBody TBODY')
-		.disableSelection()
 		.click(function(e) {
+			if(window.getSelection && window.getSelection().toString().length > 0)
+				return;
+
 			var $target = $(e.target);
-		
+
 			// Are any of our parents an anchor tag?
 			var $parents = $target.parents('a');
 			if($parents.length > 0) {
@@ -72,9 +74,11 @@ $(function() {
 				
 				if(0 === $selected_rows.length) {
 					$view_actions.find('button,.action-on-select').not('.action-always-show').fadeOut('fast');
-					
+					$frm.find('TABLE.worklistBody TBODY').enableSelection();
+
 				} else if(1 === $selected_rows.length) {
 					$view_actions.find('button,.action-on-select').not('.action-always-show').fadeIn('fast');
+					$frm.find('TABLE.worklistBody TBODY').disableSelection();
 				}
 				
 				$chk.trigger('check');
@@ -201,13 +205,15 @@ $(function() {
 		if(e.checked) {
 			$checkbox.prop('checked', e.checked);
 			$(this).prop('checked', e.checked);
-			$rows.addClass('selected'); 
+			$rows.addClass('selected');
 			$view_actions.find('button,.action-on-select').not('.action-always-show').fadeIn('fast');
+			$view_form.find('TABLE.worklistBody TBODY').disableSelection();
 		} else {
 			$checkbox.prop('checked', e.checked);
 			$(this).prop('checked', e.checked);
 			$rows.removeClass('selected');
 			$view_actions.find('button,.action-on-select').not('.action-always-show').fadeOut('fast');
+			$view_form.find('TABLE.worklistBody TBODY').enableSelection();
 		}
 	});
 	
