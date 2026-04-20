@@ -1,13 +1,13 @@
 # `docker compose up --build`
 
-name: cerb-demo
+name: cerb-${CERB_ENV:-demo}
 
 services:
   web:
     image: nginx:latest
     ports:
       # You can change this to another local port like "8080:80"
-      - "80:80"
+      - "${CERB_PORT:-80}:80"
     depends_on:
       - php-fpm
     volumes:
