@@ -169,6 +169,9 @@ class DevblocksUiEventHandler {
 				
 			// @deprecated
 			} elseif('behavior' == @$handler['type']) {
+				if(!DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy'))
+					continue;
+				
 				if(is_callable($behavior_callback)) {
 					$behavior_uri = $handler['data']['uri'] ?? null;
 					

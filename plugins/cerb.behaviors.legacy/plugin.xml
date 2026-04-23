@@ -1,0 +1,1861 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
+    <id>cerb.behaviors.legacy</id>
+    <name>Legacy Bot Behaviors (DEPRECATED)</name>
+    <description>The legacy bot behaviors have been replaced by automations. They will be removed in a future version.</description>
+    <author>Webgroup Media, LLC.</author>
+    <version>11.2.0</version>
+    <link>https://cerb.ai</link>
+    <!--<image>plugin.png</image>-->
+
+    <!-- Requirements -->
+
+    <requires>
+        <app_version min="11.2" max="11.2.99" />
+    </requires>
+
+    <!-- Plugin Dependencies -->
+
+    <dependencies>
+        <require plugin_id="cerberusweb.core" version="11.2.0" />
+    </dependencies>
+
+    <class_loader>
+        <file path="src/dao/bot.php">
+            <class name="Context_Bot" />
+            <class name="DAO_Bot" />
+            <class name="Model_Bot" />
+            <class name="SearchFields_Bot" />
+            <class name="View_Bot" />
+        </file>
+
+        <file path="src/dao/bot_datastore.php">
+            <class name="DAO_BotDatastore" />
+        </file>
+
+        <file path="src/dao/bot_interaction_proactive.php">
+            <class name="DAO_BotInteractionProactive" />
+        </file>
+
+        <file path="src/dao/bot_session.php">
+            <class name="DAO_BotSession" />
+            <class name="Model_BotSession" />
+            <class name="SearchFields_BotSession" />
+        </file>
+
+        <file path="src/dao/context_scheduled_behavior.php">
+            <class name="Context_ContextScheduledBehavior" />
+            <class name="DAO_ContextScheduledBehavior" />
+            <class name="Model_ContextScheduledBehavior" />
+            <class name="SearchFields_ContextScheduledBehavior" />
+            <class name="View_ContextScheduledBehavior" />
+        </file>
+
+        <file path="src/dao/decision_node.php">
+            <class name="DAO_DecisionNode" />
+            <class name="Model_DecisionNode" />
+            <class name="SearchFields_DecisionNode" />
+            <class name="View_DecisionNode" />
+        </file>
+
+        <file path="src/dao/trigger_event.php">
+            <class name="Context_TriggerEvent" />
+            <class name="DAO_TriggerEvent" />
+            <class name="Model_TriggerEvent" />
+            <class name="SearchFields_TriggerEvent" />
+            <class name="View_TriggerEvent" />
+        </file>
+
+        <file path="src/events/Extension_DevblocksEvent.php">
+            <class name="Extension_DevblocksEvent" />
+        </file>
+
+        <file path="src/events/Extension_DevblocksEventAction.php">
+            <class name="Extension_DevblocksEventAction" />
+        </file>
+
+        <file path="src/events/DevblocksEventHelper.php">
+            <class name="DevblocksEventHelper" />
+        </file>
+
+        <file path="src/events/abstract/abstract_event_abstract_custom_record.php">
+            <class name="AbstractEvent_AbstractCustomRecord" />
+        </file>
+
+        <file path="src/events/abstract/abstract_event_address.php">
+            <class name="AbstractEvent_Address" />
+        </file>
+
+        <file path="src/events/abstract/abstract_event_api_request.php">
+            <class name="AbstractEvent_ApiRequest" />
+        </file>
+
+        <file path="src/events/abstract/abstract_event_mail_before_sent.php">
+            <class name="AbstractEvent_MailBeforeSent" />
+        </file>
+
+        <file path="src/events/abstract/abstract_event_calendar.php">
+            <class name="AbstractEvent_Calendar" />
+        </file>
+
+        <file path="src/events/abstract/abstract_event_calendar_event.php">
+            <class name="AbstractEvent_CalendarEvent" />
+        </file>
+
+        <file path="src/events/abstract/abstract_event_comment.php">
+            <class name="AbstractEvent_Comment" />
+        </file>
+
+        <file path="src/events/abstract/abstract_event_contact.php">
+            <class name="AbstractEvent_Contact" />
+        </file>
+
+        <file path="src/events/abstract/abstract_event_group.php">
+            <class name="AbstractEvent_Group" />
+        </file>
+
+        <file path="src/events/abstract/abstract_event_message.php">
+            <class name="AbstractEvent_Message" />
+        </file>
+
+        <file path="src/events/abstract/abstract_event_notification.php">
+            <class name="AbstractEvent_Notification" />
+        </file>
+
+        <file path="src/events/abstract/abstract_event_org.php">
+            <class name="AbstractEvent_Org" />
+        </file>
+
+        <file path="src/events/abstract/abstract_event_record.php">
+            <class name="AbstractEvent_Record" />
+        </file>
+
+        <file path="src/events/abstract/abstract_event_reminder.php">
+            <class name="AbstractEvent_Reminder" />
+        </file>
+
+        <file path="src/events/abstract/abstract_event_task.php">
+            <class name="AbstractEvent_Task" />
+        </file>
+
+        <file path="src/events/abstract/abstract_event_ticket.php">
+            <class name="AbstractEvent_Ticket" />
+        </file>
+
+        <file path="src/events/abstract/abstract_event_bot.php">
+            <class name="AbstractEvent_Bot" />
+        </file>
+
+        <file path="src/events/abstract/abstract_event_worker.php">
+            <class name="AbstractEvent_Worker" />
+        </file>
+
+        <file path="src/events/ajax/abstract_event_ajax_request.php">
+            <class name="AbstractEvent_AjaxHttpRequest" />
+        </file>
+
+        <!--
+
+        <file path="src/events/api/api_request.php">
+            <class name="Event_ApiRequest" />
+        </file>
+
+        <file path="src/events/app/mail_received_by_app.php">
+            <class name="Event_MailReceivedByApp" />
+        </file>
+
+        <file path="src/events/app/comment_created_by_worker.php">
+            <class name="Event_CommentCreatedByWorker" />
+        </file>
+
+        <file path="src/events/app/record_changed.php">
+            <class name="Event_RecordChanged" />
+        </file>
+
+        <file path="src/events/app/task_created_by_worker.php">
+            <class name="Event_TaskCreatedByWorker" />
+        </file>
+
+        <file path="src/events/app/ticket_viewed_by_worker.php">
+            <class name="Event_TicketViewedByWorker" />
+        </file>
+
+        <file path="src/events/dashboards/dashboard_widget_get_metric.php">
+            <class name="Event_DashboardWidgetGetMetric" />
+        </file>
+
+        <file path="src/events/dashboards/dashboard_widget_render.php">
+            <class name="Event_DashboardWidgetRender" />
+        </file>
+
+        <file path="src/events/group/comment_on_ticket_in_group.php">
+            <class name="Event_CommentOnTicketInGroup" />
+        </file>
+
+        <file path="src/events/group/mail_assigned_in_group.php">
+            <class name="Event_MailAssignedInGroup" />
+        </file>
+
+        <file path="src/events/group/mail_closed_in_group.php">
+            <class name="Event_MailClosedInGroup" />
+        </file>
+
+        <file path="src/events/group/mail_moved_to_group.php">
+            <class name="Event_MailMovedToGroup" />
+        </file>
+
+        <file path="src/events/group/mail_received.php">
+            <class name="Event_MailReceived" />
+        </file>
+
+        <file path="src/events/group/mail_received_by_group.php">
+            <class name="Event_MailReceivedByGroup" />
+        </file>
+
+        <file path="src/events/app/mail_after_sent.php">
+            <class name="Event_MailAfterSent" />
+        </file>
+
+        <file path="src/events/group/mail_after_sent_by_group.php">
+            <class name="Event_MailAfterSentByGroup" />
+        </file>
+
+        <file path="src/events/app/mail_before_sent.php">
+            <class name="Event_MailBeforeSent" />
+        </file>
+
+        <file path="src/events/group/mail_before_sent_by_group.php">
+            <class name="Event_MailBeforeSentByGroup" />
+        </file>
+        -->
+
+        <file path="src/events/macro/abstract_custom_record_macro.php">
+            <class name="Event_AbstractCustomRecordMacro" />
+        </file>
+
+        <!--
+        <file path="src/events/macro/address_macro.php">
+            <class name="Event_AddressMacro" />
+        </file>
+
+        <file path="src/events/macro/calendar_macro.php">
+            <class name="Event_CalendarMacro" />
+        </file>
+
+        <file path="src/events/macro/calendar_event_macro.php">
+            <class name="Event_CalendarEventMacro" />
+        </file>
+
+        <file path="src/events/macro/contact_macro.php">
+            <class name="Event_ContactMacro" />
+        </file>
+
+        <file path="src/events/macro/group_macro.php">
+            <class name="Event_GroupMacro" />
+        </file>
+
+        <file path="src/events/macro/message_macro.php">
+            <class name="Event_MessageMacro" />
+        </file>
+
+        <file path="src/events/macro/notification_macro.php">
+            <class name="Event_NotificationMacro" />
+        </file>
+
+        <file path="src/events/macro/org_macro.php">
+            <class name="Event_OrgMacro" />
+        </file>
+
+        <file path="src/events/macro/reminder_macro.php">
+            <class name="Event_ReminderMacro" />
+        </file>
+
+        <file path="src/events/macro/task_macro.php">
+            <class name="Event_TaskMacro" />
+        </file>
+
+        <file path="src/events/macro/ticket_macro.php">
+            <class name="Event_TicketMacro" />
+        </file>
+
+        <file path="src/events/macro/bot_macro.php">
+            <class name="Event_BotMacro" />
+        </file>
+
+        <file path="src/events/macro/worker_macro.php">
+            <class name="Event_WorkerMacro" />
+        </file>
+
+        <file path="src/events/interaction/get_interactions_for_worker.php">
+            <class name="Event_GetInteractionsForWorker" />
+        </file>
+
+        <file path="src/events/interaction/new_interaction_chat_worker.php">
+            <class name="Event_NewInteractionChatWorker" />
+        </file>
+
+        <file path="src/events/interaction/new_message_chat_worker.php">
+            <class name="Event_NewMessageChatWorker" />
+        </file>
+
+        <file path="src/events/recurrent/recurrent_behavior.php">
+            <class name="Event_RecurrentBehavior" />
+        </file>
+
+        <file path="src/events/ui/ui_before_compose_by_worker.php">
+            <class name="Event_MailBeforeUiComposeByWorker" />
+        </file>
+
+        <file path="src/events/ui/ui_before_reply_by_worker.php">
+            <class name="Event_MailBeforeUiReplyByWorker" />
+        </file>
+
+        <file path="src/events/ui/ui_worklist_render_by_worker.php">
+            <class name="Event_UiWorklistRenderByWorker" />
+        </file>
+
+        <file path="src/events/worker/mail_received_by_watcher.php">
+            <class name="Event_MailReceivedByWatcher" />
+        </file>
+
+        <file path="src/events/worker/notification_received_by_worker.php">
+            <class name="Event_NotificationReceivedByWorker" />
+        </file>
+        -->
+    </class_loader>
+
+    <extensions>
+        <!-- Listeners -->
+
+        <extension point="devblocks.listener.event">
+            <id>cerberusweb.listeners.triggers</id>
+            <name>Triggers Manager</name>
+            <class>
+                <file>src/events/EventListener_Triggers.php</file>
+                <name>EventListener_Triggers</name>
+            </class>
+            <params>
+                <!--
+                <param key="events">
+                    <value>
+                        <data key="*" />
+                    </value>
+                </param>
+                -->
+            </params>
+        </extension>
+
+        <extension point="devblocks.listener.event">
+            <id>cerb.behaviors.legacy.listener</id>
+            <name>Event Listener</name>
+            <class>
+                <file>src/events/EventListener_LegacyBehaviors.php</file>
+                <name>EventListener_LegacyBehaviors</name>
+            </class>
+            <params>
+                <param key="events">
+                    <value>
+                        <data key="context.delete" />
+                        <data key="cron.heartbeat" />
+                        <data key="cron.maint" />
+                    </value>
+                </param>
+            </params>
+        </extension>
+
+        <!-- Record types -->
+
+        <extension point="devblocks.context">
+            <id>cerberusweb.contexts.bot</id>
+            <name>Bot</name>
+            <class>
+                <file>src/dao/bot.php</file>
+                <name>Context_Bot</name>
+            </class>
+            <params>
+                <param key="names">
+                    <value>
+                        <data key="bot" value="singular" />
+                        <data key="bots" value="plural" />
+                        <data key="virtual attendant" value="singular" />
+                        <data key="virtual attendants" value="plural" />
+                        <data key="virtual agent" value="singular" />
+                        <data key="virtual agents" value="plural" />
+                    </value>
+                </param>
+                <param key="alias" value="bot" />
+                <param key="dao_class" value="DAO_Bot" />
+                <param key="view_class" value="View_Bot" />
+                <param key="options">
+                    <value>
+                        <data key="autocomplete" />
+                        <data key="avatars" />
+                        <data key="cards" />
+                        <data key="comments" />
+                        <data key="custom_fields" />
+                        <data key="links" />
+                        <data key="owner" />
+                        <data key="records" />
+                        <data key="search" />
+                        <data key="snippets" />
+                        <data key="va_variable" />
+                        <data key="watchers" />
+                        <data key="workspace" />
+                    </value>
+                </param>
+                <param key="acl">
+                    <value>
+                        <data key="comment" />
+                        <data key="export" />
+                    </value>
+                </param>
+            </params>
+        </extension>
+
+        <extension point="devblocks.context">
+            <id>cerberusweb.contexts.behavior.scheduled</id>
+            <name>Behavior Scheduled</name>
+            <class>
+                <file>src/dao/context_scheduled_behavior.php</file>
+                <name>Context_ContextScheduledBehavior</name>
+            </class>
+            <params>
+                <param key="names">
+                    <value>
+                        <data key="behavior schedule" value="singular" />
+                        <data key="behavior schedules" value="plural" />
+                    </value>
+                </param>
+                <param key="alias" value="scheduled_behavior" />
+                <param key="dao_class" value="DAO_ContextScheduledBehavior" />
+                <param key="view_class" value="View_ContextScheduledBehavior" />
+                <param key="options">
+                    <value>
+                        <data key="cards" />
+                        <data key="comments" />
+                        <data key="custom_fields" />
+                        <data key="links" />
+                        <data key="records" />
+                        <data key="search" />
+                        <data key="snippets" />
+                        <data key="va_variable" />
+                        <data key="watchers" />
+                        <data key="workspace" />
+                    </value>
+                </param>
+                <param key="acl">
+                    <value>
+                        <data key="broadcast" />
+                        <data key="comment" />
+                        <data key="create" />
+                        <data key="delete" />
+                        <data key="export" />
+                        <data key="import" />
+                        <data key="merge" />
+                        <data key="update" />
+                        <data key="update.bulk" />
+                    </value>
+                </param>
+            </params>
+        </extension>
+
+        <extension point="devblocks.context">
+            <id>cerberusweb.contexts.behavior</id>
+            <name>Behavior</name>
+            <class>
+                <file>src/dao/trigger_event.php</file>
+                <name>Context_TriggerEvent</name>
+            </class>
+            <params>
+                <param key="names">
+                    <value>
+                        <data key="behavior" value="singular" />
+                        <data key="behaviors" value="plural" />
+                    </value>
+                </param>
+                <param key="alias" value="behavior" />
+                <param key="dao_class" value="DAO_TriggerEvent" />
+                <param key="view_class" value="View_TriggerEvent" />
+                <param key="options">
+                    <value>
+                        <data key="cards" />
+                        <data key="comments" />
+                        <data key="custom_fields" />
+                        <data key="links" />
+                        <data key="records" />
+                        <data key="search" />
+                        <data key="workspace" />
+                        <data key="va_variable" />
+                        <data key="watchers" />
+                    </value>
+                </param>
+                <param key="acl">
+                    <value>
+                        <data key="create" />
+                        <data key="delete" />
+                        <data key="export" />
+                        <data key="import" />
+                        <data key="update" />
+                    </value>
+                </param>
+            </params>
+        </extension>
+
+        <!-- Profiles -->
+
+        <extension point="cerberusweb.ui.page.section">
+            <id>core.page.profiles.bot</id>
+            <name>Bot Section</name>
+            <class>
+                <file>src/uri/profiles/bot.php</file>
+                <name>PageSection_ProfilesBot</name>
+            </class>
+            <params>
+                <param key="page_id" value="core.page.profiles" />
+                <param key="uri" value="bot" />
+            </params>
+        </extension>
+
+        <extension point="cerberusweb.ui.page.section">
+            <id>core.page.profiles.behavior</id>
+            <name>Behavior Section</name>
+            <class>
+                <file>src/uri/profiles/behavior.php</file>
+                <name>PageSection_ProfilesBehavior</name>
+            </class>
+            <params>
+                <param key="page_id" value="core.page.profiles" />
+                <param key="uri" value="behavior" />
+            </params>
+        </extension>
+
+        <extension point="cerberusweb.ui.page.section">
+            <id>core.page.profiles.scheduled_behavior</id>
+            <name>Scheduled Behavior Section</name>
+            <class>
+                <file>src/uri/profiles/context_scheduled_behavior.php</file>
+                <name>PageSection_ProfilesContextScheduledBehavior</name>
+            </class>
+            <params>
+                <param key="page_id" value="core.page.profiles" />
+                <param key="uri" value="scheduled_behavior" />
+            </params>
+        </extension>
+
+        <!-- Card Widgets -->
+
+        <extension point="cerb.card.widget">
+            <id>cerb.card.widget.behavior.tree</id>
+            <name>Behavior Tree</name>
+            <class>
+                <file>src/cards/widgets/behavior_tree.php</file>
+                <name>CardWidget_BehaviorTree</name>
+            </class>
+            <params>
+            </params>
+        </extension>
+
+        <!-- Profile Widgets -->
+
+        <extension point="cerb.profile.tab.widget">
+            <id>cerb.profile.tab.widget.behavior.tree</id>
+            <name>Behavior Tree</name>
+            <class>
+                <file>src/profiles/widgets/behavior_tree.php</file>
+                <name>ProfileWidget_BehaviorTree</name>
+            </class>
+            <params>
+            </params>
+        </extension>
+
+        <extension point="cerb.profile.tab.widget">
+            <id>cerb.profile.tab.widget.bot</id>
+            <name>Custom (Deprecated)</name>
+            <class>
+                <file>src/profiles/widgets/bot_behavior.php</file>
+                <name>ProfileWidget_BotBehavior</name>
+            </class>
+            <params>
+            </params>
+        </extension>
+
+        <!-- Workspace Widgets -->
+
+		<extension point="cerberusweb.ui.workspace.widget">
+			<id>cerb.workspace.widget.behavior.tree</id>
+			<name>Bot Behavior Tree</name>
+			<class>
+				<file>src/workspaces/widgets/behavior_tree.php</file>
+				<name>WorkspaceWidget_BehaviorTree</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+        <extension point="cerberusweb.ui.workspace.widget">
+            <id>core.workspace.widget.bot</id>
+            <name>Bot Custom Widget (Deprecated)</name>
+            <class>
+                <file>src/workspaces/widgets/bot_behavior.php</file>
+                <name>WorkspaceWidget_BotBehavior</name>
+            </class>
+            <params>
+            </params>
+        </extension>
+
+        <!-- Workspace Widget Data Sources -->
+
+        <extension point="cerberusweb.ui.workspace.widget.datasource">
+            <id>core.workspace.widget.datasource.bot</id>
+            <name>Bot Behavior (Legacy)</name>
+            <class>
+                <file>src/workspaces/widgets/datasources/bot_behavior.php</file>
+                <name>WorkspaceWidgetDatasource_BotBehavior</name>
+            </class>
+            <params>
+                <param key="widgets">
+                    <value>
+                        <data key="core.workspace.widget.counter" />
+                        <data key="core.workspace.widget.gauge" />
+                    </value>
+                </param>
+            </params>
+        </extension>
+
+        <!-- Scheduler Jobs -->
+
+        <extension point="cerberusweb.cron">
+            <id>cron.bot.scheduled_behavior</id>
+            <name>Bot Scheduled Behavior</name>
+            <class>
+                <file>src/crons/bots.php</file>
+                <name>Cron_BotScheduledBehavior</name>
+            </class>
+            <params />
+        </extension>
+
+        <!-- Setup pages -->
+
+        <extension point="cerberusweb.ui.page.section">
+            <id>core.page.setup.developers.export.bots</id>
+            <name>Export Bots</name>
+            <class>
+                <file>src/uri/config/export_bots.php</file>
+                <name>PageSection_SetupDevelopersExportBots</name>
+            </class>
+            <params>
+                <param key="page_id" value="core.page.configuration" />
+                <param key="uri" value="export_bots" />
+            </params>
+        </extension>
+
+        <!-- Event Triggers -->
+
+        <extension point="devblocks.event">
+            <id>event.ajax.request</id>
+            <name>Respond to Ajax HTTP request</name>
+            <class>
+                <file>src/events/ajax/ajax_request.php</file>
+                <name>Event_AjaxHttpRequest</name>
+            </class>
+            <params>
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.app" />
+                        <data key="cerberusweb.contexts.role" />
+                    </value>
+                </param>
+                <param key="menu_key" value="UI:Respond to Ajax HTTP request" />
+                <param key="options" />
+            </params>
+        </extension>
+
+        <extension point="devblocks.event">
+            <id>event.behavior.recurrent</id>
+            <name>Recurrent behavior (Legacy)</name>
+            <class>
+                <file>src/events/recurrent/recurrent_behavior.php</file>
+                <name>Event_RecurrentBehavior</name>
+            </class>
+            <params>
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.app" />
+                        <data key="cerberusweb.contexts.role" />
+                        <data key="cerberusweb.contexts.group" />
+                        <data key="cerberusweb.contexts.worker" />
+                    </value>
+                </param>
+                <param key="menu_key" value="Schedule:Recurrent behavior" />
+                <param key="options"/>
+            </params>
+        </extension>
+
+        <extension point="devblocks.event">
+            <id>event.interactions.get.worker</id>
+            <name>Get chat interactions for worker (Legacy)</name>
+            <class>
+                <file>src/events/interaction/get_interactions_for_worker.php</file>
+                <name>Event_GetInteractionsForWorker</name>
+            </class>
+            <params>
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.app" />
+                        <data key="cerberusweb.contexts.role" />
+                        <data key="cerberusweb.contexts.group" />
+                        <data key="cerberusweb.contexts.worker" />
+                    </value>
+                </param>
+                <param key="menu_key" value="Chat Interactions:Worker:Get interactions" />
+                <param key="options"/>
+            </params>
+        </extension>
+
+        <extension point="devblocks.event">
+            <id>event.interaction.chat.worker</id>
+            <name>Handle chat interaction with worker (Legacy)</name>
+            <class>
+                <file>src/events/interaction/new_interaction_chat_worker.php</file>
+                <name>Event_NewInteractionChatWorker</name>
+            </class>
+            <params>
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.app" />
+                        <data key="cerberusweb.contexts.role" />
+                        <data key="cerberusweb.contexts.group" />
+                        <data key="cerberusweb.contexts.worker" />
+                    </value>
+                </param>
+                <param key="menu_key" value="Chat Interactions:Worker:Handle interaction" />
+                <param key="options">
+                    <value>
+                        <data key="resumable" />
+                    </value>
+                </param>
+            </params>
+        </extension>
+
+        <extension point="devblocks.event">
+            <id>event.message.chat.worker</id>
+            <name>Chat with worker (Legacy)</name>
+            <class>
+                <file>src/events/interaction/new_message_chat_worker.php</file>
+                <name>Event_NewMessageChatWorker</name>
+            </class>
+            <params>
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.app" />
+                        <data key="cerberusweb.contexts.role" />
+                        <data key="cerberusweb.contexts.group" />
+                        <data key="cerberusweb.contexts.worker" />
+                    </value>
+                </param>
+                <param key="menu_key" value="Chat Interactions:Worker:Chat with worker" />
+                <param key="options">
+                    <value>
+                        <data key="resumable" />
+                    </value>
+                </param>
+            </params>
+        </extension>
+
+        <extension point="devblocks.event">
+            <id>event.dashboard.widget.render</id>
+            <name>Dashboard render widget (Legacy)</name>
+            <class>
+                <file>src/events/dashboards/dashboard_widget_render.php</file>
+                <name>Event_DashboardWidgetRender</name>
+            </class>
+            <params>
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.app" />
+                        <data key="cerberusweb.contexts.role" />
+                        <data key="cerberusweb.contexts.group" />
+                        <data key="cerberusweb.contexts.worker" />
+                    </value>
+                </param>
+                <param key="menu_key" value="Dashboards:Render widget" />
+            </params>
+        </extension>
+
+        <extension point="devblocks.event">
+            <id>event.dashboard.widget.get_metric</id>
+            <name>Dashboard get metric for widget (Legacy)</name>
+            <class>
+                <file>src/events/dashboards/dashboard_widget_get_metric.php</file>
+                <name>Event_DashboardWidgetGetMetric</name>
+            </class>
+            <params>
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.app" />
+                        <data key="cerberusweb.contexts.role" />
+                        <data key="cerberusweb.contexts.group" />
+                        <data key="cerberusweb.contexts.worker" />
+                    </value>
+                </param>
+                <param key="menu_key" value="Dashboards:Get metric for widget" />
+            </params>
+        </extension>
+
+        <extension point="devblocks.event">
+            <id>event.data.query.datasource</id>
+            <name>Data query datasource (Legacy)</name>
+            <class>
+                <file>src/events/datasource/data_query_datasource.php</file>
+                <name>Event_DataQueryDatasource</name>
+            </class>
+            <params>
+                <param key="menu_key" value="Data Queries:Datasource" />
+            </params>
+        </extension>
+
+        <extension point="devblocks.event">
+            <id>event.mail.received.app</id>
+            <name>Filter new incoming message (Legacy)</name>
+            <class>
+                <file>src/events/app/mail_received_by_app.php</file>
+                <name>Event_MailReceivedByApp</name>
+            </class>
+            <params>
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.app" />
+                        <data key="cerberusweb.contexts.role" />
+                    </value>
+                </param>
+                <param key="menu_key" value="Mail:Filtering:Filter new incoming message" />
+            </params>
+        </extension>
+
+        <extension point="devblocks.event">
+            <id>event.comment.ticket.group</id>
+            <name>New comment on ticket in group (Legacy)</name>
+            <class>
+                <file>src/events/group/comment_on_ticket_in_group.php</file>
+                <name>Event_CommentOnTicketInGroup</name>
+            </class>
+            <params>
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.group" />
+                    </value>
+                </param>
+                <param key="menu_key" value="Mail:New comment on ticket in group" />
+            </params>
+        </extension>
+
+        <extension point="devblocks.event">
+            <id>event.mail.assigned.group</id>
+            <name>Ticket assigned in group (Legacy)</name>
+            <class>
+                <file>src/events/group/mail_assigned_in_group.php</file>
+                <name>Event_MailAssignedInGroup</name>
+            </class>
+            <params>
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.group" />
+                    </value>
+                    <param key="menu_key" value="Mail:Ticket assigned in group" />
+                </param>
+            </params>
+        </extension>
+
+        <extension point="devblocks.event">
+            <id>event.mail.closed.group</id>
+            <name>Ticket closed in group (Legacy)</name>
+            <class>
+                <file>src/events/group/mail_closed_in_group.php</file>
+                <name>Event_MailClosedInGroup</name>
+            </class>
+            <params>
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.group" />
+                    </value>
+                </param>
+                <param key="menu_key" value="Mail:Ticket closed in group" />
+            </params>
+        </extension>
+
+        <extension point="devblocks.event">
+            <id>event.mail.moved.group</id>
+            <name>Ticket moved in group (Legacy)</name>
+            <class>
+                <file>src/events/group/mail_moved_to_group.php</file>
+                <name>Event_MailMovedToGroup</name>
+            </class>
+            <params>
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.group" />
+                    </value>
+                </param>
+                <param key="menu_key" value="Mail:Ticket moved in group" />
+            </params>
+        </extension>
+
+        <extension point="devblocks.event">
+            <id>event.mail.received</id>
+            <name>New message added to ticket (Legacy)</name>
+            <class>
+                <file>src/events/group/mail_received.php</file>
+                <name>Event_MailReceived</name>
+            </class>
+            <params>
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.app" />
+                        <data key="cerberusweb.contexts.role" />
+                    </value>
+                </param>
+                <param key="menu_key" value="Mail:New message added to ticket" />
+            </params>
+        </extension>
+
+        <extension point="devblocks.event">
+            <id>event.mail.received.group</id>
+            <name>New message added to ticket in group (Legacy)</name>
+            <class>
+                <file>src/events/group/mail_received_by_group.php</file>
+                <name>Event_MailReceivedByGroup</name>
+            </class>
+            <params>
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.group" />
+                    </value>
+                </param>
+                <param key="menu_key" value="Mail:New message added to ticket in group" />
+            </params>
+        </extension>
+
+        <extension point="devblocks.event">
+            <id>event.mail.after.sent</id>
+            <name>After message sent from worker (Legacy)</name>
+            <class>
+                <file>src/events/app/mail_after_sent.php</file>
+                <name>Event_MailAfterSent</name>
+            </class>
+            <params>
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.app" />
+                        <data key="cerberusweb.contexts.role" />
+                    </value>
+                </param>
+                <param key="menu_key" value="Mail:Sending:After message sent by worker" />
+            </params>
+        </extension>
+
+        <extension point="devblocks.event">
+            <id>event.mail.after.sent.group</id>
+            <name>After message sent from group member (Legacy)</name>
+            <class>
+                <file>src/events/group/mail_after_sent_by_group.php</file>
+                <name>Event_MailAfterSentByGroup</name>
+            </class>
+            <params>
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.group" />
+                    </value>
+                </param>
+                <param key="menu_key" value="Mail:Sending:After message sent by group member" />
+            </params>
+        </extension>
+
+        <extension point="devblocks.event">
+            <id>event.mail.before.sent</id>
+            <name>Before message sent by worker (Legacy)</name>
+            <class>
+                <file>src/events/app/mail_before_sent.php</file>
+                <name>Event_MailBeforeSent</name>
+            </class>
+            <params>
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.app" />
+                        <data key="cerberusweb.contexts.role" />
+                    </value>
+                </param>
+                <param key="menu_key" value="Mail:Sending:Before message sent by worker" />
+            </params>
+        </extension>
+
+        <extension point="devblocks.event">
+            <id>event.mail.sent.group</id>
+            <name>Before message sent by group member (Legacy)</name>
+            <class>
+                <file>src/events/group/mail_before_sent_by_group.php</file>
+                <name>Event_MailBeforeSentByGroup</name>
+            </class>
+            <params>
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.group" />
+                    </value>
+                </param>
+                <param key="menu_key" value="Mail:Sending:Before message sent by group member" />
+            </params>
+        </extension>
+
+        <extension point="devblocks.event">
+            <id>event.form.interaction.worker</id>
+            <name>Form interaction (Legacy)</name>
+            <class>
+                <file>src/events/form_interaction/form_interaction_worker.php</file>
+                <name>Event_FormInteractionWorker</name>
+            </class>
+            <params>
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.app" />
+                        <data key="cerberusweb.contexts.role" />
+                    </value>
+                </param>
+                <param key="menu_key" value="Form Interactions:Worker" />
+                <param key="options">
+                    <data key="resumable" />
+                </param>
+            </params>
+        </extension>
+
+        <extension point="devblocks.event">
+            <id>event.ticket.viewed.worker</id>
+            <name>Ticket profile viewed by a worker (Legacy)</name>
+            <class>
+                <file>src/events/app/ticket_viewed_by_worker.php</file>
+                <name>Event_TicketViewedByWorker</name>
+            </class>
+            <params>
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.app" />
+                        <data key="cerberusweb.contexts.role" />
+                    </value>
+                </param>
+                <param key="menu_key" value="Mail:Ticket profile viewed by a worker" />
+            </params>
+        </extension>
+
+        <!-- Deprecated -->
+        <extension point="devblocks.event">
+            <id>event.task.created.worker</id>
+            <name>New task created (Legacy)</name>
+            <class>
+                <file>src/events/app/task_created_by_worker.php</file>
+                <name>Event_TaskCreatedByWorker</name>
+            </class>
+            <params>
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.app" />
+                        <data key="cerberusweb.contexts.role" />
+                    </value>
+                </param>
+                <param key="menu_key" value="Records:New task created" />
+                <param key="deprecated" value="true" />
+            </params>
+        </extension>
+
+        <extension point="devblocks.event">
+            <id>event.record.changed</id>
+            <name>Record changed (Legacy)</name>
+            <class>
+                <file>src/events/app/record_changed.php</file>
+                <name>Event_RecordChanged</name>
+            </class>
+            <params>
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.app" />
+                        <data key="cerberusweb.contexts.role" />
+                        <data key="cerberusweb.contexts.group" />
+                    </value>
+                </param>
+                <param key="menu_key" value="Records:Record changed" />
+            </params>
+        </extension>
+
+        <extension point="devblocks.event">
+            <id>event.macro.address</id>
+            <name>Record custom behavior on email address (Legacy)</name>
+            <class>
+                <file>src/events/macro/address_macro.php</file>
+                <name>Event_AddressMacro</name>
+            </class>
+            <params>
+                <param key="macro_context" value="cerberusweb.contexts.address" />
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.app" />
+                        <data key="cerberusweb.contexts.group" />
+                        <data key="cerberusweb.contexts.role" />
+                        <data key="cerberusweb.contexts.worker" />
+                    </value>
+                </param>
+                <param key="menu_key" value="Records:Custom Behavior:Email address" />
+                <param key="options">
+                    <value>
+                        <data key="visibility" />
+                    </value>
+                </param>
+            </params>
+        </extension>
+
+        <extension point="devblocks.event">
+            <id>event.api.custom_request</id>
+            <name>Custom API request (Legacy)</name>
+            <class>
+                <file>src/events/api/api_request.php</file>
+                <name>Event_ApiRequest</name>
+            </class>
+            <params>
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.app" />
+                        <data key="cerberusweb.contexts.role" />
+                        <data key="cerberusweb.contexts.worker" />
+                    </value>
+                </param>
+                <param key="menu_key" value="API:Custom request" />
+            </params>
+        </extension>
+
+        <extension point="devblocks.event">
+            <id>event.macro.calendar</id>
+            <name>Record custom behavior on calendar (Legacy)</name>
+            <class>
+                <file>src/events/macro/calendar_macro.php</file>
+                <name>Event_CalendarMacro</name>
+            </class>
+            <params>
+                <param key="macro_context" value="cerberusweb.contexts.calendar" />
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.app" />
+                        <data key="cerberusweb.contexts.group" />
+                        <data key="cerberusweb.contexts.role" />
+                        <data key="cerberusweb.contexts.worker" />
+                    </value>
+                </param>
+                <param key="menu_key" value="Records:Custom Behavior:Calendar" />
+                <param key="options">
+                    <value>
+                        <data key="visibility" />
+                    </value>
+                </param>
+            </params>
+        </extension>
+
+        <extension point="devblocks.event">
+            <id>event.macro.calendar_event</id>
+            <name>Record custom behavior on calendar event (Legacy)</name>
+            <class>
+                <file>src/events/macro/calendar_event_macro.php</file>
+                <name>Event_CalendarEventMacro</name>
+            </class>
+            <params>
+                <param key="macro_context" value="cerberusweb.contexts.calendar_event" />
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.app" />
+                        <data key="cerberusweb.contexts.group" />
+                        <data key="cerberusweb.contexts.role" />
+                        <data key="cerberusweb.contexts.worker" />
+                    </value>
+                </param>
+                <param key="menu_key" value="Records:Custom Behavior:Calendar event" />
+                <param key="options">
+                    <value>
+                        <data key="visibility" />
+                    </value>
+                </param>
+            </params>
+        </extension>
+
+        <extension point="devblocks.event">
+            <id>event.macro.contact</id>
+            <name>Record custom behavior on contact (Legacy)</name>
+            <class>
+                <file>src/events/macro/contact_macro.php</file>
+                <name>Event_ContactMacro</name>
+            </class>
+            <params>
+                <param key="macro_context" value="cerberusweb.contexts.contact" />
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.app" />
+                        <data key="cerberusweb.contexts.group" />
+                        <data key="cerberusweb.contexts.role" />
+                        <data key="cerberusweb.contexts.worker" />
+                    </value>
+                </param>
+                <param key="menu_key" value="Records:Custom Behavior:Contact" />
+                <param key="options">
+                    <value>
+                        <data key="visibility" />
+                    </value>
+                </param>
+            </params>
+        </extension>
+
+        <extension point="devblocks.event">
+            <id>event.macro.group</id>
+            <name>Record custom behavior on group (Legacy)</name>
+            <class>
+                <file>src/events/macro/group_macro.php</file>
+                <name>Event_GroupMacro</name>
+            </class>
+            <params>
+                <param key="macro_context" value="cerberusweb.contexts.group" />
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.app" />
+                        <data key="cerberusweb.contexts.group" />
+                        <data key="cerberusweb.contexts.role" />
+                        <data key="cerberusweb.contexts.worker" />
+                    </value>
+                </param>
+                <param key="menu_key" value="Records:Custom Behavior:Group" />
+                <param key="options">
+                    <value>
+                        <data key="visibility" />
+                    </value>
+                </param>
+            </params>
+        </extension>
+
+        <extension point="devblocks.event">
+            <id>event.macro.message</id>
+            <name>Record custom behavior on message (Legacy)</name>
+            <class>
+                <file>src/events/macro/message_macro.php</file>
+                <name>Event_MessageMacro</name>
+            </class>
+            <params>
+                <param key="macro_context" value="cerberusweb.contexts.message" />
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.app" />
+                        <data key="cerberusweb.contexts.group" />
+                        <data key="cerberusweb.contexts.role" />
+                        <data key="cerberusweb.contexts.worker" />
+                    </value>
+                </param>
+                <param key="menu_key" value="Records:Custom Behavior:Message" />
+                <param key="options">
+                    <value>
+                        <data key="visibility" />
+                    </value>
+                </param>
+            </params>
+        </extension>
+
+        <extension point="devblocks.event">
+            <id>event.macro.notification</id>
+            <name>Record custom behavior on notification (Legacy)</name>
+            <class>
+                <file>src/events/macro/notification_macro.php</file>
+                <name>Event_NotificationMacro</name>
+            </class>
+            <params>
+                <param key="macro_context" value="cerberusweb.contexts.notification" />
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.app" />
+                        <data key="cerberusweb.contexts.group" />
+                        <data key="cerberusweb.contexts.role" />
+                        <data key="cerberusweb.contexts.worker" />
+                    </value>
+                </param>
+                <param key="menu_key" value="Records:Custom Behavior:Notification" />
+                <param key="options">
+                    <value>
+                        <data key="visibility" />
+                    </value>
+                </param>
+            </params>
+        </extension>
+
+        <extension point="devblocks.event">
+            <id>event.macro.org</id>
+            <name>Record custom behavior on organization (Legacy)</name>
+            <class>
+                <file>src/events/macro/org_macro.php</file>
+                <name>Event_OrgMacro</name>
+            </class>
+            <params>
+                <param key="macro_context" value="cerberusweb.contexts.org" />
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.app" />
+                        <data key="cerberusweb.contexts.group" />
+                        <data key="cerberusweb.contexts.role" />
+                        <data key="cerberusweb.contexts.worker" />
+                    </value>
+                </param>
+                <param key="menu_key" value="Records:Custom Behavior:Organization" />
+                <param key="options">
+                    <value>
+                        <data key="visibility" />
+                    </value>
+                </param>
+            </params>
+        </extension>
+
+        <extension point="devblocks.event">
+            <id>event.macro.reminder</id>
+            <name>Record custom behavior on reminder (Legacy)</name>
+            <class>
+                <file>src/events/macro/reminder_macro.php</file>
+                <name>Event_ReminderMacro</name>
+            </class>
+            <params>
+                <param key="macro_context" value="cerberusweb.contexts.reminder" />
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.app" />
+                        <data key="cerberusweb.contexts.group" />
+                        <data key="cerberusweb.contexts.role" />
+                        <data key="cerberusweb.contexts.worker" />
+                    </value>
+                </param>
+                <param key="menu_key" value="Records:Custom Behavior:Reminder" />
+                <param key="options">
+                    <value>
+                        <data key="visibility" />
+                    </value>
+                </param>
+            </params>
+        </extension>
+
+        <extension point="devblocks.event">
+            <id>event.macro.task</id>
+            <name>Record custom behavior on task (Legacy)</name>
+            <class>
+                <file>src/events/macro/task_macro.php</file>
+                <name>Event_TaskMacro</name>
+            </class>
+            <params>
+                <param key="macro_context" value="cerberusweb.contexts.task" />
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.app" />
+                        <data key="cerberusweb.contexts.group" />
+                        <data key="cerberusweb.contexts.role" />
+                        <data key="cerberusweb.contexts.worker" />
+                    </value>
+                </param>
+                <param key="menu_key" value="Records:Custom Behavior:Task" />
+                <param key="options">
+                    <value>
+                        <data key="visibility" />
+                    </value>
+                </param>
+            </params>
+        </extension>
+
+        <extension point="devblocks.event">
+            <id>event.macro.ticket</id>
+            <name>Record custom behavior on ticket (Legacy)</name>
+            <class>
+                <file>src/events/macro/ticket_macro.php</file>
+                <name>Event_TicketMacro</name>
+            </class>
+            <params>
+                <param key="macro_context" value="cerberusweb.contexts.ticket" />
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.app" />
+                        <data key="cerberusweb.contexts.group" />
+                        <data key="cerberusweb.contexts.role" />
+                        <data key="cerberusweb.contexts.worker" />
+                    </value>
+                </param>
+                <param key="menu_key" value="Records:Custom Behavior:Ticket" />
+                <param key="options">
+                    <value>
+                        <data key="visibility" />
+                    </value>
+                </param>
+            </params>
+        </extension>
+
+        <extension point="devblocks.event">
+            <id>event.macro.bot</id>
+            <name>Record custom behavior on bot (Legacy)</name>
+            <class>
+                <file>src/events/macro/bot_macro.php</file>
+                <name>Event_BotMacro</name>
+            </class>
+            <params>
+                <param key="macro_context" value="cerberusweb.contexts.bot" />
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.app" />
+                        <data key="cerberusweb.contexts.group" />
+                        <data key="cerberusweb.contexts.role" />
+                        <data key="cerberusweb.contexts.worker" />
+                    </value>
+                </param>
+                <param key="menu_key" value="Records:Custom Behavior:Bot" />
+                <param key="options">
+                    <value>
+                        <data key="visibility" />
+                    </value>
+                </param>
+            </params>
+        </extension>
+
+        <extension point="devblocks.event">
+            <id>event.macro.worker</id>
+            <name>Record custom behavior on worker (Legacy)</name>
+            <class>
+                <file>src/events/macro/worker_macro.php</file>
+                <name>Event_WorkerMacro</name>
+            </class>
+            <params>
+                <param key="macro_context" value="cerberusweb.contexts.worker" />
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.app" />
+                        <data key="cerberusweb.contexts.group" />
+                        <data key="cerberusweb.contexts.role" />
+                        <data key="cerberusweb.contexts.worker" />
+                    </value>
+                </param>
+                <param key="menu_key" value="Records:Custom Behavior:Worker" />
+                <param key="options">
+                    <value>
+                        <data key="visibility" />
+                    </value>
+                </param>
+            </params>
+        </extension>
+
+        <extension point="devblocks.event">
+            <id>event.mail.received.watcher</id>
+            <name>New message on a watched ticket (Legacy)</name>
+            <class>
+                <file>src/events/worker/mail_received_by_watcher.php</file>
+                <name>Event_MailReceivedByWatcher</name>
+            </class>
+            <params>
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.worker" />
+                    </value>
+                </param>
+                <param key="menu_key" value="Mail:New message on a watched ticket" />
+            </params>
+        </extension>
+
+        <extension point="devblocks.event">
+            <id>event.notification.received.worker</id>
+            <name>New notification for me (Legacy)</name>
+            <class>
+                <file>src/events/worker/notification_received_by_worker.php</file>
+                <name>Event_NotificationReceivedByWorker</name>
+            </class>
+            <params>
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.worker" />
+                    </value>
+                </param>
+                <param key="menu_key" value="Notifications:New notification for me" />
+            </params>
+        </extension>
+
+        <extension point="devblocks.event">
+            <id>event.mail.compose.pre.ui.worker</id>
+            <name>[DEPRECATED] Before composing a new message</name>
+            <class>
+                <file>src/events/ui/ui_before_compose_by_worker.php</file>
+                <name>Event_MailBeforeUiComposeByWorker</name>
+            </class>
+            <params>
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.app" />
+                        <data key="cerberusweb.contexts.group" />
+                        <data key="cerberusweb.contexts.role" />
+                        <data key="cerberusweb.contexts.worker" />
+                    </value>
+                </param>
+                <param key="menu_key" value="Mail:Sending:Before starting to compose a new message" />
+            </params>
+        </extension>
+
+        <extension point="devblocks.event">
+            <id>event.mail.reply.pre.ui.worker</id>
+            <name>[DEPRECATED] Before composing a message reply</name>
+            <class>
+                <file>src/events/ui/ui_before_reply_by_worker.php</file>
+                <name>Event_MailBeforeUiReplyByWorker</name>
+            </class>
+            <params>
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.app" />
+                        <data key="cerberusweb.contexts.group" />
+                        <data key="cerberusweb.contexts.role" />
+                        <data key="cerberusweb.contexts.worker" />
+                    </value>
+                </param>
+                <param key="menu_key" value="Mail:Sending:Before starting to compose a reply message" />
+            </params>
+        </extension>
+
+        <extension point="devblocks.event">
+            <id>event.ui.worklist.render.worker</id>
+            <name>Record worklist rendered (Legacy)</name>
+            <class>
+                <file>src/events/ui/ui_worklist_render_by_worker.php</file>
+                <name>Event_UiWorklistRenderByWorker</name>
+            </class>
+            <params>
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.app" />
+                        <data key="cerberusweb.contexts.role" />
+                        <data key="cerberusweb.contexts.worker" />
+                    </value>
+                </param>
+                <param key="menu_key" value="Records:Record worklist rendered" />
+            </params>
+        </extension>
+
+        <extension point="devblocks.event">
+            <id>event.comment.created.worker</id>
+            <name>Record commented on (Legacy)</name>
+            <class>
+                <file>src/events/app/comment_created_by_worker.php</file>
+                <name>Event_CommentCreatedByWorker</name>
+            </class>
+            <params>
+                <param key="contexts">
+                    <value>
+                        <data key="cerberusweb.contexts.app" />
+                        <data key="cerberusweb.contexts.role" />
+                    </value>
+                </param>
+                <param key="menu_key" value="Records:Record commented on" />
+            </params>
+        </extension>
+
+        <!-- Bot Actions -->
+
+        <extension point="devblocks.event.action">
+            <id>core.bot.action.automation</id>
+            <name>Automation</name>
+            <class>
+                <file>src/bots/actions/automation.php</file>
+                <name>BotAction_Automation</name>
+            </class>
+            <params>
+                <param key="label" value="Execute automation" />
+                <param key="events">
+                    <value>
+                        <data key="*" />
+                    </value>
+                </param>
+            </params>
+        </extension>
+
+        <extension point="devblocks.event.action">
+            <id>core.bot.action.data_query</id>
+            <name>Data Query</name>
+            <class>
+                <file>src/bots/actions/data_queries.php</file>
+                <name>BotAction_DataQuery</name>
+            </class>
+            <params>
+                <param key="label" value="Execute data query" />
+                <param key="events">
+                    <value>
+                        <data key="*" />
+                    </value>
+                </param>
+            </params>
+        </extension>
+
+        <extension point="devblocks.event.action">
+            <id>core.va.action.http_request</id>
+            <name>HTTP Request</name>
+            <class>
+                <file>src/bots/actions/http.php</file>
+                <name>BotAction_HttpRequest</name>
+            </class>
+            <params>
+                <param key="label" value="Execute HTTP request" />
+                <param key="events">
+                    <value>
+                        <data key="*" />
+                    </value>
+                </param>
+            </params>
+        </extension>
+
+        <extension point="devblocks.event.action">
+            <id>core.bot.action.email_parser</id>
+            <name>Email Parser</name>
+            <class>
+                <file>src/bots/actions/email.php</file>
+                <name>BotAction_EmailParser</name>
+            </class>
+            <params>
+                <param key="label" value="Execute email parser" />
+                <param key="events">
+                    <value>
+                        <data key="*" />
+                    </value>
+                </param>
+            </params>
+        </extension>
+
+        <extension point="devblocks.event.action">
+            <id>core.bot.action.pgp.encrypt</id>
+            <name>PGP Encrypt</name>
+            <class>
+                <file>src/bots/actions/pgp.php</file>
+                <name>BotAction_PgpEncrypt</name>
+            </class>
+            <params>
+                <param key="label" value="Execute PGP encrypt" />
+                <param key="events">
+                    <value>
+                        <data key="*" />
+                    </value>
+                </param>
+            </params>
+        </extension>
+
+        <extension point="devblocks.event.action">
+            <id>core.bot.action.calculate_time_elapsed</id>
+            <name>Get time elapsed using calendar availability</name>
+            <class>
+                <file>src/bots/actions/calendar.php</file>
+                <name>BotAction_CalculateTimeElapsed</name>
+            </class>
+            <params>
+                <param key="label" value="Get time elapsed using calendar availability" />
+                <param key="events">
+                    <value>
+                        <data key="*" />
+                    </value>
+                </param>
+            </params>
+        </extension>
+
+        <extension point="devblocks.event.action">
+            <id>core.bot.action.interaction_proactive.schedule</id>
+            <name>Schedule Proactive Interaction</name>
+            <class>
+                <file>src/bots/actions/interactions.php</file>
+                <name>BotAction_ScheduleInteractionProactive</name>
+            </class>
+            <params>
+                <param key="label" value="Schedule proactive interaction" />
+                <param key="events">
+                    <value>
+                        <data key="*" />
+                    </value>
+                </param>
+            </params>
+        </extension>
+
+        <extension point="devblocks.event.action">
+            <id>core.va.action.create_attachment</id>
+            <name>Create Attachment</name>
+            <class>
+                <file>src/bots/actions/create.php</file>
+                <name>BotAction_CreateAttachment</name>
+            </class>
+            <params>
+                <param key="label" value="Create attachment" />
+                <param key="events">
+                    <value>
+                        <data key="*" />
+                    </value>
+                </param>
+            </params>
+        </extension>
+
+        <extension point="devblocks.event.action">
+            <id>core.bot.action.create_reminder</id>
+            <name>Create Reminder</name>
+            <class>
+                <file>src/bots/actions/create.php</file>
+                <name>BotAction_CreateReminder</name>
+            </class>
+            <params>
+                <param key="label" value="Create reminder" />
+                <param key="events">
+                    <value>
+                        <data key="*" />
+                    </value>
+                </param>
+            </params>
+        </extension>
+
+        <extension point="devblocks.event.action">
+            <id>core.bot.action.package.import</id>
+            <name>Package Import</name>
+            <class>
+                <file>src/bots/actions/packages.php</file>
+                <name>BotAction_PackageImport</name>
+            </class>
+            <params>
+                <param key="label" value="Package import" />
+                <param key="events">
+                    <value>
+                        <data key="*" />
+                    </value>
+                </param>
+            </params>
+        </extension>
+
+        <extension point="devblocks.event.action">
+            <id>core.bot.action.record.create</id>
+            <name>Record Create</name>
+            <class>
+                <file>src/bots/actions/records.php</file>
+                <name>BotAction_RecordCreate</name>
+            </class>
+            <params>
+                <param key="label" value="Record create" />
+                <param key="events">
+                    <value>
+                        <data key="*" />
+                    </value>
+                </param>
+            </params>
+        </extension>
+
+        <extension point="devblocks.event.action">
+            <id>core.bot.action.record.update</id>
+            <name>Record Update</name>
+            <class>
+                <file>src/bots/actions/records.php</file>
+                <name>BotAction_RecordUpdate</name>
+            </class>
+            <params>
+                <param key="label" value="Record update" />
+                <param key="events">
+                    <value>
+                        <data key="*" />
+                    </value>
+                </param>
+            </params>
+        </extension>
+
+        <extension point="devblocks.event.action">
+            <id>core.bot.action.record.upsert</id>
+            <name>Record Upsert</name>
+            <class>
+                <file>src/bots/actions/records.php</file>
+                <name>BotAction_RecordUpsert</name>
+            </class>
+            <params>
+                <param key="label" value="Record upsert" />
+                <param key="events">
+                    <value>
+                        <data key="*" />
+                    </value>
+                </param>
+            </params>
+        </extension>
+
+        <extension point="devblocks.event.action">
+            <id>core.bot.action.record.delete</id>
+            <name>Record Delete</name>
+            <class>
+                <file>src/bots/actions/records.php</file>
+                <name>BotAction_RecordDelete</name>
+            </class>
+            <params>
+                <param key="label" value="Record delete" />
+                <param key="events">
+                    <value>
+                        <data key="*" />
+                    </value>
+                </param>
+            </params>
+        </extension>
+
+        <extension point="devblocks.event.action">
+            <id>core.bot.action.record.retrieve</id>
+            <name>Record Retrieve</name>
+            <class>
+                <file>src/bots/actions/records.php</file>
+                <name>BotAction_RecordRetrieve</name>
+            </class>
+            <params>
+                <param key="label" value="Record retrieve" />
+                <param key="events">
+                    <value>
+                        <data key="*" />
+                    </value>
+                </param>
+            </params>
+        </extension>
+
+        <extension point="devblocks.event.action">
+            <id>core.bot.action.record.search</id>
+            <name>Record Search</name>
+            <class>
+                <file>src/bots/actions/records.php</file>
+                <name>BotAction_RecordSearch</name>
+            </class>
+            <params>
+                <param key="label" value="Record search" />
+                <param key="events">
+                    <value>
+                        <data key="*" />
+                    </value>
+                </param>
+            </params>
+        </extension>
+
+        <extension point="devblocks.event.action">
+            <id>wgm.aws.bot.action.get_presigned_url</id>
+            <name>Service AWS Get Pre-signed URL</name>
+            <class>
+                <file>src/service_providers/aws.php</file>
+                <name>BotAction_AwsGetPresignedUrl</name>
+            </class>
+            <params>
+                <param key="label" value="Service AWS Get Pre-signed URL" />
+                <param key="events">
+                    <value>
+                        <data key="*" />
+                    </value>
+                </param>
+            </params>
+        </extension>
+
+        <!-- Rest API Endpoints -->
+
+        <extension point="cerberusweb.rest.controller">
+            <id>cerberusweb.rest.controller.bots</id>
+            <name>Bots</name>
+            <class>
+                <file>src/rest/bots.php</file>
+                <name>ChRest_Bots</name>
+            </class>
+            <params>
+                <param key="uri" value="bots" />
+            </params>
+        </extension>
+
+    </extensions>
+
+</plugin>

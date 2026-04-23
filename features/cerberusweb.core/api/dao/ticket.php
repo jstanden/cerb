@@ -1277,10 +1277,6 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		if(isset($do['watchers']))
 			C4_AbstractView::_doBulkChangeWatchers(CerberusContexts::CONTEXT_TICKET, $do['watchers'], $ids);
 		
-		// Scheduled behavior
-		if(isset($do['behavior']))
-			C4_AbstractView::_doBulkScheduleBehavior(CerberusContexts::CONTEXT_TICKET, $do['behavior'], $ids);
-		
 		if(array_key_exists('broadcast', $do)) {
 			try {
 				$broadcast_params = $do['broadcast'];
@@ -1435,7 +1431,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				unset($change_fields[DAO_Ticket::BUCKET_ID]);
 			
 			if(isset($change_fields[DAO_Ticket::GROUP_ID]) || isset($change_fields[DAO_Ticket::BUCKET_ID])) {
-				if(APP_OPT_GROUP_BEHAVIOR_TRIGGERS)
+				if(APP_OPT_GROUP_BEHAVIOR_TRIGGERS && DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy'))
 					Event_MailMovedToGroup::trigger($model->id, $model->group_id);
 				
 				// Activity log
@@ -6113,7 +6109,10 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		
 		 // UI bot behaviors
 
-		 if(class_exists('Event_MailBeforeUiComposeByWorker')) {
+		 if(
+			 DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy')
+			 && class_exists('Event_MailBeforeUiComposeByWorker')
+		 ) {
 			 $actions = [];
 			
 			 $macros = DAO_TriggerEvent::getReadableByActor(
@@ -6137,7 +6136,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		
 		// Compose toolbar
 		
-	 $toolbar_keyboard_shortcuts = [];
+	 	$toolbar_keyboard_shortcuts = [];
 		 
 		$toolbar_dict = DevblocksDictionaryDelegate::instance([
 			'caller_name' => 'cerb.toolbar.mail.compose.formatting',
@@ -6214,7 +6213,7 @@ menu/formatting:
       uri: cerb.editor.toolbar.markdownTable
 EOD;
 		
-		if(false != ($toolbar_compose_formatting_kata = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_compose_formatting_kata, $toolbar_dict))) {
+		if(($toolbar_compose_formatting_kata = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_compose_formatting_kata, $toolbar_dict))) {
 			DevblocksPlatform::services()->ui()->toolbar()->extractKeyboardShortcuts($toolbar_compose_formatting_kata, $toolbar_keyboard_shortcuts);
 			$tpl->assign('toolbar_formatting', $toolbar_compose_formatting_kata);
 		}
@@ -6226,7 +6225,7 @@ EOD;
 			'worker_id' => $active_worker->id
 		]);
 		
-		if(false != ($toolbar_compose_custom = DAO_Toolbar::getKataByName('mail.compose', $toolbar_dict))) {
+		if(($toolbar_compose_custom = DAO_Toolbar::getKataByName('mail.compose', $toolbar_dict))) {
 			DevblocksPlatform::services()->ui()->toolbar()->extractKeyboardShortcuts($toolbar_compose_custom, $toolbar_keyboard_shortcuts);
 			$tpl->assign('toolbar_custom', $toolbar_compose_custom);
 		}
@@ -6250,7 +6249,7 @@ EOD;
 
 		// Template
 		
-		if(false == ($model = DAO_Ticket::get($context_id))) {
+		if(!($model = DAO_Ticket::get($context_id))) {
 			$tpl->assign('error_message', 'The requested record does not exist.');
 			$tpl->display('devblocks:cerberusweb.core::internal/peek/peek_error.tpl');
 			return false;

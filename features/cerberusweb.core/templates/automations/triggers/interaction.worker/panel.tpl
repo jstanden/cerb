@@ -29,7 +29,7 @@ $(function() {
 		var formData = new FormData($form[0]);
 		formData.set('c', 'profiles');
 		formData.set('a', 'invoke');
-		formData.set('module', 'bot');
+		formData.set('module', 'automation');
 		formData.set('action', 'sendMessage');
 
 		genericAjaxPost(formData, null, null, function(html) {
@@ -48,7 +48,7 @@ $(function() {
 		var formData = new FormData($form[0]);
 		formData.set('c', 'profiles');
 		formData.set('a', 'invoke');
-		formData.set('module', 'bot');
+		formData.set('module', 'automation');
 		formData.set('action', 'sendMessage');
 		formData.set('reset', '1');
 

@@ -2715,7 +2715,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		$extensions = DevblocksPlatform::getExtensionRegistry();
 
 		if(is_array($extensions))
-		foreach($extensions as $extension) { /* @var $extension DevblocksExtensionManifest */
+		foreach($extensions as $extension) {
 			if($extension->point == $point) {
 				$results[$extension->id] = ($as_instances) ? $extension->createInstance() : $extension;
 			}
@@ -2969,16 +2969,6 @@ class DevblocksPlatform extends DevblocksEngine {
 				'class' => 'DevblocksControllerExtension',
 				'examples' => [],
 			],
-			'devblocks.event' => [
-				'label' => 'Bot Event',
-				'class' => 'Extension_DevblocksEvent',
-				'examples' => [],
-			],
-			'devblocks.event.action' => [
-				'label' => 'Bot Action',
-				'class' => 'Extension_DevblocksEventAction',
-				'examples' => [],
-			],
 			'devblocks.listener.event' => [
 				'label' => 'Event Listener',
 				'class' => 'DevblocksEventListenerExtension',
@@ -3025,6 +3015,20 @@ class DevblocksPlatform extends DevblocksEngine {
 				'examples' => [],
 			],
 		];
+		
+		if(DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy')) {
+			$extension_point_meta['devblocks.event'] = [
+				'label' => 'Bot Event',
+				'class' => 'Extension_DevblocksEvent',
+				'examples' => [],
+			];
+			
+			$extension_point_meta['devblocks.event.action'] = [
+				'label' => 'Bot Action',
+				'class' => 'Extension_DevblocksEventAction',
+				'examples' => [],
+			];
+		}
 		
 		DevblocksPlatform::sortObjects($extension_point_meta, '[label]');
 		

@@ -69,7 +69,7 @@ class PageSection_ProfilesWorkerRole extends Extension_PageSection {
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate("You must remove or reassign all workspace pages before deleting this role."));
 				if(DAO_CustomFieldset::getByOwner(CerberusContexts::CONTEXT_ROLE, $id))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate("You must remove or reassign all custom fieldsets before deleting this role."));
-				if(DAO_Bot::getByOwner(CerberusContexts::CONTEXT_ROLE, $id))
+				if(DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy') && class_exists('DAO_Bot') && DAO_Bot::getByOwner(CerberusContexts::CONTEXT_ROLE, $id))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate("You must remove or reassign all bots before deleting this role."));
 				if(DAO_ConnectedAccount::getByOwner(CerberusContexts::CONTEXT_ROLE, $id))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate("You must remove or reassign all connected accounts before deleting this role."));

@@ -563,10 +563,6 @@ class DAO_Attachment extends Cerb_ORMHelper {
 			// Custom Fields
 			C4_AbstractView::_doBulkSetCustomFields(CerberusContexts::CONTEXT_ATTACHMENT, $custom_fields, $ids);
 			
-			// Scheduled behavior
-			if(isset($do['behavior']))
-				C4_AbstractView::_doBulkScheduleBehavior(CerberusContexts::CONTEXT_ATTACHMENT, $do['behavior'], $ids);
-			
 			DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_ATTACHMENT, $ids);
 		}
 		

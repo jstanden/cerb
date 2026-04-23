@@ -26,6 +26,6 @@ class Event_FeedItemMacro extends AbstractEvent_FeedItem {
 	function renderEventParams(Model_TriggerEvent $trigger=null) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('trigger', $trigger);
-		$tpl->display('devblocks:cerberusweb.core::events/record/params_macro_default.tpl');
+		$tpl->display('devblocks:cerb.behaviors.legacy::events/record/params_macro_default.tpl');
 	}
 };

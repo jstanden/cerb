@@ -129,7 +129,7 @@
 					<li><a href="{devblocks_url}c=config&a=bot_scripting_tester{/devblocks_url}">Automation Scripting Tester</a></li>
 					<li><a href="{devblocks_url}c=config&a=data_query_tester{/devblocks_url}">Data Query Tester</a></li>
 					<li><a href="{devblocks_url}c=config&a=database_schema{/devblocks_url}">Database Schema</a></li>
-					<li><a href="{devblocks_url}c=config&a=export_bots{/devblocks_url}">Export Bots</a></li>
+					{if DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy')}<li><a href="{devblocks_url}c=config&a=export_bots{/devblocks_url}">Export Bots</a></li>{/if}
 					<li><a href="{devblocks_url}c=config&a=reference_icons{/devblocks_url}">Icon Reference</a></li>
 					<li><a href="{devblocks_url}c=config&a=llm_agent_transcripts{/devblocks_url}">LLM Agent Transcripts</a></li>
 					<li><a href="{devblocks_url}c=config&a=oauth2_token_generator{/devblocks_url}">OAuth2 Token Generator</a></li>

@@ -1171,7 +1171,7 @@ class CerberusContexts {
 		// Push the stack
 		self::$_stack[] = $context;
 		
-		if(false != ($ctx = Extension_DevblocksContext::getByAlias($context, true))) {
+		if(($ctx = Extension_DevblocksContext::getByAlias($context, true))) {
 			// If blank, check the cache for a prebuilt context object
 			if(is_null($context_object)) {
 				$stack_max_empty_depth = CerberusContexts::getStackMaxEmptyDepth();
@@ -2174,10 +2174,11 @@ class CerberusContexts {
 			$actor_url = null;
 
 			// See if we're running inside a bot decision tree
-
-			$stack = EventListener_Triggers::getTriggerStack();
-
-			if(EventListener_Triggers::getDepth() > 0
+			if(
+				DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy')
+				&& class_exists('EventListener_Triggers')
+				&& ($stack = EventListener_Triggers::getTriggerStack())
+				&& EventListener_Triggers::getDepth() > 0
 				&& null != ($trigger_id = end($stack))
 				&& !empty($trigger_id)
 				&& null != ($trigger = DAO_TriggerEvent::get($trigger_id))
@@ -2359,7 +2360,10 @@ class CerberusContexts {
 						continue;
 
 					// If not inside a VA
-					if(0 == EventListener_Triggers::getDepth()) {
+					if(
+						!class_exists('EventListener_Triggers')
+						|| 0 == EventListener_Triggers::getDepth()
+					) {
 						// Skip a watcher if they are the actor
 						if($actor['context'] == CerberusContexts::CONTEXT_WORKER
 							&& $actor['context_id'] == $watcher_id) {

@@ -213,9 +213,11 @@ class Controller_Default extends DevblocksControllerExtension {
 		$tpl->assign('global_interactions_show', null != $global_menu);
 		
 		if(!empty($active_worker)) {
-			// Proactive interactions
-			$proactive_interactions_count = DAO_BotInteractionProactive::getCountByWorker($active_worker->id);
-			$tpl->assign('proactive_interactions_count', $proactive_interactions_count);
+			if(DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy')) {
+				// Proactive interactions
+				$proactive_interactions_count = DAO_BotInteractionProactive::getCountByWorker($active_worker->id);
+				$tpl->assign('proactive_interactions_count', $proactive_interactions_count);
+			}
 			
 			// Pages menu
 			$pages_menu = $active_worker->getPagesMenu();

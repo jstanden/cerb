@@ -153,14 +153,16 @@ class DAO_Notification extends Cerb_ORMHelper {
 			}
 		}
 		
-		// If a worker was provided
-		if(isset($fields[self::WORKER_ID])) {
-			// Invalidate the worker notification count cache
-			self::clearCountCache($fields[self::WORKER_ID]);
-			
-			if(is_array($ids))
-			foreach($ids as $id)
-				Event_NotificationReceivedByWorker::trigger($id, $fields[self::WORKER_ID]);
+		if(DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy')) {
+			// If a worker was provided
+			if (isset($fields[self::WORKER_ID])) {
+				// Invalidate the worker notification count cache
+				self::clearCountCache($fields[self::WORKER_ID]);
+				
+				if (is_array($ids))
+					foreach ($ids as $id)
+						Event_NotificationReceivedByWorker::trigger($id, $fields[self::WORKER_ID]);
+			}
 		}
 	}
 	

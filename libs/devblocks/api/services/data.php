@@ -118,6 +118,9 @@ class _DevblocksDataService {
 				return $provider->getSuggestions($type, $params);
 				
 			case 'usage.behaviors':
+				if(!DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy'))
+					return [];
+				
 				$provider = new _DevblocksDataProviderUsageBotBehaviors();
 				return $provider->getSuggestions($type, $params);
 			
@@ -130,7 +133,10 @@ class _DevblocksDataService {
 				return $provider->getSuggestions($type, $params);
 			
 			default:
-				if(DevblocksPlatform::strStartsWith($type, 'behavior.')) {
+				if(
+					DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy')
+					&& DevblocksPlatform::strStartsWith($type, 'behavior.')
+				) {
 					$provider = new _DevblocksDataProviderBotBehavior();
 					return $provider->getSuggestions($type, $params);
 				}
@@ -238,11 +244,6 @@ class _DevblocksDataService {
 				'docs_url' => 'https://cerb.ai/docs/data-queries/ui/icons/',
 			],
 			[
-				'name' => 'usage.behaviors',
-				'description' => 'Historical usage data for bot behaviors',
-				'docs_url' => 'https://cerb.ai/docs/data-queries/usage/bot-behaviors/',
-			],
-			[
 				'name' => 'usage.snippets',
 				'description' => 'Historical usage data for snippets',
 				'docs_url' => 'https://cerb.ai/docs/data-queries/usage/snippets/',
@@ -279,15 +280,23 @@ class _DevblocksDataService {
 			],
 		];
 		
-		$behaviors = DAO_TriggerEvent::getByEvent(Event_DataQueryDatasource::ID);
-		foreach($behaviors as $behavior) {
-			if(false == ($alias = $behavior->event_params['alias']))
-				continue;
-			
+		if(DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy')) {
 			$types[] = [
-				'name' => 'behavior.' . $alias,
-				'description' => $behavior->title ?? '',
+				'name' => 'usage.behaviors',
+				'description' => 'Historical usage data for bot behaviors',
+				'docs_url' => 'https://cerb.ai/docs/data-queries/usage/bot-behaviors/',
 			];
+			
+			$behaviors = DAO_TriggerEvent::getByEvent(Event_DataQueryDatasource::ID);
+			foreach($behaviors as $behavior) {
+				if(!($alias = $behavior->event_params['alias']))
+					continue;
+				
+				$types[] = [
+					'name' => 'behavior.' . $alias,
+					'description' => $behavior->title ?? '',
+				];
+			}
 		}
 		
 		$types = array_combine(
@@ -484,6 +493,9 @@ class _DevblocksDataService {
 				break;
 
 			case 'usage.behaviors':
+				if(!DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy'))
+					return false;
+				
 				$provider = new _DevblocksDataProviderUsageBotBehaviors();
 				
 				if(false === ($results = $provider->getData($query, $chart_fields, $error)))

@@ -553,6 +553,6 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 		if(null != ($snippet = DAO_Snippet::get($id)))
 			$tpl->assign('snippet', $snippet);
 		
-		$tpl->display('devblocks:cerberusweb.core::events/action_set_placeholder_using_snippet_params.tpl');
+		$tpl->display('devblocks:cerb.behaviors.legacy::events/action_set_placeholder_using_snippet_params.tpl');
 	}
 }

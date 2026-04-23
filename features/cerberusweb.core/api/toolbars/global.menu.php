@@ -33,14 +33,23 @@ class Toolbar_GlobalMenu extends Extension_Toolbar {
 		if(null == $active_worker)
 			return [];
 		
-		$legacy_interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('global', [], $active_worker);
+		$are_behaviors_enabled = DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy');
+		
+		$legacy_interactions = [];
+		
+		if(
+			$are_behaviors_enabled
+			&& class_exists('Event_GetInteractionsForWorker')
+		) {
+			$legacy_interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('global', [], $active_worker);
+		}
 		
 		$toolbar_kata = '';
 		
 		if(null != ($toolbar = DAO_Toolbar::getByName('global.menu')))
 			$toolbar_kata = $toolbar->getKata();
 		
-		if($legacy_interactions) {
+		if($are_behaviors_enabled && $legacy_interactions) {
 			$legacy_kata = "\nmenu/legacy:\n  label: (Legacy Chat Bots)\n  items:\n";
 			
 			foreach ($legacy_interactions as $interaction) {

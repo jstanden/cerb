@@ -387,18 +387,6 @@
 		</extension>
 		
 		<extension point="cerberusweb.rest.controller">
-			<id>cerberusweb.rest.controller.bots</id>
-			<name>Bots</name>
-			<class>
-				<file>api/rest/va.php</file>
-				<name>ChRest_Bots</name>
-			</class>
-			<params>
-				<param key="uri" value="bots" />
-			</params>
-		</extension>
-		
-		<extension point="cerberusweb.rest.controller">
 			<id>cerberusweb.rest.controller.workers</id>
 			<name>Workers</name>
 			<class>

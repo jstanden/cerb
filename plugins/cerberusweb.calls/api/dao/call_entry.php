@@ -202,10 +202,6 @@ class DAO_CallEntry extends Cerb_ORMHelper {
 		if(!empty($custom_fields))
 			C4_AbstractView::_doBulkSetCustomFields(CerberusContexts::CONTEXT_CALL, $custom_fields, $ids);
 		
-		// Scheduled behavior
-		if(isset($do['behavior']))
-			C4_AbstractView::_doBulkScheduleBehavior(CerberusContexts::CONTEXT_CALL, $do['behavior'], $ids);
-		
 		// Watchers
 		if(isset($do['watchers']))
 			C4_AbstractView::_doBulkChangeWatchers(CerberusContexts::CONTEXT_CALL, $do['watchers'], $ids);

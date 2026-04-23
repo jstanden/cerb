@@ -278,9 +278,11 @@ class WgmJira_API {
 			);
 		}
 		
-		// Trigger 'New JIRA issue created' event
-		if($is_new) {
-			Event_JiraIssueCreated::trigger($local_issue_id);
+		if(DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy')) {
+			// Trigger 'New JIRA issue created' event
+			if ($is_new) {
+				Event_JiraIssueCreated::trigger($local_issue_id);
+			}
 		}
 		
 		return $local_issue_id;

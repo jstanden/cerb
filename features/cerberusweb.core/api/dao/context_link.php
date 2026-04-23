@@ -156,7 +156,11 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 		// Are we following something?
 		if($dst_context == CerberusContexts::CONTEXT_WORKER) {
 			// If worker is actor and target, and we're not inside a bot
-			if($active_worker && $active_worker->id == $dst_context_id && 0 == EventListener_Triggers::getDepth()) {
+			if(
+				$active_worker
+				&& $active_worker->id == $dst_context_id
+				&& (!class_exists('EventListener_Triggers') || 0 == EventListener_Triggers::getDepth())
+			) {
 				$entry = [
 					//{{actor}} started watching {{target_object}} {{target}}
 					'variables' => [

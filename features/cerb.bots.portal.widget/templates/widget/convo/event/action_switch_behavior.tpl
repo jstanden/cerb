@@ -13,7 +13,7 @@
 
 <div class="parameters">
 {if $behavior}
-{include file="devblocks:cerberusweb.core::events/_action_behavior_params.tpl" params=$params macro_params=$behavior->variables}
+{include file="devblocks:cerb.behaviors.legacy::events/_action_behavior_params.tpl" params=$params macro_params=$behavior->variables}
 {/if}
 </div>
 

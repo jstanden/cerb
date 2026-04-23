@@ -179,11 +179,13 @@ class Model_DevblocksOutboundEmail {
 	public function triggerComposeBehaviors() {
 		$group_id = $this->getGroup()->id ?? 0;
 		
-		// Changing the outgoing message through a VA (global)
-		Event_MailBeforeSent::trigger($this->_properties, null, null, $group_id);
-		
-		// Changing the outgoing message through a VA (group)
-		Event_MailBeforeSentByGroup::trigger($this->_properties, null, null, $group_id);
+		if(DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy')) {
+			// Changing the outgoing message through a VA (global)
+			Event_MailBeforeSent::trigger($this->_properties, null, null, $group_id);
+			
+			// Changing the outgoing message through a VA (group)
+			Event_MailBeforeSentByGroup::trigger($this->_properties, null, null, $group_id);
+		}
 	}
 	
 	public function parseComposeHashCommands() : void {
@@ -250,6 +252,9 @@ class Model_DevblocksOutboundEmail {
 	
 	public function triggerReplyBehaviors($message_id, $ticket_id, $group_id) : array {
 		$results = [];
+		
+		if(!DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy'))
+			return [];
 		
 		// Changing the outgoing message through a VA (global)
 		$runners = Event_MailBeforeSent::trigger($this->_properties, $message_id, $ticket_id, $group_id);

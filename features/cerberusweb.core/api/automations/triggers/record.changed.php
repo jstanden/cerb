@@ -149,24 +149,33 @@ class AutomationTrigger_RecordChanged extends Extension_AutomationTrigger {
 					$handlers = [];
 				}
 				
+				$callback_behavior = null;
+				
+				if(DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy')) {
+					$callback_behavior = function(Model_TriggerEvent $behavior, array $handler) use ($dict, $old_model, $new_model, $actor) {
+						return self::_behaviorCallback($behavior, $handler, $dict, $old_model, $new_model, $actor);
+					};
+				}
+				
 				$event_handler->handleEach(
 					AutomationTrigger_RecordChanged::ID,
 					$handlers,
 					$initial_state,
 					$error,
 					null,
-					function(Model_TriggerEvent $behavior, array $handler) use ($dict, $old_model, $new_model, $actor) {
-						return self::_behaviorCallback($behavior, $handler, $dict, $old_model, $new_model, $actor);
-					}
+					$callback_behavior
 				);
 			}
 			
 			$queue_message->reportStatus(QueueMessageStatus::DONE);
 		}
 	}
-	
-	private static function _behaviorCallback(Model_TriggerEvent $behavior, array $handler, $dict, $old_model, $new_model, $actor) {
+
+	private static function _behaviorCallback($behavior, array $handler, $dict, $old_model, $new_model, $actor) {
 		$events = DevblocksPlatform::services()->event();
+		
+		if(!DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy'))
+			return true;
 		
 		$is_deleted = 'deleted' == $dict->get('change_type');
 		

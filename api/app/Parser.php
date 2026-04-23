@@ -1880,25 +1880,27 @@ class CerberusParser {
 		// Trigger priorities 0-127 before legacy behaviors
 		AutomationTrigger_MailReceived::trigger($model->getMessageId(), $model->getIsNew(), priority_range:[0, 127]);
 		
-		// Trigger Mail Received
-		Event_MailReceived::trigger($model->getMessageId());
-		
-		// Trigger Group Mail Received
-		Event_MailReceivedByGroup::trigger($model->getMessageId(), $model->getRouteGroup()->id);
-		
-		// Trigger Watcher Mail Received
-		$context_watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_TICKET, $model->getTicketId());
-		
-		// Include the owner
-
-		@$ticket_owner_id = $model->getTicketModel()->owner_id;
-		
-		if(!empty($ticket_owner_id) && !isset($context_watchers[$ticket_owner_id]))
-			$context_watchers[$ticket_owner_id] = true;
-
-		if(is_array($context_watchers) && !empty($context_watchers))
-		foreach(array_unique(array_keys($context_watchers)) as $watcher_id) {
-			Event_MailReceivedByWatcher::trigger($model->getMessageId(), $watcher_id);
+		if(DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy')) {
+			// Trigger Mail Received
+			Event_MailReceived::trigger($model->getMessageId());
+			
+			// Trigger Group Mail Received
+			Event_MailReceivedByGroup::trigger($model->getMessageId(), $model->getRouteGroup()->id);
+			
+			// Trigger Watcher Mail Received
+			$context_watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_TICKET, $model->getTicketId());
+			
+			// Include the owner
+			
+			@$ticket_owner_id = $model->getTicketModel()->owner_id;
+			
+			if (!empty($ticket_owner_id) && !isset($context_watchers[$ticket_owner_id]))
+				$context_watchers[$ticket_owner_id] = true;
+			
+			if (is_array($context_watchers) && !empty($context_watchers))
+				foreach (array_unique(array_keys($context_watchers)) as $watcher_id) {
+					Event_MailReceivedByWatcher::trigger($model->getMessageId(), $watcher_id);
+				}
 		}
 		
 		// Trigger priorities 128-255 before legacy behaviors

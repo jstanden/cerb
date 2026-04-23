@@ -276,10 +276,6 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 		// Custom Fields
 		C4_AbstractView::_doBulkSetCustomFields(CerberusContexts::CONTEXT_KB_ARTICLE, $custom_fields, $ids);
 		
-		// Scheduled behavior
-		if(isset($do['behavior']))
-			C4_AbstractView::_doBulkScheduleBehavior(CerberusContexts::CONTEXT_KB_ARTICLE, $do['behavior'], $ids);
-		
 		CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_KB_ARTICLE, $ids);
 		
 		return true;

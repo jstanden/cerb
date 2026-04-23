@@ -15,6 +15,9 @@ class _DevblocksDataProviderUsageBotBehaviors extends _DevblocksDataProvider {
 	function getData($query, $chart_fields, &$error=null, array $options=[]) {
 		$format = 'table';
 		
+		if(!DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy'))
+			return [];
+		
 		foreach($chart_fields as $field) {
 			if(!($field instanceof DevblocksSearchCriteria))
 				continue;
@@ -144,7 +147,11 @@ class _DevblocksDataProviderUsageBotBehaviors extends _DevblocksDataProvider {
 			
 			$stat['bot_id'] = $bot->id;
 			$stat['bot_name'] = $bot->name;
-			$stat['bot_owner'] = sprintf("%s%s", $meta['context_ext']->manifest->name, (!empty($meta['name']) ? (': '.$meta['name']) : ''));
+			$stat['bot_owner'] = sprintf(
+				"%s%s",
+				$meta['context_ext']->manifest->name,
+				(($meta['name'] ?? null) ? (': '.$meta['name']) : '')
+			);
 		}
 		
 		// Sort

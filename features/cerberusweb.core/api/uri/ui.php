@@ -607,6 +607,7 @@ class Controller_UI extends DevblocksControllerExtension {
 		}
 	}
 	
+	// [TODO] Remove this in 12.0
 	private function _uiAction_behavior() {
 		$request = DevblocksPlatform::getHttpRequest();
 		$stack = $request->path;
@@ -614,18 +615,27 @@ class Controller_UI extends DevblocksControllerExtension {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
+		if(!DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy'))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
 		array_shift($stack); // ui
 		array_shift($stack); // behavior
 		@$behavior_uri = array_shift($stack);
 		
-		if(!$behavior_uri || false == ($behavior = DAO_TriggerEvent::getByUri($behavior_uri)))
+		if(!$behavior_uri || !($behavior = DAO_TriggerEvent::getByUri($behavior_uri)))
 			return DevblocksPlatform::dieWithHttpError('Temporarily unavailable', 503);
 		
 		$this->_runBehavior($behavior);
 	}
 	
-	private function _runBehavior(Model_TriggerEvent $behavior) {
+	private function _runBehavior($behavior) {
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy'))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		if(!($behavior instanceof Model_TriggerEvent))
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(!($bot = $behavior->getBot())) {
 			return DevblocksPlatform::dieWithHttpError('Temporarily unavailable', 503);

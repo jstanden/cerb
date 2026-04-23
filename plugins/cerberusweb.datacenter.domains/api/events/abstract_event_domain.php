@@ -176,13 +176,13 @@ abstract class AbstractEvent_Domain extends Extension_DevblocksEvent {
 			case 'domain_server_link':
 				$contexts = Extension_DevblocksContext::getAll(false);
 				$tpl->assign('contexts', $contexts);
-				$tpl->display('devblocks:cerberusweb.core::events/condition_link.tpl');
+				$tpl->display('devblocks:cerb.behaviors.legacy::events/condition_link.tpl');
 				break;
 				
 			case 'domain_contacts_count':
 			case 'domain_server_watcher_count':
 			case 'domain_watcher_count':
-				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_number.tpl');
+				$tpl->display('devblocks:cerb.behaviors.legacy::internal/decisions/conditions/_number.tpl');
 				break;
 		}
 

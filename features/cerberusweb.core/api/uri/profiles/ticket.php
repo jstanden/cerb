@@ -721,7 +721,10 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		
 		// Bot behaviors
 		
-		if(null != $active_worker && class_exists('Event_MailBeforeUiReplyByWorker')) {
+		if(
+			DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy')
+			&& null != $active_worker && class_exists('Event_MailBeforeUiReplyByWorker')
+		) {
 			$actions = [];
 			
 			$macros = DAO_TriggerEvent::getReadableByActor(

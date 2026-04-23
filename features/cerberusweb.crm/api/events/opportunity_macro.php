@@ -38,7 +38,7 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 	function renderEventParams(Model_TriggerEvent $trigger=null) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('trigger', $trigger);
-		$tpl->display('devblocks:cerberusweb.core::events/record/params_macro_default.tpl');
+		$tpl->display('devblocks:cerb.behaviors.legacy::events/record/params_macro_default.tpl');
 	}
 	
 	/**
@@ -217,13 +217,13 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 			case 'opp_email_org_link':
 				$contexts = Extension_DevblocksContext::getAll(false);
 				$tpl->assign('contexts', $contexts);
-				$tpl->display('devblocks:cerberusweb.core::events/condition_link.tpl');
+				$tpl->display('devblocks:cerb.behaviors.legacy::events/condition_link.tpl');
 				break;
 				
 			case 'opp_email_org_watcher_count':
 			case 'opp_email_watcher_count':
 			case 'opp_watcher_count':
-				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_number.tpl');
+				$tpl->display('devblocks:cerb.behaviors.legacy::internal/decisions/conditions/_number.tpl');
 				break;
 		}
 

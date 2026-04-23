@@ -38,19 +38,17 @@ class Controller_Webhooks implements DevblocksHttpRequestHandler {
 		
 		$handlers = $event_handler->parse($automations_kata, $dict, $error);
 		
-		$automation_results = $event_handler->handleOnce(
-			AutomationTrigger_WebhookRespond::ID,
-			$handlers,
-			$dict->getDictionary(),
-			$error,
-			function(Model_TriggerEvent $behavior, array $handler) use ($dict) {
-				if($behavior->event_point != Event_WebhookReceived::ID)
+		$behaviors_callback = null;
+		
+		if(DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy')) {
+			$behaviors_callback = function (Model_TriggerEvent $behavior, array $handler) use ($dict) {
+				if ($behavior->event_point != Event_WebhookReceived::ID)
 					return false;
 				
-				if(!($bot = $behavior->getBot()))
+				if (!($bot = $behavior->getBot()))
 					return false;
 				
-				if($behavior->is_disabled || $bot->is_disabled) {
+				if ($behavior->is_disabled || $bot->is_disabled) {
 					DevblocksPlatform::dieWithHttpError('503: Temporarily unavailable', 503);
 					return false;
 				}
@@ -69,11 +67,19 @@ class Controller_Webhooks implements DevblocksHttpRequestHandler {
 				$dicts = Event_WebhookReceived::trigger($behavior->id, $http_request, $variables);
 				$dict = $dicts[$behavior->id];
 				
-				if(!($dict instanceof DevblocksDictionaryDelegate))
+				if (!($dict instanceof DevblocksDictionaryDelegate))
 					return false;
 				
 				return $dict;
-			}
+			};
+		}
+		
+		$automation_results = $event_handler->handleOnce(
+			AutomationTrigger_WebhookRespond::ID,
+			$handlers,
+			$dict->getDictionary(),
+			$error,
+			$behaviors_callback
 		);
 		
 		if($automation_results instanceof DevblocksDictionaryDelegate && $automation_results->exists('__state')) {

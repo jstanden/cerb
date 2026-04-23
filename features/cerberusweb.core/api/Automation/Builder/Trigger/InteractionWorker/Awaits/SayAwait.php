@@ -41,6 +41,6 @@ class SayAwait extends AbstractAwait {
 		$tpl->assign('message', $msg);
 		$tpl->assign('format', $format);
 		$tpl->assign('style', $this->_data['style'] ?? null);
-		$tpl->display('devblocks:cerberusweb.core::events/form_interaction/worker/responses/respond_text.tpl');
+		$tpl->display('devblocks:cerberusweb.core::automations/interactions/worker/responses/respond_text.tpl');
 	}
 }

@@ -290,10 +290,6 @@ class DAO_Task extends Cerb_ORMHelper {
 			// Custom Fields
 			C4_AbstractView::_doBulkSetCustomFields(CerberusContexts::CONTEXT_TASK, $custom_fields, $ids);
 			
-			// Scheduled behavior
-			if(isset($do['behavior']))
-				C4_AbstractView::_doBulkScheduleBehavior(CerberusContexts::CONTEXT_TASK, $do['behavior'], $ids);
-			
 			// Watchers
 			if(isset($do['watchers']))
 				C4_AbstractView::_doBulkChangeWatchers(CerberusContexts::CONTEXT_TASK, $do['watchers'], $ids);

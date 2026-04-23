@@ -207,9 +207,11 @@ class Page_Profiles extends CerberusPageExtension {
 		// Trigger priorities 0-127 before legacy behaviors
 		AutomationTrigger_RecordViewed::trigger($dict, priority_range:[0, 127]);
 		
-		if($context == CerberusContexts::CONTEXT_TICKET) {
-			// Trigger ticket view event (before we load it, in case we change it)
-			Event_TicketViewedByWorker::trigger($record->id, $active_worker->id);
+		if(DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy')) {
+			if ($context == CerberusContexts::CONTEXT_TICKET) {
+				// Trigger ticket view event (before we load it, in case we change it)
+				Event_TicketViewedByWorker::trigger($record->id, $active_worker->id);
+			}
 		}
 		
 		// Trigger priorities 128-255 after legacy behaviors
@@ -228,12 +230,16 @@ class Page_Profiles extends CerberusPageExtension {
 			$toolbar_kata = $toolbar->getKata();
 		
 		//************* [TODO] LEGACY SUPPORT - Remove in 11.0
-		$point_params = DevblocksDictionaryDelegate::instance([
-			'_context' => $context,
-			'id' => $context_id,
-		]);
-		
-		$legacy_interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $point_params, $active_worker);
+		if(DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy')) {
+			$point_params = DevblocksDictionaryDelegate::instance([
+				'_context' => $context,
+				'id' => $context_id,
+			]);
+			
+			$legacy_interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $point_params, $active_worker);
+		} else {
+			$legacy_interactions = [];
+		}
 		
 		if($legacy_interactions) {
 			$url_writer = DevblocksPlatform::services()->url();

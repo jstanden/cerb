@@ -313,7 +313,7 @@ class BotAction_AwsGetPresignedUrl extends Extension_DevblocksEventAction {
 		$aws_accounts = DAO_ConnectedAccount::getReadableByActor($trigger->getBot(), ServiceProvider_Aws::ID);
 		$tpl->assign('aws_accounts', $aws_accounts);
 		
-		$tpl->display('devblocks:cerberusweb.core::events/action_aws_get_presigned_url.tpl');
+		$tpl->display('devblocks:cerb.behaviors.legacy::events/action_aws_get_presigned_url.tpl');
 	}
 	
 	function simulate($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {

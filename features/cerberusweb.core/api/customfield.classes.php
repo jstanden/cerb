@@ -142,7 +142,7 @@ class CustomField_GeoPoint extends Extension_CustomField {
 	function botActionRender(Model_CustomField $field) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('instructions', '(a pair of comma-separated latitude/longitude coordinates; e.g. `44.787197, 20.457273`)');
-		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_var_string.tpl');
+		$tpl->display('devblocks:cerb.behaviors.legacy::internal/decisions/actions/_set_var_string.tpl');
 	}
 	
 	function botActionSimulate(Model_CustomField $field, array $params, DevblocksDictionaryDelegate $dict, $value_key) {
@@ -385,7 +385,7 @@ class CustomField_Slider extends Extension_CustomField {
 			)
 		);
 		
-		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_var_string.tpl');
+		$tpl->display('devblocks:cerb.behaviors.legacy::internal/decisions/actions/_set_var_string.tpl');
 	}
 	
 	function botActionSimulate(Model_CustomField $field, array $params, DevblocksDictionaryDelegate $dict, $value_key) {
@@ -752,7 +752,7 @@ class CustomField_RecordLinks extends Extension_CustomField {
 			)
 		);
 		
-		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_var_string.tpl');
+		$tpl->display('devblocks:cerb.behaviors.legacy::internal/decisions/actions/_set_var_string.tpl');
 	}
 	
 	function botActionSimulate(Model_CustomField $field, array $params, DevblocksDictionaryDelegate $dict, $value_key) {

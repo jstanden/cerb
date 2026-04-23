@@ -338,10 +338,6 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 			if(!empty($custom_fields))
 				C4_AbstractView::_doBulkSetCustomFields($context, $custom_fields, $ids);
 			
-			// Scheduled behavior
-			if(isset($do['behavior']))
-				C4_AbstractView::_doBulkScheduleBehavior($context, $do['behavior'], $ids);
-			
 			// Watchers
 			if(isset($do['watchers']))
 				C4_AbstractView::_doBulkChangeWatchers($context, $do['watchers'], $ids);

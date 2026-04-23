@@ -880,7 +880,9 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			
 			// Bot events
 			
-			Event_ContactRegisteredInSupportCenter::trigger($contact_id, null);
+			if(DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy')) {
+				Event_ContactRegisteredInSupportCenter::trigger($contact_id, null);
+			}
 			
 			// Redirect
 			

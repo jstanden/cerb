@@ -271,12 +271,14 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		$tpl->assign('custom_fieldset_is_new', true);
 		
 		// If we're drawing the fieldset for a VA action, include behavior and event meta
-		if($trigger_id && false !== ($trigger = DAO_TriggerEvent::get($trigger_id))) {
-			$event = $trigger->getEvent();
-			$values_to_contexts = $event->getValuesContexts($trigger);
-			
-			$tpl->assign('trigger', $trigger);
-			$tpl->assign('values_to_contexts', $values_to_contexts);
+		if(DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy')) {
+			if ($trigger_id && false !== ($trigger = DAO_TriggerEvent::get($trigger_id))) {
+				$event = $trigger->getEvent();
+				$values_to_contexts = $event->getValuesContexts($trigger);
+				
+				$tpl->assign('trigger', $trigger);
+				$tpl->assign('values_to_contexts', $values_to_contexts);
+			}
 		}
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/custom_fieldsets/fieldset.tpl');

@@ -18,6 +18,7 @@
 	
 	<dependencies>
 		<require plugin_id="cerberusweb.core" />
+		<require plugin_id="cerb.behaviors.legacy" />
 	</dependencies>
 	
 	<!-- Exported Classes -->

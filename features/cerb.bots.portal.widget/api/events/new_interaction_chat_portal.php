@@ -258,7 +258,7 @@ class Event_NewInteractionChatPortal extends Extension_DevblocksEvent {
 				@$behavior_id = intval($params['behavior_id']);
 				$var_key = ($params['var'] ?? null) ?: '_behavior';
 				
-				if(false == ($behavior = DAO_TriggerEvent::get($behavior_id)))
+				if(!($behavior = DAO_TriggerEvent::get($behavior_id)))
 					break;
 				
 				// Variables as parameters

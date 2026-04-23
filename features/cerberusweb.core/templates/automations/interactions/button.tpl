@@ -1,0 +1,149 @@
+<div id="bot-chat-button" class="cerb-no-print">
+	{if DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy')}
+	<div class="bot-chat-icon-badge" {if !$proactive_interactions_count}style="display:none;"{/if}><span class="glyphicons glyphicons-chat"></span></div>
+	{/if}
+	<div class="bot-chat-icon"></div>
+	<div class="bot-chat-menu"></div>
+</div>
+
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
+$(function() {
+	let $interaction_container = $('#bot-chat-button');
+	let $interaction_button = $interaction_container.find('> div.bot-chat-icon');
+	let $interaction_menu = $interaction_container.find('> div.bot-chat-menu');
+	let $interaction_badge = $interaction_container.find('> div.bot-chat-icon-badge');
+	let $menu = null;
+
+	{if DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy')}
+	$interaction_badge.click(function(e) {
+		e.stopPropagation();
+
+		Devblocks.playAudioUrl('');
+
+		genericAjaxGet(null, 'c=profiles&a=invoke&module=bot&action=getProactiveInteractions', function(json) {
+			if(false === json || undefined === json.interaction) {
+				$interaction_badge.hide();
+				$interaction_button.click();
+				
+			} else {
+				// Trigger the behavior
+				let $target = $('<a/>')
+					.attr('data-behavior-id', json.behavior_id)
+					.attr('data-interaction', json.interaction)
+					.attr('data-interaction-params', $.param(json.interaction_params))
+					;
+				
+				$target
+					.cerbBotTrigger()
+					.click()
+					;
+				
+				if(json.finished) {
+					$interaction_badge.hide();
+				}
+			}
+		});
+	});
+	{/if}
+
+	$interaction_button.on('click', function(e) {
+		e.stopPropagation();
+		
+		Devblocks.playAudioUrl('');
+		
+		if($interaction_badge.is(':visible')) {
+			$interaction_badge.click();
+			return;
+		}
+
+		if(null == $menu) {
+			Devblocks.getSpinner().css('max-width', '16px').appendTo($interaction_menu);
+			
+			genericAjaxGet($interaction_menu, 'c=profiles&a=invoke&module=automation&action=getInteractionsMenu', function(e) {
+				if(typeof e == 'object' && e.status && 200 !== e.status) {
+					$interaction_menu.html('');
+					return;
+				}
+
+				$menu = $interaction_menu.find('> ul');
+				
+				$menu
+					.menu({
+						position: { my: "right middle", at: "left middle", collision: "fit" },
+						select: function(event, ui) {
+							event.stopPropagation();
+							var $li = $(ui.item);
+							
+							if($li.is('.cerb-bot-trigger'))
+								$li.click();
+						}
+					})
+					.css('position', 'absolute')
+					.css('right', '0')
+					.css('bottom', '50px')
+				;
+				
+				$menu.find('li.cerb-bot-trigger')
+					.cerbBotTrigger({
+						'caller': {
+							'name': 'cerb.toolbar.global.menu',
+							'params': { }
+						},
+						'done': function(e) {
+							if('object' !== typeof e || !e.hasOwnProperty('eventData'))
+								return;
+							
+							let $target = e.trigger;
+
+							if(!$target.is('.cerb-bot-trigger'))
+								return;
+
+							if (e.eventData.exit === 'error') {
+
+							} else if(e.eventData.exit === 'return') {
+								Devblocks.interactionWorkerPostActions(e.eventData);
+							}
+						}
+					})
+					.on('click', function(e) {
+						e.stopPropagation();
+						$menu.menu("collapse");
+					});
+				
+				$interaction_menu.show();
+				$interaction_menu.addClass('bot-grab-menu');
+				$menu.menu('focus', null, $menu.find('.ui-menu-item:first')).focus();
+				
+				$menu.find('li.cerb-bot-trigger').on('click', function(e) {
+					e.stopPropagation();
+					$interaction_menu.removeClass('bot-grab-menu');
+					$menu.remove();
+					$menu = null;
+				});
+			});
+		
+		} else {
+			$interaction_menu.removeClass('bot-grab-menu');
+			$menu.remove();
+			$menu = null;
+		}
+	});
+	
+	{if $pref_keyboard_shortcuts}
+	$(document).keyup(function(e) {
+		if(!(222 === e.which && e.shiftKey))
+			return;
+		
+		let $target = $(e.target);
+		
+		if(!$target.is('BODY, UL.cerb-bot-interactions-menu'))
+			return;
+		
+		e.preventDefault();
+		e.stopPropagation();
+		
+		$interaction_button.click();
+	});
+	{/if}
+});
+</script>

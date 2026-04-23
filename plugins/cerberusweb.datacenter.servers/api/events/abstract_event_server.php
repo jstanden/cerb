@@ -152,11 +152,11 @@ abstract class AbstractEvent_Server extends Extension_DevblocksEvent {
 			case 'server_link':
 				$contexts = Extension_DevblocksContext::getAll(false);
 				$tpl->assign('contexts', $contexts);
-				$tpl->display('devblocks:cerberusweb.core::events/condition_link.tpl');
+				$tpl->display('devblocks:cerb.behaviors.legacy::events/condition_link.tpl');
 				break;
 				
 			case 'server_watcher_count':
-				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_number.tpl');
+				$tpl->display('devblocks:cerb.behaviors.legacy::internal/decisions/conditions/_number.tpl');
 				break;
 		}
 

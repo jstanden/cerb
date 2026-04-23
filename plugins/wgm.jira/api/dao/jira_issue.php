@@ -168,7 +168,7 @@ class DAO_JiraIssue extends Cerb_ORMHelper {
 		
 		// Load records only if they're needed
 		
-		if(false == ($before_models = CerberusContexts::getCheckpoints(Context_JiraIssue::ID, $ids)))
+		if(!($before_models = CerberusContexts::getCheckpoints(Context_JiraIssue::ID, $ids)))
 			return;
 		
 		foreach($before_models as $id => $before_model) {
@@ -184,8 +184,10 @@ class DAO_JiraIssue extends Cerb_ORMHelper {
 			if($status == $before_model->status)
 				unset($change_fields[DAO_JiraIssue::STATUS]);
 			
-			if(isset($change_fields[DAO_JiraIssue::STATUS])) {
-				Event_JiraIssueStatusChanged::trigger($id);
+			if(DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy')) {
+				if (isset($change_fields[DAO_JiraIssue::STATUS])) {
+					Event_JiraIssueStatusChanged::trigger($id);
+				}
 			}
 		}
 		
@@ -314,8 +316,10 @@ class DAO_JiraIssue extends Cerb_ORMHelper {
 			
 			$comment_id = $db->LastInsertId();
 			
-			// If we inserted, trigger 'New JIRA issue comment' event
-			Event_JiraIssueCommented::trigger($issue_id, $comment_id);
+			if(DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy')) {
+				// If we inserted, trigger 'New JIRA issue comment' event
+				Event_JiraIssueCommented::trigger($issue_id, $comment_id);
+			}
 		}
 		
 		return $comment_id;

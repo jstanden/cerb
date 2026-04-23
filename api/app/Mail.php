@@ -500,17 +500,19 @@ class CerberusMail {
 			// Changing the outgoing message through an automation (before behaviors)
 			AutomationTrigger_MailSent::trigger($message_id, priority_range:[0, 127]);
 			
-			// After message sent (global)
-			Event_MailAfterSent::trigger($message_id);
-			
-			// After message sent in group
-			Event_MailAfterSentByGroup::trigger($message_id, $group_id);
-			
-			// Mail received
-			Event_MailReceived::trigger($message_id);
-			
-			// Mail received by group
-			Event_MailReceivedByGroup::trigger($message_id, $group_id);
+			if(DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy')) {
+				// After message sent (global)
+				Event_MailAfterSent::trigger($message_id);
+				
+				// After message sent in group
+				Event_MailAfterSentByGroup::trigger($message_id, $group_id);
+				
+				// Mail received
+				Event_MailReceived::trigger($message_id);
+				
+				// Mail received by group
+				Event_MailReceivedByGroup::trigger($message_id, $group_id);
+			}
 			
 			// Changing the outgoing message through an automation (after behaviors)
 			AutomationTrigger_MailSent::trigger($message_id, priority_range:[128, 255]);
@@ -545,12 +547,16 @@ class CerberusMail {
 		
 		$ticket = $email_model->getTicket();
 		
-		// Modify with behaviors
-		$runners = $email_model->triggerReplyBehaviors(
-			$email_model->getProperty('message_id'),
-			$ticket->id,
-			$email_model->getProperty('group_id') ?? $ticket->group_id
-		);
+		$runners = [];
+		
+		if(DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy')) {
+			// Modify with behaviors
+			$runners = $email_model->triggerReplyBehaviors(
+				$email_model->getProperty('message_id'),
+				$ticket->id,
+				$email_model->getProperty('group_id') ?? $ticket->group_id
+			);
+		}
 		
 		$hash_commands = [];
 		
@@ -769,28 +775,30 @@ class CerberusMail {
 			// Changing the outgoing message through an automation (before behaviors)
 			AutomationTrigger_MailSent::trigger($new_message_id, priority_range:[0, 127]);
 			
-			// After message sent (global)
-			Event_MailAfterSent::trigger($new_message_id);
-			
-			// After message sent in group
-			Event_MailAfterSentByGroup::trigger($new_message_id, $ticket->group_id);
-			
-			// Mail received
-			Event_MailReceived::trigger($new_message_id);
-			
-			// New message for group
-			Event_MailReceivedByGroup::trigger($new_message_id, $ticket->group_id);
-
-			// Watchers
-			$context_watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_TICKET, $ticket->id);
-			
-			// Include the owner
-			if(!empty($ticket->owner_id) && !isset($context_watchers[$ticket->owner_id]))
-				$context_watchers[$ticket->owner_id] = true;
-
-			if(is_array($context_watchers)) {
-				foreach (array_unique(array_keys($context_watchers)) as $watcher_id) {
-					Event_MailReceivedByWatcher::trigger($new_message_id, $watcher_id);
+			if(DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy')) {
+				// After message sent (global)
+				Event_MailAfterSent::trigger($new_message_id);
+				
+				// After message sent in group
+				Event_MailAfterSentByGroup::trigger($new_message_id, $ticket->group_id);
+				
+				// Mail received
+				Event_MailReceived::trigger($new_message_id);
+				
+				// New message for group
+				Event_MailReceivedByGroup::trigger($new_message_id, $ticket->group_id);
+				
+				// Watchers
+				$context_watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_TICKET, $ticket->id);
+				
+				// Include the owner
+				if (!empty($ticket->owner_id) && !isset($context_watchers[$ticket->owner_id]))
+					$context_watchers[$ticket->owner_id] = true;
+				
+				if (is_array($context_watchers)) {
+					foreach (array_unique(array_keys($context_watchers)) as $watcher_id) {
+						Event_MailReceivedByWatcher::trigger($new_message_id, $watcher_id);
+					}
 				}
 			}
 			

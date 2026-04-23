@@ -655,10 +655,6 @@ class DAO_Group extends Cerb_ORMHelper {
 		// Custom Fields
 		C4_AbstractView::_doBulkSetCustomFields(CerberusContexts::CONTEXT_GROUP, $custom_fields, $ids);
 		
-		// Scheduled behavior
-		if(isset($do['behavior']))
-			C4_AbstractView::_doBulkScheduleBehavior(CerberusContexts::CONTEXT_GROUP, $do['behavior'], $ids);
-		
 		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_GROUP, $ids);
 		
 		return true;

@@ -241,12 +241,12 @@ abstract class AbstractEvent_JiraIssue extends Extension_DevblocksEvent {
 			case 'issue_project_link':
 				$contexts = Extension_DevblocksContext::getAll(false);
 				$tpl->assign('contexts', $contexts);
-				$tpl->display('devblocks:cerberusweb.core::events/condition_link.tpl');
+				$tpl->display('devblocks:cerb.behaviors.legacy::events/condition_link.tpl');
 				break;
 				
 			case 'issue_watcher_count':
 			case 'issue_project_watcher_count':
-				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_number.tpl');
+				$tpl->display('devblocks:cerb.behaviors.legacy::internal/decisions/conditions/_number.tpl');
 				break;
 		}
 

@@ -1157,6 +1157,25 @@ abstract class C4_AbstractView {
 		echo ' '; // Expect Override
 	}
 	
+	function renderPostViewHooks() : void {
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$view_context = $this->getContext();
+		
+		$va_actions = [];
+		$va_behaviors = [];
+		Event_UiWorklistRenderByWorker::triggerForWorker($active_worker, $view_context, $this->id, $va_actions, $va_behaviors);
+		
+		if(!$va_actions && !$va_behaviors)
+			return;
+		
+		$tpl->assign('va_actions', $va_actions);
+		$tpl->assign('va_behaviors', $va_behaviors);
+		$tpl->assign('view', $this);
+		$tpl->display('devblocks:cerberusweb.core::internal/views/view_post_render_hooks.tpl');
+	}
+	
 	protected function _renderCriteriaParamString($param, $label_map) {
 		$strings = [];
 		
@@ -3900,30 +3919,6 @@ abstract class C4_AbstractView {
 				}
 			}
 		}
-	}
-	
-	public static function _doBulkScheduleBehavior($context, array $params, array $ids) {
-		if(!isset($params) || !is_array($params))
-			return false;
-			
-		$behavior_id = $params['id'] ?? null;
-		@$behavior_when = strtotime($params['when']) or time();
-		@$behavior_params = isset($params['params']) ? $params['params'] : [];
-		
-		if(empty($behavior_id))
-			return false;
-		
-		foreach($ids as $batch_id) {
-			DAO_ContextScheduledBehavior::create(array(
-				DAO_ContextScheduledBehavior::BEHAVIOR_ID => $behavior_id,
-				DAO_ContextScheduledBehavior::CONTEXT => $context,
-				DAO_ContextScheduledBehavior::CONTEXT_ID => $batch_id,
-				DAO_ContextScheduledBehavior::RUN_DATE => $behavior_when,
-				DAO_ContextScheduledBehavior::VARIABLES_JSON => json_encode($behavior_params),
-			));
-		}
-		
-		return true;
 	}
 	
 	public static function _doBulkChangeWatchers($context, array $params, array $ids) {

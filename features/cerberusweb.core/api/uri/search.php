@@ -176,6 +176,6 @@ class Page_Search extends CerberusPageExtension {
 		$search_menu = Toolbar_GlobalSearch::getSearchMenu();
 		$tpl->assign('interactions_menu', $search_menu);
 		
-		$tpl->display('devblocks:cerberusweb.core::console/bot_interactions_menu.tpl');
+		$tpl->display('devblocks:cerberusweb.core::automations/interactions/menu.tpl');
 	}
 };

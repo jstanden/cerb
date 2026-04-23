@@ -21,7 +21,7 @@ class Event_NewMessageChatPortal extends Extension_DevblocksEvent {
 	function renderEventParams(Model_TriggerEvent $trigger=null) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('trigger', $trigger);
-		$tpl->display('devblocks:cerberusweb.core::events/record/params_macro_default.tpl');
+		$tpl->display('devblocks:cerb.behaviors.legacy::events/record/params_macro_default.tpl');
 	}
 	
 	/**
@@ -500,31 +500,31 @@ class Event_NewMessageChatPortal extends Extension_DevblocksEvent {
 			
 		switch($token) {
 			case 'prompt_buttons':
-				$tpl->display('devblocks:cerberusweb.core::events/pm/action_prompt_buttons.tpl');
+				$tpl->display('devblocks:cerb.behaviors.legacy::events/pm/action_prompt_buttons.tpl');
 				break;
 				
 			case 'prompt_images':
-				$tpl->display('devblocks:cerberusweb.core::events/pm/action_prompt_images.tpl');
+				$tpl->display('devblocks:cerb.behaviors.legacy::events/pm/action_prompt_images.tpl');
 				break;
 			
 			case 'prompt_rating_number':
-				$tpl->display('devblocks:cerberusweb.core::events/pm/action_prompt_rating_number.tpl');
+				$tpl->display('devblocks:cerb.behaviors.legacy::events/pm/action_prompt_rating_number.tpl');
 				break;
 				
 			case 'prompt_text':
-				$tpl->display('devblocks:cerberusweb.core::events/pm/action_prompt_text.tpl');
+				$tpl->display('devblocks:cerb.behaviors.legacy::events/pm/action_prompt_text.tpl');
 				break;
 				
 			case 'prompt_wait':
-				$tpl->display('devblocks:cerberusweb.core::events/pm/action_prompt_wait.tpl');
+				$tpl->display('devblocks:cerb.behaviors.legacy::events/pm/action_prompt_wait.tpl');
 				break;
 				
 			case 'send_message':
-				$tpl->display('devblocks:cerberusweb.core::events/pm/action_send_response.tpl');
+				$tpl->display('devblocks:cerb.behaviors.legacy::events/pm/action_send_response.tpl');
 				break;
 				
 			case 'send_script':
-				$tpl->display('devblocks:cerberusweb.core::events/pm/action_send_script.tpl');
+				$tpl->display('devblocks:cerb.behaviors.legacy::events/pm/action_send_script.tpl');
 				break;
 				
 			case 'switch_behavior':

@@ -722,50 +722,60 @@ class Cerb_Packages {
 		
 		$bots = $json['bots'] ?? [];
 		
-		if(is_array($bots))
-		foreach($bots as $bot) {
-			$uid = $bot['uid'];
+		if(DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy')) {
+			if (is_array($bots))
+				foreach ($bots as $bot) {
+					$uid = $bot['uid'];
+					
+					$bot_id = DAO_Bot::create([
+						DAO_Bot::NAME => $bot['name'],
+						DAO_Bot::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
+						DAO_Bot::OWNER_CONTEXT_ID => 0,
+					]);
+					
+					$uids[$uid] = $bot_id;
+					
+					$behaviors = $bot['behaviors'] ?? null;
+					
+					if (is_array($behaviors))
+						foreach ($behaviors as $behavior) {
+							$uid = $behavior['uid'];
+							
+							$behavior_id = DAO_TriggerEvent::create([
+								DAO_TriggerEvent::TITLE => $behavior['title'],
+								DAO_TriggerEvent::BOT_ID => $bot_id,
+							]);
+							
+							$uids[$uid] = $behavior_id;
+						}
+				}
 			
-			$bot_id = DAO_Bot::create([
-				DAO_Bot::NAME => $bot['name'],
-				DAO_Bot::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
-				DAO_Bot::OWNER_CONTEXT_ID => 0,
-			]);
-			
-			$uids[$uid] = $bot_id;
-			
-			$behaviors = $bot['behaviors'] ?? null;
-			
-			if(is_array($behaviors))
-			foreach($behaviors as $behavior) {
-				$uid = $behavior['uid'];
-				
-				$behavior_id = DAO_TriggerEvent::create([
-					DAO_TriggerEvent::TITLE => $behavior['title'],
-					DAO_TriggerEvent::BOT_ID => $bot_id,
-				]);
-				
-				$uids[$uid] = $behavior_id;
-			}
+		} elseif($bots) {
+			throw new Exception_DevblocksValidationError('Package includes bots and the legacy behaviors plugin is disabled');
 		}
 		
 		$behaviors = $json['behaviors'] ?? [];
 		
-		if(is_array($behaviors))
-		foreach($behaviors as $behavior) {
-			$uid = $behavior['uid'] ?? null;
-			$bot_id = $behavior['bot_id'] ?? 0;
+		if(DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy')) {
+			if (is_array($behaviors))
+				foreach ($behaviors as $behavior) {
+					$uid = $behavior['uid'] ?? null;
+					$bot_id = $behavior['bot_id'] ?? 0;
+					
+					// If the bot_id is a placeholder
+					if (preg_match('#\{\{[\#\%\{]#', $bot_id))
+						$behavior['bot_id'] = $tpl_builder->build($bot_id, $placeholders, $lexer);
+					
+					$behavior_id = DAO_TriggerEvent::create([
+						DAO_TriggerEvent::TITLE => $behavior['title'],
+						DAO_TriggerEvent::BOT_ID => $behavior['bot_id'],
+					]);
+					
+					$uids[$uid] = $behavior_id;
+				}
 			
-			// If the bot_id is a placeholder
-			if(preg_match('#\{\{[\#\%\{]#', $bot_id))
-				$behavior['bot_id'] = $tpl_builder->build($bot_id, $placeholders, $lexer);
-			
-			$behavior_id = DAO_TriggerEvent::create([
-				DAO_TriggerEvent::TITLE => $behavior['title'],
-				DAO_TriggerEvent::BOT_ID => $behavior['bot_id'],
-			]);
-			
-			$uids[$uid] = $behavior_id;
+		} elseif ($behaviors) {
+			throw new Exception_DevblocksValidationError('Package includes behaviors and the legacy behaviors plugin is disabled');
 		}
 		
 		$workspaces = $json['workspaces'] ?? [];
@@ -1150,181 +1160,201 @@ class Cerb_Packages {
 		
 		$bots = $json['bots'] ?? [];
 		
-		if(is_array($bots))
-		foreach($bots as $bot) {
-			$uid = $bot['uid'];
-			$id = $uids[$uid];
+		if(DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy')) {
+			if (is_array($bots))
+				foreach ($bots as $bot) {
+					$uid = $bot['uid'];
+					$id = $uids[$uid];
+					
+					$owner_context = @$bot['owner']['context'] ?: CerberusContexts::CONTEXT_APPLICATION;
+					$owner_context_id = @$bot['owner']['id'] ?: 0;
+					
+					DAO_Bot::update($id, [
+						DAO_Bot::NAME => $bot['name'],
+						DAO_Bot::OWNER_CONTEXT => $owner_context,
+						DAO_Bot::OWNER_CONTEXT_ID => $owner_context_id,
+						DAO_Bot::IS_DISABLED => @$bot['is_disabled'] ? 1 : 0,
+						DAO_Bot::CREATED_AT => time(),
+						DAO_Bot::UPDATED_AT => time(),
+						DAO_Bot::PARAMS_JSON => json_encode($bot['params']),
+					]);
+					
+					if (!isset($records_created[CerberusContexts::CONTEXT_BOT]))
+						$records_created[CerberusContexts::CONTEXT_BOT] = [];
+					
+					$records_created[CerberusContexts::CONTEXT_BOT][$uid] = [
+						'id' => $id,
+						'label' => $bot['name'],
+					];
+					
+					// Image
+					
+					if (isset($bot['image']) && !empty($bot['image'])) {
+						DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_BOT, $id, $bot['image']);
+					}
+				}
 			
-			$owner_context = @$bot['owner']['context'] ?: CerberusContexts::CONTEXT_APPLICATION;
-			$owner_context_id = @$bot['owner']['id'] ?: 0;
+		} elseif($bots) {
+			throw new Exception_DevblocksValidationError('Package includes bots and the legacy behaviors plugin is disabled');
+		}
 			
-			DAO_Bot::update($id, [
-				DAO_Bot::NAME => $bot['name'],
-				DAO_Bot::OWNER_CONTEXT => $owner_context,
-				DAO_Bot::OWNER_CONTEXT_ID => $owner_context_id,
-				DAO_Bot::IS_DISABLED => @$bot['is_disabled'] ? 1 : 0,
-				DAO_Bot::CREATED_AT => time(),
-				DAO_Bot::UPDATED_AT => time(),
-				DAO_Bot::PARAMS_JSON => json_encode($bot['params']),
-			]);
+		// Behaviors
+		
+		$behaviors = $bot['behaviors'] ?? [];
+		
+		if(DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy')) {
+			if (is_array($behaviors))
+				foreach ($behaviors as $behavior) {
+					$uid = $behavior['uid'] ?? null;
+					$id = $uids[$uid];
+					
+					$event_params = $behavior['event']['params'] ?? [];
+					$error = null;
+					
+					if (($event = Extension_DevblocksEvent::get($behavior['event']['key'] ?? null, true)))
+						$event->prepareEventParams(null, $event_params, $error);
+					
+					$fields_behavior = [
+						DAO_TriggerEvent::EVENT_POINT => $behavior['event']['key'],
+						DAO_TriggerEvent::EVENT_PARAMS_JSON => json_encode($event_params),
+						DAO_TriggerEvent::IS_DISABLED => 1, // until successfully imported
+						DAO_TriggerEvent::IS_PRIVATE => @$behavior['is_private'] ? 1 : 0,
+						DAO_TriggerEvent::PRIORITY => @$behavior['priority'],
+						DAO_TriggerEvent::TITLE => $behavior['title'],
+						DAO_TriggerEvent::UPDATED_AT => time(),
+						DAO_TriggerEvent::VARIABLES_JSON => isset($behavior['variables']) ? json_encode($behavior['variables']) : '',
+					];
+					
+					if (array_key_exists('uri', $behavior) && $behavior['uri'])
+						$fields_behavior[DAO_TriggerEvent::URI] = $behavior['uri'];
+					
+					DAO_TriggerEvent::update($id, $fields_behavior);
+					
+					// Create records for all child nodes and link them to the proper parents
+					
+					if (isset($behavior['nodes']) && !empty($behavior['nodes']))
+						if (!DAO_TriggerEvent::recursiveImportDecisionNodes($behavior['nodes'], $id, 0))
+							throw new Exception_DevblocksValidationError('Failed to import behavior nodes');
+					
+					// Enable the new behavior since we've succeeded
+					
+					DAO_TriggerEvent::update($id, array(
+						DAO_TriggerEvent::IS_DISABLED => @$behavior['is_disabled'] ? 1 : 0,
+					));
+					
+					if (!isset($records_created[CerberusContexts::CONTEXT_BEHAVIOR]))
+						$records_created[CerberusContexts::CONTEXT_BEHAVIOR] = [];
+					
+					$records_created[CerberusContexts::CONTEXT_BEHAVIOR][$uid] = [
+						'id' => $id,
+						'label' => $behavior['title'],
+					];
+				}
 			
-			if(!isset($records_created[CerberusContexts::CONTEXT_BOT]))
-				$records_created[CerberusContexts::CONTEXT_BOT] = [];
-			
-			$records_created[CerberusContexts::CONTEXT_BOT][$uid] = [
-				'id' => $id,
-				'label' => $bot['name'],
-			];
-			
-			// Image
-			
-			if(isset($bot['image']) && !empty($bot['image'])) {
-				DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_BOT, $id, $bot['image']);
-			}
-			
-			// Behaviors
-			
-			$behaviors = $bot['behaviors'];
-			
-			if(is_array($behaviors))
-			foreach($behaviors as $behavior) {
-				$uid = $behavior['uid'];
-				$id = $uids[$uid];
-				
-				@$event_params = isset($behavior['event']['params']) ? $behavior['event']['params'] : '';
-				$error = null;
-
-				if(false != (@$event = Extension_DevblocksEvent::get($behavior['event']['key'], true)))
-					$event->prepareEventParams(null, $event_params, $error);
-				
-				$fields_behavior = [
-					DAO_TriggerEvent::EVENT_POINT => $behavior['event']['key'],
-					DAO_TriggerEvent::EVENT_PARAMS_JSON => json_encode($event_params),
-					DAO_TriggerEvent::IS_DISABLED => 1, // until successfully imported
-					DAO_TriggerEvent::IS_PRIVATE => @$behavior['is_private'] ? 1 : 0,
-					DAO_TriggerEvent::PRIORITY => @$behavior['priority'],
-					DAO_TriggerEvent::TITLE => $behavior['title'],
-					DAO_TriggerEvent::UPDATED_AT => time(),
-					DAO_TriggerEvent::VARIABLES_JSON => isset($behavior['variables']) ? json_encode($behavior['variables']) : '',
-				];
-				
-				if(array_key_exists('uri', $behavior) && $behavior['uri'])
-					$fields_behavior[DAO_TriggerEvent::URI] = $behavior['uri'];
-				
-				DAO_TriggerEvent::update($id, $fields_behavior);
-				
-				// Create records for all child nodes and link them to the proper parents
-				
-				if(isset($behavior['nodes']) && !empty($behavior['nodes']))
-				if(!DAO_TriggerEvent::recursiveImportDecisionNodes($behavior['nodes'], $id, 0))
-					throw new Exception_DevblocksValidationError('Failed to import behavior nodes');
-				
-				// Enable the new behavior since we've succeeded
-				
-				DAO_TriggerEvent::update($id, array(
-					DAO_TriggerEvent::IS_DISABLED => @$behavior['is_disabled'] ? 1 : 0,
-				));
-				
-				if(!isset($records_created[CerberusContexts::CONTEXT_BEHAVIOR]))
-					$records_created[CerberusContexts::CONTEXT_BEHAVIOR] = [];
-				
-				$records_created[CerberusContexts::CONTEXT_BEHAVIOR][$uid] = [
-					'id' => $id,
-					'label' => $behavior['title'],
-				];
-			}
+		} elseif ($behaviors) {
+			throw new Exception_DevblocksValidationError('Package includes behaviors and the legacy behaviors plugin is disabled');
 		}
 		
 		$behaviors = $json['behaviors'] ?? [];
 		
-		if(is_array($behaviors))
-		foreach($behaviors as $behavior) {
-			$uid = $behavior['uid'];
-			$id = $uids[$uid];
+		if(DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy')) {
+			if (is_array($behaviors))
+				foreach ($behaviors as $behavior) {
+					$uid = $behavior['uid'];
+					$id = $uids[$uid];
+					
+					$event_params = $behavior['event']['params'] ?? [];
+					$error = null;
+					
+					if (($event = Extension_DevblocksEvent::get($behavior['event']['key'] ?? null, true)))
+						$event->prepareEventParams(null, $event_params, $error);
+					
+					DAO_TriggerEvent::update($id, [
+						DAO_TriggerEvent::EVENT_POINT => $behavior['event']['key'],
+						DAO_TriggerEvent::EVENT_PARAMS_JSON => json_encode($event_params),
+						DAO_TriggerEvent::IS_DISABLED => 1, // until successfully imported
+						DAO_TriggerEvent::IS_PRIVATE => @$behavior['is_private'] ? 1 : 0,
+						DAO_TriggerEvent::PRIORITY => @$behavior['priority'],
+						DAO_TriggerEvent::TITLE => $behavior['title'],
+						DAO_TriggerEvent::UPDATED_AT => time(),
+						DAO_TriggerEvent::VARIABLES_JSON => isset($behavior['variables']) ? json_encode($behavior['variables']) : '',
+					]);
+					
+					// Create records for all child nodes and link them to the proper parents
+					
+					if (isset($behavior['nodes']) && !empty($behavior['nodes']))
+						if (!DAO_TriggerEvent::recursiveImportDecisionNodes($behavior['nodes'], $id, 0))
+							throw new Exception_DevblocksValidationError('Failed to import behavior nodes');
+					
+					// Enable the new behavior since we've succeeded
+					
+					DAO_TriggerEvent::update($id, array(
+						DAO_TriggerEvent::IS_DISABLED => @$behavior['is_disabled'] ? 1 : 0,
+					));
+					
+					if (!isset($records_created[CerberusContexts::CONTEXT_BEHAVIOR]))
+						$records_created[CerberusContexts::CONTEXT_BEHAVIOR] = [];
+					
+					$records_created[CerberusContexts::CONTEXT_BEHAVIOR][$uid] = [
+						'id' => $id,
+						'label' => $behavior['title'],
+					];
+				}
 			
-			$event_params = $behavior['event']['params'] ?? '';
-			$error = null;
-
-			if(($event = Extension_DevblocksEvent::get($behavior['event']['key'] ?? null, true)))
-				$event->prepareEventParams(null, $event_params, $error);
-			
-			DAO_TriggerEvent::update($id, [
-				DAO_TriggerEvent::EVENT_POINT => $behavior['event']['key'],
-				DAO_TriggerEvent::EVENT_PARAMS_JSON => json_encode($event_params),
-				DAO_TriggerEvent::IS_DISABLED => 1, // until successfully imported
-				DAO_TriggerEvent::IS_PRIVATE => @$behavior['is_private'] ? 1 : 0,
-				DAO_TriggerEvent::PRIORITY => @$behavior['priority'],
-				DAO_TriggerEvent::TITLE => $behavior['title'],
-				DAO_TriggerEvent::UPDATED_AT => time(),
-				DAO_TriggerEvent::VARIABLES_JSON => isset($behavior['variables']) ? json_encode($behavior['variables']) : '',
-			]);
-			
-			// Create records for all child nodes and link them to the proper parents
-			
-			if(isset($behavior['nodes']) && !empty($behavior['nodes']))
-			if(!DAO_TriggerEvent::recursiveImportDecisionNodes($behavior['nodes'], $id, 0))
-				throw new Exception_DevblocksValidationError('Failed to import behavior nodes');
-			
-			// Enable the new behavior since we've succeeded
-			
-			DAO_TriggerEvent::update($id, array(
-				DAO_TriggerEvent::IS_DISABLED => @$behavior['is_disabled'] ? 1 : 0,
-			));
-			
-			if(!isset($records_created[CerberusContexts::CONTEXT_BEHAVIOR]))
-				$records_created[CerberusContexts::CONTEXT_BEHAVIOR] = [];
-			
-			$records_created[CerberusContexts::CONTEXT_BEHAVIOR][$uid] = [
-				'id' => $id,
-				'label' => $behavior['title'],
-			];
+		} elseif($behaviors) {
+			throw new Exception_DevblocksValidationError('Package includes behaviors and the legacy behaviors plugin is disabled');
 		}
 		
 		$behavior_nodes = $json['behavior_nodes'] ?? [];
 		
-		if(is_array($behavior_nodes))
-		foreach($behavior_nodes as $behavior_node) {
-			$uid = $behavior_node['uid'];
+		if(DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy')) {
+			if (is_array($behavior_nodes))
+				foreach ($behavior_nodes as $behavior_node) {
+					$uid = $behavior_node['uid'];
+					
+					$error = null;
+					
+					$behavior_id = @$behavior_node['behavior_id'];
+					$parent_id = @$behavior_node['parent_id'] ?: 0;
+					
+					unset($behavior_node['behavior_id']);
+					unset($behavior_node['parent_id']);
+					
+					$pos = 0;
+					
+					if ($parent_id) {
+						// If we have a parent, count its children and append
+						$pos = count(DAO_DecisionNode::getByTriggerParent($behavior_id, $parent_id));
+						
+					} else {
+						// Otherwise, count the behavior's children and append
+						$pos = count(DAO_DecisionNode::getByTriggerParent($behavior_id));
+					}
+					
+					if (!($node = DAO_TriggerEvent::recursiveImportDecisionNodes([$behavior_node], $behavior_id, $parent_id, $pos)))
+						throw new Exception_DevblocksValidationError('Failed to import behavior nodes');
+					
+					if (!isset($records_created[CerberusContexts::CONTEXT_BEHAVIOR_NODE]))
+						$records_created[CerberusContexts::CONTEXT_BEHAVIOR_NODE] = [];
+					
+					$records_created[CerberusContexts::CONTEXT_BEHAVIOR_NODE][$uid] = [
+						'id' => $node['id'],
+						'label' => $behavior_node['title'],
+						'behavior_id' => $behavior_id,
+						'parent_id' => $parent_id,
+						'type' => $node['type'],
+					];
+				}
 			
-			$error = null;
-
-			$behavior_id = @$behavior_node['behavior_id'];
-			$parent_id = @$behavior_node['parent_id'] ?: 0;
-			
-			unset($behavior_node['behavior_id']);
-			unset($behavior_node['parent_id']);
-			
-			$pos = 0;
-			
-			if($parent_id) {
-				// If we have a parent, count its children and append
-				$pos = count(DAO_DecisionNode::getByTriggerParent($behavior_id, $parent_id));
-				
-			} else {
-				// Otherwise, count the behavior's children and append
-				$pos = count(DAO_DecisionNode::getByTriggerParent($behavior_id));
-			}
-			
-			if(!($node = DAO_TriggerEvent::recursiveImportDecisionNodes([$behavior_node], $behavior_id, $parent_id, $pos)))
-				throw new Exception_DevblocksValidationError('Failed to import behavior nodes');
-			
-			if(!isset($records_created[CerberusContexts::CONTEXT_BEHAVIOR_NODE]))
-				$records_created[CerberusContexts::CONTEXT_BEHAVIOR_NODE] = [];
-			
-			$records_created[CerberusContexts::CONTEXT_BEHAVIOR_NODE][$uid] = [
-				'id' => $node['id'],
-				'label' => $behavior_node['title'],
-				'behavior_id' => $behavior_id,
-				'parent_id' => $parent_id,
-				'type' => $node['type'],
-			];
+		} elseif ($behavior_nodes) {
+			throw new Exception_DevblocksValidationError('Package includes behavior nodes and the legacy behaviors plugin is disabled');
 		}
 		
 		$workspaces = $json['workspaces'] ?? [];
 		
 		if(is_array($workspaces))
 		foreach($workspaces as $workspace) {
-			$uid = $workspace['uid'];
+			$uid = $workspace['uid'] ?? null;
 			$id = $uids[$uid];
 			
 			DAO_WorkspacePage::update($id, [
@@ -1473,7 +1503,6 @@ class Cerb_Packages {
 		
 		if(($plugin = DevblocksPlatform::getPlugin('cerb.classifiers')) && $plugin->enabled) {
 			$classifiers = $json['classifiers'] ?? [];
-			$bayes = DevblocksPlatform::services()->bayesClassifier();
 			
 			if(is_array($classifiers))
 			foreach($classifiers as $classifier) {

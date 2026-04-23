@@ -3,7 +3,7 @@ class _DevblocksDataProviderBotBehavior extends _DevblocksDataProvider {
 	function getSuggestions($type, array $params=[]) {
 		$behavior_uri = substr($type, 9);
 		
-		if(false == ($behavior = Event_DataQueryDatasource::getByAlias($behavior_uri)))
+		if(!($behavior = Event_DataQueryDatasource::getByAlias($behavior_uri)))
 			return [];
 		
 		$schema = [
@@ -35,7 +35,7 @@ class _DevblocksDataProviderBotBehavior extends _DevblocksDataProvider {
 	function getData($query, $chart_fields, &$error=null, array $options=[]) {
 		$behavior_alias = $options['behavior_alias'] ?? null;
 		
-		if(false == ($data_behavior = Event_DataQueryDatasource::getByAlias($behavior_alias))) {
+		if(!($data_behavior = Event_DataQueryDatasource::getByAlias($behavior_alias))) {
 			$error = "A bot behavior isn't configured.";
 			return false;
 		}

@@ -10,7 +10,7 @@
 </fieldset>
 {/if}
 
-{include file="devblocks:cerberusweb.core::internal/decisions/actions/_shared_add_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_SERVER field_wrapper="{$namePrefix}"}
+{include file="devblocks:cerb.behaviors.legacy::internal/decisions/actions/_shared_add_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_SERVER field_wrapper="{$namePrefix}"}
 
 <b>{'common.comment'|devblocks_translate|capitalize}:</b>
 <div style="margin-left:10px;margin-bottom:0.5em;">
@@ -19,7 +19,7 @@
 
 <b>{'common.notify_workers'|devblocks_translate|capitalize}: (deprecated)</b>
 <div style="margin-left:10px;margin-bottom:0.5em;">
-	{include file="devblocks:cerberusweb.core::internal/decisions/actions/_shared_var_worker_picker.tpl" param_name="notify_worker_id" values_to_contexts=$values_to_contexts}
+	{include file="devblocks:cerb.behaviors.legacy::internal/decisions/actions/_shared_var_worker_picker.tpl" param_name="notify_worker_id" values_to_contexts=$values_to_contexts}
 </div>
 
 <b>Also create records in simulator mode:</b>

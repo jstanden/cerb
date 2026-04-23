@@ -5298,7 +5298,7 @@ var ajax = new cAjaxCalls();
 						var formData = new FormData();
 						formData.set('c', 'profiles');
 						formData.set('a', 'invoke');
-						formData.set('module', 'bot');
+						formData.set('module', 'automation');
 						formData.set('action', 'startInteraction');
 
 						formData.set('interaction', interaction);

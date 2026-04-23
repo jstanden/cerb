@@ -86,9 +86,11 @@
 {include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=$page_context context_id=$page_context_id}
 </div>
 
+{if DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy')}
 <div>
-{include file="devblocks:cerberusweb.core::internal/macros/behavior/scheduled_behavior_profile.tpl" context=$page_context context_id=$page_context_id}
+{include file="devblocks:cerb.behaviors.legacy::internal/macros/behavior/scheduled_behavior_profile.tpl" context=$page_context context_id=$page_context_id}
 </div>
+{/if}
 
 <div style="clear:both;" id="{$tabset_id}">
 	<ul>
