@@ -1057,6 +1057,15 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		return $class;
 	}
 	
+	function getModelClass() {
+		$class = str_replace('Context_','Model_', get_called_class());
+		
+		if(!class_exists($class))
+			return false;
+		
+		return $class;
+	}
+	
 	/*
 	 * @return DevblocksSearchFields
 	 */
