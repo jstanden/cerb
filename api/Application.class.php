@@ -941,6 +941,17 @@ class CerberusApplication extends DevblocksApplication {
 		return $file_ids;
 	}
 	
+	public static function serviceTokenHasScope(string $scope, array $scopes) : bool {
+		// If this is a nested scope, check the parent first
+		if(str_contains($scope, ':')) {
+			$parent_scope = DevblocksPlatform::services()->string()->strBefore($scope, ':');
+			if(in_array($parent_scope, $scopes))
+				return true;
+		}
+		
+		return in_array($scope, $scopes);
+	}
+	
 	public static function isRequestAuthorized(string $scope, bool $allow_client_ips=true) : string|false {
 		$settings = DevblocksPlatform::services()->pluginSettings();
 		
@@ -984,8 +995,10 @@ class CerberusApplication extends DevblocksApplication {
 				&& defined('APP_SERVICE_TOKEN_SCOPE')
 				&& is_string(APP_SERVICE_TOKEN_SCOPE)
 				&& APP_SERVICE_TOKEN_SCOPE
-				&& in_array($scope, array_filter(explode(' ', APP_SERVICE_TOKEN_SCOPE)))
-			) return 'access_token';
+			) {
+				if(CerberusApplication::serviceTokenHasScope($scope, explode(' ', APP_SERVICE_TOKEN_SCOPE)))
+					return 'access_token';
+			}
 			
 			if(
 				class_exists('DAO_ServiceToken')

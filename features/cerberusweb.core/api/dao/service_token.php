@@ -441,14 +441,7 @@ class Model_ServiceToken extends DevblocksRecordModel {
 	public int $updated_at = 0;
 	
 	public function hasScope(string $scope) : bool {
-		// If this is a nested scope, check the parent first
-		if(str_contains($scope, ':')) {
-			$parent_scope = DevblocksPlatform::services()->string()->strBefore($scope, ':');
-			if(in_array($parent_scope, $this->scopes))
-				return true;
-		}
-		
-		return in_array($scope, $this->scopes);
+		return CerberusApplication::serviceTokenHasScope($scope, $this->scopes);
 	}
 	
 	public function isExpired() : bool {
