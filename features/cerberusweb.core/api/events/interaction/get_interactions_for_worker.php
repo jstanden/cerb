@@ -271,6 +271,7 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 		
 		$contexts = Extension_DevblocksContext::getAll(false);
 		
+		/* @var $contexts DevblocksExtensionManifest[] */
 		foreach($contexts as $context) {
 			$points['record:'. $context->id] = 'Record:' . $context->name;
 		}

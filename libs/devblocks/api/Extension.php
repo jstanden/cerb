@@ -680,12 +680,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		return $owners;
 	}
 	
-	/**
-	 * @internal
-	 * @deprecated 
-	 */
 	static function getPlaceholderTree($labels, $label_separator=' ', $key_separator=' ', $condense=true, $with_custom_uris=true) {
-		// [TODO] Cache until records are edited
 		natcasesort($labels);
 		$custom_fields = DAO_CustomField::getAll();
 		

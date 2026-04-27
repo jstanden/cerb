@@ -206,7 +206,7 @@ $(function() {
 
 									// [TODO] This could use the `return:search:` interaction key now
 									if(e.eventData.hasOwnProperty('return') && e.eventData.return.hasOwnProperty('record_type')) {
-										var search_context = e.eventData.return.record_type;
+										const search_context = e.eventData.return.record_type;
 										genericAjaxPopup('search' + Devblocks.uniqueId(),'c=search&a=openSearchPopup&context=' + encodeURIComponent(search_context) + '&q=*&qr=', null, false, '90%');
 									}
 								}

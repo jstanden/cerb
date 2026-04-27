@@ -338,7 +338,7 @@ class DAO_Task extends Cerb_ORMHelper {
 			
 			// [TODO] We can merge this with 'Record changed'
 			
-			@$status_id = $change_fields[DAO_Task::STATUS_ID];
+			$status_id = $change_fields[DAO_Task::STATUS_ID] ?? null;
 			
 			if($status_id == $before_model->status_id)
 				unset($change_fields[DAO_Task::STATUS_ID]);

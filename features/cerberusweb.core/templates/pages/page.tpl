@@ -48,7 +48,7 @@
 </form>
 
 <div style="margin-top:5px;">
-	{if $page_extension instanceof Extension_WorkspacePage}
+	{if is_a($page_extension, 'Extension_WorkspacePage')}
 		{$page_extension->renderPage($page)}
 	{/if}
 </div>

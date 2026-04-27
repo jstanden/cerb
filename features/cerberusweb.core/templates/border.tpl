@@ -44,16 +44,18 @@
 {/if}
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
-$(function(e) {
+$(function() {
 	{if !empty($visit) && $visit->isImposter()}
 	$('#aImposter').click(function(e) {
-		var formData = new FormData();
+		e.stopPropagation();
+
+		let formData = new FormData();
 		formData.set('c', 'profiles');
 		formData.set('a', 'invoke');
 		formData.set('module', 'worker');
 		formData.set('action', 'suRevert');
 
-		genericAjaxPost(formData,'', '', function(o) {
+		genericAjaxPost(formData,'', '', function() {
 			window.location.reload();
 		});
 	});

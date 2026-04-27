@@ -130,7 +130,7 @@ $(function() {
 		if(!(222 === e.which && e.shiftKey))
 			return;
 		
-		var $target = $(e.target);
+		let $target = $(e.target);
 		
 		if(!$target.is('BODY, UL.cerb-bot-interactions-menu'))
 			return;
