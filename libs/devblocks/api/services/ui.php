@@ -29,6 +29,13 @@ class _DevblocksUiManager {
 	}
 	
 	/**
+	 * @return DevblocksUiMenu
+	 */
+	public function menu() {
+		return new DevblocksUiMenu();
+	}
+	
+	/**
 	 * @return DevblocksUiToolbar
 	 */
 	public function toolbar() {
@@ -402,6 +409,71 @@ class DevblocksUiMap {
 			$tpl->assign('map', $map);
 			$tpl->display('devblocks:cerberusweb.core::internal/widgets/map/geopoints/render_regions.tpl');
 		}		
+	}
+}
+
+class DevblocksUiMenu {
+	public function parse($labels, string $label_separator=' ', bool $condense=true) : array {
+		$labels_tokenized = array_map(
+			fn($label) => explode($label_separator, $label), // DevblocksPlatform::strTitleCase()
+			$labels
+		);
+		
+		$labels_tree = new DevblocksMenuItemPlaceholder();
+		
+		// Start at the root and branch until a new leaf is reached
+		foreach($labels_tokenized as $label_key => $label_parts) {
+			$ptr =& $labels_tree;
+			$label_chain = '';
+			
+			foreach($label_parts as $label_part) {
+				$label_chain .= ($label_chain ? $label_separator : '') . $label_part;
+				
+				if(!array_key_exists($label_part, $ptr->children)) {
+					$item = new DevblocksMenuItemPlaceholder();
+					$item->label = $label_chain;
+					$item->l = $label_part;
+					$ptr->children[$label_part] = $item;
+				}
+				
+				$ptr =& $ptr->children[$label_part];
+			}
+			
+			$ptr->key = $label_key;
+		}
+		
+		if($condense) {
+			foreach($labels_tree->children as $child)
+				$this->_condenseTree($child, $label_separator);
+
+			$labels_tree->children = array_combine(
+				array_map(fn($child) => $child->l, $labels_tree->children),
+				$labels_tree->children,
+			);
+		}
+
+		return $labels_tree->children;
+	}
+
+	// Collapse node chains with a single child between them
+	private function _condenseTree(DevblocksMenuItemPlaceholder $node, string $label_separator=' ') : void {
+		foreach($node->children as $child) {
+			$this->_condenseTree($child, $label_separator);
+		}
+		
+		// Re-key any condensed children
+		$node->children = array_combine(
+			array_map(fn($child) => $child->l, $node->children),
+			$node->children,
+		);
+
+		while(count($node->children) === 1) {
+			$child = array_shift($node->children);
+			$node->key = $child->key;
+			$node->label = $child->label;
+			$node->l .= $label_separator . $child->l;
+			$node->children = $child->children;
+		}
 	}
 }
 

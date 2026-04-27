@@ -2470,7 +2470,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 			$variable_types = DAO_TriggerEvent::getVariableTypes();
 			$tpl->assign('variable_types', $variable_types);
 			
-			$variables_menu = Extension_DevblocksContext::getPlaceholderTree($variable_types, ':', '');
+			$variables_menu = Extension_DevblocksContext::getPlaceholderTree($variable_types, ':');
 			$tpl->assign('variables_menu', $variables_menu);
 			
 			$context_mfts = Extension_DevblocksContext::getAll(false, ['va_variable']);
