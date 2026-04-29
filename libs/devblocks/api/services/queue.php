@@ -26,24 +26,31 @@ class _DevblocksQueueService {
 	 * @param string $queue_name
 	 * @param array $messages
 	 * @param string|null $error
-	 * @param string|null $namespace
+	 * @param int $job_id
 	 * @param int $available_at
 	 * @return array|false
 	 */
-	public function enqueue(string $queue_name, array $messages, string &$error=null, ?string $namespace=null, int $available_at=0) {
+	public function enqueue(string $queue_name, array $messages, string &$error=null, int $job_id=0, int $available_at=0) {
 		if(null == ($queue = $this->_getQueueByName($queue_name))) {
 			$error = sprintf("Unknown queue `%s`", $queue_name);
 			return false;
 		}
 		
-		return DAO_QueueMessage::enqueue($queue, $messages, $namespace, $available_at);
+		return DAO_QueueMessage::enqueue($queue, $messages, $job_id, $available_at);
 	}
 	
-	public function dequeue(string $queue_name, int $limit=1, &$consumer_id=null, ?string $namespace=null) {
+	/**
+	 * @param string $queue_name
+	 * @param int $limit
+	 * @param $consumer_id
+	 * @param ?int $job_id
+	 * @return Model_QueueMessage[]|false
+	 */
+	public function dequeue(string $queue_name, int $limit=1, &$consumer_id=null, ?int $job_id=null) : array|false {
 		if(null == ($queue = $this->_getQueueByName($queue_name)))
 			return false;
 		
-		return DAO_QueueMessage::dequeue($queue, $limit, $consumer_id, $namespace);
+		return DAO_QueueMessage::dequeue($queue, $limit, $consumer_id, $job_id);
 	}
 	
 	public function reportSuccess(array $message_uuids) : void {

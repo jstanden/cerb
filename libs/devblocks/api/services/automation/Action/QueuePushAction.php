@@ -43,9 +43,8 @@ class QueuePushAction extends AbstractAction {
 				->setRequired(true)
 				;
 			
-			$validation->addField('namespace', 'inputs:namespace:')
-				->string()
-				->setMaxLength(128)
+			$validation->addField('job_id', 'inputs:job_id:')
+				->uint(8)
 				;
 			
 			$validation->addField('messages', 'inputs:messages:')
@@ -61,7 +60,7 @@ class QueuePushAction extends AbstractAction {
 				throw new Exception_DevblocksAutomationError($error);
 				
 			$queue_name = $inputs['queue_name'];
-			$queue_namespace = $inputs['namespace'];
+			$queue_job_id = intval($inputs['job_id'] ?? 0);
 			$messages = $inputs['messages'];
 			$available_at = $inputs['available_at'] ?? 0;
 			
@@ -82,7 +81,7 @@ class QueuePushAction extends AbstractAction {
 				throw new Exception_DevblocksAutomationError($error);
 			}
 			
-			if(!($results = $queue->enqueue($queue_name, $messages, $error, $queue_namespace, $available_at))) {
+			if(!($results = $queue->enqueue($queue_name, $messages, $error, $queue_job_id, $available_at))) {
 				throw new Exception_DevblocksAutomationError($error);
 			}
 			

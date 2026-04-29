@@ -47,6 +47,7 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		$cache->remove($cache_key);
 	}
 	
+	// [TODO] This should probably move to the search index model
 	public function getRecordCount(Model_SearchIndex $model, bool $no_cache=false): int {
 		$cache = DevblocksPlatform::services()->cache();
 		
@@ -449,6 +450,7 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		$insert_values = [];
 	}
 	
+	// [TODO] This would sync new records. We need a method to index arbitrary models (e.g. reindex batches)
 	public function indexDocumentsByModel(Model_SearchIndex $model, int $limit = 250): array {
 		$db = DevblocksPlatform::services()->database();
 		$search = DevblocksPlatform::services()->search();

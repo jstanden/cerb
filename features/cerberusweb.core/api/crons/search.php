@@ -46,6 +46,8 @@ class SearchCron extends CerberusCronPageExtension {
 			$search_ext = $search_index->getExtension();
 			if(!$search_ext->hasOption('index')) continue;
 			
+			// [TODO] Add an option to fetch models by ID, or a page of results, when not a queue job
+			
 			// If we're indexing fast and have more, let it keep going
 			for($i=0 ;$i<10; $i++) {
 				$count = $search_ext->indexDocumentsByModel($search_index, $limit);

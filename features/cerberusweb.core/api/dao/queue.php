@@ -1,11 +1,16 @@
 <?php
+
+use Cerb\Extensions\Extension_QueueConsumer;
 use Ramsey\Uuid\Provider\Node\RandomNodeProvider;
 use Ramsey\Uuid\Uuid;
 
 class DAO_Queue extends Cerb_ORMHelper {
-	const ID = 'id';
-	const NAME = 'name';
 	const CREATED_AT = 'created_at';
+	const EXTENSION_ID = 'extension_id';
+	const EXTENSION_PARAMS_JSON = 'extension_params_json';
+	const ID = 'id';
+	const IS_FIFO = 'is_fifo';
+	const NAME = 'name';
 	const UPDATED_AT = 'updated_at';
 	
 	const _CACHE_ALL = 'queues_all';
@@ -20,9 +25,25 @@ class DAO_Queue extends Cerb_ORMHelper {
 			->timestamp()
 		;
 		$validation
+			->addField(self::EXTENSION_ID)
+			->string()
+			->setMaxLength(255)
+			->setRequired(true)
+			->addValidator($validation->validators()->extension('\Cerb\Extensions\Extension_QueueConsumer'))
+		;
+		$validation
+			->addField(self::EXTENSION_PARAMS_JSON)
+			->string()
+			->setMaxLength(65_535)
+		;
+		$validation
 			->addField(self::ID)
 			->id()
 			->setEditable(false)
+		;
+		$validation
+			->addField(self::IS_FIFO)
+			->bit()
 		;
 		$validation
 			->addField(self::NAME)
@@ -156,7 +177,7 @@ class DAO_Queue extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, created_at, updated_at ".
+		$sql = "SELECT id, name, extension_id, extension_params_json, is_fifo, created_at, updated_at ".
 			"FROM queue ".
 			$where_sql.
 			$sort_sql.
@@ -257,10 +278,16 @@ class DAO_Queue extends Cerb_ORMHelper {
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_Queue();
-			$object->id = $row['id'];
+			$object->id = intval($row['id']);
+			$object->is_fifo = intval($row['is_fifo']) ? 1 : 0;
+			$object->extension_id = $row['extension_id'];
 			$object->name = $row['name'];
-			$object->created_at = $row['created_at'];
-			$object->updated_at = $row['updated_at'];
+			$object->created_at = intval($row['created_at']);
+			$object->updated_at = intval($row['updated_at']);
+			
+			if(false !== ($json = json_decode($row['extension_params_json'] ?? '', true)))
+				$object->extension_params = $json;
+			
 			$objects[$object->id] = $object;
 		}
 		
@@ -307,10 +334,14 @@ class DAO_Queue extends Cerb_ORMHelper {
 		$select_sql = sprintf("SELECT ".
 			"queue.id as %s, ".
 			"queue.name as %s, ".
+			"queue.extension_id as %s, ".
+			"queue.is_fifo as %s, ".
 			"queue.created_at as %s, ".
 			"queue.updated_at as %s ",
 			SearchFields_Queue::ID,
 			SearchFields_Queue::NAME,
+			SearchFields_Queue::EXTENSION_ID,
+			SearchFields_Queue::IS_FIFO,
 			SearchFields_Queue::CREATED_AT,
 			SearchFields_Queue::UPDATED_AT
 		);
@@ -365,6 +396,190 @@ class DAO_Queue extends Cerb_ORMHelper {
 	}
 };
 
+class DAO_QueueJob {
+	private static function _getResultAsModel(array $row) : ?Model_QueueJob {
+		$job = new Model_QueueJob();
+		$job->count_available = intval($row['count_available']);
+		$job->count_done = intval($row['count_done']);
+		$job->count_failed = intval($row['count_failed']);
+		$job->count_inflight = intval($row['count_inflight']);
+		$job->count_total = intval($row['count_total']);
+		$job->created_at = intval($row['created_at']);
+		$job->id = intval($row['id']);
+		$job->metadata = json_decode($row['metadata'] ?? '', true);
+		$job->name = $row['name'];
+		$job->queue_id = intval($row['queue_id']);
+		$job->singleton_key = $row['singleton_key'];
+		$job->status_id = intval($row['status_id']);
+		$job->updated_at = intval($row['updated_at']);
+		$job->worker_id = intval($row['worker_id']);
+		return $job;
+	}
+	
+	static function create(Model_QueueJob $job) : ?Model_QueueJob {
+		$db = DevblocksPlatform::services()->database();
+		
+		if(!$job->created_at) $job->created_at = time();
+		if(!$job->updated_at) $job->updated_at = time();
+		
+		// If there's a unique key, check for dupes first
+		if($job->singleton_key && ($dupe_job = DAO_QueueJob::getOpenByQueueAndSingleton($job->queue_id, $job->singleton_key))) {
+			return $dupe_job;
+		}
+		
+		$result = $db->ExecuteMaster(sprintf(
+			"INSERT IGNORE INTO queue_job (queue_id, `name`, singleton_key, status_id, worker_id, metadata, count_total, count_available, count_inflight, count_done, count_failed, created_at, updated_at) ".
+			"VALUES (%d, %s, %s, %d, %d, %s, %d, %d, %d, %d, %d, %d, %d)",
+			$job->queue_id,
+			$db->qstr($job->name),
+			$db->qstr($job->singleton_key),
+			$job->status_id,
+			$job->worker_id,
+			$db->qstr(json_encode($job->metadata)),
+			$job->count_total,
+			$job->count_available,
+			$job->count_inflight,
+			$job->count_done,
+			$job->count_failed,
+			$job->created_at,
+			$job->updated_at
+		));
+		
+		if(!$result || !($id = $db->LastInsertId()))
+			return null;
+		
+		$job->id = $id;
+		
+		return $job;
+	}
+	
+	static function get(int $id) : ?Model_QueueJob {
+		$results = self::getIds([$id]);
+		return $results[$id] ?? null;
+	}
+	
+	public static function getIds(array $ids) {
+		$db = DevblocksPlatform::services()->database();
+		
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
+		
+		if(!$ids) return [];
+		
+		$sql = sprintf(
+			"SELECT id, queue_id, name, singleton_key, status_id, worker_id, metadata, count_total, count_available, count_inflight, count_done, count_failed, created_at, updated_at ".
+			"FROM queue_job ".
+			"WHERE id IN (%s)",
+			implode(',', $ids)
+		);
+		
+		if(!($rows = $db->GetArrayMaster($sql)))
+			return [];
+		
+		return array_combine(
+			array_column($rows, 'id'),
+			array_map(fn($row) => self::_getResultAsModel($row), $rows)
+		);
+	}
+	
+	static function getOpenByQueueAndSingleton(mixed $queue_id, string $singleton_key) : ?Model_QueueJob {
+		$db = DevblocksPlatform::services()->database();
+		
+		if(is_string($queue_id) && !is_numeric($queue_id)) {
+			if (!($queue = DAO_Queue::getByName($queue_id)))
+				return null;
+			
+			$queue_id = $queue->id;
+		}
+		
+		if(!$queue_id)
+			return null;
+		
+		$sql = sprintf(
+			"SELECT id, queue_id, name, singleton_key, status_id, worker_id, metadata, count_total, count_available, count_inflight, count_done, count_failed, created_at, updated_at ".
+			"FROM queue_job ".
+			"WHERE queue_id = %d ".
+			"AND singleton_key = %s ".
+			"AND status_id IN (0,1)",
+			$queue_id,
+			$db->qstr($singleton_key)
+		);
+		
+		if(!($row = $db->GetRowMaster($sql)))
+			return null;
+		
+		return self::_getResultAsModel($row);
+	}
+	
+	public static function syncProgress(int $job_id) : void {
+		$db = DevblocksPlatform::services()->database();
+		
+		$sql = sprintf(
+			"UPDATE queue_job JOIN ( ".
+			"SELECT SUM(status_id=0) AS count_available, SUM(status_id=1) AS count_inflight, SUM(status_id=2) AS count_failed, SUM(status_id=3) AS count_done, COUNT(*) AS count_total FROM queue_message WHERE job_id = %d".
+			") AS agg ON queue_job.id = %d ".
+			"SET ".
+			"queue_job.count_total = agg.count_total, ".
+			"queue_job.count_available = agg.count_available, ".
+			"queue_job.count_inflight = agg.count_inflight, ".
+			"queue_job.count_failed = agg.count_failed, ".
+			"queue_job.count_done = agg.count_done",
+			$job_id,
+			$job_id
+		);
+		$db->ExecuteWriter($sql);
+	}
+	
+	/**
+	 * @param array $job_ids
+	 * @return Model_QueueJob[]
+	 */
+	public static function checkForCompletedJobs(array $job_ids) : array {
+		$db = DevblocksPlatform::services()->database();
+		
+		$job_ids = DevblocksPlatform::sanitizeArray($job_ids, 'int');
+		
+		if(!$job_ids) return [];
+		
+		// Find changed queue jobs that are now done
+		$sql = sprintf(
+			"SELECT id, queue_id, name, singleton_key, status_id, worker_id, metadata, count_total, count_available, count_inflight, count_done, count_failed, created_at, updated_at ".
+			"FROM queue_job ".
+			"WHERE id IN (%s) ".
+			"AND status_id != 2 ".
+			"AND (0=count_available+count_inflight)",
+			implode(',', $job_ids)
+		);
+		$results = $db->GetArrayMaster($sql);
+		
+		if(!$results)
+			return [];
+		
+		return array_combine(
+			array_column($results, 'id'),
+			array_map(fn($row) => self::_getResultAsModel($row), $results)
+		);
+	}
+	
+	public static function setStatus(array $job_ids, QueueJobStatus $status) : void {
+		$db = DevblocksPlatform::services()->database();
+		
+		$job_ids = DevblocksPlatform::sanitizeArray($job_ids, 'int');
+		
+		if(!$job_ids) return;
+		
+		$sql = sprintf(
+			"UPDATE queue_job SET status_id = %d WHERE id IN (%s)",
+			$status->value,
+			implode(',', $job_ids)
+		);
+		$db->ExecuteWriter($sql);
+	}
+}
+
+class DAO_QueueLog {
+	// [TODO]
+}
+
 class DAO_QueueMessage {
 	const STATUS_AVAILABLE = 0;
 	const STATUS_IN_FLIGHT = 1;
@@ -374,10 +589,11 @@ class DAO_QueueMessage {
 	/**
 	 * @param Model_Queue $queue
 	 * @param array $messages
+	 * @param int $job_id
 	 * @param int $available_at
 	 * @return array|false
 	 */
-	static function enqueue(Model_Queue $queue, array $messages, ?string $namespace=null, int $available_at=0) {
+	static function enqueue(Model_Queue $queue, array $messages, int $job_id=0, int $available_at=0) {
 		$db = DevblocksPlatform::services()->database();
 		$nodeProvider = new RandomNodeProvider();
 		
@@ -391,10 +607,10 @@ class DAO_QueueMessage {
 			$uuid = Uuid::uuid6($nodeProvider->getNode());
 			$message_uuid = $uuid->getHex();
 			
-			$insert_values[] = sprintf("(%s, %d, %s, %d, %d, %s, %s, %d)",
+			$insert_values[] = sprintf("(%s, %d, %d, %d, %d, %s, %s, %d)",
 				'0x' . $db->escape($message_uuid),
 				$queue->id,
-				$db->qstr($namespace),
+				$job_id,
 				self::STATUS_AVAILABLE,
 				time(),
 				$db->escape('NULL'),
@@ -406,14 +622,21 @@ class DAO_QueueMessage {
 		}
 		
 		$db->ExecuteWriter(
-			sprintf("INSERT INTO queue_message (uuid, queue_id, namespace, status_id, status_at, consumer_id, message, available_at) VALUES %s",
+			sprintf("INSERT INTO queue_message (uuid, queue_id, job_id, status_id, status_at, consumer_id, message, available_at) VALUES %s",
 			implode(',', $insert_values)
 		));
 		
 		return $results;
 	}
 	
-	static function dequeue(Model_Queue $queue, ?int $limit=1, &$consumer_id=null, ?string $namespace=null) : array {
+	/**
+	 * @param Model_Queue $queue
+	 * @param int|null $limit
+	 * @param $consumer_id
+	 * @param ?int $job_id (null=any, zero=no job)
+	 * @return Model_QueueMessage[]
+	 */
+	static function dequeue(Model_Queue $queue, ?int $limit=1, &$consumer_id=null, ?int $job_id=null) : array {
 		$db = DevblocksPlatform::services()->database();
 		$nodeProvider = new RandomNodeProvider();
 		
@@ -424,21 +647,25 @@ class DAO_QueueMessage {
 		$consumer_id = '0x' . $uuid->getHex();
 		
 		$db->ExecuteWriter(
-			sprintf("UPDATE queue_message SET status_id=%d, status_at=%d, consumer_id=%s WHERE queue_id=%d %sAND status_id=%d AND available_at <= %d LIMIT %d",
+			sprintf(
+				"UPDATE queue_message SET status_id=%d, status_at=%d, consumer_id=%s ".
+				"WHERE queue_id=%d %s%sAND status_id=%d AND available_at <= %d LIMIT %d",
 				self::STATUS_IN_FLIGHT,
 				time(),
 				$db->escape($consumer_id),
 				$queue->id,
-				!is_null($namespace) ? sprintf("AND namespace=%s", $db->qstr($namespace)) : '',
+				!is_null($job_id) ? sprintf("AND job_id=%d ", $job_id) : '',
 				self::STATUS_AVAILABLE,
 				time(),
 				$limit
 			)
 		);
 		
-		$results = $db->GetArrayMaster(sprintf("SELECT uuid, namespace, message, available_at FROM queue_message WHERE queue_id=%d %sAND status_id=%d AND consumer_id=%s",
+		$results = $db->GetArrayMaster(sprintf(
+			"SELECT uuid, job_id, message, available_at FROM queue_message ".
+			"WHERE queue_id=%d %s%sAND status_id=%d AND consumer_id=%s",
 			$queue->id,
-			!is_null($namespace) ? sprintf("AND namespace=%s ", $db->qstr($namespace)) : '',
+			!is_null($job_id) ? sprintf("AND job_id=%d ", $job_id) : '',
 			self::STATUS_IN_FLIGHT,
 			$db->escape($consumer_id)
 		));
@@ -452,13 +679,21 @@ class DAO_QueueMessage {
 			$message = new Model_QueueMessage();
 			$message->uuid = Uuid::fromBytes($result['uuid'])->getHex()->toString();
 			$message->queue_id = intval($queue->id);
-			$message->namespace = $result['namespace'] ?? '';
+			$message->job_id = intval($result['job_id']);
 			$message->message = json_decode($result['message'], true);
 			$message->available_at = intval($result['available_at']);
 			$messages[] = $message;
 		}
 		
 		unset($results);
+		
+		$job_ids = array_unique(array_filter(array_column($messages, 'job_id')));
+		
+		// If we have pulled from a job, update its counts
+		if($job_ids) {
+			foreach ($job_ids as $job_id)
+				DAO_QueueJob::syncProgress($job_id);
+		}
 		
 		return $messages;
 	}
@@ -500,9 +735,11 @@ class DAO_QueueMessage {
 }
 
 class SearchFields_Queue extends DevblocksSearchFields {
-	const ID = 'q_id';
-	const NAME = 'q_name';
 	const CREATED_AT = 'q_created_at';
+	const EXTENSION_ID = 'q_extension_id';
+	const ID = 'q_id';
+	const IS_FIFO = 'q_is_fifo';
+	const NAME = 'q_name';
 	const UPDATED_AT = 'q_updated_at';
 	
 	static private $_fields = null;
@@ -573,9 +810,11 @@ class SearchFields_Queue extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::ID => new DevblocksSearchField(self::ID, 'queue', 'id', $translate->_('common.id'), null, true),
-			self::NAME => new DevblocksSearchField(self::NAME, 'queue', 'name', $translate->_('common.name'), null, true),
 			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'queue', 'created_at', $translate->_('common.created'), null, true),
+			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'queue', 'extension_id', $translate->_('common.extension'), null, true),
+			self::ID => new DevblocksSearchField(self::ID, 'queue', 'id', $translate->_('common.id'), null, true),
+			self::IS_FIFO => new DevblocksSearchField(self::IS_FIFO, 'queue', 'is_fifo', $translate->_('dao.queue.is_fifo'), null, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'queue', 'name', $translate->_('common.name'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'queue', 'updated_at', $translate->_('common.updated'), null, true),
 		];
 		
@@ -597,17 +836,77 @@ class SearchFields_Queue extends DevblocksSearchFields {
 };
 
 class Model_Queue extends DevblocksRecordModel {
-	public $id;
-	public $name;
-	public $created_at;
-	public $updated_at;
+	public $created_at = 0;
+	public $extension_id = '';
+	public $extension_params = [];
+	public $id = 0;
+	public $is_fifo = 0;
+	public $name = '';
+	public $updated_at = 0;
+	
+	public function getExtension() : Extension_QueueConsumer {
+		return Extension_QueueConsumer::get($this->extension_id);
+	}
 };
+
+enum QueueJobStatus : int{
+	case RUNNING = 0;
+	case PAUSED = 1;
+	case DONE = 2;
+}
+
+class Model_QueueJob {
+	public int $count_available = 0;
+	public int $count_done = 0;
+	public int $count_failed = 0;
+	public int $count_inflight = 0;
+	public int $count_total = 0;
+	public int $created_at = 0;
+	public int $id = 0;
+	public mixed $metadata = null;
+	public string $name = '';
+	public int $queue_id = 0;
+	public string $singleton_key = '';
+	public int $status_id = 0;
+	public int $updated_at = 0;
+	public int $worker_id = 0;
+	
+	public function getProgress() : array {
+		$stats = [
+			'total' => $this->count_total,
+			'counts' => [
+				'available' => $this->count_available,
+				'inflight' => $this->count_inflight,
+				'failed' => $this->count_failed,
+				'done' => $this->count_done,
+			],
+			'percents' =>
+				$this->count_total
+					// If we have a denominator, we can calculate percentages
+					? [
+						'available' => round($this->count_available / $this->count_total, 2),
+						'inflight' => round($this->count_inflight / $this->count_total, 2),
+						'failed' => round($this->count_failed / $this->count_total, 2),
+						'done' => round($this->count_done / $this->count_total, 2),
+					]
+					// Otherwise, zero
+					: array_fill_keys(['available','inflight','failed','done'], 0)
+			,
+		];
+		
+		return $stats;
+	}
+	
+	public function isDone() : bool {
+		return $this->status_id == QueueJobStatus::DONE;
+	}
+}
 
 class Model_QueueMessage {
 	public string $uuid = '';
 	public int $queue_id = 0;
 	public $message = null;
-	public string $namespace = '';
+	public int $job_id = 0;
 	public int $available_at = 0;
 }
 
@@ -623,7 +922,8 @@ class View_Queue extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 		
 		$this->view_columns = [
 			SearchFields_Queue::NAME,
-			SearchFields_Queue::CREATED_AT,
+			SearchFields_Queue::EXTENSION_ID,
+			SearchFields_Queue::IS_FIFO,
 			SearchFields_Queue::UPDATED_AT,
 		];
 		
@@ -672,6 +972,11 @@ class View_Queue extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 				$pass = false;
 				
 				switch($field_key) {
+					case SearchFields_Queue::EXTENSION_ID:
+					case SearchFields_Queue::IS_FIFO:
+						$pass = true;
+						break;
+						
 					// Valid custom fields
 					default:
 						if(DevblocksPlatform::strStartsWith($field_key, 'cf_')) {
@@ -698,6 +1003,14 @@ class View_Queue extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 			return [];
 		
 		switch($column) {
+			case SearchFields_Queue::EXTENSION_ID:
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
+				break;
+				
+			case SearchFields_Queue::IS_FIFO:
+				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
+				break;
+				
 			default:
 				// Custom fields
 				if(DevblocksPlatform::strStartsWith($column, 'cf_')) {
@@ -724,6 +1037,11 @@ class View_Queue extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_Queue::CREATED_AT),
 				),
+			'extension' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_Queue::EXTENSION_ID, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
 			'fieldset' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
@@ -739,6 +1057,11 @@ class View_Queue extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 					'examples' => [
 						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_QUEUE, 'q' => ''],
 					]
+				),
+			'isFifo' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_BOOL,
+					'options' => array('param_key' => SearchFields_Queue::IS_FIFO),
 				),
 			'name' =>
 				array(
@@ -814,6 +1137,10 @@ class View_Queue extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 		$field = $param->field;
 		
 		switch($field) {
+			case SearchFields_Queue::IS_FIFO:
+				$this->_renderCriteriaParamBoolean($param);
+				break;
+				
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -821,7 +1148,11 @@ class View_Queue extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 	}
 	
 	function renderVirtualCriteria($param) : void {
-		$this->_renderVirtualCriteria($param);
+		switch($param->field) {
+			default:
+				$this->_renderVirtualCriteria($param);
+				break;
+		}
 	}
 	
 	function getFields() {
@@ -833,11 +1164,17 @@ class View_Queue extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 		
 		switch($field) {
 			case SearchFields_Queue::NAME:
+			case SearchFields_Queue::EXTENSION_ID:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 			
 			case SearchFields_Queue::ID:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
+				break;
+			
+			case SearchFields_Queue::IS_FIFO:
+				$bool = DevblocksPlatform::importGPC($_POST['bool'] ?? null, 'integer',1);
+				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 			
 			case SearchFields_Queue::CREATED_AT:
@@ -904,6 +1241,17 @@ class Context_Queue extends Extension_DevblocksContext implements IDevblocksCont
 			'type' => Model_CustomField::TYPE_DATE,
 			'value' => $model->created_at,
 		);
+		$properties['extension_id'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.extension'),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->extension_id,
+		);
+		
+		$properties['is_fifo'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('dao.queue.is_fifo'),
+			'type' => Model_CustomField::TYPE_CHECKBOX,
+			'value' => $model->is_fifo,
+		);
 		
 		$properties['name'] = array(
 			'label' => mb_ucfirst($translate->_('common.name')),
@@ -949,13 +1297,15 @@ class Context_Queue extends Extension_DevblocksContext implements IDevblocksCont
 	
 	function getDefaultProperties() : array {
 		return [
+			'extension_id',
+			'is_fifo',
 			'updated_at',
 		];
 	}
 	
 	function getContextIdFromAlias($alias) {
 		// Is it a URI?
-		if(false != ($model = DAO_Queue::getByName($alias)))
+		if(($model = DAO_Queue::getByName($alias)))
 			return $model->id;
 		
 		return null;
@@ -1009,20 +1359,24 @@ class Context_Queue extends Extension_DevblocksContext implements IDevblocksCont
 		$token_labels = array(
 			'_label' => $prefix,
 			'created_at' => $prefix.$translate->_('common.created'),
+			'extension_id' => $prefix.$translate->_('common.extension'),
 			'id' => $prefix.$translate->_('common.id'),
+			'is_fifo' => $prefix.$translate->_('dao.queue.is_fifo'),
 			'name' => $prefix.$translate->_('common.name'),
-			'updated_at' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
+			'updated_at' => $prefix.$translate->_('common.updated'),
 		);
 		
 		// Token types
 		$token_types = array(
 			'_label' => 'context_url',
 			'created_at' => Model_CustomField::TYPE_DATE,
+			'extension_id' => Model_CustomField::TYPE_SINGLE_LINE,
 			'id' => Model_CustomField::TYPE_NUMBER,
+			'is_fifo' => Model_CustomField::TYPE_CHECKBOX,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'updated_at' => Model_CustomField::TYPE_DATE,
 			'record_url' => Model_CustomField::TYPE_URL,
+			'updated_at' => Model_CustomField::TYPE_DATE,
 		);
 		
 		// Custom field/fieldset token labels
@@ -1044,7 +1398,9 @@ class Context_Queue extends Extension_DevblocksContext implements IDevblocksCont
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $queue->name;
 			$token_values['created_at'] = $queue->created_at;
+			$token_values['extension_id'] = $queue->extension_id;
 			$token_values['id'] = $queue->id;
+			$token_values['is_fifo'] = $queue->is_fifo ? 1 : 0;
 			$token_values['name'] = $queue->name;
 			$token_values['updated_at'] = $queue->updated_at;
 			
@@ -1062,7 +1418,9 @@ class Context_Queue extends Extension_DevblocksContext implements IDevblocksCont
 	function getKeyToDaoFieldMap() {
 		return [
 			'created_at' => DAO_Queue::CREATED_AT,
+			'extension_id' => DAO_Queue::EXTENSION_ID,
 			'id' => DAO_Queue::ID,
+			'is_fifo' => DAO_Queue::IS_FIFO,
 			'links' => '_links',
 			'name' => DAO_Queue::NAME,
 			'updated_at' => DAO_Queue::UPDATED_AT,
@@ -1163,7 +1521,7 @@ class Context_Queue extends Extension_DevblocksContext implements IDevblocksCont
 		$model = null;
 		
 		if($context_id) {
-			if(false == ($model = DAO_Queue::get($context_id)))
+			if(!($model = DAO_Queue::get($context_id)))
 				DevblocksPlatform::dieWithHttpError(null, 403);
 		}
 		
@@ -1174,6 +1532,9 @@ class Context_Queue extends Extension_DevblocksContext implements IDevblocksCont
 			if($model) {
 				if(!CerberusContexts::isWriteableByActor($context, $model, $active_worker))
 					DevblocksPlatform::dieWithHttpError(null, 403);
+				
+				$queue_extension = $model->getExtension();
+				$tpl->assign('queue_extension', $queue_extension);
 				
 				$tpl->assign('model', $model);
 			}
@@ -1188,6 +1549,11 @@ class Context_Queue extends Extension_DevblocksContext implements IDevblocksCont
 			
 			$types = Model_CustomField::getTypes();
 			$tpl->assign('types', $types);
+			
+			// Extensions
+			
+			$queue_extensions = Extension_QueueConsumer::getAll(false);
+			$tpl->assign('queue_extensions', $queue_extensions);
 			
 			// View
 			$tpl->assign('id', $context_id);
@@ -1215,6 +1581,8 @@ class Context_Queue extends Extension_DevblocksContext implements IDevblocksCont
 			$workflow_kata['records'][$record_key] = [
 				'fields' => [
 					'name' => $model->name,
+					'extension_id' => $model->extension_id,
+					'is_fifo' => $model->is_fifo ? 1 : 0,
 				],
 			];
 		}

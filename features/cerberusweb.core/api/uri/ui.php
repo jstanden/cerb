@@ -95,6 +95,8 @@ class Controller_UI extends DevblocksControllerExtension {
 				return $this->_uiAction_querySuggestionMeta();
 			case 'querySuggestions':
 				return $this->_uiAction_querySuggestions();
+			case 'queue':
+				return $this->_uiAction_queue();
 			case 'resource':
 				return $this->_uiAction_resource();
 			case 'sheet':
@@ -846,6 +848,37 @@ class Controller_UI extends DevblocksControllerExtension {
 		}
 		
 		echo DevblocksPlatform::strFormatJson(json_encode($results));
+	}
+
+	/*
+	private function _uiAction_queueDrain() {
+		// [TODO] We need some kind of token from the request to prioritize jobs
+		// [TODO] Probably also another endpoint to monitor a job we started
+		// [TOOD] So `queueDrain` may not be the best terminology here
+		// [TODO] There's also a worktree for queue stuff
+	}
+	*/
+	
+	private function _uiAction_queue() {
+		$request = DevblocksPlatform::getHttpRequest();
+		$stack = $request->path;
+		array_shift($stack); // ui
+		array_shift($stack); // queue
+		
+		$action = array_shift($stack) ?? null; // job
+		
+		// [TODO] Probably don't need to be an admin to get job status, but needs thought
+		
+		if($action == 'job') {
+			$job_id = DevblocksPlatform::importVar(array_shift($stack), 'int', 0); // e.g. 123
+			$job_action = array_shift($stack); // e.g. status
+			
+			// [TODO] Get queue job by ID
+			if(!($queue_job = DAO_QueueJob::get($job_id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
+		}
+		
+		DevblocksPlatform::dieWithHttpError(null, 404);
 	}
 	
 	private function _uiAction_resource() {

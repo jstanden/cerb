@@ -15,7 +15,34 @@
         <tr>
             <td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate|capitalize}:</b></td>
             <td width="99%">
-                <input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus" spellcheck="false">
+                <input type="text" name="name" value="{$model->name}" placeholder="(example.queue.name)" style="width:98%;" autofocus="autofocus" spellcheck="false">
+            </td>
+        </tr>
+
+        <tr>
+            <td width="1%" nowrap="nowrap" align="top">
+                <b>{'common.queue.consumer'|devblocks_translate|capitalize}:</b>
+            </td>
+            <td width="99%">
+                {if $model}
+                    <div class="bubble">
+                        {if $queue_extension}
+                            {$queue_extension->manifest->name}
+                        {else}
+                            {$model->extension_id}
+                        {/if}
+                    </div>
+                    <input type="hidden" name="extension_id" value="{$model->extension_id}"
+                {else}
+                    <select name="extension_id">
+                        <option value=""></option>
+                        {if !empty($queue_extensions)}
+                            {foreach from=$queue_extensions item=queue_ext}
+                                <option value="{$queue_ext->id}">{$queue_ext->name}</option>
+                            {/foreach}
+                        {/if}
+                    </select>
+                {/if}
             </td>
         </tr>
 
@@ -24,6 +51,11 @@
         {/if}
     </table>
 
+    <div class="queue-consumer-params">
+        {if $queue_extension}
+            {$queue_extension->renderConfig($model)}
+        {/if}
+    </div>
 
     {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
@@ -32,7 +64,7 @@
             <legend>{'common.delete'|devblocks_translate|capitalize}</legend>
 
             <div>
-                Are you sure you want to permanently delete this queue?
+                Are you sure you want to permanently delete this queue and its messages?
             </div>
 
             <button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>

@@ -6,23 +6,129 @@ $tables = $db->metaTables();
 $revision = $db->GetOneMaster("SELECT revision FROM cerb_patch_history WHERE plugin_id = 'cerberusweb.core'");
 
 // ===========================================================================
-// Add `namespace` to `queue_message`
+// Add extension_id, concurrency, priority to `queue`
+
+list($columns, ) = $db->metaTable('queue');
+
+$changes = [];
+
+if(!array_key_exists('extension_id', $columns)) {
+	$changes[] = "ADD COLUMN extension_id VARCHAR(255) NOT NULL DEFAULT ''";
+}
+
+if(!array_key_exists('extension_params_json', $columns)) {
+	$changes[] = "ADD COLUMN extension_params_json TEXT";
+}
+
+if(!array_key_exists('is_fifo', $columns)) {
+	$changes[] = "ADD COLUMN is_fifo TINYINT UNSIGNED NOT NULL DEFAULT 0";
+}
+
+if($changes) {
+	$db->ExecuteMaster("ALTER TABLE queue ".
+		implode(', ', $changes)
+	);
+	
+	// Default the queue extension type
+	$db->ExecuteMaster("UPDATE queue SET extension_id = 'cerb.queue.consumer.manual' WHERE extension_id = ''");
+}
+
+// ===========================================================================
+// Add `job_id` to `queue_message`
 
 list($columns, ) = $db->metaTable('queue_message');
 
 $changes = [];
 
-if(!array_key_exists('namespace', $columns)) {
-	$changes[] = "ADD COLUMN namespace varchar(128) NOT NULL DEFAULT '' AFTER queue_id";
-	$changes[] = "DROP INDEX queue_claimed";
-	$changes[] = "ADD INDEX queue_claimed (queue_id, namespace, status_id, consumer_id)";
+if(array_key_exists('namespace', $columns)) {
+	$changes[] = "DROP COLUMN namespace";
 }
+
+if(!array_key_exists('job_id', $columns)) {
+	$changes[] = "ADD COLUMN job_id BIGINT UNSIGNED NOT NULL DEFAULT 0 AFTER queue_id";
+	$changes[] = "DROP INDEX queue_claimed";
+	$changes[] = "ADD INDEX queue_claimed (queue_id, status_id, job_id, consumer_id)";
+}
+
+//if(!array_key_exists('attempt_count', $columns)) {
+//	$changes[] = "ADD COLUMN attempt_count TINYINT UNSIGNED NOT NULL DEFAULT 0";
+//}
+
+//if(!array_key_exists('locked_until', $columns)) {
+//	$changes[] = "ADD COLUMN locked_until INT UNSIGNED NOT NULL DEFAULT 0";
+//	$changes[] = "ADD INDEX status_locked (status_id, locked_until)";
+//}
+
+// [TODO] Add another hash (SHA-1/xxh3) to be idempotent on dupes
+//if(!array_key_exists('payload_hash', $columns)) {
+//	$changes[] = "ADD COLUMN payload_hash BINARY(16) NULL";
+//	$changes[] = "ADD UNIQUE INDEX payload_hash (queue_id, job_id, payload_hash)";
+//}
 
 if($changes) {
 	$db->ExecuteMaster("ALTER TABLE queue_message ".
 		implode(', ', $changes)
 	);
 }
+
+// ===========================================================================
+// Queue Job
+
+if(!array_key_exists('queue_job', $tables)) {
+	$sql = sprintf("
+		CREATE TABLE `queue_job` (
+		`id` bigint unsigned NOT NULL AUTO_INCREMENT,
+		`name` varchar(255) NOT NULL DEFAULT '',
+		`singleton_key` varchar(255) NOT NULL DEFAULT '',
+		`queue_id` int unsigned NOT NULL DEFAULT 0,
+		`worker_id` int unsigned NOT NULL DEFAULT 0,
+		`metadata` mediumtext,
+		`status_id` tinyint unsigned NOT NULL DEFAULT 0,
+		`count_total` int unsigned NOT NULL default 0,
+		`count_available` int unsigned NOT NULL default 0,
+		`count_inflight` int unsigned NOT NULL default 0,
+		`count_done` int unsigned NOT NULL default 0,
+		`count_failed` int unsigned NOT NULL default 0,
+		`created_at` int unsigned NOT NULL DEFAULT 0,
+		`updated_at` int unsigned NOT NULL DEFAULT 0,
+		PRIMARY KEY (id),
+		INDEX `queue_status` (status_id, queue_id),
+		INDEX `worker_id` (worker_id)
+		) ENGINE=%s
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+	
+	$tables['queue_job'] = 'queue_job';
+}
+
+// ===========================================================================
+// Queue Log
+
+if(!array_key_exists('queue_log', $tables)) {
+	$sql = sprintf("
+		CREATE TABLE `queue_log` (
+		`id` bigint unsigned NOT NULL AUTO_INCREMENT,
+		`job_id` bigint unsigned NOT NULL DEFAULT 0,
+		`consumer_id` binary(16) DEFAULT NULL,
+		`message` text,
+		`created_at` int unsigned NOT NULL DEFAULT 0,
+		PRIMARY KEY (id),
+		INDEX `job_created` (job_id, created_at)
+		) ENGINE=%s
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+	
+	$tables['queue_log'] = 'queue_log';
+}
+
+// ===========================================================================
+// Update built-in queues
+
+$db->ExecuteWriter("UPDATE queue SET extension_id = 'cerb.queue.consumer.internal' WHERE name = 'cerb.metrics.publish'");
+$db->ExecuteWriter("UPDATE queue SET extension_id = 'cerb.queue.consumer.internal' WHERE name = 'cerb.update.migrations'");
+
+if(!$db->GetOneMaster("SELECT id FROM queue WHERE name = 'cerb.search.index'"))
+	$db->ExecuteWriter("INSERT IGNORE INTO queue (name, created_at, updated_at, extension_id) VALUES ('cerb.search.index', UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 'cerb.queue.consumer.internal')");
 
 // ===========================================================================
 // Enable the new background cronjob

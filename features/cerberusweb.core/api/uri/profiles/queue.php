@@ -88,13 +88,16 @@ class PageSection_ProfilesQueue extends Extension_PageSection {
 				return;
 				
 			} else {
+				$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'] ?? null, 'string', '');
+				$is_fifo = DevblocksPlatform::importGPC($_POST['is_fifo'] ?? null, 'int', 0);
 				$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');
 				
 				$error = null;
 				
 				$fields = [
-					DAO_Queue::UPDATED_AT => time(),
+					DAO_Queue::IS_FIFO => $is_fifo ? 1 : 0,
 					DAO_Queue::NAME => $name,
+					DAO_Queue::UPDATED_AT => time(),
 				];
 				
 				if(empty($id)) { // New
@@ -108,6 +111,7 @@ class PageSection_ProfilesQueue extends Extension_PageSection {
 					}
 					
 					$fields[DAO_Queue::CREATED_AT] = time();
+					$fields[DAO_Queue::EXTENSION_ID] = $extension_id;
 					
 					if(!DAO_Queue::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);

@@ -649,9 +649,13 @@
 		<file path="api/dao/queue.php">
 			<class name="Context_Queue" />
 			<class name="DAO_Queue" />
+			<class name="DAO_QueueJob" />
+			<class name="DAO_QueueLog" />
 			<class name="DAO_QueueMessage" />
 			<class name="Model_Queue" />
+			<class name="Model_QueueJob" />
 			<class name="Model_QueueMessage" />
+			<class name="QueueJobStatus" />
 			<class name="SearchFields_Queue" />
 			<class name="View_Queue" />
 		</file>
@@ -5163,7 +5167,45 @@
 				<param key="menu_key" value="Records:Record commented on" />
 			</params>
 		</extension>
-		
+
+		<!-- Queue Consumers -->
+
+		<extension point="cerb.queue.consumer">
+			<id>cerb.queue.consumer.automation</id>
+			<name>Automation</name>
+			<class>
+				<file>api/Extensions/QueueConsumer/QueueConsumer_Automation.php</file>
+				<name>Cerb\Extensions\QueueConsumer\QueueConsumer_Automation</name>
+			</class>
+			<params>
+				<param key="description" value="Dispatch queue messages to an automation" />
+			</params>
+		</extension>
+
+		<extension point="cerb.queue.consumer">
+			<id>cerb.queue.consumer.internal</id>
+			<name>Internal (built-in)</name>
+			<class>
+				<file>api/Extensions/QueueConsumer/QueueConsumer_Internal.php</file>
+				<name>Cerb\Extensions\QueueConsumer\QueueConsumer_Internal</name>
+			</class>
+			<params>
+				<param key="description" value="Managed queues for built-in functionality" />
+			</params>
+		</extension>
+
+		<extension point="cerb.queue.consumer">
+			<id>cerb.queue.consumer.manual</id>
+			<name>Manual</name>
+			<class>
+				<file>api/Extensions/QueueConsumer/QueueConsumer_Manual.php</file>
+				<name>Cerb\Extensions\QueueConsumer\QueueConsumer_Manual</name>
+			</class>
+			<params>
+				<param key="description" value="Manual process queue messages via API" />
+			</params>
+		</extension>
+
 		<!-- Resource Types -->
 
 		<extension point="cerb.resource.type">
@@ -6027,7 +6069,18 @@
 			<params>
 			</params>
 		</extension>
-		
+
+		<extension point="cerb.card.widget">
+			<id>cerb.card.widget.search_index</id>
+			<name>Search Index</name>
+			<class>
+				<file>api/cards/widgets/search_index.php</file>
+				<name>CardWidget_SearchIndex</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
 		<extension point="cerb.card.widget">
 			<id>cerb.card.widget.sheet</id>
 			<name>Sheet</name>

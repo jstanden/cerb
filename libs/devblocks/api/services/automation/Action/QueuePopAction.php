@@ -43,9 +43,8 @@ class QueuePopAction extends AbstractAction {
 				->setRequired(true)
 				;
 			
-			$validation->addField('namespace', 'inputs:namespace:')
-				->string()
-				->setMaxLength(128)
+			$validation->addField('job_id', 'inputs:job_id:')
+				->uint(8)
 				;
 			
 			$validation->addField('limit', 'inputs:limit:')
@@ -56,7 +55,7 @@ class QueuePopAction extends AbstractAction {
 				throw new Exception_DevblocksAutomationError($error);
 				
 			$queue_name = $inputs['queue_name'];
-			$namespace = $inputs['namespace'] ?? null;
+			$job_id = intval($inputs['job_id'] ?? null);
 			$limit = $inputs['limit'] ?? 1;
 			
 			$action_dict = DevblocksDictionaryDelegate::instance([
@@ -78,7 +77,7 @@ class QueuePopAction extends AbstractAction {
 			
 			$consumer_id = null;
 			
-			$results = DevblocksPlatform::objectsToArrays($queue->dequeue($queue_name, $limit, $consumer_id, $namespace));
+			$results = DevblocksPlatform::objectsToArrays($queue->dequeue($queue_name, $limit, $consumer_id, $job_id));
 			
 			$results = array_combine(
 				array_column($results, 'uuid'),
@@ -86,7 +85,7 @@ class QueuePopAction extends AbstractAction {
 					function($result) use ($queue_name) {
 						return [
 							'queue' => $queue_name,
-							'namespace' => $result['namespace'] ?? '',
+							'job_id' => $result['job_id'] ?? 0,
 							'data' => $result['message'] ?? [],
 							'available_at' => $result['available_at'] ?? 0,
 						];
