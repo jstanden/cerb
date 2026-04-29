@@ -9044,7 +9044,17 @@
 			</class>
 			<params />
 		</extension>
-		
+
+		<extension point="cerberusweb.cron">
+			<id>cron.background_queue</id>
+			<name>Background Queue</name>
+			<class>
+				<file>api/crons/background_queue.php</file>
+				<name>Cron_BackgroundQueue</name>
+			</class>
+			<params />
+		</extension>
+
 		<extension point="cerberusweb.cron">
 			<id>cron.mailbox</id>
 			<name>Mailbox Checker and Email Downloader</name>

@@ -25,6 +25,15 @@ if($changes) {
 }
 
 // ===========================================================================
+// Enable the new background cronjob
+
+$db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.background_queue', 'enabled', '1')");
+$db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.background_queue', 'duration', '1')");
+$db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.background_queue', 'term', 'm')");
+$db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.background_queue', 'lastrun', '0')");
+$db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.background_queue', 'locked', '0')");
+
+// ===========================================================================
 // Search Index
 
 if(!array_key_exists('search_index', $tables)) {
