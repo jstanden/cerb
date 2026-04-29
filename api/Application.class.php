@@ -2433,6 +2433,16 @@ class CerberusContexts {
 		return $models;
 	}
 
+	static private bool $_context_checkpoints_enabled = true;
+	
+	static function isContextCheckpointsEnabled() : bool {
+		return self::$_context_checkpoints_enabled;
+	}
+	
+	static function setContextCheckpointsEnabled(bool $enabled) : void {
+		self::$_context_checkpoints_enabled = $enabled;
+	}
+	
 	static private array $_context_creations = [];
 	
 	static function checkpointCreations($context, $ids) {
@@ -2440,6 +2450,9 @@ class CerberusContexts {
 			return;
 		
 		if (!DevblocksPlatform::services()->event()->isEnabled())
+			return;
+		
+		if(!self::isContextCheckpointsEnabled())
 			return;
 		
 		if(!is_array($ids)) $ids = [$ids];
@@ -2463,6 +2476,9 @@ class CerberusContexts {
 		if (!DevblocksPlatform::services()->event()->isEnabled())
 			return;
 		
+		if(!self::isContextCheckpointsEnabled())
+			return;
+		
 		if(!is_array($ids))
 			$ids = [$ids];
 		
@@ -2483,6 +2499,10 @@ class CerberusContexts {
 			return;
 		
 		if(!DevblocksPlatform::services()->event()->isEnabled())
+			return;
+		
+		// We need to be able to disable just record.changed and not all events
+		if(!self::isContextCheckpointsEnabled())
 			return;
 		
 		if(!is_array($ids)) $ids = [$ids];
