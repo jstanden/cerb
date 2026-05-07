@@ -384,8 +384,10 @@ class ServiceProvider_OpenIdConnect extends Extension_ConnectedServiceProvider {
 		
 		if(!array_key_exists('code', $_GET)) {
 			// Send to the authentication URL
-			$redirectUrl = $provider->getAuthorizationUrl();
+			$nonce = DevblocksPlatform::services()->string()->base64UrlEncode(random_bytes(16));
+			$redirectUrl = $provider->getAuthorizationUrl(['nonce' => $nonce]);
 			$_SESSION['oidc.state'] = $provider->getState();
+			$_SESSION['oidc.nonce'] = $nonce;
 			DevblocksPlatform::redirectURL($redirectUrl);
 		}
 
@@ -400,13 +402,21 @@ class ServiceProvider_OpenIdConnect extends Extension_ConnectedServiceProvider {
 			DevblocksPlatform::redirect(new DevblocksHttpResponse(['login'], $query), 0);
 		}
 
+		// Single-use the request `nonce` so we can compare it to the ID token claim
+		$expected_nonce = $_SESSION['oidc.nonce'] ?? null;
+		unset($_SESSION['oidc.nonce']);
+
 		try {
 			$token = $provider->getAccessToken('authorization_code', [
 				'code' => $_GET['code']
 			]);
-			
+
 			$id_token = $token->getIdToken();
-			
+
+			$returned_nonce = $id_token->claims()->get('nonce');
+			if(!$expected_nonce || !$returned_nonce || !hash_equals($expected_nonce, $returned_nonce))
+				throw new Exception_DevblocksValidationError("The ID token nonce did not match the request.");
+
 			if(!($email = $id_token->claims()->get('email')))
 				throw new Exception_DevblocksValidationError("The ID token does not have an 'email' claim.");
 			
