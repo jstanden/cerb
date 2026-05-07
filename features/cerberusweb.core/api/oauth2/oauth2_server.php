@@ -392,8 +392,8 @@ class Cerb_OAuth2ClientRespository implements ClientRepositoryInterface {
 
 		if(!($oauth_client = DAO_OAuthApp::getByClientId($clientIdentifier)))
 			return false;
-
-		if($oauth_client->client_secret != $clientSecret)
+		
+		if(!hash_equals((string) $oauth_client->client_secret, (string) $clientSecret))
 			return false;
 
 		return true;

@@ -212,7 +212,7 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 						$hash_calc = hash_hmac('sha256', implode('/',[$file,$portal_code]), $secret);
 						
 						// If the signature doesn't match or is expired, forbid
-						if(!($hash===$hash_calc))
+						if(!hash_equals($hash_calc, (string) $hash))
 							DevblocksPlatform::dieWithHttpError(null, 403);
 						
 						if(($resource = \DAO_Resource::getByNameAndType($file, \ResourceType_PortalImage::ID))) {

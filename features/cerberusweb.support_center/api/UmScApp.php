@@ -191,7 +191,7 @@ class UmScApp extends Extension_CommunityPortal {
 			if(!DEVELOPMENT_MODE_ALLOW_CSRF) {
 			
 				// ...and the CSRF token is invalid for this session, freak out
-				if(!$umsession->csrf_token || $umsession->csrf_token != $request->csrf_token) {
+				if(!$umsession->csrf_token || !hash_equals($umsession->csrf_token, (string) ($request->csrf_token ?? ''))) {
 					//$referer = $_SERVER['HTTP_REFERER'] ?? null;
 					//@$remote_addr = DevblocksPlatform::getClientIp();
 					

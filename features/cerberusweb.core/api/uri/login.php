@@ -735,7 +735,7 @@ class Page_Login extends CerberusPageExtension {
 					
 					if(
 						null === ($saved_code = $login_state->getParam('recover.code', null))
-						|| 0 != strcmp(sprintf('%s:%s', $login_state->getEmail(), $code), $saved_code)
+						|| !hash_equals((string) $saved_code, sprintf('%s:%s', $login_state->getEmail(), $code))
 					) {
 						$login_state
 							->setParamIncr('recover.fail_count', 1)
@@ -770,7 +770,7 @@ class Page_Login extends CerberusPageExtension {
 					|| !($unauthenticated_worker = DAO_Worker::getByEmail($email))
 					|| null === ($recover_code = $login_state->getParam('recover.code', null))
 					|| null === ($recover_code_given = $login_state->getParam('recover.code.given', null))
-					|| 0 != strcmp(sprintf('%s:%s', $login_state->getEmail(), $recover_code_given), $recover_code)
+					|| !hash_equals((string) $recover_code, sprintf('%s:%s', $login_state->getEmail(), $recover_code_given))
 				) {
 					DevblocksPlatform::redirect(new DevblocksHttpRequest(['login','recover']), 0);
 				}
@@ -837,7 +837,7 @@ class Page_Login extends CerberusPageExtension {
 								$answers_needed++;
 								
 								// Wrong answer?
-								if(0 === strcmp($question['a'], $secret_answers[$idx]))
+								if(hash_equals((string) $question['a'], (string) ($secret_answers[$idx] ?? '')))
 									$answers_correct++;
 							}
 							
@@ -864,7 +864,7 @@ class Page_Login extends CerberusPageExtension {
 					|| !($unauthenticated_worker = DAO_Worker::getByEmail($email))
 					|| null === ($recover_code = $login_state->getParam('recover.code', null))
 					|| null === ($recover_code_given = $login_state->getParam('recover.code.given', null))
-					|| 0 != strcmp(sprintf('%s:%s', $login_state->getEmail(), $recover_code_given), $recover_code)
+					|| !hash_equals((string) $recover_code, sprintf('%s:%s', $login_state->getEmail(), $recover_code_given))
 					|| true !== $login_state->getParam('recover.verified', false)
 				) {
 					DevblocksPlatform::redirect(new DevblocksHttpRequest(['login','recover']), 0);

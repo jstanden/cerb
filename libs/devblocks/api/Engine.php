@@ -714,7 +714,7 @@ abstract class DevblocksEngine {
 				// Always check the CSRF token on non-GET
 				if ('GET' != $http_method) {
 					// ...if the CSRF token is invalid for this session, freak out
-					if (!array_key_exists('csrf_token', $_SESSION) || $_SESSION['csrf_token'] != $request->csrf_token) {
+					if (!array_key_exists('csrf_token', $_SESSION) || !hash_equals($_SESSION['csrf_token'], (string) ($request->csrf_token ?? ''))) {
 						if(['login','authenticate'] == [$request->path[0],$request->path[1]]) {
 							CerberusApplication::respondWithErrorReason(CerbErrorReason::SessionExpired);
 						} else {

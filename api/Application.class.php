@@ -1004,7 +1004,7 @@ class CerberusApplication extends DevblocksApplication {
 				defined('APP_SERVICE_TOKEN')
 				&& is_string(APP_SERVICE_TOKEN)
 				&& APP_SERVICE_TOKEN
-				&& APP_SERVICE_TOKEN === $request_token
+				&& hash_equals(APP_SERVICE_TOKEN, (string) $request_token)
 				&& defined('APP_SERVICE_TOKEN_SCOPE')
 				&& is_string(APP_SERVICE_TOKEN_SCOPE)
 				&& APP_SERVICE_TOKEN_SCOPE

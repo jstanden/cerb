@@ -159,7 +159,7 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 		$string_to_sign = "$string_to_sign_prefix\n$secret\n";
 		$compare_hash = md5($string_to_sign);
 
-		if(0 != strcmp($auth_signature, $compare_hash)) {
+		if(!hash_equals($compare_hash, (string) $auth_signature)) {
 			http_response_code(401);
 			Plugin_RestAPI::render(array('__status'=>'error', 'message'=>"Access denied! (Invalid credentials: checksum)"));
 		}
