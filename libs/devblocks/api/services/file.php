@@ -31,4 +31,73 @@ class _DevblocksFileService {
 	function getMimeTypebyExt($ext) : string {
 		return $this->_mime_types[DevblocksPlatform::strLower($ext)] ?? 'application/octet-stream';
 	}
+	
+	public function countLines($fp) : int {
+		$start = ftell($fp);
+		$lines = 0;
+		$partial = false;
+		
+		while(!feof($fp)) {
+			$chunk = fread($fp, 65_536);
+			
+			if($chunk === false || $chunk === '')
+				continue;
+			
+			$lines += substr_count($chunk, "\n");
+			$partial = $chunk[-1] !== "\n";
+		}
+		
+		if($partial)
+			$lines++;
+		
+		fseek($fp, $start);
+		
+		return $lines;
+	}
+	
+	public function indexLines($fp): \Generator {
+		if (!is_resource($fp) || get_resource_type($fp) != 'stream') {
+			throw new InvalidArgumentException('Expected an open stream resource.');
+		}
+		
+		$start = ftell($fp);
+		$line_number = 0;
+		$line_offset = 0;
+		
+		while(!feof($fp)) {
+			if(false === ($line = fgets($fp))) continue;
+			$length = strlen($line);
+			
+			yield [$line_number++, $line_offset, $length];
+			$line_offset += $length;
+		}
+		
+		fseek($fp, $start);
+	}
+	
+	public function indexCsv($fp) : \Generator {
+		if(!is_resource($fp) || get_resource_type($fp) != 'stream') {
+			throw new InvalidArgumentException('Expected an open stream resource.');
+		}
+		
+		$start = ftell($fp);
+		
+		$line_number = 0;
+		$line_offset = $start;
+		
+		while(!feof($fp)) {
+			fgetcsv($fp, 64_000, ',', '"');
+			$current = ftell($fp);
+			$buffer_length = $current - $line_offset;
+		
+			// If we have a blank final line, ignore it
+			if(!$buffer_length) continue;
+			
+			yield [$line_number, $line_offset, $buffer_length];
+			$line_offset = $current;
+			$line_number++;
+		}
+		
+		fseek($fp, $start);
+	}
 }
