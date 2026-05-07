@@ -110,15 +110,19 @@ class GenericOpenIDConnectProvider extends GenericProvider {
 		return $json;
 	}
 	
-	public function getPublicKeyByDefault() {
+	public function getAllPublicKeys() {
 		$jwks = $this->fetchJwks($this->urlJwks);
-		
+
 		if(!is_array($jwks) || !array_key_exists('keys', $jwks) || empty($jwks['keys']))
-			return null;
-		
-		$jwk = current($jwks['keys']);
-		
-		return $this->convertJwkToRsa($jwk);
+			return [];
+
+		$public_keys = [];
+
+		foreach($jwks['keys'] as $jwk) {
+			$public_keys[] = $this->convertJwkToRsa($jwk);
+		}
+
+		return $public_keys;
 	}
 	
 	public function getPublicKeyByJwkId($kid) {
@@ -159,20 +163,36 @@ class GenericOpenIDConnectProvider extends GenericProvider {
 			throw new InvalidTokenException('Expected an id_token but did not receive one from the authorization server.');
 		}
 		
+		$validation = new Validator();
+
 		// Not all ID tokens provide a 'kid' (Key ID) header
 		if($token->headers()->has('kid')) {
 			$kid = $token->headers()->get('kid');
-			
+
 			if(!($public_key = $this->getPublicKeyByJwkId($kid)))
 				throw new InvalidTokenException('Received an invalid key ID (kid) header from authorization server.');
-			
+
 		} else {
-			// Use the first key if one wasn't specified
-			$public_key = $this->getPublicKeyByDefault();
+			// Without a `kid` header, try every JWK in the JWKS until one verifies
+			// the signature. This stays compatible with IdPs that don't emit `kid`
+			// during key rotation, where the first JWK isn't always the signer.
+			$public_key = null;
+
+			foreach($this->getAllPublicKeys() as $candidate_key) {
+				$candidate_constraint = new Lcobucci\JWT\Validation\Constraint\SignedWith(
+					new Sha256(), InMemory::plainText($candidate_key)
+				);
+
+				if($validation->validate($token, $candidate_constraint)) {
+					$public_key = $candidate_key;
+					break;
+				}
+			}
+
+			if(null === $public_key)
+				throw new InvalidTokenException('The id_token signature did not validate against any JWKS key.');
 		}
 
-		$validation = new Validator();
-		
 		$constraints = [
 			new Lcobucci\JWT\Validation\Constraint\SignedWith(new Sha256(), InMemory::plainText($public_key)),
 			new Lcobucci\JWT\Validation\Constraint\LooseValidAt(new SystemClock(new DateTimeZone(\date_default_timezone_get()))),
