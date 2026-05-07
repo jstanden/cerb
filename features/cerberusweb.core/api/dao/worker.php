@@ -1167,8 +1167,8 @@ class DAO_Worker extends Cerb_ORMHelper {
 					return null;
 				
 				$given_hash = sha1($worker_auth['pass_salt'] . md5($password));
-				
-				if($given_hash == $worker_auth['pass_hash']) {
+
+				if(hash_equals($worker_auth['pass_hash'], $given_hash)) {
 					// Upgrade password to stronger hashing method
 					$db->ExecuteMaster(sprintf("UPDATE worker_auth_hash SET pass_hash = %s, pass_salt = '', method = 1 WHERE worker_id = %d",
 						$db->qstr(password_hash($password, PASSWORD_DEFAULT)),
