@@ -74,6 +74,9 @@ class DAO_SupportCenterAddressShare extends Cerb_ORMHelper {
 		if(!$share_address_id || !$with_address_ids)
 			return false;
 		
+		$share_address_id = intval($share_address_id);
+		$with_address_ids = DevblocksPlatform::sanitizeArray($with_address_ids, 'int');
+		
 		// Share the source address with each of the target addresses
 		foreach($with_address_ids as $with_address_id) {
 			$sql = sprintf("INSERT IGNORE INTO supportcenter_address_share (share_address_id, with_address_id, is_enabled) ".
@@ -163,6 +166,9 @@ class DAO_SupportCenterAddressShare extends Cerb_ORMHelper {
 			
 		if(empty($share_with_ids))
 			$share_with_ids = array(-1);
+		
+		$share_id = intval($share_id);
+		$share_with_ids = DevblocksPlatform::sanitizeArray($share_with_ids, 'int');
 		
 		$db = DevblocksPlatform::services()->database();
 		$sql = sprintf("DELETE FROM supportcenter_address_share WHERE share_address_id = %d AND with_address_id NOT IN (%s)",

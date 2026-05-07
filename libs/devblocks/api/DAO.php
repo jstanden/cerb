@@ -762,6 +762,9 @@ abstract class DevblocksORMHelper {
 		if(!is_numeric($to_id) || !is_array($from_ids))
 			return false;
 		
+		$to_id = intval($to_id);
+		$from_ids = DevblocksPlatform::sanitizeArray($from_ids, 'int');
+		
 		// Log the ID changes
 		foreach($from_ids as $from_id)
 			DAO_ContextMergeHistory::logMerge($context, $from_id, $to_id);

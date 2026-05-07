@@ -129,10 +129,12 @@ class CustomField_GeoPoint extends Extension_CustomField {
 		if(empty($context_ids))
 			return false;
 		
+		$context_ids = DevblocksPlatform::sanitizeArray($context_ids, 'int');
+		
 		return sprintf("SELECT context_id, field_id, ST_ASTEXT(field_value) AS field_value ".
 			"FROM custom_field_geovalue ".
-			"WHERE context = '%s' AND context_id IN (%s)",
-			$context,
+			"WHERE context = %s AND context_id IN (%s)",
+			Cerb_ORMHelper::qstr($context),
 			implode(',', $context_ids)
 		);
 	}
@@ -723,10 +725,12 @@ class CustomField_RecordLinks extends Extension_CustomField {
 		if(empty($context_ids))
 			return false;
 		
+		$context_ids = DevblocksPlatform::sanitizeArray($context_ids, 'int');
+		
 		return sprintf("SELECT context_id, field_id, field_value ".
 			"FROM custom_field_numbervalue ".
-			"WHERE context = '%s' AND context_id IN (%s)",
-			$context,
+			"WHERE context = %s AND context_id IN (%s)",
+			Cerb_ORMHelper::qstr($context),
 			implode(',', $context_ids)
 		);
 	}
