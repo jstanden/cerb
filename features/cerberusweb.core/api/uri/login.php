@@ -1054,7 +1054,12 @@ class Page_Login extends CerberusPageExtension {
 		
 		$login_post_url = $login_state->popRedirectUri();
 		$login_state->destroy();
-		
+
+		// Defense in depth: never follow an unvalidated redirect URI.
+		// Producers (e.g. SAML RelayState) validate before pushing too.
+		if($login_post_url && !CerbLoginWorkerAuthState::isSafeRedirectUri($login_post_url))
+			$login_post_url = null;
+
 		if($login_post_url) {
 			if(DevblocksPlatform::strStartsWith($login_post_url, 'internal/redirectRead/')) {
 				$url_parts = explode('/', $login_post_url);

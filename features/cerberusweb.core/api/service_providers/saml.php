@@ -156,9 +156,15 @@ class ServiceProvider_SAML extends Extension_ConnectedServiceProvider {
 					DevblocksPlatform::redirect(new DevblocksHttpResponse(['login'], $query), 0);
 				}
 				
-				// If we had an original post-login destination, add it back
-				if(array_key_exists('RelayState', $_POST ?? []))
+				// If we had an original post-login destination, add it back.
+				// RelayState arrives outside the SAML signature and is attacker-influenceable,
+				// so only push it through if it's a relative path or a same-origin absolute URL.
+				if(
+					array_key_exists('RelayState', $_POST ?? [])
+					&& CerbLoginWorkerAuthState::isSafeRedirectUri($_POST['RelayState'])
+				) {
 					$login_state->pushRedirectUri($_POST['RelayState']);
+				}
 				
 				$email = $auth->getNameId();
 				

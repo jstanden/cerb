@@ -3626,13 +3626,45 @@ class CerbLoginWorkerAuthState {
 	function popRedirectUri() {
 		return array_pop($this->redirect_uris);
 	}
-	
+
 	function pushRedirectUri($uri, $replace=false) {
 		if($replace)
 			$this->redirect_uris = [];
-		
+
 		$this->redirect_uris[] = $uri;
 		return $this;
+	}
+
+	/**
+	 * Validates that a candidate post-login redirect URI is either a relative
+	 * path or an absolute URL whose origin matches our own base URL. Used to
+	 * gate values that arrive from outside our trust boundary (e.g. SAML
+	 * RelayState echoed from the IdP) before they reach `redirectURL()`.
+	 */
+	public static function isSafeRedirectUri(?string $uri): bool {
+		if(!$uri)
+			return false;
+
+		if(!is_array($url_parts = parse_url($uri)))
+			return false;
+
+		// Form 1: relative path only (no scheme, host, port, user, etc.)
+		if(
+			array_key_exists('path', $url_parts)
+			&& !array_diff(array_keys($url_parts), ['path','query'])
+		) {
+			return true;
+		}
+
+		// Form 2: absolute URL whose origin matches our own base URL
+		if(!is_array($base_parts = parse_url(DevblocksPlatform::services()->url()->write('', true))))
+			return false;
+
+		return (
+			($url_parts['scheme'] ?? '') === ($base_parts['scheme'] ?? '')
+			&& ($url_parts['host'] ?? '') === ($base_parts['host'] ?? '')
+			&& ($url_parts['port'] ?? null) === ($base_parts['port'] ?? null)
+		);
 	}
 	
 	function getMotd() : array {
