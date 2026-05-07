@@ -910,12 +910,17 @@ class Page_Login extends CerberusPageExtension {
 					}
 					
 					// Success
-					
+
 					DAO_Worker::setAuth($unauthenticated_worker->id, $password);
-					
+
+					// Evict any existing sessions for this worker (including a stolen
+					// cookie that prompted the reset). The current request is in an
+					// unauthenticated recover session, so it isn't affected.
+					Cerb_DevblocksSessionHandler::destroyByWorkerIds($unauthenticated_worker->id);
+
 					$cache_key = sprintf('recover:worker:%d', $unauthenticated_worker->id);
 					$cache->remove($cache_key);
-					
+
 					$login_state
 						->clearAuthState()
 						;
