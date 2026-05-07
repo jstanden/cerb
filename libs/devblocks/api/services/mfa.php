@@ -16,11 +16,11 @@ class _DevblocksMultiFactorAuthService {
 	public function generateMultiFactorOtpSeed($length=24) {
 		$alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
 		$seed = '';
-		
+
 		for($x=0; $x<$length; $x++) {
-			$seed .= substr($alphabet, mt_rand(0, 31), 1);
+			$seed .= $alphabet[random_int(0, 31)];
 		}
-		
+
 		return $seed;
 	}
 	
