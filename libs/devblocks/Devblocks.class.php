@@ -4028,6 +4028,10 @@ class DevblocksPlatform extends DevblocksEngine {
 		$registry = DevblocksPlatform::services()->registry();
 		$registry->save();
 		
+		// Handle queue message status updates
+		$queue_service = DevblocksPlatform::services()->queue();
+		$queue_service->publish();
+		
 		// Publish aggregated metrics
 		$metrics = DevblocksPlatform::services()->metrics();
 		$metrics->publish();

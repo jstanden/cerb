@@ -3,6 +3,8 @@ class _DevblocksQueueService {
 	private static ?_DevblocksQueueService $_instance = null;
 	
 	private array $_queue_cache = [];
+	private array $_status_buffer = ['success'=>[], 'failure'=>[]];
+	private array $_jobs_buffer = [];
 	
 	static function getInstance() : _DevblocksQueueService {
 		if(is_null(self::$_instance))
@@ -53,18 +55,57 @@ class _DevblocksQueueService {
 		return DAO_QueueMessage::dequeue($queue, $limit, $consumer_id, $job_id);
 	}
 	
-	public function reportSuccess(array $message_uuids) : void {
-		if($message_uuids)
-			DAO_QueueMessage::reportSuccess($message_uuids);
+	public function reportSuccess(array $messages, string $message='') : void {
+		foreach($messages as $message)
+			$this->_status_buffer['success'][$message->uuid] = true;
+		$this->_trackJobIds($messages);
 	}
 	
-	public function reportFailure(array $message_uuids) : void {
-		if($message_uuids)
-			DAO_QueueMessage::reportFailure($message_uuids);
+	public function reportFailure(array $messages, string $message='') : void {
+		foreach($messages as $message)
+			$this->_status_buffer['failure'][$message->uuid] = true;
+		$this->_trackJobIds($messages);
+	}
+	
+	private function _trackJobIds(array $messages) : void {
+		foreach(array_unique(array_column($messages, 'job_id')) as $job_id) {
+			if($job_id) $this->_jobs_buffer[$job_id] = true;
+		}
 	}
 	
 	function maint() : void {
-		// Purge completed queue messages
+		// Purge completed queue messages after retention
 		DAO_QueueMessage::maint();
+	}
+	
+	/**
+	 * Persist queue message stats
+	 *
+	 * @return void
+	 */
+	public function publish() {
+		if($this->_status_buffer['success']) {
+			DAO_QueueMessage::reportSuccess(array_keys($this->_status_buffer['success']));
+			$this->_status_buffer['success'] = [];
+		}
+		
+		if($this->_status_buffer['failure']) {
+			DAO_QueueMessage::reportFailure(array_keys($this->_status_buffer['failure']));
+			$this->_status_buffer['failure'] = [];
+		}
+		
+		// Update counts on jobs that changed
+		if($this->_jobs_buffer) {
+			$job_ids = array_keys($this->_jobs_buffer);
+			
+			foreach($job_ids as $job_id)
+				DAO_QueueJob::syncProgress($job_id);
+			
+			if(($newly_finished_jobs = DAO_QueueJob::checkForCompletedJobs($job_ids))) {
+				DAO_QueueJob::setStatus(array_keys($newly_finished_jobs), QueueJobStatus::DONE);
+			}
+			
+			$this->_jobs_buffer = [];
+		}
 	}
 }

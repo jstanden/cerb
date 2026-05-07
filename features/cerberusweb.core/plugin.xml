@@ -656,6 +656,7 @@
 			<class name="Model_QueueJob" />
 			<class name="Model_QueueMessage" />
 			<class name="QueueJobStatus" />
+			<class name="QueueMessageStatus" />
 			<class name="SearchFields_Queue" />
 			<class name="View_Queue" />
 		</file>

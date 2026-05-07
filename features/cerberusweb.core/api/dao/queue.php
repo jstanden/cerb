@@ -580,12 +580,14 @@ class DAO_QueueLog {
 	// [TODO]
 }
 
+enum QueueMessageStatus : int {
+	case AVAILABLE = 0;
+	case IN_FLIGHT = 1;
+	case FAILED = 2;
+	case DONE = 3;
+}
+
 class DAO_QueueMessage {
-	const STATUS_AVAILABLE = 0;
-	const STATUS_IN_FLIGHT = 1;
-	const STATUS_FAILED = 2;
-	const STATUS_COMPLETE = 3;
-	
 	/**
 	 * @param Model_Queue $queue
 	 * @param array $messages
@@ -611,7 +613,7 @@ class DAO_QueueMessage {
 				'0x' . $db->escape($message_uuid),
 				$queue->id,
 				$job_id,
-				self::STATUS_AVAILABLE,
+				QueueMessageStatus::AVAILABLE->value,
 				time(),
 				$db->escape('NULL'),
 				$db->qstr(json_encode($message)),
@@ -651,11 +653,12 @@ class DAO_QueueMessage {
 				"UPDATE queue_message SET status_id=%d, status_at=%d, consumer_id=%s ".
 				"WHERE queue_id=%d %s%sAND status_id=%d AND available_at <= %d LIMIT %d",
 				self::STATUS_IN_FLIGHT,
+				QueueMessageStatus::IN_FLIGHT->value,
 				time(),
 				$db->escape($consumer_id),
 				$queue->id,
 				!is_null($job_id) ? sprintf("AND job_id=%d ", $job_id) : '',
-				self::STATUS_AVAILABLE,
+				QueueMessageStatus::AVAILABLE->value,
 				time(),
 				$limit
 			)
@@ -666,7 +669,7 @@ class DAO_QueueMessage {
 			"WHERE queue_id=%d %s%sAND status_id=%d AND consumer_id=%s",
 			$queue->id,
 			!is_null($job_id) ? sprintf("AND job_id=%d ", $job_id) : '',
-			self::STATUS_IN_FLIGHT,
+			QueueMessageStatus::IN_FLIGHT->value,
 			$db->escape($consumer_id)
 		));
 		
@@ -698,12 +701,12 @@ class DAO_QueueMessage {
 		return $messages;
 	}
 	
-	static function reportSuccess(array $message_uuids) {
-		self::_reportStatus(DAO_QueueMessage::STATUS_COMPLETE, $message_uuids);
+	static function reportSuccess(array $message_uuids) : void {
+		self::_reportStatus(QueueMessageStatus::DONE, $message_uuids);
 	}
 	
-	static function reportFailure(array $message_uuids) {
-		self::_reportStatus(DAO_QueueMessage::STATUS_FAILED, $message_uuids);
+	static function reportFailure(array $message_uuids) : void {
+		self::_reportStatus(QueueMessageStatus::FAILED, $message_uuids);
 	}
 	
 	static private function _reportStatus($status_id, $message_uuids) {
@@ -908,6 +911,16 @@ class Model_QueueMessage {
 	public $message = null;
 	public int $job_id = 0;
 	public int $available_at = 0;
+	
+	public function reportStatus(QueueMessageStatus $status, string $message='') : void {
+		$queue_service = DevblocksPlatform::services()->queue();
+		
+		if(QueueMessageStatus::DONE == $status) {
+			$queue_service->reportSuccess([$this], $message);
+		} else {
+			$queue_service->reportFailure([$this], $message);
+		}
+	}
 }
 
 class View_Queue extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
