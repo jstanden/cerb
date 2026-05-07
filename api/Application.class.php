@@ -3545,6 +3545,8 @@ class CerbLoginWorkerAuthState {
 	}
 	
 	function clearAuthState() {
+		$this->motd = [];
+
 		return $this
 			->setWorker(null)
 			->setParams([])
@@ -3557,6 +3559,11 @@ class CerbLoginWorkerAuthState {
 			->setTimeMfaChallengedAt(0)
 			->setWasConsentAsked(false)
 			;
+	}
+
+	function clearRedirectUris() {
+		$this->redirect_uris = [];
+		return $this;
 	}
 	
 	function getEmail() {

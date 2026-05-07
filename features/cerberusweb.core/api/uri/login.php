@@ -532,8 +532,9 @@ class Page_Login extends CerberusPageExtension {
 						if($login_state->getParam('mfa.fail_count') > 2) {
 							$login_state
 								->clearAuthState()
+								->clearRedirectUris()
 								;
-							
+
 							$query = ['error' => 'mfa.failed'];
 							DevblocksPlatform::redirect(new DevblocksHttpRequest(['login'], $query));
 						}
@@ -743,8 +744,11 @@ class Page_Login extends CerberusPageExtension {
 						
 						// Too many bad guesses
 						if($login_state->getParam('recover.fail_count') > 2) {
-							$login_state->clearAuthState();
-							
+							$login_state
+								->clearAuthState()
+								->clearRedirectUris()
+								;
+
 							$query = [ 'error' =>  'auth.failed'];
 							DevblocksPlatform::redirect(new DevblocksHttpRequest(['login','recover'], $query), 0);
 							
