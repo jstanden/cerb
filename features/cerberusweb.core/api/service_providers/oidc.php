@@ -419,7 +419,12 @@ class ServiceProvider_OpenIdConnect extends Extension_ConnectedServiceProvider {
 
 			if(!($email = $id_token->claims()->get('email')))
 				throw new Exception_DevblocksValidationError("The ID token does not have an 'email' claim.");
-			
+
+			// If the IdP reports the verification status, require it to be verified.
+			// IdPs that don't emit the claim continue to work as before.
+			if($id_token->claims()->has('email_verified') && true !== $id_token->claims()->get('email_verified'))
+				throw new Exception_DevblocksValidationError("The ID token reports the 'email' claim as unverified.");
+
 			if(!($worker = DAO_Worker::getByEmail($email)))
 				throw new Exception_DevblocksValidationError("The ID token 'email' claim does not match a worker account.");
 			
