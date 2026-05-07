@@ -385,9 +385,21 @@ class ServiceProvider_OpenIdConnect extends Extension_ConnectedServiceProvider {
 		if(!array_key_exists('code', $_GET)) {
 			// Send to the authentication URL
 			$redirectUrl = $provider->getAuthorizationUrl();
+			$_SESSION['oidc.state'] = $provider->getState();
 			DevblocksPlatform::redirectURL($redirectUrl);
 		}
-		
+
+		// Verify the OAuth `state` parameter to protect the callback from CSRF
+		$expected_state = $_SESSION['oidc.state'] ?? null;
+		$given_state = $_GET['state'] ?? null;
+		unset($_SESSION['oidc.state']);
+
+		if(!$expected_state || !$given_state || !hash_equals($expected_state, $given_state)) {
+			DevblocksPlatform::logError("[OIDC] callback state mismatch");
+			$query = ['error' => 'auth.failed'];
+			DevblocksPlatform::redirect(new DevblocksHttpResponse(['login'], $query), 0);
+		}
+
 		try {
 			$token = $provider->getAccessToken('authorization_code', [
 				'code' => $_GET['code']
