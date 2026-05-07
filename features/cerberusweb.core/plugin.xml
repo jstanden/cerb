@@ -649,18 +649,26 @@
 		<file path="api/dao/queue.php">
 			<class name="Context_Queue" />
 			<class name="DAO_Queue" />
-			<class name="DAO_QueueJob" />
-			<class name="DAO_QueueLog" />
-			<class name="DAO_QueueMessage" />
 			<class name="Model_Queue" />
-			<class name="Model_QueueJob" />
-			<class name="Model_QueueMessage" />
-			<class name="QueueJobStatus" />
-			<class name="QueueMessageStatus" />
 			<class name="SearchFields_Queue" />
 			<class name="View_Queue" />
 		</file>
-		
+
+		<file path="api/dao/queue_job.php">
+			<class name="Context_QueueJob" />
+			<class name="DAO_QueueJob" />
+			<class name="Model_QueueJob" />
+			<class name="QueueJobStatus" />
+			<class name="SearchFields_QueueJob" />
+			<class name="View_QueueJob" />
+		</file>
+
+		<file path="api/dao/queue_message.php">
+			<class name="DAO_QueueMessage" />
+			<class name="Model_QueueMessage" />
+			<class name="QueueMessageStatus" />
+		</file>
+
 		<file path="api/dao/record_changeset.php">
 			<class name="DAO_RecordChangeset" />
 			<class name="Model_RecordChangeset" />
@@ -3780,6 +3788,46 @@
 						<data key="records" />
 						<data key="search" />
 						<data key="va_variable" />
+						<data key="watchers" />
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="update" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<extension point="devblocks.context">
+			<id>cerb.contexts.queue.job</id>
+			<name>Queue Job</name>
+			<class>
+				<file>api/dao/queue_job.php</file>
+				<name>Context_QueueJob</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="queue job" value="singular" />
+						<data key="queue jobs" value="plural" />
+					</value>
+				</param>
+				<param key="alias" value="queue_job" />
+				<param key="dao_class" value="DAO_QueueJob" />
+				<param key="view_class" value="View_QueueJob" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="comments" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="records" />
+						<data key="search" />
 						<data key="watchers" />
 						<data key="workspace" />
 					</value>
@@ -8100,6 +8148,19 @@
 				<params>
 					<param key="page_id" value="core.page.profiles" />
 					<param key="uri" value="queue" />
+				</params>
+			</extension>
+
+			<extension point="cerberusweb.ui.page.section">
+				<id>cerb.page.profiles.queue_job</id>
+				<name>Queue Job Section</name>
+				<class>
+					<file>api/uri/profiles/queue_job.php</file>
+					<name>PageSection_ProfilesQueueJob</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="queue_job" />
 				</params>
 			</extension>
 

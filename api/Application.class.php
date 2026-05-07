@@ -1105,6 +1105,7 @@ class CerberusContexts {
 	const CONTEXT_PROJECT_BOARD = 'cerberusweb.contexts.project.board';
 	const CONTEXT_PROJECT_BOARD_COLUMN = 'cerberusweb.contexts.project.board.column';
 	const CONTEXT_QUEUE = 'cerb.contexts.queue';
+	const CONTEXT_QUEUE_JOB = 'cerb.contexts.queue.job';
 	const CONTEXT_REMINDER = 'cerberusweb.contexts.reminder';
 	const CONTEXT_RESOURCE = 'cerb.contexts.resource';
 	const CONTEXT_ROLE = 'cerberusweb.contexts.role';

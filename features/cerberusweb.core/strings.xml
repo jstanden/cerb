@@ -4169,6 +4169,50 @@
 			</tuv>
 		</tu>
 
+		<!-- Queue Job -->
+
+		<tu tuid="dao.queue_job.count_available">
+			<tuv xml:lang="en_US">
+				<seg>Available</seg>
+			</tuv>
+		</tu>
+
+		<tu tuid="dao.queue_job.count_done">
+			<tuv xml:lang="en_US">
+				<seg>Done</seg>
+			</tuv>
+		</tu>
+
+		<tu tuid="dao.queue_job.count_failed">
+			<tuv xml:lang="en_US">
+				<seg>Failed</seg>
+			</tuv>
+		</tu>
+
+		<tu tuid="dao.queue_job.count_inflight">
+			<tuv xml:lang="en_US">
+				<seg>In Progress</seg>
+			</tuv>
+		</tu>
+
+		<tu tuid="dao.queue_job.count_total">
+			<tuv xml:lang="en_US">
+				<seg>Total</seg>
+			</tuv>
+		</tu>
+
+		<tu tuid="dao.queue_job.queue_id">
+			<tuv xml:lang="en_US">
+				<seg>Queue</seg>
+			</tuv>
+		</tu>
+
+		<tu tuid="dao.queue_job.singleton_key">
+			<tuv xml:lang="en_US">
+				<seg>Singleton Key</seg>
+			</tuv>
+		</tu>
+
 		<!-- Resource -->
 
 		<tu tuid="dao.resource.cache_until">
