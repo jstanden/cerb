@@ -2237,6 +2237,23 @@ abstract class Extension_DevblocksCacheEngine extends DevblocksExtension {
 	abstract function load($key);
 	abstract function remove($key);
 	abstract function clean();
+
+	final protected function _packPayload(mixed $wrapper): string {
+		$serialized = serialize($wrapper);
+		$hmac = hash_hmac('sha256', $serialized, APP_DB_PASS ?? '');
+		return $hmac . ':' . $serialized;
+	}
+
+	// Returns the unserialized wrapper on success, or false if the HMAC is missing/invalid.
+	final protected function _unpackPayload(string $raw): mixed {
+		$sep = strpos($raw, ':');
+		if(false === $sep) return false;
+		$hmac = substr($raw, 0, $sep);
+		$body = substr($raw, $sep + 1);
+		if(!hash_equals($hmac, hash_hmac('sha256', $body, APP_DB_PASS ?? '')))
+			return false;
+		return unserialize($body);
+	}
 };
 
 interface IDevblocksSearchEngine {

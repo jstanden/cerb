@@ -352,23 +352,24 @@ class DevblocksCacheEngine_Disk extends Extension_DevblocksCacheEngine {
 	function load($key, &$tags=[]) {
 		if(false == ($cache_file_path = $this->_getCacheFileByKey($key)))
 			return null;
-		
+
 		if(!file_exists($cache_file_path))
 			return null;
-		
+
 		if(false === ($fp = fopen($cache_file_path, 'r')))
 			return null;
-		
+
 		flock($fp, LOCK_SH);
-		
-		$wrapper = @unserialize(file_get_contents($cache_file_path));
-		
+		$raw = file_get_contents($cache_file_path);
 		fclose($fp);
-		
+
+		if(!is_string($raw) || false === ($wrapper = $this->_unpackPayload($raw)))
+			return null;
+
 		// If not wrapped, re-cache
 		if(!is_array($wrapper) || !array_key_exists('__data', $wrapper))
 			return null;
-		
+
 		// Check the cache expiration
 		if(array_key_exists('__cache_until', $wrapper) && $wrapper['__cache_until']) {
 			// If expired, kill it
@@ -377,46 +378,43 @@ class DevblocksCacheEngine_Disk extends Extension_DevblocksCacheEngine {
 				return null;
 			}
 		}
-		
+
 		// Do we have tags?
-		if(array_key_exists('__tags', $wrapper)) {
+		if(array_key_exists('__tags', $wrapper))
 			$tags = $wrapper['__tags'];
-		}
-		
+
 		// If not expired, return the data
 		return $wrapper['__data'];
 	}
-	
+
 	function save($data, $key, $tags=[], $ttl=0) {
 		if(false == ($cache_file_path = $this->_getCacheFileByKey($key)))
 			return false;
-		
+
 		$wrapper = [
 			'__data' => $data,
 		];
-		
+
 		if(is_array($tags) && $tags)
 			$wrapper['__tags'] = array_fill_keys($tags, time());
-		
+
 		// Are we setting a TTL?
-		if(!empty($ttl)) {
+		if(!empty($ttl))
 			$wrapper['__cache_until'] = time() + $ttl;
-		}
-		
+
 		if(false === ($fp = fopen($cache_file_path, 'w')))
 			return false;
-		
+
 		// Lock for writing
 		flock($fp, LOCK_EX);
-		
-		if(false === fwrite($fp, serialize($wrapper)))
+
+		if(false === fwrite($fp, $this->_packPayload($wrapper)))
 			return false;
-		
+
 		// Set the permissions more securely
 		@chmod($cache_file_path, 0660);
-		
 		fclose($fp);
-		
+
 		return true;
 	}
 	
@@ -470,22 +468,31 @@ class DevblocksCacheEngine_Memcache extends Extension_DevblocksCacheEngine {
 		// First, check the class for our iteration
 		if(!$new && !is_null($this->_iteration))
 			return $this->_iteration;
-		
+
 		$key_prefix = $this->_config['key_prefix'] ?? null;
 		$cache_key = $key_prefix . 'cacher:iteration';
-		
+
+		$iteration = null;
+
 		// Then check the Memcache
-		if($new || null == ($iteration = $this->_driver->get($cache_key))) {
+		if(!$new) {
+			$raw = @$this->_driver->get($cache_key);
+			if(is_string($raw)
+				&& false !== ($wrapper = $this->_unpackPayload($raw))
+				&& is_array($wrapper)
+				&& array_key_exists('__data', $wrapper))
+			{
+				$iteration = $wrapper['__data'];
+			}
+		}
+
+		if(null === $iteration) {
 			// If not found, generate a new one and save it
 			$iteration = dechex(mt_rand());
 			$this->_set($cache_key, $iteration, 0);
 		}
-		
-		if(is_array($iteration) && array_key_exists('__data', $iteration))
-			$iteration = $iteration['__data'];
-		
+
 		$this->_iteration = $iteration;
-		
 		return $this->_iteration;
 	}
 	
@@ -558,39 +565,43 @@ class DevblocksCacheEngine_Memcache extends Extension_DevblocksCacheEngine {
 		$wrapper = [
 			'__data' => $data,
 		];
-		
-		if($tags) {
+
+		if($tags)
 			$wrapper['__tags'] = array_fill_keys($tags, time());
-		}
-		
+
+		$packed = $this->_packPayload($wrapper);
+
 		if($this->_driver instanceof Memcached) {
-			return $this->_driver->set($cache_key, $wrapper, $ttl);
+			return $this->_driver->set($cache_key, $packed, $ttl);
 		} else {
-			return $this->_driver->set($cache_key, $wrapper, 0, $ttl);
+			return $this->_driver->set($cache_key, $packed, 0, $ttl);
 		}
 	}
-	
+
 	function save($data, $key, $tags=[], $ttl=0) {
 		$cache_key = $this->_getCacheKey($key);
-		
+
 		if(empty($ttl))
 			$ttl = 86400; // 1 day (any value is needed for LRU)
 
 		$this->_set($cache_key, $data, $ttl, $tags);
 		return true;
 	}
-	
+
 	function load($key, &$tags=[]) {
 		$cache_key = $this->_getCacheKey($key);
-		
-		@$wrapper = $this->_driver->get($cache_key);
-		
+
+		$raw = @$this->_driver->get($cache_key);
+
+		if(!is_string($raw) || false === ($wrapper = $this->_unpackPayload($raw)))
+			return null;
+
 		if(!is_array($wrapper) || !array_key_exists('__data', $wrapper))
 			return null;
-		
+
 		if(array_key_exists('__tags', $wrapper))
 			$tags = $wrapper['__tags'];
-		
+
 		return $wrapper['__data'];
 	}
 	
@@ -626,10 +637,10 @@ class DevblocksCacheEngine_Redis extends Extension_DevblocksCacheEngine {
 		$cache_key = $key_prefix . 'cacher:iteration';
 		
 		// Then check the Redis cache
-		if($new 
-			|| null == ($wrapper = $this->_driver->get($cache_key)) 
-			|| false === ($wrapper = @unserialize($wrapper))
-			|| !is_array($wrapper) 
+		if($new
+			|| null == ($wrapper = $this->_driver->get($cache_key))
+			|| null === ($wrapper = json_decode($wrapper, true))
+			|| !is_array($wrapper)
 			|| !array_key_exists('__data', $wrapper)) 
 		{
 			// If not found, generate a new one and save it
@@ -639,7 +650,7 @@ class DevblocksCacheEngine_Redis extends Extension_DevblocksCacheEngine {
 				'__data' => $iteration,
 			];
 			
-			$this->_driver->set($cache_key, serialize($wrapper));
+			$this->_driver->set($cache_key, json_encode($wrapper));
 		}
 		
 		$this->_iteration = $wrapper['__data'];
@@ -719,38 +730,35 @@ class DevblocksCacheEngine_Redis extends Extension_DevblocksCacheEngine {
 	
 	function save($data, $key, $tags=[], $ttl=0) {
 		$cache_key = $this->_getCacheKey($key);
-		
+
 		if(empty($ttl))
 			$ttl = 86400; // 1 day (any value is needed for LRU)
-		
+
 		$wrapper = [
 			'__data' => $data,
 		];
-		
-		if($tags) {
+
+		if($tags)
 			$wrapper['__tags'] = array_fill_keys($tags, time());
-		}
-		
-		$this->_driver->setex($cache_key, $ttl, serialize($wrapper));
+
+		$this->_driver->setex($cache_key, $ttl, $this->_packPayload($wrapper));
 		return true;
 	}
-	
+
 	function load($key, &$tags=[]) {
 		$cache_key = $this->_getCacheKey($key);
-		
-		if(
-			null === ($wrapper = $this->_driver->get($cache_key))
-			|| false === ($wrapper = @unserialize($wrapper))
-		) {
+
+		$raw = $this->_driver->get($cache_key);
+
+		if(null === $raw || false === ($wrapper = $this->_unpackPayload($raw)))
 			return null;
-		}
-		
+
 		if(!is_array($wrapper) || !array_key_exists('__data', $wrapper))
 			return null;
-		
+
 		if(array_key_exists('__tags', $wrapper))
 			$tags = $wrapper['__tags'];
-		
+
 		return $wrapper['__data'];
 	}
 	
