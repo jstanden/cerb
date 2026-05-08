@@ -3869,7 +3869,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		return self::$_error_last;
 	}
 	
-	static function errorHandler(int $errno=0, string $errstr=null, string $errfile=null, int $errline=null, array $errcontext=[]) : bool {
+	static function errorHandler(int $errno=0, ?string $errstr=null, ?string $errfile=null, ?int $errline=null) : bool {
 		static $seen = [];
 		
 		// Suppress if we're not reporting at this level in production

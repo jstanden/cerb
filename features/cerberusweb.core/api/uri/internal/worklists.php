@@ -1573,7 +1573,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		if(!rename($file['tmp_name'], $new_filename))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		header('Content-Type: application/json; charset=utf-8');
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 		
 		$expires_at = $inputs['expires'] ?? (time() + 3600);
 		$resource_token = DevblocksPlatform::services()->string()->uuid();
