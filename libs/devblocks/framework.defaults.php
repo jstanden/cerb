@@ -58,6 +58,9 @@ if(!defined('APP_DB_OPT_CONNECTION_RECONNECTS_WAIT_MS'))
 
 if(!defined('APP_HOSTNAME'))
 	define('APP_HOSTNAME', '');
+
+if(!defined('APP_QUEUE_CONCURRENCY_SLOTS'))
+	define('APP_QUEUE_CONCURRENCY_SLOTS', 5);
 	
 if(!defined('DEVBLOCKS_LANGUAGE'))
 	define('DEVBLOCKS_LANGUAGE','en');

@@ -24,6 +24,23 @@ class _DevblocksQueueService {
 		return $this->_queue_cache[$queue_name];
 	}
 	
+	public function getConcurrencySlot() {
+		$db = DevblocksPlatform::services()->database();
+		
+		// Shuffle the max number of slots and attempt to reserve them
+		$max_slots = APP_QUEUE_CONCURRENCY_SLOTS;
+		$slots = range(1, $max_slots);
+		shuffle($slots);
+		
+		foreach($slots as $slot) {
+			$slot_name = sprintf("queue_slot_%d", $slot);
+			if($db->GetOneMaster(sprintf("SELECT GET_LOCK(%s, 0)", $db->qstr($slot_name))))
+				return $slot;
+		}
+		
+		return null;
+	}
+	
 	/**
 	 * @param string $queue_name
 	 * @param array $messages
