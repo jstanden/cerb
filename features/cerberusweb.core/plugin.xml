@@ -9233,16 +9233,6 @@
 		</extension>
 
 		<extension point="cerberusweb.cron">
-			<id>cron.metrics</id>
-			<name>Metrics</name>
-			<class>
-				<file>api/crons/metrics.php</file>
-				<name>Cron_Metrics</name>
-			</class>
-			<params />
-		</extension>
-		
-		<extension point="cerberusweb.cron">
 			<id>cron.heartbeat</id>
 			<name>Heartbeat</name>
 			<class>
