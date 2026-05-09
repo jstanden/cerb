@@ -465,6 +465,7 @@ class UmSc_TicketHistoryView extends C4_AbstractView implements IAbstractView_Qu
 				$strings = array();
 				if(empty($values) || !is_array($values))
 					break;
+				$values = DevblocksPlatform::sanitizeArray($values, 'int');
 				$addresses = DAO_Address::getWhere(sprintf("%s IN (%s)", DAO_Address::ID, implode(',', $values)));
 				
 				foreach($values as $val) {
