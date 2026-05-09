@@ -72,7 +72,7 @@ class _DevblocksMetricsService {
 				'ts' => $ts,
 			];
 			
-			return $this->processMessages([$message]);
+			$this->processMessages([$message]);
 		}
 	}
 	
@@ -93,10 +93,31 @@ class _DevblocksMetricsService {
 		DAO_MetricValue::gc();
 	}
 	
+	public function processQueue(Model_Queue $queue, int $stop_time, int $count_hint, ?Model_QueueJob $queue_job=null) : int {
+		$queue_service = DevblocksPlatform::services()->queue();
+		
+		$processed = 0;
+		
+		while($stop_time > time()) {
+			$consumer_id = null;
+			$limit = 100;
+			
+			$messages = $queue_service->dequeue($queue->name, $limit, $consumer_id, $queue_job?->id ?? null);
+			
+			if (empty($messages))
+				break;
+			
+			$this->processMessages($messages);
+			$processed += count($messages);
+		}
+		
+		return $processed;
+	}
+	
 	/**
 	 * @param Model_QueueMessage[] $messages
 	 */
-	function processMessages(array $messages): array {
+	function processMessages(array $messages): void {
 		$db = DevblocksPlatform::services()->database();
 		
 		$message_data = array_column($messages, 'message');
@@ -158,18 +179,13 @@ class _DevblocksMetricsService {
 			);
 		}
 		
-		$results = [
-			'success' => [],
-			'fail' => [],
-		];
-		
 		foreach($messages as $message) { /* @var Model_QueueMessage $message */
 			$message_data = $message->message;
 			
 			// Fail this queue message (unknown metric)
 			if(!array_key_exists($message_data['metric_name'], $metric_names_to_id)
 				|| null == ($metric = ($metrics[$metric_names_to_id[$message_data['metric_name']]] ?? null))) {
-				$results['fail'][] = $message->uuid;
+				$message->reportStatus(QueueMessageStatus::FAILED, sprintf('Unknown metric: %s', $message_data['metric_name']));
 				continue;
 			}
 			
@@ -208,9 +224,7 @@ class _DevblocksMetricsService {
 			
 			DAO_MetricValue::increment($metric->id, $values, $ts, array_values($sample_dimension_values));
 			
-			$results['success'][] = $message->uuid;
+			$message->reportStatus(QueueMessageStatus::DONE);
 		}
-		
-		return $results;
 	}
 }

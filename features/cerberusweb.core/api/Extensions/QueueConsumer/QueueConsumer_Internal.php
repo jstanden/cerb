@@ -15,6 +15,14 @@ class QueueConsumer_Internal extends Extension_QueueConsumer {
 	}
 	
 	public function processQueueMessages(Model_Queue $queue, int $stop_time, int $count_hint, ?Model_QueueJob $queue_job=null) : int {
+		if($queue->name == 'cerb.metrics.publish') {
+			if ($stop_time > time()) {
+				$metrics = DevblocksPlatform::services()->metrics();
+				$metrics->processQueue($queue, $stop_time, $count_hint, $queue_job);
+			}
+			
+		}
+		
 		return 0;
 	}
 }
