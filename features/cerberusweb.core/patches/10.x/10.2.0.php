@@ -680,30 +680,6 @@ if($changes) {
 		$db->ExecuteMaster("update ticket inner join _tmp_ticket_last_opened lo on (lo.ticket_id=ticket.id) set last_opened_delta=lo.created, last_opened_at=lo.created");
 		$db->ExecuteMaster("drop table _tmp_ticket_last_opened");
 	}
-	
-	if(!array_key_exists('elapsed_status_open', $columns)) {
-		$ptr_ticket_id = $db->GetOneMaster('SELECT MAX(id) FROM ticket');
-		
-		// Enqueue jobs for retroactively calculating the field
-		$jobs = [];
-		$limit = 25000;
-		
-		while($ptr_ticket_id > 0) {
-			$jobs[] = [
-				'job' => 'dao.ticket.rebuild.elapsed_status_open',
-				'params' => [
-					'to_id' => intval($ptr_ticket_id),
-					'from_id' => intval(max($ptr_ticket_id - $limit,0))
-				]
-			];
-			
-			$ptr_ticket_id -= ($limit + 1);
-		}
-		
-		if($jobs) {
-			$queue->enqueue('cerb.update.migrations', $jobs);		
-		}
-	}
 }
 
 // ===========================================================================

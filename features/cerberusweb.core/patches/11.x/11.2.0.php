@@ -139,6 +139,9 @@ $db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, va
 $db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.background_queue', 'lastrun', '0')");
 $db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.background_queue', 'locked', '0')");
 
+// Remove retired cron jobs
+$db->ExecuteMaster("DELETE FROM cerb_property_store WHERE extension_id = 'cron.migrations'");
+
 // ===========================================================================
 // Search Index
 
