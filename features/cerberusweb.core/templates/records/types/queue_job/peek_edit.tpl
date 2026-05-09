@@ -16,13 +16,12 @@
 		<tr>
 			<td width="1%" nowrap="nowrap"><b>{'common.status'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%">
-				{if $model->status_id == 2}
-					<span class="cerb-badge">{'common.done'|devblocks_translate|capitalize}</span>
-				{else}
-					<select name="set_status">
-						<option value="0" {if $model->status_id == 0}selected{/if}>Running</option>
-						<option value="1" {if $model->status_id == 1}selected{/if}>Paused</option>
-					</select>
+				{if $model->status_id == 0}
+					<span class="glyphicons glyphicons-play"></span> Running
+				{elseif $model->status_id == 1}
+					<span class="glyphicons glyphicons-pause"></span> Paused
+				{elseif $model->status_id == 2}
+					<span class="glyphicons glyphicons-circle-ok"></span> {'common.done'|devblocks_translate|capitalize}
 				{/if}
 			</td>
 		</tr>

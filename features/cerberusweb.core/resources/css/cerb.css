@@ -118,6 +118,10 @@
   --cerb-color-tag-green: rgb(85,185,75);
   --cerb-color-tag-gray: rgb(100,100,100);
   --cerb-color-tag-orange: rgb(255,138,0);
+  --cerb-color-progress-done: rgb(29,158,117);
+  --cerb-color-progress-failed: rgb(226,75,74);
+  --cerb-color-progress-inflight: rgb(55,138,221);
+  --cerb-color-progress-available: rgb(136,135,128);
   --cerb-color-widget-header: rgb(0,0,0);
   --cerb-callout-background: rgba(220,220,220,0.8);
   --cerb-editor-background: rgb(255,255,255);
@@ -3013,6 +3017,49 @@ TABLE.cerb-widget-data-table .cerb-sheet--row-title div, TABLE.cerb-widget-data-
   background-color: var(--cerb-color-background-contrast-220);
   outline: 2px dashed var(--cerb-color-background-contrast-150);
   outline-offset: -10px;
+}
+
+.cerb-progress-bar rect.cerb-progress-bar--done {
+  fill: var(--cerb-color-progress-done);
+}
+.cerb-progress-bar rect.cerb-progress-bar--failed {
+  fill: var(--cerb-color-progress-failed);
+}
+.cerb-progress-bar rect.cerb-progress-bar--inflight {
+  fill: var(--cerb-color-progress-inflight);
+}
+.cerb-progress-bar rect.cerb-progress-bar--available {
+  fill: var(--cerb-color-progress-available);
+}
+
+.cerb-progress-bar-legend {
+  display: flex;
+  gap: 1em;
+  flex-wrap: wrap;
+  margin: 5px 0 10px 0;
+}
+.cerb-progress-bar-legend > div {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.cerb-progress-bar-legend .cerb-progress-bar-legend--swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.cerb-progress-bar-legend .cerb-progress-bar-legend--swatch.cerb-progress-bar-legend--done {
+  background: var(--cerb-color-progress-done);
+}
+.cerb-progress-bar-legend .cerb-progress-bar-legend--swatch.cerb-progress-bar-legend--failed {
+  background: var(--cerb-color-progress-failed);
+}
+.cerb-progress-bar-legend .cerb-progress-bar-legend--swatch.cerb-progress-bar-legend--inflight {
+  background: var(--cerb-color-progress-inflight);
+}
+.cerb-progress-bar-legend .cerb-progress-bar-legend--swatch.cerb-progress-bar-legend--available {
+  background: var(--cerb-color-progress-available);
 }
 
 /* jQueryUI (Redmond theme) */

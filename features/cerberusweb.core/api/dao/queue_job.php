@@ -1131,6 +1131,12 @@ class Context_QueueJob extends Extension_DevblocksContext implements IDevblocksC
 			},
 		];
 
+		$properties['singleton_key'] = [
+			'label' => mb_ucfirst($translate->_('dao.queue_job.singleton_key')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->singleton_key,
+		];
+
 		$properties['count_total'] = [
 			'label' => mb_ucfirst($translate->_('dao.queue_job.count_total')),
 			'type' => Model_CustomField::TYPE_NUMBER,

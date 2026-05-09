@@ -6120,6 +6120,22 @@
 		</extension>
 
 		<extension point="cerb.card.widget">
+			<id>cerb.card.widget.queue.job.monitor</id>
+			<name>Queue Job Monitor</name>
+			<class>
+				<file>api/cards/widgets/queue_job_monitor.php</file>
+				<name>CardWidget_QueueJobMonitor</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerb.contexts.queue.job" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<extension point="cerb.card.widget">
 			<id>cerb.card.widget.search_index</id>
 			<name>Search Index</name>
 			<class>
@@ -8624,6 +8640,22 @@
 			</params>
 		</extension>
 		
+		<extension point="cerb.profile.tab.widget">
+			<id>cerb.profile.tab.widget.queue.job.monitor</id>
+			<name>Queue Job Monitor</name>
+			<class>
+				<file>api/profiles/widgets/queue_job_monitor.php</file>
+				<name>ProfileWidget_QueueJobMonitor</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerb.contexts.queue.job" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
 		<extension point="cerb.profile.tab.widget">
 			<id>cerb.profile.tab.widget.responsibilities</id>
 			<name>Responsibilities</name>
