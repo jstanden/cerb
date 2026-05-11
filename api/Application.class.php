@@ -2604,17 +2604,17 @@ class CerberusContexts {
 		if(empty(self::$_context_initial_checkpoints))
 			return;
 
-		$event_handler = DevblocksPlatform::services()->ui()->eventHandler();
-		$record_changed_events = DAO_AutomationEvent::getByName('record.changed');
+		$queue_service = DevblocksPlatform::services()->queue();
 		
 		foreach(self::$_context_initial_checkpoints as $context => &$old_models) {
-			// Do this in batches of 100 in order to save memory
+			// Do this in batches of 100 to save memory
 			$ids = array_keys($old_models);
 
 			foreach(array_chunk($ids, 100) as $context_ids) {
 				$new_models = CerberusContexts::getModels($context, $context_ids);
 
 				$values = DAO_CustomFieldValue::getValuesByContextIds($context, $context_ids);
+				$event_states = [];
 
 				foreach($context_ids as $context_id) {
 					$old_model = $old_models[$context_id];
@@ -2629,198 +2629,34 @@ class CerberusContexts {
 						unset($old_model['_actor']);
 					}
 					
-					// Trigger automations
-					if($record_changed_events) {
-						$is_deleted = self::_wasJustDeleted($context, $context_id);
-						$is_created = self::_wasJustCreated($context, $context_id);
-						
-						$change_type = match(true) {
-							$is_deleted => 'deleted',
-							$is_created => 'created',
-							default => 'updated',
-						};
-						
-						$dict_old = DevblocksDictionaryDelegate::getDictionaryFromModel($old_model, $context);
+					$old_model = DevblocksPlatform::objectToArray($old_model);
 					
-						// If the record was deleted, clone the was/is dictionaries
-						if(is_null($new_model)) {
-							$dict_new =
-								$is_deleted
-								? clone $dict_old
-								: DevblocksDictionaryDelegate::instance([])
-							;
-						} else {
-							$dict_new = DevblocksDictionaryDelegate::getDictionaryFromModel($new_model, $context);
-						}
+					if(!$new_model) {
+						$delta = [];
 						
-						$dict = DevblocksDictionaryDelegate::instance([
-							'change_type' => $change_type,
-							'is_new' => $is_created, // @deprecated
-							'actor__context' => $actor['context'],
-							'actor_id' => $actor['context_id'],
-						]);
-						$dict->mergeKeys('record_', $dict_new->getDictionary('', false));
-						$dict->mergeKeys('was_record_', $dict_old->getDictionary('', false));
+					} else {
+						$new_model = DevblocksPlatform::objectToArray($new_model);
 						
-						$initial_state = $dict->getDictionary();
-						
-						$error = null;
-						
-						$handlers = $record_changed_events->getKata($dict, $error);
-						
-						if(false === $handlers && $error) {
-							DevblocksPlatform::logError('[KATA] Invalid record.changed KATA: ' . $error);
-							$handlers = [];
-						}
-						
-						$event_handler->handleEach(
-							AutomationTrigger_RecordChanged::ID,
-							$handlers,
-							$initial_state,
-							$error,
-							null,
-							function(Model_TriggerEvent $behavior, array $handler) use ($context, $new_model, $old_model, $actor, $is_deleted) {
-								// Don't run behaviors on deleted records
-								if($is_deleted)
-									return false;
-								
-								$events = DevblocksPlatform::services()->event();
-								$event_model = null;
-								
-								if($behavior->event_point == Event_RecordChanged::ID) {
-									$event_model = new Model_DevblocksEvent(
-										Event_RecordChanged::ID,
-										[
-											'context' => $context,
-											'new_model' => $new_model,
-											'old_model' => $old_model,
-											'actor' => $actor,
-										]
-									);
-									
-								} else if($behavior->event_point == Event_TaskCreatedByWorker::ID && $new_model instanceof Model_Task) {
-									$event_model = new Model_DevblocksEvent(
-										Event_TaskCreatedByWorker::ID,
-										[
-											'context_id' => $new_model->id,
-											'worker_id' => null,
-										]
-									);
-									
-								} else if($behavior->event_point == Event_CommentCreatedByWorker::ID && $new_model instanceof Model_Comment) {
-									$event_model = new Model_DevblocksEvent(
-										Event_CommentCreatedByWorker::ID,
-										[
-											'context_id' => $new_model->id,
-										]
-									);
-									
-								} else if($behavior->event_point == Event_MailAssignedInGroup::ID && $new_model instanceof Model_Ticket) {
-									$behavior_bot = $behavior->getBot();
-									
-									if(
-										$behavior_bot->owner_context != CerberusContexts::CONTEXT_GROUP
-										|| $behavior_bot->owner_context_id != $new_model->group_id
-									)
-										return false;
-
-									// If the owner changed
-									if($old_model['owner_id'] != $new_model->owner_id) {
-										$event_model = new Model_DevblocksEvent(
-											Event_MailAssignedInGroup::ID,
-											[
-												'context_id' => $new_model->id,
-											]
-										);
-									}
-									
-								} else if(!APP_OPT_GROUP_BEHAVIOR_TRIGGERS && $behavior->event_point == Event_MailMovedToGroup::ID && $new_model instanceof Model_Ticket) {
-									$behavior_bot = $behavior->getBot();
-									
-									if(
-										$behavior_bot->owner_context != CerberusContexts::CONTEXT_GROUP
-										|| $behavior_bot->owner_context_id != $new_model->group_id
-									)
-										return false;
-
-									// If the ticket moved group/bucket
-									if($old_model['group_id'] != $new_model->group_id || $old_model['bucket_id'] != $new_model->bucket_id) {
-										$event_model = new Model_DevblocksEvent(
-											Event_MailMovedToGroup::ID,
-											[
-												'context_id' => $new_model->id,
-											]
-										);
-									}
-									
-								} else if($behavior->event_point == Event_MailClosedInGroup::ID && $new_model instanceof Model_Ticket) {
-									$behavior_bot = $behavior->getBot();
-									
-									if(
-										$behavior_bot->owner_context != CerberusContexts::CONTEXT_GROUP
-										|| $behavior_bot->owner_context_id != $new_model->group_id
-									)
-										return false;
-									
-									// If the status went closed
-									if($new_model->status_id == Model_Ticket::STATUS_CLOSED && $old_model['status_id'] != $new_model->status_id) {
-										$event_model = new Model_DevblocksEvent(
-											Event_MailClosedInGroup::ID,
-											[
-												'context_id' => $new_model->id,
-											]
-										);
-									}
-									
-								} else if($behavior->event_point == Event_CommentOnTicketInGroup::ID && $new_model instanceof Model_Comment) {
-									$behavior_bot = $behavior->getBot();
-									
-									if(
-										$behavior_bot->owner_context != CerberusContexts::CONTEXT_GROUP
-										|| $behavior_bot->owner_context_id != ($new_model->getTargetDictionary()->get('group_id') ?? null)
-										)
-										return false;
-									
-									$event_model = new Model_DevblocksEvent(
-										Event_CommentOnTicketInGroup::ID,
-										[
-											'context_id' => $new_model->context_id,
-											'comment_id' => $new_model->id,
-										]
-									);
-									
-								} else {
-									return false;
-								}
-								
-								if(!$event_model)
-									return false;
-									
-								if($behavior->is_disabled || !($event = $behavior->getEvent()))
-									return false;
-								
-								$event_model->params['_whisper']['_trigger_id'] = [$behavior->id];
-								
-								$event->setEvent($event_model, $behavior);
-								
-								$values = $event->getValues();
-								
-								// Inputs
-								
-								if(array_key_exists('inputs', $handler['data'])) {
-									foreach($handler['data']['inputs'] as $k => $v) {
-										if(DevblocksPlatform::strStartsWith($k, 'var_'))
-											$values[$k] = $v;
-									}
-								}
-								
-								$event->setValues($values);
-								
-								// Run behavior
-								return $events->trigger($event_model);
-							}
-						);
+						$delta = array_filter($new_model, function ($v, $k) use ($old_model) {
+							return ($old_model[$k] ?? null) != $v;
+						}, ARRAY_FILTER_USE_BOTH);
 					}
+					
+					unset($new_model);
+					
+					$event_states[] = [
+						'context' => $context,
+						'context_id' => $context_id,
+						'is_created' => self::_wasJustCreated($context, $context_id),
+						'is_deleted' => self::_wasJustDeleted($context, $context_id),
+						'old_model' => $old_model,
+						'delta' => $delta,
+						'actor' => $actor,
+					];
+				}
+				
+				if($event_states) {
+					$queue_service->enqueue('cerb.records.changed', $event_states);
 				}
 			}
 		}

@@ -1,9 +1,11 @@
 <?php
 namespace Cerb\Extensions\QueueConsumer;
 
+use AutomationTrigger_RecordChanged;
 use Cerb\Extensions\Extension_QueueConsumer;
 use Model_Queue;
 use Model_QueueJob;
+use QueueMessageStatus;
 
 class QueueConsumer_Internal extends Extension_QueueConsumer {
 	const ID = 'cerb.queue.consumer.internal';
@@ -21,8 +23,14 @@ class QueueConsumer_Internal extends Extension_QueueConsumer {
 				$metrics->processQueue($queue, $stop_time, $count_hint, $queue_job);
 			}
 			
+		} elseif($queue->name == 'cerb.records.changed') {
+			if ($stop_time > time())
+				return AutomationTrigger_RecordChanged::processQueueEvents($queue, $stop_time, $count_hint, $queue_job);
+			
 		}
 		
 		return 0;
+	}
+	
 	}
 }
