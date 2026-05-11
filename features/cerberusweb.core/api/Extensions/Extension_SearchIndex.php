@@ -22,8 +22,11 @@ abstract class Extension_SearchIndex extends DevblocksExtension {
 		return true;
 	}
 	
-	// [TODO] This sync shouldn't be the default -- it should be fed models
+	abstract public function indexDocumentsByIds(Model_SearchIndex $model, array $record_ids, &$error=null) : bool;
 	abstract public function indexDocumentsByModel(Model_SearchIndex $model, int $limit=25) : array;
+	abstract public function reindexDocumentsByModel(Model_SearchIndex $model) : ?\Model_QueueJob;
+
+	abstract public function getIndexRecordCount(Model_SearchIndex $model, bool $no_cache=false) : int;
 	
 	abstract public function queryJoinFromRecordQuickSearch(Model_SearchIndex $model, string $query, string $fields=''): string;
 	

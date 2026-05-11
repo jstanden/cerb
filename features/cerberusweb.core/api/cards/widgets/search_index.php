@@ -37,49 +37,20 @@ class CardWidget_SearchIndex extends Extension_CardWidget {
 		All running queue jobs and their status/concurrency should be observable from somewhere (ex. search, setup).
 		*/
 		
-		header('Content-Type: application/json; charset=utf-8');
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 		
 		if (!$index_id || !($search_index = DAO_SearchIndex::get($index_id))) {
 			echo json_encode(['status' => 'error', 'error' => 'Invalid index']);
 			return;
 		}
 		
-		if (!($queue = DAO_Queue::getByName('cerb.search.index'))) {
-			echo json_encode(['status' => 'error', 'error' => 'Invalid queue']);
+		if(!($queue_job = $search_index->getExtension()->reindexDocumentsByModel($search_index))) {
+			echo json_encode(['status' => 'error', 'error' => 'Failed to queue reindex job']);
 			return;
 		}
 		
-		$job_key = sprintf('search_index:%d:reindex', $search_index->id);
-		
-		// If there's already a job running, return its ID'
-		if (($model = DAO_QueueJob::getByUniqueKey($job_key))) {
-			echo json_encode(['status' => 'ok', 'job_id' => $model->id, 'is_dupe' => true]);
-			return;
-			
-		} else {
-			// [TODO] If no other jobs, create a queue job and return its ID
-			// [TODO] We'd count the records needed to reindex
-			// [TODO] Insert the batched queue messages
-			
-			$model = new Model_QueueJob();
-			$model->queue_id = $queue->id;
-			$model->unique_key = $job_key; // One job per index at a time
-			$model->progress_total = 12_345;
-			$model->progress_current = 0;
-			$model->max_attempts = 2;
-			$model->concurrency = 3;
-			$model->started_at = time();
-			
-			if (!($model = DAO_QueueJob::create($model))) {
-				echo json_encode(['status' => 'error', 'error' => 'Failed to create job']);
-				// [TODO] Error
-				return;
-			}
-		}
-		
-		// [TODO] Client can begin monitoring job status, which triggers workers
-		
-		echo json_encode(['status' => 'ok', 'job_id' => $model->id]);
+		// Client can begin monitoring job status, which triggers workers
+		echo json_encode(['status' => 'ok', 'job_id' => $queue_job->id]);
 	}
 	
 	function render(Model_CardWidget $model, $context, $context_id) {
@@ -107,44 +78,86 @@ class CardWidget_SearchIndex extends Extension_CardWidget {
 			return;
 		
 		$dict = DevblocksDictionaryDelegate::getDictionaryFromModel($search_index, Context_SearchIndex::ID);
-		
-		// [TODO] We need a better way to find previous jobs on this record (links?)
-		
+
+		$queue_job_key = sprintf('search_index:%d:reindex', $search_index->id);
+
 		// Is there an active job?
-		if (($job = DAO_QueueJob::getByUniqueKey(sprintf('search_index:%d:reindex', $search_index->id)))) {
-			echo '<pre>';
-			print_r($job);
-			// [TODO] TEMP!
-			$tpl->assign('job', $job);
-			echo '</pre>';
-		}
-		
-		// [TODO] Sync info
-		// $search_extension->getStatistics();
-		// $search_extension->indexDocumentsByModel();
-		
-		// [TODO] Batch all IDs in a single query
-		// [TODO] When we reindex, we batch IDs and update the progress so new records + past index in parallel
-		/*
-		 insert into queue_message (uuid, queue_id, job_id, status_id, status_at, message) select uuid_to_bin(uuid()) as uuid, 3 as queue_id, 7 as job_id, 0 as status_id, unix_timestamp() as status_at, concat('{"index_id":',7,',"ids":[',group_concat(id ORDER BY id),']}') as message from (select id, ceil(row_number() over (order by id) / 100) AS batch FROM custom_record_1) batched group by batch
-		*/
-		
-		var_dump($search_extension->manifest->name);
-		
+		$queue_job = DAO_QueueJob::getOpenByQueueAndSingleton('cerb.search.index', $queue_job_key);
+
+		// Stats
 		$registry = DevblocksPlatform::services()->registry();
-		var_dump($registry->get(sprintf('search_index_%d.last_indexed_at', $search_index->id)));
-		var_dump($registry->get(sprintf('search_index_%d.last_indexed_id', $search_index->id)));
-		
-		// [TODO] Get the desired record count vs index count
-		// [TODO] getFilterRecordCount
-		var_dump($search_extension->getRecordCount($search_index));
-		// [TODO] Add to interface
-		//var_dump($search_extension->getIndexRecordCount($search_index));
-		
-		// [TODO] Test queries?
-		
+		$stats = [
+			'type_label' => $search_extension->manifest->name,
+			'record_count' => $search_extension->getRecordCount($search_index),
+			'indexed_count' => $search_extension->getIndexRecordCount($search_index),
+			'last_indexed_at' => intval($registry->get(sprintf('search_index_%d.last_indexed_at', $search_index->id), DevblocksRegistryEntry::TYPE_NUMBER, 0)),
+		];
+
+		// Recent jobs (running, paused, or done) for this singleton key
+		$recent_jobs = DAO_QueueJob::getWhere(
+			sprintf('%s = %s', DAO_QueueJob::SINGLETON_KEY, Cerb_ORMHelper::qstr($queue_job_key)),
+			DAO_QueueJob::CREATED_AT, false, 10,
+		);
+
+		// Build sheet dicts + a job_id => status_id map (used client-side to
+		// decide whether closing the queue-job popup should refresh this widget)
+		$status_labels = [
+			QueueJobStatus::RUNNING->value => 'Running',
+			QueueJobStatus::PAUSED->value => 'Paused',
+			QueueJobStatus::DONE->value => 'Done',
+		];
+
+		$sheet_dicts = [];
+		$job_statuses = [];
+
+		foreach($recent_jobs as $job) {
+			$sheet_dicts[] = DevblocksDictionaryDelegate::instance([
+				'_context' => Context_QueueJob::ID,
+				'id' => $job->id,
+				'_label' => $job->name,
+				'name' => $job->name,
+				'status' => $status_labels[$job->status_id] ?? '',
+				'counts' => sprintf('%d / %d', $job->count_done, $job->count_total),
+				'created_at' => $job->created_at,
+			]);
+			$job_statuses[$job->id] = $job->status_id;
+		}
+
+		$sheets = DevblocksPlatform::services()->sheet()->withDefaultTypes();
+		$sheet_kata = <<<KATA
+layout:
+  style: table
+  headings@bool: yes
+  paging@bool: no
+
+columns:
+  date/created_at:
+    label: When
+  card/name:
+    label: Job
+    params:
+      context_key: _context
+      id_key: id
+      label_key: _label
+  text/status:
+    label: Status
+  text/counts:
+    label: Progress
+KATA;
+
+		$sheet = $sheets->parse($sheet_kata, $error);
+		$layout = $sheets->getLayout($sheet);
+		$columns = $sheets->getColumns($sheet);
+		$rows = $sheets->getRows($sheet, $sheet_dicts);
+
 		$tpl->assign('dict', $dict);
 		$tpl->assign('widget', $model);
+		$tpl->assign('queue_job', $queue_job);
+		$tpl->assign('stats', $stats);
+		$tpl->assign('layout', $layout);
+		$tpl->assign('columns', $columns);
+		$tpl->assign('rows', $rows);
+		$tpl->assign('job_statuses', $job_statuses);
 		$tpl->display('devblocks:cerberusweb.core::internal/cards/widgets/search_index/render.tpl');
 	}
 	

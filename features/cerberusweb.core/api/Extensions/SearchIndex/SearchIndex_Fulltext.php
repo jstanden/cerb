@@ -4,9 +4,13 @@ namespace Cerb\Extensions\SearchIndex;
 
 use Cerb\Extensions\Extension_SearchIndex;
 use Cerb\Services\Search\PorterStemmer;
+use CerberusApplication;
+use DAO_Queue;
+use DAO_QueueJob;
 use DevblocksEngine;
 use DevblocksPlatform;
 use DevblocksSearchCriteria;
+use Model_QueueJob;
 use Model_SearchIndex;
 
 class SearchIndex_Fulltext extends Extension_SearchIndex {
@@ -22,7 +26,7 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 	function invokeConfig($config_action, Model_SearchIndex $model) : void {
 	}
 	
-	private function _getRecordQueryParts(Model_SearchIndex $model) {
+	private function _getRecordQueryParts(Model_SearchIndex $model) : array {
 		$record_ext = $model->getRecordTypeExtension();
 		$record_query = $model->extension_params['record_query'] ?? '';
 		
@@ -31,14 +35,26 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		$view->setAutoPersist(false);
 		
 		$dao_class = $record_ext->getDaoClass();
+		$search_class = $record_ext->getSearchClass();
 		
 		if(!method_exists($dao_class, 'getSearchQueryComponents'))
 			return [];
 		
-		return $dao_class::getSearchQueryComponents(
+		$query_parts = $dao_class::getSearchQueryComponents(
 			[],
 			$view->getParams()
 		);
+		
+		$query_parts['key_primary'] = null;
+		$query_parts['key_updated'] = null;
+		
+		if(method_exists($search_class, 'getPrimaryKey'))
+			$query_parts['key_primary'] = $search_class::getPrimaryKey();
+		
+		if(method_exists($search_class, 'getUpdatedKey'))
+			$query_parts['key_updated'] = $search_class::getUpdatedKey();
+		
+		return $query_parts;
 	}
 	
 	private function _clearCache(Model_SearchIndex $model) : void {
@@ -94,6 +110,30 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		return intval($count);
 	}
 	
+	public function getIndexRecordCount(Model_SearchIndex $model, bool $no_cache=false): int {
+		if(!$this->_searchTableExists($model))
+			return 0;
+
+		$cache = DevblocksPlatform::services()->cache();
+		$cache_key = sprintf('search_index:%d:indexed_count', $model->id);
+
+		if($no_cache || null === ($count = $cache->load($cache_key))) {
+			$db = DevblocksPlatform::services()->database();
+
+			try {
+				$count = $db->GetOneReader(sprintf(
+					'SELECT COUNT(DISTINCT record_id) FROM search_index_%d',
+					$model->id,
+				));
+				$cache->save(intval($count), $cache_key, [], 60);
+			} catch (\Throwable) {
+				$count = 0;
+			}
+		}
+
+		return intval($count);
+	}
+
 	public function getTokenStats(Model_SearchIndex $model, string $query, bool $allow_wildcards = false, bool $allow_stemming = false, int $max_terms=10): array {
 		$db = DevblocksPlatform::services()->database();
 		$search = DevblocksPlatform::services()->search();
@@ -450,74 +490,31 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		$insert_values = [];
 	}
 	
-	// [TODO] This would sync new records. We need a method to index arbitrary models (e.g. reindex batches)
-	public function indexDocumentsByModel(Model_SearchIndex $model, int $limit = 250): array {
+	private function _reindexCheckpointAtNow(Model_SearchIndex $model, array $query_parts) : void {
 		$db = DevblocksPlatform::services()->database();
-		$search = DevblocksPlatform::services()->search();
-		$logger = DevblocksPlatform::services()->log();
-		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-		
-		// We need to check if this search table exists and create it if not
-		if(!$this->_searchTableExists($model))
-			$this->_createSearchIndexTable($model);
 		
 		$param_key_last_indexed_at = sprintf('search_index_%d.last_indexed_at', $model->id);
 		$param_key_last_indexed_id = sprintf('search_index_%d.last_indexed_id', $model->id);
-
-		$last_indexed_at = DevblocksPlatform::getRegistryKey($param_key_last_indexed_at, \DevblocksRegistryEntry::TYPE_NUMBER,0);
-		$last_indexed_id = DevblocksPlatform::getRegistryKey($param_key_last_indexed_id, \DevblocksRegistryEntry::TYPE_NUMBER,0);
 		
-		$next_indexed_at = $last_indexed_at;
-		$next_indexed_id = $last_indexed_id;
+		$key_primary = $query_parts['key_primary'] ?? null;
+		$key_updated = $query_parts['key_updated'] ?? null;
 		
-		$record_ext = $model->getRecordTypeExtension();
-		$record_template = ($model->extension_params['content'] ?? '') ?: '{{__label}}';
-		$record_template_boost = ($model->extension_params['content_boost'] ?? '');
+		if(!$key_primary || !$key_updated) return;
 		
-		$search_class = $record_ext->getSearchClass();
-		
-		if(!method_exists($search_class, 'getPrimaryKey')) return [];
-		$key_primary = $search_class::getPrimaryKey();
-		
-		if(!method_exists($search_class, 'getUpdatedKey')) return [];
-		$key_updated = $search_class::getUpdatedKey();
-		
-		if(!$key_primary || !$key_updated) return [];
-		
-		$query_parts = $this->_getRecordQueryParts($model);
-		
-		$query_parts['select'] = sprintf(
+		$select_sql = sprintf(
 			"SELECT %s AS record_id, %s AS updated_at ",
 			$key_primary,
 			$key_updated,
 		);
-		
-		$select_sql = $query_parts['select'];
 		$join_sql = $query_parts['join'];
 		$where_sql = $query_parts['where'];
-		
-		// Filter by synchronization timestamp (if resuming)
-		if($last_indexed_at || $last_indexed_id) {
-			$where_sql .= ($where_sql ? 'AND ' : 'WHERE ') .
-				sprintf(
-					"(%s > %d OR (%s = %d AND %s > %d)) ",
-					\Cerb_ORMHelper::escape($key_updated),
-					$last_indexed_at,
-					\Cerb_ORMHelper::escape($key_updated),
-					$last_indexed_at,
-					\Cerb_ORMHelper::escape($key_primary),
-					$last_indexed_id,
-				);
-		}
+		$limit_sql = 'LIMIT 1';
 		
 		// Sort for synchronization
-		$sort_sql = sprintf("ORDER BY %s ASC, %s ASC ",
+		$sort_sql = sprintf("ORDER BY %s DESC, %s DESC ",
 			\Cerb_ORMHelper::escape($key_updated),
 			\Cerb_ORMHelper::escape($key_primary),
 		);
-		
-		// Limit
-		$limit_sql = ($limit ? (sprintf('LIMIT %d ', $limit)) : '');
 		
 		// SQL
 		$search_sql =
@@ -528,12 +525,109 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 			$limit_sql
 		;
 		
-		$results = $db->GetArrayReader($search_sql);
+		$result = $db->GetRowMaster($search_sql);
 		
-		if(!is_array($results) || empty($results)) return [];
+		DevblocksPlatform::setRegistryKey($param_key_last_indexed_at, $result['updated_at'] ?? 0, \DevblocksRegistryEntry::TYPE_NUMBER, persist: true);
+		DevblocksPlatform::setRegistryKey($param_key_last_indexed_id, $result['record_id'] ?? 0, \DevblocksRegistryEntry::TYPE_NUMBER, persist: true);
 		
-		$record_ids = DevblocksPlatform::sanitizeArray(array_column($results, 'record_id'), 'int');
-		$results = array_combine($record_ids, $results);
+		// Delete search index on reindex
+		$sql = sprintf("DROP TABLE IF EXISTS search_index_%d", $model->id);
+		$db->ExecuteMaster($sql);
+	}
+	
+	private function _reindexCreateJob(Model_SearchIndex $search_index, array $query_parts, &$error=null) : ?\Model_QueueJob {
+		$db = DevblocksPlatform::services()->database();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if (!($queue = DAO_Queue::getByName('cerb.search.index'))) {
+			$error = 'Invalid queue';
+			return null;
+		}
+		
+		$queue_job_key = sprintf('search_index:%d:reindex', $search_index->id);
+		
+		$record_count = $this->getRecordCount($search_index);
+		$batch_size = 100;
+		$batch_count = ceil($record_count / $batch_size);
+		
+		$model = new Model_QueueJob();
+		$model->queue_id = $queue->id;
+		$model->name = 'Reindex ' . $search_index->name;
+		$model->singleton_key = $queue_job_key; // One job per index at a time
+		$model->count_total = $batch_count;
+		$model->count_available = $batch_count;
+		$model->status_id = \QueueJobStatus::RUNNING->value;
+		$model->worker_id = $active_worker ? $active_worker->id : 0;
+		$model->created_at = time();
+		$model->metadata = [
+			'search_index_id' => $search_index->id,
+			'record_type' => $search_index->record_type
+		];
+		
+		if (!($model = DAO_QueueJob::create($model))) {
+			$error = 'Failed to create job';
+			return null;
+		}
+		
+		if(
+			!($query_parts['primary_table'] ?? null)
+			||!($query_parts['key_primary'] ?? null)
+		) {
+			$error = 'Invalid query';
+			return null;
+		}
+		
+		$sql = sprintf("INSERT INTO queue_message (uuid, queue_id, job_id, status_id, status_at, message) ".
+			"SELECT UUID_TO_BIN(UUID()) AS uuid, ".
+			"%d AS queue_id, ".
+			"%d AS job_id, ".
+			"0 AS status_id, ".
+			"UNIX_TIMESTAMP() AS status_at, ".
+			"CONCAT('{\"index_id\":',%d,',\"ids\":[',GROUP_CONCAT(id ORDER BY id),']}') AS message ".
+			"FROM (SELECT %s AS id, CEIL(ROW_NUMBER() OVER (ORDER BY %s) / %d) AS batch FROM %s) AS batched ".
+			"GROUP BY batch",
+			$model->queue_id,
+			$model->id,
+			$search_index->id,
+			$db->escape($query_parts['key_primary']),
+			$db->escape($query_parts['key_primary']),
+			$batch_size,
+			$db->escape($query_parts['primary_table'])
+		);
+		$db->ExecuteMaster($sql);
+		
+		return $model;
+	}
+	
+	public function reindexDocumentsByModel(Model_SearchIndex $model, &$error=null): ?\Model_QueueJob {
+		$error = null;
+		
+		// We need to check if this search table exists and create it if not
+		if (!$this->_searchTableExists($model))
+			$this->_createSearchIndexTable($model);
+		
+		$query_parts = $this->_getRecordQueryParts($model);
+		
+		// Checkpoint for later incremental search indexing
+		$this->_reindexCheckpointAtNow($model, $query_parts);
+		
+		// Schedule an idempotent job to index the records
+		return $this->_reindexCreateJob($model, $query_parts, $error);
+	}
+	
+	public function indexDocumentsByIds(Model_SearchIndex $model, array $record_ids, &$error=null) : bool {
+		$db = DevblocksPlatform::services()->database();
+		$search = DevblocksPlatform::services()->search();
+		$logger = DevblocksPlatform::services()->log();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		
+		// We need to check if this search table exists and create it if not
+		if (!$this->_searchTableExists($model))
+			$this->_createSearchIndexTable($model);
+		
+		$record_ext = $model->getRecordTypeExtension();
+		$record_template = ($model->extension_params['content'] ?? '') ?: '{{__label}}';
+		$record_template_boost = ($model->extension_params['content_boost'] ?? '');
 		
 		$record_models = $record_ext->getModelObjects($record_ids);
 		$record_expand = ['customfields'];
@@ -601,12 +695,9 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 				$db->ExecuteMaster('COMMIT');
 				$flushes = 0;
 			}
-		
-			$next_indexed_at = $results[$doc_id]['updated_at'];
-			$next_indexed_id = $doc_id;
 		}
 		
-		$logger->info(sprintf("Indexed %d records for index #%d (%s)", count($results), $model->id, $model->name));
+		$logger->info(sprintf("Indexed %d records for index #%d (%s)", count($record_ids), $model->id, $model->name));
 		
 		if($buffer_insert_values)
 			$this->_flushInsertBuffer($model, $buffer_insert_values);
@@ -616,17 +707,95 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		
 		$db->ExecuteMaster('COMMIT');
 		
-		// Checkpoint
-		DevblocksPlatform::setRegistryKey($param_key_last_indexed_at, $next_indexed_at, \DevblocksRegistryEntry::TYPE_NUMBER, persist: true);
-		DevblocksPlatform::setRegistryKey($param_key_last_indexed_id, $next_indexed_id, \DevblocksRegistryEntry::TYPE_NUMBER, persist: true);
-		
 		$db->ExecuteMaster('SET unique_checks = 1');
 		$db->ExecuteMaster('SET autocommit = 1');
 		
 		// Clear the record count cache after indexing
 		$this->_clearCache($model);
 		
-		return array_keys($record_dicts);
+		return true;
+	}
+	
+	public function indexDocumentsByModel(Model_SearchIndex $model, int $limit = 250): array {
+		$db = DevblocksPlatform::services()->database();
+		
+		// We need to check if this search table exists and create it if not
+		if(!$this->_searchTableExists($model))
+			$this->_createSearchIndexTable($model);
+		
+		$param_key_last_indexed_at = sprintf('search_index_%d.last_indexed_at', $model->id);
+		$param_key_last_indexed_id = sprintf('search_index_%d.last_indexed_id', $model->id);
+
+		$last_indexed_at = DevblocksPlatform::getRegistryKey($param_key_last_indexed_at, \DevblocksRegistryEntry::TYPE_NUMBER,0);
+		$last_indexed_id = DevblocksPlatform::getRegistryKey($param_key_last_indexed_id, \DevblocksRegistryEntry::TYPE_NUMBER,0);
+		
+		$query_parts = $this->_getRecordQueryParts($model);
+		
+		$key_primary = $query_parts['key_primary'] ?? null;
+		$key_updated = $query_parts['key_updated'] ?? null;
+		
+		if(!$key_primary || !$key_updated) return [];
+		
+		$query_parts['select'] = sprintf(
+			"SELECT %s AS record_id, %s AS updated_at ",
+			$key_primary,
+			$key_updated,
+		);
+		
+		$select_sql = $query_parts['select'];
+		$join_sql = $query_parts['join'];
+		$where_sql = $query_parts['where'];
+		
+		// Filter by synchronization timestamp (if resuming)
+		if($last_indexed_at || $last_indexed_id) {
+			$where_sql .= ($where_sql ? 'AND ' : 'WHERE ') .
+				sprintf(
+					"(%s > %d OR (%s = %d AND %s > %d)) ",
+					\Cerb_ORMHelper::escape($key_updated),
+					$last_indexed_at,
+					\Cerb_ORMHelper::escape($key_updated),
+					$last_indexed_at,
+					\Cerb_ORMHelper::escape($key_primary),
+					$last_indexed_id,
+				);
+		}
+		
+		// Sort for synchronization
+		$sort_sql = sprintf("ORDER BY %s ASC, %s ASC ",
+			\Cerb_ORMHelper::escape($key_updated),
+			\Cerb_ORMHelper::escape($key_primary),
+		);
+		
+		// Limit
+		$limit_sql = ($limit ? (sprintf('LIMIT %d ', $limit)) : '');
+		
+		// SQL
+		$search_sql =
+			$select_sql.
+			$join_sql.
+			$where_sql.
+			$sort_sql.
+			$limit_sql
+		;
+		
+		$results = $db->GetArrayReader($search_sql);
+		
+		if(!is_array($results) || empty($results))
+			return [];
+		
+		$record_ids = DevblocksPlatform::sanitizeArray(array_column($results, 'record_id'), 'int');
+		
+		// Index this set of records
+		$error = null;
+		
+		$this->indexDocumentsByIds($model, $record_ids, $error);
+		
+		// Checkpoint for the next sync
+		$last_result = end($results);
+		DevblocksPlatform::setRegistryKey($param_key_last_indexed_at, intval($last_result['updated_at']), \DevblocksRegistryEntry::TYPE_NUMBER, persist: true);
+		DevblocksPlatform::setRegistryKey($param_key_last_indexed_id, intval($last_result['record_id']), \DevblocksRegistryEntry::TYPE_NUMBER, persist: true);
+		
+		return $record_ids;
 	}
 	
 	public function deleteIndex(Model_SearchIndex $model): bool {
