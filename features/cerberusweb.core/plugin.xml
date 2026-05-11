@@ -93,6 +93,7 @@
 		<dir path="api/Automation/Builder/" namespace="Cerb\Automation\Builder\" />
 		<dir path="api/Email/" namespace="Cerb\Email\" />
 		<dir path="api/Extensions/" namespace="Cerb\Extensions\" />
+		<dir path="api/Records/" namespace="Cerb\Records\" />
 
 		<file path="api/packages.php">
 			<class name="Cerb_Packages" />

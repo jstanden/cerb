@@ -1,5 +1,7 @@
 <?php /** @noinspection PhpUnused */
 
+use Cerb\Records\FileImporter;
+
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
@@ -44,6 +46,8 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 					return $this->_internalAction_renderImportMappingPopup();
 				case 'parseImportFile':
 					return $this->_internalAction_parseImportFile();
+				case 'importPreview':
+					return $this->_internalAction_importPreview();
 				case 'saveImport':
 					return $this->_internalAction_saveImport();
 				case 'renderExport':
@@ -1564,7 +1568,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 	private function _internalAction_parseImportFile() {
 		$file = $_FILES['import_file'] ?? null;
 		
-		if(!is_array($file) || !isset($file['tmp_name']) || empty($file['tmp_name']))
+		if(!is_array($file) || empty($file['tmp_name'] ?? null))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		$filename = basename($file['tmp_name']);
@@ -1575,7 +1579,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 		
-		$expires_at = $inputs['expires'] ?? (time() + 3600);
+		$expires_at = $inputs['expires'] ?? (time() + 86400); // 1d TTL
 		$resource_token = DevblocksPlatform::services()->string()->uuid();
 		
 		if(!($fp = fopen($new_filename, 'r')))
@@ -1708,16 +1712,11 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 			}
 	}
 	
-	private function _internalAction_saveImport() {
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 405);
+	private function _internalAction_importPreview() {
+		$tpl = DevblocksPlatform::services()->template();
 		
 		$context = DevblocksPlatform::importGPC($_POST['context'] ?? null, 'string','');
 		$import_token = DevblocksPlatform::importGPC($_POST['import_token'] ?? null, 'string','');
-		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string','');
-		$is_preview = DevblocksPlatform::importGPC($_POST['is_preview'] ?? null, 'integer',0);
 		
 		$field = DevblocksPlatform::importGPC($_POST['field'] ?? null, 'array', []);
 		$column = DevblocksPlatform::importGPC($_POST['column'] ?? null, 'array', []);
@@ -1726,14 +1725,82 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 		
-		$preview_output = '';
+		try {
+			if (!($automation_resource = DAO_AutomationResource::getByToken($import_token)))
+				throw new Exception_DevblocksValidationError("The import file does not exist.");
+			
+			$importer = new FileImporter($automation_resource, $context);
+			
+			$error = null;
+			$mapping = new FileImporter\Mapping($field, $column, $column_custom, $sync_dupes);
+			
+			if(!$importer->validate($mapping, $error))
+				throw new Exception_DevblocksValidationError($error);
+			
+			$line_offsets = $importer->getFileRecordOffsets(limit: 10, skip_csv_headings: true);
+			
+			$preview = array_map(
+				fn($offset) => $importer->getFileRecordByOffset($offset[1], $offset[2], $mapping),
+				$line_offsets
+			);
+			
+			$preview = $importer->bulkFormatRecordFields($preview, $mapping);
+			
+			// Strip the raw line data
+			$preview = array_map(fn($record) => array_diff_key($record, ['line'=>true]), $preview);
+			
+			$preview = $importer->bulkTagUpserts($preview, $mapping);
+			
+			$tpl->assign('record_ext', $importer->getRecordExtension());
+			$tpl->assign('keys', $importer->getRecordKeys());
+			$tpl->assign('preview', $preview);
+			
+			$preview_html = $tpl->fetch('devblocks:cerberusweb.core::internal/import/preview.tpl');
+			
+			echo json_encode([
+				'preview_output' => $preview_html,
+			]);
+			
+		} catch (Exception_DevblocksValidationError $e) {
+			echo json_encode([
+				'status' => false,
+				'error' => $e->getMessage(),
+			]);
+			
+		} catch (Throwable $e) {
+			DevblocksPlatform::logException($e);
+			
+			echo json_encode([
+				'status' => false,
+				'error' => 'An unexpected error occurred.',
+			]);
+		}
+	}
+	
+	private function _internalAction_saveImport() {
+		$queue_service = DevblocksPlatform::services()->queue();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		$context = DevblocksPlatform::importGPC($_POST['context'] ?? null, 'string','');
+		$import_token = DevblocksPlatform::importGPC($_POST['import_token'] ?? null, 'string','');
+		
+		$field = DevblocksPlatform::importGPC($_POST['field'] ?? null, 'array', []);
+		$column = DevblocksPlatform::importGPC($_POST['column'] ?? null, 'array', []);
+		$column_custom = DevblocksPlatform::importGPC($_POST['column_custom'] ?? null, 'array', []);
+		$sync_dupes = DevblocksPlatform::importGPC($_POST['sync_dupes'] ?? null, 'array', []);
+		
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 		
 		try {
-			if(!($context_ext = Extension_DevblocksContext::get($context)))
-				DevblocksPlatform::dieWithHttpError(null, 404);
+			if(!($automation_resource = DAO_AutomationResource::getByToken($import_token)))
+				throw new Exception_DevblocksValidationError("The import file does not exist.");
 			
-			if(!($context_ext instanceof IDevblocksContextImport))
-				DevblocksPlatform::dieWithHttpError(null, 403);
+			$importer = new FileImporter($automation_resource, $context);
+			
+			$context_ext = $importer->getRecordExtension();
 			
 			if(!$active_worker->hasPriv(sprintf('contexts.%s.create', $context_ext->id)))
 				DevblocksPlatform::dieWithHttpError(null, 403);
@@ -1741,291 +1808,48 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 			if(!$active_worker->hasPriv(sprintf('contexts.%s.import', $context_ext->id)))
 				DevblocksPlatform::dieWithHttpError(null, 403);
 			
-			$view_class = $context_ext->getViewClass();
-			$view = new $view_class; /* @var $view C4_AbstractView */
+			$error = null;
+			$mapping = new FileImporter\Mapping($field, $column, $column_custom, $sync_dupes);
 			
-			$keys = $context_ext->importGetKeys();
+			if(!$importer->validate($mapping, $error))
+				throw new Exception_DevblocksValidationError($error);
 			
-			// Ensure we have some mapping
-			if(0 == count(array_filter($column, fn($v) => strlen(strval($v)))))
-				throw new Exception_DevblocksValidationError("No fields are mapped from the import file.");
+			$queue = DAO_Queue::getByName('cerb.records.import');
+			$aliases = Extension_DevblocksContext::getAliasesForContext($context_ext->manifest);
 			
-			// If our required fields weren't provided
-			foreach($field as $field_idx => $field_key) {
-				if(array_key_exists($field_key, $keys) && ($keys[$field_key]['required'] ?? false)) {
-					if(!strlen(strval($column[$field_idx] ?? ''))) {
-						$error = sprintf("`%s` is required.",
-							DevblocksPlatform::strEscapeHtml($keys[$field_key]['label'] ?? $field_key)
-						);
-						throw new Exception_DevblocksValidationError($error);
-					}
-				}
-			}
+			$line_offsets = $importer->getFileRecordOffsets(skip_csv_headings: true);
 			
-			// Use the context to validate sync options, if available
-			if(method_exists($context_ext, 'importValidateSync')) {
-				if(true !== ($error = $context_ext->importValidateSync($sync_dupes)))
-					throw new Exception_DevblocksValidationError($error);
-			}
+			$record_count = count($line_offsets);
 			
-			// Counters
-			$line_number = 0;
+			$queue_job = new Model_QueueJob();
+			$queue_job->queue_id = $queue->id;
+			$queue_job->name = sprintf('Import %s: %s', $aliases['plural'] ?? $aliases['uri'] ?? $context_ext->id, $automation_resource->name);
+			$queue_job->status_id = QueueJobStatus::RUNNING->value;
+			$queue_job->count_total = $record_count;
+			$queue_job->count_available = $record_count;
+			$queue_job->worker_id = $active_worker->id ?? 0;
+			$queue_job->metadata = [
+				'context' => $context_ext->id,
+				'import_token' => $import_token,
+				'format' => $importer->getImportFormat(),
+				'mapping' => [
+					'field' => $mapping->getFields(),
+					'column' => $mapping->getColumns(),
+					'column_custom' => $mapping->getCustomColumns(),
+					'sync_dupes' => $mapping->getSyncColumns(),
+				]
+			];
+			$queue_job = DAO_QueueJob::create($queue_job);
 			
-			$fp = DevblocksPlatform::getTempFile();
-			
-			if(!($automation_resource = DAO_AutomationResource::getByToken($import_token)))
-				throw new Exception_DevblocksValidationError("The import file does not exist.");
-				
-			if(false === $automation_resource->getFileContents($fp))
-				throw new Exception_DevblocksValidationError("The import file could not be read.");
-			
-			// Do we need to consume the first row of headings in CSV?
-			if(!($automation_resource->mime_type == 'text/jsonl')) {
-				fgetcsv($fp, 64_000, ',', '"');
-			}
-			
-			if($is_preview)
-				$preview_output .= "<table>";
-			
-			while(!feof($fp)) {
-				$parts = [];
-				
-				// JSONL or CSV
-				if($automation_resource->mime_type == 'text/jsonl') {
-					if(false !== ($line = fgets($fp))) {
-						if(false !== ($parts = json_decode($line, true)) && is_array($parts))
-							$parts = array_values($parts);
-					}
-
-				} else {
-					$parts = fgetcsv($fp, 64_000, ',', '"');
-				}
-				
-				if($is_preview && $line_number >= 10)
-					continue;
-				
-				if(empty($parts) || (1==count($parts) && is_null($parts[0])))
-					continue;
-				
-				$line_number++;
-				
-				// Snippets dictionary
-				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-				$dict = new DevblocksDictionaryDelegate([]);
-				
-				foreach($parts as $idx => $part) {
-					$dict->set('column_' . ($idx + 1), $part); // 0-based to 1-based
-				}
-				
-				// Meta
-				$meta = [
-					'line' => $parts,
-					'fields' => $field,
-					'columns' => $column,
-					'virtual_fields' => [],
-				];
-				
-				$fields = [];
-				$custom_fields = [];
-				$sync_fields = [];
-				
-				foreach($field as $idx => $key) {
-					if(!isset($keys[$key]))
-						continue;
-					
-					$col = $column[$idx];
-					
-					// Are we providing custom values?
-					if($col == 'custom') {
-						@$val = $tpl_builder->build($column_custom[$idx], $dict);
-						
-					// Are we referencing a column number from the CSV file?
-					} elseif(is_numeric($col)) {
-						$val = $parts[$col];
-						
-					// Otherwise, use a literal value.
-					} else {
-						$val = $col;
-					}
-					
-					// Must be a non-empty string
-					if(!is_string($val) || 0 == strlen($val))
-						continue;
-					
-					// What type of field is this?
-					$type = $keys[$key]['type'];
-					$value = null;
-					
-					// Can we automatically format the value?
-					
-					switch($type) {
-						case 'ctx_' . CerberusContexts::CONTEXT_ADDRESS:
-							if($is_preview) {
-								$value = $val;
-							} elseif(null != ($addy = DAO_Address::lookupAddress($val, true))) {
-								$value = $addy->id;
-							}
-							break;
-						
-						case 'ctx_' . CerberusContexts::CONTEXT_ORG:
-							if($is_preview) {
-								$value = $val;
-							} elseif(null != ($org_id = DAO_ContactOrg::lookup($val, true))) {
-								$value = $org_id;
-							}
-							break;
-						
-						case Model_CustomField::TYPE_CHECKBOX:
-							// Attempt to interpret bool values
-							if(
-								false !== stristr($val, 'yes')
-								|| false !== stristr($val, 'y')
-								|| false !== stristr($val, 'true')
-								|| false !== stristr($val, 't')
-								|| intval($val) > 0
-							) {
-								$value = 1;
-								
-							} else {
-								$value = 0;
-							}
-							break;
-						
-						case Model_CustomField::TYPE_DATE:
-							@$value = !is_numeric($val) ? strtotime($val) : $val;
-							break;
-						
-						case Model_CustomField::TYPE_DROPDOWN:
-							// [TODO] Add where missing
-							$value = $val;
-							break;
-						
-						case Model_CustomField::TYPE_LIST:
-							$value = DevblocksPlatform::parseCrlfString($val);
-							break;
-						
-						case Model_CustomField::TYPE_MULTI_CHECKBOX:
-							$value = DevblocksPlatform::parseCsvString(str_replace(
-								'\"',
-								'',
-								$val
-							));
-							break;
-						
-						case Model_CustomField::TYPE_NUMBER:
-							$value = intval($val);
-							break;
-						
-						case Model_CustomField::TYPE_WORKER:
-						case 'ctx_' . CerberusContexts::CONTEXT_WORKER:
-							$workers = DAO_Worker::getAllActive();
-							
-							$val_worker_id = 0;
-							
-							if(0 == strcasecmp($val, 'me')) {
-								$val_worker_id = $active_worker->id;
-							}
-							
-							foreach($workers as $worker_id => $worker) {
-								if(!empty($val_worker_id))
-									break;
-								
-								$worker_name = $worker->getName();
-								
-								if(false !== stristr($worker_name, $val)) {
-									$val_worker_id = $worker_id;
-								}
-							}
-							
-							$value = $val_worker_id;
-							break;
-						
-						case Model_CustomField::TYPE_MULTI_LINE:
-						case Model_CustomField::TYPE_SINGLE_LINE:
-						case Model_CustomField::TYPE_URL:
-						default:
-							$value = $val;
-							break;
-					}
-					
-					/* @var $context_ext IDevblocksContextImport */
-					$value = $context_ext->importKeyValue($key, $value);
-					
-					if($is_preview) {
-						$preview_output .= sprintf("<tr><td style='vertical-align:top;font-weight:bold;'>%s:</td><td>%s</td></tr>",
-							DevblocksPlatform::strEscapeHtml($keys[$key]['label']),
-							DevblocksPlatform::strEscapeHtml(is_array($value) ? sprintf('[%s]', implode(', ', $value)) : $value)
-						);
-					}
-					
-					if(!is_null($value)) {
-						$val = $value;
-						
-						// Are we setting a custom field?
-						$cf_id = null;
-						if(str_starts_with($key, 'cf_')) {
-							$cf_id = substr($key,3);
-						}
-						
-						// Is this a virtual field?
-						if(str_starts_with($key, '_')) {
-							$meta['virtual_fields'][$key] = $value;
-							
-							// ...or is it a normal DAO field?
-						} else {
-							if(is_null($cf_id)) {
-								$fields[$key] = $value;
-							} else {
-								$custom_fields[$cf_id] = $value;
-							}
-						}
-					}
-					
-					if(isset($keys[$key]['force_match']) || in_array($key, $sync_dupes)) {
-						$sync_fields[] = new DevblocksSearchCriteria($keys[$key]['param'], '=', $val);
-					}
-				}
-				
-				if($is_preview) {
-					$preview_output .= "<tr><td colspan='2' style='border-top:1px solid;'></td></tr>";
-				}
-				
-				// Check for dupes
-				$meta['object_id'] = null;
-				
-				if(!empty($sync_fields)) {
-					$view->addParams($sync_fields, true);
-					$view->renderLimit = 1;
-					$view->renderPage = 0;
-					$view->renderTotal = false;
-					list($results) = $view->getData();
-					
-					if(!empty($results)) {
-						$meta['object_id'] = key($results);
-					}
-				}
-				
-				if(!$is_preview)
-					$context_ext->importSaveObject($fields, $custom_fields, $meta);
-			}
-			
-			if($is_preview)
-				$preview_output .= "</table>";
-			
-			if(!$is_preview) {
-				DAO_AutomationResource::delete([$automation_resource->id]);
-				
-				if(!empty($view_id) && !empty($context)) {
-					C4_AbstractView::setMarqueeContextImported($view_id, $context, $line_number);
-				}
+			// Create 500 queue messages at once
+			foreach(array_chunk($line_offsets, 500) as $chunk) {
+				$queue_service->enqueue($queue->name, $chunk, job_id: $queue_job->id);
 			}
 			
 			$results = [
 				'status' => true,
+				'job_id' => $queue_job->id ?? 0,
 			];
-			
-			if($is_preview)
-				$results['preview_output'] = $preview_output;
 			
 			echo json_encode($results);
 			

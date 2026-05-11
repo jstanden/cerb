@@ -454,6 +454,17 @@ class DAO_QueueJob extends Cerb_ORMHelper {
 		);
 		$db->ExecuteWriter($sql);
 	}
+	
+	public static function getAvailableMessages(Model_Queue $queue) : array {
+		$db = DevblocksPlatform::services()->database();
+		
+		$sql = sprintf("SELECT job_id, count(*) AS hits FROM queue_message " .
+			"WHERE queue_id = %d AND status_id = 0 AND consumer_id IS NULL " .
+			"GROUP BY job_id",
+			$queue->id,
+		);
+		return $db->GetArrayMaster($sql);
+	}
 }
 
 class SearchFields_QueueJob extends DevblocksSearchFields {

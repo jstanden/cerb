@@ -6,7 +6,6 @@
 <input type="hidden" name="action" value="saveImport">
 <input type="hidden" name="context" value="{$context}">
 <input type="hidden" name="import_token" value="{$import_token}">
-<input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <fieldset>
@@ -59,7 +58,7 @@
 	<button type="button" class="cancel"><span class="glyphicons glyphicons-circle-remove"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 </div>
 
-<div id="divImportPreview" style="margin:10px 0 0 0;border:1px solid rgb(230,230,230);padding:5px;height:200px;overflow-y:auto;display:none;"></div>
+<div id="divImportPreview" style="margin:10px 0 0 0;border:1px solid var(--cerb-color-fieldset-border);padding:5px;height:200px;overflow-y:auto;display:none;"></div>
 </form>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
@@ -83,10 +82,9 @@ $(function() {
 
 			$('#divImportPreview').show().text('Importing... please wait');
 
-			var $div = $(this).closest('div');
+			const $div = $(this).closest('div');
 			$div.fadeOut();
 
-			// [TODO] This should allow error reporting via JSON
 			genericAjaxPost('frmImport', '', null, function(json) {
 				$('#divImportPreview').hide().text('');
 				$div.fadeIn();
@@ -99,7 +97,25 @@ $(function() {
 					return;
 				}
 
-				genericAjaxGet('view{$view_id}','c=internal&a=invoke&module=worklists&action=refresh&id={$view_id}');
+				if(json.hasOwnProperty('job_id')) {
+					const $trigger = $('<a/>')
+						.attr('data-context', 'cerb.contexts.queue.job')
+						.attr('data-context-id', String(json.job_id))
+						.css('display', 'none')
+						.appendTo('body');
+
+					$trigger
+						.cerbPeekTrigger({ width: '600' })
+						.on('cerb-peek-closed', function(event) {
+							event.stopPropagation();
+							$trigger.remove();
+							{if $view_id}
+							genericAjaxGet('view{$view_id}','c=internal&a=invoke&module=worklists&action=refresh&id={$view_id}');
+							{/if}
+						})
+						.trigger('click');
+				}
+
 				genericAjaxPopupDestroy('{$layer}');
 			});
 		});
@@ -108,18 +124,17 @@ $(function() {
 			e.stopPropagation();
 			Devblocks.clearAlerts();
 
-			var $frm = $(this).closest('form');
+			const $frm = $(this).closest('form');
 
 			$('#divImportPreview').show().text('Loading...');
 
-			var formData = new FormData($frm[0]);
+			let formData = new FormData($frm[0]);
 			formData.set('c', 'internal');
 			formData.set('a', 'invoke');
 			formData.set('module', 'worklists');
-			formData.set('action', 'saveImport');
+			formData.set('action', 'importPreview');
 			formData.set('context', '{$context}');
 			formData.set('import_token', '{$import_token}');
-			formData.set('is_preview', '1');
 
 			genericAjaxPost(formData, '', '', function(json) {
 				$('#divImportPreview').hide().text('');

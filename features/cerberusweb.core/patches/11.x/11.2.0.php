@@ -133,6 +133,9 @@ if(!$db->GetOneMaster("SELECT id FROM queue WHERE name = 'cerb.search.index'"))
 if(!$db->GetOneMaster("SELECT id FROM queue WHERE name = 'cerb.records.changed'"))
 	$db->ExecuteWriter("INSERT IGNORE INTO queue (name, created_at, updated_at, extension_id) VALUES ('cerb.records.changed', UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 'cerb.queue.consumer.internal')");
 
+if(!$db->GetOneMaster("SELECT id FROM queue WHERE name = 'cerb.records.import'"))
+	$db->ExecuteWriter("INSERT IGNORE INTO queue (name, created_at, updated_at, extension_id) VALUES ('cerb.records.import', UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 'cerb.queue.consumer.internal')");
+
 // ===========================================================================
 // Enable the new background cronjob
 

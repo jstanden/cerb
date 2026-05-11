@@ -3,6 +3,7 @@ namespace Cerb\Extensions\QueueConsumer;
 
 use AutomationTrigger_RecordChanged;
 use Cerb\Extensions\Extension_QueueConsumer;
+use DevblocksPlatform;
 use Model_Queue;
 use Model_QueueJob;
 
@@ -26,6 +27,12 @@ class QueueConsumer_Internal extends Extension_QueueConsumer {
 			if ($stop_time > time())
 				return AutomationTrigger_RecordChanged::processQueueEvents($queue, $stop_time, $count_hint, $queue_job);
 			
+		} elseif($queue->name == 'cerb.records.import') {
+			if ($stop_time > time()) {
+				$records = DevblocksPlatform::services()->records();
+				$records->processImportQueue($queue, $stop_time, $count_hint, $queue_job);
+			}
+		
 		} elseif($queue->name == 'cerb.search.index') {
 			if ($stop_time > time()) {
 				$search = DevblocksPlatform::services()->search();
@@ -34,7 +41,5 @@ class QueueConsumer_Internal extends Extension_QueueConsumer {
 		}
 		
 		return 0;
-	}
-	
 	}
 }
