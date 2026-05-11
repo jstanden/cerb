@@ -239,6 +239,13 @@ class _DevblocksServices {
 	}
 	
 	/**
+	 * @return _DevblocksRecordsService
+	 */
+	function records() {
+		return _DevblocksRecordsService::getInstance();
+	}
+	
+	/**
 	 * 
 	 * @return _DevblocksRegistryManager
 	 */
