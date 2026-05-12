@@ -1726,6 +1726,9 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 							break;
 					}
 				}
+
+				if($model->context && !$active_worker->hasPriv(sprintf("contexts.%s.comment", $model->context)))
+					DevblocksPlatform::dieWithHttpError(null, 403);
 			}
 			
 			$tpl->assign('model', $model);
