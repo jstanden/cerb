@@ -366,7 +366,8 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 		if(empty($draft_id)) {
 			$draft_id = DAO_MailQueue::create($fields);
 		} else {
-			DAO_MailQueue::update($draft_id, $fields);
+			// Drafts auto-save every 30s; skip checkpointing so we don't flood record.changed
+			DAO_MailQueue::update($draft_id, $fields, false);
 		}
 		
 		// If there are attachments, link them to this draft record
@@ -511,8 +512,9 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 		} else {
 			if(false === DAO_MailQueue::validate($fields, $error, $draft_id))
 				return false;
-			
-			DAO_MailQueue::update($draft_id, $fields);
+
+			// Drafts auto-save every 30s; skip checkpointing so we don't flood record.changed
+			DAO_MailQueue::update($draft_id, $fields, false);
 		}
 		
 		// If there are attachments, link them to this draft record
