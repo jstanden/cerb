@@ -995,9 +995,22 @@ class DAO_Worker extends Cerb_ORMHelper {
 			
 			if($is_disabled == $before_model->is_disabled)
 				unset($change_fields[DAO_Worker::IS_DISABLED]);
-			
-			if(isset($change_fields[DAO_Worker::IS_DISABLED]) && $is_disabled) {
-				Cerb_DevblocksSessionHandler::destroyByWorkerIds($before_model->id);
+
+			if(isset($change_fields[DAO_Worker::IS_DISABLED])) {
+				if($is_disabled) {
+					Cerb_DevblocksSessionHandler::destroyByWorkerIds($before_model->id);
+				}
+
+				if(DevblocksPlatform::services()->event()->isEnabled()) {
+					/*
+					 * Log activity (worker.activated|worker.deactivated)
+					 * {{actor}} activated {{target}}
+					 * {{actor}} deactivated {{target}}
+					 */
+					$activity_point = $is_disabled ? 'worker.deactivated' : 'worker.activated';
+					$entry = [];
+					CerberusContexts::logActivity($activity_point, CerberusContexts::CONTEXT_WORKER, $id, $entry);
+				}
 			}
 		}
 	}

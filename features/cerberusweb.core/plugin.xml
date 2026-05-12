@@ -1273,6 +1273,16 @@
 			<param key="string_key" value="activities.watcher.unfollow" />
 			<param key="options" value="" />
 		</activity>
+		<activity point="worker.activated">
+			<param key="label_key" value="Worker Activated" />
+			<param key="string_key" value="activities.worker.activated" />
+			<param key="options" value="" />
+		</activity>
+		<activity point="worker.deactivated">
+			<param key="label_key" value="Worker Deactivated" />
+			<param key="string_key" value="activities.worker.deactivated" />
+			<param key="options" value="" />
+		</activity>
 		<activity point="worker.impersonated">
 			<param key="label_key" value="Worker Impersonated" />
 			<param key="string_key" value="activities.worker.impersonated" />

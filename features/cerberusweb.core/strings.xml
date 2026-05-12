@@ -224,6 +224,16 @@
 				<seg>{{actor}} stopped watching {{target_object}} {{target}}</seg>
 			</tuv>
 		</tu>
+		<tu tuid="activities.worker.activated">
+			<tuv xml:lang="en_US">
+				<seg>{{actor}} activated worker {{target}}</seg>
+			</tuv>
+		</tu>
+		<tu tuid="activities.worker.deactivated">
+			<tuv xml:lang="en_US">
+				<seg>{{actor}} deactivated worker {{target}}</seg>
+			</tuv>
+		</tu>
 		<tu tuid="activities.worker.impersonated">
 			<tuv xml:lang="en_US">
 				<seg>{{actor}} impersonated {{target}} from {{ip}}</seg>
