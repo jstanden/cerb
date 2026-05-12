@@ -84,9 +84,9 @@
 				<seg>{{actor}} created {{record_type}} {{target}}</seg>
 			</tuv>
 		</tu>
-		<tu tuid="activities.records.export.done">
+		<tu tuid="activities.cerb.queue.job.completed">
 			<tuv xml:lang="en_US">
-				<seg>Your export {{target}} is ready</seg>
+				<seg>Background job {{target}} completed</seg>
 			</tuv>
 		</tu>
 		<tu tuid="activities.record.delete">

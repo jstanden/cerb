@@ -151,6 +151,23 @@ class _DevblocksQueueService {
 
 				DAO_QueueJob::setStatus([$job->id], QueueJobStatus::DONE);
 
+				// Abstract completion notification — fires for every job that has an originating worker.
+				// Workers can suppress via the dont_notify_on_activities pref for this activity point.
+				if($current->worker_id) {
+					DAO_Notification::create([
+						DAO_Notification::CONTEXT        => CerberusContexts::CONTEXT_QUEUE_JOB,
+						DAO_Notification::CONTEXT_ID     => $current->id,
+						DAO_Notification::WORKER_ID      => $current->worker_id,
+						DAO_Notification::CREATED_DATE   => time(),
+						DAO_Notification::IS_READ        => 0,
+						DAO_Notification::ACTIVITY_POINT => 'cerb.queue.job.completed',
+						DAO_Notification::ENTRY_JSON     => json_encode([
+							'variables' => ['target' => $current->name],
+							'urls'      => ['target' => 'cerb:' . CerberusContexts::CONTEXT_QUEUE_JOB . ':' . $current->id],
+						]),
+					]);
+				}
+
 				$queue = $queues[$current->queue_id] ?? null;
 
 				if($queue && ($extension = $queue->getExtension())) {

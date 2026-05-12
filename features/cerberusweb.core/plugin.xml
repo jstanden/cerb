@@ -1150,9 +1150,9 @@
 			<param key="string_key" value="activities.record.merge" />
 			<param key="options" value="" />
 		</activity>
-		<activity point="records.export.done">
-			<param key="label_key" value="Records Export Ready" />
-			<param key="string_key" value="activities.records.export.done" />
+		<activity point="cerb.queue.job.completed">
+			<param key="label_key" value="Background Job Completed" />
+			<param key="string_key" value="activities.cerb.queue.job.completed" />
 			<param key="options" value="" />
 		</activity>
 		<activity point="task.created">

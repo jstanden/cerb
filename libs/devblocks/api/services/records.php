@@ -199,36 +199,13 @@ class _DevblocksRecordsService {
 			// Link to the queue job so any worker who can read the job can download the file
 			\DAO_Attachment::addLinks(\CerberusContexts::CONTEXT_QUEUE_JOB, $queue_job->id, $attachment_id);
 
-			// Stash the attachment id on the job so the producer's close handler
-			// can look it up and auto-open the attachment peek
+			// Stash the attachment id on the job for audit (the abstract notification
+			// + Monitor widget both surface the attachment via the attachment_link)
 			$metadata = $queue_job->metadata;
 			$metadata['attachment_id'] = $attachment_id;
 			\DAO_QueueJob::update($queue_job->id, [
 				\DAO_QueueJob::METADATA => json_encode($metadata),
 			]);
-
-			// Notify the worker. The notification points at the attachment record so
-			// clicking it opens the same attachment peek as the real-time path.
-			if($queue_job->worker_id) {
-				$entry = [
-					'variables' => [
-						'target' => $file_name,
-					],
-					'urls' => [
-						'target' => 'cerb:' . \CerberusContexts::CONTEXT_ATTACHMENT . ':' . $attachment_id,
-					],
-				];
-
-				\DAO_Notification::create([
-					\DAO_Notification::CONTEXT => \CerberusContexts::CONTEXT_QUEUE_JOB,
-					\DAO_Notification::CONTEXT_ID => $queue_job->id,
-					\DAO_Notification::CREATED_DATE => time(),
-					\DAO_Notification::IS_READ => 0,
-					\DAO_Notification::WORKER_ID => $queue_job->worker_id,
-					\DAO_Notification::ACTIVITY_POINT => 'records.export.done',
-					\DAO_Notification::ENTRY_JSON => json_encode($entry),
-				]);
-			}
 		}
 
 		fclose($fp);
