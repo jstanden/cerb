@@ -684,6 +684,23 @@ class DAO_Group extends Cerb_ORMHelper {
 		
 		if(1 == $db->Affected_Rows()) { // insert but no delete
 			DAO_Group::setMemberDefaultResponsibilities($group_id, $worker_id);
+
+			if(DevblocksPlatform::services()->event()->isEnabled()
+				&& ($worker = DAO_Worker::get($worker_id))) {
+				/*
+				 * Log activity (group.member.added)
+				 * {{actor}} added {{worker}} to group {{target}}
+				 */
+				$entry = [
+					'variables' => [
+						'worker' => $worker->getName(),
+					],
+					'urls' => [
+						'worker' => sprintf("cerb:worker:%d", $worker_id),
+					],
+				];
+				CerberusContexts::logActivity('group.member.added', CerberusContexts::CONTEXT_GROUP, $group_id, $entry);
+			}
 		}
 		
 		self::clearCache();
@@ -792,7 +809,25 @@ class DAO_Group extends Cerb_ORMHelper {
 			$worker_id
 		);
 		$db->ExecuteMaster($sql);
-		
+
+		if(1 == $db->Affected_Rows()
+			&& DevblocksPlatform::services()->event()->isEnabled()
+			&& ($worker = DAO_Worker::get($worker_id))) {
+			/*
+			 * Log activity (group.member.removed)
+			 * {{actor}} removed {{worker}} from group {{target}}
+			 */
+			$entry = [
+				'variables' => [
+					'worker' => $worker->getName(),
+				],
+				'urls' => [
+					'worker' => sprintf("cerb:worker:%d", $worker_id),
+				],
+			];
+			CerberusContexts::logActivity('group.member.removed', CerberusContexts::CONTEXT_GROUP, $group_id, $entry);
+		}
+
 		self::unsetGroupMemberResponsibilities($group_id, $worker_id);
 		self::clearCache();
 	}

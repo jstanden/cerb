@@ -1128,6 +1128,16 @@
 			<param key="string_key" value="activities.connection.unlink" />
 			<param key="options" value="" />
 		</activity>
+		<activity point="group.member.added">
+			<param key="label_key" value="Group Member Added" />
+			<param key="string_key" value="activities.group.member.added" />
+			<param key="options" value="" />
+		</activity>
+		<activity point="group.member.removed">
+			<param key="label_key" value="Group Member Removed" />
+			<param key="string_key" value="activities.group.member.removed" />
+			<param key="options" value="" />
+		</activity>
 		<activity point="mailbox.check.error">
 			<param key="label_key" value="Mailbox Error" />
 			<param key="string_key" value="activities.mailbox.check.error" />

@@ -74,6 +74,16 @@
 				<seg>{{actor}} disconnected {{target_object}} {{target}} from {{link_object}} {{link}}</seg>
 			</tuv>
 		</tu>
+		<tu tuid="activities.group.member.added">
+			<tuv xml:lang="en_US">
+				<seg>{{actor}} added {{worker}} to group {{target}}</seg>
+			</tuv>
+		</tu>
+		<tu tuid="activities.group.member.removed">
+			<tuv xml:lang="en_US">
+				<seg>{{actor}} removed {{worker}} from group {{target}}</seg>
+			</tuv>
+		</tu>
 		<tu tuid="activities.mailbox.check.error">
 			<tuv xml:lang="en_US">
 				<seg>Mailbox {{target}} has failed to download mail on {{count}} consecutive attempts: {{error}}</seg>
