@@ -1,10 +1,10 @@
-{$random = time()|cat:mt_rand(1000,9999)}
+{$random = uniqid('moveto_')}
 {$selected_group_id = $params.group_id}
 {if empty($selected_group_id)}
 	{$selected_group_id = key($groups)}
 {/if}
 
-<div id="{$random}_moveto">
+<div id="{$random}">
 <select name="{$namePrefix}[group_id]">
 	{foreach from=$groups item=group key=group_id}
 	<option value="{$group_id}" {if $group_id==$selected_group_id}selected="selected"{/if}>{$group->name}</option>
@@ -19,7 +19,7 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $move_to = $('#{$random}_moveto');
+	var $move_to = $('#{$random}');
 	$move_to.find('select:nth(0)').change(function(e) {
 		var $select_bucket = $move_to.find('select:nth(1)');
 		$select_bucket.html('');

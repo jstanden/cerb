@@ -1,5 +1,5 @@
-{$random = time()|cat:'_'|cat:mt_rand(1000,9999)}
-<div id="container_{$random}">
+{$random = uniqid('container_')}
+<div id="{$random}">
 
 <select name="{$namePrefix}[oper]">
 	<option value="in" {if $params.oper=='in'}selected="selected"{/if}>to any of</option>
@@ -39,11 +39,11 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	let $container = $('#container_{$random}');
+	let $container = $('#{$random}');
 
 	$container.find('.chooser-container .glyphicons-circle-remove').on('click', Devblocks.onClickRemoveParent);
 
-	$('#container_{$random}').find('select.chooser').change(function(e) {
+	$('#{$random}').find('select.chooser').change(function(e) {
 		var $this = $(this);
 		var $val = $this.val();
 
@@ -57,7 +57,7 @@ $(function() {
 			$popup.one('chooser_save',function(event) {
 				event.stopPropagation();
 				
-				var $container = $('#container_{$random}');
+				var $container = $('#{$random}');
 				var $chooser = $container.find('select.chooser');
 				var $ul = $container.find('ul.chooser-container');
 				var $context_name = $chooser.find(':selected').text();
