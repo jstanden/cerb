@@ -198,6 +198,8 @@
 {include file="devblocks:cerberusweb.core::internal/views/bulk_broadcast.tpl" context=CerberusContexts::CONTEXT_TICKET is_reply=true}
 {/if}
 
+{include file="devblocks:cerberusweb.core::internal/cards/editors/comment.tpl" peek_context=CerberusContexts::CONTEXT_TICKET}
+
 <fieldset class="peek">
 	<legend>{'common.options'|devblocks_translate|capitalize}</legend>
 	<label>

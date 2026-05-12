@@ -1119,21 +1119,6 @@ abstract class C4_AbstractView {
 			self::marqueeAppend($view_id, $string);
 	}
 	
-	static function setMarqueeContextImported($view_id, $context, $count) {
-		$string = null;
-		
-		if(null != ($ctx = Extension_DevblocksContext::get($context))) {
-			$string = sprintf("Imported <b>%d %s</b> record%s.",
-				$count,
-				DevblocksPlatform::strLower($ctx->manifest->name),
-				($count == 1 ? '' : 's')
-			);
-		}
-		
-		if($string)
-			self::marqueeAppend($view_id, $string);
-	}
-	
 	static function marqueeAppend($view_id, $string) {
 		// Don't add worklist marquees if we have no session
 		if(DevblocksPlatform::isStateless())

@@ -76,6 +76,8 @@
 {include file="devblocks:cerberusweb.core::internal/views/bulk_broadcast.tpl" context=CerberusContexts::CONTEXT_ORG}
 {/if}
 
+{include file="devblocks:cerberusweb.core::internal/cards/editors/comment.tpl" peek_context=CerberusContexts::CONTEXT_ORG}
+
 {if $active_worker->hasPriv('contexts.cerberusweb.contexts.org.update.bulk')}<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>{/if}
 <br>
 </form>

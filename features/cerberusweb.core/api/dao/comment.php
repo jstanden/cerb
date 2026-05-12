@@ -485,37 +485,43 @@ class DAO_Comment extends Cerb_ORMHelper {
 		$comment_enabled = DevblocksPlatform::importGPC($_POST['comment_enabled'] ?? null,'bit',0);
 		$comment_is_markdown = DevblocksPlatform::importGPC($_POST['comment_is_markdown'] ?? null,'bit',0);
 		$comment_file_ids = DevblocksPlatform::importGPC($_POST['comment_file_ids'] ?? null,'array',[]);
-		
+
 		if(!$comment_enabled)
 			return null;
-		
+
 		$active_worker = CerberusApplication::getActiveWorker();
-		
+
 		if($comment_file_ids && !$comment)
 			throw new Exception_DevblocksAjaxValidationError("A comment is required when attaching files.", "comment");
-		
-		if($context_id && $comment && $active_worker->hasPriv(sprintf("contexts.%s.comment", $context))) {
-			$fields = [
-				DAO_Comment::CREATED => time(),
-				DAO_Comment::CONTEXT => $context,
-				DAO_Comment::CONTEXT_ID => $context_id,
-				DAO_Comment::COMMENT => $comment,
-				DAO_Comment::IS_MARKDOWN => $comment_is_markdown,
-				DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
-				DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
-			];
-			$comment_id = DAO_Comment::create($fields);
-			
-			if($comment_file_ids) {
-				DAO_Attachment::addLinks(CerberusContexts::CONTEXT_COMMENT, $comment_id, $comment_file_ids);
-			}
-			
-			DAO_Comment::onUpdateByActor($active_worker, $fields, $comment_id);
-			
-			return $comment_id;
+
+		return self::createWithNotifications($context, $context_id, $comment, $comment_is_markdown, $active_worker, $comment_file_ids);
+	}
+
+	public static function createWithNotifications($context, $context_id, $comment, $is_markdown, Model_Worker $actor, array $file_ids = []) {
+		if(!$context_id || !$comment)
+			return null;
+
+		if(!$actor->hasPriv(sprintf("contexts.%s.comment", $context)))
+			return null;
+
+		$fields = [
+			DAO_Comment::CREATED => time(),
+			DAO_Comment::CONTEXT => $context,
+			DAO_Comment::CONTEXT_ID => $context_id,
+			DAO_Comment::COMMENT => $comment,
+			DAO_Comment::IS_MARKDOWN => $is_markdown ? 1 : 0,
+			DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+			DAO_Comment::OWNER_CONTEXT_ID => $actor->id,
+		];
+		$comment_id = DAO_Comment::create($fields);
+
+		if($file_ids) {
+			DAO_Attachment::addLinks(CerberusContexts::CONTEXT_COMMENT, $comment_id, $file_ids);
 		}
-		
-		return null;
+
+		DAO_Comment::onUpdateByActor($actor, $fields, $comment_id);
+
+		return $comment_id;
 	}
 };
 

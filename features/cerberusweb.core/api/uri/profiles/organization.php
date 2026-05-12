@@ -319,6 +319,20 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		if(!empty($watcher_params))
 			$do['watchers'] = $watcher_params;
 		
+		// Comment
+		if($active_worker->hasPriv(sprintf('contexts.%s.comment', Context_Org::ID))) {
+			$comment_enabled = DevblocksPlatform::importGPC($_POST['comment_enabled'] ?? null, 'bit', 0);
+			$comment_text = DevblocksPlatform::importGPC($_POST['comment'] ?? null, 'string', '');
+
+			if($comment_enabled && '' !== $comment_text) {
+				$do['comment'] = [
+					'message' => $comment_text,
+					'is_markdown' => DevblocksPlatform::importGPC($_POST['comment_is_markdown'] ?? null, 'bit', 0),
+					'file_ids' => DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['comment_file_ids'] ?? null, 'array', []), 'integer', ['nonzero','unique']),
+				];
+			}
+		}
+
 		// Do: Custom fields
 		$do = DAO_CustomFieldValue::handleBulkPost($do);
 		

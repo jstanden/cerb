@@ -1309,6 +1309,20 @@ EOD;
 			$do['skip_updated'] = true;
 		}
 		
+		// Comment
+		if($active_worker->hasPriv(sprintf('contexts.%s.comment', Context_Ticket::ID))) {
+			$comment_enabled = DevblocksPlatform::importGPC($_POST['comment_enabled'] ?? null, 'bit', 0);
+			$comment_text = DevblocksPlatform::importGPC($_POST['comment'] ?? null, 'string', '');
+
+			if($comment_enabled && '' !== $comment_text) {
+				$do['comment'] = [
+					'message' => $comment_text,
+					'is_markdown' => DevblocksPlatform::importGPC($_POST['comment_is_markdown'] ?? null, 'bit', 0),
+					'file_ids' => DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['comment_file_ids'] ?? null, 'array', []), 'integer', ['nonzero','unique']),
+				];
+			}
+		}
+
 		// Broadcast: Mass Reply
 		if($active_worker->hasPriv('contexts.cerberusweb.contexts.ticket.broadcast')) {
 			$do_broadcast = DevblocksPlatform::importGPC($_POST['do_broadcast'] ?? null, 'string',null);

@@ -377,6 +377,10 @@ class _DevblocksRecordsService {
 				$update->view_id = $queue_job->metadata['view_id'] ?? '';
 
 				$dao_class::bulkUpdate($update);
+
+				if(!empty($actions['comment'])) {
+					$this->_processBulkCommentBatch($context, $record_ids, $actions['comment'], $worker);
+				}
 			}
 
 			$queue_service->reportSuccess($queue_messages);
@@ -387,5 +391,46 @@ class _DevblocksRecordsService {
 		}
 
 		return count($queue_messages);
+	}
+
+	public function onBulkUpdateJobComplete(\Model_QueueJob $queue_job) : void {
+		$context = $queue_job->metadata['context'] ?? '';
+		$view_id = $queue_job->metadata['view_id'] ?? '';
+		$record_count = intval($queue_job->metadata['record_count'] ?? 0);
+
+		if(!$context || !$view_id || $record_count < 1)
+			return;
+
+		if(!($ctx = \Extension_DevblocksContext::get($context)))
+			return;
+
+		$string = sprintf("Bulk updated <b>%d %s</b> record%s.",
+			$record_count,
+			DevblocksPlatform::strLower($ctx->manifest->name),
+			($record_count == 1 ? '' : 's')
+		);
+
+		\C4_AbstractView::marqueeAppend($view_id, $string);
+	}
+
+	private function _processBulkCommentBatch(string $context, array $record_ids, array $comment_params, \Model_Worker $worker) : void {
+		$comment_text = $comment_params['message'] ?? '';
+
+		if($comment_text === '')
+			return;
+
+		if(!$worker->hasPriv(sprintf("contexts.%s.comment", $context)))
+			return;
+
+		$is_markdown = !empty($comment_params['is_markdown']);
+		$file_ids = array_map('intval', $comment_params['file_ids'] ?? []);
+
+		foreach($record_ids as $record_id) {
+			try {
+				\DAO_Comment::createWithNotifications($context, (int)$record_id, $comment_text, $is_markdown, $worker, $file_ids);
+			} catch(\Throwable $e) {
+				DevblocksPlatform::logException($e);
+			}
+		}
 	}
 }

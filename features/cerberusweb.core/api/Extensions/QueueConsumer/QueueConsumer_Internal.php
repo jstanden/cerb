@@ -62,6 +62,10 @@ class QueueConsumer_Internal extends Extension_QueueConsumer {
 		if($queue->name == 'cerb.records.export') {
 			$records = DevblocksPlatform::services()->records();
 			$records->onExportJobComplete($queue_job);
+
+		} elseif($queue->name == 'cerb.records.bulk_update') {
+			$records = DevblocksPlatform::services()->records();
+			$records->onBulkUpdateJobComplete($queue_job);
 		}
 	}
 }
