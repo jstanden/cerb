@@ -77,11 +77,12 @@ $(function() {
     const funcMarkDone = function() {
         if(isJobDone) return;
         isJobDone = true;
-        $widget.find('div[data-cerb-buttons]').hide();
 
-        // Reload the widget so the linked-attachments list (rendered server-side
-        // when status=DONE) appears in real-time
-        $popup.triggerHandler($.Event('cerb-widget-refresh', { widget_id: {$widget->id} }));
+        // In-place update only: hide the controls. The progress bar's final 100% state
+        // is already painted by the refresh action's response that called us. We deliberately
+        // do NOT trigger cerb-widget-refresh / renderWidget — a partial update for just this
+        // widget is enough; no need to re-render the whole card.
+        $widget.find('div[data-cerb-buttons]').hide();
     };
 
     const funcRefreshProgress = function() {
