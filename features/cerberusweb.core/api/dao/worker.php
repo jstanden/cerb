@@ -1017,6 +1017,18 @@ class DAO_Worker extends Cerb_ORMHelper {
 		
 		$db->ExecuteMaster("DELETE FROM worker_to_role WHERE worker_id NOT IN (SELECT id FROM worker)");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' worker_to_role records.');
+
+		$worker_context = $db->qstr(CerberusContexts::CONTEXT_WORKER);
+
+		$sql = sprintf("DELETE FROM context_link WHERE from_context = %s AND from_context_id IN (SELECT id FROM worker WHERE is_disabled=1)", $worker_context);
+		$db->ExecuteMaster($sql);
+		$purged = $db->Affected_Rows();
+
+		$sql = sprintf("DELETE FROM context_link WHERE to_context = %s AND to_context_id IN (SELECT id FROM worker WHERE is_disabled=1)", $worker_context);
+		$db->ExecuteMaster($sql);
+		$purged += $db->Affected_Rows();
+
+		$logger->info(sprintf('[Maint] Purged %d context_link records for disabled workers.', $purged));
 	}
 	
 	static function countByGroupId($group_id) {
