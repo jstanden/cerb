@@ -50,6 +50,11 @@ if(!array_key_exists('job_id', $columns)) {
 	$changes[] = "ADD INDEX queue_claimed (queue_id, status_id, job_id, consumer_id)";
 }
 
+// Promote `message` from TEXT (~64KB) to MEDIUMTEXT (~16MB) so wide record snapshots fit
+if(array_key_exists('message', $columns) && 'mediumtext' != $columns['message']['type']) {
+	$changes[] = "MODIFY COLUMN message MEDIUMTEXT";
+}
+
 //if(!array_key_exists('attempt_count', $columns)) {
 //	$changes[] = "ADD COLUMN attempt_count TINYINT UNSIGNED NOT NULL DEFAULT 0";
 //}
