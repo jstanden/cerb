@@ -396,7 +396,10 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
-		
+
+		if(!$active_worker->hasPriv(sprintf('contexts.%s.update', Context_TimeTracking::ID)))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+
 		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
 		$row_ids = DevblocksPlatform::importGPC($_POST['row_id'] ?? null, 'array', []);
 		

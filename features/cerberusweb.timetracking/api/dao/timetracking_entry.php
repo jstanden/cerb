@@ -1151,12 +1151,35 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 	}
 	
 	static function isWriteableByActor($models, $actor) {
-		// Everyone can modify
-		return CerberusContexts::allowEverything($models);
+		if(!($actor = CerberusContexts::polymorphActorToDictionary($actor)))
+			return CerberusContexts::denyEverything($models);
+
+		if(CerberusContexts::isActorAnAdmin($actor))
+			return CerberusContexts::allowEverything($models);
+
+		if($actor->_context == CerberusContexts::CONTEXT_WORKER) {
+			if(($worker = DAO_Worker::get($actor->id)))
+				if($worker->hasPriv(sprintf('contexts.%s.update', self::ID)))
+					return CerberusContexts::allowEverything($models);
+		}
+
+		return CerberusContexts::denyEverything($models);
 	}
 	
 	static function isDeletableByActor($models, $actor) {
-		return self::isWriteableByActor($models, $actor);
+		if(!($actor = CerberusContexts::polymorphActorToDictionary($actor)))
+			return CerberusContexts::denyEverything($models);
+
+		if(CerberusContexts::isActorAnAdmin($actor))
+			return CerberusContexts::allowEverything($models);
+
+		if($actor->_context == CerberusContexts::CONTEXT_WORKER) {
+			if(($worker = DAO_Worker::get($actor->id)))
+				if($worker->hasPriv(sprintf('contexts.%s.delete', self::ID)))
+					return CerberusContexts::allowEverything($models);
+		}
+
+		return CerberusContexts::denyEverything($models);
 	}
 	
 	function getDaoClass() {
