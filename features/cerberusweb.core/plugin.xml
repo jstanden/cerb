@@ -1150,6 +1150,11 @@
 			<param key="string_key" value="activities.record.merge" />
 			<param key="options" value="" />
 		</activity>
+		<activity point="records.export.done">
+			<param key="label_key" value="Records Export Ready" />
+			<param key="string_key" value="activities.records.export.done" />
+			<param key="options" value="" />
+		</activity>
 		<activity point="task.created">
 			<param key="label_key" value="Task Created" />
 			<param key="string_key" value="activities.task.created" />

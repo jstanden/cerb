@@ -1,10 +1,9 @@
-<form action="{devblocks_url}{/devblocks_url}" method="post" target="_blank" id="frm{$view_id}_export">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="frm{$view_id}_export">
 <input type="hidden" name="c" value="internal">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="worklists">
 <input type="hidden" name="action" value="saveExport">
 <input type="hidden" name="view_id" value="{$view_id}">
-<input type="hidden" name="cursor_key" value="">
 <input type="hidden" name="export_mode" value="">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
@@ -187,88 +186,66 @@ $(function() {
 		distance: 10
 	});
 	
-	$frm.on('export_increment', function() {
+	let funcSubmit = function() {
+		Devblocks.clearAlerts();
+		$settings.hide();
+
+		let $html = $('<div style="font-size:18px;font-weight:bold;text-align:center;padding:10px;margin:10px;"/>')
+			.text('Submitting export...')
+			.append('<br/>')
+			.append(Devblocks.getSpinner())
+			;
+
+		$status.html($html).fadeIn();
+
 		genericAjaxPost($frm, '', '', function(json) {
-			if('object' != typeof json)
+			if('object' != typeof json) {
+				$status.text('').hide();
+				$settings.show();
 				return;
-			
-			if(json.hasOwnProperty('error') && json.error) {
+			}
+
+			if(json.error) {
 				Devblocks.createAlertError(json.error);
 				$status.text('').hide();
 				$settings.show();
 				return;
 			}
-			
-			// If complete, display the download link
-			if(json.hasOwnProperty('completed') && json.completed) {
-				$frm.find('input:hidden[name=cursor_key]').val('');
-				
-				var $html = $('<div><a class="close"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);font-size:16px;position:relative;float:right;"></span></a></div>')
-					.append(
-						$('<div style="font-size:18px;font-weight:bold;text-align:center;"/>')
-							.append($('<a target="_blank" rel="noopener"/>').attr('href',json.attachment_url).text(json.attachment_name).prepend('Download: '))
-					);
-					
-				$status.html($html).fadeIn();
-					
-				$status.find('a.close').click(function() {
-					$('#{$view_id}_tips').html('').hide();
-				});
-				return;
-			}
-			
-			if(json.hasOwnProperty('key') && json.hasOwnProperty('rows_exported')) {
-				$frm.find('input:hidden[name=cursor_key]').val(json.key);
-				
-				// If in progress, continue looping pages
-				var $html = $('<div style="font-size:18px;font-weight:bold;text-align:center;padding:10px;margin:10px;"/>')
-					.text('Exported ' + json.rows_exported + ' records')
-					.append('<br/>')
-					.append(Devblocks.getSpinner())
-					;
-				
-				$status.html($html).fadeIn();
-				$frm.trigger('export_increment');
+
+			if(json.job_id) {
+				// Open the queue job peek to monitor progress
+				let $trigger = $('<a/>')
+					.attr('data-context', 'cerb.contexts.queue.job')
+					.attr('data-context-id', String(json.job_id))
+					.css('display', 'none')
+					.appendTo('body');
+
+				$trigger
+					.cerbPeekTrigger({ width: '600' })
+					.on('cerb-peek-closed', function(event) {
+						event.stopPropagation();
+						$trigger.remove();
+						genericAjaxGet('view{$view_id}',
+							'c=internal&a=invoke&module=worklists&action=refresh&id={$view_id}'
+						);
+					})
+					.trigger('click');
+
+				$('#{$view_id}_tips').html('').hide();
 			}
 		});
-	})
+	};
 
 	$frm.find('button.submit').click(function(e) {
 		e.stopPropagation();
-		
-		Devblocks.clearAlerts();
-		$settings.hide();
 		$frm.find('input:hidden[name=export_mode]').val('');
-		
-		// If in progress, continue looping pages
-		var $html = $('<div style="font-size:18px;font-weight:bold;text-align:center;padding:10px;margin:10px;"/>')
-			.text('Exporting...')
-			.append('<br/>')
-			.append(Devblocks.getSpinner())
-			;
-		
-		$status.html($html).fadeIn();
-
-		$frm.trigger('export_increment');
+		funcSubmit();
 	});
-	
+
 	$frm.find('button.submit-build').click(function(e) {
 		e.stopPropagation();
-
-		Devblocks.clearAlerts();
-		$settings.hide();
 		$frm.find('input:hidden[name=export_mode]').val('kata');
-		
-		// If in progress, continue looping pages
-		var $html = $('<div style="font-size:18px;font-weight:bold;text-align:center;padding:10px;margin:10px;"/>')
-			.text('Exporting...')
-			.append('<br/>')
-			.append(Devblocks.getSpinner())
-			;
-		
-		$status.html($html).fadeIn();
-
-		$frm.trigger('export_increment');
+		funcSubmit();
 	});
 
 	$frm.find('button.cancel').on('click', function(e) {

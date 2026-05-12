@@ -642,699 +642,158 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 	
 	private function _internalAction_saveExport() {
 		$active_worker = CerberusApplication::getActiveWorker();
-		
-		$cursor_key = DevblocksPlatform::importGPC($_POST['cursor_key'] ?? null, 'string', '');
-		
+		$db = DevblocksPlatform::services()->database();
+
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
-		
+
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
-		
+
 		try {
 			if(!$active_worker)
 				throw new Exception_DevblocksAjaxError("Access denied.");
-			
-			if(empty($cursor_key)) {
-				$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
-				$export_as = DevblocksPlatform::importGPC($_POST['export_as'] ?? null, 'string', 'csv');
-				$export_mode = DevblocksPlatform::importGPC($_POST['export_mode'] ?? null, 'string', '');
-				
-				$tokens = DevblocksPlatform::importGPC($_POST['tokens'] ?? null, 'array', []);
-				$format_timestamps = DevblocksPlatform::importGPC($_POST['format_timestamps'] ?? null, 'integer', 0);
-				
-				$export_kata = DevblocksPlatform::importGPC($_POST['export_kata'] ?? null, 'string', '');
-				
-				if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
-					throw new Exception_DevblocksAjaxError("Invalid worklist.");
-				
-				if(null == ($context_ext = Extension_DevblocksContext::getByViewClass(get_class($view), true)))
-					throw new Exception_DevblocksAjaxError("Invalid worklist record type.");
-				
-				// Check prefs
-				
-				$pref_key_prefix = sprintf("worklist.%s.",
-					$context_ext->manifest->getParam('uri', $context_ext->id)
-				);
-				
-				if(!$export_mode) {
-					DAO_WorkerPref::setAsJson($active_worker->id, $pref_key_prefix . 'export_tokens', $tokens);
-					
-				} else if('kata' == $export_mode) {
-					$kata = DevblocksPlatform::services()->kata();
-					
-					if(!$kata->validate($export_kata, CerberusApplication::kataSchemas()->worklistExport(), $error))
-						throw new Exception_DevblocksAjaxError("Export KATA Error: " . $error);
-					
-					DAO_WorkerPref::set($active_worker->id, $pref_key_prefix . 'export_kata', $export_kata);
-				}
-				
-				if(!isset($_SESSION['view_export_cursors']))
-					$_SESSION['view_export_cursors']  = [];
-				
-				$cursor_key = sha1(json_encode([$view_id, $tokens, $export_as, time()]));
-				
-				$cursor = [
-					'key' => $cursor_key,
-					'view_id' => $view_id,
-					'tokens' => $tokens,
-					'export_as' => $export_as,
-					'export_mode' => $export_mode,
-					'format_timestamps' => $format_timestamps,
-					'export_kata' => $export_kata,
-					'page' => 0,
-					'rows_exported' => 0,
-					'completed' => false,
-					'temp_file' => APP_TEMP_PATH . '/' . $cursor_key . '.tmp',
-					'attachment_name' => null,
-					'attachment_url' => null,
-				];
-				
-				$_SESSION['view_export_cursors'][$cursor_key] = $cursor;
+
+			$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
+			$export_as = DevblocksPlatform::importGPC($_POST['export_as'] ?? null, 'string', 'csv');
+			$export_mode = DevblocksPlatform::importGPC($_POST['export_mode'] ?? null, 'string', '');
+			$tokens = DevblocksPlatform::importGPC($_POST['tokens'] ?? null, 'array', []);
+			$format_timestamps = DevblocksPlatform::importGPC($_POST['format_timestamps'] ?? null, 'integer', 0);
+			$export_kata = DevblocksPlatform::importGPC($_POST['export_kata'] ?? null, 'string', '');
+
+			if(!in_array($export_as, ['csv', 'json', 'jsonl', 'xml']))
+				throw new Exception_DevblocksAjaxError("Invalid export format.");
+
+			if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
+				throw new Exception_DevblocksAjaxError("Invalid worklist.");
+
+			if(null == ($context_ext = Extension_DevblocksContext::getByViewClass(get_class($view), true)))
+				throw new Exception_DevblocksAjaxError("Invalid worklist record type.");
+
+			if(!$active_worker->hasPriv(sprintf("contexts.%s.export", $context_ext->id)))
+				throw new Exception_DevblocksAjaxError("Access denied.");
+
+			// Persist the worker's export preferences (same as before)
+
+			$pref_key_prefix = sprintf("worklist.%s.",
+				$context_ext->manifest->getParam('uri', $context_ext->id)
+			);
+
+			if(!$export_mode) {
+				DAO_WorkerPref::setAsJson($active_worker->id, $pref_key_prefix . 'export_tokens', $tokens);
+
+			} else if('kata' == $export_mode) {
+				$kata = DevblocksPlatform::services()->kata();
+
+				if(!$kata->validate($export_kata, CerberusApplication::kataSchemas()->worklistExport(), $error))
+					throw new Exception_DevblocksAjaxError("Export KATA Error: " . $error);
+
+				DAO_WorkerPref::set($active_worker->id, $pref_key_prefix . 'export_kata', $export_kata);
 			}
-			
-			$cursor = $this->_viewIncrementalExport($cursor_key);
-			echo json_encode($cursor);
-			
+
+			if(!($queue = DAO_Queue::getByName('cerb.records.export')))
+				throw new Exception_DevblocksAjaxError("Export queue is not configured.");
+
+			if(!($dao_class = $context_ext->getDaoClass()))
+				throw new Exception_DevblocksAjaxError("Record type does not support export.");
+
+			if(!($search_class = $context_ext->getSearchClass()))
+				throw new Exception_DevblocksAjaxError("Record type does not support export.");
+
+			// Build the underlying search SQL from the worklist's params
+			$query_parts = $dao_class::getSearchQueryComponents([], $view->getParams());
+
+			if(empty($query_parts['primary_table']))
+				throw new Exception_DevblocksAjaxError("Record type does not support batch export.");
+
+			$primary_key = $search_class::getPrimaryKey();
+			$batch_size = 100;
+
+			// Count records up front so the queue job has a determinate total
+			$count_sql = "SELECT COUNT(1) " . $query_parts['join'] . $query_parts['where'];
+			$record_count = intval($db->GetOneReader($count_sql));
+
+			if(!$record_count)
+				throw new Exception_DevblocksAjaxError("This worklist has no records to export.");
+
+			$batch_count = (int)ceil($record_count / $batch_size);
+
+			$file_name = 'export.' . $export_as;
+			$mime_type = match($export_as) {
+				'csv'   => 'text/csv',
+				'json'  => 'application/json',
+				'jsonl' => 'text/plain',
+				'xml'   => 'text/xml',
+			};
+
+			$aliases = Extension_DevblocksContext::getAliasesForContext($context_ext->manifest);
+
+			$queue_job = new Model_QueueJob();
+			$queue_job->queue_id = $queue->id;
+			$queue_job->name = sprintf('Export %s: %s',
+				$aliases['plural'] ?? $aliases['uri'] ?? $context_ext->id,
+				$file_name
+			);
+			$queue_job->status_id = QueueJobStatus::RUNNING->value;
+			$queue_job->count_total = $batch_count;
+			$queue_job->count_available = $batch_count;
+			$queue_job->worker_id = $active_worker->id;
+			$queue_job->metadata = [
+				'context'           => $context_ext->id,
+				'view_id'           => $view_id,
+				'query'             => $view->getParamsQuery(),
+				'record_count'      => $record_count,
+				'export_as'         => $export_as,
+				'export_mode'       => $export_mode,
+				'tokens'            => $tokens,
+				'export_kata'       => $export_kata,
+				'format_timestamps' => $format_timestamps,
+				'file_name'         => $file_name,
+				'mime_type'         => $mime_type,
+			];
+			$queue_job = DAO_QueueJob::create($queue_job);
+
+			// Generate one queue_message per chunk in a single SQL statement.
+			// The inner subquery dedupes IDs (joins may not be 1:1) and assigns each
+			// record a chunk index by ROW_NUMBER to preserve the worklist's display order.
+			$inner_select_sql =
+				"SELECT " . $primary_key . " AS id " .
+				$query_parts['join'] .
+				$query_parts['where'] .
+				" GROUP BY " . $primary_key
+			;
+
+			$sql = sprintf(
+				"INSERT INTO queue_message (uuid, queue_id, job_id, status_id, status_at, message) ".
+				"SELECT UUID_TO_BIN(UUID()) AS uuid, ".
+				"%d AS queue_id, ".
+				"%d AS job_id, ".
+				"0 AS status_id, ".
+				"UNIX_TIMESTAMP() AS status_at, ".
+				"CONCAT('{\"chunk\":', batch, ',\"ids\":[', GROUP_CONCAT(id ORDER BY id), ']}') AS message ".
+				"FROM (SELECT id, CEIL(ROW_NUMBER() OVER (ORDER BY id) / %d) AS batch FROM (%s) AS deduped) AS batched ".
+				"GROUP BY batch",
+				$queue->id,
+				$queue_job->id,
+				$batch_size,
+				$inner_select_sql
+			);
+			$db->ExecuteMaster($sql);
+
+			echo json_encode([
+				'status'  => true,
+				'job_id'  => $queue_job->id,
+				'view_id' => $view_id,
+			]);
+
 		} catch (Exception_DevblocksAjaxError $e) {
-			echo json_encode([
-				'error' => $e->getMessage(),
-			]);
-			return;
-			
-		} catch (Exception $e) {
-			echo json_encode([
-				'error' => 'An unknown error occurred.',
-			]);
-			return;
-		}
-	}
-	
-	/**
-	 * @param string $cursor_key
-	 * @return array|false
-	 * @throws Exception_DevblocksAjaxError
-	 */
-	private function _viewIncrementalExport($cursor_key) {
-		if(!isset($_SESSION['view_export_cursors'][$cursor_key]))
-			throw new Exception_DevblocksAjaxError("Cursor not found.");
-		
-		// Load the cursor and do the next step, then return JSON
-		$cursor =& $_SESSION['view_export_cursors'][$cursor_key];
-		
-		if(!is_array($cursor))
-			throw new Exception_DevblocksAjaxError("Invalid cursor.");
-		
-		$mime_type = null;
-		
-		switch($cursor['export_as']) {
-			case 'csv':
-				$this->_viewIncrementExportAsCsv($cursor);
-				$mime_type = 'text/csv';
-				break;
-			
-			case 'json':
-				$this->_viewIncrementExportAsJson($cursor);
-				$mime_type = 'application/json';
-				break;
-			
-			case 'jsonl':
-				$this->_viewIncrementExportAsJsonl($cursor);
-				$mime_type = 'text/plain';
-				break;
-			
-			case 'xml':
-				$this->_viewIncrementExportAsXml($cursor);
-				$mime_type = 'text/xml';
-				break;
-		}
-		
-		if($cursor['completed']) {
-			@$sha1_hash = sha1_file($cursor['temp_file'], false);
-			$file_name = 'export.' . $cursor['export_as'];
-			
-			$url_writer = DevblocksPlatform::services()->url();
-			
-			// Move the temp file to attachments
-			$fields = [
-				DAO_Attachment::NAME => $file_name,
-				DAO_Attachment::MIME_TYPE => $mime_type,
-				DAO_Attachment::STORAGE_SHA1HASH => $sha1_hash,
-				DAO_Attachment::UPDATED => time(),
-			];
-			
-			if(!($id = DAO_Attachment::create($fields)))
-				return false;
-			
-			// [TODO] This is a temporary workaround to allow workers to view exports they create
-			$_SESSION['view_export_file_id'] = $id;
+			echo json_encode(['status' => false, 'error' => $e->getMessage()]);
 
-			if(!($fp = fopen($cursor['temp_file'], 'r')))
-				return false;
-			
-			Storage_Attachments::put($id, $fp);
-			fclose($fp);
-			unlink($cursor['temp_file']);
-			
-			unset($_SESSION['view_export_cursors'][$cursor_key]);
-			
-			$cursor['attachment_name'] = $file_name;
-			$cursor['attachment_url'] = $url_writer->write('c=files&id=' . $id . '&name=' . $file_name);
+		} catch (Throwable $e) {
+			DevblocksPlatform::logException($e);
+			echo json_encode(['status' => false, 'error' => 'An unexpected error occurred.']);
 		}
-		
-		return $cursor;
 	}
-	
-	private function _getViewFromCursor(array $cursor) {
-		$view_id = $cursor['view_id'];
-		
-		if(!($view = C4_AbstractViewLoader::getView($view_id)))
-			DevblocksPlatform::dieWithHttpError(null, 404);
-		
-		$view->setAutoPersist(false);
-		
-		// Override display
-		$view->view_columns = [];
-		$view->renderPage = $cursor['page'];
-		$view->renderLimit = 200;
-		
-		return $view;
-	}
-	
-	private function _getDictionariesFromView(C4_AbstractView $view, Extension_DevblocksContext $context_ext, &$count=0) {
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		// Rows
-		$results = $view->getDataAsObjects();
-		
-		$count = count($results);
-		
-		$models = CerberusContexts::getModels($context_ext->id, array_keys($results));
-		
-		unset($results);
-		
-		// ACL
-		$models = CerberusContexts::filterModelsByActorReadable(get_class($context_ext), $models, $active_worker);
-		
-		// Models->Dictionaries
-		$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $context_ext->id);
-		
-		foreach($dicts as $dict)
-			$dict->scrubKeys('_types');
 
-		return $dicts;
-	}
-	
-	private function _getExportColumnsKataFromCursor(array $cursor) : array {
-		$export_columns = [];
-		$error = null;
-		
-		if(false === ($export_kata = DevblocksPlatform::services()->kata()->parse($cursor['export_kata'] ?? '', $error)))
-			return [];
-		
-		if(false === ($export_kata = DevblocksPlatform::services()->kata()->formatTree($export_kata, null, $error)))
-			return [];
-		
-		if(!is_array($export_kata))
-			return [];
-		
-		foreach($export_kata as $column_key => $column_data) {
-			list($column_type, $column_name) = array_pad(explode('/', $column_key, 2), 2, null);
-			
-			if('column' != $column_type || !$column_name)
-				continue;
-			
-			foreach($column_data as $k => $v) {
-				list($k, $k_annotations) = array_pad(explode('@', $k, 2), 2, null);
-				
-				// Persist value annotations
-				if('value' == $k) {
-					$column_data['value'] = $v;
-					$column_data['annotations'] = $k_annotations;
-				}
-			}
-			
-			$export_columns[$column_name] = [
-				'label' => $column_data['label'] ?? DevblocksPlatform::strTitleCase($column_name),
-				'value' => $column_data['value'] ?? sprintf('{{%s}}', $column_name),
-				'annotations' => $column_data['annotations'] ?? '',
-			];
-		}
-		
-		return $export_columns;
-	}
-	
-	private function _getExportKataColumnValue($column_name, $column, DevblocksDictionaryDelegate $dict) : mixed {
-		$kata = DevblocksPlatform::services()->kata();
-		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-		
-		if($column_name && is_array($column)) {
-			$column_value = $column['value'] ?? '';
-			
-			if($column['annotations'] ?? false) {
-				$value = $kata->formatTree(
-					['value@' . $column['annotations'] => $column_value],
-					$dict
-				)['value'] ?? '';
-				
-			} else if(is_array($column_value)) {
-				$value = $kata->formatTree($column_value, $dict);
-				
-			} else {
-				$value = $tpl_builder->build($column_value, $dict);
-			}
-			
-		} else {
-			$value = '';
-		}
-		
-		return $value;
-	}
-	
-	private function _viewIncrementExportAsCsv(array &$cursor) {
-		if(!($view = $this->_getViewFromCursor($cursor)))
-			return;
-		
-		if(null == ($context_ext = Extension_DevblocksContext::getByViewClass(get_class($view), true)))
-			return;
-		
-		// Append mode to the temp file
-		if(!($fp = fopen($cursor['temp_file'], "a")))
-			return;
-		
-		$count = 0;
-		
-		if(!($dicts = $this->_getDictionariesFromView($view, $context_ext, $count)))
-			$dicts = [];
-		
-		if('kata' == $cursor['export_mode']) {
-			// Bulk lazy load custom fields across the dictionaries
-			DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'customfields');
-			
-			$export_columns = $this->_getExportColumnsKataFromCursor($cursor);
-			
-			// If the first page, add headings
-			if(0 == $cursor['page']) {
-				$csv_labels = [];
-				
-				foreach($export_columns as $column_name => $column) {
-					$csv_labels[] = ($column['label'] ?? null) ?: DevblocksPlatform::strTitleCase($column_name);
-				}
-				
-				fputcsv($fp, $csv_labels);
-				unset($csv_labels);
-			}
-				
-			foreach($dicts as $dict) {
-				$fields = [];
-				
-				foreach($export_columns as $column_name => $column) {
-					$value = $this->_getExportKataColumnValue($column_name, $column, $dict);
-					$fields[] = is_scalar($value) ? $value : json_encode($value);
-				}
-				
-				fputcsv($fp, $fields);
-			}
-			
-		} else {
-			$global_labels = $global_values = [];
-			CerberusContexts::getContext($context_ext->id, null, $global_labels, $global_values, null, true);
-			$global_types = $global_values['_types'];
-			
-			// Bulk lazy load the tokens across all the dictionaries with a temporary cache
-			foreach($cursor['tokens'] as $token) {
-				DevblocksDictionaryDelegate::bulkLazyLoad($dicts, $token);
-			}
-			
-			// If the first page
-			if(0 == $cursor['page']) {
-				// Headings
-				$csv_labels = [];
-				
-				if(is_array($cursor['tokens']))
-					foreach($cursor['tokens'] as $token) {
-						$csv_labels[] = trim($global_labels[$token] ?? $token);
-					}
-				
-				fputcsv($fp, $csv_labels);
-				
-				unset($csv_labels);
-			}
-			
-			foreach($dicts as $dict) {
-				$fields = [];
-				
-				foreach($cursor['tokens'] as $token) {
-					$value = '';
-					
-					if($dict->exists($token))
-						$value = $dict->get($token);
-					
-					if(($global_types[$token] ?? null) == Model_CustomField::TYPE_DATE && $cursor['format_timestamps']) {
-						if(empty($value)) {
-							$value = '';
-						} else if(is_numeric($value)) {
-							$value = date('r', $value);
-						}
-					}
-					
-					if(is_array($value))
-						$value = json_encode($value);
-					
-					if(!is_string($value) && !is_numeric($value))
-						$value = '';
-					
-					$fields[] = $value;
-				}
-				
-				fputcsv($fp, $fields);
-			}
-		}
-		
-		$cursor['page']++;
-		$cursor['rows_exported'] += $count;
-		
-		// If our page isn't full, we're done
-		if($count < $view->renderLimit) {
-			$cursor['completed'] = true;
-		}
-		
-		fclose($fp);
-	}
-	
-	private function _viewIncrementExportAsJson(array &$cursor) {
-		if(!($view = $this->_getViewFromCursor($cursor)))
-			return;
-		
-		if(null == ($context_ext = Extension_DevblocksContext::getByViewClass(get_class($view), true)))
-			return;
-		
-		// Append mode to the temp file
-		if(!($fp = fopen($cursor['temp_file'], "a")))
-			return;
-		
-		$count = 0;
-		
-		if(!($dicts = $this->_getDictionariesFromView($view, $context_ext, $count)))
-			$dicts = [];
-		
-		if('kata' == $cursor['export_mode']) {
-			// Bulk lazy load custom fields across the dictionaries
-			DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'customfields');
-			
-			$export_columns = $this->_getExportColumnsKataFromCursor($cursor);
-			
-			fputs($fp, "{\"results\": [\n");
-			
-			$objects = [];
-				
-			foreach($dicts as $dict) {
-				$object = [];
-				
-				foreach($export_columns as $column_name => $column) {
-					$value = $this->_getExportKataColumnValue($column_name, $column, $dict);
-					$object[$column_name] = $value;
-				}
-			
-				$objects[] = $object;
-			}
-			
-			$json = trim(json_encode($objects),'[]');
-			fputs($fp, $json);
-			
-		} else {
-			$global_labels = $global_values = [];
-			CerberusContexts::getContext($context_ext->id, null, $global_labels, $global_values, null, true);
-			$global_types = $global_values['_types'];
-			
-			// Bulk lazy load the tokens across all the dictionaries with a temporary cache
-			foreach($cursor['tokens'] as $token) {
-				DevblocksDictionaryDelegate::bulkLazyLoad($dicts, $token);
-			}
-			
-			// If the first page
-			if(0 == $cursor['page']) {
-				fputs($fp, "{\n\"fields\":");
-				
-				$fields = [];
-				
-				// Fields
-				
-				if(is_array($global_labels))
-					foreach($cursor['tokens'] as $token) {
-						$fields[$token] = [
-							'label' => @$global_labels[$token],
-							'type' => @$global_types[$token],
-						];
-					}
-				
-				fputs($fp, json_encode($fields));
-				
-				fputs($fp, ",\n\"results\": [\n");
-			}
-			
-			// Rows
-			
-			if($cursor['page'] > 0)
-				fputs($fp, ",\n");
-			
-			$objects = [];
-			
-			foreach($dicts as $dict) {
-				$object = [];
-				
-				if(is_array($cursor['tokens']))
-					foreach($cursor['tokens'] as $token) {
-						$value = $dict->$token;
-						
-						if($global_types[$token] == Model_CustomField::TYPE_DATE && $cursor['format_timestamps']) {
-							if(empty($value)) {
-								$value = '';
-							} else if (is_numeric($value)) {
-								$value = date('r', $value);
-							}
-						}
-						
-						$object[$token] = $value;
-					}
-				
-				$objects[] = $object;
-				
-			}
-			
-			$json = trim(json_encode($objects),'[]');
-			fputs($fp, $json);			
-		}			
-			
-		$cursor['page']++;
-		$cursor['rows_exported'] += $count;
-		
-		// If our page isn't full, we're done
-		if($count < $view->renderLimit) {
-			$cursor['completed'] = true;
-			fputs($fp, "]\n}");
-		}
-		
-		fclose($fp);
-	}
-	
-	private function _viewIncrementExportAsJsonl(array &$cursor) {
-		if(!($view = $this->_getViewFromCursor($cursor)))
-			return;
-		
-		if(null == ($context_ext = Extension_DevblocksContext::getByViewClass(get_class($view), true)))
-			return;
-		
-		// Append mode to the temp file
-		if(!($fp = fopen($cursor['temp_file'], "a")))
-			return;
-		
-		$count = 0;
-		
-		if(!($dicts = $this->_getDictionariesFromView($view, $context_ext, $count)))
-			$dicts = [];
-		
-		if('kata' == $cursor['export_mode']) {
-			// Bulk lazy load custom fields across the dictionaries
-			DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'customfields');
-			
-			$export_columns = $this->_getExportColumnsKataFromCursor($cursor);
-			
-			foreach($dicts as $dict) {
-				$object = [];
-				
-				foreach($export_columns as $column_name => $column) {
-					$value = $this->_getExportKataColumnValue($column_name, $column, $dict);
-					$object[$column_name] = $value;
-				}
-				
-				$json = json_encode($object);
-				fputs($fp, $json . "\n");
-			}
-			
-		} else {
-			$global_labels = $global_values = [];
-			CerberusContexts::getContext($context_ext->id, null, $global_labels, $global_values, null, true);
-			$global_types = $global_values['_types'];
-			
-			// Bulk lazy load the tokens across all the dictionaries with a temporary cache
-			foreach($cursor['tokens'] as $token) {
-				DevblocksDictionaryDelegate::bulkLazyLoad($dicts, $token);
-			}
-			
-			foreach($dicts as $dict) {
-				$object = [];
-				
-				if(is_array($cursor['tokens']))
-					foreach($cursor['tokens'] as $token) {
-						$value = $dict->$token;
-						
-						if($global_types[$token] == Model_CustomField::TYPE_DATE && $cursor['format_timestamps']) {
-							if(empty($value)) {
-								$value = '';
-							} else if (is_numeric($value)) {
-								$value = date('r', $value);
-							}
-						}
-						
-						$object[$token] = $value;
-					}
-				
-				$json = json_encode($object);
-				fputs($fp, $json . "\n");
-			}
-			
-		}
-		
-		$cursor['page']++;
-		$cursor['rows_exported'] += $count;
-		
-		// If our page isn't full, we're done
-		if($count < $view->renderLimit) {
-			$cursor['completed'] = true;
-		}
-		
-		fclose($fp);
-	}
-	
-	private function _viewIncrementExportAsXml(array &$cursor) {
-		if(!($view = $this->_getViewFromCursor($cursor)))
-			return;
-		
-		if(null == ($context_ext = Extension_DevblocksContext::getByViewClass(get_class($view), true)))
-			return;
-		
-		// Append mode to the temp file
-		if(!($fp = fopen($cursor['temp_file'], "a")))
-			return;
-		
-		$count = 0;
-		
-		if(!($dicts = $this->_getDictionariesFromView($view, $context_ext, $count)))
-			$dicts = [];
-		
-		if('kata' == $cursor['export_mode']) {
-			// Bulk lazy load custom fields across the dictionaries
-			DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'customfields');
-			
-			$export_columns = $this->_getExportColumnsKataFromCursor($cursor);
-			
-			if(0 == $cursor['page']) {
-				fputs($fp, "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
-				fputs($fp, "<export>\n");
-				fputs($fp, "<results>\n");
-			}			
-			
-			foreach($dicts as $dict) {
-				$xml_result = simplexml_load_string("<result/>"); /* @var $xml SimpleXMLElement */
-				
-				foreach($export_columns as $column_name => $column) {
-					$value = $this->_getExportKataColumnValue($column_name, $column, $dict);
-					$field = $xml_result->addChild("field", DevblocksPlatform::strEscapeHtml(is_scalar($value) ? $value : json_encode($value)));
-					$field->addAttribute("key", $column_name);
-				}
-				
-				$dom = dom_import_simplexml($xml_result);
-				fputs($fp, $dom->ownerDocument->saveXML($dom->ownerDocument->documentElement));
-			}
-			
-		} else {
-			// Bulk lazy load the tokens across all the dictionaries with a temporary cache
-			foreach($cursor['tokens'] as $token) {
-				DevblocksDictionaryDelegate::bulkLazyLoad($dicts, $token);
-			}
-			
-			$global_labels = $global_values = [];
-			CerberusContexts::getContext($context_ext->id, null, $global_labels, $global_values, null, true);
-			$global_types = $global_values['_types'];
-			
-			// If the first page
-			if(0 == $cursor['page']) {
-				fputs($fp, "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
-				fputs($fp, "<export>\n");
-				
-				// Meta
-				
-				$xml_fields = simplexml_load_string("<fields/>"); /* @var $xml SimpleXMLElement */
-				
-				foreach($cursor['tokens'] as $token) {
-					$field = $xml_fields->addChild("field");
-					$field->addAttribute('key', $token);
-					$field->addChild('label', $global_labels[$token] ?? '');
-					$field->addChild('type', $global_types[$token] ?? '');
-				}
-				
-				$dom = dom_import_simplexml($xml_fields);
-				fputs($fp, $dom->ownerDocument->saveXML($dom->ownerDocument->documentElement));
-				unset($dom);
-				
-				fputs($fp, "\n<results>\n");
-			}
-			
-			// Content
-			
-			foreach($dicts as $dict) {
-				$xml_result = simplexml_load_string("<result/>"); /* @var $xml SimpleXMLElement */
-				
-				if(is_array($cursor['tokens']))
-					foreach($cursor['tokens'] as $token) {
-						$value = $dict->$token;
-						
-						if($global_types[$token] == Model_CustomField::TYPE_DATE && $cursor['format_timestamps']) {
-							if(empty($value)) {
-								$value = '';
-							} else if(is_numeric($value)) {
-								$value = date('r', $value);
-							}
-						}
-						
-						if(is_array($value))
-							$value = json_encode($value);
-						
-						if(!is_string($value) && !is_numeric($value))
-							$value = '';
-						
-						$field = $xml_result->addChild("field", DevblocksPlatform::strEscapeHtml($value));
-						$field->addAttribute("key", $token);
-					}
-				
-				$dom = dom_import_simplexml($xml_result);
-				fputs($fp, $dom->ownerDocument->saveXML($dom->ownerDocument->documentElement));
-			}			
-		}			
-		
-		$cursor['page']++;
-		$cursor['rows_exported'] += $count;
-		
-		// If our page isn't full, we're done
-		if($count < $view->renderLimit) {
-			$cursor['completed'] = true;
-			fputs($fp, "</results>\n");
-			fputs($fp, "</export>\n");
-		}
-		
-		fclose($fp);
-	}
-	
 	private function _internalAction_saveCustomize() {
 		$translate = DevblocksPlatform::getTranslationService();
 		$active_worker = CerberusApplication::getActiveWorker();

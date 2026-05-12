@@ -75,8 +75,13 @@ $(function() {
     };
 
     const funcMarkDone = function() {
+        if(isJobDone) return;
         isJobDone = true;
         $widget.find('div[data-cerb-buttons]').hide();
+
+        // Reload the widget so the linked-attachments list (rendered server-side
+        // when status=DONE) appears in real-time
+        $popup.triggerHandler($.Event('cerb-widget-refresh', { widget_id: {$widget->id} }));
     };
 
     const funcRefreshProgress = function() {

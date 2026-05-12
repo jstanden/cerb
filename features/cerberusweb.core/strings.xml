@@ -84,6 +84,11 @@
 				<seg>{{actor}} created {{record_type}} {{target}}</seg>
 			</tuv>
 		</tu>
+		<tu tuid="activities.records.export.done">
+			<tuv xml:lang="en_US">
+				<seg>Your export {{target}} is ready</seg>
+			</tuv>
+		</tu>
 		<tu tuid="activities.record.delete">
 			<tuv xml:lang="en_US">
 				<seg>{{actor}} deleted {{record_type}} `{{record_label}}` (#{{record_id}})</seg>

@@ -32,14 +32,20 @@ class QueueConsumer_Internal extends Extension_QueueConsumer {
 				$records = DevblocksPlatform::services()->records();
 				$records->processImportQueue($queue, $stop_time, $count_hint, $queue_job);
 			}
-		
+
+		} elseif($queue->name == 'cerb.records.export') {
+			if ($stop_time > time()) {
+				$records = DevblocksPlatform::services()->records();
+				$records->processExportQueue($queue, $stop_time, $count_hint, $queue_job);
+			}
+
 		} elseif($queue->name == 'cerb.search.index') {
 			if ($stop_time > time()) {
 				$search = DevblocksPlatform::services()->search();
 				$search->processQueue($queue, $stop_time, $count_hint, $queue_job);
 			}
 		}
-		
+
 		return 0;
 	}
 

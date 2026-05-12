@@ -1,6 +1,7 @@
 <?php
 
 use Cerb\Records\FileImporter;
+use Cerb\Records\WorklistExporter;
 
 class _DevblocksRecordsService {
 	private static ?_DevblocksRecordsService $_instance = null;
@@ -86,7 +87,152 @@ class _DevblocksRecordsService {
 		}
 		
 		$processed += count($queue_messages);
-		
+
 		return $processed;
+	}
+
+	public function processExportQueue(Model_Queue $queue, int $stop_time, int $count_hint, ?Model_QueueJob $queue_job=null) : int {
+		$queue_service = DevblocksPlatform::services()->queue();
+
+		if($queue_job) {
+			$job_id = $queue_job->id;
+
+		} else {
+			if(!($job_stats = \DAO_QueueJob::getAvailableMessages($queue)))
+				return 0;
+
+			shuffle($job_stats);
+
+			$job_id = $job_stats[array_key_first($job_stats)]['job_id'] ?? null;
+
+			if(!($queue_job = \DAO_QueueJob::get($job_id))) {
+				return 0;
+			}
+		}
+
+		$batch_size = 100;
+		$consumer_id = null;
+
+		if(!($queue_messages = $queue_service->dequeue($queue->name, $batch_size, $consumer_id, $job_id)))
+			return 0;
+
+		try {
+			$context = $queue_job->metadata['context'] ?? '';
+			$exporter = new WorklistExporter($context);
+
+			// Pass worker_id through metadata so ACL filters apply during chunk render
+			$render_metadata = $queue_job->metadata;
+			$render_metadata['worker_id'] = $queue_job->worker_id;
+
+			foreach($queue_messages as $queue_message) {
+				$payload = $queue_message->message;
+				$chunk_idx = intval($payload['chunk'] ?? 0);
+				$record_ids = array_map('intval', $payload['ids'] ?? []);
+
+				$bytes = $exporter->renderChunkBytes($record_ids, $render_metadata);
+				\DAO_QueueJobChunk::put($queue_job->id, $chunk_idx, $bytes);
+			}
+
+			$queue_service->reportSuccess($queue_messages);
+
+		} catch(\Throwable $e) {
+			DevblocksPlatform::logException($e);
+			$queue_service->reportFailure($queue_messages, $e->getMessage());
+		}
+
+		return count($queue_messages);
+	}
+
+	public function onExportJobComplete(Model_QueueJob $queue_job) : void {
+		$context = $queue_job->metadata['context'] ?? '';
+		$file_name = $queue_job->metadata['file_name'] ?? 'export';
+		$mime_type = $queue_job->metadata['mime_type'] ?? 'application/octet-stream';
+
+		try {
+			$exporter = new WorklistExporter($context);
+		} catch(\Throwable $e) {
+			DevblocksPlatform::logException($e);
+			\DAO_QueueJobChunk::deleteByJobIds([$queue_job->id]);
+			return;
+		}
+
+		$fp = DevblocksPlatform::getTempFile();
+
+		if(!$fp) {
+			\DAO_QueueJobChunk::deleteByJobIds([$queue_job->id]);
+			return;
+		}
+
+		$separator = $exporter->getChunkSeparator($queue_job->metadata);
+
+		fwrite($fp, $exporter->renderPrologue($queue_job->metadata));
+
+		$first = true;
+		\DAO_QueueJobChunk::streamByJobId($queue_job->id, function($data) use (&$first, $fp, $separator) {
+			if(!$first && $separator !== '')
+				fwrite($fp, $separator);
+			fwrite($fp, $data);
+			$first = false;
+		});
+
+		fwrite($fp, $exporter->renderEpilogue($queue_job->metadata));
+
+		$stats = fstat($fp);
+		fseek($fp, 0);
+		$sha1_hash = hash_init('sha1');
+		while(!feof($fp))
+			hash_update($sha1_hash, fread($fp, 65536));
+		$sha1_hash = hash_final($sha1_hash);
+		fseek($fp, 0);
+
+		$attachment_id = \DAO_Attachment::create([
+			\DAO_Attachment::NAME => $file_name,
+			\DAO_Attachment::MIME_TYPE => $mime_type,
+			\DAO_Attachment::STORAGE_SHA1HASH => $sha1_hash,
+			\DAO_Attachment::STORAGE_SIZE => $stats['size'],
+			\DAO_Attachment::UPDATED => time(),
+		]);
+
+		if($attachment_id) {
+			\Storage_Attachments::put($attachment_id, $fp);
+
+			// Link to the queue job so any worker who can read the job can download the file
+			\DAO_Attachment::addLinks(\CerberusContexts::CONTEXT_QUEUE_JOB, $queue_job->id, $attachment_id);
+
+			// Stash the attachment id on the job so the producer's close handler
+			// can look it up and auto-open the attachment peek
+			$metadata = $queue_job->metadata;
+			$metadata['attachment_id'] = $attachment_id;
+			\DAO_QueueJob::update($queue_job->id, [
+				\DAO_QueueJob::METADATA => json_encode($metadata),
+			]);
+
+			// Notify the worker. The notification points at the attachment record so
+			// clicking it opens the same attachment peek as the real-time path.
+			if($queue_job->worker_id) {
+				$entry = [
+					'variables' => [
+						'target' => $file_name,
+					],
+					'urls' => [
+						'target' => 'cerb:' . \CerberusContexts::CONTEXT_ATTACHMENT . ':' . $attachment_id,
+					],
+				];
+
+				\DAO_Notification::create([
+					\DAO_Notification::CONTEXT => \CerberusContexts::CONTEXT_QUEUE_JOB,
+					\DAO_Notification::CONTEXT_ID => $queue_job->id,
+					\DAO_Notification::CREATED_DATE => time(),
+					\DAO_Notification::IS_READ => 0,
+					\DAO_Notification::WORKER_ID => $queue_job->worker_id,
+					\DAO_Notification::ACTIVITY_POINT => 'records.export.done',
+					\DAO_Notification::ENTRY_JSON => json_encode($entry),
+				]);
+			}
+		}
+
+		fclose($fp);
+
+		\DAO_QueueJobChunk::deleteByJobIds([$queue_job->id]);
 	}
 }
