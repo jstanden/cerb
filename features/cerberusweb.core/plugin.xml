@@ -2506,6 +2506,7 @@
 						<data key="delete" />
 						<data key="export" />
 						<data key="update" />
+						<data key="update.bulk" />
 					</value>
 				</param>
 			</params>

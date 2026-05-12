@@ -355,6 +355,59 @@ class DAO_Comment extends Cerb_ORMHelper {
 		return true;
 	}
 	
+	static function bulkUpdate(Model_ContextBulkUpdate $update) {
+		$do = $update->actions;
+		$ids = $update->context_ids;
+
+		if(empty($ids) || empty($do))
+			return false;
+
+		$update->markInProgress();
+
+		$change_fields = [];
+		$custom_fields = [];
+		$deleted = false;
+
+		if(is_array($do))
+		foreach($do as $k => $v) {
+			switch($k) {
+				case 'delete':
+					$deleted = true;
+					break;
+
+				default:
+					// Custom fields
+					if(DevblocksPlatform::strStartsWith($k, 'cf_')) {
+						$custom_fields[substr($k,3)] = $v;
+					}
+			}
+		}
+
+		if($deleted) {
+			CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_COMMENT, $ids);
+
+			DAO_Comment::delete($ids);
+
+		} else {
+			CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_COMMENT, $ids);
+
+			if($change_fields)
+				DAO_Comment::update($ids, $change_fields, false);
+
+			// Custom Fields
+			C4_AbstractView::_doBulkSetCustomFields(CerberusContexts::CONTEXT_COMMENT, $custom_fields, $ids);
+
+			// Scheduled behavior
+			if(isset($do['behavior']))
+				C4_AbstractView::_doBulkScheduleBehavior(CerberusContexts::CONTEXT_COMMENT, $do['behavior'], $ids);
+
+			DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_COMMENT, $ids);
+		}
+
+		$update->markCompleted();
+		return true;
+	}
+
 	static function delete($ids) {
 		$db = DevblocksPlatform::services()->database();
 		

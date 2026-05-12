@@ -34,6 +34,10 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 			switch ($action) {
 				case 'savePeekJson':
 					return $this->_profileAction_savePeekJson();
+				case 'showBulkPopup':
+					return $this->_profileAction_showBulkPopup();
+				case 'startBulkUpdateJson':
+					return $this->_profileAction_startBulkUpdateJson();
 				case 'togglePin':
 					return $this->_profileAction_togglePin();
 				case 'preview':
@@ -269,5 +273,87 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 		
 		$http_response = Cerb_ORMHelper::generateRecordExploreSet($view_id, $explore_from);
 		DevblocksPlatform::redirect($http_response);
+	}
+
+	private function _profileAction_showBulkPopup() {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		$ids = DevblocksPlatform::importGPC($_REQUEST['ids'] ?? null);
+		$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'] ?? null);
+
+		if(!$active_worker->hasPriv(sprintf("contexts.%s.update.bulk", CerberusContexts::CONTEXT_COMMENT)))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+
+		if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_COMMENT)))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('view_id', $view_id);
+
+		if(!empty($ids))
+			$tpl->assign('ids', $ids);
+
+		$tpl->display('devblocks:cerberusweb.core::internal/comments/bulk.tpl');
+	}
+
+	/** @noinspection DuplicatedCode */
+	private function _profileAction_startBulkUpdateJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if(!$active_worker->hasPriv(sprintf("contexts.%s.update.bulk", CerberusContexts::CONTEXT_COMMENT)))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+
+		if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_COMMENT)))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+
+		$filter = DevblocksPlatform::importGPC($_POST['filter'] ?? null, 'string','');
+		$ids = [];
+
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
+
+		if(!($view = C4_AbstractViewLoader::getView($view_id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+
+		$view->setAutoPersist(false);
+
+		$status = DevblocksPlatform::importGPC($_POST['status'] ?? null, 'string',null);
+
+		$do = [];
+
+		// Do: Delete
+		if(0 != strlen($status) && $status == 'deleted')
+			$do['delete'] = true;
+
+		switch($filter) {
+			// Checked rows
+			case 'checks':
+				$ids_str = DevblocksPlatform::importGPC($_POST['ids'] ?? null, 'string');
+				$ids = DevblocksPlatform::parseCsvString($ids_str);
+				break;
+
+			case 'sample':
+				$sample_size = min(DevblocksPlatform::importGPC($_POST['filter_sample_size'] ?? 0,'integer',0),9999);
+				$ids = $view->getDataSample($sample_size);
+				break;
+
+			default:
+				break;
+		}
+
+		// If we have specific IDs, add a filter for those too
+		if(!empty($ids)) {
+			$view->addParams([
+				new DevblocksSearchCriteria(SearchFields_Comment::ID, 'in', $ids)
+			], true);
+		}
+
+		// Create batches
+		$batch_key = DAO_ContextBulkUpdate::createFromView($view, $do);
+
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+
+		echo json_encode(array(
+			'cursor' => $batch_key,
+		));
 	}
 }
