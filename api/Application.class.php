@@ -2605,6 +2605,7 @@ class CerberusContexts {
 			return;
 
 		$queue_service = DevblocksPlatform::services()->queue();
+		$updated_keys = ['updated' => true, 'updated_at' => true, 'updated_date' => true];
 		
 		foreach(self::$_context_initial_checkpoints as $context => &$old_models) {
 			// Do this in batches of 100 to save memory
@@ -2637,18 +2638,29 @@ class CerberusContexts {
 					} else {
 						$new_model = DevblocksPlatform::objectToArray($new_model);
 						
-						$delta = array_filter($new_model, function ($v, $k) use ($old_model) {
-							return ($old_model[$k] ?? null) != $v;
+						// Only keep changed columns; always ignore updated date
+						$delta = array_filter($new_model, function ($v, $k) use ($old_model, $updated_keys) {
+							return ($old_model[$k] ?? null) != $v && !array_key_exists($k, $updated_keys);
 						}, ARRAY_FILTER_USE_BOTH);
 					}
 					
 					unset($new_model);
-					
+
+					$is_created = self::_wasJustCreated($context, $context_id);
+					$is_deleted = self::_wasJustDeleted($context, $context_id);
+
+					// Skip pure bookkeeping updates: not created/deleted, no delta (only updated_at)
+					if(
+						!$is_created
+						&& !$is_deleted
+						&& !$delta
+					) continue;
+
 					$event_states[] = [
 						'context' => $context,
 						'context_id' => $context_id,
-						'is_created' => self::_wasJustCreated($context, $context_id),
-						'is_deleted' => self::_wasJustDeleted($context, $context_id),
+						'is_created' => $is_created,
+						'is_deleted' => $is_deleted,
 						'old_model' => $old_model,
 						'delta' => $delta,
 						'actor' => $actor,
