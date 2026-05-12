@@ -12,11 +12,21 @@
 </div>
 {/if}
 
+{if $queue_job->isDone() && $attachments}
+<div data-cerb-attachments style="margin-top:0.75em;">
+    <h2 style="margin:0 0 0.25em 0;">{'common.attachments'|devblocks_translate|capitalize}</h2>
+    {include file="devblocks:cerberusweb.core::internal/attachments/list.tpl" context="{CerberusContexts::CONTEXT_QUEUE_JOB}" context_id=$queue_job->id attachments=$attachments}
+</div>
+{/if}
+
 {$script_uid = uniqid('script')}
 <script nonce="{DevblocksPlatform::getRequestNonce()}" id="{$script_uid}" type="text/javascript">
 $(function() {
     const $widget = $('#profileWidget' + '{$widget->id}');
     if(!$widget.length) return;
+
+    // Bind any peek triggers in this render (e.g. attachment downloads when done)
+    $widget.find('.cerb-peek-trigger').cerbPeekTrigger();
 
     // Generation guard: when the framework refreshes the widget it does
     // $widget.html(newHtml), which replaces children but leaves $widget itself

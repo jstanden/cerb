@@ -19,6 +19,12 @@ class ProfileWidget_QueueJobMonitor extends Extension_ProfileWidget {
 		$tpl->assign('mode', QueueJobMonitor::determineMode($queue_job, $active_worker));
 		$tpl->assign('progress', $queue_job->getProgress());
 
+		// Surface any attachments produced by the job (e.g. worklist exports)
+		$attachments = $queue_job->isDone()
+			? DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_QUEUE_JOB, $queue_job->id)
+			: [];
+		$tpl->assign('attachments', $attachments);
+
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/queue_job_monitor/render.tpl');
 	}
 
