@@ -114,15 +114,55 @@ class _DevblocksQueueService {
 		// Update counts on jobs that changed
 		if($this->_jobs_buffer) {
 			$job_ids = array_keys($this->_jobs_buffer);
-			
+
 			foreach($job_ids as $job_id)
 				DAO_QueueJob::syncProgress($job_id);
-			
+
 			if(($newly_finished_jobs = DAO_QueueJob::checkForCompletedJobs($job_ids))) {
-				DAO_QueueJob::setStatus(array_keys($newly_finished_jobs), QueueJobStatus::DONE);
+				$this->_finalizeJobs($newly_finished_jobs);
 			}
-			
+
 			$this->_jobs_buffer = [];
+		}
+	}
+
+	/**
+	 * Transition each job to DONE under a per-job advisory lock so the consumer's
+	 * onQueueJobComplete hook fires exactly once even with parallel consumers.
+	 *
+	 * @param Model_QueueJob[] $jobs
+	 */
+	private function _finalizeJobs(array $jobs) : void {
+		$db = DevblocksPlatform::services()->database();
+		$queues = DAO_Queue::getAll();
+
+		foreach($jobs as $job) {
+			$lock_name = sprintf('cerb_queue_job_complete:%d', $job->id);
+
+			if(!$db->GetOneMaster(sprintf("SELECT GET_LOCK(%s, 0)", $db->qstr($lock_name))))
+				continue;
+
+			try {
+				// Re-check with master to avoid acting on a job another worker already finalized
+				$current = DAO_QueueJob::get($job->id);
+
+				if(!$current || $current->status_id == QueueJobStatus::DONE->value)
+					continue;
+
+				DAO_QueueJob::setStatus([$job->id], QueueJobStatus::DONE);
+
+				$queue = $queues[$current->queue_id] ?? null;
+
+				if($queue && ($extension = $queue->getExtension())) {
+					$extension->onQueueJobComplete($current);
+				}
+
+			} catch(Throwable $e) {
+				DevblocksPlatform::logException($e);
+
+			} finally {
+				$db->ExecuteWriter(sprintf("DO RELEASE_LOCK(%s)", $db->qstr($lock_name)));
+			}
 		}
 	}
 }

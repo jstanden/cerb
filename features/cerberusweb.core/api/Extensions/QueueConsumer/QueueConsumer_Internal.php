@@ -42,4 +42,14 @@ class QueueConsumer_Internal extends Extension_QueueConsumer {
 		
 		return 0;
 	}
+
+	public function onQueueJobComplete(Model_QueueJob $queue_job) : void {
+		if(!($queue = \DAO_Queue::get($queue_job->queue_id)))
+			return;
+
+		if($queue->name == 'cerb.records.export') {
+			$records = DevblocksPlatform::services()->records();
+			$records->onExportJobComplete($queue_job);
+		}
+	}
 }
