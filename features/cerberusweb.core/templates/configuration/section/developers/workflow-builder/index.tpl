@@ -119,8 +119,8 @@
                     $button.fadeIn();
                     $spinner.detach();
 
-                    if(null == json || 'object' !== typeof json || !json.hasOwnProperty('status')) {
-                        if(json.hasOwnProperty('error')) {
+                    if(null == json || 'object' !== typeof json || !json.status) {
+                        if(json && json.hasOwnProperty('error')) {
                             Devblocks.createAlertError(json.error);
                         } else {
                             Devblocks.createAlertError('An unexpected error occurred.');

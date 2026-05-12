@@ -353,6 +353,12 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 				'workflow_kata' => $export_model->createWorkflowKata(true),
 			]);
 			
+		} catch(Exception_DevblocksValidationError $e) {
+			echo json_encode([
+				'status' => false,
+				'error' => $e->getMessage(),
+			]);
+
 		} catch(Throwable) {
 			echo json_encode([
 				'status' => false,

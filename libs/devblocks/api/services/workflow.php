@@ -17,15 +17,11 @@ class DevblocksWorkflowExportModel {
 		
 		$error = null;
 		
-		if(false === ($export_kata = $kata->parse($export_kata, $error))) {
-			DevblocksPlatform::logError($error, true);
-			return;
-		}
+		if(false === ($export_kata = $kata->parse($export_kata, $error)))
+			throw new Exception_DevblocksValidationError($error);
 		
-		if(false === ($export_kata = $kata->formatTree($export_kata, null, $error))) {
-			DevblocksPlatform::logError($error, true);
-			return;
-		}
+		if(false === ($export_kata = $kata->formatTree($export_kata, null, $error)))
+			throw new Exception_DevblocksValidationError($error);
 		
 		$this->_export_kata = $export_kata;
 	}
