@@ -22,15 +22,7 @@ class Controller_Resource extends DevblocksControllerExtension {
 		array_shift($stack); // resource
 		$plugin_id = array_shift($stack); // cerberusweb.core
 		$path = $stack; // images/image.png
-		
-		if('cerberusweb.core' == $plugin_id) {
-			$resource = implode('/', $path);
-			if(in_array($resource, ['css/logo','css/logo-dark','css/user.css'])) {
-				$this->_handleUserResourceRequest($resource);
-				exit;
-			}
-		}
-		
+
 		if(null == ($plugin = DevblocksPlatform::getPlugin($plugin_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404); // not found
 		
@@ -135,74 +127,5 @@ class Controller_Resource extends DevblocksControllerExtension {
 		}
 		
 		exit;
-	}
-	
-	private function _handleUserResourceRequest($request_path) {
-		switch($request_path) {
-			case 'css/logo':
-			case 'css/logo-dark':
-				$logo = null;
-				$resource_content = null;
-			
-				// Load the dark logo if requested
-				if($request_path == 'css/logo-dark')
-					$logo = DAO_Resource::getByName('ui.logo.dark');
-				
-				// Otherwise, load the light logo
-				if(!$logo)
-					$logo = DAO_Resource::getByName('ui.logo');
-				
-				// If we have a logo resource
-				if($logo && $logo->extension_id == ResourceType_Image::ID)
-					$resource_content = $logo->getExtension()->getContentData($logo);
-					
-				// If we don't have a logo resource, use the Cerb logo defaults
-				if(!($resource_content instanceof Model_Resource_ContentData)) {
-					$resource_content = new Model_Resource_ContentData();
-					
-					$resource_content->headers = [
-						'Content-Type: image/svg+xml',
-					];
-					
-					$plugin = DevblocksPlatform::getPlugin('cerberusweb.core');
-					$dir = $plugin->getStoragePath() . DIRECTORY_SEPARATOR . 'resources';
-					
-					if($request_path == 'css/logo-dark') {
-						$logo_path = $dir . DIRECTORY_SEPARATOR . 'images/wgm/cerb_logo_dark.svg';
-					} else {
-						$logo_path = $dir . DIRECTORY_SEPARATOR . 'images/wgm/cerb_logo.svg';
-					}
-					
-					$resource_content->data = fopen($logo_path, 'rb');
-				}
-				
-				// If no expiration, synthesize 1d
-				if(!$resource_content->expires_at)
-					$resource_content->expires_at = time() + 86400; // 1 day
-				
-				$resource_content->headers = array_merge($resource_content->headers, [
-					'Pragma: cache',
-					sprintf('Cache-control: max-age=%d', $resource_content->expires_at - time()),
-					'Expires: ' . gmdate('D, d M Y H:i:s', $resource_content->expires_at) . ' GMT',
-					'Accept-Ranges: bytes',
-				]);
-				
-				// Pass through
-				if($resource_content instanceof Model_Resource_ContentData) {
-					$resource_content->writeHeaders();					
-					$resource_content->writeBody();
-				}
-				break;
-				
-			case 'css/user.css':
-				DevblocksPlatform::services()->http()
-					->setHeader('Cache-Control', ' max-age=86400') // 1 day // , must-revalidate
-					->setHeader('Content-Type', 'text/css')
-					->setHeader('Expires', gmdate('D, d M Y H:i:s',time()+86400) . ' GMT') // 1 day
-				;
-				
-				echo DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::UI_USER_STYLESHEET, '');
-				break;
-		}
 	}
 };
