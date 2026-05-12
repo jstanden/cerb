@@ -664,6 +664,10 @@
 			<class name="View_QueueJob" />
 		</file>
 
+		<file path="api/dao/queue_job_chunk.php">
+			<class name="DAO_QueueJobChunk" />
+		</file>
+
 		<file path="api/dao/queue_message.php">
 			<class name="DAO_QueueMessage" />
 			<class name="Model_QueueMessage" />

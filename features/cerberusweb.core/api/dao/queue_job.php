@@ -306,6 +306,7 @@ class DAO_QueueJob extends Cerb_ORMHelper {
 		parent::_deleteAbstractBefore($context, $ids);
 
 		DAO_QueueMessage::deleteByJobIds($ids);
+		DAO_QueueJobChunk::deleteByJobIds($ids);
 		$db->ExecuteMaster(sprintf("DELETE FROM queue_job WHERE id IN (%s)", $ids_list));
 
 		parent::_deleteAbstractAfter($context, $ids);

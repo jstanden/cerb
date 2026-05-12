@@ -102,6 +102,25 @@ if(!array_key_exists('queue_job', $tables)) {
 }
 
 // ===========================================================================
+// Queue Job Chunk
+
+if(!array_key_exists('queue_job_chunk', $tables)) {
+	$sql = sprintf("
+		CREATE TABLE `queue_job_chunk` (
+		`job_id` bigint unsigned NOT NULL,
+		`chunk_idx` int unsigned NOT NULL,
+		`data` mediumblob NOT NULL,
+		`created_at` int unsigned NOT NULL DEFAULT 0,
+		PRIMARY KEY (job_id, chunk_idx),
+		INDEX `idx_job` (job_id)
+		) ENGINE=%s
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+
+	$tables['queue_job_chunk'] = 'queue_job_chunk';
+}
+
+// ===========================================================================
 // Queue Log
 
 if(!array_key_exists('queue_log', $tables)) {
