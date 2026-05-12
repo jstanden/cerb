@@ -5766,7 +5766,33 @@ var ajax = new cAjaxCalls();
 			});
 		});
 	}
-	
+
+	// Open the queue_job peek for a background job and (optionally) refresh a worklist
+	// when the peek is closed. Used by the worklist export modal and every per-context
+	// bulk-update form to surface job progress in real-time without per-template duplication.
+	window.cerbOpenQueueJobPeek = function(job_id, view_id) {
+		if(!job_id) return;
+
+		let $trigger = $('<a/>')
+			.attr('data-context', 'cerb.contexts.queue.job')
+			.attr('data-context-id', String(job_id))
+			.css('display', 'none')
+			.appendTo('body');
+
+		$trigger
+			.cerbPeekTrigger({ width: '600' })
+			.on('cerb-peek-closed', function(event) {
+				event.stopPropagation();
+				$trigger.remove();
+				if(view_id) {
+					genericAjaxGet('view' + view_id,
+						'c=internal&a=invoke&module=worklists&action=refresh&id=' + encodeURIComponent(view_id)
+					);
+				}
+			})
+			.trigger('click');
+	};
+
 	// Abstract searches
 	
 	$.fn.cerbSearchTrigger = function(options) {

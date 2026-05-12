@@ -62,10 +62,6 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 					return $this->_internalAction_sort();
 				case 'subtotal':
 					return $this->_internalAction_subtotal();
-				case 'viewBulkUpdateWithCursor':
-					return $this->_internalAction_viewBulkUpdateWithCursor();
-				case 'viewBulkUpdateNextCursorJson':
-					return $this->_internalAction_viewBulkUpdateNextCursorJson();
 			}
 		}
 		return false;
@@ -339,84 +335,6 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		DAO_WorkerViewModel::deleteByViewId('cust_' . $new_id);
 		
 		$view->render();
-	}
-	
-	private function _internalAction_viewBulkUpdateWithCursor() {
-		$tpl = DevblocksPlatform::services()->template();
-		
-		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 405);
-		
-		$cursor = DevblocksPlatform::importGPC($_POST['cursor'] ?? null, 'string', '');
-		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
-		
-		if(empty($cursor))
-			return;
-		
-		$tpl->assign('cursor', $cursor);
-		$tpl->assign('view_id', $view_id);
-		
-		$total = DAO_ContextBulkUpdate::getTotalByCursor($cursor);
-		$tpl->assign('total', $total);
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/views/view_bulk_progress.tpl');
-	}
-	
-	private function _internalAction_viewBulkUpdateNextCursorJson() {
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 405);
-		
-		$cursor = DevblocksPlatform::importGPC($_POST['cursor'] ?? null, 'string', '');
-		
-		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
-		
-		if(empty($cursor))
-			DevblocksPlatform::dieWithHttpError(null, 404);
-		
-		$update = DAO_ContextBulkUpdate::getNextByCursor($cursor);
-		
-		// We have another job
-		if($update) {
-			if(false == ($context_ext = Extension_DevblocksContext::get($update->context)))
-				return false;
-			
-			// Make sure non-admin current workers have access to change these IDs, or remove them
-			if(!$active_worker->is_superuser) {
-				$acl_results = CerberusContexts::isWriteableByActor($update->context, $update->context_ids, $active_worker);
-				
-				if(is_array($acl_results)) {
-					$acl_results = array_filter($acl_results, function($bool) {
-						return $bool;
-					});
-				}
-				
-				$update->context_ids = array_keys($acl_results);
-			}
-			
-			// If no IDs are left, we're done
-			if(!$update->context_ids) {
-				echo json_encode(array(
-					'completed' => true,
-				));
-				return;
-			}
-			
-			$dao_class = $context_ext->getDaoClass();
-			$dao_class::bulkUpdate($update);
-			
-			echo json_encode(array(
-				'completed' => false,
-				'count' => $update->num_records,
-			));
-			
-			// We're done
-		} else {
-			echo json_encode(array(
-				'completed' => true,
-			));
-		}
 	}
 	
 	private function _internalAction_broadcastTest() {

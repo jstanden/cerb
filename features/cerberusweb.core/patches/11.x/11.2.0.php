@@ -158,6 +158,17 @@ if(!$db->GetOneMaster("SELECT id FROM queue WHERE name = 'cerb.records.import'")
 if(!$db->GetOneMaster("SELECT id FROM queue WHERE name = 'cerb.records.export'"))
 	$db->ExecuteWriter("INSERT IGNORE INTO queue (name, created_at, updated_at, extension_id) VALUES ('cerb.records.export', UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 'cerb.queue.consumer.internal')");
 
+if(!$db->GetOneMaster("SELECT id FROM queue WHERE name = 'cerb.records.bulk_update'"))
+	$db->ExecuteWriter("INSERT IGNORE INTO queue (name, created_at, updated_at, extension_id) VALUES ('cerb.records.bulk_update', UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 'cerb.queue.consumer.internal')");
+
+// ===========================================================================
+// Drop the legacy `context_bulk_update` table; replaced by `cerb.records.bulk_update` queue jobs
+
+if(array_key_exists('context_bulk_update', $tables)) {
+	$db->ExecuteMaster("DROP TABLE context_bulk_update");
+	unset($tables['context_bulk_update']);
+}
+
 // ===========================================================================
 // Enable the new background cronjob
 

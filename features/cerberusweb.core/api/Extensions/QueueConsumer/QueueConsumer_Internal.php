@@ -39,6 +39,12 @@ class QueueConsumer_Internal extends Extension_QueueConsumer {
 				$records->processExportQueue($queue, $stop_time, $count_hint, $queue_job);
 			}
 
+		} elseif($queue->name == 'cerb.records.bulk_update') {
+			if ($stop_time > time()) {
+				$records = DevblocksPlatform::services()->records();
+				$records->processBulkUpdateQueue($queue, $stop_time, $count_hint, $queue_job);
+			}
+
 		} elseif($queue->name == 'cerb.search.index') {
 			if ($stop_time > time()) {
 				$search = DevblocksPlatform::services()->search();

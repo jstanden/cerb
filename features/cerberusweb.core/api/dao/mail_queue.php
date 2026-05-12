@@ -202,7 +202,6 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 		if(empty($ids) || empty($do))
 			return false;
 		
-		$update->markInProgress();
 		
 		$change_fields = [];
 		$deleted = false;
@@ -245,7 +244,6 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 			DAO_MailQueue::delete($ids);
 		}
 		
-		$update->markCompleted();
 		return true;
 	}
 	

@@ -358,11 +358,9 @@
 		</file>
 		
 		<file path="api/dao/context_bulk_update.php">
-			<class name="DAO_ContextBulkUpdate" />
 			<class name="Model_ContextBulkUpdate" />
-			<class name="SearchFields_ContextBulkUpdate" />
 		</file>
-		
+
 		<file path="api/dao/connected_account.php">
 			<class name="Context_ConnectedAccount" />
 			<class name="DAO_ConnectedAccount" />

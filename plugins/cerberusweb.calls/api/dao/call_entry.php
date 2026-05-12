@@ -171,7 +171,6 @@ class DAO_CallEntry extends Cerb_ORMHelper {
 		if(empty($ids) || empty($do))
 			return false;
 		
-		$update->markInProgress();
 		
 		$change_fields = [];
 		$custom_fields = [];
@@ -213,7 +212,6 @@ class DAO_CallEntry extends Cerb_ORMHelper {
 		
 		CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_CALL, $ids);
 		
-		$update->markCompleted();
 		return true;
 	}
 	

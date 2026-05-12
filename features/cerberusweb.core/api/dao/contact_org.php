@@ -202,7 +202,6 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 		if(empty($ids) || empty($do))
 			return false;
 		
-		$update->markInProgress();
 		
 		$change_fields = [];
 		$custom_fields = [];
@@ -259,7 +258,6 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 			DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_ORG, $ids);
 		}
 		
-		$update->markCompleted();
 		return true;
 	}
 	

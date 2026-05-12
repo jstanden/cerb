@@ -371,8 +371,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		DAO_Notification::maint();
 		DAO_Attachment::maint();
 		DAO_WorkerViewModel::flush();
-		DAO_ContextBulkUpdate::maint();
-		
+
 		DevblocksPlatform::services()->metrics()->maint();
 	}
 	

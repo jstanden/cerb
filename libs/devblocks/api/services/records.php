@@ -212,4 +212,180 @@ class _DevblocksRecordsService {
 
 		\DAO_QueueJobChunk::deleteByJobIds([$queue_job->id]);
 	}
+
+	/**
+	 * Create a bulk-update queue_job from the worklist filter and the parsed `$do` action set.
+	 * Returns the created Model_QueueJob (with $queue_job->id populated) or null on failure.
+	 */
+	public function createBulkUpdateJob(\C4_AbstractView $view, array $do, int $worker_id, int $batch_size = 100) : ?\Model_QueueJob {
+		$db = DevblocksPlatform::services()->database();
+
+		if(empty($do))
+			return null;
+
+		if($batch_size < 1) $batch_size = 100;
+
+		if(!($context_ext = \Extension_DevblocksContext::getByViewClass(get_class($view), true)))
+			return null;
+
+		if(!($dao_class = $context_ext->getDaoClass()))
+			return null;
+
+		if(!($search_class = $context_ext->getSearchClass()))
+			return null;
+
+		if(!($queue = \DAO_Queue::getByName('cerb.records.bulk_update')))
+			return null;
+
+		$query_parts = $dao_class::getSearchQueryComponents([], $view->getParams());
+
+		if(empty($query_parts['primary_table']))
+			return null;
+
+		$primary_key = $search_class::getPrimaryKey();
+
+		$count_sql = "SELECT COUNT(1) " . $query_parts['join'] . $query_parts['where'];
+		$record_count = intval($db->GetOneReader($count_sql));
+
+		if(!$record_count)
+			return null;
+
+		$batch_count = (int)ceil($record_count / $batch_size);
+
+		$aliases = \Extension_DevblocksContext::getAliasesForContext($context_ext->manifest);
+
+		$queue_job = new \Model_QueueJob();
+		$queue_job->queue_id = $queue->id;
+		$queue_job->name = sprintf('Bulk update %s',
+			$aliases['plural'] ?? $aliases['uri'] ?? $context_ext->id
+		);
+		$queue_job->status_id = \QueueJobStatus::RUNNING->value;
+		$queue_job->count_total = $batch_count;
+		$queue_job->count_available = $batch_count;
+		$queue_job->worker_id = $worker_id;
+		$queue_job->metadata = [
+			'context'      => $context_ext->id,
+			'view_id'      => $view->id,
+			'query'        => $view->getParamsQuery(),
+			'record_count' => $record_count,
+			'batch_size'   => $batch_size,
+			'actions'      => $do,
+		];
+		$queue_job = \DAO_QueueJob::create($queue_job);
+
+		if(!$queue_job)
+			return null;
+
+		// Generate one queue_message per batch via INSERT...SELECT, mirroring the export producer.
+		// Inner subquery dedupes IDs (joins may not be 1:1) and assigns each record a chunk index.
+		$inner_select_sql =
+			"SELECT " . $primary_key . " AS id " .
+			$query_parts['join'] .
+			$query_parts['where'] .
+			" GROUP BY " . $primary_key
+		;
+
+		$db->ExecuteMaster('SET group_concat_max_len = 1024000');
+
+		$sql = sprintf(
+			"INSERT INTO queue_message (uuid, queue_id, job_id, status_id, status_at, message) ".
+			"SELECT UUID_TO_BIN(UUID()) AS uuid, ".
+			"%d AS queue_id, ".
+			"%d AS job_id, ".
+			"0 AS status_id, ".
+			"UNIX_TIMESTAMP() AS status_at, ".
+			"CONCAT('{\"ids\":[', GROUP_CONCAT(id ORDER BY id), ']}') AS message ".
+			"FROM (SELECT id, CEIL(ROW_NUMBER() OVER (ORDER BY id) / %d) AS batch FROM (%s) AS deduped) AS batched ".
+			"GROUP BY batch",
+			$queue->id,
+			$queue_job->id,
+			$batch_size,
+			$inner_select_sql
+		);
+		$db->ExecuteMaster($sql);
+
+		return $queue_job;
+	}
+
+	public function processBulkUpdateQueue(\Model_Queue $queue, int $stop_time, int $count_hint, ?\Model_QueueJob $queue_job=null) : int {
+		$queue_service = DevblocksPlatform::services()->queue();
+
+		if($queue_job) {
+			$job_id = $queue_job->id;
+
+		} else {
+			if(!($job_stats = \DAO_QueueJob::getAvailableMessages($queue)))
+				return 0;
+
+			shuffle($job_stats);
+
+			$job_id = $job_stats[array_key_first($job_stats)]['job_id'] ?? null;
+
+			if(!($queue_job = \DAO_QueueJob::get($job_id))) {
+				return 0;
+			}
+		}
+
+		// One message at a time — each message already represents a batch of ~100 records.
+		// The cron's loop re-enters until stop_time is hit.
+		$consumer_id = null;
+
+		if(!($queue_messages = $queue_service->dequeue($queue->name, 1, $consumer_id, $job_id)))
+			return 0;
+
+		$context = $queue_job->metadata['context'] ?? '';
+		$actions = $queue_job->metadata['actions'] ?? [];
+		$worker = $queue_job->worker_id ? \DAO_Worker::get($queue_job->worker_id) : null;
+
+		if(!$context || !$actions || !$worker) {
+			$queue_service->reportFailure($queue_messages, 'Missing context, actions, or worker');
+			return count($queue_messages);
+		}
+
+		if(!($context_ext = \Extension_DevblocksContext::get($context))
+			|| !($dao_class = $context_ext->getDaoClass())
+			|| !method_exists($dao_class, 'bulkUpdate')
+		) {
+			$queue_service->reportFailure($queue_messages, 'Invalid context for bulk update');
+			return count($queue_messages);
+		}
+
+		try {
+			foreach($queue_messages as $queue_message) {
+				$record_ids = array_map('intval', $queue_message->message['ids'] ?? []);
+
+				if(!$record_ids) continue;
+
+				// ACL: drop IDs the worker can't write to (mirrors the legacy cursor behavior)
+				if(!$worker->is_superuser) {
+					$acl_results = \CerberusContexts::isWriteableByActor($context, $record_ids, $worker);
+
+					if(is_array($acl_results)) {
+						$acl_results = array_filter($acl_results, fn($bool) => $bool);
+						$record_ids = array_keys($acl_results);
+					}
+				}
+
+				if(!$record_ids) continue;
+
+				$update = new \Model_ContextBulkUpdate();
+				$update->context = $context;
+				$update->context_ids = $record_ids;
+				$update->num_records = count($record_ids);
+				$update->actions = $actions;
+				$update->worker_id = $worker->id;
+				$update->view_id = $queue_job->metadata['view_id'] ?? '';
+
+				$dao_class::bulkUpdate($update);
+			}
+
+			$queue_service->reportSuccess($queue_messages);
+
+		} catch(\Throwable $e) {
+			DevblocksPlatform::logException($e);
+			$queue_service->reportFailure($queue_messages, $e->getMessage());
+		}
+
+		return count($queue_messages);
+	}
 }

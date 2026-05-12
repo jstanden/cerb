@@ -126,7 +126,6 @@ class DAO_DevblocksTemplate extends DevblocksORMHelper {
 		if(empty($ids) || empty($do))
 			return false;
 		
-		$update->markInProgress();
 		
 		$change_fields = [];
 		//$custom_fields = [];
@@ -154,7 +153,6 @@ class DAO_DevblocksTemplate extends DevblocksORMHelper {
 			DAO_DevblocksTemplate::delete($ids);
 		}
 			
-		$update->markCompleted();
 		return true;
 	}
 	

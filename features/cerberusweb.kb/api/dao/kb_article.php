@@ -248,7 +248,6 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 		if(empty($ids) || empty($do))
 			return false;
 		
-		$update->markInProgress();
 		
 		$change_fields = [];
 		$custom_fields = [];
@@ -283,7 +282,6 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 		
 		CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_KB_ARTICLE, $ids);
 		
-		$update->markCompleted();
 		return true;
 	}
 	

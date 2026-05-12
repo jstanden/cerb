@@ -213,24 +213,7 @@ $(function() {
 			}
 
 			if(json.job_id) {
-				// Open the queue job peek to monitor progress
-				let $trigger = $('<a/>')
-					.attr('data-context', 'cerb.contexts.queue.job')
-					.attr('data-context-id', String(json.job_id))
-					.css('display', 'none')
-					.appendTo('body');
-
-				$trigger
-					.cerbPeekTrigger({ width: '600' })
-					.on('cerb-peek-closed', function(event) {
-						event.stopPropagation();
-						$trigger.remove();
-						genericAjaxGet('view{$view_id}',
-							'c=internal&a=invoke&module=worklists&action=refresh&id={$view_id}'
-						);
-					})
-					.trigger('click');
-
+				cerbOpenQueueJobPeek(json.job_id, '{$view_id}');
 				$('#{$view_id}_tips').html('').hide();
 			}
 		});

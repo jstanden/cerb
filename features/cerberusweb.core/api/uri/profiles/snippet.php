@@ -395,14 +395,15 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 			$view->addParam(new DevblocksSearchCriteria(SearchFields_Snippet::ID, 'in', $ids));
 		}
 		
-		// Create batches
-		$batch_key = DAO_ContextBulkUpdate::createFromView($view, $do);
+		// Enqueue a parallel bulk update job
+		$queue_job = DevblocksPlatform::services()->records()
+			->createBulkUpdateJob($view, $do, $active_worker->id ?? 0);
 		
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 		
-		echo json_encode(array(
-			'cursor' => $batch_key,
-		));
+		echo json_encode([
+			'job_id' => $queue_job->id ?? 0,
+		]);
 		
 		return;
 	}

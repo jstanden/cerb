@@ -64,20 +64,9 @@ $(function() {
 		
 		$popup.find('button.submit').click(function() {
 			genericAjaxPost('formBatchUpdate', '', null, function(json) {
-				if(json.cursor) {
-					// Pull the cursor
-					var $tips = $('#{$view_id}_tips').html('');
-					Devblocks.getSpinner().appendTo($tips);
-
-					var formData = new FormData();
-					formData.set('c', 'internal');
-					formData.set('a', 'invoke');
-					formData.set('module', 'worklists');
-					formData.set('action', 'viewBulkUpdateWithCursor');
-					formData.set('view_id', '{$view_id}');
-					formData.set('cursor', json.cursor);
-
-					genericAjaxPost(formData, $tips, null);
+				if(json.job_id) {
+					cerbOpenQueueJobPeek(json.job_id, '{$view_id}');
+					$('#{$view_id}_tips').html('').hide();
 				}
 				
 				genericAjaxPopupClose($popup);

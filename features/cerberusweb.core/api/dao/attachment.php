@@ -526,7 +526,6 @@ class DAO_Attachment extends Cerb_ORMHelper {
 		if(empty($ids) || empty($do))
 			return false;
 		
-		$update->markInProgress();
 		
 		$change_fields = [];
 		$custom_fields = [];
@@ -571,7 +570,6 @@ class DAO_Attachment extends Cerb_ORMHelper {
 			DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_ATTACHMENT, $ids);
 		}
 		
-		$update->markCompleted();
 		return true;
 	}
 	

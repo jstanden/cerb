@@ -306,7 +306,6 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 		if(empty($ids) || empty($do))
 			return false;
 		
-		$update->markInProgress();
 		
 		$context = self::_getContextName();
 		$change_fields = [];
@@ -359,7 +358,6 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 			self::delete($ids);
 		}
 		
-		$update->markCompleted();
 		return true;
 	}
 	

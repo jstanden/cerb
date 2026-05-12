@@ -274,7 +274,6 @@ class DAO_Address extends Cerb_ORMHelper {
 		if(empty($ids) || empty($do))
 			return false;
 		
-		$update->markInProgress();
 		
 		$change_fields = [];
 		$custom_fields = [];
@@ -323,7 +322,6 @@ class DAO_Address extends Cerb_ORMHelper {
 		
 		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_ADDRESS, $ids);
 		
-		$update->markCompleted();
 		return true;
 	}
 	

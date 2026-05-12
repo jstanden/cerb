@@ -200,7 +200,6 @@ class DAO_Snippet extends Cerb_ORMHelper {
 		if(empty($ids) || empty($do))
 			return false;
 		
-		$update->markInProgress();
 		
 		$change_fields = [];
 		$custom_fields = [];
@@ -254,7 +253,6 @@ class DAO_Snippet extends Cerb_ORMHelper {
 			DAO_Snippet::delete($ids);
 		}
 		
-		$update->markCompleted();
 		return true;
 	}
 	
