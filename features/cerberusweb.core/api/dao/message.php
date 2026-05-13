@@ -596,7 +596,7 @@ class DAO_Message extends Cerb_ORMHelper {
 		);
 		
 		$join_sql = "FROM message ".
-			(isset($tables['ticket']) ? "INNER JOIN ticket t ON (message.ticket_id = ticket.id) " : " ").
+			(isset($tables['ticket']) ? "INNER JOIN ticket ON (message.ticket_id = ticket.id) " : " ").
 			(isset($tables['address']) ? "INNER JOIN address ON (message.address_id = address.id) " : " ")
 			;
 		
