@@ -887,16 +887,16 @@ class Context_Metric extends Extension_DevblocksContext implements IDevblocksCon
 	const ID = CerberusContexts::CONTEXT_METRIC;
 	const URI = 'metric';
 	
-	static function isReadableByActor($models, $actor) : bool {
+	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);
 	}
 	
-	static function isWriteableByActor($models, $actor) : bool {
+	static function isWriteableByActor($models, $actor) {
 		return self::_isWriteableOnlyByAdmin($models, $actor);
 	}
 	
-	static function isDeletableByActor($models, $actor) : bool {
+	static function isDeletableByActor($models, $actor) {
 		return self::isWriteableByActor($models, $actor);
 	}
 	

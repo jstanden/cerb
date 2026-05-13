@@ -703,16 +703,16 @@ class Context_WebhookListener extends Extension_DevblocksContext implements IDev
 	const ID = CerberusContexts::CONTEXT_WEBHOOK_LISTENER;
 	const URI = 'webhook_listener';
 	
-	static function isReadableByActor($models, $actor) : bool {
+	static function isReadableByActor($models, $actor) {
 		// Only admin workers can read
 		return self::isWriteableByActor($models, $actor);
 	}
 	
-	static function isWriteableByActor($models, $actor) : bool {
+	static function isWriteableByActor($models, $actor) {
 		return self::_isWriteableOnlyByAdmin($models, $actor);
 	}
 	
-	static function isDeletableByActor($models, $actor) : bool {
+	static function isDeletableByActor($models, $actor) {
 		return self::isWriteableByActor($models, $actor);
 	}
 	

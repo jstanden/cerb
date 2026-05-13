@@ -1113,15 +1113,15 @@ class Context_AutomationResource extends Extension_DevblocksContext {
 	const ID = CerberusContexts::CONTEXT_AUTOMATION_RESOURCE;
 	const URI = 'automation_resource';
 	
-	static function isReadableByActor($models, $actor) : bool {
+	static function isReadableByActor($models, $actor) {
 		return self::isWriteableByActor($models, $actor);
 	}
 	
-	static function isWriteableByActor($models, $actor) : bool {
+	static function isWriteableByActor($models, $actor) {
 		return self::_isWriteableOnlyByAdmin($models, $actor);
 	}
 	
-	static function isDeletableByActor($models, $actor) : bool {
+	static function isDeletableByActor($models, $actor) {
 		return self::isWriteableByActor($models, $actor);
 	}
 	

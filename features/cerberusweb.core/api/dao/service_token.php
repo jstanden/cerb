@@ -705,7 +705,7 @@ class Context_ServiceToken extends Extension_DevblocksContext implements IDevblo
 		return self::isWriteableByActor($models, $actor);
 	}
 
-	static function isWriteableByActor($models, $actor) : bool {
+	static function isWriteableByActor($models, $actor) {
 		return self::_isWriteableOnlyByAdmin($models, $actor);
 	}
 

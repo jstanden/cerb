@@ -818,16 +818,16 @@ class Context_ToolbarSection extends Extension_DevblocksContext implements IDevb
 	const ID = 'cerb.contexts.toolbar.section';
 	const URI = 'toolbar_section';
 	
-	static function isReadableByActor($models, $actor) : bool {
+	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);
 	}
 	
-	static function isWriteableByActor($models, $actor) : bool {
+	static function isWriteableByActor($models, $actor) {
 		return self::_isWriteableOnlyByAdmin($models, $actor);
 	}
 	
-	static function isDeletableByActor($models, $actor) : bool {
+	static function isDeletableByActor($models, $actor) {
 		return self::isWriteableByActor($models, $actor);
 	}
 	

@@ -823,16 +823,16 @@ class Context_Toolbar extends Extension_DevblocksContext implements IDevblocksCo
 	const ID = CerberusContexts::CONTEXT_TOOLBAR;
 	const URI = 'toolbar';
 	
-	static function isReadableByActor($models, $actor) : bool {
+	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);
 	}
 	
-	static function isWriteableByActor($models, $actor) : bool {
+	static function isWriteableByActor($models, $actor) {
 		return self::_isWriteableOnlyByAdmin($models, $actor);
 	}
 	
-	static function isDeletableByActor($models, $actor) : bool {
+	static function isDeletableByActor($models, $actor) {
 		return false;
 	}
 	

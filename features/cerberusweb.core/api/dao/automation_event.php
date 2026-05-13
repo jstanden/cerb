@@ -803,16 +803,16 @@ class Context_AutomationEvent extends Extension_DevblocksContext implements IDev
 	const ID = CerberusContexts::CONTEXT_AUTOMATION_EVENT;
 	const URI = 'automation_event';
 	
-	static function isReadableByActor($models, $actor) : bool {
+	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);
 	}
 	
-	static function isWriteableByActor($models, $actor) : bool {
+	static function isWriteableByActor($models, $actor) {
 		return self::_isWriteableOnlyByAdmin($models, $actor);
 	}
 	
-	static function isDeletableByActor($models, $actor) : bool {
+	static function isDeletableByActor($models, $actor) {
 		return false;
 	}
 	

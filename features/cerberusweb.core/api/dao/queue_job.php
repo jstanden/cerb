@@ -1080,15 +1080,15 @@ class Context_QueueJob extends Extension_DevblocksContext implements IDevblocksC
 	const ID = CerberusContexts::CONTEXT_QUEUE_JOB;
 	const URI = 'queue_job';
 
-	static function isReadableByActor($models, $actor) : bool {
+	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::allowEverything($models);
 	}
 
-	static function isWriteableByActor($models, $actor) : bool {
+	static function isWriteableByActor($models, $actor) {
 		return self::_isWriteableOnlyByAdmin($models, $actor);
 	}
 
-	static function isDeletableByActor($models, $actor) : bool {
+	static function isDeletableByActor($models, $actor) {
 		return self::isWriteableByActor($models, $actor);
 	}
 
