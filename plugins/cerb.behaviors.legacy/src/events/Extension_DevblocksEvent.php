@@ -165,7 +165,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		return $conditions;
 	}
 	
-	abstract function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger=null);
+	abstract function setEvent(?Model_DevblocksEvent $event_model=null, ?Model_TriggerEvent $trigger=null);
 	
 	/**
 	 *
@@ -212,7 +212,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	/**
 	 * @internal
 	 */
-	function getLabels(Model_TriggerEvent $trigger = null) {
+	function getLabels(?Model_TriggerEvent $trigger = null) {
 		// Lazy load
 		if(empty($this->_labels))
 			$this->setEvent(null, $trigger);
@@ -326,7 +326,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		return array_merge($cfields, $vars);
 	}
 	
-	function renderEventParams(Model_TriggerEvent $trigger=null) {}
+	function renderEventParams(?Model_TriggerEvent $trigger=null) {}
 	
 	/**
 	 * @internal
@@ -377,11 +377,12 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	}
 	
 	/**
-	 * @param array $event_params
+	 * @param Model_TriggerEvent $behavior
+	 * @param $new_params
 	 * @param string $error
 	 * @return boolean
 	 */
-	function prepareEventParams(Model_TriggerEvent $behavior=null, &$new_params, &$error) {
+	function prepareEventParams(Model_TriggerEvent $behavior, &$new_params, &$error) : bool {
 		$error = null;
 		return true;
 	}

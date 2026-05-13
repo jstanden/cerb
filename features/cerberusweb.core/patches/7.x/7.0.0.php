@@ -82,10 +82,8 @@ if(!isset($tables['mail_transport'])) {
 		// Strip the smtp_ prefix off the key
 		$key = mb_convert_case(substr($row['setting'], 5), MB_CASE_LOWER);
 		
-		switch($key) {
-			case 'enc';
-				$key = 'encryption';
-				break;
+		if ($key == 'enc') {
+			$key = 'encryption';
 		}
 		
 		// Override the default values

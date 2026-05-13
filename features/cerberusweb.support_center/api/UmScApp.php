@@ -301,7 +301,7 @@ class UmScApp extends Extension_CommunityPortal {
 				}
 				
 				imagejpeg($im,null,85);
-				imagedestroy($im);
+				unset($im);
 				exit;
 			
 			default:

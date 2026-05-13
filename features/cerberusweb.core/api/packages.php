@@ -95,7 +95,7 @@ class Cerb_Packages {
 	 * @return bool|null
 	 * @throws Exception_DevblocksValidationError
 	 */
-	static function importFromJson(array $json, array $prompts=[], array &$records_created=null, array &$records_modified=null) {
+	static function importFromJson(array $json, array $prompts=[], array &$records_created=[], array &$records_modified=[]) {
 		$event = DevblocksPlatform::services()->event();
 		
 		if(!is_array($json))

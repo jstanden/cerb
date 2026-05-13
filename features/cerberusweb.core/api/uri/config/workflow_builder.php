@@ -34,7 +34,7 @@ class PageSection_SetupDevelopersWorkflowBuilder extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/developers/workflow-builder/index.tpl');
 	}
 	
-	function handleActionForPage(string $action, string $scope=null) {
+	function handleActionForPage(string $action, ?string $scope=null) {
 		if('configAction' == $scope) {
 			if ($action == 'exportWorkflowKata') {
 				return $this->_configAction_exportWorkflowKata();

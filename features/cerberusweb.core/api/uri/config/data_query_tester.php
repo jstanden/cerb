@@ -34,7 +34,7 @@ class PageSection_SetupDevelopersDataQueryTester extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/developers/data-query-tester/index.tpl');
 	}
 	
-	function handleActionForPage(string $action, string $scope=null) {
+	function handleActionForPage(string $action, ?string $scope=null) {
 		return false;
 	}
 }

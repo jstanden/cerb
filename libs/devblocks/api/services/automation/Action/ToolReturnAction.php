@@ -14,7 +14,7 @@ class ToolReturnAction extends AbstractAction {
 	 * @param string|null $error
 	 * @return string|false
 	 */
-	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) : string|false {
+	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, ?string &$error=null) : string|false {
 		$return_values = $automation->getParams($this->node, $dict);
 		
 		$tool_node = $this->node->getAncestorByType('on_tool');

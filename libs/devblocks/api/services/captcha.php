@@ -55,7 +55,7 @@ class _DevblocksCaptchaService {
 		$image_bytes = ob_get_contents();
 		ob_end_clean();
 		
-		imagedestroy($im);
+		unset($im);
 		
 		return $image_bytes;
 	}

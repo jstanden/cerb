@@ -16,7 +16,7 @@ use Psr\Http\Message\ResponseInterface;
 class HttpRequestAction extends AbstractAction {
 	const ID = 'http.request';
 	
-	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) : string|false {
+	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, ?string &$error=null) : string|false {
 		$http = DevblocksPlatform::services()->http();
 		$validation = DevblocksPlatform::services()->validation();
 		

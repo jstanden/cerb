@@ -92,9 +92,10 @@ class _DevblocksSessionManager {
 	}
 	
 	/**
-	 * @param DevblocksVisit $visit
+	 * @param ?DevblocksVisit $visit
+	 * @return void
 	 */
-	function setVisit(DevblocksVisit $visit = null) {
+	function setVisit(?DevblocksVisit $visit = null) : void {
 		$this->visit = $visit;
 		$_SESSION['db_visit'] = $this->visit;
 	}

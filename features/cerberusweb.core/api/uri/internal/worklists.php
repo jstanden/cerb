@@ -21,7 +21,7 @@ use Cerb\Records\FileImporter;
 class PageSection_InternalWorklists extends Extension_PageSection {
 	function render() {}
 	
-	public function handleActionForPage(string $action, string $scope=null) {
+	public function handleActionForPage(string $action, ?string $scope=null) {
 		if('internalAction' == $scope) {
 			switch ($action) {
 				case 'addFilter':

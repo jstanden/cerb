@@ -21,7 +21,7 @@ class LlmAgentNode extends AbstractNode {
 		return sprintf('__session::%s::%s', $this->node->getId(), $provider::ID);
 	}
 	
-	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) : string|false {
+	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, ?string &$error=null) : string|false {
 		$this->_node_memory =& $node_memory;
 		$this->_dict = $dict;
 		
@@ -337,7 +337,7 @@ class LlmAgentNode extends AbstractNode {
 	 * @param string|null $error
 	 * @return bool
 	 */
-	private function _activateLLM(string $state, string &$error=null) : bool {
+	private function _activateLLM(string $state, ?string &$error=null) : bool {
 		$llm = DevblocksPlatform::services()->llm();
 		
 		$llm_provider = $this->_getLlmProvider();
@@ -396,7 +396,7 @@ class LlmAgentNode extends AbstractNode {
 	 * @param string|null $error
 	 * @return bool
 	 */
-	private function _activateTool(DevblocksLlmChatResponse_Tool $tool_spec, string &$error=null) : bool {
+	private function _activateTool(DevblocksLlmChatResponse_Tool $tool_spec, ?string &$error=null) : bool {
 		$llm = DevblocksPlatform::services()->llm();
 		
 		$llm_provider = $this->_getLlmProvider();

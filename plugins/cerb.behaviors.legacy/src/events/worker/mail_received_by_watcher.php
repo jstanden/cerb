@@ -77,7 +77,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 		);
 	}
 	
-	function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger=null) {
+	function setEvent(?Model_DevblocksEvent $event_model=null, ?Model_TriggerEvent $trigger=null) {
 		$message_id = $event_model->params['message_id'] ?? null;
 		$worker_id = $event_model->params['worker_id'] ?? null;
 		

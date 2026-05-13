@@ -1052,7 +1052,7 @@ class CerbAutomationAstNode implements JsonSerializable {
 		return $this;
 	}
 	
-	public function getParams(DevblocksDictionaryDelegate $dict=null, &$error=null) {
+	public function getParams(?DevblocksDictionaryDelegate $dict=null, &$error=null) {
 		$params = $this->_params;
 		
 		if(is_null($dict))
@@ -1075,7 +1075,7 @@ class CerbAutomationAstNode implements JsonSerializable {
 		return $this;
 	}
 	
-	public function getParam($key, $default=null, DevblocksDictionaryDelegate $dict=null) {
+	public function getParam($key, $default=null, ?DevblocksDictionaryDelegate $dict=null) {
 		if(array_key_exists($key, $this->_params)) {
 			if(!is_null($dict)) {
 				if(is_array($this->_params[$key])) {
@@ -1121,7 +1121,7 @@ class CerbAutomationAstNode implements JsonSerializable {
 		return $this;
 	}
 	
-	public function setParent(CerbAutomationAstNode $parent=null) {
+	public function setParent(?CerbAutomationAstNode $parent=null) {
 		$this->_parent = $parent;
 		return $this;
 	}

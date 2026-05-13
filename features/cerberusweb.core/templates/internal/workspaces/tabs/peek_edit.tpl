@@ -2,7 +2,7 @@
 {$peek_context_id = $model->id|default:0}
 {$form_id = uniqid()}
 {$page = $model->getWorkspacePage()}
-{$tab_extension = $tab_extensions[$model->extension_id]}
+{$tab_extension = $tab_extensions[$model->extension_id|default:'']}
 
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}">
 <input type="hidden" name="c" value="profiles">
@@ -187,8 +187,13 @@ $(function() {
 		{/if}
 		
 		$select.on('change', function() {
-			var extension_id = $select.val();
-			
+			const extension_id = $select.val();
+
+			if(!extension_id) {
+				$params.empty();
+				return;
+			}
+
 			// Fetch via Ajax
 			genericAjaxGet($params, 'c=profiles&a=invoke&module=workspace_tab&action=getTabParams&page_id={$page->id}&tab_id={$peek_context_id}&extension=' + encodeURIComponent(extension_id), function() {
 				$params.find('button.chooser-abstract').cerbChooserTrigger();

@@ -61,7 +61,7 @@ class Event_MailBeforeUiReplyByWorker extends AbstractEvent_Message {
 		return $event_model;
 	}
 	
-	function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger=null) {
+	function setEvent(?Model_DevblocksEvent $event_model=null, ?Model_TriggerEvent $trigger=null) {
 		parent::setEvent($event_model, $trigger);
 		
 		$labels = $this->getLabels($trigger);

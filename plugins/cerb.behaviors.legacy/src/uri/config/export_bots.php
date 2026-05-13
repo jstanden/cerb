@@ -47,7 +47,7 @@ class PageSection_SetupDevelopersExportBots extends Extension_PageSection {
 		$tpl->display('devblocks:cerb.behaviors.legacy::configuration/section/developers/export-bots/index.tpl');
 	}
 	
-	function handleActionForPage(string $action, string $scope=null) {
+	function handleActionForPage(string $action, ?string $scope=null) {
 		return false;
 	}
 }

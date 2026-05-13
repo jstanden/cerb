@@ -41,7 +41,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
-	function handleActionForPage(string $action, string $scope=null) {
+	function handleActionForPage(string $action, ?string $scope=null) {
 		if('profileAction' == $scope) {
 			switch ($action) {
 				case 'savePeekJson':

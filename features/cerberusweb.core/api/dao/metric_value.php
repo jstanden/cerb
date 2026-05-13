@@ -11,7 +11,7 @@ class DAO_MetricValue {
 	 * @param array $dimension_values
 	 * @return bool
 	 */
-	static function increment(int $metric_id, $values, int $ts=null, array $dimension_values=[]) : bool {
+	static function increment(int $metric_id, mixed $values, ?int $ts=null, array $dimension_values=[]) : bool {
 		$db = DevblocksPlatform::services()->database();
 		
 		if(!$ts)

@@ -71,7 +71,7 @@ class Event_MailBeforeUiComposeByWorker extends Extension_DevblocksEvent {
 		return $event_model;
 	}
 	
-	function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger=null) {
+	function setEvent(?Model_DevblocksEvent $event_model=null, ?Model_TriggerEvent $trigger=null) {
 		$labels = [];
 		$values = [];
 

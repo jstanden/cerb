@@ -5,7 +5,7 @@ use DevblocksDictionaryDelegate;
 use Model_Automation;
 
 class OutcomeNode extends AbstractNode {
-	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) : string|false {
+	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, ?string &$error=null) : string|false {
 		$has_activated = array_key_exists('stack', $node_memory);
 		
 		// If this outcome is not in a decision, check if logic

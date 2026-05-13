@@ -511,7 +511,7 @@ class Model_Toolbar extends DevblocksRecordModel {
 	 * @param string|null $error
 	 * @return array|string|false
 	 */
-	function getKata(?DevblocksDictionaryDelegate $dict=null, string &$error=null): array|string|bool {
+	function getKata(?DevblocksDictionaryDelegate $dict=null, ?string &$error=null): array|string|bool {
 		$toolbar_sections = DAO_ToolbarSection::getByToolbar($this->name);
 		
 		// Sort by priority

@@ -102,7 +102,7 @@ class Controller_Security extends DevblocksControllerExtension {
 			/*
 			// Block transparent pixels
 			if($this->isFullyTransparent($img)) {
-				imagedestroy($img);
+				unset($img);
 				DevblocksPlatform::dieWithHttpError(null, 403);
 			}
 			*/
@@ -116,7 +116,7 @@ class Controller_Security extends DevblocksControllerExtension {
 			
 			imagesavealpha($img, true);
 			imagepng($img);
-			imagedestroy($img);
+			unset($img);
 			
 			DevblocksPlatform::exit(200);
 			

@@ -206,7 +206,7 @@ abstract class Extension_PageSection extends DevblocksExtension {
 	}
 	
 	abstract function render();
-	abstract function handleActionForPage(string $action, string $scope=null);
+	abstract function handleActionForPage(string $action, ?string $scope=null);
 };
 
 abstract class Extension_PageMenu extends DevblocksExtension {

@@ -17,7 +17,7 @@ class FunctionAction extends AbstractAction {
 	 * @param array $node_memory
 	 * @param string|null $error
 	 */
-	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) : string|false {
+	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, ?string &$error=null) : string|false {
 		$validation = DevblocksPlatform::services()->validation();
 		$automator = DevblocksPlatform::services()->automation();
 		

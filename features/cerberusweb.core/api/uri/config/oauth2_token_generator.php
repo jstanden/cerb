@@ -35,7 +35,7 @@ class PageSection_SetupDevelopersOAuth2TokenGenerator extends Extension_PageSect
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/developers/oauth2-token-generator/index.tpl');
 	}
 	
-	function handleActionForPage(string $action, string $scope=null) {
+	function handleActionForPage(string $action, ?string $scope=null) {
 		if('configAction' == $scope) {
 			switch ($action) {
 				case 'generateToken':

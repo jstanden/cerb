@@ -57,7 +57,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 		);
 	}
 	
-	function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger=null) {
+	function setEvent(?Model_DevblocksEvent $event_model=null, ?Model_TriggerEvent $trigger=null) {
 		// We can accept a model object or a context_id
 		if($event_model instanceof Model_DevblocksEvent) {
 			$model = $event_model->params['context_model'] ?? $event_model->params['context_id'] ?? null;

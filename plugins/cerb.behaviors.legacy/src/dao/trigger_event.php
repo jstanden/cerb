@@ -872,7 +872,7 @@ class Model_TriggerEvent extends DevblocksRecordModel {
 		return DAO_TriggerEvent::getNextPosByParent($this->id, $parent_id);
 	}
 	
-	public function formatVariable($var, $value, DevblocksDictionaryDelegate $dict=null) {
+	public function formatVariable($var, $value, ?DevblocksDictionaryDelegate $dict=null) {
 		switch($var['type']) {
 			case Model_CustomField::TYPE_MULTI_LINE:
 			case Model_CustomField::TYPE_SINGLE_LINE:
@@ -1053,15 +1053,15 @@ class Model_TriggerEvent extends DevblocksRecordModel {
 		}
 	}
 	
-	public function runDecisionTree(DevblocksDictionaryDelegate $dict, $dry_run=false, Extension_DevblocksEvent $event=null) {
+	public function runDecisionTree(DevblocksDictionaryDelegate $dict, $dry_run=false, ?Extension_DevblocksEvent $event=null) {
 		return $this->_runDecisionTree($dict, $dry_run, $event);
 	}
 	
-	public function resumeDecisionTree(DevblocksDictionaryDelegate $dict, $dry_run=false, Extension_DevblocksEvent $event=null, array $replay=[]) {
+	public function resumeDecisionTree(DevblocksDictionaryDelegate $dict, $dry_run=false, ?Extension_DevblocksEvent $event=null, array $replay=[]) {
 		return $this->_runDecisionTree($dict, $dry_run, $event, $replay);
 	}
 	
-	private function _runDecisionTree(DevblocksDictionaryDelegate $dict, $dry_run=false, Extension_DevblocksEvent $event=null, array $replay=[]) {
+	private function _runDecisionTree(DevblocksDictionaryDelegate $dict, $dry_run=false, ?Extension_DevblocksEvent $event=null, array $replay=[]) {
 		$metrics = DevblocksPlatform::services()->metrics();
 		
 		$start_runtime = intval(microtime(true));

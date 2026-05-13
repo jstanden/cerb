@@ -371,6 +371,8 @@ abstract class DevblocksORMHelper {
 		// Append custom fields to the SELECT if (and only if) we're sorting on it
 		
 		foreach($sortBy as $sort_field) {
+			$sort_field = strval($sort_field);
+			
 			if(!DevblocksPlatform::strStartsWith($sort_field, 'cf_')) {
 				if(array_key_exists($sort_field, $fields)) {
 					// Only append if this field isn't in the SELECT yet

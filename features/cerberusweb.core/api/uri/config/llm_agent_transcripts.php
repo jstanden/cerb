@@ -41,7 +41,7 @@ class PageSection_SetupDevelopersLlmAgentTranscripts extends Extension_PageSecti
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/developers/llm-agent-transcripts/index.tpl');
 	}
 	
-	function handleActionForPage(string $action, string $scope = null) {
+	function handleActionForPage(string $action, ?string $scope = null) {
 		if ('configAction' == $scope) {
 			switch ($action) {
 				case 'deleteTranscript':

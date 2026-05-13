@@ -37,7 +37,7 @@ class Event_DashboardWidgetGetMetric extends Extension_DevblocksEvent {
 		);
 	}
 	
-	function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger=null) {
+	function setEvent(?Model_DevblocksEvent $event_model=null, ?Model_TriggerEvent $trigger=null) {
 		$labels = [];
 		$values = [];
 		

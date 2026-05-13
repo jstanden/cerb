@@ -35,7 +35,7 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
-	function handleActionForPage(string $action, string $scope=null) {
+	function handleActionForPage(string $action, ?string $scope=null) {
 		if('profileAction' == $scope) {
 			switch ($action) {
 				case 'editorLog':
@@ -1013,6 +1013,7 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 				// Format dictionary keys
 				foreach ($last_prompts as $last_prompt_key => $last_prompt) {
 					list($last_prompt_type, $prompt_set_key) = array_pad(explode('/', $last_prompt_key, 2), 2, null);
+					$prompt_set_key = strval($prompt_set_key);
 					$prompt_value = $prompts[$prompt_set_key] ?? null;
 					
 					if (array_key_exists($last_prompt_type, $form_components)) {

@@ -293,7 +293,7 @@ class PageSection_SetupDevelopersDatabaseSchema extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/developers/database-schema/index.tpl');
 	}
 	
-	function handleActionForPage(string $action, string $scope=null) {
+	function handleActionForPage(string $action, ?string $scope=null) {
 		return false;
 	}
 }

@@ -230,7 +230,7 @@ class _DevblocksOpenIDManager {
 			// Namespaces
 			if(preg_match("/^openid_ns_(.*)$/",$ns,$ns_found)) {
 				switch(DevblocksPlatform::strLower($spec)) {
-					case 'http://openid.net/srv/ax/1.0';
+					case 'http://openid.net/srv/ax/1.0':
 						foreach($scope as $k => $v) {
 							if(preg_match("/^openid_".$ns_found[1]."_value_(.*)$/i",$k,$attrib_found)) {
 								$attribs[DevblocksPlatform::strLower($attrib_found[1])] = $v;
@@ -238,8 +238,8 @@ class _DevblocksOpenIDManager {
 						}
 						break;
 						
-					case 'http://openid.net/srv/sreg/1.0';
-					case 'http://openid.net/extensions/sreg/1.1';
+					case 'http://openid.net/srv/sreg/1.0':
+					case 'http://openid.net/extensions/sreg/1.1':
 						foreach($scope as $k => $v) {
 							if(preg_match("/^openid_".$ns_found[1]."_(.*)$/i",$k,$attrib_found)) {
 								$attribs[DevblocksPlatform::strLower($attrib_found[1])] = $v;

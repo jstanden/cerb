@@ -29,7 +29,7 @@ class Event_DataQueryDatasource extends Extension_DevblocksEvent {
 		return false;
 	}
 	
-	function renderEventParams(Model_TriggerEvent $trigger=null) {
+	function renderEventParams(?Model_TriggerEvent $trigger=null) {
 		$tpl = DevblocksPlatform::services()->template();
 
 		$tpl->assign('trigger', $trigger);
@@ -37,7 +37,7 @@ class Event_DataQueryDatasource extends Extension_DevblocksEvent {
 		$tpl->display('devblocks:cerb.behaviors.legacy::events/datasource/params_data_query_datasource.tpl');
 	}
 	
-	function prepareEventParams(Model_TriggerEvent $behavior=null, &$event_params, &$error) {
+	function prepareEventParams(?Model_TriggerEvent $behavior=null, &$event_params, &$error) {
 		$error = null;
 		
 		$alias = DevblocksPlatform::importGPC($event_params['alias'] ?? null);
@@ -77,7 +77,7 @@ class Event_DataQueryDatasource extends Extension_DevblocksEvent {
 		);
 	}
 	
-	function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger=null) {
+	function setEvent(?Model_DevblocksEvent $event_model=null, ?Model_TriggerEvent $trigger=null) {
 		$labels = [];
 		$values = [];
 		

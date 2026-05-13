@@ -196,7 +196,8 @@ class _DevblocksKataService {
 									// Rewrite multiple blank lines
 									for($x = 0; $x < $next_count; $x++) {
 										prev($lines);
-										$lines[key($lines)] = $text_line;
+										if(key($lines))
+											$lines[key($lines)] = $text_line;
 									}
 								}
 								
@@ -575,7 +576,7 @@ class _DevblocksKataService {
 	
 	private array $_formatTreeStack;
 	
-	function formatTree($tree, DevblocksDictionaryDelegate $dict=null, &$error=null, $wrap_raw=false) {
+	function formatTree($tree, ?DevblocksDictionaryDelegate $dict=null, &$error=null, $wrap_raw=false) {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
 		if(!is_array($tree)) {
@@ -605,7 +606,7 @@ class _DevblocksKataService {
 		return $parsed_tree;
 	}
 	
-	private function _formatTree($v, $k, DevblocksDictionaryDelegate $dict=null, _DevblocksTemplateBuilder $tpl_builder=null, &$error=null, $wrap_raw=false) {
+	private function _formatTree($v, $k, ?DevblocksDictionaryDelegate $dict=null, ?_DevblocksTemplateBuilder $tpl_builder=null, &$error=null, $wrap_raw=false) {
 		$this->_formatTreeStack[] = DevblocksPlatform::services()->string()->strBefore($k, '@');
 		
 		if(is_string($v)) {

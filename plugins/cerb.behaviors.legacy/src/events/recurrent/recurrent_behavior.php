@@ -18,7 +18,7 @@
 class Event_RecurrentBehavior extends Extension_DevblocksEvent {
 	const ID = 'event.behavior.recurrent';
 	
-	function renderEventParams(Model_TriggerEvent $trigger=null) {
+	function renderEventParams(?Model_TriggerEvent $trigger=null) {
 		$tpl = DevblocksPlatform::services()->template();
 		
 		// Timezones
@@ -38,7 +38,7 @@ class Event_RecurrentBehavior extends Extension_DevblocksEvent {
 		$tpl->display('devblocks:cerb.behaviors.legacy::events/recurrent/params_recurrent_behavior.tpl');
 	}
 	
-	function prepareEventParams(Model_TriggerEvent $behavior=null, &$event_params, &$error) {
+	function prepareEventParams(?Model_TriggerEvent $behavior=null, &$event_params, &$error) {
 		$error = null;
 		
 		if(!is_array($event_params)) $event_params = [];
@@ -99,7 +99,7 @@ class Event_RecurrentBehavior extends Extension_DevblocksEvent {
 		);
 	}
 	
-	function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger=null) {
+	function setEvent(?Model_DevblocksEvent $event_model=null, ?Model_TriggerEvent $trigger=null) {
 		$labels = array();
 		$values = array();
 		

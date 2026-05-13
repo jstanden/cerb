@@ -6,7 +6,7 @@ use DevblocksPlatform;
 use Model_Automation;
 
 class RepeatNode extends AbstractNode {
-	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) : string|false {
+	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, ?string &$error=null) : string|false {
 		$params = $automation->getParams($this->node, $dict);
 		
 		$each = $params['each'] ?? null;

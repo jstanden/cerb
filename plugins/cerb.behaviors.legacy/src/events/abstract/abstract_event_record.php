@@ -100,7 +100,7 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 		return $delegate;
 	}
 	
-	function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger=null) {
+	function setEvent(?Model_DevblocksEvent $event_model=null, ?Model_TriggerEvent $trigger=null) {
 		$labels = [];
 		$values = [];
 		
@@ -262,7 +262,7 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 		return $vals_to_ctx;
 	}
 	
-	function renderEventParams(Model_TriggerEvent $trigger=null) {
+	function renderEventParams(?Model_TriggerEvent $trigger=null) {
 		$tpl = DevblocksPlatform::services()->template();
 
 		// [TODO] Formal watched change fields

@@ -870,7 +870,7 @@ class _DevblocksEmailManager {
 		return self::$instance;
 	}
 	
-	public function createTransactionalModelFromProperties(array $properties, string &$error=null) : Model_DevblocksOutboundEmail|false {
+	public function createTransactionalModelFromProperties(array $properties, ?string &$error=null) : Model_DevblocksOutboundEmail|false {
 		/*
 		'bcc'
 		'cc'
@@ -915,7 +915,7 @@ class _DevblocksEmailManager {
 		return $email_model;
 	}
 	
-	public function createComposeModelFromProperties(array $properties, string &$error=null) : Model_DevblocksOutboundEmail|false {
+	public function createComposeModelFromProperties(array $properties, ?string &$error=null) : Model_DevblocksOutboundEmail|false {
 		/*
 		'bcc'
 		'bucket_id'
@@ -974,7 +974,7 @@ class _DevblocksEmailManager {
 		return new Model_DevblocksOutboundEmail(Model_MailQueue::TYPE_COMPOSE, $properties);
 	}
 	
-	public function createReplyModelFromProperties(array $properties, string &$error=null) : Model_DevblocksOutboundEmail|false {
+	public function createReplyModelFromProperties(array $properties, ?string &$error=null) : Model_DevblocksOutboundEmail|false {
 		/*
 		'bcc'
 		'bucket_id'

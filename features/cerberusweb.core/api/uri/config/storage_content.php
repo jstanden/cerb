@@ -75,7 +75,7 @@ class PageSection_SetupStorageContent extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/storage_content/index.tpl');
 	}
 	
-	function handleActionForPage(string $action, string $scope=null) {
+	function handleActionForPage(string $action, ?string $scope=null) {
 		if('configAction' == $scope) {
 			switch ($action) {
 				case 'showStorageSchema':

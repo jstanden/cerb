@@ -48,7 +48,7 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget implements ICerbWo
 		return $results;
 	}
 	
-	private function _getSheetFromWidget(Model_WorkspaceWidget $widget, int $page, string &$error=null, array $environment=[]) {
+	private function _getSheetFromWidget(Model_WorkspaceWidget $widget, int $page, ?string &$error=null, array $environment=[]) {
 		$sheets = DevblocksPlatform::services()->sheet();
 		
 		if(!($results = $this->getData($widget, $page, $error)))

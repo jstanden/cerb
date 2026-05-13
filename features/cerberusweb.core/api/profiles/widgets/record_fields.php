@@ -245,7 +245,7 @@ class ProfileWidget_Fields extends Extension_ProfileWidget {
 		return false;
 	}
 	
-	private function _getSearchButtons(Model_ProfileWidget $model, DevblocksDictionaryDelegate $dict=null) {
+	private function _getSearchButtons(Model_ProfileWidget $model, ?DevblocksDictionaryDelegate $dict=null) {
 		$search = $model->extension_params['search'] ?? [];
 		
 		$search_buttons = [];

@@ -37,7 +37,7 @@ class PageSection_SetupDevelopersRequirements extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/developers/requirements/index.tpl');
 	}
 	
-	function handleActionForPage(string $action, string $scope=null) {
+	function handleActionForPage(string $action, ?string $scope=null) {
 		return false;
 	}
 }

@@ -23,7 +23,7 @@ class Event_TimeTrackingMacro extends AbstractEvent_TimeTracking {
 		);
 	}
 	
-	function renderEventParams(Model_TriggerEvent $trigger=null) {
+	function renderEventParams(?Model_TriggerEvent $trigger=null) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('trigger', $trigger);
 		$tpl->display('devblocks:cerb.behaviors.legacy::events/record/params_macro_default.tpl');

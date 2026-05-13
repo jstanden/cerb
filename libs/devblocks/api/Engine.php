@@ -94,7 +94,7 @@ abstract class DevblocksEngine {
 		$manifest->dir = $rel_dir;
 		$manifest->description = (string) $plugin->description;
 		$manifest->author = (string) $plugin->author;
-		$manifest->version = (integer) DevblocksPlatform::strVersionToInt($plugin->version);
+		$manifest->version = DevblocksPlatform::strVersionToInt($plugin->version);
 		$manifest->link = (string) $plugin->link;
 		$manifest->name = (string) $plugin->name;
 		
@@ -642,7 +642,7 @@ abstract class DevblocksEngine {
 		
 		// Controllers
 
-		$controller_uri = array_shift($path);
+		$controller_uri = array_shift($path) ?? '';
 		
 		// Security: IP Whitelist
 		
@@ -748,7 +748,7 @@ abstract class DevblocksEngine {
 					DevblocksPlatform::dieWithHttpError("No controllers are available!", 500);
 
 				// Set our controller based on the results
-				$controller_mft = (isset($routing[$controller_uri]))
+				$controller_mft = (array_key_exists($controller_uri, $routing))
 					? $controllers[$routing[$controller_uri]]
 					: $controllers[APP_DEFAULT_CONTROLLER];
 

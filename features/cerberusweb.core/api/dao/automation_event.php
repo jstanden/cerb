@@ -495,7 +495,7 @@ class Model_AutomationEvent extends DevblocksRecordModel {
 	 * @param string|null $error
 	 * @return array|string|false
 	 */
-	function getKata(?DevblocksDictionaryDelegate $dict=null, string &$error=null, array $priority_range=[]): array|string|bool {
+	function getKata(?DevblocksDictionaryDelegate $dict=null, ?string &$error=null, array $priority_range=[]): array|string|bool {
 		$event_listeners = DAO_AutomationEventListener::getByEvent($this->name);
 		$event_handler = DevblocksPlatform::services()->ui()->eventHandler();
 		

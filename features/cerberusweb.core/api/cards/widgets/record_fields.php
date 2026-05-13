@@ -262,7 +262,7 @@ class CardWidget_Fields extends Extension_CardWidget {
 		return false;
 	}
 	
-	private function _getSearchButtons(Model_CardWidget $model, DevblocksDictionaryDelegate $dict=null) {
+	private function _getSearchButtons(Model_CardWidget $model, ?DevblocksDictionaryDelegate $dict=null) {
 		$search = ($model->extension_params['search'] ?? null) ?: [];
 		
 		$search_buttons = [];

@@ -59,7 +59,7 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.translators::config/section/index.tpl');
 	}
 	
-	function handleActionForPage(string $action, string $scope=null) {
+	function handleActionForPage(string $action, ?string $scope=null) {
 		if('configAction' == $scope) {
 			switch ($action) {
 				case 'save':

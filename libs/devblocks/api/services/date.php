@@ -803,7 +803,7 @@ class DevblocksCalendarHelper {
 		$name_weekdays = array('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday');
 		$num_weekdays = count($weekdays);
 
-		$cur_dow = (integer) date('N', $start) - 1;
+		$cur_dow = (int) date('N', $start) - 1;
 		
 		$counter = null;
 
@@ -860,7 +860,7 @@ class DevblocksCalendarHelper {
 	}
 	
 	static function getMonthlyDates($start, array $days, $until=null, $max_iter=null) {
-		$dates = array();
+		$dates = [];
 		
 		// If we're asked to make things starting at a date beyond the end date, stop.
 		if(!is_null($until) && $start > $until)
@@ -868,9 +868,9 @@ class DevblocksCalendarHelper {
 		
 		$num_days = count($days);
 
-		$cur_dy = (integer) date('d', $start);
-		$cur_mo = (integer) date('m', $start);
-		$cur_yr = (integer) date('Y', $start);
+		$cur_dy = (int) date('d', $start);
+		$cur_mo = (int) date('m', $start);
+		$cur_yr = (int) date('Y', $start);
 		
 		$counter = null;
 
@@ -893,9 +893,9 @@ class DevblocksCalendarHelper {
 				$dates[] = $date;
 			
 			do {
-				$cur_dy = (integer) date('d', $date);
-				$cur_mo = (integer) date('m', $date);
-				$cur_yr = (integer) date('Y', $date);
+				$cur_dy = (int) date('d', $date);
+				$cur_mo = (int) date('m', $date);
+				$cur_yr = (int) date('Y', $date);
 				
 				$next_dy = $days[++$counter % $num_days];
 				$next_mo = $cur_mo + ($next_dy <= $cur_dy ? 1 : 0);
@@ -938,9 +938,9 @@ class DevblocksCalendarHelper {
 		
 		$num_months = count($months);
 
-		$cur_dy = (integer) date('d', $start);
-		$cur_mo = (integer) date('m', $start);
-		$cur_yr = (integer) date('Y', $start);
+		$cur_dy = (int) date('d', $start);
+		$cur_mo = (int) date('m', $start);
+		$cur_yr = (int) date('Y', $start);
 		
 		$counter = null;
 
@@ -963,8 +963,8 @@ class DevblocksCalendarHelper {
 				$dates[] = $date;
 			
 			do {
-				$cur_mo = (integer) date('m', $date);
-				$cur_yr = (integer) date('Y', $date);
+				$cur_mo = (int) date('m', $date);
+				$cur_yr = (int) date('Y', $date);
 				
 				$next_mo = $months[++$counter % $num_months];
 				$next_yr = $cur_yr + ($next_mo <= $cur_mo ? 1 : 0);
@@ -1003,7 +1003,7 @@ class DevblocksCalendarHelper {
 			$year
 		);
 			
-		return (integer) date('t', $days_check);
+		return (int) date('t', $days_check);
 	}
 	
 	public static function getRelativeDateUsingCalendar($calendar_id, $rel_date, $now=null) : int {

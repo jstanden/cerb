@@ -222,7 +222,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		return DevblocksPlatform::arraySearchNoCase($name, DAO_Group::getNames());
 	}
 	
-	static function getNames(Model_Worker $for_worker=null) {
+	static function getNames(?Model_Worker $for_worker=null) {
 		$groups = DAO_Group::getAll();
 		$names = [];
 		
@@ -1400,9 +1400,9 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 			return [];
 		
 		switch($column) {
-			case SearchFields_Group::IS_DEFAULT;
-			case SearchFields_Group::IS_PRIVATE;
-			case SearchFields_Group::SUBJECT_HAS_MASK;
+			case SearchFields_Group::IS_DEFAULT:
+			case SearchFields_Group::IS_PRIVATE:
+			case SearchFields_Group::SUBJECT_HAS_MASK:
 				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
 				break;
 			
@@ -1411,7 +1411,7 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
 				break;
 				
-			case SearchFields_Group::REPLY_ADDRESS_ID;
+			case SearchFields_Group::REPLY_ADDRESS_ID:
 				$label_map = function($ids) {
 					$models = DAO_Address::getIds($ids);
 					return array_column(DevblocksPlatform::objectsToArrays($models), 'email', 'id');
@@ -1419,7 +1419,7 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
 				break;
 				
-			case SearchFields_Group::REPLY_HTML_TEMPLATE_ID;
+			case SearchFields_Group::REPLY_HTML_TEMPLATE_ID:
 				$label_map = function($ids) {
 					$models = DAO_MailHtmlTemplate::getIds($ids);
 					return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
@@ -1427,7 +1427,7 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
 				break;
 				
-			case SearchFields_Group::REPLY_SIGNING_KEY_ID;
+			case SearchFields_Group::REPLY_SIGNING_KEY_ID:
 				$label_map = function($ids) {
 					$models = DAO_GpgPrivateKey::getIds($ids);
 					return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
@@ -1435,7 +1435,7 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
 				break;
 				
-			case SearchFields_Group::REPLY_SIGNATURE_ID;
+			case SearchFields_Group::REPLY_SIGNATURE_ID:
 				$label_map = function($ids) {
 					$models = DAO_EmailSignature::getIds($ids);
 					return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');

@@ -261,7 +261,7 @@ class WorkspaceWidget_RecordFields extends Extension_WorkspaceWidget {
 		return true;
 	}
 	
-	private function _getSearchButtons(Model_WorkspaceWidget $model, DevblocksDictionaryDelegate $dict=null) {
+	private function _getSearchButtons(Model_WorkspaceWidget $model, ?DevblocksDictionaryDelegate $dict=null) {
 		$search = ($model->params['search'] ?? null) ?: [];
 		
 		$search_buttons = [];

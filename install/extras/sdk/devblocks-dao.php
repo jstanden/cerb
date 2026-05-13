@@ -1482,7 +1482,7 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
  
-	function handleActionForPage(string $action, string $scope=null) {
+	function handleActionForPage(string $action, ?string $scope=null) {
         if('profileAction' == $scope) {
             switch($action) {
                 case 'savePeekJson':

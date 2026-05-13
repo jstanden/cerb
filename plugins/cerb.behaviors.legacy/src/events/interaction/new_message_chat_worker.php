@@ -18,7 +18,7 @@
 class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 	const ID = 'event.message.chat.worker';
 
-	function renderEventParams(Model_TriggerEvent $trigger=null) {
+	function renderEventParams(?Model_TriggerEvent $trigger=null) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('trigger', $trigger);
 		$tpl->display('devblocks:cerb.behaviors.legacy::events/record/params_macro_default.tpl');
@@ -55,7 +55,7 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 		);
 	}
 
-	function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger=null) {
+	function setEvent(?Model_DevblocksEvent $event_model=null, ?Model_TriggerEvent $trigger=null) {
 		$labels = [];
 		$values = [];
 

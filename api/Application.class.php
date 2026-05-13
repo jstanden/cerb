@@ -1823,16 +1823,16 @@ class CerberusContexts {
 		}
 	}
 
-	static public function filterModelsByActorReadable($context_class, $models, $actor) {
+	public static function filterModelsByActorReadable($context_class, $models, $actor) {
 		return array_intersect_key($models, array_flip(array_keys($context_class::isReadableByActor($models, $actor), true)));
 	}
 
-	static public function filterModelsByActorWriteable($context_class, $models, $actor) {
+	public static function filterModelsByActorWriteable($context_class, $models, $actor) {
 		return array_intersect_key($models, array_flip(array_keys($context_class::isWriteableByActor($models, $actor), true)));
 	}
 
 	// [TODO] This could also cache for request until new links are set involving the source/target
-	static public function getWatchers($context, $context_id, $as_contexts=false) {
+	public static function getWatchers($context, $context_id, $as_contexts=false) {
 		$links = DAO_ContextLink::getContextLinks($context, $context_id, CerberusContexts::CONTEXT_WORKER);
 
 		if(empty($links) || !isset($links[$context_id]))
@@ -1865,7 +1865,7 @@ class CerberusContexts {
 	}
 
 	// [TODO] Are these the only methods that set watcher links?
-	static public function addWatchers($context, $context_id, $worker_ids) {
+	public static function addWatchers($context, $context_id, $worker_ids) {
 		$workers = DAO_Worker::getAll();
 
 		if(!is_array($worker_ids))
@@ -1879,7 +1879,7 @@ class CerberusContexts {
 	}
 
 	// [TODO] Are these the only methods that set watcher links?
-	static public function removeWatchers($context, $context_id, $worker_ids) {
+	public static function removeWatchers($context, $context_id, $worker_ids) {
 		if(!is_array($worker_ids))
 			$worker_ids = array($worker_ids);
 
@@ -1887,7 +1887,7 @@ class CerberusContexts {
 			DAO_ContextLink::deleteLink($context, $context_id, CerberusContexts::CONTEXT_WORKER, $worker_id);
 	}
 
-	static public function formatActivityLogEntry(Model_ContextActivityLogEntry $log_entry, $format=null, $scrub_tokens=[], $personalize=false) : string {
+	public static function formatActivityLogEntry(Model_ContextActivityLogEntry $log_entry, $format=null, $scrub_tokens=[], $personalize=false) : string {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$url_writer = DevblocksPlatform::services()->url();
 		$translate = DevblocksPlatform::getTranslationService();
@@ -2123,7 +2123,7 @@ class CerberusContexts {
 		return $url_parts['url'] ?? false;
 	}
 
-	static public function pushActivityDefaultActor($context=null, $context_id=null) {
+	public static function pushActivityDefaultActor($context=null, $context_id=null) {
 		if(empty($context) || is_null($context_id)) {
 			self::$_default_actor_context = null;
 			self::$_default_actor_context_id = null;
@@ -2134,7 +2134,7 @@ class CerberusContexts {
 		}
 	}
 
-	static public function popActivityDefaultActor() {
+	public static function popActivityDefaultActor() {
 		array_pop(self::$_default_actor_stack);
 
 		self::$_default_actor_context = null;
@@ -2150,7 +2150,7 @@ class CerberusContexts {
 		}
 	}
 
-	static public function getCurrentActor($actor_context=null, $actor_context_id=null) {
+	public static function getCurrentActor($actor_context=null, $actor_context_id=null) {
 		// Forced actor
 		if(!empty($actor_context)) {
 			if(null != ($ctx = Extension_DevblocksContext::getByAlias($actor_context, true))
@@ -2233,7 +2233,7 @@ class CerberusContexts {
 		];
 	}
 
-	static public function logActivity($activity_point, $target_context, $target_context_id, &$entry_array, $actor_context=null, $actor_context_id=null, $also_notify_worker_ids=[], $also_notify_ignore_self=false) {
+	public static function logActivity($activity_point, $target_context, $target_context_id, &$entry_array, $actor_context=null, $actor_context_id=null, $also_notify_worker_ids=[], $also_notify_ignore_self=false) {
 		$activity_point = strval($activity_point);
 		$target_context = strval($target_context);
 		$target_context_id = intval($target_context_id);
@@ -3765,17 +3765,17 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 		return [];
 	}
 
-	static public function escape($str) {
+	public static function escape($str) {
 		$db = DevblocksPlatform::services()->database();
 		return $db->escape($str);
 	}
 
-	static public function qstr($str) {
+	public static function qstr($str) {
 		$db = DevblocksPlatform::services()->database();
 		return $db->qstr($str);
 	}
 	
-	static public function qstrArray(array $arr) {
+	public static function qstrArray(array $arr) {
 		$db = DevblocksPlatform::services()->database();
 		return $db->qstrArray($arr);
 	}

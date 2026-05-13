@@ -37,7 +37,7 @@ class PageSection_SetupServiceTokens extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/service_tokens/index.tpl');
 	}
 	
-	function handleActionForPage(string $action, string $scope=null) {
+	function handleActionForPage(string $action, ?string $scope=null) {
 		return false;
 	}
 }

@@ -37,7 +37,7 @@ class PageSection_SetupPackageLibrary extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/package_library/index.tpl');
 	}
 	
-	function handleActionForPage(string $action, string $scope=null) {
+	function handleActionForPage(string $action, ?string $scope=null) {
 		return false;
 	}
 }

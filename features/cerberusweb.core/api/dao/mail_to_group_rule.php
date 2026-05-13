@@ -296,12 +296,12 @@ class Model_MailToGroupRule {
 						}
 							
 						// Are we in the right 24 hourly range?
-						if((integer)$current_hour >= $from_hour && (integer)$current_hour <= $to_hour) {
+						if((int)$current_hour >= $from_hour && (int)$current_hour <= $to_hour) {
 							// If we're in the first hour, are we minutes early?
-							if($current_hour==$from_hour && (integer)$current_min < $from_min)
+							if($current_hour==$from_hour && (int)$current_min < $from_min)
 								break;
 							// If we're in the last hour, are we minutes late?
-							if($current_hour==$to_hour && (integer)$current_min > $to_min)
+							if($current_hour==$to_hour && (int)$current_min > $to_min)
 								break;
 								
 							$passed++;

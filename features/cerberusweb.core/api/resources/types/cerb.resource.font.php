@@ -51,12 +51,12 @@ class ResourceType_Font extends Extension_ResourceType {
 			$fp_filename = $fp_metadata['uri'] ?? null;
 			
 			if (!(imagettftext($im, 28, 0, 0, 0, $white, $fp_filename, 'Test'))) {
-				imagedestroy($im);
+				unset($im);
 				$error = 'Invalid font.';
 				return false;
 			}
 			
-			imagedestroy($im);
+			unset($im);
 			
 			$extension_params[self::PARAM_MIME_TYPE] = 'font/ttf';
 		}

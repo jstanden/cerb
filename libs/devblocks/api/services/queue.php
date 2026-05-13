@@ -49,7 +49,7 @@ class _DevblocksQueueService {
 	 * @param int $available_at
 	 * @return array|false
 	 */
-	public function enqueue(string $queue_name, array $messages, string &$error=null, int $job_id=0, int $available_at=0) {
+	public function enqueue(string $queue_name, array $messages, ?string &$error=null, int $job_id=0, int $available_at=0) {
 		if(null == ($queue = $this->_getQueueByName($queue_name))) {
 			$error = sprintf("Unknown queue `%s`", $queue_name);
 			return false;

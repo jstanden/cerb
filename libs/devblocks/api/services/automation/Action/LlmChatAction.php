@@ -16,7 +16,7 @@ class LlmChatAction extends AbstractAction {
 	private DevblocksDictionaryDelegate $_dict;
 	private array $_node_memory = [];
 	
-	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) : string|false {
+	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, ?string &$error=null) : string|false {
 		$validation = DevblocksPlatform::services()->validation();
 		
 		$policy = $automation->getPolicy();
@@ -123,7 +123,7 @@ class LlmChatAction extends AbstractAction {
 	 * @param string|null $error
 	 * @return bool
 	 */
-	private function _activateLLM(string &$error=null) : bool {
+	private function _activateLLM(?string &$error=null) : bool {
 		$llm_provider = $this->_getLlmProvider(); /* @var $llm_provider Chat */
 		
 		// LLM

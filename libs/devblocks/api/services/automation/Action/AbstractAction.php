@@ -18,5 +18,5 @@ abstract class AbstractAction {
 	 * @param array $node_memory
 	 * @param string|null $error
 	 */
-	abstract function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) : string|false;
+	abstract function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, ?string &$error=null) : string|false;
 }

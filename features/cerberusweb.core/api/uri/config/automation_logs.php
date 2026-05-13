@@ -35,7 +35,7 @@ class PageSection_SetupDevelopersAutomationLogs extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/developers/automation-logs/index.tpl');
 	}
 	
-	function handleActionForPage(string $action, string $scope=null) {
+	function handleActionForPage(string $action, ?string $scope=null) {
 		if('configAction' == $scope) {
 			switch ($action) {
 				case 'delete':
