@@ -7,7 +7,6 @@ class DAO_Queue extends Cerb_ORMHelper {
 	const EXTENSION_ID = 'extension_id';
 	const EXTENSION_PARAMS_JSON = 'extension_params_json';
 	const ID = 'id';
-	const IS_FIFO = 'is_fifo';
 	const NAME = 'name';
 	const UPDATED_AT = 'updated_at';
 	
@@ -38,10 +37,6 @@ class DAO_Queue extends Cerb_ORMHelper {
 			->addField(self::ID)
 			->id()
 			->setEditable(false)
-		;
-		$validation
-			->addField(self::IS_FIFO)
-			->bit()
 		;
 		$validation
 			->addField(self::NAME)
@@ -175,7 +170,7 @@ class DAO_Queue extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, extension_id, extension_params_json, is_fifo, created_at, updated_at ".
+		$sql = "SELECT id, name, extension_id, extension_params_json, created_at, updated_at ".
 			"FROM queue ".
 			$where_sql.
 			$sort_sql.
@@ -277,7 +272,6 @@ class DAO_Queue extends Cerb_ORMHelper {
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_Queue();
 			$object->id = intval($row['id']);
-			$object->is_fifo = intval($row['is_fifo']) ? 1 : 0;
 			$object->extension_id = $row['extension_id'];
 			$object->name = $row['name'];
 			$object->created_at = intval($row['created_at']);
@@ -344,13 +338,11 @@ class DAO_Queue extends Cerb_ORMHelper {
 			"queue.id as %s, ".
 			"queue.name as %s, ".
 			"queue.extension_id as %s, ".
-			"queue.is_fifo as %s, ".
 			"queue.created_at as %s, ".
 			"queue.updated_at as %s ",
 			SearchFields_Queue::ID,
 			SearchFields_Queue::NAME,
 			SearchFields_Queue::EXTENSION_ID,
-			SearchFields_Queue::IS_FIFO,
 			SearchFields_Queue::CREATED_AT,
 			SearchFields_Queue::UPDATED_AT
 		);
@@ -409,7 +401,6 @@ class SearchFields_Queue extends DevblocksSearchFields {
 	const CREATED_AT = 'q_created_at';
 	const EXTENSION_ID = 'q_extension_id';
 	const ID = 'q_id';
-	const IS_FIFO = 'q_is_fifo';
 	const NAME = 'q_name';
 	const UPDATED_AT = 'q_updated_at';
 	
@@ -484,7 +475,6 @@ class SearchFields_Queue extends DevblocksSearchFields {
 			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'queue', 'created_at', $translate->_('common.created'), null, true),
 			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'queue', 'extension_id', $translate->_('common.extension'), null, true),
 			self::ID => new DevblocksSearchField(self::ID, 'queue', 'id', $translate->_('common.id'), null, true),
-			self::IS_FIFO => new DevblocksSearchField(self::IS_FIFO, 'queue', 'is_fifo', $translate->_('dao.queue.is_fifo'), null, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'queue', 'name', $translate->_('common.name'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'queue', 'updated_at', $translate->_('common.updated'), null, true),
 		];
@@ -511,7 +501,6 @@ class Model_Queue extends DevblocksRecordModel {
 	public $extension_id = '';
 	public $extension_params = [];
 	public $id = 0;
-	public $is_fifo = 0;
 	public $name = '';
 	public $updated_at = 0;
 	
@@ -533,7 +522,6 @@ class View_Queue extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 		$this->view_columns = [
 			SearchFields_Queue::NAME,
 			SearchFields_Queue::EXTENSION_ID,
-			SearchFields_Queue::IS_FIFO,
 			SearchFields_Queue::UPDATED_AT,
 		];
 		
@@ -583,7 +571,6 @@ class View_Queue extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 				
 				switch($field_key) {
 					case SearchFields_Queue::EXTENSION_ID:
-					case SearchFields_Queue::IS_FIFO:
 						$pass = true;
 						break;
 						
@@ -615,10 +602,6 @@ class View_Queue extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 		switch($column) {
 			case SearchFields_Queue::EXTENSION_ID:
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
-				break;
-				
-			case SearchFields_Queue::IS_FIFO:
-				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
 				break;
 				
 			default:
@@ -667,11 +650,6 @@ class View_Queue extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 					'examples' => [
 						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_QUEUE, 'q' => ''],
 					]
-				),
-			'isFifo' =>
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_BOOL,
-					'options' => array('param_key' => SearchFields_Queue::IS_FIFO),
 				),
 			'name' =>
 				array(
@@ -747,10 +725,6 @@ class View_Queue extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 		$field = $param->field;
 		
 		switch($field) {
-			case SearchFields_Queue::IS_FIFO:
-				$this->_renderCriteriaParamBoolean($param);
-				break;
-				
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -780,11 +754,6 @@ class View_Queue extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 			
 			case SearchFields_Queue::ID:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
-				break;
-			
-			case SearchFields_Queue::IS_FIFO:
-				$bool = DevblocksPlatform::importGPC($_POST['bool'] ?? null, 'integer',1);
-				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 			
 			case SearchFields_Queue::CREATED_AT:
@@ -857,12 +826,6 @@ class Context_Queue extends Extension_DevblocksContext implements IDevblocksCont
 			'value' => $model->extension_id,
 		);
 		
-		$properties['is_fifo'] = array(
-			'label' => DevblocksPlatform::translateCapitalized('dao.queue.is_fifo'),
-			'type' => Model_CustomField::TYPE_CHECKBOX,
-			'value' => $model->is_fifo,
-		);
-		
 		$properties['name'] = array(
 			'label' => mb_ucfirst($translate->_('common.name')),
 			'type' => Model_CustomField::TYPE_LINK,
@@ -908,7 +871,6 @@ class Context_Queue extends Extension_DevblocksContext implements IDevblocksCont
 	function getDefaultProperties() : array {
 		return [
 			'extension_id',
-			'is_fifo',
 			'updated_at',
 		];
 	}
@@ -971,7 +933,6 @@ class Context_Queue extends Extension_DevblocksContext implements IDevblocksCont
 			'created_at' => $prefix.$translate->_('common.created'),
 			'extension_id' => $prefix.$translate->_('common.extension'),
 			'id' => $prefix.$translate->_('common.id'),
-			'is_fifo' => $prefix.$translate->_('dao.queue.is_fifo'),
 			'name' => $prefix.$translate->_('common.name'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
@@ -983,7 +944,6 @@ class Context_Queue extends Extension_DevblocksContext implements IDevblocksCont
 			'created_at' => Model_CustomField::TYPE_DATE,
 			'extension_id' => Model_CustomField::TYPE_SINGLE_LINE,
 			'id' => Model_CustomField::TYPE_NUMBER,
-			'is_fifo' => Model_CustomField::TYPE_CHECKBOX,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'record_url' => Model_CustomField::TYPE_URL,
 			'updated_at' => Model_CustomField::TYPE_DATE,
@@ -1010,7 +970,6 @@ class Context_Queue extends Extension_DevblocksContext implements IDevblocksCont
 			$token_values['created_at'] = $queue->created_at;
 			$token_values['extension_id'] = $queue->extension_id;
 			$token_values['id'] = $queue->id;
-			$token_values['is_fifo'] = $queue->is_fifo ? 1 : 0;
 			$token_values['name'] = $queue->name;
 			$token_values['updated_at'] = $queue->updated_at;
 			
@@ -1030,7 +989,6 @@ class Context_Queue extends Extension_DevblocksContext implements IDevblocksCont
 			'created_at' => DAO_Queue::CREATED_AT,
 			'extension_id' => DAO_Queue::EXTENSION_ID,
 			'id' => DAO_Queue::ID,
-			'is_fifo' => DAO_Queue::IS_FIFO,
 			'links' => '_links',
 			'name' => DAO_Queue::NAME,
 			'updated_at' => DAO_Queue::UPDATED_AT,
@@ -1192,7 +1150,6 @@ class Context_Queue extends Extension_DevblocksContext implements IDevblocksCont
 				'fields' => [
 					'name' => $model->name,
 					'extension_id' => $model->extension_id,
-					'is_fifo' => $model->is_fifo ? 1 : 0,
 				],
 			];
 		}

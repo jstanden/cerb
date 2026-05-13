@@ -4186,14 +4186,6 @@
 			<tuv xml:lang="en_US"><seg>Num Records</seg></tuv>
 		</tu>
 
-		<!-- Queue -->
-
-		<tu tuid="dao.queue.is_fifo">
-			<tuv xml:lang="en_US">
-				<seg>Is FIFO</seg>
-			</tuv>
-		</tu>
-
 		<!-- Queue Job -->
 
 		<tu tuid="dao.queue_job.count_available">

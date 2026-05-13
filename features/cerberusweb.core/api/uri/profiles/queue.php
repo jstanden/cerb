@@ -89,13 +89,11 @@ class PageSection_ProfilesQueue extends Extension_PageSection {
 				
 			} else {
 				$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'] ?? null, 'string', '');
-				$is_fifo = DevblocksPlatform::importGPC($_POST['is_fifo'] ?? null, 'int', 0);
 				$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');
 				
 				$error = null;
 				
 				$fields = [
-					DAO_Queue::IS_FIFO => $is_fifo ? 1 : 0,
 					DAO_Queue::NAME => $name,
 					DAO_Queue::UPDATED_AT => time(),
 				];

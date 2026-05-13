@@ -20,10 +20,6 @@ if(!array_key_exists('extension_params_json', $columns)) {
 	$changes[] = "ADD COLUMN extension_params_json TEXT";
 }
 
-if(!array_key_exists('is_fifo', $columns)) {
-	$changes[] = "ADD COLUMN is_fifo TINYINT UNSIGNED NOT NULL DEFAULT 0";
-}
-
 if($changes) {
 	$db->ExecuteMaster("ALTER TABLE queue ".
 		implode(', ', $changes)
