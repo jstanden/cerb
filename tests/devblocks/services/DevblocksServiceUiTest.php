@@ -21,14 +21,14 @@ class DevblocksServiceUiTest extends TestCase {
 		$expected->children['Day']->label = 'Calendar Day';
 		$expected->children['Day']->l = 'Day';
 		
-		$expected->children['Day']->children['Of'] = new DevblocksMenuItemPlaceholder();
-		$expected->children['Day']->children['Of']->label = 'Calendar Day Of';
-		$expected->children['Day']->children['Of']->l = 'Of';
+		$expected->children['Day']->children['of'] = new DevblocksMenuItemPlaceholder();
+		$expected->children['Day']->children['of']->label = 'Calendar Day of';
+		$expected->children['Day']->children['of']->l = 'of';
 		
-		$expected->children['Day']->children['Of']->children['Week'] = new DevblocksMenuItemPlaceholder();
-		$expected->children['Day']->children['Of']->children['Week']->label = 'Calendar Day Of Week';
-		$expected->children['Day']->children['Of']->children['Week']->l = 'Week';
-		$expected->children['Day']->children['Of']->children['Week']->key = 'calendar_day_of_week';
+		$expected->children['Day']->children['of']->children['Week'] = new DevblocksMenuItemPlaceholder();
+		$expected->children['Day']->children['of']->children['Week']->label = 'Calendar Day of Week';
+		$expected->children['Day']->children['of']->children['Week']->l = 'Week';
+		$expected->children['Day']->children['of']->children['Week']->key = 'calendar_day_of_week';
 		
 		$expected = ['Calendar' => $expected];
 		
@@ -45,8 +45,8 @@ class DevblocksServiceUiTest extends TestCase {
 		];
 		
 		$expected = new DevblocksMenuItemPlaceholder();
-		$expected->label = 'Calendar Day Of Week';
-		$expected->l = 'Calendar Day Of Week';
+		$expected->label = 'Calendar Day of Week';
+		$expected->l = 'Calendar Day of Week';
 		$expected->key = 'calendar_day_of_week';
 		
 		$expected = [$expected->label => $expected];
@@ -60,8 +60,8 @@ class DevblocksServiceUiTest extends TestCase {
 		$menu = DevblocksPlatform::services()->ui()->menu();
 
 		$labels = [
-			'calendar_day_of_week' => 'Calendar Day of Week',
-			'calendar_day_of_month' => 'Calendar Day of Month',
+			'calendar_day_of_week' => 'Calendar Day Of Week',
+			'calendar_day_of_month' => 'Calendar Day Of Month',
 		];
 
 		$expected_parent = new DevblocksMenuItemPlaceholder();
