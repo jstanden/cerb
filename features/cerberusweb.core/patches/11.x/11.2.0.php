@@ -171,6 +171,18 @@ if(array_key_exists('context_bulk_update', $tables)) {
 }
 
 // ===========================================================================
+// Enable the legacy behaviors plugin only if there are non-disabled behavior records
+
+if(
+	$revision < 1504  // 11.2
+	&& array_key_exists('trigger_event', $tables)
+	&& $db->GetOneMaster("SELECT COUNT(*) FROM trigger_event WHERE is_disabled = 0")
+) {
+	$plugin_behaviors = DevblocksPlatform::getPlugin('cerb.behaviors.legacy');
+	$plugin_behaviors->setEnabled(true);
+}
+
+// ===========================================================================
 // Enable the new background cronjob
 
 $db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.background_queue', 'enabled', '1')");
