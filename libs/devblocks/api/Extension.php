@@ -141,15 +141,16 @@ class Exception_DevblocksAjaxValidationError extends Exception_Devblocks {
 class Exception_DevblocksDatabaseQueryError extends Exception_Devblocks {};
 class Exception_DevblocksDatabaseQueryTimeout extends Exception_Devblocks {};
 
-interface IDevblocksHandler_Session {
-	static function open($save_path, $session_name);
-	static function close();
-	static function read($id);
-	static function write($id, $session_data);
-	static function destroy($id);
-	static function gc($maxlifetime);
-	static function getAll();
-	static function destroyAll();
+interface IDevblocksHandler_Session extends SessionHandlerInterface {
+	public function open(string $path, string $name) : bool;
+	public function close() : bool;
+	public function read($id) : string|false;
+	public function write(string $id, string $data) : bool;
+	public function destroy(string $id) : bool;
+	public function gc(int $max_lifetime) : int|false;
+	public static function maint() : bool;
+	public static function getAll();
+	public static function destroyAll();
 };
 
 interface IDevblocksContextPeek {

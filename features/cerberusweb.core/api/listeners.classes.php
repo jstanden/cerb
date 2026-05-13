@@ -130,7 +130,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		DAO_AutomationResource::maint();
 		DAO_DevblocksRegistry::maint();
 		DAO_MessageHtmlCache::maint();
-		Cerb_DevblocksSessionHandler::gc(0); // Purge inactive sessions
+		Cerb_DevblocksSessionHandler::maint();
 	}
 	
 	private function _handleCronHeartbeatMetrics() {

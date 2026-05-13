@@ -3179,7 +3179,7 @@ class CerberusSettingsDefaults {
 };
 
 class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
-	static $_data = null;
+	private string $_data = '';
 
 	static function getStatelessUris() : array {
 		// No cookie for resources or icons
@@ -3196,24 +3196,24 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 		];
 	}
 	
-	static function open($save_path, $session_name) {
-		return true;
-	}
-
-	static function close() {
-		return true;
-	}
-
 	static function isReady() : bool {
 		$tables = DevblocksPlatform::getDatabaseTables();
-
-		if(!isset($tables['devblocks_session']))
+		
+		if(!array_key_exists('devblocks_session', $tables))
 			return false;
-
+		
+		return true;
+	}
+	
+	function open($path, $name): bool {
 		return true;
 	}
 
-	static function read($id) {
+	function close() : bool {
+		return true;
+	}
+
+	function read($id): false|string {
 		$db = DevblocksPlatform::services()->database();
 		
 		if(!self::isReady())
@@ -3231,16 +3231,16 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 				), _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 			}
 
-			self::$_data = $session['session_data'];
-			return self::$_data;
+			$this->_data = $session['session_data'];
+			return $this->_data;
 		}
 
 		return '';
 	}
 
-	static function write($id, $session_data) {
+	function write(string $id, string $data): bool {
 		// Nothing changed!
-		if(self::$_data==$session_data) {
+		if($this->_data==$data) {
 			return true;
 		}
 
@@ -3257,7 +3257,7 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 		// Update
 		$sql = sprintf("UPDATE devblocks_session SET updated=%d, session_data=%s, user_id=%d, user_ip=%s, user_agent=%s WHERE session_token=%s",
 			time(),
-			$db->qstr($session_data),
+			$db->qstr($data),
 			$user_id,
 			$db->qstr($user_ip),
 			$db->qstr($user_agent),
@@ -3276,15 +3276,16 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 				$user_id,
 				$db->qstr($user_ip),
 				$db->qstr($user_agent),
-				$db->qstr($session_data)
+				$db->qstr($data)
 			);
 			$db->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 		}
 
+		$this->_data = $data;
 		return true;
 	}
 
-	static function destroy($id) {
+	function destroy($id): bool {
 		$db = DevblocksPlatform::services()->database();
 
 		if(!self::isReady())
@@ -3298,7 +3299,7 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 		return true;
 	}
 
-	static function gc($maxlifetime) {
+	public static function maint() : bool {
 		$db = DevblocksPlatform::services()->database();
 		
 		if(!self::isReady())
@@ -3309,14 +3310,18 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 		
 		// We ignore caller's $maxlifetime (session.gc_maxlifetime) on purpose.
 		// Look up Cerb's session max lifetime
-		$maxlifetime = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::SESSION_LIFESPAN, CerberusSettingsDefaults::SESSION_LIFESPAN);
+		$max_lifetime = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::SESSION_LIFESPAN, CerberusSettingsDefaults::SESSION_LIFESPAN);
 		
-		if(!$maxlifetime)
-			$maxlifetime = 86400;
+		if(!$max_lifetime)
+			$max_lifetime = 86400;
 		
 		// Clear any remaining (authenticated) sessions older than the max idle lifetime
-		$db->ExecuteMaster(sprintf("DELETE FROM devblocks_session WHERE updated < %d",time()-$maxlifetime));
+		$db->ExecuteMaster(sprintf("DELETE FROM devblocks_session WHERE updated < %d",time()-$max_lifetime));
 		return true;
+	}
+	
+	function gc($max_lifetime): false|int {
+		return self::maint();
 	}
 
 	static function getAll() {

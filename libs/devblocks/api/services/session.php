@@ -43,14 +43,7 @@ class _DevblocksSessionManager {
 			
 			$handler_class = DevblocksPlatform::getHandlerSession();
 			
-			session_set_save_handler(
-				array($handler_class, 'open'),
-				array($handler_class, 'close'),
-				array($handler_class, 'read'),
-				array($handler_class, 'write'),
-				array($handler_class, 'destroy'),
-				array($handler_class, 'gc')
-			);
+			session_set_save_handler(new $handler_class());
 
 			session_name(APP_SESSION_NAME);
 			
