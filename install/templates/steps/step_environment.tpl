@@ -57,7 +57,7 @@
 			{if $results.php_version}
 				PHP {$results.php_version}
 			{else}
-				PHP 8.2 or later is required
+				PHP 8.3 or later is required
 			{/if}
 		</div>
 	</div>

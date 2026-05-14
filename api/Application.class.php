@@ -360,8 +360,8 @@ class CerberusApplication extends DevblocksApplication {
 		// Requirements
 
 		// PHP Version
-		if(version_compare(PHP_VERSION,"8.2") < 0) {
-			$errors[] = sprintf("Cerb %s requires PHP 8.2 or later. Your server PHP version is %s",
+		if(version_compare(PHP_VERSION,"8.3") < 0) {
+			$errors[] = sprintf("Cerb %s requires PHP 8.3 or later. Your server PHP version is %s",
 				APP_VERSION,
 				PHP_VERSION
 			);

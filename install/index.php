@@ -15,9 +15,9 @@
 |	http://cerb.ai	    http://webgroup.media
 ***********************************************************************/
 
-if(version_compare(PHP_VERSION, "8.2", "<")) {
+if(version_compare(PHP_VERSION, "8.3", "<")) {
 	http_response_code(500);
-	die("Cerb requires PHP 8.2 or later.");
+	die("Cerb requires PHP 8.3 or later.");
 }
 
 if(!extension_loaded('mysqli')) {
@@ -118,7 +118,7 @@ switch($step) {
 		$fails = 0;
 		
 		// PHP Version
-		if(version_compare(PHP_VERSION,"8.2") >=0) {
+		if(version_compare(PHP_VERSION,"8.3") >=0) {
 			$results['php_version'] = PHP_VERSION;
 		} else {
 			$results['php_version'] = false;
