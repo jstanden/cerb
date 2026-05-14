@@ -6,7 +6,7 @@ class UmScHomeController extends Extension_UmScController {
 		return true;
 	}
 	
-	public function invoke(string $action, DevblocksHttpRequest $request=null) {
+	public function invoke(string $action, ?DevblocksHttpRequest $request=null) {
 		return false;
 	}
 	

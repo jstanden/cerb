@@ -50,7 +50,7 @@ class ActionNode extends AbstractNode {
 		];
 	}
 	
-	public function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error = null) : string|false{
+	public function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, ?string &$error = null) : string|false{
 		$error = null;
 		
 		$action_type = $this->node->getNameType();

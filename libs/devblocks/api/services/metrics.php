@@ -17,7 +17,7 @@ class _DevblocksMetricsService {
 	
 	private function __construct() {}
 	
-	function increment($metric_name, $values=1, array $dimensions=[], int $ts=null, $buffer=true) {
+	function increment($metric_name, $values=1, array $dimensions=[], ?int $ts=null, $buffer=true) : void {
 		if(!$ts)
 			$ts = time();
 		

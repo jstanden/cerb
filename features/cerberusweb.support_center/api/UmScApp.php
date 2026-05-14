@@ -1244,7 +1244,7 @@ class UmScRssController extends Extension_UmScController {
 		return false;
 	}
 	
-	function invoke(string $action, DevblocksHttpRequest $request=null) {
+	function invoke(string $action, ?DevblocksHttpRequest $request=null) {
 		return false;
 	}
 	

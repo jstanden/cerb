@@ -11,7 +11,7 @@ class UmScAjaxController extends Extension_UmScController {
 		return true;
 	}
 	
-	function invoke(string $action, DevblocksHttpRequest $request=null) {
+	function invoke(string $action, ?DevblocksHttpRequest $request=null) {
 		switch($action) {
 			case 'downloadFile':
 				return $this->_portalAction_downloadFile($request);

@@ -11,7 +11,7 @@ class _DevblocksDatasetService {
 	
 	private function __construct() {}
 	
-	function parse(mixed $datasets_kata, DevblocksDictionaryDelegate $chart_dict=null, &$error=null) : array | false {
+	function parse(mixed $datasets_kata, ?DevblocksDictionaryDelegate $chart_dict=null, &$error=null) : array | false {
 		try {
 			$kata = DevblocksPlatform::services()->kata();
 			

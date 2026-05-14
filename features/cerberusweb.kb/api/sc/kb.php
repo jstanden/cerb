@@ -28,7 +28,7 @@ class UmScKbController extends Extension_UmScController {
 		return !empty($kb_roots);
 	}
 	
-	function invoke(string $action, DevblocksHttpRequest $request=null) {
+	function invoke(string $action, ?DevblocksHttpRequest $request=null) {
 		return false;
 	}
 	

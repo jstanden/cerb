@@ -11,7 +11,7 @@ class UmScContactController extends Extension_UmScController {
 		return true;
 	}
 	
-	public function invoke(string $action, DevblocksHttpRequest $request=null) {
+	public function invoke(string $action, ?DevblocksHttpRequest $request=null) {
 		switch($action) {
 			case 'doContactSend':
 				return $this->_portalAction_doContactSend();

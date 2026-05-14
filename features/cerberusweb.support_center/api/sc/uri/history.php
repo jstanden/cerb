@@ -8,7 +8,7 @@ class UmScHistoryController extends Extension_UmScController {
 		return !empty($active_contact);
 	}
 	
-	public function invoke(string $action, DevblocksHttpRequest $request=null) {
+	public function invoke(string $action, ?DevblocksHttpRequest $request=null) {
 		switch($action) {
 			case 'doReply':
 				return $this->_portalAction_doReply();

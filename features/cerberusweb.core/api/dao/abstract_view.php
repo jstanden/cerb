@@ -4888,7 +4888,7 @@ class C4_AbstractViewLoader {
 	 * @param C4_AbstractViewModel $defaults
 	 * @return C4_AbstractView | null
 	 */
-	static function getView($view_id, C4_AbstractViewModel $defaults=null) {
+	static function getView($view_id, ?C4_AbstractViewModel $defaults=null) {
 		$worker_id = 0;
 		
 		if(null !== ($active_worker = CerberusApplication::getActiveWorker()))
@@ -4899,7 +4899,7 @@ class C4_AbstractViewLoader {
 			$view = self::unserializeAbstractView($model);
 			return $view;
 			
-		} elseif(!empty($defaults) && $defaults instanceof C4_AbstractViewModel) {
+		} elseif(!empty($defaults)) {
 			// Load defaults if they were provided
 			if(null != ($view = self::unserializeAbstractView($defaults, false)))  {
 				return $view;

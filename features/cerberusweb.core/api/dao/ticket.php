@@ -4723,7 +4723,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		}
 	}
 
-	static public function setLastAction($view_id, Model_TicketViewLastAction $last_action=null) {
+	static public function setLastAction($view_id, ?Model_TicketViewLastAction $last_action=null) {
 		$visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
 		$view_last_actions = $visit->get(CerberusVisit::KEY_VIEW_LAST_ACTION,[]);
 		

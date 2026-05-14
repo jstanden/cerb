@@ -4,7 +4,7 @@ class UmScLoginController extends Extension_UmScController {
 		return true;
 	}
 	
-	function invoke(string $action, DevblocksHttpRequest $request=null) {
+	function invoke(string $action, ?DevblocksHttpRequest $request=null) {
 		switch($action) {
 			case 'provider':
 				return $this->_portalAction_provider();

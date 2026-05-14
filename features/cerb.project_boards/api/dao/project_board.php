@@ -461,7 +461,7 @@ class Model_ProjectBoard extends DevblocksRecordModel {
 		return DAO_ProjectBoardColumn::getByBoardId($this->id);
 	}
 	
-	function renderCard(DevblocksDictionaryDelegate $card, Model_ProjectBoardColumn $column=null) {
+	function renderCard(DevblocksDictionaryDelegate $card, ?Model_ProjectBoardColumn $column=null) {
 		$tpl = DevblocksPlatform::services()->template();
 		$sheets = DevblocksPlatform::services()->sheet();
 		

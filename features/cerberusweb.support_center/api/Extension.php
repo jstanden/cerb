@@ -156,7 +156,7 @@ abstract class Extension_UmScController extends DevblocksExtension implements De
 	}
 	
 	abstract public function isVisible();
-	abstract public function invoke(string $action, DevblocksHttpRequest $request=null);
+	abstract public function invoke(string $action, ?DevblocksHttpRequest $request=null);
 	
 	public function configure(Model_CommunityTool $instance) {
 		// [TODO] Translate

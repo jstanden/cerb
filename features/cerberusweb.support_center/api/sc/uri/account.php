@@ -6,7 +6,7 @@ class UmScAccountController extends Extension_UmScController {
 		return !empty($active_contact);
 	}
 	
-	function invoke(string $action, DevblocksHttpRequest $request=null) {
+	function invoke(string $action, ?DevblocksHttpRequest $request=null) {
 		switch($action) {
 			case 'doDelete':
 				return $this->_portalAction_doDelete();

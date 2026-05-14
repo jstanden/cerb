@@ -154,7 +154,7 @@ class DAO_Bucket extends Cerb_ORMHelper {
 		return current($buckets);
 	}
 	
-	static function getNames(Model_Worker $for_worker=null) {
+	static function getNames(?Model_Worker $for_worker=null) {
 		$groups = DAO_Group::getAll();
 		$names = array();
 		

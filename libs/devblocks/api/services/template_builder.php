@@ -2609,7 +2609,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 		if(!array($array))
 			return '';
 		
-		$arrayToXml = function(array $data, DOMDocument $doc, DOMNode $parent = null) use (&$arrayToXml) : void {
+		$arrayToXml = function(array $data, DOMDocument $doc, ?DOMNode $parent = null) use (&$arrayToXml) : void {
 			foreach($data as $key => $value) {
 				// Ignore DOM hints
 				if(DevblocksPlatform::strStartsWith($key, '@')) continue;
