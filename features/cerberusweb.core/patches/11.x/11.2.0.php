@@ -224,7 +224,7 @@ if(!array_key_exists('search_index_tokens', $tables)) {
 		CREATE TABLE `search_index_tokens` (
 		`token_hash` bigint NOT NULL DEFAULT 0,
 		`token` varchar(255) NOT NULL DEFAULT '',
-		`stem` varchar(128) CHARACTER SET latin1 NOT NULL DEFAULT '',
+		`stem` varchar(128) CHARACTER SET ascii NOT NULL DEFAULT '',
 		PRIMARY KEY (token_hash),
 		INDEX `stem` (stem(4)),
 		INDEX `token` (token(4))
@@ -233,6 +233,19 @@ if(!array_key_exists('search_index_tokens', $tables)) {
 	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
 	
 	$tables['search_index_tokens'] = 'search_index_tokens';
+	
+} else {
+	list($columns, ) = $db->metaTable('search_index_tokens');
+	
+	$changes = [];
+	
+	if(array_key_exists('stem', $columns) && $columns['stem']['collation'] != 'ascii_general_ci') {
+		$changes[] = "MODIFY COLUMN stem VARCHAR(128) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL DEFAULT ''";
+	}
+	
+	if($changes) {
+		$db->ExecuteMaster("ALTER TABLE search_index_tokens " . implode(', ', $changes));
+	}
 }
 
 // ===========================================================================
