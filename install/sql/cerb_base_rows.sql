@@ -115,7 +115,7 @@ INSERT INTO `card_widget` VALUES (83,'Monitor','cerb.contexts.queue.job','cerb.c
 
 INSERT INTO `cerb_patch_history` VALUES ('cerb.project_boards',10,UNIX_TIMESTAMP());
 INSERT INTO `cerb_patch_history` VALUES ('cerb.webhooks',6,UNIX_TIMESTAMP());
-INSERT INTO `cerb_patch_history` VALUES ('cerberusweb.core',1503,UNIX_TIMESTAMP());
+INSERT INTO `cerb_patch_history` VALUES ('cerberusweb.core',1504,UNIX_TIMESTAMP());
 INSERT INTO `cerb_patch_history` VALUES ('cerberusweb.restapi',3,UNIX_TIMESTAMP());
 INSERT INTO `cerb_patch_history` VALUES ('cerberusweb.support_center',24,UNIX_TIMESTAMP());
 INSERT INTO `cerb_patch_history` VALUES ('cerberusweb.timetracking',12,UNIX_TIMESTAMP());

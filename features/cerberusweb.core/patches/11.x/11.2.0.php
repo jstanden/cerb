@@ -51,21 +51,6 @@ if(array_key_exists('message', $columns) && 'mediumtext' != $columns['message'][
 	$changes[] = "MODIFY COLUMN message MEDIUMTEXT";
 }
 
-//if(!array_key_exists('attempt_count', $columns)) {
-//	$changes[] = "ADD COLUMN attempt_count TINYINT UNSIGNED NOT NULL DEFAULT 0";
-//}
-
-//if(!array_key_exists('locked_until', $columns)) {
-//	$changes[] = "ADD COLUMN locked_until INT UNSIGNED NOT NULL DEFAULT 0";
-//	$changes[] = "ADD INDEX status_locked (status_id, locked_until)";
-//}
-
-// [TODO] Add another hash (SHA-1/xxh3) to be idempotent on dupes
-//if(!array_key_exists('payload_hash', $columns)) {
-//	$changes[] = "ADD COLUMN payload_hash BINARY(16) NULL";
-//	$changes[] = "ADD UNIQUE INDEX payload_hash (queue_id, job_id, payload_hash)";
-//}
-
 if($changes) {
 	$db->ExecuteMaster("ALTER TABLE queue_message ".
 		implode(', ', $changes)
@@ -119,26 +104,6 @@ if(!array_key_exists('queue_job_chunk', $tables)) {
 	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
 
 	$tables['queue_job_chunk'] = 'queue_job_chunk';
-}
-
-// ===========================================================================
-// Queue Log
-
-if(!array_key_exists('queue_log', $tables)) {
-	$sql = sprintf("
-		CREATE TABLE `queue_log` (
-		`id` bigint unsigned NOT NULL AUTO_INCREMENT,
-		`job_id` bigint unsigned NOT NULL DEFAULT 0,
-		`consumer_id` binary(16) DEFAULT NULL,
-		`message` text,
-		`created_at` int unsigned NOT NULL DEFAULT 0,
-		PRIMARY KEY (id),
-		INDEX `job_created` (job_id, created_at)
-		) ENGINE=%s
-	", APP_DB_ENGINE);
-	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
-	
-	$tables['queue_log'] = 'queue_log';
 }
 
 // ===========================================================================
@@ -395,6 +360,31 @@ if(array_key_exists('fulltext_snippet', $tables)) {
 }
 
 // ===========================================================================
+// Convert `custom_field_stringvalue.field_value` to utf8mb4
+
+if(!array_key_exists('custom_field_stringvalue', $tables))
+	return FALSE;
+
+list($columns,) = $db->metaTable('custom_field_stringvalue');
+
+if(!array_key_exists('field_value', $columns))
+	return FALSE;
+
+$changes = [];
+
+if('ascii_general_ci' != $columns['context']['collation']) {
+	$changes[] = "MODIFY COLUMN context varchar(255) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL DEFAULT ''";
+}
+
+if('utf8mb4_unicode_ci' != $columns['field_value']['collation']) {
+	$changes[] = "MODIFY COLUMN field_value varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT ''";
+}
+
+if($changes) {
+	$db->ExecuteMaster("ALTER TABLE custom_field_stringvalue " . implode(', ', $changes));
+}
+
+// ===========================================================================
 // Convert `custom_field_clobvalue.field_value` to utf8mb4
 
 if(!array_key_exists('custom_field_clobvalue', $tables))
@@ -405,10 +395,39 @@ list($columns,) = $db->metaTable('custom_field_clobvalue');
 if(!array_key_exists('field_value', $columns))
 	return FALSE;
 
+$changes = [];
+
+if('ascii_general_ci' != $columns['context']['collation']) {
+	$changes[] = "MODIFY COLUMN context varchar(255) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL DEFAULT ''";
+}
+
 if('utf8mb4_unicode_ci' != $columns['field_value']['collation']) {
-	$db->ExecuteMaster("ALTER TABLE custom_field_clobvalue MODIFY COLUMN field_value MEDIUMTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
-	$db->ExecuteMaster("REPAIR TABLE custom_field_clobvalue");
-	$db->ExecuteMaster("OPTIMIZE TABLE custom_field_clobvalue");
+	$changes[] = 'MODIFY COLUMN field_value MEDIUMTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci';
+}
+
+if($changes) {
+	$db->ExecuteMaster("ALTER TABLE custom_field_clobvalue " . implode(', ', $changes));
+}
+
+// ===========================================================================
+// Convert `mail_queue.name` to utf8mb4
+
+if(!array_key_exists('mail_queue', $tables))
+	return FALSE;
+
+list($columns,) = $db->metaTable('mail_queue');
+
+if(!array_key_exists('name', $columns))
+	return FALSE;
+
+$changes = [];
+
+if('utf8mb4_unicode_ci' != $columns['name']['collation']) {
+	$changes[] = "MODIFY COLUMN `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT ''";
+}
+
+if($changes) {
+	$db->ExecuteMaster("ALTER TABLE mail_queue " . implode(', ', $changes));
 }
 
 // ===========================================================================

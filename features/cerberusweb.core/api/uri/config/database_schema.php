@@ -57,7 +57,7 @@ class PageSection_SetupDevelopersDatabaseSchema extends Extension_PageSection {
           name:
             field: name
             type: varchar(255)
-            collation: utf8mb4_general_ci
+            collation: utf8mb3_unicode_ci
             nullable: NULL
             key: MUL
             default@text:
@@ -65,7 +65,7 @@ class PageSection_SetupDevelopersDatabaseSchema extends Extension_PageSection {
           owner_context:
             field: owner_context
             type: varchar(255)
-            collation: utf8mb4_general_ci
+            collation: utf8mb3_unicode_ci
             nullable: NULL
             key: MUL
             default@text:
@@ -157,7 +157,10 @@ class PageSection_SetupDevelopersDatabaseSchema extends Extension_PageSection {
 		}
 		
 		foreach(array_keys($schema_kata['tables'] ?? []) as $table_name) {
-			// [TODO] Special handling (all custom record tables have a common base)
+			// Ignore numbered search index tables
+			if(preg_match('/^search_index_\d+$/', $table_name))
+				continue;
+
 			if(DevblocksPlatform::strStartsWith($table_name, 'custom_record_')) {
 				$existing_tables[$table_name] = $schema_kata['tables'][$table_name];
 				
@@ -169,12 +172,12 @@ class PageSection_SetupDevelopersDatabaseSchema extends Extension_PageSection {
 				
 			} else if(!array_key_exists($table_name, $reference_kata['tables'])) {
 				$extra_tables[$table_name] = $schema_kata['tables'][$table_name];
-					
+
 			} else {
 				$existing_tables[$table_name] = $schema_kata['tables'][$table_name];
-				
+
 				$diff = $kata->treeDiff($reference_kata['tables'][$table_name], $schema_kata['tables'][$table_name]);
-				
+
 				if($diff) {
 					$diff_tables[$table_name] = $funcTheirsOurs($diff, $table_name, $reference_kata['tables'][$table_name]);
 				}

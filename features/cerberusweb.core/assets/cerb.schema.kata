@@ -30,7 +30,7 @@ tables:
       email:
         field: email
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -38,7 +38,7 @@ tables:
       host:
         field: host
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -199,7 +199,7 @@ tables:
       mime_type:
         field: mime_type
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -207,7 +207,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -215,7 +215,7 @@ tables:
       storage_extension:
         field: storage_extension
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -223,7 +223,7 @@ tables:
       storage_key:
         field: storage_key
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -240,7 +240,7 @@ tables:
       storage_sha1hash:
         field: storage_sha1hash
         type: varchar(40)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key: MUL
         default@text:
@@ -327,7 +327,7 @@ tables:
       context:
         field: context
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: PRI
         default@text:
@@ -390,7 +390,7 @@ tables:
       description:
         field: description
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -398,7 +398,7 @@ tables:
       extension_id:
         field: extension_id
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -406,7 +406,7 @@ tables:
       extension_params_json:
         field: extension_params_json
         type: mediumtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -422,7 +422,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: UNI
         default@text:
@@ -430,7 +430,7 @@ tables:
       policy_kata:
         field: policy_kata
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -493,7 +493,7 @@ tables:
       parent_token:
         field: parent_token
         type: varchar(64)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -501,7 +501,7 @@ tables:
       root_token:
         field: root_token
         type: varchar(64)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -509,7 +509,7 @@ tables:
       state:
         field: state
         type: varchar(8)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -517,7 +517,7 @@ tables:
       state_data:
         field: state_data
         type: mediumtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -525,7 +525,7 @@ tables:
       token:
         field: token
         type: varchar(64)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: PRI
         default@text:
@@ -541,7 +541,7 @@ tables:
       uri:
         field: uri
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -601,7 +601,7 @@ tables:
       data_key:
         field: data_key
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: PRI
         default@text:
@@ -609,7 +609,7 @@ tables:
       data_value:
         field: data_value
         type: mediumtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -635,7 +635,7 @@ tables:
       description:
         field: description
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -643,7 +643,7 @@ tables:
       extension_id:
         field: extension_id
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -659,7 +659,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: UNI
         default@text:
@@ -707,7 +707,7 @@ tables:
       event_kata:
         field: event_kata
         type: mediumtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -715,7 +715,7 @@ tables:
       event_name:
         field: event_name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -739,7 +739,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -796,7 +796,7 @@ tables:
       automation_name:
         field: automation_name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -805,7 +805,7 @@ tables:
       automation_node:
         field: automation_node
         type: varchar(1024)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -837,7 +837,7 @@ tables:
       log_message:
         field: log_message
         type: varchar(1024)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -892,7 +892,7 @@ tables:
       mime_type:
         field: mime_type
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -900,7 +900,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -908,7 +908,7 @@ tables:
       storage_extension:
         field: storage_extension
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -916,7 +916,7 @@ tables:
       storage_key:
         field: storage_key
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -941,7 +941,7 @@ tables:
       token:
         field: token
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: UNI
         default@text:
@@ -1002,7 +1002,7 @@ tables:
       automations_kata:
         field: automations_kata
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -1010,7 +1010,7 @@ tables:
       continuation_id:
         field: continuation_id
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -1059,7 +1059,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -1075,7 +1075,7 @@ tables:
       recurring_patterns:
         field: recurring_patterns
         type: mediumtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -1083,7 +1083,7 @@ tables:
       recurring_timezone:
         field: recurring_timezone
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -1173,7 +1173,7 @@ tables:
       word:
         field: word
         type: varchar(64)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -1198,7 +1198,7 @@ tables:
       at_mention_name:
         field: at_mention_name
         type: varchar(64)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -1230,7 +1230,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -1238,7 +1238,7 @@ tables:
       owner_context:
         field: owner_context
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key: MUL
         default@text:
@@ -1254,7 +1254,7 @@ tables:
       params_json:
         field: params_json
         type: mediumtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -1301,7 +1301,7 @@ tables:
       data_key:
         field: data_key
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: PRI
         default@text:
@@ -1309,7 +1309,7 @@ tables:
       data_value:
         field: data_value
         type: mediumtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -1374,7 +1374,7 @@ tables:
       interaction:
         field: interaction
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -1382,7 +1382,7 @@ tables:
       interaction_params_json:
         field: interaction_params_json
         type: mediumtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -1432,7 +1432,7 @@ tables:
       session_data:
         field: session_data
         type: mediumtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -1440,7 +1440,7 @@ tables:
       session_id:
         field: session_id
         type: varchar(40)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: PRI
         default@text:
@@ -1491,7 +1491,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -1517,7 +1517,7 @@ tables:
       reply_personal:
         field: reply_personal
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -1569,7 +1569,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -1577,7 +1577,7 @@ tables:
       owner_context:
         field: owner_context
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key: MUL
         default@text:
@@ -1593,7 +1593,7 @@ tables:
       params_json:
         field: params_json
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -1601,7 +1601,7 @@ tables:
       timezone:
         field: timezone
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -1680,7 +1680,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -1735,7 +1735,7 @@ tables:
       event_end:
         field: event_end
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -1743,7 +1743,7 @@ tables:
       event_name:
         field: event_name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -1751,7 +1751,7 @@ tables:
       event_start:
         field: event_start
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -1775,7 +1775,7 @@ tables:
       patterns:
         field: patterns
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -1799,7 +1799,7 @@ tables:
       tz:
         field: tz
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -1856,7 +1856,7 @@ tables:
       phone:
         field: phone
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -1864,7 +1864,7 @@ tables:
       subject:
         field: subject
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -1926,7 +1926,7 @@ tables:
       extension_id:
         field: extension_id
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -1934,7 +1934,7 @@ tables:
       extension_params_json:
         field: extension_params_json
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -1950,7 +1950,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -1958,7 +1958,7 @@ tables:
       options_kata:
         field: options_kata
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -1974,7 +1974,7 @@ tables:
       record_type:
         field: record_type
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -1998,7 +1998,7 @@ tables:
       zone:
         field: zone
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -2030,7 +2030,7 @@ tables:
       class:
         field: class
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: PRI
         default@text:
@@ -2038,7 +2038,7 @@ tables:
       plugin_id:
         field: plugin_id
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -2046,7 +2046,7 @@ tables:
       rel_path:
         field: rel_path
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -2064,7 +2064,7 @@ tables:
       id:
         field: id
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: PRI
         default@text:
@@ -2072,7 +2072,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -2080,7 +2080,7 @@ tables:
       params:
         field: params
         type: mediumtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -2088,7 +2088,7 @@ tables:
       plugin_id:
         field: plugin_id
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default: 0
@@ -2107,7 +2107,7 @@ tables:
       class:
         field: class
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -2115,7 +2115,7 @@ tables:
       file:
         field: file
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -2123,7 +2123,7 @@ tables:
       id:
         field: id
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: PRI
         default@text:
@@ -2131,7 +2131,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -2139,7 +2139,7 @@ tables:
       params:
         field: params
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -2147,7 +2147,7 @@ tables:
       plugin_id:
         field: plugin_id
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -2156,7 +2156,7 @@ tables:
       point:
         field: point
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -2182,7 +2182,7 @@ tables:
       plugin_id:
         field: plugin_id
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: PRI
         default@text:
@@ -2217,7 +2217,7 @@ tables:
       author:
         field: author
         type: varchar(64)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -2225,7 +2225,7 @@ tables:
       description:
         field: description
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -2233,7 +2233,7 @@ tables:
       dir:
         field: dir
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -2249,7 +2249,7 @@ tables:
       id:
         field: id
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: PRI
         default@text:
@@ -2257,7 +2257,7 @@ tables:
       link:
         field: link
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -2265,7 +2265,7 @@ tables:
       manifest_cache_json:
         field: manifest_cache_json
         type: mediumtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -2273,7 +2273,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -2299,7 +2299,7 @@ tables:
       extension_id:
         field: extension_id
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: PRI
         default@text:
@@ -2308,7 +2308,7 @@ tables:
       property:
         field: property
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: PRI
         default@text:
@@ -2316,7 +2316,7 @@ tables:
       value:
         field: value
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -2363,7 +2363,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -2371,7 +2371,7 @@ tables:
       owner_context:
         field: owner_context
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -2387,7 +2387,7 @@ tables:
       params_json:
         field: params_json
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -2442,7 +2442,7 @@ tables:
       entities:
         field: entities
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -2458,7 +2458,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -2466,7 +2466,7 @@ tables:
       slots_json:
         field: slots_json
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -2507,7 +2507,7 @@ tables:
       description:
         field: description
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -2523,7 +2523,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -2531,7 +2531,7 @@ tables:
       params_json:
         field: params_json
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -2539,7 +2539,7 @@ tables:
       type:
         field: type
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -2583,7 +2583,7 @@ tables:
       expression:
         field: expression
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -2647,7 +2647,7 @@ tables:
       token:
         field: token
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: UNI
         default@text:
@@ -2720,7 +2720,7 @@ tables:
       context:
         field: context
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key: MUL
         default@text:
@@ -2768,7 +2768,7 @@ tables:
       owner_context:
         field: owner_context
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -2821,7 +2821,7 @@ tables:
       csrf_token:
         field: csrf_token
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -2838,7 +2838,7 @@ tables:
       properties:
         field: properties
         type: mediumtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -2846,7 +2846,7 @@ tables:
       session_id:
         field: session_id
         type: varchar(64)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: PRI
         default@text:
@@ -2879,7 +2879,7 @@ tables:
       code:
         field: code
         type: varchar(8)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -2887,7 +2887,7 @@ tables:
       extension_id:
         field: extension_id
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -2904,7 +2904,7 @@ tables:
       name:
         field: name
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -2920,7 +2920,7 @@ tables:
       uri:
         field: uri
         type: varchar(32)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -2938,7 +2938,7 @@ tables:
       property_key:
         field: property_key
         type: varchar(64)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: PRI
         default@text:
@@ -2946,7 +2946,7 @@ tables:
       property_value:
         field: property_value
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -2954,7 +2954,7 @@ tables:
       tool_code:
         field: tool_code
         type: varchar(8)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: PRI
         default@text:
@@ -2978,7 +2978,7 @@ tables:
       confirmation_code:
         field: confirmation_code
         type: varchar(64)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key: MUL
         default@text:
@@ -3002,7 +3002,7 @@ tables:
       meta_json:
         field: meta_json
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -3010,7 +3010,7 @@ tables:
       namespace_key:
         field: namespace_key
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key: MUL
         default@text:
@@ -3065,7 +3065,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -3073,7 +3073,7 @@ tables:
       owner_context:
         field: owner_context
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -3089,7 +3089,7 @@ tables:
       params_json:
         field: params_json
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -3114,7 +3114,7 @@ tables:
       uri:
         field: uri
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -3151,7 +3151,7 @@ tables:
       extension_id:
         field: extension_id
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -3168,7 +3168,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -3176,7 +3176,7 @@ tables:
       params_json:
         field: params_json
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -3192,7 +3192,7 @@ tables:
       uri:
         field: uri
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -3217,7 +3217,7 @@ tables:
       auth_password:
         field: auth_password
         type: varchar(64)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -3225,7 +3225,7 @@ tables:
       auth_salt:
         field: auth_salt
         type: varchar(64)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -3249,7 +3249,7 @@ tables:
       first_name:
         field: first_name
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -3257,7 +3257,7 @@ tables:
       gender:
         field: gender
         type: char(1)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -3273,7 +3273,7 @@ tables:
       language:
         field: language
         type: varchar(16)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -3289,7 +3289,7 @@ tables:
       last_name:
         field: last_name
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -3297,7 +3297,7 @@ tables:
       location:
         field: location
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -3305,7 +3305,7 @@ tables:
       mobile:
         field: mobile
         type: varchar(64)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -3322,7 +3322,7 @@ tables:
       phone:
         field: phone
         type: varchar(64)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -3339,7 +3339,7 @@ tables:
       timezone:
         field: timezone
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -3347,7 +3347,7 @@ tables:
       title:
         field: title
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -3363,7 +3363,7 @@ tables:
       username:
         field: username
         type: varchar(64)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -3416,7 +3416,7 @@ tables:
       city:
         field: city
         type: varchar(64)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -3424,7 +3424,7 @@ tables:
       country:
         field: country
         type: varchar(64)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -3457,7 +3457,7 @@ tables:
       name:
         field: name
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -3465,7 +3465,7 @@ tables:
       phone:
         field: phone
         type: varchar(32)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -3473,7 +3473,7 @@ tables:
       postal:
         field: postal
         type: varchar(20)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -3481,7 +3481,7 @@ tables:
       province:
         field: province
         type: varchar(64)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -3489,7 +3489,7 @@ tables:
       street:
         field: street
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -3505,7 +3505,7 @@ tables:
       website:
         field: website
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -3530,7 +3530,7 @@ tables:
       activity_point:
         field: activity_point
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -3538,7 +3538,7 @@ tables:
       actor_context:
         field: actor_context
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -3562,7 +3562,7 @@ tables:
       entry_json:
         field: entry_json
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -3578,7 +3578,7 @@ tables:
       target_context:
         field: target_context
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -3642,7 +3642,7 @@ tables:
       context:
         field: context
         type: varchar(32)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: PRI
         default@text:
@@ -3666,7 +3666,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -3674,7 +3674,7 @@ tables:
       terms:
         field: terms
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: PRI
         default@text:
@@ -3709,7 +3709,7 @@ tables:
       content_type:
         field: content_type
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -3717,7 +3717,7 @@ tables:
       context:
         field: context
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key: MUL
         default@text:
@@ -3749,7 +3749,7 @@ tables:
       storage_extension:
         field: storage_extension
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -3758,7 +3758,7 @@ tables:
       storage_key:
         field: storage_key
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -3820,7 +3820,7 @@ tables:
       actions_json:
         field: actions_json
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -3828,7 +3828,7 @@ tables:
       batch_key:
         field: batch_key
         type: varchar(40)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -3836,7 +3836,7 @@ tables:
       context:
         field: context
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -3844,7 +3844,7 @@ tables:
       context_ids:
         field: context_ids
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -3884,7 +3884,7 @@ tables:
       view_id:
         field: view_id
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -3918,7 +3918,7 @@ tables:
       from_context:
         field: from_context
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key: MUL
         default@text:
@@ -3934,7 +3934,7 @@ tables:
       to_context:
         field: to_context
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key: MUL
         default@text:
@@ -3999,7 +3999,7 @@ tables:
       context:
         field: context
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: PRI
         default@text:
@@ -4046,7 +4046,7 @@ tables:
       context:
         field: context
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -4062,7 +4062,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -4070,7 +4070,7 @@ tables:
       owner_context:
         field: owner_context
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -4086,7 +4086,7 @@ tables:
       query:
         field: query
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -4094,7 +4094,7 @@ tables:
       tag:
         field: tag
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -4148,7 +4148,7 @@ tables:
       context:
         field: context
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -4172,7 +4172,7 @@ tables:
       repeat_json:
         field: repeat_json
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -4188,7 +4188,7 @@ tables:
       run_literal:
         field: run_literal
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -4196,7 +4196,7 @@ tables:
       run_relative:
         field: run_relative
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -4204,7 +4204,7 @@ tables:
       variables_json:
         field: variables_json
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -4243,7 +4243,7 @@ tables:
       context:
         field: context
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: PRI
         default@text:
@@ -4341,7 +4341,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -4382,7 +4382,7 @@ tables:
       code:
         field: code
         type: varchar(4)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -4414,7 +4414,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -4422,7 +4422,7 @@ tables:
       name_plural:
         field: name_plural
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -4430,7 +4430,7 @@ tables:
       symbol:
         field: symbol
         type: varchar(16)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -4463,7 +4463,7 @@ tables:
       context:
         field: context
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -4488,7 +4488,7 @@ tables:
       name:
         field: name
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -4496,7 +4496,7 @@ tables:
       params_json:
         field: params_json
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -4512,7 +4512,7 @@ tables:
       type:
         field: type
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -4528,7 +4528,7 @@ tables:
       uri:
         field: uri
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -4574,7 +4574,7 @@ tables:
       context:
         field: context
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: ascii_general_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -4629,7 +4629,7 @@ tables:
       context:
         field: context
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -4691,7 +4691,7 @@ tables:
       context:
         field: context
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -4758,7 +4758,7 @@ tables:
       context:
         field: context
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: ascii_general_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -4825,7 +4825,7 @@ tables:
       context:
         field: context
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -4841,7 +4841,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -4849,7 +4849,7 @@ tables:
       owner_context:
         field: owner_context
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key: MUL
         default@text:
@@ -4903,7 +4903,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -4911,7 +4911,7 @@ tables:
       name_plural:
         field: name_plural
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -4919,7 +4919,7 @@ tables:
       params_json:
         field: params_json
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -4935,7 +4935,7 @@ tables:
       uri:
         field: uri
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -4976,7 +4976,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -5033,7 +5033,7 @@ tables:
       node_type:
         field: node_type
         type: varchar(16)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -5041,7 +5041,7 @@ tables:
       params_json:
         field: params_json
         type: longtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -5074,7 +5074,7 @@ tables:
       title:
         field: title
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -5123,7 +5123,7 @@ tables:
       entry_key:
         field: entry_key
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: PRI
         default@text:
@@ -5131,7 +5131,7 @@ tables:
       entry_type:
         field: entry_type
         type: varchar(32)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -5139,7 +5139,7 @@ tables:
       entry_value:
         field: entry_value
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -5165,7 +5165,7 @@ tables:
       session_data:
         field: session_data
         type: mediumtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -5173,7 +5173,7 @@ tables:
       session_id:
         field: session_id
         type: char(40)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: PRI
         default@text:
@@ -5181,7 +5181,7 @@ tables:
       session_token:
         field: session_token
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -5197,7 +5197,7 @@ tables:
       user_agent:
         field: user_agent
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -5214,7 +5214,7 @@ tables:
       user_ip:
         field: user_ip
         type: varchar(64)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -5253,7 +5253,7 @@ tables:
       plugin_id:
         field: plugin_id
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: PRI
         default@text:
@@ -5262,7 +5262,7 @@ tables:
       setting:
         field: setting
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: PRI
         default@text:
@@ -5270,7 +5270,7 @@ tables:
       value:
         field: value
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -5293,7 +5293,7 @@ tables:
       extension_id:
         field: extension_id
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -5310,7 +5310,7 @@ tables:
       name:
         field: name
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -5318,7 +5318,7 @@ tables:
       params_json:
         field: params_json
         type: longtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -5343,7 +5343,7 @@ tables:
       storage_extension:
         field: storage_extension
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -5352,7 +5352,7 @@ tables:
       storage_key:
         field: storage_key
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -5360,7 +5360,7 @@ tables:
       storage_namespace:
         field: storage_namespace
         type: varchar(64)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -5397,7 +5397,7 @@ tables:
       content:
         field: content
         type: mediumtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -5421,7 +5421,7 @@ tables:
       path:
         field: path
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -5429,7 +5429,7 @@ tables:
       plugin_id:
         field: plugin_id
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -5438,7 +5438,7 @@ tables:
       tag:
         field: tag
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -5464,7 +5464,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -5472,7 +5472,7 @@ tables:
       owner_context:
         field: owner_context
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -5488,7 +5488,7 @@ tables:
       signature:
         field: signature
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -5496,7 +5496,7 @@ tables:
       signature_html:
         field: signature_html
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -5529,7 +5529,7 @@ tables:
       hash:
         field: hash
         type: varchar(40)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -5537,7 +5537,7 @@ tables:
       params_json:
         field: params_json
         type: longtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -5578,7 +5578,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -5586,7 +5586,7 @@ tables:
       url:
         field: url
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -5621,7 +5621,7 @@ tables:
       guid:
         field: guid
         type: varchar(64)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key: MUL
         default@text:
@@ -5645,7 +5645,7 @@ tables:
       title:
         field: title
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -5653,7 +5653,7 @@ tables:
       url:
         field: url
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -5707,7 +5707,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -5715,7 +5715,7 @@ tables:
       owner_context:
         field: owner_context
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -5731,7 +5731,7 @@ tables:
       tag:
         field: tag
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -6118,7 +6118,7 @@ tables:
       key_context:
         field: key_context
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key: MUL
         default@text:
@@ -6134,7 +6134,7 @@ tables:
       part_name:
         field: part_name
         type: varchar(16)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -6142,7 +6142,7 @@ tables:
       part_value:
         field: part_value
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -6190,7 +6190,7 @@ tables:
       fingerprint:
         field: fingerprint
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key: MUL
         default@text:
@@ -6206,7 +6206,7 @@ tables:
       key_text:
         field: key_text
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -6214,7 +6214,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -6222,7 +6222,7 @@ tables:
       passphrase_encrypted:
         field: passphrase_encrypted
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -6263,7 +6263,7 @@ tables:
       fingerprint:
         field: fingerprint
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key: MUL
         default@text:
@@ -6279,7 +6279,7 @@ tables:
       key_text:
         field: key_text
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -6287,7 +6287,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -6329,7 +6329,7 @@ tables:
       setting:
         field: setting
         type: varchar(64)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: PRI
         default@text:
@@ -6337,7 +6337,7 @@ tables:
       value:
         field: value
         type: mediumtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -6368,7 +6368,7 @@ tables:
       description:
         field: description
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -6392,7 +6392,7 @@ tables:
       jira_key:
         field: jira_key
         type: varchar(32)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -6408,7 +6408,7 @@ tables:
       jira_versions:
         field: jira_versions
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -6425,7 +6425,7 @@ tables:
       status:
         field: status
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -6433,7 +6433,7 @@ tables:
       summary:
         field: summary
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -6441,7 +6441,7 @@ tables:
       type:
         field: type
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -6495,7 +6495,7 @@ tables:
       body:
         field: body
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -6528,7 +6528,7 @@ tables:
       jira_author:
         field: jira_author
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -6600,7 +6600,7 @@ tables:
       jira_key:
         field: jira_key
         type: varchar(16)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -6632,7 +6632,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -6648,7 +6648,7 @@ tables:
       url:
         field: url
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -6687,7 +6687,7 @@ tables:
       content:
         field: content
         type: mediumtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -6711,7 +6711,7 @@ tables:
       title:
         field: title
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -6823,7 +6823,7 @@ tables:
       name:
         field: name
         type: varchar(64)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -6867,14 +6867,14 @@ tables:
         type: int unsigned
         collation@text:
         null: NO
-        key: MUL
+        key@text:
         default: 0
         extra@text:
         nullable: NOT NULL
       data_json:
         field: data_json
         type: mediumtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         null: YES
         key@text:
         default@text:
@@ -6925,13 +6925,6 @@ tables:
             index_type: BTREE
             subpart@text:
             unique: 1
-      created_at:
-        columns:
-          created_at:
-            column_name: created_at
-            index_type: BTREE
-            subpart@text:
-            unique@text:
       seq:
         columns:
           seq:
@@ -6952,85 +6945,76 @@ tables:
         field: automation_id
         type: int unsigned
         collation@text:
-        null: NO
+        nullable: NOT NULL
         key@text:
         default: 0
         extra@text:
-        nullable: NOT NULL
         references: automation.id
       automation_node:
         field: automation_node
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
-        null: NO
+        collation: utf8mb3_unicode_ci
+        nullable: NOT NULL
         key@text:
         default@text:
         extra@text:
-        nullable: NOT NULL
       created_at:
         field: created_at
         type: int unsigned
         collation@text:
-        null: NO
+        nullable: NOT NULL
         key: MUL
         default: 0
         extra@text:
-        nullable: NOT NULL
       is_read:
         field: is_read
         type: tinyint
         collation@text:
-        null: NO
+        nullable: NOT NULL
         key@text:
         default: 0
         extra@text:
-        nullable: NOT NULL
       provider:
         field: provider
-        type: varchar(64)
-        collation: utf8mb4_unicode_ci
-        null: NO
+        type: varchar(32)
+        collation: utf8mb3_unicode_ci
+        nullable: NOT NULL
         key@text:
         default@text:
         extra@text:
-        nullable: NOT NULL
       user_id:
         field: user_id
         type: int unsigned
         collation@text:
-        null: NO
+        nullable: NOT NULL
         key@text:
         default: 0
         extra@text:
-        nullable: NOT NULL
         references: worker.id
       user_ip:
         field: user_ip
         type: varchar(64)
-        collation: utf8mb4_unicode_ci
-        null: NO
+        collation: utf8mb3_unicode_ci
+        nullable: NOT NULL
         key@text:
         default@text:
         extra@text:
-        nullable: NOT NULL
       user_type:
         field: user_type
-        type: varchar(255)
-        collation: utf8mb4_unicode_ci
-        null: NO
+        type: varchar(64)
+        collation: utf8mb3_unicode_ci
+        nullable: NOT NULL
         key: MUL
         default@text:
         extra@text:
-        nullable: NOT NULL
       uuid:
         field: uuid
         type: binary(16)
         collation@text:
-        null: NO
+        nullable: NOT NULL
         key: PRI
         default@text:
         extra@text:
-        nullable: NOT NULL
     indexes:
       PRIMARY:
         columns:
@@ -7080,7 +7064,7 @@ tables:
       header_message_id:
         field: header_message_id
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -7105,7 +7089,7 @@ tables:
       properties_json:
         field: properties_json
         type: mediumtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -7121,7 +7105,7 @@ tables:
       status_message:
         field: status_message
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -7137,7 +7121,7 @@ tables:
       to:
         field: to
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -7145,7 +7129,7 @@ tables:
       type:
         field: type
         type: varchar(32)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -7184,7 +7168,7 @@ tables:
       content:
         field: content
         type: mediumtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -7200,7 +7184,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -7208,7 +7192,7 @@ tables:
       owner_context:
         field: owner_context
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -7271,7 +7255,7 @@ tables:
       events_log_json:
         field: events_log_json
         type: mediumtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -7288,7 +7272,7 @@ tables:
       header_message_id:
         field: header_message_id
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -7338,7 +7322,7 @@ tables:
       status_message:
         field: status_message
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -7363,7 +7347,7 @@ tables:
       to:
         field: to
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -7416,7 +7400,7 @@ tables:
       hint_to:
         field: hint_to
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -7448,7 +7432,7 @@ tables:
       params_json:
         field: params_json
         type: longtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -7481,7 +7465,7 @@ tables:
       token:
         field: token
         type: varchar(16)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -7489,7 +7473,7 @@ tables:
       type:
         field: type
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -7590,7 +7574,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -7606,7 +7590,7 @@ tables:
       routing_kata:
         field: routing_kata
         type: mediumtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -7648,7 +7632,7 @@ tables:
       actions_ser:
         field: actions_ser
         type: mediumtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -7664,7 +7648,7 @@ tables:
       criteria_ser:
         field: criteria_ser
         type: mediumtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -7688,7 +7672,7 @@ tables:
       name:
         field: name
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -7730,7 +7714,7 @@ tables:
       extension_id:
         field: extension_id
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -7747,7 +7731,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -7755,7 +7739,7 @@ tables:
       params_json:
         field: params_json
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -7814,7 +7798,7 @@ tables:
       host:
         field: host
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -7838,7 +7822,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -7854,7 +7838,7 @@ tables:
       password:
         field: password
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -7870,7 +7854,7 @@ tables:
       protocol:
         field: protocol
         type: varchar(32)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default: pop3
@@ -7894,7 +7878,7 @@ tables:
       username:
         field: username
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -7929,7 +7913,7 @@ tables:
       hash_header_message_id:
         field: hash_header_message_id
         type: varchar(40)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key: MUL
         default@text:
@@ -7994,7 +7978,7 @@ tables:
       signed_key_fingerprint:
         field: signed_key_fingerprint
         type: varchar(64)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -8002,7 +7986,7 @@ tables:
       storage_extension:
         field: storage_extension
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -8011,7 +7995,7 @@ tables:
       storage_key:
         field: storage_key
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -8045,7 +8029,7 @@ tables:
       token:
         field: token
         type: varchar(16)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -8136,7 +8120,7 @@ tables:
       headers:
         field: headers
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -8213,7 +8197,7 @@ tables:
       description:
         field: description
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -8221,7 +8205,7 @@ tables:
       dimensions_kata:
         field: dimensions_kata
         type: mediumtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -8237,15 +8221,23 @@ tables:
       name:
         field: name
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: UNI
         default@text:
         extra@text:
+      retention_days:
+        field: retention_days
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
       type:
         field: type
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -8293,7 +8285,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: UNI
         default@text:
@@ -8525,7 +8517,7 @@ tables:
       activity_point:
         field: activity_point
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -8533,7 +8525,7 @@ tables:
       context:
         field: context
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -8557,7 +8549,7 @@ tables:
       entry_json:
         field: entry_json
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -8642,7 +8634,7 @@ tables:
       access_token_ttl:
         field: access_token_ttl
         type: varchar(32)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default: 1 hour
@@ -8650,7 +8642,7 @@ tables:
       callback_url:
         field: callback_url
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -8658,7 +8650,7 @@ tables:
       client_id:
         field: client_id
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -8666,7 +8658,7 @@ tables:
       client_secret:
         field: client_secret
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -8682,7 +8674,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -8690,7 +8682,7 @@ tables:
       refresh_token_ttl:
         field: refresh_token_ttl
         type: varchar(32)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default: 1 month
@@ -8698,7 +8690,7 @@ tables:
       scopes:
         field: scopes
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -8714,7 +8706,7 @@ tables:
       url:
         field: url
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -8764,7 +8756,7 @@ tables:
       token:
         field: token
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: PRI
         default@text:
@@ -8772,7 +8764,7 @@ tables:
       token_type:
         field: token_type
         type: varchar(32)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: PRI
         default@text:
@@ -8811,7 +8803,7 @@ tables:
       description:
         field: description
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -8827,7 +8819,7 @@ tables:
       instructions:
         field: instructions
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -8835,7 +8827,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -8843,7 +8835,7 @@ tables:
       package_json:
         field: package_json
         type: mediumtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -8851,7 +8843,7 @@ tables:
       point:
         field: point
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -8867,7 +8859,7 @@ tables:
       uri:
         field: uri
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: UNI
         default@text:
@@ -8899,7 +8891,7 @@ tables:
       context:
         field: context
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -8907,7 +8899,7 @@ tables:
       extension_id:
         field: extension_id
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -8916,7 +8908,7 @@ tables:
       extension_params_json:
         field: extension_params_json
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -8932,7 +8924,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -8940,7 +8932,7 @@ tables:
       options_kata:
         field: options_kata
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -8995,7 +8987,7 @@ tables:
       extension_id:
         field: extension_id
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -9004,7 +8996,7 @@ tables:
       extension_params_json:
         field: extension_params_json
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -9020,7 +9012,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -9028,7 +9020,7 @@ tables:
       options_kata:
         field: options_kata
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -9069,7 +9061,7 @@ tables:
       zone:
         field: zone
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -9108,7 +9100,7 @@ tables:
       cards_kata:
         field: cards_kata
         type: mediumtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -9124,7 +9116,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -9132,7 +9124,7 @@ tables:
       owner_context:
         field: owner_context
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key: MUL
         default@text:
@@ -9187,7 +9179,7 @@ tables:
       cards_json:
         field: cards_json
         type: mediumtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -9195,7 +9187,7 @@ tables:
       cards_kata:
         field: cards_kata
         type: mediumtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -9203,7 +9195,7 @@ tables:
       functions_kata:
         field: functions_kata
         type: mediumtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -9219,7 +9211,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -9235,7 +9227,7 @@ tables:
       toolbar_kata:
         field: toolbar_kata
         type: mediumtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -9280,6 +9272,22 @@ tables:
         key@text:
         default: 0
         extra@text:
+      extension_id:
+        field: extension_id
+        type: varchar(255)
+        collation: utf8mb3_unicode_ci
+        nullable: NOT NULL
+        key@text:
+        default@text:
+        extra@text:
+      extension_params_json:
+        field: extension_params_json
+        type: text
+        collation: utf8mb3_unicode_ci
+        nullable: NULL
+        key@text:
+        default@text:
+        extra@text:
       id:
         field: id
         type: int unsigned
@@ -9291,7 +9299,7 @@ tables:
       name:
         field: name
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: UNI
         default@text:
@@ -9326,6 +9334,204 @@ tables:
             index_type: BTREE
             subpart@text:
             unique@text:
+  queue_job:
+    columns:
+      count_available:
+        field: count_available
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      count_done:
+        field: count_done
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      count_failed:
+        field: count_failed
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      count_inflight:
+        field: count_inflight
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      count_total:
+        field: count_total
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      created_at:
+        field: created_at
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      id:
+        field: id
+        type: bigint unsigned
+        collation@text:
+        nullable: NOT NULL
+        key: PRI
+        default@text:
+        extra: auto_increment
+      metadata:
+        field: metadata
+        type: mediumtext
+        collation: utf8mb3_unicode_ci
+        nullable: NULL
+        key@text:
+        default@text:
+        extra@text:
+      name:
+        field: name
+        type: varchar(255)
+        collation: utf8mb3_unicode_ci
+        nullable: NOT NULL
+        key@text:
+        default@text:
+        extra@text:
+      queue_id:
+        field: queue_id
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+        references: queue.id
+      singleton_key:
+        field: singleton_key
+        type: varchar(255)
+        collation: utf8mb3_unicode_ci
+        nullable: NOT NULL
+        key@text:
+        default@text:
+        extra@text:
+      status_id:
+        field: status_id
+        type: tinyint unsigned
+        collation@text:
+        nullable: NOT NULL
+        key: MUL
+        default: 0
+        extra@text:
+      updated_at:
+        field: updated_at
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      worker_id:
+        field: worker_id
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key: MUL
+        default: 0
+        extra@text:
+        references: worker.id
+    indexes:
+      PRIMARY:
+        columns:
+          id:
+            column_name: id
+            index_type: BTREE
+            subpart@text:
+            unique: 1
+      queue_status:
+        columns:
+          status_id:
+            column_name: status_id
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+          queue_id:
+            column_name: queue_id
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+      worker_id:
+        columns:
+          worker_id:
+            column_name: worker_id
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+  queue_job_chunk:
+    columns:
+      chunk_idx:
+        field: chunk_idx
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key: PRI
+        default@text:
+        extra@text:
+      created_at:
+        field: created_at
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      data:
+        field: data
+        type: mediumblob
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default@text:
+        extra@text:
+      job_id:
+        field: job_id
+        type: bigint unsigned
+        collation@text:
+        nullable: NOT NULL
+        key: PRI
+        default@text:
+        extra@text:
+        references: queue_job.id
+    indexes:
+      PRIMARY:
+        columns:
+          job_id:
+            column_name: job_id
+            index_type: BTREE
+            subpart@text:
+            unique: 1
+          chunk_idx:
+            column_name: chunk_idx
+            index_type: BTREE
+            subpart@text:
+            unique: 1
+      idx_job:
+        columns:
+          job_id:
+            column_name: job_id
+            index_type: BTREE
+            subpart@text:
+            unique@text:
   queue_message:
     columns:
       available_at:
@@ -9344,10 +9550,19 @@ tables:
         key@text:
         default@text:
         extra@text:
+      job_id:
+        field: job_id
+        type: bigint unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+        references: queue_job.id
       message:
         field: message
-        type: text
-        collation: utf8mb4_unicode_ci
+        type: mediumtext
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -9405,6 +9620,11 @@ tables:
             index_type: BTREE
             subpart@text:
             unique@text:
+          job_id:
+            column_name: job_id
+            index_type: BTREE
+            subpart@text:
+            unique@text:
           consumer_id:
             column_name: consumer_id
             index_type: BTREE
@@ -9439,7 +9659,7 @@ tables:
       record_key:
         field: record_key
         type: varchar(64)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -9447,7 +9667,7 @@ tables:
       record_type:
         field: record_type
         type: varchar(64)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -9455,7 +9675,7 @@ tables:
       storage_extension:
         field: storage_extension
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -9464,7 +9684,7 @@ tables:
       storage_key:
         field: storage_key
         type: varchar(64)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -9481,7 +9701,7 @@ tables:
       storage_sha1hash:
         field: storage_sha1hash
         type: varchar(40)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -9580,7 +9800,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -9708,7 +9928,7 @@ tables:
       automation_kata:
         field: automation_kata
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -9724,7 +9944,7 @@ tables:
       description:
         field: description
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -9740,7 +9960,7 @@ tables:
       extension_id:
         field: extension_id
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -9749,7 +9969,7 @@ tables:
       extension_kata:
         field: extension_kata
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -9773,7 +9993,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: UNI
         default@text:
@@ -9781,7 +10001,7 @@ tables:
       storage_extension:
         field: storage_extension
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -9790,7 +10010,7 @@ tables:
       storage_key:
         field: storage_key
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -9870,6 +10090,144 @@ tables:
             index_type: BTREE
             subpart@text:
             unique@text:
+  search_index:
+    columns:
+      created_at:
+        field: created_at
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      extension_id:
+        field: extension_id
+        type: varchar(255)
+        collation: utf8mb3_unicode_ci
+        nullable: NOT NULL
+        key@text:
+        default@text:
+        extra@text:
+      extension_params_json:
+        field: extension_params_json
+        type: mediumtext
+        collation: utf8mb3_unicode_ci
+        nullable: NULL
+        key@text:
+        default@text:
+        extra@text:
+      id:
+        field: id
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key: PRI
+        default@text:
+        extra: auto_increment
+      name:
+        field: name
+        type: varchar(255)
+        collation: utf8mb3_unicode_ci
+        nullable: NOT NULL
+        key@text:
+        default@text:
+        extra@text:
+      priority:
+        field: priority
+        type: tinyint unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 50
+        extra@text:
+      record_filter:
+        field: record_filter
+        type: varchar(128)
+        collation: utf8mb3_unicode_ci
+        nullable: NOT NULL
+        key@text:
+        default@text:
+        extra@text:
+      record_type:
+        field: record_type
+        type: varchar(128)
+        collation: utf8mb3_unicode_ci
+        nullable: NOT NULL
+        key@text:
+        default@text:
+        extra@text:
+      updated_at:
+        field: updated_at
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      uri:
+        field: uri
+        type: varchar(128)
+        collation: utf8mb3_unicode_ci
+        nullable: NOT NULL
+        key@text:
+        default@text:
+        extra@text:
+    indexes:
+      PRIMARY:
+        columns:
+          id:
+            column_name: id
+            index_type: BTREE
+            subpart@text:
+            unique: 1
+  search_index_tokens:
+    columns:
+      stem:
+        field: stem
+        type: varchar(128)
+        collation: ascii_general_ci
+        nullable: NOT NULL
+        key: MUL
+        default@text:
+        extra@text:
+      token:
+        field: token
+        type: varchar(255)
+        collation: utf8mb3_unicode_ci
+        nullable: NOT NULL
+        key: MUL
+        default@text:
+        extra@text:
+      token_hash:
+        field: token_hash
+        type: bigint
+        collation@text:
+        nullable: NOT NULL
+        key: PRI
+        default: 0
+        extra@text:
+    indexes:
+      PRIMARY:
+        columns:
+          token_hash:
+            column_name: token_hash
+            index_type: BTREE
+            subpart@text:
+            unique: 1
+      stem:
+        columns:
+          stem:
+            column_name: stem
+            index_type: BTREE
+            subpart: 4
+            unique@text:
+      token:
+        columns:
+          token:
+            column_name: token
+            index_type: BTREE
+            subpart: 4
+            unique@text:
   server:
     columns:
       created:
@@ -9891,7 +10249,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -9912,12 +10270,94 @@ tables:
             index_type: BTREE
             subpart@text:
             unique: 1
+  service_token:
+    columns:
+      created_at:
+        field: created_at
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      expires_at:
+        field: expires_at
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      id:
+        field: id
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key: PRI
+        default@text:
+        extra: auto_increment
+      last_accessed_at:
+        field: last_accessed_at
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      name:
+        field: name
+        type: varchar(255)
+        collation: utf8mb3_unicode_ci
+        nullable: NOT NULL
+        key@text:
+        default@text:
+        extra@text:
+      scopes:
+        field: scopes
+        type: text
+        collation: utf8mb3_unicode_ci
+        nullable: NOT NULL
+        key@text:
+        default@text:
+        extra@text:
+      token_hash:
+        field: token_hash
+        type: char(64)
+        collation: utf8mb3_unicode_ci
+        nullable: NOT NULL
+        key@text:
+        default@text:
+        extra@text:
+      token_hint:
+        field: token_hint
+        type: varchar(32)
+        collation: utf8mb3_unicode_ci
+        nullable: NOT NULL
+        key@text:
+        default@text:
+        extra@text:
+      updated_at:
+        field: updated_at
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+    indexes:
+      PRIMARY:
+        columns:
+          id:
+            column_name: id
+            index_type: BTREE
+            subpart@text:
+            unique: 1
   snippet:
     columns:
       content:
         field: content
         type: longtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -9925,7 +10365,7 @@ tables:
       context:
         field: context
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -9941,7 +10381,7 @@ tables:
       owner_context:
         field: owner_context
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -9957,7 +10397,7 @@ tables:
       prompts_kata:
         field: prompts_kata
         type: mediumtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -9965,7 +10405,7 @@ tables:
       title:
         field: title
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -10272,7 +10712,7 @@ tables:
       title:
         field: title
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -10427,7 +10867,7 @@ tables:
       interesting_words:
         field: interesting_words
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -10469,7 +10909,7 @@ tables:
       mask:
         field: mask
         type: varchar(32)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -10535,7 +10975,7 @@ tables:
       spam_training:
         field: spam_training
         type: varchar(1)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -10721,7 +11161,7 @@ tables:
       new_mask:
         field: new_mask
         type: varchar(32)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -10739,7 +11179,7 @@ tables:
       old_mask:
         field: old_mask
         type: varchar(32)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: PRI
         default@text:
@@ -10772,7 +11212,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -10902,7 +11342,7 @@ tables:
       description:
         field: description
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -10910,7 +11350,7 @@ tables:
       extension_id:
         field: extension_id
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -10927,7 +11367,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: UNI
         default@text:
@@ -10998,7 +11438,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -11014,7 +11454,7 @@ tables:
       toolbar_kata:
         field: toolbar_kata
         type: mediumtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -11022,7 +11462,7 @@ tables:
       toolbar_name:
         field: toolbar_name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -11080,7 +11520,7 @@ tables:
       lang_code:
         field: lang_code
         type: varchar(16)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -11088,7 +11528,7 @@ tables:
       string_default:
         field: string_default
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -11096,7 +11536,7 @@ tables:
       string_id:
         field: string_id
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -11104,7 +11544,7 @@ tables:
       string_override:
         field: string_override
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -11145,7 +11585,7 @@ tables:
       event_params_json:
         field: event_params_json
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -11153,7 +11593,7 @@ tables:
       event_point:
         field: event_point
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -11194,7 +11634,7 @@ tables:
       title:
         field: title
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -11210,7 +11650,7 @@ tables:
       uri:
         field: uri
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -11218,7 +11658,7 @@ tables:
       variables_json:
         field: variables_json
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -11257,7 +11697,7 @@ tables:
       access_key:
         field: access_key
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -11273,7 +11713,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -11281,7 +11721,7 @@ tables:
       params_json:
         field: params_json
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -11289,7 +11729,7 @@ tables:
       secret_key:
         field: secret_key
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -11338,7 +11778,7 @@ tables:
       automations_kata:
         field: automations_kata
         type: mediumtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -11346,7 +11786,7 @@ tables:
       guid:
         field: guid
         type: varchar(40)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key: MUL
         default@text:
@@ -11362,7 +11802,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -11395,7 +11835,7 @@ tables:
       at_mention_name:
         field: at_mention_name
         type: varchar(64)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -11409,6 +11849,14 @@ tables:
         default: 0
         extra@text:
         references: calendar.id
+      created_at:
+        field: created_at
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
       dob:
         field: dob
         type: date
@@ -11429,7 +11877,7 @@ tables:
       first_name:
         field: first_name
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -11437,7 +11885,7 @@ tables:
       gender:
         field: gender
         type: char(1)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -11485,7 +11933,7 @@ tables:
       language:
         field: language
         type: varchar(16)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -11493,7 +11941,7 @@ tables:
       last_name:
         field: last_name
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -11509,7 +11957,7 @@ tables:
       mobile:
         field: mobile
         type: varchar(64)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -11517,7 +11965,7 @@ tables:
       phone:
         field: phone
         type: varchar(64)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -11525,7 +11973,7 @@ tables:
       time_format:
         field: time_format
         type: varchar(64)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -11541,7 +11989,7 @@ tables:
       timezone:
         field: timezone
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -11583,7 +12031,7 @@ tables:
       pass_hash:
         field: pass_hash
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -11591,7 +12039,7 @@ tables:
       pass_salt:
         field: pass_salt
         type: varchar(64)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -11618,7 +12066,7 @@ tables:
       pref_key:
         field: pref_key
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: PRI
         default@text:
@@ -11626,7 +12074,7 @@ tables:
       pref_value:
         field: pref_value
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -11634,7 +12082,7 @@ tables:
       tab_context:
         field: tab_context
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: PRI
         default@text:
@@ -11731,7 +12179,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -11757,7 +12205,7 @@ tables:
       reply_personal:
         field: reply_personal
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -11783,8 +12231,24 @@ tables:
       routing_kata:
         field: routing_kata
         type: mediumtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
+        key@text:
+        default@text:
+        extra@text:
+      subject_has_mask:
+        field: subject_has_mask
+        type: tinyint unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      subject_prefix:
+        field: subject_prefix
+        type: varchar(128)
+        collation: utf8mb3_unicode_ci
+        nullable: NOT NULL
         key@text:
         default@text:
         extra@text:
@@ -11809,7 +12273,7 @@ tables:
       setting:
         field: setting
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: PRI
         default@text:
@@ -11817,7 +12281,7 @@ tables:
       value:
         field: value
         type: mediumtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -11849,7 +12313,7 @@ tables:
       editor_query_worker:
         field: editor_query_worker
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -11865,7 +12329,7 @@ tables:
       member_query_worker:
         field: member_query_worker
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -11873,7 +12337,7 @@ tables:
       name:
         field: name
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -11881,7 +12345,7 @@ tables:
       privs_json:
         field: privs_json
         type: mediumtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -11889,7 +12353,7 @@ tables:
       privs_mode:
         field: privs_mode
         type: varchar(16)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -11897,7 +12361,7 @@ tables:
       reader_query_worker:
         field: reader_query_worker
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -12068,8 +12532,8 @@ tables:
     columns:
       class_name:
         field: class_name
-        type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        type: varchar(128)
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -12077,7 +12541,7 @@ tables:
       columns_hidden_json:
         field: columns_hidden_json
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -12085,7 +12549,7 @@ tables:
       columns_json:
         field: columns_json
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -12101,7 +12565,7 @@ tables:
       options_json:
         field: options_json
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -12109,7 +12573,7 @@ tables:
       params_default_json:
         field: params_default_json
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -12117,7 +12581,7 @@ tables:
       params_editable_json:
         field: params_editable_json
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -12125,7 +12589,7 @@ tables:
       params_query:
         field: params_query
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -12133,7 +12597,7 @@ tables:
       params_required_json:
         field: params_required_json
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -12141,15 +12605,15 @@ tables:
       params_required_query:
         field: params_required_query
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
         extra@text:
       params_timezone:
         field: params_timezone
-        type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        type: varchar(128)
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -12172,24 +12636,24 @@ tables:
         extra@text:
       render_sort_json:
         field: render_sort_json
-        type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        type: varchar(128)
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
         extra@text:
       render_subtotals:
         field: render_subtotals
-        type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        type: varchar(128)
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
         extra@text:
       render_template:
         field: render_template
-        type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        type: varchar(64)
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -12205,7 +12669,7 @@ tables:
       title:
         field: title
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -12213,7 +12677,7 @@ tables:
       view_id:
         field: view_id
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: PRI
         default@text:
@@ -12259,7 +12723,7 @@ tables:
       builder_kata:
         field: builder_kata
         type: mediumtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -12267,7 +12731,7 @@ tables:
       config_kata:
         field: config_kata
         type: mediumtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -12283,7 +12747,7 @@ tables:
       description:
         field: description
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -12307,7 +12771,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: UNI
         default@text:
@@ -12315,7 +12779,7 @@ tables:
       resources_kata:
         field: resources_kata
         type: mediumtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -12339,7 +12803,7 @@ tables:
       workflow_kata:
         field: workflow_kata
         type: mediumtext
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -12371,7 +12835,7 @@ tables:
       columns_json:
         field: columns_json
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -12379,7 +12843,7 @@ tables:
       context:
         field: context
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -12395,7 +12859,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -12403,7 +12867,7 @@ tables:
       options_json:
         field: options_json
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -12411,7 +12875,7 @@ tables:
       params_editable_json:
         field: params_editable_json
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -12419,7 +12883,7 @@ tables:
       params_required_json:
         field: params_required_json
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -12427,7 +12891,7 @@ tables:
       params_required_query:
         field: params_required_query
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -12443,7 +12907,7 @@ tables:
       render_sort_json:
         field: render_sort_json
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -12451,7 +12915,7 @@ tables:
       render_subtotals:
         field: render_subtotals
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -12515,7 +12979,7 @@ tables:
       extension_id:
         field: extension_id
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -12524,7 +12988,7 @@ tables:
       extension_params_json:
         field: extension_params_json
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -12540,7 +13004,7 @@ tables:
       name:
         field: name
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -12548,7 +13012,7 @@ tables:
       owner_context:
         field: owner_context
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
         default@text:
@@ -12594,7 +13058,7 @@ tables:
       extension_id:
         field: extension_id
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -12611,7 +13075,7 @@ tables:
       name:
         field: name
         type: varchar(128)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -12619,7 +13083,7 @@ tables:
       options_kata:
         field: options_kata
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -12627,7 +13091,7 @@ tables:
       params_json:
         field: params_json
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -12670,7 +13134,7 @@ tables:
       extension_id:
         field: extension_id
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -12687,7 +13151,7 @@ tables:
       label:
         field: label
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
@@ -12695,7 +13159,7 @@ tables:
       options_kata:
         field: options_kata
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -12703,7 +13167,7 @@ tables:
       params_json:
         field: params_json
         type: text
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NULL
         key@text:
         default@text:
@@ -12744,7 +13208,7 @@ tables:
       zone:
         field: zone
         type: varchar(255)
-        collation: utf8mb4_unicode_ci
+        collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
