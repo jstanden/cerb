@@ -179,11 +179,22 @@ class _DevblocksDatabaseManager {
 			return false;
 		
 		foreach($this->_connections as $conn) {
-			if(!$conn instanceof mysqli || !mysqli_ping($conn))
+			if(!$conn instanceof mysqli)
+				return false;
+			
+			if(!$this->_ping($conn))
 				return false;
 		}
 		
 		return true;
+	}
+	
+	private function _ping($conn) : bool {
+		try {
+			return @mysqli_query($conn, 'DO 1') !== false;
+		} catch(mysqli_sql_exception) {
+			return false;
+		}
 	}
 	
 	// Always master
@@ -529,7 +540,7 @@ class _DevblocksDatabaseManager {
 			$db = $reader_db;
 		}
 		
-		if(!($db instanceof mysqli) || !@mysqli_ping($db))
+		if(!($db instanceof mysqli) || !$this->_ping($db))
 			return false;
 		
 		return true;
@@ -559,13 +570,13 @@ class _DevblocksDatabaseManager {
 				return false;
 				
 			// If the DB is down, try to reconnect
-			} else if(!@mysqli_ping($db)) {
+			} else if(!$this->_ping($db)) {
 				DevblocksPlatform::logError("The MySQL connection closed prematurely.");
 				
 				$this->_Reconnect($db);
 				
 				// Try again after the reconnection
-				if(!@mysqli_ping($db) || false === ($rs = mysqli_query($db, $sql))) {
+				if(!$this->_ping($db) || false === ($rs = mysqli_query($db, $sql))) {
 					DevblocksPlatform::logError('Failed to reconnect to the database.');
 					
 					$error_msg = sprintf("[%d] %s ::SQL:: %s",
