@@ -431,6 +431,10 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		$db = DevblocksPlatform::services()->database();
 		
 		$table_name = sprintf('search_index_%d', $model->id);
+		$lock_name = sprintf('create:%s', $table_name);
+		
+		if(!($db->GetOneMaster(sprintf("SELECT GET_LOCK(%s, 10)", $db->qstr($lock_name)))))
+			return false;
 		
 		$sql = sprintf(
 			<<< EOD
@@ -448,6 +452,8 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		
 		if(!$db->ExecuteMaster($sql))
 			return false;
+		
+		$db->ExecuteMaster(sprintf("SELECT RELEASE_LOCK(%s)", $db->qstr($lock_name)));
 		
 		DevblocksPlatform::clearCache(DevblocksEngine::CACHE_TABLES);
 		
