@@ -5,17 +5,16 @@ class DAO_MetricValue {
 	const PERIOD_DAYS_1 = 86_400;
 	
 	/**
-	 * @param int $metric_id
+	 * @param Model_Metric $metric
 	 * @param array|int|Model_MetricValueSampleSet $values
 	 * @param int|null $ts
 	 * @param array $dimension_values
 	 * @return bool
 	 */
-	static function increment(int $metric_id, mixed $values, ?int $ts=null, array $dimension_values=[]) : bool {
+	static function increment(Model_Metric $metric, mixed $values, ?int $ts=null, array $dimension_values=[]) : bool {
 		$db = DevblocksPlatform::services()->database();
 		
-		if(!$ts)
-			$ts = time();
+		if(!$ts) $ts = time();
 		
 		$ts_5min = $ts - ($ts % self::PERIOD_MINS_5);
 		$ts_1hr = $ts - ($ts % self::PERIOD_HOURS_1);
@@ -39,7 +38,7 @@ class DAO_MetricValue {
 			
 			// 5 min
 			$insert_values[] = sprintf("(%d, %d, %d, %d, %d, %d, %d, %d, %s, %s, %s)",
-				$metric_id,
+				$metric->id,
 				$dimension_values[0] ?? 0,
 				$dimension_values[1] ?? 0,
 				$dimension_values[2] ?? 0,
@@ -54,7 +53,7 @@ class DAO_MetricValue {
 			
 			// 1 hour
 			$insert_values[] = sprintf("(%d, %d, %d, %d, %d, %d, %d, %d, %s, %s, %s)",
-				$metric_id,
+				$metric->id,
 				$dimension_values[0] ?? 0,
 				$dimension_values[1] ?? 0,
 				$dimension_values[2] ?? 0,
@@ -69,13 +68,13 @@ class DAO_MetricValue {
 			
 			// 1 day
 			$insert_values[] = sprintf("(%d, %d, %d, %d, %d, %d, %d, %d, %s, %s, %s)",
-				$metric_id,
+				$metric->id,
 				$dimension_values[0] ?? 0,
 				$dimension_values[1] ?? 0,
 				$dimension_values[2] ?? 0,
 				self::PERIOD_DAYS_1,
 				$ts_1d,
-				0, // forever
+				(86_400 * $metric->retention_days), // 0 = forever
 				$values->samples,
 				$db->qstr($values->sum),
 				$db->qstr($values->min),

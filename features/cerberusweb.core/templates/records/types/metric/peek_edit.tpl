@@ -38,6 +38,17 @@
             </td>
         </tr>
 
+        <tr>
+            <td width="1%" nowrap="nowrap"><b>{{'common.retention'|devblocks_translate|capitalize}}:</b></td>
+            <td width="99%">
+                <select name="retention_days">
+                    {foreach from=$retention_options key=opt_value item=opt_label}
+                        <option value="{$opt_value}"{if $model->retention_days == $opt_value} selected="selected"{/if}>{$opt_label}</option>
+                    {/foreach}
+                </select>
+            </td>
+        </tr>
+
         {if !empty($custom_fields)}
             {include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
         {/if}

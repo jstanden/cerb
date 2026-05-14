@@ -222,7 +222,7 @@ class _DevblocksMetricsService {
 			
 			$ts = $message_data['ts'] ?? null;
 			
-			DAO_MetricValue::increment($metric->id, $values, $ts, array_values($sample_dimension_values));
+			DAO_MetricValue::increment($metric, $values, $ts, array_values($sample_dimension_values));
 			
 			$message->reportStatus(QueueMessageStatus::DONE);
 		}

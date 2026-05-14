@@ -5,6 +5,7 @@ class DAO_Metric extends Cerb_ORMHelper {
 	const TYPE = 'type';
 	const DESCRIPTION = 'description';
 	const DIMENSIONS_KATA = 'dimensions_kata';
+	const RETENTION_DAYS = 'retention_days';
 	const CREATED_AT = 'created_at';
 	const UPDATED_AT = 'updated_at';
 	
@@ -52,6 +53,10 @@ class DAO_Metric extends Cerb_ORMHelper {
 			->addField(self::DIMENSIONS_KATA)
 			->string()
 			->setMaxLength(65_536)
+		;
+		$validation
+			->addField(self::RETENTION_DAYS)
+			->uint()
 		;
 		$validation
 			->addField(self::TYPE)
@@ -121,7 +126,12 @@ class DAO_Metric extends Cerb_ORMHelper {
 			
 			// Make changes
 			parent::_update($batch_ids, 'metric', $fields);
-			
+
+			// Retroactively rewrite expires_at on existing 1d rows when retention_days changes
+			if(array_key_exists(self::RETENTION_DAYS, $fields)) {
+				self::_applyRetentionChanges($batch_ids, $fields[self::RETENTION_DAYS]);
+			}
+
 			// Send events
 			if($check_deltas) {
 				// Trigger an event about the changes
@@ -141,6 +151,32 @@ class DAO_Metric extends Cerb_ORMHelper {
 		}
 		
 		self::clearCache();
+	}
+
+	private static function _applyRetentionChanges(array $metric_ids, string $retention_days) : void {
+		$db = DevblocksPlatform::services()->database();
+		
+		if(!($metric_ids = DevblocksPlatform::sanitizeArray($metric_ids, 'int')))
+			return;
+		
+		$ids_list = implode(',', $metric_ids);
+		$seconds = 86_400 * $retention_days;
+
+		if($seconds > 0) {
+			$db->ExecuteMaster(sprintf(
+				"UPDATE metric_value SET expires_at = bin + %d WHERE metric_id IN (%s) AND granularity = %d",
+				$seconds,
+				$ids_list,
+				86_400,
+			));
+		} else {
+			// forever
+			$db->ExecuteMaster(sprintf(
+				"UPDATE metric_value SET expires_at = 0 WHERE metric_id IN (%s) AND granularity = %d",
+				$ids_list,
+				86_400,
+			));
+		}
 	}
 	
 	static function updateWhere($fields, $where) {
@@ -183,7 +219,7 @@ class DAO_Metric extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, description, type, dimensions_kata, created_at, updated_at ".
+		$sql = "SELECT id, name, description, type, dimensions_kata, retention_days, created_at, updated_at ".
 			"FROM metric ".
 			$where_sql.
 			$sort_sql.
@@ -289,6 +325,7 @@ class DAO_Metric extends Cerb_ORMHelper {
 			$object->name = $row['name'] ?? '';
 			$object->description = $row['description'] ?? '';
 			$object->dimensions_kata = $row['dimensions_kata'] ?? '';
+			$object->retention_days = intval($row['retention_days'] ?? 0);
 			$object->type = $row['type'];
 			$object->created_at = intval($row['created_at']);
 			$object->updated_at = intval($row['updated_at']);
@@ -341,12 +378,14 @@ class DAO_Metric extends Cerb_ORMHelper {
 			"metric.id as %s, ".
 			"metric.name as %s, ".
 			"metric.description as %s, ".
+			"metric.retention_days as %s, ".
 			"metric.type as %s, ".
 			"metric.created_at as %s, ".
 			"metric.updated_at as %s ",
 			SearchFields_Metric::ID,
 			SearchFields_Metric::NAME,
 			SearchFields_Metric::DESCRIPTION,
+			SearchFields_Metric::RETENTION_DAYS,
 			SearchFields_Metric::TYPE,
 			SearchFields_Metric::CREATED_AT,
 			SearchFields_Metric::UPDATED_AT
@@ -407,6 +446,7 @@ class SearchFields_Metric extends DevblocksSearchFields {
 	const NAME = 'm_name';
 	const DESCRIPTION = 'm_description';
 	const DIMENSIONS_KATA = 'm_dimensions_kata';
+	const RETENTION_DAYS = 'm_retention_days';
 	const TYPE = 'm_type';
 	const CREATED_AT = 'm_created_at';
 	const UPDATED_AT = 'm_updated_at';
@@ -484,6 +524,7 @@ class SearchFields_Metric extends DevblocksSearchFields {
 			self::DIMENSIONS_KATA => new DevblocksSearchField(self::DIMENSIONS_KATA, 'metric', 'dimensions_kata', $translate->_('dao.metric.dimensions'), null, true),
 			self::ID => new DevblocksSearchField(self::ID, 'metric', 'id', $translate->_('common.id'), null, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'metric', 'name', $translate->_('common.name'), null, true),
+			self::RETENTION_DAYS => new DevblocksSearchField(self::RETENTION_DAYS, 'metric', 'retention_days', $translate->_('common.retention'), null, true),
 			self::TYPE => new DevblocksSearchField(self::TYPE, 'metric', 'type', $translate->_('common.type'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'metric', 'updated_at', $translate->_('common.updated'), null, true),
 		];
@@ -564,6 +605,7 @@ class Model_Metric extends DevblocksRecordModel {
 	public string $dimensions_kata = '';
 	public int $id = 0;
 	public string $name = '';
+	public int $retention_days = 0;
 	public string $type = '';
 	public int $updated_at = 0;
 	
@@ -757,6 +799,11 @@ class View_Metric extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Metric::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
+			'retention.days' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_Metric::RETENTION_DAYS),
+				),
 			'type' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
@@ -822,6 +869,20 @@ class View_Metric extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		// Custom fields
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_METRIC);
 		$tpl->assign('custom_fields', $custom_fields);
+		
+		// Retention
+		$tpl->assign('retention_options', [
+			0 => 'Forever',
+			3650 => '10 years',
+			1825 => '5 years',
+			1095 => '3 years',
+			365 => '1 year',
+			180 => '180 days',
+			90 => '90 days',
+			60 => '60 days',
+			30 => '30 days',
+			1 => '1 day',
+		]);
 		
 		$tpl->assign('view_template', 'devblocks:cerberusweb.core::records/types/metric/view.tpl');
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
@@ -1048,6 +1109,7 @@ class Context_Metric extends Extension_DevblocksContext implements IDevblocksCon
 			'dimensions_kata' => $prefix.$translate->_('dao.metric.dimensions_kata'),
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
+			'retention_days' => $prefix.$translate->_('common.retention'),
 			'type' => $prefix.$translate->_('common.type'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
@@ -1061,6 +1123,7 @@ class Context_Metric extends Extension_DevblocksContext implements IDevblocksCon
 			'dimensions_kata' => Model_CustomField::TYPE_MULTI_LINE,
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'retention_days' => Model_CustomField::TYPE_NUMBER,
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
 			'record_url' => Model_CustomField::TYPE_URL,
@@ -1089,6 +1152,7 @@ class Context_Metric extends Extension_DevblocksContext implements IDevblocksCon
 			$token_values['dimensions_kata'] = $metric->dimensions_kata;
 			$token_values['id'] = $metric->id;
 			$token_values['name'] = $metric->name;
+			$token_values['retention_days'] = $metric->retention_days;
 			$token_values['type'] = $metric->type;
 			$token_values['updated_at'] = $metric->updated_at;
 			
@@ -1111,6 +1175,7 @@ class Context_Metric extends Extension_DevblocksContext implements IDevblocksCon
 			'dimensions_kata' => DAO_Metric::DIMENSIONS_KATA,
 			'links' => '_links',
 			'name' => DAO_Metric::NAME,
+			'retention_days' => DAO_Metric::RETENTION_DAYS,
 			'type' => DAO_Metric::TYPE,
 			'updated_at' => DAO_Metric::UPDATED_AT,
 		];
@@ -1250,7 +1315,19 @@ class Context_Metric extends Extension_DevblocksContext implements IDevblocksCon
 			$types = Model_CustomField::getTypes();
 			$tpl->assign('types', $types);
 			
-			// View
+			$tpl->assign('retention_options', [
+				0 => 'Forever',
+				3650 => '10 years',
+				1825 => '5 years',
+				1095 => '3 years',
+				365 => '1 year',
+				180 => '180 days',
+				90 => '90 days',
+				60 => '60 days',
+				30 => '30 days',
+				1 => '1 day',
+			]);
+			
 			$tpl->assign('id', $context_id);
 			$tpl->assign('model', $model);
 			$tpl->assign('view_id', $view_id);
@@ -1279,6 +1356,7 @@ class Context_Metric extends Extension_DevblocksContext implements IDevblocksCon
 					'name' => $model->name,
 					'description' => $model->description,
 					'type' => $model->type,
+					'retention_days' => $model->retention_days ?? '',
 					'dimensions_kata' => new DevblocksKataRawString($model->dimensions_kata ?? ''),
 				],
 			];

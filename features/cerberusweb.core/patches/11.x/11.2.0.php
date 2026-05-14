@@ -610,6 +610,23 @@ if(!$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts
 }
 
 // ===========================================================================
+// Add `retention_days` to `metric`
+
+list($columns, ) = $db->metaTable('metric');
+
+$changes = [];
+
+if(!array_key_exists('retention_days', $columns)) {
+	$changes[] = "ADD COLUMN retention_days INT UNSIGNED NOT NULL DEFAULT 0";
+}
+
+if($changes) {
+	$db->ExecuteMaster("ALTER TABLE metric ".
+		implode(', ', $changes)
+	);
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

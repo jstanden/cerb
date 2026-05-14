@@ -86,6 +86,14 @@
                             <a href="{devblocks_url}c=profiles&type=metric&id={$result.m_id}-{$result.m_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.m_name}</a>
                             <button type="button" class="peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="{$result.m_id}"><span class="glyphicons glyphicons-new-window-alt"></span></button>
                         </td>
+                    {elseif $column == "m_retention_days"}
+                        <td>
+                            {if array_key_exists($result.$column, $retention_options)}
+                                {$retention_options[$result.$column]}
+                            {else}
+                                {$result.$column} days
+                            {/if}
+                        </td>
                     {elseif in_array($column, ["m_created_at","m_updated_at"])}
                         <td>
                             {if !empty($result.$column)}
