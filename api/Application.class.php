@@ -7872,7 +7872,7 @@ class _CerbApplication_Packages {
 	 * @return bool|null
 	 * @throws Exception_DevblocksValidationError
 	 */
-	function import($json_string, array $prompts=[], &$records_created=null, &$records_modified=null) : ?bool {
+	function import($json_string, array $prompts=[], array &$records_created=[], array &$records_modified=[]) : ?bool {
 		$json = Cerb_Packages::loadPackageFromJson($json_string);
 		return Cerb_Packages::importFromJson($json, $prompts, $records_created, $records_modified);
 	}
