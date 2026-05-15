@@ -101,7 +101,7 @@ FORM {
 	}
 }
 
-INPUT[type=text], INPUT[type=password], INPUT[type=search] {
+INPUT[type=text], INPUT[type=password], INPUT[type=search], INPUT[type=number] {
 	border: 1px solid var(--cerb-color-background-contrast-180);
 	background-color: var(--cerb-color-form-input-background);
 	color: var(--cerb-color-text);

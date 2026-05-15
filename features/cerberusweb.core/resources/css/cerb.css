@@ -150,6 +150,7 @@
 }
 
 .dark {
+  color-scheme: dark;
   --cerb-color-text: rgb(220,220,220);
   --cerb-color-text-inverse: rgb(32,32,32);
   --cerb-color-background: rgb(32,32,32);
@@ -347,14 +348,14 @@ FORM ::placeholder {
   color: var(--cerb-color-background-contrast-170);
 }
 
-INPUT[type=text], INPUT[type=password], INPUT[type=search] {
+INPUT[type=text], INPUT[type=password], INPUT[type=search], INPUT[type=number] {
   border: 1px solid var(--cerb-color-background-contrast-180);
   background-color: var(--cerb-color-form-input-background);
   color: var(--cerb-color-text);
   outline: none;
   padding: 3px;
 }
-INPUT[type=text]:focus, INPUT[type=password]:focus, INPUT[type=search]:focus {
+INPUT[type=text]:focus, INPUT[type=password]:focus, INPUT[type=search]:focus, INPUT[type=number]:focus {
   border: 1px solid var(--cerb-color-form-element-focus);
 }
 
