@@ -369,6 +369,7 @@ class _DevblocksRecordsService {
 				if(!$record_ids) continue;
 
 				$update = new \Model_ContextBulkUpdate();
+				$update->job_id = $queue_job->id;
 				$update->context = $context;
 				$update->context_ids = $record_ids;
 				$update->num_records = count($record_ids);

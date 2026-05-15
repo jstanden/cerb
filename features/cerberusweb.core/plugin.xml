@@ -3442,6 +3442,7 @@
 						<data key="create" />
 						<data key="delete" />
 						<data key="update" />
+						<data key="update.bulk" />
 					</value>
 				</param>
 			</params>

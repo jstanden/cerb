@@ -8,10 +8,11 @@
  * record type's `DAO_X::bulkUpdate()`.
  */
 class Model_ContextBulkUpdate {
-	public string $context = '';
+	public array $actions = [];
 	public array $context_ids = [];
+	public int $job_id = 0;
 	public int $num_records = 0;
 	public int $worker_id = 0;
+	public string $context = '';
 	public string $view_id = '';
-	public array $actions = [];
 }

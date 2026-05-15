@@ -314,6 +314,36 @@ class DAO_QueueJob extends Cerb_ORMHelper {
 		return true;
 	}
 
+	static function bulkUpdate(Model_ContextBulkUpdate $update) : bool {
+		$do = $update->actions;
+		$ids = $update->context_ids;
+
+		if(empty($ids) || empty($do))
+			return false;
+
+		// Don't let the parent bulk-update job delete itself mid-flight
+		if($update->job_id)
+			$ids = array_values(array_filter($ids, fn($id) => $id != $update->job_id));
+
+		if(empty($ids))
+			return false;
+
+		$deleted = false;
+
+		foreach($do as $k => $v) {
+			if ($k == 'delete') {
+				$deleted = true;
+			}
+		}
+
+		if($deleted) {
+			CerberusContexts::logActivityRecordDelete(Context_QueueJob::ID, $ids);
+			DAO_QueueJob::delete($ids);
+		}
+
+		return true;
+	}
+
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_QueueJob::getFields();
 
