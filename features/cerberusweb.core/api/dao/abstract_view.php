@@ -2571,7 +2571,7 @@ abstract class C4_AbstractView {
 			$search_params = $this->getParamsAvailable();
 			
 			foreach($query_fields as $field_key => $field) {
-				if(false == ($search_params[$field['options']['param_key'] ?? null] ?? null))
+				if(!($search_params[$field['options']['param_key'] ?? ''] ?? null))
 					continue;
 				
 				// Filter types

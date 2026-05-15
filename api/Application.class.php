@@ -5672,9 +5672,9 @@ class _CerbApplication_KataSchemas {
                               queue_name:
                                 types:
                                   string:
-                              namespace:
+                              job_id:
                                 types:
-                                  string:
+                                  number:
                               limit:
                                 types:
                                   number:
@@ -5703,9 +5703,9 @@ class _CerbApplication_KataSchemas {
                               queue_name:
                                 types:
                                   string:
-                              namespace:
+                              job_id:
                                 types:
-                                  string:
+                                  number:
                               messages:
                                 types:
                                   list:

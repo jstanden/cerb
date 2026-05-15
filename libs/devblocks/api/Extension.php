@@ -47,12 +47,14 @@ trait DevblocksExtensionGetterTrait {
 	 * @return DevblocksExtensionManifest|DevblocksExtension|null
 	 */
 	public static function get($extension_id, $as_instance=true) {
-		if($as_instance && isset(self::$_registry[$extension_id]))
+		$extension_id = strval($extension_id);
+		
+		if($as_instance && array_key_exists($extension_id, self::$_registry))
 			return self::$_registry[$extension_id];
 		
 		$extensions = self::getAll(false);
 		
-		if(!isset($extensions[$extension_id]))
+		if(!array_key_exists($extension_id, $extensions))
 			return null;
 		
 		$manifest = $extensions[$extension_id]; /* @var $manifest DevblocksExtensionManifest */

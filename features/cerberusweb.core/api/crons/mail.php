@@ -18,7 +18,7 @@ class MailboxCron extends CerberusCronPageExtension {
 		@set_time_limit(600); // 10m
 
 		if(!($accounts = DAO_Mailbox::getAll())) {
-			$logger->err("[Mailboxes] There are no mailboxes to check. Aborting!");
+			$logger->info("[Mailboxes] There are no mailboxes to check. Aborting!");
 			return false;
 		}
 		
