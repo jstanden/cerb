@@ -7486,7 +7486,9 @@
 				<file>api/crons/background_queue.php</file>
 				<name>Cron_BackgroundQueue</name>
 			</class>
-			<params />
+			<params>
+				<param key="parallel" />
+			</params>
 		</extension>
 
 		<extension point="cerberusweb.cron">

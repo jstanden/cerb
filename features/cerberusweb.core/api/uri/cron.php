@@ -80,20 +80,21 @@ class ChCronController extends DevblocksControllerExtension {
 		if(!$job_ids) { // do everything
 			if($is_ignoring_internal) {
 				$cron_manifests = array_filter($cron_manifests, function($instance) {
-					switch($instance->id) {
-						case 'cron.bot.scheduled_behavior':
-						case 'cron.heartbeat':
-						case 'cron.mail_queue':
-						case 'cron.mailbox':
-						case 'cron.maint':
-						case 'cron.parser':
-						case 'cron.reminders':
-						case 'cron.search':
-						case 'cron.storage':
-							return false;
-					}
-					
-					return true;
+					return match ($instance->id) {
+						'cron.automations',
+						'cron.background_queue',
+						'cron.bot.scheduled_behavior',
+						'cron.heartbeat',
+						'cron.mail_queue',
+						'cron.mailbox',
+						'cron.maint',
+						'cron.packages',
+						'cron.parser',
+						'cron.reminders',
+						'cron.search',
+						'cron.storage' => false,
+						default => true,
+					};
 				});
 			}
 			

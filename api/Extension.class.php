@@ -3170,11 +3170,12 @@ abstract class Extension_WorkspaceWidget extends DevblocksExtension {
 abstract class CerberusCronPageExtension extends DevblocksExtension {
 	const POINT = 'cerberusweb.cron';
 	
-	const PARAM_ENABLED = 'enabled';
-	const PARAM_LOCKED = 'locked';
-	const PARAM_DURATION = 'duration';
-	const PARAM_TERM = 'term';
-	const PARAM_LASTRUN = 'lastrun';
+	const string PARAM_CONCURRENCY = 'concurrency';
+	const string PARAM_DURATION = 'duration';
+	const string PARAM_ENABLED = 'enabled';
+	const string PARAM_LASTRUN = 'lastrun';
+	const string PARAM_LOCKED = 'locked';
+	const string PARAM_TERM = 'term';
 	
 	/**
 	 * runs scheduled task
@@ -3187,27 +3188,29 @@ abstract class CerberusCronPageExtension extends DevblocksExtension {
 	 * @internal
 	 */
 	function _run() {
-		$duration = $this->getParam(self::PARAM_DURATION, 5);
-		$term = $this->getParam(self::PARAM_TERM, 'm');
-		$lastrun = $this->getParam(self::PARAM_LASTRUN, time());
+		$is_concurrent = array_key_exists('parallel', $this->manifest->params);
 		
-		// [TODO] By setting the locks directly on these extensions, we're invalidating them during the same /cron
-		//	and causing redundant retrievals of the params from the DB
-		$this->setParam(self::PARAM_LOCKED, time());
+		if(!$is_concurrent)
+			$this->setParam(self::PARAM_LOCKED, time());
 		
 		$this->run();
-
-		$secs = self::getIntervalAsSeconds($duration, $term);
 		$ran_at = time();
-		
-		if(!empty($secs)) {
-			$gap = time() - $lastrun; // how long since we last ran
-			$extra = $gap % $secs; // we waited too long to run by this many secs
-			$ran_at = time() - $extra; // go back in time and lie
+
+		if(!$is_concurrent) {
+			$duration = $this->getParam(self::PARAM_DURATION, 5);
+			$term = $this->getParam(self::PARAM_TERM, 'm');
+			$last_run = $this->getParam(self::PARAM_LASTRUN, time());
+			
+			if(($secs = self::getIntervalAsSeconds($duration, $term))) {
+				$gap = time() - $last_run; // how long since we last ran
+				$extra = $gap % $secs; // we waited too long to run by this many secs
+				$ran_at = time() - $extra; // go back in time and lie
+			}
+			
+			$this->setParam(self::PARAM_LOCKED, 0);
 		}
 		
 		$this->setParam(self::PARAM_LASTRUN, $ran_at);
-		$this->setParam(self::PARAM_LOCKED, 0);
 	}
 	
 	/**
@@ -3215,12 +3218,23 @@ abstract class CerberusCronPageExtension extends DevblocksExtension {
 	 * @param boolean $is_ignoring_wait Ignore the wait time when deciding to run
 	 * @return boolean
 	 */
-	public function isReadyToRun($is_ignoring_wait=false) {
-		$locked = $this->getParam(self::PARAM_LOCKED, 0);
+	public function isReadyToRun(bool $is_ignoring_wait=false) : bool {
 		$enabled = $this->getParam(self::PARAM_ENABLED, false);
+		
+		if(!$enabled) return false;
+		
+		$is_concurrent = array_key_exists('parallel', $this->manifest->params);
+		
+		if($is_concurrent) {
+			$queue_services = DevblocksPlatform::services()->queue();
+			$concurrency = $this->getParam(self::PARAM_CONCURRENCY, APP_QUEUE_CONCURRENCY_SLOTS);
+			return null !== $queue_services->getConcurrencySlot($concurrency);
+		}
+		
+		$locked = $this->getParam(self::PARAM_LOCKED, 0);
 		$duration = $this->getParam(self::PARAM_DURATION, 5);
 		$term = $this->getParam(self::PARAM_TERM, 'm');
-		$lastrun = $this->getParam(self::PARAM_LASTRUN, 0);
+		$last_run = $this->getParam(self::PARAM_LASTRUN, 0);
 		
 		// If we've been locked too long then unlock
 		if($locked && $locked < (time() - 10 * 60)) {
@@ -3230,19 +3244,14 @@ abstract class CerberusCronPageExtension extends DevblocksExtension {
 		// Make sure enough time has elapsed.
 		$checkpoint = ($is_ignoring_wait)
 			? (0) // if we're ignoring wait times, be ready now
-			: ($lastrun + self::getIntervalAsSeconds($duration, $term)) // otherwise test
+			: ($last_run + self::getIntervalAsSeconds($duration, $term)) // otherwise test
 			;
 
 		// Ready?
-		return (!$locked && $enabled && time() >= $checkpoint) ? true : false;
+		return !$locked && time() >= $checkpoint;
 	}
 	
-	/**
-	 * @internal
-	 */
 	static public function getIntervalAsSeconds($duration, $term) {
-		$seconds = 0;
-		
 		if($term=='d') {
 			$seconds = $duration * 24 * 60 * 60; // x hours * mins * secs
 		} elseif($term=='h') {

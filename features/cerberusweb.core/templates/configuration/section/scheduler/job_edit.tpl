@@ -1,12 +1,13 @@
 <fieldset>
 	<legend>Modify Job '{$job->manifest->name}'</legend>
 	
-	{assign var=enabled value=$job->getParam('enabled')}
-	{assign var=locked value=$job->getParam('locked')}
-	{assign var=lastrun value=$job->getParam('lastrun',0)}
-	{assign var=duration value=$job->getParam('duration',5)}
-	{assign var=term value=$job->getParam('term','m')}
-	
+	{$is_concurrent = array_key_exists('parallel', $job->manifest->params)}
+	{$enabled = $job->getParam('enabled')}
+	{$locked = $job->getParam('locked')}
+	{$lastrun = $job->getParam('lastrun',0)}
+	{$duration = $job->getParam('duration',5)}
+	{$term = $job->getParam('term','m')}
+
 	{$extid = $job->manifest->id|replace:'.':'_'}
 	<form id="frmJob{$extid}" action="{devblocks_url}{/devblocks_url}" method="post">
 	<input type="hidden" name="c" value="config">
@@ -18,26 +19,33 @@
 	
 	<label><input type="checkbox" name="enabled" value="1" {if $enabled}checked{/if}> <b>Enabled</b></label>
 	
-	{if $locked}
+	{if $locked && !$is_concurrent}
 	<label><input type="checkbox" name="locked" value="1" {if $locked}checked{/if}> <b>Locked</b></label>
 	{/if}
+	<br>
+	<br>
 
-	<br>
-	<br>
-	
-	<b>Run every:</b><br>
-	<input type="text" name="duration" maxlength="5" size="3" value="{$duration}">
-	<select name="term">
-		<option value="m" {if $term=='m'}selected{/if}>minute(s)
-		<option value="h" {if $term=='h'}selected{/if}>hour(s)
-		<option value="d" {if $term=='d'}selected{/if}>day(s)
-	</select><br>
-	<br>
-	
-	<b>Starting at date:</b> (leave blank for unchanged)<br>
-	<input type="text" name="starting" size="45" value=""><br>
-	{if !empty($lastrun)}<i>({$lastrun|devblocks_date})</i><br>{/if}
-	<br>
+	{if $is_concurrent}
+		<b>Runs in parallel up to:</b><br>
+		<input type="number" name="concurrency" value="{$concurrency|default:$max_parallel}" min="0" max="{$max_parallel}"> instances
+		(max {$max_parallel})
+		<br>
+		<br>
+	{else}
+		<b>Run once every:</b><br>
+		<input type="text" name="duration" maxlength="5" size="3" value="{$duration}">
+		<select name="term">
+			<option value="m" {if $term=='m'}selected{/if}>minute(s)
+			<option value="h" {if $term=='h'}selected{/if}>hour(s)
+			<option value="d" {if $term=='d'}selected{/if}>day(s)
+		</select><br>
+		<br>
+
+		<b>Starting at date:</b> (leave blank for unchanged)<br>
+		<input type="text" name="starting" size="45" value=""><br>
+		{if !empty($lastrun)}<i>({$lastrun|devblocks_date})</i><br>{/if}
+		<br>
+	{/if}
 	
 	{if $job}
 		{$job->configure($job)}
