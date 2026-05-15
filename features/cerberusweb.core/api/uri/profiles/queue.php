@@ -1,4 +1,7 @@
 <?php
+
+use Cerb\Extensions\Extension_QueueConsumer;
+
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
@@ -31,6 +34,8 @@ class PageSection_ProfilesQueue extends Extension_PageSection {
 	function handleActionForPage(string $action, ?string $scope=null) {
 		if('profileAction' == $scope) {
 			switch($action) {
+				case 'getExtensionConfig':
+					return $this->_profileAction_getExtensionConfig();
 				case 'savePeekJson':
 					return $this->_profileAction_savePeekJson();
 				case 'viewExplore':
@@ -38,6 +43,29 @@ class PageSection_ProfilesQueue extends Extension_PageSection {
 			}
 		}
 		return false;
+	}
+
+	private function _profileAction_getExtensionConfig() {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+
+		if(!$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+
+		$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'] ?? null, 'string', '');
+
+		if(!$extension_id)
+			return;
+
+		if(!($queue_extension = Extension_QueueConsumer::get($extension_id, true)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+
+		$model = new Model_Queue();
+		$model->extension_id = $extension_id;
+
+		$queue_extension->renderConfig($model);
 	}
 	
 	private function _profileAction_savePeekJson() {
@@ -144,6 +172,13 @@ class PageSection_ProfilesQueue extends Extension_PageSection {
 				}
 				
 				if($id) {
+					// Let the queue's consumer extension persist its own params
+					DAO_Queue::clearCache();
+					if(($queue_model = DAO_Queue::get($id)) && ($queue_extension = $queue_model->getExtension())) {
+						if(!$queue_extension->saveConfig($_POST, $id, $error))
+							throw new Exception_DevblocksAjaxValidationError($error);
+					}
+
 					// Custom field saves
 					$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 					if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_QUEUE, $id, $field_ids, $error))

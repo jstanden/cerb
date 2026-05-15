@@ -95,6 +95,9 @@
             $popup.dialog('option','title',"{'common.queue'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
             $popup.css('overflow', 'inherit');
 
+            let $extension = $popup.find('select[name=extension_id]');
+            let $params = $popup.find('.queue-consumer-params');
+
             // Buttons
 
             $popup.find('button.save').click(Devblocks.callbackPeekEditSave);
@@ -102,6 +105,31 @@
             $popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
             $popup.find('button.delete-prompt').click(Devblocks.callbackPeekEditDeletePrompt);
             $popup.find('button.delete-cancel').click(Devblocks.callbackPeekEditDeleteCancel);
+
+            // Load the consumer's config form when the extension changes (create only)
+            {if !$model->id}
+            $extension.on('change', function(e) {
+                e.stopPropagation();
+                let extension_id = $extension.val();
+
+                if('' === extension_id) {
+                    $params.html('');
+                    return;
+                }
+
+                let $spinner = Devblocks.getSpinner();
+                $params.html('').append($spinner);
+
+                let formData = new FormData();
+                formData.set('c', 'profiles');
+                formData.set('a', 'invoke');
+                formData.set('module', 'queue');
+                formData.set('action', 'getExtensionConfig');
+                formData.set('extension_id', extension_id);
+
+                genericAjaxPost(formData, $params);
+            });
+            {/if}
         });
     });
 </script>
