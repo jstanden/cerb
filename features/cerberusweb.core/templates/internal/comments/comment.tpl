@@ -94,7 +94,7 @@
 			</div>
 		{/if}
 
-		{if !$embed}
+		{if !$embed && $active_worker->hasPriv('contexts.cerberusweb.contexts.comment.comment')}
 			<button type="button" class="cerb-sticky-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{CerberusContexts::CONTEXT_COMMENT} context.id:{$comment->id}"><span class="glyphicons glyphicons-comments"></span> {'common.comment'|devblocks_translate|capitalize}</button>
 		{/if}
 
