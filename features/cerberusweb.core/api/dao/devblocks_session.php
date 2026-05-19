@@ -173,6 +173,18 @@ class DAO_DevblocksSession extends Cerb_ORMHelper {
 			null
 		);
 	}
+
+	static function getByToken(string $token) : ?Model_DevblocksSession {
+		// PHP session IDs are alphanumeric + comma/hyphen depending on sid_bits_per_character
+		if(!$token || !preg_match('/^[a-zA-Z0-9,-]{1,128}$/', $token))
+			return null;
+
+		$db = DevblocksPlatform::services()->database();
+
+		$objects = self::getWhere(sprintf("session_token = %s", $db->qstr($token)));
+
+		return $objects ? array_shift($objects) : null;
+	}
 	
 	static function getLatestByUserId($user_id) {
 		$sessions = self::getByUserId($user_id);
@@ -323,6 +335,16 @@ class Model_DevblocksSession {
 	public $user_id;
 	public $user_ip;
 	public $user_agent;
+
+	public function isExpired() : bool {
+		$max_lifetime = DevblocksPlatform::getPluginSetting(
+			'cerberusweb.core',
+			CerberusSettings::SESSION_LIFESPAN,
+			CerberusSettingsDefaults::SESSION_LIFESPAN
+		) ?: 86400;
+
+		return $this->updated < time() - $max_lifetime;
+	}
 };
 
 class SearchFields_DevblocksSession extends DevblocksSearchFields {

@@ -38,11 +38,11 @@ class ChCronController extends DevblocksControllerExtension {
 		// Authorize each requested job
 		if($job_ids) {
 			foreach ($job_ids as $job_id) {
-				if (!CerberusApplication::isRequestAuthorized('cron:' . $job_id))
+				if (!CerberusApplication::isRequestAuthorized('cron:' . $job_id, allow_admin_sessions: APP_SECURITY_ALLOW_ADMIN_SESSION_TOKEN))
 					CerberusApplication::respondWithErrorReason(CerbErrorReason::AccessDeniedToken, true);
 			}
 		} else {
-			if (!CerberusApplication::isRequestAuthorized('cron'))
+			if (!CerberusApplication::isRequestAuthorized('cron', allow_admin_sessions: APP_SECURITY_ALLOW_ADMIN_SESSION_TOKEN))
 				CerberusApplication::respondWithErrorReason(CerbErrorReason::AccessDeniedToken, true);
 		}
 		

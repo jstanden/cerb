@@ -123,7 +123,7 @@ class ChUpdateController extends DevblocksControllerExtension {
 				$file = $path . 'cerb_update_lock';
 				
 				// Is this IP authorized?
-				if(!CerberusApplication::isRequestAuthorized('update')) {
+				if(!CerberusApplication::isRequestAuthorized('update', allow_admin_sessions: APP_SECURITY_ALLOW_ADMIN_SESSION_TOKEN)) {
 					CerberusApplication::respondWithErrorReason(CerbErrorReason::AccessDeniedToken, true);
 				}
 				

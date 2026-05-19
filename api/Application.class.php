@@ -952,26 +952,39 @@ class CerberusApplication extends DevblocksApplication {
 		return in_array($scope, $scopes);
 	}
 	
-	public static function isRequestAuthorized(string $scope, bool $allow_client_ips=true) : string|false {
+	public static function isRequestAuthorized(string $scope, bool $allow_client_ips=true, bool $allow_admin_sessions=false) : string|false {
 		$settings = DevblocksPlatform::services()->pluginSettings();
-		
+
 		// Client IPs (deprecated)
-		
+
 		if($allow_client_ips) {
 			$client_ip = DevblocksPlatform::getClientIp();
-			
+
 			$authorized_ips = [];
-			
+
 			if (($instance_ips = DevblocksPlatform::parseCrlfString($settings->get('cerberusweb.core', CerberusSettings::AUTHORIZED_IPS, CerberusSettingsDefaults::AUTHORIZED_IPS))))
 				$authorized_ips = $instance_ips;
-			
+
 			if (AUTHORIZED_IPS_DEFAULTS)
 				$authorized_ips = array_merge($authorized_ips, DevblocksPlatform::parseCsvString(AUTHORIZED_IPS_DEFAULTS));
-			
+
 			if (DevblocksPlatform::isIpAuthorized($client_ip, $authorized_ips))
 				return 'client_ip';
 		}
-		
+
+		// Admin session
+
+		if($allow_admin_sessions) {
+			$session_token = $_COOKIE[APP_SESSION_NAME] ?? '';
+
+			if($session_token && ($session = DAO_DevblocksSession::getByToken($session_token))) {
+				if($session->user_id && !$session->isExpired()) {
+					if(($worker = DAO_Worker::get($session->user_id)) && $worker->is_superuser)
+						return 'admin_session';
+				}
+			}
+		}
+
 		// Service Tokens
 		
 		$request_headers = DevblocksPlatform::getHttpHeaders();
