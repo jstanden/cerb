@@ -2,10 +2,6 @@
 use PHPUnit\Framework\TestCase;
 
 class DevblocksServiceUiTest extends TestCase {
-	final function __construct($name = null, array $data = array(), $dataName = '') {
-		parent::__construct($name, $data, $dataName);
-	}
-	
 	function testLabelsNoCondense() {
 		$menu = DevblocksPlatform::services()->ui()->menu();
 		

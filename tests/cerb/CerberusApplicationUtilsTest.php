@@ -2,10 +2,6 @@
 use PHPUnit\Framework\TestCase;
 
 class CerberusApplicationUtilsTest extends TestCase {
-	final function __construct($name = null, array $data = array(), $dataName = '') {
-		parent::__construct($name, $data, $dataName);
-	}
-	
 	public function testGenerateMessageId() {
 		$msg_id = CerberusApplication::generateMessageId();
 		

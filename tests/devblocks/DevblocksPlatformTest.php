@@ -16,10 +16,6 @@ class MockObject {
 }
 
 class DevblocksPlatformTest extends TestCase {
-	final function __construct($name = null, array $data = array(), $dataName = '') {
-		parent::__construct($name, $data, $dataName);
-	}
-	
 	public function testRequirements() {
 		// Version
 		$actual = version_compare(PHP_VERSION, "8.3", ">=");

@@ -2,10 +2,6 @@
 use PHPUnit\Framework\TestCase;
 
 class DevblocksQueryTest extends TestCase {
-	final function __construct($name = null, array $data = array(), $dataName = '') {
-		parent::__construct($name, $data, $dataName);
-	}
-	
 	function testTokensTextoQuery() {
 		// Params
 		

@@ -2,10 +2,6 @@
 use PHPUnit\Framework\TestCase;
 
 class DevblocksDictionaryTest extends TestCase {
-	final function __construct($name = null, array $data = array(), $dataName = '') {
-		parent::__construct($name, $data, $dataName);
-	}
-	
 	function testSetSimpleKey() {
 		$dict = new DevblocksDictionaryDelegate([]);
 		

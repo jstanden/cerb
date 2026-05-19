@@ -1,11 +1,9 @@
 <?php
+
+use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 
 class DevblocksCacheTest extends TestCase {
-	final function __construct($name = null, array $data = array(), $dataName = '') {
-		parent::__construct($name, $data, $dataName);
-	}
-	
 	function testCachePersistSave() {
 		$cache = DevblocksPlatform::services()->cache();
 		
@@ -15,9 +13,7 @@ class DevblocksCacheTest extends TestCase {
 		$this->assertEquals($expected, $actual);
 	}
 	
-	/**
-	 * @depends testCachePersistSave
-	 */
+	#[Depends('testCachePersistSave')]
 	function testCachePersistRead() {
 		$cache = DevblocksPlatform::services()->cache();
 		
@@ -27,9 +23,7 @@ class DevblocksCacheTest extends TestCase {
 		$this->assertEquals($expected, $actual);
 	}
 	
-	/**
-	 * @depends testCachePersistRead
-	 */
+	#[Depends('testCachePersistRead')]
 	function testCachePersistRemove() {
 		$cache = DevblocksPlatform::services()->cache();
 		
@@ -48,9 +42,7 @@ class DevblocksCacheTest extends TestCase {
 		$this->assertEquals($expected, $actual);
 	}
 	
-	/**
-	 * @depends testCacheLocalSave
-	 */
+	#[Depends('testCacheLocalSave')]
 	function testCacheLocalRead() {
 		$cache = DevblocksPlatform::services()->cache();
 		
@@ -60,9 +52,7 @@ class DevblocksCacheTest extends TestCase {
 		$this->assertEquals($expected, $actual);
 	}
 	
-	/**
-	 * @depends testCacheLocalRead
-	 */
+	#[Depends('testCacheLocalRead')]
 	function testCacheLocalRemove() {
 		$cache = DevblocksPlatform::services()->cache();
 		

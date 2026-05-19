@@ -63,11 +63,11 @@
 		"horde/imap-client": "dev-2.30.7-cerb",
 		"ramsey/uuid": "4.9.2",
 		"enshrined/svg-sanitize": "0.22.0",
-		"sebastian/diff": "4.0.6",
+		"sebastian/diff": "7.0.0",
 		"league/commonmark": "2.8.2"
 	},
 	"require-dev" : {
-		"phpunit/phpunit": "9.6.34"
+		"phpunit/phpunit": "12.5.25"
 	},
 	"support" : {
 		"email" : "team@cerb.ai",
@@ -80,7 +80,7 @@
 			"rm -f storage/tmp/cache--*"
 		],
 		"test": [
-			"vendor/bin/phpunit --do-not-cache-result --bootstrap tests/bootstrap.platform.php -c tests/phpunit.cerb.platform.xml"
+			"vendor/bin/phpunit --do-not-cache-result --display-phpunit-deprecations --bootstrap tests/bootstrap.platform.php -c tests/phpunit.cerb.platform.xml"
 		]
 	}
 }

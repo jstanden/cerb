@@ -2,10 +2,6 @@
 use PHPUnit\Framework\TestCase;
 
 class CerberusMailTest extends TestCase {
-	final function __construct($name = null, array $data = array(), $dataName = '') {
-		parent::__construct($name, $data, $dataName);
-	}
-	
 	public function testWriteRfcAddress() {
 		// No personal
 		$expected = 'customer@example.com';
