@@ -3400,7 +3400,7 @@ class CerberusVisit extends DevblocksVisit {
 		return DAO_Worker::get($this->worker_id);
 	}
 
-	public function setWorker(Model_Worker $worker=null) {
+	public function setWorker(?Model_Worker $worker=null) : void {
 		if(is_null($worker)) {
 			$this->worker_id = null;
 
@@ -3441,7 +3441,7 @@ class CerberusVisit extends DevblocksVisit {
 		return DAO_Worker::get($this->imposter_id);
 	}
 
-	public function setImposter(Model_Worker $worker=null) {
+	public function setImposter(?Model_Worker $worker=null) : void {
 		if(is_null($worker)) {
 			$this->imposter_id = null;
 		} else {
