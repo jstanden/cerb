@@ -1183,6 +1183,115 @@ if(!$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts
 }
 
 // ===========================================================================
+// Default `Properties` card widget for `cerberusweb.contexts.gpg_public_key`
+
+if(!$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerberusweb.contexts.gpg_public_key' AND extension_id='cerb.card.widget.fields'")) {
+	$db->ExecuteMaster(sprintf(
+		"INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
+		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
+		$db->qstr('Properties'),
+		$db->qstr('cerberusweb.contexts.gpg_public_key'),
+		$db->qstr('cerb.card.widget.fields'),
+		$db->qstr(json_encode([
+			"context" => "cerberusweb.contexts.gpg_public_key",
+			"context_id" => "{{record_id}}",
+			"properties" => [
+				[
+					"name",
+					"fingerprint",
+					"updated",
+					"id",
+				],
+			],
+			"toolbar_kata" => "",
+		])),
+		time(), time(),
+		1, 12,
+		$db->qstr('content')
+	));
+}
+
+// ===========================================================================
+// Default `Overview` profile tab for `cerberusweb.contexts.gpg_public_key`
+
+if(!$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerberusweb.contexts.gpg_public_key'")) {
+	$db->ExecuteMaster(sprintf("INSERT INTO profile_tab (name, context, extension_id, updated_at, extension_params_json, pos) ".
+		"VALUES (%s, %s, %s, %d, %s, %d)",
+		$db->qstr('Overview'),
+		$db->qstr('cerberusweb.contexts.gpg_public_key'),
+		$db->qstr('cerb.profile.tab.dashboard'),
+		time(),
+		$db->qstr(json_encode([
+			"layout" => "sidebar_left",
+		])),
+		1
+	));
+
+	$new_profile_tab_id = $db->LastInsertId();
+
+	$db->ExecuteMaster(sprintf("INSERT INTO profile_widget (name, profile_tab_id, extension_id, extension_params_json, updated_at, pos, width_units, zone, options_kata) ".
+		"VALUES (%s, %d, %s, %s, %d, %d, %d, %s, %s)",
+		$db->qstr('GPG Public Key'),
+		$new_profile_tab_id,
+		$db->qstr('cerb.profile.tab.widget.fields'),
+		$db->qstr(json_encode([
+			"context" => "cerberusweb.contexts.gpg_public_key",
+			"context_id" => "{{record_id}}",
+			"properties" => [
+				[
+					"name",
+					"fingerprint",
+					"updated",
+					"id",
+				],
+			],
+			"toolbar_kata" => "",
+		])),
+		time(),
+		1,
+		4,
+		$db->qstr('sidebar'),
+		$db->qstr('')
+	));
+
+	$db->ExecuteMaster(sprintf("INSERT INTO profile_widget (name, profile_tab_id, extension_id, extension_params_json, updated_at, pos, width_units, zone, options_kata) ".
+		"VALUES (%s, %d, %s, %s, %d, %d, %d, %s, %s)",
+		$db->qstr('Public Key'),
+		$new_profile_tab_id,
+		$db->qstr('cerb.profile.tab.widget.sheet'),
+		$db->qstr(json_encode([
+			"data_query" => "type:worklist.records\r\nof:gpg_public_key\r\nquery:(\r\n  id:{{record_id}}\r\n  limit:1\r\n  sort:[id]\r\n)\r\nformat:dictionaries",
+			"cache_secs" => "",
+			"placeholder_simulator_kata" => "",
+			"sheet_kata" => "layout:\r\n  style: fieldset\r\n  headings@bool: no\r\n  paging@bool: no\r\n\r\ncolumns:\r\n  code/key_text:\r\n    label: Public Key\r\n",
+			"toolbar_kata" => "",
+		])),
+		time(),
+		2,
+		12,
+		$db->qstr('content'),
+		$db->qstr('')
+	));
+
+	$db->ExecuteMaster(sprintf("INSERT INTO profile_widget (name, profile_tab_id, extension_id, extension_params_json, updated_at, pos, width_units, zone, options_kata) ".
+		"VALUES (%s, %d, %s, %s, %d, %d, %d, %s, %s)",
+		$db->qstr('Discussion'),
+		$new_profile_tab_id,
+		$db->qstr('cerb.profile.tab.widget.comments'),
+		$db->qstr(json_encode([
+			"context" => "cerberusweb.contexts.gpg_public_key",
+			"context_id" => "{{record_id}}",
+			"height" => "",
+		])),
+		time(),
+		3,
+		4,
+		$db->qstr('content'),
+		$db->qstr('')
+	));
+}
+
+// ===========================================================================
 // Add `retention_days` to `metric`
 
 list($columns, ) = $db->metaTable('metric');
