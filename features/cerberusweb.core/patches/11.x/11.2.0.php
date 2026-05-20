@@ -1506,6 +1506,104 @@ if(!$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts
 }
 
 // ===========================================================================
+// Default `Properties` card widget for `cerb.contexts.resource`
+
+if(!$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contexts.resource' AND extension_id='cerb.card.widget.fields'")) {
+	$db->ExecuteMaster(sprintf(
+		"INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
+		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
+		$db->qstr('Properties'),
+		$db->qstr('cerb.contexts.resource'),
+		$db->qstr('cerb.card.widget.fields'),
+		$db->qstr(json_encode([
+			"context" => "cerb.contexts.resource",
+			"context_id" => "{{record_id}}",
+			"properties" => [
+				[
+					"name",
+					"extension_id",
+					"description",
+					"is_dynamic",
+					"storage_size",
+					"cache_until",
+					"updated",
+					"id",
+				],
+			],
+			"toolbar_kata" => "",
+		])),
+		time(), time(),
+		1, 12,
+		$db->qstr('content')
+	));
+}
+
+// ===========================================================================
+// Default `Overview` profile tab for `cerb.contexts.resource`
+
+if(!$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts.resource'")) {
+	$db->ExecuteMaster(sprintf("INSERT INTO profile_tab (name, context, extension_id, updated_at, extension_params_json, pos) ".
+		"VALUES (%s, %s, %s, %d, %s, %d)",
+		$db->qstr('Overview'),
+		$db->qstr('cerb.contexts.resource'),
+		$db->qstr('cerb.profile.tab.dashboard'),
+		time(),
+		$db->qstr(json_encode([
+			"layout" => "sidebar_left",
+		])),
+		1
+	));
+
+	$new_profile_tab_id = $db->LastInsertId();
+
+	$db->ExecuteMaster(sprintf("INSERT INTO profile_widget (name, profile_tab_id, extension_id, extension_params_json, updated_at, pos, width_units, zone, options_kata) ".
+		"VALUES (%s, %d, %s, %s, %d, %d, %d, %s, %s)",
+		$db->qstr('Resource'),
+		$new_profile_tab_id,
+		$db->qstr('cerb.profile.tab.widget.fields'),
+		$db->qstr(json_encode([
+			"context" => "cerb.contexts.resource",
+			"context_id" => "{{record_id}}",
+			"properties" => [
+				[
+					"name",
+					"extension_id",
+					"description",
+					"is_dynamic",
+					"storage_size",
+					"cache_until",
+					"updated",
+					"id",
+				],
+			],
+			"toolbar_kata" => "",
+		])),
+		time(),
+		1,
+		4,
+		$db->qstr('sidebar'),
+		$db->qstr('')
+	));
+
+	$db->ExecuteMaster(sprintf("INSERT INTO profile_widget (name, profile_tab_id, extension_id, extension_params_json, updated_at, pos, width_units, zone, options_kata) ".
+		"VALUES (%s, %d, %s, %s, %d, %d, %d, %s, %s)",
+		$db->qstr('Discussion'),
+		$new_profile_tab_id,
+		$db->qstr('cerb.profile.tab.widget.comments'),
+		$db->qstr(json_encode([
+			"context" => "cerb.contexts.resource",
+			"context_id" => "{{record_id}}",
+			"height" => "",
+		])),
+		time(),
+		2,
+		4,
+		$db->qstr('content'),
+		$db->qstr('')
+	));
+}
+
+// ===========================================================================
 // Add `retention_days` to `metric`
 
 list($columns, ) = $db->metaTable('metric');
