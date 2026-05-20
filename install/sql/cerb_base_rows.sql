@@ -123,6 +123,7 @@ INSERT INTO `card_widget` VALUES (91,'Properties','cerb.contexts.queue','cerb.ca
 INSERT INTO `card_widget` VALUES (92,'Properties','cerb.contexts.resource','cerb.card.widget.fields','{\"context\":\"cerb.contexts.resource\",\"context_id\":\"{{record_id}}\",\"properties\":[[\"name\",\"extension_id\",\"description\",\"is_dynamic\",\"storage_size\",\"cache_until\",\"updated\",\"id\"]],\"toolbar_kata\":\"\"}',UNIX_TIMESTAMP(),UNIX_TIMESTAMP(),1,12,'content',NULL);
 INSERT INTO `card_widget` VALUES (93,'Properties','cerb.contexts.search.index','cerb.card.widget.fields','{\"context\":\"cerb.contexts.search.index\",\"context_id\":\"{{record_id}}\",\"properties\":[[\"name\",\"extension_id\",\"record_type\",\"record_filter\",\"priority\",\"uri\",\"created\",\"updated\",\"id\"]],\"toolbar_kata\":\"\"}',UNIX_TIMESTAMP(),UNIX_TIMESTAMP(),1,12,'content',NULL);
 INSERT INTO `card_widget` VALUES (94,'Index','cerb.contexts.search.index','cerb.card.widget.search_index','{\"search_index_id\":\"{{record_id}}\"}',UNIX_TIMESTAMP(),UNIX_TIMESTAMP(),2,4,'content',NULL);
+INSERT INTO `card_widget` VALUES (95,'Properties','cerb.contexts.toolbar','cerb.card.widget.fields','{\"context\":\"cerb.contexts.toolbar\",\"context_id\":\"{{record_id}}\",\"properties\":[[\"name\",\"extension\",\"description\",\"created\",\"updated\",\"id\"]],\"search\":{\"context\":[\"cerb.contexts.toolbar.section\"],\"query\":[\"toolbar:{{record_name}}\"],\"label_singular\":[\"Section\"],\"label_plural\":[\"Sections\"]},\"toolbar_kata\":\"\"}',UNIX_TIMESTAMP(),UNIX_TIMESTAMP(),1,12,'content',NULL);
 
 INSERT INTO `cerb_patch_history` VALUES ('cerb.project_boards',10,UNIX_TIMESTAMP());
 INSERT INTO `cerb_patch_history` VALUES ('cerb.webhooks',6,UNIX_TIMESTAMP());
@@ -296,6 +297,7 @@ INSERT INTO `profile_tab` VALUES (62,'Overview','cerb.contexts.gpg.private.key',
 INSERT INTO `profile_tab` VALUES (63,'Overview','cerb.contexts.queue','cerb.profile.tab.dashboard','{\"layout\":\"sidebar_left\"}',UNIX_TIMESTAMP(),1,NULL);
 INSERT INTO `profile_tab` VALUES (64,'Overview','cerb.contexts.resource','cerb.profile.tab.dashboard','{\"layout\":\"sidebar_left\"}',UNIX_TIMESTAMP(),1,NULL);
 INSERT INTO `profile_tab` VALUES (65,'Overview','cerb.contexts.search.index','cerb.profile.tab.dashboard','{\"layout\":\"sidebar_left\"}',UNIX_TIMESTAMP(),1,NULL);
+INSERT INTO `profile_tab` VALUES (66,'Overview','cerb.contexts.toolbar','cerb.profile.tab.dashboard','{\"layout\":\"sidebar_left\"}',UNIX_TIMESTAMP(),1,NULL);
 
 INSERT INTO `profile_widget` VALUES (1,'Email Address',1,'cerb.profile.tab.widget.fields','{\"context\":\"cerberusweb.contexts.address\",\"context_id\":\"{{record_id}}\",\"properties\":[[\"contact\",\"num_spam\",\"num_nonspam\",\"is_banned\",\"is_defunct\",\"org\"]],\"links\":{\"show\":\"1\"}}','sidebar',1,4,UNIX_TIMESTAMP(),NULL);
 INSERT INTO `profile_widget` VALUES (2,'Contact',1,'cerb.profile.tab.widget.fields','{\"context\":\"cerberusweb.contexts.contact\",\"context_id\":\"{{record_contact_id}}\",\"properties\":[[\"name\",\"title\",\"location\",\"language\",\"timezone\",\"phone\",\"mobile\",\"updated\",\"last_login\"]]}','sidebar',2,4,UNIX_TIMESTAMP(),NULL);
@@ -444,6 +446,8 @@ INSERT INTO `profile_widget` VALUES (146,'Resource',64,'cerb.profile.tab.widget.
 INSERT INTO `profile_widget` VALUES (147,'Discussion',64,'cerb.profile.tab.widget.comments','{\"context\":\"cerb.contexts.resource\",\"context_id\":\"{{record_id}}\",\"height\":\"\"}','content',2,4,UNIX_TIMESTAMP(),'');
 INSERT INTO `profile_widget` VALUES (148,'Search Index',65,'cerb.profile.tab.widget.fields','{\"context\":\"cerb.contexts.search.index\",\"context_id\":\"{{record_id}}\",\"properties\":[[\"name\",\"extension_id\",\"record_type\",\"record_filter\",\"priority\",\"uri\",\"created\",\"updated\",\"id\"]],\"toolbar_kata\":\"\"}','sidebar',1,4,UNIX_TIMESTAMP(),'');
 INSERT INTO `profile_widget` VALUES (149,'Discussion',65,'cerb.profile.tab.widget.comments','{\"context\":\"cerb.contexts.search.index\",\"context_id\":\"{{record_id}}\",\"height\":\"\"}','content',2,4,UNIX_TIMESTAMP(),'');
+INSERT INTO `profile_widget` VALUES (150,'Toolbar',66,'cerb.profile.tab.widget.fields','{\"context\":\"cerb.contexts.toolbar\",\"context_id\":\"{{record_id}}\",\"properties\":[[\"name\",\"extension\",\"description\",\"created\",\"updated\",\"id\"]],\"toolbar_kata\":\"\"}','sidebar',1,4,UNIX_TIMESTAMP(),'');
+INSERT INTO `profile_widget` VALUES (152,'Discussion',66,'cerb.profile.tab.widget.comments','{\"context\":\"cerb.contexts.toolbar\",\"context_id\":\"{{record_id}}\",\"height\":\"\"}','content',3,4,UNIX_TIMESTAMP(),'');
 
 INSERT INTO `queue` VALUES (1,'cerb.update.migrations',UNIX_TIMESTAMP(),UNIX_TIMESTAMP(),'cerb.queue.consumer.internal',NULL);
 INSERT INTO `queue` VALUES (2,'cerb.metrics.publish',UNIX_TIMESTAMP(),UNIX_TIMESTAMP(),'cerb.queue.consumer.internal',NULL);
