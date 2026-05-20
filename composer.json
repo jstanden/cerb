@@ -79,6 +79,9 @@
 			"rm -f storage/tmp/templates_c/*.php",
 			"rm -f storage/tmp/cache--*"
 		],
+		"build-css": [
+			"sass --no-source-map install/extras/developers/css/cerb.css/cerb.scss features/cerberusweb.core/resources/css/cerb.css"
+		],
 		"test": [
 			"vendor/bin/phpunit --do-not-cache-result --display-phpunit-deprecations --bootstrap tests/bootstrap.platform.php -c tests/phpunit.cerb.platform.xml"
 		]
