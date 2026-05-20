@@ -766,11 +766,11 @@ class Context_ServiceToken extends Extension_DevblocksContext implements IDevblo
 		$properties['scopes'] = [
 			'label' => DevblocksPlatform::translateCapitalized('common.scopes'),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => $model->scopes,
+			'value' => is_array($model->scopes) ? implode(' ', $model->scopes) : $model->scopes,
 		];
 
 		$properties['token_hint'] = [
-			'label' => DevblocksPlatform::translateCapitalized('common.token_hint'),
+			'label' => DevblocksPlatform::translateCapitalized('common.token'),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
 			'value' => $model->token_hint,
 		];
