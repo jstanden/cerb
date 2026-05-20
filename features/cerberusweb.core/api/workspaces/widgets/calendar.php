@@ -14,50 +14,16 @@ class WorkspaceWidget_Calendar extends Extension_WorkspaceWidget implements ICer
 	}
 	
 	function render(Model_WorkspaceWidget $widget) {
-		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::services()->template();
-		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-		
+
 		$month = DevblocksPlatform::importGPC($_REQUEST['month'] ?? null, 'integer', null);
 		$year = DevblocksPlatform::importGPC($_REQUEST['year'] ?? null, 'integer', null);
-		
-		$calendar_id_template = $widget->params['calendar_id'] ?? null;
-		
-		$labels = $values = $merge_token_labels = $merge_token_values = [];
-		
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $active_worker, $merge_token_labels, $merge_token_values, null, true, true);
-		
-		CerberusContexts::merge(
-			'current_worker_',
-			'Current Worker:',
-			$merge_token_labels,
-			$merge_token_values,
-			$labels,
-			$values
-		);
-		
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKSPACE_WIDGET, $widget, $merge_token_labels, $merge_token_values, null, true, true);
-		
-		CerberusContexts::merge(
-			'widget_',
-			'Widget:',
-			$merge_token_labels,
-			$merge_token_values,
-			$labels,
-			$values
-		);
-		
-		$dict = DevblocksDictionaryDelegate::instance($values);
-		
-		$widget->_loadDashboardPrefsForWorker($active_worker, $dict);
-		
-		$calendar_id = $tpl_builder->build($calendar_id_template, $dict);
-		
-		if(empty($calendar_id) || null == ($calendar = DAO_Calendar::get($calendar_id))) { /* @var Model_Calendar $calendar */
+
+		if(null == ($calendar = $this->_resolveCalendarForWidget($widget))) { /* @var Model_Calendar $calendar */
 			echo "A calendar isn't linked to this widget. Configure it to select one.";
 			return;
 		}
-		
+
 		$start_on_mon = (bool)($calendar->params['start_on_mon'] ?? false);
 		$calendar_properties = DevblocksCalendarHelper::getCalendar($month, $year, $start_on_mon);
 		
@@ -114,6 +80,48 @@ class WorkspaceWidget_Calendar extends Extension_WorkspaceWidget implements ICer
 		return true;
 	}
 	
+	private function _resolveCalendarForWidget(Model_WorkspaceWidget $widget) : ?Model_Calendar {
+		$active_worker = CerberusApplication::getActiveWorker();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+
+		$calendar_id_template = $widget->params['calendar_id'] ?? null;
+
+		$labels = $values = $merge_token_labels = $merge_token_values = [];
+
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $active_worker, $merge_token_labels, $merge_token_values, null, true, true);
+
+		CerberusContexts::merge(
+			'current_worker_',
+			'Current Worker:',
+			$merge_token_labels,
+			$merge_token_values,
+			$labels,
+			$values
+		);
+
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKSPACE_WIDGET, $widget, $merge_token_labels, $merge_token_values, null, true, true);
+
+		CerberusContexts::merge(
+			'widget_',
+			'Widget:',
+			$merge_token_labels,
+			$merge_token_values,
+			$labels,
+			$values
+		);
+
+		$dict = DevblocksDictionaryDelegate::instance($values);
+
+		$widget->_loadDashboardPrefsForWorker($active_worker, $dict);
+
+		$calendar_id = $tpl_builder->build($calendar_id_template, $dict);
+
+		if(empty($calendar_id))
+			return null;
+
+		return DAO_Calendar::get($calendar_id) ?: null;
+	}
+
 	private function _workspaceWidgetAction_showCalendarTab(Model_WorkspaceWidget $model) {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -167,15 +175,17 @@ class WorkspaceWidget_Calendar extends Extension_WorkspaceWidget implements ICer
 	}
 	
 	private function _exportDataAsCsv(Model_WorkspaceWidget $widget) {
-		$calendar_id = $widget->params['calendar_id'] ?? null;
-		
-		if(false == ($calendar = DAO_Calendar::get($calendar_id)))
+		if(null == ($calendar = $this->_resolveCalendarForWidget($widget)))
 			return false;
-		
-		$calendar_properties = DevblocksCalendarHelper::getCalendar(null, null);
-		
+
+		$month = DevblocksPlatform::importGPC($_REQUEST['month'] ?? null, 'integer', null);
+		$year = DevblocksPlatform::importGPC($_REQUEST['year'] ?? null, 'integer', null);
+
+		$start_on_mon = (bool)($calendar->params['start_on_mon'] ?? false);
+		$calendar_properties = DevblocksCalendarHelper::getCalendar($month, $year, $start_on_mon);
+
 		$fp = fopen("php://temp", 'r+');
-		
+
 		$headings = array(
 			'Date',
 			'Label',
@@ -220,21 +230,21 @@ class WorkspaceWidget_Calendar extends Extension_WorkspaceWidget implements ICer
 	}
 	
 	private function _exportDataAsJson(Model_WorkspaceWidget $widget) {
-		$calendar_id = $widget->params['calendar_id'] ?? null;
-		
-		if(false == ($calendar = DAO_Calendar::get($calendar_id)))
+		if(null == ($calendar = $this->_resolveCalendarForWidget($widget)))
 			return false;
-		
-		$calendar_properties = DevblocksCalendarHelper::getCalendar(null, null);
-		
-		// [TODO] This needs to use the selected month/year from widget
+
+		$month = DevblocksPlatform::importGPC($_REQUEST['month'] ?? null, 'integer', null);
+		$year = DevblocksPlatform::importGPC($_REQUEST['year'] ?? null, 'integer', null);
+
+		$start_on_mon = (bool)($calendar->params['start_on_mon'] ?? false);
+		$calendar_properties = DevblocksCalendarHelper::getCalendar($month, $year, $start_on_mon);
+
 		$calendar_events = $calendar->getEvents($calendar_properties['date_range_from'], $calendar_properties['date_range_to']);
-		
+
 		$json_events = array();
-		
+
 		// [TODO] This should export a fully formed calendar (headings, weeks, days)
-		// [TODO] The widget export should give the date range used as well
-		
+
 		foreach($calendar_events as $events) {
 			foreach($events as $event) {
 				$json_events[] = array(
@@ -248,18 +258,20 @@ class WorkspaceWidget_Calendar extends Extension_WorkspaceWidget implements ICer
 				);
 			}
 		}
-		
+
 		unset($calendar_events);
-		
+
 		$results = array(
 			'widget' => array(
 				'label' => $widget->label,
 				'type' => 'calendar',
 				'version' => 'Cerb ' . APP_VERSION,
+				'date_range_from' => $calendar_properties['date_range_from'],
+				'date_range_to' => $calendar_properties['date_range_to'],
 				'events' => $json_events,
 			),
 		);
-		
+
 		return DevblocksPlatform::strFormatJson($results);
 	}
 };

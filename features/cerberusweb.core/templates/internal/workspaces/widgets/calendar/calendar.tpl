@@ -3,7 +3,7 @@
 {$time_format = $worker_prefs.time_format|default:'D, d M Y h:i a'}
 {if $time_format = 'D, d M Y h:i a'}{$hour_format = 'g'}{else}{$hour_format = 'H'}{/if}
 
-<form id="frm{$guid}" action="#" style="margin-bottom:5px;width:98%;">
+<form id="frm{$guid}" action="#" style="margin-bottom:5px;width:98%;" data-cerb-calendar-month="{$calendar_properties.month}" data-cerb-calendar-year="{$calendar_properties.year}">
 	<div style="float:left;">
 		<span style="font-weight:bold;font-size:150%;">{$calendar_properties.calendar_date|devblocks_date:'F Y'}</span>
 		

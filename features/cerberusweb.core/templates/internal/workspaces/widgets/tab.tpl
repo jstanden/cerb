@@ -259,8 +259,14 @@ $(function() {
 						});
 						
 					} else if($li.is('.cerb-workspace-widget-menu--export-data')) {
-						genericAjaxPopup('export_data', 'c=profiles&a=invoke&module=workspace_widget&action=exportWidgetData&id=' + widget_id, null, false);
-						
+						let url = 'c=profiles&a=invoke&module=workspace_widget&action=exportWidgetData&id=' + widget_id;
+						let $cal = $('#workspaceWidget' + widget_id).find('form[data-cerb-calendar-month]').first();
+						if($cal.length) {
+							url += '&month=' + encodeURIComponent($cal.attr('data-cerb-calendar-month'))
+								+  '&year='  + encodeURIComponent($cal.attr('data-cerb-calendar-year'));
+						}
+						genericAjaxPopup('export_data', url, null, false);
+
 					} else if($li.is('.cerb-workspace-widget-menu--export-widget')) {
 						genericAjaxPopup('export_widget', 'c=profiles&a=invoke&module=workspace_widget&action=exportWidget&id=' + widget_id, null, false);
 						
