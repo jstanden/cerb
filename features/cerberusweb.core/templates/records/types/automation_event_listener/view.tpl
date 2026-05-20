@@ -4,13 +4,19 @@
 {$total = $results[1]}
 {$data = $results[0]}
 
+{$create_edit_defaults = ''}
+{$event_name_params = $view->findParam('a_event_name', $view->getParams())}
+{foreach from=$event_name_params item=p}
+    {if $p->value}{$create_edit_defaults = "event:{$p->value}"}{/if}
+{/foreach}
+
 {include file="devblocks:cerberusweb.core::internal/views/view_marquee.tpl" view=$view}
 
 <table cellpadding="0" cellspacing="0" border="0" class="worklist" width="100%" {if array_key_exists('header_color', $view->options) && $view->options.header_color}style="background-color:{$view->options.header_color};"{/if}>
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
 		<td nowrap="nowrap" align="right" class="title-toolbar">
-            {if $active_worker->hasPriv("contexts.{$view_context}.create")}<a title="{'common.add'|devblocks_translate|capitalize}" class="minimal peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="0" data-width="75%"><span class="glyphicons glyphicons-circle-plus"></span></a>{/if}
+            {if $active_worker->hasPriv("contexts.{$view_context}.create")}<a title="{'common.add'|devblocks_translate|capitalize}" class="minimal peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="0" data-width="75%" {if $create_edit_defaults}data-edit="{$create_edit_defaults}"{/if}><span class="glyphicons glyphicons-circle-plus"></span></a>{/if}
 			<a data-cerb-worklist-icon-search title="{'common.search'|devblocks_translate|capitalize}" class="minimal"><span class="glyphicons glyphicons-search"></span></a>
 			<a data-cerb-worklist-icon-customize title="{'common.customize'|devblocks_translate|capitalize}" class="minimal"><span class="glyphicons glyphicons-cogwheel"></span></a>
 			<a data-cerb-worklist-icon-subtotals title="{'common.subtotals'|devblocks_translate|capitalize}" class="minimal"><span class="glyphicons glyphicons-signal"></span></a>
