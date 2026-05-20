@@ -735,55 +735,49 @@ class WorkspaceWidgetDatasource_URL extends Extension_WorkspaceWidgetDatasource 
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/datasources/config_url.tpl');
 	}
 	
-	function getData(Model_WorkspaceWidget $widget, array $params=array(), $params_prefix=null) {
+	function getData(Model_WorkspaceWidget $widget, array $params=[], $params_prefix=null) {
 		$cache = DevblocksPlatform::services()->cache();
 		
 		$url = $params['url'] ?? null;
 		
 		$cache_mins = $params['url_cache_mins'] ?? null;
-		$cache_mins = max(1, intval($cache_mins));
+		$cache_mins = DevblocksPlatform::intClamp($cache_mins, 1, 1440);
 		
-		$cache_key = sprintf("widget%d_datasource", $widget->id);
+		// Hash key includes the URL
+		$cache_key = sprintf("widget%d_datasource:%s", $widget->id, sha1($url));
 		
-		if(true || null === ($data = $cache->load($cache_key))) {
+		if($cache_mins && null === ($data = $cache->load($cache_key))) {
 			$ch = DevblocksPlatform::curlInit($url);
-			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 			$raw_data = DevblocksPlatform::curlExec($ch);
 			$info = curl_getinfo($ch);
 			
-			//$status = $info['http_code'] ?? null;
-			//@$content_type = DevblocksPlatform::strLower($info['content_type']);
-			
-			$data = array(
+			$data = [
 				'raw_data' => $raw_data,
 				'info' => $info,
-			);
+			];
 			
-			DAO_WorkspaceWidget::update($widget->id, array(
+			DAO_WorkspaceWidget::update($widget->id, [
 				DAO_WorkspaceWidget::UPDATED_AT => time(),
-			), DevblocksORMHelper::OPT_UPDATE_NO_READ_AFTER_WRITE);
+			], DevblocksORMHelper::OPT_UPDATE_NO_READ_AFTER_WRITE);
 			
-			$cache->save($data, $cache_key, array(), $cache_mins*60);
+			$cache->save($data, $cache_key, [], $cache_mins*60);
 		}
-	
+
 		switch($widget->extension_id) {
 			case 'core.workspace.widget.chart':
 			case 'core.workspace.widget.pie_chart':
 			case 'core.workspace.widget.scatterplot':
 				return $this->_getDataSeries($widget, $params, $data);
-				break;
 				
 			case 'core.workspace.widget.counter':
 			case 'core.workspace.widget.gauge':
 				return $this->_getDataSingle($widget, $params, $data);
-				break;
 		}
 	}
 	
 	private function _getDataSeries($widget, $params=array(), $data=null) {
 		if(!is_array($data) || !isset($data['info']) || !isset($data['raw_data']))
-			return;
+			return [];
 		
 		if(!isset($params['url_format']) || empty($params['url_format'])) {
 			$content_type = $data['info']['content_type'];
@@ -794,7 +788,7 @@ class WorkspaceWidgetDatasource_URL extends Extension_WorkspaceWidgetDatasource 
 		$raw_data = $data['raw_data'];
 		
 		if(empty($raw_data) || empty($content_type)) {
-			return;
+			return [];
 		}
 		
 		$url_format = '';
@@ -812,23 +806,21 @@ class WorkspaceWidgetDatasource_URL extends Extension_WorkspaceWidgetDatasource 
 			case 'text/csv':
 				$url_format = 'csv';
 				break;
-				
-			default:
-				return;
-				break;
 		}
+		
+		if(!$url_format) return [];
 		
 		switch($url_format) {
 			case 'json':
-				if(false != (@$json = json_decode($raw_data, true))) {
-					$results = array();
+				if(($json = json_decode($raw_data, true))) {
+					$results = [];
 					
 					if(is_array($json))
 					foreach($json as $object) {
 						if(!isset($object['value']))
 							continue;
 						
-						$result = array();
+						$result = [];
 						
 						if(isset($object['value']))
 							$result['metric_value'] = floatval($object['value']);
@@ -892,14 +884,14 @@ class WorkspaceWidgetDatasource_URL extends Extension_WorkspaceWidgetDatasource 
 				$fp = DevblocksPlatform::getTempFile();
 				fwrite($fp, $raw_data, strlen($raw_data));
 				
-				$results = array();
+				$results = [];
 				
 				fseek($fp, 0);
 				
 				while(false != ($row = fgetcsv($fp, 0, ',', '"'))) {
 					if(is_array($row) && count($row) >= 1) {
 						$result['metric_value'] = floatval($row[0]);
-						$result['metric_label'] = @$row[1] ?: '';
+						$result['metric_label'] = ($row[1] ?? null) ?: '';
 						$results[] = $result;
 					}
 				}
