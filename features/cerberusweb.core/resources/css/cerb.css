@@ -3063,6 +3063,19 @@ TABLE.cerb-widget-data-table .cerb-sheet--row-title div, TABLE.cerb-widget-data-
   background: var(--cerb-color-progress-available);
 }
 
+.cerb-syntax-kata .cerb-syntax-kata--key {
+  color: var(--cerb-editor-syntax-tag);
+}
+.cerb-syntax-kata .cerb-syntax-kata--annotation {
+  color: var(--cerb-editor-syntax-type);
+}
+.cerb-syntax-kata .cerb-syntax-kata--comment {
+  color: var(--cerb-editor-syntax-comment);
+}
+.cerb-syntax-kata .cerb-syntax-kata--twig {
+  color: var(--cerb-editor-syntax-twig-var);
+}
+
 /* jQueryUI (Redmond theme) */
 .ui-widget,
 .ui-widget input,
