@@ -641,6 +641,113 @@ if(!$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts
 }
 
 // ===========================================================================
+// Default `Record Fields` card widget for `cerb.contexts.automation.event`
+
+if(!$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contexts.automation.event' AND extension_id='cerb.card.widget.fields'")) {
+	$db->ExecuteMaster(sprintf(
+		"INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
+		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
+		$db->qstr('Properties'),
+		$db->qstr('cerb.contexts.automation.event'),
+		$db->qstr('cerb.card.widget.fields'),
+		$db->qstr(json_encode([
+			"context" => "cerb.contexts.automation.event",
+			"context_id" => "{{record_id}}",
+			"properties" => [
+				[
+					"name",
+					"extension",
+					"description",
+					"updated",
+					"id",
+				],
+			],
+			"search" => [
+				"context" => ["cerb.contexts.automation.event.listener"],
+				"query" => ["event:{{record_name}}"],
+				"label_singular" => ["Listener"],
+				"label_plural" => ["Listeners"],
+			],
+			"toolbar_kata" => "",
+		])),
+		time(), time(),
+		1, 12,
+		$db->qstr('content')
+	));
+}
+
+// ===========================================================================
+// Default `Overview` profile tab for `cerb.contexts.automation.event`
+
+if(!$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts.automation.event'")) {
+	$db->ExecuteMaster(sprintf("INSERT INTO profile_tab (name, context, extension_id, updated_at, extension_params_json, pos) ".
+		"VALUES (%s, %s, %s, %d, %s, %d)",
+		$db->qstr('Overview'),
+		$db->qstr('cerb.contexts.automation.event'),
+		$db->qstr('cerb.profile.tab.dashboard'),
+		time(),
+		$db->qstr(json_encode([
+			"layout" => "sidebar_left",
+		])),
+		1
+	));
+
+	$new_profile_tab_id = $db->LastInsertId();
+
+	$db->ExecuteMaster(sprintf("INSERT INTO profile_widget (name, profile_tab_id, extension_id, extension_params_json, updated_at, pos, width_units, zone, options_kata) ".
+		"VALUES (%s, %d, %s, %s, %d, %d, %d, %s, %s)",
+		$db->qstr('Automation Event'),
+		$new_profile_tab_id,
+		$db->qstr('cerb.profile.tab.widget.fields'),
+		$db->qstr(json_encode([
+			"context" => "cerb.contexts.automation.event",
+			"context_id" => "{{record_id}}",
+			"properties" => [
+				[
+					"name",
+					"extension",
+					"description",
+					"updated",
+					"id",
+				],
+			],
+			"toolbar_kata" => "",
+		])),
+		time(),
+		1,
+		4,
+		$db->qstr('sidebar'),
+		$db->qstr('')
+	));
+
+	$db->ExecuteMaster(sprintf("INSERT INTO profile_widget (name, profile_tab_id, extension_id, extension_params_json, updated_at, pos, width_units, zone, options_kata) ".
+		"VALUES (%s, %d, %s, %s, %d, %d, %d, %s, %s)",
+		$db->qstr('Event Listeners'),
+		$new_profile_tab_id,
+		$db->qstr('cerb.profile.tab.widget.worklist'),
+		$db->qstr(json_encode([
+			"context" => "cerb.contexts.automation.event.listener",
+			"query_required" => "event:{{record_name}}",
+			"query" => "sort:priority",
+			"render_limit" => "25",
+			"header_color" => "#6a87db",
+			"columns" => [
+				"a_name",
+				"a_priority",
+				"a_workflow_id",
+				"a_is_disabled",
+				"a_updated_at",
+			],
+		])),
+		time(),
+		1,
+		4,
+		$db->qstr('content'),
+		$db->qstr('')
+	));
+}
+
+// ===========================================================================
 // Default `Record Fields` card widget for `cerb.contexts.automation.event.listener`
 
 if(!$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contexts.automation.event.listener' AND extension_id='cerb.card.widget.fields'")) {
