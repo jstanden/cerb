@@ -345,8 +345,10 @@ class _DevblocksSheetService {
 				$text_size = $this->_cellParamTextSize('text_size', $column, $sheet_dict, $layout, $environment);
 				$text_align = $this->_cellParamTextAlign('text_align', $column, $sheet_dict, $layout, $environment);
 				
+				$value = $this->_types[$column_type]($column, $sheet_dict, $environment) ?? '';
+				
 				$row[$column_key] = new DevblocksSheetCell(
-					$this->_types[$column_type]($column, $sheet_dict, $environment),
+					$value,
 					[
 						'color' => $color,
 						'text_align' => $text_align,
