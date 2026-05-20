@@ -495,7 +495,9 @@ abstract class Extension_CalendarDatasource extends DevblocksExtension {
 	 * @internal
 	 */
 	static function get($extension_id) {
-		if(isset(self::$_registry[$extension_id]))
+		$extension_id = strval($extension_id);
+		
+		if(array_key_exists($extension_id, self::$_registry))
 			return self::$_registry[$extension_id];
 		
 		if(null != ($extension = DevblocksPlatform::getExtension($extension_id, true))
@@ -3049,7 +3051,9 @@ abstract class Extension_WorkspaceWidgetDatasource extends DevblocksExtension {
 	 * @internal
 	 */
 	static function get($extension_id) {
-		if(isset(self::$_registry[$extension_id]))
+		$extension_id = strval($extension_id);
+		
+		if(array_key_exists($extension_id, self::$_registry))
 			return self::$_registry[$extension_id];
 		
 		if(null != ($extension = DevblocksPlatform::getExtension($extension_id, true))

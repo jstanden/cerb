@@ -185,7 +185,7 @@ class Cerb_OAuth2Provider extends AbstractProvider {
 class Cerb_OAuth2UserEntity implements UserEntityInterface {
 	use EntityTrait;
 	
-	function __construct(Model_Worker $worker=null) {
+	function __construct(?Model_Worker $worker=null) {
 		if(!is_null($worker)) {
 			$this->setIdentifier($worker->id);
 		}

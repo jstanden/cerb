@@ -165,7 +165,7 @@ class _DevblocksWorkflowService {
 		return $results;
 	}
 	
-	public function import(Model_Workflow $new_workflow, ?Model_Worker $as_worker, string &$error = null) : Model_Workflow|false {
+	public function import(Model_Workflow $new_workflow, ?Model_Worker $as_worker, ?string &$error = null) : Model_Workflow|false {
 		$kata = DevblocksPlatform::services()->kata();
 		
 		// Modify a copy of the model, not the original

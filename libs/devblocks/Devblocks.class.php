@@ -2740,9 +2740,10 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @return DevblocksExtensionManifest
 	 */
 	static function getExtension($extension_id, $as_instance=false) {
+		$extension_id = strval($extension_id);
 		$extensions = DevblocksPlatform::getExtensionRegistry();
 		
-		if(!isset($extensions[$extension_id]))
+		if(!array_key_exists($extension_id, $extensions))
 			return null;
 		
 		$extension = $extensions[$extension_id];

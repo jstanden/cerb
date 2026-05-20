@@ -14,7 +14,7 @@ abstract class Extension_DevblocksGpgEngine {
 	abstract function decrypt($encrypted_content);
 	abstract function sign($plaintext, $key_fingerprint, $is_detached=true);
 	abstract function verify($signed_content, $signature=false);
-	abstract function keygen(array $uids, int $key_length, string $hash_algorithm='SHA256', string $passphrase=null);
+	abstract function keygen(array $uids, int $key_length, string $hash_algorithm='SHA256', ?string $passphrase=null);
 }
 
 class DevblocksGpgEngine_OpenPGP extends Extension_DevblocksGpgEngine {
@@ -77,7 +77,7 @@ class DevblocksGpgEngine_OpenPGP extends Extension_DevblocksGpgEngine {
 	 * @param string|null $passphrase
 	 * @return array|false
 	 */
-	function keygen(array $uids, int $key_length=2048, string $hash_algorithm='SHA256', string $passphrase=null) {
+	function keygen(array $uids, int $key_length=2048, string $hash_algorithm='SHA256', ?string $passphrase=null) {
 		// [TODO] Passphrases
 		
 		if(!in_array($key_length,[512,1024,2048,3072,4096]))
