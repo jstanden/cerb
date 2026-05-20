@@ -115,49 +115,37 @@ class WorkspaceWidget_ChartTimeBlocks extends Extension_WorkspaceWidget implemen
 	
 	private function _exportDataAsCsv(Model_WorkspaceWidget $widget) {
 		$error = null;
-		
-		if(false == ($data = $this->getData($widget, $error)))
-			return;
-		
+
+		if(!($data = $this->getData($widget, $error)))
+			return false;
+
+		if(!is_array($data['data'] ?? null))
+			return false;
+
 		$fp = fopen("php://temp", 'r+');
-		
-		// Headings
+
 		fputcsv($fp, [
 			'Date',
-			'Label',
 			'Value',
-		]);
-		
-		if(!isset($data['data']))
-			return;
-		
-		if(!isset($data['data']['ts']))
-			return;
-		
-		$x_dates = $data['data']['ts'];
-		unset($data['data']['ts']);
-		
-		foreach($x_dates as $x_idx => $x_date) {
-			foreach($data['data'] as $series_label => $series_data) {
-				$row = [
-					$x_date,
-					$series_label,
-					$series_data[$x_idx],
-				];
-				fputcsv($fp, $row);
-			}
+		], escape:'');
+
+		foreach($data['data'] as $row) {
+			fputcsv($fp, [
+				$row['date'] ?? '',
+				$row['value'] ?? '',
+			], escape:'');
 		}
-		
+
 		rewind($fp);
-		
+
 		$output = "";
-		
+
 		while(!feof($fp)) {
 			$output .= fgets($fp);
 		}
-		
+
 		fclose($fp);
-		
+
 		return $output;
 	}
 	
