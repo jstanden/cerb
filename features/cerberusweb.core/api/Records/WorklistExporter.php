@@ -83,7 +83,7 @@ class WorklistExporter {
 					$labels = array_map(fn($t) => trim($this->_global_labels[$t] ?? $t), $tokens);
 				}
 				$fp = fopen('php://memory', 'r+');
-				fputcsv($fp, $labels);
+				fputcsv($fp, $labels, escape:'');
 				rewind($fp);
 				$out = stream_get_contents($fp);
 				fclose($fp);
@@ -225,7 +225,7 @@ class WorklistExporter {
 					$value = $this->_renderKataColumnValue($column_name, $column, $dict);
 					$fields[] = is_scalar($value) ? $value : json_encode($value);
 				}
-				fputcsv($fp, $fields);
+				fputcsv($fp, $fields, escape:'');
 			}
 		} else {
 			foreach($dicts as $dict) {
@@ -241,7 +241,7 @@ class WorklistExporter {
 
 					$fields[] = $value;
 				}
-				fputcsv($fp, $fields);
+				fputcsv($fp, $fields, escape:'');
 			}
 		}
 

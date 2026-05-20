@@ -245,10 +245,10 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget implements ICerbWo
 		
 		$headings = array_map(fn($col) => $col['label'] ?? $col['key'], $results['columns']);
 		
-		fputcsv($fp, $headings);
+		fputcsv($fp, $headings, escape:'');
 		
 		foreach($results['rows'] ?? [] as $row) {
-			fputcsv($fp, array_values($row));
+			fputcsv($fp, array_values($row), escape:'');
 		}
 		
 		rewind($fp);

@@ -184,7 +184,7 @@ class WorkspaceWidget_PieChart extends Extension_WorkspaceWidget implements ICer
 		$fp = fopen("php://temp", 'r+');
 		
 		foreach($results as $result) {
-			fputcsv($fp, $result);
+			fputcsv($fp, $result, escape:'');
 		}
 		
 		rewind($fp);

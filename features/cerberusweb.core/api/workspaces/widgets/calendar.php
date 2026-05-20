@@ -185,15 +185,14 @@ class WorkspaceWidget_Calendar extends Extension_WorkspaceWidget implements ICer
 			'Color',
 			//Link',
 		);
-		
-		fputcsv($fp, $headings);
-		
-		// [TODO] This needs to use the selected month/year from widget
+
+		fputcsv($fp, $headings, escape:'');
+
 		$calendar_events = $calendar->getEvents($calendar_properties['date_range_from'], $calendar_properties['date_range_to']);
 		
 		foreach($calendar_events as $events) {
 			foreach($events as $event) {
-				fputcsv($fp, array(
+				fputcsv($fp, [
 					date('r', $event['ts']),
 					$event['label'],
 					$event['ts'],
@@ -201,7 +200,7 @@ class WorkspaceWidget_Calendar extends Extension_WorkspaceWidget implements ICer
 					$event['is_available'],
 					$event['color'],
 					//$event['link'], // [TODO] Translate ctx:// links
-				));
+				], escape:'');
 			}
 		}
 		

@@ -362,7 +362,7 @@ class WorkspaceWidget_ChartLegacy extends Extension_WorkspaceWidget implements I
 		$fp = fopen("php://temp", 'r+');
 		
 		foreach($results as $result) {
-			fputcsv($fp, $result);
+			fputcsv($fp, $result, escape:'');
 		}
 		
 		rewind($fp);

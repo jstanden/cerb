@@ -1035,7 +1035,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		
 		} else {
 			// In a CSV file, the first line is assumed to be the header names
-			if(false === ($columns = fgetcsv($fp)))
+			if(false === ($columns = fgetcsv($fp, escape:'')))
 				DevblocksPlatform::dieWithHttpError(null, 500);
 		}
 		

@@ -2088,7 +2088,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			if(!is_array($row))
 				continue;
 		
-			fputcsv($fp, $row);
+			fputcsv($fp, $row, escape:'');
 		}
 		
 		rewind($fp);
@@ -2263,7 +2263,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 		return md5($string);
 	}
 	
-	function filter_parse_csv($string, $separator=',', $enclosure='"', $escape='\\') {
+	function filter_parse_csv($string, $separator=',', $enclosure='"', $escape='') {
 		if($string instanceof Twig\Markup)
 			$string = strval($string);
 		

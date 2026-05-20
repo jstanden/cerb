@@ -147,10 +147,10 @@ class WorkspaceWidget_ChartPie extends Extension_WorkspaceWidget implements ICer
 		fputcsv($fp, [
 			'Label',
 			'Value',
-		]);
+		], escape:'');
 		
 		foreach($data['data'] as $d) {
-			fputcsv($fp, $d);
+			fputcsv($fp, $d, escape:'');
 		}
 		
 		rewind($fp);

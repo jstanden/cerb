@@ -141,7 +141,7 @@ class FileImporter {
 			}
 			
 		} else { // CSV
-			$parts = fgetcsv($this->_fp, 128_000, ',', '"');
+			$parts = fgetcsv($this->_fp, 128_000, ',', '"', escape:'');
 		}
 		
 		if(empty($parts) || (1==count($parts) && is_null($parts[0])))

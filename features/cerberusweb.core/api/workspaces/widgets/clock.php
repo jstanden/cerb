@@ -99,8 +99,8 @@ class WorkspaceWidget_Clock extends Extension_WorkspaceWidget implements ICerbWo
 
 		$fp = fopen("php://temp", 'r+');
 		
-		fputcsv($fp, array_keys($results));
-		fputcsv($fp, array_values($results));
+		fputcsv($fp, array_keys($results), escape:'');
+		fputcsv($fp, array_values($results), escape:'');
 		
 		rewind($fp);
 

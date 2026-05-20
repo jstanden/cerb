@@ -288,11 +288,11 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget implements ICer
 			foreach(array_keys($first_result) as $k)
 				$headings[] = $k;
 			
-			fputcsv($fp, $headings);
+			fputcsv($fp, $headings, escape:'');
 		}
 		
 		foreach($results as $result) {
-			fputcsv($fp, $result);
+			fputcsv($fp, $result, escape:'');
 		}
 		
 		rewind($fp);

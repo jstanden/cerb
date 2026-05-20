@@ -242,7 +242,7 @@ class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget implemen
 			'Date',
 			'Label',
 			'Value',
-		]);
+		], escape:'');
 		
 		if(!isset($data['data']))
 			return;
@@ -260,7 +260,7 @@ class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget implemen
 					$series_label,
 					$series_data[$x_idx],
 				];
-				fputcsv($fp, $row);
+				fputcsv($fp, $row, escape:'');
 			}
 		}
 		

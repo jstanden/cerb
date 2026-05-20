@@ -172,7 +172,7 @@ class WorkspaceWidget_ChartCategories extends Extension_WorkspaceWidget implemen
 		$fp = fopen("php://temp", 'r+');
 		
 		foreach($data['data'] as $d) {
-			fputcsv($fp, $d);
+			fputcsv($fp, $d, escape:'');
 		}
 		
 		rewind($fp);

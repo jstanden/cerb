@@ -888,7 +888,7 @@ class WorkspaceWidgetDatasource_URL extends Extension_WorkspaceWidgetDatasource 
 				
 				fseek($fp, 0);
 				
-				while(false != ($row = fgetcsv($fp, 0, ',', '"'))) {
+				while(false != ($row = fgetcsv($fp, 0, ',', '"', escape:''))) {
 					if(is_array($row) && count($row) >= 1) {
 						$result['metric_value'] = floatval($row[0]);
 						$result['metric_label'] = ($row[1] ?? null) ?: '';

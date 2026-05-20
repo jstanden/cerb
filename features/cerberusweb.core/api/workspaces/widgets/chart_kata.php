@@ -218,7 +218,7 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget implements ICe
 		$fp = fopen("php://temp", 'r+');
 		
 		foreach(($chart_json['data']['columns'] ?? []) as $data) {
-			fputcsv($fp, $data);
+			fputcsv($fp, $data, escape:'');
 		}
 		
 		rewind($fp);

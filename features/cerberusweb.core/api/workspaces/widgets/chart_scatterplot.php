@@ -154,7 +154,7 @@ class WorkspaceWidget_ChartScatterplot extends Extension_WorkspaceWidget impleme
 			'Label',
 			'X',
 			'Y',
-		]);
+		], escape:'');
 		
 		foreach($data['data'] as $idx => $result) {
 			$label = array_shift($result);
@@ -179,7 +179,7 @@ class WorkspaceWidget_ChartScatterplot extends Extension_WorkspaceWidget impleme
 		}
 		
 		foreach($points as $label => $d) {
-			fputcsv($fp, $d);
+			fputcsv($fp, $d, escape:'');
 		}
 		
 		rewind($fp);

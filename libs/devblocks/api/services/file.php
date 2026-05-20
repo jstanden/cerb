@@ -86,7 +86,7 @@ class _DevblocksFileService {
 		$line_offset = $start;
 		
 		while(!feof($fp)) {
-			fgetcsv($fp, 64_000, ',', '"');
+			fgetcsv($fp, 64_000, escape:'');
 			$current = ftell($fp);
 			$buffer_length = $current - $line_offset;
 		

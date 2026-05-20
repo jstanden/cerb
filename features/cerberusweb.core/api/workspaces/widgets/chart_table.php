@@ -110,7 +110,7 @@ class WorkspaceWidget_ChartTable extends Extension_WorkspaceWidget implements IC
 		$fp = fopen("php://temp", 'r+');
 		
 		// Headings
-		fputcsv($fp, array_column($data['data']['columns'], 'label'));
+		fputcsv($fp, array_column($data['data']['columns'], 'label'), escape:'');
 		
 		// Data
 		foreach($data['data']['rows'] as $r) {
@@ -121,7 +121,7 @@ class WorkspaceWidget_ChartTable extends Extension_WorkspaceWidget implements IC
 				$row[] = $r[$c_key];
 			}
 			
-			fputcsv($fp, $row);
+			fputcsv($fp, $row, escape:'');
 		}
 		
 		rewind($fp);
