@@ -846,6 +846,143 @@ if(!$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts
 }
 
 // ===========================================================================
+// Default `Properties` card widget for `cerb.contexts.automation`
+
+// Shift the existing `Statistics` chart widget down so `Properties` can sit on top
+$db->ExecuteMaster("UPDATE card_widget SET pos = 2 WHERE record_type = 'cerb.contexts.automation' AND extension_id = 'cerb.card.widget.chart.timeseries' AND name = 'Statistics' AND pos = 3");
+
+if(!$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contexts.automation' AND extension_id='cerb.card.widget.fields'")) {
+	$db->ExecuteMaster(sprintf(
+		"INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
+		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
+		$db->qstr('Properties'),
+		$db->qstr('cerb.contexts.automation'),
+		$db->qstr('cerb.card.widget.fields'),
+		$db->qstr(json_encode([
+			"context" => "cerb.contexts.automation",
+			"context_id" => "{{record_id}}",
+			"properties" => [
+				[
+					"name",
+					"extension_id",
+					"description",
+					"policy_kata",
+					"created",
+					"updated",
+					"id",
+				],
+			],
+			"toolbar_kata" => "",
+		])),
+		time(), time(),
+		1, 12,
+		$db->qstr('content')
+	));
+}
+
+// ===========================================================================
+// Default `Overview` profile tab for `cerb.contexts.automation`
+
+if(!$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts.automation'")) {
+	$db->ExecuteMaster(sprintf("INSERT INTO profile_tab (name, context, extension_id, updated_at, extension_params_json, pos) ".
+		"VALUES (%s, %s, %s, %d, %s, %d)",
+		$db->qstr('Overview'),
+		$db->qstr('cerb.contexts.automation'),
+		$db->qstr('cerb.profile.tab.dashboard'),
+		time(),
+		$db->qstr(json_encode([
+			"layout" => "sidebar_left",
+		])),
+		1
+	));
+
+	$new_profile_tab_id = $db->LastInsertId();
+
+	$db->ExecuteMaster(sprintf("INSERT INTO profile_widget (name, profile_tab_id, extension_id, extension_params_json, updated_at, pos, width_units, zone, options_kata) ".
+		"VALUES (%s, %d, %s, %s, %d, %d, %d, %s, %s)",
+		$db->qstr('Automation'),
+		$new_profile_tab_id,
+		$db->qstr('cerb.profile.tab.widget.fields'),
+		$db->qstr(json_encode([
+			"context" => "cerb.contexts.automation",
+			"context_id" => "{{record_id}}",
+			"properties" => [
+				[
+					"name",
+					"extension_id",
+					"description",
+					"policy_kata",
+					"created",
+					"updated",
+					"id",
+				],
+			],
+			"toolbar_kata" => "",
+		])),
+		time(),
+		1,
+		4,
+		$db->qstr('sidebar'),
+		$db->qstr('')
+	));
+
+	$db->ExecuteMaster(sprintf("INSERT INTO profile_widget (name, profile_tab_id, extension_id, extension_params_json, updated_at, pos, width_units, zone, options_kata) ".
+		"VALUES (%s, %d, %s, %s, %d, %d, %d, %s, %s)",
+		$db->qstr('Policy'),
+		$new_profile_tab_id,
+		$db->qstr('cerb.profile.tab.widget.sheet'),
+		$db->qstr(json_encode([
+			"data_query" => "type:worklist.records\r\nof:automation\r\nexpand:[policy_kata]\r\nquery:(\r\n  id:{{record_id}}\r\n  limit:1\r\n  sort:[id]\r\n)\r\nformat:dictionaries",
+			"cache_secs" => "",
+			"placeholder_simulator_kata" => "",
+			"sheet_kata" => "layout:\r\n  style: table\r\n  headings@bool: no\r\n  paging@bool: no\r\n\r\ncolumns:\r\n  code/policy_kata:\r\n    params:\r\n      syntax: kata\r\n",
+			"toolbar_kata" => "",
+		])),
+		time(),
+		2,
+		4,
+		$db->qstr('sidebar'),
+		$db->qstr('')
+	));
+
+	$db->ExecuteMaster(sprintf("INSERT INTO profile_widget (name, profile_tab_id, extension_id, extension_params_json, updated_at, pos, width_units, zone, options_kata) ".
+		"VALUES (%s, %d, %s, %s, %d, %d, %d, %s, %s)",
+		$db->qstr('Discussion'),
+		$new_profile_tab_id,
+		$db->qstr('cerb.profile.tab.widget.comments'),
+		$db->qstr(json_encode([
+			"context" => "cerb.contexts.automation",
+			"context_id" => "{{record_id}}",
+			"height" => "",
+		])),
+		time(),
+		3,
+		4,
+		$db->qstr('content'),
+		$db->qstr('')
+	));
+
+	$db->ExecuteMaster(sprintf("INSERT INTO profile_widget (name, profile_tab_id, extension_id, extension_params_json, updated_at, pos, width_units, zone, options_kata) ".
+		"VALUES (%s, %d, %s, %s, %d, %d, %d, %s, %s)",
+		$db->qstr('Script'),
+		$new_profile_tab_id,
+		$db->qstr('cerb.profile.tab.widget.sheet'),
+		$db->qstr(json_encode([
+			"data_query" => "type:worklist.records\r\nof:automation\r\nexpand:[script]\r\nquery:(\r\n  id:{{record_id}}\r\n  limit:1\r\n  sort:[id]\r\n)\r\nformat:dictionaries",
+			"cache_secs" => "",
+			"placeholder_simulator_kata" => "",
+			"sheet_kata" => "layout:\r\n  style: table\r\n  headings@bool: no\r\n  paging@bool: no\r\n\r\ncolumns:\r\n  code/script:\r\n    params:\r\n      syntax: kata\r\n",
+			"toolbar_kata" => "",
+		])),
+		time(),
+		4,
+		4,
+		$db->qstr('content'),
+		$db->qstr('')
+	));
+}
+
+// ===========================================================================
 // Default `Properties` card widget for `cerb.contexts.automation.timer`
 
 if(!$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contexts.automation.timer' AND extension_id='cerb.card.widget.fields'")) {
