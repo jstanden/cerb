@@ -1040,7 +1040,7 @@ class Context_AutomationTimer extends Extension_DevblocksContext implements IDev
 		);
 		
 		$properties['is_disabled'] = array(
-			'label' => DevblocksPlatform::translateCapitalized('dao.disabled'),
+			'label' => DevblocksPlatform::translateCapitalized('common.disabled'),
 			'type' => Model_CustomField::TYPE_CHECKBOX,
 			'value' => $model->is_disabled,
 		);
