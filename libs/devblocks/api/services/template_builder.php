@@ -2082,6 +2082,9 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			return null;
 		
 		foreach ($array as $row) {
+			if(is_object($row))
+				$row = DevblocksPlatform::objectToArray($row);
+			
 			if(!is_array($row))
 				continue;
 		
