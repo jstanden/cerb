@@ -6,6 +6,7 @@
 <input type="hidden" name="action" value="saveImport">
 <input type="hidden" name="context" value="{$context}">
 <input type="hidden" name="import_token" value="{$import_token}">
+<input type="hidden" name="import_pref_suffix" value="{$import_pref_suffix}">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <fieldset>
@@ -18,9 +19,10 @@
 		<td style="padding-left:10px;"><b>Set value from file column</b></td>
 	</tr>
 	{foreach from=$keys item=key key=token}
+	{$saved_col = $saved_mapping[$token].column|default:''}
 	<tr>
 		<td valign="top" align="center">
-			<input type="checkbox" name="sync_dupes[]" value="{$token}" {if $key.force_match}checked="checked" disabled="disabled"{/if}>
+			<input type="checkbox" name="sync_dupes[]" value="{$token}" {if $key.force_match}checked="checked" disabled="disabled"{elseif $saved_mapping[$token].sync_dupes}checked="checked"{/if}>
 		</td>
 		<td style="padding-left:10px;" valign="top">
 			<span style="{if $key.required}font-weight:bold;{/if}">{$key.label|capitalize}</span>
@@ -30,20 +32,20 @@
 			<select name="column[]" class="{if $key.required}required{/if}">
 				<option value=""></option>
 				{foreach from=$columns item=column key=pos name=columns}
-					<option value="{$pos}">Column {$smarty.foreach.columns.iteration}: {$column|capitalize}</option>
+					<option value="{$pos}" {if $saved_col !== '' && $saved_col == $pos}selected="selected"{/if}>Column {$smarty.foreach.columns.iteration}: {$column|capitalize}</option>
 				{/foreach}
 				{if $key.type == Model_CustomField::TYPE_CHECKBOX}
-					<option value="yes">{'common.yes'|devblocks_translate|lower}</option>
-					<option value="no">{'common.no'|devblocks_translate|lower}</option>
+					<option value="yes" {if $saved_col === 'yes'}selected="selected"{/if}>{'common.yes'|devblocks_translate|lower}</option>
+					<option value="no" {if $saved_col === 'no'}selected="selected"{/if}>{'common.no'|devblocks_translate|lower}</option>
 				{elseif $key.type == Model_CustomField::TYPE_DATE}
-					<option value="now">now</option>
+					<option value="now" {if $saved_col === 'now'}selected="selected"{/if}>now</option>
 				{elseif $key.type == Model_CustomField::TYPE_WORKER || $key.type == "ctx_{CerberusContexts::CONTEXT_WORKER}"}
-					<option value="me">me</option>
+					<option value="me" {if $saved_col === 'me'}selected="selected"{/if}>me</option>
 				{/if}
-				<option value="custom">custom value:</option>
+				<option value="custom" {if $saved_col === 'custom'}selected="selected"{/if}>custom value:</option>
 			</select>
-			<div class="custom" style="display:none;">
-				<textarea cols="45" rows="2" style="width:100%;height:3.5em;" name="column_custom[]"></textarea>
+			<div class="custom" style="{if $saved_col === 'custom'}display:block;{else}display:none;{/if}">
+				<textarea cols="45" rows="2" style="width:100%;height:3.5em;" name="column_custom[]">{$saved_mapping[$token].column_custom|default:''|escape}</textarea>
 			</div>
 			<label for="columns[]" style="display:none;"></label>
 		</td>

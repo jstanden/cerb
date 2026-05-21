@@ -1040,19 +1040,33 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		}
 		
 		fclose($fp);
-		
+
 		$tpl->assign('columns', $columns);
-		
+
+		// Reload last mapping for this (context, format, columns) tuple
+		$import_pref_suffix = $this->_buildImportMappingPrefSuffix($context_ext, $automation_resource, $columns);
+		$saved_mapping = DAO_WorkerPref::getAsJson($active_worker->id, 'worklist.import_mapping.' . $import_pref_suffix) ?: [];
+
+		$tpl->assign('saved_mapping', $saved_mapping);
+		$tpl->assign('import_pref_suffix', $import_pref_suffix);
+
 		// Template
-		
+
 		$tpl->assign('layer', $layer);
 		$tpl->assign('context', $context_ext->id);
 		$tpl->assign('view_id', $view_id);
 		$tpl->assign('import_token', $import_token);
-		
+
 		$tpl->display('devblocks:cerberusweb.core::internal/import/popup_mapping.tpl');
 	}
 	
+	private function _buildImportMappingPrefSuffix(Extension_DevblocksContext $context_ext, Model_AutomationResource $resource, array $columns) : string {
+		$format = $resource->mime_type === 'text/jsonl' ? 'jsonl' : 'csv';
+		$hash = substr(hash('sha256', $context_ext->id . "\0" . json_encode($columns)), 0, 16);
+
+		return sprintf('%s.%s', $format, $hash);
+	}
+
 	private function _filterImportCustomFields(&$keys) {
 		if(!CerberusApplication::getActiveWorker())
 			return;
@@ -1187,10 +1201,33 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 			
 			$error = null;
 			$mapping = new FileImporter\Mapping($field, $column, $column_custom, $sync_dupes);
-			
+
 			if(!$importer->validate($mapping, $error))
 				throw new Exception_DevblocksValidationError($error);
-			
+
+			// Remember this mapping. Client supplies only the {format}.{hash} suffix;
+			// server owns the prefix. A forged suffix is harmless — the next render
+			// computes the real hash and won't find what the client wrote.
+			$import_pref_suffix = DevblocksPlatform::importGPC($_POST['import_pref_suffix'] ?? null, 'string', '');
+
+			if($active_worker && preg_match('/^(?:csv|jsonl)\.[a-f0-9]{16}$/', $import_pref_suffix)) {
+				$mapping_to_save = [];
+				$fields = $mapping->getFields();
+				$columns_map = $mapping->getColumns();
+				$custom_map = $mapping->getCustomColumns();
+				$sync_set = array_flip($mapping->getSyncColumns());
+
+				foreach($fields as $idx => $token) {
+					$mapping_to_save[$token] = [
+						'column' => (string)($columns_map[$idx] ?? ''),
+						'column_custom' => (string)($custom_map[$idx] ?? ''),
+						'sync_dupes' => isset($sync_set[$token]),
+					];
+				}
+
+				DAO_WorkerPref::setAsJson($active_worker->id, 'worklist.import_mapping.' . $import_pref_suffix, $mapping_to_save);
+			}
+
 			$queue = DAO_Queue::getByName('cerb.records.import');
 			$aliases = Extension_DevblocksContext::getAliasesForContext($context_ext->manifest);
 			
