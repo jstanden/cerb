@@ -129,6 +129,22 @@ class _DevblocksQueueService {
 	}
 
 	/**
+	 * Finalize any of the given jobs that are message-exhausted but not yet DONE.
+	 * Safe to call from outside the publish() shutdown flow (e.g. UI poll endpoints);
+	 * the per-job advisory lock in _finalizeJobs() prevents racing the shutdown call.
+	 *
+	 * @return Model_QueueJob[] Jobs that were eligible (the lock decides who actually transitions).
+	 */
+	public function finalizeJobsIfReady(array $job_ids) : array {
+		$ready = DAO_QueueJob::checkForCompletedJobs($job_ids);
+
+		if($ready)
+			$this->_finalizeJobs($ready);
+
+		return $ready;
+	}
+
+	/**
 	 * Transition each job to DONE under a per-job advisory lock so the consumer's
 	 * onQueueJobComplete hook fires exactly once even with parallel consumers.
 	 *
@@ -145,11 +161,25 @@ class _DevblocksQueueService {
 				continue;
 
 			try {
-				// Re-check with master to avoid acting on a job another worker already finalized
+				// Re-check with master to avoid acting on a job another worker already
+				// finalized or canceled. A job could be canceled between selection and
+				// lock acquisition; checkForCompletedJobs already filters DONE/CANCELED,
+				// but this is defense in depth.
 				$current = DAO_QueueJob::get($job->id);
 
-				if(!$current || $current->status_id == QueueJobStatus::DONE->value)
+				if(!$current || in_array($current->status_id, [QueueJobStatus::DONE->value, QueueJobStatus::CANCELED->value], true))
 					continue;
+
+				// Run the completion hook first. If it throws, the catch below logs it
+				// and the status stays out of DONE — the next finalize attempt (from
+				// another worker shutdown or the widget's refresh poll) will retry under
+				// a fresh lock. Only after the hook has succeeded do we transition to
+				// DONE so callers can treat status==DONE as "result is ready".
+				$queue = $queues[$current->queue_id] ?? null;
+
+				if($queue && ($extension = $queue->getExtension())) {
+					$extension->onQueueJobComplete($current);
+				}
 
 				DAO_QueueJob::setStatus([$job->id], QueueJobStatus::DONE);
 
@@ -168,12 +198,6 @@ class _DevblocksQueueService {
 							'urls'      => ['target' => 'cerb:' . CerberusContexts::CONTEXT_QUEUE_JOB . ':' . $current->id],
 						]),
 					]);
-				}
-
-				$queue = $queues[$current->queue_id] ?? null;
-
-				if($queue && ($extension = $queue->getExtension())) {
-					$extension->onQueueJobComplete($current);
 				}
 
 			} catch(Throwable $e) {

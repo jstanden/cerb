@@ -18,6 +18,7 @@ class ProfileWidget_QueueJobMonitor extends Extension_ProfileWidget {
 		$tpl->assign('queue_job', $queue_job);
 		$tpl->assign('mode', QueueJobMonitor::determineMode($queue_job, $active_worker));
 		$tpl->assign('progress', $queue_job->getProgress());
+		$tpl->assign('widget_type', 'profile');
 
 		// Surface any attachments produced by the job (e.g. worklist exports)
 		$attachments = $queue_job->isDone()
@@ -25,7 +26,7 @@ class ProfileWidget_QueueJobMonitor extends Extension_ProfileWidget {
 			: [];
 		$tpl->assign('attachments', $attachments);
 
-		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/queue_job_monitor/render.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/queue/job_monitor.tpl');
 	}
 
 	function invoke(string $action, Model_ProfileWidget $model) {
@@ -63,6 +64,12 @@ class ProfileWidget_QueueJobMonitor extends Extension_ProfileWidget {
 					&& !Context_QueueJob::isWriteableByActor($queue_job, $active_worker))
 					DevblocksPlatform::dieWithHttpError(null, 403);
 				QueueJobMonitor::handleSetStatus($queue_job, QueueJobStatus::RUNNING);
+				return true;
+			case 'cancel':
+				if($queue_job->worker_id != $active_worker->id
+					&& !Context_QueueJob::isWriteableByActor($queue_job, $active_worker))
+					DevblocksPlatform::dieWithHttpError(null, 403);
+				QueueJobMonitor::handleCancel($queue_job);
 				return true;
 		}
 

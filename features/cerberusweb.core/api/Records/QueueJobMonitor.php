@@ -4,6 +4,7 @@ namespace Cerb\Records;
 use Context_QueueJob;
 use DAO_Queue;
 use DAO_QueueJob;
+use DAO_QueueMessage;
 use DevblocksPlatform;
 use Model_QueueJob;
 use Model_Worker;
@@ -31,18 +32,43 @@ class QueueJobMonitor {
 		echo json_encode(['status_id' => $new_status->value]);
 	}
 
+	public static function handleCancel(Model_QueueJob $queue_job) : void {
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+
+		// Status flip first so subsequent refresh polls / cron consumers see the
+		// terminal state and don't try to spawn workers or run finalization.
+		DAO_QueueJob::setStatus([$queue_job->id], QueueJobStatus::CANCELED);
+
+		// Then drop any remaining work so no consumer can pick it up. Completed
+		// and failed message rows stay for audit until DAO_QueueMessage::maint()
+		// sweeps them on retention.
+		DAO_QueueMessage::deleteOpenByJob($queue_job);
+
+		// Re-aggregate queue_job.count_* from queue_message so the progress bar
+		// (which reads the cached counts) reflects reality after the delete.
+		DAO_QueueJob::syncProgress($queue_job->id);
+
+		echo json_encode(['status_id' => QueueJobStatus::CANCELED->value]);
+	}
+
 	public static function handleRefresh(Model_QueueJob $queue_job) : void {
 		$tpl = DevblocksPlatform::services()->template();
 
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 
 		try {
-			$tpl->assign('progress', $queue_job->getProgress());
+			// Route through the queue service so onQueueJobComplete() fires (creates
+			// the export attachment, sends the worker notification, etc.). Flipping
+			// status_id directly here would beat the worker request's shutdown
+			// publish() to the per-job lock and silently skip finalization.
+			if(!$queue_job->isDone()) {
+				DevblocksPlatform::services()->queue()->finalizeJobsIfReady([$queue_job->id]);
 
-			if(!$queue_job->isDone() && 0 == ($queue_job->count_available + $queue_job->count_inflight)) {
-				DAO_QueueJob::setStatus([$queue_job->id], QueueJobStatus::DONE);
-				$queue_job->status_id = QueueJobStatus::DONE->value;
+				if($latest = DAO_QueueJob::get($queue_job->id))
+					$queue_job = $latest;
 			}
+
+			$tpl->assign('progress', $queue_job->getProgress());
 
 			echo json_encode([
 				'job_status' => $queue_job->status_id,
@@ -59,7 +85,7 @@ class QueueJobMonitor {
 
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 
-		if(null === ($slot = $queue_service->getConcurrencySlot())) {
+		if(null === ($queue_service->getConcurrencySlot())) {
 			echo json_encode(['slot' => false]);
 			return;
 		}
@@ -68,12 +94,21 @@ class QueueJobMonitor {
 
 		if(!($queue = DAO_Queue::get($queue_job->queue_id))
 			|| !($queue_extension = $queue->getExtension())) {
-			echo json_encode(['slot' => true, 'processed' => 0]);
+			echo json_encode(['slot' => true, 'processed' => 0, 'remaining' => 0]);
 			return;
 		}
 
 		$processed = $queue_extension->processQueueMessages($queue, $stop_time, 0, $queue_job);
 
-		echo json_encode(['slot' => true, 'processed' => $processed]);
+		// Read open messages directly so the widget can size its worker pool to
+		// the actual remaining work — cheaper and more accurate than waiting for
+		// publish() at shutdown to refresh queue_job.count_*.
+		$remaining = DAO_QueueJob::getAvailableAndInFlightMessages($queue_job);
+
+		echo json_encode([
+			'slot' => true,
+			'processed' => $processed,
+			'remaining' => $remaining,
+		]);
 	}
 }

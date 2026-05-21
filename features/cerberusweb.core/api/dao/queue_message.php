@@ -151,6 +151,20 @@ class DAO_QueueMessage {
 	
 	// [TODO] Heartbeat for handling abandoned in-flight queue messages to re-drive?
 
+	/**
+	 * Delete only the open (available + inflight) messages for a job, leaving
+	 * completed/failed history in place for audit until DAO_QueueMessage::maint()
+	 * sweeps them. Used by the queue-job monitor's cancel action.
+	 */
+	public static function deleteOpenByJob(Model_QueueJob $job) : void {
+		$db = DevblocksPlatform::services()->database();
+
+		$db->ExecuteWriter(sprintf(
+			"DELETE FROM queue_message WHERE job_id = %d AND status_id IN (0, 1)",
+			$job->id
+		));
+	}
+
 	static function deleteByJobIds(array $job_ids) : void {
 		$db = DevblocksPlatform::services()->database();
 

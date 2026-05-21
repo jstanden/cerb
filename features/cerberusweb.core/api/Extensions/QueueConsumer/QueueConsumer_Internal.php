@@ -17,39 +17,31 @@ class QueueConsumer_Internal extends Extension_QueueConsumer {
 	}
 	
 	public function processQueueMessages(Model_Queue $queue, int $stop_time, int $count_hint, ?Model_QueueJob $queue_job=null) : int {
+		if($stop_time <= time())
+			return 0;
+
 		if($queue->name == 'cerb.metrics.publish') {
-			if ($stop_time > time()) {
-				$metrics = DevblocksPlatform::services()->metrics();
-				$metrics->processQueue($queue, $stop_time, $count_hint, $queue_job);
-			}
-			
+			$metrics = DevblocksPlatform::services()->metrics();
+			return $metrics->processQueue($queue, $stop_time, $count_hint, $queue_job);
+
 		} elseif($queue->name == 'cerb.records.changed') {
-			if ($stop_time > time())
-				return AutomationTrigger_RecordChanged::processQueueEvents($queue, $stop_time, $count_hint, $queue_job);
-			
+			return AutomationTrigger_RecordChanged::processQueueEvents($queue, $stop_time, $count_hint, $queue_job);
+
 		} elseif($queue->name == 'cerb.records.import') {
-			if ($stop_time > time()) {
-				$records = DevblocksPlatform::services()->records();
-				$records->processImportQueue($queue, $stop_time, $count_hint, $queue_job);
-			}
+			$records = DevblocksPlatform::services()->records();
+			return $records->processImportQueue($queue, $stop_time, $count_hint, $queue_job);
 
 		} elseif($queue->name == 'cerb.records.export') {
-			if ($stop_time > time()) {
-				$records = DevblocksPlatform::services()->records();
-				$records->processExportQueue($queue, $stop_time, $count_hint, $queue_job);
-			}
+			$records = DevblocksPlatform::services()->records();
+			return $records->processExportQueue($queue, $stop_time, $count_hint, $queue_job);
 
 		} elseif($queue->name == 'cerb.records.bulk_update') {
-			if ($stop_time > time()) {
-				$records = DevblocksPlatform::services()->records();
-				$records->processBulkUpdateQueue($queue, $stop_time, $count_hint, $queue_job);
-			}
+			$records = DevblocksPlatform::services()->records();
+			return $records->processBulkUpdateQueue($queue, $stop_time, $count_hint, $queue_job);
 
 		} elseif($queue->name == 'cerb.search.index') {
-			if ($stop_time > time()) {
-				$search = DevblocksPlatform::services()->search();
-				$search->processQueue($queue, $stop_time, $count_hint, $queue_job);
-			}
+			$search = DevblocksPlatform::services()->search();
+			return $search->processQueue($queue, $stop_time, $count_hint, $queue_job);
 		}
 
 		return 0;

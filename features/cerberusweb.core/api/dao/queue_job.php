@@ -3,6 +3,7 @@ enum QueueJobStatus : int{
 	case RUNNING = 0;
 	case PAUSED = 1;
 	case DONE = 2;
+	case CANCELED = 3;
 }
 
 class DAO_QueueJob extends Cerb_ORMHelper {
@@ -455,7 +456,7 @@ class DAO_QueueJob extends Cerb_ORMHelper {
 			"SELECT id, name, queue_id, worker_id, singleton_key, status_id, metadata, count_total, count_available, count_inflight, count_done, count_failed, created_at, updated_at ".
 			"FROM queue_job ".
 			"WHERE id IN (%s) ".
-			"AND status_id != 2 ".
+			"AND status_id NOT IN (2, 3) ".
 			"AND (0=count_available+count_inflight)",
 			implode(',', $job_ids)
 		);
@@ -488,13 +489,32 @@ class DAO_QueueJob extends Cerb_ORMHelper {
 	
 	public static function getAvailableMessages(Model_Queue $queue) : array {
 		$db = DevblocksPlatform::services()->database();
-		
+
 		$sql = sprintf("SELECT job_id, count(*) AS hits FROM queue_message " .
 			"WHERE queue_id = %d AND status_id = 0 AND consumer_id IS NULL " .
 			"GROUP BY job_id",
 			$queue->id,
 		);
 		return $db->GetArrayMaster($sql);
+	}
+
+	/**
+	 * Count messages still open (available + inflight) for a given job. Reads
+	 * master so monitor pacing decisions don't lag behind concurrent workers.
+	 *
+	 * Sibling to getAvailableMessages() — that one excludes claimed messages for
+	 * cron dispatch decisions; this one includes them so monitors see in-flight
+	 * work and don't prematurely scale down.
+	 */
+	public static function getAvailableAndInFlightMessages(Model_QueueJob $job) : int {
+		$db = DevblocksPlatform::services()->database();
+
+		return intval($db->GetOneMaster(sprintf(
+			"SELECT COUNT(*) FROM queue_message ".
+			"WHERE queue_id = %d AND status_id IN (0,1) AND job_id = %d",
+			$job->queue_id,
+			$job->id
+		)));
 	}
 }
 
@@ -561,6 +581,7 @@ class SearchFields_QueueJob extends DevblocksSearchFields {
 						case 'r': $statuses[] = QueueJobStatus::RUNNING->value; break;
 						case 'p': $statuses[] = QueueJobStatus::PAUSED->value; break;
 						case 'd': $statuses[] = QueueJobStatus::DONE->value; break;
+						case 'c': $statuses[] = QueueJobStatus::CANCELED->value; break;
 					}
 				}
 
@@ -605,6 +626,7 @@ class SearchFields_QueueJob extends DevblocksSearchFields {
 					QueueJobStatus::RUNNING->value => 'Running',
 					QueueJobStatus::PAUSED->value => 'Paused',
 					QueueJobStatus::DONE->value => 'Done',
+					QueueJobStatus::CANCELED->value => 'Canceled',
 				];
 
 			case self::WORKER_ID:
@@ -706,6 +728,14 @@ class Model_QueueJob extends DevblocksRecordModel {
 
 	public function isDone() : bool {
 		return $this->status_id == QueueJobStatus::DONE->value;
+	}
+
+	public function isTerminal() : bool {
+		return in_array(
+			$this->status_id,
+			[QueueJobStatus::DONE->value, QueueJobStatus::CANCELED->value],
+			true
+		);
 	}
 }
 
@@ -1169,6 +1199,7 @@ class Context_QueueJob extends Extension_DevblocksContext implements IDevblocksC
 				QueueJobStatus::RUNNING->value => 'Running',
 				QueueJobStatus::PAUSED->value => 'Paused',
 				QueueJobStatus::DONE->value => 'Done',
+				QueueJobStatus::CANCELED->value => 'Canceled',
 				default => $model->status_id,
 			},
 		];

@@ -105,6 +105,7 @@ class CardWidget_SearchIndex extends Extension_CardWidget {
 			QueueJobStatus::RUNNING->value => 'Running',
 			QueueJobStatus::PAUSED->value => 'Paused',
 			QueueJobStatus::DONE->value => 'Done',
+			QueueJobStatus::CANCELED->value => 'Canceled',
 		];
 
 		$sheet_dicts = [];
