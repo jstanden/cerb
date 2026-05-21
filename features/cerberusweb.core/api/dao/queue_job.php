@@ -1146,7 +1146,34 @@ class Context_QueueJob extends Extension_DevblocksContext implements IDevblocksC
 	const URI = 'queue_job';
 
 	static function isReadableByActor($models, $actor) {
-		return CerberusContexts::allowEverything($models);
+		// Only admins and the job's owning worker can read (e.g. download its export attachment)
+
+		if(!($actor = CerberusContexts::polymorphActorToDictionary($actor)))
+			return CerberusContexts::denyEverything($models);
+
+		if(CerberusContexts::isActorAnAdmin($actor))
+			return CerberusContexts::allowEverything($models);
+
+		if(!($dicts = CerberusContexts::polymorphModelsToDictionaries($models, CerberusContexts::CONTEXT_QUEUE_JOB)))
+			return CerberusContexts::denyEverything($models);
+
+		$results = array_fill_keys(array_keys($dicts), false);
+
+		switch($actor->_context) {
+			case CerberusContexts::CONTEXT_WORKER:
+				foreach($dicts as $context_id => $dict) {
+					if($dict->worker_id == $actor->id) {
+						$results[$context_id] = true;
+					}
+				}
+				break;
+		}
+
+		if(is_array($models)) {
+			return $results;
+		} else {
+			return array_shift($results);
+		}
 	}
 
 	static function isWriteableByActor($models, $actor) {

@@ -554,15 +554,16 @@ if(array_key_exists('group_setting', $tables))
 
 if(!$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contexts.queue.job' AND extension_id='cerb.card.widget.queue.job.monitor'")) {
 	$db->ExecuteMaster(sprintf(
-		"INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
-		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
-		$db->qstr('Monitor'),
+		"INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone, options_kata) ".
+		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s, %s)",
+		$db->qstr('Progress'),
 		$db->qstr('cerb.contexts.queue.job'),
 		$db->qstr('cerb.card.widget.queue.job.monitor'),
 		$db->qstr('{}'),
 		time(), time(),
 		1, 12,
-		$db->qstr('content')
+		$db->qstr('content'),
+		$db->qstr("hidden@bool: {{not cerb_record_readable(record__context,record_id,'worker',worker_id)}}")
 	));
 }
 
@@ -618,7 +619,7 @@ if(!$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts
 
 	$db->ExecuteMaster(sprintf("INSERT INTO profile_widget (name, profile_tab_id, extension_id, extension_params_json, updated_at, pos, width_units, zone, options_kata) ".
 		"VALUES (%s, %d, %s, %s, %d, %d, %d, %s, %s)",
-		$db->qstr('Monitor'),
+		$db->qstr('Progress'),
 		$new_profile_tab_id,
 		$db->qstr('cerb.profile.tab.widget.queue.job.monitor'),
 		$db->qstr('{}'),
@@ -626,7 +627,7 @@ if(!$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts
 		1,
 		4,
 		$db->qstr('content'),
-		$db->qstr('')
+		$db->qstr("hidden@bool: {{not cerb_record_readable(record__context,record_id,'worker',worker_id)}}")
 	));
 
 	$db->ExecuteMaster(sprintf("INSERT INTO profile_widget (name, profile_tab_id, extension_id, extension_params_json, updated_at, pos, width_units, zone, options_kata) ".
