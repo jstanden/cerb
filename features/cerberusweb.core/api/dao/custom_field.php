@@ -1617,6 +1617,10 @@ class Model_CustomField extends DevblocksRecordModel {
 	
 	function getTypeLabel() {
 		$types = self::getTypes();
+		
+		if(!array_key_exists($this->type ?? '', $types))
+			return null;
+		
 		return $types[$this->type] ?? null;
 	}
 	

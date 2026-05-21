@@ -1715,9 +1715,9 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		
 		// Approve attachments by session (worklist export)
 
-		$view_export_file_id = $_SESSION['view_export_file_id'] ?? null;
+		$view_export_file_id = strval($_SESSION['view_export_file_id'] ?? '');
 		
-		if(isset($results[$view_export_file_id]))
+		if(array_key_exists($view_export_file_id, $results))
 			$results[$view_export_file_id] = true;
 		
 		// Approve attachments by message links
