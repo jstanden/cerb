@@ -55,6 +55,7 @@
 		"league/oauth2-client": "^2.3",
 		"guzzlehttp/guzzle": "^7.0",
 		"phpseclib/phpseclib": "^3.0.51",
+		"symfony/mailer": "v7.4.12",
 		"tijsverkoyen/css-to-inline-styles": "2.2.6",
 		"ezyang/htmlpurifier": "^4.17",
 		"donatj/phpuseragentparser": "^1.0",
