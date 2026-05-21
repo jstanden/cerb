@@ -14,39 +14,42 @@ class _DevblocksSearchService {
 	
 	public function processQueue(Model_Queue $queue, int $stop_time, int $count_hint, ?Model_QueueJob $queue_job) {
 		$queue_service = DevblocksPlatform::services()->queue();
-		
+
 		$processed = 0;
 		$consumer_id = null;
-		
+
 		$job_id = $queue_job?->id ?? null;
 		$search_indexes = \DAO_SearchIndex::getAll();
-		
-		if(!($queue_messages = $queue_service->dequeue($queue->name, 1, $consumer_id, $job_id)))
-			return 0;
-		
-		foreach($queue_messages as $queue_message) {
-			if($stop_time <= time()) break;
-			
-			if(!($search_index = $search_indexes[$queue_message->message['index_id'] ?? 0])) {
-				// Mark message failed if the search index is invalid
-				$error = sprintf('Invalid search index: %s', $queue_message->message['index_id'] ?? 0);
-				$queue_message->reportStatus(QueueMessageStatus::FAILED, $error);
-				continue;
+
+		// One message at a time (each carries 100 record IDs in a single fulltext
+		// write batch) but loop so concurrent workers can interleave on the same
+		// job within the $stop_time budget.
+		while($stop_time > time()) {
+			if(!($queue_messages = $queue_service->dequeue($queue->name, 1, $consumer_id, $job_id)))
+				break;
+
+			foreach($queue_messages as $queue_message) {
+				if(!($search_index = $search_indexes[$queue_message->message['index_id'] ?? 0])) {
+					// Mark message failed if the search index is invalid
+					$error = sprintf('Invalid search index: %s', $queue_message->message['index_id'] ?? 0);
+					$queue_message->reportStatus(QueueMessageStatus::FAILED, $error);
+					continue;
+				}
+
+				$error = null;
+
+				$search_extension = $search_index->getExtension();
+
+				if(!$search_extension->indexDocumentsByIds($search_index, $queue_message->message['ids'] ?? [], $error)) {
+					$queue_message->reportStatus(\QueueMessageStatus::FAILED, $error);
+					continue;
+				}
+
+				$queue_message->reportStatus(\QueueMessageStatus::DONE);
+				$processed++;
 			}
-			
-			$error = null;
-			
-			$search_extension = $search_index->getExtension();
-			
-			if(!$search_extension->indexDocumentsByIds($search_index, $queue_message->message['ids'] ?? [], $error)) {
-				$queue_message->reportStatus(\QueueMessageStatus::FAILED, $error);
-				continue;
-			}
-			
-			$queue_message->reportStatus(\QueueMessageStatus::DONE);
-			$processed++;
 		}
-		
+
 		return $processed;
 	}
 	

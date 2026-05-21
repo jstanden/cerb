@@ -110,37 +110,46 @@ class _DevblocksRecordsService {
 			}
 		}
 
-		$batch_size = 100;
+		// Small per-iteration batches so concurrent workers interleave on the same
+		// job instead of one worker reserving everything in a single dequeue. The
+		// outer while keeps HTTP overhead amortized (one request, many MySQL
+		// dequeues) and bounded by the caller's $stop_time budget.
+		$batch_size = 5;
+		$processed = 0;
 		$consumer_id = null;
 
-		if(!($queue_messages = $queue_service->dequeue($queue->name, $batch_size, $consumer_id, $job_id)))
-			return 0;
+		$context = $queue_job->metadata['context'] ?? '';
+		$exporter = new WorklistExporter($context);
 
-		try {
-			$context = $queue_job->metadata['context'] ?? '';
-			$exporter = new WorklistExporter($context);
+		// Pass worker_id through metadata so ACL filters apply during chunk render
+		$render_metadata = $queue_job->metadata;
+		$render_metadata['worker_id'] = $queue_job->worker_id;
 
-			// Pass worker_id through metadata so ACL filters apply during chunk render
-			$render_metadata = $queue_job->metadata;
-			$render_metadata['worker_id'] = $queue_job->worker_id;
+		while($stop_time > time()) {
+			if(!($queue_messages = $queue_service->dequeue($queue->name, $batch_size, $consumer_id, $job_id)))
+				break;
 
-			foreach($queue_messages as $queue_message) {
-				$payload = $queue_message->message;
-				$chunk_idx = intval($payload['chunk'] ?? 0);
-				$record_ids = array_map('intval', $payload['ids'] ?? []);
+			try {
+				foreach($queue_messages as $queue_message) {
+					$payload = $queue_message->message;
+					$chunk_idx = intval($payload['chunk'] ?? 0);
+					$record_ids = array_map('intval', $payload['ids'] ?? []);
 
-				$bytes = $exporter->renderChunkBytes($record_ids, $render_metadata);
-				\DAO_QueueJobChunk::put($queue_job->id, $chunk_idx, $bytes);
+					$bytes = $exporter->renderChunkBytes($record_ids, $render_metadata);
+					\DAO_QueueJobChunk::put($queue_job->id, $chunk_idx, $bytes);
+				}
+
+				$queue_service->reportSuccess($queue_messages);
+
+			} catch(\Throwable $e) {
+				DevblocksPlatform::logException($e);
+				$queue_service->reportFailure($queue_messages, $e->getMessage());
 			}
 
-			$queue_service->reportSuccess($queue_messages);
-
-		} catch(\Throwable $e) {
-			DevblocksPlatform::logException($e);
-			$queue_service->reportFailure($queue_messages, $e->getMessage());
+			$processed += count($queue_messages);
 		}
 
-		return count($queue_messages);
+		return $processed;
 	}
 
 	public function onExportJobComplete(Model_QueueJob $queue_job) : void {
@@ -326,72 +335,80 @@ class _DevblocksRecordsService {
 			}
 		}
 
-		// One message at a time — each message already represents a batch of ~100 records.
-		// The cron's loop re-enters until stop_time is hit.
-		$consumer_id = null;
-
-		if(!($queue_messages = $queue_service->dequeue($queue->name, 1, $consumer_id, $job_id)))
-			return 0;
-
 		$context = $queue_job->metadata['context'] ?? '';
 		$actions = $queue_job->metadata['actions'] ?? [];
 		$worker = $queue_job->worker_id ? \DAO_Worker::get($queue_job->worker_id) : null;
 
-		if(!$context || !$actions || !$worker) {
-			$queue_service->reportFailure($queue_messages, 'Missing context, actions, or worker');
-			return count($queue_messages);
-		}
-
-		if(!($context_ext = \Extension_DevblocksContext::get($context))
+		// Validate prerequisites once, outside the loop. If anything's wrong we
+		// still need to surface failure on at least one message so the job
+		// doesn't appear to make no progress; dequeue one to report against.
+		if(!$context || !$actions || !$worker
+			|| !($context_ext = \Extension_DevblocksContext::get($context))
 			|| !($dao_class = $context_ext->getDaoClass())
 			|| !method_exists($dao_class, 'bulkUpdate')
 		) {
-			$queue_service->reportFailure($queue_messages, 'Invalid context for bulk update');
+			$consumer_id = null;
+			if(!($queue_messages = $queue_service->dequeue($queue->name, 1, $consumer_id, $job_id)))
+				return 0;
+			$queue_service->reportFailure($queue_messages, 'Missing context, actions, worker, or unsupported context');
 			return count($queue_messages);
 		}
 
-		try {
-			foreach($queue_messages as $queue_message) {
-				$record_ids = array_map('intval', $queue_message->message['ids'] ?? []);
+		// One message at a time (each carries ~100 records) but loop so concurrent
+		// workers can interleave on the same job within the $stop_time budget.
+		$batch_size = 1;
+		$processed = 0;
+		$consumer_id = null;
 
-				if(!$record_ids) continue;
+		while($stop_time > time()) {
+			if(!($queue_messages = $queue_service->dequeue($queue->name, $batch_size, $consumer_id, $job_id)))
+				break;
 
-				// ACL: drop IDs the worker can't write to (mirrors the legacy cursor behavior)
-				if(!$worker->is_superuser) {
-					$acl_results = \CerberusContexts::isWriteableByActor($context, $record_ids, $worker);
+			try {
+				foreach($queue_messages as $queue_message) {
+					$record_ids = array_map('intval', $queue_message->message['ids'] ?? []);
 
-					if(is_array($acl_results)) {
-						$acl_results = array_filter($acl_results, fn($bool) => $bool);
-						$record_ids = array_keys($acl_results);
+					if(!$record_ids) continue;
+
+					// ACL: drop IDs the worker can't write to (mirrors the legacy cursor behavior)
+					if(!$worker->is_superuser) {
+						$acl_results = \CerberusContexts::isWriteableByActor($context, $record_ids, $worker);
+
+						if(is_array($acl_results)) {
+							$acl_results = array_filter($acl_results, fn($bool) => $bool);
+							$record_ids = array_keys($acl_results);
+						}
+					}
+
+					if(!$record_ids) continue;
+
+					$update = new \Model_ContextBulkUpdate();
+					$update->job_id = $queue_job->id;
+					$update->context = $context;
+					$update->context_ids = $record_ids;
+					$update->num_records = count($record_ids);
+					$update->actions = $actions;
+					$update->worker_id = $worker->id;
+					$update->view_id = $queue_job->metadata['view_id'] ?? '';
+
+					$dao_class::bulkUpdate($update);
+
+					if(!empty($actions['comment'])) {
+						$this->_processBulkCommentBatch($context, $record_ids, $actions['comment'], $worker);
 					}
 				}
 
-				if(!$record_ids) continue;
+				$queue_service->reportSuccess($queue_messages);
 
-				$update = new \Model_ContextBulkUpdate();
-				$update->job_id = $queue_job->id;
-				$update->context = $context;
-				$update->context_ids = $record_ids;
-				$update->num_records = count($record_ids);
-				$update->actions = $actions;
-				$update->worker_id = $worker->id;
-				$update->view_id = $queue_job->metadata['view_id'] ?? '';
-
-				$dao_class::bulkUpdate($update);
-
-				if(!empty($actions['comment'])) {
-					$this->_processBulkCommentBatch($context, $record_ids, $actions['comment'], $worker);
-				}
+			} catch(\Throwable $e) {
+				DevblocksPlatform::logException($e);
+				$queue_service->reportFailure($queue_messages, $e->getMessage());
 			}
 
-			$queue_service->reportSuccess($queue_messages);
-
-		} catch(\Throwable $e) {
-			DevblocksPlatform::logException($e);
-			$queue_service->reportFailure($queue_messages, $e->getMessage());
+			$processed += count($queue_messages);
 		}
 
-		return count($queue_messages);
+		return $processed;
 	}
 
 	public function onBulkUpdateJobComplete(\Model_QueueJob $queue_job) : void {
