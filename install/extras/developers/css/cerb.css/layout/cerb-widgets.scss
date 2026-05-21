@@ -83,6 +83,127 @@ TABLE.cerb-widget-data-table {
 	}
 }
 
+// Queue job monitor — per-slot worker activity cards. Card is hidden until first
+// activated; once active it stays visible (dim when idle, full opacity when
+// running a batch). Each slot has a fixed color assigned in JS (--slot-color).
+@keyframes cerb-worker-card--pulse {
+	0%, 100% { opacity: 1; }
+	50%      { opacity: 0.55; }
+}
+
+.cerb-worker-cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+	gap: 0.5em;
+	margin-top: 0.75em;
+
+	// Palette classes — template assigns .cerb-worker-card--slot-N (1..10,
+	// wrapping via modulo for larger pools). Tuned per theme via tokens in
+	// cerb-theme.scss. Chain both classes so the per-slot color wins over the
+	// `.cerb-worker-card` default-color rule below (which would otherwise win
+	// on equal specificity + later source order).
+	@for $i from 1 through 10 {
+		.cerb-worker-card.cerb-worker-card--slot-#{$i} {
+			--slot-color: var(--cerb-color-queue-worker-slot-#{$i});
+		}
+	}
+
+	.cerb-worker-card {
+		--slot-color: var(--cerb-color-background-contrast-100);
+		border: 1px solid var(--cerb-color-background-contrast-50);
+		border-left: 3px solid var(--slot-color);
+		border-radius: 4px;
+		padding: 0.4em 0.55em;
+		opacity: 0.55;
+		transition: opacity 0.2s ease;
+		min-width: 0;
+
+		&.cerb-worker-card--running {
+			opacity: 1;
+
+			.cerb-worker-card--dot {
+				animation: cerb-worker-card--pulse 1.2s ease-in-out infinite;
+			}
+
+			.cerb-worker-card--badge {
+				background: color-mix(in srgb, var(--slot-color) 25%, transparent);
+				color: var(--slot-color);
+			}
+		}
+
+		// Throttled = wanted work, system slot was unavailable. Distinct from
+		// IDLE (which is "we voluntarily stepped back"). Yellow accent draws
+		// attention without implying error.
+		&.cerb-worker-card--throttled {
+			opacity: 1;
+			border-color: #eab308;
+			border-left-color: #eab308;
+
+			.cerb-worker-card--badge {
+				background: color-mix(in srgb, #eab308 25%, transparent);
+				color: #eab308;
+			}
+		}
+	}
+
+	.cerb-worker-card--header {
+		display: flex;
+		align-items: center;
+		gap: 0.4em;
+		margin-bottom: 0.25em;
+	}
+
+	.cerb-worker-card--dot {
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+		background: var(--slot-color);
+		flex-shrink: 0;
+	}
+
+	.cerb-worker-card--label {
+		font-family: monospace;
+		font-size: 0.85em;
+		font-weight: 600;
+		opacity: 0.85;
+	}
+
+	.cerb-worker-card--badge {
+		margin-left: auto;
+		font-family: monospace;
+		font-size: 0.7em;
+		font-weight: 600;
+		letter-spacing: 0.05em;
+		padding: 0.1em 0.45em;
+		border-radius: 3px;
+		background: var(--cerb-color-background-contrast-50);
+		color: var(--cerb-color-text);
+	}
+
+	.cerb-worker-card--stats {
+		font-size: 0.8em;
+		opacity: 0.75;
+		margin-bottom: 0.3em;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.cerb-worker-card--sparkline {
+		display: flex;
+		align-items: flex-end;
+		gap: 1px;
+		height: 14px;
+
+		> span {
+			flex: 1;
+			min-width: 2px;
+			min-height: 1px;
+			background: var(--slot-color);
+			opacity: 0.7;
+			border-radius: 1px;
+		}
+	}
+}
+
 .cerb-syntax-kata {
 	.cerb-syntax-kata--key        { color: var(--cerb-editor-syntax-tag); }
 	.cerb-syntax-kata--annotation { color: var(--cerb-editor-syntax-type); }

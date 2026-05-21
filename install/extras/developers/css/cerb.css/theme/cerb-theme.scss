@@ -77,6 +77,20 @@ $timestamp: 2022011101;
 
   --cerb-color-warning-text: rgb(236,87,29);
 
+  // Queue-job monitor worker slot palette. The widget assigns
+  // .cerb-worker-card--slot-N classes (1..10, wrapping via modulo) so all the
+  // tuning happens here per theme.
+  --cerb-color-queue-worker-slot-1: #f97316;
+  --cerb-color-queue-worker-slot-2: #22c55e;
+  --cerb-color-queue-worker-slot-3: #ec4899;
+  --cerb-color-queue-worker-slot-4: #a855f7;
+  --cerb-color-queue-worker-slot-5: #eab308;
+  --cerb-color-queue-worker-slot-6: #06b6d4;
+  --cerb-color-queue-worker-slot-7: #3b82f6;
+  --cerb-color-queue-worker-slot-8: #94a3b8;
+  --cerb-color-queue-worker-slot-9: #14b8a6;
+  --cerb-color-queue-worker-slot-10: #f43f5e;
+
   --cerb-color-help-background: rgb(251,236,136);
   --cerb-color-help-text: rgb(75,75,75);
   
@@ -235,6 +249,19 @@ $timestamp: 2022011101;
   --cerb-color-success-text: rgb(0,180,0);
   
   --cerb-color-warning-text: rgb(209, 85, 37);
+
+  // Queue-job monitor worker slot palette — slightly lighter / more saturated
+  // values for legibility on the dark background.
+  --cerb-color-queue-worker-slot-1: #fb923c;
+  --cerb-color-queue-worker-slot-2: #4ade80;
+  --cerb-color-queue-worker-slot-3: #f472b6;
+  --cerb-color-queue-worker-slot-4: #c084fc;
+  --cerb-color-queue-worker-slot-5: #facc15;
+  --cerb-color-queue-worker-slot-6: #22d3ee;
+  --cerb-color-queue-worker-slot-7: #60a5fa;
+  --cerb-color-queue-worker-slot-8: #cbd5e1;
+  --cerb-color-queue-worker-slot-9: #2dd4bf;
+  --cerb-color-queue-worker-slot-10: #fb7185;
 
   --cerb-color-help-background: rgb(63, 46, 21);
   --cerb-color-help-text: rgb(222, 166, 127);

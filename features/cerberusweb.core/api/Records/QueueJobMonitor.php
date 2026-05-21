@@ -86,7 +86,12 @@ class QueueJobMonitor {
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 
 		if(null === ($queue_service->getConcurrencySlot())) {
-			echo json_encode(['slot' => false]);
+			// Surface remaining so the widget can distinguish "throttled with work"
+			// (yellow THROTTLED card) from "throttled but nothing left" (IDLE).
+			echo json_encode([
+				'slot' => false,
+				'remaining' => DAO_QueueJob::getAvailableAndInFlightMessages($queue_job),
+			]);
 			return;
 		}
 

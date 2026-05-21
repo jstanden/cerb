@@ -70,6 +70,16 @@
   --cerb-color-success-background: rgb(235,255,235);
   --cerb-color-success-text: rgb(0,180,0);
   --cerb-color-warning-text: rgb(236,87,29);
+  --cerb-color-queue-worker-slot-1: #f97316;
+  --cerb-color-queue-worker-slot-2: #22c55e;
+  --cerb-color-queue-worker-slot-3: #ec4899;
+  --cerb-color-queue-worker-slot-4: #a855f7;
+  --cerb-color-queue-worker-slot-5: #eab308;
+  --cerb-color-queue-worker-slot-6: #06b6d4;
+  --cerb-color-queue-worker-slot-7: #3b82f6;
+  --cerb-color-queue-worker-slot-8: #94a3b8;
+  --cerb-color-queue-worker-slot-9: #14b8a6;
+  --cerb-color-queue-worker-slot-10: #f43f5e;
   --cerb-color-help-background: rgb(251,236,136);
   --cerb-color-help-text: rgb(75,75,75);
   --cerb-color-bubble-background: rgb(255,255,255);
@@ -199,6 +209,16 @@
   --cerb-color-success-background: rgb(235,255,235);
   --cerb-color-success-text: rgb(0,180,0);
   --cerb-color-warning-text: rgb(209, 85, 37);
+  --cerb-color-queue-worker-slot-1: #fb923c;
+  --cerb-color-queue-worker-slot-2: #4ade80;
+  --cerb-color-queue-worker-slot-3: #f472b6;
+  --cerb-color-queue-worker-slot-4: #c084fc;
+  --cerb-color-queue-worker-slot-5: #facc15;
+  --cerb-color-queue-worker-slot-6: #22d3ee;
+  --cerb-color-queue-worker-slot-7: #60a5fa;
+  --cerb-color-queue-worker-slot-8: #cbd5e1;
+  --cerb-color-queue-worker-slot-9: #2dd4bf;
+  --cerb-color-queue-worker-slot-10: #fb7185;
   --cerb-color-help-background: rgb(63, 46, 21);
   --cerb-color-help-text: rgb(222, 166, 127);
   --cerb-color-bubble-background: rgb(0,0,0);
@@ -3062,6 +3082,130 @@ TABLE.cerb-widget-data-table .cerb-sheet--row-title div, TABLE.cerb-widget-data-
 }
 .cerb-progress-bar-legend .cerb-progress-bar-legend--swatch.cerb-progress-bar-legend--available {
   background: var(--cerb-color-progress-available);
+}
+
+@keyframes cerb-worker-card--pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+.cerb-worker-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.5em;
+  margin-top: 0.75em;
+}
+.cerb-worker-cards .cerb-worker-card.cerb-worker-card--slot-1 {
+  --slot-color: var(--cerb-color-queue-worker-slot-1);
+}
+.cerb-worker-cards .cerb-worker-card.cerb-worker-card--slot-2 {
+  --slot-color: var(--cerb-color-queue-worker-slot-2);
+}
+.cerb-worker-cards .cerb-worker-card.cerb-worker-card--slot-3 {
+  --slot-color: var(--cerb-color-queue-worker-slot-3);
+}
+.cerb-worker-cards .cerb-worker-card.cerb-worker-card--slot-4 {
+  --slot-color: var(--cerb-color-queue-worker-slot-4);
+}
+.cerb-worker-cards .cerb-worker-card.cerb-worker-card--slot-5 {
+  --slot-color: var(--cerb-color-queue-worker-slot-5);
+}
+.cerb-worker-cards .cerb-worker-card.cerb-worker-card--slot-6 {
+  --slot-color: var(--cerb-color-queue-worker-slot-6);
+}
+.cerb-worker-cards .cerb-worker-card.cerb-worker-card--slot-7 {
+  --slot-color: var(--cerb-color-queue-worker-slot-7);
+}
+.cerb-worker-cards .cerb-worker-card.cerb-worker-card--slot-8 {
+  --slot-color: var(--cerb-color-queue-worker-slot-8);
+}
+.cerb-worker-cards .cerb-worker-card.cerb-worker-card--slot-9 {
+  --slot-color: var(--cerb-color-queue-worker-slot-9);
+}
+.cerb-worker-cards .cerb-worker-card.cerb-worker-card--slot-10 {
+  --slot-color: var(--cerb-color-queue-worker-slot-10);
+}
+.cerb-worker-cards .cerb-worker-card {
+  --slot-color: var(--cerb-color-background-contrast-100);
+  border: 1px solid var(--cerb-color-background-contrast-50);
+  border-left: 3px solid var(--slot-color);
+  border-radius: 4px;
+  padding: 0.4em 0.55em;
+  opacity: 0.55;
+  transition: opacity 0.2s ease;
+  min-width: 0;
+}
+.cerb-worker-cards .cerb-worker-card.cerb-worker-card--running {
+  opacity: 1;
+}
+.cerb-worker-cards .cerb-worker-card.cerb-worker-card--running .cerb-worker-card--dot {
+  animation: cerb-worker-card--pulse 1.2s ease-in-out infinite;
+}
+.cerb-worker-cards .cerb-worker-card.cerb-worker-card--running .cerb-worker-card--badge {
+  background: color-mix(in srgb, var(--slot-color) 25%, transparent);
+  color: var(--slot-color);
+}
+.cerb-worker-cards .cerb-worker-card.cerb-worker-card--throttled {
+  opacity: 1;
+  border-color: #eab308;
+  border-left-color: #eab308;
+}
+.cerb-worker-cards .cerb-worker-card.cerb-worker-card--throttled .cerb-worker-card--badge {
+  background: color-mix(in srgb, #eab308 25%, transparent);
+  color: #eab308;
+}
+.cerb-worker-cards .cerb-worker-card--header {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  margin-bottom: 0.25em;
+}
+.cerb-worker-cards .cerb-worker-card--dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--slot-color);
+  flex-shrink: 0;
+}
+.cerb-worker-cards .cerb-worker-card--label {
+  font-family: monospace;
+  font-size: 0.85em;
+  font-weight: 600;
+  opacity: 0.85;
+}
+.cerb-worker-cards .cerb-worker-card--badge {
+  margin-left: auto;
+  font-family: monospace;
+  font-size: 0.7em;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  padding: 0.1em 0.45em;
+  border-radius: 3px;
+  background: var(--cerb-color-background-contrast-50);
+  color: var(--cerb-color-text);
+}
+.cerb-worker-cards .cerb-worker-card--stats {
+  font-size: 0.8em;
+  opacity: 0.75;
+  margin-bottom: 0.3em;
+  font-variant-numeric: tabular-nums;
+}
+.cerb-worker-cards .cerb-worker-card--sparkline {
+  display: flex;
+  align-items: flex-end;
+  gap: 1px;
+  height: 14px;
+}
+.cerb-worker-cards .cerb-worker-card--sparkline > span {
+  flex: 1;
+  min-width: 2px;
+  min-height: 1px;
+  background: var(--slot-color);
+  opacity: 0.7;
+  border-radius: 1px;
 }
 
 .cerb-syntax-kata .cerb-syntax-kata--key {

@@ -19,6 +19,8 @@ class CardWidget_QueueJobMonitor extends Extension_CardWidget {
 		$tpl->assign('mode', QueueJobMonitor::determineMode($queue_job, $active_worker));
 		$tpl->assign('progress', $queue_job->getProgress());
 		$tpl->assign('widget_type', 'card');
+		$tpl->assign('max_concurrency',
+			intval($queue_job->metadata['concurrency'] ?? APP_QUEUE_CONCURRENCY_SLOTS));
 
 		// Surface any attachments produced by the job (e.g. worklist exports)
 		$attachments = $queue_job->isDone()

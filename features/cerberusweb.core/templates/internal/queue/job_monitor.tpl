@@ -16,7 +16,21 @@
     <button data-cerb-button="cancel" title="Cancel" class="{if $mode != 'process_paused'}cerb-hidden{/if}"><span class="glyphicons glyphicons-circle-remove"></span> Cancel</button>
     {/if}
     <button data-cerb-button="refresh"><span class="glyphicons glyphicons-refresh"></span> Refresh</button>
-    <span data-cerb-worker-count class="cerb-hidden" style="margin-left:0.75em;opacity:0.6;"></span>
+</div>
+
+<div data-cerb-worker-cards class="cerb-worker-cards cerb-hidden">
+    {section name=slot start=1 loop=$max_concurrency+1}
+    {$palette_idx = ($smarty.section.slot.index - 1) % 10 + 1}
+    <div data-cerb-worker-card="{$smarty.section.slot.index}" class="cerb-worker-card cerb-worker-card--slot-{$palette_idx} cerb-hidden">
+        <div class="cerb-worker-card--header">
+            <span class="cerb-worker-card--dot"></span>
+            <span class="cerb-worker-card--label">w-{if $smarty.section.slot.index < 10}0{/if}{$smarty.section.slot.index}</span>
+            <span class="cerb-worker-card--badge" data-cerb-worker-card-badge>IDLE</span>
+        </div>
+        <div class="cerb-worker-card--stats"><span data-cerb-worker-card-done>0</span> done · <span data-cerb-worker-card-rate>0.0</span>/s</div>
+        <div class="cerb-worker-card--sparkline" data-cerb-worker-card-sparkline></div>
+    </div>
+    {/section}
 </div>
 {/if}
 
@@ -60,9 +74,12 @@ $(function() {
     if(prevRetryTimer) clearTimeout(prevRetryTimer);
     const prevFinalizeTimer = $widget.data('queueJobMonitorFinalizeTimer');
     if(prevFinalizeTimer) clearTimeout(prevFinalizeTimer);
+    const prevRampTimer = $widget.data('queueJobMonitorRampTimer');
+    if(prevRampTimer) clearTimeout(prevRampTimer);
     $widget.data('queueJobMonitorRefreshTimer', null);
     $widget.data('queueJobMonitorRetryTimer', null);
     $widget.data('queueJobMonitorFinalizeTimer', null);
+    $widget.data('queueJobMonitorRampTimer', null);
 
     // Detach the prior generation's document-level visibility listener — $widget
     // persists across re-renders so the document handler isn't swept automatically.
@@ -74,19 +91,47 @@ $(function() {
     };
 
     const MODE = '{$mode}';
-    const POOL_SIZE = 2;
+    const MAX_CONCURRENCY = {$max_concurrency};
     const RETRY_DELAY_MS = 1500;
     const HIDDEN_SPAWN_DELAY_MS = 5000;
     const REFRESH_DEBOUNCE_MS = 100;
     const FINALIZE_POLL_START_MS = 500;
     const FINALIZE_POLL_MAX_MS = 5000;
+    // Time-based ramp: spawn the next worker every N ms regardless of whether
+    // the prior worker has returned. Decouples ramp visibility from worker
+    // batch duration — a 10s worker doesn't block the ramp from animating.
+    const RAMP_INTERVAL_MS = 2000;
 
-    let activeWorkers = 0;
+    // Slot model: each slot 1..MAX_CONCURRENCY has a card in the DOM, hidden
+    // until first activated. `running` flips while a worker AJAX is in flight;
+    // doneTotal + activeMs accumulate across batches so we can compute a rate.
+    // `batches` is a sliding window of recent batch sizes for the sparkline.
+    // Slot color is owned by CSS — the template assigns .cerb-worker-card--slot-N
+    // and the theme defines per-mode palette tokens.
+    const SPARKLINE_BARS = 16;
+
+    const slotState = {};
+    for(let i = 1; i <= MAX_CONCURRENCY; i++) {
+        slotState[i] = {
+            everActive: false,
+            running: false,
+            throttled: false,
+            doneTotal: 0,
+            activeMs: 0,
+            startedAt: null,
+            batches: []
+        };
+    }
+    const slotsActive = new Set();
+
     // Terminal = DONE (2) or CANCELED (3). Either way, no more workers, no controls.
     let isTerminal = ({$queue_job->status_id} === 2 || {$queue_job->status_id} === 3);
     let isPaused = (MODE === 'process_paused');
     let isHidden = (document.visibilityState === 'hidden');
     let finalizePollDelayMs = FINALIZE_POLL_START_MS;
+    // Updated from every worker response that includes a `remaining` field.
+    // Starts at Infinity so the ramp can spawn freely until we have real data.
+    let lastKnownRemaining = Infinity;
     const canProcess = (MODE !== 'view');
 
     const $button_refresh = $widget.find('button[data-cerb-button=refresh]');
@@ -94,7 +139,6 @@ $(function() {
     const $button_pause = $widget.find('button[data-cerb-button=pause-resume]');
     const $button_cancel = $widget.find('button[data-cerb-button=cancel]');
     const $progress_bar = $widget.find('div[data-cerb-progress-bar]');
-    const $worker_count = $widget.find('span[data-cerb-worker-count]');
 
     const funcBuildFormData = function(verb) {
         const fd = new FormData();
@@ -113,13 +157,73 @@ $(function() {
         return fd;
     };
 
-    const funcUpdateWorkerCount = function() {
-        if(activeWorkers > 0) {
-            $worker_count
-                .html('<span class="glyphicons glyphicons-cogwheel"></span> ' + activeWorkers + ' / ' + POOL_SIZE)
-                .removeClass('cerb-hidden');
-        } else {
-            $worker_count.addClass('cerb-hidden');
+    const funcAcquireSlot = function() {
+        for(let i = 1; i <= MAX_CONCURRENCY; i++) {
+            if(!slotsActive.has(i)) {
+                const s = slotState[i];
+                slotsActive.add(i);
+                s.everActive = true;
+                s.running = true;
+                s.throttled = false;
+                s.startedAt = Date.now();
+                return i;
+            }
+        }
+        return null;
+    };
+
+    const funcReleaseSlot = function(slot, processed, throttled) {
+        const s = slotState[slot];
+        if(s.startedAt) {
+            s.activeMs += Date.now() - s.startedAt;
+            s.startedAt = null;
+        }
+        if(processed > 0) {
+            s.doneTotal += processed;
+            s.batches.push(processed);
+            if(s.batches.length > SPARKLINE_BARS)
+                s.batches = s.batches.slice(-SPARKLINE_BARS);
+        }
+        s.running = false;
+        s.throttled = !!throttled;
+        slotsActive.delete(slot);
+    };
+
+    const $worker_cards_container = $widget.find('[data-cerb-worker-cards]');
+
+    const funcRenderWorkerCards = function() {
+        const anyActive = Object.values(slotState).some(s => s.everActive);
+        $worker_cards_container.toggleClass('cerb-hidden', !anyActive);
+
+        for(let i = 1; i <= MAX_CONCURRENCY; i++) {
+            const s = slotState[i];
+            const $card = $widget.find('[data-cerb-worker-card="' + i + '"]');
+
+            if(!s.everActive) {
+                $card.addClass('cerb-hidden');
+                continue;
+            }
+
+            $card.removeClass('cerb-hidden cerb-worker-card--running cerb-worker-card--throttled')
+                 .toggleClass('cerb-worker-card--running', s.running)
+                 .toggleClass('cerb-worker-card--throttled', !s.running && s.throttled);
+
+            const badgeText = s.running ? 'RUNNING' : (s.throttled ? 'THROTTLED' : 'IDLE');
+            $card.find('[data-cerb-worker-card-badge]').text(badgeText);
+            $card.find('[data-cerb-worker-card-done]').text(s.doneTotal.toLocaleString());
+
+            const rate = s.activeMs > 0 ? (s.doneTotal / (s.activeMs / 1000)) : 0;
+            $card.find('[data-cerb-worker-card-rate]').text(rate.toFixed(1));
+
+            // Sparkline: simple flex row of bars whose heights map to each batch's
+            // processed count, normalized against this slot's recent max.
+            const $sparkline = $card.find('[data-cerb-worker-card-sparkline]');
+            const maxBatch = Math.max.apply(null, s.batches.length ? s.batches : [1]);
+            const bars = s.batches.map(function(b) {
+                const pct = Math.max(8, Math.round((b / maxBatch) * 100));
+                return '<span style="height:' + pct + '%"></span>';
+            }).join('');
+            $sparkline.html(bars);
         }
     };
 
@@ -184,54 +288,89 @@ $(function() {
     const funcSpawnSingleWorker = function() {
         if(!isCurrent()) return;
         if(isTerminal || isPaused || !canProcess) return;
+        if(slotsActive.size >= (isHidden ? 1 : MAX_CONCURRENCY)) return;
 
-        activeWorkers++;
-        funcUpdateWorkerCount();
+        const slot = funcAcquireSlot();
+        if(slot === null) return;
+        funcRenderWorkerCards();
 
         genericAjaxPost(funcBuildFormData('worker'), null, null, function(json) {
+            const processed = (typeof json === 'object' && typeof json.processed === 'number') ? json.processed : 0;
+            const remaining = (typeof json === 'object' && typeof json.remaining === 'number') ? json.remaining : 0;
+            const gotSlot = (typeof json === 'object' && json.slot === true);
+            const wasThrottled = (typeof json === 'object' && json.slot === false && remaining > 0);
+
+            // Update remaining BEFORE rendering so the ramp scheduler sees fresh data.
+            if(typeof json === 'object' && typeof json.remaining === 'number')
+                lastKnownRemaining = remaining;
+
+            funcReleaseSlot(slot, processed, wasThrottled);
+            funcRenderWorkerCards();
+
             if(!isCurrent()) return;
-            activeWorkers--;
-            funcUpdateWorkerCount();
             if(isTerminal || isPaused || !canProcess) return;
 
-            const didWork = typeof json === 'object' && json.slot === true && json.processed > 0;
-            const remaining = (typeof json === 'object' && typeof json.remaining === 'number') ? json.remaining : 0;
-            const retryDelay = isHidden ? HIDDEN_SPAWN_DELAY_MS : RETRY_DELAY_MS;
-
             if(remaining === 0) {
-                // No messages left — either we just emptied the queue or someone
-                // else did. The job is finalizing (or already terminal); drop into
-                // the backoff poll loop that watches status.
+                // No messages left — the job is finalizing (or already terminal);
+                // drop into the backoff poll loop that watches status.
                 funcPollWhileFinalizing();
                 return;
             }
 
             funcRefreshProgress();
 
-            if(!didWork) {
-                // Slot denied or another worker grabbed the messages — retry shortly.
-                const t = setTimeout(funcSpawnSingleWorker, retryDelay);
-                $widget.data('queueJobMonitorRetryTimer', t);
-                return;
+            // Pool maintenance: spawn one replacement so the existing pool size is
+            // preserved. The ramp scheduler is what grows it further — this just
+            // keeps work flowing at the current level.
+            const cap = isHidden ? 1 : MAX_CONCURRENCY;
+            const target = Math.min(cap, lastKnownRemaining);
+            if(slotsActive.size < target) {
+                const retryDelay = (gotSlot ? 0 : (isHidden ? HIDDEN_SPAWN_DELAY_MS : RETRY_DELAY_MS));
+                if(retryDelay > 0) {
+                    const t = setTimeout(funcSpawnSingleWorker, retryDelay);
+                    $widget.data('queueJobMonitorRetryTimer', t);
+                } else {
+                    funcSpawnSingleWorker();
+                }
             }
 
-            if(isHidden) {
-                // Keep one worker moving but at a calmer cadence so the background
-                // tab doesn't hammer the server.
-                const t = setTimeout(funcSpawnSingleWorker, retryDelay);
-                $widget.data('queueJobMonitorRetryTimer', t);
-            } else {
-                const targetWorkers = Math.min(POOL_SIZE, remaining);
-                while(activeWorkers < targetWorkers)
-                    funcSpawnSingleWorker();
-            }
+            // Re-arm the ramp in case it had stopped (e.g. we were at cap; now
+            // a worker has finished and we may have room).
+            funcStartRamp();
         }, {
             error: function() {
-                if(!isCurrent()) return;
-                activeWorkers--;
-                funcUpdateWorkerCount();
+                funcReleaseSlot(slot, 0, false);
+                funcRenderWorkerCards();
             }
         });
+    };
+
+    // Time-based ramp scheduler: spawns workers on a fixed interval up to the
+    // cap. Independent of worker callbacks — workers can run for 10s and the
+    // ramp still animates the cards into view every RAMP_INTERVAL_MS.
+    const funcRamp = function() {
+        $widget.data('queueJobMonitorRampTimer', null);
+
+        if(!isCurrent() || isTerminal || isPaused || !canProcess) return;
+
+        const cap = isHidden ? 1 : MAX_CONCURRENCY;
+        const target = Math.min(cap, lastKnownRemaining);
+
+        if(slotsActive.size < target) {
+            funcSpawnSingleWorker();
+            // Keep stepping until we hit the cap or run out of work
+            if(slotsActive.size < target) {
+                const t = setTimeout(funcRamp, RAMP_INTERVAL_MS);
+                $widget.data('queueJobMonitorRampTimer', t);
+            }
+        }
+    };
+
+    const funcStartRamp = function() {
+        if(!isCurrent() || isTerminal || isPaused || !canProcess) return;
+        if($widget.data('queueJobMonitorRampTimer')) return;
+        const t = setTimeout(funcRamp, RAMP_INTERVAL_MS);
+        $widget.data('queueJobMonitorRampTimer', t);
     };
 
     const funcOnVisibilityChange = function() {
@@ -240,9 +379,12 @@ $(function() {
         isHidden = (document.visibilityState === 'hidden');
 
         // Came back to a still-running job — kick off a worker if we coasted to
-        // zero. An in-flight worker (if any) will fan out further on its callback.
-        if(wasHidden && !isHidden && !isTerminal && !isPaused && canProcess && activeWorkers === 0)
-            funcSpawnSingleWorker();
+        // zero, and re-arm the ramp so the pool can grow back to its non-hidden cap.
+        if(wasHidden && !isHidden && !isTerminal && !isPaused && canProcess) {
+            if(slotsActive.size === 0)
+                funcSpawnSingleWorker();
+            funcStartRamp();
+        }
     };
 
     document.addEventListener('visibilitychange', funcOnVisibilityChange);
@@ -264,7 +406,10 @@ $(function() {
                 .toggleClass('glyphicons-pause', !isPaused)
                 .toggleClass('glyphicons-play', isPaused);
             $button_cancel.toggleClass('cerb-hidden', !isPaused);
-            if(!isPaused) funcSpawnSingleWorker();
+            if(!isPaused) {
+                funcSpawnSingleWorker();
+                funcStartRamp();
+            }
         });
     };
 
@@ -304,6 +449,9 @@ $(function() {
     $button_pause.on('click', funcTogglePause);
     $button_cancel.on('click', funcCancel);
 
-    if(MODE === 'process' && !isTerminal) funcSpawnSingleWorker();
+    if(MODE === 'process' && !isTerminal) {
+        funcSpawnSingleWorker();
+        funcStartRamp();
+    }
 });
 </script>
