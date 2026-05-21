@@ -51,6 +51,13 @@ if(array_key_exists('message', $columns) && 'mediumtext' != $columns['message'][
 	$changes[] = "MODIFY COLUMN message MEDIUMTEXT";
 }
 
+// Work-unit count per message; bulk producers (bulk update, reindex, export) bundle
+// many records per message, so `syncProgress` sums cardinality to display records,
+// not batches. DEFAULT 1 keeps legacy/single-op messages correct without backfill.
+if(!array_key_exists('cardinality', $columns)) {
+	$changes[] = "ADD COLUMN cardinality MEDIUMINT UNSIGNED NOT NULL DEFAULT 1";
+}
+
 if($changes) {
 	$db->ExecuteMaster("ALTER TABLE queue_message ".
 		implode(', ', $changes)

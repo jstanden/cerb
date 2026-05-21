@@ -50,15 +50,16 @@ class _DevblocksQueueService {
 	 * @param string|null $error
 	 * @param int $job_id
 	 * @param int $available_at
+	 * @param int $cardinality
 	 * @return array|false
 	 */
-	public function enqueue(string $queue_name, array $messages, ?string &$error=null, int $job_id=0, int $available_at=0) {
+	public function enqueue(string $queue_name, array $messages, ?string &$error=null, int $job_id=0, int $available_at=0, int $cardinality=1) {
 		if(null == ($queue = $this->_getQueueByName($queue_name))) {
 			$error = sprintf("Unknown queue `%s`", $queue_name);
 			return false;
 		}
-		
-		return DAO_QueueMessage::enqueue($queue, $messages, $job_id, $available_at);
+
+		return DAO_QueueMessage::enqueue($queue, $messages, $job_id, $available_at, $cardinality);
 	}
 	
 	/**

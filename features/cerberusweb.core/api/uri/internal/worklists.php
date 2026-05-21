@@ -633,8 +633,6 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 			if(!$record_count)
 				throw new Exception_DevblocksAjaxError("This worklist has no records to export.");
 
-			$batch_count = (int)ceil($record_count / $batch_size);
-
 			$file_name = 'export.' . $export_as;
 			$mime_type = match($export_as) {
 				'csv'   => 'text/csv',
@@ -652,8 +650,8 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 				$file_name
 			);
 			$queue_job->status_id = QueueJobStatus::RUNNING->value;
-			$queue_job->count_total = $batch_count;
-			$queue_job->count_available = $batch_count;
+			$queue_job->count_total = $record_count;
+			$queue_job->count_available = $record_count;
 			$queue_job->worker_id = $active_worker->id;
 			$queue_job->metadata = [
 				'context'           => $context_ext->id,
@@ -681,13 +679,14 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 			;
 
 			$sql = sprintf(
-				"INSERT INTO queue_message (uuid, queue_id, job_id, status_id, status_at, message) ".
+				"INSERT INTO queue_message (uuid, queue_id, job_id, status_id, status_at, message, cardinality) ".
 				"SELECT UUID_TO_BIN(UUID()) AS uuid, ".
 				"%d AS queue_id, ".
 				"%d AS job_id, ".
 				"0 AS status_id, ".
 				"UNIX_TIMESTAMP() AS status_at, ".
-				"CONCAT('{\"chunk\":', batch, ',\"ids\":[', GROUP_CONCAT(id ORDER BY id), ']}') AS message ".
+				"CONCAT('{\"chunk\":', batch, ',\"ids\":[', GROUP_CONCAT(id ORDER BY id), ']}') AS message, ".
+				"COUNT(id) AS cardinality ".
 				"FROM (SELECT id, CEIL(ROW_NUMBER() OVER (ORDER BY id) / %d) AS batch FROM (%s) AS deduped) AS batched ".
 				"GROUP BY batch",
 				$queue->id,

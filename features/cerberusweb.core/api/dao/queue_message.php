@@ -15,23 +15,24 @@ class DAO_QueueMessage {
 	 * @param array $messages
 	 * @param int $job_id
 	 * @param int $available_at
+	 * @param int $cardinality Work units represented by each message (default 1)
 	 * @return array|false
 	 */
-	static function enqueue(Model_Queue $queue, array $messages, int $job_id=0, int $available_at=0) {
+	static function enqueue(Model_Queue $queue, array $messages, int $job_id=0, int $available_at=0, int $cardinality=1) {
 		$db = DevblocksPlatform::services()->database();
 		$nodeProvider = new RandomNodeProvider();
-		
+
 		if(empty($messages))
 			return false;
-		
+
 		$results = [];
 		$insert_values = [];
-		
+
 		foreach($messages as $message) {
 			$uuid = Uuid::uuid6($nodeProvider->getNode());
 			$message_uuid = $uuid->getHex();
-			
-			$insert_values[] = sprintf("(%s, %d, %d, %d, %d, %s, %s, %d)",
+
+			$insert_values[] = sprintf("(%s, %d, %d, %d, %d, %s, %s, %d, %d)",
 				'0x' . $db->escape($message_uuid),
 				$queue->id,
 				$job_id,
@@ -39,17 +40,18 @@ class DAO_QueueMessage {
 				time(),
 				$db->escape('NULL'),
 				$db->qstr(json_encode($message)),
-				$available_at
+				$available_at,
+				max(1, $cardinality)
 			);
-			
+
 			$results[] = $message_uuid->toString();
 		}
-		
+
 		$db->ExecuteWriter(
-			sprintf("INSERT INTO queue_message (uuid, queue_id, job_id, status_id, status_at, consumer_id, message, available_at) VALUES %s",
+			sprintf("INSERT INTO queue_message (uuid, queue_id, job_id, status_id, status_at, consumer_id, message, available_at, cardinality) VALUES %s",
 				implode(',', $insert_values)
 			));
-		
+
 		return $results;
 	}
 	

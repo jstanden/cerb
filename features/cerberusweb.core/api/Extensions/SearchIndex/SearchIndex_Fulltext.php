@@ -554,14 +554,13 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		
 		$record_count = $this->getRecordCount($search_index);
 		$batch_size = 100;
-		$batch_count = ceil($record_count / $batch_size);
-		
+
 		$model = new Model_QueueJob();
 		$model->queue_id = $queue->id;
 		$model->name = 'Reindex ' . $search_index->name;
 		$model->singleton_key = $queue_job_key; // One job per index at a time
-		$model->count_total = $batch_count;
-		$model->count_available = $batch_count;
+		$model->count_total = $record_count;
+		$model->count_available = $record_count;
 		$model->status_id = \QueueJobStatus::RUNNING->value;
 		$model->worker_id = $active_worker ? $active_worker->id : 0;
 		$model->created_at = time();
@@ -569,12 +568,12 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 			'search_index_id' => $search_index->id,
 			'record_type' => $search_index->record_type
 		];
-		
+
 		if (!($model = DAO_QueueJob::create($model))) {
 			$error = 'Failed to create job';
 			return null;
 		}
-		
+
 		if(
 			!($query_parts['primary_table'] ?? null)
 			||!($query_parts['key_primary'] ?? null)
@@ -582,14 +581,15 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 			$error = 'Invalid query';
 			return null;
 		}
-		
-		$sql = sprintf("INSERT INTO queue_message (uuid, queue_id, job_id, status_id, status_at, message) ".
+
+		$sql = sprintf("INSERT INTO queue_message (uuid, queue_id, job_id, status_id, status_at, message, cardinality) ".
 			"SELECT UUID_TO_BIN(UUID()) AS uuid, ".
 			"%d AS queue_id, ".
 			"%d AS job_id, ".
 			"0 AS status_id, ".
 			"UNIX_TIMESTAMP() AS status_at, ".
-			"CONCAT('{\"index_id\":',%d,',\"ids\":[',GROUP_CONCAT(id ORDER BY id),']}') AS message ".
+			"CONCAT('{\"index_id\":',%d,',\"ids\":[',GROUP_CONCAT(id ORDER BY id),']}') AS message, ".
+			"COUNT(id) AS cardinality ".
 			"FROM (SELECT %s AS id, CEIL(ROW_NUMBER() OVER (ORDER BY %s) / %d) AS batch FROM %s) AS batched ".
 			"GROUP BY batch",
 			$model->queue_id,

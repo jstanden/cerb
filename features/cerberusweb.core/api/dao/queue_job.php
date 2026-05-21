@@ -426,9 +426,13 @@ class DAO_QueueJob extends Cerb_ORMHelper {
 	public static function syncProgress(int $job_id) : void {
 		$db = DevblocksPlatform::services()->database();
 
+		// Sum `cardinality` (work units) rather than counting rows, so the monitor
+		// reflects records-of-records for producers that bundle many records per
+		// message (bulk update, reindex, export). Cardinality DEFAULT 1 keeps this
+		// identical to COUNT(*) for single-op messages.
 		$sql = sprintf(
 			"UPDATE queue_job JOIN ( ".
-			"SELECT SUM(status_id=0) AS count_available, SUM(status_id=1) AS count_inflight, SUM(status_id=2) AS count_failed, SUM(status_id=3) AS count_done, COUNT(*) AS count_total FROM queue_message WHERE job_id = %d".
+			"SELECT SUM(IF(status_id=0, cardinality, 0)) AS count_available, SUM(IF(status_id=1, cardinality, 0)) AS count_inflight, SUM(IF(status_id=2, cardinality, 0)) AS count_failed, SUM(IF(status_id=3, cardinality, 0)) AS count_done, SUM(cardinality) AS count_total FROM queue_message WHERE job_id = %d".
 			") AS agg ON queue_job.id = %d ".
 			"SET ".
 			"queue_job.count_total = agg.count_total, ".

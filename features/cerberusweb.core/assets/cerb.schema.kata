@@ -9613,6 +9613,14 @@ tables:
         key@text:
         default: 0
         extra@text:
+      cardinality:
+        field: cardinality
+        type: mediumint unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 1
+        extra@text:
       consumer_id:
         field: consumer_id
         type: binary(16)
