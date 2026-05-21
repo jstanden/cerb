@@ -28,6 +28,9 @@ class ProfileWidget_QueueJobMonitor extends Extension_ProfileWidget {
 			: [];
 		$tpl->assign('attachments', $attachments);
 
+		// Per-batch audit log (newest first)
+		$tpl->assign('logs', DAO_QueueJobLog::getByJobId($queue_job->id, 50));
+
 		$tpl->display('devblocks:cerberusweb.core::internal/queue/job_monitor.tpl');
 	}
 

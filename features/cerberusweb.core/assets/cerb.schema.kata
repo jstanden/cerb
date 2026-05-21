@@ -9532,6 +9532,77 @@ tables:
             index_type: BTREE
             subpart@text:
             unique@text:
+  queue_job_log:
+    columns:
+      created_at:
+        field: created_at
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      id:
+        field: id
+        type: bigint unsigned
+        collation@text:
+        nullable: NOT NULL
+        key: PRI
+        default@text:
+        extra: auto_increment
+      job_id:
+        field: job_id
+        type: bigint unsigned
+        collation@text:
+        nullable: NOT NULL
+        key: MUL
+        default@text:
+        extra@text:
+        references: queue_job.id
+      level:
+        field: level
+        type: tinyint unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      message:
+        field: message
+        type: varchar(1024)
+        collation: utf8mb3_unicode_ci
+        nullable: NOT NULL
+        key@text:
+        default@text:
+        extra@text:
+      metadata:
+        field: metadata
+        type: mediumtext
+        collation: utf8mb3_unicode_ci
+        nullable: NULL
+        key@text:
+        default@text:
+        extra@text:
+    indexes:
+      PRIMARY:
+        columns:
+          id:
+            column_name: id
+            index_type: BTREE
+            subpart@text:
+            unique: 1
+      job_id_id:
+        columns:
+          job_id:
+            column_name: job_id
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+          id:
+            column_name: id
+            index_type: BTREE
+            subpart@text:
+            unique@text:
   queue_message:
     columns:
       available_at:

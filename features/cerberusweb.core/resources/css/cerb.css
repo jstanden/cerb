@@ -3041,6 +3041,22 @@ TABLE.cerb-widget-data-table .cerb-sheet--row-title div, TABLE.cerb-widget-data-
   outline-offset: -10px;
 }
 
+.cerb-progress-bar--header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1em;
+  margin-bottom: 0.35em;
+  font-size: 1.6em;
+  font-weight: 600;
+  line-height: 1.1;
+}
+.cerb-progress-bar--header .cerb-progress-bar--header-divider,
+.cerb-progress-bar--header .cerb-progress-bar--header-denominator {
+  color: var(--cerb-color-background-contrast-150);
+  font-weight: 400;
+}
+
 .cerb-progress-bar rect.cerb-progress-bar--done {
   fill: var(--cerb-color-progress-done);
 }
@@ -3157,26 +3173,84 @@ TABLE.cerb-widget-data-table .cerb-sheet--row-title div, TABLE.cerb-widget-data-
   background: color-mix(in srgb, #eab308 25%, transparent);
   color: #eab308;
 }
-.cerb-worker-cards .cerb-worker-card--header {
+
+.cerb-queue-monitor h2 {
+  color: inherit;
+}
+
+.cerb-job-log {
+  margin-top: 0.75em;
+}
+.cerb-job-log .cerb-job-log--entries {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 240px;
+  overflow-y: auto;
+}
+.cerb-job-log .cerb-job-log--entry {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.2em 0.4em;
+  border-left: 3px solid transparent;
+}
+.cerb-job-log .cerb-job-log--entry.cerb-job-log--entry--level-1 {
+  border-left-color: var(--cerb-color-progress-done);
+}
+.cerb-job-log .cerb-job-log--entry.cerb-job-log--entry--level-2 {
+  border-left-color: var(--cerb-color-warning-text);
+}
+.cerb-job-log .cerb-job-log--entry.cerb-job-log--entry--level-3 {
+  border-left-color: var(--cerb-color-progress-failed);
+}
+.cerb-job-log .cerb-job-log--time {
+  font-family: monospace;
+  opacity: 0.6;
+  font-size: 0.85em;
+  flex: 0 0 6em;
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cerb-job-log .cerb-job-log--icon {
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+.cerb-job-log .cerb-job-log--icon.glyphicons-circle-ok {
+  color: var(--cerb-color-progress-done);
+}
+.cerb-job-log .cerb-job-log--icon.glyphicons-warning-sign {
+  color: var(--cerb-color-warning-text);
+}
+.cerb-job-log .cerb-job-log--icon.glyphicons-circle-remove {
+  color: var(--cerb-color-progress-failed);
+}
+.cerb-job-log .cerb-job-log--message {
+  flex-grow: 1;
+  word-break: break-word;
+}
+.cerb-job-log .cerb-worker-card--header {
   display: flex;
   align-items: center;
   gap: 0.4em;
   margin-bottom: 0.25em;
 }
-.cerb-worker-cards .cerb-worker-card--dot {
+.cerb-job-log .cerb-worker-card--dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
   background: var(--slot-color);
   flex-shrink: 0;
 }
-.cerb-worker-cards .cerb-worker-card--label {
+.cerb-job-log .cerb-worker-card--label {
   font-family: monospace;
   font-size: 0.85em;
   font-weight: 600;
   opacity: 0.85;
 }
-.cerb-worker-cards .cerb-worker-card--badge {
+.cerb-job-log .cerb-worker-card--badge {
   margin-left: auto;
   font-family: monospace;
   font-size: 0.7em;
@@ -3187,19 +3261,19 @@ TABLE.cerb-widget-data-table .cerb-sheet--row-title div, TABLE.cerb-widget-data-
   background: var(--cerb-color-background-contrast-50);
   color: var(--cerb-color-text);
 }
-.cerb-worker-cards .cerb-worker-card--stats {
+.cerb-job-log .cerb-worker-card--stats {
   font-size: 0.8em;
   opacity: 0.75;
   margin-bottom: 0.3em;
   font-variant-numeric: tabular-nums;
 }
-.cerb-worker-cards .cerb-worker-card--sparkline {
+.cerb-job-log .cerb-worker-card--sparkline {
   display: flex;
   align-items: flex-end;
   gap: 1px;
   height: 14px;
 }
-.cerb-worker-cards .cerb-worker-card--sparkline > span {
+.cerb-job-log .cerb-worker-card--sparkline > span {
   flex: 1;
   min-width: 2px;
   min-height: 1px;

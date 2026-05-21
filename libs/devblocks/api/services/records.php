@@ -15,7 +15,25 @@ class _DevblocksRecordsService {
 	
 	private function __construct() {
 	}
-	
+
+	/**
+	 * Resolve a context's singular/plural alias for use in job-log messages
+	 * ("ticket"/"tickets", "custom record"/"custom records"). Falls back to a
+	 * generic "record"/"records" if the context can't be resolved.
+	 */
+	private static function _recordNoun(string $context, int $count) : string {
+		$context_ext = $context ? \Extension_DevblocksContext::get($context) : null;
+		$aliases = $context_ext
+			? \Extension_DevblocksContext::getAliasesForContext($context_ext->manifest)
+			: null;
+
+		if($count === 1)
+			return $aliases['singular'] ?? '' ?: 'record';
+
+		return $aliases['plural'] ?? '' ?: 'records';
+	}
+
+
 	public function processImportQueue(Model_Queue $queue, int $stop_time, int $count_hint, ?Model_QueueJob $queue_job=null) : int {
 		$queue_service = DevblocksPlatform::services()->queue();
 		
@@ -79,11 +97,16 @@ class _DevblocksRecordsService {
 			$results = $importer->bulkTagUpserts($results, $mapping);
 			
 			$importer->importRecords($results, $mapping);
-			
-			$queue_service->reportSuccess($queue_messages);
-			
+
+			$queue_service->reportSuccess(
+				$queue_messages,
+				sprintf('Imported %d %s', count($results), self::_recordNoun($context, count($results))),
+				$context ? ['context' => $context] : []
+			);
+
 		} catch (\Exception_DevblocksValidationError $e) {
 			DevblocksPlatform::logException($e);
+			$queue_service->reportFailure($queue_messages, $e->getMessage());
 		}
 		
 		$processed += count($queue_messages);
@@ -130,6 +153,8 @@ class _DevblocksRecordsService {
 				break;
 
 			try {
+				$record_count_in_batch = 0;
+
 				foreach($queue_messages as $queue_message) {
 					$payload = $queue_message->message;
 					$chunk_idx = intval($payload['chunk'] ?? 0);
@@ -137,9 +162,14 @@ class _DevblocksRecordsService {
 
 					$bytes = $exporter->renderChunkBytes($record_ids, $render_metadata);
 					\DAO_QueueJobChunk::put($queue_job->id, $chunk_idx, $bytes);
+
+					$record_count_in_batch += count($record_ids);
 				}
 
-				$queue_service->reportSuccess($queue_messages);
+				$queue_service->reportSuccess(
+					$queue_messages,
+					sprintf('Exported %d %s', $record_count_in_batch, self::_recordNoun($context, $record_count_in_batch))
+				);
 
 			} catch(\Throwable $e) {
 				DevblocksPlatform::logException($e);
@@ -365,6 +395,8 @@ class _DevblocksRecordsService {
 				break;
 
 			try {
+				$touched_ids = [];
+
 				foreach($queue_messages as $queue_message) {
 					$record_ids = array_map('intval', $queue_message->message['ids'] ?? []);
 
@@ -396,9 +428,16 @@ class _DevblocksRecordsService {
 					if(!empty($actions['comment'])) {
 						$this->_processBulkCommentBatch($context, $record_ids, $actions['comment'], $worker);
 					}
+
+					// Track the post-ACL IDs we actually updated (for the job log audit trail)
+					$touched_ids = array_merge($touched_ids, $record_ids);
 				}
 
-				$queue_service->reportSuccess($queue_messages);
+				$queue_service->reportSuccess(
+					$queue_messages,
+					sprintf('Updated %d %s', count($touched_ids), self::_recordNoun($context, count($touched_ids))),
+					$touched_ids ? ['context' => $context, 'record_ids' => $touched_ids] : []
+				);
 
 			} catch(\Throwable $e) {
 				DevblocksPlatform::logException($e);

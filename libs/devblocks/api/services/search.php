@@ -39,13 +39,17 @@ class _DevblocksSearchService {
 				$error = null;
 
 				$search_extension = $search_index->getExtension();
+				$ids = $queue_message->message['ids'] ?? [];
 
-				if(!$search_extension->indexDocumentsByIds($search_index, $queue_message->message['ids'] ?? [], $error)) {
+				if(!$search_extension->indexDocumentsByIds($search_index, $ids, $error)) {
 					$queue_message->reportStatus(\QueueMessageStatus::FAILED, $error);
 					continue;
 				}
 
-				$queue_message->reportStatus(\QueueMessageStatus::DONE);
+				$queue_message->reportStatus(
+					\QueueMessageStatus::DONE,
+					sprintf('Indexed %d %s', count($ids), count($ids) === 1 ? 'record' : 'records')
+				);
 				$processed++;
 			}
 		}

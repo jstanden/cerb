@@ -209,13 +209,13 @@ class Model_QueueMessage {
 	public int $job_id = 0;
 	public int $available_at = 0;
 	
-	public function reportStatus(QueueMessageStatus $status, string $message='') : void {
+	public function reportStatus(QueueMessageStatus $status, string $message='', array $metadata=[]) : void {
 		$queue_service = DevblocksPlatform::services()->queue();
-		
+
 		if(QueueMessageStatus::DONE == $status) {
-			$queue_service->reportSuccess([$this], $message);
+			$queue_service->reportSuccess([$this], $message, $metadata);
 		} else {
-			$queue_service->reportFailure([$this], $message);
+			$queue_service->reportFailure([$this], $message, $metadata);
 		}
 	}
 }

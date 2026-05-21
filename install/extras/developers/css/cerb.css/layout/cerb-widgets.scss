@@ -51,6 +51,23 @@ TABLE.cerb-widget-data-table {
 	outline-offset:-10px;
 }
 
+.cerb-progress-bar--header {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 1em;
+	margin-bottom: 0.35em;
+	font-size: 1.6em;
+	font-weight: 600;
+	line-height: 1.1;
+
+	.cerb-progress-bar--header-divider,
+	.cerb-progress-bar--header-denominator {
+		color: var(--cerb-color-background-contrast-150);
+		font-weight: 400;
+	}
+}
+
 .cerb-progress-bar {
 	rect.cerb-progress-bar--done      { fill: var(--cerb-color-progress-done); }
 	rect.cerb-progress-bar--failed    { fill: var(--cerb-color-progress-failed); }
@@ -144,6 +161,68 @@ TABLE.cerb-widget-data-table {
 				color: #eab308;
 			}
 		}
+	}
+}
+
+// Inside the queue monitor, override the global muted-gray/blue `h2` color
+// (`--cerb-color-h2`) so section headings (Activity log, Attachments) match
+// the surrounding body text in either theme.
+.cerb-queue-monitor {
+	h2 { color: inherit; }
+}
+
+// Queue job audit log — list of per-batch entries from consumer reportSuccess /
+// reportFailure calls (newest first). Level controls the icon and accent color.
+.cerb-job-log {
+	margin-top: 0.75em;
+
+	.cerb-job-log--entries {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		max-height: 240px;
+		overflow-y: auto;
+	}
+
+	.cerb-job-log--entry {
+		display: flex;
+		align-items: center;
+		gap: 0.5em;
+		padding: 0.2em 0.4em;
+		border-left: 3px solid transparent;
+
+		// Match the queue-message status palette so the log reads as the same
+		// vocabulary as the progress bar (muted green/red/etc).
+		&.cerb-job-log--entry--level-1 { border-left-color: var(--cerb-color-progress-done); }
+		&.cerb-job-log--entry--level-2 { border-left-color: var(--cerb-color-warning-text); }
+		&.cerb-job-log--entry--level-3 { border-left-color: var(--cerb-color-progress-failed); }
+	}
+
+	.cerb-job-log--time {
+		font-family: monospace;
+		opacity: 0.6;
+		font-size: 0.85em;
+		// Fixed-width column so timestamps line up cleanly down the list.
+		// Right-aligned so the trailing unit ("s", "m", "h") sits next to the icon.
+		flex: 0 0 6em;
+		text-align: right;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.cerb-job-log--icon {
+		flex-shrink: 0;
+		opacity: 0.7;
+
+		&.glyphicons-circle-ok  { color: var(--cerb-color-progress-done); }
+		&.glyphicons-warning-sign  { color: var(--cerb-color-warning-text); }
+		&.glyphicons-circle-remove { color: var(--cerb-color-progress-failed); }
+	}
+
+	.cerb-job-log--message {
+		flex-grow: 1;
+		word-break: break-word;
 	}
 
 	.cerb-worker-card--header {

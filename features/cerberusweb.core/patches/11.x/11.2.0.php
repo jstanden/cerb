@@ -1964,6 +1964,27 @@ if($changes) {
 }
 
 // ===========================================================================
+// Queue Job Log
+
+if(!array_key_exists('queue_job_log', $tables)) {
+	$sql = sprintf("
+		CREATE TABLE `queue_job_log` (
+		`id` bigint unsigned NOT NULL AUTO_INCREMENT,
+		`job_id` bigint unsigned NOT NULL,
+		`created_at` int unsigned NOT NULL DEFAULT 0,
+		`level` tinyint unsigned NOT NULL DEFAULT 0,
+		`message` varchar(1024) NOT NULL DEFAULT '',
+		`metadata` mediumtext,
+		PRIMARY KEY (id),
+		INDEX `job_id` (job_id)
+		) ENGINE=%s
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+
+	$tables['queue_job_log'] = 'queue_job_log';
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

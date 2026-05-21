@@ -5,6 +5,7 @@ class _DevblocksQueueService {
 	private array $_queue_cache = [];
 	private array $_status_buffer = ['success'=>[], 'failure'=>[]];
 	private array $_jobs_buffer = [];
+	private array $_log_buffer = [];
 	
 	static function getInstance() : _DevblocksQueueService {
 		if(is_null(self::$_instance))
@@ -74,16 +75,40 @@ class _DevblocksQueueService {
 		return DAO_QueueMessage::dequeue($queue, $limit, $consumer_id, $job_id);
 	}
 	
-	public function reportSuccess(array $messages, string $message='') : void {
-		foreach($messages as $message)
-			$this->_status_buffer['success'][$message->uuid] = true;
+	public function reportSuccess(array $messages, string $message='', array $metadata=[]) : void {
+		foreach($messages as $queue_message)
+			$this->_status_buffer['success'][$queue_message->uuid] = true;
 		$this->_trackJobIds($messages);
+		$this->_bufferLogEntry($messages, 1 /* SUCCESS */, $message, $metadata);
 	}
-	
-	public function reportFailure(array $messages, string $message='') : void {
-		foreach($messages as $message)
-			$this->_status_buffer['failure'][$message->uuid] = true;
+
+	public function reportFailure(array $messages, string $message='', array $metadata=[]) : void {
+		foreach($messages as $queue_message)
+			$this->_status_buffer['failure'][$queue_message->uuid] = true;
 		$this->_trackJobIds($messages);
+		$this->_bufferLogEntry($messages, 3 /* ERROR */, $message, $metadata);
+	}
+
+	private function _bufferLogEntry(array $messages, int $level, string $message, array $metadata) : void {
+		// Nothing worth recording — consumer didn't pass a message or metadata
+		if($message === '' && !$metadata) return;
+
+		// Derive job_id from the first message that has one. All messages in a
+		// single reportSuccess/Failure call should share a job_id; fire-and-forget
+		// messages (job_id=0) skip logging.
+		$job_id = 0;
+		foreach($messages as $queue_message) {
+			if($queue_message->job_id) { $job_id = $queue_message->job_id; break; }
+		}
+		if(!$job_id) return;
+
+		$this->_log_buffer[] = [
+			'job_id'     => $job_id,
+			'created_at' => time(),
+			'level'      => $level,
+			'message'    => $message,
+			'metadata'   => $metadata,
+		];
 	}
 	
 	private function _trackJobIds(array $messages) : void {
@@ -112,7 +137,14 @@ class _DevblocksQueueService {
 			DAO_QueueMessage::reportFailure(array_keys($this->_status_buffer['failure']));
 			$this->_status_buffer['failure'] = [];
 		}
-		
+
+		// Flush any buffered job-log entries from this request's reportSuccess/Failure
+		// calls. One row per call (with consumer-supplied message + metadata).
+		if($this->_log_buffer) {
+			DAO_QueueJobLog::insertBatch($this->_log_buffer);
+			$this->_log_buffer = [];
+		}
+
 		// Update counts on jobs that changed
 		if($this->_jobs_buffer) {
 			$job_ids = array_keys($this->_jobs_buffer);

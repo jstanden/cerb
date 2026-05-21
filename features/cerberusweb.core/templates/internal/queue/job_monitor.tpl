@@ -5,6 +5,8 @@
    rather than context to avoid clashing with the heavily-overloaded $context
    used elsewhere — e.g. by the attachments list include below.) *}
 
+<div class="cerb-queue-monitor">
+
 <div data-cerb-progress-bar>
     {include file="devblocks:cerberusweb.core::internal/queue/progress_bar.tpl"}
 </div>
@@ -36,10 +38,16 @@
 
 {if $queue_job->isDone() && $attachments}
 <div data-cerb-attachments style="margin-top:0.75em;">
-    <h2 style="margin:0 0 0.25em 0;">{'common.attachments'|devblocks_translate|capitalize}</h2>
+    <h2 style="margin:0 0 0.25em 0;">{'common.output'|devblocks_translate|capitalize}</h2>
     {include file="devblocks:cerberusweb.core::internal/attachments/list.tpl" context="{CerberusContexts::CONTEXT_QUEUE_JOB}" context_id=$queue_job->id attachments=$attachments}
 </div>
 {/if}
+
+<div data-cerb-job-log-container>
+    {include file="devblocks:cerberusweb.core::internal/queue/job_log.tpl" logs=$logs}
+</div>
+
+</div>{* /.cerb-queue-monitor *}
 
 {$script_uid = uniqid('script')}
 <script nonce="{DevblocksPlatform::getRequestNonce()}" id="{$script_uid}" type="text/javascript">
@@ -260,6 +268,9 @@ $(function() {
 
                 if(json.hasOwnProperty('progress_html'))
                     $progress_bar.html(json.progress_html);
+
+                if(json.hasOwnProperty('log_html'))
+                    $widget.find('[data-cerb-job-log-container]').html(json.log_html);
             });
         }, REFRESH_DEBOUNCE_MS);
 

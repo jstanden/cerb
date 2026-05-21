@@ -4,6 +4,7 @@ namespace Cerb\Records;
 use Context_QueueJob;
 use DAO_Queue;
 use DAO_QueueJob;
+use DAO_QueueJobLog;
 use DAO_QueueMessage;
 use DevblocksPlatform;
 use Model_QueueJob;
@@ -69,10 +70,12 @@ class QueueJobMonitor {
 			}
 
 			$tpl->assign('progress', $queue_job->getProgress());
+			$tpl->assign('logs', DAO_QueueJobLog::getByJobId($queue_job->id, 50));
 
 			echo json_encode([
 				'job_status' => $queue_job->status_id,
 				'progress_html' => $tpl->fetch('devblocks:cerberusweb.core::internal/queue/progress_bar.tpl'),
+				'log_html' => $tpl->fetch('devblocks:cerberusweb.core::internal/queue/job_log.tpl'),
 			]);
 
 		} catch(Throwable $e) {

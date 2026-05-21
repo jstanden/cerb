@@ -28,6 +28,9 @@ class CardWidget_QueueJobMonitor extends Extension_CardWidget {
 			: [];
 		$tpl->assign('attachments', $attachments);
 
+		// Per-batch audit log (newest first)
+		$tpl->assign('logs', DAO_QueueJobLog::getByJobId($queue_job->id, 50));
+
 		$tpl->display('devblocks:cerberusweb.core::internal/queue/job_monitor.tpl');
 	}
 
