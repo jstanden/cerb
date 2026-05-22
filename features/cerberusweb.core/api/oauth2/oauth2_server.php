@@ -207,26 +207,26 @@ class Cerb_OAuth2RefreshTokenEntity implements RefreshTokenEntityInterface {
 }
 
 class Cerb_OAuth2RefreshTokenRepository implements RefreshTokenRepositoryInterface {
-	public function isRefreshTokenRevoked($tokenId) {
+	public function isRefreshTokenRevoked(string $tokenId): bool {
 		if(false == ($token = DAO_OAuthToken::getRefreshToken($tokenId)))
 			return true;
-		
+
 		if($token->expires_at < time())
 			return true;
-		
+
 		return false;
 	}
 
-	public function getNewRefreshToken() {
+	public function getNewRefreshToken(): ?RefreshTokenEntityInterface {
 		return new Cerb_OAuth2RefreshTokenEntity();
 	}
 
-	public function persistNewRefreshToken(RefreshTokenEntityInterface $refreshTokenEntity) {
+	public function persistNewRefreshToken(RefreshTokenEntityInterface $refreshTokenEntity): void {
 		$access_token = $refreshTokenEntity->getAccessToken();
 		$client = $access_token->getClient();
-		
+
 		$oauth_app = DAO_OAuthApp::getByClientId($client->getIdentifier());
-		
+
 		$fields = [
 			DAO_OAuthToken::APP_ID => $oauth_app->id,
 			DAO_OAuthToken::EXPIRES_AT => $refreshTokenEntity->getExpiryDateTime()->getTimestamp(),
@@ -236,7 +236,7 @@ class Cerb_OAuth2RefreshTokenRepository implements RefreshTokenRepositoryInterfa
 		DAO_OAuthToken::createRefreshToken($fields);
 	}
 
-	public function revokeRefreshToken($tokenId) {
+	public function revokeRefreshToken(string $tokenId): void {
 		DAO_OAuthToken::deleteRefreshToken($tokenId);
 	}
 }
@@ -246,11 +246,11 @@ class Cerb_OAuth2AuthCodeEntity implements AuthCodeEntityInterface {
 }
 
 class Cerb_OAuth2AuthCodeRepository implements AuthCodeRepositoryInterface {
-	public function persistNewAuthCode(AuthCodeEntityInterface $authCodeEntity) {
+	public function persistNewAuthCode(AuthCodeEntityInterface $authCodeEntity): void {
 		$client = $authCodeEntity->getClient();
-		
+
 		$oauth_app = DAO_OAuthApp::getByClientId($client->getIdentifier());
-		
+
 		$fields = [
 			DAO_OAuthToken::APP_ID => $oauth_app->id,
 			DAO_OAuthToken::EXPIRES_AT => $authCodeEntity->getExpiryDateTime()->getTimestamp(),
@@ -259,22 +259,22 @@ class Cerb_OAuth2AuthCodeRepository implements AuthCodeRepositoryInterface {
 		];
 		DAO_OAuthToken::createAuthToken($fields);
 	}
-	
-	public function getNewAuthCode() {
+
+	public function getNewAuthCode(): AuthCodeEntityInterface {
 		return new Cerb_OAuth2AuthCodeEntity();
 	}
-	
-	public function revokeAuthCode($codeId) {
+
+	public function revokeAuthCode(string $codeId): void {
 		DAO_OAuthToken::deleteAuthToken($codeId);
 	}
-	
-	public function isAuthCodeRevoked($codeId) {
+
+	public function isAuthCodeRevoked(string $codeId): bool {
 		if(false == ($token = DAO_OAuthToken::getAuthToken($codeId)))
 			return true;
-		
+
 		if($token->expires_at < time())
 			return true;
-		
+
 		return false;
 	}
 }
@@ -291,12 +291,12 @@ class Cerb_OAuth2ScopeEntity implements ScopeEntityInterface {
 }
 
 class Cerb_OAuth2ScopeRepository implements ScopeRepositoryInterface {
-	public function finalizeScopes(array $scopes, $grantType, ClientEntityInterface $clientEntity, $userIdentifier = null) {
+	public function finalizeScopes(array $scopes, string $grantType, ClientEntityInterface $clientEntity, string|null $userIdentifier = null, ?string $authCodeId = null): array {
 		// Modify final scopes
 		return $scopes;
 	}
 
-	public function getScopeEntityByIdentifier($identifier) {
+	public function getScopeEntityByIdentifier(string $identifier): ?ScopeEntityInterface {
 		$scope = new Cerb_OAuth2ScopeEntity();
 		$scope->setIdentifier($identifier);
 		return $scope;
@@ -308,11 +308,11 @@ class Cerb_OAuth2AccessTokenEntity implements AccessTokenEntityInterface {
 }
 
 class Cerb_OAuth2AccessTokenRepository implements AccessTokenRepositoryInterface {
-	public function persistNewAccessToken(AccessTokenEntityInterface $accessTokenEntity) {
+	public function persistNewAccessToken(AccessTokenEntityInterface $accessTokenEntity): void {
 		$client = $accessTokenEntity->getClient();
-		
+
 		$oauth_app = DAO_OAuthApp::getByClientId($client->getIdentifier());
-		
+
 		$fields = [
 			DAO_OAuthToken::APP_ID => $oauth_app->id,
 			DAO_OAuthToken::EXPIRES_AT => $accessTokenEntity->getExpiryDateTime()->getTimestamp(),
@@ -322,30 +322,30 @@ class Cerb_OAuth2AccessTokenRepository implements AccessTokenRepositoryInterface
 		DAO_OAuthToken::createAccessToken($fields);
 	}
 
-	public function revokeAccessToken($tokenId) {
+	public function revokeAccessToken(string $tokenId): void {
 		DAO_OAuthToken::deleteAccessToken($tokenId);
 	}
 
-	public function getNewToken(ClientEntityInterface $clientEntity, array $scopes, $userIdentifier = null) {
+	public function getNewToken(ClientEntityInterface $clientEntity, array $scopes, string|null $userIdentifier = null): AccessTokenEntityInterface {
 		$access_token = new Cerb_OAuth2AccessTokenEntity();
 		$access_token->setClient($clientEntity);
-		
+
 		foreach($scopes as $scope) {
 			$access_token->addScope($scope);
 		}
-		
+
 		$access_token->setUserIdentifier($userIdentifier);
 
 		return $access_token;
 	}
 
-	public function isAccessTokenRevoked($tokenId) {
+	public function isAccessTokenRevoked(string $tokenId): bool {
 		if(false == ($token = DAO_OAuthToken::getAccessToken($tokenId)))
 			return true;
-		
+
 		if($token->expires_at < time())
 			return true;
-		
+
 		return false;
 	}
 }
@@ -374,28 +374,28 @@ class Cerb_OAuth2ClientEntity implements ClientEntityInterface {
 };
 
 class Cerb_OAuth2ClientRespository implements ClientRepositoryInterface {
-	public function getClientEntity($clientIdentifier) {
+	public function getClientEntity(string $clientIdentifier): ?ClientEntityInterface {
 		if(!($oauth_client = DAO_OAuthApp::getByClientId($clientIdentifier)))
 			return null;
-		
+
 		$client = new Cerb_OAuth2ClientEntity($clientIdentifier);
-		
+
 		$client->setName($oauth_client->name);
 		$client->setRedirectUris($oauth_client->callback_url);
-		
+
 		return $client;
 	}
-	
-	public function validateClient($clientIdentifier, $clientSecret, $grantType) {
+
+	public function validateClient(string $clientIdentifier, ?string $clientSecret, ?string $grantType): bool {
 		if(!in_array($grantType, ['authorization_code', 'refresh_token']))
 			return false;
-		
+
 		if(!($oauth_client = DAO_OAuthApp::getByClientId($clientIdentifier)))
 			return false;
-		
+
 		if($oauth_client->client_secret != $clientSecret)
 			return false;
-		
+
 		return true;
 	}
 };
@@ -409,8 +409,12 @@ class Cerb_OAuth2GrantManual extends AbstractGrant {
 		$this->setScopeRepository(new Cerb_OAuth2ScopeRepository());
 	}
 	
-	public function respondToAccessTokenRequest(ServerRequestInterface $request, ResponseTypeInterface $responseType, \DateInterval $accessTokenTTL) {}
-	public function getIdentifier() {}
+	public function respondToAccessTokenRequest(ServerRequestInterface $request, ResponseTypeInterface $responseType, \DateInterval $accessTokenTTL): ResponseTypeInterface {
+		throw new \LogicException('Cerb_OAuth2GrantManual is not a registered grant');
+	}
+	public function getIdentifier(): string {
+		return 'cerb_manual';
+	}
 	
 	public function generateBearerToken(Model_OAuthApp $oauth2_app, $actor_identifier, array $scopes=[], $access_expires_at='1 hour', $refresh_expires_at='1 month') {
 		$accessTokenTTL = \DateInterval::createFromDateString($access_expires_at);

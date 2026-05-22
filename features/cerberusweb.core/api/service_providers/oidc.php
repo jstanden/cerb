@@ -1,10 +1,11 @@
 <?php
 use GuzzleHttp\Psr7\Request;
 use Lcobucci\Clock\SystemClock;
-use Lcobucci\JWT\Configuration;
+use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
 use Lcobucci\JWT\Token;
+use Lcobucci\JWT\Token\Parser;
 use Lcobucci\JWT\Validation\RequiredConstraintsViolated;
 use Lcobucci\JWT\Validation\Validator;
 use League\OAuth2\Client\Grant\AbstractGrant;
@@ -22,10 +23,9 @@ class AccessToken extends \League\OAuth2\Client\Token\AccessToken {
 	public function __construct($options = []) {
 		parent::__construct($options);
 
-		$config = Configuration::forUnsecuredSigner();
-		
 		if(array_key_exists('id_token', $this->values)) {
-			$this->idToken = $config->parser()->parse($this->values['id_token']);
+			$parser = new Parser(new JoseEncoder());
+			$this->idToken = $parser->parse($this->values['id_token']);
 			unset($this->values['id_token']);
 		}
 	}
