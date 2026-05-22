@@ -18,8 +18,8 @@ class MockObject {
 class DevblocksPlatformTest extends TestCase {
 	public function testRequirements() {
 		// Version
-		$actual = version_compare(PHP_VERSION, "8.3", ">=");
-		$this->assertEquals(true, $actual, sprintf('Cerb requires a PHP version of 8.3+, currently %s', PHP_VERSION));
+		$actual = version_compare(PHP_VERSION, "8.5", ">=");
+		$this->assertEquals(true, $actual, sprintf('Cerb requires a PHP version of 8.5+, currently %s', PHP_VERSION));
 
 		// File Uploads
 		$ini_file_uploads = ini_get("file_uploads");
