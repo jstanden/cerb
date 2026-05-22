@@ -58,7 +58,7 @@
 		"tijsverkoyen/css-to-inline-styles": "v2.3.0",
 		"ezyang/htmlpurifier": "v4.19.0",
 		"donatj/phpuseragentparser": "v1.11.0",
-		"twig/twig" : "dev-3.22.1-cerb",
+		"twig/twig" : "dev-3.26.0-cerb",
 		"singpolyma/openpgp-php": "0.7.0",
 		"horde/imap-client": "dev-2.30.7-cerb",
 		"ramsey/uuid": "4.9.2",
