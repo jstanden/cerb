@@ -70,7 +70,7 @@
 	<input type="hidden" name="step" value="{$smarty.const.STEP_LICENSE}">
 	<input type="hidden" name="accept" value="1">
 	<div class="button-row">
-		<button type="submit">
+		<button type="submit" autofocus>
 			I Accept
 			{call name="icon" icon="arrow-right" size=18}
 		</button>

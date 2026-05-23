@@ -40,7 +40,7 @@
 	</div>
 
 	<div class="button-row">
-		<button type="submit">
+		<button type="submit" autofocus>
 			Verify Configuration
 			{call name="icon" icon="arrow-right" size=18}
 		</button>

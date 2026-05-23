@@ -274,13 +274,13 @@
 	<div class="button-row">
 		{if !$fails}
 			<input type="hidden" name="step" value="{$smarty.const.STEP_LICENSE}">
-			<button type="submit">
+			<button type="submit" autofocus>
 				Continue
 				{call name="icon" icon="arrow-right" size=18}
 			</button>
 		{else}
 			<input type="hidden" name="step" value="{$smarty.const.STEP_ENVIRONMENT}">
-			<button type="submit">
+			<button type="submit" autofocus>
 				Check Again
 				{call name="icon" icon="arrow-right" size=18}
 			</button>

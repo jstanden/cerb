@@ -32,7 +32,7 @@
 		<div class="form-row">
 			<div class="form-group">
 				<label for="db_server">Host</label>
-				<input type="text" name="db_server" id="db_server" value="{$db_server}" placeholder="localhost">
+				<input type="text" name="db_server" id="db_server" value="{$db_server}" placeholder="localhost" autofocus>
 			</div>
 			<div class="form-group">
 				<label for="db_port">Port</label>

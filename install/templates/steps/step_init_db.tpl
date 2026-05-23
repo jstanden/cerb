@@ -12,7 +12,7 @@
 	<input type="hidden" name="step" value="{$smarty.const.STEP_INIT_DB}">
 
 	<div class="button-row">
-		<button type="submit">
+		<button type="submit" autofocus>
 			Try Again
 			{call name="icon" icon="arrow-right" size=18}
 		</button>

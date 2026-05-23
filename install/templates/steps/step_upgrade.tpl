@@ -14,3 +14,7 @@
 	Go to Cerb
 	{call name="icon" icon="arrow-right" size=18}
 </a>
+
+<script>
+document.querySelector('.button-primary').focus();
+</script>

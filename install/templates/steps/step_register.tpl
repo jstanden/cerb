@@ -29,3 +29,7 @@
 		{call name="icon" icon="arrow-right" size=20}
 	</a>
 </div>
+
+<script>
+document.querySelector('.login-link').focus();
+</script>

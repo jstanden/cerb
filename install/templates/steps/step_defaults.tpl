@@ -26,7 +26,7 @@
 	<div class="form-row">
 		<div class="form-group">
 			<label for="worker_firstname">First Name</label>
-			<input type="text" name="worker_firstname" id="worker_firstname" value="{$worker_firstname}" placeholder="First name">
+			<input type="text" name="worker_firstname" id="worker_firstname" value="{$worker_firstname}" placeholder="First name" autofocus>
 		</div>
 		<div class="form-group">
 			<label for="worker_lastname">Last Name</label>
