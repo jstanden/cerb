@@ -1,9 +1,9 @@
 workflow:
   name: cerb.tutorial
-  version: 2025-05-08T00:00:00Z
+  version: 2026-05-22T00:00:00Z
   description: A workspace with detailed descriptions and examples of Cerb functionality
   requirements:
-    cerb_version: >=11.0 <11.3
+    cerb_version: >=11.2 <11.3
     cerb_plugins: cerberusweb.core,
 records:
   workspace_page/page_tutorial:
@@ -17,7 +17,7 @@ records:
       name: API
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 29
+      pos@int: 31
       params:
         layout@text:
         prompts_kata@text:
@@ -27,7 +27,7 @@ records:
       name: Automations
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 17
+      pos@int: 18
       params:
         layout@text:
         prompts_kata@text:
@@ -37,7 +37,7 @@ records:
       name: Calendars
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 11
+      pos@int: 12
       params:
         layout@text:
         prompts_kata@text:
@@ -47,7 +47,7 @@ records:
       name: Charts
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 15
+      pos@int: 16
       params:
         layout@text:
         prompts_kata@text:
@@ -57,7 +57,7 @@ records:
       name: Clients
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 6
+      pos@int: 7
       params:
         layout@text:
         prompts_kata@text:
@@ -67,7 +67,7 @@ records:
       name: Connected Services
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 21
+      pos@int: 23
       params:
         layout@text:
         prompts_kata@text:
@@ -77,7 +77,7 @@ records:
       name: Data Queries
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 12
+      pos@int: 13
       params:
         layout: sidebar_right
         prompts_kata@text:
@@ -87,7 +87,7 @@ records:
       name: Email
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 8
+      pos@int: 9
       params:
         layout@text:
         prompts_kata@text:
@@ -97,7 +97,7 @@ records:
       name: Interactions
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 18
+      pos@int: 20
       params:
         layout: halves
         prompts_kata@text:
@@ -107,7 +107,7 @@ records:
       name: Maps
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 16
+      pos@int: 17
       params:
         layout@text:
         prompts_kata@text:
@@ -117,7 +117,7 @@ records:
       name: Metrics
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 22
+      pos@int: 24
       params:
         layout@text:
         prompts_kata@text:
@@ -127,7 +127,7 @@ records:
       name: Packages
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 27
+      pos@int: 29
       params:
         layout@text:
         prompts_kata@text:
@@ -137,7 +137,7 @@ records:
       name: PGP Encryption
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 20
+      pos@int: 22
       params:
         layout: sidebar_left
         prompts_kata@text:
@@ -147,7 +147,7 @@ records:
       name: Portals
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 23
+      pos@int: 25
       params:
         layout: sidebar_left
         prompts_kata@text:
@@ -157,13 +157,23 @@ records:
       name: Project Boards
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 24
+      pos@int: 26
       params:
         layout@text:
         prompts_kata@text:
       options_kata@raw:
         hidden@bool: {{not cerb_plugin_enabled('cerb.project_boards')}}
         locked@bool: yes
+  workspace_tab/tab_queues:
+    fields:
+      name: Queues
+      page_id: {{records.page_tutorial.id}}
+      extension_id: core.workspace.tab.dashboard
+      pos@int: 19
+      params:
+        layout@text:
+        prompts_kata@text:
+      options_kata@raw: locked@bool: yes
   workspace_tab/tab_records:
     fields:
       name: Records
@@ -179,7 +189,7 @@ records:
       name: Reminders
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 10
+      pos@int: 11
       params:
         layout@text:
         prompts_kata@text:
@@ -194,12 +204,22 @@ records:
         layout@text:
         prompts_kata@text:
       options_kata@raw: locked@bool: yes
+  workspace_tab/tab_search_indexes:
+    fields:
+      name: Search Indexes
+      page_id: {{records.page_tutorial.id}}
+      extension_id: core.workspace.tab.dashboard
+      pos@int: 5
+      params:
+        layout@text:
+        prompts_kata@text:
+      options_kata@raw: locked@bool: yes
   workspace_tab/tab_sheets:
     fields:
       name: Sheets
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 14
+      pos@int: 15
       params:
         layout@text:
         prompts_kata@text:
@@ -209,7 +229,7 @@ records:
       name: Snippets
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 25
+      pos@int: 27
       params:
         layout@text:
         prompts_kata@text:
@@ -219,7 +239,7 @@ records:
       name: Tasks
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 9
+      pos@int: 10
       params:
         layout@text:
         prompts_kata@text:
@@ -229,7 +249,7 @@ records:
       name: Tickets
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 7
+      pos@int: 8
       params:
         layout@text:
         prompts_kata@text:
@@ -239,7 +259,7 @@ records:
       name: Toolbars
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 19
+      pos@int: 21
       params:
         layout: halves
         prompts_kata@text:
@@ -249,7 +269,7 @@ records:
       name: Webhooks
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 28
+      pos@int: 30
       params:
         layout@text:
         prompts_kata@text:
@@ -269,7 +289,7 @@ records:
       name: Workers, Groups & Roles
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 5
+      pos@int: 6
       params:
         layout@text:
         prompts_kata@text:
@@ -279,7 +299,7 @@ records:
       name: Workflows
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 26
+      pos@int: 28
       params:
         layout@text:
         prompts_kata@text:
@@ -299,7 +319,7 @@ records:
       name: Workspaces & Dashboards
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 13
+      pos@int: 14
       params:
         layout@text:
         prompts_kata@text:
@@ -763,7 +783,7 @@ records:
             )
             multitext:(
               name:"Text: Multiple Lines"
-              description:"Multiple lines of freeform text entry"
+              description:"Multiple lines of freeform text entry. Supports the full UTF-8 character set, including emoji."
               example:"Client agrees to the project changes discussed on 11/Aug conference call"
             )
             _text:(
@@ -1106,10 +1126,10 @@ records:
               name:" " icon:"signal" description:"Toggle the subtotals sidebar"
             )
             import:(
-              name:" " icon:"file-import" description:"Import records into the worklist from a CSV file"
+              name:" " icon:"file-import" description:"Import records into the worklist from a CSV or JSONL file (runs as a background queue job)"
             )
             export:(
-              name:" " icon:"file-export" description:"Export records from the worklist to CSV, XML, JSON, JSONL"
+              name:" " icon:"file-export" description:"Export records from the worklist to CSV, XML, JSON, JSONL (runs as a background queue job; you can close the browser and a notification appears when the file is ready)"
             )
             duplicate:(
               name:" " icon:"duplicate" description:"Duplicate the worklist"
@@ -1127,7 +1147,7 @@ records:
               name:"explore" icon:"compass" description:"View each record profile page fullscreen with next/prev and a sharable link"
             )
             bulk:(
-              name:"bulk update" icon:"folder-closed" description:"Update field values on multiple selected records at once"
+              name:"bulk update" icon:"folder-closed" description:"Update field values on multiple selected records at once. Runs as a background queue job. Supports bulk commenting on any record type that has comments, and bulk delete on comment worklists."
             )
           )
           format:dictionaries
@@ -1213,6 +1233,8 @@ records:
                   Use the global search menu in the top right to search any record type.
 
                   You can pin your most frequently used record types to the search menu from your profile.
+
+                  Full-text search is backed by configurable [**search index**](https://cerb.ai/docs/records/types/search_index/) records. Each search index adds a named filter on its record type's worklists. The default `text:` filter is what plain text terms fall through to, and any index can override it by setting its priority to `0`. See the **Search Indexes** tab for examples of wildcards (`*`), stemming (`~`), and ranked `top:` results.
         toolbar_kata@text:
   workspace_widget/widget_search_filter_types:
     fields:
@@ -1446,6 +1468,8 @@ records:
                   This flexibility allows your team to get work done from almost anywhere.
 
                   Each worker can be assigned an `@mention` nickname to send them **notifications** about new comments and activity.
+
+                  The activity log records when workers are activated or deactivated and when group members are added or removed — useful for auditing membership changes.
         toolbar_kata@text:
   workspace_widget/widget_seats:
     fields:
@@ -1536,6 +1560,8 @@ records:
                   This combination of "something you know" and "something you have" offers an additional layer of protection against unintentional password disclosure (e.g. phishing, snooping, password stuffing).
 
                   Cerb generates time-based one-time passwords (TOTP) from any compatible app: Apple Keychain, 1Password, etc.
+
+                  MFA-enabled accounts can also generate single-use **backup codes** for recovering access if the TOTP device is lost.
 
                   [Learn more with the multi-factor auth guide.](https://cerb.ai/guides/security/two-factor-auth/)
         toolbar_kata@text:
@@ -2130,10 +2156,10 @@ records:
                 value@text:
                   Cerb records ticket-level **response time** information in two fields:
 
-                  ||
-                  |-|-
-                  |**First response**:| The total time elapsed before the first response from a worker. This focuses on the first response so that it isn't skewed by later delays that may be attributed to the client.
-                  |**First resolution**:| The total time elapsed before the ticket was first changed to the _closed_ status. This isn't affected by subsequent changes between the _open_ and _closed_ statuses that may occur when you get stuck in a loop of _"Thanks!"_ and _"You're welcome!"_ -- especially because that may occur days after the ticket was actually resolved.
+                  |||
+                  |-|-|
+                  | **First response**: | The total time elapsed before the first response from a worker. This focuses on the first response so that it isn't skewed by later delays that may be attributed to the client. |
+                  | **First resolution**: | The total time elapsed before the ticket was first changed to the _closed_ status. This isn't affected by subsequent changes between the _open_ and _closed_ statuses that may occur when you get stuck in a loop of _"Thanks!"_ and _"You're welcome!"_ -- especially because that may occur days after the ticket was actually resolved. |
 
                   When a worker responds to a specific client message, Cerb also records the response time on the worker's message. This encourages workers to respond quickly, even if it's only to say, _"Let me check on that and get right back to you"._
         toolbar_kata@text:
@@ -2335,6 +2361,8 @@ records:
                   By default, tickets are created in the **Inbox** bucket of the receiving group. An additional set of mail routing rules can be configured on each group to sort tickets into buckets, auto-assign workers, set importance, set custom fields, add comments, send notifications, etc.
 
                   For complex routing requirements -- like classification from a large language model (LLM) -- **automations** can be used to route mail based on your custom logic and third-party integrations. Mail routing rules are used if no automations handle a message.
+
+                  [`mail.filter`](https://cerb.ai/docs/automations/events/mail.filter/) automations run **dependently** — a change in one filter (e.g. modifying a header) is visible to filters that run after it, so you can compose multi-stage filter pipelines.
 
                   You can test email routing from **Setup > Mail > Incoming > Import**.
         toolbar_kata@text:
@@ -2554,12 +2582,12 @@ records:
 
                   While a mail template can use raw HTML code, workers use **Markdown** syntax to format their messages.
 
-                  ||
-                  |:-|:-
-                  | `**Bold**` | **Bold**
-                  | `_italics_` | _italics_
-                  | `[link](https://cerb.ai)` | [link](https://cerb.ai)
-                  | \`code_format\` | `code_format`
+                  |||
+                  |:-|:-|
+                  | `**Bold**` | **Bold** |
+                  | `_italics_` | _italics_ |
+                  | `[link](https://cerb.ai)` | [link](https://cerb.ai) |
+                  | \`code_format\` | `code_format` |
 
                   ```
                   * Bullet point 1
@@ -3456,11 +3484,11 @@ records:
               label: Markdown
               params:
                 value_template@raw:
-                  ||
-                  |:-|:-
-                  | **Name:** | [{{worker__label}}]({{worker_record_url}})
-                  | **Title:** | _{{worker_title}}_
-                  | **Email:** | {{worker_address_address}}
+                  |||
+                  |:-|:-|
+                  | **Name:** | [{{worker__label}}]({{worker_record_url}}) |
+                  | **Title:** | _{{worker_title}}_ |
+                  | **Email:** | {{worker_address_address}} |
 
             search_button/search_button:
               label: Search Button
@@ -3778,19 +3806,17 @@ records:
 
                   ##### Visualizations
 
-                  ||
-                  |-|-
-                  | `area`
-                  | `area-spline`
-                  | `area-step`
-                  | `bar`
-                  | `donut`
-                  | `gauge`
-                  | `line`
-                  | `pie`
-                  | `scatter`
-                  | `spline`
-                  | `step`
+                  * `area`
+                  * `area-spline`
+                  * `area-step`
+                  * `bar`
+                  * `donut`
+                  * `gauge`
+                  * `line`
+                  * `pie`
+                  * `scatter`
+                  * `spline`
+                  * `step`
         toolbar_kata@text:
   workspace_widget/widget_datasets:
     fields:
@@ -4580,6 +4606,8 @@ records:
                   ```
                   answer: 20
                   ```
+
+                  Some events run asynchronously through the [Background Queue](https://cerb.ai/docs/queues/#background-queue-scheduler) for better performance on bulk updates and imports — `record.changed` is a notable example. The [`queue.consumer`](https://cerb.ai/docs/automations/events/queue.consumer/) event makes it possible to process automation-backed queues with no per-queue timer.
         toolbar_kata@text:
   workspace_widget/widget_list_of_automation_events:
     fields:
@@ -5502,6 +5530,9 @@ records:
                   The `cerb.` prefix is reserved for built-in metrics. You can create your metrics with any other prefix.
 
                   By convention, the prefix is most often a domain name you own in reverse order (e.g. `com.example.metric.name`) to ensure global uniqueness. This makes it easier to combine and share metrics across multiple Cerb environments.
+
+                  Each metric can configure a per-metric **retention policy** for its 1-day sample aggregations (which are otherwise retained forever). This is particularly useful for high-dimensionality, low-long-term-value metrics like rate limiters.
+
         toolbar_kata@text:
   workspace_widget/widget_list_of_metrics:
     fields:
@@ -5960,11 +5991,11 @@ records:
                 value@raw:
                   workflow:
                     name: example.newTask
-                    version@date: 2025-12-31T00:00:00Z
+                    version@date: 2026-05-22T00:00:00Z
                     description: This example workflow manages a task record
                     website: https://cerb.ai/resources/workflows/
                     requirements:
-                      cerb_version: >=11.0 <11.3
+                      cerb_version: >=11.2 <11.3
                       cerb_plugins: cerberusweb.core,
                     config:
                       text/taskName:
@@ -6460,6 +6491,559 @@ records:
           o_client_id
           o_access_token_ttl
           o_refresh_token_ttl
+  workspace_widget/widget_service_tokens:
+    fields:
+      label: Service Tokens
+      tab_id: {{records.tab_api.id}}
+      extension_id: core.workspace.widget.sheet
+      pos@int: 4
+      width_units@int: 2
+      zone: content
+      params:
+        data_query@text:
+          type:sample.records
+          records:(help:())
+          format:dictionaries
+        cache_secs@text:
+        placeholder_simulator_kata@text:
+        sheet_kata@text:
+          layout:
+            style: fieldsets
+            headings@bool: no
+            paging@bool: no
+            filtering@bool: no
+
+          columns:
+            markdown/instructions:
+              params:
+                text_size@raw: 120%
+                value@raw:
+                  A **service token** authenticates anonymous, privileged access to endpoints like `/cron`, `/update`, and `/debug` without a worker session. They replace IP-based allowlists and the retired `DEVELOPMENT_MODE_ALLOW_DEBUG` flag.
+
+                  Tokens are passed in an `Authorization: Bearer <token>` HTTP header or as an `_authorization` POST parameter — useful for cron jobs, monitoring tools, deploy scripts, and upgrade automation.
+
+                  Each token can be restricted with **scopes**:
+
+                  * `cron:*` — all scheduler endpoints
+                  * `debug:status` — a specific debug endpoint
+                  * `update` — the upgrade endpoint
+                  * `*` — all endpoints
+
+                  A master token may be set in `framework.config.php` via `APP_SERVICE_TOKEN`. This is particularly useful for `/update` since worker logins are blocked during an upgrade.
+
+                  Service tokens are managed from **Setup » Configure » Security**.
+        toolbar_kata@text:
+  workspace_widget/widget_list_of_service_tokens:
+    fields:
+      label: List of Service Tokens
+      tab_id: {{records.tab_api.id}}
+      extension_id: core.workspace.widget.worklist
+      pos@int: 5
+      width_units@int: 2
+      zone: content
+      params:
+        context: cerb.contexts.service.token
+        query_required@text:
+        query: sort:name
+        render_limit: 25
+        header_color: #6a87db
+        columns@list:
+          s_name
+          s_scopes
+          s_last_accessed_at
+          s_expires_at
+  workspace_widget/widget_queues:
+    fields:
+      label: Queues
+      tab_id: {{records.tab_queues.id}}
+      extension_id: core.workspace.widget.sheet
+      pos@int: 1
+      width_units@int: 2
+      zone: content
+      params:
+        data_query@text:
+          type:sample.records
+          records:(example:())
+          format:dictionaries
+        cache_secs@text:
+        placeholder_simulator_kata@text:
+        sheet_kata@raw:
+          layout:
+            style: fieldsets
+            headings@bool: no
+            paging@bool: no
+            filtering@bool: no
+            colors:
+              code_dark@csv: #000000, #FFFFFF
+              code@csv: #F3EFEC, #333333
+
+          columns:
+            markdown/instructions:
+              params:
+                text_size@raw: 120%
+                value@raw:
+                  [**Queues**](https://cerb.ai/docs/queues/) store temporary messages from producers and distribute them to consumers in the order they were received. Each queue has a namespaced name like `com.example.queue.name`. The `cerb.` prefix is reserved for built-in queues.
+
+                  A message is always in one of four states: `available`, `in_flight`, `complete`, or `failed`. An `in_flight` message is automatically retried unless a consumer marks it `complete` or `failed`.
+
+                  Push messages to a queue with [`queue.push:`](https://cerb.ai/docs/automations/commands/queue.push/) and pop them for processing with [`queue.pop:`](https://cerb.ai/docs/automations/commands/queue.pop/):
+
+            code/example:
+              params:
+                syntax: kata
+                color: code:0
+                text_color: code:1
+                value@raw:
+                  start:
+                    queue.push:
+                      inputs:
+                        queue_name: com.example.queue.name
+                        messages:
+                          0:
+                            id: message0
+                            priority: high
+                          1:
+                            id: message1
+                            priority: low
+                      output: results
+
+            markdown/outro:
+              params:
+                text_size@raw: 120%
+                value@raw:
+                  Queues underpin parallel background processing — worklist imports and exports, bulk updates, search re-indexing, and asynchronous event processing all flow through them.
+        toolbar_kata@text:
+  workspace_widget/widget_queue_consumers:
+    fields:
+      label: Consumer Extensions
+      tab_id: {{records.tab_queues.id}}
+      extension_id: core.workspace.widget.sheet
+      pos@int: 2
+      width_units@int: 2
+      zone: content
+      params:
+        data_query@text:
+          type:sample.records
+          records:(
+            manual:(
+              extension:"cerb.queue.consumer.manual"
+              description:"Messages are pulled by external workers (e.g. a custom script polling the API)"
+            )
+            internal:(
+              extension:"cerb.queue.consumer.internal"
+              description:"Messages are routed to a built-in handler (search indexing, bulk updates, worklist imports/exports)"
+            )
+            automation:(
+              extension:"cerb.queue.consumer.automation"
+              description:"Each batch of messages invokes a configured automation via the queue.consumer event"
+            )
+          )
+          format:dictionaries
+        cache_secs@text:
+        placeholder_simulator_kata@text:
+        sheet_kata@raw:
+          layout:
+            style: fieldsets
+            headings@bool: no
+            paging@bool: no
+            filtering@bool: no
+
+          columns:
+            text/extension:
+              params:
+                text_size@raw: 110%
+                bold@bool: yes
+            text/description:
+        toolbar_kata@text:
+  workspace_widget/widget_queue_jobs:
+    fields:
+      label: Queue Jobs
+      tab_id: {{records.tab_queues.id}}
+      extension_id: core.workspace.widget.sheet
+      pos@int: 3
+      width_units@int: 2
+      zone: content
+      params:
+        data_query@text:
+          type:sample.records
+          records:(example:())
+          format:dictionaries
+        cache_secs@text:
+        placeholder_simulator_kata@text:
+        sheet_kata@text:
+          layout:
+            style: fieldsets
+            headings@bool: no
+            paging@bool: no
+            filtering@bool: no
+
+          columns:
+            markdown/instructions:
+              params:
+                text_size@raw: 120%
+                value@raw:
+                  A [**queue job**](https://cerb.ai/docs/records/types/queue_job/) is a first-class record that groups related queue messages so workers can monitor progress against long-running background work. Jobs are typically initiated from the UI — for instance, exporting a worklist, importing a CSV/JSONL file, performing a bulk update, or re-indexing a search index.
+
+                  Each job tracks counters for `available`, `inflight`, `done`, `failed`, and `total` messages, the worker who initiated it, an optional `singleton_key` to prevent duplicate concurrent jobs, and arbitrary metadata for consumer-specific state.
+
+                  Opening a queue job's card displays a **Queue Job Monitor** widget with live progress, completion notifications, and linked attachments (e.g. the resulting export file). If a worker closes their browser or navigates away, the job continues in the background and notifies them when it completes.
+        toolbar_kata@text:
+  workspace_widget/widget_queue_consumer_event:
+    fields:
+      label: Automation-Backed Queues
+      tab_id: {{records.tab_queues.id}}
+      extension_id: core.workspace.widget.sheet
+      pos@int: 4
+      width_units@int: 2
+      zone: content
+      params:
+        data_query@text:
+          type:sample.records
+          records:(example:())
+          format:dictionaries
+        cache_secs@text:
+        placeholder_simulator_kata@text:
+        sheet_kata@raw:
+          layout:
+            style: fieldsets
+            headings@bool: no
+            paging@bool: no
+            filtering@bool: no
+            colors:
+              code_dark@csv: #000000, #FFFFFF
+              code@csv: #F3EFEC, #333333
+
+          columns:
+            markdown/instructions:
+              params:
+                text_size@raw: 120%
+                value@raw:
+                  An **automation-backed queue** dispatches each batch of messages to a configured automation via the new [`queue.consumer`](https://cerb.ai/docs/automations/events/queue.consumer/) event. The Background Queue scheduler drains the queue automatically — no per-queue timer is needed.
+
+                  Each automation-backed queue configures:
+
+                  | Field | Description |
+                  |---|---|
+                  | **Batch size** | Maximum messages per invocation (`1` for expensive operations, `10`-`100+` to amortize batch work) |
+                  | **Automations KATA** | An event handler that selects an automation per message |
+
+                  The event handler receives the queue, optional queue job, and a `messages` array:
+
+            code/example:
+              params:
+                syntax: kata
+                color: code:0
+                text_color: code:1
+                value@raw:
+                  on_queue_messages:
+                    automation/process:
+                      uri: cerb:automation:com.example.queue.processor
+                      inputs:
+                        queue_name@key: queue_name
+                        messages@key: messages
+
+            markdown/outro:
+              params:
+                text_size@raw: 120%
+                value@raw:
+                  Any non-error response is treated as successful delivery for the entire batch. An `error:` outcome marks the messages failed for retry per the queue's policy.
+        toolbar_kata@text:
+  workspace_widget/widget_background_queue_scheduler:
+    fields:
+      label: Background Queue Scheduler
+      tab_id: {{records.tab_queues.id}}
+      extension_id: core.workspace.widget.sheet
+      pos@int: 5
+      width_units@int: 2
+      zone: content
+      params:
+        data_query@text:
+          type:sample.records
+          records:(example:())
+          format:dictionaries
+        cache_secs@text:
+        placeholder_simulator_kata@text:
+        sheet_kata@text:
+          layout:
+            style: fieldsets
+            headings@bool: no
+            paging@bool: no
+            filtering@bool: no
+
+          columns:
+            markdown/instructions:
+              params:
+                text_size@raw: 120%
+                value@raw:
+                  The **Background Queue** scheduler job processes queue messages and jobs asynchronously. It randomly round-robins through batches of available work and continues until everything is drained or its allotted time is exhausted.
+
+                  This scheduler also adopts worker-initiated jobs whose monitors have been closed — so a long export, import, or bulk update keeps running even after the worker navigates away.
+
+                  Several heavyweight operations route through the Background Queue:
+
+                  * `record.changed` event listeners (asynchronous processing improves bulk update and import performance)
+                  * Worklist file imports (CSV, JSONL)
+                  * Worklist file exports (CSV, JSONL, XML)
+                  * Worklist bulk updates
+                  * Search index reindexing
+
+                  The `APP_QUEUE_CONCURRENCY_SLOTS` configuration option (default `5`) controls the maximum combined concurrency of worker-initiated queue jobs. Slots are reserved on the MySQL writer connection and are automatically released when the connection closes.
+        toolbar_kata@text:
+  workspace_widget/widget_list_of_queues:
+    fields:
+      label: List of Queues
+      tab_id: {{records.tab_queues.id}}
+      extension_id: core.workspace.widget.worklist
+      pos@int: 6
+      width_units@int: 4
+      zone: content
+      params:
+        context: cerb.contexts.queue
+        query_required@text:
+        query: sort:name
+        render_limit: 25
+        header_color: #6a87db
+        columns@list:
+          q_name
+          q_extension_id
+          q_updated_at
+  workspace_widget/widget_search_indexes:
+    fields:
+      label: Search Indexes
+      tab_id: {{records.tab_search_indexes.id}}
+      extension_id: core.workspace.widget.sheet
+      pos@int: 1
+      width_units@int: 2
+      zone: content
+      params:
+        data_query@text:
+          type:sample.records
+          records:(example:())
+          format:dictionaries
+        cache_secs@text:
+        placeholder_simulator_kata@text:
+        sheet_kata@text:
+          layout:
+            style: fieldsets
+            headings@bool: no
+            paging@bool: no
+            filtering@bool: no
+
+          columns:
+            markdown/instructions:
+              params:
+                text_size@raw: 120%
+                value@raw:
+                  A [**search index**](https://cerb.ai/docs/records/types/search_index/) is a configurable, plugin-driven [search](https://cerb.ai/docs/search/) backend that can be attached to any record type. Each index manages a custom search filter, exposed as a named filter on the record type's worklists. The default `text:` filter is what plain text terms (with no `filter:` name) fall through to.
+
+                  Built-in record types like contacts, workers, automations, addresses, organizations, and snippets all use search index records — so you can fully customize them by changing the record filter, content template, or extension, or by removing them entirely.
+
+                  New index types can be implemented with [plugins](https://cerb.ai/docs/plugins/) — e.g. TF-IDF, BM25, vector embeddings, Elasticsearch, Qdrant, Pinecone. This makes search indexes the foundation for retrieval-augmented generation (RAG) and semantic search across your records.
+        toolbar_kata@text:
+  workspace_widget/widget_search_index_fields:
+    fields:
+      label: Search Index Fields
+      tab_id: {{records.tab_search_indexes.id}}
+      extension_id: core.workspace.widget.sheet
+      pos@int: 2
+      width_units@int: 2
+      zone: content
+      params:
+        data_query@text:
+          type:sample.records
+          records:(
+            name:(
+              field:"name"
+              description:"A human-readable name for this index"
+            )
+            recordType:(
+              field:"record_type"
+              description:"The record type this index applies to (e.g. ticket, contact)"
+            )
+            recordFilter:(
+              field:"record_filter"
+              description:"A search query that constrains which records are indexed (e.g. status:open created:>-1 year)"
+            )
+            uri:(
+              field:"uri"
+              description:"The filter keyword exposed on worklists (e.g. filter:by_title)"
+            )
+            priority:(
+              field:"priority"
+              description:"Sort order in filter autocompletion. Priority 0 makes this the default filter when no filter: is specified."
+            )
+            extensionId:(
+              field:"extension_id"
+              description:"The search index extension that provides the indexing strategy (e.g. cerb.search.engine.fulltext)"
+            )
+            extensionParams:(
+              field:"extension_params_json"
+              description:"Extension-specific parameters: content template, boosting weights, etc."
+            )
+          )
+          format:dictionaries
+        cache_secs@text:
+        placeholder_simulator_kata@text:
+        sheet_kata@raw:
+          layout:
+            style: fieldsets
+            headings@bool: no
+            paging@bool: no
+            filtering@bool: no
+
+          columns:
+            text/field:
+              params:
+                text_size@raw: 110%
+                bold@bool: yes
+            text/description:
+        toolbar_kata@text:
+  workspace_widget/widget_search_index_query_features:
+    fields:
+      label: Search Index Query Features
+      tab_id: {{records.tab_search_indexes.id}}
+      extension_id: core.workspace.widget.sheet
+      pos@int: 3
+      width_units@int: 4
+      zone: content
+      params:
+        data_query@text:
+          type:sample.records
+          records:(
+            wildcardSuffix:(
+              description:"Wildcard expansion with asterisk (matches every token starting with the prefix)"
+              record_type:ticket
+              query:"text:(11.1* release*)"
+            )
+            stemming:(
+              description:"Stemming expansion with tilde (matches all word forms: automate, automates, automation, automating, automated)"
+              record_type:ticket
+              query:"text:automate~"
+            )
+            topRanked:(
+              description:"Limit and rank results by score. The top: parameter must be scoped inside the filter, otherwise it conflicts with top-level filter names."
+              record_type:ticket
+              query:"text:(bug report top:5)"
+            )
+            defaultFilter:(
+              description:"By default, plain text terms with no filter: name use the text filter for backwards compatibility"
+              record_type:ticket
+              query:"refund request"
+            )
+            defaultFilterOverride:(
+              description:"Setting a search index's priority to 0 makes it the default filter when no filter: name is specified"
+              record_type:contact
+              query:"jeff standen"
+            )
+          )
+          format:dictionaries
+        cache_secs@text:
+        placeholder_simulator_kata@text:
+        sheet_kata@raw:
+          layout:
+            style: table
+            headings@bool: yes
+            paging@bool: no
+            filtering@bool: no
+
+          columns:
+            text/description:
+            text/record_type:
+            search/query:
+              label: Search Query
+              params:
+                context_template@raw: {{record_type}}
+                query_template@raw: {{query}}
+        toolbar_kata@text:
+  workspace_widget/widget_search_index_extensions:
+    fields:
+      label: Search Index Extensions
+      tab_id: {{records.tab_search_indexes.id}}
+      extension_id: core.workspace.widget.sheet
+      pos@int: 4
+      width_units@int: 2
+      zone: content
+      params:
+        data_query@text:
+          type:sample.records
+          records:(example:())
+          format:dictionaries
+        cache_secs@text:
+        placeholder_simulator_kata@text:
+        sheet_kata@text:
+          layout:
+            style: fieldsets
+            headings@bool: no
+            paging@bool: no
+            filtering@bool: no
+
+          columns:
+            markdown/instructions:
+              params:
+                text_size@raw: 120%
+                value@raw:
+                  Each search index is backed by a **search index extension** (`Extension_SearchIndex`). The built-in `cerb.search.engine.fulltext` extension is a local full-text engine optimized for performance — it splits tokens on whitespace and punctuation but preserves dashes and dots inside terms (hostnames, email addresses, IPs, ticket masks).
+
+                  Tokens are stored as fixed-width xxHash 64-bit integers, so lookups are `O(1)` regardless of token length. Term frequencies are precached for fast TF-IDF / BM25 scoring. Because indexes are managed by Cerb rather than MySQL, they can be analyzed, pruned, merged, split, and sharded over time.
+
+                  Boosting templates let you weight document titles higher than body content.
+
+                  Add new extensions via [plugins](https://cerb.ai/docs/plugins/) to integrate vector databases, hosted search services, or custom scoring strategies.
+        toolbar_kata@text:
+  workspace_widget/widget_search_index_reindex:
+    fields:
+      label: Reindexing
+      tab_id: {{records.tab_search_indexes.id}}
+      extension_id: core.workspace.widget.sheet
+      pos@int: 5
+      width_units@int: 2
+      zone: content
+      params:
+        data_query@text:
+          type:sample.records
+          records:(example:())
+          format:dictionaries
+        cache_secs@text:
+        placeholder_simulator_kata@text:
+        sheet_kata@text:
+          layout:
+            style: fieldsets
+            headings@bool: no
+            paging@bool: no
+            filtering@bool: no
+
+          columns:
+            markdown/instructions:
+              params:
+                text_size@raw: 120%
+                value@raw:
+                  Search index cards display indexing progress and have a **re-index** action that launches a background [queue job](https://cerb.ai/docs/records/types/queue_job/). A `singleton_key` on the job prevents multiple concurrent re-indexes for the same search index.
+
+                  The `search` scheduler job continuously catches up unindexed records every 30 seconds, batching them through `indexDocumentsByModel()`. This means new and updated records become searchable automatically without manual intervention.
+
+                  Open any search index profile to see its current document count, schedule a re-index, or monitor an in-flight indexing job.
+        toolbar_kata@text:
+  workspace_widget/widget_list_of_search_indexes:
+    fields:
+      label: List of Search Indexes
+      tab_id: {{records.tab_search_indexes.id}}
+      extension_id: core.workspace.widget.worklist
+      pos@int: 6
+      width_units@int: 4
+      zone: content
+      params:
+        context: cerb.contexts.search.index
+        query_required@text:
+        query: sort:priority,record_type,name
+        render_limit: 25
+        header_color: #6a87db
+        columns@list:
+          r_name
+          r_record_type
+          r_uri
+          r_priority
+          r_extension_id
+          r_updated_at
   automation/tutorial_interaction:
     fields:
       name: cerb.tutorial.interactions.formElements
