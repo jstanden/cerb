@@ -331,8 +331,7 @@ switch($step) {
 		}
 		
 		$engines = array(
-			'innodb' => 'InnoDB (Recommended)',
-			'myisam' => 'MyISAM (Legacy)',
+			'innodb' => 'InnoDB',
 		);
 		
 		$tpl->assign('engines', $engines);
