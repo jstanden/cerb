@@ -230,7 +230,7 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 			DevblocksPlatform::sortObjects($doc_frequencies, '[docs]');
 			
 			// If the rarest term is zero, match nothing w/ AND operator
-			if($doc_frequencies[array_key_first($doc_frequencies)]['docs'] == 0) return [];
+			if($doc_frequencies[array_key_first($doc_frequencies) ?? '']['docs'] == 0) return [];
 			
 			// Pre-calculate TF-IDF
 			$doc_frequencies = array_map(

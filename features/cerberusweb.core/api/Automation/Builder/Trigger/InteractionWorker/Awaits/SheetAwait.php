@@ -54,7 +54,7 @@ class SheetAwait extends AbstractAwait {
 		$sheet_filter = $prompt['filter'] ?? null;
 		$sheet_limit = $prompt['limit'] ?? 10;
 		
-		$default = $continuation->state_data['dict'][$this->_key] ?? $prompt['default'] ?? null;
+		$default = $continuation->state_data['dict'][$this->_key ?? ''] ?? $prompt['default'] ?? '';
 		
 		$sheet_paging = [];
 		
