@@ -675,7 +675,7 @@ INPUT[type=text].input_color {
 }
 INPUT[type=text].input_email {
   padding: 2px 2px 2px 25px;
-  background: url(input_icons/mail.png?v=2022011101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='rgb(136,136,136)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='2' y='4' width='20' height='16' rx='2'/><path d='m22 7-10 6L2 7'/></svg>") no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
 }
 INPUT[type=text].input_location {
   padding: 2px 2px 2px 25px;
@@ -695,7 +695,7 @@ INPUT[type=text].input_openid {
 }
 INPUT[type=text].input_password {
   padding: 2px 2px 2px 25px;
-  background: url(input_icons/lock.png?v=2022011101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='rgb(136,136,136)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='11' width='18' height='11' rx='2'/><path d='M7 11V7a5 5 0 0 1 10 0v4'/></svg>") no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
 }
 INPUT[type=text].input_percent {
   padding: 2px 2px 2px 25px;
@@ -724,7 +724,7 @@ INPUT[type=text].input_url {
 
 INPUT[type=password] {
   padding: 2px 2px 2px 25px;
-  background: url(input_icons/lock.png?v=2022011101) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='rgb(136,136,136)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='11' width='18' height='11' rx='2'/><path d='M7 11V7a5 5 0 0 1 10 0v4'/></svg>") no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
 }
 
 PRE.emailbody, DIV.emailbody {
