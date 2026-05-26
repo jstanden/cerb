@@ -83,6 +83,7 @@
 			{elseif $column == "c_name"}
 			<td>
 				<input type="checkbox" name="row_id[]" value="{$result.c_id}" style="display:none;">
+				<img class="cerb-avatar" src="{devblocks_url}c=avatars&context=connected_service&context_id={$result.c_id}{/devblocks_url}?v={$result.c_updated_at}">
 				<a href="{devblocks_url}c=profiles&type=connected_service&id={$result.c_id}-{$result.c_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.c_name}</a>
 				<button type="button" class="peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="{$result.c_id}"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 			</td>

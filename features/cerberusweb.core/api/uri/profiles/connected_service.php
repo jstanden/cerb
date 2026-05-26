@@ -208,7 +208,11 @@ class PageSection_ProfilesConnectedService extends Extension_PageSection {
 						
 						if($id) {
 							DAO_ConnectedService::setAndEncryptParams($id, $params);
-							
+
+							// Avatar image
+							$avatar_image = DevblocksPlatform::importGPC($_POST['avatar_image'] ?? null, 'string', '');
+							DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_CONNECTED_SERVICE, $id, $avatar_image);
+
 							// Custom field saves
 							$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 							if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_CONNECTED_SERVICE, $id, $field_ids, $error))

@@ -1004,21 +1004,22 @@ class Context_ConnectedService extends Extension_DevblocksContext implements IDe
 		
 		if($connected_service) {
 			$connected_service_ext = $connected_service->getExtension();
-			
+			$url_writer = DevblocksPlatform::services()->url();
+
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $connected_service->name;
+			$token_values['_image_url'] = $url_writer->writeNoProxy(sprintf('c=avatars&ctx=%s&id=%d', 'connected_service', $connected_service->id), true) . '?v=' . $connected_service->updated_at;
 			$token_values['id'] = $connected_service->id;
 			$token_values['name'] = $connected_service->name;
 			$token_values['extension_id'] = $connected_service->extension_id;
 			$token_values['extension_name'] = $connected_service_ext ? $connected_service_ext->manifest->name : null;
 			$token_values['updated_at'] = $connected_service->updated_at;
 			$token_values['uri'] = $connected_service->uri;
-			
+
 			// Custom fields
 			$token_values = $this->_importModelCustomFieldsAsValues($connected_service, $token_values);
-			
+
 			// URL
-			$url_writer = DevblocksPlatform::services()->url();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=connected_service&id=%d-%s",$connected_service->id, DevblocksPlatform::strToPermalink($connected_service->name)), true);
 		}
 		

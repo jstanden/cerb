@@ -1561,6 +1561,8 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
                     params:
                       bold@bool: yes
                       text_size: 120%
+                      icon:
+                        record_uri@raw: cerb:connected_service:{{id}}
                 EOD;
 				
 				if(!($accounts_sheet = $sheets->parse($accounts_sheet_kata, $error)))

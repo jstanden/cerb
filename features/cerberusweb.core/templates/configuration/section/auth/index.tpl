@@ -19,9 +19,10 @@
 				<span class="glyphicons glyphicons-menu-hamburger" style="cursor:move;vertical-align:top;color:var(--cerb-color-background-contrast-170);line-height:1.4em;margin-right:2px;"></span>
 				
 				<label>
-					<input type="checkbox" name="params[auth_sso_service_ids][]" value="{$sso_service->id}" {if array_key_exists($sso_service->id, $sso_services_enabled)}checked="checked"{/if}> 
+					<input type="checkbox" name="params[auth_sso_service_ids][]" value="{$sso_service->id}" {if array_key_exists($sso_service->id, $sso_services_enabled)}checked="checked"{/if}>
 				</label>
-				
+
+				<img class="cerb-avatar" src="{devblocks_url}c=avatars&context=connected_service&context_id={$sso_service->id}{/devblocks_url}?v={$sso_service->updated_at}">
 				<a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CONNECTED_SERVICE}" data-context-id="{$sso_service->id}"><b>{$sso_service->name}</b></a>
 			</div>
 			{/foreach}

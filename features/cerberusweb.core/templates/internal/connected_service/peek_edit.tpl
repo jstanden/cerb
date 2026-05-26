@@ -63,6 +63,21 @@
 					{/if}
 					</td>
 				</tr>
+
+				{if !empty($model->id)}
+				<tr>
+					<td width="1%" valign="top" nowrap="nowrap"><b>{'common.image'|devblocks_translate|capitalize}:</b></td>
+					<td width="99%" valign="top">
+						<div style="float:left;margin-right:5px;">
+							<img class="cerb-avatar" src="{devblocks_url}c=avatars&context=connected_service&context_id={$model->id}{/devblocks_url}?v={$model->updated_at}" style="height:50px;width:50px;">
+						</div>
+						<div style="float:left;">
+							<button type="button" class="cerb-avatar-chooser" data-context="{CerberusContexts::CONTEXT_CONNECTED_SERVICE}" data-context-id="{$model->id}">{'common.edit'|devblocks_translate|capitalize}</button>
+							<input type="hidden" name="avatar_image">
+						</div>
+					</td>
+				</tr>
+				{/if}
 			
 				{if !empty($custom_fields)}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
@@ -122,6 +137,11 @@ $(function() {
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete-prompt').click(Devblocks.callbackPeekEditDeletePrompt);
 		$popup.find('button.delete-cancel').click(Devblocks.callbackPeekEditDeleteCancel);
+
+		// Avatar
+		let $avatar_chooser = $popup.find('button.cerb-avatar-chooser');
+		let $avatar_image = $avatar_chooser.closest('td').find('img.cerb-avatar');
+		ajax.chooserAvatar($avatar_chooser, $avatar_image);
 
 		// Select
 		var $select = $popup.find('select[name=extension_id]')

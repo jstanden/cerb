@@ -302,6 +302,16 @@ class Controller_Avatars extends DevblocksControllerExtension {
 			case CerberusContexts::CONTEXT_BOT:
 				$this->_renderFilePng(APP_PATH . '/features/cerberusweb.core/resources/images/avatars/va.png');
 				break;
+
+			case CerberusContexts::CONTEXT_CONNECTED_SERVICE:
+				if($context_id && ($service = DAO_ConnectedService::get($context_id))) {
+					// Hash off the URI so the color stays stable across renames
+					self::renderMonogram(mb_substr($service->name, 0, 1), $service->uri);
+					return;
+				}
+
+				$this->_renderFilePng(APP_PATH . '/features/cerberusweb.core/resources/images/avatars/va.png');
+				break;
 				
 			case CerberusContexts::CONTEXT_PACKAGE:
 				$this->_renderFilePng(APP_PATH . '/features/cerberusweb.core/resources/images/avatars/package.png');
