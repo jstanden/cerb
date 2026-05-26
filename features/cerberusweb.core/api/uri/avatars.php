@@ -218,7 +218,7 @@ class Controller_Avatars extends DevblocksControllerExtension {
 					}
 
 					// Display monograms by default
-					$this->_renderMonogram(substr($addy->email,0,1), $context_id);
+					self::renderMonogram(substr($addy->email,0,1), $context_id);
 					return;
 				}
 				
@@ -246,7 +246,7 @@ class Controller_Avatars extends DevblocksControllerExtension {
 								break;
 						}
 					} else {
-						$this->_renderMonogram($contact->getInitials(), $context_id);
+						self::renderMonogram($contact->getInitials(), $context_id);
 						return;
 					}
 				}
@@ -278,7 +278,7 @@ class Controller_Avatars extends DevblocksControllerExtension {
 								break;
 						}
 					} else {
-						$this->_renderMonogram($worker->getInitials(), $context_id);
+						self::renderMonogram($worker->getInitials(), $context_id);
 						return;
 					}
 				}
@@ -353,7 +353,7 @@ class Controller_Avatars extends DevblocksControllerExtension {
 		exit;
 	}
 	
-	private function _renderMonogram($text, $hash=null) {
+	public static function renderMonogram($text, $hash=null) {
 		$text = mb_substr(mb_convert_case($text, MB_CASE_UPPER), 0, 3);
 		$font = DEVBLOCKS_PATH . 'resources/font/Oswald-Bold.ttf';
 		
