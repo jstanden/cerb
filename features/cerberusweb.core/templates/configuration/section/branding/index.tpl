@@ -14,7 +14,7 @@
 		<legend>{'common.logo'|devblocks_translate|capitalize} (light)</legend>
 		
 		<div style="margin:5px;background-color:white;">
-			<img class="img-logo" src="{devblocks_url}branding/logo{/devblocks_url}?v={$logo_updated_at}" style="max-width:45vw;height:80px;margin:10px;">
+			<img class="img-logo" src="{devblocks_url}c=branding&a=logo{/devblocks_url}?v={$logo_updated_at}" style="max-width:45vw;height:80px;margin:10px;">
 		</div>
 		
 		<button type="button" class="button-file-upload" data-context="resource" data-context-id="ui.logo" data-edit="type:cerb.resource.image description:&quot;The logo displayed in the top left of the UI&quot;" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-edit"></span></button>
@@ -24,7 +24,7 @@
 		<legend>{'common.logo'|devblocks_translate|capitalize} (dark)</legend>
 
 		<div style="margin:5px;background-color:rgb(32,32,32);">
-			<img class="img-logo-dark" src="{devblocks_url}branding/logo-dark{/devblocks_url}?v={$logo_updated_at}" style="max-width:45vw;height:80px;margin:10px;">
+			<img class="img-logo-dark" src="{devblocks_url}c=branding&a=logo-dark{/devblocks_url}?v={$logo_updated_at}" style="max-width:45vw;height:80px;margin:10px;">
 		</div>
 		
 		<button type="button" class="button-file-upload" data-context="resource" data-context-id="ui.logo.dark" data-edit="type:cerb.resource.image description:&quot;The dark variation of the logo displayed in the top left of the UI&quot;" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-edit"></span></button>
@@ -69,8 +69,8 @@ $(function() {
 			var $img_dark = $frm.find('img.img-logo-dark');
 			var now = new Date().getTime();
 
-			$img.attr('src', '{devblocks_url}branding/logo{/devblocks_url}?v=' + now);
-			$img_dark.attr('src', '{devblocks_url}branding/logo-dark{/devblocks_url}?v=' + now);
+			$img.attr('src', '{devblocks_url}c=branding&a=logo{/devblocks_url}?v=' + now);
+			$img_dark.attr('src', '{devblocks_url}c=branding&a=logo-dark{/devblocks_url}?v=' + now);
 
 			{if $pref_dark_mode}
 			$logo.css('background-image', 'url(' + $img_dark.attr('src') + ')');

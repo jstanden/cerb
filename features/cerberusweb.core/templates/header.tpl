@@ -25,7 +25,7 @@
 		#cerb-logo {
 			display: inline-block;
 			max-width: 100vw;
-			background: url({devblocks_url}branding/logo{if $pref_dark_mode}-dark{/if}{/devblocks_url}?v={$settings->get('cerberusweb.core','ui_user_logo_updated_at',0)}) no-repeat;
+			background: url({devblocks_url}c=branding&a=logo{if $pref_dark_mode}-dark{/if}{/devblocks_url}?v={$settings->get('cerberusweb.core','ui_user_logo_updated_at',0)}) no-repeat;
 			background-size: contain;
 			width: 281px;
 			height: 80px;
@@ -49,7 +49,7 @@
 	<!-- User-defined styles -->
 	{$user_stylesheet_timestamp = $settings->get('cerberusweb.core',CerberusSettings::UI_USER_STYLESHEET_UPDATED_AT,0)}
 	{if $user_stylesheet_timestamp}
-	<link type="text/css" rel="stylesheet" href="{devblocks_url}branding/stylesheet{/devblocks_url}?v={$user_stylesheet_timestamp}">
+	<link type="text/css" rel="stylesheet" href="{devblocks_url}c=branding&a=stylesheet{/devblocks_url}?v={$user_stylesheet_timestamp}">
 	{/if}
 </head>
 
