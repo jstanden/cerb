@@ -136,7 +136,7 @@
 					</ul>
 				{elseif $f->type==Model_CustomField::TYPE_FILE}
 					<button type="button" field_name="{$field_name}" class="chooser-cfield-file">{'common.upload'|devblocks_translate|lower}</button>
-					
+
 					<ul class="bubbles chooser-container">
 					{if $custom_field_values.$f_id}
 						{$file_id = $custom_field_values.$f_id}

@@ -105,16 +105,31 @@
 	{$file_id = $v.value}
 	{$file = DAO_Attachment::get($file_id)}
 	{if $file}
-		<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$file->id}">{$file->name}</a> ({$file->storage_size|devblocks_prettybytes})
-	</ul>
+		<ul class="bubbles">
+			<li>
+				<span class="glyphicons glyphicons-paperclip" style="vertical-align:baseline;"></span>
+				<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$file->id}">
+					<b>{$file->name}</b>
+					({$file->storage_size|devblocks_prettybytes}{if !empty($file->mime_type)} - {$file->mime_type}{/if})
+				</a>
+			</li>
+		</ul>
 	{/if}
 {elseif $v.type == Model_CustomField::TYPE_FILES}
-	{foreach from=$v.value item=file_id name=files}
-		{$file = DAO_Attachment::get($file_id)}
-		{if $file}
-		<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$file->id}">{$file->name}</a> ({$file->storage_size|devblocks_prettybytes}){if !$smarty.foreach.files.last}, {/if}
-		{/if}
-	{/foreach}
+	<ul class="bubbles">
+		{foreach from=$v.value item=file_id}
+			{$file = DAO_Attachment::get($file_id)}
+			{if $file}
+			<li>
+				<span class="glyphicons glyphicons-paperclip" style="vertical-align:baseline;"></span>
+				<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$file->id}">
+					<b>{$file->name}</b>
+					({$file->storage_size|devblocks_prettybytes}{if !empty($file->mime_type)} - {$file->mime_type}{/if})
+				</a>
+			</li>
+			{/if}
+		{/foreach}
+	</ul>
 {elseif $v.type == 'context'}
 	{$display_ctx = Extension_DevblocksContext::getByAlias($v.value|default:'', true)}
 	{if is_a($display_ext, 'Extension_DevblocksContext')}
