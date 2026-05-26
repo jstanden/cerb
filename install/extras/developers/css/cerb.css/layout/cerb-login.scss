@@ -1,0 +1,307 @@
+// Login pages (router, MFA, MOTD, recover)
+//
+// Forced into dark mode by Page_Login::render() via $pref_dark_mode = true.
+// The card defines a scoped --cerb-login-accent so the orange submit doesn't
+// override the app-wide blue --cerb-color-action-primary.
+
+.cerb-login-bg {
+	box-sizing: border-box;
+	padding: 24px 16px 48px;
+	background-color: var(--cerb-color-background);
+}
+
+.cerb-login-card {
+	--cerb-login-accent: #e85d2c;
+	--cerb-login-accent-hover: #f0673a;
+	--cerb-login-accent-glow: rgba(232, 93, 44, 0.35);
+
+	max-width: 560px;
+	margin: 0 auto;
+	padding: 32px;
+	background: var(--cerb-color-background-contrast-240);
+	border: 1px solid var(--cerb-color-background-contrast-220);
+	border-radius: 14px;
+	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+	color: var(--cerb-color-text);
+
+	H1, H2, H3 {
+		color: var(--cerb-color-text);
+	}
+
+	.error-box {
+		margin-bottom: 16px;
+		border: 0;
+
+		H1 {
+			color: var(--cerb-color-error-text);
+		}
+	}
+}
+
+.cerb-login-brand {
+	padding-bottom: 20px;
+	margin-bottom: 24px;
+	border-bottom: 1px solid var(--cerb-color-background-contrast-220);
+	text-align: center;
+
+	A {
+		text-decoration: none;
+	}
+}
+
+.cerb-login-h1 {
+	font-size: 1.5em;
+	font-weight: 700;
+	margin: 0 0 8px 0;
+	color: var(--cerb-color-text);
+}
+
+.cerb-login-sub {
+	margin: 0 0 24px 0;
+	font-size: 0.95em;
+	color: var(--cerb-color-background-contrast-125);
+
+	B {
+		color: var(--cerb-color-text);
+		font-weight: 600;
+	}
+}
+
+.cerb-login-sso-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 10px;
+	margin-bottom: 16px;
+
+	@media (max-width: 480px) {
+		grid-template-columns: 1fr;
+	}
+}
+
+.cerb-login-sso-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	height: auto;
+	padding: 10px 14px;
+	background: var(--cerb-color-background-contrast-230);
+	border: 1px solid var(--cerb-color-background-contrast-220);
+	border-radius: 8px;
+	color: var(--cerb-color-text);
+	font-size: 0.95em;
+	font-weight: normal;
+	cursor: pointer;
+	outline: none;
+	appearance: none;
+	-webkit-appearance: none;
+	-webkit-tap-highlight-color: transparent;
+	transition: background 0.15s, border-color 0.15s;
+
+	&:hover,
+	&:focus,
+	&:active {
+		background: var(--cerb-color-background-contrast-220);
+		border-color: var(--cerb-color-background-contrast-200);
+		color: var(--cerb-color-text);
+	}
+
+	&:focus-visible {
+		box-shadow: 0 0 0 3px var(--cerb-login-accent-glow);
+	}
+
+	IMG {
+		width: 20px;
+		height: 20px;
+		object-fit: contain;
+		border-radius: 4px;
+		flex-shrink: 0;
+	}
+}
+
+.cerb-login-or {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin: 8px 0 20px 0;
+	font-size: 0.9em;
+	color: var(--cerb-color-background-contrast-150);
+
+	&::before,
+	&::after {
+		content: "";
+		flex: 1;
+		height: 1px;
+		background: var(--cerb-color-background-contrast-220);
+	}
+}
+
+.cerb-login-field {
+	display: block;
+	margin-bottom: 16px;
+
+	.cerb-login-label {
+		display: block;
+		margin-bottom: 6px;
+		font-size: 0.95em;
+		font-weight: 500;
+		color: var(--cerb-color-text);
+	}
+
+	.cerb-login-field-row {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+		margin-bottom: 6px;
+
+		.cerb-login-label {
+			margin: 0;
+		}
+	}
+
+	.cerb-login-forgot {
+		font-size: 0.9em;
+		font-weight: 600;
+		text-decoration: none;
+		//color: var(--cerb-login-accent);
+
+		&:hover {
+			color: var(--cerb-login-accent-hover);
+		}
+	}
+
+	.cerb-login-input-wrap {
+		position: relative;
+
+		.cerb-login-icon {
+			position: absolute;
+			top: 50%;
+			left: 12px;
+			transform: translateY(-50%);
+			display: flex;
+			color: var(--cerb-color-background-contrast-150);
+			pointer-events: none;
+		}
+
+		INPUT {
+			width: 100%;
+			height: auto;
+			padding: 12px 12px 12px 38px;
+			box-sizing: border-box;
+			background: var(--cerb-color-background-contrast-250);
+			background-image: none;
+			border: 1px solid var(--cerb-color-background-contrast-220);
+			border-radius: 8px;
+			color: var(--cerb-color-text);
+			font-size: 1em;
+			line-height: 1.4;
+
+			&:focus {
+				outline: none;
+				border-color: var(--cerb-login-accent);
+				box-shadow: 0 0 0 3px var(--cerb-login-accent-glow);
+			}
+
+			&::placeholder {
+				color: var(--cerb-color-background-contrast-160);
+			}
+		}
+
+		INPUT[type=password] {
+			padding-right: 40px;
+		}
+
+		.cerb-login-eye {
+			position: absolute;
+			top: 50%;
+			right: 8px;
+			transform: translateY(-50%);
+			display: flex;
+			height: auto;
+			padding: 4px;
+			background: transparent;
+			border: 0;
+			color: var(--cerb-color-background-contrast-150);
+			cursor: pointer;
+
+			&:hover {
+				background: transparent;
+				color: var(--cerb-color-text);
+			}
+		}
+	}
+}
+
+.cerb-login-check {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 4px 0 20px 0;
+	font-size: 0.95em;
+	color: var(--cerb-color-text);
+	cursor: pointer;
+
+	INPUT[type=checkbox] {
+		accent-color: var(--cerb-login-accent);
+	}
+}
+
+.cerb-login-submit {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	width: 100%;
+	height: auto;
+	padding: 12px 16px;
+	//background: var(--cerb-login-accent);
+	//border: 1px solid var(--cerb-login-accent);
+	border-radius: 10px;
+	color: #ffffff;
+	font-size: 1em;
+	font-weight: 600;
+	cursor: pointer;
+	outline: none;
+	appearance: none;
+	-webkit-appearance: none;
+	-webkit-tap-highlight-color: transparent;
+	//box-shadow: 0 4px 20px var(--cerb-login-accent-glow);
+	transition: background 0.15s, box-shadow 0.15s, color 0.15s;
+
+	&:hover:not(:disabled),
+	&:focus:not(:disabled),
+	&:active:not(:disabled) {
+		background: var(--cerb-login-accent-hover);
+		color: #ffffff;
+	}
+
+	&:focus-visible:not(:disabled) {
+		box-shadow: 0 0 0 3px var(--cerb-login-accent-glow), 0 4px 20px var(--cerb-login-accent-glow);
+	}
+
+	&:disabled {
+		background: var(--cerb-login-accent);
+		color: #ffffff;
+		opacity: 0.7;
+		cursor: not-allowed;
+	}
+}
+
+.cerb-login-foot {
+	margin-top: 20px;
+	padding-top: 16px;
+	border-top: 1px solid var(--cerb-color-background-contrast-220);
+	text-align: center;
+	font-size: 0.95em;
+	color: var(--cerb-color-background-contrast-125);
+
+	A {
+		font-weight: 600;
+		text-decoration: none;
+		color: var(--cerb-login-accent);
+
+		&:hover {
+			color: var(--cerb-login-accent-hover);
+		}
+	}
+}

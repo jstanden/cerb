@@ -171,12 +171,16 @@ class Controller_Default extends DevblocksControllerExtension {
 		if(!empty($visit) && !is_null($active_worker)) {
 			$keyboard_shortcuts = intval(DAO_WorkerPref::get($active_worker->id,'keyboard_shortcuts',1));
 			$tpl->assign('pref_keyboard_shortcuts', $keyboard_shortcuts);
-			
+
 			$dark_mode = intval(DAO_WorkerPref::get($active_worker->id,'dark_mode',0));
 			$tpl->assign('pref_dark_mode', $dark_mode);
-			
+
 			$active_worker_memberships = $active_worker->getMemberships();
 			$tpl->assign('active_worker_memberships', $active_worker_memberships);
+
+		} elseif(($response->path[0] ?? null) === 'login') {
+			// Force dark mode for the entire login flow
+			$tpl->assign('pref_dark_mode', true);
 		}
 		
 		// [JAS]: Variables provided to all page templates

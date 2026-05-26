@@ -37,7 +37,7 @@
 			</ul>
 	</div>
 </div>
-{else}
+{elseif $response_path[0] != 'login'}
 <div style="text-align:center;">
 	<a href="{devblocks_url}{/devblocks_url}"><div id="cerb-logo" style="background-position:center;"></div></a>
 </div>

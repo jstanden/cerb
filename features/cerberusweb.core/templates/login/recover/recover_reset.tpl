@@ -1,38 +1,53 @@
+<div class="cerb-login-bg">
 <form action="{devblocks_url}c=login&a=recover&step=reset{/devblocks_url}" method="post" id="recoverForm">
 <input type="hidden" name="_csrf_token" value="{$csrf_token}">
 
-<div style="vertical-align:middle;max-width:500px;margin:20px auto 20px auto;padding:5px 20px 20px 20px;border-radius:5px;box-shadow:darkgray 0px 0px 5px;">
+<div class="cerb-login-card">
+	<div class="cerb-login-brand">
+		<a href="{devblocks_url}{/devblocks_url}" tabindex="-1"><div id="cerb-logo"></div></a>
+	</div>
+
+	<h1 class="cerb-login-h1">Choose a new password</h1>
+	<p class="cerb-login-sub">Must be at least 8 characters.</p>
+
 	{if !empty($error)}
-	<div class="error-box" style="border:0;">
+	<div class="error-box">
 		<h1>{'common.error'|devblocks_translate|capitalize}</h1>
 		<p>{Page_Login::getErrorMessage($error)}</p>
 	</div>
 	{/if}
-	
-	<div>
-		<h3 style="margin-bottom:0;">Choose a new password:</h3>
-		
-		<div>
-			<input type="password" name="password" size="45" value="" placeholder="Something very hard to guess" autocomplete="off" spellcheck="false" style="width:100%;line-height:1.5em;height:24px;margin-top:10px;padding:0 5px 0 25px;border-radius:5px;box-sizing:border-box;">
-			<div>
-				(must be at least 8 characters)
-			</div>
+
+	<label class="cerb-login-field">
+		<span class="cerb-login-label">New password</span>
+		<div class="cerb-login-input-wrap">
+			<span class="cerb-login-icon">
+				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+			</span>
+			<input type="password" name="password" value="" placeholder="Something very hard to guess" autocomplete="new-password" spellcheck="false">
 		</div>
-		
-		<h3 style="margin-bottom:0;">Verify the new password:</h3>
-		
-		<div>
-			<input type="password" name="password_verify" size="45" value="" placeholder="Type it again" autocomplete="off" spellcheck="false" style="width:100%;line-height:1.5em;height:24px;margin-top:10px;padding:0 5px 0 25px;border-radius:5px;box-sizing:border-box;">
+	</label>
+
+	<label class="cerb-login-field">
+		<span class="cerb-login-label">Verify the new password</span>
+		<div class="cerb-login-input-wrap">
+			<span class="cerb-login-icon">
+				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+			</span>
+			<input type="password" name="password_verify" value="" placeholder="Type it again" autocomplete="new-password" spellcheck="false">
 		</div>
-		
-		<div style="margin-top:10px;">
-			<button type="submit" style="width:100%;">
-				{'common.continue'|devblocks_translate|capitalize}
-			</button>
-		</div>
+	</label>
+
+	<button type="submit" class="cerb-login-submit">
+		<span>{'common.continue'|devblocks_translate|capitalize}</span>
+		<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+	</button>
+
+	<div class="cerb-login-foot">
+		<a href="{devblocks_url}c=login{/devblocks_url}">&larr; Back to sign in</a>
 	</div>
 </div>
 </form>
+</div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {

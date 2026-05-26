@@ -1,39 +1,36 @@
+<div class="cerb-login-bg">
 <form action="{devblocks_url}c=login&a=consent{/devblocks_url}" method="post" id="loginConsentForm">
 <input type="hidden" name="_csrf_token" value="{$csrf_token}">
 
-<div style="vertical-align:middle;max-width:500px;margin:20px auto 20px auto;padding:5px 20px 20px 20px;border-radius:5px;box-shadow:0 0 5px var(--cerb-color-shadow-menu);">
+<div class="cerb-login-card">
+	<div class="cerb-login-brand">
+		<a href="{devblocks_url}{/devblocks_url}" tabindex="-1"><div id="cerb-logo"></div></a>
+	</div>
+
+	<h1 class="cerb-login-h1">{$oauth_app->name}</h1>
+	<p class="cerb-login-sub">This app would like to:</p>
+
 	{if !empty($error)}
-	<div class="error-box" style="border:0;">
+	<div class="error-box">
 		<h1>{'common.error'|devblocks_translate|capitalize}</h1>
 		<p>{Page_Login::getErrorMessage($error)}</p>
 	</div>
 	{/if}
-	
-	<div>
-		<h2 style="margin:10px 0 0 0;color:var(--cerb-color-text);">{$oauth_app->name}</h2>
-		
-		<h3>This app would like to:</h3>
-		
-		<ul>
-			{foreach from=$scopes item=scope}
-			<li>{$scope.label}</li>
-			{/foreach}
-		</ul>
-		
-		<div style="margin-top:10px;text-align:right;">
-			<button type="submit" name="accept" value="0">
-				{'common.cancel'|devblocks_translate|capitalize}
-			</button>
-			<button type="submit" name="accept" value="1">
-				{'common.accept'|devblocks_translate|capitalize}
-			</button>
-		</div>
+
+	<ul style="margin:0 0 24px 0;padding-left:20px;color:var(--cerb-color-text);">
+		{foreach from=$scopes item=scope}
+		<li>{$scope.label}</li>
+		{/foreach}
+	</ul>
+
+	<div style="display:flex;gap:10px;">
+		<button type="submit" name="accept" value="0" class="cerb-login-sso-btn" style="flex:1;">
+			{'common.cancel'|devblocks_translate|capitalize}
+		</button>
+		<button type="submit" name="accept" value="1" class="cerb-login-submit" style="flex:1;width:auto;">
+			<span>{'common.accept'|devblocks_translate|capitalize}</span>
+		</button>
 	</div>
 </div>
 </form>
-
-<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
-$(function() {
-	//$('#loginConsentForm button[name=submit]').first().focus();
-});
-</script>
+</div>
