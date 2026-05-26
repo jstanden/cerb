@@ -3359,6 +3359,47 @@ records:
           t_bucket_id
           t_owner_id
           t_updated_date
+  workspace_widget/widget_countdown_year_2038:
+    fields:
+      label: Countdown: Year 2038 Problem
+      tab_id: {{records.tab_workspaces.id}}
+      extension_id: core.workspace.widget.countdown
+      pos@int: 14
+      width_units@int: 2
+      zone: content
+      params:
+        target_timestamp@int: 2147500800
+        color: #cf2c1d
+  workspace_widget/widget_chart_table_assignments:
+    fields:
+      label: Chart: Table (Assignments)
+      tab_id: {{records.tab_workspaces.id}}
+      extension_id: cerb.workspace.widget.chart.table
+      pos@int: 15
+      width_units@int: 2
+      zone: content
+      params:
+        data_query@text:
+          type:worklist.subtotals
+          of:ticket
+          by:owner
+          format:table
+        cache_secs@text:
+  workspace_widget/widget_chart_timeblocks_shifts:
+    fields:
+      label: Chart: Time Blocks (Calendar Shifts)
+      tab_id: {{records.tab_workspaces.id}}
+      extension_id: cerb.workspace.widget.chart.timeblocks
+      pos@int: 16
+      width_units@int: 4
+      zone: content
+      params:
+        data_query@text:
+          type:calendar.availability
+          calendars:(id:>0)
+          range:"today to +2 weeks"
+          format:timeblocks
+        cache_secs@text:
   workspace_widget/widget_sheets:
     fields:
       label: Sheets
