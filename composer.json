@@ -56,7 +56,7 @@
 		"league/oauth2-client": "2.9.0",
 		"guzzlehttp/guzzle": "7.10.0",
 		"phpseclib/phpseclib": "3.0.52",
-		"tijsverkoyen/css-to-inline-styles": "v2.3.0",
+		"tijsverkoyen/css-to-inline-styles": "v2.4.0",
 		"ezyang/htmlpurifier": "v4.19.0",
 		"donatj/phpuseragentparser": "v1.11.0",
 		"twig/twig" : "dev-3.26.0-cerb",
