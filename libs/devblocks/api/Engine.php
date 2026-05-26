@@ -716,7 +716,12 @@ abstract class DevblocksEngine {
 					// ...if the CSRF token is invalid for this session, freak out
 					if (!array_key_exists('csrf_token', $_SESSION) || !hash_equals($_SESSION['csrf_token'], (string) ($request->csrf_token ?? ''))) {
 						if(['login','authenticate'] == [$request->path[0],$request->path[1]]) {
-							CerberusApplication::respondWithErrorReason(CerbErrorReason::SessionExpired);
+							// Fail closed: drop any login.state/auth carryover from the
+							// dead session before bouncing back to the login form
+							unset($_SESSION['login.state']);
+							$_SESSION = [];
+							session_regenerate_id(true);
+							DevblocksPlatform::redirect(new DevblocksHttpRequest(['login'], ['error' => 'session.expired']));
 						} else {
 							if($request->is_ajax) {
 								DevblocksPlatform::dieWithHttpError(null, 401);

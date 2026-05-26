@@ -42,6 +42,7 @@ class Page_Login extends CerberusPageExtension {
 			'password.invalid' => "The given password is invalid.",
 			'password.mismatch' => "The given passwords do not match.",
 			'seats.limit' => "The maximum number of simultaneous workers are currently active. Please try again later, or ask an administrator to increase the seat count in your license.",
+			'session.expired' => "Your session timed out. Please sign in again.",
 		];
 		
 		$error = "An unexpected error occurred. Please try again.";
