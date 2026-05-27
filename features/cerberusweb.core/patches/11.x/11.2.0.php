@@ -365,6 +365,107 @@ if(array_key_exists('fulltext_snippet', $tables)) {
 	$db->ExecuteMaster("DELETE FROM cerb_property_store WHERE extension_id = 'cerb.search.schema.snippet'");
 }
 
+// Message Headers
+
+$message_header_indexes = [
+	['name' => 'Message Header From', 'uri' => 'messages.header.from', 'filter' => 'header.from', 'content' => "{{headers['from']}}"],
+	['name' => 'Message Header To', 'uri' => 'messages.header.to', 'filter' => 'header.to', 'content' => "{{headers['to']}}"],
+	['name' => 'Message Header Cc', 'uri' => 'messages.header.cc', 'filter' => 'header.cc', 'content' => "{{headers['cc']}}"],
+	['name' => 'Message Header Delivered-To', 'uri' => 'messages.header.deliveredto', 'filter' => 'header.deliveredTo', 'content' => "{{headers['delivered-to']}} {{headers['envelope-to']}} {{headers['x-envelope-to']}} {{headers['original-to']}}"],
+	['name' => 'Message Header Cerb-Mailbox', 'uri' => 'messages.header.cerbmailbox', 'filter' => 'header.cerbMailbox', 'content' => "{{headers['x-cerberus-mailbox']}}"],
+	['name' => 'Message Header Forwarded-To', 'uri' => 'messages.header.forwardedto', 'filter' => 'header.forwardedTo', 'content' => "{{headers['x-forwarded-to']}}"],
+	['name' => 'Message Header X-Mailer', 'uri' => 'messages.header.mailer', 'filter' => 'header.mailer', 'content' => "{{headers['x-mailer']}}"],
+];
+
+// Reuse counts for all headers
+$search_queue_id = intval($db->GetOneMaster("SELECT id FROM queue WHERE name = 'cerb.search.index'"));
+$message_record_count = intval($db->GetOneMaster("SELECT COUNT(id) FROM message"));
+
+// Checkpoints for incremental indexing
+$message_max = $db->GetRowMaster("SELECT id, created_date FROM message ORDER BY created_date DESC, id DESC LIMIT 1");
+$message_last_indexed_at = intval($message_max['created_date'] ?? 0);
+$message_last_indexed_id = intval($message_max['id'] ?? 0);
+
+$db->ExecuteMaster('SET SESSION group_concat_max_len = 1048576');
+
+// For each header
+foreach($message_header_indexes as $header_index) {
+	// Idempotent: skip if this filter already exists for messages
+	if($db->GetOneMaster(sprintf("SELECT id FROM search_index WHERE record_type = %s AND record_filter = %s",
+		$db->qstr('message'), $db->qstr($header_index['filter']))))
+		continue;
+
+	$db->ExecuteMaster(sprintf("INSERT INTO search_index (name, uri, record_type, record_filter, extension_id, extension_params_json, priority, created_at, updated_at) " .
+		"VALUES (%s, %s, %s, %s, %s, %s, %d, %d, %d)",
+		$db->qstr($header_index['name']),
+		$db->qstr($header_index['uri']),
+		$db->qstr('message'),
+		$db->qstr($header_index['filter']),
+		$db->qstr('cerb.search.index.fulltext'),
+		$db->qstr(json_encode(['record_query' => '', 'content' => $header_index['content']])),
+		50,
+		time(),
+		time(),
+	));
+
+	if(!($search_index_id = $db->LastInsertId()))
+		continue;
+	
+	// Checkpoint the current state to prevent incremental indexing of historical content
+	$db->ExecuteMaster(sprintf("REPLACE INTO devblocks_registry (entry_key, entry_type, entry_value, entry_expires_at) VALUES (%s, 'number', %d, 0)",
+		$db->qstr(sprintf('search_index_%d.last_indexed_at', $search_index_id)),
+		$message_last_indexed_at,
+	));
+	$db->ExecuteMaster(sprintf("REPLACE INTO devblocks_registry (entry_key, entry_type, entry_value, entry_expires_at) VALUES (%s, 'number', %d, 0)",
+		$db->qstr(sprintf('search_index_%d.last_indexed_id', $search_index_id)),
+		$message_last_indexed_id,
+	));
+
+	// Queue a full reindex job. Skip if the queue is missing or empty
+	if(!$message_record_count)
+		continue;
+
+	// Create a reindex queue job
+	$db->ExecuteMaster(sprintf("INSERT INTO queue_job (name, singleton_key, queue_id, worker_id, metadata, status_id, count_total, count_available, created_at, updated_at) " .
+		"VALUES (%s, %s, %d, 0, %s, 0 /* RUNNING */, %d, %d, %d, %d)",
+		$db->qstr('Reindex ' . $header_index['name']),
+		$db->qstr(sprintf('search_index:%d:reindex', $search_index_id)),
+		$search_queue_id,
+		$db->qstr(json_encode(['search_index_id' => $search_index_id, 'record_type' => 'message'])),
+		$message_record_count,
+		$message_record_count,
+		time(),
+		time(),
+	));
+
+	$job_id = $db->LastInsertId();
+
+	// One queue_message per 100-record batch, mirroring _reindexCreateJob()
+	$db->ExecuteMaster(sprintf("INSERT INTO queue_message (uuid, queue_id, job_id, status_id, status_at, message, cardinality) " .
+		"SELECT UUID_TO_BIN(UUID()) AS uuid, " .
+		"%d AS queue_id, " .
+		"%d AS job_id, " .
+		"0 /* available */ AS status_id, " .
+		"UNIX_TIMESTAMP() AS status_at, " .
+		"CONCAT('{\"index_id\":',%d,',\"ids\":[',GROUP_CONCAT(id ORDER BY id),']}') AS message, " .
+		"COUNT(id) AS cardinality " .
+		"FROM (SELECT id, CEIL(ROW_NUMBER() OVER (ORDER BY id) / 100) AS batch FROM message) AS batched " .
+		"GROUP BY batch",
+		$search_queue_id,
+		$job_id,
+		$search_index_id,
+	));
+}
+
+// Drop the legacy InnoDB FT table
+if(array_key_exists('fulltext_message_header', $tables)) {
+	$db->ExecuteMaster('DROP TABLE fulltext_message_header');
+	unset($tables['fulltext_message_header']);
+}
+
+// Clear old indexing progress
+$db->ExecuteMaster("DELETE FROM cerb_property_store WHERE extension_id = 'cerberusweb.search.schema.message_headers'");
+
 // ===========================================================================
 // Convert `custom_field_stringvalue.field_value` to utf8mb4
 

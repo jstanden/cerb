@@ -740,12 +740,7 @@ class SearchFields_Message extends DevblocksSearchFields {
 	// Virtuals
 	const VIRTUAL_ATTACHMENTS_SEARCH = '*_attachments_search';
 	const VIRTUAL_NOTES_SEARCH = '*_notes_search';
-	const VIRTUAL_HEADER_CC = '*_header_cc';
-	const VIRTUAL_HEADER_DELIVERED_TO = '*_header_delivered_to';
-	const VIRTUAL_HEADER_FROM = '*_header_from';
 	const VIRTUAL_HEADER_MESSAGE_ID = '*_header_message_id';
-	const VIRTUAL_HEADER_TO = '*_header_to';
-	const VIRTUAL_HEADER_X_CERBERUS_MAILBOX = '*_header_x_cerberus_mailbox';
 	const VIRTUAL_SENDER_SEARCH = '*_sender_search';
 	const VIRTUAL_TICKET_SEARCH = '*_ticket_search';
 	const VIRTUAL_WORKER_SEARCH = '*_worker_search';
@@ -803,28 +798,6 @@ class SearchFields_Message extends DevblocksSearchFields {
 						Cerb_ORMHelper::qstr($value)
 					);
 				}
-				
-			case self::VIRTUAL_HEADER_CC:
-			case self::VIRTUAL_HEADER_DELIVERED_TO:
-			case self::VIRTUAL_HEADER_FROM:
-			case self::VIRTUAL_HEADER_TO:
-			case self::VIRTUAL_HEADER_X_CERBERUS_MAILBOX:
-				$header_names = [
-					self::VIRTUAL_HEADER_CC => 'cc',
-					self::VIRTUAL_HEADER_DELIVERED_TO => 'delivered-to',
-					self::VIRTUAL_HEADER_FROM => 'from',
-					self::VIRTUAL_HEADER_TO => 'to',
-					self::VIRTUAL_HEADER_X_CERBERUS_MAILBOX => 'x-cerberus-mailbox',
-				];
-				
-				if(null == ($header_name = $header_names[$param->field] ?? null))
-					return '0';
-				
-				$attributes = [
-					'header_name' => $header_name
-				];
-				
-				return self::_getWhereSQLFromFulltextField($param, Search_MessageHeaders::ID, self::getPrimaryKey(), $attributes);
 				
 			case self::VIRTUAL_SENDER_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_ADDRESS, 'message.address_id');
@@ -1047,12 +1020,7 @@ class SearchFields_Message extends DevblocksSearchFields {
 			
 			SearchFields_Message::VIRTUAL_ATTACHMENTS_SEARCH => new DevblocksSearchField(SearchFields_Message::VIRTUAL_ATTACHMENTS_SEARCH, '*', 'attachments_search', null, null, false),
 			SearchFields_Message::VIRTUAL_NOTES_SEARCH => new DevblocksSearchField(SearchFields_Message::VIRTUAL_NOTES_SEARCH, '*', 'notes_search', null, null, false),
-			SearchFields_Message::VIRTUAL_HEADER_CC => new DevblocksSearchField(SearchFields_Message::VIRTUAL_HEADER_CC, '*', 'header_cc', $translate->_('message.header.cc'), Model_CustomField::TYPE_SINGLE_LINE, false),
-			SearchFields_Message::VIRTUAL_HEADER_DELIVERED_TO => new DevblocksSearchField(SearchFields_Message::VIRTUAL_HEADER_DELIVERED_TO, '*', 'header_message_id', $translate->_('message.header.delivered_to'), Model_CustomField::TYPE_SINGLE_LINE, false),
-			SearchFields_Message::VIRTUAL_HEADER_FROM => new DevblocksSearchField(SearchFields_Message::VIRTUAL_HEADER_FROM, '*', 'header_message_id', $translate->_('message.header.from'), Model_CustomField::TYPE_SINGLE_LINE, false),
 			SearchFields_Message::VIRTUAL_HEADER_MESSAGE_ID => new DevblocksSearchField(SearchFields_Message::VIRTUAL_HEADER_MESSAGE_ID, '*', 'header_message_id', $translate->_('message.search.header_message_id'), Model_CustomField::TYPE_SINGLE_LINE, false),
-			SearchFields_Message::VIRTUAL_HEADER_TO => new DevblocksSearchField(SearchFields_Message::VIRTUAL_HEADER_TO, '*', 'header_to', $translate->_('message.header.to'), Model_CustomField::TYPE_SINGLE_LINE, false),
-			SearchFields_Message::VIRTUAL_HEADER_X_CERBERUS_MAILBOX => new DevblocksSearchField(SearchFields_Message::VIRTUAL_HEADER_X_CERBERUS_MAILBOX, '*', 'header_to', $translate->_('message.header.x_cerberus_mailbox'), Model_CustomField::TYPE_SINGLE_LINE, false),
 			SearchFields_Message::VIRTUAL_SENDER_SEARCH => new DevblocksSearchField(SearchFields_Message::VIRTUAL_SENDER_SEARCH, '*', 'sender_search', null, null, false),
 			SearchFields_Message::VIRTUAL_TICKET_SEARCH => new DevblocksSearchField(SearchFields_Message::VIRTUAL_TICKET_SEARCH, '*', 'ticket_search', null, null, false),
 			SearchFields_Message::VIRTUAL_WORKER_SEARCH => new DevblocksSearchField(SearchFields_Message::VIRTUAL_WORKER_SEARCH, '*', 'worker_search', null, null, false),
@@ -1863,12 +1831,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Message::STORAGE_SIZE,
 			SearchFields_Message::TICKET_STATUS_ID,
 			SearchFields_Message::VIRTUAL_ATTACHMENTS_SEARCH,
-			SearchFields_Message::VIRTUAL_HEADER_CC,
-			SearchFields_Message::VIRTUAL_HEADER_DELIVERED_TO,
-			SearchFields_Message::VIRTUAL_HEADER_FROM,
 			SearchFields_Message::VIRTUAL_HEADER_MESSAGE_ID,
-			SearchFields_Message::VIRTUAL_HEADER_TO,
-			SearchFields_Message::VIRTUAL_HEADER_X_CERBERUS_MAILBOX,
 			SearchFields_Message::VIRTUAL_NOTES_SEARCH,
 			SearchFields_Message::VIRTUAL_TICKET_SEARCH,
 		]);
@@ -2049,35 +2012,10 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 					'score' => 2000,
 					'options' => array('param_key' => SearchFields_Message::CREATED_DATE),
 				),
-			'header.cc' =>
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
-					'options' => array('param_key' => SearchFields_Message::VIRTUAL_HEADER_CC),
-				),
-			'header.cerbMailbox' =>
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
-					'options' => array('param_key' => SearchFields_Message::VIRTUAL_HEADER_X_CERBERUS_MAILBOX),
-				),
-			'header.deliveredTo' =>
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
-					'options' => array('param_key' => SearchFields_Message::VIRTUAL_HEADER_DELIVERED_TO),
-				),
-			'header.from' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
-					'options' => array('param_key' => SearchFields_Message::VIRTUAL_HEADER_FROM),
-				),
-			'header.messageId' => 
+			'header.messageId' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Message::VIRTUAL_HEADER_MESSAGE_ID),
-				),
-			'header.to' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
-					'options' => array('param_key' => SearchFields_Message::VIRTUAL_HEADER_TO),
 				),
 			'fieldset' =>
 				array(
@@ -2298,13 +2236,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			case 'sender':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Message::VIRTUAL_SENDER_SEARCH);
 				
-			case 'header.cc':
-			case 'header.cerbMailbox':
-			case 'header.deliveredTo':
-			case 'header.from':
-			case 'header.to':
-				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
-				
 			case 'header.messageId':
 				$field_key = SearchFields_Message::VIRTUAL_HEADER_MESSAGE_ID;
 				$oper = null;
@@ -2368,31 +2299,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				echo sprintf("%s matches <b>%s</b>",
 					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.notes')),
 					DevblocksPlatform::strEscapeHtml($param->value)
-				);
-				break;
-				
-			case SearchFields_Message::VIRTUAL_HEADER_CC:
-			case SearchFields_Message::VIRTUAL_HEADER_DELIVERED_TO:
-			case SearchFields_Message::VIRTUAL_HEADER_FROM:
-			case SearchFields_Message::VIRTUAL_HEADER_TO:
-			case SearchFields_Message::VIRTUAL_HEADER_X_CERBERUS_MAILBOX:
-				$labels = [
-					SearchFields_Message::VIRTUAL_HEADER_CC => 'Cc header',
-					SearchFields_Message::VIRTUAL_HEADER_DELIVERED_TO => 'Delivered-To header',
-					SearchFields_Message::VIRTUAL_HEADER_FROM => 'From header',
-					SearchFields_Message::VIRTUAL_HEADER_TO => 'To header',
-					SearchFields_Message::VIRTUAL_HEADER_X_CERBERUS_MAILBOX => 'Cerb mailbox',
-				];
-				
-				$label = $labels[$key] ?? $param->field;
-				$value = $param->value;
-				
-				if(is_array($value) && array_key_exists(1, $value) && 'expert' == $value[1])
-					$value = $value[0];
-				
-				echo sprintf("%s matches <b>%s</b>",
-					DevblocksPlatform::strEscapeHtml($label),
-					DevblocksPlatform::strEscapeHtml($value)
 				);
 				break;
 				
