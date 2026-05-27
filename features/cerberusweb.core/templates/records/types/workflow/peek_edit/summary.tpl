@@ -7,7 +7,7 @@
     <legend>{{'common.configuration'|devblocks_translate|capitalize}}</legend>
 
     <div style="padding:0 1em;column-width:350px;column-count:2;">
-    {foreach from=$config_options item=$config_option}
+    {foreach from=$config_options item=config_option}
         <div style="margin-bottom:0.5em;break-inside:avoid-column;page-break-inside:avoid;">
             <div>
                 <b>{if $config_option.params.label}{$config_option.params.label}{else}{$config_option.key}:{/if}</b>

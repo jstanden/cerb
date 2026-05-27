@@ -8,7 +8,7 @@
 <fieldset class="peek">
     <legend>{{'common.configuration'|devblocks_translate|capitalize}}</legend>
     {if $config_options}
-    {foreach from=$config_options item=$config_option}
+    {foreach from=$config_options item=config_option}
         <div style="margin-bottom:0.5em;">
             <div>
                 <b>{if $config_option.params.label}{$config_option.params.label}{else}{$config_option.key}:{/if}</b>

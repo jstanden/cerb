@@ -19,7 +19,7 @@
 			</div>
 		</fieldset>
 		
-		{foreach from=$properties_custom_fieldsets item=$custom_fieldset key=custom_fieldset_id}
+		{foreach from=$properties_custom_fieldsets item=custom_fieldset key=custom_fieldset_id}
 		<fieldset class="peek black">
 			<legend style="cursor:pointer;" data-cerb-link="legend_click">{$custom_fieldset.model->name}</legend>
 			

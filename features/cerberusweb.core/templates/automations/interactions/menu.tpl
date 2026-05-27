@@ -55,7 +55,7 @@
 
 <ul class="cerb-bot-interactions-menu cerb-float" style="width:250px;">
 {if $interactions_menu}
-	{foreach from=$interactions_menu item=$item}
+	{foreach from=$interactions_menu item=item}
 		{if !array_key_exists('hidden', $item) || !$item.hidden}
 			{if 'behavior' == $item.type}
 				<li class="cerb-bot-trigger"
