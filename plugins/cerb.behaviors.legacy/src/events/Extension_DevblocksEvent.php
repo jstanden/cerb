@@ -639,7 +639,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			
 			default:
 				// Operators
-				if(null != (@$condition = $conditions[$token])) {
+				if(null != ($condition = ($conditions[$token] ?? null))) {
 					if(null == (@$value = $dict->$token)) {
 						$value = '';
 					}

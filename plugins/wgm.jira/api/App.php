@@ -221,7 +221,7 @@ class WgmJira_API {
 		}
 	}
 	
-	static public function importIssue($object, Model_JiraProject $project=null) {
+	static public function importIssue($object, ?Model_JiraProject $project=null) {
 		$is_new = false;
 		
 		if(is_null($project)) {

@@ -55,7 +55,7 @@ abstract class AbstractEvent_JiraIssue extends Extension_DevblocksEvent {
 				
 				$result = array_shift($results);
 				
-				$context_id = $result[SearchFields_JiraIssue::ID];
+				$context_id = $result[SearchFields_JiraIssue::ID] ?? null;
 			}
 		}
 		

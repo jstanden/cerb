@@ -106,7 +106,7 @@ class DevblocksEventHelper {
 	}
 	
 	public static function renderSimulatorTarget($context, $context_id, $trigger, $event_model) {
-		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+		if(!($context_ext = Extension_DevblocksContext::get($context ?? '')))
 			return;
 		
 		$labels = [];
@@ -4845,18 +4845,18 @@ class DevblocksEventHelper {
 	}
 	
 	private static function _getActionRelayEmailListTo($params, DevblocksDictionaryDelegate $dict, $context, $context_id, $owner_id) {
-		$relay_list = isset($params['to']) ? $params['to'] : [];
+		$relay_list = ($params['to'] ?? null) ?: [];
 		$to_list = [];
 		
 		// Owner
-		if(isset($params['to_owner']) && !empty($params['to_owner'])) {
+		if(!empty($params['to_owner'] ?? null)) {
 			if(!empty($owner_id)) {
 				$relay_list[] = DAO_Worker::get($owner_id);
 			}
 		}
 		
 		// Watchers
-		if(isset($params['to_watchers']) && !empty($params['to_watchers'])) {
+		if(!empty($params['to_watchers'] ?? null)) {
 			$watchers = CerberusContexts::getWatchers($context, $context_id);
 			foreach($watchers as $watcher) { /* @var $watcher Model_Worker */
 				if(!in_array($watcher, $relay_list))

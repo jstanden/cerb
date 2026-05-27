@@ -25,7 +25,7 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 	 * @return Model_DevblocksEvent
 	 */
 	function generateSampleEventModel(Model_TriggerEvent $trigger, $context_id=null) {
-		$context = $trigger->event_params['context'] ?? null;
+		$context = strval($trigger->event_params['context'] ?? '');
 
 		$old_model = null;
 		$new_model = null;
@@ -34,7 +34,7 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 			if(null == ($context_ext = Extension_DevblocksContext::get($context)))
 				return;
 			
-			if(false != ($dao_class = $context_ext->getDaoClass())) {
+			if(($dao_class = $context_ext->getDaoClass())) {
 				$context_id = $dao_class::random();
 			}
 		}

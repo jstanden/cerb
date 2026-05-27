@@ -27,7 +27,7 @@ abstract class AbstractEvent_FeedItem extends Extension_DevblocksEvent {
 			
 			$result = array_shift($results);
 			
-			$context_id = $result[SearchFields_FeedItem::ID];
+			$context_id = $result[SearchFields_FeedItem::ID] ?? null;
 		}
 		
 		return new Model_DevblocksEvent(

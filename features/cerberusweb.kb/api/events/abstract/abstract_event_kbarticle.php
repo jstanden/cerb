@@ -41,7 +41,7 @@ abstract class AbstractEvent_KbArticle extends Extension_DevblocksEvent {
 			
 			$result = array_shift($results);
 			
-			$context_id = $result[SearchFields_KbArticle::ID];
+			$context_id = $result[SearchFields_KbArticle::ID] ?? null;
 		}
 		
 		return new Model_DevblocksEvent(

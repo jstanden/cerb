@@ -90,9 +90,9 @@ class BotAction_HttpRequest extends Extension_DevblocksEventAction {
 			return "[ERROR] No result placeholder given.";
 		
 		if(extension_loaded('fileinfo')) {
-			$finfo = finfo_open(FILEINFO_MIME);
-			$file_type = finfo_buffer($finfo, $http_body);
-			finfo_close($finfo);
+			$file_info = finfo_open(FILEINFO_MIME);
+			$file_type = finfo_buffer($file_info, $http_body);
+			unset($file_info);
 		} else {
 			$file_type = 'text/plain';
 		}

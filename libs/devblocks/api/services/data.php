@@ -289,7 +289,7 @@ class _DevblocksDataService {
 			
 			$behaviors = DAO_TriggerEvent::getByEvent(Event_DataQueryDatasource::ID);
 			foreach($behaviors as $behavior) {
-				if(!($alias = $behavior->event_params['alias']))
+				if(!($alias = ($behavior->event_params['alias'] ?? '')))
 					continue;
 				
 				$types[] = [

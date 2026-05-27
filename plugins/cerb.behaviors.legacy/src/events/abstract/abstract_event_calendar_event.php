@@ -42,7 +42,7 @@ abstract class AbstractEvent_CalendarEvent extends Extension_DevblocksEvent {
 			
 			$result = array_shift($results);
 			
-			$context_id = $result[SearchFields_CalendarEvent::ID];
+			$context_id = $result[SearchFields_CalendarEvent::ID] ?? null;
 		}
 		
 		return new Model_DevblocksEvent(

@@ -25,7 +25,7 @@ abstract class AbstractEvent_Domain extends Extension_DevblocksEvent {
 			
 			$result = array_shift($results);
 			
-			$context_id = $result[SearchFields_Domain::ID];
+			$context_id = $result[SearchFields_Domain::ID] ?? null;
 		}
 		
 		return new Model_DevblocksEvent(

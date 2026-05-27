@@ -635,7 +635,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @param float $ratio (0.0-1.0)
 	 * @return string
 	 */
-	static function colorLerp($from_hex, $to_hex, $ratio) {
+	static function colorLerp($from_hex, $to_hex, $ratio): string {
 		$from_hex = hexdec(ltrim($from_hex,'#'));
 		$to_hex = hexdec(ltrim($to_hex,'#'));
 		
@@ -646,9 +646,9 @@ class DevblocksPlatform extends DevblocksEngine {
 		$to_g = $to_hex & 0x00FF00;
 		$to_b = $to_hex & 0x0000FF;
 		
-		$lerp_r = $from_r + (($to_r - $from_r) * $ratio) & 0xFF0000;
-		$lerp_g = $from_g + (($to_g - $from_g) * $ratio) & 0x00FF00;
-		$lerp_b = $from_b + (($to_b - $from_b) * $ratio) & 0x0000FF;
+		$lerp_r = intval($from_r + (($to_r - $from_r) * $ratio)) & 0xFF0000;
+		$lerp_g = intval($from_g + (($to_g - $from_g) * $ratio)) & 0x00FF00;
+		$lerp_b = intval($from_b + (($to_b - $from_b) * $ratio)) & 0x0000FF;
 		
 		$color = dechex($lerp_r | $lerp_g | $lerp_b);
 		$color = str_pad($color, 6, '0', STR_PAD_LEFT);

@@ -1350,7 +1350,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 								if(null == (@$condition_token = $condition_obj['condition']))
 									continue;
 								
-								if(null == (@$condition = $conditions[$condition_token]))
+								if(null == ($condition = ($conditions[$condition_token] ?? null)))
 									continue;
 								
 								if(empty($condition['label']) || empty($condition['type']))

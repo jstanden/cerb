@@ -42,7 +42,7 @@ abstract class AbstractEvent_Reminder extends Extension_DevblocksEvent {
 			
 			$result = array_shift($results);
 			
-			$context_id = $result[SearchFields_Reminder::ID];
+			$context_id = $result[SearchFields_Reminder::ID] ?? null;
 		}
 		
 		return new Model_DevblocksEvent(

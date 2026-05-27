@@ -41,7 +41,7 @@ abstract class AbstractEvent_Notification extends Extension_DevblocksEvent {
 			
 			$result = array_shift($results);
 			
-			$context_id = $result[SearchFields_Notification::ID];
+			$context_id = $result[SearchFields_Notification::ID] ?? null;
 		}
 		
 		return new Model_DevblocksEvent(

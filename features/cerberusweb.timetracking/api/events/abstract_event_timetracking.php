@@ -25,7 +25,7 @@ abstract class AbstractEvent_TimeTracking extends Extension_DevblocksEvent {
 			
 			$result = array_shift($results);
 			
-			$context_id = $result[SearchFields_TimeTrackingEntry::ID];
+			$context_id = $result[SearchFields_TimeTrackingEntry::ID] ?? null;
 		}
 		
 		return new Model_DevblocksEvent(

@@ -41,7 +41,7 @@ abstract class AbstractEvent_Call extends Extension_DevblocksEvent {
 			
 			$result = array_shift($results);
 			
-			$context_id = $result[SearchFields_CallEntry::ID];
+			$context_id = $result[SearchFields_CallEntry::ID] ?? null;
 		}
 		
 		return new Model_DevblocksEvent(

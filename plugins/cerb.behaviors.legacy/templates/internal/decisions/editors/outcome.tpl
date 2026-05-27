@@ -73,7 +73,7 @@
 	{$types = $values._types}
 	{function tree level=0}
 		{foreach from=$keys item=data key=idx}
-			{$type = $types.{$data->key}}
+			{$type = $types.{$data->key|default:''}}
 			{if is_array($data->children) && !empty($data->children)}
 				<li {if $data->key}data-token="{$data->key}{if $type == Model_CustomField::TYPE_DATE}|date{/if}" data-label="{$data->label}"{/if}>
 					{if $data->key}

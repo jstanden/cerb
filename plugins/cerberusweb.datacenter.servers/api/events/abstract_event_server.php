@@ -25,7 +25,7 @@ abstract class AbstractEvent_Server extends Extension_DevblocksEvent {
 			
 			$result = array_shift($results);
 			
-			$context_id = $result[SearchFields_Server::ID];
+			$context_id = $result[SearchFields_Server::ID] ?? null;
 		}
 		
 		return new Model_DevblocksEvent(

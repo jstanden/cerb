@@ -2,8 +2,6 @@
 {$tree = $behavior_data.tree}
 {$depths = $behavior_data.depths}
 
-{$node = $nodes[$node_id]}
-
 <h3>Behavior: {$trigger->title}</h3>
 
 <div>

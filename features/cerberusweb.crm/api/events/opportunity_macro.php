@@ -66,7 +66,7 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 			
 			$result = array_shift($results);
 			
-			$context_id = $result[SearchFields_CrmOpportunity::ID];
+			$context_id = $result[SearchFields_CrmOpportunity::ID] ?? null;
 		}
 		
 		return new Model_DevblocksEvent(

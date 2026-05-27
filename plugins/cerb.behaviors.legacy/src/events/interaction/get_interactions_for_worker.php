@@ -377,13 +377,15 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 	}
 	
 	function simulateActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
+		$out = '';
+		
 		switch($token) {
 			case 'return_interaction':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
-				@$behavior_id = intval($params['behavior_id']);
+				$behavior_id = intval($params['behavior_id'] ?? null);
 				
-				if(false == ($behavior = DAO_TriggerEvent::get($behavior_id)))
+				if(!($behavior = DAO_TriggerEvent::get($behavior_id)))
 					break;
 				
 				$name = $tpl_builder->build($params['name'] ?? '', $dict);
@@ -394,7 +396,7 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 				
 				$interaction_params_json = $tpl_builder->build($params['interaction_params_json'] ?? '', $dict);
 				
-				if(false == ($interaction_params = json_decode($interaction_params_json, true)))
+				if(!($interaction_params = json_decode($interaction_params_json, true)))
 					$interaction_params = [];
 				
 				$out = sprintf(">>> Returning interaction\n".

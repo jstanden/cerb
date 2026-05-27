@@ -1395,13 +1395,13 @@ class Model_TriggerEvent extends DevblocksRecordModel {
 			$prompt = $interaction->session_data['_prompt'] ?? null;
 			
 			// Are we saving a copy of the latest message into a placeholder?
-			if(false != (@$var = $prompt['var'])) {
-				// If we lazy loaded a sub dictionary on the last attempt, clear it
+			if(($var = ($prompt['var'] ?? null))) {
+				// If we lazy-loaded a sub dictionary on the last attempt, clear it
 				if(DevblocksPlatform::strEndsWith($var, '_id'))
 					$dict->scrubKeys(substr($var, 0, -2));
 				
 				// Prompt-specific options
-				switch(@$prompt['action']) {
+				switch($prompt['action'] ?? null) {
 					case 'prompt.chooser':
 						if(!DevblocksPlatform::strEndsWith($var, '_id') || !isset($prompt['context']))
 							break;
@@ -1417,7 +1417,7 @@ class Model_TriggerEvent extends DevblocksRecordModel {
 						break;
 				}
 				
-				if(false != (@$format_tpl = $prompt['format'])) {
+				if(($format_tpl = ($prompt['format'] ?? null))) {
 					$var_message = $tpl_builder->build($format_tpl, $dict);
 					$dict->set($var, $var_message);
 				} else {

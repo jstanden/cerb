@@ -42,7 +42,7 @@ abstract class AbstractEvent_Group extends Extension_DevblocksEvent {
 			
 			$result = array_shift($results);
 			
-			$context_id = $result[SearchFields_Group::ID];
+			$context_id = $result[SearchFields_Group::ID] ?? null;
 		}
 		
 		return new Model_DevblocksEvent(
