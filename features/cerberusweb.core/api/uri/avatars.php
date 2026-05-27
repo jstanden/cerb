@@ -138,7 +138,7 @@ class Controller_Avatars extends DevblocksControllerExtension {
 				$ch = DevblocksPlatform::curlInit($url);
 				$output = DevblocksPlatform::curlExec($ch);
 				$info = curl_getinfo($ch);
-				curl_close($ch);
+				unset($ch);
 			}
 			
 			// Make sure this is only image content

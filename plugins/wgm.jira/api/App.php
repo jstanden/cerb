@@ -159,7 +159,7 @@ class WgmJira_API {
 			$this->_errors = [];
 		}
 		
-		curl_close($ch);
+		unset($ch);
 		return $json;
 	}
 	
@@ -198,7 +198,7 @@ class WgmJira_API {
 			$this->_errors = [];
 		}
 		
-		curl_close($ch);
+		unset($ch);
 		return $json;
 	}
 	

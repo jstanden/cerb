@@ -60,7 +60,7 @@ class ServiceProvider_SAML extends Extension_ConnectedServiceProvider {
 	public function saveAccountConfigForm(Model_ConnectedService $service, Model_ConnectedAccount $account, array &$params, &$error = null) {
 	}
 	
-	private function _getSamlSettings(Model_ConnectedService $service=null) {
+	private function _getSamlSettings(?Model_ConnectedService $service=null) {
 		$url_service = DevblocksPlatform::services()->url();
 		
 		if(!($uri = $service->uri))

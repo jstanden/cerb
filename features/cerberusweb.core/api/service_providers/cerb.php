@@ -232,17 +232,15 @@ class WgmCerb_API {
 		// Content-type handling
 		list($content_type,) = array_pad(explode(';', DevblocksPlatform::strLower($info['content_type'])), 2, null);
 		
-		curl_close($ch);
+		unset($ch);
 		
 		switch($content_type) {
 			case 'application/json':
 			case 'text/javascript':
 				return json_decode($output, true);
-				break;
 				
 			default:
 				return $output;
-				break;
 		}
 	}
 };

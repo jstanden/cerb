@@ -178,7 +178,7 @@ class UmScApp extends Extension_CommunityPortal {
 	
 	public function handleRequest(DevblocksHttpRequest $request) {
 		$stack = $request->path;
-		$module_uri = array_shift($stack);
+		$module_uri = strval(array_shift($stack));
 		
 		$umsession = ChPortalHelper::getSession();
 		
@@ -268,7 +268,7 @@ class UmScApp extends Extension_CommunityPortal {
 			)
 		);
 		
-		$module_uri = array_shift($stack);
+		$module_uri = strval(array_shift($stack));
 		
 		switch($module_uri) {
 			case 'rss':

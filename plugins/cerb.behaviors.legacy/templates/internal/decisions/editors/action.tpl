@@ -33,21 +33,22 @@
 		<div class="actions">
 		
 		{$seq = null}
-		{if $model && isset($model->params.actions) && is_array($model->params.actions)}
+		{if $model && array_key_exists('actions', $model->params) && is_array($model->params.actions)}
 		{foreach from=$model->params.actions item=params key=seq}
 		<fieldset id="action{$seq}_{$nonce}" class="cerb-bot-action">
+			{$action = $params.action|default:''}
 			<legend class="cerb-bot-action--title" style="font-size:135%;">
-				{if $actions[$params.action]}{$actions[$params.action].label}{else}(missing action: {$params.action}){/if}<!--
+				{if array_key_exists($action, $actions)}{$actions[$action].label}{else}(missing action: {$action}){/if}<!--
 				--><span data-cerb-onhover style="display:none;cursor:pointer;"><span class="glyphicons glyphicons-move"></span></span><!--
 				--><span data-cerb-onhover style="display:none;cursor:pointer;"><span class="glyphicons glyphicons-circle-remove"></span></span>
 			</legend>
 
 			<div style="margin-left:10px;">
 				<input type="hidden" name="actions[]" value="{$seq}">
-				<input type="hidden" name="action{$seq}[action]" value="{$params.action}">
+				<input type="hidden" name="action{$seq}[action]" value="{$action}">
 
-				{if $actions.{$params.action}}
-					{$event->renderAction({$params.action},$trigger,$params,$seq)}
+				{if array_key_exists($action, $actions)}
+					{$event->renderAction($action,$trigger,$params,$seq)}
 				{else}
 					The defined action could not be found. It may no longer be supported, or its plugin may be disabled.
 					The action will be ignored by this behavior until it becomes available again.
@@ -65,10 +66,10 @@
 			<button type="button" class="tester">{'common.test'|devblocks_translate|capitalize}</button>
 			<button type="button" data-cerb-button="toolbar-help">Help</button>
 
-			{$types = $values._types}
+			{$types = $values['_types']|default:[]}
 			{function tree level=0}
 				{foreach from=$keys item=data key=idx}
-					{$type = $types.{$data->key}}
+					{$type = $types[$data->key|default:'']}
 					{if is_array($data->children) && !empty($data->children)}
 						<li {if $data->key}data-token="{$data->key}{if $type == Model_CustomField::TYPE_DATE}|date{/if}" data-label="{$data->label}"{/if}>
 							{if $data->key}

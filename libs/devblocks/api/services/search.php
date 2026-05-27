@@ -280,7 +280,7 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 		$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		//$content_type = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
 		
-		curl_close($ch);
+		unset($ch);
 		
 		if($status != 200 || !(@$json = json_decode($out, true)))
 			return false;

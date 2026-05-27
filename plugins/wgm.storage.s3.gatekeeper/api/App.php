@@ -417,7 +417,7 @@ class DevblocksStorageEngineGatekeeper extends Extension_DevblocksStorageEngine 
 				return false;
 			}
 	
-			curl_close($ch);
+			unset($ch);
 			
 		} catch (Exception $e) {
 			return false;

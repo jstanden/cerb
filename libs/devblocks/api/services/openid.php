@@ -23,7 +23,7 @@ class _DevblocksOpenIDManager {
 
 			$content = DevblocksPlatform::curlExec($ch);
 			$info = curl_getinfo($ch);
-			curl_close($ch);
+			unset($ch);
 	
 			$lines = explode("\n", $content);
 
@@ -214,7 +214,7 @@ class _DevblocksOpenIDManager {
 		curl_setopt($ch, CURLOPT_HEADER, false);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 		$response = DevblocksPlatform::curlExec($ch);
-		curl_close($ch);
+		unset($ch);
 		
 		if(preg_match('/is_valid:true/', $response))
 			return true;

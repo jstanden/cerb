@@ -326,7 +326,7 @@ class DevblocksProxy_Curl extends DevblocksProxy {
 		
 		$this->_returnTransfer($ch, $out);
 		
-		curl_close($ch);
+		unset($ch);
 	}
 	
 	function _post($remote_path, $local_path) {
@@ -354,7 +354,7 @@ class DevblocksProxy_Curl extends DevblocksProxy {
 
 		$this->_returnTransfer($ch, $out);
 		
-		curl_close($ch);
+		unset($ch);
 	}
 	
 	function _returnTransfer($ch) {

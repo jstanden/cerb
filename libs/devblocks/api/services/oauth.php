@@ -135,7 +135,7 @@ class _DevblocksOAuth1Client {
 		
 		$this->_response_info = curl_getinfo($ch);
 		
-		curl_close($ch);
+		unset($ch);
 		
 		return $results;
 	}
@@ -203,7 +203,7 @@ class _DevblocksOAuth1Client {
 				break;
 		}
 		
-		curl_close($ch);
+		unset($ch);
 		
 		return $results;
 	}
@@ -306,7 +306,7 @@ class _DevblocksOAuth1Client {
 				break;
 		}
 		
-		curl_close($ch);
+		unset($ch);
 		
 		return $results;
 	}
@@ -361,7 +361,7 @@ class _DevblocksOAuth1Client {
 				break;
 		}
 		
-		curl_close($ch);
+		unset($ch);
 		
 		return $results;
 	}
@@ -570,7 +570,7 @@ class _DevblocksOAuth1Client {
 		
 		$this->_response_info = curl_getinfo($ch);
 		
-		curl_close($ch);
+		unset($ch);
 		
 		return $out;
 	}

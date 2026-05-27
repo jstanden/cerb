@@ -1844,7 +1844,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			curl_setopt($ch, CURLOPT_USERAGENT, $user_agent);
 			
 			$data = DevblocksPlatform::curlExec($ch, true);
-			curl_close($ch);
+			unset($ch);
 			
 		} else {
 			$logger = DevblocksPlatform::services()->log();

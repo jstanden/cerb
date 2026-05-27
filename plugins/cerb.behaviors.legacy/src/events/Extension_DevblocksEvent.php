@@ -68,6 +68,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	 */
 	public static function get($id, $as_instance=true) {
 		$events = self::getAll(false);
+		$id = strval($id);
 		
 		if(!isset($events[$id]))
 			return null;

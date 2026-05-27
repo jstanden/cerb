@@ -431,7 +431,7 @@ class DevblocksCacheEngine_Disk extends Extension_DevblocksCacheEngine {
 			return null;
 		
 		if(file_exists($file) && is_writeable($file))
-			@unlink($file);
+			unlink($file);
 		
 		return true;
 	}
