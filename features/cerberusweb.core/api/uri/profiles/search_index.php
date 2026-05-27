@@ -174,6 +174,13 @@ class PageSection_ProfilesRecordSearchIndex extends Extension_PageSection {
 					$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 					if(!DAO_CustomFieldValue::handleFormPost($context, $id, $field_ids, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
+					
+					// Initialize the search index on creation
+					if(($model = DAO_SearchIndex::get($id))) {
+						if(($search_extension = $model->getExtension())) {
+							$search_extension->initializeIndex($model);
+						}
+					}
 				}
 				
 				echo json_encode([

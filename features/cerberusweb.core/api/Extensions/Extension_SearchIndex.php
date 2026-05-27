@@ -27,7 +27,11 @@ abstract class Extension_SearchIndex extends DevblocksExtension {
 	abstract public function reindexDocumentsByModel(Model_SearchIndex $model) : ?\Model_QueueJob;
 
 	abstract public function getIndexRecordCount(Model_SearchIndex $model, bool $no_cache=false) : int;
-	
+
+	public function initializeIndex(Model_SearchIndex $model): bool {
+		return true;
+	}
+
 	abstract public function queryJoinFromRecordQuickSearch(Model_SearchIndex $model, string $query, string $fields=''): string;
 	
 	abstract public function queryDocumentsWithScore(Model_SearchIndex $model, string $query, int $limit = 100): array;

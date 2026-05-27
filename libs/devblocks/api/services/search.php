@@ -29,7 +29,7 @@ class _DevblocksSearchService {
 				break;
 
 			foreach($queue_messages as $queue_message) {
-				if(!($search_index = $search_indexes[$queue_message->message['index_id'] ?? 0])) {
+				if(!($search_index = ($search_indexes[$queue_message->message['index_id'] ?? 0] ?? null))) {
 					// Mark message failed if the search index is invalid
 					$error = sprintf('Invalid search index: %s', $queue_message->message['index_id'] ?? 0);
 					$queue_message->reportStatus(QueueMessageStatus::FAILED, $error);

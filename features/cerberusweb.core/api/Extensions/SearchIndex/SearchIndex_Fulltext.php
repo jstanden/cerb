@@ -110,6 +110,13 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		return intval($count);
 	}
 	
+	public function initializeIndex(Model_SearchIndex $model): bool {
+		if($this->_searchTableExists($model))
+			return true;
+
+		return $this->_createSearchIndexTable($model);
+	}
+
 	public function getIndexRecordCount(Model_SearchIndex $model, bool $no_cache=false): int {
 		if(!$this->_searchTableExists($model))
 			return 0;
