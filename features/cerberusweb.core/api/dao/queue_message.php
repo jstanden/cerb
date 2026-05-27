@@ -88,7 +88,7 @@ class DAO_QueueMessage {
 		);
 		
 		$results = $db->GetArrayMaster(sprintf(
-			"SELECT uuid, job_id, message, available_at FROM queue_message ".
+			"SELECT uuid, job_id, message, available_at, cardinality FROM queue_message ".
 			"WHERE queue_id=%d %sAND status_id=%d AND consumer_id=%s",
 			$queue->id,
 			!is_null($job_id) ? sprintf("AND job_id=%d ", $job_id) : '',
@@ -108,6 +108,7 @@ class DAO_QueueMessage {
 			$message->job_id = intval($result['job_id']);
 			$message->message = json_decode($result['message'], true);
 			$message->available_at = intval($result['available_at']);
+			$message->cardinality = max(1, intval($result['cardinality']));
 			$messages[] = $message;
 		}
 		
@@ -210,6 +211,7 @@ class Model_QueueMessage {
 	public $message = null;
 	public int $job_id = 0;
 	public int $available_at = 0;
+	public int $cardinality = 1;
 	
 	public function reportStatus(QueueMessageStatus $status, string $message='', array $metadata=[]) : void {
 		$queue_service = DevblocksPlatform::services()->queue();

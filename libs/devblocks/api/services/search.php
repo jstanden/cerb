@@ -50,7 +50,9 @@ class _DevblocksSearchService {
 					\QueueMessageStatus::DONE,
 					sprintf('Indexed %d %s', count($ids), count($ids) === 1 ? 'record' : 'records')
 				);
-				$processed++;
+				
+				// Count work units rather than messages
+				$processed += $queue_message->cardinality;
 			}
 		}
 
