@@ -37,7 +37,7 @@ class Event_DataQueryDatasource extends Extension_DevblocksEvent {
 		$tpl->display('devblocks:cerb.behaviors.legacy::events/datasource/params_data_query_datasource.tpl');
 	}
 	
-	function prepareEventParams(?Model_TriggerEvent $behavior=null, &$event_params, &$error) {
+	function prepareEventParams(?Model_TriggerEvent $behavior, &$event_params, &$error) : bool {
 		$error = null;
 		
 		$alias = DevblocksPlatform::importGPC($event_params['alias'] ?? null);

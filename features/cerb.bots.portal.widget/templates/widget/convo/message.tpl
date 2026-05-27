@@ -9,11 +9,6 @@
 			{$message nofilter}
 		</div>
 		{/if}
-		{*
-		<div class="cerb-bot-chat-message-time">
-			{time()|devblocks_date:'h:ia'}
-		</div>
-		*}
 	</div>
 	
 	<br clear="all">

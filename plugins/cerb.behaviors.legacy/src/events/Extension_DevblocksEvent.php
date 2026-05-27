@@ -382,7 +382,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	 * @param string $error
 	 * @return boolean
 	 */
-	function prepareEventParams(Model_TriggerEvent $behavior, &$new_params, &$error) : bool {
+	function prepareEventParams(?Model_TriggerEvent $behavior, &$new_params, &$error) : bool {
 		$error = null;
 		return true;
 	}

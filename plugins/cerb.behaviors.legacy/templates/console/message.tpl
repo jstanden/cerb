@@ -9,11 +9,6 @@
 			{$message|escape|nl2br nofilter}
 		</div>
 		{/if}
-		{*
-		<div class="bot-chat-message-time">
-			{time()|devblocks_date:'h:ia'}
-		</div>
-		*}
 	</div>
 	
 	<br clear="all">

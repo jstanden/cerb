@@ -568,7 +568,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		$tpl->assign('events', $events);
 		$tpl->assign('events_menu', $events_menu);
 		
-		$tpl->display('devblocks:cerberusweb.core::internal/peek/menu_behavior_event.tpl');
+		$tpl->display('devblocks:cerb.behaviors.legacy::internal/peek/menu_behavior_event.tpl');
 	}
 	
 	private function _profileAction_saveImportPopupJson() {

@@ -38,7 +38,7 @@ class Event_RecurrentBehavior extends Extension_DevblocksEvent {
 		$tpl->display('devblocks:cerb.behaviors.legacy::events/recurrent/params_recurrent_behavior.tpl');
 	}
 	
-	function prepareEventParams(?Model_TriggerEvent $behavior=null, &$event_params, &$error) {
+	function prepareEventParams(?Model_TriggerEvent $behavior, &$event_params, &$error) : bool {
 		$error = null;
 		
 		if(!is_array($event_params)) $event_params = [];

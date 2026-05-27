@@ -22,7 +22,7 @@
 class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 	const ID = 'event.interactions.get.worker';
 	
-	function prepareEventParams(?Model_TriggerEvent $behavior=null, &$event_params, &$error) {
+	function prepareEventParams(?Model_TriggerEvent $behavior, &$event_params, &$error): bool {
 		$error = null;
 		
 		// If everything is fine, invalidate cache
