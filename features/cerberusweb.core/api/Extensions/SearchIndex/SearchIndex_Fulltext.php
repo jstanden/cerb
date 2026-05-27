@@ -63,7 +63,6 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		$cache->remove($cache_key);
 	}
 	
-	// [TODO] This should probably move to the search index model
 	public function getRecordCount(Model_SearchIndex $model, bool $no_cache=false): int {
 		$cache = DevblocksPlatform::services()->cache();
 		
@@ -81,10 +80,6 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 				return 0;
 			
 			$primary_key = $search_class::getPrimaryKey();
-			
-			if(!$this->_searchTableExists($model))
-				return 0;
-			
 			$query_parts = $this->_getRecordQueryParts($model);
 			
 			$select_sql = sprintf('SELECT COUNT(%s) AS total_docs ', $db->escape($primary_key));
@@ -100,7 +95,7 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 			
 			try {
 				$count = $db->GetOneReader($search_sql);
-				$cache->save(intval($count), $cache_key);
+				$cache->save(intval($count), $cache_key, [], 60);
 				
 			} catch (\Throwable) {
 				$count = 0;
@@ -118,24 +113,19 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 	}
 
 	public function getIndexRecordCount(Model_SearchIndex $model, bool $no_cache=false): int {
-		if(!$this->_searchTableExists($model))
+		$db = DevblocksPlatform::services()->database();
+		
+		if(!$this->initializeIndex($model))
 			return 0;
 
-		$cache = DevblocksPlatform::services()->cache();
-		$cache_key = sprintf('search_index:%d:indexed_count', $model->id);
 
-		if($no_cache || null === ($count = $cache->load($cache_key))) {
-			$db = DevblocksPlatform::services()->database();
-
-			try {
-				$count = $db->GetOneReader(sprintf(
-					'SELECT COUNT(DISTINCT record_id) FROM search_index_%d',
-					$model->id,
-				));
-				$cache->save(intval($count), $cache_key, [], 60);
-			} catch (\Throwable) {
-				$count = 0;
-			}
+		try {
+			$count = $db->GetOneReader(sprintf(
+				'SELECT COUNT(DISTINCT record_id) FROM search_index_%d',
+				$model->id,
+			));
+		} catch (\Throwable) {
+			$count = 0;
 		}
 
 		return intval($count);
