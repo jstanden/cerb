@@ -20,7 +20,7 @@
 	{/if}
 
 	{if $draft->is_queued}
-		{if !empty($draft->queue_delivery_date) && $draft->queue_delivery_date > time()}
+		{if !empty($draft->queue_delivery_date) && $draft->queue_delivery_date > $smarty.now}
 			<span class="tag" style="background-color:rgb(120,120,120);color:white;margin-right:5px;">{'message.queued.deliver_in'|devblocks_translate:{$draft->queue_delivery_date|devblocks_prettytime}|lower}</span>
 		{else}
 			<span class="tag" style="background-color:rgb(120,120,120);color:white;margin-right:5px;">{'message.queued.delivery_immediate'|devblocks_translate|lower}</span>

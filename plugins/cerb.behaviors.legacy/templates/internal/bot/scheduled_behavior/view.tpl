@@ -76,7 +76,7 @@
 			</td>
 			{elseif $column=="c_run_date"}
 			<td data-column="{$column}" style="width:100px;">
-				{if $result.$column <= time()}
+				{if $result.$column <= $smarty.now}
 				now
 				{else}
 				<abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>

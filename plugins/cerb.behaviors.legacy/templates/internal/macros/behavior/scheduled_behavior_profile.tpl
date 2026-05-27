@@ -15,7 +15,7 @@
 		<tr {if !$expanded && $smarty.foreach.behaviors.iteration > 5}style="display:none;"{/if}>
 			<td valign="middle" align="right" width="1%" nowrap="nowrap">
 				<abbr title="{$v->run_date|devblocks_date}">
-					{if $v->run_date < time()}
+					{if $v->run_date < $smarty.now}
 						now
 					{else}
 						{$v->run_date|devblocks_prettytime}

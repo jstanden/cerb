@@ -6,7 +6,7 @@
 </div>
 
 <div>
-{$time_now = time()}
+{$time_now = $smarty.now}
 {foreach from=$context_mfts key=context_ext_id item=context_mft}
 	{if $records_created.{$context_ext_id}}
 		{$context_aliases = Extension_DevblocksContext::getAliasesForContext($context_mft)}
@@ -40,7 +40,7 @@
 </div>
 
 <div>
-{$time_now = time()}
+{$time_now = $smarty.now}
 {foreach from=$context_mfts key=context_ext_id item=context_mft}
 	{if $records_modified.{$context_ext_id}}
 		{$context_aliases = Extension_DevblocksContext::getAliasesForContext($context_mft)}

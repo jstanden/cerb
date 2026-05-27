@@ -52,7 +52,7 @@ $(function() {
 		formData.set('forward', is_forward);
 		formData.set('draft_id', draft_id);
 		formData.set('reply_mode', reply_mode);
-		formData.set('timestamp', '{time()}');
+		formData.set('timestamp', '{$smarty.now}');
 		formData.set('id', String(msg_id));
 
 		var $popup_reply = genericAjaxPopup('reply' + msg_id, formData, null, false, '70%');

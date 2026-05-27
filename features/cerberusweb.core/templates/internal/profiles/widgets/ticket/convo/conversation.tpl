@@ -247,7 +247,7 @@ $(function() {
 		formData.set('action', 'validateBeforeReplyJson');
 		formData.set('forward', String(is_forward));
 		formData.set('draft_id', String(draft_id));
-		formData.set('timestamp', '{time()}');
+		formData.set('timestamp', '{$smarty.now}');
 		formData.set('id', String(msgid));
 
 		var hookSuccess = function() {
@@ -266,7 +266,7 @@ $(function() {
 					formData.set('draft_id', String(draft_id));
 					formData.set('reply_mode', String(reply_mode));
 					formData.set('reply_format', 'inline');
-					formData.set('timestamp', '{time()}');
+					formData.set('timestamp', '{$smarty.now}');
 					formData.set('id', String(msgid));
 	
 					genericAjaxPost(formData, '', '', function(html) {
@@ -298,7 +298,7 @@ $(function() {
 					formData.set('forward', String(is_forward));
 					formData.set('draft_id', String(draft_id));
 					formData.set('reply_mode', String(reply_mode));
-					formData.set('timestamp', '{time()}');
+					formData.set('timestamp', '{$smarty.now}');
 					formData.set('id', String(msgid));
 	
 					$popup = genericAjaxPopup('reply' + msgid, formData, null, false, '70%');

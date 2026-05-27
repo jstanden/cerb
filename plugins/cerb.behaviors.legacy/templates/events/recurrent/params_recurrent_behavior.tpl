@@ -51,7 +51,7 @@
 	{$run_at = $trigger->event_params.repeat_run_at}
 	<b>Next run:</b>
 	<div style="margin-left:10px;margin-bottom:5px;">
-	{if $run_at < time()}
+	{if $run_at < $smarty.now}
 	<abbr title="{$run_at|devblocks_date}">running now</abbr>
 	{else}
 	<abbr title="{$run_at|devblocks_date}">{$run_at|devblocks_prettytime}</abbr>

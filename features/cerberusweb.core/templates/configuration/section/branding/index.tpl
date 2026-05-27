@@ -1,4 +1,4 @@
-{$logo_updated_at = time()}
+{$logo_updated_at = $smarty.now}
 
 <h2>Branding</h2>
 

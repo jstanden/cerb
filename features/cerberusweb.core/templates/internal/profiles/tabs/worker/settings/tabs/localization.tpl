@@ -25,7 +25,7 @@
 		<select name="time_format">
 			{$timeformats = ['D, d M Y h:i a', 'D, d M Y H:i']}
 			{foreach from=$timeformats item=timeformat}
-				<option value="{$timeformat}" {if $prefs.time_format==$timeformat}selected{/if}>{time()|devblocks_date:$timeformat}</option>
+				<option value="{$timeformat}" {if $prefs.time_format==$timeformat}selected{/if}>{$smarty.now|devblocks_date:$timeformat}</option>
 			{/foreach}
 		</select>
 	</div>
