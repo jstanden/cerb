@@ -409,6 +409,7 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 									
 									$tpl->assign('options', $options);
 									$tpl->assign('delay_ms', 0);
+									$tpl->assign('ratings', range($options['range_from'] ?? 0, $options['range_to'] ?? 0));
 									
 									$tpl->display('devblocks:cerb.bots.portal.widget::widget/convo/prompt_rating_number.tpl');
 									break;

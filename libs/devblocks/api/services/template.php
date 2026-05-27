@@ -138,6 +138,7 @@ class _DevblocksTemplateManager {
 			
 			$instance->registerPlugin('modifier','array_column', 'array_column');
 			$instance->registerPlugin('modifier','array_diff_key', 'array_diff_key');
+			$instance->registerPlugin('modifier','array_fill', 'array_fill');
 			$instance->registerPlugin('modifier','array_intersect', 'array_intersect');
 			$instance->registerPlugin('modifier','array_intersect_key', 'array_intersect_key');
 			$instance->registerPlugin('modifier','array_keys', ['_DevblocksTemplateManager', 'modifier_php_array_keys']);

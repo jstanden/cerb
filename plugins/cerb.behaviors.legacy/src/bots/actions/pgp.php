@@ -36,6 +36,9 @@ class BotAction_PgpEncrypt extends Extension_DevblocksEventAction {
 		if(!is_null($seq))
 			$tpl->assign('namePrefix', 'action'.$seq);
 		
+		$public_keys = DAO_GpgPublicKey::getIds($params['public_key_ids'] ?? []);
+		$tpl->assign('public_keys', $public_keys);
+		
 		$tpl->display('devblocks:cerb.behaviors.legacy::internal/decisions/actions/_action_pgp_encrypt.tpl');
 	}
 	

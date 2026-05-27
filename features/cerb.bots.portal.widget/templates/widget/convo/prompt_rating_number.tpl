@@ -2,7 +2,6 @@
 <div class="cerb-bot-chat-object" data-delay-ms="{$delay_ms|default:0}" id="{$msg_id}">
 	<table width="100%" cellspacing="2" cellpadding="0">
 		<tr>
-			{$ratings = range($options.range_from,$options.range_to)}
 			{if 0 == count($options) % 2}
 				{$mid = round(count($ratings)/2)}
 			{else}
