@@ -594,10 +594,7 @@ class SearchFields_Task extends DevblocksSearchFields {
 	const TITLE = 't_title';
 	
 	const VIRTUAL_OWNER_SEARCH = '*_owner_search';
-	
-	// Comment Content
-	const FULLTEXT_COMMENT_CONTENT = 'ftcc_content';
-	
+
 	static private $_fields = null;
 	
 	static function getTableName() : string {
@@ -620,9 +617,6 @@ class SearchFields_Task extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
-			case self::FULLTEXT_COMMENT_CONTENT:
-				return self::_getWhereSQLFromCommentFulltextField($param, Search_CommentContent::ID, CerberusContexts::CONTEXT_TASK, self::getPrimaryKey());
-				
 			case self::VIRTUAL_OWNER_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_WORKER, 'task.owner_id');
 				
@@ -706,18 +700,12 @@ class SearchFields_Task extends DevblocksSearchFields {
 			self::COMPLETED_DATE => new DevblocksSearchField(self::COMPLETED_DATE, 'task', 'completed_date', $translate->_('task.completed_date'), Model_CustomField::TYPE_DATE, true),
 			
 			self::VIRTUAL_OWNER_SEARCH => new DevblocksSearchField(self::VIRTUAL_OWNER_SEARCH, '*', 'owner_search', null, null, false),
-			
-			self::FULLTEXT_COMMENT_CONTENT => new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT', false),
 		];
 		
 		// Virtual fields
 		if(($virtual_columns = DevblocksSearchField::getVirtualFields()))
 			$columns = array_merge($columns, $virtual_columns);
-		
-		// Fulltext indexes
-		
-		$columns[self::FULLTEXT_COMMENT_CONTENT]->ft_schema = Search_CommentContent::ID;
-		
+
 		// Custom fields with fieldsets
 		
 		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
@@ -782,7 +770,6 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 		
 		$this->addColumnsHidden([
 			SearchFields_Task::ID,
-			SearchFields_Task::FULLTEXT_COMMENT_CONTENT,
 			SearchFields_Task::VIRTUAL_OWNER_SEARCH,
 		]);
 
@@ -906,12 +893,7 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 		$search_fields = SearchFields_Task::getFields();
 		
 		$fields = array(
-			'comments' =>
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
-					'options' => array('param_key' => SearchFields_Task::FULLTEXT_COMMENT_CONTENT),
-				),
-			'completed' => 
+			'completed' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_Task::COMPLETED_DATE),
@@ -1008,20 +990,7 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 		// Add searchable custom fields
 		
 		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_TASK, $fields, null);
-		
-		// Engine/schema examples: Comments
-		
-		$ft_examples = [];
-		
-		if(($schema = Extension_DevblocksSearchSchema::get(Search_CommentContent::ID))) {
-			if(($engine = $schema->getEngine())) {
-				$ft_examples = $engine->getQuickSearchExamples($schema);
-			}
-		}
-		
-		if(!empty($ft_examples))
-			$fields['comments']['examples'] = $ft_examples;
-		
+
 		// Add is_sortable
 		
 		$fields = self::_setSortableQuickSearchFields($fields, $search_fields);
@@ -1037,7 +1006,7 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 		switch($field) {
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
-			
+
 			case 'owner':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Task::VIRTUAL_OWNER_SEARCH);
 				
@@ -1187,11 +1156,6 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 			case SearchFields_Task::OWNER_ID:
 				$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
-				break;
-				
-			case SearchFields_Task::FULLTEXT_COMMENT_CONTENT:
-				$scope = DevblocksPlatform::importGPC($_POST['scope'] ?? null, 'string','expert');
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
 				
 			default:

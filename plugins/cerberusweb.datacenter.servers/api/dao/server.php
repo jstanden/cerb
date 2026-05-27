@@ -843,10 +843,7 @@ class SearchFields_Server extends DevblocksSearchFields {
 	const ID = 's_id';
 	const NAME = 's_name';
 	const UPDATED = 's_updated';
-	
-	// Comment Content
-	const FULLTEXT_COMMENT_CONTENT = 'ftcc_content';
-	
+
 	static private $_fields = null;
 	
 	static function getTableName() : string {
@@ -869,9 +866,6 @@ class SearchFields_Server extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
-			case self::FULLTEXT_COMMENT_CONTENT:
-				return self::_getWhereSQLFromCommentFulltextField($param, Search_CommentContent::ID, CerberusContexts::CONTEXT_SERVER, self::getPrimaryKey());
-				
 			default:
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
@@ -923,18 +917,12 @@ class SearchFields_Server extends DevblocksSearchFields {
 			self::ID => new DevblocksSearchField(self::ID, 'server', 'id', $translate->_('common.id'), null, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'server', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'server', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
-			
-			self::FULLTEXT_COMMENT_CONTENT => new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT', false),
 		];
-		
+
 		// Virtual fields
 		if(($virtual_columns = DevblocksSearchField::getVirtualFields()))
 			$columns = array_merge($columns, $virtual_columns);
-		
-		// Fulltext indexes
-		
-		$columns[self::FULLTEXT_COMMENT_CONTENT]->ft_schema = Search_CommentContent::ID;
-		
+
 		// Custom fields with fieldsets
 		
 		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
@@ -974,7 +962,6 @@ class View_Server extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		
 		// Filter cols
 		$this->addColumnsHidden([
-			SearchFields_Server::FULLTEXT_COMMENT_CONTENT,
 		]);
 
 		$this->doResetCriteria();
@@ -1069,12 +1056,7 @@ class View_Server extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		$search_fields = SearchFields_Server::getFields();
 		
 		$fields = array(
-			'comments' =>
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
-					'options' => array('param_key' => SearchFields_Server::FULLTEXT_COMMENT_CONTENT),
-				),
-			'created' => 
+			'created' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_Server::CREATED),
@@ -1122,20 +1104,7 @@ class View_Server extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		// Add searchable custom fields
 		
 		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_SERVER, $fields, null);
-		
-		// Engine/schema examples: Comments
-		
-		$ft_examples = [];
-		
-		if(false != ($schema = Extension_DevblocksSearchSchema::get(Search_CommentContent::ID))) {
-			if(false != ($engine = $schema->getEngine())) {
-				$ft_examples = $engine->getQuickSearchExamples($schema);
-			}
-		}
-		
-		if(!empty($ft_examples))
-			$fields['comments']['examples'] = $ft_examples;
-		
+
 		// Add is_sortable
 		
 		$fields = self::_setSortableQuickSearchFields($fields, $search_fields);
@@ -1220,11 +1189,6 @@ class View_Server extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Server::CREATED:
 			case SearchFields_Server::UPDATED:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
-				break;
-				
-			case SearchFields_Server::FULLTEXT_COMMENT_CONTENT:
-				$scope = DevblocksPlatform::importGPC($_POST['scope'] ?? null, 'string','expert');
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
 				
 			default:

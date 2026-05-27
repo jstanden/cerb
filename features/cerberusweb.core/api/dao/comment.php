@@ -423,11 +423,7 @@ class DAO_Comment extends Cerb_ORMHelper {
 		
 		// Comments
 		$db->ExecuteMaster(sprintf("DELETE FROM comment WHERE id IN (%s)", $ids_list));
-		
-		// Search index
-		$search = Extension_DevblocksSearchSchema::get(Search_CommentContent::ID);
-		$search->delete($ids);
-		
+
 		parent::_deleteAbstractAfter($context, $ids);
 		
 		return true;
@@ -588,9 +584,7 @@ class SearchFields_Comment extends DevblocksSearchFields {
 	const IS_MARKDOWN = 'c_is_markdown';
 	const IS_PINNED = 'c_is_pinned';
 	const COMMENT = 'c_comment';
-	
-	const FULLTEXT_COMMENT_CONTENT = 'ftcc_content';
-	
+
 	const VIRTUAL_ATTACHMENTS_SEARCH = '*_attachments_search';
 	const VIRTUAL_TARGET = '*_target';
 	
@@ -616,9 +610,6 @@ class SearchFields_Comment extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
-			case self::FULLTEXT_COMMENT_CONTENT:
-				return self::_getWhereSQLFromFulltextField($param, Search_CommentContent::ID, self::getPrimaryKey());
-				
 			case self::VIRTUAL_ATTACHMENTS_SEARCH:
 				return self::_getWhereSQLFromAttachmentsField($param, CerberusContexts::CONTEXT_COMMENT, self::getPrimaryKey());
 				
@@ -728,8 +719,6 @@ class SearchFields_Comment extends DevblocksSearchFields {
 			
 			self::VIRTUAL_ATTACHMENTS_SEARCH => new DevblocksSearchField(self::VIRTUAL_ATTACHMENTS_SEARCH, '*', 'attachments_search', null, null, false),
 			self::VIRTUAL_TARGET => new DevblocksSearchField(self::VIRTUAL_TARGET, '*', 'target', $translate->_('common.target'), null, false),
-				
-			self::FULLTEXT_COMMENT_CONTENT => new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT', false),
 		];
 		
 		// Virtual fields
@@ -746,139 +735,6 @@ class SearchFields_Comment extends DevblocksSearchFields {
 		DevblocksPlatform::sortObjects($columns, 'db_label');
 
 		return $columns;
-	}
-};
-
-class Search_CommentContent extends Extension_DevblocksSearchSchema {
-	const ID = 'cerberusweb.search.schema.comment_content';
-	
-	public function getNamespace() {
-		return 'comment_content';
-	}
-	
-	public function getAttributes() {
-		return array(
-			'context_crc32' => 'uint4',
-		);
-	}
-	
-	public function getIdField() {
-		return 'id';
-	}
-	
-	public function getDataField() {
-		return 'content';
-	}
-	
-	public function getPrimaryKey() {
-		return 'id';
-	}
-	
-	public function areWildcardsAllowed() : bool {
-		return APP_OPT_FULLTEXT_ALLOW_WILDCARDS;
-	}
-	
-	public function reindex() {
-		$engine = $this->getEngine();
-		$meta = $engine->getIndexMeta($this);
-		
-		// If the engine can tell us where the index left off
-		if(isset($meta['max_id']) && $meta['max_id']) {
-			$this->setParam('last_indexed_id', $meta['max_id']);
-		
-		// If the index has a delta, start from the current record
-		} elseif($meta['is_indexed_externally']) {
-			// Do nothing (let the remote tool update the DB)
-			
-		// Otherwise, start over
-		} else {
-			$this->setIndexPointer(self::INDEX_POINTER_RESET);
-		}
-	}
-	
-	public function setIndexPointer($pointer) {
-		switch($pointer) {
-			case self::INDEX_POINTER_RESET:
-				$this->setParam('last_indexed_id', 0);
-				$this->setParam('last_indexed_time', 0);
-				break;
-				
-			case self::INDEX_POINTER_CURRENT:
-				if(null != ($last_comments = DAO_Comment::getWhere('id is not null', 'id', false, 1))
-					&& is_array($last_comments)
-					&& null != ($last_comment = array_shift($last_comments))) {
-						$this->setParam('last_indexed_id', $last_comment->id);
-						$this->setParam('last_indexed_time', $last_comment->created);
-				} else {
-					$this->setParam('last_indexed_id', 0);
-					$this->setParam('last_indexed_time', 0);
-				}
-				break;
-		}
-	}
-	
-	public function index($stop_time=null) {
-		$logger = DevblocksPlatform::services()->log();
-		$search = DevblocksPlatform::services()->search();
-		
-		if(false == ($engine = $this->getEngine()))
-			return false;
-		
-		$ns = self::getNamespace();
-		$id = $this->getParam('last_indexed_id', 0);
-		$done = false;
-		
-		while(!$done && time() < $stop_time) {
-			$where = sprintf("%s > %d", DAO_Comment::ID, $id);
-			$comments = DAO_Comment::getWhere($where, 'id', true, 100);
-	
-			if(empty($comments)) {
-				$done = true;
-				continue;
-			}
-			
-			$count = 0;
-			
-			if(is_array($comments))
-			foreach($comments as $comment) { /* @var $comment Model_Comment */
-				$id = $comment->id;
-				
-				$logger->info(sprintf("[Search] Indexing %s %d...",
-					$ns,
-					$id
-				));
-
-				$content = $comment->comment;
-				
-				if(!empty($content)) {
-					$content = $search->truncateOnWhitespace($content, 5_000);
-					
-					$doc = array(
-						'content' => $content,
-					);
-					
-					if(false === ($engine->index($this, $id, $doc, array('context_crc32' => sprintf("%u", crc32($comment->context))))))
-						return false;
-				}
-
-				// Record our progress every 25th index
-				if(++$count % 25 == 0) {
-					if(!empty($id))
-						$this->setParam('last_indexed_id', $id);
-				}
-			}
-			
-			// Record our index every batch
-			if(!empty($id))
-				$this->setParam('last_indexed_id', $id);
-		}
-	}
-	
-	public function delete($ids) {
-		if(false == ($engine = $this->getEngine()))
-			return false;
-		
-		return $engine->delete($this, $ids);
 	}
 };
 
@@ -1023,7 +879,6 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 		$this->addColumnsHidden([
 			SearchFields_Comment::COMMENT,
 			SearchFields_Comment::CONTEXT_ID,
-			SearchFields_Comment::FULLTEXT_COMMENT_CONTENT,
 			SearchFields_Comment::OWNER_CONTEXT,
 			SearchFields_Comment::OWNER_CONTEXT_ID,
 			SearchFields_Comment::VIRTUAL_ATTACHMENTS_SEARCH,
@@ -1131,12 +986,7 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 		$search_fields = SearchFields_Comment::getFields();
 	
 		$fields = array(
-			'text' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
-					'options' => array('param_key' => SearchFields_Comment::FULLTEXT_COMMENT_CONTENT),
-				),
-			'attachments' => 
+			'attachments' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array(),
@@ -1144,12 +994,7 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_ATTACHMENT, 'q' => ''],
 					]
 				),
-			'comment' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
-					'options' => array('param_key' => SearchFields_Comment::FULLTEXT_COMMENT_CONTENT),
-				),
-			'created' => 
+			'created' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_Comment::CREATED),
@@ -1195,24 +1040,9 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('on', $fields, 'search', SearchFields_Comment::VIRTUAL_TARGET);
 		
 		// Add searchable custom fields
-		
+
 		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_COMMENT, $fields, null);
-		
-		// Engine/schema examples: Comments
-		
-		$ft_examples = array();
-		
-		if(($schema = Extension_DevblocksSearchSchema::get(Search_CommentContent::ID))) {
-			if(($engine = $schema->getEngine())) {
-				$ft_examples = $engine->getQuickSearchExamples($schema);
-			}
-		}
-		
-		if(!empty($ft_examples)) {
-			$fields['text']['examples'] = $ft_examples;
-			$fields['comment']['examples'] = $ft_examples;
-		}
-		
+
 		// Add is_sortable
 		
 		$fields = self::_setSortableQuickSearchFields($fields, $search_fields);

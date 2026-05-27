@@ -278,7 +278,6 @@
 			<class name="Context_Comment" />
 			<class name="DAO_Comment" />
 			<class name="Model_Comment" />
-			<class name="Search_CommentContent" />
 			<class name="SearchFields_Comment" />
 			<class name="View_Comment" />
 		</file>
@@ -5453,18 +5452,7 @@
 		</extension>		
 		
 		<!-- Search Schemas -->
-		
-		<extension point="devblocks.search.schema">
-			<id>cerberusweb.search.schema.comment_content</id>
-			<name>Comment Content</name>
-			<class>
-				<file>api/dao/comment.php</file>
-				<name>Search_CommentContent</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-		
+
 		<extension point="devblocks.search.schema">
 			<id>cerberusweb.search.schema.message_content</id>
 			<name>Message Content</name>

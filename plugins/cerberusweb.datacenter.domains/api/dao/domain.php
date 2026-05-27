@@ -960,9 +960,6 @@ class SearchFields_Domain extends DevblocksSearchFields {
 	// Virtuals
 	const VIRTUAL_SERVER_SEARCH = '*_server_search';
 
-	// Comment Content
-	const FULLTEXT_COMMENT_CONTENT = 'ftcc_content';
-	
 	static private $_fields = null;
 	
 	static function getTableName() : string {
@@ -986,9 +983,6 @@ class SearchFields_Domain extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
-			case SearchFields_Domain::FULLTEXT_COMMENT_CONTENT:
-				return self::_getWhereSQLFromCommentFulltextField($param, Search_CommentContent::ID, CerberusContexts::CONTEXT_DOMAIN, self::getPrimaryKey());
-				
 			case self::VIRTUAL_SERVER_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_SERVER, 'datacenter_domain.server_id');
 				
@@ -1062,18 +1056,12 @@ class SearchFields_Domain extends DevblocksSearchFields {
 			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'datacenter_domain', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 			
 			self::VIRTUAL_SERVER_SEARCH => new DevblocksSearchField(self::VIRTUAL_SERVER_SEARCH, '*', 'server_search', null, null, false),
-			
-			self::FULLTEXT_COMMENT_CONTENT => new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT', false),
 		];
-		
+
 		// Virtual fields
 		if(($virtual_columns = DevblocksSearchField::getVirtualFields()))
 			$columns = array_merge($columns, $virtual_columns);
-		
-		// Fulltext indexes
-		
-		$columns[self::FULLTEXT_COMMENT_CONTENT]->ft_schema = Search_CommentContent::ID;
-		
+
 		// Custom fields with fieldsets
 		
 		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
@@ -1125,7 +1113,6 @@ class View_Domain extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		
 		// Filter columns
 		$this->addColumnsHidden([
-			SearchFields_Domain::FULLTEXT_COMMENT_CONTENT,
 			SearchFields_Domain::VIRTUAL_SERVER_SEARCH,
 		]);
 
@@ -1233,12 +1220,7 @@ class View_Domain extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		$search_fields = SearchFields_Domain::getFields();
 		
 		$fields = array(
-			'comments' =>
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
-					'options' => array('param_key' => SearchFields_Domain::FULLTEXT_COMMENT_CONTENT),
-				),
-			'created' => 
+			'created' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_Domain::CREATED),
@@ -1303,20 +1285,7 @@ class View_Domain extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		
 		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_DOMAIN, $fields, null);
 		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_SERVER, $fields, 'server');
-		
-		// Engine/schema examples: Comments
-		
-		$ft_examples = [];
-		
-		if(($schema = Extension_DevblocksSearchSchema::get(Search_CommentContent::ID))) {
-			if(($engine = $schema->getEngine())) {
-				$ft_examples = $engine->getQuickSearchExamples($schema);
-			}
-		}
-		
-		if(!empty($ft_examples))
-			$fields['comments']['examples'] = $ft_examples;
-		
+
 		// Add is_sortable
 		
 		$fields = self::_setSortableQuickSearchFields($fields, $search_fields);
@@ -1332,7 +1301,7 @@ class View_Domain extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		switch($field) {
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
-			
+
 			case 'server':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Domain::VIRTUAL_SERVER_SEARCH);
 				
@@ -1388,7 +1357,7 @@ class View_Domain extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Domain::VIRTUAL_SERVER_SEARCH:
 				echo sprintf("Server matches <b>%s</b>", DevblocksPlatform::strEscapeHtml($param->value));
 				break;
-				
+
 			default:
 				$this->_renderVirtualCriteria($param);
 				break;
@@ -1434,11 +1403,6 @@ class View_Domain extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Domain::SERVER_ID:
 				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$options);
-				break;
-				
-			case SearchFields_Domain::FULLTEXT_COMMENT_CONTENT:
-				$scope = DevblocksPlatform::importGPC($_POST['scope'] ?? null, 'string','expert');
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
 				
 			default:

@@ -551,9 +551,6 @@ class SearchFields_TimeTrackingEntry extends DevblocksSearchFields {
 	const ACTIVITY_ID = 'tt_activity_id';
 	const IS_CLOSED = 'tt_is_closed';
 	
-	// Comment Content
-	const FULLTEXT_COMMENT_CONTENT = 'ftcc_content';
-
 	// Virtuals
 	const VIRTUAL_WORKER_SEARCH = '*_worker_search';
 	
@@ -580,9 +577,6 @@ class SearchFields_TimeTrackingEntry extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
-			case self::FULLTEXT_COMMENT_CONTENT:
-				return self::_getWhereSQLFromCommentFulltextField($param, Search_CommentContent::ID, CerberusContexts::CONTEXT_TIMETRACKING, self::getPrimaryKey());
-				
 			case self::VIRTUAL_WORKER_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_WORKER, 'tt.worker_id');
 				
@@ -670,20 +664,14 @@ class SearchFields_TimeTrackingEntry extends DevblocksSearchFields {
 			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'tt', 'worker_id', $translate->_('timetracking_entry.worker_id'), Model_CustomField::TYPE_WORKER, true),
 			self::ACTIVITY_ID => new DevblocksSearchField(self::ACTIVITY_ID, 'tt', 'activity_id', $translate->_('timetracking_entry.activity_id'), null, true),
 			self::IS_CLOSED => new DevblocksSearchField(self::IS_CLOSED, 'tt', 'is_closed', $translate->_('common.is_closed'), Model_CustomField::TYPE_CHECKBOX, true),
-			
+
 			self::VIRTUAL_WORKER_SEARCH => new DevblocksSearchField(self::VIRTUAL_WORKER_SEARCH, '*', 'worker_search', null, null, false),
-				
-			self::FULLTEXT_COMMENT_CONTENT => new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT', false),
 		];
-		
+
 		// Virtual fields
 		if(($virtual_columns = DevblocksSearchField::getVirtualFields()))
 			$columns = array_merge($columns, $virtual_columns);
-		
-		// Fulltext indexes
-		
-		$columns[self::FULLTEXT_COMMENT_CONTENT]->ft_schema = Search_CommentContent::ID;
-		
+
 		// Custom fields with fieldsets
 		
 		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
@@ -716,7 +704,6 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 		
 		$this->addColumnsHidden([
 			SearchFields_TimeTrackingEntry::ID,
-			SearchFields_TimeTrackingEntry::FULLTEXT_COMMENT_CONTENT,
 			SearchFields_TimeTrackingEntry::VIRTUAL_WORKER_SEARCH,
 		]);
 
@@ -850,12 +837,7 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_TIMETRACKING_ACTIVITY, 'q' => ''],
 					]
 				),
-			'comments' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
-					'options' => array('param_key' => SearchFields_TimeTrackingEntry::FULLTEXT_COMMENT_CONTENT),
-				),
-			'created' => 
+			'created' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_TimeTrackingEntry::LOG_DATE),
@@ -928,22 +910,7 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 		// Add searchable custom fields
 		
 		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_TIMETRACKING, $fields, null);
-		
-		// Engine/schema examples: Comments
-		
-		$ft_examples = [];
-		
-		if(false != ($schema = Extension_DevblocksSearchSchema::get(Search_CommentContent::ID))) {
-			if(false != ($engine = $schema->getEngine())) {
-				$ft_examples = $engine->getQuickSearchExamples($schema);
-			}
-		}
-		
-		if(!empty($ft_examples)) {
-			$fields['text']['examples'] = $ft_examples;
-			$fields['comments']['examples'] = $ft_examples;
-		}
-		
+
 		// Add is_sortable
 		
 		$fields = self::_setSortableQuickSearchFields($fields, $search_fields);
@@ -1114,10 +1081,6 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 			case SearchFields_TimeTrackingEntry::ACTIVITY_ID:
 				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$options);
-				break;
-			case SearchFields_TimeTrackingEntry::FULLTEXT_COMMENT_CONTENT:
-				$scope = DevblocksPlatform::importGPC($_POST['scope'] ?? null, 'string','expert');
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
 			default:
 				// Custom Fields

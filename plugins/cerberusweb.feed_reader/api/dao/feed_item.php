@@ -363,9 +363,6 @@ class SearchFields_FeedItem extends DevblocksSearchFields {
 	const CREATED_DATE = 'fi_created_date';
 	const IS_CLOSED = 'fi_is_closed';
 	
-	// Comment Content
-	const FULLTEXT_COMMENT_CONTENT = 'ftcc_content';
-
 	// Virtuals
 	const VIRTUAL_FEED_SEARCH = '*_feed_search';
 	
@@ -392,9 +389,6 @@ class SearchFields_FeedItem extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
-			case self::FULLTEXT_COMMENT_CONTENT:
-				return self::_getWhereSQLFromCommentFulltextField($param, Search_CommentContent::ID, CerberusContexts::CONTEXT_FEED_ITEM, self::getPrimaryKey());
-				
 			case self::VIRTUAL_FEED_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_FEED, 'feed_item.feed_id');
 				
@@ -474,20 +468,14 @@ class SearchFields_FeedItem extends DevblocksSearchFields {
 			self::URL => new DevblocksSearchField(self::URL, 'feed_item', 'url', $translate->_('common.url'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::CREATED_DATE => new DevblocksSearchField(self::CREATED_DATE, 'feed_item', 'created_date', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
 			self::IS_CLOSED => new DevblocksSearchField(self::IS_CLOSED, 'feed_item', 'is_closed', $translate->_('dao.feed_item.is_closed'), Model_CustomField::TYPE_CHECKBOX, true),
-			
+
 			self::VIRTUAL_FEED_SEARCH => new DevblocksSearchField(self::VIRTUAL_FEED_SEARCH, '*', 'feed_search', null, null, false),
-			
-			self::FULLTEXT_COMMENT_CONTENT => new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT', false),
 		];
-		
+
 		// Virtual fields
 		if(($virtual_columns = DevblocksSearchField::getVirtualFields()))
 			$columns = array_merge($columns, $virtual_columns);
-		
-		// Fulltext indexes
-		
-		$columns[self::FULLTEXT_COMMENT_CONTENT]->ft_schema = Search_CommentContent::ID;
-		
+
 		// Custom fields with fieldsets
 		
 		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
@@ -533,7 +521,6 @@ class View_FeedItem extends C4_AbstractView implements IAbstractView_Subtotals, 
 		$this->addColumnsHidden([
 			SearchFields_FeedItem::GUID,
 			SearchFields_FeedItem::ID,
-			SearchFields_FeedItem::FULLTEXT_COMMENT_CONTENT,
 			SearchFields_FeedItem::VIRTUAL_FEED_SEARCH,
 		]);
 
@@ -646,12 +633,7 @@ class View_FeedItem extends C4_AbstractView implements IAbstractView_Subtotals, 
 		$search_fields = SearchFields_FeedItem::getFields();
 		
 		$fields = array(
-			'comments' =>
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
-					'options' => array('param_key' => SearchFields_FeedItem::FULLTEXT_COMMENT_CONTENT),
-				),
-			'created' => 
+			'created' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_FeedItem::CREATED_DATE),
@@ -721,20 +703,7 @@ class View_FeedItem extends C4_AbstractView implements IAbstractView_Subtotals, 
 		
 		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_FEED_ITEM, $fields, null);
 		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_FEED, $fields, 'feed');
-		
-		// Engine/schema examples: Comments
-		
-		$ft_examples = [];
-		
-		if(false != ($schema = Extension_DevblocksSearchSchema::get(Search_CommentContent::ID))) {
-			if(false != ($engine = $schema->getEngine())) {
-				$ft_examples = $engine->getQuickSearchExamples($schema);
-			}
-		}
-		
-		if(!empty($ft_examples))
-			$fields['comments']['examples'] = $ft_examples;
-		
+
 		// Add is_sortable
 		
 		$fields = self::_setSortableQuickSearchFields($fields, $search_fields);
@@ -872,11 +841,6 @@ class View_FeedItem extends C4_AbstractView implements IAbstractView_Subtotals, 
 			case SearchFields_FeedItem::FEED_ID:
 				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$options);
-				break;
-				
-			case SearchFields_FeedItem::FULLTEXT_COMMENT_CONTENT:
-				$scope = DevblocksPlatform::importGPC($_POST['scope'] ?? null, 'string','expert');
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
 				
 			default:

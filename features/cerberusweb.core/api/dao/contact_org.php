@@ -544,9 +544,6 @@ class SearchFields_ContactOrg extends DevblocksSearchFields {
 	const UPDATED = 'c_updated';
 	const EMAIL_ID = 'c_email_id';
 
-	// Fulltexts
-	const FULLTEXT_COMMENT_CONTENT = 'ftcc_content';
-
 	// Virtuals
 	const VIRTUAL_ALIAS = '*_alias';
 	const VIRTUAL_CONTACTS_SEARCH = '*_contacts_search';
@@ -587,9 +584,6 @@ class SearchFields_ContactOrg extends DevblocksSearchFields {
 					implode(',', $ids)
 				);
 
-			case self::FULLTEXT_COMMENT_CONTENT:
-				return self::_getWhereSQLFromCommentFulltextField($param, Search_CommentContent::ID, CerberusContexts::CONTEXT_ORG, self::getPrimaryKey());
-			
 			case self::VIRTUAL_ALIAS:
 				return  self::_getWhereSQLFromAliasesField($param, CerberusContexts::CONTEXT_ORG, self::getPrimaryKey());
 			
@@ -667,8 +661,6 @@ class SearchFields_ContactOrg extends DevblocksSearchFields {
 			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'contact_org', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 			self::EMAIL_ID => new DevblocksSearchField(self::EMAIL_ID, 'contact_org', 'email_id', $translate->_('common.email'), Model_CustomField::TYPE_NUMBER, true),
 
-			self::FULLTEXT_COMMENT_CONTENT => new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT', false),
-
 			self::VIRTUAL_ALIAS => new DevblocksSearchField(self::VIRTUAL_ALIAS, '*', 'alias', $translate->_('common.aliases'), null, false),
 			self::VIRTUAL_CONTACTS_SEARCH => new DevblocksSearchField(self::VIRTUAL_CONTACTS_SEARCH, '*', 'contacts_search', null, null, false),
 			self::VIRTUAL_EMAIL_SEARCH => new DevblocksSearchField(self::VIRTUAL_EMAIL_SEARCH, '*', 'email_search', null, null, false),
@@ -679,10 +671,6 @@ class SearchFields_ContactOrg extends DevblocksSearchFields {
 		// Virtual fields
 		if(($virtual_columns = DevblocksSearchField::getVirtualFields()))
 			$columns = array_merge($columns, $virtual_columns);
-		
-		// Fulltext indexes
-		
-		$columns[self::FULLTEXT_COMMENT_CONTENT]->ft_schema = Search_CommentContent::ID;
 		
 		// Custom fields with fieldsets
 		
@@ -797,7 +785,6 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 		];
 		
 		$this->addColumnsHidden([
-			SearchFields_ContactOrg::FULLTEXT_COMMENT_CONTENT,
 			SearchFields_ContactOrg::VIRTUAL_ALIAS,
 			SearchFields_ContactOrg::VIRTUAL_CONTACTS_SEARCH,
 			SearchFields_ContactOrg::VIRTUAL_EMAIL_SEARCH,
@@ -921,11 +908,6 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_ContactOrg::CITY, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
-				),
-			'comments' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
-					'options' => array('param_key' => SearchFields_ContactOrg::FULLTEXT_COMMENT_CONTENT),
 				),
 			'contacts' =>
 				array(
@@ -1065,19 +1047,6 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 		
 		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_ORG, $fields, null);
 		
-		// Engine/schema examples: Comments
-		
-		$ft_examples = [];
-		
-		if(false != ($schema = Extension_DevblocksSearchSchema::get(Search_CommentContent::ID))) {
-			if(false != ($engine = $schema->getEngine())) {
-				$ft_examples = $engine->getQuickSearchExamples($schema);
-			}
-		}
-		
-		if(!empty($ft_examples))
-			$fields['comments']['examples'] = $ft_examples;
-		
 		// Add is_sortable
 		
 		$fields = self::_setSortableQuickSearchFields($fields, $search_fields);
@@ -1096,7 +1065,7 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 			
 			case 'contacts':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_ContactOrg::VIRTUAL_CONTACTS_SEARCH);
-				
+
 			case 'email':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_ContactOrg::VIRTUAL_EMAIL_SEARCH);
 				
@@ -1236,11 +1205,6 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 				
 			case SearchFields_ContactOrg::EMAIL_ID:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
-				break;
-				
-			case SearchFields_ContactOrg::FULLTEXT_COMMENT_CONTENT:
-				$scope = DevblocksPlatform::importGPC($_POST['scope'] ?? null,'string','expert');
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
 				
 			default:

@@ -405,9 +405,6 @@ class SearchFields_CallEntry extends DevblocksSearchFields {
 	const UPDATED_DATE = 'c_updated_date';
 	const IS_OUTGOING = 'c_is_outgoing';
 	const IS_CLOSED = 'c_is_closed';
-	
-	// Comment Content
-	const FULLTEXT_COMMENT_CONTENT = 'ftcc_content';
 
 	static private $_fields = null;
 	
@@ -431,9 +428,6 @@ class SearchFields_CallEntry extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
-			case self::FULLTEXT_COMMENT_CONTENT:
-				return self::_getWhereSQLFromCommentFulltextField($param, Search_CommentContent::ID, CerberusContexts::CONTEXT_CALL, self::getPrimaryKey());
-				
 			default:
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
@@ -493,18 +487,12 @@ class SearchFields_CallEntry extends DevblocksSearchFields {
 			self::UPDATED_DATE => new DevblocksSearchField(self::UPDATED_DATE, 'call_entry', 'updated_date', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 			self::IS_OUTGOING => new DevblocksSearchField(self::IS_OUTGOING, 'call_entry', 'is_outgoing', $translate->_('call_entry.model.is_outgoing'), Model_CustomField::TYPE_CHECKBOX, true),
 			self::IS_CLOSED => new DevblocksSearchField(self::IS_CLOSED, 'call_entry', 'is_closed', $translate->_('common.is_closed'), Model_CustomField::TYPE_CHECKBOX, true),
-			
-			self::FULLTEXT_COMMENT_CONTENT => new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT', false),
 		];
-		
+
 		// Virtual fields
 		if(($virtual_columns = DevblocksSearchField::getVirtualFields()))
 			$columns = array_merge($columns, $virtual_columns);
-		
-		// Fulltext indexes
-		
-		$columns[self::FULLTEXT_COMMENT_CONTENT]->ft_schema = Search_CommentContent::ID;
-		
+
 		// Custom fields with fieldsets
 		
 		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
@@ -538,7 +526,6 @@ class View_CallEntry extends C4_AbstractView implements IAbstractView_Subtotals,
 		];
 		$this->addColumnsHidden([
 			SearchFields_CallEntry::ID,
-			SearchFields_CallEntry::FULLTEXT_COMMENT_CONTENT,
 		]);
 
 		$this->doResetCriteria();
@@ -640,12 +627,7 @@ class View_CallEntry extends C4_AbstractView implements IAbstractView_Subtotals,
 		$search_fields = SearchFields_CallEntry::getFields();
 		
 		$fields = array(
-			'comments' =>
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
-					'options' => array('param_key' => SearchFields_CallEntry::FULLTEXT_COMMENT_CONTENT),
-				),
-			'created' => 
+			'created' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_CallEntry::CREATED_DATE),
@@ -708,20 +690,7 @@ class View_CallEntry extends C4_AbstractView implements IAbstractView_Subtotals,
 		// Add searchable custom fields
 		
 		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_CALL, $fields, null);
-		
-		// Engine/schema examples: Comments
-		
-		$ft_examples = [];
-		
-		if(($schema = Extension_DevblocksSearchSchema::get(Search_CommentContent::ID))) {
-			if(($engine = $schema->getEngine())) {
-				$ft_examples = $engine->getQuickSearchExamples($schema);
-			}
-		}
-		
-		if(!empty($ft_examples))
-			$fields['comments']['examples'] = $ft_examples;
-		
+
 		// Add is_sortable
 		
 		$fields = self::_setSortableQuickSearchFields($fields, $search_fields);
@@ -810,11 +779,6 @@ class View_CallEntry extends C4_AbstractView implements IAbstractView_Subtotals,
 			case SearchFields_CallEntry::CREATED_DATE:
 			case SearchFields_CallEntry::UPDATED_DATE:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
-				break;
-				
-			case SearchFields_CallEntry::FULLTEXT_COMMENT_CONTENT:
-				$scope = DevblocksPlatform::importGPC($_POST['scope'] ?? null, 'string','expert');
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
 				
 			default:

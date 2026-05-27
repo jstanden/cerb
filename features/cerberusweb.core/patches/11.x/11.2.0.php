@@ -222,6 +222,8 @@ if(!array_key_exists('search_index_tokens', $tables)) {
 // ===========================================================================
 // Convert MySQL Fulltext indexes
 
+$search_queue_id = intval($db->GetOneMaster("SELECT id FROM queue WHERE name = 'cerb.search.index'"));
+
 // Contacts
 if(!$db->GetOneMaster(sprintf("SELECT id FROM search_index WHERE record_type = %s AND record_filter = %d", $db->qstr('contact'), $db->qstr('text')))) {
 	$sql = sprintf("INSERT INTO search_index (name, uri, record_type, record_filter, extension_id, extension_params_json, priority, created_at, updated_at) " .
@@ -378,7 +380,6 @@ $message_header_indexes = [
 ];
 
 // Reuse counts for all headers
-$search_queue_id = intval($db->GetOneMaster("SELECT id FROM queue WHERE name = 'cerb.search.index'"));
 $message_record_count = intval($db->GetOneMaster("SELECT COUNT(id) FROM message"));
 
 // Checkpoints for incremental indexing
@@ -465,6 +466,83 @@ if(array_key_exists('fulltext_message_header', $tables)) {
 
 // Clear old indexing progress
 $db->ExecuteMaster("DELETE FROM cerb_property_store WHERE extension_id = 'cerberusweb.search.schema.message_headers'");
+
+// Comments
+
+if(!$db->GetOneMaster(sprintf("SELECT id FROM search_index WHERE record_type = %s AND record_filter = %s",
+	$db->qstr('comment'),
+	$db->qstr('text'))
+)) {
+	$db->ExecuteMaster(sprintf("INSERT INTO search_index (name, uri, record_type, record_filter, extension_id, extension_params_json, priority, created_at, updated_at) " .
+		"VALUES (%s, %s, %s, %s, %s, %s, %d, %d, %d)",
+		$db->qstr('Comments'),
+		$db->qstr('comments'),
+		$db->qstr('comment'),
+		$db->qstr('text'),
+		$db->qstr('cerb.search.index.fulltext'),
+		$db->qstr(json_encode(['record_query' => '', 'content' => '{{comment|strip_data_uris()|strip_pem_blocks()|strip_url_querystrings()}}'])),
+		0,
+		time(),
+		time(),
+	));
+
+	$search_index_id = $db->LastInsertId();
+
+	$comment_record_count = intval($db->GetOneMaster("SELECT COUNT(id) FROM comment"));
+	$comment_max = $db->GetRowMaster("SELECT id, created FROM comment ORDER BY created DESC, id DESC LIMIT 1");
+
+	// Checkpoint incremental search indexing
+	$db->ExecuteMaster(sprintf("REPLACE INTO devblocks_registry (entry_key, entry_type, entry_value, entry_expires_at) VALUES (%s, 'number', %d, 0)",
+		$db->qstr(sprintf('search_index_%d.last_indexed_at', $search_index_id)),
+		intval($comment_max['created'] ?? 0),
+	));
+	$db->ExecuteMaster(sprintf("REPLACE INTO devblocks_registry (entry_key, entry_type, entry_value, entry_expires_at) VALUES (%s, 'number', %d, 0)",
+		$db->qstr(sprintf('search_index_%d.last_indexed_id', $search_index_id)),
+		intval($comment_max['id'] ?? 0),
+	));
+
+	if($search_queue_id && $comment_record_count) {
+		$db->ExecuteMaster('SET SESSION group_concat_max_len = 1048576');
+
+		$db->ExecuteMaster(sprintf("INSERT INTO queue_job (name, singleton_key, queue_id, worker_id, metadata, status_id, count_total, count_available, created_at, updated_at) " .
+			"VALUES (%s, %s, %d, 0, %s, 0 /* RUNNING */, %d, %d, %d, %d)",
+			$db->qstr('Reindex Comments'),
+			$db->qstr(sprintf('search_index:%d:reindex', $search_index_id)),
+			$search_queue_id,
+			$db->qstr(json_encode(['search_index_id' => $search_index_id, 'record_type' => 'comment'])),
+			$comment_record_count,
+			$comment_record_count,
+			time(),
+			time(),
+		));
+
+		$job_id = $db->LastInsertId();
+
+		$db->ExecuteMaster(sprintf("INSERT INTO queue_message (uuid, queue_id, job_id, status_id, status_at, message, cardinality) " .
+			"SELECT UUID_TO_BIN(UUID()) AS uuid, " .
+			"%d AS queue_id, " .
+			"%d AS job_id, " .
+			"0 /* available */ AS status_id, " .
+			"UNIX_TIMESTAMP() AS status_at, " .
+			"CONCAT('{\"index_id\":',%d,',\"ids\":[',GROUP_CONCAT(id ORDER BY id),']}') AS message, " .
+			"COUNT(id) AS cardinality " .
+			"FROM (SELECT id, CEIL(ROW_NUMBER() OVER (ORDER BY id) / 100) AS batch FROM comment) AS batched " .
+			"GROUP BY batch",
+			$search_queue_id,
+			$job_id,
+			$search_index_id,
+		));
+	}
+}
+
+// Drop the old InnoDB FT table
+if(array_key_exists('fulltext_comment_content', $tables)) {
+	$db->ExecuteMaster('DROP TABLE fulltext_comment_content');
+	unset($tables['fulltext_comment_content']);
+}
+
+// Drop the old indexing progress
+$db->ExecuteMaster("DELETE FROM cerb_property_store WHERE extension_id = 'cerberusweb.search.schema.comment_content'");
 
 // ===========================================================================
 // Convert `custom_field_stringvalue.field_value` to utf8mb4

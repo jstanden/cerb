@@ -871,59 +871,6 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 		);
 	}
 	
-	static function _getWhereSQLFromCommentFulltextField(DevblocksSearchCriteria $param, $schema, $from_context, $join_key) : string {
-		$search = Extension_DevblocksSearchSchema::get($schema);
-		$query = $search->getQueryFromParam($param);
-		
-		$attributes = [
-			'context_crc32' => sprintf("%u", crc32($from_context)),
-		];
-		
-		if(DevblocksPlatform::strStartsWith($query, '!')) {
-			$not = true;
-			$query = ltrim($query, '!');
-		} else {
-			$not = false;
-		}
-		
-		return $search->generateSql(
-			$query,
-			$attributes,
-			function($sql, $exists=false) use ($join_key, $not) {
-				if($exists) {
-					return sprintf('%sEXISTS (%s)',
-						$not ? 'NOT ' : '',
-						$sql
-					);
-					
-				} else {
-					return sprintf('%s %sIN (%s)',
-						$join_key,
-						$not ? 'NOT ' : '',
-						$sql
-					);
-				}
-			},
-			function($id_key) use ($join_key) {
-				return [
-					sprintf('%s = %s',
-						Cerb_ORMHelper::escape($id_key),
-						Cerb_ORMHelper::escape($join_key)
-					)
-				];
-			},
-			function(array $ids) use ($join_key, $from_context, $not) {
-				$from_ids = DAO_Comment::getContextIdsByContextAndIds($from_context, $ids);
-				
-				return sprintf('%s %sIN (%s)',
-					$join_key,
-					$not ? 'NOT ' : '',
-					implode(', ', (!empty($from_ids) ? $from_ids : array(-1)))
-				);
-			}
-		);
-	}
-	
 	static function _getWhereSQLFromAttachmentsField(DevblocksSearchCriteria $param, $context, $join_key) {
 		// Handle nested quick search filters first
 		if($param->operator == DevblocksSearchCriteria::OPER_CUSTOM) {

@@ -423,8 +423,6 @@ class SearchFields_MailHtmlTemplate extends DevblocksSearchFields {
 	const SIGNATURE_ID = 'm_signature_id';
 	const UPDATED_AT = 'm_updated_at';
 
-	const FULLTEXT_COMMENT_CONTENT = 'ftcc_content';
-	
 	static private $_fields = null;
 	
 	static function getTableName() : string {
@@ -447,9 +445,6 @@ class SearchFields_MailHtmlTemplate extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
-			case self::FULLTEXT_COMMENT_CONTENT:
-				return self::_getWhereSQLFromCommentFulltextField($param, Search_CommentContent::ID, CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, self::getPrimaryKey());
-				
 			default:
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
@@ -504,18 +499,12 @@ class SearchFields_MailHtmlTemplate extends DevblocksSearchFields {
 			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'mail_html_template', 'owner_context_id', null, null, true),
 			self::CONTENT => new DevblocksSearchField(self::CONTENT, 'mail_html_template', 'content', $translate->_('common.content'), Model_CustomField::TYPE_MULTI_LINE, true),
 			self::SIGNATURE_ID => new DevblocksSearchField(self::SIGNATURE_ID, 'mail_html_template', 'signature_id', $translate->_('common.signature'), Model_CustomField::TYPE_NUMBER, true),
-
-			self::FULLTEXT_COMMENT_CONTENT => new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT', false),
 		];
-		
+
 		// Virtual fields
 		if(($virtual_columns = DevblocksSearchField::getVirtualFields(watchers: false)))
 			$columns = array_merge($columns, $virtual_columns);
-		
-		// Fulltext indexes
-		
-		$columns[self::FULLTEXT_COMMENT_CONTENT]->ft_schema = Search_CommentContent::ID;
-		
+
 		// Custom Fields
 		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
 		
@@ -572,10 +561,6 @@ class View_MailHtmlTemplate extends C4_AbstractView implements IAbstractView_Sub
 			SearchFields_MailHtmlTemplate::UPDATED_AT,
 		];
 		
-		$this->addColumnsHidden([
-			SearchFields_MailHtmlTemplate::FULLTEXT_COMMENT_CONTENT,
-		]);
-
 		$this->doResetCriteria();
 	}
 	
@@ -668,12 +653,7 @@ class View_MailHtmlTemplate extends C4_AbstractView implements IAbstractView_Sub
 		$search_fields = SearchFields_MailHtmlTemplate::getFields();
 		
 		$fields = array(
-			'comments' =>
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
-					'options' => array('param_key' => SearchFields_MailHtmlTemplate::FULLTEXT_COMMENT_CONTENT),
-				),
-			'content' => 
+			'content' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_MailHtmlTemplate::CONTENT, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
@@ -719,19 +699,6 @@ class View_MailHtmlTemplate extends C4_AbstractView implements IAbstractView_Sub
 		
 		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $fields, null);
 		
-		// Engine/schema examples: Comments
-		
-		$ft_examples = [];
-		
-		if(($schema = Extension_DevblocksSearchSchema::get(Search_CommentContent::ID))) {
-			if(($engine = $schema->getEngine())) {
-				$ft_examples = $engine->getQuickSearchExamples($schema);
-			}
-		}
-		
-		if(!empty($ft_examples))
-			$fields['comments']['examples'] = $ft_examples;
-		
 		// Add is_sortable
 		
 		$fields = self::_setSortableQuickSearchFields($fields, $search_fields);
@@ -747,7 +714,7 @@ class View_MailHtmlTemplate extends C4_AbstractView implements IAbstractView_Sub
 		switch($field) {
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
-			
+
 			default:
 				if($field == 'links' || str_starts_with($field, 'links.'))
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
@@ -812,11 +779,6 @@ class View_MailHtmlTemplate extends C4_AbstractView implements IAbstractView_Sub
 				
 			case SearchFields_MailHtmlTemplate::UPDATED_AT:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
-				break;
-				
-			case SearchFields_MailHtmlTemplate::FULLTEXT_COMMENT_CONTENT:
-				$scope = DevblocksPlatform::importGPC($_POST['scope'] ?? null, 'string','expert');
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
 				
 			default:

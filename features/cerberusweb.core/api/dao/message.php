@@ -725,7 +725,6 @@ class SearchFields_Message extends DevblocksSearchFields {
 	
 	// Fulltexts
 	const MESSAGE_CONTENT = 'ftmc_content';
-	const FULLTEXT_NOTE_CONTENT = 'ftnc_content';
 	
 	// Address
 	const ADDRESS_EMAIL = 'a_email';
@@ -779,9 +778,6 @@ class SearchFields_Message extends DevblocksSearchFields {
 				
 			case self::MESSAGE_CONTENT:
 				return self::_getWhereSQLFromFulltextField($param, Search_MessageContent::ID, self::getPrimaryKey());
-				
-			case self::FULLTEXT_NOTE_CONTENT:
-				return self::_getWhereSQLFromCommentFulltextField($param, Search_CommentContent::ID, CerberusContexts::CONTEXT_MESSAGE, self::getPrimaryKey());
 				
 			case self::VIRTUAL_HEADER_MESSAGE_ID:
 				$value = $param->value;
@@ -1026,7 +1022,6 @@ class SearchFields_Message extends DevblocksSearchFields {
 			SearchFields_Message::VIRTUAL_WORKER_SEARCH => new DevblocksSearchField(SearchFields_Message::VIRTUAL_WORKER_SEARCH, '*', 'worker_search', null, null, false),
 
 			SearchFields_Message::MESSAGE_CONTENT => new DevblocksSearchField(SearchFields_Message::MESSAGE_CONTENT, 'ftmc', 'content', $translate->_('common.content'), 'FT', false),
-			SearchFields_Message::FULLTEXT_NOTE_CONTENT => new DevblocksSearchField(self::FULLTEXT_NOTE_CONTENT, 'ftnc', 'content', $translate->_('message.note.content'), 'FT', false),
 		];
 		
 		// Virtual fields
@@ -1036,7 +1031,6 @@ class SearchFields_Message extends DevblocksSearchFields {
 		// Fulltext indexes
 		
 		$columns[self::MESSAGE_CONTENT]->ft_schema = Search_MessageContent::ID;
-		$columns[self::FULLTEXT_NOTE_CONTENT]->ft_schema = Search_CommentContent::ID;
 		
 		// Custom fields with fieldsets
 		
@@ -1822,7 +1816,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 		];
 		
 		$this->addColumnsHidden([
-			SearchFields_Message::FULLTEXT_NOTE_CONTENT,
 			SearchFields_Message::HTML_ATTACHMENT_ID,
 			SearchFields_Message::MESSAGE_CONTENT,
 			SearchFields_Message::STORAGE_EXTENSION,
@@ -2448,7 +2441,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
 				break;
 				
-			case SearchFields_Message::FULLTEXT_NOTE_CONTENT:
 			case SearchFields_Message::MESSAGE_CONTENT:
 				$scope = DevblocksPlatform::importGPC($_POST['scope'] ?? null, 'string','expert');
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));

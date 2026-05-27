@@ -565,9 +565,6 @@ class SearchFields_CrmOpportunity extends DevblocksSearchFields {
 	const UPDATED_DATE = 'o_updated_date';
 	const CLOSED_DATE = 'o_closed_date';
 	const STATUS_ID = 'o_status_id';
-	
-	// Comment Content
-	const FULLTEXT_COMMENT_CONTENT = 'ftcc_content';
 
 	static private $_fields = null;
 	
@@ -591,9 +588,6 @@ class SearchFields_CrmOpportunity extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
-			case self::FULLTEXT_COMMENT_CONTENT:
-				return self::_getWhereSQLFromCommentFulltextField($param, Search_CommentContent::ID, CerberusContexts::CONTEXT_OPPORTUNITY, self::getPrimaryKey());
-				
 			default:
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
@@ -667,16 +661,11 @@ class SearchFields_CrmOpportunity extends DevblocksSearchFields {
 			self::UPDATED_DATE => new DevblocksSearchField(self::UPDATED_DATE, 'crm_opportunity', 'updated_date', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 			self::CLOSED_DATE => new DevblocksSearchField(self::CLOSED_DATE, 'crm_opportunity', 'closed_date', $translate->_('crm.opportunity.closed_date'), Model_CustomField::TYPE_DATE, true),
 			self::STATUS_ID => new DevblocksSearchField(self::STATUS_ID, 'crm_opportunity', 'status_id', $translate->_('common.status'), Model_CustomField::TYPE_NUMBER, true),
-			
-			self::FULLTEXT_COMMENT_CONTENT => new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT', false),
 		];
 		
 		// Virtual fields
 		if(($virtual_columns = DevblocksSearchField::getVirtualFields()))
 			$columns = array_merge($columns, $virtual_columns);
-		
-		// Fulltext indexes
-		$columns[self::FULLTEXT_COMMENT_CONTENT]->ft_schema = Search_CommentContent::ID;
 		
 		// Custom fields with fieldsets
 		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
@@ -748,10 +737,6 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 			SearchFields_CrmOpportunity::UPDATED_DATE,
 		];
 		
-		$this->addColumnsHidden([
-			SearchFields_CrmOpportunity::FULLTEXT_COMMENT_CONTENT,
-		]);
-
 		$this->addParamsDefault(array(
 			SearchFields_CrmOpportunity::STATUS_ID => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::STATUS_ID,'=',0),
 		));
@@ -872,12 +857,7 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_CrmOpportunity::CLOSED_DATE),
 				),
-			'comments' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
-					'options' => array('param_key' => SearchFields_CrmOpportunity::FULLTEXT_COMMENT_CONTENT),
-				),
-			'created' => 
+			'created' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_CrmOpportunity::CREATED_DATE),
@@ -945,19 +925,6 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 		// Add searchable custom fields
 		
 		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_OPPORTUNITY, $fields, null);
-		
-		// Engine/schema examples: Comments
-		
-		$ft_examples = [];
-		
-		if(false != ($schema = Extension_DevblocksSearchSchema::get(Search_CommentContent::ID))) {
-			if(false != ($engine = $schema->getEngine())) {
-				$ft_examples = $engine->getQuickSearchExamples($schema);
-			}
-		}
-		
-		if(!empty($ft_examples))
-			$fields['comments']['examples'] = $ft_examples;
 		
 		// Add is_sortable
 		
@@ -1089,11 +1056,6 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 			case SearchFields_CrmOpportunity::UPDATED_DATE:
 			case SearchFields_CrmOpportunity::CLOSED_DATE:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
-				break;
-				
-			case SearchFields_CrmOpportunity::FULLTEXT_COMMENT_CONTENT:
-				$scope = DevblocksPlatform::importGPC($_POST['scope'] ?? null, 'string','expert');
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
 				
 			default:

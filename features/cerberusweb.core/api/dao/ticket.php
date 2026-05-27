@@ -2346,7 +2346,6 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 	const REQUESTER_ADDRESS = 'ra_email';
 	
 	// Fulltexts
-	const FULLTEXT_COMMENT_CONTENT = 'ftcc_content';
 	const FULLTEXT_MESSAGE_CONTENT = 'ftmc_content';
 	
 	// Virtuals
@@ -2458,9 +2457,6 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 						);
 					}
 				);
-				
-			case self::FULLTEXT_COMMENT_CONTENT:
-				return self::_getWhereSQLFromCommentFulltextField($param, Search_CommentContent::ID, CerberusContexts::CONTEXT_TICKET, self::getPrimaryKey());
 				
 			case self::VIRTUAL_BUCKET_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_BUCKET, 'ticket.bucket_id');
@@ -2906,7 +2902,6 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 			SearchFields_Ticket::VIRTUAL_WORKER_COMMENTED => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_WORKER_COMMENTED, '*', 'worker_commented', null, null, false),
 			SearchFields_Ticket::VIRTUAL_WORKER_REPLIED => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_WORKER_REPLIED, '*', 'worker_replied', null, null, false),
 			
-			SearchFields_Ticket::FULLTEXT_COMMENT_CONTENT => new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT', false),
 			SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT => new DevblocksSearchField(self::FULLTEXT_MESSAGE_CONTENT, 'ftmc', 'content', $translate->_('message.content'), 'FT', false),
 		];
 		
@@ -2916,7 +2911,6 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 		
 		// Fulltext indexes
 		
-		$columns[self::FULLTEXT_COMMENT_CONTENT]->ft_schema = Search_CommentContent::ID;
 		$columns[self::FULLTEXT_MESSAGE_CONTENT]->ft_schema = Search_MessageContent::ID;
 		
 		// Custom fields with fieldsets
@@ -3168,7 +3162,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		];
 		
 		$this->addColumnsHidden([
-			SearchFields_Ticket::FULLTEXT_COMMENT_CONTENT,
 			SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT,
 			SearchFields_Ticket::REQUESTER_ADDRESS,
 			SearchFields_Ticket::REQUESTER_ID,
@@ -4685,7 +4678,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				}
 				break;
 				
-			case SearchFields_Ticket::FULLTEXT_COMMENT_CONTENT:
 			case SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT:
 				$scope = DevblocksPlatform::importGPC($_POST['scope'] ?? null, 'string','expert');
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));

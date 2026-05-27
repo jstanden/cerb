@@ -421,8 +421,6 @@ class SearchFields_FileBundle extends DevblocksSearchFields {
 	const OWNER_CONTEXT = 'f_owner_context';
 	const OWNER_CONTEXT_ID = 'f_owner_context_id';
 
-	const FULLTEXT_COMMENT_CONTENT = 'ftcc_content';
-	
 	const VIRTUAL_USABLE_BY = '*_usable_by';
 	
 	static private $_fields = null;
@@ -447,9 +445,6 @@ class SearchFields_FileBundle extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
-			case self::FULLTEXT_COMMENT_CONTENT:
-				return self::_getWhereSQLFromCommentFulltextField($param, Search_CommentContent::ID, CerberusContexts::CONTEXT_FILE_BUNDLE, self::getPrimaryKey());
-				
 			case DevblocksSearchField::VIRTUAL_OWNER:
 				return self::_getWhereSQLFromContextAndID($param, 'file_bundle.owner_context', 'file_bundle.owner_context_id');
 			
@@ -570,19 +565,13 @@ class SearchFields_FileBundle extends DevblocksSearchFields {
 			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'file_bundle', 'owner_context', $translate->_('common.owner_context'), null, true),
 			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'file_bundle', 'owner_context_id', $translate->_('common.owner_context_id'), null, true),
 
-			self::FULLTEXT_COMMENT_CONTENT => new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT', false),
-				
 			self::VIRTUAL_USABLE_BY => new DevblocksSearchField(self::VIRTUAL_USABLE_BY, '*', 'usable_by', null, null, false),
 		];
-		
+
 		// Virtual fields
 		if(($virtual_columns = DevblocksSearchField::getVirtualFields(owner: true)))
 			$columns = array_merge($columns, $virtual_columns);
-		
-		// Fulltext indexes
-		
-		$columns[self::FULLTEXT_COMMENT_CONTENT]->ft_schema = Search_CommentContent::ID;
-		
+
 		// Custom Fields
 		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
 
@@ -631,7 +620,6 @@ class View_FileBundle extends C4_AbstractView implements IAbstractView_Subtotals
 		$this->addColumnsHidden([
 			SearchFields_FileBundle::OWNER_CONTEXT,
 			SearchFields_FileBundle::OWNER_CONTEXT_ID,
-			SearchFields_FileBundle::FULLTEXT_COMMENT_CONTENT,
 			SearchFields_FileBundle::VIRTUAL_USABLE_BY,
 		]);
 
@@ -729,11 +717,6 @@ class View_FileBundle extends C4_AbstractView implements IAbstractView_Subtotals
 		$search_fields = SearchFields_FileBundle::getFields();
 		
 		$fields = array(
-			'comments' =>
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
-					'options' => array('param_key' => SearchFields_FileBundle::FULLTEXT_COMMENT_CONTENT),
-				),
 			'fieldset' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
@@ -794,20 +777,7 @@ class View_FileBundle extends C4_AbstractView implements IAbstractView_Subtotals
 		// Add searchable custom fields
 		
 		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_FILE_BUNDLE, $fields, null);
-		
-		// Engine/schema examples: Comments
-		
-		$ft_examples = [];
-		
-		if(false != ($schema = Extension_DevblocksSearchSchema::get(Search_CommentContent::ID))) {
-			if(false != ($engine = $schema->getEngine())) {
-				$ft_examples = $engine->getQuickSearchExamples($schema);
-			}
-		}
-		
-		if(!empty($ft_examples))
-			$fields['comments']['examples'] = $ft_examples;
-		
+
 		// Add is_sortable
 		
 		$fields = self::_setSortableQuickSearchFields($fields, $search_fields);
@@ -930,11 +900,6 @@ class View_FileBundle extends C4_AbstractView implements IAbstractView_Subtotals
 
 			case SearchFields_FileBundle::UPDATED_AT:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
-				break;
-
-			case SearchFields_FileBundle::FULLTEXT_COMMENT_CONTENT:
-				$scope = DevblocksPlatform::importGPC($_POST['scope'] ?? null, 'string','expert');
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
 
 			default:

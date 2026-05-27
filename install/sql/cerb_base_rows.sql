@@ -469,6 +469,7 @@ INSERT INTO `search_index` VALUES (3,'Automations','automations','automation','s
 INSERT INTO `search_index` VALUES (4,'Email Addresses','emails','address','text','cerb.search.index.fulltext','{\"record_query\":\"\",\"content\":\"{{address}}\\n{{contact__label}} {{contact_aliases|join(\' \')}}\\n{{org__label}} {{org_aliases|join(\' \')}}\"}',0,UNIX_TIMESTAMP(),UNIX_TIMESTAMP());
 INSERT INTO `search_index` VALUES (5,'Organizations','orgs','org','text','cerb.search.index.fulltext','{\"record_query\":\"\",\"content\":\"{{name}}\\n{{aliases|join(\' \')}}\\n{{street}} {{city}} {{province}} {{postal}} {{country}}\\n{{website}}\\n{{email_address}}\"}',0,UNIX_TIMESTAMP(),UNIX_TIMESTAMP());
 INSERT INTO `search_index` VALUES (6,'Snippets Content','snippets','snippet','text','cerb.search.index.fulltext','{\"record_query\":\"\",\"content\":\"{{title}}\\n\\n{{content}}\"}',0,UNIX_TIMESTAMP(),UNIX_TIMESTAMP());
+INSERT INTO `search_index` VALUES (7,'Comments','comments','comment','text','cerb.search.index.fulltext','{\"record_query\":\"\",\"content\":\"{{comment|strip_data_uris()|strip_pem_blocks()|strip_url_querystrings()}}\"}',0,UNIX_TIMESTAMP(),UNIX_TIMESTAMP());
 
 INSERT INTO `toolbar` VALUES (1,'global.menu','cerb.toolbar.global.menu','Global interactions from the floating icon in the lower right',UNIX_TIMESTAMP(),UNIX_TIMESTAMP());
 INSERT INTO `toolbar` VALUES (2,'mail.compose','cerb.toolbar.mail.compose','Composing new email messages',UNIX_TIMESTAMP(),UNIX_TIMESTAMP());

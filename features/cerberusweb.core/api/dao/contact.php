@@ -651,8 +651,6 @@ class SearchFields_Contact extends DevblocksSearchFields {
 	
 	const ORG_NAME = 'o_name';
 	
-	const FULLTEXT_COMMENT_CONTENT = 'ftcc_content';
-
 	const VIRTUAL_ALIAS = '*_alias';
 	const VIRTUAL_EMAIL_SEARCH = '*_email_search';
 	const VIRTUAL_ORG_SEARCH = '*_org_search';
@@ -681,9 +679,6 @@ class SearchFields_Contact extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
-			case self::FULLTEXT_COMMENT_CONTENT:
-				return self::_getWhereSQLFromCommentFulltextField($param, Search_CommentContent::ID, CerberusContexts::CONTEXT_CONTACT, self::getPrimaryKey());
-				
 			case self::VIRTUAL_ALIAS:
 				return  self::_getWhereSQLFromAliasesField($param, CerberusContexts::CONTEXT_CONTACT, self::getPrimaryKey());
 				
@@ -801,8 +796,6 @@ class SearchFields_Contact extends DevblocksSearchFields {
 			self::PRIMARY_EMAIL_ADDRESS => new DevblocksSearchField(self::PRIMARY_EMAIL_ADDRESS, 'address', 'email', $translate->_('common.email'), Model_CustomField::TYPE_SINGLE_LINE, false), // [TODO]
 			self::ORG_NAME => new DevblocksSearchField(self::ORG_NAME, 'contact_org', 'name', $translate->_('common.organization'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			
-			self::FULLTEXT_COMMENT_CONTENT => new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT', false),
-			
 			self::VIRTUAL_ALIAS => new DevblocksSearchField(self::VIRTUAL_ALIAS, '*', 'alias', $translate->_('common.aliases'), null, false),
 			self::VIRTUAL_EMAIL_SEARCH => new DevblocksSearchField(self::VIRTUAL_EMAIL_SEARCH, '*', 'email_search', null, null, false),
 			self::VIRTUAL_ORG_SEARCH => new DevblocksSearchField(self::VIRTUAL_ORG_SEARCH, '*', 'org_search', null, null, false),
@@ -811,10 +804,6 @@ class SearchFields_Contact extends DevblocksSearchFields {
 		// Virtual fields
 		if(($virtual_columns = DevblocksSearchField::getVirtualFields()))
 			$columns = array_merge($columns, $virtual_columns);
-		
-		// Fulltext indexes
-		
-		$columns[self::FULLTEXT_COMMENT_CONTENT]->ft_schema = Search_CommentContent::ID;
 		
 		// Custom Fields
 		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
@@ -989,7 +978,6 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Contact::AUTH_SALT,
 			SearchFields_Contact::AUTH_PASSWORD,
 			SearchFields_Contact::PRIMARY_EMAIL_ADDRESS,
-			SearchFields_Contact::FULLTEXT_COMMENT_CONTENT,
 			SearchFields_Contact::VIRTUAL_ALIAS,
 			SearchFields_Contact::VIRTUAL_EMAIL_SEARCH,
 			SearchFields_Contact::VIRTUAL_ORG_SEARCH,
@@ -1125,12 +1113,7 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Contact::VIRTUAL_ALIAS),
 				),
-			'comments' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
-					'options' => array('param_key' => SearchFields_Contact::FULLTEXT_COMMENT_CONTENT),
-				),
-			'created' => 
+			'created' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_Contact::CREATED_AT),
@@ -1296,7 +1279,7 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 		switch($field) {
 			case 'alias':
 				return DevblocksSearchCriteria::getContextAliasParamFromTokens(SearchFields_Contact::VIRTUAL_ALIAS, $tokens);
-			
+
 			case 'email':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Contact::VIRTUAL_EMAIL_SEARCH);
 				
@@ -1451,11 +1434,6 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 			case SearchFields_Contact::UPDATED_AT:
 			case SearchFields_Contact::LAST_LOGIN_AT:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
-				break;
-				
-			case SearchFields_Contact::FULLTEXT_COMMENT_CONTENT:
-				$scope = DevblocksPlatform::importGPC($_POST['scope'] ?? null, 'string','expert');
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
 				
 			default:

@@ -918,9 +918,6 @@ class SearchFields_Address extends DevblocksSearchFields {
 	
 	const ORG_NAME = 'o_name';
 
-	// Fulltexts
-	const FULLTEXT_COMMENT_CONTENT = 'ftcc_content';
-
 	// Virtuals
 	const VIRTUAL_CONTACT_SEARCH = '*_contact_search';
 	const VIRTUAL_ORG_SEARCH = '*_org_search';
@@ -962,9 +959,6 @@ class SearchFields_Address extends DevblocksSearchFields {
 					self::getPrimaryKey(),
 					implode(',', $ids)
 				);
-				
-			case self::FULLTEXT_COMMENT_CONTENT:
-				return self::_getWhereSQLFromCommentFulltextField($param, Search_CommentContent::ID, CerberusContexts::CONTEXT_ADDRESS, self::getPrimaryKey());
 				
 			case self::VIRTUAL_CONTACT_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_CONTACT, 'address.contact_id');
@@ -1077,8 +1071,6 @@ class SearchFields_Address extends DevblocksSearchFields {
 			self::CONTACT_ORG_ID => new DevblocksSearchField(self::CONTACT_ORG_ID, 'address', 'contact_org_id', $translate->_('common.organization') . ' ' . $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
 			self::ORG_NAME => new DevblocksSearchField(self::ORG_NAME, 'o', 'name', $translate->_('common.organization'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			
-			self::FULLTEXT_COMMENT_CONTENT => new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT', false),
-				
 			self::VIRTUAL_CONTACT_SEARCH => new DevblocksSearchField(self::VIRTUAL_CONTACT_SEARCH, '*', 'contact_search', null, null, false),
 			self::VIRTUAL_ORG_SEARCH => new DevblocksSearchField(self::VIRTUAL_ORG_SEARCH, '*', 'org_search', null, null, false),
 			self::VIRTUAL_TICKET_ID => new DevblocksSearchField(self::VIRTUAL_TICKET_ID, '*', 'ticket_id', $translate->_('common.ticket'), null, false),
@@ -1089,10 +1081,6 @@ class SearchFields_Address extends DevblocksSearchFields {
 		// Virtual fields
 		if(($virtual_columns = DevblocksSearchField::getVirtualFields()))
 			$columns = array_merge($columns, $virtual_columns);
-		
-		// Fulltext indexes
-		
-		$columns[self::FULLTEXT_COMMENT_CONTENT]->ft_schema = Search_CommentContent::ID;
 		
 		// Custom fields with fieldsets
 		
@@ -1229,7 +1217,6 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 		
 		$this->addColumnsHidden([
 			SearchFields_Address::CONTACT_ORG_ID,
-			SearchFields_Address::FULLTEXT_COMMENT_CONTENT,
 			SearchFields_Address::VIRTUAL_CONTACT_SEARCH,
 			SearchFields_Address::VIRTUAL_ORG_SEARCH,
 			SearchFields_Address::VIRTUAL_TICKET_ID,
@@ -1380,12 +1367,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 		$search_fields = SearchFields_Address::getFields();
 		
 		$fields = array(
-			'comments' =>
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
-					'options' => array('param_key' => SearchFields_Address::FULLTEXT_COMMENT_CONTENT),
-				),
-			'contact' => 
+			'contact' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Address::VIRTUAL_CONTACT_SEARCH),
@@ -1551,19 +1533,6 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 		
 		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_ADDRESS, $fields, null);
 		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_ORG, $fields, 'org');
-		
-		// Engine/schema examples: Comments
-		
-		$ft_examples = array();
-		
-		if(false != ($schema = Extension_DevblocksSearchSchema::get(Search_CommentContent::ID))) {
-			if(false != ($engine = $schema->getEngine())) {
-				$ft_examples = $engine->getQuickSearchExamples($schema);
-			}
-		}
-		
-		if(!empty($ft_examples))
-			$fields['comments']['examples'] = $ft_examples;
 		
 		// Add is_sortable
 		
@@ -1759,11 +1728,6 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 			case SearchFields_Address::CREATED_AT:
 			case SearchFields_Address::UPDATED:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
-				break;
-				
-			case SearchFields_Address::FULLTEXT_COMMENT_CONTENT:
-				$scope = DevblocksPlatform::importGPC($_POST['scope'] ?? null, 'string','expert');
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
 				
 			default:
