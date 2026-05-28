@@ -33,10 +33,14 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 	}
 	
 	private function _getRecordQueryParts(Model_SearchIndex $model) : array {
-		$record_ext = $model->getRecordTypeExtension();
+		if(!($record_ext = $model->getRecordTypeExtension()))
+			return [];
+		
 		$record_query = $model->extension_params['record_query'] ?? '';
 		
-		$view = $record_ext->getTempView();
+		if(!($view = $record_ext->getTempView()))
+			return [];
+		
 		$view->addParamsWithQuickSearch($record_query);
 		$view->setAutoPersist(false);
 		
@@ -79,8 +83,11 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 			
 			// Use the engine's record query to constrain the total docs (vs. index)
 			
-			$record_ext = $model->getRecordTypeExtension();
-			$search_class = $record_ext->getSearchClass();
+			if(!($record_ext = $model->getRecordTypeExtension()))
+				return 0;
+			
+			if(!($search_class = $record_ext->getSearchClass()))
+				return 0;
 			
 			if(!method_exists($search_class, 'getPrimaryKey'))
 				return 0;
