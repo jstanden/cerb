@@ -69,32 +69,28 @@ class UmScKbController extends Extension_UmScController {
 		switch(array_shift($stack)) {
 			case 'search':
 				$q = DevblocksPlatform::importGPC($_REQUEST['q'] ?? null, 'string','');
-				$scope = DevblocksPlatform::importGPC($_REQUEST['scope'] ?? null, 'string','all');
 
 				$tpl->assign('q', $q);
-				$tpl->assign('scope', $scope);
 
 				if(null == ($view = UmScAbstractViewLoader::getView('', UmSc_KbArticleView::DEFAULT_ID))) {
 					$view = new UmSc_KbArticleView();
 				}
-				
-				$view->name = "";
-				$params = array();
-				
-				switch($scope) {
-					default:
-					case "expert":
-						$params[SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT] = new DevblocksSearchCriteria(SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT,DevblocksSearchCriteria::OPER_FULLTEXT, array($q, 'expert'));
-						break;
-				}
 
-				$params[SearchFields_KbArticle::TOP_CATEGORY_ID] = new DevblocksSearchCriteria(SearchFields_KbArticle::TOP_CATEGORY_ID,'in',array_keys($kb_roots));
-				
+				$view->name = "";
 				$view->view_columns = $params_columns;
-				$view->addParams($params, true);
 				$view->renderPage = 0;
 				$view->renderLimit = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(),self::PARAM_KB_VIEW_NUMROWS, 10);
-				
+
+				// Only add the fulltext content filter (the view's default filter).
+				// Strip ':' so visitors can't inject other filters (e.g. `views:>10000`)
+				// to disclose articles we don't intend, even within the approved topics.
+				$view->addParamsWithQuickSearch(str_replace(':', '', $q), true);
+
+				// Lock to the topics visible in this portal
+				$view->addParamsRequired([
+					'_kb_roots' => new DevblocksSearchCriteria(SearchFields_KbArticle::TOP_CATEGORY_ID, 'in', array_keys($kb_roots)),
+				], true);
+
 				UmScAbstractViewLoader::setView($view->id, $view);
 				$tpl->assign('view', $view);
 				
@@ -336,7 +332,7 @@ class UmScKbController extends Extension_UmScController {
 	}
 };
 
-class UmSc_KbArticleView extends C4_AbstractView {
+class UmSc_KbArticleView extends C4_AbstractView implements IAbstractView_QuickSearch {
 	const DEFAULT_ID = 'sc_kb';
 	
 	function __construct() {
@@ -404,5 +400,57 @@ class UmSc_KbArticleView extends C4_AbstractView {
 
 	function getFields() {
 		return SearchFields_KbArticle::getFields();
+	}
+
+	function getQuickSearchFields() {
+		$search_fields = SearchFields_KbArticle::getFields();
+
+		$fields = array(
+			'title' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_KbArticle::TITLE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'updated' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_DATE,
+					'options' => array('param_key' => SearchFields_KbArticle::UPDATED),
+				),
+		);
+
+		// Add the article content fulltext filter only if a `content` search index
+		// exists for this record type. We add it manually (rather than
+		// _appendFieldsFromQuickSearchContext) to avoid exposing comments and
+		// custom fields in the public portal.
+		foreach(DAO_SearchIndex::getByRecordType(CerberusContexts::CONTEXT_KB_ARTICLE) as $kb_search_index) {
+			if($kb_search_index->record_filter == 'content') {
+				$fields['content'] = array(
+					'type' => DevblocksSearchCriteria::TYPE_SEARCH_INDEX,
+					'options' => array(
+						'param_key' => DevblocksSearchField::VIRTUAL_SEARCH_INDEX,
+						'index_id' => $kb_search_index->id,
+					),
+				);
+				break;
+			}
+		}
+
+		// Add is_sortable
+		$fields = self::_setSortableQuickSearchFields($fields, $search_fields);
+
+		ksort($fields);
+
+		return $fields;
+	}
+
+	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
+		// Prefer the fulltext content search index; fall back to title if it's
+		// been removed (no content index exists for this record type).
+		return array_key_exists('content', $this->getQuickSearchFields()) ? 'content' : 'title';
+	}
+
+	function getParamFromQuickSearchFieldTokens($field, $tokens) {
+		$search_fields = $this->getQuickSearchFields();
+		return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
 	}
 };

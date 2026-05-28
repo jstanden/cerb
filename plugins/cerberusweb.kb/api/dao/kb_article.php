@@ -299,11 +299,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 		
 		// Categories
 		$db->ExecuteMaster(sprintf("DELETE FROM kb_article_to_category WHERE kb_article_id IN (%s)", $ids_list));
-		
-		// Search indexes
-		$search = Extension_DevblocksSearchSchema::get(Search_KbArticle::ID, true);
-		$search->delete($ids);
-		
+
 		parent::_deleteAbstractAfter($context, $ids);
 	}
 	
@@ -524,9 +520,7 @@ class SearchFields_KbArticle extends DevblocksSearchFields {
 	
 	const CATEGORY_ID = 'katc_category_id';
 	const TOP_CATEGORY_ID = 'katc_top_category_id';
-	
-	const FULLTEXT_ARTICLE_CONTENT = 'ftkb_content';
-	
+
 	static private $_fields = null;
 	
 	static function getTableName() : string {
@@ -608,10 +602,7 @@ class SearchFields_KbArticle extends DevblocksSearchFields {
 						break;
 				}
 				return 0;
-				
-			case self::FULLTEXT_ARTICLE_CONTENT:
-				return self::_getWhereSQLFromFulltextField($param, Search_KbArticle::ID, self::getPrimaryKey());
-				
+
 			default:
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
@@ -689,17 +680,11 @@ class SearchFields_KbArticle extends DevblocksSearchFields {
 			
 			self::CATEGORY_ID => new DevblocksSearchField(self::CATEGORY_ID, 'katc', 'kb_category_id', DevblocksPlatform::translateCapitalized('common.category'), Model_CustomField::TYPE_NUMBER, true),
 			self::TOP_CATEGORY_ID => new DevblocksSearchField(self::TOP_CATEGORY_ID, 'katc', 'kb_top_category_id', $translate->_('kb_article.topic'), null, true),
-			
-			self::FULLTEXT_ARTICLE_CONTENT => new DevblocksSearchField(self::FULLTEXT_ARTICLE_CONTENT, 'ftkb', 'content', $translate->_('kb_article.content'), 'FT', false),
 		];
-		
+
 		// Virtual fields
 		if(($virtual_columns = DevblocksSearchField::getVirtualFields()))
 			$columns = array_merge($columns, $virtual_columns);
-		
-		// Fulltext indexes
-		
-		$columns[self::FULLTEXT_ARTICLE_CONTENT]->ft_schema = Search_KbArticle::ID;
 
 		// Custom fields with fieldsets
 		
@@ -712,127 +697,6 @@ class SearchFields_KbArticle extends DevblocksSearchFields {
 		DevblocksPlatform::sortObjects($columns, 'db_label');
 
 		return $columns;
-	}
-};
-
-class Search_KbArticle extends Extension_DevblocksSearchSchema {
-	const ID = 'cerberusweb.search.schema.kb_article';
-	
-	public function getNamespace() {
-		return 'kb_article';
-	}
-	
-	public function getAttributes() {
-		return [];
-	}
-	
-	public function getIdField() {
-		return 'id';
-	}
-	
-	public function getDataField() {
-		return 'content';
-	}
-	
-	public function getPrimaryKey() {
-		return 'id';
-	}
-	
-	public function reindex() {
-		$engine = $this->getEngine();
-		$meta = $engine->getIndexMeta($this);
-		
-		// If the index has a delta, start from the current record
-		if($meta['is_indexed_externally']) {
-			// Do nothing (let the remote tool update the DB)
-			
-		// Otherwise, start over
-		} else {
-			$this->setIndexPointer(self::INDEX_POINTER_RESET);
-		}
-	}
-
-	public function setIndexPointer($pointer) {
-		switch($pointer) {
-			case self::INDEX_POINTER_RESET:
-				$this->setParam('last_indexed_id', 0);
-				$this->setParam('last_indexed_time', 0);
-				break;
-				
-			case self::INDEX_POINTER_CURRENT:
-				$this->setParam('last_indexed_id', 0);
-				$this->setParam('last_indexed_time', time());
-				break;
-		}
-	}
-	
-	public function index($stop_time=null) {
-		$logger = DevblocksPlatform::services()->log();
-		
-		if(false == ($engine = $this->getEngine()))
-			return false;
-		
-		$ns = self::getNamespace();
-		$id = $this->getParam('last_indexed_id', 0);
-		$ptr_time = $this->getParam('last_indexed_time', 0);
-		$ptr_id = $id;
-		$done = false;
-
-		while(!$done && time() < $stop_time) {
-			$where = sprintf('(%1$s = %2$d AND %3$s > %4$d) OR (%1$s > %2$d)',
-				DAO_KbArticle::UPDATED,
-				$ptr_time,
-				DAO_KbArticle::ID,
-				$id
-			);
-			$articles = DAO_KbArticle::getWhere($where, array(DAO_KbArticle::UPDATED, DAO_KbArticle::ID), array(true, true), 100);
-
-			if(empty($articles)) {
-				$done = true;
-				continue;
-			}
-			
-			$last_time = $ptr_time;
-			
-			foreach($articles as $article) { /* @var $article Model_KbArticle */
-				$id = $article->id;
-				$ptr_time = $article->updated;
-
-				// If we're not inside a block of the same timestamp, reset the seek pointer
-				$ptr_id = ($last_time == $ptr_time) ? $id : 0;
-
-				$logger->info(sprintf("[Search] Indexing %s %d...",
-					$ns,
-					$id
-				));
-				
-				$doc = array(
-					'content' => implode("\n", array(
-						$article->title,
-						strip_tags($article->getContent())
-					)),
-				);
-				
-				if(false === ($engine->index($this, $id, $doc)))
-					return false;
-			}
-		}
-		
-		// If we ran out of articles, always reset the ID and use the current time
-		if($done) {
-			$ptr_id = 0;
-			$ptr_time = time();
-		}
-		
-		$this->setParam('last_indexed_id', $ptr_id);
-		$this->setParam('last_indexed_time', $ptr_time);
-	}
-	
-	public function delete($ids) {
-		if(false == ($engine = $this->getEngine()))
-			return false;
-		
-		return $engine->delete($this, $ids);
 	}
 };
 
@@ -1410,7 +1274,6 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 		$this->addColumnsHidden([
 			SearchFields_KbArticle::CATEGORY_ID,
 			SearchFields_KbArticle::CONTENT,
-			SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT,
 			SearchFields_KbArticle::TOP_CATEGORY_ID,
 		]);
 
@@ -1671,30 +1534,20 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 	}
 	
 	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
-		return 'text';
+		return 'content';
 	}
 	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_KbArticle::getFields();
 		
 		$fields = array(
-			'text' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
-					'options' => array('param_key' => SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT),
-				),
-			'category.id' => 
+			'category.id' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_KbArticle::CATEGORY_ID),
 					'examples' => [
 						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_KB_CATEGORY, 'q' => ''],
 					]
-				),
-			'content' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
-					'options' => array('param_key' => SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT),
 				),
 			'fieldset' =>
 				array(
@@ -1749,22 +1602,7 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 		// Add searchable custom fields
 		
 		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_KB_ARTICLE, $fields, null);
-		
-		// Engine/schema examples: Fulltext
-		
-		$ft_examples = [];
-		
-		if(false != ($schema = Extension_DevblocksSearchSchema::get(Search_KbArticle::ID))) {
-			if(false != ($engine = $schema->getEngine())) {
-				$ft_examples = $engine->getQuickSearchExamples($schema);
-			}
-		}
-		
-		if(!empty($ft_examples)) {
-			$fields['text']['examples'] = $ft_examples;
-			$fields['content']['examples'] = $ft_examples;
-		}
-		
+
 		// Add is_sortable
 		
 		$fields = self::_setSortableQuickSearchFields($fields, $search_fields);
@@ -1867,12 +1705,7 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array', []);
 				$criteria = new DevblocksSearchCriteria($field, $oper, $options);
 				break;
-				
-			case SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT:
-				$scope = DevblocksPlatform::importGPC($_POST['scope'] ?? null, 'string','expert');
-				$criteria = new DevblocksSearchCriteria($field, $oper, array($value,$scope));
-				break;
-				
+
 			default:
 				// Custom Fields
 				if(str_starts_with($field, 'cf_')) {

@@ -128,7 +128,7 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 		} else {
 			$tokens = array(
 				'category_id' => SearchFields_KbArticle::CATEGORY_ID,
-				'content' => SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT,
+				'content' => SearchFields_KbArticle::CONTENT,
 				'id' => SearchFields_KbArticle::ID,
 				'format' => SearchFields_KbArticle::FORMAT,
 				'title' => SearchFields_KbArticle::TITLE,

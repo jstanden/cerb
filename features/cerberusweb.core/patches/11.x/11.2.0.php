@@ -545,6 +545,86 @@ if(array_key_exists('fulltext_comment_content', $tables)) {
 $db->ExecuteMaster("DELETE FROM cerb_property_store WHERE extension_id = 'cerberusweb.search.schema.comment_content'");
 
 // ===========================================================================
+// Knowledgebase Articles (cerberusweb.kb plugin)
+
+if(DevblocksPlatform::isPluginEnabled('cerberusweb.kb')) {
+	if(!$db->GetOneMaster(sprintf("SELECT id FROM search_index WHERE record_type = %s AND record_filter = %s",
+		$db->qstr('kb_article'),
+		$db->qstr('content'))
+	)) {
+		$db->ExecuteMaster(sprintf("INSERT INTO search_index (name, uri, record_type, record_filter, extension_id, extension_params_json, priority, created_at, updated_at) " .
+			"VALUES (%s, %s, %s, %s, %s, %s, %d, %d, %d)",
+			$db->qstr('Knowledgebase Articles'),
+			$db->qstr('kb.articles'),
+			$db->qstr('kb_article'),                       // record_type = context alias
+			$db->qstr('content'),                          // record_filter (auto-injects `content:`)
+			$db->qstr('cerb.search.index.fulltext'),
+			$db->qstr(json_encode(['record_query' => '', 'content' => "{{title}}\n\n{{content|striptags}}"])),
+			0,
+			time(),
+			time(),
+		));
+
+		$search_index_id = $db->LastInsertId();
+
+		$kb_record_count = intval($db->GetOneMaster("SELECT COUNT(id) FROM kb_article"));
+		$kb_max = $db->GetRowMaster("SELECT id, updated FROM kb_article ORDER BY updated DESC, id DESC LIMIT 1");
+
+		// Checkpoint incremental search indexing
+		$db->ExecuteMaster(sprintf("REPLACE INTO devblocks_registry (entry_key, entry_type, entry_value, entry_expires_at) VALUES (%s, 'number', %d, 0)",
+			$db->qstr(sprintf('search_index_%d.last_indexed_at', $search_index_id)),
+			intval($kb_max['updated'] ?? 0),
+		));
+		$db->ExecuteMaster(sprintf("REPLACE INTO devblocks_registry (entry_key, entry_type, entry_value, entry_expires_at) VALUES (%s, 'number', %d, 0)",
+			$db->qstr(sprintf('search_index_%d.last_indexed_id', $search_index_id)),
+			intval($kb_max['id'] ?? 0),
+		));
+
+		if($search_queue_id && $kb_record_count) {
+			$db->ExecuteMaster('SET SESSION group_concat_max_len = 1048576');
+
+			$db->ExecuteMaster(sprintf("INSERT INTO queue_job (name, singleton_key, queue_id, worker_id, metadata, status_id, count_total, count_available, created_at, updated_at) " .
+				"VALUES (%s, %s, %d, 0, %s, 0 /* RUNNING */, %d, %d, %d, %d)",
+				$db->qstr('Reindex Knowledgebase Articles'),
+				$db->qstr(sprintf('search_index:%d:reindex', $search_index_id)),
+				$search_queue_id,
+				$db->qstr(json_encode(['search_index_id' => $search_index_id, 'record_type' => 'kb_article'])),
+				$kb_record_count,
+				$kb_record_count,
+				time(),
+				time(),
+			));
+
+			$job_id = $db->LastInsertId();
+
+			$db->ExecuteMaster(sprintf("INSERT INTO queue_message (uuid, queue_id, job_id, status_id, status_at, message, cardinality) " .
+				"SELECT UUID_TO_BIN(UUID()) AS uuid, " .
+				"%d AS queue_id, " .
+				"%d AS job_id, " .
+				"0 /* available */ AS status_id, " .
+				"UNIX_TIMESTAMP() AS status_at, " .
+				"CONCAT('{\"index_id\":',%d,',\"ids\":[',GROUP_CONCAT(id ORDER BY id),']}') AS message, " .
+				"COUNT(id) AS cardinality " .
+				"FROM (SELECT id, CEIL(ROW_NUMBER() OVER (ORDER BY id) / 100) AS batch FROM kb_article) AS batched " .
+				"GROUP BY batch",
+				$search_queue_id,
+				$job_id,
+				$search_index_id,
+			));
+		}
+	}
+}
+
+// Drop the old InnoDB FT table (always, regardless of plugin enabled state)
+if(array_key_exists('fulltext_kb_article', $tables)) {
+	$db->ExecuteMaster('DROP TABLE fulltext_kb_article');
+	unset($tables['fulltext_kb_article']);
+}
+
+// Drop the old indexing progress
+$db->ExecuteMaster("DELETE FROM cerb_property_store WHERE extension_id = 'cerberusweb.search.schema.kb_article'");
+
+// ===========================================================================
 // Convert `custom_field_stringvalue.field_value` to utf8mb4
 
 if(!array_key_exists('custom_field_stringvalue', $tables))
