@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
 	<id>cerberusweb.support_center</id>
-	<name>Support Center (Legacy)</name>
+	<name>Support Center</name>
 	<description>Adds a Support Center community portal for public-facing support.</description>
 	<author>Webgroup Media, LLC.</author>
 	<version>11.2.0</version>
-	<link>http://wiki.cerbweb.com/Support_Center</link>
+	<link>https://cerb.ai/docs/plugins/cerberusweb.support_center/</link>
 	<image>plugin.png</image>
 
 	<!-- Requirements -->

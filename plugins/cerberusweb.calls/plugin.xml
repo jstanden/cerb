@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
 	<id>cerberusweb.calls</id>
-	<name>Call Logging (DEPRECATED)</name>
+	<name>Call Logging</name>
 	<description>This plugin adds a new Call record type for logging incoming and outgoing phone activity. In modern versions of Cerb, use custom records instead.</description>
 	<author>Webgroup Media, LLC.</author>
 	<version>11.2.0</version>
-	<link>http://www.cerbweb.com/book/latest/plugins/cerberusweb.calls.html</link>
+	<link>https://cerb.ai/docs/plugins/cerberusweb.calls/</link>
 	<image>plugin.png</image>
 	
 	<!-- Requirements -->

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
 	<id>wgm.jira</id>
-	<name>JIRA Integration (DEPRECATED)</name>
+	<name>JIRA Integration</name>
 	<description>This plugin provides integration with Atlassian JIRA via their REST API.  It is intended to be a bridge used by other plugins to communicate with JIRA services. In modern versions of Cerb, use custom records instead.</description>
 	<author>Webgroup Media, LLC.</author>
 	<version>11.2.0</version>
-	<link>http://www.cerbweb.com/book/latest/plugins/wgm.jira</link>
+	<link>https://cerb.ai/docs/plugins/wgm.jira/</link>
 	<image>plugin.png</image>
 
 	<!-- Requirements -->

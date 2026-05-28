@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
     <id>cerb.behaviors.legacy</id>
-    <name>Legacy Bot Behaviors (DEPRECATED)</name>
+    <name>Bot Behaviors</name>
     <description>The legacy bot behaviors have been replaced by automations. They will be removed in a future version.</description>
     <author>Webgroup Media, LLC.</author>
     <version>11.2.0</version>
-    <link>https://cerb.ai</link>
+    <link>https://cerb.ai/docs/plugins/cerb.behaviors.legacy/</link>
     <image>plugin.png</image>
 
     <!-- Requirements -->

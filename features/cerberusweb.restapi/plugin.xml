@@ -5,7 +5,7 @@
 	<description>A RESTful JSON/XML interface for integrating Cerb with other applications and tools.</description>
 	<author>Webgroup Media, LLC.</author>
 	<version>11.2.0</version>
-	<link>http://wiki.cerbweb.com/Features:Web_Services_API</link>
+	<link>https://cerb.ai/docs/plugins/cerberusweb.restapi/</link>
 	<image>plugin.png</image>
 
 	<!-- Requirements -->

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
 	<id>cerberusweb.datacenter.servers</id>
-	<name>Servers (DEPRECATED)</name>
+	<name>Servers</name>
 	<description>This plugin adds Server objects that can be used to manage datacenter assets. In modern versions of Cerb, use custom records instead.</description>
 	<author>Webgroup Media, LLC.</author>
 	<version>11.2.0</version>
-	<link>http://www.cerbweb.com/book/latest/plugins/cerberusweb.datacenter.servers.html</link>
+	<link>https://cerb.ai/docs/plugins/cerberusweb.datacenter.servers/</link>
 	<image>plugin.png</image>
 
 	<!-- Requirements -->

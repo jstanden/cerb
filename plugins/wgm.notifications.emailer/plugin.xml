@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
 	<id>wgm.notifications.emailer</id>
-	<name>Notifications Emailer (DEPRECATED)</name>
+	<name>Notifications Emailer</name>
 	<description>This plugin automatically sends an email to workers if they have received new notifications.  It sends digests, so if you receive 100 new assignments you'll only receive a single email about them. In modern versions of Cerb, use automations instead.</description>
 	<author>Webgroup Media, LLC.</author>
 	<version>11.2.0</version>
-	<link>http://www.cerbweb.com/book/latest/plugins/wgm.notifications.emailer.html</link>
+	<link>https://cerb.ai/docs/plugins/wgm.notifications.emailer/</link>
 	<image>plugin.png</image>
 
 	<!-- Requirements -->

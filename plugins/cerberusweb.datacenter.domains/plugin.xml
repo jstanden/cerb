@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
 	<id>cerberusweb.datacenter.domains</id>
-	<name>Domains (DEPRECATED)</name>
+	<name>Domains</name>
 	<description>This plugin adds Domain objects for managing webhosting/SaaS/On-Demand infrastructure. In modern versions of Cerb, use custom records instead.</description>
 	<author>Webgroup Media, LLC.</author>
 	<version>11.2.0</version>
-	<link>http://www.cerbweb.com/book/latest/plugins/cerberusweb.datacenter.domains.html</link>
+	<link>https://cerb.ai/docs/plugins/cerberusweb.datacenter.domains/</link>
 	<image>plugin.png</image>
 
 	<!-- Requirements -->

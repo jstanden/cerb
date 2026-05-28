@@ -5,9 +5,9 @@
 	<description>This plugin adds new records for Feeds and Feed Items.  These can be used to share monitoring duties on RSS/Atom feeds: moderate blog comments, audit wiki changes, read new forum posts, track vendor announcements, etc.</description>
 	<author>Webgroup Media, LLC.</author>
 	<version>11.2.0</version>
-	<link>http://www.cerbweb.com/book/latest/plugins/cerberusweb.feed_reader.git</link>
+	<link>https://cerb.ai/docs/plugins/cerberusweb.feed_reader/</link>
 	<image>plugin.png</image>
-	
+
 	<!-- Requirements -->
 
 	<requires>

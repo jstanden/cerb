@@ -5,9 +5,9 @@
 	<description>Authenticate worker and customer logins via LDAP.</description>
 	<author>Webgroup Media, LLC.</author>
 	<version>11.2.0</version>
-	<link>http://www.cerbweb.com/book/latest/plugins/wgm.ldap.html</link>
+	<link>https://cerb.ai/docs/plugins/wgm.ldap/</link>
 	<image>plugin.png</image>
- 
+
  	<!-- Requirements -->
 
 	<requires>
