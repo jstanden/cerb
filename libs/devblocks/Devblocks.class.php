@@ -2980,11 +2980,6 @@ class DevblocksPlatform extends DevblocksEngine {
 				'class' => 'Extension_DevblocksSearchEngine',
 				'examples' => [],
 			],
-			'devblocks.search.schema' => [
-				'label' => 'Search Schema',
-				'class' => 'Extension_DevblocksSearchSchema',
-				'examples' => [],
-			],
 			'devblocks.storage.engine' => [
 				'label' => 'Storage Engine',
 				'class' => 'Extension_DevblocksStorageEngine',

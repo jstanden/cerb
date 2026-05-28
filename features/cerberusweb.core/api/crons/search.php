@@ -11,28 +11,10 @@ class SearchCron extends CerberusCronPageExtension {
 		// Run custom search indexes
 		$this->_processSearchIndexes($stop_time);
 
-		// Run search schema extensions
-		if($stop_time > time())
-			$this->_processSearchSchemas($stop_time);
-		
 		$logger->info("[Search] Total Runtime: ".number_format((microtime(true)-$runtime)*1000,2)." ms");
 	}
 	
 	function configure($instance) {
-	}
-	
-	private function _processSearchSchemas(int $stop_time) : void {
-		// Loop through search schemas and batch index by ID or timestamp
-		$schemas = DevblocksPlatform::getExtensions('devblocks.search.schema', true);
-
-		shuffle($schemas);
-		
-		foreach($schemas as $schema) {
-			if($stop_time > time()) {
-				if($schema instanceof Extension_DevblocksSearchSchema)
-					$schema->index($stop_time);
-			}
-		}
 	}
 	
 	private function _processSearchIndexes(int $stop_time) : void {

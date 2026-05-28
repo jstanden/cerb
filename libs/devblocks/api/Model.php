@@ -3249,7 +3249,6 @@ class DevblocksSearchField {
 	public $db_label;
 	public $type;
 	public $is_sortable = false;
-	public $ft_schema = null;
 	
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
