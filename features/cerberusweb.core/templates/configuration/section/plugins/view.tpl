@@ -77,7 +77,7 @@
 			<td colspan="{$smarty.foreach.headers.total}"></td>
 			<td data-column="*_enabled_toggle" rowspan="4" align="center" valign="middle">
 				<label class="cerb-toggle-switch" title="{if !$meets_requirements}{'config.plugins.toggle.requirements'|devblocks_translate}{else}{'common.enabled'|devblocks_translate|capitalize}{/if}">
-					<input type="checkbox" data-cerb-plugin-toggle data-plugin-id="{$result.c_id}" {if $result.c_enabled}checked="checked"{/if} {if !$meets_requirements}disabled="disabled"{/if}>
+					<input type="checkbox" data-cerb-plugin-toggle data-plugin-id="{$result.c_id}" {if $result.c_enabled}checked="checked"{/if} {if !$meets_requirements && !$result.c_enabled}disabled="disabled"{/if}>
 					<span class="cerb-toggle-slider"></span>
 				</label>
 			</td>
@@ -138,7 +138,7 @@
 				{if !$meets_requirements && !empty($plugin)}
 					{$errors = $plugin->getRequirementsErrors()}
 					{if !empty($errors)}
-					<div style="padding:5px;color:var(--cerb-color-error-text);">
+					<div style="padding:5px;">
 						<b>{'config.plugins.requirements_missing'|devblocks_translate}</b>
 						<ul style="margin:0;">
 						{foreach from=$errors item=error name=errors}
