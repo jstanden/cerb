@@ -2825,11 +2825,6 @@ class DevblocksPlatform extends DevblocksEngine {
 				'examples' => [],
 				'extensible' => true,
 			],
-			'cerberusweb.plugin.setup' => [
-				'label' => 'Plugin Setup',
-				'class' => 'Extension_PluginSetup',
-				'examples' => [],
-			],
 			'cerb.card.widget' => [
 				'label' => 'Card Widget',
 				'class' => 'Extension_CardWidget',
