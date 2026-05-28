@@ -380,7 +380,6 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		} else {
 			$tokens = array(
 				'bucket_id' => SearchFields_Ticket::TICKET_BUCKET_ID,
-				'content' => SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT,
 				'created' => SearchFields_Ticket::TICKET_CREATED_DATE,
 				'first_wrote' => SearchFields_Ticket::TICKET_FIRST_WROTE_ID,
 				'group' => SearchFields_Ticket::TICKET_GROUP_ID,

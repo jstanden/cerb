@@ -2164,18 +2164,6 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	 * @throws Exception_DevblocksDatabaseQueryTimeout
 	 */
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$fulltext_params = [];
-		
-		foreach($params as $param_key => $param) {
-			if(!($param instanceof DevblocksSearchCriteria))
-				continue;
-			
-			if($param->field == SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT) {
-				$fulltext_params[$param_key] = $param;
-				unset($params[$param_key]);
-			}
-		}
-		
 		// Build search queries
 		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);
 		
@@ -2183,13 +2171,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		$join_sql = $query_parts['join'];
 		$where_sql = $query_parts['where'];
 		$sort_sql = $query_parts['sort'];
-		
-		if(!empty($fulltext_params)) {
-			foreach($fulltext_params as $param) {
-				$where_sql .= 'AND ' . SearchFields_Ticket::getWhereSQL($param) . ' ';
-			}
-		}
-		
+
 		$results = self::_searchWithTimeout(
 			SearchFields_Ticket::TICKET_ID,
 			$select_sql,
@@ -2344,10 +2326,7 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 	// Requester
 	const REQUESTER_ID = 'r_id';
 	const REQUESTER_ADDRESS = 'ra_email';
-	
-	// Fulltexts
-	const FULLTEXT_MESSAGE_CONTENT = 'ftmc_content';
-	
+
 	// Virtuals
 	const VIRTUAL_BUCKET_SEARCH = '*_bucket_search';
 	const VIRTUAL_COMMENTS_SEARCH = '*_comments_search';
@@ -2407,57 +2386,6 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 					$level
 				);
 			
-			case self::FULLTEXT_MESSAGE_CONTENT:
-				if(!($search = Extension_DevblocksSearchSchema::get(Search_MessageContent::ID)))
-					return null;
-				
-				$query = $search->getQueryFromParam($param);
-				$join_key = self::getPrimaryKey();
-				
-				if(DevblocksPlatform::strStartsWith($query, '!')) {
-					$not = true;
-					$query = ltrim($query, '!');
-				} else {
-					$not = false;
-				}
-				
-				return $search->generateSql(
-					$query,
-					[],
-					function($sql, $exists=false) use ($join_key, $not) {
-						if($exists) {
-							return sprintf('%sEXISTS (SELECT message.ticket_id FROM message WHERE ticket_id=%s AND EXISTS (%s))',
-								$not ? 'NOT ' : '',
-								$join_key,
-								$sql
-							);
-							
-						} else {
-							return sprintf('%s %sIN (SELECT message.ticket_id FROM message WHERE ticket_id=%s AND id IN (%s))',
-								$join_key,
-								$not ? 'NOT ' : '',
-								$join_key,
-								$sql
-							);
-						}
-					},
-					function($id_key) use ($join_key) {
-						return [
-							sprintf('%s = message.id',
-								Cerb_ORMHelper::escape($id_key)
-							)
-						];
-					},
-					function(array $ids) use ($join_key, $not) {
-						return sprintf('%s %sIN (SELECT ticket_id FROM message WHERE ticket_id=%s AND id IN (%s))',
-							$join_key,
-							$not ? 'NOT ' : '',
-							$join_key,
-							implode(', ', $ids)
-						);
-					}
-				);
-				
 			case self::VIRTUAL_BUCKET_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_BUCKET, 'ticket.bucket_id');
 				
@@ -2901,18 +2829,12 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 			SearchFields_Ticket::VIRTUAL_WATCHERS_COUNT => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_WATCHERS_COUNT, '*', 'workers_count', null, null, false),
 			SearchFields_Ticket::VIRTUAL_WORKER_COMMENTED => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_WORKER_COMMENTED, '*', 'worker_commented', null, null, false),
 			SearchFields_Ticket::VIRTUAL_WORKER_REPLIED => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_WORKER_REPLIED, '*', 'worker_replied', null, null, false),
-			
-			SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT => new DevblocksSearchField(self::FULLTEXT_MESSAGE_CONTENT, 'ftmc', 'content', $translate->_('message.content'), 'FT', false),
 		];
 		
 		// Virtual fields
 		if(($virtual_columns = DevblocksSearchField::getVirtualFields()))
 			$columns = array_merge($columns, $virtual_columns);
-		
-		// Fulltext indexes
-		
-		$columns[self::FULLTEXT_MESSAGE_CONTENT]->ft_schema = Search_MessageContent::ID;
-		
+
 		// Custom fields with fieldsets
 		
 		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
@@ -3162,7 +3084,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		];
 		
 		$this->addColumnsHidden([
-			SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT,
 			SearchFields_Ticket::REQUESTER_ADDRESS,
 			SearchFields_Ticket::REQUESTER_ID,
 			SearchFields_Ticket::TICKET_INTERESTING_WORDS,
@@ -3599,18 +3520,13 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			}
 		}
 		
-		return 'text';
+		return 'messages';
 	}
 	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_Ticket::getFields();
 		
 		$fields = array(
-			'text' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
-					'options' => array('param_key' => SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT),
-				),
 			'bucket' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
@@ -3962,21 +3878,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		
 		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_TICKET, $fields, null);
 		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_ORG, $fields, 'org');
-		
-		// Engine/schema examples: Fulltext
-		
-		$ft_examples = [];
-		
-		if(false != ($schema = Extension_DevblocksSearchSchema::get(Search_MessageContent::ID))) {
-			if(false != ($engine = $schema->getEngine())) {
-				$ft_examples = $engine->getQuickSearchExamples($schema);
-			}
-		}
-		
-		if(!empty($ft_examples)) {
-			$fields['text']['examples'] = $ft_examples;
-		}
-		
+
 		// Add is_sortable
 		
 		$fields = self::_setSortableQuickSearchFields($fields, $search_fields);
@@ -4676,11 +4578,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				} else { // clear if no buckets provided
 					$this->removeParam(SearchFields_Ticket::TICKET_BUCKET_ID);
 				}
-				break;
-				
-			case SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT:
-				$scope = DevblocksPlatform::importGPC($_POST['scope'] ?? null, 'string','expert');
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
 				
 			case SearchFields_Ticket::TICKET_OWNER_ID:

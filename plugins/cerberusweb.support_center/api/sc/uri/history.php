@@ -437,7 +437,6 @@ class UmSc_TicketHistoryView extends C4_AbstractView implements IAbstractView_Qu
 
 		foreach(array_keys($fields) as $key) {
 			switch($key) {
-				case SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT:
 				case SearchFields_Ticket::REQUESTER_ID:
 				case SearchFields_Ticket::TICKET_MASK:
 				case SearchFields_Ticket::TICKET_SUBJECT:
@@ -517,12 +516,7 @@ class UmSc_TicketHistoryView extends C4_AbstractView implements IAbstractView_Qu
 				}
 				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
 				break;
-				
-			case SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT:
-				$scope = DevblocksPlatform::importGPC($_POST['scope'] ?? null, 'string','expert');
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
-				break;
-				
+
 			case SearchFields_Ticket::VIRTUAL_STATUS:
 				$statuses = DevblocksPlatform::importGPC($_POST['value'] ?? null, 'array', []);
 				$criteria = new DevblocksSearchCriteria($field, $oper, $statuses);
@@ -576,18 +570,13 @@ class UmSc_TicketHistoryView extends C4_AbstractView implements IAbstractView_Qu
 	}
 	
 	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
-		return 'text';
+		return 'messages';
 	}
 	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_Ticket::getFields();
 		
 		$fields = array(
-			'text' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
-					'options' => array('param_key' => SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT),
-				),
 			'created' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
@@ -600,6 +589,14 @@ class UmSc_TicketHistoryView extends C4_AbstractView implements IAbstractView_Qu
 					'examples' => array(
 						'ABC',
 						'("XYZ-12345-678")',
+					),
+				),
+			'messages' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => [],
+					'examples' => array(
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_MESSAGE],
 					),
 				),
 			'participant' =>
@@ -637,21 +634,7 @@ class UmSc_TicketHistoryView extends C4_AbstractView implements IAbstractView_Qu
 					'options' => array('param_key' => SearchFields_Ticket::TICKET_UPDATED_DATE),
 				),
 		);
-		
-		// Engine/schema examples: Fulltext
-		
-		$ft_examples = [];
-		
-		if(false != ($schema = Extension_DevblocksSearchSchema::get(Search_MessageContent::ID))) {
-			if(false != ($engine = $schema->getEngine())) {
-				$ft_examples = $engine->getQuickSearchExamples($schema);
-			}
-		}
-		
-		if(!empty($ft_examples)) {
-			$fields['text']['examples'] = $ft_examples;
-		}
-		
+
 		// Add is_sortable
 		
 		$fields = self::_setSortableQuickSearchFields($fields, $search_fields);
@@ -665,9 +648,11 @@ class UmSc_TicketHistoryView extends C4_AbstractView implements IAbstractView_Qu
 	
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
+			case 'messages':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Ticket::VIRTUAL_MESSAGES_SEARCH);
+
 			case 'participant':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Ticket::VIRTUAL_PARTICIPANT_SEARCH);
-				break;
 				
 			case 'status':
 				$field_key = SearchFields_Ticket::VIRTUAL_STATUS;
@@ -701,7 +686,6 @@ class UmSc_TicketHistoryView extends C4_AbstractView implements IAbstractView_Qu
 					$oper,
 					array_keys($values)
 				);
-				break;
 			
 			default:
 				break;
