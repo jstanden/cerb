@@ -15,7 +15,13 @@ use Model_SearchIndex;
 
 class SearchIndex_Fulltext extends Extension_SearchIndex {
 	const ID = 'cerb.search.index.fulltext';
-	
+
+	// Only write token hashes once per batch (keep track of 'seen')
+	private static array $_indexed_token_hashes = [];
+
+	// Cap the seen set to conserve memory
+	const int MAX_INDEXED_TOKEN_HASHES = 250_000;
+
 	function renderConfig(Model_SearchIndex $model) : void {
 		$tpl = DevblocksPlatform::services()->template();
 		
@@ -480,17 +486,112 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		$insert_values = [];
 	}
 
-	private function _flushTokenBuffer(array &$insert_values) : void {
-		if(!$insert_values) return;
+	// Only buffer each seen token_hash once this batch
+	private function _rememberTokenHashes(array $token_hashes) : void {
+		if(count(self::$_indexed_token_hashes) >= self::MAX_INDEXED_TOKEN_HASHES)
+			self::$_indexed_token_hashes = [];
 		
+		foreach($token_hashes as $token_hash) {
+			self::$_indexed_token_hashes[$token_hash] = true;
+		}
+	}
+
+	// Write with a bounded retry on deadlock (1213) / lock-wait timeout
+	// (1205). ExecuteMaster returns false (and logs) on error rather than
+	// throwing, so we inspect the connection's errno to decide whether to retry.
+	// Safe under autocommit: each statement is its own transaction, so a 1213
+	// rolls back only that statement, and the retry re-runs just it.
+	private function _executeWithDeadlockRetry(string $sql, int $max_attempts=3) : bool {
 		$db = DevblocksPlatform::services()->database();
-		
-		$db->ExecuteMaster(sprintf(
-			"INSERT IGNORE INTO search_index_tokens (token_hash, token, stem) VALUES %s",
-			implode(',', $insert_values),
-		));
-		
-		$insert_values = [];
+
+		for($attempt=1; $attempt <= $max_attempts; $attempt++) {
+			if(false !== $db->ExecuteMaster($sql))
+				return true;
+
+			$errno = mysqli_errno($db->getMasterConnection());
+
+			// Not a contention error — no point retrying.
+			if(!in_array($errno, [1213, 1205]))
+				return false;
+
+			// Exponential backoff with jitter before the next attempt.
+			if($attempt < $max_attempts)
+				usleep((2 ** $attempt) * 10_000 + random_int(0, 10_000));
+		}
+
+		return false;
+	}
+
+	// Flush the per-batch set of (token_hash => "(hash, token, stem)") tuples into
+	// the shared search_index_tokens dictionary. The dictionary is write-once, so
+	// this runs OUTSIDE the bulk doc transaction (in autocommit) to release locks
+	// in milliseconds, inserts only the rows that don't already exist, and
+	// serializes the write behind an advisory lock so the duplicate-key
+	// shared→exclusive lock upgrade (the actual cause of the 1213s) can't form.
+	private function _flushTokenDictionary(array &$tuples_by_hash, &$error=null) : bool {
+		if(!$tuples_by_hash) return true;
+
+		$db = DevblocksPlatform::services()->database();
+
+		// Consistent lock order -- cheap insurance even with the advisory lock.
+		ksort($tuples_by_hash, SORT_NUMERIC);
+
+		// Diff against existing rows with a lock-free consistent read, then drop
+		// the hashes that already exist. Once the dictionary is warm, most batches
+		// insert nothing. A replica-lag false-miss is harmless: INSERT IGNORE plus
+		// the advisory lock below make a redundant insert a no-op, never a deadlock.
+		$existing = $db->GetArrayReader(sprintf(
+			"SELECT token_hash FROM search_index_tokens WHERE token_hash IN (%s)",
+			implode(',', array_map('intval', array_keys($tuples_by_hash))),
+		)) ?: [];
+
+		if($existing) {
+			$existing_hashes = array_column($existing, 'token_hash');
+			$this->_rememberTokenHashes($existing_hashes);
+			
+			foreach($existing_hashes as $token_hash)
+				unset($tuples_by_hash[$token_hash]);
+		}
+
+		// Nothing new to write.
+		if(!$tuples_by_hash) {
+			$tuples_by_hash = [];
+			return true;
+		}
+
+		// Single-writer on the dictionary: this makes the duplicate-key deadlock
+		// structurally impossible. If the lock can't be acquired in time, we still
+		// proceed — the retry below covers it — rather than dropping data.
+		$lock_name = 'search:index:tokens';
+		$have_lock = (bool) $db->GetOneMaster(sprintf("SELECT GET_LOCK(%s, 10)", $db->qstr($lock_name)));
+
+		$ok = true;
+
+		try {
+			// Chunk so individual statements stay reasonable on a cold batch.
+			foreach(array_chunk($tuples_by_hash, 1_000, true) as $chunk) {
+				$sql = sprintf(
+					"INSERT IGNORE INTO search_index_tokens (token_hash, token, stem) VALUES %s",
+					implode(',', $chunk),
+				);
+
+				if(!$this->_executeWithDeadlockRetry($sql)) {
+					$ok = false;
+					$error = 'Failed to write search_index_tokens (deadlock retries exhausted)';
+					break;
+				}
+
+				$this->_rememberTokenHashes(array_keys($chunk));
+			}
+
+		} finally {
+			if($have_lock)
+				$db->ExecuteMaster(sprintf("SELECT RELEASE_LOCK(%s)", $db->qstr($lock_name)));
+		}
+
+		$tuples_by_hash = [];
+
+		return $ok;
 	}
 	
 	private function _reindexCheckpointAtNow(Model_SearchIndex $model, array $query_parts) : void {
@@ -673,8 +774,13 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 			// Map tokens to hashes for buffer
 			foreach($doc_token_frequencies as $token_hash => $token_data) {
 				$buffer_insert_values[] = sprintf('(%d, %d, %f)', $token_hash, $doc_id, $token_data[1]);
-				
-				if(!array_key_exists($token_hash, $buffer_tokens_to_hashes)) {
+
+				// Buffer the dictionary row only if this hash hasn't already been
+				// written this process and isn't yet pending in this buffer.
+				if(
+					!isset(self::$_indexed_token_hashes[$token_hash])
+					&& !array_key_exists($token_hash, $buffer_tokens_to_hashes)
+				) {
 					$token = strval($token_data[0]);
 					$buffer_tokens_to_hashes[$token_hash] = sprintf(
 						'(%d, %s, %s)',
@@ -685,12 +791,11 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 				}
 			}
 			
-			if(
-				count($buffer_insert_values) >= 4_500
-				|| count($buffer_tokens_to_hashes) >= 4_500
-			) {
+			// Flush only the per-index doc rows inside the bulk transaction; the
+			// shared dictionary is written separately, after this commits. The
+			// token buffer accumulates across the whole batch (deduped above).
+			if(count($buffer_insert_values) >= 4_500) {
 				$this->_flushInsertBuffer($model, $buffer_insert_values);
-				$this->_flushTokenBuffer($buffer_tokens_to_hashes);
 				$flushes++;
 			}
 			
@@ -704,15 +809,19 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		
 		if($buffer_insert_values)
 			$this->_flushInsertBuffer($model, $buffer_insert_values);
-		
-		if($buffer_tokens_to_hashes)
-			$this->_flushTokenBuffer($buffer_tokens_to_hashes);
-		
+
 		$db->ExecuteMaster('COMMIT');
 		
 		$db->ExecuteMaster('SET unique_checks = 1');
 		$db->ExecuteMaster('SET autocommit = 1');
-		
+
+		// Now that the bulk doc transaction is committed, write the shared token
+		// dictionary in autocommit (short-lived locks) with a diff + advisory lock
+		// + deadlock retry. Propagate failure so the queue message is marked FAILED
+		// instead of silently DONE.
+		if(!$this->_flushTokenDictionary($buffer_tokens_to_hashes, $error))
+			return false;
+
 		// Clear the record count cache after indexing
 		$this->_clearCache($model);
 		
