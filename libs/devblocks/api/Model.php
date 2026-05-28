@@ -2412,6 +2412,10 @@ class DevblocksSearchCriteria {
 	}
 	
 	public static function getVirtualQuickSearchParamFromTokens($field_key, $tokens, $search_field_key) {
+		// Wrap multiple tokens in a group
+		if(is_array($tokens) && count($tokens) > 1)
+			$tokens = [new CerbQuickSearchLexerToken('T_GROUP', 'AND', $tokens)];
+
 		$query = CerbQuickSearchLexer::getTokensAsQuery($tokens);
 		
 		return new DevblocksSearchCriteria(
