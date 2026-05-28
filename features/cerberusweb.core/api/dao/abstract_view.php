@@ -683,8 +683,10 @@ abstract class C4_AbstractView {
 					if(method_exists($this, 'getQuickSearchDefaultFilter'))
 						$v->key = $this->getQuickSearchDefaultFilter($v);
 					
+					$record_context = $this->getContext() ?? '';
+					
 					// Override the default filter with a custom search index
-					if(($search_indexes = DAO_SearchIndex::getByRecordType($this->getContext()))) {
+					if(($search_indexes = DAO_SearchIndex::getByRecordType($record_context))) {
 						if(($search_index = array_shift($search_indexes)) && 0 == $search_index->priority)
 							$v->key = $search_index->record_filter;
 					}
@@ -743,8 +745,8 @@ abstract class C4_AbstractView {
 		
 		if(is_array($this->renderSortBy) && is_array($this->renderSortAsc) && count($this->renderSortBy) == count($this->renderSortAsc)) {
 			$render_sort = array_combine($this->renderSortBy, $this->renderSortAsc);
-		} else if(!is_array($this->renderSortBy) && !is_array($this->renderSortAsc)) {
-			$render_sort = [$this->renderSortBy => ($this->renderSortAsc ? true : false) ];
+		} else if(is_string($this->renderSortBy) && !is_array($this->renderSortAsc)) {
+			$render_sort = [$this->renderSortBy => (bool) $this->renderSortAsc];
 		}
 		
 		return $render_sort;
@@ -1258,6 +1260,13 @@ abstract class C4_AbstractView {
 	
 	protected function _renderVirtualCriteria($param) : void {
 		switch($param->field) {
+			case DevblocksSearchField::VIRTUAL_COMMENTS_SEARCH:
+				echo sprintf("%s matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.comments')),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
+				break;
+
 			case DevblocksSearchField::VIRTUAL_CONTEXT_LINK:
 				$this->_renderVirtualContextLinks($param);
 				break;
@@ -1793,7 +1802,7 @@ abstract class C4_AbstractView {
 	}
 	
 	protected function _appendFieldsFromRecordTypeSearchIndexes($context, $fields=[], $prefix=null) : array {
-		$search_indexes = DAO_SearchIndex::getByRecordType($context);
+		$search_indexes = DAO_SearchIndex::getByRecordType(strval($context));
 		
 		foreach($search_indexes as $search_index) {
 			$index_field_meta = [
@@ -1825,7 +1834,22 @@ abstract class C4_AbstractView {
 	protected function _appendFieldsFromQuickSearchContext($context, $fields=[], $prefix=null) {
 		// Search Indexes
 		$fields = self::_appendFieldsFromRecordTypeSearchIndexes($context, $fields, $prefix);
-		
+
+		// Comments (any context whose manifest declares comment support)
+		if(($comments_ctx = Extension_DevblocksContext::get($context, false)) && $comments_ctx->hasOption('comments')) {
+			$comments_key = ($prefix ? $prefix . '.' : '') . 'comments';
+
+			if(!array_key_exists($comments_key, $fields))
+				$fields[$comments_key] = [
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'is_sortable' => false,
+					'options' => ['param_key' => DevblocksSearchField::VIRTUAL_COMMENTS_SEARCH],
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_COMMENT],
+					],
+				];
+		}
+
 		// Custom Fields
 		$custom_fields = DAO_CustomField::getByContext($context, true, false);
 		$custom_fieldsets = DAO_CustomFieldset::getAll();

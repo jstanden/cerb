@@ -797,6 +797,9 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 
 	static function _getWhereSQLForCommonVirtual(DevblocksSearchCriteria $param, string $context_name, string $join_key) : ?string {
 		return match ($param->field) {
+			DevblocksSearchField::VIRTUAL_COMMENTS_SEARCH => self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_COMMENT,
+				sprintf('SELECT context_id FROM comment WHERE context = %s AND id IN (%s)', Cerb_ORMHelper::qstr($context_name), '%s'),
+				$join_key),
 			DevblocksSearchField::VIRTUAL_CONTEXT_LINK => self::_getWhereSQLFromContextLinksField($param, $context_name, $join_key),
 			DevblocksSearchField::VIRTUAL_HAS_FIELDSET => self::_getWhereSQLFromFieldset($param, $context_name, $join_key),
 			DevblocksSearchField::VIRTUAL_OWNER => self::_getWhereSQLFromContextAndID($param, 'owner_context', 'owner_context_id'),
@@ -1870,8 +1873,15 @@ class DevblocksSearchCriteria {
 				break;
 			
 			case DevblocksSearchCriteria::TYPE_VIRTUAL:
+				// Comments nested-search filter (auto-injected for comment-enabled contexts)
+				if($param_key === DevblocksSearchField::VIRTUAL_COMMENTS_SEARCH) {
+					if($param = DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, $param_key))
+						return $param;
+					break;
+				}
+
 				$cf_id = $search_fields[$field]['options']['cf_id'] ?? null;
-				
+
 				if(!$cf_id || !($custom_field = DAO_CustomField::get($cf_id)))
 					break;
 				
@@ -3244,6 +3254,7 @@ class DevblocksSearchField {
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_OWNER = '*_owner';
+	const VIRTUAL_COMMENTS_SEARCH = '*_comments_search';
 	const VIRTUAL_SEARCH_INDEX = '*_search_index';
 	const VIRTUAL_WATCHERS = '*_workers';
 	
@@ -3256,11 +3267,11 @@ class DevblocksSearchField {
 		$this->is_sortable = $is_sortable;
 	}
 	
-	static function getVirtualFields($links=true, $has_fieldset=true, $owner=false, $search_indexes=true, $watchers=true) : array {
+	static function getVirtualFields($links=true, $has_fieldset=true, $owner=false, $search_indexes=true, $watchers=true, $comments=true) : array {
 		$translate = DevblocksPlatform::getTranslationService();
-		
+
 		$columns = [];
-		
+
 		if($links)
 			$columns[self::VIRTUAL_CONTEXT_LINK] = new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false);
 		if($has_fieldset)
@@ -3271,7 +3282,9 @@ class DevblocksSearchField {
 			$columns[self::VIRTUAL_SEARCH_INDEX] = new DevblocksSearchField(self::VIRTUAL_SEARCH_INDEX, '*', 'search_index', null, null, false);
 		if($watchers)
 			$columns[self::VIRTUAL_WATCHERS] = new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS', false);
-		
+		if($comments)
+			$columns[self::VIRTUAL_COMMENTS_SEARCH] = new DevblocksSearchField(self::VIRTUAL_COMMENTS_SEARCH, '*', 'comments_search', null, null, false);
+
 		return $columns;
 	}
 	
