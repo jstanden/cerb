@@ -467,6 +467,90 @@ if(array_key_exists('fulltext_message_header', $tables)) {
 // Clear old indexing progress
 $db->ExecuteMaster("DELETE FROM cerb_property_store WHERE extension_id = 'cerberusweb.search.schema.message_headers'");
 
+// Message Content (reuses $message_record_count / $message_max from the headers block above)
+
+if(!$db->GetOneMaster(sprintf("SELECT id FROM search_index WHERE record_type = %s AND record_filter = %s",
+	$db->qstr('message'),
+	$db->qstr('content'))
+)) {
+	// Replicates the legacy Search_MessageContent composition: reply quotes
+	// stripped from the body, plus sender/subject/mask/org metadata.
+	$message_content_template = implode("\n", [
+		"{{content|strip_lines('>')|strip_pem_blocks()|strip_data_uris()|strip_url_querystrings()}}",
+		"{{sender__label}}",
+		"{{ticket_subject}}",
+		"{{ticket_mask}}",
+		"{{ticket_org__label}}",
+	]);
+
+	$db->ExecuteMaster(sprintf("INSERT INTO search_index (name, uri, record_type, record_filter, extension_id, extension_params_json, priority, created_at, updated_at) " .
+		"VALUES (%s, %s, %s, %s, %s, %s, %d, %d, %d)",
+		$db->qstr('Messages'),
+		$db->qstr('messages'),
+		$db->qstr('message'),
+		$db->qstr('content'),
+		$db->qstr('cerb.search.index.fulltext'),
+		$db->qstr(json_encode(['record_query' => '', 'content' => $message_content_template])),
+		0,
+		time(),
+		time(),
+	));
+
+	$search_index_id = $db->LastInsertId();
+
+	// Checkpoint incremental search indexing
+	$db->ExecuteMaster(sprintf("REPLACE INTO devblocks_registry (entry_key, entry_type, entry_value, entry_expires_at) VALUES (%s, 'number', %d, 0)",
+		$db->qstr(sprintf('search_index_%d.last_indexed_at', $search_index_id)),
+		$message_last_indexed_at,
+	));
+	$db->ExecuteMaster(sprintf("REPLACE INTO devblocks_registry (entry_key, entry_type, entry_value, entry_expires_at) VALUES (%s, 'number', %d, 0)",
+		$db->qstr(sprintf('search_index_%d.last_indexed_id', $search_index_id)),
+		$message_last_indexed_id,
+	));
+
+	if($search_queue_id && $message_record_count) {
+		$db->ExecuteMaster('SET SESSION group_concat_max_len = 1048576');
+
+		$db->ExecuteMaster(sprintf("INSERT INTO queue_job (name, singleton_key, queue_id, worker_id, metadata, status_id, count_total, count_available, created_at, updated_at) " .
+			"VALUES (%s, %s, %d, 0, %s, 0 /* RUNNING */, %d, %d, %d, %d)",
+			$db->qstr('Reindex Message Content'),
+			$db->qstr(sprintf('search_index:%d:reindex', $search_index_id)),
+			$search_queue_id,
+			$db->qstr(json_encode(['search_index_id' => $search_index_id, 'record_type' => 'message'])),
+			$message_record_count,
+			$message_record_count,
+			time(),
+			time(),
+		));
+
+		$job_id = $db->LastInsertId();
+
+		$db->ExecuteMaster(sprintf("INSERT INTO queue_message (uuid, queue_id, job_id, status_id, status_at, message, cardinality) " .
+			"SELECT UUID_TO_BIN(UUID()) AS uuid, " .
+			"%d AS queue_id, " .
+			"%d AS job_id, " .
+			"0 /* available */ AS status_id, " .
+			"UNIX_TIMESTAMP() AS status_at, " .
+			"CONCAT('{\"index_id\":',%d,',\"ids\":[',GROUP_CONCAT(id ORDER BY id),']}') AS message, " .
+			"COUNT(id) AS cardinality " .
+			"FROM (SELECT id, CEIL(ROW_NUMBER() OVER (ORDER BY id) / 100) AS batch FROM message) AS batched " .
+			"GROUP BY batch",
+			$search_queue_id,
+			$job_id,
+			$search_index_id,
+		));
+	}
+}
+
+// Drop the legacy InnoDB FT table
+if(array_key_exists('fulltext_message_content', $tables)) {
+	$db->ExecuteMaster('DROP TABLE fulltext_message_content');
+	unset($tables['fulltext_message_content']);
+}
+
+// Clear old indexing progress
+$db->ExecuteMaster("DELETE FROM cerb_property_store WHERE extension_id = 'cerberusweb.search.schema.message_content'");
+
 // Comments
 
 if(!$db->GetOneMaster(sprintf("SELECT id FROM search_index WHERE record_type = %s AND record_filter = %s",

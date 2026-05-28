@@ -95,7 +95,6 @@ class ChRest_Messages extends Extension_RestController implements IExtensionRest
 		} else {
 			$tokens = array(
 				'created' => SearchFields_Message::CREATED_DATE,
-				'content' => SearchFields_Message::MESSAGE_CONTENT,
 				'id' => SearchFields_Message::ID,
 				'is_broadcast' => SearchFields_Message::IS_BROADCAST,
 				'is_outgoing' => SearchFields_Message::IS_OUTGOING,

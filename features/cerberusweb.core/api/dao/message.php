@@ -554,11 +554,7 @@ class DAO_Message extends Cerb_ORMHelper {
 		
 		// Message Content
 		Storage_MessageContent::delete($ids);
-		
-		// Search indexes
-		$search = Extension_DevblocksSearchSchema::get(Search_MessageContent::ID);
-		$search->delete($ids);
-		
+
 		$ticket_ids = [];
 		
 		if($rebuild) {
@@ -627,18 +623,6 @@ class DAO_Message extends Cerb_ORMHelper {
 	 * @throws Exception_DevblocksDatabaseQueryTimeout
 	 */
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$fulltext_params = [];
-		
-		foreach($params as $param_key => $param) {
-			if(!($param instanceof DevblocksSearchCriteria))
-				continue;
-			
-			if($param->field == SearchFields_Message::MESSAGE_CONTENT) {
-				$fulltext_params[$param_key] = $param;
-				unset($params[$param_key]);
-			}
-		}
-		
 		// Build search queries
 		$query_parts = self::getSearchQueryComponents($columns, $params, $sortBy, $sortAsc);
 
@@ -646,13 +630,7 @@ class DAO_Message extends Cerb_ORMHelper {
 		$join_sql = $query_parts['join'];
 		$where_sql = $query_parts['where'];
 		$sort_sql = $query_parts['sort'];
-		
-		if(!empty($fulltext_params)) {
-			foreach ($fulltext_params as $param) {
-				$where_sql .= 'AND ' . SearchFields_Message::getWhereSQL($param) . ' ';
-			}
-		}
-		
+
 		$results = self::_searchWithTimeout(
 			SearchFields_Message::ID,
 			$select_sql,
@@ -722,10 +700,7 @@ class SearchFields_Message extends DevblocksSearchFields {
 	const STORAGE_KEY = 'm_storage_key';
 	const STORAGE_PROFILE_ID = 'm_storage_profile_id';
 	const STORAGE_SIZE = 'm_storage_size';
-	
-	// Fulltexts
-	const MESSAGE_CONTENT = 'ftmc_content';
-	
+
 	// Address
 	const ADDRESS_EMAIL = 'a_email';
 	
@@ -775,9 +750,6 @@ class SearchFields_Message extends DevblocksSearchFields {
 				
 			case self::VIRTUAL_NOTES_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_COMMENT, sprintf('SELECT context_id FROM comment WHERE context = %s AND id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_MESSAGE), '%s'), self::getPrimaryKey());
-				
-			case self::MESSAGE_CONTENT:
-				return self::_getWhereSQLFromFulltextField($param, Search_MessageContent::ID, self::getPrimaryKey());
 				
 			case self::VIRTUAL_HEADER_MESSAGE_ID:
 				$value = $param->value;
@@ -1020,18 +992,12 @@ class SearchFields_Message extends DevblocksSearchFields {
 			SearchFields_Message::VIRTUAL_SENDER_SEARCH => new DevblocksSearchField(SearchFields_Message::VIRTUAL_SENDER_SEARCH, '*', 'sender_search', null, null, false),
 			SearchFields_Message::VIRTUAL_TICKET_SEARCH => new DevblocksSearchField(SearchFields_Message::VIRTUAL_TICKET_SEARCH, '*', 'ticket_search', null, null, false),
 			SearchFields_Message::VIRTUAL_WORKER_SEARCH => new DevblocksSearchField(SearchFields_Message::VIRTUAL_WORKER_SEARCH, '*', 'worker_search', null, null, false),
-
-			SearchFields_Message::MESSAGE_CONTENT => new DevblocksSearchField(SearchFields_Message::MESSAGE_CONTENT, 'ftmc', 'content', $translate->_('common.content'), 'FT', false),
 		];
 		
 		// Virtual fields
 		if(($virtual_columns = DevblocksSearchField::getVirtualFields(watchers: false)))
 			$columns = array_merge($columns, $virtual_columns);
-		
-		// Fulltext indexes
-		
-		$columns[self::MESSAGE_CONTENT]->ft_schema = Search_MessageContent::ID;
-		
+
 		// Custom fields with fieldsets
 		
 		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
@@ -1280,174 +1246,6 @@ class Model_Message extends DevblocksRecordModel {
 		return $timeline;
 	}
 	
-};
-
-class Search_MessageContent extends Extension_DevblocksSearchSchema {
-	const ID = 'cerberusweb.search.schema.message_content';
-	
-	public function getNamespace() {
-		return 'message_content';
-	}
-	
-	public function getAttributes() {
-		return [];
-	}
-	
-	public function getIdField() {
-		return 'id';
-	}
-	
-	public function getDataField() {
-		return 'content';
-	}
-	
-	public function getPrimaryKey() {
-		return 'id';
-	}
-	
-	public function areWildcardsAllowed() : bool {
-		return APP_OPT_FULLTEXT_ALLOW_WILDCARDS;
-	}
-	
-	public function reindex() {
-		$engine = $this->getEngine();
-		$meta = $engine->getIndexMeta($this);
-		
-		// If the engine can tell us where the index left off
-		if(isset($meta['max_id']) && $meta['max_id']) {
-			$this->setParam('last_indexed_id', $meta['max_id']);
-		
-		// If the index has a delta, start from the current record
-		} elseif($meta['is_indexed_externally']) {
-			// Do nothing (let the remote tool update the DB)
-			DevblocksPlatform::noop();
-			
-		// Otherwise, start over
-		} else {
-			$this->setIndexPointer(self::INDEX_POINTER_RESET);
-		}
-	}
-	
-	public function setIndexPointer($pointer) {
-		switch($pointer) {
-			case self::INDEX_POINTER_RESET:
-				$this->setParam('last_indexed_id', 0);
-				$this->setParam('last_indexed_time', 0);
-				break;
-				
-			case self::INDEX_POINTER_CURRENT:
-				if(null != ($last_msgs = DAO_Message::getWhere('id is not null', 'id', false, 1))
-					&& is_array($last_msgs)
-					&& null != ($last_msg = array_shift($last_msgs))) {
-						$this->setParam('last_indexed_id', $last_msg->id);
-						$this->setParam('last_indexed_time', $last_msg->created_date);
-				} else {
-					$this->setParam('last_indexed_id', 0);
-					$this->setParam('last_indexed_time', 0);
-				}
-				break;
-		}
-	}
-	
-	private function _indexDictionary($dict, $engine) {
-		$logger = DevblocksPlatform::services()->log();
-		$search = DevblocksPlatform::services()->search();
-
-		$id = $dict->id;
-		
-		if(empty($id))
-			return false;
-		
-		$content = $dict->content;
-		
-		// Strip reply quotes
-		$content = preg_replace("/(^\>(.*)\$)/m", "", $content);
-		$content = preg_replace("/[\r\n]+/", "\n", $content);
-		
-		// Truncate to 5KB
-		$content = $search->truncateOnWhitespace($content, 5_000);
-		
-		$doc = array(
-			'created' => $dict->created,
-		);
-		
-		$doc['content'] = implode("\n", array(
-			$dict->sender__label,
-			$dict->ticket_subject,
-			$dict->ticket_mask,
-			$dict->ticket_org__label,
-			$content,
-		));
-		
-		$logger->info(sprintf("[Search] Indexing %s %d...",
-			$this->getNamespace(),
-			$id
-		));
-		
-		if(false === ($engine->index($this, $id, $doc)))
-			return false;
-		
-		return true;
-	}
-	
-	public function indexIds(array $ids=[]) {
-		if(empty($ids))
-			return;
-		
-		if(false == ($engine = $this->getEngine()))
-			return false;
-		
-		if(false == ($models = DAO_Message::getIds($ids)))
-			return;
-		
-		$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_MESSAGE, array('ticket_','ticket_org_','sender_','content'));
-		
-		if(empty($dicts))
-			return;
-		
-		foreach($dicts as $dict) {
-			$this->_indexDictionary($dict, $engine);
-		}
-	}
-	
-	public function index($stop_time=null) {
-		if(false == ($engine = $this->getEngine()))
-			return false;
-		
-		$id = DAO_DevblocksExtensionPropertyStore::get(self::ID, 'last_indexed_id', 0);
-		$done = false;
-		
-		while(!$done && time() < $stop_time) {
-			$where = sprintf("%s > %d", DAO_Message::ID, $id);
-			$models = DAO_Message::getWhere($where, 'id', true, 100);
-			
-			$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_MESSAGE, array('ticket_','ticket_org_','sender_','content'));
-			
-			if(empty($dicts)) {
-				$done = true;
-				continue;
-			}
-			
-			// Loop dictionaries
-			foreach($dicts as $dict) {
-				$id = $dict->id;
-				
-				if(false == $this->_indexDictionary($dict, $engine))
-					return false;
-			}
-			
-			// Record our index every batch
-			if(!empty($id))
-				DAO_DevblocksExtensionPropertyStore::put(self::ID, 'last_indexed_id', $id);
-		}
-	}
-	
-	public function delete($ids) {
-		if(!($engine = $this->getEngine()))
-			return false;
-		
-		return $engine->delete($this, $ids);
-	}
 };
 
 class Storage_MessageContent extends Extension_DevblocksStorageSchema {
@@ -1817,7 +1615,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 		
 		$this->addColumnsHidden([
 			SearchFields_Message::HTML_ATTACHMENT_ID,
-			SearchFields_Message::MESSAGE_CONTENT,
 			SearchFields_Message::STORAGE_EXTENSION,
 			SearchFields_Message::STORAGE_KEY,
 			SearchFields_Message::STORAGE_PROFILE_ID,
@@ -1974,19 +1771,14 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 	}
 	
 	function getQuickSearchDefaultFilter(?DevblocksSearchCriteria $criteria=null) : string {
-		return 'text';
+		return 'content';
 	}
 	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_Message::getFields();
 		
 		$fields = array(
-			'text' =>
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
-					'options' => array('param_key' => SearchFields_Message::MESSAGE_CONTENT),
-				),
-			'attachments' => 
+			'attachments' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => [],
@@ -1994,12 +1786,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_ATTACHMENT, 'q' => ''],
 					]
 				),
-			'content' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
-					'options' => array('param_key' => SearchFields_Message::MESSAGE_CONTENT),
-				),
-			'created' => 
+			'created' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'score' => 2000,
@@ -2185,22 +1972,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 		// Add searchable custom fields
 		
 		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_MESSAGE, $fields, null);
-		
-		// Engine/schema examples: Fulltext
-		
-		$ft_examples = [];
-		
-		if(($schema = Extension_DevblocksSearchSchema::get(Search_MessageContent::ID))) {
-			if(($engine = $schema->getEngine())) {
-				$ft_examples = $engine->getQuickSearchExamples($schema);
-			}
-		}
-		
-		if(!empty($ft_examples)) {
-			$fields['text']['examples'] = $ft_examples;
-			$fields['content']['examples'] = $ft_examples;
-		}
-		
+
 		// Add is_sortable
 		
 		$fields = self::_setSortableQuickSearchFields($fields, $search_fields);
@@ -2439,11 +2211,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			case SearchFields_Message::WORKER_ID:
 				$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
-				break;
-				
-			case SearchFields_Message::MESSAGE_CONTENT:
-				$scope = DevblocksPlatform::importGPC($_POST['scope'] ?? null, 'string','expert');
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
 				
 			default:
