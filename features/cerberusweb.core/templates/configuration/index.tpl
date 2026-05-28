@@ -10,7 +10,6 @@
 					{if !$smarty.const.DEVBLOCKS_CACHE_ENGINE_PREVENT_CHANGE}<li><a href="{devblocks_url}c=config&a=cache{/devblocks_url}">Cache</a></li>{/if}
 					<li><a href="{devblocks_url}c=config&a=license{/devblocks_url}">License</a></li>
 					<li><a href="{devblocks_url}c=config&a=localization{/devblocks_url}">Localization</a></li>
-					{if !$smarty.const.DEVBLOCKS_SEARCH_ENGINE_PREVENT_CHANGE}<li><a href="{devblocks_url}c=config&a=search{/devblocks_url}">{'common.search'|devblocks_translate|capitalize}</a></li>{/if}
 
 					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.settings')}
 					{if !empty($exts)}
