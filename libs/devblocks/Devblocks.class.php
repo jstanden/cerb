@@ -2975,11 +2975,6 @@ class DevblocksPlatform extends DevblocksEngine {
 				'class' => 'DevblocksHttpResponseListenerExtension',
 				'examples' => [],
 			],
-			'devblocks.search.engine' => [
-				'label' => 'Search Engine',
-				'class' => 'Extension_DevblocksSearchEngine',
-				'examples' => [],
-			],
 			'devblocks.storage.engine' => [
 				'label' => 'Storage Engine',
 				'class' => 'Extension_DevblocksStorageEngine',

@@ -130,10 +130,6 @@
 		<file path="api/services/data/worklist_xy.php">
 			<class name="_DevblocksDataProviderWorklistXy" />
 		</file>
-		<file path="api/services/search.php">
-			<class name="DevblocksSearchEngineElasticSearch" />
-			<class name="DevblocksSearchEngineMysqlFulltext" />
-		</file>
 		<file path="api/services/storage.php">
 			<class name="DevblocksStorageEngineDatabase" />
 			<class name="DevblocksStorageEngineDisk" />
@@ -181,30 +177,6 @@
 			</params>
 		</extension>
 	
-		<!-- Search Engines -->
-
-		<extension point="devblocks.search.engine">
-			<id>devblocks.search.engine.elasticsearch</id>
-			<name>Elasticsearch</name>
-			<class>
-				<file>api/services/search.php</file>
-				<name>DevblocksSearchEngineElasticSearch</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-		
-		<extension point="devblocks.search.engine">
-			<id>devblocks.search.engine.mysql_fulltext</id>
-			<name>MySQL Fulltext</name>
-			<class>
-				<file>api/services/search.php</file>
-				<name>DevblocksSearchEngineMySqlFulltext</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-
 		<!-- Storage Engines -->
 
 		<extension point="devblocks.storage.engine">
