@@ -3362,7 +3362,7 @@ class DevblocksPluginManifest {
 	public $link = '';
 	public $dir = '';
 	public $manifest_cache = [];
-	
+
 	public $extension_points = [];
 	public $event_points = [];
 	public $acl_privs = [];

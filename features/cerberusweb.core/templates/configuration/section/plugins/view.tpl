@@ -9,9 +9,7 @@
 		<td nowrap="nowrap" align="right" class="title-toolbar">
 			<a data-cerb-worklist-icon-search title="{'common.search'|devblocks_translate|capitalize}" class="minimal"><span class="glyphicons glyphicons-search"></span></a>
 			<a data-cerb-worklist-icon-customize title="{'common.customize'|devblocks_translate|capitalize}" class="minimal"><span class="glyphicons glyphicons-cogwheel"></span></a>
-			<a data-cerb-worklist-icon-copy title="{'common.copy'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-duplicate"></span></a>
 			<a data-cerb-worklist-icon-refresh title="{'common.refresh'|devblocks_translate|capitalize}" class="minimal"><span class="glyphicons glyphicons-refresh"></span></a>
-			<input type="checkbox" class="select-all">
 		</td>
 	</tr>
 </table>
@@ -41,19 +39,21 @@
 			{else}
 				<a style="text-decoration:none;">{$view_fields.$header->db_label|capitalize}</a>
 			{/if}
-			
+
 			{* add arrow if sorting by this column, finish table header tag *}
 			{if $header==$view->renderSortBy}
 				<span class="glyphicons {if $view->renderSortAsc}glyphicons-sort-by-attributes{else}glyphicons-sort-by-attributes-alt{/if}" style="font-size:14px;{if array_key_exists('disable_sorting', $view->options) && $view->options.disable_sorting}color:rgb(80,80,80);{else}color:rgb(39,123,213);{/if}"></span>
 			{/if}
 			</th>
 		{/foreach}
+		<th class="no-sort" style="width:80px;text-align:center;" title="{'common.enabled'|devblocks_translate|capitalize}">{'common.enabled'|devblocks_translate|capitalize}</th>
 	</tr>
 	</thead>
 
 	{* Column Data *}
 	{foreach from=$data item=result key=idx name=results}
 	{$plugin = $plugins.{$result.c_id}}
+	{$meets_requirements = true}
 	{if !empty($plugin)}
 		{$meets_requirements = $plugin->checkRequirements()}
 	{/if}
@@ -63,7 +63,7 @@
 	{else}
 		{$tableRowClass = "odd"}
 	{/if}
-	<tbody style="cursor:pointer;">
+	<tbody{if !$result.c_enabled} class="cerb-plugin-disabled"{/if}>
 		<tr class="{$tableRowClass}">
 			<td data-column="icon" rowspan="4" align="center">
 				<div style="margin:0px 5px 5px 5px;position:relative;">
@@ -72,23 +72,26 @@
 					{else}
 						<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/wgm/plugin_code_gray.gif{/devblocks_url}?v={$cerb_app_build}" width="100" height="100" style="border:1px solid var(--cerb-color-background-contrast-200);">
 					{/if}
-					{if !$result.c_enabled}
-						<span class="plugin_icon_overlay_disabled"></span>
-					{/if}
 				</div>
+			</td>
+			<td colspan="{$smarty.foreach.headers.total}"></td>
+			<td data-column="*_enabled_toggle" rowspan="4" align="center" valign="middle">
+				<label class="cerb-toggle-switch" title="{if !$meets_requirements}{'config.plugins.toggle.requirements'|devblocks_translate}{else}{'common.enabled'|devblocks_translate|capitalize}{/if}">
+					<input type="checkbox" data-cerb-plugin-toggle data-plugin-id="{$result.c_id}" {if $result.c_enabled}checked="checked"{/if} {if !$meets_requirements}disabled="disabled"{/if}>
+					<span class="cerb-toggle-slider"></span>
+				</label>
 			</td>
 		</tr>
 		<tr class="{$tableRowClass}">
 			<td data-column="label" colspan="{$smarty.foreach.headers.total}">
 				<div style="padding-bottom:2px;">
-					<input type="checkbox" name="row_id[]" value="{$result.c_id}" style="display:none;">
-					<b class="subject">{$result.c_name}</b>
+					<b class="subject" style="font-size:1.5em;">{$result.c_name}</b>
 				</div>
 			</td>
 		</tr>
 		<tr class="{$tableRowClass}">
 		{foreach from=$view->view_columns item=column name=columns}
-		
+
 			{if DevblocksPlatform::strStartsWith($column, "cf_")}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column=="c_updated"}
@@ -131,25 +134,20 @@
 				<div style="padding:5px;">
 					{$result.c_description}
 				</div>
-				<div style="margin:5px;">
-					{if !empty($plugin)}
-						<div class="badge badge-lightgray" style="padding:3px;"><a data-cerb-button-plugin-config="{$result.c_id}" style="color:var(--cerb-color-text);text-decoration:none;font-weight:bold;">Configure &#x25be;</a></div>
+
+				{if !$meets_requirements && !empty($plugin)}
+					{$errors = $plugin->getRequirementsErrors()}
+					{if !empty($errors)}
+					<div style="padding:5px;color:var(--cerb-color-error-text);">
+						<b>{'config.plugins.requirements_missing'|devblocks_translate}</b>
+						<ul style="margin:0;">
+						{foreach from=$errors item=error name=errors}
+							<li>{$error}</li>
+						{/foreach}
+						</ul>
+					</div>
 					{/if}
-					
-					{if !$meets_requirements && !empty($plugin)}
-						{$errors = $plugin->getRequirementsErrors()}
-						{if !empty($errors)}
-						<div style="padding:5px;color:rgb(150,0,0);">
-							<b>Missing requirements:</b>
-							<ul style="margin:0;">
-							{foreach from=$errors item=error name=errors}
-								<li>{$error}</li>
-							{/foreach}
-							</ul>
-						</div>
-						{/if}
-					{/if}
-				</div>
+				{/if}
 			</td>
 		</tr>
 	</tbody>
@@ -175,10 +173,42 @@
 $(function() {
 	let $frm = $('#viewForm{$view->id}');
 
-	$frm.find('[data-cerb-button-plugin-config]').on('click', function(e) {
+	$frm.find('table.worklistBody tbody').off('click').off('mouseenter mouseleave');
+
+	$frm.find('[data-cerb-plugin-toggle]').on('change', function(e) {
 		e.stopPropagation();
-		let plugin_id = $(this).attr('data-cerb-button-plugin-config');
-		genericAjaxPopup('peek','c=config&a=invoke&module=plugins&action=showPopup&plugin_id=' + encodeURIComponent(plugin_id) + '&view_id={$view->id}',null,true,'550');
+
+		let $cb = $(this);
+		let plugin_id = $cb.attr('data-plugin-id');
+		let enabled = $cb.prop('checked') ? 1 : 0;
+
+		let formData = new FormData();
+		formData.set('c', 'config');
+		formData.set('a', 'invoke');
+		formData.set('module', 'plugins');
+		formData.set('action', 'toggleEnabled');
+		formData.set('plugin_id', plugin_id);
+		formData.set('enabled', enabled);
+		formData.set('_csrf_token', '{$session.csrf_token}');
+
+		$cb.prop('disabled', true);
+
+		genericAjaxPost(formData, '', '', function(json) {
+			$cb.prop('disabled', false);
+
+			if(!json || true !== json.status) {
+				// Revert the switch to its prior state
+				$cb.prop('checked', 0 === enabled);
+
+				let msg = (json && json.errors && json.errors.length)
+					? json.errors.join("\n")
+					: '{'config.plugins.toggle.failed'|devblocks_translate|escape:'javascript' nofilter}';
+				Devblocks.createAlertError(msg);
+			} else {
+				// Grey out the plugin art when disabled
+				$cb.closest('tbody').toggleClass('cerb-plugin-disabled', 0 === enabled);
+			}
+		});
 	});
 
 	{if $pref_keyboard_shortcuts}

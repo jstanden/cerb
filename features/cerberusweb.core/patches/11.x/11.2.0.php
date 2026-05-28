@@ -2172,6 +2172,12 @@ if(!array_key_exists('queue_job_log', $tables)) {
 }
 
 // ===========================================================================
+// Clear the plugin worklist models
+
+$db->ExecuteMaster("DELETE FROM worker_view_model WHERE view_id IN ('cerb5_plugins','plugins_installed')");
+$db->ExecuteMaster("DELETE FROM worker_view_model WHERE class_name IN ('View_PluginLibrary')");
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

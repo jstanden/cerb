@@ -1380,6 +1380,16 @@
 				<seg>Extension Point</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.feature">
+			<tuv xml:lang="en_US">
+				<seg>feature</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.features">
+			<tuv xml:lang="en_US">
+				<seg>features</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.field">
 			<tuv xml:lang="en_US">
 				<seg>field</seg>
@@ -4055,6 +4065,21 @@
 
 		<!-- Configuration -->
 		
+		<tu tuid="config.plugins.requirements_missing">
+			<tuv xml:lang="en_US">
+				<seg>Missing requirements:</seg>
+			</tuv>
+		</tu>
+		<tu tuid="config.plugins.toggle.requirements">
+			<tuv xml:lang="en_US">
+				<seg>This plugin can't be enabled until its requirements are met.</seg>
+			</tuv>
+		</tu>
+		<tu tuid="config.plugins.toggle.failed">
+			<tuv xml:lang="en_US">
+				<seg>Failed to update the plugin.</seg>
+			</tuv>
+		</tu>
 		<tu tuid="config.mailboxes.error_hostname">
 			<tuv xml:lang="en_US">
 				<seg>Error: No hostname provided.</seg>

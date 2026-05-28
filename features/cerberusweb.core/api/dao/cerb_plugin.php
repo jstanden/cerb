@@ -339,12 +339,11 @@ class View_CerbPlugin extends C4_AbstractView implements IAbstractView_Subtotals
 
 		$this->name = $translate->_('Cerb Plugins');
 		$this->renderLimit = 10;
-		$this->renderSortBy = SearchFields_CerbPlugin::ID;
+		$this->renderSortBy = SearchFields_CerbPlugin::NAME;
 		$this->renderSortAsc = true;
 
 		$this->view_columns = [
-			SearchFields_CerbPlugin::AUTHOR,
-			SearchFields_CerbPlugin::VERSION,
+			SearchFields_CerbPlugin::LINK,
 		];
 
 		$this->addColumnsHidden([
@@ -456,7 +455,7 @@ class View_CerbPlugin extends C4_AbstractView implements IAbstractView_Subtotals
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_CerbPlugin::ID),
 				),
-			'name' => 
+			'name' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_CerbPlugin::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
