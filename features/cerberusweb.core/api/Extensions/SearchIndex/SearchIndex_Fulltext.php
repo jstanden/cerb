@@ -311,6 +311,28 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		];
 	}
 	
+	// Split a query into included (default) and excluded (-prefix) terms on whitespace
+	// Note: This will not be double-quote safe when we introduce phrases.
+	private function _splitQueryTerms(string $query) : array {
+		$include = [];
+		$exclude = [];
+
+		foreach(preg_split('/\s+/', trim($query)) as $chunk) {
+			if($chunk === '') continue;
+
+			if(str_starts_with($chunk, '-') && strlen($chunk) > 1) {
+				$exclude[] = substr($chunk, 1);
+			} else {
+				$include[] = $chunk;
+			}
+		}
+
+		return [
+			'include' => implode(' ', $include),
+			'exclude' => implode(' ', $exclude),
+		];
+	}
+
 	public function queryJoinFromRecordQuickSearch(Model_SearchIndex $model, string $query, string $fields=''): string {
 		if(!$query) return '-1';
 		
@@ -343,9 +365,15 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 			$allow_wildcards = !($model->extension_params['wildcards_disable'] ?? false);
 			$allow_stemming = !($model->extension_params['stemming_disable'] ?? false);
 			
+			// Split into included and excluded terms
+			$query_terms = $this->_splitQueryTerms($query);
+			
+			// We refuse to only exclude, so bail if no included terms
+			if(!$query_terms['include']) return '-1';
+
 			$doc_frequencies = $this->getTokenStats(
 				$model,
-				$query,
+				$query_terms['include'],
 				allow_wildcards: $allow_wildcards,
 				allow_stemming: $allow_stemming
 			);
@@ -357,6 +385,10 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 			
 			// Get ordered nested subqueries for tokens
 			$sql_query_parts = $this->_getSqlQueryPartsForTokenFrequencies($model, $doc_frequencies);
+			
+			// Handle excluded terms
+			if(($negation_where = $this->_getNegationWhereClause($query_terms['exclude'], $model, $allow_wildcards, $allow_stemming, 5)))
+				$sql_query_parts['where'][] = $negation_where;
 			
 			// Assemble the query from the rarest term
 			return sprintf('SELECT %s %s %s',
@@ -381,9 +413,15 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		$allow_wildcards = !($model->extension_params['wildcards_disable'] ?? false);
 		$allow_stemming = !($model->extension_params['stemming_disable'] ?? false);
 		
+		// Split into included and excluded terms
+		$query_terms = $this->_splitQueryTerms($query);
+		
+		// We refuse to only exclude, so bail if no included terms
+		if(!$query_terms['include']) return [];
+
 		$doc_frequencies = $this->getTokenStats(
 			$model,
-			$query,
+			$query_terms['include'],
 			allow_wildcards: $allow_wildcards,
 			allow_stemming: $allow_stemming
 		);
@@ -409,6 +447,10 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		$sql_query_parts['select'][] = sprintf('(%s) AS score',
 			implode(' + ', $idf_scores)
 		);
+
+		// Handle excluded terms
+		if(($negation_where = $this->_getNegationWhereClause($query_terms['exclude'], $model, $allow_wildcards, $allow_stemming, 5)))
+			$sql_query_parts['where'][] = $negation_where;
 		
 		// Assemble query
 		$sql = sprintf('SELECT %s %s %s GROUP BY s0.record_id ORDER BY score DESC LIMIT %d',
@@ -931,5 +973,32 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		$registry->delete($param_key_last_indexed_id);
 		
 		return true;
+	}
+	
+	/**
+	 * @param $exclude
+	 * @param Model_SearchIndex $model
+	 * @param bool $allow_wildcards
+	 * @param bool $allow_stemming
+	 * @param int $max_terms
+	 * @return string
+	 */
+	private function _getNegationWhereClause($exclude, Model_SearchIndex $model, bool $allow_wildcards, bool $allow_stemming, int $max_terms=5) : string {
+		if(!$exclude)
+			return '';
+		
+		if(!($exclude_tokens = $this->getTokenStats($model, $exclude, $allow_wildcards, $allow_stemming, $max_terms)))
+			return '';
+		
+		// Exclude token hashes from the least common term for efficiency
+		if (($exclude_hashes = array_column($exclude_tokens, 'hash'))) {
+			return sprintf(
+				'NOT EXISTS (SELECT 1 FROM search_index_%d x WHERE x.record_id = s0.record_id AND x.token_hash IN (%s))',
+				$model->id,
+				implode(',', $exclude_hashes)
+			);
+		}
+		
+		return '';
 	}
 }
