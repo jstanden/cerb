@@ -84,7 +84,7 @@
 
 		<patch version="11.0.0" revision="1476" file="patches/11.x/11.0.0.php" />
 		<patch version="11.1.0" revision="1491" file="patches/11.x/11.1.0.php" />
-		<patch version="11.2.0" revision="1505" file="patches/11.x/11.2.0.php" />
+		<patch version="11.2.0" revision="1506" file="patches/11.x/11.2.0.php" />
 	</patches>
 
 	<!-- Exported Classes -->
@@ -546,7 +546,6 @@
 			<class name="Context_Message" />
 			<class name="DAO_Message" />
 			<class name="Model_Message" />
-			<class name="Search_MessageContent" />
 			<class name="SearchFields_Message" />
 			<class name="Storage_MessageContent" />
 			<class name="View_Message" />
@@ -5451,19 +5450,6 @@
 			</params>
 		</extension>		
 		
-		<!-- Search Schemas -->
-
-		<extension point="devblocks.search.schema">
-			<id>cerberusweb.search.schema.message_content</id>
-			<name>Message Content</name>
-			<class>
-				<file>api/dao/message.php</file>
-				<name>Search_MessageContent</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-
 		<!-- Pages -->
 		
 		<extension point="cerberusweb.page">
