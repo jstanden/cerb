@@ -402,7 +402,6 @@ class UmSc_TicketHistoryView extends C4_AbstractView implements IAbstractView_Qu
 		$tpl->assign('data', $results[0]);
 		
 		// Bulk lazy load first wrote
-		$object_first_wrotes = [];
 		if(in_array('t_first_wrote_address_id', $this->view_columns)) {
 			$first_wrote_ids = DevblocksPlatform::extractArrayValues($results, 't_first_wrote_address_id');
 			$object_first_wrotes = DAO_Address::getIds($first_wrote_ids);
@@ -410,7 +409,6 @@ class UmSc_TicketHistoryView extends C4_AbstractView implements IAbstractView_Qu
 		}
 		
 		// Bulk lazy load last wrote
-		$object_last_wrotes = [];
 		if(in_array('t_last_wrote_address_id', $this->view_columns)) {
 			$last_wrote_ids = DevblocksPlatform::extractArrayValues($results, 't_last_wrote_address_id');
 			$object_last_wrotes = DAO_Address::getIds($last_wrote_ids);
@@ -418,7 +416,6 @@ class UmSc_TicketHistoryView extends C4_AbstractView implements IAbstractView_Qu
 		}
 		
 		// Bulk lazy load orgs
-		$object_orgs = [];
 		if(in_array('t_org_id', $this->view_columns)) {
 			$org_ids = DevblocksPlatform::extractArrayValues($results, 't_org_id');
 			$object_orgs = DAO_ContactOrg::getIds($org_ids);
@@ -430,26 +427,6 @@ class UmSc_TicketHistoryView extends C4_AbstractView implements IAbstractView_Qu
 
 	function getFields() {
 		return SearchFields_Ticket::getFields();
-	}
-	
-	function getSearchFields() {
-		$fields = SearchFields_Ticket::getFields();
-
-		foreach(array_keys($fields) as $key) {
-			switch($key) {
-				case SearchFields_Ticket::REQUESTER_ID:
-				case SearchFields_Ticket::TICKET_MASK:
-				case SearchFields_Ticket::TICKET_SUBJECT:
-				case SearchFields_Ticket::TICKET_CREATED_DATE:
-				case SearchFields_Ticket::TICKET_UPDATED_DATE:
-				case SearchFields_Ticket::VIRTUAL_STATUS:
-					break;
-				default:
-					unset($fields[$key]);
-			}
-		}
-		
-		return $fields;
 	}
 	
 	function renderCriteriaParam($param) {
