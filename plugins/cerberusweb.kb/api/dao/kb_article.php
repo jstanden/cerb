@@ -435,12 +435,12 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_KbArticle', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
-			"kb.id as %s, ".
-			"kb.title as %s, ".
-			"kb.updated as %s, ".
-			"kb.views as %s, ".
-			"kb.format as %s, ".
-			"kb.content as %s ",
+			"kb_article.id as %s, ".
+			"kb_article.title as %s, ".
+			"kb_article.updated as %s, ".
+			"kb_article.views as %s, ".
+			"kb_article.format as %s, ".
+			"kb_article.content as %s ",
 				SearchFields_KbArticle::ID,
 				SearchFields_KbArticle::TITLE,
 				SearchFields_KbArticle::UPDATED,
@@ -449,22 +449,21 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 				SearchFields_KbArticle::CONTENT
 			);
 			
-		$join_sql = "FROM kb_article kb ";
+		$join_sql = "FROM kb_article ";
 
-		$where_sql = "".
-			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
+		$where_sql =
+			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ")
+		;
 			
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_KbArticle');
-
-		$result = array(
-			'primary_table' => 'kb',
+		
+		return [
+			'primary_table' => 'kb_article',
 			'select' => $select_sql,
 			'join' => $join_sql,
 			'where' => $where_sql,
 			'sort' => $sort_sql,
-		);
-		
-		return $result;
+		];
 	}
 	
 	static function countByCategoryId($category_id) {
@@ -524,7 +523,7 @@ class SearchFields_KbArticle extends DevblocksSearchFields {
 	static private $_fields = null;
 	
 	static function getTableName() : string {
-		return 'kb';
+		return 'kb_article';
 	}
 	
 	static function getPrimaryKey() : string {
@@ -537,7 +536,7 @@ class SearchFields_KbArticle extends DevblocksSearchFields {
 
 	static function getCustomFieldContextKeys() {
 		return array(
-			CerberusContexts::CONTEXT_KB_ARTICLE => new DevblocksSearchFieldContextKeys('kb.id', self::ID),
+			CerberusContexts::CONTEXT_KB_ARTICLE => new DevblocksSearchFieldContextKeys('kb_article.id', self::ID),
 			CerberusContexts::CONTEXT_KB_CATEGORY => new DevblocksSearchFieldContextKeys('katc.kb_category_id', self::CATEGORY_ID),
 		);
 	}
@@ -616,7 +615,6 @@ class SearchFields_KbArticle extends DevblocksSearchFields {
 	}
 	
 	static function getFieldForSubtotalKey($key, $context, array $query_fields, array $search_fields, $primary_key) {
-		// [TODO] Category
 		switch($key) {
 			case 'category':
 			case 'category.id':
@@ -671,12 +669,12 @@ class SearchFields_KbArticle extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::ID => new DevblocksSearchField(self::ID, 'kb', 'id', $translate->_('kb_article.id'), null, true),
-			self::TITLE => new DevblocksSearchField(self::TITLE, 'kb', 'title', $translate->_('kb_article.title'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'kb', 'updated', $translate->_('kb_article.updated'), Model_CustomField::TYPE_DATE, true),
-			self::VIEWS => new DevblocksSearchField(self::VIEWS, 'kb', 'views', $translate->_('kb_article.views'), Model_CustomField::TYPE_NUMBER, true),
-			self::FORMAT => new DevblocksSearchField(self::FORMAT, 'kb', 'format', $translate->_('kb_article.format'), null, true),
-			self::CONTENT => new DevblocksSearchField(self::CONTENT, 'kb', 'content', $translate->_('kb_article.content'), null, true),
+			self::ID => new DevblocksSearchField(self::ID, 'kb_article', 'id', $translate->_('kb_article.id'), null, true),
+			self::TITLE => new DevblocksSearchField(self::TITLE, 'kb_article', 'title', $translate->_('kb_article.title'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'kb_article', 'updated', $translate->_('kb_article.updated'), Model_CustomField::TYPE_DATE, true),
+			self::VIEWS => new DevblocksSearchField(self::VIEWS, 'kb_article', 'views', $translate->_('kb_article.views'), Model_CustomField::TYPE_NUMBER, true),
+			self::FORMAT => new DevblocksSearchField(self::FORMAT, 'kb_article', 'format', $translate->_('kb_article.format'), null, true),
+			self::CONTENT => new DevblocksSearchField(self::CONTENT, 'kb_article', 'content', $translate->_('kb_article.content'), null, true),
 			
 			self::CATEGORY_ID => new DevblocksSearchField(self::CATEGORY_ID, 'katc', 'kb_category_id', DevblocksPlatform::translateCapitalized('common.category'), Model_CustomField::TYPE_NUMBER, true),
 			self::TOP_CATEGORY_ID => new DevblocksSearchField(self::TOP_CATEGORY_ID, 'katc', 'kb_top_category_id', $translate->_('kb_article.topic'), null, true),
