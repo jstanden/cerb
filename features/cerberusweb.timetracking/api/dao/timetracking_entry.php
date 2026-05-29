@@ -432,13 +432,13 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_TimeTrackingEntry', $sortBy);
 
 		$select_sql = sprintf("SELECT ".
-			"tt.id as %s, ".
-			"tt.time_actual_mins as %s, ".
-			"tt.time_actual_secs as %s, ".
-			"tt.log_date as %s, ".
-			"tt.worker_id as %s, ".
-			"tt.activity_id as %s, ".
-			"tt.is_closed as %s ",
+			"timetracking_entry.id as %s, ".
+			"timetracking_entry.time_actual_mins as %s, ".
+			"timetracking_entry.time_actual_secs as %s, ".
+			"timetracking_entry.log_date as %s, ".
+			"timetracking_entry.worker_id as %s, ".
+			"timetracking_entry.activity_id as %s, ".
+			"timetracking_entry.is_closed as %s ",
 			SearchFields_TimeTrackingEntry::ID,
 			SearchFields_TimeTrackingEntry::TIME_ACTUAL_MINS,
 			SearchFields_TimeTrackingEntry::TIME_ACTUAL_SECS,
@@ -449,7 +449,7 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 		);
 		
 		$join_sql =
-			"FROM timetracking_entry tt ";
+			"FROM timetracking_entry ";
 		
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
@@ -457,7 +457,7 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_TimeTrackingEntry');
 		
 		$result = array(
-			'primary_table' => 'tt',
+			'primary_table' => 'timetracking_entry',
 			'select' => $select_sql,
 			'join' => $join_sql,
 			'where' => $where_sql,
@@ -557,7 +557,7 @@ class SearchFields_TimeTrackingEntry extends DevblocksSearchFields {
 	static private $_fields = null;
 	
 	static function getTableName() : string {
-		return 'tt';
+		return 'timetracking_entry';
 	}
 	
 	static function getPrimaryKey() : string {
@@ -570,15 +570,15 @@ class SearchFields_TimeTrackingEntry extends DevblocksSearchFields {
 
 	static function getCustomFieldContextKeys() {
 		return array(
-			CerberusContexts::CONTEXT_TIMETRACKING => new DevblocksSearchFieldContextKeys('tt.id', self::ID),
-			CerberusContexts::CONTEXT_WORKER => new DevblocksSearchFieldContextKeys('tt.worker_id', self::WORKER_ID),
+			CerberusContexts::CONTEXT_TIMETRACKING => new DevblocksSearchFieldContextKeys('timetracking_entry.id', self::ID),
+			CerberusContexts::CONTEXT_WORKER => new DevblocksSearchFieldContextKeys('timetracking_entry.worker_id', self::WORKER_ID),
 		);
 	}
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
 			case self::VIRTUAL_WORKER_SEARCH:
-				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_WORKER, 'tt.worker_id');
+				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_WORKER, 'timetracking_entry.worker_id');
 				
 			default:
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
@@ -657,13 +657,13 @@ class SearchFields_TimeTrackingEntry extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::ID => new DevblocksSearchField(self::ID, 'tt', 'id', $translate->_('common.id'), null, true),
-			self::TIME_ACTUAL_MINS => new DevblocksSearchField(self::TIME_ACTUAL_MINS, 'tt', 'time_actual_mins', $translate->_('timetracking.ui.entry_panel.time_spent'), Model_CustomField::TYPE_NUMBER, true),
-			self::TIME_ACTUAL_SECS => new DevblocksSearchField(self::TIME_ACTUAL_SECS, 'tt', 'time_actual_secs', $translate->_('timetracking.ui.entry_panel.time_spent'), Model_CustomField::TYPE_NUMBER, true),
-			self::LOG_DATE => new DevblocksSearchField(self::LOG_DATE, 'tt', 'log_date', $translate->_('timetracking_entry.log_date'), Model_CustomField::TYPE_DATE, true),
-			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'tt', 'worker_id', $translate->_('timetracking_entry.worker_id'), Model_CustomField::TYPE_WORKER, true),
-			self::ACTIVITY_ID => new DevblocksSearchField(self::ACTIVITY_ID, 'tt', 'activity_id', $translate->_('timetracking_entry.activity_id'), null, true),
-			self::IS_CLOSED => new DevblocksSearchField(self::IS_CLOSED, 'tt', 'is_closed', $translate->_('common.is_closed'), Model_CustomField::TYPE_CHECKBOX, true),
+			self::ID => new DevblocksSearchField(self::ID, 'timetracking_entry', 'id', $translate->_('common.id'), null, true),
+			self::TIME_ACTUAL_MINS => new DevblocksSearchField(self::TIME_ACTUAL_MINS, 'timetracking_entry', 'time_actual_mins', $translate->_('timetracking.ui.entry_panel.time_spent'), Model_CustomField::TYPE_NUMBER, true),
+			self::TIME_ACTUAL_SECS => new DevblocksSearchField(self::TIME_ACTUAL_SECS, 'timetracking_entry', 'time_actual_secs', $translate->_('timetracking.ui.entry_panel.time_spent'), Model_CustomField::TYPE_NUMBER, true),
+			self::LOG_DATE => new DevblocksSearchField(self::LOG_DATE, 'timetracking_entry', 'log_date', $translate->_('timetracking_entry.log_date'), Model_CustomField::TYPE_DATE, true),
+			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'timetracking_entry', 'worker_id', $translate->_('timetracking_entry.worker_id'), Model_CustomField::TYPE_WORKER, true),
+			self::ACTIVITY_ID => new DevblocksSearchField(self::ACTIVITY_ID, 'timetracking_entry', 'activity_id', $translate->_('timetracking_entry.activity_id'), null, true),
+			self::IS_CLOSED => new DevblocksSearchField(self::IS_CLOSED, 'timetracking_entry', 'is_closed', $translate->_('common.is_closed'), Model_CustomField::TYPE_CHECKBOX, true),
 
 			self::VIRTUAL_WORKER_SEARCH => new DevblocksSearchField(self::VIRTUAL_WORKER_SEARCH, '*', 'worker_search', null, null, false),
 		];
