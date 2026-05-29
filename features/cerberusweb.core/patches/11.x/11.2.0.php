@@ -222,298 +222,234 @@ if(!array_key_exists('search_index_tokens', $tables)) {
 // ===========================================================================
 // Convert MySQL Fulltext indexes
 
-$search_queue_id = intval($db->GetOneMaster("SELECT id FROM queue WHERE name = 'cerb.search.index'"));
-
-// Contacts
-if(!$db->GetOneMaster(sprintf("SELECT id FROM search_index WHERE record_type = %s AND record_filter = %d", $db->qstr('contact'), $db->qstr('text')))) {
-	$sql = sprintf("INSERT INTO search_index (name, uri, record_type, record_filter, extension_id, extension_params_json, priority, created_at, updated_at) " .
-		"VALUES (%s, %s, %s, %s, %s, %s, %d, %d, %d)",
-		$db->qstr('Contacts'),
-		$db->qstr('contacts'),
-		$db->qstr('contact'),
-		$db->qstr('text'),
-		$db->qstr('cerb.search.index.fulltext'),
-		$db->qstr(json_encode(['record_query' => '', 'content' => "{{first_name}} {{last_name}}\n{{aliases|join(' ')}}\n{{title}}\n{{email_address}} {{emails|join(' ')}}\n{{org__label}}\n{{username}}"])),
-		0,
-		time(),
-		time(),
-	);
-	$db->ExecuteMaster($sql);
-}
-
-if(array_key_exists('fulltext_contact', $tables)) {
-	$db->ExecuteMaster('DROP TABLE fulltext_contact');
-	unset($tables['fulltext_contact']);
-	$db->ExecuteMaster("DELETE FROM cerb_property_store WHERE extension_id = 'cerb.search.schema.contact'");
+if($revision < 1506) {
+	$search_queue_id = intval($db->GetOneMaster("SELECT id FROM queue WHERE name = 'cerb.search.index'"));
+	
+	// Contacts
+	if (!$db->GetOneMaster(sprintf("SELECT id FROM search_index WHERE record_type = %s AND record_filter = %d", $db->qstr('contact'), $db->qstr('text')))) {
+		$sql = sprintf("INSERT INTO search_index (name, uri, record_type, record_filter, extension_id, extension_params_json, priority, created_at, updated_at) " .
+			"VALUES (%s, %s, %s, %s, %s, %s, %d, %d, %d)",
+			$db->qstr('Contacts'),
+			$db->qstr('contacts'),
+			$db->qstr('contact'),
+			$db->qstr('text'),
+			$db->qstr('cerb.search.index.fulltext'),
+			$db->qstr(json_encode(['record_query' => '', 'content' => "{{first_name}} {{last_name}}\n{{aliases|join(' ')}}\n{{title}}\n{{email_address}} {{emails|join(' ')}}\n{{org__label}}\n{{username}}"])),
+			0,
+			time(),
+			time(),
+		);
+		$db->ExecuteMaster($sql);
+	}
+	
+	if (array_key_exists('fulltext_contact', $tables)) {
+		$db->ExecuteMaster('DROP TABLE fulltext_contact');
+		unset($tables['fulltext_contact']);
+		$db->ExecuteMaster("DELETE FROM cerb_property_store WHERE extension_id = 'cerb.search.schema.contact'");
+	}
 }
 
 // Workers
-if(!$db->GetOneMaster(sprintf("SELECT id FROM search_index WHERE record_type = %s AND record_filter = %d", $db->qstr('worker'), $db->qstr('text')))) {
-	$sql = sprintf("INSERT INTO search_index (name, uri, record_type, record_filter, extension_id, extension_params_json, priority, created_at, updated_at) " .
-		"VALUES (%s, %s, %s, %s, %s, %s, %d, %d, %d)",
-		$db->qstr('Workers'),
-		$db->qstr('workers'),
-		$db->qstr('worker'),
-		$db->qstr('text'),
-		$db->qstr('cerb.search.index.fulltext'),
-		$db->qstr(json_encode(['record_query' => '', 'content' => "{{first_name}} {{last_name}} {{at_mention_name}}\n{{aliases|join(' ')}}\n{{title}}\n{{email_address}}"])),
-		0,
-		time(),
-		time(),
-	);
-	$db->ExecuteMaster($sql);
-}
 
-if(array_key_exists('fulltext_worker', $tables)) {
-	$db->ExecuteMaster('DROP TABLE fulltext_worker');
-	unset($tables['fulltext_worker']);
-	$db->ExecuteMaster("DELETE FROM cerb_property_store WHERE extension_id = 'cerb.search.schema.worker'");
+if($revision < 1506) {
+	if (!$db->GetOneMaster(sprintf("SELECT id FROM search_index WHERE record_type = %s AND record_filter = %d", $db->qstr('worker'), $db->qstr('text')))) {
+		$sql = sprintf("INSERT INTO search_index (name, uri, record_type, record_filter, extension_id, extension_params_json, priority, created_at, updated_at) " .
+			"VALUES (%s, %s, %s, %s, %s, %s, %d, %d, %d)",
+			$db->qstr('Workers'),
+			$db->qstr('workers'),
+			$db->qstr('worker'),
+			$db->qstr('text'),
+			$db->qstr('cerb.search.index.fulltext'),
+			$db->qstr(json_encode(['record_query' => '', 'content' => "{{first_name}} {{last_name}} {{at_mention_name}}\n{{aliases|join(' ')}}\n{{title}}\n{{email_address}}"])),
+			0,
+			time(),
+			time(),
+		);
+		$db->ExecuteMaster($sql);
+	}
+	
+	if (array_key_exists('fulltext_worker', $tables)) {
+		$db->ExecuteMaster('DROP TABLE fulltext_worker');
+		unset($tables['fulltext_worker']);
+		$db->ExecuteMaster("DELETE FROM cerb_property_store WHERE extension_id = 'cerb.search.schema.worker'");
+	}
 }
 
 // Automations
-if(!$db->GetOneMaster(sprintf("SELECT id FROM search_index WHERE record_type = %s AND record_filter = %d", $db->qstr('automation'), $db->qstr('script')))) {
-	$sql = sprintf("INSERT INTO search_index (name, uri, record_type, record_filter, extension_id, extension_params_json, priority, created_at, updated_at) " .
-		"VALUES (%s, %s, %s, %s, %s, %s, %d, %d, %d)",
-		$db->qstr('Automations'),
-		$db->qstr('automations'),
-		$db->qstr('automation'),
-		$db->qstr('script'),
-		$db->qstr('cerb.search.index.fulltext'),
-		$db->qstr(json_encode(['record_query' => '', 'content' => "{{name}}\n{{extension_id}}\n\n~~~\n{{script\n  |strip_data_uris()\n  |strip_pem_blocks()\n  |strip_url_querystrings()\n}}\n~~~"])),
-		0,
-		time(),
-		time(),
-	);
-	$db->ExecuteMaster($sql);
-}
 
-if(array_key_exists('fulltext_automation', $tables)) {
-	$db->ExecuteMaster('DROP TABLE fulltext_automation');
-	unset($tables['fulltext_automation']);
-	$db->ExecuteMaster("DELETE FROM cerb_property_store WHERE extension_id = 'cerb.search.schema.automation'");
+if($revision < 1506) {
+	if (!$db->GetOneMaster(sprintf("SELECT id FROM search_index WHERE record_type = %s AND record_filter = %d", $db->qstr('automation'), $db->qstr('script')))) {
+		$sql = sprintf("INSERT INTO search_index (name, uri, record_type, record_filter, extension_id, extension_params_json, priority, created_at, updated_at) " .
+			"VALUES (%s, %s, %s, %s, %s, %s, %d, %d, %d)",
+			$db->qstr('Automations'),
+			$db->qstr('automations'),
+			$db->qstr('automation'),
+			$db->qstr('script'),
+			$db->qstr('cerb.search.index.fulltext'),
+			$db->qstr(json_encode(['record_query' => '', 'content' => "{{name}}\n{{extension_id}}\n\n~~~\n{{script\n  |strip_data_uris()\n  |strip_pem_blocks()\n  |strip_url_querystrings()\n}}\n~~~"])),
+			0,
+			time(),
+			time(),
+		);
+		$db->ExecuteMaster($sql);
+	}
+	
+	if (array_key_exists('fulltext_automation', $tables)) {
+		$db->ExecuteMaster('DROP TABLE fulltext_automation');
+		unset($tables['fulltext_automation']);
+		$db->ExecuteMaster("DELETE FROM cerb_property_store WHERE extension_id = 'cerb.search.schema.automation'");
+	}
 }
 
 // Email Addresses
-if(!$db->GetOneMaster(sprintf("SELECT id FROM search_index WHERE record_type = %s AND record_filter = %d", $db->qstr('address'), $db->qstr('text')))) {
-	$sql = sprintf("INSERT INTO search_index (name, uri, record_type, record_filter, extension_id, extension_params_json, priority, created_at, updated_at) " .
-		"VALUES (%s, %s, %s, %s, %s, %s, %d, %d, %d)",
-		$db->qstr('Email Addresses'),
-		$db->qstr('emails'),
-		$db->qstr('address'),
-		$db->qstr('text'),
-		$db->qstr('cerb.search.index.fulltext'),
-		$db->qstr(json_encode(['record_query' => '', 'content' => "{{address}}\n{{contact__label}} {{contact_aliases|join(' ')}}\n{{org__label}} {{org_aliases|join(' ')}}"])),
-		0,
-		time(),
-		time(),
-	);
-	$db->ExecuteMaster($sql);
-}
 
-if(array_key_exists('fulltext_address', $tables)) {
-	$db->ExecuteMaster('DROP TABLE fulltext_address');
-	unset($tables['fulltext_address']);
-	$db->ExecuteMaster("DELETE FROM cerb_property_store WHERE extension_id = 'cerb.search.schema.address'");
+if($revision < 1506) {
+	if (!$db->GetOneMaster(sprintf("SELECT id FROM search_index WHERE record_type = %s AND record_filter = %d", $db->qstr('address'), $db->qstr('text')))) {
+		$sql = sprintf("INSERT INTO search_index (name, uri, record_type, record_filter, extension_id, extension_params_json, priority, created_at, updated_at) " .
+			"VALUES (%s, %s, %s, %s, %s, %s, %d, %d, %d)",
+			$db->qstr('Email Addresses'),
+			$db->qstr('emails'),
+			$db->qstr('address'),
+			$db->qstr('text'),
+			$db->qstr('cerb.search.index.fulltext'),
+			$db->qstr(json_encode(['record_query' => '', 'content' => "{{address}}\n{{contact__label}} {{contact_aliases|join(' ')}}\n{{org__label}} {{org_aliases|join(' ')}}"])),
+			0,
+			time(),
+			time(),
+		);
+		$db->ExecuteMaster($sql);
+	}
+	
+	if (array_key_exists('fulltext_address', $tables)) {
+		$db->ExecuteMaster('DROP TABLE fulltext_address');
+		unset($tables['fulltext_address']);
+		$db->ExecuteMaster("DELETE FROM cerb_property_store WHERE extension_id = 'cerb.search.schema.address'");
+	}
 }
 
 // Organizations
-if(!$db->GetOneMaster(sprintf("SELECT id FROM search_index WHERE record_type = %s AND record_filter = %d", $db->qstr('org'), $db->qstr('text')))) {
-	$sql = sprintf("INSERT INTO search_index (name, uri, record_type, record_filter, extension_id, extension_params_json, priority, created_at, updated_at) " .
-		"VALUES (%s, %s, %s, %s, %s, %s, %d, %d, %d)",
-		$db->qstr('Organizations'),
-		$db->qstr('orgs'),
-		$db->qstr('org'),
-		$db->qstr('text'),
-		$db->qstr('cerb.search.index.fulltext'),
-		$db->qstr(json_encode(['record_query' => '', 'content' => "{{name}}\n{{aliases|join(' ')}}\n{{street}} {{city}} {{province}} {{postal}} {{country}}\n{{website}}\n{{email_address}}"])),
-		0,
-		time(),
-		time(),
-	);
-	$db->ExecuteMaster($sql);
+
+if($revision < 1506) {
+	if (!$db->GetOneMaster(sprintf("SELECT id FROM search_index WHERE record_type = %s AND record_filter = %d", $db->qstr('org'), $db->qstr('text')))) {
+		$sql = sprintf("INSERT INTO search_index (name, uri, record_type, record_filter, extension_id, extension_params_json, priority, created_at, updated_at) " .
+			"VALUES (%s, %s, %s, %s, %s, %s, %d, %d, %d)",
+			$db->qstr('Organizations'),
+			$db->qstr('orgs'),
+			$db->qstr('org'),
+			$db->qstr('text'),
+			$db->qstr('cerb.search.index.fulltext'),
+			$db->qstr(json_encode(['record_query' => '', 'content' => "{{name}}\n{{aliases|join(' ')}}\n{{street}} {{city}} {{province}} {{postal}} {{country}}\n{{website}}\n{{email_address}}"])),
+			0,
+			time(),
+			time(),
+		);
+		$db->ExecuteMaster($sql);
+	}
+	
+	if (array_key_exists('fulltext_org', $tables)) {
+		$db->ExecuteMaster('DROP TABLE fulltext_org');
+		unset($tables['fulltext_org']);
+		$db->ExecuteMaster("DELETE FROM cerb_property_store WHERE extension_id = 'cerb.search.schema.org'");
+	}
 }
 
-if(array_key_exists('fulltext_org', $tables)) {
-	$db->ExecuteMaster('DROP TABLE fulltext_org');
-	unset($tables['fulltext_org']);
-	$db->ExecuteMaster("DELETE FROM cerb_property_store WHERE extension_id = 'cerb.search.schema.org'");
-}
 // Jira Issues
+
 if(array_key_exists('fulltext_jira_issue', $tables)) {
 	$db->ExecuteMaster('DROP TABLE fulltext_jira_issue');
 	$db->ExecuteMaster("DELETE FROM cerb_property_store WHERE extension_id = 'jira.search.schema.jira_issue'");
 }
 
 // Snippets
-if(!$db->GetOneMaster(sprintf("SELECT id FROM search_index WHERE record_type = %s AND record_filter = %d", $db->qstr('snippet'), $db->qstr('text')))) {
-	$sql = sprintf("INSERT INTO search_index (name, uri, record_type, record_filter, extension_id, extension_params_json, priority, created_at, updated_at) " .
-		"VALUES (%s, %s, %s, %s, %s, %s, %d, %d, %d)",
-		$db->qstr('Snippets Content'),
-		$db->qstr('snippets'),
-		$db->qstr('snippet'),
-		$db->qstr('text'),
-		$db->qstr('cerb.search.index.fulltext'),
-		$db->qstr(json_encode(['record_query' => '', 'content' => "{{title}}\n\n{{content}}"])),
-		0,
-		time(),
-		time(),
-	);
-	$db->ExecuteMaster($sql);
-}
 
-if(array_key_exists('fulltext_snippet', $tables)) {
-	$db->ExecuteMaster('DROP TABLE fulltext_snippet');
-	unset($tables['fulltext_snippet']);
-	$db->ExecuteMaster("DELETE FROM cerb_property_store WHERE extension_id = 'cerb.search.schema.snippet'");
+if($revision < 1506) {
+	if (!$db->GetOneMaster(sprintf("SELECT id FROM search_index WHERE record_type = %s AND record_filter = %d", $db->qstr('snippet'), $db->qstr('text')))) {
+		$sql = sprintf("INSERT INTO search_index (name, uri, record_type, record_filter, extension_id, extension_params_json, priority, created_at, updated_at) " .
+			"VALUES (%s, %s, %s, %s, %s, %s, %d, %d, %d)",
+			$db->qstr('Snippets Content'),
+			$db->qstr('snippets'),
+			$db->qstr('snippet'),
+			$db->qstr('text'),
+			$db->qstr('cerb.search.index.fulltext'),
+			$db->qstr(json_encode(['record_query' => '', 'content' => "{{title}}\n\n{{content}}"])),
+			0,
+			time(),
+			time(),
+		);
+		$db->ExecuteMaster($sql);
+	}
+	
+	if (array_key_exists('fulltext_snippet', $tables)) {
+		$db->ExecuteMaster('DROP TABLE fulltext_snippet');
+		unset($tables['fulltext_snippet']);
+		$db->ExecuteMaster("DELETE FROM cerb_property_store WHERE extension_id = 'cerb.search.schema.snippet'");
+	}
 }
 
 // Message Headers
 
-$message_header_indexes = [
-	['name' => 'Message Header From', 'uri' => 'messages.header.from', 'filter' => 'header.from', 'content' => "{{headers['from']}}"],
-	['name' => 'Message Header To', 'uri' => 'messages.header.to', 'filter' => 'header.to', 'content' => "{{headers['to']}}"],
-	['name' => 'Message Header Cc', 'uri' => 'messages.header.cc', 'filter' => 'header.cc', 'content' => "{{headers['cc']}}"],
-	['name' => 'Message Header Delivered-To', 'uri' => 'messages.header.deliveredto', 'filter' => 'header.deliveredTo', 'content' => "{{headers['delivered-to']}} {{headers['envelope-to']}} {{headers['x-envelope-to']}} {{headers['original-to']}}"],
-	['name' => 'Message Header Cerb-Mailbox', 'uri' => 'messages.header.cerbmailbox', 'filter' => 'header.cerbMailbox', 'content' => "{{headers['x-cerberus-mailbox']}}"],
-	['name' => 'Message Header Forwarded-To', 'uri' => 'messages.header.forwardedto', 'filter' => 'header.forwardedTo', 'content' => "{{headers['x-forwarded-to']}}"],
-	['name' => 'Message Header X-Mailer', 'uri' => 'messages.header.mailer', 'filter' => 'header.mailer', 'content' => "{{headers['x-mailer']}}"],
-];
-
-// Reuse counts for all headers
-$message_record_count = intval($db->GetOneMaster("SELECT COUNT(id) FROM message"));
-
-// Checkpoints for incremental indexing
-$message_max = $db->GetRowMaster("SELECT id, created_date FROM message ORDER BY created_date DESC, id DESC LIMIT 1");
-$message_last_indexed_at = intval($message_max['created_date'] ?? 0);
-$message_last_indexed_id = intval($message_max['id'] ?? 0);
-
-$db->ExecuteMaster('SET SESSION group_concat_max_len = 1048576');
-
-// For each header
-foreach($message_header_indexes as $header_index) {
-	// Idempotent: skip if this filter already exists for messages
-	if($db->GetOneMaster(sprintf("SELECT id FROM search_index WHERE record_type = %s AND record_filter = %s",
-		$db->qstr('message'), $db->qstr($header_index['filter']))))
-		continue;
-
-	$db->ExecuteMaster(sprintf("INSERT INTO search_index (name, uri, record_type, record_filter, extension_id, extension_params_json, priority, created_at, updated_at) " .
-		"VALUES (%s, %s, %s, %s, %s, %s, %d, %d, %d)",
-		$db->qstr($header_index['name']),
-		$db->qstr($header_index['uri']),
-		$db->qstr('message'),
-		$db->qstr($header_index['filter']),
-		$db->qstr('cerb.search.index.fulltext'),
-		$db->qstr(json_encode(['record_query' => '', 'content' => $header_index['content']])),
-		50,
-		time(),
-		time(),
-	));
-
-	if(!($search_index_id = $db->LastInsertId()))
-		continue;
+if($revision < 1506) {
+	$message_header_indexes = [
+		['name' => 'Message Header From', 'uri' => 'messages.header.from', 'filter' => 'header.from', 'content' => "{{headers['from']}}"],
+		['name' => 'Message Header To', 'uri' => 'messages.header.to', 'filter' => 'header.to', 'content' => "{{headers['to']}}"],
+		['name' => 'Message Header Cc', 'uri' => 'messages.header.cc', 'filter' => 'header.cc', 'content' => "{{headers['cc']}}"],
+		['name' => 'Message Header Delivered-To', 'uri' => 'messages.header.deliveredto', 'filter' => 'header.deliveredTo', 'content' => "{{headers['delivered-to']}} {{headers['envelope-to']}} {{headers['x-envelope-to']}} {{headers['original-to']}}"],
+		['name' => 'Message Header Cerb-Mailbox', 'uri' => 'messages.header.cerbmailbox', 'filter' => 'header.cerbMailbox', 'content' => "{{headers['x-cerberus-mailbox']}}"],
+		['name' => 'Message Header Forwarded-To', 'uri' => 'messages.header.forwardedto', 'filter' => 'header.forwardedTo', 'content' => "{{headers['x-forwarded-to']}}"],
+		['name' => 'Message Header X-Mailer', 'uri' => 'messages.header.mailer', 'filter' => 'header.mailer', 'content' => "{{headers['x-mailer']}}"],
+	];
 	
-	// Checkpoint the current state to prevent incremental indexing of historical content
-	$db->ExecuteMaster(sprintf("REPLACE INTO devblocks_registry (entry_key, entry_type, entry_value, entry_expires_at) VALUES (%s, 'number', %d, 0)",
-		$db->qstr(sprintf('search_index_%d.last_indexed_at', $search_index_id)),
-		$message_last_indexed_at,
-	));
-	$db->ExecuteMaster(sprintf("REPLACE INTO devblocks_registry (entry_key, entry_type, entry_value, entry_expires_at) VALUES (%s, 'number', %d, 0)",
-		$db->qstr(sprintf('search_index_%d.last_indexed_id', $search_index_id)),
-		$message_last_indexed_id,
-	));
-
-	// Queue a full reindex job. Skip if the queue is missing or empty
-	if(!$message_record_count)
-		continue;
-
-	// Create a reindex queue job
-	$db->ExecuteMaster(sprintf("INSERT INTO queue_job (name, singleton_key, queue_id, worker_id, metadata, status_id, count_total, count_available, created_at, updated_at) " .
-		"VALUES (%s, %s, %d, 0, %s, 0 /* RUNNING */, %d, %d, %d, %d)",
-		$db->qstr('Reindex ' . $header_index['name']),
-		$db->qstr(sprintf('search_index:%d:reindex', $search_index_id)),
-		$search_queue_id,
-		$db->qstr(json_encode(['search_index_id' => $search_index_id, 'record_type' => 'message'])),
-		$message_record_count,
-		$message_record_count,
-		time(),
-		time(),
-	));
-
-	$job_id = $db->LastInsertId();
-
-	// One queue_message per 100-record batch, mirroring _reindexCreateJob()
-	$db->ExecuteMaster(sprintf("INSERT INTO queue_message (uuid, queue_id, job_id, status_id, status_at, message, cardinality) " .
-		"SELECT UUID_TO_BIN(UUID()) AS uuid, " .
-		"%d AS queue_id, " .
-		"%d AS job_id, " .
-		"0 /* available */ AS status_id, " .
-		"UNIX_TIMESTAMP() AS status_at, " .
-		"CONCAT('{\"index_id\":',%d,',\"ids\":[',GROUP_CONCAT(id ORDER BY id),']}') AS message, " .
-		"COUNT(id) AS cardinality " .
-		"FROM (SELECT id, CEIL(ROW_NUMBER() OVER (ORDER BY id) / 100) AS batch FROM message) AS batched " .
-		"GROUP BY batch",
-		$search_queue_id,
-		$job_id,
-		$search_index_id,
-	));
-}
-
-// Drop the legacy InnoDB FT table
-if(array_key_exists('fulltext_message_header', $tables)) {
-	$db->ExecuteMaster('DROP TABLE fulltext_message_header');
-	unset($tables['fulltext_message_header']);
-}
-
-// Clear old indexing progress
-$db->ExecuteMaster("DELETE FROM cerb_property_store WHERE extension_id = 'cerberusweb.search.schema.message_headers'");
-
-// Message Content (reuses $message_record_count / $message_max from the headers block above)
-
-if(!$db->GetOneMaster(sprintf("SELECT id FROM search_index WHERE record_type = %s AND record_filter = %s",
-	$db->qstr('message'),
-	$db->qstr('content'))
-)) {
-	// Replicates the legacy Search_MessageContent composition: reply quotes
-	// stripped from the body, plus sender/subject/mask/org metadata.
-	$message_content_template = implode("\n", [
-		"{{content|strip_lines('>')|strip_pem_blocks()|strip_data_uris()|strip_url_querystrings()}}",
-		"{{sender__label}}",
-		"{{ticket_subject}}",
-		"{{ticket_mask}}",
-		"{{ticket_org__label}}",
-	]);
-
-	$db->ExecuteMaster(sprintf("INSERT INTO search_index (name, uri, record_type, record_filter, extension_id, extension_params_json, priority, created_at, updated_at) " .
-		"VALUES (%s, %s, %s, %s, %s, %s, %d, %d, %d)",
-		$db->qstr('Messages'),
-		$db->qstr('messages'),
-		$db->qstr('message'),
-		$db->qstr('content'),
-		$db->qstr('cerb.search.index.fulltext'),
-		$db->qstr(json_encode(['record_query' => '', 'content' => $message_content_template])),
-		0,
-		time(),
-		time(),
-	));
-
-	$search_index_id = $db->LastInsertId();
-
-	// Checkpoint incremental search indexing
-	$db->ExecuteMaster(sprintf("REPLACE INTO devblocks_registry (entry_key, entry_type, entry_value, entry_expires_at) VALUES (%s, 'number', %d, 0)",
-		$db->qstr(sprintf('search_index_%d.last_indexed_at', $search_index_id)),
-		$message_last_indexed_at,
-	));
-	$db->ExecuteMaster(sprintf("REPLACE INTO devblocks_registry (entry_key, entry_type, entry_value, entry_expires_at) VALUES (%s, 'number', %d, 0)",
-		$db->qstr(sprintf('search_index_%d.last_indexed_id', $search_index_id)),
-		$message_last_indexed_id,
-	));
-
-	if($search_queue_id && $message_record_count) {
-		$db->ExecuteMaster('SET SESSION group_concat_max_len = 1048576');
-
+	// Reuse counts for all headers
+	$message_record_count = intval($db->GetOneMaster("SELECT COUNT(id) FROM message"));
+	
+	// Checkpoints for incremental indexing
+	$message_max = $db->GetRowMaster("SELECT id, created_date FROM message ORDER BY created_date DESC, id DESC LIMIT 1");
+	$message_last_indexed_at = intval($message_max['created_date'] ?? 0);
+	$message_last_indexed_id = intval($message_max['id'] ?? 0);
+	
+	$db->ExecuteMaster('SET SESSION group_concat_max_len = 1048576');
+	
+	// For each header
+	foreach ($message_header_indexes as $header_index) {
+		// Idempotent: skip if this filter already exists for messages (run once)
+		if ($db->GetOneMaster(sprintf("SELECT id FROM search_index WHERE record_type = %s AND record_filter = %s",
+			$db->qstr('message'), $db->qstr($header_index['filter']))))
+			continue;
+		
+		$db->ExecuteMaster(sprintf("INSERT INTO search_index (name, uri, record_type, record_filter, extension_id, extension_params_json, priority, created_at, updated_at) " .
+			"VALUES (%s, %s, %s, %s, %s, %s, %d, %d, %d)",
+			$db->qstr($header_index['name']),
+			$db->qstr($header_index['uri']),
+			$db->qstr('message'),
+			$db->qstr($header_index['filter']),
+			$db->qstr('cerb.search.index.fulltext'),
+			$db->qstr(json_encode(['record_query' => '', 'content' => $header_index['content']])),
+			50,
+			time(),
+			time(),
+		));
+		
+		if (!($search_index_id = $db->LastInsertId()))
+			continue;
+		
+		// Checkpoint the current state to prevent incremental indexing of historical content
+		$db->ExecuteMaster(sprintf("REPLACE INTO devblocks_registry (entry_key, entry_type, entry_value, entry_expires_at) VALUES (%s, 'number', %d, 0)",
+			$db->qstr(sprintf('search_index_%d.last_indexed_at', $search_index_id)),
+			$message_last_indexed_at,
+		));
+		$db->ExecuteMaster(sprintf("REPLACE INTO devblocks_registry (entry_key, entry_type, entry_value, entry_expires_at) VALUES (%s, 'number', %d, 0)",
+			$db->qstr(sprintf('search_index_%d.last_indexed_id', $search_index_id)),
+			$message_last_indexed_id,
+		));
+		
+		// Queue a full reindex job. Skip if the queue is missing or empty
+		if (!$message_record_count)
+			continue;
+		
+		// Create a reindex queue job
 		$db->ExecuteMaster(sprintf("INSERT INTO queue_job (name, singleton_key, queue_id, worker_id, metadata, status_id, count_total, count_available, created_at, updated_at) " .
 			"VALUES (%s, %s, %d, 0, %s, 0 /* RUNNING */, %d, %d, %d, %d)",
-			$db->qstr('Reindex Message Content'),
+			$db->qstr('Reindex ' . $header_index['name']),
 			$db->qstr(sprintf('search_index:%d:reindex', $search_index_id)),
 			$search_queue_id,
 			$db->qstr(json_encode(['search_index_id' => $search_index_id, 'record_type' => 'message'])),
@@ -522,9 +458,10 @@ if(!$db->GetOneMaster(sprintf("SELECT id FROM search_index WHERE record_type = %
 			time(),
 			time(),
 		));
-
+		
 		$job_id = $db->LastInsertId();
-
+		
+		// One queue_message per 100-record batch, mirroring _reindexCreateJob()
 		$db->ExecuteMaster(sprintf("INSERT INTO queue_message (uuid, queue_id, job_id, status_id, status_at, message, cardinality) " .
 			"SELECT UUID_TO_BIN(UUID()) AS uuid, " .
 			"%d AS queue_id, " .
@@ -543,6 +480,92 @@ if(!$db->GetOneMaster(sprintf("SELECT id FROM search_index WHERE record_type = %
 }
 
 // Drop the legacy InnoDB FT table
+if(array_key_exists('fulltext_message_header', $tables)) {
+	$db->ExecuteMaster('DROP TABLE fulltext_message_header');
+	unset($tables['fulltext_message_header']);
+}
+
+// Clear old indexing progress
+$db->ExecuteMaster("DELETE FROM cerb_property_store WHERE extension_id = 'cerberusweb.search.schema.message_headers'");
+
+// Message Content (reuses $message_record_count / $message_max from the headers block above)
+
+if($revision < 1506) {
+	if (!$db->GetOneMaster(sprintf("SELECT id FROM search_index WHERE record_type = %s AND record_filter = %s",
+			$db->qstr('message'),
+			$db->qstr('content'))
+	)) {
+		// Replicates the legacy Search_MessageContent composition: reply quotes
+		// stripped from the body, plus sender/subject/mask/org metadata.
+		$message_content_template = implode("\n", [
+			"{{content|strip_lines('>')|strip_pem_blocks()|strip_data_uris()|strip_url_querystrings()}}",
+			"{{sender__label}}",
+			"{{ticket_subject}}",
+			"{{ticket_mask}}",
+			"{{ticket_org__label}}",
+		]);
+		
+		$db->ExecuteMaster(sprintf("INSERT INTO search_index (name, uri, record_type, record_filter, extension_id, extension_params_json, priority, created_at, updated_at) " .
+			"VALUES (%s, %s, %s, %s, %s, %s, %d, %d, %d)",
+			$db->qstr('Messages'),
+			$db->qstr('messages'),
+			$db->qstr('message'),
+			$db->qstr('content'),
+			$db->qstr('cerb.search.index.fulltext'),
+			$db->qstr(json_encode(['record_query' => '', 'content' => $message_content_template])),
+			0,
+			time(),
+			time(),
+		));
+		
+		$search_index_id = $db->LastInsertId();
+		
+		// Checkpoint incremental search indexing
+		$db->ExecuteMaster(sprintf("REPLACE INTO devblocks_registry (entry_key, entry_type, entry_value, entry_expires_at) VALUES (%s, 'number', %d, 0)",
+			$db->qstr(sprintf('search_index_%d.last_indexed_at', $search_index_id)),
+			$message_last_indexed_at,
+		));
+		$db->ExecuteMaster(sprintf("REPLACE INTO devblocks_registry (entry_key, entry_type, entry_value, entry_expires_at) VALUES (%s, 'number', %d, 0)",
+			$db->qstr(sprintf('search_index_%d.last_indexed_id', $search_index_id)),
+			$message_last_indexed_id,
+		));
+		
+		if ($search_queue_id && $message_record_count) {
+			$db->ExecuteMaster('SET SESSION group_concat_max_len = 1048576');
+			
+			$db->ExecuteMaster(sprintf("INSERT INTO queue_job (name, singleton_key, queue_id, worker_id, metadata, status_id, count_total, count_available, created_at, updated_at) " .
+				"VALUES (%s, %s, %d, 0, %s, 0 /* RUNNING */, %d, %d, %d, %d)",
+				$db->qstr('Reindex Message Content'),
+				$db->qstr(sprintf('search_index:%d:reindex', $search_index_id)),
+				$search_queue_id,
+				$db->qstr(json_encode(['search_index_id' => $search_index_id, 'record_type' => 'message'])),
+				$message_record_count,
+				$message_record_count,
+				time(),
+				time(),
+			));
+			
+			$job_id = $db->LastInsertId();
+			
+			$db->ExecuteMaster(sprintf("INSERT INTO queue_message (uuid, queue_id, job_id, status_id, status_at, message, cardinality) " .
+				"SELECT UUID_TO_BIN(UUID()) AS uuid, " .
+				"%d AS queue_id, " .
+				"%d AS job_id, " .
+				"0 /* available */ AS status_id, " .
+				"UNIX_TIMESTAMP() AS status_at, " .
+				"CONCAT('{\"index_id\":',%d,',\"ids\":[',GROUP_CONCAT(id ORDER BY id),']}') AS message, " .
+				"COUNT(id) AS cardinality " .
+				"FROM (SELECT id, CEIL(ROW_NUMBER() OVER (ORDER BY id) / 100) AS batch FROM message) AS batched " .
+				"GROUP BY batch",
+				$search_queue_id,
+				$job_id,
+				$search_index_id,
+			));
+		}
+	}
+}
+
+// Drop the legacy InnoDB FT table
 if(array_key_exists('fulltext_message_content', $tables)) {
 	$db->ExecuteMaster('DROP TABLE fulltext_message_content');
 	unset($tables['fulltext_message_content']);
@@ -553,69 +576,71 @@ $db->ExecuteMaster("DELETE FROM cerb_property_store WHERE extension_id = 'cerber
 
 // Comments
 
-if(!$db->GetOneMaster(sprintf("SELECT id FROM search_index WHERE record_type = %s AND record_filter = %s",
-	$db->qstr('comment'),
-	$db->qstr('text'))
-)) {
-	$db->ExecuteMaster(sprintf("INSERT INTO search_index (name, uri, record_type, record_filter, extension_id, extension_params_json, priority, created_at, updated_at) " .
-		"VALUES (%s, %s, %s, %s, %s, %s, %d, %d, %d)",
-		$db->qstr('Comments'),
-		$db->qstr('comments'),
-		$db->qstr('comment'),
-		$db->qstr('text'),
-		$db->qstr('cerb.search.index.fulltext'),
-		$db->qstr(json_encode(['record_query' => '', 'content' => '{{comment|strip_data_uris()|strip_pem_blocks()|strip_url_querystrings()}}'])),
-		0,
-		time(),
-		time(),
-	));
-
-	$search_index_id = $db->LastInsertId();
-
-	$comment_record_count = intval($db->GetOneMaster("SELECT COUNT(id) FROM comment"));
-	$comment_max = $db->GetRowMaster("SELECT id, created FROM comment ORDER BY created DESC, id DESC LIMIT 1");
-
-	// Checkpoint incremental search indexing
-	$db->ExecuteMaster(sprintf("REPLACE INTO devblocks_registry (entry_key, entry_type, entry_value, entry_expires_at) VALUES (%s, 'number', %d, 0)",
-		$db->qstr(sprintf('search_index_%d.last_indexed_at', $search_index_id)),
-		intval($comment_max['created'] ?? 0),
-	));
-	$db->ExecuteMaster(sprintf("REPLACE INTO devblocks_registry (entry_key, entry_type, entry_value, entry_expires_at) VALUES (%s, 'number', %d, 0)",
-		$db->qstr(sprintf('search_index_%d.last_indexed_id', $search_index_id)),
-		intval($comment_max['id'] ?? 0),
-	));
-
-	if($search_queue_id && $comment_record_count) {
-		$db->ExecuteMaster('SET SESSION group_concat_max_len = 1048576');
-
-		$db->ExecuteMaster(sprintf("INSERT INTO queue_job (name, singleton_key, queue_id, worker_id, metadata, status_id, count_total, count_available, created_at, updated_at) " .
-			"VALUES (%s, %s, %d, 0, %s, 0 /* RUNNING */, %d, %d, %d, %d)",
-			$db->qstr('Reindex Comments'),
-			$db->qstr(sprintf('search_index:%d:reindex', $search_index_id)),
-			$search_queue_id,
-			$db->qstr(json_encode(['search_index_id' => $search_index_id, 'record_type' => 'comment'])),
-			$comment_record_count,
-			$comment_record_count,
+if($revision < 1506) {
+	if (!$db->GetOneMaster(sprintf("SELECT id FROM search_index WHERE record_type = %s AND record_filter = %s",
+			$db->qstr('comment'),
+			$db->qstr('text'))
+	)) {
+		$db->ExecuteMaster(sprintf("INSERT INTO search_index (name, uri, record_type, record_filter, extension_id, extension_params_json, priority, created_at, updated_at) " .
+			"VALUES (%s, %s, %s, %s, %s, %s, %d, %d, %d)",
+			$db->qstr('Comments'),
+			$db->qstr('comments'),
+			$db->qstr('comment'),
+			$db->qstr('text'),
+			$db->qstr('cerb.search.index.fulltext'),
+			$db->qstr(json_encode(['record_query' => '', 'content' => '{{comment|strip_data_uris()|strip_pem_blocks()|strip_url_querystrings()}}'])),
+			0,
 			time(),
 			time(),
 		));
-
-		$job_id = $db->LastInsertId();
-
-		$db->ExecuteMaster(sprintf("INSERT INTO queue_message (uuid, queue_id, job_id, status_id, status_at, message, cardinality) " .
-			"SELECT UUID_TO_BIN(UUID()) AS uuid, " .
-			"%d AS queue_id, " .
-			"%d AS job_id, " .
-			"0 /* available */ AS status_id, " .
-			"UNIX_TIMESTAMP() AS status_at, " .
-			"CONCAT('{\"index_id\":',%d,',\"ids\":[',GROUP_CONCAT(id ORDER BY id),']}') AS message, " .
-			"COUNT(id) AS cardinality " .
-			"FROM (SELECT id, CEIL(ROW_NUMBER() OVER (ORDER BY id) / 100) AS batch FROM comment) AS batched " .
-			"GROUP BY batch",
-			$search_queue_id,
-			$job_id,
-			$search_index_id,
+		
+		$search_index_id = $db->LastInsertId();
+		
+		$comment_record_count = intval($db->GetOneMaster("SELECT COUNT(id) FROM comment"));
+		$comment_max = $db->GetRowMaster("SELECT id, created FROM comment ORDER BY created DESC, id DESC LIMIT 1");
+		
+		// Checkpoint incremental search indexing
+		$db->ExecuteMaster(sprintf("REPLACE INTO devblocks_registry (entry_key, entry_type, entry_value, entry_expires_at) VALUES (%s, 'number', %d, 0)",
+			$db->qstr(sprintf('search_index_%d.last_indexed_at', $search_index_id)),
+			intval($comment_max['created'] ?? 0),
 		));
+		$db->ExecuteMaster(sprintf("REPLACE INTO devblocks_registry (entry_key, entry_type, entry_value, entry_expires_at) VALUES (%s, 'number', %d, 0)",
+			$db->qstr(sprintf('search_index_%d.last_indexed_id', $search_index_id)),
+			intval($comment_max['id'] ?? 0),
+		));
+		
+		if ($search_queue_id && $comment_record_count) {
+			$db->ExecuteMaster('SET SESSION group_concat_max_len = 1048576');
+			
+			$db->ExecuteMaster(sprintf("INSERT INTO queue_job (name, singleton_key, queue_id, worker_id, metadata, status_id, count_total, count_available, created_at, updated_at) " .
+				"VALUES (%s, %s, %d, 0, %s, 0 /* RUNNING */, %d, %d, %d, %d)",
+				$db->qstr('Reindex Comments'),
+				$db->qstr(sprintf('search_index:%d:reindex', $search_index_id)),
+				$search_queue_id,
+				$db->qstr(json_encode(['search_index_id' => $search_index_id, 'record_type' => 'comment'])),
+				$comment_record_count,
+				$comment_record_count,
+				time(),
+				time(),
+			));
+			
+			$job_id = $db->LastInsertId();
+			
+			$db->ExecuteMaster(sprintf("INSERT INTO queue_message (uuid, queue_id, job_id, status_id, status_at, message, cardinality) " .
+				"SELECT UUID_TO_BIN(UUID()) AS uuid, " .
+				"%d AS queue_id, " .
+				"%d AS job_id, " .
+				"0 /* available */ AS status_id, " .
+				"UNIX_TIMESTAMP() AS status_at, " .
+				"CONCAT('{\"index_id\":',%d,',\"ids\":[',GROUP_CONCAT(id ORDER BY id),']}') AS message, " .
+				"COUNT(id) AS cardinality " .
+				"FROM (SELECT id, CEIL(ROW_NUMBER() OVER (ORDER BY id) / 100) AS batch FROM comment) AS batched " .
+				"GROUP BY batch",
+				$search_queue_id,
+				$job_id,
+				$search_index_id,
+			));
+		}
 	}
 }
 
@@ -631,7 +656,7 @@ $db->ExecuteMaster("DELETE FROM cerb_property_store WHERE extension_id = 'cerber
 // ===========================================================================
 // Knowledgebase Articles (cerberusweb.kb plugin)
 
-if(DevblocksPlatform::isPluginEnabled('cerberusweb.kb')) {
+if($revision < 1506 && DevblocksPlatform::isPluginEnabled('cerberusweb.kb')) {
 	if(!$db->GetOneMaster(sprintf("SELECT id FROM search_index WHERE record_type = %s AND record_filter = %s",
 		$db->qstr('kb_article'),
 		$db->qstr('content'))
@@ -895,7 +920,7 @@ if(array_key_exists('group_setting', $tables))
 // ===========================================================================
 // Default `Monitor` card widget for `cerb.contexts.queue.job`
 
-if(!$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contexts.queue.job' AND extension_id='cerb.card.widget.queue.job.monitor'")) {
+if($revision < 1506 && !$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contexts.queue.job' AND extension_id='cerb.card.widget.queue.job.monitor'")) {
 	$db->ExecuteMaster(sprintf(
 		"INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone, options_kata) ".
 		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s, %s)",
@@ -913,7 +938,7 @@ if(!$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contex
 // ===========================================================================
 // Default `Overview` profile tab for `cerb.contexts.queue.job`
 
-if(!$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts.queue.job'")) {
+if($revision < 1506 && !$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts.queue.job'")) {
 	$db->ExecuteMaster(sprintf("INSERT INTO profile_tab (name, context, extension_id, updated_at, extension_params_json, pos) ".
 		"VALUES (%s, %s, %s, %d, %s, %d)",
 		$db->qstr('Overview'),
@@ -994,7 +1019,7 @@ if(!$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts
 // ===========================================================================
 // Default `Record Fields` card widget for `cerb.contexts.automation.event`
 
-if(!$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contexts.automation.event' AND extension_id='cerb.card.widget.fields'")) {
+if($revision < 1506 && !$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contexts.automation.event' AND extension_id='cerb.card.widget.fields'")) {
 	$db->ExecuteMaster(sprintf(
 		"INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
 		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
@@ -1030,7 +1055,7 @@ if(!$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contex
 // ===========================================================================
 // Default `Overview` profile tab for `cerb.contexts.automation.event`
 
-if(!$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts.automation.event'")) {
+if($revision < 1506 && !$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts.automation.event'")) {
 	$db->ExecuteMaster(sprintf("INSERT INTO profile_tab (name, context, extension_id, updated_at, extension_params_json, pos) ".
 		"VALUES (%s, %s, %s, %d, %s, %d)",
 		$db->qstr('Overview'),
@@ -1101,7 +1126,7 @@ if(!$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts
 // ===========================================================================
 // Default `Record Fields` card widget for `cerb.contexts.automation.event.listener`
 
-if(!$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contexts.automation.event.listener' AND extension_id='cerb.card.widget.fields'")) {
+if($revision < 1506 && !$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contexts.automation.event.listener' AND extension_id='cerb.card.widget.fields'")) {
 	$db->ExecuteMaster(sprintf(
 		"INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
 		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
@@ -1134,7 +1159,7 @@ if(!$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contex
 // ===========================================================================
 // Default `Overview` profile tab for `cerb.contexts.automation.event.listener`
 
-if(!$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts.automation.event.listener'")) {
+if($revision < 1506 && !$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts.automation.event.listener'")) {
 	$db->ExecuteMaster(sprintf("INSERT INTO profile_tab (name, context, extension_id, updated_at, extension_params_json, pos) ".
 		"VALUES (%s, %s, %s, %d, %s, %d)",
 		$db->qstr('Overview'),
@@ -1202,7 +1227,7 @@ if(!$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts
 // Shift the existing `Statistics` chart widget down so `Properties` can sit on top
 $db->ExecuteMaster("UPDATE card_widget SET pos = 2 WHERE record_type = 'cerb.contexts.automation' AND extension_id = 'cerb.card.widget.chart.timeseries' AND name = 'Statistics' AND pos = 3");
 
-if(!$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contexts.automation' AND extension_id='cerb.card.widget.fields'")) {
+if($revision < 1506 && !$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contexts.automation' AND extension_id='cerb.card.widget.fields'")) {
 	$db->ExecuteMaster(sprintf(
 		"INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
 		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
@@ -1234,7 +1259,7 @@ if(!$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contex
 // ===========================================================================
 // Default `Overview` profile tab for `cerb.contexts.automation`
 
-if(!$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts.automation'")) {
+if($revision < 1506 && !$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts.automation'")) {
 	$db->ExecuteMaster(sprintf("INSERT INTO profile_tab (name, context, extension_id, updated_at, extension_params_json, pos) ".
 		"VALUES (%s, %s, %s, %d, %s, %d)",
 		$db->qstr('Overview'),
@@ -1336,7 +1361,7 @@ if(!$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts
 // ===========================================================================
 // Default `Properties` card widget for `cerb.contexts.automation.timer`
 
-if(!$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contexts.automation.timer' AND extension_id='cerb.card.widget.fields'")) {
+if($revision < 1506 && !$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contexts.automation.timer' AND extension_id='cerb.card.widget.fields'")) {
 	$db->ExecuteMaster(sprintf(
 		"INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
 		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
@@ -1371,7 +1396,7 @@ if(!$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contex
 // ===========================================================================
 // Default `Overview` profile tab for `cerb.contexts.automation.timer`
 
-if(!$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts.automation.timer'")) {
+if($revision < 1506 && !$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts.automation.timer'")) {
 	$db->ExecuteMaster(sprintf("INSERT INTO profile_tab (name, context, extension_id, updated_at, extension_params_json, pos) ".
 		"VALUES (%s, %s, %s, %d, %s, %d)",
 		$db->qstr('Overview'),
@@ -1438,7 +1463,7 @@ if(!$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts
 // ===========================================================================
 // Default `Properties` card widget for `cerb.contexts.service.token`
 
-if(!$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contexts.service.token' AND extension_id='cerb.card.widget.fields'")) {
+if($revision < 1506 && !$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contexts.service.token' AND extension_id='cerb.card.widget.fields'")) {
 	$db->ExecuteMaster(sprintf(
 		"INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
 		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
@@ -1471,7 +1496,7 @@ if(!$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contex
 // ===========================================================================
 // Default `Overview` profile tab for `cerb.contexts.service.token`
 
-if(!$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts.service.token'")) {
+if($revision < 1506 && !$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts.service.token'")) {
 	$db->ExecuteMaster(sprintf("INSERT INTO profile_tab (name, context, extension_id, updated_at, extension_params_json, pos) ".
 		"VALUES (%s, %s, %s, %d, %s, %d)",
 		$db->qstr('Overview'),
@@ -1536,7 +1561,7 @@ if(!$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts
 // ===========================================================================
 // Default `Properties` card widget for `cerberusweb.contexts.gpg_public_key`
 
-if(!$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerberusweb.contexts.gpg_public_key' AND extension_id='cerb.card.widget.fields'")) {
+if($revision < 1506 && !$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerberusweb.contexts.gpg_public_key' AND extension_id='cerb.card.widget.fields'")) {
 	$db->ExecuteMaster(sprintf(
 		"INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
 		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
@@ -1565,7 +1590,7 @@ if(!$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerberusweb
 // ===========================================================================
 // Default `Overview` profile tab for `cerberusweb.contexts.gpg_public_key`
 
-if(!$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerberusweb.contexts.gpg_public_key'")) {
+if($revision < 1506 && !$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerberusweb.contexts.gpg_public_key'")) {
 	$db->ExecuteMaster(sprintf("INSERT INTO profile_tab (name, context, extension_id, updated_at, extension_params_json, pos) ".
 		"VALUES (%s, %s, %s, %d, %s, %d)",
 		$db->qstr('Overview'),
@@ -1645,7 +1670,7 @@ if(!$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerberusweb.c
 // ===========================================================================
 // Default `Properties` card widget for `cerb.contexts.gpg.private.key`
 
-if(!$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contexts.gpg.private.key' AND extension_id='cerb.card.widget.fields'")) {
+if($revision < 1506 && !$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contexts.gpg.private.key' AND extension_id='cerb.card.widget.fields'")) {
 	$db->ExecuteMaster(sprintf(
 		"INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
 		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
@@ -1675,7 +1700,7 @@ if(!$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contex
 // ===========================================================================
 // Default `Overview` profile tab for `cerb.contexts.gpg.private.key`
 
-if(!$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts.gpg.private.key'")) {
+if($revision < 1506 && !$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts.gpg.private.key'")) {
 	$db->ExecuteMaster(sprintf("INSERT INTO profile_tab (name, context, extension_id, updated_at, extension_params_json, pos) ".
 		"VALUES (%s, %s, %s, %d, %s, %d)",
 		$db->qstr('Overview'),
@@ -1737,7 +1762,7 @@ if(!$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts
 // ===========================================================================
 // Default `Properties` card widget for `cerb.contexts.queue`
 
-if(!$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contexts.queue' AND extension_id='cerb.card.widget.fields'")) {
+if($revision < 1506 && !$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contexts.queue' AND extension_id='cerb.card.widget.fields'")) {
 	$db->ExecuteMaster(sprintf(
 		"INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
 		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
@@ -1773,7 +1798,7 @@ if(!$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contex
 // ===========================================================================
 // Default `Overview` profile tab for `cerb.contexts.queue`
 
-if(!$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts.queue'")) {
+if($revision < 1506 && !$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts.queue'")) {
 	$db->ExecuteMaster(sprintf("INSERT INTO profile_tab (name, context, extension_id, updated_at, extension_params_json, pos) ".
 		"VALUES (%s, %s, %s, %d, %s, %d)",
 		$db->qstr('Overview'),
@@ -1859,7 +1884,7 @@ if(!$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts
 // ===========================================================================
 // Default `Properties` card widget for `cerb.contexts.resource`
 
-if(!$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contexts.resource' AND extension_id='cerb.card.widget.fields'")) {
+if($revision < 1506 && !$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contexts.resource' AND extension_id='cerb.card.widget.fields'")) {
 	$db->ExecuteMaster(sprintf(
 		"INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
 		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
@@ -1892,7 +1917,7 @@ if(!$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contex
 // ===========================================================================
 // Default `Overview` profile tab for `cerb.contexts.resource`
 
-if(!$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts.resource'")) {
+if($revision < 1506 && !$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts.resource'")) {
 	$db->ExecuteMaster(sprintf("INSERT INTO profile_tab (name, context, extension_id, updated_at, extension_params_json, pos) ".
 		"VALUES (%s, %s, %s, %d, %s, %d)",
 		$db->qstr('Overview'),
@@ -1957,7 +1982,7 @@ if(!$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts
 // ===========================================================================
 // Default `Properties` card widget for `cerb.contexts.search.index`
 
-if(!$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contexts.search.index' AND extension_id='cerb.card.widget.fields'")) {
+if($revision < 1506 && !$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contexts.search.index' AND extension_id='cerb.card.widget.fields'")) {
 	$db->ExecuteMaster(sprintf(
 		"INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
 		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
@@ -1991,7 +2016,7 @@ if(!$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contex
 // ===========================================================================
 // Default `Index` card widget for `cerb.contexts.search.index`
 
-if(!$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contexts.search.index' AND extension_id='cerb.card.widget.search_index'")) {
+if($revision < 1506 && !$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contexts.search.index' AND extension_id='cerb.card.widget.search_index'")) {
 	$db->ExecuteMaster(sprintf(
 		"INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
 		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
@@ -2010,7 +2035,7 @@ if(!$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contex
 // ===========================================================================
 // Default `Overview` profile tab for `cerb.contexts.search.index`
 
-if(!$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts.search.index'")) {
+if($revision < 1506 && !$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts.search.index'")) {
 	$db->ExecuteMaster(sprintf("INSERT INTO profile_tab (name, context, extension_id, updated_at, extension_params_json, pos) ".
 		"VALUES (%s, %s, %s, %d, %s, %d)",
 		$db->qstr('Overview'),
@@ -2076,7 +2101,7 @@ if(!$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts
 // ===========================================================================
 // Default `Properties` card widget for `cerb.contexts.toolbar`
 
-if(!$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contexts.toolbar' AND extension_id='cerb.card.widget.fields'")) {
+if($revision < 1506 && !$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contexts.toolbar' AND extension_id='cerb.card.widget.fields'")) {
 	$db->ExecuteMaster(sprintf(
 		"INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
 		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
@@ -2113,7 +2138,7 @@ if(!$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contex
 // ===========================================================================
 // Default `Overview` profile tab for `cerb.contexts.toolbar`
 
-if(!$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts.toolbar'")) {
+if($revision < 1506 && !$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts.toolbar'")) {
 	$db->ExecuteMaster(sprintf("INSERT INTO profile_tab (name, context, extension_id, updated_at, extension_params_json, pos) ".
 		"VALUES (%s, %s, %s, %d, %s, %d)",
 		$db->qstr('Overview'),
@@ -2202,7 +2227,7 @@ if(!$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts
 // ===========================================================================
 // Default `Properties` card widget for `cerb.contexts.toolbar.section`
 
-if(!$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contexts.toolbar.section' AND extension_id='cerb.card.widget.fields'")) {
+if($revision < 1506 && !$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contexts.toolbar.section' AND extension_id='cerb.card.widget.fields'")) {
 	$db->ExecuteMaster(sprintf(
 		"INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
 		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
@@ -2235,7 +2260,7 @@ if(!$db->GetOneMaster("SELECT id FROM card_widget WHERE record_type='cerb.contex
 // ===========================================================================
 // Default `Overview` profile tab for `cerb.contexts.toolbar.section`
 
-if(!$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts.toolbar.section'")) {
+if($revision < 1506 && !$db->GetOneMaster("SELECT id FROM profile_tab WHERE context = 'cerb.contexts.toolbar.section'")) {
 	$db->ExecuteMaster(sprintf("INSERT INTO profile_tab (name, context, extension_id, updated_at, extension_params_json, pos) ".
 		"VALUES (%s, %s, %s, %d, %s, %d)",
 		$db->qstr('Overview'),
