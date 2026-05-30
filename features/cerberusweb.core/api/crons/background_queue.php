@@ -60,8 +60,9 @@ class Cron_BackgroundQueue extends CerberusCronPageExtension {
 				break;
 			
 			$count_hint = $available_counts[$queue->id] ?? 0;
-			$logger->info(sprintf("Dispatching %d messages to queue: %s", $count_hint, $queue->name));
-			$queue_extension->processQueueMessages($queue, $stop_time, $count_hint);
+			$logger->info(sprintf("Dispatching messages to queue `%s` (%d available)", $queue->name, $count_hint));
+			$processed = $queue_extension->processQueueMessages($queue, $stop_time, $count_hint);
+			$logger->info(sprintf("Queue `%s` processed %d messages", $queue->name, $processed));
 		}
 		
 		return true;
