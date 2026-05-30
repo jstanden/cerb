@@ -1697,18 +1697,6 @@ DIV.cerb-menu {
 	}
 }
 
-// Plugins
-
-SPAN.plugin_icon_overlay_disabled {
-	//noinspection CssUnknownTarget
-	background: url(plugin_overlay_disabled.png?v=#{$timestamp}) no-repeat top left;
-	width:100px;
-	height:100px;
-	position:absolute;
-	left:1px;
-	top:0;
-}
-
 // Markdown container
 
 DIV.cerb-markdown-content {

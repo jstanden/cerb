@@ -80,13 +80,13 @@
 			{if $data_count <= $avatar_limit}
 			<td data-column="*_image" align="center" rowspan="2" nowrap="nowrap" style="padding:5px;">
 				<div style="position:relative;">
-					<img src="{devblocks_url}c=avatars&context=worker&context_id={$result.w_id}{/devblocks_url}?v={$result.w_updated}" style="height:32px;width:32px;border-radius:16px;vertical-align:middle;">
-					{if $result.w_is_disabled}<span class="plugin_icon_overlay_disabled" style="background-size:32px 32px;"></span>{/if}
+					<img src="{devblocks_url}c=avatars&context=worker&context_id={$result.w_id}{/devblocks_url}?v={$result.w_updated}" style="height:32px;width:32px;border-radius:16px;vertical-align:middle;{if $result.w_is_disabled}opacity:0.6;filter:grayscale();{/if}">
 				</div>
 			</td>
 			{/if}
 			<td data-column="label" colspan="{$smarty.foreach.headers.total}">
 				{$worker_name = "{$result.w_first_name}{if !empty($result.w_last_name)} {$result.w_last_name}{/if}"}
+				{if $result.w_is_disabled}({'common.inactive'|devblocks_translate|capitalize}){/if}
 				<input type="checkbox" name="row_id[]" value="{$result.w_id}" style="display:none;">
 				<a href="{devblocks_url}c=profiles&a=worker&id={$result.w_id}-{$worker_name|devblocks_permalink}{/devblocks_url}" class="subject">{$worker_name}</a>
 				<button type="button" class="peek cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$result.w_id}"><span class="cerb-icons cerb-icon-new-window"></span></button>

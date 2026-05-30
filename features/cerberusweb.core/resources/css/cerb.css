@@ -3481,15 +3481,6 @@ DIV.cerb-menu.cerb-popupmenu {
   margin-left: -10px;
 }
 
-SPAN.plugin_icon_overlay_disabled {
-  background: url(plugin_overlay_disabled.png?v=2026053101) no-repeat top left;
-  width: 100px;
-  height: 100px;
-  position: absolute;
-  left: 1px;
-  top: 0;
-}
-
 DIV.cerb-markdown-content P {
   margin: 0.2em;
 }
