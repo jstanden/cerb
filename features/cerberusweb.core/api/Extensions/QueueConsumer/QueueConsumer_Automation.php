@@ -72,22 +72,24 @@ class QueueConsumer_Automation extends Extension_QueueConsumer {
 		$event_handler = DevblocksPlatform::services()->ui()->eventHandler();
 		$processed = 0;
 		$job_id = $queue_job?->id;
-
+		
+		// A common baseline dictionary
+		$base_dict = DevblocksDictionaryDelegate::instance([]);
+		$base_dict->mergeKeys('queue_', DevblocksDictionaryDelegate::getDictionaryFromModel($queue, CerberusContexts::CONTEXT_QUEUE));
+		if($queue_job) $base_dict->mergeKeys('queue_job_', DevblocksDictionaryDelegate::getDictionaryFromModel($queue_job, CerberusContexts::CONTEXT_QUEUE_JOB));
+		$base_dict = $base_dict->getDictionary(null, false);
+		
 		while($stop_time > time()) {
 			$consumer_id = null;
 			$messages = DAO_QueueMessage::dequeue($queue, $batch_size, $consumer_id, $job_id);
-
+			
 			if(!$messages)
 				break;
 
 			$uuids = array_map(fn($m) => $m->uuid, $messages);
-
-			$dict = DevblocksDictionaryDelegate::instance([]);
-			$dict->mergeKeys('queue_', DevblocksDictionaryDelegate::getDictionaryFromModel($queue, CerberusContexts::CONTEXT_QUEUE));
-
-			if($queue_job)
-				$dict->mergeKeys('queue_job_', DevblocksDictionaryDelegate::getDictionaryFromModel($queue_job, CerberusContexts::CONTEXT_QUEUE_JOB));
-
+			
+			$dict = DevblocksDictionaryDelegate::instance($base_dict);
+			
 			$dict->set('messages', array_map(fn($m) => [
 				'uuid' => $m->uuid,
 				'message' => $m->message,
@@ -110,7 +112,7 @@ class QueueConsumer_Automation extends Extension_QueueConsumer {
 				$dict->getDictionary(null, false),
 				$error
 			);
-
+			
 			$exit_code = $results?->get('__exit');
 
 			if(!$results || $exit_code === 'error') {
@@ -119,7 +121,7 @@ class QueueConsumer_Automation extends Extension_QueueConsumer {
 				$this->_logError($queue, $err_msg);
 			} else {
 				DAO_QueueMessage::reportSuccess($uuids);
-				$processed += count($uuids);
+				$processed += count($messages);
 			}
 		}
 
