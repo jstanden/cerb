@@ -28,7 +28,6 @@ class QueuePushAction extends AbstractAction {
 			
 			$validation->addField('output', 'output:')
 				->string()
-				->setRequired(true)
 				;
 			
 			if(false === ($validation->validateAll($params, $error)))
