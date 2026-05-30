@@ -2319,10 +2319,10 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 						'score' => 2000,
 					],
 					[
-						'caption' => 'namespace:',
-						'snippet' => 'namespace:',
+						'caption' => 'job_id:',
+						'snippet' => 'job_id:',
 						'score' => 1999,
-						'docHTML' => '(optional) A namespace filter for queue messages.'
+						'docHTML' => '(optional) A queue job for grouping messages.'
 					],
 					"limit: 10",
 				],
@@ -2342,10 +2342,10 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 						'score' => 2000,
 					],
 					[
-						'caption' => 'namespace:',
-						'snippet' => 'namespace:',
+						'caption' => 'job_id:',
+						'snippet' => 'job_id:',
 						'score' => 1999,
-						'docHTML' => '(optional) A namespace filter for queue messages.'
+						'docHTML' => '(optional) A queue job for grouping messages.'
 					],
 					[
 						'caption' => 'messages@list:',
