@@ -674,7 +674,8 @@ class Model_Automation extends DevblocksRecordModel {
 	
 	private $_environment = [];
 	private $_policy = null;
-	
+	private $_inputs_meta = null;
+
 	private $_ast = null;
 	private $_ast_symbols = null;
 	
@@ -712,10 +713,44 @@ class Model_Automation extends DevblocksRecordModel {
 			return null;
 		
 		$this->_policy = new CerbAutomationPolicy($policy_kata);
-		
+
 		return $this->_policy;
 	}
-	
+
+	/**
+	 * Parse this automation's `inputs:` KATA block into structured field metadata.
+	 *
+	 * Each entry is keyed by its raw `type/name` token and augmented with `key` and `type`.
+	 * Shared by the automation `inputs` context token, the bulk-update prompt UI, and the
+	 * LLM tool-schema builder.
+	 *
+	 * @return array
+	 */
+	public function getInputsMeta() : array {
+		if(!is_null($this->_inputs_meta))
+			return $this->_inputs_meta;
+
+		$kata = DevblocksPlatform::services()->kata();
+		$error = null;
+
+		$inputs = [];
+		$automation_kata = $kata->parse($this->script, $error, true);
+
+		if(is_array($automation_kata) && array_key_exists('inputs', $automation_kata)) {
+			$inputs = $kata->formatTree($automation_kata['inputs'], DevblocksDictionaryDelegate::instance([]));
+
+			foreach($inputs as $k => &$input) {
+				list($input_type, $input_key) = array_pad(explode('/', $k, 2), 2, '');
+				$input['key'] = $input_key;
+				$input['type'] = $input_type;
+			}
+		}
+
+		$this->_inputs_meta = $inputs;
+
+		return $this->_inputs_meta;
+	}
+
 	public function getSyntaxTree(&$error=null, &$symbol_meta=[]) : CerbAutomationAstNode|false {
 		// If cached
 		if(!is_null($this->_ast)) {
@@ -1651,28 +1686,11 @@ class Context_Automation extends Extension_DevblocksContext implements IDevblock
 		switch($token) {
 			case 'inputs':
 				$values['inputs'] = [];
-				
+
 				if(!($automation = DAO_Automation::get($context_id)))
 					break;
-				
-				$kata = DevblocksPlatform::services()->kata();
-				$error = null;
-				
-				$automation_kata = $kata->parse($automation->script, $error, true);
-			
-				$inputs = [];
-				
-				if(array_key_exists('inputs', $automation_kata)) {
-					$inputs = $kata->formatTree($automation_kata['inputs'], DevblocksDictionaryDelegate::instance([]));
-					
-					foreach ($inputs as $k => &$input) {
-						list($input_type, $input_key) = array_pad(explode('/', $k, 2), 2, '');
-						$input['key'] = $input_key;
-						$input['type'] = $input_type;
-					}
-				}
-				
-				$values['inputs'] = $inputs;
+
+				$values['inputs'] = $automation->getInputsMeta();
 				break;
 				
 			case 'outputs':
