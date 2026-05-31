@@ -723,6 +723,10 @@ class _DevblocksValidationType {
 		return $this;
 	}
 	
+	function isUnique() {
+		return boolval($this->_data['unique'] ?? false);
+	}
+
 	function setUnique($dao_class) {
 		$this->_data['unique'] = true;
 		$this->_data['dao_class'] = $dao_class;

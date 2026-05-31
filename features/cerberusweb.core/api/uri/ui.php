@@ -143,7 +143,10 @@ class Controller_UI extends DevblocksControllerExtension {
 		
 		if(!($fields = $context_ext->getKeyMeta()))
 			return;
-		
+
+		// Bulk actions (e.g. `records.update:`) can't update unique fields, so omit them
+		$skip_unique = !empty($params['skip_unique']);
+
 		$custom_fields = DAO_CustomField::getMetaByContext($context_ext->id);
 		
 		$dao_fieldmap = array_merge($fields, $custom_fields);
@@ -152,11 +155,14 @@ class Controller_UI extends DevblocksControllerExtension {
 		
 		$dao_fieldmap = array_filter(
 			$dao_fieldmap,
-			function($key_meta) {
+			function($key_meta) use ($skip_unique) {
 				$key = $key_meta['key'] ?? null;
 				$type = $key_meta['type'] ?? null;
 				$is_immutable = $key_meta['is_immutable'] ?? false;
-				
+
+				if($skip_unique && ($key_meta['is_unique'] ?? false))
+					return false;
+
 				return $key && $type && !$is_immutable;
 			}
 		);

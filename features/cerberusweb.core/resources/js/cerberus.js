@@ -3665,7 +3665,11 @@ var ajax = new cAjaxCalls();
 								formData.set('a', 'kataSuggestionsRecordFieldsJson');
 								formData.set('prefix', prefix);
 								formData.set('params[record_type]', record_type);
-								
+
+								// Bulk actions (e.g. `records.update:`) can't set unique fields, so don't suggest them
+								if(completions.hasOwnProperty('params') && completions.params.hasOwnProperty('skip_unique') && completions.params.skip_unique)
+									formData.set('params[skip_unique]', '1');
+
 							} else if('record-fields-value' === completions['type']) {
 								editor.completer.getPopup().container.style.width = '400px';
 								

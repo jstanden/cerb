@@ -794,6 +794,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 				'key' => $record_key,
 				'is_immutable' => !$dao_field->_type->isEditable(),
 				'is_required' => $dao_field->_type->isRequired(),
+				'is_unique' => $dao_field->_type->isUnique(),
 				'notes' => implode('; ', $notes),
 				'type' => $type,
 			];
