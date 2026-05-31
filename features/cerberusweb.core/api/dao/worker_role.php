@@ -1348,7 +1348,8 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 		foreach($plugins_acl as &$plugin) {
 			asort($plugin['privs']);
 		}
-		
+		unset($plugin);
+
 		// Sort plugins
 		DevblocksPlatform::sortObjects($plugins_acl, '[label]');
 		

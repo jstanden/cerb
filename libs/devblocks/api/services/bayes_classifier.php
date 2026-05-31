@@ -95,7 +95,8 @@ class _DevblocksBayesClassifierService {
 		foreach($words as &$word)
 			if(isset(self::$CONTRACTIONS_EN[$word]))
 				$word = self::$CONTRACTIONS_EN[$word];
-		
+		unset($word);
+
 		return implode(' ', $words);
 	}
 	

@@ -220,7 +220,8 @@ class ServiceProvider_Aws extends Extension_ConnectedServiceProvider {
 		
 		foreach($path_parts as &$segment)
 			$segment = rawurlencode($segment);
-		
+		unset($segment);
+
 		return implode('/', $path_parts);
 	}
 	

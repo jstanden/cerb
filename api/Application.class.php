@@ -232,11 +232,13 @@ class CerberusApplication extends DevblocksApplication {
 			$picker_workers['sample'][$worker->id] = $worker;
 			unset($population[$worker->id]);
 		}
+		unset($worker);
 
 		// Set remaining population
 		foreach($population as &$worker) {
 			$picker_workers['population'][$worker->id] = $worker;
 		}
+		unset($worker);
 
 		// Return a result object
 		return [

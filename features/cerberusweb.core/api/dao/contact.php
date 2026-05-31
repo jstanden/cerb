@@ -1303,6 +1303,7 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 						$v = '';
 					}
 				}
+				unset($v);
 				
 				return new DevblocksSearchCriteria(
 					$field_key,

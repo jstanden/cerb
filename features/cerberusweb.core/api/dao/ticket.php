@@ -4469,7 +4469,8 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				foreach($values as &$value) {
 					$value = DevblocksPlatform::strEscapeHtml(DevblocksPlatform::strSecsToString($value, 2));
 				}
-				
+				unset($value);
+
 				switch($param->operator) {
 					case DevblocksSearchCriteria::OPER_BETWEEN:
 						$sep = ' and ';

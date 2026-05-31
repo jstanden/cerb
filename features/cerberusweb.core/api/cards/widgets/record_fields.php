@@ -86,7 +86,8 @@ class CardWidget_Fields extends Extension_CardWidget {
 		
 		foreach($properties_selected as &$v)
 			$v = array_flip($v);
-		
+		unset($v);
+
 		$properties_available = $context_ext->profileGetFields($record);
 		
 		$field_values = DAO_CustomFieldValue::getValuesByContextIds($context, $record->id);

@@ -2044,7 +2044,8 @@ abstract class C4_AbstractView {
 			$param_key = $field['options']['param_key'] ?? null;
 			$field['is_sortable'] = ($param_key && isset($search_fields[$param_key]) && $search_fields[$param_key]->is_sortable);
 		}
-		
+		unset($field);
+
 		return $fields;
 	}
 
@@ -4774,6 +4775,7 @@ class CerbQuickSearchLexer {
 					break;
 			}
 		}
+		unset($token);
 		
 		return $new_tokens;
 	}
@@ -4820,6 +4822,7 @@ class CerbQuickSearchLexer {
 					break;
 			}
 		}
+		unset($token);
 		
 		return $new_tokens;
 	}
@@ -5460,6 +5463,7 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 		foreach($params as &$param) {
 			self::_walkSerializedParams($param, $callback);
 		}
+		unset($param);
 	}
 	
 	static public function setView($worker_id, $view_id, C4_AbstractViewModel $model) {

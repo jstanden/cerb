@@ -575,6 +575,7 @@ abstract class DevblocksORMHelper {
 			else
 				$v = $db->qstr($v);
 		}
+		unset($v);
 
 		$sql = sprintf("INSERT INTO %s (%s) VALUES (%s)",
 			$table,

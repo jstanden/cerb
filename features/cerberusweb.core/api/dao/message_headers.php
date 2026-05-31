@@ -56,7 +56,8 @@ class DAO_MessageHeaders extends Cerb_ORMHelper {
 			if(is_array($v))
 				$v = implode(';; ', $v);
 		}
-		
+		unset($v);
+
 		ksort($headers);
 		
 		return $headers;

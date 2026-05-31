@@ -594,12 +594,14 @@ class DevblocksUiToolbar {
 				foreach(@$node['items'] as &$n) {
 					$this->enforceCallerPolicy($n, $automations, $dict);
 				}
+				unset($n);
 			}
 			
 		} elseif(is_array($node)) {
 			foreach($node as &$n) {
 				$this->enforceCallerPolicy($n, $automations, $dict);
 			}
+			unset($n);
 		}
 	}
 	

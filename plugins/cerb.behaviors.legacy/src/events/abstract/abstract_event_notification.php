@@ -305,6 +305,7 @@ abstract class AbstractEvent_Notification extends Extension_DevblocksEvent {
 				if(false != ($new_worker_id = intval($dict->$worker_id)))
 					$worker_id = $new_worker_id;
 		}
+		unset($worker_id);
 		
 		$workers = DAO_Worker::getIds($worker_ids);
 		
@@ -350,6 +351,7 @@ abstract class AbstractEvent_Notification extends Extension_DevblocksEvent {
 				if(false != ($new_worker_id = intval($dict->$worker_id)))
 					$worker_id = $new_worker_id;
 		}
+		unset($worker_id);
 		
 		if(!($notification = DAO_Notification::get($notification_id)))
 			return;

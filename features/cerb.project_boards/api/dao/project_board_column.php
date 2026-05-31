@@ -1243,7 +1243,8 @@ class Context_ProjectBoardColumn extends Extension_DevblocksContext implements I
 					
 					$links[] = $tuple;
 				}
-				
+				unset($tuple);
+
 				if(false == ($json = json_encode($value))) {
 					$error = 'could not be JSON encoded.';
 					return false;

@@ -226,6 +226,7 @@ class FileImporter {
 					foreach($results as &$result) {
 						$result['values'][$key] = $addresses[$result['values'][$key]] ?? null;
 					}
+					unset($result);
 					break;
 				
 				// Efficiency bulk lookup orgs
@@ -239,6 +240,7 @@ class FileImporter {
 					foreach($results as &$result) {
 						$result['values'][$key] = $orgs[$result['values'][$key]] ?? null;
 					}
+					unset($result);
 					break;
 				
 				case Model_CustomField::TYPE_CHECKBOX:
@@ -248,6 +250,7 @@ class FileImporter {
 						
 						$result['values'][$key] = DevblocksPlatform::services()->string()->toBool($val) ? 1 : 0;
 					}
+					unset($result);
 					break;
 				
 				case Model_CustomField::TYPE_DATE:
@@ -258,6 +261,7 @@ class FileImporter {
 						if($val && !is_numeric($val))
 							$result['values'][$key] = strtotime($val);
 					}
+					unset($result);
 					break;
 
 				case Model_CustomField::TYPE_LIST:
@@ -265,6 +269,7 @@ class FileImporter {
 						$val = $result['values'][$key] ?? '';
 						$result['values'][$key] = DevblocksPlatform::parseCsvString($val);
 					}
+					unset($result);
 					break;
 				
 				case Model_CustomField::TYPE_MULTI_CHECKBOX:
@@ -276,6 +281,7 @@ class FileImporter {
 							$val
 						));
 					}
+					unset($result);
 					break;
 				
 				case Model_CustomField::TYPE_NUMBER:
@@ -285,6 +291,7 @@ class FileImporter {
 						
 						$result['values'][$key] = intval($val);
 					}
+					unset($result);
 					break;
 				
 				case Model_CustomField::TYPE_WORKER:
@@ -314,6 +321,7 @@ class FileImporter {
 						
 						$result['values'][$key] = $val_worker_id;
 					}
+					unset($result);
 					break;
 
 //				case Model_CustomField::TYPE_DROPDOWN:
@@ -328,6 +336,7 @@ class FileImporter {
 			foreach ($results as &$result) {
 				$result['values'][$key] = $this->_context_ext->importKeyValue($key, $result['values'][$key] ?? null);
 			}
+			unset($result);
 		}
 		
 		return $results;
@@ -406,7 +415,8 @@ class FileImporter {
 			if(array_key_exists($hash, $corpus_hashes))
 				$result['object_id'] = $corpus_hashes[$hash];
 		}
-		
+		unset($result);
+
 		return $results;
 	}
 	

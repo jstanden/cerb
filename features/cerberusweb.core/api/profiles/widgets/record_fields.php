@@ -68,7 +68,8 @@ class ProfileWidget_Fields extends Extension_ProfileWidget {
 		
 		foreach($properties_selected as &$v)
 			$v = array_flip($v);
-		
+		unset($v);
+
 		$properties_available = $context_ext->profileGetFields($record);
 		
 		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds($context, $context_id);

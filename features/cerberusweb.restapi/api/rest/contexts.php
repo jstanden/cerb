@@ -175,7 +175,8 @@ class ChRest_Contexts extends Extension_RestController {
 							)
 						);
 					}
-					
+					unset($merge_cfields_values);
+
 					$result_fieldsets[] = $merge_values;
 				}
 				

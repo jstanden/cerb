@@ -1576,6 +1576,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 			
 			$links[] = $tuple;
 		}
+		unset($tuple);
 		
 		
 		if(false == ($json = json_encode($links))) {

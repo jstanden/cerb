@@ -44,7 +44,8 @@ class DevblocksNeuralNetwork {
 			
 			$input->weights = $weights;
 		}
-		
+		unset($input);
+
 		// Hiddens
 		
 		foreach($this->_hiddens as &$hidden) { /* @var $hidden DevblocksNeuralNetworkNode */
@@ -56,13 +57,15 @@ class DevblocksNeuralNetwork {
 			$hidden->weights = $weights;
 			$hidden->threshold = rand() / rand();
 		}
-		
+		unset($hidden);
+
 		// Outputs
 		
 		foreach($this->_outputs as &$output) { /* @var $output DevblocksNeuralNetworkNode */
 			$output->threshold = rand() / rand();
 		}
-		
+		unset($output);
+
 	}
 	
 	private function _sigmoid($input) {
@@ -83,7 +86,8 @@ class DevblocksNeuralNetwork {
 			foreach($this->_inputs as &$input) {
 				$weightedInput += $input->weights[$h] * $input->value;
 			}
-			
+			unset($input);
+
 			$weightedInput += (-$hidden->threshold);
 			
 			$hidden->value = $this->_sigmoid($weightedInput);
@@ -97,7 +101,8 @@ class DevblocksNeuralNetwork {
 				//$inputWeights[$o][] = $input->weights[$o];
 				//$weights[$o][] = $input->weights[$o] * $input->value;
 			}
-			
+			unset($hidden);
+
 			$weightedInput += (-$output->threshold);
 			
 			$weights[] = $weightedInput;
@@ -150,7 +155,8 @@ class DevblocksNeuralNetwork {
 		
 		foreach($this->_outputs as &$output)
 			$values[] = $output->value;
-		
+		unset($output);
+
 		return $values;
 	}
 	

@@ -2131,7 +2131,8 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 						$value = DevblocksPlatform::strEscapeHtml(DevblocksPlatform::strSecsToString($value, 2));
 					}
 				}
-				
+				unset($value);
+
 				switch($param->operator) {
 					case DevblocksSearchCriteria::OPER_BETWEEN:
 						echo implode(' and ', $values);

@@ -514,7 +514,8 @@ class View_CerbPlugin extends C4_AbstractView implements IAbstractView_Subtotals
 							break;
 					}
 				}
-				
+				unset($token);
+
 				$param = DevblocksSearchCriteria::getNumberParamFromTokens('version', $tokens);
 				$param->field = SearchFields_CerbPlugin::VERSION;
 				return $param;

@@ -153,7 +153,8 @@ class _DevblocksDataProviderUsageBotBehaviors extends _DevblocksDataProvider {
 				(($meta['name'] ?? null) ? (': '.$meta['name']) : '')
 			);
 		}
-		
+		unset($stat);
+
 		// Sort
 		
 		$sort_asc = false;

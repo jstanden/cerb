@@ -435,7 +435,8 @@ namespace Cerb\Impex\Exporters {
 						break;
 				}
 			}
-			
+			unset($param);
+
 			return $params;
 		}
 		

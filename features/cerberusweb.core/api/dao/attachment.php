@@ -2092,6 +2092,7 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 			
 			$links[] = $tuple;
 		}
+		unset($tuple);
 		
 		if(false == ($json = json_encode($links))) {
 			$error = 'could not be JSON encoded.';

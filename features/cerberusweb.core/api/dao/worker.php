@@ -2610,6 +2610,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 						$v = '';
 					}
 				}
+				unset($v);
 				
 				return new DevblocksSearchCriteria(
 					$field_key,

@@ -860,6 +860,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				if(array_key_exists('children', $child))
 					$sort_children($child['children']);
 			}
+			unset($child);
 		};
 		
 		$sort_children($response['children']);

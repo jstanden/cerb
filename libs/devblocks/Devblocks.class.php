@@ -3445,8 +3445,9 @@ class DevblocksPlatform extends DevblocksEngine {
 				$element = clone $element;
 			}
 		}
+		unset($element);
 	}
-	
+
 	static function deepCloneArray($array) {
 		$copy = $array;
 		self::_deepCloneArray($copy);

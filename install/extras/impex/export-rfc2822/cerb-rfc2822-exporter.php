@@ -150,6 +150,7 @@ namespace Cerb\Impex\Exporters {
 				if(is_array($v))
 					$v = implode(';; ', $v);
 			}
+			unset($v);
 			
 			ksort($headers);
 			
