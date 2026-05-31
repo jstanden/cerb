@@ -27,9 +27,11 @@
 <div style="margin-left:10px;margin-bottom:10px;">
 	<button type="button" id="{$btn_cfield_group_domid}" class="action">Add Fieldset &#x25be;</button>
 	<ul class="cerb-popupmenu" style="border:0;">
+		{if count($custom_fieldsets_available) >= 10}
 		<li style="background:none;">
 			<input type="text" size="32" class="input_search filter">
 		</li>
+		{/if}
 		{foreach from=$custom_fieldsets_available item=cf_group}
 		{$owner_ctx = Extension_DevblocksContext::get($cf_group->owner_context|default:'')}
 		<li class="item" cf_group_id="{$cf_group->id}">
