@@ -68,52 +68,98 @@ abstract class DevblocksORMHelper {
 		return;
 	}
 	
-	static public function validate(array &$fields, &$error=null, $id=null, array $excludes=[]) {
+	static public function validate(array &$fields, &$error=null, $record_ids=null, array $excludes=[]) : bool {
+		// Decompose single element arrays into one ID
+		if(is_array($record_ids) && 1 === count($record_ids))
+			$record_ids = array_shift($record_ids);
+		
+		// An array of ids is a batch update of existing records (e.g. `records.update:`).
+		$is_batch = is_array($record_ids);
+
+		return static::_validateRecord(
+			$fields,
+			$error,
+			!$is_batch ? $record_ids : null,
+			$excludes,
+			is_batch: $is_batch
+		);
+	}
+
+	static protected function _validateRecord(array &$fields, &$error=null, $record_ids=null, array $excludes=[], bool $is_batch=false) : bool {
+		$validation = DevblocksPlatform::services()->validation();
+		
 		if(!method_exists(get_called_class(), 'getFields'))
 			return false;
-		
-		$validation = DevblocksPlatform::services()->validation();
+
 		$valid_fields = get_called_class()::getFields();
-		
-		// Check required fields on creation
-		if(is_array($valid_fields) && !$id)
+
+		// Only check required fields when creating records (no IDs, not batch mode)
+		if(is_array($valid_fields) && !$is_batch && !$record_ids)
 		foreach($valid_fields as $field_key => $field) {
 			if($field->_type->isRequired()) {
 				if(!array_key_exists($field_key, $fields)) {
 					$error = sprintf("'%s' is required.", $field->_label);
 					return false;
 				}
-				
+
 				if(!$field->_type->canBeEmpty() && 0 == strlen(strval($fields[$field_key]))) {
 					$error = sprintf("'%s' is required.", $field->_label);
 					return false;
 				}
 			}
 		}
-		
+
 		foreach($fields as $field_key => &$value) {
 			// Bypass
 			if(in_array($field_key, $excludes))
 				continue;
-			
-			if(false == (@$field = $valid_fields[$field_key])) { /* @var $field DevblocksValidationField */
+
+			if(!($field = ($valid_fields[$field_key] ?? null))) { /* @var $field DevblocksValidationField */
 				$error = sprintf("'%s' is not a valid field.", $field_key);
 				return false;
 			}
-			
+
+			// In batch mode we're not allowed to update unique fields (we'd guarantee conflicts)
+			if($is_batch && $field->_type->isUnique()) {
+				$error = sprintf("The field '%s' can't be updated in bulk because it must be unique.", $field->_label);
+				return false;
+			}
+
 			try {
-				$validation->validate($field, $value, ['id' => $id, 'fields' => $fields]);
+				$scope = ['fields' => $fields];
 				
+				// If not a batch, add the 'id' scope
+				if(!$is_batch) $scope['id'] = $record_ids;
+
+				$validation->validate($field, $value, $scope);
+
 			} catch (Exception_DevblocksValidationError $e) {
 				$error = $e->getMessage();
 				return false;
 			}
 		}
-		
+
 		return true;
 	}
-	
-	static function validateCustomFields(array &$fields, $context, &$error=null, $id=null) {
+
+	static function validateCustomFields(array &$fields, $context, &$error=null, $record_ids=null) : bool {
+		// Decompose single element arrays into one ID
+		if(is_array($record_ids) && 1 === count($record_ids))
+			$record_ids = array_shift($record_ids);
+		
+		// An array of ids is a batch update of existing records (e.g. `records.update:`).
+		$is_batch = is_array($record_ids);
+		
+		return static::_validateCustomFields(
+			$fields,
+			$context,
+			$error,
+			!$is_batch ? $record_ids : null,
+			is_batch: $is_batch
+		);
+	}
+
+	static protected function _getCustomFieldsValidation($context) : _DevblocksValidationService {
 		$validation = DevblocksPlatform::services()->validation();
 		
 		$custom_fields = DAO_CustomField::getByContext($context);
@@ -247,30 +293,42 @@ abstract class DevblocksORMHelper {
 					break;
 				default:
 					if(($field_ext = Extension_CustomField::get($custom_field->type))) {
-						$field_ext->validationRegister($custom_field, $validation);
+						if(method_exists($field_ext, 'validationRegister'))
+							$field_ext->validationRegister($custom_field, $validation);
 					}
 					break;
 			}
 		}
 		
+		return $validation;
+	}
+
+	static protected function _validateCustomFields(array &$fields, $context, &$error=null, $record_ids=null, bool $is_batch=false) : bool {
+		$validation = static::_getCustomFieldsValidation($context);
 		$valid_fields = $validation->getFields();
-		
-		if(is_array($fields))
+
 		foreach($fields as $field_key => $value) {
-			if(false == (@$field = $valid_fields[$field_key])) { /* @var $field DevblocksValidationField */
+			if(!($field = ($valid_fields[$field_key] ?? null))) { /* @var $field DevblocksValidationField */
 				$error = sprintf("'%s' is not a valid custom field.", $field_key);
 				return false;
 			}
-			
+
+			// A batch update can't set unique fields because we'd guarantee conflicts
+			if($is_batch && $field->_type->isUnique()) {
+				$error = sprintf("The custom field '%s' can't be updated in bulk because it must be unique.", $field->_label);
+				return false;
+			}
+
 			try {
-				$validation->validate($field, $value, ['id' => $id]);
-				
+				// For a batch, omit the 'id' scope
+				$validation->validate($field, $value, $is_batch ? [] : ['id' => $record_ids]);
+
 			} catch (Exception_DevblocksValidationError $e) {
 				$error = $e->getMessage();
 				return false;
 			}
 		}
-		
+
 		return true;
 	}
 	
