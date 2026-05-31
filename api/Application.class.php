@@ -6114,6 +6114,37 @@ class _CerbApplication_KataSchemas {
                         ref: commands
                       on_simulate:
                         ref: commands
+
+              records.update:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+                      inputs:
+                        types:
+                          object:
+                            attributes:
+                              disable_events:
+                                types:
+                                  bool:
+                              fields:
+                                types:
+                                  list:
+                              record_ids:
+                                types:
+                                  list:
+                              record_type:
+                                types:
+                                  string:
+                      output:
+                        types:
+                          string:
+                      on_error:
+                        ref: commands
+                      on_success:
+                        ref: commands
+                      on_simulate:
+                        ref: commands
               
               repeat:
                 multiple@bool: yes
@@ -6451,6 +6482,7 @@ class _CerbApplication_KataSchemas {
                 record.search@ref: policyRule
                 record.update@ref: policyRule
                 record.upsert@ref: policyRule
+                records.update@ref: policyRule
                 storage.delete@ref: policyRule
                 storage.get@ref: policyRule
                 storage.set@ref: policyRule

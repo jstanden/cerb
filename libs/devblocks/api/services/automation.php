@@ -665,6 +665,7 @@ class _DevblocksAutomationService {
 			'record.search',
 			'record.update',
 			'record.upsert',
+			'records.update',
 			'return',
 			'set',
 			'simulate.error',

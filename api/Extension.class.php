@@ -1246,6 +1246,11 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'interaction' => 'ai.cerb.automationBuilder.action.recordUpsert',
 			],
 			[
+				'caption' => 'records.update:',
+				'snippet' => "records.update:\n\tinputs:\n\t\t\${1:}\n\toutput: results\n\t#on_simulate:\n\t#on_success:\n\t#on_error:\n",
+				'description' => "Update many records of same type in a single action",
+			],
+			[
 				'caption' => 'storage.delete:',
 				'snippet' => "storage.delete:\n\tinputs:\n\t\t\${1:}\n\toutput: results\n\t#on_simulate:\n\t#on_success:\n\t#on_error:\n",
 				'description' => "Delete a persistent key",
@@ -2326,6 +2331,46 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'type' => 'record-type',
 				],
 				
+				'(.*):records.update:' => $action_base,
+				'(.*):records.update:inputs:' => [
+					[
+						'caption' => 'record_type:',
+						'snippet' => 'record_type:',
+						'score' => 2000,
+						'description' => "The record type to update",
+					],
+					[
+						'caption' => 'record_ids:',
+						'snippet' => "record_ids:\n\t\${1:}",
+						'score' => 1999,
+						'description' => "The record IDs to update in one batch",
+					],
+					[
+						'caption' => 'fields:',
+						'snippet' => "fields:\n\t\${1:}",
+						'score' => 1998,
+						'description' => "The record fields to update",
+					],
+					[
+						'caption' => 'disable_events:',
+						'snippet' => "disable_events@bool: \${1:yes}",
+						'score' => 900,
+						'description' => "Don't trigger automations or behaviors after modifying these records",
+					],
+				],
+				'(.*):records.update:inputs:fields:' => [
+					'type' => 'record-fields',
+					'params' => [
+						'skip_unique' => true,
+					],
+				],
+				'(.*):records.update:inputs:fields:(.*?):' => [
+					'type' => 'record-fields-value',
+				],
+				'(.*):records.update:inputs:record_type:' => [
+					'type' => 'record-type',
+				],
+
 				'(.*):repeat:' => [
 					[
 						'caption' => 'each@csv:',

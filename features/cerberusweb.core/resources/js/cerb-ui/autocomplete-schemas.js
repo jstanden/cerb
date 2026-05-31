@@ -264,6 +264,7 @@ let cerbAutocompleteSuggestions = {
 			'record.search:',
 			'record.update:',
 			'record.upsert:',
+			'records.update:',
 			'storage.delete:',
 			'storage.get:',
 			'storage.set:'
@@ -423,6 +424,15 @@ let cerbAutocompleteSuggestions = {
 			'allow@bool: yes'
 		],
 		'commands:record.upsert:': [
+			{
+				'caption': 'deny/type:',
+				'snippet': "deny/type@bool: {{inputs.record_type is not record type ('task','ticket')}}",
+				'docHTML': 'Validate record type'
+			},
+			'deny@bool: yes',
+			'allow@bool: yes'
+		],
+		'commands:records.update:': [
 			{
 				'caption': 'deny/type:',
 				'snippet': "deny/type@bool: {{inputs.record_type is not record type ('task','ticket')}}",

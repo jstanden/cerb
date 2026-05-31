@@ -36,6 +36,7 @@ class ActionNode extends AbstractNode {
 			'record.search' => '\Cerb\AutomationBuilder\Action\RecordSearchAction',
 			'record.update' => '\Cerb\AutomationBuilder\Action\RecordUpdateAction',
 			'record.upsert' => '\Cerb\AutomationBuilder\Action\RecordUpsertAction',
+			'records.update' => '\Cerb\AutomationBuilder\Action\RecordsUpdateAction',
 			'return' => '\Cerb\AutomationBuilder\Action\ReturnAction',
 			'set' => '\Cerb\AutomationBuilder\Action\SetAction',
 			'simulate.error' => '\Cerb\AutomationBuilder\Action\SimulateErrorAction',
