@@ -292,9 +292,12 @@ class _DevblocksClassLoadManager {
 			'_DevblocksStringService',
 		]);
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/template_builder.php', array(
+			'_DevblocksContextVariable',
 			'_DevblocksTemplateBuilder',
+			'_DevblocksTwigEnvironment',
 			'_DevblocksTwigExtensions',
 			'_DevblocksTwigSecurityPolicy',
+			'_DevblocksUndefinedVariableNodeVisitor',
 			'DevblocksDictionaryDelegate',
 		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/template.php', array(

@@ -120,12 +120,48 @@ class _DevblocksTwigSecurityPolicy implements SecurityPolicyInterface {
 	}
 }
 
+/**
+ * A Cerb-owned Twig\Environment subclass that resolves bare template names
+ * (e.g. {{prompt_email}}) lazily from a DevblocksDictionaryDelegate.
+ *
+ * This holds the undefined-variable callback state directly so that Cerb no
+ * longer needs to fork Twig's Environment/ExtensionSet. The compiled templates
+ * emitted by _DevblocksContextVariable call getUndefinedVariable() on this
+ * instance via $this->env.
+ */
+class _DevblocksTwigEnvironment extends \Twig\Environment {
+	private array $_variableCallbacks = [];
+
+	public function registerUndefinedVariableCallback(callable $callable): void {
+		$this->_variableCallbacks = [$callable];
+	}
+
+	public function getUndefinedVariableCallbacks(): array {
+		return $this->_variableCallbacks;
+	}
+
+	/**
+	 * Attempts to get a value for an undefined variable from the registered callback(s).
+	 *
+	 * @param string $name The undefined variable
+	 * @return mixed
+	 */
+	public function getUndefinedVariable($name) {
+		foreach($this->_variableCallbacks as $callback) {
+			if(false !== ($variable = $callback($name)))
+				return $variable;
+		}
+
+		return null;
+	}
+}
+
 class _DevblocksTemplateBuilder {
 	private $_twig = null;
 	private $_errors = [];
-	
+
 	private function __construct($autoescaping=false) {
-		$this->_twig = new \Twig\Environment(new \Twig\Loader\ArrayLoader([]), [
+		$this->_twig = new _DevblocksTwigEnvironment(new \Twig\Loader\ArrayLoader([]), [
 			'cache' => false,
 			'debug' => false,
 			'strict_variables' => false,
@@ -136,7 +172,10 @@ class _DevblocksTemplateBuilder {
 		
 		if(class_exists('_DevblocksTwigExtensions', true)) {
 			$this->_twig->addExtension(new _DevblocksTwigExtensions());
-			
+
+			// Swap bare-name reads for nodes that fall back to the dictionary delegate
+			$this->_twig->addNodeVisitor(new _DevblocksUndefinedVariableNodeVisitor());
+
 			// Sandbox Twig
 			
 			$tags = [
@@ -1206,6 +1245,94 @@ class _DevblocksTwigExpressionVisitor implements NodeVisitorInterface {
 	
 	function getFoundTokens() {
 		return array_keys($this->_tokens);
+	}
+};
+
+/**
+ * The node a bare {{ foo }} read compiles to once swapped in by
+ * _DevblocksUndefinedVariableNodeVisitor.
+ *
+ * Its compile() emits a dictionary fallback for both value reads and the
+ * `is defined` test, resolving the name from $context first and then from the
+ * environment's getUndefinedVariable() callback (the DevblocksDictionaryDelegate).
+ *
+ * This deliberately ignores the `always_defined` / `ignore_strict_check`
+ * attributes and always emits the lazy fallback form. The template builder runs
+ * with strict_variables disabled, so this matches Twig's non-strict behavior --
+ * and being independent of `always_defined` is what keeps new operator nodes
+ * (e.g. `?:` / `??`) from routing bare names around the fallback.
+ */
+class _DevblocksContextVariable extends \Twig\Node\Expression\Variable\ContextVariable {
+	private $_specialVars = ['_self', '_context', '_charset'];
+
+	public function compile(\Twig\Compiler $compiler): void {
+		$name = $this->getAttribute('name');
+
+		// Let Twig compile special vars (_self/_context/_charset) natively
+		if(in_array($name, $this->_specialVars, true)) {
+			parent::compile($compiler);
+			return;
+		}
+
+		$compiler->addDebugInfo($this);
+
+		if($this->isDefinedTestEnabled()) {
+			// {{ name is defined }} -- true if present in context OR resolvable from the dictionary
+			$compiler
+				->raw('(array_key_exists(')
+				->string($name)
+				->raw(', $context) || !is_null($this->env->getUndefinedVariable(')
+				->string($name)
+				->raw(')))')
+			;
+		} else {
+			// bare read -- context first, then lazy dictionary fallback
+			$compiler
+				->raw('($context[')
+				->string($name)
+				->raw('] ?? $this->env->getUndefinedVariable(')
+				->string($name)
+				->raw('))')
+			;
+		}
+	}
+};
+
+/**
+ * Rewrites bare-name read nodes ({{ foo }}) to _DevblocksContextVariable so they
+ * resolve lazily from the dictionary delegate. Runs after the optimizer/escaper.
+ *
+ * Assignment targets ({% set %}/for) are AssignNameExpression (a ContextVariable
+ * subclass) and are excluded; loop/macro vars (TempNameExpression-based) are not
+ * ContextVariable instances, so they're excluded already.
+ */
+class _DevblocksUndefinedVariableNodeVisitor implements NodeVisitorInterface {
+	public function enterNode(\Twig\Node\Node $node, \Twig\Environment $env): \Twig\Node\Node {
+		return $node;
+	}
+
+	public function leaveNode(\Twig\Node\Node $node, \Twig\Environment $env): ?\Twig\Node\Node {
+		if($node instanceof \Twig\Node\Expression\Variable\ContextVariable
+			&& !$node instanceof \Twig\Node\Expression\AssignNameExpression
+			&& !$node instanceof _DevblocksContextVariable
+			&& !in_array($node->getAttribute('name'), ['_self', '_context', '_charset'], true)
+		) {
+			$new = new _DevblocksContextVariable($node->getAttribute('name'), $node->getTemplateLine());
+
+			if($node->hasAttribute('ignore_strict_check'))
+				$new->setAttribute('ignore_strict_check', $node->getAttribute('ignore_strict_check'));
+
+			if($node->isDefinedTestEnabled())
+				$new->enableDefinedTest();
+
+			return $new;
+		}
+
+		return $node;
+	}
+
+	public function getPriority(): int {
+		return -1;
 	}
 };
 
