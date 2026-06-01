@@ -166,7 +166,14 @@ a:has(> span.cerb-icons) {
 
 button:has(> span.cerb-icons) {
   font-size: inherit;
-  color: inherit;
+
+  &.red {
+    color: white;
+
+    &:hover {
+      color: white;
+    }
+  }
 
   &:hover {
     color: var(--cerb-color-button-icon--hover);

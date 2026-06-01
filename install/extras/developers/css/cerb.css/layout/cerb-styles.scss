@@ -332,6 +332,8 @@ PRE.emailbody, DIV.emailbody {
 // Buttons
 
 BUTTON {
+	color: var(--cerb-color-button-icon);
+
 	&:hover DIV.badge-count {
 		background-color: var(--cerb-color-button-icon--hover);
 		color: var(--cerb-color-text-inverse);
