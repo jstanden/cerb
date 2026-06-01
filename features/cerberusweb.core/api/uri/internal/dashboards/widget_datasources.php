@@ -847,7 +847,7 @@ class WorkspaceWidgetDatasource_URL extends Extension_WorkspaceWidgetDatasource 
 				break;
 				
 			case 'xml':
-				if(null != ($xml = simplexml_load_string($raw_data))) {
+				if(null != ($xml = DevblocksPlatform::parseXml($raw_data))) {
 					$results = array();
 					
 					foreach($xml as $object) {
@@ -960,7 +960,7 @@ class WorkspaceWidgetDatasource_URL extends Extension_WorkspaceWidgetDatasource 
 				break;
 				
 			case 'xml':
-				if(null != ($xml = simplexml_load_string($raw_data))) {
+				if(null != ($xml = DevblocksPlatform::parseXml($raw_data))) {
 					if(isset($xml->value))
 						$params['metric_value'] = (float)$xml->value;
 	

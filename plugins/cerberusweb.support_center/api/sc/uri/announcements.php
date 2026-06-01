@@ -22,10 +22,11 @@ class UmScAnnouncementsController extends Extension_UmScController {
 		foreach($aNewsRss as $title => $url) {
 			$feed = null;
 			try {
-				$feed = DevblocksPlatform::parseRss($url);
+				if(!($feed = DevblocksPlatform::parseRss($url)))
+					continue;
 				if(!empty($title))
 					$feed['title'] = $title;
-			} catch(Exception $e) {}
+			} catch(Throwable) {}
 			if(!empty($feed) && isset($feed['items']) && !empty($feed['items'])) {
 				$feeds[] = $feed;
 			}

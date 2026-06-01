@@ -246,9 +246,10 @@ class DevblocksStorageEngineGatekeeper extends Extension_DevblocksStorageEngine 
 		
 		// Handle the case where some fail to delete (e.g. AccessDenied)
 		
-		$xml = simplexml_load_string($result);
+		if(!($xml = DevblocksPlatform::parseXml($result)))
+			return false;
 		
-		$errors = array();
+		$errors = [];
 		
 		if(isset($xml->Error))
 		foreach($xml->Error as $error) {

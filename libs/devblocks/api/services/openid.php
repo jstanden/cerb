@@ -87,7 +87,8 @@ class _DevblocksOpenIDManager {
 			
 			switch($type) {
 				case 'application/xrds+xml':
-					$xml = simplexml_load_string($content);
+					if(!($xml = DevblocksPlatform::parseXml($content)))
+						return null;
 					
 					foreach($xml->XRD->Service as $service) {
 						$types = array();

@@ -1916,7 +1916,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 				break;
 				
 			default:
-				$xml = simplexml_load_string($str);
+				$xml = DevblocksPlatform::parseXml($str);
 				break;
 		}
 		

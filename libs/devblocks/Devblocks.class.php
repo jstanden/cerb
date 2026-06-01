@@ -1825,9 +1825,20 @@ class DevblocksPlatform extends DevblocksEngine {
 		return (string) $text;
 	}
 	
-	static function parseRss($url) {
-		// [TODO] curl | file_get_contents() support
+	static function parseXml($xml_string) : false|SimpleXMLElement {
+		$use_errors = libxml_use_internal_errors(true);
 		
+		$xml = simplexml_load_string($xml_string);
+		
+		libxml_use_internal_errors($use_errors);
+		
+		if(false === $xml)
+			return false;
+		
+		return $xml;
+	}
+	
+	static function parseRss($url) {
 		// Handle 'feed://' scheme
 		if(preg_match('/^feed\:/', $url)) {
 			$url = preg_replace("/^feed\:\/\//","http://", $url);
@@ -1855,7 +1866,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		if(empty($data))
 			return true;
 		
-		if(null == (@$xml = simplexml_load_string($data)))
+		if(!($xml = self::parseXml($data)))
 			return false;
 			
 		$root_tag = DevblocksPlatform::strLower(dom_import_simplexml($xml)->tagName);
