@@ -21,7 +21,7 @@ $(function() {
 			
 			if (!($target instanceof jQuery)) {
 				// Not a jQuery object
-			} else if($target.is(':input,:button,a,img,div.badge-count,span.glyphicons,span.cerb-label')) {
+			} else if($target.is(':input,:button,a,img,div.badge-count,span.cerb-icons,span.cerb-label')) {
 				// Ignore form elements and links
 				e.stopPropagation();
 			} else {
@@ -145,13 +145,6 @@ $(function() {
 		toggleDiv('{$view->id}_tips','block');
 	});
 
-	// Copy
-	$view.find('table.worklist [data-cerb-worklist-icon-copy]').click(function(e) {
-		e.stopPropagation();
-		genericAjaxGet('{$view->id}_tips','c=internal&a=invoke&module=worklists&action=renderCopy&view_id={$view->id}');
-		toggleDiv('{$view->id}_tips','block');
-	});
-
 	// Subtotals
 	$view.find('table.worklist [data-cerb-worklist-icon-subtotals]').click(function(e) {
 		e.stopPropagation();
@@ -227,7 +220,7 @@ $(function() {
 		var $th = $(this);
 		var $a = $th.find('a');
 		
-		$th.find('span.glyphicons').prependTo($th);
+		$th.find('span.cerb-icons').prependTo($th);
 		
 		$a.attr('title', $a.text());
 		$a.html('&nbsp;&nbsp;&nbsp;');

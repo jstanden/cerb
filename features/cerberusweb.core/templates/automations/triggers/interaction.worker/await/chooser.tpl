@@ -1,7 +1,7 @@
 {$element_id = uniqid('prompt')}
 <div class="cerb-form-builder-prompt cerb-form-builder-prompt-chooser" id="{$element_id}">
 	<h6>{$label}</h6>
-	<button type="button" data-field-name="prompts[{$var}]{if $multiple}[]{/if}" data-context="{$record_type}" {if !$multiple}data-single="true"{/if} data-query="{$query}" {if $autocomplete}data-autocomplete="" data-autocomplete-if-empty="true"{/if}><span class="glyphicons glyphicons-search"></span></button>
+	<button type="button" data-field-name="prompts[{$var}]{if $multiple}[]{/if}" data-context="{$record_type}" {if !$multiple}data-single="true"{/if} data-query="{$query}" {if $autocomplete}data-autocomplete="" data-autocomplete-if-empty="true"{/if}><span class="cerb-icons cerb-icon-search"></span></button>
 	{$selected_values = $value|default:$default}
 	<ul class="bubbles chooser-container">
 		{if $selected_values}

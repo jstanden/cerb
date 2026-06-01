@@ -14,10 +14,10 @@
 {if !$queue_job->isTerminal()}
 <div data-cerb-buttons style="margin-top:0.5em;">
     {if $mode != 'view'}
-    <button data-cerb-button="pause-resume" title="{if $mode == 'process_paused'}Resume{else}Pause{/if}"><span class="glyphicons {if $mode == 'process_paused'}glyphicons-play{else}glyphicons-pause{/if}"></span> <span data-cerb-button-label>{if $mode == 'process_paused'}Resume{else}Pause{/if}</span></button>
-    <button data-cerb-button="cancel" title="Cancel" class="{if $mode != 'process_paused'}cerb-hidden{/if}"><span class="glyphicons glyphicons-circle-remove"></span> Cancel</button>
+    <button data-cerb-button="pause-resume" title="{if $mode == 'process_paused'}Resume{else}Pause{/if}"><span class="cerb-icons {if $mode == 'process_paused'}cerb-icon-play{else}cerb-icon-pause{/if}"></span> <span data-cerb-button-label>{if $mode == 'process_paused'}Resume{else}Pause{/if}</span></button>
+    <button data-cerb-button="cancel" title="Cancel" class="{if $mode != 'process_paused'}cerb-hidden{/if}"><span class="cerb-icons cerb-icon-circle-remove"></span> Cancel</button>
     {/if}
-    <button data-cerb-button="refresh"><span class="glyphicons glyphicons-refresh"></span> Refresh</button>
+    <button data-cerb-button="refresh"><span class="cerb-icons cerb-icon-refresh"></span> Refresh</button>
 </div>
 
 <div data-cerb-worker-cards class="cerb-worker-cards cerb-hidden">
@@ -143,7 +143,7 @@ $(function() {
     const canProcess = (MODE !== 'view');
 
     const $button_refresh = $widget.find('button[data-cerb-button=refresh]');
-    const $button_refresh_icon = $button_refresh.find('span.glyphicons-refresh');
+    const $button_refresh_icon = $button_refresh.find('span.cerb-icon-refresh');
     const $button_pause = $widget.find('button[data-cerb-button=pause-resume]');
     const $button_cancel = $widget.find('button[data-cerb-button=cancel]');
     const $progress_bar = $widget.find('div[data-cerb-progress-bar]');
@@ -413,9 +413,9 @@ $(function() {
             $button_pause
                 .attr('title', label)
                 .find('span[data-cerb-button-label]').text(label).end()
-                .find('span.glyphicons')
-                .toggleClass('glyphicons-pause', !isPaused)
-                .toggleClass('glyphicons-play', isPaused);
+                .find('span.cerb-icons')
+                .toggleClass('cerb-icon-pause', !isPaused)
+                .toggleClass('cerb-icon-play', isPaused);
             $button_cancel.toggleClass('cerb-hidden', !isPaused);
             if(!isPaused) {
                 funcSpawnSingleWorker();

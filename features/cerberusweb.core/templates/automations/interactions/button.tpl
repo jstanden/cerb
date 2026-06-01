@@ -1,6 +1,6 @@
 <div id="bot-chat-button" class="cerb-no-print">
 	{if DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy')}
-	<div class="bot-chat-icon-badge" {if !$proactive_interactions_count}style="display:none;"{/if}><span class="glyphicons glyphicons-chat"></span></div>
+	<div class="bot-chat-icon-badge" {if !$proactive_interactions_count}style="display:none;"{/if}><span class="cerb-icons cerb-icon-bot-message"></span></div>
 	{/if}
 	<div class="bot-chat-icon"></div>
 	<div class="bot-chat-menu"></div>

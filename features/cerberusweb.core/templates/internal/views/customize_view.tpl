@@ -4,7 +4,7 @@
 <input type="hidden" name="action" value="saveCustomize">
 <input type="hidden" name="id" value="{$view->id}">
 <div class="block" style="margin:5px;">
-<h1 style="margin-bottom:10px;color:inherit;">{'common.customize'|devblocks_translate|capitalize}</h1>
+<h3 style="margin-bottom:10px;color:inherit;">{'common.customize'|devblocks_translate|capitalize}</h3>
 
 {* Custom Views *}
 {$is_custom = $view->isCustom()}
@@ -40,13 +40,12 @@
 
 <fieldset class="peek peek-noborder black">
 	<legend>
-		{'dashboard.columns'|devblocks_translate|capitalize} (<a data-cerb-link-clear>{'common.clear'|devblocks_translate|lower}</a>)</b>
+		{'dashboard.columns'|devblocks_translate|capitalize} <small>(<a data-cerb-link-clear>{'common.clear'|devblocks_translate|lower}</a>)</small>
 	</legend>
 
 	<div style="{if count($columns) > 15}column-width:300px;column-count:3;{/if}">
 		{foreach from=$columns item=column}
 		<div class="column">
-		<span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;cursor:move;"></span>
 		<label><input type="checkbox" name="columns[]" value="{$column->token}" {if in_array($column->token, $view->view_columns)}checked="checked"{/if}> {$column->db_label|capitalize}</label>
 		</div>
 		{/foreach}
@@ -90,8 +89,8 @@
 	{/if}
 {/if}
 
-<button type="button" class="save"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-<button type="button" class="cancel"><span class="glyphicons glyphicons-circle-remove"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+<button type="button" class="save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+<button type="button" class="cancel"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 
 </div>
 

@@ -41,7 +41,7 @@
 	<tr>
 		<td width="1%" nowrap="nowrap" valign="middle"><b>{'common.organization'|devblocks_translate|capitalize}:</b> </td>
 		<td width="99%" valign="top">
-				<button type="button" class="chooser-abstract" data-field-name="org_id" data-context="{CerberusContexts::CONTEXT_ORG}" data-single="true" data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="glyphicons glyphicons-search"></span></button>
+				<button type="button" class="chooser-abstract" data-field-name="org_id" data-context="{CerberusContexts::CONTEXT_ORG}" data-single="true" data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="cerb-icons cerb-icon-search"></span></button>
 				
 				<ul class="bubbles chooser-container">
 					{if $org}
@@ -54,7 +54,7 @@
 	<tr>
 		<td width="1%" nowrap="nowrap" valign="middle"><b>{'common.contact'|devblocks_translate|capitalize}:</b> </td>
 		<td width="99%" valign="top">
-				<button type="button" class="chooser-abstract" data-field-name="contact_id" data-context="{CerberusContexts::CONTEXT_CONTACT}" data-single="true" {if $org}data-query="org.id:{$org->id}"{/if} data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null" data-create-defaults="email:{if $address->id}{$address->id}{elseif $email}{$email}{/if} {if $org}org:{$org->id}{/if}"><span class="glyphicons glyphicons-search"></span></button>
+				<button type="button" class="chooser-abstract" data-field-name="contact_id" data-context="{CerberusContexts::CONTEXT_CONTACT}" data-single="true" {if $org}data-query="org.id:{$org->id}"{/if} data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null" data-create-defaults="email:{if $address->id}{$address->id}{elseif $email}{$email}{/if} {if $org}org:{$org->id}{/if}"><span class="cerb-icons cerb-icon-search"></span></button>
 				
 				<ul class="bubbles chooser-container">
 					{if $contact}
@@ -101,7 +101,7 @@
 					<b>{'common.email_transport'|devblocks_translate|capitalize}: </b>
 				</td>
 				<td valign="middle" width="100%">
-					<button type="button" class="chooser-abstract" data-field-name="mail_transport_id" data-context="{CerberusContexts::CONTEXT_MAIL_TRANSPORT}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
+					<button type="button" class="chooser-abstract" data-field-name="mail_transport_id" data-context="{CerberusContexts::CONTEXT_MAIL_TRANSPORT}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="cerb-icons cerb-icon-search"></span></button>
 					
 					{$mail_transport = DAO_MailTransport::get($address->mail_transport_id)}
 					
@@ -126,7 +126,7 @@
 					<b>{'common.worker'|devblocks_translate|capitalize}: </b>
 				</td>
 				<td valign="middle" width="100%">
-					<button type="button" class="chooser-abstract" data-field-name="worker_id" data-context="{CerberusContexts::CONTEXT_WORKER}" data-single="true" data-query="isDisabled:n" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
+					<button type="button" class="chooser-abstract" data-field-name="worker_id" data-context="{CerberusContexts::CONTEXT_WORKER}" data-single="true" data-query="isDisabled:n" data-autocomplete="" data-autocomplete-if-empty="true"><span class="cerb-icons cerb-icon-search"></span></button>
 					
 					{$worker = DAO_Worker::get($address->worker_id)}
 					
@@ -152,7 +152,7 @@
 
 {if (!$address->id && $active_worker->hasPriv("contexts.{$peek_context}.create")) 
 	|| ($address->id && $active_worker->hasPriv("contexts.{$peek_context}.update"))}
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button>
+	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button>
 {else}
 	<div class="error">{'error.core.no_acl.edit'|devblocks_translate}</div>
 {/if}

@@ -24,13 +24,13 @@
                 <b>{'common.toolbar'|devblocks_translate|capitalize}:</b>
             </td>
             <td width="99%">
-                <button type="button" data-cerb-toolbar-chooser data-interaction-uri="ai.cerb.chooser.toolbar" data-interaction-params=""><span class="glyphicons glyphicons-search"></span></button>
+                <button type="button" data-cerb-toolbar-chooser data-interaction-uri="ai.cerb.chooser.toolbar" data-interaction-params=""><span class="cerb-icons cerb-icon-search"></span></button>
                 <ul class="chooser-container bubbles">
                     {if $model->toolbar_name}
                         <li>
                             {$model->toolbar_name}
                             <input type="hidden" name="toolbar_name" value="{$model->toolbar_name}">
-                            <span class="glyphicons glyphicons-circle-remove"></span>
+                            <span class="cerb-icons cerb-icon-circle-remove"></span>
                         </li>
                     {/if}
                 </ul>
@@ -97,7 +97,7 @@
             <div class="cerb-code-editor-toolbar-divider"></div>
 
             {if $model->id}
-                <button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-changesets title="{'common.change_history'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-history"></span></button>
+                <button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-changesets title="{'common.change_history'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-history"></span></button>
             {/if}
 
             {include file="devblocks:cerberusweb.core::toolbars/editor_toolbar_buttons.tpl"}
@@ -124,11 +124,11 @@
 
     <div class="buttons" style="margin-top:10px;">
         {if $model->id}
-            <button type="button" class="save"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-            <button type="button" class="save-continue"><span class="glyphicons glyphicons-circle-arrow-right"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>
-            {if $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+            <button type="button" class="save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+            <button type="button" class="save-continue"><span class="cerb-icons cerb-icon-circle-arrow-right"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>
+            {if $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
         {else}
-            <button type="button" class="save"><span class="glyphicons glyphicons-circle-plus"></span> {'common.create'|devblocks_translate|capitalize}</button>
+            <button type="button" class="save"><span class="cerb-icons cerb-icon-circle-plus"></span> {'common.create'|devblocks_translate|capitalize}</button>
         {/if}
     </div>
 </form>
@@ -256,7 +256,7 @@
 
                 let $target = $(e.target);
 
-                if(!$target.is('.glyphicons-circle-remove'))
+                if(!$target.is('.cerb-icon-circle-remove'))
                     return;
 
                 $target.closest('li').remove();
@@ -305,7 +305,7 @@
                         .val(e.eventData.return.toolbar.name)
                     ;
 
-                    let $remove = $('<span class="glyphicons glyphicons-circle-remove"></span>');
+                    let $remove = $('<span class="cerb-icons cerb-icon-circle-remove"></span>');
 
                     let $li = $('<li/>')
                         .text(e.eventData.return.toolbar.name)

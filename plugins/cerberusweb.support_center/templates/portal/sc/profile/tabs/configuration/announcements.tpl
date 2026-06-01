@@ -23,7 +23,9 @@
 
 	<tbody class="template" style="display:none;margin:5px;">
 	<tr>
-		<td><span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;cursor:move;" title="Click and drag to rearrange"></span></td>
+		<td>
+			<span class="cerb-icons cerb-icon-move" style="cursor:move;margin-right:0.5em;" title="Drag to rearrange"></span>
+		</td>
 		<td>
 			<input type="text" name="news_rss_title[]" value="{$news_rss_title}" size="45">
 		</td>
@@ -31,7 +33,7 @@
 			<input type="text" name="news_rss_url[]" value="{$news_rss_url}" size="45">
 		</td>
 		<td>
-			<button type="button" class="remove" data-cerb-button="tbody_remove"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></button>
+			<button type="button" class="remove" data-cerb-button="tbody_remove"><span class="cerb-icons cerb-icon-circle-minus"></span></button>
 		</td>
 	</tr>
 	</tbody>
@@ -39,7 +41,7 @@
 	{foreach from=$news_rss item=news_rss_url key=news_rss_title}
 	<tbody class="drag" style="cursor:move;margin:5px;">
 	<tr>
-		<td><span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;cursor:move;" title="Click and drag to rearrange"></span></td>
+		<td><span class="cerb-icons cerb-icon-move" style="cursor:move;margin-right:0.5em;" title="Drag to rearrange"></span></td>
 		<td>
 			<input type="text" name="news_rss_title[]" value="{$news_rss_title}" size="45">
 		</td>
@@ -47,16 +49,18 @@
 			<input type="text" name="news_rss_url[]" value="{$news_rss_url}" size="45">
 		</td>
 		<td>
-			<button type="button" class="remove" data-cerb-button="tbody_remove"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></button>
+			<button type="button" class="remove" data-cerb-button="tbody_remove"><span class="cerb-icons cerb-icon-circle-minus"></span></button>
 		</td>
 	</tr>
 	</tbody>
 	{/foreach}
 </table>
 
-<button type="button" class="add"><span class="glyphicons glyphicons-circle-plus"></span></button>
+<button type="button" class="add"><span class="cerb-icons cerb-icon-circle-plus"></span></button>
 
-<button type="button" class="submit" style="margin-top:10px;"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+<div style="margin-top:2em;">
+	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+</div>
 </form>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
@@ -69,7 +73,7 @@ $(function() {
 
 		let $target = $(e.target);
 
-		if($target.is('.glyphicons-circle-minus'))
+		if($target.is('.cerb-icon-circle-minus'))
 			$target = $target.closest('button');
 
 		if($target.is('[data-cerb-button=tbody_remove]'))

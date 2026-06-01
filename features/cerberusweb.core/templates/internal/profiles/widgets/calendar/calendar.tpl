@@ -15,9 +15,9 @@
 	</div>
 
 	<div style="float:right;">
-		<button data-cerb-calender-nav="prev" type="button"><span class="glyphicons glyphicons-chevron-left"></span></button>
+		<button data-cerb-calender-nav="prev" type="button"><span class="cerb-icons cerb-icon-chevron-left"></span></button>
 		<button data-cerb-calender-nav="today" type="button">{{'common.today'|devblocks_translate|capitalize}}</button>
-		<button data-cerb-calender-nav="next" type="button"><span class="glyphicons glyphicons-chevron-right"></span></button>
+		<button data-cerb-calender-nav="next" type="button"><span class="cerb-icons cerb-icon-chevron-right"></span></button>
 	</div>
 	
 	<br clear="all">

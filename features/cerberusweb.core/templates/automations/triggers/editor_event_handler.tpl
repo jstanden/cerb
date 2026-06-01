@@ -10,7 +10,7 @@
             <div class="cerb-code-editor-toolbar">
                 <b>{'common.placeholders'|devblocks_translate|capitalize} (KATA)</b>
                 <div class="cerb-code-editor-toolbar-divider"></div>
-                <button type="button" class="cerb-code-editor-toolbar-button cerb-code-editor-toolbar-button--run" title="{'common.run'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-play"></span></button>
+                <button type="button" class="cerb-code-editor-toolbar-button cerb-code-editor-toolbar-button--run" title="{'common.run'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-play"></span></button>
             </div>
             <textarea name="tester[placeholders]" data-editor-mode="ace/mode/cerb_kata" rows="5" cols="45"></textarea>
         </div>

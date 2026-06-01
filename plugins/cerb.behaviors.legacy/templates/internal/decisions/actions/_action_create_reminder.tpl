@@ -20,7 +20,7 @@
 	{$behaviors = DAO_TriggerEvent::getIds($params.behavior_ids)}
 	{foreach from=$behaviors item=behavior}
 	<fieldset class="peek black" style="position:relative;">
-		<span class="glyphicons glyphicons-circle-remove" style="position:absolute;top:0;right:0;cursor:pointer;"></span>
+		<span class="cerb-icons cerb-icon-circle-remove" style="position:absolute;top:0;right:0;cursor:pointer;"></span>
 		<input type="hidden" name="{$namePrefix}[behavior_ids][]" value="{$behavior->id}">
 		<legend><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-context-id="{$behavior->id}">{$behavior->title}</a></legend>
 		<div class="parameters">
@@ -32,7 +32,7 @@
 	</div>
 	
 	<div style="margin:5px 0px 10px 0px;">
-		<button type="button" class="chooser-behavior" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-query="" data-query-required="disabled:n private:n event:event.macro.reminder"><span class="glyphicons glyphicons-circle-plus"></span> {'common.behaviors'|devblocks_translate|capitalize}</button>
+		<button type="button" class="chooser-behavior" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-query="" data-query-required="disabled:n private:n event:event.macro.reminder"><span class="cerb-icons cerb-icon-circle-plus"></span> {'common.behaviors'|devblocks_translate|capitalize}</button>
 	</div>
 </div>
 
@@ -92,7 +92,7 @@ $(function() {
 	$behaviors.find('.cerb-peek-trigger').cerbPeekTrigger();
 	
 	// Abstract delete
-	$behaviors.on('click', 'span.glyphicons-circle-remove', function(e) {
+	$behaviors.on('click', 'span.cerb-icon-circle-remove', function(e) {
 		var $this = $(this);
 		e.stopPropagation();
 		
@@ -129,7 +129,7 @@ $(function() {
 					
 					var $fieldset = $('<fieldset class="peek black" style="position:relative;" />');
 					var $hidden = $('<input type="hidden" name="{$namePrefix}[behavior_ids][]" />').val(behavior_id).appendTo($fieldset);
-					var $remove = $('<span class="glyphicons glyphicons-circle-remove" style="position:absolute;top:0;right:0;cursor:pointer;"/>')
+					var $remove = $('<span class="cerb-icons cerb-icon-circle-remove" style="position:absolute;top:0;right:0;cursor:pointer;"/>')
 						.appendTo($fieldset)
 					;
 					

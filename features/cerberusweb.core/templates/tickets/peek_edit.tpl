@@ -24,7 +24,7 @@
 	<tr>
 		<td width="1%" nowrap="nowrap" valign="middle">{'common.organization'|devblocks_translate|capitalize}:</td>
 		<td width="99%" valign="top">
-				<button type="button" class="chooser-abstract" data-field-name="org_id" data-context="{CerberusContexts::CONTEXT_ORG}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="glyphicons glyphicons-search"></span></button>
+				<button type="button" class="chooser-abstract" data-field-name="org_id" data-context="{CerberusContexts::CONTEXT_ORG}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="cerb-icons cerb-icon-search"></span></button>
 				
 				<ul class="bubbles chooser-container">
 					{$ticket_org = $ticket->getOrg()}
@@ -108,7 +108,7 @@
 	<tr>
 		<td width="1%" nowrap="nowrap" valign="middle">{'common.owner'|devblocks_translate|capitalize}:</td>
 		<td width="99%" valign="top">
-			<button type="button" class="chooser-abstract" data-field-name="owner_id" data-context="{CerberusContexts::CONTEXT_WORKER}" data-single="true" data-query="group:(id:{$ticket->group_id})" data-autocomplete="group:(id:{$ticket->group_id})" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
+			<button type="button" class="chooser-abstract" data-field-name="owner_id" data-context="{CerberusContexts::CONTEXT_WORKER}" data-single="true" data-query="group:(id:{$ticket->group_id})" data-autocomplete="group:(id:{$ticket->group_id})" data-autocomplete-if-empty="true"><span class="cerb-icons cerb-icon-search"></span></button>
 			
 			<ul class="bubbles chooser-container">
 				{$owner = $ticket->getOwner()}
@@ -131,7 +131,7 @@
 				{/if}
 			</ul>
 			
-			<button type="button" class="chooser-abstract" data-field-name="participants[]" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="isBanned:n isDefunct:n" data-autocomplete="" data-create="true"><span class="glyphicons glyphicons-search"></span></button>
+			<button type="button" class="chooser-abstract" data-field-name="participants[]" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="isBanned:n isDefunct:n" data-autocomplete="" data-create="true"><span class="cerb-icons cerb-icon-search"></span></button>
 		</td>
 	</tr>
 	
@@ -142,7 +142,7 @@
 
 {include file="devblocks:cerberusweb.core::internal/cards/editors/comment.tpl"}
 
-<button type="button" class="submit" {if $pref_keyboard_shortcuts}title="(Shift+Enter)"{/if}><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+<button type="button" class="submit" {if $pref_keyboard_shortcuts}title="(Shift+Enter)"{/if}><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 
 </form>
 

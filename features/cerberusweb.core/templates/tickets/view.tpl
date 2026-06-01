@@ -14,15 +14,14 @@
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
 		<td nowrap="nowrap" align="right" class="title-toolbar">
-			{if $active_worker->hasPriv("contexts.{$view_context}.create")}<a title="{'common.add'|devblocks_translate|capitalize}" class="minimal" data-cerb-worklist-action="add"><span class="glyphicons glyphicons-circle-plus"></span></a>{/if}
-			<a data-cerb-worklist-icon-search title="{'common.search'|devblocks_translate|capitalize}" class="minimal"><span class="glyphicons glyphicons-search"></span></a>
-			<a data-cerb-worklist-icon-customize title="{'common.customize'|devblocks_translate|capitalize}" class="minimal"><span class="glyphicons glyphicons-cogwheel"></span></a>
-			<a data-cerb-worklist-icon-subtotals title="{'common.subtotals'|devblocks_translate|capitalize}" class="minimal"><span class="glyphicons glyphicons-signal"></span></a>
-			{if $active_worker->hasPriv("contexts.{$view_context}.import")}<a data-cerb-worklist-icon-import title="{'common.import'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-file-import"></span></a>{/if}
-			{if $active_worker->hasPriv("contexts.{$view_context}.export")}<a data-cerb-worklist-icon-export title="{'common.export'|devblocks_translate|capitalize}" class="minimal"><span class="glyphicons glyphicons-file-export"></span></a>{/if}
-			<a data-cerb-worklist-icon-copy title="{'common.copy'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-duplicate"></span></a>
-			<a data-cerb-worklist-icon-actions title="{'common.actions'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-down-arrow"></span></a>
-			<a data-cerb-worklist-icon-refresh title="{'common.refresh'|devblocks_translate|capitalize}" class="minimal"><span class="glyphicons glyphicons-refresh"></span></a>
+			{if $active_worker->hasPriv("contexts.{$view_context}.create")}<a title="{'common.add'|devblocks_translate|capitalize}" class="minimal" data-cerb-worklist-action="add"><span class="cerb-icons cerb-icon-circle-plus"></span></a>{/if}
+			<a data-cerb-worklist-icon-search title="{'common.search'|devblocks_translate|capitalize}" class="minimal"><span class="cerb-icons cerb-icon-search"></span></a>
+			<a data-cerb-worklist-icon-customize title="{'common.customize'|devblocks_translate|capitalize}" class="minimal"><span class="cerb-icons cerb-icon-gear"></span></a>
+			<a data-cerb-worklist-icon-subtotals title="{'common.subtotals'|devblocks_translate|capitalize}" class="minimal"><span class="cerb-icons cerb-icon-signal"></span></a>
+			{if $active_worker->hasPriv("contexts.{$view_context}.import")}<a data-cerb-worklist-icon-import title="{'common.import'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-file-import"></span></a>{/if}
+			{if $active_worker->hasPriv("contexts.{$view_context}.export")}<a data-cerb-worklist-icon-export title="{'common.export'|devblocks_translate|capitalize}" class="minimal"><span class="cerb-icons cerb-icon-file-export"></span></a>{/if}
+			{if count($data) > 24}<a data-cerb-worklist-icon-actions title="{'common.actions'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-down-arrow"></span></a>{/if}
+<a data-cerb-worklist-icon-refresh title="{'common.refresh'|devblocks_translate|capitalize}" class="minimal"><span class="cerb-icons cerb-icon-refresh"></span></a>
 			<input type="checkbox" class="select-all">
 		</td>
 	</tr>
@@ -47,7 +46,7 @@
 	<tr>
 		{if !array_key_exists('disable_watchers', $view->options) || !$view->options.disable_watchers}
 		<th class="no-sort" style="text-align:center;width:40px;padding-left:0;padding-right:0;" title="{'common.watchers'|devblocks_translate|capitalize}">
-			<span class="glyphicons glyphicons-eye-open"></span>
+			<span class="cerb-icons cerb-icon-eye-open"></span>
 		</th>
 		{/if}
 		
@@ -55,18 +54,13 @@
 			{* start table header, insert column title and link *}
 			<th class="{if array_key_exists('disable_sorting', $view->options) && $view->options.disable_sorting}no-sort{/if}">
 			{if (!array_key_exists('disable_sorting', $view->options) || !$view->options.disable_sorting) && !empty($view_fields.$header->db_column)}
+				{include file="devblocks:cerberusweb.core::internal/views/view_header_sort.tpl" view=$view header=$header}
 				<a data-cerb-worklist-sort="{$header}">{$view_fields.$header->db_label|capitalize}</a>
 			{else}
 				<a style="text-decoration:none;">{$view_fields.$header->db_label|capitalize}</a>
 			{/if}
-			
-			{* add arrow if sorting by this column, finish table header tag *}
-			{if $header==$view->renderSortBy}
-				<span class="glyphicons {if $view->renderSortAsc}glyphicons-sort-by-attributes{else}glyphicons-sort-by-attributes-alt{/if}" style="font-size:14px;{if array_key_exists('disable_sorting', $view->options) && $view->options.disable_sorting}color:rgb(80,80,80);{else}color:rgb(39,123,213);{/if}"></span>
-			{/if}
 			</th>
 		{/foreach}
-		
 	</tr>
 	</thead>
 
@@ -116,9 +110,9 @@
 			<img class="cerb-avatar" src="{devblocks_url}c=avatars&what=worker&id={$draft_worker->id}{/devblocks_url}?v={$draft_worker->updated}" title="({$ticket_draft->updated|devblocks_prettytime}) {'mail.worklist.draft_in_progress'|devblocks_translate:{$workers.{$ticket_draft->worker_id}->getName()}}">
 			{/if}
 		{/if}
-		{if $result.t_status_id == Model_Ticket::STATUS_DELETED}<span class="glyphicons glyphicons-circle-remove" style="font-size:14px;"></span> {elseif $result.t_status_id == Model_Ticket::STATUS_CLOSED}<span class="glyphicons glyphicons-circle-ok" style="font-size:14px;"></span> {elseif $result.t_status_id == Model_Ticket::STATUS_WAITING}<span class="glyphicons glyphicons-clock" style="font-size:14px;"></span>{/if}
+		{if $result.t_status_id == Model_Ticket::STATUS_DELETED}<span class="cerb-icons cerb-icon-circle-remove" style="font-size:14px;"></span> {elseif $result.t_status_id == Model_Ticket::STATUS_CLOSED}<span class="cerb-icons cerb-icon-circle-ok" style="font-size:14px;"></span> {elseif $result.t_status_id == Model_Ticket::STATUS_WAITING}<span class="cerb-icons cerb-icon-clock" style="font-size:14px;"></span>{/if}
 		<a href="{devblocks_url}c=profiles&type=ticket&id={$result.t_mask}&tab=conversation{/devblocks_url}" class="subject">{$result.t_subject|default:'(no subject)'}</a> 
-		<button type="button" class="peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="{$result.t_id}" data-width="55%"><span class="glyphicons glyphicons-new-window-alt"></span></button>
+		<button type="button" class="peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="{$result.t_id}" data-width="55%"><span class="cerb-icons cerb-icon-new-window"></span></button>
 	{/capture}
 	
 	{$ticket_group_id = $result.t_group_id}
@@ -158,11 +152,11 @@
 		{elseif $column=="t_status_id"}
 			<td data-column="{$column}">
 			{if $result.t_status_id == Model_Ticket::STATUS_WAITING}
-			<span class="glyphicons glyphicons-clock" style="color:rgb(39,123,213);font-size:14px;"></span>
+			<span class="cerb-icons cerb-icon-clock" style="color:rgb(39,123,213);font-size:14px;"></span>
 			{elseif $result.t_status_id == Model_Ticket::STATUS_CLOSED}
-			<span class="glyphicons glyphicons-circle-ok" style="color:rgb(80,80,80);font-size:14px;"></span>
+			<span class="cerb-icons cerb-icon-circle-ok" style="color:rgb(80,80,80);font-size:14px;"></span>
 			{elseif $result.t_status_id == Model_Ticket::STATUS_DELETED}
-			<span class="glyphicons glyphicons-circle-remove" style="color:rgb(80,80,80);font-size:14px;"></span>
+			<span class="cerb-icons cerb-icon-circle-remove" style="color:rgb(80,80,80);font-size:14px;"></span>
 			{else}
 			{/if}
 			</td>
@@ -229,9 +223,9 @@
 			{if empty($result.t_spam_training)}
 			{if $active_worker->hasPriv('core.ticket.actions.spam')}<a class="cerb-view-shortcut-spam" data-ticket-id="{$result.t_id}">{/if}
 			{if $result.t_spam_score >= 0.90}
-			<span class="glyphicons glyphicons-ban" style="color:var(--cerb-color-error-text);" title="Report Spam ({$score})"></span>
+			<span class="cerb-icons cerb-icon-ban" style="color:var(--cerb-color-error-text);" title="Report Spam ({$score})"></span>
 			{else}
-			<span class="glyphicons glyphicons-ban" style="color:var(--cerb-color-background-contrast-100);" title="Report Spam ({$score})"></span>
+			<span class="cerb-icons cerb-icon-ban" style="color:var(--cerb-color-background-contrast-100);" title="Report Spam ({$score})"></span>
 			{/if}
 			{if $active_worker->hasPriv('core.ticket.actions.spam')}</a>{/if}
 			{/if}
@@ -292,13 +286,13 @@
 		{$view_toolbar = $view->getToolbar()}
 		{include file="devblocks:cerberusweb.core::internal/views/view_toolbar.tpl" view_toolbar=$view_toolbar}
 
-		{if !$view_toolbar['explore']}<button type="button" class="action-always-show action-explore"><span class="glyphicons glyphicons-compass"></span> {'common.explore'|devblocks_translate|lower}</button>{/if}
-		{if $active_worker->hasPriv("contexts.{$view_context}.update.bulk")}<button data-cerb-worklist-action-bulk="ticket" data-cerb-worklist-action-bulk-field-key="ticket_id[]" type="button" class="action-always-show action-bulkupdate"><span class="glyphicons glyphicons-folder-closed"></span> {'common.bulk_update'|devblocks_translate|lower}</button>{/if}
-		{if $active_worker->hasPriv('core.ticket.actions.close')}<button type="button" class="action-close" style="display:none;"><span class="glyphicons glyphicons-ok"></span> {'common.close'|devblocks_translate|lower}</button>{/if}
-		{if $active_worker->hasPriv('core.ticket.actions.spam')}<button type="button" class="action-spam" style="display:none;"><span class="glyphicons glyphicons-ban"></span> {'common.spam'|devblocks_translate|lower}</button>{/if}
-		{if $active_worker->hasPriv("contexts.{$view_context}.delete")}<button type="button" class="action-delete" style="display:none;"><span class="glyphicons glyphicons-remove"></span> {'common.delete'|devblocks_translate|lower}</button>{/if}
+		{if !$view_toolbar['explore']}<button type="button" class="action-always-show action-explore"><span class="cerb-icons cerb-icon-compass"></span> {'common.explore'|devblocks_translate|lower}</button>{/if}
+		{if $active_worker->hasPriv("contexts.{$view_context}.update.bulk")}<button data-cerb-worklist-action-bulk="ticket" data-cerb-worklist-action-bulk-field-key="ticket_id[]" type="button" class="action-always-show action-bulkupdate"><span class="cerb-icons cerb-icon-folder"></span> {'common.bulk_update'|devblocks_translate|lower}</button>{/if}
+		{if $active_worker->hasPriv('core.ticket.actions.close')}<button type="button" class="action-close" style="display:none;"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.close'|devblocks_translate|lower}</button>{/if}
+		{if $active_worker->hasPriv('core.ticket.actions.spam')}<button type="button" class="action-spam" style="display:none;"><span class="cerb-icons cerb-icon-ban"></span> {'common.spam'|devblocks_translate|lower}</button>{/if}
+		{if $active_worker->hasPriv("contexts.{$view_context}.delete")}<button type="button" class="action-delete" style="display:none;"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|lower}</button>{/if}
 
-		<button type="button" class="action-move" style="display:none;">{'common.move'|devblocks_translate|lower} <span class="glyphicons glyphicons-chevron-down"></span></button>
+		<button type="button" class="action-move" style="display:none;">{'common.move'|devblocks_translate|lower} <span class="cerb-icons cerb-icon-chevron-down"></span></button>
 		<div class="cerb-popupmenu cerb-float">
 			<select class="cerb-moveto-group">
 				<option></option>
@@ -315,7 +309,7 @@
 			</select>
 		</div>
 		
-		{if $active_worker->hasPriv("contexts.{$view_context}.merge")}<button type="button" data-cerb-worklist-action-merge="ticket_id[]" style="display:none;"><span class="glyphicons glyphicons-git-merge"></span> {'common.merge'|devblocks_translate|lower}</button>{/if}
+		{if $active_worker->hasPriv("contexts.{$view_context}.merge")}<button type="button" data-cerb-worklist-action-merge="ticket_id[]" style="display:none;"><span class="cerb-icons cerb-icon-merge"></span> {'common.merge'|devblocks_translate|lower}</button>{/if}
 	
 		{if $pref_keyboard_shortcuts}
 		{if $view->isCustom() || substr($view->id,0,6)=='search'}

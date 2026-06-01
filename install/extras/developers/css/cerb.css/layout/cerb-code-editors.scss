@@ -20,28 +20,12 @@
 		&.split-left {
 			padding-right: 0;
 		}
-		
-		&.split-right {
-			.glyphicons-chevron-down {
-				font-size:10px;
-				padding-left: 0;
-				color: var(--cerb-color-button-icon);
-				
-				&:hover {
-					color: var(--cerb-color-button-icon--hover);
-				}
-			}
-
-			&:hover {
-				background-color: transparent;
-			}
-		}
 
 		&.cerb-code-editor-toolbar-button--enabled {
 			background-color: var(--cerb-color-button-icon-enabled-background);
 			color: var(--cerb-color-button-icon-enabled);
 
-			span.glyphicons {
+			span.cerb-icons {
 				color: var(--cerb-color-button-icon-enabled);
 			}
 		}

@@ -7,7 +7,7 @@
 
 		<label for="{$uniq_id}" class="cerb-button-upload">
 			<input id="{$uniq_id}" type="file" style="display:none;" {if $accept}accept="{$accept}"{/if}>
-			<button type="button"><span class="glyphicons glyphicons-paperclip"></span></button>
+			<button type="button"><span class="cerb-icons cerb-icon-paperclip"></span></button>
 		</label>
 
 		<ul data-cerb-uploads-summary class="bubbles chooser-container">
@@ -17,7 +17,7 @@
 				<li>
 					<input type="hidden" name="prompts[{$var}]" value="{$resource->token}">
 					{$resource->name} ({$resource->storage_size|devblocks_prettybytes})
-					<span class="glyphicons glyphicons-circle-remove"></span>
+					<span class="cerb-icons cerb-icon-circle-remove"></span>
 				</li>
 				{/if}
 			{/if}
@@ -42,7 +42,7 @@ $(function() {
 		e.stopPropagation();
 		let $target = $(e.target);
 
-		if(!$target.is('.glyphicons-circle-remove'))
+		if(!$target.is('.cerb-icon-circle-remove'))
 			return true;
 
 		$target.parent().remove();
@@ -92,7 +92,7 @@ $(function() {
 			$hidden.attr('value', json.token);
 			$item.append($hidden);
 
-			$item.append($('<span class="glyphicons glyphicons-circle-remove"></span>'));
+			$item.append($('<span class="cerb-icons cerb-icon-circle-remove"></span>'));
 		});
 	}
 

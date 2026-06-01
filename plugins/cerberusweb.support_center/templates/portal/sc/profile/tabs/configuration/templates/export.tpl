@@ -18,7 +18,7 @@
 <input type="text" name="email" size="45" value=""><br>
 <br>
 
-<button type="button"><span class="glyphicons glyphicons-file-export"></span></a> {'common.export'|devblocks_translate|capitalize}</button>
+<button type="button"><span class="cerb-icons cerb-icon-file-export"></span></a> {'common.export'|devblocks_translate|capitalize}</button>
 
 </form>
 

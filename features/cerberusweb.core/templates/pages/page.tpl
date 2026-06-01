@@ -26,12 +26,11 @@
 			</div>
 		{/if}
 	
-		<button class="add" type="button" page_id="{$page->id}" page_label="{$page->name|lower}" page_url="{devblocks_url}c=pages&page={$page->id}-{$page->name|devblocks_permalink}{/devblocks_url}">{if $in_menu}<span class="glyphicons glyphicons-circle-minus"></span>{else}<span class="glyphicons glyphicons-circle-plus"></span>{/if} Menu</button>
-	
+		<button class="add" type="button" page_id="{$page->id}" page_label="{$page->name|lower}" page_url="{devblocks_url}c=pages&page={$page->id}-{$page->name|devblocks_permalink}{/devblocks_url}">{if $in_menu}<span class="cerb-icons cerb-icon-circle-minus"></span>{else}<span class="cerb-icons cerb-icon-circle-plus"></span>{/if} Menu</button>
+
 		{if CerberusContexts::isWriteableByActor(CerberusContexts::CONTEXT_WORKSPACE_PAGE, $page, $active_worker)}
 		<div style="display:inline-block;vertical-align:middle;">
-			<button class="config-page split-left" type="button"><span class="glyphicons glyphicons-cogwheel"></span></button><!--
-			--><button class="config-page split-right" type="button"><span class="glyphicons glyphicons-chevron-down"></span></button>
+			<button class="config-page" type="button"><span class="cerb-icons cerb-icon-gear"></span><span class="cerb-icons cerb-icon-chevron-down"></span></button>
 			<ul class="cerb-popupmenu cerb-float">
 				{if CerberusContexts::isWriteableByActor(CerberusContexts::CONTEXT_WORKSPACE_PAGE, $page, $active_worker)}
 					{if $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_PAGE}.update")}<li><a class="edit-page" data-context="{CerberusContexts::CONTEXT_WORKSPACE_PAGE}" data-context-id="{$page->id}" data-edit="true">Edit Page</a></li>{/if}
@@ -203,7 +202,7 @@ $(function() {
 				$(this).remove();
 			});
 			
-			$this.html('<span class="glyphicons glyphicons-circle-plus"></span> Menu');
+			$this.html('<span class="cerb-icons cerb-icon-circle-plus"></span> Menu');
 
 			var formData = new FormData();
 			formData.set('c', 'pages');
@@ -237,7 +236,7 @@ $(function() {
 				$li.css('visibility','visible');
 			});
 			
-			$this.html('<span class="glyphicons glyphicons-circle-minus"></span> Menu');
+			$this.html('<span class="cerb-icons cerb-icon-circle-minus"></span> Menu');
 
 			var formData = new FormData();
 			formData.set('c', 'pages');

@@ -9,7 +9,7 @@
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <b>Select {$aliases.plural|lower} to merge:</b><br>
-<button type="button" class="cerb-chooser-trigger" data-context="{$context_ext->id}" data-field-name="ids[]" data-query="" {if $context_ext->hasOption('autocomplete')}data-autocomplete{/if}><span class="glyphicons glyphicons-search"></span></button>
+<button type="button" class="cerb-chooser-trigger" data-context="{$context_ext->id}" data-field-name="ids[]" data-query="" {if $context_ext->hasOption('autocomplete')}data-autocomplete{/if}><span class="cerb-icons cerb-icon-search"></span></button>
 <ul class="chooser-container bubbles" style="display:block;">
 {if $dicts}
 {foreach from=$dicts item=dict}
@@ -19,7 +19,7 @@
 	<img class="cerb-avatar" src="{devblocks_url}c=avatars&context={$context_ext->id}&context_id={$dict->id}{/devblocks_url}?v={$dict->updated_at}">
 	{/if}
 	<a class="cerb-peek-trigger" data-context="{$dict->_context}" data-context-id="{$dict->id}">{$dict->_label}</a>
-	<a data-cerb-link="remove_parent"><span class="glyphicons glyphicons-circle-remove"></span></a>
+	<a data-cerb-link="remove_parent"><span class="cerb-icons cerb-icon-circle-remove"></span></a>
 </li>
 {/foreach}
 {/if}
@@ -27,7 +27,7 @@
 <br>
 
 {if $active_worker->hasPriv("contexts.{$context_ext->id}.merge")}
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.continue'|devblocks_translate|capitalize}</button>
+	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.continue'|devblocks_translate|capitalize}</button>
 {/if}
 </form>
 

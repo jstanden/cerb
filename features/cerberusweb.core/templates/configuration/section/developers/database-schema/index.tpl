@@ -24,7 +24,7 @@ $(function() {
         if($only_differences.is(':checked')) {
             $sheet.find('tbody').each(
                 function() {
-                    if(0 === $(this).find('.glyphicons-warning-sign, .glyphicons-plus').length)
+                    if(0 === $(this).find('.cerb-icon-alert, .cerb-icon-plus').length)
                         $(this).hide();
                 }
             );

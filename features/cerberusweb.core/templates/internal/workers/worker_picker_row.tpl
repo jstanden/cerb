@@ -30,6 +30,6 @@
 	</td>
 	{/if}
 	<td nowrap="nowrap">
-		<a class="delete" {if !$worker_meta[$worker->id].is_selected}style="display:none;"{/if}><span class="glyphicons glyphicons-circle-remove" style="font-size:14px;color:rgb(200,0,0);"></span></a>
+		<a class="delete" {if !$worker_meta[$worker->id].is_selected}style="display:none;"{/if}><span class="cerb-icons cerb-icon-circle-remove" style="font-size:14px;color:rgb(200,0,0);"></span></a>
 	</td>
 </tr>

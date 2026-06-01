@@ -15,18 +15,18 @@
 
 		{if !$embed}
 		<div class="toolbar-minmax">
-			<button type="button" class="edit cerb-no-print" data-context="{CerberusContexts::CONTEXT_MESSAGE}" data-context-id="{$message->id}" title="Open card popup (Shift+Click to edit)"><span class="glyphicons glyphicons-new-window-alt"></span></button>
+			<button type="button" class="edit cerb-no-print" data-context="{CerberusContexts::CONTEXT_MESSAGE}" data-context-id="{$message->id}" title="Open card popup (Shift+Click to edit)"><span class="cerb-icons cerb-icon-new-window"></span></button>
 
 			{if $expanded}
-				<button type="button" id="{$message->id}skip" class="cerb-no-print" title="{'display.convo.skip_to_bottom'|devblocks_translate}"><span class="glyphicons glyphicons-down-arrow"></span></button>
+				<button type="button" id="{$message->id}skip" class="cerb-no-print" title="{'display.convo.skip_to_bottom'|devblocks_translate}"><span class="cerb-icons cerb-icon-down-arrow"></span></button>
 			{/if}
 
-			<button data-cerb-message-button-permalink="{devblocks_url full=true}c=profiles&type=ticket&mask={$ticket->mask}{/devblocks_url}/#message{$message->id}" type="button" title="{'common.permalink'|devblocks_translate|lower}"><span class="glyphicons glyphicons-link"></span></button>
+			<button data-cerb-message-button-permalink="{devblocks_url full=true}c=profiles&type=ticket&mask={$ticket->mask}{/devblocks_url}/#message{$message->id}" type="button" title="{'common.permalink'|devblocks_translate|lower}"><span class="cerb-icons cerb-icon-link"></span></button>
 
 			{if !$expanded}
-				<button id="btnMsgMax{$message->id}" type="button" title="{'common.maximize'|devblocks_translate|lower}"><span class="glyphicons glyphicons-resize-full"></span></button>
+				<button id="btnMsgMax{$message->id}" type="button" title="{'common.maximize'|devblocks_translate|lower}"><span class="cerb-icons cerb-icon-resize-full"></span></button>
 			{else}
-				<button id="btnMsgMin{$message->id}" type="button" title="{'common.minimize'|devblocks_translate|lower}"><span class="glyphicons glyphicons-resize-small"></span></button>
+				<button id="btnMsgMin{$message->id}" type="button" title="{'common.minimize'|devblocks_translate|lower}"><span class="cerb-icons cerb-icon-resize-small"></span></button>
 			{/if}
 		</div>
 		{/if}
@@ -35,7 +35,7 @@
 			<span class="tag" style="color:white;{if !$is_outgoing}background-color:rgb(185,50,40);{else}background-color:rgb(100,140,25);{/if}">{if $is_outgoing}{if $is_not_sent}{'mail.saved'|devblocks_translate|lower}{else}{'mail.sent'|devblocks_translate|lower}{/if}{else}{'mail.received'|devblocks_translate|lower}{/if}</span>
 
 			{if $message->was_encrypted}
-			<span class="tag" style="background-color:rgb(250,220,74);color:rgb(165,100,33);" title="{'common.encrypted'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-lock"></span></span>
+			<span class="tag" style="background-color:rgb(250,220,74);color:rgb(165,100,33);" title="{'common.encrypted'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-lock"></span></span>
 			{/if}
 		</div>
 
@@ -69,16 +69,16 @@
 
 		{if !$message->is_outgoing}
 			{if $sender->is_banned}
-				<div class="badge badge-lightgray"><span class="glyphicons glyphicons-warning-sign"></span> {'common.banned'|devblocks_translate|capitalize}</div>
+				<div class="badge badge-lightgray"><span class="cerb-icons cerb-icon-alert"></span> {'common.banned'|devblocks_translate|capitalize}</div>
 			{/if}
 
 			{if $sender->is_defunct}
-				<div class="badge badge-lightgray"><span class="glyphicons glyphicons-warning-sign"></span> {'common.defunct'|devblocks_translate|capitalize}</div>
+				<div class="badge badge-lightgray"><span class="cerb-icons cerb-icon-alert"></span> {'common.defunct'|devblocks_translate|capitalize}</div>
 			{/if}
 
 			{if $message->signed_key_fingerprint}
 				<span style="margin-left:1em;">
-					<span class="glyphicons glyphicons-circle-ok" style="font-size:1.2em;color:rgb(66,131,73);" title="{'common.encrypted.verified'|devblocks_translate|capitalize}"></span>
+					<span class="cerb-icons cerb-icon-circle-ok" style="font-size:1.2em;color:rgb(66,131,73);" title="{'common.encrypted.verified'|devblocks_translate|capitalize}"></span>
 					Verified
 					(<a class="cerb-search-trigger" data-context="{{CerberusContexts::CONTEXT_GPG_PUBLIC_KEY}}" data-query="fingerprint:{$message->signed_key_fingerprint}">{$message->signed_key_fingerprint|substr:-16}</a>)
 					{if false && $message->signed_at}
@@ -87,7 +87,7 @@
 				</span>
 			{elseif $message->was_encrypted && !$message->is_outgoing}
 				<span style="margin-left:15px;">
-					<span class="glyphicons glyphicons-circle-exclamation-mark" style=""></span>
+					<span class="cerb-icons cerb-icon-circle-exclamation-mark" style=""></span>
 					Unverified
 				</span>
 			{/if}
@@ -123,7 +123,7 @@
 		{if !$expanded}
 		<div style="margin-top:0.5em;">
 			<div class="cerb-code-editor-toolbar" style="display:inline-block;">
-				<button data-cerb-message-button-read-expand class="cerb-code-editor-toolbar-button"><span class="glyphicons glyphicons-file"></span> Read message ({$message->storage_size|devblocks_prettybytes})</button>
+				<button data-cerb-message-button-read-expand class="cerb-code-editor-toolbar-button"><span class="cerb-icons cerb-icon-file"></span> Read message ({$message->storage_size|devblocks_prettybytes})</button>
 			</div>
 		</div>
 		{/if}
@@ -152,7 +152,7 @@
 				{if $filtering_results && $filtering_results.counts.blockedImage}
 					{if !$sender->is_trusted}
 					<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-button="display-images" data-message-id="{$message->id}">
-						<span class="glyphicons glyphicons-picture"></span>
+						<span class="cerb-icons cerb-icon-picture"></span>
 						Display images
 					</button>
 					{/if}
@@ -181,12 +181,12 @@
 				{/if}
 				{if $pref_dark_mode && !$always_bright}
 					<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-button="email-html-light" data-message-id="{$message->id}">
-						<span class="glyphicons glyphicons-brightness-increase"></span>
+						<span class="cerb-icons cerb-icon-sun"></span>
 						Bright mode
 					</button>
 				{/if}
 				<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-button="email-plaintext" data-message-id="{$message->id}">
-					<span class="glyphicons glyphicons-file"></span>
+					<span class="cerb-icons cerb-icon-file"></span>
 					View plaintext
 				</button>
 			</div>
@@ -198,7 +198,7 @@
 			{if $message->html_attachment_id}
 				<div class="cerb-code-editor-toolbar" style="margin:0 0 10px 0;display:inline-block;">
 					<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-button="email-html" data-message-id="{$message->id}">
-						<span class="glyphicons glyphicons-file"></span>
+						<span class="cerb-icons cerb-icon-file"></span>
 						View HTML
 					</button>
 				</div>
@@ -257,12 +257,12 @@
 
 						{* If not requester *}
 						{if !$message->is_outgoing && !isset($requesters.{$sender_id}) && CerberusContexts::isWriteableByActor(CerberusContexts::CONTEXT_TICKET, $ticket, $active_worker)}
-							<button data-cerb-message-button-requester-add><span class="glyphicons glyphicons-circle-plus"></span> {'display.ui.add_to_recipients'|devblocks_translate}</button>
+							<button data-cerb-message-button-requester-add><span class="cerb-icons cerb-icon-circle-plus"></span> {'display.ui.add_to_recipients'|devblocks_translate}</button>
 						{/if}
 
 						{if !array_key_exists('reply', $toolbar) && CerberusContexts::isWriteableByActor(CerberusContexts::CONTEXT_TICKET, $ticket, $active_worker) && $active_worker->hasPriv('core.display.actions.reply')}
-							<button type="button" class="reply split-left" title="{if 2 == $mail_reply_button}{'display.reply.only_these_recipients'|devblocks_translate}{elseif 1 == $mail_reply_button}{'display.reply.no_quote'|devblocks_translate}{else}{'display.reply.quote'|devblocks_translate}{/if}"><span class="glyphicons glyphicons-send"></span> {'common.reply'|devblocks_translate|capitalize}</button><!--
-						--><button data-cerb-message-button-reply-menu type="button" class="split-right"><span class="glyphicons glyphicons-chevron-down"></span></button>
+							<button type="button" class="reply split-left" title="{if 2 == $mail_reply_button}{'display.reply.only_these_recipients'|devblocks_translate}{elseif 1 == $mail_reply_button}{'display.reply.no_quote'|devblocks_translate}{else}{'display.reply.quote'|devblocks_translate}{/if}"><span class="cerb-icons cerb-icon-send"></span> {'common.reply'|devblocks_translate|capitalize}</button><!--
+						--><button data-cerb-message-button-reply-menu type="button" class="split-right"><span class="cerb-icons cerb-icon-chevron-down"></span></button>
 							<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;">
 								<li><a class="cerb-button-reply-quote">{'display.reply.quote'|devblocks_translate}</a></li>
 								<li><a class="cerb-button-reply-only-these">{'display.reply.only_these_recipients'|devblocks_translate}</a></li>
@@ -273,7 +273,7 @@
 						{/if}
 
 						{if !array_key_exists('comment', $toolbar) && $active_worker->hasPriv('contexts.cerberusweb.contexts.message.comment')}
-							<button type="button" class="cerb-sticky-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{CerberusContexts::CONTEXT_MESSAGE} context.id:{$message->id}" title="{'common.comment'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-comments"></span> {'display.ui.sticky_note'|devblocks_translate|capitalize}</button>
+							<button type="button" class="cerb-sticky-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{CerberusContexts::CONTEXT_MESSAGE} context.id:{$message->id}" title="{'common.comment'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-comments"></span> {'display.ui.sticky_note'|devblocks_translate|capitalize}</button>
 						{/if}
 
 						{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
@@ -391,7 +391,7 @@
 						</script>
 					{/if}
 
-					<button data-cerb-message-button-more type="button" title="{'common.more'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-more"></span></button>
+					<button data-cerb-message-button-more type="button" title="{'common.more'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-more"></span></button>
 
 					<form id="{$message->id}options" style="padding-top:10px;display:none;" method="post" action="{devblocks_url}{/devblocks_url}">
 						<input type="hidden" name="c" value="profiles">
@@ -401,18 +401,18 @@
 						<input type="hidden" name="id" value="{$message->id}">
 						<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-						<button data-cerb-message-button-headers type="button"><span class="glyphicons glyphicons-envelope"></span> {'message.headers'|devblocks_translate|capitalize}</button>
+						<button data-cerb-message-button-headers type="button"><span class="cerb-icons cerb-icon-mail"></span> {'message.headers'|devblocks_translate|capitalize}</button>
 
 						{if $ticket->first_message_id != $message->id && $active_worker->hasPriv('core.display.actions.split')} {* Don't allow splitting of a single message *}
-							<button data-cerb-message-button-split type="button" title="Split message into new ticket"><span class="glyphicons glyphicons-duplicate"></span> {'display.button.split_ticket'|devblocks_translate|capitalize}</button>
+							<button data-cerb-message-button-split type="button" title="Split message into new ticket"><span class="cerb-icons cerb-icon-duplicate"></span> {'display.button.split_ticket'|devblocks_translate|capitalize}</button>
 						{/if}
 
 						{if $message->is_outgoing && CerberusContexts::isWriteableByActor(CerberusContexts::CONTEXT_TICKET, $ticket, $active_worker) && $active_worker->hasPriv('core.display.actions.reply')}
-							<button data-cerb-message-button-resend type="button"><span class="glyphicons glyphicons-share"></span> Send Again</button>
+							<button data-cerb-message-button-resend type="button"><span class="cerb-icons cerb-icon-repeat"></span> Send Again</button>
 						{/if}
 						
 						{if $attachments && extension_loaded('zip') && $active_worker->hasPriv('core.display.actions.attachments.download')}
-							<button type="button" data-cerb-message-button-download-all><span class="glyphicons glyphicons-download"></span> Download all (.zip)</button>
+							<button type="button" data-cerb-message-button-download-all><span class="cerb-icons cerb-icon-cloud-download"></span> Download all (.zip)</button>
 						{/if}
 					</form>
 				</td>

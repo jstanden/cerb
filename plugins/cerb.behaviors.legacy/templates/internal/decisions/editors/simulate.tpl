@@ -58,7 +58,7 @@
 </div>
 
 <div style="margin-top:15px;">
-	<button type="button" class="submit"><span class="glyphicons glyphicons-cogwheel"></span> Simulate</button>
+	<button type="button" class="submit"><span class="cerb-icons cerb-icon-gear"></span> Simulate</button>
 </div>
 
 <div id="divBehaviorSimulatorResults{$trigger->id}" style="padding:5px;"></div>

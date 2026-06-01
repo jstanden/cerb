@@ -10,7 +10,7 @@
 		<small>({$owner->_label})</small>
 		{/if}
 	</legend>
-	<span class="glyphicons glyphicons-circle-remove delete" style="font-size:16px;cursor:pointer;float:right;margin-top:-20px;display:none;"></span>
+	<span class="cerb-icons cerb-icon-remove delete" style="font-size:16px;cursor:pointer;float:right;margin-top:-20px;display:none;"></span>
 	
 	{if empty($field_wrapper)}
 	{if !$custom_fieldset_is_new}{* We can only delete fieldsets that existed first *}
@@ -45,11 +45,11 @@ $('#{$fieldset_domid}')
 			});
 			
 		} else if($hidden.val() == '') {
-			$(this).removeClass('glyphicons-circle-remove').addClass('glyphicons-circle-plus');
+			$(this).removeClass('cerb-icon-circle-remove').addClass('cerb-icon-circle-plus');
 			$fieldset.fadeTo('fast', 0.3);
 			$hidden.val('{$custom_fieldset->id}');
 		} else {
-			$(this).removeClass('glyphicons-circle-plus').addClass('glyphicons-circle-remove');
+			$(this).removeClass('cerb-icon-circle-plus').addClass('cerb-icon-circle-remove');
 			$fieldset.fadeTo('fast', 1.0);
 			$hidden.val('');
 		}

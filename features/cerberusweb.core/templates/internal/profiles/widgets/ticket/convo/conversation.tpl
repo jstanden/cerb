@@ -16,14 +16,14 @@
 			<b>{'display.convo.order_oldest'|devblocks_translate}</b>
         {else}
 			{if count($convo_timeline) > 1}
-			<button data-cerb-shortcut="read-all" type="button"><span class="glyphicons glyphicons-book-open"></span> {'display.button.read_all'|devblocks_translate|capitalize}</button>
+			<button data-cerb-shortcut="read-all" type="button"><span class="cerb-icons cerb-icon-book-open"></span> {'display.button.read_all'|devblocks_translate|capitalize}</button>
 			{/if}
         {/if}
 	</div>
 
 	{if is_array($messages_highlighted) && $messages_highlighted}
     <div class="cerb-conversation--new-messages-warning" style="display:inline-block;color:var(--cerb-color-warning-text);">
-        <span class="glyphicons glyphicons-circle-exclamation-mark"></span>
+        <span class="cerb-icons cerb-icon-circle-exclamation-mark"></span>
         There are <strong>{$messages_highlighted|count nofilter}</strong> messages without a response:
         {foreach from=$messages_highlighted item=message name=messages}
 			{if $smarty.foreach.messages.last}

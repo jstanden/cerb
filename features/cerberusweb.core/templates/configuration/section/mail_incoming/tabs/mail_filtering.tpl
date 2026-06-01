@@ -2,7 +2,7 @@
     <legend>{'common.automations'|devblocks_translate|capitalize}</legend>
     
     <button type="button" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_AUTOMATION_EVENT}" data-context-id="mail.filter" data-edit="true">
-        <span class="glyphicons glyphicons-cogwheel"></span> {'common.configure'|devblocks_translate|capitalize}
+        <span class="cerb-icons cerb-icon-gear"></span> {'common.configure'|devblocks_translate|capitalize}
     </button>
 </fieldset>
 

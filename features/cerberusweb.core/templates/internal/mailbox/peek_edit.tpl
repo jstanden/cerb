@@ -17,7 +17,7 @@
 		<td colspan="2">
 			<div class="error-box">
 				<h1>
-					<span class="glyphicons glyphicons-circle-exclamation-mark"></span>
+					<span class="cerb-icons cerb-icon-circle-exclamation-mark"></span>
 					Error!
 				</h1>
 				<p>
@@ -73,7 +73,7 @@
 	<tr>
 		<td width="0%" nowrap="nowrap"><b>XOAuth2:</b><br><small>({'common.optional'|devblocks_translate|lower})</small></td>
 		<td width="100%">
-			<button type="button" class="chooser-abstract" data-field-name="connected_account_id" data-context="{CerberusContexts::CONTEXT_CONNECTED_ACCOUNT}" data-single="true" data-query="service:(type:oauth2)"><span class="glyphicons glyphicons-search"></span></button>
+			<button type="button" class="chooser-abstract" data-field-name="connected_account_id" data-context="{CerberusContexts::CONTEXT_CONNECTED_ACCOUNT}" data-single="true" data-query="service:(type:oauth2)"><span class="cerb-icons cerb-icon-search"></span></button>
 
 			<ul class="bubbles chooser-container">
 				{if $model && $model->connected_account_id}
@@ -132,9 +132,9 @@
 {/if}
 
 <div class="buttons">
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	<button type="button" class="tester"><span class="glyphicons glyphicons-cogwheel"></span> {'common.test'|devblocks_translate|capitalize}</button>
-	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	<button type="button" class="tester"><span class="cerb-icons cerb-icon-gear"></span> {'common.test'|devblocks_translate|capitalize}</button>
+	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 </form>

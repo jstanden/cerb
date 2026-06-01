@@ -1,7 +1,7 @@
 {if $is_writeable}
 <div id="cardWidget{$widget->getUniqueId($behavior->id)}" class="cerb-code-editor-toolbar">
-    <button type="button" class="cerb-code-editor-toolbar-button" data-cerb-button="simulate"><span class="glyphicons glyphicons-play"></span> {'common.simulator'|devblocks_translate|capitalize}</button>
-    <button type="button" class="cerb-code-editor-toolbar-button" data-cerb-button="export"><span class="glyphicons glyphicons-file-export"></span> {'common.export'|devblocks_translate|capitalize}</button>
+    <button type="button" class="cerb-code-editor-toolbar-button" data-cerb-button="simulate"><span class="cerb-icons cerb-icon-play"></span> {'common.simulator'|devblocks_translate|capitalize}</button>
+    <button type="button" class="cerb-code-editor-toolbar-button" data-cerb-button="export"><span class="cerb-icons cerb-icon-file-export"></span> {'common.export'|devblocks_translate|capitalize}</button>
 </div>
 {/if}
 

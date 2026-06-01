@@ -10,7 +10,7 @@
     {/if}
 	
 	<div class="block" style="display:inline-block;padding:0.5em 1em;">
-		<h3 style="text-decoration:none;cursor:pointer;{if $listener->is_disabled}opacity:0.5;{/if}" data-context="cerb.contexts.automation.event.listener" data-context-id="0" data-edit="event:{$event_name}"><span class="glyphicons glyphicons-plus"></span></h3>
+		<h3 style="text-decoration:none;cursor:pointer;{if $listener->is_disabled}opacity:0.5;{/if}" data-context="cerb.contexts.automation.event.listener" data-context-id="0" data-edit="event:{$event_name}"><span class="cerb-icons cerb-icon-circle-plus"></span></h3>
 	</div>
 </div>
 

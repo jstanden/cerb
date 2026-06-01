@@ -29,7 +29,7 @@
 			{$meta.name} ({$context_ext->manifest->name})
 		{/if}<!--
 		--><input type="hidden" name="{$namePrefix}[context_objects][]" value="{$context}:{$context_id}"><!--
-		--><span class="glyphicons glyphicons-circle-remove"></span>
+		--><span class="cerb-icons cerb-icon-circle-remove"></span>
 	</li>
 	{/if}
 {/foreach}
@@ -41,7 +41,7 @@
 $(function() {
 	let $container = $('#{$random}');
 
-	$container.find('.chooser-container .glyphicons-circle-remove').on('click', Devblocks.onClickRemoveParent);
+	$container.find('.chooser-container .cerb-icon-circle-remove').on('click', Devblocks.onClickRemoveParent);
 
 	$('#{$random}').find('select.chooser').change(function(e) {
 		var $this = $(this);
@@ -68,7 +68,7 @@ $(function() {
 					if(0 === $ul.find('input:hidden[value="' + $context + ':' + event.values[i] + '"]').length) {
 						var $li = $('<li/>').text(event.labels[i] + ' (' + $context_name + ')');
 						$li.append($('<input type="hidden" name="{$namePrefix}[context_objects][]">').attr('value',$context + ':' + event.values[i]));
-						let $remove = $('<span class="glyphicons glyphicons-circle-remove"></span>').on('click', Devblocks.onClickRemoveParent);
+						let $remove = $('<span class="cerb-icons cerb-icon-circle-remove"></span>').on('click', Devblocks.onClickRemoveParent);
 						$li.append($remove);
 						$ul.append($li);
 					}

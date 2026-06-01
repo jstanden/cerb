@@ -12,7 +12,7 @@
 	<ul class="buffer bubbles chooser-container"></ul>
 	<br>
 	<br>
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button>
+	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button>
 </form>
 <br>
 
@@ -76,7 +76,7 @@ $(function() {
 						$hidden.attr('value', $value);
 						$hidden.appendTo($li);
 
-						let $a = $('<a><span class="glyphicons glyphicons-circle-remove"></span></a>');
+						let $a = $('<a><span class="cerb-icons cerb-icon-circle-remove"></span></a>');
 						$a.on('click', Devblocks.onClickRemoveParent);
 						$a.appendTo($li);
 
@@ -116,7 +116,7 @@ $(function() {
 						$hidden.attr('value', $value);
 						$hidden.appendTo($li);
 
-						let $a = $('<a><span class="glyphicons glyphicons-circle-remove"></span></a>');
+						let $a = $('<a><span class="cerb-icons cerb-icon-circle-remove"></span></a>');
 						$a.on('click', Devblocks.onClickRemoveParent);
 						$a.appendTo($li);
 

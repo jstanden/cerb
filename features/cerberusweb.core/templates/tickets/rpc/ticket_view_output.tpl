@@ -2,10 +2,10 @@
 <div id="{$view->id}_output">
 	<div class="cerb-alert cerb-alert-rounded">
 		<div class="cerb-alert-close">
-			<span data-cerb-link="worklist_dismiss" class="glyphicons glyphicons-circle-remove"></span>
+			<span data-cerb-link="worklist_dismiss" class="cerb-icons cerb-icon-circle-remove"></span>
 		</div>
 	
-		<span class="glyphicons glyphicons-circle-info" style="vertical-align:baseline;"></span>
+		<span class="cerb-icons cerb-icon-circle-info" style="vertical-align:baseline;"></span>
 		
 		{$last_action_count} ticket{if $last_action_count!=1}s{/if} 
 	

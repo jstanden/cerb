@@ -136,8 +136,8 @@
 		<br>
 		
 		<div class="buttons">
-			<button type="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'portal.public.send_message'|devblocks_translate}</button>
-			<button type="button" onclick="document.location='{devblocks_url}{/devblocks_url}';"><span class="glyphicons glyphicons-circle-remove"></span> {'common.discard'|devblocks_translate|capitalize}</button>
+			<button type="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'portal.public.send_message'|devblocks_translate}</button>
+			<button type="button" onclick="document.location='{devblocks_url}{/devblocks_url}';"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.discard'|devblocks_translate|capitalize}</button>
 		</div>
 	</td>
 	</tr>

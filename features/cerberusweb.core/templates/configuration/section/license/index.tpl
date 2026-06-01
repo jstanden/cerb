@@ -17,7 +17,7 @@
 		<b>Software Updates Expire:</b> {$we_trust_you->upgrades|devblocks_date:'F d, Y':true}<br>
 		
 		<div style="margin-top:5px;">
-			<button type="button" data-cerb-button-update-license><span class="glyphicons glyphicons-cogwheel"></span> Update License</button>
+			<button type="button" data-cerb-button-update-license><span class="cerb-icons cerb-icon-gear"></span> Update License</button>
 		</div>
 	{/if}
 </fieldset>
@@ -51,8 +51,8 @@
 		<button type="button" data-cerb-button-remove-no>{'common.no'|devblocks_translate|capitalize}</button>
 	</fieldset>
 	
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if $we_trust_you->key}<button type="button" class="delete"><span class="glyphicons glyphicons-circle-minus"></span> Remove License</button>{/if}
+	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{if $we_trust_you->key}<button type="button" class="delete"><span class="cerb-icons cerb-icon-circle-minus"></span> Remove License</button>{/if}
 
 </fieldset>
 </form>

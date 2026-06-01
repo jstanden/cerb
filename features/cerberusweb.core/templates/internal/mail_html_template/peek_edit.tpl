@@ -21,7 +21,7 @@
 </table>
 
 <div class="cerb-code-editor-toolbar cerb-code-editor-toolbar--html">
-	<button type="button" class="cerb-code-editor-toolbar-button cerb-html-editor-toolbar-button--insert" title="Insert placeholder"><span class="glyphicons glyphicons-tags"></span></button>
+	<button type="button" class="cerb-code-editor-toolbar-button cerb-html-editor-toolbar-button--insert" title="Insert placeholder"><span class="cerb-icons cerb-icon-tags"></span></button>
 	<ul class="cerb-float" style="display:none;">
 		<li data-token="{literal}{{message_body}}{/literal}"><div><b>Message Body</b></div></li>
 		<li data-token="{literal}{{message_id_header}}{/literal}"><div><b>Message-Id Header</b></div></li>
@@ -32,17 +32,17 @@
 		<li data-token="{literal}{{bucket__label}}{/literal}"><div><b>Bucket Name</b></div></li>
 	</ul>
 	<div class="cerb-code-editor-toolbar-divider"></div>
-	<button type="button" title="Bold" class="cerb-code-editor-toolbar-button cerb-html-editor-toolbar-button--bold"><span class="glyphicons glyphicons-bold"></span></button>
-	<button type="button" title="Italics" class="cerb-code-editor-toolbar-button cerb-html-editor-toolbar-button--italic"><span class="glyphicons glyphicons-italic"></span></button>
-	<button type="button" title="Link" class="cerb-code-editor-toolbar-button cerb-html-editor-toolbar-button--link"><span class="glyphicons glyphicons-link"></span></button>
-	<button type="button" title="Image" class="cerb-code-editor-toolbar-button cerb-html-editor-toolbar-button--image"><span class="glyphicons glyphicons-picture"></span></button>
-	<button type="button" title="List" class="cerb-code-editor-toolbar-button cerb-html-editor-toolbar-button--list"><span class="glyphicons glyphicons-list"></span></button>
-	<button type="button" title="Heading" class="cerb-code-editor-toolbar-button cerb-html-editor-toolbar-button--heading"><span class="glyphicons glyphicons-header"></span></button>
-	<button type="button" title="Quote" class="cerb-code-editor-toolbar-button cerb-html-editor-toolbar-button--quote"><span class="glyphicons glyphicons-quote"></span></button>
-	<button type="button" title="Code" class="cerb-code-editor-toolbar-button cerb-html-editor-toolbar-button--code"><span class="glyphicons glyphicons-embed"></span></button>
-	<button type="button" title="Table" class="cerb-code-editor-toolbar-button cerb-html-editor-toolbar-button--table"><span class="glyphicons glyphicons-table"></span></button>
+	<button type="button" title="Bold" class="cerb-code-editor-toolbar-button cerb-html-editor-toolbar-button--bold"><span class="cerb-icons cerb-icon-bold"></span></button>
+	<button type="button" title="Italics" class="cerb-code-editor-toolbar-button cerb-html-editor-toolbar-button--italic"><span class="cerb-icons cerb-icon-italic"></span></button>
+	<button type="button" title="Link" class="cerb-code-editor-toolbar-button cerb-html-editor-toolbar-button--link"><span class="cerb-icons cerb-icon-link"></span></button>
+	<button type="button" title="Image" class="cerb-code-editor-toolbar-button cerb-html-editor-toolbar-button--image"><span class="cerb-icons cerb-icon-picture"></span></button>
+	<button type="button" title="List" class="cerb-code-editor-toolbar-button cerb-html-editor-toolbar-button--list"><span class="cerb-icons cerb-icon-list"></span></button>
+	<button type="button" title="Heading" class="cerb-code-editor-toolbar-button cerb-html-editor-toolbar-button--heading"><span class="cerb-icons cerb-icon-header"></span></button>
+	<button type="button" title="Quote" class="cerb-code-editor-toolbar-button cerb-html-editor-toolbar-button--quote"><span class="cerb-icons cerb-icon-quote"></span></button>
+	<button type="button" title="Code" class="cerb-code-editor-toolbar-button cerb-html-editor-toolbar-button--code"><span class="cerb-icons cerb-icon-embed"></span></button>
+	<button type="button" title="Table" class="cerb-code-editor-toolbar-button cerb-html-editor-toolbar-button--table"><span class="cerb-icons cerb-icon-table"></span></button>
 	<div class="cerb-code-editor-toolbar-divider"></div>
-	<button type="button" title="Preview" class="cerb-code-editor-toolbar-button cerb-html-editor-toolbar-button--preview"><span class="glyphicons glyphicons-eye-open"></span></button>
+	<button type="button" title="Preview" class="cerb-code-editor-toolbar-button cerb-html-editor-toolbar-button--preview"><span class="cerb-icons cerb-icon-eye-open"></span></button>
 </div>
 
 <textarea name="content" class="cerb-code-editor-html placeholders" data-editor-mode="ace/mode/html" data-editor-lines="15">
@@ -112,7 +112,7 @@ ul, ol {
 <fieldset class="peek black" style="margin-top:15px;">
 	<legend>{'common.signature'|devblocks_translate|capitalize} ({'common.optional'|devblocks_translate|lower})</legend>
 
-	<button type="button" class="chooser-abstract" data-field-name="signature_id" data-context="{CerberusContexts::CONTEXT_EMAIL_SIGNATURE}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
+	<button type="button" class="chooser-abstract" data-field-name="signature_id" data-context="{CerberusContexts::CONTEXT_EMAIL_SIGNATURE}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="cerb-icons cerb-icon-search"></span></button>
 
 	{if $model}
 		{$signature = $model->getSignatureRecord()}
@@ -130,7 +130,7 @@ ul, ol {
 
 	{$attachments = DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $model->id)}
 
-	<button type="button" class="chooser_file"><span class="glyphicons glyphicons-paperclip"></span></button>
+	<button type="button" class="chooser_file"><span class="cerb-icons cerb-icon-paperclip"></span></button>
 	<ul class="chooser-container bubbles cerb-attachments-container">
 		{if !empty($attachments)}
 			{foreach from=$attachments item=attachment name=attachments}
@@ -141,7 +141,7 @@ ul, ol {
 						{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{'display.convo.unknown_format'|devblocks_translate|capitalize}{/if})
 					</a>
 					<input type="hidden" name="file_ids[]" value="{$attachment->id}">
-					<a data-cerb-link="remove_parent"><span class="glyphicons glyphicons-circle-remove"></span></a>
+					<a data-cerb-link="remove_parent"><span class="cerb-icons cerb-icon-circle-remove"></span></a>
 				</li>
 			{/foreach}
 		{/if}
@@ -173,8 +173,8 @@ ul, ol {
 <div class="status"></div>
 
 <div class="buttons">
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 </form>

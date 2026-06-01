@@ -5,16 +5,16 @@
 
 	{if !$embed}
 	<div class="toolbar-minmax">
-		<button type="button" class="cerb-button-edit" data-context="{CerberusContexts::CONTEXT_DRAFT}" data-context-id="{$draft->id}" title="Open card popup (Shift+Click to edit)"><span class="glyphicons glyphicons-new-window-alt"></span></button>
+		<button type="button" class="cerb-button-edit" data-context="{CerberusContexts::CONTEXT_DRAFT}" data-context-id="{$draft->id}" title="Open card popup (Shift+Click to edit)"><span class="cerb-icons cerb-icon-new-window"></span></button>
 
 		{if $attachments}
-			<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-query="on.draft:(id:{$draft->id})"><span class="glyphicons glyphicons-paperclip"></span></button>
+			<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-query="on.draft:(id:{$draft->id})"><span class="cerb-icons cerb-icon-paperclip"></span></button>
 		{/if}
 
 		{$ticket = $draft->getTicket()}
 
 		{if $ticket}
-			<button type="button" data-cerb-button-permalink="{$permalink_url}" title="{'common.permalink'|devblocks_translate|lower}"><span class="glyphicons glyphicons-link"></span></button>
+			<button type="button" data-cerb-button-permalink="{$permalink_url}" title="{'common.permalink'|devblocks_translate|lower}"><span class="cerb-icons cerb-icon-link"></span></button>
 		{/if}
 	</div>
 	{/if}
@@ -107,10 +107,10 @@
 		{if !$embed}
 		<div style="margin-top:10px;">
 			{if $draft_is_writeable && !$draft->is_queued && (!$draft->worker_id || $draft->worker_id == $active_worker->id)}
-			<button type="button" class="cerb-button-resume"><span class="glyphicons glyphicons-restart"></span> {'common.resume'|devblocks_translate|capitalize}</button>
+			<button type="button" class="cerb-button-resume"><span class="cerb-icons cerb-icon-restart"></span> {'common.resume'|devblocks_translate|capitalize}</button>
 			{/if}
 
-			<button type="button" class="cerb-sticky-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{CerberusContexts::CONTEXT_DRAFT} context.id:{$draft->id}"><span class="glyphicons glyphicons-comments"></span> {'common.comment'|devblocks_translate|capitalize}</button>
+			<button type="button" class="cerb-sticky-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{CerberusContexts::CONTEXT_DRAFT} context.id:{$draft->id}"><span class="cerb-icons cerb-icon-comments"></span> {'common.comment'|devblocks_translate|capitalize}</button>
 			
 			<div data-cerb-toolbar style="display:inline-block;">
 			{$draft_dict = DevblocksDictionaryDelegate::instance([

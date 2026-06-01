@@ -65,10 +65,10 @@
 
             <div class="buttons" style="margin-top:10px;">
                 {if $model->id}
-                    <button type="button" class="save"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-                    {if $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+                    <button type="button" class="save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+                    {if $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
                 {else}
-                    <button type="button" class="save"><span class="glyphicons glyphicons-circle-plus"></span> {'common.create'|devblocks_translate|capitalize}</button>
+                    <button type="button" class="save"><span class="cerb-icons cerb-icon-circle-plus"></span> {'common.create'|devblocks_translate|capitalize}</button>
                 {/if}
             </div>
         </form>
@@ -151,16 +151,16 @@
                                     <input type="text" name="uid_emails[]" value="" placeholder="support@example.com" style="width:100%">
                                 </td>
                                 <td>
-                                    <button type="button" data-cerb-button="uid-remove"><span class="glyphicons glyphicons-circle-minus"></span></button>
+                                    <button type="button" data-cerb-button="uid-remove"><span class="cerb-icons cerb-icon-circle-minus"></span></button>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
 
-                    <button type="button" data-cerb-button="uid-add"><span class="glyphicons glyphicons-circle-plus"></span></button>
+                    <button type="button" data-cerb-button="uid-add"><span class="cerb-icons cerb-icon-circle-plus"></span></button>
                 </fieldset>
 
-                <button type="button" class="generate"><span class="glyphicons glyphicons-circle-plus"></span> {'common.create'|devblocks_translate|capitalize}</button>
+                <button type="button" class="generate"><span class="cerb-icons cerb-icon-circle-plus"></span> {'common.create'|devblocks_translate|capitalize}</button>
             </form>
         </div>
     {/if}

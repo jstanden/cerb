@@ -9,7 +9,7 @@
 		{foreach from=$levels item=depth key=node_id}
 			<label>
 				<input type="radio" name="params[topic_id]" value="{$node_id}" {if $widget->params.topic_id==$node_id}checked{/if}>
-				<span style="vertical-align:middle;padding-left:{math equation="(x-1)*10" x=$depth}px;{if !$depth}font-weight:bold;{/if}">{if $depth}<span class="glyphicons glyphicons-chevron-right" style="color:rgb(80,80,80);"></span>{else}<span class="glyphicons glyphicons-folder-closed" style="font-size:16px;color:rgb(80,80,80);"></span>{/if} <span id="kbTreeCat{$node_id}">{$categories.$node_id->name}</span></span>
+				<span style="vertical-align:middle;padding-left:{math equation="(x-1)*10" x=$depth}px;{if !$depth}font-weight:bold;{/if}">{if $depth}<span class="cerb-icons cerb-icon-chevron-right" style="color:rgb(80,80,80);"></span>{else}<span class="cerb-icons cerb-icon-folder" style="font-size:16px;color:rgb(80,80,80);"></span>{/if} <span id="kbTreeCat{$node_id}">{$categories.$node_id->name}</span></span>
 			</label>
 			<br>
 		{/foreach}

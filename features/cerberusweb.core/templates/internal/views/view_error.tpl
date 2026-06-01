@@ -6,7 +6,7 @@
 	
 	<div>
 		<div>{$error_message}</div>
-		<button type="button"><span class="glyphicons glyphicons-circle-ok"></span> {'common.ok'|devblocks_translate}</button>
+		<button type="button"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.ok'|devblocks_translate}</button>
 	</div>
 </div>
 

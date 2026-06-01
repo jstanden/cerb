@@ -13,7 +13,7 @@
 
 <div class="status"></div>
 
-<button type="button" class="close"><span class="glyphicons glyphicons-circle-ok"></span> {'common.send'|devblocks_translate|capitalize}</button>
+<button type="button" class="close"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.send'|devblocks_translate|capitalize}</button>
 </form>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">

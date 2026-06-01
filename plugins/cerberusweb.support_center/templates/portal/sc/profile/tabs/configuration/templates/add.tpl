@@ -20,7 +20,7 @@
 		<br>
 		
 		{if $active_worker->is_superuser}
-			<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button>
+			<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button>
 		{else}
 			<div class="error">{'error.core.no_acl.edit'|devblocks_translate}</div>	
 		{/if}

@@ -30,12 +30,12 @@
 
 <fieldset class="peek">
 	<legend>Relay to:</legend>
-	<button type="button" class="chooser-abstract" data-field-name="address_ids[]" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query-required="worker.id:!0" data-query="" data-autocomplete="worker.id:!0"><span class="glyphicons glyphicons-search"></span></button>
+	<button type="button" class="chooser-abstract" data-field-name="address_ids[]" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query-required="worker.id:!0" data-query="" data-autocomplete="worker.id:!0"><span class="cerb-icons cerb-icon-search"></span></button>
 	<ul class="bubbles chooser-container"></ul>
 </fieldset>
 
-<button type="button" class="ok"><span class="glyphicons glyphicons-circle-ok"></span> {'common.ok'|devblocks_translate|capitalize}</button>
-<button type="button" class="cancel"><span class="glyphicons glyphicons-circle-remove"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+<button type="button" class="ok"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.ok'|devblocks_translate|capitalize}</button>
+<button type="button" class="cancel"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 <br>
 </form>
 

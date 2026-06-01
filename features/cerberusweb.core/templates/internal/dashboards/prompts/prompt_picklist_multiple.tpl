@@ -7,7 +7,7 @@
 		
 		<div class="cerb-item-container bubbles">
 			<button type="button" class="cerb-menu--trigger">
-				<span class="glyphicons glyphicons-search" style="cursor:pointer;"></span>
+				<span class="cerb-icons cerb-icon-search" style="cursor:pointer;"></span>
 			</button>
 			
 			{foreach from=$prompt.params.options item=option key=option_key}
@@ -24,7 +24,7 @@
 		</div>
 		
 		<div class="cerb-popupmenu cerb-float">
-			<span class="glyphicons glyphicons-circle-remove cerb-button--close" style="font-size:150%;cursor:pointer;position:absolute;top:-5px;right:-5px;"></span>
+			<span class="cerb-icons cerb-icon-remove cerb-button--close" style="font-size:150%;cursor:pointer;position:absolute;top:-5px;right:-5px;"></span>
 			{foreach from=$prompt.params.options item=option key=option_key}
 			<div>
 				<label>

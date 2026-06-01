@@ -66,10 +66,10 @@
 							<div style="flex:1 1 auto;text-align:right;">
 								{if !empty($count)}
 								<form action="#" method="get">
-								{if $prev}<button id="btnExplorerPrev" type="button"><span class="glyphicons glyphicons-chevron-left"></span></button>{/if}
+								{if $prev}<button id="btnExplorerPrev" type="button"><span class="cerb-icons cerb-icon-chevron-left"></span></button>{/if}
 								<b>{$p}</b> of <b>{$count}</b> 
-								{if $next}<button id="btnExplorerNext" type="button"><span class="glyphicons glyphicons-chevron-right"></span></button>{/if}
-								<button id="btnExplorerExit" type="button"><span class="glyphicons glyphicons-circle-remove"></span></button>
+								{if $next}<button id="btnExplorerNext" type="button"><span class="cerb-icons cerb-icon-chevron-right"></span></button>{/if}
+								<button id="btnExplorerExit" type="button"><span class="cerb-icons cerb-icon-circle-remove"></span></button>
 								</form>
 								{/if}
 							</div>

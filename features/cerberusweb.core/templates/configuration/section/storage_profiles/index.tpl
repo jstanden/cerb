@@ -7,7 +7,7 @@
 </div>
 
 <form id="frmCerbSetupStorageProfiles" action="{devblocks_url}{/devblocks_url}" method="POST" style="margin-bottom:5px;">
-	<button type="button"><span class="glyphicons glyphicons-circle-plus"></span> {'common.add'|devblocks_translate|capitalize}</button>
+	<button type="button"><span class="cerb-icons cerb-icon-circle-plus"></span> {'common.add'|devblocks_translate|capitalize}</button>
 </form>
 
 {include file="devblocks:cerberusweb.core::internal/views/search_and_view.tpl" view=$view}

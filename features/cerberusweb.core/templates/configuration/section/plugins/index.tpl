@@ -1,6 +1,6 @@
 <div class="help-box">
 	<h1>
-		<span class="glyphicons glyphicons-flash" style="vertical-align:middle;"></span> Plugins are migrating to workflows
+		<span class="cerb-icons cerb-icon-zap" style="vertical-align:middle;"></span> Plugins are migrating to workflows
 	</h1>
 
 	<p>

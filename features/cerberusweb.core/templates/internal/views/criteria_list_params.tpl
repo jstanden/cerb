@@ -4,7 +4,7 @@
 {if !empty($params)}
 {foreach from=$params item=param key=param_key name=params}
 {if $param}
-	{if !$nested && !$readonly}<div><span class="glyphicons glyphicons-circle-remove" style="cursor:pointer;margin-right:5px;"></span> <input type="checkbox" name="field_deletes[]" value="{$param_key}" style="display:none;"> {/if}
+	{if !$nested && !$readonly}<div><span class="cerb-icons cerb-icon-circle-remove" style="cursor:pointer;margin-right:5px;"></span> <input type="checkbox" name="field_deletes[]" value="{$param_key}" style="display:none;"> {/if}
 	{if !$nested && $readonly}<li class="bubble-blue" style="position:relative;{if is_array($param)}white-space:normal;{/if}">{/if}
 
 	{if is_object($param) && '*_' == substr($param->field,0,2)}
@@ -167,7 +167,7 @@
 	{/if}
 		
 	{if !$nested && !$readonly}</div>{/if}
-	{if !$nested && $readonly}<a data-cerb-worklist-remove-filter="{$param_key}" class="delete" style="position:absolute;top:-7px;right:-6px;display:none;"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span></a></li>{/if}
+	{if !$nested && $readonly}<a data-cerb-worklist-remove-filter="{$param_key}" class="delete" style="position:absolute;top:-7px;right:-6px;display:none;"><span class="cerb-icons cerb-icon-circle-remove" style="color:rgb(200,0,0);"></span></a></li>{/if}
 {/if}
 {/foreach}
 {if $readonly}</ul>{/if}

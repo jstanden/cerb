@@ -22,7 +22,7 @@
 	</div>
 	
 	<div class="package-library--package-buttons">
-		<button type="button" data-cerb-action="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.create'|devblocks_translate|capitalize}</button>
+		<button type="button" data-cerb-action="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.create'|devblocks_translate|capitalize}</button>
 		<button type="button" data-cerb-action="cancel">{'common.cancel'|devblocks_translate|capitalize}</button>
 	</div>
 </div>

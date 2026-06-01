@@ -27,7 +27,7 @@
 				<option value="+">+</option>
 				<option value="-">-</option>
 			</select>
-			<span style="padding-left:{math equation="(x-1)*10" x=$depth}px;{if !$depth}font-weight:bold;{/if}">{if $depth}<span class="glyphicons glyphicons-chevron-right" style="color:rgb(80,80,80);"></span>{else}<span class="glyphicons glyphicons-folder-closed" style="font-weight:16px;color:rgb(80,80,80);"></span>{/if} <span id="kbCat{$node_id}" {if (empty($article) && $root_id==$node_id)}style="color:green;background-color:var(--cerb-color-background-contrast-230);"{/if}>{$categories.$node_id->name}</span></span>
+			<span style="padding-left:{math equation="(x-1)*10" x=$depth}px;{if !$depth}font-weight:bold;{/if}">{if $depth}<span class="cerb-icons cerb-icon-chevron-right" style="color:rgb(80,80,80);"></span>{else}<span class="cerb-icons cerb-icon-folder" style="font-weight:16px;color:rgb(80,80,80);"></span>{/if} <span id="kbCat{$node_id}" {if (empty($article) && $root_id==$node_id)}style="color:green;background-color:var(--cerb-color-background-contrast-230);"{/if}>{$categories.$node_id->name}</span></span>
 			<br>
 		{/foreach}
 	</div>
@@ -42,7 +42,7 @@
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_KB_ARTICLE bulk=true}
 
-<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 <br>
 </form>
 

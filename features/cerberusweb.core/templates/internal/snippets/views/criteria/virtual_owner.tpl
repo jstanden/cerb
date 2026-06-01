@@ -106,7 +106,7 @@ $menu.find('> li > div.item a').click(function() {
 	let $bubble = $('<li></li>');
 	$bubble.append($('<input type="hidden" name="owner_context[]">').attr('value',context_pair));
 	$bubble.append(label);
-	let $a = $('<a><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($bubble);
+	let $a = $('<a><span class="cerb-icons cerb-icon-circle-remove"></span></a>').appendTo($bubble);
 	$a.on('click', function(e) {
 		e.stopPropagation();
 		$(this).closest('li').remove();

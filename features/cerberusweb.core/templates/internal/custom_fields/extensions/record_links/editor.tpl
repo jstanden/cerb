@@ -1,6 +1,6 @@
 {$field_uniqid = uniqid('cfield_')}
 <div id="{$field_uniqid}">
-    <button type="button" class="chooser-cfield-links" data-field-name="{$form_key}[]" data-context="{$field->params.context}" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
+    <button type="button" class="chooser-cfield-links" data-field-name="{$form_key}[]" data-context="{$field->params.context}" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="cerb-icons cerb-icon-search"></span></button>
 
     <ul class="bubbles chooser-container">
         {if $linked_dicts && is_array($linked_dicts)}

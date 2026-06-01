@@ -16,7 +16,7 @@
 		<div class="cerb-sortable" style="margin:5px 0px 0px 10px;">
 			{foreach from=$sso_services_available item=sso_service}
 			<div class="cerb-sort-item">
-				<span class="glyphicons glyphicons-menu-hamburger" style="cursor:move;vertical-align:top;color:var(--cerb-color-background-contrast-170);line-height:1.4em;margin-right:2px;"></span>
+				<span class="cerb-icons cerb-icon-menu-hamburger" style="cursor:move;vertical-align:top;color:var(--cerb-color-background-contrast-170);line-height:1.4em;margin-right:2px;"></span>
 				
 				<label>
 					<input type="checkbox" name="params[auth_sso_service_ids][]" value="{$sso_service->id}" {if array_key_exists($sso_service->id, $sso_services_enabled)}checked="checked"{/if}>
@@ -59,7 +59,7 @@
 </fieldset>
 
 <div class="cerb-buttons">
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 </div>
 </form>
 
@@ -77,7 +77,7 @@ $(function() {
 		.sortable({
 			tolerance: 'pointer',
 			helper: 'clone',
-			handle: '.glyphicons-menu-hamburger',
+			handle: '.cerb-icon-menu-hamburger',
 			items: '.cerb-sort-item',
 			opacity: 0.7
 		})

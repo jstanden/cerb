@@ -3,7 +3,7 @@
 <div style="display:flex;">
     <div style="flex:1 1 200px;margin-right:2px;">
         <div class="cerb-code-editor-toolbar">
-            <button type="button" data-cerb-toolbar-button-refresh title="{'common.refresh'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-refresh"></span></button>
+            <button type="button" data-cerb-toolbar-button-refresh title="{'common.refresh'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-refresh"></span></button>
         </div>
         <div style="max-height:35em;overflow-y:auto;">
             <table class="worklistBody" style="width:100%;" cellpadding="0" cellspacing="0">
@@ -14,8 +14,8 @@
     <div style="flex:2 2 100%;">
         <div class="cerb-code-editor-toolbar">
             <div style="height:26px;width:1px;display:inline-block;"></div>
-            <button type="button" data-cerb-toolbar-button-next-change title="Next change" style="float:right;"><span class="glyphicons glyphicons-step-forward"></span></button>
-            <button type="button" data-cerb-toolbar-button-prev-change title="Previous change" style="float:right;"><span class="glyphicons glyphicons-step-backward"></span></button>
+            <button type="button" data-cerb-toolbar-button-next-change title="Next change" style="float:right;"><span class="cerb-icons cerb-icon-step-forward"></span></button>
+            <button type="button" data-cerb-toolbar-button-prev-change title="Previous change" style="float:right;"><span class="cerb-icons cerb-icon-step-backward"></span></button>
         </div>
         <div style="position:relative;width:100%;height:35em;">
             <div id="{$uniqid}"></div>

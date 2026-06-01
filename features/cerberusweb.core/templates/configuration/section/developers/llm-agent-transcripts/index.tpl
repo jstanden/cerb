@@ -6,8 +6,8 @@
     <div style="flex:1 1 300px;margin-right:2px;" data-cerb-sidebar-limit="{$limit}">
         <div style="max-height:90vh;overflow-y:auto;">
             <div class="cerb-code-editor-toolbar">
-                <button type="button" data-cerb-button="refresh"><span class="glyphicons glyphicons-refresh"></span> {{'common.refresh'|devblocks_translate|capitalize}}</button>
-                <button type="button" data-cerb-button="unread"><span class="glyphicons glyphicons-envelope"></span> {{'common.unread'|devblocks_translate|capitalize}}</button>
+                <button type="button" data-cerb-button="refresh"><span class="cerb-icons cerb-icon-refresh"></span> {{'common.refresh'|devblocks_translate|capitalize}}</button>
+                <button type="button" data-cerb-button="unread"><span class="cerb-icons cerb-icon-mail"></span> {{'common.unread'|devblocks_translate|capitalize}}</button>
             </div>
 
             <table class="worklistBody" style="width:100%;" cellpadding="0" cellspacing="0">
@@ -248,8 +248,8 @@ $(function() {
 
                         let $tbody = $current_transcript.closest('tbody');
 
-                        if(0 === $tbody.find('.glyphicons-circle-ok').length) {
-                            let $span = $('<span class="glyphicons glyphicons-circle-ok" />');
+                        if(0 === $tbody.find('.cerb-icon-circle-ok').length) {
+                            let $span = $('<span class="cerb-icons cerb-icon-circle-ok" />');
                             $span.prependTo($tbody.find('td').first());
                         }
 

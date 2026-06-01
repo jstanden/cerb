@@ -17,7 +17,7 @@
 	
 		<div>
 			<label><b>Use this behavior to respond to new interactions:</b></label>
-			<button type="button" class="chooser-behavior" data-field-name="params[interaction_behavior_id]" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-single="true" data-query="event:&quot;event.interaction.chat.portal&quot; disabled:n"><span class="glyphicons glyphicons-search"></span></button>
+			<button type="button" class="chooser-behavior" data-field-name="params[interaction_behavior_id]" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-single="true" data-query="event:&quot;event.interaction.chat.portal&quot; disabled:n"><span class="cerb-icons cerb-icon-search"></span></button>
 			
 			<ul class="bubbles chooser-container">
 				{if $params.interaction_behavior_id}
@@ -66,7 +66,7 @@
 	</div>
 </fieldset>
 
-<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 </form>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">

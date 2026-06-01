@@ -567,7 +567,7 @@ class _DevblocksTemplateManager {
 					$link_toolbar = sprintf(
 						"<div class=\"cerb-code-editor-toolbar\" style=\"display:inline-block;margin:0.5em 0;\">".
 						"<button type=\"button\" class=\"cerb-code-editor-toolbar-button\">".
-						"<span class=\"glyphicons glyphicons-quote\"></span> Expand quoted text (%d %s)".
+						"<span class=\"cerb-icons cerb-icon-quote\"></span> Expand quoted text (%d %s)".
 						"</button></div><div class=\"cerb-email-quote\" style=\"display:none;\">",
 						$line_count,
 						(1 == $line_count ? 'line' : 'lines')

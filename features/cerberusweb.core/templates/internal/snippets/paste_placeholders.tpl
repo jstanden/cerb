@@ -10,7 +10,7 @@
 {include file="devblocks:cerberusweb.core::internal/snippets/prompts.tpl" prompts=$snippet->getPrompts()}
 
 <div class="buttons" style="margin-top:5px;">
-	<button type="button" class="paste"><span class="glyphicons glyphicons-circle-ok"></span> Insert</button>
+	<button type="button" class="paste"><span class="cerb-icons cerb-icon-circle-ok"></span> Insert</button>
 	<button type="button" class="preview">{'common.preview'|devblocks_translate|capitalize}</button>
 </div>
 

@@ -25,7 +25,7 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.organization'|devblocks_translate|capitalize}:</td>
 			<td width="100%">
-				<button type="button" class="chooser-abstract" data-field-name="org_id" data-context="{CerberusContexts::CONTEXT_ORG}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="glyphicons glyphicons-search"></span></button>
+				<button type="button" class="chooser-abstract" data-field-name="org_id" data-context="{CerberusContexts::CONTEXT_ORG}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="cerb-icons cerb-icon-search"></span></button>
 				<ul class="bubbles chooser-container"></ul>
 			</td>
 		</tr>
@@ -57,7 +57,7 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.email_transport'|devblocks_translate|capitalize}:</td>
 			<td width="100%">
-				<button type="button" class="chooser-abstract" data-field-name="mail_transport_id" data-context="{CerberusContexts::CONTEXT_MAIL_TRANSPORT}" data-single="true" data-query="" data-query-required="" data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="glyphicons glyphicons-search"></span></button>
+				<button type="button" class="chooser-abstract" data-field-name="mail_transport_id" data-context="{CerberusContexts::CONTEXT_MAIL_TRANSPORT}" data-single="true" data-query="" data-query-required="" data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="cerb-icons cerb-icon-search"></span></button>
 				<ul class="bubbles chooser-container"></ul>
 			</td>
 		</tr>
@@ -79,7 +79,7 @@
 {/if}
 
 {if $active_worker->hasPriv('contexts.cerberusweb.contexts.address.update')}
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 {/if}
 <br>
 </form>

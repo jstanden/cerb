@@ -50,7 +50,7 @@
 			<input type="text" name="to" id="emailinput{$popup_uniqid}" value="{$draft->getParam('to')}" style="padding:2px;width:98%;" placeholder="These recipients will automatically be included in all future correspondence">
 
 			<div id="compose_suggested{$popup_uniqid}" style="display:none;">
-				<a data-cerb-link="remove_suggested"><span class="glyphicons glyphicons-circle-remove"></span></a>
+				<a data-cerb-link="remove_suggested"><span class="cerb-icons cerb-icon-circle-remove"></span></a>
 				<b>Consider adding these recipients:</b>
 				<ul class="bubbles"></ul>
 			</div>
@@ -104,13 +104,13 @@
 							<div class="cerb-code-editor-toolbar-divider"></div>
 						{/if}
 
-						<button type="button" title="Insert #command" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--commands"><span class="glyphicons glyphicons-sampler"></span></button>
-						<button type="button" title="Insert snippet (Ctrl+Shift+Period)" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--snippets"><span class="glyphicons glyphicons-notes-2"></span></button>
-						<button type="button" title="Save draft (Ctrl+S)" data-cerb-key-binding="ctrl+s" class="cerb-code-editor-toolbar-button cerb-reply-editor-toolbar-button--save"><span class="glyphicons glyphicons-floppy-save"></span></button>
+						<button type="button" title="Insert #command" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--commands"><span class="cerb-icons cerb-icon-placeholders"></span></button>
+						<button type="button" title="Insert snippet (Ctrl+Shift+Period)" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--snippets"><span class="cerb-icons cerb-icon-clipboard"></span></button>
+						<button type="button" title="Save draft (Ctrl+S)" data-cerb-key-binding="ctrl+s" class="cerb-code-editor-toolbar-button cerb-reply-editor-toolbar-button--save"><span class="cerb-icons cerb-icon-save"></span></button>
 						<div class="cerb-code-editor-toolbar-divider"></div>
 	
-						<button type="button" title="{'common.encrypt'|devblocks_translate|capitalize}" class="cerb-code-editor-toolbar-button cerb-reply-editor-toolbar-button--encrypt {if $draft->params.options_gpg_encrypt}cerb-code-editor-toolbar-button--enabled{/if}"><span class="glyphicons {if $draft->params.options_gpg_encrypt}glyphicons-lock{else}glyphicons-unlock{/if}"></span></button>
-						<button type="button" title="{'common.encrypt.sign'|devblocks_translate|capitalize}" class="cerb-code-editor-toolbar-button cerb-reply-editor-toolbar-button--sign {if $draft->params.options_gpg_sign}cerb-code-editor-toolbar-button--enabled{/if}"><span class="glyphicons {if $draft->params.options_gpg_sign}glyphicons-user-lock{else}glyphicons-user{/if}"></span></button>
+						<button type="button" title="{'common.encrypt'|devblocks_translate|capitalize}" class="cerb-code-editor-toolbar-button cerb-reply-editor-toolbar-button--encrypt {if $draft->params.options_gpg_encrypt}cerb-code-editor-toolbar-button--enabled{/if}"><span class="cerb-icons {if $draft->params.options_gpg_encrypt}cerb-icon-lock{else}cerb-icon-unlock{/if}"></span></button>
+						<button type="button" title="{'common.encrypt.sign'|devblocks_translate|capitalize}" class="cerb-code-editor-toolbar-button cerb-reply-editor-toolbar-button--sign {if $draft->params.options_gpg_sign}cerb-code-editor-toolbar-button--enabled{/if}"><span class="cerb-icons {if $draft->params.options_gpg_sign}cerb-icon-user-lock{else}cerb-icon-user{/if}"></span></button>
 					</div>
 
 					<textarea id="divComposeContent{$popup_uniqid}" name="content" style="box-sizing:border-box;">{$draft->getParam('content')}</textarea>
@@ -124,13 +124,13 @@
 
 <fieldset class="peek compose-attachments">
 	<legend>{'common.attachments'|devblocks_translate|capitalize}</legend>
-	<button type="button" class="chooser_file"><span class="glyphicons glyphicons-paperclip"></span></button>
+	<button type="button" class="chooser_file"><span class="cerb-icons cerb-icon-paperclip"></span></button>
 	<ul class="bubbles chooser-container">
 	{if $draft->params.file_ids}
 	{foreach from=$draft->params.file_ids item=file_id}
 		{$file = DAO_Attachment::get($file_id)}
 		{if !empty($file)}
-			<li><input type="hidden" name="file_ids[]" value="{$file_id}">{$file->name} ({$file->storage_size} bytes) <a data-cerb-link="remove_file"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
+			<li><input type="hidden" name="file_ids[]" value="{$file_id}">{$file->name} ({$file->storage_size} bytes) <a data-cerb-link="remove_file"><span class="cerb-icons cerb-icon-circle-remove"></span></a></li>
 		{/if}
 	{/foreach}
 	{/if}
@@ -180,7 +180,7 @@
 				{/if}
 			{/foreach}
 		</ul>
-		<button type="button" class="chooser-abstract" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isDisabled:n" data-field-name="owner_id" data-autocomplete="isDisabled:n" data-autocomplete-if-empty="true" data-single="true"><span class="glyphicons glyphicons-search"></span></button>
+		<button type="button" class="chooser-abstract" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isDisabled:n" data-field-name="owner_id" data-autocomplete="isDisabled:n" data-autocomplete-if-empty="true" data-single="true"><span class="cerb-icons cerb-icon-search"></span></button>
 	</div>
 
 	<div style="margin-top:5px;">
@@ -195,7 +195,7 @@
 			{/foreach}
 			{/if}
 		</ul>
-		<button type="button" class="chooser-abstract" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isDisabled:n" data-field-name="watcher_ids[]" data-autocomplete="isDisabled:n"><span class="glyphicons glyphicons-search"></span></button>
+		<button type="button" class="chooser-abstract" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isDisabled:n" data-field-name="watcher_ids[]" data-autocomplete="isDisabled:n"><span class="cerb-icons cerb-icon-search"></span></button>
 	</div>
 
 	<div style="margin-top:5px;">
@@ -243,9 +243,9 @@
 </fieldset>
 
 <div class="submit-normal">
-	<button type="button" class="submit" title="{if $pref_keyboard_shortcuts}(Ctrl+Shift+Enter){/if}"><span class="glyphicons glyphicons-send"></span> {'display.ui.send_message'|devblocks_translate}</button>
-	<button type="button" class="draft"><span class="glyphicons glyphicons-disk-save"></span> {'display.ui.continue_later'|devblocks_translate}</button>
-	<button type="button" class="discard"><span class="glyphicons glyphicons-circle-remove"></span> {'common.discard'|devblocks_translate|capitalize}</button>
+	<button type="button" class="submit" title="{if $pref_keyboard_shortcuts}(Ctrl+Shift+Enter){/if}"><span class="cerb-icons cerb-icon-send"></span> {'display.ui.send_message'|devblocks_translate}</button>
+	<button type="button" class="draft"><span class="cerb-icons cerb-icon-save"></span> {'display.ui.continue_later'|devblocks_translate}</button>
+	<button type="button" class="discard"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.discard'|devblocks_translate|capitalize}</button>
 </div>
 </form>
 
@@ -414,7 +414,7 @@ $(function() {
 			.click(function() {
 				var $button = $(this);
 				var $hidden = $frm.find('> input:hidden[name=options_gpg_encrypt]');
-				var $icon = $button.find('span.glyphicons');
+				var $icon = $button.find('span.cerb-icons');
 
 				if('1' === $hidden.val()) {
 					$hidden.val(0);
@@ -423,8 +423,8 @@ $(function() {
 						.addClass('cerb-code-editor-toolbar-button--disabled')
 					;
 					$icon
-						.removeClass('glyphicons-lock')
-						.addClass('glyphicons-unlock')
+						.removeClass('cerb-icon-lock')
+						.addClass('cerb-icon-unlock')
 					;
 
 				} else {
@@ -434,8 +434,8 @@ $(function() {
 						.addClass('cerb-code-editor-toolbar-button--enabled')
 					;
 					$icon
-						.removeClass('glyphicons-unlock')
-						.addClass('glyphicons-lock')
+						.removeClass('cerb-icon-unlock')
+						.addClass('cerb-icon-lock')
 					;
 
 					// Enable signing
@@ -450,7 +450,7 @@ $(function() {
 			.click(function() {
 				var $button = $(this);
 				var $hidden = $frm.find('> input:hidden[name=options_gpg_sign]');
-				var $icon = $button.find('span.glyphicons');
+				var $icon = $button.find('span.cerb-icons');
 
 				if('1' === $hidden.val()) {
 					$hidden.val(0);
@@ -459,8 +459,8 @@ $(function() {
 						.addClass('cerb-code-editor-toolbar-button--disabled')
 					;
 					$icon
-						.removeClass('glyphicons-user-lock')
-						.addClass('glyphicons-user')
+						.removeClass('cerb-icon-user-lock')
+						.addClass('cerb-icon-user')
 					;
 
 				} else {
@@ -470,8 +470,8 @@ $(function() {
 						.addClass('cerb-code-editor-toolbar-button--enabled')
 					;
 					$icon
-						.removeClass('glyphicons-user')
-						.addClass('glyphicons-user-lock')
+						.removeClass('cerb-icon-user')
+						.addClass('cerb-icon-user-lock')
 					;
 
 				}

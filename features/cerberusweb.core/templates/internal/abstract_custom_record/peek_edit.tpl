@@ -71,7 +71,7 @@
 {if $custom_record->hasOption('attachments')}
 <fieldset class="peek" style="margin-top:10px;">
 	<legend>{'common.attachments'|devblocks_translate|capitalize}</legend>
-	<button type="button" class="chooser_file"><span class="glyphicons glyphicons-paperclip"></span></button>
+	<button type="button" class="chooser_file"><span class="cerb-icons cerb-icon-paperclip"></span></button>
 	<ul class="chooser-container bubbles">
 		{if !empty($attachments)}
 			{foreach from=$attachments item=attachment name=attachments}
@@ -82,7 +82,7 @@
 						{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{'display.convo.unknown_format'|devblocks_translate|capitalize}{/if})
 					</a>
 					<input type="hidden" name="file_ids[]" value="{$attachment->id}">
-					<a data-cerb-link="file_remove"><span class="glyphicons glyphicons-circle-remove"></span></a>
+					<a data-cerb-link="file_remove"><span class="cerb-icons cerb-icon-circle-remove"></span></a>
 				</li>
 			{/foreach}
 		{/if}
@@ -108,8 +108,8 @@
 <div class="status"></div>
 
 <div class="buttons" style="margin-top:5px;">
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 </form>
@@ -167,7 +167,7 @@ $(function() {
 				$label.cerbPeekTrigger().appendTo($li);
 				$('<input type="hidden">').attr('name', 'owner').attr('value',token).appendTo($li);
 				ui.item.find('img.cerb-avatar').clone().prependTo($li);
-				let $a = $('<a><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($li);
+				let $a = $('<a><span class="cerb-icons cerb-icon-circle-remove"></span></a>').appendTo($li);
 				$a.on('click', function(e) {
 					e.stopPropagation();
 					$(this).trigger('bubble-remove');

@@ -18,7 +18,7 @@
 		<tr>
 			<td width="1%" nowrap="nowrap"><b>{'common.bot'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%">
-				<button type="button" class="chooser-abstract" data-field-name="bot_id" data-context="{CerberusContexts::CONTEXT_BOT}" data-single="true" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
+				<button type="button" class="chooser-abstract" data-field-name="bot_id" data-context="{CerberusContexts::CONTEXT_BOT}" data-single="true" data-autocomplete="" data-autocomplete-if-empty="true"><span class="cerb-icons cerb-icon-search"></span></button>
 				
 				<ul class="bubbles chooser-container"></ul>
 			</td>
@@ -49,7 +49,7 @@
 		<div class="config"></div>
 		
 		<div>
-			<button type="button" class="import"><span class="glyphicons glyphicons-circle-ok"></span> {'common.import'|devblocks_translate|capitalize}</button>
+			<button type="button" class="import"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.import'|devblocks_translate|capitalize}</button>
 		</div>
 	</div>
 	{/if}
@@ -62,7 +62,7 @@
 					<td width="1%" nowrap="nowrap"><b>{'common.bot'|devblocks_translate|capitalize}:</b></td>
 					<td width="99%">
 						{if !$model->id}
-							<button type="button" class="chooser-abstract" data-field-name="bot_id" data-context="{CerberusContexts::CONTEXT_BOT}" data-single="true" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
+							<button type="button" class="chooser-abstract" data-field-name="bot_id" data-context="{CerberusContexts::CONTEXT_BOT}" data-single="true" data-autocomplete="" data-autocomplete-if-empty="true"><span class="cerb-icons cerb-icon-search"></span></button>
 							
 							<ul class="bubbles chooser-container">
 								{if $bot}
@@ -200,8 +200,8 @@
 		{/if}
 		
 		<div class="buttons">
-			<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-			{if $model->id && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+			<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+			{if $model->id && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 		</div>
 	</div>
 </div>
@@ -349,7 +349,7 @@ $(function() {
 					var $label = $('<span/>').attr('data-event',token).text(label);
 					$label.appendTo($li);
 					$('<input type="hidden">').attr('name', 'event_point').attr('value',token).appendTo($li);
-					let $a = $('<a><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($li);
+					let $a = $('<a><span class="cerb-icons cerb-icon-circle-remove"></span></a>').appendTo($li);
 					$a.on('click', function(e) {
 						e.stopPropagation();
 						$(this).trigger('events-bubble-remove');

@@ -5,7 +5,7 @@
 		{$error_message}
 	</p>
 	
-	<button type="button"><span class="glyphicons glyphicons-circle-ok"></span> {'common.ok'|devblocks_translate}</button>
+	<button type="button"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.ok'|devblocks_translate}</button>
 </div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
@@ -22,7 +22,7 @@ $(function() {
 		
 		var $dialog = $popup.closest('div.ui-dialog');
 
-		var $icon = $('<span class="glyphicons glyphicons-circle-exclamation-mark" style="margin-right:5px;"></span>');
+		var $icon = $('<span class="cerb-icons cerb-icon-circle-exclamation-mark" style="margin-right:5px;"></span>');
 		
 		$dialog
 			.find('div.ui-dialog-titlebar')

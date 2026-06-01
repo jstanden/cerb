@@ -17,12 +17,12 @@
 
         <div data-cerb-card-toolbar style="margin-top:5px;">
             {if !is_array($toolbar_card) || !array_key_exists('profile', $toolbar_card)}
-                {if $dict->id && $dict->record_url}<button type="button" class="cerb-peek-profile"><span class="glyphicons glyphicons-nameplate"></span> {'common.profile'|devblocks_translate|capitalize}</button>{/if}
+                {if $dict->id && $dict->record_url}<button type="button" class="cerb-peek-profile"><span class="cerb-icons cerb-icon-id-card"></span> {'common.profile'|devblocks_translate|capitalize}</button>{/if}
             {/if}
 
             {if !is_array($toolbar_card) || !array_key_exists('edit', $toolbar_card)}
                 {if $is_writeable && $active_worker->hasPriv("contexts.{$peek_context}.update")}
-                    <button type="button" class="cerb-peek-edit" data-context="{$peek_context}" data-context-id="{$dict->id}" data-width="75%" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
+                    <button type="button" class="cerb-peek-edit" data-context="{$peek_context}" data-context-id="{$dict->id}" data-width="75%" data-edit="true"><span class="cerb-icons cerb-icon-gear"></span> {'common.edit'|devblocks_translate|capitalize}</button>
                 {/if}
             {/if}
 
@@ -39,7 +39,7 @@
 
             {if !is_array($toolbar_card) || !array_key_exists('comments', $toolbar_card)}
                 {if $context_ext->hasOption('comments')}
-                    {if $active_worker->hasPriv("contexts.{$peek_context}.comment")}<button type="button" class="cerb-peek-comments-add" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{$peek_context} context.id:{$dict->id}"><span class="glyphicons glyphicons-conversation"></span> {'common.comment'|devblocks_translate|capitalize}</button>{/if}
+                    {if $active_worker->hasPriv("contexts.{$peek_context}.comment")}<button type="button" class="cerb-peek-comments-add" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{$peek_context} context.id:{$dict->id}"><span class="cerb-icons cerb-icon-comments"></span> {'common.comment'|devblocks_translate|capitalize}</button>{/if}
                 {/if}
             {/if}
 
@@ -50,7 +50,7 @@
             </div>
             {if $active_worker->is_superuser}
                 <div data-cerb-toolbar-setup style="display:inline-block;vertical-align:middle;">
-                    <a data-context="{CerberusContexts::CONTEXT_TOOLBAR}" data-context-id="record.card" data-edit="true"><span class="glyphicons glyphicons-cogwheel" style="color:lightgray;"></span></a>
+                    <a data-context="{CerberusContexts::CONTEXT_TOOLBAR}" data-context-id="record.card" data-edit="true"><span class="cerb-icons cerb-icon-gear" style="color:lightgray;"></span></a>
                 </div>
             {/if}
         </div>
@@ -73,7 +73,7 @@
 
 {if $active_worker->is_superuser}
 <div class="cerb-button-add-widget" style="cursor:pointer;border:1px dashed var(--cerb-color-background-contrast-220);padding:2px;text-align:center;" data-context="{CerberusContexts::CONTEXT_CARD_WIDGET}" data-context-id="0" data-edit="context:{$peek_context}" data-width="75%">
-    <button style="background:none;color:var(--cerb-color-background-contrast-150);" type="button"><span class="glyphicons glyphicons-circle-plus" style="color:rgb(150,150,150);"></span> {'common.add.widget'|devblocks_translate|capitalize}</button>
+    <button style="background:none;color:var(--cerb-color-background-contrast-150);" type="button"><span class="cerb-icons cerb-icon-circle-plus"></span> {'common.add.widget'|devblocks_translate|capitalize}</button>
 </div>
 {/if}
 
@@ -263,7 +263,7 @@ $(function() {
                 placeholder: 'cerb-widget-drag-placeholder',
                 forceHelperSize: true,
                 forcePlaceholderSize: true,
-                handle: '.cerb-card-widget--header .glyphicons-menu-hamburger',
+                handle: '.cerb-card-widget--header .cerb-icon-menu-hamburger',
                 connectWith: '.cerb-card-layout-zone--widgets',
                 opacity: 0.7,
                 start: function(event, ui) {
@@ -347,7 +347,7 @@ $(function() {
         var addEvents = function($target) {
             var $menu = $target.find('.cerb-card-widget--menu');
             var $menu_link = $target.find('.cerb-card-widget--link');
-            var $handle = $target.find('.cerb-card-widget--header .glyphicons-menu-hamburger');
+            var $handle = $target.find('.cerb-card-widget--header .cerb-icon-menu-hamburger');
 
             {if $active_worker->is_superuser}
             $target.hoverIntent({

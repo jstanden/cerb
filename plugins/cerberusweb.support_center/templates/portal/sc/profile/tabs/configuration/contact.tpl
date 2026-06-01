@@ -34,10 +34,10 @@
 </div>
 
 <div style="margin-left:10px;margin-bottom:10px;">
-	<button id="btnAddSituation" type="button"><span class="glyphicons glyphicons-circle-plus"></span> {'portal.cfg.add_new_situation'|devblocks_translate|capitalize}</button>
+	<button id="btnAddSituation" type="button"><span class="cerb-icons cerb-icon-circle-plus"></span> {'portal.cfg.add_new_situation'|devblocks_translate|capitalize}</button>
 </div>
 
-<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 </form>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">

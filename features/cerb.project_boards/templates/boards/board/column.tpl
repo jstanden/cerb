@@ -19,7 +19,7 @@
 		</div>
 	</div>
 	<div style="text-align:left;">
-		<span class="glyphicons glyphicons-menu-hamburger"></span>
+		<span class="cerb-icons cerb-icon-menu-hamburger"></span>
 		<a class="cerb-board-column-edit no-underline" data-context="{CerberusContexts::CONTEXT_PROJECT_BOARD_COLUMN}" data-context-id="{$column->id}">
 			{$column->name}
 		</a>

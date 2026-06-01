@@ -7,7 +7,7 @@
 
 <b>Paste a MIME formatted email message source:</b>
 <div class="cerb-code-editor-toolbar">
-	<button type="button" data-cerb-button="import-examples"><span class="glyphicons glyphicons-paste"></span> {{'common.examples'|devblocks_translate|capitalize}}</button>
+	<button type="button" data-cerb-button="import-examples"><span class="cerb-icons cerb-icon-clipboard"></span> {{'common.examples'|devblocks_translate|capitalize}}</button>
 	<ul class="cerb-float" style="display:none;">
 		<li data-example="text"><div><b>Plaintext</b></div></li>
 		<li data-example="html"><div><b>HTML</b></div></li>
@@ -21,7 +21,7 @@
 	<textarea name="message_source" style="width:99%;height:250px;">{$message_source}</textarea>
 </div>
 
-<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.import'|devblocks_translate|capitalize}</button>
+<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.import'|devblocks_translate|capitalize}</button>
 
 </form>
 

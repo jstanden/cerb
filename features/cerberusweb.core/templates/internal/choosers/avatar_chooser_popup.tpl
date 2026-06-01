@@ -15,9 +15,9 @@
 				<fieldset class="peek">
 					<legend>Editor tools:</legend>
 
-					<button type="button" class="canvas-avatar-zoomin" title="{'common.zoom.in'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-zoom-in"></span></button>
-					<button type="button" class="canvas-avatar-zoomout" title="{'common.zoom.out'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-zoom-out"></span></button>
-					<button type="button" class="canvas-avatar-remove" title="{'common.clear'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-erase"></span></button>
+					<button type="button" class="canvas-avatar-zoomin" title="{'common.zoom.in'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-zoom-in"></span></button>
+					<button type="button" class="canvas-avatar-zoomout" title="{'common.zoom.out'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-zoom-out"></span></button>
+					<button type="button" class="canvas-avatar-remove" title="{'common.clear'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-erase"></span></button>
 				</fieldset>
 
 				<fieldset class="peek">
@@ -35,7 +35,7 @@
 
 	<div style="margin-top:10px;">
 		{include file="devblocks:cerberusweb.core::ui/spinner.tpl" hidden=true}
-		<button type="button" class="canvas-avatar-export" title="{'common.save_changes'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+		<button type="button" class="canvas-avatar-export" title="{'common.save_changes'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 	</div>
 	
 	<div class="cerb-avatar-error"></div>

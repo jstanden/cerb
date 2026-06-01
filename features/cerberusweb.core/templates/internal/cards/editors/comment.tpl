@@ -15,29 +15,29 @@
             <button type="button" title="Toggle formatting" class="cerb-code-editor-toolbar-button cerb-editor-toolbar-button--formatting" data-format="{if $is_html}html{else}plaintext{/if}">{if $is_html}Formatting on{else}Formatting off{/if}</button>
 
             <div class="cerb-code-editor-subtoolbar-format-html" style="{if $is_html}display:inline-block;{else}display:none;{/if}">
-                <button type="button" title="Bold" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--bold"><span class="glyphicons glyphicons-bold"></span></button>
-                <button type="button" title="Italics" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--italic"><span class="glyphicons glyphicons-italic"></span></button>
-                <button type="button" title="Link" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--link"><span class="glyphicons glyphicons-link"></span></button>
-                <button type="button" title="Image" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--image"><span class="glyphicons glyphicons-picture"></span></button>
-                <button type="button" title="List" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--list"><span class="glyphicons glyphicons-list"></span></button>
-                <button type="button" title="Quote" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--quote"><span class="glyphicons glyphicons-quote"></span></button>
-                <button type="button" title="Code" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--code"><span class="glyphicons glyphicons-embed"></span></button>
-                <button type="button" title="Table" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--table"><span class="glyphicons glyphicons-table"></span></button>
+                <button type="button" title="Bold" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--bold"><span class="cerb-icons cerb-icon-bold"></span></button>
+                <button type="button" title="Italics" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--italic"><span class="cerb-icons cerb-icon-italic"></span></button>
+                <button type="button" title="Link" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--link"><span class="cerb-icons cerb-icon-link"></span></button>
+                <button type="button" title="Image" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--image"><span class="cerb-icons cerb-icon-picture"></span></button>
+                <button type="button" title="List" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--list"><span class="cerb-icons cerb-icon-list"></span></button>
+                <button type="button" title="Quote" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--quote"><span class="cerb-icons cerb-icon-quote"></span></button>
+                <button type="button" title="Code" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--code"><span class="cerb-icons cerb-icon-embed"></span></button>
+                <button type="button" title="Table" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--table"><span class="cerb-icons cerb-icon-table"></span></button>
             </div>
 
             <div class="cerb-code-editor-toolbar-divider"></div>
 
-            <button type="button" title="Insert @mention" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--mention"><span class="glyphicons glyphicons-user-add"></span></button>
+            <button type="button" title="Insert @mention" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--mention"><span class="cerb-icons cerb-icon-mention"></span></button>
             <div class="cerb-code-editor-toolbar-divider"></div>
 
-            <button type="button" title="Preview" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--preview"><span class="glyphicons glyphicons-eye-open"></span></button>
+            <button type="button" title="Preview" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--preview"><span class="cerb-icons cerb-icon-eye-open"></span></button>
         </div>
 
         <input type="hidden" name="comment_is_markdown" value="1">
         <textarea name="comment" placeholder="{'comment.notify.at_mention'|devblocks_translate}">{if is_a($model, 'Model_Comment')}{$model->comment}{/if}</textarea>
 
         <div class="cerb-comment-attachments">
-            <button type="button" class="chooser_file"><span class="glyphicons glyphicons-paperclip"></span></button>
+            <button type="button" class="chooser_file"><span class="cerb-icons cerb-icon-paperclip"></span></button>
             <ul class="chooser-container bubbles"></ul>
         </div>
     </div>

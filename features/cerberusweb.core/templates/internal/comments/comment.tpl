@@ -29,17 +29,17 @@
 
 	{if !$embed}
 	<div class="toolbar">
-		<button type="button" class="cerb-edit-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="{$comment->id}" title="Open card popup (Shift+Click to edit)"><span class="glyphicons glyphicons-new-window-alt"></span></button>
+		<button type="button" class="cerb-edit-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="{$comment->id}" title="Open card popup (Shift+Click to edit)"><span class="cerb-icons cerb-icon-new-window"></span></button>
 		
 		{if $is_writeable}
 			{if $comment->is_pinned}
-			<button type="button" class="cerb-button-enabled" data-cerb-comment-id="{$comment->id}" data-cerb-comment-pin="on" title="Un-pin this comment from the top of the conversation"><span class="glyphicons glyphicons-pushpin"></span></button>
+			<button type="button" class="cerb-button-enabled" data-cerb-comment-id="{$comment->id}" data-cerb-comment-pin="on" title="Un-pin this comment from the top of the conversation"><span class="cerb-icons cerb-icon-pushpin"></span></button>
 			{else}
-			<button type="button" data-cerb-comment-id="{$comment->id}" data-cerb-comment-pin="off" title="Pin this comment to the top of the conversation"><span class="glyphicons glyphicons-pushpin"></span></button>
+			<button type="button" data-cerb-comment-id="{$comment->id}" data-cerb-comment-pin="off" title="Pin this comment to the top of the conversation"><span class="cerb-icons cerb-icon-pushpin"></span></button>
 			{/if}
 		{/if}
 
-		<button data-cerb-button-comment-permalink="{devblocks_url full=true}c=profiles&type={$target_context->params.alias}&id={$comment->context_id}{/devblocks_url}/#comment{$comment->id}" type="button" title="{'common.permalink'|devblocks_translate|lower}"><span class="glyphicons glyphicons-link"></span></button>
+		<button data-cerb-button-comment-permalink="{devblocks_url full=true}c=profiles&type={$target_context->params.alias}&id={$comment->context_id}{/devblocks_url}/#comment{$comment->id}" type="button" title="{'common.permalink'|devblocks_translate|lower}"><span class="cerb-icons cerb-icon-link"></span></button>
 	</div>
 	{/if}
 	
@@ -95,7 +95,7 @@
 		{/if}
 
 		{if !$embed && $active_worker->hasPriv('contexts.cerberusweb.contexts.comment.comment')}
-			<button type="button" class="cerb-sticky-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{CerberusContexts::CONTEXT_COMMENT} context.id:{$comment->id}"><span class="glyphicons glyphicons-comments"></span> {'common.comment'|devblocks_translate|capitalize}</button>
+			<button type="button" class="cerb-sticky-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{CerberusContexts::CONTEXT_COMMENT} context.id:{$comment->id}"><span class="cerb-icons cerb-icon-comments"></span> {'common.comment'|devblocks_translate|capitalize}</button>
 		{/if}
 
 		<div id="comment{$comment->id}_notes" class="cerb-comments-thread">

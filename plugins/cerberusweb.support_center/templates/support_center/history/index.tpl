@@ -58,7 +58,7 @@
 </div>
 
 <div style="display:inline-block;margin-top:10px;">
-	<button type="submit" class="cerb-filter-editor--save"><span class="glyphicons glyphicons-refresh"></span> {'common.update'|devblocks_translate|capitalize}</button>
+	<button type="submit" class="cerb-filter-editor--save"><span class="cerb-icons cerb-icon-refresh"></span> {'common.update'|devblocks_translate|capitalize}</button>
 </div>
 
 </form>

@@ -24,12 +24,12 @@
 	{/foreach}
 </select>
 {elseif $import_field.type == 'chooser'}
-<button type="button" class="cerb-chooser-trigger" data-field-name="configure[{$import_seq}]" data-context="{$import_field.params.context}" {if $import_field.params.single}data-single="true"{/if} data-query="{$import_field.params.query}"><span class="glyphicons glyphicons-search"></span></button>
+<button type="button" class="cerb-chooser-trigger" data-field-name="configure[{$import_seq}]" data-context="{$import_field.params.context}" {if $import_field.params.single}data-single="true"{/if} data-query="{$import_field.params.query}"><span class="cerb-icons cerb-icon-search"></span></button>
 <ul class="bubbles chooser-container"></ul>
 {else}
 	{if substr($import_field.type,0,4) == 'ctx_'}
 		{$context = substr($import_field.type, 4)}
-		<button type="button" class="chooser" context="{$context}" field="configure[{$import_seq}]"><span class="glyphicons glyphicons-search"></span></button>
+		<button type="button" class="chooser" context="{$context}" field="configure[{$import_seq}]"><span class="cerb-icons cerb-icon-search"></span></button>
 	{/if}
 {/if}
 

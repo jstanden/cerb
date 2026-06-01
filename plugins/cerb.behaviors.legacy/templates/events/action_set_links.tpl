@@ -28,7 +28,7 @@
 			<li>
 				{$values_to_contexts.$context_data.label}<!--
 				--><input type="hidden" name="{$namePrefix}[context_objects][]" value="{$context_data}"><!--
-				--><span class="glyphicons glyphicons-circle-remove"></span>
+				--><span class="cerb-icons cerb-icon-circle-remove"></span>
 			</li>
 		{else}
 			{$context_pair = explode(':',$context_data)}
@@ -42,7 +42,7 @@
 					{$meta.name} ({$context_ext->manifest->name})
 				{/if}<!--
 				--><input type="hidden" name="{$namePrefix}[context_objects][]" value="{$context}:{$context_id}"><!--
-				--><span class="glyphicons glyphicons-circle-remove"></span>
+				--><span class="cerb-icons cerb-icon-circle-remove"></span>
 			</li>
 			{/if}
 		{/if}
@@ -82,7 +82,7 @@
 $(function() {
 	let $container = $('#container_{$random}');
 
-	$container.find('.chooser-container .glyphicons-circle-remove').on('click', Devblocks.onClickRemoveParent);
+	$container.find('.chooser-container .cerb-icon-circle-remove').on('click', Devblocks.onClickRemoveParent);
 
 	$container.find('ul.cerb-popupmenu > li.chooser').click(function(e) {
 		var $this = $(this);
@@ -106,8 +106,8 @@ $(function() {
 					if(0 === $ul.find('input:hidden[value="' + $context + ':' + event.values[i] + '"]').length) {
 						var $li = $('<li/>').text(event.labels[i] + ' (' + $context_name + ')');
 						$li.append($('<input type="hidden" name="{$namePrefix}[context_objects][]">').attr('value',$context + ':' + event.values[i]));
-						$li.append($('<span class="glyphicons glyphicons-circle-remove"></span>'));
-						$li.find('.glyphicons-circle-remove').on('click', Devblocks.onClickRemoveParent);
+						$li.append($('<span class="cerb-icons cerb-icon-circle-remove"></span>'));
+						$li.find('.cerb-icon-circle-remove').on('click', Devblocks.onClickRemoveParent);
 						$ul.append($li);
 					}
 				}
@@ -188,7 +188,7 @@ $(function() {
 		var $bubble = $('<li></li>');
 		$bubble.append($li.find('a').text());
 		$bubble.append($('<input type="hidden" name="{$namePrefix}[{$param_name}][]">').attr('value',$key));
-		let $a = $('<a><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($bubble);
+		let $a = $('<a><span class="cerb-icons cerb-icon-circle-remove"></span></a>').appendTo($bubble);
 		$a.on('click', Devblocks.onClickRemoveParent);
 
 		$bubbles.append($bubble);

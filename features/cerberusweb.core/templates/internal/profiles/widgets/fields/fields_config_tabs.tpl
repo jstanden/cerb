@@ -77,10 +77,10 @@
 				<div class="cerb-code-editor-toolbar-divider"></div>
 
 				{*
-				<button type="button" data-cerb-button="interactions-preview" class="cerb-code-editor-toolbar-button"><span class="glyphicons glyphicons-play"></span></button>
+				<button type="button" data-cerb-button="interactions-preview" class="cerb-code-editor-toolbar-button"><span class="cerb-icons cerb-icon-play"></span></button>
 				*}
 
-				<button type="button" style="float:right;" class="cerb-code-editor-toolbar-button cerb-editor-button-help"><a href="#" target="_blank"><span class="glyphicons glyphicons-circle-question-mark"></span></a></button>
+				<button type="button" style="float:right;" class="cerb-code-editor-toolbar-button cerb-editor-button-help"><a href="#" target="_blank"><span class="cerb-icons cerb-icon-circle-question-mark"></span></a></button>
 			</div>
 
 			<textarea name="params[toolbar_kata]" data-editor-mode="ace/mode/cerb_kata">{if $widget}{$widget->extension_params.toolbar_kata}{/if}</textarea>
@@ -101,7 +101,7 @@
 			<tbody>
 				<tr>
 					<td width="1%" nowrap="nowrap" valign="top">
-						<button type="button" data-cerb-link="search_remove"><span class="glyphicons glyphicons-circle-minus"></span></button>
+						<button type="button" data-cerb-link="search_remove"><span class="cerb-icons cerb-icon-circle-minus"></span></button>
 					</td>
 					<td width="1%" nowrap="nowrap" valign="top">
 						<select class="cerb-search-context" name="params[search][context][]">
@@ -124,7 +124,7 @@
 			<tbody class="cerb-placeholder" style="display:none;">
 				<tr>
 					<td width="1%" nowrap="nowrap" valign="top">
-						<button type="button" data-cerb-link="search_remove"><span class="glyphicons glyphicons-circle-minus"></span></button>
+						<button type="button" data-cerb-link="search_remove"><span class="cerb-icons cerb-icon-circle-minus"></span></button>
 					</td>
 					<td width="1%" nowrap="nowrap" valign="top">
 						<select class="cerb-search-context" name="params[search][context][]">
@@ -144,7 +144,7 @@
 			</tbody>
 		</table>
 		
-		<button type="button" class="cerb-placeholder-add"><span class="glyphicons glyphicons-circle-plus"></span></button>
+		<button type="button" class="cerb-placeholder-add"><span class="cerb-icons cerb-icon-circle-plus"></span></button>
 	</div>
 </div>
 
@@ -181,7 +181,7 @@ $(function() {
 
 		let $target = $(e.target);
 
-		if($target.is('.glyphicons-circle-minus'))
+		if($target.is('.cerb-icon-circle-minus'))
 			$target = $target.closest('button');
 
 		if($target.is('[data-cerb-link=search_remove]')) {

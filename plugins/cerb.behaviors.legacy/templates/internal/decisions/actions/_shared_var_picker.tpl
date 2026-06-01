@@ -6,7 +6,7 @@
 	{if isset($values_to_contexts.$val_key)}
 		{$var_data = $values_to_contexts.$val_key}
 		{if !empty($var_data)}
-		<li>{$var_data.label}<input type="hidden" name="{$namePrefix}[{$param_name}][]" value="{$val_key}"><a data-cerb-link="remove_parent"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
+		<li>{$var_data.label}<input type="hidden" name="{$namePrefix}[{$param_name}][]" value="{$val_key}"><a data-cerb-link="remove_parent"><span class="cerb-icons cerb-icon-circle-remove"></span></a></li>
 		{/if}
 	{/if}
 {/foreach}
@@ -100,7 +100,7 @@ $(function() {
 		let $bubble = $('<li></li>');
 		$bubble.append($li.find('a').text());
 		$bubble.append($('<input type="hidden">').attr('name', '{$namePrefix}[{$param_name}][]').attr('value', $key));
-		let $a = $('<a><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($bubble);
+		let $a = $('<a><span class="cerb-icons cerb-icon-circle-remove"></span></a>').appendTo($bubble);
 		$a.on('click', function(e) {
 			e.stopPropagation();
 			$(this).parent().remove();

@@ -2,7 +2,7 @@
 <div id="widget{$widget->id}Comments" style="{if $height}max-height:{$height}px;overflow:auto;{/if}">
 	<div style="margin-bottom:10px;">
 		{if $active_worker->hasPriv("contexts.{$context}.comment")}
-		<button type="button" class="cerb-button-add" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{$context} context.id:{$context_id}"><span class="glyphicons glyphicons-conversation"></span> {'common.comment'|devblocks_translate|capitalize}</button>
+		<button type="button" class="cerb-button-add" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{$context} context.id:{$context_id}"><span class="cerb-icons cerb-icon-comments"></span> {'common.comment'|devblocks_translate|capitalize}</button>
 		{/if}
 	</div>
 

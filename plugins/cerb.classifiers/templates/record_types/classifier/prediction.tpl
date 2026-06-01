@@ -90,10 +90,10 @@
 	
 	<div>
 		{if $is_writeable}
-			<button type="button" class="cerb-train-trigger" data-context="{CerberusContexts::CONTEXT_CLASSIFIER_EXAMPLE}" data-context-id="0" data-edit="classifier.id:{$prediction.classifier.id} class.id:{$prediction.classification.id} text:{$prediction.text|escape:'url'}"><span class="glyphicons glyphicons-circle-plus"></span> {'common.train'|devblocks_translate|capitalize}</button>
+			<button type="button" class="cerb-train-trigger" data-context="{CerberusContexts::CONTEXT_CLASSIFIER_EXAMPLE}" data-context-id="0" data-edit="classifier.id:{$prediction.classifier.id} class.id:{$prediction.classification.id} text:{$prediction.text|escape:'url'}"><span class="cerb-icons cerb-icon-circle-plus"></span> {'common.train'|devblocks_translate|capitalize}</button>
 
 			{if $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_CLASSIFIER_EXAMPLE}.import")}
-			<button type="button" class="cerb-peek-import" data-context="{CerberusContexts::CONTEXT_CLASSIFIER}" data-context-id="{$prediction.classifier.id}" data-edit="true"><span class="glyphicons glyphicons-file-import"></span> {'common.import'|devblocks_translate|capitalize}</button>
+			<button type="button" class="cerb-peek-import" data-context="{CerberusContexts::CONTEXT_CLASSIFIER}" data-context-id="{$prediction.classifier.id}" data-edit="true"><span class="cerb-icons cerb-icon-file-import"></span> {'common.import'|devblocks_translate|capitalize}</button>
 			{/if}
 		{/if}
 	</div>

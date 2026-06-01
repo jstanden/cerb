@@ -47,7 +47,7 @@
 {/if}
 
 {if $active_worker->hasPriv("contexts.{$bulk_context}.update")}
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 {/if}
 <br>
 </form>

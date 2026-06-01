@@ -198,7 +198,7 @@ function DevblocksClass() {
 			.appendTo($alerts)
 			;
 		
-		$('<span class="cerb-alert-close"><span class="glyphicons glyphicons-remove"></span></span>')
+		$('<span class="cerb-alert-close"><span class="cerb-icons cerb-icon-circle-remove"></span></span>')
 			.on('click', function(e) {
 				var $alert = $(this).closest('.cerb-alert');
 				
@@ -231,7 +231,7 @@ function DevblocksClass() {
 				$('<div class="ui-state-error ui-corner-all" style="padding:0 0.5em;margin:0.5em;"/>')
 				.append(
 					$('<p/>').text(message)
-						.prepend($('<span class="glyphicons glyphicons-circle-exclamation-mark" style="margin-right:5px;"></span>'))
+						.prepend($('<span class="cerb-icons cerb-icon-circle-exclamation-mark" style="margin-right:5px;"></span>'))
 				)
 			)
 		;

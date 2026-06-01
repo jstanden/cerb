@@ -28,7 +28,7 @@
 			<br>
 			
 			<div style="margin-left:10px;padding:5px;">
-				<button type="button" class="chooser-abstract" data-field-name="default_group_id" data-context="{CerberusContexts::CONTEXT_GROUP}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
+				<button type="button" class="chooser-abstract" data-field-name="default_group_id" data-context="{CerberusContexts::CONTEXT_GROUP}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="cerb-icons cerb-icon-search"></span></button>
 				
 				{$default_group = DAO_Group::getDefaultGroup()}
 				
@@ -80,7 +80,7 @@
 				<b>{TEXT}</b> - literal text
 				{/literal}
 				<br>
-				<button type="button" class="tester"><span class="glyphicons glyphicons-cogwheel"></span> {'common.test'|devblocks_translate|capitalize}</button>
+				<button type="button" class="tester"><span class="cerb-icons cerb-icon-gear"></span> {'common.test'|devblocks_translate|capitalize}</button>
 			</div>
 		</fieldset>
 		
@@ -95,7 +95,7 @@
 			
 		</fieldset>
 		
-		<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+		<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 		</form>
 	</div>
 </div>

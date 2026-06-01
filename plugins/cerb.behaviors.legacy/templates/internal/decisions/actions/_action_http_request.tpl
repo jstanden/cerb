@@ -35,7 +35,7 @@
 <div class="cerb-httprequest-connected-account" style="margin-left:20px;{if 'connected_account' != $params.auth}display:none;{/if}">
 	<b>{'common.connected_account'|devblocks_translate|capitalize}:</b>
 	<div style="margin-left:10px;margin-bottom:10px;">
-		<button type="button" class="chooser-abstract" data-field-name="{$namePrefix}[auth_connected_account_id]" data-context="{CerberusContexts::CONTEXT_CONNECTED_ACCOUNT}" data-single="true" data-query=""><span class="glyphicons glyphicons-search"></span></button>
+		<button type="button" class="chooser-abstract" data-field-name="{$namePrefix}[auth_connected_account_id]" data-context="{CerberusContexts::CONTEXT_CONNECTED_ACCOUNT}" data-single="true" data-query=""><span class="cerb-icons cerb-icon-search"></span></button>
 		
 		<ul class="bubbles chooser-container">
 			{if $params.auth_connected_account_id}

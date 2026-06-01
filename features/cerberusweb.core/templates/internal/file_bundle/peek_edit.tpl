@@ -43,13 +43,13 @@
 <fieldset class="peek">
 	<legend>{'common.attachments'|devblocks_translate|capitalize}</legend>
 	
-	<button type="button" class="chooser_file"><span class="glyphicons glyphicons-paperclip"></span></button>
+	<button type="button" class="chooser_file"><span class="cerb-icons cerb-icon-paperclip"></span></button>
 	<ul class="chooser-container bubbles" style="display:inline-block;">
 		{foreach from=$attachments item=attachment}
 		<li>
 		{$attachment->name} ({$attachment->storage_size|devblocks_prettybytes:1})
 		<input type="hidden" name="file_ids[]" value="{$attachment->id}">
-		<a data-cerb-link="remove_parent"><span class="glyphicons glyphicons-circle-remove"></span></a>
+		<a data-cerb-link="remove_parent"><span class="cerb-icons cerb-icon-circle-remove"></span></a>
 		</li>
 		{/foreach}
 	</ul>
@@ -73,8 +73,8 @@
 <div class="status"></div>
 
 <div class="buttons">
-	{if (!$model->id && $active_worker->hasPriv("contexts.{$peek_context}.create")) || ($model->id && $active_worker->hasPriv("contexts.{$peek_context}.update"))}<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {$translate->_('common.save_changes')|capitalize}</button>{/if}
-	{if $model->id && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	{if (!$model->id && $active_worker->hasPriv("contexts.{$peek_context}.create")) || ($model->id && $active_worker->hasPriv("contexts.{$peek_context}.update"))}<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {$translate->_('common.save_changes')|capitalize}</button>{/if}
+	{if $model->id && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 </form>
@@ -131,7 +131,7 @@ $(function() {
 				$label.cerbPeekTrigger().appendTo($li);
 				$('<input type="hidden">').attr('name', 'owner').attr('value',token).appendTo($li);
 				ui.item.find('img.cerb-avatar').clone().prependTo($li);
-				let $a = $('<a><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($li);
+				let $a = $('<a><span class="cerb-icons cerb-icon-circle-remove"></span></a>').appendTo($li);
 				$a.on('click', function(e) {
 					e.stopPropagation();
 					$(this).trigger('bubble-remove');

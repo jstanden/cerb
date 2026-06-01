@@ -25,7 +25,7 @@
 		{/foreach}
 
 		{if $is_writeable && $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_TAB}.create")}
-			<li><a href="{devblocks_url}ajax.php?c=pages&a=renderAddTabs&page_id={$page->id}{/devblocks_url}" draggable="false">&nbsp;<span class="glyphicons glyphicons-cogwheel"></span>&nbsp;</a></li>
+			<li><a href="{devblocks_url}ajax.php?c=pages&a=renderAddTabs&page_id={$page->id}{/devblocks_url}" draggable="false">&nbsp;<span class="cerb-icons cerb-icon-gear"></span>&nbsp;</a></li>
 		{/if}
 	</ul>
 </div>

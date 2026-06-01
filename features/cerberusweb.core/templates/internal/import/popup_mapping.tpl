@@ -55,9 +55,9 @@
 </fieldset>
 
 <div class="buttons">
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.continue'|devblocks_translate|capitalize}</button>
-	<button type="button" class="preview"><span class="glyphicons glyphicons-cogwheel"></span> {'common.preview'|devblocks_translate|capitalize}</button>
-	<button type="button" class="cancel"><span class="glyphicons glyphicons-circle-remove"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.continue'|devblocks_translate|capitalize}</button>
+	<button type="button" class="preview"><span class="cerb-icons cerb-icon-gear"></span> {'common.preview'|devblocks_translate|capitalize}</button>
+	<button type="button" class="cancel"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 </div>
 
 <div id="divImportPreview" style="margin:10px 0 0 0;border:1px solid var(--cerb-color-fieldset-border);padding:5px;height:200px;overflow-y:auto;display:none;"></div>

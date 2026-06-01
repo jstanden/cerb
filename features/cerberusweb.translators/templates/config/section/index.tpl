@@ -9,9 +9,9 @@
 {$form_id = uniqid('form')}
 <form id="{$form_id}" action="{devblocks_url}{/devblocks_url}" style="margin-bottom:5px;" method="post">
 	<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
-	<button type="button" data-cerb-button-add><span class="glyphicons glyphicons-globe"></span> {'translators.languages'|devblocks_translate|capitalize}</button>
-	<button type="button" data-cerb-button-sync><span class="glyphicons glyphicons-refresh"></span> {'common.synchronize'|devblocks_translate|capitalize}</button>
-	<button type="button" data-cerb-button-import><span class="glyphicons glyphicons-file-import"></span> {'common.import'|devblocks_translate|capitalize}</button>
+	<button type="button" data-cerb-button-add><span class="cerb-icons cerb-icon-globe"></span> {'translators.languages'|devblocks_translate|capitalize}</button>
+	<button type="button" data-cerb-button-sync><span class="cerb-icons cerb-icon-refresh"></span> {'common.synchronize'|devblocks_translate|capitalize}</button>
+	<button type="button" data-cerb-button-import><span class="cerb-icons cerb-icon-file-import"></span> {'common.import'|devblocks_translate|capitalize}</button>
 </form>
 
 {include file="devblocks:cerberusweb.core::internal/views/search_and_view.tpl" view=$view}

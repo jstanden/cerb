@@ -2,15 +2,15 @@
     <table width="100%" cellpadding="0" cellspacing="0">
         <tr>
             <td width="40%" align="right" nowrap="nowrap">
-                <button type="button" class="cerb-button-first"><span class="glyphicons glyphicons-fast-backward"></span></button>
-                <button type="button" class="cerb-button-prev"><span class="glyphicons glyphicons-step-backward"></span></button>
+                <button type="button" class="cerb-button-first"><span class="cerb-icons cerb-icon-fast-backward"></span></button>
+                <button type="button" class="cerb-button-prev"><span class="cerb-icons cerb-icon-step-backward"></span></button>
             </td>
             <td width="20%" align="center" nowrap="nowrap" style="font-weight:bold;font-size:1.2em;padding:0px 10px;">
                 <span class="cerb-peek-timeline-label"></span>
             </td>
             <td width="40%" align="left" nowrap="nowrap">
-                <button type="button" class="cerb-button-next"><span class="glyphicons glyphicons-step-forward"></span></button>
-                <button type="button" class="cerb-button-last"><span class="glyphicons glyphicons-fast-forward"></span></button>
+                <button type="button" class="cerb-button-next"><span class="cerb-icons cerb-icon-step-forward"></span></button>
+                <button type="button" class="cerb-button-last"><span class="cerb-icons cerb-icon-fast-forward"></span></button>
             </td>
         </tr>
     </table>

@@ -53,9 +53,9 @@
     <fieldset class="peek">
         <legend>Routing: (KATA)</legend>
         <div class="cerb-code-editor-toolbar">
-            <button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-magic title="{'common.autocomplete'|devblocks_translate|capitalize} (Ctrl+Space)"><span class="glyphicons glyphicons-magic"></span></button>
+            <button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-magic title="{'common.autocomplete'|devblocks_translate|capitalize} (Ctrl+Space)"><span class="cerb-icons cerb-icon-sparkles"></span></button>
             {if $model->id}
-                <button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-changesets title="{'common.change_history'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-history"></span></button>
+                <button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-changesets title="{'common.change_history'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-history"></span></button>
             {/if}
 
             {$toolbar_dict = DevblocksDictionaryDelegate::instance([
@@ -81,8 +81,8 @@
 
             <div class="cerb-code-editor-toolbar-divider"></div>
 
-            <button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-help title="{'common.help'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-circle-question-mark"></span></button>
-            <button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-tester title="{'common.test'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-lab"></span></button>
+            <button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-help title="{'common.help'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-circle-question-mark"></span></button>
+            <button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-tester title="{'common.test'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-lab"></span></button>
 
             <div class="cerb-code-editor-toolbar-divider"></div>
         </div>
@@ -128,8 +128,8 @@
                 <div class="cerb-code-editor-toolbar">
                     <b>{'common.placeholders'|devblocks_translate|capitalize} (KATA)</b>
                     <div class="cerb-code-editor-toolbar-divider"></div>
-                    <button type="button" class="cerb-code-editor-toolbar-button cerb-code-editor-toolbar-button--chooser" title="{'common.choose'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-search"></span></button>
-                    <button type="button" class="cerb-code-editor-toolbar-button cerb-code-editor-toolbar-button--run" title="{'common.run'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-play"></span></button>
+                    <button type="button" class="cerb-code-editor-toolbar-button cerb-code-editor-toolbar-button--chooser" title="{'common.choose'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-search"></span></button>
+                    <button type="button" class="cerb-code-editor-toolbar-button cerb-code-editor-toolbar-button--run" title="{'common.run'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-play"></span></button>
                 </div>
                 <textarea name="tester[placeholders]" data-editor-mode="ace/mode/cerb_kata" rows="5" cols="45"></textarea>
             </div>
@@ -153,11 +153,11 @@
 
     <div class="buttons" style="margin-top:10px;">
         {if $model->id}
-            <button type="button" class="save"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-            <button type="button" class="save-continue"><span class="glyphicons glyphicons-circle-arrow-right"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>
-            {if $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+            <button type="button" class="save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+            <button type="button" class="save-continue"><span class="cerb-icons cerb-icon-circle-arrow-right"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>
+            {if $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
         {else}
-            <button type="button" class="save"><span class="glyphicons glyphicons-circle-plus"></span> {'common.create'|devblocks_translate|capitalize}</button>
+            <button type="button" class="save"><span class="cerb-icons cerb-icon-circle-plus"></span> {'common.create'|devblocks_translate|capitalize}</button>
         {/if}
     </div>
 </form>

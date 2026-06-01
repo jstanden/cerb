@@ -70,7 +70,7 @@
 		<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.watchers'|devblocks_translate|capitalize|capitalize}: </td>
 		<td width="100%">
 			{if empty($model->id)}
-				<button type="button" class="chooser_watcher"><span class="glyphicons glyphicons-search"></span></button>
+				<button type="button" class="chooser_watcher"><span class="cerb-icons cerb-icon-search"></span></button>
 				<ul class="chooser-container bubbles" style="display:block;"></ul>
 			{else}
 				{$object_watchers = DAO_ContextLink::getContextLinks(Context_JiraIssue::ID, array($model->id), CerberusContexts::CONTEXT_WORKER)}
@@ -106,8 +106,8 @@
 {/if}
 
 <div class="buttons">
-	{if (!$model->id && $active_worker->hasPriv("contexts.{$peek_context}.create")) || ($model->id && $active_worker->hasPriv("contexts.{$peek_context}.update"))}<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>{/if}
-	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	{if (!$model->id && $active_worker->hasPriv("contexts.{$peek_context}.create")) || ($model->id && $active_worker->hasPriv("contexts.{$peek_context}.update"))}<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>{/if}
+	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 {if !empty($model->id)}

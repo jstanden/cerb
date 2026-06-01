@@ -8,7 +8,7 @@
     {/if}
 
     <div>
-        <button type="button" data-cerb-button-action="close"><span class="glyphicons glyphicons-circle-ok"></span> {'common.ok'|devblocks_translate}</button>
+        <button type="button" data-cerb-button-action="close"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.ok'|devblocks_translate}</button>
     </div>
 </div>
 

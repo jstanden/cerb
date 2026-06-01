@@ -15,9 +15,9 @@
         <div id="{$popup_id}TabsTemplate">
             <div>
                 <div class="cerb-code-editor-toolbar" style="margin:0.5em 0;">
-                    <button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-changesets-template title="{'common.change_history'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-history"></span></button>
-                    <button type="button" class="cerb-code-editor-commands-button" data-cerb-editor-button-commands title="Editor Commands"><span class="glyphicons glyphicons-adjust-alt"></span></button>
-                    <button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-builder title="Workflow Builder"><span class="glyphicons glyphicons-claw-hammer"></span></button>
+                    <button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-changesets-template title="{'common.change_history'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-history"></span></button>
+                    <button type="button" class="cerb-code-editor-commands-button" data-cerb-editor-button-commands title="Editor Commands"><span class="cerb-icons cerb-icon-adjust"></span></button>
+                    <button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-builder title="Workflow Builder"><span class="cerb-icons cerb-icon-hammer"></span></button>
                 </div>
                 <textarea name="template[kata]" data-editor-mode="ace/mode/cerb_kata" data-editor-lines="35">{$model->workflow_kata}</textarea>
             </div>
@@ -37,7 +37,7 @@
             </div>
 
             <div style="margin-top:0.5em;">
-                <button type="button" data-cerb-button-continue><span class="glyphicons glyphicons-circle-arrow-right"></span> {{'common.continue'|devblocks_translate|capitalize}}</button>
+                <button type="button" data-cerb-button-continue><span class="cerb-icons cerb-icon-circle-arrow-right"></span> {{'common.continue'|devblocks_translate|capitalize}}</button>
             </div>
         </div>
 
@@ -45,8 +45,8 @@
             <div data-cerb-content></div>
 
             <div style="margin-top:0.5em;">
-                <button type="button" data-cerb-button-back><span class="glyphicons glyphicons-circle-arrow-left"></span> {{'common.back'|devblocks_translate|capitalize}}</button>
-                <button type="button" data-cerb-button-continue><span class="glyphicons glyphicons-circle-arrow-right"></span> {{'common.continue'|devblocks_translate|capitalize}}</button>
+                <button type="button" data-cerb-button-back><span class="cerb-icons cerb-icon-circle-arrow-left"></span> {{'common.back'|devblocks_translate|capitalize}}</button>
+                <button type="button" data-cerb-button-continue><span class="cerb-icons cerb-icon-circle-arrow-right"></span> {{'common.continue'|devblocks_translate|capitalize}}</button>
             </div>
         </div>
 
@@ -54,8 +54,8 @@
             <div data-cerb-content></div>
 
             <div style="margin-top:0.5em;">
-                <button type="button" data-cerb-button-back><span class="glyphicons glyphicons-circle-arrow-left"></span> {{'common.back'|devblocks_translate|capitalize}}</button>
-                <button type="button" data-cerb-button-continue><span class="glyphicons glyphicons-circle-arrow-right"></span> {{'common.continue'|devblocks_translate|capitalize}}</button>
+                <button type="button" data-cerb-button-back><span class="cerb-icons cerb-icon-circle-arrow-left"></span> {{'common.back'|devblocks_translate|capitalize}}</button>
+                <button type="button" data-cerb-button-continue><span class="cerb-icons cerb-icon-circle-arrow-right"></span> {{'common.continue'|devblocks_translate|capitalize}}</button>
             </div>
         </div>
     </div>

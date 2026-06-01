@@ -2,7 +2,7 @@
 
 <div style="margin-top:5px;">
     {if $is_downloadable}
-        <button type="button" class="cerb-peek-download"><span class="glyphicons glyphicons-cloud-download"></span> {'common.download'|devblocks_translate|capitalize}</button>
+        <button type="button" class="cerb-peek-download"><span class="cerb-icons cerb-icon-cloud-download"></span> {'common.download'|devblocks_translate|capitalize}</button>
     {/if}
 
     {if $context_counts}

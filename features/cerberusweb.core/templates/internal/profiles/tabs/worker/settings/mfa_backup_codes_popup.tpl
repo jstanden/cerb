@@ -5,9 +5,9 @@
 	</div>
 
 	<div class="cerb-code-editor-toolbar">
-		<button type="button" class="cerb-code-editor-toolbar-button cerb-mfa-copy-codes" title="Copy to clipboard"><span class="glyphicons glyphicons-copy"></span></button>
-		<button type="button" class="cerb-code-editor-toolbar-button cerb-mfa-download-codes" title="Download"><span class="glyphicons glyphicons-download"></span></button>
-		<button type="button" class="cerb-code-editor-toolbar-button cerb-mfa-print-codes" title="Print"><span class="glyphicons glyphicons-print"></span></button>
+		<button type="button" class="cerb-code-editor-toolbar-button cerb-mfa-copy-codes" title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+		<button type="button" class="cerb-code-editor-toolbar-button cerb-mfa-download-codes" title="Download"><span class="cerb-icons cerb-icon-cloud-download"></span></button>
+		<button type="button" class="cerb-code-editor-toolbar-button cerb-mfa-print-codes" title="Print"><span class="cerb-icons cerb-icon-print"></span></button>
 	</div>
 
 	<div style="margin:10px 0;">
@@ -24,7 +24,7 @@
 		<label><input type="checkbox" class="cerb-mfa-ack-checkbox"> I have saved these backup codes in a safe place.</label>
 	</p>
 
-	<button type="button" class="cerb-mfa-ack-done cerb-hidden" style="margin-top:5px;"><span class="glyphicons glyphicons-circle-ok"></span> Done</button>
+	<button type="button" class="cerb-mfa-ack-done cerb-hidden" style="margin-top:5px;"><span class="cerb-icons cerb-icon-circle-ok"></span> Done</button>
 </div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">

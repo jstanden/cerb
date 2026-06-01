@@ -39,8 +39,8 @@
 			{$action = $params.action|default:''}
 			<legend class="cerb-bot-action--title" style="font-size:135%;">
 				{if array_key_exists($action, $actions)}{$actions[$action].label}{else}(missing action: {$action}){/if}<!--
-				--><span data-cerb-onhover style="display:none;cursor:pointer;"><span class="glyphicons glyphicons-move"></span></span><!--
-				--><span data-cerb-onhover style="display:none;cursor:pointer;"><span class="glyphicons glyphicons-circle-remove"></span></span>
+				--><span data-cerb-onhover style="display:none;cursor:pointer;"><span class="cerb-icons cerb-icon-move"></span></span><!--
+				--><span data-cerb-onhover style="display:none;cursor:pointer;"><span class="cerb-icons cerb-icon-circle-remove"></span></span>
 			</legend>
 
 			<div style="margin-left:10px;">
@@ -106,7 +106,7 @@
 		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 		<div style="margin:10px 0 10px 0;">
-			<button type="button" class="action cerb-popupmenu-trigger"><span class="glyphicons glyphicons-circle-plus"></span> {'common.add'|devblocks_translate|capitalize} &#x25be;</button>
+			<button type="button" class="action cerb-popupmenu-trigger"><span class="cerb-icons cerb-icon-circle-plus"></span> {'common.add'|devblocks_translate|capitalize} &#x25be;</button>
 
 			{function menu level=0}
 				{foreach from=$keys item=data key=idx}
@@ -144,12 +144,12 @@
 
 		<div class="toolbar">
 			{if !isset($id)}
-				<button type="button" data-cerb-button="save-create"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+				<button type="button" data-cerb-button="save-create"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 			{else}
-				<button type="button" data-cerb-button="save-close"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_and_close'|devblocks_translate|capitalize}</button>
-				<button type="button" data-cerb-button="save-continue"><span class="glyphicons glyphicons-circle-arrow-right"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>
-				<button type="button" data-cerb-button="simulate"> <span class="glyphicons glyphicons-cogwheel"></span> Simulator</button>
-				<button type="button" data-cerb-button="delete"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>
+				<button type="button" data-cerb-button="save-close"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_and_close'|devblocks_translate|capitalize}</button>
+				<button type="button" data-cerb-button="save-continue"><span class="cerb-icons cerb-icon-circle-arrow-right"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>
+				<button type="button" data-cerb-button="simulate"> <span class="cerb-icons cerb-icon-gear"></span> Simulator</button>
+				<button type="button" data-cerb-button="delete"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>
 			{/if}
 		</div>
 	</div>
@@ -261,7 +261,7 @@ $(function() {
 			$(this).closest('fieldset').trigger('cerb.remove');
 		}
 
-		$frm_build.find('fieldset.cerb-bot-action legend .glyphicons-circle-remove').on('click', funcBehaviorActionRemove);
+		$frm_build.find('fieldset.cerb-bot-action legend .cerb-icon-circle-remove').on('click', funcBehaviorActionRemove);
 
 		// Package Library
 
@@ -314,7 +314,7 @@ $(function() {
 			.sortable({
 				'items': 'fieldset.cerb-bot-action',
 				'placeholder': 'ui-state-highlight',
-				'handle': 'legend span.glyphicons-move',
+				'handle': 'legend span.cerb-icon-move',
 				'tolerance': 'pointer',
 				'opacity': 0.7
 			})
@@ -487,10 +487,10 @@ $(function() {
 					var $container = $('<fieldset class="cerb-bot-action" />').attr('id','action' + seq + '_{$nonce}').addClass('cerb-bot-action');
 					$container.prepend('<legend class="cerb-bot-action--title" style="font-size:135%;">'
 						+ label
-						+ '<span data-cerb-onhover style="display:none;cursor:pointer;"><span class="glyphicons glyphicons-move"></span></span>'
-						+ '<span data-cerb-onhover style="display:none;cursor:pointer;"><span class="glyphicons glyphicons-circle-remove"></span></span>'
+						+ '<span data-cerb-onhover style="display:none;cursor:pointer;"><span class="cerb-icons cerb-icon-move"></span></span>'
+						+ '<span data-cerb-onhover style="display:none;cursor:pointer;"><span class="cerb-icons cerb-icon-circle-remove"></span></span>'
 					);
-					$container.find('legend .glyphicons-circle-remove').on('click', funcBehaviorActionRemove);
+					$container.find('legend .cerb-icon-circle-remove').on('click', funcBehaviorActionRemove);
 					var $div = $('<div style="margin-left:10px;" />').appendTo($container);
 					$ul.append($container);
 					

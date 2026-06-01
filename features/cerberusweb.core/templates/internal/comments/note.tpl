@@ -16,13 +16,13 @@
 
 	&nbsp; <abbr title="{$note->created|devblocks_date}">{$note->created|devblocks_prettytime}</abbr>
 
-	<span class="glyphicons glyphicons-option-vertical" style="vertical-align:baseline;cursor:pointer;color:rgb(180,180,180);"></span>
+	<span class="cerb-icons cerb-icon-more-vertical" style="vertical-align:baseline;cursor:pointer;color:rgb(180,180,180);"></span>
 
 	<ul class="cerb-float" style="display:none;">
 		{if !$readonly}
 			<li data-cerb-action="edit">
 				<div>
-					<span class="glyphicons glyphicons-cogwheel"></span> <b>{'common.edit'|devblocks_translate|capitalize}</b>
+					<span class="cerb-icons cerb-icon-gear"></span> <b>{'common.edit'|devblocks_translate|capitalize}</b>
 				</div>
 			</li>
 		{/if}
@@ -30,7 +30,7 @@
 		{if in_array($note->context, [CerberusContexts::CONTEXT_COMMENT, CerberusContexts::CONTEXT_DRAFT, CerberusContexts::CONTEXT_MESSAGE])}
 			<li data-cerb-action="permalink" data-cerb-permalink="{devblocks_url full=true}c=profiles&type=ticket&mask={$ticket->mask}{/devblocks_url}/#comment{$note->id}">
 				<div>
-					<span class="glyphicons glyphicons-link"></span> <b>{'common.permalink'|devblocks_translate|capitalize}</b>
+					<span class="cerb-icons cerb-icon-link"></span> <b>{'common.permalink'|devblocks_translate|capitalize}</b>
 				</div>
 			</li>
 		{/if}
@@ -91,7 +91,7 @@ $(function() {
 		.cerbPeekTrigger()
 	;
 
-	$comment.find('.glyphicons-option-vertical')
+	$comment.find('.cerb-icon-more-vertical')
 		.next('ul.cerb-float')
 		.menu({
 			select: function(event, ui) {
@@ -135,7 +135,7 @@ $(function() {
 		})
 	;
 
-	$comment.find('.glyphicons-option-vertical')
+	$comment.find('.cerb-icon-more-vertical')
 		.on('click', function() {
 			var $this = $(this);
 			var $menu = $this.next('ul.cerb-float').toggle();

@@ -54,7 +54,7 @@
 
 					<ul class="bubbles sortable" style="display:block;padding:0;">
 						{foreach from=$tokens item=token}
-							<li style="display: block; cursor: move; margin: 5px;"><input type="hidden" name="tokens[]" value="{$token}">{$token}<a style="position: absolute; visibility: hidden; top: -7px; right: -6px; display: block;"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
+							<li style="display: block; cursor: move; margin: 5px;"><input type="hidden" name="tokens[]" value="{$token}">{$token}<a style="position: absolute; visibility: hidden; top: -7px; right: -6px; display: block;"><span class="cerb-icons cerb-icon-circle-remove"></span></a></li>
 						{/foreach}
 					</ul>
 				</td>
@@ -77,13 +77,13 @@
 			</div>
 		</div>
 
-		<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.export'|devblocks_translate|capitalize}</button>
-		<button type="button" class="cancel"><span class="glyphicons glyphicons-circle-remove"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+		<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.export'|devblocks_translate|capitalize}</button>
+		<button type="button" class="cancel"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 	</div>
 	
 	<div id="export{$view_id}_tabBuild">
 		<div class="cerb-code-editor-toolbar">
-			<button type="button" title="{'common.placeholders'|devblocks_translate|capitalize}" class="cerb-code-editor-toolbar-button cerb-editor-button-event-placeholders"><span class="glyphicons glyphicons-tags"></span></button>
+			<button type="button" title="{'common.placeholders'|devblocks_translate|capitalize}" class="cerb-code-editor-toolbar-button cerb-editor-button-event-placeholders"><span class="cerb-icons cerb-icon-tags"></span></button>
 			<ul class="cerb-code-editor-toolbar-menu-placeholders cerb-float" style="width:250px;display:none;">
 				{tree keys=$placeholders}
 			</ul>
@@ -91,8 +91,8 @@
 		<textarea name="export_kata" data-editor-mode="ace/mode/cerb_kata">{$export_kata}</textarea>
 		
 		<div style="margin-top:10px;">
-			<button type="button" class="submit-build"><span class="glyphicons glyphicons-circle-ok"></span> {'common.export'|devblocks_translate|capitalize}</button>
-			<button type="button" class="cancel"><span class="glyphicons glyphicons-circle-remove"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+			<button type="button" class="submit-build"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.export'|devblocks_translate|capitalize}</button>
+			<button type="button" class="cancel"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 		</div>
 	</div>
 </div>
@@ -155,7 +155,7 @@ $(function() {
 			$hidden.attr('name', 'tokens[]');
 			$hidden.attr('value', token);
 			
-			var $a = $('<a style="position: absolute; visibility: hidden; top: -7px; right: -6px; display: block;"><span class="glyphicons glyphicons-circle-remove"></span></a>');
+			var $a = $('<a style="position: absolute; visibility: hidden; top: -7px; right: -6px; display: block;"><span class="cerb-icons cerb-icon-circle-remove"></span></a>');
 			
 			$bubble.append($hidden);
 			$bubble.append(token);
@@ -166,7 +166,7 @@ $(function() {
 	
 	$bubbles.on('click', function(e) {
 		var $target = $(e.target);
-		if($target.is('.glyphicons-circle-remove')) {
+		if($target.is('.cerb-icon-circle-remove')) {
 			e.stopPropagation();
 			$target.closest('li').remove();
 		}

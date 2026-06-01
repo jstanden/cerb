@@ -1,6 +1,6 @@
 <div>
     <div class="cerb-code-editor-toolbar">
-        <button type="button"><span class="glyphicons glyphicons-refresh"></span></button>
+        <button type="button"><span class="cerb-icons cerb-icon-refresh"></span></button>
     </div>
 
     <div data-cerb-automation-editor--log></div>

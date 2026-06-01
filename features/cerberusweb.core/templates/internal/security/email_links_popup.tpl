@@ -8,7 +8,7 @@
         <input type="hidden" name="id" value="{$message->id}">
 
         {if $filtering_results.urls.blockedLink}
-            <h3><span class="glyphicons glyphicons-ban" style="color:rgb(180,0,0);"></span> These external links are blocked by rules:</h3>
+            <h3><span class="cerb-icons cerb-icon-ban" style="color:rgb(180,0,0);"></span> These external links are blocked by rules:</h3>
 
             <table style="margin-top:10px;">
                 {foreach from=$filtering_results.urls.blockedLink item=urls key=host}
@@ -28,7 +28,7 @@
         {/if}
 
         {if $filtering_results.urls.redirectedLink}
-        <h3><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> These external links are allowed:</h3>
+        <h3><span class="cerb-icons cerb-icon-circle-ok" style="color:rgb(0,180,0);"></span> These external links are allowed:</h3>
 
         <table style="margin-top:10px;">
             {foreach from=$filtering_results.urls.redirectedLink item=urls key=host}

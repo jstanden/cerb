@@ -19,7 +19,7 @@
 <div class="status"></div>
 
 <div style="padding:5px;">
-	<button class="submit" type="button"><span class="glyphicons glyphicons-circle-ok"></span> {'common.import'|devblocks_translate|capitalize}</button>
+	<button class="submit" type="button"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.import'|devblocks_translate|capitalize}</button>
 </div>
 
 </form>

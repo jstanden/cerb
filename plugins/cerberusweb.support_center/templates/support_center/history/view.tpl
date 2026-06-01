@@ -24,9 +24,9 @@
 			{* add arrow if sorting by this column, finish table header tag *}
 			{if $header==$view->renderSortBy}
 				{if $view->renderSortAsc}
-					<span class="glyphicons glyphicons-sort-by-attributes" style="color:rgb(30,143,234);"></span>
+					<span class="cerb-icons cerb-icon-sort-asc" style="color:rgb(30,143,234);"></span>
 				{else}
-					<span class="glyphicons glyphicons-sort-by-attributes-alt" style="color:rgb(30,143,234);"></span>
+					<span class="cerb-icons cerb-icon-sort-desc" style="color:rgb(30,143,234);"></span>
 				{/if}
 			{/if}
 			</th>
@@ -39,12 +39,12 @@
 
 	{capture name=subject_block}
 		{if $result.t_status_id == Model_Ticket::STATUS_WAITING}
-		<span class="glyphicons glyphicons-asterisk" style="color:rgb(200,0,0);"></span>
+		<span class="cerb-icons cerb-icon-clock" style="color:rgb(200,0,0);"></span>
 		{elseif $result.t_status_id == Model_Ticket::STATUS_CLOSED}
-		<span class="glyphicons glyphicons-circle-ok" style="color:rgb(120,120,120);"></span>
+		<span class="cerb-icons cerb-icon-circle-ok" style="color:rgb(120,120,120);"></span>
 		{elseif $result.t_status_id == Model_Ticket::STATUS_DELETED}
 		{else}
-		<span class="glyphicons glyphicons-clock"></span>
+		<span class="cerb-icons cerb-icon-clock"></span>
 		{/if}
 		
 		{if !empty($result.t_subject)}

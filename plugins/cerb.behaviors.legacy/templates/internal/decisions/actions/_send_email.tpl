@@ -84,7 +84,7 @@
 <div style="{if $params.format=='parsedown'}{else}display:none;{/if}" class="options-parsedown">
 	<b>HTML Template:</b><br>
 	<div style="margin-left:10px;margin-bottom:0.5em;">
-		<button type="button" class="chooser-abstract" data-field-name="{$namePrefix}[html_template_id]" data-context="{CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE}" data-single="true" data-autocomplete="" data-autocomplete-placeholders="{$smarty.capture.addy_placeholders}"><span class="glyphicons glyphicons-search"></span></button>
+		<button type="button" class="chooser-abstract" data-field-name="{$namePrefix}[html_template_id]" data-context="{CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE}" data-single="true" data-autocomplete="" data-autocomplete-placeholders="{$smarty.capture.addy_placeholders}"><span class="cerb-icons cerb-icon-search"></span></button>
 		<ul class="bubbles chooser-container">
 			{if $params.html_template_id}
 				{$html_template = $html_templates.{$params.html_template_id}}
@@ -99,8 +99,8 @@
 <b>{'common.content'|devblocks_translate|capitalize}:</b><br>
 <div style="margin-left:10px;margin-bottom:0.5em;">
 	<div style="padding:5px 0px;" class="options-parsedown">
-		<button type="button" class="editor-upload-image" title="Upload image"><span class="glyphicons glyphicons-picture"></span></button>
-		<button type="button" class="editor-preview" title="Preview"><span class="glyphicons glyphicons-new-window-alt"></span></button>
+		<button type="button" class="editor-upload-image" title="Upload image"><span class="cerb-icons cerb-icon-picture"></span></button>
+		<button type="button" class="editor-preview" title="Preview"><span class="cerb-icons cerb-icon-new-window"></span></button>
 	</div>
 	<textarea name="{$namePrefix}[content]" rows="3" cols="45" style="width:100%;height:150px;" class="placeholders editor">{$params.content}</textarea>
 </div>
@@ -124,12 +124,12 @@
 
 <b>Attach these file bundles:</b>
 <div style="margin-left:10px;margin-bottom:0.5em;">
-	<button type="button" class="chooser-file-bundle"><span class="glyphicons glyphicons-paperclip"></span></button>
+	<button type="button" class="chooser-file-bundle"><span class="cerb-icons cerb-icon-paperclip"></span></button>
 	<ul class="bubbles chooser-container">
 	{foreach from=$params.bundle_ids item=bundle_id}
 		{$bundle = DAO_FileBundle::get($bundle_id)}
 		{if !empty($bundle)}
-		<li><input type="hidden" name="{$namePrefix}[bundle_ids][]" value="{$bundle_id}">{$bundle->name} <a data-cerb-link="remove_parent"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
+		<li><input type="hidden" name="{$namePrefix}[bundle_ids][]" value="{$bundle_id}">{$bundle->name} <a data-cerb-link="remove_parent"><span class="cerb-icons cerb-icon-circle-remove"></span></a></li>
 		{/if} 
 	{/foreach}
 	</ul>

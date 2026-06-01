@@ -51,7 +51,7 @@
 
 			{if $links_label_compact}
 			<button type="button" data-cerb-links-add data-context="{$from_ctx_extid}" data-context-id="{$from_ctx_id}">
-				<span class="glyphicons glyphicons-circle-plus"></span>
+				<span class="cerb-icons cerb-icon-circle-plus"></span>
 				{'common.links'|devblocks_translate|capitalize}
 			</button>
 			{/if}

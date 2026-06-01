@@ -61,11 +61,12 @@ class _DevblocksDataProviderUiIcons extends _DevblocksDataProvider {
 		$data = [];
 		$paging = [];
 		
-		$icons = PageSection_SetupDevelopersReferenceIcons::getIcons(
+		$icons = PageSection_SetupDevelopersReferenceIcons::getCerbIcons(
 			$chart_model['limit'],
 			$chart_model['page'],
 			$chart_model['filter'],
-			$paging);
+			$paging
+		);
 		
 		foreach($icons as $idx => $icon) {
 			$data[] = [

@@ -6,11 +6,11 @@
 		{$parent_id = $categories.$root_id->parent_id}
 	{/if}
 		
-	{if !empty($root_id) && $active_worker->hasPriv("contexts.cerberusweb.contexts.kb_category.update")}<button type="button" class="category-edit" data-context="{CerberusContexts::CONTEXT_KB_CATEGORY}" data-context-id="{$root_id}" data-edit="true"><span class="glyphicons glyphicons-folder-closed"></span></a> Edit {if $parent_id}Category{else}Topic{/if}</button>{/if}
-	{if $active_worker->hasPriv("contexts.cerberusweb.contexts.kb_category.create")}<button type="button" class="category-add" data-context="{CerberusContexts::CONTEXT_KB_CATEGORY}" data-context-id="0" data-edit="parent.id:{$root_id}"><span class="glyphicons glyphicons-folder-plus"></span> Add {if empty($root_id)}Topic{else}Subcategory{/if}</button>{/if}
+	{if !empty($root_id) && $active_worker->hasPriv("contexts.cerberusweb.contexts.kb_category.update")}<button type="button" class="category-edit" data-context="{CerberusContexts::CONTEXT_KB_CATEGORY}" data-context-id="{$root_id}" data-edit="true"><span class="cerb-icons cerb-icon-folder"></span></a> Edit {if $parent_id}Category{else}Topic{/if}</button>{/if}
+	{if $active_worker->hasPriv("contexts.cerberusweb.contexts.kb_category.create")}<button type="button" class="category-add" data-context="{CerberusContexts::CONTEXT_KB_CATEGORY}" data-context-id="0" data-edit="parent.id:{$root_id}"><span class="cerb-icons cerb-icon-folder-plus"></span> Add {if empty($root_id)}Topic{else}Subcategory{/if}</button>{/if}
 		
 	{if $active_worker->hasPriv('contexts.cerberusweb.contexts.kb_article.create')}
-	<button type="button" class="article-add" data-context="{CerberusContexts::CONTEXT_KB_ARTICLE}" data-context-id="0" data-edit="category.id:{$root_id}"><span class="glyphicons glyphicons-circle-plus"></span> Add Article</button>
+	<button type="button" class="article-add" data-context="{CerberusContexts::CONTEXT_KB_ARTICLE}" data-context-id="0" data-edit="category.id:{$root_id}"><span class="cerb-icons cerb-icon-circle-plus"></span> Add Article</button>
 	{/if}
 </form>
 
@@ -38,7 +38,7 @@
 		<tr>
 		<td width="50%" valign="top">
 		{foreach from=$tree.$root_id item=count key=cat_id name=kbcats}
-			<span class="glyphicons glyphicons-folder-closed" style="color:rgb(80,80,80);"></span> 
+			<span class="cerb-icons cerb-icon-folder" style="color:rgb(80,80,80);"></span>
 			<a data-cerb-link-kb-category="{$cat_id}" style="font-weight:bold;">{$categories.$cat_id->name}</a> ({$count|string_format:"%d"})<br>
 		
 			{if !empty($tree.$cat_id)}

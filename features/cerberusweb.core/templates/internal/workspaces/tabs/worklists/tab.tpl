@@ -6,7 +6,7 @@
 	
 	<p>
 		You now have a blank worklists tab.  You can click the  
-		<button type="button" data-cerb-button="edit_menu"><span class="glyphicons glyphicons-cogwheel"></span></button>
+		<button type="button" data-cerb-button="edit_menu"><span class="cerb-icons cerb-icon-gear"></span></button>
 		button and select <b>Edit Tab</b> from the menu to display any number of worklists right here in a single place. 
 	</p>
 </div>

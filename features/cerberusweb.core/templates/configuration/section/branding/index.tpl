@@ -17,7 +17,7 @@
 			<img class="img-logo" src="{devblocks_url}c=branding&a=logo{/devblocks_url}?v={$logo_updated_at}" style="max-width:45vw;height:80px;margin:10px;">
 		</div>
 		
-		<button type="button" class="button-file-upload" data-context="resource" data-context-id="ui.logo" data-edit="type:cerb.resource.image description:&quot;The logo displayed in the top left of the UI&quot;" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-edit"></span></button>
+		<button type="button" class="button-file-upload" data-context="resource" data-context-id="ui.logo" data-edit="type:cerb.resource.image description:&quot;The logo displayed in the top left of the UI&quot;" title="{'common.edit'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-edit"></span></button>
 	</fieldset>
 	
 	<fieldset style="flex:1 1 50%;">
@@ -27,7 +27,7 @@
 			<img class="img-logo-dark" src="{devblocks_url}c=branding&a=logo-dark{/devblocks_url}?v={$logo_updated_at}" style="max-width:45vw;height:80px;margin:10px;">
 		</div>
 		
-		<button type="button" class="button-file-upload" data-context="resource" data-context-id="ui.logo.dark" data-edit="type:cerb.resource.image description:&quot;The dark variation of the logo displayed in the top left of the UI&quot;" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-edit"></span></button>
+		<button type="button" class="button-file-upload" data-context="resource" data-context-id="ui.logo.dark" data-edit="type:cerb.resource.image description:&quot;The dark variation of the logo displayed in the top left of the UI&quot;" title="{'common.edit'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-edit"></span></button>
 	</fieldset>
 </div>
 
@@ -49,7 +49,7 @@
 </fieldset>
 
 <div class="cerb-buttons">
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 </div>
 </form>
 

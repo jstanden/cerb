@@ -17,11 +17,11 @@
 			<td width="1%" nowrap="nowrap"><b>{'common.status'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%">
 				{if $model->status_id == 0}
-					<span class="glyphicons glyphicons-play"></span> Running
+					<span class="cerb-icons cerb-icon-play"></span> Running
 				{elseif $model->status_id == 1}
-					<span class="glyphicons glyphicons-pause"></span> Paused
+					<span class="cerb-icons cerb-icon-pause"></span> Paused
 				{elseif $model->status_id == 2}
-					<span class="glyphicons glyphicons-circle-ok"></span> {'common.done'|devblocks_translate|capitalize}
+					<span class="cerb-icons cerb-icon-circle-ok"></span> {'common.done'|devblocks_translate|capitalize}
 				{/if}
 			</td>
 		</tr>
@@ -47,9 +47,9 @@
 	<div class="buttons" style="margin-top:10px;">
 		{if $model->id}
 			{if $model->status_id != 2}
-				<button type="button" class="save"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+				<button type="button" class="save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 			{/if}
-			{if $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+			{if $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 		{/if}
 	</div>
 </form>

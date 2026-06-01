@@ -10,7 +10,7 @@
 				{$button.label}
 			{/if}
 			{*if $button.icon}
-				<span class="glyphicons glyphicons-{$button.icon}" style="color:inherit;margin-right:3px;"></span>
+				<span class="cerb-icons cerb-icon-{$button.icon}" style="color:inherit;margin-right:3px;"></span>
 			{/if*}
 			{if 'end' != $button.icon_at}
 				{$button.label}

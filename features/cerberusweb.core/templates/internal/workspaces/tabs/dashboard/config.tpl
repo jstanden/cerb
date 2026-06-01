@@ -83,10 +83,10 @@
 		<legend>{'common.prompts'|devblocks_translate|capitalize}: <small>(KATA)</small></legend>
 
 		<div class="cerb-code-editor-toolbar">
-			<button type="button" class="cerb-code-editor-toolbar-button cerb-editor-button-run"><span class="glyphicons glyphicons-play"></span></button>
+			<button type="button" class="cerb-code-editor-toolbar-button cerb-editor-button-run"><span class="cerb-icons cerb-icon-play"></span></button>
 			<div class="cerb-code-editor-toolbar-divider"></div>
 			
-			<button type="button" class="cerb-code-editor-toolbar-button cerb-editor-button-add"><span class="glyphicons glyphicons-circle-plus"></span></button>
+			<button type="button" class="cerb-code-editor-toolbar-button cerb-editor-button-add"><span class="cerb-icons cerb-icon-circle-plus"></span></button>
 			<ul class="cerb-float" style="display:none;">
 				<li data-type="chooser"><div>Chooser</div></li>
 				<li data-type="date_range"><div>Date Range</div></li>
@@ -94,7 +94,7 @@
 				<li data-type="text"><div>Text</div></li>
 			</ul>
 			
-			<button type="button" title="Insert placeholder" class="cerb-code-editor-toolbar-button cerb-editor-button-placeholders"><span class="glyphicons glyphicons-sampler"></span></button>
+			<button type="button" title="Insert placeholder" class="cerb-code-editor-toolbar-button cerb-editor-button-placeholders"><span class="cerb-icons cerb-icon-placeholders"></span></button>
 			{function tree level=0}
 				{foreach from=$keys item=data key=idx}
 					{if is_array($data->children) && !empty($data->children)}
@@ -118,7 +118,7 @@
 			{tree keys=$placeholders}
 			</ul>
 			
-			<button type="button" style="float:right;" class="cerb-code-editor-toolbar-button cerb-editor-button-help"><a href="https://cerb.ai/docs/dashboards/#prompts" target="_blank"><span class="glyphicons glyphicons-circle-question-mark"></span></a></button>
+			<button type="button" style="float:right;" class="cerb-code-editor-toolbar-button cerb-editor-button-help"><a href="https://cerb.ai/docs/dashboards/#prompts" target="_blank"><span class="cerb-icons cerb-icon-circle-question-mark"></span></a></button>
 		</div>
 		<textarea name="params[prompts_kata]" class="cerb-code-editor" data-editor-mode="ace/mode/cerb_kata" style="width:95%;height:50px;">{$tab->params.prompts_kata}</textarea>
 		<div class="cerb-code-editor-preview-output"></div>

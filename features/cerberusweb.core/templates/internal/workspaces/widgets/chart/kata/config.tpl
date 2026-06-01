@@ -3,13 +3,13 @@
 		<legend>Datasets: (KATA)</legend>
 
 		<div class="cerb-code-editor-toolbar">
-			<button type="button" class="cerb-code-editor-toolbar-button cerb-button-autocomplete-datasets" title="{'common.autocomplete'|devblocks_translate|capitalize} (Ctrl+Space)"><span class="glyphicons glyphicons-magic"></span></button>
-			<button type="button" class="cerb-code-editor-toolbar-button cerb-button-test-datasets" title="Test datasets"><span class="glyphicons glyphicons-play"></span></button>
+			<button type="button" class="cerb-code-editor-toolbar-button cerb-button-autocomplete-datasets" title="{'common.autocomplete'|devblocks_translate|capitalize} (Ctrl+Space)"><span class="cerb-icons cerb-icon-sparkles"></span></button>
+			<button type="button" class="cerb-code-editor-toolbar-button cerb-button-test-datasets" title="Test datasets"><span class="cerb-icons cerb-icon-play"></span></button>
 			
 			<div class="cerb-code-editor-toolbar-divider"></div>
 			
 			{if $widget->id}
-				<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-changesets-datasets title="{'common.change_history'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-history"></span></button>
+				<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-changesets-datasets title="{'common.change_history'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-history"></span></button>
 			{/if}
 		</div>
 
@@ -24,7 +24,7 @@
 			</div>
 
 			<fieldset style="display:none;position:relative;">
-				<span data-cerb-link="fieldset_hide" class="glyphicons glyphicons-circle-remove" style="position:absolute;right:-5px;top:-10px;cursor:pointer;color:var(--cerb-color-background-contrast-75);zoom:1.5;background-color:var(--cerb-color-background);"></span>
+				<span data-cerb-link="fieldset_hide" class="cerb-icons cerb-icon-circle-remove" style="position:absolute;right:-5px;top:-10px;cursor:pointer;color:var(--cerb-color-background-contrast-75);zoom:1.5;background-color:var(--cerb-color-background);"></span>
 				<legend>{'common.results'|devblocks_translate|capitalize}</legend>
 				<textarea class="cerb-json-results-editor" data-editor-mode="ace/mode/json"></textarea>
 			</fieldset>
@@ -35,13 +35,13 @@
 		<legend>Chart: (KATA)</legend>
 
 		<div class="cerb-code-editor-toolbar">
-			<button type="button" class="cerb-code-editor-toolbar-button cerb-button-autocomplete-chart" title="{'common.autocomplete'|devblocks_translate|capitalize} (Ctrl+Space)"><span class="glyphicons glyphicons-magic"></span></button>
-			<button type="button" class="cerb-code-editor-toolbar-button cerb-button-test-chart" title="Test chart"><span class="glyphicons glyphicons-play"></span></button>
+			<button type="button" class="cerb-code-editor-toolbar-button cerb-button-autocomplete-chart" title="{'common.autocomplete'|devblocks_translate|capitalize} (Ctrl+Space)"><span class="cerb-icons cerb-icon-sparkles"></span></button>
+			<button type="button" class="cerb-code-editor-toolbar-button cerb-button-test-chart" title="Test chart"><span class="cerb-icons cerb-icon-play"></span></button>
 			
 			<div class="cerb-code-editor-toolbar-divider"></div>
 			
 			{if $widget->id}
-				<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-changesets-chart title="{'common.change_history'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-history"></span></button>
+				<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-changesets-chart title="{'common.change_history'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-history"></span></button>
 			{/if}
 		</div>
 
@@ -49,7 +49,7 @@
 
 		<div style="margin:5px 0 0 20px;">
 			<fieldset style="display:none;position:relative;">
-				<span data-cerb-link="fieldset_hide" class="glyphicons glyphicons-circle-remove" style="position:absolute;right:-5px;top:-10px;cursor:pointer;color:var(--cerb-color-background-contrast-75);zoom:1.5;background-color:var(--cerb-color-background);"></span>
+				<span data-cerb-link="fieldset_hide" class="cerb-icons cerb-icon-circle-remove" style="position:absolute;right:-5px;top:-10px;cursor:pointer;color:var(--cerb-color-background-contrast-75);zoom:1.5;background-color:var(--cerb-color-background);"></span>
 				<legend>{'common.preview'|devblocks_translate|capitalize}</legend>
 				<div data-cerb-results-chart></div>
 			</fieldset>

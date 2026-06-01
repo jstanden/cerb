@@ -10,12 +10,11 @@
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
 		<td nowrap="nowrap" align="right" class="title-toolbar">
-			{if $active_worker->hasPriv("contexts.{$view_context}.create")}<a title="{'common.add'|devblocks_translate|capitalize}" class="minimal peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="0" data-width="75%"><span class="glyphicons glyphicons-circle-plus"></span></a>{/if}
-			<a data-cerb-worklist-icon-search title="{'common.search'|devblocks_translate|capitalize}" class="minimal"><span class="glyphicons glyphicons-search"></span></a>
-			<a data-cerb-worklist-icon-customize title="{'common.customize'|devblocks_translate|capitalize}" class="minimal"><span class="glyphicons glyphicons-cogwheel"></span></a>
-			<a data-cerb-worklist-icon-subtotals title="{'common.subtotals'|devblocks_translate|capitalize}" class="minimal"><span class="glyphicons glyphicons-signal"></span></a>
-			<a data-cerb-worklist-icon-copy title="{'common.copy'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-duplicate"></span></a>
-			<a data-cerb-worklist-icon-refresh title="{'common.refresh'|devblocks_translate|capitalize}" class="minimal"><span class="glyphicons glyphicons-refresh"></span></a>
+			{if $active_worker->hasPriv("contexts.{$view_context}.create")}<a title="{'common.add'|devblocks_translate|capitalize}" class="minimal peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="0" data-width="75%"><span class="cerb-icons cerb-icon-circle-plus"></span></a>{/if}
+			<a data-cerb-worklist-icon-search title="{'common.search'|devblocks_translate|capitalize}" class="minimal"><span class="cerb-icons cerb-icon-search"></span></a>
+			<a data-cerb-worklist-icon-customize title="{'common.customize'|devblocks_translate|capitalize}" class="minimal"><span class="cerb-icons cerb-icon-gear"></span></a>
+			<a data-cerb-worklist-icon-subtotals title="{'common.subtotals'|devblocks_translate|capitalize}" class="minimal"><span class="cerb-icons cerb-icon-signal"></span></a>
+			<a data-cerb-worklist-icon-refresh title="{'common.refresh'|devblocks_translate|capitalize}" class="minimal"><span class="cerb-icons cerb-icon-refresh"></span></a>
 			<input type="checkbox" class="select-all">
 		</td>
 	</tr>
@@ -46,14 +45,10 @@
 			{* start table header, insert column title and link *}
 			<th class="{if array_key_exists('disable_sorting', $view->options) && $view->options.disable_sorting}no-sort{/if}">
 			{if (!array_key_exists('disable_sorting', $view->options) || !$view->options.disable_sorting) && !empty($view_fields.$header->db_column)}
+				{include file="devblocks:cerberusweb.core::internal/views/view_header_sort.tpl" view=$view header=$header}
 				<a data-cerb-worklist-sort="{$header}">{$view_fields.$header->db_label|capitalize}</a>
 			{else}
 				<a style="text-decoration:none;">{$view_fields.$header->db_label|capitalize}</a>
-			{/if}
-			
-			{* add arrow if sorting by this column, finish table header tag *}
-			{if $header==$view->renderSortBy}
-				<span class="glyphicons {if $view->renderSortAsc}glyphicons-sort-by-attributes{else}glyphicons-sort-by-attributes-alt{/if}" style="font-size:14px;{if array_key_exists('disable_sorting', $view->options) && $view->options.disable_sorting}color:rgb(80,80,80);{else}color:rgb(39,123,213);{/if}"></span>
 			{/if}
 			</th>
 		{/foreach}
@@ -76,7 +71,7 @@
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
 			<td data-column="button" align="center" nowrap="nowrap" style="padding:5px;">
-				<button class="add" type="button" page_id="{$result.w_id}" page_label="{$result.w_name|lower}" page_url="{devblocks_url}c=pages&page={$result.w_id}-{$result.w_name|devblocks_permalink}{/devblocks_url}">{if $in_menu}<span class="glyphicons glyphicons-circle-minus" style="color:rgb(180,0,0);"></span>{else}<span class="glyphicons glyphicons-circle-plus" style="color:rgb(150,150,150);">{/if}</button>
+				<button class="add" type="button" page_id="{$result.w_id}" page_label="{$result.w_name|lower}" page_url="{devblocks_url}c=pages&page={$result.w_id}-{$result.w_name|devblocks_permalink}{/devblocks_url}">{if $in_menu}<span class="cerb-icons cerb-icon-circle-minus"></span>{else}<span class="cerb-icons cerb-icon-circle-plus" style="color:rgb(150,150,150);">{/if}</button>
 				<input type="checkbox" name="row_id[]" value="{$result.w_id}" style="display:none;">
 			</td>
 		{foreach from=$view->view_columns item=column name=columns}
@@ -85,7 +80,7 @@
 			{elseif $column=="w_name"}
 			<td data-column="{$column}">
 				<a href="{devblocks_url}c=pages&page={$result.w_id}-{$result.w_name|devblocks_permalink}{/devblocks_url}" class="subject">{if !empty($result.w_name)}{$result.w_name}{else}New Page{/if}</a>
-				<button type="button" class="peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="{$result.w_id}"><span class="glyphicons glyphicons-new-window-alt"></span></button>
+				<button type="button" class="peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="{$result.w_id}"><span class="cerb-icons cerb-icon-new-window"></span></button>
 			</td>
 			{elseif in_array($column,["w_extension_id"])}
 				<td data-column="{$column}">
@@ -132,7 +127,7 @@
 	<div style="float:left;" id="{$view->id}_actions">
 		{$view_toolbar = $view->getToolbar()}
 		{include file="devblocks:cerberusweb.core::internal/views/view_toolbar.tpl" view_toolbar=$view_toolbar}
-		{if !$view_toolbar['explore']}<button type="button" class="action-always-show action-explore"><span class="glyphicons glyphicons-play-button"></span> {'common.explore'|devblocks_translate|lower}</button>{/if}
+		{if !$view_toolbar['explore']}<button type="button" class="action-always-show action-explore"><span class="cerb-icons cerb-icon-compass"></span> {'common.explore'|devblocks_translate|lower}</button>{/if}
 	</div>
 </div>
 {/if}
@@ -171,7 +166,7 @@ $('#viewForm{$view->id}').find('button.add').click(function(e) {
 				$(this).remove();
 			});
 			
-			$this.html('<span class="glyphicons glyphicons-circle-plus" style="color:rgb(150,150,150);">');
+			$this.html('<span class="cerb-icons cerb-icon-circle-plus">');
 		}
 
 		var formData = new FormData();
@@ -186,24 +181,24 @@ $('#viewForm{$view->id}').find('button.add').click(function(e) {
 		var $li = $('<li class="drag"/>').attr('data-page',$this.attr('page_id'));
 		$li.append($('<a/>').attr('href',$this.attr('page_url')).text($this.attr('page_label')));
 		$li.css('visibility','hidden');
-		
-		var $marker = $menu.find('li.add');
 
-		if(0 == $marker.length) {
+		const $marker = $menu.find('li.add');
+
+		if(0 === $marker.length) {
 			$li.prependTo($menu);
-			
+
 		} else {
 			$li.insertBefore($marker);
-			
+
 		}
-		
+
 		$this.effect('transfer', { to:$li, className:'effects-transfer' }, 500, function() {
 			$li.css('visibility','visible');
 		});
-		
-		$this.html('<span class="glyphicons glyphicons-circle-minus" style="color:rgb(180,0,0);">');
 
-		var formData = new FormData();
+		$this.html('<span class="cerb-icons cerb-icon-circle-minus">');
+
+		const formData = new FormData();
 		formData.set('c', 'pages');
 		formData.set('a', 'toggleMenuPageJson');
 		formData.set('page_id', $this.attr('page_id'));

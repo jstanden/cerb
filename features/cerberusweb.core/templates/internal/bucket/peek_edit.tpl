@@ -28,7 +28,7 @@
 		</td>
 		<td valign="middle">
 			{if !$bucket->id}
-			<button type="button" class="chooser-abstract" data-field-name="group_id" data-context="{CerberusContexts::CONTEXT_GROUP}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
+			<button type="button" class="chooser-abstract" data-field-name="group_id" data-context="{CerberusContexts::CONTEXT_GROUP}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="cerb-icons cerb-icon-search"></span></button>
 			{/if}
 			
 			{$group = $groups.{$bucket->group_id}}
@@ -51,7 +51,7 @@
 				{'common.send.from'|devblocks_translate}:
 			</td>
 			<td valign="middle" width="100%">
-				<button type="button" class="chooser-abstract" data-field-name="reply_address_id" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-single="true" data-query="mailTransport.id:>0 isBanned:n isDefunct:n" data-query-required="" data-autocomplete="mailTransport.id:>0 isBanned:n isDefunct:n" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
+				<button type="button" class="chooser-abstract" data-field-name="reply_address_id" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-single="true" data-query="mailTransport.id:>0 isBanned:n isDefunct:n" data-query-required="" data-autocomplete="mailTransport.id:>0 isBanned:n isDefunct:n" data-autocomplete-if-empty="true"><span class="cerb-icons cerb-icon-search"></span></button>
 				
 				{$replyto = DAO_Address::get($bucket->reply_address_id)}
 				
@@ -77,7 +77,7 @@
 				{'common.signature'|devblocks_translate|capitalize}: 
 			</td>
 			<td valign="middle">
-				<button type="button" class="chooser-abstract" data-field-name="reply_signature_id" data-context="{CerberusContexts::CONTEXT_EMAIL_SIGNATURE}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
+				<button type="button" class="chooser-abstract" data-field-name="reply_signature_id" data-context="{CerberusContexts::CONTEXT_EMAIL_SIGNATURE}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="cerb-icons cerb-icon-search"></span></button>
 				
 				{$signature = DAO_EmailSignature::get($bucket->reply_signature_id)}
 				
@@ -94,7 +94,7 @@
 				{'common.encrypt.signing.key'|devblocks_translate|capitalize}
 			</td>
 			<td valign="middle">
-				<button type="button" class="chooser-abstract" data-field-name="reply_signing_key_id" data-context="{CerberusContexts::CONTEXT_GPG_PRIVATE_KEY}" data-single="true" data-query=""><span class="glyphicons glyphicons-search"></span></button>
+				<button type="button" class="chooser-abstract" data-field-name="reply_signing_key_id" data-context="{CerberusContexts::CONTEXT_GPG_PRIVATE_KEY}" data-single="true" data-query=""><span class="cerb-icons cerb-icon-search"></span></button>
 
 				{$signing_key = DAO_GpgPrivateKey::get($bucket->reply_signing_key_id)}
 
@@ -111,7 +111,7 @@
 				HTML template: 
 			</td>
 			<td valign="middle">
-				<button type="button" class="chooser-abstract" data-field-name="reply_html_template_id" data-context="{CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE}" data-single="true" data-query="" data-autocomplete="mailTransport.id:>0" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
+				<button type="button" class="chooser-abstract" data-field-name="reply_html_template_id" data-context="{CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE}" data-single="true" data-query="" data-autocomplete="mailTransport.id:>0" data-autocomplete-if-empty="true"><span class="cerb-icons cerb-icon-search"></span></button>
 				
 				{$html_template = DAO_MailHtmlTemplate::get($bucket->reply_html_template_id)}
 				
@@ -158,9 +158,9 @@
 <div class="status"></div>
 
 <div class="buttons">
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if $bucket->id}<button type="button" class="save-continue"><span class="glyphicons glyphicons-circle-arrow-right"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>{/if}
-	{if !empty($bucket->id) && !$bucket->is_default && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{if $bucket->id}<button type="button" class="save-continue"><span class="cerb-icons cerb-icon-circle-arrow-right"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>{/if}
+	{if !empty($bucket->id) && !$bucket->is_default && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 </form>

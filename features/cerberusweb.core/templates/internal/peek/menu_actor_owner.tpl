@@ -31,7 +31,7 @@
 			<img class="cerb-avatar" src="{devblocks_url}c=avatars&context={$owner_context_ext->manifest->params.alias}&context_id={$model->owner_context_id}{/devblocks_url}?v={$meta.updated|default:$smarty.const.APP_BUILD}">
 			<a class="cerb-peek-trigger no-underline" data-context="{$model->owner_context}" data-context-id="{$model->owner_context_id}">{$meta.name}</a>
 			<input type="hidden" name="owner" value="{$model->owner_context}:{$model->owner_context_id}">
-			<a data-cerb-link="remove_bubble"><span class="glyphicons glyphicons-circle-remove"></span></a>
+			<a data-cerb-link="remove_bubble"><span class="cerb-icons cerb-icon-circle-remove"></span></a>
 		</li>
 	{/if}
 {/if}

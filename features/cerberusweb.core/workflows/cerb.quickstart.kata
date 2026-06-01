@@ -1,6 +1,6 @@
 workflow:
   name: cerb.quickstart
-  version: 2025-02-21T00:00:00Z
+  version: 2026-05-31T00:00:00Z
   description: A workspace with a quickstart checklist for initial configuration of Cerb
   website: https://https://cerb.ai/workflows/cerb.quickstart/
   requirements:
@@ -128,23 +128,23 @@ records:
         &cardTemplates@text:
           <h2 style="margin:0 0 5px 0;">{{card__label}}</h2>
           {% set card_templates = {
-            "Welcome to Cerb!": "<p>This project board provides a quick checklist for getting Cerb up and running.</p>\n\n<p>Drag cards from the top of the <b>TODO</b> backlog into the <b>In Progress</b> column to work on them. You should limit the in progress cards to only a few at a time.</p>\n\n<p>When you finish a card, drag it from <b>In Progress</b> to <b>Completed!</b>. You'll notice that a bot automatically marks the task completed for you.</p>\n\n<p>This on-boarding workflow was built entirely with Cerb's tools in the browser. You can edit the project board to see how it works (or even make changes).</p>\n\n<p>Drag this card to <b>Completed!</b> <span class=\"glyphicons glyphicons-right-arrow\" style=\"margin-left:5px;\"></span></p>",
+            "Welcome to Cerb!": "<p>This project board provides a quick checklist for getting Cerb up and running.</p>\n\n<p>Drag cards from the top of the <b>TODO</b> backlog into the <b>In Progress</b> column to work on them. You should limit the in progress cards to only a few at a time.</p>\n\n<p>When you finish a card, drag it from <b>In Progress</b> to <b>Completed!</b>. You'll notice that a bot automatically marks the task completed for you.</p>\n\n<p>This on-boarding workflow was built entirely with Cerb's tools in the browser. You can edit the project board to see how it works (or even make changes).</p>\n\n<p>Drag this card to <b>Completed!</b> <span class=\"cerb-icons cerb-icon-right-arrow\" style=\"margin-left:5px;\"></span></p>",
 
             "Configure branding": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li>Navigate to <b>Setup &raquo; Configure &raquo; Branding</b>.</li>\n<li>Upload your logo.</li>\n</ol>",
 
-            "Configure sender addresses": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><button type=\"button\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.address\" data-query=\"mailTransport.id:>0\">List sender addresses</button></li>\n<li>Click the <span class=\"glyphicons glyphicons-circle-plus\" style=\"font-size:12px;color:var(--cerb-color-background-contrast-50);\"></span> icon to add new email addresses.</li>\n<li>Add a <button type=\"button\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.mail.transport\" data-query=\"\">mail transport</button> to an address to enable it as a outgoing sender.</li>\n</ol>",
+            "Configure sender addresses": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><button type=\"button\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.address\" data-query=\"mailTransport.id:>0\">List sender addresses</button></li>\n<li>Click the <span class=\"cerb-icons cerb-icon-circle-plus\" style=\"font-size:12px;color:var(--cerb-color-background-contrast-50);\"></span> icon to add new email addresses.</li>\n<li>Add a <button type=\"button\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.mail.transport\" data-query=\"\">mail transport</button> to an address to enable it as a outgoing sender.</li>\n</ol>",
 
-            "Configure email signatures": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><button type=\"button\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.email.signature\" data-query=\"\">List email signatures</button></li>\n<li>Click the <span class=\"glyphicons glyphicons-circle-plus\" style=\"font-size:12px;color:var(--cerb-color-background-contrast-50);\"></span> icon to add new signatures.</li>\n<li>Modify signatures to meet your needs.</li>\n</ol>",
+            "Configure email signatures": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><button type=\"button\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.email.signature\" data-query=\"\">List email signatures</button></li>\n<li>Click the <span class=\"cerb-icons cerb-icon-circle-plus\" style=\"font-size:12px;color:var(--cerb-color-background-contrast-50);\"></span> icon to add new signatures.</li>\n<li>Modify signatures to meet your needs.</li>\n</ol>",
 
-            "Configure mailboxes": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><button type=\"button\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.mailbox\" data-query=\"\">List mailboxes</button></li>\n<li>Click the <span class=\"glyphicons glyphicons-circle-plus\" style=\"font-size:12px;color:var(--cerb-color-background-contrast-50);\"></span> icon to add new mailboxes.</li>\n</ol>",
+            "Configure mailboxes": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><button type=\"button\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.mailbox\" data-query=\"\">List mailboxes</button></li>\n<li>Click the <span class=\"cerb-icons cerb-icon-circle-plus\" style=\"font-size:12px;color:var(--cerb-color-background-contrast-50);\"></span> icon to add new mailboxes.</li>\n</ol>",
 
-            "Review groups": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><button type=\"button\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.group\" data-query=\"\">List groups</button></li>\n<li>Click the <span class=\"glyphicons glyphicons-circle-plus\" style=\"font-size:12px;color:var(--cerb-color-background-contrast-50);\"></span> icon to add new groups.</li>\n<li>Review the mail settings for each group.</li>\n</ol>",
+            "Review groups": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><button type=\"button\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.group\" data-query=\"\">List groups</button></li>\n<li>Click the <span class=\"cerb-icons cerb-icon-circle-plus\" style=\"font-size:12px;color:var(--cerb-color-background-contrast-50);\"></span> icon to add new groups.</li>\n<li>Review the mail settings for each group.</li>\n</ol>",
 
-            "Invite other team members": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><button type=\"button\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.worker\" data-query=\"\">List workers</button></li>\n<li>Click the <span class=\"glyphicons glyphicons-circle-plus\" style=\"font-size:12px;color:var(--cerb-color-background-contrast-50);\"></span> icon to create new workers.</li>\n</ol>",
+            "Invite other team members": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><button type=\"button\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.worker\" data-query=\"\">List workers</button></li>\n<li>Click the <span class=\"cerb-icons cerb-icon-circle-plus\" style=\"font-size:12px;color:var(--cerb-color-background-contrast-50);\"></span> icon to create new workers.</li>\n</ol>",
 
             "Configure roles": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><button type=\"button\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.role\" data-query=\"\">List roles</button></li>\n<li>Determine the permissions for each role.</li>\n<li>Assign the roles to workers and groups.</li>\n</ol>",
 
-            "Create a home workspace": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li>Click on the <span class=\"glyphicons glyphicons-chevron-down\" style=\"font-size:12px;color:var(--cerb-color-background-contrast-50);\"></span> icon in the top navigation bar.</li>\n<li>Click <b>(+)</b> above the worklist.</li>\n<li>Click <b>Home</b>.</li>\n<li>Click <b>Create</b>.</li>\n</ol>",
+            "Create a home workspace": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li>Click on the <span class=\"cerb-icons cerb-icon-chevron-down\"></span> icon in the top navigation bar.</li>\n<li>Click <b>(+)</b> above the worklist.</li>\n<li>Click <b>Home</b>.</li>\n<li>Click <b>Create</b>.</li>\n</ol>",
 
             "Add your license": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><a href=\"https://cerb.ai/pricing/#bot/license.free\" target=\"_blank\" rel=\"noopener\"><b>Request a free 3-seat license</b></a> if you haven't already.</li>\n<li>Install your license in <b>Setup &raquo; Configure &raquo; License</b>.</li>\n</ol>",
 
@@ -172,7 +172,7 @@ records:
                   params:
                     value_template@raw:
                       <h2 style="margin:0 0 5px 0;">
-                      <span class="glyphicons glyphicons-circle-ok"></span>
+                      <span class="cerb-icons cerb-icon-circle-ok"></span>
                       {{card__label}}
                       </h2>
 

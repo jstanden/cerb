@@ -1,18 +1,18 @@
 {if $templates_enabled}
 	<div class="error-box">
 		<h1>Deprecated</h1>
-		<p>Custom templates in portals are deprecated and will be removed in future version.</p>
+		<p>Custom templates in portals are deprecated and will be removed in a future version.</p>
 	</div>
 {else}
 	<div class="error-box">
 		<h1>Disabled</h1>
-		<p>Custom templates in portals are disabled and will be removed in future version. Use <code>APP_OPT_DEPRECATED_PORTAL_CUSTOM_TEMPLATES</code> to temporarily re-enable.</p>
+		<p>Custom templates in portals are disabled and will be removed in a future version. Use <code>APP_OPT_DEPRECATED_PORTAL_CUSTOM_TEMPLATES</code> to temporarily re-enable.</p>
 	</div>
 {/if}
 
 <form action="#" style="margin-bottom:5px;float:left;">
-	<button type="button" data-cerb-button="template_add"><span class="glyphicons glyphicons-circle-plus"></span> {'common.add'|devblocks_translate|capitalize}</button></a>
-	<button type="button" data-cerb-button="template_import"><span class="glyphicons glyphicons-file-import"></span> {'common.import'|devblocks_translate|capitalize}</button></a>
+	<button type="button" data-cerb-button="template_add"><span class="cerb-icons cerb-icon-circle-plus"></span> {'common.add'|devblocks_translate|capitalize}</button></a>
+	<button type="button" data-cerb-button="template_import"><span class="cerb-icons cerb-icon-cloud-upload"></span> {'common.import'|devblocks_translate|capitalize}</button></a>
 </form>
 
 {$script_uid = uniqid('script')}

@@ -5,7 +5,7 @@
 	</form>
 	
 	<div style="margin-top:0.5em;">
-		<button type="button" class="close"><span class="glyphicons glyphicons-circle-ok"></span> {'common.ok'|devblocks_translate}</button>
+		<button type="button" class="close"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.ok'|devblocks_translate}</button>
 	</div>
 </div>
 

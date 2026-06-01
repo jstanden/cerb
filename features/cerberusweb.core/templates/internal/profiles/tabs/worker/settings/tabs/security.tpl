@@ -30,11 +30,11 @@
 		{if $mfa_backup_code_count > 2}
 		{elseif $mfa_backup_code_count > 0}
 			<div class="help-box">
-				<p><span class="glyphicons glyphicons-warning-sign" style="vertical-align:middle;"></span> Only {$mfa_backup_code_count} backup codes remaining</p>
+				<p><span class="cerb-icons cerb-icon-alert" style="vertical-align:middle;"></span> Only {$mfa_backup_code_count} backup codes remaining</p>
 			</div>
 		{else}
 			<div class="error-box">
-				<p><span class="glyphicons glyphicons-warning-sign" style="vertical-align:middle;"></span> No backup codes remaining</p>
+				<p><span class="cerb-icons cerb-icon-alert" style="vertical-align:middle;"></span> No backup codes remaining</p>
 			</div>
 		{/if}
 	</div>
@@ -65,7 +65,7 @@
 	{/if}
 	{else}
 	<p>
-		<b style="font-size:120%;"><span class="glyphicons glyphicons-check"></span> {'common.required'|devblocks_translate|capitalize}</b>
+		<b style="font-size:120%;"><span class="cerb-icons cerb-icon-check"></span> {'common.required'|devblocks_translate|capitalize}</b>
 	</p>
 	{/if}
 </fieldset>
@@ -104,7 +104,7 @@
 	{/section}
 </fieldset>
 
-<button type="button" class="submit" style="margin-top:10px;"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+<button type="button" class="submit" style="margin-top:10px;"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 </form>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">

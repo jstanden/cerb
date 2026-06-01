@@ -3,7 +3,7 @@
 	<h6>{$label}</h6>
 
 	<div style="margin-left:10px;">
-		<button type="button" class="chooser_file"><span class="glyphicons glyphicons-paperclip"></span></button>
+		<button type="button" class="chooser_file"><span class="cerb-icons cerb-icon-paperclip"></span></button>
 		<ul class="bubbles chooser-container">
 			{if $value}
 				{$file = DAO_Attachment::get($value)}
@@ -14,7 +14,7 @@
 							{$file->name} ({$file->storage_size|devblocks_prettybytes})
 						</a>
 						<a>
-							<span class="glyphicons glyphicons-circle-remove"></span>
+							<span class="cerb-icons cerb-icon-circle-remove"></span>
 						</a>
 					</li>
 				{/if}
@@ -28,7 +28,7 @@ $(function() {
 	let $prompt = $('#{$element_id}');
 	let $container = $prompt.find('.chooser-container');
 
-	$container.find('.glyphicons-circle-remove').parent().on('click', function(e) {
+	$container.find('.cerb-icon-circle-remove').parent().on('click', function(e) {
 		e.stopPropagation();
 		$(this).closest('li').remove();
 	});

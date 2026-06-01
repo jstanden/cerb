@@ -8,7 +8,7 @@
 			{$behavior = DAO_TriggerEvent::get($behavior_id)}
 		{/if}
 		<div style="margin-left:10px;margin-bottom:0.5em;">
-			<button type="button" class="chooser-behavior" data-field-name="params[behavior_id]" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-single="true" data-query="event:event.dashboard.widget.render disabled:n"><span class="glyphicons glyphicons-search"></span></button>
+			<button type="button" class="chooser-behavior" data-field-name="params[behavior_id]" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-single="true" data-query="event:event.dashboard.widget.render disabled:n"><span class="cerb-icons cerb-icon-search"></span></button>
 			
 			<ul class="bubbles chooser-container">
 				{if $behavior}

@@ -24,13 +24,13 @@
 				<b>{'common.event'|devblocks_translate|capitalize}:</b>
 			</td>
 			<td width="99%">
-				<button type="button" data-cerb-event-chooser data-interaction-uri="ai.cerb.chooser.automationEvent" data-interaction-params=""><span class="glyphicons glyphicons-search"></span></button>
+				<button type="button" data-cerb-event-chooser data-interaction-uri="ai.cerb.chooser.automationEvent" data-interaction-params=""><span class="cerb-icons cerb-icon-search"></span></button>
 				<ul class="chooser-container bubbles">
 					{if $model->event_name}
 						<li>
 							{$model->event_name}
 							<input type="hidden" name="event_name" value="{$model->event_name}">
-							<span class="glyphicons glyphicons-circle-remove"></span>
+							<span class="cerb-icons cerb-icon-circle-remove"></span>
 						</li>
 					{/if}
 				</ul>
@@ -78,12 +78,12 @@
 			<div class="cerb-code-editor-toolbar-divider"></div>
 
 			{if $model->id}
-				<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-changesets title="{'common.change_history'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-history"></span></button>
+				<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-changesets title="{'common.change_history'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-history"></span></button>
 			{/if}
 
 			{include file="devblocks:cerberusweb.core::automations/triggers/editor_event_handler_buttons.tpl"}
 
-			<button type="button" style="float:right;" class="cerb-code-editor-toolbar-button cerb-editor-button-help"><a href="https://cerb.ai/docs/automations/#events" target="_blank"><span class="glyphicons glyphicons-circle-question-mark"></span></a></button>
+			<button type="button" style="float:right;" class="cerb-code-editor-toolbar-button cerb-editor-button-help"><a href="https://cerb.ai/docs/automations/#events" target="_blank"><span class="cerb-icons cerb-icon-circle-question-mark"></span></a></button>
 		</div>
 
 		<textarea name="event_kata" data-editor-mode="ace/mode/cerb_kata" data-editor-lines="30">{$model->event_kata}</textarea>
@@ -106,11 +106,11 @@
 
 	<div class="buttons" style="margin-top:10px;">
 		{if $model->id}
-			<button type="button" class="save"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-			<button type="button" class="save-continue"><span class="glyphicons glyphicons-circle-arrow-right"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>
-			{if $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+			<button type="button" class="save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+			<button type="button" class="save-continue"><span class="cerb-icons cerb-icon-circle-arrow-right"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>
+			{if $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 		{else}
-			<button type="button" class="save"><span class="glyphicons glyphicons-circle-plus"></span> {'common.create'|devblocks_translate|capitalize}</button>
+			<button type="button" class="save"><span class="cerb-icons cerb-icon-circle-plus"></span> {'common.create'|devblocks_translate|capitalize}</button>
 		{/if}
 	</div>
 
@@ -246,7 +246,7 @@
 
 				let $target = $(e.target);
 
-				if(!$target.is('.glyphicons-circle-remove'))
+				if(!$target.is('.cerb-icon-circle-remove'))
 					return;
 
 				$target.closest('li').remove();
@@ -300,7 +300,7 @@
 						.val(e.eventData.return.event.name)
 					;
 
-					let $remove = $('<span class="glyphicons glyphicons-circle-remove"></span>');
+					let $remove = $('<span class="cerb-icons cerb-icon-circle-remove"></span>');
 
 					let $li = $('<li/>')
 						.text(e.eventData.return.event.name)

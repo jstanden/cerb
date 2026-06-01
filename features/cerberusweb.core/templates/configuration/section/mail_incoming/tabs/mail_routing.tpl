@@ -5,7 +5,7 @@
 	<legend>{'common.automations'|devblocks_translate|capitalize}:</legend>
 	
 	<button type="button" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_AUTOMATION_EVENT}" data-context-id="mail.route" data-edit="true">
-		<span class="glyphicons glyphicons-cogwheel"></span> {'common.configure'|devblocks_translate|capitalize}
+		<span class="cerb-icons cerb-icon-gear"></span> {'common.configure'|devblocks_translate|capitalize}
 	</button>
 </fieldset>
 
@@ -25,7 +25,7 @@
 	<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 	<div style="margin-bottom:10px;">
-		<button type="button" data-cerb-button-legacy-add><span class="glyphicons glyphicons-circle-plus"></span> {'common.add'|devblocks_translate|capitalize}</button>
+		<button type="button" data-cerb-button-legacy-add><span class="cerb-icons cerb-icon-circle-plus"></span> {'common.add'|devblocks_translate|capitalize}</button>
 	</div>
 
 	<table cellspacing="2" cellpadding="2" style="margin-bottom:10px;">
@@ -104,7 +104,7 @@
 		{/foreach}
 	</table>
 
-	<button type="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	<button type="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 	</form>
 </fieldset>
 {/if}

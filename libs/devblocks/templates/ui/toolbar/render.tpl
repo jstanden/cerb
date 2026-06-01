@@ -6,11 +6,11 @@
                 <li>
                     <div>
                         {if $item.icon && ('start' == $item.icon_at || !$item.icon_at)}
-                            <span class="glyphicons glyphicons-{$item.icon}"></span>
+                            <span class="cerb-icons cerb-icon-{$item.icon}"></span>
                         {/if}
                         {$item.label}
                         {if $item.icon && 'end' == $item.icon_at}
-                            <span class="glyphicons glyphicons-{$item.icon}"></span>
+                            <span class="cerb-icons cerb-icon-{$item.icon}"></span>
                         {/if}
                     </div>
                     {if $item.items}
@@ -35,12 +35,12 @@
                     >
                     <div>
                         {if $item.icon && ('start' == $item.icon_at || !$item.icon_at)}
-                            <span class="glyphicons glyphicons-{$item.icon}"></span>
+                            <span class="cerb-icons cerb-icon-{$item.icon}"></span>
                         {/if}
                         <b>{$item.label}</b>
                         {if $item.keyboard}<small>({$item.keyboard})</small>{/if}
                         {if $item.icon && 'end' == $item.icon_at}
-                            <span class="glyphicons glyphicons-{$item.icon}"></span>
+                            <span class="cerb-icons cerb-icon-{$item.icon}"></span>
                         {/if}
                     </div>
                 </li>
@@ -79,11 +79,11 @@
                         <div class="badge-count">{$toolbar_item.badge}</div>
                     {/if}
                     {if $toolbar_item.icon && ('start' == $toolbar_item.icon_at || !$toolbar_item.icon_at)}
-                        <span class="glyphicons glyphicons-{$toolbar_item.icon}"></span>
+                        <span class="cerb-icons cerb-icon-{$toolbar_item.icon}"></span>
                     {/if}
                     {$toolbar_item.label}
                     {if $toolbar_item.icon && 'end' == $toolbar_item.icon_at}
-                        <span class="glyphicons glyphicons-{$toolbar_item.icon}"></span>
+                        <span class="cerb-icons cerb-icon-{$toolbar_item.icon}"></span>
                     {/if}
                 </button>
             {/if}
@@ -102,11 +102,11 @@
                         <div class="badge-count">{$toolbar_item.badge}</div>
                     {/if}
                     {if $toolbar_item.icon && ('start' == $toolbar_item.icon_at || !$toolbar_item.icon_at)}
-                        <span class="glyphicons glyphicons-{$toolbar_item.icon}"></span>
+                        <span class="cerb-icons cerb-icon-{$toolbar_item.icon}"></span>
                     {/if}
                     {$toolbar_item.label}
                     {if $toolbar_item.icon && 'end' == $toolbar_item.icon_at}
-                        <span class="glyphicons glyphicons-{$toolbar_item.icon}"></span>
+                        <span class="cerb-icons cerb-icon-{$toolbar_item.icon}"></span>
                     {/if}
                 </button>
             {/if}
@@ -127,14 +127,14 @@
                     <div class="badge-count">{$toolbar_item.badge}</div>
                     {/if}
                     {if $toolbar_item.icon && ('start' == $toolbar_item.icon_at || !$toolbar_item.icon_at)}
-                    <span class="glyphicons glyphicons-{$toolbar_item.icon}"></span>
+                    <span class="cerb-icons cerb-icon-{$toolbar_item.icon}"></span>
                     {/if}
                     {$toolbar_item.label}
                     {if $toolbar_item.icon && 'end' == $toolbar_item.icon_at}
-                    <span class="glyphicons glyphicons-{$toolbar_item.icon}"></span>
+                    <span class="cerb-icons cerb-icon-{$toolbar_item.icon}"></span>
                     {/if}
                 </button><button type="button" class="split-right {$toolbar_item.class}" data-cerb-toolbar-menu {if $toolbar_item.hover}data-cerb-toolbar-menu-hover{/if}>
-                    <span class="glyphicons glyphicons-chevron-down"></span>
+                    <span class="cerb-icons cerb-icon-chevron-down"></span>
                 </button>
             {else}
                 <button type="button"  class="{$toolbar_item.class}"
@@ -146,11 +146,11 @@
                         <div class="badge-count">{$toolbar_item.badge}</div>
                     {/if}
                     {if $toolbar_item.icon && ('start' == $toolbar_item.icon_at || !$toolbar_item.icon_at)}
-                        <span class="glyphicons glyphicons-{$toolbar_item.icon}"></span>
+                        <span class="cerb-icons cerb-icon-{$toolbar_item.icon}"></span>
                     {/if}
                     {$toolbar_item.label}
                     {if $toolbar_item.icon && 'end' == $toolbar_item.icon_at}
-                        <span class="glyphicons glyphicons-{$toolbar_item.icon}"></span>
+                        <span class="cerb-icons cerb-icon-{$toolbar_item.icon}"></span>
                     {/if}
                 </button>
             {/if}

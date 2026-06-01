@@ -3,15 +3,15 @@
 <div id="{$map_divid}">
     <div data-cerb-label style="font-weight:bold;margin:5px;padding:5px;position:absolute;top:0;left:0;background-color:var(--cerb-callout-background);border: 1px solid var(--cerb-color-background-contrast-160);z-index:2;display:none;">
         <div data-cerb-label--close style="position:absolute;top:-7px;right:-8px;cursor:pointer;">
-            <span class="glyphicons glyphicons-remove-2" style="font-size:16px;"></span>
+            <span class="cerb-icons cerb-icon-circle-remove-2" style="font-size:16px;"></span>
         </div>
         <div data-cerb-label--contents style="max-height:25.5em;max-width:25.5em;overflow:auto;"></div>
     </div>
 
     <div data-cerb-toolbar style="position:absolute;top:0;right:0;">
-        <button type="button" data-cerb-button="reset"><span class="glyphicons glyphicons-restart"></span></button>
-        <button type="button" data-cerb-button="zoom-in"><span class="glyphicons glyphicons-zoom-in"></span></button>
-        <button type="button" data-cerb-button="zoom-out"><span class="glyphicons glyphicons-zoom-out"></span></button>
+        <button type="button" data-cerb-button="reset"><span class="cerb-icons cerb-icon-restart"></span></button>
+        <button type="button" data-cerb-button="zoom-in"><span class="cerb-icons cerb-icon-zoom-in"></span></button>
+        <button type="button" data-cerb-button="zoom-out"><span class="cerb-icons cerb-icon-zoom-out"></span></button>
     </div>
     <div data-cerb-legend style="display:none;position:absolute;bottom:5px;left:5px;padding:2px;background-color:var(--cerb-callout-background);text-shadow:0 0 1.5px white;"></div>
     <div data-cerb-coordinates style="position:absolute;bottom:5px;right:5px;text-shadow:0 0 1.5px white;"></div>

@@ -23,7 +23,7 @@
 		<td width="99%">
 			{$server = $model->getServer()}
 			
-			<button type="button" class="chooser-abstract" data-field-name="server_id" data-context="{CerberusContexts::CONTEXT_SERVER}" data-single="true" data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="glyphicons glyphicons-search"></span></button>
+			<button type="button" class="chooser-abstract" data-field-name="server_id" data-context="{CerberusContexts::CONTEXT_SERVER}" data-single="true" data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="cerb-icons cerb-icon-search"></span></button>
 			
 			<ul class="bubbles chooser-container">
 				{if $server}
@@ -49,7 +49,7 @@
 				{/if}
 			</ul>
 			
-			<button type="button" class="chooser-abstract" data-field-name="contact_address_id[]" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-autocomplete="" data-create="true"><span class="glyphicons glyphicons-search"></span></button>
+			<button type="button" class="chooser-abstract" data-field-name="contact_address_id[]" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-autocomplete="" data-create="true"><span class="cerb-icons cerb-icon-search"></span></button>
 		</td>
 	</tr>
 	
@@ -78,8 +78,8 @@
 <div class="status"></div>
 
 <div class="buttons">
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if $model->id && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{if $model->id && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 </form>

@@ -412,7 +412,7 @@ class Controller_UI extends DevblocksControllerExtension {
 		
 		$prefix = DevblocksPlatform::importGPC($_POST['prefix'] ?? null, 'string', null);
 		
-		$icons = PageSection_SetupDevelopersReferenceIcons::getIcons(
+		$icons = PageSection_SetupDevelopersReferenceIcons::getCerbIcons(
 			25,
 			0,
 			$prefix
@@ -424,7 +424,7 @@ class Controller_UI extends DevblocksControllerExtension {
 					return [
 						'caption' => $icon,
 						'snippet' => $icon,
-						'docHTML' => sprintf('<span class="glyphicons glyphicons-%s"></span>', $icon),
+						'docHTML' => sprintf('<span class="cerb-icons cerb-icon-%s"></span>', $icon),
 					];
 				},
 				$icons

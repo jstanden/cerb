@@ -107,7 +107,7 @@
 	{if $file}
 		<ul class="bubbles">
 			<li>
-				<span class="glyphicons glyphicons-paperclip" style="vertical-align:baseline;"></span>
+				<span class="cerb-icons cerb-icon-paperclip" style="vertical-align:baseline;"></span>
 				<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$file->id}">
 					<b>{$file->name}</b>
 					({$file->storage_size|devblocks_prettybytes}{if !empty($file->mime_type)} - {$file->mime_type}{/if})
@@ -121,7 +121,7 @@
 			{$file = DAO_Attachment::get($file_id)}
 			{if $file}
 			<li>
-				<span class="glyphicons glyphicons-paperclip" style="vertical-align:baseline;"></span>
+				<span class="cerb-icons cerb-icon-paperclip" style="vertical-align:baseline;"></span>
 				<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$file->id}">
 					<b>{$file->name}</b>
 					({$file->storage_size|devblocks_prettybytes}{if !empty($file->mime_type)} - {$file->mime_type}{/if})

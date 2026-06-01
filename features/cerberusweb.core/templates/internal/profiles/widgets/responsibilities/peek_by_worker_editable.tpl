@@ -42,7 +42,7 @@
 
 </div>
 
-<button type="button" class="done"><span class="glyphicons glyphicons-circle-ok"></span> {'common.done'|devblocks_translate|capitalize}</button>
+<button type="button" class="done"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.done'|devblocks_translate|capitalize}</button>
 
 </form>
 

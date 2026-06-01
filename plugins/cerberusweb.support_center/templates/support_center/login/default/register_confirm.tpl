@@ -34,7 +34,7 @@
 	<input type="password" name="password2" size="35" value="" autocomplete="off" spellcheck="false"><br>
 	<br>
 
-	<button type="submit"><span class="glyphicons glyphicons-circle-ok"></span> Register</button><br>
+	<button type="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> Register</button><br>
 </fieldset>
 
 </form> 

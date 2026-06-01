@@ -53,7 +53,7 @@
 	<tr>
 		<td width="1%" nowrap="nowrap" valign="middle">{'common.email'|devblocks_translate|capitalize}:</td>
 		<td width="99%" valign="top">
-				<button type="button" class="chooser-abstract" data-field-name="email_id" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-single="true" data-query="org.id:{$org->id}" data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="glyphicons glyphicons-search"></span></button>
+				<button type="button" class="chooser-abstract" data-field-name="email_id" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-single="true" data-query="org.id:{$org->id}" data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="cerb-icons cerb-icon-search"></span></button>
 				
 				<ul class="bubbles chooser-container">
 					{if $addy}
@@ -110,9 +110,9 @@
 
 <div class="buttons">
 	{if (!$org->id && $active_worker->hasPriv("contexts.{$peek_context}.create")) || ($org->id && $active_worker->hasPriv("contexts.{$peek_context}.update"))}
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 	{/if}
-	{if $active_worker->hasPriv("contexts.{$peek_context}.delete") && !empty($org->id)}<button type="button" class="delete-prompt"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	{if $active_worker->hasPriv("contexts.{$peek_context}.delete") && !empty($org->id)}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 </form>
 

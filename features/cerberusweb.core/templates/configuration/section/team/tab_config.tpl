@@ -10,7 +10,7 @@
 
         <div>
             <b>Add these pages to their default menu:</b><br>
-            <button type="button" class="cerb-abstract-chooser" data-context="{CerberusContexts::CONTEXT_WORKSPACE_PAGE}" data-field-name="default_pages[]"><span class="glyphicons glyphicons-search"></span></button>
+            <button type="button" class="cerb-abstract-chooser" data-context="{CerberusContexts::CONTEXT_WORKSPACE_PAGE}" data-field-name="default_pages[]"><span class="cerb-icons cerb-icon-search"></span></button>
             <ul class="bubbles chooser-container" style="display:inline-block;">
                 {if $default_workspaces}
                     {foreach from=$default_workspaces item=workspace}
@@ -24,7 +24,7 @@
         </div>
     </fieldset>
 
-    <button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+    <button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 </form>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">

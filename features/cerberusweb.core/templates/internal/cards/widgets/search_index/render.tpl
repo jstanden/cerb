@@ -22,7 +22,7 @@
 
     {if $is_writeable && !$queue_job}
     <div class="cerb-code-editor-toolbar" style="margin-bottom:0.5em;">
-        <button type="button" data-cerb-button-reindex><span class="glyphicons glyphicons-repeat"></span> Re-index</button>
+        <button type="button" data-cerb-button-reindex><span class="cerb-icons cerb-icon-repeat"></span> Re-index</button>
     </div>
     {/if}
 

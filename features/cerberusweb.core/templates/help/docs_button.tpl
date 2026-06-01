@@ -1,1 +1,1 @@
-<a href="{$url}" target="_blank"><span class="glyphicons glyphicons-circle-question-mark" style="color:gray;"></span></a>
+<a href="{$url}" target="_blank"><span class="cerb-icons cerb-icon-circle-question-mark" style="color:gray;"></span></a>

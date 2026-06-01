@@ -22,7 +22,7 @@
 	<input type="password" name="verify_password" size="35" value="" autocomplete="off" spellcheck="false"><br>
 
 	<br>
-	<button type="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button><br>
+	<button type="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button><br>
 </fieldset>
 
 </form>

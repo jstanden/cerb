@@ -1,6 +1,6 @@
 workflow:
   name: cerb.tutorial
-  version: 2026-05-22T00:00:00Z
+  version: 2026-05-31T00:00:00Z
   description: A workspace with detailed descriptions and examples of Cerb functionality
   requirements:
     cerb_version: >=11.2 <11.3
@@ -394,7 +394,7 @@ records:
               params:
                 kata:
                   interaction/calloutLogo:
-                    icon: riflescope
+                    icon: crosshairs
                     label: Logo
                     uri: cerb:automation:cerb.interaction.echo
                     after:
@@ -407,7 +407,7 @@ records:
                           my: middle top
                           at: middle bottom
                   interaction/calloutNavbar:
-                    icon: riflescope
+                    icon: crosshairs
                     label: Navigation bar
                     uri: cerb:automation:cerb.interaction.echo
                     after:
@@ -420,7 +420,7 @@ records:
                           my: middle bottom
                           at: middle top
                   interaction/calloutWorkerMenu:
-                    icon: riflescope
+                    icon: crosshairs
                     label: Worker menu
                     uri: cerb:automation:cerb.interaction.echo
                     after:
@@ -433,7 +433,7 @@ records:
                           my: right bottom
                           at: middle top-10
                   interaction/calloutDarkLight:
-                    icon: riflescope
+                    icon: crosshairs
                     label: Dark/Light mode
                     uri: cerb:automation:cerb.interaction.echo
                     after:
@@ -446,7 +446,7 @@ records:
                           my: right+10 top+5
                           at: middle bottom
                   interaction/calloutSearchMenu:
-                    icon: riflescope
+                    icon: crosshairs
                     label: Search menu
                     uri: cerb:automation:cerb.interaction.echo
                     after:
@@ -459,7 +459,7 @@ records:
                           my: right+20 top+5
                           at: left bottom
                   interaction/calloutSetup:
-                    icon: riflescope
+                    icon: crosshairs
                     label: Setup
                     uri: cerb:automation:cerb.interaction.echo
                     hidden@raw,bool: {{not cerb_current_worker().is_superuser}}
@@ -473,7 +473,7 @@ records:
                           my: right+20 top+5
                           at: left bottom
                   interaction/calloutWorkspaceMenu:
-                    icon: riflescope
+                    icon: crosshairs
                     label: Workspace menu
                     uri: cerb:automation:cerb.interaction.echo
                     after:
@@ -486,7 +486,7 @@ records:
                           my: right+30 top+5
                           at: left bottom
                   interaction/calloutWorkspaceTabs:
-                    icon: riflescope
+                    icon: crosshairs
                     label: Workspace tabs
                     uri: cerb:automation:cerb.interaction.echo
                     after:
@@ -1120,7 +1120,7 @@ records:
               name:" " icon:"search" description:"Filter the worklist with a search query"
             )
             config:(
-              name:" " icon:"cogwheel" description:"Configure the worklist"
+              name:" " icon:"gear" description:"Configure the worklist"
             )
             subtotals:(
               name:" " icon:"signal" description:"Toggle the subtotals sidebar"
@@ -1130,9 +1130,6 @@ records:
             )
             export:(
               name:" " icon:"file-export" description:"Export records from the worklist to CSV, XML, JSON, JSONL (runs as a background queue job; you can close the browser and a notification appears when the file is ready)"
-            )
-            duplicate:(
-              name:" " icon:"duplicate" description:"Duplicate the worklist"
             )
             jump:(
               name:" " icon:"down-arrow" description:"Jump to the actions at the bottom of the worklist"
@@ -1147,7 +1144,7 @@ records:
               name:"explore" icon:"compass" description:"View each record profile page fullscreen with next/prev and a sharable link"
             )
             bulk:(
-              name:"bulk update" icon:"folder-closed" description:"Update field values on multiple selected records at once. Runs as a background queue job. Supports bulk commenting on any record type that has comments, and bulk delete on comment worklists."
+              name:"bulk update" icon:"folder" description:"Update field values on multiple selected records at once. Runs as a background queue job. Supports bulk commenting on any record type that has comments, and bulk delete on comment worklists."
             )
           )
           format:dictionaries
@@ -1155,7 +1152,7 @@ records:
         placeholder_simulator_kata@text:
         sheet_kata@text:
           layout:
-            style: table
+            style: fieldsets
             headings@bool: no
             paging@bool: no
             filtering@bool: no
@@ -1164,6 +1161,7 @@ records:
             text/name:
               params:
                 bold@bool: yes
+                text_size@raw: 120%
                 icon:
                   image_key: icon
             text/description:
@@ -1276,7 +1274,7 @@ records:
                 text_key: type
                 href_template@raw: https://cerb.ai/docs/search/#{{type|lower}}
                 icon:
-                  image: new-window-alt
+                  image: new-window
                   at: end
                 bold@bool: yes
                 href_new_tab@bool: yes
@@ -2877,7 +2875,7 @@ records:
                 kata:
                   interaction/run:
                     label: Run Query
-                    icon: play
+                    icon: play-button
                     uri: cerb:automation:cerb.tutorial.dataQueries
         toolbar_kata@text:
   workspace_widget/widget_list_of_data_query_types:

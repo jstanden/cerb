@@ -17,7 +17,7 @@
 
 {if $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_CONNECTED_SERVICE}.create")}
 <div style="margin-top:0.75em;">
-	<button data-cerb-button-add-service type="button" style="width:100%;" data-context="{CerberusContexts::CONTEXT_CONNECTED_SERVICE}" data-context-id="0" data-edit="true" data-width="80%"><span class="glyphicons glyphicons-circle-plus"></span> Add a connected service</button>
+	<button data-cerb-button-add-service type="button" style="width:100%;" data-context="{CerberusContexts::CONTEXT_CONNECTED_SERVICE}" data-context-id="0" data-edit="true" data-width="80%"><span class="cerb-icons cerb-icon-circle-plus"></span> Add a connected service</button>
 </div>
 {/if}
 </form>

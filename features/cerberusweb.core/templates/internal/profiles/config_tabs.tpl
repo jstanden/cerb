@@ -6,7 +6,7 @@
 	<input type="hidden" name="context" value="{$context}">
 	
 	<div style="margin-bottom:10px;">
-		<button type="button" class="cerb-add-tab-trigger" data-context="{CerberusContexts::CONTEXT_PROFILE_TAB}" data-context-id="0" data-edit="context:{$context}"><span class="glyphicons glyphicons-circle-plus"></span> {'common.add'|devblocks_translate|capitalize}</button>
+		<button type="button" class="cerb-add-tab-trigger" data-context="{CerberusContexts::CONTEXT_PROFILE_TAB}" data-context-id="0" data-edit="context:{$context}"><span class="cerb-icons cerb-icon-circle-plus"></span> {'common.add'|devblocks_translate|capitalize}</button>
 	</div>
 	
 	<fieldset class="peek">
@@ -17,7 +17,7 @@
 				<tbody class="cerb-sort-item">
 					<tr>
 						<td>
-							<span class="glyphicons glyphicons-menu-hamburger" style="cursor:move;vertical-align:top;color:rgb(175,175,175);line-height:1.4em;margin-right:0.5em;"></span>
+							<span class="cerb-icons cerb-icon-menu-hamburger" style="cursor:move;vertical-align:top;color:rgb(175,175,175);line-height:1.4em;margin-right:0.5em;"></span>
 						</td>
 						<td>
 							<div style="display:inline-block;border:1px solid var(--cerb-color-background-contrast-200);border-radius:5px 5px 0 0;padding:5px 10px;">
@@ -38,7 +38,7 @@
 	</fieldset>
 	
 	<div>
-		<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+		<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 	</div>
 </form>
 
@@ -79,7 +79,7 @@ $(function() {
 
 			let $td = $('<td/>').appendTo($tr);
 
-			$('<span class="glyphicons glyphicons-menu-hamburger" style="cursor:move;vertical-align:top;color:rgb(175,175,175);line-height:1.4em;margin-right:0.5em;"></span>')
+			$('<span class="cerb-icons cerb-icon-menu-hamburger" style="cursor:move;vertical-align:top;color:rgb(175,175,175);line-height:1.4em;margin-right:0.5em;"></span>')
 				.appendTo($td)
 				;
 
@@ -134,7 +134,7 @@ $(function() {
 	.sortable({
 		tolerance: 'pointer',
 		helper: 'clone',
-		handle: '.glyphicons-menu-hamburger',
+		handle: '.cerb-icon-menu-hamburger',
 		items: '.cerb-sort-item',
 		opacity: 0.7
 	})

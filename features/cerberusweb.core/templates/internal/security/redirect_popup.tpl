@@ -12,9 +12,9 @@
             </td>
             <td style="font-size:125%;">
                 {if $url_parts.scheme == 'https'}
-                    <span class="glyphicons glyphicons-lock" title="SSL"></span>
+                    <span class="cerb-icons cerb-icon-lock" title="SSL"></span>
                 {elseif $url_parts.scheme = 'http'}
-                    <span class="glyphicons glyphicons-unlock" title="No SSL"></span>
+                    <span class="cerb-icons cerb-icon-unlock" title="No SSL"></span>
                 {/if}
                 {$url_parts.host}
             </td>

@@ -159,8 +159,8 @@
 </fieldset>
 {/if}
 
-<button name="action" type="submit" value=""><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button>
+<button name="action" type="submit" value=""><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button>
 {if $active_contact->primary_email_id != $address->id}
-<button name="action" type="submit" value="remove"><span class="glyphicons glyphicons-circle-remove"></span> Remove from account</button><br>
+<button name="action" type="submit" value="remove"><span class="cerb-icons cerb-icon-circle-remove"></span> Remove from account</button><br>
 {/if}
 </form>

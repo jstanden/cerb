@@ -36,6 +36,6 @@
 	</ul>	
 </fieldset>
 
-<button type="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button><br>
+<button type="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button><br>
 
 </form>

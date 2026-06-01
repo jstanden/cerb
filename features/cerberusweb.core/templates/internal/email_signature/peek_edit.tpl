@@ -61,9 +61,9 @@
 	<b>When sending plaintext email:</b> (required)
 
 	<div class="cerb-code-editor-toolbar cerb-code-editor-toolbar--text">
-		<button type="button" title="Insert placeholder" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--placeholders"><span class="glyphicons glyphicons-sampler"></span></button>
+		<button type="button" title="Insert placeholder" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--placeholders"><span class="cerb-icons cerb-icon-placeholders"></span></button>
 		<div class="cerb-code-editor-toolbar-divider"></div>
-		<button type="button" title="Preview" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--preview"><span class="glyphicons glyphicons-eye-open"></span></button>
+		<button type="button" title="Preview" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--preview"><span class="cerb-icons cerb-icon-eye-open"></span></button>
 	</div>
 
 	<textarea name="signature" class="cerb-code-editor-text placeholders" data-editor-mode="ace/mode/twig" data-editor-lines="15" data-editor-line-numbers="false" style="height:100px;width:98%;">{$model->signature}</textarea>
@@ -73,18 +73,18 @@
 	<b>When sending HTML email:</b> (optional)
 
 	<div class="cerb-code-editor-toolbar cerb-code-editor-toolbar--html">
-		<button type="button" title="Insert placeholder" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--placeholders"><span class="glyphicons glyphicons-sampler"></span></button>
+		<button type="button" title="Insert placeholder" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--placeholders"><span class="cerb-icons cerb-icon-placeholders"></span></button>
 		<div class="cerb-code-editor-toolbar-divider"></div>
-		<button type="button" title="Bold" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--bold"><span class="glyphicons glyphicons-bold"></span></button>
-		<button type="button" title="Italics" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--italic"><span class="glyphicons glyphicons-italic"></span></button>
-		<button type="button" title="Link" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--link"><span class="glyphicons glyphicons-link"></span></button>
-		<button type="button" title="Image" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--image"><span class="glyphicons glyphicons-picture"></span></button>
-		<button type="button" title="List" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--list"><span class="glyphicons glyphicons-list"></span></button>
-		<button type="button" title="Quote" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--quote"><span class="glyphicons glyphicons-quote"></span></button>
-		<button type="button" title="Code" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--code"><span class="glyphicons glyphicons-embed"></span></button>
-		<button type="button" title="Table" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--table"><span class="glyphicons glyphicons-table"></span></button>
+		<button type="button" title="Bold" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--bold"><span class="cerb-icons cerb-icon-bold"></span></button>
+		<button type="button" title="Italics" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--italic"><span class="cerb-icons cerb-icon-italic"></span></button>
+		<button type="button" title="Link" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--link"><span class="cerb-icons cerb-icon-link"></span></button>
+		<button type="button" title="Image" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--image"><span class="cerb-icons cerb-icon-picture"></span></button>
+		<button type="button" title="List" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--list"><span class="cerb-icons cerb-icon-list"></span></button>
+		<button type="button" title="Quote" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--quote"><span class="cerb-icons cerb-icon-quote"></span></button>
+		<button type="button" title="Code" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--code"><span class="cerb-icons cerb-icon-embed"></span></button>
+		<button type="button" title="Table" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--table"><span class="cerb-icons cerb-icon-table"></span></button>
 		<div class="cerb-code-editor-toolbar-divider"></div>
-		<button type="button" title="Preview" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--preview"><span class="glyphicons glyphicons-eye-open"></span></button>
+		<button type="button" title="Preview" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--preview"><span class="cerb-icons cerb-icon-eye-open"></span></button>
 	</div>
 
 	<textarea name="signature_html" class="cerb-code-editor-html placeholders" data-editor-mode="ace/mode/twig" data-editor-lines="15" data-editor-line-numbers="false" style="height:100px;width:98%;">{$model->signature_html}</textarea>
@@ -92,7 +92,7 @@
 
 <fieldset class="peek">
 	<legend>{'common.attachments'|devblocks_translate|capitalize}</legend>
-	<button type="button" class="chooser_file"><span class="glyphicons glyphicons-paperclip"></span></button>
+	<button type="button" class="chooser_file"><span class="cerb-icons cerb-icon-paperclip"></span></button>
 	<ul class="chooser-container bubbles">
 		{if !empty($attachments)}
 			{foreach from=$attachments item=attachment name=attachments}
@@ -103,7 +103,7 @@
 						{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{'display.convo.unknown_format'|devblocks_translate|capitalize}{/if})
 					</a>
 					<input type="hidden" name="file_ids[]" value="{$attachment->id}">
-					<a data-cerb-link="remove_parent"><span class="glyphicons glyphicons-circle-remove"></span></a>
+					<a data-cerb-link="remove_parent"><span class="cerb-icons cerb-icon-circle-remove"></span></a>
 				</li>
 			{/foreach}
 		{/if}
@@ -128,8 +128,8 @@
 <div class="status"></div>
 
 <div class="buttons" style="margin-top:10px;">
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 </form>
@@ -289,7 +289,7 @@ $(function() {
 				$label.cerbPeekTrigger().appendTo($li);
 				$('<input type="hidden">').attr('name', 'owner').attr('value',token).appendTo($li);
 				ui.item.find('img.cerb-avatar').clone().prependTo($li);
-				let $a = $('<a><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($li);
+				let $a = $('<a><span class="cerb-icons cerb-icon-circle-remove"></span></a>').appendTo($li);
 				$a.on('click', function(e) {
 					e.stopPropagation();
 					$(this).trigger('bubble-remove');

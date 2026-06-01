@@ -15,7 +15,7 @@
 					<textarea name="query" class="cerb-code-editor cerb-input-quicksearch" data-editor-mode="ace/mode/cerb_query" style="width:100%;height:30px;border:0;visibility:hidden;">{$view->getParamsQuery()}</textarea>
 				</td>
 				<td width="0%" nowrap="nowrap" valign="top">
-					<a class="cerb-quick-search-menu-trigger" style="position:relative;top:5px;padding:0px 10px;"><span class="glyphicons glyphicons-circle-question-mark" style="margin:0;color:gray;"></span></a>
+					<a class="cerb-quick-search-menu-trigger" style="position:relative;top:5px;padding:0px 10px;"><span class="cerb-icons cerb-icon-circle-question-mark" style="margin:0;color:gray;"></span></a>
 				</td>
 			</tr>
 		</table>

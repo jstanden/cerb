@@ -31,9 +31,9 @@
 </style>
 <div id="divTimeTrackingBox" style="display:{if isset($session.timetracking)}block{else}none{/if};">
 	<div style="float:right;">
-		<button id="btnTimeTrackingPlay" type="button" class="cerb-hidden"><span class="glyphicons glyphicons-play"></span></button>
-		<button id="btnTimeTrackingPause" type="button" class="cerb-hidden"><span class="glyphicons glyphicons-pause"></span></button>
-		<button id="btnTimeTrackingStop" type="button" class="cerb-hidden"><span class="glyphicons glyphicons-stop"></span></button>
+		<button id="btnTimeTrackingPlay" type="button" class="cerb-hidden"><span class="cerb-icons cerb-icon-play"></span></button>
+		<button id="btnTimeTrackingPause" type="button" class="cerb-hidden"><span class="cerb-icons cerb-icon-pause"></span></button>
+		<button id="btnTimeTrackingStop" type="button" class="cerb-hidden"><span class="cerb-icons cerb-icon-stop"></span></button>
 	</div>
 	<div style="float:left;">
 		Time Spent: 

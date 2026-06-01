@@ -349,7 +349,7 @@ BUTTON {
 		background: none;
 		background-color: var(--cerb-color-button-icon-enabled-background);
 	
-		span.glyphicons {
+		span.cerb-icons {
 			color: var(--cerb-color-button-icon-enabled);
 		}
 	}
@@ -378,13 +378,17 @@ BUTTON.red {
 	cursor: pointer;
 
 	&:hover {
+		color: var(--cerb-color-button-reject-text);
 		background: var(--cerb-color-button-reject-gradient--hover) linear-gradient(to bottom, var(--cerb-color-button-reject-gradient--hover), var(--cerb-color-button-reject-gradient-to--hover));
+
+		span {
+			color: var(--cerb-color-button-reject-text);
+		}
 	}
 }
 
 BUTTON.split-left {
 	vertical-align: top;
-	height: 26px;
 	margin-right: 0;
 	border-right: 0;
 
@@ -397,12 +401,11 @@ BUTTON.split-left {
 
 BUTTON.split-right {
 	vertical-align: top;
-	height: 26px;
 	margin-left: 0;
 	padding: 5px 2px;
 	border-radius: 0 5px 5px 0;
 	
-	.glyphicons-chevron-down {
+	.cerb-icon-chevron-down {
 		font-size: var(--cerb-font-size);
 		color: var(--cerb-color-button-icon);
 	}
@@ -446,7 +449,7 @@ UL {
 			border-right: 1px solid var(--cerb-color-background-contrast-220);
 			padding: 5px 8px;
 			margin: 0;
-			min-height: 16px;
+			min-height: 1.5em;
 			cursor: pointer;
 			white-space: nowrap;
 
@@ -454,6 +457,10 @@ UL {
 				color: var(--cerb-color-background-contrast-75);
 				font-weight: normal;
 				text-decoration: none;
+
+				> span.cerb-icons {
+					font-size: 1.2em;
+				}
 			}
 
 			&:hover {
@@ -703,7 +710,7 @@ TABLE.worklistBody {
 		text-align: left;
 		cursor: pointer;
 		
-		.glyphicons {
+		.cerb-icons {
 			color: inherit;
 		}
 
@@ -1182,7 +1189,7 @@ UL.bubbles {
 				color: var(--cerb-color-text);
 			}
 		
-			.glyphicons-circle-remove {
+			.cerb-icon-circle-remove {
 				cursor: pointer;
 				position: absolute;
 				top: -0.5em;
@@ -1191,7 +1198,7 @@ UL.bubbles {
 			}
 			
 			&:hover {
-				.glyphicons-circle-remove {
+				.cerb-icon-circle-remove {
 					visibility: visible;
 				}
 			}
@@ -2193,7 +2200,7 @@ div.cerb-uploads {
 				cursor:pointer;
 				font-size:200%;
 				
-				span.glyphicons-circle-remove {
+				span.cerb-icon-circle-remove {
 					&:hover {
 						color: var(--cerb-color-error-text);
 					}

@@ -7,16 +7,16 @@
 
 <h3>
 	{if $locked && !$is_concurrent}
-		<span class="glyphicons glyphicons-lock" title="Locked" style="font-size:16px;color:rgb(246,203,13);"></span>
+		<span class="cerb-icons cerb-icon-lock" title="Locked" style="font-size:16px;color:rgb(246,203,13);"></span>
 	{else}
 		{if $enabled}
 			{if $is_concurrent}
-			<span class="glyphicons glyphicons-git-branch" style="font-size:16px;color:rgb(0,180,0);"></span>
+			<span class="cerb-icons cerb-icon-branch" style="font-size:16px;color:rgb(0,180,0);"></span>
 			{else}
-			<span class="glyphicons glyphicons-clock" style="font-size:16px;color:rgb(0,180,0);"></span>
+			<span class="cerb-icons cerb-icon-clock" style="font-size:16px;color:rgb(0,180,0);"></span>
 			{/if}
 		{else}
-			<span class="glyphicons glyphicons-ban" style="font-size:16px;color:rgb(185,185,185);"></span>
+			<span class="cerb-icons cerb-icon-ban" style="font-size:16px;color:rgb(185,185,185);"></span>
 		{/if}
 	{/if}
 	<a data-cerb-link-jobedit="jobedit_{$jobdiv}">{$job->manifest->name}</a>

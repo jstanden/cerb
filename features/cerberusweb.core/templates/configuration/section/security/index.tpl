@@ -37,7 +37,7 @@
 
 <div class="help-box">
 	<h1>
-		<span class="glyphicons glyphicons-warning-sign"></span>
+		<span class="cerb-icons cerb-icon-alert"></span>
 		Deprecation Warning
 	</h1>
 	IP-based authentication is deprecated. Use <a href="{devblocks_url}c=config&a=service_tokens{/devblocks_url}">Service Tokens</a> instead.
@@ -53,7 +53,7 @@
 	(Partial IP matches OK. For example: 192.168.1.)<br>
 </fieldset>
 
-<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 
 </form>
 

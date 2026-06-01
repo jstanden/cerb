@@ -34,7 +34,7 @@
 							<input type="text" name="{$field_name}[]" size="45" style="width:98%;" maxlength="255" value="{$val}">
 						</div>
 						{/foreach}
-						<button type="button" class="multi-text-add" data-field-name="{$field_name}"><span class="glyphicons glyphicons-circle-plus"></span></button>
+						<button type="button" class="multi-text-add" data-field-name="{$field_name}"><span class="cerb-icons cerb-icon-circle-plus"></span></button>
 					</div>
 				{elseif $f->type==Model_CustomField::TYPE_CURRENCY}
 					{$currency = DAO_Currency::get($f->params.currency_id)}
@@ -62,13 +62,13 @@
 									</button>
 
 									<div class="cerb-code-editor-subtoolbar-format-html" style="display:inline-block;">
-										<button type="button" title="Bold (Ctrl+B)" data-cerb-key-binding="ctrl+b" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--bold"><span class="glyphicons glyphicons-bold"></span></button>
-										<button type="button" title="Italics (Ctrl+I)" data-cerb-key-binding="ctrl+i" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--italic"><span class="glyphicons glyphicons-italic"></span></button>
-										<button type="button" title="Link (Ctrl+K)" data-cerb-key-binding="ctrl+k" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--link"><span class="glyphicons glyphicons-link"></span></button>
-										<button type="button" title="List" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--list"><span class="glyphicons glyphicons-list"></span></button>
-										<button type="button" title="Quote (Ctrl+Q)" data-cerb-key-binding="ctrl+q" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--quote"><span class="glyphicons glyphicons-quote"></span></button>
-										<button type="button" title="Code (Ctrl+O)" data-cerb-key-binding="ctrl+o" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--code"><span class="glyphicons glyphicons-embed"></span></button>
-										<button type="button" title="Table" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--table"><span class="glyphicons glyphicons-table"></span></button>
+										<button type="button" title="Bold (Ctrl+B)" data-cerb-key-binding="ctrl+b" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--bold"><span class="cerb-icons cerb-icon-bold"></span></button>
+										<button type="button" title="Italics (Ctrl+I)" data-cerb-key-binding="ctrl+i" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--italic"><span class="cerb-icons cerb-icon-italic"></span></button>
+										<button type="button" title="Link (Ctrl+K)" data-cerb-key-binding="ctrl+k" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--link"><span class="cerb-icons cerb-icon-link"></span></button>
+										<button type="button" title="List" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--list"><span class="cerb-icons cerb-icon-list"></span></button>
+										<button type="button" title="Quote (Ctrl+Q)" data-cerb-key-binding="ctrl+q" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--quote"><span class="cerb-icons cerb-icon-quote"></span></button>
+										<button type="button" title="Code (Ctrl+O)" data-cerb-key-binding="ctrl+o" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--code"><span class="cerb-icons cerb-icon-embed"></span></button>
+										<button type="button" title="Table" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--table"><span class="cerb-icons cerb-icon-table"></span></button>
 									</div>
 
 									<div class="cerb-code-editor-toolbar-divider"></div>
@@ -111,18 +111,18 @@
 						{$workers = DAO_Worker::getAllActive()}
 					{/if}
 					
-					<button type="button" class="chooser-cfield-worker" data-field-name="{$field_name}" data-context="{CerberusContexts::CONTEXT_WORKER}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
+					<button type="button" class="chooser-cfield-worker" data-field-name="{$field_name}" data-context="{CerberusContexts::CONTEXT_WORKER}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="cerb-icons cerb-icon-search"></span></button>
 					
 					<ul class="bubbles chooser-container">
 						{if $custom_field_values.$f_id}
 							{$cf_link_labels = []}
 							{$cf_link_values = []}
 							{CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $custom_field_values.$f_id, $cf_link_labels, $cf_link_values, null, true)}
-							<li><img src="{devblocks_url}c=avatars&context=worker&context_id={$custom_field_values.$f_id}{/devblocks_url}?v=" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;"> <input type="hidden" name="{$field_name}" value="{$custom_field_values.$f_id}">{$cf_link_values._label} <a data-cerb-link="remove"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
+							<li><img src="{devblocks_url}c=avatars&context=worker&context_id={$custom_field_values.$f_id}{/devblocks_url}?v=" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;"> <input type="hidden" name="{$field_name}" value="{$custom_field_values.$f_id}">{$cf_link_values._label} <a data-cerb-link="remove"><span class="cerb-icons cerb-icon-circle-remove"></span></a></li>
 						{/if}
 					</ul>
 				{elseif $f->type==Model_CustomField::TYPE_LINK}
-					<button type="button" class="chooser-cfield-link" data-field-name="{$field_name}" data-context="{$f->params.context}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
+					<button type="button" class="chooser-cfield-link" data-field-name="{$field_name}" data-context="{$f->params.context}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="cerb-icons cerb-icon-search"></span></button>
 					
 					<ul class="bubbles chooser-container">
 						{if $custom_field_values.$f_id}
@@ -130,7 +130,7 @@
 							<li>
 								<a class="peek-cfield-link no-underline" data-context="{$link_dict->_context}" data-context-id="{$link_dict->id}">{$link_dict->_label}</a>
 								<input type="hidden" name="{$field_name}" value="{$link_dict->id}">
-								<a data-cerb-link="remove"><span class="glyphicons glyphicons-circle-remove"></span></a>
+								<a data-cerb-link="remove"><span class="cerb-icons cerb-icon-circle-remove"></span></a>
 							</li>
 						{/if}
 					</ul>
@@ -141,7 +141,7 @@
 					{if $custom_field_values.$f_id}
 						{$file_id = $custom_field_values.$f_id}
 						{$file = DAO_Attachment::get($file_id)}
-						<li><input type="hidden" name="{$field_name}" value="{$file->id}"><a href="{devblocks_url}c=files&id={$file->id}&file={$file->name|escape:'url'}{/devblocks_url}" target="_blank" rel="noopener">{$file->name}</a> ({$file->storage_size|devblocks_prettybytes}) <a data-cerb-link="remove"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
+						<li><input type="hidden" name="{$field_name}" value="{$file->id}"><a href="{devblocks_url}c=files&id={$file->id}&file={$file->name|escape:'url'}{/devblocks_url}" target="_blank" rel="noopener">{$file->name}</a> ({$file->storage_size|devblocks_prettybytes}) <a data-cerb-link="remove"><span class="cerb-icons cerb-icon-circle-remove"></span></a></li>
 					{/if}
 					</ul>
 				{elseif $f->type==Model_CustomField::TYPE_FILES}
@@ -149,7 +149,7 @@
 					<ul class="bubbles chooser-container">
 					{foreach from=$custom_field_values.$f_id item=file_id}
 						{$file = DAO_Attachment::get($file_id)}
-						<li><input type="hidden" name="{$field_name}[]" value="{$file->id}"><a href="{devblocks_url}c=files&id={$file->id}&file={$file->name|escape:'url'}{/devblocks_url}" target="_blank" rel="noopener">{$file->name}</a> ({$file->storage_size|devblocks_prettybytes}) <a data-cerb-link="remove"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
+						<li><input type="hidden" name="{$field_name}[]" value="{$file->id}"><a href="{devblocks_url}c=files&id={$file->id}&file={$file->name|escape:'url'}{/devblocks_url}" target="_blank" rel="noopener">{$file->name}</a> ({$file->storage_size|devblocks_prettybytes}) <a data-cerb-link="remove"><span class="cerb-icons cerb-icon-circle-remove"></span></a></li>
 					{/foreach}
 					</ul>
 				{elseif $f->type==Model_CustomField::TYPE_DATE}

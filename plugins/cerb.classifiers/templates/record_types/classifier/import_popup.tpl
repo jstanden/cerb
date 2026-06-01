@@ -24,7 +24,7 @@ reminder,Remind me about {{remind:meeting}} {{time:at 2pm}}
 	
 	<div class="status"></div>
 	
-	<button class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.import'|devblocks_translate|capitalize}</button>
+	<button class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.import'|devblocks_translate|capitalize}</button>
 </fieldset>
 </form>
 

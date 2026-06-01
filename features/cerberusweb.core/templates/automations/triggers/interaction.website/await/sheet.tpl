@@ -47,7 +47,7 @@
 	let $sheet_selections = $prompt.querySelector('[data-cerb-sheet-selections]').querySelector('ul');
 
 	let $remove = document.createElement('span');
-	$remove.classList.add(['glyphicons','glyphicons-circle-remove']);
+	$remove.classList.add(['cerb-icons','cerb-icon-circle-remove']);
 	$remove.style.position = 'absolute';
 	$remove.style.top = '-5px';
 	$remove.style.right = '-5px';

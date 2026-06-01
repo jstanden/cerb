@@ -1,6 +1,6 @@
 {$var_type_label = $variable_types.{$var.type}}
 <fieldset class="block-cell" style="margin-bottom:5px;">
-	<legend style="cursor:move;">{$var_type_label} <span data-cerb-onhover data-cerb-link="remove_parent" class="glyphicons glyphicons-circle-minus" style="display:none;cursor:pointer;"></span></legend>
+	<legend style="cursor:move;">{$var_type_label} <span data-cerb-onhover data-cerb-link="remove_parent" class="cerb-icons cerb-icon-circle-minus" style="display:none;cursor:pointer;"></span></legend>
 	<input type="hidden" name="var[]" value="{$seq}">
 	<input type="hidden" name="var_key[]" value="{$var.key}">
 	<input type="hidden" name="var_type[]" value="{$var.type}">

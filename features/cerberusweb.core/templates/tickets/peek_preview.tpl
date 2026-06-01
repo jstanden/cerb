@@ -5,7 +5,7 @@
 
 	{if $is_writeable}
 	<div style="margin-top:10px;">
-		<button type="button" class="cerb-button-reply"><span class="glyphicons glyphicons-share"></span> {'common.reply'|devblocks_translate|capitalize}</button>
+		<button type="button" class="cerb-button-reply"><span class="cerb-icons cerb-icon-send"></span> {'common.reply'|devblocks_translate|capitalize}</button>
 	</div>
 	{/if}
 	
@@ -16,7 +16,7 @@
 
 	{if $is_writeable && in_array($draft->type,['mail.compose','ticket.reply','ticket.forward'])}
 		<div style="margin-top:10px;">
-			<button type="button" class="cerb-button-resume"><span class="glyphicons glyphicons-redo"></span> {'common.resume'|devblocks_translate|capitalize}</button>
+			<button type="button" class="cerb-button-resume"><span class="cerb-icons cerb-icon-restart"></span> {'common.resume'|devblocks_translate|capitalize}</button>
 		</div>
 	{/if}
 {/if}

@@ -13,20 +13,20 @@
 	<div class="file-drop-zone" style="margin-top:5px;padding:20px;border:2px dashed var(--cerb-color-background-contrast-150);border-radius:8px;text-align:center;transition:border-color 0.2s, background-color 0.2s;">
 		<input type="file" name="import_file" id="importFileInput" style="position:absolute;left:-9999px;">
 		<label for="importFileInput" class="file-drop-message" style="display:block;cursor:pointer;">
-			<span class="glyphicons glyphicons-file-import" style="font-size:24px;color:var(--cerb-color-background-contrast-150);"></span>
+			<span class="cerb-icons cerb-icon-file-import" style="font-size:24px;color:var(--cerb-color-background-contrast-150);"></span>
 			<div style="margin-top:8px;color:var(--cerb-color-background-contrast-180);">
 				{'common.upload.file.drag_and_drop'|devblocks_translate} <span style="color:var(--cerb-color-link);text-decoration:underline;">{'common.upload.file.browse'|devblocks_translate|lower}</span>
 			</div>
 		</label>
 		<div class="file-selected" style="display:none;">
-			<span class="glyphicons glyphicons-file" style="font-size:24px;color:var(--cerb-color-link);"></span>
+			<span class="cerb-icons cerb-icon-file" style="font-size:24px;color:var(--cerb-color-link);"></span>
 			<div class="file-name" style="margin-top:8px;font-weight:bold;"></div>
 			<div style="margin-top:5px;"><span class="file-remove" style="color:var(--cerb-color-background-contrast-150);cursor:pointer;text-decoration:underline;">{'common.remove'|devblocks_translate|lower}</span></div>
 		</div>
 	</div>
 </fieldset>
 
-<button type="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.upload'|devblocks_translate|capitalize}</button>
+<button type="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.upload'|devblocks_translate|capitalize}</button>
 </form>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">

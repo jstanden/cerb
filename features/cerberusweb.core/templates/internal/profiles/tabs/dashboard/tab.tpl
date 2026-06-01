@@ -1,7 +1,7 @@
 {if $active_worker->is_superuser}
 <div style="margin-bottom:5px;" class="cerb-no-print">
-	<button id="btnProfileTabAddWidget{$model->id}" type="button" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_PROFILE_WIDGET}" data-context-id="0" data-edit="tab:{$model->id}" data-width="75%"><span class="glyphicons glyphicons-circle-plus"></span> {'common.add.widget'|devblocks_translate|capitalize}</button>
-	<button id="btnProfileTabEdit{$model->id}" type="button" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_PROFILE_TAB}" data-context-id="{$model->id}" data-edit="true" data-width="75%"><span class="glyphicons glyphicons-edit"></span> Edit Tab</button>
+	<button id="btnProfileTabAddWidget{$model->id}" type="button" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_PROFILE_WIDGET}" data-context-id="0" data-edit="tab:{$model->id}" data-width="75%"><span class="cerb-icons cerb-icon-circle-plus"></span> {'common.add.widget'|devblocks_translate|capitalize}</button>
+	<button id="btnProfileTabEdit{$model->id}" type="button" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_PROFILE_TAB}" data-context-id="{$model->id}" data-edit="true" data-width="75%"><span class="cerb-icons cerb-icon-edit"></span> Edit Tab</button>
 	<button id="btnProfileTabToggleWidgets{$model->id}" type="button" style="display:none;"><div class="badge-count">0</div> Hidden Widgets</button>
 </div>
 {/if}
@@ -123,7 +123,7 @@ $(function() {
 			placeholder: 'cerb-widget-drag-placeholder',
 			forceHelperSize: true,
 			forcePlaceholderSize: true,
-			handle: '.cerb-profile-widget--header .glyphicons-menu-hamburger',
+			handle: '.cerb-profile-widget--header .cerb-icon-menu-hamburger',
 			connectWith: '.cerb-profile-layout-zone--widgets',
 			opacity: 0.7,
 			start: function(event, ui) {
@@ -207,7 +207,7 @@ $(function() {
 	var addEvents = function($target) {
 		var $menu = $target.find('.cerb-profile-widget--menu');
 		var $menu_link = $target.find('.cerb-profile-widget--link');
-		var $handle = $target.find('.cerb-profile-widget--header .glyphicons-menu-hamburger');
+		var $handle = $target.find('.cerb-profile-widget--header .cerb-icon-menu-hamburger');
 
 		{if $active_worker->is_superuser}
 		$target.hoverIntent({

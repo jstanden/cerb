@@ -65,7 +65,7 @@ $(function() {
 	var $sheet_query_editor = $prompt.find('[data-cerb-sheet-query]')
 	var $sheet_selections = $prompt.find('[data-cerb-sheet-selections]').find('ul');
 
-	var $remove = $('<span class="glyphicons glyphicons-circle-remove"/>')
+	var $remove = $('<span class="cerb-icons cerb-icon-circle-remove"/>')
 		.css('position', 'absolute')
 		.css('top', '-5px')
 		.css('right', '-5px')

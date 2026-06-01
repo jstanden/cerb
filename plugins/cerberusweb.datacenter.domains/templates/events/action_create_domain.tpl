@@ -13,7 +13,7 @@
 
 <b>Server:</b>
 <div style="margin-left:10px;margin-bottom:10px;">
-	<button type="button" class="chooser-abstract" data-field-name="{$namePrefix}[server_id]" data-context="{CerberusContexts::CONTEXT_SERVER}" data-single="true" data-autocomplete="" data-autocomplete-if-empty="true" data-autocomplete-placeholders="{$smarty.capture.server_placeholders}" data-create="if-null" ><span class="glyphicons glyphicons-search"></span></button>
+	<button type="button" class="chooser-abstract" data-field-name="{$namePrefix}[server_id]" data-context="{CerberusContexts::CONTEXT_SERVER}" data-single="true" data-autocomplete="" data-autocomplete-if-empty="true" data-autocomplete-placeholders="{$smarty.capture.server_placeholders}" data-create="if-null" ><span class="cerb-icons cerb-icon-search"></span></button>
 	<ul class="bubbles chooser-container">
 		{if $params.server_id}
 			{if is_numeric($params.server_id)}
@@ -30,7 +30,7 @@
 
 <b>Contacts:</b>
 <div style="margin-left:10px;margin-bottom:10px;">
-	<button type="button" class="chooser-abstract" data-field-name="{$namePrefix}[email_ids][]" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-autocomplete="" data-autocomplete-placeholders="{$smarty.capture.addy_placeholders}"><span class="glyphicons glyphicons-search"></span></button>
+	<button type="button" class="chooser-abstract" data-field-name="{$namePrefix}[email_ids][]" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-autocomplete="" data-autocomplete-placeholders="{$smarty.capture.addy_placeholders}"><span class="cerb-icons cerb-icon-search"></span></button>
 	<ul class="bubbles chooser-container">
 		{foreach from=$params.email_ids item=email_id}
 		{if $email_id}

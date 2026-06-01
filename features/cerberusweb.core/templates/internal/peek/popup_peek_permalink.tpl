@@ -7,7 +7,7 @@
 	<input type="text" style="width:100%;" value="{$url}" readonly="readonly">
 </form>
 
-<button type="button" class="close"><span class="glyphicons glyphicons-circle-ok"></span> {'common.ok'|devblocks_translate}</button>
+<button type="button" class="close"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.ok'|devblocks_translate}</button>
 </div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">

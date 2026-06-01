@@ -29,7 +29,7 @@
             </fieldset>
 
             <div class="buttons" style="margin-top:0.5em;">
-                <button type="button" class="delete-prompt"><span class="glyphicons glyphicons-circle-arrow-right"></span> {{'common.continue'|devblocks_translate|capitalize}}</button>
+                <button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-arrow-right"></span> {{'common.continue'|devblocks_translate|capitalize}}</button>
             </div>
         </div>
     </div>

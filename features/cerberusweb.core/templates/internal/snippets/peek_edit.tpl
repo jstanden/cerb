@@ -53,15 +53,15 @@
 	<legend>{'common.prompts'|devblocks_translate|capitalize}: <small>(KATA)</small></legend>
 
 	<div class="cerb-code-editor-toolbar">
-		<button type="button" class="cerb-code-editor-toolbar-button cerb-editor-button-run"><span class="glyphicons glyphicons-play"></span></button>
+		<button type="button" class="cerb-code-editor-toolbar-button cerb-editor-button-run"><span class="cerb-icons cerb-icon-play"></span></button>
 		<div class="cerb-code-editor-toolbar-divider"></div>
-		<button type="button" class="cerb-code-editor-toolbar-button cerb-editor-button-add"><span class="glyphicons glyphicons-circle-plus"></span></button>
+		<button type="button" class="cerb-code-editor-toolbar-button cerb-editor-button-add"><span class="cerb-icons cerb-icon-circle-plus"></span></button>
 		<ul class="cerb-float" style="display:none;">
 			<li data-type="checkbox"><div>Checkbox</div></li>
 			<li data-type="picklist"><div>Picklist</div></li>
 			<li data-type="text"><div>Text</div></li>
 		</ul>
-		<button type="button" style="float:right;" class="cerb-code-editor-toolbar-button cerb-editor-button-help"><a href="https://cerb.ai/docs/snippets/" target="_blank"><span class="glyphicons glyphicons-circle-question-mark"></span></a></button>
+		<button type="button" style="float:right;" class="cerb-code-editor-toolbar-button cerb-editor-button-help"><a href="https://cerb.ai/docs/snippets/" target="_blank"><span class="cerb-icons cerb-icon-circle-question-mark"></span></a></button>
 	</div>
 	<textarea name="prompts_kata" class="cerb-editor-kata-placeholders" data-editor-mode="ace/mode/cerb_kata">{$model->prompts_kata}</textarea>
 	<div class="cerb-code-editor-preview-output"></div>
@@ -89,8 +89,8 @@
 <div class="status"></div>
 
 <div class="buttons">
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if $model->id && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{if $model->id && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 </form>
@@ -160,7 +160,7 @@ $(function() {
 				$label.cerbPeekTrigger().appendTo($li);
 				$('<input type="hidden">').attr('name', 'owner').attr('value', token).appendTo($li);
 				ui.item.find('img.cerb-avatar').clone().prependTo($li);
-				let $a = $('<a><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($li);
+				let $a = $('<a><span class="cerb-icons cerb-icon-circle-remove"></span></a>').appendTo($li);
 				$a.on('click', function(e) {
 					e.stopPropagation();
 					$(this).trigger('bubble-remove');

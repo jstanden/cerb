@@ -27,7 +27,7 @@
 				{$model->token_hint}
 			{else}
 				<input type="text" name="token" value="{$model->token_hint}" style="width:90%;" spellcheck="false" readonly="readonly">
-				<button type="button" data-cerb-button-copy-token><span class="glyphicons glyphicons-copy"></span></button>
+				<button type="button" data-cerb-button-copy-token><span class="cerb-icons cerb-icon-copy"></span></button>
 				<div>
 					(this will only be displayed once)
 				</div>
@@ -91,11 +91,11 @@
 
 <div class="buttons" style="margin-top:10px;">
 	{if $model->id}
-		<button type="button" class="save"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-		<button type="button" class="save-continue"><span class="glyphicons glyphicons-circle-arrow-right"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>
-		{if $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+		<button type="button" class="save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+		<button type="button" class="save-continue"><span class="cerb-icons cerb-icon-circle-arrow-right"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>
+		{if $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 	{else}
-		<button type="button" class="save"><span class="glyphicons glyphicons-circle-plus"></span> {'common.create'|devblocks_translate|capitalize}</button>
+		<button type="button" class="save"><span class="cerb-icons cerb-icon-circle-plus"></span> {'common.create'|devblocks_translate|capitalize}</button>
 	{/if}
 </div>
 

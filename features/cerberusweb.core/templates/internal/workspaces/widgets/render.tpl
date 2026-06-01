@@ -7,11 +7,11 @@
 		<div class="cerb-workspace-widget--header {if $is_widget_writeable}cerb-draggable{/if}">
 			<b>
 				<a class="cerb-workspace-widget--link no-underline">
-					{if $widget_is_hidden}<span class="glyphicons glyphicons-eye-close"></span> {/if}{$widget->label}<!--
-					--><span class="glyphicons glyphicons-chevron-down"></span>
+					{if $widget_is_hidden}<span class="cerb-icons cerb-icon-eye-close"></span> {/if}{$widget->label}<!--
+					--><span class="cerb-icons cerb-icon-chevron-down"></span>
 				</a>
 				{if $is_widget_writeable}
-				<span class="glyphicons glyphicons-menu-hamburger" style="vertical-align:baseline;color:rgb(200,200,200);float:right;display:none;"></span>
+				<span class="cerb-icons cerb-icon-menu-hamburger" style="vertical-align:baseline;color:rgb(200,200,200);float:right;display:none;"></span>
 				{/if}
 			</b>
 		</div>

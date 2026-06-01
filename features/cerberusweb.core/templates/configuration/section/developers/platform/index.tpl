@@ -3,22 +3,22 @@
 <div id="cerbConfigPlatform">
     <fieldset>
         <legend>{'common.automations'|devblocks_translate|capitalize}</legend>
-        <button type="button" data-cerb-button="automations"><span class="glyphicons glyphicons-refresh"></span> {'common.reload'|devblocks_translate|capitalize}</button>
+        <button type="button" data-cerb-button="automations"><span class="cerb-icons cerb-icon-refresh"></span> {'common.reload'|devblocks_translate|capitalize}</button>
     </fieldset>
     
     <fieldset>
         <legend>{'common.cache'|devblocks_translate|capitalize}</legend>
-        <button type="button" data-cerb-button="cache"><span class="glyphicons glyphicons-erase"></span> {'common.clear'|devblocks_translate|capitalize}</button>
+        <button type="button" data-cerb-button="cache"><span class="cerb-icons cerb-icon-erase"></span> {'common.clear'|devblocks_translate|capitalize}</button>
     </fieldset>
     
     <fieldset>
         <legend>{'common.packages'|devblocks_translate|capitalize}</legend>
-        <button type="button" data-cerb-button="packages"><span class="glyphicons glyphicons-refresh"></span> {'common.reload'|devblocks_translate|capitalize}</button>
+        <button type="button" data-cerb-button="packages"><span class="cerb-icons cerb-icon-refresh"></span> {'common.reload'|devblocks_translate|capitalize}</button>
     </fieldset>
     
     <fieldset>
         <legend>{'common.resources'|devblocks_translate|capitalize}</legend>
-        <button type="button" data-cerb-button="resources"><span class="glyphicons glyphicons-refresh"></span> {'common.reload'|devblocks_translate|capitalize}</button>
+        <button type="button" data-cerb-button="resources"><span class="cerb-icons cerb-icon-refresh"></span> {'common.reload'|devblocks_translate|capitalize}</button>
     </fieldset>
 </div>
 

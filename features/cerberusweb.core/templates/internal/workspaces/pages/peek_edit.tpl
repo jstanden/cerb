@@ -50,7 +50,7 @@
 		<textarea name="import_json" style="width:100%;height:250px;white-space:pre;word-wrap:normal;" rows="10" cols="45" spellcheck="false" placeholder="Paste a workspace page in JSON format"></textarea>
 		
 		<div>
-			<button type="button" class="import"><span class="glyphicons glyphicons-circle-ok"></span> {'common.import'|devblocks_translate|capitalize}</button>
+			<button type="button" class="import"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.import'|devblocks_translate|capitalize}</button>
 		</div>
 	</div>
 	{/if}
@@ -130,8 +130,8 @@
 		{/if}
 		
 		<div class="buttons" style="margin-top:10px;">
-			<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-			{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+			<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+			{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 		</div>
 	</div>
 </div>
@@ -208,7 +208,7 @@ $(function() {
 				$label.cerbPeekTrigger().appendTo($li);
 				$('<input type="hidden">').attr('name', 'owner').attr('value',token).appendTo($li);
 				ui.item.find('img.cerb-avatar').clone().prependTo($li);
-				let $a = $('<a><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($li);
+				let $a = $('<a><span class="cerb-icons cerb-icon-circle-remove"></span></a>').appendTo($li);
 				$a.on('click', function(e) {
 					e.stopPropagation();
 					$(this).trigger('bubble-remove');

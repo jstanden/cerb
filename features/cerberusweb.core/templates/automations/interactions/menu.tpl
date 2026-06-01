@@ -6,7 +6,7 @@
 				<li>
 					<div>
 						{if array_key_exists('icon', $item) && $item.icon}
-							<span class="glyphicons glyphicons-{$item.icon}"></span>
+							<span class="cerb-icons cerb-icon-{$item.icon}"></span>
 						{/if}
 						{$item.label}
 					</div>
@@ -43,7 +43,7 @@
 					>
 					<div>
 						{if array_key_exists('icon', $item) && $item.icon}
-							<span class="glyphicons glyphicons-{$item.icon}"></span>
+							<span class="cerb-icons cerb-icon-{$item.icon}"></span>
 						{/if}
 						<b>{$item.label}</b>
 					</div>
@@ -78,7 +78,7 @@
 					>
 					<div>
 						{if array_key_exists('icon', $item) && $item.icon}
-							<span class="glyphicons glyphicons-{$item.icon}"></span>
+							<span class="cerb-icons cerb-icon-{$item.icon}"></span>
 						{/if}
 						<b>{$item.label}</b>
 					</div>
@@ -87,7 +87,7 @@
 				<li>
 					<div>
 						{if array_key_exists('icon', $item) && $item.icon}
-							<span class="glyphicons glyphicons-{$item.icon}"></span>
+							<span class="cerb-icons cerb-icon-{$item.icon}"></span>
 						{/if}
 						{$item.label}
 					</div>

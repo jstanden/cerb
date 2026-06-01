@@ -35,7 +35,7 @@
 	<tr>
 		<td width="1%" nowrap="nowrap" valign="top"><b>{'common.record'|devblocks_translate|capitalize}:</b></td>
 		<td width="99%">
-			<button type="button" class="chooser-abstract" data-field-name="context_id" data-context="{$model->context}" data-single="true" data-query="" data-query-required=""><span class="glyphicons glyphicons-search"></span></button>
+			<button type="button" class="chooser-abstract" data-field-name="context_id" data-context="{$model->context}" data-single="true" data-query="" data-query-required=""><span class="cerb-icons cerb-icon-search"></span></button>
 			<ul class="bubbles chooser-container">
 				{if $model->context_id}
 				{$record = $model->getRecordDictionary()}
@@ -51,7 +51,7 @@
 		<tr>
 			<td width="1%" nowrap="nowrap" valign="top"><b>{'common.run'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%">
-				<button type="button" class="chooser-abstract" data-field-name="behavior_id" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-single="true" data-query="" data-query-required="event:{$event_point|default:'event.macro.*'} private:n disabled:n" data-autocomplete="event:{$event_point|default:'event.macro.*'} private:n disabled:n" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
+				<button type="button" class="chooser-abstract" data-field-name="behavior_id" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-single="true" data-query="" data-query-required="event:{$event_point|default:'event.macro.*'} private:n disabled:n" data-autocomplete="event:{$event_point|default:'event.macro.*'} private:n disabled:n" data-autocomplete-if-empty="true"><span class="cerb-icons cerb-icon-search"></span></button>
 				
 				{$behavior = $model->getBehavior()}
 				
@@ -91,8 +91,8 @@
 <div class="status"></div>
 
 <div class="buttons" style="margin-top:10px;">
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 </form>
@@ -144,8 +144,8 @@ $(function() {
 			$chooser_behavior.attr('data-autocomplete', 'event:' + event_point + ' private:n disabled:n');
 			
 			// Clear selections when the context changes
-			$records.find('span.glyphicons-circle-remove').click();
-			$behaviors.find('span.glyphicons-circle-remove').click();
+			$records.find('span.cerb-icon-circle-remove').click();
+			$behaviors.find('span.cerb-icon-circle-remove').click();
 			$behavior_params.text('').hide();
 		});
 		

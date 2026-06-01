@@ -14,7 +14,7 @@
 <b>Load this snippet:</b>
 <div style="margin-left:10px;margin-bottom:10px;">
 	<div>
-		<button type="button" class="chooser-snippet" data-field-name="{$namePrefix}[snippet_id]" data-context="{CerberusContexts::CONTEXT_SNIPPET}" data-query="" data-query-required="" data-single="true"><span class="glyphicons glyphicons-search"></span></button>
+		<button type="button" class="chooser-snippet" data-field-name="{$namePrefix}[snippet_id]" data-context="{CerberusContexts::CONTEXT_SNIPPET}" data-query="" data-query-required="" data-single="true"><span class="cerb-icons cerb-icon-search"></span></button>
 		<ul class="bubbles chooser-container">
 			{if $snippet}
 			<li>

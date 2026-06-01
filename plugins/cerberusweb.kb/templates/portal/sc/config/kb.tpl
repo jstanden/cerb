@@ -44,7 +44,7 @@
 	{$selected = in_array($token, $kb_params.columns)}
 	<div style="margin:3px;" class="column">
 		<label>
-			<span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;cursor:move;" title="Click and drag to rearrange"></span>
+			<span class="cerb-icons cerb-icon-move" style="cursor:move;" title="Drag to rearrange"></span>
 			<input type="checkbox" name="kb_columns[]" value="{$token}" {if $selected}checked="checked"{/if}>
 			{if $selected}
 			<b>{$column->db_label|capitalize}</b>
@@ -56,7 +56,7 @@
 	{/foreach}
 </div>
 
-<button type="button" class="submit" style="margin-top:10px;"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+<button type="button" class="submit" style="margin-top:10px;"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 </form>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">

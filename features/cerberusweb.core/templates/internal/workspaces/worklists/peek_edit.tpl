@@ -42,7 +42,7 @@
 			<b>{'dashboard'|devblocks_translate|capitalize}:</b>
 		</td>
 		<td width="99%">
-			<button type="button" class="chooser-abstract" data-field-name="workspace_tab_id" data-context="{CerberusContexts::CONTEXT_WORKSPACE_TAB}" data-single="true" data-query="type:&quot;core.workspace.tab.worklists&quot;" data-autocomplete="type:&quot;core.workspace.tab.worklists&quot;" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
+			<button type="button" class="chooser-abstract" data-field-name="workspace_tab_id" data-context="{CerberusContexts::CONTEXT_WORKSPACE_TAB}" data-single="true" data-query="type:&quot;core.workspace.tab.worklists&quot;" data-autocomplete="type:&quot;core.workspace.tab.worklists&quot;" data-autocomplete-if-empty="true"><span class="cerb-icons cerb-icon-search"></span></button>
 			
 			<ul class="bubbles chooser-container">
 				{$tab = $model->getWorkspaceTab()}
@@ -76,8 +76,8 @@
 <div class="status"></div>
 
 <div class="buttons" style="margin-top:10px;">
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 </form>

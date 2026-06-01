@@ -2,7 +2,7 @@
 <div class="bot-chat-object" data-delay-ms="{$delay_ms|default:0}" id="{$msg_id}" style="text-align:center;">
 	<div class="bot-chat-message bot-chat-right">
 		<div class="bot-chat-message-bubble">
-			<button type="button" class="bot-chat-file" autofocus="autofocus"><span class="glyphicons glyphicons-paperclip"></span></button>
+			<button type="button" class="bot-chat-file" autofocus="autofocus"><span class="cerb-icons cerb-icon-paperclip"></span></button>
 		</div>
 	</div>
 	

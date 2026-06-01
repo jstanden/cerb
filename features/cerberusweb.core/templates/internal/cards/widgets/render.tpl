@@ -6,11 +6,11 @@
 		<div class="cerb-card-widget--header {if $active_worker->is_superuser}cerb-draggable{/if}">
 			<b>
 				<a class="cerb-card-widget--link no-underline">
-					{if $widget_is_hidden}<span class="glyphicons glyphicons-eye-close"></span> {/if}{$widget->name}<!--
-                    --><span class="glyphicons glyphicons-chevron-down"></span>
+					{if $widget_is_hidden}<span class="cerb-icons cerb-icon-eye-close"></span> {/if}{$widget->name}<!--
+                    --><span class="cerb-icons cerb-icon-chevron-down"></span>
                 </a>
 				{if $active_worker->is_superuser}
-				<span class="glyphicons glyphicons-menu-hamburger" style="vertical-align:baseline;color:rgb(200,200,200);float:right;display:none;"></span>
+				<span class="cerb-icons cerb-icon-menu-hamburger" style="vertical-align:baseline;color:rgb(200,200,200);float:right;display:none;"></span>
 				{/if}
 			</b>
 		</div>

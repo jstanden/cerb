@@ -5,8 +5,8 @@
 	
 	{if $is_writeable}
 	<div style="display:inline-block;vertical-align:middle;" class="cerb-no-print">
-		{if $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}.create")}<button id="btnWorkspaceTabAddWidget{$model->id}" type="button" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}" data-context-id="0" data-edit="tab:{$model->id}" data-width="75%"><span class="glyphicons glyphicons-circle-plus"></span> {'common.widget.add'|devblocks_translate|capitalize}</button>{/if}
-		<button id="btnWorkspaceTabEditDashboard{$model->id}" type="button"><span class="glyphicons glyphicons-edit"></span> {'common.dashboard.edit'|devblocks_translate|capitalize}</button>
+		{if $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}.create")}<button id="btnWorkspaceTabAddWidget{$model->id}" type="button" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}" data-context-id="0" data-edit="tab:{$model->id}" data-width="75%"><span class="cerb-icons cerb-icon-circle-plus"></span> {'common.widget.add'|devblocks_translate|capitalize}</button>{/if}
+		<button id="btnWorkspaceTabEditDashboard{$model->id}" type="button"><span class="cerb-icons cerb-icon-edit"></span> {'common.dashboard.edit'|devblocks_translate|capitalize}</button>
 	</div>
 	<button id="btnWorkspaceTabToggleWidgets{$model->id}" type="button" style="display:none;"><div class="badge-count">0</div> Hidden Widgets</button>
 	{/if}
@@ -128,7 +128,7 @@ $(function() {
 			placeholder: 'cerb-widget-drag-placeholder',
 			forceHelperSize: true,
 			forcePlaceholderSize: true,
-			handle: '.cerb-workspace-widget--header .glyphicons-menu-hamburger',
+			handle: '.cerb-workspace-widget--header .cerb-icon-menu-hamburger',
 			connectWith: '.cerb-workspace-layout-zone--widgets',
 			opacity: 0.7,
 			start: function(event, ui) {
@@ -213,7 +213,7 @@ $(function() {
 	var addEvents = function($target) {
 		var $menu = $target.find('.cerb-workspace-widget--menu');
 		var $menu_link = $target.find('.cerb-workspace-widget--link');
-		var $handle = $target.find('.cerb-workspace-widget--header .glyphicons-menu-hamburger');
+		var $handle = $target.find('.cerb-workspace-widget--header .cerb-icon-menu-hamburger');
 
 		{if $is_writeable}
 		$target.hoverIntent({

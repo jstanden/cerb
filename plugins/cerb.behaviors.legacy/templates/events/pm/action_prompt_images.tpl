@@ -41,7 +41,7 @@
 	</div>
 </fieldset>
 
-<button type="button" class="cerb-prompt-image-add"><span class="glyphicons glyphicons-circle-plus"></span></button>
+<button type="button" class="cerb-prompt-image-add"><span class="cerb-icons cerb-icon-circle-plus"></span></button>
 
 <br>
 <br>

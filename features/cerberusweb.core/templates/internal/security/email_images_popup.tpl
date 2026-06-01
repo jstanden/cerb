@@ -11,15 +11,15 @@
         <input type="hidden" name="sender_id" value="{$sender->id}">
 
         <div style="margin-bottom:10px;">
-            <button type="button" data-cerb-button="show-images"><span class="glyphicons glyphicons-picture"></span> Display images</button>
+            <button type="button" data-cerb-button="show-images"><span class="cerb-icons cerb-icon-picture"></span> Display images</button>
 
             {if !$sender->is_trusted}
-                <button type="button" data-cerb-button="trust"><span class="glyphicons glyphicons-circle-plus"></span> Always show images from this sender</button>
+                <button type="button" data-cerb-button="trust"><span class="cerb-icons cerb-icon-circle-plus"></span> Always show images from this sender</button>
             {else}
-                <button type="button" data-cerb-button="untrust"><span class="glyphicons glyphicons-circle-remove"></span> Stop showing images from this sender</button>
+                <button type="button" data-cerb-button="untrust"><span class="cerb-icons cerb-icon-circle-remove"></span> Stop showing images from this sender</button>
             {/if}
 
-            {*<button type="button" data-cerb-button="refresh"><span class="glyphicons glyphicons-refresh"></span> Refresh</button>*}
+            {*<button type="button" data-cerb-button="refresh"><span class="cerb-icons cerb-icon-refresh"></span> Refresh</button>*}
         </div>
 
         <div>
@@ -27,7 +27,7 @@
         </div>
 
         {if $filtering_results.urls.blockedImage}
-        <h3><span class="glyphicons glyphicons-ban" style="color:rgb(180,0,0);"></span> These external images are blocked by rules:</h3>
+        <h3><span class="cerb-icons cerb-icon-ban" style="color:rgb(180,0,0);"></span> These external images are blocked by rules:</h3>
 
         <div data-list="deny" style="margin-left:15px;">
         {foreach from=$filtering_results.urls.blockedImage item=urls key=host}
@@ -46,7 +46,7 @@
         {/if}
 
         {if $filtering_results.urls.proxiedImage}
-        <h3><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> These external images are allowed:</h3>
+        <h3><span class="cerb-icons cerb-icon-circle-ok" style="color:rgb(0,180,0);"></span> These external images are allowed:</h3>
 
         <div data-list="allow" style="margin-left:15px;">
         {foreach from=$filtering_results.urls.proxiedImage item=urls key=host}

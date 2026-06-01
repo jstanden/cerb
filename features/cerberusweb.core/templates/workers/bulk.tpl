@@ -81,7 +81,7 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right">
 				{'worker.is_password_disabled'|devblocks_translate|capitalize}:
-				<span class="glyphicons glyphicons-circle-question-mark" title="When a worker's password is disabled, they may only log in using a trusted Single Sign-On (SSO) identity."></span>
+				<span class="cerb-icons cerb-icon-circle-question-mark" title="When a worker's password is disabled, they may only log in using a trusted Single Sign-On (SSO) identity."></span>
 			</td>
 			<td width="100%">
 				<select name="is_password_disabled">
@@ -95,7 +95,7 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right">
 				{'worker.is_mfa_required'|devblocks_translate|capitalize}:
-				<span class="glyphicons glyphicons-circle-question-mark" title="Multi-Factor Authentication (MFA) requires both a password (something you know) and a one-time code from a device in your physical possession (something you have)."></span>
+				<span class="cerb-icons cerb-icon-circle-question-mark" title="Multi-Factor Authentication (MFA) requires both a password (something you know) and a one-time code from a device in your physical possession (something you have)."></span>
 			</td>
 			<td width="100%">
 				<select name="is_mfa_required">
@@ -122,7 +122,7 @@
 {include file="devblocks:cerberusweb.core::internal/views/bulk_broadcast.tpl" context=CerberusContexts::CONTEXT_WORKER}
 {/if}
 
-<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 </form>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">

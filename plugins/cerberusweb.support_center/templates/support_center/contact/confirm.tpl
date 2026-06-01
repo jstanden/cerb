@@ -16,7 +16,7 @@
 	  	</fieldset>
 	  	<h1></h1>
 	  	
-		<button type="button" onclick="document.location='{devblocks_url}{/devblocks_url}';"><span class="glyphicons glyphicons-circle-ok"></span> {'common.ok'|devblocks_translate|upper}</button>
+		<button type="button" onclick="document.location='{devblocks_url}{/devblocks_url}';"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.ok'|devblocks_translate|upper}</button>
 		
 	  </td>
 	</tr>

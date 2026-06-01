@@ -1,5 +1,5 @@
 <fieldset style="margin-top:10px;position:relative;">
-	<span class="glyphicons glyphicons-circle-remove"></span>
+	<span class="cerb-icons cerb-icon-circle-remove"></span>
 	<legend>{'common.preview'|devblocks_translate|capitalize}</legend>
 
 	<div>
@@ -18,7 +18,7 @@ $(function() {
 	let $fieldset = $script.prev('fieldset');
 
 	// Remove
-	$fieldset.find('.glyphicons-circle-remove')
+	$fieldset.find('.cerb-icon-circle-remove')
 		.css('position','absolute')
 		.css('right','-5px')
 		.css('top','-10px')

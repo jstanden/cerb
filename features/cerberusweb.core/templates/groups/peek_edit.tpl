@@ -70,7 +70,7 @@
 						{'common.send.from'|devblocks_translate}:
 					</td>
 					<td valign="middle" width="100%">
-						<button type="button" class="chooser-abstract" data-field-name="reply_address_id" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-single="true" data-query="mailTransport.id:>0 isBanned:n isDefunct:n" data-query-required="" data-autocomplete="mailTransport.id:>0 isBanned:n isDefunct:n" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
+						<button type="button" class="chooser-abstract" data-field-name="reply_address_id" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-single="true" data-query="mailTransport.id:>0 isBanned:n isDefunct:n" data-query-required="" data-autocomplete="mailTransport.id:>0 isBanned:n isDefunct:n" data-autocomplete-if-empty="true"><span class="cerb-icons cerb-icon-search"></span></button>
 
 						{$replyto = DAO_Address::get($group->reply_address_id)}
 
@@ -96,7 +96,7 @@
 						{'common.signature'|devblocks_translate|capitalize}:
 					</td>
 					<td valign="middle">
-						<button type="button" class="chooser-abstract" data-field-name="reply_signature_id" data-context="{CerberusContexts::CONTEXT_EMAIL_SIGNATURE}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
+						<button type="button" class="chooser-abstract" data-field-name="reply_signature_id" data-context="{CerberusContexts::CONTEXT_EMAIL_SIGNATURE}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="cerb-icons cerb-icon-search"></span></button>
 
 						{$signature = DAO_EmailSignature::get($group->reply_signature_id)}
 
@@ -113,7 +113,7 @@
 						{'common.encrypt.signing.key'|devblocks_translate|capitalize}:
 					</td>
 					<td valign="middle">
-						<button type="button" class="chooser-abstract" data-field-name="reply_signing_key_id" data-context="{CerberusContexts::CONTEXT_GPG_PRIVATE_KEY}" data-single="true" data-query=""><span class="glyphicons glyphicons-search"></span></button>
+						<button type="button" class="chooser-abstract" data-field-name="reply_signing_key_id" data-context="{CerberusContexts::CONTEXT_GPG_PRIVATE_KEY}" data-single="true" data-query=""><span class="cerb-icons cerb-icon-search"></span></button>
 
 						{$signing_key = DAO_GpgPrivateKey::get($group->reply_signing_key_id)}
 
@@ -130,7 +130,7 @@
 						HTML template:
 					</td>
 					<td valign="middle">
-						<button type="button" class="chooser-abstract" data-field-name="reply_html_template_id" data-context="{CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
+						<button type="button" class="chooser-abstract" data-field-name="reply_html_template_id" data-context="{CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="cerb-icons cerb-icon-search"></span></button>
 
 						{$html_template = DAO_MailHtmlTemplate::get($group->reply_html_template_id)}
 
@@ -162,16 +162,16 @@
 		<fieldset data-cerb-bucket-routing-toolbar class="peek">
 			<legend>When a new ticket arrives in the {if $group && $group->id}{$group->name}{else}group{/if} inbox: (KATA)</legend>
 			<div class="cerb-code-editor-toolbar">
-				<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-magic title="{'common.autocomplete'|devblocks_translate|capitalize} (Ctrl+Space)"><span class="glyphicons glyphicons-magic"></span></button>
+				<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-magic title="{'common.autocomplete'|devblocks_translate|capitalize} (Ctrl+Space)"><span class="cerb-icons cerb-icon-sparkles"></span></button>
 
 				{if $group->id}
-					<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-changesets title="{'common.change_history'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-history"></span></button>
+					<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-changesets title="{'common.change_history'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-history"></span></button>
 				{/if}
 
 				<div class="cerb-code-editor-toolbar-divider"></div>
 
-				<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-help title="{'common.help'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-circle-question-mark"></span></button>
-				<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-tester title="{'common.test'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-lab"></span></button>
+				<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-help title="{'common.help'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-circle-question-mark"></span></button>
+				<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-tester title="{'common.test'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-lab"></span></button>
 			</div>
 
 			<textarea name="routing_kata" data-editor-mode="ace/mode/cerb_kata">{$group->routing_kata}</textarea>
@@ -215,8 +215,8 @@
 					<div class="cerb-code-editor-toolbar">
 						<b>{'common.placeholders'|devblocks_translate|capitalize} (KATA)</b>
 						<div class="cerb-code-editor-toolbar-divider"></div>
-						<button type="button" class="cerb-code-editor-toolbar-button cerb-code-editor-toolbar-button--chooser" title="{'common.choose'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-search"></span></button>
-						<button type="button" class="cerb-code-editor-toolbar-button cerb-code-editor-toolbar-button--run" title="{'common.run'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-play"></span></button>
+						<button type="button" class="cerb-code-editor-toolbar-button cerb-code-editor-toolbar-button--chooser" title="{'common.choose'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-search"></span></button>
+						<button type="button" class="cerb-code-editor-toolbar-button cerb-code-editor-toolbar-button--run" title="{'common.run'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-play"></span></button>
 					</div>
 					<textarea name="tester[placeholders]" data-editor-mode="ace/mode/cerb_kata" rows="5" cols="45"></textarea>
 				</div>
@@ -280,7 +280,7 @@
 				{$bucket->name}
 			</td>
 			<td>
-				<span class="glyphicons glyphicons-right-arrow"></span> 
+				<span class="cerb-icons cerb-icon-right-arrow"></span>
 			</td>
 			<td>
 				<select name="move_deleted_buckets[{$bucket->id}]">
@@ -309,8 +309,8 @@
 <div class="status"></div>
 
 <div class="buttons" style="margin-top:10px;">
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button>
-	{if !empty($group->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button>
+	{if !empty($group->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 </form>

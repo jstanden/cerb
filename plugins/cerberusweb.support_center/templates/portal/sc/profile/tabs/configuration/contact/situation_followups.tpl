@@ -1,5 +1,5 @@
 <div class="drag">
-<span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;cursor:move;"></span>
+<span class="cerb-icons cerb-icon-move" style="cursor:move;margin-right:0.5em;" title="Drag to rearrange"></span>
 <input type="text" name="contact_followup[{$uniq_id}][]" size="45" value="{$q}"> 
 <select name="contact_followup_fields[{$uniq_id}][]">
 	<option value="">-- {'portal.sc.cfg.append_to_message'|devblocks_translate} --</option>
@@ -13,5 +13,5 @@
 		{/foreach}
 	</optgroup>
 </select>
-<button type="button" data-cerb-button-remove><span class="glyphicons glyphicons-circle-minus"></span></button>
+<button type="button" data-cerb-button-remove><span class="cerb-icons cerb-icon-circle-minus"></span></button>
 </div>

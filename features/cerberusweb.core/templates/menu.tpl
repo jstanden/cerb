@@ -24,17 +24,17 @@
 	{/foreach}
 	
 	<li style="border-right:0;" class="add {if $page->id=='core.page.pages' && count($response_path)==1}selected{/if}">
-		<a href="{devblocks_url}c=pages{/devblocks_url}">{if $page->id=='core.page.pages' && count($response_path)==1}<span class="glyphicons glyphicons-chevron-down" style="font-size:12px;"></span>{else}<span class="glyphicons glyphicons-chevron-down" style="font-size:12px;"></span>{/if}</a>
+		<a href="{devblocks_url}c=pages{/devblocks_url}"><span class="cerb-icons cerb-icon-chevron-down"></span></a>
 	</li>
 	
 	{if $active_worker->is_superuser}
 	<li class="tour-navmenu-setup{if $page->id=='core.page.configuration'} selected{/if}" style="float:right;">
-		<a href="{devblocks_url}c=config{/devblocks_url}">{'header.config'|devblocks_translate|lower}</a>
+		<a href="{devblocks_url}c=config{/devblocks_url}"><span class="cerb-icons cerb-icon-gear"></span> {'header.config'|devblocks_translate|lower}</a>
 	</li>
 	{/if}
 
 	<li class="tour-navmenu-search{if $page->id=='core.page.search'} selected{/if}" style="float:right;">
-		<a class="submenu" title="{{'common.search'|devblocks_translate|capitalize}} (/)"><span class="glyphicons glyphicons-search"></span> <span class="glyphicons glyphicons-chevron-down" style="{if $page->id=='core.page.search'}color:white;{else}{/if}"></span></a>
+		<a class="submenu" title="{{'common.search'|devblocks_translate|capitalize}} (/)"><span class="cerb-icons cerb-icon-search"></span><span class="cerb-icons cerb-icon-chevron-down"></span></a>
 	</li>
 </ul>
 <div style="clear:both;" class="navmenu-submenu cerb-no-print"></div>

@@ -14,7 +14,7 @@
 	<div style="padding-top:10px;padding-left:10px;"><img src="{devblocks_url}c=captcha{/devblocks_url}"></div>
 	<br>
 	
-	<button type="submit"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> Delete Account</button><br>
+	<button type="submit"><span class="cerb-icons cerb-icon-circle-remove" style="color:rgb(200,0,0);"></span> Delete Account</button><br>
 </fieldset>
 
 </form>

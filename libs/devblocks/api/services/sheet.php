@@ -810,7 +810,7 @@ class _DevblocksSheetServiceTypes {
 			
 			// Sanitize image name against known list
 			
-			$icons_available = PageSection_SetupDevelopersReferenceIcons::getIcons();
+			$icons_available = PageSection_SetupDevelopersReferenceIcons::getCerbIcons();
 			
 			if($image) {
 				if(!in_array($image, $icons_available))
@@ -837,7 +837,7 @@ class _DevblocksSheetServiceTypes {
 				
 			} else {
 				if($image) {
-					$span = sprintf('<span class="glyphicons glyphicons-%s" style="margin-right:0.25em;"></span>',
+					$span = sprintf('<span class="cerb-icons cerb-icon-%s" style="margin-right:0.25em;"></span>',
 						DevblocksPlatform::strEscapeHtml($image)
 					);
 					
@@ -1183,7 +1183,7 @@ class _DevblocksSheetServiceTypes {
 			if('text' == ($environment['format'] ?? null))
 				return $query;
 			
-			return sprintf('<button type="button" class="cerb-search-trigger" data-context="%s" data-query="%s"><span class="glyphicons glyphicons-search"></span></button>',
+			return sprintf('<button type="button" class="cerb-search-trigger" data-context="%s" data-query="%s"><span class="cerb-icons cerb-icon-search"></span></button>',
 				DevblocksPlatform::strEscapeHtml($context_ext->id),
 				DevblocksPlatform::strEscapeHtml($query)
 			);

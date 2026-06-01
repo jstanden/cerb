@@ -24,7 +24,7 @@
                 {if $tools}
                     {foreach from=$tools item=tool}
                         <div class="emailBodyHtml" data-cerb-tool="{$tool->getName()}">
-                            <span class="glyphicons glyphicons-classic-hammer"></span>&nbsp;
+                            <span class="cerb-icons cerb-icon-hammer"></span>&nbsp;
                             {$tool->getLabel($tool_labels)}
                         </div>
                     {/foreach}
@@ -33,18 +33,18 @@
                 {if 'assistant' == $message->getRole() && !$message->getToolCalls()}
                     <div data-cerb-dom="transcript-toolbar">
                         <button type="button" data-cerb-button="copy-markdown" title="Copy to clipboard" tabindex="-1">
-                            <span class="glyphicons glyphicons-copy"></span>
+                            <span class="cerb-icons cerb-icon-copy"></span>
                         </button>
 
                         {*
                         <button type="button" data-cerb-button="rating-good" data-cerb-rating="1" title="Give positive feedback">
-                            <span class="glyphicons glyphicons-thumbs-up"></span>
+                            <span class="cerb-icons cerb-icon-thumbs-up"></span>
                         </button>
                         *}
 
                         {*
                         <button type="button" data-cerb-button="rating-bad" data-cerb-rating="2" title="Give negative feedback">
-                            <span class="glyphicons glyphicons-thumbs-down"></span>
+                            <span class="cerb-icons cerb-icon-thumbs-down"></span>
                         </button>
                         *}
 

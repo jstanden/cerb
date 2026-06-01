@@ -38,13 +38,13 @@
 			<b>{'common.trigger'|devblocks_translate|capitalize}:</b>
 		</td>
 		<td width="99%">
-			<button type="button" data-cerb-trigger-chooser data-interaction-uri="ai.cerb.cardEditor.automation.triggerChooser" data-interaction-params=""><span class="glyphicons glyphicons-search"></span></button>
+			<button type="button" data-cerb-trigger-chooser data-interaction-uri="ai.cerb.cardEditor.automation.triggerChooser" data-interaction-params=""><span class="cerb-icons cerb-icon-search"></span></button>
 			<ul class="chooser-container bubbles">
 				{if $extension}
 				<li>
 					{$extension->manifest->id}
 					<input type="hidden" name="extension_id" value="{$extension->id}">
-					<span class="glyphicons glyphicons-circle-remove"></span>
+					<span class="cerb-icons cerb-icon-circle-remove"></span>
 				</li>
 				{/if}
 			</ul>
@@ -82,10 +82,10 @@
 
 		{if $model->id}
 			<div class="cerb-code-editor-toolbar-divider"></div>
-			<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-changesets-code title="{'common.change_history'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-history"></span></button>
+			<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-changesets-code title="{'common.change_history'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-history"></span></button>
 		{/if}
-		<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-commands title="Editor Commands"><span class="glyphicons glyphicons-adjust-alt"></span></button>
-		<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-export title="{'common.export'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-disk-export"></span></button>
+		<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-commands title="Editor Commands"><span class="cerb-icons cerb-icon-adjust"></span></button>
+		<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-export title="{'common.export'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-disk-export"></span></button>
 	</div>
 	<textarea name="automation_script" data-editor-mode="ace/mode/cerb_kata" data-editor-lines="25">{$model->script}</textarea>
 </div>
@@ -110,8 +110,8 @@
 				<div class="cerb-code-editor-toolbar">
 					<button type="button" title="Simulate" class="cerb-code-editor-toolbar-button cerb-editor-toolbar-button--mode" data-mode="simulator" style="text-decoration:underline;">Simulate</button>
 					<div class="cerb-code-editor-toolbar-divider"></div>
-					<button type="button" class="cerb-code-editor-toolbar-button cerb-code-editor-toolbar-button--run" title="{'common.run'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-play"></span></button>
-					<button type="button" class="cerb-code-editor-toolbar-button cerb-code-editor-toolbar-button--interaction" data-interaction-uri="ai.cerb.automationBuilder.help" data-interaction-params="topic=input" title="{'common.help'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-circle-question-mark"></span></button>
+					<button type="button" class="cerb-code-editor-toolbar-button cerb-code-editor-toolbar-button--run" title="{'common.run'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-play"></span></button>
+					<button type="button" class="cerb-code-editor-toolbar-button cerb-code-editor-toolbar-button--interaction" data-interaction-uri="ai.cerb.automationBuilder.help" data-interaction-params="topic=input" title="{'common.help'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-circle-question-mark"></span></button>
 				</div>
 
 				<textarea name="start_state_yaml" data-editor-mode="ace/mode/yaml" rows="5" cols="45"></textarea>
@@ -123,8 +123,8 @@
 				</legend>
 
 				<div class="cerb-code-editor-toolbar">
-					<button type="button" class="cerb-code-editor-toolbar-button cerb-code-editor-toolbar-button--step" title="Copy to input" style="display:none;"><span class="glyphicons glyphicons-left-arrow"></span></button>
-					<button type="button" class="cerb-code-editor-toolbar-button cerb-code-editor-toolbar-button--interaction" data-interaction-uri="ai.cerb.automationBuilder.help" data-interaction-params="topic=output" title="{'common.help'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-circle-question-mark"></span></button>
+					<button type="button" class="cerb-code-editor-toolbar-button cerb-code-editor-toolbar-button--step" title="Copy to input" style="display:none;"><span class="cerb-icons cerb-icon-left-arrow"></span></button>
+					<button type="button" class="cerb-code-editor-toolbar-button cerb-code-editor-toolbar-button--interaction" data-interaction-uri="ai.cerb.automationBuilder.help" data-interaction-params="topic=output" title="{'common.help'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-circle-question-mark"></span></button>
 				</div>
 
 				<textarea name="end_state_yaml" data-editor-mode="ace/mode/yaml" rows="5" cols="45"></textarea>
@@ -138,10 +138,10 @@
 		</div>
 		<div class="cerb-code-editor-toolbar">
 			{if $model->id}
-				<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-changesets-policy title="{'common.change_history'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-history"></span></button>
+				<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-changesets-policy title="{'common.change_history'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-history"></span></button>
 				<div class="cerb-code-editor-toolbar-divider"></div>
 			{/if}
-			<button type="button" class="cerb-code-editor-toolbar-button cerb-code-editor-toolbar-button--interaction" data-interaction-uri="ai.cerb.automationBuilder.help" data-interaction-params="topic=policy" title="{'common.help'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-circle-question-mark"></span></button>
+			<button type="button" class="cerb-code-editor-toolbar-button cerb-code-editor-toolbar-button--interaction" data-interaction-uri="ai.cerb.automationBuilder.help" data-interaction-params="topic=policy" title="{'common.help'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-circle-question-mark"></span></button>
 		</div>
 
 		<textarea name="automation_policy_kata" data-editor-mode="ace/mode/cerb_kata" data-editor-lines="25">{$model->policy_kata}</textarea>
@@ -166,9 +166,9 @@
 {/if}
 
 <div class="buttons" style="margin-top:10px;">
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if $model->id}<button type="button" class="save-continue"><span class="glyphicons glyphicons-circle-arrow-right"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>{/if}
-	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{if $model->id}<button type="button" class="save-continue"><span class="cerb-icons cerb-icon-circle-arrow-right"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>{/if}
+	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 </form>
 
@@ -283,7 +283,7 @@ $(function() {
 
 			var $target = $(e.target);
 
-			if(!$target.is('.glyphicons-circle-remove'))
+			if(!$target.is('.cerb-icon-circle-remove'))
 				return;
 
 			$target.closest('li').remove();
@@ -333,7 +333,7 @@ $(function() {
 					.val(e.eventData.return.trigger.id)
 				;
 
-				var $remove = $('<span class="glyphicons glyphicons-circle-remove"></span>');
+				var $remove = $('<span class="cerb-icons cerb-icon-circle-remove"></span>');
 
 				var $li = $('<li/>')
 					.text(e.eventData.return.trigger.name)

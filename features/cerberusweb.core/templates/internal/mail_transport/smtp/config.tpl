@@ -53,7 +53,7 @@ This mail transport delivers mail to an <a href="http://en.wikipedia.org/wiki/Si
 			<b>XOAuth2:</b> <small>({'common.optional'|devblocks_translate|lower})</small>
 			<br>
 
-			<button type="button" class="chooser-abstract" data-field-name="params[{$extension->id}][connected_account_id]" data-context="{CerberusContexts::CONTEXT_CONNECTED_ACCOUNT}" data-single="true" data-query="service:(type:oauth2)"><span class="glyphicons glyphicons-search"></span></button>
+			<button type="button" class="chooser-abstract" data-field-name="params[{$extension->id}][connected_account_id]" data-context="{CerberusContexts::CONTEXT_CONNECTED_ACCOUNT}" data-single="true" data-query="service:(type:oauth2)"><span class="cerb-icons cerb-icon-search"></span></button>
 
 			<ul class="bubbles chooser-container">
 				{if $model && $model->params.connected_account_id}

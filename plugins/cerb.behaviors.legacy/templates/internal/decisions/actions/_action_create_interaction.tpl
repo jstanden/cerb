@@ -13,7 +13,7 @@
 <b>Send the interaction to this behavior:</b>
 <div style="margin-left:10px;margin-bottom:0.5em;">
 	{$behavior = DAO_TriggerEvent::get($params.behavior_id)}
-	<button type="button" class="chooser-abstract" data-field-name="{$namePrefix}[behavior_id]" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-single="true" data-query="bot.id:{$trigger->bot_id}" data-query-required="event:{$event_point|default:'event.interaction.chat.worker'} disabled:n"><span class="glyphicons glyphicons-search"></span></button>
+	<button type="button" class="chooser-abstract" data-field-name="{$namePrefix}[behavior_id]" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-single="true" data-query="bot.id:{$trigger->bot_id}" data-query-required="event:{$event_point|default:'event.interaction.chat.worker'} disabled:n"><span class="cerb-icons cerb-icon-search"></span></button>
 	<ul class="bubbles chooser-container">
 		{if $behavior}
 			<li><input type="hidden" name="{$namePrefix}[behavior_id]" value="{$behavior->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-context-id="{$behavior->id}">{$behavior->title}</a></li>

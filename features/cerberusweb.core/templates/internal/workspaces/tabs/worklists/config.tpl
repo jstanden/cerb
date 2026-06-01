@@ -15,8 +15,8 @@
 	<div data-cerb-worklists-container>
 		{foreach from=$worklists item=worklist name=worklists key=worklist_id}
 		<div class="column">
-			<span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;cursor:move;"></span><!--
-			--><a data-cerb-link-worklist-delete><span class="ui-icon ui-icon-trash" style="display:inline-block;vertical-align:middle;"></span></a><!--
+			<span class="cerb-icons cerb-icon-move" style="cursor:move;margin-right:0.5em;" title="Drag to rearrange"></span><!--
+			--><a data-cerb-link-worklist-delete><span class="cerb-icons cerb-icon-trash"></span></a><!--
 			--><input type="hidden" name="ids[]" value="{$worklist->id}"><!--
 			--><input type="text" name="names[]" value="{$worklist->name}" size="45"><!--
 			--><span>{if isset($contexts.{$worklist->context})}{$contexts.{$worklist->context}->name}{/if}</span>
@@ -40,8 +40,8 @@ $(function() {
 		let $columns = $fieldset.find('[data-cerb-worklists-container]');
 		let $new_column = $('<div class="column"></div>');
 		
-		$('<span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;"></span>').appendTo($new_column);
-		$('<a data-cerb-link-worklist-delete><span class="ui-icon ui-icon-trash" style="display:inline-block;vertical-align:middle;"></span></a>').appendTo($new_column);
+		$('<span class="cerb-icons cerb-icon-move" style="cursor:move;margin-right:0.5em;" title="Drag to rearrange"></span>').appendTo($new_column);
+		$('<a data-cerb-link-worklist-delete><span class="cerb-icons cerb-icon-trash"></span></a>').appendTo($new_column);
 		$('<input type="hidden" name="ids[]">').attr('value',$select.val()).appendTo($new_column);
 		$('<input type="text" name="names[]" size="45">').attr('value',$select.find(':selected').text()).appendTo($new_column);
 		$('<span/>').text($select.find(':selected').text()).appendTo($new_column);
@@ -58,7 +58,7 @@ $(function() {
 
 		let $target = $(e.target);
 
-		if($target.is('.ui-icon'))
+		if($target.is('.cerb-icons'))
 			$target = $target.closest('a');
 
 		if($target.is('[data-cerb-link-worklist-delete]')) {

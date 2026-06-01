@@ -14,7 +14,7 @@
                 <b>{if $config_option.params.label}{$config_option.params.label}{else}{$config_option.key}:{/if}</b>
             </div>
             {if 'chooser' == $config_option.type}
-                <button type="button" data-cerb-chooser data-field-name="config_values[{$config_option.key}]{if $config_option.params.multiple}[]{/if}" data-context="{$config_option.params.record_type}" data-query="{$config_option.params.record_query}" {if !$config_option.params.multiple}data-single="true"{/if}><span class="glyphicons glyphicons-search"></span></button>
+                <button type="button" data-cerb-chooser data-field-name="config_values[{$config_option.key}]{if $config_option.params.multiple}[]{/if}" data-context="{$config_option.params.record_type}" data-query="{$config_option.params.record_query}" {if !$config_option.params.multiple}data-single="true"{/if}><span class="cerb-icons cerb-icon-search"></span></button>
                 <ul class="bubbles chooser-container" style="display:inline-block;">
                     {if $config_option.params.multiple}
                         {if is_array($config_option.value)}

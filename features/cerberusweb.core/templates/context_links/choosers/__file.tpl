@@ -8,13 +8,13 @@
 {if !$single}
 <fieldset class="peek">
 	<legend>Include files from these bundles</legend>
-	<button type="button" class="chooser-file-bundle"><span class="glyphicons glyphicons-search"></span></button>
+	<button type="button" class="chooser-file-bundle"><span class="cerb-icons cerb-icon-search"></span></button>
 </fieldset>
 {/if}
 
 <div class="cerb-uploads"></div>
 
-<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.ok'|devblocks_translate|upper}</button>
+<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.ok'|devblocks_translate|upper}</button>
 </form>
 
 <br>

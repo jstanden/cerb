@@ -3,7 +3,7 @@
 <div>
 	<div id="board{$board->id}_{$widget->id}" class="cerb-board">
 		<div style="float:right;">
-			<span class="glyphicons glyphicons-edit"></span>
+			<span class="cerb-icons cerb-icon-edit"></span>
 			<a class="cerb-button-edit-board" data-context="project_board" data-context-id="{$board->id}">
 				edit board
 			</a>
@@ -18,7 +18,7 @@
 
 				{if $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_PROJECT_BOARD_COLUMN}.create")}
 				<div class="cerb-board-column-add">
-					<p><span class="glyphicons glyphicons-circle-plus"></span> <a data-context="{CerberusContexts::CONTEXT_PROJECT_BOARD_COLUMN}" data-context-id="0" data-edit="board.id:{$board->id}">{'common.add'|devblocks_translate|capitalize}</a></p>
+					<p><span class="cerb-icons cerb-icon-circle-plus"></span> <a data-context="{CerberusContexts::CONTEXT_PROJECT_BOARD_COLUMN}" data-context-id="0" data-edit="board.id:{$board->id}">{'common.add'|devblocks_translate|capitalize}</a></p>
 				</div>
 				{/if}
 			</div>
@@ -136,7 +136,7 @@ $(function() {
 			tolerance: 'pointer',
 			items: '.cerb-board-column',
 			helper: 'clone',
-			handle: '.cerb-board-column-toolbar .glyphicons-menu-hamburger',
+			handle: '.cerb-board-column-toolbar .cerb-icon-menu-hamburger',
 			opacity: 0.7,
 			update: function(event, ui) {
 				$board.trigger('cerb-persist');

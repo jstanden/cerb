@@ -2,8 +2,8 @@
 
 <div style="margin-left:10px;margin-bottom:0.5em;">
 	<div class="cerb-code-editor-toolbar">
-		<button type="button" class="cerb-code-editor-toolbar-button cerb-button-sample-query" title="Test query"><span class="glyphicons glyphicons-play"></span></button>
-		<button type="button" style="float:right;" class="cerb-code-editor-toolbar-button cerb-editor-button-help"><a href="https://cerb.ai/docs/data-queries/" target="_blank"><span class="glyphicons glyphicons-circle-question-mark"></span></a></button>
+		<button type="button" class="cerb-code-editor-toolbar-button cerb-button-sample-query" title="Test query"><span class="cerb-icons cerb-icon-play"></span></button>
+		<button type="button" style="float:right;" class="cerb-code-editor-toolbar-button cerb-editor-button-help"><a href="https://cerb.ai/docs/data-queries/" target="_blank"><span class="cerb-icons cerb-icon-circle-question-mark"></span></a></button>
 	</div>
 
 	<textarea name="{$namePrefix}[data_query]" class="cerb-data-query-editor placeholders" data-editor-mode="ace/mode/cerb_query" style="width:95%;height:50px;">{$params.data_query}</textarea>
@@ -15,7 +15,7 @@
 		</fieldset>
 		
 		<fieldset class="peek black" style="display:none;position:relative;">
-			<span class="glyphicons glyphicons-circle-remove" style="position:absolute;right:-5px;top:-10px;cursor:pointer;color:rgb(80,80,80);zoom:1.5;background-color:var(--cerb-color-background);"></span>
+			<span class="cerb-icons cerb-icon-circle-remove" style="position:absolute;right:-5px;top:-10px;cursor:pointer;color:rgb(80,80,80);zoom:1.5;background-color:var(--cerb-color-background);"></span>
 			<legend>{'common.results'|devblocks_translate|capitalize}:</legend>
 			<textarea class="cerb-json-results-editor" data-editor-mode="ace/mode/json"></textarea>
 		</fieldset>
@@ -26,9 +26,9 @@
 
 <div style="margin-left:10px;margin-bottom:0.5em;">
 	<div class="cerb-code-editor-toolbar">
-		<button type="button" class="cerb-code-editor-toolbar-button cerb-button-preview-sheet" title="Preview sheet"><span class="glyphicons glyphicons-play"></span></button>
+		<button type="button" class="cerb-code-editor-toolbar-button cerb-button-preview-sheet" title="Preview sheet"><span class="cerb-icons cerb-icon-play"></span></button>
 		<div class="cerb-code-editor-toolbar-divider"></div>
-		<button type="button" class="cerb-code-editor-toolbar-button cerb-button-sheet-column-add" title="Add column"><span class="glyphicons glyphicons-circle-plus"></span></button>
+		<button type="button" class="cerb-code-editor-toolbar-button cerb-button-sheet-column-add" title="Add column"><span class="cerb-icons cerb-icon-circle-plus"></span></button>
 		<ul class="cerb-float" style="display:none;">
 			<li>
 				<div><b>Column</b></div>
@@ -45,13 +45,13 @@
 				</ul>
 			</li>
 		</ul>
-		<button type="button" style="float:right;" class="cerb-code-editor-toolbar-button cerb-editor-button-help"><a href="https://cerb.ai/docs/sheets/" target="_blank"><span class="glyphicons glyphicons-circle-question-mark"></span></a></button>
+		<button type="button" style="float:right;" class="cerb-code-editor-toolbar-button cerb-editor-button-help"><a href="https://cerb.ai/docs/sheets/" target="_blank"><span class="cerb-icons cerb-icon-circle-question-mark"></span></a></button>
 	</div>
 
 	<textarea name="{$namePrefix}[sheet_kata]" class="cerb-sheet-yaml-editor" data-editor-mode="ace/mode/cerb_kata" style="width:95%;height:50px;">{$params.sheet_kata}</textarea>
 
 	<fieldset class="peek black" style="display:none;position:relative;margin-top:10px;">
-		<span class="glyphicons glyphicons-circle-remove" style="position:absolute;right:-5px;top:-10px;cursor:pointer;color:rgb(80,80,80);zoom:1.5;background-color:var(--cerb-color-background);"></span>
+		<span class="cerb-icons cerb-icon-circle-remove" style="position:absolute;right:-5px;top:-10px;cursor:pointer;color:rgb(80,80,80);zoom:1.5;background-color:var(--cerb-color-background);"></span>
 		<legend>{'common.preview'|devblocks_translate|capitalize}</legend>
 		<div class="cerb-sheet-preview"></div>
 	</fieldset>
@@ -79,7 +79,7 @@ $(function() {
 		.nextAll('pre.ace_editor')
 		;
 
-	$json_results.closest('fieldset').find('> .glyphicons-circle-remove').on('click', function(e) {
+	$json_results.closest('fieldset').find('> .cerb-icon-circle-remove').on('click', function(e) {
 		e.stopPropagation();
 		$(this).closest('fieldset').hide();
 	});
@@ -149,7 +149,7 @@ $(function() {
 	let $sheet_button_add = $action.find('.cerb-button-sheet-column-add');
 	let $sheet_preview = $action.find('.cerb-sheet-preview');
 
-	$sheet_preview.closest('fieldset').find('> .glyphicons-circle-remove').on('click', function(e) {
+	$sheet_preview.closest('fieldset').find('> .cerb-icon-circle-remove').on('click', function(e) {
 		e.stopPropagation();
 		$(this).closest('fieldset').hide();
 	});

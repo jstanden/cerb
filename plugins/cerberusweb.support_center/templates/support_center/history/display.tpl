@@ -45,7 +45,7 @@
 	{/if}
 
 	<div style="padding:5px;">
-		<button type="button" onclick="document.querySelector('#history div.properties-view').style.display='none';document.querySelector('#history form.properties-edit').style.display='block';"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
+		<button type="button" onclick="document.querySelector('#history div.properties-view').style.display='none';document.querySelector('#history form.properties-edit').style.display='block';"><span class="cerb-icons cerb-icon-gear"></span> {'common.edit'|devblocks_translate|capitalize}</button>
 	</div>
 </div>
 
@@ -93,8 +93,8 @@
 		</table>
 	
 		<div style="padding:5px;">
-			<button type="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-			<button type="button" onclick="document.querySelector('#history form.properties-edit').style.display='none';document.querySelector('#history div.properties-view').style.display='block';"><span class="glyphicons glyphicons-circle-remove"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+			<button type="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+			<button type="button" onclick="document.querySelector('#history form.properties-edit').style.display='none';document.querySelector('#history div.properties-view').style.display='block';"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 		</div>
 	</fieldset>
 </form>
@@ -161,10 +161,11 @@
 	{if isset($attachments.$message_id)}
 		<div style="margin-top:10px;">
 		<b>Attachments:</b><br>
-		<ul style="margin-top:0px;">
+		<ul style="margin-top:0;margin-left:0;padding-left:0;list-style:none;">
 		{foreach from=$attachments.$message_id item=attachment}
 		{if $attachment->storage_sha1hash}
 		<li>
+			<span class="cerb-icons cerb-icon-paperclip"></span>
 			<a href="{devblocks_url}c=ajax&a=downloadFile&guid={$attachment->storage_sha1hash}&name={$attachment->name|escape:'url'}{/devblocks_url}" target="_blank" rel="noopener">{$attachment->name}</a>
 			({$attachment->storage_size|devblocks_prettybytes}
 			 - 
@@ -176,7 +177,7 @@
 		</div>
 	{/if}
 	
-	<button type="button" onclick="let $div=this.nextElementSibling;$div.style.display='block';document.querySelector('textarea').focus();"><span class="glyphicons glyphicons-share"></span> Reply</button>
+	<button type="button" onclick="let $div=this.nextElementSibling;$div.style.display='block';document.querySelector('textarea').focus();"><span class="cerb-icons cerb-icon-send"></span> Reply</button>
 	
 	<div class="reply" style="display:none;margin-left:15px;">
 		<div class="header"><h2>{'portal.sc.public.history.reply'|devblocks_translate}</h2></div>
@@ -201,8 +202,8 @@
 			<input type="file" name="attachments[]" multiple="multiple"><br>
 		</fieldset>
 		
-		<button type="submit"><span class="glyphicons glyphicons-send"></span> {'portal.public.send_message'|devblocks_translate}</button>
-		<button type="button" onclick="this.closest('div.reply').style.display='none';"><span class="glyphicons glyphicons-circle-remove"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+		<button type="submit"><span class="cerb-icons cerb-icon-send"></span> {'portal.public.send_message'|devblocks_translate}</button>
+		<button type="button" onclick="this.closest('div.reply').style.display='none';"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 		</form>
 	</div>
 	

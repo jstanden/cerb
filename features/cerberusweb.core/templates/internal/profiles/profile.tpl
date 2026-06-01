@@ -27,19 +27,19 @@
 			<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 			
 			{if !is_array($toolbar_profile) || !array_key_exists('card', $toolbar_profile)}
-				<button type="button" id="btnProfileCard" title="{'common.card'|devblocks_translate|capitalize}{if $pref_keyboard_shortcuts} (V){/if}" data-context="{$page_context}" data-context-id="{$page_context_id}"><span class="glyphicons glyphicons-nameplate"></span> {'common.card'|devblocks_translate|capitalize}</button>
+				<button type="button" id="btnProfileCard" title="{'common.card'|devblocks_translate|capitalize}{if $pref_keyboard_shortcuts} (V){/if}" data-context="{$page_context}" data-context-id="{$page_context_id}"><span class="cerb-icons cerb-icon-id-card"></span> {'common.card'|devblocks_translate|capitalize}</button>
 			{/if}
 			
 			{if !is_array($toolbar_profile) || !array_key_exists('edit', $toolbar_profile)}
 				{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
-				<button type="button" id="btnProfileCardEdit" title="{'common.edit'|devblocks_translate|capitalize}{if $pref_keyboard_shortcuts} (E){/if}" class="cerb-peek-trigger" data-context="{$page_context}" data-context-id="{$page_context_id}" data-width="75%" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
+				<button type="button" id="btnProfileCardEdit" title="{'common.edit'|devblocks_translate|capitalize}{if $pref_keyboard_shortcuts} (E){/if}" class="cerb-peek-trigger" data-context="{$page_context}" data-context-id="{$page_context_id}" data-width="75%" data-edit="true"><span class="cerb-icons cerb-icon-gear"></span> {'common.edit'|devblocks_translate|capitalize}</button>
 				{/if}
 			{/if}
 
 			{if !is_array($toolbar_profile) || !array_key_exists('comments', $toolbar_profile)}
 				{if $context_ext->hasOption('comments') && $active_worker->hasPriv("contexts.{$page_context}.comment")}
 				<button type="button" id="btnProfileComment" title="(O)" data-context="cerberusweb.contexts.comment" data-context-id="0" data-edit="context:{$page_context} context.id:{$page_context_id}">
-					<span class="glyphicons glyphicons-conversation"></span> {'common.comment'|devblocks_translate|capitalize}
+					<span class="cerb-icons cerb-icon-conversation"></span> {'common.comment'|devblocks_translate|capitalize}
 				</button>
 				{/if}
 			{/if}
@@ -56,7 +56,7 @@
             {if !is_array($toolbar_profile) || !array_key_exists('merge', $toolbar_profile)}
 				{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.merge")}
 					<button type="button" id="btnProfileMerge">
-						<span class="glyphicons glyphicons-git-merge"></span> {'common.merge'|devblocks_translate|capitalize}
+						<span class="cerb-icons cerb-icon-merge"></span> {'common.merge'|devblocks_translate|capitalize}
 					</button>
 				{/if}
 			{/if}
@@ -68,12 +68,12 @@
 			</div>
 			
 			{if !is_array($toolbar_profile) || !array_key_exists('refresh', $toolbar_profile)}
-				<button data-cerb-button-refresh type="button" title="{'common.refresh'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-refresh"></span></button>
+				<button data-cerb-button-refresh type="button" title="{'common.refresh'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-refresh"></span></button>
 			{/if}
 			
 			{if $active_worker->is_superuser}
 				<div data-cerb-toolbar-setup style="display:inline-block;vertical-align:middle;">
-					<a data-context="{CerberusContexts::CONTEXT_TOOLBAR}" data-context-id="record.profile" data-edit="true"><span class="glyphicons glyphicons-cogwheel" style="color:lightgray;"></span></a>
+					<a data-context="{CerberusContexts::CONTEXT_TOOLBAR}" data-context-id="record.profile" data-edit="true"><span class="cerb-icons cerb-icon-gear" style="color:lightgray;"></span></a>
 				</div>
 			{/if}
 		</form>
@@ -106,7 +106,7 @@
 		{/foreach}
 		
 		{if $active_worker->is_superuser}
-		<li class="cerb-no-print"><a href="{devblocks_url}ajax.php?c=profiles&a=configTabs&context={$page_context}{/devblocks_url}">&nbsp;<span class="glyphicons glyphicons-cogwheel"></span>&nbsp;</a></li>
+		<li class="cerb-no-print"><a href="{devblocks_url}ajax.php?c=profiles&a=configTabs&context={$page_context}{/devblocks_url}">&nbsp;<span class="cerb-icons cerb-icon-gear"></span>&nbsp;</a></li>
 		{/if}
 	</ul>
 </div> 

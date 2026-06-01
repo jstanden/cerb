@@ -5,7 +5,7 @@
 		You do not have permission to modify this worklist.
 	</div>
 	
-	<button type="button"><span class="glyphicons glyphicons-circle-remove"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+	<button type="button"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 </fieldset>
 
 {$script_uid = uniqid('script')}

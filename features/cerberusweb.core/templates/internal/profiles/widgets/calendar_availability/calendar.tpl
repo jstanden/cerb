@@ -22,9 +22,9 @@
 	</div>
 
 	<div style="float:right;">
-		<button type="button" data-cerb-link="calendar_prev" data-cerb-calendar-year="{$calendar_properties.prev_year}" data-cerb-calendar-month="{$calendar_properties.prev_month}"><span class="glyphicons glyphicons-chevron-left"></span></button>
+		<button type="button" data-cerb-link="calendar_prev" data-cerb-calendar-year="{$calendar_properties.prev_year}" data-cerb-calendar-month="{$calendar_properties.prev_month}"><span class="cerb-icons cerb-icon-chevron-left"></span></button>
 		<button type="button" data-cerb-link="calendar_today" >{'common.today'|devblocks_translate|capitalize}</button>
-		<button type="button" data-cerb-link="calendar_next" data-cerb-calendar-year="{$calendar_properties.next_year}" data-cerb-calendar-month="{$calendar_properties.next_month}"><span class="glyphicons glyphicons-chevron-right"></span></button>
+		<button type="button" data-cerb-link="calendar_next" data-cerb-calendar-year="{$calendar_properties.next_year}" data-cerb-calendar-month="{$calendar_properties.next_month}"><span class="cerb-icons cerb-icon-chevron-right"></span></button>
 	</div>
 	
 	<br clear="all">
@@ -67,7 +67,7 @@
 				{if is_array($calendar_events) && array_key_exists($day.timestamp, $calendar_events)}
 					{foreach from=$calendar_events.{$day.timestamp} item=event}
 						<div class="event" style="background-color:{$event.color|default:'#C8C8C8'};" link="{$event.link}">
-							{if $is_today && $now >= $event.ts && $now <= $event.ts_end}<span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span>{/if}
+							{if $is_today && $now >= $event.ts && $now <= $event.ts_end}<span class="cerb-icons cerb-icon-circle-ok" style="color:rgb(0,180,0);"></span>{/if}
 							<span style="color:rgb(0,0,0);">{$event.label}</span>
 						</div>
 					{/foreach}

@@ -56,7 +56,7 @@ $(function() {
 					
 					genericAjaxPost(formData, null, null, function() {
 						// Refresh the popup's worklist
-						$view.find('table.worklist span.glyphicons-refresh').closest('a').click();
+						$view.find('table.worklist span.cerb-icon-refresh').closest('a').click();
 						
 						// Tell the parent
 						$popup.trigger('links_save');

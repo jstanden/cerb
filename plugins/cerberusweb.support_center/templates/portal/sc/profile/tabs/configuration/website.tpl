@@ -47,7 +47,7 @@
 			<input type="hidden" name="visible_modules[]" value="0">
 			{else}
 			<div class="drag" style="margin:5px;">
-				<span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;cursor:move;" title="Click and drag to rearrange"></span>
+				<span class="cerb-icons cerb-icon-move" style="cursor:move;margin-right:0.5em;" title="Drag to rearrange"></span>
 				<select name="visible_modules[]" data-module-id="{$module->manifest->id}" style="margin-right:5px;min-width:150px;max-width:150px;">
 					{if 'sc.controller.history' != $module->manifest->id && 'sc.controller.account' != $module->manifest->id}
 					<option value="0" {if isset($visible_modules.$module_id) && '0'==$visible_modules.$module_id}selected="selected"{/if}>Everyone</option>
@@ -76,7 +76,7 @@
 	</div>
 </fieldset>
 
-<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 </form>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">

@@ -1,7 +1,7 @@
 <fieldset id="tabConfig{$workspace_tab->id}" class="peek">
 <legend>Display this calendar:</legend>
 
-<button type="button" class="chooser-abstract" data-field-name="params[calendar_id]" data-context="{CerberusContexts::CONTEXT_CALENDAR}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
+<button type="button" class="chooser-abstract" data-field-name="params[calendar_id]" data-context="{CerberusContexts::CONTEXT_CALENDAR}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="cerb-icons cerb-icon-search"></span></button>
 
 <ul class="bubbles chooser-container">
 	{$calendar = DAO_Calendar::get($workspace_tab->params.calendar_id)}

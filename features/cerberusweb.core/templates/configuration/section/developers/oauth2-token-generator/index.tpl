@@ -19,7 +19,7 @@
 				<b>OAuth App:</b>
 			</td>
 			<td width="99%" valign="top">
-				<button type="button" class="chooser-abstract" data-field-name="oauth_app_id" data-context="{CerberusContexts::CONTEXT_OAUTH_APP}" data-single="true" data-query=""><span class="glyphicons glyphicons-search"></span></button>
+				<button type="button" class="chooser-abstract" data-field-name="oauth_app_id" data-context="{CerberusContexts::CONTEXT_OAUTH_APP}" data-single="true" data-query=""><span class="cerb-icons cerb-icon-search"></span></button>
 				
 				{$oauth_app = null}
 				
@@ -36,7 +36,7 @@
 				<b>{'common.worker'|devblocks_translate|capitalize}:</b>
 			</td>
 			<td width="99%" valign="top">
-				<button type="button" class="chooser-abstract" data-field-name="worker_id" data-context="{CerberusContexts::CONTEXT_WORKER}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
+				<button type="button" class="chooser-abstract" data-field-name="worker_id" data-context="{CerberusContexts::CONTEXT_WORKER}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="cerb-icons cerb-icon-search"></span></button>
 				
 				{$worker = null}
 				
@@ -73,7 +73,7 @@
 		</tr>
 	</table>
 	
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.create'|devblocks_translate|capitalize}</button>
+	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.create'|devblocks_translate|capitalize}</button>
 </fieldset>
 
 <div class="status" style="margin-top:10px;"></div>

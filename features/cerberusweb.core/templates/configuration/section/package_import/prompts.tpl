@@ -15,7 +15,7 @@
 		</select>
 		{/if}
 	{elseif $prompt.type == 'chooser'}
-	<button type="button" class="cerb-chooser-trigger" data-field-name="prompts[{$prompt.key}]{if !$prompt.params.single}[]{/if}" data-context="{$prompt.params.context}" {if $prompt.params.single}data-single="true"{/if} data-query="{$prompt.params.query}"><span class="glyphicons glyphicons-search"></span></button>
+	<button type="button" class="cerb-chooser-trigger" data-field-name="prompts[{$prompt.key}]{if !$prompt.params.single}[]{/if}" data-context="{$prompt.params.context}" {if $prompt.params.single}data-single="true"{/if} data-query="{$prompt.params.query}"><span class="cerb-icons cerb-icon-search"></span></button>
 	<ul class="bubbles chooser-container"></ul>
 	{/if}
 	</div>

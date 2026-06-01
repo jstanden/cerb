@@ -25,6 +25,6 @@
 		
 		<b>Link a new email address to my account:</b><br> 
 		<input type="text" name="add_email" class="input_email" size="45" value="">
-		<button type="submit"><span class="glyphicons glyphicons-circle-plus"></span></button>
+		<button type="submit"><span class="cerb-icons cerb-icon-circle-plus"></span></button>
 	</form>
 </fieldset>

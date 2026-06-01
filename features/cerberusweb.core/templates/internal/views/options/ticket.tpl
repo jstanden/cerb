@@ -7,7 +7,7 @@
 	
 	When composing mail from this worklist, set the sender to:
 	<div style="margin-left:10px;">
-		<button type="button" class="chooser-bucket" data-field-name="view_options[compose_bucket_id]" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-single="true" data-query=""><span class="glyphicons glyphicons-search"></span></button>
+		<button type="button" class="chooser-bucket" data-field-name="view_options[compose_bucket_id]" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-single="true" data-query=""><span class="cerb-icons cerb-icon-search"></span></button>
 		<ul class="bubbles chooser-container">
 			{if array_key_exists('compose_bucket_id', $view->options)}
 				{$bucket = DAO_Bucket::get($view->options.compose_bucket_id)}

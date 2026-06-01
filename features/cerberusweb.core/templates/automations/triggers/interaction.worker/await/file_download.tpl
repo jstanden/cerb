@@ -4,7 +4,7 @@
 
 	<div style="margin-left:10px;">
 		<button type="button" data-cerb-file>
-			<span class="glyphicons glyphicons-download-alt"></span>
+			<span class="cerb-icons cerb-icon-cloud-download-alt"></span>
 			{$filename}
 		</button>
 	</div>

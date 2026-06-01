@@ -27,9 +27,9 @@
 			{* add arrow if sorting by this column, finish table header tag *}
 			{if $header==$view->renderSortBy}
 				{if $view->renderSortAsc}
-					<span class="glyphicons glyphicons-sort-by-attributes" style="color:rgb(30,143,234);"></span>
+					<span class="cerb-icons cerb-icon-sort-asc" style="color:rgb(30,143,234);"></span>
 				{else}
-					<span class="glyphicons glyphicons-sort-by-attributes-alt" style="color:rgb(30,143,234);"></span>
+					<span class="cerb-icons cerb-icon-sort-desc" style="color:rgb(30,143,234);"></span>
 				{/if}
 			{/if}
 			</th>

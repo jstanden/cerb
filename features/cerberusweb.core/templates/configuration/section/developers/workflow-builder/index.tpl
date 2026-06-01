@@ -14,13 +14,13 @@
         </legend>
 
         <div class="cerb-code-editor-toolbar">
-            <button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-magic title="{'common.autocomplete'|devblocks_translate|capitalize} (Ctrl+Space)"><span class="glyphicons glyphicons-magic"></span></button>
+            <button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-magic title="{'common.autocomplete'|devblocks_translate|capitalize} (Ctrl+Space)"><span class="cerb-icons cerb-icon-sparkles"></span></button>
         </div>
 
         <textarea name="workflow_builder_kata" data-editor-mode="ace/mode/cerb_kata" rows="5" cols="45"></textarea>
         <br>
 
-        <button type="button" class="submit"><span class="glyphicons glyphicons-play"></span> {'common.build'|devblocks_translate|capitalize}</button>
+        <button type="button" class="submit"><span class="cerb-icons cerb-icon-play"></span> {'common.build'|devblocks_translate|capitalize}</button>
 
         <div class="status" style="margin-top:10px;display:none;">
             <h2>Workflow KATA</h2>

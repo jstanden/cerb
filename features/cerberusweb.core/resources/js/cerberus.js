@@ -1547,7 +1547,7 @@ $.fn.cerbDateInputHelper = function(options) {
 			}
 		});
 		
-		let $icon = $('<span class="glyphicons glyphicons-calendar"/>');
+		let $icon = $('<span class="cerb-icons cerb-icon-calendar"/>');
 		$this.next('.ui-datepicker-trigger').append($icon);
 		
 		$this
@@ -1967,7 +1967,7 @@ var cAjaxCalls = function() {
 					if(0===$ul.find('input:hidden[value="'+event.values[idx]+'"]').length) {
 						let $li = $('<li/>').text(event.labels[idx]);
 						$('<input type="hidden">').attr('name', field_name + '[]').attr('value',event.values[idx]).appendTo($li);
-						let $a = $('<a><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($li);
+						let $a = $('<a><span class="cerb-icons cerb-icon-circle-remove"></span></a>').appendTo($li);
 						$a.on('click', Devblocks.onClickRemoveParent);
 						
 						if(null != options.style)
@@ -2005,7 +2005,7 @@ var cAjaxCalls = function() {
 						if(0 == $ul.find('input:hidden[value="'+$value+'"]').length) {
 							let $li = $('<li/>').text($label);
 							$('<input type="hidden">').attr('name', field_name + '[]').attr('title', $label).attr('value', $value).appendTo($li);
-							let $a = $('<a><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($li);
+							let $a = $('<a><span class="cerb-icons cerb-icon-circle-remove"></span></a>').appendTo($li);
 							$a.on('click', Devblocks.onClickRemoveParent);
 							$ul.append($li);
 						}
@@ -2056,7 +2056,7 @@ var cAjaxCalls = function() {
 					;
 					let $li = $('<li/>').append($label);
 					$('<input type="hidden">').attr('name', field_name + (options.single ? '' : '[]')).attr('value', event.values[idx]).appendTo($li);
-					let $a = $('<a><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($li);
+					let $a = $('<a><span class="cerb-icons cerb-icon-circle-remove"></span></a>').appendTo($li);
 					$a.on('click', Devblocks.onClickRemoveParent);
 
 					if (null != options.style)
@@ -2664,7 +2664,7 @@ var ajax = new cAjaxCalls();
 						}
 
 						var $close_button = $('<span/>')
-							.addClass('glyphicons glyphicons-circle-remove')
+							.addClass('cerb-icons cerb-icon-circle-remove')
 							.css('position', 'absolute')
 							.css('top', '0')
 							.css('right', '0')
@@ -5927,7 +5927,7 @@ var ajax = new cAjaxCalls();
 											.attr('name', $attachments.find('button[data-field-name]').attr('data-field-name') + '[]')
 											.val(file_id)
 										;
-										let $remove = $('<a><span class="glyphicons glyphicons-circle-remove"></span></a>');
+										let $remove = $('<a><span class="cerb-icons cerb-icon-circle-remove"></span></a>');
 										$remove.on('click', Devblocks.onClickRemoveParent);
 										let $a = $('<a/>')
 											.attr('data-context', 'attachment')
@@ -6131,7 +6131,7 @@ var ajax = new cAjaxCalls();
 								.attr('name', $attachments.find('button[data-field-name]').attr('data-field-name') + '[]')
 								.val(json[i].id)
 								;
-							let $remove = $('<a><span class="glyphicons glyphicons-circle-remove"></span></a>');
+							let $remove = $('<a><span class="cerb-icons cerb-icon-circle-remove"></span></a>');
 							$remove.on('click', Devblocks.onClickRemoveParent);
 							let $a = $('<a/>')
 								.attr('data-context', 'attachment')
@@ -6215,7 +6215,7 @@ var ajax = new cAjaxCalls();
 			// Add remove icons with events
 			$ul.find('li').each(function() {
 				var $li = $(this);
-				$('<span class="glyphicons glyphicons-circle-remove"></span>').appendTo($li);
+				$('<span class="cerb-icons cerb-icon-circle-remove"></span>').appendTo($li);
 			});
 			
 			// Abstractly create new bubbles
@@ -6245,14 +6245,14 @@ var ajax = new cAjaxCalls();
 						}
 						
 						$('<input type="hidden">').attr('name', field_name).attr('title', $label).attr('value', $value).appendTo($li);
-						$('<span class="glyphicons glyphicons-circle-remove"></span>').appendTo($li);
+						$('<span class="cerb-icons cerb-icon-circle-remove"></span>').appendTo($li);
 						$ul.append($li);
 					}
 				}
 			});
 			
 			// Catch bubble remove events at the container
-			$ul.on('click','> li span.glyphicons-circle-remove', function(e) {
+			$ul.on('click','> li span.cerb-icon-circle-remove', function(e) {
 				e.stopPropagation();
 				$(this).closest('li').remove();
 				$trigger.trigger('cerb-chooser-saved');
@@ -6268,7 +6268,7 @@ var ajax = new cAjaxCalls();
 					.addClass('chooser-create')
 					.attr('data-context', context)
 					.attr('data-context-id', '0')
-					.append($('<span class="glyphicons glyphicons-circle-plus"/>'))
+					.append($('<span class="cerb-icons cerb-icon-circle-plus"/>'))
 					.insertAfter($trigger)
 					;
 				

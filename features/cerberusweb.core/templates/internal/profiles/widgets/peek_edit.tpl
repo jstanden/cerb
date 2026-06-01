@@ -16,7 +16,7 @@
 	{else}
 	<div style="margin-bottom:5px;">
 		<b>{'dashboard'|devblocks_translate|capitalize}:</b>
-		<button type="button" class="chooser-abstract" data-field-name="profile_tab_id" data-context="{CerberusContexts::CONTEXT_PROFILE_TAB}" data-single="true" data-query-required="type:&quot;cerb.profile.tab.dashboard&quot;"><span class="glyphicons glyphicons-search"></span></button>
+		<button type="button" class="chooser-abstract" data-field-name="profile_tab_id" data-context="{CerberusContexts::CONTEXT_PROFILE_TAB}" data-single="true" data-query-required="type:&quot;cerb.profile.tab.dashboard&quot;"><span class="cerb-icons cerb-icon-search"></span></button>
 		
 		<ul class="bubbles chooser-container">
 			{if $profile_tab}
@@ -109,7 +109,7 @@
 			<legend>Advanced options:</legend>
 			<div>
 				<div class="cerb-code-editor-toolbar">
-					<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-magic title="{'common.autocomplete'|devblocks_translate|capitalize} (Ctrl+Space)"><span class="glyphicons glyphicons-magic"></span></button>
+					<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-magic title="{'common.autocomplete'|devblocks_translate|capitalize} (Ctrl+Space)"><span class="cerb-icons cerb-icon-sparkles"></span></button>
 				</div>
 				<textarea name="options_kata" data-editor-mode="ace/mode/cerb_kata" class="placeholders" style="display:none;">{$model->options_kata}</textarea>
 			</div>
@@ -135,9 +135,9 @@
 		{/if}
 		
 		<div class="buttons" style="margin-top:10px;">
-			<button type="button" class="save"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-			{if $model->id}<button type="button" class="save-continue"><span class="glyphicons glyphicons-circle-arrow-right"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>{/if}
-			{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+			<button type="button" class="save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+			{if $model->id}<button type="button" class="save-continue"><span class="cerb-icons cerb-icon-circle-arrow-right"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>{/if}
+			{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 		</div>
 	</div>
 	
@@ -146,7 +146,7 @@
 		<textarea name="import_json" style="width:100%;height:250px;white-space:pre;word-wrap:normal;" rows="10" cols="45" spellcheck="false" placeholder="Paste a dashboard widget in JSON format"></textarea>
 		
 		<div>
-			<button type="button" class="import"><span class="glyphicons glyphicons-circle-ok"></span> {'common.import'|devblocks_translate|capitalize}</button>
+			<button type="button" class="import"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.import'|devblocks_translate|capitalize}</button>
 		</div>
 	</div>
 	{/if}

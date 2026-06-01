@@ -27,7 +27,7 @@
 	<fieldset>
 		<legend>
 			If <a>all&#x25be;</a> of these conditions are satisfied
-			<a data-cerb-link="remove_conditions"><span class="glyphicons glyphicons-circle-minus"></span></a>
+			<a data-cerb-link="remove_conditions"><span class="cerb-icons cerb-icon-circle-minus"></span></a>
 		</legend>
 		<input type="hidden" name="nodes[]" value="all">
 		
@@ -39,7 +39,7 @@
 	<fieldset>
 		<legend>
 			If <a>{if !empty($group_data.any)}any{else}all{/if}&#x25be;</a> of these conditions are satisfied
-			<a data-cerb-link="remove_conditions_set"><span class="glyphicons glyphicons-circle-minus"></span></a>
+			<a data-cerb-link="remove_conditions_set"><span class="cerb-icons cerb-icon-circle-minus"></span></a>
 		</legend>
 		<input type="hidden" name="nodes[]" value="{if !empty($group_data.any)}any{else}all{/if}">
 		
@@ -49,7 +49,7 @@
 				<li style="padding-bottom:5px;" id="condition{$seq}_{$nonce}">
 					<input type="hidden" name="nodes[]" value="{$seq}">
 					<input type="hidden" name="condition{$seq}[condition]" value="{$params.condition}">
-					<a data-cerb-link="condition_remove"><span class="glyphicons glyphicons-circle-minus"></span></a>
+					<a data-cerb-link="condition_remove"><span class="cerb-icons cerb-icon-circle-minus"></span></a>
 					<b style="cursor:move;">{$conditions.{$params.condition}.label}</b>&nbsp;
 					<div style="margin-left:20px;">
 						{$event->renderCondition({$params.condition},$trigger,$params,$seq)}
@@ -152,12 +152,12 @@
 
 <div class="toolbar">
 	{if !isset($id)}
-		<button type="button" data-cerb-button="save-create"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+		<button type="button" data-cerb-button="save-create"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 	{else}
-		<button type="button" data-cerb-button="save-close"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_and_close'|devblocks_translate|capitalize}</button>
-		<button type="button" data-cerb-button="save-continue"><span class="glyphicons glyphicons-circle-arrow-right"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>
-		<button type="button" data-cerb-button="simulator"> <span class="glyphicons glyphicons-cogwheel"></span> Simulator</button>
-		<button type="button" data-cerb-button="delete"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>
+		<button type="button" data-cerb-button="save-close"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_and_close'|devblocks_translate|capitalize}</button>
+		<button type="button" data-cerb-button="save-continue"><span class="cerb-icons cerb-icon-circle-arrow-right"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>
+		<button type="button" data-cerb-button="simulator"> <span class="cerb-icons cerb-icon-gear"></span> Simulator</button>
+		<button type="button" data-cerb-button="delete"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>
 	{/if}
 </div>
 
@@ -290,7 +290,7 @@ $(function() {
 				e.stopPropagation();
 
 				var $group = $('<fieldset></fieldset>');
-				$group.append('<legend>If <a>all&#x25be;</a> of these conditions are satisfied <a data-cerb-link="remove_conditions_set"><span class="glyphicons glyphicons-circle-minus"></span></a></legend>');
+				$group.append('<legend>If <a>all&#x25be;</a> of these conditions are satisfied <a data-cerb-link="remove_conditions_set"><span class="cerb-icons cerb-icon-circle-minus"></span></a></legend>');
 				$group.append('<input type="hidden" name="nodes[]" value="all">');
 				$group.append('<ul class="rules" style="margin:0px;list-style:none;padding:0px;padding-bottom:5px;"></ul>');
 				$group.find('legend > a').click($funcGroupAnyToggle);
@@ -457,7 +457,7 @@ $(function() {
 					var $container = $('<li style="padding-bottom:5px;"/>').attr('id','condition' + seq + '_{$nonce}');
 					$container.append($('<input type="hidden" name="nodes[]">').attr('value', seq));
 					$container.append($('<input type="hidden">').attr('name', 'condition'+seq+'[condition]').attr('value',token));
-					$container.append($('<a data-cerb-link="condition_remove"><span class="glyphicons glyphicons-circle-minus"></span></a>'));
+					$container.append($('<a data-cerb-link="condition_remove"><span class="cerb-icons cerb-icon-circle-minus"></span></a>'));
 					$container.append('&nbsp;');
 					$container.append($('<b style="cursor:move;"/>').text(label));
 					$container.append('&nbsp;');

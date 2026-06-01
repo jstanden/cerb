@@ -2,7 +2,7 @@
 	<ul>
 		<li>
 			<div>
-				<a class="menu">{'common.configure'|devblocks_translate|capitalize} <span class="glyphicons glyphicons-chevron-down" style="color:white;"></span></a>
+				<a class="menu">{'common.configure'|devblocks_translate|capitalize} <span class="cerb-icons cerb-icon-chevron-down"></span></a>
 				<ul class="cerb-popupmenu cerb-float">
 					<li><a href="{devblocks_url}c=config&a=branding{/devblocks_url}">Branding</a></li>
 					<li><a href="{devblocks_url}c=config&a=plugins{/devblocks_url}">{'common.plugins'|devblocks_translate|capitalize}</a></li>
@@ -24,7 +24,7 @@
 		</li>
 		<li>
 			<div>
-				<a class="menu">{'common.security'|devblocks_translate|capitalize} <span class="glyphicons glyphicons-chevron-down" style="color:white;"></span></a>
+				<a class="menu">{'common.security'|devblocks_translate|capitalize} <span class="cerb-icons cerb-icon-chevron-down"></span></a>
 				<ul class="cerb-popupmenu cerb-float">
 					<li><a href="{devblocks_url}c=config&a=security{/devblocks_url}">{'common.configure'|devblocks_translate|capitalize}</a></li>
 					<li><a href="{devblocks_url}c=config&a=auth{/devblocks_url}">{'common.authentication'|devblocks_translate|capitalize}</a></li>
@@ -43,7 +43,7 @@
 		</li>
 		<li>
 			<div>
-				<a class="menu">{'common.records'|devblocks_translate|capitalize} <span class="glyphicons glyphicons-chevron-down" style="color:white;"></span></a>
+				<a class="menu">{'common.records'|devblocks_translate|capitalize} <span class="cerb-icons cerb-icon-chevron-down"></span></a>
 				<ul class="cerb-popupmenu cerb-float">
 					<li><a href="{devblocks_url}c=config&a=avatars{/devblocks_url}">Avatars</a></li>
 					<li><a href="{devblocks_url}c=config&a=fields{/devblocks_url}">{'common.custom_fields'|devblocks_translate|capitalize}</a></li>
@@ -59,7 +59,7 @@
 		</li>
 		<li>
 			<div>
-				<a class="menu">{'common.team'|devblocks_translate|capitalize} <span class="glyphicons glyphicons-chevron-down" style="color:white;"></span></a>
+				<a class="menu">{'common.team'|devblocks_translate|capitalize} <span class="cerb-icons cerb-icon-chevron-down"></span></a>
 				<ul class="cerb-popupmenu cerb-float">
 					<li><a href="{devblocks_url}c=config&a=team&w=config{/devblocks_url}">{'common.configure'|devblocks_translate|capitalize}</a></li>
 					<li><a href="{devblocks_url}c=config&a=team&w=roles{/devblocks_url}">{'common.roles'|devblocks_translate|capitalize}</a></li>
@@ -76,7 +76,7 @@
 		</li>
 		<li>
 			<div>
-				<a class="menu">{'common.mail'|devblocks_translate|capitalize} <span class="glyphicons glyphicons-chevron-down" style="color:white;"></span></a>
+				<a class="menu">{'common.mail'|devblocks_translate|capitalize} <span class="cerb-icons cerb-icon-chevron-down"></span></a>
 				<ul class="cerb-popupmenu cerb-float">
 					<li><a href="{devblocks_url}c=config&a=mail_incoming{/devblocks_url}">{'common.mail.incoming'|devblocks_translate|capitalize}</a></li>
 					<li><a href="{devblocks_url}c=config&a=mail_outgoing{/devblocks_url}">{'common.mail.outgoing'|devblocks_translate|capitalize}</a></li>
@@ -91,7 +91,7 @@
 		</li>
 		<li>
 			<div>
-				<a class="menu">{'common.packages'|devblocks_translate|capitalize} <span class="glyphicons glyphicons-chevron-down" style="color:white;"></span></a>
+				<a class="menu">{'common.packages'|devblocks_translate|capitalize} <span class="cerb-icons cerb-icon-chevron-down"></span></a>
 				<ul class="cerb-popupmenu cerb-float">
 					<li><a href="{devblocks_url}c=config&a=package_library{/devblocks_url}">{'common.library'|devblocks_translate|capitalize}</a></li>
 					<li><a href="{devblocks_url}c=config&a=package_import{/devblocks_url}">{'common.import'|devblocks_translate|capitalize}</a></li>
@@ -106,7 +106,7 @@
 		</li>
 		<li>
 			<div>
-				<a class="menu">{'common.storage'|devblocks_translate|capitalize} <span class="glyphicons glyphicons-chevron-down" style="color:white;"></span></a>
+				<a class="menu">{'common.storage'|devblocks_translate|capitalize} <span class="cerb-icons cerb-icon-chevron-down"></span></a>
 				<ul class="cerb-popupmenu cerb-float">
 					<li><a href="{devblocks_url}c=config&a=storage_content{/devblocks_url}">Overview</a></li>
 					{if !$smarty.const.DEVBLOCKS_STORAGE_ENGINE_PREVENT_CHANGE}<li><a href="{devblocks_url}c=config&a=storage_profiles{/devblocks_url}">{'common.profiles'|devblocks_translate|capitalize}</a></li>{/if}
@@ -122,7 +122,7 @@
 		</li>
 		<li>
 			<div>
-				<a class="menu">{'common.developers'|devblocks_translate|capitalize} <span class="glyphicons glyphicons-chevron-down" style="color:white;"></span></a>
+				<a class="menu">{'common.developers'|devblocks_translate|capitalize} <span class="cerb-icons cerb-icon-chevron-down"></span></a>
 				<ul class="cerb-popupmenu cerb-float">
 					<li><a href="{devblocks_url}c=config&a=automation_logs{/devblocks_url}">Automation Logs</a></li>
 					<li><a href="{devblocks_url}c=config&a=bot_scripting_tester{/devblocks_url}">Automation Scripting Tester</a></li>
@@ -158,13 +158,14 @@
 <br clear="all" style="clear:both;">
 
 {if $install_dir_warning && !$smarty.const.DEVELOPMENT_MODE}
-<div class="ui-widget">
-	<div class="ui-state-error ui-corner-all" style="padding:0 0.5em;margin:0.5em;">
-		<p>
-			<span class="ui-icon ui-icon-alert" style="float:left;margin-right:0.3em"></span>
-			<strong>Warning:</strong> The 'install' directory still exists.  This is a potential security risk.  Please delete it.
-		</p>
-	</div>
+<div class="error-box" style="margin-top:0.5em;">
+	<h1>
+		<span class="cerb-icons cerb-icon-alert"></span>
+		Install Directory
+	</h1>
+	<p>
+		<strong>Warning:</strong> The 'install' directory still exists.  This is a potential security risk.  Please delete it.
+	</p>
 </div>
 {/if}
 

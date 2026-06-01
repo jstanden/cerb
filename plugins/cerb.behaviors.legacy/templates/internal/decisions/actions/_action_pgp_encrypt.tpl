@@ -1,6 +1,6 @@
 <b>{'common.keys.public'|devblocks_translate|capitalize}:</b>
 <div style="margin-left:10px;margin-bottom:10px;">
-	<button type="button" class="chooser-abstract" data-field-name="{$namePrefix}[public_key_ids][]" data-context="{CerberusContexts::CONTEXT_GPG_PUBLIC_KEY}" data-query=""><span class="glyphicons glyphicons-search"></span></button>
+	<button type="button" class="chooser-abstract" data-field-name="{$namePrefix}[public_key_ids][]" data-context="{CerberusContexts::CONTEXT_GPG_PUBLIC_KEY}" data-query=""><span class="cerb-icons cerb-icon-search"></span></button>
 
 	<ul class="bubbles chooser-container">
 		{if $public_keys}

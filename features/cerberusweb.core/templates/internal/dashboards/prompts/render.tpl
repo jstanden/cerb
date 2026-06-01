@@ -10,7 +10,7 @@
 		{include file="devblocks:cerberusweb.core::internal/dashboards/prompts/prompts.tpl" prompts=$prompts}
 
 		<div style="display:inline-block;vertical-align:middle;">
-			<button type="button" class="cerb-filter-editor--save"><span class="glyphicons glyphicons-refresh"></span> {'common.update'|devblocks_translate|capitalize}</button>
+			<button type="button" class="cerb-filter-editor--save"><span class="cerb-icons cerb-icon-refresh"></span> {'common.update'|devblocks_translate|capitalize}</button>
 			<button type="button" class="cerb-filter-editor--reset">{'common.reset'|devblocks_translate|capitalize}</button>
 		</div>
 	</div>

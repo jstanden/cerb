@@ -13,9 +13,9 @@
 <br>
 
 {if $active_worker->is_superuser}
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button>
+	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button>
 	{if !$disabled}
-		{if $active_worker->is_superuser}<button type="button" class="revert"><span class="glyphicons glyphicons-refresh"></span></a> {'Revert'|devblocks_translate|capitalize}</button>{/if}
+		{if $active_worker->is_superuser}<button type="button" class="revert"><span class="cerb-icons cerb-icon-refresh"></span></a> {'Revert'|devblocks_translate|capitalize}</button>{/if}
 	{/if}
 {else}
 	<div class="error">{'error.core.no_acl.edit'|devblocks_translate}</div>	

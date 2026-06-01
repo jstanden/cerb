@@ -48,10 +48,10 @@
 
 <div class="cerb-code-editor-toolbar">
     {if !$llm_session->is_read}
-    <button class="button" data-cerb-button="mark-read"><span class="glyphicons glyphicons-circle-ok"></span> {{'home.my_notifications.button.mark_read'|devblocks_translate|capitalize}}</button>
+    <button class="button" data-cerb-button="mark-read"><span class="cerb-icons cerb-icon-circle-ok"></span> {{'home.my_notifications.button.mark_read'|devblocks_translate|capitalize}}</button>
     {/if}
-    <button class="button" data-cerb-button="delete"><span class="glyphicons glyphicons-circle-remove"></span> {{'common.delete'|devblocks_translate|capitalize}}</button>
-    <button class="button" data-cerb-button="permalink" data-cerb-permalink="{devblocks_url full=true}c=config&a=llm_agent_transcripts&uuid={$llm_session->uuid}{/devblocks_url}"><span class="glyphicons glyphicons-link"></span> {{'common.permalink'|devblocks_translate|capitalize}}</button>
+    <button class="button" data-cerb-button="delete"><span class="cerb-icons cerb-icon-circle-remove"></span> {{'common.delete'|devblocks_translate|capitalize}}</button>
+    <button class="button" data-cerb-button="permalink" data-cerb-permalink="{devblocks_url full=true}c=config&a=llm_agent_transcripts&uuid={$llm_session->uuid}{/devblocks_url}"><span class="cerb-icons cerb-icon-link"></span> {{'common.permalink'|devblocks_translate|capitalize}}</button>
 </div>
 
 {foreach from=$messages item=message}
@@ -96,7 +96,7 @@
         {if $smarty.capture.transcript_markdown}
             <pre class="cerb-transcript-assistant-markdown" style="display:none;">{$smarty.capture.transcript_markdown}</pre>
             <div class="cerb-code-editor-toolbar" style="border:0;">
-                <button type="button" data-cerb-button="transcript-copy" title="{{'common.copy'|devblocks_translate|capitalize}}"><span class="glyphicons glyphicons-copy"></span></button>
+                <button type="button" data-cerb-button="transcript-copy" title="{{'common.copy'|devblocks_translate|capitalize}}"><span class="cerb-icons cerb-icon-copy"></span></button>
             </div>
         {/if}
     {/if}

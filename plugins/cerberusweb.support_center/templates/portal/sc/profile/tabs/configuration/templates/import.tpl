@@ -11,11 +11,11 @@
 <br>
 
 <b>Import File:</b> (.xml)<br>
-<button type="button" class="chooser_file"><span class="glyphicons glyphicons-paperclip"></span></button>
+<button type="button" class="chooser_file"><span class="cerb-icons cerb-icon-paperclip"></span></button>
 <br>
 <br>
 
-<button type="button" class="submit"><span class="glyphicons glyphicons-file-import"></span></a> {'common.import'|devblocks_translate|capitalize}</button>
+<button type="button" class="submit"><span class="cerb-icons cerb-icon-file-import"></span></a> {'common.import'|devblocks_translate|capitalize}</button>
 
 </form>
 

@@ -26,8 +26,8 @@
 </fieldset>
 
 <div style="margin:10px 0px;" class="toolbar">
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.retry'|devblocks_translate|capitalize}</button>
-	<button type="button" class="cancel"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>
+	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.retry'|devblocks_translate|capitalize}</button>
+	<button type="button" class="cancel"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>
 </div>
 
 </form>

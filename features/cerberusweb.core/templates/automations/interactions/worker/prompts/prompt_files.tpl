@@ -2,7 +2,7 @@
 <div class="cerb-form-builder-prompt cerb-form-builder-prompt-files" id="{$element_id}">
 	<h6>{$label}</h6>
 
-	<button type="button" class="cerb-form-builder-prompt-files-button"><span class="glyphicons glyphicons-paperclip"></span></button>
+	<button type="button" class="cerb-form-builder-prompt-files-button"><span class="cerb-icons cerb-icon-paperclip"></span></button>
 	<ul class="chooser-container bubbles cerb-attachments-container">
 		{if $records && is_array($records)}
 			{foreach from=$records item=record name=records}
@@ -13,7 +13,7 @@
 						{if !empty($record->mime_type)}{$record->mime_type}{else}{'display.convo.unknown_format'|devblocks_translate|capitalize}{/if})
 					</a>
 					<input type="hidden" name="prompts[{$var}]{if $selection=='single'}{else}[]{/if}" value="{$record->id}">
-					<a><span class="glyphicons glyphicons-circle-remove"></span></a>
+					<a><span class="cerb-icons cerb-icon-circle-remove"></span></a>
 				</li>
 			{/foreach}
 		{/if}
@@ -40,7 +40,7 @@ $(function() {
 		e.stopPropagation();
 		let $target = $(e.target);
 
-		if($target.is('.glyphicons-circle-remove'))
+		if($target.is('.cerb-icon-circle-remove'))
 			$target.parent().remove();
 	});
 });

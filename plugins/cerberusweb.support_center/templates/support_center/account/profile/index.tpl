@@ -183,9 +183,9 @@
 				<div style="clear:both;"></div>
 				
 				<div>
-					<button type="button" class="canvas-avatar-zoomin"><span class="glyphicons glyphicons-zoom-in"></span></button>
-					<button type="button" class="canvas-avatar-zoomout"><span class="glyphicons glyphicons-zoom-out"></span></button>
-					<button type="button" class="canvas-avatar-remove"><span class="glyphicons glyphicons-erase"></span></button>
+					<button type="button" class="canvas-avatar-zoomin"><span class="cerb-icons cerb-icon-zoom-in"></span></button>
+					<button type="button" class="canvas-avatar-zoomout"><span class="cerb-icons cerb-icon-zoom-out"></span></button>
+					<button type="button" class="canvas-avatar-remove"><span class="cerb-icons cerb-icon-erase"></span></button>
 				</div>
 				
 				<div class="cerb-avatar-error"></div>
@@ -202,7 +202,7 @@
 </table>
 </fieldset>
 
-<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button>
+<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button>
 
 </form>
 

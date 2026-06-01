@@ -76,7 +76,7 @@ FIELDSET {
 			user-select: none;
 		}
 
-		span.glyphicons {
+		span.cerb-icons {
 			vertical-align: baseline;
 			color: var(--cerb-color-fieldset-icon);
 			margin-left: 5px;
@@ -171,10 +171,6 @@ BUTTON {
 		background: linear-gradient(to bottom, var(--cerb-color-button-gradient), var(--cerb-color-button-gradient-to--hover));
 		color: var(--cerb-color-button-icon--hover);
 		cursor:pointer;
-		
-		SPAN.glyphicons {
-			color: var(--cerb-color-button-icon--hover);
-		}
 	}
 
 	&::-moz-focus-inner {
@@ -182,11 +178,6 @@ BUTTON {
 		padding: 0;
 	}
 	
-	SPAN.glyphicons {
-		color: var(--cerb-color-button-icon);
-		font-size: 1.4em;
-	}
-
 	SPAN {
 		vertical-align: middle;
 	}

@@ -1,5 +1,5 @@
 <fieldset style="margin-top:10px;position:relative;">
-    <span data-cerb-link="remove_fieldset" class="glyphicons glyphicons-circle-remove" style="position:absolute;right:-5px;top:-10px;cursor:pointer;color:rgb(80,80,80);zoom:1.5;background-color:var(--cerb-color-background);"></span>
+    <span data-cerb-link="remove_fieldset" class="cerb-icons cerb-icon-circle-remove" style="position:absolute;right:-5px;top:-10px;cursor:pointer;color:rgb(80,80,80);zoom:1.5;background-color:var(--cerb-color-background);"></span>
     <legend>{'common.preview'|devblocks_translate|capitalize}</legend>
     {include file="devblocks:cerberusweb.core::internal/snippets/prompts.tpl"}
 </fieldset>

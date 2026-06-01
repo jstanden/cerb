@@ -1,6 +1,6 @@
 {$div_id = uniqid('div')}
 <div id="{$div_id}" style="text-align:right;">
-	<span class="glyphicons glyphicons-circle-ok"></span>
+	<span class="cerb-icons cerb-icon-circle-ok"></span>
 	Draft saved <strong>{$timestamp|devblocks_date}</strong> 
 	(<a>{'common.hide'|devblocks_translate|lower}</a>)
 </div>

@@ -7,12 +7,12 @@
 	<p>
 		Pages allow you to build a completely personalized interface based on your needs.
 		
-		Your most frequently used pages can be added to the menu above by clicking on the <button type="button"><span class="glyphicons glyphicons-circle-plus" style="color:rgb(150,150,150);"></span></button> button.
+		Your most frequently used pages can be added to the menu above by clicking on the <button type="button"><span class="cerb-icons cerb-icon-circle-plus" style="color:rgb(150,150,150);"></span></button> button.
 	</p>
 
 	{if $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_PAGE}.create")}
 	<p>
-		New pages can be added by clicking on the <span class="help callout-worklist" style="cursor:pointer;"><span class="glyphicons glyphicons-circle-plus"></span></span> icon in the <b>Pages</b> list below.
+		New pages can be added by clicking on the <span class="help callout-worklist" style="cursor:pointer;"><span class="cerb-icons cerb-icon-circle-plus"></span></span> icon in the <b>Pages</b> list below.
 	</p>
 	{/if}
 </div>

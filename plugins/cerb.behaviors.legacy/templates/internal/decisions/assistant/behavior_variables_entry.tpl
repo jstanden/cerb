@@ -61,7 +61,7 @@
 			{/if}
 		{elseif substr($var.type,0,4) == 'ctx_'}
 			{$context = substr($var.type,4)}
-			<button type="button" class="cerb-chooser-trigger" data-context="{$context}" data-field-name="{$field_name}[{$var.key}][]"><span class="glyphicons glyphicons-search"></span></button>
+			<button type="button" class="cerb-chooser-trigger" data-context="{$context}" data-field-name="{$field_name}[{$var.key}][]"><span class="cerb-icons cerb-icon-search"></span></button>
 			<ul class="bubbles chooser-container" style="display:inline-block;">
 				{if is_array($variable_values.$var_key)}
 				{foreach from=$variable_values.$var_key item=context_id}

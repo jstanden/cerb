@@ -6,7 +6,7 @@
 
 {if $tab_is_editable}
 <form action="#" method="post" style="margin:5px;" id="frm{$tab_uniqid}">
-	<button type="button"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
+	<button type="button"><span class="cerb-icons cerb-icon-gear"></span> {'common.edit'|devblocks_translate|capitalize}</button>
 </form>
 {/if}
 

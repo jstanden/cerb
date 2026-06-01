@@ -1,7 +1,7 @@
 {if !empty($profile->id) && !empty($storage_schema_stats)}
 <div class="error-box">
 	<h1>
-		<span class="glyphicons glyphicons-warning-sign"></span>
+		<span class="cerb-icons cerb-icon-alert"></span>
 		Warning!
 	</h1>
 	<p>
@@ -62,12 +62,12 @@ Used by:<br>
 {/if}
 
 {if $active_worker->is_superuser}
-	<button type="button" value="saveStorageProfilePeek" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button>
-	{if !empty($profile->id) && empty($storage_schema_stats)}<button type="button" class="delete"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	<button type="button" value="saveStorageProfilePeek" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button>
+	{if !empty($profile->id) && empty($storage_schema_stats)}<button type="button" class="delete"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 {else}
 	<div class="error">{'error.core.no_acl.edit'|devblocks_translate}</div>	
 {/if}
-<button type="button" class="tester" value="testProfileJson"><span class="glyphicons glyphicons-cogwheel"></span> Test</button>
+<button type="button" class="tester" value="testProfileJson"><span class="cerb-icons cerb-icon-gear"></span> Test</button>
 
 </form>
 

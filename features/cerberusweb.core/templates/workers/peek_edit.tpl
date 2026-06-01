@@ -82,7 +82,7 @@
 			<tr>
 				<td width="0%" nowrap="nowrap" valign="middle"><b>{'common.email'|devblocks_translate}</b>: </td>
 				<td width="100%">
-					<button type="button" class="chooser-abstract" data-field-name="email_id" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-single="true" data-query="mailTransport.id:0 worker.id:0 " data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="glyphicons glyphicons-search"></span></button>
+					<button type="button" class="chooser-abstract" data-field-name="email_id" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-single="true" data-query="mailTransport.id:0 worker.id:0 " data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="cerb-icons cerb-icon-search"></span></button>
 					
 					<ul class="bubbles chooser-container">
 						{$addy = $worker->getEmailModel()}
@@ -100,7 +100,7 @@
 			<tr>
 				<td width="0%" nowrap="nowrap" valign="top">{'common.emails.alternate'|devblocks_translate|capitalize}: </td>
 				<td width="100%">
-					<button type="button" class="chooser-abstract" data-field-name="email_ids[]" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="mailTransport.id:0 worker.id:0 " data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="glyphicons glyphicons-search"></span></button>
+					<button type="button" class="chooser-abstract" data-field-name="email_ids[]" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="mailTransport.id:0 worker.id:0 " data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="cerb-icons cerb-icon-search"></span></button>
 					
 					<ul class="bubbles chooser-container">
 						{$addys = $worker->getEmailModels()}
@@ -143,10 +143,10 @@
 			<tr>
 				<td width="1%" nowrap="nowrap" valign="top">{'common.gender'|devblocks_translate|capitalize}:</td>
 				<td width="99%">
-					<label><input type="radio" name="gender" value="M" {if $worker->gender == 'M'}checked="checked"{/if}> <span class="glyphicons glyphicons-male" style="color:rgb(2,139,212);"></span> {'common.gender.male'|devblocks_translate|capitalize}</label>
+					<label><input type="radio" name="gender" value="M" {if $worker->gender == 'M'}checked="checked"{/if}> <span class="cerb-icons cerb-icon-gender-male" style="color:rgb(2,139,212);"></span> {'common.gender.male'|devblocks_translate|capitalize}</label>
 					&nbsp; 
 					&nbsp; 
-					<label><input type="radio" name="gender" value="F" {if $worker->gender == 'F'}checked="checked"{/if}> <span class="glyphicons glyphicons-female" style="color:rgb(243,80,157);"></span> {'common.gender.female'|devblocks_translate|capitalize}</label>
+					<label><input type="radio" name="gender" value="F" {if $worker->gender == 'F'}checked="checked"{/if}> <span class="cerb-icons cerb-icon-gender-female" style="color:rgb(243,80,157);"></span> {'common.gender.female'|devblocks_translate|capitalize}</label>
 					&nbsp; 
 					&nbsp; 
 					<label><input type="radio" name="gender" value="" {if empty($worker->gender)}checked="checked"{/if}> {'common.unknown'|devblocks_translate|capitalize}</label>
@@ -306,8 +306,8 @@
 
 {if $active_worker->is_superuser}
 <div class="buttons" style="margin-top:10px;">
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button>
-	{if !empty($worker->id) && $active_worker->is_superuser && $active_worker->id != $worker->id}<button type="button" class="delete-prompt"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button>
+	{if !empty($worker->id) && $active_worker->is_superuser && $active_worker->id != $worker->id}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 {else}
 	<div class="error">{'error.core.no_acl.edit'|devblocks_translate}</div>	

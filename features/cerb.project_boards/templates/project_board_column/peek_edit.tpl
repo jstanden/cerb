@@ -23,7 +23,7 @@
 	<tr>
 		<td width="1%" nowrap="nowrap"><b>{'projects.common.board'|devblocks_translate|capitalize}:</b></td>
 		<td width="99%">
-			<button type="button" class="chooser-abstract" data-field-name="board_id" data-context="{CerberusContexts::CONTEXT_PROJECT_BOARD}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
+			<button type="button" class="chooser-abstract" data-field-name="board_id" data-context="{CerberusContexts::CONTEXT_PROJECT_BOARD}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="cerb-icons cerb-icon-search"></span></button>
 			
 			<ul class="bubbles chooser-container">
 				{if $model}
@@ -155,7 +155,7 @@
 
 		<div class="cerb-code-editor-toolbar-divider"></div>
 
-		<button type="button" class="cerb-code-editor-toolbar-button"><span class="glyphicons glyphicons-circle-question-mark"></span></button>
+		<button type="button" class="cerb-code-editor-toolbar-button"><span class="cerb-icons cerb-icon-circle-question-mark"></span></button>
 	</div>
 
 	<textarea name="toolbar_kata" data-editor-mode="ace/mode/cerb_kata">{$model->toolbar_kata}</textarea>
@@ -180,10 +180,10 @@
 
 <div class="buttons" style="margin-top:10px;">
 	{if $model->id}
-		<button type="button" class="save"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-		{if $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+		<button type="button" class="save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+		{if $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 	{else}
-		<button type="button" class="create"><span class="glyphicons glyphicons-circle-plus"></span> {'common.create'|devblocks_translate|capitalize}</button>
+		<button type="button" class="create"><span class="cerb-icons cerb-icon-circle-plus"></span> {'common.create'|devblocks_translate|capitalize}</button>
 	{/if}
 </div>
 </form>
