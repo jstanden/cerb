@@ -814,7 +814,7 @@ class _DevblocksSheetServiceTypes {
 			
 			if($image) {
 				if(!in_array($image, $icons_available))
-					$image = null;
+					$image = 'zap';
 			}
 			
 			/*
