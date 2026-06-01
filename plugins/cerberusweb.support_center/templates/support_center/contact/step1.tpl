@@ -13,7 +13,7 @@
 		
 		{foreach from=$dispatch item=params key=reason}
 			{assign var=dispatchKey value=$reason|md5}
-			<label><input type="radio" name="nature" value="{$dispatchKey}" onclick="this.form.submit();"> {$reason}</label><br>
+			<label><input type="radio" name="nature" value="{$dispatchKey}" data-sc-submit> {$reason}</label><br>
 		{/foreach}
 		<br>
 		<button type="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.ok'|devblocks_translate|upper}</button>

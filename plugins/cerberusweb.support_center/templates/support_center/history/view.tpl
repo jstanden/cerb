@@ -18,7 +18,7 @@
 	<tr>
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
-			<th nowrap="nowrap" onclick="ajaxHtmlGet('#view{$view->id}','{devblocks_url}c=ajax&a=viewSortBy{/devblocks_url}?id={$view->id}&sort_by={$header}');">
+			<th nowrap="nowrap" data-sc-ajax-target="#view{$view->id}" data-sc-ajax-url="{devblocks_url}c=ajax&a=viewSortBy{/devblocks_url}?id={$view->id}&sort_by={$header}">
 			<a style="font-weight:bold;">{$view_fields.$header->db_label|capitalize}</a>
 			
 			{* add arrow if sorting by this column, finish table header tag *}
@@ -166,13 +166,13 @@
 			{if $fromRow > $toRow}{$fromRow = $toRow}{/if}
 			
 			{if $view->renderPage > 0}
-				<a onclick="ajaxHtmlGet('#view{$view->id}','{devblocks_url}c=ajax&a=viewPage{/devblocks_url}?id={$view->id}&page=0');">&lt;&lt;</a>
-				<a onclick="ajaxHtmlGet('#view{$view->id}','{devblocks_url}c=ajax&a=viewPage{/devblocks_url}?id={$view->id}&page={$prevPage}');">&lt;{'common.previous_short'|devblocks_translate|capitalize}</a>
+				<a data-sc-ajax-target="#view{$view->id}" data-sc-ajax-url="{devblocks_url}c=ajax&a=viewPage{/devblocks_url}?id={$view->id}&page=0">&lt;&lt;</a>
+				<a data-sc-ajax-target="#view{$view->id}" data-sc-ajax-url="{devblocks_url}c=ajax&a=viewPage{/devblocks_url}?id={$view->id}&page={$prevPage}">&lt;{'common.previous_short'|devblocks_translate|capitalize}</a>
 			{/if}
 			({'views.showing_from_to'|devblocks_translate:$fromRow:$toRow:$total})
 			{if $toRow < $total}
-				<a onclick="ajaxHtmlGet('#view{$view->id}','{devblocks_url}c=ajax&a=viewPage{/devblocks_url}?id={$view->id}&page={$nextPage}');">{'common.next'|devblocks_translate|capitalize}&gt;</a>
-				<a onclick="ajaxHtmlGet('#view{$view->id}','{devblocks_url}c=ajax&a=viewPage{/devblocks_url}?id={$view->id}&page={$lastPage}');">&gt;&gt;</a>
+				<a data-sc-ajax-target="#view{$view->id}" data-sc-ajax-url="{devblocks_url}c=ajax&a=viewPage{/devblocks_url}?id={$view->id}&page={$nextPage}">{'common.next'|devblocks_translate|capitalize}&gt;</a>
+				<a data-sc-ajax-target="#view{$view->id}" data-sc-ajax-url="{devblocks_url}c=ajax&a=viewPage{/devblocks_url}?id={$view->id}&page={$lastPage}">&gt;&gt;</a>
 			{/if}
 		</td>
 	</tr>

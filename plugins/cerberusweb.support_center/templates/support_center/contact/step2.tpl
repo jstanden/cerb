@@ -137,7 +137,7 @@
 		
 		<div class="buttons">
 			<button type="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'portal.public.send_message'|devblocks_translate}</button>
-			<button type="button" onclick="document.location='{devblocks_url}{/devblocks_url}';"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.discard'|devblocks_translate|capitalize}</button>
+			<button type="button" data-sc-href="{devblocks_url}{/devblocks_url}"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.discard'|devblocks_translate|capitalize}</button>
 		</div>
 	</td>
 	</tr>

@@ -45,7 +45,7 @@
 	{/if}
 
 	<div style="padding:5px;">
-		<button type="button" onclick="document.querySelector('#history div.properties-view').style.display='none';document.querySelector('#history form.properties-edit').style.display='block';"><span class="cerb-icons cerb-icon-gear"></span> {'common.edit'|devblocks_translate|capitalize}</button>
+		<button type="button" data-sc-edit><span class="cerb-icons cerb-icon-gear"></span> {'common.edit'|devblocks_translate|capitalize}</button>
 	</div>
 </div>
 
@@ -94,7 +94,7 @@
 	
 		<div style="padding:5px;">
 			<button type="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-			<button type="button" onclick="document.querySelector('#history form.properties-edit').style.display='none';document.querySelector('#history div.properties-view').style.display='block';"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+			<button type="button" data-sc-edit-cancel><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 		</div>
 	</fieldset>
 </form>
@@ -177,7 +177,7 @@
 		</div>
 	{/if}
 	
-	<button type="button" onclick="let $div=this.nextElementSibling;$div.style.display='block';document.querySelector('textarea').focus();"><span class="cerb-icons cerb-icon-send"></span> Reply</button>
+	<button type="button" data-sc-reply><span class="cerb-icons cerb-icon-send"></span> Reply</button>
 	
 	<div class="reply" style="display:none;margin-left:15px;">
 		<div class="header"><h2>{'portal.sc.public.history.reply'|devblocks_translate}</h2></div>
@@ -203,7 +203,7 @@
 		</fieldset>
 		
 		<button type="submit"><span class="cerb-icons cerb-icon-send"></span> {'portal.public.send_message'|devblocks_translate}</button>
-		<button type="button" onclick="this.closest('div.reply').style.display='none';"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+		<button type="button" data-sc-reply-cancel><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 		</form>
 	</div>
 	

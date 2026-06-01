@@ -206,7 +206,7 @@
 
 </form>
 
-<script type="text/javascript">
+<script nonce="{$nonce}" type="text/javascript">
 	let $form = document.querySelector('#profileForm');
 	
 	{if 2 == $show_fields.contact_photo}

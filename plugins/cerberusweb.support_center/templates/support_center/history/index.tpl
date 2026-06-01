@@ -71,7 +71,7 @@
 
 </div><!--#history-->
 
-<script type="text/javascript">
+<script nonce="{$nonce}" type="text/javascript">
 let $history = document.querySelector('#history');
 let $input = $history.querySelector('input[name="prompts[created]"]');
 

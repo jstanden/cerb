@@ -230,12 +230,11 @@ class UmScApp extends Extension_CommunityPortal {
 		
 		$umsession = ChPortalHelper::getSession();
 		$tpl->assign('session', $umsession);
-		
-		DevblocksPlatform::services()->http()->setHeader(
-			'Content-Security-Policy',
-			"default-src 'self'; img-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; object-src 'none';"
-		);
-		
+
+		// Per-request nonce for inline <script> blocks (script-src in the CSP below)
+		$nonce = DevblocksPlatform::getRequestNonce();
+		$tpl->assign('nonce', $nonce);
+
 		$tpl->assign('portal_code', ChPortalHelper::getCode());
 		
 		$page_title = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_PAGE_TITLE, 'Support Center');
@@ -263,8 +262,9 @@ class UmScApp extends Extension_CommunityPortal {
 		DevblocksPlatform::services()->http()->setHeader(
 			'Content-Security-Policy',
 			sprintf(
-				"default-src 'self'; img-src 'self' %s; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; object-src 'none';",
+				"default-src 'self'; img-src 'self' data: %s; script-src 'self' 'nonce-%s'; style-src 'self' 'unsafe-inline'; object-src 'none';",
 				$security_csp_img_srcs ? implode(' ', $security_csp_img_srcs) : '',
+				$nonce,
 			)
 		);
 		

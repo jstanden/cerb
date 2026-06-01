@@ -28,6 +28,6 @@
 
 {include file="devblocks:cerberusweb.support_center::support_center/login/switcher.tpl"}
 
-<script type="text/javascript">
+<script nonce="{$nonce}" type="text/javascript">
 	document.querySelector('#loginForm input[name=email]').focus();
 </script>

@@ -10,8 +10,9 @@
 	<link type="image/x-icon" rel="shortcut icon" href="{$favicon_url}">
 	{/if}
 	
-	<script type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=js/devblocks.common.js{/devblocks_url}"></script>
-	
+	<script nonce="{$nonce}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=js/devblocks.common.js{/devblocks_url}"></script>
+	<script nonce="{$nonce}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=js/support_center.js{/devblocks_url}"></script>
+
 	<style type='text/css'>
 		{include file="devblocks:cerberusweb.support_center:portal_{$portal_code}:support_center/style.css.tpl"}
 		{include file="devblocks:cerberusweb.support_center:portal_{$portal_code}:support_center/user_styles.css.tpl"}
