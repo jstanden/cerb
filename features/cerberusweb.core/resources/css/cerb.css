@@ -2438,22 +2438,29 @@ BUTTON.split-right .cerb-icon-chevron-down {
   color: var(--cerb-color-button-icon);
 }
 
-#badgeNotifications {
-  display: none;
-  padding: 3px 5px 3px 5px;
-  margin-left: 5px;
-  background-color: var(--cerb-color-tag-red);
-  border-radius: 5px;
+@keyframes cerbBellJiggle {
+  0%, 5%, 100% {
+    transform: rotate(0deg);
+  }
+  0.5%, 1.5%, 2.5%, 3.5%, 4.5% {
+    transform: rotate(45deg);
+  }
+  1%, 2%, 3%, 4% {
+    transform: rotate(-45deg);
+  }
 }
-#badgeNotifications A {
-  color: white;
-  text-decoration: none;
-  font-weight: bold;
-}
-#badgeNotifications A:hover {
-  text-decoration: underline;
+#badgeNotifications .cerb-icon-bell {
+  display: inline-block;
+  transform-origin: top center;
+  animation: cerbBellJiggle 30s ease-in-out infinite;
+  animation-delay: 5s;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  #badgeNotifications .cerb-icon-bell {
+    animation: none;
+  }
+}
 UL.navmenu {
   overflow: hidden;
   clear: both;

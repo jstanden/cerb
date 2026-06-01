@@ -1,22 +1,18 @@
 {if $active_worker && $active_worker_notify_count}
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $().ready(function() {
-	var $badge = $('#badgeNotifications');
-	var $a = $badge.find('> a');
-	var $count = $('<span/>').text("{$active_worker_notify_count} ");
-	{if $active_worker_notify_count == 1}
-	var $txt = $('<span/>').text("{'common.notification'|devblocks_translate|lower}");
-	{else}
-	var $txt = $('<span/>').text("{'common.notifications'|devblocks_translate|lower}");
-	{/if}
-	$a.html('').append($count).append($txt);
-	$badge.fadeIn('slow');
-	
-	$a.attr('data-context', '{CerberusContexts::CONTEXT_NOTIFICATION}');
-	$a.attr('data-layer', 'notifications_me');
-	$a.attr('data-query', 'isRead:n');
-	$a.attr('data-query-required', 'worker.id:{$active_worker->id}');
-	$a.cerbSearchTrigger();
+	const $btn = $('#badgeNotifications');
+	const $icon = $('<span class="cerb-icons cerb-icon-bell"/>');
+	const $count = $('<span style="margin-left:0.2em;vertical-align:0.2em;"/>').text("{$active_worker_notify_count} ");
+	$btn.html('').append($icon).append($count);
+	$btn.show();
+
+	$btn.attr('type', 'button');
+	$btn.attr('data-context', '{CerberusContexts::CONTEXT_NOTIFICATION}');
+	$btn.attr('data-layer', 'notifications_me');
+	$btn.attr('data-query', 'isRead:n');
+	$btn.attr('data-query-required', 'worker.id:{$active_worker->id}');
+	$btn.cerbSearchTrigger();
 });
 </script>
 {/if}
