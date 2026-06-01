@@ -36,10 +36,6 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 					return $this->_internalAction_page();
 				case 'refresh':
 					return $this->_internalAction_refresh();
-				case 'renderCopy':
-					return $this->_internalAction_renderCopy();
-				case 'saveCopy':
-					return $this->_internalAction_saveCopy();
 				case 'renderImportPopup':
 					return $this->_internalAction_renderImportPopup();
 				case 'renderImportMappingPopup':
@@ -245,96 +241,6 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		
 		$tpl->assign('view', $view);
 		$tpl->display('devblocks:cerberusweb.core::internal/views/customize_view.tpl');
-	}
-	
-	private function _internalAction_renderCopy() {
-		$tpl = DevblocksPlatform::services()->template();
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'] ?? null, 'string');
-		
-		if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
-			return;
-		
-		$tpl->assign('view_id', $view_id);
-		$tpl->assign('view', $view);
-		
-		$worker_pages = DAO_WorkspacePage::getByWorker($active_worker);
-		
-		// Only worklists tabs
-		$tabs = array_filter(
-			DAO_WorkspaceTab::getAll(),
-			function(Model_WorkspaceTab $tab) use (&$worker_pages) {
-				return $tab->extension_id == 'core.workspace.tab.worklists'
-					&& array_key_exists($tab->workspace_page_id, $worker_pages)
-				;
-			}
-		);
-		
-		// Only pages with available tabs
-		$worker_pages = array_intersect_key($worker_pages, array_flip(array_column($tabs, 'workspace_page_id')));
-		
-		$tpl->assign('pages', $worker_pages);
-		$tpl->assign('tabs', $tabs);
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/views/copy.tpl');
-	}
-	
-	private function _internalAction_saveCopy() {
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 405);
-		
-		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
-		
-		if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
-			DevblocksPlatform::dieWithHttpError(null, 404);
-		
-		$list_title = DevblocksPlatform::importGPC($_POST['list_title'] ?? null, 'string', '');
-		$workspace_page_id = DevblocksPlatform::importGPC($_POST['workspace_page_id'] ?? null, 'integer', 0);
-		$workspace_tab_id = DevblocksPlatform::importGPC($_POST['workspace_tab_id'] ?? null, 'integer', 0);
-		
-		if(null == ($workspace_page = DAO_WorkspacePage::get($workspace_page_id)))
-			DevblocksPlatform::dieWithHttpError(null, 404);
-		
-		if(!Context_WorkspacePage::isWriteableByActor($workspace_page, $active_worker))
-			DevblocksPlatform::dieWithHttpError(null, 403);
-		
-		if(null == ($workspace_tab = DAO_WorkspaceTab::get($workspace_tab_id)))
-			DevblocksPlatform::dieWithHttpError(null, 404);
-		
-		if($workspace_tab->workspace_page_id != $workspace_page->id)
-			return;
-		
-		if(empty($list_title))
-			$list_title = DevblocksPlatform::translate('mail.workspaces.new_list');
-		
-		$workspace_context = $view->getContext();
-		
-		if(empty($workspace_context))
-			DevblocksPlatform::dieWithHttpError(null, 404);
-		
-		// Save the new worklist
-		$fields = [
-			DAO_WorkspaceList::COLUMNS_JSON => json_encode($view->view_columns),
-			DAO_WorkspaceList::CONTEXT => $workspace_context,
-			DAO_WorkspaceList::NAME => $list_title,
-			DAO_WorkspaceList::OPTIONS_JSON => json_encode($view->options),
-			DAO_WorkspaceList::PARAMS_EDITABLE_JSON => json_encode($view->getEditableParams()),
-			DAO_WorkspaceList::PARAMS_REQUIRED_JSON => json_encode($view->getParamsRequired()),
-			DAO_WorkspaceList::PARAMS_REQUIRED_QUERY => $view->getParamsRequiredQuery(),
-			DAO_WorkspaceList::RENDER_LIMIT => $view->renderLimit,
-			DAO_WorkspaceList::RENDER_SORT_JSON => json_encode($view->getSorts()),
-			DAO_WorkspaceList::RENDER_SUBTOTALS => $view->renderSubtotals,
-			DAO_WorkspaceList::WORKSPACE_TAB_ID => $workspace_tab_id,
-			DAO_WorkspaceList::WORKSPACE_TAB_POS => 99,
-		];
-		$new_id = DAO_WorkspaceList::create($fields);
-		
-		DAO_WorkerViewModel::deleteByViewId('cust_' . $new_id);
-		
-		$view->render();
 	}
 	
 	private function _internalAction_broadcastTest() {
