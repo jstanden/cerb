@@ -524,7 +524,7 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 		return true;
 	}
 
-	private function _resolveS3Url(string $bucket, string $endpoint, string $object_path) : array {
+	private function _resolveS3Url(string $bucket, string $endpoint, string $object_path, string $query='') : array {
 		// The endpoint may include an optional scheme and port: [scheme://]host[:port].
 		// Defaults to HTTPS; an explicit http:// (e.g. a local MinIO) is allowed.
 		$scheme = 'https';
@@ -565,7 +565,7 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 
 		return [
 			'host' => $authority,
-			'url' => $scheme . '://' . $authority . $path,
+			'url' => $scheme . '://' . $authority . $path . ($query !== '' ? '?' . $query : ''),
 		];
 	}
 
@@ -575,8 +575,8 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 	 * @param string|resource|\Psr\Http\Message\StreamInterface|null $body
 	 * @return ResponseInterface|false
 	 */
-	private function _s3Request($signer, string $region, string $endpoint, ?string $bucket, string $method, string $object_path, $body, string $content_sha256, array $headers=[], array $send_options=[]) {
-		$resolved = $this->_resolveS3Url($bucket ?? '', $endpoint, $object_path);
+	private function _s3Request($signer, string $region, string $endpoint, ?string $bucket, string $method, string $object_path, $body, string $content_sha256, array $headers=[], array $send_options=[], string $query='') {
+		$resolved = $this->_resolveS3Url($bucket ?? '', $endpoint, $object_path, $query);
 
 		// These must be present and signed for S3 SigV4
 		$headers = array_merge([
@@ -789,37 +789,69 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 		}
 	}
 
+	public function deletesAreDeferred() : bool {
+		// S3 deletes are remote/slow; defer them to the background storage queue
+		return true;
+	}
+
+	public function getDeleteBatchSize() : int {
+		// The DeleteObjects API accepts up to 1000 keys per request
+		return 1000;
+	}
+
 	public function delete($namespace, $key) {
-		// Queue up batch DELETEs
-		$profile_id = isset($this->_options['_profile_id']) ? $this->_options['_profile_id'] : 0;
-		DAO_DevblocksStorageQueue::enqueueDelete($namespace, $key, $this->manifest->id, $profile_id);
+		// Immediate single delete; deferral/batching happens upstream in deleteKeys()
+		return $this->batchDelete($namespace, [$key]);
 	}
 
 	public function batchDelete($namespace, $keys) {
-		$bucket = $this->_options['bucket'] ?? null;
-		$errors = array();
+		if(!is_array($keys) || !$keys)
+			return [];
 
+		$bucket = $this->_options['bucket'] ?? null;
 		$ns = $this->escapeNamespace($namespace);
 		$path_prefix = $this->_options['path_prefix'];
-		$empty_hash = hash('sha256', '');
 
-		// Handle the case where some objects fail to delete (e.g. AccessDenied)
+		$key_prefix = $path_prefix . $ns . '/';
+		$deleted = [];
 
-		foreach($keys as $key) {
-			$path = $path_prefix . $ns . '/' . $key;
+		// Native multi-object delete (DeleteObjects): one signed POST {bucket}/?delete per <=1000 keys
+		foreach(array_chunk(array_values($keys), 1000) as $chunk) {
+			// Quiet mode: only failures are returned in the response
+			$xml = '<?xml version="1.0" encoding="UTF-8"?><Delete><Quiet>true</Quiet>';
 
-			$response = $this->_s3Request($this->_signer, $this->_region, $this->_options['host'], $bucket, 'DELETE', $path, null, $empty_hash, [], ['timeout' => 30]);
-
-			if(!($response instanceof ResponseInterface) || !in_array($response->getStatusCode(), [200, 204])) {
-				$errors[] = $key;
+			foreach($chunk as $key) {
+				$xml .= '<Object><Key>' . htmlspecialchars($key_prefix . $key, ENT_XML1, 'UTF-8') . '</Key></Object>';
 			}
+
+			$xml .= '</Delete>';
+
+			$headers = [
+				'Content-Type' => 'application/xml',
+				'Content-MD5' => base64_encode(md5($xml, true)),
+				'Content-Length' => strlen($xml),
+			];
+
+			$response = $this->_s3Request($this->_signer, $this->_region, $this->_options['host'], $bucket, 'POST', '', $xml, hash('sha256', $xml), $headers, ['timeout' => 60], 'delete=');
+
+			// On a hard failure the whole chunk is unconfirmed; leave its keys for retry
+			if(!($response instanceof ResponseInterface) || 200 != $response->getStatusCode())
+				continue;
+
+			// Parse per-key <Error> entries; everything else in the chunk was deleted
+			$failed = [];
+
+			if(($body = $response->getBody()->getContents()) && ($doc = DevblocksPlatform::parseXml($body)) && isset($doc->Error)) {
+				foreach($doc->Error as $error) {
+					$failed[] = substr((string) $error->Key, strlen($key_prefix));
+				}
+			}
+
+			$deleted = array_merge($deleted, array_values(array_diff($chunk, $failed)));
 		}
 
-		// Return the keys that were actually deleted, ignoring any errors
-		if(!empty($errors))
-			return array_diff($keys, $errors);
-
-		return $keys;
+		// The keys actually deleted (caller treats missing keys as failures to retry)
+		return $deleted;
 	}
 };
 
