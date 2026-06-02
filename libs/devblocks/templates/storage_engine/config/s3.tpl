@@ -1,4 +1,4 @@
-This engine stores content in Amazon's S3 cloud storage service.<br>
+This engine stores content in an S3-compatible storage service.<br>
 <br>
 
 <b>Access key:</b><br>
@@ -13,5 +13,8 @@ This engine stores content in Amazon's S3 cloud storage service.<br>
 <b>Path prefix:</b> (optional)<br>
 <input type="text" name="path_prefix" size="64" value="{$profile->params.path_prefix}" placeholder="path/to/files/"><br>
 
-<b>Host:</b> (see: <a href="https://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region" target="_blank" rel="noreferrer noopener">AWS S3 regional endpoints</a>)<br>
-<input type="text" name="host" size="64" value="{$profile->params.host}" placeholder="s3.amazonaws.com"><br>
+<b>Host:</b> (optional scheme/port for S3-compatible services; see: <a href="https://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region" target="_blank" rel="noreferrer noopener">AWS S3 regional endpoints</a>)<br>
+<input type="text" name="host" size="64" value="{$profile->params.host}" placeholder="s3.amazonaws.com  —  or  http://minio.local:9000"><br>
+
+<b>Region:</b> (optional; default <code>us-east-1</code>)<br>
+<input type="text" name="region" size="32" value="{$profile->params.region}" placeholder="us-east-1"><br>

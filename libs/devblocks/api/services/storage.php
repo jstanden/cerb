@@ -1,6 +1,8 @@
 <?php
 
 use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Utils;
 use Psr\Http\Message\ResponseInterface;
 
 class _DevblocksStorageManager {
@@ -457,12 +459,13 @@ class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
 
 class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 	const ID = 'devblocks.storage.engine.s3';
-	
-	private $_s3 = null;
-	
+
+	private $_signer = null;
+	private $_region = 'us-east-1';
+
 	public function setOptions($options=array()) {
 		parent::setOptions($options);
-		
+
 		// Fail, this info is required.
 		if(!isset($this->_options['access_key']))
 			return false;
@@ -470,16 +473,115 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 			return false;
 		if(!isset($this->_options['bucket']))
 			return false;
+
+		// Default to the global S3 endpoint when no regional host is given
+		if(!isset($this->_options['host']) || empty($this->_options['host']))
+			$this->_options['host'] = 's3.amazonaws.com';
 		
-		if(!isset($this->_options['host']) || empty($this->_options['host'])) {
-			$this->_s3 = new S3($this->_options['access_key'], $this->_options['secret_key'], true);
-		} else {
-			$this->_s3 = new S3($this->_options['access_key'], $this->_options['secret_key'], true, $this->_options['host']);
-		}
-		
+		$this->_region = $this->_resolveRegion($this->_options['host'], $this->_options['region'] ?? '');
+		$this->_signer = DevblocksPlatform::services()->aws()->signer($this->_options['access_key'], $this->_options['secret_key']);
+
 		return true;
 	}
-	
+
+	private function _resolveRegion(string $endpoint, string $region='') : string {
+		// An explicit region wins (required for S3-compatible hosts like MinIO/Wasabi)
+		if($region)
+			return $region;
+
+		// Otherwise derive it from an AWS regional endpoint for backward compatibility
+		if($derived = DevblocksPlatform::services()->aws()->deriveRegionFromHost($endpoint))
+			return $derived;
+
+		return 'us-east-1';
+	}
+
+	/**
+	 * Mirror the S3 virtual-hosted addressing rules. A bucket name containing a dot would
+	 * break the wildcard TLS cert over HTTPS and must use path-style.
+	 */
+	private function _isDnsBucketName(string $bucket) : bool {
+		if(strlen($bucket) > 63 || preg_match('/[^a-z0-9\.-]/', $bucket))
+			return false;
+		if(str_contains($bucket, '.'))
+			return false;
+		if(str_contains($bucket, '-.') || str_contains($bucket, '..'))
+			return false;
+		if(!preg_match('/^[0-9a-z]/', $bucket) || !preg_match('/[0-9a-z]$/', $bucket))
+			return false;
+		return true;
+	}
+
+	private function _resolveS3Url(string $bucket, string $endpoint, string $object_path) : array {
+		// The endpoint may include an optional scheme and port: [scheme://]host[:port].
+		// Defaults to HTTPS; an explicit http:// (e.g. a local MinIO) is allowed.
+		$scheme = 'https';
+
+		if(preg_match('#^(https?)://(.*)$#i', $endpoint, $matches)) {
+			$scheme = DevblocksPlatform::strLower($matches[1]);
+			$endpoint = $matches[2];
+		}
+
+		$endpoint = rtrim($endpoint, '/');
+
+		// Split off an explicit port so we can detect non-AWS endpoints (MinIO, on-prem, etc.)
+		$host_only = $endpoint;
+		$has_port = false;
+
+		if(preg_match('#^(.+):(\d+)$#', $endpoint, $matches)) {
+			$host_only = $matches[1];
+			$has_port = true;
+		}
+
+		// Object keys are unreserved (namespace is alphanum+underscore, key is base32+digits),
+		// so this single segment-wise encoding is stable through signing and on the wire.
+		$encoded = '/' . str_replace('%2F', '/', rawurlencode($object_path));
+
+		// Virtual-hosted addressing only works against an AWS DNS endpoint on the default port.
+		// Everything else (MinIO, ngrok, on-prem, any custom port or IP) uses path-style, which is
+		// universally supported and avoids bucket-prefixed-hostname TLS certificate mismatches.
+		$is_aws = (bool) preg_match('/\.amazonaws\.com$/i', $host_only);
+		$use_vhost = $is_aws && !$has_port && $this->_isDnsBucketName($bucket);
+
+		if($use_vhost) {
+			$authority = $bucket . '.' . $endpoint;
+			$path = $encoded;
+		} else {
+			$authority = $endpoint;
+			$path = '/' . $bucket . $encoded;
+		}
+
+		return [
+			'host' => $authority,
+			'url' => $scheme . '://' . $authority . $path,
+		];
+	}
+
+	/**
+	 * Build, sign (AWS SigV4), and send a single S3 REST request.
+	 *
+	 * @param string|resource|\Psr\Http\Message\StreamInterface|null $body
+	 * @return ResponseInterface|false
+	 */
+	private function _s3Request($signer, string $region, string $endpoint, ?string $bucket, string $method, string $object_path, $body, string $content_sha256, array $headers=[], array $send_options=[]) {
+		$resolved = $this->_resolveS3Url($bucket ?? '', $endpoint, $object_path);
+
+		// These must be present and signed for S3 SigV4
+		$headers = array_merge([
+			'x-amz-date' => gmdate('Ymd\THis\Z'),
+			'x-amz-content-sha256' => $content_sha256,
+		], $headers);
+
+		$request = new Request($method, $resolved['url'], $headers, $body);
+		$request = $signer->sign($request, $region, 's3', $content_sha256);
+
+		// Return the response for any status code (e.g. a 404 HEAD) instead of throwing
+		$send_options = array_merge(['http_errors' => false, 'verify' => false], $send_options);
+
+		$error = $error_response = null;
+		return DevblocksPlatform::services()->http()->sendRequest($request, $send_options, $error, $error_response);
+	}
+
 	function testConfig(Model_DevblocksStorageProfile $profile) {
 		// Test S3 connection info
 		$access_key = DevblocksPlatform::importGPC($_POST['access_key'] ?? null, 'string', null);
@@ -487,62 +589,76 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 		$bucket = DevblocksPlatform::importGPC($_POST['bucket'] ?? null, 'string','');
 		$path_prefix = DevblocksPlatform::importGPC($_POST['path_prefix'] ?? null, 'string','');
 		$host = DevblocksPlatform::importGPC($_POST['host'] ?? null, 'string', 's3.amazonaws.com');
-		
+		$region = DevblocksPlatform::importGPC($_POST['region'] ?? null, 'string', '');
+
 		// If blank, try using a previously saved copy.
 		if(empty($secret_key) && isset($profile->params['secret_key']))
 			$secret_key = $profile->params['secret_key'];
+
+		if(empty($host))
+			$host = 's3.amazonaws.com';
 		
 		$path_prefix =
 			0 == strlen(trim($path_prefix, '/'))
 			? ''
 			: (trim($path_prefix, '/') . '/')
 			;
-		
+
 		try {
-			if(!empty($host))
-				$s3 = new S3($access_key, $secret_key, true, $host);
-			else
-				$s3 = new S3($access_key, $secret_key, true);
-			
+			$signer = DevblocksPlatform::services()->aws()->signer($access_key, $secret_key);
+			$region = $this->_resolveRegion($host, $region);
+
 			// Test a PUT, GET, and DELETE to verify the AWS credentials
-			
+
 			$uri = $path_prefix . '.cerb_s3_test';
-			
+			$empty_hash = hash('sha256', '');
+
 			// PUT
-			if(false == @$s3->putObject("CERB", $bucket, $uri))
+			$body = 'CERB';
+			$response = $this->_s3Request($signer, $region, $host, $bucket, 'PUT', $uri, $body, hash('sha256', $body), [
+				'Content-Type' => 'text/plain',
+				'x-amz-acl' => 'private',
+				'Content-Length' => strlen($body),
+			], ['timeout' => 30]);
+			if(!($response instanceof ResponseInterface) || 200 != $response->getStatusCode()) {
 				return false;
-			
+			}
+
 			// GET
-			if(false == ($result = @$s3->getObject($bucket, $uri))
-				|| !isset($result->body)
-				|| $result->body != 'CERB')
+			$response = $this->_s3Request($signer, $region, $host, $bucket, 'GET', $uri, null, $empty_hash, [], ['timeout' => 30]);
+			if(!($response instanceof ResponseInterface) || 200 != $response->getStatusCode() || 'CERB' != $response->getBody()->getContents()) {
 				return false;
-			
+			}
+
 			// DELETE
-			if(false == @$s3->deleteObject($bucket, $uri))
+			$response = $this->_s3Request($signer, $region, $host, $bucket, 'DELETE', $uri, null, $empty_hash, [], ['timeout' => 30]);
+			if(!($response instanceof ResponseInterface) || !in_array($response->getStatusCode(), [200, 204])) {
 				return false;
-			
+			}
+
 		} catch(Exception $e) {
+			DevblocksPlatform::logException($e);
 			return false;
 		}
-		
+
 		return true;
 	}
-	
+
 	function renderConfig(Model_DevblocksStorageProfile $profile) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('profile', $profile);
-		
+
 		$tpl->display("devblocks:devblocks.core::storage_engine/config/s3.tpl");
 	}
-	
+
 	function saveConfig(Model_DevblocksStorageProfile $profile) {
 		$access_key = DevblocksPlatform::importGPC($_POST['access_key'] ?? null, 'string', null);
 		$secret_key = DevblocksPlatform::importGPC($_POST['secret_key'] ?? null, 'string', null);
 		$bucket = DevblocksPlatform::importGPC($_POST['bucket'] ?? null, 'string', '');
 		$path_prefix = DevblocksPlatform::importGPC($_POST['path_prefix'] ?? null, 'string', '');
 		$host = DevblocksPlatform::importGPC($_POST['host'] ?? null, 'string', '');
-		
+		$region = DevblocksPlatform::importGPC($_POST['region'] ?? null, 'string', '');
+
 		// If blank, try using a previously saved copy.
 		if(empty($secret_key) && isset($profile->params['secret_key']))
 			$secret_key = $profile->params['secret_key'];
@@ -552,111 +668,127 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 			? ''
 			: (trim($path_prefix, '/') . '/')
 			;
-		
+
 		$fields = array(
 			DAO_DevblocksStorageProfile::PARAMS_JSON => json_encode(array(
 				'access_key' => $access_key,
 				'secret_key' => $secret_key,
 				'host' => $host,
+				'region' => $region,
 				'bucket' => $bucket,
 				'path_prefix' => $path_prefix,
 			)),
 		);
-		
+
 		DAO_DevblocksStorageProfile::update($profile->id, $fields);
 	}
-	
+
 	public function exists($namespace, $key) {
 		$bucket = $this->_options['bucket'] ?? null;
 		$path = $this->_options['path_prefix'] . $this->escapeNamespace($namespace) . '/' . $key;
-		
-		return false !== (@$this->_s3->getObjectInfo($bucket, $path));
+
+		$response = $this->_s3Request($this->_signer, $this->_region, $this->_options['host'], $bucket, 'HEAD', $path, null, hash('sha256', ''), [], ['timeout' => 30]);
+
+		return ($response instanceof ResponseInterface && 200 == $response->getStatusCode());
 	}
-	
+
 	public function put($namespace, $id, $data) {
 		$bucket = $this->_options['bucket'] ?? null;
-		
+
 		// Get a unique hash path for this namespace+id
 		$hash = base_convert(sha1($this->escapeNamespace($namespace).$id), 16, 32);
-		
+
 		$key = sprintf("%s/%s/%d",
 			substr($hash,0,1),
 			substr($hash,1,1),
 			$id
 		);
-		
+
 		$path = $this->_options['path_prefix'] . $this->escapeNamespace($namespace) . '/' . $key;
-		
+
+		$headers = [
+			'Content-Type' => 'application/octet-stream',
+			'x-amz-acl' => 'private',
+		];
+
 		if(is_resource($data)) {
-			// Write the content from stream
-			if(false === ($object = @$this->_s3->inputResource($data))) {
-				return false;
-			}
-			
-			if(false === @$this->_s3->putObject($object, $bucket, $path, S3::ACL_PRIVATE)) {
-				return false;
-			}
-			
+			// Stream large content without buffering it into memory to hash
+			$stat = fstat($data);
+			fseek($data, 0);
+
+			$headers['Content-Length'] = $stat['size'] ?? 0;
+			$content_sha256 = 'UNSIGNED-PAYLOAD';
+			$body = Utils::streamFor($data);
+
 		} else {
-			// Write the content from string
-			if(false === @$this->_s3->putObject($data, $bucket, $path, S3::ACL_PRIVATE)) {
-				return false;
-			}
+			// Hash small string content end-to-end
+			$headers['Content-Length'] = strlen($data);
+			$content_sha256 = hash('sha256', $data);
+			$body = $data;
 		}
-		
-		return $key;
+
+		$response = $this->_s3Request($this->_signer, $this->_region, $this->_options['host'], $bucket, 'PUT', $path, $body, $content_sha256, $headers, ['timeout' => 60]);
+
+		if($response instanceof ResponseInterface && 200 == $response->getStatusCode())
+			return $key;
+
+		return false;
 	}
 
 	public function get($namespace, $key, &$fp=null) {
 		$bucket = $this->_options['bucket'] ?? null;
 		$path = $this->_options['path_prefix'] . $this->escapeNamespace($namespace) . '/' . $key;
-		
+
+		// Stream the response so large objects aren't buffered into memory
+		$response = $this->_s3Request($this->_signer, $this->_region, $this->_options['host'], $bucket, 'GET', $path, null, hash('sha256', ''), [], ['timeout' => 60, 'stream' => true]);
+
+		if(!($response instanceof ResponseInterface) || 200 != $response->getStatusCode())
+			return false;
+
 		if($fp && is_resource($fp)) {
-			// Use the filename rather than $fp because the S3 lib will fclose($fp)
-			$tmpfile = DevblocksPlatform::getTempFileInfo($fp);
-			if(false !== (@$this->_s3->getObject($bucket, $path, $tmpfile))) {
-				fseek($fp, 0);
-				return true;
-			}
-			
+			$body = $response->getBody();
+
+			while(!$body->eof())
+				fwrite($fp, $body->read(65536));
+
+			fseek($fp, 0);
+			return true;
+
 		} else {
-			if(false !== ($object = @$this->_s3->getObject($bucket, $path))
-				&& isset($object->body))
-				return $object->body;
+			return $response->getBody()->getContents();
 		}
-			
-		return false;
 	}
-	
+
 	public function delete($namespace, $key) {
 		// Queue up batch DELETEs
 		$profile_id = isset($this->_options['_profile_id']) ? $this->_options['_profile_id'] : 0;
 		DAO_DevblocksStorageQueue::enqueueDelete($namespace, $key, $this->manifest->id, $profile_id);
 	}
-	
+
 	public function batchDelete($namespace, $keys) {
 		$bucket = $this->_options['bucket'] ?? null;
 		$errors = array();
-		
+
 		$ns = $this->escapeNamespace($namespace);
 		$path_prefix = $this->_options['path_prefix'];
-		
-		$paths = array_map(function($e) use ($ns, $path_prefix) {
-			return $path_prefix . $ns . '/'. $e;
-		}, $keys);
-		
+		$empty_hash = hash('sha256', '');
+
 		// Handle the case where some objects fail to delete (e.g. AccessDenied)
-		
-		foreach($paths as $path) {
-			if(false === (@$this->_s3->deleteObject($bucket, $path))) {
-				$errors[] = str_replace($path_prefix . $ns . '/', '', $path);
+
+		foreach($keys as $key) {
+			$path = $path_prefix . $ns . '/' . $key;
+
+			$response = $this->_s3Request($this->_signer, $this->_region, $this->_options['host'], $bucket, 'DELETE', $path, null, $empty_hash, [], ['timeout' => 30]);
+
+			if(!($response instanceof ResponseInterface) || !in_array($response->getStatusCode(), [200, 204])) {
+				$errors[] = $key;
 			}
 		}
-		
+
 		// Return the keys that were actually deleted, ignoring any errors
 		if(!empty($errors))
 			return array_diff($keys, $errors);
-		
+
 		return $keys;
 	}
 };
