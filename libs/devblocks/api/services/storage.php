@@ -467,19 +467,31 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 		parent::setOptions($options);
 
 		// Fail, this info is required.
-		if(!isset($this->_options['access_key']))
-			return false;
-		if(!isset($this->_options['secret_key']))
-			return false;
 		if(!isset($this->_options['bucket']))
+			return false;
+
+		// Credentials live in an encrypted connected account, not in the storage profile
+		$connected_account_id = intval($this->_options['connected_account_id'] ?? 0);
+
+		if(!$connected_account_id)
+			return false;
+
+		if(!($account = DAO_ConnectedAccount::get($connected_account_id)))
+			return false;
+
+		// Decrypt without an actor; storage I/O runs headless
+		if(!($credentials = $account->decryptParams()))
+			return false;
+
+		if(!isset($credentials['access_key']) || !isset($credentials['secret_key']))
 			return false;
 
 		// Default to the global S3 endpoint when no regional host is given
 		if(!isset($this->_options['host']) || empty($this->_options['host']))
 			$this->_options['host'] = 's3.amazonaws.com';
-		
+
 		$this->_region = $this->_resolveRegion($this->_options['host'], $this->_options['region'] ?? '');
-		$this->_signer = DevblocksPlatform::services()->aws()->signer($this->_options['access_key'], $this->_options['secret_key']);
+		$this->_signer = DevblocksPlatform::services()->aws()->signer($credentials['access_key'], $credentials['secret_key']);
 
 		return true;
 	}
@@ -584,16 +596,31 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 
 	function testConfig(Model_DevblocksStorageProfile $profile) {
 		// Test S3 connection info
-		$access_key = DevblocksPlatform::importGPC($_POST['access_key'] ?? null, 'string', null);
-		$secret_key = DevblocksPlatform::importGPC($_POST['secret_key'] ?? null, 'string', null);
+		$connected_account_id = DevblocksPlatform::importGPC($_POST['connected_account_id'] ?? null, 'integer', 0);
 		$bucket = DevblocksPlatform::importGPC($_POST['bucket'] ?? null, 'string','');
 		$path_prefix = DevblocksPlatform::importGPC($_POST['path_prefix'] ?? null, 'string','');
 		$host = DevblocksPlatform::importGPC($_POST['host'] ?? null, 'string', 's3.amazonaws.com');
 		$region = DevblocksPlatform::importGPC($_POST['region'] ?? null, 'string', '');
 
-		// If blank, try using a previously saved copy.
-		if(empty($secret_key) && isset($profile->params['secret_key']))
-			$secret_key = $profile->params['secret_key'];
+		// Fall back to the saved account when the form didn't submit one
+		if(empty($connected_account_id) && isset($profile->params['connected_account_id']))
+			$connected_account_id = intval($profile->params['connected_account_id']);
+
+		if(empty($connected_account_id))
+			return false;
+
+		// Pull the credentials from the encrypted connected account
+		if(!($account = DAO_ConnectedAccount::get($connected_account_id)))
+			return false;
+
+		if(!($credentials = $account->decryptParams()))
+			return false;
+
+		$access_key = $credentials['access_key'] ?? null;
+		$secret_key = $credentials['secret_key'] ?? null;
+
+		if(empty($access_key) || empty($secret_key))
+			return false;
 
 		if(empty($host))
 			$host = 's3.amazonaws.com';
@@ -648,20 +675,24 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('profile', $profile);
 
+		// Resolve the linked connected account for the chooser (no static calls in templates)
+		$connected_account = null;
+
+		if(($connected_account_id = intval($profile->params['connected_account_id'] ?? 0)))
+			$connected_account = DAO_ConnectedAccount::get($connected_account_id);
+
+		$tpl->assign('connected_account', $connected_account);
+		$tpl->assign('connected_account_context', CerberusContexts::CONTEXT_CONNECTED_ACCOUNT);
+
 		$tpl->display("devblocks:devblocks.core::storage_engine/config/s3.tpl");
 	}
 
 	function saveConfig(Model_DevblocksStorageProfile $profile) {
-		$access_key = DevblocksPlatform::importGPC($_POST['access_key'] ?? null, 'string', null);
-		$secret_key = DevblocksPlatform::importGPC($_POST['secret_key'] ?? null, 'string', null);
+		$connected_account_id = DevblocksPlatform::importGPC($_POST['connected_account_id'] ?? null, 'integer', 0);
 		$bucket = DevblocksPlatform::importGPC($_POST['bucket'] ?? null, 'string', '');
 		$path_prefix = DevblocksPlatform::importGPC($_POST['path_prefix'] ?? null, 'string', '');
 		$host = DevblocksPlatform::importGPC($_POST['host'] ?? null, 'string', '');
 		$region = DevblocksPlatform::importGPC($_POST['region'] ?? null, 'string', '');
-
-		// If blank, try using a previously saved copy.
-		if(empty($secret_key) && isset($profile->params['secret_key']))
-			$secret_key = $profile->params['secret_key'];
 
 		$path_prefix =
 			0 == strlen(trim($path_prefix, '/'))
@@ -671,8 +702,7 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 
 		$fields = array(
 			DAO_DevblocksStorageProfile::PARAMS_JSON => json_encode(array(
-				'access_key' => $access_key,
-				'secret_key' => $secret_key,
+				'connected_account_id' => $connected_account_id,
 				'host' => $host,
 				'region' => $region,
 				'bucket' => $bucket,

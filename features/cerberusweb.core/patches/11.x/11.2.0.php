@@ -2363,6 +2363,98 @@ if(!array_key_exists('queue_job_log', $tables)) {
 }
 
 // ===========================================================================
+// Migrate plaintext S3 storage credentials to encrypted connected accounts
+
+if(
+	array_key_exists('devblocks_storage_profile', $tables)
+	&& array_key_exists('connected_service', $tables)
+	&& array_key_exists('connected_account', $tables)
+) {
+	$encrypt = DevblocksPlatform::services()->encryption();
+
+	// Find the S3 storage profiles that still hold plaintext credentials
+	$s3_profiles = $db->GetArrayMaster(sprintf("SELECT id, name, params_json FROM devblocks_storage_profile WHERE extension_id = %s",
+		$db->qstr('devblocks.storage.engine.s3')
+	));
+
+	// Keep only the profiles that still carry plaintext keys and aren't migrated yet
+	$profiles_to_migrate = [];
+
+	if(is_array($s3_profiles))
+	foreach($s3_profiles as $profile) {
+		$params = json_decode($profile['params_json'] ?? '', true) ?: [];
+
+		if(!array_key_exists('access_key', $params) || array_key_exists('connected_account_id', $params))
+			continue;
+
+		$profile['params'] = $params;
+		$profiles_to_migrate[] = $profile;
+	}
+
+	if($profiles_to_migrate) {
+		// Resolve our dedicated 'AWS S3' connected service once, matched by name so we don't
+		// reuse some other AWS provider the operator configured for a non-S3 purpose. It almost
+		// never exists yet, so create it (params are an encrypted empty object).
+		$aws_service_id = $db->GetOneMaster(sprintf("SELECT id FROM connected_service WHERE name = %s AND extension_id = %s ORDER BY id ASC LIMIT 1",
+			$db->qstr('AWS S3'),
+			$db->qstr('cerb.service.provider.aws')
+		));
+
+		if(!$aws_service_id) {
+			$db->ExecuteMaster(sprintf("INSERT INTO connected_service (name, uri, extension_id, params_json, updated_at) ".
+				"VALUES (%s, %s, %s, %s, %d)",
+				$db->qstr('AWS S3'),
+				$db->qstr(''),
+				$db->qstr('cerb.service.provider.aws'),
+				$db->qstr($encrypt->encrypt(json_encode((object)[]))),
+				time()
+			));
+
+			$aws_service_id = $db->LastInsertId();
+		}
+
+		foreach($profiles_to_migrate as $profile) {
+			$params = $profile['params'];
+
+			// Move only the secret material into the connected account
+			$credentials = [
+				'access_key' => $params['access_key'],
+				'secret_key' => $params['secret_key'] ?? '',
+			];
+
+			// Allow this credential to sign requests to non-AWS endpoints (e.g. MinIO) so it
+			// remains usable for http.request signing, not just storage
+			$host = $params['host'] ?? '';
+			if($host && !str_contains(DevblocksPlatform::strLower($host), 'amazonaws.com'))
+				$credentials['allow_non_aws_hosts'] = 1;
+
+			$db->ExecuteMaster(sprintf("INSERT INTO connected_account (name, owner_context, owner_context_id, service_id, uri, params_json, created_at, updated_at) ".
+				"VALUES (%s, %s, %d, %d, %s, %s, %d, %d)",
+				$db->qstr(sprintf("%s (S3)", $profile['name'])),
+				$db->qstr('cerberusweb.contexts.app'),
+				0,
+				$aws_service_id,
+				$db->qstr(''),
+				$db->qstr($encrypt->encrypt(json_encode($credentials))),
+				time(),
+				time()
+			));
+
+			$account_id = $db->LastInsertId();
+
+			// Replace the plaintext keys with a reference to the connected account
+			unset($params['access_key'], $params['secret_key']);
+			$params['connected_account_id'] = intval($account_id);
+
+			$db->ExecuteMaster(sprintf("UPDATE devblocks_storage_profile SET params_json = %s WHERE id = %d",
+				$db->qstr(json_encode($params)),
+				$profile['id']
+			));
+		}
+	}
+}
+
+// ===========================================================================
 // Clear the plugin worklist models
 
 $db->ExecuteMaster("DELETE FROM worker_view_model WHERE view_id IN ('cerb5_plugins','plugins_installed')");

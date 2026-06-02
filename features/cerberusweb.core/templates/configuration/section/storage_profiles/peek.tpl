@@ -83,8 +83,15 @@ $(function() {
 
 		$frm.find('select[name=extension_id]').on('change', function(e) {
 			e.stopPropagation();
-			genericAjaxGet('divStorageEngineSettings','c=config&a=invoke&module=storage_profiles&action=showStorageProfileConfig&ext_id='+encodeURIComponent(selectValue(this))+'&id='+encodeURIComponent(this.form.id.value));
+			genericAjaxGet('divStorageEngineSettings','c=config&a=invoke&module=storage_profiles&action=showStorageProfileConfig&ext_id='+encodeURIComponent(selectValue(this))+'&id='+encodeURIComponent(this.form.id.value), function() {
+				$popup.find('.chooser-abstract').cerbChooserTrigger();
+				$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
+			});
 		});
+
+		// Storage engine configs (e.g. S3) may include record choosers
+		$popup.find('.chooser-abstract').cerbChooserTrigger();
+		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
 
 		$frm.find('BUTTON.submit').on('click', function(e) {
 			e.stopPropagation();
