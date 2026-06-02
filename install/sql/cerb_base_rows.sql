@@ -455,13 +455,12 @@ INSERT INTO `profile_widget` VALUES (153,'Toolbar Section',67,'cerb.profile.tab.
 INSERT INTO `profile_widget` VALUES (154,'Discussion',67,'cerb.profile.tab.widget.comments','{\"context\":\"cerb.contexts.toolbar.section\",\"context_id\":\"{{record_id}}\",\"height\":\"\"}','content',2,4,UNIX_TIMESTAMP(),'');
 INSERT INTO `profile_widget` VALUES (155,'Public Key',61,'cerb.profile.tab.widget.sheet','{\"data_query\":\"type:worklist.records\\r\\nof:gpg_public_key\\r\\nquery:(\\r\\n  id:{{record_id}}\\r\\n  limit:1\\r\\n  sort:[id]\\r\\n)\\r\\nformat:dictionaries\",\"cache_secs\":\"\",\"placeholder_simulator_kata\":\"\",\"sheet_kata\":\"layout:\\r\\n  style: fieldset\\r\\n  headings@bool: no\\r\\n  paging@bool: no\\r\\n\\r\\ncolumns:\\r\\n  code\\/key_text:\\r\\n    label: Public Key\\r\\n\",\"toolbar_kata\":\"\"}','content',2,12,UNIX_TIMESTAMP(),'');
 
-INSERT INTO `queue` VALUES (1,'cerb.update.migrations',UNIX_TIMESTAMP(),UNIX_TIMESTAMP(),'cerb.queue.consumer.internal',NULL);
-INSERT INTO `queue` VALUES (2,'cerb.metrics.publish',UNIX_TIMESTAMP(),UNIX_TIMESTAMP(),'cerb.queue.consumer.internal',NULL);
-INSERT INTO `queue` VALUES (3,'cerb.search.index',UNIX_TIMESTAMP(),UNIX_TIMESTAMP(),'cerb.queue.consumer.internal',NULL);
-INSERT INTO `queue` VALUES (4,'cerb.records.changed',UNIX_TIMESTAMP(),UNIX_TIMESTAMP(),'cerb.queue.consumer.internal',NULL);
-INSERT INTO `queue` VALUES (5,'cerb.records.import',UNIX_TIMESTAMP(),UNIX_TIMESTAMP(),'cerb.queue.consumer.internal',NULL);
-INSERT INTO `queue` VALUES (6,'cerb.records.export',UNIX_TIMESTAMP(),UNIX_TIMESTAMP(),'cerb.queue.consumer.internal',NULL);
-INSERT INTO `queue` VALUES (7,'cerb.records.bulk_update',UNIX_TIMESTAMP(),UNIX_TIMESTAMP(),'cerb.queue.consumer.internal',NULL);
+INSERT INTO `queue` VALUES (1,'cerb.metrics.publish',UNIX_TIMESTAMP(),UNIX_TIMESTAMP(),'cerb.queue.consumer.internal',NULL);
+INSERT INTO `queue` VALUES (2,'cerb.search.index',UNIX_TIMESTAMP(),UNIX_TIMESTAMP(),'cerb.queue.consumer.internal',NULL);
+INSERT INTO `queue` VALUES (3,'cerb.records.changed',UNIX_TIMESTAMP(),UNIX_TIMESTAMP(),'cerb.queue.consumer.internal',NULL);
+INSERT INTO `queue` VALUES (4,'cerb.records.import',UNIX_TIMESTAMP(),UNIX_TIMESTAMP(),'cerb.queue.consumer.internal',NULL);
+INSERT INTO `queue` VALUES (5,'cerb.records.export',UNIX_TIMESTAMP(),UNIX_TIMESTAMP(),'cerb.queue.consumer.internal',NULL);
+INSERT INTO `queue` VALUES (6,'cerb.records.bulk_update',UNIX_TIMESTAMP(),UNIX_TIMESTAMP(),'cerb.queue.consumer.internal',NULL);
 
 INSERT INTO `search_index` VALUES (1,'Contacts','contacts','contact','text','cerb.search.index.fulltext','{\"record_query\":\"\",\"content\":\"{{first_name}} {{last_name}}\\n{{aliases|join(\' \')}}\\n{{title}}\\n{{email_address}} {{emails|join(\' \')}}\\n{{org__label}}\\n{{username}}\"}',0,UNIX_TIMESTAMP(),UNIX_TIMESTAMP());
 INSERT INTO `search_index` VALUES (2,'Workers','workers','worker','text','cerb.search.index.fulltext','{\"record_query\":\"\",\"content\":\"{{first_name}} {{last_name}} {{at_mention_name}}\\n{{aliases|join(\' \')}}\\n{{title}}\\n{{email_address}}\"}',0,UNIX_TIMESTAMP(),UNIX_TIMESTAMP());

@@ -134,6 +134,9 @@ if(!$db->GetOneMaster("SELECT id FROM queue WHERE name = 'cerb.records.export'")
 if(!$db->GetOneMaster("SELECT id FROM queue WHERE name = 'cerb.records.bulk_update'"))
 	$db->ExecuteWriter("INSERT IGNORE INTO queue (name, created_at, updated_at, extension_id) VALUES ('cerb.records.bulk_update', UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 'cerb.queue.consumer.internal')");
 
+if($revision < 1506)
+	$db->ExecuteWriter("DELETE FROM queue WHERE name = 'cerb.update.migrations'");
+
 // ===========================================================================
 // Drop the legacy `context_bulk_update` table; replaced by `cerb.records.bulk_update` queue jobs
 
