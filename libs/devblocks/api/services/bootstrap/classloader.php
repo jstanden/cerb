@@ -159,13 +159,9 @@ class _DevblocksClassLoadManager {
 	}
 	
 	private function _initLibs() {
-		$this->registerClasses(DEVBLOCKS_PATH . 'libs/s3/S3.php', array(
-			'S3'
-		));
-		
 		return true;
 	}
-	
+
 	private function _initServices() {
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/automation.php', [
 			'_DevblocksAutomationService',
