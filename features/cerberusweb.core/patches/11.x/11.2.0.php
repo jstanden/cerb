@@ -146,6 +146,27 @@ if(!$db->GetOneMaster("SELECT id FROM queue WHERE name = 'cerb.records.bulk_upda
 if(!$db->GetOneMaster("SELECT id FROM queue WHERE name = 'cerb.storage.migrations'"))
 	$db->ExecuteWriter("INSERT IGNORE INTO queue (name, created_at, updated_at, extension_id) VALUES ('cerb.storage.migrations', UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 'cerb.queue.consumer.internal')");
 
+// ===========================================================================
+// Replace `devblocks_storage_queue_delete` table with `cerb.storage.migrations` queue
+
+if(array_key_exists('devblocks_storage_queue_delete', $tables)) {
+	$db->ExecuteWriter("SET SESSION group_concat_max_len = 1000000");
+
+	$db->ExecuteWriter(
+		"INSERT INTO queue_message (uuid, queue_id, job_id, status_id, created_at, message, cardinality) ".
+		"SELECT UUID_TO_BIN(UUID()), (SELECT id FROM queue WHERE name='cerb.storage.migrations'), 0, 0, UNIX_TIMESTAMP(), ".
+		"CONCAT('{\"action\":\"delete\",\"ns\":', JSON_QUOTE(storage_namespace), ',\"ext\":', JSON_QUOTE(storage_extension), ".
+		"',\"profile\":', storage_profile_id, ',\"keys\":[', GROUP_CONCAT(JSON_QUOTE(storage_key)), ']}'), COUNT(*) ".
+		"FROM (SELECT storage_namespace, storage_extension, storage_profile_id, storage_key, ".
+		"CEIL(ROW_NUMBER() OVER (PARTITION BY storage_namespace, storage_extension, storage_profile_id ORDER BY storage_key) / 1000) AS batch ".
+		"FROM devblocks_storage_queue_delete) AS batched ".
+		"GROUP BY storage_namespace, storage_extension, storage_profile_id, batch"
+	);
+
+	$db->ExecuteWriter("DROP TABLE devblocks_storage_queue_delete");
+	unset($tables['devblocks_storage_queue_delete']);
+}
+
 if($revision < 1506)
 	$db->ExecuteWriter("DELETE FROM queue WHERE name = 'cerb.update.migrations'");
 

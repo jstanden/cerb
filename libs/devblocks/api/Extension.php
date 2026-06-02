@@ -2287,11 +2287,58 @@ abstract class Extension_DevblocksStorageEngine extends DevblocksExtension {
 	abstract function put($namespace, $id, $data);
 	abstract function get($namespace, $key, &$fp=null);
 	abstract function delete($namespace, $key);
-	
-	function batchDelete($namespace, $keys) { /* override */ 
+
+	function batchDelete($namespace, $keys) { /* override */
 		if(is_array($keys))
 		foreach($keys as $key)
 			$this->delete($namespace, $key);
+	}
+
+	const string MIGRATIONS_QUEUE = 'cerb.storage.migrations';
+
+	/**
+	 * Whether deletions for this engine should be deferred to the background queue rather than
+	 * performed synchronously. Remote engines (S3, gatekeeper) defer; local engines do not.
+	 */
+	function deletesAreDeferred() : bool {
+		return false;
+	}
+
+	/**
+	 * Max keys per deferred-delete message / batchDelete request.
+	 */
+	function getDeleteBatchSize() : int {
+		return 100;
+	}
+
+	/**
+	 * The single entry point for "delete these keys for this profile". Deferred engines enqueue
+	 * batched `delete` messages onto the storage queue; immediate engines delete now.
+	 *
+	 * @param string[] $keys
+	 */
+	function deleteKeys(string $namespace, array $keys) : void {
+		if(!$keys)
+			return;
+
+		if(!$this->deletesAreDeferred()) {
+			$this->batchDelete($namespace, $keys);
+			return;
+		}
+
+		$queue = DevblocksPlatform::services()->queue();
+		$profile_id = $this->_options['_profile_id'] ?? 0;
+
+		foreach(array_chunk(array_values($keys), max(1, $this->getDeleteBatchSize())) as $chunk) {
+			// cardinality = keys in the batch so queue stats count work units, not messages
+			$queue->enqueue(self::MIGRATIONS_QUEUE, [[
+				'action' => 'delete',
+				'ns' => $namespace,
+				'ext' => $this->manifest->id,
+				'profile' => intval($profile_id),
+				'keys' => $chunk,
+			]], cardinality: count($chunk));
+		}
 	}
 
 	/**

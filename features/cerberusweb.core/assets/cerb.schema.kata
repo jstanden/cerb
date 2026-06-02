@@ -5338,41 +5338,6 @@ tables:
             index_type: BTREE
             subpart@text:
             unique@text:
-  devblocks_storage_queue_delete:
-    columns:
-      storage_extension:
-        field: storage_extension
-        type: varchar(128)
-        collation: utf8mb3_unicode_ci
-        nullable: NOT NULL
-        key@text:
-        default@text:
-        extra@text:
-        references: cerb_extension.name
-      storage_key:
-        field: storage_key
-        type: varchar(255)
-        collation: utf8mb3_unicode_ci
-        nullable: NOT NULL
-        key@text:
-        default@text:
-        extra@text:
-      storage_namespace:
-        field: storage_namespace
-        type: varchar(64)
-        collation: utf8mb3_unicode_ci
-        nullable: NOT NULL
-        key: MUL
-        default@text:
-        extra@text:
-      storage_profile_id:
-        field: storage_profile_id
-        type: int unsigned
-        collation@text:
-        nullable: NOT NULL
-        key@text:
-        default: 0
-        extra@text:
         references: devblocks_storage_profile.id
     indexes:
       ns_ext_profile:
