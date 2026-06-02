@@ -465,6 +465,7 @@ INSERT INTO `queue` VALUES (3,'cerb.records.changed',UNIX_TIMESTAMP(),UNIX_TIMES
 INSERT INTO `queue` VALUES (4,'cerb.records.import',UNIX_TIMESTAMP(),UNIX_TIMESTAMP(),'cerb.queue.consumer.internal',NULL);
 INSERT INTO `queue` VALUES (5,'cerb.records.export',UNIX_TIMESTAMP(),UNIX_TIMESTAMP(),'cerb.queue.consumer.internal',NULL);
 INSERT INTO `queue` VALUES (6,'cerb.records.bulk_update',UNIX_TIMESTAMP(),UNIX_TIMESTAMP(),'cerb.queue.consumer.internal',NULL);
+INSERT INTO `queue` VALUES (7,'cerb.storage.migrations',UNIX_TIMESTAMP(),UNIX_TIMESTAMP(),'cerb.queue.consumer.internal',NULL);
 
 INSERT INTO `search_index` VALUES (1,'Contacts','contacts','contact','text','cerb.search.index.fulltext','{\"record_query\":\"\",\"content\":\"{{first_name}} {{last_name}}\\n{{aliases|join(\' \')}}\\n{{title}}\\n{{email_address}} {{emails|join(\' \')}}\\n{{org__label}}\\n{{username}}\"}',0,UNIX_TIMESTAMP(),UNIX_TIMESTAMP());
 INSERT INTO `search_index` VALUES (2,'Workers','workers','worker','text','cerb.search.index.fulltext','{\"record_query\":\"\",\"content\":\"{{first_name}} {{last_name}} {{at_mention_name}}\\n{{aliases|join(\' \')}}\\n{{title}}\\n{{email_address}}\"}',0,UNIX_TIMESTAMP(),UNIX_TIMESTAMP());
