@@ -9570,6 +9570,14 @@ tables:
         key@text:
         default@text:
         extra@text:
+      created_at:
+        field: created_at
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
       job_id:
         field: job_id
         type: bigint unsigned
@@ -9587,6 +9595,14 @@ tables:
         key@text:
         default@text:
         extra@text:
+      processed_at:
+        field: processed_at
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
       queue_id:
         field: queue_id
         type: int unsigned
@@ -9596,14 +9612,6 @@ tables:
         default@text:
         extra@text:
         references: queue.id
-      status_at:
-        field: status_at
-        type: int unsigned
-        collation@text:
-        nullable: NOT NULL
-        key@text:
-        default: 0
-        extra@text:
       status_id:
         field: status_id
         type: tinyint unsigned

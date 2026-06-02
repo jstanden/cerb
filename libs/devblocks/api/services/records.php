@@ -325,12 +325,12 @@ class _DevblocksRecordsService {
 		$db->ExecuteMaster('SET group_concat_max_len = 1024000');
 
 		$sql = sprintf(
-			"INSERT INTO queue_message (uuid, queue_id, job_id, status_id, status_at, message, cardinality) ".
+			"INSERT INTO queue_message (uuid, queue_id, job_id, status_id, created_at, message, cardinality) ".
 			"SELECT UUID_TO_BIN(UUID()) AS uuid, ".
 			"%d AS queue_id, ".
 			"%d AS job_id, ".
 			"0 AS status_id, ".
-			"UNIX_TIMESTAMP() AS status_at, ".
+			"UNIX_TIMESTAMP() AS created_at, ".
 			"CONCAT('{\"ids\":[', GROUP_CONCAT(id ORDER BY id), ']}') AS message, ".
 			"COUNT(id) AS cardinality ".
 			"FROM (SELECT id, CEIL(ROW_NUMBER() OVER (ORDER BY id) / %d) AS batch FROM (%s) AS deduped) AS batched ".

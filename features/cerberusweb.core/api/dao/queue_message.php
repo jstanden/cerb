@@ -48,7 +48,7 @@ class DAO_QueueMessage {
 		}
 
 		$db->ExecuteWriter(
-			sprintf("INSERT INTO queue_message (uuid, queue_id, job_id, status_id, status_at, consumer_id, message, available_at, cardinality) VALUES %s",
+			sprintf("INSERT INTO queue_message (uuid, queue_id, job_id, status_id, created_at, consumer_id, message, available_at, cardinality) VALUES %s",
 				implode(',', $insert_values)
 			));
 
@@ -74,10 +74,9 @@ class DAO_QueueMessage {
 		
 		$db->ExecuteWriter(
 			sprintf(
-				"UPDATE queue_message SET status_id=%d, status_at=%d, consumer_id=%s ".
-				"WHERE queue_id=%d %sAND status_id=%d AND available_at <= %d LIMIT %d",
+				"UPDATE queue_message SET status_id=%d, consumer_id=%s ".
+				"WHERE queue_id=%d %sAND status_id=%d AND consumer_id IS NULL AND available_at <= %d LIMIT %d",
 				QueueMessageStatus::IN_FLIGHT->value,
-				time(),
 				$db->escape($consumer_id),
 				$queue->id,
 				!is_null($job_id) ? sprintf("AND job_id=%d ", $job_id) : '',
@@ -146,8 +145,9 @@ class DAO_QueueMessage {
 			$message_uuids
 		);
 		
-		$db->ExecuteWriter(sprintf("UPDATE queue_message SET status_id=%d WHERE uuid IN (%s)",
+		$db->ExecuteWriter(sprintf("UPDATE queue_message SET status_id=%d, processed_at=%d WHERE uuid IN (%s)",
 			$status->value,
+			time(),
 			implode(',', $insert_values)
 		));
 	}
@@ -194,12 +194,13 @@ class DAO_QueueMessage {
 
 	public static function maint() {
 		$db = DevblocksPlatform::services()->database();
-		
+
 		// [TODO] This can be longer retention
 		// [TODO] Configurable per queue?
 		$before = time()-86400;
-		
-		$db->ExecuteWriter(sprintf("DELETE FROM queue_message WHERE status_id = 3 AND status_at < %d",
+
+		$db->ExecuteWriter(sprintf("DELETE FROM queue_message WHERE status_id = %d AND processed_at < %d",
+			QueueMessageStatus::DONE->value,
 			$before
 		));
 	}

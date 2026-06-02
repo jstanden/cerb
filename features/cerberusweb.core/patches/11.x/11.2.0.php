@@ -58,6 +58,15 @@ if(!array_key_exists('cardinality', $columns)) {
 	$changes[] = "ADD COLUMN cardinality MEDIUMINT UNSIGNED NOT NULL DEFAULT 1";
 }
 
+// Split `status_at` into `created_at` and `processed_at`
+if(array_key_exists('status_at', $columns) && !array_key_exists('created_at', $columns)) {
+	$changes[] = "CHANGE status_at created_at INT UNSIGNED NOT NULL DEFAULT 0";
+}
+
+if(!array_key_exists('processed_at', $columns)) {
+	$changes[] = "ADD COLUMN processed_at INT UNSIGNED NOT NULL DEFAULT 0";
+}
+
 if($changes) {
 	$db->ExecuteMaster("ALTER TABLE queue_message ".
 		implode(', ', $changes)
@@ -465,12 +474,12 @@ if($revision < 1506) {
 		$job_id = $db->LastInsertId();
 		
 		// One queue_message per 100-record batch, mirroring _reindexCreateJob()
-		$db->ExecuteMaster(sprintf("INSERT INTO queue_message (uuid, queue_id, job_id, status_id, status_at, message, cardinality) " .
+		$db->ExecuteMaster(sprintf("INSERT INTO queue_message (uuid, queue_id, job_id, status_id, created_at, message, cardinality) " .
 			"SELECT UUID_TO_BIN(UUID()) AS uuid, " .
 			"%d AS queue_id, " .
 			"%d AS job_id, " .
 			"0 /* available */ AS status_id, " .
-			"UNIX_TIMESTAMP() AS status_at, " .
+			"UNIX_TIMESTAMP() AS created_at, " .
 			"CONCAT('{\"index_id\":',%d,',\"ids\":[',GROUP_CONCAT(id ORDER BY id),']}') AS message, " .
 			"COUNT(id) AS cardinality " .
 			"FROM (SELECT id, CEIL(ROW_NUMBER() OVER (ORDER BY id) / 100) AS batch FROM message) AS batched " .
@@ -550,12 +559,12 @@ if($revision < 1506) {
 			
 			$job_id = $db->LastInsertId();
 			
-			$db->ExecuteMaster(sprintf("INSERT INTO queue_message (uuid, queue_id, job_id, status_id, status_at, message, cardinality) " .
+			$db->ExecuteMaster(sprintf("INSERT INTO queue_message (uuid, queue_id, job_id, status_id, created_at, message, cardinality) " .
 				"SELECT UUID_TO_BIN(UUID()) AS uuid, " .
 				"%d AS queue_id, " .
 				"%d AS job_id, " .
 				"0 /* available */ AS status_id, " .
-				"UNIX_TIMESTAMP() AS status_at, " .
+				"UNIX_TIMESTAMP() AS created_at, " .
 				"CONCAT('{\"index_id\":',%d,',\"ids\":[',GROUP_CONCAT(id ORDER BY id),']}') AS message, " .
 				"COUNT(id) AS cardinality " .
 				"FROM (SELECT id, CEIL(ROW_NUMBER() OVER (ORDER BY id) / 100) AS batch FROM message) AS batched " .
@@ -629,12 +638,12 @@ if($revision < 1506) {
 			
 			$job_id = $db->LastInsertId();
 			
-			$db->ExecuteMaster(sprintf("INSERT INTO queue_message (uuid, queue_id, job_id, status_id, status_at, message, cardinality) " .
+			$db->ExecuteMaster(sprintf("INSERT INTO queue_message (uuid, queue_id, job_id, status_id, created_at, message, cardinality) " .
 				"SELECT UUID_TO_BIN(UUID()) AS uuid, " .
 				"%d AS queue_id, " .
 				"%d AS job_id, " .
 				"0 /* available */ AS status_id, " .
-				"UNIX_TIMESTAMP() AS status_at, " .
+				"UNIX_TIMESTAMP() AS created_at, " .
 				"CONCAT('{\"index_id\":',%d,',\"ids\":[',GROUP_CONCAT(id ORDER BY id),']}') AS message, " .
 				"COUNT(id) AS cardinality " .
 				"FROM (SELECT id, CEIL(ROW_NUMBER() OVER (ORDER BY id) / 100) AS batch FROM comment) AS batched " .
@@ -709,12 +718,12 @@ if($revision < 1506 && DevblocksPlatform::isPluginEnabled('cerberusweb.kb')) {
 
 			$job_id = $db->LastInsertId();
 
-			$db->ExecuteMaster(sprintf("INSERT INTO queue_message (uuid, queue_id, job_id, status_id, status_at, message, cardinality) " .
+			$db->ExecuteMaster(sprintf("INSERT INTO queue_message (uuid, queue_id, job_id, status_id, created_at, message, cardinality) " .
 				"SELECT UUID_TO_BIN(UUID()) AS uuid, " .
 				"%d AS queue_id, " .
 				"%d AS job_id, " .
 				"0 /* available */ AS status_id, " .
-				"UNIX_TIMESTAMP() AS status_at, " .
+				"UNIX_TIMESTAMP() AS created_at, " .
 				"CONCAT('{\"index_id\":',%d,',\"ids\":[',GROUP_CONCAT(id ORDER BY id),']}') AS message, " .
 				"COUNT(id) AS cardinality " .
 				"FROM (SELECT id, CEIL(ROW_NUMBER() OVER (ORDER BY id) / 100) AS batch FROM kb_article) AS batched " .
