@@ -174,6 +174,10 @@ class _DevblocksClassLoadManager {
 			'CerbAutomationPolicy',
 			'Exception_DevblocksAutomationError',
 		]);
+		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/aws.php', [
+			'_DevblocksAwsService',
+			'DevblocksAwsSigV4Signer',
+		]);
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/bayes_classifier.php', array(
 			'_DevblocksBayesClassifierService',
 		));

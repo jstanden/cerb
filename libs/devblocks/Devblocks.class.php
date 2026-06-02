@@ -36,9 +36,17 @@ class _DevblocksServices {
 	function automation() {
 		return _DevblocksAutomationService::getInstance();
 	}
-	
+
 	/**
-	 * 
+	 *
+	 * @return _DevblocksAwsService
+	 */
+	function aws() {
+		return _DevblocksAwsService::getInstance();
+	}
+
+	/**
+	 *
 	 * @return _DevblocksBayesClassifierService
 	 */
 	function bayesClassifier() {
