@@ -40,13 +40,21 @@ class ServiceProvider_Aws extends Extension_ConnectedServiceProvider {
 			->string()
 			->setRequired(true)
 			;
+		$validation
+			->addField('allow_non_aws_hosts','Allow Non-AWS Hosts')
+			->uint()
+			->setMin(0)
+			->setMax(1)
+			;
 		
-		if(false == $validation->validateAll($edit_params, $error))
+		if(!$validation->validateAll($edit_params, $error))
 			return false;
-		
+
 		foreach($edit_params as $k => $v)
 			$params[$k] = $v;
 		
+		$params['allow_non_aws_hosts'] = !empty($edit_params['allow_non_aws_hosts']) ? 1 : 0;
+
 		return true;
 	}
 	
@@ -58,113 +66,59 @@ class ServiceProvider_Aws extends Extension_ConnectedServiceProvider {
 	 */
 	function _generateRequestSignature(Model_ConnectedAccount $account, Psr\Http\Message\RequestInterface $request) {
 		$credentials = $account->decryptParams();
-		
+
 		if(
 			!isset($credentials['access_key'])
 			|| !isset($credentials['secret_key'])
 			)
 			return false;
-		
-		if($request->hasHeader('x-amz-date')) {
-			$date_iso_8601 = $request->getHeaderLine('x-amz-date');
-		} else {
-			$date_iso_8601 = gmdate('Ymd\THis\Z');
-		}
-		
-		$host = $request->getUri()->getHost();
 
-		// Derive service + region from URL
+		$allow_non_aws = !empty($credentials['allow_non_aws_hosts']);
+
+		// Derive service + region from the request host (also enforces the AWS-hosts-only restriction)
 		$service = $region = null;
-		if(!$this->_getServiceRegionFromHost($host, $service, $region))
+		if(!DevblocksPlatform::services()->aws()->deriveServiceRegionFromHost($request->getUri()->getHost(), $allow_non_aws, $service, $region))
 			return false;
-		
-		$canonical_path = $this->_createCanonicalPath($request->getUri()->getPath());
-		$canonical_query = $this->_createCanonicalQueryString($request->getUri()->getQuery());
-		$canonical_headers = $this->_createCanonicalHeaders($request->getHeaders());
-		$signed_headers = $this->_createSignedHeaders($request->getHeaders());
-		
-		$canonical_string = 
-			DevblocksPlatform::strUpper($request->getMethod()) . "\n" .
-			$canonical_path . "\n" .
-			$canonical_query . "\n" .
-			$canonical_headers . "\n" .
-			$signed_headers . "\n" .
-			DevblocksPlatform::strLower(hash('sha256', $request->getBody()->getContents()))
-			;
-		
-		$credential_scope = sprintf("%s/%s/%s/aws4_request",
-			gmdate("Ymd"),
+
+		$signer = DevblocksPlatform::services()->aws()->signer($credentials['access_key'], $credentials['secret_key']);
+
+		return $signer->calculate(
+			$request,
 			$region,
-			$service
+			$service,
+			DevblocksPlatform::strLower(hash('sha256', $request->getBody()->getContents()))
 		);
-		
-		$string_to_sign = 
-			'AWS4-HMAC-SHA256' . "\n" .
-			$date_iso_8601 . "\n" .
-			$credential_scope . "\n" .
-			DevblocksPlatform::strLower(hash('sha256', $canonical_string))
-			;
-		
-		$secret = $credentials['secret_key'];
-		$hash_date = hash_hmac('sha256', gmdate('Ymd'), 'AWS4' . $secret, true);
-		$hash_region = hash_hmac('sha256', $region, $hash_date, true);
-		$hash_service = hash_hmac('sha256', $service, $hash_region, true);
-		$hash_signing = hash_hmac('sha256', 'aws4_request', $hash_service, true);
-		
-		$signature = hash_hmac('sha256', $string_to_sign, $hash_signing, false);
-		
-		$auth_header = sprintf('%s Credential=%s/%s, SignedHeaders=%s, Signature=%s',
-			'AWS4-HMAC-SHA256',
-			$credentials['access_key'],
-			$credential_scope,
-			$signed_headers,
-			$signature
-		);
-		
-		return [
-			'access_key' => $credentials['access_key'],
-			'authorization' => $auth_header,
-			'credential_scope' => $credential_scope,
-			'date' => $date_iso_8601,
-			'signature' => $signature,
-			'signed_headers' => $signed_headers,
-		];
 	}
-	
-	private function _getServiceRegionFromHost($host, &$service=null, &$region=null) {
-		// Derive service + region from URL
-		$matches = [];
-		$service = $region = null;
-		
-		if(preg_match('#^(.*?)\.(.*?)\.amazonaws\.com$#', $host, $matches)) {
-			$service = DevblocksPlatform::strLower($matches[1]);
-			$region = DevblocksPlatform::strLower($matches[2]);
-			
-		} else if(preg_match('#^(.*?)\.amazonaws\.com$#', $host, $matches)) {
-			$service = $matches[1];
-			$region = 'us-east-1';
-		}
-		
-		$service = match($service) {
-			'bedrock-runtime' => 'bedrock',
-			default => $service,
-		};
-		
-		if(empty($region) || empty($service))
-			return false;
-		
-		return true;
-	}
-	
+
 	function authenticateHttpRequest(Model_ConnectedAccount $account, Psr\Http\Message\RequestInterface &$request, array &$options = []) : bool {
+		$credentials = $account->decryptParams();
+		$allow_non_aws = !empty($credentials['allow_non_aws_hosts']);
+
+		// Derive service + region (also enforces the AWS-hosts-only restriction)
+		$service = $region = null;
+		if(!DevblocksPlatform::services()->aws()->deriveServiceRegionFromHost($request->getUri()->getHost(), $allow_non_aws, $service, $region))
+			return false;
+
+		// AWS requires x-amz-date to be present and signed
+		if(!$request->hasHeader('x-amz-date'))
+			$request = $request->withHeader('X-Amz-Date', gmdate('Ymd\THis\Z'));
+
+		// S3 requires a signed x-amz-content-sha256 header
+		if('s3' == $service && !$request->hasHeader('x-amz-content-sha256')) {
+			$body = $request->getBody();
+			$content_sha256 = hash('sha256', (string) $body);
+
+			if($body->isSeekable())
+				$body->rewind();
+
+			$request = $request->withHeader('x-amz-content-sha256', $content_sha256);
+		}
+
 		if(!($result = $this->_generateRequestSignature($account, $request)))
 			return false;
-		
+
 		$request = $request->withHeader('Authorization', $result['authorization']);
-		
-		if(!$request->hasHeader('x-amz-date'))
-			$request = $request->withHeader('X-Amz-Date', $result['date']);
-		
+
 		return true;
 	}
 	
@@ -176,19 +130,23 @@ class ServiceProvider_Aws extends Extension_ConnectedServiceProvider {
 		$query_params = \GuzzleHttp\Psr7\parse_query($uri->getQuery());
 		
 		$request = $request->withHeader('Host', $uri->getHost());
-		
+
+		$allow_non_aws = !empty($credentials['allow_non_aws_hosts']);
+
 		$service = $region = null;
-		if(!$this->_getServiceRegionFromHost($request->getUri()->getHost(), $service, $region))
+		if(!DevblocksPlatform::services()->aws()->deriveServiceRegionFromHost($request->getUri()->getHost(), $allow_non_aws, $service, $region))
 			return false;
-		
+
+		$signer = DevblocksPlatform::services()->aws()->signer($credentials['access_key'], $credentials['secret_key']);
+
 		$date_iso_8601 = gmdate('Ymd\THis\Z');
-		
+
 		$credential_scope = sprintf("%s/%s/%s/aws4_request",
 			gmdate("Ymd"),
 			$region,
 			$service
 		);
-		
+
 		$query_params['X-Amz-Algorithm'] = 'AWS4-HMAC-SHA256';
 		$query_params['X-Amz-Credential'] = sprintf("%s/%s",
 			$credentials['access_key'],
@@ -196,7 +154,7 @@ class ServiceProvider_Aws extends Extension_ConnectedServiceProvider {
 		);
 		$query_params['X-Amz-Date'] = $date_iso_8601;
 		$query_params['X-Amz-Expires'] = $expires_secs;
-		$query_params['X-Amz-SignedHeaders'] = $this->_createSignedHeaders($request->getHeaders());
+		$query_params['X-Amz-SignedHeaders'] = $signer->signedHeaders($request->getHeaders());
 		
 		$query = http_build_query($query_params, '', '&', PHP_QUERY_RFC3986);
 		$uri = $uri->withQuery($query);
@@ -214,49 +172,6 @@ class ServiceProvider_Aws extends Extension_ConnectedServiceProvider {
 		);
 	}
 	
-	private function _createCanonicalPath($path=null) {
-		$path = $path ?: '/';
-		$path_parts = explode('/', $path);
-		
-		foreach($path_parts as &$segment)
-			$segment = rawurlencode($segment);
-		unset($segment);
-
-		return implode('/', $path_parts);
-	}
-	
-	private function _createCanonicalQueryString($query=null) {
-		$query = $query ?: '';
-		$query_parts = DevblocksPlatform::strParseQueryString($query);
-		
-		ksort($query_parts, SORT_STRING);
-		
-		return http_build_query($query_parts, '', '&', PHP_QUERY_RFC3986);
-	}
-	
-	private function _createCanonicalHeaders($headers) {
-		$canonical_headers = '';
-		
-		ksort($headers, SORT_STRING | SORT_FLAG_CASE);
-		
-		foreach($headers as $key => $vals) {
-			$canonical_headers .= DevblocksPlatform::strLower(trim($key)) . ':' . trim(implode(',', $vals)) . "\n";
-		}
-		
-		return $canonical_headers;
-	}
-	
-	private function _createSignedHeaders($headers) {
-		$signed_headers = [];
-		
-		foreach(array_keys($headers) as $key) {
-			$signed_headers[] = DevblocksPlatform::strLower(trim($key));
-		}
-		
-		sort($signed_headers, SORT_STRING | SORT_FLAG_CASE);
-		
-		return implode(';', $signed_headers);
-	}
 }
 
 class BotAction_AwsGetPresignedUrl extends Extension_DevblocksEventAction {
@@ -347,7 +262,7 @@ class BotAction_AwsGetPresignedUrl extends Extension_DevblocksEventAction {
 		);
 		
 		// Bail out on missing account
-		if(false == ($connected_account = DAO_ConnectedAccount::get($connected_account_id)))
+		if(!($connected_account = DAO_ConnectedAccount::get($connected_account_id)))
 			return "[ERROR] Missing authentication account.";
 		
 		$out .= sprintf(">>> Authenticating with %s\n\n", $connected_account->name);
@@ -388,11 +303,11 @@ class BotAction_AwsGetPresignedUrl extends Extension_DevblocksEventAction {
 		if(empty($connected_account_id))
 			return false;
 		
-		if(false == ($connected_account = DAO_ConnectedAccount::get($connected_account_id)))
+		if(!($connected_account = DAO_ConnectedAccount::get($connected_account_id)))
 			return false;
 		
 		// Make sure we're authorized to use this connected account!
-		if(false == (Context_ConnectedAccount::isUsableByActor($connected_account, $trigger->getBot())))
+		if(!(Context_ConnectedAccount::isUsableByActor($connected_account, $trigger->getBot())))
 			return false;
 		
 		$http_headers = GuzzleHttp\Utils::headersFromLines($http_headers);

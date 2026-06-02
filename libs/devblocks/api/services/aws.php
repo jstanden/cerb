@@ -45,7 +45,7 @@ class _DevblocksAwsService {
 	 *
 	 * @return bool false if the host is disallowed (strict mode) or unparseable
 	 */
-	function deriveServiceRegionFromHost(string $host, bool $aws_only=false, ?string &$service=null, ?string &$region=null) : bool {
+	function deriveServiceRegionFromHost(string $host, bool $allow_non_aws=false, ?string &$service=null, ?string &$region=null) : bool {
 		$service = $region = null;
 		$host = DevblocksPlatform::strLower($host);
 		$matches = [];
@@ -67,7 +67,7 @@ class _DevblocksAwsService {
 
 		// Non-AWS / S3-compatible (MinIO, ngrok, on-prem): assume S3 with a default region
 		} else {
-			if($aws_only)
+			if(!$allow_non_aws)
 				return false;
 
 			$service = 's3';
