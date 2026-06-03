@@ -2359,23 +2359,480 @@ abstract class Extension_DevblocksStorageEngine extends DevblocksExtension {
 
 abstract class Extension_DevblocksStorageSchema extends DevblocksExtension {
 	const POINT = 'devblocks.storage.schema';
-	
-	abstract function render();
-	abstract function renderConfig();
-	abstract function saveConfig();
 
-	public static function getActiveStorageProfile() {}
+	// Default from the manifest
+	protected static function _getManifestParam(string $key, $default=null) {
+		$manifest = DevblocksPlatform::getExtension(static::ID, false);
+		return $manifest?->params[$key] ?? $default;
+	}
+
+	// Cascade: User config -> manifest default -> failsafe
+	protected static function getStorageConfig(string $key, $fallback=null) {
+		$fallback ??= match($key) {
+			'active_storage_profile', 'archive_storage_profile' => 'devblocks.storage.engine.database',
+			'archive_after_days' => 1,
+			default => '',
+		};
+		$default = static::_getManifestParam($key, $fallback);
+		$value = DAO_DevblocksExtensionPropertyStore::get(static::ID, $key, $default);
+		return ($value === '' || $value === null) ? $default : $value;
+	}
+
+	// A non-archivable schema must always be in the local database or filesystem
+	protected static function isArchivable() : bool {
+		return empty(static::_getManifestParam('is_always_local'));
+	}
+
+	// Default shared read-only summary + edit form for the Setup->Storage section
+	function render() {
+		$tpl = DevblocksPlatform::services()->template();
+		$this->_assignStorageConfigVars($tpl);
+		$tpl->display("devblocks:cerberusweb.core::configuration/section/storage_profiles/schema_render.tpl");
+	}
+
+	function renderConfig() {
+		$tpl = DevblocksPlatform::services()->template();
+		$this->_assignStorageConfigVars($tpl);
+		$tpl->display("devblocks:cerberusweb.core::configuration/section/storage_profiles/schema_config.tpl");
+	}
+
+	private function _assignStorageConfigVars($tpl) : void {
+		$tpl->assign('active_storage_profile', static::getStorageConfig('active_storage_profile'));
+		$tpl->assign('archive_storage_profile', static::getStorageConfig('archive_storage_profile'));
+		$tpl->assign('archive_after_days', intval(static::getStorageConfig('archive_after_days')));
+		$tpl->assign('is_archivable', static::isArchivable());
+	}
+
+	// Default shared persistence across schemas
+	function saveConfig() {
+		$active_storage_profile = DevblocksPlatform::importGPC($_POST['active_storage_profile'] ?? null, 'string','');
+		$archive_storage_profile = DevblocksPlatform::importGPC($_POST['archive_storage_profile'] ?? null, 'string','');
+		$archive_after_days = DevblocksPlatform::importGPC($_POST['archive_after_days'] ?? null, 'integer',0);
+
+		$old_active = $this->getParam('active_storage_profile', '');
+		$old_archive = $this->getParam('archive_storage_profile', '');
+
+		if(!empty($active_storage_profile))
+			$this->setParam('active_storage_profile', $active_storage_profile);
+
+		if(!empty($archive_storage_profile))
+			$this->setParam('archive_storage_profile', $archive_storage_profile);
+
+		$this->setParam('archive_after_days', $archive_after_days);
+
+		// A changed source/destination invalidates the (cursor_at, id) high-water mark
+		if(($active_storage_profile && $active_storage_profile !== $old_active)
+			|| ($archive_storage_profile && $archive_storage_profile !== $old_archive))
+			static::resetArchiveCursor();
+
+		return true;
+	}
+
+	// The profile new content is written to -- admin-configured, else the manifest default
+	public static function getActiveStorageProfile() {
+		return static::getStorageConfig('active_storage_profile');
+	}
 
 	public static function get($object, &$fp=null) {}
 	public static function put($id, $contents, $profile=null) {}
-	public static function delete($ids) {}
-	public static function archive($stop_time=null) {}
-	public static function unarchive($stop_time=null) {}
+	// The DB table and storage namespace this schema governs (overridden per schema)
+	public static function getStorageNamespace() : string { return ''; }
+	public static function getStorageTableName() : string { return ''; }
 
 	/**
-	 * @internal
+	 * The schema's next page of archival candidates, as rows of `['id'=>int, 'cursor_at'=>int]` -- an id
+	 * and a timestamp each. The schema runs its OWN complete query against its own index: restrict to the
+	 * active profile (`$src_extension` / `$src_profile_id`), gate on its monotonic age column
+	 * (`<age> < $before`), apply the keyset predicate
+	 * `(<age> > $last_at OR (<age> = $last_at AND id > $last_id))`, `ORDER BY <age> ASC, id ASC`, and
+	 * `LIMIT $limit`, aliasing the age column `AS cursor_at`. `archive()` is agnostic to which column that
+	 * is -- it just persists the last row's `(cursor_at, id)` as the next cursor. Return `[]` to opt out.
 	 */
-	protected function _stats($table_name) {
+	protected static function getArchiveCandidates(string $src_extension, int $src_profile_id, int $before, int $last_at, int $last_id, int $limit) : array {
+		return [];
+	}
+
+	// Registry keys for this schema's archival high-water mark: [cursor_at, cursor_id]
+	protected static function _archiveCursorKeys() : array {
+		return [
+			'storage.archive.' . static::ID . '.cursor_at',
+			'storage.archive.' . static::ID . '.cursor_id',
+		];
+	}
+
+	// Rewind the archival cursor (called when the active/archive profile changes)
+	public static function resetArchiveCursor() : void {
+		[$key_cursor_at, $key_cursor_id] = static::_archiveCursorKeys();
+		DevblocksPlatform::setRegistryKey($key_cursor_at, 0, DevblocksRegistryEntry::TYPE_NUMBER, true);
+		DevblocksPlatform::setRegistryKey($key_cursor_id, 0, DevblocksRegistryEntry::TYPE_NUMBER, true);
+	}
+
+	/**
+	 * Incremental lifecycle archival -- produce one bounded batch. Mirrors the search indexer
+	 * (SearchCron + SearchIndex_Fulltext::indexDocumentsByModel): `cron.storage` calls this repeatedly
+	 * under a time budget as the SOLE incremental producer. We keyset-select records still on the
+	 * active profile, oldest-first by the schema's own monotonic age column, enqueue them to the
+	 * `cerb.storage.migrations` queue (the parallel background-queue consumers do the actual move), and
+	 * advance a persisted (cursor_at, id) high-water mark. The cursor is what makes batched production
+	 * safe: we never re-enqueue what we've already produced. This method does NOT move anything itself.
+	 *
+	 * The cursor advances at ENQUEUE time, so a failed move (handled by the consumer) leaves the object
+	 * safely on the active profile behind the cursor; the consumer re-enqueues failed ids to self-heal.
+	 *
+	 * Returns the number of candidates enqueued this batch (0 when nothing is eligible).
+	 */
+	public static function archive(int $limit = 1000) : int {
+		// Schemas that don't support lifecycle archival are never swept
+		if(!static::isArchivable())
+			return 0;
+
+		// The move/delete path needs both; a schema without them can't archive
+		if(!static::getStorageTableName() || !static::getStorageNamespace())
+			return 0;
+
+		$active = static::getStorageConfig('active_storage_profile');
+		$archive = static::getStorageConfig('archive_storage_profile');
+		$archive_after_days = intval(static::getStorageConfig('archive_after_days'));
+
+		if(empty($active) || empty($archive))
+			return 0;
+
+		// Resolve to [extension, profile_id]; bail if active and archive are the same
+		if(!($src = static::resolveProfileConfig($active)) || !($dst = static::resolveProfileConfig($archive)))
+			return 0;
+
+		if($src['extension'] === $dst['extension'] && $src['profile_id'] === $dst['profile_id'])
+			return 0;
+
+		// Only archive records aged past the threshold (archive_after_days; 0 = as soon as eligible)
+		$before = time() - (86400 * $archive_after_days);
+
+		// Resume from the persisted (cursor_at, id) high-water mark
+		[$key_cursor_at, $key_cursor_id] = static::_archiveCursorKeys();
+		$last_at = intval(DevblocksPlatform::getRegistryKey($key_cursor_at, DevblocksRegistryEntry::TYPE_NUMBER, 0));
+		$last_id = intval(DevblocksPlatform::getRegistryKey($key_cursor_id, DevblocksRegistryEntry::TYPE_NUMBER, 0));
+
+		// The schema runs its own keyset query against its own index and returns this page of
+		// candidates as [['id'=>..., 'cursor_at'=>...], ...] -- already age-gated, ordered, and limited.
+		$rows = static::getArchiveCandidates($src['extension'], $src['profile_id'], $before, $last_at, $last_id, max(1, $limit));
+
+		if(!$rows)
+			return 0;
+
+		$ids = DevblocksPlatform::sanitizeArray(array_column($rows, 'id'), 'int');
+
+		// Enqueue the batch as fire-and-forget `migrate` messages (chunked so each message is sized for
+		// a consumer's time budget); the parallel consumers perform the moves idempotently.
+		foreach(array_chunk($ids, \Cerb\Records\StorageMigration::BATCH_SIZE) as $chunk) {
+			\Cerb\Records\StorageMigration::enqueueMigrateBatch(
+				static::ID,
+				$src,
+				$dst,
+				$chunk
+			);
+		}
+
+		// Advance the cursor to the last row of the batch (production progress -- failures are re-enqueued
+		// by the consumer, not parked here). Do this only after all chunks enqueued, so a mid-enqueue
+		// error leaves the cursor where it was and the batch is reproduced (idempotent) next pass.
+		$tail = end($rows);
+		DevblocksPlatform::setRegistryKey($key_cursor_at, intval($tail['cursor_at']), DevblocksRegistryEntry::TYPE_NUMBER, true);
+		DevblocksPlatform::setRegistryKey($key_cursor_id, intval($tail['id']), DevblocksRegistryEntry::TYPE_NUMBER, true);
+
+		return count($rows);
+	}
+
+	/**
+	 * Resolve a storage namespace (e.g. `resources`, `attachments`) to its owning schema's DB table.
+	 * Used to verify storage deletes against live references. Returns null if no schema claims it.
+	 */
+	public static function getTableForNamespace(string $namespace) : ?string {
+		if($namespace === '')
+			return null;
+
+		foreach(DevblocksPlatform::getExtensions(self::POINT, true) as $schema) { /* @var $schema Extension_DevblocksStorageSchema */
+			if($schema->getStorageNamespace() === $namespace)
+				return $schema->getStorageTableName() ?: null;
+		}
+
+		return null;
+	}
+
+	/**
+	 * Verify before delete: of the given storage `$keys` on a specific engine+profile, return only those
+	 * that NO live record in `$table` still references -- i.e. the ones whose DB pointer is already gone,
+	 * so the bytes are safe to remove. A still-referenced key is live content (e.g. a reverse migration
+	 * re-wrote the same deterministic key) and is kept. If `$table` is unknown we can't verify, so the
+	 * keys pass through unchanged (with a warning) rather than leak storage.
+	 *
+	 * @param string[] $keys
+	 * @return string[]
+	 */
+	public static function filterDeletableKeys(string $table, string $ext, int $profile_id, array $keys) : array {
+		$keys = array_values(array_unique(array_filter($keys, fn($k) => $k !== '' && $k !== null)));
+
+		if(!$keys)
+			return [];
+
+		if($table === '') {
+			DevblocksPlatform::services()->log()->warn(sprintf(
+				"[Storage] Can't verify delete of %d key(s) on (%s) -- no table for the namespace; deleting unverified.",
+				count($keys), $ext
+			));
+			return $keys;
+		}
+
+		$db = DevblocksPlatform::services()->database();
+
+		$referenced = $db->GetArrayReader(sprintf(
+			"SELECT storage_key FROM %s WHERE storage_extension = %s AND storage_profile_id = %d AND storage_key IN (%s)",
+			$db->escape($table),
+			$db->qstr($ext),
+			$profile_id,
+			implode(',', array_map(fn($k) => $db->qstr($k), $keys))
+		));
+
+		$referenced = array_column($referenced, 'storage_key');
+
+		return array_values(array_diff($keys, $referenced));
+	}
+
+	/**
+	 * Delete the stored objects for these record ids. Keys are grouped by engine+profile and
+	 * routed through the engine's `deleteKeys()`, which defers remote deletions to the background
+	 * queue and deletes local ones immediately.
+	 *
+	 * @param int|int[] $ids
+	 */
+	public static function delete($ids) : bool {
+		$db = DevblocksPlatform::services()->database();
+
+		if(!is_array($ids))
+			$ids = [$ids];
+
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
+		$table = static::getStorageTableName();
+		$ns = static::getStorageNamespace();
+
+		if(!$ids || !$table || !$ns)
+			return true;
+
+		$rows = $db->GetArrayReader(sprintf(
+			"SELECT storage_extension, storage_profile_id, storage_key FROM %s WHERE id IN (%s)",
+			$db->escape($table),
+			implode(',', $ids)
+		));
+
+		// Group keys by engine+profile so each engine gets one batched delete
+		$groups = [];
+		foreach($rows as $row) {
+			if(!($key = $row['storage_key'] ?? ''))
+				continue;
+			$groups[$row['storage_extension'] . ':' . intval($row['storage_profile_id'])][] = $key;
+		}
+
+		foreach($groups as $group_key => $keys) {
+			[$extension, $profile_id] = explode(':', $group_key, 2);
+			$ref = intval($profile_id) ?: $extension;
+
+			if(($engine = DevblocksPlatform::getStorageService($ref)))
+				$engine->deleteKeys($ns, $keys);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Resolve a stored profile config value (a numeric profile id, or a bare engine
+	 * extension id like `devblocks.storage.engine.disk`) to `['extension' => ..., 'profile_id' => ...]`.
+	 * A `profile_id` of 0 means the engine is used directly with no custom profile.
+	 *
+	 * @return array{extension:string,profile_id:int}|null
+	 */
+	public static function resolveProfileConfig($value) : ?array {
+		if(is_numeric($value)) {
+			if(!($profile = DAO_DevblocksStorageProfile::get($value)))
+				return null;
+			return ['extension' => $profile->extension_id, 'profile_id' => intval($profile->id)];
+		}
+
+		if(is_string($value) && $value !== '')
+			return ['extension' => $value, 'profile_id' => 0];
+
+		return null;
+	}
+
+	/**
+	 * Move a single stored object to a destination profile: read from its current engine and
+	 * `put()` it to the destination (which repoints the record's `storage_*` columns). The source
+	 * copy is NOT deleted here -- the caller batches source deletions via `deleteKeys()`. Tolerant:
+	 * a missing/already-moved source is skipped, not fatal.
+	 *
+	 * @param array $row id, storage_extension, storage_key, storage_profile_id, storage_size
+	 * @param int|string $dst destination profile id or engine extension id
+	 * @param array{extension:string,profile_id:int} $dst_resolved pre-resolved destination for $dst
+	 * @return bool|null true=moved, null=skipped (missing src or already at destination), false=error
+	 */
+	protected static function _migrateObject(array $row, mixed $dst, array $dst_resolved) : ?bool {
+		$logger = DevblocksPlatform::services()->log();
+
+		$ns = static::getStorageNamespace();
+
+		$src_id = intval($row['id'] ?? 0);
+		$src_key = $row['storage_key'] ?? '';
+		$src_size = intval($row['storage_size'] ?? 0);
+		$src_extension = $row['storage_extension'] ?? '';
+		$src_profile_id = intval($row['storage_profile_id'] ?? 0);
+
+		if(!$ns || !$src_id || !$src_key)
+			return null;
+
+		// Already at the destination (e.g. a duplicate lifecycle message) -- nothing to do,
+		// and crucially, don't delete the object we'd have just re-written in place.
+		if($dst_resolved['extension'] === $src_extension && $dst_resolved['profile_id'] === $src_profile_id)
+			return null;
+
+		$src_engine_ref = $src_profile_id ?: $src_extension;
+
+		if(false === ($src_engine = DevblocksPlatform::getStorageService($src_engine_ref)))
+			return null;
+
+		// Read the source: load small objects into a string, stream large ones via a temp file
+		$is_small = ($src_size < 1_000_000);
+		$fp_in = null;
+		$data = null;
+
+		if($is_small) {
+			if(false === ($data = $src_engine->get($ns, $src_key))) {
+				$logger->error(sprintf("[Storage] Failed to read %s key (%s) from (%s) -- skipping", $ns, $src_key, $src_extension));
+				return null;
+			}
+		} else {
+			$fp_in = DevblocksPlatform::getTempFile();
+
+			if(false === $src_engine->get($ns, $src_key, $fp_in)) {
+				if(is_resource($fp_in)) fclose($fp_in);
+				$logger->error(sprintf("[Storage] Failed to read %s key (%s) from (%s) -- skipping", $ns, $src_key, $src_extension));
+				return null;
+			}
+		}
+
+		// Write to the destination (this repoints the record's storage_* columns)
+		$dst_key = $is_small
+			? static::put($src_id, $data, $dst)
+			: static::put($src_id, $fp_in, $dst)
+			;
+
+		if($is_small) {
+			unset($data);
+		} else {
+			@unlink(DevblocksPlatform::getTempFileInfo($fp_in));
+			if(is_resource($fp_in)) fclose($fp_in);
+		}
+
+		if(false === $dst_key) {
+			$logger->error(sprintf("[Storage] Failed to write %s %d to destination -- leaving source intact", $ns, $src_id));
+			return false;
+		}
+
+		// Move semantics: the source copy is deleted by the caller in one batch per source engine
+		return true;
+	}
+
+	/**
+	 * Move a set of objects (by id) to a destination profile. Reads the current storage
+	 * columns per ID and delegates each to `_migrateObject()`.
+	 *
+	 * @param int[] $ids
+	 * @param array{extension:string,profile_id:int}|int|string $dst a resolved destination, profile id, or engine id
+	 * @param array $result out: ['done'=>int,'skipped'=>int,'failed'=>int,'failed_ids'=>int[]]
+	 * @param array{extension:string,profile_id:int}|null $src if given, skip rows no longer on this source (idempotent)
+	 * @return bool true if no hard failures
+	 */
+	public static function migrateObjectsToProfile(array $ids, $dst, array &$result=[], ?array $src=null) : bool {
+		$db = DevblocksPlatform::services()->database();
+
+		$result = ['done' => 0, 'skipped' => 0, 'failed' => 0, 'failed_ids' => []];
+
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
+		$table = static::getStorageTableName();
+
+		if(!$ids || !$table)
+			return true;
+
+		// A resolved destination
+		$dst_resolved = is_array($dst)
+			? ['extension' => strval($dst['extension'] ?? ''), 'profile_id' => intval($dst['profile_id'] ?? 0)]
+			: static::resolveProfileConfig($dst)
+			;
+
+		if(!$dst_resolved)
+			return false;
+
+		$dst = $dst_resolved['profile_id'] ?: $dst_resolved['extension'];
+
+		$rows = $db->GetArrayReader(sprintf(
+			"SELECT id, storage_extension, storage_key, storage_profile_id, storage_size FROM %s WHERE id IN (%s)",
+			$db->escape($table),
+			implode(',', $ids)
+		));
+
+		$ns = static::getStorageNamespace();
+		$src_deletes = [];
+
+		foreach($rows as $row) {
+			// Idempotency: if the record already moved off the expected source (e.g., a duplicate
+			// cursor message, or a manual migration ran first), skip it -- that isn't an error.
+			if($src && (($row['storage_extension'] ?? '') !== $src['extension'] || intval($row['storage_profile_id'] ?? 0) !== $src['profile_id'])) {
+				$result['skipped']++;
+				continue;
+			}
+
+			$moved = static::_migrateObject($row, $dst, $dst_resolved);
+
+			if($moved === true) {
+				$result['done']++;
+
+				// Collect the source copy to delete, grouped by its literal (extension, profile_id) so
+				// the verify-before-delete query below has exact values
+				$src_group = ($row['storage_extension'] ?? '') . '|' . intval($row['storage_profile_id'] ?? 0);
+				$src_deletes[$src_group][] = $row['storage_key'];
+
+			} else if($moved === null) {
+				$result['skipped']++;
+			} else {
+				$result['failed']++;
+				$result['failed_ids'][] = intval($row['id']);
+			}
+		}
+
+		// Delete the moved source objects SYNCHRONOUSLY (paired with the copy -- never deferred to the
+		// queue, where a later migration could rewrite the same deterministic key before the delete
+		// fires). Verify first: only delete keys no live record still points at on this engine/profile,
+		// so we never destroy content a reverse migration just re-wrote (two copies beats zero).
+		foreach($src_deletes as $src_group => $keys) {
+			[$src_ext, $src_pid] = explode('|', $src_group, 2);
+			$src_pid = intval($src_pid);
+
+			if(!($src_engine = DevblocksPlatform::getStorageService($src_pid ?: $src_ext)))
+				continue;
+
+			$deletable = static::filterDeletableKeys($table, $src_ext, $src_pid, $keys);
+
+			// batchDelete() is native multi-object on S3/database and loops delete() on disk
+			if($deletable)
+				$src_engine->batchDelete($ns, $deletable);
+		}
+
+		return $result['failed'] === 0;
+	}
+
+	// Per-location object counts/bytes for this schema's table (used by the Setup->Storage UI)
+	public function getStats() : array {
+		return $this->_stats(static::getStorageTableName());
+	}
+
+	protected function _stats($table_name) : array {
 		$db = DevblocksPlatform::services()->database();
 
 		$stats = [];

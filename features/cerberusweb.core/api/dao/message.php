@@ -1249,48 +1249,16 @@ class Model_Message extends DevblocksRecordModel {
 };
 
 class Storage_MessageContent extends Extension_DevblocksStorageSchema {
-	const ID = 'cerberusweb.storage.schema.message_content';
-	
-	public static function getActiveStorageProfile() {
-		return DAO_DevblocksExtensionPropertyStore::get(self::ID, 'active_storage_profile', 'devblocks.storage.engine.database');
-	}
-	
-	function render() {
-		$tpl = DevblocksPlatform::services()->template();
-		
-		$tpl->assign('active_storage_profile', $this->getParam('active_storage_profile', 'devblocks.storage.engine.database'));
-		$tpl->assign('archive_storage_profile', $this->getParam('archive_storage_profile', 'devblocks.storage.engine.database'));
-		$tpl->assign('archive_after_days', $this->getParam('archive_after_days', 0));
-		
-		$tpl->display("devblocks:cerberusweb.core::configuration/section/storage_profiles/schemas/message_content/render.tpl");
-	}
-	
-	function renderConfig() {
-		$tpl = DevblocksPlatform::services()->template();
-		
-		$tpl->assign('active_storage_profile', $this->getParam('active_storage_profile', 'devblocks.storage.engine.database'));
-		$tpl->assign('archive_storage_profile', $this->getParam('archive_storage_profile', 'devblocks.storage.engine.database'));
-		$tpl->assign('archive_after_days', $this->getParam('archive_after_days', 0));
-		
-		$tpl->display("devblocks:cerberusweb.core::configuration/section/storage_profiles/schemas/message_content/config.tpl");
-	}
-	
-	function saveConfig() {
-		$active_storage_profile = DevblocksPlatform::importGPC($_POST['active_storage_profile'] ?? null, 'string','');
-		$archive_storage_profile = DevblocksPlatform::importGPC($_POST['archive_storage_profile'] ?? null, 'string','');
-		$archive_after_days = DevblocksPlatform::importGPC($_POST['archive_after_days'] ?? null, 'integer',0);
-		
-		if(!empty($active_storage_profile))
-			$this->setParam('active_storage_profile', $active_storage_profile);
-		
-		if(!empty($archive_storage_profile))
-			$this->setParam('archive_storage_profile', $archive_storage_profile);
+	const string ID = 'cerberusweb.storage.schema.message_content';
 
-		$this->setParam('archive_after_days', $archive_after_days);
-		
-		return true;
+	public static function getStorageTableName() : string {
+		return 'message';
 	}
-	
+
+	public static function getStorageNamespace() : string {
+		return 'message_content';
+	}
+
 	/**
 	 * @param Model_Message | $message_id
 	 * @return string
@@ -1367,232 +1335,17 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 		return $storage_key;
 	}
 
-	public static function delete($ids) {
+	protected static function getArchiveCandidates(string $src_extension, int $src_profile_id, int $before, int $last_at, int $last_id, int $limit) : array {
 		$db = DevblocksPlatform::services()->database();
-		
-		if(!is_array($ids)) $ids = [$ids];
-		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
-		
-		// Get distinct storage extensions and run them at once
-		$sql = sprintf("SELECT DISTINCT storage_extension, storage_profile_id FROM message WHERE id IN (%s)", implode(',',$ids));
-		$extension_pairs = $db->GetArrayMaster($sql);
-		
-		foreach($extension_pairs as $extension_pair) {
-			$profile = !empty($extension_pair['storage_profile_id']) ? $extension_pair['storage_profile_id'] : $extension_pair['storage_extension'];
-			
-			if(!($storage = DevblocksPlatform::getStorageService($profile)))
-				continue;
-			
-			$sql = sprintf("SELECT storage_key FROM message WHERE storage_extension = %s AND storage_profile_id = %d AND id IN (%s)",
-				$db->qstr($extension_pair['storage_extension']),
-				$extension_pair['storage_profile_id'],
-				implode(',',$ids)
-			);
-			
-			if(!($results = $db->GetArrayMaster($sql)))
-				continue;
-			
-			$storage->batchDelete('message_content', array_column($results, 'storage_key'));
-		}
-		
-		return true;
-	}
-	
-	public function getStats() {
-		return $this->_stats('message');
-	}
-		
-	public static function archive($stop_time=null) {
-		$db = DevblocksPlatform::services()->database();
-		
-		// Params
-		$src_profile = DAO_DevblocksStorageProfile::get(DAO_DevblocksExtensionPropertyStore::get(self::ID, 'active_storage_profile'));
-		$dst_profile = DAO_DevblocksStorageProfile::get(DAO_DevblocksExtensionPropertyStore::get(self::ID, 'archive_storage_profile'));
-		$archive_after_days = DAO_DevblocksExtensionPropertyStore::get(self::ID, 'archive_after_days');
-				
-		if(empty($src_profile) || empty($dst_profile))
-			return;
 
-		if(json_encode($src_profile) == json_encode($dst_profile))
-			return;
-		
-		// Find inactive attachments
-		$sql = sprintf("SELECT message.id, message.storage_extension, message.storage_key, message.storage_profile_id, message.storage_size ".
-			"FROM message ".
-			"INNER JOIN ticket ON (ticket.id=message.ticket_id) ".
-			"WHERE ticket.status_id != 3 ".
-			"AND ticket.updated_date < %d ".
-			"AND (message.storage_extension = %s AND message.storage_profile_id = %d) ".
-			"ORDER BY message.id ASC ",
-				time()-(86400*$archive_after_days),
-				$db->qstr($src_profile->extension_id),
-				$src_profile->id
-		);
-		$rs = $db->QueryReader($sql);
-		
-		if(!($rs instanceof mysqli_result))
-			return false;
-		
-		while($row = mysqli_fetch_assoc($rs)) {
-			self::_migrate($dst_profile, $row);
-
-			if(time() > $stop_time)
-				return;
-		}
-	}
-	
-	public static function unarchive($stop_time=null) {
-		// We don't want to unarchive message content under any condition
-		/*
-		$db = DevblocksPlatform::services()->database();
-		
-		// Params
-		$dst_profile = DAO_DevblocksStorageProfile::get(DAO_DevblocksExtensionPropertyStore::get(self::ID, 'active_storage_profile'));
-		$archive_after_days = DAO_DevblocksExtensionPropertyStore::get(self::ID, 'archive_after_days');
-				
-		if(empty($dst_profile))
-			return;
-		
-		// Find active attachments
-		$sql = sprintf("SELECT message.id, message.storage_extension, message.storage_key, message.storage_profile_id, message.storage_size ".
-			"FROM message ".
-			"INNER JOIN ticket ON (ticket.id=message.ticket_id) ".
-			"WHERE ticket.status_id != 3 ".
-			"AND ticket.updated_date >= %d ".
-			"AND NOT (message.storage_extension = %s AND message.storage_profile_id = %d) ".
-			"ORDER BY message.id DESC ",
-				time()-(86400*$archive_after_days),
-				$db->qstr($dst_profile->extension_id),
-				$dst_profile->id
-		);
-		$rs = $db->QueryReader($sql);
-		
-		if(!($rs instanceof mysqli_result))
-			return false;
-		
-		while($row = mysqli_fetch_assoc($rs)) {
-			self::_migrate($dst_profile, $row, true);
-			
-			if(time() > $stop_time)
-				return;
-		}
-		*/
-	}
-	
-	private static function _migrate($dst_profile, $row, $is_unarchive=false) {
-		$logger = DevblocksPlatform::services()->log();
-		
-		$ns = 'message_content';
-		
-		$src_key = $row['storage_key'];
-		$src_id = $row['id'];
-		$src_size = $row['storage_size'];
-		
-		$src_profile = new Model_DevblocksStorageProfile();
-		$src_profile->id = $row['storage_profile_id'];
-		$src_profile->extension_id = $row['storage_extension'];
-		
-		if(empty($src_key) || empty($src_id)
-			|| !$src_profile instanceof Model_DevblocksStorageProfile
-			|| !$dst_profile instanceof Model_DevblocksStorageProfile
-			)
-			return;
-		
-		$src_engine = DevblocksPlatform::getStorageService(!empty($src_profile->id) ? $src_profile->id : $src_profile->extension_id);
-		
-		$logger->info(sprintf("[Storage] %s %s %d (%d bytes) from (%s) to (%s)...",
-			(($is_unarchive) ? 'Unarchiving' : 'Archiving'),
-			$ns,
-			$src_id,
-			$src_size,
-			$src_profile->extension_id,
-			$dst_profile->extension_id
+		return $db->GetArrayReader(sprintf(
+			"SELECT id, created_date AS cursor_at FROM message ".
+			"WHERE storage_extension = %s AND storage_profile_id = %d ".
+			"AND created_date < %d AND (created_date > %d OR (created_date = %d AND id > %d)) ".
+			"ORDER BY created_date ASC, id ASC LIMIT %d",
+			$db->qstr($src_extension), $src_profile_id,
+			$before, $last_at, $last_at, $last_id, $limit
 		));
-
-		// Do as quicker strings if under 1MB?
-		$is_small = ($src_size < (1024 * 1000)) ? true : false;
-		
-		// Allocate a temporary file for retrieving content
-		if($is_small) {
-			if(false === ($data = $src_engine->get($ns, $src_key))) {
-				$logger->error(sprintf("[Storage] Error reading %s key (%s) from (%s)",
-					$ns,
-					$src_key,
-					$src_profile->extension_id
-				));
-				return;
-			}
-		} else {
-			$fp_in = DevblocksPlatform::getTempFile();
-			if(false === $src_engine->get($ns, $src_key, $fp_in)) {
-				$logger->error(sprintf("[Storage] Error reading %s key (%s) from (%s)",
-					$ns,
-					$src_key,
-					$src_profile->extension_id
-				));
-				return;
-			}
-		}
-
-		if($is_small) {
-			$loaded_size = strlen($data);
-		} else {
-			$stats_in = fstat($fp_in);
-			$loaded_size = $stats_in['size'];
-		}
-		
-		$logger->info(sprintf("[Storage] Loaded %d bytes of data from (%s)...",
-			$loaded_size,
-			$src_profile->extension_id
-		));
-		
-		if($is_small) {
-			if(false === ($dst_key = self::put($src_id, $data, $dst_profile))) {
-				$logger->error(sprintf("[Storage] Error saving %s %d to (%s)",
-					$ns,
-					$src_id,
-					$dst_profile->extension_id
-				));
-				unset($data);
-				return;
-			}
-		} else {
-			if(false === ($dst_key = self::put($src_id, $fp_in, $dst_profile))) {
-				$logger->error(sprintf("[Storage] Error saving %s %d to (%s)",
-					$ns,
-					$src_id,
-					$dst_profile->extension_id
-				));
-				if(is_resource($fp_in))
-					fclose($fp_in);
-				return;
-			}
-		}
-		
-		$logger->info(sprintf("[Storage] Saved %s %d to destination (%s) as key (%s)...",
-			$ns,
-			$src_id,
-			$dst_profile->extension_id,
-			$dst_key
-		));
-		
-		// Free resources
-		if($is_small) {
-			unset($data);
-		} else {
-			@unlink(DevblocksPlatform::getTempFileInfo($fp_in));
-			if(is_resource($fp_in))
-				fclose($fp_in);
-		}
-		
-		$src_engine->delete($ns, $src_key);
-		$logger->info(sprintf("[Storage] Deleted %s %d from source (%s)...",
-			$ns,
-			$src_id,
-			$src_profile->extension_id
-		));
-		
-		$logger->info(''); // blank
 	}
 };
 

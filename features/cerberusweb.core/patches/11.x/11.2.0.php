@@ -2714,6 +2714,34 @@ if(array_key_exists('devblocks_template', $tables)) {
 }
 
 // ===========================================================================
+// Indexes for efficient cron.storage sync
+
+list(, $indexes) = $db->metaTable('message');
+$changes = [];
+if(!array_key_exists('storage_profile_created', $indexes))
+	$changes[] = "ADD INDEX storage_profile_created (storage_extension, storage_profile_id, created_date)";
+if($changes)
+	$db->ExecuteMaster("ALTER TABLE message ".implode(', ', $changes));
+
+list(, $indexes) = $db->metaTable('resource');
+$changes = [];
+if(!array_key_exists('storage_profile_updated', $indexes))
+	$changes[] = "ADD INDEX storage_profile_updated (storage_extension, storage_profile_id, updated_at)";
+if(array_key_exists('storage_extension', $indexes))
+	$changes[] = "DROP INDEX storage_extension";
+if($changes)
+	$db->ExecuteMaster("ALTER TABLE resource ".implode(', ', $changes));
+
+list(, $indexes) = $db->metaTable('context_avatar');
+$changes = [];
+if(!array_key_exists('storage_profile_updated', $indexes))
+	$changes[] = "ADD INDEX storage_profile_updated (storage_extension, storage_profile_id, updated_at)";
+if(array_key_exists('storage_extension', $indexes))
+	$changes[] = "DROP INDEX storage_extension";
+if($changes)
+	$db->ExecuteMaster("ALTER TABLE context_avatar ".implode(', ', $changes));
+
+// ===========================================================================
 // Clear the plugin worklist models
 
 $db->ExecuteMaster("DELETE FROM worker_view_model WHERE view_id IN ('cerb5_plugins','plugins_installed')");

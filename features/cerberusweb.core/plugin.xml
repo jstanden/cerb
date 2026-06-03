@@ -5363,7 +5363,7 @@
 			<params>
 				<param key="active_storage_profile" value="devblocks.storage.engine.disk" />
 				<param key="archive_storage_profile" value="devblocks.storage.engine.disk" />
-				<param key="archive_after_days" value="7" />
+				<param key="archive_after_days" value="1" />
 			</params>
 		</extension>
 
@@ -5377,7 +5377,8 @@
 			<params>
 				<param key="active_storage_profile" value="devblocks.storage.engine.disk" />
 				<param key="archive_storage_profile" value="devblocks.storage.engine.disk" />
-				<param key="archive_after_days" value="-1" />
+				<param key="archive_after_days" value="0" />
+				<param key="is_always_local" value="1" />
 			</params>
 		</extension>
 
@@ -5417,8 +5418,8 @@
 				<name>Storage_RecordChangeset</name>
 			</class>
 			<params>
-				<param key="active_storage_profile" value="devblocks.storage.engine.disk" />
-				<param key="archive_storage_profile" value="devblocks.storage.engine.disk" />
+				<param key="active_storage_profile" value="devblocks.storage.engine.database" />
+				<param key="archive_storage_profile" value="devblocks.storage.engine.database" />
 				<param key="archive_after_days" value="3" />
 			</params>
 		</extension>

@@ -1,10 +1,10 @@
-<b>Store active content in:</b><br>
+<b>Store {if $is_archivable}active {/if}content in:</b><br>
 <select name="active_storage_profile">
 	<option value="devblocks.storage.engine.disk" {if 'devblocks.storage.engine.disk'==$active_storage_profile}selected="selected"{/if}>Local filesystem (/storage)</option>
 	<option value="devblocks.storage.engine.database" {if 'devblocks.storage.engine.database'==$active_storage_profile}selected="selected"{/if}>Local database</option>
 </select><br>
 <br>
-
+{if $is_archivable}
 <b>Archive inactive content to:</b><br>
 <select name="archive_storage_profile">
 	<option value="devblocks.storage.engine.disk" {if 'devblocks.storage.engine.disk'==$archive_storage_profile}selected="selected"{/if}>Local filesystem (/storage)</option>
@@ -18,3 +18,4 @@
 <b>Archive after:</b><br>
 <input type="text" name="archive_after_days" size="4" value="{$archive_after_days}"> days of inactivity<br>
 <br>
+{/if}

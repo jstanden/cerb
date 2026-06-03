@@ -3808,10 +3808,20 @@ tables:
             index_type: BTREE
             subpart@text:
             unique: 1
-      storage_extension:
+      storage_profile_updated:
         columns:
           storage_extension:
             column_name: storage_extension
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+          storage_profile_id:
+            column_name: storage_profile_id
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+          updated_at:
+            column_name: updated_at
             index_type: BTREE
             subpart@text:
             unique@text:
@@ -7894,7 +7904,7 @@ tables:
         type: varchar(255)
         collation: utf8mb3_unicode_ci
         nullable: NOT NULL
-        key@text:
+        key: MUL
         default@text:
         extra@text:
         references: cerb_extension.name
@@ -7990,6 +8000,23 @@ tables:
         columns:
           is_outgoing:
             column_name: is_outgoing
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+      storage_profile_created:
+        columns:
+          storage_extension:
+            column_name: storage_extension
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+          storage_profile_id:
+            column_name: storage_profile_id
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+          created_date:
+            column_name: created_date
             index_type: BTREE
             subpart@text:
             unique@text:
@@ -10069,10 +10096,20 @@ tables:
             index_type: BTREE
             subpart@text:
             unique: 1
-      storage_extension:
+      storage_profile_updated:
         columns:
           storage_extension:
             column_name: storage_extension
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+          storage_profile_id:
+            column_name: storage_profile_id
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+          updated_at:
+            column_name: updated_at
             index_type: BTREE
             subpart@text:
             unique@text:
