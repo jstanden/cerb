@@ -201,10 +201,10 @@ INSERT INTO `cerb_property_store` VALUES ('cron.search','duration','10');
 INSERT INTO `cerb_property_store` VALUES ('cron.search','enabled','1');
 INSERT INTO `cerb_property_store` VALUES ('cron.search','lastrun',UNIX_TIMESTAMP());
 INSERT INTO `cerb_property_store` VALUES ('cron.search','term','m');
-INSERT INTO `cerb_property_store` VALUES ('cron.storage','duration','1');
+INSERT INTO `cerb_property_store` VALUES ('cron.storage','duration','15');
 INSERT INTO `cerb_property_store` VALUES ('cron.storage','enabled','1');
 INSERT INTO `cerb_property_store` VALUES ('cron.storage','lastrun',UNIX_TIMESTAMP());
-INSERT INTO `cerb_property_store` VALUES ('cron.storage','term','h');
+INSERT INTO `cerb_property_store` VALUES ('cron.storage','term','m');
 
 INSERT INTO `currency` VALUES (1,'US Dollar','US Dollars','USD','$',2,1,UNIX_TIMESTAMP());
 INSERT INTO `currency` VALUES (2,'Euro','Euros','EUR','€',2,0,UNIX_TIMESTAMP());
