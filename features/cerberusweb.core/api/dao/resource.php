@@ -534,7 +534,8 @@ class DAO_Resource extends Cerb_ORMHelper {
 					
 					$storage_key = $storage->put('resources', $resource_id, $fp);
 					
-					$sql = sprintf("UPDATE resource SET storage_extension = %s, storage_key = %s, storage_size = %d WHERE id = %d",
+					// Always reset to the local database engine and profile
+					$sql = sprintf("UPDATE resource SET storage_extension = %s, storage_profile_id = 0, storage_key = %s, storage_size = %d WHERE id = %d",
 						$db->qstr('devblocks.storage.engine.database'),
 						$db->qstr($storage_key),
 						$fp_stat['size'],
