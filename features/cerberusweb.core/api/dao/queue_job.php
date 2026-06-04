@@ -432,7 +432,7 @@ class DAO_QueueJob extends Cerb_ORMHelper {
 		// identical to COUNT(*) for single-op messages.
 		$sql = sprintf(
 			"UPDATE queue_job JOIN ( ".
-			"SELECT SUM(IF(status_id=0, cardinality, 0)) AS count_available, SUM(IF(status_id=1, cardinality, 0)) AS count_inflight, SUM(IF(status_id=2, cardinality, 0)) AS count_failed, SUM(IF(status_id=3, cardinality, 0)) AS count_done, SUM(cardinality) AS count_total FROM queue_message WHERE job_id = %d".
+			"SELECT COALESCE(SUM(IF(status_id=0, cardinality, 0)),0) AS count_available, COALESCE(SUM(IF(status_id=1, cardinality, 0)),0) AS count_inflight, COALESCE(SUM(IF(status_id=2, cardinality, 0)),0) AS count_failed, COALESCE(SUM(IF(status_id=3, cardinality, 0)),0) AS count_done, COALESCE(SUM(cardinality),0) AS count_total FROM queue_message WHERE job_id = %d".
 			") AS agg ON queue_job.id = %d ".
 			"SET ".
 			"queue_job.count_total = agg.count_total, ".
