@@ -1,6 +1,6 @@
 workflow:
   name: cerb.email.pgp_inline
-  version: 2025-02-21T00:00:00Z
+  version: 2026-06-03T00:00:00Z
   description: Encrypt messages with PGP and paste them inline in outgoing email
   website: https://cerb.ai/workflows/cerb.email.pgp_inline/
   requirements:
@@ -68,4 +68,4 @@ records:
         interaction/encryptWithPGP:
           uri: cerb:automation:cerb.email.pgpInline.interaction
           tooltip: Encrypt with PGP
-          icon: message-lock
+          icon: mail-lock

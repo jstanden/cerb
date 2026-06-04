@@ -1,6 +1,6 @@
 workflow:
   name: cerb.tutorial
-  version: 2026-05-31T00:00:00Z
+  version: 2026-06-03T00:00:00Z
   description: A workspace with detailed descriptions and examples of Cerb functionality
   requirements:
     cerb_version: >=11.2 <11.3
@@ -1111,7 +1111,7 @@ records:
           type:sample.records
           records:(
             peek:(
-              name:" " icon:"new-window-alt" description:"When hovering over a worklist row, this icon will open the record's card popup"
+              name:" " icon:"new-window" description:"When hovering over a worklist row, this icon will open the record's card popup"
             )
             add:(
               name:" " icon:"circle-plus" description:"Add a new record to the worklist"
@@ -2908,7 +2908,7 @@ records:
                 text_key: name
                 href_template@raw: {{docs_url|default('https://cerb.ai/docs/data-queries/')}}
                 icon:
-                  image: new-window-alt
+                  image: new-window
                   at: end
                 href_new_tab@bool: yes
             text/description:
@@ -3555,7 +3555,7 @@ records:
                 bold@bool: yes
                 text_color@raw: rainbow6:1
                 icon:
-                  image: warning-sign
+                  image: alert
                 value_template@raw: {{priority}}
 
             time_elapsed/time_elapsed:
@@ -6383,7 +6383,7 @@ records:
                 text_template@raw: Guide
                 href_new_tab@bool: yes
                 icon:
-                  image: new-window-alt
+                  image: new-window
                   at: end
         toolbar_kata@text:
   workspace_widget/widget_list_of_webhook_listeners:

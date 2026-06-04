@@ -208,7 +208,7 @@ class PageSection_SetupDevelopersDatabaseSchema extends Extension_PageSection {
 					'params' => [
 						'text_color' => '{% if __diff.type %}warning{% endif %}',
 						'icon' => [
-							'image_template' => '{% if __diff.type %}warning-sign{% endif %}'
+							'image_template' => '{% if __diff.type %}alert{% endif %}'
 						],
 						'value_template' => '{% if __diff.type %}{{__diff.type.theirs|default(\'null\')}} -> {{__diff.type.ours|default(\'null\')}}{% else %}{{type}}{% endif %}',
 					]
@@ -218,7 +218,7 @@ class PageSection_SetupDevelopersDatabaseSchema extends Extension_PageSection {
 					'params' => [
 						'text_color' => '{% if __diff.collation %}warning{% endif %}',
 						'icon' => [
-							'image_template' => '{% if __diff.collation %}warning-sign{% endif %}'
+							'image_template' => '{% if __diff.collation %}alert{% endif %}'
 						],
 						'value_template' => '{% if __diff.collation %}{{__diff.collation.theirs|default(\'null\')}} -> {{__diff.collation.ours|default(\'null\')}}{% else %}{{collation}}{% endif %}',
 					]
@@ -227,7 +227,7 @@ class PageSection_SetupDevelopersDatabaseSchema extends Extension_PageSection {
 					'params' => [
 						'text_color' => '{% if __diff.nullable %}warning{% endif %}',
 						'icon' => [
-							'image_template' => '{% if __diff.nullable %}warning-sign{% endif %}'
+							'image_template' => '{% if __diff.nullable %}alert{% endif %}'
 						],
 						'value_template' => '{% if __diff.nullable %}{{__diff.nullable.theirs|default(\'null\')}} -> {{__diff.nullable.ours|default(\'null\')}}{% else %}{{nullable}}{% endif %}',
 					]
@@ -236,7 +236,7 @@ class PageSection_SetupDevelopersDatabaseSchema extends Extension_PageSection {
 					'params' => [
 						'text_color' => '{% if __diff.key %}warning{% endif %}',
 						'icon' => [
-							'image_template' => '{% if __diff.key %}warning-sign{% endif %}'
+							'image_template' => '{% if __diff.key %}alert{% endif %}'
 						],
 						'value_template' => '{% if __diff.key %}{{__diff.key.theirs|default(\'null\')}} -> {{__diff.key.ours|default(\'null\')}}{% else %}{{key}}{% endif %}',
 					]
@@ -245,7 +245,7 @@ class PageSection_SetupDevelopersDatabaseSchema extends Extension_PageSection {
 					'params' => [
 						'text_color' => '{% if __diff.default %}warning{% endif %}',
 						'icon' => [
-							'image_template' => '{% if __diff.default %}warning-sign{% endif %}'
+							'image_template' => '{% if __diff.default %}alert{% endif %}'
 						],
 						'value_template' => '{% if __diff.default %}{{__diff.default.theirs|default(\'null\')}} -> {{__diff.default.ours|default(\'null\')}}{% else %}{{default}}{% endif %}',
 					]
@@ -254,7 +254,7 @@ class PageSection_SetupDevelopersDatabaseSchema extends Extension_PageSection {
 					'params' => [
 						'text_color' => '{% if __diff.extra %}warning{% endif %}',
 						'icon' => [
-							'image_template' => '{% if __diff.extra %}warning-sign{% endif %}'
+							'image_template' => '{% if __diff.extra %}alert{% endif %}'
 						],
 						'value_template' => '{% if __diff.extra %}{{__diff.extra.theirs|default(\'null\')}} -> {{__diff.extra.ours|default(\'null\')}}{% else %}{{extra}}{% endif %}',
 					]

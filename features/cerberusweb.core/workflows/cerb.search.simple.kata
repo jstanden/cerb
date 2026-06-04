@@ -1,6 +1,6 @@
 workflow:
   name: cerb.search.simple
-  version: 2025-02-21T00:00:00Z
+  version: 2026-06-03T00:00:00Z
   description: Simplified point-and-click ticket search popup without using search queries
   website: https://cerb.ai/workflows/cerb.search.simple/
   requirements:
@@ -98,7 +98,7 @@ records:
                           value: update
                         continue/editFilters:
                           label: Edit Filters
-                          icon: cogwheel
+                          icon: gear
                           value: edit-filters
                           style: secondary
 
