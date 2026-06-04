@@ -237,7 +237,7 @@ class Model_RecordChangeset extends DevblocksRecordModel {
 }
 
 class Storage_RecordChangeset extends Extension_DevblocksStorageSchema {
-	const ID = 'cerb.storage.schema.record.changeset';
+	const ID = 'cerberusweb.storage.schema.record.changeset';
 
 	public static function getStorageTableName() : string {
 		return 'record_changeset';
