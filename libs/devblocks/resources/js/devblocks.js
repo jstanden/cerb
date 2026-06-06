@@ -1434,7 +1434,7 @@ $(document).keydown(function(e) {
 		if(0 === dialogs.length)
 			return;
 
-		if(dialogs[0].element.is('[cerb-ui-popup-confirm]')) {
+		if(dialogs[0].element.is('[cerb-popup-confirm]')) {
 			dialogs[0].element.dialog('close');
 			return;
 		}
@@ -1475,7 +1475,7 @@ function confirmPopup(title, content, callbackOk, callbackCancel) {
 		callbackCancel = function() {};
 	
 	$('<div/>')
-		.attr('cerb-ui-popup-confirm', true)
+		.attr('cerb-popup-confirm', true)
 		.dialog({
 			open: function() {
 				let $dialog = $(this).closest('.ui-dialog');

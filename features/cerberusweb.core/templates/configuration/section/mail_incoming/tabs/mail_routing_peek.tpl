@@ -19,7 +19,7 @@
 {if isset($rule->criteria.dayofweek) || isset($rule->criteria.timeofday)}
 	{assign var=expanded value=true}
 {/if}
-<label><input type="checkbox" data-cerb-ui-toggle="divBlockDateTime" {if $expanded}checked="checked"{/if}> <b>Current Date/Time</b></label><br>
+<label><input type="checkbox" data-cerb-div-toggle="divBlockDateTime" {if $expanded}checked="checked"{/if}> <b>Current Date/Time</b></label><br>
 <table width="100%" style="margin-left:10px;display:{if $expanded}block{else}none{/if};" id="divBlockDateTime">
 	<tr>
 		<td valign="top">
@@ -77,7 +77,7 @@
 {if isset($rule->criteria.subject) || isset($rule->criteria.from) || isset($rule->criteria.tocc) || isset($rule->criteria.body)}
 	{assign var=expanded value=true}
 {/if}
-<label><input type="checkbox" data-cerb-ui-toggle="divBlockMessage" {if $expanded}checked="checked"{/if}> <b>Message</b></label><br>
+<label><input type="checkbox" data-cerb-div-toggle="divBlockMessage" {if $expanded}checked="checked"{/if}> <b>Message</b></label><br>
 <table width="100%" style="margin-left:10px;display:{if $expanded}block{else}none{/if};" id="divBlockMessage">
 	<tr>
 		<td valign="top" width="1%" nowrap="nowrap">
@@ -85,7 +85,7 @@
 			<label><input type="checkbox" id="chkRuleTo" name="rules[]" value="tocc" {if !is_null($crit_tocc)}checked="checked"{/if}> To/Cc:</label>
 		</td>
 		<td valign="top" width="99%">
-			<textarea name="value_tocc" data-cerb-ui-change="chkRuleTo" style="width:95%;height:3.5em;">{$crit_tocc.value}</textarea><br>
+			<textarea name="value_tocc" data-cerb-field-change="chkRuleTo" style="width:95%;height:3.5em;">{$crit_tocc.value}</textarea><br>
 			<i>Comma-delimited address patterns; only one e-mail must match.</i><br>
 			Example: support@example.com, support@*, *@example.com<br>
 		</td>
@@ -96,7 +96,7 @@
 			<label><input type="checkbox" id="chkRuleFrom" name="rules[]" value="from" {if !is_null($crit_from)}checked="checked"{/if}> From:</label>
 		</td>
 		<td valign="top">
-			<input type="text" name="value_from" size="45" value="{$crit_from.value}" data-cerb-ui-change="chkRuleFrom" style="width:95%;">
+			<input type="text" name="value_from" size="45" value="{$crit_from.value}" data-cerb-field-change="chkRuleFrom" style="width:95%;">
 		</td>
 	</tr>
 	<tr>
@@ -105,7 +105,7 @@
 			<label><input type="checkbox" id="chkRuleSubject" name="rules[]" value="subject" {if !is_null($crit_subject)}checked="checked"{/if}> Subject:</label>
 		</td>
 		<td valign="top">
-			<input type="text" name="value_subject" size="45" value="{$crit_subject.value}" data-cerb-ui-change="chkRuleSubject" style="width:95%;">
+			<input type="text" name="value_subject" size="45" value="{$crit_subject.value}" data-cerb-field-change="chkRuleSubject" style="width:95%;">
 		</td>
 	</tr>
 	<tr>
@@ -114,7 +114,7 @@
 			<label><input type="checkbox" id="chkRuleBody" name="rules[]" value="body" {if !is_null($crit_body)}checked="checked"{/if}> Content:</label>
 		</td>
 		<td valign="top">
-			<input type="text" name="value_body" size="45" value="{$crit_body.value}" data-cerb-ui-change="chkRuleBody" style="width:95%;"><br>
+			<input type="text" name="value_body" size="45" value="{$crit_body.value}" data-cerb-field-change="chkRuleBody" style="width:95%;"><br>
 			<i>Enter as a <a href="http://us2.php.net/manual/en/reference.pcre.pattern.syntax.php" target="_blank" rel="noopener noreferrer">regular expression</a>; scans content line-by-line.</i><br>
 			Example: /(how do|where can)/i<br>
 		</td>
@@ -129,7 +129,7 @@
 		{assign var=expanded value=true}
 	{/if}
 {/section}
-<label><input type="checkbox" data-cerb-ui-toggle="divBlockHeaders" {if $expanded}checked="checked"{/if}> <b>Message headers</b></label><br>
+<label><input type="checkbox" data-cerb-div-toggle="divBlockHeaders" {if $expanded}checked="checked"{/if}> <b>Message headers</b></label><br>
 <table width="100%" style="margin-left:10px;display:{if $expanded}block{else}none{/if};" id="divBlockHeaders">
 	{section name=headers start=0 loop=5}
 	{assign var=headerx value='header'|cat:$smarty.section.headers.iteration}
@@ -137,7 +137,7 @@
 	<tr>
 		<td valign="top">
 			<input type="checkbox" id="chkHeader{$smarty.section.headers.iteration}" name="rules[]" {if !is_null($crit_headerx)}checked="checked"{/if} value="header{$smarty.section.headers.iteration}">
-			<input type="text" name="{$headerx}" value="{$crit_headerx.header}" size="16" data-cerb-ui-change="chkHeader{$smarty.section.headers.iteration}">:
+			<input type="text" name="{$headerx}" value="{$crit_headerx.header}" size="16" data-cerb-field-change="chkHeader{$smarty.section.headers.iteration}">:
 		</td>
 		<td valign="top">
 			<input type="text" name="value_{$headerx}" value="{$crit_headerx.value}" size="45">
@@ -181,9 +181,9 @@ $(function() {
 	$popup.one('popup_open',function() {
 		$(this).dialog('option','title', 'Add Mail Routing Rule');
 
-		$popup.find('[data-cerb-ui-toggle]').on('click', function(e) {
+		$popup.find('[data-cerb-div-toggle]').on('click', function(e) {
 			e.stopPropagation();
-			let divId = $(this).attr('data-cerb-ui-toggle');
+			let divId = $(this).attr('data-cerb-div-toggle');
 
 			toggleDiv(divId, (this.checked ? 'block' : 'none'));
 
@@ -191,9 +191,9 @@ $(function() {
 				checkAll(divId, false);
 		});
 
-		$popup.find('[data-cerb-ui-change]').on('change', function(e) {
+		$popup.find('[data-cerb-field-change]').on('change', function(e) {
 			e.stopPropagation();
-			let selector = $(this).attr('data-cerb-ui-change');
+			let selector = $(this).attr('data-cerb-field-change');
 			document.getElementById(selector).checked=((0==this.value.length)?false:true);
 		});
 

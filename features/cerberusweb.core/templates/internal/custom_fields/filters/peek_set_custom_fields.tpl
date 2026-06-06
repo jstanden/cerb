@@ -5,7 +5,7 @@
 	{assign var=k value='cf_'|cat:$f_id}
 	{if !$expanded && (0==$v->group_id||$group_id==$v->group_id) && isset($filter->actions.$k)}{assign var=expanded value=true}{/if}
 {/foreach}
-<label><input type="checkbox" data-cerb-ui-toggle="{$divName}" {if $expanded}checked="checked"{/if}> <b>{$label}</b></label><br>
+<label><input type="checkbox" data-cerb-div-toggle="{$divName}" {if $expanded}checked="checked"{/if}> <b>{$label}</b></label><br>
 <table width="100%" style="margin-left:10px;display:{if $expanded}block{else}none{/if};" id="{$divName}">
 	{foreach from=$fields key=field_id item=field}
 	{if (0==$field->group_id||$group_id==$field->group_id)}
@@ -13,22 +13,22 @@
 		<td valign="top" width="1%" nowrap="nowrap">
 			{assign var=cf value="cf_"|cat:$field_id}
 			{assign var=action_field value=$filter->actions.$cf}
-			<label><input type="checkbox" id="chkSetField{$field_id}" name="do[]" value="cf_{$field_id}" data-cerb-ui-toggle="fieldSetValue{$field_id}" {if !is_null($action_field)}checked="checked"{/if}> {$field->name}:</label>
+			<label><input type="checkbox" id="chkSetField{$field_id}" name="do[]" value="cf_{$field_id}" data-cerb-div-toggle="fieldSetValue{$field_id}" {if !is_null($action_field)}checked="checked"{/if}> {$field->name}:</label>
 		</td>
 		<td width="99%">
 			<div style="display:{if !is_null($action_field)}block{else}none{/if};" id="fieldSetValue{$field_id}">
 			{if Model_CustomField::TYPE_SINGLE_LINE==$field->type || Model_CustomField::TYPE_MULTI_LINE==$field->type || Model_CustomField::TYPE_NUMBER==$field->type || Model_CustomField::TYPE_URL==$field->type}
-				<input type="text" name="do_cf_{$field_id}" size="45" value="{$action_field.value}" data-cerb-ui-change="chkSetField{$field_id}" style="width:95%;">
+				<input type="text" name="do_cf_{$field_id}" size="45" value="{$action_field.value}" data-cerb-field-change="chkSetField{$field_id}" style="width:95%;">
 			{elseif Model_CustomField::TYPE_CHECKBOX==$field->type}
-				<label><input type="radio" name="do_cf_{$field_id}" value="1" {if !is_null($action_field) && 1==$action_field.value}checked="checked"{/if} data-cerb-ui-change="chkSetField{$field_id}"> {'common.yes'|devblocks_translate}</label>
-				<label><input type="radio" name="do_cf_{$field_id}" value="0" {if !is_null($action_field) && 0==$action_field.value}checked="checked"{/if} data-cerb-ui-change="chkSetField{$field_id}"> {'common.no'|devblocks_translate}</label>
+				<label><input type="radio" name="do_cf_{$field_id}" value="1" {if !is_null($action_field) && 1==$action_field.value}checked="checked"{/if} data-cerb-field-change="chkSetField{$field_id}"> {'common.yes'|devblocks_translate}</label>
+				<label><input type="radio" name="do_cf_{$field_id}" value="0" {if !is_null($action_field) && 0==$action_field.value}checked="checked"{/if} data-cerb-field-change="chkSetField{$field_id}"> {'common.no'|devblocks_translate}</label>
 			{elseif Model_CustomField::TYPE_CURRENCY==$field->type}
 				{$currency = DAO_Currency::get($field->params.currency_id)}
 				{$currency->symbol}
 				<input type="text" name="do_cf_{$field_id}" size="24" maxlength="64" value="{$action_field.value}" class="currency">
 				{$currency->code}
 			{elseif Model_CustomField::TYPE_DATE==$field->type}
-				<input type="text" name="do_cf_{$field_id}" size="30" value="{$action_field.value}" data-cerb-ui-change="chkSetField{$field_id}" style="width:95%;"><br>
+				<input type="text" name="do_cf_{$field_id}" size="30" value="{$action_field.value}" data-cerb-field-change="chkSetField{$field_id}" style="width:95%;"><br>
 				<i>(+2 hours, now, next Friday, 2pm, tomorrow 5pm)</i>
 			{elseif Model_CustomField::TYPE_DECIMAL==$field->type}
 				{$decimal_at = $field->params.decimal_at}
