@@ -3176,9 +3176,21 @@ abstract class CerberusCronPageExtension extends DevblocksExtension {
 		
 		if(!$is_concurrent)
 			$this->setParam(self::PARAM_LOCKED, time());
-		
+
+		$started_at = microtime(true) * 1000;
+
 		$this->run();
 		$ran_at = time();
+
+		// Track invocation count and duration for this scheduler job
+		$elapsed_ms = (microtime(true) * 1000) - $started_at;
+
+		// Write immediately (buffer:false); scheduler jobs run at most once per
+		// pass, so buffering wouldn't coalesce anything — it'd only defer the
+		// same writes a cycle behind through the metrics queue
+		$metrics = DevblocksPlatform::services()->metrics();
+		$metrics->increment('cerb.scheduler.invocations', 1, ['job' => $this->id], null, false);
+		$metrics->increment('cerb.scheduler.duration', $elapsed_ms, ['job' => $this->id], null, false);
 
 		if(!$is_concurrent) {
 			$duration = $this->getParam(self::PARAM_DURATION, 5);

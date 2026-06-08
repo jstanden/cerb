@@ -876,6 +876,26 @@ $db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, 
 	time()
 ));
 
+$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, dimensions_kata, created_at, updated_at) ".
+	"VALUES (%s, %s, %s, %s, %d, %d)",
+	$db->qstr('cerb.scheduler.invocations'),
+	$db->qstr('Invocation count by scheduler job'),
+	$db->qstr('counter'),
+	$db->qstr("extension/job:\n"),
+	time(),
+	time()
+));
+
+$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, dimensions_kata, created_at, updated_at) ".
+	"VALUES (%s, %s, %s, %s, %d, %d)",
+	$db->qstr('cerb.scheduler.duration'),
+	$db->qstr('Invocation duration (ms) by scheduler job'),
+	$db->qstr('counter'),
+	$db->qstr("extension/job:\n"),
+	time(),
+	time()
+));
+
 // ===========================================================================
 // Update built-in automations
 

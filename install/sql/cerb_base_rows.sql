@@ -232,6 +232,8 @@ INSERT INTO `metric` VALUES (14,'cerb.mail.routing.group.matches','counter','Mat
 INSERT INTO `metric` VALUES (15,'cerb.service.token.uses','counter','Usage count for service token authentications','text/scope:\ntext/client_ip:\n',UNIX_TIMESTAMP(),UNIX_TIMESTAMP(),0);
 INSERT INTO `metric` VALUES (16,'cerb.sessions.seat.kicks','counter','Count of worker sessions ended to free up a license seat','record/worker_id:\n  record_type: worker\n',UNIX_TIMESTAMP(),UNIX_TIMESTAMP(),0);
 INSERT INTO `metric` VALUES (17,'cerb.sessions.seat.kicks.duration','counter','Cumulative idle seconds of worker sessions ended to free up a license seat','record/worker_id:\n  record_type: worker\n',UNIX_TIMESTAMP(),UNIX_TIMESTAMP(),0);
+INSERT INTO `metric` VALUES (18,'cerb.scheduler.invocations','counter','Invocation count by scheduler job','extension/job:\n',UNIX_TIMESTAMP(),UNIX_TIMESTAMP(),0);
+INSERT INTO `metric` VALUES (19,'cerb.scheduler.duration','counter','Invocation duration (ms) by scheduler job','extension/job:\n',UNIX_TIMESTAMP(),UNIX_TIMESTAMP(),0);
 
 INSERT INTO `profile_tab` VALUES (1,'Overview','cerberusweb.contexts.address','cerb.profile.tab.dashboard','{\"layout\":\"sidebar_left\"}',UNIX_TIMESTAMP(),0,NULL);
 INSERT INTO `profile_tab` VALUES (2,'Overview','cerberusweb.contexts.attachment','cerb.profile.tab.dashboard','{\"layout\":\"sidebar_left\"}',UNIX_TIMESTAMP(),0,NULL);
