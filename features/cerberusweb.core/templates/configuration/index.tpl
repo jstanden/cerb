@@ -134,6 +134,7 @@
 					<li><a href="{devblocks_url}c=config&a=oauth2_token_generator{/devblocks_url}">OAuth2 Token Generator</a></li>
 					<li><a href="{devblocks_url}c=config&a=platform{/devblocks_url}">Platform</a></li>
 					<li><a href="{devblocks_url}c=config&a=requirements{/devblocks_url}">Requirements Checker</a></li>
+					<li><a href="{devblocks_url}c=config&a=ui_reference{/devblocks_url}">UI Reference</a></li>
 					<li><a href="{devblocks_url}c=config&a=workflow_builder{/devblocks_url}">Workflow Builder</a></li>
 
 					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.developers')}
