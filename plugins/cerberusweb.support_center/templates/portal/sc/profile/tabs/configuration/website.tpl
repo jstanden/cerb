@@ -76,6 +76,15 @@
 	</div>
 </fieldset>
 
+<fieldset data-id="cerb-stylesheet" class="peek">
+	<legend>Stylesheet</legend>
+
+	<b>{'portal.cfg.stylesheet'|devblocks_translate}</b>
+	<div>
+		<textarea name="user_stylesheet" class="cerb-editor" data-editor-mode="ace/mode/css" style="height:20em;width:90%;">{$user_stylesheet}</textarea>
+	</div>
+</fieldset>
+
 <button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 </form>
 
@@ -87,7 +96,11 @@ $(function() {
 	$modules.find('DIV.container')
 		.sortable({ items: 'DIV.drag', placeholder:'ui-state-highlight' })
 	;
-	
+
+	$frm.find('textarea.cerb-editor')
+		.cerbCodeEditor()
+	;
+
 	$frm.find('button.submit').on('click', function(e) {
 		e.stopPropagation();
 		genericAjaxPost($frm, '', null, function(json) {

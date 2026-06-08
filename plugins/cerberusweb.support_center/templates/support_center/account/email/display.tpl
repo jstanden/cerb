@@ -19,9 +19,9 @@
 		<td width="1%" nowrap="nowrap" valign="top"><b>{$field->name}:</b></td>
 		<td width="99%">
 			{if 1==$show_fields.{"addy_custom_"|cat:$field_id}}
-			{include file="devblocks:cerberusweb.support_center:portal_{$portal_code}:support_center/account/customfields_readonly.tpl" values=$address_custom_field_values}
+			{include file="devblocks:cerberusweb.support_center::support_center/account/customfields_readonly.tpl" values=$address_custom_field_values}
 			{elseif 2==$show_fields.{"addy_custom_"|cat:$field_id}}
-			{include file="devblocks:cerberusweb.support_center:portal_{$portal_code}:support_center/account/customfields_writeable.tpl" values=$address_custom_field_values field_prefix="addy_custom"}
+			{include file="devblocks:cerberusweb.support_center::support_center/account/customfields_writeable.tpl" values=$address_custom_field_values field_prefix="addy_custom"}
 			{else}
 			{/if}
 		</td>
@@ -147,9 +147,9 @@
 			<td width="1%" nowrap="nowrap" valign="top"><b>{$field->name}:</b></td>
 			<td width="99%">
 				{if 1==$show_fields.{"org_custom_"|cat:$field_id}}
-				{include file="devblocks:cerberusweb.support_center:portal_{$portal_code}:support_center/account/customfields_readonly.tpl" values=$org_custom_field_values}
+				{include file="devblocks:cerberusweb.support_center::support_center/account/customfields_readonly.tpl" values=$org_custom_field_values}
 				{elseif 2==$show_fields.{"org_custom_"|cat:$field_id}}
-				{include file="devblocks:cerberusweb.support_center:portal_{$portal_code}:support_center/account/customfields_writeable.tpl" values=$org_custom_field_values field_prefix="org_custom"}
+				{include file="devblocks:cerberusweb.support_center::support_center/account/customfields_writeable.tpl" values=$org_custom_field_values field_prefix="org_custom"}
 				{/if}
 			</td>
 		</tr>

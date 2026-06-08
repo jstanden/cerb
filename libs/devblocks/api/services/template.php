@@ -660,27 +660,6 @@ class _DevblocksSmartyTemplateResource extends Smarty_Resource_Custom {
 		if(!DevblocksPlatform::strStartsWith($path, $basepath))
 			return false;
 
-		// Only check the DB if the template may be overridden
-		if(APP_OPT_DEPRECATED_PORTAL_CUSTOM_TEMPLATES && array_key_exists('templates', $plugin->manifest_cache)) {
-			foreach($plugin->manifest_cache['templates'] as $v) {
-				if(0 == strcasecmp($v['path'], $tpl_path)) {
-					// Check if template is overloaded in DB/cache
-					$matches = DAO_DevblocksTemplate::getWhere(sprintf("plugin_id = %s AND path = %s %s",
-						Cerb_ORMHelper::qstr($plugin_id),
-						Cerb_ORMHelper::qstr($tpl_path),
-						(!empty($tag) ? sprintf("AND tag = %s ",Cerb_ORMHelper::qstr($tag)) : "")
-					));
-						
-					if(!empty($matches)) {
-						$match = array_shift($matches); /* @var $match Model_DevblocksTemplate */
-						$source = $match->content;
-						$mtime = $match->last_updated;
-						return true;
-					}
-				}
-			}
-		}
-			
 		if(!($source = @file_get_contents($path)))
 			return false;
 		
@@ -701,11 +680,7 @@ class _DevblocksSmartyTemplateResource extends Smarty_Resource_Custom {
 		if(null == ($plugin = ($plugins[$plugin_id] ?? null))) /* @var $plugin DevblocksPluginManifest */
 			return false;
 		
-		// If we can overload this template through the DB, don't return an mtime (faster to do one query)
-		if(array_key_exists('templates', $plugin->manifest_cache ?? []))
-			return time();
-		
-		// Otherwise, check the mtime via the plugin's relative path on disk
+		// Check the mtime via the plugin's relative path on disk
 		$path = $plugin->getStoragePath() . '/templates/' . $tpl_path;
 		
 		if(!($mtime = (filemtime($path) ?? 0)))

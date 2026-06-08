@@ -3295,13 +3295,6 @@ class DevblocksExtensionPoint {
 	public $extensions = [];
 };
 
-class DevblocksTemplate {
-	public $set = '';
-	public $plugin_id = '';
-	public $path = '';
-	public $sort_key = '';
-};
-
 /**
  * Manifest information for plugin.
  * @ingroup plugin

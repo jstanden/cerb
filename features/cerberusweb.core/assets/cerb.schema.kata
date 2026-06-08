@@ -5392,65 +5392,6 @@ tables:
             index_type: BTREE
             subpart@text:
             unique@text:
-  devblocks_template:
-    columns:
-      content:
-        field: content
-        type: mediumtext
-        collation: utf8mb3_unicode_ci
-        nullable: NULL
-        key@text:
-        default@text:
-        extra@text:
-      id:
-        field: id
-        type: int unsigned
-        collation@text:
-        nullable: NOT NULL
-        key: PRI
-        default@text:
-        extra: auto_increment
-      last_updated:
-        field: last_updated
-        type: int unsigned
-        collation@text:
-        nullable: NOT NULL
-        key@text:
-        default: 0
-        extra@text:
-      path:
-        field: path
-        type: varchar(255)
-        collation: utf8mb3_unicode_ci
-        nullable: NOT NULL
-        key@text:
-        default@text:
-        extra@text:
-      plugin_id:
-        field: plugin_id
-        type: varchar(255)
-        collation: utf8mb3_unicode_ci
-        nullable: NOT NULL
-        key@text:
-        default@text:
-        extra@text:
-        references: cerb_plugin.name
-      tag:
-        field: tag
-        type: varchar(255)
-        collation: utf8mb3_unicode_ci
-        nullable: NOT NULL
-        key@text:
-        default@text:
-        extra@text:
-    indexes:
-      PRIMARY:
-        columns:
-          id:
-            column_name: id
-            index_type: BTREE
-            subpart@text:
-            unique: 1
   email_signature:
     columns:
       id:

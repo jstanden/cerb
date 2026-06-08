@@ -36,6 +36,9 @@
 		<tu tuid='portal.cfg.followup_questions'>
 			<tuv xml:lang="en_US"><seg>Follow-up Questions:</seg></tuv>
 		</tu>
+		<tu tuid='portal.cfg.home_markdown'>
+			<tuv xml:lang="en_US"><seg>Page Content (Markdown):</seg></tuv>
+		</tu>
 		<tu tuid='portal.cfg.language'>
 			<tuv xml:lang="en_US"><seg>Language:</seg></tuv>
 		</tu>
@@ -47,6 +50,9 @@
 		</tu>
 		<tu tuid='portal.cfg.send_to'>
 			<tuv xml:lang="en_US"><seg>Send to:</seg></tuv>
+		</tu>
+		<tu tuid='portal.cfg.stylesheet'>
+			<tuv xml:lang="en_US"><seg>Custom stylesheet (CSS):</seg></tuv>
 		</tu>
 		<tu tuid='portal.cfg.url'>
 			<tuv xml:lang="en_US"><seg>URL:</seg></tuv>

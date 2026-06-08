@@ -2508,6 +2508,179 @@ if(
 }
 
 // ===========================================================================
+// Remove the deprecated browser-editable Smarty "custom templates" feature
+//
+// The `devblocks_template` table let Support Center admins override the base
+// Smarty templates from their browser. That mechanism has been removed: it was
+// a Smarty injection surface, and overrides silently broke portals across
+// upgrades (base templates evolve every release).
+//
+// Before dropping the table, preserve each portal's overrides:
+//   - The full set of overrides is exported (in the legacy XML format) into a
+//     `record_changeset` blob on the portal record. The changeset diff viewer
+//     is hard-gated to superusers, so this backup is genuinely admin-only.
+//   - Any `user_styles.css.tpl` override is migrated forward into the portal's
+//     new per-portal stylesheet setting (served from the `c=css` endpoint).
+//   - Home-page HTML is intentionally NOT migrated (the portal home is now
+//     authored in Markdown); it survives only inside the XML backup.
+// Superusers are notified once per affected portal.
+
+if(array_key_exists('devblocks_template', $tables)) {
+	// Map portal code => id
+	$portal_ids_by_code = [];
+	foreach($db->GetArrayMaster("SELECT id, code FROM community_tool") ?: [] as $row) {
+		$portal_ids_by_code[$row['code']] = intval($row['id']);
+	}
+
+	// Group template overrides by tag (e.g. `portal_{code}`), and capture any
+	// stylesheet overrides for forward-migration.
+	$overrides_by_tag = [];
+	$stylesheets_by_code = [];
+
+	foreach($db->GetArrayMaster("SELECT plugin_id, path, tag, content FROM devblocks_template") ?: [] as $row) {
+		$tag = (string) $row['tag'];
+		$overrides_by_tag[$tag][] = $row;
+
+		if('support_center/user_styles.css.tpl' == $row['path'] && DevblocksPlatform::strStartsWith($tag, 'portal_')) {
+			$code = substr($tag, strlen('portal_'));
+			$stylesheets_by_code[$code] = (string) $row['content'];
+		}
+	}
+
+	$notify_worker_ids = array_column($db->GetArrayMaster("SELECT id FROM worker WHERE is_superuser = 1 AND is_disabled = 0") ?: [], 'id');
+
+	foreach($overrides_by_tag as $tag => $rows) {
+		// Only back up portal-scoped overrides we can resolve to a portal record
+		if(!DevblocksPlatform::strStartsWith($tag, 'portal_'))
+			continue;
+
+		$code = substr($tag, strlen('portal_'));
+
+		if(!array_key_exists($code, $portal_ids_by_code))
+			continue;
+
+		$portal_id = $portal_ids_by_code[$code];
+
+		// Build the legacy export XML shape (mirrors the old portals export):
+		// <cerb><templates><template plugin_id= path=>...escaped content...</template></templates></cerb>
+		$xml = simplexml_load_string(
+			'<?xml version="1.0" encoding="' . LANG_CHARSET_CODE . '"?>' .
+			'<cerb><templates></templates></cerb>'
+		);
+
+		foreach($rows as $row) {
+			$eTemplate = $xml->templates->addChild('template', DevblocksPlatform::strEscapeHtml((string) $row['content']));
+			$eTemplate->addAttribute('plugin_id', DevblocksPlatform::strEscapeHtml((string) $row['plugin_id']));
+			$eTemplate->addAttribute('path', DevblocksPlatform::strEscapeHtml((string) $row['path']));
+		}
+
+		// Pretty-print
+		$imp = new DOMImplementation;
+		$doc = $imp->createDocument("", "");
+		$doc->encoding = LANG_CHARSET_CODE;
+		$doc->formatOutput = true;
+		$node = dom_import_simplexml($xml);
+		$node = $doc->importNode($node, true);
+		$doc->appendChild($node);
+		$backup_xml = $doc->saveXML();
+
+		// Store as an admin-only record_changeset blob, written straight into the
+		// database storage engine in pure SQL (patches avoid the DAO_ API, which
+		// fires events/validation). Mirrors DAO_RecordChangeset::create(): the
+		// stored payload is the JSON-wrapped content the superuser diff viewer
+		// reads back, so the backup round-trips cleanly.
+		$changeset_json = json_encode(['custom_templates_backup' => $backup_xml]);
+		$changeset_hash = sha1($changeset_json);
+		$changeset_size = strlen($changeset_json);
+
+		$db->ExecuteMaster(sprintf(
+			"INSERT INTO record_changeset (record_type, record_id, record_key, worker_id, created_at, storage_sha1hash, storage_size, storage_key, storage_extension, storage_profile_id) ".
+			"VALUES (%s, %d, %s, 0, %d, %s, %d, '', %s, 0)",
+			$db->qstr('community_portal'),
+			$portal_id,
+			$db->qstr('custom_templates_backup'),
+			time(),
+			$db->qstr($changeset_hash),
+			$changeset_size,
+			$db->qstr('devblocks.storage.engine.database')
+		));
+		$changeset_id = $db->LastInsertId();
+
+		// The database storage engine uses the row id as its storage key.
+		$db->ExecuteMaster(sprintf(
+			"UPDATE record_changeset SET storage_key = %s WHERE id = %d",
+			$db->qstr($changeset_id),
+			$changeset_id
+		));
+
+		// Write the raw JSON payload into the engine's chunk table (no gzip/base64),
+		// 65535 bytes per chunk, chunk numbers starting at 1.
+		$chunk_num = 1;
+		foreach(str_split($changeset_json, 65535) as $chunk) {
+			$db->ExecuteMaster(sprintf(
+				"INSERT INTO storage_record_changeset (id, data, chunk) VALUES (%d, %s, %d)",
+				$changeset_id,
+				$db->qstr($chunk),
+				$chunk_num++
+			));
+		}
+
+		// Notify superusers that a backup was made for this portal
+		$entry_json = json_encode([
+			'message' => 'activities.custom.other',
+			'variables' => [
+				'message' => sprintf("The deprecated 'custom templates' for the '%s' Support Center portal were removed in this upgrade. A backup was saved to this record's changeset history (visible to administrators).", $code),
+			],
+			'urls' => [
+				'message' => sprintf("ctx://%s:%d", Context_CommunityTool::ID, $portal_id),
+			],
+		]);
+
+		foreach($notify_worker_ids as $worker_id) {
+			$db->ExecuteMaster(sprintf(
+				"INSERT INTO notification (worker_id, created_date, context, context_id, activity_point, entry_json, is_read) " .
+				"VALUES (%d, %d, %s, %d, %s, %s, 0)",
+				intval($worker_id),
+				time(),
+				$db->qstr(Context_CommunityTool::ID),
+				$portal_id,
+				$db->qstr('custom.other'),
+				$db->qstr($entry_json)
+			));
+		}
+	}
+
+	// Migrate stylesheet overrides into the new per-portal stylesheet setting.
+	// These property keys mirror UmScApp::PARAM_USER_STYLESHEET[_UPDATED_AT].
+	$cache = DevblocksPlatform::services()->cache();
+
+	foreach($stylesheets_by_code as $code => $css) {
+		if('' === trim($css))
+			continue;
+
+		$db->ExecuteMaster(sprintf(
+			"REPLACE INTO community_tool_property (tool_code, property_key, property_value) VALUES (%s, %s, %s)",
+			$db->qstr($code),
+			$db->qstr('common.user_stylesheet'),
+			$db->qstr($css)
+		));
+		$db->ExecuteMaster(sprintf(
+			"REPLACE INTO community_tool_property (tool_code, property_key, property_value) VALUES (%s, %s, %s)",
+			$db->qstr($code),
+			$db->qstr('common.user_stylesheet_updated_at'),
+			$db->qstr(time())
+		));
+
+		// Invalidate the portal property cache so the new value is served immediately
+		$cache->remove('um_comtoolprops_' . $code);
+	}
+
+	// Finally, drop the now-unused table
+	$db->ExecuteMaster("DROP TABLE devblocks_template");
+	unset($tables['devblocks_template']);
+}
+
+// ===========================================================================
 // Clear the plugin worklist models
 
 $db->ExecuteMaster("DELETE FROM worker_view_model WHERE view_id IN ('cerb5_plugins','plugins_installed')");

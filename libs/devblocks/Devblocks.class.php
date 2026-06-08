@@ -3605,33 +3605,6 @@ class DevblocksPlatform extends DevblocksEngine {
 		return _DevblocksStorageManager::getEngine($extension, $params);
 	}
 
-	/**
-	 *
-	 * @param string $set
-	 * @return DevblocksTemplate[]
-	 */
-	static function getTemplates($set=null) {
-		$templates = array();
-		$plugins = self::getPluginRegistry();
-		
-		if(is_array($plugins))
-		foreach($plugins as $plugin) {
-			if(isset($plugin->manifest_cache['templates']) && is_array($plugin->manifest_cache['templates']))
-			foreach($plugin->manifest_cache['templates'] as $tpl) {
-				if(null === $set || 0 == strcasecmp($set, $tpl['set'])) {
-					$template = new DevblocksTemplate();
-					$template->plugin_id = $tpl['plugin_id'];
-					$template->set = $tpl['set'];
-					$template->path = $tpl['path'];
-					$template->sort_key = $tpl['plugin_id'] . ' ' . $tpl['path'];
-					$templates[] = $template;
-				}
-			}
-		}
-		
-		return $templates;
-	}
-	
 	private static function _discoverTimezone() {
 		$timezone = null;
 		

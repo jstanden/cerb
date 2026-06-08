@@ -14,13 +14,13 @@
 	<script nonce="{$nonce}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=js/support_center.js{/devblocks_url}"></script>
 
 	<style type='text/css'>
-		{include file="devblocks:cerberusweb.support_center:portal_{$portal_code}:support_center/style.css.tpl"}
-		{include file="devblocks:cerberusweb.support_center:portal_{$portal_code}:support_center/user_styles.css.tpl"}
+		{include file="devblocks:cerberusweb.support_center::support_center/style.css.tpl"}
 	</style>
+	<link rel="stylesheet" type="text/css" href="{devblocks_url}c=css{/devblocks_url}?v={$user_stylesheet_updated_at}">
 </head>
 
 <body>
-{include file="devblocks:cerberusweb.support_center:portal_{$portal_code}:support_center/header.tpl"}
+{include file="devblocks:cerberusweb.support_center::support_center/header.tpl"}
 
 <div style="clear:both;margin-bottom:5px;"></div>
 
@@ -61,7 +61,7 @@
 	</tr>
 </table>
 
-{include file="devblocks:cerberusweb.support_center:portal_{$portal_code}:support_center/footer.tpl"}
+{include file="devblocks:cerberusweb.support_center::support_center/footer.tpl"}
 
 </body>
 

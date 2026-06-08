@@ -35,12 +35,6 @@
 		<file path="api/dao/devblocks_storage_profile.php">
 			<class name="View_DevblocksStorageProfile" />
 		</file>
-		<file path="api/dao/devblocks_template.php">
-			<class name="DAO_DevblocksTemplate" />
-			<class name="Model_DevblocksTemplate" />
-			<class name="SearchFields_DevblocksTemplate" />
-			<class name="View_DevblocksTemplate" />
-		</file>
 		<file path="api/services/cache.php">
 			<class name="DevblocksCacheEngine_Disk" />
 			<class name="DevblocksCacheEngine_Memcache" />

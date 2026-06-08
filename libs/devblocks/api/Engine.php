@@ -149,22 +149,6 @@ abstract class DevblocksEngine {
 			}
 		}
 
-		// Templates
-		if(isset($plugin->templates)) {
-			foreach($plugin->templates as $eTemplates) {
-				$template_set = (string) $eTemplates['set'];
-
-				if(isset($eTemplates->template))
-				foreach($eTemplates->template as $eTemplate) {
-					$manifest->manifest_cache['templates'][] = array(
-						'plugin_id' => $manifest->id,
-						'set' => $template_set,
-						'path' => (string) $eTemplate['path'],
-					);
-				}
-			}
-		}
-
 		// Image
 		if(isset($plugin->image)) {
 			$manifest->manifest_cache['plugin_image'] = (string) $plugin->image;
