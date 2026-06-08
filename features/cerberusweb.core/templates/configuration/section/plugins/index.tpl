@@ -1,3 +1,10 @@
+<div class="cerb-ui-header">
+	<div>
+		<div class="cerb-ui-header--title">{'common.plugins'|devblocks_translate|capitalize}</div>
+		<div class="cerb-ui-header--subtitle">Manage built‑in features and third‑party plugins</div>
+	</div>
+</div>
+
 <div class="help-box">
 	<h1>
 		<span class="cerb-icons cerb-icon-zap" style="vertical-align:middle;"></span> Plugins are migrating to workflows

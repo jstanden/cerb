@@ -72,9 +72,9 @@
 			</td>
 			<td colspan="{$smarty.foreach.headers.total}"></td>
 			<td data-column="*_enabled_toggle" rowspan="4" align="center" valign="middle">
-				<label class="cerb-toggle-switch" title="{if !$meets_requirements}{'config.plugins.toggle.requirements'|devblocks_translate}{else}{'common.enabled'|devblocks_translate|capitalize}{/if}">
+				<label class="cerb-ui-toggle" title="{if !$meets_requirements}{'config.plugins.toggle.requirements'|devblocks_translate}{else}{'common.enabled'|devblocks_translate|capitalize}{/if}">
 					<input type="checkbox" data-cerb-plugin-toggle data-plugin-id="{$result.c_id}" {if $result.c_enabled}checked="checked"{/if} {if !$meets_requirements && !$result.c_enabled}disabled="disabled"{/if}>
-					<span class="cerb-toggle-slider"></span>
+					<span class="cerb-ui-toggle--slider"></span>
 				</label>
 			</td>
 		</tr>
@@ -171,12 +171,13 @@ $(function() {
 
 	$frm.find('table.worklistBody tbody').off('click').off('mouseenter mouseleave');
 
-	$frm.find('[data-cerb-plugin-toggle]').on('change', function(e) {
-		e.stopPropagation();
+	$frm.find('[data-cerb-plugin-toggle]').each(function() {
+	new CerbUI.Toggle(this, { onChange: function(checked, input, e) {
+		if(e) e.stopPropagation();
 
-		let $cb = $(this);
+		let $cb = $(input);
 		let plugin_id = $cb.attr('data-plugin-id');
-		let enabled = $cb.prop('checked') ? 1 : 0;
+		let enabled = checked ? 1 : 0;
 
 		let formData = new FormData();
 		formData.set('c', 'config');
@@ -205,7 +206,8 @@ $(function() {
 				$cb.closest('tbody').toggleClass('cerb-plugin-disabled', 0 === enabled);
 			}
 		});
-	});
+	}}); // onChange + CerbUI.Toggle
+	}); // each
 
 	{if $pref_keyboard_shortcuts}
 	$frm.bind('keyboard_shortcut',function(event) {
