@@ -1,0 +1,65 @@
+// cerb-u-* — single-purpose utility classes, dropped onto any element/component independently (Bootstrap-style).
+// This partial is @imported after the component layers so a utility wins the cascade against an
+// equal-specificity component class (e.g. .cerb-u-border-3 beats .cerb-ui-panel's border width).
+// Keep these atomic: one class = one declaration. No !important unless a utility must beat a
+// higher-specificity selector.
+
+:root {
+	// Base spacing unit; margin/padding utilities are multiples of this (override to rescale all spacing)
+	--cerb-u-spacer: 1rem;
+}
+
+// Visibility — !important so hiding always wins (the one utility that must beat component display rules)
+.cerb-u-hide { display: none !important; }
+
+// Display
+.cerb-u-block { display: block; }
+
+// Text
+.cerb-u-bold { font-weight: bold; }
+
+// Width (percent of the container)
+.cerb-u-w-25 { width: 25%; }
+.cerb-u-w-50 { width: 50%; }
+.cerb-u-w-75 { width: 75%; }
+.cerb-u-w-100 { width: 100%; }
+
+// Background — strip a component's fill (e.g. a cerb-ui-pill rendered as a bare inline marker)
+.cerb-u-bg-none { background-color: transparent; }
+
+// Border width 0–5px (0 collapses a border the element already has; 1–5 just reset its width)
+@for $i from 0 through 5 {
+	.cerb-u-border-#{$i} { border-width: #{$i}px; }
+}
+
+// Flex grow ratios (for splits): N parts of the row, on a flex-wrap parent. Compose any ratio — two
+// cerb-u-flex-1 = halves; cerb-u-flex-1 + cerb-u-flex-2 = a third + two-thirds; three = thirds. min-width:0
+// lets long content shrink instead of overflowing.
+@for $i from 1 through 4 {
+	.cerb-u-flex-#{$i} { flex: #{$i} 1 0; min-width: 0; }
+}
+
+// Spacing (Bootstrap-like): cerb-u-{m|p}{|t|r|b|l|x|y}-{0..5}; each step multiplies --cerb-u-spacer.
+// Scale matches Bootstrap: 0, .25, .5, 1, 1.5, 3 ×.
+$cerb-u-spacers: (0: 0, 1: 0.25, 2: 0.5, 3: 1, 4: 1.5, 5: 3);
+$cerb-u-sides: (
+	'':  ('',),
+	't': ('-top',),
+	'r': ('-right',),
+	'b': ('-bottom',),
+	'l': ('-left',),
+	'x': ('-left', '-right'),
+	'y': ('-top', '-bottom'),
+);
+
+@each $abbr, $prop in ('m': margin, 'p': padding) {
+	@each $side, $edges in $cerb-u-sides {
+		@each $step, $factor in $cerb-u-spacers {
+			.cerb-u-#{$abbr}#{$side}-#{$step} {
+				@each $edge in $edges {
+					#{$prop}#{$edge}: if($factor == 0, 0, calc(var(--cerb-u-spacer) * #{$factor}));
+				}
+			}
+		}
+	}
+}
