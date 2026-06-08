@@ -56,6 +56,7 @@
 		<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerb-ui/legend.js{/devblocks_url}?v={$smarty.now}"></script>
 		<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerb-ui/time-ring.js{/devblocks_url}?v={$smarty.now}"></script>
 		<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerb-ui/tooltip.js{/devblocks_url}?v={$smarty.now}"></script>
+		<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerb-ui/menu.js{/devblocks_url}?v={$smarty.now}"></script>
 	{else}
 		<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerb-ui.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
 	{/if}
