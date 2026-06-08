@@ -1,0 +1,31 @@
+// Spinner (CerbUI.Spinner) — the design-system port of the legacy svg.cerb-spinner: a pure-CSS animated SVG
+// ring. Author <svg class="cerb-ui-spinner" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45"/></svg>
+// (CerbUI.Spinner builds exactly this). Structural only; stroke is a token. Room for --variants later.
+svg.cerb-ui-spinner {
+	display: inline-block;
+	width: 32px;
+	vertical-align: middle;
+	animation: 2s linear infinite cerb-ui-spinner-rotate;
+
+	circle {
+		animation: 1.4s ease-in-out infinite both cerb-ui-spinner-dash;
+		fill: transparent;
+		stroke: var(--cerb-color-background-contrast-50);
+		stroke-linecap: round;
+		stroke-dasharray: 283;
+		stroke-dashoffset: 280;
+		stroke-width: 10px;
+		transform-origin: 50% 50%;
+	}
+}
+
+@keyframes cerb-ui-spinner-rotate {
+	0% { transform: rotateZ(0deg); }
+	100% { transform: rotateZ(360deg); }
+}
+
+@keyframes cerb-ui-spinner-dash {
+	0%, 25% { stroke-dashoffset: 280; transform: rotate(0); }
+	50%, 75% { stroke-dashoffset: 75; transform: rotate(45deg); }
+	100% { stroke-dashoffset: 280; transform: rotate(360deg); }
+}

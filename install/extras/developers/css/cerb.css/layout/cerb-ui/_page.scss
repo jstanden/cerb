@@ -1,0 +1,10 @@
+.cerb-ui-page {
+	color: var(--cerb-color-text);
+
+	b { color: var(--cerb-color-text); }
+}
+
+// Opt-in width cap for content-heavy pages (full-width is the default)
+.cerb-ui-page--max-width {
+	max-width: 1100px;
+}

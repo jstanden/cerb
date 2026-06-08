@@ -1,0 +1,75 @@
+// Tabs (CerbUI.Tabs) — enhances a <ul> of <li><a> into a tab strip. Panels are SIBLINGS of the <ul>
+// (standalone .cerb-ui-tabs--panel). Structural only; colors are tokens (dark mode automatic via html.dark).
+.cerb-ui-tabs {
+	display: flex;
+	flex-wrap: wrap;
+	row-gap: 2px; // long tab sets (custom workspaces/dashboards) wrap to multiple rows — keep rows legible
+	margin: 0;
+	padding: 0 4px 0;
+	list-style: none;
+
+	&--tab > a {
+		display: block;
+		padding: 6px 14px;
+		color: var(--cerb-color-text);
+		opacity: 0.65; // inactive label (no dedicated muted token)
+		text-decoration: none;
+		background: var(--cerb-color-background-contrast-240);
+		border: 1px solid transparent;
+		border-radius: 5px 5px 0 0;
+		margin: 0 1px 1px 0;
+		user-select: none;
+		white-space: nowrap;
+		cursor: pointer;
+
+		// Ghost label reserves the bold width so activating a tab never shifts the row.
+		&::after {
+			content: attr(data-label);
+			display: block;
+			font-weight: 600;
+			height: 0;
+			overflow: hidden;
+			visibility: hidden;
+			pointer-events: none;
+		}
+
+		&:hover {
+			background: var(--cerb-color-background-contrast-230);
+		}
+
+		&:focus-visible {
+			outline: 2px solid var(--cerb-color-action-primary);
+			outline-offset: -2px;
+		}
+	}
+
+	&--tab.cerb-ui-tabs--tab-active > a {
+		color: var(--cerb-color-text);
+		opacity: 1;
+		font-weight: 600;
+		border-bottom: 1px solid var(--cerb-color-action-primary);
+		cursor: default;
+	}
+}
+
+// Panels live next to the <ul>, so they're top-level (not nested under .cerb-ui-tabs)
+.cerb-ui-tabs--panel {
+	display: none;
+	padding: 8px;
+
+	&.cerb-ui-tabs--panel-active {
+		display: block;
+	}
+}
+
+.cerb-ui-tabs--panel-loading {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 80px;
+}
+
+.cerb-ui-tabs--panel-error {
+	margin: 0;
+	opacity: 0.6;
+}

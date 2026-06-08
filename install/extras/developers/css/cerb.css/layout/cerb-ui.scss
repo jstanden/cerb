@@ -1,0 +1,22 @@
+// cerb-ui — design-system component styles. Split into per-component partials under cerb-ui/, mirroring the
+// JS split in features/cerberusweb.core/resources/js/cerb-ui/. Order is preserved from the original single
+// file (a few in-component cascade tricks rely on it) — keep it stable.
+@import "cerb-ui/page";
+@import "cerb-ui/header";
+@import "cerb-ui/panel";
+@import "cerb-ui/distbar";
+@import "cerb-ui/legend";
+@import "cerb-ui/chip";
+@import "cerb-ui/tile";
+@import "cerb-ui/pill";
+@import "cerb-ui/separator";
+@import "cerb-ui/pip";
+@import "cerb-ui/time-ring";
+@import "cerb-ui/sparkchart";
+@import "cerb-ui/tooltip";
+@import "cerb-ui/button";
+@import "cerb-ui/switcher";
+@import "cerb-ui/toggle";
+@import "cerb-ui/menu";
+@import "cerb-ui/spinner";
+@import "cerb-ui/tabs";

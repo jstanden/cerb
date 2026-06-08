@@ -1,0 +1,53 @@
+// Toggle: an on/off switch (a styled checkbox). Markup: <label class="cerb-ui-toggle"><input type="checkbox">
+// <span class="cerb-ui-toggle--slider"></span></label>. Works bare; CerbUI.Toggle wires onChange/getValue/setValue.
+.cerb-ui-toggle {
+	position: relative;
+	display: inline-block;
+	width: 46px;
+	height: 24px;
+	vertical-align: middle;
+	cursor: pointer;
+
+	input {
+		position: absolute;
+		opacity: 0;
+		width: 0;
+		height: 0;
+	}
+
+	&--slider {
+		position: absolute;
+		inset: 0;
+		background-color: var(--cerb-color-background-contrast-180);
+		border-radius: 24px;
+		box-shadow: inset 0 0 0 1px var(--cerb-color-background-contrast-200);
+		transition: background-color 0.25s ease;
+
+		&::before {
+			content: "";
+			position: absolute;
+			height: 18px;
+			width: 18px;
+			left: 3px;
+			top: 3px;
+			background-color: white;
+			border-radius: 50%;
+			box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+			transition: transform 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
+		}
+	}
+
+	input:checked + .cerb-ui-toggle--slider {
+		background-color: var(--cerb-color-tag-green);
+		box-shadow: none;
+	}
+
+	input:checked + .cerb-ui-toggle--slider::before {
+		transform: translateX(22px);
+	}
+
+	input:disabled + .cerb-ui-toggle--slider {
+		opacity: 0.4;
+		cursor: not-allowed;
+	}
+}

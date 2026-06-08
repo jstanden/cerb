@@ -1,0 +1,32 @@
+// Pip: a small status dot. Color comes from `color` (the dot is currentColor), so set a palette color
+// inline or via a modifier. --live adds a pulsing "ping" ring (e.g. a running/active job).
+.cerb-ui-pip {
+	position: relative;
+	display: inline-block;
+	width: 9px;
+	height: 9px;
+	flex: 0 0 9px; // hold size when used as a flex item
+	border-radius: 50%;
+	background: currentColor;
+	color: var(--cerb-color-tag-gray); // default = idle/off
+
+	&--live {
+		color: var(--cerb-color-tag-green);
+
+		// expanding ring that fades out, repeating
+		&::after {
+			content: "";
+			position: absolute;
+			inset: -4px;
+			border-radius: 50%;
+			border: 1.5px solid currentColor;
+			opacity: 0;
+			animation: cerb-ui-pip-ping 2.4s ease-out infinite;
+		}
+	}
+}
+
+@keyframes cerb-ui-pip-ping {
+	0% { transform: scale(0.5); opacity: 0.7; }
+	80%, 100% { transform: scale(1.5); opacity: 0; }
+}

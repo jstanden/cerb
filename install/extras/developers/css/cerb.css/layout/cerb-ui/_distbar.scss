@@ -1,0 +1,16 @@
+// Distribution bar: a horizontal stacked bar. Segments are bare `> span` children; widths + colors are set
+// by CerbUI.Distbar.
+.cerb-ui-distbar {
+	display: flex;
+	gap: 2px;
+	height: 14px;
+	border-radius: 7px;
+	overflow: hidden;
+	background: var(--cerb-color-background-contrast-240);
+
+	> span {
+		height: 100%;
+		min-width: 2px;
+		transition: width 0.3s ease;
+	}
+}

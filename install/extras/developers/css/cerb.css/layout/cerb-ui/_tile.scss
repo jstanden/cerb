@@ -1,0 +1,63 @@
+// Tile: a "fancy label" — a colored icon square + an uppercase kind eyebrow + a bold name.
+// The icon background is consumer-set inline to a palette color (e.g. var(--cerb-color-tag-green)),
+// like distbar/legend swatches.
+.cerb-ui-tile {
+	// inline-flex: sizes to content (never full-width on its own). As a grid item it's blockified and
+	// stretches to fill its cell; as a flex child add `flex:1` to grow. Use --block to force full width.
+	display: inline-flex;
+	align-items: center;
+	gap: 0.6em;
+	border: 1px solid var(--cerb-color-background-contrast-220);
+	border-radius: 8px;
+	padding: 0.4em 0.7em;
+	background: var(--cerb-color-background-contrast-240);
+	min-width: 0;
+
+	// Full-width block variant (spans its container)
+	&--block {
+		display: flex;
+	}
+
+	&--icon {
+		width: 28px;
+		height: 28px;
+		border-radius: 6px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		color: var(--cerb-color-text-inverse);
+		flex-shrink: 0;
+	}
+
+	&--text {
+		min-width: 0;
+	}
+
+	&--kind {
+		font-size: 0.68em;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		color: var(--cerb-color-background-contrast-150);
+	}
+
+	&--name {
+		font-weight: 600;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	// Body: a longer description under the kind eyebrow (regular weight, muted, wraps) — for a tile that
+	// carries a sentence/link rather than a short bold name.
+	&--body {
+		color: var(--cerb-color-background-contrast-150);
+		min-width: 0;
+	}
+
+	// Large variant: a roomier icon square (e.g. a section header tile)
+	&--lg &--icon {
+		width: 34px;
+		height: 34px;
+		border-radius: 8px;
+	}
+}

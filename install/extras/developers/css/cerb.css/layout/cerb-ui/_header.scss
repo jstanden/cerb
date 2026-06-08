@@ -1,0 +1,64 @@
+.cerb-ui-header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 1em;
+	flex-wrap: wrap;
+	margin-bottom: 1.25em;
+
+	&--title {
+		font-size: 1.9em;
+		font-weight: 700;
+		color: var(--cerb-color-widget-header);
+		line-height: 1.1;
+	}
+
+	&--subtitle {
+		color: var(--cerb-color-background-contrast-150);
+		margin-top: 0.3em;
+	}
+
+	// Abstract right-side area for controls (e.g. cerb-ui-chip, cerb-ui-switcher)
+	&--right {
+		display: flex;
+		align-items: center;
+		gap: 0.75em;
+		flex-wrap: wrap;
+	}
+
+	// Medium title (card / sub-section head); supports an optional leading icon
+	&--title-sm {
+		font-size: 1.25em;
+		font-weight: 600;
+		color: var(--cerb-color-widget-header);
+		line-height: 1.2;
+		display: flex;
+		align-items: center;
+		gap: 0.5em;
+	}
+
+	// Small uppercase section label
+	&--label {
+		font-size: 0.75em;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: var(--cerb-color-background-contrast-150);
+	}
+
+	// Muted right-side summary text (alternative to the --right toolbar)
+	&--summary {
+		color: var(--cerb-color-background-contrast-150);
+	}
+
+	// In-panel head: tighter margin + baseline alignment (label↔summary sit on one baseline)
+	&--tight {
+		align-items: baseline;
+		margin-bottom: 0.8em;
+	}
+
+	// Center alignment for heads pairing a title with controls (e.g. a card head with a button);
+	// pair with --tight for its margin. Declared after --tight so it wins align-items when both apply.
+	&--center {
+		align-items: center;
+	}
+}

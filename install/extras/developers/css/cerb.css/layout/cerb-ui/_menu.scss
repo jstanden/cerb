@@ -1,0 +1,168 @@
+// Menu: a cascading menu (CerbUI.Menu) that virtualizes large/deep trees. JS renders panels (UL) of items
+// (LI) lazily and appends them to <body>; only the open path is in the DOM. Structural only — colors are
+// tokens. NOTE: the --item height (28px) must stay in lockstep with the JS `itemHeight` option (the
+// virtual-scroll math reads it); change one, change both.
+.cerb-ui-menu {
+	&--panel {
+		position: absolute;
+		z-index: 10001; // above jQuery UI dialogs (~100s), .cerb-float popups (2500), and tooltips (10000)
+		margin: 0;
+		padding: 4px 0;
+		list-style: none;
+		min-width: 180px;
+		max-width: 320px;
+		box-sizing: border-box;
+		background: var(--cerb-color-background);
+		color: var(--cerb-color-text);
+		border: 1px solid var(--cerb-color-background-contrast-220);
+		border-radius: 5px;
+		box-shadow: 0 0 10px 3px var(--cerb-color-shadow-menu);
+	}
+
+	// position:fixed variant (escapes scroll; opt-in via the `fixed` option)
+	&--fixed {
+		position: fixed;
+	}
+
+	// Virtualized panel: fixed-height scroller; spacer LIs carry the off-window height
+	&--virt {
+		overflow-y: scroll;
+		padding: 0;
+	}
+
+	// Inline root panel: in document flow, no float chrome (submenus still float)
+	&--inline {
+		position: static;
+		box-shadow: none;
+		z-index: auto;
+	}
+
+	&--item {
+		display: flex;
+		align-items: center;
+		height: 28px; // keep in lockstep with the JS `itemHeight` option
+		padding: 0 10px;
+		cursor: default;
+		user-select: none;
+		white-space: nowrap;
+		box-sizing: border-box;
+	}
+
+	// Active (hovered / keyboard-focused) row. The arrow is a cerb-icons glyph (currentColor), so it follows
+	// this color automatically — no separate arrow override.
+	&--item-active {
+		background: var(--cerb-color-action-primary);
+		color: var(--cerb-color-action-primary-text);
+		outline: none;
+	}
+
+	&--label {
+		flex: 1;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	// Breadcrumb context on a deep-filter match (muted, right-aligned, truncates before the leaf label)
+	&--path {
+		flex: 0 1 auto;
+		min-width: 0;
+		margin-left: auto;
+		padding-left: 1em;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		color: var(--cerb-color-background-contrast-150);
+		font-size: 0.85em;
+	}
+
+	// In a filtered (pathed) row the leaf label sizes to content so the muted path can sit beside it
+	&--item-pathed > &--label { flex: 0 1 auto; }
+
+	&--arrow {
+		flex-shrink: 0;
+		margin-left: 8px;
+		display: flex;
+		align-items: center;
+		opacity: 0.55;
+
+		.cerb-icons {
+			font-size: 0.8em; // the chevron glyph scales by font-size (~10px at the menu's ~13px)
+		}
+	}
+
+	&--separator {
+		display: flex;
+		align-items: center;
+		height: 9px;
+		padding: 0;
+		pointer-events: none;
+
+		hr {
+			flex: 1;
+			border: none;
+			border-top: 1px solid var(--cerb-color-background-contrast-220);
+			margin: 0 10px;
+		}
+	}
+
+	// Virtual-list sentinels (height-only; never interactive)
+	&--spacer {
+		display: block;
+		padding: 0;
+		margin: 0;
+		pointer-events: none;
+	}
+
+	// Type-to-filter: a search input above the (scrolling) panel. The wrapper carries the float chrome
+	// so the inner --panel drops its own border/shadow/position and just scrolls inside.
+	&--filterwrap {
+		position: absolute;
+		z-index: 10001;
+		box-sizing: border-box;
+		display: flex;
+		flex-direction: column;
+		min-width: 180px;
+		max-width: 320px;
+		background: var(--cerb-color-background);
+		border: 1px solid var(--cerb-color-background-contrast-220);
+		border-radius: 5px;
+		box-shadow: 0 0 10px 3px var(--cerb-color-shadow-menu);
+		overflow: hidden;
+
+		&.cerb-ui-menu--fixed { position: fixed; }
+		&.cerb-ui-menu--inline { position: static; box-shadow: none; z-index: auto; }
+
+		.cerb-ui-menu--panel {
+			position: static;
+			z-index: auto;
+			min-width: 0;
+			max-width: none;
+			border: 0;
+			border-radius: 0;
+			box-shadow: none;
+		}
+	}
+
+	&--filter {
+		flex: 0 0 auto;
+		box-sizing: border-box;
+		width: 100%;
+		margin: 0;
+		padding: 0.5em 0.7em;
+		border: 0;
+		border-bottom: 1px solid var(--cerb-color-background-contrast-220);
+		background: var(--cerb-color-background);
+		color: var(--cerb-color-text);
+		font: inherit;
+		outline: none;
+
+		&[hidden] { display: none; } // hidden until the first keystroke (beats any global input display)
+		&::placeholder { color: var(--cerb-color-background-contrast-150); }
+	}
+
+	&--filterempty {
+		padding: 0.6em 0.9em;
+		color: var(--cerb-color-background-contrast-150);
+		font-style: italic;
+		white-space: nowrap;
+	}
+}

@@ -1,0 +1,39 @@
+// Switcher (segmented control): a row of mutually-exclusive buttons; --active marks the selection (CerbUI.Switcher)
+.cerb-ui-switcher {
+	display: inline-flex;
+	border: 1px solid var(--cerb-color-background-contrast-220);
+	border-radius: 8px;
+	overflow: hidden;
+
+	// Compact inline variant for tight spots (e.g. a worklist column header): flows inline rather than a
+	// boxed segmented control, with tight buttons. Doubled class (.cerb-ui-switcher.cerb-ui-switcher--xs)
+	// so its button padding outranks `.cerb-ui-switcher button` below — equal specificity would otherwise
+	// lose to that later rule on source order.
+	&#{&}--xs {
+		display: inline;
+
+		button {
+			height: unset; // override the global BUTTON { height: 2.4em } so the chip sizes to content
+			padding: 0 0.25em;
+			margin: 0;
+		}
+	}
+
+	button {
+		border: 0;
+		background: var(--cerb-color-background-contrast-250);
+		color: var(--cerb-color-text);
+		padding: 0.5em 0.95em;
+		cursor: pointer;
+		font: inherit;
+
+		& + button {
+			border-left: 1px solid var(--cerb-color-background-contrast-220);
+		}
+
+		&.cerb-ui-switcher--active {
+			background: var(--cerb-color-link);
+			color: var(--cerb-color-text-inverse);
+		}
+	}
+}

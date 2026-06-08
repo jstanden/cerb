@@ -1,0 +1,45 @@
+// Legend: a color-matched key. Swatch colors / value / percent are filled by CerbUI.Legend.
+.cerb-ui-legend {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.6em 1.5em;
+	margin-top: 0.75em;
+
+	> div {
+		display: flex;
+		align-items: center;
+		gap: 0.5em;
+	}
+
+	&--swatch {
+		width: 11px;
+		height: 11px;
+		border-radius: 3px;
+		flex-shrink: 0;
+	}
+
+	// Line swatch: a short rule for a series drawn as a line (vs the default square chip). Same width as the
+	// chip so swatches share a column (labels stay aligned, esp. in --vertical); color is the item's inline
+	// background-color, so a 2px-tall bar reads as a line.
+	&--swatch-line {
+		height: 2px;
+	}
+
+	&--value {
+		font-weight: 600;
+	}
+
+	&--muted {
+		color: var(--cerb-color-background-contrast-150);
+	}
+
+	// Vertical layout: items stacked in a column (e.g. an inline per-row stats stack). No top margin —
+	// it sits beside other content, not under a chart.
+	&--vertical {
+		flex-direction: column;
+		flex-wrap: nowrap;
+		align-items: flex-start;
+		gap: 0.25em;
+		margin-top: 0;
+	}
+}

@@ -1,0 +1,18 @@
+// Pill: a small rounded label (a status or value, e.g. "every 2 minutes"). Filled by default — the common
+// case — with a background + border; sits inline and supports a leading cerb-icons glyph. For a bare inline
+// marker, strip the fill with utilities (cerb-u-bg-none + cerb-u-border-0) and set an accent color inline.
+.cerb-ui-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.3em;
+	padding: 0.1em 0.6em;
+	border: 1px solid var(--cerb-color-background-contrast-220);
+	border-radius: 999px;
+	background: var(--cerb-color-background-contrast-240);
+	line-height: 1.5;
+	white-space: nowrap;
+
+	> span.cerb-icons {
+		font-size: 1.15em;
+	}
+}

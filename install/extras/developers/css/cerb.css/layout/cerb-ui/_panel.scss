@@ -1,0 +1,17 @@
+// Panel: a bordered surface. Cards are panels (+ --spaced + state modifiers, added when cards convert).
+.cerb-ui-panel {
+	border: 1px solid var(--cerb-color-background-contrast-220);
+	border-radius: 10px;
+	padding: 1em 1.1em;
+	background: var(--cerb-color-background);
+}
+
+// Stacked variant (e.g. lists of cards)
+.cerb-ui-panel--spaced {
+	margin-bottom: 0.9em;
+}
+
+// Left accent border; set --cerb-ui-accent to a color (e.g. a palette entry)
+.cerb-ui-panel--accent {
+	border-left: 4px solid var(--cerb-ui-accent, var(--cerb-color-background-contrast-200));
+}

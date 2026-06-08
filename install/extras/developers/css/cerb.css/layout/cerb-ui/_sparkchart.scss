@@ -1,0 +1,47 @@
+// Sparkchart: a compact categorical multi-series chart (bars + lines). Geometry + colors set by
+// CerbUI.Sparkchart; bar fill / line stroke are applied inline per series.
+.cerb-ui-sparkchart {
+	display: block;
+
+	&--plot {
+		display: block;
+		width: 100%;
+		overflow: visible; // don't clip line strokes near the edges
+	}
+
+	&--line {
+		fill: none;
+		stroke-width: 1.5;
+		stroke-linejoin: round;
+		stroke-linecap: round;
+	}
+
+	&--hover {
+		fill: var(--cerb-color-background-contrast-230);
+		opacity: 0.6;
+	}
+
+	&--tick {
+		stroke: var(--cerb-color-background-contrast-200);
+		stroke-width: 1;
+	}
+
+	&--caption {
+		display: flex;
+		justify-content: space-between;
+		margin-top: 2px;
+		font-size: 0.7em;
+		color: var(--cerb-color-background-contrast-150);
+	}
+
+	&--caption-center { justify-content: center; }
+}
+
+// Sparkchart's built-in tooltip body (rendered inside a cerb-ui-tooltip): category title + swatch·text rows
+.cerb-ui-sparkchart-tip {
+	&--title { font-weight: 600; margin-bottom: 0.35em; }
+	&--row { display: flex; align-items: center; gap: 0.4em; }
+	&--swatch { width: 9px; height: 9px; border-radius: 2px; flex: 0 0 9px; }
+	&--label { opacity: 0.7; } // series name (shown only for multi-series charts)
+	&--value { margin-left: auto; padding-left: 1em; font-variant-numeric: tabular-nums; } // right-aligned so rows line up
+}

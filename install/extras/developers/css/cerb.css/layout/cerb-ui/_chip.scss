@@ -1,0 +1,35 @@
+// Segmented chip: a row of label/value cells, with an optional leading --head cell
+.cerb-ui-chip {
+	display: inline-flex;
+	border: 1px solid var(--cerb-color-background-contrast-220);
+	border-radius: 8px;
+	overflow: hidden;
+	background: var(--cerb-color-background-contrast-250);
+
+	> div {
+		padding: 0.4em 0.85em;
+		border-left: 1px solid var(--cerb-color-background-contrast-230);
+		line-height: 1.2;
+
+		&:first-child { border-left: 0; }
+	}
+
+	&--label {
+		font-size: 0.68em;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		color: var(--cerb-color-background-contrast-150);
+	}
+
+	&--value {
+		font-weight: 600;
+	}
+
+	&--head {
+		display: flex;
+		align-items: center;
+		font-weight: 600;
+		color: var(--cerb-color-background-contrast-150);
+		background: var(--cerb-color-background-contrast-240);
+	}
+}

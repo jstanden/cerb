@@ -1,0 +1,37 @@
+// TimeRing: a small SVG progress/countdown ring with a center value + key. Rendered by CerbUI.TimeRing.
+// The progress arc is currentColor (set `color` to recolor); the track is a muted token.
+.cerb-ui-time-ring {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--cerb-color-link);
+
+	> svg {
+		display: block;
+		transform: rotate(-90deg); // start the arc at 12 o'clock
+	}
+
+	&--track { stroke: var(--cerb-color-background-contrast-230); }
+	&--prog  { stroke: currentColor; transition: stroke-dashoffset 0.4s ease; }
+
+	&--text {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		line-height: 1;
+	}
+
+	&--value { font-size: 11px; font-weight: 600; color: var(--cerb-color-text); }
+
+	&--key {
+		font-size: 7px;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		color: var(--cerb-color-background-contrast-150);
+		margin-top: 1px;
+	}
+}

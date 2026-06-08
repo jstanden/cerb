@@ -1,0 +1,29 @@
+// Separator: a horizontal rule you can write on — a centered label flanked by lines. Block-level (spans its
+// container). With no label it's a plain rule. Lines are solid by default; use --dashed for dashed lines.
+.cerb-ui-separator {
+	display: flex;
+	align-items: center;
+	gap: 0.7em;
+	color: var(--cerb-color-background-contrast-150);
+	white-space: nowrap;
+
+	&::before,
+	&::after {
+		content: '';
+		flex: 1;
+		border-top: 1px solid var(--cerb-color-background-contrast-200);
+	}
+
+	// No label → the two lines join into one seamless rule (needs truly empty markup, no whitespace)
+	&:empty {
+		gap: 0;
+	}
+
+	// Dashed lines
+	&--dashed {
+		&::before,
+		&::after {
+			border-top-style: dashed;
+		}
+	}
+}

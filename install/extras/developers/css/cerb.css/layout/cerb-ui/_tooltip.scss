@@ -1,0 +1,20 @@
+// Tooltip: a floating viewport-positioned panel (position:fixed). Content + position set by CerbUI.Tooltip.
+// pointer-events disabled so it never steals hover from its trigger. Base for Menu later.
+.cerb-ui-tooltip {
+	position: fixed;
+	left: 0;
+	top: 0;
+	z-index: 10000;
+	max-width: 280px;
+	padding: 0.6em 0.8em;
+	border: 1px solid var(--cerb-color-background-contrast-220);
+	border-radius: 8px;
+	background: var(--cerb-color-background);
+	color: var(--cerb-color-text);
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+	font-size: 0.9em;
+	line-height: 1.4;
+	pointer-events: none;
+
+	&[hidden] { display: none; }
+}
