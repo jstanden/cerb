@@ -147,8 +147,9 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		}
 
 		$this->_handleCronHeartbeatMetricsTicket();
+		$this->_handleCronHeartbeatMetricsQueue();
 	}
-	
+
 	private function _handleCronHeartbeatMetricsTicket() {
 		$metrics = DevblocksPlatform::services()->metrics();
 		$registry = DevblocksPlatform::services()->registry();
@@ -175,7 +176,36 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		
 		$registry->set($registry_key, time(), DevblocksRegistryEntry::TYPE_NUMBER);
 	}
-	
+
+	private function _handleCronHeartbeatMetricsQueue() {
+		$metrics = DevblocksPlatform::services()->metrics();
+		$registry = DevblocksPlatform::services()->registry();
+		$db = DevblocksPlatform::services()->database();
+
+		// =====================================
+		// Open/in-flight queue messages by queue, job, and status
+
+		$registry_key = 'metrics.cerb.queue.messages.open.last';
+
+		$last_ts = $registry->get($registry_key, DevblocksRegistryEntry::TYPE_NUMBER, 0);
+		
+		// If we last persisted this within 10 mins (but non-zero), abort
+		if ($last_ts && (time() - $last_ts) < 600)
+			return;
+
+		// Count ready (status 0, available now) and in-flight (status 1) messages.
+		// Future-scheduled messages (available_at > now) are excluded from the open count.
+		$results = $db->GetArrayReader("SELECT queue_id, job_id, status_id, COUNT(*) AS hits FROM queue_message WHERE status_id IN (0,1) AND available_at < UNIX_TIMESTAMP() GROUP BY queue_id, job_id, status_id");
+		
+		if (is_array($results)) {
+			foreach ($results as $row) {
+				$metrics->increment('cerb.queue.messages.open', intval($row['hits']), ['queue_id' => intval($row['queue_id']), 'job_id' => intval($row['job_id']), 'status_id' => intval($row['status_id'])]);
+			}
+		}
+
+		$registry->set($registry_key, time(), DevblocksRegistryEntry::TYPE_NUMBER);
+	}
+
 	private function _handleCronHeartbeatReopenTickets() : void {
 		// Re-open any conversations past their reopen date
 		try {

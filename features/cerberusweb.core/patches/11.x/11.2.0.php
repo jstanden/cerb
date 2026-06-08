@@ -896,6 +896,36 @@ $db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, 
 	time()
 ));
 
+$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, dimensions_kata, created_at, updated_at) ".
+	"VALUES (%s, %s, %s, %s, %d, %d)",
+	$db->qstr('cerb.queue.messages.open'),
+	$db->qstr('Open (available and in-flight) queue message depth by queue, job, and status'),
+	$db->qstr('gauge'),
+	$db->qstr("record/queue_id:\n  record_type: queue\nrecord/job_id:\n  record_type: queue_job\nnumber/status_id:\n"),
+	time(),
+	time()
+));
+
+$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, dimensions_kata, created_at, updated_at) ".
+	"VALUES (%s, %s, %s, %s, %d, %d)",
+	$db->qstr('cerb.queue.messages.processed'),
+	$db->qstr('Processed (done and failed) queue message count by queue, job, and status'),
+	$db->qstr('counter'),
+	$db->qstr("record/queue_id:\n  record_type: queue\nrecord/job_id:\n  record_type: queue_job\nnumber/status_id:\n"),
+	time(),
+	time()
+));
+
+// Dedicated covering index for the heartbeat queue-depth gauge. Leads with
+// status_id so the count scans only the open/in-flight slice (skips done/failed),
+// and is covering so the available_at filter needs no row lookups. Kept separate
+// from `queue_claimed` (the queue_id-led dequeue hot path) to avoid widening it.
+list(, $indexes) = $db->metaTable('queue_message');
+
+if(!array_key_exists('queue_depth', $indexes)) {
+	$db->ExecuteMaster("ALTER TABLE queue_message ADD INDEX queue_depth (status_id, queue_id, job_id, available_at)");
+}
+
 // ===========================================================================
 // Update built-in automations
 

@@ -234,6 +234,8 @@ INSERT INTO `metric` VALUES (16,'cerb.sessions.seat.kicks','counter','Count of w
 INSERT INTO `metric` VALUES (17,'cerb.sessions.seat.kicks.duration','counter','Cumulative idle seconds of worker sessions ended to free up a license seat','record/worker_id:\n  record_type: worker\n',UNIX_TIMESTAMP(),UNIX_TIMESTAMP(),0);
 INSERT INTO `metric` VALUES (18,'cerb.scheduler.invocations','counter','Invocation count by scheduler job','extension/job:\n',UNIX_TIMESTAMP(),UNIX_TIMESTAMP(),0);
 INSERT INTO `metric` VALUES (19,'cerb.scheduler.duration','counter','Invocation duration (ms) by scheduler job','extension/job:\n',UNIX_TIMESTAMP(),UNIX_TIMESTAMP(),0);
+INSERT INTO `metric` VALUES (20,'cerb.queue.messages.open','gauge','Open (available and in-flight) queue message depth by queue, job, and status','record/queue_id:\n  record_type: queue\nrecord/job_id:\n  record_type: queue_job\nnumber/status_id:\n',UNIX_TIMESTAMP(),UNIX_TIMESTAMP(),0);
+INSERT INTO `metric` VALUES (21,'cerb.queue.messages.processed','counter','Processed (done and failed) queue message count by queue, job, and status','record/queue_id:\n  record_type: queue\nrecord/job_id:\n  record_type: queue_job\nnumber/status_id:\n',UNIX_TIMESTAMP(),UNIX_TIMESTAMP(),0);
 
 INSERT INTO `profile_tab` VALUES (1,'Overview','cerberusweb.contexts.address','cerb.profile.tab.dashboard','{\"layout\":\"sidebar_left\"}',UNIX_TIMESTAMP(),0,NULL);
 INSERT INTO `profile_tab` VALUES (2,'Overview','cerberusweb.contexts.attachment','cerb.profile.tab.dashboard','{\"layout\":\"sidebar_left\"}',UNIX_TIMESTAMP(),0,NULL);

@@ -77,15 +77,25 @@ class _DevblocksQueueService {
 	}
 	
 	public function reportSuccess(array $messages, string $message='', array $metadata=[]) : void {
-		foreach($messages as $queue_message)
+		$metrics = DevblocksPlatform::services()->metrics();
+		foreach($messages as $queue_message) {
+			// Count each message once; the buffer dedupes re-reports of the same uuid
+			if(!array_key_exists($queue_message->uuid, $this->_status_buffer['success']))
+				$metrics->increment('cerb.queue.messages.processed', 1, ['queue_id' => $queue_message->queue_id, 'job_id' => $queue_message->job_id, 'status_id' => QueueMessageStatus::DONE->value]);
 			$this->_status_buffer['success'][$queue_message->uuid] = true;
+		}
 		$this->_trackJobIds($messages);
 		$this->_bufferLogEntry($messages, 1 /* SUCCESS */, $message, $metadata);
 	}
 
 	public function reportFailure(array $messages, string $message='', array $metadata=[]) : void {
-		foreach($messages as $queue_message)
+		$metrics = DevblocksPlatform::services()->metrics();
+		foreach($messages as $queue_message) {
+			// Count each message once; the buffer dedupes re-reports of the same uuid
+			if(!array_key_exists($queue_message->uuid, $this->_status_buffer['failure']))
+				$metrics->increment('cerb.queue.messages.processed', 1, ['queue_id' => $queue_message->queue_id, 'job_id' => $queue_message->job_id, 'status_id' => QueueMessageStatus::FAILED->value]);
 			$this->_status_buffer['failure'][$queue_message->uuid] = true;
+		}
 		$this->_trackJobIds($messages);
 		$this->_bufferLogEntry($messages, 3 /* ERROR */, $message, $metadata);
 	}
