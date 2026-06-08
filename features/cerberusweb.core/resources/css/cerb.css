@@ -119,6 +119,7 @@
   --cerb-tab-active-gradient: rgb(255,255,255);
   --cerb-tab-active-border: rgb(121,183,231);
   --cerb-tab-active-text: rgb(85,125,230);
+  --cerb-tab-active-text-underline: rgb(85,125,230);
   --cerb-color-ui-slider-high: rgb(235,0,0);
   --cerb-color-ui-slider-high-border: rgb(170,0,0);
   --cerb-color-ui-slider-low: rgb(0,200,0);
@@ -251,6 +252,7 @@
   --cerb-tab-active-gradient: rgb(32,32,32);
   --cerb-tab-active-border: rgb(62,62,62);
   --cerb-tab-active-text: rgb(240,240,240);
+  --cerb-tab-active-text-underline: rgb(97,140,227);
   --cerb-callout-background: rgba(57,57,57,0.8);
   --cerb-editor-background: rgb(22,22,22);
   --cerb-editor-completion-highlight: rgb(255,255,255);
@@ -6145,9 +6147,9 @@ UL.ui-autocomplete.ui-menu li.ui-menu-item.ui-state-focus {
 }
 .ui-tabs .ui-tabs-nav li.ui-tabs-active a {
   color: var(--cerb-tab-active-text);
-  text-shadow: 0.4px 0 0 currentColor;
   text-decoration: underline;
-  text-decoration-thickness: 2px;
+  text-decoration-thickness: 1px;
+  text-decoration-color: var(--cerb-tab-active-text-underline);
   text-underline-offset: 5px;
 }
 .ui-tabs .ui-tabs-nav li.ui-tabs-active a:has(> span.cerb-icons) {

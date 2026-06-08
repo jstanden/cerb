@@ -137,9 +137,9 @@ UL.ui-autocomplete.ui-menu li.ui-menu-item.ui-state-focus {
 
 	a {
 		color: var(--cerb-tab-active-text);
-		text-shadow: 0.4px 0 0 currentColor;
 		text-decoration: underline;
-		text-decoration-thickness: 2px;
+		text-decoration-thickness: 1px;
+		text-decoration-color: var(--cerb-tab-active-text-underline);
 		text-underline-offset: 5px;
 	}
 
