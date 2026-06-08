@@ -884,7 +884,7 @@ $db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, 
 	$db->qstr('cerb.service.token.uses'),
 	$db->qstr('Usage count for service token authentications'),
 	$db->qstr('counter'),
-	$db->qstr("text/scope:\ntext/client_ip:\n"),
+	$db->qstr("record/token_id:\n  record_type: service_token\ntext/scope:\ntext/client_ip:\n"),
 	time(),
 	time()
 ));
@@ -949,6 +949,15 @@ $db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, 
 	time()
 ));
 
+// cerb.service.token.uses gained a `record/token_id` dimension during 11.2-dev (it only had scope +
+// client_ip). Fix the definition and drop the dimensionless samples — the metric isn't released, so
+// nothing depends on the old data.
+if($revision < 1506) {
+	$db->ExecuteWriter("UPDATE metric SET dimensions_kata = " . $db->qstr("record/token_id:\n  record_type: service_token\ntext/scope:\ntext/client_ip:\n") . " WHERE name = 'cerb.service.token.uses'");
+	$db->ExecuteWriter("DELETE FROM metric_value WHERE metric_id = (SELECT id FROM metric WHERE name = 'cerb.service.token.uses')");
+}
+
+// ===========================================================================
 // Dedicated covering index for the heartbeat queue-depth gauge. Leads with
 // status_id so the count scans only the open/in-flight slice (skips done/failed),
 // and is covering so the available_at filter needs no row lookups. Kept separate

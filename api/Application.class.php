@@ -1011,8 +1011,20 @@ class CerberusApplication extends DevblocksApplication {
 				&& is_string(APP_SERVICE_TOKEN_SCOPE)
 				&& APP_SERVICE_TOKEN_SCOPE
 			) {
-				if(CerberusApplication::serviceTokenHasScope($scope, explode(' ', APP_SERVICE_TOKEN_SCOPE)))
+				if(CerberusApplication::serviceTokenHasScope($scope, explode(' ', APP_SERVICE_TOKEN_SCOPE))) {
+					// The master token has no record, so it reports under token_id:0. increment() only
+					// buffers in memory here (flushed async via the queue), so this stays classloader-free.
+					DevblocksPlatform::services()->metrics()->increment(
+						'cerb.service.token.uses',
+						1,
+						[
+							'token_id' => 0,
+							'scope' => $scope,
+							'client_ip' => DevblocksPlatform::getClientIp(),
+						]
+					);
 					return 'access_token';
+				}
 			}
 			
 			if(
@@ -1030,6 +1042,7 @@ class CerberusApplication extends DevblocksApplication {
 					'cerb.service.token.uses',
 					1,
 					[
+						'token_id' => $service_token->id,
 						'scope' => $scope,
 						'client_ip' => DevblocksPlatform::getClientIp(),
 					]
