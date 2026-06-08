@@ -46,6 +46,14 @@
 	<link type="text/css" rel="stylesheet" href="{devblocks_url}c=resource&p=cerberusweb.core&f=css/cerb.css{/devblocks_url}?v={$smarty.const.APP_BUILD}&pl=0">
 	<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerberus.js{/devblocks_url}?v={$smarty.const.APP_BUILD}&pl=0"></script>
 	
+
+	<!-- cerb-ui components: raw source in dev (live edit), single minified dist in prod -->
+	{if $smarty.const.DEVELOPMENT_MODE}
+		<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerb-ui/_core.js{/devblocks_url}?v={$smarty.now}"></script>
+	{else}
+		<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerb-ui.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
+	{/if}
+
 	<!-- User-defined styles -->
 	{$user_stylesheet_timestamp = $settings->get('cerberusweb.core',CerberusSettings::UI_USER_STYLESHEET_UPDATED_AT,0)}
 	{if $user_stylesheet_timestamp}

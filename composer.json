@@ -79,6 +79,13 @@
 		"build-css": [
 			"sass --no-source-map install/extras/developers/css/cerb.css/cerb.scss features/cerberusweb.core/resources/css/cerb.css"
 		],
+		"build-js": [
+			"terser features/cerberusweb.core/resources/js/cerb-ui/_core.js features/cerberusweb.core/resources/js/cerb-ui/palettes.js features/cerberusweb.core/resources/js/cerb-ui/switcher.js features/cerberusweb.core/resources/js/cerb-ui/toggle.js features/cerberusweb.core/resources/js/cerb-ui/distbar.js features/cerberusweb.core/resources/js/cerb-ui/legend.js features/cerberusweb.core/resources/js/cerb-ui/time-ring.js features/cerberusweb.core/resources/js/cerb-ui/tooltip.js features/cerberusweb.core/resources/js/cerb-ui/menu.js features/cerberusweb.core/resources/js/cerb-ui/spinner.js features/cerberusweb.core/resources/js/cerb-ui/tabs.js features/cerberusweb.core/resources/js/cerb-ui/sparkchart.js -c -m -o features/cerberusweb.core/resources/js/cerb-ui.js"
+		],
+		"dist": [
+			"@build-css",
+			"@build-js"
+		],
 		"test": [
 			"vendor/bin/phpunit --do-not-cache-result --display-phpunit-deprecations --bootstrap tests/bootstrap.platform.php -c tests/phpunit.cerb.platform.xml"
 		]
