@@ -361,16 +361,12 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 		
 		// Sanitize
 		
-		if(!array_key_exists('timezone', $chart_model)) {
-			// If aggregating by day, use UTC time by default
-			if(
-				array_key_exists('period', $chart_model)
-				&& in_array($chart_model['period'], ['day','week','week-sun','month','year'])
-			) {
-				$chart_model['timezone'] = 'UTC';
-			} else { // Otherwise, aggregate in the local timezone for mins + hours
-				$chart_model['timezone'] = DevblocksPlatform::getTimezone();
-			}
+		// Daily+ bins are stored at UTC midnight (DAO_MetricValue), so they can only be grouped/labeled
+		// in UTC. Sub-daily periods aggregate in the requested (or platform) timezone.
+		if(86400 == $chart_model['period_unit']) {
+			$chart_model['timezone'] = 'UTC';
+		} else if(!array_key_exists('timezone', $chart_model)) {
+			$chart_model['timezone'] = DevblocksPlatform::getTimezone();
 		}
 		
 		$chart_model['timezone_location'] = $chart_model['timezone'];
