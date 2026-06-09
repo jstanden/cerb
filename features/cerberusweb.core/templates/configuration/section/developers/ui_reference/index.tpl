@@ -974,6 +974,7 @@ const trigger = document.getElementById('trigger');
 const menu = new CerbUI.Menu(ul, {
 	onSelect:        function(li, src, e) { out.textContent = src.dataset.id; }, // leaf click / Enter
 	onClose:         function() {},        // menu fully closed (all panels removed)
+	// closeOnSelect: true,                // false = stay open after a pick (add several in a row)
 	onRenderItem:    function(li, src) {   // after the label, before the arrow — inject icons here
 		const icon = src.dataset.icon;       // bare name e.g. "folder"; ".my-icon" = raw class(es) for non-cerb icons
 		if(icon) {

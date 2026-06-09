@@ -32,6 +32,7 @@ CerbUI.Menu = class {
 	static _DEFAULTS = {
 		onSelect: null,       // (renderedLi, sourceLi, event) on leaf click / Enter
 		onClose: null,        // () when the menu finishes closing (panels removed)
+		closeOnSelect: true,  // close the menu after a leaf is chosen (false = stay open to pick several)
 		onRenderItem: null,   // (renderedLi, sourceLi) after the label, before the arrow — the icon hook
 		itemHeight: 28,       // px; MUST match the .cerb-ui-menu--item CSS height (virt math depends on it)
 		maxHeight: 380,       // px before a panel scrolls
@@ -551,9 +552,11 @@ CerbUI.Menu = class {
 					const popped = this.pnls.pop();
 					if(popped) popped.el.remove();
 				}
-			} else {
+			} else if(this.opts.closeOnSelect) {
 				this.close();
 			}
+			// else (floating, closeOnSelect:false): leave the panels open where they are
+			// so several siblings can be picked in a row.
 		}
 	}
 
@@ -615,7 +618,7 @@ CerbUI.Menu = class {
 							const popped = this.pnls.pop();
 							if(popped) popped.el.remove();
 						}
-					} else {
+					} else if(this.opts.closeOnSelect) {
 						this.close();
 					}
 				}
