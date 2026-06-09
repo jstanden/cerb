@@ -32,6 +32,14 @@
 	.cerb-u-border-#{$i} { border-width: #{$i}px; }
 }
 
+// Flex container atoms — compose a row or a left/right split from these (one declaration each):
+// a centered split is `cerb-u-flex cerb-u-items-center cerb-u-justify-between`. Pair with cerb-u-gap-*
+// for spacing between children and cerb-u-flex-1..4 on the children for grow ratios.
+.cerb-u-flex { display: flex; }
+.cerb-u-flex-wrap { flex-wrap: wrap; }
+.cerb-u-items-center { align-items: center; }
+.cerb-u-justify-between { justify-content: space-between; }
+
 // Flex grow ratios (for splits): N parts of the row, on a flex-wrap parent. Compose any ratio — two
 // cerb-u-flex-1 = halves; cerb-u-flex-1 + cerb-u-flex-2 = a third + two-thirds; three = thirds. min-width:0
 // lets long content shrink instead of overflowing.
@@ -62,4 +70,9 @@ $cerb-u-sides: (
 			}
 		}
 	}
+}
+
+// Gap between flex/grid children; steps match the spacing scale above.
+@each $step, $factor in $cerb-u-spacers {
+	.cerb-u-gap-#{$step} { gap: if($factor == 0, 0, calc(var(--cerb-u-spacer) * #{$factor})); }
 }
