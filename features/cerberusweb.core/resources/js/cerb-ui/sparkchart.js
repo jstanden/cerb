@@ -3,13 +3,17 @@
  * charting lib). Plots bar + line series against shared x categories; each series scales independently
  * (own min/max AND units). Bars are 0-based; lines range over their own min→max. The component never
  * formats data — it renders `series[].text[i]` (preformatted by the backend) and uses `values[]` only for
- * geometry. Categorical, not time-based: "time" is just pre-binned category labels.
+ * geometry. Categorical, not time-based: "time" is just pre-binned category labels. Bar series sharing a
+ * `stack` key stack cumulatively and share one scale (the max of their per-category sums); line series
+ * sharing a `scaleGroup` key share one min→max (so a min/avg/max band nests instead of each line filling
+ * the full height on its own scale).
  *
  * Usage:
  *   new CerbUI.Sparkchart(el, {
  *     categories: ['10:00', …, 'now'],            // x labels (tooltip + extent captions)
  *     series: [
- *       { type:'bar',  label:'invocations',  values:[…], text:['27 runs', …] },
+ *       { type:'bar',  label:'done',         values:[…], text:['27', …], stack:'msgs' },
+ *       { type:'bar',  label:'failed',       values:[…], text:['3', …],  stack:'msgs' }, // stacks on 'done'
  *       { type:'line', label:'avg duration', values:[…], text:['172ms', …] },
  *     ],
  *     caption:  ['24h ago', 'now'],  // extents below the plot: [start,end] at the ends, a single string centered, omit = none
@@ -119,13 +123,38 @@ CerbUI.Sparkchart = class {
 		this._hl.style.display = 'none';
 		svg.appendChild(this._hl);
 
+		// Stacked-bar groups: bars sharing a `stack` key share one scale (the max of per-category sums)
+		// and stack up. `offset` accumulates the drawn pixel height per category as we render the group.
+		const stacks = {};
+		this.series.forEach((s) => {
+			if(s.type === 'line' || !s.stack) return;
+			const g = stacks[s.stack] || (stacks[s.stack] = { sums: [] });
+			(s.values || []).forEach((v, i) => { g.sums[i] = (g.sums[i] || 0) + Math.max(0, v); });
+		});
+		Object.keys(stacks).forEach((k) => {
+			const g = stacks[k];
+			g.max = Math.max.apply(null, g.sums.concat(0)) || 1;
+			g.offset = [];
+		});
+
+		// Line scale groups: lines sharing a `scaleGroup` key share one min→max, so e.g. a min/avg/max
+		// band of the same quantity nests correctly instead of each line filling the full plot height.
+		const lineScales = {};
+		this.series.forEach((s) => {
+			if(s.type === 'line' && s.scaleGroup) {
+				const g = lineScales[s.scaleGroup] || (lineScales[s.scaleGroup] = { min: Infinity, max: -Infinity });
+				(s.values || []).forEach((v) => { if(v < g.min) g.min = v; if(v > g.max) g.max = v; });
+			}
+		});
+
 		this.series.forEach((s, si) => {
 			const color = this._color(si, s);
 			const vals = s.values || [];
 
 			if(s.type === 'line') {
-				const min = Math.min.apply(null, vals);
-				const max = Math.max.apply(null, vals);
+				const grp = s.scaleGroup ? lineScales[s.scaleGroup] : null;
+				const min = grp ? grp.min : Math.min.apply(null, vals);
+				const max = grp ? grp.max : Math.max.apply(null, vals);
 				const range = (max - min) || 1;
 				const points = vals.map((v, i) => {
 					const x = (i + 0.5) * this._band;
@@ -137,19 +166,22 @@ CerbUI.Sparkchart = class {
 				line.setAttribute('points', points);
 				line.setAttribute('stroke', color);
 				svg.appendChild(line);
-			} else { // bar — 0-based
-				const max = Math.max.apply(null, vals.concat(0)) || 1;
+			} else { // bar — 0-based, optionally stacked within its `stack` group
+				const grp = s.stack ? stacks[s.stack] : null;
+				const max = grp ? grp.max : (Math.max.apply(null, vals.concat(0)) || 1);
 				const bw = this._band * this.barWidth;
 				vals.forEach((v, i) => {
 					const h = Math.max(0, (v / max) * chartH);
+					const off = grp ? (grp.offset[i] || 0) : 0;
 					const bar = document.createElementNS(this.NS, 'rect');
 					bar.setAttribute('class', 'cerb-ui-sparkchart--bar');
 					bar.setAttribute('x', (i + 0.5) * this._band - bw / 2);
-					bar.setAttribute('y', pad + (chartH - h));
+					bar.setAttribute('y', pad + (chartH - off - h));
 					bar.setAttribute('width', bw);
 					bar.setAttribute('height', h);
 					bar.setAttribute('fill', color);
 					svg.appendChild(bar);
+					if(grp) grp.offset[i] = off + h;
 				});
 			}
 		});
