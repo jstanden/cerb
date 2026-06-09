@@ -26,8 +26,8 @@ class PageSection_SetupDevelopersUiReference extends Extension_PageSection {
 
 		$visit->set(ChConfigurationPage::ID, 'ui_reference');
 
-		// Reuse the canonical icon list from the Icon Reference page section (for the gallery's Icon section)
-		$tpl->assign('icons_cerb', PageSection_SetupDevelopersReferenceIcons::getCerbIcons());
+		// The canonical icon list (for the gallery's Icon section)
+		$tpl->assign('icons_cerb', DevblocksPlatform::services()->ui()->getCerbIcons());
 
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/developers/ui_reference/index.tpl');
 	}

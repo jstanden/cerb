@@ -61,7 +61,7 @@ class _DevblocksDataProviderUiIcons extends _DevblocksDataProvider {
 		$data = [];
 		$paging = [];
 		
-		$icons = PageSection_SetupDevelopersReferenceIcons::getCerbIcons(
+		$icons = DevblocksPlatform::services()->ui()->getCerbIcons(
 			$chart_model['limit'],
 			$chart_model['page'],
 			$chart_model['filter'],

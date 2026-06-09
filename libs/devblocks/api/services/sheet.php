@@ -810,7 +810,7 @@ class _DevblocksSheetServiceTypes {
 			
 			// Sanitize image name against known list
 			
-			$icons_available = PageSection_SetupDevelopersReferenceIcons::getCerbIcons();
+			$icons_available = DevblocksPlatform::services()->ui()->getCerbIcons();
 			
 			if($image) {
 				if(!in_array($image, $icons_available))

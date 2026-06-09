@@ -111,7 +111,6 @@
 			<input type="search" id="uiref-icon-filter" placeholder="Filter icons…">
 			<label style="display:inline-flex;align-items:center;gap:0.4em;cursor:pointer;"><input type="checkbox" id="uiref-icon-labels"> Show labels</label>
 			<span class="cerb-uiref-utils--note">Use <code>&lt;span class="cerb-icons cerb-icon-NAME"&gt;&lt;/span&gt;</code> — click any icon to copy its markup.</span>
-			<a href="{devblocks_url}c=config&a=reference_icons{/devblocks_url}" target="_blank" rel="noopener" style="margin-left:auto;white-space:nowrap;">Full icon reference <span class="cerb-icons cerb-icon-new-window"></span></a>
 		</div>
 
 		<div class="cerb-uiref-icons" id="uiref-icon-grid">

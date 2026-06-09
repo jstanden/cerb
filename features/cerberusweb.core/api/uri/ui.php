@@ -418,7 +418,7 @@ class Controller_UI extends DevblocksControllerExtension {
 		
 		$prefix = DevblocksPlatform::importGPC($_POST['prefix'] ?? null, 'string', null);
 		
-		$icons = PageSection_SetupDevelopersReferenceIcons::getCerbIcons(
+		$icons = DevblocksPlatform::services()->ui()->getCerbIcons(
 			25,
 			0,
 			$prefix
