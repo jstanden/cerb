@@ -56,11 +56,13 @@
 {$script_uid = uniqid('script')}
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" id="{$script_uid}">
 $(function() {
-    var $script = $('#{$script_uid}');
-    $script.prev('div').accordion({
-        active: false,
-        collapsible: true,
-        heightStyle: "content"
-    });
+    const script = document.getElementById('{$script_uid}');
+    const container = script ? script.previousElementSibling : null;
+    if(container && window.CerbUI && CerbUI.Accordion) {
+        new CerbUI.Accordion(container, {
+            active: -1,        // all sections collapsed (jQuery UI active:false)
+            collapsible: true  // clicking the open header collapses it
+        });
+    }
 });
 </script>

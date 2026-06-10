@@ -1,0 +1,88 @@
+// Accordion: expanding/collapsing sections (CerbUI.Accordion). Echoes the panel surface (border + radius);
+// each <h3> becomes a trigger row with a chevron that rotates when open. Colors are tokens, so dark mode
+// is automatic. The expand/collapse animation is a 0fr↔1fr grid row.
+.cerb-ui-accordion {
+	border: 1px solid var(--cerb-color-background-contrast-220);
+	border-radius: 10px;
+	overflow: hidden;
+	color: var(--cerb-color-text);
+	background: var(--cerb-color-background); // content surface; headers tint on top of it
+}
+
+.cerb-ui-accordion--header {
+	margin: 0;
+	font-size: inherit;
+	font-weight: inherit;
+}
+
+// Border between sections only when the panel above is open.
+.cerb-ui-accordion--panel-wrap.cerb-ui-accordion--expanded + .cerb-ui-accordion--header {
+	border-top: 1px solid var(--cerb-color-background-contrast-220);
+}
+
+.cerb-ui-accordion--trigger {
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: flex-start; // leading chevron, then title
+	gap: 8px;
+	padding: 0.6em 12px;
+	font-size: inherit;
+	font-weight: 600;
+	color: var(--cerb-color-text);
+	background: var(--cerb-color-background-contrast-250); // tinted header bar, distinct from content
+	border: none;
+	cursor: pointer;
+	text-align: left;
+	user-select: none;
+
+	&:hover {
+		background: var(--cerb-color-background-contrast-240);
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--cerb-color-action-primary);
+		outline-offset: -2px;
+	}
+
+	// Separate an open header from its own content.
+	&[aria-expanded="true"] {
+		border-bottom: 1px solid var(--cerb-color-background-contrast-220);
+	}
+}
+
+// Explicit size so the global `button > span.cerb-icons { font-size: 1.4em }` rule doesn't enlarge it.
+.cerb-ui-accordion--icon {
+	flex-shrink: 0;
+	font-size: 1em;
+	opacity: 0.7;
+	transition: transform 0.2s ease;
+}
+
+// Chevron points right when collapsed; rotates to point down when expanded.
+.cerb-ui-accordion--trigger[aria-expanded="true"] .cerb-ui-accordion--icon {
+	transform: rotate(90deg);
+}
+
+.cerb-ui-accordion--panel-wrap {
+	display: grid;
+	grid-template-rows: 0fr;
+	transition: grid-template-rows 0.2s ease;
+
+	&.cerb-ui-accordion--expanded {
+		grid-template-rows: 1fr;
+	}
+}
+
+.cerb-ui-accordion--panel-inner {
+	overflow: hidden;
+}
+
+.cerb-ui-accordion--panel-body {
+	padding: 0.7em 12px;
+}
+
+.cerb-ui-accordion--scrollable .cerb-ui-accordion--panel-body {
+	overflow-y: auto;
+	max-height: var(--cerb-ui-accordion-max-height, 300px);
+}
