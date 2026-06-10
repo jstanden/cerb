@@ -1,0 +1,66 @@
+// Sortable: pointer-drag reordering. Structural + cursor/placeholder chrome; behavior is in CerbUI.Sortable.
+// Colors are tokens, so dark mode is automatic (html.dark redefines them).
+.cerb-ui-sortable {
+	position: relative;
+	user-select: none;
+}
+
+// Cursor applied to items (no handle) or to handle elements
+.cerb-ui-sortable--item,
+.cerb-ui-sortable--handle {
+	cursor: grab;
+
+	&:active {
+		cursor: grabbing;
+	}
+}
+
+// The element that follows the cursor during drag
+.cerb-ui-sortable--helper {
+	position: fixed;
+	z-index: 10000; // above page chrome; on par with tooltips
+	pointer-events: none;
+	will-change: transform;
+	box-sizing: border-box;
+	border-radius: 8px;
+	opacity: 0.96;
+	transform: rotate(2deg) scale(1.03);
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.22);
+	transition:
+		transform 120ms cubic-bezier(0.2, 0, 0, 1),
+		box-shadow 120ms ease;
+}
+
+// Static placeholder showing the origin slot
+.cerb-ui-sortable--origin {
+	box-sizing: border-box;
+	pointer-events: none;
+	flex-shrink: 0;
+	background: var(--cerb-color-background-contrast-240);
+	border: 2px dashed var(--cerb-color-background-contrast-200);
+	border-radius: 8px;
+}
+
+// ghostOrigin: the origin holds a dimmed, grayed clone of the item ("where it came from")
+// instead of an empty dashed box, so it doesn't compete with the colored drop indicator.
+.cerb-ui-sortable--origin-ghost {
+	background: none;
+	border: 0;
+	overflow: hidden;
+}
+
+.cerb-ui-sortable--ghost {
+	pointer-events: none;
+	opacity: 0.45;
+	filter: grayscale(0.6);
+}
+
+// Moving placeholder showing the current drop target
+.cerb-ui-sortable--dest {
+	box-sizing: border-box;
+	pointer-events: none;
+	flex-shrink: 0;
+	background: color-mix(in srgb, var(--cerb-color-action-primary) 10%, transparent);
+	border: 2px solid var(--cerb-color-action-primary);
+	border-radius: 8px;
+}
