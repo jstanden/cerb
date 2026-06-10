@@ -1,0 +1,159 @@
+// Form: a low-markup form layer. Put `cerb-ui-form` on a <form> (or any wrapper) and the controls
+// inside pick up consistent styling automatically — labels/fields are explicit, controls are not.
+// Compose sections from cerb-ui-panel + cerb-ui-header--label; this owns the fields within.
+
+.cerb-ui-form {
+	display: flex;
+	flex-direction: column;
+	gap: 1.1em; // vertical rhythm between fields/sections (hidden inputs don't add gaps)
+
+	// ── Controls — auto-styled inside a form (type-qualified so we beat the global cerb-base rules,
+	// which are imported earlier; the equal-specificity utilities import later and still win) ──
+	input[type="text"],
+	input[type="email"],
+	input[type="password"],
+	input[type="search"],
+	input[type="number"],
+	input[type="tel"],
+	input[type="url"],
+	textarea,
+	select {
+		padding: 0.5em 0.7em;
+		border: 1px solid var(--cerb-color-background-contrast-220);
+		border-radius: 6px;
+		background-color: var(--cerb-color-form-input-background);
+		color: var(--cerb-color-text);
+		box-sizing: border-box;
+		outline: none;
+		transition: border-color 0.12s, outline-color 0.12s;
+
+		&:focus {
+			border-color: var(--cerb-color-form-element-focus);
+			outline: 2px solid var(--cerb-color-form-element-focus);
+			outline-offset: 1px;
+		}
+
+		&::placeholder {
+			color: var(--cerb-color-background-contrast-150);
+		}
+	}
+
+	textarea {
+		line-height: 1.5;
+	}
+
+	// Keep room for the native <select>'s dropdown-arrow background image (positioned ~10px from the right)
+	select {
+		padding-right: 2em;
+	}
+}
+
+// A label-above-control unit. Controls inside go full-width; standalone/inline controls (left out of a
+// --field) keep their natural width.
+.cerb-ui-form--field {
+	display: flex;
+	flex-direction: column;
+	gap: 0.35em;
+
+	> input,
+	> textarea,
+	> select,
+	> .cerb-ui-form--control,
+	> .cerb-ui-selectmenu {
+		width: 100%;
+	}
+}
+
+// Small label above a control
+.cerb-ui-form--label {
+	font-size: 0.9em;
+	color: var(--cerb-color-widget-header);
+}
+
+// The required marker (a red asterisk on a label)
+.cerb-ui-form--required {
+	color: var(--cerb-color-tag-red);
+}
+
+// Inline muted helper beside a label ("optional", "(leave blank…)")
+.cerb-ui-form--hint {
+	font-size: 0.85em;
+	font-weight: normal;
+	color: var(--cerb-color-background-contrast-150);
+}
+
+// Muted helper text below a field
+.cerb-ui-form--help {
+	font-size: 0.85em;
+	margin-top: 0.1em;
+	color: var(--cerb-color-background-contrast-150);
+}
+
+// Section: a titled panel grouping fields. A .cerb-ui-form holds several sections; the form's gap spaces
+// them apart, and each --section-body re-establishes the field gap *inside* the section (the form gap
+// only reaches its own direct children). The banded --section-head carries the uppercase label and an
+// optional right-side control (e.g. a collapse chevron).
+.cerb-ui-form--section {
+	border: 1px solid var(--cerb-color-background-contrast-220);
+	border-radius: 10px;
+	background: var(--cerb-color-background);
+	overflow: hidden; // clip the head band's fill to the rounded top corners
+}
+
+.cerb-ui-form--section-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.5em;
+	padding: 0.7em 1.1em;
+	background: var(--cerb-color-background-contrast-245);
+	border-bottom: 1px solid var(--cerb-color-background-contrast-220);
+	font-size: 0.75em;
+	font-weight: 600;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--cerb-color-background-contrast-150);
+}
+
+.cerb-ui-form--section-body {
+	display: flex;
+	flex-direction: column;
+	gap: 1.1em;
+	padding: 1.1em;
+}
+
+// Responsive multi-column row: fields sit side-by-side when there's room and collapse to one column
+// when narrow (flex-wrap + the flex-basis drive it — no media query needed).
+.cerb-ui-form--row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1em;
+
+	> .cerb-ui-form--field {
+		flex: 1 1 14em;
+	}
+}
+
+// Leading-icon input: a relative wrapper holding an absolutely-positioned icon + the control
+// (mirrors the login page's .cerb-login-input-wrap). The icon is a <span class="cerb-icons …">.
+.cerb-ui-form--control {
+	position: relative;
+	display: block;
+
+	.cerb-ui-form--control-icon {
+		position: absolute;
+		left: 0.7em;
+		top: 50%;
+		transform: translateY(-50%);
+		display: flex;
+		color: var(--cerb-color-background-contrast-150);
+		pointer-events: none;
+	}
+}
+
+// The icon's left padding must beat the shared `input[type=…]` rule (higher specificity + a `padding`
+// shorthand), so qualify with the .cerb-ui-form ancestor to match it and win on source order.
+.cerb-ui-form .cerb-ui-form--control input {
+	width: 100%;
+	padding-left: 2.4em;
+}
