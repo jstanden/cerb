@@ -543,6 +543,12 @@ abstract class C4_AbstractView {
 		}
 	}
 	
+	// Worklists with a metric quick-search filter (usage:/activity:/records:/…) override this to return the
+	// threshold map for a given filter key, so getParamsFromQuickSearch can surface a hint on a typo/bad value.
+	function getQuickSearchMetricFilterMap(string $field_key) : ?array {
+		return null;
+	}
+
 	function getParamsFromQuickSearch(?string $query, array $bindings=[], &$error=null) {
 		if(!($this instanceof IAbstractView_QuickSearch)) {
 			$error = "This record type doesn't support search queries.";
@@ -692,10 +698,19 @@ abstract class C4_AbstractView {
 					}
 				}
 				
+				$field_key = $v->key; // capture before $v is reassigned to the built param (->field != ->key)
 				$param = $this->getParamFromQuickSearchFieldTokens($v->key, $v->tokens);
-				
+
 				if($param instanceof DevblocksSearchCriteria) {
 					$v = $param;
+
+					// Worklists with a metric quick-search filter (usage:/activity:/records:/…) validate the
+					// (...) group here so a typo/bad value surfaces a hint via the marquee (and matches nothing).
+					if(is_string($param->value) && ($metric_map = $this->getQuickSearchMetricFilterMap($field_key))) {
+						$metric_error = null;
+						if(!DAO_MetricValue::validateMetricQuery($param->value, $metric_map, $metric_error))
+							$error = $metric_error;
+					}
 				} else {
 					$error = sprintf('Unknown filter `%s:`', $v->key);
 				}

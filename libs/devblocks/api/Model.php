@@ -1696,6 +1696,7 @@ class DevblocksSearchCriteria {
 	const TYPE_SEARCH_INDEX = 'search_index';
 	const TYPE_TEXT = 'text';
 	const TYPE_VIRTUAL = 'virtual';
+	const TYPE_VIRTUAL_SPARKLINES = 'sparklines';
 	const TYPE_WORKER = 'worker';
 	
 	const OPTION_TEXT_PARTIAL = 1;
