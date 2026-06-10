@@ -716,7 +716,11 @@ class View_Queue extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 		// Custom fields
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_QUEUE);
 		$tpl->assign('custom_fields', $custom_fields);
-		
+
+		// Queue Consumer extensions
+		$queue_extensions = Extension_QueueConsumer::getAll(false);
+		$tpl->assign('queue_extensions', $queue_extensions);
+
 		$tpl->assign('view_template', 'devblocks:cerberusweb.core::records/types/queue/view.tpl');
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 	}

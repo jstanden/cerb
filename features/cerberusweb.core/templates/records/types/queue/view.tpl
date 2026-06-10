@@ -87,6 +87,14 @@
                                 <abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>
                             {/if}
                         </td>
+                    {elseif $column == "q_extension_id"}
+                        <td data-column="{$column}">
+                            {if isset($queue_extensions[$result.q_extension_id])}
+                                {$queue_extensions[$result.q_extension_id]->name}
+                            {else}
+                                {$result.$column}
+                            {/if}
+                        </td>
                     {else}
                         <td data-column="{$column}">{$result.$column}</td>
                     {/if}
