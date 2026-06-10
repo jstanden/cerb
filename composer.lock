@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5512526b22b989e17c9751f363a59cf2",
+    "content-hash": "01e102565cd2c50c5570ad60cb7a5a4e",
     "packages": [
         {
             "name": "brick/math",
@@ -65,6 +65,829 @@
                 }
             ],
             "time": "2026-02-10T14:33:43+00:00"
+        },
+        {
+            "name": "bytestream/horde-crypt-blowfish",
+            "version": "v1.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/bytestream/Crypt_Blowfish.git",
+                "reference": "c1888c663374f8931d0d84768e3c61c53ee8aa4e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/bytestream/Crypt_Blowfish/zipball/c1888c663374f8931d0d84768e3c61c53ee8aa4e",
+                "reference": "c1888c663374f8931d0d84768e3c61c53ee8aa4e",
+                "shasum": ""
+            },
+            "require": {
+                "bytestream/horde-exception": "^2",
+                "bytestream/horde-support": "^2",
+                "php": "^7.4 || ^8.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Horde_Crypt_Blowfish": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-2.1"
+            ],
+            "authors": [
+                {
+                    "name": "Michael Slusarz",
+                    "email": "slusarz@horde.org",
+                    "role": "lead"
+                }
+            ],
+            "description": "Horde Blowfish encryption library",
+            "homepage": "https://www.horde.org/libraries/Horde_Crypt_Blowfish",
+            "support": {
+                "source": "https://github.com/bytestream/Crypt_Blowfish/tree/v1.3.0"
+            },
+            "time": "2022-12-12T11:35:44+00:00"
+        },
+        {
+            "name": "bytestream/horde-exception",
+            "version": "v2.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/bytestream/Exception.git",
+                "reference": "d0f25e79a21f7de648f27ea49b902d13f596d5ca"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/bytestream/Exception/zipball/d0f25e79a21f7de648f27ea49b902d13f596d5ca",
+                "reference": "d0f25e79a21f7de648f27ea49b902d13f596d5ca",
+                "shasum": ""
+            },
+            "require": {
+                "bytestream/horde-translation": "^2.2",
+                "php": "^7.4 || ^8.0"
+            },
+            "require-dev": {
+                "pear/pear-core-minimal": "^1.10",
+                "phpunit/phpunit": "^9.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Horde_Exception": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-2.1"
+            ],
+            "authors": [
+                {
+                    "name": "Chuck Hagenbuch",
+                    "email": "chuck@horde.org",
+                    "role": "lead"
+                },
+                {
+                    "name": "Jan Schneider",
+                    "email": "jan@horde.org",
+                    "role": "lead"
+                },
+                {
+                    "name": "Michael Slusarz",
+                    "email": "slusarz@horde.org",
+                    "role": "developer"
+                }
+            ],
+            "description": "Horde exception handler library",
+            "homepage": "https://www.horde.org/libraries/Horde_Exception",
+            "support": {
+                "source": "https://github.com/bytestream/Exception/tree/v2.2.0"
+            },
+            "time": "2022-12-12T12:10:17+00:00"
+        },
+        {
+            "name": "bytestream/horde-idna",
+            "version": "v1.2.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/bytestream/Idna.git",
+                "reference": "e625a869cd73c92d891dd63cf9558104d4d2e9d4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/bytestream/Idna/zipball/e625a869cd73c92d891dd63cf9558104d4d2e9d4",
+                "reference": "e625a869cd73c92d891dd63cf9558104d4d2e9d4",
+                "shasum": ""
+            },
+            "require": {
+                "bytestream/horde-exception": "^2",
+                "bytestream/horde-util": "^2",
+                "php": "^7.4 || ^8.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.5"
+            },
+            "suggest": {
+                "ext-intl": "*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Horde_Idna": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-2-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Michael Slusarz",
+                    "email": "slusarz@horde.org",
+                    "role": "lead"
+                }
+            ],
+            "description": "Horde IDNA normalization library",
+            "homepage": "https://www.horde.org",
+            "support": {
+                "source": "https://github.com/bytestream/Idna/tree/v1.2.1"
+            },
+            "time": "2022-07-07T11:36:13+00:00"
+        },
+        {
+            "name": "bytestream/horde-imap-client",
+            "version": "v2.34.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/bytestream/Imap_Client.git",
+                "reference": "0171a72c144fa050250e4b40dc0160507c265300"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/bytestream/Imap_Client/zipball/0171a72c144fa050250e4b40dc0160507c265300",
+                "reference": "0171a72c144fa050250e4b40dc0160507c265300",
+                "shasum": ""
+            },
+            "require": {
+                "bytestream/horde-exception": "^2",
+                "bytestream/horde-mail": "^2",
+                "bytestream/horde-mime": "^2.5.2",
+                "bytestream/horde-secret": "^2",
+                "bytestream/horde-socket-client": "^2",
+                "bytestream/horde-stream": "^1.4",
+                "bytestream/horde-stream-filter": "^2",
+                "bytestream/horde-translation": "^2.2",
+                "bytestream/horde-util": "^2",
+                "ext-hash": "*",
+                "ext-json": "*",
+                "php": "^7.4 || ^8.0"
+            },
+            "require-dev": {
+                "bytestream/horde-crypt-blowfish": "^1.2",
+                "bytestream/horde-stringprep": "^1.1",
+                "phpunit/phpunit": "^9.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Horde_Imap_Client": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-2.1"
+            ],
+            "authors": [
+                {
+                    "name": "Michael Slusarz",
+                    "email": "slusarz@horde.org",
+                    "role": "lead"
+                }
+            ],
+            "description": "Horde IMAP client library",
+            "homepage": "https://www.horde.org/libraries/Horde_Imap_Client",
+            "support": {
+                "source": "https://github.com/bytestream/Imap_Client/tree/v2.34.1"
+            },
+            "time": "2026-04-23T09:47:18+00:00"
+        },
+        {
+            "name": "bytestream/horde-listheaders",
+            "version": "v1.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/bytestream/ListHeaders.git",
+                "reference": "2a0193be55ad69c210b6a8849b9df05cd4e3c202"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/bytestream/ListHeaders/zipball/2a0193be55ad69c210b6a8849b9df05cd4e3c202",
+                "reference": "2a0193be55ad69c210b6a8849b9df05cd4e3c202",
+                "shasum": ""
+            },
+            "require": {
+                "bytestream/horde-mail": "^2.7",
+                "bytestream/horde-translation": "^2.2",
+                "bytestream/horde-util": "^2",
+                "php": "^7.4 || ^8.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.5"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Horde_ListHeaders": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-2.1"
+            ],
+            "authors": [
+                {
+                    "name": "Michael Slusarz",
+                    "email": "slusarz@horde.org",
+                    "role": "lead"
+                }
+            ],
+            "description": "Horde list headers parsing library",
+            "homepage": "https://www.horde.org/libraries/Horde_ListHeaders",
+            "support": {
+                "source": "https://github.com/bytestream/ListHeaders/tree/v1.3.0"
+            },
+            "time": "2021-12-21T16:38:31+00:00"
+        },
+        {
+            "name": "bytestream/horde-mail",
+            "version": "v2.7.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/bytestream/Mail.git",
+                "reference": "5054666fe1a43f86a85e911111c115a133d80334"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/bytestream/Mail/zipball/5054666fe1a43f86a85e911111c115a133d80334",
+                "reference": "5054666fe1a43f86a85e911111c115a133d80334",
+                "shasum": ""
+            },
+            "require": {
+                "bytestream/horde-exception": "^2",
+                "bytestream/horde-idna": "^1",
+                "bytestream/horde-mime": "^2.12",
+                "bytestream/horde-stream-filter": "^2",
+                "bytestream/horde-translation": "^2.2",
+                "bytestream/horde-util": "^2",
+                "php": "^7.4 || ^8.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.5"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Horde_Mail": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-2-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Michael Slusarz",
+                    "email": "slusarz@horde.org",
+                    "role": "lead"
+                }
+            ],
+            "description": "Horde mail library",
+            "homepage": "https://www.horde.org/libraries/Horde_Mail",
+            "support": {
+                "source": "https://github.com/bytestream/Mail/tree/v2.7.2"
+            },
+            "time": "2026-02-12T11:00:50+00:00"
+        },
+        {
+            "name": "bytestream/horde-mime",
+            "version": "v2.14.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/bytestream/Mime.git",
+                "reference": "6cd0216b850ea811ebc543c4b5731ef3a256ba89"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/bytestream/Mime/zipball/6cd0216b850ea811ebc543c4b5731ef3a256ba89",
+                "reference": "6cd0216b850ea811ebc543c4b5731ef3a256ba89",
+                "shasum": ""
+            },
+            "require": {
+                "bytestream/horde-exception": "^2",
+                "bytestream/horde-listheaders": "^1.3",
+                "bytestream/horde-mail": "^2.7",
+                "bytestream/horde-stream": "^1.3",
+                "bytestream/horde-stream-filter": "^2",
+                "bytestream/horde-support": "^2.1",
+                "bytestream/horde-text-flowed": "^2",
+                "bytestream/horde-translation": "^2.2",
+                "bytestream/horde-util": "^2",
+                "php": "^8.0"
+            },
+            "require-dev": {
+                "bytestream/horde-text-filter": "^2.4",
+                "phpunit/phpunit": "^9.5"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Horde_Mime": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-2.1"
+            ],
+            "authors": [
+                {
+                    "name": "Chuck Hagenbuch",
+                    "email": "chuck@horde.org",
+                    "role": "lead"
+                },
+                {
+                    "name": "Michael Slusarz",
+                    "email": "slusarz@horde.org",
+                    "role": "lead"
+                }
+            ],
+            "description": "MIME library",
+            "homepage": "https://www.horde.org/libraries/Horde_Mime",
+            "support": {
+                "source": "https://github.com/bytestream/Mime/tree/v2.14.1"
+            },
+            "time": "2026-03-30T09:58:39+00:00"
+        },
+        {
+            "name": "bytestream/horde-secret",
+            "version": "v2.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/bytestream/Secret.git",
+                "reference": "75d1575820d4422ad8c485fd3606652948d9f2b6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/bytestream/Secret/zipball/75d1575820d4422ad8c485fd3606652948d9f2b6",
+                "reference": "75d1575820d4422ad8c485fd3606652948d9f2b6",
+                "shasum": ""
+            },
+            "require": {
+                "bytestream/horde-crypt-blowfish": "^1",
+                "bytestream/horde-exception": "^2",
+                "bytestream/horde-support": "^2",
+                "ext-hash": "*",
+                "php": "^7.4 || ^8.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Horde_Secret": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-2.1"
+            ],
+            "authors": [
+                {
+                    "name": "Chuck Hagenbuch",
+                    "email": "chuck@horde.org",
+                    "role": "lead"
+                },
+                {
+                    "name": "Michael Slusarz",
+                    "email": "slusarz@horde.org",
+                    "role": "lead"
+                }
+            ],
+            "description": "Horde secret key encryption library",
+            "homepage": "https://www.horde.org/libraries/Horde_Secret",
+            "support": {
+                "source": "https://github.com/bytestream/Secret/tree/v2.1.0"
+            },
+            "time": "2021-12-21T13:40:05+00:00"
+        },
+        {
+            "name": "bytestream/horde-socket-client",
+            "version": "v2.2.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/bytestream/Socket_Client.git",
+                "reference": "7687d26b43c65bbabdd9b6452770aaddea82946d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/bytestream/Socket_Client/zipball/7687d26b43c65bbabdd9b6452770aaddea82946d",
+                "reference": "7687d26b43c65bbabdd9b6452770aaddea82946d",
+                "shasum": ""
+            },
+            "require": {
+                "bytestream/horde-exception": "^2",
+                "php": "^7.4 || ^8.0"
+            },
+            "suggest": {
+                "ext-openssl": "*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Horde\\Socket\\": "lib/Horde/Socket"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-2.1"
+            ],
+            "authors": [
+                {
+                    "name": "Michael Slusarz",
+                    "email": "slusarz@horde.org",
+                    "role": "lead"
+                }
+            ],
+            "description": "Horde network socket client library",
+            "homepage": "https://www.horde.org",
+            "support": {
+                "source": "https://github.com/bytestream/Socket_Client/tree/v2.2.1"
+            },
+            "time": "2021-12-21T19:22:30+00:00"
+        },
+        {
+            "name": "bytestream/horde-stream",
+            "version": "v1.7.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/bytestream/Stream.git",
+                "reference": "98c1813c743342832b7d6c87be9ccfcf47bfef62"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/bytestream/Stream/zipball/98c1813c743342832b7d6c87be9ccfcf47bfef62",
+                "reference": "98c1813c743342832b7d6c87be9ccfcf47bfef62",
+                "shasum": ""
+            },
+            "require": {
+                "bytestream/horde-exception": "^2",
+                "php": "^7.4 || ^8.0"
+            },
+            "require-dev": {
+                "bytestream/horde-stream-wrapper": "^2.2",
+                "phpunit/phpunit": "^9.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Horde_Stream": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-2.1"
+            ],
+            "authors": [
+                {
+                    "name": "Michael Slusarz",
+                    "email": "slusarz@horde.org",
+                    "role": "lead"
+                }
+            ],
+            "description": "Horde PHP streams library",
+            "homepage": "https://www.horde.org/libraries/Horde_Stream",
+            "support": {
+                "source": "https://github.com/bytestream/Stream/tree/v1.7.2"
+            },
+            "time": "2024-11-06T00:43:41+00:00"
+        },
+        {
+            "name": "bytestream/horde-stream-filter",
+            "version": "v2.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/bytestream/Stream_Filter.git",
+                "reference": "ce3663e2baa11cd6bb927968fcb7cd90813f5355"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/bytestream/Stream_Filter/zipball/ce3663e2baa11cd6bb927968fcb7cd90813f5355",
+                "reference": "ce3663e2baa11cd6bb927968fcb7cd90813f5355",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.4 || ^8.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Horde_Stream_Filter": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-2.1"
+            ],
+            "authors": [
+                {
+                    "name": "Chuck Hagenbuch",
+                    "email": "chuck@horde.org",
+                    "role": "lead"
+                },
+                {
+                    "name": "Michael Slusarz",
+                    "email": "slusarz@horde.org",
+                    "role": "lead"
+                }
+            ],
+            "description": "Horde PHP stream filters library",
+            "homepage": "https://www.horde.org/libraries/Horde_Stream_Filter",
+            "support": {
+                "source": "https://github.com/bytestream/Stream_Filter/tree/v2.1.1"
+            },
+            "time": "2022-05-23T14:46:54+00:00"
+        },
+        {
+            "name": "bytestream/horde-stream-wrapper",
+            "version": "v2.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/bytestream/Stream_Wrapper.git",
+                "reference": "d9b8637203a3f7cdddf6a46691021a93604aae10"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/bytestream/Stream_Wrapper/zipball/d9b8637203a3f7cdddf6a46691021a93604aae10",
+                "reference": "d9b8637203a3f7cdddf6a46691021a93604aae10",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.4 || ^8.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Horde_Stream_Wrapper": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-2-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Chuck Hagenbuch",
+                    "email": "chuck@horde.org",
+                    "role": "lead"
+                },
+                {
+                    "name": "Michael Slusarz",
+                    "email": "slusarz@horde.org",
+                    "role": "lead"
+                }
+            ],
+            "description": "Horde PHP stream wrappers library",
+            "homepage": "https://www.horde.org/libraries/Horde_Stream_Wrapper",
+            "support": {
+                "source": "https://github.com/bytestream/Stream_Wrapper/tree/v2.2.0"
+            },
+            "time": "2021-12-20T23:00:18+00:00"
+        },
+        {
+            "name": "bytestream/horde-support",
+            "version": "v2.4.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/bytestream/Support.git",
+                "reference": "6e5d9594cf42f470ce1e2622a91a2acdf26d8ec0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/bytestream/Support/zipball/6e5d9594cf42f470ce1e2622a91a2acdf26d8ec0",
+                "reference": "6e5d9594cf42f470ce1e2622a91a2acdf26d8ec0",
+                "shasum": ""
+            },
+            "require": {
+                "bytestream/horde-exception": "^2",
+                "bytestream/horde-stream-wrapper": "^2",
+                "bytestream/horde-util": "^2",
+                "php": "^7.4 || ^8.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Horde_Support": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-2-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Chuck Hagenbuch",
+                    "email": "chuck@horde.org",
+                    "role": "lead"
+                },
+                {
+                    "name": "Jan Schneider",
+                    "email": "jan@horde.org",
+                    "role": "lead"
+                },
+                {
+                    "name": "Michael Slusarz",
+                    "email": "slusarz@horde.org",
+                    "role": "developer"
+                }
+            ],
+            "description": "Horde Supporting library",
+            "homepage": "https://www.horde.org/libraries/Horde_Support",
+            "support": {
+                "source": "https://github.com/bytestream/Support/tree/v2.4.0"
+            },
+            "time": "2022-12-12T11:11:32+00:00"
+        },
+        {
+            "name": "bytestream/horde-text-flowed",
+            "version": "v2.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/bytestream/Text_Flowed.git",
+                "reference": "97153c2e68a600662c54eb02e973eda797134de1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/bytestream/Text_Flowed/zipball/97153c2e68a600662c54eb02e973eda797134de1",
+                "reference": "97153c2e68a600662c54eb02e973eda797134de1",
+                "shasum": ""
+            },
+            "require": {
+                "bytestream/horde-util": "^2",
+                "php": "^7.4 || ^8.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Horde_Text_Flowed": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-2.1"
+            ],
+            "authors": [
+                {
+                    "name": "Michael Slusarz",
+                    "email": "slusarz@horde.org",
+                    "role": "lead"
+                }
+            ],
+            "description": "Flowed text library",
+            "homepage": "https://www.horde.org/libraries/Horde_Text_Flowed",
+            "support": {
+                "source": "https://github.com/bytestream/Text_Flowed/tree/v2.1.0"
+            },
+            "time": "2021-12-21T12:01:44+00:00"
+        },
+        {
+            "name": "bytestream/horde-translation",
+            "version": "v2.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/bytestream/Translation.git",
+                "reference": "50b32bf614164e3e44deb23f4210e709f967cbc6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/bytestream/Translation/zipball/50b32bf614164e3e44deb23f4210e709f967cbc6",
+                "reference": "50b32bf614164e3e44deb23f4210e709f967cbc6",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.4 || ^8.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Horde_Translation": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-2.1"
+            ],
+            "authors": [
+                {
+                    "name": "Jan Schneider",
+                    "email": "jan@horde.org",
+                    "role": "lead"
+                }
+            ],
+            "description": "Horde Translation library",
+            "homepage": "https://www.horde.org/libraries/Horde_Translation",
+            "support": {
+                "source": "https://github.com/bytestream/Translation/tree/v2.3.0"
+            },
+            "time": "2021-12-20T20:30:50+00:00"
+        },
+        {
+            "name": "bytestream/horde-util",
+            "version": "v2.8.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/bytestream/Util.git",
+                "reference": "45a9c3c14e70eec9df5d117a2d4941b097872672"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/bytestream/Util/zipball/45a9c3c14e70eec9df5d117a2d4941b097872672",
+                "reference": "45a9c3c14e70eec9df5d117a2d4941b097872672",
+                "shasum": ""
+            },
+            "require": {
+                "ext-dom": "*",
+                "ext-mbstring": "*",
+                "php": "^7.4 || ^8.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Horde": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-2.1"
+            ],
+            "authors": [
+                {
+                    "name": "Chuck Hagenbuch",
+                    "email": "chuck@horde.org",
+                    "role": "lead"
+                },
+                {
+                    "name": "Jan Schneider",
+                    "email": "jan@horde.org",
+                    "role": "lead"
+                },
+                {
+                    "name": "Michael Slusarz",
+                    "email": "slusarz@horde.org",
+                    "role": "developer"
+                }
+            ],
+            "description": "Horde utility library",
+            "homepage": "https://www.horde.org/libraries/Horde_Util",
+            "support": {
+                "source": "https://github.com/bytestream/Util/tree/v2.8.1"
+            },
+            "time": "2026-02-12T14:33:23+00:00"
         },
         {
             "name": "defuse/php-encryption",
@@ -926,60 +1749,6 @@
                 }
             ],
             "time": "2026-06-18T09:49:37+00:00"
-        },
-        {
-            "name": "horde/imap-client",
-            "version": "dev-2.30.7-cerb",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/jstanden/horde-imap.git",
-                "reference": "85e417d57b328c68eed457e46c201e1b9d760f99"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/jstanden/horde-imap/zipball/85e417d57b328c68eed457e46c201e1b9d760f99",
-                "reference": "85e417d57b328c68eed457e46c201e1b9d760f99",
-                "shasum": ""
-            },
-            "require": {
-                "ext-hash": "*",
-                "ext-json": "*",
-                "php": "^7.4 || ^8"
-            },
-            "suggest": {
-                "ext-intl": "*",
-                "ext-mbstring": "*"
-            },
-            "default-branch": true,
-            "type": "library",
-            "autoload": {
-                "classmap": [
-                    "lib/pear-pear.horde.org/"
-                ],
-                "exclude-from-classmap": [
-                    "lib/pear-pear.horde.org/Horde_Socket_Client/"
-                ],
-                "psr-4": {
-                    "Horde\\Socket\\": "lib/pear-pear.horde.org/Horde_Socket_Client/Horde/Socket/"
-                }
-            },
-            "license": [
-                "LGPL-2.1"
-            ],
-            "authors": [
-                {
-                    "name": "Michael Slusarz",
-                    "email": "slusarz@horde.org",
-                    "role": "lead"
-                }
-            ],
-            "description": "IMAP client library",
-            "homepage": "https://www.horde.org/libraries/Horde_Imap_Client",
-            "support": {
-                "source": "https://github.com/jstanden/horde-imap/tree/2.30.7-cerb",
-                "issues": "https://github.com/jstanden/horde-imap/issues"
-            },
-            "time": "2022-06-25T00:00:00+00:00"
         },
         {
             "name": "lcobucci/clock",
@@ -5816,9 +6585,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "horde/imap-client": 20
-    },
+    "stability-flags": {},
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

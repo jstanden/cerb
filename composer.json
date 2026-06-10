@@ -21,12 +21,6 @@
 			"php": "8.5"
 		}
 	},
-	"repositories": [
-		{
-			"type": "vcs",
-			"url": "https://github.com/jstanden/horde-imap"
-		}
-	],
 	"require" : {
 		"php": ">=8.5",
 		"ext-curl": "*",
@@ -57,7 +51,7 @@
 		"donatj/phpuseragentparser": "v1.11.0",
 		"twig/twig" : "v3.27.1",
 		"singpolyma/openpgp-php": "0.7.0",
-		"horde/imap-client": "dev-2.30.7-cerb",
+		"bytestream/horde-imap-client": "v2.34.1",
 		"ramsey/uuid": "4.9.2",
 		"enshrined/svg-sanitize": "0.22.0",
 		"sebastian/diff": "7.0.0",
