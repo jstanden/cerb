@@ -21,7 +21,7 @@
 </table>
 
 <div class="cerb-code-editor-toolbar cerb-code-editor-toolbar--html">
-	<button type="button" class="cerb-code-editor-toolbar-button cerb-html-editor-toolbar-button--insert" title="Insert placeholder"><span class="cerb-icons cerb-icon-tags"></span></button>
+	<button type="button" class="cerb-code-editor-toolbar-button cerb-html-editor-toolbar-button--insert" title="Insert placeholder"><span class="cerb-icons cerb-icon-placeholders"></span></button>
 	<ul class="cerb-float" style="display:none;">
 		<li data-token="{literal}{{message_body}}{/literal}"><div><b>Message Body</b></div></li>
 		<li data-token="{literal}{{message_id_header}}{/literal}"><div><b>Message-Id Header</b></div></li>

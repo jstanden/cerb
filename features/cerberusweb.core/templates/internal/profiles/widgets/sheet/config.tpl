@@ -114,7 +114,7 @@
 					{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
 				</div>
 
-				<button type="button" class="cerb-code-editor-toolbar-button cerb-button-toolbar-insert" title="Insert placeholder"><span class="cerb-icons cerb-icon-tags"></span></button>
+				<button type="button" class="cerb-code-editor-toolbar-button cerb-button-toolbar-insert" title="Insert placeholder"><span class="cerb-icons cerb-icon-placeholders"></span></button>
 				<ul class="cerb-float" style="display:none;">
 					<li>
 						<div>{'common.sheet'|devblocks_translate|capitalize}</div>

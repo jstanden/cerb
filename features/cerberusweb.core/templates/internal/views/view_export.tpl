@@ -83,7 +83,7 @@
 	
 	<div id="export{$view_id}_tabBuild">
 		<div class="cerb-code-editor-toolbar">
-			<button type="button" title="{'common.placeholders'|devblocks_translate|capitalize}" class="cerb-code-editor-toolbar-button cerb-editor-button-event-placeholders"><span class="cerb-icons cerb-icon-tags"></span></button>
+			<button type="button" title="{'common.placeholders'|devblocks_translate|capitalize}" class="cerb-code-editor-toolbar-button cerb-editor-button-event-placeholders"><span class="cerb-icons cerb-icon-placeholders"></span></button>
 			<ul class="cerb-code-editor-toolbar-menu-placeholders cerb-float" style="width:250px;display:none;">
 				{tree keys=$placeholders}
 			</ul>
