@@ -65,16 +65,21 @@ class MailboxCron extends CerberusCronPageExtension {
 			$mailbox_runtime = microtime(true);
 			
 			$error = null;
-			
+			$error_code = 0;
+
 			try {
-				$client = $account->getClient($error);
+				$client = $account->getClient($error, $error_code);
 			} catch (Throwable $e) {
 				$client = false;
+				$error_code = $e->getCode();
 				if(!$error) $error = get_class($e);
 			}
-			
+
 			if(false === $client) {
 				$logger->error("[Mailboxes] Failed with error: " . $error);
+
+				// Record the failure for historical reporting (status = Horde error code; 0 = other/config)
+				$metrics->increment('cerb.mail.mailbox.errors', 1, ['mailbox_id' => $account->id, 'status' => intval($error_code)]);
 				
 				// Increment fails
 				$num_fails = $account->num_fails + 1;
@@ -273,12 +278,15 @@ class MailboxCron extends CerberusCronPageExtension {
 				
 			} catch (Horde_Imap_Client_Exception_ServerResponse $e) {
 				DevblocksPlatform::logError(sprintf('IMAP error [%d] %s :: %s', $e->status, $e->command, $e->status));
-				
+				$metrics->increment('cerb.mail.mailbox.errors', 1, ['mailbox_id' => $account->id, 'status' => intval($e->getCode())]);
+
 			} catch (Horde_Imap_Client_Exception $e) {
 				DevblocksPlatform::logException($e);
-			
+				$metrics->increment('cerb.mail.mailbox.errors', 1, ['mailbox_id' => $account->id, 'status' => intval($e->getCode())]);
+
 			} catch (Throwable $e) {
 				trigger_error($e->getMessage());
+				$metrics->increment('cerb.mail.mailbox.errors', 1, ['mailbox_id' => $account->id, 'status' => intval($e->getCode())]);
 			}
 			
 			// Clear the fail count if we had past fails

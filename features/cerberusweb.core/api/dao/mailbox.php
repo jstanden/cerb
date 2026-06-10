@@ -482,9 +482,10 @@ class Model_Mailbox extends DevblocksRecordModel {
 	
 	/**
 	 * @param string $error
+	 * @param int $error_code Horde_Imap_Client_Exception code on failure (0 = other/config)
 	 * @return Horde_Imap_Client_Base|false
 	 */
-	public function getClient(&$error=null) {
+	public function getClient(&$error=null, &$error_code=0) {
 		try {
 			$imap_timeout = $this->timeout_secs ?? 30;
 			
@@ -568,6 +569,7 @@ class Model_Mailbox extends DevblocksRecordModel {
 			
 		} catch (Horde_Imap_Client_Exception $e) {
 			$error = $e->getMessage();
+			$error_code = $e->getCode();
 			return false;
 		}
 	}
