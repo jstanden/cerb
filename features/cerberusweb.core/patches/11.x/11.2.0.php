@@ -949,6 +949,16 @@ $db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, 
 	time()
 ));
 
+$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, dimensions_kata, created_at, updated_at) ".
+	"VALUES (%s, %s, %s, %s, %d, %d)",
+	$db->qstr('cerb.mail.mailbox.received'),
+	$db->qstr('Count of messages downloaded from a mailbox'),
+	$db->qstr('counter'),
+	$db->qstr("record/mailbox_id:\n  record_type: mailbox\n"),
+	time(),
+	time()
+));
+
 // cerb.service.token.uses gained a `record/token_id` dimension during 11.2-dev (it only had scope +
 // client_ip). Fix the definition and drop the dimensionless samples — the metric isn't released, so
 // nothing depends on the old data.

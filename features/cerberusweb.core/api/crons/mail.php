@@ -7,7 +7,8 @@
 class MailboxCron extends CerberusCronPageExtension {
 	function run() {
 		$logger = DevblocksPlatform::services()->log();
-		
+		$metrics = DevblocksPlatform::services()->metrics();
+
 		$logger->info("[Mailboxes] Started Mailbox Checker job");
 		
 		if (!extension_loaded("mailparse")) {
@@ -235,7 +236,9 @@ class MailboxCron extends CerberusCronPageExtension {
 					rename($filename, dirname($filename) . DIRECTORY_SEPARATOR . basename($filename) . '.msg');
 					
 					$expunge_uids[] = $message->getUid();
-					
+
+					$metrics->increment('cerb.mail.mailbox.received', 1, ['mailbox_id' => $account->id]);
+
 					$logger->info(sprintf("[Mailboxes] Downloaded message %s as %s.msg (%d ms)",
 						$message->getUid(),
 						basename($filename),
