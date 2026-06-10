@@ -3158,9 +3158,6 @@ abstract class CerberusCronPageExtension extends DevblocksExtension {
 	 */
 	abstract function run();
 	
-	/**
-	 * @internal
-	 */
 	function _run() {
 		$is_concurrent = array_key_exists('parallel', $this->manifest->params);
 		
