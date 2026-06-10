@@ -401,14 +401,14 @@
     vertical-align: middle;
 }
 
-.cerb-interaction-popup--form-elements-llm-transcript [data-cerb-tool] svg {
+.cerb-interaction-popup--form-elements-llm-transcript [data-cerb-tool] .cerb-icons {
+    font-size: 20px;
     display: inline-block;
     vertical-align: middle;
 }
 
-.cerb-interaction-popup--form-elements-llm-transcript [data-cerb-tool] svg path {
-    fill: white;
-    stroke: white;
+.cerb-interaction-popup--form-elements-llm-transcript [data-cerb-dom=transcript-toolbar] button .cerb-icons {
+    font-size: 20px;
 }
 
 .cerb-interaction-popup--form-elements-sheet a {
@@ -767,4 +767,61 @@ svg.cerb-spinner circle {
         bottom: unset;
         top: 2.5vh;
     }
+}
+
+/* Cerb icons */
+
+.cerb-icons {
+    width: 1em;
+    height: 1em;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.cerb-icon-copy {
+    -webkit-mask-image: url(icon-copy.svg);
+    mask-image: url(icon-copy.svg);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    background-color: currentColor;
+}
+
+.cerb-icon-hammer {
+    -webkit-mask-image: url(icon-hammer.svg);
+    mask-image: url(icon-hammer.svg);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    background-color: currentColor;
+}
+
+.cerb-icon-thumbs-down {
+    -webkit-mask-image: url(icon-thumbs-down.svg);
+    mask-image: url(icon-thumbs-down.svg);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    background-color: currentColor;
+}
+
+.cerb-icon-thumbs-up {
+    -webkit-mask-image: url(icon-thumbs-up.svg);
+    mask-image: url(icon-thumbs-up.svg);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    background-color: currentColor;
 }
