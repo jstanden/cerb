@@ -4785,37 +4785,38 @@ class CerbQuickSearchLexer {
 			return false;
 		
 		$new_tokens = $tokens;
-			
+		$date_service = DevblocksPlatform::services()->date();
+
 		foreach($new_tokens as &$token) {
 			switch($token->type) {
 				case 'T_QUOTED_TEXT':
 				case 'T_TEXT':
 					$v = $token->value;
 					$matches = [];
-					
+
 					if(preg_match('#^([\!\=\>\<]+)(.*)#', $v, $matches)) {
 						$oper_hint = trim($matches[1]);
 						$v = trim($matches[2]);
-						
+
 						if(!is_numeric($v))
-							$v = floor(DevblocksPlatform::strTimeToSecs($v) / $interval);
-						
+							$v = floor($date_service->strTimeToSecs($v) / $interval);
+
 						$v = $oper_hint . $v;
-						
+
 					} else if(preg_match('#^(.*)?\.\.\.(.*)#', $v, $matches)) {
 						$from = trim($matches[1]);
 						$to = trim($matches[2]);
-						
+
 						if(!is_numeric($from))
-							$from = floor(DevblocksPlatform::strTimeToSecs($from) / $interval);
+							$from = floor($date_service->strTimeToSecs($from) / $interval);
 						if(!is_numeric($to))
-							$to = floor(DevblocksPlatform::strTimeToSecs($to) / $interval);
-						
+							$to = floor($date_service->strTimeToSecs($to) / $interval);
+
 						$v = sprintf("%s...%s", $from, $to);
-						
+
 					} else {
 						if(!is_numeric($v))
-							$v = floor(DevblocksPlatform::strTimeToSecs($v) / $interval);
+							$v = floor($date_service->strTimeToSecs($v) / $interval);
 					}
 					
 					$token->value = $v;
@@ -4823,10 +4824,10 @@ class CerbQuickSearchLexer {
 			}
 		}
 		unset($token);
-		
+
 		return $new_tokens;
 	}
-	
+
 	public static function getFieldByKey(string $key, array $fields) {
 		foreach($fields as $field) {
 			if(is_object($field) && $field->key == $key)

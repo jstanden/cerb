@@ -74,7 +74,44 @@ class _DevblocksDateManager {
 		
 		return strtotime($date_string, $now);
 	}
-	
+
+	// Expand compact duration units (e.g. 1h, 30m, 2w, 1mo) into the full words strtotime()
+	// understands. Note: `m` = minutes and `mo` = months (the longer unit is matched first).
+	// Anything that isn't a bare "<number><unit>" is returned unchanged for strtotime to parse.
+	public function expandHumanTimeAbbreviations(string $value) : string {
+		static $units = [
+			'mo' => 'month', 'mos' => 'month', 'month' => 'month', 'months' => 'month',
+			'y' => 'year', 'yr' => 'year', 'yrs' => 'year', 'year' => 'year', 'years' => 'year',
+			'w' => 'week', 'wk' => 'week', 'wks' => 'week', 'week' => 'week', 'weeks' => 'week',
+			'd' => 'day', 'day' => 'day', 'days' => 'day',
+			'h' => 'hour', 'hr' => 'hour', 'hrs' => 'hour', 'hour' => 'hour', 'hours' => 'hour',
+			'm' => 'minute', 'min' => 'minute', 'mins' => 'minute', 'minute' => 'minute', 'minutes' => 'minute',
+			's' => 'second', 'sec' => 'second', 'secs' => 'second', 'second' => 'second', 'seconds' => 'second',
+		];
+
+		if(preg_match('#^(\d+)\s*([a-z]+)$#i', trim($value), $matches)) {
+			$unit = DevblocksPlatform::strLower($matches[2]);
+
+			if(array_key_exists($unit, $units))
+				return $matches[1] . ' ' . $units[$unit]; // strtotime accepts a singular unit with any count
+		}
+
+		return $value;
+	}
+
+	public function strTimeToSecs($string) : int {
+		if(empty($string))
+			return 0;
+
+		// Expand compact units (1h, 30m, 2w, 1mo) into the words strtotime() understands
+		$string = $this->expandHumanTimeAbbreviations($string);
+
+		$now = time();
+		$then = strtotime("+".$string, $now);
+
+		return $then - $now;
+	}
+
 	/**
 	 * @param array $values
 	 * @return array|false
