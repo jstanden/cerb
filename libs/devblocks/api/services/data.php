@@ -49,6 +49,10 @@ class _DevblocksDataService {
 				$provider = new _DevblocksDataProviderDataQueryTypes();
 				return $provider->getSuggestions($type, $params);
 			
+			case 'metrics.subtotals':
+				$provider = new _DevblocksDataProviderMetricsSubtotals();
+				return $provider->getSuggestions($type, $params);
+
 			case 'metrics.timeseries':
 				$provider = new _DevblocksDataProviderMetricsTimeseries();
 				return $provider->getSuggestions($type, $params);
@@ -187,6 +191,11 @@ class _DevblocksDataService {
 				'name' => 'gpg.keyinfo',
 				'description' => 'Get info for a PGP public key',
 				'docs_url' => 'https://cerb.ai/docs/data-queries/gpg/keyinfo/',
+			],
+			[
+				'name' => 'metrics.subtotals',
+				'description' => 'Flat metric subtotals by dimension over a range (no binning or gap-fill)',
+				'docs_url' => 'https://cerb.ai/docs/data-queries/metrics/subtotals/',
 			],
 			[
 				'name' => 'metrics.timeseries',
@@ -396,14 +405,22 @@ class _DevblocksDataService {
 				
 				break;
 				
-			case 'metrics.timeseries':
-				$provider = new _DevblocksDataProviderMetricsTimeseries();
-				
+			case 'metrics.subtotals':
+				$provider = new _DevblocksDataProviderMetricsSubtotals();
+
 				if(false === ($results = $provider->getData($query, $chart_fields, $error)))
 					return false;
-				
+
 				break;
 				
+			case 'metrics.timeseries':
+				$provider = new _DevblocksDataProviderMetricsTimeseries();
+
+				if(false === ($results = $provider->getData($query, $chart_fields, $error)))
+					return false;
+
+				break;
+
 			case 'gpg.keyinfo':
 				$provider = new _DevblocksDataProviderGpgKeyInfo();
 				
