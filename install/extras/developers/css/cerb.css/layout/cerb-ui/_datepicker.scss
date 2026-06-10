@@ -1,0 +1,152 @@
+// Datepicker: a calendar popup bound to a text input (CerbUI.DatePicker). The popup is appended to <body>.
+// Structural + chrome only; colors are tokens, so dark mode is automatic (html.dark redefines them).
+
+// ── Input trigger button (trigger: 'button' mode) ────────────────────────
+.cerb-ui-datepicker--toggle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	vertical-align: middle;
+	background: transparent;
+	border: 1px solid var(--cerb-color-background-contrast-220);
+	cursor: pointer;
+	color: var(--cerb-color-text);
+	padding: 4px 5px;
+	border-radius: 6px;
+	line-height: 0;
+	transition: background 0.1s;
+
+	&:hover {
+		background: var(--cerb-color-background-contrast-240);
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--cerb-color-action-primary);
+		outline-offset: 1px;
+	}
+}
+
+.cerb-ui-datepicker {
+	position: absolute;
+	z-index: 10001; // above jQuery UI dialogs (~100s), .cerb-float popups (2500), and tooltips (10000)
+	background: var(--cerb-color-background);
+	color: var(--cerb-color-text);
+	border: 1px solid var(--cerb-color-background-contrast-220);
+	border-radius: 8px;
+	box-shadow: 0 0 10px 3px var(--cerb-color-shadow-menu);
+	width: 272px;
+	padding: 10px;
+	box-sizing: border-box;
+	user-select: none;
+}
+
+.cerb-ui-datepicker[hidden] {
+	display: none;
+}
+
+// ── Header ────────────────────────────────────────────────────────────────
+.cerb-ui-datepicker--header {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+	margin-bottom: 8px;
+}
+
+.cerb-ui-datepicker--caption {
+	flex: 1;
+	text-align: center;
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+.cerb-ui-datepicker--nav {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	color: var(--cerb-color-text);
+	padding: 4px 5px;
+	border-radius: 6px;
+	line-height: 0;
+	transition: background 0.1s;
+	flex-shrink: 0;
+
+	&:hover {
+		background: var(--cerb-color-background-contrast-240);
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--cerb-color-action-primary);
+		outline-offset: 1px;
+	}
+}
+
+// ── Weekday labels ────────────────────────────────────────────────────────
+.cerb-ui-datepicker--weekdays {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	margin-bottom: 4px;
+}
+
+.cerb-ui-datepicker--weekday {
+	text-align: center;
+	font-size: 11px;
+	font-weight: 600;
+	color: var(--cerb-color-background-contrast-150);
+	padding: 2px 0 4px;
+}
+
+// ── Days grid ─────────────────────────────────────────────────────────────
+.cerb-ui-datepicker--days {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	gap: 2px;
+}
+
+.cerb-ui-datepicker--day {
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	text-align: center;
+	padding: 0;
+	height: 32px;
+	border-radius: 6px;
+	color: var(--cerb-color-text);
+	line-height: 1;
+	transition: background 0.1s;
+
+	&:hover {
+		background: var(--cerb-color-background-contrast-240);
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--cerb-color-action-primary);
+		outline-offset: -1px;
+	}
+}
+
+.cerb-ui-datepicker--day-other {
+	color: var(--cerb-color-background-contrast-180);
+}
+
+.cerb-ui-datepicker--day-today {
+	font-weight: 700;
+	color: var(--cerb-color-action-primary);
+}
+
+.cerb-ui-datepicker--day-selected {
+	background: var(--cerb-color-action-primary);
+	color: var(--cerb-color-action-primary-text);
+	font-weight: 600;
+
+	&:hover {
+		background: var(--cerb-color-action-primary);
+		filter: brightness(0.92);
+	}
+
+	&.cerb-ui-datepicker--day-today {
+		color: var(--cerb-color-action-primary-text);
+	}
+}
