@@ -1,0 +1,89 @@
+// SelectMenu: a styled trigger that enhances a native <select> (CerbUI.SelectMenu). The dropdown itself is
+// a CerbUI.Menu, so only the trigger + the per-item adornments live here. Colors are tokens (dark mode
+// automatic).
+
+// Hide the native select — it stays in the DOM (hidden elements still submit in forms).
+.cerb-ui-selectmenu--source {
+	display: none;
+}
+
+.cerb-ui-selectmenu {
+	display: inline-flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.5em;
+	min-width: 12em;
+	max-width: 100%;
+	box-sizing: border-box;
+	padding: 0.4em 0.6em;
+	border: 1px solid var(--cerb-color-background-contrast-220);
+	border-radius: 6px;
+	background: var(--cerb-color-background);
+	color: var(--cerb-color-text);
+	cursor: pointer;
+	user-select: none;
+
+	&:hover {
+		border-color: var(--cerb-color-background-contrast-200);
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--cerb-color-action-primary);
+		outline-offset: 1px;
+	}
+
+	&[aria-disabled="true"] {
+		opacity: 0.6;
+		cursor: default;
+	}
+}
+
+// Holds the label + any leading icon/pip for the selected option; flexes so the text can truncate.
+.cerb-ui-selectmenu--value {
+	flex: 1 1 auto;
+	min-width: 0;
+	display: inline-flex;
+	align-items: center;
+	overflow: hidden;
+}
+
+.cerb-ui-selectmenu--text {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.cerb-ui-selectmenu--text-placeholder {
+	color: var(--cerb-color-background-contrast-150);
+}
+
+.cerb-ui-selectmenu--chevron {
+	flex-shrink: 0;
+	opacity: 0.7;
+	font-size: 0.85em;
+	transition: transform 0.15s ease;
+}
+
+.cerb-ui-selectmenu--open .cerb-ui-selectmenu--chevron {
+	transform: rotate(180deg);
+}
+
+// ── Adornments on the rendered menu items (inside a .cerb-ui-menu--item) ──
+
+// Leading icon from data-cerb-ui-icon
+.cerb-ui-selectmenu--icon {
+	flex-shrink: 0;
+	margin-right: 0.5em;
+	opacity: 0.8;
+}
+
+// The option matching the current value
+.cerb-ui-selectmenu--current {
+	font-weight: 600;
+}
+
+// Disabled option: muted + unclickable (keyboard Enter is also vetoed in JS)
+.cerb-ui-menu--item.cerb-ui-selectmenu--item-disabled {
+	opacity: 0.5;
+	pointer-events: none;
+}
