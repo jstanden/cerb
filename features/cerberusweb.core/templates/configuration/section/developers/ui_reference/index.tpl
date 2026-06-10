@@ -2108,6 +2108,15 @@ new CerbUI.Dialog(elB, { title: 'B', namespace: 'demo' });</pre>
 			<code class="cerb-uiref-utils--name" data-cerb-uiref-copy data-cerb-uiref-source title="Copy to clipboard">cerb-u-border-5</code>
 			<div><span class="cerb-ui-tile cerb-u-border-5">5px (border-1 … border-5)</span></div>
 
+			<code class="cerb-uiref-utils--name" data-cerb-uiref-copy data-cerb-uiref-source title="Copy to clipboard">cerb-u-rounded-2</code>
+			<div><span class="cerb-uiref-utils--box cerb-u-p-3 cerb-u-rounded-2"><span>6px (inputs/buttons)</span></span></div>
+
+			<code class="cerb-uiref-utils--name" data-cerb-uiref-copy data-cerb-uiref-source title="Copy to clipboard">cerb-u-rounded-4</code>
+			<div><span class="cerb-uiref-utils--box cerb-u-p-3 cerb-u-rounded-4"><span>10px (panels) — rounded-0 … rounded-4 (0/4/6/8/10px)</span></span></div>
+
+			<code class="cerb-uiref-utils--name" data-cerb-uiref-copy data-cerb-uiref-source title="Copy to clipboard">cerb-u-rounded-full</code>
+			<div><span class="cerb-uiref-utils--box cerb-u-px-3 cerb-u-rounded-full"><span>999px (pills)</span></span></div>
+
 			<code class="cerb-uiref-utils--name" data-cerb-uiref-copy data-cerb-uiref-source title="Copy to clipboard">cerb-u-flex-1</code>
 			<div style="display:flex;gap:0.5em;"><span class="cerb-uiref-utils--box cerb-u-flex-1"><span>flex-1</span></span><span class="cerb-uiref-utils--box cerb-u-flex-1"><span>flex-1</span></span></div>
 

@@ -32,6 +32,14 @@
 	.cerb-u-border-#{$i} { border-width: #{$i}px; }
 }
 
+// Border radius (rounded corners). Scale matches the design system's component radii:
+// 2 = inputs/buttons (6px), 3 = chips/menus (8px), 4 = panels (10px); -full pills it.
+$cerb-u-radii: (0: 0, 1: 4px, 2: 6px, 3: 8px, 4: 10px);
+@each $step, $r in $cerb-u-radii {
+	.cerb-u-rounded-#{$step} { border-radius: #{$r}; }
+}
+.cerb-u-rounded-full { border-radius: 999px; }
+
 // Flex container atoms — compose a row or a left/right split from these (one declaration each):
 // a centered split is `cerb-u-flex cerb-u-items-center cerb-u-justify-between`. Pair with cerb-u-gap-*
 // for spacing between children and cerb-u-flex-1..4 on the children for grow ratios.
