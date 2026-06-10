@@ -21,6 +21,11 @@
 		opacity: 0.6;
 	}
 
+	// Shared 1px floor tick under every series; neutral, matching the caption color
+	&--baseline {
+		fill: var(--cerb-color-background-contrast-150);
+	}
+
 	&--tick {
 		stroke: var(--cerb-color-background-contrast-200);
 		stroke-width: 1;

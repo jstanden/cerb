@@ -3195,6 +3195,9 @@ button > span.cerb-icons {
   fill: var(--cerb-color-background-contrast-230);
   opacity: 0.6;
 }
+.cerb-ui-sparkchart--baseline {
+  fill: var(--cerb-color-background-contrast-150);
+}
 .cerb-ui-sparkchart--tick {
   stroke: var(--cerb-color-background-contrast-200);
   stroke-width: 1;

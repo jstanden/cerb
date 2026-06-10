@@ -3,7 +3,8 @@
  * charting lib). Plots bar + line series against shared x categories; each series scales independently
  * (own min/max AND units). Bars are 0-based; lines range over their own min→max. The component never
  * formats data — it renders `series[].text[i]` (preformatted by the backend) and uses `values[]` only for
- * geometry. Categorical, not time-based: "time" is just pre-binned category labels. Bar series sharing a
+ * geometry. Categorical, not time-based: "time" is just pre-binned category labels. Every category gets a
+ * 1px neutral baseline tick under all series (so a no-activity bin still reads as "present", like a line at x=0). Bar series sharing a
  * `stack` key stack cumulatively and share one scale (the max of their per-category sums); line series
  * sharing a `scaleGroup` key share one min→max (so a min/avg/max band nests instead of each line filling
  * the full height on its own scale).
@@ -146,6 +147,21 @@ CerbUI.Sparkchart = class {
 				(s.values || []).forEach((v) => { if(v < g.min) g.min = v; if(v > g.max) g.max = v; });
 			}
 		});
+
+		// Shared baseline: a 1px neutral floor tick (bar width) per category, drawn under every series so
+		// bars/lines paint on top. A no-activity bin shows just this tick — like a line resting at x=0.
+		{
+			const bw = this._band * this.barWidth;
+			for(let i = 0; i < N; i++) {
+				const base = document.createElementNS(this.NS, 'rect');
+				base.setAttribute('class', 'cerb-ui-sparkchart--baseline');
+				base.setAttribute('x', (i + 0.5) * this._band - bw / 2);
+				base.setAttribute('y', baseline - 1);
+				base.setAttribute('width', bw);
+				base.setAttribute('height', 1);
+				svg.appendChild(base);
+			}
+		}
 
 		this.series.forEach((s, si) => {
 			const color = this._color(si, s);
