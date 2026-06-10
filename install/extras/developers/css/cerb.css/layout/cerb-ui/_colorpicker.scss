@@ -1,0 +1,201 @@
+// ColorPicker (CerbUI.ColorPicker): a color "well" (swatch + hex input) that opens a floating Photoshop-style
+// panel — an SV square, a hue strip, an optional alpha strip, and a palette swatch row. Chrome colors are
+// tokens (dark mode automatic); the gradient controls + checkerboard are intrinsic and stay literal.
+
+// A reusable transparency checkerboard (shows through alpha).
+@mixin cerb-ui-colorpicker-checkerboard($size: 8px) {
+	background-image:
+		linear-gradient(45deg, #b0b0b0 25%, transparent 25%),
+		linear-gradient(-45deg, #b0b0b0 25%, transparent 25%),
+		linear-gradient(45deg, transparent 75%, #b0b0b0 75%),
+		linear-gradient(-45deg, transparent 75%, #b0b0b0 75%);
+	background-size: $size $size;
+	background-position: 0 0, 0 $size * 0.5, $size * 0.5 (-$size * 0.5), -$size * 0.5 0;
+	background-color: #fff;
+}
+
+// ── The well (swatch + input, inline) ──────────────────────────────────────────
+
+.cerb-ui-colorpicker {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4em;
+	box-sizing: border-box;
+	padding: 0.25em 0.35em;
+	border: 1px solid var(--cerb-color-background-contrast-220);
+	border-radius: 6px;
+	background: var(--cerb-color-background);
+
+	&:focus-within {
+		border-color: var(--cerb-color-action-primary);
+	}
+}
+
+.cerb-ui-colorpicker--swatch {
+	flex-shrink: 0;
+	width: 1.6em;
+	height: 1.6em;
+	padding: 0;
+	border: 1px solid var(--cerb-color-background-contrast-210);
+	border-radius: 4px;
+	cursor: pointer;
+	overflow: hidden;
+	appearance: none;
+	box-shadow: none;
+	@include cerb-ui-colorpicker-checkerboard(8px); // wins over the global <button> gradient (class > element)
+
+	&:focus-visible {
+		outline: 2px solid var(--cerb-color-action-primary);
+		outline-offset: 1px;
+	}
+}
+
+// The actual color, painted over the checkerboard so alpha reads.
+.cerb-ui-colorpicker--swatch-fill {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+.cerb-ui-colorpicker--input {
+	border: 0;
+	outline: none;
+	background: transparent;
+	color: var(--cerb-color-text);
+	font-family: monospace;
+	min-width: 7em;
+	padding: 0;
+}
+
+// ── Floating panel ──────────────────────────────────────────────────────────────
+
+.cerb-ui-colorpicker--panel {
+	position: absolute;
+	z-index: 9100; // above .cerb-float (2500); aligns with datepicker/menu layering
+	box-sizing: border-box;
+	padding: 0.6em;
+	border: 1px solid var(--cerb-color-background-contrast-220);
+	border-radius: 8px;
+	background: var(--cerb-color-background);
+	box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+	user-select: none;
+
+	&[hidden] {
+		display: none;
+	}
+}
+
+.cerb-ui-colorpicker--body {
+	display: flex;
+	gap: 0.5em;
+	height: 160px;
+}
+
+// Saturation (x) / value (y) square. Base hue is set inline; the two gradients overlay white→clear and
+// clear→black to make the classic SV field.
+.cerb-ui-colorpicker--sv {
+	position: relative;
+	width: 160px;
+	border-radius: 4px;
+	cursor: crosshair;
+	touch-action: none;
+
+	&::before,
+	&::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		border-radius: 4px;
+	}
+
+	&::before { background: linear-gradient(to right, #fff, rgba(255, 255, 255, 0)); }
+	&::after  { background: linear-gradient(to top, #000, rgba(0, 0, 0, 0)); }
+}
+
+.cerb-ui-colorpicker--sv-thumb {
+	position: absolute;
+	z-index: 1;
+	width: 14px;
+	height: 14px;
+	margin: -7px 0 0 -7px;
+	border: 2px solid #fff;
+	border-radius: 50%;
+	box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4);
+	pointer-events: none;
+}
+
+// Vertical hue + alpha strips share thumb + sizing.
+.cerb-ui-colorpicker--hue,
+.cerb-ui-colorpicker--alpha {
+	position: relative;
+	width: 16px;
+	flex-shrink: 0;
+	border-radius: 4px;
+	cursor: pointer;
+	touch-action: none;
+}
+
+.cerb-ui-colorpicker--hue {
+	background: linear-gradient(
+		to bottom,
+		#f00 0%, #ff0 17%, #0f0 33%, #0ff 50%, #00f 67%, #f0f 83%, #f00 100%
+	);
+}
+
+.cerb-ui-colorpicker--alpha {
+	@include cerb-ui-colorpicker-checkerboard(8px);
+}
+
+// The opaque→transparent overlay; its colors are set inline from the current color.
+.cerb-ui-colorpicker--alpha-fill {
+	position: absolute;
+	inset: 0;
+	border-radius: 4px;
+}
+
+.cerb-ui-colorpicker--strip-thumb {
+	position: absolute;
+	z-index: 1;
+	left: -2px;
+	right: -2px;
+	height: 6px;
+	margin-top: -3px;
+	border: 2px solid #fff;
+	border-radius: 3px;
+	box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4);
+	pointer-events: none;
+}
+
+// ── Palette swatch row ──────────────────────────────────────────────────────────
+
+.cerb-ui-colorpicker--swatches {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.3em;
+	margin-top: 0.6em;
+	max-width: 200px;
+}
+
+.cerb-ui-colorpicker--swatch-cell {
+	width: 1.4em;
+	height: 1.4em;
+	padding: 0;
+	border: 1px solid var(--cerb-color-background-contrast-210);
+	border-radius: 4px;
+	cursor: pointer;
+	appearance: none;
+	box-shadow: none;
+	// The cell's color is set inline (background-color); clear the global <button> gradient image so it shows.
+	// The :hover override is needed because the global button:hover re-applies its own gradient.
+	background-image: none;
+
+	&:hover {
+		transform: scale(1.12);
+		background-image: none;
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--cerb-color-action-primary);
+		outline-offset: 1px;
+	}
+}
