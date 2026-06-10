@@ -7864,6 +7864,11 @@ UL.ui-autocomplete.ui-menu li.ui-menu-item.ui-state-focus {
     order: 1;
   }
 }
+@media screen and (max-width: 768px) {
+  .cerb-u-flex-1, .cerb-u-flex-2, .cerb-u-flex-3, .cerb-u-flex-4 {
+    flex-basis: 100%;
+  }
+}
 @media screen and (max-width: 700px) {
   .cerb-comment .cerb-comment--content {
     margin-left: 0;

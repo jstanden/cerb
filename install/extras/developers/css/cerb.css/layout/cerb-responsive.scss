@@ -20,6 +20,12 @@
 	}
 }
 
+// cerb-u-flex splits go full-width (stack) on narrow screens. Only affects flex-wrap parents —
+// a nowrap parent just shrinks the items as before.
+@media screen and (max-width:768px) {
+	.cerb-u-flex-1, .cerb-u-flex-2, .cerb-u-flex-3, .cerb-u-flex-4 { flex-basis: 100%; }
+}
+
 @media screen and (max-width:700px) {
 	.cerb-comment {
 		.cerb-comment--content {
