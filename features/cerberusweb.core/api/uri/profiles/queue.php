@@ -118,11 +118,15 @@ class PageSection_ProfilesQueue extends Extension_PageSection {
 			} else {
 				$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'] ?? null, 'string', '');
 				$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');
-				
+				$retry_max = DevblocksPlatform::importGPC($_POST['retry_max'] ?? null, 'integer', 0);
+				$retry_window_secs = DevblocksPlatform::importGPC($_POST['retry_window_secs'] ?? null, 'integer', 86400);
+
 				$error = null;
-				
+
 				$fields = [
 					DAO_Queue::NAME => $name,
+					DAO_Queue::RETRY_MAX => $retry_max,
+					DAO_Queue::RETRY_WINDOW_SECS => $retry_window_secs,
 					DAO_Queue::UPDATED_AT => time(),
 				];
 				

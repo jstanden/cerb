@@ -8,8 +8,10 @@ class DAO_Queue extends Cerb_ORMHelper {
 	const EXTENSION_PARAMS_JSON = 'extension_params_json';
 	const ID = 'id';
 	const NAME = 'name';
+	const RETRY_MAX = 'retry_max';
+	const RETRY_WINDOW_SECS = 'retry_window_secs';
 	const UPDATED_AT = 'updated_at';
-	
+
 	const _CACHE_ALL = 'queues_all';
 	
 	private function __construct() {}
@@ -56,6 +58,17 @@ class DAO_Queue extends Cerb_ORMHelper {
 				
 				return true;
 			})
+		;
+		$validation
+			->addField(self::RETRY_MAX)
+			->number()
+			->setMin(0)
+			->setMax(16)
+		;
+		$validation
+			->addField(self::RETRY_WINDOW_SECS)
+			->number()
+			->setMin(0)
 		;
 		$validation
 			->addField(self::UPDATED_AT)
@@ -170,7 +183,7 @@ class DAO_Queue extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, extension_id, extension_params_json, created_at, updated_at ".
+		$sql = "SELECT id, name, extension_id, extension_params_json, retry_max, retry_window_secs, created_at, updated_at ".
 			"FROM queue ".
 			$where_sql.
 			$sort_sql.
@@ -274,6 +287,8 @@ class DAO_Queue extends Cerb_ORMHelper {
 			$object->id = intval($row['id']);
 			$object->extension_id = $row['extension_id'];
 			$object->name = $row['name'];
+			$object->retry_max = intval($row['retry_max']);
+			$object->retry_window_secs = intval($row['retry_window_secs']);
 			$object->created_at = intval($row['created_at']);
 			$object->updated_at = intval($row['updated_at']);
 			
@@ -338,11 +353,15 @@ class DAO_Queue extends Cerb_ORMHelper {
 			"queue.id as %s, ".
 			"queue.name as %s, ".
 			"queue.extension_id as %s, ".
+			"queue.retry_max as %s, ".
+			"queue.retry_window_secs as %s, ".
 			"queue.created_at as %s, ".
 			"queue.updated_at as %s ",
 			SearchFields_Queue::ID,
 			SearchFields_Queue::NAME,
 			SearchFields_Queue::EXTENSION_ID,
+			SearchFields_Queue::RETRY_MAX,
+			SearchFields_Queue::RETRY_WINDOW_SECS,
 			SearchFields_Queue::CREATED_AT,
 			SearchFields_Queue::UPDATED_AT
 		);
@@ -402,6 +421,8 @@ class SearchFields_Queue extends DevblocksSearchFields {
 	const EXTENSION_ID = 'q_extension_id';
 	const ID = 'q_id';
 	const NAME = 'q_name';
+	const RETRY_MAX = 'q_retry_max';
+	const RETRY_WINDOW_SECS = 'q_retry_window_secs';
 	const UPDATED_AT = 'q_updated_at';
 	
 	static private $_fields = null;
@@ -432,7 +453,7 @@ class SearchFields_Queue extends DevblocksSearchFields {
 				} else {
 					if(null !== ($virtual_where_sql = self::_getWhereSQLForCommonVirtual($param, CerberusContexts::CONTEXT_QUEUE, self::getPrimaryKey())))
 						return $virtual_where_sql;
-					
+
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
 		}
@@ -476,6 +497,8 @@ class SearchFields_Queue extends DevblocksSearchFields {
 			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'queue', 'extension_id', $translate->_('common.extension'), null, true),
 			self::ID => new DevblocksSearchField(self::ID, 'queue', 'id', $translate->_('common.id'), null, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'queue', 'name', $translate->_('common.name'), null, true),
+			self::RETRY_MAX => new DevblocksSearchField(self::RETRY_MAX, 'queue', 'retry_max', 'Retry max', null, true),
+			self::RETRY_WINDOW_SECS => new DevblocksSearchField(self::RETRY_WINDOW_SECS, 'queue', 'retry_window_secs', 'Retry window', null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'queue', 'updated_at', $translate->_('common.updated'), null, true),
 		];
 		
@@ -502,6 +525,8 @@ class Model_Queue extends DevblocksRecordModel {
 	public $extension_params = [];
 	public $id = 0;
 	public $name = '';
+	public int $retry_max = 0;
+	public int $retry_window_secs = 86400;
 	public $updated_at = 0;
 	
 	public function getExtension() : Extension_QueueConsumer {
@@ -523,6 +548,8 @@ class View_Queue extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 			SearchFields_Queue::NAME,
 			SearchFields_Queue::EXTENSION_ID,
 			SearchFields_Queue::UPDATED_AT,
+			SearchFields_Queue::RETRY_MAX,
+			SearchFields_Queue::RETRY_WINDOW_SECS,
 		];
 		
 		$this->doResetCriteria();
@@ -656,6 +683,18 @@ class View_Queue extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Queue::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
+			'retry.max' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_Queue::RETRY_MAX),
+					'examples' => ['0', '>0', '8'],
+				),
+			'retry.window' => // human time, e.g. retry.window:>1h or retry.window:<1d
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER_SECONDS,
+					'options' => array('param_key' => SearchFields_Queue::RETRY_WINDOW_SECS),
+					'examples' => ['>1h', '<1d', '>30m', '<1mo'],
+				),
 			'updated' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
@@ -757,9 +796,11 @@ class View_Queue extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 				break;
 			
 			case SearchFields_Queue::ID:
+			case SearchFields_Queue::RETRY_MAX:
+			case SearchFields_Queue::RETRY_WINDOW_SECS:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
-			
+
 			case SearchFields_Queue::CREATED_AT:
 			case SearchFields_Queue::UPDATED_AT:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
@@ -838,7 +879,19 @@ class Context_Queue extends Extension_DevblocksContext implements IDevblocksCont
 				'context' => self::ID,
 			],
 		);
-		
+
+		$properties['retry_max'] = array(
+			'label' => 'Retry max',
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->retry_max,
+		);
+
+		$properties['retry_window_secs'] = array(
+			'label' => 'Retry window (secs)',
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->retry_window_secs,
+		);
+
 		$properties['updated'] = array(
 			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
 			'type' => Model_CustomField::TYPE_DATE,
@@ -939,9 +992,11 @@ class Context_Queue extends Extension_DevblocksContext implements IDevblocksCont
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
+			'retry_max' => $prefix.'Retry max',
+			'retry_window_secs' => $prefix.'Retry window (secs)',
 			'updated_at' => $prefix.$translate->_('common.updated'),
 		);
-		
+
 		// Token types
 		$token_types = array(
 			'_label' => 'context_url',
@@ -950,6 +1005,8 @@ class Context_Queue extends Extension_DevblocksContext implements IDevblocksCont
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'record_url' => Model_CustomField::TYPE_URL,
+			'retry_max' => Model_CustomField::TYPE_NUMBER,
+			'retry_window_secs' => Model_CustomField::TYPE_NUMBER,
 			'updated_at' => Model_CustomField::TYPE_DATE,
 		);
 		
@@ -975,6 +1032,8 @@ class Context_Queue extends Extension_DevblocksContext implements IDevblocksCont
 			$token_values['extension_id'] = $queue->extension_id;
 			$token_values['id'] = $queue->id;
 			$token_values['name'] = $queue->name;
+			$token_values['retry_max'] = $queue->retry_max;
+			$token_values['retry_window_secs'] = $queue->retry_window_secs;
 			$token_values['updated_at'] = $queue->updated_at;
 			
 			// Custom fields
@@ -995,6 +1054,8 @@ class Context_Queue extends Extension_DevblocksContext implements IDevblocksCont
 			'id' => DAO_Queue::ID,
 			'links' => '_links',
 			'name' => DAO_Queue::NAME,
+			'retry_max' => DAO_Queue::RETRY_MAX,
+			'retry_window_secs' => DAO_Queue::RETRY_WINDOW_SECS,
 			'updated_at' => DAO_Queue::UPDATED_AT,
 		];
 	}

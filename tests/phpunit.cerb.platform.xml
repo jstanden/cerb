@@ -11,6 +11,7 @@
 			<file>devblocks/services/DevblocksMfaTest.php</file>
 			<file>devblocks/services/DevblocksDictionaryTest.php</file>
 			<file>devblocks/services/DevblocksQueryTest.php</file>
+			<file>devblocks/services/DevblocksQueueTest.php</file>
 			<file>devblocks/services/DevblocksKataTest.php</file>
 			<file>devblocks/services/DevblocksTemplateBuilderTest.php</file>
 			<file>devblocks/services/DevblocksVObjectTest.php</file>

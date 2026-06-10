@@ -20,6 +20,15 @@ if(!array_key_exists('extension_params_json', $columns)) {
 	$changes[] = "ADD COLUMN extension_params_json TEXT";
 }
 
+// Per-queue retry policy: `retry_max` (0 = never retry) over `retry_window_secs`.
+if(!array_key_exists('retry_max', $columns)) {
+	$changes[] = "ADD COLUMN retry_max TINYINT UNSIGNED NOT NULL DEFAULT 0";
+}
+
+if(!array_key_exists('retry_window_secs', $columns)) {
+	$changes[] = "ADD COLUMN retry_window_secs INT UNSIGNED NOT NULL DEFAULT 86400";
+}
+
 if($changes) {
 	$db->ExecuteMaster("ALTER TABLE queue ".
 		implode(', ', $changes)
@@ -65,6 +74,12 @@ if(array_key_exists('status_at', $columns) && !array_key_exists('created_at', $c
 
 if(!array_key_exists('processed_at', $columns)) {
 	$changes[] = "ADD COLUMN processed_at INT UNSIGNED NOT NULL DEFAULT 0";
+}
+
+// Attempt counter on each message; backoff reuses `available_at`, and a message only
+// reaches terminal FAILED once `retry_count` hits the queue's `retry_max`.
+if(!array_key_exists('retry_count', $columns)) {
+	$changes[] = "ADD COLUMN retry_count TINYINT UNSIGNED NOT NULL DEFAULT 0";
 }
 
 if($changes) {
@@ -145,6 +160,12 @@ if(!$db->GetOneMaster("SELECT id FROM queue WHERE name = 'cerb.records.bulk_upda
 
 if(!$db->GetOneMaster("SELECT id FROM queue WHERE name = 'cerb.storage.migrations'"))
 	$db->ExecuteWriter("INSERT IGNORE INTO queue (name, created_at, updated_at, extension_id) VALUES ('cerb.storage.migrations', UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 'cerb.queue.consumer.internal')");
+
+if($revision < 1507) {
+	// storage.migrations opts into retries (8 attempts spread across 24h), so a transient
+	// backend outage self-heals instead of churning forever.
+	$db->ExecuteWriter("UPDATE queue SET retry_max=8, retry_window_secs=86400 WHERE name = 'cerb.storage.migrations'");
+}
 
 // ===========================================================================
 // Replace `devblocks_storage_queue_delete` table with `cerb.storage.migrations` queue

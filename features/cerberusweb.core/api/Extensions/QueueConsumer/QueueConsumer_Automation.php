@@ -101,7 +101,7 @@ class QueueConsumer_Automation extends Extension_QueueConsumer {
 			$handlers = $event_handler->parse($automations_kata, $dict, $error);
 
 			if(!$handlers) {
-				DAO_QueueMessage::reportFailure($uuids);
+				DAO_QueueMessage::reportFailure($messages);
 				$this->_logError($queue, $error ? sprintf("KATA error: %s", $error) : 'No enabled handler matched.');
 				continue;
 			}
@@ -116,7 +116,7 @@ class QueueConsumer_Automation extends Extension_QueueConsumer {
 			$exit_code = $results?->get('__exit');
 
 			if(!$results || $exit_code === 'error') {
-				DAO_QueueMessage::reportFailure($uuids);
+				DAO_QueueMessage::reportFailure($messages);
 				$err_msg = $results?->getKeyPath('__error.message') ?? $error ?? 'Unknown error';
 				$this->_logError($queue, $err_msg);
 			} else {

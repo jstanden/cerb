@@ -46,6 +46,16 @@
             </td>
         </tr>
 
+        <tr>
+            <td width="1%" nowrap="nowrap"><b>Retries:</b></td>
+            <td width="99%">
+                <input type="number" name="retry_max" value="{$model->retry_max|default:0}" min="0" max="16" style="width:5em;">
+                <small>max attempts (0 = never retry) over a window of</small>
+                <input type="number" name="retry_window_secs" value="{$model->retry_window_secs|default:86400}" min="0" style="width:7em;">
+                <small>seconds</small>
+            </td>
+        </tr>
+
         {if !empty($custom_fields)}
             {include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
         {/if}

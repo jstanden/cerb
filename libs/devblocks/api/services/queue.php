@@ -40,10 +40,31 @@ class _DevblocksQueueService {
 			if($db->GetOneMaster(sprintf("SELECT GET_LOCK(%s, 0)", $db->qstr($slot_name))))
 				return $slot;
 		}
-		
+
 		return null;
 	}
-	
+
+	const int RETRY_BACKOFF_MIN_SECS = 10;
+
+	/**
+	 * Exponential backoff spreading `retry_max` attempts across `retry_window_secs`. The
+	 * intervals for k=0..retry_max-1 form a geometric series summing to the window, so the
+	 * final retry lands ~one window after the first failure. Pure/stateless — pass the
+	 * queue's retry policy fields in.
+	 */
+	public static function getRetryBackoffSecs(int $retry_count, int $retry_max, int $retry_window_secs) : int {
+		if($retry_max <= 0)
+			return 0;
+
+		// Cap the exponent so 2^retry_max can't overflow and early intervals stay sane
+		$retry_max = min($retry_max, 16);
+		$retry_count = max(0, min($retry_count, $retry_max - 1));
+
+		$delay = (int) floor($retry_window_secs * (2 ** $retry_count) / ((2 ** $retry_max) - 1));
+
+		return max(self::RETRY_BACKOFF_MIN_SECS, $delay);
+	}
+
 	/**
 	 * @param string $queue_name
 	 * @param array $messages
@@ -90,11 +111,16 @@ class _DevblocksQueueService {
 
 	public function reportFailure(array $messages, string $message='', array $metadata=[]) : void {
 		$metrics = DevblocksPlatform::services()->metrics();
-		foreach($messages as $queue_message) {
+		foreach($messages as $queue_message) { /* @var $queue_message Model_QueueMessage */
 			// Count each message once; the buffer dedupes re-reports of the same uuid
 			if(!array_key_exists($queue_message->uuid, $this->_status_buffer['failure']))
 				$metrics->increment('cerb.queue.messages.processed', 1, ['queue_id' => $queue_message->queue_id, 'job_id' => $queue_message->job_id, 'status_id' => QueueMessageStatus::FAILED->value]);
-			$this->_status_buffer['failure'][$queue_message->uuid] = true;
+			// Buffer the model (payload stripped) so publish() has queue_id + retry_count
+			// for retry decisions without re-querying.
+			$buffered = clone($queue_message, [
+				"message" => null
+			]);
+			$this->_status_buffer['failure'][$queue_message->uuid] = $buffered;
 		}
 		$this->_trackJobIds($messages);
 		$this->_bufferLogEntry($messages, 3 /* ERROR */, $message, $metadata);
@@ -145,7 +171,7 @@ class _DevblocksQueueService {
 		}
 		
 		if($this->_status_buffer['failure']) {
-			DAO_QueueMessage::reportFailure(array_keys($this->_status_buffer['failure']));
+			DAO_QueueMessage::reportFailure(array_values($this->_status_buffer['failure']));
 			$this->_status_buffer['failure'] = [];
 		}
 
