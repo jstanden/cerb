@@ -87,11 +87,13 @@
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $tabs = $('#widget{$widget->id}ConfigTabs').tabs();
-	
-	$tabs.find('input:text.color-picker').minicolors({
-		swatches: ['#CF2C1D','#FEAF03','#57970A','#D5D5D5','#ADADAD','#34434E','#FFFFFF']
+
+	$tabs.find('input:text.color-picker').each(function() {
+		new CerbUI.ColorPicker(this, {
+			palette: ['#CF2C1D','#FEAF03','#57970A','#007CBD','#7047BA','#D5D5D5','#ADADAD','#34434E']
+		});
 	});
-	
+
 	var $datasource_tab = $('#widget{$widget->id}ConfigTabDatasource');
 	
 	$datasource_tab.find('select.datasource-selector').change(function() {

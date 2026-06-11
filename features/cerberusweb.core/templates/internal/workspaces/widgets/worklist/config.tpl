@@ -64,11 +64,13 @@ $(function() {
 	var $config = $('#widget{$widget->id}Config');
 	var $select = $config.find("select[name='params[context]']");
 	var $columns = $config.find('div.cerb-columns');
-	
-	$config.find('input:text.color-picker').minicolors({
-		swatches: ['#6a87db','#9a9a9a','#CF2C1D','#FEAF03','#57970A','#9669DB','#626c70']
+
+	$config.find('input:text.color-picker').each(function() {
+		new CerbUI.ColorPicker(this, {
+			palette: ['#6a87db','#9a9a9a','#CF2C1D','#FEAF03','#57970A','#9669DB','#626c70']
+		});
 	});
-	
+
 	var $editors = $config.find('textarea[data-editor-mode="ace/mode/cerb_query"]')
 		.cerbCodeEditor()
 		.cerbCodeEditorAutocompleteSearchQueries({

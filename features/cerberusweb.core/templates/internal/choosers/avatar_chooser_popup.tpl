@@ -58,10 +58,10 @@ $(function() {
 		var $spinner = $popup.find('svg.cerb-spinner');
 		var $bgcolor_well = $popup.find('input.color-picker');
 
-		$bgcolor_well.minicolors({
-			swatches: ['#CF2C1D','#FEAF03','#57970A','#007CBD','#7047BA','#CF25F5','#ADADAD','#34434E', '#FFFFFF'],
+		const color_picker = new CerbUI.ColorPicker($bgcolor_well.get(0), {
+			palette: ['#CF2C1D','#FEAF03','#57970A','#007CBD','#7047BA','#CF25F5','#ADADAD','#34434E', '#FFFFFF'],
 			opacity: true,
-			change: function() {
+			onChange: function(hex, rgba, input) {
 				$canvas.trigger('avatar-redraw');
 			}
 		});
@@ -109,7 +109,7 @@ $(function() {
 		});
 		
 		$canvas.on('avatar-redraw', function() {
-			var bgcolor = $bgcolor_well.minicolors('rgbaString');
+			let bgcolor = color_picker.getValue();
 			
 			context.save();
 			
@@ -153,7 +153,7 @@ $(function() {
 			scale = 1.0;
 			x = 0;
 			y = 0;
-			$bgcolor_well.minicolors('value', { color: '#ffffff', opacity:0 });
+			color_picker.setValue('#ffffff');
 			$(img).attr('src', '');
 			$canvas.trigger('avatar-redraw');
 		});
@@ -166,7 +166,7 @@ $(function() {
 
 			if('#ffffff' === bgcolor) {
 				bgcolor = '#1e5271';
-				$bgcolor_well.minicolors('value', { color: bgcolor, opacity:0 });
+				color_picker.setValue(bgcolor);
 			}
 
 			let txt = e.text;
@@ -229,7 +229,7 @@ $(function() {
 				x = 0;
 				y = 0;
 				$(img).one('load', function() {
-					$bgcolor_well.minicolors('value', { color: '#ffffff', opacity:1 });
+					color_picker.setValue('#ffffffff');
 					$canvas.trigger('avatar-redraw');
 				});
 				$(img).attr('src', json.imageData);

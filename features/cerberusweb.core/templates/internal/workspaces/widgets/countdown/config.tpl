@@ -16,9 +16,11 @@
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $fieldset = $('fieldset#widget{$widget->id}Datasource');
-	
-	$fieldset.find('input:text.color-picker').minicolors({
-		swatches: ['#CF2C1D','#FEAF03','#57970A','#007CBD','#7047BA','#D5D5D5','#ADADAD','#34434E']
+
+	$fieldset.find('input:text.color-picker').each(function() {
+		new CerbUI.ColorPicker(this, {
+			palette: ['#CF2C1D','#FEAF03','#57970A','#007CBD','#7047BA','#D5D5D5','#ADADAD','#34434E']
+		});
 	});
 });
 </script>

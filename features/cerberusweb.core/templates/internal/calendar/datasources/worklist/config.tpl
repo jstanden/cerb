@@ -88,8 +88,10 @@ $div.find('select.field_start_date').change(function(e) {
 	var $this = $(this);
 });
 
-$div.find('input:text.color-picker').minicolors({
-	swatches: ['#A0D95B','#FEAF03','#FCB3B3','#FF6666','#C5DCFA','#85BAFF','#E8F554','#F4A3FE','#C8C8C8']
+$div.find('input:text.color-picker').each(function() {
+	new CerbUI.ColorPicker(this, {
+		palette: ['#A0D95B','#FEAF03','#FCB3B3','#FF6666','#C5DCFA','#85BAFF','#E8F554','#F4A3FE','#C8C8C8']
+	});
 });
 
 $div.find('select.context').change(function(e) {

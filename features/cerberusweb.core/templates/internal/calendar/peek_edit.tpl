@@ -250,11 +250,13 @@ $(function() {
 		});
 		
 		// Options
-		
-		$popup.find('fieldset.calendar-events input:text.color-picker').minicolors({
-			swatches: ['#A0D95B','#FEAF03','#FCB3B3','#FF6666','#C5DCFA','#85BAFF','#E8F554','#F4A3FE','#C8C8C8']
+
+		$popup.find('fieldset.calendar-events input:text.color-picker').each(function() {
+			new CerbUI.ColorPicker(this, {
+				palette: ['#A0D95B','#FEAF03','#FCB3B3','#FF6666','#C5DCFA','#85BAFF','#E8F554','#F4A3FE','#C8C8C8']
+			});
 		});
-		
+
 		$popup.find('select.datasource-selector').change(function(e) {
 			var $select = $(this);
 			var extension_id = $select.val();

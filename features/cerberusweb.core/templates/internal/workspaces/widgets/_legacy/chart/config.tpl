@@ -94,11 +94,13 @@ $(function() {
 	var $fieldset_subtotals = $config.find('fieldset.option-subtotals');
 	var $option_subtotals_column = $fieldset_subtotals.find('div.option-subtotals-column');
 	var $option_subtotals_row = $fieldset_subtotals.find('div.option-subtotals-row');
-	
-	$tabs.find('input:text.color-picker').minicolors({
-		swatches: ['#CF2C1D','#FEAF03','#57970A','#007CBD','#7047BA','#D5D5D5','#ADADAD','#34434E']
+
+	$tabs.find('input:text.color-picker').each(function() {
+		new CerbUI.ColorPicker(this, {
+			palette: ['#CF2C1D','#FEAF03','#57970A','#007CBD','#7047BA','#D5D5D5','#ADADAD','#34434E']
+		});
 	});
-	
+
 	$tabs.find('select.datasource-selector').change(function() {
 		datasource=$(this).val();
 		$div_params=$(this).closest('fieldset').find('DIV.datasource-params');
