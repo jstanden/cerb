@@ -2147,7 +2147,7 @@ new CerbUI.Dialog(elB, { title: 'B', namespace: 'demo' });</pre>
 
 		{* Example: unsaved-changes guard — warn before closing once a control is actually changed *}
 		<div class="cerb-ui-header">
-			<div class="cerb-ui-header--label">Unsaved-changes guard (<code>closeWarnOnUnsavedChanges</code>) &mdash; warns before closing <b>only after</b> a tracked control actually changes (typing, a toggle, a menu); merely having inputs never nags. Fires on every close path: the ×, <b>Esc</b>, and the tray's <b>Close all</b>. Add <code>data-cerb-ui-dialog-no-dirty</code> to a control (or any ancestor) to exclude it</div>
+			<div class="cerb-ui-header--label">Unsaved-changes guard (<code>closeWarnOnUnsavedChanges</code>) &mdash; warns before closing <b>only after</b> a tracked control actually changes (typing, a toggle, a menu); merely having inputs never nags. Fires on every close path: the ×, <b>Esc</b>, and the tray's <b>Close all</b>. Add <code>data-cerb-ui-dialog-no-dirty</code> to a control (or any ancestor) to exclude it. Left dirty &amp; minimized, it also guards a page reload / back-forward / close (native browser prompt)</div>
 		</div>
 		<div class="cerb-uiref-example">
 			<div class="cerb-uiref-demo">

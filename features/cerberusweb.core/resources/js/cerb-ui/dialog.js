@@ -52,7 +52,8 @@
  *   pre-filling values programmatically doesn't count. Add `data-cerb-ui-dialog-no-dirty` to a control (or
  *   any ancestor — e.g. a search form) to exclude it from tracking. A save-success path should call
  *   `markClean()` before/instead of `close()` so a successful save never trips the warning; `isDirty()`
- *   reports the current state.
+ *   reports the current state. A dirty dialog left minimized in the tray also raises the browser's native
+ *   leave-page prompt on reload / back-forward / close (custom modals aren't allowed during unload).
  *
  * Placement: opens centered horizontally, near the top (a one-titlebar-height gap), like the legacy
  *   genericAjaxPopup — never vertically centered, so tall/growing content extends downward rather than
@@ -84,6 +85,33 @@ CerbUI.Dialog = class {
 	static _minimized = new Set();     // dialogs docked in the top-right tray
 	static _tray = null;               // the shared tray button (lazily built)
 	static _trayMenu = null;           // the open tray menu, if any (so a re-click toggles it shut)
+	static _unloadHandler = null;      // beforeunload guard, attached only while a dirty tray popup exists
+
+	// True when any minimized tray popup has unsaved edits (and opted into the close warning) — these would
+	// be silently lost on reload / back-forward / close, which the close guard never sees.
+	static _anyUnsavedMinimized() {
+		for(const d of CerbUI.Dialog._minimized)
+			if(d._dirty && d.opts.closeWarnOnUnsavedChanges) return true;
+		return false;
+	}
+
+	// Keep a beforeunload listener attached only while such a popup exists. A permanently-registered
+	// beforeunload disables the back-forward cache, so detach it the moment nothing qualifies.
+	static _syncUnloadGuard() {
+		const need = CerbUI.Dialog._anyUnsavedMinimized();
+		if(need && !CerbUI.Dialog._unloadHandler) {
+			CerbUI.Dialog._unloadHandler = (e) => {
+				if(!CerbUI.Dialog._anyUnsavedMinimized()) return; // re-check at fire time
+				// Custom modals are forbidden during unload — only the browser's generic prompt can show.
+				e.preventDefault();
+				e.returnValue = '';
+			};
+			window.addEventListener('beforeunload', CerbUI.Dialog._unloadHandler);
+		} else if(!need && CerbUI.Dialog._unloadHandler) {
+			window.removeEventListener('beforeunload', CerbUI.Dialog._unloadHandler);
+			CerbUI.Dialog._unloadHandler = null;
+		}
+	}
 
 	// Keep the top-right tray button in sync with the minimized set: hidden at 0, else a window icon + count.
 	static _syncTray() {
@@ -286,6 +314,7 @@ CerbUI.Dialog = class {
 			if(t.type === 'hidden') return;                           // hidden inputs aren't user-editable
 			if(t.closest('[data-cerb-ui-dialog-no-dirty]')) return;   // opted-out control / subtree
 			this._dirty = true;
+			CerbUI.Dialog._syncUnloadGuard(); // editing an already-minimized dialog now guards page unload
 		};
 
 		const titleId = `cerb-ui-dialog-${this.uid}-title`;
@@ -501,6 +530,7 @@ CerbUI.Dialog = class {
 			this.el.classList.remove('cerb-ui-dialog--minimized');
 			CerbUI.Dialog._minimized.delete(this);
 			CerbUI.Dialog._syncTray();
+			CerbUI.Dialog._syncUnloadGuard();
 		}
 
 		if(this.docKeydown) {
@@ -526,7 +556,7 @@ CerbUI.Dialog = class {
 	// Unsaved-changes tracking. A save-success handler should markClean() before (or instead of) close()
 	// so a successful save never trips the discard warning (every close path guards on _dirty).
 	isDirty()   { return this._dirty; }
-	markClean() { this._dirty = false; }
+	markClean() { this._dirty = false; CerbUI.Dialog._syncUnloadGuard(); }
 
 	setTitle(title) {
 		this.opts.title = title;
@@ -547,6 +577,7 @@ CerbUI.Dialog = class {
 		}
 		if(this._resizeObs) this._resizeObs.disconnect();
 		if(CerbUI.Dialog._minimized.delete(this)) CerbUI.Dialog._syncTray();
+		CerbUI.Dialog._syncUnloadGuard();
 		if(CerbUI.Dialog._pageDialogs.delete(this)) CerbUI.Dialog._syncPageHeight();
 
 		// Teardown without invoking onClose — destroy is always forceful.
@@ -620,6 +651,7 @@ CerbUI.Dialog = class {
 		this.el.classList.add('cerb-ui-dialog--minimized'); // display:none — the tray represents it now
 		CerbUI.Dialog._minimized.add(this);
 		CerbUI.Dialog._syncTray();
+		CerbUI.Dialog._syncUnloadGuard(); // a dirty dialog docked in the tray now guards page unload
 		CerbUI.Dialog._syncPageHeight(); // hidden → drops out of the page-height calc
 		if(this.opts.onMinimize) this.opts.onMinimize(true);
 	}
@@ -631,6 +663,7 @@ CerbUI.Dialog = class {
 		this.el.classList.remove('cerb-ui-dialog--minimized');
 		CerbUI.Dialog._minimized.delete(this);
 		CerbUI.Dialog._syncTray();
+		CerbUI.Dialog._syncUnloadGuard(); // no longer in the tray → may drop the unload guard
 		this._positionDefault();
 		this.bringToFront();
 		CerbUI.Dialog._syncPageHeight();
