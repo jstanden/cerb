@@ -1940,6 +1940,7 @@ new CerbUI.Tabs(ul, {
 	namespace:  'ticket',     // siblings share position + close each other (default: per-instance)
 	fixed:      false,        // position:fixed instead of absolute (default false)
 	closeOnEscape: true,      // topmost dialog only (default true)
+	closeWarnOnUnsavedChanges: false, // warn before closing once a control is actually changed (default false)
 	// dragHandle: '[data-cerb-ui-dialog-drag]', // drag region for header:'floating'|'none'
 	onOpen:    function() {},
 	onClose:   function() { /* return false to veto the close */ },
@@ -1947,7 +1948,7 @@ new CerbUI.Tabs(ul, {
 	onDragged:  function(x, y) {},
 	onResized:  function(w, h) {},
 });
-dlg.open();   // also: dlg.close(); dlg.isOpen(); dlg.setTitle('…'); dlg.destroy();
+dlg.open();   // also: dlg.close(); dlg.isOpen(); dlg.setTitle('…'); dlg.isDirty(); dlg.markClean(); dlg.destroy();
 
 // also fires DOM events on the content element:
 el.addEventListener('cerb-ui-dialog:open',  () =&gt; {});
@@ -2000,7 +2001,7 @@ new CerbUI.Dialog(el, { header: 'floating', title: 'Helio Inc' }); // no titleba
 
 		{* Example: minimize / drag / resize, reporting callbacks *}
 		<div class="cerb-ui-header">
-			<div class="cerb-ui-header--label">Minimize, drag &amp; resize &mdash; the caret docks the window into the top-right tray (a window icon + count); click the tray to restore. Open a few and minimize them; <code>onMinimize</code>/<code>onResized</code> fire</div>
+			<div class="cerb-ui-header--label">Minimize, drag &amp; resize &mdash; the caret docks the window into the top-right tray (a window icon + count); click the tray to restore, or pick <b>Close all</b> when several are docked. Open a few and minimize them; <code>onMinimize</code>/<code>onResized</code> fire</div>
 		</div>
 		<div class="cerb-uiref-example">
 			<div class="cerb-uiref-demo">
@@ -2035,6 +2036,31 @@ new CerbUI.Dialog(elB, { title: 'B', namespace: 'demo' });</pre>
 		<div class="cerb-uiref-example">
 			<div class="cerb-uiref-demo">
 				<button type="button" class="cerb-ui-button" id="uiref-dialog-alert-btn">Show alert</button>
+			</div>
+		</div>
+
+		{* Example: unsaved-changes guard — warn before closing once a control is actually changed *}
+		<div class="cerb-ui-header">
+			<div class="cerb-ui-header--label">Unsaved-changes guard (<code>closeWarnOnUnsavedChanges</code>) &mdash; warns before closing <b>only after</b> a tracked control actually changes (typing, a toggle, a menu); merely having inputs never nags. Fires on every close path: the ×, <b>Esc</b>, and the tray's <b>Close all</b>. Add <code>data-cerb-ui-dialog-no-dirty</code> to a control (or any ancestor) to exclude it</div>
+		</div>
+		<div class="cerb-uiref-example">
+			<div class="cerb-uiref-demo">
+				<button type="button" class="cerb-ui-button" id="uiref-dialog-dirty-btn">Open edit form</button>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>{literal}new CerbUI.Dialog(el, { title: 'Edit ticket', closeWarnOnUnsavedChanges: true });
+
+&lt;!-- exclude an already-persisted control (or a whole region) from dirty-tracking --&gt;
+&lt;input type="search" data-cerb-ui-dialog-no-dirty&gt;
+
+// a successful save should clear the flag so closing doesn't re-warn:
+function onSaved(el) {
+	const dlg = CerbUI.Dialog.from(el);
+	dlg.markClean();   // also: dlg.isDirty()
+	dlg.close();
+}{/literal}</pre>
 			</div>
 		</div>
 
@@ -2114,6 +2140,38 @@ CerbUI.Dialog.fromAjax('c=profiles&amp;a=invoke&amp;module=snippet&amp;action=he
 					<div></div>
 					<div class="cerb-ui-header--right">
 						<button type="button" class="cerb-ui-button" id="uiref-dialog-alert-ok">OK</button>
+					</div>
+				</div>
+			</div>
+
+			<div id="uiref-dialog-dirty-content" style="line-height:1.5;">
+				<p style="margin-top:0;">Change any field, then try to close (the ×, <b>Esc</b>, or minimize then <b>Close all</b>) &mdash; you'll be asked to confirm. Close it untouched and it just closes.</p>
+				<form class="cerb-ui-form" style="max-width:360px;">
+					<div class="cerb-ui-form--field">
+						<label class="cerb-ui-form--label">Subject</label>
+						<input type="text" placeholder="Type to make me dirty…">
+					</div>
+					<div class="cerb-ui-form--field">
+						<label class="cerb-ui-form--label">Status</label>
+						<select id="uiref-dialog-dirty-select">
+							<option>Open</option>
+							<option>Waiting</option>
+							<option>Closed</option>
+						</select>
+					</div>
+					<div class="cerb-ui-form--field">
+						<label class="cerb-ui-form--label">Notify subscribers</label>
+						<label class="cerb-ui-toggle" id="uiref-dialog-dirty-toggle"><input type="checkbox"><span class="cerb-ui-toggle--slider"></span></label>
+					</div>
+					<div class="cerb-ui-form--field">
+						<label class="cerb-ui-form--label">Search <span class="cerb-ui-form--hint">excluded via data-cerb-ui-dialog-no-dirty</span></label>
+						<input type="search" data-cerb-ui-dialog-no-dirty placeholder="Already persisted — won't warn">
+					</div>
+				</form>
+				<div class="cerb-ui-header cerb-ui-header--tight" style="margin-bottom:0;">
+					<div></div>
+					<div class="cerb-ui-header--right">
+						<button type="button" class="cerb-ui-button" id="uiref-dialog-dirty-save">Save</button>
 					</div>
 				</div>
 			</div>
@@ -2682,6 +2740,18 @@ CerbUI.Dialog.fromAjax('c=profiles&amp;a=invoke&amp;module=snippet&amp;action=he
 		wire('uiref-dialog-ns-b-btn', 'uiref-dialog-ns-b-content', { title: 'B', namespace: 'uiref-dlg-ns', width: 360 });
 
 		wire('uiref-dialog-alert-btn', 'uiref-dialog-alert-content', { title: 'Heads up', draggable: false, resizable: false, width: 360 });
+
+		// Unsaved-changes guard: a form dialog that warns once a tracked control is actually changed
+		const dirtyDlg = wire('uiref-dialog-dirty-btn', 'uiref-dialog-dirty-content', { title: 'Edit ticket', width: 420, closeWarnOnUnsavedChanges: true });
+		if(dirtyDlg) {
+			const dirtySelect = document.getElementById('uiref-dialog-dirty-select');
+			if(dirtySelect && CerbUI.SelectMenu) new CerbUI.SelectMenu(dirtySelect);
+			const dirtyToggle = document.getElementById('uiref-dialog-dirty-toggle');
+			if(dirtyToggle && CerbUI.Toggle) new CerbUI.Toggle(dirtyToggle);
+			// Save clears the dirty flag before closing, so a successful save never trips the warning
+			const dirtySave = document.getElementById('uiref-dialog-dirty-save');
+			if(dirtySave) dirtySave.addEventListener('click', function() { dirtyDlg.markClean(); dirtyDlg.close(); });
+		}
 
 		// Footer buttons that close their own dialog
 		['uiref-dialog-modal-cancel', 'uiref-dialog-alert-ok'].forEach(function(id) {

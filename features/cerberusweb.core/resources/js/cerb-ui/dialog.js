@@ -40,8 +40,19 @@
  *
  * Options: title, header ('bar'|'floating'|'none'), draggable, resizable, closable, minimizable, modal,
  *   width, minWidth, minHeight, position {x,y}, namespace (siblings share position + close each other),
- *   fixed, scrollBody, closeOnEscape, dragHandle (selector), onOpen, onClose (return false to veto),
- *   onMinimize, onDragged, onResized. Also dispatches `cerb-ui-dialog:open` / `:close` on the content element.
+ *   fixed, scrollBody, closeOnEscape, closeWarnOnUnsavedChanges, dragHandle (selector), onOpen,
+ *   onClose (return false to veto), onMinimize, onDragged, onResized. Also dispatches `cerb-ui-dialog:open`
+ *   / `:close` on the content element.
+ *
+ * Unsaved-changes guard (`closeWarnOnUnsavedChanges`, default off):
+ *   When on, the first time the user actually changes a tracked form control (typing, a toggle, a menu,
+ *   a checkbox/radio, a select) flips the dialog "dirty". Any close after that — ESC, the (x) button, or
+ *   the tray's Close-all — first asks "Discard changes?" (confirmPopup) before the onClose hook runs;
+ *   Cancel keeps it open, OK proceeds. Merely *having* inputs never warns (unlike the legacy popups), and
+ *   pre-filling values programmatically doesn't count. Add `data-cerb-ui-dialog-no-dirty` to a control (or
+ *   any ancestor — e.g. a search form) to exclude it from tracking. A save-success path should call
+ *   `markClean()` before/instead of `close()` so a successful save never trips the warning; `isDirty()`
+ *   reports the current state.
  *
  * Placement: opens centered horizontally, near the top (a one-titlebar-height gap), like the legacy
  *   genericAjaxPopup — never vertically centered, so tall/growing content extends downward rather than
@@ -218,6 +229,7 @@ CerbUI.Dialog = class {
 			closable:   true,
 			minimizable: null, // resolved below: default true for any header with controls ('bar' / 'floating')
 			modal:      false,
+			closeWarnOnUnsavedChanges: false, // warn before closing once a tracked form control is actually changed
 			scrollBody: false, // true = cap to the viewport and scroll the body; default grows + page scrolls
 			width:      null,  // null = 75% of the viewport capped at _MAX_WIDTH (mobile: always 95%)
 			minWidth:   200,
@@ -250,6 +262,7 @@ CerbUI.Dialog = class {
 		this.y = 0;
 		this.minimized = false;
 		this._open = false;
+		this._dirty = false;              // set true once the user actually changes a tracked form control
 		this.docKeydown = null;
 		this.backdrop = null;
 		this.minimizeBtn = null;
@@ -263,6 +276,17 @@ CerbUI.Dialog = class {
 		this.origNextSibling = contentEl.nextSibling;
 
 		this.onPointerDown = this.onPointerDown.bind(this);
+
+		// Flip _dirty the first time the user actually changes a tracked control (typing, toggle, menu,
+		// checkbox/radio, select). Native events bubble — CerbUI Toggle/SelectMenu dispatch `change` too.
+		this._onDirty = (e) => {
+			if(this._dirty) return; // already dirty — nothing more to track
+			const t = e.target;
+			if(!t || !t.matches || !t.matches('input, select, textarea')) return;
+			if(t.type === 'hidden') return;                           // hidden inputs aren't user-editable
+			if(t.closest('[data-cerb-ui-dialog-no-dirty]')) return;   // opted-out control / subtree
+			this._dirty = true;
+		};
 
 		const titleId = `cerb-ui-dialog-${this.uid}-title`;
 
@@ -342,6 +366,11 @@ CerbUI.Dialog = class {
 		document.body.appendChild(dlg);
 		CerbUI.Dialog._instances.set(contentEl, this);
 		CerbUI.Dialog._byRoot.set(dlg, this);
+
+		// Dirty-tracking: one delegated listener in capture phase (so we still see events a child handler
+		// might stopPropagation on the bubble). innerContent is stable across fromAjax content loads.
+		this.innerContent.addEventListener('input',  this._onDirty, true);
+		this.innerContent.addEventListener('change', this._onDirty, true);
 
 		// When the dialog's own size changes while open (accordion expand, inline search, async load),
 		// re-extend the page so the new bottom stays reachable — without ever repositioning the dialog.
@@ -448,6 +477,19 @@ CerbUI.Dialog = class {
 
 	close() {
 		if(!this._open) return false;
+
+		// Unsaved-changes guard — runs before the user onClose hook. confirmPopup is async, so abort this
+		// attempt and re-enter close() from the OK callback (which clears the flag → proceeds to onClose).
+		// Covers every close path (ESC, the (x) button, Close-all) since they all route through close().
+		if(this.opts.closeWarnOnUnsavedChanges && this._dirty && typeof confirmPopup === 'function') {
+			confirmPopup(
+				'Discard changes',
+				'Are you sure you want to close this popup without saving?',
+				() => { this._dirty = false; this.close(); }
+			);
+			return false;
+		}
+
 		if(this.opts.onClose && this.opts.onClose() === false) return false;
 
 		this._open = false;
@@ -481,6 +523,11 @@ CerbUI.Dialog = class {
 		return this._open;
 	}
 
+	// Unsaved-changes tracking. A save-success handler should markClean() before (or instead of) close()
+	// so a successful save never trips the discard warning (every close path guards on _dirty).
+	isDirty()   { return this._dirty; }
+	markClean() { this._dirty = false; }
+
 	setTitle(title) {
 		this.opts.title = title;
 		if(this.titleEl) this.titleEl.textContent = title;
@@ -513,6 +560,8 @@ CerbUI.Dialog = class {
 		this._removeBackdrop();
 
 		this.el.removeEventListener('pointerdown', this.onPointerDown, true);
+		this.innerContent.removeEventListener('input',  this._onDirty, true);
+		this.innerContent.removeEventListener('change', this._onDirty, true);
 
 		// Controls docked into the content's header live inside innerContent — pull them out before
 		// restoring it, and drop a --right toolbar we created if it's now empty.
