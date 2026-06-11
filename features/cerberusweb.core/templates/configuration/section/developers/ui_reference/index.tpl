@@ -1121,6 +1121,7 @@ el.addEventListener('cerb-ui-colorpicker:change', e =&gt; console.log(e.detail.h
 	// palette: 'category10', // swatch colors by item index (default category10)
 	// scale: sharedScale,    // a CerbUI.colorScale() to color by key across charts (default: none)
 	// percent: true,         // show each item's % of the sum (default true; false = value only)
+	// hideZeros: true,       // hide zero-valued items per the current key (default: false)
 });</pre>
 			</div>
 		</div>

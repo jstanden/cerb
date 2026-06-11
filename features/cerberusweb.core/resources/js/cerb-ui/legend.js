@@ -13,8 +13,9 @@
  * The component generates the inner DOM (swatch + label + value + muted %), colors the swatch by index
  * (same order as a matching distbar), and computes the percentage. setKey(key) switches the metric.
  *
- * Options: key, palette, scale (a CerbUI.colorScale() to color by label across charts), and
- *   percent (default true; false hides the % — e.g. a label-only key or value-only stats stack).
+ * Options: key, palette, scale (a CerbUI.colorScale() to color by label across charts),
+ *   percent (default true; false hides the % — e.g. a label-only key or value-only stats stack), and
+ *   hideZeros (default false; true hides zero-valued items — follows setKey() like the distbar).
  * Layout: add the .cerb-ui-legend--vertical class for a stacked column (e.g. a per-row stats stack);
  *   an item with no value data renders just its swatch + label.
  */
@@ -30,6 +31,7 @@ CerbUI.Legend = class {
 		this.scale = options.scale || null;
 		if(this.scale && options.palette != null) this.scale.usePalette(options.palette); // honor an explicit palette
 		this.percent = (options.percent !== false); // show each item's % of the sum (pairs with a distbar)
+		this.hideZeros = (options.hideZeros === true); // hide zero-valued items per the current key
 		this.items = this.el ? Array.from(this.el.querySelectorAll(':scope > div')) : [];
 
 		// Build each item's inner DOM once; color the swatch by a shared scale (if given) else by index
@@ -79,6 +81,7 @@ CerbUI.Legend = class {
 			it._value.textContent = text;
 			// % only when there's a value to take a percentage of and the caller wants it
 			it._muted.textContent = (this.percent && text !== '') ? ((sum > 0 ? Math.round(values[i] / sum * 100) : 0) + '%') : '';
+			if(this.hideZeros) it.style.display = (values[i] > 0) ? '' : 'none';
 		});
 	}
 };

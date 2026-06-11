@@ -12,7 +12,8 @@
  *
  * legend: true (or an element / selector) generates a matching CerbUI.Legend by cloning each segment's
  * data attributes into legend items — so segments should also carry data-label (+ optional data-text*).
- * The legend shares the bar's key + palette (colors match by order) and follows setKey().
+ * The legend shares the bar's key + palette (colors match by order) and follows setKey(); hideZeros: true
+ * forwards to it, hiding zero-valued items from the legend too.
  */
 CerbUI.Distbar = class {
 	static _instances = new WeakMap();
@@ -25,6 +26,7 @@ CerbUI.Distbar = class {
 		this.palette = CerbUI.resolvePalette(options.palette);
 		this.scale = options.scale || null;
 		if(this.scale && options.palette != null) this.scale.usePalette(options.palette); // honor an explicit palette
+		this.hideZeros = (options.hideZeros === true); // forwarded to the generated legend
 		this.segs = this.el ? Array.from(this.el.querySelectorAll(':scope > span')) : [];
 		this.legend = null;
 
@@ -87,6 +89,6 @@ CerbUI.Distbar = class {
 		if(target) target.appendChild(legendEl);
 		else this.el.insertAdjacentElement('afterend', legendEl);
 
-		this.legend = new CerbUI.Legend(legendEl, { key: this.key, palette: this.palette, scale: this.scale });
+		this.legend = new CerbUI.Legend(legendEl, { key: this.key, palette: this.palette, scale: this.scale, hideZeros: this.hideZeros });
 	}
 };
