@@ -1217,6 +1217,7 @@ el.addEventListener('cerb-ui-colorpicker:change', e =&gt; console.log(e.detail.h
 				<pre data-cerb-uiref-source>const bar = new CerbUI.Distbar(el, {
 	key: 'objects',          // which data-value-* metric to size by (default: data-value)
 	legend: true,            // also build a matching CerbUI.Legend below it (default: false)
+	// hideZeros: true,       // also hide zero-valued items from the legend (default: false)
 	// palette: 'category10', // colors segments by index (default category10)
 	// scale: sharedScale,    // a CerbUI.colorScale() to color by key across charts (default: none)
 });
@@ -1264,6 +1265,40 @@ new CerbUI.Switcher(toggleEl, { onSelect: function(value) { bar.setKey(value); }
 const scale = CerbUI.colorScale();
 new CerbUI.Distbar(document.getElementById('bar-a'), { scale, legend: true });
 new CerbUI.Distbar(document.getElementById('bar-b'), { scale, legend: true });</pre>
+			</div>
+		</div>
+
+		{* Example: zero-valued segments are hidden in the bar but still listed in the legend *}
+		<div class="cerb-ui-header">
+			<div class="cerb-ui-header--label">Zero-valued segments (hidden in the bar; hideZeros hides them from the legend too)</div>
+		</div>
+		<div class="cerb-uiref-example">
+			<div class="cerb-uiref-demo">
+				<div class="cerb-ui-distbar" id="uiref-distbar-zeros">
+					<span data-label="Done" data-value="10"></span>
+					<span data-label="Error" data-value="0"></span>
+					<span data-label="In Progress" data-value="0"></span>
+					<span data-label="Retrying" data-value="0"></span>
+					<span data-label="Available" data-value="0"></span>
+				</div>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>&lt;div class="cerb-ui-distbar"&gt;
+	&lt;span data-label="Done" data-value="10"&gt;&lt;/span&gt;
+	&lt;span data-label="Error" data-value="0"&gt;&lt;/span&gt;
+	&lt;span data-label="In Progress" data-value="0"&gt;&lt;/span&gt;
+	&lt;span data-label="Retrying" data-value="0"&gt;&lt;/span&gt;
+	&lt;span data-label="Available" data-value="0"&gt;&lt;/span&gt;
+&lt;/div&gt;</pre>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>// Zero-valued segments never render slivers in the bar; hideZeros also hides
+// them from the legend (default: false, shown with their 0 counts)
+new CerbUI.Distbar(el, { legend: true, hideZeros: true });</pre>
 			</div>
 		</div>
 	</div>
@@ -2507,6 +2542,12 @@ CerbUI.Dialog.fromAjax('c=profiles&amp;a=invoke&amp;module=snippet&amp;action=he
 		};
 		tick();
 		setInterval(tick, 1000);
+	}
+
+	// Zero-valued segments: hidden in the bar (no sliver/gap); hideZeros hides them from the legend too
+	const distbarZerosEl = document.getElementById('uiref-distbar-zeros');
+	if(distbarZerosEl && window.CerbUI && CerbUI.Distbar) {
+		new CerbUI.Distbar(distbarZerosEl, { legend: true, hideZeros: true });
 	}
 
 	// Two distbars sharing one color scale — the same key keeps its color across both

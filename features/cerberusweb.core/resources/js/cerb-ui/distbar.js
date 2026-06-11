@@ -7,7 +7,8 @@
  * Markup: a .cerb-ui-distbar container of bare `> span` children (segments), each carrying a numeric
  * value under the data-value* namespace — data-value (default) or data-value-{key} (e.g. data-value-size).
  * The component computes the sum, each segment's % share → width, and colors segments by index from the
- * palette. setKey(key) re-weights for a different metric.
+ * palette. Zero-valued segments are hidden from the bar (no sliver/gap) but still appear in the legend.
+ * setKey(key) re-weights for a different metric.
  *
  * legend: true (or an element / selector) generates a matching CerbUI.Legend by cloning each segment's
  * data attributes into legend items — so segments should also carry data-label (+ optional data-text*).
@@ -61,7 +62,11 @@ CerbUI.Distbar = class {
 		const attr = CerbUI.valueAttr(this.key);
 		const values = this.segs.map(s => parseFloat(s.dataset[attr]) || 0);
 		const sum = values.reduce((a, b) => a + b, 0);
-		this.segs.forEach((s, i) => { s.style.width = (sum > 0 ? values[i] / sum * 100 : 0) + '%'; });
+		this.segs.forEach((s, i) => {
+			s.style.width = (sum > 0 ? values[i] / sum * 100 : 0) + '%';
+			// Hide zero segments so the CSS min-width + flex gap don't paint slivers
+			s.style.display = (sum > 0 && values[i] > 0) ? '' : 'none';
+		});
 	}
 
 	// Clone the segments into a generated legend (sharing key + palette so colors line up)
