@@ -47,7 +47,7 @@
  * Unsaved-changes guard (`closeWarnOnUnsavedChanges`, default off):
  *   When on, the first time the user actually changes a tracked form control (typing, a toggle, a menu,
  *   a checkbox/radio, a select) flips the dialog "dirty". Any close after that — ESC, the (x) button, or
- *   the tray's Close-all — first asks "Discard changes?" (confirmPopup) before the onClose hook runs;
+ *   the tray's Close-all — first asks "Discard changes?" (CerbUI.Confirm) before the onClose hook runs;
  *   Cancel keeps it open, OK proceeds. Merely *having* inputs never warns (unlike the legacy popups), and
  *   pre-filling values programmatically doesn't count. Add `data-cerb-ui-dialog-no-dirty` to a control (or
  *   any ancestor — e.g. a search form) to exclude it from tracking. A save-success path should call
@@ -478,15 +478,15 @@ CerbUI.Dialog = class {
 	close() {
 		if(!this._open) return false;
 
-		// Unsaved-changes guard — runs before the user onClose hook. confirmPopup is async, so abort this
-		// attempt and re-enter close() from the OK callback (which clears the flag → proceeds to onClose).
+		// Unsaved-changes guard — runs before the user onClose hook. CerbUI.Confirm is async, so abort this
+		// attempt and re-enter close() from the onConfirm callback (clears the flag → proceeds to onClose).
 		// Covers every close path (ESC, the (x) button, Close-all) since they all route through close().
-		if(this.opts.closeWarnOnUnsavedChanges && this._dirty && typeof confirmPopup === 'function') {
-			confirmPopup(
-				'Discard changes',
-				'Are you sure you want to close this popup without saving?',
-				() => { this._dirty = false; this.close(); }
-			);
+		if(this.opts.closeWarnOnUnsavedChanges && this._dirty && window.CerbUI && CerbUI.Confirm) {
+			CerbUI.Confirm.open({
+				title: 'Discard changes',
+				body:  'Are you sure you want to close this popup without saving?',
+				onConfirm: () => { this._dirty = false; this.close(); },
+			});
 			return false;
 		}
 

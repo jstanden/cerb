@@ -17,6 +17,13 @@
 		color: var(--cerb-color-button-icon--hover);
 	}
 
+	// Keyboard focus ring (matches the other cerb-ui components). CerbUI.Confirm focuses Cancel with
+	// { focusVisible: true } on open so this ring shows even though it's programmatic focus.
+	&:focus-visible {
+		outline: 2px solid var(--cerb-color-action-primary);
+		outline-offset: 1px;
+	}
+
 	&::-moz-focus-inner {
 		border: 0;
 		padding: 0;
