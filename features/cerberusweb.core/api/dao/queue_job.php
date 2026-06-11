@@ -457,12 +457,16 @@ class DAO_QueueJob extends Cerb_ORMHelper {
 
 		if(!$job_ids) return [];
 
+		// A job is finished when it has no non-terminal messages left. Test this
+		// live against queue_message rather than the cached count_* columns: status
+		// 0 covers both ready and retry-deferred (scheduled) messages, so a job with
+		// pending retries correctly stays unfinished until those resolve.
 		$sql = sprintf(
 			"SELECT id, name, queue_id, worker_id, singleton_key, status_id, metadata, count_total, count_available, count_inflight, count_done, count_failed, created_at, updated_at ".
 			"FROM queue_job ".
 			"WHERE id IN (%s) ".
 			"AND status_id NOT IN (2, 3) ".
-			"AND (0=count_available+count_inflight)",
+			"AND NOT EXISTS (SELECT 1 FROM queue_message qm WHERE qm.job_id = queue_job.id AND qm.status_id IN (0,1))",
 			implode(',', $job_ids)
 		);
 		$results = $db->GetArrayMaster($sql);
@@ -504,22 +508,48 @@ class DAO_QueueJob extends Cerb_ORMHelper {
 	}
 
 	/**
-	 * Count messages still open (available + inflight) for a given job. Reads
-	 * master so monitor pacing decisions don't lag behind concurrent workers.
+	 * Live per-job message counts read straight from queue_message, summing
+	 * `cardinality` (work units) to match syncProgress(). Reads master so monitor
+	 * pacing decisions don't lag behind concurrent workers.
 	 *
-	 * Sibling to getAvailableMessages() — that one excludes claimed messages for
-	 * cron dispatch decisions; this one includes them so monitors see in-flight
-	 * work and don't prematurely scale down.
+	 * Unlike the cached queue_job.count_* columns, this splits AVAILABLE (status 0)
+	 * into `available` (claimable now, available_at <= now) vs `scheduled`
+	 * (retry-deferred, available_at > now) so the monitor can back off instead of
+	 * busy-looping while failed messages wait out their backoff window.
+	 * `next_available_at` is the soonest deferred-retry timestamp (0 if none).
+	 *
+	 * @return array{available:int,scheduled:int,inflight:int,failed:int,done:int,total:int,next_available_at:int}
 	 */
-	public static function getAvailableAndInFlightMessages(Model_QueueJob $job) : int {
+	public static function getLiveCounts(Model_QueueJob $job) : array {
 		$db = DevblocksPlatform::services()->database();
+		$now = time();
 
-		return intval($db->GetOneMaster(sprintf(
-			"SELECT COUNT(*) FROM queue_message ".
-			"WHERE queue_id = %d AND status_id IN (0,1) AND job_id = %d",
+		$row = $db->GetRowMaster(sprintf(
+			"SELECT ".
+			"COALESCE(SUM(IF(status_id=0 AND available_at<=%d, cardinality, 0)),0) AS available, ".
+			"COALESCE(SUM(IF(status_id=0 AND available_at> %d, cardinality, 0)),0) AS scheduled, ".
+			"COALESCE(SUM(IF(status_id=1, cardinality, 0)),0) AS inflight, ".
+			"COALESCE(SUM(IF(status_id=2, cardinality, 0)),0) AS failed, ".
+			"COALESCE(SUM(IF(status_id=3, cardinality, 0)),0) AS done, ".
+			"COALESCE(SUM(cardinality),0) AS total, ".
+			"COALESCE(MIN(IF(status_id=0 AND available_at>%d, available_at, NULL)),0) AS next_available_at ".
+			"FROM queue_message WHERE queue_id=%d AND job_id=%d",
+			$now,
+			$now,
+			$now,
 			$job->queue_id,
 			$job->id
-		)));
+		));
+
+		return [
+			'available' => intval($row['available'] ?? 0),
+			'scheduled' => intval($row['scheduled'] ?? 0),
+			'inflight' => intval($row['inflight'] ?? 0),
+			'failed' => intval($row['failed'] ?? 0),
+			'done' => intval($row['done'] ?? 0),
+			'total' => intval($row['total'] ?? 0),
+			'next_available_at' => intval($row['next_available_at'] ?? 0),
+		];
 	}
 }
 
@@ -706,26 +736,26 @@ class Model_QueueJob extends DevblocksRecordModel {
 	public int $worker_id = 0;
 
 	public function getProgress() : array {
+		// Read live from queue_message rather than the cached count_* columns so the
+		// monitor reflects reality and can distinguish `available` (claimable now)
+		// from `scheduled` (failed messages waiting out their retry backoff). The
+		// cached columns stay coarse/eventually-consistent for the jobs worklist.
+		$counts = DAO_QueueJob::getLiveCounts($this);
+		$total = $counts['total'];
+
+		$keys = ['available','scheduled','inflight','failed','done'];
+
 		$stats = [
-			'total' => $this->count_total,
-			'counts' => [
-				'available' => $this->count_available,
-				'inflight' => $this->count_inflight,
-				'failed' => $this->count_failed,
-				'done' => $this->count_done,
-			],
+			'total' => $total,
+			'counts' => array_intersect_key($counts, array_flip($keys)),
 			'percents' =>
-				$this->count_total
+				$total
 					// If we have a denominator, we can calculate percentages
-					? [
-					'available' => round($this->count_available / $this->count_total, 2),
-					'inflight' => round($this->count_inflight / $this->count_total, 2),
-					'failed' => round($this->count_failed / $this->count_total, 2),
-					'done' => round($this->count_done / $this->count_total, 2),
-				]
+					? array_map(fn($k) => round($counts[$k] / $total, 2), array_combine($keys, $keys))
 					// Otherwise, zero
-					: array_fill_keys(['available','inflight','failed','done'], 0)
+					: array_fill_keys($keys, 0)
 			,
+			'next_available_at' => $counts['next_available_at'],
 		];
 
 		return $stats;

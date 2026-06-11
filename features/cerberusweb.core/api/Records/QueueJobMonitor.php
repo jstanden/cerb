@@ -89,11 +89,16 @@ class QueueJobMonitor {
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 
 		if(null === ($queue_service->getConcurrencySlot())) {
-			// Surface remaining so the widget can distinguish "throttled with work"
-			// (yellow THROTTLED card) from "throttled but nothing left" (IDLE).
+			// Surface live counts so the widget can distinguish "throttled with
+			// claimable work" (keep trying) from "throttled but nothing ready"
+			// (back off / idle).
+			$counts = DAO_QueueJob::getLiveCounts($queue_job);
 			echo json_encode([
 				'slot' => false,
-				'remaining' => DAO_QueueJob::getAvailableAndInFlightMessages($queue_job),
+				'ready' => $counts['available'],
+				'scheduled' => $counts['scheduled'],
+				'inflight' => $counts['inflight'],
+				'next_available_at' => $counts['next_available_at'],
 			]);
 			return;
 		}
@@ -102,21 +107,28 @@ class QueueJobMonitor {
 
 		if(!($queue = DAO_Queue::get($queue_job->queue_id))
 			|| !($queue_extension = $queue->getExtension())) {
-			echo json_encode(['slot' => true, 'processed' => 0, 'remaining' => 0]);
+			echo json_encode([
+				'slot' => true, 'processed' => 0,
+				'ready' => 0, 'scheduled' => 0, 'inflight' => 0, 'next_available_at' => 0,
+			]);
 			return;
 		}
 
 		$processed = $queue_extension->processQueueMessages($queue, $stop_time, 0, $queue_job);
 
-		// Read open messages directly so the widget can size its worker pool to
-		// the actual remaining work — cheaper and more accurate than waiting for
-		// publish() at shutdown to refresh queue_job.count_*.
-		$remaining = DAO_QueueJob::getAvailableAndInFlightMessages($queue_job);
+		// Read live counts directly so the widget paces its worker pool to the work
+		// that's actually claimable now (`ready`), backs off while failed messages
+		// wait out their retry window (`scheduled`), and finalizes only when nothing
+		// remains — cheaper and more accurate than the cached queue_job.count_*.
+		$counts = DAO_QueueJob::getLiveCounts($queue_job);
 
 		echo json_encode([
 			'slot' => true,
 			'processed' => $processed,
-			'remaining' => $remaining,
+			'ready' => $counts['available'],
+			'scheduled' => $counts['scheduled'],
+			'inflight' => $counts['inflight'],
+			'next_available_at' => $counts['next_available_at'],
 		]);
 	}
 }

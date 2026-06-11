@@ -5,7 +5,6 @@
         {foreach $logs as $log}
         <li class="cerb-job-log--entry cerb-job-log--entry--level-{$log->level}">
             <span class="cerb-job-log--time"><abbr title="{$log->created_at|devblocks_date}">{$log->created_at|devblocks_prettytime}</abbr></span>
-            <span class="cerb-job-log--icon cerb-icons {if $log->level >= 3}cerb-icon-circle-remove{elseif $log->level == 2}cerb-icon-alert{else}cerb-icon-circle-ok{/if}"></span>
             <span class="cerb-job-log--message">{$log->message|escape}</span>
         </li>
         {/foreach}

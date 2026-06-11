@@ -110,6 +110,16 @@ $(function() {
     // batch duration — a 10s worker doesn't block the ramp from animating.
     const RAMP_INTERVAL_MS = 2000;
 
+    // Semantic colors for the progress Distbar, in segment order: done, error, inflight,
+    // retrying, available — matched 1:1 to the <span> order in progress_bar.tpl.
+    const DISTBAR_PALETTE = [
+        'var(--cerb-color-progress-done)',
+        'var(--cerb-color-progress-failed)',
+        'var(--cerb-color-progress-inflight)',
+        'var(--cerb-color-progress-scheduled)',
+        'var(--cerb-color-progress-available)',
+    ];
+
     // Slot model: each slot 1..MAX_CONCURRENCY has a card in the DOM, hidden
     // until first activated. `running` flips while a worker AJAX is in flight;
     // doneTotal + activeMs accumulate across batches so we can compute a rate.
@@ -137,9 +147,11 @@ $(function() {
     let isPaused = (MODE === 'process_paused');
     let isHidden = (document.visibilityState === 'hidden');
     let finalizePollDelayMs = FINALIZE_POLL_START_MS;
-    // Updated from every worker response that includes a `remaining` field.
-    // Starts at Infinity so the ramp can spawn freely until we have real data.
-    let lastKnownRemaining = Infinity;
+    // Updated from every worker response that includes a `ready` count (messages
+    // claimable right now). Starts at Infinity so the ramp can spawn freely until
+    // we have real data. Retry-deferred (`scheduled`) messages are deliberately
+    // excluded so the pool backs off instead of spinning during a backoff window.
+    let lastKnownReady = Infinity;
     const canProcess = (MODE !== 'view');
 
     const $button_refresh = $widget.find('button[data-cerb-button=refresh]');
@@ -246,6 +258,15 @@ $(function() {
             $ancestor.triggerHandler($.Event('cerb-widget-refresh', { widget_id: {$widget->id} }));
     };
 
+    // (Re)build the progress Distbar from the freshly-rendered markup — it draws its own
+    // legend. Must run after each $progress_bar.html() since Distbar doesn't auto-init and
+    // the prior instance (and its generated legend) is discarded with the replaced DOM.
+    const funcRenderDistbar = function() {
+        if(!(window.CerbUI && CerbUI.Distbar)) return;
+        const el = $progress_bar.find('.cerb-ui-distbar')[0];
+        if(el) new CerbUI.Distbar(el, { legend: true, hideZeros: true, palette: DISTBAR_PALETTE });
+    };
+
     const funcRefreshProgress = function() {
         if(!isCurrent()) return;
 
@@ -266,8 +287,10 @@ $(function() {
                     return;
                 }
 
-                if(json.hasOwnProperty('progress_html'))
+                if(json.hasOwnProperty('progress_html')) {
                     $progress_bar.html(json.progress_html);
+                    funcRenderDistbar();
+                }
 
                 if(json.hasOwnProperty('log_html'))
                     $widget.find('[data-cerb-job-log-container]').html(json.log_html);
@@ -306,14 +329,20 @@ $(function() {
         funcRenderWorkerCards();
 
         genericAjaxPost(funcBuildFormData('worker'), null, null, function(json) {
-            const processed = (typeof json === 'object' && typeof json.processed === 'number') ? json.processed : 0;
-            const remaining = (typeof json === 'object' && typeof json.remaining === 'number') ? json.remaining : 0;
-            const gotSlot = (typeof json === 'object' && json.slot === true);
-            const wasThrottled = (typeof json === 'object' && json.slot === false && remaining > 0);
+            const isObj = (typeof json === 'object' && json !== null);
+            const processed = (isObj && typeof json.processed === 'number') ? json.processed : 0;
+            const ready = (isObj && typeof json.ready === 'number') ? json.ready : 0;
+            const scheduled = (isObj && typeof json.scheduled === 'number') ? json.scheduled : 0;
+            const inflight = (isObj && typeof json.inflight === 'number') ? json.inflight : 0;
+            const nextAvailableAt = (isObj && typeof json.next_available_at === 'number') ? json.next_available_at : 0;
+            const gotSlot = (isObj && json.slot === true);
+            // Throttled (no concurrency slot) but there's still work to come back for.
+            const wasThrottled = (isObj && json.slot === false && (ready > 0 || scheduled > 0 || inflight > 0));
 
-            // Update remaining BEFORE rendering so the ramp scheduler sees fresh data.
-            if(typeof json === 'object' && typeof json.remaining === 'number')
-                lastKnownRemaining = remaining;
+            // Update pacing data BEFORE rendering so the ramp scheduler sees fresh
+            // data. We pace on `ready` only — deferred retries must not keep the pool hot.
+            if(isObj && typeof json.ready === 'number')
+                lastKnownReady = ready;
 
             funcReleaseSlot(slot, processed, wasThrottled);
             funcRenderWorkerCards();
@@ -321,22 +350,50 @@ $(function() {
             if(!isCurrent()) return;
             if(isTerminal || isPaused || !canProcess) return;
 
-            if(remaining === 0) {
-                // No messages left — the job is finalizing (or already terminal);
-                // drop into the backoff poll loop that watches status.
+            // Nothing claimable right now.
+            if(ready === 0) {
+                if(scheduled > 0 || inflight > 0) {
+                    // Failed messages are waiting out their retry backoff, or other
+                    // workers are still draining inflight work. Refresh the bar and
+                    // schedule a SINGLE probe instead of busy-looping the endpoint.
+                    funcRefreshProgress();
+
+                    let delay;
+                    if(scheduled > 0 && nextAvailableAt > 0) {
+                        // Resume right when the soonest retry window opens.
+                        delay = Math.min(Math.max(nextAvailableAt * 1000 - Date.now(), RETRY_DELAY_MS), FINALIZE_POLL_MAX_MS);
+                    } else {
+                        // Inflight draining elsewhere — exponential backoff.
+                        finalizePollDelayMs = Math.min(finalizePollDelayMs * 2, FINALIZE_POLL_MAX_MS);
+                        delay = finalizePollDelayMs;
+                    }
+
+                    const prevTimer = $widget.data('queueJobMonitorRetryTimer');
+                    if(prevTimer) clearTimeout(prevTimer);
+                    const t = setTimeout(funcSpawnSingleWorker, delay);
+                    $widget.data('queueJobMonitorRetryTimer', t);
+                    return;
+                }
+
+                // No ready, scheduled, or inflight work — the job is finalizing (or
+                // already terminal); drop into the backoff poll that watches status.
                 funcPollWhileFinalizing();
                 return;
             }
 
+            // We have claimable work — reset the backoff and keep the pool flowing.
+            finalizePollDelayMs = FINALIZE_POLL_START_MS;
             funcRefreshProgress();
 
             // Pool maintenance: spawn one replacement so the existing pool size is
             // preserved. The ramp scheduler is what grows it further — this just
             // keeps work flowing at the current level.
             const cap = isHidden ? 1 : MAX_CONCURRENCY;
-            const target = Math.min(cap, lastKnownRemaining);
+            const target = Math.min(cap, lastKnownReady);
             if(slotsActive.size < target) {
-                const retryDelay = (gotSlot ? 0 : (isHidden ? HIDDEN_SPAWN_DELAY_MS : RETRY_DELAY_MS));
+                // Zero delay only when we actually drained work on a real slot;
+                // otherwise throttle so a no-op response can't busy-loop.
+                const retryDelay = ((gotSlot && processed > 0) ? 0 : (isHidden ? HIDDEN_SPAWN_DELAY_MS : RETRY_DELAY_MS));
                 if(retryDelay > 0) {
                     const t = setTimeout(funcSpawnSingleWorker, retryDelay);
                     $widget.data('queueJobMonitorRetryTimer', t);
@@ -365,7 +422,7 @@ $(function() {
         if(!isCurrent() || isTerminal || isPaused || !canProcess) return;
 
         const cap = isHidden ? 1 : MAX_CONCURRENCY;
-        const target = Math.min(cap, lastKnownRemaining);
+        const target = Math.min(cap, lastKnownReady);
 
         if(slotsActive.size < target) {
             funcSpawnSingleWorker();
@@ -459,6 +516,9 @@ $(function() {
     $button_refresh.on('click', funcOnRefreshClick);
     $button_pause.on('click', funcTogglePause);
     $button_cancel.on('click', funcCancel);
+
+    // Draw the progress bar on first render (every mode, incl. view/terminal).
+    funcRenderDistbar();
 
     if(MODE === 'process' && !isTerminal) {
         funcSpawnSingleWorker();

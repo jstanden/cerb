@@ -72,6 +72,7 @@ TABLE.cerb-widget-data-table {
 	rect.cerb-progress-bar--done      { fill: var(--cerb-color-progress-done); }
 	rect.cerb-progress-bar--failed    { fill: var(--cerb-color-progress-failed); }
 	rect.cerb-progress-bar--inflight  { fill: var(--cerb-color-progress-inflight); }
+	rect.cerb-progress-bar--scheduled { fill: var(--cerb-color-progress-scheduled); }
 	rect.cerb-progress-bar--available { fill: var(--cerb-color-progress-available); }
 }
 
@@ -96,6 +97,7 @@ TABLE.cerb-widget-data-table {
 		&.cerb-progress-bar-legend--done      { background: var(--cerb-color-progress-done); }
 		&.cerb-progress-bar-legend--failed    { background: var(--cerb-color-progress-failed); }
 		&.cerb-progress-bar-legend--inflight  { background: var(--cerb-color-progress-inflight); }
+		&.cerb-progress-bar-legend--scheduled { background: var(--cerb-color-progress-scheduled); }
 		&.cerb-progress-bar-legend--available { background: var(--cerb-color-progress-available); }
 	}
 }
