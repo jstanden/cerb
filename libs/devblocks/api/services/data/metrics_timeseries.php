@@ -686,12 +686,16 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 						break;
 						
 					default:
-						if($filter['oper'] == DevblocksSearchCriteria::OPER_IN && is_array($filter['value']) && $filter['value']) {
-							$sql_wheres[] = sprintf('%s IN (SELECT id FROM metric_dimension WHERE name IN (%s))',
+						if(
+							in_array($filter['oper'], [DevblocksSearchCriteria::OPER_IN, DevblocksSearchCriteria::OPER_NIN])
+							&& is_array($filter['value']) && $filter['value']
+						) {
+							$sql_wheres[] = sprintf('%s %sIN (SELECT id FROM metric_dimension WHERE name IN (%s))',
 								$db->escape($dim_key),
+								$filter['oper'] == DevblocksSearchCriteria::OPER_NIN ? 'NOT ' : '',
 								implode(',', $db->qstrArray($filter['value']))
 							);
-							
+
 						// Error on unknown filter operators
 						} else {
 							$error = sprintf("Query filter `%s:` is must be a string or a list of strings.",
