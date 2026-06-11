@@ -121,6 +121,11 @@
 }
 
 // ── Content ───────────────────────────────────────────────────────────────
+// `overflow:auto` with NO max-height (the default, page-scroll mode): the box grows to fit its content
+// vertically (so the dialog grows and the *page* scrolls — JS bumps body min-height), while wide,
+// non-wrapping content (e.g. <pre> code) scrolls horizontally inside the box instead of spilling out of
+// the dialog frame. With scrollBody:true the dialog gets a JS max-height, so this same overflow scrolls
+// the body vertically too.
 .cerb-ui-dialog--content {
 	flex: 1;
 	min-height: 0;

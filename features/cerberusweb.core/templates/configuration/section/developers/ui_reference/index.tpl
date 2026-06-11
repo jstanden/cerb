@@ -1976,7 +1976,7 @@ el.addEventListener('cerb-ui-dialog:close', () =&gt; {});
 	…body…
 &lt;/div&gt;
 
-new CerbUI.Dialog(el, { header: 'floating', width: 520 });</pre>
+new CerbUI.Dialog(el, { header: 'floating' }); // no width → 75% of the viewport (capped at 1100; mobile 95%)</pre>
 			</div>
 		</div>
 
@@ -2040,11 +2040,12 @@ new CerbUI.Dialog(elB, { title: 'B', namespace: 'demo' });</pre>
 
 		{* Example: fromAjax — fetch HTML into a popup (the genericAjaxPopup replacement) *}
 		<div class="cerb-ui-header">
-			<div class="cerb-ui-header--label">AJAX content (<code>CerbUI.Dialog.fromAjax</code>) &mdash; spinner while loading, then the fetched HTML; response <code>&lt;script&gt;</code> runs under the nonce</div>
+			<div class="cerb-ui-header--label">AJAX content (<code>CerbUI.Dialog.fromAjax</code>) &mdash; spinner while loading, then the fetched HTML; response <code>&lt;script&gt;</code> runs under the nonce. A tall dialog grows and the <b>page</b> scrolls to it; pass <code>scrollBody:true</code> to cap it to the viewport and scroll the <b>body</b> instead</div>
 		</div>
 		<div class="cerb-uiref-example">
 			<div class="cerb-uiref-demo">
-				<button type="button" class="cerb-ui-button" id="uiref-dialog-ajax-btn">Load help popup</button>
+				<button type="button" class="cerb-ui-button" id="uiref-dialog-ajax-btn">Load help popup (page scroll)</button>
+				<button type="button" class="cerb-ui-button" id="uiref-dialog-ajax-scroll-btn">Load help popup (scrollBody)</button>
 			</div>
 
 			<div class="cerb-uiref-code">
@@ -2052,7 +2053,8 @@ new CerbUI.Dialog(elB, { title: 'B', namespace: 'demo' });</pre>
 				<pre data-cerb-uiref-source>{literal}// string ⇒ GET (ajax args); FormData ⇒ POST. opts are the constructor options + onLoad.
 CerbUI.Dialog.fromAjax('c=profiles&amp;a=invoke&amp;module=snippet&amp;action=helpPopup', {
 	title: 'Snippet help', // titlebar text
-	width: 600,
+	// width: 600,         // omit → 75% of the viewport, capped at 1100 (mobile: always 95%)
+	// scrollBody: true,   // cap to the viewport + scroll the body (default: grow + page scroll)
 	// namespace: 'peek',  // siblings share position + auto-close each other (supersedes the old layer/reuse)
 	// onLoad: function(content, html) { /* runs after the HTML is injected */ },
 });
@@ -2635,7 +2637,7 @@ CerbUI.Dialog.fromAjax('c=profiles&amp;a=invoke&amp;module=snippet&amp;action=he
 		};
 
 		wire('uiref-dialog-classic-btn', 'uiref-dialog-classic-content', { title: 'Ticket', width: 480 });
-		wire('uiref-dialog-floating-btn', 'uiref-dialog-floating-content', { header: 'floating', width: 520 });
+		wire('uiref-dialog-floating-btn', 'uiref-dialog-floating-content', { header: 'floating' }); // default width
 		wire('uiref-dialog-modal-btn', 'uiref-dialog-modal-content', { title: 'Edit snippet', modal: true, width: 460 });
 
 		const resizeOut = document.getElementById('uiref-dialog-resize-result');
@@ -2664,7 +2666,12 @@ CerbUI.Dialog.fromAjax('c=profiles&amp;a=invoke&amp;module=snippet&amp;action=he
 		// fromAjax: build the dialog procedurally and load real HTML (the snippet help popup) into it
 		const ajaxBtn = document.getElementById('uiref-dialog-ajax-btn');
 		if(ajaxBtn) ajaxBtn.addEventListener('click', function() {
-			CerbUI.Dialog.fromAjax('c=profiles&a=invoke&module=snippet&action=helpPopup', { title: 'Snippet help', width: 600 });
+			CerbUI.Dialog.fromAjax('c=profiles&a=invoke&module=snippet&action=helpPopup', { title: 'Snippet help' }); // default width
+		});
+		// same content, but capped to the viewport with an internally-scrolling body
+		const ajaxScrollBtn = document.getElementById('uiref-dialog-ajax-scroll-btn');
+		if(ajaxScrollBtn) ajaxScrollBtn.addEventListener('click', function() {
+			CerbUI.Dialog.fromAjax('c=profiles&a=invoke&module=snippet&action=helpPopup', { title: 'Snippet help', scrollBody: true }); // default width
 		});
 	})();
 

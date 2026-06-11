@@ -30,8 +30,25 @@
  *
  * Options: title, header ('bar'|'floating'|'none'), draggable, resizable, closable, minimizable, modal,
  *   width, minWidth, minHeight, position {x,y}, namespace (siblings share position + close each other),
- *   fixed, closeOnEscape, dragHandle (selector), onOpen, onClose (return false to veto), onMinimize,
- *   onDragged, onResized. Also dispatches `cerb-ui-dialog:open` / `:close` on the content element.
+ *   fixed, scrollBody, closeOnEscape, dragHandle (selector), onOpen, onClose (return false to veto),
+ *   onMinimize, onDragged, onResized. Also dispatches `cerb-ui-dialog:open` / `:close` on the content element.
+ *
+ * Placement: opens centered horizontally, near the top (a one-titlebar-height gap), like the legacy
+ *   genericAjaxPopup — never vertically centered, so tall/growing content extends downward rather than
+ *   opening mid-screen. Pass `position {x,y}` to place it explicitly.
+ *
+ * Width: `width` defaults to 75% of the viewport, capped at 1100px (the cerb-ui-page max-width). An
+ *   explicit `width` is honored as-is (even above the cap). On mobile (viewport ≤ 768px) every dialog is
+ *   95% wide and width directives are ignored.
+ *
+ * Tall / growing dialogs:
+ *   By default the dialog grows to fit its content (vertically) and never repositions; wide non-wrapping
+ *   content (e.g. <pre> code) scrolls horizontally inside the body rather than spilling out of the frame.
+ *   Since it's an out-of-flow absolute box it can't lengthen the document, so while open it bumps `body`'s
+ *   min-height to cover its bottom (plus a titlebar-height margin) — the *page* scrolls to reveal it. A
+ *   ResizeObserver re-syncs that as the content grows in place (accordion, inline search, async load).
+ *   `scrollBody: true` instead caps the dialog to the viewport (a titlebar margin top + bottom, so the
+ *   whole frame is visible) and scrolls its body internally. `reflow()` is a manual page re-sync hook.
  */
 CerbUI.Dialog = class {
 	static _uid = 0;
@@ -39,6 +56,26 @@ CerbUI.Dialog = class {
 	static _instances = new WeakMap(); // keyed on the content element passed to the constructor
 	static _byRoot = new WeakMap();    // keyed on the dialog root (.cerb-ui-dialog) for descendant lookups
 	static _namespaces = new Map();
+	static _pageDialogs = new Set();   // open dialogs that grow + page-scroll (not fixed, not scrollBody)
+	static _origBodyMinHeight = null;  // body.style.minHeight before we touched it; restored when the set empties
+	static _MAX_WIDTH = 1100;          // default-width cap; mirrors .cerb-ui-page--max-width
+	static _MOBILE_MAX = 768;          // mobile breakpoint (cerb-responsive.scss) — dialogs go 95% wide below it
+
+	// A floating absolute dialog is out of flow, so it doesn't lengthen the document — a dialog taller than
+	// the viewport would be unreachable by page scroll. While such dialogs are open, grow <body> to cover the
+	// lowest one so the window can scroll down to it (min-height only ever grows; real content is unaffected).
+	static _syncPageHeight() {
+		let maxBottom = 0;
+		for(const d of CerbUI.Dialog._pageDialogs)
+			// Leave a couple of titlebar-heights of margin below the dialog so the page scrolls comfortably
+			// past its bottom (even when the dialog is dragged to the very end of the page).
+			maxBottom = Math.max(maxBottom, d.el.getBoundingClientRect().bottom + window.scrollY + d._topMargin * 2);
+		if(CerbUI.Dialog._origBodyMinHeight === null)
+			CerbUI.Dialog._origBodyMinHeight = document.body.style.minHeight || '';
+		document.body.style.minHeight = (CerbUI.Dialog._pageDialogs.size && maxBottom > window.innerHeight)
+			? Math.ceil(maxBottom) + 'px'
+			: CerbUI.Dialog._origBodyMinHeight;
+	}
 
 	// Resolve the dialog from its content element (exact) or any descendant of it (climbs to the root).
 	// The descendant path is what lets AJAX-loaded content find its own dialog (replaces genericAjaxPopupFind).
@@ -65,7 +102,10 @@ CerbUI.Dialog = class {
 		dlg.open(); // spinner shows immediately, centered
 
 		const onError = () => dlg.close(); // the helper already toasted the HTTP error; just close (legacy hookError)
-		const onDone  = (html) => { if(typeof opts.onLoad === 'function') opts.onLoad(content, html); };
+		const onDone  = (html) => {
+			dlg.reflow(); // the response grew the dialog — re-pin its top + lengthen the page to reach it
+			if(typeof opts.onLoad === 'function') opts.onLoad(content, html);
+		};
 
 		if(typeof genericAjaxGet !== 'function' || typeof genericAjaxPost !== 'function' || !window.jQuery) {
 			if(window.console) console.warn('CerbUI.Dialog.fromAjax requires genericAjaxGet/genericAjaxPost + jQuery');
@@ -92,7 +132,8 @@ CerbUI.Dialog = class {
 			closable:   true,
 			minimizable: null, // resolved below: default true only for the 'bar' header
 			modal:      false,
-			width:      400,
+			scrollBody: false, // true = cap to the viewport and scroll the body; default grows + page scrolls
+			width:      null,  // null = 75% of the viewport capped at _MAX_WIDTH (mobile: always 95%)
 			minWidth:   200,
 			minHeight:  80,
 			position:   null,
@@ -109,7 +150,14 @@ CerbUI.Dialog = class {
 		if(this.opts.namespace == null) this.opts.namespace = String(this.uid);
 		if(this.opts.minimizable == null) this.opts.minimizable = (this.opts.header === 'bar');
 
-		this.w = this.opts.width;
+		// Width: mobile is always 95% (ignores any width directive); otherwise an explicit width is honored
+		// as-is, else default to 75% of the viewport capped at the cerb-ui-page max-width.
+		const vw = window.innerWidth;
+		this.w = (vw <= CerbUI.Dialog._MOBILE_MAX)
+			? Math.round(vw * 0.95)
+			: (this.opts.width != null
+				? this.opts.width
+				: Math.min(Math.round(vw * 0.75), CerbUI.Dialog._MAX_WIDTH));
 		this.h = null; // null = auto height until the first n/s resize
 		this.x = 0;
 		this.y = 0;
@@ -121,6 +169,7 @@ CerbUI.Dialog = class {
 		this.titleEl = null;
 		this._injectedControls = null;   // floating controls docked into the content's header
 		this._createdRightToolbar = null; // a .cerb-ui-header--right we created to dock them into
+		this._topMargin = 0;              // measured titlebar height at open (top gap + page-scroll bottom margin)
 
 		this.innerContent = contentEl;
 		this.origParent = contentEl.parentNode;
@@ -133,9 +182,10 @@ CerbUI.Dialog = class {
 		const dlg = document.createElement('div');
 		dlg.className =
 			'cerb-ui-dialog cerb-ui-dialog--hidden'
-			+ (this.opts.fixed     ? ' cerb-ui-dialog--fixed'     : '')
-			+ (this.opts.draggable ? ' cerb-ui-dialog--draggable' : '')
-			+ (this.opts.resizable ? ' cerb-ui-dialog--resizable' : '')
+			+ (this.opts.fixed      ? ' cerb-ui-dialog--fixed'     : '')
+			+ (this.opts.draggable  ? ' cerb-ui-dialog--draggable' : '')
+			+ (this.opts.resizable  ? ' cerb-ui-dialog--resizable' : '')
+			+ (this.opts.scrollBody ? ' cerb-ui-dialog--scroll'    : '')
 			+ ' cerb-ui-dialog--header-' + this.opts.header;
 		dlg.setAttribute('role', 'dialog');
 		dlg.setAttribute('aria-modal', this.opts.modal ? 'true' : 'false');
@@ -205,6 +255,10 @@ CerbUI.Dialog = class {
 		document.body.appendChild(dlg);
 		CerbUI.Dialog._instances.set(contentEl, this);
 		CerbUI.Dialog._byRoot.set(dlg, this);
+
+		// When the dialog's own size changes while open (accordion expand, inline search, async load),
+		// re-extend the page so the new bottom stays reachable — without ever repositioning the dialog.
+		this._resizeObs = window.ResizeObserver ? new ResizeObserver(() => CerbUI.Dialog._syncPageHeight()) : null;
 	}
 
 	// A control cluster (minimize? + close?) shared by the bar and the floating header.
@@ -259,9 +313,9 @@ CerbUI.Dialog = class {
 		this.el.classList.remove('cerb-ui-dialog--hidden');
 
 		const vw = window.innerWidth;
-		const vh = window.innerHeight;
 		const w  = this.el.offsetWidth;
-		const h  = this.el.offsetHeight;
+		const bar = this.el.querySelector('.cerb-ui-dialog--titlebar');
+		this._topMargin = bar ? bar.offsetHeight : 35; // ~one titlebar height (legacy "top+35")
 
 		if(this.opts.position) {
 			this.x = this.opts.position.x;
@@ -270,11 +324,20 @@ CerbUI.Dialog = class {
 			this.x = inheritedPos.x;
 			this.y = inheritedPos.y;
 		} else {
+			// Like the legacy genericAjaxPopup: centered horizontally, near the top (a one-titlebar-height
+			// gap). Top placement (not centered) means tall/growing content extends downward and the page
+			// scrolls to it, instead of opening mid-screen.
 			const ox = this.opts.fixed ? 0 : window.scrollX;
 			const oy = this.opts.fixed ? 0 : window.scrollY;
 			this.x = Math.max(0, ox + Math.round((vw - w) / 2));
-			this.y = Math.max(0, oy + Math.round((vh - h) / 3));
+			this.y = oy + this._topMargin;
 		}
+
+		// scrollBody: cap to the viewport so the whole dialog is visible (its body scrolls internally via
+		// content overflow:auto). Leave a titlebar gap at the top (the open position) and two at the bottom
+		// so the frame clears the viewport edge. Short content stays shorter (no scroll).
+		if(this.opts.scrollBody)
+			this.el.style.maxHeight = Math.max(this.opts.minHeight, window.innerHeight - 3 * this._topMargin) + 'px';
 
 		this.el.style.left = this.x + 'px';
 		this.el.style.top  = this.y + 'px';
@@ -289,6 +352,14 @@ CerbUI.Dialog = class {
 			}
 		};
 		document.addEventListener('keydown', this.docKeydown);
+
+		// A growing (non-fixed, non-scrollBody) dialog lengthens the page so it stays reachable by scroll;
+		// the ResizeObserver re-syncs that as content grows in place.
+		if(!this.opts.fixed && !this.opts.scrollBody) {
+			CerbUI.Dialog._pageDialogs.add(this);
+			CerbUI.Dialog._syncPageHeight();
+		}
+		if(this._resizeObs) this._resizeObs.observe(this.el);
 
 		if(this.opts.onOpen) this.opts.onOpen();
 		this.innerContent.dispatchEvent(new CustomEvent('cerb-ui-dialog:open', { bubbles: true }));
@@ -318,6 +389,9 @@ CerbUI.Dialog = class {
 			CerbUI.Dialog._namespaces.delete(this.opts.namespace);
 		}
 
+		if(this._resizeObs) this._resizeObs.disconnect();
+		if(CerbUI.Dialog._pageDialogs.delete(this)) CerbUI.Dialog._syncPageHeight();
+
 		this.innerContent.dispatchEvent(new CustomEvent('cerb-ui-dialog:close', { bubbles: true }));
 		return true;
 	}
@@ -331,12 +405,20 @@ CerbUI.Dialog = class {
 		if(this.titleEl) this.titleEl.textContent = title;
 	}
 
+	// Re-extend the page after the content's size changes (no reposition — the dialog stays put). The
+	// ResizeObserver does this automatically; this is the manual hook for callers that mutate content.
+	reflow() {
+		if(this._open) CerbUI.Dialog._syncPageHeight();
+	}
+
 	destroy() {
 		CerbUI.Dialog._instances.delete(this.innerContent);
 		CerbUI.Dialog._byRoot.delete(this.el);
 		if(CerbUI.Dialog._namespaces.get(this.opts.namespace) === this) {
 			CerbUI.Dialog._namespaces.delete(this.opts.namespace);
 		}
+		if(this._resizeObs) this._resizeObs.disconnect();
+		if(CerbUI.Dialog._pageDialogs.delete(this)) CerbUI.Dialog._syncPageHeight();
 
 		// Teardown without invoking onClose — destroy is always forceful.
 		if(this._open) {
@@ -450,6 +532,7 @@ CerbUI.Dialog = class {
 		const onUp = () => {
 			document.removeEventListener('pointermove', onMove);
 			document.removeEventListener('pointerup', onUp);
+			CerbUI.Dialog._syncPageHeight(); // a dialog dragged lower may need more page height to reach
 			if(this.opts.onDragged) this.opts.onDragged(this.x, this.y);
 		};
 
@@ -505,6 +588,7 @@ CerbUI.Dialog = class {
 		const onUp = () => {
 			document.removeEventListener('pointermove', onMove);
 			document.removeEventListener('pointerup', onUp);
+			CerbUI.Dialog._syncPageHeight(); // a dialog resized taller may need more page height to reach
 			if(this.opts.onResized) this.opts.onResized(this.w, this.h);
 		};
 
