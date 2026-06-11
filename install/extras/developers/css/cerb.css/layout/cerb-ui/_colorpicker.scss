@@ -58,13 +58,24 @@
 }
 
 .cerb-ui-colorpicker--input {
-	border: 0;
+	border: 0 !important;
 	outline: none;
 	background: transparent;
 	color: var(--cerb-color-text);
 	font-family: monospace;
 	min-width: 7em;
 	padding: 0;
+}
+
+// Swatch-only (showInput:false): just the swatch chip, no field chrome. The <input> stays in the DOM
+// (value holder / form submit) but is visually removed.
+.cerb-ui-colorpicker--swatch-only {
+	padding: 0;
+	border: 0;
+	gap: 0;
+	background: transparent;
+
+	.cerb-ui-colorpicker--input { display: none; }
 }
 
 // ── Floating panel ──────────────────────────────────────────────────────────────
@@ -197,5 +208,24 @@
 	&:focus-visible {
 		outline: 2px solid var(--cerb-color-action-primary);
 		outline-offset: 1px;
+	}
+}
+
+// The panel's own hex field (swatch-only mode), for copy/paste + manual entry.
+.cerb-ui-colorpicker--panel-input {
+	display: block;
+	width: 100%;
+	box-sizing: border-box;
+	margin-top: 0.6em;
+	padding: 0.3em 0.4em;
+	border: 1px solid var(--cerb-color-background-contrast-220);
+	border-radius: 4px;
+	background: var(--cerb-color-background);
+	color: var(--cerb-color-text);
+	font-family: monospace;
+
+	&:focus {
+		outline: none;
+		border-color: var(--cerb-color-action-primary);
 	}
 }

@@ -9,7 +9,8 @@
  * (saturation/value) square, a vertical hue strip, an optional alpha strip, and a palette swatch row. The
  * <input> keeps holding the value, so forms submit it and direct typing works; every change fires input +
  * change on the input plus a `cerb-ui-colorpicker:change` CustomEvent (detail = { hex, rgba }). Chrome
- * colors are tokens, so dark mode is automatic.
+ * colors are tokens, so dark mode is automatic. Pass showInput:false to render only the swatch chip — the
+ * <input> stays in the DOM (hidden) so it still holds/posts the value.
  */
 
 // ── Color math (module-level, pure) ───────────────────────────────────────────
@@ -71,6 +72,7 @@ CerbUI.ColorPicker = class {
 		this.opts = Object.assign({
 			palette: 'rainbow',  // array or palette name (CerbUI.resolvePalette); default 'rainbow'
 			alpha:   false,      // show an opacity strip and emit #rrggbbaa / rgba()
+			showInput: true,     // false = render only the swatch chip; the hidden <input> still holds/posts the value
 			onChange: null,      // (hex, rgba, input) => {}
 			onOpen:   null,
 			onClose:  null,
@@ -113,6 +115,8 @@ CerbUI.ColorPicker = class {
 	_buildWell() {
 		this.well = document.createElement('span');
 		this.well.className = 'cerb-ui-colorpicker';
+		// Swatch-only: strip the field chrome and hide the input via CSS (the input stays in the DOM below).
+		if(!this.opts.showInput) this.well.classList.add('cerb-ui-colorpicker--swatch-only');
 
 		this.swatch = document.createElement('button');
 		this.swatch.type = 'button';
@@ -222,7 +226,32 @@ CerbUI.ColorPicker = class {
 		});
 		this.el.appendChild(this.swatchRow);
 
+		// Swatch-only mode hides the inline field, so the panel carries its own hex input for copy/paste and
+		// manual entry. (With showInput:true the inline field already serves that, so we skip it here.)
+		if(!this.opts.showInput) {
+			this.panelInput = document.createElement('input');
+			this.panelInput.type = 'text';
+			this.panelInput.className = 'cerb-ui-colorpicker--panel-input';
+			this.panelInput.setAttribute('autocomplete', 'off');
+			this.panelInput.setAttribute('spellcheck', 'false');
+			this.panelInput.setAttribute('aria-label', 'Hex color value');
+			this.panelInput.addEventListener('input', () => this._onPanelInput());
+			this.el.appendChild(this.panelInput);
+		}
+
 		document.body.appendChild(this.el);
+	}
+
+	// Typing into the panel's own hex field (swatch-only mode). Mirrors onInputInput but pushes the value to
+	// the hidden form <input> too. _render() leaves this field's text alone while it's focused (no cursor jump).
+	_onPanelInput() {
+		const parsed = _cpParseHex(this.panelInput.value);
+		if(!parsed) return;
+		const hsv = _cpRgbToHsv(parsed.r, parsed.g, parsed.b);
+		if(hsv.s !== 0) this.h = hsv.h; // keep hue for grays so the SV/hue thumbs don't jump
+		this.s = hsv.s; this.v = hsv.v;
+		if(this.opts.alpha) this.a = parsed.a;
+		this._emit(true);
 	}
 
 	// ── Render (visual only; no events, no input write) ───────────────────────
@@ -245,6 +274,10 @@ CerbUI.ColorPicker = class {
 			this.alphaThumb.style.top = ((1 - this.a) * 100) + '%';
 			this.alphaFill.style.background = `linear-gradient(to bottom, rgba(${r},${g},${b},1), rgba(${r},${g},${b},0))`;
 		}
+
+		// Keep the panel's hex field in sync — but not while the user is typing in it (avoids cursor jump).
+		if(this.panelInput && document.activeElement !== this.panelInput)
+			this.panelInput.value = this.getValue();
 	}
 
 	// ── Value derivation ──────────────────────────────────────────────────────

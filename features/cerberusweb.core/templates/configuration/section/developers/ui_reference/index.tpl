@@ -966,6 +966,24 @@ el.addEventListener('cerb-ui-colorpicker:change', e =&gt; console.log(e.detail.h
 });</pre>
 			</div>
 		</div>
+
+		{* Example: swatch-only — hide the hex field, keep the input as the (hidden) value holder *}
+		<div class="cerb-ui-header">
+			<div class="cerb-ui-header--label">Swatch only (<code>showInput:false</code>) &mdash; just the swatch chip; the <code>&lt;input&gt;</code> stays hidden in the DOM so it still seeds the color and posts the value, and the popup grows its own hex field for copy/paste</div>
+		</div>
+		<div class="cerb-uiref-example">
+			<div class="cerb-uiref-demo">
+				<input type="text" id="uiref-colorpicker-swatchonly" value="#e377c2" size="10">
+				<span class="cerb-uiref-result" style="margin-left:0.7em;">Posted value: <b id="uiref-colorpicker-swatchonly-result">&mdash;</b></span>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>new CerbUI.ColorPicker(el, {
+	showInput: false,   // render only the swatch; the hidden &lt;input&gt; still holds/posts the value
+});</pre>
+			</div>
+		</div>
 	</div>
 
 	<div class="cerb-uiref-component" id="uiref-c-legend">
@@ -2502,6 +2520,19 @@ new CerbUI.Dialog(elB, { title: 'B', namespace: 'demo' });</pre>
 				onChange: function(hex, rgba) { if(out) out.textContent = rgba; },
 			});
 			if(out) out.textContent = picker.getRgba();
+		}
+	})();
+
+	// ColorPicker: swatch-only (hex field hidden), reporting the still-posted input value
+	(function() {
+		const el = document.getElementById('uiref-colorpicker-swatchonly');
+		const out = document.getElementById('uiref-colorpicker-swatchonly-result');
+		if(el && window.CerbUI && CerbUI.ColorPicker) {
+			const picker = new CerbUI.ColorPicker(el, {
+				showInput: false,
+				onChange: function(hex) { if(out) out.textContent = hex; },
+			});
+			if(out) out.textContent = picker.getValue();
 		}
 	})();
 
