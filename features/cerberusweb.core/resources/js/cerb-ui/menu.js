@@ -212,7 +212,7 @@ CerbUI.Menu = class {
 
 		// pnl.el is always the list <ul>; pnl.outer is the positioned/appended element — the same <ul>,
 		// or a filter wrapper (input + ul) when type-to-filter is on at the root.
-		const pnl = { el, outer: null, items, depth, activeIdx: -1, virt: false, visH: 0, spacerT: null, spacerB: null, scrollBound: false, filterInput: null, filterActive: false };
+		const pnl = { el, outer: null, items, depth, activeIdx: -1, virt: false, visH: 0, spacerT: null, spacerB: null, scrollBound: false, filterInput: null, filterActive: false, flipUp: null };
 
 		el.addEventListener('mouseover', (e) => this._onOver(e, pnl));
 		el.addEventListener('click', (e) => this._onClickItem(e, pnl));
@@ -301,6 +301,12 @@ CerbUI.Menu = class {
 				el.appendChild(frag);
 			}
 		}
+
+		// Filtering changes the root panel's height. If it's already floating on screen, re-run placement so an
+		// upward-flipped menu re-anchors to its trigger instead of leaving a gap (skipped during initial build,
+		// when the element isn't connected yet, and for inline menus, which sit in document flow).
+		if(pnl.depth === 0 && !this.opts.inline && (pnl.outer || pnl.el).isConnected)
+			this._place(pnl, 0);
 	}
 
 	// Narrow the list to the query. A flat menu filters its root labels in place (cheap, no allocation).
@@ -695,8 +701,13 @@ CerbUI.Menu = class {
 			if(!this.anchor) return;
 			const r0 = this.anchor.getBoundingClientRect();
 			x = r0.left;
-			y = r0.bottom + 2;
-			if(y + ph > vh) y = r0.top - ph - 2;
+			// Decide the flip direction ONCE, on the first placement (full-height list), and keep it for the
+			// life of the panel. Filtering re-runs _place on a shorter panel; re-deciding here would let a menu
+			// that opened upward flip back below a near-bottom trigger once it shrank — dropping off the fold.
+			// When flipped up the panel's bottom stays pinned to the trigger top, so it can't leave the viewport.
+			if(pnl.flipUp === null) pnl.flipUp = (r0.bottom + 2 + ph > vh);
+			y = pnl.flipUp ? (r0.top - ph - 2) : (r0.bottom + 2);
+			y = Math.max(4, Math.min(y, vh - ph - 4)); // backstop clamp (e.g. a panel taller than the space above)
 			if(x + pw > vw) x = vw - pw - 4;
 			x = Math.max(0, x);
 		} else {
