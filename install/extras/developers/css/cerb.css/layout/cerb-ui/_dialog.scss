@@ -128,6 +128,19 @@
 	padding: 16px;
 }
 
+// Loading state — a centered spinner shown by CerbUI.Dialog.fromAjax() until the response arrives.
+.cerb-ui-dialog--loading {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 2em;
+
+	.cerb-ui-spinner {
+		width: 28px;
+		height: 28px;
+	}
+}
+
 // 'bar' content sits flush under the bar; floating/none give the content its own breathing room handled
 // by the content itself.
 

@@ -2038,6 +2038,33 @@ new CerbUI.Dialog(elB, { title: 'B', namespace: 'demo' });</pre>
 			</div>
 		</div>
 
+		{* Example: fromAjax — fetch HTML into a popup (the genericAjaxPopup replacement) *}
+		<div class="cerb-ui-header">
+			<div class="cerb-ui-header--label">AJAX content (<code>CerbUI.Dialog.fromAjax</code>) &mdash; spinner while loading, then the fetched HTML; response <code>&lt;script&gt;</code> runs under the nonce</div>
+		</div>
+		<div class="cerb-uiref-example">
+			<div class="cerb-uiref-demo">
+				<button type="button" class="cerb-ui-button" id="uiref-dialog-ajax-btn">Load help popup</button>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>{literal}// string ⇒ GET (ajax args); FormData ⇒ POST. opts are the constructor options + onLoad.
+CerbUI.Dialog.fromAjax('c=profiles&amp;a=invoke&amp;module=snippet&amp;action=helpPopup', {
+	title: 'Snippet help', // titlebar text
+	width: 600,
+	// namespace: 'peek',  // siblings share position + auto-close each other (supersedes the old layer/reuse)
+	// onLoad: function(content, html) { /* runs after the HTML is injected */ },
+});
+
+// POST a form's data instead of GET args:
+// CerbUI.Dialog.fromAjax(new FormData(document.getElementById('myForm')), { title: 'Edit' });
+
+// loaded content finds its own dialog from any element inside it (replaces genericAjaxPopupFind):
+// CerbUI.Dialog.from(thisFormEl).close();{/literal}</pre>
+			</div>
+		</div>
+
 		{* Hidden templates — CerbUI.Dialog relocates each into a floating shell (and restores here on destroy) *}
 		<div id="uiref-dialog-templates" style="display:none;">
 			<div id="uiref-dialog-classic-content" style="line-height:1.5;">
@@ -2632,6 +2659,12 @@ new CerbUI.Dialog(elB, { title: 'B', namespace: 'demo' });</pre>
 				const dlg = content && CerbUI.Dialog.from(content);
 				if(dlg) dlg.close();
 			});
+		});
+
+		// fromAjax: build the dialog procedurally and load real HTML (the snippet help popup) into it
+		const ajaxBtn = document.getElementById('uiref-dialog-ajax-btn');
+		if(ajaxBtn) ajaxBtn.addEventListener('click', function() {
+			CerbUI.Dialog.fromAjax('c=profiles&a=invoke&module=snippet&action=helpPopup', { title: 'Snippet help', width: 600 });
 		});
 	})();
 

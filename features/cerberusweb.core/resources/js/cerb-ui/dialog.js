@@ -8,6 +8,18 @@
  *   const dlg = new CerbUI.Dialog(contentEl, { title: 'Ticket', header: 'bar' });
  *   dlg.open(); dlg.close(); CerbUI.Dialog.from(contentEl);
  *
+ * AJAX popups — CerbUI.Dialog.fromAjax(request, opts):
+ *   Builds the dialog DOM procedurally, shows a spinner, fetches HTML, and loads it as the content. The
+ *   `request` mirrors the legacy genericAjaxPopup: a string ⇒ GET (ajax args), a FormData ⇒ POST. The
+ *   response is injected through Cerb's genericAjaxGet/Post (jQuery .html()), so any <script> in it runs
+ *   under the page's CSP nonce — the canonical Cerb path (a raw fetch()+innerHTML would NOT run them).
+ *   HTTP errors already raise a toast banner via the helper; the wrapper just closes the dialog (the old
+ *   hookError behavior). `opts` are the constructor options below (title, header, namespace, modal,
+ *   width, …) plus an optional onLoad(content, html). The popup is throwaway: it self-destroys on close.
+ *   Loaded content resolves its own dialog with CerbUI.Dialog.from(anyDescendant) — e.g. a form inside it
+ *   — then setTitle()/close() (the genericAjaxPopupFind replacement). `namespace` supersedes the old
+ *   `layer`/`reuse`: siblings sharing a namespace inherit each other's position and auto-close on open().
+ *
  * Header chrome (`header` option):
  *   'bar'      — the classic Cerb title bar (accent background) with the title + controls; drag by the bar.
  *   'floating' — no bar; the controls dock into the content's own cerb-ui-header (`.cerb-ui-header--right`,
@@ -24,10 +36,51 @@
 CerbUI.Dialog = class {
 	static _uid = 0;
 	static _zTop = 9000; // above .cerb-float (2500) / jQuery dialogs (~100); below tooltips/menus (10000+)
-	static _instances = new WeakMap();
+	static _instances = new WeakMap(); // keyed on the content element passed to the constructor
+	static _byRoot = new WeakMap();    // keyed on the dialog root (.cerb-ui-dialog) for descendant lookups
 	static _namespaces = new Map();
 
-	static from(el) { return CerbUI.Dialog._instances.get(el); }
+	// Resolve the dialog from its content element (exact) or any descendant of it (climbs to the root).
+	// The descendant path is what lets AJAX-loaded content find its own dialog (replaces genericAjaxPopupFind).
+	static from(el) {
+		if(!el) return undefined;
+		const direct = CerbUI.Dialog._instances.get(el);
+		if(direct) return direct;
+		const root = el.closest ? el.closest('.cerb-ui-dialog') : null;
+		return root ? CerbUI.Dialog._byRoot.get(root) : undefined;
+	}
+
+	// Build a dialog around freshly-fetched HTML: spinner while loading, then the response as content.
+	// `request`: a string ⇒ GET (ajax args) or a FormData ⇒ POST. `opts`: constructor options + onLoad.
+	static fromAjax(request, opts = {}) {
+		const content = document.createElement('div'); // detached → origParent null → destroy() removes it all
+		const loading = document.createElement('div');
+		loading.className = 'cerb-ui-dialog--loading';
+		loading.appendChild((window.CerbUI && CerbUI.Spinner) ? CerbUI.Spinner.create() : document.createElement('span'));
+		content.appendChild(loading);
+
+		const dlg = new CerbUI.Dialog(content, opts);
+		// Throwaway popup: tear the DOM down once it closes (keeps hidden dialogs from piling up).
+		content.addEventListener('cerb-ui-dialog:close', () => dlg.destroy(), { once: true });
+		dlg.open(); // spinner shows immediately, centered
+
+		const onError = () => dlg.close(); // the helper already toasted the HTTP error; just close (legacy hookError)
+		const onDone  = (html) => { if(typeof opts.onLoad === 'function') opts.onLoad(content, html); };
+
+		if(typeof genericAjaxGet !== 'function' || typeof genericAjaxPost !== 'function' || !window.jQuery) {
+			if(window.console) console.warn('CerbUI.Dialog.fromAjax requires genericAjaxGet/genericAjaxPost + jQuery');
+			return dlg;
+		}
+
+		// genericAjaxGet/Post inject the fragment with jQuery (response <script> runs under the page nonce)
+		// and surface HTTP errors as toast banners; they replace our spinner via .html() on success.
+		if(request instanceof FormData)
+			genericAjaxPost(request, jQuery(content), '', onDone, { error: onError });
+		else
+			genericAjaxGet(jQuery(content), request, onDone, { error: onError });
+
+		return dlg;
+	}
 
 	constructor(contentEl, opts = {}) {
 		this.uid = ++CerbUI.Dialog._uid;
@@ -151,6 +204,7 @@ CerbUI.Dialog = class {
 
 		document.body.appendChild(dlg);
 		CerbUI.Dialog._instances.set(contentEl, this);
+		CerbUI.Dialog._byRoot.set(dlg, this);
 	}
 
 	// A control cluster (minimize? + close?) shared by the bar and the floating header.
@@ -279,6 +333,7 @@ CerbUI.Dialog = class {
 
 	destroy() {
 		CerbUI.Dialog._instances.delete(this.innerContent);
+		CerbUI.Dialog._byRoot.delete(this.el);
 		if(CerbUI.Dialog._namespaces.get(this.opts.namespace) === this) {
 			CerbUI.Dialog._namespaces.delete(this.opts.namespace);
 		}
