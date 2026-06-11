@@ -17,6 +17,15 @@
 
 // Text
 .cerb-u-bold { font-weight: bold; }
+.cerb-u-nowrap { white-space: nowrap; }
+.cerb-u-text-center { text-align: center; }
+.cerb-u-text-uppercase { text-transform: uppercase; }
+
+// Position
+.cerb-u-relative { position: relative; }
+
+// Cursor
+.cerb-u-cursor-pointer { cursor: pointer; }
 
 // Width (percent of the container)
 .cerb-u-w-25 { width: 25%; }
@@ -46,7 +55,10 @@ $cerb-u-radii: (0: 0, 1: 4px, 2: 6px, 3: 8px, 4: 10px);
 .cerb-u-flex { display: flex; }
 .cerb-u-flex-wrap { flex-wrap: wrap; }
 .cerb-u-items-center { align-items: center; }
+.cerb-u-items-stretch { align-items: stretch; }
+.cerb-u-justify-center { justify-content: center; }
 .cerb-u-justify-between { justify-content: space-between; }
+.cerb-u-flex-shrink-0 { flex-shrink: 0; }
 
 // Flex grow ratios (for splits): N parts of the row, on a flex-wrap parent. Compose any ratio — two
 // cerb-u-flex-1 = halves; cerb-u-flex-1 + cerb-u-flex-2 = a third + two-thirds; three = thirds. min-width:0
@@ -79,6 +91,12 @@ $cerb-u-sides: (
 		}
 	}
 }
+
+// Auto margins — flex "push" helpers (e.g. margin-left:auto shoves an item to the far end of a row).
+// Separate from the numbered spacing scale on purpose; not corner combos.
+.cerb-u-ml-auto { margin-left: auto; }
+.cerb-u-mr-auto { margin-right: auto; }
+.cerb-u-mx-auto { margin-left: auto; margin-right: auto; }
 
 // Gap between flex/grid children; steps match the spacing scale above.
 @each $step, $factor in $cerb-u-spacers {
