@@ -1,5 +1,47 @@
 // Separator: a horizontal rule you can write on — a centered label flanked by lines. Block-level (spans its
 // container). With no label it's a plain rule. Lines are solid by default; use --dashed for dashed lines.
+// Arrowheads: --arrow-start-left/--arrow-start-right cap the leading line, --arrow-end-left/--arrow-end-right
+// the trailing line. Combine freely (flow: start-right + end-right; inward: start-right + end-left; etc).
+// --thick swaps the filled triangle heads for exaggerated open chevrons (icon-set style).
+
+// Line + arrowhead are drawn as mask layers over background-color so theme vars work (SVG backgrounds can't)
+$_sep-line-solid: linear-gradient(#000, #000);
+$_sep-line-dashed: repeating-linear-gradient(90deg, #000 0 3px, transparent 3px 6px);
+
+// Filled triangle heads (default)
+$_sep-triangle: (
+	left: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 6 7'><path d='M6 0 0 3.5 6 7Z'/></svg>"),
+	right: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 6 7'><path d='M0 0 6 3.5 0 7Z'/></svg>"),
+	size: 6px 7px,
+	height: 7px,
+	inset: 5px // line stops at the arrow base so dashes don't poke past the arrowhead
+);
+
+// Open chevron heads (--thick): 45° arms, 2px stroke, sharp corners — matches the cerb-icons chevrons
+$_sep-chevron: (
+	left: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 13'><path d='M6 2 1.5 6.5 6 11' fill='none' stroke='black' stroke-width='2'/></svg>"),
+	right: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 13'><path d='M2 2 6.5 6.5 2 11' fill='none' stroke='black' stroke-width='2'/></svg>"),
+	size: 8px 13px,
+	height: 13px,
+	inset: 2px // line runs into the chevron vertex
+);
+
+@mixin _sep-mask($line, $arrow: none, $head: $_sep-triangle) {
+	$size: map-get($head, size);
+	$inset: map-get($head, inset);
+
+	@if $arrow == left {
+		-webkit-mask: #{map-get($head, left)} left center / #{$size} no-repeat, #{$line} right center / calc(100% - #{$inset}) 1px no-repeat;
+		mask: #{map-get($head, left)} left center / #{$size} no-repeat, #{$line} right center / calc(100% - #{$inset}) 1px no-repeat;
+	} @else if $arrow == right {
+		-webkit-mask: #{map-get($head, right)} right center / #{$size} no-repeat, #{$line} left center / calc(100% - #{$inset}) 1px no-repeat;
+		mask: #{map-get($head, right)} right center / #{$size} no-repeat, #{$line} left center / calc(100% - #{$inset}) 1px no-repeat;
+	} @else {
+		-webkit-mask: #{$line} center / 100% 1px no-repeat;
+		mask: #{$line} center / 100% 1px no-repeat;
+	}
+}
+
 .cerb-ui-separator {
 	display: flex;
 	align-items: center;
@@ -26,4 +68,71 @@
 			border-top-style: dashed;
 		}
 	}
+
+	// Any arrow modifier → both lines switch to mask rendering so they stay vertically aligned
+	&--arrow-start-left,
+	&--arrow-start-right,
+	&--arrow-end-left,
+	&--arrow-end-right {
+		&::before,
+		&::after {
+			border-top: 0;
+			height: map-get($_sep-triangle, height);
+			background-color: var(--cerb-color-background-contrast-200);
+			@include _sep-mask($_sep-line-solid);
+		}
+	}
+
+	&--arrow-start-left::before { @include _sep-mask($_sep-line-solid, left); }
+	&--arrow-start-right::before { @include _sep-mask($_sep-line-solid, right); }
+	&--arrow-end-left::after { @include _sep-mask($_sep-line-solid, left); }
+	&--arrow-end-right::after { @include _sep-mask($_sep-line-solid, right); }
+
+	// mask-image is a single property, so dashed + arrow states re-declare with the dashed line layer
+	&--dashed#{&}--arrow-start-left,
+	&--dashed#{&}--arrow-start-right,
+	&--dashed#{&}--arrow-end-left,
+	&--dashed#{&}--arrow-end-right {
+		&::before,
+		&::after {
+			@include _sep-mask($_sep-line-dashed);
+		}
+	}
+
+	&--dashed#{&}--arrow-start-left::before { @include _sep-mask($_sep-line-dashed, left); }
+	&--dashed#{&}--arrow-start-right::before { @include _sep-mask($_sep-line-dashed, right); }
+	&--dashed#{&}--arrow-end-left::after { @include _sep-mask($_sep-line-dashed, left); }
+	&--dashed#{&}--arrow-end-right::after { @include _sep-mask($_sep-line-dashed, right); }
+
+	// --thick: chevron heads (only meaningful combined with arrow modifiers)
+	&--thick#{&}--arrow-start-left,
+	&--thick#{&}--arrow-start-right,
+	&--thick#{&}--arrow-end-left,
+	&--thick#{&}--arrow-end-right {
+		&::before,
+		&::after {
+			height: map-get($_sep-chevron, height);
+			@include _sep-mask($_sep-line-solid);
+		}
+	}
+
+	&--thick#{&}--arrow-start-left::before { @include _sep-mask($_sep-line-solid, left, $_sep-chevron); }
+	&--thick#{&}--arrow-start-right::before { @include _sep-mask($_sep-line-solid, right, $_sep-chevron); }
+	&--thick#{&}--arrow-end-left::after { @include _sep-mask($_sep-line-solid, left, $_sep-chevron); }
+	&--thick#{&}--arrow-end-right::after { @include _sep-mask($_sep-line-solid, right, $_sep-chevron); }
+
+	&--dashed#{&}--thick#{&}--arrow-start-left,
+	&--dashed#{&}--thick#{&}--arrow-start-right,
+	&--dashed#{&}--thick#{&}--arrow-end-left,
+	&--dashed#{&}--thick#{&}--arrow-end-right {
+		&::before,
+		&::after {
+			@include _sep-mask($_sep-line-dashed);
+		}
+	}
+
+	&--dashed#{&}--thick#{&}--arrow-start-left::before { @include _sep-mask($_sep-line-dashed, left, $_sep-chevron); }
+	&--dashed#{&}--thick#{&}--arrow-start-right::before { @include _sep-mask($_sep-line-dashed, right, $_sep-chevron); }
+	&--dashed#{&}--thick#{&}--arrow-end-left::after { @include _sep-mask($_sep-line-dashed, left, $_sep-chevron); }
+	&--dashed#{&}--thick#{&}--arrow-end-right::after { @include _sep-mask($_sep-line-dashed, right, $_sep-chevron); }
 }
