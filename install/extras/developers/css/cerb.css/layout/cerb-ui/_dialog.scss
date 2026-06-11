@@ -150,11 +150,44 @@
 // by the content itself.
 
 // ── Minimized state ───────────────────────────────────────────────────────
+// Minimized dialogs are docked in the top-right tray (CerbUI.Dialog._tray), so they're fully hidden.
 .cerb-ui-dialog--minimized {
-	.cerb-ui-dialog--content,
-	.cerb-ui-dialog--resize {
-		display: none;
+	display: none;
+}
+
+// ── Minimized-windows tray ────────────────────────────────────────────────
+// A single shared button at the top-right that counts docked windows; click opens a menu of their titles.
+// Same blue as the titlebar. Sits above dialogs (z 9000+), below menus/tooltips (10000+).
+.cerb-ui-dialog-tray {
+	position: fixed;
+	top: 8px;
+	right: 8px;
+	z-index: 9999;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 10px;
+	border: 0;
+	border-radius: 8px;
+	cursor: pointer;
+	background: var(--cerb-color-action-primary);
+	color: var(--cerb-color-action-primary-text);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+
+	.cerb-icons { font-size: 1.2em; }
+
+	&:hover { filter: brightness(0.95); }
+
+	&:focus-visible {
+		outline: 2px solid var(--cerb-color-action-primary);
+		outline-offset: 2px;
 	}
+}
+
+.cerb-ui-dialog-tray--count {
+	font-weight: 600;
+	font-size: 0.9em;
+	line-height: 1;
 }
 
 // ── Resize handles ────────────────────────────────────────────────────────

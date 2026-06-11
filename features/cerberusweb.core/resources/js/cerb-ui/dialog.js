@@ -6,7 +6,15 @@
  *
  * Usage:
  *   const dlg = new CerbUI.Dialog(contentEl, { title: 'Ticket', header: 'bar' });
- *   dlg.open(); dlg.close(); CerbUI.Dialog.from(contentEl);
+ *   dlg.open(); dlg.close(); dlg.minimize(); dlg.restore(); CerbUI.Dialog.from(contentEl);
+ *
+ * Minimize: a minimize button (alongside close) docks the dialog into a single shared tray button (a window
+ *   icon + a count, titlebar-blue) fixed at the top-right of the page. Available on any header with controls
+ *   — both 'bar' and 'floating' (the buttons inject into the floating cluster / content header) — i.e.
+ *   default on except header:'none'. Clicking the tray opens a menu of the minimized dialogs' titles
+ *   (`opts.title`, falling back to "Untitled" for headerless dialogs that don't set one); choosing one
+ *   restores it (`restore()`) to the default top-center position. `onMinimize(bool)` fires true on minimize /
+ *   false on restore. Modal dialogs are never minimizable (modal + minimize are mutually exclusive).
  *
  * AJAX popups — CerbUI.Dialog.fromAjax(request, opts):
  *   Builds the dialog DOM procedurally, shows a spinner, fetches HTML, and loads it as the content. The
@@ -60,6 +68,58 @@ CerbUI.Dialog = class {
 	static _origBodyMinHeight = null;  // body.style.minHeight before we touched it; restored when the set empties
 	static _MAX_WIDTH = 1100;          // default-width cap; mirrors .cerb-ui-page--max-width
 	static _MOBILE_MAX = 768;          // mobile breakpoint (cerb-responsive.scss) — dialogs go 95% wide below it
+	static _minimized = new Set();     // dialogs docked in the top-right tray
+	static _tray = null;               // the shared tray button (lazily built)
+	static _trayMenu = null;           // the open tray menu, if any (so a re-click toggles it shut)
+
+	// Keep the top-right tray button in sync with the minimized set: hidden at 0, else a window icon + count.
+	static _syncTray() {
+		const n = CerbUI.Dialog._minimized.size;
+		let tray = CerbUI.Dialog._tray;
+		if(n === 0) { if(tray) tray.style.display = 'none'; return; }
+		if(!tray) {
+			tray = document.createElement('button');
+			tray.type = 'button';
+			tray.className = 'cerb-ui-dialog-tray';
+			tray.setAttribute('aria-label', 'Minimized windows');
+			const icon = document.createElement('span');
+			icon.className = 'cerb-icons cerb-icon-window-top';
+			icon.setAttribute('aria-hidden', 'true');
+			const count = document.createElement('span');
+			count.className = 'cerb-ui-dialog-tray--count';
+			tray.appendChild(icon);
+			tray.appendChild(count);
+			tray.addEventListener('click', () => CerbUI.Dialog._openTrayMenu());
+			document.body.appendChild(tray);
+			CerbUI.Dialog._tray = tray;
+		}
+		tray.style.display = '';
+		tray.querySelector('.cerb-ui-dialog-tray--count').textContent = String(n);
+	}
+
+	// Open a CerbUI.Menu of the minimized dialogs' titles, anchored to the tray; selecting one restores it.
+	// Re-clicking the tray toggles the menu shut (the menu ignores clicks on its anchor, so we toggle here).
+	static _openTrayMenu() {
+		if(CerbUI.Dialog._trayMenu) { CerbUI.Dialog._trayMenu.close(); return; } // onClose nulls the ref
+		if(!(window.CerbUI && CerbUI.Menu) || !CerbUI.Dialog._minimized.size) return;
+		const ul = document.createElement('ul');
+		for(const d of CerbUI.Dialog._minimized) {
+			const li = document.createElement('li');
+			li.textContent = d.opts.title || 'Untitled'; // textContent = the security boundary
+			li.dataset.uid = String(d.uid);
+			ul.appendChild(li);
+		}
+		const menu = new CerbUI.Menu(ul, {
+			fixed: true,
+			onClose: function() { CerbUI.Dialog._trayMenu = null; },
+			onSelect: function(rendered, source) {
+				const uid = parseInt(source.dataset.uid, 10);
+				for(const d of CerbUI.Dialog._minimized) { if(d.uid === uid) { d.restore(); break; } }
+			},
+		});
+		CerbUI.Dialog._trayMenu = menu;
+		menu.open(CerbUI.Dialog._tray);
+	}
 
 	// A floating absolute dialog is out of flow, so it doesn't lengthen the document — a dialog taller than
 	// the viewport would be unreachable by page scroll. While such dialogs are open, grow <body> to cover the
@@ -130,7 +190,7 @@ CerbUI.Dialog = class {
 			draggable:  true,
 			resizable:  true,
 			closable:   true,
-			minimizable: null, // resolved below: default true only for the 'bar' header
+			minimizable: null, // resolved below: default true for any header with controls ('bar' / 'floating')
 			modal:      false,
 			scrollBody: false, // true = cap to the viewport and scroll the body; default grows + page scrolls
 			width:      null,  // null = 75% of the viewport capped at _MAX_WIDTH (mobile: always 95%)
@@ -148,7 +208,8 @@ CerbUI.Dialog = class {
 			onResized:  null,
 		}, opts);
 		if(this.opts.namespace == null) this.opts.namespace = String(this.uid);
-		if(this.opts.minimizable == null) this.opts.minimizable = (this.opts.header === 'bar');
+		if(this.opts.minimizable == null) this.opts.minimizable = (this.opts.header !== 'none'); // 'bar' + 'floating'
+		if(this.opts.modal) this.opts.minimizable = false; // modal + minimize are mutually exclusive
 
 		// Width: mobile is always 95% (ignores any width directive); otherwise an explicit width is honored
 		// as-is, else default to 75% of the viewport capped at the cerb-ui-page max-width.
@@ -267,7 +328,7 @@ CerbUI.Dialog = class {
 		controls.className = 'cerb-ui-dialog--controls';
 
 		if(this.opts.minimizable) {
-			this.minimizeBtn = this._makeBtn('cerb-icon-chevron-up', 'Minimize', () => this._toggleMinimize());
+			this.minimizeBtn = this._makeBtn('cerb-icon-chevron-up', 'Minimize', () => this.minimize());
 			controls.appendChild(this.minimizeBtn);
 		}
 		if(this.opts.closable) {
@@ -324,13 +385,7 @@ CerbUI.Dialog = class {
 			this.x = inheritedPos.x;
 			this.y = inheritedPos.y;
 		} else {
-			// Like the legacy genericAjaxPopup: centered horizontally, near the top (a one-titlebar-height
-			// gap). Top placement (not centered) means tall/growing content extends downward and the page
-			// scrolls to it, instead of opening mid-screen.
-			const ox = this.opts.fixed ? 0 : window.scrollX;
-			const oy = this.opts.fixed ? 0 : window.scrollY;
-			this.x = Math.max(0, ox + Math.round((vw - w) / 2));
-			this.y = oy + this._topMargin;
+			this._positionDefault(); // centered horizontally, near the top (the default / restore position)
 		}
 
 		// scrollBody: cap to the viewport so the whole dialog is visible (its body scrolls internally via
@@ -376,8 +431,8 @@ CerbUI.Dialog = class {
 		if(this.minimized) {
 			this.minimized = false;
 			this.el.classList.remove('cerb-ui-dialog--minimized');
-			if(this.minimizeBtn) this._setMinimizeIcon(false);
-			this.el.style.height = (this.h !== null ? this.h + 'px' : '');
+			CerbUI.Dialog._minimized.delete(this);
+			CerbUI.Dialog._syncTray();
 		}
 
 		if(this.docKeydown) {
@@ -418,6 +473,7 @@ CerbUI.Dialog = class {
 			CerbUI.Dialog._namespaces.delete(this.opts.namespace);
 		}
 		if(this._resizeObs) this._resizeObs.disconnect();
+		if(CerbUI.Dialog._minimized.delete(this)) CerbUI.Dialog._syncTray();
 		if(CerbUI.Dialog._pageDialogs.delete(this)) CerbUI.Dialog._syncPageHeight();
 
 		// Teardown without invoking onClose — destroy is always forceful.
@@ -469,19 +525,41 @@ CerbUI.Dialog = class {
 		if(this.backdrop) { this.backdrop.remove(); this.backdrop = null; }
 	}
 
-	_setMinimizeIcon(minimized) {
-		const icon = this.minimizeBtn.querySelector('.cerb-icons');
-		if(icon) icon.className = 'cerb-icons ' + (minimized ? 'cerb-icon-chevron-down' : 'cerb-icon-chevron-up');
-		this.minimizeBtn.setAttribute('aria-label', minimized ? 'Restore' : 'Minimize');
+	// The default open / restore position: centered horizontally, near the top (one-titlebar gap), at the
+	// current scroll. Top placement (not centered) lets tall/growing content extend down + page-scroll.
+	_positionDefault() {
+		const vw = window.innerWidth;
+		const w  = this.el.offsetWidth;
+		const ox = this.opts.fixed ? 0 : window.scrollX;
+		const oy = this.opts.fixed ? 0 : window.scrollY;
+		this.x = Math.max(0, ox + Math.round((vw - w) / 2));
+		this.y = oy + this._topMargin;
+		this.el.style.left = this.x + 'px';
+		this.el.style.top  = this.y + 'px';
 	}
 
-	_toggleMinimize() {
-		this.minimized = !this.minimized;
-		this.el.classList.toggle('cerb-ui-dialog--minimized', this.minimized);
-		// Clear explicit height so the dialog collapses to the header; restore on un-minimize.
-		this.el.style.height = this.minimized ? '' : (this.h !== null ? this.h + 'px' : '');
-		this._setMinimizeIcon(this.minimized);
-		if(this.opts.onMinimize) this.opts.onMinimize(this.minimized);
+	// Dock into the top-right tray (one-way; restore from the tray menu).
+	minimize() {
+		if(this.minimized || !this._open) return;
+		this.minimized = true;
+		this.el.classList.add('cerb-ui-dialog--minimized'); // display:none — the tray represents it now
+		CerbUI.Dialog._minimized.add(this);
+		CerbUI.Dialog._syncTray();
+		CerbUI.Dialog._syncPageHeight(); // hidden → drops out of the page-height calc
+		if(this.opts.onMinimize) this.opts.onMinimize(true);
+	}
+
+	// Restore from the tray back to the default top-center position, on top.
+	restore() {
+		if(!this.minimized) return;
+		this.minimized = false;
+		this.el.classList.remove('cerb-ui-dialog--minimized');
+		CerbUI.Dialog._minimized.delete(this);
+		CerbUI.Dialog._syncTray();
+		this._positionDefault();
+		this.bringToFront();
+		CerbUI.Dialog._syncPageHeight();
+		if(this.opts.onMinimize) this.opts.onMinimize(false);
 	}
 
 	// Whether a pointerdown target should start a drag (in the drag region, outside the controls).

@@ -1976,7 +1976,7 @@ el.addEventListener('cerb-ui-dialog:close', () =&gt; {});
 	…body…
 &lt;/div&gt;
 
-new CerbUI.Dialog(el, { header: 'floating' }); // no width → 75% of the viewport (capped at 1100; mobile 95%)</pre>
+new CerbUI.Dialog(el, { header: 'floating', title: 'Helio Inc' }); // no titlebar, but title labels it in the minimize tray</pre>
 			</div>
 		</div>
 
@@ -2000,7 +2000,7 @@ new CerbUI.Dialog(el, { header: 'floating' }); // no width → 75% of the viewpo
 
 		{* Example: minimize / drag / resize, reporting callbacks *}
 		<div class="cerb-ui-header">
-			<div class="cerb-ui-header--label">Minimize, drag &amp; resize &mdash; the caret collapses the body to the bar; <code>onMinimize</code>/<code>onResized</code> fire</div>
+			<div class="cerb-ui-header--label">Minimize, drag &amp; resize &mdash; the caret docks the window into the top-right tray (a window icon + count); click the tray to restore. Open a few and minimize them; <code>onMinimize</code>/<code>onResized</code> fire</div>
 		</div>
 		<div class="cerb-uiref-example">
 			<div class="cerb-uiref-demo">
@@ -2071,7 +2071,7 @@ CerbUI.Dialog.fromAjax('c=profiles&amp;a=invoke&amp;module=snippet&amp;action=he
 		<div id="uiref-dialog-templates" style="display:none;">
 			<div id="uiref-dialog-classic-content" style="line-height:1.5;">
 				<p>This is a classic Cerb dialog with the accent title bar &mdash; the look you know.</p>
-				<p>Drag it by the bar, resize from any edge or corner, minimize with the caret, or press <b>Esc</b> to close.</p>
+				<p>Drag it by the bar, resize from any edge or corner, minimize with the caret (it docks to the top-right tray), or press <b>Esc</b> to close.</p>
 			</div>
 
 			<div id="uiref-dialog-floating-content" style="line-height:1.5;">
@@ -2098,7 +2098,7 @@ CerbUI.Dialog.fromAjax('c=profiles&amp;a=invoke&amp;module=snippet&amp;action=he
 			</div>
 
 			<div id="uiref-dialog-resize-content" style="line-height:1.5;">
-				<p>Drag the title bar to move me. Grab an edge or corner to resize (I won't shrink below the minimums). Use the caret to minimize me to just the bar.</p>
+				<p>Drag the title bar to move me. Grab an edge or corner to resize (I won't shrink below the minimums). Use the caret to minimize me to the top-right tray, then click the tray to restore me.</p>
 			</div>
 
 			<div id="uiref-dialog-ns-a-content" style="line-height:1.5;">
@@ -2667,7 +2667,7 @@ CerbUI.Dialog.fromAjax('c=profiles&amp;a=invoke&amp;module=snippet&amp;action=he
 		};
 
 		wire('uiref-dialog-classic-btn', 'uiref-dialog-classic-content', { title: 'Ticket', width: 480 });
-		wire('uiref-dialog-floating-btn', 'uiref-dialog-floating-content', { header: 'floating' }); // default width
+		wire('uiref-dialog-floating-btn', 'uiref-dialog-floating-content', { header: 'floating', title: 'Helio Inc' }); // default width; title = tray label
 		wire('uiref-dialog-modal-btn', 'uiref-dialog-modal-content', { title: 'Edit snippet', modal: true, width: 460 });
 
 		const resizeOut = document.getElementById('uiref-dialog-resize-result');
