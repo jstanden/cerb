@@ -5349,24 +5349,6 @@ tables:
             subpart@text:
             unique@text:
         references: devblocks_storage_profile.id
-    indexes:
-      ns_ext_profile:
-        columns:
-          storage_namespace:
-            column_name: storage_namespace
-            index_type: BTREE
-            subpart@text:
-            unique@text:
-          storage_extension:
-            column_name: storage_extension
-            index_type: BTREE
-            subpart@text:
-            unique@text:
-          storage_profile_id:
-            column_name: storage_profile_id
-            index_type: BTREE
-            subpart@text:
-            unique@text:
   email_signature:
     columns:
       id:
@@ -9197,6 +9179,14 @@ tables:
             unique@text:
   queue:
     columns:
+      claim_window_secs:
+        field: claim_window_secs
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 3600
+        extra@text:
       created_at:
         field: created_at
         type: int unsigned
@@ -9236,6 +9226,22 @@ tables:
         nullable: NOT NULL
         key: UNI
         default@text:
+        extra@text:
+      retry_max:
+        field: retry_max
+        type: tinyint unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      retry_window_secs:
+        field: retry_window_secs
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 86400
         extra@text:
       updated_at:
         field: updated_at
@@ -9554,13 +9560,21 @@ tables:
         key@text:
         default: 1
         extra@text:
-      consumer_id:
-        field: consumer_id
+      claim_id:
+        field: claim_id
         type: binary(16)
         collation@text:
         nullable: NULL
         key@text:
         default@text:
+        extra@text:
+      claimed_at:
+        field: claimed_at
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
         extra@text:
       created_at:
         field: created_at
@@ -9604,12 +9618,20 @@ tables:
         default@text:
         extra@text:
         references: queue.id
+      retry_count:
+        field: retry_count
+        type: tinyint unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
       status_id:
         field: status_id
         type: tinyint unsigned
         collation@text:
         nullable: NOT NULL
-        key@text:
+        key: MUL
         default: 0
         extra@text:
       uuid:
@@ -9645,8 +9667,8 @@ tables:
             index_type: BTREE
             subpart@text:
             unique@text:
-          consumer_id:
-            column_name: consumer_id
+          claim_id:
+            column_name: claim_id
             index_type: BTREE
             subpart@text:
             unique@text:

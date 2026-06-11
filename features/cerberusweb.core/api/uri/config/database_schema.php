@@ -34,7 +34,12 @@ class PageSection_SetupDevelopersDatabaseSchema extends Extension_PageSection {
 		
 		$visit->set(ChConfigurationPage::ID, 'database_schema');
 		
-		$reference_kata = $kata->parse(file_get_contents(APP_PATH . '/features/cerberusweb.core/assets/cerb.schema.kata'));
+		$error = null;
+		
+		if(!($reference_kata = $kata->parse(file_get_contents(APP_PATH . '/features/cerberusweb.core/assets/cerb.schema.kata'), $error))) {
+			DevblocksPlatform::logError($error, true);
+			return;
+		}
 		
 		$reference_kata_custom_record = $kata->parse(<<< EOD
         columns:
