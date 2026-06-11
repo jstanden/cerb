@@ -331,13 +331,19 @@ CerbUI.ColorPicker = class {
 			const rect = el.getBoundingClientRect();
 			onMove(ev.clientX - rect.left, ev.clientY - rect.top, rect.width, rect.height);
 		};
-		run(e);
-		const up = () => {
-			document.removeEventListener('pointermove', run);
-			document.removeEventListener('pointerup', up);
+		const end = () => {
+			el.removeEventListener('pointermove', run);
+			el.removeEventListener('pointerup', end);
+			el.removeEventListener('pointercancel', end);
+			if(el.hasPointerCapture && el.hasPointerCapture(e.pointerId)) el.releasePointerCapture(e.pointerId);
 		};
-		document.addEventListener('pointermove', run);
-		document.addEventListener('pointerup', up);
+		// Capture the pointer so the control keeps receiving move/up even when the cursor leaves its
+		// bounds or a native drag/selection would otherwise steal the gesture (else only the press registers).
+		if(el.setPointerCapture) el.setPointerCapture(e.pointerId);
+		el.addEventListener('pointermove', run);
+		el.addEventListener('pointerup', end);
+		el.addEventListener('pointercancel', end);
+		run(e); // place on the initial press
 	}
 
 	// ── Input / swatch listeners ──────────────────────────────────────────────
