@@ -13,7 +13,9 @@
  *   — both 'bar' and 'floating' (the buttons inject into the floating cluster / content header) — i.e.
  *   default on except header:'none'. Clicking the tray opens a menu of the minimized dialogs' titles
  *   (`opts.title`, falling back to "Untitled" for headerless dialogs that don't set one); choosing one
- *   restores it (`restore()`) to the default top-center position. `onMinimize(bool)` fires true on minimize /
+ *   restores it (`restore()`) to the default top-center position. With more than one minimized, the menu
+ *   also offers a "Close all" item (trash icon) that closes every minimized dialog via `close()` (so each
+ *   onClose veto hook still runs). `onMinimize(bool)` fires true on minimize /
  *   false on restore. Modal dialogs are never minimizable (modal + minimize are mutually exclusive).
  *
  * AJAX popups — CerbUI.Dialog.fromAjax(request, opts):
@@ -109,10 +111,34 @@ CerbUI.Dialog = class {
 			li.dataset.uid = String(d.uid);
 			ul.appendChild(li);
 		}
+		// With more than one, offer a bulk dismiss: separator (empty <li>) + a trash-iconed "Close all".
+		if(CerbUI.Dialog._minimized.size > 1) {
+			const sep = document.createElement('li');
+			sep.textContent = ''; // empty → renders as a menu separator
+			ul.appendChild(sep);
+			const closeAll = document.createElement('li');
+			closeAll.textContent = 'Close all';
+			closeAll.dataset.action = 'close-all';
+			ul.appendChild(closeAll);
+		}
 		const menu = new CerbUI.Menu(ul, {
 			fixed: true,
 			onClose: function() { CerbUI.Dialog._trayMenu = null; },
+			onRenderItem: function(rendered, source) {
+				if(source.dataset.action === 'close-all') { // icons aren't in markup — inject here
+					const icon = document.createElement('span');
+					icon.className = 'cerb-icons cerb-icon-trash';
+					icon.setAttribute('aria-hidden', 'true');
+					icon.style.marginRight = '0.5em'; // space the icon off the label (matches the selectmenu icon)
+					rendered.insertBefore(icon, rendered.firstChild);
+				}
+			},
 			onSelect: function(rendered, source) {
+				if(source.dataset.action === 'close-all') {
+					// Snapshot first — close() mutates _minimized mid-iteration; each runs its onClose hook.
+					for(const d of [...CerbUI.Dialog._minimized]) d.close();
+					return;
+				}
 				const uid = parseInt(source.dataset.uid, 10);
 				for(const d of CerbUI.Dialog._minimized) { if(d.uid === uid) { d.restore(); break; } }
 			},
