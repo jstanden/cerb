@@ -128,7 +128,7 @@
 
 		<div class="cerb-uiref-icons" id="uiref-icon-grid">
 		{foreach from=$icons_cerb item=icon}
-			<div class="cerb-uiref-icon" data-icon-name="{$icon}" title="Click to copy">
+			<div class="cerb-uiref-icon" data-icon-name="{$icon}" title="{$icon}">
 				<span class="cerb-icons cerb-icon-{$icon}"></span>
 				<span class="cerb-uiref-icon--label">{$icon}</span>
 			</div>
