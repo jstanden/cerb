@@ -1046,7 +1046,18 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 			$preview = array_map(fn($record) => array_diff_key($record, ['line'=>true]), $preview);
 			
 			$preview = $importer->bulkTagUpserts($preview, $mapping);
-			
+
+			// Flatten multi-value fields (list/multi-checkbox custom fields) for display
+			$preview = array_map(function($record) {
+				if(is_array($record['values'] ?? null)) {
+					$record['values'] = array_map(
+						fn($v) => is_array($v) ? implode(', ', $v) : $v,
+						$record['values']
+					);
+				}
+				return $record;
+			}, $preview);
+
 			$tpl->assign('record_ext', $importer->getRecordExtension());
 			$tpl->assign('keys', $importer->getRecordKeys());
 			$tpl->assign('preview', $preview);
