@@ -17,4 +17,40 @@
 	pointer-events: none;
 
 	&[hidden] { display: none; }
+
+	// Anchored mode (callout): clickable + dismissable, so it needs to receive pointer events. It also
+	// uses the inverse palette (dark on light, light on dark) so the callout grabs attention instead of
+	// blending into the page.
+	&.cerb-ui-tooltip--interactive {
+		pointer-events: auto;
+		cursor: pointer;
+		border-color: var(--cerb-color-background-inverse);
+		background: var(--cerb-color-background-inverse);
+		color: var(--cerb-color-text-inverse);
+
+		.cerb-ui-tooltip--arrow path {
+			fill: var(--cerb-color-background-inverse);
+			stroke: var(--cerb-color-background-inverse);
+		}
+	}
+}
+
+// SVG arrow for anchored mode — sits on the panel edge facing the target. The open path fills the
+// triangle while stroking only the two legs; the base tucks 1px under the panel so the seam is hidden.
+// Position + per-side rotation are set inline by CerbUI.Tooltip (rotated about the box center).
+.cerb-ui-tooltip--arrow {
+	position: absolute;
+	width: 16px;
+	height: 8px;
+	overflow: visible;
+	transform-origin: center;
+	pointer-events: none;
+
+	&[hidden] { display: none; }
+
+	path {
+		fill: var(--cerb-color-background);
+		stroke: var(--cerb-color-background-contrast-220);
+		stroke-width: 1;
+	}
 }

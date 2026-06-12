@@ -1,6 +1,6 @@
 workflow:
   name: cerb.tutorial
-  version: 2026-06-03T00:00:00Z
+  version: 2026-06-11T00:00:00Z
   description: A workspace with detailed descriptions and examples of Cerb functionality
   requirements:
     cerb_version: >=11.2 <11.3
@@ -404,8 +404,6 @@ records:
                         callout:
                           selector: #cerb-logo
                           message: Click the logo as a shortcut to your default page.
-                          my: middle top
-                          at: middle bottom
                   interaction/calloutNavbar:
                     icon: crosshairs
                     label: Navigation bar
@@ -417,8 +415,6 @@ records:
                         callout:
                           selector: body > ul.navmenu.cerb-no-print.ui-sortable > li.add
                           message: The navigation bar is located at the top of your browser window. It displays a list of shortcuts to workspace pages. You can add and remove shortcuts here, and drag them to rearrange their order.
-                          my: middle bottom
-                          at: middle top
                   interaction/calloutWorkerMenu:
                     icon: crosshairs
                     label: Worker menu
@@ -430,8 +426,6 @@ records:
                         callout:
                           selector: #lnkSignedIn
                           message: Clicking your name provides a menu with useful shortcuts; including "log out".
-                          my: right bottom
-                          at: middle top-10
                   interaction/calloutDarkLight:
                     icon: crosshairs
                     label: Dark/Light mode
@@ -443,8 +437,6 @@ records:
                         callout:
                           selector: #cerb-theme
                           message: Click this button to toggle between light and dark mode.
-                          my: right+10 top+5
-                          at: middle bottom
                   interaction/calloutSearchMenu:
                     icon: crosshairs
                     label: Search menu
@@ -456,8 +448,6 @@ records:
                         callout:
                           selector: .tour-navmenu-search
                           message: Use this menu to search for any kind of record from anywhere.
-                          my: right+20 top+5
-                          at: left bottom
                   interaction/calloutSetup:
                     icon: crosshairs
                     label: Setup
@@ -470,8 +460,6 @@ records:
                         callout:
                           selector: .tour-navmenu-setup
                           message: This is the configuration page for administrators.
-                          my: right+20 top+5
-                          at: left bottom
                   interaction/calloutWorkspaceMenu:
                     icon: crosshairs
                     label: Workspace menu
@@ -483,8 +471,6 @@ records:
                         callout:
                           selector: form[id^=frmWorkspacePage] button.add
                           message: Add or remove the current workspace page in your navbar.
-                          my: right+30 top+5
-                          at: left bottom
                   interaction/calloutWorkspaceTabs:
                     icon: crosshairs
                     label: Workspace tabs
@@ -496,8 +482,6 @@ records:
                         callout:
                           selector: div[id^=pageTabs]
                           message: Workspace pages are organized into tabs.
-                          my: middle bottom
-                          at: middle top
         toolbar_kata@text:
   workspace_widget/widget_contribute:
     fields:
