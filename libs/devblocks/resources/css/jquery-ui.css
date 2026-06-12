@@ -1,8 +1,8 @@
-/*! jQuery UI - v1.13.1 - 2022-03-28
-* http://jqueryui.com
-* Includes: draggable.css, core.css, resizable.css, selectable.css, sortable.css, accordion.css, autocomplete.css, menu.css, button.css, controlgroup.css, checkboxradio.css, datepicker.css, dialog.css, slider.css, tabs.css, tooltip.css, theme.css
-* To view and modify this theme, visit http://jqueryui.com/themeroller/?scope=&folderName=redmond&cornerRadiusShadow=8px&offsetLeftShadow=-8px&offsetTopShadow=-8px&thicknessShadow=8px&opacityShadow=30&bgImgOpacityShadow=0&bgTextureShadow=flat&bgColorShadow=aaaaaa&opacityOverlay=30&bgImgOpacityOverlay=0&bgTextureOverlay=flat&bgColorOverlay=aaaaaa&iconColorError=cd0a0a&fcError=cd0a0a&borderColorError=cd0a0a&bgImgOpacityError=95&bgTextureError=glass&bgColorError=fef1ec&iconColorHighlight=2e83ff&fcHighlight=363636&borderColorHighlight=fad42e&bgImgOpacityHighlight=55&bgTextureHighlight=flat&bgColorHighlight=fbec88&iconColorActive=f9bd01&fcActive=e17009&borderColorActive=79b7e7&bgImgOpacityActive=100&bgTextureActive=inset_hard&bgColorActive=f5f8f9&iconColorHover=217bc0&fcHover=1d5987&borderColorHover=79b7e7&bgImgOpacityHover=75&bgTextureHover=glass&bgColorHover=d0e5f5&iconColorDefault=6da8d5&fcDefault=2e6e9e&borderColorDefault=c5dbec&bgImgOpacityDefault=85&bgTextureDefault=glass&bgColorDefault=dfeffc&iconColorContent=469bdd&fcContent=222222&borderColorContent=a6c9e2&bgImgOpacityContent=100&bgTextureContent=inset_hard&bgColorContent=fcfdfd&iconColorHeader=d8e7f3&fcHeader=ffffff&borderColorHeader=4297d7&bgImgOpacityHeader=55&bgTextureHeader=gloss_wave&bgColorHeader=5c9ccc&cornerRadius=5px&fsDefault=1.1em&fwDefault=bold&ffDefault=Lucida%20Grande%2CLucida%20Sans%2CArial%2Csans-serif
-* Copyright jQuery Foundation and other contributors; Licensed MIT */
+/*! jQuery UI - v1.13.3 - 2026-04-25
+* https://jqueryui.com
+* Includes: draggable.css, core.css, resizable.css, selectable.css, sortable.css, autocomplete.css, menu.css, button.css, controlgroup.css, checkboxradio.css, dialog.css, slider.css, tabs.css, theme.css
+* To view and modify this theme, visit https://jqueryui.com/themeroller/?ffDefault=Lucida%20Grande%2CLucida%20Sans%2CArial%2Csans-serif&fwDefault=bold&fsDefault=1.1em&cornerRadius=5px&bgColorHeader=5c9ccc&bgTextureHeader=gloss_wave&bgImgOpacityHeader=55&borderColorHeader=4297d7&fcHeader=ffffff&iconColorHeader=d8e7f3&bgColorContent=fcfdfd&bgTextureContent=inset_hard&bgImgOpacityContent=100&borderColorContent=a6c9e2&fcContent=222222&iconColorContent=469bdd&bgColorDefault=dfeffc&bgTextureDefault=glass&bgImgOpacityDefault=85&borderColorDefault=c5dbec&fcDefault=2e6e9e&iconColorDefault=6da8d5&bgColorHover=d0e5f5&bgTextureHover=glass&bgImgOpacityHover=75&borderColorHover=79b7e7&fcHover=1d5987&iconColorHover=217bc0&bgColorActive=f5f8f9&bgTextureActive=inset_hard&bgImgOpacityActive=100&borderColorActive=79b7e7&fcActive=e17009&iconColorActive=f9bd01&bgColorHighlight=fbec88&bgTextureHighlight=flat&bgImgOpacityHighlight=55&borderColorHighlight=fad42e&fcHighlight=363636&iconColorHighlight=2e83ff&bgColorError=fef1ec&bgTextureError=glass&bgImgOpacityError=95&borderColorError=cd0a0a&fcError=cd0a0a&iconColorError=cd0a0a&bgColorOverlay=aaaaaa&bgTextureOverlay=flat&bgImgOpacityOverlay=0&opacityOverlay=30&bgColorShadow=aaaaaa&bgTextureShadow=flat&bgImgOpacityShadow=0&opacityShadow=30&thicknessShadow=8px&offsetTopShadow=-8px&offsetLeftShadow=-8px&cornerRadiusShadow=8px
+* Copyright OpenJS Foundation and other contributors; Licensed MIT */
 
 .ui-draggable-handle {
 	-ms-touch-action: none;
@@ -176,19 +176,6 @@
 .ui-sortable-handle {
 	-ms-touch-action: none;
 	touch-action: none;
-}
-.ui-accordion .ui-accordion-header {
-	display: block;
-	cursor: pointer;
-	position: relative;
-	margin: 2px 0 0 0;
-	padding: .5em .5em .5em .7em;
-	font-size: 100%;
-}
-.ui-accordion .ui-accordion-content {
-	padding: 1em 2.2em;
-	border-top: 0;
-	overflow: auto;
 }
 .ui-autocomplete {
 	position: absolute;
@@ -399,181 +386,6 @@ button.ui-button::-moz-focus-inner {
 .ui-checkboxradio-disabled {
 	pointer-events: none;
 }
-.ui-datepicker {
-	width: 17em;
-	padding: .2em .2em 0;
-	display: none;
-}
-.ui-datepicker .ui-datepicker-header {
-	position: relative;
-	padding: .2em 0;
-}
-.ui-datepicker .ui-datepicker-prev,
-.ui-datepicker .ui-datepicker-next {
-	position: absolute;
-	top: 2px;
-	width: 1.8em;
-	height: 1.8em;
-}
-.ui-datepicker .ui-datepicker-prev-hover,
-.ui-datepicker .ui-datepicker-next-hover {
-	top: 1px;
-}
-.ui-datepicker .ui-datepicker-prev {
-	left: 2px;
-}
-.ui-datepicker .ui-datepicker-next {
-	right: 2px;
-}
-.ui-datepicker .ui-datepicker-prev-hover {
-	left: 1px;
-}
-.ui-datepicker .ui-datepicker-next-hover {
-	right: 1px;
-}
-.ui-datepicker .ui-datepicker-prev span,
-.ui-datepicker .ui-datepicker-next span {
-	display: block;
-	position: absolute;
-	left: 50%;
-	margin-left: -8px;
-	top: 50%;
-	margin-top: -8px;
-}
-.ui-datepicker .ui-datepicker-title {
-	margin: 0 2.3em;
-	line-height: 1.8em;
-	text-align: center;
-}
-.ui-datepicker .ui-datepicker-title select {
-	font-size: 1em;
-	margin: 1px 0;
-}
-.ui-datepicker select.ui-datepicker-month,
-.ui-datepicker select.ui-datepicker-year {
-	width: 45%;
-}
-.ui-datepicker table {
-	width: 100%;
-	font-size: .9em;
-	border-collapse: collapse;
-	margin: 0 0 .4em;
-}
-.ui-datepicker th {
-	padding: .7em .3em;
-	text-align: center;
-	font-weight: bold;
-	border: 0;
-}
-.ui-datepicker td {
-	border: 0;
-	padding: 1px;
-}
-.ui-datepicker td span,
-.ui-datepicker td a {
-	display: block;
-	padding: .2em;
-	text-align: right;
-	text-decoration: none;
-}
-.ui-datepicker .ui-datepicker-buttonpane {
-	background-image: none;
-	margin: .7em 0 0 0;
-	padding: 0 .2em;
-	border-left: 0;
-	border-right: 0;
-	border-bottom: 0;
-}
-.ui-datepicker .ui-datepicker-buttonpane button {
-	float: right;
-	margin: .5em .2em .4em;
-	cursor: pointer;
-	padding: .2em .6em .3em .6em;
-	width: auto;
-	overflow: visible;
-}
-.ui-datepicker .ui-datepicker-buttonpane button.ui-datepicker-current {
-	float: left;
-}
-
-/* with multiple calendars */
-.ui-datepicker.ui-datepicker-multi {
-	width: auto;
-}
-.ui-datepicker-multi .ui-datepicker-group {
-	float: left;
-}
-.ui-datepicker-multi .ui-datepicker-group table {
-	width: 95%;
-	margin: 0 auto .4em;
-}
-.ui-datepicker-multi-2 .ui-datepicker-group {
-	width: 50%;
-}
-.ui-datepicker-multi-3 .ui-datepicker-group {
-	width: 33.3%;
-}
-.ui-datepicker-multi-4 .ui-datepicker-group {
-	width: 25%;
-}
-.ui-datepicker-multi .ui-datepicker-group-last .ui-datepicker-header,
-.ui-datepicker-multi .ui-datepicker-group-middle .ui-datepicker-header {
-	border-left-width: 0;
-}
-.ui-datepicker-multi .ui-datepicker-buttonpane {
-	clear: left;
-}
-.ui-datepicker-row-break {
-	clear: both;
-	width: 100%;
-	font-size: 0;
-}
-
-/* RTL support */
-.ui-datepicker-rtl {
-	direction: rtl;
-}
-.ui-datepicker-rtl .ui-datepicker-prev {
-	right: 2px;
-	left: auto;
-}
-.ui-datepicker-rtl .ui-datepicker-next {
-	left: 2px;
-	right: auto;
-}
-.ui-datepicker-rtl .ui-datepicker-prev:hover {
-	right: 1px;
-	left: auto;
-}
-.ui-datepicker-rtl .ui-datepicker-next:hover {
-	left: 1px;
-	right: auto;
-}
-.ui-datepicker-rtl .ui-datepicker-buttonpane {
-	clear: right;
-}
-.ui-datepicker-rtl .ui-datepicker-buttonpane button {
-	float: left;
-}
-.ui-datepicker-rtl .ui-datepicker-buttonpane button.ui-datepicker-current,
-.ui-datepicker-rtl .ui-datepicker-group {
-	float: right;
-}
-.ui-datepicker-rtl .ui-datepicker-group-last .ui-datepicker-header,
-.ui-datepicker-rtl .ui-datepicker-group-middle .ui-datepicker-header {
-	border-right-width: 0;
-	border-left-width: 1px;
-}
-
-/* Icons */
-.ui-datepicker .ui-icon {
-	display: block;
-	text-indent: -99999px;
-	overflow: hidden;
-	background-repeat: no-repeat;
-	left: .5em;
-	top: .3em;
-}
 .ui-dialog {
 	position: absolute;
 	top: 0;
@@ -770,15 +582,6 @@ button.ui-button::-moz-focus-inner {
 	border-width: 0;
 	padding: 1em 1.4em;
 	background: none;
-}
-.ui-tooltip {
-	padding: 8px;
-	position: absolute;
-	z-index: 9999;
-	max-width: 300px;
-}
-body .ui-tooltip {
-	border-width: 2px;
 }
 
 /* Component containers
@@ -1207,7 +1010,7 @@ a.ui-button:active,
 .ui-widget-overlay {
 	background: #aaaaaa;
 	opacity: .3;
-	-ms-filter: Alpha(Opacity=30); /* support: IE8 */
+	-ms-filter: "alpha(opacity=30)"; /* support: IE8 */
 }
 .ui-widget-shadow {
 	-webkit-box-shadow: -8px -8px 8px #aaaaaa;
