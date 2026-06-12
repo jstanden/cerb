@@ -227,6 +227,8 @@ class _DevblocksUiManager {
 			'tags',
 			'target',
 			'telescope',
+			'text',
+			'text-color',
 			'text-size',
 			'thumbs-down',
 			'thumbs-up',
