@@ -1536,14 +1536,12 @@ $.fn.cerbDateInputHelper = function(options) {
 	return this.each(function() {
 		var $this = $(this);
 		
-		$this.datepicker({
-			showOn: 'button',
-			buttonText: '',
-			dateFormat: 'D, d M yy',
-			defaultDate: 'D, d M yy',
-			numberOfMonths: 1,
-			onSelect: function(dateText, inst) {
-				inst.input.addClass('changed').focus();
+		new CerbUI.DatePicker(this, {
+			trigger: 'button',
+			parseFormat: 'DDD, DD MMM YYYY',
+			outputFormat: 'DDD, DD MMM YYYY',
+			onSelect: function() {
+				$this.addClass('changed').focus();
 			}
 		});
 		
