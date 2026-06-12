@@ -245,59 +245,24 @@ function DevblocksClass() {
 		return $status;
 	};
 	
-	this._tooltip_model = undefined;
+	this._tooltip = undefined;
 	
+	// Anchored callout: a floating panel pinned to a DOM element, with an arrow pointing at it,
+	// dismissed by click or outside-click. Optional jQuery-UI-style my/at position the panel/arrow;
+	// omitted, it defaults to pointing at the target's top-middle (and flips/slides to stay on-screen).
 	this.tooltip = function(target, message, my, at) {
 		if(undefined === message)
 			return;
 		
-		let $this = this;
-		if(undefined === this._tooltip_model) {
-			this._tooltip_model = $('<span/>')
-				.tooltip({
-					classes: {
-						'ui-tooltip': 'cerb-tooltip-global'
-					}
-				})
-			;
-		}
+		let el = $(target)[0];
+		if(!el)
+			return;
 		
-		this._tooltip_model.tooltip('close');
+		if(undefined === this._tooltip)
+			this._tooltip = new CerbUI.Tooltip( { gap: 0 } );
 		
-		if(undefined === my)
-			my = "right top"
-		
-		if(undefined === at)
-			at = "left bottom"
-		
-		this._tooltip_model.attr('title', message);
-		this._tooltip_model.tooltip('option', 'position', {
-			my: my,
-			at: at,
-			of: target,
-			using: function(position, feedback) {
-				$(this).css(position);
-				$("<div>")
-					.addClass("arrow")
-					.addClass(feedback.vertical)
-					.addClass(feedback.horizontal)
-					.appendTo(this)
-				;
-			},
-			collision: "flipfit"
-		});
-		
-		try {
-			this._tooltip_model.tooltip('open');
-		} catch(e) {
-			this._tooltip_model.tooltip('close');
-		}
-		
-		$('body > .cerb-tooltip-global')
-			.css('cursor', 'pointer')
-			.off('click')
-			.on('click', function(e) { e.stopPropagation(); $this._tooltip_model.tooltip('close'); })
-		;
+		// Pass the message as a text node (jQuery UI escaped the title; keep that posture).
+		this._tooltip.anchor(document.createTextNode(message), el, { my: my, at: at, interactive: true });
 	}
 	
 	this.interactionWorkerPostActions = function(eventData, editor) {

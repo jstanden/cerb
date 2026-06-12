@@ -1514,8 +1514,8 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 		$suggestions['*']['(.*):return:callout:'] = [
 			'selector: #someElement',
 			'message: This is the callout text',
-			'my: right top',
-			'at: left bottom'
+			'my: center bottom',
+			'at: center top'
 		];
 		
 		$suggestions['*']['(.*):return:search:'] = [
