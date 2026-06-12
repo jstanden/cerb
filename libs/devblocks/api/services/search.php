@@ -150,9 +150,20 @@ class _DevblocksSearchService {
 		
 		// Tokenize (term-frequency)
 		$tokens = $strings->tokenize($string, true, false, $pattern);
-		
+
 		// Fix outer punctuation
-		return array_filter(array_map(fn($token) => trim(str_replace(["'"], "", $token),"._-'"), $tokens));
+		return array_filter(array_map(
+			function($token) use ($strings) {
+				$token = trim(str_replace(["'"], "", $token),"._-'");
+
+				// utf8mb3 token storage can't hold 4-byte chars
+				if($strings->has4ByteChars($token))
+					$token = $strings->strip4ByteChars($token);
+
+				return $token;
+			},
+			$tokens
+		));
 	}
 	
 	public function removeStopWords(array $tokens, array $stop_words=[]) : array {

@@ -816,12 +816,16 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 				$tokens_boost = $search->getTokensFromText($string_to_boost, truncate: 1_000);
 				$boost_frequencies = $search->indexTokens($tokens_boost);
 				foreach(array_keys($boost_frequencies) as $token_hash) {
-					$doc_token_frequencies[$token_hash][1] += 2;
+					if(array_key_exists($token_hash, $doc_token_frequencies))
+						$doc_token_frequencies[$token_hash][1] += 2;
 				}
 			}
 			
 			// Map tokens to hashes for buffer
 			foreach($doc_token_frequencies as $token_hash => $token_data) {
+				// Never index empty tokens
+				if('' === strval($token_data[0])) continue;
+
 				$buffer_insert_values[] = sprintf('(%d, %d, %f)', $token_hash, $doc_id, $token_data[1]);
 
 				// Buffer the dictionary row only if this hash hasn't already been
