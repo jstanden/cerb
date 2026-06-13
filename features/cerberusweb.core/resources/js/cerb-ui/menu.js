@@ -278,6 +278,8 @@ CerbUI.Menu = class {
 		if(virt) {
 			const visH = Math.min(items.length * o.itemHeight, o.maxHeight);
 			el.style.height = visH + 'px';
+			el.style.maxHeight = '';   // height controls; --virt CSS supplies the scroll
+			el.style.overflowY = '';
 			pnl.visH = visH;
 			pnl.spacerT = el.appendChild(CerbUI.Menu._spacerLi());
 			pnl.spacerB = el.appendChild(CerbUI.Menu._spacerLi());
@@ -287,7 +289,11 @@ CerbUI.Menu = class {
 				pnl.scrollBound = true;
 			}
 		} else {
+			// Cap + scroll a plain (non-virtualized) panel too — otherwise a list between ~13 and virtThreshold
+			// items grows past maxHeight unbounded (the base panel CSS has no max-height; only --virt scrolls).
 			el.style.height = '';
+			el.style.maxHeight = o.maxHeight + 'px';
+			el.style.overflowY = 'auto';
 			pnl.visH = 0;
 			if(items.length === 0 && this.opts.filter) {
 				const empty = document.createElement('li');
