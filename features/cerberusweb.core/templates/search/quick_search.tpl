@@ -2,23 +2,22 @@
 {if !isset($focus)}{$focus = null}{/if}
 {if isset($view) && is_a($view, 'IAbstractView_QuickSearch')}
 
-<form action="#" method="post" id="{$uniqid}" class="quick-search" style="background-color:var(--cerb-editor-background);">
+<form action="#" method="post" id="{$uniqid}" class="quick-search">
 	<input type="hidden" name="c" value="search">
 	<input type="hidden" name="a" value="ajaxQuickSearch">
 	<input type="hidden" name="view_id" value="{$view->id}">
 	<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-	<div style="border:1px solid var(--cerb-color-background-contrast-200);">
-		<table cellpadding="0" cellspacing="0" width="100%">
-			<tr>
-				<td width="100%" valign="top">
-					<textarea name="query" class="cerb-code-editor cerb-input-quicksearch" data-editor-mode="ace/mode/cerb_query" style="width:100%;height:30px;border:0;visibility:hidden;">{$view->getParamsQuery()}</textarea>
-				</td>
-				<td width="0%" nowrap="nowrap" valign="top">
-					<a class="cerb-quick-search-menu-trigger" style="position:relative;top:5px;padding:0px 10px;"><span class="cerb-icons cerb-icon-circle-question-mark" style="margin:0;color:gray;"></span></a>
-				</td>
-			</tr>
-		</table>
+	<div class="cerb-ui-searchquery" id="{$uniqid}_sq">
+		<span class="cerb-ui-searchquery--icon cerb-icons cerb-icon-search"></span>
+		<div class="cerb-ui-searchquery--field">
+			<div class="cerb-ui-searchquery--highlight" aria-hidden="true"></div>
+			<textarea name="query" class="cerb-ui-searchquery--input cerb-input-quicksearch" rows="1">{$view->getParamsQuery()}</textarea>
+			<span class="cerb-ui-searchquery--caret-anchor"></span>
+		</div>
+		<div class="cerb-ui-searchquery--right">
+			<a class="cerb-quick-search-menu-trigger" style="cursor:pointer;color:var(--cerb-color-background-contrast-150);" title="Suggestions (Ctrl/⌘+Space)"><span class="cerb-icons cerb-icon-sparkles"></span></a>
+		</div>
 	</div>
 </form>
 
@@ -28,56 +27,43 @@ $(function() {
 
 	Devblocks.formDisableSubmit($frm);
 
-	let $editor = $frm.find('textarea.cerb-code-editor')
-		.cerbCodeEditor()
-		.cerbCodeEditorAutocompleteSearchQueries({
-			context: '{$view->getContext()}'
-		})
-		.nextAll('pre.ace_editor')
-		;
-	
-	let editor = ace.edit($editor.attr('id'));
-	editor.setOption('highlightActiveLine', false);
-	editor.renderer.setOption('showGutter', false);
-	editor.commands.addCommand({
-		name: 'Submit',
-		bindKey: { win: "Enter", mac: "Enter" },
-		exec: function() {
-			$frm.submit();
-		}
+	let sq = new CerbUI.SearchQuery(document.getElementById('{$uniqid}_sq'), {
+		context: '{$view->getContext()}',
+		onAutocomplete: CerbUI.SearchQuery.queryFieldSource('{$view->getContext()}'),
+		onSearch: function() { $frm.submit(); } // Enter -> the existing submit flow below
 	});
-	
+
 	{if $focus}
-	editor.focus();
+	sq.focus();
 	{/if}
-	
-	$frm.find('a.cerb-quick-search-menu-trigger').click(function() {
-		editor.focus();
-		editor.commands.byName.startAutocomplete.exec(editor);
+
+	$frm.find('a.cerb-quick-search-menu-trigger').on('click', function() {
+		sq.focus();
+		sq.openAutocomplete();
 	});
-	
+
 	$frm.on('submit', function() {
 	    let $view = $('#view{$view->id}');
-	    
+
 	    // If a search is already in progress, abort
 	    if($view.siblings('.cerb-search-progress').length > 0)
             return;
-	    
+
 		genericAjaxPost('{$uniqid}','',null,function(json) {
 			if(json && true === json.status) {
 				{if !empty($return_url)}
 					window.location.href = '{$return_url}';
 				{else}
 					let $view_filters = $('#viewCustomFilters{$view->id}');
-					
+
 					if(0 !== $view_filters.length) {
 						$view_filters.html(json.html);
 						$view_filters.trigger('view_refresh')
 					}
 				{/if}
 			}
-			
-			editor.focus();
+
+			sq.focus();
 		});
 	});
 });
