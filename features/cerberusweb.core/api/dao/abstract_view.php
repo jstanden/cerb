@@ -2309,6 +2309,50 @@ abstract class C4_AbstractView {
 		$this->renderPage = 0;
 	}
 	
+	// Map a search-field type to a cerb-icon glyph + tag color. Shared by the worklist column picker
+	// (PageSection_InternalWorklists) and the query-autocomplete field list below, so the type→icon
+	// mapping stays in one place.
+	public static function getColumnDisplayMeta($type) : array {
+		$map = [
+			// Standard fields (DevblocksSearchCriteria::TYPE_*)
+			DevblocksSearchCriteria::TYPE_TEXT => ['text', 'blue'],
+			DevblocksSearchCriteria::TYPE_FULLTEXT => ['text', 'blue'],
+			DevblocksSearchCriteria::TYPE_SEARCH => ['search', 'blue'],
+			DevblocksSearchCriteria::TYPE_NUMBER => ['hash', 'green'],
+			DevblocksSearchCriteria::TYPE_DECIMAL => ['hash', 'green'],
+			DevblocksSearchCriteria::TYPE_NUMBER_MINUTES => ['clock', 'orange'],
+			DevblocksSearchCriteria::TYPE_NUMBER_SECONDS => ['clock', 'orange'],
+			DevblocksSearchCriteria::TYPE_NUMBER_MS => ['clock', 'orange'],
+			DevblocksSearchCriteria::TYPE_DATE => ['calendar', 'orange'],
+			DevblocksSearchCriteria::TYPE_BOOL => ['checked', 'green'],
+			DevblocksSearchCriteria::TYPE_WORKER => ['user', 'blue'],
+			DevblocksSearchCriteria::TYPE_CONTEXT => ['link', 'gray'],
+			DevblocksSearchCriteria::TYPE_GEO_POINT => ['location', 'red'],
+			DevblocksSearchCriteria::TYPE_VIRTUAL_SPARKLINES => ['chart-line', 'purple'],
+			// Custom fields (Model_CustomField::TYPE_* single-char codes)
+			Model_CustomField::TYPE_SINGLE_LINE => ['text', 'blue'],
+			Model_CustomField::TYPE_MULTI_LINE => ['text', 'blue'],
+			Model_CustomField::TYPE_URL => ['link', 'gray'],
+			Model_CustomField::TYPE_LINK => ['link', 'gray'],
+			Model_CustomField::TYPE_NUMBER => ['hash', 'green'],
+			Model_CustomField::TYPE_DECIMAL => ['hash', 'green'],
+			Model_CustomField::TYPE_CURRENCY => ['hash', 'green'],
+			Model_CustomField::TYPE_DATE => ['calendar', 'orange'],
+			Model_CustomField::TYPE_CHECKBOX => ['checked', 'green'],
+			Model_CustomField::TYPE_MULTI_CHECKBOX => ['checked', 'green'],
+			Model_CustomField::TYPE_DROPDOWN => ['list', 'blue'],
+			Model_CustomField::TYPE_LIST => ['list', 'blue'],
+			Model_CustomField::TYPE_WORKER => ['user', 'blue'],
+			Model_CustomField::TYPE_FILE => ['file', 'gray'],
+			Model_CustomField::TYPE_FILES => ['file', 'gray'],
+		];
+
+		if($type && array_key_exists($type, $map))
+			return $map[$type];
+
+		return ['tag', 'gray'];
+	}
+
 	function getQueryAutocompleteSuggestions() {
 		$suggestions = [
 			'' => [],
@@ -2542,34 +2586,48 @@ abstract class C4_AbstractView {
 					break;
 			}
 			
-			if(array_key_exists('score', $query_field)) {
-				if(is_array($suggestion)) {
-					$suggestion['score'] = $query_field['score'];
-					
-				} else if (is_string($suggestion)) {
-					$suggestion = [
-						'value' => $suggestion,
-						'score' => $query_field['score'],
-					];
-				}
-			}
-			
+			// Tag the field-list row with a type icon/color (rendered by CerbUI.SearchQuery; older
+			// consumers ignore these keys). Deep-search/relationship virtuals (sender:, org:, links:…)
+			// report a generic 'virtual' type, so show them the context/relationship icon instead.
+			$icon_type = $query_field['type'];
+
+			if('virtual' == $query_field['type']
+				&& in_array($query_field['examples'][0]['type'] ?? null, ['search', 'chooser']))
+				$icon_type = DevblocksSearchCriteria::TYPE_CONTEXT;
+
+			[$suggestion_icon, $suggestion_color] = self::getColumnDisplayMeta($icon_type);
+
+			// Normalize to an array so the icon/color (and any score) can attach. A bare string was both
+			// the caption and the inserted text, so preserve that.
+			if(is_string($suggestion))
+				$suggestion = ['caption' => $suggestion, 'snippet' => $suggestion];
+
+			$suggestion['icon'] = $suggestion_icon;
+			$suggestion['color'] = $suggestion_color;
+
+			if(array_key_exists('score', $query_field))
+				$suggestion['score'] = $query_field['score'];
+
 			// Add to top-level suggestions
 			$suggestions[''][] = $suggestion;
 		}
 		
 		$suggestions[''][] = [
 			'caption' => 'limit:',
-			'snippet' => 'limit:${1:25}'
+			'snippet' => 'limit:${1:25}',
+			'icon' => 'adjust',
+			'color' => 'gray',
 		];
-		
+
 		$search_params = $this->getParamsAvailable();
-		
+
 		// Sort
-		
+
 		$suggestions[''][] = [
 			'caption' => 'sort:',
-			'snippet' => 'sort:[${1}]'
+			'snippet' => 'sort:[${1}]',
+			'icon' => 'sort-asc',
+			'color' => 'gray',
 		];
 		$suggestions['sort:'] = [];
 		
@@ -2588,7 +2646,9 @@ abstract class C4_AbstractView {
 		if($this instanceof IAbstractView_Subtotals) {
 			$suggestions[''][] = [
 				'caption' => 'subtotal:',
-				'snippet' => 'subtotal:[${1}]'
+				'snippet' => 'subtotal:[${1}]',
+				'icon' => 'funnel',
+				'color' => 'gray',
 			];
 			$suggestions['subtotal:'] = $this->getQueryAutocompleteFieldSuggestions(null, true);
 		}
@@ -2608,6 +2668,8 @@ abstract class C4_AbstractView {
 					'caption' => '#' . $search->tag,
 					'snippet' => $search->query,
 					'suppress_autocomplete' => true,
+					'icon' => 'bookmark',
+					'color' => 'blue',
 				];
 			}
 		}

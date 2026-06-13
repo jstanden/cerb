@@ -398,6 +398,7 @@ CerbUI.SearchQuery = class {
 			if(it.suppressAutocomplete) li.dataset.suppress = '1';
 			if(it.hint) li.dataset.hint = it.hint;
 			if(it.icon) li.dataset.icon = it.icon;
+			if(it.iconColor) li.dataset.iconColor = it.iconColor;
 			ul.appendChild(li);
 		}
 		this._menuUl = ul;
@@ -425,10 +426,13 @@ CerbUI.SearchQuery = class {
 		if(src.dataset.icon) {
 			const ico = document.createElement('span');
 			const name = src.dataset.icon;
-			ico.className = (name.charAt(0) === '.')
+			ico.className = 'cerb-ui-searchquery--menu-icon ' + ((name.charAt(0) === '.')
 				? name.slice(1).split('.').join(' ')
-				: ('cerb-icons cerb-icon-' + name);
-			ico.style.marginRight = '0.4em';
+				: ('cerb-icons cerb-icon-' + name));
+			// Tint by tag color via a custom property so the active-row highlight can override it (the icon
+			// uses currentColor by default). e.g. iconColor='blue' -> var(--cerb-color-tag-blue).
+			if(src.dataset.iconColor)
+				ico.style.setProperty('--cerb-ui-searchquery-icon-color', 'var(--cerb-color-tag-' + src.dataset.iconColor + ')');
 			li.insertBefore(ico, li.firstChild);
 		}
 		if(src.dataset.hint) {
@@ -648,6 +652,8 @@ CerbUI.SearchQuery.queryFieldSource = function(rootContext, opts) {
 			suppressAutocomplete: !!s.suppress_autocomplete,
 		};
 		if(typeof s.score === 'number') item.score = s.score; // honored by filterItems (higher first)
+		// A leading type icon (cerb-icon name) + tag color (e.g. 'blue') from the backend field list.
+		if(s.icon) { item.icon = s.icon; if(s.color) item.iconColor = s.color; }
 		// A field that descends into another record context (sender: -> org: -> …) inserts `field:()` with
 		// the caret inside the parens, then keeps suggesting the inner fields.
 		const ft = fieldTokenOf(s);

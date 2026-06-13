@@ -139,3 +139,12 @@
     color: var(--cerb-color-background-contrast-150);
     font-size: 0.85em;
 }
+
+// A leading type icon inside a suggestion row, tinted by tag color (set inline via the custom property).
+.cerb-ui-searchquery--menu-icon {
+    margin-right: 0.4em;
+    flex-shrink: 0;
+    color: var(--cerb-ui-searchquery-icon-color, currentColor);
+}
+// On the active/hover row the tag color can clash with the highlight — fall back to the text color.
+.cerb-ui-menu--item-active .cerb-ui-searchquery--menu-icon { color: inherit; }
