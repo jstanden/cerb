@@ -1,0 +1,141 @@
+// SearchQuery: a textarea-based editor for Cerb search-query syntax (replaces Ace on worklists). A search
+// icon on the left, the field in the middle, and an author-supplied --right toolbar. Live syntax highlighting
+// is the "overlay" technique: the textarea text is transparent (caret visible) and sits over a mirror --highlight
+// div that carries the colored token spans. The two layers MUST share identical box metrics (font, padding,
+// line-height, box-sizing, wrapping) or the colors drift from the caret. CerbUI.SearchQuery wires behavior.
+.cerb-ui-searchquery {
+    --cerb-ui-searchquery-pad-y: 0.4em;
+    --cerb-ui-searchquery-pad-x: 0.5em;
+
+    display: flex;
+    align-items: flex-start;
+    gap: 0.4em;
+    padding: 0 0.5em;
+    border: 1px solid var(--cerb-color-background-contrast-200);
+    border-radius: 4px;
+    background: var(--cerb-editor-background);
+    font-family: var(--cerb-font-stack-fixed);
+    font-size: var(--cerb-font-size);
+    line-height: 1.5;
+
+    // Size the glyph via width/height (not font-size) so all the em below resolve against the wrapper's
+    // font-size — that lets us center the icon on the FIRST text line: top padding + half a line (0.75em)
+    // minus half the glyph (0.575em of a 1.15em glyph) = pad-y + 0.175em. (mask-size:contain keeps it square.)
+    &--icon {
+        flex-shrink: 0;
+        width: 1.15em;
+        height: 1.15em;
+        margin: 0;
+        margin-top: calc(var(--cerb-ui-searchquery-pad-y) + 0.175em);
+        color: var(--cerb-color-background-contrast-150);
+    }
+
+    // The positioning context for the overlay + the caret anchor.
+    &--field {
+        position: relative;
+        flex: 1;
+        min-width: 0;
+    }
+
+    // Shared text box for BOTH layers — keep these declarations in lockstep with --input below.
+    &--highlight,
+    &--input {
+        box-sizing: border-box;
+        width: 100%;
+        margin: 0;
+        padding: var(--cerb-ui-searchquery-pad-y) 0;
+        border: 0;
+        font-family: var(--cerb-font-stack-fixed);
+        font-size: var(--cerb-font-size);
+        line-height: 1.5;
+        letter-spacing: normal;
+        tab-size: 4;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    // The colored mirror, behind the textarea. Inert — clicks/selection go to the textarea above it.
+    &--highlight {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        overflow: hidden;
+        color: var(--cerb-color-text);
+        pointer-events: none;
+        user-select: none;
+    }
+
+    // Transparent text, visible caret — the highlight layer shows the colors.
+    &--input {
+        position: relative;
+        z-index: 1;
+        display: block;
+        min-height: calc(1.5em + (var(--cerb-ui-searchquery-pad-y) * 2));
+        background: transparent;
+        color: transparent;
+        caret-color: var(--cerb-color-text);
+        resize: none;
+        overflow-y: hidden;
+
+        // The wrapper supplies the only visible border. Strip the native textarea chrome (WebKit/Safari draws
+        // an inset border that `border:0` alone doesn't remove) and any base border.
+        appearance: none;
+        -webkit-appearance: none;
+        border: none;
+        outline: none;
+
+        // The global `TEXTAREA:focus { border: 1px solid … }` is (0,1,1) — it beats our base (0,1,0) on focus.
+        // Re-assert here at (0,2,1) (class + :focus) so the field stays chrome-free when focused; the blinking
+        // caret is the only focus cue this custom editor needs. No !important required.
+        &:focus,
+        &:focus-visible {
+            border: none;
+            outline: none;
+            box-shadow: none;
+        }
+
+        &::placeholder {
+            color: var(--cerb-color-background-contrast-150);
+            opacity: 1;
+        }
+    }
+
+    // Zero-width marker the JS parks at the caret pixel; the suggestion menu opens just below it.
+    &--caret-anchor {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 0;
+        height: 1.5em;
+        pointer-events: none;
+    }
+
+    // Arbitrary author-supplied icon controls (menu / help / autocomplete / saved queries …), mirrors
+    // cerb-ui-header--right.
+    &--right {
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.4em;
+        padding-top: calc(var(--cerb-ui-searchquery-pad-y) - 0.1em);
+    }
+
+    // ── Token colors (reuse the shared editor syntax palette → matches the old Ace theme + dark mode) ──
+    // COLOR ONLY — never font-weight/style/letter-spacing. The mirror's glyph advances must match the
+    // textarea's exactly, or the caret drifts away from the colored text it sits in.
+    &--tok-field  { color: var(--cerb-editor-syntax-tag); }
+    &--tok-string { color: var(--cerb-editor-syntax-string); }
+    &--tok-bool   { color: var(--cerb-editor-syntax-oper); }
+    &--tok-number { color: var(--cerb-editor-syntax-numeric); }
+    &--tok-paren  { color: var(--cerb-color-background-contrast-150); }
+}
+
+// A muted right-aligned hint inside a suggestion row (e.g. the field type). Lives on the floating menu
+// (a sibling of the component), so it's scoped to the menu item rather than nested under .cerb-ui-searchquery.
+.cerb-ui-searchquery--menu-hint {
+    margin-left: auto;
+    padding-left: 1em;
+    color: var(--cerb-color-background-contrast-150);
+    font-size: 0.85em;
+}
