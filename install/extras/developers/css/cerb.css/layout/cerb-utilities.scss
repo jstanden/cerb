@@ -102,3 +102,43 @@ $cerb-u-sides: (
 @each $step, $factor in $cerb-u-spacers {
 	.cerb-u-gap-#{$step} { gap: if($factor == 0, 0, calc(var(--cerb-u-spacer) * #{$factor})); }
 }
+
+// Animation — drop onto any element (icons especially) to animate it. Keyframes are namespaced
+// cerb-u-anim-* and self-contained so the utility layer doesn't depend on any component partial.
+// Each animation also gets a -hover variant. The -hover plays on direct hover, when an enclosing
+// <button> is hovered (no markup needed — great for submit buttons), or when any ancestor marked
+// .cerb-u-anim-group is hovered (group-hover: opt any parent in by adding that class).
+// Not composable: each class sets the whole `animation` shorthand, so two on one element don't
+// stack — the later rule wins (and transform-based ones would conflict anyway). All are disabled
+// under prefers-reduced-motion.
+$cerb-u-anims: (
+	'spin':  cerb-u-anim-spin 1.2s linear infinite,
+	'pulse': cerb-u-anim-pulse 1.6s ease-in-out infinite,
+	'ping':  cerb-u-anim-ping 1.4s cubic-bezier(0, 0, 0.2, 1) infinite,
+	'shake': cerb-u-anim-shake 0.8s ease-in-out infinite,
+);
+@each $name, $anim in $cerb-u-anims {
+	.cerb-u-anim-#{$name} { animation: $anim; }
+	.cerb-u-anim-#{$name}-hover:hover,
+	button:hover .cerb-u-anim-#{$name}-hover,
+	.cerb-u-anim-group:hover .cerb-u-anim-#{$name}-hover { animation: $anim; }
+}
+
+@keyframes cerb-u-anim-spin  { to { transform: rotate(360deg); } }
+@keyframes cerb-u-anim-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+@keyframes cerb-u-anim-ping  { 0% { transform: scale(1); opacity: 1; } 75%, 100% { transform: scale(1.8); opacity: 0; } }
+@keyframes cerb-u-anim-shake {
+	0%, 100% { transform: rotate(0); }
+	20% { transform: rotate(12deg); } 40% { transform: rotate(-10deg); }
+	60% { transform: rotate(8deg); }  80% { transform: rotate(-6deg); }
+}
+
+// Respect reduced-motion (matches the notification-bell precedent in cerb-styles.scss)
+@media (prefers-reduced-motion: reduce) {
+	@each $name, $anim in $cerb-u-anims {
+		.cerb-u-anim-#{$name},
+		.cerb-u-anim-#{$name}-hover:hover,
+		button:hover .cerb-u-anim-#{$name}-hover,
+		.cerb-u-anim-group:hover .cerb-u-anim-#{$name}-hover { animation: none; }
+	}
+}

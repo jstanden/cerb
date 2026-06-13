@@ -55,6 +55,9 @@
 .cerb-uiref-icon > .cerb-icons { font-size:1.6em; }
 .cerb-uiref-icon--label { display:none; font-size:0.7em; color:var(--cerb-color-background-contrast-150); text-align:center; word-break:break-word; }
 .cerb-uiref-icons--labeled .cerb-uiref-icon--label { display:block; }
+.cerb-uiref-anim-row { display:flex; gap:1em; flex-wrap:wrap; margin:0.5em 0 1em; }
+.cerb-uiref-anim-row .cerb-icons { font-size:1.8em; }
+.cerb-uiref-anim-row .cerb-uiref-icon--label { display:block; font-family:monospace; }
 </style>
 
 <div class="cerb-ui-page">
@@ -134,6 +137,50 @@
 				<span class="cerb-uiref-icon--label">{$icon}</span>
 			</div>
 		{/foreach}
+		</div>
+
+		<div class="cerb-ui-header" style="margin-top:3em;">
+			<div class="cerb-ui-header--label">Animation utilities &mdash; add a <code>cerb-u-anim-*</code> class to any icon (click to copy the class)</div>
+		</div>
+		<div class="cerb-uiref-example">
+			<div class="cerb-uiref-demo">
+				<div class="cerb-uiref-anim-row" id="uiref-icon-anim">
+					<div class="cerb-uiref-icon" data-anim-class="cerb-u-anim-spin" title="cerb-u-anim-spin"><span class="cerb-icons cerb-icon-refresh cerb-u-anim-spin"></span><span class="cerb-uiref-icon--label">cerb-u-anim-spin</span></div>
+					<div class="cerb-uiref-icon" data-anim-class="cerb-u-anim-pulse" title="cerb-u-anim-pulse"><span class="cerb-icons cerb-icon-heart cerb-u-anim-pulse"></span><span class="cerb-uiref-icon--label">cerb-u-anim-pulse</span></div>
+					<div class="cerb-uiref-icon" data-anim-class="cerb-u-anim-ping" title="cerb-u-anim-ping"><span class="cerb-icons cerb-icon-star cerb-u-anim-ping"></span><span class="cerb-uiref-icon--label">cerb-u-anim-ping</span></div>
+					<div class="cerb-uiref-icon" data-anim-class="cerb-u-anim-shake" title="cerb-u-anim-shake"><span class="cerb-icons cerb-icon-bell cerb-u-anim-shake"></span><span class="cerb-uiref-icon--label">cerb-u-anim-shake</span></div>
+				</div>
+			</div>
+		</div>
+
+		<div class="cerb-ui-header" style="margin-top:3em;">
+			<div class="cerb-ui-header--label">Hover animation utilities &mdash; add a <code>cerb-u-anim-*-hover</code> class to any icon (click to copy the class)</div>
+		</div>
+		<div class="cerb-uiref-example">
+			<div class="cerb-uiref-demo">
+				<div class="cerb-uiref-anim-row" id="uiref-icon-anim-hover">
+					<div class="cerb-uiref-icon" data-anim-class="cerb-u-anim-spin-hover" title="cerb-u-anim-spin-hover"><span class="cerb-icons cerb-icon-refresh cerb-u-anim-spin-hover"></span><span class="cerb-uiref-icon--label">cerb-u-anim-spin-hover</span></div>
+					<div class="cerb-uiref-icon" data-anim-class="cerb-u-anim-pulse-hover" title="cerb-u-anim-pulse-hover"><span class="cerb-icons cerb-icon-heart cerb-u-anim-pulse-hover"></span><span class="cerb-uiref-icon--label">cerb-u-anim-pulse-hover</span></div>
+					<div class="cerb-uiref-icon" data-anim-class="cerb-u-anim-ping-hover" title="cerb-u-anim-ping-hover"><span class="cerb-icons cerb-icon-star cerb-u-anim-ping-hover"></span><span class="cerb-uiref-icon--label">cerb-u-anim-ping-hover</span></div>
+					<div class="cerb-uiref-icon" data-anim-class="cerb-u-anim-shake-hover" title="cerb-u-anim-shake-hover"><span class="cerb-icons cerb-icon-trash cerb-u-anim-shake-hover"></span><span class="cerb-uiref-icon--label">cerb-u-anim-shake-hover</span></div>
+				</div>
+			</div>
+
+			<div class="cerb-ui-header" style="margin-top:3em;">
+				<div class="cerb-ui-header--label">Parent hover &mdash; a <code>-hover</code> icon also plays when an enclosing <code>&lt;button&gt;</code> is hovered (no markup), or any ancestor with <code>cerb-u-anim-group</code></div>
+			</div>
+			<div class="cerb-uiref-example">
+				<div class="cerb-uiref-demo">
+					<button type="button" class="cerb-ui-button"><span class="cerb-icons cerb-icon-trash cerb-u-anim-shake-hover"></span> Delete</button>
+					<span class="cerb-u-anim-group" style="display:inline-flex; align-items:center; gap:0.4em; padding:0.5em 0.8em; border-radius:6px; background:var(--cerb-color-background); cursor:default;"><span class="cerb-icons cerb-icon-star cerb-u-anim-spin-hover"></span> Any parent (group)</span>
+				</div>
+
+				<div class="cerb-uiref-code">
+					<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+					<pre data-cerb-uiref-source>&lt;button class="cerb-ui-button"&gt;&lt;span class="cerb-icons cerb-icon-trash cerb-u-anim-shake-hover"&gt;&lt;/span&gt; Delete&lt;/button&gt;
+&lt;span class="cerb-u-anim-group"&gt;&lt;span class="cerb-icons cerb-icon-star cerb-u-anim-spin-hover"&gt;&lt;/span&gt; Any parent (group)&lt;/span&gt;</pre>
+				</div>
+			</div>
 		</div>
 	</div>
 
@@ -3332,5 +3379,11 @@ CerbUI.Dialog.fromAjax('c=profiles&amp;a=invoke&amp;module=snippet&amp;action=he
 			$iconGrid.toggleClass('cerb-uiref-icons--labeled', this.checked);
 		});
 	}
+
+	// Icon animations: click a demo tile to copy its cerb-u-anim-* class
+	$('#uiref-icon-anim, #uiref-icon-anim-hover').on('click', '[data-anim-class]', function() {
+		navigator.clipboard.writeText($(this).attr('data-anim-class'));
+		Devblocks.createAlert('Copied animation class to clipboard!');
+	});
 })();
 </script>
